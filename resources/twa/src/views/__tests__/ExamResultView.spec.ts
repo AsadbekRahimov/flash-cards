@@ -241,7 +241,7 @@ describe('ExamResultView', () => {
     it('says a practice attempt was not recorded', async () => {
       const { wrapper } = await render(quiz({ scored: false, answered: 12 }))
 
-      expect(wrapper.get('[data-testid=quiz-practice]').text()).toBe('Тренировочная попытка — не записана')
+      expect(wrapper.get('[data-testid=quiz-practice]').text()).toBe('Тренировочная попытка — не идёт в зачёт недели')
       expect(wrapper.find('[data-testid=quiz-unanswered]').exists()).toBe(false)
     })
 

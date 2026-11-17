@@ -118,7 +118,7 @@ it('finalizes a quiz ONCE when several processes close it at the same instant: o
     ['course' => $course] = Fx::course([1 => [1 => 20]]);
     $learner = Learner::factory()->onboarded()->create();
     $session = app(LevelQuizService::class)->open($learner, $course);
-    foreach (array_slice($session->config['questions'], 0, 3) as $i => $q) {
+    foreach (array_slice($session->config['questions'], 0, 7) as $i => $q) {
         ExamAnswer::query()->create([
             'exam_session_id' => $session->id, 'learner_id' => $learner->id, 'word_id' => $q['word_id'],
             'selected_translation' => 'x', 'is_correct' => $i < 2, 'score' => 0, 'time_spent_ms' => 1000, 'answered_at' => now(),
@@ -135,5 +135,6 @@ it('finalizes a quiz ONCE when several processes close it at the same instant: o
         ->and(array_unique(array_column($results, 'result')))->toBe(['closed'])
         ->and(LevelQuizResult::query()->where('exam_session_id', $sessionId)->count())->toBe(1)
         ->and(LevelQuizResult::query()->where('exam_session_id', $sessionId)->sole()->correct)->toBe(2)
+        ->and(LevelQuizResult::query()->where('exam_session_id', $sessionId)->sole()->scored)->toBeTrue()
         ->and(ProductEvent::query()->where('name', 'level_quiz.finished')->count())->toBe(1);
 });

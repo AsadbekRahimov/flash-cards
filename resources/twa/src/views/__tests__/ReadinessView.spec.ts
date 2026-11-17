@@ -84,6 +84,7 @@ describe('ReadinessView', () => {
     expect(text(wrapper, 'quiz-btn')).toBe('Пройти тест недели')
     expect(wrapper.get('[data-testid=quiz-btn]').attributes('data-scored')).toBe('open')
     expect(text(wrapper, 'quiz-hint')).toContain('12 вопросов')
+    expect(text(wrapper, 'quiz-hint')).toContain('меньше чем на половину вопросов, попытка не идёт в зачёт')
     expect(wrapper.find('[data-testid=quiz-this-week]').exists()).toBe(false)
   })
 
@@ -101,6 +102,20 @@ describe('ReadinessView', () => {
     expect(wrapper.get('[data-testid=quiz-btn]').attributes('data-scored')).toBe('done')
     expect(text(wrapper, 'quiz-hint')).toContain('не идёт в зачёт недели')
     expect(wrapper.find('[data-testid=quiz-bar-2026-11-16]').exists()).toBe(true)
+  })
+
+  it('scrolls to and focuses the test block when Home sends the learner there', async () => {
+    const scroll = vi.fn()
+    Element.prototype.scrollIntoView = scroll
+    const { wrapper } = await render(readiness(), '?source=today&focus=quiz')
+
+    expect(scroll).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('[data-testid=readiness-quiz]').attributes('tabindex')).toBe('-1')
+    expect(api.exam.openLevelQuiz).not.toHaveBeenCalled()
+
+    scroll.mockClear()
+    await render(readiness(), '?source=today')
+    expect(scroll).not.toHaveBeenCalled()
   })
 
   it('opens the test and goes to the exam screen with mode=quiz', async () => {

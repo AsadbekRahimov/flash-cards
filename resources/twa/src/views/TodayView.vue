@@ -32,7 +32,6 @@ import { useTelegram } from '@/composables/useTelegram'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
-import { useExamStore } from '@/stores/exam'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { errorMessage } from '@/i18n/errors'
@@ -52,11 +51,9 @@ const today = useTodayStore()
 const training = useTrainingStore()
 const assignments = useAssignmentsStore()
 const billing = useBillingStore()
-const exam = useExamStore()
 const { close } = useTelegram()
 const { data, status, errorMessage: loadError } = storeToRefs(today)
 const { opening, openError } = storeToRefs(training)
-const { openingQuiz, quizError } = storeToRefs(exam)
 
 useBackButton(null)
 
@@ -294,13 +291,6 @@ const coursePercent = computed(() => {
  */
 const readiness = computed(() => (hasProgress.value ? (data.value?.active_course?.readiness ?? null) : null))
 
-/** "Take the test of the week" right from Home: opens (or resumes) it and goes to the exam screen; a refusal shows under the button. */
-async function takeQuiz(): Promise<void> {
-  const slug = data.value?.active_course?.slug
-  if (!slug) return
-  const sessionId = await exam.openLevelQuiz(slug)
-  if (sessionId !== null) await router.push({ name: 'exam', params: { sessionId }, query: { mode: 'quiz' } })
-}
 const courseProgressText = computed(() => {
   const progress = data.value?.active_course?.progress
   return progress ? t('catalog.progress', { done: progress.learned, total: progress.total }) : ''
@@ -337,7 +327,6 @@ onMounted(() => {
 // An open error belongs to this screen only; it must not greet the learner on the next one.
 onBeforeUnmount(() => {
   training.clearOpenError()
-  exam.clearQuizError()
 })
 </script>
 
@@ -690,9 +679,6 @@ onBeforeUnmount(() => {
             v-if="readiness"
             :readiness="readiness"
             :slug="data.active_course.slug"
-            :busy="openingQuiz"
-            :error="quizError"
-            @take-quiz="takeQuiz"
           />
 
           <template v-if="data.active_course.next_lesson">

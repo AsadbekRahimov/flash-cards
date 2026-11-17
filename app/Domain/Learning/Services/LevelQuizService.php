@@ -42,6 +42,8 @@ use LogicException;
  * Finalization (idempotent under the row lock): a quiz with at least one answer writes ONE `level_quiz_results` row - counted or
  * not; the partial unique `level_quiz_results_one_scored_per_week` is the last line of the rule "one counted quiz per week" (the
  * insert that loses it is written as practice). A quiz nobody answered writes nothing, the week stays open for a counted one.
+ * A quiz dropped early - fewer than `minAnswered()` answers (`readiness.quiz.min_answered_ratio` of the questions, rounded up) - is
+ * written as practice too, whatever way it is closed: an accidental open does not take the counted place of the week.
  */
 final class LevelQuizService
 {
@@ -224,16 +226,16 @@ final class LevelQuizService
     {
         $now ??= CarbonImmutable::now();
 
-        /** @var array{session: ExamSession, closed: bool, correct: int, answered: int, scored: bool, reason: string} $outcome */
+        /** @var array{session: ExamSession, closed: bool, correct: int, answered: int, scored: bool, too_few: bool, reason: string} $outcome */
         $outcome = DB::transaction(function () use ($session, $now, $reason): array {
             /** @var ExamSession|null $locked */
             $locked = ExamSession::query()->lockForUpdate()->find($session->id);
             if ($locked === null || ! $locked->isLevelQuiz()) {
-                return ['session' => $session, 'closed' => false, 'correct' => 0, 'answered' => 0, 'scored' => false, 'reason' => $reason];
+                return ['session' => $session, 'closed' => false, 'correct' => 0, 'answered' => 0, 'scored' => false, 'too_few' => false, 'reason' => $reason];
             }
 
             if ($locked->status !== 'open') {
-                return ['session' => $locked, 'closed' => false, 'correct' => 0, 'answered' => 0, 'scored' => false, 'reason' => $reason];
+                return ['session' => $locked, 'closed' => false, 'correct' => 0, 'answered' => 0, 'scored' => false, 'too_few' => false, 'reason' => $reason];
             }
 
             $locked->update(['status' => 'closed', 'closed_at' => $now]);
@@ -247,16 +249,17 @@ final class LevelQuizService
             $answered = (int) ($stats->answered ?? 0);
             $correct = (int) ($stats->correct ?? 0);
             $scored = false;
+            $total = (int) ($locked->config['total_questions'] ?? 0);
+            $tooFew = $answered > 0 && $answered < $this->minAnswered($total);
 
             if ($answered > 0 && $locked->learner_id !== null && $locked->course_id !== null) {
-                $scored = $this->recordResult($locked, $correct, $now);
+                $scored = $this->recordResult($locked, $correct, $now, ! $tooFew);
             }
 
             // A quiz with every question answered is `finished` whoever closes it (the scheduler passes `expired`).
-            $total = (int) ($locked->config['total_questions'] ?? 0);
             $why = $total > 0 && $answered >= $total ? 'finished' : $reason;
 
-            return ['session' => $locked, 'closed' => true, 'correct' => $correct, 'answered' => $answered, 'scored' => $scored, 'reason' => $why];
+            return ['session' => $locked, 'closed' => true, 'correct' => $correct, 'answered' => $answered, 'scored' => $scored, 'too_few' => $tooFew, 'reason' => $why];
         });
 
         $closed = $outcome['session'];
@@ -275,6 +278,7 @@ final class LevelQuizService
             'percent' => self::percent($outcome['correct'], $total),
             'answered' => $outcome['answered'],
             'reason' => $outcome['reason'],
+            'too_few_answers' => $outcome['too_few'],
         ], learner: $closed->learner);
 
         return $closed;
@@ -385,6 +389,14 @@ final class LevelQuizService
         return max(60, (int) config('readiness.quiz.seconds', 600));
     }
 
+    /** Answers a quiz of `$total` questions needs to be counted: the configured share, rounded up (12 questions at 0.5 - 6). */
+    public function minAnswered(int $total): int
+    {
+        $ratio = max(0.0, min(1.0, (float) config('readiness.quiz.min_answered_ratio', 0.5)));
+
+        return (int) ceil(round($total * $ratio, 6));
+    }
+
     public function historyWeeks(): int
     {
         return max(1, min(52, (int) config('readiness.quiz.history_weeks', 12)));
@@ -404,11 +416,12 @@ final class LevelQuizService
      * Writes the result row of a closed quiz inside the finalize transaction. A counted row that loses the partial unique (another
      * counted result of the week is already there) is written again as practice, in a savepoint so the outer transaction survives.
      *
+     * @param  bool  $enough  enough questions were answered to be counted (a quiz dropped early is always practice)
      * @return bool whether the row was written as the counted one
      */
-    private function recordResult(ExamSession $session, int $correct, CarbonImmutable $now): bool
+    private function recordResult(ExamSession $session, int $correct, CarbonImmutable $now, bool $enough): bool
     {
-        $wanted = (bool) ($session->config['scored'] ?? false);
+        $wanted = $enough && (bool) ($session->config['scored'] ?? false);
         $attributes = [
             'learner_id' => $session->learner_id,
             'course_id' => $session->course_id,

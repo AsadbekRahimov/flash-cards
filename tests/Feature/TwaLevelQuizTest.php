@@ -322,7 +322,7 @@ it('does not count a quiz nobody answered: the week stays open for a counted one
 it('finalizes an expired quiz that has answers when the learner opens the next one, which is then practice', function (): void {
     ['course' => $course, 'learner' => $learner] = levelQuizWorld();
     $old = levelQuizSession(levelQuizOpen($this, $learner, $course)->assertCreated());
-    $right = levelQuizPlay($this, $learner, $old, 1, 3);
+    $right = levelQuizPlay($this, $learner, $old, 1, 7);
 
     CarbonImmutable::setTestNow('2026-11-17 10:30:00');
     $new = levelQuizOpen($this, $learner, $course)->assertCreated()->assertJsonPath('scored', false);
@@ -362,7 +362,7 @@ it('counts a quiz opened on Sunday night for the week it was opened in, and a ne
 it('writes a second counted row of the week as practice instead of failing (the constraint is the last line)', function (): void {
     ['course' => $course, 'learner' => $learner] = levelQuizWorld();
     $session = levelQuizSession(levelQuizOpen($this, $learner, $course)->assertCreated()->assertJsonPath('scored', true));
-    levelQuizPlay($this, $learner, $session, 1, 4);
+    levelQuizPlay($this, $learner, $session, 1, 7);
 
     // Another counted result of this week appears between the open and the finalize.
     $other = ExamSession::factory()->levelQuiz($learner, $course)->closed()->create();
@@ -403,6 +403,64 @@ it('leaves a running quiz open for the scheduler and for finalizeIfDue', functio
     expect($session->refresh()->status)->toBe('open')
         ->and(app(LevelQuizService::class)->finalizeIfDue($session)->status)->toBe('open')
         ->and(LevelQuizResult::query()->count())->toBe(0);
+});
+
+it('does not let a quiz dropped early take the counted place of the week: 1 of 12 answered, closed by time', function (): void {
+    ['course' => $course, 'learner' => $learner] = levelQuizWorld();
+    $dropped = levelQuizSession(levelQuizOpen($this, $learner, $course)->assertCreated()->assertJsonPath('scored', true));
+    levelQuizPlay($this, $learner, $dropped, 0, 1);
+
+    CarbonImmutable::setTestNow('2026-11-17 10:20:00');
+    $this->withHeaders(levelQuizHeaders($learner))->getJson("/api/twa/exam/sessions/{$dropped->id}/result")->assertOk()
+        ->assertJsonPath('scored', false)->assertJsonPath('correct', 0);
+
+    $row = LevelQuizResult::query()->where('exam_session_id', $dropped->id)->sole();
+    $props = ProductEvent::query()->where('name', 'level_quiz.finished')->sole()->props;
+    expect($row->scored)->toBeFalse()
+        ->and($props['scored'])->toBeFalse()->and($props['too_few_answers'])->toBeTrue()
+        ->and(app(LevelQuizService::class)->weekLine($learner, $course)->thisWeek)->toBeNull();
+
+    $next = levelQuizSession(levelQuizOpen($this, $learner, $course)->assertCreated()->assertJsonPath('scored', true));
+    levelQuizPlay($this, $learner, $next, 1);
+    $this->withHeaders(levelQuizHeaders($learner))->getJson("/api/twa/exam/sessions/{$next->id}/result")->assertOk()->assertJsonPath('scored', true);
+    expect(ProductEvent::query()->where('name', 'level_quiz.finished')->orderByDesc('id')->first()->props['too_few_answers'])->toBeFalse();
+});
+
+it('counts the quiz from half of the questions (6 of 12) and not below it (5 of 12), at the edge', function (int $answered, bool $counted): void {
+    ['course' => $course, 'learner' => $learner] = levelQuizWorld();
+    $session = levelQuizSession(levelQuizOpen($this, $learner, $course)->assertCreated());
+    levelQuizPlay($this, $learner, $session, 1, $answered);
+
+    CarbonImmutable::setTestNow('2026-11-17 10:20:00');
+    app(LevelQuizService::class)->finalizeIfDue($session);
+
+    expect(LevelQuizResult::query()->where('exam_session_id', $session->id)->sole()->scored)->toBe($counted);
+})->with([[5, false], [6, true], [12, true]]);
+
+it('reads the threshold from readiness.quiz.min_answered_ratio', function (float $ratio, int $answered, bool $counted): void {
+    config(['readiness.quiz.min_answered_ratio' => $ratio]);
+    ['course' => $course, 'learner' => $learner] = levelQuizWorld();
+    $session = levelQuizSession(levelQuizOpen($this, $learner, $course)->assertCreated());
+    levelQuizPlay($this, $learner, $session, 1, $answered);
+
+    CarbonImmutable::setTestNow('2026-11-17 10:20:00');
+    app(LevelQuizService::class)->finalizeIfDue($session);
+
+    expect(LevelQuizResult::query()->where('exam_session_id', $session->id)->sole()->scored)->toBe($counted);
+})->with([[0.0, 1, true], [1.0, 11, false], [1.0, 12, true], [0.0, 12, true]]);
+
+it('does not change the result of a dropped quiz on a second finalization', function (): void {
+    ['course' => $course, 'learner' => $learner] = levelQuizWorld();
+    $session = levelQuizSession(levelQuizOpen($this, $learner, $course)->assertCreated());
+    levelQuizPlay($this, $learner, $session, 1, 1);
+
+    CarbonImmutable::setTestNow('2026-11-17 10:20:00');
+    $service = app(LevelQuizService::class);
+    $service->finalize($session, 'expired');
+    $service->finalize($session, 'finished');
+
+    expect(LevelQuizResult::query()->where('exam_session_id', $session->id)->sole()->scored)->toBeFalse()
+        ->and(ProductEvent::query()->where('name', 'level_quiz.finished')->count())->toBe(1);
 });
 
 // --- a measurement, not a lesson -------------------------------------------------
@@ -456,7 +514,7 @@ it('closes the open quiz of ANOTHER course with its own rules before it opens th
     ['course' => $courseA, 'learner' => $learner] = levelQuizWorld();
     ['course' => $courseB] = levelQuizWorld();
     $a = levelQuizSession(levelQuizOpen($this, $learner, $courseA)->assertCreated());
-    $right = levelQuizPlay($this, $learner, $a, 1, 3);
+    $right = levelQuizPlay($this, $learner, $a, 1, 6);
 
     $b = levelQuizOpen($this, $learner, $courseB)->assertCreated()->assertJsonPath('resumed', false)->assertJsonPath('course_id', $courseB->id);
 

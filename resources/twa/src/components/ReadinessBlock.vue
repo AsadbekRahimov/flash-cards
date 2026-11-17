@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppIcon from '@/components/ui/AppIcon.vue'
-import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { readinessSegments } from '@/composables/readiness'
 import { useI18n } from '@/i18n'
 import type { TodayReadiness } from '@/api/types'
@@ -12,17 +11,15 @@ import type { TodayReadiness } from '@/api/types'
  * has learned, a bar of three parts (learned / in progress / not started) and one line about the test of the week - the
  * result of this week or the button. It reads only what `/today` carries. The top of the block leads to the full screen.
  *
- * Props: `readiness` (`active_course.readiness`), `slug` (of the course), `busy` (the test is being opened), `error` (why it
- * could not be opened). Event `take-quiz`: the button was pressed.
+ * The test button only leads to the readiness screen (`focus=quiz`), where the rules sit next to the start button: the scored
+ * test is one per week with a timer, a stray tap on Home must not spend it.
+ *
+ * Props: `readiness` (`active_course.readiness`), `slug` (of the course).
  */
 const props = defineProps<{
   readiness: TodayReadiness
   slug: string
-  busy?: boolean
-  error?: string
 }>()
-
-defineEmits<{ 'take-quiz': [] }>()
 
 const { t } = useI18n()
 
@@ -78,17 +75,14 @@ const thisWeek = computed(() => quiz.value?.this_week ?? null)
       <p v-if="thisWeek" class="text-[15px] leading-5" data-testid="readiness-quiz-result">
         {{ t('readiness.quiz.line', { correct: thisWeek.correct, total: thisWeek.total }) }}
       </p>
-      <button
+      <RouterLink
         v-else
-        type="button"
+        :to="`/courses/${encodeURIComponent(slug)}/readiness?source=today&focus=quiz`"
         class="btn btn-tinted btn-block"
-        :disabled="busy"
         data-testid="readiness-quiz-btn"
-        @click="$emit('take-quiz')"
       >
         {{ t('readiness.quiz.take') }}
-      </button>
-      <InlineAlert v-if="error" tone="danger" :message="error" data-testid="readiness-quiz-error" />
+      </RouterLink>
     </template>
   </div>
 </template>

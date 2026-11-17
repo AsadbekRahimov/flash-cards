@@ -3940,7 +3940,7 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `readiness.quiz.take` | Hafta testini topshirish | Пройти тест недели |
 | `readiness.quiz.again` | Yana topshirish (mashq, hisobga olinmaydi) | Пройти ещё раз (тренировочно, не в зачёт) |
 | `readiness.quiz.practice_hint` | Bu haftaning hisobga olinadigan testi topshirilgan. Yana bir urinish — mashq: u hafta hisobiga o'tmaydi va grafikka tushmaydi. | Зачётный тест недели уже пройден; повтор тренировочный: не идёт в зачёт недели и в график |
-| `readiness.quiz.hint` | Kurs so'zlaridan {count} ta savol, taxminan {minutes} daqiqa. Haftada bitta hisobga olinadigan test. | N вопросов по словам курса, около M мин. Один зачётный тест в неделю. |
+| `readiness.quiz.hint` | Kurs so'zlaridan {count} ta savol, taxminan {minutes} daqiqa. Haftada bitta hisobga olinadigan test. Savollarning yarmidan kamiga javob berilsa, urinish hisobga olinmaydi. | N вопросов по словам курса, около M мин. Один зачётный тест в неделю. Если ответить меньше чем на половину вопросов, попытка не идёт в зачёт. |
 | `readiness.quiz.best` | Eng yaxshi natija: {percent}% | Лучший результат |
 | `readiness.quiz.chart_title` / `.chart_empty` | Haftalar bo'yicha / Hozircha natijalar yo'q | По неделям / Пока нет результатов |
 | `readiness.quiz.bar` / `.bar_empty` | {week} dan boshlanadigan hafta: {total} tadan {correct} ta / ...: test bo'lmagan | Подпись столбика графика (для экранных дикторов) |
@@ -3953,7 +3953,7 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `result.quiz_score` | {total} tadan {correct} ta | N из M |
 | `result.quiz_percent` | Test savollarining {percent}% | {percent}% слов теста |
 | `result.quiz_scored` | {week} dan boshlanadigan haftaning hisobga olinadigan testi | Зачётный тест недели с {week} |
-| `result.quiz_practice` | Mashq urinishi — yozilmadi | Тренировочная попытка — не записана |
+| `result.quiz_practice` | Mashq urinishi — hafta hisobiga o'tmaydi | Тренировочная попытка — не идёт в зачёт недели |
 | `result.quiz_unanswered` | Javobsiz: {count} | Без ответа |
 | `result.to_readiness` | Tayyorlikka | К готовности |
 | `profile.readiness` / `profile.readiness.hint` | Darajaga tayyorlik / O'zlashtirilgan so'zlar ulushi va hafta testi | Готовность к уровню / Доля освоенных слов и тест недели |

@@ -4,7 +4,6 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import { createPinia, setActivePinia } from 'pinia'
 import TodayView from '../TodayView.vue'
 import { api } from '@/api'
-import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { resetSeenSession } from '@/composables/seenFlag'
 import type { TodayReadiness, TodayResponse } from '@/api/types'
@@ -119,30 +118,17 @@ describe('TodayView readiness block', () => {
     expect(wrapper.find('[data-testid=readiness-quiz-result]').exists()).toBe(false)
   })
 
-  it('opens the test from the button and goes to the exam screen', async () => {
-    vi.mocked(api.exam.openLevelQuiz).mockResolvedValue({
-      session_id: 91, mode: 'level_quiz', course_id: 3, week_start: '2026-11-16', scored: true,
-      started_at: null, ends_at: null, total_questions: 12, seconds: 600, resumed: false,
-    })
+  it('leads from the test button to the readiness screen without starting the test', async () => {
     const { wrapper, router } = await render(today(block()))
 
     await wrapper.get('[data-testid=readiness-quiz-btn]').trigger('click')
     await flushPromises()
 
-    expect(api.exam.openLevelQuiz).toHaveBeenCalledWith('english-a1-a2')
-    expect(router.currentRoute.value.name).toBe('exam')
-    expect(router.currentRoute.value.query.mode).toBe('quiz')
-  })
-
-  it('keeps the learner on Home with a clear message when the test cannot be opened', async () => {
-    vi.mocked(api.exam.openLevelQuiz).mockRejectedValue(new ApiClientError('validation', 422, 'not_enough_distractors', 'x'))
-    const { wrapper, router } = await render(today(block()))
-
-    await wrapper.get('[data-testid=readiness-quiz-btn]').trigger('click')
-    await flushPromises()
-
-    expect(wrapper.get('[data-testid=readiness-quiz-error]').text()).toBe('Для теста недели в курсе не хватает слов для вариантов ответа.')
-    expect(router.currentRoute.value.name).not.toBe('exam')
+    expect(api.exam.openLevelQuiz).not.toHaveBeenCalled()
+    expect(router.currentRoute.value.name).toBe('readiness')
+    expect(router.currentRoute.value.params.slug).toBe('english-a1-a2')
+    expect(router.currentRoute.value.query.source).toBe('today')
+    expect(router.currentRoute.value.query.focus).toBe('quiz')
   })
 
   it('names the course instead of a level when there is no label, in Uzbek too', async () => {

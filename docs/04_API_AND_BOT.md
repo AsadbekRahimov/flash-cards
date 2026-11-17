@@ -1702,7 +1702,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 ```
 `percent` — пол от `100 · correct / total` (неотвеченный вопрос — неверный). `scored: false` — тренировочный тест или тест без ответов. Тест **не пишет** в `word_repetitions`, `training_*`, `learner_daily_stats` и не даёт очков рейтинга (docs/13 §8.5).
 
-**События:** `readiness.viewed {course_id, percent, learned, total, source}` · `level_quiz.started {exam_session_id, course_id, week_start, scored, questions, met, unmet}` · `level_quiz.finished {exam_session_id, course_id, week_start, scored, correct, total, percent, answered, reason}` (`reason` — `finished | expired`, ровно один раз).
+**События:** `readiness.viewed {course_id, percent, learned, total, source}` · `level_quiz.started {exam_session_id, course_id, week_start, scored, questions, met, unmet}` · `level_quiz.finished {exam_session_id, course_id, week_start, scored, correct, total, percent, answered, reason, too_few_answers}` (`reason` — `finished | expired`, ровно один раз; `too_few_answers` — ответов меньше `READINESS_QUIZ_MIN_ANSWERED_RATIO` от вопросов, попытка не зачтена; `/result` тогда `scored: false`).
 
 ## Часть B — Telegram Bot
 

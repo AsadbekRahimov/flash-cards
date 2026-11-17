@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import WeeklyQuizChart from '@/components/WeeklyQuizChart.vue'
@@ -48,6 +48,10 @@ const source = computed((): ReadinessSource => {
 
 const HISTORY_WEEKS = 12
 
+/** The test block: the button on Home leads here (`?focus=quiz`) so the rules are read before the one scored attempt is started. */
+const quizSection = ref<HTMLElement | null>(null)
+let focused = false
+
 async function load(): Promise<void> {
   try {
     await auth.ensure()
@@ -86,6 +90,14 @@ const scoredDone = computed(() => quiz.value?.this_week != null)
 
 const minutes = computed(() => Math.max(1, Math.round((quiz.value?.seconds ?? 0) / 60)))
 const quizHint = computed(() => (quiz.value ? tn('readiness.quiz.hint', quiz.value.questions, { minutes: minutes.value }) : ''))
+
+watch([quizSection, () => route.query.focus], async ([section, focus]) => {
+  if (focused || !section || focus !== 'quiz') return
+  focused = true
+  await nextTick()
+  section.scrollIntoView?.({ block: 'start' })
+  section.focus({ preventScroll: true })
+})
 
 /** Opens (or resumes) the test; a refusal stays on this screen as a message under the button. */
 async function takeQuiz(): Promise<void> {
@@ -153,7 +165,14 @@ async function takeQuiz(): Promise<void> {
         </p>
       </section>
 
-      <section v-if="quiz" class="card space-y-3" data-testid="readiness-quiz">
+      <section
+        v-if="quiz"
+        ref="quizSection"
+        tabindex="-1"
+        class="card space-y-3 outline-none"
+        :aria-label="t('readiness.quiz.title')"
+        data-testid="readiness-quiz"
+      >
         <div class="flex items-start gap-3">
           <span class="icon-tile tile-purple"><AppIcon name="flag" :size="18" /></span>
           <div class="min-w-0 flex-1">

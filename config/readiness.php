@@ -21,6 +21,8 @@ return [
         'seconds' => (int) env('READINESS_QUIZ_SECONDS', 600),
         // The share of the questions taken from the words the learner has met (0..1); the rest are words not met yet.
         'met_share' => (float) env('READINESS_QUIZ_MET_SHARE', 0.67),
+        // A quiz with fewer answers than this share of its questions (rounded up) is practice, not the counted one of the week (0..1).
+        'min_answered_ratio' => (float) env('READINESS_QUIZ_MIN_ANSWERED_RATIO', 0.5),
         // Weeks of the history on the screen, the current one included.
         'history_weeks' => (int) env('READINESS_QUIZ_HISTORY_WEEKS', 12),
     ],
