@@ -61,7 +61,7 @@ const bars = computed(() => {
   <p v-if="history.length === 0" class="py-4 text-center text-[15px] leading-5 text-tg-subtitle" data-testid="quiz-chart-empty">
     {{ t('readiness.quiz.chart_empty') }}
   </p>
-  <ul v-else class="flex h-28 items-end gap-1" data-testid="quiz-chart">
+  <ul v-else class="flex h-28 items-end gap-1 pt-4" data-testid="quiz-chart">
     <li
       v-for="(bar, index) in bars"
       :key="bar.week"
@@ -69,12 +69,14 @@ const bars = computed(() => {
       role="img"
       :aria-label="bar.aria"
     >
-      <span
-        class="text-[11px] leading-3 tabular-nums"
-        :class="bar.current ? 'font-semibold text-tg-text' : 'text-tg-subtitle'"
-        aria-hidden="true"
-      >{{ bar.percent === null ? '' : bar.percent }}</span>
-      <span class="flex w-full flex-1 items-end" aria-hidden="true">
+      <span class="relative flex w-full flex-1 items-end" aria-hidden="true">
+        <!-- The value sits right above its bar, not at the top of the column: a low bar keeps its number next to it. -->
+        <span
+          v-if="bar.percent !== null"
+          class="absolute inset-x-0 text-center text-[11px] leading-3 tabular-nums"
+          :class="bar.current ? 'font-semibold text-tg-text' : 'text-tg-subtitle'"
+          :style="{ bottom: `calc(${Math.max(bar.percent, MIN_BAR)}% + 3px)` }"
+        >{{ bar.percent }}</span>
         <span
           v-if="bar.percent !== null"
           class="w-full rounded-t bg-accent"

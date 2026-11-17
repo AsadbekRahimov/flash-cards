@@ -46,7 +46,11 @@ describe('WeeklyQuizChart', () => {
   it('cuts the empty weeks left of the first result when there are fewer than three results, but keeps 4 columns', () => {
     const few = mount(WeeklyQuizChart, { props: { history: [item('2026-11-02', 6)], weeks: 12, currentWeek: '2026-11-16' } })
     expect(few.findAll('li')).toHaveLength(3 + 1)
-    expect(few.findAll('li')[0]!.find('[data-testid=quiz-bar-2026-11-02]').exists()).toBe(true)
+    expect(few.findAll('li')[1]!.find('[data-testid=quiz-bar-2026-11-02]').exists()).toBe(true)
+
+    const older = mount(WeeklyQuizChart, { props: { history: [item('2026-09-14', 6)], weeks: 12, currentWeek: '2026-11-16' } })
+    expect(older.findAll('li')).toHaveLength(10)
+    expect(older.findAll('li')[0]!.find('[data-testid=quiz-bar-2026-09-14]').exists()).toBe(true)
 
     const recent = mount(WeeklyQuizChart, { props: { history: [item('2026-11-16', 6)], weeks: 12, currentWeek: '2026-11-16' } })
     expect(recent.findAll('li')).toHaveLength(4)
