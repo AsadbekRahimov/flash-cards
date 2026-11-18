@@ -164,8 +164,8 @@ describe('AnswerReveal — error hunt', () => {
 
     expect(wrapper.get('[data-testid=hunt-found]').text()).toContain('Xato topildi')
     expect(wrapper.get('[data-testid=hunt-fixed]').text()).toContain('Tuzatildi')
-    expect(wrapper.get('[data-testid=hunt-was]').text()).toContain('Edi')
-    expect(wrapper.get('[data-testid=hunt-became]').text()).toContain("Bo'ldi")
+    expect(wrapper.get('[data-testid=hunt-was]').text()).toContain('Avval')
+    expect(wrapper.get('[data-testid=hunt-became]').text()).toContain('Keyin')
     wrapper.unmount()
   })
 })
