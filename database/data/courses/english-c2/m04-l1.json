@@ -14,6 +14,7 @@
     {
       "word": "ameliorate",
       "part_of_speech": "verb",
+      "transcription": "/əˈmiljəˌreɪt/",
       "translation": "улучшать",
       "translations": {
         "ru": "улучшать",
@@ -28,10 +29,11 @@
     {
       "word": "alleviate",
       "part_of_speech": "verb",
+      "transcription": "/əˈliviˌeɪt/",
       "translation": "облегчать",
       "translations": {
         "ru": "облегчать",
-        "uz": "yengillatmoq"
+        "uz": "yengillatmoq, pasaytirmoq"
       },
       "example": "This medicine should alleviate the pain within minutes.",
       "example_translations": {
@@ -42,6 +44,7 @@
     {
       "word": "exacerbate",
       "part_of_speech": "verb",
+      "transcription": "/ɪgˈzæsərˌbeɪt/",
       "translation": "усугублять, обострять",
       "translations": {
         "ru": "усугублять, обострять",
@@ -56,6 +59,7 @@
     {
       "word": "expedite",
       "part_of_speech": "verb",
+      "transcription": "/ˈɛkspəˌdaɪt/",
       "translation": "ускорять",
       "translations": {
         "ru": "ускорять",
@@ -70,6 +74,7 @@
     {
       "word": "promulgate",
       "part_of_speech": "verb",
+      "transcription": "/ˈprɑməlˌgeɪt/",
       "translation": "обнародовать",
       "translations": {
         "ru": "обнародовать",
@@ -84,6 +89,7 @@
     {
       "word": "rescind",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈsɪnd/",
       "translation": "отменять, аннулировать",
       "translations": {
         "ru": "отменять, аннулировать",
@@ -98,10 +104,11 @@
     {
       "word": "relinquish",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈlɪŋkwɪʃ/",
       "translation": "отказываться, уступать",
       "translations": {
         "ru": "отказываться, уступать",
-        "uz": "voz kechmoq"
+        "uz": "voz kechmoq, bo'shatib bermoq"
       },
       "example": "She voluntarily relinquished her seat on the board.",
       "example_translations": {
@@ -112,20 +119,22 @@
     {
       "word": "procure",
       "part_of_speech": "verb",
+      "transcription": "/prəˈkjʊr/",
       "translation": "приобретать, добывать",
       "translations": {
         "ru": "приобретать, добывать",
-        "uz": "sotib olmoq, qo'lga kiritmoq"
+        "uz": "xarid qilmoq, qo'lga kiritmoq"
       },
       "example": "The agency procures medical supplies for rural hospitals.",
       "example_translations": {
         "ru": "Агентство приобретает медицинские материалы для сельских больниц.",
-        "uz": "Agentlik qishloq shifoxonalari uchun tibbiy vositalarni sotib oladi."
+        "uz": "Agentlik qishloq shifoxonalari uchun tibbiy vositalarni xarid qiladi."
       }
     },
     {
       "word": "commence",
       "part_of_speech": "verb",
+      "transcription": "/kəˈmɛns/",
       "translation": "начинаться",
       "translations": {
         "ru": "начинаться",
@@ -140,6 +149,7 @@
     {
       "word": "convene",
       "part_of_speech": "verb",
+      "transcription": "/kənˈvin/",
       "translation": "созывать",
       "translations": {
         "ru": "созывать",

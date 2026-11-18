@@ -14,6 +14,7 @@
     {
       "word": "frieze",
       "part_of_speech": "noun",
+      "transcription": "/friz/",
       "translation": "фриз",
       "translations": {
         "ru": "фриз",
@@ -28,6 +29,7 @@
     {
       "word": "effigy",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛfədʒi/",
       "translation": "скульптурное изображение",
       "translations": {
         "ru": "скульптурное изображение",
@@ -42,6 +44,7 @@
     {
       "word": "collage",
       "part_of_speech": "noun",
+      "transcription": "/kəˈlɑʒ/",
       "translation": "коллаж",
       "translations": {
         "ru": "коллаж",
@@ -56,6 +59,7 @@
     {
       "word": "patina",
       "part_of_speech": "noun",
+      "transcription": "/pəˈtinə/",
       "translation": "патина",
       "translations": {
         "ru": "патина",
@@ -70,6 +74,7 @@
     {
       "word": "glaze",
       "part_of_speech": "noun",
+      "transcription": "/gleɪz/",
       "translation": "глазурь",
       "translations": {
         "ru": "глазурь",
@@ -84,6 +89,7 @@
     {
       "word": "filigree",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɪləˌgri/",
       "translation": "филигрань",
       "translations": {
         "ru": "филигрань",
@@ -98,6 +104,7 @@
     {
       "word": "colonnade",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑləˈneɪd/",
       "translation": "колоннада",
       "translations": {
         "ru": "колоннада",
@@ -112,6 +119,7 @@
     {
       "word": "spire",
       "part_of_speech": "noun",
+      "transcription": "/spaɪr/",
       "translation": "шпиль",
       "translations": {
         "ru": "шпиль",
@@ -126,6 +134,7 @@
     {
       "word": "minaret",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɪnəˈrɛt/",
       "translation": "минарет",
       "translations": {
         "ru": "минарет",
@@ -140,6 +149,7 @@
     {
       "word": "portico",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɔrtɪˌkoʊ/",
       "translation": "портик",
       "translations": {
         "ru": "портик",

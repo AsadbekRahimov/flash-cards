@@ -14,6 +14,7 @@
     {
       "word": "excruciating",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˈskruʃiˌeɪtɪŋ/",
       "translation": "нестерпимый, мучительный",
       "translations": {
         "ru": "нестерпимый, мучительный",
@@ -28,6 +29,7 @@
     {
       "word": "throb",
       "part_of_speech": "verb",
+      "transcription": "/θrɑb/",
       "translation": "пульсировать",
       "translations": {
         "ru": "пульсировать",
@@ -42,6 +44,7 @@
     {
       "word": "numb",
       "part_of_speech": "adjective",
+      "transcription": "/nʌm/",
       "translation": "онемевший",
       "translations": {
         "ru": "онемевший",
@@ -56,6 +59,7 @@
     {
       "word": "tingle",
       "part_of_speech": "verb",
+      "transcription": "/ˈtɪŋgəl/",
       "translation": "покалывать",
       "translations": {
         "ru": "покалывать",
@@ -63,13 +67,14 @@
       },
       "example": "My foot began to tingle after I sat on it.",
       "example_translations": {
-        "ru": "Ногу начало покалывать, после того как я на ней посидел.",
+        "ru": "Ногу начало покалывать после того, как я на ней посидел.",
         "uz": "Ustiga o'tirib qolganimdan keyin oyog'im jimirlay boshladi."
       }
     },
     {
       "word": "queasy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkwizi/",
       "translation": "испытывающий тошноту",
       "translations": {
         "ru": "испытывающий тошноту",
@@ -84,6 +89,7 @@
     {
       "word": "vertigo",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɜrtɪˌgoʊ/",
       "translation": "головокружение",
       "translations": {
         "ru": "головокружение",
@@ -98,6 +104,7 @@
     {
       "word": "palpitation",
       "part_of_speech": "noun",
+      "transcription": "/ˌpælpəˈteɪʃən/",
       "translation": "учащённое сердцебиение",
       "translations": {
         "ru": "учащённое сердцебиение",
@@ -112,6 +119,7 @@
     {
       "word": "parched",
       "part_of_speech": "adjective",
+      "transcription": "/pɑrtʃt/",
       "translation": "изнывающий от жажды",
       "translations": {
         "ru": "изнывающий от жажды",
@@ -126,6 +134,7 @@
     {
       "word": "ravenous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrævənəs/",
       "translation": "голодный как волк",
       "translations": {
         "ru": "голодный как волк",
@@ -140,6 +149,7 @@
     {
       "word": "drowsy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdraʊzi/",
       "translation": "сонливый",
       "translations": {
         "ru": "сонливый",

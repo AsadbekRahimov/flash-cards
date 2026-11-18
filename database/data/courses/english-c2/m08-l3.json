@@ -14,6 +14,7 @@
     {
       "word": "lyrical",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlɪrɪkəl/",
       "translation": "лиричный",
       "translations": {
         "ru": "лиричный",
@@ -28,6 +29,7 @@
     {
       "word": "florid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈflɔrəd/",
       "translation": "цветистый",
       "translations": {
         "ru": "цветистый",
@@ -42,6 +44,7 @@
     {
       "word": "ornate",
       "part_of_speech": "adjective",
+      "transcription": "/ɔrˈneɪt/",
       "translation": "витиеватый",
       "translations": {
         "ru": "витиеватый",
@@ -56,6 +59,7 @@
     {
       "word": "banal",
       "part_of_speech": "adjective",
+      "transcription": "/bəˈnɑl/",
       "translation": "банальный",
       "translations": {
         "ru": "банальный",
@@ -70,6 +74,7 @@
     {
       "word": "prosaic",
       "part_of_speech": "adjective",
+      "transcription": "/proʊˈzeɪɪk/",
       "translation": "прозаичный, будничный",
       "translations": {
         "ru": "прозаичный, будничный",
@@ -84,6 +89,7 @@
     {
       "word": "hackneyed",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhæknid/",
       "translation": "избитый",
       "translations": {
         "ru": "избитый",
@@ -98,6 +104,7 @@
     {
       "word": "overwrought",
       "part_of_speech": "adjective",
+      "transcription": "/ˌoʊvərˈrɔt/",
       "translation": "перегруженный, вычурный",
       "translations": {
         "ru": "перегруженный, вычурный",
@@ -112,6 +119,7 @@
     {
       "word": "cliche",
       "part_of_speech": "noun",
+      "transcription": "/kliˈʃeɪ/",
       "translation": "клише, штамп",
       "translations": {
         "ru": "клише, штамп",
@@ -126,6 +134,7 @@
     {
       "word": "contrived",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈtraɪvd/",
       "translation": "надуманный, искусственный",
       "translations": {
         "ru": "надуманный, искусственный",
@@ -140,6 +149,7 @@
     {
       "word": "sentimental",
       "part_of_speech": "adjective",
+      "transcription": "/ˌsɛntəˈmɛntəl/",
       "translation": "сентиментальный",
       "translations": {
         "ru": "сентиментальный",

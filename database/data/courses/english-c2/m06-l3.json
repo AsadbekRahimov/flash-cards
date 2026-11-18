@@ -14,6 +14,7 @@
     {
       "word": "fallacious",
       "part_of_speech": "adjective",
+      "transcription": "/fəˈleɪʃəs/",
       "translation": "логически ошибочный, ложный",
       "translations": {
         "ru": "логически ошибочный, ложный",
@@ -28,6 +29,7 @@
     {
       "word": "erroneous",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈroʊniəs/",
       "translation": "ошибочный, неверный",
       "translations": {
         "ru": "ошибочный, неверный",
@@ -42,6 +44,7 @@
     {
       "word": "misapprehension",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɪsˌæprɪˈhɛnʃən/",
       "translation": "ошибочное представление",
       "translations": {
         "ru": "ошибочное представление",
@@ -56,6 +59,7 @@
     {
       "word": "myopic",
       "part_of_speech": "adjective",
+      "transcription": "/maɪˈɑpɪk/",
       "translation": "недальновидный",
       "translations": {
         "ru": "недальновидный",
@@ -70,6 +74,7 @@
     {
       "word": "parochial",
       "part_of_speech": "adjective",
+      "transcription": "/pəˈroʊkiəl/",
       "translation": "местечковый, узкий",
       "translations": {
         "ru": "местечковый, узкий",
@@ -84,6 +89,7 @@
     {
       "word": "insular",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɪnsələr/",
       "translation": "замкнутый, ограниченный",
       "translations": {
         "ru": "замкнутый, ограниченный",
@@ -98,6 +104,7 @@
     {
       "word": "preconception",
       "part_of_speech": "noun",
+      "transcription": "/ˌprikənˈsɛpʃən/",
       "translation": "предвзятое мнение",
       "translations": {
         "ru": "предвзятое мнение",
@@ -112,6 +119,7 @@
     {
       "word": "propensity",
       "part_of_speech": "noun",
+      "transcription": "/prəˈpɛnsəti/",
       "translation": "склонность",
       "translations": {
         "ru": "склонность",
@@ -126,6 +134,7 @@
     {
       "word": "misguided",
       "part_of_speech": "adjective",
+      "transcription": "/mɪsˈgaɪdəd/",
       "translation": "основанный на заблуждении, неразумный",
       "translations": {
         "ru": "основанный на заблуждении, неразумный",
@@ -140,6 +149,7 @@
     {
       "word": "illusory",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈlusəri/",
       "translation": "иллюзорный, призрачный",
       "translations": {
         "ru": "иллюзорный, призрачный",

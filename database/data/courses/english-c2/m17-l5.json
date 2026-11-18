@@ -14,6 +14,7 @@
     {
       "word": "decay",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈkeɪ/",
       "translation": "разрушаться, ветшать",
       "translations": {
         "ru": "разрушаться, ветшать",
@@ -28,6 +29,7 @@
     {
       "word": "decadence",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛkədəns/",
       "translation": "упадок нравов",
       "translations": {
         "ru": "упадок нравов",
@@ -42,6 +44,7 @@
     {
       "word": "degenerate",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈdʒɛnəˌreɪt/",
       "translation": "вырождаться, ухудшаться",
       "translations": {
         "ru": "вырождаться, ухудшаться",
@@ -56,6 +59,7 @@
     {
       "word": "atrophy",
       "part_of_speech": "verb",
+      "transcription": "/ˈætrəfi/",
       "translation": "атрофироваться",
       "translations": {
         "ru": "атрофироваться",
@@ -70,6 +74,7 @@
     {
       "word": "wane",
       "part_of_speech": "verb",
+      "transcription": "/weɪn/",
       "translation": "ослабевать, убывать",
       "translations": {
         "ru": "ослабевать, убывать",
@@ -84,6 +89,7 @@
     {
       "word": "ebb",
       "part_of_speech": "verb",
+      "transcription": "/ɛb/",
       "translation": "спадать, отступать",
       "translations": {
         "ru": "спадать, отступать",
@@ -98,6 +104,7 @@
     {
       "word": "dissipate",
       "part_of_speech": "verb",
+      "transcription": "/ˈdɪsəˌpeɪt/",
       "translation": "рассеиваться",
       "translations": {
         "ru": "рассеиваться",
@@ -112,6 +119,7 @@
     {
       "word": "resurgence",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈsɜrdʒəns/",
       "translation": "возрождение, новый подъём",
       "translations": {
         "ru": "возрождение, новый подъём",
@@ -126,6 +134,7 @@
     {
       "word": "rejuvenate",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈdʒuvəˌneɪt/",
       "translation": "оживлять, омолаживать",
       "translations": {
         "ru": "оживлять, омолаживать",
@@ -140,6 +149,7 @@
     {
       "word": "rekindle",
       "part_of_speech": "verb",
+      "transcription": "/riˈkɪndəl/",
       "translation": "вновь пробуждать",
       "translations": {
         "ru": "вновь пробуждать",

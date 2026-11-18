@@ -14,6 +14,7 @@
     {
       "word": "egalitarian",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˌgæləˈtɛriən/",
       "translation": "эгалитарный, основанный на равенстве",
       "translations": {
         "ru": "эгалитарный, основанный на равенстве",
@@ -28,6 +29,7 @@
     {
       "word": "utopia",
       "part_of_speech": "noun",
+      "transcription": "/juˈtoʊpiə/",
       "translation": "утопия",
       "translations": {
         "ru": "утопия",
@@ -42,6 +44,7 @@
     {
       "word": "dystopia",
       "part_of_speech": "noun",
+      "transcription": "/dɪsˈtoʊpiə/",
       "translation": "антиутопия",
       "translations": {
         "ru": "антиутопия",
@@ -56,6 +59,7 @@
     {
       "word": "paternalism",
       "part_of_speech": "noun",
+      "transcription": "/pəˈtɜrnəˌlɪzəm/",
       "translation": "патернализм",
       "translations": {
         "ru": "патернализм",
@@ -70,6 +74,7 @@
     {
       "word": "collectivism",
       "part_of_speech": "noun",
+      "transcription": "/kəˈlɛktɪˌvɪzəm/",
       "translation": "коллективизм",
       "translations": {
         "ru": "коллективизм",
@@ -84,6 +89,7 @@
     {
       "word": "individualism",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪndəˈvɪdʒuəˌlɪzəm/",
       "translation": "индивидуализм",
       "translations": {
         "ru": "индивидуализм",
@@ -98,6 +104,7 @@
     {
       "word": "nihilism",
       "part_of_speech": "noun",
+      "transcription": "/ˈnaɪəˌlɪzəm/",
       "translation": "нигилизм",
       "translations": {
         "ru": "нигилизм",
@@ -112,6 +119,7 @@
     {
       "word": "pragmatism",
       "part_of_speech": "noun",
+      "transcription": "/ˈprægməˌtɪzəm/",
       "translation": "прагматизм",
       "translations": {
         "ru": "прагматизм",
@@ -126,6 +134,7 @@
     {
       "word": "idealism",
       "part_of_speech": "noun",
+      "transcription": "/aɪˈdiəˌlɪzəm/",
       "translation": "идеализм",
       "translations": {
         "ru": "идеализм",
@@ -140,6 +149,7 @@
     {
       "word": "fatalism",
       "part_of_speech": "noun",
+      "transcription": "/ˈfeɪtəˌlɪzəm/",
       "translation": "фатализм",
       "translations": {
         "ru": "фатализм",

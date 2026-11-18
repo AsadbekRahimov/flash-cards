@@ -14,6 +14,7 @@
     {
       "word": "foliage",
       "part_of_speech": "noun",
+      "transcription": "/ˈfoʊliɪdʒ/",
       "translation": "листва",
       "translations": {
         "ru": "листва",
@@ -28,6 +29,7 @@
     {
       "word": "flora",
       "part_of_speech": "noun",
+      "transcription": "/ˈflɔrə/",
       "translation": "флора, растительный мир",
       "translations": {
         "ru": "флора, растительный мир",
@@ -42,6 +44,7 @@
     {
       "word": "deciduous",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈsɪdʒuəs/",
       "translation": "листопадный",
       "translations": {
         "ru": "листопадный",
@@ -56,6 +59,7 @@
     {
       "word": "perennial",
       "part_of_speech": "adjective",
+      "transcription": "/pəˈrɛniəl/",
       "translation": "многолетний",
       "translations": {
         "ru": "многолетний",
@@ -70,6 +74,7 @@
     {
       "word": "sapling",
       "part_of_speech": "noun",
+      "transcription": "/ˈsæplɪŋ/",
       "translation": "саженец",
       "translations": {
         "ru": "саженец",
@@ -84,6 +89,7 @@
     {
       "word": "germinate",
       "part_of_speech": "verb",
+      "transcription": "/ˈdʒɜrməˌneɪt/",
       "translation": "прорастать",
       "translations": {
         "ru": "прорастать",
@@ -98,6 +104,7 @@
     {
       "word": "pollinate",
       "part_of_speech": "verb",
+      "transcription": "/ˈpɑləˌneɪt/",
       "translation": "опылять",
       "translations": {
         "ru": "опылять",
@@ -112,6 +119,7 @@
     {
       "word": "wither",
       "part_of_speech": "verb",
+      "transcription": "/ˈwɪðər/",
       "translation": "увядать",
       "translations": {
         "ru": "увядать",
@@ -126,6 +134,7 @@
     {
       "word": "thicket",
       "part_of_speech": "noun",
+      "transcription": "/ˈθɪkət/",
       "translation": "заросли",
       "translations": {
         "ru": "заросли",
@@ -140,6 +149,7 @@
     {
       "word": "shrub",
       "part_of_speech": "noun",
+      "transcription": "/ʃrʌb/",
       "translation": "кустарник",
       "translations": {
         "ru": "кустарник",

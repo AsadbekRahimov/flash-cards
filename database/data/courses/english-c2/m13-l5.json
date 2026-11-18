@@ -14,6 +14,7 @@
     {
       "word": "gestation",
       "part_of_speech": "noun",
+      "transcription": "/dʒɛˈsteɪʃən/",
       "translation": "беременность, вынашивание плода",
       "translations": {
         "ru": "беременность, вынашивание плода",
@@ -28,6 +29,7 @@
     {
       "word": "infancy",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnfənsi/",
       "translation": "младенчество",
       "translations": {
         "ru": "младенчество",
@@ -35,13 +37,14 @@
       },
       "example": "Babies learn to recognize faces early in infancy.",
       "example_translations": {
-        "ru": "Дети учатся узнавать лица ещё в раннем младенчестве.",
-        "uz": "Bolalar go'daklikning ilk davridayoq yuzlarni tanishni o'rganadi."
+        "ru": "Малыши учатся узнавать лица ещё в раннем младенчестве.",
+        "uz": "Chaqaloqlar go'daklikning ilk davridayoq yuzlarni tanishni o'rganadi."
       }
     },
     {
       "word": "juvenile",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdʒuvəˌnaɪl/",
       "translation": "несовершеннолетний",
       "translations": {
         "ru": "несовершеннолетний",
@@ -56,6 +59,7 @@
     {
       "word": "geriatric",
       "part_of_speech": "adjective",
+      "transcription": "/ˌdʒɛriˈætrɪk/",
       "translation": "гериатрический",
       "translations": {
         "ru": "гериатрический",
@@ -70,6 +74,7 @@
     {
       "word": "frailty",
       "part_of_speech": "noun",
+      "transcription": "/ˈfreɪlti/",
       "translation": "физическая слабость",
       "translations": {
         "ru": "физическая слабость",
@@ -84,6 +89,7 @@
     {
       "word": "decrepit",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈkrɛpət/",
       "translation": "дряхлый",
       "translations": {
         "ru": "дряхлый",
@@ -98,6 +104,7 @@
     {
       "word": "infirm",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈfɜrm/",
       "translation": "немощный",
       "translations": {
         "ru": "немощный",
@@ -112,6 +119,7 @@
     {
       "word": "demise",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈmaɪz/",
       "translation": "кончина",
       "translations": {
         "ru": "кончина",
@@ -126,6 +134,7 @@
     {
       "word": "mortal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɔrtəl/",
       "translation": "смертный",
       "translations": {
         "ru": "смертный",
@@ -140,6 +149,7 @@
     {
       "word": "posthumous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɑstʃəməs/",
       "translation": "посмертный",
       "translations": {
         "ru": "посмертный",

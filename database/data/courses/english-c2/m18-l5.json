@@ -14,6 +14,7 @@
     {
       "word": "ubiquitous",
       "part_of_speech": "adjective",
+      "transcription": "/juˈbɪkwətəs/",
       "translation": "вездесущий, повсеместный",
       "translations": {
         "ru": "вездесущий, повсеместный",
@@ -28,6 +29,7 @@
     {
       "word": "rampant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈræmpənt/",
       "translation": "безудержный, свирепствующий",
       "translations": {
         "ru": "безудержный, свирепствующий",
@@ -42,6 +44,7 @@
     {
       "word": "commonplace",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɑmənˌpleɪs/",
       "translation": "привычный, обыденный",
       "translations": {
         "ru": "привычный, обыденный",
@@ -56,6 +59,7 @@
     {
       "word": "prolific",
       "part_of_speech": "adjective",
+      "transcription": "/prəˈlɪfɪk/",
       "translation": "плодовитый",
       "translations": {
         "ru": "плодовитый",
@@ -70,6 +74,7 @@
     {
       "word": "idiosyncratic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪdiəsɪnˈkrætɪk/",
       "translation": "своеобразный, сугубо индивидуальный",
       "translations": {
         "ru": "своеобразный, сугубо индивидуальный",
@@ -84,6 +89,7 @@
     {
       "word": "aberration",
       "part_of_speech": "noun",
+      "transcription": "/ˌæbəˈreɪʃən/",
       "translation": "отклонение от нормы",
       "translations": {
         "ru": "отклонение от нормы",
@@ -98,6 +104,7 @@
     {
       "word": "unparalleled",
       "part_of_speech": "adjective",
+      "transcription": "/ʌnˈpɛrəˌlɛld/",
       "translation": "непревзойдённый, бесподобный",
       "translations": {
         "ru": "непревзойдённый, бесподобный",
@@ -112,6 +119,7 @@
     {
       "word": "inimitable",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈnɪmətəbəl/",
       "translation": "неподражаемый",
       "translations": {
         "ru": "неподражаемый",
@@ -126,6 +134,7 @@
     {
       "word": "atypical",
       "part_of_speech": "adjective",
+      "transcription": "/eɪˈtɪpɪkəl/",
       "translation": "нетипичный",
       "translations": {
         "ru": "нетипичный",
@@ -140,6 +149,7 @@
     {
       "word": "outlandish",
       "part_of_speech": "adjective",
+      "transcription": "/aʊtˈlændɪʃ/",
       "translation": "диковинный, нелепый",
       "translations": {
         "ru": "диковинный, нелепый",

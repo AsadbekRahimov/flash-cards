@@ -14,6 +14,7 @@
     {
       "word": "fathom",
       "part_of_speech": "verb",
+      "transcription": "/ˈfæðəm/",
       "translation": "постигать, понимать",
       "translations": {
         "ru": "постигать, понимать",
@@ -28,6 +29,7 @@
     {
       "word": "intelligible",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtɛlədʒəbəl/",
       "translation": "понятный, разборчивый",
       "translations": {
         "ru": "понятный, разборчивый",
@@ -42,6 +44,7 @@
     {
       "word": "confound",
       "part_of_speech": "verb",
+      "transcription": "/kənˈfaʊnd/",
       "translation": "ставить в тупик",
       "translations": {
         "ru": "ставить в тупик",
@@ -56,6 +59,7 @@
     {
       "word": "enigmatic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɛnɪgˈmætɪk/",
       "translation": "таинственный",
       "translations": {
         "ru": "таинственный",
@@ -70,6 +74,7 @@
     {
       "word": "cryptic",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkrɪptɪk/",
       "translation": "загадочный, со скрытым смыслом",
       "translations": {
         "ru": "загадочный, со скрытым смыслом",
@@ -84,6 +89,7 @@
     {
       "word": "esoteric",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɛsəˈtɛrɪk/",
       "translation": "эзотерический, понятный лишь посвящённым",
       "translations": {
         "ru": "эзотерический, понятный лишь посвящённым",
@@ -98,6 +104,7 @@
     {
       "word": "nebulous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnɛbjələs/",
       "translation": "туманный, расплывчатый",
       "translations": {
         "ru": "туманный, расплывчатый",
@@ -112,6 +119,7 @@
     {
       "word": "elusive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈlusɪv/",
       "translation": "неуловимый",
       "translations": {
         "ru": "неуловимый",
@@ -126,6 +134,7 @@
     {
       "word": "conundrum",
       "part_of_speech": "noun",
+      "transcription": "/kəˈnʌndrəm/",
       "translation": "головоломка, трудная задача",
       "translations": {
         "ru": "головоломка, трудная задача",
@@ -140,15 +149,16 @@
     {
       "word": "decipher",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈsaɪfər/",
       "translation": "расшифровывать",
       "translations": {
         "ru": "расшифровывать",
-        "uz": "o'qib tushunmoq"
+        "uz": "shifrini yechmoq"
       },
       "example": "Scholars finally deciphered the ancient inscription on the stone.",
       "example_translations": {
         "ru": "Учёные наконец расшифровали древнюю надпись на камне.",
-        "uz": "Olimlar nihoyat toshdagi qadimiy bitikni o'qib tushundilar."
+        "uz": "Olimlar nihoyat toshdagi qadimiy bitikning shifrini yechdilar."
       }
     }
   ]

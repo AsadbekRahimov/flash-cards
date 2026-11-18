@@ -14,6 +14,7 @@
     {
       "word": "extradition",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛkstrəˈdɪʃən/",
       "translation": "экстрадиция",
       "translations": {
         "ru": "экстрадиция",
@@ -28,6 +29,7 @@
     {
       "word": "stateless",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsteɪtləs/",
       "translation": "без гражданства",
       "translations": {
         "ru": "без гражданства",
@@ -42,6 +44,7 @@
     {
       "word": "impunity",
       "part_of_speech": "noun",
+      "transcription": "/ɪmˈpjunəti/",
       "translation": "безнаказанность",
       "translations": {
         "ru": "безнаказанность",
@@ -56,6 +59,7 @@
     {
       "word": "reparation",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛpəˈreɪʃən/",
       "translation": "репарация",
       "translations": {
         "ru": "репарация",
@@ -70,6 +74,7 @@
     {
       "word": "internment",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈtɜrnmənt/",
       "translation": "интернирование",
       "translations": {
         "ru": "интернирование",
@@ -84,6 +89,7 @@
     {
       "word": "inviolable",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈvaɪələbəl/",
       "translation": "неприкосновенный",
       "translations": {
         "ru": "неприкосновенный",
@@ -98,6 +104,7 @@
     {
       "word": "signatory",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪgnəˌtɔri/",
       "translation": "подписавшая сторона",
       "translations": {
         "ru": "подписавшая сторона",
@@ -106,12 +113,13 @@
       "example": "Every signatory to the treaty must reduce emissions.",
       "example_translations": {
         "ru": "Каждая подписавшая сторона договора обязана сократить выбросы.",
-        "uz": "Shartnomani imzolagan tomonlarning har biri chiqindilarni kamaytirishi shart."
+        "uz": "Shartnomani imzolagan tomonlarning har biri chiqindi gazlarni kamaytirishi shart."
       }
     },
     {
       "word": "covenant",
       "part_of_speech": "noun",
+      "transcription": "/ˈkʌvənənt/",
       "translation": "международный пакт",
       "translations": {
         "ru": "международный пакт",
@@ -126,6 +134,7 @@
     {
       "word": "moratorium",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɔrəˈtɔriəm/",
       "translation": "мораторий",
       "translations": {
         "ru": "мораторий",
@@ -134,12 +143,13 @@
       "example": "States agreed on a five-year moratorium on deep-sea mining.",
       "example_translations": {
         "ru": "Государства договорились о пятилетнем моратории на глубоководную добычу.",
-        "uz": "Davlatlar chuqur dengizda qazib olishga besh yillik moratoriy to'g'risida kelishdi."
+        "uz": "Davlatlar dengiz tubidan foydali qazilma qazib olishga besh yillik moratoriy joriy etish to'g'risida kelishdi."
       }
     },
     {
       "word": "noncombatant",
       "part_of_speech": "noun",
+      "transcription": "/ˌnɑnkəmˈbætənt/",
       "translation": "некомбатант",
       "translations": {
         "ru": "некомбатант",

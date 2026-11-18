@@ -14,6 +14,7 @@
     {
       "word": "intimidate",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈtɪməˌdeɪt/",
       "translation": "запугивать",
       "translations": {
         "ru": "запугивать",
@@ -28,6 +29,7 @@
     {
       "word": "browbeat",
       "part_of_speech": "verb",
+      "transcription": "/ˈbraʊˌbit/",
       "translation": "давить, принуждать нажимом",
       "translations": {
         "ru": "давить, принуждать нажимом",
@@ -42,6 +44,7 @@
     {
       "word": "blackmail",
       "part_of_speech": "verb",
+      "transcription": "/ˈblækˌmeɪl/",
       "translation": "шантажировать",
       "translations": {
         "ru": "шантажировать",
@@ -56,6 +59,7 @@
     {
       "word": "badger",
       "part_of_speech": "verb",
+      "transcription": "/ˈbædʒər/",
       "translation": "донимать, приставать",
       "translations": {
         "ru": "донимать, приставать",
@@ -70,6 +74,7 @@
     {
       "word": "goad",
       "part_of_speech": "verb",
+      "transcription": "/goʊd/",
       "translation": "подстрекать, провоцировать",
       "translations": {
         "ru": "подстрекать, провоцировать",
@@ -84,6 +89,7 @@
     {
       "word": "subdue",
       "part_of_speech": "verb",
+      "transcription": "/səbˈdu/",
       "translation": "усмирять, подчинять",
       "translations": {
         "ru": "усмирять, подчинять",
@@ -98,6 +104,7 @@
     {
       "word": "vanquish",
       "part_of_speech": "verb",
+      "transcription": "/ˈvæŋkwɪʃ/",
       "translation": "сокрушать, побеждать",
       "translations": {
         "ru": "сокрушать, побеждать",
@@ -112,6 +119,7 @@
     {
       "word": "capitulate",
       "part_of_speech": "verb",
+      "transcription": "/kəˈpɪtʃəˌleɪt/",
       "translation": "капитулировать, сдаваться",
       "translations": {
         "ru": "капитулировать, сдаваться",
@@ -126,6 +134,7 @@
     {
       "word": "succumb",
       "part_of_speech": "verb",
+      "transcription": "/səˈkʌm/",
       "translation": "поддаваться",
       "translations": {
         "ru": "поддаваться",
@@ -140,6 +149,7 @@
     {
       "word": "acquiesce",
       "part_of_speech": "verb",
+      "transcription": "/ˌækwiˈɛs/",
       "translation": "нехотя соглашаться",
       "translations": {
         "ru": "нехотя соглашаться",

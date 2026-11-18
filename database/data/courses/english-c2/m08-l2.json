@@ -14,6 +14,7 @@
     {
       "word": "alliteration",
       "part_of_speech": "noun",
+      "transcription": "/əˌlɪtəˈreɪʃən/",
       "translation": "аллитерация",
       "translations": {
         "ru": "аллитерация",
@@ -28,6 +29,7 @@
     {
       "word": "onomatopoeia",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑnəˌmætəˈpiə/",
       "translation": "звукоподражание",
       "translations": {
         "ru": "звукоподражание",
@@ -42,6 +44,7 @@
     {
       "word": "personification",
       "part_of_speech": "noun",
+      "transcription": "/pərˌsɑnəfəˈkeɪʃən/",
       "translation": "олицетворение",
       "translations": {
         "ru": "олицетворение",
@@ -56,6 +59,7 @@
     {
       "word": "simile",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪməli/",
       "translation": "сравнение",
       "translations": {
         "ru": "сравнение",
@@ -70,6 +74,7 @@
     {
       "word": "oxymoron",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑksɪˈmɔrˌɑn/",
       "translation": "оксюморон",
       "translations": {
         "ru": "оксюморон",
@@ -84,6 +89,7 @@
     {
       "word": "juxtaposition",
       "part_of_speech": "noun",
+      "transcription": "/ˌdʒʌkstəpəˈzɪʃən/",
       "translation": "сопоставление",
       "translations": {
         "ru": "сопоставление",
@@ -98,6 +104,7 @@
     {
       "word": "antithesis",
       "part_of_speech": "noun",
+      "transcription": "/ænˈtɪθəsəs/",
       "translation": "антитеза, противопоставление",
       "translations": {
         "ru": "антитеза, противопоставление",
@@ -112,6 +119,7 @@
     {
       "word": "pun",
       "part_of_speech": "noun",
+      "transcription": "/pʌn/",
       "translation": "каламбур",
       "translations": {
         "ru": "каламбур",
@@ -126,6 +134,7 @@
     {
       "word": "trope",
       "part_of_speech": "noun",
+      "transcription": "/troʊp/",
       "translation": "троп, образный приём",
       "translations": {
         "ru": "троп, образный приём",
@@ -140,6 +149,7 @@
     {
       "word": "pathos",
       "part_of_speech": "noun",
+      "transcription": "/ˈpeɪˌθɑs/",
       "translation": "трогательность",
       "translations": {
         "ru": "трогательность",

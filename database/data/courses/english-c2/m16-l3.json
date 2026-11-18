@@ -14,6 +14,7 @@
     {
       "word": "repel",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈpɛl/",
       "translation": "отражать, отбивать",
       "translations": {
         "ru": "отражать, отбивать",
@@ -28,6 +29,7 @@
     {
       "word": "withstand",
       "part_of_speech": "verb",
+      "transcription": "/wɪθˈstænd/",
       "translation": "выдерживать",
       "translations": {
         "ru": "выдерживать",
@@ -42,6 +44,7 @@
     {
       "word": "counteract",
       "part_of_speech": "verb",
+      "transcription": "/ˌkaʊntərˈækt/",
       "translation": "противодействовать",
       "translations": {
         "ru": "противодействовать",
@@ -56,6 +59,7 @@
     {
       "word": "stymie",
       "part_of_speech": "verb",
+      "transcription": "/ˈstaɪmi/",
       "translation": "заводить в тупик",
       "translations": {
         "ru": "заводить в тупик",
@@ -70,6 +74,7 @@
     {
       "word": "circumvent",
       "part_of_speech": "verb",
+      "transcription": "/ˌsɜrkəmˈvɛnt/",
       "translation": "обходить",
       "translations": {
         "ru": "обходить",
@@ -84,6 +89,7 @@
     {
       "word": "evade",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈveɪd/",
       "translation": "уклоняться",
       "translations": {
         "ru": "уклоняться",
@@ -98,6 +104,7 @@
     {
       "word": "forestall",
       "part_of_speech": "verb",
+      "transcription": "/fɔrˈstɔl/",
       "translation": "предупреждать, пресекать заранее",
       "translations": {
         "ru": "предупреждать, пресекать заранее",
@@ -112,6 +119,7 @@
     {
       "word": "preempt",
       "part_of_speech": "verb",
+      "transcription": "/priˈɛmpt/",
       "translation": "упреждать",
       "translations": {
         "ru": "упреждать",
@@ -126,6 +134,7 @@
     {
       "word": "avert",
       "part_of_speech": "verb",
+      "transcription": "/əˈvɜrt/",
       "translation": "предотвращать",
       "translations": {
         "ru": "предотвращать",
@@ -140,6 +149,7 @@
     {
       "word": "flout",
       "part_of_speech": "verb",
+      "transcription": "/flaʊt/",
       "translation": "открыто пренебрегать",
       "translations": {
         "ru": "открыто пренебрегать",

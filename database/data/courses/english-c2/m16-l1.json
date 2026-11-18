@@ -14,6 +14,7 @@
     {
       "word": "enmity",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛnməti/",
       "translation": "вражда",
       "translations": {
         "ru": "вражда",
@@ -28,6 +29,7 @@
     {
       "word": "antipathy",
       "part_of_speech": "noun",
+      "transcription": "/ænˈtɪpəθi/",
       "translation": "неприязнь, антипатия",
       "translations": {
         "ru": "неприязнь, антипатия",
@@ -42,6 +44,7 @@
     {
       "word": "fractious",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfrækʃəs/",
       "translation": "склочный, вздорный",
       "translations": {
         "ru": "склочный, вздорный",
@@ -56,6 +59,7 @@
     {
       "word": "altercation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɔltərˈkeɪʃən/",
       "translation": "перепалка",
       "translations": {
         "ru": "перепалка",
@@ -70,6 +74,7 @@
     {
       "word": "skirmish",
       "part_of_speech": "noun",
+      "transcription": "/ˈskɜrmɪʃ/",
       "translation": "стычка",
       "translations": {
         "ru": "стычка",
@@ -84,6 +89,7 @@
     {
       "word": "squabble",
       "part_of_speech": "noun",
+      "transcription": "/ˈskwɑbəl/",
       "translation": "перебранка, мелкая ссора",
       "translations": {
         "ru": "перебранка, мелкая ссора",
@@ -98,6 +104,7 @@
     {
       "word": "vendetta",
       "part_of_speech": "noun",
+      "transcription": "/vɛnˈdɛtə/",
       "translation": "вендетта, кровная месть",
       "translations": {
         "ru": "вендетта, кровная месть",
@@ -112,6 +119,7 @@
     {
       "word": "strife",
       "part_of_speech": "noun",
+      "transcription": "/straɪf/",
       "translation": "распри, раздоры",
       "translations": {
         "ru": "распри, раздоры",
@@ -126,6 +134,7 @@
     {
       "word": "schism",
       "part_of_speech": "noun",
+      "transcription": "/ˈskɪzəm/",
       "translation": "раскол",
       "translations": {
         "ru": "раскол",
@@ -140,6 +149,7 @@
     {
       "word": "rift",
       "part_of_speech": "noun",
+      "transcription": "/rɪft/",
       "translation": "разлад, разрыв",
       "translations": {
         "ru": "разлад, разрыв",

@@ -14,6 +14,7 @@
     {
       "word": "fortitude",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɔrtəˌtud/",
       "translation": "стойкость, сила духа",
       "translations": {
         "ru": "стойкость, сила духа",
@@ -28,6 +29,7 @@
     {
       "word": "resolute",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrɛzəˌlut/",
       "translation": "решительный, твёрдый",
       "translations": {
         "ru": "решительный, твёрдый",
@@ -42,6 +44,7 @@
     {
       "word": "obstinate",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɑbstənət/",
       "translation": "упрямый",
       "translations": {
         "ru": "упрямый",
@@ -56,6 +59,7 @@
     {
       "word": "intransigent",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtrænsədʒənt/",
       "translation": "непримиримый, неуступчивый",
       "translations": {
         "ru": "непримиримый, неуступчивый",
@@ -70,6 +74,7 @@
     {
       "word": "indefatigable",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪndɪˈfætɪgəbəl/",
       "translation": "неутомимый",
       "translations": {
         "ru": "неутомимый",
@@ -84,6 +89,7 @@
     {
       "word": "unwavering",
       "part_of_speech": "adjective",
+      "transcription": "/ʌnˈweɪvərɪŋ/",
       "translation": "непоколебимый",
       "translations": {
         "ru": "непоколебимый",
@@ -98,6 +104,7 @@
     {
       "word": "staunch",
       "part_of_speech": "adjective",
+      "transcription": "/stɔntʃ/",
       "translation": "верный, стойкий",
       "translations": {
         "ru": "верный, стойкий",
@@ -112,6 +119,7 @@
     {
       "word": "relentless",
       "part_of_speech": "adjective",
+      "transcription": "/rɪˈlɛntləs/",
       "translation": "неустанный, неотступный",
       "translations": {
         "ru": "неустанный, неотступный",
@@ -126,6 +134,7 @@
     {
       "word": "recalcitrant",
       "part_of_speech": "adjective",
+      "transcription": "/rɪˈkælsətrənt/",
       "translation": "непокорный, строптивый",
       "translations": {
         "ru": "непокорный, строптивый",
@@ -140,6 +149,7 @@
     {
       "word": "pliable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈplaɪəbəl/",
       "translation": "податливый, уступчивый",
       "translations": {
         "ru": "податливый, уступчивый",

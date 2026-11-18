@@ -14,6 +14,7 @@
     {
       "word": "usurp",
       "part_of_speech": "verb",
+      "transcription": "/juˈsɜrp/",
       "translation": "узурпировать",
       "translations": {
         "ru": "узурпировать",
@@ -28,6 +29,7 @@
     {
       "word": "depose",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈpoʊz/",
       "translation": "смещать, свергать",
       "translations": {
         "ru": "смещать, свергать",
@@ -42,6 +44,7 @@
     {
       "word": "abdicate",
       "part_of_speech": "verb",
+      "transcription": "/ˈæbdəˌkeɪt/",
       "translation": "отрекаться от престола",
       "translations": {
         "ru": "отрекаться от престола",
@@ -56,6 +59,7 @@
     {
       "word": "ascendancy",
       "part_of_speech": "noun",
+      "transcription": "/əˈsɛndənsi/",
       "translation": "преобладание, перевес",
       "translations": {
         "ru": "преобладание, перевес",
@@ -70,6 +74,7 @@
     {
       "word": "hegemony",
       "part_of_speech": "noun",
+      "transcription": "/hɪˈdʒɛməni/",
       "translation": "гегемония",
       "translations": {
         "ru": "гегемония",
@@ -84,6 +89,7 @@
     {
       "word": "despot",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛspət/",
       "translation": "деспот",
       "translations": {
         "ru": "деспот",
@@ -92,12 +98,13 @@
       "example": "The despot punished anyone who questioned his orders.",
       "example_translations": {
         "ru": "Деспот наказывал каждого, кто сомневался в его приказах.",
-        "uz": "Mustabid buyruqlariga shubha qilgan har bir kishini jazolardi."
+        "uz": "Mustabid o'z buyruqlariga shubha qilgan har bir kishini jazolardi."
       }
     },
     {
       "word": "demagogue",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛməˌgɑg/",
       "translation": "демагог",
       "translations": {
         "ru": "демагог",
@@ -112,6 +119,7 @@
     {
       "word": "autocrat",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔtəˌkræt/",
       "translation": "автократ, самодержец",
       "translations": {
         "ru": "автократ, самодержец",
@@ -126,6 +134,7 @@
     {
       "word": "figurehead",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɪgjərˌhɛd/",
       "translation": "номинальный руководитель",
       "translations": {
         "ru": "номинальный руководитель",
@@ -140,6 +149,7 @@
     {
       "word": "junta",
       "part_of_speech": "noun",
+      "transcription": "/ˈhʊntə/",
       "translation": "военная хунта",
       "translations": {
         "ru": "военная хунта",

@@ -14,6 +14,7 @@
     {
       "word": "antiquated",
       "part_of_speech": "adjective",
+      "transcription": "/ˈæntəˌkweɪtəd/",
       "translation": "устаревший, допотопный",
       "translations": {
         "ru": "устаревший, допотопный",
@@ -28,20 +29,22 @@
     {
       "word": "defunct",
       "part_of_speech": "adjective",
-      "translation": "более не существующий",
+      "transcription": "/dɪˈfʌŋkt/",
+      "translation": "ныне не существующий",
       "translations": {
-        "ru": "более не существующий",
+        "ru": "ныне не существующий",
         "uz": "faoliyati to'xtagan"
       },
       "example": "He once wrote for a now defunct local newspaper.",
       "example_translations": {
-        "ru": "Когда-то он писал для более не существующей местной газеты.",
+        "ru": "Когда-то он писал для ныне не существующей местной газеты.",
         "uz": "U bir paytlar hozir faoliyati to'xtagan mahalliy gazetaga yozgan."
       }
     },
     {
       "word": "bygone",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbaɪˌgɔn/",
       "translation": "минувший, былой",
       "translations": {
         "ru": "минувший, былой",
@@ -56,6 +59,7 @@
     {
       "word": "erstwhile",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɜrstˌwaɪl/",
       "translation": "бывший, прежний",
       "translations": {
         "ru": "бывший, прежний",
@@ -70,6 +74,7 @@
     {
       "word": "anachronism",
       "part_of_speech": "noun",
+      "transcription": "/əˈnækrəˌnɪzəm/",
       "translation": "анахронизм",
       "translations": {
         "ru": "анахронизм",
@@ -84,6 +89,7 @@
     {
       "word": "vestige",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɛstɪdʒ/",
       "translation": "остаток, след",
       "translations": {
         "ru": "остаток, след",
@@ -98,6 +104,7 @@
     {
       "word": "supersede",
       "part_of_speech": "verb",
+      "transcription": "/ˌsupərˈsid/",
       "translation": "вытеснять, заменять",
       "translations": {
         "ru": "вытеснять, заменять",
@@ -112,6 +119,7 @@
     {
       "word": "transient",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtrænʃənt/",
       "translation": "временный, недолговечный",
       "translations": {
         "ru": "временный, недолговечный",
@@ -126,20 +134,22 @@
     {
       "word": "unprecedented",
       "part_of_speech": "adjective",
+      "transcription": "/ʌnˈprɛsəˌdɛntəd/",
       "translation": "беспрецедентный",
       "translations": {
         "ru": "беспрецедентный",
         "uz": "misli ko'rilmagan"
       },
-      "example": "Never before had the region seen such unprecedented rainfall.",
+      "example": "The region was hit by unprecedented rainfall this spring.",
       "example_translations": {
-        "ru": "Никогда прежде регион не видел таких беспрецедентных осадков.",
-        "uz": "Mintaqa ilgari hech qachon bunday misli ko'rilmagan yog'ingarchilikni ko'rmagan."
+        "ru": "Этой весной на регион обрушились беспрецедентные осадки.",
+        "uz": "Bu bahorda mintaqada misli ko'rilmagan yog'ingarchilik bo'ldi."
       }
     },
     {
       "word": "burgeoning",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbɜrdʒənɪŋ/",
       "translation": "бурно растущий",
       "translations": {
         "ru": "бурно растущий",

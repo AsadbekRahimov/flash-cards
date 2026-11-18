@@ -14,6 +14,7 @@
     {
       "word": "exonerate",
       "part_of_speech": "verb",
+      "transcription": "/ɪgˈzɑnəˌreɪt/",
       "translation": "снимать обвинения",
       "translations": {
         "ru": "снимать обвинения",
@@ -28,6 +29,7 @@
     {
       "word": "incriminate",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈkrɪməˌneɪt/",
       "translation": "изобличать",
       "translations": {
         "ru": "изобличать",
@@ -42,6 +44,7 @@
     {
       "word": "implicate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɪmpləˌkeɪt/",
       "translation": "указывать на причастность",
       "translations": {
         "ru": "указывать на причастность",
@@ -56,6 +59,7 @@
     {
       "word": "circumstantial",
       "part_of_speech": "adjective",
+      "transcription": "/ˌsɜrkəmˈstænʃəl/",
       "translation": "косвенный",
       "translations": {
         "ru": "косвенный",
@@ -70,6 +74,7 @@
     {
       "word": "recant",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈkænt/",
       "translation": "отказываться от показаний",
       "translations": {
         "ru": "отказываться от показаний",
@@ -84,6 +89,7 @@
     {
       "word": "impeach",
       "part_of_speech": "verb",
+      "transcription": "/ɪmˈpitʃ/",
       "translation": "объявлять импичмент",
       "translations": {
         "ru": "объявлять импичмент",
@@ -98,6 +104,7 @@
     {
       "word": "vindicate",
       "part_of_speech": "verb",
+      "transcription": "/ˈvɪndəˌkeɪt/",
       "translation": "доказывать правоту",
       "translations": {
         "ru": "доказывать правоту",
@@ -112,6 +119,7 @@
     {
       "word": "premeditated",
       "part_of_speech": "adjective",
+      "transcription": "/priˈmɛdəˌteɪtəd/",
       "translation": "заранее обдуманный",
       "translations": {
         "ru": "заранее обдуманный",
@@ -120,12 +128,13 @@
       "example": "The theft was premeditated, planned weeks in advance.",
       "example_translations": {
         "ru": "Кража была заранее обдуманной: её готовили несколько недель.",
-        "uz": "O'g'irlik oldindan rejalashtirilgan edi: unga bir necha hafta tayyorgarlik ko'rilgan."
+        "uz": "O'g'rilik oldindan rejalashtirilgan edi: unga bir necha hafta tayyorgarlik ko'rilgan."
       }
     },
     {
       "word": "extenuating",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˈstɛnjuˌeɪtɪŋ/",
       "translation": "смягчающий",
       "translations": {
         "ru": "смягчающий",
@@ -140,6 +149,7 @@
     {
       "word": "malice",
       "part_of_speech": "noun",
+      "transcription": "/ˈmæləs/",
       "translation": "злой умысел",
       "translations": {
         "ru": "злой умысел",

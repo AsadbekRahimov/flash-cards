@@ -21,13 +21,16 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 /*
- * The level packs `english-b1` and `english-b2` (database/data/courses/*): 20 modules x 5 lessons x 10 words each,
+ * The level packs `english-b1`, `english-b2`, `english-c1` and `english-c2` (database/data/courses/*): 20 modules x 5 lessons x 10 words each,
  * the same format as `english-a1-a2` (CoursePackImportTest). The importer itself is covered there; here the
- * files of each pack are checked, then an import / idempotence / publication pass per pack, and all three
- * packs together (3 000 different words in one database).
+ * files of each pack are checked, then an import / idempotence / publication pass per pack, and all five
+ * packs together (5 000 different words in one database).
  */
 
 const LCP_A1_A2 = 'english-a1-a2';
+
+/** The five level packs, in the order of their positions. */
+const LCP_ALL = [LCP_A1_A2, 'english-b1', 'english-b2', 'english-c1', 'english-c2'];
 
 /** @return list<string> */
 function lcp_lesson_files(string $slug): array
@@ -74,12 +77,16 @@ function lcp_import(string $slug): CoursePackReport
 dataset('lcp_packs', [
     'b1' => ['english-b1'],
     'b2' => ['english-b2'],
+    'c1' => ['english-c1'],
+    'c2' => ['english-c2'],
 ]);
 
 // slug => the manifest values the packs are meant to carry (level, position), the rest is shared.
 dataset('lcp_manifests', [
     'b1' => ['english-b1', 'B1', 20],
     'b2' => ['english-b2', 'B2', 30],
+    'c1' => ['english-c1', 'C1', 40],
+    'c2' => ['english-c2', 'C2', 50],
 ]);
 
 it('has five lessons of ten words in every one of 20 modules, numbered without gaps', function (string $slug): void {
@@ -151,7 +158,7 @@ it('gives every word a ru and uz translation, an example usable for gap-fill, an
     }
 })->with('lcp_packs');
 
-it('gives every word of the three packs an IPA transcription in slashes, of the sounds of the shipped alphabet only, at most 100 characters', function (string $slug): void {
+it('gives every word of the five packs an IPA transcription in slashes, of the sounds of the shipped alphabet only, at most 100 characters', function (string $slug): void {
     $count = 0;
     foreach (lcp_lesson_files($slug) as $file) {
         foreach (lcp_read($file)['words'] as $w) {
@@ -166,25 +173,25 @@ it('gives every word of the three packs an IPA transcription in slashes, of the 
         }
     }
     expect($count)->toBe(1000);
-})->with(['a1-a2' => [LCP_A1_A2], 'b1' => ['english-b1'], 'b2' => ['english-b2']]);
+})->with(['a1-a2' => [LCP_A1_A2], 'b1' => ['english-b1'], 'b2' => ['english-b2'], 'c1' => ['english-c1'], 'c2' => ['english-c2']]);
 
-it('shares no word between english-a1-a2, english-b1 and english-b2: 3 000 different words', function (): void {
+it('shares no word between the five packs: 5 000 different words', function (): void {
     $all = [];
-    foreach ([LCP_A1_A2, 'english-b1', 'english-b2'] as $slug) {
+    foreach (LCP_ALL as $slug) {
         foreach (lcp_words($slug) as $word) {
             expect($all)->not->toHaveKey($word, "{$slug} repeats {$word} of ".($all[$word] ?? ''));
             $all[$word] = $slug;
         }
     }
 
-    expect($all)->toHaveCount(3000);
+    expect($all)->toHaveCount(5000);
 });
 
-it('has every word of the three packs in the lexicon of the dictation, so that writing one of them for another is a mistake', function (): void {
+it('has every word of the five packs in the lexicon of the dictation, so that writing one of them for another is a mistake', function (): void {
     // No exceptions: every word of the packs is known to EnglishLexicon::isWord (add a missing one to resources/lexicon/en-common.txt).
     $exceptions = [];
     $unknown = [];
-    foreach ([LCP_A1_A2, 'english-b1', 'english-b2'] as $slug) {
+    foreach (LCP_ALL as $slug) {
         foreach (lcp_words($slug) as $word) {
             if (! in_array($word, $exceptions, true) && ! EnglishLexicon::isWord($word)) {
                 $unknown[] = "{$slug}: {$word}";
@@ -250,14 +257,14 @@ it('passes the publication check: full translation coverage, and the course can 
     expect($course->refresh()->status)->toBe(CoursePublisher::PUBLISHED);
 })->with('lcp_packs');
 
-it('imports all three level packs into one database: 3 courses, 1 000 words each, 3 000 in total', function (): void {
-    $slugs = [LCP_A1_A2, 'english-b1', 'english-b2'];
+it('imports all five level packs into one database: 5 courses, 1 000 words each, 5 000 in total', function (): void {
+    $slugs = LCP_ALL;
     foreach ($slugs as $slug) {
         lcp_import($slug);
     }
 
-    expect(Course::query()->count())->toBe(3)
-        ->and(Word::query()->count())->toBe(3000);
+    expect(Course::query()->count())->toBe(5)
+        ->and(Word::query()->count())->toBe(5000);
 
     foreach ($slugs as $slug) {
         $course = Course::query()->where('slug', $slug)->firstOrFail();
@@ -266,8 +273,8 @@ it('imports all three level packs into one database: 3 courses, 1 000 words each
     }
 });
 
-it('recommends the level course for a general goal from the real manifests of the three packs', function (): void {
-    foreach ([LCP_A1_A2, 'english-b1', 'english-b2'] as $slug) {
+it('recommends the level course for a general goal from the real manifests of the five packs', function (): void {
+    foreach (LCP_ALL as $slug) {
         $m = lcp_manifest($slug);
         Course::factory()->published()->create([
             'slug' => $m['slug'],
@@ -287,5 +294,7 @@ it('recommends the level course for a general goal from the real manifests of th
         ->and($catalog->recommend('general', 'A2')?->slug)->toBe(LCP_A1_A2)
         ->and($catalog->recommend('general', null)?->slug)->toBe(LCP_A1_A2)
         ->and($catalog->recommend('general', 'B1')?->slug)->toBe('english-b1')
-        ->and($catalog->recommend('general', 'B2')?->slug)->toBe('english-b2');
+        ->and($catalog->recommend('general', 'B2')?->slug)->toBe('english-b2')
+        ->and($catalog->recommend('general', 'C1')?->slug)->toBe('english-c1')
+        ->and($catalog->recommend('general', 'C2')?->slug)->toBe('english-c2');
 });

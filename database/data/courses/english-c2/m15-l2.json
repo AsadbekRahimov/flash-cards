@@ -14,6 +14,7 @@
     {
       "word": "mores",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɔrˌeɪz/",
       "translation": "нравы",
       "translations": {
         "ru": "нравы",
@@ -28,6 +29,7 @@
     {
       "word": "rite",
       "part_of_speech": "noun",
+      "transcription": "/raɪt/",
       "translation": "обряд",
       "translations": {
         "ru": "обряд",
@@ -36,12 +38,13 @@
       "example": "The ancient rite marks a boy's passage to adulthood.",
       "example_translations": {
         "ru": "Этот древний обряд знаменует переход мальчика во взрослую жизнь.",
-        "uz": "Bu qadimiy marosim o'g'il bolaning balog'atga o'tishini bildiradi."
+        "uz": "Bu qadimiy marosim o'g'il bolaning balog'atga yetishini bildiradi."
       }
     },
     {
       "word": "observance",
       "part_of_speech": "noun",
+      "transcription": "/əbˈzɜrvəns/",
       "translation": "соблюдение",
       "translations": {
         "ru": "соблюдение",
@@ -56,6 +59,7 @@
     {
       "word": "ethos",
       "part_of_speech": "noun",
+      "transcription": "/ˈiˌθɑs/",
       "translation": "система ценностей, этос",
       "translations": {
         "ru": "система ценностей, этос",
@@ -70,6 +74,7 @@
     {
       "word": "zeitgeist",
       "part_of_speech": "noun",
+      "transcription": "/ˈzaɪtˌgaɪst/",
       "translation": "дух времени",
       "translations": {
         "ru": "дух времени",
@@ -84,6 +89,7 @@
     {
       "word": "conformist",
       "part_of_speech": "noun",
+      "transcription": "/kənˈfɔrməst/",
       "translation": "конформист",
       "translations": {
         "ru": "конформист",
@@ -98,6 +104,7 @@
     {
       "word": "iconoclast",
       "part_of_speech": "noun",
+      "transcription": "/aɪˈkɑnəˌklæst/",
       "translation": "ниспровергатель устоев",
       "translations": {
         "ru": "ниспровергатель устоев",
@@ -112,6 +119,7 @@
     {
       "word": "maverick",
       "part_of_speech": "noun",
+      "transcription": "/ˈmævərɪk/",
       "translation": "человек независимых взглядов",
       "translations": {
         "ru": "человек независимых взглядов",
@@ -126,6 +134,7 @@
     {
       "word": "entrenched",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtrɛntʃt/",
       "translation": "укоренившийся",
       "translations": {
         "ru": "укоренившийся",
@@ -140,6 +149,7 @@
     {
       "word": "sacrosanct",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsækroʊˌsæŋkt/",
       "translation": "священный, неприкосновенный",
       "translations": {
         "ru": "священный, неприкосновенный",

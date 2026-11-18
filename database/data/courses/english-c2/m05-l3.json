@@ -14,6 +14,7 @@
     {
       "word": "epistemology",
       "part_of_speech": "noun",
+      "transcription": "/ɪˌpɪstəˈmɑlədʒi/",
       "translation": "эпистемология, теория познания",
       "translations": {
         "ru": "эпистемология, теория познания",
@@ -28,6 +29,7 @@
     {
       "word": "empiricism",
       "part_of_speech": "noun",
+      "transcription": "/ɪmˈpɪrəˌsɪzəm/",
       "translation": "эмпиризм",
       "translations": {
         "ru": "эмпиризм",
@@ -42,6 +44,7 @@
     {
       "word": "doctrine",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɑktrən/",
       "translation": "учение, доктрина",
       "translations": {
         "ru": "учение, доктрина",
@@ -56,6 +59,7 @@
     {
       "word": "tenet",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛnət/",
       "translation": "положение учения, догмат",
       "translations": {
         "ru": "положение учения, догмат",
@@ -70,6 +74,7 @@
     {
       "word": "veracity",
       "part_of_speech": "noun",
+      "transcription": "/vəˈræsəti/",
       "translation": "правдивость, достоверность",
       "translations": {
         "ru": "правдивость, достоверность",
@@ -84,6 +89,7 @@
     {
       "word": "fallible",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfæləbəl/",
       "translation": "способный ошибаться",
       "translations": {
         "ru": "способный ошибаться",
@@ -98,6 +104,7 @@
     {
       "word": "objectivity",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑbdʒɛkˈtɪvəti/",
       "translation": "объективность",
       "translations": {
         "ru": "объективность",
@@ -112,6 +119,7 @@
     {
       "word": "relativism",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛlətɪˌvɪzəm/",
       "translation": "релятивизм",
       "translations": {
         "ru": "релятивизм",
@@ -126,6 +134,7 @@
     {
       "word": "tenable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtɛnəbəl/",
       "translation": "состоятельный, обоснованный",
       "translations": {
         "ru": "состоятельный, обоснованный",
@@ -140,6 +149,7 @@
     {
       "word": "conjecture",
       "part_of_speech": "noun",
+      "transcription": "/kənˈdʒɛktʃər/",
       "translation": "догадка, предположение",
       "translations": {
         "ru": "догадка, предположение",

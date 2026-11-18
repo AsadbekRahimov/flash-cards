@@ -14,6 +14,7 @@
     {
       "word": "muse",
       "part_of_speech": "noun",
+      "transcription": "/mjuz/",
       "translation": "муза, источник вдохновения",
       "translations": {
         "ru": "муза, источник вдохновения",
@@ -28,6 +29,7 @@
     {
       "word": "spontaneity",
       "part_of_speech": "noun",
+      "transcription": "/ˌspɑntəˈneɪəti/",
       "translation": "спонтанность, непосредственность",
       "translations": {
         "ru": "спонтанность, непосредственность",
@@ -42,6 +44,7 @@
     {
       "word": "originality",
       "part_of_speech": "noun",
+      "transcription": "/əˌrɪdʒəˈnæləti/",
       "translation": "оригинальность, самобытность",
       "translations": {
         "ru": "оригинальность, самобытность",
@@ -56,6 +59,7 @@
     {
       "word": "craftsmanship",
       "part_of_speech": "noun",
+      "transcription": "/ˈkræftsmənˌʃɪp/",
       "translation": "ремесленное мастерство",
       "translations": {
         "ru": "ремесленное мастерство",
@@ -70,6 +74,7 @@
     {
       "word": "artistry",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrtəstri/",
       "translation": "художественное мастерство, артистизм",
       "translations": {
         "ru": "художественное мастерство, артистизм",
@@ -78,12 +83,13 @@
       "example": "The dancer's artistry moved the audience to tears.",
       "example_translations": {
         "ru": "Художественное мастерство танцовщицы тронуло зрителей до слёз.",
-        "uz": "Raqqosaning badiiy mahorati tomoshabinlarni ko'z yoshigacha ta'sirlantirdi."
+        "uz": "Raqqosaning badiiy mahorati tomoshabinlarning ko'ziga yosh keltirdi."
       }
     },
     {
       "word": "finesse",
       "part_of_speech": "noun",
+      "transcription": "/fəˈnɛs/",
       "translation": "изящество, тонкость",
       "translations": {
         "ru": "изящество, тонкость",
@@ -98,6 +104,7 @@
     {
       "word": "dexterity",
       "part_of_speech": "noun",
+      "transcription": "/dɛkˈstɛrəti/",
       "translation": "ловкость, сноровка",
       "translations": {
         "ru": "ловкость, сноровка",
@@ -112,6 +119,7 @@
     {
       "word": "rendition",
       "part_of_speech": "noun",
+      "transcription": "/rɛnˈdɪʃən/",
       "translation": "трактовка, исполнение",
       "translations": {
         "ru": "трактовка, исполнение",
@@ -126,6 +134,7 @@
     {
       "word": "emulate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɛmjəˌleɪt/",
       "translation": "подражать, равняться на",
       "translations": {
         "ru": "подражать, равняться на",
@@ -140,6 +149,7 @@
     {
       "word": "retrospective",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛtrəˈspɛktɪv/",
       "translation": "ретроспектива",
       "translations": {
         "ru": "ретроспектива",

@@ -14,6 +14,7 @@
     {
       "word": "triumph",
       "part_of_speech": "noun",
+      "transcription": "/ˈtraɪəmf/",
       "translation": "триумф, торжество",
       "translations": {
         "ru": "триумф, торжество",
@@ -28,6 +29,7 @@
     {
       "word": "prevail",
       "part_of_speech": "verb",
+      "transcription": "/prɪˈveɪl/",
       "translation": "одерживать верх",
       "translations": {
         "ru": "одерживать верх",
@@ -42,6 +44,7 @@
     {
       "word": "trounce",
       "part_of_speech": "verb",
+      "transcription": "/traʊns/",
       "translation": "разгромить, разбить наголову",
       "translations": {
         "ru": "разгромить, разбить наголову",
@@ -56,20 +59,22 @@
     {
       "word": "rout",
       "part_of_speech": "noun",
+      "transcription": "/raʊt/",
       "translation": "разгром",
       "translations": {
         "ru": "разгром",
-        "uz": "yirik mag'lubiyat"
+        "uz": "qaqshatqich mag'lubiyat"
       },
       "example": "The match ended in a rout for the visitors.",
       "example_translations": {
         "ru": "Матч закончился разгромом гостей.",
-        "uz": "O'yin mehmonlarning yirik mag'lubiyati bilan tugadi."
+        "uz": "O'yin mehmonlarning qaqshatqich mag'lubiyati bilan tugadi."
       }
     },
     {
       "word": "overpower",
       "part_of_speech": "verb",
+      "transcription": "/ˌoʊvərˈpaʊər/",
       "translation": "одолевать, пересиливать",
       "translations": {
         "ru": "одолевать, пересиливать",
@@ -84,6 +89,7 @@
     {
       "word": "supremacy",
       "part_of_speech": "noun",
+      "transcription": "/suˈprɛməsi/",
       "translation": "господство, превосходство",
       "translations": {
         "ru": "господство, превосходство",
@@ -98,6 +104,7 @@
     {
       "word": "debacle",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈbɑkəl/",
       "translation": "полный провал",
       "translations": {
         "ru": "полный провал",
@@ -112,6 +119,7 @@
     {
       "word": "fiasco",
       "part_of_speech": "noun",
+      "transcription": "/fiˈæskoʊ/",
       "translation": "фиаско",
       "translations": {
         "ru": "фиаско",
@@ -126,6 +134,7 @@
     {
       "word": "undoing",
       "part_of_speech": "noun",
+      "transcription": "/ʌnˈduɪŋ/",
       "translation": "причина краха, погибель",
       "translations": {
         "ru": "причина краха, погибель",
@@ -134,12 +143,13 @@
       "example": "Overconfidence proved to be the champion's undoing.",
       "example_translations": {
         "ru": "Самоуверенность и стала причиной краха чемпиона.",
-        "uz": "O'ziga ortiqcha ishonch chempionning halokat sababi bo'ldi."
+        "uz": "O'ziga ortiqcha ishonch chempionning halokatiga sabab bo'ldi."
       }
     },
     {
       "word": "ignominious",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪgnəˈmɪniəs/",
       "translation": "позорный, бесславный",
       "translations": {
         "ru": "позорный, бесславный",

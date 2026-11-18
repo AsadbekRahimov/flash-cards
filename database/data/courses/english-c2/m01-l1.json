@@ -14,6 +14,7 @@
     {
       "word": "magnanimous",
       "part_of_speech": "adjective",
+      "transcription": "/mægˈnænəməs/",
       "translation": "великодушный",
       "translations": {
         "ru": "великодушный",
@@ -28,6 +29,7 @@
     {
       "word": "scrupulous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈskrupjələs/",
       "translation": "щепетильный, добросовестный",
       "translations": {
         "ru": "щепетильный, добросовестный",
@@ -35,13 +37,14 @@
       },
       "example": "She is scrupulous about returning every borrowed cent.",
       "example_translations": {
-        "ru": "Она очень щепетильна и возвращает каждый занятый цент.",
+        "ru": "Она очень щепетильна: возвращает каждый взятый в долг цент.",
         "uz": "U juda vijdonli: qarzga olgan har bir sentini qaytaradi."
       }
     },
     {
       "word": "unassuming",
       "part_of_speech": "adjective",
+      "transcription": "/ˌʌnəˈsumɪŋ/",
       "translation": "скромный, непритязательный",
       "translations": {
         "ru": "скромный, непритязательный",
@@ -56,10 +59,11 @@
     {
       "word": "affable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈæfəbəl/",
       "translation": "приветливый, радушный",
       "translations": {
         "ru": "приветливый, радушный",
-        "uz": "xushmuomala"
+        "uz": "xushmuomala, ochiq chehrali"
       },
       "example": "Our affable host chatted warmly with every guest.",
       "example_translations": {
@@ -70,6 +74,7 @@
     {
       "word": "astute",
       "part_of_speech": "adjective",
+      "transcription": "/əˈstut/",
       "translation": "проницательный",
       "translations": {
         "ru": "проницательный",
@@ -84,10 +89,11 @@
     {
       "word": "sagacious",
       "part_of_speech": "adjective",
+      "transcription": "/səˈgeɪʃəs/",
       "translation": "мудрый, прозорливый",
       "translations": {
         "ru": "мудрый, прозорливый",
-        "uz": "dono"
+        "uz": "dono, uzoqni ko'ruvchi"
       },
       "example": "Villagers sought advice from the sagacious old teacher.",
       "example_translations": {
@@ -98,6 +104,7 @@
     {
       "word": "intrepid",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtrɛpəd/",
       "translation": "бесстрашный, неустрашимый",
       "translations": {
         "ru": "бесстрашный, неустрашимый",
@@ -112,6 +119,7 @@
     {
       "word": "stoic",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstoʊɪk/",
       "translation": "стойкий, невозмутимый",
       "translations": {
         "ru": "стойкий, невозмутимый",
@@ -126,6 +134,7 @@
     {
       "word": "gracious",
       "part_of_speech": "adjective",
+      "transcription": "/ˈgreɪʃəs/",
       "translation": "любезный",
       "translations": {
         "ru": "любезный",
@@ -140,6 +149,7 @@
     {
       "word": "judicious",
       "part_of_speech": "adjective",
+      "transcription": "/dʒuˈdɪʃəs/",
       "translation": "рассудительный, благоразумный",
       "translations": {
         "ru": "рассудительный, благоразумный",

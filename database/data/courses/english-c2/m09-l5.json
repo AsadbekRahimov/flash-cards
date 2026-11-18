@@ -14,6 +14,7 @@
     {
       "word": "technocrat",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛknəˌkræt/",
       "translation": "технократ",
       "translations": {
         "ru": "технократ",
@@ -28,6 +29,7 @@
     {
       "word": "apparatus",
       "part_of_speech": "noun",
+      "transcription": "/ˌæpəˈrætəs/",
       "translation": "государственный аппарат",
       "translations": {
         "ru": "государственный аппарат",
@@ -42,6 +44,7 @@
     {
       "word": "statecraft",
       "part_of_speech": "noun",
+      "transcription": "/ˈsteɪtˌkræft/",
       "translation": "искусство управления государством",
       "translations": {
         "ru": "искусство управления государством",
@@ -56,6 +59,7 @@
     {
       "word": "polity",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑləti/",
       "translation": "государственное образование",
       "translations": {
         "ru": "государственное образование",
@@ -70,6 +74,7 @@
     {
       "word": "federalism",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɛdərəˌlɪzəm/",
       "translation": "федерализм",
       "translations": {
         "ru": "федерализм",
@@ -84,6 +89,7 @@
     {
       "word": "devolution",
       "part_of_speech": "noun",
+      "transcription": "/ˌdɛvəˈluʃən/",
       "translation": "передача полномочий регионам",
       "translations": {
         "ru": "передача полномочий регионам",
@@ -98,6 +104,7 @@
     {
       "word": "purview",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɜrˌvju/",
       "translation": "сфера полномочий",
       "translations": {
         "ru": "сфера полномочий",
@@ -112,6 +119,7 @@
     {
       "word": "centralize",
       "part_of_speech": "verb",
+      "transcription": "/ˈsɛntrəˌlaɪz/",
       "translation": "централизовать",
       "translations": {
         "ru": "централизовать",
@@ -126,6 +134,7 @@
     {
       "word": "filibuster",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɪləˌbʌstər/",
       "translation": "парламентская обструкция",
       "translations": {
         "ru": "парламентская обструкция",
@@ -140,6 +149,7 @@
     {
       "word": "plebiscite",
       "part_of_speech": "noun",
+      "transcription": "/ˈplɛbəˌsaɪt/",
       "translation": "всенародное голосование",
       "translations": {
         "ru": "всенародное голосование",

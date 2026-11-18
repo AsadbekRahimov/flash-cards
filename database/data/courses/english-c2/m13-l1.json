@@ -14,6 +14,7 @@
     {
       "word": "malady",
       "part_of_speech": "noun",
+      "transcription": "/ˈmælədi/",
       "translation": "болезнь",
       "translations": {
         "ru": "болезнь",
@@ -28,6 +29,7 @@
     {
       "word": "affliction",
       "part_of_speech": "noun",
+      "transcription": "/əˈflɪkʃən/",
       "translation": "недуг",
       "translations": {
         "ru": "недуг",
@@ -42,20 +44,22 @@
     {
       "word": "debilitating",
       "part_of_speech": "adjective",
-      "translation": "изнурительный",
+      "transcription": "/dɪˈbɪləˌteɪtɪŋ/",
+      "translation": "изнуряющий, ослабляющий",
       "translations": {
-        "ru": "изнурительный",
-        "uz": "holdan toydiruvchi"
+        "ru": "изнуряющий, ослабляющий",
+        "uz": "holsizlantiruvchi"
       },
       "example": "A debilitating illness kept her in bed for months.",
       "example_translations": {
-        "ru": "Изнурительная болезнь на месяцы приковала её к постели.",
-        "uz": "Holdan toydiruvchi xastalik uni oylab to'shakka mixlab qo'ydi."
+        "ru": "Изнуряющая болезнь на месяцы приковала её к постели.",
+        "uz": "Holsizlantiruvchi xastalik uni oylab to'shakka mixlab qo'ydi."
       }
     },
     {
       "word": "degenerative",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈdʒɛnərətɪv/",
       "translation": "дегенеративный",
       "translations": {
         "ru": "дегенеративный",
@@ -70,6 +74,7 @@
     {
       "word": "congenital",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈdʒɛnətəl/",
       "translation": "врождённый",
       "translations": {
         "ru": "врождённый",
@@ -84,6 +89,7 @@
     {
       "word": "pathology",
       "part_of_speech": "noun",
+      "transcription": "/pəˈθɑlədʒi/",
       "translation": "патология",
       "translations": {
         "ru": "патология",
@@ -98,6 +104,7 @@
     {
       "word": "syndrome",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪnˌdroʊm/",
       "translation": "синдром",
       "translations": {
         "ru": "синдром",
@@ -112,6 +119,7 @@
     {
       "word": "anemia",
       "part_of_speech": "noun",
+      "transcription": "/əˈnimiə/",
       "translation": "анемия, малокровие",
       "translations": {
         "ru": "анемия, малокровие",
@@ -126,6 +134,7 @@
     {
       "word": "hemorrhage",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɛmərɪdʒ/",
       "translation": "кровотечение, кровоизлияние",
       "translations": {
         "ru": "кровотечение, кровоизлияние",
@@ -140,6 +149,7 @@
     {
       "word": "malaise",
       "part_of_speech": "noun",
+      "transcription": "/məˈleɪz/",
       "translation": "недомогание",
       "translations": {
         "ru": "недомогание",

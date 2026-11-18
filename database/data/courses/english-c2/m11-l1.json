@@ -14,6 +14,7 @@
     {
       "word": "arbitrage",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrbəˌtrɑʒ/",
       "translation": "арбитраж",
       "translations": {
         "ru": "арбитраж",
@@ -28,6 +29,7 @@
     {
       "word": "speculative",
       "part_of_speech": "adjective",
+      "transcription": "/ˈspɛkjələtɪv/",
       "translation": "спекулятивный",
       "translations": {
         "ru": "спекулятивный",
@@ -42,6 +44,7 @@
     {
       "word": "bullish",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbʊlɪʃ/",
       "translation": "ожидающий роста цен",
       "translations": {
         "ru": "ожидающий роста цен",
@@ -56,6 +59,7 @@
     {
       "word": "bearish",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbɛrɪʃ/",
       "translation": "ожидающий падения цен",
       "translations": {
         "ru": "ожидающий падения цен",
@@ -70,6 +74,7 @@
     {
       "word": "derivative",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈrɪvətɪv/",
       "translation": "производный финансовый инструмент",
       "translations": {
         "ru": "производный финансовый инструмент",
@@ -84,6 +89,7 @@
     {
       "word": "overvalued",
       "part_of_speech": "adjective",
+      "transcription": "/ˌoʊvərˈvæljud/",
       "translation": "переоценённый",
       "translations": {
         "ru": "переоценённый",
@@ -98,6 +104,7 @@
     {
       "word": "sluggish",
       "part_of_speech": "adjective",
+      "transcription": "/ˈslʌgɪʃ/",
       "translation": "вялый",
       "translations": {
         "ru": "вялый",
@@ -112,20 +119,22 @@
     {
       "word": "lackluster",
       "part_of_speech": "adjective",
-      "translation": "посредственный",
+      "transcription": "/ˈlækˌlʌstər/",
+      "translation": "невыразительный, слабый",
       "translations": {
-        "ru": "посредственный",
+        "ru": "невыразительный, слабый",
         "uz": "o'rtamiyona"
       },
       "example": "Lackluster earnings disappointed shareholders who expected record profits.",
       "example_translations": {
-        "ru": "Посредственная прибыль разочаровала акционеров, ожидавших рекордных доходов.",
+        "ru": "Невыразительная прибыль разочаровала акционеров, ожидавших рекордных доходов.",
         "uz": "O'rtamiyona foyda rekord daromad kutgan aksiyadorlarning hafsalasini pir qildi."
       }
     },
     {
       "word": "solvency",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɑlvənsi/",
       "translation": "платёжеспособность",
       "translations": {
         "ru": "платёжеспособность",
@@ -140,6 +149,7 @@
     {
       "word": "windfall",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɪndˌfɔl/",
       "translation": "неожиданная крупная прибыль",
       "translations": {
         "ru": "неожиданная крупная прибыль",

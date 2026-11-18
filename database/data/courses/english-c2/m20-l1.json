@@ -14,6 +14,7 @@
     {
       "word": "assiduous",
       "part_of_speech": "adjective",
+      "transcription": "/əˈsɪdʒuəs/",
       "translation": "усердный, прилежный",
       "translations": {
         "ru": "усердный, прилежный",
@@ -28,6 +29,7 @@
     {
       "word": "industrious",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdʌstriəs/",
       "translation": "трудолюбивый",
       "translations": {
         "ru": "трудолюбивый",
@@ -42,6 +44,7 @@
     {
       "word": "zealous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈzɛləs/",
       "translation": "рьяный, ревностный",
       "translations": {
         "ru": "рьяный, ревностный",
@@ -56,6 +59,7 @@
     {
       "word": "indolent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɪndələnt/",
       "translation": "ленивый, праздный",
       "translations": {
         "ru": "ленивый, праздный",
@@ -70,6 +74,7 @@
     {
       "word": "lackadaisical",
       "part_of_speech": "adjective",
+      "transcription": "/ˌlækəˈdeɪzɪkəl/",
       "translation": "вялый, безразличный",
       "translations": {
         "ru": "вялый, безразличный",
@@ -84,10 +89,11 @@
     {
       "word": "shirk",
       "part_of_speech": "verb",
+      "transcription": "/ʃɜrk/",
       "translation": "увиливать, отлынивать",
       "translations": {
         "ru": "увиливать, отлынивать",
-        "uz": "bo'yin tovlamoq"
+        "uz": "ishdan bo'yin tovlamoq"
       },
       "example": "Tom shirks his chores whenever nobody is watching.",
       "example_translations": {
@@ -98,6 +104,7 @@
     {
       "word": "procrastinate",
       "part_of_speech": "verb",
+      "transcription": "/prəˈkræstəˌneɪt/",
       "translation": "откладывать на потом",
       "translations": {
         "ru": "откладывать на потом",
@@ -112,6 +119,7 @@
     {
       "word": "toil",
       "part_of_speech": "verb",
+      "transcription": "/tɔɪl/",
       "translation": "тяжело трудиться",
       "translations": {
         "ru": "тяжело трудиться",
@@ -126,6 +134,7 @@
     {
       "word": "drudgery",
       "part_of_speech": "noun",
+      "transcription": "/ˈdrʌdʒəri/",
       "translation": "нудная тяжёлая работа",
       "translations": {
         "ru": "нудная тяжёлая работа",
@@ -133,13 +142,14 @@
       },
       "example": "Washing dishes all day is pure drudgery.",
       "example_translations": {
-        "ru": "Целый день мыть посуду — сплошная нудная тяжёлая работа.",
+        "ru": "Целый день мыть посуду — нудная и тяжёлая работа.",
         "uz": "Kun bo'yi idish yuvish — g'irt zerikarli og'ir ish."
       }
     },
     {
       "word": "strive",
       "part_of_speech": "verb",
+      "transcription": "/straɪv/",
       "translation": "стремиться",
       "translations": {
         "ru": "стремиться",

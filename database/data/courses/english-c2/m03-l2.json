@@ -14,20 +14,22 @@
     {
       "word": "enunciate",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈnʌnsiˌeɪt/",
       "translation": "чётко произносить",
       "translations": {
         "ru": "чётко произносить",
-        "uz": "aniq talaffuz qilmoq"
+        "uz": "dona-dona talaffuz qilmoq"
       },
       "example": "Please enunciate so the back row can hear.",
       "example_translations": {
         "ru": "Пожалуйста, произносите чётко, чтобы слышал последний ряд.",
-        "uz": "Iltimos, oxirgi qator eshitishi uchun aniq talaffuz qiling."
+        "uz": "Iltimos, oxirgi qator eshitishi uchun dona-dona talaffuz qiling."
       }
     },
     {
       "word": "expound",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈspaʊnd/",
       "translation": "подробно излагать",
       "translations": {
         "ru": "подробно излагать",
@@ -42,6 +44,7 @@
     {
       "word": "extol",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈstoʊl/",
       "translation": "превозносить",
       "translations": {
         "ru": "превозносить",
@@ -56,6 +59,7 @@
     {
       "word": "berate",
       "part_of_speech": "verb",
+      "transcription": "/bɪˈreɪt/",
       "translation": "отчитывать, распекать",
       "translations": {
         "ru": "отчитывать, распекать",
@@ -70,6 +74,7 @@
     {
       "word": "admonish",
       "part_of_speech": "verb",
+      "transcription": "/ədˈmɑnɪʃ/",
       "translation": "делать внушение",
       "translations": {
         "ru": "делать внушение",
@@ -84,6 +89,7 @@
     {
       "word": "cajole",
       "part_of_speech": "verb",
+      "transcription": "/kəˈdʒoʊl/",
       "translation": "уговаривать лестью",
       "translations": {
         "ru": "уговаривать лестью",
@@ -98,6 +104,7 @@
     {
       "word": "implore",
       "part_of_speech": "verb",
+      "transcription": "/ɪmˈplɔr/",
       "translation": "умолять",
       "translations": {
         "ru": "умолять",
@@ -112,6 +119,7 @@
     {
       "word": "exhort",
       "part_of_speech": "verb",
+      "transcription": "/ɪgˈzɔrt/",
       "translation": "призывать, побуждать",
       "translations": {
         "ru": "призывать, побуждать",
@@ -126,6 +134,7 @@
     {
       "word": "insinuate",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈsɪnjuˌeɪt/",
       "translation": "намекать на дурное",
       "translations": {
         "ru": "намекать на дурное",
@@ -140,6 +149,7 @@
     {
       "word": "divulge",
       "part_of_speech": "verb",
+      "transcription": "/daɪˈvʌldʒ/",
       "translation": "разглашать",
       "translations": {
         "ru": "разглашать",

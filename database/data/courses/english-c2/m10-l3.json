@@ -14,6 +14,7 @@
     {
       "word": "bequeath",
       "part_of_speech": "verb",
+      "transcription": "/bɪˈkwið/",
       "translation": "завещать",
       "translations": {
         "ru": "завещать",
@@ -28,6 +29,7 @@
     {
       "word": "testament",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛstəmənt/",
       "translation": "завещание",
       "translations": {
         "ru": "завещание",
@@ -42,6 +44,7 @@
     {
       "word": "probate",
       "part_of_speech": "noun",
+      "transcription": "/ˈproʊˌbeɪt/",
       "translation": "утверждение завещания",
       "translations": {
         "ru": "утверждение завещания",
@@ -56,20 +59,22 @@
     {
       "word": "executor",
       "part_of_speech": "noun",
+      "transcription": "/ɪgˈzɛkjətər/",
       "translation": "исполнитель завещания",
       "translations": {
         "ru": "исполнитель завещания",
-        "uz": "vasiyat ijrochisi"
+        "uz": "vasiyatnoma ijrochisi"
       },
       "example": "As executor, Tom distributed his aunt's property.",
       "example_translations": {
         "ru": "Как исполнитель завещания Том распределил имущество своей тёти.",
-        "uz": "Vasiyat ijrochisi sifatida Tom xolasining mol-mulkini taqsimladi."
+        "uz": "Vasiyatnoma ijrochisi sifatida Tom xolasining mol-mulkini taqsimladi."
       }
     },
     {
       "word": "beneficiary",
       "part_of_speech": "noun",
+      "transcription": "/ˌbɛnəˈfɪʃiˌɛri/",
       "translation": "выгодоприобретатель",
       "translations": {
         "ru": "выгодоприобретатель",
@@ -84,6 +89,7 @@
     {
       "word": "trustee",
       "part_of_speech": "noun",
+      "transcription": "/ˌtrʌˈsti/",
       "translation": "доверительный управляющий",
       "translations": {
         "ru": "доверительный управляющий",
@@ -98,6 +104,7 @@
     {
       "word": "escrow",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛskroʊ/",
       "translation": "счёт эскроу",
       "translations": {
         "ru": "счёт эскроу",
@@ -112,6 +119,7 @@
     {
       "word": "endowment",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈdaʊmənt/",
       "translation": "целевой капитал",
       "translations": {
         "ru": "целевой капитал",
@@ -126,6 +134,7 @@
     {
       "word": "expropriate",
       "part_of_speech": "verb",
+      "transcription": "/ɛkˈsproʊpriˌeɪt/",
       "translation": "принудительно изымать",
       "translations": {
         "ru": "принудительно изымать",
@@ -140,6 +149,7 @@
     {
       "word": "confiscate",
       "part_of_speech": "verb",
+      "transcription": "/ˈkɑnfəˌskeɪt/",
       "translation": "конфисковать",
       "translations": {
         "ru": "конфисковать",

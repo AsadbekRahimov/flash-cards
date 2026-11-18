@@ -14,6 +14,7 @@
     {
       "word": "memorandum",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɛməˈrændəm/",
       "translation": "служебная записка",
       "translations": {
         "ru": "служебная записка",
@@ -28,6 +29,7 @@
     {
       "word": "addendum",
       "part_of_speech": "noun",
+      "transcription": "/əˈdɛndəm/",
       "translation": "дополнение к документу",
       "translations": {
         "ru": "дополнение к документу",
@@ -42,10 +44,11 @@
     {
       "word": "proviso",
       "part_of_speech": "noun",
+      "transcription": "/prəˈvaɪzoʊ/",
       "translation": "оговорка, условие",
       "translations": {
         "ru": "оговорка, условие",
-        "uz": "shart"
+        "uz": "qo'shimcha shart"
       },
       "example": "I agreed, with the proviso that costs stay low.",
       "example_translations": {
@@ -56,20 +59,22 @@
     {
       "word": "affidavit",
       "part_of_speech": "noun",
+      "transcription": "/ˌæfəˈdeɪvət/",
       "translation": "письменное показание под присягой",
       "translations": {
         "ru": "письменное показание под присягой",
-        "uz": "qasamyod ostidagi yozma ko'rsatuv"
+        "uz": "qasamyod bilan tasdiqlangan yozma ko'rsatuv"
       },
       "example": "She signed an affidavit confirming what she had seen.",
       "example_translations": {
         "ru": "Она подписала письменное показание под присягой о том, что видела.",
-        "uz": "U ko'rganlarini tasdiqlovchi qasamyod ostidagi yozma ko'rsatuvni imzoladi."
+        "uz": "U ko'rganlari haqidagi qasamyod bilan tasdiqlangan yozma ko'rsatuvni imzoladi."
       }
     },
     {
       "word": "proceedings",
       "part_of_speech": "noun",
+      "transcription": "/prəˈsidɪŋz/",
       "translation": "разбирательство, заседание",
       "translations": {
         "ru": "разбирательство, заседание",
@@ -84,6 +89,7 @@
     {
       "word": "quorum",
       "part_of_speech": "noun",
+      "transcription": "/ˈkwɔrəm/",
       "translation": "кворум",
       "translations": {
         "ru": "кворум",
@@ -98,6 +104,7 @@
     {
       "word": "protocol",
       "part_of_speech": "noun",
+      "transcription": "/ˈproʊtəˌkɔl/",
       "translation": "протокол, установленный порядок",
       "translations": {
         "ru": "протокол, установленный порядок",
@@ -112,6 +119,7 @@
     {
       "word": "dossier",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɔsiˌeɪ/",
       "translation": "досье",
       "translations": {
         "ru": "досье",
@@ -126,6 +134,7 @@
     {
       "word": "correspondence",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɔrəˈspɑndəns/",
       "translation": "переписка",
       "translations": {
         "ru": "переписка",
@@ -140,15 +149,16 @@
     {
       "word": "ordinance",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔrdənəns/",
       "translation": "постановление местных властей",
       "translations": {
         "ru": "постановление местных властей",
-        "uz": "mahalliy hokimiyat qarori"
+        "uz": "mahalliy hokimlik qarori"
       },
       "example": "A city ordinance bans loud music after midnight.",
       "example_translations": {
         "ru": "Постановление городских властей запрещает громкую музыку после полуночи.",
-        "uz": "Shahar hokimiyati qarori yarim tundan keyin baland musiqani taqiqlaydi."
+        "uz": "Shahar hokimligi qarori yarim tundan keyin baland musiqani taqiqlaydi."
       }
     }
   ]

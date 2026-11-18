@@ -14,6 +14,7 @@
     {
       "word": "quantum",
       "part_of_speech": "noun",
+      "transcription": "/ˈkwɑntəm/",
       "translation": "квант",
       "translations": {
         "ru": "квант",
@@ -28,6 +29,7 @@
     {
       "word": "relativity",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛləˈtɪvəti/",
       "translation": "относительность",
       "translations": {
         "ru": "относительность",
@@ -42,6 +44,7 @@
     {
       "word": "entropy",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛntrəpi/",
       "translation": "энтропия",
       "translations": {
         "ru": "энтропия",
@@ -56,6 +59,7 @@
     {
       "word": "thermodynamics",
       "part_of_speech": "noun",
+      "transcription": "/ˌθɜrmoʊdaɪˈnæmɪks/",
       "translation": "термодинамика",
       "translations": {
         "ru": "термодинамика",
@@ -70,6 +74,7 @@
     {
       "word": "electromagnetic",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˌlɛktroʊmægˈnɛtɪk/",
       "translation": "электромагнитный",
       "translations": {
         "ru": "электромагнитный",
@@ -84,20 +89,22 @@
     {
       "word": "oscillate",
       "part_of_speech": "verb",
-      "translation": "колебаться",
+      "transcription": "/ˈɑsəˌleɪt/",
+      "translation": "совершать колебания",
       "translations": {
-        "ru": "колебаться",
+        "ru": "совершать колебания",
         "uz": "tebranmoq"
       },
       "example": "The pendulum oscillates steadily from side to side.",
       "example_translations": {
-        "ru": "Маятник равномерно колеблется из стороны в сторону.",
+        "ru": "Маятник равномерно совершает колебания из стороны в сторону.",
         "uz": "Mayatnik u yoqdan bu yoqqa bir tekis tebranadi."
       }
     },
     {
       "word": "refraction",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈfrækʃən/",
       "translation": "преломление",
       "translations": {
         "ru": "преломление",
@@ -112,6 +119,7 @@
     {
       "word": "celestial",
       "part_of_speech": "adjective",
+      "transcription": "/səˈlɛstʃəl/",
       "translation": "небесный",
       "translations": {
         "ru": "небесный",
@@ -126,6 +134,7 @@
     {
       "word": "cosmology",
       "part_of_speech": "noun",
+      "transcription": "/kɑzˈmɑlədʒi/",
       "translation": "космология",
       "translations": {
         "ru": "космология",
@@ -140,6 +149,7 @@
     {
       "word": "kinetic",
       "part_of_speech": "adjective",
+      "transcription": "/kəˈnɛtɪk/",
       "translation": "кинетический",
       "translations": {
         "ru": "кинетический",

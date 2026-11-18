@@ -14,6 +14,7 @@
     {
       "word": "theorem",
       "part_of_speech": "noun",
+      "transcription": "/ˈθiərəm/",
       "translation": "теорема",
       "translations": {
         "ru": "теорема",
@@ -28,6 +29,7 @@
     {
       "word": "logarithm",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɔgəˌrɪðəm/",
       "translation": "логарифм",
       "translations": {
         "ru": "логарифм",
@@ -42,6 +44,7 @@
     {
       "word": "exponential",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɛkspəˈnɛnʃəl/",
       "translation": "экспоненциальный",
       "translations": {
         "ru": "экспоненциальный",
@@ -56,6 +59,7 @@
     {
       "word": "permutation",
       "part_of_speech": "noun",
+      "transcription": "/ˌpɜrmjuˈteɪʃən/",
       "translation": "перестановка",
       "translations": {
         "ru": "перестановка",
@@ -70,6 +74,7 @@
     {
       "word": "stochastic",
       "part_of_speech": "adjective",
+      "transcription": "/stəˈkæstɪk/",
       "translation": "стохастический, случайный",
       "translations": {
         "ru": "стохастический, случайный",
@@ -84,6 +89,7 @@
     {
       "word": "integer",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪntədʒər/",
       "translation": "целое число",
       "translations": {
         "ru": "целое число",
@@ -98,6 +104,7 @@
     {
       "word": "vector",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɛktər/",
       "translation": "вектор",
       "translations": {
         "ru": "вектор",
@@ -112,6 +119,7 @@
     {
       "word": "matrix",
       "part_of_speech": "noun",
+      "transcription": "/ˈmeɪtrɪks/",
       "translation": "матрица",
       "translations": {
         "ru": "матрица",
@@ -126,6 +134,7 @@
     {
       "word": "symmetry",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪmətri/",
       "translation": "симметрия",
       "translations": {
         "ru": "симметрия",
@@ -140,6 +149,7 @@
     {
       "word": "interpolate",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈtɜrpəˌleɪt/",
       "translation": "интерполировать",
       "translations": {
         "ru": "интерполировать",

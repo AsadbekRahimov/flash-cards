@@ -14,6 +14,7 @@
     {
       "word": "arduous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɑrdʒuəs/",
       "translation": "тяжёлый, трудоёмкий",
       "translations": {
         "ru": "тяжёлый, трудоёмкий",
@@ -21,13 +22,14 @@
       },
       "example": "The arduous climb took nine exhausting hours.",
       "example_translations": {
-        "ru": "Тяжёлый подъём занял девять изматывающих часов.",
+        "ru": "Тяжёлый подъём занял девять утомительных часов.",
         "uz": "Mashaqqatli ko'tarilish charchatuvchi to'qqiz soat davom etdi."
       }
     },
     {
       "word": "onerous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɑnərəs/",
       "translation": "обременительный",
       "translations": {
         "ru": "обременительный",
@@ -42,20 +44,22 @@
     {
       "word": "grueling",
       "part_of_speech": "adjective",
-      "translation": "изнурительный",
+      "transcription": "/ˈgruəlɪŋ/",
+      "translation": "изнурительный, изматывающий",
       "translations": {
-        "ru": "изнурительный",
-        "uz": "holdan toydiruvchi"
+        "ru": "изнурительный, изматывающий",
+        "uz": "tinka qurituvchi"
       },
       "example": "After the grueling marathon, she could barely stand.",
       "example_translations": {
         "ru": "После изнурительного марафона она едва держалась на ногах.",
-        "uz": "Holdan toydiruvchi marafondan so'ng u zo'rg'a oyoqda turardi."
+        "uz": "Tinka qurituvchi marafondan so'ng u zo'rg'a oyoqda turardi."
       }
     },
     {
       "word": "formidable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɔrmədəbəl/",
       "translation": "грозный, очень трудный",
       "translations": {
         "ru": "грозный, очень трудный",
@@ -70,6 +74,7 @@
     {
       "word": "insurmountable",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪnsərˈmaʊntəbəl/",
       "translation": "непреодолимый",
       "translations": {
         "ru": "непреодолимый",
@@ -84,6 +89,7 @@
     {
       "word": "intractable",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtræktəbəl/",
       "translation": "трудноразрешимый",
       "translations": {
         "ru": "трудноразрешимый",
@@ -98,6 +104,7 @@
     {
       "word": "adversity",
       "part_of_speech": "noun",
+      "transcription": "/ædˈvɜrsəti/",
       "translation": "невзгоды",
       "translations": {
         "ru": "невзгоды",
@@ -112,6 +119,7 @@
     {
       "word": "predicament",
       "part_of_speech": "noun",
+      "transcription": "/prɪˈdɪkəmənt/",
       "translation": "затруднительное положение",
       "translations": {
         "ru": "затруднительное положение",
@@ -126,6 +134,7 @@
     {
       "word": "plight",
       "part_of_speech": "noun",
+      "transcription": "/plaɪt/",
       "translation": "бедственное положение",
       "translations": {
         "ru": "бедственное положение",
@@ -140,6 +149,7 @@
     {
       "word": "ordeal",
       "part_of_speech": "noun",
+      "transcription": "/ɔrˈdil/",
       "translation": "тяжёлое испытание",
       "translations": {
         "ru": "тяжёлое испытание",

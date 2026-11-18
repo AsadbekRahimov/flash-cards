@@ -14,6 +14,7 @@
     {
       "word": "elegy",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛlədʒi/",
       "translation": "элегия",
       "translations": {
         "ru": "элегия",
@@ -28,6 +29,7 @@
     {
       "word": "ode",
       "part_of_speech": "noun",
+      "transcription": "/oʊd/",
       "translation": "ода",
       "translations": {
         "ru": "ода",
@@ -42,6 +44,7 @@
     {
       "word": "epigram",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛpəˌgræm/",
       "translation": "эпиграмма",
       "translations": {
         "ru": "эпиграмма",
@@ -56,6 +59,7 @@
     {
       "word": "aphorism",
       "part_of_speech": "noun",
+      "transcription": "/ˈæfəˌrɪzəm/",
       "translation": "афоризм",
       "translations": {
         "ru": "афоризм",
@@ -70,6 +74,7 @@
     {
       "word": "parable",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛrəbəl/",
       "translation": "притча",
       "translations": {
         "ru": "притча",
@@ -84,6 +89,7 @@
     {
       "word": "pastiche",
       "part_of_speech": "noun",
+      "transcription": "/pæˈstiʃ/",
       "translation": "стилизация, пастиш",
       "translations": {
         "ru": "стилизация, пастиш",
@@ -98,6 +104,7 @@
     {
       "word": "vignette",
       "part_of_speech": "noun",
+      "transcription": "/vɪnˈjɛt/",
       "translation": "зарисовка",
       "translations": {
         "ru": "зарисовка",
@@ -112,6 +119,7 @@
     {
       "word": "soliloquy",
       "part_of_speech": "noun",
+      "transcription": "/səˈlɪləkwi/",
       "translation": "монолог наедине с собой",
       "translations": {
         "ru": "монолог наедине с собой",
@@ -126,6 +134,7 @@
     {
       "word": "polemic",
       "part_of_speech": "noun",
+      "transcription": "/pəˈlɛmɪk/",
       "translation": "полемическое сочинение",
       "translations": {
         "ru": "полемическое сочинение",
@@ -140,6 +149,7 @@
     {
       "word": "farce",
       "part_of_speech": "noun",
+      "transcription": "/fɑrs/",
       "translation": "фарс",
       "translations": {
         "ru": "фарс",

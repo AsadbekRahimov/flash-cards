@@ -14,6 +14,7 @@
     {
       "word": "ephemeral",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈfɛmərəl/",
       "translation": "мимолётный, эфемерный",
       "translations": {
         "ru": "мимолётный, эфемерный",
@@ -28,6 +29,7 @@
     {
       "word": "sporadic",
       "part_of_speech": "adjective",
+      "transcription": "/spəˈrædɪk/",
       "translation": "единичный, эпизодический",
       "translations": {
         "ru": "единичный, эпизодический",
@@ -42,6 +44,7 @@
     {
       "word": "intermittent",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪntərˈmɪtənt/",
       "translation": "прерывистый, с перерывами",
       "translations": {
         "ru": "прерывистый, с перерывами",
@@ -56,6 +59,7 @@
     {
       "word": "momentary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmoʊmənˌtɛri/",
       "translation": "мгновенный, секундный",
       "translations": {
         "ru": "мгновенный, секундный",
@@ -70,6 +74,7 @@
     {
       "word": "perpetual",
       "part_of_speech": "adjective",
+      "transcription": "/pərˈpɛtʃuəl/",
       "translation": "постоянный, непрерывный",
       "translations": {
         "ru": "постоянный, непрерывный",
@@ -84,6 +89,7 @@
     {
       "word": "enduring",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdʊrɪŋ/",
       "translation": "прочный, долговечный",
       "translations": {
         "ru": "прочный, долговечный",
@@ -98,6 +104,7 @@
     {
       "word": "eternal",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈtɜrnəl/",
       "translation": "вечный",
       "translations": {
         "ru": "вечный",
@@ -112,6 +119,7 @@
     {
       "word": "interminable",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtɜrmənəbəl/",
       "translation": "нескончаемый, бесконечно долгий",
       "translations": {
         "ru": "нескончаемый, бесконечно долгий",
@@ -126,6 +134,7 @@
     {
       "word": "incessant",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈsɛsənt/",
       "translation": "непрекращающийся, беспрерывный",
       "translations": {
         "ru": "непрекращающийся, беспрерывный",
@@ -140,6 +149,7 @@
     {
       "word": "protracted",
       "part_of_speech": "adjective",
+      "transcription": "/proʊˈtræktəd/",
       "translation": "затянувшийся",
       "translations": {
         "ru": "затянувшийся",

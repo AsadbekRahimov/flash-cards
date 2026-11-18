@@ -14,6 +14,7 @@
     {
       "word": "equivocate",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈkwɪvəˌkeɪt/",
       "translation": "юлить, говорить двусмысленно",
       "translations": {
         "ru": "юлить, говорить двусмысленно",
@@ -28,6 +29,7 @@
     {
       "word": "obfuscate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɑbfəˌskeɪt/",
       "translation": "запутывать, затемнять",
       "translations": {
         "ru": "запутывать, затемнять",
@@ -42,6 +44,7 @@
     {
       "word": "feign",
       "part_of_speech": "verb",
+      "transcription": "/feɪn/",
       "translation": "притворяться, изображать",
       "translations": {
         "ru": "притворяться, изображать",
@@ -56,6 +59,7 @@
     {
       "word": "evasive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈveɪsɪv/",
       "translation": "уклончивый",
       "translations": {
         "ru": "уклончивый",
@@ -70,6 +74,7 @@
     {
       "word": "euphemism",
       "part_of_speech": "noun",
+      "transcription": "/ˈjufəˌmɪzəm/",
       "translation": "эвфемизм",
       "translations": {
         "ru": "эвфемизм",
@@ -84,6 +89,7 @@
     {
       "word": "innuendo",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪnjuˈɛndoʊ/",
       "translation": "двусмысленный намёк",
       "translations": {
         "ru": "двусмысленный намёк",
@@ -98,6 +104,7 @@
     {
       "word": "subterfuge",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌbtərˌfjudʒ/",
       "translation": "уловка, увёртка",
       "translations": {
         "ru": "уловка, увёртка",
@@ -112,6 +119,7 @@
     {
       "word": "pretext",
       "part_of_speech": "noun",
+      "transcription": "/ˈpriˌtɛkst/",
       "translation": "предлог, отговорка",
       "translations": {
         "ru": "предлог, отговорка",
@@ -126,6 +134,7 @@
     {
       "word": "disingenuous",
       "part_of_speech": "adjective",
+      "transcription": "/ˌdɪsɪnˈdʒɛnjuəs/",
       "translation": "неискренний, лукавый",
       "translations": {
         "ru": "неискренний, лукавый",
@@ -140,15 +149,16 @@
     {
       "word": "embellish",
       "part_of_speech": "verb",
+      "transcription": "/ɪmˈbɛlɪʃ/",
       "translation": "приукрашивать",
       "translations": {
         "ru": "приукрашивать",
-        "uz": "bo'rttirib aytmoq"
+        "uz": "qo'shib-chatib aytmoq"
       },
       "example": "Grandpa embellishes his fishing stories every single year.",
       "example_translations": {
         "ru": "Дедушка каждый год приукрашивает свои рыбацкие истории.",
-        "uz": "Bobom har yili baliq ovi haqidagi hikoyalarini bo'rttirib aytadi."
+        "uz": "Bobom har yili baliq ovi haqidagi hikoyalarini qo'shib-chatib aytadi."
       }
     }
   ]

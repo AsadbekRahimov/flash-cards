@@ -14,6 +14,7 @@
     {
       "word": "renown",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈnaʊn/",
       "translation": "известность, слава",
       "translations": {
         "ru": "известность, слава",
@@ -28,6 +29,7 @@
     {
       "word": "eminent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɛmənənt/",
       "translation": "выдающийся, видный",
       "translations": {
         "ru": "выдающийся, видный",
@@ -42,6 +44,7 @@
     {
       "word": "illustrious",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈlʌstriəs/",
       "translation": "прославленный",
       "translations": {
         "ru": "прославленный",
@@ -56,6 +59,7 @@
     {
       "word": "venerable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvɛnərəbəl/",
       "translation": "почтенный",
       "translations": {
         "ru": "почтенный",
@@ -70,20 +74,22 @@
     {
       "word": "notoriety",
       "part_of_speech": "noun",
+      "transcription": "/ˌnoʊtəˈraɪəti/",
       "translation": "дурная слава",
       "translations": {
         "ru": "дурная слава",
-        "uz": "yomon dong"
+        "uz": "yomon nom"
       },
       "example": "The hotel gained notoriety for its rude staff.",
       "example_translations": {
         "ru": "Отель приобрёл дурную славу из-за грубого персонала.",
-        "uz": "Mehmonxona qo'pol xodimlari tufayli yomon dong chiqardi."
+        "uz": "Mehmonxona qo'pol xodimlari tufayli yomon nom chiqardi."
       }
     },
     {
       "word": "revere",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈvɪr/",
       "translation": "почитать, чтить",
       "translations": {
         "ru": "почитать, чтить",
@@ -98,6 +104,7 @@
     {
       "word": "disrepute",
       "part_of_speech": "noun",
+      "transcription": "/ˌdɪsrɪˈpjut/",
       "translation": "плохая репутация",
       "translations": {
         "ru": "плохая репутация",
@@ -106,12 +113,13 @@
       "example": "Cheating scandals brought the whole sport into disrepute.",
       "example_translations": {
         "ru": "Скандалы с жульничеством создали всему этому виду спорта плохую репутацию.",
-        "uz": "Firibgarlik bilan bog'liq janjallar butun sport turini obro'sizlikka olib keldi."
+        "uz": "G'irromlik bilan bog'liq janjallar butun sport turini obro'sizlikka olib keldi."
       }
     },
     {
       "word": "prestige",
       "part_of_speech": "noun",
+      "transcription": "/prɛˈstiʒ/",
       "translation": "престиж",
       "translations": {
         "ru": "престиж",
@@ -126,6 +134,7 @@
     {
       "word": "luminary",
       "part_of_speech": "noun",
+      "transcription": "/ˈluməˌnɛri/",
       "translation": "светило, корифей",
       "translations": {
         "ru": "светило, корифей",
@@ -140,6 +149,7 @@
     {
       "word": "tarnish",
       "part_of_speech": "verb",
+      "transcription": "/ˈtɑrnɪʃ/",
       "translation": "запятнать, опорочить",
       "translations": {
         "ru": "запятнать, опорочить",

@@ -14,6 +14,7 @@
     {
       "word": "wary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈwɛri/",
       "translation": "настороженный",
       "translations": {
         "ru": "настороженный",
@@ -28,6 +29,7 @@
     {
       "word": "ploy",
       "part_of_speech": "noun",
+      "transcription": "/plɔɪ/",
       "translation": "уловка",
       "translations": {
         "ru": "уловка",
@@ -42,6 +44,7 @@
     {
       "word": "maneuver",
       "part_of_speech": "noun",
+      "transcription": "/məˈnuvər/",
       "translation": "манёвр, ловкий ход",
       "translations": {
         "ru": "манёвр, ловкий ход",
@@ -56,6 +59,7 @@
     {
       "word": "devise",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈvaɪz/",
       "translation": "придумывать, разрабатывать",
       "translations": {
         "ru": "придумывать, разрабатывать",
@@ -70,6 +74,7 @@
     {
       "word": "concoct",
       "part_of_speech": "verb",
+      "transcription": "/kənˈkɑkt/",
       "translation": "состряпать, выдумать",
       "translations": {
         "ru": "состряпать, выдумать",
@@ -84,6 +89,7 @@
     {
       "word": "orchestrate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɔrkəˌstreɪt/",
       "translation": "организовывать, режиссировать",
       "translations": {
         "ru": "организовывать, режиссировать",
@@ -98,6 +104,7 @@
     {
       "word": "mastermind",
       "part_of_speech": "noun",
+      "transcription": "/ˈmæstərˌmaɪnd/",
       "translation": "автор замысла, вдохновитель",
       "translations": {
         "ru": "автор замысла, вдохновитель",
@@ -112,6 +119,7 @@
     {
       "word": "cunning",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkʌnɪŋ/",
       "translation": "хитрый",
       "translations": {
         "ru": "хитрый",
@@ -126,6 +134,7 @@
     {
       "word": "circumspect",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɜrkəmˌspɛkt/",
       "translation": "осторожный, всё взвешивающий",
       "translations": {
         "ru": "осторожный, всё взвешивающий",
@@ -140,6 +149,7 @@
     {
       "word": "opportunist",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑpərˈtunəst/",
       "translation": "приспособленец, оппортунист",
       "translations": {
         "ru": "приспособленец, оппортунист",

@@ -14,6 +14,7 @@
     {
       "word": "exorbitant",
       "part_of_speech": "adjective",
+      "transcription": "/ɪgˈzɔrbətənt/",
       "translation": "непомерный",
       "translations": {
         "ru": "непомерный",
@@ -28,6 +29,7 @@
     {
       "word": "pittance",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɪtəns/",
       "translation": "гроши",
       "translations": {
         "ru": "гроши",
@@ -36,12 +38,13 @@
       "example": "They work long hours yet earn a pittance.",
       "example_translations": {
         "ru": "Они работают подолгу, а зарабатывают гроши.",
-        "uz": "Ular uzoq ishlaydi, ammo tiyin-tebin topadi."
+        "uz": "Ular ko'p soat ishlaydi, ammo tiyin-tebin topadi."
       }
     },
     {
       "word": "paltry",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɔltri/",
       "translation": "ничтожный",
       "translations": {
         "ru": "ничтожный",
@@ -56,6 +59,7 @@
     {
       "word": "nominal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnɑmənəl/",
       "translation": "символический, номинальный",
       "translations": {
         "ru": "символический, номинальный",
@@ -70,6 +74,7 @@
     {
       "word": "markup",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑrkˌʌp/",
       "translation": "наценка",
       "translations": {
         "ru": "наценка",
@@ -84,6 +89,7 @@
     {
       "word": "amortize",
       "part_of_speech": "verb",
+      "transcription": "/ˈæmərˌtaɪz/",
       "translation": "амортизировать",
       "translations": {
         "ru": "амортизировать",
@@ -98,6 +104,7 @@
     {
       "word": "intrinsic",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtrɪnzɪk/",
       "translation": "внутренний, присущий",
       "translations": {
         "ru": "внутренний, присущий",
@@ -112,6 +119,7 @@
     {
       "word": "commensurate",
       "part_of_speech": "adjective",
+      "transcription": "/kəˈmɛnsərət/",
       "translation": "соразмерный",
       "translations": {
         "ru": "соразмерный",
@@ -126,6 +134,7 @@
     {
       "word": "defray",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈfreɪ/",
       "translation": "покрывать расходы",
       "translations": {
         "ru": "покрывать расходы",
@@ -140,6 +149,7 @@
     {
       "word": "recoup",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈkup/",
       "translation": "возвращать себе",
       "translations": {
         "ru": "возвращать себе",

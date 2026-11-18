@@ -14,6 +14,7 @@
     {
       "word": "connotation",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑnəˈteɪʃən/",
       "translation": "коннотация, окраска слова",
       "translations": {
         "ru": "коннотация, окраска слова",
@@ -28,6 +29,7 @@
     {
       "word": "nuance",
       "part_of_speech": "noun",
+      "transcription": "/ˈnuˌɑns/",
       "translation": "нюанс, тонкое различие",
       "translations": {
         "ru": "нюанс, тонкое различие",
@@ -42,6 +44,7 @@
     {
       "word": "undertone",
       "part_of_speech": "noun",
+      "transcription": "/ˈʌndərˌtoʊn/",
       "translation": "скрытая нотка",
       "translations": {
         "ru": "скрытая нотка",
@@ -56,6 +59,7 @@
     {
       "word": "implicit",
       "part_of_speech": "adjective",
+      "transcription": "/ɪmˈplɪsət/",
       "translation": "подразумеваемый, неявный",
       "translations": {
         "ru": "подразумеваемый, неявный",
@@ -70,20 +74,22 @@
     {
       "word": "tacit",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtæsət/",
       "translation": "молчаливый, негласный",
       "translations": {
         "ru": "молчаливый, негласный",
-        "uz": "so'zsiz"
+        "uz": "sukut bilan bildirilgan"
       },
       "example": "Her smile gave tacit approval to the plan.",
       "example_translations": {
         "ru": "Её улыбка выражала молчаливое одобрение плана.",
-        "uz": "Uning tabassumi rejani so'zsiz ma'qullashini bildirdi."
+        "uz": "Uning tabassumi rejaga sukut bilan bildirilgan rozilik edi."
       }
     },
     {
       "word": "allusion",
       "part_of_speech": "noun",
+      "transcription": "/əˈluʒən/",
       "translation": "аллюзия, намёк",
       "translations": {
         "ru": "аллюзия, намёк",
@@ -98,6 +104,7 @@
     {
       "word": "subtext",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌbˌtɛkst/",
       "translation": "подтекст",
       "translations": {
         "ru": "подтекст",
@@ -112,6 +119,7 @@
     {
       "word": "intonation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪntəˈneɪʃən/",
       "translation": "интонация",
       "translations": {
         "ru": "интонация",
@@ -126,6 +134,7 @@
     {
       "word": "facetious",
       "part_of_speech": "adjective",
+      "transcription": "/fəˈsiʃəs/",
       "translation": "неуместно шутливый",
       "translations": {
         "ru": "неуместно шутливый",
@@ -140,6 +149,7 @@
     {
       "word": "sardonic",
       "part_of_speech": "adjective",
+      "transcription": "/sɑrˈdɑnɪk/",
       "translation": "язвительный, сардонический",
       "translations": {
         "ru": "язвительный, сардонический",

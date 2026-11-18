@@ -14,6 +14,7 @@
     {
       "word": "exposition",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛkspəˈzɪʃən/",
       "translation": "экспозиция, вводная часть",
       "translations": {
         "ru": "экспозиция, вводная часть",
@@ -28,6 +29,7 @@
     {
       "word": "epiphany",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈpɪfəni/",
       "translation": "озарение",
       "translations": {
         "ru": "озарение",
@@ -42,6 +44,7 @@
     {
       "word": "catharsis",
       "part_of_speech": "noun",
+      "transcription": "/kəˈθɑrsəs/",
       "translation": "катарсис",
       "translations": {
         "ru": "катарсис",
@@ -56,6 +59,7 @@
     {
       "word": "hubris",
       "part_of_speech": "noun",
+      "transcription": "/ˈhjubrəs/",
       "translation": "гордыня",
       "translations": {
         "ru": "гордыня",
@@ -70,6 +74,7 @@
     {
       "word": "nemesis",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɛməsəs/",
       "translation": "заклятый противник",
       "translations": {
         "ru": "заклятый противник",
@@ -84,6 +89,7 @@
     {
       "word": "antagonist",
       "part_of_speech": "noun",
+      "transcription": "/ænˈtægənəst/",
       "translation": "антагонист",
       "translations": {
         "ru": "антагонист",
@@ -98,6 +104,7 @@
     {
       "word": "archetype",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrkɪˌtaɪp/",
       "translation": "архетип",
       "translations": {
         "ru": "архетип",
@@ -112,6 +119,7 @@
     {
       "word": "omniscient",
       "part_of_speech": "adjective",
+      "transcription": "/ɑmˈnɪʃənt/",
       "translation": "всеведущий",
       "translations": {
         "ru": "всеведущий",
@@ -126,6 +134,7 @@
     {
       "word": "flashback",
       "part_of_speech": "noun",
+      "transcription": "/ˈflæʃˌbæk/",
       "translation": "флешбэк, сцена из прошлого",
       "translations": {
         "ru": "флешбэк, сцена из прошлого",
@@ -140,6 +149,7 @@
     {
       "word": "digression",
       "part_of_speech": "noun",
+      "transcription": "/daɪˈgrɛʃən/",
       "translation": "отступление от темы",
       "translations": {
         "ru": "отступление от темы",

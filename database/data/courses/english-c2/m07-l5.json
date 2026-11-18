@@ -14,6 +14,7 @@
     {
       "word": "countenance",
       "part_of_speech": "noun",
+      "transcription": "/ˈkaʊntənəns/",
       "translation": "выражение лица, лик",
       "translations": {
         "ru": "выражение лица, лик",
@@ -28,6 +29,7 @@
     {
       "word": "demeanor",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈminər/",
       "translation": "манера держаться",
       "translations": {
         "ru": "манера держаться",
@@ -42,6 +44,7 @@
     {
       "word": "physique",
       "part_of_speech": "noun",
+      "transcription": "/fəˈzik/",
       "translation": "телосложение",
       "translations": {
         "ru": "телосложение",
@@ -50,12 +53,13 @@
       "example": "Years of swimming gave him a powerful physique.",
       "example_translations": {
         "ru": "Годы занятий плаванием дали ему мощное телосложение.",
-        "uz": "Yillar davomida suzish unga baquvvat gavda tuzilishini berdi."
+        "uz": "Yillar davomida suzish bilan shug'ullanib, u baquvvat gavda tuzilishiga ega bo'ldi."
       }
     },
     {
       "word": "gait",
       "part_of_speech": "noun",
+      "transcription": "/geɪt/",
       "translation": "походка",
       "translations": {
         "ru": "походка",
@@ -70,6 +74,7 @@
     {
       "word": "stature",
       "part_of_speech": "noun",
+      "transcription": "/ˈstætʃər/",
       "translation": "рост",
       "translations": {
         "ru": "рост",
@@ -84,6 +89,7 @@
     {
       "word": "complexion",
       "part_of_speech": "noun",
+      "transcription": "/kəmˈplɛkʃən/",
       "translation": "цвет лица",
       "translations": {
         "ru": "цвет лица",
@@ -98,6 +104,7 @@
     {
       "word": "gaunt",
       "part_of_speech": "adjective",
+      "transcription": "/gɔnt/",
       "translation": "исхудалый, костлявый",
       "translations": {
         "ru": "исхудалый, костлявый",
@@ -112,6 +119,7 @@
     {
       "word": "haggard",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhægərd/",
       "translation": "осунувшийся, измученный",
       "translations": {
         "ru": "осунувшийся, измученный",
@@ -126,6 +134,7 @@
     {
       "word": "disheveled",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈʃɛvəld/",
       "translation": "растрёпанный",
       "translations": {
         "ru": "растрёпанный",
@@ -140,6 +149,7 @@
     {
       "word": "immaculate",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈmækjələt/",
       "translation": "безупречно чистый",
       "translations": {
         "ru": "безупречно чистый",

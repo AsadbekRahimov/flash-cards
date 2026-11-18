@@ -32,6 +32,8 @@ return [
             'A2' => 'A2 — boshlang\'ich',
             'B1' => "B1 — o'rta",
             'B2' => "B2 — o'rtadan yuqori",
+            'C1' => "C1 — ilg'or",
+            'C2' => 'C2 — erkin',
             'unknown' => 'Bilmayman',
         ],
         'reminder' => [

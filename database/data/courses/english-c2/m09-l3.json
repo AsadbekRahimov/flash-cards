@@ -14,6 +14,7 @@
     {
       "word": "rapprochement",
       "part_of_speech": "noun",
+      "transcription": "/ˌræproʊʃˈmɑn/",
       "translation": "сближение",
       "translations": {
         "ru": "сближение",
@@ -28,6 +29,7 @@
     {
       "word": "emissary",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛməˌsɛri/",
       "translation": "посланник, эмиссар",
       "translations": {
         "ru": "посланник, эмиссар",
@@ -42,6 +44,7 @@
     {
       "word": "brinkmanship",
       "part_of_speech": "noun",
+      "transcription": "/ˈbrɪŋkmənˌʃɪp/",
       "translation": "балансирование на грани",
       "translations": {
         "ru": "балансирование на грани",
@@ -56,20 +59,22 @@
     {
       "word": "conciliatory",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈsɪliəˌtɔri/",
       "translation": "примирительный",
       "translations": {
         "ru": "примирительный",
-        "uz": "murosali"
+        "uz": "murosasoz"
       },
       "example": "Her conciliatory tone eased the tension at the talks.",
       "example_translations": {
         "ru": "Её примирительный тон снял напряжение на переговорах.",
-        "uz": "Uning murosali ohangi muzokaralardagi keskinlikni yumshatdi."
+        "uz": "Uning murosasoz ohangi muzokaralardagi keskinlikni yumshatdi."
       }
     },
     {
       "word": "placate",
       "part_of_speech": "verb",
+      "transcription": "/ˈpleɪˌkeɪt/",
       "translation": "задабривать, успокаивать",
       "translations": {
         "ru": "задабривать, успокаивать",
@@ -84,6 +89,7 @@
     {
       "word": "overture",
       "part_of_speech": "noun",
+      "transcription": "/ˈoʊvərtʃər/",
       "translation": "шаг навстречу",
       "translations": {
         "ru": "шаг навстречу",
@@ -98,6 +104,7 @@
     {
       "word": "reciprocity",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛsəˈprɑsəti/",
       "translation": "взаимность",
       "translations": {
         "ru": "взаимность",
@@ -112,6 +119,7 @@
     {
       "word": "armistice",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrməstəs/",
       "translation": "перемирие",
       "translations": {
         "ru": "перемирие",
@@ -126,20 +134,22 @@
     {
       "word": "concord",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnˌkɔrd/",
       "translation": "согласие",
       "translations": {
         "ru": "согласие",
-        "uz": "totuvlik"
+        "uz": "ahillik, totuvlik"
       },
       "example": "The two nations lived in concord for decades.",
       "example_translations": {
         "ru": "Два народа десятилетиями жили в согласии.",
-        "uz": "Ikki xalq o'nlab yillar davomida totuvlikda yashadi."
+        "uz": "Ikki xalq o'nlab yillar davomida ahillik va totuvlikda yashadi."
       }
     },
     {
       "word": "detente",
       "part_of_speech": "noun",
+      "transcription": "/deɪˈtɑnt/",
       "translation": "разрядка",
       "translations": {
         "ru": "разрядка",

@@ -14,6 +14,7 @@
     {
       "word": "sentient",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɛnʃənt/",
       "translation": "чувствующий, наделённый чувствами",
       "translations": {
         "ru": "чувствующий, наделённый чувствами",
@@ -28,6 +29,7 @@
     {
       "word": "cognizant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɑgnəzənt/",
       "translation": "осведомлённый, сознающий",
       "translations": {
         "ru": "осведомлённый, сознающий",
@@ -42,6 +44,7 @@
     {
       "word": "lucid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlusəd/",
       "translation": "в ясном сознании",
       "translations": {
         "ru": "в ясном сознании",
@@ -56,6 +59,7 @@
     {
       "word": "introspective",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪntrəˈspɛktɪv/",
       "translation": "склонный к самоанализу",
       "translations": {
         "ru": "склонный к самоанализу",
@@ -70,6 +74,7 @@
     {
       "word": "subliminal",
       "part_of_speech": "adjective",
+      "transcription": "/səˈblɪmənəl/",
       "translation": "действующий на подсознание",
       "translations": {
         "ru": "действующий на подсознание",
@@ -84,6 +89,7 @@
     {
       "word": "volition",
       "part_of_speech": "noun",
+      "transcription": "/voʊˈlɪʃən/",
       "translation": "воля",
       "translations": {
         "ru": "воля",
@@ -98,6 +104,7 @@
     {
       "word": "psyche",
       "part_of_speech": "noun",
+      "transcription": "/ˈsaɪki/",
       "translation": "психика",
       "translations": {
         "ru": "психика",
@@ -112,6 +119,7 @@
     {
       "word": "intellect",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪntəˌlɛkt/",
       "translation": "ум, интеллект",
       "translations": {
         "ru": "ум, интеллект",
@@ -126,6 +134,7 @@
     {
       "word": "reverie",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛvəri/",
       "translation": "грёзы, мечтания",
       "translations": {
         "ru": "грёзы, мечтания",
@@ -140,6 +149,7 @@
     {
       "word": "trance",
       "part_of_speech": "noun",
+      "transcription": "/træns/",
       "translation": "транс",
       "translations": {
         "ru": "транс",

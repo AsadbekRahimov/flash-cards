@@ -14,6 +14,7 @@
     {
       "word": "confluence",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnˌfluəns/",
       "translation": "слияние рек",
       "translations": {
         "ru": "слияние рек",
@@ -28,6 +29,7 @@
     {
       "word": "brook",
       "part_of_speech": "noun",
+      "transcription": "/brʊk/",
       "translation": "ручей",
       "translations": {
         "ru": "ручей",
@@ -42,6 +44,7 @@
     {
       "word": "cascade",
       "part_of_speech": "noun",
+      "transcription": "/kæˈskeɪd/",
       "translation": "небольшой водопад, каскад",
       "translations": {
         "ru": "небольшой водопад, каскад",
@@ -50,12 +53,13 @@
       "example": "A cascade tumbled down the rocks into a pool.",
       "example_translations": {
         "ru": "Небольшой водопад низвергался со скал в заводь.",
-        "uz": "Kichik sharshara qoyalardan pastdagi ko'lmakka otilib tushardi."
+        "uz": "Kichik sharshara qoyalardan pastdagi ko'lchaga otilib tushardi."
       }
     },
     {
       "word": "whirlpool",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɜrlˌpul/",
       "translation": "водоворот",
       "translations": {
         "ru": "водоворот",
@@ -70,6 +74,7 @@
     {
       "word": "silt",
       "part_of_speech": "noun",
+      "transcription": "/sɪlt/",
       "translation": "ил",
       "translations": {
         "ru": "ил",
@@ -84,6 +89,7 @@
     {
       "word": "bog",
       "part_of_speech": "noun",
+      "transcription": "/bɑg/",
       "translation": "болото, трясина",
       "translations": {
         "ru": "болото, трясина",
@@ -98,6 +104,7 @@
     {
       "word": "precipice",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɛsəpəs/",
       "translation": "обрыв",
       "translations": {
         "ru": "обрыв",
@@ -112,6 +119,7 @@
     {
       "word": "crevice",
       "part_of_speech": "noun",
+      "transcription": "/ˈkrɛvəs/",
       "translation": "расщелина, щель",
       "translations": {
         "ru": "расщелина, щель",
@@ -126,6 +134,7 @@
     {
       "word": "chasm",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæzəm/",
       "translation": "пропасть",
       "translations": {
         "ru": "пропасть",
@@ -140,6 +149,7 @@
     {
       "word": "cavern",
       "part_of_speech": "noun",
+      "transcription": "/ˈkævərn/",
       "translation": "большая пещера",
       "translations": {
         "ru": "большая пещера",

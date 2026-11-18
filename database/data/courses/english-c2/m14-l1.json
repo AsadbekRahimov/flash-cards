@@ -14,6 +14,7 @@
     {
       "word": "tempest",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛmpəst/",
       "translation": "буря",
       "translations": {
         "ru": "буря",
@@ -28,6 +29,7 @@
     {
       "word": "deluge",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛljudʒ/",
       "translation": "сильнейший ливень, потоп",
       "translations": {
         "ru": "сильнейший ливень, потоп",
@@ -42,6 +44,7 @@
     {
       "word": "torrential",
       "part_of_speech": "adjective",
+      "transcription": "/təˈrɛnʃəl/",
       "translation": "проливной",
       "translations": {
         "ru": "проливной",
@@ -56,6 +59,7 @@
     {
       "word": "squall",
       "part_of_speech": "noun",
+      "transcription": "/skwɔl/",
       "translation": "шквал",
       "translations": {
         "ru": "шквал",
@@ -70,6 +74,7 @@
     {
       "word": "gale",
       "part_of_speech": "noun",
+      "transcription": "/geɪl/",
       "translation": "штормовой ветер",
       "translations": {
         "ru": "штормовой ветер",
@@ -84,6 +89,7 @@
     {
       "word": "sleet",
       "part_of_speech": "noun",
+      "transcription": "/slit/",
       "translation": "мокрый снег",
       "translations": {
         "ru": "мокрый снег",
@@ -98,6 +104,7 @@
     {
       "word": "haze",
       "part_of_speech": "noun",
+      "transcription": "/heɪz/",
       "translation": "дымка",
       "translations": {
         "ru": "дымка",
@@ -112,6 +119,7 @@
     {
       "word": "balmy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbɑmi/",
       "translation": "тёплый, мягкий",
       "translations": {
         "ru": "тёплый, мягкий",
@@ -126,6 +134,7 @@
     {
       "word": "inclement",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈklɛmənt/",
       "translation": "ненастный",
       "translations": {
         "ru": "ненастный",
@@ -140,6 +149,7 @@
     {
       "word": "sweltering",
       "part_of_speech": "adjective",
+      "transcription": "/ˈswɛltərɪŋ/",
       "translation": "знойный",
       "translations": {
         "ru": "знойный",

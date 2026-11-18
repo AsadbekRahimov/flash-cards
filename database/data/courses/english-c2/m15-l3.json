@@ -14,6 +14,7 @@
     {
       "word": "ostracize",
       "part_of_speech": "verb",
+      "transcription": "/ˈɑstrəˌsaɪz/",
       "translation": "подвергать остракизму",
       "translations": {
         "ru": "подвергать остракизму",
@@ -28,6 +29,7 @@
     {
       "word": "shun",
       "part_of_speech": "verb",
+      "transcription": "/ʃʌn/",
       "translation": "сторониться, избегать",
       "translations": {
         "ru": "сторониться, избегать",
@@ -42,6 +44,7 @@
     {
       "word": "scapegoat",
       "part_of_speech": "noun",
+      "transcription": "/ˈskeɪpˌgoʊt/",
       "translation": "козёл отпущения",
       "translations": {
         "ru": "козёл отпущения",
@@ -56,6 +59,7 @@
     {
       "word": "bigotry",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɪgətri/",
       "translation": "нетерпимость, предубеждённость",
       "translations": {
         "ru": "нетерпимость, предубеждённость",
@@ -70,6 +74,7 @@
     {
       "word": "chauvinism",
       "part_of_speech": "noun",
+      "transcription": "/ˈʃoʊvəˌnɪzəm/",
       "translation": "шовинизм",
       "translations": {
         "ru": "шовинизм",
@@ -84,6 +89,7 @@
     {
       "word": "sectarian",
       "part_of_speech": "adjective",
+      "transcription": "/sɛkˈtɛriən/",
       "translation": "межконфессиональный",
       "translations": {
         "ru": "межконфессиональный",
@@ -98,6 +104,7 @@
     {
       "word": "estrangement",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈstreɪndʒmənt/",
       "translation": "отчуждение",
       "translations": {
         "ru": "отчуждение",
@@ -112,6 +119,7 @@
     {
       "word": "derogatory",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈrɑgəˌtɔri/",
       "translation": "уничижительный",
       "translations": {
         "ru": "уничижительный",
@@ -126,6 +134,7 @@
     {
       "word": "demean",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈmin/",
       "translation": "унижать",
       "translations": {
         "ru": "унижать",
@@ -140,6 +149,7 @@
     {
       "word": "belittle",
       "part_of_speech": "verb",
+      "transcription": "/bɪˈlɪtəl/",
       "translation": "принижать, умалять",
       "translations": {
         "ru": "принижать, умалять",

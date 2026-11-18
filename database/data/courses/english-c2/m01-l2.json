@@ -14,6 +14,7 @@
     {
       "word": "obsequious",
       "part_of_speech": "adjective",
+      "transcription": "/əbˈsikwiəs/",
       "translation": "угодливый, подобострастный",
       "translations": {
         "ru": "угодливый, подобострастный",
@@ -28,6 +29,7 @@
     {
       "word": "supercilious",
       "part_of_speech": "adjective",
+      "transcription": "/ˌsupərˈsɪliəs/",
       "translation": "надменный",
       "translations": {
         "ru": "надменный",
@@ -36,15 +38,16 @@
       "example": "With a supercilious smile, she ignored our suggestions.",
       "example_translations": {
         "ru": "С надменной улыбкой она оставила наши предложения без внимания.",
-        "uz": "U takabbur tabassum bilan takliflarimizni e'tiborsiz qoldirdi."
+        "uz": "U takabburona tabassum bilan takliflarimizni e'tiborsiz qoldirdi."
       }
     },
     {
       "word": "pompous",
       "part_of_speech": "adjective",
-      "translation": "напыщенный",
+      "transcription": "/ˈpɑmpəs/",
+      "translation": "чванливый, напыщенный",
       "translations": {
-        "ru": "напыщенный",
+        "ru": "чванливый, напыщенный",
         "uz": "kekkaygan"
       },
       "example": "The pompous official loved hearing his own titles.",
@@ -56,6 +59,7 @@
     {
       "word": "conceited",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈsitəd/",
       "translation": "самовлюблённый, тщеславный",
       "translations": {
         "ru": "самовлюблённый, тщеславный",
@@ -70,6 +74,7 @@
     {
       "word": "duplicitous",
       "part_of_speech": "adjective",
+      "transcription": "/duˈplɪsətəs/",
       "translation": "двуличный",
       "translations": {
         "ru": "двуличный",
@@ -84,6 +89,7 @@
     {
       "word": "unscrupulous",
       "part_of_speech": "adjective",
+      "transcription": "/ʌnˈskrupjələs/",
       "translation": "беспринципный, недобросовестный",
       "translations": {
         "ru": "беспринципный, недобросовестный",
@@ -98,6 +104,7 @@
     {
       "word": "vindictive",
       "part_of_speech": "adjective",
+      "transcription": "/vɪnˈdɪktɪv/",
       "translation": "мстительный",
       "translations": {
         "ru": "мстительный",
@@ -112,6 +119,7 @@
     {
       "word": "belligerent",
       "part_of_speech": "adjective",
+      "transcription": "/bəˈlɪdʒərənt/",
       "translation": "задиристый, воинственный",
       "translations": {
         "ru": "задиристый, воинственный",
@@ -126,6 +134,7 @@
     {
       "word": "miserly",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmaɪzərli/",
       "translation": "скупой",
       "translations": {
         "ru": "скупой",
@@ -140,6 +149,7 @@
     {
       "word": "sanctimonious",
       "part_of_speech": "adjective",
+      "transcription": "/ˌsæŋktəˈmoʊniəs/",
       "translation": "ханжеский, святошеский",
       "translations": {
         "ru": "ханжеский, святошеский",

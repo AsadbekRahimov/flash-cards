@@ -14,6 +14,7 @@
     {
       "word": "theology",
       "part_of_speech": "noun",
+      "transcription": "/θiˈɑlədʒi/",
       "translation": "богословие, теология",
       "translations": {
         "ru": "богословие, теология",
@@ -28,6 +29,7 @@
     {
       "word": "deity",
       "part_of_speech": "noun",
+      "transcription": "/ˈdiəti/",
       "translation": "божество",
       "translations": {
         "ru": "божество",
@@ -42,6 +44,7 @@
     {
       "word": "divine",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈvaɪn/",
       "translation": "божественный",
       "translations": {
         "ru": "божественный",
@@ -56,6 +59,7 @@
     {
       "word": "piety",
       "part_of_speech": "noun",
+      "transcription": "/ˈpaɪəti/",
       "translation": "благочестие",
       "translations": {
         "ru": "благочестие",
@@ -63,13 +67,14 @@
       },
       "example": "Her piety showed in daily prayer and charity.",
       "example_translations": {
-        "ru": "Её благочестие проявлялось в ежедневной молитве и милосердии.",
+        "ru": "Её благочестие проявлялось в ежедневной молитве и благотворительности.",
         "uz": "Uning taqvosi har kungi ibodat va xayr-ehsonda namoyon bo'lardi."
       }
     },
     {
       "word": "devout",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈvaʊt/",
       "translation": "набожный",
       "translations": {
         "ru": "набожный",
@@ -84,6 +89,7 @@
     {
       "word": "orthodox",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɔrθəˌdɑks/",
       "translation": "ортодоксальный, общепринятый",
       "translations": {
         "ru": "ортодоксальный, общепринятый",
@@ -98,6 +104,7 @@
     {
       "word": "clergy",
       "part_of_speech": "noun",
+      "transcription": "/ˈklɜrdʒi/",
       "translation": "духовенство",
       "translations": {
         "ru": "духовенство",
@@ -112,6 +119,7 @@
     {
       "word": "pilgrimage",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɪlgrəmɪdʒ/",
       "translation": "паломничество",
       "translations": {
         "ru": "паломничество",
@@ -126,6 +134,7 @@
     {
       "word": "sanctity",
       "part_of_speech": "noun",
+      "transcription": "/ˈsæŋktəti/",
       "translation": "святость",
       "translations": {
         "ru": "святость",
@@ -140,6 +149,7 @@
     {
       "word": "creed",
       "part_of_speech": "noun",
+      "transcription": "/krid/",
       "translation": "вероучение",
       "translations": {
         "ru": "вероучение",

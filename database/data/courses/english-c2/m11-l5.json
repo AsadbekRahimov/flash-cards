@@ -14,6 +14,7 @@
     {
       "word": "fiduciary",
       "part_of_speech": "adjective",
+      "transcription": "/fəˈduʃiˌɛri/",
       "translation": "фидуциарный, доверительный",
       "translations": {
         "ru": "фидуциарный, доверительный",
@@ -28,6 +29,7 @@
     {
       "word": "proxy",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑksi/",
       "translation": "доверенное лицо",
       "translations": {
         "ru": "доверенное лицо",
@@ -42,6 +44,7 @@
     {
       "word": "boardroom",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɔrdˌrum/",
       "translation": "зал заседаний правления",
       "translations": {
         "ru": "зал заседаний правления",
@@ -56,6 +59,7 @@
     {
       "word": "buyout",
       "part_of_speech": "noun",
+      "transcription": "/ˈbaɪˌaʊt/",
       "translation": "выкуп компании",
       "translations": {
         "ru": "выкуп компании",
@@ -70,6 +74,7 @@
     {
       "word": "divest",
       "part_of_speech": "verb",
+      "transcription": "/daɪˈvɛst/",
       "translation": "избавляться от активов",
       "translations": {
         "ru": "избавляться от активов",
@@ -84,6 +89,7 @@
     {
       "word": "receivership",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈsivərˌʃɪp/",
       "translation": "внешнее управление",
       "translations": {
         "ru": "внешнее управление",
@@ -98,6 +104,7 @@
     {
       "word": "disburse",
       "part_of_speech": "verb",
+      "transcription": "/dɪsˈbɜrs/",
       "translation": "выплачивать",
       "translations": {
         "ru": "выплачивать",
@@ -112,6 +119,7 @@
     {
       "word": "consortium",
       "part_of_speech": "noun",
+      "transcription": "/kənˈsɔrʃiəm/",
       "translation": "консорциум",
       "translations": {
         "ru": "консорциум",
@@ -126,6 +134,7 @@
     {
       "word": "syndicate",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪndɪkət/",
       "translation": "синдикат",
       "translations": {
         "ru": "синдикат",
@@ -140,6 +149,7 @@
     {
       "word": "oligopoly",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑləˈgɑpəli/",
       "translation": "олигополия",
       "translations": {
         "ru": "олигополия",

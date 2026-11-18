@@ -14,6 +14,7 @@
     {
       "word": "glut",
       "part_of_speech": "noun",
+      "transcription": "/glʌt/",
       "translation": "перенасыщение рынка",
       "translations": {
         "ru": "перенасыщение рынка",
@@ -28,6 +29,7 @@
     {
       "word": "plethora",
       "part_of_speech": "noun",
+      "transcription": "/ˈplɛθərə/",
       "translation": "великое множество",
       "translations": {
         "ru": "великое множество",
@@ -42,6 +44,7 @@
     {
       "word": "superfluous",
       "part_of_speech": "adjective",
+      "transcription": "/suˈpɜrfluəs/",
       "translation": "излишний, ненужный",
       "translations": {
         "ru": "излишний, ненужный",
@@ -56,6 +59,7 @@
     {
       "word": "copious",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkoʊpiəs/",
       "translation": "обильный",
       "translations": {
         "ru": "обильный",
@@ -70,6 +74,7 @@
     {
       "word": "replete",
       "part_of_speech": "adjective",
+      "transcription": "/rɪˈplit/",
       "translation": "наполненный, изобилующий",
       "translations": {
         "ru": "наполненный, изобилующий",
@@ -84,6 +89,7 @@
     {
       "word": "rife",
       "part_of_speech": "adjective",
+      "transcription": "/raɪf/",
       "translation": "широко распространённый",
       "translations": {
         "ru": "широко распространённый",
@@ -98,6 +104,7 @@
     {
       "word": "dearth",
       "part_of_speech": "noun",
+      "transcription": "/dɜrθ/",
       "translation": "нехватка, недостаток",
       "translations": {
         "ru": "нехватка, недостаток",
@@ -112,6 +119,7 @@
     {
       "word": "scant",
       "part_of_speech": "adjective",
+      "transcription": "/skænt/",
       "translation": "скудный, недостаточный",
       "translations": {
         "ru": "скудный, недостаточный",
@@ -126,6 +134,7 @@
     {
       "word": "devoid",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈvɔɪd/",
       "translation": "лишённый",
       "translations": {
         "ru": "лишённый",
@@ -140,6 +149,7 @@
     {
       "word": "inordinate",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈɔrdənət/",
       "translation": "чрезмерный, непомерный",
       "translations": {
         "ru": "чрезмерный, непомерный",

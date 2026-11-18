@@ -14,6 +14,7 @@
     {
       "word": "malpractice",
       "part_of_speech": "noun",
+      "transcription": "/ˌmælˈpræktəs/",
       "translation": "профессиональная халатность",
       "translations": {
         "ru": "профессиональная халатность",
@@ -28,6 +29,7 @@
     {
       "word": "misappropriate",
       "part_of_speech": "verb",
+      "transcription": "/ˌmɪsəˈproʊpriˌeɪt/",
       "translation": "незаконно присваивать",
       "translations": {
         "ru": "незаконно присваивать",
@@ -42,6 +44,7 @@
     {
       "word": "defraud",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈfrɔd/",
       "translation": "обманом лишать",
       "translations": {
         "ru": "обманом лишать",
@@ -56,6 +59,7 @@
     {
       "word": "fraudulent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfrɔdʒələnt/",
       "translation": "мошеннический",
       "translations": {
         "ru": "мошеннический",
@@ -70,6 +74,7 @@
     {
       "word": "counterfeit",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkaʊntərˌfɪt/",
       "translation": "поддельный",
       "translations": {
         "ru": "поддельный",
@@ -84,6 +89,7 @@
     {
       "word": "racketeering",
       "part_of_speech": "noun",
+      "transcription": "/ˌrækəˈtɪrɪŋ/",
       "translation": "рэкет",
       "translations": {
         "ru": "рэкет",
@@ -98,6 +104,7 @@
     {
       "word": "larceny",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɑrsəni/",
       "translation": "кража",
       "translations": {
         "ru": "кража",
@@ -112,6 +119,7 @@
     {
       "word": "slander",
       "part_of_speech": "noun",
+      "transcription": "/ˈslændər/",
       "translation": "устная клевета",
       "translations": {
         "ru": "устная клевета",
@@ -126,6 +134,7 @@
     {
       "word": "illicit",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈlɪsət/",
       "translation": "незаконный, запрещённый",
       "translations": {
         "ru": "незаконный, запрещённый",
@@ -140,6 +149,7 @@
     {
       "word": "contraband",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑntrəˌbænd/",
       "translation": "контрабанда",
       "translations": {
         "ru": "контрабанда",

@@ -14,6 +14,7 @@
     {
       "word": "mollify",
       "part_of_speech": "verb",
+      "transcription": "/ˈmɑləˌfaɪ/",
       "translation": "успокаивать, задабривать",
       "translations": {
         "ru": "успокаивать, задабривать",
@@ -28,6 +29,7 @@
     {
       "word": "amity",
       "part_of_speech": "noun",
+      "transcription": "/ˈæməti/",
       "translation": "дружба, согласие",
       "translations": {
         "ru": "дружба, согласие",
@@ -42,6 +44,7 @@
     {
       "word": "assuage",
       "part_of_speech": "verb",
+      "transcription": "/əˈsweɪdʒ/",
       "translation": "унимать, смягчать",
       "translations": {
         "ru": "унимать, смягчать",
@@ -56,6 +59,7 @@
     {
       "word": "clemency",
       "part_of_speech": "noun",
+      "transcription": "/ˈklɛmənsi/",
       "translation": "милосердие, снисхождение",
       "translations": {
         "ru": "милосердие, снисхождение",
@@ -70,6 +74,7 @@
     {
       "word": "lenient",
       "part_of_speech": "adjective",
+      "transcription": "/ˈliniənt/",
       "translation": "снисходительный",
       "translations": {
         "ru": "снисходительный",
@@ -84,6 +89,7 @@
     {
       "word": "forbearance",
       "part_of_speech": "noun",
+      "transcription": "/fɔrˈbɛrəns/",
       "translation": "сдержанность, долготерпение",
       "translations": {
         "ru": "сдержанность, долготерпение",
@@ -98,6 +104,7 @@
     {
       "word": "forgo",
       "part_of_speech": "verb",
+      "transcription": "/fɔrˈgoʊ/",
       "translation": "отказываться, обходиться без",
       "translations": {
         "ru": "отказываться, обходиться без",
@@ -112,6 +119,7 @@
     {
       "word": "renounce",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈnaʊns/",
       "translation": "отрекаться",
       "translations": {
         "ru": "отрекаться",
@@ -126,6 +134,7 @@
     {
       "word": "relent",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈlɛnt/",
       "translation": "смягчаться, уступать",
       "translations": {
         "ru": "смягчаться, уступать",
@@ -140,6 +149,7 @@
     {
       "word": "contrite",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈtraɪt/",
       "translation": "раскаивающийся",
       "translations": {
         "ru": "раскаивающийся",

@@ -14,6 +14,7 @@
     {
       "word": "volatile",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvɑlətəl/",
       "translation": "нестабильный, резко меняющийся",
       "translations": {
         "ru": "нестабильный, резко меняющийся",
@@ -28,6 +29,7 @@
     {
       "word": "fickle",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɪkəl/",
       "translation": "непостоянный, ветреный",
       "translations": {
         "ru": "непостоянный, ветреный",
@@ -42,6 +44,7 @@
     {
       "word": "erratic",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈrætɪk/",
       "translation": "беспорядочный, непредсказуемый",
       "translations": {
         "ru": "беспорядочный, непредсказуемый",
@@ -56,6 +59,7 @@
     {
       "word": "vicissitude",
       "part_of_speech": "noun",
+      "transcription": "/vəˈsɪsəˌtud/",
       "translation": "превратность",
       "translations": {
         "ru": "превратность",
@@ -70,6 +74,7 @@
     {
       "word": "flux",
       "part_of_speech": "noun",
+      "transcription": "/flʌks/",
       "translation": "постоянное изменение",
       "translations": {
         "ru": "постоянное изменение",
@@ -84,6 +89,7 @@
     {
       "word": "metamorphosis",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɛtəˈmɔrfəsəs/",
       "translation": "превращение, метаморфоза",
       "translations": {
         "ru": "превращение, метаморфоза",
@@ -98,9 +104,10 @@
     {
       "word": "vacillate",
       "part_of_speech": "verb",
-      "translation": "колебаться",
+      "transcription": "/ˈvæsəˌleɪt/",
+      "translation": "колебаться, не решаться",
       "translations": {
-        "ru": "колебаться",
+        "ru": "колебаться, не решаться",
         "uz": "ikkilanmoq"
       },
       "example": "She vacillated for weeks between the two job offers.",
@@ -112,20 +119,22 @@
     {
       "word": "inexorable",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈɛksərəbəl/",
       "translation": "неумолимый, неотвратимый",
       "translations": {
         "ru": "неумолимый, неотвратимый",
-        "uz": "shafqatsiz, muqarrar"
+        "uz": "to'xtatib bo'lmas, muqarrar"
       },
       "example": "The inexorable passage of time spares no one.",
       "example_translations": {
         "ru": "Неумолимый ход времени не щадит никого.",
-        "uz": "Vaqtning shafqatsiz o'tishi hech kimni ayamaydi."
+        "uz": "Vaqtning to'xtatib bo'lmas oqimi hech kimni ayamaydi."
       }
     },
     {
       "word": "irrevocable",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈrɛvəkəbəl/",
       "translation": "бесповоротный, необратимый",
       "translations": {
         "ru": "бесповоротный, необратимый",
@@ -140,6 +149,7 @@
     {
       "word": "stasis",
       "part_of_speech": "noun",
+      "transcription": "/ˈsteɪsəs/",
       "translation": "застой, неподвижность",
       "translations": {
         "ru": "застой, неподвижность",

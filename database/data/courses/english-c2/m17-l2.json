@@ -14,6 +14,7 @@
     {
       "word": "inception",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈsɛpʃən/",
       "translation": "основание, создание",
       "translations": {
         "ru": "основание, создание",
@@ -28,6 +29,7 @@
     {
       "word": "advent",
       "part_of_speech": "noun",
+      "transcription": "/ˈædˌvɛnt/",
       "translation": "появление, приход",
       "translations": {
         "ru": "появление, приход",
@@ -42,6 +44,7 @@
     {
       "word": "onset",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑnˌsɛt/",
       "translation": "наступление, начало",
       "translations": {
         "ru": "наступление, начало",
@@ -56,6 +59,7 @@
     {
       "word": "genesis",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒɛnəsəs/",
       "translation": "зарождение, возникновение",
       "translations": {
         "ru": "зарождение, возникновение",
@@ -70,6 +74,7 @@
     {
       "word": "nascent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnæsənt/",
       "translation": "зарождающийся",
       "translations": {
         "ru": "зарождающийся",
@@ -84,6 +89,7 @@
     {
       "word": "herald",
       "part_of_speech": "verb",
+      "transcription": "/ˈhɛrəld/",
       "translation": "возвещать, предвещать",
       "translations": {
         "ru": "возвещать, предвещать",
@@ -98,6 +104,7 @@
     {
       "word": "harbinger",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɑrbəndʒər/",
       "translation": "предвестник",
       "translations": {
         "ru": "предвестник",
@@ -112,6 +119,7 @@
     {
       "word": "precursor",
       "part_of_speech": "noun",
+      "transcription": "/prɪˈkɜrsər/",
       "translation": "предшественник",
       "translations": {
         "ru": "предшественник",
@@ -126,6 +134,7 @@
     {
       "word": "prelude",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɛlˌjud/",
       "translation": "прелюдия, пролог",
       "translations": {
         "ru": "прелюдия, пролог",
@@ -140,6 +149,7 @@
     {
       "word": "cessation",
       "part_of_speech": "noun",
+      "transcription": "/sɛˈseɪʃən/",
       "translation": "прекращение",
       "translations": {
         "ru": "прекращение",

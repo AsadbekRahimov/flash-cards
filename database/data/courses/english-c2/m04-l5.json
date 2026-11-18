@@ -14,6 +14,7 @@
     {
       "word": "obligatory",
       "part_of_speech": "adjective",
+      "transcription": "/əˈblɪgəˌtɔri/",
       "translation": "обязательный",
       "translations": {
         "ru": "обязательный",
@@ -28,6 +29,7 @@
     {
       "word": "permissible",
       "part_of_speech": "adjective",
+      "transcription": "/pərˈmɪsəbəl/",
       "translation": "разрешённый, дозволенный",
       "translations": {
         "ru": "разрешённый, дозволенный",
@@ -42,6 +44,7 @@
     {
       "word": "admissible",
       "part_of_speech": "adjective",
+      "transcription": "/ədˈmɪsəbəl/",
       "translation": "допустимый",
       "translations": {
         "ru": "допустимый",
@@ -56,6 +59,7 @@
     {
       "word": "discretionary",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈskrɛʃəˌnɛri/",
       "translation": "по усмотрению, дискреционный",
       "translations": {
         "ru": "по усмотрению, дискреционный",
@@ -70,6 +74,7 @@
     {
       "word": "prerogative",
       "part_of_speech": "noun",
+      "transcription": "/prɪˈrɑgətɪv/",
       "translation": "исключительное право",
       "translations": {
         "ru": "исключительное право",
@@ -84,6 +89,7 @@
     {
       "word": "dispensation",
       "part_of_speech": "noun",
+      "transcription": "/ˌdɪspənˈseɪʃən/",
       "translation": "особое разрешение",
       "translations": {
         "ru": "особое разрешение",
@@ -98,20 +104,22 @@
     {
       "word": "preclude",
       "part_of_speech": "verb",
+      "transcription": "/prɪˈklud/",
       "translation": "исключать возможность",
       "translations": {
         "ru": "исключать возможность",
-        "uz": "imkonsiz qilmoq"
+        "uz": "imkonini yo'qqa chiqarmoq"
       },
       "example": "His injury precludes any return to professional sport.",
       "example_translations": {
         "ru": "Травма исключает возможность его возвращения в профессиональный спорт.",
-        "uz": "Jarohati uning professional sportga qaytishini imkonsiz qiladi."
+        "uz": "Jarohati uning professional sportga qaytish imkonini yo'qqa chiqaradi."
       }
     },
     {
       "word": "proscribe",
       "part_of_speech": "verb",
+      "transcription": "/proʊˈskraɪb/",
       "translation": "запрещать",
       "translations": {
         "ru": "запрещать",
@@ -126,6 +134,7 @@
     {
       "word": "contravene",
       "part_of_speech": "verb",
+      "transcription": "/ˌkɑntrəˈvin/",
       "translation": "нарушать, противоречить",
       "translations": {
         "ru": "нарушать, противоречить",
@@ -140,6 +149,7 @@
     {
       "word": "adhere",
       "part_of_speech": "verb",
+      "transcription": "/ədˈhɪr/",
       "translation": "придерживаться",
       "translations": {
         "ru": "придерживаться",

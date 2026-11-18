@@ -14,6 +14,7 @@
     {
       "word": "cacophony",
       "part_of_speech": "noun",
+      "transcription": "/kəˈkɑfəni/",
       "translation": "какофония",
       "translations": {
         "ru": "какофония",
@@ -28,6 +29,7 @@
     {
       "word": "clamor",
       "part_of_speech": "noun",
+      "transcription": "/ˈklæmər/",
       "translation": "гам, шум голосов",
       "translations": {
         "ru": "гам, шум голосов",
@@ -42,6 +44,7 @@
     {
       "word": "resonant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrɛzənənt/",
       "translation": "гулкий, звучный",
       "translations": {
         "ru": "гулкий, звучный",
@@ -56,6 +59,7 @@
     {
       "word": "sonorous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɑnərəs/",
       "translation": "глубокий, полнозвучный",
       "translations": {
         "ru": "глубокий, полнозвучный",
@@ -70,6 +74,7 @@
     {
       "word": "strident",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstraɪdənt/",
       "translation": "резкий, пронзительный",
       "translations": {
         "ru": "резкий, пронзительный",
@@ -84,6 +89,7 @@
     {
       "word": "raucous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrɔkəs/",
       "translation": "хриплый, крикливый",
       "translations": {
         "ru": "хриплый, крикливый",
@@ -98,6 +104,7 @@
     {
       "word": "muffled",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmʌfəld/",
       "translation": "приглушённый",
       "translations": {
         "ru": "приглушённый",
@@ -112,6 +119,7 @@
     {
       "word": "rustle",
       "part_of_speech": "verb",
+      "transcription": "/ˈrʌsəl/",
       "translation": "шуршать, шелестеть",
       "translations": {
         "ru": "шуршать, шелестеть",
@@ -126,6 +134,7 @@
     {
       "word": "reverberate",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈvɜrbəˌreɪt/",
       "translation": "отдаваться эхом",
       "translations": {
         "ru": "отдаваться эхом",
@@ -140,6 +149,7 @@
     {
       "word": "lull",
       "part_of_speech": "noun",
+      "transcription": "/lʌl/",
       "translation": "затишье",
       "translations": {
         "ru": "затишье",

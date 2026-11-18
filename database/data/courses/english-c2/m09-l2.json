@@ -14,6 +14,7 @@
     {
       "word": "nepotism",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɛpəˌtɪzəm/",
       "translation": "кумовство",
       "translations": {
         "ru": "кумовство",
@@ -28,6 +29,7 @@
     {
       "word": "cronyism",
       "part_of_speech": "noun",
+      "transcription": "/ˈkroʊniˌɪzəm/",
       "translation": "протекция приятелям",
       "translations": {
         "ru": "протекция приятелям",
@@ -42,6 +44,7 @@
     {
       "word": "patronage",
       "part_of_speech": "noun",
+      "transcription": "/ˈpeɪtrənɪdʒ/",
       "translation": "покровительство",
       "translations": {
         "ru": "покровительство",
@@ -56,6 +59,7 @@
     {
       "word": "collusion",
       "part_of_speech": "noun",
+      "transcription": "/kəˈluʒən/",
       "translation": "сговор",
       "translations": {
         "ru": "сговор",
@@ -70,6 +74,7 @@
     {
       "word": "machination",
       "part_of_speech": "noun",
+      "transcription": "/ˌmækəˈneɪʃən/",
       "translation": "козни, махинация",
       "translations": {
         "ru": "козни, махинация",
@@ -84,6 +89,7 @@
     {
       "word": "intrigue",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnˌtrig/",
       "translation": "интрига, происки",
       "translations": {
         "ru": "интрига, происки",
@@ -98,6 +104,7 @@
     {
       "word": "clandestine",
       "part_of_speech": "adjective",
+      "transcription": "/klænˈdɛstən/",
       "translation": "подпольный",
       "translations": {
         "ru": "подпольный",
@@ -112,6 +119,7 @@
     {
       "word": "covert",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkoʊvərt/",
       "translation": "тайный, скрытый",
       "translations": {
         "ru": "тайный, скрытый",
@@ -126,6 +134,7 @@
     {
       "word": "kickback",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɪkˌbæk/",
       "translation": "откат",
       "translations": {
         "ru": "откат",
@@ -140,6 +149,7 @@
     {
       "word": "complicit",
       "part_of_speech": "adjective",
+      "transcription": "/kəmˈplɪsət/",
       "translation": "замешанный, причастный",
       "translations": {
         "ru": "замешанный, причастный",

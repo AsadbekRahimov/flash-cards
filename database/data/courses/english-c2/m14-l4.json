@@ -14,6 +14,7 @@
     {
       "word": "cataclysm",
       "part_of_speech": "noun",
+      "transcription": "/ˈkætəˌklɪzəm/",
       "translation": "катаклизм",
       "translations": {
         "ru": "катаклизм",
@@ -28,6 +29,7 @@
     {
       "word": "calamity",
       "part_of_speech": "noun",
+      "transcription": "/kəˈlæməti/",
       "translation": "бедствие",
       "translations": {
         "ru": "бедствие",
@@ -42,6 +44,7 @@
     {
       "word": "decimate",
       "part_of_speech": "verb",
+      "transcription": "/ˈdɛsəˌmeɪt/",
       "translation": "уничтожать большую часть",
       "translations": {
         "ru": "уничтожать большую часть",
@@ -56,6 +59,7 @@
     {
       "word": "ravage",
       "part_of_speech": "verb",
+      "transcription": "/ˈrævɪdʒ/",
       "translation": "опустошать",
       "translations": {
         "ru": "опустошать",
@@ -70,6 +74,7 @@
     {
       "word": "scourge",
       "part_of_speech": "noun",
+      "transcription": "/skɜrdʒ/",
       "translation": "бич",
       "translations": {
         "ru": "бич",
@@ -84,6 +89,7 @@
     {
       "word": "blight",
       "part_of_speech": "noun",
+      "transcription": "/blaɪt/",
       "translation": "болезнь растений",
       "translations": {
         "ru": "болезнь растений",
@@ -98,6 +104,7 @@
     {
       "word": "havoc",
       "part_of_speech": "noun",
+      "transcription": "/ˈhævək/",
       "translation": "разрушения, хаос",
       "translations": {
         "ru": "разрушения, хаос",
@@ -112,6 +119,7 @@
     {
       "word": "annihilate",
       "part_of_speech": "verb",
+      "transcription": "/əˈnaɪəˌleɪt/",
       "translation": "полностью уничтожать",
       "translations": {
         "ru": "полностью уничтожать",
@@ -126,6 +134,7 @@
     {
       "word": "despoil",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈspɔɪl/",
       "translation": "разорять",
       "translations": {
         "ru": "разорять",
@@ -140,6 +149,7 @@
     {
       "word": "encroach",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈkroʊtʃ/",
       "translation": "наступать, вторгаться",
       "translations": {
         "ru": "наступать, вторгаться",

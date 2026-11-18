@@ -14,6 +14,7 @@
     {
       "word": "jurisprudence",
       "part_of_speech": "noun",
+      "transcription": "/ˌdʒʊrəsˈprudəns/",
       "translation": "правоведение",
       "translations": {
         "ru": "правоведение",
@@ -28,6 +29,7 @@
     {
       "word": "adjudicate",
       "part_of_speech": "verb",
+      "transcription": "/əˈdʒudɪˌkeɪt/",
       "translation": "разрешать спор",
       "translations": {
         "ru": "разрешать спор",
@@ -42,6 +44,7 @@
     {
       "word": "arbiter",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrbətər/",
       "translation": "арбитр",
       "translations": {
         "ru": "арбитр",
@@ -56,6 +59,7 @@
     {
       "word": "litigant",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɪtɪgənt/",
       "translation": "сторона судебного процесса",
       "translations": {
         "ru": "сторона судебного процесса",
@@ -70,6 +74,7 @@
     {
       "word": "appellant",
       "part_of_speech": "noun",
+      "transcription": "/əˈpɛlənt/",
       "translation": "апеллянт",
       "translations": {
         "ru": "апеллянт",
@@ -84,6 +89,7 @@
     {
       "word": "counsel",
       "part_of_speech": "noun",
+      "transcription": "/ˈkaʊnsəl/",
       "translation": "адвокат",
       "translations": {
         "ru": "адвокат",
@@ -98,6 +104,7 @@
     {
       "word": "tort",
       "part_of_speech": "noun",
+      "transcription": "/tɔrt/",
       "translation": "гражданское правонарушение",
       "translations": {
         "ru": "гражданское правонарушение",
@@ -112,20 +119,22 @@
     {
       "word": "bylaw",
       "part_of_speech": "noun",
+      "transcription": "/ˈbaɪˌlɔ/",
       "translation": "постановление местной власти",
       "translations": {
         "ru": "постановление местной власти",
-        "uz": "mahalliy hokimiyat qarori"
+        "uz": "mahalliy hokimiyat qoidasi"
       },
       "example": "A local bylaw bans loud music after midnight.",
       "example_translations": {
         "ru": "Постановление местной власти запрещает громкую музыку после полуночи.",
-        "uz": "Mahalliy hokimiyat qarori yarim tundan keyin baland musiqani taqiqlaydi."
+        "uz": "Mahalliy hokimiyat qoidasi yarim tundan keyin baland musiqani taqiqlaydi."
       }
     },
     {
       "word": "codify",
       "part_of_speech": "verb",
+      "transcription": "/ˈkɑdəˌfaɪ/",
       "translation": "кодифицировать",
       "translations": {
         "ru": "кодифицировать",
@@ -140,6 +149,7 @@
     {
       "word": "duress",
       "part_of_speech": "noun",
+      "transcription": "/dʊˈrɛs/",
       "translation": "принуждение",
       "translations": {
         "ru": "принуждение",
@@ -148,7 +158,7 @@
       "example": "A contract signed under duress is not valid.",
       "example_translations": {
         "ru": "Договор, подписанный под принуждением, недействителен.",
-        "uz": "Majburlash ostida imzolangan shartnoma haqiqiy emas."
+        "uz": "Majburlash ta'sirida imzolangan shartnoma haqiqiy emas."
       }
     }
   ]

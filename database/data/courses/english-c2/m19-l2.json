@@ -14,6 +14,7 @@
     {
       "word": "crescendo",
       "part_of_speech": "noun",
+      "transcription": "/krəˈʃɛndoʊ/",
       "translation": "крещендо, нарастание звука",
       "translations": {
         "ru": "крещендо, нарастание звука",
@@ -28,6 +29,7 @@
     {
       "word": "cadence",
       "part_of_speech": "noun",
+      "transcription": "/ˈkeɪdəns/",
       "translation": "каденция, заключительный оборот",
       "translations": {
         "ru": "каденция, заключительный оборот",
@@ -42,6 +44,7 @@
     {
       "word": "timbre",
       "part_of_speech": "noun",
+      "transcription": "/ˈtæmbər/",
       "translation": "тембр",
       "translations": {
         "ru": "тембр",
@@ -56,6 +59,7 @@
     {
       "word": "aria",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑriə/",
       "translation": "ария",
       "translations": {
         "ru": "ария",
@@ -70,6 +74,7 @@
     {
       "word": "sonata",
       "part_of_speech": "noun",
+      "transcription": "/səˈnɑtə/",
       "translation": "соната",
       "translations": {
         "ru": "соната",
@@ -84,6 +89,7 @@
     {
       "word": "dissonance",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪsənəns/",
       "translation": "диссонанс, неблагозвучие",
       "translations": {
         "ru": "диссонанс, неблагозвучие",
@@ -98,6 +104,7 @@
     {
       "word": "counterpoint",
       "part_of_speech": "noun",
+      "transcription": "/ˈkaʊntərˌpɔɪnt/",
       "translation": "контрапункт",
       "translations": {
         "ru": "контрапункт",
@@ -112,6 +119,7 @@
     {
       "word": "refrain",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈfreɪn/",
       "translation": "припев, рефрен",
       "translations": {
         "ru": "припев, рефрен",
@@ -126,6 +134,7 @@
     {
       "word": "interlude",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪntərˌlud/",
       "translation": "интерлюдия",
       "translations": {
         "ru": "интерлюдия",
@@ -140,6 +149,7 @@
     {
       "word": "medley",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛdli/",
       "translation": "попурри",
       "translations": {
         "ru": "попурри",

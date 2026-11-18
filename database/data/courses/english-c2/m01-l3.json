@@ -14,6 +14,7 @@
     {
       "word": "mercurial",
       "part_of_speech": "adjective",
+      "transcription": "/mərˈkjʊriəl/",
       "translation": "переменчивый",
       "translations": {
         "ru": "переменчивый",
@@ -28,6 +29,7 @@
     {
       "word": "gregarious",
       "part_of_speech": "adjective",
+      "transcription": "/grɪˈgɛriəs/",
       "translation": "общительный, компанейский",
       "translations": {
         "ru": "общительный, компанейский",
@@ -42,6 +44,7 @@
     {
       "word": "taciturn",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtæsəˌtɜrn/",
       "translation": "молчаливый, неразговорчивый",
       "translations": {
         "ru": "молчаливый, неразговорчивый",
@@ -56,6 +59,7 @@
     {
       "word": "ebullient",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈbʊljənt/",
       "translation": "восторженный, кипучий",
       "translations": {
         "ru": "восторженный, кипучий",
@@ -70,6 +74,7 @@
     {
       "word": "irascible",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈræsəbəl/",
       "translation": "вспыльчивый, раздражительный",
       "translations": {
         "ru": "вспыльчивый, раздражительный",
@@ -84,6 +89,7 @@
     {
       "word": "placid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈplæsəd/",
       "translation": "спокойный, безмятежный",
       "translations": {
         "ru": "спокойный, безмятежный",
@@ -98,6 +104,7 @@
     {
       "word": "capricious",
       "part_of_speech": "adjective",
+      "transcription": "/kəˈprɪʃəs/",
       "translation": "взбалмошный, своенравный",
       "translations": {
         "ru": "взбалмошный, своенравный",
@@ -112,6 +119,7 @@
     {
       "word": "petulant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɛtʃələnt/",
       "translation": "обидчивый, капризный",
       "translations": {
         "ru": "обидчивый, капризный",
@@ -126,6 +134,7 @@
     {
       "word": "sullen",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsʌlən/",
       "translation": "угрюмый, насупленный",
       "translations": {
         "ru": "угрюмый, насупленный",
@@ -140,6 +149,7 @@
     {
       "word": "diffident",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdɪfədənt/",
       "translation": "неуверенный в себе, застенчивый",
       "translations": {
         "ru": "неуверенный в себе, застенчивый",

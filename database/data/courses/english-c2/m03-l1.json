@@ -14,6 +14,7 @@
     {
       "word": "verbose",
       "part_of_speech": "adjective",
+      "transcription": "/vərˈboʊs/",
       "translation": "многословный",
       "translations": {
         "ru": "многословный",
@@ -28,20 +29,22 @@
     {
       "word": "incoherent",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪnkoʊˈhɪrənt/",
       "translation": "бессвязный",
       "translations": {
         "ru": "бессвязный",
-        "uz": "uzuq-yuluq"
+        "uz": "poyintar-soyintar, bog'lanishsiz"
       },
       "example": "He was so tired that his speech became incoherent.",
       "example_translations": {
         "ru": "Он так устал, что его речь стала бессвязной.",
-        "uz": "U shunchalik charchagan ediki, nutqi uzuq-yuluq bo'lib qoldi."
+        "uz": "U shunchalik charchagan ediki, nutqi poyintar-soyintar bo'lib qoldi."
       }
     },
     {
       "word": "succinct",
       "part_of_speech": "adjective",
+      "transcription": "/səkˈsɪŋkt/",
       "translation": "краткий и ясный",
       "translations": {
         "ru": "краткий и ясный",
@@ -56,6 +59,7 @@
     {
       "word": "terse",
       "part_of_speech": "adjective",
+      "transcription": "/tɜrs/",
       "translation": "сухой, отрывистый",
       "translations": {
         "ru": "сухой, отрывистый",
@@ -70,6 +74,7 @@
     {
       "word": "garrulous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈgɛrələs/",
       "translation": "болтливый",
       "translations": {
         "ru": "болтливый",
@@ -84,6 +89,7 @@
     {
       "word": "glib",
       "part_of_speech": "adjective",
+      "transcription": "/glɪb/",
       "translation": "бойкий, но поверхностный",
       "translations": {
         "ru": "бойкий, но поверхностный",
@@ -98,20 +104,22 @@
     {
       "word": "bombastic",
       "part_of_speech": "adjective",
-      "translation": "напыщенный",
+      "transcription": "/bɑmˈbæstɪk/",
+      "translation": "выспренний, напыщенный",
       "translations": {
-        "ru": "напыщенный",
-        "uz": "dabdabali"
+        "ru": "выспренний, напыщенный",
+        "uz": "tumtaroq, dabdabali"
       },
       "example": "The mayor's bombastic speech promised miracles to everyone.",
       "example_translations": {
         "ru": "Напыщенная речь мэра обещала всем чудеса.",
-        "uz": "Hokimning dabdabali nutqi hammaga mo'jizalar va'da qildi."
+        "uz": "Hokimning tumtaroq nutqi hammaga mo'jizalar va'da qildi."
       }
     },
     {
       "word": "stilted",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstɪltəd/",
       "translation": "высокопарный, неестественный",
       "translations": {
         "ru": "высокопарный, неестественный",
@@ -126,6 +134,7 @@
     {
       "word": "pithy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɪθi/",
       "translation": "ёмкий, меткий",
       "translations": {
         "ru": "ёмкий, меткий",
@@ -140,6 +149,7 @@
     {
       "word": "brusque",
       "part_of_speech": "adjective",
+      "transcription": "/brʌsk/",
       "translation": "резкий, бесцеремонный",
       "translations": {
         "ru": "резкий, бесцеремонный",

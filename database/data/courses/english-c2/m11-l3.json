@@ -14,6 +14,7 @@
     {
       "word": "opulent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɑpjələnt/",
       "translation": "пышный",
       "translations": {
         "ru": "пышный",
@@ -28,6 +29,7 @@
     {
       "word": "lavish",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlævɪʃ/",
       "translation": "роскошный, щедрый",
       "translations": {
         "ru": "роскошный, щедрый",
@@ -42,6 +44,7 @@
     {
       "word": "frugal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfrugəl/",
       "translation": "бережливый",
       "translations": {
         "ru": "бережливый",
@@ -56,6 +59,7 @@
     {
       "word": "destitute",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdɛstəˌtut/",
       "translation": "нищий, неимущий",
       "translations": {
         "ru": "нищий, неимущий",
@@ -70,6 +74,7 @@
     {
       "word": "penury",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛnjəri/",
       "translation": "крайняя нужда",
       "translations": {
         "ru": "крайняя нужда",
@@ -84,6 +89,7 @@
     {
       "word": "squalor",
       "part_of_speech": "noun",
+      "transcription": "/ˈskwɑlər/",
       "translation": "грязь и убожество",
       "translations": {
         "ru": "грязь и убожество",
@@ -98,6 +104,7 @@
     {
       "word": "privation",
       "part_of_speech": "noun",
+      "transcription": "/praɪˈveɪʃən/",
       "translation": "лишения",
       "translations": {
         "ru": "лишения",
@@ -112,6 +119,7 @@
     {
       "word": "largesse",
       "part_of_speech": "noun",
+      "transcription": "/lɑrˈʒɛs/",
       "translation": "щедрость",
       "translations": {
         "ru": "щедрость",
@@ -126,6 +134,7 @@
     {
       "word": "profligate",
       "part_of_speech": "adjective",
+      "transcription": "/ˈprɑflɪgət/",
       "translation": "расточительный",
       "translations": {
         "ru": "расточительный",
@@ -140,6 +149,7 @@
     {
       "word": "squander",
       "part_of_speech": "verb",
+      "transcription": "/ˈskwɑndər/",
       "translation": "проматывать",
       "translations": {
         "ru": "проматывать",

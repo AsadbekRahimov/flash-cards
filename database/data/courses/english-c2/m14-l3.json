@@ -14,6 +14,7 @@
     {
       "word": "fauna",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɔnə/",
       "translation": "фауна, животный мир",
       "translations": {
         "ru": "фауна, животный мир",
@@ -28,6 +29,7 @@
     {
       "word": "predatory",
       "part_of_speech": "adjective",
+      "transcription": "/ˈprɛdəˌtɔri/",
       "translation": "хищный",
       "translations": {
         "ru": "хищный",
@@ -42,6 +44,7 @@
     {
       "word": "plumage",
       "part_of_speech": "noun",
+      "transcription": "/ˈplumɪdʒ/",
       "translation": "оперение",
       "translations": {
         "ru": "оперение",
@@ -56,6 +59,7 @@
     {
       "word": "burrow",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɜroʊ/",
       "translation": "нора",
       "translations": {
         "ru": "нора",
@@ -70,6 +74,7 @@
     {
       "word": "lair",
       "part_of_speech": "noun",
+      "transcription": "/lɛr/",
       "translation": "логово",
       "translations": {
         "ru": "логово",
@@ -84,6 +89,7 @@
     {
       "word": "fledgling",
       "part_of_speech": "noun",
+      "transcription": "/ˈflɛdʒlɪŋ/",
       "translation": "оперившийся птенец",
       "translations": {
         "ru": "оперившийся птенец",
@@ -98,6 +104,7 @@
     {
       "word": "prowl",
       "part_of_speech": "verb",
+      "transcription": "/praʊl/",
       "translation": "рыскать",
       "translations": {
         "ru": "рыскать",
@@ -112,6 +119,7 @@
     {
       "word": "pounce",
       "part_of_speech": "verb",
+      "transcription": "/paʊns/",
       "translation": "набрасываться",
       "translations": {
         "ru": "набрасываться",
@@ -126,20 +134,22 @@
     {
       "word": "swarm",
       "part_of_speech": "noun",
+      "transcription": "/swɔrm/",
       "translation": "рой",
       "translations": {
         "ru": "рой",
-        "uz": "gala"
+        "uz": "to'da"
       },
       "example": "A swarm of bees settled on the branch.",
       "example_translations": {
         "ru": "Рой пчёл уселся на ветке.",
-        "uz": "Asalarilar galasi shoxga qo'ndi."
+        "uz": "Asalarilar to'dasi shoxga qo'ndi."
       }
     },
     {
       "word": "feral",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɛrəl/",
       "translation": "одичавший",
       "translations": {
         "ru": "одичавший",

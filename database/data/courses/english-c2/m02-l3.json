@@ -14,20 +14,22 @@
     {
       "word": "indignation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪndɪgˈneɪʃən/",
       "translation": "негодование, возмущение",
       "translations": {
         "ru": "негодование, возмущение",
-        "uz": "g'azabli norozilik"
+        "uz": "qattiq norozilik, g'azab"
       },
       "example": "The unfair verdict provoked widespread indignation among residents.",
       "example_translations": {
         "ru": "Несправедливый вердикт вызвал всеобщее негодование жителей.",
-        "uz": "Adolatsiz hukm aholi orasida keng g'azabli norozilik uyg'otdi."
+        "uz": "Adolatsiz hukm aholi orasida qattiq norozilik uyg'otdi."
       }
     },
     {
       "word": "wrath",
       "part_of_speech": "noun",
+      "transcription": "/ræθ/",
       "translation": "гнев, ярость",
       "translations": {
         "ru": "гнев, ярость",
@@ -42,6 +44,7 @@
     {
       "word": "irk",
       "part_of_speech": "verb",
+      "transcription": "/ɜrk/",
       "translation": "раздражать, досаждать",
       "translations": {
         "ru": "раздражать, досаждать",
@@ -56,6 +59,7 @@
     {
       "word": "infuriate",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈfjʊriˌeɪt/",
       "translation": "приводить в ярость",
       "translations": {
         "ru": "приводить в ярость",
@@ -70,6 +74,7 @@
     {
       "word": "seethe",
       "part_of_speech": "verb",
+      "transcription": "/sið/",
       "translation": "кипеть от злости",
       "translations": {
         "ru": "кипеть от злости",
@@ -84,6 +89,7 @@
     {
       "word": "rancor",
       "part_of_speech": "noun",
+      "transcription": "/ˈræŋkər/",
       "translation": "злоба, затаённая обида",
       "translations": {
         "ru": "злоба, затаённая обида",
@@ -98,20 +104,22 @@
     {
       "word": "acrimony",
       "part_of_speech": "noun",
-      "translation": "язвительность, желчность",
+      "transcription": "/ˈækrəˌmoʊni/",
+      "translation": "ожесточённость, желчность",
       "translations": {
-        "ru": "язвительность, желчность",
-        "uz": "zaharxandalik"
+        "ru": "ожесточённость, желчность",
+        "uz": "achchiqlik, zaharxandalik"
       },
       "example": "The debate was conducted without a trace of acrimony.",
       "example_translations": {
-        "ru": "Спор прошёл без тени язвительности.",
-        "uz": "Bahs zarracha zaharxandaliksiz o'tdi."
+        "ru": "Спор прошёл без тени ожесточённости.",
+        "uz": "Bahsda zarracha achchiqlik sezilmadi."
       }
     },
     {
       "word": "animosity",
       "part_of_speech": "noun",
+      "transcription": "/ˌænəˈmɑsəti/",
       "translation": "враждебность, неприязнь",
       "translations": {
         "ru": "враждебность, неприязнь",
@@ -126,6 +134,7 @@
     {
       "word": "livid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlɪvəd/",
       "translation": "взбешённый",
       "translations": {
         "ru": "взбешённый",
@@ -140,6 +149,7 @@
     {
       "word": "bitterness",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɪtərnəs/",
       "translation": "горечь, обида",
       "translations": {
         "ru": "горечь, обида",
@@ -148,7 +158,7 @@
       "example": "He recalled his dismissal with obvious bitterness.",
       "example_translations": {
         "ru": "Он вспоминал своё увольнение с явной горечью.",
-        "uz": "U ishdan bo'shatilganini ochiq alam bilan eslardi."
+        "uz": "U ishdan bo'shatilganini yaqqol alam bilan eslardi."
       }
     }
   ]

@@ -14,6 +14,7 @@
     {
       "word": "metaphysics",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɛtəˈfɪzɪks/",
       "translation": "метафизика",
       "translations": {
         "ru": "метафизика",
@@ -28,6 +29,7 @@
     {
       "word": "existential",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɛgzɪˈstɛnʃəl/",
       "translation": "экзистенциальный",
       "translations": {
         "ru": "экзистенциальный",
@@ -42,6 +44,7 @@
     {
       "word": "essence",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛsəns/",
       "translation": "суть",
       "translations": {
         "ru": "суть",
@@ -56,20 +59,22 @@
     {
       "word": "entity",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛntəti/",
       "translation": "сущность, объект",
       "translations": {
         "ru": "сущность, объект",
-        "uz": "mavjudlik, obyekt"
+        "uz": "mavjud narsa, obyekt"
       },
       "example": "Is the mind an entity separate from the body?",
       "example_translations": {
         "ru": "Является ли разум сущностью, отдельной от тела?",
-        "uz": "Aql tanadan alohida mavjudlikmi?"
+        "uz": "Aql tanadan alohida mavjud narsami?"
       }
     },
     {
       "word": "transcend",
       "part_of_speech": "verb",
+      "transcription": "/trænˈsɛnd/",
       "translation": "выходить за пределы",
       "translations": {
         "ru": "выходить за пределы",
@@ -84,6 +89,7 @@
     {
       "word": "finite",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfaɪˌnaɪt/",
       "translation": "конечный, ограниченный",
       "translations": {
         "ru": "конечный, ограниченный",
@@ -98,6 +104,7 @@
     {
       "word": "temporal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtɛmpərəl/",
       "translation": "временной",
       "translations": {
         "ru": "временной",
@@ -112,6 +119,7 @@
     {
       "word": "immutable",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈmjutəbəl/",
       "translation": "неизменный, непреложный",
       "translations": {
         "ru": "неизменный, непреложный",
@@ -126,6 +134,7 @@
     {
       "word": "determinism",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈtɜrməˌnɪzəm/",
       "translation": "детерминизм",
       "translations": {
         "ru": "детерминизм",
@@ -140,6 +149,7 @@
     {
       "word": "tangible",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtændʒəbəl/",
       "translation": "осязаемый",
       "translations": {
         "ru": "осязаемый",

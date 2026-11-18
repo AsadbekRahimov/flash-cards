@@ -14,6 +14,7 @@
     {
       "word": "erudite",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɛrjəˌdaɪt/",
       "translation": "эрудированный",
       "translations": {
         "ru": "эрудированный",
@@ -28,6 +29,7 @@
     {
       "word": "incisive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈsaɪsɪv/",
       "translation": "острый, проницательный",
       "translations": {
         "ru": "острый, проницательный",
@@ -42,6 +44,7 @@
     {
       "word": "discerning",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈsɜrnɪŋ/",
       "translation": "взыскательный, разборчивый",
       "translations": {
         "ru": "взыскательный, разборчивый",
@@ -56,6 +59,7 @@
     {
       "word": "obtuse",
       "part_of_speech": "adjective",
+      "transcription": "/əbˈtus/",
       "translation": "несообразительный, тупой",
       "translations": {
         "ru": "несообразительный, тупой",
@@ -70,6 +74,7 @@
     {
       "word": "precocious",
       "part_of_speech": "adjective",
+      "transcription": "/prɪˈkoʊʃəs/",
       "translation": "не по годам развитой",
       "translations": {
         "ru": "не по годам развитой",
@@ -84,6 +89,7 @@
     {
       "word": "canny",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkæni/",
       "translation": "расчётливый, сметливый",
       "translations": {
         "ru": "расчётливый, сметливый",
@@ -98,6 +104,7 @@
     {
       "word": "credulous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkrɛdʒələs/",
       "translation": "легковерный, доверчивый",
       "translations": {
         "ru": "легковерный, доверчивый",
@@ -112,6 +119,7 @@
     {
       "word": "ingenuous",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdʒɛnjuəs/",
       "translation": "простодушный, бесхитростный",
       "translations": {
         "ru": "простодушный, бесхитростный",
@@ -126,6 +134,7 @@
     {
       "word": "pedantic",
       "part_of_speech": "adjective",
+      "transcription": "/pəˈdæntɪk/",
       "translation": "педантичный",
       "translations": {
         "ru": "педантичный",
@@ -140,6 +149,7 @@
     {
       "word": "dogmatic",
       "part_of_speech": "adjective",
+      "transcription": "/dɔgˈmætɪk/",
       "translation": "догматичный, категоричный",
       "translations": {
         "ru": "догматичный, категоричный",

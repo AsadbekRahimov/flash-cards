@@ -14,6 +14,7 @@
     {
       "word": "zenith",
       "part_of_speech": "noun",
+      "transcription": "/ˈzinəθ/",
       "translation": "зенит, высшая точка",
       "translations": {
         "ru": "зенит, высшая точка",
@@ -28,6 +29,7 @@
     {
       "word": "pinnacle",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɪnəkəl/",
       "translation": "вершина",
       "translations": {
         "ru": "вершина",
@@ -42,6 +44,7 @@
     {
       "word": "epitome",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈpɪtəmi/",
       "translation": "воплощение",
       "translations": {
         "ru": "воплощение",
@@ -56,6 +59,7 @@
     {
       "word": "paragon",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛrəˌgɑn/",
       "translation": "образец, эталон",
       "translations": {
         "ru": "образец, эталон",
@@ -70,6 +74,7 @@
     {
       "word": "feat",
       "part_of_speech": "noun",
+      "transcription": "/fit/",
       "translation": "выдающееся достижение, подвиг",
       "translations": {
         "ru": "выдающееся достижение, подвиг",
@@ -84,6 +89,7 @@
     {
       "word": "meteoric",
       "part_of_speech": "adjective",
+      "transcription": "/ˌmitiˈɔrɪk/",
       "translation": "стремительный, головокружительный",
       "translations": {
         "ru": "стремительный, головокружительный",
@@ -98,6 +104,7 @@
     {
       "word": "preeminent",
       "part_of_speech": "adjective",
+      "transcription": "/priˈɛmənənt/",
       "translation": "выдающийся, ведущий",
       "translations": {
         "ru": "выдающийся, ведущий",
@@ -112,20 +119,22 @@
     {
       "word": "surpass",
       "part_of_speech": "verb",
+      "transcription": "/sərˈpæs/",
       "translation": "превосходить",
       "translations": {
         "ru": "превосходить",
-        "uz": "o'zib ketmoq"
+        "uz": "oshib ketmoq, o'zib ketmoq"
       },
       "example": "This year's sales surpassed all our expectations.",
       "example_translations": {
         "ru": "Продажи этого года превзошли все наши ожидания.",
-        "uz": "Bu yilgi savdo barcha kutganlarimizdan o'zib ketdi."
+        "uz": "Bu yilgi savdo barcha kutganlarimizdan oshib ketdi."
       }
     },
     {
       "word": "attain",
       "part_of_speech": "verb",
+      "transcription": "/əˈteɪn/",
       "translation": "достигать, добиваться",
       "translations": {
         "ru": "достигать, добиваться",
@@ -140,6 +149,7 @@
     {
       "word": "garner",
       "part_of_speech": "verb",
+      "transcription": "/ˈgɑrnər/",
       "translation": "собирать, получать",
       "translations": {
         "ru": "собирать, получать",

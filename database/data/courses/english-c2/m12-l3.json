@@ -14,6 +14,7 @@
     {
       "word": "reagent",
       "part_of_speech": "noun",
+      "transcription": "/riˈeɪdʒənt/",
       "translation": "реактив",
       "translations": {
         "ru": "реактив",
@@ -28,6 +29,7 @@
     {
       "word": "distill",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈstɪl/",
       "translation": "дистиллировать, перегонять",
       "translations": {
         "ru": "дистиллировать, перегонять",
@@ -42,6 +44,7 @@
     {
       "word": "viscous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvɪskəs/",
       "translation": "вязкий",
       "translations": {
         "ru": "вязкий",
@@ -56,6 +59,7 @@
     {
       "word": "inert",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈnɜrt/",
       "translation": "инертный",
       "translations": {
         "ru": "инертный",
@@ -70,6 +74,7 @@
     {
       "word": "soluble",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɑljəbəl/",
       "translation": "растворимый",
       "translations": {
         "ru": "растворимый",
@@ -84,6 +89,7 @@
     {
       "word": "corrosive",
       "part_of_speech": "adjective",
+      "transcription": "/kəˈroʊsɪv/",
       "translation": "едкий, разъедающий",
       "translations": {
         "ru": "едкий, разъедающий",
@@ -98,6 +104,7 @@
     {
       "word": "oxidize",
       "part_of_speech": "verb",
+      "transcription": "/ˈɑksəˌdaɪz/",
       "translation": "окисляться",
       "translations": {
         "ru": "окисляться",
@@ -112,6 +119,7 @@
     {
       "word": "alkaline",
       "part_of_speech": "adjective",
+      "transcription": "/ˈælkəˌlaɪn/",
       "translation": "щелочной",
       "translations": {
         "ru": "щелочной",
@@ -126,6 +134,7 @@
     {
       "word": "crystalline",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkrɪstələn/",
       "translation": "кристаллический",
       "translations": {
         "ru": "кристаллический",
@@ -140,6 +149,7 @@
     {
       "word": "polymer",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑləmər/",
       "translation": "полимер",
       "translations": {
         "ru": "полимер",

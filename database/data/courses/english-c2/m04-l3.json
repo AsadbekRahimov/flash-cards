@@ -14,6 +14,7 @@
     {
       "word": "hereby",
       "part_of_speech": "adverb",
+      "transcription": "/ˌhɪrˈbaɪ/",
       "translation": "настоящим",
       "translations": {
         "ru": "настоящим",
@@ -28,6 +29,7 @@
     {
       "word": "herein",
       "part_of_speech": "adverb",
+      "transcription": "/ˌhɪrˈɪn/",
       "translation": "в настоящем документе",
       "translations": {
         "ru": "в настоящем документе",
@@ -42,20 +44,22 @@
     {
       "word": "forthwith",
       "part_of_speech": "adverb",
+      "transcription": "/ˌfɔrθˈwɪθ/",
       "translation": "незамедлительно",
       "translations": {
         "ru": "незамедлительно",
-        "uz": "darhol"
+        "uz": "zudlik bilan"
       },
       "example": "The suspended employee must leave the building forthwith.",
       "example_translations": {
         "ru": "Отстранённый сотрудник должен незамедлительно покинуть здание.",
-        "uz": "Ishdan chetlatilgan xodim binoni darhol tark etishi shart."
+        "uz": "Ishdan chetlatilgan xodim binoni zudlik bilan tark etishi shart."
       }
     },
     {
       "word": "pursuant",
       "part_of_speech": "adjective",
+      "transcription": "/pərˈsuənt/",
       "translation": "в соответствии с",
       "translations": {
         "ru": "в соответствии с",
@@ -70,6 +74,7 @@
     {
       "word": "aforementioned",
       "part_of_speech": "adjective",
+      "transcription": "/əˈfɔrˌmɛnʃənd/",
       "translation": "вышеупомянутый",
       "translations": {
         "ru": "вышеупомянутый",
@@ -84,6 +89,7 @@
     {
       "word": "henceforth",
       "part_of_speech": "adverb",
+      "transcription": "/ˈhɛnsˌfɔrθ/",
       "translation": "отныне, впредь",
       "translations": {
         "ru": "отныне, впредь",
@@ -98,6 +104,7 @@
     {
       "word": "thereafter",
       "part_of_speech": "adverb",
+      "transcription": "/ˌðɛrˈæftər/",
       "translation": "после этого",
       "translations": {
         "ru": "после этого",
@@ -112,6 +119,7 @@
     {
       "word": "thereof",
       "part_of_speech": "adverb",
+      "transcription": "/ˌðɛrˈʌv/",
       "translation": "его, такового",
       "translations": {
         "ru": "его, такового",
@@ -126,6 +134,7 @@
     {
       "word": "wherein",
       "part_of_speech": "adverb",
+      "transcription": "/ˌwɛrˈɪn/",
       "translation": "в котором",
       "translations": {
         "ru": "в котором",
@@ -134,12 +143,13 @@
       "example": "This is the section wherein the duties are listed.",
       "example_translations": {
         "ru": "Это раздел, в котором перечислены обязанности.",
-        "uz": "Mana shu bo'lim, unda majburiyatlar sanab o'tilgan."
+        "uz": "Bu shunday bo'limki, unda majburiyatlar sanab o'tilgan."
       }
     },
     {
       "word": "insofar",
       "part_of_speech": "adverb",
+      "transcription": "/ˌɪnsəˈfɑr/",
       "translation": "в той мере",
       "translations": {
         "ru": "в той мере",

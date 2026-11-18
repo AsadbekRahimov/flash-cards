@@ -14,6 +14,7 @@
     {
       "word": "sublime",
       "part_of_speech": "adjective",
+      "transcription": "/səˈblaɪm/",
       "translation": "возвышенный, величественный",
       "translations": {
         "ru": "возвышенный, величественный",
@@ -28,6 +29,7 @@
     {
       "word": "grotesque",
       "part_of_speech": "adjective",
+      "transcription": "/groʊˈtɛsk/",
       "translation": "гротескный, уродливо-причудливый",
       "translations": {
         "ru": "гротескный, уродливо-причудливый",
@@ -42,6 +44,7 @@
     {
       "word": "kitsch",
       "part_of_speech": "noun",
+      "transcription": "/kɪtʃ/",
       "translation": "китч, безвкусица",
       "translations": {
         "ru": "китч, безвкусица",
@@ -56,6 +59,7 @@
     {
       "word": "gaudy",
       "part_of_speech": "adjective",
+      "transcription": "/ˈgɔdi/",
       "translation": "аляповатый, кричащий",
       "translations": {
         "ru": "аляповатый, кричащий",
@@ -70,10 +74,11 @@
     {
       "word": "ostentatious",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɑstənˈteɪʃəs/",
       "translation": "показной, нарочито роскошный",
       "translations": {
         "ru": "показной, нарочито роскошный",
-        "uz": "dabdabali, ko'z-ko'z uchun"
+        "uz": "dabdabali, namoyishkorona"
       },
       "example": "Their ostentatious mansion was built to impress neighbors.",
       "example_translations": {
@@ -84,20 +89,22 @@
     {
       "word": "austere",
       "part_of_speech": "adjective",
+      "transcription": "/ɔˈstɪr/",
       "translation": "строгий, аскетичный",
       "translations": {
         "ru": "строгий, аскетичный",
-        "uz": "sipo, bezaksiz"
+        "uz": "sodda, bezaksiz"
       },
       "example": "The austere white chapel had no decoration.",
       "example_translations": {
         "ru": "В строгой белой часовне не было никаких украшений.",
-        "uz": "Sipo oq ibodatxonada hech qanday bezak yo'q edi."
+        "uz": "Sodda oq ibodatxonada hech qanday bezak yo'q edi."
       }
     },
     {
       "word": "understated",
       "part_of_speech": "adjective",
+      "transcription": "/ˌʌndərˈsteɪtəd/",
       "translation": "неброский, сдержанный",
       "translations": {
         "ru": "неброский, сдержанный",
@@ -112,6 +119,7 @@
     {
       "word": "minimalist",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɪnəməlɪst/",
       "translation": "минималистичный",
       "translations": {
         "ru": "минималистичный",
@@ -126,6 +134,7 @@
     {
       "word": "ethereal",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈθɪriəl/",
       "translation": "неземной, воздушный",
       "translations": {
         "ru": "неземной, воздушный",
@@ -140,6 +149,7 @@
     {
       "word": "surreal",
       "part_of_speech": "adjective",
+      "transcription": "/səˈriəl/",
       "translation": "сюрреалистичный, фантастически странный",
       "translations": {
         "ru": "сюрреалистичный, фантастически странный",

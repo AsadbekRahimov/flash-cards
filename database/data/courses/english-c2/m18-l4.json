@@ -14,6 +14,7 @@
     {
       "word": "palpable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpælpəbəl/",
       "translation": "ощутимый, явственный",
       "translations": {
         "ru": "ощутимый, явственный",
@@ -28,6 +29,7 @@
     {
       "word": "conspicuous",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈspɪkjuəs/",
       "translation": "заметный, бросающийся в глаза",
       "translations": {
         "ru": "заметный, бросающийся в глаза",
@@ -42,6 +44,7 @@
     {
       "word": "blatant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbleɪtənt/",
       "translation": "наглый, вопиющий",
       "translations": {
         "ru": "наглый, вопиющий",
@@ -56,6 +59,7 @@
     {
       "word": "overt",
       "part_of_speech": "adjective",
+      "transcription": "/oʊˈvɜrt/",
       "translation": "открытый, нескрываемый",
       "translations": {
         "ru": "открытый, нескрываемый",
@@ -70,6 +74,7 @@
     {
       "word": "ostensible",
       "part_of_speech": "adjective",
+      "transcription": "/ɑˈstɛnsəbəl/",
       "translation": "мнимый, заявленный для вида",
       "translations": {
         "ru": "мнимый, заявленный для вида",
@@ -84,6 +89,7 @@
     {
       "word": "unequivocal",
       "part_of_speech": "adjective",
+      "transcription": "/ˌʌnɪˈkwɪvəkəl/",
       "translation": "недвусмысленный, однозначный",
       "translations": {
         "ru": "недвусмысленный, однозначный",
@@ -98,6 +104,7 @@
     {
       "word": "irrefutable",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪrɪˈfjutəbəl/",
       "translation": "неопровержимый",
       "translations": {
         "ru": "неопровержимый",
@@ -112,6 +119,7 @@
     {
       "word": "dubious",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdubiəs/",
       "translation": "сомнительный",
       "translations": {
         "ru": "сомнительный",
@@ -126,6 +134,7 @@
     {
       "word": "tenuous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtɛnjuəs/",
       "translation": "шаткий, слабый",
       "translations": {
         "ru": "шаткий, слабый",
@@ -140,6 +149,7 @@
     {
       "word": "spurious",
       "part_of_speech": "adjective",
+      "transcription": "/ˈspjʊriəs/",
       "translation": "ложный, поддельный",
       "translations": {
         "ru": "ложный, поддельный",

@@ -14,6 +14,7 @@
     {
       "word": "melancholy",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛlənˌkɑli/",
       "translation": "меланхолия, тихая грусть",
       "translations": {
         "ru": "меланхолия, тихая грусть",
@@ -28,6 +29,7 @@
     {
       "word": "despondent",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈspɑndənt/",
       "translation": "унылый, упавший духом",
       "translations": {
         "ru": "унылый, упавший духом",
@@ -35,13 +37,14 @@
       },
       "example": "After failing twice, he grew despondent and stopped trying.",
       "example_translations": {
-        "ru": "После двух неудач он стал унылым и бросил попытки.",
-        "uz": "Ikki marta omadsizlikka uchragach, u tushkun bo'lib, urinishni to'xtatdi."
+        "ru": "После двух неудач он упал духом и бросил попытки.",
+        "uz": "Ikki marta omadsizlikka uchragach, uning ruhi tushdi va urinishni to'xtatdi."
       }
     },
     {
       "word": "forlorn",
       "part_of_speech": "adjective",
+      "transcription": "/fərˈlɔrn/",
       "translation": "покинутый, несчастный",
       "translations": {
         "ru": "покинутый, несчастный",
@@ -56,6 +59,7 @@
     {
       "word": "sorrow",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɑroʊ/",
       "translation": "горе, печаль",
       "translations": {
         "ru": "горе, печаль",
@@ -70,6 +74,7 @@
     {
       "word": "lament",
       "part_of_speech": "verb",
+      "transcription": "/ləˈmɛnt/",
       "translation": "сокрушаться, оплакивать",
       "translations": {
         "ru": "сокрушаться, оплакивать",
@@ -84,6 +89,7 @@
     {
       "word": "mourn",
       "part_of_speech": "verb",
+      "transcription": "/mɔrn/",
       "translation": "скорбеть по умершему",
       "translations": {
         "ru": "скорбеть по умершему",
@@ -98,6 +104,7 @@
     {
       "word": "bereavement",
       "part_of_speech": "noun",
+      "transcription": "/bɪˈrivmənt/",
       "translation": "утрата близкого",
       "translations": {
         "ru": "утрата близкого",
@@ -112,6 +119,7 @@
     {
       "word": "wistful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈwɪstfəl/",
       "translation": "тоскующий, грустно-мечтательный",
       "translations": {
         "ru": "тоскующий, грустно-мечтательный",
@@ -126,6 +134,7 @@
     {
       "word": "somber",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɑmbər/",
       "translation": "мрачный, угрюмый",
       "translations": {
         "ru": "мрачный, угрюмый",
@@ -140,6 +149,7 @@
     {
       "word": "yearn",
       "part_of_speech": "verb",
+      "transcription": "/jɜrn/",
       "translation": "тосковать, страстно желать",
       "translations": {
         "ru": "тосковать, страстно желать",

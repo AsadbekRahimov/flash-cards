@@ -14,6 +14,7 @@
     {
       "word": "heuristic",
       "part_of_speech": "noun",
+      "transcription": "/hjʊˈrɪstɪk/",
       "translation": "эвристика, практическое правило",
       "translations": {
         "ru": "эвристика, практическое правило",
@@ -28,6 +29,7 @@
     {
       "word": "surmise",
       "part_of_speech": "verb",
+      "transcription": "/sərˈmaɪz/",
       "translation": "догадываться",
       "translations": {
         "ru": "догадываться",
@@ -42,6 +44,7 @@
     {
       "word": "presume",
       "part_of_speech": "verb",
+      "transcription": "/prɪˈzum/",
       "translation": "предполагать, считать вероятным",
       "translations": {
         "ru": "предполагать, считать вероятным",
@@ -56,6 +59,7 @@
     {
       "word": "construe",
       "part_of_speech": "verb",
+      "transcription": "/kənˈstru/",
       "translation": "истолковывать",
       "translations": {
         "ru": "истолковывать",
@@ -70,6 +74,7 @@
     {
       "word": "deem",
       "part_of_speech": "verb",
+      "transcription": "/dim/",
       "translation": "считать, признавать",
       "translations": {
         "ru": "считать, признавать",
@@ -84,6 +89,7 @@
     {
       "word": "appraise",
       "part_of_speech": "verb",
+      "transcription": "/əˈpreɪz/",
       "translation": "оценивать",
       "translations": {
         "ru": "оценивать",
@@ -98,6 +104,7 @@
     {
       "word": "gauge",
       "part_of_speech": "verb",
+      "transcription": "/geɪdʒ/",
       "translation": "определять, прикидывать",
       "translations": {
         "ru": "определять, прикидывать",
@@ -112,6 +119,7 @@
     {
       "word": "inference",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnfərəns/",
       "translation": "умозаключение, вывод",
       "translations": {
         "ru": "умозаключение, вывод",
@@ -126,6 +134,7 @@
     {
       "word": "syllogism",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪləˌdʒɪzəm/",
       "translation": "силлогизм",
       "translations": {
         "ru": "силлогизм",
@@ -140,6 +149,7 @@
     {
       "word": "dialectic",
       "part_of_speech": "noun",
+      "transcription": "/ˌdaɪəˈlɛktɪk/",
       "translation": "диалектика",
       "translations": {
         "ru": "диалектика",

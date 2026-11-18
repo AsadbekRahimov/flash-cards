@@ -14,6 +14,7 @@
     {
       "word": "conjure",
       "part_of_speech": "verb",
+      "transcription": "/ˈkɑndʒər/",
       "translation": "вызывать в воображении",
       "translations": {
         "ru": "вызывать в воображении",
@@ -28,6 +29,7 @@
     {
       "word": "envision",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈvɪʒən/",
       "translation": "представлять себе",
       "translations": {
         "ru": "представлять себе",
@@ -42,6 +44,7 @@
     {
       "word": "retrospect",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛtrəˌspɛkt/",
       "translation": "взгляд в прошлое",
       "translations": {
         "ru": "взгляд в прошлое",
@@ -56,6 +59,7 @@
     {
       "word": "hindsight",
       "part_of_speech": "noun",
+      "transcription": "/ˈhaɪndˌsaɪt/",
       "translation": "понимание задним числом",
       "translations": {
         "ru": "понимание задним числом",
@@ -64,12 +68,13 @@
       "example": "Hindsight makes every past mistake look easily avoidable.",
       "example_translations": {
         "ru": "Благодаря пониманию задним числом любая прошлая ошибка кажется легко предотвратимой.",
-        "uz": "Voqeadan keyingi anglash o'tmishdagi har bir xatoni oson oldini olsa bo'ladigandek ko'rsatadi."
+        "uz": "Voqeadan keyingi anglash o'tmishdagi har bir xatoni osongina oldini olish mumkin bo'lgandek ko'rsatadi."
       }
     },
     {
       "word": "foresight",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɔrˌsaɪt/",
       "translation": "предусмотрительность, дальновидность",
       "translations": {
         "ru": "предусмотрительность, дальновидность",
@@ -84,6 +89,7 @@
     {
       "word": "premonition",
       "part_of_speech": "noun",
+      "transcription": "/ˌprɛməˈnɪʃən/",
       "translation": "предчувствие",
       "translations": {
         "ru": "предчувствие",
@@ -98,6 +104,7 @@
     {
       "word": "mnemonic",
       "part_of_speech": "noun",
+      "transcription": "/nɪˈmɑnɪk/",
       "translation": "мнемонический приём",
       "translations": {
         "ru": "мнемонический приём",
@@ -112,6 +119,7 @@
     {
       "word": "indelible",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdɛləbəl/",
       "translation": "неизгладимый",
       "translations": {
         "ru": "неизгладимый",
@@ -126,6 +134,7 @@
     {
       "word": "figment",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɪgmənt/",
       "translation": "плод воображения, вымысел",
       "translations": {
         "ru": "плод воображения, вымысел",
@@ -140,6 +149,7 @@
     {
       "word": "commemorate",
       "part_of_speech": "verb",
+      "transcription": "/kəˈmɛməˌreɪt/",
       "translation": "увековечивать память",
       "translations": {
         "ru": "увековечивать память",

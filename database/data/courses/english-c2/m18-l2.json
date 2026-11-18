@@ -14,6 +14,7 @@
     {
       "word": "paramount",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɛrəˌmaʊnt/",
       "translation": "первостепенный",
       "translations": {
         "ru": "первостепенный",
@@ -28,6 +29,7 @@
     {
       "word": "pivotal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɪvətəl/",
       "translation": "ключевой, решающий",
       "translations": {
         "ru": "ключевой, решающий",
@@ -42,6 +44,7 @@
     {
       "word": "salient",
       "part_of_speech": "adjective",
+      "transcription": "/ˈseɪliənt/",
       "translation": "главный, самый заметный",
       "translations": {
         "ru": "главный, самый заметный",
@@ -56,6 +59,7 @@
     {
       "word": "momentous",
       "part_of_speech": "adjective",
+      "transcription": "/moʊˈmɛntəs/",
       "translation": "судьбоносный",
       "translations": {
         "ru": "судьбоносный",
@@ -70,6 +74,7 @@
     {
       "word": "seminal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɛmənəl/",
       "translation": "основополагающий",
       "translations": {
         "ru": "основополагающий",
@@ -84,6 +89,7 @@
     {
       "word": "quintessential",
       "part_of_speech": "adjective",
+      "transcription": "/ˌkwɪntəˈsɛnʃəl/",
       "translation": "самый типичный, образцовый",
       "translations": {
         "ru": "самый типичный, образцовый",
@@ -98,6 +104,7 @@
     {
       "word": "indispensable",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪndɪˈspɛnsəbəl/",
       "translation": "незаменимый, необходимый",
       "translations": {
         "ru": "незаменимый, необходимый",
@@ -112,6 +119,7 @@
     {
       "word": "inconsequential",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˌkɑnsəˈkwɛnʃəl/",
       "translation": "несущественный, незначительный",
       "translations": {
         "ru": "несущественный, незначительный",
@@ -126,6 +134,7 @@
     {
       "word": "peripheral",
       "part_of_speech": "adjective",
+      "transcription": "/pəˈrɪfərəl/",
       "translation": "второстепенный",
       "translations": {
         "ru": "второстепенный",
@@ -140,6 +149,7 @@
     {
       "word": "extraneous",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˈstreɪniəs/",
       "translation": "посторонний, не по существу",
       "translations": {
         "ru": "посторонний, не по существу",

@@ -14,6 +14,7 @@
     {
       "word": "saunter",
       "part_of_speech": "verb",
+      "transcription": "/ˈsɔntər/",
       "translation": "не спеша прогуливаться",
       "translations": {
         "ru": "не спеша прогуливаться",
@@ -28,6 +29,7 @@
     {
       "word": "stride",
       "part_of_speech": "verb",
+      "transcription": "/straɪd/",
       "translation": "шагать широким шагом",
       "translations": {
         "ru": "шагать широким шагом",
@@ -42,6 +44,7 @@
     {
       "word": "trudge",
       "part_of_speech": "verb",
+      "transcription": "/trʌdʒ/",
       "translation": "брести с трудом",
       "translations": {
         "ru": "брести с трудом",
@@ -56,6 +59,7 @@
     {
       "word": "stagger",
       "part_of_speech": "verb",
+      "transcription": "/ˈstægər/",
       "translation": "идти шатаясь",
       "translations": {
         "ru": "идти шатаясь",
@@ -70,6 +74,7 @@
     {
       "word": "scurry",
       "part_of_speech": "verb",
+      "transcription": "/ˈskɜri/",
       "translation": "торопливо семенить",
       "translations": {
         "ru": "торопливо семенить",
@@ -84,6 +89,7 @@
     {
       "word": "hurtle",
       "part_of_speech": "verb",
+      "transcription": "/ˈhɜrtəl/",
       "translation": "стремительно нестись",
       "translations": {
         "ru": "стремительно нестись",
@@ -98,6 +104,7 @@
     {
       "word": "meander",
       "part_of_speech": "verb",
+      "transcription": "/miˈændər/",
       "translation": "петлять, извиваться",
       "translations": {
         "ru": "петлять, извиваться",
@@ -112,6 +119,7 @@
     {
       "word": "clamber",
       "part_of_speech": "verb",
+      "transcription": "/ˈklæmbər/",
       "translation": "карабкаться",
       "translations": {
         "ru": "карабкаться",
@@ -126,6 +134,7 @@
     {
       "word": "recoil",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈkɔɪl/",
       "translation": "отпрянуть",
       "translations": {
         "ru": "отпрянуть",
@@ -140,6 +149,7 @@
     {
       "word": "flinch",
       "part_of_speech": "verb",
+      "transcription": "/flɪntʃ/",
       "translation": "вздрагивать",
       "translations": {
         "ru": "вздрагивать",

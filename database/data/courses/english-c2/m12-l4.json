@@ -14,6 +14,7 @@
     {
       "word": "tectonic",
       "part_of_speech": "adjective",
+      "transcription": "/tɛkˈtɑnɪk/",
       "translation": "тектонический",
       "translations": {
         "ru": "тектонический",
@@ -28,6 +29,7 @@
     {
       "word": "seismic",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsaɪzmɪk/",
       "translation": "сейсмический",
       "translations": {
         "ru": "сейсмический",
@@ -42,6 +44,7 @@
     {
       "word": "magma",
       "part_of_speech": "noun",
+      "transcription": "/ˈmægmə/",
       "translation": "магма",
       "translations": {
         "ru": "магма",
@@ -56,20 +59,22 @@
     {
       "word": "sediment",
       "part_of_speech": "noun",
-      "translation": "осадок",
+      "transcription": "/ˈsɛdəmənt/",
+      "translation": "наносы, отложения",
       "translations": {
-        "ru": "осадок",
+        "ru": "наносы, отложения",
         "uz": "cho'kindi"
       },
       "example": "Rivers carry sediment that settles on the seabed.",
       "example_translations": {
-        "ru": "Реки несут осадок, который оседает на морском дне.",
+        "ru": "Реки несут наносы, которые оседают на морском дне.",
         "uz": "Daryolar dengiz tubiga cho'kadigan cho'kindini oqizib keladi."
       }
     },
     {
       "word": "stratum",
       "part_of_speech": "noun",
+      "transcription": "/ˈstreɪtəm/",
       "translation": "пласт породы",
       "translations": {
         "ru": "пласт породы",
@@ -84,6 +89,7 @@
     {
       "word": "primordial",
       "part_of_speech": "adjective",
+      "transcription": "/praɪˈmɔrdiəl/",
       "translation": "первичный, первозданный",
       "translations": {
         "ru": "первичный, первозданный",
@@ -98,6 +104,7 @@
     {
       "word": "symbiosis",
       "part_of_speech": "noun",
+      "transcription": "/ˌsɪmbiˈoʊsəs/",
       "translation": "симбиоз",
       "translations": {
         "ru": "симбиоз",
@@ -112,6 +119,7 @@
     {
       "word": "parasitic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌpɛrəˈsɪtɪk/",
       "translation": "паразитический",
       "translations": {
         "ru": "паразитический",
@@ -126,6 +134,7 @@
     {
       "word": "morphology",
       "part_of_speech": "noun",
+      "transcription": "/mɔrˈfɑlədʒi/",
       "translation": "морфология",
       "translations": {
         "ru": "морфология",
@@ -140,6 +149,7 @@
     {
       "word": "dormant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdɔrmənt/",
       "translation": "спящий, неактивный",
       "translations": {
         "ru": "спящий, неактивный",

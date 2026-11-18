@@ -14,6 +14,7 @@
     {
       "word": "etymology",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛtəˈmɑlədʒi/",
       "translation": "этимология",
       "translations": {
         "ru": "этимология",
@@ -21,13 +22,14 @@
       },
       "example": "The etymology of \"salary\" goes back to salt.",
       "example_translations": {
-        "ru": "Этимология слова «salary» восходит к соли.",
-        "uz": "\"Salary\" so'zining etimologiyasi tuzga borib taqaladi."
+        "ru": "Этимология слова «salary» восходит к слову «соль».",
+        "uz": "\"Salary\" so'zining etimologiyasi \"tuz\" so'ziga borib taqaladi."
       }
     },
     {
       "word": "lexicon",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛksəˌkɑn/",
       "translation": "словарный состав, лексикон",
       "translations": {
         "ru": "словарный состав, лексикон",
@@ -42,6 +44,7 @@
     {
       "word": "vernacular",
       "part_of_speech": "noun",
+      "transcription": "/vərˈnækjələr/",
       "translation": "народный язык, местное наречие",
       "translations": {
         "ru": "народный язык, местное наречие",
@@ -56,6 +59,7 @@
     {
       "word": "parlance",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑrləns/",
       "translation": "язык определённой среды",
       "translations": {
         "ru": "язык определённой среды",
@@ -70,6 +74,7 @@
     {
       "word": "jargon",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒɑrgən/",
       "translation": "жаргон",
       "translations": {
         "ru": "жаргон",
@@ -84,6 +89,7 @@
     {
       "word": "colloquial",
       "part_of_speech": "adjective",
+      "transcription": "/kəˈloʊkwiəl/",
       "translation": "разговорный",
       "translations": {
         "ru": "разговорный",
@@ -98,6 +104,7 @@
     {
       "word": "archaic",
       "part_of_speech": "adjective",
+      "transcription": "/ɑrˈkeɪɪk/",
       "translation": "архаичный, устаревший",
       "translations": {
         "ru": "архаичный, устаревший",
@@ -112,12 +119,13 @@
     {
       "word": "neologism",
       "part_of_speech": "noun",
+      "transcription": "/niˈɑləˌdʒɪzəm/",
       "translation": "неологизм",
       "translations": {
         "ru": "неологизм",
         "uz": "neologizm, yangi so'z"
       },
-      "example": "\"Selfie\" was a neologism only years ago.",
+      "example": "\"Selfie\" was a neologism only a few years ago.",
       "example_translations": {
         "ru": "Ещё несколько лет назад «selfie» было неологизмом.",
         "uz": "Bir necha yil oldingina \"selfie\" neologizm edi."
@@ -126,6 +134,7 @@
     {
       "word": "idiom",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪdiəm/",
       "translation": "идиома, устойчивое выражение",
       "translations": {
         "ru": "идиома, устойчивое выражение",
@@ -140,6 +149,7 @@
     {
       "word": "verbatim",
       "part_of_speech": "adverb",
+      "transcription": "/vərˈbeɪtəm/",
       "translation": "дословно",
       "translations": {
         "ru": "дословно",

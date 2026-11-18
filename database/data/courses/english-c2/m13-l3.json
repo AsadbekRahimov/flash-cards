@@ -14,20 +14,22 @@
     {
       "word": "cranium",
       "part_of_speech": "noun",
+      "transcription": "/ˈkreɪniəm/",
       "translation": "череп",
       "translations": {
         "ru": "череп",
-        "uz": "bosh suyagi"
+        "uz": "bosh chanog'i"
       },
       "example": "The human cranium consists of several joined bones.",
       "example_translations": {
         "ru": "Череп человека состоит из нескольких сросшихся костей.",
-        "uz": "Odamning bosh suyagi bir-biriga birikkan bir necha suyakdan iborat."
+        "uz": "Odamning bosh chanog'i bir-biriga birikkan bir necha suyakdan iborat."
       }
     },
     {
       "word": "vertebra",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɜrtəbrə/",
       "translation": "позвонок",
       "translations": {
         "ru": "позвонок",
@@ -42,6 +44,7 @@
     {
       "word": "retina",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛtənə/",
       "translation": "сетчатка",
       "translations": {
         "ru": "сетчатка",
@@ -56,6 +59,7 @@
     {
       "word": "larynx",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛrɪŋks/",
       "translation": "гортань",
       "translations": {
         "ru": "гортань",
@@ -70,6 +74,7 @@
     {
       "word": "trachea",
       "part_of_speech": "noun",
+      "transcription": "/ˈtreɪkiə/",
       "translation": "трахея",
       "translations": {
         "ru": "трахея",
@@ -84,6 +89,7 @@
     {
       "word": "pancreas",
       "part_of_speech": "noun",
+      "transcription": "/ˈpæŋkriəs/",
       "translation": "поджелудочная железа",
       "translations": {
         "ru": "поджелудочная железа",
@@ -98,6 +104,7 @@
     {
       "word": "marrow",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛroʊ/",
       "translation": "костный мозг",
       "translations": {
         "ru": "костный мозг",
@@ -112,6 +119,7 @@
     {
       "word": "intestine",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈtɛstən/",
       "translation": "кишка",
       "translations": {
         "ru": "кишка",
@@ -126,6 +134,7 @@
     {
       "word": "capillary",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæpəˌlɛri/",
       "translation": "капилляр",
       "translations": {
         "ru": "капилляр",
@@ -140,6 +149,7 @@
     {
       "word": "cortex",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɔrˌtɛks/",
       "translation": "кора головного мозга",
       "translations": {
         "ru": "кора головного мозга",

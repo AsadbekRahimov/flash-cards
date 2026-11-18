@@ -14,6 +14,7 @@
     {
       "word": "painstaking",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpeɪnzˌteɪkɪŋ/",
       "translation": "кропотливый",
       "translations": {
         "ru": "кропотливый",
@@ -28,6 +29,7 @@
     {
       "word": "exacting",
       "part_of_speech": "adjective",
+      "transcription": "/ɪgˈzæktɪŋ/",
       "translation": "требовательный, взыскательный",
       "translations": {
         "ru": "требовательный, взыскательный",
@@ -42,6 +44,7 @@
     {
       "word": "fastidious",
       "part_of_speech": "adjective",
+      "transcription": "/fæˈstɪdiəs/",
       "translation": "щепетильный, привередливый",
       "translations": {
         "ru": "щепетильный, привередливый",
@@ -56,6 +59,7 @@
     {
       "word": "stringent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstrɪndʒənt/",
       "translation": "строгий, жёсткий",
       "translations": {
         "ru": "строгий, жёсткий",
@@ -70,6 +74,7 @@
     {
       "word": "cursory",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɜrsəri/",
       "translation": "беглый, поверхностный",
       "translations": {
         "ru": "беглый, поверхностный",
@@ -84,6 +89,7 @@
     {
       "word": "perfunctory",
       "part_of_speech": "adjective",
+      "transcription": "/pərˈfʌŋktəri/",
       "translation": "формальный, для галочки",
       "translations": {
         "ru": "формальный, для галочки",
@@ -98,6 +104,7 @@
     {
       "word": "haphazard",
       "part_of_speech": "adjective",
+      "transcription": "/ˌhæpˈhæzərd/",
       "translation": "бессистемный, беспорядочный",
       "translations": {
         "ru": "бессистемный, беспорядочный",
@@ -112,6 +119,7 @@
     {
       "word": "lax",
       "part_of_speech": "adjective",
+      "transcription": "/læks/",
       "translation": "нестрогий, небрежный",
       "translations": {
         "ru": "нестрогий, небрежный",
@@ -126,10 +134,11 @@
     {
       "word": "exhaustive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪgˈzɔstɪv/",
       "translation": "исчерпывающий",
       "translations": {
         "ru": "исчерпывающий",
-        "uz": "to'liq, mukammal"
+        "uz": "to'liq, mufassal"
       },
       "example": "The book gives an exhaustive list of all known species.",
       "example_translations": {
@@ -140,6 +149,7 @@
     {
       "word": "pinpoint",
       "part_of_speech": "verb",
+      "transcription": "/ˈpɪnˌpɔɪnt/",
       "translation": "точно определять",
       "translations": {
         "ru": "точно определять",

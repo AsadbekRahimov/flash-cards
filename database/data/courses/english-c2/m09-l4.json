@@ -14,6 +14,7 @@
     {
       "word": "disenfranchise",
       "part_of_speech": "verb",
+      "transcription": "/ˌdɪsɪnˈfrænˌtʃaɪz/",
       "translation": "лишать избирательных прав",
       "translations": {
         "ru": "лишать избирательных прав",
@@ -21,13 +22,14 @@
       },
       "example": "The new law would disenfranchise thousands of rural voters.",
       "example_translations": {
-        "ru": "Новый закон лишил бы избирательных прав тысячи сельских жителей.",
-        "uz": "Yangi qonun minglab qishloq aholisini saylov huquqidan mahrum qilgan bo'lardi."
+        "ru": "Новый закон лишил бы избирательных прав тысячи сельских избирателей.",
+        "uz": "Yangi qonun minglab qishloq saylovchilarini saylov huquqidan mahrum qilgan bo'lardi."
       }
     },
     {
       "word": "subversive",
       "part_of_speech": "adjective",
+      "transcription": "/səbˈvɜrsɪv/",
       "translation": "подрывной",
       "translations": {
         "ru": "подрывной",
@@ -42,6 +44,7 @@
     {
       "word": "sedition",
       "part_of_speech": "noun",
+      "transcription": "/sɪˈdɪʃən/",
       "translation": "подстрекательство к мятежу",
       "translations": {
         "ru": "подстрекательство к мятежу",
@@ -56,6 +59,7 @@
     {
       "word": "defiance",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈfaɪəns/",
       "translation": "открытое неповиновение",
       "translations": {
         "ru": "открытое неповиновение",
@@ -70,6 +74,7 @@
     {
       "word": "foment",
       "part_of_speech": "verb",
+      "transcription": "/foʊˈmɛnt/",
       "translation": "разжигать",
       "translations": {
         "ru": "разжигать",
@@ -84,10 +89,11 @@
     {
       "word": "incite",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈsaɪt/",
       "translation": "подстрекать",
       "translations": {
         "ru": "подстрекать",
-        "uz": "gij-gijlamoq"
+        "uz": "gij-gijlamoq, qutqu solmoq"
       },
       "example": "The speaker was accused of inciting the crowd to rebel.",
       "example_translations": {
@@ -98,6 +104,7 @@
     {
       "word": "galvanize",
       "part_of_speech": "verb",
+      "transcription": "/ˈgælvəˌnaɪz/",
       "translation": "побуждать к действию",
       "translations": {
         "ru": "побуждать к действию",
@@ -112,6 +119,7 @@
     {
       "word": "mobilize",
       "part_of_speech": "verb",
+      "transcription": "/ˈmoʊbəˌlaɪz/",
       "translation": "мобилизовать",
       "translations": {
         "ru": "мобилизовать",
@@ -126,6 +134,7 @@
     {
       "word": "quell",
       "part_of_speech": "verb",
+      "transcription": "/kwɛl/",
       "translation": "подавлять",
       "translations": {
         "ru": "подавлять",
@@ -140,6 +149,7 @@
     {
       "word": "stifle",
       "part_of_speech": "verb",
+      "transcription": "/ˈstaɪfəl/",
       "translation": "душить, заглушать",
       "translations": {
         "ru": "душить, заглушать",

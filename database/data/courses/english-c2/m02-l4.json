@@ -14,6 +14,7 @@
     {
       "word": "trepidation",
       "part_of_speech": "noun",
+      "transcription": "/ˌtrɛpəˈdeɪʃən/",
       "translation": "трепет, тревожное опасение",
       "translations": {
         "ru": "трепет, тревожное опасение",
@@ -28,6 +29,7 @@
     {
       "word": "foreboding",
       "part_of_speech": "noun",
+      "transcription": "/fɔrˈboʊdɪŋ/",
       "translation": "дурное предчувствие",
       "translations": {
         "ru": "дурное предчувствие",
@@ -42,6 +44,7 @@
     {
       "word": "qualm",
       "part_of_speech": "noun",
+      "transcription": "/kwɑm/",
       "translation": "угрызение совести, сомнение",
       "translations": {
         "ru": "угрызение совести, сомнение",
@@ -56,6 +59,7 @@
     {
       "word": "harrowing",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhɛroʊɪŋ/",
       "translation": "душераздирающий, мучительный",
       "translations": {
         "ru": "душераздирающий, мучительный",
@@ -70,6 +74,7 @@
     {
       "word": "unease",
       "part_of_speech": "noun",
+      "transcription": "/ʌnˈiz/",
       "translation": "беспокойство",
       "translations": {
         "ru": "беспокойство",
@@ -84,6 +89,7 @@
     {
       "word": "angst",
       "part_of_speech": "noun",
+      "transcription": "/ɑŋst/",
       "translation": "душевное смятение, тревога",
       "translations": {
         "ru": "душевное смятение, тревога",
@@ -98,6 +104,7 @@
     {
       "word": "consternation",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑnstərˈneɪʃən/",
       "translation": "смятение, оторопь",
       "translations": {
         "ru": "смятение, оторопь",
@@ -112,6 +119,7 @@
     {
       "word": "perturb",
       "part_of_speech": "verb",
+      "transcription": "/pərˈtɜrb/",
       "translation": "тревожить, выводить из равновесия",
       "translations": {
         "ru": "тревожить, выводить из равновесия",
@@ -126,6 +134,7 @@
     {
       "word": "unnerve",
       "part_of_speech": "verb",
+      "transcription": "/ʌnˈnɜrv/",
       "translation": "лишать самообладания",
       "translations": {
         "ru": "лишать самообладания",
@@ -140,6 +149,7 @@
     {
       "word": "daunt",
       "part_of_speech": "verb",
+      "transcription": "/dɔnt/",
       "translation": "устрашать, обескураживать",
       "translations": {
         "ru": "устрашать, обескураживать",

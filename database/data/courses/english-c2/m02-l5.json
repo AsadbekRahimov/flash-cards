@@ -14,6 +14,7 @@
     {
       "word": "apathy",
       "part_of_speech": "noun",
+      "transcription": "/ˈæpəθi/",
       "translation": "апатия, безразличие",
       "translations": {
         "ru": "апатия, безразличие",
@@ -28,6 +29,7 @@
     {
       "word": "lethargy",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛθərdʒi/",
       "translation": "вялость, заторможенность",
       "translations": {
         "ru": "вялость, заторможенность",
@@ -42,6 +44,7 @@
     {
       "word": "listless",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlɪstləs/",
       "translation": "вялый, безжизненный",
       "translations": {
         "ru": "вялый, безжизненный",
@@ -56,6 +59,7 @@
     {
       "word": "languid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlæŋgwəd/",
       "translation": "томный, расслабленный",
       "translations": {
         "ru": "томный, расслабленный",
@@ -70,6 +74,7 @@
     {
       "word": "weary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈwɪri/",
       "translation": "уставший, измученный",
       "translations": {
         "ru": "уставший, измученный",
@@ -84,6 +89,7 @@
     {
       "word": "jaded",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdʒeɪdəd/",
       "translation": "пресыщенный",
       "translations": {
         "ru": "пресыщенный",
@@ -98,6 +104,7 @@
     {
       "word": "nonchalant",
       "part_of_speech": "adjective",
+      "transcription": "/ˌnɑnʃəˈlɑnt/",
       "translation": "беспечный, невозмутимый",
       "translations": {
         "ru": "беспечный, невозмутимый",
@@ -112,6 +119,7 @@
     {
       "word": "detached",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈtætʃt/",
       "translation": "отстранённый, безучастный",
       "translations": {
         "ru": "отстранённый, безучастный",
@@ -126,6 +134,7 @@
     {
       "word": "tedium",
       "part_of_speech": "noun",
+      "transcription": "/ˈtidiəm/",
       "translation": "скука, нудность",
       "translations": {
         "ru": "скука, нудность",
@@ -140,6 +149,7 @@
     {
       "word": "monotony",
       "part_of_speech": "noun",
+      "transcription": "/məˈnɑtəni/",
       "translation": "однообразие, монотонность",
       "translations": {
         "ru": "однообразие, монотонность",

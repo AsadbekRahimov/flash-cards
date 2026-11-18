@@ -14,6 +14,7 @@
     {
       "word": "dilettante",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪləˌtɑnt/",
       "translation": "дилетант",
       "translations": {
         "ru": "дилетант",
@@ -28,6 +29,7 @@
     {
       "word": "aficionado",
       "part_of_speech": "noun",
+      "transcription": "/əˌfɪʃiəˈnɑdoʊ/",
       "translation": "страстный любитель, ценитель",
       "translations": {
         "ru": "страстный любитель, ценитель",
@@ -42,6 +44,7 @@
     {
       "word": "patron",
       "part_of_speech": "noun",
+      "transcription": "/ˈpeɪtrən/",
       "translation": "меценат, покровитель искусств",
       "translations": {
         "ru": "меценат, покровитель искусств",
@@ -56,6 +59,7 @@
     {
       "word": "highbrow",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhaɪˌbraʊ/",
       "translation": "элитарный, интеллектуальный",
       "translations": {
         "ru": "элитарный, интеллектуальный",
@@ -70,6 +74,7 @@
     {
       "word": "captivate",
       "part_of_speech": "verb",
+      "transcription": "/ˈkæptəˌveɪt/",
       "translation": "пленять, очаровывать",
       "translations": {
         "ru": "пленять, очаровывать",
@@ -84,6 +89,7 @@
     {
       "word": "mesmerize",
       "part_of_speech": "verb",
+      "transcription": "/ˈmɛzməˌraɪz/",
       "translation": "завораживать",
       "translations": {
         "ru": "завораживать",
@@ -98,20 +104,22 @@
     {
       "word": "riveting",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrɪvətɪŋ/",
       "translation": "захватывающий, приковывающий внимание",
       "translations": {
         "ru": "захватывающий, приковывающий внимание",
-        "uz": "nihoyatda qiziqarli"
+        "uz": "o'ziga rom etuvchi"
       },
       "example": "The play was so riveting that nobody moved.",
       "example_translations": {
         "ru": "Пьеса была настолько захватывающей, что никто не шевелился.",
-        "uz": "Spektakl nihoyatda qiziqarli ediki, hech kim qimirlamadi."
+        "uz": "Spektakl shu qadar o'ziga rom etuvchi ediki, hech kim qimirlamadi."
       }
     },
     {
       "word": "engross",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈgroʊs/",
       "translation": "поглощать, всецело занимать",
       "translations": {
         "ru": "поглощать, всецело занимать",
@@ -126,6 +134,7 @@
     {
       "word": "visceral",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvɪsərəl/",
       "translation": "идущий изнутри, нутряной",
       "translations": {
         "ru": "идущий изнутри, нутряной",
@@ -140,6 +149,7 @@
     {
       "word": "resonate",
       "part_of_speech": "verb",
+      "transcription": "/ˈrɛzəˌneɪt/",
       "translation": "находить отклик",
       "translations": {
         "ru": "находить отклик",

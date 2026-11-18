@@ -14,6 +14,7 @@
     {
       "word": "laud",
       "part_of_speech": "verb",
+      "transcription": "/lɔd/",
       "translation": "восхвалять",
       "translations": {
         "ru": "восхвалять",
@@ -28,6 +29,7 @@
     {
       "word": "accolade",
       "part_of_speech": "noun",
+      "transcription": "/ˈækəˌleɪd/",
       "translation": "почётная награда",
       "translations": {
         "ru": "почётная награда",
@@ -42,6 +44,7 @@
     {
       "word": "commend",
       "part_of_speech": "verb",
+      "transcription": "/kəˈmɛnd/",
       "translation": "хвалить, отмечать заслуги",
       "translations": {
         "ru": "хвалить, отмечать заслуги",
@@ -56,6 +59,7 @@
     {
       "word": "adulation",
       "part_of_speech": "noun",
+      "transcription": "/ˌædʒəˈleɪʃən/",
       "translation": "неумеренное восхищение",
       "translations": {
         "ru": "неумеренное восхищение",
@@ -70,6 +74,7 @@
     {
       "word": "censure",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛnʃər/",
       "translation": "официальное порицание",
       "translations": {
         "ru": "официальное порицание",
@@ -84,6 +89,7 @@
     {
       "word": "vilify",
       "part_of_speech": "verb",
+      "transcription": "/ˈvɪləˌfaɪ/",
       "translation": "очернять",
       "translations": {
         "ru": "очернять",
@@ -98,6 +104,7 @@
     {
       "word": "deride",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈraɪd/",
       "translation": "высмеивать",
       "translations": {
         "ru": "высмеивать",
@@ -112,9 +119,10 @@
     {
       "word": "disparage",
       "part_of_speech": "verb",
-      "translation": "принижать, умалять",
+      "transcription": "/dɪˈspɛrɪdʒ/",
+      "translation": "принижать, отзываться пренебрежительно",
       "translations": {
-        "ru": "принижать, умалять",
+        "ru": "принижать, отзываться пренебрежительно",
         "uz": "kamsitmoq"
       },
       "example": "Don't disparage his work; he tried very hard.",
@@ -126,6 +134,7 @@
     {
       "word": "scathing",
       "part_of_speech": "adjective",
+      "transcription": "/ˈskeɪðɪŋ/",
       "translation": "уничтожающий, едкий",
       "translations": {
         "ru": "уничтожающий, едкий",
@@ -140,6 +149,7 @@
     {
       "word": "tirade",
       "part_of_speech": "noun",
+      "transcription": "/ˈtaɪˌreɪd/",
       "translation": "гневная тирада",
       "translations": {
         "ru": "гневная тирада",

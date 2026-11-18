@@ -14,20 +14,22 @@
     {
       "word": "luminous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlumənəs/",
       "translation": "светящийся",
       "translations": {
         "ru": "светящийся",
-        "uz": "yorug'lik sochuvchi"
+        "uz": "nur sochuvchi"
       },
       "example": "Luminous jellyfish drifted through the black water.",
       "example_translations": {
         "ru": "Светящиеся медузы плыли в чёрной воде.",
-        "uz": "Yorug'lik sochuvchi meduzalar qop-qora suvda suzib yurardi."
+        "uz": "Nur sochuvchi meduzalar qop-qora suvda suzib yurardi."
       }
     },
     {
       "word": "radiant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈreɪdiənt/",
       "translation": "сияющий, лучезарный",
       "translations": {
         "ru": "сияющий, лучезарный",
@@ -42,6 +44,7 @@
     {
       "word": "iridescent",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪrəˈdɛsənt/",
       "translation": "переливчатый, радужный",
       "translations": {
         "ru": "переливчатый, радужный",
@@ -56,6 +59,7 @@
     {
       "word": "translucent",
       "part_of_speech": "adjective",
+      "transcription": "/trænsˈlusənt/",
       "translation": "полупрозрачный",
       "translations": {
         "ru": "полупрозрачный",
@@ -70,6 +74,7 @@
     {
       "word": "opaque",
       "part_of_speech": "adjective",
+      "transcription": "/oʊˈpeɪk/",
       "translation": "непрозрачный",
       "translations": {
         "ru": "непрозрачный",
@@ -84,6 +89,7 @@
     {
       "word": "gleam",
       "part_of_speech": "verb",
+      "transcription": "/glim/",
       "translation": "мягко блестеть",
       "translations": {
         "ru": "мягко блестеть",
@@ -98,20 +104,22 @@
     {
       "word": "shimmer",
       "part_of_speech": "verb",
+      "transcription": "/ˈʃɪmər/",
       "translation": "мерцать, переливаться",
       "translations": {
         "ru": "мерцать, переливаться",
-        "uz": "jimirlamoq"
+        "uz": "jilvalanmoq"
       },
       "example": "The lake shimmered under the midday sun.",
       "example_translations": {
         "ru": "Озеро мерцало под полуденным солнцем.",
-        "uz": "Ko'l tush payti quyoshi ostida jimirlardi."
+        "uz": "Ko'l tush payti quyoshi ostida jilvalanardi."
       }
     },
     {
       "word": "pallid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpæləd/",
       "translation": "бледный, блёклый",
       "translations": {
         "ru": "бледный, блёклый",
@@ -126,20 +134,22 @@
     {
       "word": "murky",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɜrki/",
       "translation": "мутный",
       "translations": {
         "ru": "мутный",
-        "uz": "loyqa"
+        "uz": "loyqa, xira"
       },
       "example": "We could not see fish in the murky pond.",
       "example_translations": {
         "ru": "В мутном пруду мы не могли разглядеть рыб.",
-        "uz": "Loyqa hovuzda baliqlarni ko'ra olmadik."
+        "uz": "Hovuzning loyqa, xira suvida baliqlarni ko'ra olmadik."
       }
     },
     {
       "word": "hue",
       "part_of_speech": "noun",
+      "transcription": "/hju/",
       "translation": "оттенок цвета",
       "translations": {
         "ru": "оттенок цвета",

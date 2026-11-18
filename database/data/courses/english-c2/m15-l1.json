@@ -14,6 +14,7 @@
     {
       "word": "echelon",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛʃəˌlɑn/",
       "translation": "эшелон, уровень иерархии",
       "translations": {
         "ru": "эшелон, уровень иерархии",
@@ -28,6 +29,7 @@
     {
       "word": "gentry",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒɛntri/",
       "translation": "мелкопоместное дворянство",
       "translations": {
         "ru": "мелкопоместное дворянство",
@@ -42,6 +44,7 @@
     {
       "word": "nobility",
       "part_of_speech": "noun",
+      "transcription": "/noʊˈbɪləti/",
       "translation": "знать, дворянство",
       "translations": {
         "ru": "знать, дворянство",
@@ -50,12 +53,13 @@
       "example": "Only the nobility could attend the royal ball.",
       "example_translations": {
         "ru": "Только знать могла присутствовать на королевском балу.",
-        "uz": "Qirol baliga faqat zodagonlar tashrif buyura olardi."
+        "uz": "Qirol baliga faqat zodagonlar qatnasha olardi."
       }
     },
     {
       "word": "commoner",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑmənər/",
       "translation": "простолюдин",
       "translations": {
         "ru": "простолюдин",
@@ -70,6 +74,7 @@
     {
       "word": "peasantry",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛzəntri/",
       "translation": "крестьянство",
       "translations": {
         "ru": "крестьянство",
@@ -84,6 +89,7 @@
     {
       "word": "upstart",
       "part_of_speech": "noun",
+      "transcription": "/ˈʌpˌstɑrt/",
       "translation": "выскочка",
       "translations": {
         "ru": "выскочка",
@@ -98,6 +104,7 @@
     {
       "word": "pariah",
       "part_of_speech": "noun",
+      "transcription": "/pəˈraɪə/",
       "translation": "пария",
       "translations": {
         "ru": "пария",
@@ -112,6 +119,7 @@
     {
       "word": "outcast",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌkæst/",
       "translation": "изгой, отверженный",
       "translations": {
         "ru": "изгой, отверженный",
@@ -126,6 +134,7 @@
     {
       "word": "intelligentsia",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˌtɛləˈdʒɛntsiə/",
       "translation": "интеллигенция",
       "translations": {
         "ru": "интеллигенция",
@@ -140,6 +149,7 @@
     {
       "word": "pedigree",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛdəˌgri/",
       "translation": "родословная, происхождение",
       "translations": {
         "ru": "родословная, происхождение",
