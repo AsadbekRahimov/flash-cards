@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 7,
+    "title": "Художественное описание",
+    "title_uz": "Badiiy tasvir"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Звук и тишина",
+    "title_uz": "Tovush va sukunat"
+  },
+  "words": [
+    {
+      "word": "cacophony",
+      "part_of_speech": "noun",
+      "translation": "какофония",
+      "translations": {
+        "ru": "какофония",
+        "uz": "betartib shovqin, kakofoniya"
+      },
+      "example": "A cacophony of car horns filled the street.",
+      "example_translations": {
+        "ru": "Улицу наполнила какофония автомобильных гудков.",
+        "uz": "Ko'chani mashina signallarining betartib shovqini tutib ketdi."
+      }
+    },
+    {
+      "word": "clamor",
+      "part_of_speech": "noun",
+      "translation": "гам, шум голосов",
+      "translations": {
+        "ru": "гам, шум голосов",
+        "uz": "g'ala-g'ovur"
+      },
+      "example": "The clamor of the market woke us early.",
+      "example_translations": {
+        "ru": "Гам базара рано разбудил нас.",
+        "uz": "Bozorning g'ala-g'ovuri bizni erta uyg'otdi."
+      }
+    },
+    {
+      "word": "resonant",
+      "part_of_speech": "adjective",
+      "translation": "гулкий, звучный",
+      "translations": {
+        "ru": "гулкий, звучный",
+        "uz": "jarangdor"
+      },
+      "example": "The resonant bell rang out across the whole valley.",
+      "example_translations": {
+        "ru": "Гулкий колокол разносился по всей долине.",
+        "uz": "Jarangdor qo'ng'iroq ovozi butun vodiyga taralardi."
+      }
+    },
+    {
+      "word": "sonorous",
+      "part_of_speech": "adjective",
+      "translation": "глубокий, полнозвучный",
+      "translations": {
+        "ru": "глубокий, полнозвучный",
+        "uz": "gulduros"
+      },
+      "example": "The actor read the poem in a sonorous voice.",
+      "example_translations": {
+        "ru": "Актёр прочёл стихотворение глубоким, полнозвучным голосом.",
+        "uz": "Aktyor she'rni gulduros ovozda o'qidi."
+      }
+    },
+    {
+      "word": "strident",
+      "part_of_speech": "adjective",
+      "translation": "резкий, пронзительный",
+      "translations": {
+        "ru": "резкий, пронзительный",
+        "uz": "quloqni teshuvchi, o'tkir"
+      },
+      "example": "A strident alarm cut through the quiet night.",
+      "example_translations": {
+        "ru": "Резкий, пронзительный сигнал тревоги прорезал тихую ночь.",
+        "uz": "Quloqni teshuvchi o'tkir signal sokin tunni yorib o'tdi."
+      }
+    },
+    {
+      "word": "raucous",
+      "part_of_speech": "adjective",
+      "translation": "хриплый, крикливый",
+      "translations": {
+        "ru": "хриплый, крикливый",
+        "uz": "xirildoq, shang'i"
+      },
+      "example": "The raucous cries of crows filled the park.",
+      "example_translations": {
+        "ru": "Парк наполнили хриплые, крикливые голоса ворон.",
+        "uz": "Bog'ni qarg'alarning xirildoq, shang'i qichqirig'i tutib ketdi."
+      }
+    },
+    {
+      "word": "muffled",
+      "part_of_speech": "adjective",
+      "translation": "приглушённый",
+      "translations": {
+        "ru": "приглушённый",
+        "uz": "bo'g'iq"
+      },
+      "example": "Muffled voices came from behind the thick wall.",
+      "example_translations": {
+        "ru": "Из-за толстой стены доносились приглушённые голоса.",
+        "uz": "Qalin devor ortidan bo'g'iq ovozlar eshitilardi."
+      }
+    },
+    {
+      "word": "rustle",
+      "part_of_speech": "verb",
+      "translation": "шуршать, шелестеть",
+      "translations": {
+        "ru": "шуршать, шелестеть",
+        "uz": "shitirlamoq"
+      },
+      "example": "Dry leaves rustled beneath our feet.",
+      "example_translations": {
+        "ru": "Сухие листья шуршали у нас под ногами.",
+        "uz": "Quruq barglar oyog'imiz ostida shitirlardi."
+      }
+    },
+    {
+      "word": "reverberate",
+      "part_of_speech": "verb",
+      "translation": "отдаваться эхом",
+      "translations": {
+        "ru": "отдаваться эхом",
+        "uz": "aks sado bermoq"
+      },
+      "example": "Thunder reverberated through the empty mountain pass.",
+      "example_translations": {
+        "ru": "Гром отдавался эхом на пустынном горном перевале.",
+        "uz": "Momaqaldiroq bo'm-bo'sh tog' dovonida aks sado berardi."
+      }
+    },
+    {
+      "word": "lull",
+      "part_of_speech": "noun",
+      "translation": "затишье",
+      "translations": {
+        "ru": "затишье",
+        "uz": "vaqtinchalik sokinlik"
+      },
+      "example": "During a lull in the storm, birds sang.",
+      "example_translations": {
+        "ru": "Во время затишья в буре запели птицы.",
+        "uz": "Bo'rondagi vaqtinchalik sokinlik chog'ida qushlar sayradi."
+      }
+    }
+  ]
+}

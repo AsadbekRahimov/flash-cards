@@ -34,7 +34,20 @@ final class ScalarBatch
      */
     public function count(string $alias, EloquentBuilder|Builder $rows): self
     {
-        return $this->add($alias, $this->base($rows)->selectRaw('count(*)'));
+        return $this->add($alias, $this->bare($rows)->selectRaw('count(*)'));
+    }
+
+    /**
+     * Existence as a scalar: `1` when `$rows` has a row, null (0 by {@see int()}) when it has none - `(select 1 from ... limit 1)`; its
+     * select list and order are dropped and the planner stops at the first row, where a count would read them all.
+     *
+     * @template TModel of Model
+     *
+     * @param  EloquentBuilder<TModel>|Builder  $rows
+     */
+    public function exists(string $alias, EloquentBuilder|Builder $rows): self
+    {
+        return $this->add($alias, $this->bare($rows)->selectRaw('1')->limit(1));
     }
 
     /**
@@ -119,6 +132,22 @@ final class ScalarBatch
         $this->members[$alias] = $subquery;
 
         return $this;
+    }
+
+    /**
+     * A copy of the rows without a select list and an order, for a count / an existence test (the caller's builder stays as it was).
+     *
+     * @template TModel of Model
+     *
+     * @param  EloquentBuilder<TModel>|Builder  $rows
+     */
+    private function bare(EloquentBuilder|Builder $rows): Builder
+    {
+        $query = clone $this->base($rows);
+        $query->columns = null;
+        $query->setBindings([], 'select');
+
+        return $query->reorder();
     }
 
     /**

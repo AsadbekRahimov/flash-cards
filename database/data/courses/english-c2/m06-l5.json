@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 6,
+    "title": "Разум и познание",
+    "title_uz": "Aql va bilish"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Ясное и загадочное",
+    "title_uz": "Ravshan va sirli"
+  },
+  "words": [
+    {
+      "word": "fathom",
+      "part_of_speech": "verb",
+      "translation": "постигать, понимать",
+      "translations": {
+        "ru": "постигать, понимать",
+        "uz": "anglab yetmoq"
+      },
+      "example": "I cannot fathom why she refused such an offer.",
+      "example_translations": {
+        "ru": "Я не могу постичь, почему она отказалась от такого предложения.",
+        "uz": "Nega u bunday taklifni rad etganini anglab yeta olmayman."
+      }
+    },
+    {
+      "word": "intelligible",
+      "part_of_speech": "adjective",
+      "translation": "понятный, разборчивый",
+      "translations": {
+        "ru": "понятный, разборчивый",
+        "uz": "tushunarli"
+      },
+      "example": "His speech was barely intelligible over the noise.",
+      "example_translations": {
+        "ru": "Из-за шума его речь была едва понятна.",
+        "uz": "Shovqin tufayli uning nutqi zo'rg'a tushunarli edi."
+      }
+    },
+    {
+      "word": "confound",
+      "part_of_speech": "verb",
+      "translation": "ставить в тупик",
+      "translations": {
+        "ru": "ставить в тупик",
+        "uz": "gangitmoq"
+      },
+      "example": "These strange results confounded even experienced researchers.",
+      "example_translations": {
+        "ru": "Эти странные результаты поставили в тупик даже опытных исследователей.",
+        "uz": "Bu g'alati natijalar hatto tajribali tadqiqotchilarni ham gangitib qo'ydi."
+      }
+    },
+    {
+      "word": "enigmatic",
+      "part_of_speech": "adjective",
+      "translation": "таинственный",
+      "translations": {
+        "ru": "таинственный",
+        "uz": "sirli"
+      },
+      "example": "Her enigmatic smile revealed nothing of her thoughts.",
+      "example_translations": {
+        "ru": "Её таинственная улыбка ничего не говорила о её мыслях.",
+        "uz": "Uning sirli tabassumi o'ylaridan hech narsani oshkor qilmasdi."
+      }
+    },
+    {
+      "word": "cryptic",
+      "part_of_speech": "adjective",
+      "translation": "загадочный, со скрытым смыслом",
+      "translations": {
+        "ru": "загадочный, со скрытым смыслом",
+        "uz": "yashirin ma'noli"
+      },
+      "example": "He left a cryptic note nobody could interpret.",
+      "example_translations": {
+        "ru": "Он оставил загадочную записку, которую никто не мог истолковать.",
+        "uz": "U hech kim talqin qila olmagan yashirin ma'noli xat qoldirdi."
+      }
+    },
+    {
+      "word": "esoteric",
+      "part_of_speech": "adjective",
+      "translation": "эзотерический, понятный лишь посвящённым",
+      "translations": {
+        "ru": "эзотерический, понятный лишь посвящённым",
+        "uz": "tor doiragagina tushunarli"
+      },
+      "example": "The lecture was too esoteric for a general audience.",
+      "example_translations": {
+        "ru": "Лекция была слишком эзотерической для широкой публики.",
+        "uz": "Ma'ruza tor doiragagina tushunarli bo'lib, keng ommaga mos emasdi."
+      }
+    },
+    {
+      "word": "nebulous",
+      "part_of_speech": "adjective",
+      "translation": "туманный, расплывчатый",
+      "translations": {
+        "ru": "туманный, расплывчатый",
+        "uz": "mavhum, noaniq"
+      },
+      "example": "Their plans remain nebulous, without dates or details.",
+      "example_translations": {
+        "ru": "Их планы остаются туманными — без дат и подробностей.",
+        "uz": "Ularning rejalari mavhum bo'lib qolmoqda — na sana, na tafsilot bor."
+      }
+    },
+    {
+      "word": "elusive",
+      "part_of_speech": "adjective",
+      "translation": "неуловимый",
+      "translations": {
+        "ru": "неуловимый",
+        "uz": "tutqich bermas"
+      },
+      "example": "A definitive answer remained elusive despite years of research.",
+      "example_translations": {
+        "ru": "Окончательный ответ оставался неуловимым, несмотря на годы исследований.",
+        "uz": "Yillar davomidagi tadqiqotlarga qaramay, uzil-kesil javob tutqich bermas edi."
+      }
+    },
+    {
+      "word": "conundrum",
+      "part_of_speech": "noun",
+      "translation": "головоломка, трудная задача",
+      "translations": {
+        "ru": "головоломка, трудная задача",
+        "uz": "jumboq"
+      },
+      "example": "Cutting costs without losing quality is a real conundrum.",
+      "example_translations": {
+        "ru": "Сократить расходы без потери качества — настоящая головоломка.",
+        "uz": "Sifatni yo'qotmay xarajatlarni qisqartirish — haqiqiy jumboq."
+      }
+    },
+    {
+      "word": "decipher",
+      "part_of_speech": "verb",
+      "translation": "расшифровывать",
+      "translations": {
+        "ru": "расшифровывать",
+        "uz": "o'qib tushunmoq"
+      },
+      "example": "Scholars finally deciphered the ancient inscription on the stone.",
+      "example_translations": {
+        "ru": "Учёные наконец расшифровали древнюю надпись на камне.",
+        "uz": "Olimlar nihoyat toshdagi qadimiy bitikni o'qib tushundilar."
+      }
+    }
+  ]
+}

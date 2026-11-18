@@ -16,6 +16,7 @@ use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Enums\WordStage;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Operations\Support\PureCache;
+use App\Models\CachedCourse;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
@@ -98,7 +99,7 @@ final class CourseCatalogService
      * as a read would (`newFromBuilder`), under the data version of the course - the one the tree is keyed with, which every saved change
      * of the course moves on (CourseTreeObserver; `CoursePublisher::recount()` / `transition()` do it themselves). For the hot reads that
      * only need the course's facts (the Today screen: availability, title, `words_count`, the level). A missing course is not cached.
-     * The model is read-only in spirit: whoever changes a course reads it from the database.
+     * The model is a {@see CachedCourse}: it refuses to be saved or deleted - whoever changes a course reads it from the database.
      */
     public function cachedCourse(int $courseId): ?Course
     {
@@ -107,16 +108,18 @@ final class CourseCatalogService
         $attributes = PureCache::store()->get($key);
         if (is_array($attributes) && isset($attributes['id'])) {
             /** @var array<string, mixed> $attributes */
-            return (new Course)->newFromBuilder($attributes);
+            return (new CachedCourse)->newFromBuilder($attributes);
         }
 
         /** @var Course|null $course */
         $course = Course::query()->find($courseId);
-        if ($course !== null) {
-            PureCache::store()->put($key, $course->getAttributes(), self::COURSE_ROW_TTL);
+        if ($course === null) {
+            return null;
         }
+        $attributes = $course->getAttributes();
+        PureCache::store()->put($key, $attributes, self::COURSE_ROW_TTL);
 
-        return $course;
+        return (new CachedCourse)->newFromBuilder($attributes);
     }
 
     public static function courseRowKey(int $courseId): string

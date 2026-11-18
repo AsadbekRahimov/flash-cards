@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 5,
+    "title": "Философия и этика",
+    "title_uz": "Falsafa va etika"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Знание и истина",
+    "title_uz": "Bilim va haqiqat"
+  },
+  "words": [
+    {
+      "word": "epistemology",
+      "part_of_speech": "noun",
+      "translation": "эпистемология, теория познания",
+      "translations": {
+        "ru": "эпистемология, теория познания",
+        "uz": "epistemologiya, bilish nazariyasi"
+      },
+      "example": "Epistemology examines how we know what we know.",
+      "example_translations": {
+        "ru": "Эпистемология исследует, откуда мы знаем то, что знаем.",
+        "uz": "Epistemologiya bilganlarimizni qanday bilishimizni o'rganadi."
+      }
+    },
+    {
+      "word": "empiricism",
+      "part_of_speech": "noun",
+      "translation": "эмпиризм",
+      "translations": {
+        "ru": "эмпиризм",
+        "uz": "empirizm"
+      },
+      "example": "Empiricism holds that knowledge comes from sensory experience.",
+      "example_translations": {
+        "ru": "Эмпиризм утверждает, что знание происходит из чувственного опыта.",
+        "uz": "Empirizm bilim hissiy tajribadan kelib chiqadi deb hisoblaydi."
+      }
+    },
+    {
+      "word": "doctrine",
+      "part_of_speech": "noun",
+      "translation": "учение, доктрина",
+      "translations": {
+        "ru": "учение, доктрина",
+        "uz": "ta'limot"
+      },
+      "example": "This doctrine was taught unchanged for many centuries.",
+      "example_translations": {
+        "ru": "Это учение преподавали в неизменном виде много веков.",
+        "uz": "Bu ta'limot ko'p asrlar davomida o'zgarishsiz o'rgatilgan."
+      }
+    },
+    {
+      "word": "tenet",
+      "part_of_speech": "noun",
+      "translation": "положение учения, догмат",
+      "translations": {
+        "ru": "положение учения, догмат",
+        "uz": "asosiy qoida, tamoyil"
+      },
+      "example": "Nonviolence is a central tenet of their philosophy.",
+      "example_translations": {
+        "ru": "Ненасилие — центральное положение их философского учения.",
+        "uz": "Zo'ravonlik qilmaslik — ular falsafasining markaziy tamoyili."
+      }
+    },
+    {
+      "word": "veracity",
+      "part_of_speech": "noun",
+      "translation": "правдивость, достоверность",
+      "translations": {
+        "ru": "правдивость, достоверность",
+        "uz": "haqqoniylik"
+      },
+      "example": "Several witnesses doubted the veracity of his account.",
+      "example_translations": {
+        "ru": "Несколько свидетелей усомнились в правдивости его рассказа.",
+        "uz": "Bir necha guvoh uning hikoyasi haqqoniyligiga shubha qildi."
+      }
+    },
+    {
+      "word": "fallible",
+      "part_of_speech": "adjective",
+      "translation": "способный ошибаться",
+      "translations": {
+        "ru": "способный ошибаться",
+        "uz": "xatodan xoli bo'lmagan"
+      },
+      "example": "Even experts are fallible and sometimes get things wrong.",
+      "example_translations": {
+        "ru": "Даже эксперты способны ошибаться и порой бывают неправы.",
+        "uz": "Hatto mutaxassislar ham xatodan xoli emas va ba'zan yanglishadi."
+      }
+    },
+    {
+      "word": "objectivity",
+      "part_of_speech": "noun",
+      "translation": "объективность",
+      "translations": {
+        "ru": "объективность",
+        "uz": "xolislik"
+      },
+      "example": "A judge must preserve objectivity despite personal feelings.",
+      "example_translations": {
+        "ru": "Судья должен сохранять объективность, несмотря на личные чувства.",
+        "uz": "Sudya shaxsiy his-tuyg'ulariga qaramay, xolislikni saqlashi kerak."
+      }
+    },
+    {
+      "word": "relativism",
+      "part_of_speech": "noun",
+      "translation": "релятивизм",
+      "translations": {
+        "ru": "релятивизм",
+        "uz": "relyativizm"
+      },
+      "example": "Relativism denies that any truth is absolute.",
+      "example_translations": {
+        "ru": "Релятивизм отрицает, что какая-либо истина абсолютна.",
+        "uz": "Relyativizm biror haqiqatning mutlaq ekanini inkor etadi."
+      }
+    },
+    {
+      "word": "tenable",
+      "part_of_speech": "adjective",
+      "translation": "состоятельный, обоснованный",
+      "translations": {
+        "ru": "состоятельный, обоснованный",
+        "uz": "asosli"
+      },
+      "example": "Is this argument still tenable after such criticism?",
+      "example_translations": {
+        "ru": "Остаётся ли этот довод состоятельным после такой критики?",
+        "uz": "Bunday tanqiddan keyin bu dalil hamon asoslimi?"
+      }
+    },
+    {
+      "word": "conjecture",
+      "part_of_speech": "noun",
+      "translation": "догадка, предположение",
+      "translations": {
+        "ru": "догадка, предположение",
+        "uz": "taxmin"
+      },
+      "example": "Without proof, his claim remains mere conjecture.",
+      "example_translations": {
+        "ru": "Без доказательств его утверждение остаётся лишь догадкой.",
+        "uz": "Isbotsiz uning da'vosi shunchaki taxmin bo'lib qoladi."
+      }
+    }
+  ]
+}

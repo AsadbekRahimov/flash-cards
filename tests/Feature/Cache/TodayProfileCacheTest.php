@@ -18,6 +18,7 @@ use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Operations\Support\PureCache;
 use App\Domain\Twa\Services\JwtService;
 use App\Domain\Twa\Services\TodayProfileCache;
+use App\Models\CachedCourse;
 use App\Models\ClassCaravan;
 use App\Models\Course;
 use App\Models\Learner;
@@ -26,8 +27,11 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Models\Word;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Tests\Support\Game\ClassKit;
 use Tests\Support\HotPathFixtures as Fx;
@@ -68,7 +72,7 @@ it('keeps the lapse banner in the snapshot: arrays only, under the learner\'s ve
 
     expect($first['provider'])->toBe('payme')
         ->and($key)->toStartWith('twa:today:v1:'.$learner->id.':n')
-        ->and(PureCache::store()->get($key))->toBe(['lapsed' => $first, 'groups' => false]);
+        ->and(PureCache::store()->get($key))->toBe(['lapsed' => $first, 'groups' => false, 'until' => null]);
 
     $queries = QueryLog::during(fn () => todayCacheGet($this, $learner)->assertJsonPath('entitlement.lapsed', $first));
 
@@ -114,6 +118,41 @@ it('shows a subscription ended by hand as no lapse, at once', function (): void 
     todayCacheGet($this, $learner)->assertJsonPath('entitlement.plan', 'free')->assertJsonPath('entitlement.lapsed', null);
 });
 
+it('does not put a snapshot computed from an old plan under the version a grant has just made: the version is read before the plan', function (): void {
+    $learner = Learner::factory()->onboarded()->create();
+    Subscription::factory()->expired()->create(['subscriber_id' => $learner->id, 'provider' => 'payme', 'ended_at' => CarbonImmutable::now()->subDays(3)]);
+    $old = EntitlementResolver::version($learner->id);
+
+    // A grant commits after the plan was read, while the scalars of the screen are being read: the version moves under the request.
+    DB::listen(function (QueryExecuted $q) use ($learner): void {
+        if (str_contains($q->sql, 'as "due"') || str_contains($q->sql, 'as `due`')) {
+            Cache::increment(EntitlementResolver::versionKey($learner->id));
+        }
+    });
+
+    todayCacheGet($this, $learner);
+
+    $new = EntitlementResolver::version($learner->id);
+    expect($new)->toBeGreaterThan($old)
+        ->and(PureCache::store()->has(TodayProfileCache::key($learner, $new)))->toBeFalse() // nobody read the new version's snapshot from the old plan
+        ->and(PureCache::store()->has(TodayProfileCache::key($learner, $old)))->toBeTrue();
+});
+
+it('recomputes the snapshot once the plan it was taken under has ended by the clock: a trial that ran out before the expiry run shows the lapse of the earlier subscription', function (): void {
+    $learner = Learner::factory()->onboarded()->create();
+    Subscription::factory()->expired()->create(['subscriber_id' => $learner->id, 'provider' => 'payme', 'ended_at' => CarbonImmutable::now()->subDays(3)]);
+    Subscription::factory()->create(['subscriber_id' => $learner->id, 'provider' => 'trial', 'current_period_ends_at' => CarbonImmutable::now()->addHour()]);
+    app(EntitlementResolver::class)->forget($learner);
+
+    todayCacheGet($this, $learner)->assertJsonPath('entitlement.plan', 'pro')->assertJsonPath('entitlement.lapsed', null);
+    expect(PureCache::store()->get(todaySnapshotKey($learner))['until'])->not->toBeNull();
+
+    $this->travelTo(CarbonImmutable::now()->addHours(2)); // the scheduler is late: no expiry run, no bump
+
+    todayCacheGet($this, $learner)->assertJsonPath('entitlement.plan', 'free')->assertJsonPath('entitlement.lapsed.provider', 'payme');
+    expect(PureCache::store()->get(todaySnapshotKey($learner))['until'])->toBeNull();
+});
+
 // --- the snapshot: the groups and the card of the class caravan -------------------------------------------------------
 
 it('reads no class caravan for a learner in no group, and shows the card at once after joining the group and none after leaving it', function (): void {
@@ -126,13 +165,13 @@ it('reads no class caravan for a learner in no group, and shows the card at once
     todayCacheGet($this, $member);
     $queries = QueryLog::during(fn () => todayCacheGet($this, $member)->assertJsonPath('game.class_caravan.stars_total', 7));
     expect(QueryLog::matching($queries, '/from ["`]class_caravans["`]/'))->toHaveCount(1)
-        ->and(PureCache::store()->get(todaySnapshotKey($member)))->toBe(['lapsed' => null, 'groups' => true]);
+        ->and(PureCache::store()->get(todaySnapshotKey($member)))->toBe(['lapsed' => null, 'groups' => true, 'until' => null]);
 
     // The stranger: no card, and no read of the class tables once the snapshot says "in no group".
     todayCacheGet($this, $stranger)->assertJsonPath('game.class_caravan', null);
     $queries = QueryLog::during(fn () => todayCacheGet($this, $stranger)->assertJsonPath('game.class_caravan', null));
     expect(QueryLog::matching($queries, '/from ["`](class_caravans|group_members|telegram_groups)["`]/'))->toBe([])
-        ->and(PureCache::store()->get(todaySnapshotKey($stranger)))->toBe(['lapsed' => null, 'groups' => false]);
+        ->and(PureCache::store()->get(todaySnapshotKey($stranger)))->toBe(['lapsed' => null, 'groups' => false, 'until' => null]);
 
     // Joins the class: the join moves the version, the next /today reads the card.
     $before = todaySnapshotKey($stranger);
@@ -167,15 +206,15 @@ it('counts the memberships in the statement of scalars on a cold snapshot, not i
 
     $queries = QueryLog::during(fn () => todayCacheGet($this, $member));
 
-    expect(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].*\(select count\(\*\) from ["`]group_members["`] as ["`]gm["`] inner join ["`]telegram_groups["`] as ["`]tg["`] on ["`]tg["`].["`]id["`] = ["`]gm["`].["`]telegram_group_id["`] and ["`]tg["`].["`]status["`] = \? where ["`]gm["`].["`]learner_id["`] = \? and ["`]gm["`].["`]status["`] = \?\) as ["`]groups["`]/s'))->toHaveCount(1)
+    expect(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].*\(select 1 from ["`]group_members["`] as ["`]gm["`] inner join ["`]telegram_groups["`] as ["`]tg["`] on ["`]tg["`].["`]id["`] = ["`]gm["`].["`]telegram_group_id["`] and ["`]tg["`].["`]status["`] = \? where ["`]gm["`].["`]learner_id["`] = \? and ["`]gm["`].["`]status["`] = \? limit 1\) as ["`]groups["`]/s'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select [^(]*from ["`]group_members["`]/'))->toBe([]) // no statement of its own
-        ->and(PureCache::store()->get(todaySnapshotKey($member)))->toBe(['lapsed' => null, 'groups' => true]);
+        ->and(PureCache::store()->get(todaySnapshotKey($member)))->toBe(['lapsed' => null, 'groups' => true, 'until' => null]);
 });
 
 it('ignores a snapshot that is not of the expected shape and computes afresh', function (): void {
     $learner = Learner::factory()->onboarded()->create();
     Subscription::factory()->expired()->create(['subscriber_id' => $learner->id, 'provider' => 'payme', 'ended_at' => CarbonImmutable::now()->subDays(3)]);
-    PureCache::store()->put(todaySnapshotKey($learner), ['lapsed' => 'yes', 'groups' => '1'], 600);
+    PureCache::store()->put(todaySnapshotKey($learner), ['lapsed' => 'yes', 'groups' => '1', 'until' => null], 600);
 
     todayCacheGet($this, $learner)->assertJsonPath('entitlement.lapsed.provider', 'payme');
 
@@ -279,3 +318,34 @@ it('keeps /today right when the pure cache is gone: every call computes from the
         PureCacheStandIn::removeDirectory($markers);
     }
 })->skip(! extension_loaded('redis'), 'phpredis is required to talk to a (dead) Redis');
+
+it('hands out the cached course as a model that cannot be saved or deleted, and the row it is made of is the same on a hit and a miss', function (): void {
+    ['course' => $course] = todayCacheCourse();
+    $catalog = app(CourseCatalogService::class);
+
+    $miss = $catalog->cachedCourse($course->id);
+    $hit = $catalog->cachedCourse($course->id);
+
+    expect($miss)->toBeInstanceOf(CachedCourse::class)->and($hit)->toBeInstanceOf(CachedCourse::class)
+        ->and($hit->getAttributes())->toBe($miss->getAttributes())
+        ->and($hit->exists)->toBeTrue()
+        ->and(fn () => $hit->forceFill(['title' => ['ru' => 'X']])->save())->toThrow(LogicException::class)
+        ->and(fn () => $hit->delete())->toThrow(LogicException::class)
+        ->and(Course::query()->findOrFail($course->id)->title)->toBe(['ru' => 'Шёлк', 'uz' => 'Ipak']);
+});
+
+it('moves the version of the course for the columns the Today row reads, and not for its position or featured flag', function (): void {
+    ['course' => $course] = todayCacheCourse();
+    $version = fn (): int => (int) Cache::get(CourseCatalogService::courseTreeVersionKey($course->id), 0);
+    $before = $version();
+
+    Course::query()->findOrFail($course->id)->update(['position' => 7, 'is_featured' => true]);
+    expect($version())->toBe($before);
+
+    Course::query()->findOrFail($course->id)->update(['title' => ['ru' => 'Другой', 'uz' => 'Boshqa']]);
+    expect($version())->toBeGreaterThan($before);
+
+    $after = $version();
+    Course::query()->findOrFail($course->id)->update(['words_count' => 9]);
+    expect($version())->toBeGreaterThan($after);
+});

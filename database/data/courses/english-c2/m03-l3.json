@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 3,
+    "title": "Речь и оттенки смысла",
+    "title_uz": "Nutq va ma'no nozikliklari"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Похвала и порицание",
+    "title_uz": "Maqtov va tanbeh"
+  },
+  "words": [
+    {
+      "word": "laud",
+      "part_of_speech": "verb",
+      "translation": "восхвалять",
+      "translations": {
+        "ru": "восхвалять",
+        "uz": "madh etmoq"
+      },
+      "example": "Newspapers lauded the firefighters as true heroes.",
+      "example_translations": {
+        "ru": "Газеты восхваляли пожарных как настоящих героев.",
+        "uz": "Gazetalar o't o'chiruvchilarni haqiqiy qahramonlar deb madh etdi."
+      }
+    },
+    {
+      "word": "accolade",
+      "part_of_speech": "noun",
+      "translation": "почётная награда",
+      "translations": {
+        "ru": "почётная награда",
+        "uz": "faxriy mukofot"
+      },
+      "example": "This medal is the highest accolade in science.",
+      "example_translations": {
+        "ru": "Эта медаль — высшая почётная награда в науке.",
+        "uz": "Bu medal — fandagi eng oliy faxriy mukofot."
+      }
+    },
+    {
+      "word": "commend",
+      "part_of_speech": "verb",
+      "translation": "хвалить, отмечать заслуги",
+      "translations": {
+        "ru": "хвалить, отмечать заслуги",
+        "uz": "maqtamoq, e'tirof etmoq"
+      },
+      "example": "The judge commended the witness for her honesty.",
+      "example_translations": {
+        "ru": "Судья похвалил свидетельницу за честность.",
+        "uz": "Sudya guvohni halolligi uchun maqtadi."
+      }
+    },
+    {
+      "word": "adulation",
+      "part_of_speech": "noun",
+      "translation": "неумеренное восхищение",
+      "translations": {
+        "ru": "неумеренное восхищение",
+        "uz": "haddan ziyod olqish"
+      },
+      "example": "Fans' adulation soon made the young singer arrogant.",
+      "example_translations": {
+        "ru": "Неумеренное восхищение поклонников вскоре сделало юного певца высокомерным.",
+        "uz": "Muxlislarning haddan ziyod olqishi tez orada yosh xonandani kibrli qilib qo'ydi."
+      }
+    },
+    {
+      "word": "censure",
+      "part_of_speech": "noun",
+      "translation": "официальное порицание",
+      "translations": {
+        "ru": "официальное порицание",
+        "uz": "rasmiy tanbeh"
+      },
+      "example": "The careless official received a formal censure from parliament.",
+      "example_translations": {
+        "ru": "Небрежный чиновник получил официальное порицание от парламента.",
+        "uz": "Beparvo amaldor parlamentdan rasmiy tanbeh oldi."
+      }
+    },
+    {
+      "word": "vilify",
+      "part_of_speech": "verb",
+      "translation": "очернять",
+      "translations": {
+        "ru": "очернять",
+        "uz": "badnom qilmoq"
+      },
+      "example": "Rivals vilified her in the press for months.",
+      "example_translations": {
+        "ru": "Соперники месяцами очерняли её в прессе.",
+        "uz": "Raqiblar uni matbuotda oylab badnom qilishdi."
+      }
+    },
+    {
+      "word": "deride",
+      "part_of_speech": "verb",
+      "translation": "высмеивать",
+      "translations": {
+        "ru": "высмеивать",
+        "uz": "masxara qilmoq"
+      },
+      "example": "Critics derided the plan as hopelessly naive.",
+      "example_translations": {
+        "ru": "Критики высмеяли этот план как безнадёжно наивный.",
+        "uz": "Tanqidchilar bu rejani o'ta sodda deb masxara qilishdi."
+      }
+    },
+    {
+      "word": "disparage",
+      "part_of_speech": "verb",
+      "translation": "принижать, умалять",
+      "translations": {
+        "ru": "принижать, умалять",
+        "uz": "kamsitmoq"
+      },
+      "example": "Don't disparage his work; he tried very hard.",
+      "example_translations": {
+        "ru": "Не принижайте его работу: он очень старался.",
+        "uz": "Uning ishini kamsitmang, u juda qattiq harakat qildi."
+      }
+    },
+    {
+      "word": "scathing",
+      "part_of_speech": "adjective",
+      "translation": "уничтожающий, едкий",
+      "translations": {
+        "ru": "уничтожающий, едкий",
+        "uz": "ayovsiz, achchiq"
+      },
+      "example": "A scathing review destroyed the restaurant's reputation.",
+      "example_translations": {
+        "ru": "Уничтожающая рецензия погубила репутацию ресторана.",
+        "uz": "Ayovsiz taqriz restoranning obro'sini yo'qqa chiqardi."
+      }
+    },
+    {
+      "word": "tirade",
+      "part_of_speech": "noun",
+      "translation": "гневная тирада",
+      "translations": {
+        "ru": "гневная тирада",
+        "uz": "g'azabli nutq"
+      },
+      "example": "He launched into a tirade against lazy colleagues.",
+      "example_translations": {
+        "ru": "Он разразился гневной тирадой против ленивых коллег.",
+        "uz": "U dangasa hamkasblariga qarshi g'azabli nutq boshlab yubordi."
+      }
+    }
+  ]
+}

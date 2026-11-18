@@ -87,15 +87,17 @@ final class TodayService
         // "frozen yesterday" of the series share them.
         $rows = $this->dailyStats->forDates($learner, [$todayDate, $today->subDay()->toDateString()]);
         $stats = $rows[$todayDate] ?? null;
+        // The learner's version BEFORE the plan is resolved (docs/12 §5.2): the snapshot below is computed from that plan and kept under this
+        // version, so a grant / expiry committed meanwhile moves later readers to a newer key and the put goes to the dead one.
+        $version = EntitlementResolver::version((int) $learner->id);
         // The plan is resolved once for the whole screen (the entitlement block, the quota, the freezes) - docs/19 K9.
         $entitlement = $this->entitlements->for($learner, $now);
 
         // A settle may freeze yesterday: the goal / streak block then reads yesterday again rather than the rows above.
         $settled = $this->handOutWeeklyFreeze($learner, $today, $stats, $now, $entitlement, $rows);
 
-        // The learner's version first, then the snapshot keyed by it (a bump landing during this request moves later readers on).
-        $version = EntitlementResolver::version((int) $learner->id);
-        $snapshot = $this->todayProfile->get($learner, $version);
+        // The snapshot keyed by the version read above; one whose plan has run out by the clock is no snapshot.
+        $snapshot = $this->todayProfile->get($learner, $version, $now);
 
         // The active course from the pure cache (its row under the course's data version), null when there is none or it is not available.
         $course = $this->availableCourse($learner);
@@ -110,7 +112,7 @@ final class TodayService
             $batch->count('served', $this->quota->servedTodayQuery($learner, $now)); // the Free quota; a plan without a limit counts nothing
         }
         if ($snapshot === null) {
-            $batch->count('groups', $this->activeGroupMemberships($learner)); // the cold snapshot: "in a group" rides here, no statement of its own
+            $batch->exists('groups', $this->activeGroupMemberships($learner)); // the cold snapshot: "in a group" rides here, no statement of its own
         }
         $countHard = $this->hardRound->enabled() && $this->hardRound->needsCandidates($learner, $now, $hardSessions, $entitlement);
         if ($countHard) {
@@ -124,7 +126,11 @@ final class TodayService
         $dueCount = ScalarBatch::int($scalars, 'due');
 
         if ($snapshot === null) {
-            $snapshot = ['lapsed' => $this->billing->lapsed($learner, $entitlement, $now), 'groups' => ScalarBatch::int($scalars, 'groups') > 0];
+            $snapshot = [
+                'lapsed' => $this->billing->lapsed($learner, $entitlement, $now),
+                'groups' => ScalarBatch::int($scalars, 'groups') > 0,
+                'until' => $entitlement->until?->toIso8601String(),
+            ];
             $this->todayProfile->put($learner, $version, $snapshot);
         }
 

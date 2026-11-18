@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 1,
+    "title": "Оттенки характера",
+    "title_uz": "Xarakter qirralari"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Воля и упорство",
+    "title_uz": "Iroda va qat'iyat"
+  },
+  "words": [
+    {
+      "word": "fortitude",
+      "part_of_speech": "noun",
+      "translation": "стойкость, сила духа",
+      "translations": {
+        "ru": "стойкость, сила духа",
+        "uz": "matonat"
+      },
+      "example": "She faced her illness with remarkable fortitude.",
+      "example_translations": {
+        "ru": "Она встретила болезнь с поразительной стойкостью.",
+        "uz": "U kasallikka hayratlanarli matonat bilan bardosh berdi."
+      }
+    },
+    {
+      "word": "resolute",
+      "part_of_speech": "adjective",
+      "translation": "решительный, твёрдый",
+      "translations": {
+        "ru": "решительный, твёрдый",
+        "uz": "qat'iyatli"
+      },
+      "example": "Despite the criticism, she remained resolute in her decision.",
+      "example_translations": {
+        "ru": "Несмотря на критику, она оставалась твёрдой в своём решении.",
+        "uz": "Tanqidga qaramay, u o'z qarorida qat'iyatli bo'lib qoldi."
+      }
+    },
+    {
+      "word": "obstinate",
+      "part_of_speech": "adjective",
+      "translation": "упрямый",
+      "translations": {
+        "ru": "упрямый",
+        "uz": "qaysar, o'jar"
+      },
+      "example": "The obstinate child refused to wear his coat.",
+      "example_translations": {
+        "ru": "Упрямый ребёнок отказывался надевать пальто.",
+        "uz": "Qaysar bola paltosini kiyishdan bosh tortardi."
+      }
+    },
+    {
+      "word": "intransigent",
+      "part_of_speech": "adjective",
+      "translation": "непримиримый, неуступчивый",
+      "translations": {
+        "ru": "непримиримый, неуступчивый",
+        "uz": "murosasiz"
+      },
+      "example": "Both sides stayed intransigent, so the talks collapsed.",
+      "example_translations": {
+        "ru": "Обе стороны оставались непримиримыми, и переговоры провалились.",
+        "uz": "Ikkala tomon ham murosasiz bo'lib qolgani uchun muzokaralar barbod bo'ldi."
+      }
+    },
+    {
+      "word": "indefatigable",
+      "part_of_speech": "adjective",
+      "translation": "неутомимый",
+      "translations": {
+        "ru": "неутомимый",
+        "uz": "charchoq bilmas"
+      },
+      "example": "An indefatigable volunteer, she worked sixteen hours daily.",
+      "example_translations": {
+        "ru": "Неутомимый волонтёр, она работала по шестнадцать часов в день.",
+        "uz": "Charchoq bilmas ko'ngilli sifatida u kuniga o'n olti soat ishlardi."
+      }
+    },
+    {
+      "word": "unwavering",
+      "part_of_speech": "adjective",
+      "translation": "непоколебимый",
+      "translations": {
+        "ru": "непоколебимый",
+        "uz": "og'ishmas"
+      },
+      "example": "Her unwavering faith in the project inspired everyone.",
+      "example_translations": {
+        "ru": "Её непоколебимая вера в проект вдохновляла всех.",
+        "uz": "Uning loyihaga bo'lgan og'ishmas ishonchi hammani ruhlantirardi."
+      }
+    },
+    {
+      "word": "staunch",
+      "part_of_speech": "adjective",
+      "translation": "верный, стойкий",
+      "translations": {
+        "ru": "верный, стойкий",
+        "uz": "sodiq, sobitqadam"
+      },
+      "example": "He remained a staunch supporter of the local theater.",
+      "example_translations": {
+        "ru": "Он оставался верным сторонником местного театра.",
+        "uz": "U mahalliy teatrning sodiq tarafdori bo'lib qoldi."
+      }
+    },
+    {
+      "word": "relentless",
+      "part_of_speech": "adjective",
+      "translation": "неустанный, неотступный",
+      "translations": {
+        "ru": "неустанный, неотступный",
+        "uz": "tinimsiz, to'xtovsiz"
+      },
+      "example": "Her relentless practice finally earned her a gold medal.",
+      "example_translations": {
+        "ru": "Неустанные тренировки наконец принесли ей золотую медаль.",
+        "uz": "Tinimsiz mashqlar nihoyat unga oltin medal keltirdi."
+      }
+    },
+    {
+      "word": "recalcitrant",
+      "part_of_speech": "adjective",
+      "translation": "непокорный, строптивый",
+      "translations": {
+        "ru": "непокорный, строптивый",
+        "uz": "itoatsiz, bo'ysunmas"
+      },
+      "example": "Recalcitrant students ignored every rule the school imposed.",
+      "example_translations": {
+        "ru": "Непокорные ученики игнорировали все правила, установленные школой.",
+        "uz": "Itoatsiz o'quvchilar maktab o'rnatgan har bir qoidani mensimasdi."
+      }
+    },
+    {
+      "word": "pliable",
+      "part_of_speech": "adjective",
+      "translation": "податливый, уступчивый",
+      "translations": {
+        "ru": "податливый, уступчивый",
+        "uz": "ko'nuvchan, ta'sirga beriluvchan"
+      },
+      "example": "Pliable and eager to please, he agreed to everything.",
+      "example_translations": {
+        "ru": "Податливый и готовый всем угождать, он соглашался на всё.",
+        "uz": "Ko'nuvchan va hammaga yoqishga intiladigan u har narsaga rozi bo'lardi."
+      }
+    }
+  ]
+}

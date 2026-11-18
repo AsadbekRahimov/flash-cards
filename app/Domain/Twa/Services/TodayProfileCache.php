@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Twa\Services;
 
+use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\Learner;
+use Carbon\CarbonImmutable;
 
 /**
  * The part of `GET /today` that changes only with the learner's version (docs/19 K10): the "Pro ran out" banner of their own
@@ -19,11 +21,14 @@ use App\Models\Learner;
  *    `/me` snapshot's ({@see MeProfileCache}): every write that changes the plan, a subscription (its grant, end, expiry run), a group
  *    membership (join, leave) or the status of a group bumps it, so the key every later reader looks at is a new one and the
  *    delete-then-put race cannot bring an old snapshot back. The version is read BEFORE the snapshot is computed (docs/12 §5.2);
+ *  - the banner depends on the plan, and the plan changes by the clock without a bump (a trial that ran out before the expiry run):
+ *    the snapshot keeps `until`, the end of the plan it was computed under, and is no snapshot once the clock passes it
+ *    (as {@see MeProfileCache} does with {@see Entitlement::isCurrentAt()});
  *  - what the key does not cover ages out with the TTL (minutes, docs/19 §3 rule 5): the end of the 14-day window of the banner.
  *
  * Nothing of the learning is here: the counters, the sessions, the progress and the game change with every grade and every run.
  *
- * @phpstan-type TodaySnapshot array{lapsed: array{provider: string, ended_at: string}|null, groups: bool}
+ * @phpstan-type TodaySnapshot array{lapsed: array{provider: string, ended_at: string}|null, groups: bool, until: string|null}
  */
 final class TodayProfileCache
 {
@@ -39,16 +44,21 @@ final class TodayProfileCache
 
     /**
      * The snapshot of the learner under `$version` ({@see EntitlementResolver::version()}, read by the caller once for the request), or
-     * null (none, or not of the expected shape).
+     * null (none, not of the expected shape, or computed under a plan that has ended by `$now`).
      *
      * @return TodaySnapshot|null
      */
-    public function get(Learner $learner, int $version): ?array
+    public function get(Learner $learner, int $version, CarbonImmutable $now): ?array
     {
         $cached = PureCache::store()->get(self::key($learner, $version));
 
         if (! is_array($cached) || ! array_key_exists('lapsed', $cached) || ! is_bool($cached['groups'] ?? null)
+            || ! array_key_exists('until', $cached) || ! ($cached['until'] === null || is_string($cached['until']))
             || ! ($cached['lapsed'] === null || (is_array($cached['lapsed']) && isset($cached['lapsed']['provider'], $cached['lapsed']['ended_at'])))) {
+            return null;
+        }
+
+        if ($cached['until'] !== null && ! CarbonImmutable::parse($cached['until'])->greaterThan($now)) {
             return null;
         }
 

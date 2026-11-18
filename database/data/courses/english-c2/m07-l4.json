@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 7,
+    "title": "Художественное описание",
+    "title_uz": "Badiiy tasvir"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Движение",
+    "title_uz": "Harakat"
+  },
+  "words": [
+    {
+      "word": "saunter",
+      "part_of_speech": "verb",
+      "translation": "не спеша прогуливаться",
+      "translations": {
+        "ru": "не спеша прогуливаться",
+        "uz": "bamaylixotir yurmoq"
+      },
+      "example": "Tom sauntered along the beach, whistling a tune.",
+      "example_translations": {
+        "ru": "Том не спеша прогуливался по пляжу, насвистывая мелодию.",
+        "uz": "Tom kuy hushtak chalib, sohil bo'ylab bamaylixotir yurardi."
+      }
+    },
+    {
+      "word": "stride",
+      "part_of_speech": "verb",
+      "translation": "шагать широким шагом",
+      "translations": {
+        "ru": "шагать широким шагом",
+        "uz": "katta-katta qadam tashlamoq"
+      },
+      "example": "The tall guard was striding toward the gate.",
+      "example_translations": {
+        "ru": "Высокий охранник шагал широким шагом к воротам.",
+        "uz": "Baland bo'yli qorovul darvoza tomon katta-katta qadam tashlab borardi."
+      }
+    },
+    {
+      "word": "trudge",
+      "part_of_speech": "verb",
+      "translation": "брести с трудом",
+      "translations": {
+        "ru": "брести с трудом",
+        "uz": "zo'rg'a odimlamoq"
+      },
+      "example": "Exhausted hikers trudged through the deep snow.",
+      "example_translations": {
+        "ru": "Измученные туристы с трудом брели по глубокому снегу.",
+        "uz": "Holdan toygan sayyohlar qalin qorda zo'rg'a odimlab borardi."
+      }
+    },
+    {
+      "word": "stagger",
+      "part_of_speech": "verb",
+      "translation": "идти шатаясь",
+      "translations": {
+        "ru": "идти шатаясь",
+        "uz": "gandiraklab yurmoq"
+      },
+      "example": "Dizzy from the heat, he staggered to a bench.",
+      "example_translations": {
+        "ru": "От жары у него кружилась голова, и он, шатаясь, дошёл до скамейки.",
+        "uz": "Issiqdan boshi aylanib, u o'rindiqqacha gandiraklab yurib bordi."
+      }
+    },
+    {
+      "word": "scurry",
+      "part_of_speech": "verb",
+      "translation": "торопливо семенить",
+      "translations": {
+        "ru": "торопливо семенить",
+        "uz": "pildirab yugurmoq"
+      },
+      "example": "Mice scurried away when the light came on.",
+      "example_translations": {
+        "ru": "Когда зажёгся свет, мыши торопливо засеменили прочь.",
+        "uz": "Chiroq yonganda sichqonlar pildirab yugurib qochdi."
+      }
+    },
+    {
+      "word": "hurtle",
+      "part_of_speech": "verb",
+      "translation": "стремительно нестись",
+      "translations": {
+        "ru": "стремительно нестись",
+        "uz": "shiddat bilan otilmoq"
+      },
+      "example": "A huge boulder hurtled down the steep slope.",
+      "example_translations": {
+        "ru": "Огромный валун стремительно нёсся вниз по крутому склону.",
+        "uz": "Ulkan xarsangtosh tik yonbag'irdan pastga shiddat bilan otilib borardi."
+      }
+    },
+    {
+      "word": "meander",
+      "part_of_speech": "verb",
+      "translation": "петлять, извиваться",
+      "translations": {
+        "ru": "петлять, извиваться",
+        "uz": "ilon izi bo'lib o'tmoq"
+      },
+      "example": "The path meanders lazily through the old orchard.",
+      "example_translations": {
+        "ru": "Тропинка лениво петляет по старому саду.",
+        "uz": "So'qmoq eski bog' ichidan erinchoqlik bilan ilon izi bo'lib o'tadi."
+      }
+    },
+    {
+      "word": "clamber",
+      "part_of_speech": "verb",
+      "translation": "карабкаться",
+      "translations": {
+        "ru": "карабкаться",
+        "uz": "tirmashmoq"
+      },
+      "example": "The children clambered over the rocks to the cave.",
+      "example_translations": {
+        "ru": "Дети карабкались по камням к пещере.",
+        "uz": "Bolalar g'or tomon qoyalarga tirmashib borishdi."
+      }
+    },
+    {
+      "word": "recoil",
+      "part_of_speech": "verb",
+      "translation": "отпрянуть",
+      "translations": {
+        "ru": "отпрянуть",
+        "uz": "o'zini orqaga tashlamoq"
+      },
+      "example": "She recoiled when the snake suddenly moved.",
+      "example_translations": {
+        "ru": "Она отпрянула, когда змея внезапно шевельнулась.",
+        "uz": "Ilon to'satdan qimirlaganda, u o'zini orqaga tashladi."
+      }
+    },
+    {
+      "word": "flinch",
+      "part_of_speech": "verb",
+      "translation": "вздрагивать",
+      "translations": {
+        "ru": "вздрагивать",
+        "uz": "seskanib ketmoq"
+      },
+      "example": "He flinched as the dentist touched his tooth.",
+      "example_translations": {
+        "ru": "Он вздрогнул, когда стоматолог коснулся его зуба.",
+        "uz": "Stomatolog tishiga tekkanda, u seskanib ketdi."
+      }
+    }
+  ]
+}

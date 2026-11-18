@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 8,
+    "title": "Литература и язык",
+    "title_uz": "Adabiyot va til"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Оценка стиля",
+    "title_uz": "Uslubga baho"
+  },
+  "words": [
+    {
+      "word": "lyrical",
+      "part_of_speech": "adjective",
+      "translation": "лиричный",
+      "translations": {
+        "ru": "лиричный",
+        "uz": "lirik"
+      },
+      "example": "Her lyrical prose reads almost like poetry.",
+      "example_translations": {
+        "ru": "Её лиричная проза читается почти как поэзия.",
+        "uz": "Uning lirik nasri deyarli she'rdek o'qiladi."
+      }
+    },
+    {
+      "word": "florid",
+      "part_of_speech": "adjective",
+      "translation": "цветистый",
+      "translations": {
+        "ru": "цветистый",
+        "uz": "jimjimador"
+      },
+      "example": "His florid speech was full of flowery compliments.",
+      "example_translations": {
+        "ru": "Его цветистая речь была полна пышных комплиментов.",
+        "uz": "Uning jimjimador nutqi dabdabali maqtovlarga to'la edi."
+      }
+    },
+    {
+      "word": "ornate",
+      "part_of_speech": "adjective",
+      "translation": "витиеватый",
+      "translations": {
+        "ru": "витиеватый",
+        "uz": "serbezak"
+      },
+      "example": "Ornate sentences full of rare words tire young readers.",
+      "example_translations": {
+        "ru": "Витиеватые предложения, полные редких слов, утомляют юных читателей.",
+        "uz": "Noyob so'zlarga to'la serbezak jumlalar yosh o'quvchilarni charchatadi."
+      }
+    },
+    {
+      "word": "banal",
+      "part_of_speech": "adjective",
+      "translation": "банальный",
+      "translations": {
+        "ru": "банальный",
+        "uz": "o'ta oddiy, yangiliksiz"
+      },
+      "example": "The film has a banal plot and predictable ending.",
+      "example_translations": {
+        "ru": "У фильма банальный сюжет и предсказуемый финал.",
+        "uz": "Filmning syujeti o'ta oddiy, yangiliksiz, yakuni esa oldindan ma'lum."
+      }
+    },
+    {
+      "word": "prosaic",
+      "part_of_speech": "adjective",
+      "translation": "прозаичный, будничный",
+      "translations": {
+        "ru": "прозаичный, будничный",
+        "uz": "jo'n, quruq"
+      },
+      "example": "Critics found his prosaic descriptions dull and lifeless.",
+      "example_translations": {
+        "ru": "Критики сочли его прозаичные описания скучными и безжизненными.",
+        "uz": "Tanqidchilar uning jo'n, quruq tasvirlarini zerikarli va jonsiz deb topdi."
+      }
+    },
+    {
+      "word": "hackneyed",
+      "part_of_speech": "adjective",
+      "translation": "избитый",
+      "translations": {
+        "ru": "избитый",
+        "uz": "siyqasi chiqqan"
+      },
+      "example": "\"Once upon a time\" is a hackneyed opening.",
+      "example_translations": {
+        "ru": "«Жили-были» — избитый зачин.",
+        "uz": "\"Bir bor ekan, bir yo'q ekan\" — siyqasi chiqqan boshlanma."
+      }
+    },
+    {
+      "word": "overwrought",
+      "part_of_speech": "adjective",
+      "translation": "перегруженный, вычурный",
+      "translations": {
+        "ru": "перегруженный, вычурный",
+        "uz": "haddan ziyod bezatilgan"
+      },
+      "example": "Editors cut the overwrought passages down to plain sentences.",
+      "example_translations": {
+        "ru": "Редакторы сократили перегруженные, вычурные отрывки до простых предложений.",
+        "uz": "Muharrirlar haddan ziyod bezatilgan parchalarni oddiy jumlalargacha qisqartirdi."
+      }
+    },
+    {
+      "word": "cliche",
+      "part_of_speech": "noun",
+      "translation": "клише, штамп",
+      "translations": {
+        "ru": "клише, штамп",
+        "uz": "qolip ibora"
+      },
+      "example": "\"Time heals all wounds\" is a tired cliche.",
+      "example_translations": {
+        "ru": "«Время лечит все раны» — затасканное клише.",
+        "uz": "\"Vaqt barcha yaralarni davolaydi\" — jonga tekkan qolip ibora."
+      }
+    },
+    {
+      "word": "contrived",
+      "part_of_speech": "adjective",
+      "translation": "надуманный, искусственный",
+      "translations": {
+        "ru": "надуманный, искусственный",
+        "uz": "zo'raki, sun'iy"
+      },
+      "example": "The happy ending felt contrived and unconvincing.",
+      "example_translations": {
+        "ru": "Счастливый финал показался надуманным и неубедительным.",
+        "uz": "Baxtli yakun zo'raki va ishonarsiz tuyuldi."
+      }
+    },
+    {
+      "word": "sentimental",
+      "part_of_speech": "adjective",
+      "translation": "сентиментальный",
+      "translations": {
+        "ru": "сентиментальный",
+        "uz": "o'ta hissiyotli"
+      },
+      "example": "This sentimental novel makes readers cry too easily.",
+      "example_translations": {
+        "ru": "Этот сентиментальный роман слишком легко доводит читателей до слёз.",
+        "uz": "Bu o'ta hissiyotli roman o'quvchilarni juda oson yig'latadi."
+      }
+    }
+  ]
+}

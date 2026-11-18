@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 6,
+    "title": "Разум и познание",
+    "title_uz": "Aql va bilish"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Заблуждения",
+    "title_uz": "Yanglish qarashlar"
+  },
+  "words": [
+    {
+      "word": "fallacious",
+      "part_of_speech": "adjective",
+      "translation": "логически ошибочный, ложный",
+      "translations": {
+        "ru": "логически ошибочный, ложный",
+        "uz": "mantiqan xato"
+      },
+      "example": "His fallacious argument assumed what it tried to prove.",
+      "example_translations": {
+        "ru": "Его логически ошибочный довод исходил из того, что пытался доказать.",
+        "uz": "Uning mantiqan xato dalili isbotlamoqchi bo'lgan narsasiga tayanardi."
+      }
+    },
+    {
+      "word": "erroneous",
+      "part_of_speech": "adjective",
+      "translation": "ошибочный, неверный",
+      "translations": {
+        "ru": "ошибочный, неверный",
+        "uz": "xato, noto'g'ri"
+      },
+      "example": "The article was withdrawn because of erroneous data.",
+      "example_translations": {
+        "ru": "Статью отозвали из-за ошибочных данных.",
+        "uz": "Maqola xato ma'lumotlar tufayli qaytarib olindi."
+      }
+    },
+    {
+      "word": "misapprehension",
+      "part_of_speech": "noun",
+      "translation": "ошибочное представление",
+      "translations": {
+        "ru": "ошибочное представление",
+        "uz": "noto'g'ri tushuncha"
+      },
+      "example": "She was under the misapprehension that attendance was optional.",
+      "example_translations": {
+        "ru": "У неё было ошибочное представление, будто посещение необязательно.",
+        "uz": "U qatnashish ixtiyoriy degan noto'g'ri tushunchada edi."
+      }
+    },
+    {
+      "word": "myopic",
+      "part_of_speech": "adjective",
+      "translation": "недальновидный",
+      "translations": {
+        "ru": "недальновидный",
+        "uz": "kaltabin"
+      },
+      "example": "Cutting research funds was a myopic decision.",
+      "example_translations": {
+        "ru": "Сокращение средств на исследования было недальновидным решением.",
+        "uz": "Tadqiqot mablag'larini qisqartirish kaltabin qaror edi."
+      }
+    },
+    {
+      "word": "parochial",
+      "part_of_speech": "adjective",
+      "translation": "местечковый, узкий",
+      "translations": {
+        "ru": "местечковый, узкий",
+        "uz": "tor, mahalliy doiradagi"
+      },
+      "example": "Their parochial outlook ignored everything beyond the village.",
+      "example_translations": {
+        "ru": "Их местечковый взгляд на мир не замечал ничего за пределами деревни.",
+        "uz": "Ularning tor, mahalliy doiradagi dunyoqarashi qishloqdan tashqaridagi hech narsani ko'rmasdi."
+      }
+    },
+    {
+      "word": "insular",
+      "part_of_speech": "adjective",
+      "translation": "замкнутый, ограниченный",
+      "translations": {
+        "ru": "замкнутый, ограниченный",
+        "uz": "biqiq, tashqi dunyodan uzilgan"
+      },
+      "example": "An insular community, they distrusted every outside idea.",
+      "example_translations": {
+        "ru": "Замкнутая община, они не доверяли ни одной идее извне.",
+        "uz": "Biqiq jamoa bo'lgani uchun ular tashqaridan kelgan har qanday g'oyaga ishonmasdi."
+      }
+    },
+    {
+      "word": "preconception",
+      "part_of_speech": "noun",
+      "translation": "предвзятое мнение",
+      "translations": {
+        "ru": "предвзятое мнение",
+        "uz": "oldindan shakllangan fikr"
+      },
+      "example": "Travel challenged every preconception I had about the region.",
+      "example_translations": {
+        "ru": "Путешествие поставило под сомнение каждое моё предвзятое мнение об этом крае.",
+        "uz": "Sayohat bu o'lka haqidagi oldindan shakllangan har bir fikrimni shubha ostiga qo'ydi."
+      }
+    },
+    {
+      "word": "propensity",
+      "part_of_speech": "noun",
+      "translation": "склонность",
+      "translations": {
+        "ru": "склонность",
+        "uz": "moyillik"
+      },
+      "example": "Humans have a propensity to believe comforting falsehoods.",
+      "example_translations": {
+        "ru": "У людей есть склонность верить утешительной лжи.",
+        "uz": "Odamlarda taskin beruvchi yolg'onlarga ishonishga moyillik bor."
+      }
+    },
+    {
+      "word": "misguided",
+      "part_of_speech": "adjective",
+      "translation": "основанный на заблуждении, неразумный",
+      "translations": {
+        "ru": "основанный на заблуждении, неразумный",
+        "uz": "yanglish fikrga asoslangan"
+      },
+      "example": "Their misguided efforts only made the problem worse.",
+      "example_translations": {
+        "ru": "Их усилия, основанные на заблуждении, только усугубили проблему.",
+        "uz": "Ularning yanglish fikrga asoslangan sa'y-harakatlari muammoni faqat og'irlashtirdi."
+      }
+    },
+    {
+      "word": "illusory",
+      "part_of_speech": "adjective",
+      "translation": "иллюзорный, призрачный",
+      "translations": {
+        "ru": "иллюзорный, призрачный",
+        "uz": "aldamchi, xayoliy"
+      },
+      "example": "The sense of safety proved illusory once the storm arrived.",
+      "example_translations": {
+        "ru": "Чувство безопасности оказалось иллюзорным, когда пришла буря.",
+        "uz": "Bo'ron kelganda xavfsizlik hissi aldamchi bo'lib chiqdi."
+      }
+    }
+  ]
+}

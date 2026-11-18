@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 8,
+    "title": "Литература и язык",
+    "title_uz": "Adabiyot va til"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Слово и язык",
+    "title_uz": "So'z va til"
+  },
+  "words": [
+    {
+      "word": "etymology",
+      "part_of_speech": "noun",
+      "translation": "этимология",
+      "translations": {
+        "ru": "этимология",
+        "uz": "etimologiya"
+      },
+      "example": "The etymology of \"salary\" goes back to salt.",
+      "example_translations": {
+        "ru": "Этимология слова «salary» восходит к соли.",
+        "uz": "\"Salary\" so'zining etimologiyasi tuzga borib taqaladi."
+      }
+    },
+    {
+      "word": "lexicon",
+      "part_of_speech": "noun",
+      "translation": "словарный состав, лексикон",
+      "translations": {
+        "ru": "словарный состав, лексикон",
+        "uz": "lug'at boyligi"
+      },
+      "example": "The English lexicon grows by thousands of words yearly.",
+      "example_translations": {
+        "ru": "Словарный состав английского языка ежегодно пополняется тысячами слов.",
+        "uz": "Ingliz tilining lug'at boyligi har yili minglab so'zlarga ko'payadi."
+      }
+    },
+    {
+      "word": "vernacular",
+      "part_of_speech": "noun",
+      "translation": "народный язык, местное наречие",
+      "translations": {
+        "ru": "народный язык, местное наречие",
+        "uz": "xalq tili, jonli til"
+      },
+      "example": "He wrote in the vernacular, not in Latin.",
+      "example_translations": {
+        "ru": "Он писал на народном языке, а не на латыни.",
+        "uz": "U lotin tilida emas, xalq tilida yozgan."
+      }
+    },
+    {
+      "word": "parlance",
+      "part_of_speech": "noun",
+      "translation": "язык определённой среды",
+      "translations": {
+        "ru": "язык определённой среды",
+        "uz": "muayyan davra tili"
+      },
+      "example": "In sailors' parlance, the kitchen is the galley.",
+      "example_translations": {
+        "ru": "На языке моряков кухня называется камбузом.",
+        "uz": "Dengizchilar tilida oshxona \"kambuz\" deb ataladi."
+      }
+    },
+    {
+      "word": "jargon",
+      "part_of_speech": "noun",
+      "translation": "жаргон",
+      "translations": {
+        "ru": "жаргон",
+        "uz": "jargon"
+      },
+      "example": "Please explain it without technical jargon.",
+      "example_translations": {
+        "ru": "Пожалуйста, объясните это без технического жаргона.",
+        "uz": "Iltimos, buni texnik jargonsiz tushuntirib bering."
+      }
+    },
+    {
+      "word": "colloquial",
+      "part_of_speech": "adjective",
+      "translation": "разговорный",
+      "translations": {
+        "ru": "разговорный",
+        "uz": "so'zlashuv tiliga xos"
+      },
+      "example": "\"Gonna\" is colloquial; write \"going to\" in essays.",
+      "example_translations": {
+        "ru": "«Gonna» — разговорная форма; в эссе пишите «going to».",
+        "uz": "\"Gonna\" — so'zlashuv tiliga xos shakl; insholarda \"going to\" deb yozing."
+      }
+    },
+    {
+      "word": "archaic",
+      "part_of_speech": "adjective",
+      "translation": "архаичный, устаревший",
+      "translations": {
+        "ru": "архаичный, устаревший",
+        "uz": "eskirgan, arxaik"
+      },
+      "example": "\"Thou\" is an archaic word for \"you\".",
+      "example_translations": {
+        "ru": "«Thou» — архаичное слово, означающее «ты».",
+        "uz": "\"Thou\" — \"sen\" ma'nosidagi eskirgan so'z."
+      }
+    },
+    {
+      "word": "neologism",
+      "part_of_speech": "noun",
+      "translation": "неологизм",
+      "translations": {
+        "ru": "неологизм",
+        "uz": "neologizm, yangi so'z"
+      },
+      "example": "\"Selfie\" was a neologism only years ago.",
+      "example_translations": {
+        "ru": "Ещё несколько лет назад «selfie» было неологизмом.",
+        "uz": "Bir necha yil oldingina \"selfie\" neologizm edi."
+      }
+    },
+    {
+      "word": "idiom",
+      "part_of_speech": "noun",
+      "translation": "идиома, устойчивое выражение",
+      "translations": {
+        "ru": "идиома, устойчивое выражение",
+        "uz": "ibora, idioma"
+      },
+      "example": "\"Break the ice\" is a common English idiom.",
+      "example_translations": {
+        "ru": "«Break the ice» — распространённая английская идиома.",
+        "uz": "\"Break the ice\" — ingliz tilida keng tarqalgan ibora."
+      }
+    },
+    {
+      "word": "verbatim",
+      "part_of_speech": "adverb",
+      "translation": "дословно",
+      "translations": {
+        "ru": "дословно",
+        "uz": "so'zma-so'z"
+      },
+      "example": "The secretary wrote down his speech verbatim.",
+      "example_translations": {
+        "ru": "Секретарь записал его речь дословно.",
+        "uz": "Kotib uning nutqini so'zma-so'z yozib oldi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 3,
+    "title": "Речь и оттенки смысла",
+    "title_uz": "Nutq va ma'no nozikliklari"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Манера речи",
+    "title_uz": "So'zlash uslubi"
+  },
+  "words": [
+    {
+      "word": "verbose",
+      "part_of_speech": "adjective",
+      "translation": "многословный",
+      "translations": {
+        "ru": "многословный",
+        "uz": "serso'z"
+      },
+      "example": "His verbose report could easily be half as long.",
+      "example_translations": {
+        "ru": "Его многословный отчёт легко мог бы быть вдвое короче.",
+        "uz": "Uning serso'z hisoboti bemalol ikki baravar qisqa bo'lishi mumkin edi."
+      }
+    },
+    {
+      "word": "incoherent",
+      "part_of_speech": "adjective",
+      "translation": "бессвязный",
+      "translations": {
+        "ru": "бессвязный",
+        "uz": "uzuq-yuluq"
+      },
+      "example": "He was so tired that his speech became incoherent.",
+      "example_translations": {
+        "ru": "Он так устал, что его речь стала бессвязной.",
+        "uz": "U shunchalik charchagan ediki, nutqi uzuq-yuluq bo'lib qoldi."
+      }
+    },
+    {
+      "word": "succinct",
+      "part_of_speech": "adjective",
+      "translation": "краткий и ясный",
+      "translations": {
+        "ru": "краткий и ясный",
+        "uz": "qisqa va aniq"
+      },
+      "example": "Her succinct summary covered everything in two lines.",
+      "example_translations": {
+        "ru": "Её краткое и ясное резюме охватило всё в двух строках.",
+        "uz": "Uning qisqa va aniq xulosasi hammasini ikki qatorda qamrab oldi."
+      }
+    },
+    {
+      "word": "terse",
+      "part_of_speech": "adjective",
+      "translation": "сухой, отрывистый",
+      "translations": {
+        "ru": "сухой, отрывистый",
+        "uz": "quruq va qisqa"
+      },
+      "example": "His terse reply was a single cold word.",
+      "example_translations": {
+        "ru": "Его сухой, отрывистый ответ состоял из одного холодного слова.",
+        "uz": "Uning quruq va qisqa javobi birgina sovuq so'zdan iborat edi."
+      }
+    },
+    {
+      "word": "garrulous",
+      "part_of_speech": "adjective",
+      "translation": "болтливый",
+      "translations": {
+        "ru": "болтливый",
+        "uz": "sergap"
+      },
+      "example": "Our garrulous neighbor talks for hours about nothing.",
+      "example_translations": {
+        "ru": "Наш болтливый сосед часами говорит ни о чём.",
+        "uz": "Sergap qo'shnimiz soatlab arzimas narsalar haqida gapiradi."
+      }
+    },
+    {
+      "word": "glib",
+      "part_of_speech": "adjective",
+      "translation": "бойкий, но поверхностный",
+      "translations": {
+        "ru": "бойкий, но поверхностный",
+        "uz": "silliq, ammo yuzaki"
+      },
+      "example": "The salesman gave glib answers without any real facts.",
+      "example_translations": {
+        "ru": "Продавец давал бойкие, но поверхностные ответы без каких-либо реальных фактов.",
+        "uz": "Sotuvchi hech qanday aniq dalilsiz silliq, ammo yuzaki javoblar berdi."
+      }
+    },
+    {
+      "word": "bombastic",
+      "part_of_speech": "adjective",
+      "translation": "напыщенный",
+      "translations": {
+        "ru": "напыщенный",
+        "uz": "dabdabali"
+      },
+      "example": "The mayor's bombastic speech promised miracles to everyone.",
+      "example_translations": {
+        "ru": "Напыщенная речь мэра обещала всем чудеса.",
+        "uz": "Hokimning dabdabali nutqi hammaga mo'jizalar va'da qildi."
+      }
+    },
+    {
+      "word": "stilted",
+      "part_of_speech": "adjective",
+      "translation": "высокопарный, неестественный",
+      "translations": {
+        "ru": "высокопарный, неестественный",
+        "uz": "balandparvoz, sun'iy"
+      },
+      "example": "The dialogue sounded stilted, unlike any real conversation.",
+      "example_translations": {
+        "ru": "Диалог звучал высокопарно и неестественно, совсем не как живой разговор.",
+        "uz": "Dialog jonli suhbatga sira o'xshamay, balandparvoz va sun'iy eshitildi."
+      }
+    },
+    {
+      "word": "pithy",
+      "part_of_speech": "adjective",
+      "translation": "ёмкий, меткий",
+      "translations": {
+        "ru": "ёмкий, меткий",
+        "uz": "lo'nda, ma'nodor"
+      },
+      "example": "Grandfather's pithy sayings held a lot of wisdom.",
+      "example_translations": {
+        "ru": "В ёмких, метких изречениях дедушки было много мудрости.",
+        "uz": "Bobomning lo'nda, ma'nodor hikmatlarida ko'p donolik bor edi."
+      }
+    },
+    {
+      "word": "brusque",
+      "part_of_speech": "adjective",
+      "translation": "резкий, бесцеремонный",
+      "translations": {
+        "ru": "резкий, бесцеремонный",
+        "uz": "qo'pol, cho'rtkesar"
+      },
+      "example": "Her brusque manner offended the polite visitors.",
+      "example_translations": {
+        "ru": "Её резкая, бесцеремонная манера обидела вежливых посетителей.",
+        "uz": "Uning qo'pol, cho'rtkesar muomalasi odobli mehmonlarni xafa qildi."
+      }
+    }
+  ]
+}

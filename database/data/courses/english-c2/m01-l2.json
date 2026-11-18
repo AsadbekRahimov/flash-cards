@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 1,
+    "title": "Оттенки характера",
+    "title_uz": "Xarakter qirralari"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Высокомерие и лицемерие",
+    "title_uz": "Kibr va ikkiyuzlamachilik"
+  },
+  "words": [
+    {
+      "word": "obsequious",
+      "part_of_speech": "adjective",
+      "translation": "угодливый, подобострастный",
+      "translations": {
+        "ru": "угодливый, подобострастный",
+        "uz": "laganbardor, xushomadgo'y"
+      },
+      "example": "Obsequious assistants agreed with everything the director said.",
+      "example_translations": {
+        "ru": "Угодливые помощники соглашались со всем, что говорил директор.",
+        "uz": "Laganbardor yordamchilar direktorning har bir gapini ma'qullashardi."
+      }
+    },
+    {
+      "word": "supercilious",
+      "part_of_speech": "adjective",
+      "translation": "надменный",
+      "translations": {
+        "ru": "надменный",
+        "uz": "takabbur"
+      },
+      "example": "With a supercilious smile, she ignored our suggestions.",
+      "example_translations": {
+        "ru": "С надменной улыбкой она оставила наши предложения без внимания.",
+        "uz": "U takabbur tabassum bilan takliflarimizni e'tiborsiz qoldirdi."
+      }
+    },
+    {
+      "word": "pompous",
+      "part_of_speech": "adjective",
+      "translation": "напыщенный",
+      "translations": {
+        "ru": "напыщенный",
+        "uz": "kekkaygan"
+      },
+      "example": "The pompous official loved hearing his own titles.",
+      "example_translations": {
+        "ru": "Напыщенный чиновник обожал слушать собственные титулы.",
+        "uz": "Kekkaygan amaldor o'z unvonlarini eshitishni juda yaxshi ko'rardi."
+      }
+    },
+    {
+      "word": "conceited",
+      "part_of_speech": "adjective",
+      "translation": "самовлюблённый, тщеславный",
+      "translations": {
+        "ru": "самовлюблённый, тщеславный",
+        "uz": "manman, o'ziga bino qo'ygan"
+      },
+      "example": "Winning one small prize made him unbearably conceited.",
+      "example_translations": {
+        "ru": "Один маленький приз сделал его невыносимо самовлюблённым.",
+        "uz": "Bitta kichik sovrin uni chidab bo'lmas darajada manman qilib qo'ydi."
+      }
+    },
+    {
+      "word": "duplicitous",
+      "part_of_speech": "adjective",
+      "translation": "двуличный",
+      "translations": {
+        "ru": "двуличный",
+        "uz": "ikkiyuzlamachi"
+      },
+      "example": "The duplicitous partner praised us but secretly helped competitors.",
+      "example_translations": {
+        "ru": "Двуличный партнёр хвалил нас, а сам тайно помогал конкурентам.",
+        "uz": "Ikkiyuzlamachi sherik bizni maqtab, yashirincha raqobatchilarga yordam berardi."
+      }
+    },
+    {
+      "word": "unscrupulous",
+      "part_of_speech": "adjective",
+      "translation": "беспринципный, недобросовестный",
+      "translations": {
+        "ru": "беспринципный, недобросовестный",
+        "uz": "vijdonsiz"
+      },
+      "example": "Unscrupulous sellers cheated elderly customers out of their savings.",
+      "example_translations": {
+        "ru": "Беспринципные продавцы обманом лишали пожилых покупателей сбережений.",
+        "uz": "Vijdonsiz sotuvchilar keksa xaridorlarni aldab, jamg'armasidan ayirardi."
+      }
+    },
+    {
+      "word": "vindictive",
+      "part_of_speech": "adjective",
+      "translation": "мстительный",
+      "translations": {
+        "ru": "мстительный",
+        "uz": "kekchi, qasoskor"
+      },
+      "example": "Vindictive and bitter, he never forgave the slightest insult.",
+      "example_translations": {
+        "ru": "Мстительный и озлобленный, он не прощал ни малейшей обиды.",
+        "uz": "Kekchi va alamzada bo'lgani uchun u arzimas haqoratni ham kechirmasdi."
+      }
+    },
+    {
+      "word": "belligerent",
+      "part_of_speech": "adjective",
+      "translation": "задиристый, воинственный",
+      "translations": {
+        "ru": "задиристый, воинственный",
+        "uz": "urishqoq, jangari"
+      },
+      "example": "A belligerent customer started shouting at the cashier.",
+      "example_translations": {
+        "ru": "Задиристый покупатель начал кричать на кассира.",
+        "uz": "Urishqoq xaridor kassirga baqira boshladi."
+      }
+    },
+    {
+      "word": "miserly",
+      "part_of_speech": "adjective",
+      "translation": "скупой",
+      "translations": {
+        "ru": "скупой",
+        "uz": "xasis, ziqna"
+      },
+      "example": "Their miserly uncle refused to heat his house.",
+      "example_translations": {
+        "ru": "Их скупой дядя отказывался отапливать свой дом.",
+        "uz": "Ularning xasis amakisi uyini isitishdan bosh tortardi."
+      }
+    },
+    {
+      "word": "sanctimonious",
+      "part_of_speech": "adjective",
+      "translation": "ханжеский, святошеский",
+      "translations": {
+        "ru": "ханжеский, святошеский",
+        "uz": "riyokor, soxta taqvodor"
+      },
+      "example": "Spare me your sanctimonious lectures about honesty!",
+      "example_translations": {
+        "ru": "Избавьте меня от ваших ханжеских нотаций о честности!",
+        "uz": "Meni halollik haqidagi riyokor nasihatlaringizdan xalos qiling!"
+      }
+    }
+  ]
+}

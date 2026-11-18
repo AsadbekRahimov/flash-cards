@@ -133,7 +133,7 @@ it('pays one statement for the course row and one for the lapse banner of Free w
     expect(count($queries))->toBe($budget)
         ->and(QueryLog::matching($queries, '/from ["`]courses["`] where ["`]courses["`].["`]id["`] = \?/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`]subscriptions["`].*order by ["`]ended_at["`] desc/'))->toHaveCount($pro ? 0 : 1)
-        ->and(QueryLog::matching($queries, '/\(select count\(\*\) from ["`]group_members["`] as ["`]gm["`] inner join ["`]telegram_groups["`] as ["`]tg["`].*\) as ["`]groups["`]/s'))->toHaveCount(1)
+        ->and(QueryLog::matching($queries, '/\(select 1 from ["`]group_members["`] as ["`]gm["`] inner join ["`]telegram_groups["`] as ["`]tg["`].*\) as ["`]groups["`]/s'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, TODAY_SCALARS))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`]class_caravans["`]/'))->toBe([])
         ->and(PureCache::store()->has(TodayProfileCache::key($learner, EntitlementResolver::version($learner->id))))->toBeTrue()
