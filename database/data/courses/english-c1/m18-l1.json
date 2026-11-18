@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 18,
+    "title": "История и конфликты",
+    "title_uz": "Tarix va mojarolar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Война",
+    "title_uz": "Urush"
+  },
+  "words": [
+    {
+      "word": "warfare",
+      "part_of_speech": "noun",
+      "translation": "ведение войны",
+      "translations": {
+        "ru": "ведение войны",
+        "uz": "urush olib borish"
+      },
+      "example": "Drones have completely changed modern warfare.",
+      "example_translations": {
+        "ru": "Беспилотники полностью изменили современное ведение войны.",
+        "uz": "Uchuvchisiz qurilmalar zamonaviy urush olib borishni butunlay o'zgartirdi."
+      }
+    },
+    {
+      "word": "combat",
+      "part_of_speech": "noun",
+      "translation": "бой",
+      "translations": {
+        "ru": "бой",
+        "uz": "jang"
+      },
+      "example": "Many soldiers never saw combat during the war.",
+      "example_translations": {
+        "ru": "Многие солдаты за всю войну так и не побывали в бою.",
+        "uz": "Ko'p askarlar urush davomida jangda umuman qatnashmagan."
+      }
+    },
+    {
+      "word": "artillery",
+      "part_of_speech": "noun",
+      "translation": "артиллерия",
+      "translations": {
+        "ru": "артиллерия",
+        "uz": "artilleriya"
+      },
+      "example": "The museum displays cannons and other old artillery.",
+      "example_translations": {
+        "ru": "В музее выставлены пушки и другая старинная артиллерия.",
+        "uz": "Muzeyda to'plar va boshqa qadimiy artilleriya namoyish etilgan."
+      }
+    },
+    {
+      "word": "infantry",
+      "part_of_speech": "noun",
+      "translation": "пехота",
+      "translations": {
+        "ru": "пехота",
+        "uz": "piyoda qo'shin"
+      },
+      "example": "The infantry marched thirty kilometers on foot that day.",
+      "example_translations": {
+        "ru": "В тот день пехота прошла пешком тридцать километров.",
+        "uz": "O'sha kuni piyoda qo'shin o'ttiz kilometr yo'lni yayov bosib o'tdi."
+      }
+    },
+    {
+      "word": "siege",
+      "part_of_speech": "noun",
+      "translation": "осада",
+      "translations": {
+        "ru": "осада",
+        "uz": "qamal"
+      },
+      "example": "The city survived a siege lasting two years.",
+      "example_translations": {
+        "ru": "Город выдержал осаду, длившуюся два года.",
+        "uz": "Shahar ikki yil davom etgan qamalga bardosh berdi."
+      }
+    },
+    {
+      "word": "ambush",
+      "part_of_speech": "noun",
+      "translation": "засада",
+      "translations": {
+        "ru": "засада",
+        "uz": "pistirma"
+      },
+      "example": "The scouts warned the commander about an ambush ahead.",
+      "example_translations": {
+        "ru": "Разведчики предупредили командира о засаде впереди.",
+        "uz": "Razvedkachilar qo'mondonni oldindagi pistirma haqida ogohlantirdi."
+      }
+    },
+    {
+      "word": "casualty",
+      "part_of_speech": "noun",
+      "translation": "жертва, пострадавший",
+      "translations": {
+        "ru": "жертва, пострадавший",
+        "uz": "qurbon, jabrlanuvchi"
+      },
+      "example": "Luckily, the battle ended without a single casualty.",
+      "example_translations": {
+        "ru": "К счастью, сражение закончилось без единой жертвы.",
+        "uz": "Xayriyatki, jang birorta ham qurbonsiz tugadi."
+      }
+    },
+    {
+      "word": "ceasefire",
+      "part_of_speech": "noun",
+      "translation": "прекращение огня",
+      "translations": {
+        "ru": "прекращение огня",
+        "uz": "o't ochishni to'xtatish"
+      },
+      "example": "Both armies agreed to a ceasefire at midnight.",
+      "example_translations": {
+        "ru": "Обе армии договорились о прекращении огня в полночь.",
+        "uz": "Ikkala armiya yarim tunda o't ochishni to'xtatishga kelishdi."
+      }
+    },
+    {
+      "word": "conscription",
+      "part_of_speech": "noun",
+      "translation": "воинская повинность",
+      "translations": {
+        "ru": "воинская повинность",
+        "uz": "majburiy harbiy xizmat"
+      },
+      "example": "The country abolished conscription and hired professional soldiers.",
+      "example_translations": {
+        "ru": "Страна отменила воинскую повинность и наняла профессиональных солдат.",
+        "uz": "Mamlakat majburiy harbiy xizmatni bekor qilib, professional askarlarni yolladi."
+      }
+    },
+    {
+      "word": "surrender",
+      "part_of_speech": "verb",
+      "translation": "сдаваться",
+      "translations": {
+        "ru": "сдаваться",
+        "uz": "taslim bo'lmoq"
+      },
+      "example": "Surrounded on all sides, the general finally surrendered.",
+      "example_translations": {
+        "ru": "Окружённый со всех сторон, генерал наконец сдался.",
+        "uz": "Har tomondan qurshab olingan general nihoyat taslim bo'ldi."
+      }
+    }
+  ]
+}

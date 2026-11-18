@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 18,
+    "title": "История и конфликты",
+    "title_uz": "Tarix va mojarolar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Восстания и перевороты",
+    "title_uz": "Qo'zg'olon va to'ntarishlar"
+  },
+  "words": [
+    {
+      "word": "upheaval",
+      "part_of_speech": "noun",
+      "translation": "потрясение",
+      "translations": {
+        "ru": "потрясение",
+        "uz": "larza"
+      },
+      "example": "The revolution caused years of social upheaval.",
+      "example_translations": {
+        "ru": "Революция вызвала годы социальных потрясений.",
+        "uz": "Inqilob yillar davom etgan ijtimoiy larzalarga sabab bo'ldi."
+      }
+    },
+    {
+      "word": "uprising",
+      "part_of_speech": "noun",
+      "translation": "восстание",
+      "translations": {
+        "ru": "восстание",
+        "uz": "qo'zg'olon"
+      },
+      "example": "The uprising began when bread prices doubled overnight.",
+      "example_translations": {
+        "ru": "Восстание началось, когда цены на хлеб за ночь выросли вдвое.",
+        "uz": "Non narxi bir kechada ikki baravar oshganda qo'zg'olon boshlandi."
+      }
+    },
+    {
+      "word": "rebellion",
+      "part_of_speech": "noun",
+      "translation": "мятеж, бунт",
+      "translations": {
+        "ru": "мятеж, бунт",
+        "uz": "isyon"
+      },
+      "example": "The king sent troops to end the rebellion.",
+      "example_translations": {
+        "ru": "Король послал войска, чтобы положить конец мятежу.",
+        "uz": "Qirol isyonga chek qo'yish uchun qo'shin yubordi."
+      }
+    },
+    {
+      "word": "insurrection",
+      "part_of_speech": "noun",
+      "translation": "вооружённое восстание",
+      "translations": {
+        "ru": "вооружённое восстание",
+        "uz": "qurolli qo'zg'olon"
+      },
+      "example": "Angry farmers led an insurrection against the governor.",
+      "example_translations": {
+        "ru": "Разгневанные крестьяне подняли вооружённое восстание против губернатора.",
+        "uz": "G'azablangan dehqonlar hokimga qarshi qurolli qo'zg'olon ko'tardilar."
+      }
+    },
+    {
+      "word": "coup",
+      "part_of_speech": "noun",
+      "translation": "государственный переворот",
+      "translations": {
+        "ru": "государственный переворот",
+        "uz": "davlat to'ntarishi"
+      },
+      "example": "The generals seized power in a sudden coup.",
+      "example_translations": {
+        "ru": "Генералы захватили власть в результате внезапного государственного переворота.",
+        "uz": "Generallar to'satdan qilingan davlat to'ntarishi orqali hokimiyatni egallab oldilar."
+      }
+    },
+    {
+      "word": "turmoil",
+      "part_of_speech": "noun",
+      "translation": "смута, неразбериха",
+      "translations": {
+        "ru": "смута, неразбериха",
+        "uz": "notinchlik"
+      },
+      "example": "The country was in turmoil after the king's death.",
+      "example_translations": {
+        "ru": "После смерти короля в стране царила смута.",
+        "uz": "Qirol vafotidan keyin mamlakatda notinchlik hukm surardi."
+      }
+    },
+    {
+      "word": "anarchy",
+      "part_of_speech": "noun",
+      "translation": "анархия, безвластие",
+      "translations": {
+        "ru": "анархия, безвластие",
+        "uz": "boshboshdoqlik"
+      },
+      "example": "Without any government, the region fell into anarchy.",
+      "example_translations": {
+        "ru": "Оставшись без правительства, регион погрузился в анархию.",
+        "uz": "Hukumatsiz qolgan hudud boshboshdoqlikka yuz tutdi."
+      }
+    },
+    {
+      "word": "secession",
+      "part_of_speech": "noun",
+      "translation": "отделение, выход из состава",
+      "translations": {
+        "ru": "отделение, выход из состава",
+        "uz": "ajralib chiqish"
+      },
+      "example": "The northern province voted for secession from the kingdom.",
+      "example_translations": {
+        "ru": "Северная провинция проголосовала за отделение от королевства.",
+        "uz": "Shimoliy viloyat qirollikdan ajralib chiqish uchun ovoz berdi."
+      }
+    },
+    {
+      "word": "unification",
+      "part_of_speech": "noun",
+      "translation": "объединение",
+      "translations": {
+        "ru": "объединение",
+        "uz": "birlashuv"
+      },
+      "example": "Unification turned the small states into one nation.",
+      "example_translations": {
+        "ru": "Объединение превратило небольшие государства в единую нацию.",
+        "uz": "Birlashuv kichik davlatlarni yagona millatga aylantirdi."
+      }
+    },
+    {
+      "word": "downfall",
+      "part_of_speech": "noun",
+      "translation": "падение, крах",
+      "translations": {
+        "ru": "падение, крах",
+        "uz": "qulash"
+      },
+      "example": "Corruption led to the downfall of the empire.",
+      "example_translations": {
+        "ru": "Коррупция привела к падению империи.",
+        "uz": "Korrupsiya imperiyaning qulashiga olib keldi."
+      }
+    }
+  ]
+}

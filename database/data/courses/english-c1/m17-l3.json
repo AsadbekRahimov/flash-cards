@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 17,
+    "title": "Аргументация и дискуссия",
+    "title_uz": "Dalillash va munozara"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Степень уверенности",
+    "title_uz": "Ishonch darajasi"
+  },
+  "words": [
+    {
+      "word": "arguably",
+      "part_of_speech": "adverb",
+      "translation": "пожалуй",
+      "translations": {
+        "ru": "пожалуй",
+        "uz": "aytish mumkinki"
+      },
+      "example": "This is arguably the best novel of the decade.",
+      "example_translations": {
+        "ru": "Это, пожалуй, лучший роман десятилетия.",
+        "uz": "Aytish mumkinki, bu o'n yillikning eng yaxshi romani."
+      }
+    },
+    {
+      "word": "undoubtedly",
+      "part_of_speech": "adverb",
+      "translation": "несомненно",
+      "translations": {
+        "ru": "несомненно",
+        "uz": "shubhasiz"
+      },
+      "example": "She is undoubtedly the most experienced candidate here.",
+      "example_translations": {
+        "ru": "Она, несомненно, самый опытный кандидат здесь.",
+        "uz": "U, shubhasiz, bu yerdagi eng tajribali nomzod."
+      }
+    },
+    {
+      "word": "presumably",
+      "part_of_speech": "adverb",
+      "translation": "надо полагать",
+      "translations": {
+        "ru": "надо полагать",
+        "uz": "chamasi"
+      },
+      "example": "The lights are off, so presumably nobody is home.",
+      "example_translations": {
+        "ru": "Свет выключен, так что, надо полагать, дома никого нет.",
+        "uz": "Chiroqlar o'chiq, demak, chamasi, uyda hech kim yo'q."
+      }
+    },
+    {
+      "word": "seemingly",
+      "part_of_speech": "adverb",
+      "translation": "на первый взгляд, казалось бы",
+      "translations": {
+        "ru": "на первый взгляд, казалось бы",
+        "uz": "bir qarashda"
+      },
+      "example": "The seemingly simple task took us three days.",
+      "example_translations": {
+        "ru": "На первый взгляд простая задача заняла у нас три дня.",
+        "uz": "Bir qarashda oddiy tuyulgan vazifa uch kunimizni oldi."
+      }
+    },
+    {
+      "word": "allegedly",
+      "part_of_speech": "adverb",
+      "translation": "якобы, как утверждают",
+      "translations": {
+        "ru": "якобы, как утверждают",
+        "uz": "da'vo qilinishicha"
+      },
+      "example": "The painting was allegedly stolen from a private collection.",
+      "example_translations": {
+        "ru": "Картину якобы украли из частной коллекции.",
+        "uz": "Da'vo qilinishicha, rasm xususiy kolleksiyadan o'g'irlangan."
+      }
+    },
+    {
+      "word": "evidently",
+      "part_of_speech": "adverb",
+      "translation": "очевидно, судя по всему",
+      "translations": {
+        "ru": "очевидно, судя по всему",
+        "uz": "aftidan"
+      },
+      "example": "Evidently, she had forgotten about our meeting.",
+      "example_translations": {
+        "ru": "Очевидно, она забыла о нашей встрече.",
+        "uz": "Aftidan, u uchrashuvimizni unutgan edi."
+      }
+    },
+    {
+      "word": "conceivably",
+      "part_of_speech": "adverb",
+      "translation": "не исключено, возможно",
+      "translations": {
+        "ru": "не исключено, возможно",
+        "uz": "ehtimol"
+      },
+      "example": "The project could conceivably be finished by spring.",
+      "example_translations": {
+        "ru": "Не исключено, что проект будет завершён к весне.",
+        "uz": "Ehtimol, loyiha bahorgacha tugallanar."
+      }
+    },
+    {
+      "word": "admittedly",
+      "part_of_speech": "adverb",
+      "translation": "надо признать",
+      "translations": {
+        "ru": "надо признать",
+        "uz": "tan olish kerakki"
+      },
+      "example": "Admittedly, I did not check the figures carefully.",
+      "example_translations": {
+        "ru": "Надо признать, я не проверил цифры внимательно.",
+        "uz": "Tan olish kerakki, men raqamlarni sinchiklab tekshirmadim."
+      }
+    },
+    {
+      "word": "supposedly",
+      "part_of_speech": "adverb",
+      "translation": "как считается, будто бы",
+      "translations": {
+        "ru": "как считается, будто бы",
+        "uz": "go'yoki"
+      },
+      "example": "This tea supposedly helps people fall asleep faster.",
+      "example_translations": {
+        "ru": "Как считается, этот чай помогает быстрее заснуть.",
+        "uz": "Go'yoki bu choy tezroq uxlab qolishga yordam beradi."
+      }
+    },
+    {
+      "word": "reportedly",
+      "part_of_speech": "adverb",
+      "translation": "по сообщениям",
+      "translations": {
+        "ru": "по сообщениям",
+        "uz": "xabar berilishicha"
+      },
+      "example": "The museum will reportedly reopen in early June.",
+      "example_translations": {
+        "ru": "По сообщениям, музей вновь откроется в начале июня.",
+        "uz": "Xabar berilishicha, muzey iyun boshida qayta ochiladi."
+      }
+    }
+  ]
+}

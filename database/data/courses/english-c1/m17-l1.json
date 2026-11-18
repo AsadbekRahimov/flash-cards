@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 17,
+    "title": "Аргументация и дискуссия",
+    "title_uz": "Dalillash va munozara"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Утверждать и возражать",
+    "title_uz": "Ta'kidlash va e'tiroz bildirish"
+  },
+  "words": [
+    {
+      "word": "contend",
+      "part_of_speech": "verb",
+      "translation": "утверждать, заявлять",
+      "translations": {
+        "ru": "утверждать, заявлять",
+        "uz": "ta'kidlamoq"
+      },
+      "example": "Critics contend that the new theory lacks evidence.",
+      "example_translations": {
+        "ru": "Критики утверждают, что новой теории не хватает доказательств.",
+        "uz": "Tanqidchilar yangi nazariyada dalillar yetishmasligini ta'kidlamoqdalar."
+      }
+    },
+    {
+      "word": "allege",
+      "part_of_speech": "verb",
+      "translation": "утверждать без доказательств",
+      "translations": {
+        "ru": "утверждать без доказательств",
+        "uz": "isbotsiz da'vo qilmoq"
+      },
+      "example": "Reporters allege that the company hid its losses.",
+      "example_translations": {
+        "ru": "Журналисты утверждают без доказательств, что компания скрывала убытки.",
+        "uz": "Jurnalistlar kompaniya o'z zararlarini yashirgan deb isbotsiz da'vo qilmoqdalar."
+      }
+    },
+    {
+      "word": "rebut",
+      "part_of_speech": "verb",
+      "translation": "опровергать",
+      "translations": {
+        "ru": "опровергать",
+        "uz": "raddiya bermoq"
+      },
+      "example": "Can you rebut her argument with solid facts?",
+      "example_translations": {
+        "ru": "Можете ли вы опровергнуть её довод вескими фактами?",
+        "uz": "Uning daliliga asosli faktlar bilan raddiya bera olasizmi?"
+      }
+    },
+    {
+      "word": "reiterate",
+      "part_of_speech": "verb",
+      "translation": "повторять, вновь заявлять",
+      "translations": {
+        "ru": "повторять, вновь заявлять",
+        "uz": "takrorlamoq, qayta aytmoq"
+      },
+      "example": "Let me reiterate: the deadline will not change.",
+      "example_translations": {
+        "ru": "Позвольте повторить: срок не изменится.",
+        "uz": "Takrorlashga ijozat bering: muddat o'zgarmaydi."
+      }
+    },
+    {
+      "word": "proclaim",
+      "part_of_speech": "verb",
+      "translation": "провозглашать",
+      "translations": {
+        "ru": "провозглашать",
+        "uz": "tantanali e'lon qilmoq"
+      },
+      "example": "The speaker proclaimed that the debate was over.",
+      "example_translations": {
+        "ru": "Оратор провозгласил, что дебаты окончены.",
+        "uz": "Notiq bahs tugaganini tantanali e'lon qildi."
+      }
+    },
+    {
+      "word": "affirm",
+      "part_of_speech": "verb",
+      "translation": "подтверждать, твёрдо заявлять",
+      "translations": {
+        "ru": "подтверждать, твёрдо заявлять",
+        "uz": "qat'iy tasdiqlamoq"
+      },
+      "example": "The witness affirmed that her statement was true.",
+      "example_translations": {
+        "ru": "Свидетельница подтвердила, что её показания правдивы.",
+        "uz": "Guvoh o'z ko'rsatmasi to'g'ri ekanini qat'iy tasdiqladi."
+      }
+    },
+    {
+      "word": "concur",
+      "part_of_speech": "verb",
+      "translation": "соглашаться, разделять мнение",
+      "translations": {
+        "ru": "соглашаться, разделять мнение",
+        "uz": "qo'shilmoq, hamfikr bo'lmoq"
+      },
+      "example": "Most experts concur with this conclusion.",
+      "example_translations": {
+        "ru": "Большинство экспертов соглашаются с этим выводом.",
+        "uz": "Aksariyat mutaxassislar bu xulosaga qo'shiladilar."
+      }
+    },
+    {
+      "word": "retort",
+      "part_of_speech": "verb",
+      "translation": "резко возражать, парировать",
+      "translations": {
+        "ru": "резко возражать, парировать",
+        "uz": "keskin javob qaytarmoq"
+      },
+      "example": "\"Then prove it!\" she retorted at once.",
+      "example_translations": {
+        "ru": "«Тогда докажите это!» — тут же резко возразила она.",
+        "uz": "— Unda isbotlang! — deb darhol keskin javob qaytardi u."
+      }
+    },
+    {
+      "word": "disprove",
+      "part_of_speech": "verb",
+      "translation": "доказывать ложность",
+      "translations": {
+        "ru": "доказывать ложность",
+        "uz": "noto'g'riligini isbotlamoq"
+      },
+      "example": "New data disproved the theory he had defended.",
+      "example_translations": {
+        "ru": "Новые данные доказали ложность теории, которую он отстаивал.",
+        "uz": "Yangi ma'lumotlar u himoya qilgan nazariyaning noto'g'riligini isbotladi."
+      }
+    },
+    {
+      "word": "attest",
+      "part_of_speech": "verb",
+      "translation": "свидетельствовать, удостоверять",
+      "translations": {
+        "ru": "свидетельствовать, удостоверять",
+        "uz": "guvohlik bermoq"
+      },
+      "example": "These letters attest to the author's honesty.",
+      "example_translations": {
+        "ru": "Эти письма свидетельствуют о честности автора.",
+        "uz": "Bu xatlar muallifning halolligidan guvohlik beradi."
+      }
+    }
+  ]
+}

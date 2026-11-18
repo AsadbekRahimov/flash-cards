@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 20,
+    "title": "Абстрактные понятия",
+    "title_uz": "Mavhum tushunchalar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Сходство и различие",
+    "title_uz": "O'xshashlik va farq"
+  },
+  "words": [
+    {
+      "word": "analogous",
+      "part_of_speech": "adjective",
+      "translation": "аналогичный",
+      "translations": {
+        "ru": "аналогичный",
+        "uz": "monand, o'xshash"
+      },
+      "example": "The heart is analogous to a pump.",
+      "example_translations": {
+        "ru": "Сердце аналогично насосу.",
+        "uz": "Yurak nasosga monanddir."
+      }
+    },
+    {
+      "word": "akin",
+      "part_of_speech": "adjective",
+      "translation": "сродни, близкий",
+      "translations": {
+        "ru": "сродни, близкий",
+        "uz": "yaqin, turdosh"
+      },
+      "example": "Her feeling was akin to homesickness.",
+      "example_translations": {
+        "ru": "Её чувство было сродни тоске по дому.",
+        "uz": "Uning tuyg'usi uy sog'inchiga yaqin edi."
+      }
+    },
+    {
+      "word": "comparable",
+      "part_of_speech": "adjective",
+      "translation": "сопоставимый",
+      "translations": {
+        "ru": "сопоставимый",
+        "uz": "taqqoslasa bo'ladigan"
+      },
+      "example": "Salaries here are comparable to those in the capital.",
+      "example_translations": {
+        "ru": "Зарплаты здесь сопоставимы со столичными.",
+        "uz": "Bu yerdagi maoshlarni poytaxtdagilar bilan taqqoslasa bo'ladi."
+      }
+    },
+    {
+      "word": "disparate",
+      "part_of_speech": "adjective",
+      "translation": "совершенно разный, несхожий",
+      "translations": {
+        "ru": "совершенно разный, несхожий",
+        "uz": "bir-biriga o'xshamas"
+      },
+      "example": "The team unites people from disparate backgrounds.",
+      "example_translations": {
+        "ru": "Команда объединяет людей совершенно разного происхождения.",
+        "uz": "Jamoa kelib chiqishi bir-biriga o'xshamas odamlarni birlashtiradi."
+      }
+    },
+    {
+      "word": "distinct",
+      "part_of_speech": "adjective",
+      "translation": "отличный, отдельный",
+      "translations": {
+        "ru": "отличный, отдельный",
+        "uz": "farqli, alohida"
+      },
+      "example": "The two dialects are quite distinct from each other.",
+      "example_translations": {
+        "ru": "Эти два диалекта весьма отличны друг от друга.",
+        "uz": "Bu ikki sheva bir-biridan ancha farqli."
+      }
+    },
+    {
+      "word": "homogeneous",
+      "part_of_speech": "adjective",
+      "translation": "однородный",
+      "translations": {
+        "ru": "однородный",
+        "uz": "bir jinsli"
+      },
+      "example": "Stir the mixture until it becomes smooth and homogeneous.",
+      "example_translations": {
+        "ru": "Мешайте смесь, пока она не станет гладкой и однородной.",
+        "uz": "Aralashmani silliq va bir jinsli bo'lguncha aralashtiring."
+      }
+    },
+    {
+      "word": "counterpart",
+      "part_of_speech": "noun",
+      "translation": "коллега с другой стороны",
+      "translations": {
+        "ru": "коллега с другой стороны",
+        "uz": "boshqa tomondagi hamkasb"
+      },
+      "example": "Our sales manager called her counterpart at the supplier.",
+      "example_translations": {
+        "ru": "Наша менеджер по продажам позвонила своему коллеге в компании-поставщике.",
+        "uz": "Savdo menejerimiz yetkazib beruvchi kompaniyadagi hamkasbiga qo'ng'iroq qildi."
+      }
+    },
+    {
+      "word": "resemblance",
+      "part_of_speech": "noun",
+      "translation": "сходство",
+      "translations": {
+        "ru": "сходство",
+        "uz": "o'xshashlik"
+      },
+      "example": "People notice the strong resemblance between the two sisters.",
+      "example_translations": {
+        "ru": "Люди замечают сильное сходство между двумя сёстрами.",
+        "uz": "Odamlar ikki opa-singil o'rtasidagi kuchli o'xshashlikni payqashadi."
+      }
+    },
+    {
+      "word": "synonymous",
+      "part_of_speech": "adjective",
+      "translation": "синонимичный, равнозначный",
+      "translations": {
+        "ru": "синонимичный, равнозначный",
+        "uz": "ma'nodosh"
+      },
+      "example": "For many people, success is synonymous with wealth.",
+      "example_translations": {
+        "ru": "Для многих людей успех равнозначен богатству.",
+        "uz": "Ko'p odamlar uchun muvaffaqiyat boylik bilan ma'nodosh."
+      }
+    },
+    {
+      "word": "incompatible",
+      "part_of_speech": "adjective",
+      "translation": "несовместимый",
+      "translations": {
+        "ru": "несовместимый",
+        "uz": "mos kelmaydigan"
+      },
+      "example": "This old charger is incompatible with newer phones.",
+      "example_translations": {
+        "ru": "Это старое зарядное устройство несовместимо с новыми телефонами.",
+        "uz": "Bu eski quvvatlagich yangi telefonlarga mos kelmaydi."
+      }
+    }
+  ]
+}

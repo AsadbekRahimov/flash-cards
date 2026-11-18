@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 20,
+    "title": "Абстрактные понятия",
+    "title_uz": "Mavhum tushunchalar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Рост и спад",
+    "title_uz": "O'sish va pasayish"
+  },
+  "words": [
+    {
+      "word": "deteriorate",
+      "part_of_speech": "verb",
+      "translation": "ухудшаться",
+      "translations": {
+        "ru": "ухудшаться",
+        "uz": "yomonlashmoq"
+      },
+      "example": "Her health began to deteriorate after the operation.",
+      "example_translations": {
+        "ru": "После операции её здоровье начало ухудшаться.",
+        "uz": "Operatsiyadan keyin uning sog'lig'i yomonlasha boshladi."
+      }
+    },
+    {
+      "word": "dwindle",
+      "part_of_speech": "verb",
+      "translation": "постепенно сокращаться",
+      "translations": {
+        "ru": "постепенно сокращаться",
+        "uz": "asta-sekin kamaymoq"
+      },
+      "example": "Our savings dwindled to almost nothing by spring.",
+      "example_translations": {
+        "ru": "К весне наши сбережения постепенно сократились почти до нуля.",
+        "uz": "Bahorga kelib jamg'armamiz asta-sekin kamayib, deyarli tugadi."
+      }
+    },
+    {
+      "word": "proliferate",
+      "part_of_speech": "verb",
+      "translation": "быстро множиться",
+      "translations": {
+        "ru": "быстро множиться",
+        "uz": "tez ko'paymoq"
+      },
+      "example": "Coffee shops have proliferated across the city recently.",
+      "example_translations": {
+        "ru": "В последнее время кофейни быстро множатся по всему городу.",
+        "uz": "So'nggi paytlarda shahar bo'ylab qahvaxonalar tez ko'paydi."
+      }
+    },
+    {
+      "word": "plummet",
+      "part_of_speech": "verb",
+      "translation": "резко падать",
+      "translations": {
+        "ru": "резко падать",
+        "uz": "keskin tushib ketmoq"
+      },
+      "example": "Temperatures plummeted to minus twenty overnight.",
+      "example_translations": {
+        "ru": "За ночь температура резко упала до минус двадцати.",
+        "uz": "Bir kechada harorat minus yigirma darajagacha keskin tushib ketdi."
+      }
+    },
+    {
+      "word": "culminate",
+      "part_of_speech": "verb",
+      "translation": "завершаться, увенчиваться",
+      "translations": {
+        "ru": "завершаться, увенчиваться",
+        "uz": "yakun topmoq"
+      },
+      "example": "The festival culminated in a spectacular fireworks display.",
+      "example_translations": {
+        "ru": "Фестиваль завершился грандиозным фейерверком.",
+        "uz": "Festival ajoyib mushakbozlik bilan yakun topdi."
+      }
+    },
+    {
+      "word": "revert",
+      "part_of_speech": "verb",
+      "translation": "возвращаться к прежнему",
+      "translations": {
+        "ru": "возвращаться к прежнему",
+        "uz": "avvalgi holiga qaytmoq"
+      },
+      "example": "Without practice, he reverted to his old habits.",
+      "example_translations": {
+        "ru": "Без практики он вернулся к своим прежним привычкам.",
+        "uz": "Mashq qilmagach, u eski odatlariga qaytdi."
+      }
+    },
+    {
+      "word": "stabilize",
+      "part_of_speech": "verb",
+      "translation": "стабилизироваться",
+      "translations": {
+        "ru": "стабилизироваться",
+        "uz": "barqarorlashmoq"
+      },
+      "example": "Prices finally stabilized after months of sharp increases.",
+      "example_translations": {
+        "ru": "После нескольких месяцев резкого роста цены наконец стабилизировались.",
+        "uz": "Bir necha oylik keskin o'sishdan so'ng narxlar nihoyat barqarorlashdi."
+      }
+    },
+    {
+      "word": "diverge",
+      "part_of_speech": "verb",
+      "translation": "расходиться",
+      "translations": {
+        "ru": "расходиться",
+        "uz": "bir-biridan uzoqlashmoq"
+      },
+      "example": "Their opinions began to diverge on almost everything.",
+      "example_translations": {
+        "ru": "Их мнения начали расходиться почти во всём.",
+        "uz": "Ularning fikrlari deyarli hamma narsada bir-biridan uzoqlasha boshladi."
+      }
+    },
+    {
+      "word": "converge",
+      "part_of_speech": "verb",
+      "translation": "сближаться, сходиться",
+      "translations": {
+        "ru": "сближаться, сходиться",
+        "uz": "bir-biriga yaqinlashmoq"
+      },
+      "example": "Incomes in the two regions are slowly converging.",
+      "example_translations": {
+        "ru": "Доходы в двух регионах постепенно сближаются.",
+        "uz": "Ikki hududdagi daromadlar asta-sekin bir-biriga yaqinlashmoqda."
+      }
+    },
+    {
+      "word": "subside",
+      "part_of_speech": "verb",
+      "translation": "утихать, спадать",
+      "translations": {
+        "ru": "утихать, спадать",
+        "uz": "bosilmoq, pasaymoq"
+      },
+      "example": "We waited indoors until the storm subsided.",
+      "example_translations": {
+        "ru": "Мы ждали в помещении, пока буря не утихла.",
+        "uz": "Bo'ron bosilguncha biz ichkarida kutib turdik."
+      }
+    }
+  ]
+}

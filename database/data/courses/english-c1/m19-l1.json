@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 19,
+    "title": "Город и пространство",
+    "title_uz": "Shahar va makon"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Развитие города",
+    "title_uz": "Shahar rivoji"
+  },
+  "words": [
+    {
+      "word": "gentrification",
+      "part_of_speech": "noun",
+      "translation": "джентрификация",
+      "translations": {
+        "ru": "джентрификация",
+        "uz": "gentrifikatsiya"
+      },
+      "example": "Gentrification pushed rents up across the old neighborhood.",
+      "example_translations": {
+        "ru": "Джентрификация подняла арендную плату во всём старом районе.",
+        "uz": "Gentrifikatsiya butun eski mahallada ijara haqini oshirib yubordi."
+      }
+    },
+    {
+      "word": "zoning",
+      "part_of_speech": "noun",
+      "translation": "зонирование",
+      "translations": {
+        "ru": "зонирование",
+        "uz": "zonalarga ajratish"
+      },
+      "example": "Zoning laws forbid factories near these homes.",
+      "example_translations": {
+        "ru": "Правила зонирования запрещают строить заводы рядом с этими домами.",
+        "uz": "Zonalarga ajratish qoidalari bu uylar yaqinida zavod qurishni taqiqlaydi."
+      }
+    },
+    {
+      "word": "redevelopment",
+      "part_of_speech": "noun",
+      "translation": "реконструкция, перестройка",
+      "translations": {
+        "ru": "реконструкция, перестройка",
+        "uz": "qayta qurish"
+      },
+      "example": "The old factory site is awaiting redevelopment.",
+      "example_translations": {
+        "ru": "Территория старого завода ждёт реконструкции.",
+        "uz": "Eski zavod hududi qayta qurishni kutmoqda."
+      }
+    },
+    {
+      "word": "suburban",
+      "part_of_speech": "adjective",
+      "translation": "пригородный",
+      "translations": {
+        "ru": "пригородный",
+        "uz": "shahar atrofidagi"
+      },
+      "example": "They left downtown for a quiet suburban street.",
+      "example_translations": {
+        "ru": "Они переехали из центра на тихую пригородную улицу.",
+        "uz": "Ular shahar markazidan shahar atrofidagi sokin ko'chaga ko'chib o'tishdi."
+      }
+    },
+    {
+      "word": "sprawl",
+      "part_of_speech": "noun",
+      "translation": "разрастание города",
+      "translations": {
+        "ru": "разрастание города",
+        "uz": "shaharning yoyilib ketishi"
+      },
+      "example": "Urban sprawl has swallowed the surrounding farmland.",
+      "example_translations": {
+        "ru": "Разрастание города поглотило окрестные сельхозугодья.",
+        "uz": "Shaharning yoyilib ketishi atrofdagi ekin yerlarini yutib yubordi."
+      }
+    },
+    {
+      "word": "slum",
+      "part_of_speech": "noun",
+      "translation": "трущоба",
+      "translations": {
+        "ru": "трущоба",
+        "uz": "xaroba mahalla"
+      },
+      "example": "Thousands of families live in the city's slums.",
+      "example_translations": {
+        "ru": "Тысячи семей живут в городских трущобах.",
+        "uz": "Minglab oilalar shaharning xaroba mahallalarida yashaydi."
+      }
+    },
+    {
+      "word": "dwelling",
+      "part_of_speech": "noun",
+      "translation": "жилище",
+      "translations": {
+        "ru": "жилище",
+        "uz": "turar joy"
+      },
+      "example": "Each dwelling must have running water and heating.",
+      "example_translations": {
+        "ru": "В каждом жилище должны быть водопровод и отопление.",
+        "uz": "Har bir turar joyda suv quvuri va isitish tizimi bo'lishi shart."
+      }
+    },
+    {
+      "word": "municipality",
+      "part_of_speech": "noun",
+      "translation": "муниципалитет",
+      "translations": {
+        "ru": "муниципалитет",
+        "uz": "munitsipalitet"
+      },
+      "example": "The municipality is responsible for collecting household waste.",
+      "example_translations": {
+        "ru": "За вывоз бытовых отходов отвечает муниципалитет.",
+        "uz": "Maishiy chiqindilarni olib ketish uchun munitsipalitet javobgar."
+      }
+    },
+    {
+      "word": "revitalize",
+      "part_of_speech": "verb",
+      "translation": "возрождать, оживлять",
+      "translations": {
+        "ru": "возрождать, оживлять",
+        "uz": "qayta jonlantirmoq"
+      },
+      "example": "New cafes and shops helped revitalize the waterfront.",
+      "example_translations": {
+        "ru": "Новые кафе и магазины помогли оживить набережную.",
+        "uz": "Yangi kafe va do'konlar sohil bo'yini qayta jonlantirishga yordam berdi."
+      }
+    },
+    {
+      "word": "thoroughfare",
+      "part_of_speech": "noun",
+      "translation": "магистраль",
+      "translations": {
+        "ru": "магистраль",
+        "uz": "magistral ko'cha"
+      },
+      "example": "This thoroughfare carries most traffic through the city.",
+      "example_translations": {
+        "ru": "По этой магистрали идёт основной поток транспорта через город.",
+        "uz": "Shahardan o'tadigan transportning ko'p qismi shu magistral ko'chadan yuradi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 18,
+    "title": "История и конфликты",
+    "title_uz": "Tarix va mojarolar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Изучение прошлого",
+    "title_uz": "O'tmishni o'rganish"
+  },
+  "words": [
+    {
+      "word": "chronicle",
+      "part_of_speech": "noun",
+      "translation": "летопись, хроника",
+      "translations": {
+        "ru": "летопись, хроника",
+        "uz": "solnoma"
+      },
+      "example": "A medieval chronicle describes the founding of the city.",
+      "example_translations": {
+        "ru": "Средневековая летопись описывает основание города.",
+        "uz": "O'rta asr solnomasi shaharning barpo etilishini tasvirlaydi."
+      }
+    },
+    {
+      "word": "chronology",
+      "part_of_speech": "noun",
+      "translation": "хронология",
+      "translations": {
+        "ru": "хронология",
+        "uz": "xronologiya"
+      },
+      "example": "Historians still dispute the exact chronology of these events.",
+      "example_translations": {
+        "ru": "Историки до сих пор спорят о точной хронологии этих событий.",
+        "uz": "Tarixchilar hali ham bu voqealarning aniq xronologiyasi haqida bahslashadilar."
+      }
+    },
+    {
+      "word": "antiquity",
+      "part_of_speech": "noun",
+      "translation": "древность, античность",
+      "translations": {
+        "ru": "древность, античность",
+        "uz": "qadim zamon"
+      },
+      "example": "Olive oil has been valued since antiquity.",
+      "example_translations": {
+        "ru": "Оливковое масло ценится с древности.",
+        "uz": "Zaytun moyi qadim zamondan beri qadrlanadi."
+      }
+    },
+    {
+      "word": "excavate",
+      "part_of_speech": "verb",
+      "translation": "раскапывать",
+      "translations": {
+        "ru": "раскапывать",
+        "uz": "qazib ochmoq"
+      },
+      "example": "Archaeologists excavated an ancient temple near the village.",
+      "example_translations": {
+        "ru": "Археологи раскопали древний храм близ деревни.",
+        "uz": "Arxeologlar qishloq yaqinida qadimiy ibodatxonani qazib ochdilar."
+      }
+    },
+    {
+      "word": "relic",
+      "part_of_speech": "noun",
+      "translation": "реликвия",
+      "translations": {
+        "ru": "реликвия",
+        "uz": "osori atiqa"
+      },
+      "example": "This sword is a relic of forgotten times.",
+      "example_translations": {
+        "ru": "Этот меч — реликвия забытых времён.",
+        "uz": "Bu qilich — unutilgan zamonlarning osori atiqasi."
+      }
+    },
+    {
+      "word": "inscription",
+      "part_of_speech": "noun",
+      "translation": "надпись",
+      "translations": {
+        "ru": "надпись",
+        "uz": "bitik"
+      },
+      "example": "The inscription on the stone was in Latin.",
+      "example_translations": {
+        "ru": "Надпись на камне была на латыни.",
+        "uz": "Toshdagi bitik lotin tilida edi."
+      }
+    },
+    {
+      "word": "epoch",
+      "part_of_speech": "noun",
+      "translation": "эпоха",
+      "translations": {
+        "ru": "эпоха",
+        "uz": "davr"
+      },
+      "example": "The invention of printing began a new epoch.",
+      "example_translations": {
+        "ru": "Изобретение книгопечатания положило начало новой эпохе.",
+        "uz": "Kitob bosishning ixtiro qilinishi yangi davrni boshlab berdi."
+      }
+    },
+    {
+      "word": "millennium",
+      "part_of_speech": "noun",
+      "translation": "тысячелетие",
+      "translations": {
+        "ru": "тысячелетие",
+        "uz": "ming yillik"
+      },
+      "example": "This tradition has survived for over a millennium.",
+      "example_translations": {
+        "ru": "Эта традиция сохраняется уже более тысячелетия.",
+        "uz": "Bu an'ana bir ming yillikdan ko'proq vaqtdan beri saqlanib kelmoqda."
+      }
+    },
+    {
+      "word": "prehistoric",
+      "part_of_speech": "adjective",
+      "translation": "доисторический",
+      "translations": {
+        "ru": "доисторический",
+        "uz": "tarixdan oldingi"
+      },
+      "example": "Prehistoric people painted animals on these cave walls.",
+      "example_translations": {
+        "ru": "Доисторические люди рисовали животных на стенах этих пещер.",
+        "uz": "Tarixdan oldingi odamlar bu g'or devorlariga hayvonlar rasmini chizishgan."
+      }
+    },
+    {
+      "word": "feudal",
+      "part_of_speech": "adjective",
+      "translation": "феодальный",
+      "translations": {
+        "ru": "феодальный",
+        "uz": "feodal"
+      },
+      "example": "In feudal times, peasants worked their lord's land.",
+      "example_translations": {
+        "ru": "В феодальные времена крестьяне обрабатывали землю своего господина.",
+        "uz": "Feodal davrda dehqonlar o'z xo'jayinining yerida ishlagan."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 17,
+    "title": "Аргументация и дискуссия",
+    "title_uz": "Dalillash va munozara"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Спор и согласие",
+    "title_uz": "Bahs va kelishuv"
+  },
+  "words": [
+    {
+      "word": "deliberation",
+      "part_of_speech": "noun",
+      "translation": "обсуждение, совещание",
+      "translations": {
+        "ru": "обсуждение, совещание",
+        "uz": "muhokama, maslahatlashuv"
+      },
+      "example": "After long deliberation, the jury reached a verdict.",
+      "example_translations": {
+        "ru": "После долгого обсуждения присяжные вынесли вердикт.",
+        "uz": "Uzoq muhokamadan so'ng hakamlar hay'ati hukm chiqardi."
+      }
+    },
+    {
+      "word": "discourse",
+      "part_of_speech": "noun",
+      "translation": "дискурс",
+      "translations": {
+        "ru": "дискурс",
+        "uz": "bahs-munozara"
+      },
+      "example": "Social media has changed the tone of public discourse.",
+      "example_translations": {
+        "ru": "Социальные сети изменили тон общественного дискурса.",
+        "uz": "Ijtimoiy tarmoqlar jamoatchilik bahs-munozarasining ohangini o'zgartirdi."
+      }
+    },
+    {
+      "word": "unanimous",
+      "part_of_speech": "adjective",
+      "translation": "единогласный",
+      "translations": {
+        "ru": "единогласный",
+        "uz": "yakdil"
+      },
+      "example": "The committee reached a unanimous decision within minutes.",
+      "example_translations": {
+        "ru": "Комитет за считаные минуты принял единогласное решение.",
+        "uz": "Qo'mita bir necha daqiqada yakdil qarorga keldi."
+      }
+    },
+    {
+      "word": "contentious",
+      "part_of_speech": "adjective",
+      "translation": "спорный",
+      "translations": {
+        "ru": "спорный",
+        "uz": "bahsli"
+      },
+      "example": "The new dress code proved highly contentious.",
+      "example_translations": {
+        "ru": "Новый дресс-код оказался весьма спорным.",
+        "uz": "Yangi kiyinish qoidalari juda bahsli bo'lib chiqdi."
+      }
+    },
+    {
+      "word": "divisive",
+      "part_of_speech": "adjective",
+      "translation": "вызывающий раскол",
+      "translations": {
+        "ru": "вызывающий раскол",
+        "uz": "ixtilof tug'diruvchi"
+      },
+      "example": "Few topics are as divisive as school uniforms.",
+      "example_translations": {
+        "ru": "Мало какие темы вызывают такой раскол, как школьная форма.",
+        "uz": "Maktab formasi kabi ixtilof tug'diruvchi mavzular kam."
+      }
+    },
+    {
+      "word": "polarize",
+      "part_of_speech": "verb",
+      "translation": "поляризовать, раскалывать",
+      "translations": {
+        "ru": "поляризовать, раскалывать",
+        "uz": "qarama-qarshi guruhlarga bo'lmoq"
+      },
+      "example": "The debate polarized the students into two camps.",
+      "example_translations": {
+        "ru": "Этот спор расколол студентов на два лагеря.",
+        "uz": "Bu bahs talabalarni ikki qarama-qarshi guruhga bo'ldi."
+      }
+    },
+    {
+      "word": "discord",
+      "part_of_speech": "noun",
+      "translation": "разлад, раздор",
+      "translations": {
+        "ru": "разлад, раздор",
+        "uz": "kelishmovchilik"
+      },
+      "example": "Money often causes discord between business partners.",
+      "example_translations": {
+        "ru": "Деньги часто вызывают разлад между деловыми партнёрами.",
+        "uz": "Pul ko'pincha biznes sheriklari o'rtasida kelishmovchilik keltirib chiqaradi."
+      }
+    },
+    {
+      "word": "impasse",
+      "part_of_speech": "noun",
+      "translation": "безвыходное положение",
+      "translations": {
+        "ru": "безвыходное положение",
+        "uz": "boshi berk ko'cha"
+      },
+      "example": "Neither side would compromise, so talks reached an impasse.",
+      "example_translations": {
+        "ru": "Ни одна сторона не шла на компромисс, и переговоры оказались в безвыходном положении.",
+        "uz": "Hech bir tomon murosaga bormadi va muzokaralar boshi berk ko'chaga kirib qoldi."
+      }
+    },
+    {
+      "word": "deadlock",
+      "part_of_speech": "noun",
+      "translation": "тупик в переговорах",
+      "translations": {
+        "ru": "тупик в переговорах",
+        "uz": "muzokaralardagi tanglik"
+      },
+      "example": "After weeks of deadlock, both sides signed the agreement.",
+      "example_translations": {
+        "ru": "После нескольких недель тупика в переговорах обе стороны подписали соглашение.",
+        "uz": "Bir necha hafta davom etgan muzokaralardagi tanglikdan so'ng ikkala tomon bitimni imzoladi."
+      }
+    },
+    {
+      "word": "standpoint",
+      "part_of_speech": "noun",
+      "translation": "точка зрения",
+      "translations": {
+        "ru": "точка зрения",
+        "uz": "nuqtai nazar"
+      },
+      "example": "From a legal standpoint, the contract is perfectly valid.",
+      "example_translations": {
+        "ru": "С юридической точки зрения договор полностью действителен.",
+        "uz": "Huquqiy nuqtai nazardan shartnoma to'liq haqiqiydir."
+      }
+    }
+  ]
+}
