@@ -1,0 +1,2807 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c1",
+  "items": [
+    {
+      "key": "c1-m03-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "tenure"
+      ],
+      "text": "During his tenure ___ chairman, the firm doubled in size.",
+      "options": [
+        "as",
+        "like",
+        "by"
+      ],
+      "correct": [
+        "as"
+      ],
+      "translation": {
+        "ru": "За время его пребывания на посту председателя фирма выросла вдвое.",
+        "uz": "Uning rais lavozimida ishlagan davrida firma ikki barobar kattalashdi."
+      },
+      "explanation": {
+        "ru": "tenure as + должность — срок пребывания в должности: her tenure as principal. As здесь значит «в качестве»; like значит «как, похожий на», а by в этом сочетании не употребляется.",
+        "uz": "tenure as + lavozim — biror lavozimda ishlash muddati: her tenure as principal. As bu yerda «sifatida» degani; like «…ga o'xshash» ma'nosini beradi, by esa bu birikmada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "seniority"
+      ],
+      "text": "Promotion in the civil service was once based ___ seniority alone.",
+      "options": [
+        "on",
+        "from",
+        "at"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Когда-то повышение на государственной службе зависело только от трудового стажа.",
+        "uz": "Bir vaqtlar davlat xizmatida lavozimga ko'tarilish faqat ish stajiga asoslanardi."
+      },
+      "explanation": {
+        "ru": "based on — основанный на чём-то: based on seniority — по стажу, based on merit — по заслугам. После based нужен on (в книжной речи upon); from и at здесь ошибка.",
+        "uz": "based on — biror narsaga asoslangan: based on seniority — ish stajiga qarab, based on merit — xizmatiga qarab. Based so'zidan keyin on (kitobiy uslubda upon) keladi; from va at bu yerda xato."
+      }
+    },
+    {
+      "key": "c1-m03-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "recruitment"
+      ],
+      "text": "The hospital's recruitment ___ attracted many young nurses.",
+      "options": [
+        "drive",
+        "race",
+        "walk"
+      ],
+      "correct": [
+        "drive"
+      ],
+      "translation": {
+        "ru": "Кампания больницы по набору сотрудников привлекла много молодых медсестёр.",
+        "uz": "Shifoxonaning xodimlarni ishga olish kampaniyasi ko'plab yosh hamshiralarni jalb qildi."
+      },
+      "explanation": {
+        "ru": "recruitment drive — кампания по набору сотрудников. Drive здесь значит «активная кампания»: a recruitment drive, a fundraising drive. Race и walk в таком значении не употребляются.",
+        "uz": "recruitment drive — xodimlarni ishga olish kampaniyasi. Drive so'zi bu yerda «faol kampaniya» ma'nosida: a recruitment drive, a fundraising drive. Race va walk so'zlari bu ma'noda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "successor"
+      ],
+      "prompt": {
+        "ru": "Фабрику закрыл именно её преемник.",
+        "uz": "Fabrikani aynan uning vorisi yopdi."
+      },
+      "fragments": [
+        "it",
+        "was",
+        "her successor",
+        "who",
+        "closed",
+        "the factory"
+      ],
+      "accepted": [
+        [
+          "it",
+          "was",
+          "her successor",
+          "who",
+          "closed",
+          "the factory"
+        ]
+      ],
+      "display": "It was her successor who closed the factory.",
+      "explanation": {
+        "ru": "It was … who … — выделительная конструкция, «именно … сделал». То, что выделяют, стоит сразу после it was: It was her successor who…",
+        "uz": "It was … who … — ajratib ko'rsatish qurilmasi, «aynan … qildi». Ajratilgan so'z it was birikmasidan keyin keladi: It was her successor who…"
+      }
+    },
+    {
+      "key": "c1-m03-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "predecessor"
+      ],
+      "prompt": {
+        "ru": "Она гораздо честолюбивее своего предшественника.",
+        "uz": "U o'z o'tmishdoshidan ancha shuhratparastroq."
+      },
+      "fragments": [
+        "she",
+        "is",
+        "far",
+        "more ambitious",
+        "than",
+        "her predecessor"
+      ],
+      "accepted": [
+        [
+          "she",
+          "is",
+          "far",
+          "more ambitious",
+          "than",
+          "her predecessor"
+        ]
+      ],
+      "display": "She is far more ambitious than her predecessor.",
+      "explanation": {
+        "ru": "far + сравнительная степень — «гораздо, намного»: far more ambitious than… Far, как и much, ставится перед more.",
+        "uz": "far + qiyosiy daraja — «ancha, ko'p»: far more ambitious than… Far ham, much kabi, more so'zidan oldin keladi."
+      }
+    },
+    {
+      "key": "c1-m03-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "redundancy",
+        "demotion"
+      ],
+      "prompt": {
+        "ru": "Он скорее уйдёт по сокращению, чем согласится на понижение в должности.",
+        "uz": "U lavozimi pasaytirilishiga rozi bo'lgandan ko'ra, shtat qisqartirilishi bilan ishdan ketishni afzal ko'radi."
+      },
+      "fragments": [
+        "he",
+        "would rather",
+        "take",
+        "redundancy",
+        "than",
+        "accept",
+        "a demotion"
+      ],
+      "accepted": [
+        [
+          "he",
+          "would rather",
+          "take",
+          "redundancy",
+          "than",
+          "accept",
+          "a demotion"
+        ],
+        [
+          "he",
+          "would rather",
+          "accept",
+          "redundancy",
+          "than",
+          "take",
+          "a demotion"
+        ]
+      ],
+      "display": "He would rather take redundancy than accept a demotion.",
+      "explanation": {
+        "ru": "would rather + глагол + than + глагол — «скорее…, чем…», оба глагола без to. Take redundancy — уйти по сокращению (с выплатой).",
+        "uz": "would rather + fe'l + than + fe'l — «…dan ko'ra …ni afzal ko'rmoq», ikkala fe'l ham to yuklamasisiz keladi. Take redundancy — shtat qisqartirilishi bilan (to'lov olib) ishdan ketmoq."
+      }
+    },
+    {
+      "key": "c1-m03-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "incumbent"
+      ],
+      "text": "The incumbent has refused to step down",
+      "accepted": [
+        "The incumbent has refused to step down"
+      ],
+      "translation": {
+        "ru": "Действующий руководитель отказался уйти в отставку",
+        "uz": "Amaldagi lavozim egasi iste'foga chiqishdan bosh tortdi"
+      },
+      "explanation": {
+        "ru": "incumbent: после m пишется b (in-cum-bent), в конце -ent.",
+        "uz": "incumbent: m harfidan keyin b yoziladi (in-cum-bent), oxiri -ent."
+      }
+    },
+    {
+      "key": "c1-m03-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "credential"
+      ],
+      "text": "Check the credentials of every applicant",
+      "accepted": [
+        "Check the credentials of every applicant"
+      ],
+      "translation": {
+        "ru": "Проверьте документы о квалификации каждого кандидата",
+        "uz": "Har bir nomzodning malaka hujjatlarini tekshiring"
+      },
+      "explanation": {
+        "ru": "credentials: звук «ш» в середине передают буквы ti — c-r-e-d-e-n-t-i-a-l-s.",
+        "uz": "credentials: o'rtadagi «sh» tovushi ti harflari bilan yoziladi — c-r-e-d-e-n-t-i-a-l-s."
+      }
+    },
+    {
+      "key": "c1-m03-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "advancement"
+      ],
+      "text": "The job offers little chance of advancement",
+      "accepted": [
+        "The job offers little chance of advancement"
+      ],
+      "translation": {
+        "ru": "Эта работа почти не даёт шансов на продвижение по службе",
+        "uz": "Bu ish xizmat pog'onasida ko'tarilishga deyarli imkon bermaydi"
+      },
+      "explanation": {
+        "ru": "advancement = advance + ment: e перед -ment сохраняется.",
+        "uz": "advancement = advance + ment: -ment qo'shimchasidan oldin e saqlanadi."
+      }
+    },
+    {
+      "key": "c1-m03-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "liaise"
+      ],
+      "text": "Our security team will liaise ___ the local police during the event.",
+      "options": [
+        "with",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Наша служба безопасности будет поддерживать связь с местной полицией во время мероприятия.",
+        "uz": "Xavfsizlik xizmatimiz tadbir davomida mahalliy politsiya bilan aloqa bog'lab turadi."
+      },
+      "explanation": {
+        "ru": "liaise with — поддерживать связь, взаимодействовать с кем-то: liaise with the police, liaise with clients. После liaise с человеком или организацией нужен with; to и at не подходят.",
+        "uz": "liaise with — kim bilandir aloqa bog'lab turmoq: liaise with the police, liaise with clients. Liaise fe'lidan keyin odam yoki tashkilot oldidan with keladi; to va at to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "fulfill"
+      ],
+      "text": "Sadly, she never fulfilled her ___ as a pianist.",
+      "options": [
+        "potential",
+        "possibility",
+        "chance"
+      ],
+      "correct": [
+        "potential"
+      ],
+      "translation": {
+        "ru": "К сожалению, она так и не раскрыла свой потенциал как пианистка.",
+        "uz": "Afsuski, u pianinochi sifatida o'z salohiyatini to'liq ro'yobga chiqara olmadi."
+      },
+      "explanation": {
+        "ru": "fulfill your potential — полностью раскрыть свои способности. С possibility и chance глагол fulfill не употребляется: шанс используют (take a chance), а не «исполняют».",
+        "uz": "fulfill your potential — o'z salohiyatini to'liq ro'yobga chiqarmoq. Fulfill fe'li possibility va chance so'zlari bilan ishlatilmaydi: imkoniyatdan foydalaniladi (take a chance)."
+      }
+    },
+    {
+      "key": "c1-m03-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "backlog"
+      ],
+      "text": "Extra staff were hired to ___ the backlog of applications.",
+      "options": [
+        "clear",
+        "clean",
+        "wash"
+      ],
+      "correct": [
+        "clear"
+      ],
+      "translation": {
+        "ru": "Наняли дополнительных сотрудников, чтобы разобрать завал заявлений.",
+        "uz": "To'planib qolgan arizalarni ko'rib chiqib tugatish uchun qo'shimcha xodimlar yollandi."
+      },
+      "explanation": {
+        "ru": "clear a backlog — разобрать накопившиеся дела. Clear значит «расчистить, освободить»; clean и wash — «чистить, мыть», о работе так не говорят.",
+        "uz": "clear a backlog — to'planib qolgan ishlarni bajarib tugatmoq. Clear «bo'shatmoq, tozalab chiqmoq» degani; clean va wash esa yuvib-tozalashni bildiradi, ish haqida bunday deyilmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "accountable"
+      ],
+      "prompt": {
+        "ru": "Никого не привлекли к ответственности за ошибку.",
+        "uz": "Xato uchun hech kim javobgarlikka tortilmadi."
+      },
+      "fragments": [
+        "nobody",
+        "was",
+        "held",
+        "accountable",
+        "for",
+        "the error"
+      ],
+      "accepted": [
+        [
+          "nobody",
+          "was",
+          "held",
+          "accountable",
+          "for",
+          "the error"
+        ]
+      ],
+      "display": "Nobody was held accountable for the error.",
+      "explanation": {
+        "ru": "hold somebody accountable for something — привлекать кого-то к ответственности за что-то. В пассиве: be held accountable for.",
+        "uz": "hold somebody accountable for something — kimnidir biror narsa uchun javobgarlikka tortmoq. Majhul nisbatda: be held accountable for."
+      }
+    },
+    {
+      "key": "c1-m03-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "undertake"
+      ],
+      "prompt": {
+        "ru": "Кто готов взяться за столь трудную задачу?",
+        "uz": "Bunday qiyin vazifani kim o'z zimmasiga olishga tayyor?"
+      },
+      "fragments": [
+        "who",
+        "is",
+        "willing",
+        "to undertake",
+        "such a",
+        "difficult",
+        "task"
+      ],
+      "accepted": [
+        [
+          "who",
+          "is",
+          "willing",
+          "to undertake",
+          "such a",
+          "difficult",
+          "task"
+        ]
+      ],
+      "display": "Who is willing to undertake such a difficult task?",
+      "explanation": {
+        "ru": "undertake a task — взяться за задачу, взять на себя работу. Be willing to + глагол — быть готовым что-то сделать. Such a + прилагательное + существительное — «такой…».",
+        "uz": "undertake a task — vazifani o'z zimmasiga olmoq. Be willing to + fe'l — biror ishni qilishga tayyor bo'lmoq. Such a + sifat + ot — «shunday…, bunday…»."
+      }
+    },
+    {
+      "key": "c1-m03-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "streamline"
+      ],
+      "prompt": {
+        "ru": "Нам нужно упростить то, как мы работаем с жалобами.",
+        "uz": "Shikoyatlar bilan ishlash usulimizni soddalashtirishimiz kerak."
+      },
+      "fragments": [
+        "we",
+        "need to",
+        "streamline",
+        "the way",
+        "we",
+        "handle",
+        "complaints"
+      ],
+      "accepted": [
+        [
+          "we",
+          "need to",
+          "streamline",
+          "the way",
+          "we",
+          "handle",
+          "complaints"
+        ]
+      ],
+      "display": "We need to streamline the way we handle complaints.",
+      "explanation": {
+        "ru": "the way we handle… — «то, как мы…»: после the way придаточное идёт без how. Streamline — упростить процесс и сделать его быстрее.",
+        "uz": "the way we handle… — «…ish usulimiz»: the way birikmasidan keyin how kerak emas. Streamline — jarayonni soddalashtirib tezlashtirmoq."
+      }
+    },
+    {
+      "key": "c1-m03-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "multitask",
+        "burnout"
+      ],
+      "text": "Trying to multitask often leads to burnout",
+      "accepted": [
+        "Trying to multitask often leads to burnout"
+      ],
+      "translation": {
+        "ru": "Попытки делать несколько дел сразу часто приводят к выгоранию",
+        "uz": "Bir vaqtda bir necha ish qilishga urinish ko'pincha kasbiy toliqishga olib keladi"
+      },
+      "explanation": {
+        "ru": "multitask и burnout пишутся слитно: multi + task, burn + out.",
+        "uz": "multitask va burnout qo'shib yoziladi: multi + task, burn + out."
+      }
+    },
+    {
+      "key": "c1-m03-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "handover"
+      ],
+      "text": "The handover took longer than expected",
+      "accepted": [
+        "The handover took longer than expected"
+      ],
+      "translation": {
+        "ru": "Передача дел заняла больше времени, чем ожидалось",
+        "uz": "Ishlarni topshirish kutilganidan uzoqroq davom etdi"
+      },
+      "explanation": {
+        "ru": "Существительное handover пишется слитно, а глагол hand over — раздельно.",
+        "uz": "handover oti qo'shib yoziladi, hand over fe'li esa ajratib yoziladi."
+      }
+    },
+    {
+      "key": "c1-m03-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "administer"
+      ],
+      "text": "Who will administer the scholarship fund?",
+      "accepted": [
+        "Who will administer the scholarship fund?",
+        "Who'll administer the scholarship fund?"
+      ],
+      "translation": {
+        "ru": "Кто будет управлять стипендиальным фондом?",
+        "uz": "Stipendiya jamg'armasini kim boshqaradi?"
+      }
+    },
+    {
+      "key": "c1-m03-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "reimburse"
+      ],
+      "text": "The company will reimburse you ___ any medical costs.",
+      "options": [
+        "for",
+        "of",
+        "about"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Компания возместит вам любые медицинские расходы.",
+        "uz": "Kompaniya har qanday tibbiy xarajatlaringizni qoplab beradi."
+      },
+      "explanation": {
+        "ru": "reimburse somebody for something — возместить кому-то расходы на что-то: reimburse you for your travel. Предлоги of и about здесь не употребляются.",
+        "uz": "reimburse somebody for something — kimgadir biror narsa xarajatini qoplab bermoq: reimburse you for your travel. Of va about predloglari bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "severance"
+      ],
+      "text": "She received a generous severance ___ when the plant closed.",
+      "options": [
+        "package",
+        "parcel",
+        "box"
+      ],
+      "correct": [
+        "package"
+      ],
+      "translation": {
+        "ru": "Когда завод закрылся, она получила щедрое выходное пособие.",
+        "uz": "Zavod yopilganda u saxovatli ishdan bo'shatish nafaqasini oldi."
+      },
+      "explanation": {
+        "ru": "severance package — выходное пособие вместе с другими выплатами при увольнении; говорят и severance pay. Parcel и box — посылка и коробка, в этом значении не употребляются.",
+        "uz": "severance package — ishdan bo'shatishda beriladigan nafaqa va boshqa to'lovlar; severance pay ham deyiladi. Parcel va box — posilka va quti, bu ma'noda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "payroll"
+      ],
+      "text": "How many teachers are ___ the school's payroll?",
+      "options": [
+        "on",
+        "in",
+        "under"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Сколько учителей числится в платёжной ведомости школы?",
+        "uz": "Maktabning ish haqi qaydnomasida nechta o'qituvchi bor?"
+      },
+      "explanation": {
+        "ru": "be on the payroll — числиться в штате, получать зарплату от организации. С payroll в этом значении употребляется on, а не in или under.",
+        "uz": "be on the payroll — tashkilot shtatida turmoq, undan maosh olmoq. Bu ma'noda payroll so'zi bilan in yoki under emas, on ishlatiladi."
+      }
+    },
+    {
+      "key": "c1-m03-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "remuneration"
+      ],
+      "prompt": {
+        "ru": "Ваше вознаграждение будет зависеть от того, насколько хорошо вы работаете.",
+        "uz": "Mehnat haqingiz qanchalik yaxshi ishlashingizga bog'liq bo'ladi."
+      },
+      "fragments": [
+        "your",
+        "remuneration",
+        "will depend",
+        "on",
+        "how well",
+        "you",
+        "perform"
+      ],
+      "accepted": [
+        [
+          "your",
+          "remuneration",
+          "will depend",
+          "on",
+          "how well",
+          "you",
+          "perform"
+        ]
+      ],
+      "display": "Your remuneration will depend on how well you perform.",
+      "explanation": {
+        "ru": "depend on + придаточное с вопросительным словом: depend on how well you perform. Русское «от того, насколько» передаётся просто on how well.",
+        "uz": "depend on + so'roq so'zli ergash gap: depend on how well you perform. «Qanchalik yaxshi …ishingizga» ma'nosi on how well bilan beriladi."
+      }
+    },
+    {
+      "key": "c1-m03-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "perk"
+      ],
+      "prompt": {
+        "ru": "Она ни за что не отказалась бы от таких щедрых льгот.",
+        "uz": "U bunday saxiy imtiyozlardan hech qachon voz kechmasdi."
+      },
+      "fragments": [
+        "she",
+        "would never",
+        "give up",
+        "such",
+        "generous",
+        "perks"
+      ],
+      "accepted": [
+        [
+          "she",
+          "would never",
+          "give up",
+          "such",
+          "generous",
+          "perks"
+        ]
+      ],
+      "display": "She would never give up such generous perks.",
+      "explanation": {
+        "ru": "such + прилагательное + существительное во множественном числе — без артикля: such generous perks. В единственном числе — such a: such a generous perk.",
+        "uz": "such + sifat + ko'plikdagi ot — artiklsiz: such generous perks. Birlikda such a keladi: such a generous perk."
+      }
+    },
+    {
+      "key": "c1-m03-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "entitlement",
+        "stipend"
+      ],
+      "prompt": {
+        "ru": "Студенты вечернего отделения не имеют права на стипендию.",
+        "uz": "Kechki bo'lim talabalari stipendiya olish huquqiga ega emas."
+      },
+      "fragments": [
+        "evening",
+        "students",
+        "have",
+        "no",
+        "entitlement",
+        "to",
+        "a stipend"
+      ],
+      "accepted": [
+        [
+          "evening",
+          "students",
+          "have",
+          "no",
+          "entitlement",
+          "to",
+          "a stipend"
+        ]
+      ],
+      "display": "Evening students have no entitlement to a stipend.",
+      "explanation": {
+        "ru": "entitlement to + существительное — право на что-то: entitlement to a stipend, entitlement to sick pay. Русское «на» здесь передаётся предлогом to.",
+        "uz": "entitlement to + ot — biror narsaga huquq: entitlement to a stipend, entitlement to sick pay. O'zbekcha «…ga huquq» bu yerda to predlogi bilan beriladi."
+      }
+    },
+    {
+      "key": "c1-m03-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "accrue"
+      ],
+      "text": "Interest will accrue on any late payment",
+      "accepted": [
+        "Interest will accrue on any late payment"
+      ],
+      "translation": {
+        "ru": "На любой просроченный платёж будут начисляться проценты",
+        "uz": "Har qanday kechiktirilgan to'lovga foiz hisoblanadi"
+      },
+      "explanation": {
+        "ru": "accrue: в начале две c (a-c-c-r-u-e), а на конце e, которая не читается.",
+        "uz": "accrue: boshida ikkita c (a-c-c-r-u-e), oxirida esa o'qilmaydigan e."
+      }
+    },
+    {
+      "key": "c1-m03-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "annuity"
+      ],
+      "text": "The annuity pays a fixed sum every month",
+      "accepted": [
+        "The annuity pays a fixed sum every month"
+      ],
+      "translation": {
+        "ru": "Аннуитет выплачивает фиксированную сумму каждый месяц",
+        "uz": "Annuitet har oy belgilangan summani to'laydi"
+      },
+      "explanation": {
+        "ru": "annuity пишется с двумя n: a-n-n-u-i-t-y.",
+        "uz": "annuity ikkita n bilan yoziladi: a-n-n-u-i-t-y."
+      }
+    },
+    {
+      "key": "c1-m03-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "deduction"
+      ],
+      "text": "Is this deduction from my salary legal?",
+      "accepted": [
+        "Is this deduction from my salary legal?"
+      ],
+      "translation": {
+        "ru": "Законно ли это удержание из моей зарплаты?",
+        "uz": "Maoshimdan bu ushlanma qonuniymi?"
+      }
+    },
+    {
+      "key": "c1-m03-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "arbitration"
+      ],
+      "text": "If talks fail, the dispute will go ___ arbitration.",
+      "options": [
+        "to",
+        "in",
+        "on"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Если переговоры провалятся, спор передадут в арбитраж.",
+        "uz": "Agar muzokaralar natija bermasa, nizo arbitrajga topshiriladi."
+      },
+      "explanation": {
+        "ru": "go to arbitration — передать спор в арбитраж; так же go to court — обратиться в суд. In и on после go в этом значении не употребляются.",
+        "uz": "go to arbitration — nizoni arbitrajga topshirmoq; xuddi shunday go to court — sudga murojaat qilmoq. Bu ma'noda go fe'lidan keyin in va on ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "disciplinary"
+      ],
+      "text": "The school will ___ disciplinary action against the teacher.",
+      "options": [
+        "take",
+        "make",
+        "do"
+      ],
+      "correct": [
+        "take"
+      ],
+      "translation": {
+        "ru": "Школа примет дисциплинарные меры в отношении учителя.",
+        "uz": "Maktab o'qituvchiga nisbatan intizomiy chora ko'radi."
+      },
+      "explanation": {
+        "ru": "take disciplinary action against somebody — принять дисциплинарные меры против кого-то. С action употребляется take, а не make или do.",
+        "uz": "take disciplinary action against somebody — kimgadir nisbatan intizomiy chora ko'rmoq. Action so'zi bilan make yoki do emas, take ishlatiladi."
+      }
+    },
+    {
+      "key": "c1-m03-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "picket"
+      ],
+      "text": "Some workers refused to cross the picket ___.",
+      "options": [
+        "line",
+        "row",
+        "chain"
+      ],
+      "correct": [
+        "line"
+      ],
+      "translation": {
+        "ru": "Некоторые рабочие отказались проходить через линию пикета.",
+        "uz": "Ba'zi ishchilar piketchilar safini kesib o'tishdan bosh tortdi."
+      },
+      "explanation": {
+        "ru": "picket line — линия пикета у входа во время забастовки; cross a picket line — выйти на работу, несмотря на забастовку. Row и chain в этом выражении не употребляются.",
+        "uz": "picket line — ish tashlash paytida kirish oldidagi piketchilar safi; cross a picket line — ish tashlashga qaramay ishga kirmoq. Row va chain bu iborada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "whistleblower"
+      ],
+      "prompt": {
+        "ru": "Если бы не разоблачитель, никто бы не узнал.",
+        "uz": "Fosh etuvchi bo'lmaganida, hech kim bilmay qolardi."
+      },
+      "fragments": [
+        "had",
+        "it",
+        "not",
+        "been",
+        "for",
+        "the whistleblower",
+        "nobody",
+        "would have known"
+      ],
+      "accepted": [
+        [
+          "had",
+          "it",
+          "not",
+          "been",
+          "for",
+          "the whistleblower",
+          "nobody",
+          "would have known"
+        ],
+        [
+          "nobody",
+          "would have known",
+          "had",
+          "it",
+          "not",
+          "been",
+          "for",
+          "the whistleblower"
+        ]
+      ],
+      "display": "Had it not been for the whistleblower, nobody would have known.",
+      "explanation": {
+        "ru": "Had it not been for… — «если бы не…» (условие в прошлом с инверсией, то же, что If it had not been for…). Во второй части would have + третья форма глагола.",
+        "uz": "Had it not been for… — «agar … bo'lmaganida» (o'tgan zamon sharti, inversiya bilan; If it had not been for… bilan bir xil). Ikkinchi qismida would have + fe'lning uchinchi shakli."
+      }
+    },
+    {
+      "key": "c1-m03-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "misconduct",
+        "dismissal"
+      ],
+      "prompt": {
+        "ru": "Грубый служебный проступок может повлечь немедленное увольнение.",
+        "uz": "Xizmatdagi qo'pol nojo'ya harakat darhol ishdan bo'shatishga olib kelishi mumkin."
+      },
+      "fragments": [
+        "gross",
+        "misconduct",
+        "can lead",
+        "to",
+        "instant",
+        "dismissal"
+      ],
+      "accepted": [
+        [
+          "gross",
+          "misconduct",
+          "can lead",
+          "to",
+          "instant",
+          "dismissal"
+        ]
+      ],
+      "display": "Gross misconduct can lead to instant dismissal.",
+      "explanation": {
+        "ru": "gross misconduct — грубый служебный проступок, instant dismissal — немедленное увольнение (устойчивые сочетания). Lead to — приводить к чему-то.",
+        "uz": "gross misconduct — xizmatdagi qo'pol nojo'ya harakat, instant dismissal — darhol ishdan bo'shatish (turg'un birikmalar). Lead to — biror narsaga olib kelmoq."
+      }
+    },
+    {
+      "key": "c1-m03-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "harassment"
+      ],
+      "prompt": {
+        "ru": "Ни одному сотруднику не должно приходиться терпеть притеснения.",
+        "uz": "Hech bir xodim tazyiqqa chidashga majbur bo'lmasligi kerak."
+      },
+      "fragments": [
+        "no",
+        "employee",
+        "should",
+        "have to",
+        "put up with",
+        "harassment"
+      ],
+      "accepted": [
+        [
+          "no",
+          "employee",
+          "should",
+          "have to",
+          "put up with",
+          "harassment"
+        ]
+      ],
+      "display": "No employee should have to put up with harassment.",
+      "explanation": {
+        "ru": "put up with — терпеть что-то неприятное. Should have to — «должен быть вынужден»: no employee should have to… — ни одного не должны вынуждать.",
+        "uz": "put up with — yoqimsiz narsaga chidamoq. Should have to — «majbur bo'lishi kerak»: no employee should have to… — hech kim majbur bo'lmasligi kerak."
+      }
+    },
+    {
+      "key": "c1-m03-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "grievance"
+      ],
+      "text": "The union has filed a formal grievance",
+      "accepted": [
+        "The union has filed a formal grievance"
+      ],
+      "translation": {
+        "ru": "Профсоюз подал официальную жалобу",
+        "uz": "Kasaba uyushmasi rasmiy shikoyat berdi"
+      },
+      "explanation": {
+        "ru": "grievance: после r пишется ie, в конце -ance: g-r-i-e-v-a-n-c-e.",
+        "uz": "grievance: r harfidan keyin ie, oxirida -ance yoziladi: g-r-i-e-v-a-n-c-e."
+      }
+    },
+    {
+      "key": "c1-m03-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "mediation"
+      ],
+      "text": "Both sides agreed to try mediation",
+      "accepted": [
+        "Both sides agreed to try mediation"
+      ],
+      "translation": {
+        "ru": "Обе стороны согласились попробовать посредничество",
+        "uz": "Ikkala tomon vositachilikni sinab ko'rishga rozi bo'ldi"
+      }
+    },
+    {
+      "key": "c1-m03-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "walkout"
+      ],
+      "text": "The walkout lasted until midnight",
+      "accepted": [
+        "The walkout lasted until midnight"
+      ],
+      "translation": {
+        "ru": "Забастовка продолжалась до полуночи",
+        "uz": "Ish tashlash yarim tungacha davom etdi"
+      },
+      "explanation": {
+        "ru": "Существительное walkout пишется слитно, а глагол walk out — раздельно.",
+        "uz": "walkout oti qo'shib yoziladi, walk out fe'li esa ajratib yoziladi."
+      }
+    },
+    {
+      "key": "c1-m03-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "proficient"
+      ],
+      "text": "Applicants must be ___ proficient in at least two languages.",
+      "options": [
+        "highly",
+        "strongly",
+        "deeply"
+      ],
+      "correct": [
+        "highly"
+      ],
+      "translation": {
+        "ru": "Кандидаты должны свободно владеть как минимум двумя языками.",
+        "uz": "Nomzodlar kamida ikki tilni yuqori darajada bilishi kerak."
+      },
+      "explanation": {
+        "ru": "highly proficient — владеющий чем-то на высоком уровне. Highly часто стоит перед прилагательными оценки: highly skilled, highly qualified. Strongly и deeply с proficient не сочетаются.",
+        "uz": "highly proficient — biror narsani yuqori darajada egallagan. Highly ko'pincha baho sifatlaridan oldin keladi: highly skilled, highly qualified. Strongly va deeply so'zlari proficient bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "acumen"
+      ],
+      "text": "He had talent but lacked the ___ acumen to run a company.",
+      "options": [
+        "business",
+        "job",
+        "work"
+      ],
+      "correct": [
+        "business"
+      ],
+      "translation": {
+        "ru": "У него был талант, но не хватало деловой хватки, чтобы руководить компанией.",
+        "uz": "Uning iste'dodi bor edi, lekin kompaniyani boshqarish uchun ishbilarmonlik qobiliyati yetishmasdi."
+      },
+      "explanation": {
+        "ru": "business acumen — деловая хватка, умение вести дела. Acumen обычно стоит с уточнением: business, commercial, political acumen. Job и work так не употребляются.",
+        "uz": "business acumen — ishbilarmonlik qobiliyati. Acumen so'zi odatda aniqlovchi bilan keladi: business, commercial, political acumen. Job va work bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "professionalism"
+      ],
+      "text": "The nurses handled the emergency ___ great professionalism.",
+      "options": [
+        "with",
+        "by",
+        "in"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Медсёстры справились с чрезвычайной ситуацией с большим профессионализмом.",
+        "uz": "Hamshiralar favqulodda vaziyatni yuqori professionallik bilan hal qilishdi."
+      },
+      "explanation": {
+        "ru": "with professionalism — профессионально: act with great professionalism. Качество, с которым что-то делают, вводит with; by и in здесь не подходят.",
+        "uz": "with professionalism — professional tarzda: act with great professionalism. Ish qanday sifat bilan qilinganini with bildiradi; by va in bu yerda to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "troubleshoot"
+      ],
+      "prompt": {
+        "ru": "Что мне нужно, так это человек, способный устранять неполадки в сети.",
+        "uz": "Menga kerak bo'lgani — tarmoqdagi nosozliklarni bartaraf eta oladigan odam."
+      },
+      "fragments": [
+        "what",
+        "I",
+        "need",
+        "is",
+        "someone",
+        "who",
+        "can troubleshoot",
+        "network problems"
+      ],
+      "accepted": [
+        [
+          "what",
+          "I",
+          "need",
+          "is",
+          "someone",
+          "who",
+          "can troubleshoot",
+          "network problems"
+        ],
+        [
+          "someone",
+          "who",
+          "can troubleshoot",
+          "network problems",
+          "is",
+          "what",
+          "I",
+          "need"
+        ]
+      ],
+      "display": "What I need is someone who can troubleshoot network problems.",
+      "explanation": {
+        "ru": "What I need is… — выделительная конструкция: «что мне нужно, так это…». Troubleshoot — находить и устранять неполадки.",
+        "uz": "What I need is… — ajratib ko'rsatish qurilmasi: «menga kerak bo'lgani — …». Troubleshoot — nosozlikni topib bartaraf etmoq."
+      }
+    },
+    {
+      "key": "c1-m03-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "competent"
+      ],
+      "prompt": {
+        "ru": "Достаточно ли он компетентен, чтобы руководить отделом?",
+        "uz": "U bo'limni boshqarish uchun yetarlicha malakalimi?"
+      },
+      "fragments": [
+        "is",
+        "he",
+        "competent",
+        "enough",
+        "to run",
+        "the department"
+      ],
+      "accepted": [
+        [
+          "is",
+          "he",
+          "competent",
+          "enough",
+          "to run",
+          "the department"
+        ]
+      ],
+      "display": "Is he competent enough to run the department?",
+      "explanation": {
+        "ru": "прилагательное + enough + to + глагол: competent enough to run. Enough стоит после прилагательного, а не перед ним.",
+        "uz": "sifat + enough + to + fe'l: competent enough to run. Enough sifatdan oldin emas, keyin keladi."
+      }
+    },
+    {
+      "key": "c1-m03-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "diligence"
+      ],
+      "prompt": {
+        "ru": "Усердие принесло ей повышение по службе.",
+        "uz": "Tirishqoqligi unga lavozimda ko'tarilish keltirdi."
+      },
+      "fragments": [
+        "her",
+        "diligence",
+        "earned",
+        "her",
+        "a promotion"
+      ],
+      "accepted": [
+        [
+          "her",
+          "diligence",
+          "earned",
+          "her",
+          "a promotion"
+        ]
+      ],
+      "display": "Her diligence earned her a promotion.",
+      "explanation": {
+        "ru": "earn somebody something — принести кому-то что-то заслуженное: her diligence earned her a promotion. Здесь earn с двумя дополнениями без предлога.",
+        "uz": "earn somebody something — kimgadir munosib narsa keltirmoq: her diligence earned her a promotion. Bu yerda earn fe'li predlogsiz ikki to'ldiruvchi oladi."
+      }
+    },
+    {
+      "key": "c1-m03-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "punctuality",
+        "adaptability"
+      ],
+      "text": "Punctuality and adaptability are highly valued",
+      "accepted": [
+        "Punctuality and adaptability are highly valued"
+      ],
+      "translation": {
+        "ru": "Пунктуальность и приспособляемость высоко ценятся",
+        "uz": "Vaqtga rioya qilish va moslashuvchanlik yuqori baholanadi"
+      },
+      "explanation": {
+        "ru": "punctuality: в середине -ct- (p-u-n-c-t-u-a-l-i-t-y). adaptability оканчивается на -ability, как ability.",
+        "uz": "punctuality: o'rtasida -ct- (p-u-n-c-t-u-a-l-i-t-y). adaptability so'zi ability kabi -ability bilan tugaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "interpersonal"
+      ],
+      "text": "She has excellent interpersonal skills",
+      "accepted": [
+        "She has excellent interpersonal skills"
+      ],
+      "translation": {
+        "ru": "У неё отличные навыки межличностного общения",
+        "uz": "Uning shaxslararo muloqot ko'nikmalari a'lo darajada"
+      },
+      "explanation": {
+        "ru": "interpersonal = inter + personal, пишется слитно.",
+        "uz": "interpersonal = inter + personal, qo'shib yoziladi."
+      }
+    },
+    {
+      "key": "c1-m03-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "numeracy"
+      ],
+      "text": "Basic numeracy is required for this post",
+      "accepted": [
+        "Basic numeracy is required for this post"
+      ],
+      "translation": {
+        "ru": "Для этой должности требуется базовая математическая грамотность",
+        "uz": "Bu lavozim uchun boshlang'ich matematik savodxonlik talab qilinadi"
+      }
+    },
+    {
+      "key": "c1-m04-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "benchmark"
+      ],
+      "text": "The new model has ___ a benchmark for battery life.",
+      "options": [
+        "set",
+        "put",
+        "placed"
+      ],
+      "correct": [
+        "set"
+      ],
+      "translation": {
+        "ru": "Новая модель задала эталон по времени работы от батареи.",
+        "uz": "Yangi model batareya quvvati bo'yicha mezon o'rnatdi."
+      },
+      "explanation": {
+        "ru": "set a benchmark — задать эталон, планку; так же set a standard. Русское «поставить планку» здесь тоже set. Put и place с benchmark не употребляются.",
+        "uz": "set a benchmark — mezon o'rnatmoq; xuddi shunday set a standard. «Ko'rsatkichni belgilamoq» ham set bilan beriladi. Put va place so'zlari benchmark bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "diversify"
+      ],
+      "text": "The company plans to diversify ___ renewable energy.",
+      "options": [
+        "into",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Компания планирует диверсифицировать бизнес, занявшись возобновляемой энергетикой.",
+        "uz": "Kompaniya qayta tiklanuvchi energetikaga kirib, faoliyatini diversifikatsiya qilmoqchi."
+      },
+      "explanation": {
+        "ru": "diversify into — расширить деятельность, выйдя в новую область: diversify into tourism. Into показывает переход в новую сферу; on и at не подходят.",
+        "uz": "diversify into — yangi sohaga chiqib, faoliyatni kengaytirmoq: diversify into tourism. Into yangi sohaga o'tishni bildiradi; on va at to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "affiliate"
+      ],
+      "text": "Our firm is an affiliate ___ a large international group.",
+      "options": [
+        "of",
+        "from",
+        "by"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Наша фирма — аффилированная компания крупной международной группы.",
+        "uz": "Firmamiz yirik xalqaro guruhning affillangan kompaniyasi hisoblanadi."
+      },
+      "explanation": {
+        "ru": "an affiliate of — аффилированная, связанная компания какой-то группы: an affiliate of the bank. После существительного affiliate идёт of; from и by здесь ошибка.",
+        "uz": "an affiliate of — biror guruhga bog'langan (affillangan) kompaniya: an affiliate of the bank. Affiliate otidan keyin of keladi; from va by bu yerda xato."
+      }
+    },
+    {
+      "key": "c1-m04-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "downsize",
+        "restructure"
+      ],
+      "prompt": {
+        "ru": "Вместо того чтобы сокращать штат, компания решила провести реорганизацию.",
+        "uz": "Kompaniya xodimlar sonini qisqartirish o'rniga qayta tashkil etishni tanladi."
+      },
+      "fragments": [
+        "rather than",
+        "downsize",
+        "the company",
+        "chose",
+        "to",
+        "restructure"
+      ],
+      "accepted": [
+        [
+          "rather than",
+          "downsize",
+          "the company",
+          "chose",
+          "to",
+          "restructure"
+        ],
+        [
+          "the company",
+          "chose",
+          "to",
+          "restructure",
+          "rather than",
+          "downsize"
+        ]
+      ],
+      "display": "Rather than downsize, the company chose to restructure.",
+      "explanation": {
+        "ru": "rather than + глагол без to — «вместо того чтобы»: rather than downsize. Этот оборот может стоять и в начале, и в конце предложения.",
+        "uz": "rather than + to yuklamasisiz fe'l — «…ish o'rniga»: rather than downsize. Bu ibora gapning boshida ham, oxirida ham kelishi mumkin."
+      }
+    },
+    {
+      "key": "c1-m04-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "subsidiary"
+      ],
+      "prompt": {
+        "ru": "Они не намерены продавать дочернюю компанию.",
+        "uz": "Ular sho'ba korxonani sotish niyatida emas."
+      },
+      "fragments": [
+        "they",
+        "have",
+        "no intention",
+        "of",
+        "selling",
+        "the subsidiary"
+      ],
+      "accepted": [
+        [
+          "they",
+          "have",
+          "no intention",
+          "of",
+          "selling",
+          "the subsidiary"
+        ]
+      ],
+      "display": "They have no intention of selling the subsidiary.",
+      "explanation": {
+        "ru": "have no intention of + -ing — не собираться что-то делать: no intention of selling. После intention здесь of и форма на -ing.",
+        "uz": "have no intention of + -ing — biror ishni qilish niyati yo'q: no intention of selling. Intention so'zidan keyin of va -ing shakli keladi."
+      }
+    },
+    {
+      "key": "c1-m04-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "acquisition"
+      ],
+      "prompt": {
+        "ru": "Акционеры проголосовали против предлагаемого приобретения компании.",
+        "uz": "Aksiyadorlar taklif qilingan kompaniyani sotib olish bitimiga qarshi ovoz berdi."
+      },
+      "fragments": [
+        "shareholders",
+        "voted",
+        "against",
+        "the proposed",
+        "acquisition"
+      ],
+      "accepted": [
+        [
+          "shareholders",
+          "voted",
+          "against",
+          "the proposed",
+          "acquisition"
+        ]
+      ],
+      "display": "Shareholders voted against the proposed acquisition.",
+      "explanation": {
+        "ru": "vote against — голосовать против, vote for — за. The proposed acquisition — предлагаемое, ещё не состоявшееся приобретение.",
+        "uz": "vote against — qarshi ovoz bermoq, vote for — yoqlab ovoz bermoq. The proposed acquisition — taklif qilingan, hali amalga oshmagan xarid."
+      }
+    },
+    {
+      "key": "c1-m04-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "conglomerate"
+      ],
+      "text": "The conglomerate owns several newspapers",
+      "accepted": [
+        "The conglomerate owns several newspapers"
+      ],
+      "translation": {
+        "ru": "Конгломерату принадлежат несколько газет",
+        "uz": "Konglomerat bir nechta gazetaga egalik qiladi"
+      }
+    },
+    {
+      "key": "c1-m04-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "consolidate"
+      ],
+      "text": "They plan to consolidate all their warehouses",
+      "accepted": [
+        "They plan to consolidate all their warehouses"
+      ],
+      "translation": {
+        "ru": "Они планируют объединить все свои склады",
+        "uz": "Ular barcha omborlarini birlashtirishni rejalashtirmoqda"
+      }
+    },
+    {
+      "key": "c1-m04-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "synergy"
+      ],
+      "text": "There is little synergy between the departments",
+      "accepted": [
+        "There is little synergy between the departments",
+        "There's little synergy between the departments"
+      ],
+      "translation": {
+        "ru": "Между отделами мало синергии",
+        "uz": "Bo'limlar o'rtasida sinergiya kam"
+      },
+      "explanation": {
+        "ru": "synergy: после s пишется y, а не i: s-y-n-e-r-g-y.",
+        "uz": "synergy: s harfidan keyin i emas, y yoziladi: s-y-n-e-r-g-y."
+      }
+    },
+    {
+      "key": "c1-m04-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "rivalry"
+      ],
+      "text": "There is ___ rivalry between the two airlines.",
+      "options": [
+        "fierce",
+        "hard",
+        "cruel"
+      ],
+      "correct": [
+        "fierce"
+      ],
+      "translation": {
+        "ru": "Между двумя авиакомпаниями идёт ожесточённое соперничество.",
+        "uz": "Ikki aviakompaniya o'rtasida keskin raqiblik bor."
+      },
+      "explanation": {
+        "ru": "fierce rivalry — ожесточённое, острое соперничество; так же bitter или intense rivalry. Русское «жёсткое» не переводится здесь как hard, а cruel («жестокий») с rivalry не сочетается.",
+        "uz": "fierce rivalry — keskin, shiddatli raqiblik; bitter yoki intense rivalry ham deyiladi. Hard bu ma'noda ishlatilmaydi, cruel («shafqatsiz») esa rivalry bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "viable"
+      ],
+      "text": "Without subsidies, the project is not ___ viable.",
+      "options": [
+        "commercially",
+        "richly",
+        "dearly"
+      ],
+      "correct": [
+        "commercially"
+      ],
+      "translation": {
+        "ru": "Без субсидий проект коммерчески нежизнеспособен.",
+        "uz": "Subsidiyalarsiz loyiha tijorat jihatidan yashovchan emas."
+      },
+      "explanation": {
+        "ru": "commercially viable — коммерчески жизнеспособный, способный приносить прибыль; так же economically viable. Richly и dearly с viable не сочетаются: говорят richly deserved, pay dearly.",
+        "uz": "commercially viable — tijorat jihatidan yashovchan, foyda keltira oladigan; economically viable ham deyiladi. Richly va dearly viable bilan birikmaydi: richly deserved, pay dearly deyiladi."
+      }
+    },
+    {
+      "key": "c1-m04-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "foothold"
+      ],
+      "text": "It took years for the firm to ___ a foothold abroad.",
+      "options": [
+        "gain",
+        "catch",
+        "put"
+      ],
+      "correct": [
+        "gain"
+      ],
+      "translation": {
+        "ru": "Фирме потребовались годы, чтобы закрепиться за рубежом.",
+        "uz": "Firmaga chet elda tayanch nuqtaga ega bo'lish uchun yillar kerak bo'ldi."
+      },
+      "explanation": {
+        "ru": "gain a foothold — закрепиться, получить опорную позицию на рынке или в отрасли; говорят также get или establish a foothold. Catch и put с foothold не употребляются.",
+        "uz": "gain a foothold — mustahkam o'rnashib olmoq, tayanch nuqtaga ega bo'lmoq; get yoki establish a foothold ham deyiladi. Catch va put so'zlari foothold bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "undercut"
+      ],
+      "prompt": {
+        "ru": "Ни один маленький магазин не может продавать дешевле крупных сетей.",
+        "uz": "Hech bir kichik do'kon yirik tarmoqlardan arzonroq sota olmaydi."
+      },
+      "fragments": [
+        "no",
+        "small",
+        "shop",
+        "can",
+        "undercut",
+        "the",
+        "big",
+        "chains"
+      ],
+      "accepted": [
+        [
+          "no",
+          "small",
+          "shop",
+          "can",
+          "undercut",
+          "the",
+          "big",
+          "chains"
+        ]
+      ],
+      "display": "No small shop can undercut the big chains.",
+      "explanation": {
+        "ru": "undercut somebody — продавать дешевле, чем кто-то: undercut a rival. No + существительное без артикля — «ни один».",
+        "uz": "undercut somebody — kimdandir arzonroq sotmoq: undercut a rival. No + artiklsiz ot — «hech bir»."
+      }
+    },
+    {
+      "key": "c1-m04-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "lucrative"
+      ],
+      "prompt": {
+        "ru": "Мало какой рынок так же прибылен, как этот.",
+        "uz": "Bu bozorchalik serdaromad bozorlar kam."
+      },
+      "fragments": [
+        "few",
+        "markets",
+        "are",
+        "as lucrative",
+        "as",
+        "this one"
+      ],
+      "accepted": [
+        [
+          "few",
+          "markets",
+          "are",
+          "as lucrative",
+          "as",
+          "this one"
+        ]
+      ],
+      "display": "Few markets are as lucrative as this one.",
+      "explanation": {
+        "ru": "as + прилагательное + as — «такой же …, как»: as lucrative as this one. Few — «мало какие», глагол стоит во множественном числе.",
+        "uz": "as + sifat + as — «…dek, …chalik»: as lucrative as this one. Few — «kam», fe'l ko'plikda keladi."
+      }
+    },
+    {
+      "key": "c1-m04-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "saturate"
+      ],
+      "prompt": {
+        "ru": "Что происходит, когда рынок становится насыщенным?",
+        "uz": "Bozor to'yinganda nima sodir bo'ladi?"
+      },
+      "fragments": [
+        "what",
+        "happens",
+        "when",
+        "the market",
+        "becomes",
+        "saturated"
+      ],
+      "accepted": [
+        [
+          "what",
+          "happens",
+          "when",
+          "the market",
+          "becomes",
+          "saturated"
+        ],
+        [
+          "when",
+          "the market",
+          "becomes",
+          "saturated",
+          "what",
+          "happens"
+        ]
+      ],
+      "display": "What happens when the market becomes saturated?",
+      "explanation": {
+        "ru": "become saturated — насыщаться (о рынке): спрос заполнен, новых покупателей почти нет. Придаточное с when может стоять и в начале вопроса.",
+        "uz": "become saturated — to'yinmoq (bozor haqida): talab qondirilgan, yangi xaridorlar deyarli yo'q. When bilan boshlangan ergash gap savolning boshida ham kelishi mumkin."
+      }
+    },
+    {
+      "key": "c1-m04-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "cartel"
+      ],
+      "text": "The cartel controlled prices for years",
+      "accepted": [
+        "The cartel controlled prices for years"
+      ],
+      "translation": {
+        "ru": "Картель годами контролировал цены",
+        "uz": "Kartel yillar davomida narxlarni nazorat qildi"
+      }
+    },
+    {
+      "key": "c1-m04-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "clientele"
+      ],
+      "text": "Our clientele is mostly young professionals",
+      "accepted": [
+        "Our clientele is mostly young professionals"
+      ],
+      "translation": {
+        "ru": "Наша клиентура — в основном молодые специалисты",
+        "uz": "Mijozlarimiz asosan yosh mutaxassislar"
+      },
+      "explanation": {
+        "ru": "clientele оканчивается на -ele (c-l-i-e-n-t-e-l-e), хотя на конце слышится «эл».",
+        "uz": "clientele so'zi -ele bilan tugaydi (c-l-i-e-n-t-e-l-e), garchi oxirida «el» eshitilsa ham."
+      }
+    },
+    {
+      "key": "c1-m04-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "dominance",
+        "segment"
+      ],
+      "text": "They have total dominance in this segment",
+      "accepted": [
+        "They have total dominance in this segment"
+      ],
+      "translation": {
+        "ru": "Они полностью господствуют в этом сегменте",
+        "uz": "Ular bu segmentda to'liq hukmron mavqega ega"
+      },
+      "explanation": {
+        "ru": "dominance оканчивается на -ance, а не на -ence.",
+        "uz": "dominance so'zi -ence bilan emas, -ance bilan tugaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "discretion"
+      ],
+      "text": "Overtime is paid ___ the manager's discretion.",
+      "options": [
+        "at",
+        "by",
+        "on"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "Сверхурочные оплачиваются на усмотрение руководителя.",
+        "uz": "Qo'shimcha ish vaqti rahbarning ixtiyoriga ko'ra to'lanadi."
+      },
+      "explanation": {
+        "ru": "at somebody's discretion — на чьё-то усмотрение: at the manager's discretion. Русское «по усмотрению» не передаётся через by; on здесь тоже ошибка.",
+        "uz": "at somebody's discretion — kimningdir ixtiyoriga ko'ra: at the manager's discretion. Bu iborada by ham, on ham xato."
+      }
+    },
+    {
+      "key": "c1-m04-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "scrutiny"
+      ],
+      "text": "The bank's lending practices have come ___ close scrutiny.",
+      "options": [
+        "under",
+        "below",
+        "over"
+      ],
+      "correct": [
+        "under"
+      ],
+      "translation": {
+        "ru": "Кредитная практика банка подверглась тщательной проверке.",
+        "uz": "Bankning kredit berish amaliyoti sinchkov tekshiruvga uchradi."
+      },
+      "explanation": {
+        "ru": "come under scrutiny — подвергнуться тщательной проверке; be under scrutiny — находиться под пристальным вниманием. Здесь нужен under; below и over не употребляются.",
+        "uz": "come under scrutiny — sinchkov tekshiruvga uchramoq; be under scrutiny — diqqat markazida bo'lmoq. Bu yerda under kerak; below va over ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "feasibility"
+      ],
+      "text": "The council ordered a feasibility ___ before approving the new airport.",
+      "options": [
+        "study",
+        "lesson",
+        "exam"
+      ],
+      "correct": [
+        "study"
+      ],
+      "translation": {
+        "ru": "Прежде чем одобрить новый аэропорт, совет заказал технико-экономическое обоснование.",
+        "uz": "Kengash yangi aeroportni ma'qullashdan oldin uning amalga oshirish mumkinligini o'rganishni buyurdi."
+      },
+      "explanation": {
+        "ru": "feasibility study — технико-экономическое обоснование, исследование того, осуществим ли проект. Lesson и exam — урок и экзамен, с feasibility они не сочетаются.",
+        "uz": "feasibility study — loyihani amalga oshirish mumkinligini o'rganish (texnik-iqtisodiy asoslash). Lesson va exam — dars va imtihon, ular feasibility bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "transparency"
+      ],
+      "prompt": {
+        "ru": "Инвесторов беспокоит отсутствие прозрачности.",
+        "uz": "Investorlarni shaffoflik yo'qligi xavotirga solmoqda."
+      },
+      "fragments": [
+        "investors",
+        "are worried",
+        "by",
+        "the lack of",
+        "transparency"
+      ],
+      "accepted": [
+        [
+          "investors",
+          "are worried",
+          "by",
+          "the lack of",
+          "transparency"
+        ]
+      ],
+      "display": "Investors are worried by the lack of transparency.",
+      "explanation": {
+        "ru": "the lack of + существительное — отсутствие чего-то: the lack of transparency. Be worried by — беспокоиться из-за чего-то.",
+        "uz": "the lack of + ot — biror narsaning yo'qligi: the lack of transparency. Be worried by — biror narsadan xavotirlanmoq."
+      }
+    },
+    {
+      "key": "c1-m04-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "contingency"
+      ],
+      "prompt": {
+        "ru": "Такого непредвиденного обстоятельства мы не предусмотрели.",
+        "uz": "Biz bunday kutilmagan holatni oldindan ko'zda tutmagan edik."
+      },
+      "fragments": [
+        "we",
+        "had not",
+        "planned",
+        "for",
+        "such a",
+        "contingency"
+      ],
+      "accepted": [
+        [
+          "we",
+          "had not",
+          "planned",
+          "for",
+          "such a",
+          "contingency"
+        ]
+      ],
+      "display": "We had not planned for such a contingency.",
+      "explanation": {
+        "ru": "plan for something — заранее предусмотреть что-то, подготовиться к чему-то. Had not planned — прошедшее совершённое: до какого-то момента в прошлом.",
+        "uz": "plan for something — biror narsani oldindan ko'zda tutmoq, unga tayyorlanmoq. Had not planned — o'tgan zamondagi ma'lum paytgacha bo'lgan holat."
+      }
+    },
+    {
+      "key": "c1-m04-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "implementation"
+      ],
+      "prompt": {
+        "ru": "Внедрение реформы отложено.",
+        "uz": "Islohotni joriy etish kechiktirildi."
+      },
+      "fragments": [
+        "the implementation",
+        "of",
+        "the reform",
+        "has been",
+        "delayed"
+      ],
+      "accepted": [
+        [
+          "the implementation",
+          "of",
+          "the reform",
+          "has been",
+          "delayed"
+        ]
+      ],
+      "display": "The implementation of the reform has been delayed.",
+      "explanation": {
+        "ru": "the implementation of — внедрение чего-то, претворение в жизнь. Has been delayed — пассив в Present Perfect: отложено, и это важно сейчас.",
+        "uz": "the implementation of — biror narsani joriy etish. Has been delayed — Present Perfect majhul nisbati: kechiktirilgan va bu hozir muhim."
+      }
+    },
+    {
+      "key": "c1-m04-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "governance",
+        "oversight"
+      ],
+      "text": "Good governance requires strong oversight",
+      "accepted": [
+        "Good governance requires strong oversight"
+      ],
+      "translation": {
+        "ru": "Хорошая система управления требует строгого надзора",
+        "uz": "Yaxshi boshqaruv tizimi kuchli nazoratni talab qiladi"
+      },
+      "explanation": {
+        "ru": "governance оканчивается на -ance. oversight пишется слитно, с немым gh: o-v-e-r-s-i-g-h-t.",
+        "uz": "governance so'zi -ance bilan tugaydi. oversight qo'shib yoziladi, gh o'qilmaydi: o-v-e-r-s-i-g-h-t."
+      }
+    },
+    {
+      "key": "c1-m04-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "directive"
+      ],
+      "text": "The new directive takes effect immediately",
+      "accepted": [
+        "The new directive takes effect immediately"
+      ],
+      "translation": {
+        "ru": "Новая директива вступает в силу немедленно",
+        "uz": "Yangi rasmiy ko'rsatma darhol kuchga kiradi"
+      }
+    },
+    {
+      "key": "c1-m04-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "consultation"
+      ],
+      "text": "The decision was made without consultation",
+      "accepted": [
+        "The decision was made without consultation"
+      ],
+      "translation": {
+        "ru": "Решение приняли без консультаций",
+        "uz": "Qaror maslahatlashuvsiz qabul qilindi"
+      }
+    },
+    {
+      "key": "c1-m04-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "concession"
+      ],
+      "text": "Neither side was willing to ___ any concessions.",
+      "options": [
+        "make",
+        "do",
+        "put"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "Ни одна из сторон не была готова идти на уступки.",
+        "uz": "Hech bir tomon yon berishga tayyor emas edi."
+      },
+      "explanation": {
+        "ru": "make a concession — пойти на уступку: make concessions to the other side. С concession употребляется make; do и put — ошибка.",
+        "uz": "make a concession — yon bermoq: make concessions to the other side. Concession so'zi bilan make ishlatiladi; do va put xato."
+      }
+    },
+    {
+      "key": "c1-m04-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "ultimatum"
+      ],
+      "text": "The union ___ the management a clear ultimatum.",
+      "options": [
+        "gave",
+        "put",
+        "made"
+      ],
+      "correct": [
+        "gave"
+      ],
+      "translation": {
+        "ru": "Профсоюз поставил руководству чёткий ультиматум.",
+        "uz": "Kasaba uyushmasi rahbariyatga aniq ultimatum qo'ydi."
+      },
+      "explanation": {
+        "ru": "give somebody an ultimatum — поставить кому-то ультиматум (без адресата — также issue an ultimatum). Русское «поставить» здесь не put; make с ultimatum не употребляется.",
+        "uz": "give somebody an ultimatum — kimgadir ultimatum qo'ymoq (kimga ekanini aytmasdan — issue an ultimatum ham). O'zbekcha «qo'ymoq» bu yerda put emas; make bu so'z bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "tender"
+      ],
+      "text": "A local firm ___ the tender to build the new school.",
+      "options": [
+        "won",
+        "gained",
+        "took"
+      ],
+      "correct": [
+        "won"
+      ],
+      "translation": {
+        "ru": "Тендер на строительство новой школы выиграла местная фирма.",
+        "uz": "Yangi maktab qurish bo'yicha tenderni mahalliy firma yutib oldi."
+      },
+      "explanation": {
+        "ru": "win a tender — выиграть тендер, получить заказ по итогам конкурса. Gain и take с tender не употребляются.",
+        "uz": "win a tender — tenderda g'olib chiqmoq, tanlov orqali buyurtmani olmoq. Gain va take so'zlari tender bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "stipulate"
+      ],
+      "prompt": {
+        "ru": "Соглашение предусматривает, что все товары должны быть застрахованы.",
+        "uz": "Kelishuvda barcha tovarlar sug'urtalanishi shart qilib belgilangan."
+      },
+      "fragments": [
+        "the agreement",
+        "stipulates",
+        "that",
+        "all goods",
+        "must be",
+        "insured"
+      ],
+      "accepted": [
+        [
+          "the agreement",
+          "stipulates",
+          "that",
+          "all goods",
+          "must be",
+          "insured"
+        ]
+      ],
+      "display": "The agreement stipulates that all goods must be insured.",
+      "explanation": {
+        "ru": "stipulate that… — оговаривать (в договоре), что… После stipulate часто идёт придаточное с that и must или should.",
+        "uz": "stipulate that… — (shartnomada) …ni shart qilib belgilamoq. Stipulate fe'lidan keyin ko'pincha that, must yoki should bilan ergash gap keladi."
+      }
+    },
+    {
+      "key": "c1-m04-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "haggle"
+      ],
+      "prompt": {
+        "ru": "Нет смысла торговаться из-за такой небольшой суммы.",
+        "uz": "Bunday kichik summa ustida savdolashishning ma'nosi yo'q."
+      },
+      "fragments": [
+        "there is",
+        "no point",
+        "in",
+        "haggling",
+        "over",
+        "such a small",
+        "sum"
+      ],
+      "accepted": [
+        [
+          "there is",
+          "no point",
+          "in",
+          "haggling",
+          "over",
+          "such a small",
+          "sum"
+        ]
+      ],
+      "display": "There is no point in haggling over such a small sum.",
+      "explanation": {
+        "ru": "there is no point in + -ing — нет смысла что-то делать. Haggle over (about) something — торговаться из-за чего-то.",
+        "uz": "there is no point in + -ing — biror ishni qilishning ma'nosi yo'q. Haggle over (about) something — biror narsa ustida savdolashmoq."
+      }
+    },
+    {
+      "key": "c1-m04-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "leverage"
+      ],
+      "prompt": {
+        "ru": "Размер даёт им огромный рычаг влияния на поставщиков.",
+        "uz": "Kattaligi ularga yetkazib beruvchilarga nisbatan ulkan ta'sir dastagini beradi."
+      },
+      "fragments": [
+        "their size",
+        "gives",
+        "them",
+        "enormous",
+        "leverage",
+        "over",
+        "suppliers"
+      ],
+      "accepted": [
+        [
+          "their size",
+          "gives",
+          "them",
+          "enormous",
+          "leverage",
+          "over",
+          "suppliers"
+        ]
+      ],
+      "display": "Their size gives them enormous leverage over suppliers.",
+      "explanation": {
+        "ru": "leverage over somebody — рычаг влияния на кого-то. Leverage — неисчисляемое существительное: enormous leverage, без a.",
+        "uz": "leverage over somebody — kimgadir ta'sir dastagi. Leverage sanalmaydigan ot: enormous leverage, a artiklisiz."
+      }
+    },
+    {
+      "key": "c1-m04-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "stalemate"
+      ],
+      "text": "The talks have reached a stalemate",
+      "accepted": [
+        "The talks have reached a stalemate"
+      ],
+      "translation": {
+        "ru": "Переговоры зашли в тупик",
+        "uz": "Muzokaralar boshi berk ko'chaga kirib qoldi"
+      },
+      "explanation": {
+        "ru": "stalemate пишется слитно: stale + mate.",
+        "uz": "stalemate qo'shib yoziladi: stale + mate."
+      }
+    },
+    {
+      "key": "c1-m04-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "proposition"
+      ],
+      "text": "This proposition is fair to both sides",
+      "accepted": [
+        "This proposition is fair to both sides"
+      ],
+      "translation": {
+        "ru": "Это предложение справедливо для обеих сторон",
+        "uz": "Bu taklif ikkala tomon uchun ham adolatli"
+      }
+    },
+    {
+      "key": "c1-m04-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "intermediary",
+        "procurement"
+      ],
+      "text": "We use an intermediary for procurement",
+      "accepted": [
+        "We use an intermediary for procurement"
+      ],
+      "translation": {
+        "ru": "Для закупок мы пользуемся услугами посредника",
+        "uz": "Xaridlar uchun vositachi xizmatidan foydalanamiz"
+      },
+      "explanation": {
+        "ru": "intermediary = inter + mediary, в конце -ary. procurement = procure + ment: e сохраняется перед -ment.",
+        "uz": "intermediary = inter + mediary, oxiri -ary. procurement = procure + ment: -ment oldidan e saqlanadi."
+      }
+    },
+    {
+      "key": "c1-m04-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "output"
+      ],
+      "text": "The new owners ___ output by hiring a night shift.",
+      "options": [
+        "raised",
+        "rose",
+        "arose"
+      ],
+      "correct": [
+        "raised"
+      ],
+      "translation": {
+        "ru": "Новые владельцы увеличили объём выпуска, наняв ночную смену.",
+        "uz": "Yangi egalar tungi smena yollab, ishlab chiqarish hajmini oshirdi."
+      },
+      "explanation": {
+        "ru": "raise output — увеличить объём выпуска. Raise (raised) — «поднять что-то», с дополнением. Rise (rose) — «подняться» само по себе, без дополнения: output rose. Arise (arose) — «возникнуть».",
+        "uz": "raise output — ishlab chiqarish hajmini oshirmoq. Raise (raised) — «nimanidir ko'tarmoq», to'ldiruvchi bilan. Rise (rose) to'ldiruvchisiz: output rose — hajm oshdi. Arise (arose) — «paydo bo'lmoq»."
+      }
+    },
+    {
+      "key": "c1-m04-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "machinery"
+      ],
+      "text": "Only trained staff may operate ___ machinery.",
+      "options": [
+        "heavy",
+        "hard",
+        "thick"
+      ],
+      "correct": [
+        "heavy"
+      ],
+      "translation": {
+        "ru": "Управлять тяжёлой техникой может только обученный персонал.",
+        "uz": "Og'ir texnikani faqat o'qitilgan xodimlar boshqarishi mumkin."
+      },
+      "explanation": {
+        "ru": "heavy machinery — тяжёлая техника, крупное оборудование. Hard и thick в этом сочетании не употребляются.",
+        "uz": "heavy machinery — og'ir texnika, yirik uskunalar. Hard va thick bu birikmada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "batch"
+      ],
+      "text": "To keep costs low, the parts are made ___ small batches.",
+      "options": [
+        "in",
+        "by",
+        "on"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Чтобы расходы оставались низкими, детали производят небольшими партиями.",
+        "uz": "Xarajatlar past bo'lishi uchun detallar kichik partiyalarda ishlab chiqariladi."
+      },
+      "explanation": {
+        "ru": "in batches — партиями: produce in small batches. Русскому «партиями» здесь соответствует in; by и on не подходят.",
+        "uz": "in batches — partiya-partiya qilib: produce in small batches. Bu yerda in ishlatiladi; by va on to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "bottleneck"
+      ],
+      "prompt": {
+        "ru": "Какой этап производства является узким местом?",
+        "uz": "Ishlab chiqarishning qaysi bosqichi tor joy hisoblanadi?"
+      },
+      "fragments": [
+        "which",
+        "stage",
+        "of",
+        "production",
+        "is",
+        "the bottleneck"
+      ],
+      "accepted": [
+        [
+          "which",
+          "stage",
+          "of",
+          "production",
+          "is",
+          "the bottleneck"
+        ],
+        [
+          "which",
+          "stage",
+          "is",
+          "the bottleneck",
+          "of",
+          "production"
+        ]
+      ],
+      "display": "Which stage of production is the bottleneck?",
+      "explanation": {
+        "ru": "bottleneck — буквально «горлышко бутылки», в переносном смысле узкое место, которое замедляет весь процесс.",
+        "uz": "bottleneck — so'zma-so'z «shisha bo'yni», ko'chma ma'noda butun jarayonni sekinlashtiradigan tor joy."
+      }
+    },
+    {
+      "key": "c1-m04-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "defective"
+      ],
+      "prompt": {
+        "ru": "Каждое бракованное изделие заменят бесплатно.",
+        "uz": "Har bir nuqsonli mahsulot bepul almashtiriladi."
+      },
+      "fragments": [
+        "every",
+        "defective",
+        "item",
+        "will be",
+        "replaced",
+        "free of charge"
+      ],
+      "accepted": [
+        [
+          "every",
+          "defective",
+          "item",
+          "will be",
+          "replaced",
+          "free of charge"
+        ]
+      ],
+      "display": "Every defective item will be replaced free of charge.",
+      "explanation": {
+        "ru": "every + существительное в единственном числе: every defective item. Free of charge — бесплатно (официальный стиль).",
+        "uz": "every + birlikdagi ot: every defective item. Free of charge — bepul (rasmiy uslub)."
+      }
+    },
+    {
+      "key": "c1-m04-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "downtime"
+      ],
+      "prompt": {
+        "ru": "Регулярное техобслуживание сводит простои к минимуму.",
+        "uz": "Muntazam texnik xizmat to'xtab turishni eng kam darajaga tushiradi."
+      },
+      "fragments": [
+        "regular",
+        "maintenance",
+        "keeps",
+        "downtime",
+        "to a minimum"
+      ],
+      "accepted": [
+        [
+          "regular",
+          "maintenance",
+          "keeps",
+          "downtime",
+          "to a minimum"
+        ]
+      ],
+      "display": "Regular maintenance keeps downtime to a minimum.",
+      "explanation": {
+        "ru": "keep something to a minimum — сводить что-то к минимуму. Downtime — время простоя оборудования, неисчисляемое существительное.",
+        "uz": "keep something to a minimum — biror narsani eng kam darajaga tushirmoq. Downtime — uskunaning to'xtab turgan vaqti, sanalmaydigan ot."
+      }
+    },
+    {
+      "key": "c1-m04-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "logistics",
+        "dispatch"
+      ],
+      "text": "Our logistics team will dispatch your order",
+      "accepted": [
+        "Our logistics team will dispatch your order"
+      ],
+      "translation": {
+        "ru": "Наш отдел логистики отправит ваш заказ",
+        "uz": "Logistika bo'limimiz buyurtmangizni jo'natadi"
+      },
+      "explanation": {
+        "ru": "dispatch: перед ch пишется t — d-i-s-p-a-t-c-h.",
+        "uz": "dispatch: ch dan oldin t yoziladi — d-i-s-p-a-t-c-h."
+      }
+    },
+    {
+      "key": "c1-m04-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "consignment"
+      ],
+      "text": "The consignment was delayed at the border",
+      "accepted": [
+        "The consignment was delayed at the border"
+      ],
+      "translation": {
+        "ru": "Партия груза задержалась на границе",
+        "uz": "Yuk partiyasi chegarada ushlanib qoldi"
+      },
+      "explanation": {
+        "ru": "consignment: внутри немое g, как в sign — c-o-n-s-i-g-n-m-e-n-t.",
+        "uz": "consignment: ichida sign so'zidagi kabi o'qilmaydigan g bor — c-o-n-s-i-g-n-m-e-n-t."
+      }
+    },
+    {
+      "key": "c1-m04-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "stockpile"
+      ],
+      "text": "They built up a huge stockpile of steel",
+      "accepted": [
+        "They built up a huge stockpile of steel"
+      ],
+      "translation": {
+        "ru": "Они создали огромный запас стали",
+        "uz": "Ular katta po'lat zaxirasini to'plashdi"
+      },
+      "explanation": {
+        "ru": "stockpile пишется слитно: stock + pile.",
+        "uz": "stockpile qo'shib yoziladi: stock + pile."
+      }
+    }
+  ]
+}
