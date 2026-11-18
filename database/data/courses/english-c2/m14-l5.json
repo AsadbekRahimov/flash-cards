@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 14,
+    "title": "Мир природы",
+    "title_uz": "Tabiat olami"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Вода и скалы",
+    "title_uz": "Suv va qoyalar"
+  },
+  "words": [
+    {
+      "word": "confluence",
+      "part_of_speech": "noun",
+      "translation": "слияние рек",
+      "translations": {
+        "ru": "слияние рек",
+        "uz": "daryolar qo'shilgan joy"
+      },
+      "example": "The town stands at the confluence of two rivers.",
+      "example_translations": {
+        "ru": "Город стоит у слияния двух рек.",
+        "uz": "Shahar ikki daryo qo'shilgan joyda joylashgan."
+      }
+    },
+    {
+      "word": "brook",
+      "part_of_speech": "noun",
+      "translation": "ручей",
+      "translations": {
+        "ru": "ручей",
+        "uz": "jilg'a"
+      },
+      "example": "A clear brook ran through the meadow.",
+      "example_translations": {
+        "ru": "Через луг бежал прозрачный ручей.",
+        "uz": "O'tloq bo'ylab tiniq jilg'a oqib o'tardi."
+      }
+    },
+    {
+      "word": "cascade",
+      "part_of_speech": "noun",
+      "translation": "небольшой водопад, каскад",
+      "translations": {
+        "ru": "небольшой водопад, каскад",
+        "uz": "kichik sharshara"
+      },
+      "example": "A cascade tumbled down the rocks into a pool.",
+      "example_translations": {
+        "ru": "Небольшой водопад низвергался со скал в заводь.",
+        "uz": "Kichik sharshara qoyalardan pastdagi ko'lmakka otilib tushardi."
+      }
+    },
+    {
+      "word": "whirlpool",
+      "part_of_speech": "noun",
+      "translation": "водоворот",
+      "translations": {
+        "ru": "водоворот",
+        "uz": "girdob"
+      },
+      "example": "The boat was pulled toward a spinning whirlpool.",
+      "example_translations": {
+        "ru": "Лодку тянуло к вращающемуся водовороту.",
+        "uz": "Qayiqni aylanayotgan girdob tomon tortib ketayotgan edi."
+      }
+    },
+    {
+      "word": "silt",
+      "part_of_speech": "noun",
+      "translation": "ил",
+      "translations": {
+        "ru": "ил",
+        "uz": "loyqa"
+      },
+      "example": "The flood left a layer of silt on the fields.",
+      "example_translations": {
+        "ru": "Наводнение оставило на полях слой ила.",
+        "uz": "Toshqin dalalarda loyqa qatlamini qoldirdi."
+      }
+    },
+    {
+      "word": "bog",
+      "part_of_speech": "noun",
+      "translation": "болото, трясина",
+      "translations": {
+        "ru": "болото, трясина",
+        "uz": "botqoq"
+      },
+      "example": "His boots sank deep into the wet bog.",
+      "example_translations": {
+        "ru": "Его сапоги глубоко увязли в сыром болоте.",
+        "uz": "Uning etiklari ho'l botqoqqa chuqur botib ketdi."
+      }
+    },
+    {
+      "word": "precipice",
+      "part_of_speech": "noun",
+      "translation": "обрыв",
+      "translations": {
+        "ru": "обрыв",
+        "uz": "tik jarlik"
+      },
+      "example": "She stood at the edge of the precipice, trembling.",
+      "example_translations": {
+        "ru": "Она стояла на краю обрыва и дрожала.",
+        "uz": "U tik jarlik yoqasida titrab turardi."
+      }
+    },
+    {
+      "word": "crevice",
+      "part_of_speech": "noun",
+      "translation": "расщелина, щель",
+      "translations": {
+        "ru": "расщелина, щель",
+        "uz": "yoriq"
+      },
+      "example": "A lizard hid in a narrow crevice in the rock.",
+      "example_translations": {
+        "ru": "Ящерица спряталась в узкой расщелине скалы.",
+        "uz": "Kaltakesak qoyadagi tor yoriqqa yashirindi."
+      }
+    },
+    {
+      "word": "chasm",
+      "part_of_speech": "noun",
+      "translation": "пропасть",
+      "translations": {
+        "ru": "пропасть",
+        "uz": "tubsiz choh"
+      },
+      "example": "A rope bridge crossed the deep chasm between cliffs.",
+      "example_translations": {
+        "ru": "Верёвочный мост был перекинут через глубокую пропасть между утёсами.",
+        "uz": "Arqon ko'prik qoyalar orasidagi tubsiz choh ustidan o'tgan edi."
+      }
+    },
+    {
+      "word": "cavern",
+      "part_of_speech": "noun",
+      "translation": "большая пещера",
+      "translations": {
+        "ru": "большая пещера",
+        "uz": "katta g'or"
+      },
+      "example": "Explorers found a cavern large enough for a cathedral.",
+      "example_translations": {
+        "ru": "Исследователи нашли большую пещеру, в которой поместился бы собор.",
+        "uz": "Tadqiqotchilar ichiga sobor sig'adigan katta g'or topishdi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 14,
+    "title": "Мир природы",
+    "title_uz": "Tabiat olami"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Растения",
+    "title_uz": "O'simliklar"
+  },
+  "words": [
+    {
+      "word": "foliage",
+      "part_of_speech": "noun",
+      "translation": "листва",
+      "translations": {
+        "ru": "листва",
+        "uz": "barglar"
+      },
+      "example": "In autumn the foliage turns red and gold.",
+      "example_translations": {
+        "ru": "Осенью листва становится красной и золотой.",
+        "uz": "Kuzda barglar qizil va tilla rangga kiradi."
+      }
+    },
+    {
+      "word": "flora",
+      "part_of_speech": "noun",
+      "translation": "флора, растительный мир",
+      "translations": {
+        "ru": "флора, растительный мир",
+        "uz": "o'simlik dunyosi"
+      },
+      "example": "The island's flora includes hundreds of rare orchids.",
+      "example_translations": {
+        "ru": "Флора острова включает сотни редких орхидей.",
+        "uz": "Orolning o'simlik dunyosi yuzlab noyob orxideyalarni o'z ichiga oladi."
+      }
+    },
+    {
+      "word": "deciduous",
+      "part_of_speech": "adjective",
+      "translation": "листопадный",
+      "translations": {
+        "ru": "листопадный",
+        "uz": "barg to'kuvchi"
+      },
+      "example": "Deciduous trees shed their leaves every autumn.",
+      "example_translations": {
+        "ru": "Листопадные деревья каждую осень сбрасывают листья.",
+        "uz": "Barg to'kuvchi daraxtlar har kuzda yaproqlarini tashlaydi."
+      }
+    },
+    {
+      "word": "perennial",
+      "part_of_speech": "adjective",
+      "translation": "многолетний",
+      "translations": {
+        "ru": "многолетний",
+        "uz": "ko'p yillik"
+      },
+      "example": "Perennial plants bloom again year after year.",
+      "example_translations": {
+        "ru": "Многолетние растения цветут снова из года в год.",
+        "uz": "Ko'p yillik o'simliklar yildan yilga qayta gullaydi."
+      }
+    },
+    {
+      "word": "sapling",
+      "part_of_speech": "noun",
+      "translation": "саженец",
+      "translations": {
+        "ru": "саженец",
+        "uz": "nihol"
+      },
+      "example": "We planted a sapling that will become an oak.",
+      "example_translations": {
+        "ru": "Мы посадили саженец, который станет дубом.",
+        "uz": "Biz kelajakda emanga aylanadigan nihol o'tqazdik."
+      }
+    },
+    {
+      "word": "germinate",
+      "part_of_speech": "verb",
+      "translation": "прорастать",
+      "translations": {
+        "ru": "прорастать",
+        "uz": "unib chiqmoq"
+      },
+      "example": "Seeds germinate faster in warm, damp soil.",
+      "example_translations": {
+        "ru": "Семена прорастают быстрее в тёплой влажной почве.",
+        "uz": "Urug'lar iliq, nam tuproqda tezroq unib chiqadi."
+      }
+    },
+    {
+      "word": "pollinate",
+      "part_of_speech": "verb",
+      "translation": "опылять",
+      "translations": {
+        "ru": "опылять",
+        "uz": "changlatmoq"
+      },
+      "example": "Bees pollinate the apple trees every spring.",
+      "example_translations": {
+        "ru": "Пчёлы опыляют яблони каждую весну.",
+        "uz": "Asalarilar har bahorda olma daraxtlarini changlatadi."
+      }
+    },
+    {
+      "word": "wither",
+      "part_of_speech": "verb",
+      "translation": "увядать",
+      "translations": {
+        "ru": "увядать",
+        "uz": "so'limoq"
+      },
+      "example": "Without water, the flowers withered within days.",
+      "example_translations": {
+        "ru": "Без воды цветы увяли за несколько дней.",
+        "uz": "Suvsiz gullar bir necha kun ichida so'lib qoldi."
+      }
+    },
+    {
+      "word": "thicket",
+      "part_of_speech": "noun",
+      "translation": "заросли",
+      "translations": {
+        "ru": "заросли",
+        "uz": "chakalakzor"
+      },
+      "example": "A rabbit vanished into the dense thicket.",
+      "example_translations": {
+        "ru": "Кролик скрылся в густых зарослях.",
+        "uz": "Quyon qalin chakalakzorga kirib g'oyib bo'ldi."
+      }
+    },
+    {
+      "word": "shrub",
+      "part_of_speech": "noun",
+      "translation": "кустарник",
+      "translations": {
+        "ru": "кустарник",
+        "uz": "buta"
+      },
+      "example": "This low shrub produces small white flowers.",
+      "example_translations": {
+        "ru": "Этот низкий кустарник даёт маленькие белые цветы.",
+        "uz": "Bu past buta mayda oq gullar ochadi."
+      }
+    }
+  ]
+}

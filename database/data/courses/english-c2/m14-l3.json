@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 14,
+    "title": "Мир природы",
+    "title_uz": "Tabiat olami"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Повадки животных",
+    "title_uz": "Hayvonlar xulqi"
+  },
+  "words": [
+    {
+      "word": "fauna",
+      "part_of_speech": "noun",
+      "translation": "фауна, животный мир",
+      "translations": {
+        "ru": "фауна, животный мир",
+        "uz": "hayvonot dunyosi"
+      },
+      "example": "Australia's fauna includes kangaroos and koalas.",
+      "example_translations": {
+        "ru": "Фауна Австралии включает кенгуру и коал.",
+        "uz": "Avstraliyaning hayvonot dunyosi kenguru va koalalarni o'z ichiga oladi."
+      }
+    },
+    {
+      "word": "predatory",
+      "part_of_speech": "adjective",
+      "translation": "хищный",
+      "translations": {
+        "ru": "хищный",
+        "uz": "yirtqich"
+      },
+      "example": "Predatory birds hunt mice in these fields.",
+      "example_translations": {
+        "ru": "Хищные птицы охотятся на мышей на этих полях.",
+        "uz": "Yirtqich qushlar bu dalalarda sichqon ovlaydi."
+      }
+    },
+    {
+      "word": "plumage",
+      "part_of_speech": "noun",
+      "translation": "оперение",
+      "translations": {
+        "ru": "оперение",
+        "uz": "patlar"
+      },
+      "example": "The male peacock displays its brilliant plumage.",
+      "example_translations": {
+        "ru": "Самец павлина демонстрирует своё яркое оперение.",
+        "uz": "Erkak tovus o'zining yorqin patlarini ko'z-ko'z qiladi."
+      }
+    },
+    {
+      "word": "burrow",
+      "part_of_speech": "noun",
+      "translation": "нора",
+      "translations": {
+        "ru": "нора",
+        "uz": "in"
+      },
+      "example": "The rabbit dug a burrow under the hedge.",
+      "example_translations": {
+        "ru": "Кролик вырыл нору под живой изгородью.",
+        "uz": "Quyon yashil to'siq tagidan in qazidi."
+      }
+    },
+    {
+      "word": "lair",
+      "part_of_speech": "noun",
+      "translation": "логово",
+      "translations": {
+        "ru": "логово",
+        "uz": "yirtqich uyasi"
+      },
+      "example": "The wolf returned to its lair before dawn.",
+      "example_translations": {
+        "ru": "Волк вернулся в своё логово до рассвета.",
+        "uz": "Bo'ri tong otmasdan o'z uyasiga qaytdi."
+      }
+    },
+    {
+      "word": "fledgling",
+      "part_of_speech": "noun",
+      "translation": "оперившийся птенец",
+      "translations": {
+        "ru": "оперившийся птенец",
+        "uz": "temirqanot"
+      },
+      "example": "The fledgling flapped its wings and left the nest.",
+      "example_translations": {
+        "ru": "Оперившийся птенец взмахнул крыльями и покинул гнездо.",
+        "uz": "Temirqanot qanotlarini qoqib, uyasini tark etdi."
+      }
+    },
+    {
+      "word": "prowl",
+      "part_of_speech": "verb",
+      "translation": "рыскать",
+      "translations": {
+        "ru": "рыскать",
+        "uz": "izg'imoq"
+      },
+      "example": "Foxes prowl around the farm after dark.",
+      "example_translations": {
+        "ru": "Лисы рыщут вокруг фермы после наступления темноты.",
+        "uz": "Tulkilar qorong'i tushgach, ferma atrofida o'lja izlab izg'iydi."
+      }
+    },
+    {
+      "word": "pounce",
+      "part_of_speech": "verb",
+      "translation": "набрасываться",
+      "translations": {
+        "ru": "набрасываться",
+        "uz": "tashlanmoq"
+      },
+      "example": "The cat pounced on the mouse from behind.",
+      "example_translations": {
+        "ru": "Кошка набросилась на мышь сзади.",
+        "uz": "Mushuk sichqonga orqadan tashlandi."
+      }
+    },
+    {
+      "word": "swarm",
+      "part_of_speech": "noun",
+      "translation": "рой",
+      "translations": {
+        "ru": "рой",
+        "uz": "gala"
+      },
+      "example": "A swarm of bees settled on the branch.",
+      "example_translations": {
+        "ru": "Рой пчёл уселся на ветке.",
+        "uz": "Asalarilar galasi shoxga qo'ndi."
+      }
+    },
+    {
+      "word": "feral",
+      "part_of_speech": "adjective",
+      "translation": "одичавший",
+      "translations": {
+        "ru": "одичавший",
+        "uz": "yovvoyilashgan"
+      },
+      "example": "Feral cats, once pets, now hunt in the woods.",
+      "example_translations": {
+        "ru": "Одичавшие кошки, когда-то домашние, теперь охотятся в лесу.",
+        "uz": "Bir paytlar uy hayvoni bo'lgan yovvoyilashgan mushuklar endi o'rmonda ov qiladi."
+      }
+    }
+  ]
+}

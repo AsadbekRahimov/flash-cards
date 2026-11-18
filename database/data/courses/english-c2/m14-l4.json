@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 14,
+    "title": "Мир природы",
+    "title_uz": "Tabiat olami"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Бедствия и разрушения",
+    "title_uz": "Ofat va vayronagarchilik"
+  },
+  "words": [
+    {
+      "word": "cataclysm",
+      "part_of_speech": "noun",
+      "translation": "катаклизм",
+      "translations": {
+        "ru": "катаклизм",
+        "uz": "kataklizm"
+      },
+      "example": "Scientists believe a cataclysm wiped out the dinosaurs.",
+      "example_translations": {
+        "ru": "Учёные считают, что динозавров уничтожил катаклизм.",
+        "uz": "Olimlarning fikricha, dinozavrlarni kataklizm qirib yuborgan."
+      }
+    },
+    {
+      "word": "calamity",
+      "part_of_speech": "noun",
+      "translation": "бедствие",
+      "translations": {
+        "ru": "бедствие",
+        "uz": "falokat"
+      },
+      "example": "The drought was a calamity for local farmers.",
+      "example_translations": {
+        "ru": "Засуха стала бедствием для местных фермеров.",
+        "uz": "Qurg'oqchilik mahalliy fermerlar uchun falokat bo'ldi."
+      }
+    },
+    {
+      "word": "decimate",
+      "part_of_speech": "verb",
+      "translation": "уничтожать большую часть",
+      "translations": {
+        "ru": "уничтожать большую часть",
+        "uz": "katta qismini qirib yubormoq"
+      },
+      "example": "Disease decimated the island's rabbit population last year.",
+      "example_translations": {
+        "ru": "В прошлом году болезнь уничтожила большую часть кроликов на острове.",
+        "uz": "O'tgan yili kasallik oroldagi quyonlarning katta qismini qirib yubordi."
+      }
+    },
+    {
+      "word": "ravage",
+      "part_of_speech": "verb",
+      "translation": "опустошать",
+      "translations": {
+        "ru": "опустошать",
+        "uz": "vayron qilmoq"
+      },
+      "example": "Wildfires ravaged thousands of acres of forest.",
+      "example_translations": {
+        "ru": "Лесные пожары опустошили тысячи акров леса.",
+        "uz": "O'rmon yong'inlari minglab akr o'rmonni vayron qildi."
+      }
+    },
+    {
+      "word": "scourge",
+      "part_of_speech": "noun",
+      "translation": "бич",
+      "translations": {
+        "ru": "бич",
+        "uz": "balo"
+      },
+      "example": "Locusts were once the scourge of these farmlands.",
+      "example_translations": {
+        "ru": "Саранча когда-то была бичом этих сельскохозяйственных земель.",
+        "uz": "Chigirtka bir vaqtlar bu ekinzorlarning balosi edi."
+      }
+    },
+    {
+      "word": "blight",
+      "part_of_speech": "noun",
+      "translation": "болезнь растений",
+      "translations": {
+        "ru": "болезнь растений",
+        "uz": "o'simlik kasalligi"
+      },
+      "example": "A blight destroyed the potato crop that summer.",
+      "example_translations": {
+        "ru": "Тем летом болезнь растений погубила урожай картофеля.",
+        "uz": "O'sha yozda o'simlik kasalligi kartoshka hosilini nobud qildi."
+      }
+    },
+    {
+      "word": "havoc",
+      "part_of_speech": "noun",
+      "translation": "разрушения, хаос",
+      "translations": {
+        "ru": "разрушения, хаос",
+        "uz": "vayronagarchilik"
+      },
+      "example": "The hurricane wreaked havoc along the entire coast.",
+      "example_translations": {
+        "ru": "Ураган вызвал страшные разрушения на всём побережье.",
+        "uz": "Kuchli dovul butun sohil bo'ylab vayronagarchilik keltirdi."
+      }
+    },
+    {
+      "word": "annihilate",
+      "part_of_speech": "verb",
+      "translation": "полностью уничтожать",
+      "translations": {
+        "ru": "полностью уничтожать",
+        "uz": "butunlay yo'q qilmoq"
+      },
+      "example": "The eruption annihilated every village near the volcano.",
+      "example_translations": {
+        "ru": "Извержение полностью уничтожило все деревни возле вулкана.",
+        "uz": "Otilish vulqon yaqinidagi barcha qishloqlarni butunlay yo'q qildi."
+      }
+    },
+    {
+      "word": "despoil",
+      "part_of_speech": "verb",
+      "translation": "разорять",
+      "translations": {
+        "ru": "разорять",
+        "uz": "xarob qilmoq"
+      },
+      "example": "Mining has despoiled this once beautiful valley.",
+      "example_translations": {
+        "ru": "Горные разработки разорили эту некогда прекрасную долину.",
+        "uz": "Kon qazish bir vaqtlar go'zal bo'lgan bu vodiyni xarob qildi."
+      }
+    },
+    {
+      "word": "encroach",
+      "part_of_speech": "verb",
+      "translation": "наступать, вторгаться",
+      "translations": {
+        "ru": "наступать, вторгаться",
+        "uz": "bostirib kelmoq"
+      },
+      "example": "Desert sands slowly encroach on the fertile fields.",
+      "example_translations": {
+        "ru": "Пески пустыни медленно наступают на плодородные поля.",
+        "uz": "Sahro qumlari hosildor dalalarga asta-sekin bostirib kelmoqda."
+      }
+    }
+  ]
+}

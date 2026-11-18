@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 16,
+    "title": "Конфликт и согласие",
+    "title_uz": "Nizo va murosa"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Давление и уступки",
+    "title_uz": "Tazyiq va yon berish"
+  },
+  "words": [
+    {
+      "word": "intimidate",
+      "part_of_speech": "verb",
+      "translation": "запугивать",
+      "translations": {
+        "ru": "запугивать",
+        "uz": "qo'rqitmoq"
+      },
+      "example": "Tall and loud, he tried to intimidate smaller players.",
+      "example_translations": {
+        "ru": "Высокий и громогласный, он пытался запугивать игроков поменьше.",
+        "uz": "Baland bo'yli va baqiroq u kichikroq o'yinchilarni qo'rqitishga urinardi."
+      }
+    },
+    {
+      "word": "browbeat",
+      "part_of_speech": "verb",
+      "translation": "давить, принуждать нажимом",
+      "translations": {
+        "ru": "давить, принуждать нажимом",
+        "uz": "do'q-po'pisa qilmoq"
+      },
+      "example": "Don't let him browbeat you into signing anything.",
+      "example_translations": {
+        "ru": "Не позволяйте ему давить на вас и заставлять что-либо подписывать.",
+        "uz": "Uning do'q-po'pisa qilib sizga biror hujjatni imzolatishiga yo'l qo'ymang."
+      }
+    },
+    {
+      "word": "blackmail",
+      "part_of_speech": "verb",
+      "translation": "шантажировать",
+      "translations": {
+        "ru": "шантажировать",
+        "uz": "shantaj qilmoq"
+      },
+      "example": "He blackmailed her by threatening to reveal the secret.",
+      "example_translations": {
+        "ru": "Он шантажировал её, угрожая раскрыть тайну.",
+        "uz": "U sirni oshkor qilish bilan tahdid qilib, uni shantaj qildi."
+      }
+    },
+    {
+      "word": "badger",
+      "part_of_speech": "verb",
+      "translation": "донимать, приставать",
+      "translations": {
+        "ru": "донимать, приставать",
+        "uz": "xiralik qilmoq"
+      },
+      "example": "The kids badgered their father for a puppy.",
+      "example_translations": {
+        "ru": "Дети донимали отца просьбами купить щенка.",
+        "uz": "Bolalar kuchukcha olib bering deb otasiga xiralik qilishardi."
+      }
+    },
+    {
+      "word": "goad",
+      "part_of_speech": "verb",
+      "translation": "подстрекать, провоцировать",
+      "translations": {
+        "ru": "подстрекать, провоцировать",
+        "uz": "gij-gijlamoq"
+      },
+      "example": "Rivals goaded him into losing his temper.",
+      "example_translations": {
+        "ru": "Соперники провоцировали его, пока он не вышел из себя.",
+        "uz": "Raqiblari uni gij-gijlab, jahlini chiqarishdi."
+      }
+    },
+    {
+      "word": "subdue",
+      "part_of_speech": "verb",
+      "translation": "усмирять, подчинять",
+      "translations": {
+        "ru": "усмирять, подчинять",
+        "uz": "bo'ysundirmoq"
+      },
+      "example": "The emperor subdued the rebellious provinces within a year.",
+      "example_translations": {
+        "ru": "Император за год усмирил мятежные провинции.",
+        "uz": "Imperator isyonkor viloyatlarni bir yil ichida bo'ysundirdi."
+      }
+    },
+    {
+      "word": "vanquish",
+      "part_of_speech": "verb",
+      "translation": "сокрушать, побеждать",
+      "translations": {
+        "ru": "сокрушать, побеждать",
+        "uz": "butunlay mag'lub etmoq"
+      },
+      "example": "The legendary hero vanquished every enemy he faced.",
+      "example_translations": {
+        "ru": "Легендарный герой сокрушал всех врагов, встававших на его пути.",
+        "uz": "Afsonaviy qahramon duch kelgan har bir dushmanni butunlay mag'lub etardi."
+      }
+    },
+    {
+      "word": "capitulate",
+      "part_of_speech": "verb",
+      "translation": "капитулировать, сдаваться",
+      "translations": {
+        "ru": "капитулировать, сдаваться",
+        "uz": "taslim bo'lmoq"
+      },
+      "example": "After weeks of strikes, the management finally capitulated.",
+      "example_translations": {
+        "ru": "После нескольких недель забастовок руководство наконец капитулировало.",
+        "uz": "Bir necha haftalik ish tashlashlardan so'ng rahbariyat nihoyat taslim bo'ldi."
+      }
+    },
+    {
+      "word": "succumb",
+      "part_of_speech": "verb",
+      "translation": "поддаваться",
+      "translations": {
+        "ru": "поддаваться",
+        "uz": "bo'yin egmoq"
+      },
+      "example": "Under constant pressure, he succumbed and signed the contract.",
+      "example_translations": {
+        "ru": "Под постоянным давлением он поддался и подписал договор.",
+        "uz": "Tinimsiz tazyiq ostida u bo'yin egdi va shartnomani imzoladi."
+      }
+    },
+    {
+      "word": "acquiesce",
+      "part_of_speech": "verb",
+      "translation": "нехотя соглашаться",
+      "translations": {
+        "ru": "нехотя соглашаться",
+        "uz": "noiloj rozi bo'lmoq"
+      },
+      "example": "Reluctantly, she acquiesced to her parents' wishes.",
+      "example_translations": {
+        "ru": "Она нехотя согласилась с желанием родителей.",
+        "uz": "U ota-onasining xohishiga noiloj rozi bo'ldi."
+      }
+    }
+  ]
+}

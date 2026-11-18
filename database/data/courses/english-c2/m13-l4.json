@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 13,
+    "title": "Медицина и организм",
+    "title_uz": "Tibbiyot va organizm"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Ощущения",
+    "title_uz": "Sezgilar"
+  },
+  "words": [
+    {
+      "word": "excruciating",
+      "part_of_speech": "adjective",
+      "translation": "нестерпимый, мучительный",
+      "translations": {
+        "ru": "нестерпимый, мучительный",
+        "uz": "chidab bo'lmas"
+      },
+      "example": "The pain was so excruciating that he fainted.",
+      "example_translations": {
+        "ru": "Боль была настолько нестерпимой, что он потерял сознание.",
+        "uz": "Og'riq shu qadar chidab bo'lmas ediki, u hushidan ketdi."
+      }
+    },
+    {
+      "word": "throb",
+      "part_of_speech": "verb",
+      "translation": "пульсировать",
+      "translations": {
+        "ru": "пульсировать",
+        "uz": "lo'qillamoq"
+      },
+      "example": "A dull pain throbs behind my eyes.",
+      "example_translations": {
+        "ru": "За глазами пульсирует тупая боль.",
+        "uz": "Ko'zlarim ortida to'mtoq og'riq lo'qillab turibdi."
+      }
+    },
+    {
+      "word": "numb",
+      "part_of_speech": "adjective",
+      "translation": "онемевший",
+      "translations": {
+        "ru": "онемевший",
+        "uz": "uvishgan"
+      },
+      "example": "My fingers went numb in the freezing wind.",
+      "example_translations": {
+        "ru": "На ледяном ветру мои пальцы онемели.",
+        "uz": "Muzdek shamolda barmoqlarim uvishib qoldi."
+      }
+    },
+    {
+      "word": "tingle",
+      "part_of_speech": "verb",
+      "translation": "покалывать",
+      "translations": {
+        "ru": "покалывать",
+        "uz": "jimirlamoq"
+      },
+      "example": "My foot began to tingle after I sat on it.",
+      "example_translations": {
+        "ru": "Ногу начало покалывать, после того как я на ней посидел.",
+        "uz": "Ustiga o'tirib qolganimdan keyin oyog'im jimirlay boshladi."
+      }
+    },
+    {
+      "word": "queasy",
+      "part_of_speech": "adjective",
+      "translation": "испытывающий тошноту",
+      "translations": {
+        "ru": "испытывающий тошноту",
+        "uz": "ko'ngli aynigan"
+      },
+      "example": "The winding mountain road made me feel queasy.",
+      "example_translations": {
+        "ru": "На извилистой горной дороге я начал испытывать тошноту.",
+        "uz": "Ilon izi tog' yo'lida ko'nglim aynidi."
+      }
+    },
+    {
+      "word": "vertigo",
+      "part_of_speech": "noun",
+      "translation": "головокружение",
+      "translations": {
+        "ru": "головокружение",
+        "uz": "bosh aylanishi"
+      },
+      "example": "Looking down from the tower gave her vertigo.",
+      "example_translations": {
+        "ru": "Когда она посмотрела вниз с башни, у неё началось головокружение.",
+        "uz": "Minoradan pastga qaraganida unda bosh aylanishi boshlandi."
+      }
+    },
+    {
+      "word": "palpitation",
+      "part_of_speech": "noun",
+      "translation": "учащённое сердцебиение",
+      "translations": {
+        "ru": "учащённое сердцебиение",
+        "uz": "yurak o'ynashi"
+      },
+      "example": "Too much coffee gives me palpitations at night.",
+      "example_translations": {
+        "ru": "От избытка кофе у меня по ночам учащённое сердцебиение.",
+        "uz": "Ortiqcha qahva tufayli kechalari menda yurak o'ynashi boshlanadi."
+      }
+    },
+    {
+      "word": "parched",
+      "part_of_speech": "adjective",
+      "translation": "изнывающий от жажды",
+      "translations": {
+        "ru": "изнывающий от жажды",
+        "uz": "qattiq chanqagan"
+      },
+      "example": "After the desert hike, we were absolutely parched.",
+      "example_translations": {
+        "ru": "После похода по пустыне мы просто изнывали от жажды.",
+        "uz": "Sahrodagi sayohatdan keyin biz juda qattiq chanqagan edik."
+      }
+    },
+    {
+      "word": "ravenous",
+      "part_of_speech": "adjective",
+      "translation": "голодный как волк",
+      "translations": {
+        "ru": "голодный как волк",
+        "uz": "o'lgudek och"
+      },
+      "example": "The children came home ravenous after swimming all day.",
+      "example_translations": {
+        "ru": "Проплавав весь день, дети пришли домой голодные как волки.",
+        "uz": "Kun bo'yi suzgan bolalar uyga o'lgudek och holda qaytishdi."
+      }
+    },
+    {
+      "word": "drowsy",
+      "part_of_speech": "adjective",
+      "translation": "сонливый",
+      "translations": {
+        "ru": "сонливый",
+        "uz": "uyqu bosgan"
+      },
+      "example": "This medicine may make you drowsy, so avoid driving.",
+      "example_translations": {
+        "ru": "От этого лекарства вы можете стать сонливым, поэтому не садитесь за руль.",
+        "uz": "Bu doridan keyin sizni uyqu bosishi mumkin, shuning uchun rulga o'tirmang."
+      }
+    }
+  ]
+}

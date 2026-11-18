@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 15,
+    "title": "Общество и нравы",
+    "title_uz": "Jamiyat va urf-odatlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Нетерпимость и отчуждение",
+    "title_uz": "Murosasizlik va begonalashuv"
+  },
+  "words": [
+    {
+      "word": "ostracize",
+      "part_of_speech": "verb",
+      "translation": "подвергать остракизму",
+      "translations": {
+        "ru": "подвергать остракизму",
+        "uz": "jamiyatdan chetlatmoq"
+      },
+      "example": "Villagers ostracized the family for breaking tradition.",
+      "example_translations": {
+        "ru": "Жители деревни подвергли семью остракизму за нарушение традиции.",
+        "uz": "Qishloq ahli an'anani buzgani uchun bu oilani jamiyatdan chetlatdi."
+      }
+    },
+    {
+      "word": "shun",
+      "part_of_speech": "verb",
+      "translation": "сторониться, избегать",
+      "translations": {
+        "ru": "сторониться, избегать",
+        "uz": "o'zini olib qochmoq"
+      },
+      "example": "Former friends began to shun him after the trial.",
+      "example_translations": {
+        "ru": "После суда бывшие друзья стали его сторониться.",
+        "uz": "Suddan keyin sobiq do'stlari undan o'zini olib qochadigan bo'ldi."
+      }
+    },
+    {
+      "word": "scapegoat",
+      "part_of_speech": "noun",
+      "translation": "козёл отпущения",
+      "translations": {
+        "ru": "козёл отпущения",
+        "uz": "balogardon"
+      },
+      "example": "The new clerk became a scapegoat for everyone's mistakes.",
+      "example_translations": {
+        "ru": "Новый служащий стал козлом отпущения за чужие ошибки.",
+        "uz": "Yangi xodim hammaning xatosi uchun balogardon bo'ldi."
+      }
+    },
+    {
+      "word": "bigotry",
+      "part_of_speech": "noun",
+      "translation": "нетерпимость, предубеждённость",
+      "translations": {
+        "ru": "нетерпимость, предубеждённость",
+        "uz": "toqatsizlik, mutaassiblik"
+      },
+      "example": "Bigotry toward strangers has no place in our school.",
+      "example_translations": {
+        "ru": "Нетерпимости к чужим не место в нашей школе.",
+        "uz": "Begonalarga nisbatan toqatsizlikka maktabimizda o'rin yo'q."
+      }
+    },
+    {
+      "word": "chauvinism",
+      "part_of_speech": "noun",
+      "translation": "шовинизм",
+      "translations": {
+        "ru": "шовинизм",
+        "uz": "shovinizm"
+      },
+      "example": "His chauvinism made him despise every foreign culture.",
+      "example_translations": {
+        "ru": "Из-за своего шовинизма он презирал любую чужую культуру.",
+        "uz": "Shovinizmi tufayli u har qanday begona madaniyatni mensimasdi."
+      }
+    },
+    {
+      "word": "sectarian",
+      "part_of_speech": "adjective",
+      "translation": "межконфессиональный",
+      "translations": {
+        "ru": "межконфессиональный",
+        "uz": "mazhablararo"
+      },
+      "example": "Sectarian hatred divided neighbors who had lived peacefully.",
+      "example_translations": {
+        "ru": "Межконфессиональная ненависть разделила соседей, прежде живших мирно.",
+        "uz": "Mazhablararo nafrat tinch yashab kelgan qo'shnilarni ajratib yubordi."
+      }
+    },
+    {
+      "word": "estrangement",
+      "part_of_speech": "noun",
+      "translation": "отчуждение",
+      "translations": {
+        "ru": "отчуждение",
+        "uz": "begonalashuv"
+      },
+      "example": "The brothers' estrangement lasted more than twenty years.",
+      "example_translations": {
+        "ru": "Отчуждение между братьями длилось более двадцати лет.",
+        "uz": "Aka-ukalar o'rtasidagi begonalashuv yigirma yildan ortiq davom etdi."
+      }
+    },
+    {
+      "word": "derogatory",
+      "part_of_speech": "adjective",
+      "translation": "уничижительный",
+      "translations": {
+        "ru": "уничижительный",
+        "uz": "kamsituvchi"
+      },
+      "example": "Derogatory remarks about her accent upset the new student.",
+      "example_translations": {
+        "ru": "Уничижительные замечания о её акценте расстроили новую ученицу.",
+        "uz": "Talaffuzi haqidagi kamsituvchi gaplar yangi o'quvchini xafa qildi."
+      }
+    },
+    {
+      "word": "demean",
+      "part_of_speech": "verb",
+      "translation": "унижать",
+      "translations": {
+        "ru": "унижать",
+        "uz": "xo'rlamoq"
+      },
+      "example": "Such jokes demean people who deserve our respect.",
+      "example_translations": {
+        "ru": "Такие шутки унижают людей, заслуживающих нашего уважения.",
+        "uz": "Bunday hazillar hurmatimizga loyiq insonlarni xo'rlaydi."
+      }
+    },
+    {
+      "word": "belittle",
+      "part_of_speech": "verb",
+      "translation": "принижать, умалять",
+      "translations": {
+        "ru": "принижать, умалять",
+        "uz": "arzimas qilib ko'rsatmoq"
+      },
+      "example": "He constantly belittles his colleagues' achievements in meetings.",
+      "example_translations": {
+        "ru": "На совещаниях он постоянно принижает достижения коллег.",
+        "uz": "Yig'ilishlarda u hamkasblarining yutuqlarini doim arzimas qilib ko'rsatadi."
+      }
+    }
+  ]
+}

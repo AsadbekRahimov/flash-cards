@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 15,
+    "title": "Общество и нравы",
+    "title_uz": "Jamiyat va urf-odatlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Обычаи и устои",
+    "title_uz": "Odatlar va an'analar"
+  },
+  "words": [
+    {
+      "word": "mores",
+      "part_of_speech": "noun",
+      "translation": "нравы",
+      "translations": {
+        "ru": "нравы",
+        "uz": "axloq-odob me'yorlari"
+      },
+      "example": "Social mores change slowly from generation to generation.",
+      "example_translations": {
+        "ru": "Общественные нравы медленно меняются от поколения к поколению.",
+        "uz": "Jamiyatdagi axloq-odob me'yorlari avloddan avlodga sekin o'zgaradi."
+      }
+    },
+    {
+      "word": "rite",
+      "part_of_speech": "noun",
+      "translation": "обряд",
+      "translations": {
+        "ru": "обряд",
+        "uz": "marosim"
+      },
+      "example": "The ancient rite marks a boy's passage to adulthood.",
+      "example_translations": {
+        "ru": "Этот древний обряд знаменует переход мальчика во взрослую жизнь.",
+        "uz": "Bu qadimiy marosim o'g'il bolaning balog'atga o'tishini bildiradi."
+      }
+    },
+    {
+      "word": "observance",
+      "part_of_speech": "noun",
+      "translation": "соблюдение",
+      "translations": {
+        "ru": "соблюдение",
+        "uz": "rioya qilish"
+      },
+      "example": "Strict observance of the fast is expected here.",
+      "example_translations": {
+        "ru": "Здесь ожидается строгое соблюдение поста.",
+        "uz": "Bu yerda ro'zaga qat'iy rioya qilish kutiladi."
+      }
+    },
+    {
+      "word": "ethos",
+      "part_of_speech": "noun",
+      "translation": "система ценностей, этос",
+      "translations": {
+        "ru": "система ценностей, этос",
+        "uz": "qadriyatlar tizimi"
+      },
+      "example": "Hard work is central to the school's ethos.",
+      "example_translations": {
+        "ru": "Трудолюбие — основа системы ценностей этой школы.",
+        "uz": "Mehnatsevarlik bu maktab qadriyatlar tizimining asosidir."
+      }
+    },
+    {
+      "word": "zeitgeist",
+      "part_of_speech": "noun",
+      "translation": "дух времени",
+      "translations": {
+        "ru": "дух времени",
+        "uz": "zamon ruhi"
+      },
+      "example": "Her songs captured the zeitgeist better than any newspaper.",
+      "example_translations": {
+        "ru": "Её песни передавали дух времени лучше любой газеты.",
+        "uz": "Uning qo'shiqlari zamon ruhini har qanday gazetadan yaxshiroq aks ettirardi."
+      }
+    },
+    {
+      "word": "conformist",
+      "part_of_speech": "noun",
+      "translation": "конформист",
+      "translations": {
+        "ru": "конформист",
+        "uz": "ko'pchilikka ergashuvchi"
+      },
+      "example": "A conformist rarely questions what everyone else believes.",
+      "example_translations": {
+        "ru": "Конформист редко ставит под сомнение то, во что верят все остальные.",
+        "uz": "Ko'pchilikka ergashuvchi hamma ishongan narsaga kamdan-kam shubha qiladi."
+      }
+    },
+    {
+      "word": "iconoclast",
+      "part_of_speech": "noun",
+      "translation": "ниспровергатель устоев",
+      "translations": {
+        "ru": "ниспровергатель устоев",
+        "uz": "an'analarni inkor etuvchi"
+      },
+      "example": "An iconoclast, he mocked every tradition of the academy.",
+      "example_translations": {
+        "ru": "Ниспровергатель устоев, он высмеивал все традиции академии.",
+        "uz": "U an'analarni inkor etuvchi bo'lib, akademiyaning barcha udumlarini masxara qilardi."
+      }
+    },
+    {
+      "word": "maverick",
+      "part_of_speech": "noun",
+      "translation": "человек независимых взглядов",
+      "translations": {
+        "ru": "человек независимых взглядов",
+        "uz": "mustaqil fikrli odam"
+      },
+      "example": "She was a maverick who followed nobody's rules.",
+      "example_translations": {
+        "ru": "Она была человеком независимых взглядов и не следовала ничьим правилам.",
+        "uz": "U mustaqil fikrli odam bo'lib, hech kimning qoidasiga bo'ysunmasdi."
+      }
+    },
+    {
+      "word": "entrenched",
+      "part_of_speech": "adjective",
+      "translation": "укоренившийся",
+      "translations": {
+        "ru": "укоренившийся",
+        "uz": "chuqur ildiz otgan"
+      },
+      "example": "Such entrenched attitudes will not disappear overnight.",
+      "example_translations": {
+        "ru": "Такие укоренившиеся взгляды не исчезнут за одну ночь.",
+        "uz": "Bunday chuqur ildiz otgan qarashlar bir kechada yo'qolmaydi."
+      }
+    },
+    {
+      "word": "sacrosanct",
+      "part_of_speech": "adjective",
+      "translation": "священный, неприкосновенный",
+      "translations": {
+        "ru": "священный, неприкосновенный",
+        "uz": "muqaddas, daxlsiz"
+      },
+      "example": "In our family, Sunday dinner is sacrosanct.",
+      "example_translations": {
+        "ru": "В нашей семье воскресный обед — священная, неприкосновенная традиция.",
+        "uz": "Oilamizda yakshanba kungi tushlik muqaddas, daxlsiz an'anadir."
+      }
+    }
+  ]
+}

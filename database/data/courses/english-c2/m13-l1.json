@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 13,
+    "title": "Медицина и организм",
+    "title_uz": "Tibbiyot va organizm"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Недуги",
+    "title_uz": "Xastaliklar"
+  },
+  "words": [
+    {
+      "word": "malady",
+      "part_of_speech": "noun",
+      "translation": "болезнь",
+      "translations": {
+        "ru": "болезнь",
+        "uz": "kasallik"
+      },
+      "example": "Doctors could not name the malady that weakened him.",
+      "example_translations": {
+        "ru": "Врачи не могли назвать болезнь, которая его ослабила.",
+        "uz": "Shifokorlar uni holsizlantirgan kasallikning nomini ayta olmadilar."
+      }
+    },
+    {
+      "word": "affliction",
+      "part_of_speech": "noun",
+      "translation": "недуг",
+      "translations": {
+        "ru": "недуг",
+        "uz": "dard"
+      },
+      "example": "Blindness is an affliction he bears with dignity.",
+      "example_translations": {
+        "ru": "Слепота — недуг, который он переносит с достоинством.",
+        "uz": "Ko'zi ojizlik — u viqor bilan ko'tarib kelayotgan dard."
+      }
+    },
+    {
+      "word": "debilitating",
+      "part_of_speech": "adjective",
+      "translation": "изнурительный",
+      "translations": {
+        "ru": "изнурительный",
+        "uz": "holdan toydiruvchi"
+      },
+      "example": "A debilitating illness kept her in bed for months.",
+      "example_translations": {
+        "ru": "Изнурительная болезнь на месяцы приковала её к постели.",
+        "uz": "Holdan toydiruvchi xastalik uni oylab to'shakka mixlab qo'ydi."
+      }
+    },
+    {
+      "word": "degenerative",
+      "part_of_speech": "adjective",
+      "translation": "дегенеративный",
+      "translations": {
+        "ru": "дегенеративный",
+        "uz": "degenerativ"
+      },
+      "example": "Arthritis is a degenerative disease that slowly damages joints.",
+      "example_translations": {
+        "ru": "Артрит — дегенеративное заболевание, медленно разрушающее суставы.",
+        "uz": "Artrit — bo'g'imlarni asta-sekin yemiradigan degenerativ kasallik."
+      }
+    },
+    {
+      "word": "congenital",
+      "part_of_speech": "adjective",
+      "translation": "врождённый",
+      "translations": {
+        "ru": "врождённый",
+        "uz": "tug'ma"
+      },
+      "example": "The baby was born with a congenital heart defect.",
+      "example_translations": {
+        "ru": "Ребёнок родился с врождённым пороком сердца.",
+        "uz": "Chaqaloq tug'ma yurak nuqsoni bilan dunyoga keldi."
+      }
+    },
+    {
+      "word": "pathology",
+      "part_of_speech": "noun",
+      "translation": "патология",
+      "translations": {
+        "ru": "патология",
+        "uz": "patologiya"
+      },
+      "example": "She studies the pathology of rare lung diseases.",
+      "example_translations": {
+        "ru": "Она изучает патологию редких заболеваний лёгких.",
+        "uz": "U kam uchraydigan o'pka kasalliklari patologiyasini o'rganadi."
+      }
+    },
+    {
+      "word": "syndrome",
+      "part_of_speech": "noun",
+      "translation": "синдром",
+      "translations": {
+        "ru": "синдром",
+        "uz": "sindrom"
+      },
+      "example": "Constant tiredness is one sign of this syndrome.",
+      "example_translations": {
+        "ru": "Постоянная усталость — один из признаков этого синдрома.",
+        "uz": "Doimiy charchoq — bu sindromning belgilaridan biri."
+      }
+    },
+    {
+      "word": "anemia",
+      "part_of_speech": "noun",
+      "translation": "анемия, малокровие",
+      "translations": {
+        "ru": "анемия, малокровие",
+        "uz": "kamqonlik"
+      },
+      "example": "Lack of iron in the diet can cause anemia.",
+      "example_translations": {
+        "ru": "Недостаток железа в рационе может вызвать анемию.",
+        "uz": "Ovqatda temir yetishmasligi kamqonlikka olib kelishi mumkin."
+      }
+    },
+    {
+      "word": "hemorrhage",
+      "part_of_speech": "noun",
+      "translation": "кровотечение, кровоизлияние",
+      "translations": {
+        "ru": "кровотечение, кровоизлияние",
+        "uz": "qon ketishi"
+      },
+      "example": "The surgeon acted quickly to stop the hemorrhage.",
+      "example_translations": {
+        "ru": "Хирург действовал быстро, чтобы остановить кровотечение.",
+        "uz": "Jarroh qon ketishini to'xtatish uchun tez harakat qildi."
+      }
+    },
+    {
+      "word": "malaise",
+      "part_of_speech": "noun",
+      "translation": "недомогание",
+      "translations": {
+        "ru": "недомогание",
+        "uz": "lohaslik"
+      },
+      "example": "A vague malaise made him leave work early.",
+      "example_translations": {
+        "ru": "Из-за смутного недомогания он ушёл с работы пораньше.",
+        "uz": "Noaniq lohaslik tufayli u ishdan erta ketdi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 16,
+    "title": "Конфликт и согласие",
+    "title_uz": "Nizo va murosa"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Отпор и уклонение",
+    "title_uz": "Qarshilik va chap berish"
+  },
+  "words": [
+    {
+      "word": "repel",
+      "part_of_speech": "verb",
+      "translation": "отражать, отбивать",
+      "translations": {
+        "ru": "отражать, отбивать",
+        "uz": "daf qilmoq"
+      },
+      "example": "The defenders managed to repel three attacks before nightfall.",
+      "example_translations": {
+        "ru": "Защитникам удалось отразить три атаки до наступления темноты.",
+        "uz": "Himoyachilar qorong'i tushguncha uchta hujumni daf qilishga muvaffaq bo'lishdi."
+      }
+    },
+    {
+      "word": "withstand",
+      "part_of_speech": "verb",
+      "translation": "выдерживать",
+      "translations": {
+        "ru": "выдерживать",
+        "uz": "bardosh bermoq"
+      },
+      "example": "These walls can withstand even the strongest earthquakes.",
+      "example_translations": {
+        "ru": "Эти стены способны выдержать даже сильнейшие землетрясения.",
+        "uz": "Bu devorlar hatto eng kuchli zilzilalarga ham bardosh bera oladi."
+      }
+    },
+    {
+      "word": "counteract",
+      "part_of_speech": "verb",
+      "translation": "противодействовать",
+      "translations": {
+        "ru": "противодействовать",
+        "uz": "qarshi ta'sir ko'rsatmoq"
+      },
+      "example": "The campaign aims to counteract false rumors online.",
+      "example_translations": {
+        "ru": "Кампания призвана противодействовать ложным слухам в интернете.",
+        "uz": "Kampaniya internetdagi yolg'on mish-mishlarga qarshi ta'sir ko'rsatishni maqsad qilgan."
+      }
+    },
+    {
+      "word": "stymie",
+      "part_of_speech": "verb",
+      "translation": "заводить в тупик",
+      "translations": {
+        "ru": "заводить в тупик",
+        "uz": "boshi berk ko'chaga kiritmoq"
+      },
+      "example": "Endless paperwork stymied our plans to open a school.",
+      "example_translations": {
+        "ru": "Бесконечная бумажная волокита завела в тупик наши планы открыть школу.",
+        "uz": "Tugamas qog'ozbozlik maktab ochish rejamizni boshi berk ko'chaga kiritib qo'ydi."
+      }
+    },
+    {
+      "word": "circumvent",
+      "part_of_speech": "verb",
+      "translation": "обходить",
+      "translations": {
+        "ru": "обходить",
+        "uz": "aylanib o'tmoq"
+      },
+      "example": "Some firms circumvent the rules through legal loopholes.",
+      "example_translations": {
+        "ru": "Некоторые фирмы обходят правила с помощью лазеек в законе.",
+        "uz": "Ayrim firmalar qonundagi bo'shliqlardan foydalanib, qoidalarni aylanib o'tadi."
+      }
+    },
+    {
+      "word": "evade",
+      "part_of_speech": "verb",
+      "translation": "уклоняться",
+      "translations": {
+        "ru": "уклоняться",
+        "uz": "bo'yin tovlamoq"
+      },
+      "example": "For years, he evaded paying taxes on his income.",
+      "example_translations": {
+        "ru": "Он годами уклонялся от уплаты налогов с доходов.",
+        "uz": "U yillar davomida daromadidan soliq to'lashdan bo'yin tovlab keldi."
+      }
+    },
+    {
+      "word": "forestall",
+      "part_of_speech": "verb",
+      "translation": "предупреждать, пресекать заранее",
+      "translations": {
+        "ru": "предупреждать, пресекать заранее",
+        "uz": "barvaqt bartaraf etmoq"
+      },
+      "example": "Quick talks forestalled a strike at the factory.",
+      "example_translations": {
+        "ru": "Быстрые переговоры предупредили забастовку на заводе.",
+        "uz": "Tezkor muzokaralar zavoddagi ish tashlashni barvaqt bartaraf etdi."
+      }
+    },
+    {
+      "word": "preempt",
+      "part_of_speech": "verb",
+      "translation": "упреждать",
+      "translations": {
+        "ru": "упреждать",
+        "uz": "ilgarilab harakat qilmoq"
+      },
+      "example": "She preempted his objection by answering it in advance.",
+      "example_translations": {
+        "ru": "Она упредила его возражение, ответив на него заранее.",
+        "uz": "U uning e'tiroziga oldindan javob berib, ilgarilab harakat qildi."
+      }
+    },
+    {
+      "word": "avert",
+      "part_of_speech": "verb",
+      "translation": "предотвращать",
+      "translations": {
+        "ru": "предотвращать",
+        "uz": "oldini olmoq"
+      },
+      "example": "The pilot's quick reaction averted a serious accident.",
+      "example_translations": {
+        "ru": "Быстрая реакция пилота предотвратила серьёзную аварию.",
+        "uz": "Uchuvchining tezkor harakati jiddiy halokatning oldini oldi."
+      }
+    },
+    {
+      "word": "flout",
+      "part_of_speech": "verb",
+      "translation": "открыто пренебрегать",
+      "translations": {
+        "ru": "открыто пренебрегать",
+        "uz": "bepisandlik bilan buzmoq"
+      },
+      "example": "Drivers openly flout the speed limit on this road.",
+      "example_translations": {
+        "ru": "Водители на этой дороге открыто пренебрегают ограничением скорости.",
+        "uz": "Haydovchilar bu yo'lda tezlik cheklovini bepisandlik bilan buzadi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 16,
+    "title": "Конфликт и согласие",
+    "title_uz": "Nizo va murosa"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Победа и поражение",
+    "title_uz": "G'alaba va mag'lubiyat"
+  },
+  "words": [
+    {
+      "word": "triumph",
+      "part_of_speech": "noun",
+      "translation": "триумф, торжество",
+      "translations": {
+        "ru": "триумф, торжество",
+        "uz": "zafar, tantana"
+      },
+      "example": "The team returned home in triumph after the final.",
+      "example_translations": {
+        "ru": "После финала команда вернулась домой с триумфом.",
+        "uz": "Finaldan so'ng jamoa uyiga zafar bilan qaytdi."
+      }
+    },
+    {
+      "word": "prevail",
+      "part_of_speech": "verb",
+      "translation": "одерживать верх",
+      "translations": {
+        "ru": "одерживать верх",
+        "uz": "ustun kelmoq"
+      },
+      "example": "In the end, common sense prevailed over anger.",
+      "example_translations": {
+        "ru": "В конце концов здравый смысл одержал верх над гневом.",
+        "uz": "Oxir-oqibat sog'lom fikr g'azabdan ustun keldi."
+      }
+    },
+    {
+      "word": "trounce",
+      "part_of_speech": "verb",
+      "translation": "разгромить, разбить наголову",
+      "translations": {
+        "ru": "разгромить, разбить наголову",
+        "uz": "tor-mor qilmoq"
+      },
+      "example": "Our team trounced the champions six to nothing.",
+      "example_translations": {
+        "ru": "Наша команда разгромила чемпионов со счётом шесть — ноль.",
+        "uz": "Jamoamiz chempionlarni olti-nol hisobida tor-mor qildi."
+      }
+    },
+    {
+      "word": "rout",
+      "part_of_speech": "noun",
+      "translation": "разгром",
+      "translations": {
+        "ru": "разгром",
+        "uz": "yirik mag'lubiyat"
+      },
+      "example": "The match ended in a rout for the visitors.",
+      "example_translations": {
+        "ru": "Матч закончился разгромом гостей.",
+        "uz": "O'yin mehmonlarning yirik mag'lubiyati bilan tugadi."
+      }
+    },
+    {
+      "word": "overpower",
+      "part_of_speech": "verb",
+      "translation": "одолевать, пересиливать",
+      "translations": {
+        "ru": "одолевать, пересиливать",
+        "uz": "kuch bilan yengmoq"
+      },
+      "example": "Two guards overpowered the thief and held him.",
+      "example_translations": {
+        "ru": "Двое охранников одолели вора и удержали его.",
+        "uz": "Ikki qo'riqchi o'g'rini kuch bilan yengib, ushlab turdi."
+      }
+    },
+    {
+      "word": "supremacy",
+      "part_of_speech": "noun",
+      "translation": "господство, превосходство",
+      "translations": {
+        "ru": "господство, превосходство",
+        "uz": "hukmronlik, ustunlik"
+      },
+      "example": "The two companies fought for supremacy in the market.",
+      "example_translations": {
+        "ru": "Две компании боролись за господство на рынке.",
+        "uz": "Ikki kompaniya bozorda hukmronlik uchun kurashardi."
+      }
+    },
+    {
+      "word": "debacle",
+      "part_of_speech": "noun",
+      "translation": "полный провал",
+      "translations": {
+        "ru": "полный провал",
+        "uz": "butunlay barbod bo'lish"
+      },
+      "example": "The product launch was a debacle: nothing worked.",
+      "example_translations": {
+        "ru": "Запуск продукта обернулся полным провалом: ничего не работало.",
+        "uz": "Mahsulot taqdimoti butunlay barbod bo'ldi: hech narsa ishlamadi."
+      }
+    },
+    {
+      "word": "fiasco",
+      "part_of_speech": "noun",
+      "translation": "фиаско",
+      "translations": {
+        "ru": "фиаско",
+        "uz": "chippakka chiqish"
+      },
+      "example": "Rain turned the outdoor concert into a fiasco.",
+      "example_translations": {
+        "ru": "Дождь превратил концерт под открытым небом в фиаско.",
+        "uz": "Yomg'ir tufayli ochiq havodagi konsert chippakka chiqdi."
+      }
+    },
+    {
+      "word": "undoing",
+      "part_of_speech": "noun",
+      "translation": "причина краха, погибель",
+      "translations": {
+        "ru": "причина краха, погибель",
+        "uz": "halokat sababi"
+      },
+      "example": "Overconfidence proved to be the champion's undoing.",
+      "example_translations": {
+        "ru": "Самоуверенность и стала причиной краха чемпиона.",
+        "uz": "O'ziga ortiqcha ishonch chempionning halokat sababi bo'ldi."
+      }
+    },
+    {
+      "word": "ignominious",
+      "part_of_speech": "adjective",
+      "translation": "позорный, бесславный",
+      "translations": {
+        "ru": "позорный, бесславный",
+        "uz": "sharmandali"
+      },
+      "example": "The army's ignominious retreat shocked the whole nation.",
+      "example_translations": {
+        "ru": "Позорное отступление армии потрясло всю страну.",
+        "uz": "Qo'shinning sharmandali chekinishi butun mamlakatni larzaga soldi."
+      }
+    }
+  ]
+}
