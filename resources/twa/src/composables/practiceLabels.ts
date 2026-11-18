@@ -3,8 +3,17 @@ import type { IconName } from '@/components/ui/icons'
 import type { TileColor } from '@/components/ui/ListRow.vue'
 import type { PracticeElementKind, PracticeLessonRef, PracticeMode, PracticeVerdict } from '@/api/types'
 
-/** The order of the cards of the hub: the order of the plan (docs/15 §6). */
-export const PRACTICE_MODE_ORDER: readonly PracticeMode[] = ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed']
+/** The order of the cards of the hub: the order of the plan (docs/15 §6), the newer modes after the older ones. */
+export const PRACTICE_MODE_ORDER: readonly PracticeMode[] = ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed', 'word_form', 'error_hunt']
+
+/**
+ * The modes this build can draw. A newer server may name one it does not know yet (an old bundle stays open in the WebView while a
+ * release goes out): such a card, or a session of such a mode, is dropped by the screens instead of failing on `MODE_LOOK[mode]`.
+ */
+export const KNOWN_PRACTICE_MODES: readonly PracticeMode[] = PRACTICE_MODE_ORDER
+
+/** The mode is one of `KNOWN_PRACTICE_MODES`. */
+export const isKnownPracticeMode = (value: unknown): value is PracticeMode => KNOWN_PRACTICE_MODES.includes(value as PracticeMode)
 
 /** The icon tile of a mode: the same one on the hub card, in the "Continue" card and in the invitations. */
 export const MODE_LOOK: Record<PracticeMode, { icon: IconName; tile: TileColor }> = {
@@ -13,6 +22,8 @@ export const MODE_LOOK: Record<PracticeMode, { icon: IconName; tile: TileColor }
   sentence: { icon: 'bars-3-bottom-left', tile: 'orange' },
   dictation: { icon: 'speaker-wave', tile: 'teal' },
   pairs_timed: { icon: 'bolt', tile: 'pink' },
+  word_form: { icon: 'pencil-square', tile: 'green' },
+  error_hunt: { icon: 'exclamation-circle', tile: 'red' },
 }
 
 /**

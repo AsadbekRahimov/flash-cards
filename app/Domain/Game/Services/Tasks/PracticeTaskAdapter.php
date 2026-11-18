@@ -214,6 +214,8 @@ final class PracticeTaskAdapter implements TaskHandler
             PracticeItemType::Collocation => PracticeMode::Collocation,
             PracticeItemType::Sentence => PracticeMode::Sentence,
             PracticeItemType::Dictation => PracticeMode::Dictation,
+            // Not a task of the run (PracticeItemType::inGame()): RunSnapshotBuilder never hands them over.
+            PracticeItemType::WordForm, PracticeItemType::ErrorHunt => throw new InvalidArgumentException("The task type {$type->value} is not a type of the game."),
         };
     }
 }

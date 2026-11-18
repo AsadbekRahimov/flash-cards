@@ -55,7 +55,7 @@ describe('ModeCard — a card that can be played', () => {
   })
 
   it('draws the icon tile of its mode', () => {
-    const tiles: Record<PracticeMode, string> = { pairs: 'tile-blue', collocation: 'tile-purple', sentence: 'tile-orange', dictation: 'tile-teal', pairs_timed: 'tile-pink' }
+    const tiles: Record<PracticeMode, string> = { pairs: 'tile-blue', collocation: 'tile-purple', sentence: 'tile-orange', dictation: 'tile-teal', pairs_timed: 'tile-pink', word_form: 'tile-green', error_hunt: 'tile-red' }
 
     for (const mode of Object.keys(tiles) as PracticeMode[]) {
       const tile = render({ info: info(mode) }).get('.icon-tile')

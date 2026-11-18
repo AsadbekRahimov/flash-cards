@@ -71,6 +71,16 @@ class PracticeItemVersionFactory extends Factory
         return $this->ofType(PracticeItemType::Dictation);
     }
 
+    public function wordForm(): static
+    {
+        return $this->ofType(PracticeItemType::WordForm);
+    }
+
+    public function errorHunt(): static
+    {
+        return $this->ofType(PracticeItemType::ErrorHunt);
+    }
+
     public function reviewed(): static
     {
         return $this->state(fn (): array => ['state' => VersionState::Reviewed, 'reviewed_at' => now()]);
@@ -149,6 +159,8 @@ class PracticeItemVersionFactory extends Factory
             PracticeItemType::Sentence => self::sentenceContent($i),
             PracticeItemType::Collocation => self::collocationContent($i),
             PracticeItemType::Dictation => self::dictationContent($i),
+            PracticeItemType::WordForm => self::wordFormContent($i),
+            PracticeItemType::ErrorHunt => self::errorHuntContent($i),
         };
     }
 
@@ -258,6 +270,56 @@ class PracticeItemVersionFactory extends Factory
             'accepted' => [$s['text']],
             'translation' => ['ru' => $s['ru'], 'uz' => $s['uz']],
             'explanation' => null,
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private static function wordFormContent(int $i): array
+    {
+        $samples = [
+            ['text' => 'We need to make a ___ by Friday.', 'base' => 'decide', 'accepted' => ['decision'], 'ru' => 'Нам нужно принять решение до пятницы.', 'uz' => 'Juma kunigacha qaror qabul qilishimiz kerak.'],
+            ['text' => 'She sings very ___.', 'base' => 'beautiful', 'accepted' => ['beautifully'], 'ru' => 'Она поёт очень красиво.', 'uz' => 'U juda chiroyli kuylaydi.'],
+            ['text' => 'My two ___ play football.', 'base' => 'child', 'accepted' => ['children'], 'ru' => 'Мои двое детей играют в футбол.', 'uz' => "Mening ikki farzandim futbol o'ynaydi."],
+            ['text' => 'He ___ to school yesterday.', 'base' => 'go', 'accepted' => ['went'], 'ru' => 'Вчера он ходил в школу.', 'uz' => 'U kecha maktabga bordi.'],
+            ['text' => 'This box is ___ than that one.', 'base' => 'heavy', 'accepted' => ['heavier'], 'ru' => 'Эта коробка тяжелее той.', 'uz' => "Bu quti anavisidan og'irroq."],
+            ['text' => 'I like the ___ of this room.', 'base' => 'colourful', 'accepted' => ['colour'], 'ru' => 'Мне нравится цвет этой комнаты.', 'uz' => 'Menga bu xonaning rangi yoqadi.'],
+        ];
+        $s = $samples[$i];
+
+        return [
+            'text' => $s['text'],
+            'base' => $s['base'],
+            'accepted' => $s['accepted'],
+            'translation' => ['ru' => $s['ru'], 'uz' => $s['uz']],
+            'explanation' => ['ru' => 'Здесь нужна другая форма слова.', 'uz' => "Bu yerda so'zning boshqa shakli kerak."],
+        ];
+    }
+
+    /**
+     * The stored form (docs/16 §5.7): the text without the asterisks, the number of the wrong token and its core.
+     *
+     * @return array<string, mixed>
+     */
+    private static function errorHuntContent(int $i): array
+    {
+        $samples = [
+            ['text' => 'I am very interested on modern art.', 'index' => 4, 'error' => 'on', 'options' => ['in', 'at', 'for'], 'ru' => 'Меня очень интересует современное искусство.', 'uz' => "Men zamonaviy san'atga juda qiziqaman."],
+            ['text' => 'She have two brothers and a sister.', 'index' => 1, 'error' => 'have', 'options' => ['has', 'having', 'haves'], 'ru' => 'У неё два брата и сестра.', 'uz' => 'Uning ikki akasi va bitta singlisi bor.'],
+            ['text' => 'They buyed a new car last week.', 'index' => 1, 'error' => 'buyed', 'options' => ['bought', 'buy', 'buys'], 'ru' => 'На прошлой неделе они купили новую машину.', 'uz' => "O'tgan hafta ular yangi mashina sotib olishdi."],
+            ['text' => 'We go to school in Monday morning.', 'index' => 4, 'error' => 'in', 'options' => ['on', 'at', 'by'], 'ru' => 'Мы идём в школу в понедельник утром.', 'uz' => 'Biz dushanba kuni ertalab maktabga boramiz.'],
+            ['text' => 'There is too much people in the room.', 'index' => 3, 'error' => 'much', 'options' => ['many', 'more', 'little'], 'ru' => 'В комнате слишком много людей.', 'uz' => "Xonada odam juda ko'p."],
+            ['text' => 'He is an teacher at our school.', 'index' => 2, 'error' => 'an', 'options' => ['a', 'the', 'one'], 'ru' => 'Он учитель в нашей школе.', 'uz' => "U bizning maktabimizda o'qituvchi."],
+        ];
+        $s = $samples[$i];
+
+        return [
+            'text' => $s['text'],
+            'error_index' => $s['index'],
+            'error' => $s['error'],
+            'options' => $s['options'],
+            'correct' => [0],
+            'translation' => ['ru' => $s['ru'], 'uz' => $s['uz']],
+            'explanation' => ['ru' => 'В этом предложении одно слово неверно.', 'uz' => "Bu gapda bitta so'z noto'g'ri."],
         ];
     }
 }

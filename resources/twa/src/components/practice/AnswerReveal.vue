@@ -4,12 +4,21 @@ import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import type { IconName } from '@/components/ui/icons'
 import { filledWith, phraseSize, shownOptions, splitPhrase, yourOptionId } from '@/composables/collocationPhrase'
+import { correctedSentence, wrongSentence } from '@/composables/errorHuntText'
 import { verdictLabel } from '@/composables/practiceLabels'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import type { AudioSlot, PracticeOutcome } from '@/stores/practice'
-import type { CollocationReveal, DictationReveal, PracticeReveal, PracticeVerdict, SentenceReveal } from '@/api/types'
+import type {
+  CollocationReveal,
+  DictationReveal,
+  ErrorHuntReveal,
+  PracticeReveal,
+  PracticeVerdict,
+  SentenceReveal,
+  WordFormReveal,
+} from '@/api/types'
 
 /**
  * What the server said about the answer (docs/16 §5, §11.2): a coloured circle with a symbol and the verdict in words
@@ -19,6 +28,10 @@ import type { CollocationReveal, DictationReveal, PracticeReveal, PracticeVerdic
  * - sentence — the correct sentence, the other accepted orders, what was assembled;
  * - collocation — the whole phrase, the three options with the right one and the picked one marked, the translation;
  *   the picked one is the server's `your_option_id` when it sends it (the answer that COUNTED), else the pick this screen knows;
+ * - word form — the right form (and the other accepted ones), what was typed struck through, "another form of the word is needed"
+ *   when the base word itself was typed (`same_as_base`), the whole sentence with the form marked, the translation;
+ * - error hunt — two lines of the result, "Mistake found ✓/✕" and "Fixed ✓/✕" (`located_ok`, `fixed_ok`: a symbol and a word each),
+ *   "Was" with the wrong word underlined and "Now" with the correction marked, the translation;
  * - the end of a round of pairs — "Round 2 of 3 is done" and the number of wrong matches in it;
  * - an answer that was counted EARLIER (`outcome.earlier`, 409 `answer_already_accepted`: another tab, a reply that was lost) —
  *   only the verdict the server counted and the words "an answer sent earlier was counted": no right answer and no pick, for
@@ -58,19 +71,64 @@ const isRoundEnd = computed(() => props.outcome.element.kind === 'pairs_round')
 const look = computed((): Look => (isRoundEnd.value ? { icon: 'check-circle', circle: LOOKS.correct.circle } : LOOKS[verdict.value]))
 
 const reveal = computed((): PracticeReveal | null => props.outcome.reveal)
-const dictation = computed((): DictationReveal | null => (reveal.value !== null && 'expected' in reveal.value ? reveal.value : null))
+// The shape of the explanation tells its kind (the reveals of the word form and of the error hunt share field names with older ones).
+const dictation = computed((): DictationReveal | null => (reveal.value !== null && 'diff' in reveal.value ? reveal.value : null))
 const sentence = computed((): SentenceReveal | null => (reveal.value !== null && 'correct_text' in reveal.value ? reveal.value : null))
-const collocation = computed((): CollocationReveal | null => (reveal.value !== null && 'correct_option_ids' in reveal.value ? reveal.value : null))
+const collocation = computed((): CollocationReveal | null =>
+  reveal.value !== null && 'correct_option_ids' in reveal.value && !('step' in reveal.value) ? reveal.value : null,
+)
+const wordForm = computed((): WordFormReveal | null => (reveal.value !== null && 'same_as_base' in reveal.value ? reveal.value : null))
+const errorHunt = computed((): ErrorHuntReveal | null => (reveal.value !== null && 'step' in reveal.value && reveal.value.step === 'fix' ? reveal.value : null))
 
-const translation = computed((): string | null => dictation.value?.translation ?? collocation.value?.translation ?? null)
-const explanation = computed((): string | null => dictation.value?.explanation ?? sentence.value?.explanation ?? collocation.value?.explanation ?? null)
+const translation = computed(
+  (): string | null => dictation.value?.translation ?? collocation.value?.translation ?? wordForm.value?.translation ?? errorHunt.value?.translation ?? null,
+)
+const explanation = computed(
+  (): string | null =>
+    dictation.value?.explanation ??
+    sentence.value?.explanation ??
+    collocation.value?.explanation ??
+    wordForm.value?.explanation ??
+    errorHunt.value?.explanation ??
+    null,
+)
 
 /** What the learner typed or assembled, when it was not right. */
 const yourText = computed((): string | null => {
   if (verdict.value === 'correct') return null
-  const text = dictation.value?.your_text ?? sentence.value?.your_text ?? null
+  const text = dictation.value?.your_text ?? sentence.value?.your_text ?? wordForm.value?.your_text ?? null
   return text !== null && text.trim() !== '' ? text : null
 })
+
+/** Word form: the whole sentence cut around the form, so that the form can be marked in it. */
+const wordFormSentence = computed((): { before: string; filled: string; after: string } | null => {
+  const element = props.outcome.element
+  const done = wordForm.value
+  if (element.kind !== 'word_form' || done === null) return null
+  const parts = splitPhrase(element.text)
+  const filled = parts === null ? null : filledWith(done.full_text, parts)
+
+  return parts !== null && filled !== null ? { before: parts.before, filled, after: parts.after } : null
+})
+
+/** Error hunt: the two steps in words, and the sentence before and after the correction, each cut around its word. */
+const hunt = computed(() => {
+  const done = errorHunt.value
+  if (done === null) return null
+  const tokens = props.outcome.element.kind === 'error_hunt' ? props.outcome.element.tokens : []
+
+  return {
+    steps: [
+      { key: 'found', label: t('practice.error_hunt.result_found'), ok: done.located_ok },
+      { key: 'fixed', label: t('practice.error_hunt.result_fixed'), ok: done.fixed_ok },
+    ],
+    was: wrongSentence(tokens, done.error_token_id),
+    became: correctedSentence(tokens, done.error_token_id, done.full_text),
+  }
+})
+
+/** Other accepted answers: orders of a sentence, forms of a word. */
+const alternatives = computed((): string[] => sentence.value?.alternatives ?? wordForm.value?.alternatives ?? [])
 
 /** The phrase as it should be written, marked token by token where the answer differed (a typo is a miss of one word). */
 const diff = computed(() => (verdict.value === 'correct' ? null : (dictation.value?.diff ?? null)))
@@ -199,6 +257,66 @@ function onContinue(): void {
           </p>
         </div>
 
+        <!-- Word form: the right form, the other accepted ones, the reason when the base word was typed, the whole sentence. -->
+        <template v-if="wordForm">
+          <div class="mt-1 w-full">
+            <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('exercise.verdict.expected') }}</p>
+            <p class="mt-1 text-2xl leading-8 font-bold break-words" lang="en" data-testid="expected">{{ wordForm.expected }}</p>
+          </div>
+          <p v-if="wordForm.same_as_base && verdict !== 'correct'" class="flex items-center justify-center gap-1.5 text-[15px] leading-5 font-medium text-warning-ink" data-testid="same-as-base">
+            <AppIcon name="exclamation-circle" :size="18" />
+            {{ t('practice.word_form.same_as_base') }}
+          </p>
+          <p class="w-full text-lg leading-6 break-words" lang="en" data-testid="word-form-full">
+            <template v-if="wordFormSentence">
+              <span>{{ wordFormSentence.before }}</span>
+              <span class="rounded-md bg-success-soft px-1 font-semibold text-success-ink" data-testid="word-form-fill">{{ wordFormSentence.filled }}</span>
+              <span>{{ wordFormSentence.after }}</span>
+            </template>
+            <template v-else>{{ wordForm.full_text }}</template>
+          </p>
+        </template>
+
+        <!-- Error hunt: both steps (a symbol and a word each), the sentence as it was and as it should be. -->
+        <template v-if="hunt && errorHunt">
+          <ul class="flex w-full flex-col gap-1.5" role="list" data-testid="hunt-steps">
+            <li
+              v-for="row in hunt.steps"
+              :key="row.key"
+              class="flex items-center justify-center gap-1.5 text-base leading-[22px] font-semibold"
+              :class="row.ok ? 'text-success-ink' : 'text-danger-ink'"
+              :data-ok="row.ok ? 'true' : 'false'"
+              :data-testid="`hunt-${row.key}`"
+            >
+              <AppIcon :name="row.ok ? 'check' : 'x-mark'" :size="18" />
+              <span>{{ row.label }}</span>
+              <span class="sr-only">: {{ row.ok ? t('practice.error_hunt.yes') : t('practice.error_hunt.no') }}</span>
+            </li>
+          </ul>
+          <div class="w-full text-left" data-testid="hunt-was">
+            <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.error_hunt.was') }}</p>
+            <p class="mt-0.5 text-lg leading-6 break-words" lang="en">
+              <template v-if="hunt.was">
+                <span>{{ hunt.was.before }}</span>
+                <span class="font-semibold text-danger-ink underline decoration-danger decoration-wavy decoration-2 underline-offset-4" data-testid="hunt-error-word">{{ hunt.was.marked }}</span>
+                <span>{{ hunt.was.after }}</span>
+              </template>
+              <template v-else>{{ errorHunt.wrong_text }}</template>
+            </p>
+          </div>
+          <div class="w-full text-left" data-testid="hunt-became">
+            <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.error_hunt.became') }}</p>
+            <p class="mt-0.5 text-lg leading-6 break-words" lang="en">
+              <template v-if="hunt.became">
+                <span>{{ hunt.became.before }}</span>
+                <span class="rounded-md bg-success-soft px-1 font-semibold text-success-ink" data-testid="hunt-fix-word">{{ hunt.became.marked }}</span>
+                <span>{{ hunt.became.after }}</span>
+              </template>
+              <template v-else>{{ errorHunt.full_text }}</template>
+            </p>
+          </div>
+        </template>
+
         <!-- Dictation: the recording of the task again (the clip is fetched into a slot of this review). -->
         <button
           v-if="clip"
@@ -244,9 +362,9 @@ function onContinue(): void {
           <p v-else class="mt-1 text-base leading-[22px] text-tg-hint line-through break-words" data-testid="your-text">{{ yourText }}</p>
         </div>
 
-        <div v-if="sentence && sentence.alternatives.length > 0" class="w-full" data-testid="alternatives">
+        <div v-if="alternatives.length > 0" class="w-full" data-testid="alternatives">
           <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.sentence.also_correct') }}</p>
-          <p v-for="alternative in sentence.alternatives" :key="alternative" class="mt-1 text-base leading-[22px] break-words" data-testid="alternative">{{ alternative }}</p>
+          <p v-for="alternative in alternatives" :key="alternative" class="mt-1 text-base leading-[22px] break-words" lang="en" data-testid="alternative">{{ alternative }}</p>
         </div>
       </article>
 

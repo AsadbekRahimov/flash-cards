@@ -1,6 +1,8 @@
 import type {
   CollocationElement,
   DictationElement,
+  ErrorHuntElement,
+  ErrorHuntReveal,
   PairsRoundElement,
   PracticeActiveSession,
   PracticeAnswerResponse,
@@ -12,6 +14,8 @@ import type {
   PracticeSession,
   PracticeSummary,
   SentenceElement,
+  WordFormElement,
+  WordFormReveal,
 } from '../types'
 
 /** Answers of the practice API for the specs of the stores, the screens and the mode components (docs/16 §7). */
@@ -49,6 +53,77 @@ export const dictationElement = (overrides: Partial<DictationElement> = {}): Dic
   audio_url: '/api/twa/practice/sessions/77/audio/eDict00001',
   words: 3,
   replacements_left: 2,
+  ...overrides,
+})
+
+export const wordFormElement = (overrides: Partial<WordFormElement> = {}): WordFormElement => ({
+  id: 'eWord00001',
+  kind: 'word_form',
+  text: 'We need to make a ___ by Friday.',
+  base: 'decide',
+  ...overrides,
+})
+
+/** The words of `I am very interested on modern art.`: `tOn5` is the wrong one. */
+export const huntTokens = [
+  { id: 'tI0', text: 'I' },
+  { id: 'tAm1', text: 'am' },
+  { id: 'tVery2', text: 'very' },
+  { id: 'tInt3', text: 'interested' },
+  { id: 'tOn4', text: 'on' },
+  { id: 'tMod5', text: 'modern' },
+  { id: 'tArt6', text: 'art.' },
+]
+
+export const huntOptions = [
+  { id: 'oAt1', text: 'at' },
+  { id: 'oIn2', text: 'in' },
+  { id: 'oFor3', text: 'for' },
+]
+
+/** "Error hunt" at its first step (`locate`): only the words, no corrections. */
+export const errorHuntElement = (overrides: Partial<ErrorHuntElement> = {}): ErrorHuntElement => ({
+  id: 'eHunt00001',
+  kind: 'error_hunt',
+  step: 'locate',
+  tokens: huntTokens,
+  located: null,
+  options: null,
+  ...overrides,
+})
+
+/** The same task at its second step (`fix`), after the learner pressed `tokenId` (by default the wrong word `am`). */
+export const errorHuntFixElement = (tokenId = 'tAm1', overrides: Partial<ErrorHuntElement> = {}): ErrorHuntElement =>
+  errorHuntElement({
+    step: 'fix',
+    located: { token_id: tokenId, ok: tokenId === 'tOn4', error_token_id: 'tOn4' },
+    options: huntOptions,
+    ...overrides,
+  })
+
+export const wordFormReveal = (overrides: Partial<WordFormReveal> = {}): WordFormReveal => ({
+  expected: 'decision',
+  alternatives: [],
+  your_text: 'decidion',
+  same_as_base: false,
+  full_text: 'We need to make a decision by Friday.',
+  translation: 'Нам нужно принять решение до пятницы.',
+  explanation: 'После make a нужно существительное: decide → decision.',
+  ...overrides,
+})
+
+export const errorHuntReveal = (overrides: Partial<ErrorHuntReveal> = {}): ErrorHuntReveal => ({
+  step: 'fix',
+  located_ok: false,
+  fixed_ok: true,
+  your_token_id: 'tAm1',
+  error_token_id: 'tOn4',
+  your_option_id: 'oIn2',
+  correct_option_ids: ['oIn2'],
+  wrong_text: 'I am very interested on modern art.',
+  full_text: 'I am very interested in modern art.',
+  translation: 'Меня очень интересует современное искусство.',
+  explanation: 'interested in — интересоваться чем-то.',
   ...overrides,
 })
 
@@ -100,6 +175,8 @@ export function session(overrides: Partial<PracticeSession> = {}): PracticeSessi
     sentence: sentenceElement(),
     dictation: dictationElement(),
     pairs_timed: pairsElement(),
+    word_form: wordFormElement(),
+    error_hunt: errorHuntElement(),
   }[mode]
 
   return {

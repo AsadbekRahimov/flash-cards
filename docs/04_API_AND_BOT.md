@@ -1145,9 +1145,11 @@ TWA различает отказ по статусу, а не по коду: `a
 - Пары: `pair: { left_id, right_id }` — какое сопоставление проверено, `verdict` — `correct` | `wrong` (первая ошибка по слову фиксируется, даже если потом оно найдено), `round_done: bool` — раунд завершён (**ключ есть только у пар**).
 - **Повтор того же `request_id`** возвращает прежние `verdict`/`reveal` (из журнала `practice_attempts`) и **текущее** состояние сессии — даже если она уже закончилась (потерянный ответ на последний элемент не превращается в 410).
   `request_id` принадлежит одному виду запроса: если он уже принят как **замена** диктанта, ответ с ним — **409** `request_id_reused` (без `details`); новый запрос — новый uuid, повторяется только тот, чей ответ потерян.
+- **«Форма слова» `word_form`** (docs/16 §5.6): `current` — `{id, kind: "word_form", text, base}`; ответ `{text}` (≤ 200) или `{skip: true}`; `verdict` — `correct` | `wrong` | `skipped` (опечаток нет); `reveal` — `{expected, alternatives, your_text, same_as_base, full_text, translation, explanation}`.
+- **«Найди ошибку» `error_hunt`** (docs/16 §5.7) — два запроса на задание, у каждого свой `request_id`: шаг `locate` `{token_id}`, затем шаг `fix` `{option_id}`; `{skip: true}` — на любом шаге. `current` — `{id, kind: "error_hunt", step: "locate" | "fix", tokens: [{id, text}], located: null | {token_id, ok, error_token_id}, options: null | [{id, text} ×3]}` (варианты — только после принятого `locate`). В теле ответа есть **`element_done: bool`** (ключ только у этого режима): после `locate` — `false`, `verdict` — вердикт поиска, `reveal` — `{step: "locate", located_ok, your_token_id, error_token_id}`, `session.current` — шаг `fix`; после `fix` или `skip` — `true`, `verdict` `correct` только при верных обоих шагах, `reveal` — `{step: "fix", located_ok, fixed_ok, your_token_id, error_token_id, your_option_id, correct_option_ids, wrong_text, full_text, translation, explanation}`. Ответ не на тот шаг — **409** `step_not_current` (`{step: "locate" | "fix"}`, ожидаемый шаг; TWA перечитывает сессию). `correct_first` растёт только на окончательном шаге.
 - Порядок проверок под блокировкой сессии: повтор → закрыта (410) → неизвестный элемент (422) → элемент уже отвечен (409) → не текущий (409) → форма ответа (422). Ошибки:
   **410** `practice_session_closed` (`{finish_reason}`; просроченная сессия закрывается этим запросом); **409** `element_not_current` (`{current}` — id элемента, который отвечать сейчас; TWA перечитывает сессию), `answer_already_accepted` (`{verdict}`), `pair_already_matched` (`{left_id}`; также для уже занятой правой карточки);
-  **422** `invalid_answer_shape` (`{expected}`: `order_of_all_fragments` | `option_id` | `left_right` | `text_or_skip` | `bijection`), `unknown_element_id` (неизвестный элемент, фрагмент, вариант или карточка; TWA перечитывает сессию и идёт за ней без сообщения — элемента на экране уже нет), валидация; **404**.
+  **422** `invalid_answer_shape` (`{expected}`: `order_of_all_fragments` | `option_id` | `left_right` | `text_or_skip` | `bijection` | `token_id`), `unknown_element_id` (неизвестный элемент, фрагмент, вариант, токен или карточка; TWA перечитывает сессию и идёт за ней без сообщения — элемента на экране уже нет), валидация; **404**.
 - Побочный эффект при завершении сессии: событие `practice.session_finished` `{session_id, mode, total, answered, correct_first, hints, mismatches, reason, duration_ms}` (после commit, один раз).
 
 #### `POST /api/twa/practice/sessions/{id}/replace` — замена диктанта без штрафа (лимитер `twa-practice-answer`)
@@ -1174,6 +1176,7 @@ TWA различает отказ по статусу, а не по коду: `a
 | `element_not_current` | 409 | `{current}` |
 | `answer_already_accepted` | 409 | `{verdict}` (в баттле ещё `points`) |
 | `pair_already_matched` | 409 | `{left_id}` |
+| `step_not_current` | 409 | `{step}` |
 | `invalid_answer_shape` | 422 | `{expected}` |
 | `unknown_element_id` | 422 | — |
 | `replace_not_allowed` | 409 | `{reason}` |

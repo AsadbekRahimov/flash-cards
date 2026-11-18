@@ -27,7 +27,7 @@ final class PracticeSessionResource extends TwaResource
      */
     public const NEVER_SHOWN = [
         'pairs', 'correct_ids', 'accepted', 'accepted_display', 'expected', 'full_text', 'display', 'translation', 'explanation',
-        'audio_path', 'audio_disk', 'word_id', 'version_id', 'item_id', 'pool',
+        'audio_path', 'audio_disk', 'word_id', 'version_id', 'item_id', 'pool', 'error_id', 'wrong_text',
     ];
 
     /**

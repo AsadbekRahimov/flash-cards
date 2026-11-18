@@ -332,7 +332,8 @@ final class RunSnapshotBuilder
             if ($scope === null) {
                 continue;
             }
-            foreach (PracticeItemType::cases() as $type) {
+            // Only the types the run was designed for (docs/18 §12): the newer ones (word form, find the mistake) are not a task of the game yet.
+            foreach (PracticeItemType::inGame() as $type) {
                 foreach ($this->material->eligibleItems($scope, $type, $learner) as $version) {
                     $byItem[$version->item_id] ??= [$type, $version];
                 }

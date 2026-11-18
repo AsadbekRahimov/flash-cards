@@ -6,6 +6,7 @@ use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Practice\DTO\PracticeImportReport;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Enums\PracticeItemStatus;
+use App\Domain\Practice\Enums\PracticeItemType;
 use App\Domain\Practice\Enums\Verdict;
 use App\Domain\Practice\Enums\VersionState;
 use App\Domain\Practice\Services\Grading\DictationGrader;
@@ -854,4 +855,62 @@ it('refuses a file over the size limit on the command line without reading it wh
     expect(Artisan::call('practice:import', ['file' => $path]))->toBe(1)
         ->and(Artisan::output())->toContain('file_too_large');
     unlink($path);
+});
+
+// --- "word form" and "find the mistake" (docs/16 §5.6, §5.7, §15.1) ------------------------------------------------------------
+
+/** @return list<array<string, mixed>> one task of each new type */
+function pim_new_types(): array
+{
+    return [
+        ['key' => 'wf-1', 'type' => 'word_form', 'lesson' => ['stage' => 1, 'number' => 1], 'level' => 'A1', 'target_words' => ['mother'],
+            'text' => 'My ___ is a teacher.', 'base' => 'mothers', 'accepted' => ['mother'],
+            'translation' => ['ru' => 'Моя мама — учитель.', 'uz' => "Onam o'qituvchi."],
+            'explanation' => ['ru' => 'Одна мама — единственное число.', 'uz' => 'Bitta ona — birlik.']],
+        ['key' => 'eh-1', 'type' => 'error_hunt', 'lesson' => ['stage' => 1, 'number' => 2], 'level' => 'A1', 'target_words' => ['family'],
+            'text' => 'My family *are* very big and friendly.', 'options' => ['is', 'be', 'am'], 'correct' => ['is'],
+            'translation' => ['ru' => 'Моя семья очень большая и дружная.', 'uz' => "Mening oilam juda katta va inoq."],
+            'explanation' => ['ru' => 'family — одна семья: is.', 'uz' => 'family — bitta oila: is.']],
+    ];
+}
+
+it('imports tasks of the two new types, skips them on a repeated file and publishes them when asked', function (): void {
+    pim_course();
+
+    $first = pim_import(pim_file(pim_new_types()));
+    $again = pim_import(pim_file(pim_new_types()));
+    $published = pim_import(pim_file(pim_new_types()), publish: true);
+
+    $hunt = PracticeItem::query()->where('key', 'eh-1')->firstOrFail();
+    $content = PracticeItemVersion::query()->findOrFail($hunt->current_version_id)->content;
+
+    expect($first->toArray())->toBe(['added' => 2, 'updated' => 0, 'skipped' => 0, 'published' => 0, 'errors' => [], 'aborted' => false])
+        ->and($again->toArray())->toBe(['added' => 0, 'updated' => 0, 'skipped' => 2, 'published' => 0, 'errors' => [], 'aborted' => false])
+        ->and($published->ok())->toBeTrue()
+        ->and($published->toArray()['published'])->toBe(2)
+        ->and(PracticeItem::query()->where('key', 'wf-1')->firstOrFail()->type)->toBe(PracticeItemType::WordForm)
+        ->and($content['text'])->toBe('My family are very big and friendly.')
+        ->and($content['error_index'])->toBe(2)
+        ->and($content['error'])->toBe('are')
+        ->and($content['correct'])->toBe([0]);
+    Queue::assertNothingPushed();
+});
+
+it('refuses a field of another type in a task of a new type and a bad base word, with the position', function (): void {
+    pim_course();
+    [$wordForm, $hunt] = pim_new_types();
+
+    $report = pim_import(pim_file([
+        [...$wordForm, 'options' => ['a', 'b', 'c']],
+        [...$hunt, 'base' => 'be'],
+        [...$wordForm, 'key' => 'wf-2', 'base' => 'go 2'],
+        [...$hunt, 'key' => 'eh-2', 'text' => 'My family are very big and friendly.'],
+    ]));
+
+    expect(pim_issues($report))->toBe([
+        ['field_unknown', 1, 'wf-1'],
+        ['field_unknown', 2, 'eh-1'],
+        ['base_invalid', 3, 'wf-2'],
+        ['error_mark_invalid', 4, 'eh-2'],
+    ])->and(pim_nothing_written())->toBeTrue();
 });

@@ -367,7 +367,7 @@ final class PracticeSessionService
      *
      * @throws PracticeException practice_unavailable | practice_pro_required | practice_session_not_found | practice_session_closed |
      *                           unknown_element_id | answer_already_accepted | element_not_current | invalid_answer_shape |
-     *                           pair_already_matched
+     *                           pair_already_matched | step_not_current
      */
     public function answer(
         PracticeSession|int $session,
@@ -866,6 +866,10 @@ final class PracticeSessionService
         if ($element->isPairsRound()) {
             $body['round_done'] = $result->final;
         }
+        // A multi-step element ("find the mistake", docs/16 §6.3): whether this answer ended it, as `round_done` of the pairs.
+        if ($session->mode->isMultiStep()) {
+            $body['element_done'] = $result->final;
+        }
         if ($timed) {
             $body['penalty_ms'] = $penalty;
         }
@@ -916,10 +920,14 @@ final class PracticeSessionService
             $extra = ['score' => $score, 'deadline_at' => $deadline];
         }
 
+        // `correct_first`: of an element only its final step counts (a right `locate` of "find the mistake" is not the right element); of
+        // the pairs every right match of a first try, as before.
+        $settled = $result->final || $element->isPairsRound();
+
         $updates = [
             'state' => $state,
             'answered' => $answered,
-            'correct_first' => $session->correct_first + ($result->verdict === Verdict::Correct && $result->firstAttempt ? 1 : 0),
+            'correct_first' => $session->correct_first + ($settled && $result->verdict === Verdict::Correct && $result->firstAttempt ? 1 : 0),
             'hints' => $session->hints + ($result->verdict === Verdict::Skipped ? 1 : 0),
             'mismatches' => $session->mismatches + ($element->isPairsRound() && $result->verdict === Verdict::Wrong ? 1 : 0),
             ...$extra,

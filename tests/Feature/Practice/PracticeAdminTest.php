@@ -1669,3 +1669,114 @@ it('does not change the pilot twice: a repeated move writes no second audit reco
         ->and($service->exclude($learner, $this->admin))->toBeFalse()
         ->and(AuditLog::query()->where('action', 'learner.practice_pilot_changed')->count())->toBe(2);
 });
+
+// --- "word form" and "find the mistake" (docs/16 §5.6, §5.7) ---------------------------------------------------------------------
+
+it('shows the sections of the two new types only for them', function (): void {
+    $w = pad_world();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm(['course_id' => $w['course']->id, 'type' => 'word_form'])
+        ->assertFormFieldIsVisible('word_form.text')
+        ->assertFormFieldIsVisible('word_form.base')
+        ->assertFormFieldIsVisible('word_form.accepted')
+        ->assertFormFieldIsHidden('error_hunt.text')
+        ->assertFormFieldIsHidden('collocation.text')
+        ->fillForm(['type' => 'error_hunt'])
+        ->assertFormFieldIsVisible('error_hunt.text')
+        ->assertFormFieldIsVisible('error_hunt.options')
+        ->assertFormFieldIsHidden('word_form.base')
+        ->assertFormFieldIsHidden('collocation.options');
+});
+
+it('creates a word form from the form, opens it again as typed and publishes it', function (): void {
+    $w = pad_world();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'word_form',
+            'key' => 'form-word-form',
+            'word_ids' => [$w['words']['meeting']->id],
+            'word_form' => [
+                'text' => 'We had two long ___ yesterday.',
+                'base' => 'meeting',
+                'accepted' => "meetings\n\nMeetings",
+                'translation' => ['ru' => 'Вчера у нас было две долгих встречи.', 'uz' => "Kecha bizda ikkita uzoq uchrashuv bo'ldi."],
+                'explanation' => ['ru' => 'Две встречи — множественное число.', 'uz' => 'Ikki uchrashuv — ko\'plik.'],
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $item = PracticeItem::query()->where('key', 'form-word-form')->sole();
+    $version = PracticeItemVersion::query()->findOrFail($item->current_version_id);
+    expect($item->type)->toBe(PracticeItemType::WordForm)
+        ->and($version->content)->toMatchArray(['text' => 'We had two long ___ yesterday.', 'base' => 'meeting', 'accepted' => ['meetings']]);
+
+    livewire(EditPracticeItem::class, ['record' => $item->getKey()])
+        ->assertFormSet(['word_form.text' => 'We had two long ___ yesterday.', 'word_form.base' => 'meeting', 'word_form.accepted' => 'meetings']);
+
+    expect(pad_publish($item, $this->admin)->status)->toBe(PracticeItemStatus::Published);
+});
+
+it('creates a find-the-mistake from the form with the asterisks, opens it again with them and publishes it', function (): void {
+    $w = pad_world();
+    pad_sent();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'error_hunt',
+            'key' => 'form-error-hunt',
+            'word_ids' => [$w['words']['tomorrow']->id],
+            'error_hunt' => [
+                'text' => 'We *will to meet* tomorrow at noon.',
+                'options' => [
+                    ['text' => 'will', 'correct' => true],
+                    ['text' => 'would', 'correct' => false],
+                    ['text' => 'shall to', 'correct' => false],
+                ],
+                'translation' => ['ru' => 'Мы встретимся завтра в полдень.', 'uz' => "Ertaga tushda uchrashamiz."],
+                'explanation' => ['ru' => 'После will — глагол без to.', 'uz' => "will dan keyin fe'l to siz."],
+            ],
+        ])
+        ->call('create');
+
+    // Two words between the asterisks: refused in Russian, nothing written.
+    expect(pad_sent()[0]['body'])->toContain('звёздочками ровно одно целое слово')
+        ->and(PracticeItem::query()->where('key', 'form-error-hunt')->exists())->toBeFalse();
+
+    livewire(CreatePracticeItem::class)
+        ->fillForm([
+            'course_id' => $w['course']->id,
+            'type' => 'error_hunt',
+            'key' => 'form-error-hunt',
+            'word_ids' => [$w['words']['tomorrow']->id],
+            'error_hunt' => [
+                'text' => 'We meet *in* tomorrow at noon.',
+                'options' => [
+                    ['text' => 'on', 'correct' => false],
+                    ['text' => 'at', 'correct' => false],
+                    ['text' => 'here', 'correct' => true],
+                ],
+                'translation' => ['ru' => 'Мы встречаемся здесь завтра в полдень.', 'uz' => 'Ertaga tushda shu yerda uchrashamiz.'],
+                'explanation' => ['ru' => 'Перед tomorrow предлог не нужен.', 'uz' => 'tomorrow dan oldin predlog kerak emas.'],
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $item = PracticeItem::query()->where('key', 'form-error-hunt')->sole();
+    $version = PracticeItemVersion::query()->findOrFail($item->current_version_id);
+    expect($version->content)->toMatchArray(['text' => 'We meet in tomorrow at noon.', 'error_index' => 2, 'error' => 'in', 'options' => ['on', 'at', 'here'], 'correct' => [2]]);
+
+    $form = livewire(EditPracticeItem::class, ['record' => $item->getKey()])->assertFormSet(['error_hunt.text' => 'We meet *in* tomorrow at noon.']);
+    expect(array_values($form->instance()->data['error_hunt']['options']))->toBe([
+        ['text' => 'on', 'correct' => false],
+        ['text' => 'at', 'correct' => false],
+        ['text' => 'here', 'correct' => true],
+    ]);
+
+    expect(pad_publish($item, $this->admin)->status)->toBe(PracticeItemStatus::Published);
+});

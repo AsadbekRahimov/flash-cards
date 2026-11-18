@@ -24,6 +24,7 @@ use Illuminate\Support\Collection;
  *
  *   PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();
  *   PracticeItem::factory()->dictation()->published()->audioReady()->forCourse($course)->targeting($word)->create();
+ *   PracticeItem::factory()->wordForm()->published()->forLesson($lesson)->targeting($word)->create(); // also errorHunt()
  *
  * `create()` writes the row, then ONE version (number 1) of the chosen stage with the content of the type, points
  * `current_version_id` / `published_version_id` / `status` at it the way PracticeItemService does, and fills
@@ -69,6 +70,16 @@ class PracticeItemFactory extends Factory
     public function dictation(): static
     {
         return $this->state(['type' => PracticeItemType::Dictation]);
+    }
+
+    public function wordForm(): static
+    {
+        return $this->state(['type' => PracticeItemType::WordForm]);
+    }
+
+    public function errorHunt(): static
+    {
+        return $this->state(['type' => PracticeItemType::ErrorHunt]);
     }
 
     /** The task of a course (a model or an id). */
@@ -213,6 +224,8 @@ class PracticeItemFactory extends Factory
             PracticeItemType::Collocation => PracticeItemVersion::factory()->collocation(),
             PracticeItemType::Sentence => PracticeItemVersion::factory()->sentence(),
             PracticeItemType::Dictation => PracticeItemVersion::factory()->dictation(),
+            PracticeItemType::WordForm => PracticeItemVersion::factory()->wordForm(),
+            PracticeItemType::ErrorHunt => PracticeItemVersion::factory()->errorHunt(),
         };
 
         $factory = match ($build->stage) {

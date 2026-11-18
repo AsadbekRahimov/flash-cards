@@ -1093,6 +1093,7 @@ CHECK не создаются — инвариант дублируют серв
 
 **Индексы:** unique `(course_id, key)`; `(course_id, status, type)`; `(lesson_id, status, type)`; `current_version_id`; `published_version_id`. **PostgreSQL CHECK:**
 `practice_items_type_check`, `practice_items_status_check`, `practice_items_published_shape_check ((status = 'published') = (published_version_id IS NOT NULL AND archived_at IS NULL))`.
+`practice_items_type_check` — `type IN ('collocation','sentence','dictation','word_form','error_hunt')` (два последних — миграция `2026_11_19_100001_add_word_form_and_error_hunt_to_practice`, docs/16 §5.6–§5.7; колонка `varchar(12)` не менялась).
 Пишет только `PracticeItemService` (редактор админки, импорт, `practice:import`), под блокировкой курса (`CoursePublisher::lockForWriting`).
 
 ### 2.41 `practice_item_versions` — неизменяемая версия задания: текст, целевые слова, урок, уровень *(18.1, 18.7a, 18.9a)*
@@ -1153,6 +1154,7 @@ CHECK не создаются — инвариант дублируют серв
 
 **Индексы:** `active_learner_id` unique; `(learner_id, status, started_at)`; `(status, expires_at)` (планировщик `practice:close-expired`); `retry_of_session_id`; `(course_id, mode, finished_at)` (отчёты пилота).
 **PostgreSQL CHECK:** `practice_sessions_mode_check`, `practice_sessions_status_check`, `practice_sessions_active_shape_check ((status = 'active') = (active_learner_id IS NOT NULL))`, `practice_sessions_active_owner_check`.
+`practice_sessions_mode_check` — `mode IN ('pairs','collocation','sentence','dictation','pairs_timed','word_form','error_hunt')` (`pairs_timed` — `2026_11_18_200001`, `word_form` / `error_hunt` — `2026_11_19_100001`; откат последней отказывает, если есть задания или сессии новых типов, на SQLite — no-op). `practice_records_mode_check` новых значений не получил: рекорды — только у `pairs_timed`.
 Пишет только `PracticeSessionService` (+ одиночный `UPDATE` планировщика): порядок блокировок docs/16 §9 — строка сессии `FOR UPDATE` → `practice_attempts` → `product_events`; строки `learners`, `courses`, `words` практика **не блокирует**.
 
 ### 2.44 `practice_attempts` — журнал принятых запросов *(18.1)*

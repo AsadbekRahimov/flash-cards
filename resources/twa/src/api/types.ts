@@ -1065,10 +1065,11 @@ export interface DeckImportResult {
 
 // ---------------- Practice and battle (docs/16 §7, §11.7) ----------------
 
-export type PracticeMode = 'pairs' | 'collocation' | 'sentence' | 'dictation' | 'pairs_timed'
+/** The modes this client knows. A newer server may send others: the screens drop them (`isKnownPracticeMode`). */
+export type PracticeMode = 'pairs' | 'collocation' | 'sentence' | 'dictation' | 'pairs_timed' | 'word_form' | 'error_hunt'
 
 /** `kind` of an element a screen draws: it equals the mode except for pairs, whose element is one round. */
-export type PracticeElementKind = 'pairs_round' | 'collocation' | 'sentence' | 'dictation'
+export type PracticeElementKind = 'pairs_round' | 'collocation' | 'sentence' | 'dictation' | 'word_form' | 'error_hunt'
 
 /** What the Free plan counts per day (docs/18 §3, G1): the sessions of practice and the battles the learner starts. */
 export type PracticeLimitKind = 'sessions' | 'battles'
@@ -1342,12 +1343,47 @@ export interface DictationElement {
   replacements_left: number
 }
 
-export type PracticeElement = PairsRoundElement | CollocationElement | SentenceElement | DictationElement
+/** "Word form": a sentence with one blank (`___`) and the base word to make the needed form of; the learner types it. */
+export interface WordFormElement {
+  id: string
+  kind: 'word_form'
+  /** With one blank: `We need to make a ___ by Friday.` */
+  text: string
+  /** The word the form is made of: `decide`. */
+  base: string
+}
 
-/** What the learner sends for one element. `pairs` is the battle form (the whole set at once). */
+/** Where the learner looked for the mistake (`located` of an "Error hunt" after its first step). */
+export interface ErrorHuntLocated {
+  /** The word the learner pressed. */
+  token_id: string
+  /** The pressed word is the wrong one. */
+  ok: boolean
+  /** The wrong word (told only once the first step is taken). */
+  error_token_id: string
+}
+
+/**
+ * "Error hunt": a sentence with one wrong word, in TWO answers (docs/16 §5.7). Step `locate`: the words of the sentence (in their order),
+ * the learner sends `{token_id}`; `located` and `options` are null. Step `fix`: the same words, where the learner looked and where the
+ * mistake is (`located`), and the corrections to pick from (`options`, sent `{option_id}`). The second step comes after a wrong first one too.
+ */
+export interface ErrorHuntElement {
+  id: string
+  kind: 'error_hunt'
+  step: 'locate' | 'fix'
+  tokens: PracticeChoice[]
+  located: ErrorHuntLocated | null
+  options: PracticeChoice[] | null
+}
+
+export type PracticeElement = PairsRoundElement | CollocationElement | SentenceElement | DictationElement | WordFormElement | ErrorHuntElement
+
+/** What the learner sends for one element. `pairs` is the battle form (the whole set at once); `token_id` is the first step of an "Error hunt". */
 export type PracticeAnswerPayload =
   | { left_id: string; right_id: string }
   | { option_id: string }
+  | { token_id: string }
   | { order: string[] }
   | { text: string }
   | { pairs: Record<string, string> }
@@ -1417,8 +1453,47 @@ export interface CollocationReveal {
   your_option_id?: string | null
 }
 
+export interface WordFormReveal {
+  /** The canonical form. */
+  expected: string
+  /** Other accepted forms. */
+  alternatives: string[]
+  your_text: string | null
+  /** The learner typed the base word itself: "another form of the word is needed". */
+  same_as_base: boolean
+  /** The sentence with the form in its blank. */
+  full_text: string
+  translation: string | null
+  explanation: string | null
+}
+
+/** The reply to the first step of an "Error hunt" (`element_done: false`): whether the mistake was found. */
+export interface ErrorHuntLocateReveal {
+  step: 'locate'
+  located_ok: boolean
+  your_token_id: string
+  error_token_id: string
+}
+
+/** The review of a whole "Error hunt" (after `fix`, or a skip on any step: then what was not done is null / false). */
+export interface ErrorHuntReveal {
+  step: 'fix'
+  located_ok: boolean
+  fixed_ok: boolean
+  your_token_id: string | null
+  error_token_id: string
+  your_option_id: string | null
+  correct_option_ids: string[]
+  /** The sentence as it was given, with the mistake. */
+  wrong_text: string
+  /** The sentence corrected. */
+  full_text: string
+  translation: string | null
+  explanation: string | null
+}
+
 /** The explanation shown after an answer; its shape follows the kind of the element answered (pairs have none). */
-export type PracticeReveal = DictationReveal | SentenceReveal | CollocationReveal
+export type PracticeReveal = DictationReveal | SentenceReveal | CollocationReveal | WordFormReveal | ErrorHuntLocateReveal | ErrorHuntReveal
 
 /** One mistake of the summary: a word of the pairs, a phrase, a sentence. */
 export interface PracticeMistake {
@@ -1492,6 +1567,11 @@ export interface PracticeAnswerResponse {
   round_done?: boolean
   /** Timed pairs: the time a wrong match cost (ms), 0 for a right one. */
   penalty_ms?: number
+  /**
+   * A task of several answers ("Error hunt"): false - only a step of it was taken, the task goes on (`session.current` is its next step);
+   * true - the task is over. Absent for the other modes.
+   */
+  element_done?: boolean
   session: PracticeSession
 }
 

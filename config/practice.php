@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /*
 |--------------------------------------------------------------------------
-| Practice (five solo modes) and the 1-on-1 battle (docs/16 §3.1)
+| Practice (seven solo modes) and the 1-on-1 battle (docs/16 §3.1)
 |--------------------------------------------------------------------------
 |
 | The keys are final (docs/16): `env()` is read only by the switches and the Free limits. `access`: off | pilot | all;
@@ -30,6 +30,9 @@ return [
         'sentence' => (bool) env('PRACTICE_MODE_SENTENCE', true),
         'dictation' => (bool) env('PRACTICE_MODE_DICTATION', true),
         'pairs_timed' => (bool) env('PRACTICE_MODE_PAIRS_TIMED', true),
+        // "Word form" and "Find the mistake" (docs/16 §5.6, §5.7): on with the release (the TWA ships in the same image); off only in an emergency.
+        'word_form' => (bool) env('PRACTICE_MODE_WORD_FORM', true),
+        'error_hunt' => (bool) env('PRACTICE_MODE_ERROR_HUNT', true),
     ],
     'battle' => [
         'enabled' => (bool) env('PRACTICE_BATTLE', false), // off until checked on the stand: turn on with PRACTICE_BATTLE=true
@@ -58,6 +61,10 @@ return [
         'sentence_fragments' => ['min' => 3, 'max' => 8], 'sentence_accepted_max' => 6, 'fragment_max_length' => 40,
         'collocation_options' => 3, 'collocation_text_max' => 160,
         'dictation_text_max' => 80, 'dictation_accepted_max' => 5,
+        // "Word form" and "Find the mistake" (docs/16 §5.6, §5.7)
+        'word_form_text_max' => 160, 'word_form_base_max' => 30, 'word_form_answer_max' => 40,
+        'word_form_answer_tokens' => 3, 'word_form_accepted_max' => 4,
+        'error_hunt_text_max' => 160, 'error_hunt_tokens' => ['min' => 4, 'max' => 16], 'error_hunt_options' => 3,
         'key_pattern' => '/\A[a-z0-9][a-z0-9._-]{0,63}\z/',
         'explanation_max' => 300, 'prompt_max' => 200,
     ],
