@@ -252,7 +252,7 @@
       "target_words": [
         "cajole"
       ],
-      "text": "The children cajoled their grandmother *for* buying them more ice cream.",
+      "text": "The salesman cajoled the old couple *for* buying an expensive new sofa.",
       "options": [
         "into",
         "to",
@@ -262,8 +262,8 @@
         "into"
       ],
       "translation": {
-        "ru": "Дети лестью уговорили бабушку купить им ещё мороженого.",
-        "uz": "Bolalar xushomad bilan buvisini yana muzqaymoq olib berishga ko'ndirishdi."
+        "ru": "Продавец лестью уговорил пожилую пару купить дорогой новый диван.",
+        "uz": "Sotuvchi xushomad bilan keksa er-xotinni qimmat yangi divan sotib olishga ko'ndirdi."
       },
       "explanation": {
         "ru": "cajole somebody into doing something — лестью уговорить кого-то сделать что-то: после cajole нужен предлог into и форма на -ing.",
@@ -738,7 +738,7 @@
       "target_words": [
         "allusion"
       ],
-      "text": "The name of the restaurant is a clever *illusion* to an old children's song.",
+      "text": "Few readers noticed the *illusion* to an old fairy tale in the last chapter.",
       "options": [
         "allusion",
         "delusion",
@@ -748,8 +748,8 @@
         "allusion"
       ],
       "translation": {
-        "ru": "Название ресторана — остроумная аллюзия на старую детскую песенку.",
-        "uz": "Restoranning nomi eski bolalar qo'shig'iga topqirlik bilan qilingan ishora."
+        "ru": "Мало кто из читателей заметил в последней главе отсылку к старой сказке.",
+        "uz": "Oxirgi bobdagi eski ertakka qilingan ishorani kam o'quvchi payqadi."
       },
       "explanation": {
         "ru": "allusion to — отсылка, намёк на что-то (от allude to). illusion — иллюзия, обман чувств; delusion — заблуждение; collusion — сговор.",
@@ -900,18 +900,18 @@
       "target_words": [
         "exacerbate"
       ],
-      "text": "Raising taxes now would only *exasperate* the country's economic problems.",
+      "text": "The long drought has seriously *exasperated* the food shortages in the region.",
       "options": [
-        "exacerbate",
-        "exaggerate",
-        "exonerate"
+        "exacerbated",
+        "exaggerated",
+        "exonerated"
       ],
       "correct": [
-        "exacerbate"
+        "exacerbated"
       ],
       "translation": {
-        "ru": "Повышение налогов сейчас лишь усугубило бы экономические проблемы страны.",
-        "uz": "Hozir soliqlarni oshirish mamlakatning iqtisodiy muammolarini yanada og'irlashtirardi, xolos."
+        "ru": "Долгая засуха серьёзно усугубила нехватку продовольствия в регионе.",
+        "uz": "Uzoq davom etgan qurg'oqchilik mintaqadagi oziq-ovqat tanqisligini ancha og'irlashtirdi."
       },
       "explanation": {
         "ru": "exacerbate — усугублять (проблему). exasperate — выводить из себя (человека), exaggerate — преувеличивать, exonerate — снимать обвинение.",
@@ -1103,7 +1103,7 @@
       ],
       "translation": {
         "ru": "Семья решила возбудить судебное разбирательство против больницы.",
-        "uz": "Oila kasalxonaga qarshi sudda ish qo'zg'atishga qaror qildi."
+        "uz": "Oila kasalxona ustidan sudga da'vo qo'zg'atishga qaror qildi."
       },
       "explanation": {
         "ru": "bring (take, start) proceedings against somebody — начать судебное разбирательство против кого-то. В этом значении с proceedings не говорят make, give или put.",
@@ -1212,7 +1212,7 @@
       },
       "explanation": {
         "ru": "hereby требует настоящего времени, а airline — 3-е лицо: -s. Смысл (no compensation) требует «отказываться от»: claim → disclaim → disclaims.",
-        "uz": "hereby hozirgi zamonni talab qiladi, airline esa III shaxs: -s. Ma'no (no compensation) «voz kechmoq» fe'lini talab qiladi: claim → disclaim → disclaims."
+        "uz": "hereby hozirgi zamonni talab qiladi, airline esa uchinchi shaxs birlikda: -s. Ma'no (no compensation) «voz kechmoq» fe'lini talab qiladi: claim → disclaim → disclaims."
       }
     },
     {
@@ -1320,7 +1320,7 @@
       ],
       "translation": {
         "ru": "Молодой адвокат держался со старшим судьёй едва ли не чересчур почтительно.",
-        "uz": "Yosh advokat katta sudyaga nisbatan deyarli haddan ortiq izzat-hurmat ko'rsatardi."
+        "uz": "Yosh advokat yuqori lavozimdagi sudyaga nisbatan deyarli haddan ortiq izzat-hurmat ko'rsatardi."
       },
       "explanation": {
         "ru": "После too нужно прилагательное: deference → deferential (почтительный); -ence → -ential, как confidence → confidential.",
@@ -1609,18 +1609,18 @@
       "target_words": [
         "preclude"
       ],
-      "text": "A serious knee injury precludes him from *compete* this season.",
+      "text": "Her lack of a degree does not preclude her from *apply* for the post.",
       "options": [
-        "competing",
-        "competed",
-        "to compete"
+        "applying",
+        "applied",
+        "to apply"
       ],
       "correct": [
-        "competing"
+        "applying"
       ],
       "translation": {
-        "ru": "Серьёзная травма колена лишает его возможности выступать в этом сезоне.",
-        "uz": "Tizzasidagi jiddiy jarohat uning bu mavsumda musobaqalarda qatnashish imkonini yo'qqa chiqaradi."
+        "ru": "Отсутствие диплома не лишает её возможности претендовать на эту должность.",
+        "uz": "Diplomi yo'qligi uning bu lavozimga ariza topshirish imkonini yo'qqa chiqarmaydi."
       },
       "explanation": {
         "ru": "preclude somebody from doing something — лишать кого-то возможности что-то сделать: после предлога from глагол в форме на -ing.",

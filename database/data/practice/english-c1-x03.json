@@ -1,0 +1,1629 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c1",
+  "items": [
+    {
+      "key": "c1-m05-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "austerity"
+      ],
+      "text": "Years of harsh ___ have left public hospitals badly short of staff.",
+      "base": "austere",
+      "accepted": [
+        "austerity"
+      ],
+      "translation": {
+        "ru": "Годы суровой экономии привели к острой нехватке персонала в государственных больницах.",
+        "uz": "Yillar davom etgan qattiq tejamkorlik davlat kasalxonalarida xodimlarning keskin yetishmasligiga olib keldi."
+      },
+      "explanation": {
+        "ru": "После прилагательного harsh нужно существительное: austere → austerity. Конечная -e уходит, добавляется -ity, как в severe → severity.",
+        "uz": "harsh sifatidan keyin ot kerak: austere → austerity. Oxirgi -e tushib, -ity qo'shiladi, xuddi severe → severity kabi."
+      }
+    },
+    {
+      "key": "c1-m05-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "monetary"
+      ],
+      "text": "Unlike fiscal policy, ___ policy is run by the central bank, not the government.",
+      "base": "money",
+      "accepted": [
+        "monetary"
+      ],
+      "translation": {
+        "ru": "В отличие от бюджетно-налоговой политики, денежно-кредитную политику проводит центральный банк, а не правительство.",
+        "uz": "Soliq-budjet siyosatidan farqli o'laroq, pul-kredit siyosatini hukumat emas, markaziy bank yuritadi."
+      },
+      "explanation": {
+        "ru": "Перед policy нужно прилагательное, парное к fiscal: money → monetary. Основа меняется: monet- + -ary, буква y исчезает.",
+        "uz": "policy so'zidan oldin fiscal so'ziga juft sifat kerak: money → monetary. O'zak o'zgaradi: monet- + -ary, y harfi tushib qoladi."
+      }
+    },
+    {
+      "key": "c1-m05-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "protectionism"
+      ],
+      "text": "As a lifelong ___, the senator voted against every free-trade agreement.",
+      "base": "protectionism",
+      "accepted": [
+        "protectionist"
+      ],
+      "translation": {
+        "ru": "Сенатор, всю жизнь бывший протекционистом, голосовал против всех соглашений о свободной торговле.",
+        "uz": "Butun umr proteksionist bo'lib kelgan senator har bir erkin savdo bitimiga qarshi ovoz bergan."
+      },
+      "explanation": {
+        "ru": "После As a lifelong нужен человек — сторонник учения. Учение оканчивается на -ism, его сторонник — на -ist: protectionism → protectionist.",
+        "uz": "As a lifelong so'zlaridan keyin shaxs — ta'limot tarafdori kerak. Ta'limot -ism bilan, uning tarafdori -ist bilan tugaydi: protectionism → protectionist."
+      }
+    },
+    {
+      "key": "c1-m05-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "privatize"
+      ],
+      "text": "The national railway, *privatizing* in the nineties, now makes a healthy profit.",
+      "options": [
+        "privatized",
+        "privatize",
+        "privatization"
+      ],
+      "correct": [
+        "privatized"
+      ],
+      "translation": {
+        "ru": "Национальная железная дорога, приватизированная в девяностые, теперь приносит хорошую прибыль.",
+        "uz": "To'qsoninchi yillarda xususiylashtirilgan milliy temir yo'l hozir yaxshi foyda keltirmoqda."
+      },
+      "explanation": {
+        "ru": "Железную дорогу приватизировали — значение страдательное, поэтому нужен оборот с причастием на -ed: privatized. Форма на -ing значила бы, что дорога сама что-то приватизирует.",
+        "uz": "Temir yo'lni xususiylashtirishgan — ma'no majhul, shuning uchun -ed shaklidagi sifatdosh kerak: privatized. -ing shakli temir yo'lning o'zi nimanidir xususiylashtirayotganini bildirardi."
+      }
+    },
+    {
+      "key": "c1-m05-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "slump"
+      ],
+      "text": "A sudden slump *of* demand forced the factory to cut hundreds of jobs.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Внезапный резкий спад спроса вынудил фабрику сократить сотни рабочих мест.",
+        "uz": "Talabning to'satdan keskin pasayishi fabrikani yuzlab ish o'rinlarini qisqartirishga majbur qildi."
+      },
+      "explanation": {
+        "ru": "После slump (как после fall, rise) то, что падает, вводится через in: a slump in demand. Of ставят только перед величиной: a slump of ten percent. Русский родительный падеж («спад спроса») толкает к of.",
+        "uz": "slump (xuddi fall, rise kabi) so'zidan keyin nima pasayganini in predlogi bildiradi: a slump in demand. Of faqat miqdordan oldin keladi: a slump of ten percent."
+      }
+    },
+    {
+      "key": "c1-m05-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "stimulus"
+      ],
+      "text": "Ministers agreed on a stimulus *packet* worth billions to help small businesses.",
+      "options": [
+        "package",
+        "pack",
+        "parcel"
+      ],
+      "correct": [
+        "package"
+      ],
+      "translation": {
+        "ru": "Министры договорились о пакете мер стимулирования стоимостью в миллиарды, чтобы помочь малому бизнесу.",
+        "uz": "Vazirlar kichik biznesga yordam berish uchun milliardlab mablag'lik rag'batlantirish choralari to'plami bo'yicha kelishib oldi."
+      },
+      "explanation": {
+        "ru": "Набор мер стимулирования — stimulus package. Русское «пакет» здесь не packet: packet — небольшая упаковка (a packet of seeds); pack и parcel тоже о коробках и посылках.",
+        "uz": "Rag'batlantirish choralari to'plami — stimulus package. Ruscha «paket» so'zi bu yerda packet emas: packet — kichik qadoq (a packet of seeds); pack va parcel ham quti va posilka haqida."
+      }
+    },
+    {
+      "key": "c1-m05-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "valuation"
+      ],
+      "text": "The bank asked for an independent ___ of the house before approving the loan.",
+      "base": "value",
+      "accepted": [
+        "valuation",
+        "evaluation"
+      ],
+      "translation": {
+        "ru": "Перед выдачей кредита банк потребовал независимой оценки стоимости дома.",
+        "uz": "Bank kredit berishdan oldin uyning qiymatini mustaqil baholashni talab qildi."
+      },
+      "explanation": {
+        "ru": "После an independent нужно существительное: value → valuation (оценка стоимости); конечная e выпадает перед -ation. Засчитывается и evaluation.",
+        "uz": "an independent so'zlaridan keyin ot kerak: value → valuation (qiymatni baholash); -ation oldidan oxirgi e tushib qoladi. evaluation shakli ham qabul qilinadi."
+      }
+    },
+    {
+      "key": "c1-m05-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "underwrite"
+      ],
+      "text": "The bond issue was ___ by a group of three banks last spring.",
+      "base": "underwrite",
+      "accepted": [
+        "underwritten"
+      ],
+      "translation": {
+        "ru": "Прошлой весной размещение облигаций гарантировала группа из трёх банков.",
+        "uz": "O'tgan bahorda obligatsiyalarni joylashtirishni uchta bankdan iborat guruh kafolatladi."
+      },
+      "explanation": {
+        "ru": "was ... by — страдательный залог: нужен третий участник. underwrite спрягается как write: underwrite – underwrote – underwritten (двойное t).",
+        "uz": "was ... by — majhul nisbat: fe'lning uchinchi shakli kerak. underwrite fe'li write kabi tuslanadi: underwrite – underwrote – underwritten (ikkita t)."
+      }
+    },
+    {
+      "key": "c1-m05-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "speculation"
+      ],
+      "text": "Pension funds are not allowed to make highly ___ investments.",
+      "base": "speculation",
+      "accepted": [
+        "speculative"
+      ],
+      "translation": {
+        "ru": "Пенсионным фондам не разрешается делать крайне спекулятивные вложения.",
+        "uz": "Pensiya jamg'armalariga o'ta chayqovchilik xarakteridagi sarmoyalar kiritishga ruxsat berilmaydi."
+      },
+      "explanation": {
+        "ru": "Между highly и investments нужно прилагательное: speculation → speculative; -ation меняется на -ative.",
+        "uz": "highly va investments orasida sifat kerak: speculation → speculative; -ation o'rniga -ative yoziladi."
+      }
+    },
+    {
+      "key": "c1-m05-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "collateral"
+      ],
+      "text": "The bank turned him down because he could not offer enough *collaterals*.",
+      "options": [
+        "collateral",
+        "collaterally",
+        "collateralized"
+      ],
+      "correct": [
+        "collateral"
+      ],
+      "translation": {
+        "ru": "Банк отказал ему, потому что он не смог предоставить достаточный залог.",
+        "uz": "U yetarli garov taqdim eta olmagani uchun bank unga rad javobini berdi."
+      },
+      "explanation": {
+        "ru": "collateral (залог, обеспечение кредита) — неисчисляемое существительное, как evidence или equipment: формы на -s у него нет.",
+        "uz": "collateral (garov, kredit ta'minoti) — sanalmaydigan ot, xuddi evidence yoki equipment kabi: -s qo'shilgan shakli yo'q."
+      }
+    },
+    {
+      "key": "c1-m05-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "depreciation"
+      ],
+      "text": "Firms that sell abroad welcomed the sharp *deprecation* of the national currency.",
+      "options": [
+        "depreciation",
+        "deprivation",
+        "depreciating"
+      ],
+      "correct": [
+        "depreciation"
+      ],
+      "translation": {
+        "ru": "Компании, продающие товары за рубеж, приветствовали резкое обесценивание национальной валюты.",
+        "uz": "Mahsulotini chet elga sotadigan firmalar milliy valyutaning keskin qadrsizlanishini olqishladi."
+      },
+      "explanation": {
+        "ru": "deprecation — неодобрение, осуждение. Падение стоимости валюты — depreciation: с i после c (de-pre-ci-a-tion), корень тот же, что в price.",
+        "uz": "deprecation — norozilik, qoralash degani. Valyuta qiymatining tushishi — depreciation: c harfidan keyin i bor (de-pre-ci-a-tion), o'zagi price so'zi bilan bir."
+      }
+    },
+    {
+      "key": "c1-m05-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "hedge"
+      ],
+      "text": "Airlines hedge *from* sharp rises in fuel prices by buying fuel months in advance.",
+      "options": [
+        "against",
+        "of",
+        "over"
+      ],
+      "correct": [
+        "against"
+      ],
+      "translation": {
+        "ru": "Авиакомпании страхуются от резкого роста цен на топливо, покупая его на несколько месяцев вперёд.",
+        "uz": "Aviakompaniyalar yoqilg'ini bir necha oy oldin sotib olib, uning narxi keskin oshishi xataridan o'zini sug'urtalaydi."
+      },
+      "explanation": {
+        "ru": "hedge against — страховаться от риска. Русское «от» здесь не from: в этом значении после hedge нужен against.",
+        "uz": "hedge against — xatardan sug'urtalanmoq. «-dan» qo'shimchasi bu yerda from emas: bu ma'noda hedge fe'lidan keyin against keladi."
+      }
+    },
+    {
+      "key": "c1-m05-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "insolvency"
+      ],
+      "text": "The court declared the bank ___ after it failed to pay its creditors.",
+      "base": "insolvency",
+      "accepted": [
+        "insolvent"
+      ],
+      "translation": {
+        "ru": "Суд признал банк неплатёжеспособным после того, как тот не смог расплатиться с кредиторами.",
+        "uz": "Bank kreditorlariga pul to'lay olmagach, sud uni to'lovga qobiliyatsiz deb topdi."
+      },
+      "explanation": {
+        "ru": "declare + дополнение + прилагательное («признать каким»): нужно прилагательное. insolvency → insolvent: -ency меняется на -ent.",
+        "uz": "declare + to'ldiruvchi + sifat («qanday deb topmoq»): sifat kerak. insolvency → insolvent: -ency o'rniga -ent yoziladi."
+      }
+    },
+    {
+      "key": "c1-m05-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "liability"
+      ],
+      "text": "The company's ___ have grown so fast that no bank will lend to it now.",
+      "base": "liable",
+      "accepted": [
+        "liabilities"
+      ],
+      "translation": {
+        "ru": "Долговые обязательства компании выросли так быстро, что теперь ни один банк не даст ей кредит.",
+        "uz": "Kompaniyaning qarz majburiyatlari shu qadar tez o'sdiki, endi hech bir bank unga qarz bermaydi."
+      },
+      "explanation": {
+        "ru": "После The company's нужно существительное, а глагол have требует множественного числа: liable → liability → liabilities (-able → -ability, y → ies).",
+        "uz": "The company's so'zidan keyin ot kerak, have fe'li esa ko'plikni talab qiladi: liable → liability → liabilities (-able → -ability, y → ies)."
+      }
+    },
+    {
+      "key": "c1-m05-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "indebted"
+      ],
+      "text": "The new law brings relief to deeply ___ farmers who cannot repay their loans.",
+      "base": "debt",
+      "accepted": [
+        "indebted"
+      ],
+      "translation": {
+        "ru": "Новый закон приносит облегчение фермерам, сильно обременённым долгами и не способным вернуть кредиты.",
+        "uz": "Yangi qonun kreditlarini qaytara olmayotgan, qarzga chuqur botgan fermerlarning ahvolini yengillashtiradi."
+      },
+      "explanation": {
+        "ru": "Между наречием deeply и существительным farmers нужно прилагательное: debt → indebted (приставка in- и окончание -ed; b не произносится).",
+        "uz": "deeply ravishi va farmers oti orasida sifat kerak: debt → indebted (in- old qo'shimchasi va -ed qo'shimchasi; b talaffuz qilinmaydi)."
+      }
+    },
+    {
+      "key": "c1-m05-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "liquidation"
+      ],
+      "text": "Unable to pay its suppliers, the chain was forced into *liquidity* last month.",
+      "options": [
+        "liquidation",
+        "liquidator",
+        "liquidating"
+      ],
+      "correct": [
+        "liquidation"
+      ],
+      "translation": {
+        "ru": "Не сумев расплатиться с поставщиками, сеть магазинов в прошлом месяце была вынуждена объявить о ликвидации.",
+        "uz": "Yetkazib beruvchilarga pul to'lay olmagan do'konlar tarmog'i o'tgan oy tugatish jarayoniga o'tishga majbur bo'ldi."
+      },
+      "explanation": {
+        "ru": "liquidity — ликвидность, наличие свободных денег. Закрытие компании с распродажей имущества — liquidation: go into / be forced into liquidation.",
+        "uz": "liquidity — likvidlik, ya'ni bo'sh pul mablag'lari borligi. Kompaniyaning mol-mulki sotilib yopilishi — liquidation: go into / be forced into liquidation."
+      }
+    },
+    {
+      "key": "c1-m05-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "arrears"
+      ],
+      "text": "Her arrears *is* growing so fast that they now exceed her monthly income.",
+      "options": [
+        "are",
+        "was",
+        "has"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Её просроченная задолженность растёт так быстро, что уже превышает её месячный доход.",
+        "uz": "Uning muddati o'tgan qarzi shu qadar tez o'smoqdaki, u allaqachon oylik daromadidan oshib ketdi."
+      },
+      "explanation": {
+        "ru": "arrears употребляется только во множественном числе, поэтому глагол — are (и дальше they). Русское «задолженность» стоит в единственном числе, отсюда ошибка.",
+        "uz": "arrears faqat ko'plikda ishlatiladi, shuning uchun fe'l are bo'ladi (keyin esa they keladi). O'zbekcha «qarz» birlikda bo'lgani uchun xato qilinadi."
+      }
+    },
+    {
+      "key": "c1-m05-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "debtor"
+      ],
+      "text": "The bank sent a final warning to every *debitor* who had missed a payment.",
+      "options": [
+        "debtor",
+        "debit",
+        "indebted"
+      ],
+      "correct": [
+        "debtor"
+      ],
+      "translation": {
+        "ru": "Банк отправил последнее предупреждение каждому должнику, пропустившему платёж.",
+        "uz": "Bank to'lovni o'tkazib yuborgan har bir qarzdorga oxirgi ogohlantirish yubordi."
+      },
+      "explanation": {
+        "ru": "Должник по-английски — debtor (b не произносится). Русское «дебитор» сбивает: слова debitor в английском нет, а debit — запись о списании денег.",
+        "uz": "Qarzdor inglizcha debtor bo'ladi (b talaffuz qilinmaydi). Ruscha «debitor» so'zi chalg'itadi: ingliz tilida debitor so'zi yo'q, debit esa hisobdan pul yechilishi haqidagi yozuv."
+      }
+    },
+    {
+      "key": "c1-m05-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "evasion"
+      ],
+      "text": "Tax ___ by wealthy individuals costs the state billions every year.",
+      "base": "evade",
+      "accepted": [
+        "evasion"
+      ],
+      "translation": {
+        "ru": "Уклонение от налогов со стороны богатых людей ежегодно обходится государству в миллиарды.",
+        "uz": "Boy-badavlat shaxslarning soliqdan bo'yin tovlashi davlatga har yili milliardlab zarar keltiradi."
+      },
+      "explanation": {
+        "ru": "После Tax нужно существительное, а costs показывает единственное число: evade → evasion; d меняется на s (как invade → invasion).",
+        "uz": "Tax so'zidan keyin ot kerak, costs fe'li esa birlikni ko'rsatadi: evade → evasion; d harfi s ga almashadi (invade → invasion kabi)."
+      }
+    },
+    {
+      "key": "c1-m05-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "subsidize"
+      ],
+      "text": "Students can eat cheaply in the heavily ___ university canteen.",
+      "base": "subsidy",
+      "accepted": [
+        "subsidized"
+      ],
+      "translation": {
+        "ru": "Студенты могут недорого питаться в университетской столовой, которую щедро субсидируют.",
+        "uz": "Talabalar katta subsidiya bilan ta'minlanadigan universitet oshxonasida arzon ovqatlanishi mumkin."
+      },
+      "explanation": {
+        "ru": "После heavily перед canteen нужно причастие «субсидируемый»: subsidy → subsidize → subsidized; y меняется на -ize, затем -d.",
+        "uz": "heavily so'zidan keyin, canteen otidan oldin «subsidiyalanadigan» ma'nosidagi sifatdosh kerak: subsidy → subsidize → subsidized; y o'rniga -ize, keyin -d."
+      }
+    },
+    {
+      "key": "c1-m05-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "exemption"
+      ],
+      "text": "Farmers on very low incomes qualify for a full ___ from the land tax.",
+      "base": "exempt",
+      "accepted": [
+        "exemption"
+      ],
+      "translation": {
+        "ru": "Фермеры с очень низким доходом имеют право на полное освобождение от земельного налога.",
+        "uz": "Daromadi juda past fermerlar yer solig'idan to'liq ozod qilinish huquqiga ega."
+      },
+      "explanation": {
+        "ru": "После a full нужно существительное: exempt → exemption (+ -ion, t сохраняется: не -sion).",
+        "uz": "a full so'zlaridan keyin ot kerak: exempt → exemption (-ion qo'shiladi, t saqlanadi: -sion emas)."
+      }
+    },
+    {
+      "key": "c1-m05-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "levy"
+      ],
+      "text": "The new levy *from* imported cars has made them much more expensive.",
+      "options": [
+        "on",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Новый сбор с импортных автомобилей сделал их намного дороже.",
+        "uz": "Import qilinadigan avtomobillarga solingan yangi yig'im ularni ancha qimmatlashtirdi."
+      },
+      "explanation": {
+        "ru": "Сбор с чего-либо — a levy on something (как a tax on). Русское «с» толкает к from, но после levy нужен on.",
+        "uz": "Biror narsaga solinadigan yig'im — a levy on something (xuddi a tax on kabi). levy so'zidan keyin from emas, on keladi."
+      }
+    },
+    {
+      "key": "c1-m05-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "deductible"
+      ],
+      "text": "Is the cost of a new work laptop *deductable* from your income?",
+      "options": [
+        "deductible",
+        "deductive",
+        "deduction"
+      ],
+      "correct": [
+        "deductible"
+      ],
+      "translation": {
+        "ru": "Подлежит ли стоимость нового рабочего ноутбука вычету из вашего дохода?",
+        "uz": "Yangi ish noutbukining narxi daromadingizdan chegirib tashlanadimi?"
+      },
+      "explanation": {
+        "ru": "Прилагательное пишется deductible — с -ible, не -able. deductive — «дедуктивный» (о рассуждении), deduction — существительное «вычет».",
+        "uz": "Sifat deductible deb yoziladi — -able emas, -ible bilan. deductive — «deduktiv» (fikrlash haqida), deduction esa «chegirma» degan ot."
+      }
+    },
+    {
+      "key": "c1-m05-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "budgetary"
+      ],
+      "text": "The museum had to close two galleries because of tight budgetary *frames*.",
+      "options": [
+        "restrictions",
+        "borders",
+        "edges"
+      ],
+      "correct": [
+        "restrictions"
+      ],
+      "translation": {
+        "ru": "Музею пришлось закрыть два зала из-за жёстких бюджетных ограничений.",
+        "uz": "Budjetga oid qattiq cheklovlar tufayli muzey ikkita zalini yopishga majbur bo'ldi."
+      },
+      "explanation": {
+        "ru": "Бюджетные рамки, ограничения — budgetary restrictions (или constraints, limits). Русское «рамки» здесь не frames: frame — рама, каркас.",
+        "uz": "Budjet cheklovlari — budgetary restrictions (yoki constraints, limits). «Ramka» so'zi bu yerda frames emas: frame — rom, karkas."
+      }
+    },
+    {
+      "key": "c1-m05-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "affordability"
+      ],
+      "text": "Young buyers now care more about ___ than about location.",
+      "base": "afford",
+      "accepted": [
+        "affordability"
+      ],
+      "translation": {
+        "ru": "Молодых покупателей теперь больше волнует ценовая доступность жилья, чем его расположение.",
+        "uz": "Yosh xaridorlar uchun endi joylashuvdan ko'ra hamyonboplik muhimroq."
+      },
+      "explanation": {
+        "ru": "После about нужно существительное: afford → affordable → affordability; -able меняется на -ability.",
+        "uz": "about so'zidan keyin ot kerak: afford → affordable → affordability; -able o'rniga -ability yoziladi."
+      }
+    },
+    {
+      "key": "c1-m05-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "prosperous"
+      ],
+      "text": "Decades of peace brought the region a level of ___ it had never known.",
+      "base": "prosperous",
+      "accepted": [
+        "prosperity"
+      ],
+      "translation": {
+        "ru": "Десятилетия мира принесли региону такое процветание, какого он никогда не знал.",
+        "uz": "O'n yillab davom etgan tinchlik mintaqaga u hech qachon ko'rmagan farovonlik olib keldi."
+      },
+      "explanation": {
+        "ru": "После a level of нужно существительное: prosperous → prosperity; -ous меняется на -ity.",
+        "uz": "a level of so'zlaridan keyin ot kerak: prosperous → prosperity; -ous o'rniga -ity yoziladi."
+      }
+    },
+    {
+      "key": "c1-m05-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "affluent"
+      ],
+      "text": "The ___ of the new suburbs contrasts sharply with the poverty of the old center.",
+      "base": "affluent",
+      "accepted": [
+        "affluence"
+      ],
+      "translation": {
+        "ru": "Достаток новых пригородов резко контрастирует с бедностью старого центра.",
+        "uz": "Yangi shahar chekkalarining badavlatligi eski markazning qashshoqligidan keskin farq qiladi."
+      },
+      "explanation": {
+        "ru": "Между the и of нужно существительное, а contrasts — в единственном числе (the affluent «богатые» требовало бы contrast): affluent → affluence; -ent → -ence.",
+        "uz": "the va of orasida ot kerak, contrasts fe'li esa birlikda (the affluent «boylar» bo'lsa, contrast bo'lardi): affluent → affluence; -ent o'rniga -ence."
+      }
+    },
+    {
+      "key": "c1-m05-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "sanction"
+      ],
+      "text": "The sanctions *to* the company were lifted once it paid the fine.",
+      "options": [
+        "on",
+        "at",
+        "over"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Санкции против компании сняли, как только она заплатила штраф.",
+        "uz": "Kompaniya jarimani to'lashi bilanoq unga nisbatan qo'llangan sanksiyalar bekor qilindi."
+      },
+      "explanation": {
+        "ru": "sanctions on (или against) someone — санкции против кого-то: то же, что в impose sanctions on. To здесь невозможен, хотя узбекское «kompaniyaga» к нему подталкивает.",
+        "uz": "sanctions on (yoki against) someone — kimgadir nisbatan qo'llangan sanksiyalar (impose sanctions on kabi). O'zbekcha «kompaniyaga» to predlogiga undaydi, lekin bu yerda to ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m05-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "subsistence"
+      ],
+      "text": "In these hills most families still live by *subsistent* farming.",
+      "options": [
+        "subsistence",
+        "subsisting",
+        "substance"
+      ],
+      "correct": [
+        "subsistence"
+      ],
+      "translation": {
+        "ru": "В этих горах большинство семей до сих пор живёт натуральным хозяйством.",
+        "uz": "Bu tog'li hududda ko'pchilik oilalar hanuz faqat o'z ehtiyoji uchun dehqonchilik qilib kun ko'radi."
+      },
+      "explanation": {
+        "ru": "Натуральное хозяйство — subsistence farming: перед farming стоит существительное subsistence в роли определения. Прилагательное subsistent в этом сочетании не употребляется.",
+        "uz": "Faqat o'z ehtiyoji uchun dehqonchilik — subsistence farming: farming so'zidan oldin aniqlovchi vazifasidagi subsistence oti turadi. subsistent sifati bu birikmada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m05-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "impoverished"
+      ],
+      "text": "When the mines closed, whole towns were left *impoverishing* for decades.",
+      "options": [
+        "impoverished",
+        "impoverishment",
+        "impoverish"
+      ],
+      "correct": [
+        "impoverished"
+      ],
+      "translation": {
+        "ru": "Когда шахты закрылись, целые города на десятилетия остались в нищете.",
+        "uz": "Konlar yopilgach, butun-butun shaharlar o'n yillar davomida qashshoqlashib qoldi."
+      },
+      "explanation": {
+        "ru": "be left + прилагательное: города стали бедными — нужно причастие на -ed (impoverished, «обнищавший»). Форма на -ing значила бы, что города сами кого-то разоряют.",
+        "uz": "be left + sifat: shaharlar qashshoqlashgan — -ed shaklidagi sifatdosh kerak (impoverished). -ing shakli shaharlarning o'zi kimnidir qashshoqlashtirayotganini bildirardi."
+      }
+    },
+    {
+      "key": "c1-m06-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "hypothesize"
+      ],
+      "text": "The team tested three competing ___ about why the bees were disappearing.",
+      "base": "hypothesize",
+      "accepted": [
+        "hypotheses"
+      ],
+      "translation": {
+        "ru": "Команда проверила три конкурирующие гипотезы о том, почему исчезают пчёлы.",
+        "uz": "Jamoa asalarilar nima uchun yo'qolib borayotgani haqidagi uchta raqobatdosh gipotezani tekshirdi."
+      },
+      "explanation": {
+        "ru": "После three competing нужно существительное во множественном числе: hypothesize → hypothesis, а мн. ч. — hypotheses (-is → -es, как crisis → crises).",
+        "uz": "three competing so'zlaridan keyin ko'plikdagi ot kerak: hypothesize → hypothesis, ko'pligi esa hypotheses (-is → -es, crisis → crises kabi)."
+      }
+    },
+    {
+      "key": "c1-m06-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "replicate"
+      ],
+      "text": "Independent ___ of the results is essential before any new drug is approved.",
+      "base": "replicate",
+      "accepted": [
+        "replication"
+      ],
+      "translation": {
+        "ru": "Прежде чем одобрить любое новое лекарство, необходимо, чтобы его результаты были независимо воспроизведены.",
+        "uz": "Har qanday yangi dori ma'qullanishidan oldin natijalarni mustaqil ravishda qayta takrorlash shart."
+      },
+      "explanation": {
+        "ru": "После прилагательного Independent нужно существительное, а is показывает единственное число: replicate → replication (-ate → -ation).",
+        "uz": "Independent sifatidan keyin ot kerak, is fe'li esa birlikni ko'rsatadi: replicate → replication (-ate o'rniga -ation)."
+      }
+    },
+    {
+      "key": "c1-m06-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "quantitative"
+      ],
+      "text": "Unlike interviews, ___ methods produce results that can be expressed in figures.",
+      "base": "quantity",
+      "accepted": [
+        "quantitative"
+      ],
+      "translation": {
+        "ru": "В отличие от интервью, количественные методы дают результаты, которые можно выразить в цифрах.",
+        "uz": "Intervyudan farqli o'laroq, miqdoriy usullar raqamlarda ifodalash mumkin bo'lgan natijalar beradi."
+      },
+      "explanation": {
+        "ru": "Перед methods нужно прилагательное: quantity → quantitative; конечная y меняется на -itative.",
+        "uz": "methods so'zidan oldin sifat kerak: quantity → quantitative; oxirgi y o'rniga -itative yoziladi."
+      }
+    },
+    {
+      "key": "c1-m06-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "qualitative"
+      ],
+      "text": "Patients described their feelings in their own words, which gave us rich *quantitative* data.",
+      "options": [
+        "qualitative",
+        "qualified",
+        "qualifying"
+      ],
+      "correct": [
+        "qualitative"
+      ],
+      "translation": {
+        "ru": "Пациенты описывали свои чувства собственными словами, и это дало нам богатые качественные данные.",
+        "uz": "Bemorlar his-tuyg'ularini o'z so'zlari bilan tasvirlab berdi va bu bizga boy sifatiy ma'lumotlar berdi."
+      },
+      "explanation": {
+        "ru": "Рассказ о чувствах своими словами — не числа, а качественные данные: qualitative. quantitative — количественный, о цифрах и измерениях.",
+        "uz": "His-tuyg'ularni o'z so'zlari bilan tasvirlash raqam emas, sifatiy ma'lumotlar beradi: qualitative. quantitative — miqdoriy, raqam va o'lchovlar haqida."
+      }
+    },
+    {
+      "key": "c1-m06-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "fieldwork"
+      ],
+      "text": "As part of the course, students do six weeks of *fieldworks* in the desert.",
+      "options": [
+        "fieldwork",
+        "fieldworker",
+        "fieldworkers"
+      ],
+      "correct": [
+        "fieldwork"
+      ],
+      "translation": {
+        "ru": "В рамках курса студенты шесть недель проводят полевые исследования в пустыне.",
+        "uz": "Kurs doirasida talabalar cho'lda olti hafta dala tadqiqotlari olib boradi."
+      },
+      "explanation": {
+        "ru": "fieldwork — неисчисляемое существительное (как homework или research): -s не добавляется, хотя по-русски «исследования» стоят во множественном числе.",
+        "uz": "fieldwork — sanalmaydigan ot (homework yoki research kabi): -s qo'shilmaydi, garchi o'zbekchada «tadqiqotlar» ko'plikda bo'lsa ham."
+      }
+    },
+    {
+      "key": "c1-m06-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "randomize"
+      ],
+      "text": "*Randomizing* into two groups, the volunteers received either the new drug or a placebo.",
+      "options": [
+        "Randomized",
+        "Randomize",
+        "Randomization"
+      ],
+      "correct": [
+        "Randomized"
+      ],
+      "translation": {
+        "ru": "Распределённые случайным образом на две группы, добровольцы получали либо новое лекарство, либо плацебо.",
+        "uz": "Ikki guruhga tasodifiy taqsimlangan ko'ngillilar yo yangi dori, yo platsebo oldi."
+      },
+      "explanation": {
+        "ru": "Добровольцев распределили, сами они никого не распределяли — значение страдательное, нужен оборот с причастием на -ed: Randomized. Форма на -ing значила бы, что добровольцы сами кого-то распределяют.",
+        "uz": "Ko'ngillilarni taqsimlashgan, ular o'zlari hech kimni taqsimlamagan — ma'no majhul, -ed shaklidagi sifatdosh kerak: Randomized. -ing shakli ko'ngillilarning o'zi kimnidir taqsimlayotganini bildirardi."
+      }
+    },
+    {
+      "key": "c1-m06-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "anomaly"
+      ],
+      "text": "The sensor recorded several ___ readings during the storm, so we excluded them.",
+      "base": "anomaly",
+      "accepted": [
+        "anomalous"
+      ],
+      "translation": {
+        "ru": "Во время бури датчик зафиксировал несколько аномальных показаний, поэтому мы их исключили.",
+        "uz": "Bo'ron paytida datchik bir nechta anomal ko'rsatkichni qayd etdi, shuning uchun biz ularni hisobga olmadik."
+      },
+      "explanation": {
+        "ru": "Между several и readings нужно прилагательное: anomaly → anomalous; конечная y меняется на -ous.",
+        "uz": "several va readings orasida sifat kerak: anomaly → anomalous; oxirgi y o'rniga -ous yoziladi."
+      }
+    },
+    {
+      "key": "c1-m06-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "extrapolate"
+      ],
+      "text": "Simple ___ from last year's sales suggests that our profits will double.",
+      "base": "extrapolate",
+      "accepted": [
+        "extrapolation"
+      ],
+      "translation": {
+        "ru": "Простая экстраполяция прошлогодних продаж говорит о том, что наша прибыль удвоится.",
+        "uz": "O'tgan yilgi savdoni oddiy ekstrapolyatsiya qilish foydamiz ikki baravar oshishini ko'rsatadi."
+      },
+      "explanation": {
+        "ru": "После прилагательного Simple нужно существительное, а suggests — в единственном числе: extrapolate → extrapolation (-ate → -ation).",
+        "uz": "Simple sifatidan keyin ot kerak, suggests fe'li esa birlikda: extrapolate → extrapolation (-ate o'rniga -ation)."
+      }
+    },
+    {
+      "key": "c1-m06-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "discrepancy"
+      ],
+      "text": "The auditors found three ___ between the bank's figures and ours.",
+      "base": "discrepancy",
+      "accepted": [
+        "discrepancies"
+      ],
+      "translation": {
+        "ru": "Аудиторы нашли три расхождения между цифрами банка и нашими.",
+        "uz": "Auditorlar bank raqamlari bilan bizning raqamlarimiz o'rtasida uchta nomuvofiqlik topdi."
+      },
+      "explanation": {
+        "ru": "После three нужно множественное число. Перед -es согласная + y меняется на i: discrepancy → discrepancies.",
+        "uz": "three so'zidan keyin ko'plik kerak. Undoshdan keyingi y harfi -es oldidan i ga aylanadi: discrepancy → discrepancies."
+      }
+    },
+    {
+      "key": "c1-m06-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "median"
+      ],
+      "text": "The *medium* age in the group was forty, so half the members were younger.",
+      "options": [
+        "median",
+        "medial",
+        "mediator"
+      ],
+      "correct": [
+        "median"
+      ],
+      "translation": {
+        "ru": "Медианный возраст в группе составлял сорок лет: значит, половина участников была моложе.",
+        "uz": "Guruhdagi mediana yosh qirq edi, ya'ni a'zolarning yarmi undan yoshroq edi."
+      },
+      "explanation": {
+        "ru": "Значение, которое делит ряд пополам, — median (медиана). medium — «средний» по размеру или степени (medium size), статистическим термином оно не является.",
+        "uz": "Qatorni teng ikkiga bo'ladigan qiymat — median (mediana). medium — o'lcham yoki daraja jihatidan «o'rtacha» (medium size), statistik atama emas."
+      }
+    },
+    {
+      "key": "c1-m06-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "outlier"
+      ],
+      "text": "A single *outlayer* can pull the average far away from the typical values.",
+      "options": [
+        "outlier",
+        "outlet",
+        "outline"
+      ],
+      "correct": [
+        "outlier"
+      ],
+      "translation": {
+        "ru": "Один-единственный выброс в данных может сильно сместить среднее значение от типичных.",
+        "uz": "Birgina keskin ajralib turuvchi qiymat o'rtacha qiymatni odatiy qiymatlardan ancha uzoqlashtirishi mumkin."
+      },
+      "explanation": {
+        "ru": "Слово пишется outlier: от lie («лежать») — то, что лежит в стороне от остальных. Слово layer («слой») здесь ни при чём, хотя слышится похоже.",
+        "uz": "So'z outlier deb yoziladi: lie («yotmoq») fe'lidan — boshqalardan chetda yotgan narsa. layer («qatlam») so'zining bunga aloqasi yo'q, garchi eshitilishi o'xshash bo'lsa ham."
+      }
+    },
+    {
+      "key": "c1-m06-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "deviation"
+      ],
+      "text": "Even a slight deviation *to* the standard dose can make the results useless.",
+      "options": [
+        "from",
+        "with",
+        "against"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Даже небольшое отклонение от стандартной дозы может сделать результаты бесполезными.",
+        "uz": "Standart dozadan hatto ozgina og'ish ham natijalarni yaroqsiz qilib qo'yishi mumkin."
+      },
+      "explanation": {
+        "ru": "deviation from — отклонение от чего-либо (как и глагол deviate from). To, with, against после deviation в этом значении не употребляются.",
+        "uz": "deviation from — biror narsadan og'ish (deviate from fe'li kabi). Bu ma'noda deviation so'zidan keyin to, with, against ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m06-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "conclusive"
+      ],
+      "text": "The first trial was ___, so the team had to repeat it with more patients.",
+      "base": "conclusive",
+      "accepted": [
+        "inconclusive"
+      ],
+      "translation": {
+        "ru": "Первое испытание не дало окончательных результатов, поэтому команде пришлось повторить его с большим числом пациентов.",
+        "uz": "Birinchi sinov uzil-kesil natija bermadi, shuning uchun jamoa uni ko'proq bemor bilan takrorlashga majbur bo'ldi."
+      },
+      "explanation": {
+        "ru": "Испытание повторяют, когда оно ничего не доказало: нужно отрицание. У conclusive отрицательная приставка in-, а не un-: inconclusive.",
+        "uz": "Sinov hech narsani isbotlamagani uchun takrorlanadi: inkor kerak. conclusive so'zining inkor old qo'shimchasi un- emas, in-: inconclusive."
+      }
+    },
+    {
+      "key": "c1-m06-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "substantiate"
+      ],
+      "text": "The paper printed ___ claims about the minister and later had to apologize.",
+      "base": "substantiate",
+      "accepted": [
+        "unsubstantiated"
+      ],
+      "translation": {
+        "ru": "Газета напечатала необоснованные утверждения о министре, а позже была вынуждена извиниться.",
+        "uz": "Gazeta vazir haqida asossiz da'volarni chop etdi va keyinroq kechirim so'rashga majbur bo'ldi."
+      },
+      "explanation": {
+        "ru": "Перед claims нужно прилагательное, а извинение показывает, что утверждения ничем не подкреплены: substantiate → substantiated → unsubstantiated.",
+        "uz": "claims so'zidan oldin sifat kerak, kechirim so'rash esa da'volar hech narsa bilan asoslanmaganini ko'rsatadi: substantiate → substantiated → unsubstantiated."
+      }
+    },
+    {
+      "key": "c1-m06-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "generalize"
+      ],
+      "text": "Saying that all teenagers are lazy is a sweeping ___.",
+      "base": "generalize",
+      "accepted": [
+        "generalization",
+        "generalisation"
+      ],
+      "translation": {
+        "ru": "Утверждать, что все подростки ленивы, — огульное обобщение.",
+        "uz": "Barcha o'smirlarni dangasa deyish — haddan tashqari keng umumlashtirish."
+      },
+      "explanation": {
+        "ru": "После a sweeping нужно существительное: generalize → generalization (-ize → -ization). Британское написание generalisation тоже засчитывается.",
+        "uz": "a sweeping so'zlaridan keyin ot kerak: generalize → generalization (-ize o'rniga -ization). Britancha generalisation yozilishi ham qabul qilinadi."
+      }
+    },
+    {
+      "key": "c1-m06-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "refute"
+      ],
+      "text": "A single careful experiment *refused* the theory that had stood for decades.",
+      "options": [
+        "refuted",
+        "refunded",
+        "reputed"
+      ],
+      "correct": [
+        "refuted"
+      ],
+      "translation": {
+        "ru": "Один тщательно проведённый эксперимент опроверг теорию, которая держалась десятилетиями.",
+        "uz": "Birgina puxta o'tkazilgan tajriba o'nlab yillar davomida tan olinib kelgan nazariyani rad etdi."
+      },
+      "explanation": {
+        "ru": "refuse — отказываться, отклонять (просьбу, предложение). Доказать ложность теории — refute: refuted. По-узбекски оба значения — «rad etmoq», отсюда путаница.",
+        "uz": "refuse — biror narsadan bosh tortmoq, iltimos yoki taklifni qaytarmoq. Nazariyaning noto'g'riligini isbotlash — refute: refuted. O'zbekchada ikkalasi ham «rad etmoq», chalkashlik shundan."
+      }
+    },
+    {
+      "key": "c1-m06-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "corroborate"
+      ],
+      "text": "*Corroborating* by three other labs, the findings were finally accepted by the journal.",
+      "options": [
+        "Corroborated",
+        "Corroborate",
+        "Corroboration"
+      ],
+      "correct": [
+        "Corroborated"
+      ],
+      "translation": {
+        "ru": "Подтверждённые тремя другими лабораториями, результаты наконец были приняты журналом.",
+        "uz": "Uchta boshqa laboratoriya tomonidan tasdiqlangan natijalar nihoyat jurnal tomonidan qabul qilindi."
+      },
+      "explanation": {
+        "ru": "Результаты подтвердили другие лаборатории (by three other labs) — значение страдательное, нужен оборот с причастием на -ed: Corroborated. Форма на -ing значила бы, что результаты сами что-то подтверждают.",
+        "uz": "Natijalarni boshqa laboratoriyalar tasdiqlagan (by three other labs) — ma'no majhul, -ed shaklidagi sifatdosh kerak: Corroborated. -ing shakli natijalarning o'zi nimanidir tasdiqlayotganini bildirardi."
+      }
+    },
+    {
+      "key": "c1-m06-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "rigorous"
+      ],
+      "text": "Every sample in the study was *rigorous* tested before use.",
+      "options": [
+        "rigorously",
+        "rigor",
+        "rigorousness"
+      ],
+      "correct": [
+        "rigorously"
+      ],
+      "translation": {
+        "ru": "Каждый образец в исследовании перед использованием тщательно проверяли.",
+        "uz": "Tadqiqotdagi har bir namuna ishlatilishidan oldin puxta tekshirilgan."
+      },
+      "explanation": {
+        "ru": "Слово описывает действие tested (как проверяли?) — нужно наречие: rigorous → rigorously. Прилагательное rigorous стоит перед существительным: rigorous testing.",
+        "uz": "So'z tested harakatini izohlaydi (qanday tekshirilgan?) — ravish kerak: rigorous → rigorously. rigorous sifati otdan oldin keladi: rigorous testing."
+      }
+    },
+    {
+      "key": "c1-m06-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "synthesis"
+      ],
+      "text": "Chemists can now ___ this compound from cheap raw materials.",
+      "base": "synthesis",
+      "accepted": [
+        "synthesize",
+        "synthesise"
+      ],
+      "translation": {
+        "ru": "Теперь химики умеют синтезировать это соединение из дешёвого сырья.",
+        "uz": "Endi kimyogarlar bu birikmani arzon xomashyodan sintez qila oladi."
+      },
+      "explanation": {
+        "ru": "После can нужен глагол в начальной форме: synthesis → synthesize (-is → -ize). Британское synthesise тоже засчитывается.",
+        "uz": "can fe'lidan keyin fe'lning noaniq shakli kerak: synthesis → synthesize (-is o'rniga -ize). Britancha synthesise yozilishi ham qabul qilinadi."
+      }
+    },
+    {
+      "key": "c1-m06-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "density"
+      ],
+      "text": "Oil and water have different ___, so the oil floats on top.",
+      "base": "dense",
+      "accepted": [
+        "densities"
+      ],
+      "translation": {
+        "ru": "У масла и воды разная плотность, поэтому масло всплывает наверх.",
+        "uz": "Moy va suvning zichligi har xil, shuning uchun moy suv yuzasiga qalqib chiqadi."
+      },
+      "explanation": {
+        "ru": "После different нужно существительное во множественном числе (у двух веществ две плотности): dense → density → densities; -e → -ity, y → ies.",
+        "uz": "different so'zidan keyin ko'plikdagi ot kerak (ikki moddaning ikki xil zichligi bor): dense → density → densities; -e → -ity, y → ies."
+      }
+    },
+    {
+      "key": "c1-m06-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "catalyst"
+      ],
+      "text": "Platinum is highly ___, which is why it speeds up so many reactions.",
+      "base": "catalyst",
+      "accepted": [
+        "catalytic"
+      ],
+      "translation": {
+        "ru": "Платина обладает высокой каталитической активностью, поэтому ускоряет очень многие реакции.",
+        "uz": "Platina yuqori katalitik faollikka ega, shuning uchun juda ko'p reaksiyalarni tezlashtiradi."
+      },
+      "explanation": {
+        "ru": "После is highly нужно прилагательное: catalyst → catalytic; -st меняется на -tic (как analyst → analytic).",
+        "uz": "is highly so'zlaridan keyin sifat kerak: catalyst → catalytic; -st o'rniga -tic yoziladi (analyst → analytic kabi)."
+      }
+    },
+    {
+      "key": "c1-m06-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "compound"
+      ],
+      "text": "Chemists have created a new *connection* that kills bacteria on contact.",
+      "options": [
+        "compound",
+        "junction",
+        "link"
+      ],
+      "correct": [
+        "compound"
+      ],
+      "translation": {
+        "ru": "Химики создали новое соединение, которое убивает бактерии при контакте.",
+        "uz": "Kimyogarlar bakteriyalarni tegishi bilan o'ldiradigan yangi kimyoviy birikma yaratdi."
+      },
+      "explanation": {
+        "ru": "Химическое соединение — compound. Русское «соединение» здесь не connection: connection — связь, подключение; junction — узел, перекрёсток.",
+        "uz": "Kimyoviy birikma — compound. Ruscha «soyedineniye» so'zi bu yerda connection emas: connection — aloqa, ulanish; junction — tugun, chorraha."
+      }
+    },
+    {
+      "key": "c1-m06-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "solvent"
+      ],
+      "text": "Alcohol is a useful *soluble* for cleaning glue off glass.",
+      "options": [
+        "solvent",
+        "solvency",
+        "solubility"
+      ],
+      "correct": [
+        "solvent"
+      ],
+      "translation": {
+        "ru": "Спирт — удобный растворитель, чтобы счищать клей со стекла.",
+        "uz": "Spirt shishadagi yelimni tozalash uchun qulay erituvchi hisoblanadi."
+      },
+      "explanation": {
+        "ru": "После a useful нужно существительное «растворитель» — solvent. soluble — прилагательное «растворимый» (Sugar is soluble in water).",
+        "uz": "a useful so'zlaridan keyin «erituvchi» degan ot kerak — solvent. soluble — «eriydigan» degan sifat (Sugar is soluble in water)."
+      }
+    },
+    {
+      "key": "c1-m06-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "velocity"
+      ],
+      "text": "As the stone fell from the tower, it steadily *collected* velocity.",
+      "options": [
+        "gained",
+        "won",
+        "earned"
+      ],
+      "correct": [
+        "gained"
+      ],
+      "translation": {
+        "ru": "Падая с башни, камень постепенно набирал скорость.",
+        "uz": "Minoradan tushayotgan tosh asta-sekin tezlik oshirib bordi."
+      },
+      "explanation": {
+        "ru": "Набирать скорость — gain velocity (или gain speed). Русское «набирать» здесь не collect: collect — собирать предметы.",
+        "uz": "Tezlik oshirmoq — gain velocity (yoki gain speed). Bu yerda «yig'moq» ma'nosidagi collect ishlatilmaydi: collect — narsalarni to'plamoq."
+      }
+    },
+    {
+      "key": "c1-m06-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "microbe"
+      ],
+      "text": "All tap water is tested for ___ contamination before it reaches homes.",
+      "base": "microbe",
+      "accepted": [
+        "microbial"
+      ],
+      "translation": {
+        "ru": "Всю водопроводную воду проверяют на микробное загрязнение, прежде чем она попадёт в дома.",
+        "uz": "Barcha vodoprovod suvi xonadonlarga yetib borishidan oldin mikrobli ifloslanishga tekshiriladi."
+      },
+      "explanation": {
+        "ru": "Перед contamination нужно прилагательное: microbe → microbial (конечная e выпадает, добавляется -ial).",
+        "uz": "contamination so'zidan oldin sifat kerak: microbe → microbial (oxirgi e tushib, -ial qo'shiladi)."
+      }
+    },
+    {
+      "key": "c1-m06-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "mutation"
+      ],
+      "text": "By the time the vaccine was ready, the virus had already ___ twice.",
+      "base": "mutation",
+      "accepted": [
+        "mutated"
+      ],
+      "translation": {
+        "ru": "К тому времени, как вакцина была готова, вирус уже дважды мутировал.",
+        "uz": "Vaksina tayyor bo'lgunga qadar virus allaqachon ikki marta mutatsiyaga uchragan edi."
+      },
+      "explanation": {
+        "ru": "После had нужен третий участник глагола. Глагол от mutation — mutate (-ion отпадает): mutated.",
+        "uz": "had so'zidan keyin fe'lning uchinchi shakli kerak. mutation so'zining fe'li — mutate (-ion tushib qoladi): mutated."
+      }
+    },
+    {
+      "key": "c1-m06-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "pathogen"
+      ],
+      "text": "Most bacteria are harmless, and only a few are highly ___.",
+      "base": "pathogen",
+      "accepted": [
+        "pathogenic"
+      ],
+      "translation": {
+        "ru": "Большинство бактерий безвредны, и лишь немногие крайне болезнетворны.",
+        "uz": "Bakteriyalarning aksariyati zararsiz, faqat ozginasi kuchli kasallik qo'zg'atadi."
+      },
+      "explanation": {
+        "ru": "После are highly нужно прилагательное, противоположное harmless: pathogen → pathogenic (+ -ic).",
+        "uz": "are highly so'zlaridan keyin harmless so'ziga zid sifat kerak: pathogen → pathogenic (-ic qo'shiladi)."
+      }
+    },
+    {
+      "key": "c1-m06-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "enzyme"
+      ],
+      "text": "Many washing powders contain *ferments* that break down dirt at low temperatures.",
+      "options": [
+        "enzymes",
+        "yeasts",
+        "fermentations"
+      ],
+      "correct": [
+        "enzymes"
+      ],
+      "translation": {
+        "ru": "Многие стиральные порошки содержат ферменты, которые расщепляют грязь при низкой температуре.",
+        "uz": "Ko'plab kir yuvish kukunlarida past haroratda kirni parchalaydigan fermentlar bor."
+      },
+      "explanation": {
+        "ru": "Фермент по-английски — enzyme. Русское и узбекское «фермент» сбивают: ferment — прежде всего глагол «бродить, вызывать брожение».",
+        "uz": "Ferment inglizcha enzyme bo'ladi. O'zbekcha va ruscha «ferment» chalg'itadi: ferment — avvalo «achimoq, bijg'imoq» degan fe'l."
+      }
+    },
+    {
+      "key": "c1-m06-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "genome"
+      ],
+      "text": "Scientists have now read the complete *genom* of the wheat plant.",
+      "options": [
+        "genome",
+        "genus",
+        "genre"
+      ],
+      "correct": [
+        "genome"
+      ],
+      "translation": {
+        "ru": "Учёные уже прочитали полный геном пшеницы.",
+        "uz": "Olimlar bug'doyning to'liq genomini o'qib chiqdi."
+      },
+      "explanation": {
+        "ru": "Слово пишется genome — с e на конце, как chromosome. Русское и узбекское «геном / genom» подсказывают написание без e.",
+        "uz": "So'z oxirida e bilan genome deb yoziladi, xuddi chromosome kabi. O'zbekcha va ruscha «genom» e harfisiz yozishga undaydi."
+      }
+    },
+    {
+      "key": "c1-m06-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "hereditary"
+      ],
+      "text": "This kind of hearing loss is *heredity*: it passes from parents to children.",
+      "options": [
+        "hereditary",
+        "heritage",
+        "inheritance"
+      ],
+      "correct": [
+        "hereditary"
+      ],
+      "translation": {
+        "ru": "Этот вид потери слуха наследственный: он передаётся от родителей к детям.",
+        "uz": "Eshitish qobiliyatini yo'qotishning bu turi irsiy: u ota-onadan farzandlarga o'tadi."
+      },
+      "explanation": {
+        "ru": "После is нужно прилагательное: hereditary («наследственный»). heredity — существительное «наследственность», heritage — «наследие».",
+        "uz": "is fe'lidan keyin sifat kerak: hereditary («irsiy»). heredity — «irsiyat» degan ot, heritage — «meros»."
+      }
+    }
+  ]
+}

@@ -1,0 +1,1627 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b2",
+  "items": [
+    {
+      "key": "b2-m05-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "compatible"
+      ],
+      "text": "Our two programs refused to work together because of a strange ___.",
+      "base": "compatible",
+      "accepted": [
+        "incompatibility"
+      ],
+      "translation": {
+        "ru": "Две наши программы отказывались работать вместе из-за странной несовместимости.",
+        "uz": "Ikkala dasturimiz qandaydir g'alati mos kelmaslik tufayli birga ishlamadi."
+      },
+      "explanation": {
+        "ru": "После a strange нужно существительное, а refused говорит об отрицании. Два шага: compatible → incompatible (in-) → incompatibility (-ible → -ibility).",
+        "uz": "a strange so'zlaridan keyin ot kerak, refused esa inkor ma'nosini beradi. Ikki bosqich: compatible → incompatible (in-) → incompatibility (-ible o'rniga -ibility)."
+      }
+    },
+    {
+      "key": "b2-m05-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "bug"
+      ],
+      "text": "The developers stayed late, trying to ___ the new version of the app.",
+      "base": "bug",
+      "accepted": [
+        "debug"
+      ],
+      "translation": {
+        "ru": "Разработчики задержались допоздна, пытаясь отладить новую версию приложения.",
+        "uz": "Dasturchilar ilovaning yangi versiyasini xatolardan tozalashga urinib, kechgacha qolib ketishdi."
+      },
+      "explanation": {
+        "ru": "После trying to нужен глагол в начальной форме со значением «убирать ошибки»: приставка de- значит «удалять»: bug → debug.",
+        "uz": "trying to so'zlaridan keyin «xatolarni yo'qotmoq» ma'nosidagi fe'l kerak: de- old qo'shimchasi «olib tashlash»ni bildiradi: bug → debug."
+      }
+    },
+    {
+      "key": "b2-m05-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "archive"
+      ],
+      "text": "As the company's ___, she decides which old files we keep.",
+      "base": "archive",
+      "accepted": [
+        "archivist"
+      ],
+      "translation": {
+        "ru": "Как архивариус компании, она решает, какие старые файлы мы храним.",
+        "uz": "Kompaniyaning arxivchisi sifatida qaysi eski fayllarni saqlab qolishimizni u hal qiladi."
+      },
+      "explanation": {
+        "ru": "As ... she требует человека, а не место: суффикс -ist обозначает специалиста. archive → archivist (e выпадает).",
+        "uz": "As ... she qurilmasi joyni emas, odamni talab qiladi: -ist qo'shimchasi mutaxassisni bildiradi. archive → archivist (e tushib qoladi)."
+      }
+    },
+    {
+      "key": "b2-m05-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "default"
+      ],
+      "text": "The app saves new photos to this folder *on* default.",
+      "options": [
+        "by",
+        "in",
+        "at"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "По умолчанию приложение сохраняет новые фото в эту папку.",
+        "uz": "Ilova yangi suratlarni sukut bo'yicha shu jildga saqlaydi."
+      },
+      "explanation": {
+        "ru": "by default — «по умолчанию»: устойчивое сочетание только с by. Русское «по» здесь не on; in default значит «не выплатив долг».",
+        "uz": "by default — «sukut bo'yicha, standart holatda»: faqat by predlogi bilan keladigan turg'un birikma. in default esa «qarzini to'lamagan» degani."
+      }
+    },
+    {
+      "key": "b2-m05-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "server"
+      ],
+      "text": "The server *fell* again because too many users logged in at once.",
+      "options": [
+        "crashed",
+        "fell down",
+        "landed"
+      ],
+      "correct": [
+        "crashed"
+      ],
+      "translation": {
+        "ru": "Сервер снова упал, потому что слишком много пользователей зашли одновременно.",
+        "uz": "Bir vaqtning o'zida juda ko'p foydalanuvchi kirgani uchun server yana ishdan chiqdi."
+      },
+      "explanation": {
+        "ru": "О внезапном сбое сервера или программы говорят crash: the server crashed. Русское «сервер упал» не переводится через fell: fell значит упасть физически.",
+        "uz": "Server yoki dastur to'satdan ishdan chiqishi haqida crash fe'li ishlatiladi: the server crashed. fell esa jismonan yiqilmoq degani."
+      }
+    },
+    {
+      "key": "b2-m05-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "interface"
+      ],
+      "text": "Many older users find the new interface *frustrated* to use.",
+      "options": [
+        "frustrating",
+        "frustration",
+        "frustratingly"
+      ],
+      "correct": [
+        "frustrating"
+      ],
+      "translation": {
+        "ru": "Многим пожилым пользователям новый интерфейс кажется неудобным и раздражающим.",
+        "uz": "Yangi interfeysdan foydalanish ko'plab keksa foydalanuvchilarning asabiga tegadi."
+      },
+      "explanation": {
+        "ru": "Интерфейс сам ничего не чувствует, он вызывает досаду, поэтому нужна форма на -ing: frustrating. Форма на -ed описывает чувства человека: users feel frustrated.",
+        "uz": "Interfeysning o'zi hech narsa his qilmaydi, u odamning g'ashini keltiradi, shuning uchun -ing shakli kerak: frustrating. -ed shakli odamning hissini bildiradi: users feel frustrated."
+      }
+    },
+    {
+      "key": "b2-m05-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "intelligence"
+      ],
+      "text": "The ___ of the new chatbot surprised even the people who built it.",
+      "base": "intelligent",
+      "accepted": [
+        "intelligence"
+      ],
+      "translation": {
+        "ru": "Интеллект нового чат-бота удивил даже тех, кто его создал.",
+        "uz": "Yangi chat-botning intellekti hatto uni yaratganlarni ham hayratga soldi."
+      },
+      "explanation": {
+        "ru": "После The и перед of нужно существительное: intelligent → intelligence; -ent меняется на -ence (не -ance).",
+        "uz": "The va of so'zlari orasida ot kerak: intelligent → intelligence; -ent o'rniga -ence yoziladi (-ance emas)."
+      }
+    },
+    {
+      "key": "b2-m05-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "recognition"
+      ],
+      "text": "The software's ___ of human speech is still far from perfect.",
+      "base": "recognize",
+      "accepted": [
+        "recognition"
+      ],
+      "translation": {
+        "ru": "Распознавание человеческой речи у этой программы всё ещё далеко от совершенства.",
+        "uz": "Bu dasturning inson nutqini tanib olishi hali ham mukammallikdan yiroq."
+      },
+      "explanation": {
+        "ru": "После software's нужно существительное: recognize → recognition; -ize меняется на -ition.",
+        "uz": "software's so'zidan keyin ot kerak: recognize → recognition; -ize o'rniga -ition yoziladi."
+      }
+    },
+    {
+      "key": "b2-m05-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "automation"
+      ],
+      "text": "Full ___ of the warehouse will cut costs but also many jobs.",
+      "base": "automate",
+      "accepted": [
+        "automation"
+      ],
+      "translation": {
+        "ru": "Полная автоматизация склада снизит расходы, но и сократит много рабочих мест.",
+        "uz": "Omborni to'liq avtomatlashtirish xarajatlarni kamaytiradi, lekin ko'plab ish o'rinlarini ham qisqartiradi."
+      },
+      "explanation": {
+        "ru": "После прилагательного full нужно существительное: automate → automation (-ate → -ation). Русское «автоматизация» подсказывает automatization, но обычное слово — automation.",
+        "uz": "full sifatidan keyin ot kerak: automate → automation (-ate o'rniga -ation). Ruscha «avtomatizatsiya» so'zi automatization shaklini eslatadi, lekin odatdagi inglizcha so'z — automation."
+      }
+    },
+    {
+      "key": "b2-m05-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "mimic"
+      ],
+      "text": "This little robot *mimicks* every move that you make.",
+      "options": [
+        "mimics",
+        "mimicking",
+        "mimic"
+      ],
+      "correct": [
+        "mimics"
+      ],
+      "translation": {
+        "ru": "Этот маленький робот повторяет каждое ваше движение.",
+        "uz": "Bu kichkina robot har bir harakatingizni o'xshatib takrorlaydi."
+      },
+      "explanation": {
+        "ru": "Буква k добавляется только перед -ed и -ing (mimicked, mimicking), чтобы сохранить звук [k]. Перед -s её нет: mimics.",
+        "uz": "k harfi faqat -ed va -ing oldidan qo'shiladi (mimicked, mimicking), [k] tovushi saqlanishi uchun. -s oldidan qo'shilmaydi: mimics."
+      }
+    },
+    {
+      "key": "b2-m05-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "neural"
+      ],
+      "text": "This *neutral* network has learned to recognize faces in photos.",
+      "options": [
+        "neural",
+        "nervous",
+        "natural"
+      ],
+      "correct": [
+        "neural"
+      ],
+      "translation": {
+        "ru": "Эта нейронная сеть научилась распознавать лица на фотографиях.",
+        "uz": "Bu neyron tarmoq suratlardagi yuzlarni tanib olishni o'rgandi."
+      },
+      "explanation": {
+        "ru": "neural network — нейронная сеть. neutral значит «нейтральный», nervous — «нервный»: слова похожи, но значат другое.",
+        "uz": "neural network — neyron tarmoq. neutral «betaraf», nervous esa «asabiy» degani: so'zlar o'xshash, lekin ma'nosi boshqa."
+      }
+    },
+    {
+      "key": "b2-m05-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "robotics"
+      ],
+      "text": "Robotics *were* my favorite subject, so I chose it for my degree.",
+      "options": [
+        "was",
+        "are",
+        "have been"
+      ],
+      "correct": [
+        "was"
+      ],
+      "translation": {
+        "ru": "Робототехника была моим любимым предметом, поэтому я выбрал её своей специальностью.",
+        "uz": "Robototexnika eng sevimli fanim edi, shuning uchun uni mutaxassislik qilib tanladim."
+      },
+      "explanation": {
+        "ru": "Названия наук на -ics (robotics, physics, mathematics) согласуются с глаголом в единственном числе: robotics was. На это указывает и it.",
+        "uz": "-ics bilan tugaydigan fan nomlari (robotics, physics, mathematics) birlikdagi fe'l bilan keladi: robotics was. Buni it olmoshi ham ko'rsatadi."
+      }
+    },
+    {
+      "key": "b2-m05-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "innovation"
+      ],
+      "text": "This is the most ___ phone that the company has ever made.",
+      "base": "innovation",
+      "accepted": [
+        "innovative"
+      ],
+      "translation": {
+        "ru": "Это самый инновационный телефон, который компания когда-либо выпускала.",
+        "uz": "Bu kompaniya hozirgacha chiqargan eng innovatsion telefon."
+      },
+      "explanation": {
+        "ru": "Между the most и существительным phone нужно прилагательное: innovation → innovative; -ion меняется на -ive.",
+        "uz": "the most va phone oti orasida sifat kerak: innovation → innovative; -ion o'rniga -ive yoziladi."
+      }
+    },
+    {
+      "key": "b2-m05-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "modernize"
+      ],
+      "text": "A complete ___ of the old railway will take at least ten years.",
+      "base": "modernize",
+      "accepted": [
+        "modernization"
+      ],
+      "translation": {
+        "ru": "Полная модернизация старой железной дороги займёт не меньше десяти лет.",
+        "uz": "Eski temir yo'lni to'liq zamonaviylashtirish kamida o'n yil davom etadi."
+      },
+      "explanation": {
+        "ru": "После a complete нужно существительное: modernize → modernization; -ize меняется на -ization.",
+        "uz": "a complete so'zlaridan keyin ot kerak: modernize → modernization; -ize o'rniga -ization yoziladi."
+      }
+    },
+    {
+      "key": "b2-m05-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "futuristic"
+      ],
+      "text": "Her silver dress looked so ___ that people asked if she came from space.",
+      "base": "future",
+      "accepted": [
+        "futuristic"
+      ],
+      "translation": {
+        "ru": "Её серебристое платье выглядело так футуристично, что люди спрашивали, не из космоса ли она.",
+        "uz": "Uning kumushrang ko'ylagi shunchalik futuristik ko'rinardiki, odamlar u koinotdan kelganmi, deb so'rashardi."
+      },
+      "explanation": {
+        "ru": "looked здесь значит «выглядело», поэтому после looked so нужно прилагательное: future → futuristic; e выпадает, добавляется -istic.",
+        "uz": "looked bu yerda «ko'rinardi» degani, shuning uchun looked so so'zlaridan keyin sifat kerak: future → futuristic; e tushib qoladi, -istic qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m05-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "enhance"
+      ],
+      "text": "The quality of old photos can *enhance* with this free app.",
+      "options": [
+        "be enhanced",
+        "be enhancing",
+        "have enhanced"
+      ],
+      "correct": [
+        "be enhanced"
+      ],
+      "translation": {
+        "ru": "С помощью этого бесплатного приложения можно улучшить качество старых фотографий.",
+        "uz": "Bu bepul ilova yordamida eski suratlar sifatini yaxshilash mumkin."
+      },
+      "explanation": {
+        "ru": "enhance — переходный глагол: улучшают что-то. Качество не улучшает само, его улучшают, поэтому после can нужен пассив: can be enhanced.",
+        "uz": "enhance o'timli fe'l: biror narsani yaxshilaydi. Sifat o'zi yaxshilamaydi, uni yaxshilashadi, shuning uchun can so'zidan keyin majhul nisbat kerak: can be enhanced."
+      }
+    },
+    {
+      "key": "b2-m05-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "outdated"
+      ],
+      "text": "Our school still uses *outdate* computers that take ages to start.",
+      "options": [
+        "outdated",
+        "outdating",
+        "outdates"
+      ],
+      "correct": [
+        "outdated"
+      ],
+      "translation": {
+        "ru": "В нашей школе до сих пор стоят устаревшие компьютеры, которые очень долго включаются.",
+        "uz": "Maktabimizda hali ham yoqilishiga ancha vaqt ketadigan eskirgan kompyuterlar ishlatiladi."
+      },
+      "explanation": {
+        "ru": "Перед существительным нужно прилагательное «устаревший» — outdated, всегда с окончанием -ed. outdate — редкий глагол, перед существительным он невозможен.",
+        "uz": "Ot oldidan «eskirgan» sifati kerak — outdated, doim -ed qo'shimchasi bilan. outdate — kam ishlatiladigan fe'l, ot oldidan qo'yilmaydi."
+      }
+    },
+    {
+      "key": "b2-m05-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "revolutionary"
+      ],
+      "text": "Many experts called the first smartphone a *revolutional* invention.",
+      "options": [
+        "revolutionary",
+        "revolutionized",
+        "revolution"
+      ],
+      "correct": [
+        "revolutionary"
+      ],
+      "translation": {
+        "ru": "Многие эксперты назвали первый смартфон революционным изобретением.",
+        "uz": "Ko'plab mutaxassislar birinchi smartfonni inqilobiy ixtiro deb atashdi."
+      },
+      "explanation": {
+        "ru": "Прилагательное от revolution — revolutionary (суффикс -ary). Слова revolutional в словарях нет: русское «революционный» подсказывает неверный суффикс -al.",
+        "uz": "revolution otidan yasalgan sifat — revolutionary (-ary qo'shimchasi). revolutional so'zi lug'atlarda yo'q: -al qo'shimchasi bu yerda noto'g'ri."
+      }
+    },
+    {
+      "key": "b2-m05-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "vulnerable"
+      ],
+      "text": "Hackers found a serious ___ in the bank's mobile app.",
+      "base": "vulnerable",
+      "accepted": [
+        "vulnerability"
+      ],
+      "translation": {
+        "ru": "Хакеры нашли серьёзную уязвимость в мобильном приложении банка.",
+        "uz": "Xakerlar bankning mobil ilovasida jiddiy zaiflik topishdi."
+      },
+      "explanation": {
+        "ru": "После a serious нужно существительное: vulnerable → vulnerability; -able меняется на -ability.",
+        "uz": "a serious so'zlaridan keyin ot kerak: vulnerable → vulnerability; -able o'rniga -ability yoziladi."
+      }
+    },
+    {
+      "key": "b2-m05-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "anonymous"
+      ],
+      "text": "This website promises to protect the ___ of everyone who writes to it.",
+      "base": "anonymous",
+      "accepted": [
+        "anonymity"
+      ],
+      "translation": {
+        "ru": "Этот сайт обещает сохранить анонимность каждого, кто ему пишет.",
+        "uz": "Bu sayt unga yozgan har bir kishining anonimligini saqlashni va'da qiladi."
+      },
+      "explanation": {
+        "ru": "Между the и of нужно существительное: anonymous → anonymity; окончание -ous заменяется на -ity.",
+        "uz": "the va of so'zlari orasida ot kerak: anonymous → anonymity; -ous qo'shimchasi o'rniga -ity yoziladi."
+      }
+    },
+    {
+      "key": "b2-m05-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "unauthorized"
+      ],
+      "text": "Somebody used my card for an ___ payment that I never made.",
+      "base": "authorize",
+      "accepted": [
+        "unauthorized"
+      ],
+      "translation": {
+        "ru": "Кто-то использовал мою карту для несанкционированного платежа, которого я не совершал.",
+        "uz": "Kimdir kartamdan men amalga oshirmagan ruxsatsiz to'lov uchun foydalangan."
+      },
+      "explanation": {
+        "ru": "Слова that I never made показывают, что платёж был без разрешения. Два шага: authorize → authorized (причастие) → unauthorized (приставка un-).",
+        "uz": "that I never made so'zlari to'lov ruxsatsiz bo'lganini ko'rsatadi. Ikki bosqich: authorize → authorized (sifatdosh) → unauthorized (un- old qo'shimchasi)."
+      }
+    },
+    {
+      "key": "b2-m05-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "malware"
+      ],
+      "text": "Malware *are* often hidden in free games, and it can steal passwords.",
+      "options": [
+        "is",
+        "were",
+        "be"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Вредоносные программы часто прячут в бесплатных играх, и они могут красть пароли.",
+        "uz": "Zararli dasturlar ko'pincha bepul o'yinlarga yashiriladi va ular parollarni o'g'irlashi mumkin."
+      },
+      "explanation": {
+        "ru": "malware — неисчисляемое существительное, как software: глагол в единственном числе (malware is), и о нём говорят it.",
+        "uz": "malware — software kabi sanalmaydigan ot: fe'l birlikda keladi (malware is) va unga it olmoshi bilan ishora qilinadi."
+      }
+    },
+    {
+      "key": "b2-m05-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "confidential"
+      ],
+      "text": "Do not forward this letter to anyone, because its contents are *confident*.",
+      "options": [
+        "confidential",
+        "confidence",
+        "confidentially"
+      ],
+      "correct": [
+        "confidential"
+      ],
+      "translation": {
+        "ru": "Никому не пересылайте это письмо: его содержание конфиденциально.",
+        "uz": "Bu xatni hech kimga yubormang, chunki uning mazmuni maxfiy."
+      },
+      "explanation": {
+        "ru": "confident — «уверенный в себе», так говорят о человеке. «Конфиденциальный, секретный» — confidential.",
+        "uz": "confident — «o'ziga ishongan», bu odam haqida aytiladi. «Maxfiy» ma'nosida confidential so'zi ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m05-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "encrypt"
+      ],
+      "text": "All your messages are *encrypting* before they leave your phone.",
+      "options": [
+        "encrypted",
+        "encryption",
+        "encrypt"
+      ],
+      "correct": [
+        "encrypted"
+      ],
+      "translation": {
+        "ru": "Все ваши сообщения шифруются, прежде чем покидают телефон.",
+        "uz": "Barcha xabarlaringiz telefoningizdan chiqishidan oldin shifrlanadi."
+      },
+      "explanation": {
+        "ru": "Сообщения не шифруют сами, их шифруют, поэтому нужен пассив: are + третья форма, are encrypted. are encrypting значило бы, что сообщения сами что-то шифруют.",
+        "uz": "Xabarlar o'zi shifrlamaydi, ularni shifrlashadi, shuning uchun majhul nisbat kerak: are + uchinchi shakl, are encrypted. are encrypting esa xabarlarning o'zi nimanidir shifrlayotganini bildirardi."
+      }
+    },
+    {
+      "key": "b2-m05-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "durable"
+      ],
+      "text": "Buyers love this brand of boots for its ___ and low price.",
+      "base": "durable",
+      "accepted": [
+        "durability"
+      ],
+      "translation": {
+        "ru": "Покупатели любят эту марку ботинок за прочность и низкую цену.",
+        "uz": "Xaridorlar bu brenddagi botinkalarni chidamliligi va arzon narxi uchun yaxshi ko'radi."
+      },
+      "explanation": {
+        "ru": "После its нужно существительное, как и в паре low price: durable → durability; -able меняется на -ability.",
+        "uz": "its so'zidan keyin low price kabi ot kerak: durable → durability; -able o'rniga -ability yoziladi."
+      }
+    },
+    {
+      "key": "b2-m05-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "transmit"
+      ],
+      "text": "A storm interrupted the live ___ of the football match.",
+      "base": "transmit",
+      "accepted": [
+        "transmission"
+      ],
+      "translation": {
+        "ru": "Гроза прервала прямую трансляцию футбольного матча.",
+        "uz": "Bo'ron futbol o'yinining jonli translyatsiyasini uzib qo'ydi."
+      },
+      "explanation": {
+        "ru": "После the live нужно существительное: transmit → transmission; -mit меняется на -mission, как permit → permission.",
+        "uz": "the live so'zlaridan keyin ot kerak: transmit → transmission; -mit o'rniga -mission yoziladi, xuddi permit → permission kabi."
+      }
+    },
+    {
+      "key": "b2-m05-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "compact"
+      ],
+      "text": "The ___ of this laptop makes it perfect for long trips.",
+      "base": "compact",
+      "accepted": [
+        "compactness"
+      ],
+      "translation": {
+        "ru": "Компактность этого ноутбука делает его идеальным для долгих поездок.",
+        "uz": "Bu noutbukning ixchamligi uni uzoq safarlar uchun juda qulay qiladi."
+      },
+      "explanation": {
+        "ru": "Между The и of нужно существительное, подлежащее при makes: compact → compactness (суффикс -ness).",
+        "uz": "The va of so'zlari orasida makes fe'lining egasi bo'lgan ot kerak: compact → compactness (-ness qo'shimchasi)."
+      }
+    },
+    {
+      "key": "b2-m05-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "socket"
+      ],
+      "text": "Push the plug into the *rosette*, or the charger will not work.",
+      "options": [
+        "socket",
+        "switch",
+        "button"
+      ],
+      "correct": [
+        "socket"
+      ],
+      "translation": {
+        "ru": "Вставьте вилку в розетку, иначе зарядное устройство не будет работать.",
+        "uz": "Vilkani rozetkaga tiqing, aks holda quvvatlagich ishlamaydi."
+      },
+      "explanation": {
+        "ru": "Ложный друг: английское rosette — бант или украшение в форме розы. Электрическая розетка — socket (в американском английском также outlet).",
+        "uz": "Soxta do'st: inglizcha rosette — gul shaklidagi bant yoki bezak. Elektr rozetkasi — socket (Amerika ingliz tilida outlet ham deyiladi)."
+      }
+    },
+    {
+      "key": "b2-m05-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "mechanism"
+      ],
+      "text": "The *mechanic* inside this old clock still works perfectly.",
+      "options": [
+        "mechanism",
+        "mechanical",
+        "mechanize"
+      ],
+      "correct": [
+        "mechanism"
+      ],
+      "translation": {
+        "ru": "Механизм внутри этих старых часов до сих пор работает безупречно.",
+        "uz": "Bu eski soat ichidagi mexanizm hali ham benuqson ishlaydi."
+      },
+      "explanation": {
+        "ru": "mechanic — механик, человек, который чинит машины. Устройство из движущихся деталей — mechanism.",
+        "uz": "mechanic — mexanik, ya'ni mashinalarni tuzatadigan odam. Harakatlanuvchi qismlardan iborat qurilma — mechanism."
+      }
+    },
+    {
+      "key": "b2-m05-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "appliance"
+      ],
+      "text": "Our new kitchen is full of modern *appliance*, but we rarely cook.",
+      "options": [
+        "appliances",
+        "applications",
+        "appliance's"
+      ],
+      "correct": [
+        "appliances"
+      ],
+      "translation": {
+        "ru": "Наша новая кухня полна современной бытовой техники, но мы редко готовим.",
+        "uz": "Yangi oshxonamiz zamonaviy maishiy texnikaga to'la, lekin biz kamdan-kam ovqat pishiramiz."
+      },
+      "explanation": {
+        "ru": "appliance — исчисляемое: один прибор. Русское «техника» — собирательное слово, а по-английски после full of нужно множественное число: appliances.",
+        "uz": "appliance sanaladigan ot: bitta asbob. O'zbekcha «texnika» jamlovchi so'z, inglizchada esa full of birikmasidan keyin ko'plik kerak: appliances."
+      }
+    },
+    {
+      "key": "b2-m06-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "obesity"
+      ],
+      "text": "Doctors are worried about the rise in childhood ___ across the country.",
+      "base": "obese",
+      "accepted": [
+        "obesity"
+      ],
+      "translation": {
+        "ru": "Врачей беспокоит рост детского ожирения по всей стране.",
+        "uz": "Shifokorlarni butun mamlakat bo'ylab bolalar semizligining ortib borayotgani xavotirga solmoqda."
+      },
+      "explanation": {
+        "ru": "После childhood нужно существительное: obese → obesity; e выпадает, добавляется -ity.",
+        "uz": "childhood so'zidan keyin ot kerak: obese → obesity; e tushib qoladi, -ity qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m06-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "chronic"
+      ],
+      "text": "The center offers free care to ___ ill patients who live alone.",
+      "base": "chronic",
+      "accepted": [
+        "chronically"
+      ],
+      "translation": {
+        "ru": "Центр бесплатно ухаживает за хронически больными пациентами, которые живут одни.",
+        "uz": "Markaz yolg'iz yashaydigan surunkali kasal bemorlarga bepul g'amxo'rlik qiladi."
+      },
+      "explanation": {
+        "ru": "Слово стоит перед прилагательным ill и описывает его, поэтому нужно наречие: chronic → chronically (к -ic добавляется -ally).",
+        "uz": "So'z ill sifatidan oldin turib, uni izohlaydi, shuning uchun ravish kerak: chronic → chronically (-ic qo'shimchasiga -ally qo'shiladi)."
+      }
+    },
+    {
+      "key": "b2-m06-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "diabetes"
+      ],
+      "text": "My grandfather is ___, so he checks his sugar level every morning.",
+      "base": "diabetes",
+      "accepted": [
+        "diabetic"
+      ],
+      "translation": {
+        "ru": "Мой дедушка болеет диабетом, поэтому каждое утро проверяет уровень сахара.",
+        "uz": "Bobom qandli diabet bilan og'riydi, shuning uchun har kuni ertalab qonidagi qand miqdorini tekshiradi."
+      },
+      "explanation": {
+        "ru": "После is о человеке нужно прилагательное «больной диабетом»: diabetes → diabetic (-es отпадает, добавляется -ic).",
+        "uz": "Odam haqida is fe'lidan keyin «diabet bilan og'rigan» degan sifat kerak: diabetes → diabetic (-es tushib qoladi, -ic qo'shiladi)."
+      }
+    },
+    {
+      "key": "b2-m06-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "stroke"
+      ],
+      "text": "My uncle *was* a stroke and spent a month in the hospital.",
+      "options": [
+        "had",
+        "made",
+        "did"
+      ],
+      "correct": [
+        "had"
+      ],
+      "translation": {
+        "ru": "У моего дяди случился инсульт, и он месяц пролежал в больнице.",
+        "uz": "Amakim insultga uchradi va bir oy kasalxonada yotdi."
+      },
+      "explanation": {
+        "ru": "have a stroke — «перенести инсульт». Русское «у него был инсульт» не переводится через was: сам человек не инсульт.",
+        "uz": "have a stroke — «insultga uchramoq». Bunda was ishlatilmaydi: odamning o'zi insult emas-ku."
+      }
+    },
+    {
+      "key": "b2-m06-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "fatigue"
+      ],
+      "text": "After the long flight, she suffered from terrible *fatigues*.",
+      "options": [
+        "fatigue",
+        "fatigued",
+        "fatiguing"
+      ],
+      "correct": [
+        "fatigue"
+      ],
+      "translation": {
+        "ru": "После долгого перелёта она страдала от сильной усталости.",
+        "uz": "Uzoq parvozdan keyin u qattiq charchoqdan qiynaldi."
+      },
+      "explanation": {
+        "ru": "fatigue (сильная усталость) — неисчисляемое существительное, множественного числа у него нет; fatigues — это военная полевая форма.",
+        "uz": "fatigue (kuchli charchoq) sanalmaydigan ot, uning ko'plik shakli yo'q; fatigues esa harbiy dala kiyimi degani."
+      }
+    },
+    {
+      "key": "b2-m06-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "epidemic"
+      ],
+      "text": "During this *epidemy*, all the schools in the city were closed.",
+      "options": [
+        "epidemic",
+        "epidemics",
+        "pandemics"
+      ],
+      "correct": [
+        "epidemic"
+      ],
+      "translation": {
+        "ru": "Во время этой эпидемии все школы города были закрыты.",
+        "uz": "Bu epidemiya paytida shahardagi barcha maktablar yopildi."
+      },
+      "explanation": {
+        "ru": "Английское существительное — epidemic, на -ic, без -y, которую подсказывает русское «эпидемия». После this — единственное число: epidemic.",
+        "uz": "Inglizcha ot — epidemic, -ic bilan tugaydi; «epidemiya» so'zi eslatadigan -y yo'q. this so'zidan keyin birlik keladi: epidemic."
+      }
+    },
+    {
+      "key": "b2-m06-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "diagnose"
+      ],
+      "text": "Three doctors gave her three different ___, and all of them were wrong.",
+      "base": "diagnose",
+      "accepted": [
+        "diagnoses"
+      ],
+      "translation": {
+        "ru": "Три врача поставили ей три разных диагноза, и все они оказались ошибочными.",
+        "uz": "Uchta shifokor unga uch xil tashxis qo'ydi va ularning hammasi noto'g'ri chiqdi."
+      },
+      "explanation": {
+        "ru": "three требует множественного числа существительного diagnosis: -is меняется на -es, diagnoses (как crisis → crises).",
+        "uz": "three so'zi diagnosis otining ko'plik shaklini talab qiladi: -is o'rniga -es yoziladi, diagnoses (xuddi crisis → crises kabi)."
+      }
+    },
+    {
+      "key": "b2-m06-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "prescribe"
+      ],
+      "text": "You cannot buy these pills without a doctor's ___.",
+      "base": "prescribe",
+      "accepted": [
+        "prescription"
+      ],
+      "translation": {
+        "ru": "Эти таблетки нельзя купить без рецепта врача.",
+        "uz": "Bu tabletkalarni shifokor retseptisiz sotib olib bo'lmaydi."
+      },
+      "explanation": {
+        "ru": "После doctor's нужно существительное: prescribe → prescription; -scribe меняется на -scription, как describe → description.",
+        "uz": "doctor's so'zidan keyin ot kerak: prescribe → prescription; -scribe o'rniga -scription yoziladi, xuddi describe → description kabi."
+      }
+    },
+    {
+      "key": "b2-m06-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "rehabilitation"
+      ],
+      "text": "After the car accident, he spent six months in a ___ center.",
+      "base": "rehabilitate",
+      "accepted": [
+        "rehabilitation"
+      ],
+      "translation": {
+        "ru": "После автомобильной аварии он провёл полгода в реабилитационном центре.",
+        "uz": "Avtohalokatdan keyin u olti oyni reabilitatsiya markazida o'tkazdi."
+      },
+      "explanation": {
+        "ru": "Перед center нужно существительное в роли определения (центр чего): rehabilitate → rehabilitation; -ate меняется на -ation.",
+        "uz": "center so'zidan oldin aniqlovchi vazifasidagi ot kerak (nimaning markazi): rehabilitate → rehabilitation; -ate o'rniga -ation yoziladi."
+      }
+    },
+    {
+      "key": "b2-m06-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "physician"
+      ],
+      "text": "My *physicist* told me to sleep more and drink less coffee.",
+      "options": [
+        "physician",
+        "physical",
+        "physics"
+      ],
+      "correct": [
+        "physician"
+      ],
+      "translation": {
+        "ru": "Мой врач посоветовал мне больше спать и меньше пить кофе.",
+        "uz": "Shifokorim menga ko'proq uxlashni va kamroq qahva ichishni maslahat berdi."
+      },
+      "explanation": {
+        "ru": "physicist — физик, учёный. Врач — physician. Слова похожи, но не путайте их.",
+        "uz": "physicist — fizik olim. Shifokor — physician. So'zlar o'xshash, lekin ularni adashtirmang."
+      }
+    },
+    {
+      "key": "b2-m06-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "remedy"
+      ],
+      "text": "There is still no reliable remedy *from* this rare skin disease.",
+      "options": [
+        "for",
+        "of",
+        "at"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "От этой редкой кожной болезни до сих пор нет надёжного средства.",
+        "uz": "Bu kamyob teri kasalligiga qarshi hali ham ishonchli davo yo'q."
+      },
+      "explanation": {
+        "ru": "remedy for — средство от чего-либо. Русское «от» здесь передаётся не from, а for.",
+        "uz": "remedy for — biror kasallikka qarshi davo. O'zbekcha «-ga qarshi» bu yerda from emas, for predlogi bilan beriladi."
+      }
+    },
+    {
+      "key": "b2-m06-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "transplant"
+      ],
+      "text": "Surgeons *made* a liver transplant that saved the young man's life.",
+      "options": [
+        "performed",
+        "produced",
+        "created"
+      ],
+      "correct": [
+        "performed"
+      ],
+      "translation": {
+        "ru": "Хирурги провели пересадку печени, которая спасла молодому человеку жизнь.",
+        "uz": "Jarrohlar yigitning hayotini saqlab qolgan jigar ko'chirib o'tkazish operatsiyasini bajarishdi."
+      },
+      "explanation": {
+        "ru": "Об операциях говорят perform (в разговоре также do): perform a transplant. Русское «сделать пересадку» не переводится через make.",
+        "uz": "Operatsiyalar haqida perform fe'li ishlatiladi (og'zaki nutqda do ham): perform a transplant. «Operatsiya qilmoq» bu yerda make bilan berilmaydi."
+      }
+    },
+    {
+      "key": "b2-m06-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "anxiety"
+      ],
+      "text": "Her ___ grew stronger as the day of the exam came closer.",
+      "base": "anxious",
+      "accepted": [
+        "anxiety",
+        "anxiousness"
+      ],
+      "translation": {
+        "ru": "Её тревога становилась всё сильнее по мере приближения экзамена.",
+        "uz": "Imtihon kuni yaqinlashgani sari uning xavotiri kuchayib bordi."
+      },
+      "explanation": {
+        "ru": "После Her нужно существительное: anxious → anxiety; -ous отпадает, x остаётся, добавляется -iety. Словари дают и anxiousness, но обычно говорят anxiety.",
+        "uz": "Her so'zidan keyin ot kerak: anxious → anxiety; -ous tushib qoladi, x saqlanadi, -iety qo'shiladi. Lug'atlarda anxiousness ham bor, lekin odatda anxiety deyiladi."
+      }
+    },
+    {
+      "key": "b2-m06-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "guilt"
+      ],
+      "text": "When his mother found the empty box of cookies, he smiled ___.",
+      "base": "guilt",
+      "accepted": [
+        "guiltily"
+      ],
+      "translation": {
+        "ru": "Когда мама нашла пустую коробку из-под печенья, он виновато улыбнулся.",
+        "uz": "Onasi bo'm-bo'sh pechenye qutisini topib olganida, u aybdorona jilmaydi."
+      },
+      "explanation": {
+        "ru": "smiled описывает наречие. Два шага: guilt → guilty → guiltily; перед -ly y меняется на i.",
+        "uz": "smiled fe'lini ravish izohlaydi. Ikki bosqich: guilt → guilty → guiltily; -ly oldidan y harfi i ga almashadi."
+      }
+    },
+    {
+      "key": "b2-m06-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "grief"
+      ],
+      "text": "Two years later, she is still ___ for her younger brother.",
+      "base": "grief",
+      "accepted": [
+        "grieving"
+      ],
+      "translation": {
+        "ru": "Спустя два года она всё ещё скорбит о младшем брате.",
+        "uz": "Oradan ikki yil o'tsa ham, u hamon ukasi uchun qayg'urmoqda."
+      },
+      "explanation": {
+        "ru": "После is still нужна форма на -ing. Глагол от grief — grieve (f меняется на v); перед -ing e отпадает: grieving.",
+        "uz": "is still so'zlaridan keyin -ing shakli kerak. grief otidan yasalgan fe'l — grieve (f o'rniga v); -ing oldidan e tushib qoladi: grieving."
+      }
+    },
+    {
+      "key": "b2-m06-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "phobia"
+      ],
+      "text": "My sister has a terrible phobia of *fly* in small planes.",
+      "options": [
+        "flying",
+        "flown",
+        "to fly"
+      ],
+      "correct": [
+        "flying"
+      ],
+      "translation": {
+        "ru": "У моей сестры ужасная фобия полётов на маленьких самолётах.",
+        "uz": "Opamda kichik samolyotlarda uchishga nisbatan kuchli fobiya bor."
+      },
+      "explanation": {
+        "ru": "После предлога of глагол ставится в форму на -ing: a phobia of flying. Инфинитив и причастие после предлога невозможны.",
+        "uz": "of predlogidan keyin fe'l -ing shaklida keladi: a phobia of flying. Predlogdan keyin infinitiv ham, sifatdosh ham qo'yilmaydi."
+      }
+    },
+    {
+      "key": "b2-m06-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "distress"
+      ],
+      "text": "The noise from the building site was a constant source of *distresses*.",
+      "options": [
+        "distress",
+        "distressed",
+        "distressing"
+      ],
+      "correct": [
+        "distress"
+      ],
+      "translation": {
+        "ru": "Шум со стройки был постоянным источником страданий.",
+        "uz": "Qurilish maydonidan keladigan shovqin doimiy iztirob manbai edi."
+      },
+      "explanation": {
+        "ru": "distress (страдание) в этом значении — неисчисляемое существительное, без множественного числа: a source of distress.",
+        "uz": "distress (iztirob) bu ma'noda sanalmaydigan ot, ko'plik shakli yo'q: a source of distress."
+      }
+    },
+    {
+      "key": "b2-m06-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "frustration"
+      ],
+      "text": "*For* my frustration, the last bus left just as I arrived.",
+      "options": [
+        "To",
+        "In",
+        "With"
+      ],
+      "correct": [
+        "To"
+      ],
+      "translation": {
+        "ru": "К моей досаде, последний автобус ушёл как раз тогда, когда я пришёл.",
+        "uz": "Men yetib kelishim bilan oxirgi avtobus jo'nab ketdi, bu esa alamimni keltirdi."
+      },
+      "explanation": {
+        "ru": "to my frustration — «к моей досаде»: устойчивый оборот с to, как to my surprise. for здесь невозможен.",
+        "uz": "to my frustration — «alamimga, hafsalam pir bo'lib»: to bilan keladigan turg'un ibora, xuddi to my surprise kabi. for bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m06-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "perception"
+      ],
+      "text": "Lack of sleep can change your ___ of time and distance.",
+      "base": "perceive",
+      "accepted": [
+        "perception"
+      ],
+      "translation": {
+        "ru": "Недостаток сна может изменить ваше восприятие времени и расстояния.",
+        "uz": "Uyqu yetishmasligi vaqt va masofani idrok etishingizni o'zgartirishi mumkin."
+      },
+      "explanation": {
+        "ru": "После your нужно существительное: perceive → perception; -ceive меняется на -ception, как receive → reception.",
+        "uz": "your so'zidan keyin ot kerak: perceive → perception; -ceive o'rniga -ception yoziladi, xuddi receive → reception kabi."
+      }
+    },
+    {
+      "key": "b2-m06-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "intuition"
+      ],
+      "text": "She knew ___ that the man on the phone was lying.",
+      "base": "intuition",
+      "accepted": [
+        "intuitively"
+      ],
+      "translation": {
+        "ru": "Она интуитивно поняла, что мужчина на том конце провода лжёт.",
+        "uz": "U telefondagi erkak yolg'on gapirayotganini ichki sezgi bilan bildi."
+      },
+      "explanation": {
+        "ru": "Глагол knew описывает наречие. Два шага: intuition → intuitive (-ion → -ive) → intuitively (-ly).",
+        "uz": "knew fe'lini ravish izohlaydi. Ikki bosqich: intuition → intuitive (-ion o'rniga -ive) → intuitively (-ly)."
+      }
+    },
+    {
+      "key": "b2-m06-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "awareness"
+      ],
+      "text": "Public ___ of the dangers of sugar has grown in recent years.",
+      "base": "aware",
+      "accepted": [
+        "awareness"
+      ],
+      "translation": {
+        "ru": "В последние годы общество всё лучше осознаёт вред сахара.",
+        "uz": "So'nggi yillarda jamiyatning shakar zararini anglashi ortdi."
+      },
+      "explanation": {
+        "ru": "После public нужно существительное, подлежащее при has grown: aware → awareness (суффикс -ness).",
+        "uz": "public so'zidan keyin has grown fe'lining egasi bo'lgan ot kerak: aware → awareness (-ness qo'shimchasi)."
+      }
+    },
+    {
+      "key": "b2-m06-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "recall"
+      ],
+      "text": "I do not recall *meet* her at the conference last spring.",
+      "options": [
+        "meeting",
+        "met",
+        "to meet"
+      ],
+      "correct": [
+        "meeting"
+      ],
+      "translation": {
+        "ru": "Я не помню, чтобы встречал её на конференции прошлой весной.",
+        "uz": "O'tgan bahorda konferensiyada u bilan uchrashganimni eslay olmayman."
+      },
+      "explanation": {
+        "ru": "После recall (вспоминать) следующее действие стоит в форме на -ing: recall meeting someone. Инфинитив to meet после recall неверен.",
+        "uz": "recall (eslamoq) fe'lidan keyin keyingi harakat -ing shaklida keladi: recall meeting someone. recall fe'lidan keyin to meet noto'g'ri."
+      }
+    },
+    {
+      "key": "b2-m06-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "reflex"
+      ],
+      "text": "When a baby grabs your finger, it is a natural *reflection*.",
+      "options": [
+        "reflex",
+        "reflect",
+        "reflective"
+      ],
+      "correct": [
+        "reflex"
+      ],
+      "translation": {
+        "ru": "Когда младенец хватает вас за палец, это естественный рефлекс.",
+        "uz": "Chaqaloqning barmog'ingizni ushlab olishi tabiiy refleksdir."
+      },
+      "explanation": {
+        "ru": "reflex — рефлекс, непроизвольная реакция тела. reflection — отражение (в зеркале) или размышление.",
+        "uz": "reflex — refleks, tananing ixtiyorsiz javobi. reflection esa aks (oynadagi) yoki mulohaza degani."
+      }
+    },
+    {
+      "key": "b2-m06-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "cognitive"
+      ],
+      "text": "People who stay *cognitive* active in old age often live longer.",
+      "options": [
+        "cognitively",
+        "cognition",
+        "mentality"
+      ],
+      "correct": [
+        "cognitively"
+      ],
+      "translation": {
+        "ru": "Люди, которые в старости сохраняют умственную активность, часто живут дольше.",
+        "uz": "Keksalikda ham aqliy jihatdan faol bo'lgan odamlar ko'pincha uzoqroq yashaydi."
+      },
+      "explanation": {
+        "ru": "Слово описывает прилагательное active, поэтому нужно наречие: cognitive → cognitively (-ly).",
+        "uz": "So'z active sifatini izohlaydi, shuning uchun ravish kerak: cognitive → cognitively (-ly)."
+      }
+    },
+    {
+      "key": "b2-m06-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "digestion"
+      ],
+      "text": "The ___ system turns food into energy that the body can use.",
+      "base": "digestion",
+      "accepted": [
+        "digestive"
+      ],
+      "translation": {
+        "ru": "Пищеварительная система превращает пищу в энергию, которую может использовать организм.",
+        "uz": "Ovqat hazm qilish tizimi ovqatni organizm foydalana oladigan energiyaga aylantiradi."
+      },
+      "explanation": {
+        "ru": "Перед system нужно прилагательное: digestion → digestive; -ion меняется на -ive. digestive system — пищеварительная система.",
+        "uz": "system so'zidan oldin sifat kerak: digestion → digestive; -ion o'rniga -ive yoziladi. digestive system — ovqat hazm qilish tizimi."
+      }
+    },
+    {
+      "key": "b2-m06-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "immunity"
+      ],
+      "text": "Children who often play outside develop a stronger ___ to colds.",
+      "base": "immune",
+      "accepted": [
+        "immunity"
+      ],
+      "translation": {
+        "ru": "У детей, которые часто играют на улице, вырабатывается более сильный иммунитет к простуде.",
+        "uz": "Tez-tez ochiq havoda o'ynaydigan bolalarda shamollashga qarshi kuchliroq immunitet shakllanadi."
+      },
+      "explanation": {
+        "ru": "После a stronger нужно существительное: immune → immunity; e отпадает, добавляется -ity.",
+        "uz": "a stronger so'zlaridan keyin ot kerak: immune → immunity; e tushib qoladi, -ity qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m06-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "meditation"
+      ],
+      "text": "She ends every yoga class with a short ___.",
+      "base": "meditate",
+      "accepted": [
+        "meditation"
+      ],
+      "translation": {
+        "ru": "Каждое занятие йогой она заканчивает короткой медитацией.",
+        "uz": "U har bir yoga mashg'ulotini qisqa meditatsiya bilan yakunlaydi."
+      },
+      "explanation": {
+        "ru": "После a short нужно существительное: meditate → meditation; -ate меняется на -ation.",
+        "uz": "a short so'zlaridan keyin ot kerak: meditate → meditation; -ate o'rniga -ation yoziladi."
+      }
+    },
+    {
+      "key": "b2-m06-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "nutrient"
+      ],
+      "text": "Cooking vegetables for too long destroys many of their *nutritions*.",
+      "options": [
+        "nutrients",
+        "nutrition",
+        "nutritious"
+      ],
+      "correct": [
+        "nutrients"
+      ],
+      "translation": {
+        "ru": "Если слишком долго варить овощи, в них разрушается много питательных веществ.",
+        "uz": "Sabzavotlarni juda uzoq pishirish ulardagi ko'plab oziq moddalarni yo'q qiladi."
+      },
+      "explanation": {
+        "ru": "nutrition (питание) — неисчисляемое, формы nutritions нет. Отдельные питательные вещества — nutrients: many of their nutrients.",
+        "uz": "nutrition (ovqatlanish) sanalmaydigan ot, nutritions shakli yo'q. Alohida oziq moddalar — nutrients: many of their nutrients."
+      }
+    },
+    {
+      "key": "b2-m06-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "lifespan"
+      ],
+      "text": "Constant stress can *short* your lifespan by several years.",
+      "options": [
+        "shorten",
+        "shortly",
+        "shorter"
+      ],
+      "correct": [
+        "shorten"
+      ],
+      "translation": {
+        "ru": "Постоянный стресс может сократить продолжительность жизни на несколько лет.",
+        "uz": "Doimiy stress umr davomiyligini bir necha yilga qisqartirishi mumkin."
+      },
+      "explanation": {
+        "ru": "short — прилагательное. Глагол «укорачивать, сокращать» образуется суффиксом -en: shorten (как wide → widen).",
+        "uz": "short — sifat. «Qisqartirmoq» fe'li -en qo'shimchasi bilan yasaladi: shorten (xuddi wide → widen kabi)."
+      }
+    },
+    {
+      "key": "b2-m06-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "supplement"
+      ],
+      "text": "Many older people take a vitamin *addition* to keep their bones strong.",
+      "options": [
+        "supplement",
+        "additive",
+        "complement"
+      ],
+      "correct": [
+        "supplement"
+      ],
+      "translation": {
+        "ru": "Многие пожилые люди принимают витаминную добавку, чтобы кости оставались крепкими.",
+        "uz": "Ko'plab keksalar suyaklari mustahkam bo'lishi uchun vitaminli qo'shimcha ichishadi."
+      },
+      "explanation": {
+        "ru": "Пищевая добавка — supplement. addition — «прибавление, сложение», а additive — добавка, которую вносят в продукты на производстве.",
+        "uz": "Oziq-ovqat qo'shimchasi — supplement. addition «qo'shish, qo'shilgan narsa», additive esa ishlab chiqarishda mahsulotga qo'shiladigan modda."
+      }
+    }
+  ]
+}

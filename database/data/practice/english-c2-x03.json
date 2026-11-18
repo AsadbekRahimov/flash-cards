@@ -1,0 +1,1631 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c2",
+  "items": [
+    {
+      "key": "c2-m05-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "utilitarian"
+      ],
+      "text": "Classical ___ judges every action solely by its consequences for human happiness.",
+      "base": "utilitarian",
+      "accepted": [
+        "utilitarianism"
+      ],
+      "translation": {
+        "ru": "Классический утилитаризм оценивает любой поступок исключительно по его последствиям для счастья людей.",
+        "uz": "Klassik utilitarizm har qanday xatti-harakatni faqat uning inson baxtiga olib keladigan oqibatlariga qarab baholaydi."
+      },
+      "explanation": {
+        "ru": "Подлежащее к глаголу judges (ед. ч.) — название учения: utilitarian → utilitarianism (утилитаризм); к прилагательному добавляется -ism.",
+        "uz": "judges fe'lining egasi (birlikda) — ta'limot nomi: utilitarian → utilitarianism (utilitarizm); sifatga -ism qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m05-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "atone"
+      ],
+      "text": "He left his entire fortune to the hospital as ___ for the suffering he had caused.",
+      "base": "atone",
+      "accepted": [
+        "atonement"
+      ],
+      "translation": {
+        "ru": "Во искупление страданий, которые он причинил, он завещал всё своё состояние больнице.",
+        "uz": "Keltirgan azob-uqubatlari uchun gunohini yuvish maqsadida u butun boyligini shifoxonaga vasiyat qildi."
+      },
+      "explanation": {
+        "ru": "После as нужно существительное: atone → atonement (искупление); -ment добавляется к глаголу без изменений. Устойчиво: as / in atonement for.",
+        "uz": "as so'zidan keyin ot kerak: atone → atonement (gunohni yuvish); -ment qo'shimchasi fe'lga o'zgarishsiz qo'shiladi. Barqaror birikma: as / in atonement for."
+      }
+    },
+    {
+      "key": "c2-m05-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "expedient"
+      ],
+      "text": "In politics, ___ too often wins out over principle.",
+      "base": "expedient",
+      "accepted": [
+        "expediency",
+        "expedience"
+      ],
+      "translation": {
+        "ru": "В политике соображения выгоды слишком часто берут верх над принципами.",
+        "uz": "Siyosatda manfaat ko'zlash juda ko'p hollarda tamoyildan ustun keladi."
+      },
+      "explanation": {
+        "ru": "Подлежащее к wins (ед. ч., без артикля) — неисчисляемое существительное: expedient → expediency (целесообразность, выгода); -ent меняется на -ency. Вариант expedience тоже верен.",
+        "uz": "wins fe'lining egasi (birlikda, artiklsiz) — sanalmaydigan ot: expedient → expediency (manfaat ko'zlash); -ent o'rniga -ency yoziladi. expedience varianti ham to'g'ri."
+      }
+    },
+    {
+      "key": "c2-m05-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "morality"
+      ],
+      "text": "The novel raises hard questions about the *morale* of lying to protect a friend.",
+      "options": [
+        "morality",
+        "moralism",
+        "moralist"
+      ],
+      "correct": [
+        "morality"
+      ],
+      "translation": {
+        "ru": "Роман ставит трудные вопросы о нравственности лжи ради защиты друга.",
+        "uz": "Roman do'stni himoya qilish uchun yolg'on gapirish axloqan qanchalik to'g'riligi haqida og'ir savollar qo'yadi."
+      },
+      "explanation": {
+        "ru": "morale — боевой дух, настрой (staff morale); «нравственность, моральная сторона чего-то» — morality. moralism — морализаторство, moralist — моралист.",
+        "uz": "morale — ruhiy holat, kayfiyat (staff morale); «biror narsaning axloqiy jihati» — morality. moralism — nasihatgo'ylik, moralist — axloq targ'ibotchisi."
+      }
+    },
+    {
+      "key": "c2-m05-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "malevolent"
+      ],
+      "text": "The clerk *malevolent* hid the documents that his rival needed for the meeting.",
+      "options": [
+        "malevolently",
+        "malevolence",
+        "malice"
+      ],
+      "correct": [
+        "malevolently"
+      ],
+      "translation": {
+        "ru": "Клерк злонамеренно спрятал документы, которые были нужны его сопернику для совещания.",
+        "uz": "Xizmatchi raqibiga majlis uchun kerak bo'lgan hujjatlarni badniyatlik bilan yashirib qo'ydi."
+      },
+      "explanation": {
+        "ru": "Перед глаголом hid нужно наречие: malevolent → malevolently (злонамеренно). Прилагательное стоит при существительном (a malevolent clerk); malevolence и malice — существительные.",
+        "uz": "hid fe'lidan oldin ravish kerak: malevolent → malevolently (badniyatlik bilan). Sifat ot oldida turadi (a malevolent clerk); malevolence va malice esa ot."
+      }
+    },
+    {
+      "key": "c2-m05-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "asceticism"
+      ],
+      "text": "Visitors were struck by the *ascetic* of the holy man's daily routine.",
+      "options": [
+        "asceticism",
+        "ascetically",
+        "ascetical"
+      ],
+      "correct": [
+        "asceticism"
+      ],
+      "translation": {
+        "ru": "Посетителей поразил аскетизм повседневной жизни этого святого человека.",
+        "uz": "Tashrif buyuruvchilarni bu avliyo kishining kundalik turmushidagi zohidlik hayratga soldi."
+      },
+      "explanation": {
+        "ru": "Конструкция the ___ of требует существительного-понятия: asceticism (аскетизм). ascetic — прилагательное «аскетичный» или «аскет» (человек); ascetically и ascetical — наречие и прилагательное.",
+        "uz": "the ___ of qolipi tushuncha bildiruvchi otni talab qiladi: asceticism (zohidlik). ascetic — «zohidona» sifati yoki «zohid» (shaxs); ascetically va ascetical — ravish va sifat."
+      }
+    },
+    {
+      "key": "c2-m05-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "finite"
+      ],
+      "text": "Awareness of our own ___ is what makes every day so valuable.",
+      "base": "finite",
+      "accepted": [
+        "finitude",
+        "finiteness"
+      ],
+      "translation": {
+        "ru": "Именно осознание собственной конечности делает каждый день таким ценным.",
+        "uz": "Aynan o'zimizning chekli ekanimizni anglash har bir kunni shunchalik qadrli qiladi."
+      },
+      "explanation": {
+        "ru": "После our own нужно существительное: finite → finitude (конечность); -e выпадает, добавляется книжный суффикс -itude, как в magnitude. Вариант finiteness тоже верен.",
+        "uz": "our own so'zlaridan keyin ot kerak: finite → finitude (cheklilik); -e tushib qoladi, kitobiy -itude qo'shimchasi qo'shiladi, xuddi magnitude kabi. finiteness varianti ham to'g'ri."
+      }
+    },
+    {
+      "key": "c2-m05-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "tangible"
+      ],
+      "text": "A good reputation is an ___ asset: you cannot touch it, but it has value.",
+      "base": "tangible",
+      "accepted": [
+        "intangible"
+      ],
+      "translation": {
+        "ru": "Хорошая репутация — нематериальный актив: её нельзя потрогать, но она имеет ценность.",
+        "uz": "Yaxshi obro' — nomoddiy aktiv: uni ushlab bo'lmaydi, lekin uning qiymati bor."
+      },
+      "explanation": {
+        "ru": "Артикль an требует гласной в начале слова, а «нельзя потрогать» — отрицательного смысла: tangible → intangible (неосязаемый, нематериальный). Приставка in-, не un-.",
+        "uz": "an artikli unli bilan boshlanadigan so'zni, «ushlab bo'lmaydi» qismi esa inkor ma'nosini talab qiladi: tangible → intangible (nomoddiy). Old qo'shimcha un- emas, in-."
+      }
+    },
+    {
+      "key": "c2-m05-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "transcend"
+      ],
+      "text": "In moments of deep prayer, she felt a rare ___ of all earthly concerns.",
+      "base": "transcend",
+      "accepted": [
+        "transcendence",
+        "transcendency"
+      ],
+      "translation": {
+        "ru": "В минуты глубокой молитвы она испытывала редкое чувство, что поднимается над всеми земными заботами.",
+        "uz": "Chuqur ibodat lahzalarida u barcha dunyoviy tashvishlardan yuksalib ketishdek kamyob holatni his qilardi."
+      },
+      "explanation": {
+        "ru": "После a rare нужно существительное: transcend → transcendence (выход за пределы); глагол получает -ence, а не -ance. Вариант transcendency тоже верен.",
+        "uz": "a rare so'zlaridan keyin ot kerak: transcend → transcendence (chegaradan oshib o'tish); fe'lga -ance emas, -ence qo'shiladi. transcendency varianti ham to'g'ri."
+      }
+    },
+    {
+      "key": "c2-m05-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "essence"
+      ],
+      "text": "*On* essence, the two theories make exactly the same claim about the mind.",
+      "options": [
+        "In",
+        "At",
+        "To"
+      ],
+      "correct": [
+        "In"
+      ],
+      "translation": {
+        "ru": "По сути, обе теории утверждают о сознании одно и то же.",
+        "uz": "Mohiyatan ikkala nazariya ham ong haqida aynan bir xil fikrni ilgari suradi."
+      },
+      "explanation": {
+        "ru": "«По сути» — in essence, только с in, как in fact, in effect. Русское «по» здесь не on.",
+        "uz": "«Mohiyatan» — in essence, faqat in predlogi bilan, xuddi in fact, in effect kabi."
+      }
+    },
+    {
+      "key": "c2-m05-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "immutable"
+      ],
+      "text": "Unlike most customs, these religious rules were considered eternal and *unmutable*.",
+      "options": [
+        "immutable",
+        "mutable",
+        "immutably"
+      ],
+      "correct": [
+        "immutable"
+      ],
+      "translation": {
+        "ru": "В отличие от большинства обычаев, эти религиозные правила считались вечными и неизменными.",
+        "uz": "Ko'pchilik urf-odatlardan farqli o'laroq, bu diniy qoidalar abadiy va o'zgarmas deb hisoblanardi."
+      },
+      "explanation": {
+        "ru": "Отрицание к mutable — immutable (неизменный): перед m приставка in- становится im-, как в immortal, immobile. Слова unmutable нет, а mutable («изменчивый») противоречит eternal.",
+        "uz": "mutable so'zining inkor shakli — immutable (o'zgarmas): m harfidan oldin in- old qo'shimchasi im- shakliga kiradi, xuddi immortal, immobile kabi. unmutable degan so'z yo'q, mutable («o'zgaruvchan») esa eternal so'ziga zid."
+      }
+    },
+    {
+      "key": "c2-m05-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "metaphysics"
+      ],
+      "text": "Metaphysics, unlike physics, *deal* with questions that no experiment can settle.",
+      "options": [
+        "deals",
+        "are dealing",
+        "have dealt"
+      ],
+      "correct": [
+        "deals"
+      ],
+      "translation": {
+        "ru": "Метафизика, в отличие от физики, занимается вопросами, которые не решить никаким экспериментом.",
+        "uz": "Metafizika, fizikadan farqli o'laroq, hech qanday tajriba hal qila olmaydigan masalalar bilan shug'ullanadi."
+      },
+      "explanation": {
+        "ru": "Названия наук на -ics (metaphysics, physics, mathematics) согласуются с глаголом в единственном числе, несмотря на -s: Metaphysics deals.",
+        "uz": "-ics bilan tugaydigan fan nomlari (metaphysics, physics, mathematics) oxiridagi -s harfiga qaramay fe'l bilan birlikda moslashadi: Metaphysics deals."
+      }
+    },
+    {
+      "key": "c2-m05-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "fallible"
+      ],
+      "text": "No serious scientist claims ___: any theory may one day prove wrong.",
+      "base": "fallible",
+      "accepted": [
+        "infallibility"
+      ],
+      "translation": {
+        "ru": "Ни один серьёзный учёный не претендует на непогрешимость: любая теория однажды может оказаться неверной.",
+        "uz": "Hech bir jiddiy olim xato qilmaslikka da'vo qilmaydi: har qanday nazariya bir kun kelib noto'g'ri chiqishi mumkin."
+      },
+      "explanation": {
+        "ru": "claims требует существительного, а вторая часть — смысла «никогда не ошибаться»: fallible → infallible → infallibility (непогрешимость). Две ступени: in- и -ible → -ibility.",
+        "uz": "claims fe'li otni, gapning ikkinchi qismi esa «hech qachon xato qilmaslik» ma'nosini talab qiladi: fallible → infallible → infallibility (xatosizlik). Ikki bosqich: in- va -ible o'rniga -ibility."
+      }
+    },
+    {
+      "key": "c2-m05-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "tenable"
+      ],
+      "text": "Once the new evidence emerged, his position became ___ and he resigned.",
+      "base": "tenable",
+      "accepted": [
+        "untenable"
+      ],
+      "translation": {
+        "ru": "Когда появились новые улики, его позиция стала несостоятельной, и он ушёл в отставку.",
+        "uz": "Yangi dalillar paydo bo'lgach, uning pozitsiyasi asossiz bo'lib qoldi va u iste'foga chiqdi."
+      },
+      "explanation": {
+        "ru": "Отставка показывает отрицательный смысл: tenable → untenable (несостоятельный). У этого слова приставка un-, а не in-.",
+        "uz": "Iste'fo salbiy ma'noni ko'rsatadi: tenable → untenable (asossiz). Bu so'zda in- emas, un- old qo'shimchasi ishlatiladi."
+      }
+    },
+    {
+      "key": "c2-m05-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "doctrine"
+      ],
+      "text": "The two churches split over a ___ dispute about the nature of the soul.",
+      "base": "doctrine",
+      "accepted": [
+        "doctrinal"
+      ],
+      "translation": {
+        "ru": "Две церкви разделились из-за доктринального спора о природе души.",
+        "uz": "Ikki cherkov ruhning tabiati haqidagi ta'limotga oid bahs tufayli ajralib ketdi."
+      },
+      "explanation": {
+        "ru": "Между a и dispute нужно прилагательное: doctrine → doctrinal (относящийся к учению); -e выпадает, добавляется -al.",
+        "uz": "a va dispute orasida sifat kerak: doctrine → doctrinal (ta'limotga oid); -e tushib qoladi, -al qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m05-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "tenet"
+      ],
+      "text": "Honesty even toward enemies is a basic *tenant* of their creed.",
+      "options": [
+        "tenet",
+        "tenure",
+        "tenacity"
+      ],
+      "correct": [
+        "tenet"
+      ],
+      "translation": {
+        "ru": "Честность даже по отношению к врагам — одно из основных положений их вероучения.",
+        "uz": "Hatto dushmanga nisbatan ham halol bo'lish ularning aqidasidagi asosiy tamoyillardan biri."
+      },
+      "explanation": {
+        "ru": "tenant — арендатор, жилец; «положение учения» — tenet. Слова похожи, но смысл разный; tenure — срок пребывания в должности, tenacity — упорство.",
+        "uz": "tenant — ijarachi; «ta'limotning asosiy qoidasi» — tenet. So'zlar o'xshash, ma'nosi boshqa; tenure — lavozimda turish muddati, tenacity — qat'iyat."
+      }
+    },
+    {
+      "key": "c2-m05-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "conjecture"
+      ],
+      "text": "The age of the cave paintings is still the subject of much *conjectural*.",
+      "options": [
+        "conjecture",
+        "conjectured",
+        "conjecturally"
+      ],
+      "correct": [
+        "conjecture"
+      ],
+      "translation": {
+        "ru": "Возраст наскальных рисунков до сих пор остаётся предметом многочисленных догадок.",
+        "uz": "G'or rasmlarining yoshi hanuz ko'plab taxminlarga sabab bo'lmoqda."
+      },
+      "explanation": {
+        "ru": "После the subject of much нужно существительное: conjecture (догадки, предположения). conjectural — прилагательное (предположительный), conjecturally — наречие.",
+        "uz": "the subject of much so'zlaridan keyin ot kerak: conjecture (taxmin). conjectural — sifat, conjecturally — ravish."
+      }
+    },
+    {
+      "key": "c2-m05-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "empiricism"
+      ],
+      "text": "Modern science grew largely out of *empirism* and its trust in careful observation.",
+      "options": [
+        "empiricism",
+        "empiricist",
+        "empirical"
+      ],
+      "correct": [
+        "empiricism"
+      ],
+      "translation": {
+        "ru": "Современная наука во многом выросла из эмпиризма с его доверием к тщательному наблюдению.",
+        "uz": "Zamonaviy fan asosan empirizm va uning sinchkov kuzatuvga ishonchidan o'sib chiqqan."
+      },
+      "explanation": {
+        "ru": "По-английски empiricism, с -ic- в середине: empiric + -ism. Русское «эмпиризм» подсказывает неверное empirism. empiricist — эмпирик (человек), empirical — прилагательное.",
+        "uz": "Inglizchada empiricism, o'rtada -ic- bor: empiric + -ism. «Empirizm» so'zi noto'g'ri empirism shaklini taklif qiladi. empiricist — empirik (shaxs), empirical — sifat."
+      }
+    },
+    {
+      "key": "c2-m05-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "piety"
+      ],
+      "text": "Despite his public ___, he cheated his business partners for years.",
+      "base": "pious",
+      "accepted": [
+        "piety",
+        "piousness"
+      ],
+      "translation": {
+        "ru": "Несмотря на показное благочестие, он годами обманывал своих деловых партнёров.",
+        "uz": "Hammaning ko'z oldidagi taqvodorligiga qaramay, u yillar davomida sheriklarini aldab kelgan."
+      },
+      "explanation": {
+        "ru": "После his public нужно существительное, а despite противопоставляет его обману: pious → piety (благочестие); -ous выпадает, добавляется -ety. Вариант piousness тоже верен.",
+        "uz": "his public so'zlaridan keyin ot kerak, despite esa uni aldovga qarama-qarshi qo'yadi: pious → piety (taqvo); -ous tushib qoladi, -ety qo'shiladi. piousness varianti ham to'g'ri."
+      }
+    },
+    {
+      "key": "c2-m05-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "divine"
+      ],
+      "text": "In many ancient lands, people believed firmly in the ___ of their rulers.",
+      "base": "divine",
+      "accepted": [
+        "divinity"
+      ],
+      "translation": {
+        "ru": "Во многих древних странах люди твёрдо верили в божественность своих правителей.",
+        "uz": "Ko'plab qadimgi mamlakatlarda odamlar o'z hukmdorlarining ilohiyligiga qat'iy ishonganlar."
+      },
+      "explanation": {
+        "ru": "Конструкция the ___ of требует существительного: divine → divinity (божественность); -e выпадает, добавляется -ity.",
+        "uz": "the ___ of qolipi otni talab qiladi: divine → divinity (ilohiylik); -e tushib qoladi, -ity qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m05-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "orthodox"
+      ],
+      "text": "Her ___ methods shocked the conservative members of the board.",
+      "base": "orthodox",
+      "accepted": [
+        "unorthodox"
+      ],
+      "translation": {
+        "ru": "Её неортодоксальные методы шокировали консервативных членов совета.",
+        "uz": "Uning noan'anaviy usullari kengashning konservativ a'zolarini esankiratib qo'ydi."
+      },
+      "explanation": {
+        "ru": "Консервативных людей шокирует нестандартное, поэтому нужен отрицательный смысл: orthodox → unorthodox (неортодоксальный). Приставка un-, а не in-.",
+        "uz": "Konservativ odamlarni noodatiy narsa esankiratadi, shuning uchun inkor ma'nosi kerak: orthodox → unorthodox (noan'anaviy). Old qo'shimcha in- emas, un-."
+      }
+    },
+    {
+      "key": "c2-m05-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "theology"
+      ],
+      "text": "After school she went on to study *theologian* at a famous university.",
+      "options": [
+        "theology",
+        "theological",
+        "theologize"
+      ],
+      "correct": [
+        "theology"
+      ],
+      "translation": {
+        "ru": "После школы она стала изучать богословие в известном университете.",
+        "uz": "Maktabdan so'ng u mashhur universitetda ilohiyotni o'qiy boshladi."
+      },
+      "explanation": {
+        "ru": "После study нужно название науки: theology (богословие). theologian — богослов (человек), theological — прилагательное, theologize — глагол.",
+        "uz": "study fe'lidan keyin fan nomi kerak: theology (ilohiyot). theologian — ilohiyotchi (shaxs), theological — sifat, theologize — fe'l."
+      }
+    },
+    {
+      "key": "c2-m05-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "devout"
+      ],
+      "text": "The villagers *devout* believed that the spring water could heal any illness.",
+      "options": [
+        "devoutly",
+        "devotion",
+        "devotee"
+      ],
+      "correct": [
+        "devoutly"
+      ],
+      "translation": {
+        "ru": "Жители деревни истово верили, что вода из источника может исцелить любую болезнь.",
+        "uz": "Qishloq ahli buloq suvi har qanday kasallikni davolay oladi, deb chin ixlos bilan ishonardi."
+      },
+      "explanation": {
+        "ru": "Перед глаголом believed нужно наречие: devout → devoutly (истово, набожно). Прилагательное стоит при существительном: the devout villagers; devotion и devotee — существительные.",
+        "uz": "believed fe'lidan oldin ravish kerak: devout → devoutly (chin ixlos bilan). Sifat ot oldida turadi: the devout villagers; devotion va devotee esa ot."
+      }
+    },
+    {
+      "key": "c2-m05-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "pilgrimage"
+      ],
+      "text": "At last my grandfather *committed* a long pilgrimage to the tomb of his ancestors.",
+      "options": [
+        "made",
+        "gave",
+        "passed"
+      ],
+      "correct": [
+        "made"
+      ],
+      "translation": {
+        "ru": "Наконец мой дедушка совершил долгое паломничество к гробнице своих предков.",
+        "uz": "Nihoyat bobom ota-bobolarining qabrini ziyorat qilish uchun uzoq safarga chiqdi."
+      },
+      "explanation": {
+        "ru": "«Совершить паломничество» — make a pilgrimage (или go on a pilgrimage). commit сочетается с проступками: commit a crime, commit a sin.",
+        "uz": "«Ziyoratga bormoq» — make a pilgrimage (yoki go on a pilgrimage). commit fe'li qilmish bilan birikadi: commit a crime, commit a sin."
+      }
+    },
+    {
+      "key": "c2-m05-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "fatalism"
+      ],
+      "text": "When the harvest failed, the old farmer just shrugged ___ and said nothing.",
+      "base": "fatalism",
+      "accepted": [
+        "fatalistically"
+      ],
+      "translation": {
+        "ru": "Когда урожай погиб, старый фермер лишь фаталистически пожал плечами и ничего не сказал.",
+        "uz": "Hosil nobud bo'lganda, keksa dehqon taqdirga tan bergandek yelka qisib qo'ydi-yu, indamadi."
+      },
+      "explanation": {
+        "ru": "Глагол shrugged описывается наречием; от fatalism его строят в два шага: fatalism → fatalistic → fatalistically. К прилагательному на -ic добавляется -ally.",
+        "uz": "shrugged fe'lini ravish izohlaydi; fatalism so'zidan u ikki bosqichda yasaladi: fatalism → fatalistic → fatalistically. -ic bilan tugagan sifatga -ally qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m05-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "egalitarian"
+      ],
+      "text": "Their ___ was sincere: even the director ate lunch with the workers.",
+      "base": "egalitarian",
+      "accepted": [
+        "egalitarianism"
+      ],
+      "translation": {
+        "ru": "Их эгалитаризм был искренним: даже директор обедал вместе с рабочими.",
+        "uz": "Ularning tenglikparastligi samimiy edi: hatto direktor ham ishchilar bilan birga tushlik qilardi."
+      },
+      "explanation": {
+        "ru": "После Their нужно существительное — название убеждения: egalitarian → egalitarianism (эгалитаризм, стремление к равенству); к прилагательному добавляется -ism.",
+        "uz": "Their so'zidan keyin ot — e'tiqod nomi kerak: egalitarian → egalitarianism (tenglikparastlik); sifatga -ism qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m05-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "utopia"
+      ],
+      "text": "Critics dismissed his plan for a world without money as utterly ___.",
+      "base": "utopia",
+      "accepted": [
+        "utopian"
+      ],
+      "translation": {
+        "ru": "Критики отвергли его план мира без денег как совершенно утопический.",
+        "uz": "Tanqidchilar uning pulsiz dunyo haqidagi rejasini mutlaqo utopik deb rad etishdi."
+      },
+      "explanation": {
+        "ru": "После наречия utterly нужно прилагательное: utopia → utopian (утопический); к -a добавляется -n.",
+        "uz": "utterly ravishidan keyin sifat kerak: utopia → utopian (utopik); oxiriga -n qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m05-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "individualism"
+      ],
+      "text": "*Individuality*, as a political doctrine, holds that the individual comes before the state.",
+      "options": [
+        "Individualism",
+        "Individualist",
+        "Individualization"
+      ],
+      "correct": [
+        "Individualism"
+      ],
+      "translation": {
+        "ru": "Индивидуализм как политическое учение утверждает, что личность важнее государства.",
+        "uz": "Individualizm siyosiy ta'limot sifatida shaxs davlatdan ustun turadi, deb hisoblaydi."
+      },
+      "explanation": {
+        "ru": "individuality — своеобразие, неповторимость человека; учение (as a political doctrine) — individualism: -ism называет учение. individualist — его сторонник.",
+        "uz": "individuality — insonning o'ziga xosligi; ta'limot (as a political doctrine) — individualism: -ism qo'shimchasi ta'limot nomini yasaydi. individualist — uning tarafdori."
+      }
+    },
+    {
+      "key": "c2-m05-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "dystopia"
+      ],
+      "text": "The novel is set in a dark *dystopian* where all books are forbidden.",
+      "options": [
+        "dystopia",
+        "dystopias",
+        "utopian"
+      ],
+      "correct": [
+        "dystopia"
+      ],
+      "translation": {
+        "ru": "Действие романа происходит в мрачной антиутопии, где запрещены все книги.",
+        "uz": "Roman voqealari barcha kitoblar taqiqlangan qorong'i antiutopiyada kechadi."
+      },
+      "explanation": {
+        "ru": "После a dark нужно существительное: dystopia (антиутопия). dystopian — прилагательное, после него нужно существительное: a dystopian world.",
+        "uz": "a dark so'zlaridan keyin ot kerak: dystopia (antiutopiya). dystopian — sifat, undan keyin ot keladi: a dystopian world."
+      }
+    },
+    {
+      "key": "c2-m05-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "pragmatism"
+      ],
+      "text": "Pragmatism, like every other theory, *have* its critics.",
+      "options": [
+        "has",
+        "are having",
+        "have had"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "У прагматизма, как и у любой другой теории, есть свои критики.",
+        "uz": "Har qanday boshqa nazariya singari, pragmatizmning ham o'z tanqidchilari bor."
+      },
+      "explanation": {
+        "ru": "Подлежащее — Pragmatism (ед. ч.); оборот like every other theory в запятых на число глагола не влияет: Pragmatism has.",
+        "uz": "Ega — Pragmatism (birlikda); vergullar orasidagi like every other theory birikmasi fe'l soniga ta'sir qilmaydi: Pragmatism has."
+      }
+    },
+    {
+      "key": "c2-m06-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "sentient"
+      ],
+      "text": "Scientists still disagree about whether insects possess any ___ at all.",
+      "base": "sentient",
+      "accepted": [
+        "sentience"
+      ],
+      "translation": {
+        "ru": "Учёные до сих пор спорят, обладают ли насекомые хоть какой-то способностью чувствовать.",
+        "uz": "Olimlar hasharotlarda his qilish qobiliyati umuman bor-yo'qligi haqida hanuz bahslashmoqda."
+      },
+      "explanation": {
+        "ru": "После possess any нужно существительное: sentient → sentience (способность чувствовать); -ent меняется на -ence.",
+        "uz": "possess any so'zlaridan keyin ot kerak: sentient → sentience (his qilish qobiliyati); -ent o'rniga -ence yoziladi."
+      }
+    },
+    {
+      "key": "c2-m06-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "intellect"
+      ],
+      "text": "The puzzles were ___ demanding but required no special knowledge.",
+      "base": "intellect",
+      "accepted": [
+        "intellectually"
+      ],
+      "translation": {
+        "ru": "Головоломки были интеллектуально сложными, но не требовали особых знаний.",
+        "uz": "Boshqotirmalar aqliy jihatdan murakkab edi, ammo hech qanday maxsus bilim talab qilmasdi."
+      },
+      "explanation": {
+        "ru": "Прилагательное demanding описывается наречием: intellect → intellectual → intellectually (интеллектуально). Не intelligently — «умно»: так описывают действия людей.",
+        "uz": "demanding sifatini ravish izohlaydi: intellect → intellectual → intellectually (aqliy jihatdan). intelligently emas — u «aqlli ravishda» degani, odamlarning harakatini tasvirlaydi."
+      }
+    },
+    {
+      "key": "c2-m06-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "lucid"
+      ],
+      "text": "In a rare moment of ___, the old man recognized his daughter.",
+      "base": "lucid",
+      "accepted": [
+        "lucidity",
+        "lucidness"
+      ],
+      "translation": {
+        "ru": "В редкую минуту ясного сознания старик узнал свою дочь.",
+        "uz": "Es-hushi joyiga kelgan kamdan-kam lahzalardan birida chol qizini tanidi."
+      },
+      "explanation": {
+        "ru": "После moment of нужно существительное: lucid → lucidity (ясность сознания); добавляется -ity. Вариант lucidness тоже верен.",
+        "uz": "moment of so'zlaridan keyin ot kerak: lucid → lucidity (es-hushning joyidaligi); -ity qo'shiladi. lucidness varianti ham to'g'ri."
+      }
+    },
+    {
+      "key": "c2-m06-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "volition"
+      ],
+      "text": "No one put any pressure on him: he confessed *by* his own volition.",
+      "options": [
+        "of",
+        "in",
+        "from"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Никто на него не давил: он признался по собственной воле.",
+        "uz": "Unga hech kim bosim o'tkazmadi: u o'z ixtiyori bilan tan oldi."
+      },
+      "explanation": {
+        "ru": "«По собственной воле» — of one's own volition (ср. of one's own free will). Русское «по» здесь не by.",
+        "uz": "«O'z ixtiyori bilan» — of one's own volition (shunga o'xshash: of one's own free will). Bu iborada by emas, of predlogi ishlatiladi."
+      }
+    },
+    {
+      "key": "c2-m06-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "cognizant"
+      ],
+      "text": "The minister insisted that he had never been *cognizance* of the payments.",
+      "options": [
+        "cognizant",
+        "cognitive",
+        "cognizable"
+      ],
+      "correct": [
+        "cognizant"
+      ],
+      "translation": {
+        "ru": "Министр настаивал, что никогда не знал об этих выплатах.",
+        "uz": "Vazir bu to'lovlardan hech qachon xabardor bo'lmaganini qat'iy ta'kidladi."
+      },
+      "explanation": {
+        "ru": "После had been нужно прилагательное: cognizant of (осведомлённый о). cognizance — существительное (take cognizance of), cognitive — «познавательный».",
+        "uz": "had been so'zlaridan keyin sifat kerak: cognizant of (biror narsadan xabardor). cognizance — ot (take cognizance of), cognitive — «bilishga oid»."
+      }
+    },
+    {
+      "key": "c2-m06-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "psyche"
+      ],
+      "text": "The psyche of a child who grows up in constant fear *develop* differently.",
+      "options": [
+        "develops",
+        "developing",
+        "have developed"
+      ],
+      "correct": [
+        "develops"
+      ],
+      "translation": {
+        "ru": "Психика ребёнка, который растёт в постоянном страхе, развивается иначе.",
+        "uz": "Doimiy qo'rquv ichida ulg'ayayotgan bolaning ruhiyati boshqacha rivojlanadi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — psyche (ед. ч.), к нему относится глагол: The psyche ... develops. Слова между ними (of a child who grows up in constant fear) на его форму не влияют.",
+        "uz": "Ega — psyche (birlikda), fe'l unga moslashadi: The psyche ... develops. Ular orasidagi so'zlar (of a child who grows up in constant fear) fe'l shakliga ta'sir qilmaydi."
+      }
+    },
+    {
+      "key": "c2-m06-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "presume"
+      ],
+      "text": "Our whole plan rested on the ___ that prices would keep rising.",
+      "base": "presume",
+      "accepted": [
+        "presumption"
+      ],
+      "translation": {
+        "ru": "Весь наш план строился на предположении, что цены будут и дальше расти.",
+        "uz": "Butun rejamiz narxlar o'sishda davom etadi, degan farazga asoslangan edi."
+      },
+      "explanation": {
+        "ru": "После the нужно существительное: presume → presumption (предположение). Корень меняется: -sume → -sumption, как assume → assumption.",
+        "uz": "the so'zidan keyin ot kerak: presume → presumption (faraz). O'zak o'zgaradi: -sume o'rniga -sumption, xuddi assume → assumption kabi."
+      }
+    },
+    {
+      "key": "c2-m06-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "construe"
+      ],
+      "text": "Her remark was completely ___: she meant it as praise, not as an insult.",
+      "base": "construe",
+      "accepted": [
+        "misconstrued"
+      ],
+      "translation": {
+        "ru": "Её замечание совершенно неверно истолковали: она хотела похвалить, а не оскорбить.",
+        "uz": "Uning gapi butunlay noto'g'ri talqin qilindi: u maqtamoqchi edi, haqorat qilmoqchi emas."
+      },
+      "explanation": {
+        "ru": "После was нужно причастие, а вторая часть показывает ошибку в понимании: construe → misconstrue (неверно истолковать) → misconstrued. Приставка mis- означает «неправильно».",
+        "uz": "was so'zidan keyin sifatdosh kerak, gapning ikkinchi qismi esa noto'g'ri tushunishni ko'rsatadi: construe → misconstrue (noto'g'ri talqin qilmoq) → misconstrued. mis- old qo'shimchasi «noto'g'ri» degani."
+      }
+    },
+    {
+      "key": "c2-m06-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "syllogism"
+      ],
+      "text": "The argument has a neat ___ form: two premises lead to one conclusion.",
+      "base": "syllogism",
+      "accepted": [
+        "syllogistic"
+      ],
+      "translation": {
+        "ru": "У этого рассуждения стройная силлогистическая форма: из двух посылок следует один вывод.",
+        "uz": "Bu dalil puxta sillogistik shaklga ega: ikki muqaddimadan bitta xulosa kelib chiqadi."
+      },
+      "explanation": {
+        "ru": "Между a neat и form нужно прилагательное: syllogism → syllogistic (силлогистический); -ism меняется на -istic.",
+        "uz": "a neat va form orasida sifat kerak: syllogism → syllogistic (sillogistik); -ism o'rniga -istic yoziladi."
+      }
+    },
+    {
+      "key": "c2-m06-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "appraise"
+      ],
+      "text": "An insurance agent came to *apprise* the damage after the flood.",
+      "options": [
+        "appraise",
+        "appease",
+        "appraisal"
+      ],
+      "correct": [
+        "appraise"
+      ],
+      "translation": {
+        "ru": "После наводнения пришёл страховой агент, чтобы оценить ущерб.",
+        "uz": "Toshqindan keyin sug'urta agenti zararni baholash uchun keldi."
+      },
+      "explanation": {
+        "ru": "appraise — оценивать (стоимость, ущерб); apprise — сообщать кому-то, уведомлять (apprise someone of something). appease — умиротворять.",
+        "uz": "appraise — baholamoq (qiymat, zarar); apprise — kimnidir xabardor qilmoq (apprise someone of something). appease — tinchlantirmoq."
+      }
+    },
+    {
+      "key": "c2-m06-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "gauge"
+      ],
+      "text": "Even experienced politicians struggle to *guage* the public mood before an election.",
+      "options": [
+        "gauge",
+        "gouge",
+        "gaze"
+      ],
+      "correct": [
+        "gauge"
+      ],
+      "translation": {
+        "ru": "Даже опытным политикам трудно уловить настроение общества перед выборами.",
+        "uz": "Hatto tajribali siyosatchilar ham saylov oldidan jamoatchilik kayfiyatini chamalashda qiynaladi."
+      },
+      "explanation": {
+        "ru": "Пишется gauge: сначала a, потом u (g-a-u-g-e), хотя слышится [geɪdʒ]. gouge — выдалбливать, gaze — пристально смотреть (gaze at).",
+        "uz": "gauge deb yoziladi: avval a, keyin u (g-a-u-g-e), garchi [geɪdʒ] deb talaffuz qilinsa ham. gouge — o'yib olmoq, gaze — tikilib qaramoq (gaze at)."
+      }
+    },
+    {
+      "key": "c2-m06-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "inference"
+      ],
+      "text": "Serious scholars never *do* broad inferences from a single letter.",
+      "options": [
+        "draw",
+        "take",
+        "bring"
+      ],
+      "correct": [
+        "draw"
+      ],
+      "translation": {
+        "ru": "Серьёзные учёные никогда не делают широких выводов на основе одного-единственного письма.",
+        "uz": "Jiddiy olimlar hech qachon bitta xatga qarab keng xulosalar chiqarmaydi."
+      },
+      "explanation": {
+        "ru": "«Сделать вывод» — draw (или make) an inference; русское «сделать» здесь не do. take и bring с inference не сочетаются.",
+        "uz": "«Xulosa chiqarmoq» — draw (yoki make) an inference, do emas. take va bring fe'llari inference bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c2-m06-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "fallacious"
+      ],
+      "text": "It is ___ to argue that whatever is natural must also be good.",
+      "base": "fallacy",
+      "accepted": [
+        "fallacious"
+      ],
+      "translation": {
+        "ru": "Утверждать, что всё естественное непременно хорошо, — логически ошибочно.",
+        "uz": "Tabiiy narsaning hammasi albatta yaxshi bo'ladi, deb da'vo qilish mantiqan xato."
+      },
+      "explanation": {
+        "ru": "После It is нужно прилагательное: fallacy (логическая ошибка) → fallacious (логически ошибочный); -y меняется на -ious.",
+        "uz": "It is so'zlaridan keyin sifat kerak: fallacy (mantiqiy xato) → fallacious (mantiqan xato); -y o'rniga -ious yoziladi."
+      }
+    },
+    {
+      "key": "c2-m06-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "parochial"
+      ],
+      "text": "The ___ of village politics frustrated the young doctor from the capital.",
+      "base": "parochial",
+      "accepted": [
+        "parochialism"
+      ],
+      "translation": {
+        "ru": "Местечковость деревенской политики раздражала молодого врача из столицы.",
+        "uz": "Qishloq siyosatining tor doiradaligi poytaxtdan kelgan yosh shifokorning g'ashiga tegardi."
+      },
+      "explanation": {
+        "ru": "Конструкция The ___ of требует существительного: parochial → parochialism (узость взглядов, местечковость); к прилагательному добавляется -ism.",
+        "uz": "The ___ of qolipi otni talab qiladi: parochial → parochialism (qarashlar torligi); sifatga -ism qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m06-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "erroneous"
+      ],
+      "text": "The newspaper ___ reported that the minister had resigned.",
+      "base": "erroneous",
+      "accepted": [
+        "erroneously"
+      ],
+      "translation": {
+        "ru": "Газета ошибочно сообщила, что министр ушёл в отставку.",
+        "uz": "Gazeta vazir iste'foga chiqqani haqida xato xabar berdi."
+      },
+      "explanation": {
+        "ru": "Глагол reported описывается наречием: erroneous → erroneously (ошибочно); к -ous добавляется -ly.",
+        "uz": "reported fe'lini ravish izohlaydi: erroneous → erroneously (xato ravishda); -ous qo'shimchasiga -ly qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m06-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "misapprehension"
+      ],
+      "text": "Voters who act *in* the misapprehension that promises will be kept are often disappointed.",
+      "options": [
+        "under",
+        "with",
+        "on"
+      ],
+      "correct": [
+        "under"
+      ],
+      "translation": {
+        "ru": "Избиратели, которые ошибочно полагают, что обещания будут выполнены, часто разочаровываются.",
+        "uz": "Va'dalar bajariladi, degan noto'g'ri tushuncha bilan ish ko'radigan saylovchilarning ko'pincha hafsalasi pir bo'ladi."
+      },
+      "explanation": {
+        "ru": "«Заблуждаться, ошибочно полагать» — be / act under the misapprehension that...: в этом выражении только under. Русское «в заблуждении» подсказывает неверное in.",
+        "uz": "«Noto'g'ri tasavvurda bo'lmoq» — be / act under the misapprehension that...: bu iborada faqat under ishlatiladi."
+      }
+    },
+    {
+      "key": "c2-m06-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "misguided"
+      ],
+      "text": "Out of *misled* loyalty, he defended his friend even after the evidence came out.",
+      "options": [
+        "misguided",
+        "misguide",
+        "misgiving"
+      ],
+      "correct": [
+        "misguided"
+      ],
+      "translation": {
+        "ru": "Из ложно понятой верности он защищал друга даже после того, как всплыли улики.",
+        "uz": "U yanglish sadoqat tufayli dalillar oshkor bo'lgandan keyin ham do'stini himoya qildi."
+      },
+      "explanation": {
+        "ru": "misguided — основанный на заблуждении (о чувствах, поступках, решениях): misguided loyalty. misled — «введённый в заблуждение» — говорят о людях: he was misled.",
+        "uz": "misguided — yanglish fikrga asoslangan (tuyg'u, harakat, qaror haqida): misguided loyalty. misled — «adashtirilgan», odamlar haqida aytiladi: he was misled."
+      }
+    },
+    {
+      "key": "c2-m06-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "propensity"
+      ],
+      "text": "This propensity of ours to trust confident speakers *make* us easy to fool.",
+      "options": [
+        "makes",
+        "making",
+        "are making"
+      ],
+      "correct": [
+        "makes"
+      ],
+      "translation": {
+        "ru": "Эта наша склонность доверять уверенным ораторам делает нас лёгкой добычей для обманщиков.",
+        "uz": "Ishonch bilan gapiradiganlarga ishonishga bo'lgan bu moyilligimiz bizni oson aldanadigan qilib qo'yadi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — This propensity (ед. ч.); стоящее рядом с глаголом speakers на его форму не влияет: This propensity ... makes us.",
+        "uz": "Ega — This propensity (birlikda); fe'lga yaqin turgan speakers uning shakliga ta'sir qilmaydi: This propensity ... makes us."
+      }
+    },
+    {
+      "key": "c2-m06-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "commemorate"
+      ],
+      "text": "A tree was planted in ___ of the teachers who died in the war.",
+      "base": "commemorate",
+      "accepted": [
+        "commemoration"
+      ],
+      "translation": {
+        "ru": "В память об учителях, погибших на войне, посадили дерево.",
+        "uz": "Urushda halok bo'lgan o'qituvchilar xotirasiga daraxt ekildi."
+      },
+      "explanation": {
+        "ru": "Устойчивое in ___ of требует существительного: commemorate → commemoration (увековечение памяти); -ate меняется на -ation.",
+        "uz": "in ___ of birikmasi otni talab qiladi: commemorate → commemoration (xotirani abadiylashtirish); -ate o'rniga -ation yoziladi."
+      }
+    },
+    {
+      "key": "c2-m06-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "indelible"
+      ],
+      "text": "The image of that burning house is ___ fixed in my memory.",
+      "base": "indelible",
+      "accepted": [
+        "indelibly"
+      ],
+      "translation": {
+        "ru": "Образ того горящего дома неизгладимо запечатлелся в моей памяти.",
+        "uz": "O'sha yonayotgan uyning manzarasi xotiramga o'chmas bo'lib muhrlangan."
+      },
+      "explanation": {
+        "ru": "Причастие fixed описывается наречием: indelible → indelibly (неизгладимо); -le меняется на -ly.",
+        "uz": "fixed sifatdoshini ravish izohlaydi: indelible → indelibly (o'chmas tarzda); -le o'rniga -ly yoziladi."
+      }
+    },
+    {
+      "key": "c2-m06-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "retrospect"
+      ],
+      "text": "The new tax law was applied ___, even to profits earned before it existed.",
+      "base": "retrospect",
+      "accepted": [
+        "retrospectively"
+      ],
+      "translation": {
+        "ru": "Новый налоговый закон применили задним числом — даже к прибыли, полученной до его появления.",
+        "uz": "Yangi soliq qonuni orqaga qaytish kuchi bilan, hatto u paydo bo'lishidan oldin olingan foydaga ham qo'llandi."
+      },
+      "explanation": {
+        "ru": "Глагол was applied описывается наречием; от retrospect его строят в два шага: retrospect → retrospective → retrospectively (задним числом).",
+        "uz": "was applied fe'lini ravish izohlaydi; retrospect so'zidan u ikki bosqichda yasaladi: retrospect → retrospective → retrospectively (orqaga qaytish kuchi bilan)."
+      }
+    },
+    {
+      "key": "c2-m06-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "envision"
+      ],
+      "text": "She could not envision *live* anywhere except her native village.",
+      "options": [
+        "living",
+        "lived",
+        "lives"
+      ],
+      "correct": [
+        "living"
+      ],
+      "translation": {
+        "ru": "Она не могла представить себе, что живёт где-то, кроме родной деревни.",
+        "uz": "U o'z tug'ilgan qishlog'idan boshqa joyda yashashni tasavvur qila olmasdi."
+      },
+      "explanation": {
+        "ru": "После envision, как после imagine, глагол стоит в форме -ing: envision living. Начальная форма live здесь невозможна.",
+        "uz": "envision fe'lidan keyin, imagine fe'lidan keyingidek, fe'l -ing shaklida keladi: envision living. live shakli bu yerda bo'lishi mumkin emas."
+      }
+    },
+    {
+      "key": "c2-m06-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "figment"
+      ],
+      "text": "Her secret admirer turned out to be a mere *fragment* of her imagination.",
+      "options": [
+        "figment",
+        "pigment",
+        "ferment"
+      ],
+      "correct": [
+        "figment"
+      ],
+      "translation": {
+        "ru": "Её тайный поклонник оказался всего лишь плодом её воображения.",
+        "uz": "Uning yashirin muxlisi shunchaki xayol mahsuli bo'lib chiqdi."
+      },
+      "explanation": {
+        "ru": "Устойчиво: a figment of one's imagination — плод воображения. fragment (обломок, отрывок) в этом выражении — частая ошибка; pigment — краситель, ferment — брожение.",
+        "uz": "Barqaror ibora: a figment of one's imagination — xayol mahsuli. Bu iborada fragment (parcha) ishlatish — keng tarqalgan xato; pigment — bo'yoq moddasi, ferment — achish."
+      }
+    },
+    {
+      "key": "c2-m06-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "premonition"
+      ],
+      "text": "Before the flight, she had a strange premonition *for* disaster.",
+      "options": [
+        "of",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Перед полётом у неё было странное предчувствие беды.",
+        "uz": "Parvoz oldidan u qandaydir falokatni g'alati tarzda oldindan sezdi."
+      },
+      "explanation": {
+        "ru": "a premonition of something — предчувствие чего-то (или a premonition that...). Перед существительным здесь нужен of (a premonition of danger), а не for.",
+        "uz": "a premonition of something — biror narsani oldindan sezish (yoki a premonition that...). Bu yerda ot oldidan for emas, of predlogi kerak (a premonition of danger)."
+      }
+    },
+    {
+      "key": "c2-m06-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "fathom"
+      ],
+      "text": "The motive for the crime remained ___: nothing about it made any sense.",
+      "base": "fathom",
+      "accepted": [
+        "unfathomable"
+      ],
+      "translation": {
+        "ru": "Мотив преступления оставался непостижимым: в нём не было никакого смысла.",
+        "uz": "Jinoyatning sababi anglab bo'lmas bo'lib qoldi: unda hech qanday mantiq yo'q edi."
+      },
+      "explanation": {
+        "ru": "После remained нужно прилагательное, а вторая часть (nothing made any sense) — отрицательного смысла: fathom → fathomable → unfathomable (непостижимый). Две ступени: -able и приставка un-.",
+        "uz": "remained fe'lidan keyin sifat kerak, gapning ikkinchi qismi (nothing made any sense) esa salbiy ma'noni talab qiladi: fathom → fathomable → unfathomable (anglab bo'lmas). Ikki bosqich: -able va un-."
+      }
+    },
+    {
+      "key": "c2-m06-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "elusive"
+      ],
+      "text": "Sleep remained ___ all night, however tired she felt.",
+      "base": "elude",
+      "accepted": [
+        "elusive"
+      ],
+      "translation": {
+        "ru": "Как бы она ни устала, сон всю ночь не шёл к ней.",
+        "uz": "Qanchalik charchagan bo'lmasin, tun bo'yi uyqu unga yaqin kelmadi."
+      },
+      "explanation": {
+        "ru": "После remained нужно прилагательное: elude (ускользать) → elusive (неуловимый); -de меняется на -sive.",
+        "uz": "remained fe'lidan keyin sifat kerak: elude (qochib qutulmoq) → elusive (tutqich bermas); -de o'rniga -sive yoziladi."
+      }
+    },
+    {
+      "key": "c2-m06-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "enigmatic"
+      ],
+      "text": "Asked about his plans, the director gave only an ___ reply.",
+      "base": "enigma",
+      "accepted": [
+        "enigmatic"
+      ],
+      "translation": {
+        "ru": "Когда его спросили о планах, директор дал лишь загадочный ответ.",
+        "uz": "Rejalari haqida so'ralganda, direktor faqat sirli javob berdi."
+      },
+      "explanation": {
+        "ru": "Между an и reply нужно прилагательное: enigma (загадка) → enigmatic (загадочный); добавляется -tic.",
+        "uz": "an va reply orasida sifat kerak: enigma (jumboq) → enigmatic (sirli); -tic qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m06-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "intelligible"
+      ],
+      "text": "The old manuscript was so faded that only a few lines were *intelligent*.",
+      "options": [
+        "intelligible",
+        "intelligibly",
+        "intellectual"
+      ],
+      "correct": [
+        "intelligible"
+      ],
+      "translation": {
+        "ru": "Старая рукопись так выцвела, что разобрать можно было лишь несколько строк.",
+        "uz": "Eski qo'lyozma shunchalik o'chib ketgan ediki, faqat bir necha satrini tushunib o'qish mumkin edi."
+      },
+      "explanation": {
+        "ru": "intelligible — понятный, разборчивый (о речи, тексте); intelligent — умный (о людях). intellectual — интеллектуальный, intelligibly — наречие.",
+        "uz": "intelligible — tushunarli, o'qib bo'ladigan (nutq, matn haqida); intelligent — aqlli (odamlar haqida). intellectual — aqliy, intelligibly — ravish."
+      }
+    },
+    {
+      "key": "c2-m06-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "confound"
+      ],
+      "text": "The detectives were completely *confounding* by the lack of any motive.",
+      "options": [
+        "confounded",
+        "confound",
+        "confounds"
+      ],
+      "correct": [
+        "confounded"
+      ],
+      "translation": {
+        "ru": "Отсутствие какого-либо мотива поставило детективов в полный тупик.",
+        "uz": "Hech qanday sababning yo'qligi tergovchilarni butunlay gangitib qo'ydi."
+      },
+      "explanation": {
+        "ru": "Перед by нужен пассив: were confounded (были поставлены в тупик). Форма -ing означала бы, что детективы сами кого-то озадачивают.",
+        "uz": "by predlogidan oldin majhul nisbat kerak: were confounded (gangib qolishdi). -ing shakli tergovchilarning o'zi kimnidir gangitayotganini bildirardi."
+      }
+    },
+    {
+      "key": "c2-m06-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "conundrum"
+      ],
+      "text": "For small family farms, rising costs *put* a real conundrum.",
+      "options": [
+        "pose",
+        "lay",
+        "hold"
+      ],
+      "correct": [
+        "pose"
+      ],
+      "translation": {
+        "ru": "Растущие расходы ставят перед небольшими семейными фермами настоящую головоломку.",
+        "uz": "O'sib borayotgan xarajatlar kichik oilaviy fermer xo'jaliklari oldiga jiddiy jumboq qo'ymoqda."
+      },
+      "explanation": {
+        "ru": "«Ставить задачу, головоломку» — pose a conundrum (как pose a problem, pose a question). Русское «ставить» здесь не put; lay и hold с conundrum не сочетаются.",
+        "uz": "«Jumboq tug'dirmoq» — pose a conundrum (xuddi pose a problem, pose a question kabi). put, lay va hold fe'llari bu ma'noda conundrum bilan birikmaydi."
+      }
+    }
+  ]
+}

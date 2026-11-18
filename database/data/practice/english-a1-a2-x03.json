@@ -1,0 +1,1629 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-a1-a2",
+  "items": [
+    {
+      "key": "a1a2-m05-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "city"
+      ],
+      "text": "Last summer we visited three old ___ in the south.",
+      "base": "city",
+      "accepted": [
+        "cities"
+      ],
+      "translation": {
+        "ru": "Прошлым летом мы побывали в трёх старых городах на юге.",
+        "uz": "O'tgan yozda janubdagi uchta qadimiy shaharga sayohat qildik."
+      },
+      "explanation": {
+        "ru": "После three нужно множественное число. Если слово оканчивается на согласный + y, y меняется на i и добавляется -es: city → cities.",
+        "uz": "three so'zidan keyin ot ko'plikda bo'ladi. Undosh + y bilan tugagan so'zda y i ga aylanadi va -es qo'shiladi: city → cities."
+      }
+    },
+    {
+      "key": "a1a2-m05-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "building"
+      ],
+      "text": "That tall ___ next to the bridge is our new hotel.",
+      "base": "build",
+      "accepted": [
+        "building"
+      ],
+      "translation": {
+        "ru": "То высокое здание рядом с мостом — наша новая гостиница.",
+        "uz": "Ko'prik yonidagi anavi baland bino — bizning yangi mehmonxonamiz."
+      },
+      "explanation": {
+        "ru": "После That tall нужно существительное «здание»: от глагола build (строить) — building, с -ing. Builder — это «строитель», он не может быть гостиницей.",
+        "uz": "That tall so'zlaridan keyin «bino» degan ot kerak: build (qurmoq) fe'lidan -ing bilan building. Builder esa «quruvchi», u mehmonxona bo'la olmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m05-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "town"
+      ],
+      "text": "I love my ___ old market and quiet streets.",
+      "base": "town",
+      "accepted": [
+        "town's"
+      ],
+      "translation": {
+        "ru": "Я люблю старый рынок и тихие улицы моего городка.",
+        "uz": "Shaharchamning eski bozori va tinch ko'chalarini yaxshi ko'raman."
+      },
+      "explanation": {
+        "ru": "Рынок принадлежит городку — «рынок (чего?) моего городка»: это передаёт 's — my town's market. Без 's (my town old market) так сказать нельзя.",
+        "uz": "Bozor shaharchaga tegishli — «shaharchamning bozori»: bu ma'noni 's beradi — my town's market. 's qo'shimchasisiz (my town old market) noto'g'ri."
+      }
+    },
+    {
+      "key": "a1a2-m05-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "bank"
+      ],
+      "text": "There *is* three banks on our street, but no market.",
+      "options": [
+        "are",
+        "am",
+        "has"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "На нашей улице три банка, но нет рынка.",
+        "uz": "Ko'chamizda uchta bank bor, lekin bozor yo'q."
+      },
+      "explanation": {
+        "ru": "В обороте there is / there are глагол согласуется с тем, что идёт после него: three banks — множественное число, поэтому There are.",
+        "uz": "There is / there are iborasida fe'l undan keyingi otga moslashadi: three banks — ko'plikda, shuning uchun There are."
+      }
+    },
+    {
+      "key": "a1a2-m05-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "road"
+      ],
+      "text": "All of *this* roads in our village are new.",
+      "options": [
+        "these",
+        "that",
+        "them"
+      ],
+      "correct": [
+        "these"
+      ],
+      "translation": {
+        "ru": "Все эти дороги в нашем селе новые.",
+        "uz": "Qishlog'imizdagi bu yo'llarning hammasi yangi."
+      },
+      "explanation": {
+        "ru": "Roads — множественное число, поэтому нужно these (эти). This ставят только перед единственным числом: this road.",
+        "uz": "Roads — ko'plikda, shuning uchun these kerak. This faqat birlikdagi ot oldidan keladi: this road. O'zbekcha «bu» ikkalasiga ham mos keladi."
+      }
+    },
+    {
+      "key": "a1a2-m05-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "hospital"
+      ],
+      "text": "Our town has two *hospital*, and both are very old.",
+      "options": [
+        "hospitals",
+        "hospital's",
+        "a hospital"
+      ],
+      "correct": [
+        "hospitals"
+      ],
+      "translation": {
+        "ru": "В нашем городке две больницы, и обе очень старые.",
+        "uz": "Shaharchamizda ikkita kasalxona bor, ikkalasi ham juda eski."
+      },
+      "explanation": {
+        "ru": "После two существительное стоит во множественном числе: two hospitals. Апостроф ('s, s') означает принадлежность, а не множественное число.",
+        "uz": "two so'zidan keyin ot ko'plikda bo'ladi: two hospitals. O'zbekchada sondan keyin ko'plik qo'shimchasi qo'yilmaydi (ikkita kasalxona), inglizchada esa -s shart. Apostrof qaratqichni bildiradi."
+      }
+    },
+    {
+      "key": "a1a2-m05-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "cinema"
+      ],
+      "text": "One of the ___ in our town shows old movies on Sundays.",
+      "base": "cinema",
+      "accepted": [
+        "cinemas"
+      ],
+      "translation": {
+        "ru": "Один из кинотеатров нашего городка по воскресеньям показывает старые фильмы.",
+        "uz": "Shaharchamizdagi kinoteatrlardan biri yakshanba kunlari eski filmlarni ko'rsatadi."
+      },
+      "explanation": {
+        "ru": "После one of the существительное всегда во множественном числе: one of the cinemas — «один из кинотеатров».",
+        "uz": "one of the iborasidan keyin ot doim ko'plikda keladi: one of the cinemas — «kinoteatrlardan biri»."
+      }
+    },
+    {
+      "key": "a1a2-m05-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "hotel"
+      ],
+      "text": "This ___ rooms are clean, but its restaurant is expensive.",
+      "base": "hotel",
+      "accepted": [
+        "hotel's"
+      ],
+      "translation": {
+        "ru": "Номера этой гостиницы чистые, но её ресторан дорогой.",
+        "uz": "Bu mehmonxonaning xonalari toza, lekin restorani qimmat."
+      },
+      "explanation": {
+        "ru": "This относится к hotel, а не к rooms (this rooms нельзя): «номера этой гостиницы». Принадлежность передаёт 's: hotel → hotel's.",
+        "uz": "This so'zi rooms emas, hotel so'ziga tegishli (this rooms deyilmaydi): «bu mehmonxonaning xonalari». Qaratqich 's bilan beriladi: hotel → hotel's."
+      }
+    },
+    {
+      "key": "a1a2-m05-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "pharmacy"
+      ],
+      "text": "Both ___ near the station are open all night.",
+      "base": "pharmacy",
+      "accepted": [
+        "pharmacies"
+      ],
+      "translation": {
+        "ru": "Обе аптеки возле вокзала работают всю ночь.",
+        "uz": "Vokzal yonidagi ikkala dorixona ham tun bo'yi ochiq."
+      },
+      "explanation": {
+        "ru": "Both (оба) требует множественного числа. pharmacy оканчивается на согласный + y: y меняется на i и добавляется -es: pharmacies.",
+        "uz": "Both (ikkalasi) ko'plikni talab qiladi. pharmacy undosh + y bilan tugaydi: y i ga aylanadi va -es qo'shiladi: pharmacies."
+      }
+    },
+    {
+      "key": "a1a2-m05-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "museum"
+      ],
+      "text": "Our city has many *museum*, but I like only one.",
+      "options": [
+        "museums",
+        "museum's",
+        "the museum"
+      ],
+      "correct": [
+        "museums"
+      ],
+      "translation": {
+        "ru": "В нашем городе много музеев, но мне нравится только один.",
+        "uz": "Shahrimizda muzeylar ko'p, lekin menga faqat bittasi yoqadi."
+      },
+      "explanation": {
+        "ru": "После many исчисляемое существительное стоит во множественном числе: many museums. Апостроф ('s) означает принадлежность, а не число.",
+        "uz": "many so'zidan keyin sanaladigan ot ko'plikda keladi: many museums. O'zbekcha «ko'p muzey» deyilsa ham, inglizchada -s shart. Apostrof qaratqichni bildiradi."
+      }
+    },
+    {
+      "key": "a1a2-m05-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "station"
+      ],
+      "text": "This small station *have* only two trains a day.",
+      "options": [
+        "has",
+        "is",
+        "are"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "На этой маленькой станции всего два поезда в день.",
+        "uz": "Bu kichik bekatdan kuniga atigi ikkita poyezd o'tadi."
+      },
+      "explanation": {
+        "ru": "Подлежащее This small station — «она» (it), единственное число, поэтому has, а не have. Have — после I, you, we, they.",
+        "uz": "Ega — This small station, birlikda (it), shuning uchun have emas, has. Have esa I, you, we, they bilan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m05-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "stadium"
+      ],
+      "text": "There were many people *on* the stadium last night.",
+      "options": [
+        "at",
+        "to",
+        "of"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "Вчера вечером на стадионе было много людей.",
+        "uz": "Kecha kechqurun stadionda odam ko'p edi."
+      },
+      "explanation": {
+        "ru": "Про место, где люди находятся, говорят at the stadium (или in). Русское «на стадионе» — не on: on значит «на поверхности чего-то».",
+        "uz": "Odamlar biror joyda bo'lsa, at the stadium (yoki in) deyiladi. On predlogi «biror narsaning ustida» ma'nosini beradi."
+      }
+    },
+    {
+      "key": "a1a2-m05-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "bus"
+      ],
+      "text": "All the ___ are full in the morning, so I walk.",
+      "base": "bus",
+      "accepted": [
+        "buses",
+        "busses"
+      ],
+      "translation": {
+        "ru": "Утром все автобусы переполнены, поэтому я хожу пешком.",
+        "uz": "Ertalab hamma avtobuslar to'la bo'ladi, shuning uchun piyoda yuraman."
+      },
+      "explanation": {
+        "ru": "all the ... are — множественное число. К словам на -s добавляется -es: bus → buses (в американском словаре есть и busses).",
+        "uz": "all the ... are — ko'plik. -s bilan tugagan so'zlarga -es qo'shiladi: bus → buses (Amerika lug'atlarida busses shakli ham bor)."
+      }
+    },
+    {
+      "key": "a1a2-m05-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "ticket"
+      ],
+      "text": "How many ___ do we need for the whole family?",
+      "base": "ticket",
+      "accepted": [
+        "tickets"
+      ],
+      "translation": {
+        "ru": "Сколько билетов нам нужно на всю семью?",
+        "uz": "Butun oila uchun bizga nechta chipta kerak?"
+      },
+      "explanation": {
+        "ru": "После how many существительное всегда во множественном числе: how many tickets — «сколько билетов».",
+        "uz": "How many iborasidan keyin ot doim ko'plikda keladi: how many tickets. O'zbekcha «nechta chipta» deyilsa ham, inglizchada -s kerak."
+      }
+    },
+    {
+      "key": "a1a2-m05-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "car"
+      ],
+      "text": "My ___ only problem is that it is very old.",
+      "base": "car",
+      "accepted": [
+        "car's"
+      ],
+      "translation": {
+        "ru": "Единственная проблема моей машины в том, что она очень старая.",
+        "uz": "Mashinamning yagona muammosi — u juda eski."
+      },
+      "explanation": {
+        "ru": "Проблема принадлежит машине: «проблема моей машины» — my car's problem, с 's. My car only problem так сказать нельзя.",
+        "uz": "Muammo mashinaga tegishli: «mashinamning muammosi» — my car's problem, 's bilan. My car only problem deyilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m05-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "train"
+      ],
+      "text": "Our train *leave* soon, and it is never late.",
+      "options": [
+        "leaves",
+        "leaving",
+        "to leave"
+      ],
+      "correct": [
+        "leaves"
+      ],
+      "translation": {
+        "ru": "Наш поезд скоро отправляется, и он никогда не опаздывает.",
+        "uz": "Poyezdimiz tez orada jo'naydi, u hech qachon kechikmaydi."
+      },
+      "explanation": {
+        "ru": "Our train — это «он» (it), время настоящее (it is), поэтому глагол получает -s: leaves.",
+        "uz": "Our train — «u» (it), zamon hozirgi (it is), shuning uchun fe'lga -s qo'shiladi: leaves."
+      }
+    },
+    {
+      "key": "a1a2-m05-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "traffic"
+      ],
+      "text": "There is too much *traffics* in the city center today.",
+      "options": [
+        "traffic",
+        "traffic's",
+        "a traffic"
+      ],
+      "correct": [
+        "traffic"
+      ],
+      "translation": {
+        "ru": "Сегодня в центре города слишком плотное движение.",
+        "uz": "Bugun shahar markazida yo'l harakati juda tig'iz."
+      },
+      "explanation": {
+        "ru": "Traffic — неисчисляемое существительное: у него нет множественного числа и нет артикля a, а с ним говорят much: too much traffic.",
+        "uz": "Traffic — sanalmaydigan ot: uning ko'plik shakli ham, a artikli ham bo'lmaydi, u bilan much ishlatiladi: too much traffic."
+      }
+    },
+    {
+      "key": "a1a2-m05-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "bike"
+      ],
+      "text": "Which of *that* bikes is yours?",
+      "options": [
+        "those",
+        "this",
+        "them"
+      ],
+      "correct": [
+        "those"
+      ],
+      "translation": {
+        "ru": "Какой из тех велосипедов ваш?",
+        "uz": "Anavi velosipedlarning qaysi biri sizniki?"
+      },
+      "explanation": {
+        "ru": "Bikes — множественное число, поэтому that (тот) меняется на those (те). That и this ставят только перед единственным числом: that bike.",
+        "uz": "Bikes — ko'plikda, shuning uchun that o'rniga those kerak. That va this faqat birlikdagi ot oldidan keladi: that bike."
+      }
+    },
+    {
+      "key": "a1a2-m05-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "far"
+      ],
+      "text": "The airport is ___ from the city center than the station.",
+      "base": "far",
+      "accepted": [
+        "farther",
+        "further"
+      ],
+      "translation": {
+        "ru": "Аэропорт находится дальше от центра города, чем вокзал.",
+        "uz": "Aeroport shahar markazidan vokzalga qaraganda uzoqroqda."
+      },
+      "explanation": {
+        "ru": "than требует сравнительной степени. far меняется не по правилу: far → farther или further (оба варианта верны).",
+        "uz": "than so'zi qiyosiy darajani talab qiladi. far qoidaga bo'ysunmaydi: far → farther yoki further (ikkalasi ham to'g'ri)."
+      }
+    },
+    {
+      "key": "a1a2-m05-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "near"
+      ],
+      "text": "Excuse me, where is the ___ metro station from here?",
+      "base": "near",
+      "accepted": [
+        "nearest"
+      ],
+      "translation": {
+        "ru": "Извините, где отсюда ближайшая станция метро?",
+        "uz": "Kechirasiz, bu yerga eng yaqin metro bekati qayerda?"
+      },
+      "explanation": {
+        "ru": "the и смысл «самая близкая из всех» требуют превосходной степени: near + -est → the nearest.",
+        "uz": "the artikli va «hammasidan yaqin» ma'nosi orttirma darajani talab qiladi: near + -est → the nearest."
+      }
+    },
+    {
+      "key": "a1a2-m05-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "corner"
+      ],
+      "text": "There is a shop on all four ___ of this square.",
+      "base": "corner",
+      "accepted": [
+        "corners"
+      ],
+      "translation": {
+        "ru": "На всех четырёх углах этой площади есть по магазину.",
+        "uz": "Bu maydonning to'rtala burchagida ham do'kon bor."
+      },
+      "explanation": {
+        "ru": "После all four нужно множественное число: all four corners — «на всех четырёх углах».",
+        "uz": "all four so'zlaridan keyin ot ko'plikda keladi: all four corners — «to'rtala burchakda»."
+      }
+    },
+    {
+      "key": "a1a2-m05-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "between"
+      ],
+      "text": "The pharmacy is between the hospital *with* the bridge.",
+      "options": [
+        "and",
+        "or",
+        "to"
+      ],
+      "correct": [
+        "and"
+      ],
+      "translation": {
+        "ru": "Аптека находится между больницей и мостом.",
+        "uz": "Dorixona kasalxona bilan ko'prik orasida."
+      },
+      "explanation": {
+        "ru": "Конструкция: between A and B — «между A и B». Два места соединяет только and; with или or здесь невозможны.",
+        "uz": "Qolip: between A and B — «A bilan B orasida». O'zbekcha «bilan» bu yerda with emas: ikki joyni faqat and bog'laydi."
+      }
+    },
+    {
+      "key": "a1a2-m05-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "north"
+      ],
+      "text": "Our village is *on* the north of the country.",
+      "options": [
+        "in",
+        "into",
+        "by"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Наше село находится на севере страны.",
+        "uz": "Qishlog'imiz mamlakatning shimolida joylashgan."
+      },
+      "explanation": {
+        "ru": "О части страны говорят in: in the north, in the south of the country. Русское «на севере» — не on.",
+        "uz": "Mamlakatning bir qismi haqida in predlogi ishlatiladi: in the north, in the south of the country."
+      }
+    },
+    {
+      "key": "a1a2-m05-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "behind"
+      ],
+      "text": "My children always sit behind *we* on the bus.",
+      "options": [
+        "us",
+        "our",
+        "ourselves"
+      ],
+      "correct": [
+        "us"
+      ],
+      "translation": {
+        "ru": "В автобусе мои дети всегда сидят позади нас.",
+        "uz": "Avtobusda bolalarim doim orqamizda o'tirishadi."
+      },
+      "explanation": {
+        "ru": "После предлога (behind, with, for) нужна форма дополнения: behind us, а не we. We — только подлежащее.",
+        "uz": "Predlogdan keyin (behind, with, for) to'ldiruvchi shakli kerak: behind us, we emas. We faqat ega bo'ladi."
+      }
+    },
+    {
+      "key": "a1a2-m05-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "run"
+      ],
+      "text": "Look, a little dog is ___ after our bus!",
+      "base": "run",
+      "accepted": [
+        "running"
+      ],
+      "translation": {
+        "ru": "Смотрите, маленькая собака бежит за нашим автобусом!",
+        "uz": "Qarang, kichkina it avtobusimiz ortidan yugurib kelyapti!"
+      },
+      "explanation": {
+        "ru": "После is нужна форма -ing: действие идёт сейчас (Look). Короткий гласный + одна согласная — согласная удваивается: run → running.",
+        "uz": "is so'zidan keyin -ing shakli kerak: harakat hozir bo'lyapti (Look). Qisqa unli + bitta undosh — undosh ikkilanadi: run → running."
+      }
+    },
+    {
+      "key": "a1a2-m05-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "leave"
+      ],
+      "text": "Yesterday we ___ the hotel early and went to the airport.",
+      "base": "leave",
+      "accepted": [
+        "left"
+      ],
+      "translation": {
+        "ru": "Вчера мы рано выехали из гостиницы и поехали в аэропорт.",
+        "uz": "Kecha mehmonxonadan erta chiqib, aeroportga jo'nadik."
+      },
+      "explanation": {
+        "ru": "Yesterday и went показывают прошедшее время. leave — неправильный глагол: leave → left (не leaved).",
+        "uz": "Yesterday va went o'tgan zamonni ko'rsatadi. leave — noto'g'ri fe'l: leave → left (leaved emas)."
+      }
+    },
+    {
+      "key": "a1a2-m05-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "cross"
+      ],
+      "text": "My grandmother is old now, so she ___ the road very slowly.",
+      "base": "cross",
+      "accepted": [
+        "crosses"
+      ],
+      "translation": {
+        "ru": "Моя бабушка теперь старенькая, поэтому переходит дорогу очень медленно.",
+        "uz": "Buvim endi keksayib qolgan, shuning uchun yo'ldan juda sekin o'tadi."
+      },
+      "explanation": {
+        "ru": "she и настоящее время (is old now) — глагол получает -s. После s пишется -es: cross → crosses.",
+        "uz": "she va hozirgi zamon (is old now) — fe'lga -s qo'shiladi. s harfidan keyin -es yoziladi: cross → crosses."
+      }
+    },
+    {
+      "key": "a1a2-m05-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "go"
+      ],
+      "text": "My little son *gos* to school by bus.",
+      "options": [
+        "goes",
+        "going",
+        "gone"
+      ],
+      "correct": [
+        "goes"
+      ],
+      "translation": {
+        "ru": "Мой маленький сын ездит в школу на автобусе.",
+        "uz": "Kichkina o'g'lim maktabga avtobusda boradi."
+      },
+      "explanation": {
+        "ru": "My son — «он», поэтому глагол получает -s. Но глаголы на -o получают -es: go → goes (так же do → does).",
+        "uz": "My son — «u», shuning uchun fe'lga -s qo'shiladi. Lekin -o bilan tugagan fe'llarga -es qo'shiladi: go → goes (do → does kabi)."
+      }
+    },
+    {
+      "key": "a1a2-m05-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "ride"
+      ],
+      "text": "My daughter is six, and she can *drive* a bike.",
+      "options": [
+        "ride",
+        "rode",
+        "riding"
+      ],
+      "correct": [
+        "ride"
+      ],
+      "translation": {
+        "ru": "Моей дочери шесть лет, и она умеет кататься на велосипеде.",
+        "uz": "Qizim olti yoshda va velosiped mina oladi."
+      },
+      "explanation": {
+        "ru": "На велосипеде или лошади ездят — ride a bike; drive — водить машину, автобус. После can глагол без изменений: can ride.",
+        "uz": "Velosiped yoki ot haqida ride ishlatiladi (ride a bike); drive — mashina, avtobus haydash. O'zbekcha «velosiped haydamoq» deyilsa ham, drive emas. can so'zidan keyin fe'l o'zgarmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m05-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "walk"
+      ],
+      "text": "My grandfather cannot *walks* far, so we take a taxi.",
+      "options": [
+        "walk",
+        "walking",
+        "walked"
+      ],
+      "correct": [
+        "walk"
+      ],
+      "translation": {
+        "ru": "Мой дедушка не может далеко ходить пешком, поэтому мы берём такси.",
+        "uz": "Bobom uzoqqa piyoda yura olmaydi, shuning uchun taksida boramiz."
+      },
+      "explanation": {
+        "ru": "После can / cannot глагол стоит в начальной форме, без -s и без -ing: cannot walk.",
+        "uz": "can / cannot so'zidan keyin fe'l boshlang'ich shaklda, -s va -ing qo'shimchasisiz keladi: cannot walk."
+      }
+    },
+    {
+      "key": "a1a2-m06-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "cheap"
+      ],
+      "text": "This is the ___ shop in the whole market.",
+      "base": "cheap",
+      "accepted": [
+        "cheapest"
+      ],
+      "translation": {
+        "ru": "Это самый дешёвый магазин на всём рынке.",
+        "uz": "Bu butun bozordagi eng arzon do'kon."
+      },
+      "explanation": {
+        "ru": "the и in the whole market — сравнение со всеми, нужна превосходная степень: cheap → the cheapest.",
+        "uz": "the va in the whole market — hammasi bilan solishtirish, orttirma daraja kerak: cheap → the cheapest."
+      }
+    },
+    {
+      "key": "a1a2-m06-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "shop"
+      ],
+      "text": "My sister and I often go ___ on Saturdays.",
+      "base": "shop",
+      "accepted": [
+        "shopping"
+      ],
+      "translation": {
+        "ru": "По субботам мы с сестрой часто ходим за покупками.",
+        "uz": "Shanba kunlari singlim ikkalamiz ko'pincha xarid qilgani boramiz."
+      },
+      "explanation": {
+        "ru": "go shopping — «ходить за покупками»: после go нужна форма -ing. Короткий гласный + p: p удваивается: shop → shopping.",
+        "uz": "go shopping — «xarid qilgani bormoq»: go fe'lidan keyin -ing shakli keladi. Qisqa unli + p: p ikkilanadi: shop → shopping."
+      }
+    },
+    {
+      "key": "a1a2-m06-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "pay"
+      ],
+      "text": "My brother has a job now, so he ___ for his tickets.",
+      "base": "pay",
+      "accepted": [
+        "pays"
+      ],
+      "translation": {
+        "ru": "Мой брат теперь работает, поэтому сам платит за свои билеты.",
+        "uz": "Akam endi ishlaydi, shuning uchun chiptalari uchun o'zi to'laydi."
+      },
+      "explanation": {
+        "ru": "he и настоящее время (has a job now) — глагол получает -s. Перед y стоит гласный a, поэтому y не меняется: pay → pays (но study → studies).",
+        "uz": "he va hozirgi zamon (has a job now) — fe'lga -s qo'shiladi. y dan oldin unli a turgani uchun y o'zgarmaydi: pay → pays (lekin study → studies)."
+      }
+    },
+    {
+      "key": "a1a2-m06-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "money"
+      ],
+      "text": "All my money *are* in this small bag.",
+      "options": [
+        "is",
+        "am",
+        "were"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Все мои деньги в этой маленькой сумке.",
+        "uz": "Hamma pulim shu kichkina sumkada."
+      },
+      "explanation": {
+        "ru": "Money — неисчисляемое существительное и всегда в единственном числе: money is. Русское «деньги» — множественное число, но в английском are нельзя.",
+        "uz": "Money — sanalmaydigan ot, u doim birlikda: money is. Shuning uchun are emas, is."
+      }
+    },
+    {
+      "key": "a1a2-m06-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "price"
+      ],
+      "text": "This coat is warm, and its price is not *expensive*.",
+      "options": [
+        "high",
+        "tall",
+        "heavy"
+      ],
+      "correct": [
+        "high"
+      ],
+      "translation": {
+        "ru": "Это пальто тёплое, и цена у него невысокая.",
+        "uz": "Bu palto issiq, narxi ham baland emas."
+      },
+      "explanation": {
+        "ru": "Дорогой или дешёвой бывает вещь: an expensive coat. Цена же бывает высокой или низкой: the price is high / low (не expensive).",
+        "uz": "Qimmat yoki arzon narsaning o'zi bo'ladi: an expensive coat. Narx esa baland yoki past bo'ladi: the price is high / low (expensive emas)."
+      }
+    },
+    {
+      "key": "a1a2-m06-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "cost"
+      ],
+      "text": "This bag does not *costs* much, but it is good.",
+      "options": [
+        "cost",
+        "costing",
+        "to cost"
+      ],
+      "correct": [
+        "cost"
+      ],
+      "translation": {
+        "ru": "Эта сумка стоит недорого, но она хорошая.",
+        "uz": "Bu sumka unchalik qimmat emas, lekin yaxshi."
+      },
+      "explanation": {
+        "ru": "После does / does not глагол стоит в начальной форме, без -s: does not cost. Признак he / she / it уже есть в does.",
+        "uz": "does / does not so'zidan keyin fe'l -s qo'shimchasisiz, boshlang'ich shaklda keladi: does not cost. he / she / it belgisi does tarkibida bor."
+      }
+    },
+    {
+      "key": "a1a2-m06-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "dress"
+      ],
+      "text": "Both ___ look nice, but I like the blue one more.",
+      "base": "dress",
+      "accepted": [
+        "dresses"
+      ],
+      "translation": {
+        "ru": "Оба платья красивые, но синее мне нравится больше.",
+        "uz": "Ikkala ko'ylak ham chiroyli, lekin menga ko'ki ko'proq yoqadi."
+      },
+      "explanation": {
+        "ru": "Both требует множественного числа. После s пишется -es: dress → dresses.",
+        "uz": "Both ko'plikni talab qiladi. s harfidan keyin -es yoziladi: dress → dresses."
+      }
+    },
+    {
+      "key": "a1a2-m06-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "shoe"
+      ],
+      "text": "I need a new pair of ___ for school.",
+      "base": "shoe",
+      "accepted": [
+        "shoes"
+      ],
+      "translation": {
+        "ru": "Мне нужна новая пара туфель для школы.",
+        "uz": "Maktab uchun menga bir juft yangi tufli kerak."
+      },
+      "explanation": {
+        "ru": "a pair of — «пара»: после неё существительное во множественном числе: a pair of shoes.",
+        "uz": "a pair of — «bir juft»: undan keyin ot ko'plikda keladi: a pair of shoes."
+      }
+    },
+    {
+      "key": "a1a2-m06-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "jacket"
+      ],
+      "text": "I love my new ___ big pockets, but not its color.",
+      "base": "jacket",
+      "accepted": [
+        "jacket's"
+      ],
+      "translation": {
+        "ru": "Мне нравятся большие карманы моей новой куртки, но не её цвет.",
+        "uz": "Yangi kurtkamning katta cho'ntaklari menga yoqadi, rangi esa yoqmaydi."
+      },
+      "explanation": {
+        "ru": "Карманы принадлежат куртке: «карманы моей куртки» — my new jacket's pockets, с 's. Без 's (my new jacket big pockets) так сказать нельзя.",
+        "uz": "Cho'ntaklar kurtkaga tegishli: «kurtkamning cho'ntaklari» — my new jacket's pockets, 's bilan. 's qo'shimchasisiz (my new jacket big pockets) noto'g'ri."
+      }
+    },
+    {
+      "key": "a1a2-m06-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "sock"
+      ],
+      "text": "My left *socks* is wet, but not the right one.",
+      "options": [
+        "sock",
+        "sock's",
+        "a sock"
+      ],
+      "correct": [
+        "sock"
+      ],
+      "translation": {
+        "ru": "Мой левый носок мокрый, а правый нет.",
+        "uz": "Chap paypog'im ho'l, o'ngi esa ho'l emas."
+      },
+      "explanation": {
+        "ru": "Речь об одном носке (is, the right one), поэтому единственное число: sock. Апостроф ('s) означает принадлежность, а не число.",
+        "uz": "Gap bitta paypoq haqida (is, the right one), shuning uchun birlik: sock. Apostrof son emas, qaratqichni bildiradi."
+      }
+    },
+    {
+      "key": "a1a2-m06-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "jeans"
+      ],
+      "text": "These jeans are too long, so I never wear *it*.",
+      "options": [
+        "them",
+        "they",
+        "their"
+      ],
+      "correct": [
+        "them"
+      ],
+      "translation": {
+        "ru": "Эти джинсы слишком длинные, поэтому я их никогда не ношу.",
+        "uz": "Bu jinsi shim juda uzun, shuning uchun uni hech qachon kiymayman."
+      },
+      "explanation": {
+        "ru": "Jeans — множественное число (these jeans are), поэтому о них говорят they / them, а не it. После глагола wear — форма дополнения them.",
+        "uz": "Jeans — ko'plikda (these jeans are), shuning uchun u haqida it emas, they / them deyiladi. wear fe'lidan keyin to'ldiruvchi shakli them keladi. O'zbekcha «uni kiymayman» birlikda bo'lsa ham."
+      }
+    },
+    {
+      "key": "a1a2-m06-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "trousers"
+      ],
+      "text": "These trousers *has* no pockets, but they are warm.",
+      "options": [
+        "have",
+        "is",
+        "was"
+      ],
+      "correct": [
+        "have"
+      ],
+      "translation": {
+        "ru": "У этих брюк нет карманов, но они тёплые.",
+        "uz": "Bu shimning cho'ntaklari yo'q, lekin u issiq."
+      },
+      "explanation": {
+        "ru": "Trousers всегда во множественном числе (these, they — как русское «брюки»), поэтому have, а не has. Has — только после he, she, it.",
+        "uz": "Trousers doim ko'plikda (these, they), shuning uchun has emas, have. O'zbekcha «shim» birlikda bo'lsa ham. Has faqat he, she, it bilan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m06-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "red"
+      ],
+      "text": "Take this one: it is the ___ apple in the whole box.",
+      "base": "red",
+      "accepted": [
+        "reddest"
+      ],
+      "translation": {
+        "ru": "Возьмите вот это: это самое красное яблоко во всей коробке.",
+        "uz": "Mana buni oling: bu butun qutidagi eng qizil olma."
+      },
+      "explanation": {
+        "ru": "the и in the whole box — сравнение со всеми, нужна превосходная степень. Короткий гласный + d: d удваивается: red → reddest.",
+        "uz": "the va in the whole box — hammasi bilan solishtirish, orttirma daraja kerak. Qisqa unli + d: d ikkilanadi: red → reddest."
+      }
+    },
+    {
+      "key": "a1a2-m06-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "white"
+      ],
+      "text": "With this new soap, my shirts are ___ than before.",
+      "base": "white",
+      "accepted": [
+        "whiter"
+      ],
+      "translation": {
+        "ru": "С этим новым мылом мои рубашки белее, чем раньше.",
+        "uz": "Bu yangi sovun bilan ko'ylaklarim avvalgidan oqroq."
+      },
+      "explanation": {
+        "ru": "than требует сравнительной степени. Слово оканчивается на -e, поэтому добавляется только -r: white → whiter.",
+        "uz": "than so'zi qiyosiy darajani talab qiladi. So'z -e bilan tugaydi, shuning uchun faqat -r qo'shiladi: white → whiter."
+      }
+    },
+    {
+      "key": "a1a2-m06-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "gray"
+      ],
+      "text": "My grandfather's hair is ___ than my father's.",
+      "base": "gray",
+      "accepted": [
+        "grayer",
+        "greyer"
+      ],
+      "translation": {
+        "ru": "У дедушки волосы седее, чем у папы.",
+        "uz": "Bobomning sochi otamnikidan oqroq."
+      },
+      "explanation": {
+        "ru": "than требует сравнительной степени: gray + -er → grayer (в британском написании greyer).",
+        "uz": "than so'zi qiyosiy darajani talab qiladi: gray + -er → grayer (britancha yozilishi greyer)."
+      }
+    },
+    {
+      "key": "a1a2-m06-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "yellow"
+      ],
+      "text": "My aunt sells very *yellows* bananas at the market.",
+      "options": [
+        "yellow",
+        "yellower",
+        "yellowest"
+      ],
+      "correct": [
+        "yellow"
+      ],
+      "translation": {
+        "ru": "Моя тётя продаёт на рынке очень жёлтые бананы.",
+        "uz": "Xolam bozorda juda sariq banan sotadi."
+      },
+      "explanation": {
+        "ru": "Прилагательные в английском не меняются по числу: very yellow bananas, не yellows. А после very не ставят yellower или yellowest.",
+        "uz": "Ingliz tilida sifat ko'plikda o'zgarmaydi: very yellow bananas, yellows emas. very so'zidan keyin esa yellower yoki yellowest kelmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m06-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "color"
+      ],
+      "text": "What color *is* these new socks?",
+      "options": [
+        "are",
+        "am",
+        "was"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Какого цвета эти новые носки?",
+        "uz": "Bu yangi paypoqlar qanday rangda?"
+      },
+      "explanation": {
+        "ru": "В вопросе What color ...? глагол согласуется не с color, а с подлежащим после него: these socks — множественное число, поэтому are.",
+        "uz": "What color ...? savolida fe'l color so'ziga emas, undan keyingi egaga moslashadi: these socks — ko'plikda, shuning uchun are."
+      }
+    },
+    {
+      "key": "a1a2-m06-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "blue"
+      ],
+      "text": "Do you have this dress *on* blue?",
+      "options": [
+        "in",
+        "at",
+        "to"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "У вас есть такое платье синего цвета?",
+        "uz": "Sizda bu ko'ylakning ko'k rangdagisi bormi?"
+      },
+      "explanation": {
+        "ru": "О цвете одежды говорят с предлогом in: in blue, in red — «синего цвета», «в красном».",
+        "uz": "Kiyimning rangi haqida in predlogi ishlatiladi: in blue, in red — «ko'k rangda», «qizil rangda»."
+      }
+    },
+    {
+      "key": "a1a2-m06-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "big"
+      ],
+      "text": "Our new house is ___ than the old one.",
+      "base": "big",
+      "accepted": [
+        "bigger"
+      ],
+      "translation": {
+        "ru": "Наш новый дом больше старого.",
+        "uz": "Yangi uyimiz eskisidan kattaroq."
+      },
+      "explanation": {
+        "ru": "than требует сравнительной степени. Короткий гласный + g: g удваивается: big → bigger.",
+        "uz": "than so'zi qiyosiy darajani talab qiladi. Qisqa unli + g: g ikkilanadi: big → bigger."
+      }
+    },
+    {
+      "key": "a1a2-m06-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "bad"
+      ],
+      "text": "For me, Monday is the ___ day of the week.",
+      "base": "bad",
+      "accepted": [
+        "worst"
+      ],
+      "translation": {
+        "ru": "Для меня понедельник — худший день недели.",
+        "uz": "Men uchun dushanba — haftaning eng yomon kuni."
+      },
+      "explanation": {
+        "ru": "the ... of the week — превосходная степень. bad меняется не по правилу: bad → worse → the worst.",
+        "uz": "the ... of the week — orttirma daraja. bad qoidaga bo'ysunmaydi: bad → worse → the worst."
+      }
+    },
+    {
+      "key": "a1a2-m06-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "good"
+      ],
+      "text": "My new phone is much ___ than my old one.",
+      "base": "good",
+      "accepted": [
+        "better"
+      ],
+      "translation": {
+        "ru": "Мой новый телефон намного лучше старого.",
+        "uz": "Yangi telefonim eskisidan ancha yaxshiroq."
+      },
+      "explanation": {
+        "ru": "much ... than — сравнительная степень. good меняется не по правилу: good → better (не gooder).",
+        "uz": "much ... than — qiyosiy daraja. good qoidaga bo'ysunmaydi: good → better (gooder emas)."
+      }
+    },
+    {
+      "key": "a1a2-m06-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "heavy"
+      ],
+      "text": "My bag is *heavyer* than yours because of the books.",
+      "options": [
+        "heavier",
+        "heavy",
+        "heaviest"
+      ],
+      "correct": [
+        "heavier"
+      ],
+      "translation": {
+        "ru": "Моя сумка тяжелее вашей из-за книг.",
+        "uz": "Kitoblar tufayli sumkam siznikidan og'irroq."
+      },
+      "explanation": {
+        "ru": "После than нужна сравнительная степень. Согласный + y: перед -er y меняется на i: heavy → heavier (не heavyer).",
+        "uz": "than so'zidan oldin qiyosiy daraja kerak. Undosh + y: -er oldidan y i ga aylanadi: heavy → heavier (heavyer emas)."
+      }
+    },
+    {
+      "key": "a1a2-m06-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "different"
+      ],
+      "text": "My sister and I are very *differents*.",
+      "options": [
+        "different",
+        "difference",
+        "differently"
+      ],
+      "correct": [
+        "different"
+      ],
+      "translation": {
+        "ru": "Мы с сестрой очень разные.",
+        "uz": "Singlim ikkalamiz bir-birimizdan juda farq qilamiz."
+      },
+      "explanation": {
+        "ru": "Прилагательное в английском не получает -s: we are different. Русское «разные» стоит во множественном числе, но в английском так нельзя.",
+        "uz": "Ingliz tilida sifat -s qo'shimchasini olmaydi: we are different. Difference — ot, differently — ravish, are fe'lidan keyin sifat kerak."
+      }
+    },
+    {
+      "key": "a1a2-m06-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "empty"
+      ],
+      "text": "Please bring me a full bottle, not *a* empty one.",
+      "options": [
+        "an",
+        "many",
+        "these"
+      ],
+      "correct": [
+        "an"
+      ],
+      "translation": {
+        "ru": "Принесите мне, пожалуйста, полную бутылку, а не пустую.",
+        "uz": "Iltimos, menga bo'sh emas, to'la shisha olib keling."
+      },
+      "explanation": {
+        "ru": "Артикль выбирают по звуку следующего слова — здесь это empty, а не one или bottle. Перед гласным звуком — an: an empty one.",
+        "uz": "Artikl keyingi so'zning tovushiga qarab tanlanadi — bu yerda one yoki bottle emas, empty. Unli tovush oldidan an keladi: an empty one."
+      }
+    },
+    {
+      "key": "a1a2-m06-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "try"
+      ],
+      "text": "My sister always ___ on three dresses before she buys one.",
+      "base": "try",
+      "accepted": [
+        "tries"
+      ],
+      "translation": {
+        "ru": "Моя сестра всегда примеряет три платья, прежде чем купить одно.",
+        "uz": "Opam bitta ko'ylak sotib olishdan oldin doim uchtasini kiyib ko'radi."
+      },
+      "explanation": {
+        "ru": "she и настоящее время (buys) — глагол получает -s. Согласный + y: y меняется на i и добавляется -es: try → tries.",
+        "uz": "she va hozirgi zamon (buys) — fe'lga -s qo'shiladi. Undosh + y: y i ga aylanadi va -es qo'shiladi: try → tries."
+      }
+    },
+    {
+      "key": "a1a2-m06-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "give"
+      ],
+      "text": "Last year my parents ___ me a bike for my birthday.",
+      "base": "give",
+      "accepted": [
+        "gave"
+      ],
+      "translation": {
+        "ru": "В прошлом году родители подарили мне велосипед на день рождения.",
+        "uz": "O'tgan yili ota-onam tug'ilgan kunimga velosiped sovg'a qilishdi."
+      },
+      "explanation": {
+        "ru": "Last year — прошедшее время. give — неправильный глагол: give → gave (не gived).",
+        "uz": "Last year — o'tgan zamon. give — noto'g'ri fe'l: give → gave (gived emas)."
+      }
+    },
+    {
+      "key": "a1a2-m06-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "take"
+      ],
+      "text": "Look, the cat is ___ the fish from your plate!",
+      "base": "take",
+      "accepted": [
+        "taking"
+      ],
+      "translation": {
+        "ru": "Смотрите, кошка берёт рыбу с вашей тарелки!",
+        "uz": "Qarang, mushuk likopchangizdan baliqni olyapti!"
+      },
+      "explanation": {
+        "ru": "После is нужна форма -ing: действие идёт сейчас (Look). Немая e на конце отпадает: take → taking.",
+        "uz": "is so'zidan keyin -ing shakli kerak: harakat hozir bo'lyapti (Look). Oxiridagi talaffuz qilinmaydigan e tushib qoladi: take → taking."
+      }
+    },
+    {
+      "key": "a1a2-m06-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "show"
+      ],
+      "text": "Can you show *I* the way to the station, please?",
+      "options": [
+        "me",
+        "my",
+        "mine"
+      ],
+      "correct": [
+        "me"
+      ],
+      "translation": {
+        "ru": "Вы не покажете мне дорогу до вокзала?",
+        "uz": "Iltimos, menga vokzalga boradigan yo'lni ko'rsatib bera olasizmi?"
+      },
+      "explanation": {
+        "ru": "После show идёт дополнение (кому?), поэтому нужна форма me, а не I: show me the way. I — только подлежащее.",
+        "uz": "show fe'lidan keyin to'ldiruvchi (kimga?) keladi, shuning uchun I emas, me: show me the way. I faqat ega bo'ladi."
+      }
+    },
+    {
+      "key": "a1a2-m06-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "like"
+      ],
+      "text": "My daughter *like* pink, and she wears it every day.",
+      "options": [
+        "likes",
+        "liking",
+        "to like"
+      ],
+      "correct": [
+        "likes"
+      ],
+      "translation": {
+        "ru": "Моя дочь любит розовый цвет и носит его каждый день.",
+        "uz": "Qizim pushti rangni yaxshi ko'radi va har kuni shu rangda kiyinadi."
+      },
+      "explanation": {
+        "ru": "My daughter — «она» (she), время настоящее (she wears), поэтому глагол получает -s: likes.",
+        "uz": "My daughter — «u» (she), zamon hozirgi (she wears), shuning uchun fe'lga -s qo'shiladi: likes."
+      }
+    },
+    {
+      "key": "a1a2-m06-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "gift"
+      ],
+      "text": "Who are *this* beautiful gifts from?",
+      "options": [
+        "these",
+        "that",
+        "them"
+      ],
+      "correct": [
+        "these"
+      ],
+      "translation": {
+        "ru": "От кого эти красивые подарки?",
+        "uz": "Bu chiroyli sovg'alar kimdan?"
+      },
+      "explanation": {
+        "ru": "Gifts — множественное число, поэтому this (этот) меняется на these (эти). This ставят только перед единственным числом: this gift.",
+        "uz": "Gifts — ko'plikda, shuning uchun this o'rniga these kerak. This faqat birlikdagi ot oldidan keladi: this gift."
+      }
+    }
+  ]
+}
