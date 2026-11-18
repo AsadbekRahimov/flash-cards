@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 12,
+    "title": "Точные и естественные науки",
+    "title_uz": "Aniq va tabiiy fanlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Земля и эволюция",
+    "title_uz": "Yer va evolyutsiya"
+  },
+  "words": [
+    {
+      "word": "tectonic",
+      "part_of_speech": "adjective",
+      "translation": "тектонический",
+      "translations": {
+        "ru": "тектонический",
+        "uz": "tektonik"
+      },
+      "example": "Tectonic plates move slowly, causing earthquakes.",
+      "example_translations": {
+        "ru": "Тектонические плиты медленно движутся, вызывая землетрясения.",
+        "uz": "Tektonik plitalar sekin harakatlanib, zilzilalarni keltirib chiqaradi."
+      }
+    },
+    {
+      "word": "seismic",
+      "part_of_speech": "adjective",
+      "translation": "сейсмический",
+      "translations": {
+        "ru": "сейсмический",
+        "uz": "seysmik"
+      },
+      "example": "Sensors recorded seismic waves from the distant earthquake.",
+      "example_translations": {
+        "ru": "Датчики зафиксировали сейсмические волны от далёкого землетрясения.",
+        "uz": "Datchiklar uzoqdagi zilziladan kelgan seysmik to'lqinlarni qayd etdi."
+      }
+    },
+    {
+      "word": "magma",
+      "part_of_speech": "noun",
+      "translation": "магма",
+      "translations": {
+        "ru": "магма",
+        "uz": "magma"
+      },
+      "example": "Magma rises from deep underground and becomes lava.",
+      "example_translations": {
+        "ru": "Магма поднимается из глубин земли и становится лавой.",
+        "uz": "Magma yer qa'ridan ko'tarilib, lavaga aylanadi."
+      }
+    },
+    {
+      "word": "sediment",
+      "part_of_speech": "noun",
+      "translation": "осадок",
+      "translations": {
+        "ru": "осадок",
+        "uz": "cho'kindi"
+      },
+      "example": "Rivers carry sediment that settles on the seabed.",
+      "example_translations": {
+        "ru": "Реки несут осадок, который оседает на морском дне.",
+        "uz": "Daryolar dengiz tubiga cho'kadigan cho'kindini oqizib keladi."
+      }
+    },
+    {
+      "word": "stratum",
+      "part_of_speech": "noun",
+      "translation": "пласт породы",
+      "translations": {
+        "ru": "пласт породы",
+        "uz": "tog' jinsi qatlami"
+      },
+      "example": "Each stratum of rock records a different era.",
+      "example_translations": {
+        "ru": "Каждый пласт породы хранит следы отдельной эпохи.",
+        "uz": "Har bir tog' jinsi qatlami alohida davr izlarini saqlaydi."
+      }
+    },
+    {
+      "word": "primordial",
+      "part_of_speech": "adjective",
+      "translation": "первичный, первозданный",
+      "translations": {
+        "ru": "первичный, первозданный",
+        "uz": "ibtidoiy"
+      },
+      "example": "Life may have begun in a primordial ocean.",
+      "example_translations": {
+        "ru": "Жизнь, возможно, зародилась в первичном океане.",
+        "uz": "Hayot, ehtimol, ibtidoiy okeanda paydo bo'lgan."
+      }
+    },
+    {
+      "word": "symbiosis",
+      "part_of_speech": "noun",
+      "translation": "симбиоз",
+      "translations": {
+        "ru": "симбиоз",
+        "uz": "simbioz"
+      },
+      "example": "Bees and flowers live in symbiosis, helping each other.",
+      "example_translations": {
+        "ru": "Пчёлы и цветы живут в симбиозе, помогая друг другу.",
+        "uz": "Asalarilar va gullar bir-biriga yordam berib, simbiozda yashaydi."
+      }
+    },
+    {
+      "word": "parasitic",
+      "part_of_speech": "adjective",
+      "translation": "паразитический",
+      "translations": {
+        "ru": "паразитический",
+        "uz": "tekinxo'r"
+      },
+      "example": "Parasitic plants steal nutrients from their host trees.",
+      "example_translations": {
+        "ru": "Паразитические растения крадут питательные вещества у деревьев-хозяев.",
+        "uz": "Tekinxo'r o'simliklar xo'jayin daraxtlardan ozuqa moddalarni o'g'irlaydi."
+      }
+    },
+    {
+      "word": "morphology",
+      "part_of_speech": "noun",
+      "translation": "морфология",
+      "translations": {
+        "ru": "морфология",
+        "uz": "morfologiya"
+      },
+      "example": "Morphology studies the form and structure of organisms.",
+      "example_translations": {
+        "ru": "Морфология изучает форму и строение организмов.",
+        "uz": "Morfologiya organizmlarning shakli va tuzilishini o'rganadi."
+      }
+    },
+    {
+      "word": "dormant",
+      "part_of_speech": "adjective",
+      "translation": "спящий, неактивный",
+      "translations": {
+        "ru": "спящий, неактивный",
+        "uz": "uyqudagi, nofaol"
+      },
+      "example": "The dormant volcano has not erupted for centuries.",
+      "example_translations": {
+        "ru": "Спящий вулкан не извергался уже несколько столетий.",
+        "uz": "Uyqudagi vulqon bir necha asrdan beri otilmagan."
+      }
+    }
+  ]
+}

@@ -73,12 +73,12 @@
       "translation": "подчёркивать",
       "translations": {
         "ru": "подчёркивать",
-        "uz": "ta'kidlamoq"
+        "uz": "alohida ta'kidlamoq"
       },
       "example": "The findings underscore the need for further research.",
       "example_translations": {
         "ru": "Полученные данные подчёркивают необходимость дальнейших исследований.",
-        "uz": "Olingan natijalar keyingi tadqiqotlar zarurligini ta'kidlaydi."
+        "uz": "Olingan natijalar keyingi tadqiqotlar zarurligini alohida ta'kidlaydi."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "These questions pertain directly to the second experiment.",
       "example_translations": {
         "ru": "Эти вопросы относятся непосредственно ко второму эксперименту.",
-        "uz": "Bu savollar bevosita ikkinchi tajribaga taalluqli bo'ladi."
+        "uz": "Bu savollar bevosita ikkinchi tajribaga taalluqlidir."
       }
     },
     {

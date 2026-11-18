@@ -126,15 +126,15 @@
     {
       "word": "complacent",
       "part_of_speech": "adjective",
-      "translation": "самодовольный, самоуспокоенный",
+      "translation": "самоуспокоенный, самодовольный",
       "translations": {
-        "ru": "самодовольный, самоуспокоенный",
-        "uz": "o'zidan mamnun"
+        "ru": "самоуспокоенный, самодовольный",
+        "uz": "xotirjamlikka berilgan"
       },
       "example": "After three wins, the team became complacent and lost.",
       "example_translations": {
-        "ru": "После трёх побед команда стала самодовольной и проиграла.",
-        "uz": "Uch g'alabadan so'ng jamoa o'zidan mamnun bo'lib qoldi va yutqazdi."
+        "ru": "После трёх побед команда стала самоуспокоенной и проиграла.",
+        "uz": "Uch g'alabadan so'ng jamoa xotirjamlikka berilib, yutqazdi."
       }
     },
     {

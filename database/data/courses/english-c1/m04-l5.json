@@ -63,7 +63,7 @@
       },
       "example": "A consignment of fresh fruit arrived by truck.",
       "example_translations": {
-        "ru": "Партия груза со свежими фруктами прибыла на грузовике.",
+        "ru": "Партия груза — свежие фрукты — прибыла на грузовике.",
         "uz": "Yangi mevalardan iborat yuk partiyasi yuk mashinasida yetib keldi."
       }
     },
@@ -143,7 +143,7 @@
       "translation": "бракованный",
       "translations": {
         "ru": "бракованный",
-        "uz": "nuqsonli"
+        "uz": "nuqsonli, yaroqsiz"
       },
       "example": "Customers returned the defective chairs for a refund.",
       "example_translations": {

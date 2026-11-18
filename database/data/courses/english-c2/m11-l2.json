@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 11,
+    "title": "Экономика и капитал",
+    "title_uz": "Iqtisodiyot va kapital"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Экономические учения",
+    "title_uz": "Iqtisodiy ta'limotlar"
+  },
+  "words": [
+    {
+      "word": "interventionism",
+      "part_of_speech": "noun",
+      "translation": "политика государственного вмешательства",
+      "translations": {
+        "ru": "политика государственного вмешательства",
+        "uz": "davlat aralashuvi siyosati"
+      },
+      "example": "Interventionism favors state action over free markets.",
+      "example_translations": {
+        "ru": "Политика государственного вмешательства ставит действия государства выше свободного рынка.",
+        "uz": "Davlat aralashuvi siyosati davlat harakatlarini erkin bozordan ustun qo'yadi."
+      }
+    },
+    {
+      "word": "mercantilism",
+      "part_of_speech": "noun",
+      "translation": "меркантилизм",
+      "translations": {
+        "ru": "меркантилизм",
+        "uz": "merkantilizm"
+      },
+      "example": "Mercantilism taught nations to maximize exports and hoard gold.",
+      "example_translations": {
+        "ru": "Меркантилизм учил государства наращивать экспорт и накапливать золото.",
+        "uz": "Merkantilizm davlatlarni eksportni ko'paytirishga va oltin to'plashga o'rgatgan."
+      }
+    },
+    {
+      "word": "redistribution",
+      "part_of_speech": "noun",
+      "translation": "перераспределение",
+      "translations": {
+        "ru": "перераспределение",
+        "uz": "qayta taqsimlash"
+      },
+      "example": "Redistribution of wealth through taxes reduces inequality.",
+      "example_translations": {
+        "ru": "Перераспределение богатства через налоги сокращает неравенство.",
+        "uz": "Boylikni soliqlar orqali qayta taqsimlash tengsizlikni kamaytiradi."
+      }
+    },
+    {
+      "word": "regressive",
+      "part_of_speech": "adjective",
+      "translation": "регрессивный",
+      "translations": {
+        "ru": "регрессивный",
+        "uz": "regressiv"
+      },
+      "example": "A regressive tax burdens the poor more heavily.",
+      "example_translations": {
+        "ru": "Регрессивный налог тяжелее ложится на бедных.",
+        "uz": "Regressiv soliq kambag'allarga og'irroq yuk bo'ladi."
+      }
+    },
+    {
+      "word": "expansionary",
+      "part_of_speech": "adjective",
+      "translation": "стимулирующий",
+      "translations": {
+        "ru": "стимулирующий",
+        "uz": "rag'batlantiruvchi"
+      },
+      "example": "Expansionary policy lowers interest rates to boost spending.",
+      "example_translations": {
+        "ru": "Стимулирующая политика снижает процентные ставки, чтобы увеличить расходы.",
+        "uz": "Rag'batlantiruvchi siyosat xarajatlarni oshirish uchun foiz stavkalarini pasaytiradi."
+      }
+    },
+    {
+      "word": "stagflation",
+      "part_of_speech": "noun",
+      "translation": "стагфляция",
+      "translations": {
+        "ru": "стагфляция",
+        "uz": "stagflyatsiya"
+      },
+      "example": "Stagflation combines rising prices with a stagnant economy.",
+      "example_translations": {
+        "ru": "Стагфляция сочетает рост цен с застоем в экономике.",
+        "uz": "Stagflyatsiya narxlar o'sishini iqtisodiy turg'unlik bilan birlashtiradi."
+      }
+    },
+    {
+      "word": "hyperinflation",
+      "part_of_speech": "noun",
+      "translation": "гиперинфляция",
+      "translations": {
+        "ru": "гиперинфляция",
+        "uz": "giperinflyatsiya"
+      },
+      "example": "During hyperinflation, prices may double within days.",
+      "example_translations": {
+        "ru": "Во время гиперинфляции цены могут удвоиться за считаные дни.",
+        "uz": "Giperinflyatsiya davrida narxlar bir necha kun ichida ikki baravar oshishi mumkin."
+      }
+    },
+    {
+      "word": "devaluation",
+      "part_of_speech": "noun",
+      "translation": "девальвация",
+      "translations": {
+        "ru": "девальвация",
+        "uz": "devalvatsiya"
+      },
+      "example": "Devaluation of the currency made imported goods costlier.",
+      "example_translations": {
+        "ru": "Девальвация валюты сделала импортные товары дороже.",
+        "uz": "Valyuta devalvatsiyasi import tovarlarini qimmatlashtirdi."
+      }
+    },
+    {
+      "word": "nationalize",
+      "part_of_speech": "verb",
+      "translation": "национализировать",
+      "translations": {
+        "ru": "национализировать",
+        "uz": "milliylashtirmoq"
+      },
+      "example": "The government nationalized the railways to control fares.",
+      "example_translations": {
+        "ru": "Правительство национализировало железные дороги, чтобы контролировать тарифы.",
+        "uz": "Hukumat tariflarni nazorat qilish uchun temir yo'llarni milliylashtirdi."
+      }
+    },
+    {
+      "word": "antitrust",
+      "part_of_speech": "adjective",
+      "translation": "антимонопольный",
+      "translations": {
+        "ru": "антимонопольный",
+        "uz": "monopoliyaga qarshi"
+      },
+      "example": "Antitrust laws prevent companies from forming monopolies.",
+      "example_translations": {
+        "ru": "Антимонопольные законы не дают компаниям создавать монополии.",
+        "uz": "Monopoliyaga qarshi qonunlar kompaniyalarning monopoliya tuzishiga yo'l qo'ymaydi."
+      }
+    }
+  ]
+}

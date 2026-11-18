@@ -105,8 +105,8 @@
       },
       "example": "Each kidney filters waste from the blood.",
       "example_translations": {
-        "ru": "Каждая почка очищает кровь от отходов.",
-        "uz": "Har bir buyrak qonni chiqindilardan tozalaydi."
+        "ru": "Каждая почка очищает кровь от продуктов обмена.",
+        "uz": "Har bir buyrak qonni chiqindi moddalardan tozalaydi."
       }
     },
     {

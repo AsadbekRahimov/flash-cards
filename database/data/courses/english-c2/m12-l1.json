@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 12,
+    "title": "Точные и естественные науки",
+    "title_uz": "Aniq va tabiiy fanlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Научное мышление",
+    "title_uz": "Ilmiy tafakkur"
+  },
+  "words": [
+    {
+      "word": "paradigm",
+      "part_of_speech": "noun",
+      "translation": "парадигма",
+      "translations": {
+        "ru": "парадигма",
+        "uz": "paradigma"
+      },
+      "example": "Each new paradigm changes how scientists see nature.",
+      "example_translations": {
+        "ru": "Каждая новая парадигма меняет взгляд учёных на природу.",
+        "uz": "Har bir yangi paradigma olimlarning tabiatga qarashini o'zgartiradi."
+      }
+    },
+    {
+      "word": "falsify",
+      "part_of_speech": "verb",
+      "translation": "опровергать",
+      "translations": {
+        "ru": "опровергать",
+        "uz": "noto'g'riligini isbotlamoq"
+      },
+      "example": "One contrary observation can falsify an entire hypothesis.",
+      "example_translations": {
+        "ru": "Одно противоречащее наблюдение может опровергнуть целую гипотезу.",
+        "uz": "Bitta zid kuzatuv butun gipotezaning noto'g'riligini isbotlashi mumkin."
+      }
+    },
+    {
+      "word": "reductionism",
+      "part_of_speech": "noun",
+      "translation": "редукционизм",
+      "translations": {
+        "ru": "редукционизм",
+        "uz": "reduksionizm"
+      },
+      "example": "Reductionism explains complex systems through their simplest parts.",
+      "example_translations": {
+        "ru": "Редукционизм объясняет сложные системы через их простейшие части.",
+        "uz": "Reduksionizm murakkab tizimlarni ularning eng sodda qismlari orqali tushuntiradi."
+      }
+    },
+    {
+      "word": "holistic",
+      "part_of_speech": "adjective",
+      "translation": "целостный",
+      "translations": {
+        "ru": "целостный",
+        "uz": "yaxlit"
+      },
+      "example": "A holistic approach studies the organism as a whole.",
+      "example_translations": {
+        "ru": "Целостный подход изучает организм как единое целое.",
+        "uz": "Yaxlit yondashuv organizmni bir butun sifatida o'rganadi."
+      }
+    },
+    {
+      "word": "taxonomy",
+      "part_of_speech": "noun",
+      "translation": "таксономия",
+      "translations": {
+        "ru": "таксономия",
+        "uz": "taksonomiya"
+      },
+      "example": "Taxonomy classifies living organisms into related groups.",
+      "example_translations": {
+        "ru": "Таксономия распределяет живые организмы по родственным группам.",
+        "uz": "Taksonomiya tirik organizmlarni qarindosh guruhlarga ajratadi."
+      }
+    },
+    {
+      "word": "nomenclature",
+      "part_of_speech": "noun",
+      "translation": "номенклатура",
+      "translations": {
+        "ru": "номенклатура",
+        "uz": "nomenklatura"
+      },
+      "example": "Chemical nomenclature gives every compound a unique name.",
+      "example_translations": {
+        "ru": "Химическая номенклатура даёт каждому соединению уникальное название.",
+        "uz": "Kimyoviy nomenklatura har bir birikmaga yagona nom beradi."
+      }
+    },
+    {
+      "word": "typology",
+      "part_of_speech": "noun",
+      "translation": "типология",
+      "translations": {
+        "ru": "типология",
+        "uz": "tipologiya"
+      },
+      "example": "Her typology divides languages into four structural types.",
+      "example_translations": {
+        "ru": "Её типология делит языки на четыре структурных типа.",
+        "uz": "Uning tipologiyasi tillarni to'rtta tuzilish turiga ajratadi."
+      }
+    },
+    {
+      "word": "schema",
+      "part_of_speech": "noun",
+      "translation": "концептуальная схема",
+      "translations": {
+        "ru": "концептуальная схема",
+        "uz": "konseptual sxema"
+      },
+      "example": "A schema organizes new facts into familiar patterns.",
+      "example_translations": {
+        "ru": "Концептуальная схема укладывает новые факты в знакомые модели.",
+        "uz": "Konseptual sxema yangi faktlarni tanish qoliplarga soladi."
+      }
+    },
+    {
+      "word": "serendipity",
+      "part_of_speech": "noun",
+      "translation": "счастливая случайность",
+      "translations": {
+        "ru": "счастливая случайность",
+        "uz": "baxtli tasodif"
+      },
+      "example": "Pure serendipity led her to this unexpected discovery.",
+      "example_translations": {
+        "ru": "Лишь счастливая случайность привела её к этому неожиданному открытию.",
+        "uz": "Uni bu kutilmagan kashfiyotga faqat baxtli tasodif olib keldi."
+      }
+    },
+    {
+      "word": "provisional",
+      "part_of_speech": "adjective",
+      "translation": "предварительный, временный",
+      "translations": {
+        "ru": "предварительный, временный",
+        "uz": "dastlabki, vaqtinchalik"
+      },
+      "example": "These provisional results await confirmation by further experiments.",
+      "example_translations": {
+        "ru": "Эти предварительные результаты ждут подтверждения дальнейшими экспериментами.",
+        "uz": "Bu dastlabki natijalar keyingi tajribalar bilan tasdiqlanishini kutmoqda."
+      }
+    }
+  ]
+}

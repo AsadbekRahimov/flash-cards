@@ -50,7 +50,7 @@
       "example": "The young reporter got the scoop before anyone else.",
       "example_translations": {
         "ru": "Молодой репортёр добыл сенсационную новость раньше всех.",
-        "uz": "Yosh reportyor shov-shuvli yangilikni hammadan oldin qo'lga kiritdi."
+        "uz": "Yosh muxbir shov-shuvli yangilikni hammadan oldin qo'lga kiritdi."
       }
     },
     {
@@ -119,7 +119,7 @@
       },
       "example": "The newspaper printed an obituary of the famous poet.",
       "example_translations": {
-        "ru": "Газета напечатала некролог знаменитого поэта.",
+        "ru": "Газета напечатала некролог о знаменитом поэте.",
         "uz": "Gazeta mashhur shoir haqida nekrolog chop etdi."
       }
     },

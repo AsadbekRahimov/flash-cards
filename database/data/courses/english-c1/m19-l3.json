@@ -59,12 +59,12 @@
       "translation": "заполняемость",
       "translations": {
         "ru": "заполняемость",
-        "uz": "bandlik darajasi"
+        "uz": "to'lganlik darajasi"
       },
       "example": "Occupancy in the new office tower reached ninety percent.",
       "example_translations": {
         "ru": "Заполняемость новой офисной башни достигла девяноста процентов.",
-        "uz": "Yangi ofis minorasining bandlik darajasi to'qson foizga yetdi."
+        "uz": "Yangi ofis minorasining to'lganlik darajasi to'qson foizga yetdi."
       }
     },
     {

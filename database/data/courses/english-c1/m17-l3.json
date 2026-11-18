@@ -101,12 +101,12 @@
       "translation": "не исключено, возможно",
       "translations": {
         "ru": "не исключено, возможно",
-        "uz": "ehtimol"
+        "uz": "ehtimoldan xoli emas"
       },
       "example": "The project could conceivably be finished by spring.",
       "example_translations": {
         "ru": "Не исключено, что проект будет завершён к весне.",
-        "uz": "Ehtimol, loyiha bahorgacha tugallanar."
+        "uz": "Loyihaning bahorgacha tugallanishi ehtimoldan xoli emas."
       }
     },
     {

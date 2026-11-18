@@ -87,7 +87,7 @@
       "translation": "осмотрительный, благоразумный",
       "translations": {
         "ru": "осмотрительный, благоразумный",
-        "uz": "ehtiyotkor"
+        "uz": "ehtiyotkor, tadbirli"
       },
       "example": "A prudent person saves money for hard times.",
       "example_translations": {
@@ -101,7 +101,7 @@
       "translation": "откровенный",
       "translations": {
         "ru": "откровенный",
-        "uz": "ochiq, samimiy"
+        "uz": "ochiq, ro'yirost"
       },
       "example": "I appreciate your candid opinion about my work.",
       "example_translations": {
@@ -119,7 +119,7 @@
       },
       "example": "A tactful friend never mentions your mistakes in public.",
       "example_translations": {
-        "ru": "Тактичный друг никогда не упоминает ваши ошибки при людях.",
+        "ru": "Тактичный друг никогда не упоминает о ваших ошибках при людях.",
         "uz": "Andishali do'st xatolaringizni hech qachon odamlar oldida aytmaydi."
       }
     },

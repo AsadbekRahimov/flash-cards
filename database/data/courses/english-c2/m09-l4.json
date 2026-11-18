@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 9,
+    "title": "Власть и государство",
+    "title_uz": "Hokimiyat va davlat"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Протест и усмирение",
+    "title_uz": "Norozilik va bostirish"
+  },
+  "words": [
+    {
+      "word": "disenfranchise",
+      "part_of_speech": "verb",
+      "translation": "лишать избирательных прав",
+      "translations": {
+        "ru": "лишать избирательных прав",
+        "uz": "saylov huquqidan mahrum qilmoq"
+      },
+      "example": "The new law would disenfranchise thousands of rural voters.",
+      "example_translations": {
+        "ru": "Новый закон лишил бы избирательных прав тысячи сельских жителей.",
+        "uz": "Yangi qonun minglab qishloq aholisini saylov huquqidan mahrum qilgan bo'lardi."
+      }
+    },
+    {
+      "word": "subversive",
+      "part_of_speech": "adjective",
+      "translation": "подрывной",
+      "translations": {
+        "ru": "подрывной",
+        "uz": "buzg'unchi"
+      },
+      "example": "The regime banned books it considered subversive.",
+      "example_translations": {
+        "ru": "Режим запрещал книги, которые считал подрывными.",
+        "uz": "Rejim o'zi buzg'unchi deb hisoblagan kitoblarni taqiqlardi."
+      }
+    },
+    {
+      "word": "sedition",
+      "part_of_speech": "noun",
+      "translation": "подстрекательство к мятежу",
+      "translations": {
+        "ru": "подстрекательство к мятежу",
+        "uz": "isyonga da'vat"
+      },
+      "example": "The editor was charged with sedition for his articles.",
+      "example_translations": {
+        "ru": "Редактора обвинили в подстрекательстве к мятежу за его статьи.",
+        "uz": "Muharrir maqolalari uchun isyonga da'vat qilishda ayblandi."
+      }
+    },
+    {
+      "word": "defiance",
+      "part_of_speech": "noun",
+      "translation": "открытое неповиновение",
+      "translations": {
+        "ru": "открытое неповиновение",
+        "uz": "ochiq bo'ysunmaslik"
+      },
+      "example": "Their march was an act of defiance against the ban.",
+      "example_translations": {
+        "ru": "Их шествие было актом открытого неповиновения запрету.",
+        "uz": "Ularning yurishi taqiqqa ochiq bo'ysunmaslik ifodasi edi."
+      }
+    },
+    {
+      "word": "foment",
+      "part_of_speech": "verb",
+      "translation": "разжигать",
+      "translations": {
+        "ru": "разжигать",
+        "uz": "avj oldirmoq"
+      },
+      "example": "Agitators tried to foment unrest among the workers.",
+      "example_translations": {
+        "ru": "Агитаторы пытались разжигать волнения среди рабочих.",
+        "uz": "Tashviqotchilar ishchilar orasida g'alayonni avj oldirishga urindi."
+      }
+    },
+    {
+      "word": "incite",
+      "part_of_speech": "verb",
+      "translation": "подстрекать",
+      "translations": {
+        "ru": "подстрекать",
+        "uz": "gij-gijlamoq"
+      },
+      "example": "The speaker was accused of inciting the crowd to rebel.",
+      "example_translations": {
+        "ru": "Оратора обвинили в том, что он подстрекал толпу к бунту.",
+        "uz": "Notiq olomonni isyonga gij-gijlaganlikda ayblandi."
+      }
+    },
+    {
+      "word": "galvanize",
+      "part_of_speech": "verb",
+      "translation": "побуждать к действию",
+      "translations": {
+        "ru": "побуждать к действию",
+        "uz": "harakatga undamoq"
+      },
+      "example": "The unjust verdict galvanized students into action.",
+      "example_translations": {
+        "ru": "Несправедливый приговор побудил студентов к действию.",
+        "uz": "Adolatsiz hukm talabalarni harakatga undadi."
+      }
+    },
+    {
+      "word": "mobilize",
+      "part_of_speech": "verb",
+      "translation": "мобилизовать",
+      "translations": {
+        "ru": "мобилизовать",
+        "uz": "safarbar qilmoq"
+      },
+      "example": "Unions mobilized thousands of supporters for the march.",
+      "example_translations": {
+        "ru": "Профсоюзы мобилизовали тысячи сторонников на шествие.",
+        "uz": "Kasaba uyushmalari yurish uchun minglab tarafdorlarni safarbar qildi."
+      }
+    },
+    {
+      "word": "quell",
+      "part_of_speech": "verb",
+      "translation": "подавлять",
+      "translations": {
+        "ru": "подавлять",
+        "uz": "bostirmoq"
+      },
+      "example": "Police were sent to quell the growing unrest.",
+      "example_translations": {
+        "ru": "Полицию направили, чтобы подавить растущие беспорядки.",
+        "uz": "Kuchayib borayotgan tartibsizliklarni bostirish uchun politsiya yuborildi."
+      }
+    },
+    {
+      "word": "stifle",
+      "part_of_speech": "verb",
+      "translation": "душить, заглушать",
+      "translations": {
+        "ru": "душить, заглушать",
+        "uz": "bo'g'moq"
+      },
+      "example": "Censorship was used to stifle any criticism.",
+      "example_translations": {
+        "ru": "Цензуру использовали, чтобы душить любую критику.",
+        "uz": "Senzuradan har qanday tanqidni bo'g'ish uchun foydalanilgan."
+      }
+    }
+  ]
+}

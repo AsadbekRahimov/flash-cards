@@ -78,7 +78,7 @@
       "example": "That catchy radio jingle is stuck in my head.",
       "example_translations": {
         "ru": "Эта привязчивая рекламная песенка с радио засела у меня в голове.",
-        "uz": "Radiodagi o'sha jozibali reklama qo'shiqchasi miyamga o'rnashib qoldi."
+        "uz": "Radiodagi o'sha esda qoladigan reklama qo'shiqchasi miyamga o'rnashib qoldi."
       }
     },
     {
@@ -129,12 +129,12 @@
       "translation": "известность",
       "translations": {
         "ru": "известность",
-        "uz": "tanilish"
+        "uz": "ommaga tanilish"
       },
       "example": "The TV interview gave the young band valuable exposure.",
       "example_translations": {
         "ru": "Телеинтервью принесло молодой группе ценную известность.",
-        "uz": "Televideniyedagi intervyu yosh guruhga qimmatli tanilish olib keldi."
+        "uz": "Televideniyedagi intervyu yosh guruhning ommaga tanilishiga katta yordam berdi."
       }
     },
     {

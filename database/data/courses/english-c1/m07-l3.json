@@ -101,12 +101,12 @@
       "translation": "дополненный",
       "translations": {
         "ru": "дополненный",
-        "uz": "kengaytirilgan"
+        "uz": "to'ldirilgan"
       },
       "example": "Augmented reality adds digital images to the real world.",
       "example_translations": {
         "ru": "Дополненная реальность добавляет цифровые изображения в реальный мир.",
-        "uz": "Kengaytirilgan reallik haqiqiy dunyoga raqamli tasvirlar qo'shadi."
+        "uz": "To'ldirilgan reallik haqiqiy dunyoga raqamli tasvirlar qo'shadi."
       }
     },
     {

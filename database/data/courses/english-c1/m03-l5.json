@@ -14,15 +14,15 @@
     {
       "word": "proficient",
       "part_of_speech": "adjective",
-      "translation": "умелый, искусный",
+      "translation": "опытный, умелый",
       "translations": {
-        "ru": "умелый, искусный",
-        "uz": "mohir, usta"
+        "ru": "опытный, умелый",
+        "uz": "tajribali, usta"
       },
       "example": "Aziz is a proficient user of design software.",
       "example_translations": {
-        "ru": "Азиз — умелый пользователь программ для дизайна.",
-        "uz": "Aziz — dizayn dasturlarining mohir foydalanuvchisi."
+        "ru": "Азиз — опытный пользователь программ для дизайна.",
+        "uz": "Aziz — dizayn dasturlarining tajribali foydalanuvchisi."
       }
     },
     {

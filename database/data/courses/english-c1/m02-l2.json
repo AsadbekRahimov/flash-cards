@@ -22,7 +22,7 @@
       "example": "She felt apprehensive before her first flight alone.",
       "example_translations": {
         "ru": "Она была встревожена перед своим первым самостоятельным полётом.",
-        "uz": "Yolg'iz birinchi parvozi oldidan u xavotirga tushgan edi."
+        "uz": "Birinchi marta yolg'iz uchishi oldidan u xavotirga tushgan edi."
       }
     },
     {
@@ -115,7 +115,7 @@
       "translation": "взволнованный, возбуждённый",
       "translations": {
         "ru": "взволнованный, возбуждённый",
-        "uz": "bezovta"
+        "uz": "hayajonlangan, bezovta"
       },
       "example": "The agitated customer kept walking up and down.",
       "example_translations": {
@@ -143,12 +143,12 @@
       "translation": "удручённый, обескураженный",
       "translations": {
         "ru": "удручённый, обескураженный",
-        "uz": "qattiq xafa bo'lgan"
+        "uz": "ko'ngli cho'kkan"
       },
       "example": "We were dismayed to see the park destroyed.",
       "example_translations": {
         "ru": "Мы были удручены, увидев уничтоженный парк.",
-        "uz": "Vayron qilingan bog'ni ko'rib, biz qattiq xafa bo'lgan edik."
+        "uz": "Vayron qilingan bog'ni ko'rib, ko'nglimiz cho'kdi."
       }
     }
   ]

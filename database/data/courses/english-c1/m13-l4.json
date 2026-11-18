@@ -21,8 +21,8 @@
       },
       "example": "Rising rents have increased homelessness in big cities.",
       "example_translations": {
-        "ru": "Рост арендной платы усилил бездомность в крупных городах.",
-        "uz": "Ijara haqining oshishi yirik shaharlarda uysizlikni kuchaytirdi."
+        "ru": "Из-за роста арендной платы бездомность в крупных городах выросла.",
+        "uz": "Ijara haqining oshishi tufayli yirik shaharlarda uysizlik ko'paydi."
       }
     },
     {
@@ -101,12 +101,12 @@
       "translation": "волнения",
       "translations": {
         "ru": "волнения",
-        "uz": "notinchlik"
+        "uz": "ommaviy tartibsizliklar"
       },
       "example": "Rising food prices led to unrest in the capital.",
       "example_translations": {
         "ru": "Рост цен на продукты привёл к волнениям в столице.",
-        "uz": "Oziq-ovqat narxlarining oshishi poytaxtda notinchlikka olib keldi."
+        "uz": "Oziq-ovqat narxlarining oshishi poytaxtda ommaviy tartibsizliklarga olib keldi."
       }
     },
     {

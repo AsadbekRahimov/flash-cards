@@ -28,15 +28,15 @@
     {
       "word": "outspoken",
       "part_of_speech": "adjective",
-      "translation": "откровенный, прямой",
+      "translation": "открыто высказывающийся",
       "translations": {
-        "ru": "откровенный, прямой",
+        "ru": "открыто высказывающийся",
         "uz": "fikrini ochiq aytadigan"
       },
       "example": "She is an outspoken critic of the new rules.",
       "example_translations": {
-        "ru": "Она откровенный критик новых правил.",
-        "uz": "U yangi qoidalar haqida fikrini ochiq aytadigan tanqidchi."
+        "ru": "Она открыто высказывается против новых правил.",
+        "uz": "U yangi qoidalarga qarshi fikrini ochiq aytadigan tanqidchi."
       }
     },
     {
@@ -101,12 +101,12 @@
       "translation": "легковерный, доверчивый",
       "translations": {
         "ru": "легковерный, доверчивый",
-        "uz": "ishonuvchan, sodda"
+        "uz": "laqma, ishonuvchan"
       },
       "example": "Gullible people believe every advertisement they see.",
       "example_translations": {
         "ru": "Легковерные люди верят каждой рекламе, которую видят.",
-        "uz": "Ishonuvchan odamlar ko'rgan har bir reklamasiga ishonadi."
+        "uz": "Laqma odamlar ko'rgan har bir reklamaga ishonadi."
       }
     },
     {

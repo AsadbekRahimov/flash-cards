@@ -50,7 +50,7 @@
       "example": "Head office issued a directive banning overtime.",
       "example_translations": {
         "ru": "Головной офис издал директиву, запрещающую сверхурочные.",
-        "uz": "Bosh ofis qo'shimcha ishni taqiqlovchi rasmiy ko'rsatma chiqardi."
+        "uz": "Bosh ofis qo'shimcha ish soatlarini taqiqlovchi rasmiy ko'rsatma chiqardi."
       }
     },
     {
@@ -64,7 +64,7 @@
       "example": "Managers have discretion over how to spend the budget.",
       "example_translations": {
         "ru": "Руководители вправе по своему усмотрению решать, как тратить бюджет.",
-        "uz": "Rahbarlar byudjetni qanday sarflashni o'z ixtiyoriga ko'ra hal qiladi."
+        "uz": "Rahbarlar budjetni qanday sarflashni o'z ixtiyoriga ko'ra hal qiladi."
       }
     },
     {
@@ -92,7 +92,7 @@
       "example": "Engineers are studying the feasibility of a new bridge.",
       "example_translations": {
         "ru": "Инженеры изучают осуществимость строительства нового моста.",
-        "uz": "Muhandislar yangi ko'prik qurishni amalga oshirish mumkinligini o'rganmoqda."
+        "uz": "Muhandislar yangi ko'prik qurish loyihasini amalga oshirish mumkinligini o'rganmoqda."
       }
     },
     {

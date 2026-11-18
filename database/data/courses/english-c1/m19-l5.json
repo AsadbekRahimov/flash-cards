@@ -101,12 +101,12 @@
       "translation": "дюна, бархан",
       "translations": {
         "ru": "дюна, бархан",
-        "uz": "qum tepasi"
+        "uz": "qum tepaligi, barxan"
       },
       "example": "Wind slowly shapes each dune in the desert.",
       "example_translations": {
         "ru": "Ветер медленно придаёт форму каждой дюне в пустыне.",
-        "uz": "Shamol sahrodagi har bir qum tepasiga asta-sekin shakl beradi."
+        "uz": "Shamol sahrodagi har bir qum tepaligiga asta-sekin shakl beradi."
       }
     },
     {
@@ -120,7 +120,7 @@
       "example": "Travelers rested at an oasis in the desert.",
       "example_translations": {
         "ru": "Путники отдохнули в оазисе посреди пустыни.",
-        "uz": "Yo'lovchilar sahro o'rtasidagi vohada dam olishdi."
+        "uz": "Sayohatchilar sahro o'rtasidagi vohada dam olishdi."
       }
     },
     {

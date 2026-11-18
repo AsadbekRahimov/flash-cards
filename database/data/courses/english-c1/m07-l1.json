@@ -87,12 +87,12 @@
       "translation": "масштабируемый",
       "translations": {
         "ru": "масштабируемый",
-        "uz": "kengaytiriladigan"
+        "uz": "masshtablanuvchan"
       },
       "example": "A scalable system handles millions of new users easily.",
       "example_translations": {
         "ru": "Масштабируемая система легко справляется с миллионами новых пользователей.",
-        "uz": "Kengaytiriladigan tizim millionlab yangi foydalanuvchilarni bemalol ko'taradi."
+        "uz": "Masshtablanuvchan tizim millionlab yangi foydalanuvchilarni bemalol ko'taradi."
       }
     },
     {
@@ -143,12 +143,12 @@
       "translation": "пропускная способность",
       "translations": {
         "ru": "пропускная способность",
-        "uz": "o'tkazish qobiliyati"
+        "uz": "o'tkazuvchanlik qobiliyati"
       },
       "example": "Streaming video in high quality requires a lot of bandwidth.",
       "example_translations": {
         "ru": "Потоковое видео высокого качества требует большой пропускной способности.",
-        "uz": "Yuqori sifatli video oqimi katta o'tkazish qobiliyatini talab qiladi."
+        "uz": "Yuqori sifatli video oqimi katta o'tkazuvchanlik qobiliyatini talab qiladi."
       }
     }
   ]

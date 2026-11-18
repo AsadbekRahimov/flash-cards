@@ -17,7 +17,7 @@
       "translation": "утверждать, заявлять",
       "translations": {
         "ru": "утверждать, заявлять",
-        "uz": "ta'kidlamoq"
+        "uz": "da'vo qilmoq, ta'kidlamoq"
       },
       "example": "Critics contend that the new theory lacks evidence.",
       "example_translations": {
@@ -42,9 +42,9 @@
     {
       "word": "rebut",
       "part_of_speech": "verb",
-      "translation": "опровергать",
+      "translation": "опровергать доводы",
       "translations": {
-        "ru": "опровергать",
+        "ru": "опровергать доводы",
         "uz": "raddiya bermoq"
       },
       "example": "Can you rebut her argument with solid facts?",
@@ -143,12 +143,12 @@
       "translation": "свидетельствовать, удостоверять",
       "translations": {
         "ru": "свидетельствовать, удостоверять",
-        "uz": "guvohlik bermoq"
+        "uz": "dalolat bermoq"
       },
       "example": "These letters attest to the author's honesty.",
       "example_translations": {
         "ru": "Эти письма свидетельствуют о честности автора.",
-        "uz": "Bu xatlar muallifning halolligidan guvohlik beradi."
+        "uz": "Bu xatlar muallifning halolligidan dalolat beradi."
       }
     }
   ]

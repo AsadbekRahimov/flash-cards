@@ -50,7 +50,7 @@
       "example": "A footnote at the bottom explains the rare term.",
       "example_translations": {
         "ru": "Сноска внизу страницы объясняет этот редкий термин.",
-        "uz": "Pastdagi sahifa osti izohi bu kam uchraydigan atamani tushuntiradi."
+        "uz": "Sahifa osti izohi bu kam uchraydigan atamani tushuntirib beradi."
       }
     },
     {
@@ -59,12 +59,12 @@
       "translation": "снабжать примечаниями",
       "translations": {
         "ru": "снабжать примечаниями",
-        "uz": "izohlar bilan ta'minlamoq"
+        "uz": "izohlar yozib chiqmoq"
       },
       "example": "Students annotate the text with comments in the margins.",
       "example_translations": {
         "ru": "Студенты снабжают текст примечаниями на полях.",
-        "uz": "Talabalar matnni hoshiyalarda izohlar bilan ta'minlaydilar."
+        "uz": "Talabalar matn hoshiyalariga izohlar yozib chiqadilar."
       }
     },
     {

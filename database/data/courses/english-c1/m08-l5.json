@@ -140,14 +140,14 @@
     {
       "word": "strenuous",
       "part_of_speech": "adjective",
-      "translation": "напряжённый, требующий усилий",
+      "translation": "напряжённый, тяжёлый",
       "translations": {
-        "ru": "напряжённый, требующий усилий",
+        "ru": "напряжённый, тяжёлый",
         "uz": "zo'riqtiruvchi"
       },
       "example": "Avoid strenuous exercise like heavy lifting after surgery.",
       "example_translations": {
-        "ru": "После операции избегайте напряжённых упражнений, таких как подъём тяжестей.",
+        "ru": "После операции избегайте напряжённых нагрузок, таких как подъём тяжестей.",
         "uz": "Operatsiyadan keyin og'ir yuk ko'tarish kabi zo'riqtiruvchi mashqlardan saqlaning."
       }
     }

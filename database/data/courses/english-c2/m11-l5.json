@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 11,
+    "title": "Экономика и капитал",
+    "title_uz": "Iqtisodiyot va kapital"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Корпорации",
+    "title_uz": "Korporatsiyalar"
+  },
+  "words": [
+    {
+      "word": "fiduciary",
+      "part_of_speech": "adjective",
+      "translation": "фидуциарный, доверительный",
+      "translations": {
+        "ru": "фидуциарный, доверительный",
+        "uz": "ishonchga asoslangan"
+      },
+      "example": "Directors have a fiduciary duty to protect shareholders.",
+      "example_translations": {
+        "ru": "На директорах лежит фидуциарная обязанность защищать акционеров.",
+        "uz": "Direktorlar zimmasida aksiyadorlarni himoya qilishdek ishonchga asoslangan majburiyat bor."
+      }
+    },
+    {
+      "word": "proxy",
+      "part_of_speech": "noun",
+      "translation": "доверенное лицо",
+      "translations": {
+        "ru": "доверенное лицо",
+        "uz": "ishonchli vakil"
+      },
+      "example": "He sent a proxy to vote on his behalf.",
+      "example_translations": {
+        "ru": "Он направил доверенное лицо голосовать от его имени.",
+        "uz": "U o'z nomidan ovoz berish uchun ishonchli vakil yubordi."
+      }
+    },
+    {
+      "word": "boardroom",
+      "part_of_speech": "noun",
+      "translation": "зал заседаний правления",
+      "translations": {
+        "ru": "зал заседаний правления",
+        "uz": "boshqaruv kengashi zali"
+      },
+      "example": "Directors gathered in the boardroom to approve the merger.",
+      "example_translations": {
+        "ru": "Директора собрались в зале заседаний правления, чтобы одобрить слияние.",
+        "uz": "Direktorlar qo'shilishni ma'qullash uchun boshqaruv kengashi zalida yig'ildi."
+      }
+    },
+    {
+      "word": "buyout",
+      "part_of_speech": "noun",
+      "translation": "выкуп компании",
+      "translations": {
+        "ru": "выкуп компании",
+        "uz": "kompaniyani sotib olish"
+      },
+      "example": "Managers financed the buyout with a large loan.",
+      "example_translations": {
+        "ru": "Менеджеры профинансировали выкуп компании за счёт крупного кредита.",
+        "uz": "Menejerlar kompaniyani sotib olishni katta kredit hisobidan moliyalashtirdi."
+      }
+    },
+    {
+      "word": "divest",
+      "part_of_speech": "verb",
+      "translation": "избавляться от активов",
+      "translations": {
+        "ru": "избавляться от активов",
+        "uz": "aktivlarni sotib yubormoq"
+      },
+      "example": "The group divested its unprofitable assets last year.",
+      "example_translations": {
+        "ru": "В прошлом году группа избавилась от убыточных активов.",
+        "uz": "O'tgan yili guruh zarar keltirayotgan aktivlarini sotib yubordi."
+      }
+    },
+    {
+      "word": "receivership",
+      "part_of_speech": "noun",
+      "translation": "внешнее управление",
+      "translations": {
+        "ru": "внешнее управление",
+        "uz": "tashqi boshqaruv"
+      },
+      "example": "Unable to pay its debts, the firm entered receivership.",
+      "example_translations": {
+        "ru": "Не в силах платить по долгам, фирма перешла под внешнее управление.",
+        "uz": "Qarzlarini to'lay olmagan firma tashqi boshqaruvga o'tdi."
+      }
+    },
+    {
+      "word": "disburse",
+      "part_of_speech": "verb",
+      "translation": "выплачивать",
+      "translations": {
+        "ru": "выплачивать",
+        "uz": "to'lab bermoq"
+      },
+      "example": "The fund disburses grants to researchers every spring.",
+      "example_translations": {
+        "ru": "Фонд выплачивает гранты исследователям каждую весну.",
+        "uz": "Jamg'arma har bahorda tadqiqotchilarga grantlarni to'lab beradi."
+      }
+    },
+    {
+      "word": "consortium",
+      "part_of_speech": "noun",
+      "translation": "консорциум",
+      "translations": {
+        "ru": "консорциум",
+        "uz": "konsorsium"
+      },
+      "example": "A consortium of five banks financed the bridge.",
+      "example_translations": {
+        "ru": "Консорциум из пяти банков профинансировал строительство моста.",
+        "uz": "Beshta bankdan iborat konsorsium ko'prik qurilishini moliyalashtirdi."
+      }
+    },
+    {
+      "word": "syndicate",
+      "part_of_speech": "noun",
+      "translation": "синдикат",
+      "translations": {
+        "ru": "синдикат",
+        "uz": "sindikat"
+      },
+      "example": "A syndicate of insurers shared the enormous risk.",
+      "example_translations": {
+        "ru": "Синдикат страховщиков разделил между собой огромный риск.",
+        "uz": "Sug'urtachilar sindikati ulkan xavfni o'zaro bo'lishib oldi."
+      }
+    },
+    {
+      "word": "oligopoly",
+      "part_of_speech": "noun",
+      "translation": "олигополия",
+      "translations": {
+        "ru": "олигополия",
+        "uz": "oligopoliya"
+      },
+      "example": "Four airlines form an oligopoly controlling the whole market.",
+      "example_translations": {
+        "ru": "Четыре авиакомпании образуют олигополию, контролирующую весь рынок.",
+        "uz": "To'rtta aviakompaniya butun bozorni nazorat qiluvchi oligopoliyani tashkil etadi."
+      }
+    }
+  ]
+}

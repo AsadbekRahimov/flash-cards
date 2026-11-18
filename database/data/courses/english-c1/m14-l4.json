@@ -22,7 +22,7 @@
       "example": "That shocking headline was pure clickbait; the article was empty.",
       "example_translations": {
         "ru": "Этот шокирующий заголовок был чистым кликбейтом: статья оказалась пустой.",
-        "uz": "O'sha vahimali sarlavha sof klikbeyt edi: maqola bo'm-bo'sh chiqdi."
+        "uz": "O'sha hayratga soluvchi sarlavha sof klikbeyt edi: maqola bo'm-bo'sh chiqdi."
       }
     },
     {
@@ -119,7 +119,7 @@
       },
       "example": "Most of the newspaper's articles are behind a paywall.",
       "example_translations": {
-        "ru": "Большинство статей газеты можно прочитать только через платный доступ.",
+        "ru": "Большинство статей газеты закрыто платным доступом.",
         "uz": "Gazeta maqolalarining ko'pini faqat pullik kirish orqali o'qish mumkin."
       }
     },

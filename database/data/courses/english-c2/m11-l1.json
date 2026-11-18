@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 11,
+    "title": "Экономика и капитал",
+    "title_uz": "Iqtisodiyot va kapital"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Финансовые рынки",
+    "title_uz": "Moliya bozorlari"
+  },
+  "words": [
+    {
+      "word": "arbitrage",
+      "part_of_speech": "noun",
+      "translation": "арбитраж",
+      "translations": {
+        "ru": "арбитраж",
+        "uz": "arbitraj"
+      },
+      "example": "Arbitrage exploits price differences between two markets.",
+      "example_translations": {
+        "ru": "Арбитраж использует разницу цен между двумя рынками.",
+        "uz": "Arbitraj ikki bozor o'rtasidagi narx farqidan foydalanadi."
+      }
+    },
+    {
+      "word": "speculative",
+      "part_of_speech": "adjective",
+      "translation": "спекулятивный",
+      "translations": {
+        "ru": "спекулятивный",
+        "uz": "spekulyativ"
+      },
+      "example": "Speculative investments promise high returns but carry huge risks.",
+      "example_translations": {
+        "ru": "Спекулятивные инвестиции обещают высокую доходность, но несут огромные риски.",
+        "uz": "Spekulyativ investitsiyalar yuqori daromad va'da qiladi, ammo juda katta xavf bilan bog'liq."
+      }
+    },
+    {
+      "word": "bullish",
+      "part_of_speech": "adjective",
+      "translation": "ожидающий роста цен",
+      "translations": {
+        "ru": "ожидающий роста цен",
+        "uz": "narxlar o'sishini kutuvchi"
+      },
+      "example": "Bullish investors bought more shares before the rally.",
+      "example_translations": {
+        "ru": "Инвесторы, ожидающие роста цен, купили больше акций перед подъёмом рынка.",
+        "uz": "Narxlar o'sishini kutuvchi investorlar bozor ko'tarilishidan oldin ko'proq aksiya sotib oldi."
+      }
+    },
+    {
+      "word": "bearish",
+      "part_of_speech": "adjective",
+      "translation": "ожидающий падения цен",
+      "translations": {
+        "ru": "ожидающий падения цен",
+        "uz": "narxlar tushishini kutuvchi"
+      },
+      "example": "Bearish traders sold everything, fearing a market collapse.",
+      "example_translations": {
+        "ru": "Трейдеры, ожидающие падения цен, продали всё, опасаясь обвала рынка.",
+        "uz": "Narxlar tushishini kutuvchi treyderlar bozor qulashidan qo'rqib, hammasini sotdi."
+      }
+    },
+    {
+      "word": "derivative",
+      "part_of_speech": "noun",
+      "translation": "производный финансовый инструмент",
+      "translations": {
+        "ru": "производный финансовый инструмент",
+        "uz": "hosilaviy moliyaviy vosita"
+      },
+      "example": "A derivative takes its value from another asset.",
+      "example_translations": {
+        "ru": "Производный финансовый инструмент получает свою стоимость от другого актива.",
+        "uz": "Hosilaviy moliyaviy vosita o'z qiymatini boshqa aktivdan oladi."
+      }
+    },
+    {
+      "word": "overvalued",
+      "part_of_speech": "adjective",
+      "translation": "переоценённый",
+      "translations": {
+        "ru": "переоценённый",
+        "uz": "oshirib baholangan"
+      },
+      "example": "Many analysts consider these technology shares badly overvalued.",
+      "example_translations": {
+        "ru": "Многие аналитики считают эти акции технологических компаний сильно переоценёнными.",
+        "uz": "Ko'p tahlilchilar bu texnologiya aksiyalarini ancha oshirib baholangan deb hisoblaydi."
+      }
+    },
+    {
+      "word": "sluggish",
+      "part_of_speech": "adjective",
+      "translation": "вялый",
+      "translations": {
+        "ru": "вялый",
+        "uz": "sust"
+      },
+      "example": "Trading was sluggish, with few deals all week.",
+      "example_translations": {
+        "ru": "Торги были вялыми: за всю неделю прошло мало сделок.",
+        "uz": "Savdo sust kechdi: butun hafta davomida bitimlar kam bo'ldi."
+      }
+    },
+    {
+      "word": "lackluster",
+      "part_of_speech": "adjective",
+      "translation": "посредственный",
+      "translations": {
+        "ru": "посредственный",
+        "uz": "o'rtamiyona"
+      },
+      "example": "Lackluster earnings disappointed shareholders who expected record profits.",
+      "example_translations": {
+        "ru": "Посредственная прибыль разочаровала акционеров, ожидавших рекордных доходов.",
+        "uz": "O'rtamiyona foyda rekord daromad kutgan aksiyadorlarning hafsalasini pir qildi."
+      }
+    },
+    {
+      "word": "solvency",
+      "part_of_speech": "noun",
+      "translation": "платёжеспособность",
+      "translations": {
+        "ru": "платёжеспособность",
+        "uz": "to'lov qobiliyati"
+      },
+      "example": "Auditors questioned the bank's solvency after heavy losses.",
+      "example_translations": {
+        "ru": "После крупных убытков аудиторы усомнились в платёжеспособности банка.",
+        "uz": "Katta zararlardan so'ng auditorlar bankning to'lov qobiliyatiga shubha bildirdi."
+      }
+    },
+    {
+      "word": "windfall",
+      "part_of_speech": "noun",
+      "translation": "неожиданная крупная прибыль",
+      "translations": {
+        "ru": "неожиданная крупная прибыль",
+        "uz": "kutilmagan katta foyda"
+      },
+      "example": "Soaring oil prices handed producers a huge windfall.",
+      "example_translations": {
+        "ru": "Взлетевшие цены на нефть принесли производителям неожиданную крупную прибыль.",
+        "uz": "Keskin oshgan neft narxlari ishlab chiqaruvchilarga kutilmagan katta foyda keltirdi."
+      }
+    }
+  ]
+}

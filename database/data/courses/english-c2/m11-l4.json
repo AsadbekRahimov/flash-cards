@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 11,
+    "title": "Экономика и капитал",
+    "title_uz": "Iqtisodiyot va kapital"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Цена и ценность",
+    "title_uz": "Narx va qadr"
+  },
+  "words": [
+    {
+      "word": "exorbitant",
+      "part_of_speech": "adjective",
+      "translation": "непомерный",
+      "translations": {
+        "ru": "непомерный",
+        "uz": "haddan ziyod"
+      },
+      "example": "The hotel charged exorbitant prices for a simple breakfast.",
+      "example_translations": {
+        "ru": "Отель брал непомерные цены за простой завтрак.",
+        "uz": "Mehmonxona oddiy nonushta uchun haddan ziyod narx olardi."
+      }
+    },
+    {
+      "word": "pittance",
+      "part_of_speech": "noun",
+      "translation": "гроши",
+      "translations": {
+        "ru": "гроши",
+        "uz": "tiyin-tebin"
+      },
+      "example": "They work long hours yet earn a pittance.",
+      "example_translations": {
+        "ru": "Они работают подолгу, а зарабатывают гроши.",
+        "uz": "Ular uzoq ishlaydi, ammo tiyin-tebin topadi."
+      }
+    },
+    {
+      "word": "paltry",
+      "part_of_speech": "adjective",
+      "translation": "ничтожный",
+      "translations": {
+        "ru": "ничтожный",
+        "uz": "arzimas"
+      },
+      "example": "He was offered a paltry sum for his masterpiece.",
+      "example_translations": {
+        "ru": "За его шедевр ему предложили ничтожную сумму.",
+        "uz": "Shoh asari uchun unga arzimas pul taklif qilishdi."
+      }
+    },
+    {
+      "word": "nominal",
+      "part_of_speech": "adjective",
+      "translation": "символический, номинальный",
+      "translations": {
+        "ru": "символический, номинальный",
+        "uz": "ramziy, nominal"
+      },
+      "example": "Members pay a nominal fee of one dollar.",
+      "example_translations": {
+        "ru": "Участники платят символический взнос в один доллар.",
+        "uz": "A'zolar bir dollarlik ramziy badal to'laydi."
+      }
+    },
+    {
+      "word": "markup",
+      "part_of_speech": "noun",
+      "translation": "наценка",
+      "translations": {
+        "ru": "наценка",
+        "uz": "ustama"
+      },
+      "example": "Retailers add a markup to cover their costs.",
+      "example_translations": {
+        "ru": "Розничные продавцы добавляют наценку, чтобы покрыть свои расходы.",
+        "uz": "Chakana sotuvchilar xarajatlarini qoplash uchun ustama qo'shadi."
+      }
+    },
+    {
+      "word": "amortize",
+      "part_of_speech": "verb",
+      "translation": "амортизировать",
+      "translations": {
+        "ru": "амортизировать",
+        "uz": "amortizatsiya qilmoq"
+      },
+      "example": "The firm amortized the equipment cost over ten years.",
+      "example_translations": {
+        "ru": "Фирма амортизировала стоимость оборудования в течение десяти лет.",
+        "uz": "Firma uskuna qiymatini o'n yil davomida amortizatsiya qildi."
+      }
+    },
+    {
+      "word": "intrinsic",
+      "part_of_speech": "adjective",
+      "translation": "внутренний, присущий",
+      "translations": {
+        "ru": "внутренний, присущий",
+        "uz": "ichki, tabiatan xos"
+      },
+      "example": "Paper money has no intrinsic value of its own.",
+      "example_translations": {
+        "ru": "У бумажных денег нет собственной внутренней стоимости.",
+        "uz": "Qog'oz pulning o'z ichki qiymati yo'q."
+      }
+    },
+    {
+      "word": "commensurate",
+      "part_of_speech": "adjective",
+      "translation": "соразмерный",
+      "translations": {
+        "ru": "соразмерный",
+        "uz": "mutanosib"
+      },
+      "example": "Her salary is commensurate with her long experience.",
+      "example_translations": {
+        "ru": "Её зарплата соразмерна её большому опыту.",
+        "uz": "Uning maoshi katta tajribasiga mutanosib."
+      }
+    },
+    {
+      "word": "defray",
+      "part_of_speech": "verb",
+      "translation": "покрывать расходы",
+      "translations": {
+        "ru": "покрывать расходы",
+        "uz": "xarajatni qoplamoq"
+      },
+      "example": "A grant helped defray the cost of her studies.",
+      "example_translations": {
+        "ru": "Грант помог покрыть расходы на её учёбу.",
+        "uz": "Grant uning o'qish xarajatini qoplashga yordam berdi."
+      }
+    },
+    {
+      "word": "recoup",
+      "part_of_speech": "verb",
+      "translation": "возвращать себе",
+      "translations": {
+        "ru": "возвращать себе",
+        "uz": "qaytarib olmoq"
+      },
+      "example": "The studio recouped its investment within a month.",
+      "example_translations": {
+        "ru": "Студия вернула себе вложенные средства за месяц.",
+        "uz": "Studiya kiritgan sarmoyasini bir oy ichida qaytarib oldi."
+      }
+    }
+  ]
+}

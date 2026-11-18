@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 10,
+    "title": "Тонкости права",
+    "title_uz": "Huquq nozikliklari"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Мошенничество и злоупотребления",
+    "title_uz": "Firibgarlik va suiiste'mollik"
+  },
+  "words": [
+    {
+      "word": "malpractice",
+      "part_of_speech": "noun",
+      "translation": "профессиональная халатность",
+      "translations": {
+        "ru": "профессиональная халатность",
+        "uz": "kasbiy beparvolik"
+      },
+      "example": "The surgeon was sued for malpractice after the error.",
+      "example_translations": {
+        "ru": "На хирурга подали в суд за профессиональную халатность после ошибки.",
+        "uz": "Xatodan so'ng jarroh kasbiy beparvolik uchun sudga berildi."
+      }
+    },
+    {
+      "word": "misappropriate",
+      "part_of_speech": "verb",
+      "translation": "незаконно присваивать",
+      "translations": {
+        "ru": "незаконно присваивать",
+        "uz": "noqonuniy o'zlashtirmoq"
+      },
+      "example": "The treasurer misappropriated funds meant for the school.",
+      "example_translations": {
+        "ru": "Казначей незаконно присвоил средства, предназначенные для школы.",
+        "uz": "G'aznachi maktabga mo'ljallangan mablag'ni noqonuniy o'zlashtirdi."
+      }
+    },
+    {
+      "word": "defraud",
+      "part_of_speech": "verb",
+      "translation": "обманом лишать",
+      "translations": {
+        "ru": "обманом лишать",
+        "uz": "aldab mahrum qilmoq"
+      },
+      "example": "He defrauded elderly clients of their savings.",
+      "example_translations": {
+        "ru": "Он обманом лишил пожилых клиентов их сбережений.",
+        "uz": "U keksa mijozlarni jamg'armalaridan aldab mahrum qildi."
+      }
+    },
+    {
+      "word": "fraudulent",
+      "part_of_speech": "adjective",
+      "translation": "мошеннический",
+      "translations": {
+        "ru": "мошеннический",
+        "uz": "firibgarlikka asoslangan"
+      },
+      "example": "Investors lost millions in the fraudulent scheme.",
+      "example_translations": {
+        "ru": "Инвесторы потеряли миллионы в мошеннической схеме.",
+        "uz": "Investorlar firibgarlikka asoslangan sxemada millionlab pul yo'qotdi."
+      }
+    },
+    {
+      "word": "counterfeit",
+      "part_of_speech": "adjective",
+      "translation": "поддельный",
+      "translations": {
+        "ru": "поддельный",
+        "uz": "qalbaki"
+      },
+      "example": "The cashier noticed the counterfeit bill immediately.",
+      "example_translations": {
+        "ru": "Кассир сразу заметил поддельную купюру.",
+        "uz": "Kassir qalbaki banknotni darhol payqadi."
+      }
+    },
+    {
+      "word": "racketeering",
+      "part_of_speech": "noun",
+      "translation": "рэкет",
+      "translations": {
+        "ru": "рэкет",
+        "uz": "tovlamachilik"
+      },
+      "example": "He was convicted of racketeering for extorting local shops.",
+      "example_translations": {
+        "ru": "Его осудили за рэкет: он вымогал деньги у местных магазинов.",
+        "uz": "U mahalliy do'konlardan pul undirgani uchun tovlamachilikda aybdor deb topildi."
+      }
+    },
+    {
+      "word": "larceny",
+      "part_of_speech": "noun",
+      "translation": "кража",
+      "translations": {
+        "ru": "кража",
+        "uz": "o'g'rilik"
+      },
+      "example": "Taking someone's bicycle is a case of petty larceny.",
+      "example_translations": {
+        "ru": "Взять чужой велосипед — это мелкая кража.",
+        "uz": "Birovning velosipedini olib ketish — mayda o'g'rilik."
+      }
+    },
+    {
+      "word": "slander",
+      "part_of_speech": "noun",
+      "translation": "устная клевета",
+      "translations": {
+        "ru": "устная клевета",
+        "uz": "og'zaki tuhmat"
+      },
+      "example": "Calling him a thief in public was slander.",
+      "example_translations": {
+        "ru": "Назвать его вором при всех было устной клеветой.",
+        "uz": "Uni odamlar oldida o'g'ri deb atash og'zaki tuhmat edi."
+      }
+    },
+    {
+      "word": "illicit",
+      "part_of_speech": "adjective",
+      "translation": "незаконный, запрещённый",
+      "translations": {
+        "ru": "незаконный, запрещённый",
+        "uz": "g'ayriqonuniy"
+      },
+      "example": "Police uncovered an illicit trade in rare birds.",
+      "example_translations": {
+        "ru": "Полиция раскрыла незаконную торговлю редкими птицами.",
+        "uz": "Politsiya noyob qushlarning g'ayriqonuniy savdosini fosh qildi."
+      }
+    },
+    {
+      "word": "contraband",
+      "part_of_speech": "noun",
+      "translation": "контрабанда",
+      "translations": {
+        "ru": "контрабанда",
+        "uz": "kontrabanda"
+      },
+      "example": "Inspectors found contraband hidden under the truck's floor.",
+      "example_translations": {
+        "ru": "Инспекторы нашли контрабанду, спрятанную под полом грузовика.",
+        "uz": "Inspektorlar yuk mashinasining poli ostiga yashirilgan kontrabandani topdi."
+      }
+    }
+  ]
+}

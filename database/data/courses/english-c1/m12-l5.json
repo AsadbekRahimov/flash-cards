@@ -129,12 +129,12 @@
       "translation": "произвольный",
       "translations": {
         "ru": "произвольный",
-        "uz": "o'zboshimchalik bilan qilingan"
+        "uz": "o'zboshimcha"
       },
       "example": "Citizens are protected against arbitrary arrest by the police.",
       "example_translations": {
         "ru": "Граждане защищены от произвольного ареста со стороны полиции.",
-        "uz": "Fuqarolar politsiya tomonidan o'zboshimchalik bilan qilingan hibsdan himoyalangan."
+        "uz": "Fuqarolar politsiyaning o'zboshimcha hibsga olishidan himoyalangan."
       }
     },
     {

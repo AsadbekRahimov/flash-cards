@@ -112,15 +112,15 @@
     {
       "word": "addiction",
       "part_of_speech": "noun",
-      "translation": "зависимость",
+      "translation": "пагубная зависимость",
       "translations": {
-        "ru": "зависимость",
-        "uz": "qaramlik"
+        "ru": "пагубная зависимость",
+        "uz": "mubtalolik"
       },
       "example": "Phone addiction is common among teenagers today.",
       "example_translations": {
-        "ru": "Зависимость от телефона сегодня распространена среди подростков.",
-        "uz": "Bugungi kunda o'smirlar orasida telefonga qaramlik keng tarqalgan."
+        "ru": "Пагубная зависимость от телефона сегодня распространена среди подростков.",
+        "uz": "Bugungi kunda o'smirlar orasida telefonga mubtalolik keng tarqalgan."
       }
     },
     {

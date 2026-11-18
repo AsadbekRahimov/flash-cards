@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 9,
+    "title": "Власть и государство",
+    "title_uz": "Hokimiyat va davlat"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Правители и власть",
+    "title_uz": "Hukmdorlar va hokimiyat"
+  },
+  "words": [
+    {
+      "word": "usurp",
+      "part_of_speech": "verb",
+      "translation": "узурпировать",
+      "translations": {
+        "ru": "узурпировать",
+        "uz": "g'ayriqonuniy egallab olmoq"
+      },
+      "example": "The general tried to usurp the young king's throne.",
+      "example_translations": {
+        "ru": "Генерал пытался узурпировать трон молодого короля.",
+        "uz": "General yosh qirolning taxtini g'ayriqonuniy egallab olishga urindi."
+      }
+    },
+    {
+      "word": "depose",
+      "part_of_speech": "verb",
+      "translation": "смещать, свергать",
+      "translations": {
+        "ru": "смещать, свергать",
+        "uz": "hokimiyatdan chetlatmoq"
+      },
+      "example": "Parliament voted to depose the unpopular president.",
+      "example_translations": {
+        "ru": "Парламент проголосовал за то, чтобы сместить непопулярного президента.",
+        "uz": "Parlament xalq yoqtirmagan prezidentni hokimiyatdan chetlatish uchun ovoz berdi."
+      }
+    },
+    {
+      "word": "abdicate",
+      "part_of_speech": "verb",
+      "translation": "отрекаться от престола",
+      "translations": {
+        "ru": "отрекаться от престола",
+        "uz": "taxtdan voz kechmoq"
+      },
+      "example": "The aging queen chose to abdicate in her son's favor.",
+      "example_translations": {
+        "ru": "Стареющая королева решила отречься от престола в пользу сына.",
+        "uz": "Keksayib qolgan qirolicha o'g'lining foydasiga taxtdan voz kechishga qaror qildi."
+      }
+    },
+    {
+      "word": "ascendancy",
+      "part_of_speech": "noun",
+      "translation": "преобладание, перевес",
+      "translations": {
+        "ru": "преобладание, перевес",
+        "uz": "ustunlik"
+      },
+      "example": "The reformers gradually gained ascendancy over the old guard.",
+      "example_translations": {
+        "ru": "Реформаторы постепенно добились преобладания над старой гвардией.",
+        "uz": "Islohotchilar asta-sekin eski gvardiya ustidan ustunlikka erishdi."
+      }
+    },
+    {
+      "word": "hegemony",
+      "part_of_speech": "noun",
+      "translation": "гегемония",
+      "translations": {
+        "ru": "гегемония",
+        "uz": "gegemonlik"
+      },
+      "example": "The empire's hegemony over the region lasted two centuries.",
+      "example_translations": {
+        "ru": "Гегемония империи в регионе длилась два столетия.",
+        "uz": "Imperiyaning mintaqadagi gegemonligi ikki asr davom etdi."
+      }
+    },
+    {
+      "word": "despot",
+      "part_of_speech": "noun",
+      "translation": "деспот",
+      "translations": {
+        "ru": "деспот",
+        "uz": "mustabid"
+      },
+      "example": "The despot punished anyone who questioned his orders.",
+      "example_translations": {
+        "ru": "Деспот наказывал каждого, кто сомневался в его приказах.",
+        "uz": "Mustabid buyruqlariga shubha qilgan har bir kishini jazolardi."
+      }
+    },
+    {
+      "word": "demagogue",
+      "part_of_speech": "noun",
+      "translation": "демагог",
+      "translations": {
+        "ru": "демагог",
+        "uz": "demagog"
+      },
+      "example": "The demagogue won votes by exploiting people's fears.",
+      "example_translations": {
+        "ru": "Демагог завоевал голоса, играя на страхах людей.",
+        "uz": "Demagog odamlarning qo'rquvidan foydalanib ovoz to'pladi."
+      }
+    },
+    {
+      "word": "autocrat",
+      "part_of_speech": "noun",
+      "translation": "автократ, самодержец",
+      "translations": {
+        "ru": "автократ, самодержец",
+        "uz": "yakkahokim"
+      },
+      "example": "An autocrat shares power with no one.",
+      "example_translations": {
+        "ru": "Автократ ни с кем не делит власть.",
+        "uz": "Yakkahokim hokimiyatni hech kim bilan bo'lishmaydi."
+      }
+    },
+    {
+      "word": "figurehead",
+      "part_of_speech": "noun",
+      "translation": "номинальный руководитель",
+      "translations": {
+        "ru": "номинальный руководитель",
+        "uz": "nomigagina rahbar"
+      },
+      "example": "The king is a figurehead; ministers make the decisions.",
+      "example_translations": {
+        "ru": "Король — номинальный руководитель; решения принимают министры.",
+        "uz": "Qirol nomigagina rahbar; qarorlarni vazirlar qabul qiladi."
+      }
+    },
+    {
+      "word": "junta",
+      "part_of_speech": "noun",
+      "translation": "военная хунта",
+      "translations": {
+        "ru": "военная хунта",
+        "uz": "harbiy xunta"
+      },
+      "example": "A junta of generals ruled the country for ten years.",
+      "example_translations": {
+        "ru": "Военная хунта генералов правила страной десять лет.",
+        "uz": "Generallardan iborat harbiy xunta mamlakatni o'n yil boshqardi."
+      }
+    }
+  ]
+}
