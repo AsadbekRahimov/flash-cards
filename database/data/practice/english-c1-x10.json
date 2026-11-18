@@ -19,7 +19,7 @@
         "sprawling"
       ],
       "translation": {
-        "ru": "За тридцать лет маленький порт превратился в огромный разросшийся город с населением десять миллионов человек.",
+        "ru": "За тридцать лет маленький порт превратился в разросшийся город с населением десять миллионов человек.",
         "uz": "O'ttiz yil ichida kichik port o'n million aholili, keng yoyilib ketgan shaharga aylandi."
       },
       "explanation": {
@@ -46,7 +46,7 @@
       ],
       "translation": {
         "ru": "Десятилетнее возрождение запущенного портового района создало тысячи новых рабочих мест.",
-        "uz": "Qarovsiz qolgan port mavzesini o'n yil davomida qayta jonlantirish minglab yangi ish o'rinlarini yaratdi."
+        "uz": "Qarovsiz qolgan port hududini o'n yil davomida qayta jonlantirish minglab yangi ish o'rinlarini yaratdi."
       },
       "explanation": {
         "ru": "После A ten-year и перед of нужно существительное: revitalize → revitalization «возрождение»; -ize → -ization (e выпадает).",
@@ -280,7 +280,7 @@
       "target_words": [
         "refurbish"
       ],
-      "text": "The old cinema must *refurbish* before it can reopen to the public.",
+      "text": "All the classrooms on the second floor must *refurbish* by September.",
       "options": [
         "be refurbished",
         "be refurbishing",
@@ -290,12 +290,12 @@
         "be refurbished"
       ],
       "translation": {
-        "ru": "Старый кинотеатр нужно отремонтировать, прежде чем он сможет снова открыться для публики.",
-        "uz": "Eski kinoteatr tomoshabinlar uchun qayta ochilishidan oldin ta'mirlanishi kerak."
+        "ru": "Все классы на втором этаже нужно отремонтировать к сентябрю.",
+        "uz": "Ikkinchi qavatdagi barcha sinfxonalar sentabrgacha ta'mirlab yangilanishi kerak."
       },
       "explanation": {
-        "ru": "Кинотеатр не ремонтирует, его ремонтируют: нужен пассив must be refurbished. refurbish всегда требует дополнения, поэтому must have refurbished без него невозможно.",
-        "uz": "Kinoteatr o'zi ta'mirlamaydi, uni ta'mirlashadi: majhul nisbat kerak, must be refurbished. refurbish fe'li doim to'ldiruvchi talab qiladi, shuning uchun must have refurbished bo'lmaydi."
+        "ru": "Классы не ремонтируют сами, их ремонтируют: нужен пассив must be refurbished. refurbish — переходный глагол, без дополнения must have refurbished и must be refurbishing невозможны.",
+        "uz": "Sinfxonalar o'zi ta'mirlamaydi, ularni ta'mirlashadi: majhul nisbat kerak, must be refurbished. refurbish o'timli fe'l, to'ldiruvchisiz must have refurbished va must be refurbishing bo'lmaydi."
       }
     },
     {
@@ -386,20 +386,20 @@
       },
       "level": "C1",
       "target_words": [
-        "sublet"
+        "dilapidated"
       ],
-      "text": "He was fined for ___ his apartment without the landlord's permission.",
-      "base": "sublet",
+      "text": "Buyers were put off by the old house's advanced state of ___.",
+      "base": "dilapidated",
       "accepted": [
-        "subletting"
+        "dilapidation"
       ],
       "translation": {
-        "ru": "Его оштрафовали за то, что он сдал квартиру в субаренду без разрешения владельца.",
-        "uz": "U uy egasining ruxsatisiz kvartirasini qayta ijaraga bergani uchun jarimaga tortildi."
+        "ru": "Покупателей отпугивало сильно обветшалое состояние старого дома.",
+        "uz": "Eski uyning qattiq nurab qolgan holati xaridorlarni cho'chitib yubordi."
       },
       "explanation": {
-        "ru": "После предлога for нужна форма на -ing: sublet → subletting. Ударение на последнем слоге (sub-LET), поэтому t удваивается, как в letting.",
-        "uz": "for predlogidan keyin -ing shakli kerak: sublet → subletting. Urg'u oxirgi bo'g'inda (sub-LET), shuning uchun letting dagi kabi t ikkilanadi."
+        "ru": "После state of нужно существительное: dilapidated → dilapidation «обветшание, ветхость»; -ated → -ation, как isolated → isolation.",
+        "uz": "state of so'zlaridan keyin ot kerak: dilapidated → dilapidation «nurash, xarobalik»; -ated o'rniga -ation, isolated → isolation kabi."
       }
     },
     {
@@ -440,24 +440,24 @@
       },
       "level": "C1",
       "target_words": [
-        "dilapidated"
+        "sublet"
       ],
-      "text": "The council bought the *dilapidating* old mill and turned it into apartments.",
+      "text": "Last summer we *subletted* our apartment to a student from abroad.",
       "options": [
-        "dilapidated",
-        "dilapidation",
-        "dilapidate"
+        "sublet",
+        "sublets",
+        "subletting"
       ],
       "correct": [
-        "dilapidated"
+        "sublet"
       ],
       "translation": {
-        "ru": "Городской совет купил обветшалую старую мельницу и превратил её в квартиры.",
-        "uz": "Shahar kengashi nurab qolgan eski tegirmonni sotib olib, uni kvartiralarga aylantirdi."
+        "ru": "Прошлым летом мы сдали свою квартиру в субаренду иностранному студенту.",
+        "uz": "O'tgan yozda kvartiramizni chet ellik bir talabaga qayta ijaraga berdik."
       },
       "explanation": {
-        "ru": "Состояние, в которое пришёл предмет, передаёт форма на -ed: dilapidated «обветшалый». Форма на -ing значила бы, что мельница сама что-то разрушает.",
-        "uz": "Narsaning qanday holatga kelib qolganini -ed shakli bildiradi: dilapidated «nurab qolgan». -ing shakli tegirmonning o'zi nimanidir buzayotganini anglatardi."
+        "ru": "sublet спрягается как let: sublet — sublet — sublet, формы subletted нет. Last summer требует прошедшего времени: we sublet. tt появляется только в subletting.",
+        "uz": "sublet fe'li let kabi tuslanadi: sublet — sublet — sublet, subletted degan shakl yo'q. Last summer o'tgan zamonni talab qiladi: we sublet. tt faqat subletting shaklida bo'ladi."
       }
     },
     {
@@ -556,7 +556,7 @@
         "carpooling"
       ],
       "translation": {
-        "ru": "Компания поощряет сотрудников, которые уменьшают пробки, ездя на работу с соседями на одной машине.",
+        "ru": "Компания поощряет сотрудников, которые разгружают дороги, потому что ездят вместе с соседями на одной машине.",
         "uz": "Kompaniya qo'shnilari bilan bir mashinada birga qatnab, tirbandlikni kamaytirayotgan xodimlarni rag'batlantiradi."
       },
       "explanation": {
@@ -807,8 +807,8 @@
         "archipelago"
       ],
       "translation": {
-        "ru": "Этот архипелаг из более чем тысячи островов любим яхтсменами.",
-        "uz": "Mingdan ortiq oroldan iborat bu arxipelag yelkanli qayiqchilar orasida mashhur."
+        "ru": "Этот архипелаг более чем из тысячи островов пользуется любовью яхтсменов.",
+        "uz": "Mingdan ortiq oroldan iborat bu arxipelag yaxtachilar orasida mashhur."
       },
       "explanation": {
         "ru": "peninsula — полуостров, часть суши, соединённая с материком. Группа из множества островов — archipelago. isthmus — перешеек, mainland — материк.",
@@ -930,7 +930,7 @@
       "target_words": [
         "subside"
       ],
-      "text": "We stayed in the shelter until the flood *subsidized* the next morning.",
+      "text": "By evening the river had finally *subsidized*, and families began returning home.",
       "options": [
         "subsided",
         "subsisted",
@@ -940,12 +940,12 @@
         "subsided"
       ],
       "translation": {
-        "ru": "Мы оставались в укрытии, пока на следующее утро паводок не спал.",
-        "uz": "Ertasi tongda toshqin pasaygunicha boshpanada qoldik."
+        "ru": "К вечеру река наконец спала, и семьи начали возвращаться домой.",
+        "uz": "Kechga borib daryo suvi nihoyat pasaydi va oilalar uylariga qaytib kela boshladi."
       },
       "explanation": {
-        "ru": "subsidize — субсидировать, выделять деньги. Вода, буря, боль спадают — subside, прошедшее subsided. subsist — существовать, sustain — поддерживать.",
-        "uz": "subsidize — subsidiya bermoq, pul ajratmoq. Suv, bo'ron, og'riq pasayadi — subside, o'tgan zamonda subsided. subsist — kun kechirmoq, sustain — qo'llab-quvvatlamoq."
+        "ru": "subsidize — субсидировать, выделять деньги. Вода, буря, боль спадают — subside: had subsided. subsist — существовать, кормиться; sustain — поддерживать, ему нужно дополнение.",
+        "uz": "subsidize — subsidiya bermoq, pul ajratmoq. Suv, bo'ron, og'riq pasayadi — subside: had subsided. subsist — kun kechirmoq; sustain — qo'llab-quvvatlamoq, unga to'ldiruvchi kerak."
       }
     },
     {
@@ -1013,18 +1013,18 @@
       "target_words": [
         "instigate"
       ],
-      "text": "Police arrested the man they believe was the main ___ of the violence.",
+      "text": "Everyone knew who the main ___ of the strike was, but nobody said a word.",
       "base": "instigate",
       "accepted": [
         "instigator"
       ],
       "translation": {
-        "ru": "Полиция арестовала человека, которого считает главным зачинщиком насилия.",
-        "uz": "Politsiya zo'ravonlikning asosiy qo'zg'atuvchisi deb hisoblagan odamni hibsga oldi."
+        "ru": "Все знали, кто главный зачинщик забастовки, но никто не сказал ни слова.",
+        "uz": "Ish tashlashni asosan kim boshlab bergani hammaga ma'lum edi, lekin hech kim og'iz ochmadi."
       },
       "explanation": {
-        "ru": "Речь о человеке (the man ... was the main ___): instigate → instigator «зачинщик»; -ate → -ator.",
-        "uz": "Gap odam haqida (the man ... was the main ___): instigate → instigator «qo'zg'atuvchi, boshlab beruvchi»; -ate o'rniga -ator."
+        "ru": "who и the main ___ of указывают на человека: instigate → instigator «зачинщик, инициатор»; -ate → -ator. instigation — само подстрекательство, не человек.",
+        "uz": "who va the main ___ of so'zlari odamga ishora qiladi: instigate → instigator «boshlab beruvchi, tashabbuskor»; -ate o'rniga -ator. instigation — harakatning o'zi, odam emas."
       }
     },
     {
@@ -1092,22 +1092,22 @@
       "target_words": [
         "induce"
       ],
-      "text": "The new drug induces the body *producing* more of its own insulin.",
+      "text": "Many small investors were induced *selling* their shares by false rumors.",
       "options": [
-        "to produce",
-        "for producing",
-        "in producing"
+        "to sell",
+        "for selling",
+        "in selling"
       ],
       "correct": [
-        "to produce"
+        "to sell"
       ],
       "translation": {
-        "ru": "Новое лекарство заставляет организм вырабатывать больше собственного инсулина.",
-        "uz": "Yangi dori organizmni o'z insulinini ko'proq ishlab chiqarishga majbur qiladi."
+        "ru": "Ложные слухи побудили многих мелких инвесторов продать свои акции.",
+        "uz": "Yolg'on mish-mishlar ko'plab kichik investorlarni aksiyalarini sotishga undadi."
       },
       "explanation": {
-        "ru": "induce somebody to do something — побуждать, заставлять кого-то или что-то делать: после дополнения нужен инфинитив с to, а не -ing.",
-        "uz": "induce somebody to do something — kimnidir yoki nimanidir biror ishga undamoq: to'ldiruvchidan keyin -ing emas, to bilan infinitiv keladi."
+        "ru": "induce somebody to do something — побуждать кого-то сделать что-то; в пассиве to сохраняется: were induced to sell. Форма на -ing после induce здесь невозможна.",
+        "uz": "induce somebody to do something — kimnidir biror ishga undamoq; majhul nisbatda ham to saqlanadi: were induced to sell. Bu yerda induce fe'lidan keyin -ing shakli kelmaydi."
       }
     },
     {
@@ -1225,22 +1225,22 @@
       "target_words": [
         "thwart"
       ],
-      "text": "The bank robbery was *thwarting* by an alert security guard.",
+      "text": "The firm's attempt to buy its rival *thwarted* when the bank refused a loan.",
       "options": [
-        "thwarted",
-        "thwart",
-        "thwarts"
+        "was thwarted",
+        "was thwarting",
+        "had thwarted"
       ],
       "correct": [
-        "thwarted"
+        "was thwarted"
       ],
       "translation": {
-        "ru": "Ограбление банка было сорвано бдительным охранником.",
-        "uz": "Bank o'g'irligi hushyor qo'riqchi tomonidan barbod qilindi."
+        "ru": "Попытка фирмы купить конкурента была сорвана, когда банк отказал в кредите.",
+        "uz": "Bank kredit berishdan bosh tortgach, firmaning raqobatchisini sotib olish urinishi barbod bo'ldi."
       },
       "explanation": {
-        "ru": "by an alert security guard показывает пассив: was + третья форма, was thwarted «было сорвано». С -ing получилось бы активное действие самого ограбления.",
-        "uz": "by an alert security guard majhul nisbatni ko'rsatadi: was + uchinchi shakl, was thwarted «barbod qilindi». -ing shakli o'g'irlikning o'zi harakat qilayotganini bildirardi."
+        "ru": "thwart — только переходный глагол: срывают что-то (thwart a plan), само оно не «срывается». Попытку сорвали — пассив was thwarted; had thwarted и was thwarting требовали бы дополнения.",
+        "uz": "thwart faqat o'timli fe'l: biror narsani barbod qilishadi (thwart a plan), o'zi barbod qilmaydi. Urinish barbod qilingan — majhul nisbat was thwarted; had thwarted va was thwarting to'ldiruvchi talab qilardi."
       }
     },
     {
@@ -1254,22 +1254,22 @@
       "target_words": [
         "prospect"
       ],
-      "text": "The prospect of *lose* her job kept her awake at night.",
+      "text": "The *perspective* of losing her job kept her awake at night.",
       "options": [
-        "losing",
-        "lost",
-        "loses"
+        "prospect",
+        "prospectus",
+        "prospective"
       ],
       "correct": [
-        "losing"
+        "prospect"
       ],
       "translation": {
         "ru": "Перспектива потерять работу не давала ей спать по ночам.",
         "uz": "Ishidan ayrilish ehtimoli uni tunlari uxlatmasdi."
       },
       "explanation": {
-        "ru": "the prospect of + -ing: of — предлог, а после предлога глагол стоит в форме -ing: the prospect of losing.",
-        "uz": "the prospect of + -ing: of — predlog, predlogdan keyin fe'l -ing shaklida keladi: the prospect of losing."
+        "ru": "perspective — «точка зрения, ракурс». То, что может случиться в будущем, — prospect: the prospect of losing. prospectus — проспект, брошюра; prospective — прилагательное «будущий». Русское «перспектива» толкает к perspective.",
+        "uz": "perspective — «nuqtai nazar». Kelajakda yuz berishi mumkin bo'lgan narsa — prospect: the prospect of losing. prospectus — risola, prospective — «bo'lajak» ma'nosidagi sifat."
       }
     },
     {
@@ -1283,7 +1283,7 @@
       "target_words": [
         "drawback"
       ],
-      "text": "The main drawback *at* this plan is that it costs too much.",
+      "text": "According to critics, cost is the biggest drawback *at* the new tram system.",
       "options": [
         "of",
         "from",
@@ -1293,12 +1293,12 @@
         "of"
       ],
       "translation": {
-        "ru": "Главный недостаток этого плана в том, что он слишком дорого стоит.",
-        "uz": "Bu rejaning asosiy kamchiligi shundaki, u juda qimmatga tushadi."
+        "ru": "По мнению критиков, самый большой недостаток новой трамвайной системы — её стоимость.",
+        "uz": "Tanqidchilarning fikricha, yangi tramvay tizimining eng katta kamchiligi — uning narxi."
       },
       "explanation": {
-        "ru": "drawback of (или to) something — недостаток чего-то: после drawback ставится of или to, не at.",
-        "uz": "drawback of (yoki to) something — biror narsaning kamchiligi: drawback so'zidan keyin at emas, of yoki to keladi."
+        "ru": "Недостаток чего-то — drawback of (также to или with) something, не at: the biggest drawback of the new system. from и by с drawback не употребляются.",
+        "uz": "Biror narsaning kamchiligi — drawback of (shuningdek to yoki with) something, at emas: the biggest drawback of the new system. from va by predloglari drawback bilan ishlatilmaydi."
       }
     },
     {
@@ -1319,7 +1319,7 @@
       ],
       "translation": {
         "ru": "Её многолетний упорный труд был щедро вознаграждён, когда она получила премию.",
-        "uz": "U mukofotni qo'lga kiritganida, ko'p yillik mashaqqatli mehnati munosib taqdirlandi."
+        "uz": "U mukofotni qo'lga kiritganida, ko'p yillik mashaqqatli mehnati to'la-to'kis taqdirlandi."
       },
       "explanation": {
         "ru": "Причастие rewarded определяется наречием: ample → amply «щедро, с лихвой»; -le меняется на -ly (не amplely).",
@@ -1399,7 +1399,7 @@
       ],
       "translation": {
         "ru": "В прошлом месяце цены на продукты выросли ничтожно мало, и большинство семей почти не заметили этого.",
-        "uz": "O'tgan oy oziq-ovqat narxlari juda arzimas oshdi, shuning uchun ko'pchilik oilalar buni deyarli sezmadi."
+        "uz": "O'tgan oy oziq-ovqat narxlari arzimas darajada oshdi, shuning uchun ko'pchilik oilalar buni deyarli sezmadi."
       },
       "explanation": {
         "ru": "Глагол rose определяется наречием: negligible → negligibly «ничтожно мало». negligently и neglectfully значат «небрежно» — это от negligent и neglect.",
@@ -1457,11 +1457,11 @@
       ],
       "translation": {
         "ru": "Мы нашли потерянное кольцо в песке по чистой случайности.",
-        "uz": "Yo'qolgan uzukni qumdan sof omad tufayli topib oldik."
+        "uz": "Yo'qolgan uzukni qum orasidan mutlaqo tasodifan topib oldik."
       },
       "explanation": {
         "ru": "shear — стричь (овец), резать. «Сущий, чистый» — sheer: by sheer luck «по чистой случайности». Эти слова звучат одинаково.",
-        "uz": "shear — (qo'y) qirqmoq, kesmoq. «Sof, mutlaq» — sheer: by sheer luck «sof omad tufayli». Bu ikki so'z bir xil talaffuz qilinadi."
+        "uz": "shear — (qo'y) qirqmoq, kesmoq. «Sof, mutlaq» — sheer: by sheer luck «mutlaqo tasodifan, faqat omad tufayli». Bu ikki so'z bir xil talaffuz qilinadi."
       }
     },
     {

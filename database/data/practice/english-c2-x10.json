@@ -20,7 +20,7 @@
       ],
       "translation": {
         "ru": "После раззолоченного дворца строгость монастыря стала настоящим потрясением.",
-        "uz": "Zarhal saroydan keyin monastirning soddaligi chinakam zarba bo'ldi."
+        "uz": "Zarhal saroydan so'ng monastirning bezaksiz soddaligi kishini chinakam hayratga soldi."
       },
       "explanation": {
         "ru": "Между the и of нужно существительное в единственном числе (was): austere → austerity. Конечное -e уходит, добавляется -ity, и гласная меняется: au-STER-i-ty, как severe → severity.",
@@ -88,7 +88,7 @@
       "target_words": [
         "sublime"
       ],
-      "text": "Seen from the summit at sunrise, the view was truly *subliminal*.",
+      "text": "The cathedral's soaring dome was truly *subliminal*; visitors fell silent as they entered.",
       "options": [
         "sublime",
         "sublimated",
@@ -98,12 +98,12 @@
         "sublime"
       ],
       "translation": {
-        "ru": "С вершины на рассвете вид был поистине величественным.",
-        "uz": "Tong chog'ida cho'qqidan qaralganda manzara chinakam ulug'vor edi."
+        "ru": "Высокий купол собора был поистине величественным: входя, посетители умолкали.",
+        "uz": "Soborning baland gumbazi chinakam ulug'vor edi: ichkariga kirganlar jim bo'lib qolishardi."
       },
       "explanation": {
-        "ru": "subliminal — «подсознательный, неосознаваемый» (subliminal advertising); о виде так не говорят. Величественный — sublime. sublimated — «сублимированный» (о чувствах), sublimation — существительное.",
-        "uz": "subliminal — «ongosti, sezilmaydigan» (subliminal advertising); manzara haqida bunday deyilmaydi. Ulug'vor — sublime. sublimated — «sublimatsiyalangan» (his-tuyg'u haqida), sublimation esa ot."
+        "ru": "subliminal — «подсознательный, неосознаваемый» (subliminal advertising); о куполе так не говорят. Величественный — sublime. sublimated — «сублимированный» (о чувствах), sublimation — существительное.",
+        "uz": "subliminal — «ongosti, sezilmaydigan» (subliminal advertising); gumbaz haqida bunday deyilmaydi. Ulug'vor — sublime. sublimated — «sublimatsiyalangan» (his-tuyg'u haqida), sublimation esa ot."
       }
     },
     {
@@ -117,7 +117,7 @@
       "target_words": [
         "understated"
       ],
-      "text": "Her *understating* style impressed the critics more than any designer label.",
+      "text": "The critics praised the *understating* design of the new museum.",
       "options": [
         "understated",
         "understatement",
@@ -127,12 +127,12 @@
         "understated"
       ],
       "translation": {
-        "ru": "Её неброский стиль впечатлил критиков больше любого дизайнерского бренда.",
-        "uz": "Uning kamtarona uslubi tanqidchilarni har qanday mashhur dizayner brendidan ko'ra ko'proq qoyil qoldirdi."
+        "ru": "Критики высоко оценили сдержанный дизайн нового музея.",
+        "uz": "Tanqidchilar yangi muzeyning kamtarona, ko'zga tashlanmaydigan dizaynini yuqori baholashdi."
       },
       "explanation": {
-        "ru": "understate — «преуменьшать». Неброский, сдержанный — причастие на -ed: understated style. Форма на -ing значила бы, что стиль сам что-то преуменьшает; understatement — существительное.",
-        "uz": "understate — «kamaytirib ko'rsatmoq». Kamtarona, ko'zga tashlanmaydigan — -ed qo'shimchali sifatdosh: understated style. -ing shakli uslubning o'zi nimanidir kamaytiradi, degan ma'noni berardi; understatement esa ot."
+        "ru": "understate — «преуменьшать». Неброский, сдержанный — причастие на -ed: understated design. Форма на -ing значила бы, что дизайн сам что-то преуменьшает; understatement — существительное.",
+        "uz": "understate — «kamaytirib ko'rsatmoq». Kamtarona, ko'zga tashlanmaydigan — -ed qo'shimchali sifatdosh: understated design. -ing shakli dizaynning o'zi nimanidir kamaytiradi, degan ma'noni berardi; understatement esa ot."
       }
     },
     {
@@ -209,7 +209,7 @@
       ],
       "translation": {
         "ru": "Оба крещендо в финальной части настолько громкие, что некоторые слушатели закрывают уши.",
-        "uz": "Final qismdagi ikkala kreshendo shunchalik balandki, ba'zi tinglovchilar quloqlarini berkitib oladi."
+        "uz": "Yakuniy qismdagi ikkala kreshendo shu qadar balandki, ba'zi tinglovchilar quloqlarini berkitib oladi."
       },
       "explanation": {
         "ru": "Both и are требуют множественного числа. Музыкальные слова на -o обычно получают просто -s: crescendos, как pianos, solos; встречаются также crescendoes и итальянское crescendi.",
@@ -252,10 +252,10 @@
       "target_words": [
         "sonata"
       ],
-      "text": "Late in life she wrote a sonata *to* cello and piano.",
+      "text": "Late in life she wrote a sonata *of* cello and piano.",
       "options": [
         "for",
-        "of",
+        "to",
         "at"
       ],
       "correct": [
@@ -266,8 +266,8 @@
         "uz": "Umrining oxirida u violonchel va fortepiano uchun sonata yozdi."
       },
       "explanation": {
-        "ru": "Сочинение для каких-то инструментов — for: a sonata for cello and piano (соната для виолончели и фортепиано). to, of и at здесь невозможны.",
-        "uz": "Qaysidir cholg'ular uchun yozilgan asar haqida for ishlatiladi: a sonata for cello and piano. to, of va at predloglari bu yerda ishlatilmaydi."
+        "ru": "Сочинение для каких-то инструментов вводит for: a sonata for cello and piano (соната для виолончели и фортепиано). of, to и at здесь невозможны.",
+        "uz": "Qaysidir cholg'ular uchun yozilgan asar for bilan beriladi: a sonata for cello and piano. of, to va at predloglari bu yerda ishlatilmaydi."
       }
     },
     {
@@ -375,8 +375,8 @@
         "uz": "Maydon uch tomondan kolonnada bilan o'ralgan, shuning uchun u yerda doim soya bor."
       },
       "explanation": {
-        "ru": "После is нужно прилагательное «с колоннадой, окружённый колоннадой»: colonnade → colonnaded; к конечному -e добавляется только -d, как a walled city.",
-        "uz": "is dan keyin «kolonnadali, kolonnada bilan o'ralgan» ma'nosidagi sifat kerak: colonnade → colonnaded; oxiridagi -e ga faqat -d qo'shiladi, a walled city kabi."
+        "ru": "После is нужно прилагательное «окружённый колоннадой»: -ed от существительного значит «снабжённый чем-то», как a walled city. К конечному -e слова colonnade добавляется только -d: colonnaded.",
+        "uz": "is dan keyin «kolonnada bilan o'ralgan» ma'nosidagi sifat kerak: otga qo'shilgan -ed «nimadir bilan jihozlangan» degani, a walled city kabi. colonnade so'zining oxiridagi -e ga faqat -d qo'shiladi: colonnaded."
       }
     },
     {
@@ -502,14 +502,14 @@
       "target_words": [
         "spontaneity"
       ],
-      "text": "His acting had the ___ of a first rehearsal, though he had played it for years.",
+      "text": "His acting kept the ___ of a first rehearsal after years in the role.",
       "base": "spontaneous",
       "accepted": [
         "spontaneity"
       ],
       "translation": {
-        "ru": "В его игре была непосредственность первой репетиции, хотя он исполнял эту роль годами.",
-        "uz": "U bu rolni yillar davomida ijro etib kelgan bo'lsa-da, uning o'yinida birinchi mashqdagidek tabiiylik bor edi."
+        "ru": "Даже после многих лет в этой роли его игра сохраняла непосредственность первой репетиции.",
+        "uz": "Bu rolni yillar davomida ijro etib kelgan bo'lsa-da, uning o'yini birinchi mashqdagidek tabiiyligini saqlab qolgan edi."
       },
       "explanation": {
         "ru": "Между the и of нужно существительное: spontaneous → spontaneity. Окончание -ous уходит, а -e- остаётся: sponta-ne-ity, как simultaneous → simultaneity.",
@@ -535,7 +535,7 @@
       ],
       "translation": {
         "ru": "Её медленное, тихое исполнение государственного гимна стало главным сюрпризом вечера.",
-        "uz": "Davlat madhiyasining uning ijrosidagi sekin va mayin talqini kechaning eng kutilmagan voqeasi bo'ldi."
+        "uz": "Davlat madhiyasining u ijro etgan sekin va ohista talqini kechaning eng kutilmagan voqeasi bo'ldi."
       },
       "explanation": {
         "ru": "После Her slow, quiet и перед of нужно существительное: render (исполнять) → rendition, где -er меняется на -ition; так же говорят rendering.",
@@ -561,7 +561,7 @@
       ],
       "translation": {
         "ru": "Только самые ловкие хирурги берутся за эту операцию на крошечных младенцах.",
-        "uz": "Faqat eng epchil jarrohlargina go'dak chaqaloqlarda bu operatsiyani qilishga jur'at etadi."
+        "uz": "Faqat eng epchil jarrohlargina mitti chaqaloqlarda bu operatsiyani bajarishga jur'at etadi."
       },
       "explanation": {
         "ru": "Между the most и surgeons нужно прилагательное: dexterity → dexterous; -ity меняется на -ous. Есть и сокращённое написание dextrous.",
@@ -590,7 +590,7 @@
       ],
       "translation": {
         "ru": "Её преданности занятиям стоит подражать, а не просто восхищаться ею.",
-        "uz": "Uning mashqqa sadoqatiga shunchaki qoyil qolish emas, undan ibrat olish ham arziydi."
+        "uz": "Uning mashg'ulotlarga sadoqati shunchaki qoyil qolishga emas, ibrat olishga arziydi."
       },
       "explanation": {
         "ru": "После be worth глагол стоит в форме на -ing: worth emulating (стоит подражать), как и admiring во второй части. Инфинитив и личные формы после worth невозможны.",
@@ -637,7 +637,7 @@
       "target_words": [
         "retrospective"
       ],
-      "text": "Next spring the gallery will hold a major *retrospection* of her photographs.",
+      "text": "Next spring the gallery will hold a major *retrospection* of the painter's work.",
       "options": [
         "retrospective",
         "retrospectively",
@@ -647,8 +647,8 @@
         "retrospective"
       ],
       "translation": {
-        "ru": "Следующей весной галерея проведёт большую ретроспективу её фотографий.",
-        "uz": "Kelasi bahorda galereya uning fotosuratlaridan iborat katta retrospektiva o'tkazadi."
+        "ru": "Следующей весной галерея проведёт большую ретроспективу работ этого художника.",
+        "uz": "Kelasi bahorda galereya rassom ijodiga bag'ishlangan katta retrospektiva o'tkazadi."
       },
       "explanation": {
         "ru": "Выставка, которая показывает весь путь художника, — retrospective (существительное). retrospection — «взгляд в прошлое, воспоминания», так выставку не называют; retrospectively — наречие, retroactive — «имеющий обратную силу».",
@@ -724,7 +724,7 @@
       ],
       "translation": {
         "ru": "Его дилетантство раздражало серьёзных коллекционеров: он покупал всё, что было в моде, и ничего не изучал.",
-        "uz": "Uning havaskorona yuzakiligi jiddiy kolleksionerlarning jahlini chiqarardi: u urfda bo'lgan hamma narsani sotib olar, hech narsani o'rganmasdi."
+        "uz": "Uning yuzaki havaskorligi jiddiy kolleksionerlarning jahlini chiqarardi: u urfda bo'lgan hamma narsani sotib olar, hech narsani o'rganmasdi."
       },
       "explanation": {
         "ru": "После His нужно существительное — название манеры поведения: dilettante → dilettantism; перед -ism конечное -e обычно уходит.",
@@ -753,10 +753,10 @@
       ],
       "translation": {
         "ru": "Поглощённая своим исследованием, она не заметила, что в лаборатории никого не осталось.",
-        "uz": "Tadqiqotiga butunlay berilib ketgan ayol laboratoriyada hech kim qolmaganini sezmadi."
+        "uz": "Tadqiqotiga butunlay berilib ketgan u laboratoriyada hech kim qolmaganini sezmadi."
       },
       "explanation": {
-        "ru": "engrossed in something — поглощённый чем-то: после engrossed ставится in, как после absorbed in. on, как во focused on, здесь неверно.",
+        "ru": "engrossed in something — поглощённый чем-то: после engrossed ставится in, как после absorbed in. on (как в focused on) здесь неверно.",
         "uz": "engrossed in something — biror narsaga butunlay berilgan: engrossed so'zidan keyin in keladi, absorbed in kabi. focused on dagi on bu yerda noto'g'ri."
       }
     },
@@ -800,7 +800,7 @@
       "target_words": [
         "visceral"
       ],
-      "text": "The audience reacted *visceral* to the final scene, before anyone had time to think.",
+      "text": "The audience reacted *visceral* to the final scene: many covered their eyes.",
       "options": [
         "viscerally",
         "viscera",
@@ -810,8 +810,8 @@
         "viscerally"
       ],
       "translation": {
-        "ru": "Зрители отреагировали на финальную сцену нутром, раньше, чем кто-либо успел подумать.",
-        "uz": "Tomoshabinlar so'nggi sahnaga hali hech kim o'ylab ulgurmasdanoq ich-ichidan ta'sirlanib javob qaytardi."
+        "ru": "Зрители отреагировали на финальную сцену всем нутром: многие закрывали глаза.",
+        "uz": "Tomoshabinlar so'nggi sahnaga ich-ichidan ta'sirlanib munosabat bildirdi: ko'pchilik ko'zlarini to'sib oldi."
       },
       "explanation": {
         "ru": "reacted — глагол, а глагол описывает наречие: visceral → viscerally. viscera — существительное («внутренности»), vicarious — прилагательное «испытанный через другого».",
@@ -829,19 +829,19 @@
       "target_words": [
         "strive"
       ],
-      "text": "For thirty years she has ___ to keep the village school open.",
+      "text": "Having ___ for decades to save the village school, she wept when it finally closed.",
       "base": "strive",
       "accepted": [
         "striven",
         "strived"
       ],
       "translation": {
-        "ru": "Вот уже тридцать лет она стремится сохранить сельскую школу.",
-        "uz": "O'ttiz yildan beri u qishloq maktabini saqlab qolishga intilib keladi."
+        "ru": "Она десятилетиями стремилась спасти сельскую школу и заплакала, когда та всё-таки закрылась.",
+        "uz": "U o'n yillar davomida qishloq maktabini saqlab qolishga intilgan edi va maktab baribir yopilganda yig'lab yubordi."
       },
       "explanation": {
-        "ru": "После has нужно третье причастие. strive — неправильный глагол: strive – strove – striven; допустима и правильная форма strived.",
-        "uz": "has dan keyin uchinchi shakl (sifatdosh) kerak. strive — noto'g'ri fe'l: strive – strove – striven; to'g'ri strived shakli ham qabul qilinadi."
+        "ru": "После Having нужно третье причастие (Having + V3 — «после того как…»). strive — неправильный глагол: strive – strove – striven; допустима и правильная форма strived.",
+        "uz": "Having so'zidan keyin uchinchi shakl (sifatdosh) kerak: Having + V3. strive — noto'g'ri fe'l: strive – strove – striven; to'g'ri strived shakli ham qabul qilinadi."
       }
     },
     {
@@ -855,18 +855,18 @@
       "target_words": [
         "industrious"
       ],
-      "text": "An ___ student, he spent every free hour in the library.",
+      "text": "The new intern is so ___ that she is always the last to leave the office.",
       "base": "industry",
       "accepted": [
         "industrious"
       ],
       "translation": {
-        "ru": "Трудолюбивый студент, он проводил в библиотеке каждый свободный час.",
-        "uz": "Mehnatsevar talaba bo'lgani uchun u har bir bo'sh soatini kutubxonada o'tkazardi."
+        "ru": "Новая стажёрка так трудолюбива, что всегда уходит из офиса последней.",
+        "uz": "Yangi stajyor qiz shunchalik mehnatsevarki, ofisdan doim eng oxirida ketadi."
       },
       "explanation": {
-        "ru": "У industry два прилагательных: industrial — «промышленный», industrious — «трудолюбивый». О студенте, который всё свободное время проводит в библиотеке, — industrious.",
-        "uz": "industry so'zidan ikki sifat yasaladi: industrial — «sanoat», industrious — «mehnatsevar». Har bir bo'sh soatini kutubxonada o'tkazadigan talaba haqida — industrious."
+        "ru": "После so нужно прилагательное, а у industry их два: industrial — «промышленный», industrious — «трудолюбивый». О стажёрке, которая всегда уходит последней, — industrious.",
+        "uz": "so so'zidan keyin sifat kerak, industry so'zidan esa ikki sifat yasaladi: industrial — «sanoat», industrious — «mehnatsevar». Ofisdan doim eng oxirida ketadigan stajyor haqida — industrious."
       }
     },
     {
@@ -905,7 +905,7 @@
       "target_words": [
         "zealous"
       ],
-      "text": "He was *jealous* in his efforts to modernize the old village school.",
+      "text": "He was *jealous* in his efforts to modernize the old town library.",
       "options": [
         "zealous",
         "zeal",
@@ -915,8 +915,8 @@
         "zealous"
       ],
       "translation": {
-        "ru": "Он ревностно трудился над тем, чтобы модернизировать старую сельскую школу.",
-        "uz": "U eski qishloq maktabini zamonaviylashtirish yo'lida o'ta g'ayrat bilan harakat qildi."
+        "ru": "Он ревностно трудился над модернизацией старой городской библиотеки.",
+        "uz": "U eski shahar kutubxonasini zamonaviylashtirish yo'lida o'ta g'ayrat bilan harakat qildi."
       },
       "explanation": {
         "ru": "jealous — «ревнивый, завистливый». «Ревностный, рьяный» — zealous: zealous in his efforts. Русские «ревностный» и «ревнивый» похожи, отсюда ошибка. zeal — рвение (существительное), zealot — фанатик.",
@@ -1082,8 +1082,8 @@
         "uz": "Oxirgi paromga ulgurmay qolib, mushkul ahvolga tushdik."
       },
       "explanation": {
-        "ru": "be in a predicament — быть в затруднительном положении: с predicament всегда in, как in trouble, in a difficult situation.",
-        "uz": "be in a predicament — mushkul ahvolda bo'lmoq: predicament so'zi bilan doim in keladi, in trouble, in a difficult situation kabi."
+        "ru": "be in a predicament — находиться в затруднительном положении: о положении, в котором оказались, говорят in, как in trouble, in a difficult situation. on здесь неверно.",
+        "uz": "be in a predicament — mushkul ahvolda bo'lmoq: tushib qolingan ahvol haqida in ishlatiladi, in trouble, in a difficult situation kabi. on bu yerda noto'g'ri."
       }
     },
     {
@@ -1100,8 +1100,8 @@
       "text": "The lost tourists *passed* a terrible three-day ordeal in the mountains.",
       "options": [
         "underwent",
-        "undertook",
-        "overtook"
+        "overtook",
+        "undermined"
       ],
       "correct": [
         "underwent"
@@ -1111,8 +1111,8 @@
         "uz": "Adashib qolgan sayyohlar tog'larda uch kunlik dahshatli sinovni boshdan kechirishdi."
       },
       "explanation": {
-        "ru": "Пережить тяжёлое испытание — undergo (underwent) или go through an ordeal; pass в этом значении без through не употребляется. undertook — «взялись за (дело)», overtook — «обогнали».",
-        "uz": "Og'ir sinovni boshdan kechirmoq — undergo (underwent) yoki go through an ordeal; through predlogisiz pass fe'li bu ma'noda ishlatilmaydi. undertook — «zimmasiga oldi», overtook — «quvib o'tdi»."
+        "ru": "Пережить тяжёлое испытание — undergo (underwent) или go through an ordeal; pass в этом значении без through не употребляется. overtook — «обогнали», undermined — «подорвали».",
+        "uz": "Og'ir sinovni boshdan kechirmoq — undergo (underwent) yoki go through an ordeal; through predlogisiz pass fe'li bu ma'noda ishlatilmaydi. overtook — «quvib o'tdi», undermined — «putur yetkazdi»."
       }
     },
     {
@@ -1126,7 +1126,7 @@
       "target_words": [
         "arduous"
       ],
-      "text": "After an *ardent* three-day trek across the desert, they finally reached the oasis.",
+      "text": "After an *ardent* week-long trek across the desert, they finally reached the oasis.",
       "options": [
         "arduous",
         "arduously",
@@ -1136,8 +1136,8 @@
         "arduous"
       ],
       "translation": {
-        "ru": "После тяжёлого трёхдневного перехода через пустыню они наконец добрались до оазиса.",
-        "uz": "Cho'l bo'ylab uch kunlik mashaqqatli yurishdan so'ng ular nihoyat vohaga yetib kelishdi."
+        "ru": "После тяжёлого недельного перехода через пустыню они наконец добрались до оазиса.",
+        "uz": "Cho'l bo'ylab bir haftalik mashaqqatli yurishdan so'ng ular nihoyat vohaga yetib kelishdi."
       },
       "explanation": {
         "ru": "ardent — «пылкий, страстный» (an ardent supporter): так говорят о людях и чувствах. Тяжёлый, изнурительный путь — arduous. arduously — наречие, arduousness — существительное.",
@@ -1155,14 +1155,14 @@
       "target_words": [
         "attain"
       ],
-      "text": "For most young athletes, the national team remains an ___ dream, however hard they train.",
+      "text": "For most young athletes, the national team is simply ___, however hard they train.",
       "base": "attain",
       "accepted": [
         "unattainable"
       ],
       "translation": {
-        "ru": "Для большинства юных спортсменов национальная сборная остаётся недостижимой мечтой, как бы упорно они ни тренировались.",
-        "uz": "Ko'pchilik yosh sportchilar uchun milliy terma jamoa, qanchalik qattiq mashq qilmasinlar, erishib bo'lmas orzuligicha qolmoqda."
+        "ru": "Для большинства юных спортсменов национальная сборная просто недостижима, как бы упорно они ни тренировались.",
+        "uz": "Ko'pchilik yosh sportchilar uchun milliy terma jamoa, qanchalik qattiq mashq qilmasinlar, shunchaki erishib bo'lmas cho'qqi."
       },
       "explanation": {
         "ru": "however hard they train требует отрицания: attain → attainable (достижимый) → unattainable (недостижимый); нужны и -able, и приставка un-.",
@@ -1188,7 +1188,7 @@
       ],
       "translation": {
         "ru": "Прошло двадцать лет, а её рекорд в прыжках в длину по-прежнему никем не превзойдён.",
-        "uz": "Yigirma yil o'tsa hamki, uning uzunlikka sakrash bo'yicha rekordi haligacha hech kim tomonidan ortda qoldirilmagan."
+        "uz": "Yigirma yil o'tgan bo'lsa-da, uning uzunlikka sakrash bo'yicha rekordidan haligacha hech kim o'zib keta olmagan."
       },
       "explanation": {
         "ru": "Смысл (прошло двадцать лет, а рекорд держится) требует отрицания. surpass → surpassed → unsurpassed («непревзойдённый»): приставка un- и причастие на -ed. Верно и unsurpassable («такой, который нельзя превзойти»).",
@@ -1275,8 +1275,8 @@
         "uz": "Bu qadimiy bozorlar qurilgan paytda ipak savdosi avj pallasida edi."
       },
       "explanation": {
-        "ru": "В высшей точке — at its zenith, как at its peak, at the height of. on its zenith — калька с «на вершине».",
-        "uz": "Eng yuqori nuqtada — at its zenith, at its peak va at the height of kabi. on its zenith deyilmaydi."
+        "ru": "В высшей точке — at its zenith, как at its peak, at the height of: с zenith в этом значении употребляется at, а не on.",
+        "uz": "Eng yuqori nuqtada — at its zenith, at its peak va at the height of kabi: bu ma'noda zenith so'zi bilan on emas, at ishlatiladi."
       }
     },
     {
@@ -1290,7 +1290,7 @@
       "target_words": [
         "meteoric"
       ],
-      "text": "Within two years her *meteorological* rise had taken her from junior clerk to director.",
+      "text": "The company's *meteorological* growth surprised even its most optimistic investors.",
       "options": [
         "meteoric",
         "meteorite",
@@ -1300,12 +1300,12 @@
         "meteoric"
       ],
       "translation": {
-        "ru": "Всего за два года стремительный взлёт привёл её от младшего клерка до директора.",
-        "uz": "Atigi ikki yil ichida shiddatli yuksalish uni oddiy xizmatchilikdan direktorlikkacha olib chiqdi."
+        "ru": "Стремительный рост компании удивил даже самых оптимистичных её инвесторов.",
+        "uz": "Kompaniyaning shiddatli o'sishi hatto eng nikbin investorlarini ham hayratda qoldirdi."
       },
       "explanation": {
-        "ru": "meteorological — «метеорологический», о погоде. Стремительный, как метеор, — meteoric: a meteoric rise. meteor и meteorite — существительные.",
-        "uz": "meteorological — «meteorologik», ob-havoga oid. Meteor kabi shiddatli — meteoric: a meteoric rise. meteor va meteorite — otlar."
+        "ru": "meteorological — «метеорологический», о погоде. Стремительный, как метеор, — meteoric: meteoric growth, a meteoric rise. meteor и meteorite — существительные.",
+        "uz": "meteorological — «meteorologik», ob-havoga oid. Meteor kabi shiddatli — meteoric: meteoric growth, a meteoric rise. meteor va meteorite — otlar."
       }
     },
     {
@@ -1395,7 +1395,7 @@
       "target_words": [
         "flounder"
       ],
-      "text": "Asked about the budget, the minister *foundered* for minutes, unable to find the figures.",
+      "text": "Asked about the budget, the manager *foundered* for minutes, unable to find the figures.",
       "options": [
         "floundered",
         "flourished",
@@ -1405,8 +1405,8 @@
         "floundered"
       ],
       "translation": {
-        "ru": "Когда министра спросили о бюджете, он несколько минут путался, не находя нужных цифр.",
-        "uz": "Byudjet haqida so'rashganda vazir kerakli raqamlarni topa olmay, bir necha daqiqa eplay olmay qiynaldi."
+        "ru": "Когда руководителя спросили о бюджете, он несколько минут путался, не находя нужных цифр.",
+        "uz": "Byudjet haqida so'rashganda rahbar kerakli raqamlarni topa olmay, bir necha daqiqa gangib qoldi."
       },
       "explanation": {
         "ru": "founder — «затонуть, потерпеть крах» (о корабле, о плане). Растерянно барахтаться, не справляясь, — flounder. flourished — «процветал», flattered — «льстил».",
@@ -1424,7 +1424,7 @@
       "target_words": [
         "gaffe"
       ],
-      "text": "At the dinner he *did* an embarrassing gaffe about the host's age.",
+      "text": "The new coach *did* a serious gaffe in his very first interview.",
       "options": [
         "made",
         "gave",
@@ -1434,8 +1434,8 @@
         "made"
       ],
       "translation": {
-        "ru": "На ужине он допустил бестактность, заговорив о возрасте хозяина.",
-        "uz": "Kechki ziyofatda u mezbonning yoshi haqida andishasiz gap aytib qo'ydi."
+        "ru": "Новый тренер допустил серьёзный ляп в первом же интервью.",
+        "uz": "Yangi murabbiy ilk intervyusidayoq jiddiy andishasizlikka yo'l qo'ydi."
       },
       "explanation": {
         "ru": "С gaffe, как и с mistake, употребляется make: make a gaffe. do с ошибками не сочетается; русское «сделать ляп» здесь подводит.",
@@ -1453,7 +1453,7 @@
       "target_words": [
         "botch"
       ],
-      "text": "The *botching* repair cost us twice as much as doing the job properly.",
+      "text": "The *botching* roof repair cost us twice as much as doing the job properly.",
       "options": [
         "botched",
         "botcher",
@@ -1463,12 +1463,12 @@
         "botched"
       ],
       "translation": {
-        "ru": "Испорченный ремонт обошёлся нам вдвое дороже, чем если бы работу сразу сделали как следует.",
-        "uz": "Rasvo qilingan ta'mir bizga ishni boshidanoq to'g'ri qilishdan ikki baravar qimmatga tushdi."
+        "ru": "Испорченный ремонт крыши обошёлся нам вдвое дороже, чем если бы работу сразу сделали как следует.",
+        "uz": "Rasvo qilingan tom ta'miri bizga ishni boshidanoq to'g'ri qilishdan ikki baravar qimmatga tushdi."
       },
       "explanation": {
-        "ru": "Ремонт испортили — он испорчен, поэтому нужно причастие на -ed: a botched repair. botching значило бы, что ремонт сам что-то портит; botcher — тот, кто халтурит.",
-        "uz": "Ta'mirni rasvo qilishgan — demak, -ed shaklidagi sifatdosh kerak: a botched repair. botching ta'mirning o'zi nimanidir buzayotganini bildirardi; botcher — ishni chala-chulpa qiladigan odam."
+        "ru": "Крышу отремонтировали плохо — ремонт испорчен, поэтому нужно причастие на -ed: a botched repair. botching значило бы, что ремонт сам что-то портит; botcher — тот, кто халтурит.",
+        "uz": "Tomni chala-chulpa ta'mirlashgan — ta'mir rasvo qilingan, shuning uchun -ed shaklidagi sifatdosh kerak: a botched repair. botching ta'mirning o'zi nimanidir buzayotganini bildirardi; botcher — ishni chala-chulpa qiladigan odam."
       }
     },
     {
@@ -1532,18 +1532,18 @@
       "target_words": [
         "wary"
       ],
-      "text": "Her ___ of strangers was understandable after she had been cheated twice.",
+      "text": "Years of travel have given her a healthy ___ of strangers who offer cheap tours.",
       "base": "wary",
       "accepted": [
         "wariness"
       ],
       "translation": {
-        "ru": "Её настороженность по отношению к незнакомцам была понятна: её дважды обманули.",
-        "uz": "Ikki marta aldanganidan keyin uning notanish odamlarga nisbatan sergakligi tushunarli edi."
+        "ru": "Годы путешествий привили ей здоровую настороженность по отношению к незнакомцам, предлагающим дешёвые экскурсии.",
+        "uz": "Yillab qilgan sayohatlari unda arzon ekskursiya taklif qiladigan notanish odamlarga nisbatan sog'lom sergaklik uyg'otgan."
       },
       "explanation": {
-        "ru": "Между Her и of нужно существительное: wary → wariness; перед -ness конечное -y после согласной меняется на -i-.",
-        "uz": "Her bilan of predlogi orasida ot kerak: wary → wariness; -ness dan oldin undoshdan keyingi -y harfi -i- ga aylanadi."
+        "ru": "После a healthy и перед of нужно существительное: wary → wariness; перед -ness конечное -y после согласной меняется на -i-.",
+        "uz": "a healthy so'zlaridan keyin, of predlogidan oldin ot kerak: wary → wariness; -ness dan oldin undoshdan keyingi -y harfi -i- ga aylanadi."
       }
     },
     {
