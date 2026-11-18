@@ -247,7 +247,9 @@ final class PracticePackRules
 
     /**
      * What is wrong with a find-the-mistake whatever the course: the grader on the task (words `t<i>`, options `o<i>`) does not find the
-     * mistake at its place, does not take the right correction or takes a wrong one; a word of the corrected sentence the lexicon does not
+     * mistake at its place, does not take the right correction or takes a wrong one; the case of the first letters of the corrections gives
+     * the answer away (ErrorHuntText::optionsCaseFault: all capital when the mistake is the first word, one case otherwise); a word of the
+     * corrected sentence the lexicon does not
      * know (a number is no word; `$names` are the lower-case names a course allows); a target word not written in the corrected sentence.
      *
      * @param  array<string, mixed>  $content  the stored content
@@ -281,6 +283,13 @@ final class PracticePackRules
             }
         } catch (PracticeException $e) {
             $problems[] = 'the grader refuses the task: '.$e->errorCode;
+        }
+
+        $caseFault = ErrorHuntText::optionsCaseFault(array_map(static fn (mixed $option): string => is_string($option) ? $option : '', $options), $index);
+        if ($caseFault === 'first_word') {
+            $problems[] = 'the mistake is the first word, but a correction starts with a small letter: every correction must start with a capital (one capital gives the answer away)';
+        } elseif ($caseFault === 'mixed') {
+            $problems[] = 'the corrections start with letters of different case: the odd one gives the answer away';
         }
 
         $corrected = self::errorHuntSentences($content)['corrected'];

@@ -1,0 +1,1626 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-a1-a2",
+  "items": [
+    {
+      "key": "a1a2-m01-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "thanks"
+      ],
+      "text": "Many ___ for your kind letter.",
+      "base": "thank",
+      "accepted": [
+        "thanks"
+      ],
+      "translation": {
+        "ru": "Большое спасибо за ваше тёплое письмо.",
+        "uz": "Samimiy maktubingiz uchun katta rahmat."
+      },
+      "explanation": {
+        "ru": "Many thanks — «большое спасибо». Здесь thanks — существительное «благодарность», и в этом значении оно всегда с -s: thank → thanks.",
+        "uz": "Many thanks — «katta rahmat». Bu yerda thanks — «minnatdorchilik» ma'nosidagi ot, bu ma'noda u doim -s bilan keladi: thank → thanks."
+      }
+    },
+    {
+      "key": "a1a2-m01-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "welcome"
+      ],
+      "text": "When we moved here, our neighbors ___ us with a big cake.",
+      "base": "welcome",
+      "accepted": [
+        "welcomed"
+      ],
+      "translation": {
+        "ru": "Когда мы сюда переехали, соседи встретили нас большим тортом.",
+        "uz": "Biz bu yerga ko'chib kelganimizda, qo'shnilarimiz bizni katta tort bilan kutib olishdi."
+      },
+      "explanation": {
+        "ru": "Здесь welcome — глагол «радушно встречать». Действие в прошлом (moved), поэтому welcome + -d → welcomed.",
+        "uz": "Bu yerda welcome — «kutib olmoq» fe'li. Harakat o'tgan zamonda (moved), shuning uchun welcome + -d → welcomed."
+      }
+    },
+    {
+      "key": "a1a2-m01-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "excuse"
+      ],
+      "text": "Our teacher always ___ us when we are a little late.",
+      "base": "excuse",
+      "accepted": [
+        "excuses"
+      ],
+      "translation": {
+        "ru": "Наш учитель всегда прощает нас, когда мы немного опаздываем.",
+        "uz": "Biroz kechiksak, o'qituvchimiz bizni doim kechiradi."
+      },
+      "explanation": {
+        "ru": "Our teacher — это «он», время настоящее (we are), поэтому к глаголу добавляется -s: excuse → excuses.",
+        "uz": "Our teacher — «u», zamon hozirgi (we are), shuning uchun fe'lga -s qo'shiladi: excuse → excuses."
+      }
+    },
+    {
+      "key": "a1a2-m01-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "sorry"
+      ],
+      "text": "Sorry, but I have *a* exam today and cannot come.",
+      "options": [
+        "an",
+        "many",
+        "much"
+      ],
+      "correct": [
+        "an"
+      ],
+      "translation": {
+        "ru": "Извините, но у меня сегодня экзамен, и я не смогу прийти.",
+        "uz": "Kechirasiz, bugun imtihonim bor, shuning uchun kela olmayman."
+      },
+      "explanation": {
+        "ru": "Exam начинается с гласного звука, поэтому артикль an: an exam.",
+        "uz": "Exam unli tovush bilan boshlanadi, shuning uchun an artikli: an exam."
+      }
+    },
+    {
+      "key": "a1a2-m01-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "hello"
+      ],
+      "text": "Say hello to *you* mother for me, please.",
+      "options": [
+        "your",
+        "yours",
+        "you're"
+      ],
+      "correct": [
+        "your"
+      ],
+      "translation": {
+        "ru": "Передайте, пожалуйста, привет вашей маме от меня.",
+        "uz": "Iltimos, onangizga mendan salom ayting."
+      },
+      "explanation": {
+        "ru": "Перед существительным нужно притяжательное your («ваш»), а не you («вы»).",
+        "uz": "Ot oldidan you («siz») emas, egalik olmoshi your («sizning») kerak."
+      }
+    },
+    {
+      "key": "a1a2-m01-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "goodbye"
+      ],
+      "text": "She said goodbye to us *in* Monday.",
+      "options": [
+        "on",
+        "at",
+        "for"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Она попрощалась с нами в понедельник.",
+        "uz": "U biz bilan dushanba kuni xayrlashdi."
+      },
+      "explanation": {
+        "ru": "С днями недели употребляется предлог on: on Monday, on Friday. Русское «в» здесь не in.",
+        "uz": "Hafta kunlari bilan on predlogi ishlatiladi: on Monday, on Friday."
+      }
+    },
+    {
+      "key": "a1a2-m01-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "me"
+      ],
+      "text": "Can you help ___ with this bag, please?",
+      "base": "I",
+      "accepted": [
+        "me"
+      ],
+      "translation": {
+        "ru": "Вы можете помочь мне с этой сумкой, пожалуйста?",
+        "uz": "Iltimos, menga bu sumkani ko'tarishga yordam bera olasizmi?"
+      },
+      "explanation": {
+        "ru": "После глагола нужна форма дополнения: I → me (меня, мне).",
+        "uz": "Fe'ldan keyin to'ldiruvchi shakli kerak: I → me (meni, menga)."
+      }
+    },
+    {
+      "key": "a1a2-m01-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "they"
+      ],
+      "text": "Our neighbors are nice, and ___ garden is beautiful.",
+      "base": "they",
+      "accepted": [
+        "their"
+      ],
+      "translation": {
+        "ru": "Наши соседи — приятные люди, и у них красивый сад.",
+        "uz": "Qo'shnilarimiz yoqimli odamlar, ularning bog'i ham chiroyli."
+      },
+      "explanation": {
+        "ru": "Перед существительным нужно притяжательное местоимение: they → their (их).",
+        "uz": "Ot oldidan egalik olmoshi kerak: they → their (ularning)."
+      }
+    },
+    {
+      "key": "a1a2-m01-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "this"
+      ],
+      "text": "Please take ___ chairs here into the kitchen.",
+      "base": "this",
+      "accepted": [
+        "these"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, отнесите вот эти стулья на кухню.",
+        "uz": "Iltimos, mana bu stullarni oshxonaga olib kiring."
+      },
+      "explanation": {
+        "ru": "Chairs — множественное число, поэтому this → these (эти).",
+        "uz": "Chairs — ko'plikda, shuning uchun this → these (bular)."
+      }
+    },
+    {
+      "key": "a1a2-m01-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "she"
+      ],
+      "text": "My grandmother is an old woman, but *he* still works in the garden.",
+      "options": [
+        "she",
+        "her",
+        "hers"
+      ],
+      "correct": [
+        "she"
+      ],
+      "translation": {
+        "ru": "Моя бабушка уже пожилая женщина, но она всё ещё работает в саду.",
+        "uz": "Buvim keksa ayol, lekin u hali ham bog'da ishlaydi."
+      },
+      "explanation": {
+        "ru": "Grandmother — женщина, поэтому she («она»). He значит «он» и говорится о мужчине.",
+        "uz": "Grandmother — ayol, shuning uchun she. He erkak haqida ishlatiladi; o'zbekcha «u» esa ikkalasiga ham mos keladi."
+      }
+    },
+    {
+      "key": "a1a2-m01-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "we"
+      ],
+      "text": "My brother and I are friends, and *us* play football together.",
+      "options": [
+        "we",
+        "our",
+        "ours"
+      ],
+      "correct": [
+        "we"
+      ],
+      "translation": {
+        "ru": "Мы с братом друзья и вместе играем в футбол.",
+        "uz": "Ukam ikkalamiz do'stmiz va birga futbol o'ynaymiz."
+      },
+      "explanation": {
+        "ru": "Подлежащее — we (мы). Us — форма дополнения: with us, for us.",
+        "uz": "Ega — we (biz). Us esa to'ldiruvchi shakli: with us, for us."
+      }
+    },
+    {
+      "key": "a1a2-m01-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "your"
+      ],
+      "text": "Excuse me, is this *you* phone on the table?",
+      "options": [
+        "your",
+        "yours",
+        "you're"
+      ],
+      "correct": [
+        "your"
+      ],
+      "translation": {
+        "ru": "Извините, это ваш телефон на столе?",
+        "uz": "Kechirasiz, stol ustidagi telefon siznikimi?"
+      },
+      "explanation": {
+        "ru": "«Ваш» перед существительным — your. Yours стоит без существительного: It is yours.",
+        "uz": "Ot oldida «sizning» — your. Yours esa otsiz ishlatiladi: It is yours."
+      }
+    },
+    {
+      "key": "a1a2-m01-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "language"
+      ],
+      "text": "Our teacher speaks four ___.",
+      "base": "language",
+      "accepted": [
+        "languages"
+      ],
+      "translation": {
+        "ru": "Наш учитель говорит на четырёх языках.",
+        "uz": "O'qituvchimiz to'rt tilda gapiradi."
+      },
+      "explanation": {
+        "ru": "После числа больше одного существительное стоит во множественном числе: language → languages.",
+        "uz": "Birdan katta sondan keyin ot ko'plikda bo'ladi: language → languages."
+      }
+    },
+    {
+      "key": "a1a2-m01-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "call"
+      ],
+      "text": "What is this ___ in English?",
+      "base": "call",
+      "accepted": [
+        "called"
+      ],
+      "translation": {
+        "ru": "Как это называется по-английски?",
+        "uz": "Bu ingliz tilida nima deb ataladi?"
+      },
+      "explanation": {
+        "ru": "«Как это называется?» — What is this called? После is нужна форма called, а не call.",
+        "uz": "«Bu nima deb ataladi?» — What is this called? is fe'lidan keyin called shakli keladi, call emas."
+      }
+    },
+    {
+      "key": "a1a2-m01-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "meet"
+      ],
+      "text": "We first ___ at a friend's birthday party.",
+      "base": "meet",
+      "accepted": [
+        "met"
+      ],
+      "translation": {
+        "ru": "Мы впервые встретились на дне рождения у друга.",
+        "uz": "Biz birinchi marta bir do'stimizning tug'ilgan kunida tanishdik."
+      },
+      "explanation": {
+        "ru": "Речь о прошлом (first — «впервые»). Meet — неправильный глагол: прошедшее время met.",
+        "uz": "Gap o'tmish haqida (first — «birinchi marta»). Meet — noto'g'ri fe'l: o'tgan zamon shakli met."
+      }
+    },
+    {
+      "key": "a1a2-m01-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "birthday"
+      ],
+      "text": "My birthday is *in* the fifth of May.",
+      "options": [
+        "on",
+        "at",
+        "to"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Мой день рождения — пятого мая.",
+        "uz": "Mening tug'ilgan kunim 5-mayda."
+      },
+      "explanation": {
+        "ru": "С датой (числом) употребляется on: on the fifth of May. Но с месяцем без числа — in: in May.",
+        "uz": "Sana bilan on predlogi ishlatiladi: on the fifth of May. Kunsiz faqat oy bo'lsa — in: in May."
+      }
+    },
+    {
+      "key": "a1a2-m01-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "married"
+      ],
+      "text": "My uncle *are* married and has three children.",
+      "options": [
+        "is",
+        "be",
+        "am"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Мой дядя женат, и у него трое детей.",
+        "uz": "Amakim uylangan, uning uchta farzandi bor."
+      },
+      "explanation": {
+        "ru": "My uncle — один человек («он»), поэтому is: he is married.",
+        "uz": "My uncle — bir kishi («u»), shuning uchun is: he is married."
+      }
+    },
+    {
+      "key": "a1a2-m01-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "country"
+      ],
+      "text": "This is *a* old country with a long history.",
+      "options": [
+        "an",
+        "many",
+        "much"
+      ],
+      "correct": [
+        "an"
+      ],
+      "translation": {
+        "ru": "Это древняя страна с долгой историей.",
+        "uz": "Bu uzoq tarixga ega qadimiy mamlakat."
+      },
+      "explanation": {
+        "ru": "Перед гласным звуком артикль an: an old country, an apple.",
+        "uz": "Unli tovush oldidan an artikli ishlatiladi: an old country, an apple."
+      }
+    },
+    {
+      "key": "a1a2-m01-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "woman"
+      ],
+      "text": "Three ___ work in our office.",
+      "base": "woman",
+      "accepted": [
+        "women"
+      ],
+      "translation": {
+        "ru": "В нашем офисе работают три женщины.",
+        "uz": "Ofisimizda uchta ayol ishlaydi."
+      },
+      "explanation": {
+        "ru": "У woman особое множественное число: women (без -s).",
+        "uz": "Woman so'zining ko'pligi alohida: women (-s qo'shilmaydi)."
+      }
+    },
+    {
+      "key": "a1a2-m01-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "man"
+      ],
+      "text": "Those two ___ are my uncles.",
+      "base": "man",
+      "accepted": [
+        "men"
+      ],
+      "translation": {
+        "ru": "Те двое мужчин — мои дяди.",
+        "uz": "Anavi ikki erkak — mening amakilarim."
+      },
+      "explanation": {
+        "ru": "У man особое множественное число: men (без -s).",
+        "uz": "Man so'zining ko'pligi alohida: men (-s qo'shilmaydi)."
+      }
+    },
+    {
+      "key": "a1a2-m01-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "neighbor"
+      ],
+      "text": "All our ___ came to the party.",
+      "base": "neighbor",
+      "accepted": [
+        "neighbors"
+      ],
+      "translation": {
+        "ru": "Все наши соседи пришли на праздник.",
+        "uz": "Barcha qo'shnilarimiz ziyofatga kelishdi."
+      },
+      "explanation": {
+        "ru": "После all our нужно множественное число: neighbor → neighbors.",
+        "uz": "all our so'zlaridan keyin ko'plik kerak: neighbor → neighbors."
+      }
+    },
+    {
+      "key": "a1a2-m01-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "people"
+      ],
+      "text": "These people *is* very kind to my family.",
+      "options": [
+        "are",
+        "be",
+        "am"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Эти люди очень добры к моей семье.",
+        "uz": "Bu odamlar oilamga juda mehribon."
+      },
+      "explanation": {
+        "ru": "People — множественное число («люди»), поэтому are, а не is.",
+        "uz": "People — ko'plik («odamlar»), shuning uchun is emas, are."
+      }
+    },
+    {
+      "key": "a1a2-m01-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "friend"
+      ],
+      "text": "Our friend often helps *I* with English.",
+      "options": [
+        "me",
+        "my",
+        "mine"
+      ],
+      "correct": [
+        "me"
+      ],
+      "translation": {
+        "ru": "Наш друг часто помогает мне с английским.",
+        "uz": "Do'stimiz menga ingliz tilidan tez-tez yordam beradi."
+      },
+      "explanation": {
+        "ru": "После глагола helps нужна форма дополнения me. I бывает только подлежащим.",
+        "uz": "helps fe'lidan keyin to'ldiruvchi shakli me keladi. I faqat ega bo'ladi."
+      }
+    },
+    {
+      "key": "a1a2-m01-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "stranger"
+      ],
+      "text": "A stranger came to our door *in* midnight.",
+      "options": [
+        "at",
+        "on",
+        "for"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "В полночь к нашей двери подошёл незнакомец.",
+        "uz": "Yarim tunda eshigimiz oldiga notanish odam keldi."
+      },
+      "explanation": {
+        "ru": "С точным временем употребляется at: at midnight, at six o'clock. Русское «в полночь» здесь не in.",
+        "uz": "Aniq vaqt bilan at predlogi ishlatiladi: at midnight, at six o'clock."
+      }
+    },
+    {
+      "key": "a1a2-m01-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "tall"
+      ],
+      "text": "My brother is ___ than my father.",
+      "base": "tall",
+      "accepted": [
+        "taller"
+      ],
+      "translation": {
+        "ru": "Мой брат выше моего отца.",
+        "uz": "Akamning bo'yi otamnikidan baland."
+      },
+      "explanation": {
+        "ru": "Перед than нужна сравнительная степень: короткое прилагательное + -er: tall → taller.",
+        "uz": "than so'zidan oldin qiyosiy daraja keladi: qisqa sifat + -er: tall → taller."
+      }
+    },
+    {
+      "key": "a1a2-m01-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "happy"
+      ],
+      "text": "She is much ___ now than before.",
+      "base": "happy",
+      "accepted": [
+        "happier"
+      ],
+      "translation": {
+        "ru": "Сейчас она гораздо счастливее, чем раньше.",
+        "uz": "U hozir avvalgidan ancha baxtliroq."
+      },
+      "explanation": {
+        "ru": "Сравнительная степень: y после согласной меняется на i, затем -er: happy → happier.",
+        "uz": "Qiyosiy daraja: undoshdan keyingi y harfi i harfiga aylanadi, keyin -er: happy → happier."
+      }
+    },
+    {
+      "key": "a1a2-m01-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "young"
+      ],
+      "text": "My sister is two years ___ than me.",
+      "base": "young",
+      "accepted": [
+        "younger"
+      ],
+      "translation": {
+        "ru": "Моя сестра на два года младше меня.",
+        "uz": "Singlim mendan ikki yosh kichik."
+      },
+      "explanation": {
+        "ru": "Перед than нужна сравнительная степень: young → younger (младше).",
+        "uz": "than so'zidan oldin qiyosiy daraja keladi: young → younger (yoshroq, kichik)."
+      }
+    },
+    {
+      "key": "a1a2-m01-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "old"
+      ],
+      "text": "My grandfather is old, but he still drives *her* own car.",
+      "options": [
+        "his",
+        "hers",
+        "him"
+      ],
+      "correct": [
+        "his"
+      ],
+      "translation": {
+        "ru": "Мой дедушка уже старый, но всё ещё водит собственную машину.",
+        "uz": "Bobom keksa, lekin hali ham o'z mashinasini haydaydi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — he, поэтому his own car («его собственная»). Her own — о женщине. Русское «свой» пол не различает, английское различает.",
+        "uz": "Ega — he, shuning uchun his own car («o'zining mashinasi»). Her own ayol haqida aytiladi. O'zbekcha «o'z» jinsni farqlamaydi, inglizcha farqlaydi."
+      }
+    },
+    {
+      "key": "a1a2-m01-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "kind"
+      ],
+      "text": "My neighbors *is* very kind people.",
+      "options": [
+        "are",
+        "be",
+        "am"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Мои соседи — очень добрые люди.",
+        "uz": "Qo'shnilarim juda mehribon odamlar."
+      },
+      "explanation": {
+        "ru": "Neighbors — множественное число («они»), поэтому are.",
+        "uz": "Neighbors — ko'plikda («ular»), shuning uchun are."
+      }
+    },
+    {
+      "key": "a1a2-m01-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "funny"
+      ],
+      "text": "This funny story always makes *I* laugh.",
+      "options": [
+        "me",
+        "my",
+        "mine"
+      ],
+      "correct": [
+        "me"
+      ],
+      "translation": {
+        "ru": "Эта смешная история всегда меня смешит.",
+        "uz": "Bu kulgili hikoya meni doim kuldiradi."
+      },
+      "explanation": {
+        "ru": "После makes нужна форма дополнения: makes me laugh. I бывает только подлежащим.",
+        "uz": "makes fe'lidan keyin to'ldiruvchi shakli keladi: makes me laugh. I faqat ega bo'ladi."
+      }
+    },
+    {
+      "key": "a1a2-m02-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "child"
+      ],
+      "text": "They have three ___: two sons and a daughter.",
+      "base": "child",
+      "accepted": [
+        "children"
+      ],
+      "translation": {
+        "ru": "У них трое детей: два сына и дочь.",
+        "uz": "Ularning uchta farzandi bor: ikki o'g'il va bir qiz."
+      },
+      "explanation": {
+        "ru": "У child особое множественное число: children.",
+        "uz": "Child so'zining ko'pligi alohida: children."
+      }
+    },
+    {
+      "key": "a1a2-m02-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "baby"
+      ],
+      "text": "There are three ___ in this room, and they are all asleep.",
+      "base": "baby",
+      "accepted": [
+        "babies"
+      ],
+      "translation": {
+        "ru": "В этой комнате три малыша, и все они спят.",
+        "uz": "Bu xonada uchta chaqaloq bor, hammasi uxlab yotibdi."
+      },
+      "explanation": {
+        "ru": "Если перед y стоит согласная, во множественном числе -ies: baby → babies.",
+        "uz": "y harfidan oldin undosh bo'lsa, ko'plikda -ies bo'ladi: baby → babies."
+      }
+    },
+    {
+      "key": "a1a2-m02-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "parent"
+      ],
+      "text": "Both my ___ are doctors.",
+      "base": "parent",
+      "accepted": [
+        "parents"
+      ],
+      "translation": {
+        "ru": "Оба моих родителя — врачи.",
+        "uz": "Ota-onamning ikkalasi ham shifokor."
+      },
+      "explanation": {
+        "ru": "Both — «оба», после него множественное число: parent → parents.",
+        "uz": "Both — «ikkalasi ham», undan keyin ko'plik keladi: parent → parents."
+      }
+    },
+    {
+      "key": "a1a2-m02-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "father"
+      ],
+      "text": "My father *have* a small car, and he loves it.",
+      "options": [
+        "has",
+        "does",
+        "having"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "У моего отца маленькая машина, и он её любит.",
+        "uz": "Otamning kichik mashinasi bor va u uni juda yaxshi ko'radi."
+      },
+      "explanation": {
+        "ru": "С he / she / it и с одним человеком (my father) — has, а не have.",
+        "uz": "he / she / it va bir kishi bilan (my father) have emas, has ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m02-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "daughter"
+      ],
+      "text": "Their only daughter *are* six years old.",
+      "options": [
+        "is",
+        "has",
+        "be"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Их единственной дочери шесть лет.",
+        "uz": "Ularning yagona qizi olti yoshda."
+      },
+      "explanation": {
+        "ru": "Возраст называют с be: she is six years old (не has). Daughter одна, поэтому is.",
+        "uz": "Yosh be fe'li bilan aytiladi: she is six years old (has emas). Daughter bitta, shuning uchun is."
+      }
+    },
+    {
+      "key": "a1a2-m02-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "sister"
+      ],
+      "text": "My older sister is *a* English teacher at a school.",
+      "options": [
+        "an",
+        "many",
+        "much"
+      ],
+      "correct": [
+        "an"
+      ],
+      "translation": {
+        "ru": "Моя старшая сестра — учительница английского в школе.",
+        "uz": "Opam maktabda ingliz tili o'qituvchisi."
+      },
+      "explanation": {
+        "ru": "English начинается с гласного звука, поэтому артикль an: an English teacher.",
+        "uz": "English unli tovush bilan boshlanadi, shuning uchun an artikli: an English teacher."
+      }
+    },
+    {
+      "key": "a1a2-m02-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "wife"
+      ],
+      "text": "My brothers and their ___ came for dinner.",
+      "base": "wife",
+      "accepted": [
+        "wives"
+      ],
+      "translation": {
+        "ru": "Мои братья с жёнами пришли на ужин.",
+        "uz": "Akalarim xotinlari bilan kechki ovqatga kelishdi."
+      },
+      "explanation": {
+        "ru": "Во множественном числе -fe меняется на -ves: wife → wives.",
+        "uz": "Ko'plikda -fe o'rniga -ves yoziladi: wife → wives."
+      }
+    },
+    {
+      "key": "a1a2-m02-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "cousin"
+      ],
+      "text": "I have many ___ in the village.",
+      "base": "cousin",
+      "accepted": [
+        "cousins"
+      ],
+      "translation": {
+        "ru": "У меня в деревне много двоюродных братьев и сестёр.",
+        "uz": "Qishloqda amakivachcha-xolavachchalarim ko'p."
+      },
+      "explanation": {
+        "ru": "После many — множественное число: cousin → cousins.",
+        "uz": "many so'zidan keyin ko'plik keladi: cousin → cousins."
+      }
+    },
+    {
+      "key": "a1a2-m02-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "uncle"
+      ],
+      "text": "My two ___ live in the same village.",
+      "base": "uncle",
+      "accepted": [
+        "uncles"
+      ],
+      "translation": {
+        "ru": "Два моих дяди живут в одной деревне.",
+        "uz": "Ikki amakim bir qishloqda yashaydi."
+      },
+      "explanation": {
+        "ru": "После two — множественное число: uncle → uncles.",
+        "uz": "two so'zidan keyin ko'plik keladi: uncle → uncles."
+      }
+    },
+    {
+      "key": "a1a2-m02-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "grandfather"
+      ],
+      "text": "Both my grandfather and grandmother *is* at home today.",
+      "options": [
+        "are",
+        "be",
+        "am"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "И дедушка, и бабушка сегодня дома.",
+        "uz": "Bobom ham, buvim ham bugun uyda."
+      },
+      "explanation": {
+        "ru": "Both … and — «и …, и …»: это два человека («они»), поэтому are.",
+        "uz": "Both … and — «… ham, … ham»: bu ikki kishi («ular»), shuning uchun are."
+      }
+    },
+    {
+      "key": "a1a2-m02-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "husband"
+      ],
+      "text": "My aunt and her husband *lives* in a big house.",
+      "options": [
+        "live",
+        "living",
+        "is"
+      ],
+      "correct": [
+        "live"
+      ],
+      "translation": {
+        "ru": "Моя тётя и её муж живут в большом доме.",
+        "uz": "Xolam va uning eri katta uyda yashaydi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — два человека («они»), поэтому live без -s.",
+        "uz": "Ega — ikki kishi («ular»), shuning uchun live fe'liga -s qo'shilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m02-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "together"
+      ],
+      "text": "We spent *a* hour together in the park.",
+      "options": [
+        "an",
+        "many",
+        "much"
+      ],
+      "correct": [
+        "an"
+      ],
+      "translation": {
+        "ru": "Мы провели вместе час в парке.",
+        "uz": "Biz parkda birga bir soat vaqt o'tkazdik."
+      },
+      "explanation": {
+        "ru": "В hour буква h не читается, слово начинается с гласного звука, поэтому an hour.",
+        "uz": "hour so'zida h harfi o'qilmaydi, so'z unli tovush bilan boshlanadi, shuning uchun an hour."
+      }
+    },
+    {
+      "key": "a1a2-m02-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "bedroom"
+      ],
+      "text": "Our house has three ___.",
+      "base": "bedroom",
+      "accepted": [
+        "bedrooms"
+      ],
+      "translation": {
+        "ru": "В нашем доме три спальни.",
+        "uz": "Uyimizda uchta yotoqxona bor."
+      },
+      "explanation": {
+        "ru": "После three — множественное число: bedroom → bedrooms.",
+        "uz": "three so'zidan keyin ko'plik keladi: bedroom → bedrooms."
+      }
+    },
+    {
+      "key": "a1a2-m02-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "window"
+      ],
+      "text": "The kitchen has two big ___.",
+      "base": "window",
+      "accepted": [
+        "windows"
+      ],
+      "translation": {
+        "ru": "На кухне два больших окна.",
+        "uz": "Oshxonada ikkita katta deraza bor."
+      },
+      "explanation": {
+        "ru": "Окон два — значит, множественное число: window → windows.",
+        "uz": "Deraza ikkita — demak, ko'plik: window → windows."
+      }
+    },
+    {
+      "key": "a1a2-m02-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "wall"
+      ],
+      "text": "The ___ in my room are blue.",
+      "base": "wall",
+      "accepted": [
+        "walls"
+      ],
+      "translation": {
+        "ru": "Стены в моей комнате синие.",
+        "uz": "Xonamdagi devorlar ko'k rangda."
+      },
+      "explanation": {
+        "ru": "Глагол are показывает множественное число: wall → walls.",
+        "uz": "are fe'li ko'plikni ko'rsatadi: wall → walls."
+      }
+    },
+    {
+      "key": "a1a2-m02-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "kitchen"
+      ],
+      "text": "The kitchen and the bathroom *is* very small.",
+      "options": [
+        "are",
+        "be",
+        "am"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Кухня и ванная очень маленькие.",
+        "uz": "Oshxona va hammom juda kichik."
+      },
+      "explanation": {
+        "ru": "Подлежащее — две вещи (A and B), поэтому are.",
+        "uz": "Ega — ikki narsa (A and B), shuning uchun are."
+      }
+    },
+    {
+      "key": "a1a2-m02-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "door"
+      ],
+      "text": "This house *have* a red door and a big garden.",
+      "options": [
+        "has",
+        "does",
+        "having"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "У этого дома красная дверь и большой сад.",
+        "uz": "Bu uyning eshigi qizil, bog'i esa katta."
+      },
+      "explanation": {
+        "ru": "This house — один дом («оно»), поэтому has, а не have.",
+        "uz": "This house — bitta uy («u»), shuning uchun have emas, has."
+      }
+    },
+    {
+      "key": "a1a2-m02-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "garden"
+      ],
+      "text": "There is *a* apple tree in our garden.",
+      "options": [
+        "an",
+        "many",
+        "much"
+      ],
+      "correct": [
+        "an"
+      ],
+      "translation": {
+        "ru": "В нашем саду растёт яблоня.",
+        "uz": "Bog'imizda olma daraxti bor."
+      },
+      "explanation": {
+        "ru": "Apple начинается с гласного звука, поэтому артикль an: an apple tree.",
+        "uz": "Apple unli tovush bilan boshlanadi, shuning uchun an artikli: an apple tree."
+      }
+    },
+    {
+      "key": "a1a2-m02-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "shelf"
+      ],
+      "text": "There are three ___ on this wall.",
+      "base": "shelf",
+      "accepted": [
+        "shelves"
+      ],
+      "translation": {
+        "ru": "На этой стене три полки.",
+        "uz": "Bu devorda uchta tokcha bor."
+      },
+      "explanation": {
+        "ru": "Во множественном числе -f меняется на -ves: shelf → shelves.",
+        "uz": "Ko'plikda -f o'rniga -ves yoziladi: shelf → shelves."
+      }
+    },
+    {
+      "key": "a1a2-m02-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "key"
+      ],
+      "text": "Where are my ___? I cannot find them.",
+      "base": "key",
+      "accepted": [
+        "keys"
+      ],
+      "translation": {
+        "ru": "Где мои ключи? Я не могу их найти.",
+        "uz": "Kalitlarim qayerda? Ularni topa olmayapman."
+      },
+      "explanation": {
+        "ru": "Are и them показывают множественное число. Перед y гласная, поэтому просто -s: keys.",
+        "uz": "are va them ko'plikni ko'rsatadi. y harfidan oldin unli bor, shuning uchun faqat -s: keys."
+      }
+    },
+    {
+      "key": "a1a2-m02-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "chair"
+      ],
+      "text": "We need four ___ for this table.",
+      "base": "chair",
+      "accepted": [
+        "chairs"
+      ],
+      "translation": {
+        "ru": "Нам нужны четыре стула для этого стола.",
+        "uz": "Bu stol uchun bizga to'rtta stul kerak."
+      },
+      "explanation": {
+        "ru": "После four — множественное число: chair → chairs.",
+        "uz": "four so'zidan keyin ko'plik keladi: chair → chairs."
+      }
+    },
+    {
+      "key": "a1a2-m02-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "lamp"
+      ],
+      "text": "Both lamps in the bedroom *is* broken.",
+      "options": [
+        "are",
+        "be",
+        "am"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Обе лампы в спальне сломаны.",
+        "uz": "Yotoqxonadagi ikkala chiroq ham buzilgan."
+      },
+      "explanation": {
+        "ru": "Lamps — множественное число («они»), поэтому are.",
+        "uz": "Lamps — ko'plikda («ular»), shuning uchun are."
+      }
+    },
+    {
+      "key": "a1a2-m02-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "mirror"
+      ],
+      "text": "Our grandmother gave *I* this beautiful mirror.",
+      "options": [
+        "me",
+        "my",
+        "mine"
+      ],
+      "correct": [
+        "me"
+      ],
+      "translation": {
+        "ru": "Наша бабушка подарила мне это красивое зеркало.",
+        "uz": "Buvimiz menga shu chiroyli ko'zguni sovg'a qildi."
+      },
+      "explanation": {
+        "ru": "После gave нужна форма дополнения: gave me («дала мне»). I бывает только подлежащим.",
+        "uz": "gave fe'lidan keyin to'ldiruvchi shakli keladi: gave me («menga berdi»). I faqat ega bo'ladi."
+      }
+    },
+    {
+      "key": "a1a2-m02-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "bed"
+      ],
+      "text": "My little son goes to bed *in* eight o'clock.",
+      "options": [
+        "at",
+        "on",
+        "for"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "Мой маленький сын ложится спать в восемь часов.",
+        "uz": "Kichkina o'g'lim soat sakkizda uxlashga yotadi."
+      },
+      "explanation": {
+        "ru": "Со временем по часам употребляется at: at eight o'clock. Русское «в» здесь не in.",
+        "uz": "Soat bilan at predlogi ishlatiladi: at eight o'clock."
+      }
+    },
+    {
+      "key": "a1a2-m02-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "wash"
+      ],
+      "text": "Every evening my son ___ the dishes, and I clean the table.",
+      "base": "wash",
+      "accepted": [
+        "washes"
+      ],
+      "translation": {
+        "ru": "Каждый вечер мой сын моет посуду, а я протираю стол.",
+        "uz": "Har kuni kechqurun o'g'lim idishlarni yuvadi, men esa stolni tozalayman."
+      },
+      "explanation": {
+        "ru": "My son — «он», время настоящее (I clean), поэтому после sh добавляется -es: washes.",
+        "uz": "My son — «u», zamon hozirgi (I clean), shuning uchun sh harflaridan keyin -es qo'shiladi: washes."
+      }
+    },
+    {
+      "key": "a1a2-m02-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "close"
+      ],
+      "text": "It was cold, so we ___ the window.",
+      "base": "close",
+      "accepted": [
+        "closed"
+      ],
+      "translation": {
+        "ru": "Было холодно, и мы закрыли окно.",
+        "uz": "Havo sovuq edi, shuning uchun derazani yopdik."
+      },
+      "explanation": {
+        "ru": "Действие в прошлом (was), поэтому close + -d → closed.",
+        "uz": "Harakat o'tgan zamonda (was), shuning uchun close + -d → closed."
+      }
+    },
+    {
+      "key": "a1a2-m02-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "move"
+      ],
+      "text": "Next month we are ___ to another city.",
+      "base": "move",
+      "accepted": [
+        "moving"
+      ],
+      "translation": {
+        "ru": "В следующем месяце мы переезжаем в другой город.",
+        "uz": "Kelasi oy boshqa shaharga ko'chib o'tamiz."
+      },
+      "explanation": {
+        "ru": "После are нужна форма -ing; немая e на конце отпадает: move → moving.",
+        "uz": "are fe'lidan keyin -ing shakli keladi; oxiridagi e harfi tushib qoladi: move → moving."
+      }
+    },
+    {
+      "key": "a1a2-m02-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "live"
+      ],
+      "text": "Both my sisters *lives* in the city.",
+      "options": [
+        "live",
+        "living",
+        "is"
+      ],
+      "correct": [
+        "live"
+      ],
+      "translation": {
+        "ru": "Обе мои сестры живут в городе.",
+        "uz": "Ikkala singlim ham shaharda yashaydi."
+      },
+      "explanation": {
+        "ru": "Sisters — множественное число («они»), поэтому live без -s.",
+        "uz": "Sisters — ko'plikda («ular»), shuning uchun live fe'liga -s qo'shilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m02-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "open"
+      ],
+      "text": "My father *open* his shop at eight every morning.",
+      "options": [
+        "opens",
+        "opening",
+        "to open"
+      ],
+      "correct": [
+        "opens"
+      ],
+      "translation": {
+        "ru": "Мой отец каждое утро открывает свой магазин в восемь.",
+        "uz": "Otam har kuni ertalab do'konini soat sakkizda ochadi."
+      },
+      "explanation": {
+        "ru": "My father — «он», время настоящее, поэтому глагол с -s: opens.",
+        "uz": "My father — «u», zamon hozirgi, shuning uchun fe'lga -s qo'shiladi: opens."
+      }
+    },
+    {
+      "key": "a1a2-m02-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "cook"
+      ],
+      "text": "My grandmother often cooks for *we*.",
+      "options": [
+        "us",
+        "our",
+        "ours"
+      ],
+      "correct": [
+        "us"
+      ],
+      "translation": {
+        "ru": "Бабушка часто готовит для нас.",
+        "uz": "Buvim biz uchun tez-tez ovqat pishiradi."
+      },
+      "explanation": {
+        "ru": "После предлога for нужна форма дополнения: for us. We бывает только подлежащим.",
+        "uz": "for predlogidan keyin to'ldiruvchi shakli keladi: for us. We faqat ega bo'ladi."
+      }
+    }
+  ]
+}

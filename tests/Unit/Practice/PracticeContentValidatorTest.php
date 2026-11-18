@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Practice\Enums\PracticeItemType;
 use App\Domain\Practice\Exceptions\PracticeContentException;
 use App\Domain\Practice\Support\PracticeContentValidator;
+use App\Filament\Resources\Support\AdminErrors;
 
 /*
  * docs/16 §4.5: the rules for the TEXT of a task. Here: the order of the fragments is the first accepted order of a sentence
@@ -250,7 +252,9 @@ it('stores a find-the-mistake without the asterisks, with the number and the cor
 });
 
 it('takes a mark next to punctuation, inside a word with an apostrophe and on a word that stands twice', function (string $text, int $index, string $error, string $stored): void {
-    $content = pcv()->canonical(PracticeItemType::ErrorHunt, pcv_error_hunt(['text' => $text, 'options' => ['information', 'informing', 'informed'], 'correct' => ['information']]));
+    // A mistake in the first word is corrected with capitals (options_case).
+    $options = $index === 0 ? ['There', 'They', 'Theirs'] : ['information', 'informing', 'informed'];
+    $content = pcv()->canonical(PracticeItemType::ErrorHunt, pcv_error_hunt(['text' => $text, 'options' => $options, 'correct' => [$options[0]]]));
 
     expect($content['error_index'])->toBe($index)
         ->and($content['error'])->toBe($error)
@@ -289,6 +293,61 @@ it('refuses each fault of a find-the-mistake with its code and field', function 
     'two correct' => [['correct' => ['in', 'at']], 'correct_invalid', 'correct'],
     'a correct that is no option' => [['correct' => ['by']], 'correct_invalid', 'correct'],
     'correct as a text' => [['correct' => 'in'], 'correct_invalid', 'correct'],
+]);
+
+it('says that an option is too long in words, not in characters', function (): void {
+    $fault = static function (array $options): PracticeContentException {
+        try {
+            pcv()->canonical(PracticeItemType::ErrorHunt, pcv_error_hunt(['options' => $options]));
+        } catch (PracticeContentException $e) {
+            return $e;
+        }
+        throw new RuntimeException('no exception');
+    };
+
+    $words = $fault(['in', 'at the very top', 'for']);
+    $characters = $fault(['in', str_repeat('a', 41), 'for']);
+
+    expect([$words->errorCode, $words->field, $words->context])->toBe(['text_too_long', 'options', ['cause' => 'words', 'max' => 3]])
+        ->and([$characters->errorCode, $characters->context])->toBe(['text_too_long', ['max' => 40]])
+        ->and(AdminErrors::for('practice_items', $words))->toBe('В поле «Варианты» есть вариант длиннее 3 слов.')
+        ->and(AdminErrors::practiceImportIssue(new ImportIssue($words->errorCode, 'English', ['position' => 2, 'key' => 'k', 'field' => 'options', ...$words->context])))
+        ->toBe('Задание №2 («k»): в «options» есть вариант длиннее 3 слов.');
+});
+
+it('refuses corrections whose first letter gives the answer away', function (string $text, array $options, ?string $cause): void {
+    $call = fn () => pcv()->canonical(PracticeItemType::ErrorHunt, pcv_error_hunt(['text' => $text, 'options' => $options, 'correct' => [$options[0]]]));
+
+    if ($cause === null) {
+        expect(pcv_fails($call))->toBe(['', '']);
+
+        return;
+    }
+
+    try {
+        $call();
+        $this->fail('no exception');
+    } catch (PracticeContentException $e) {
+        expect([$e->errorCode, $e->field, $e->context])->toBe(['options_case', 'options', ['cause' => $cause]]);
+    }
+})->with([
+    'the first word, the right one alone in capitals' => ['*Their* is a cat in the garden.', ['There', 'they', 'theirs'], 'first_word'],
+    'the first word, a wrong one in small letters' => ['*Their* is a cat in the garden.', ['There', 'They', 'theirs'], 'first_word'],
+    'the first word, all in small letters' => ['*Their* is a cat in the garden.', ['there', 'they', 'theirs'], 'first_word'],
+    'the first word, all in capitals' => ['*Their* is a cat in the garden.', ['There', 'They', 'Theirs'], null],
+    'inside, the right one alone in capitals' => ['I am very interested *on* modern art.', ['In', 'at', 'for'], 'mixed'],
+    'inside, I among small letters' => ['John and *me* went to the cinema.', ['I', 'myself', 'mine'], 'mixed'],
+    'inside, all in small letters' => ['I am very interested *on* modern art.', ['in', 'at', 'for'], null],
+    'inside, all in capitals (names)' => ['We flew to *Pari* last spring.', ['Paris', 'Prague', 'Perth'], null],
+    'inside, a number has no case' => ['I have *too* cats at home.', ['two', '2', 'to'], null],
+]);
+
+it('words the case of the corrections in Russian, in the editor and on the import page', function (string $cause, string $editor, string $import): void {
+    expect(AdminErrors::for('practice_items', new PracticeContentException('options_case', 'options', 'English', ['cause' => $cause])))->toContain($editor)
+        ->and(AdminErrors::practiceImportIssue(new ImportIssue('options_case', 'English', ['position' => 1, 'key' => 'k', 'field' => 'options', 'cause' => $cause])))->toContain($import);
+})->with([
+    'first word' => ['first_word', 'все три варианта начните с заглавной', 'начинаются с заглавной буквы'],
+    'mixed' => ['mixed', 'одного регистра', 'одного регистра'],
 ]);
 
 it('goes the round canonical -> author form -> canonical for both new types', function (PracticeItemType $type, array $author): void {

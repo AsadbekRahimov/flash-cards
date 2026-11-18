@@ -471,6 +471,8 @@ it('finds the faults an author makes in a pack of the newer types', function ():
         [...$byKey['b1-m01-l2-w3'], 'level' => 'B2'],
         // two words marked
         [...$byKey['b1-m01-l2-e2'], 'text' => 'People of *my generation* use paper maps.'],
+        // the right correction alone in capitals
+        [...$byKey['b1-m01-l2-e3'], 'options' => ['An', 'some', 'many'], 'correct' => ['An']],
     ];
 
     $problems = implode("\n", pxk_task_problems('english-b1', $broken));
@@ -482,7 +484,21 @@ it('finds the faults an author makes in a pack of the newer types', function ():
         ->toContain('b1-m01-l2-e1 explanation.ru: «ты»')
         ->toContain('b1-m01-l2-e1 explanation.uz: «Sen»')
         ->toContain('b1-m01-l2-w3: level B2 in module 1')
-        ->toContain('b1-m01-l2-e2: error_mark_invalid');
+        ->toContain('b1-m01-l2-e2: error_mark_invalid')
+        ->toContain('b1-m01-l2-e3: options_case (options)');
+
+    // The rules of the packs say the same of stored content that never met the validator: the case of the corrections gives the
+    // answer away - one capital inside the sentence, a small letter where the mistake is the first word.
+    $stored = app(PracticeContentValidator::class)->canonical(PracticeItemType::ErrorHunt, $byKey['b1-m01-l2-e3']);
+    $inside = PracticePackRules::errorHuntProblems([...$stored, 'options' => ['an', 'Some', 'many']], $byKey['b1-m01-l2-e3']['target_words']);
+    $first = PracticePackRules::errorHuntProblems(
+        [...$stored, 'text' => 'A elderly man crossed the road.', 'error_index' => 0, 'error' => 'A', 'options' => ['An', 'some', 'Many']],
+        [],
+    );
+    expect($inside)->toContain('the corrections start with letters of different case: the odd one gives the answer away')
+        ->and(implode("\n", $first))->toContain('the mistake is the first word, but a correction starts with a small letter')
+        ->and(PracticePackRules::errorHuntProblems([...$stored, 'text' => 'A elderly man crossed the road.', 'error_index' => 0, 'error' => 'A', 'options' => ['An', 'Some', 'Many']], []))
+        ->toBe([]);
 
     // Read as a real file x01, the sample lacks the other eight lessons of its modules 1 and 2 - and nothing else.
     $whole = pxk_file_problems('english-b1', pxk_files('english-b1', PXK_FIXTURE));

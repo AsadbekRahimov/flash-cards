@@ -390,7 +390,8 @@ final class PracticeContentValidator
                 $this->fail(PracticeContentException::TEXT_TOO_LONG, 'options', "An option is longer than {$longest} characters.", ['max' => $longest]);
             }
             if ($maxWords !== null && count(PracticeTextNormalizer::tokens($option)) > $maxWords) {
-                $this->fail(PracticeContentException::TEXT_TOO_LONG, 'options', "An option is longer than {$maxWords} words.", ['max' => $longest]);
+                // `cause: words` - the limit is in words, not characters: the admin panel says so.
+                $this->fail(PracticeContentException::TEXT_TOO_LONG, 'options', "An option is longer than {$maxWords} words.", ['cause' => 'words', 'max' => $maxWords]);
             }
 
             $reading = PracticeTextNormalizer::normalize($option);
@@ -614,6 +615,19 @@ final class PracticeContentValidator
             if (PracticeTextNormalizer::normalize($option) === $wrong) {
                 $this->fail(PracticeContentException::OPTION_IS_ERROR, 'options', 'An option is the wrong word itself.', ['option' => $option]);
             }
+        }
+
+        // The one option of another case would give the answer away; a mistake in the first word is corrected with a capital.
+        $caseFault = ErrorHuntText::optionsCaseFault($options, $errorIndex);
+        if ($caseFault !== null) {
+            $this->fail(
+                PracticeContentException::OPTIONS_CASE,
+                'options',
+                $caseFault === 'first_word'
+                    ? 'The mistake is the first word: every option must start with a capital letter.'
+                    : 'The options must start with letters of the same case.',
+                ['cause' => $caseFault],
+            );
         }
 
         $rawCorrect = $in['correct'] ?? null;

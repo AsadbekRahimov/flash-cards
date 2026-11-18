@@ -413,11 +413,9 @@ foreach ($files as $file) {
                 if (preg_match('/\A\p{Lu}/u', $sentence) !== 1 || preg_match('/[.!?]\z/', $sentence) !== 1) {
                     $err($where, 'the corrected sentence must start with a capital letter and end with . ! or ?');
                 }
+                // The case of the corrections (all capital for a mistake in the first word, one case otherwise) is an ERROR of the
+                // validator and of errorHuntProblems() above.
                 $tokens = ErrorHuntText::tokens((string) $content['text']);
-                $right = (string) $content['options'][$content['correct'][0]];
-                if ($content['error_index'] === 0 && preg_match('/\A\p{Ll}/u', $right) === 1) {
-                    $warn($where, "the mistake is the first word, but the right correction «{$right}» starts with a small letter");
-                }
                 $others = [];
                 foreach ($tokens as $i => $token) {
                     if ($i !== $content['error_index']) {

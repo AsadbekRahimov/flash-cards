@@ -157,6 +157,28 @@ it('refuses the answer of the other step with 409 step_not_current, and a final 
     expect(PracticeAttempt::query()->where('session_id', $session['id'])->count())->toBe(2);
 });
 
+it('closes the element on a skip after the step locate: skipped, the search kept in the review', function (bool $found): void {
+    // No step in the request: `{skip: true}` ends the element at whichever step it is (docs/16 §5.7).
+    [$learner, $course, $lesson] = ErrorHuntKit::world(3);
+    $session = ErrorHuntKit::open($learner, $course, $lesson)->assertCreated()->json();
+    $stored = ErrorHuntKit::stored($session['id'], $session['current']['id']);
+    $token = ErrorHuntKit::token($stored, wrong: $found);
+
+    ErrorHuntKit::answer($learner, $session['id'], $stored['id'], ['token_id' => $token])->assertOk()->assertJsonPath('session.current.step', 'fix');
+    $skip = ErrorHuntKit::answer($learner, $session['id'], $stored['id'], ['skip' => true])->assertOk();
+
+    expect($skip->json('element_done'))->toBeTrue()
+        ->and($skip->json('verdict'))->toBe('skipped')
+        ->and($skip->json('reveal'))->toMatchArray([
+            'step' => 'fix', 'located_ok' => $found, 'your_token_id' => $token, 'error_token_id' => $stored['error_id'],
+            'fixed_ok' => false, 'your_option_id' => null, 'correct_option_ids' => $stored['correct_ids'],
+        ])
+        ->and($skip->json('session.progress.done'))->toBe(1)
+        ->and($skip->json('session.counters.correct_first'))->toBe(0)
+        ->and($skip->json('session.current.id'))->not->toBe($stored['id'])
+        ->and(PracticeAttempt::query()->where('session_id', $session['id'])->orderBy('id')->pluck('kind')->all())->toBe(['answer', 'skip']);
+})->with(['the mistake found' => [true], 'the mistake not found' => [false]]);
+
 it('takes a token_id of at most 16 characters only', function (): void {
     [$learner, $course, $lesson] = ErrorHuntKit::world(3);
     $session = ErrorHuntKit::open($learner, $course, $lesson)->assertCreated()->json();

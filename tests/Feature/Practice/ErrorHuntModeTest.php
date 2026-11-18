@@ -206,7 +206,9 @@ it('ends the element on "I don\'t know" at either step, with the steps not taken
     $state = ehmLocated($element, right: true);
     $atFix = ehmHandler()->grade($element, ['skip' => true], $state);
     expect($atFix->verdict)->toBe(Verdict::Skipped)
-        ->and($atFix->extra)->toBe(['located' => $state->extra['located'], 'located_ok' => true, 'fixed' => null, 'fixed_ok' => false]);
+        ->and($atFix->final)->toBeTrue()
+        ->and($atFix->extra)->toBe(['located' => $state->extra['located'], 'located_ok' => true, 'fixed' => null, 'fixed_ok' => false])
+        ->and($atFix->reveal)->toMatchArray(['step' => 'fix', 'your_token_id' => $state->extra['located'], 'located_ok' => true, 'your_option_id' => null, 'fixed_ok' => false]);
 });
 
 it('refuses the answer of the other step and an unknown id', function (): void {

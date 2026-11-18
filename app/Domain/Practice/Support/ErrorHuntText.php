@@ -64,6 +64,33 @@ final class ErrorHuntText
     }
 
     /**
+     * What is wrong with the case of the corrections (docs/16 §5.7), null when nothing: the case of a first letter must not give the
+     * answer away. The mistake is the first word: every correction starts with a capital letter (`first_word`) - the corrected sentence
+     * starts with one too. Another word: the corrections that start with a letter start with letters of one case (`mixed`). An option
+     * that does not start with a letter (`2`) has no case.
+     *
+     * @param  list<string>  $options
+     * @return 'first_word'|'mixed'|null
+     */
+    public static function optionsCaseFault(array $options, int $errorIndex): ?string
+    {
+        $cases = [];
+        foreach ($options as $option) {
+            $cases[] = match (true) {
+                preg_match('/\A\p{Lu}/u', $option) === 1 => 'upper',
+                preg_match('/\A\p{Ll}/u', $option) === 1 => 'lower',
+                default => null,
+            };
+        }
+
+        if ($errorIndex === 0) {
+            return in_array('lower', $cases, true) ? 'first_word' : null;
+        }
+
+        return in_array('lower', $cases, true) && in_array('upper', $cases, true) ? 'mixed' : null;
+    }
+
+    /**
      * The author's writing of the stored text: the core of the token `$index` between asterisks.
      *
      * @param  list<string>  $tokens

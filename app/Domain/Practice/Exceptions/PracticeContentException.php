@@ -36,6 +36,7 @@ final class PracticeContentException extends RuntimeException
 
     public const TEXT_REQUIRED = 'text_required';
 
+    /** A text is too long: in characters, or (`cause`: words) an option of a find-the-mistake in words. */
     public const TEXT_TOO_LONG = 'text_too_long';
 
     public const MARKUP_NOT_ALLOWED = 'markup_not_allowed';
@@ -90,6 +91,12 @@ final class PracticeContentException extends RuntimeException
 
     /** "Find the mistake": a correction is the wrong word itself. */
     public const OPTION_IS_ERROR = 'option_is_error';
+
+    /**
+     * "Find the mistake": the case of the first letters gives the right correction away (`cause`: first_word - the mistake is the first
+     * word and a correction starts with a small letter | mixed - the corrections start with letters of different case).
+     */
+    public const OPTIONS_CASE = 'options_case';
 
     /** @var array{field: string, code: string} */
     public readonly array $details;
