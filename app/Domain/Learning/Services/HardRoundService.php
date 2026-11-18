@@ -17,6 +17,7 @@ use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Exceptions\HardRoundException;
 use App\Domain\Learning\Support\HardRoundPolicy;
+use App\Domain\Operations\Support\ScalarBatch;
 use App\Models\Learner;
 use App\Models\TrainingSession;
 use Carbon\CarbonImmutable;
@@ -74,8 +75,10 @@ final class HardRoundService
      * @param  iterable<TrainingSession>|null  $today  the `hard_review` sessions begun in the window, when the caller read them already
      *                                                 (columns id, status, started_at, expires_at, completed_at, meta); read here otherwise
      * @param  Entitlement|null  $entitlement  the learner's plan when the caller resolved it already
+     * @param  int|null  $candidates  how many candidates (up to the size of the round) the caller counted already, in a statement of its
+     *                                own ({@see candidatesQuery()}); null = counted here when the answer needs them
      */
-    public function availability(Learner $learner, ?CarbonImmutable $now = null, ?iterable $today = null, ?Entitlement $entitlement = null): HardRoundAvailability
+    public function availability(Learner $learner, ?CarbonImmutable $now = null, ?iterable $today = null, ?Entitlement $entitlement = null, ?int $candidates = null): HardRoundAvailability
     {
         $now ??= CarbonImmutable::now();
 
@@ -83,6 +86,38 @@ final class HardRoundService
             return new HardRoundAvailability(false, HardRoundAvailability::REASON_DISABLED);
         }
 
+        $settled = $this->settledWithoutCandidates($learner, $now, $today, $entitlement);
+        if ($settled !== null) {
+            return $settled;
+        }
+
+        $found = $candidates ?? count($this->candidates((int) $learner->id, $this->window($learner, $now)->startUtc, $now, $this->policy->words));
+        if ($found < $this->policy->minWords) {
+            return new HardRoundAvailability(false, HardRoundAvailability::REASON_NOT_ENOUGH);
+        }
+
+        return new HardRoundAvailability(true, null, $found);
+    }
+
+    /**
+     * Whether {@see availability()} would have to count the candidates for this learner now: no live round, the day's limit not reached,
+     * an exercise to make the round of. A caller that reads several counters in one statement adds {@see candidatesQuery()} to it only
+     * then (the Today screen, docs/19 K10).
+     *
+     * @param  iterable<TrainingSession>  $today  the `hard_review` sessions begun in the window
+     */
+    public function needsCandidates(Learner $learner, CarbonImmutable $now, iterable $today, ?Entitlement $entitlement = null): bool
+    {
+        return $this->policy->enabled && $this->settledWithoutCandidates($learner, $now, $today, $entitlement) === null;
+    }
+
+    /**
+     * The part of the answer that needs no candidates: the live round, the limit of the day, the exercise. Null = the candidates decide.
+     *
+     * @param  iterable<TrainingSession>|null  $today
+     */
+    private function settledWithoutCandidates(Learner $learner, CarbonImmutable $now, ?iterable $today, ?Entitlement $entitlement): ?HardRoundAvailability
+    {
         $window = $this->window($learner, $now);
         $sessions = [];
         foreach ($today ?? $this->windowSessions($learner, $window->startUtc) as $session) {
@@ -103,12 +138,7 @@ final class HardRoundService
             return new HardRoundAvailability(false, HardRoundAvailability::REASON_NO_OBJECTIVE_EXERCISE);
         }
 
-        $found = count($this->candidates((int) $learner->id, $window->startUtc, $now, $this->policy->words));
-        if ($found < $this->policy->minWords) {
-            return new HardRoundAvailability(false, HardRoundAvailability::REASON_NOT_ENOUGH);
-        }
-
-        return new HardRoundAvailability(true, null, $found);
+        return null;
     }
 
     /**
@@ -118,10 +148,29 @@ final class HardRoundService
      */
     public function candidates(int $learnerId, CarbonImmutable $windowStart, CarbonImmutable $now, int $limit): array
     {
+        /** @var list<int> $ids */
+        $ids = $this->candidatesQuery($learnerId, $windowStart, $now, $limit)
+            ->pluck('wr.word_id')
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->all();
+
+        return $ids;
+    }
+
+    /**
+     * The candidates of the round the learner would open now (`wr.word_id`, hardest first, up to the size of the round) as a query -
+     * for a caller that counts them in one statement with other counters (`select count(*) from (...)`, {@see ScalarBatch::countLimited()}).
+     */
+    public function candidatesQueryFor(Learner $learner, CarbonImmutable $now): QueryBuilder
+    {
+        return $this->candidatesQuery((int) $learner->id, $this->window($learner, $now)->startUtc, $now, $this->policy->words);
+    }
+
+    private function candidatesQuery(int $learnerId, CarbonImmutable $windowStart, CarbonImmutable $now, int $limit): QueryBuilder
+    {
         $horizon = $now->addDays($this->policy->dueWithinDays);
 
-        /** @var list<int> $ids */
-        $ids = DB::table('word_repetitions as wr')
+        return DB::table('word_repetitions as wr')
             ->join('words as w', fn ($join) => $join->on('w.id', '=', 'wr.word_id')->where('w.is_active', true))
             ->where('wr.learner_id', $learnerId)
             // The predicate of `word_repetitions_hard_idx`, constants as in the index: the planner proves it only for the same text.
@@ -137,11 +186,7 @@ final class HardRoundService
             ->orderBy('wr.next_review_at')
             ->orderBy('wr.id')
             ->limit($limit)
-            ->pluck('wr.word_id')
-            ->map(static fn (mixed $id): int => (int) $id)
-            ->all();
-
-        return $ids;
+            ->select('wr.word_id');
     }
 
     /**

@@ -19,8 +19,10 @@ use Illuminate\Support\Facades\DB;
  *
  * The data version the tree is keyed with ({@see CourseCatalogService::courseTreeVersionKey()}) also keys the new-word frontier
  * of every learner of the course (`App\Domain\Learning\Services\NewWordFrontier`), which depends on the course being AVAILABLE
- * to them as well: a saved {@see Course} whose `status`, `visibility` or owner changed moves the version on too (the status
- * change of `CoursePublisher::transition()` does it itself; twice is harmless). A course that is only renamed does not.
+ * to them, and the cached row of the course itself ({@see CourseCatalogService::cachedCourse()}, docs/19 K10), which shows its
+ * title, level and status on the Today screen: ANY saved change of a {@see Course} moves the version on (the status change of
+ * `CoursePublisher::transition()` and the recount do it themselves; twice is harmless). A rename alone drops a tree and a
+ * frontier that were still right - a recomputation, nothing more, and the row shows the new name at once.
  *
  * The course of a lesson is its module's: read from the module when the lesson carries it (the relation is loaded, it is the module
  * asked about, and it has its `course_id` - a module selected without that column does not count), and with one primary-key lookup
@@ -28,15 +30,12 @@ use Illuminate\Support\Facades\DB;
  */
 final class CourseTreeObserver
 {
-    /** The columns of `courses` the availability rule reads (`Course::scopeAvailableTo()`, `CourseCatalogService::isAvailable()`). */
-    private const AVAILABILITY_COLUMNS = ['status', 'visibility', 'owner_type', 'owner_id'];
-
     public function __construct(private readonly CourseCatalogService $catalog) {}
 
     public function saved(Stage|Lesson|Course $model): void
     {
         if ($model instanceof Course) {
-            if ($model->wasChanged(self::AVAILABILITY_COLUMNS)) {
+            if ($model->wasRecentlyCreated || $model->wasChanged()) {
                 $this->forgetAfterCommit([(int) $model->getKey()]);
             }
 

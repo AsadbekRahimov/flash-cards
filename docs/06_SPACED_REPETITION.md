@@ -975,14 +975,14 @@ UPDATE word_repetitions SET next_review_at = :now, updated_at = :now
 только для `hard_review`; `SessionSummary.hardWon/hardTotal`; у остальных режимов `null`); событие `training.session_finished` получает `hard_won`, `hard_total`. `PracticeEntryResolver::forSession` для `hard_review` — `null`.
 Очки — как у любой сессии: оценка + верный (+1 +1), новых слов нет (+2 невозможно), цель дня +10; ограничители накрутки — раз в день, ≤ 10 слов, слова дня исключены, повтор `/review` — 409 `card_not_due`.
 
-**Приглашение**: блок `hard_round` в `GET /today` (+1 оператор: кандидаты; «сыграно сегодня» и открытая hard-сессия едут в том же операторе, что и открытая daily-сессия) и `hard_round_offer` в `/finish` ежедневной сессии / урока
+**Приглашение**: блок `hard_round` в `GET /today` (кандидаты — `count(*)` над тем же запросом с `limit` в общем операторе скаляров экрана, `docs/19` §5.2 K10, и только когда ответ зависит от них — `HardRoundService::needsCandidates()`; «сыграно сегодня» и открытая hard-сессия едут в том же операторе, что и открытая daily-сессия) и `hard_round_offer` в `/finish` ежедневной сессии / урока
 (+2 оператора: сессии окна и кандидаты); `null` в обоих при `enabled = false` и у `/finish` самого раунда. Закрытие просроченных (`training:close-expired`) закрывает `hard_review` как любую личную сессию (`expired`, а доигранную — `finished`).
 Отчёт «Удержание» (`RetentionReportService`): hard-сессия — активность (её оценки в `learner_daily_stats`), но **не** «первое» и **не** «второе занятие» (`mode <> 'hard_review'` в подзапросах).
 Выключатель `LEARNING_HARD_ROUND_ENABLED=false`: блока нет, предложения нет, открытие → 409 `disabled`; уже открытый раунд доигрывается.
 
 Тесты: `tests/Feature/HardRoundTest.php` (политика, кандидаты и границы окна дня Ташкента, смена пояса, горизонт срока (±1 минута, `due_within_days = 0`), невозврат слова после верного ответа, «7 дней подряд» с двойником (SM-2: интервал 25 один раз; FSRS: стабильность не растёт), доступность (в т. ч. `meaning` выключен конфигом), открытие, притягивание в пределах горизонта, scope, пикер, упражнения без `flash`, закрытие просроченных, удержание), `HardRoundFlowTest.php`
 (полный раунд по HTTP для Free / Pro, с аудио и без; 9 из 10; блоки; приглашение; отказы; выключатель; бюджеты), `HardRoundConcurrencyTest.php` (PostgreSQL, fork: одна сессия при одновременных открытиях, открытие ∥ оценка в daily без дедлока),
-`DatabaseSchemaTest` (индексы, откат миграций), план запроса кандидатов на PostgreSQL (`HardRoundTest`), `TwaContractTest` (ключи), бюджеты `TwaTodayMeQueryBudgetTest` (/today 9 при закрытой игре, 11 при `GAME_ACCESS=all`) и `TrainingCycleQueryBudgetTest` (/finish 11).
+`DatabaseSchemaTest` (индексы, откат миграций), план запроса кандидатов на PostgreSQL (`HardRoundTest`), `TwaContractTest` (ключи), бюджеты `TwaTodayMeQueryBudgetTest` (/today у Free 5 при закрытой игре, 6 при `GAME_ACCESS=all` — после K10, `docs/19` §5.2; до него 9 / 11) и `TrainingCycleQueryBudgetTest` (/finish 11).
 
 ## 11. Канонические источники
 - Оригинальный пейпер SM-2: `https://super-memory.com/english/ol/sm2.htm`

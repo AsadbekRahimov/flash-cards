@@ -13,6 +13,7 @@ use App\Domain\Learning\DTO\LevelQuizWeek;
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Exceptions\LevelQuizException;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Operations\Support\ScalarBatch;
 use App\Models\Course;
 use App\Models\ExamAnswer;
 use App\Models\ExamSession;
@@ -313,13 +314,68 @@ final class LevelQuizService
         }
 
         /** @var LevelQuizResultRow|null $row */
-        $row = LevelQuizResultRow::query()
+        $row = $this->weekRowQuery($learner, $course, $weekStart)->first(['correct', 'total', 'finished_at']);
+
+        return $this->weekLineOf($weekStart, $row);
+    }
+
+    /**
+     * The three values of {@see weekLine()} as scalar subqueries - for a caller that reads them in ONE statement with other scalars of the
+     * screen ({@see ScalarBatch}, the Today screen, docs/19 K10): `quiz_correct`, `quiz_total`, `quiz_finished_at`, each a lookup of the same
+     * row by the partial unique index. `[]` while the quiz is off (nothing is read then).
+     *
+     * @return array<string, Builder<LevelQuizResultRow>> alias => subquery
+     */
+    public function weekLineScalars(Learner $learner, Course $course, ?CarbonImmutable $now = null): array
+    {
+        if (! $this->enabled()) {
+            return [];
+        }
+
+        $weekStart = $this->weekStart($learner, $now);
+        $scalars = [];
+        foreach (['correct', 'total', 'finished_at'] as $column) {
+            $scalars['quiz_'.$column] = $this->weekRowQuery($learner, $course, $weekStart)->select($column)->limit(1);
+        }
+
+        return $scalars;
+    }
+
+    /**
+     * {@see weekLine()} from the values of {@see weekLineScalars()} as the driver returned them (`quiz_total` null = no counted result this
+     * week; the types are those of the raw row: int or numeric string, the date as a string).
+     *
+     * @param  array<string, mixed>  $row
+     */
+    public function weekLineFromScalars(Learner $learner, array $row, ?CarbonImmutable $now = null): LevelQuizWeek
+    {
+        $weekStart = $this->weekStart($learner, $now);
+        if (! $this->enabled() || ($row['quiz_total'] ?? null) === null) {
+            return new LevelQuizWeek($this->enabled(), $weekStart, null);
+        }
+
+        // The raw values go through the model's casts, so the line is byte for byte what the row read would have given.
+        $result = (new LevelQuizResultRow)->forceFill([
+            'correct' => $row['quiz_correct'] ?? 0,
+            'total' => $row['quiz_total'],
+            'finished_at' => $row['quiz_finished_at'] ?? null,
+        ]);
+
+        return $this->weekLineOf($weekStart, $result);
+    }
+
+    /** @return Builder<LevelQuizResultRow> the counted result of the week, if any */
+    private function weekRowQuery(Learner $learner, Course $course, string $weekStart): Builder
+    {
+        return LevelQuizResultRow::query()
             ->where('learner_id', $learner->id)
             ->where('course_id', $course->id)
             ->where('week_start', StoredDate::of($weekStart))
-            ->where('scored', true)
-            ->first(['correct', 'total', 'finished_at']);
+            ->where('scored', true);
+    }
 
+    private function weekLineOf(string $weekStart, ?LevelQuizResultRow $row): LevelQuizWeek
+    {
         return new LevelQuizWeek(true, $weekStart, $row === null ? null : [
             'correct' => $row->correct,
             'total' => $row->total,

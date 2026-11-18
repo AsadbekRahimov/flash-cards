@@ -186,20 +186,25 @@ it('reads the day row, yesterday and the freeze stock once for a Free learner, w
     // state (its range read of held days stays). R12i: 11 / 11 / 12 -> 5 / 5 / 6 - the plan is read once (from the cache),
     // today and yesterday in one statement, the due cards and the quota in one statement.
     // R12i: today and yesterday come in ONE statement (`date in (?, ?)`); yesterday is not read on its own any more.
-    // The Free lapse lookup costs one statement and replaces the separate /me request from the home screen.
+    // K10 (docs/19): the lapse banner comes from the Today snapshot of the pure cache (no `subscriptions` read), and the candidates of
+    // the round of hard words ride in the statement of the due cards and the quota. What is left for a learner without a course: the
+    // learner, the day rows, the open sessions, ONE statement of scalars, the league week (not placed - never cached).
     expect(count($queries))->toBe($budget)
+        ->and(QueryLog::matching($queries, '/from ["`]subscriptions["`]/'))->toBe([])
+        ->and(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].* as ["`]due["`], .*hard_candidates/s'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select \* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] in \(\?, \?\)/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select ["`]id["`], .* from ["`]learner_daily_stats["`] where ["`]learner_id["`] = \? and ["`]date["`] = \?/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^select ["`]streak_freezes["`] from ["`]learners["`]/'))->toBe([])
         ->and(QueryLog::matching($queries, '/^(insert|update|delete)/'))->toBe([]);
 })->with([
-    // +1 each: the candidates of the round of hard words (docs/06 §14). GAME_ACCESS=all (the default) adds the two statements of the game block.
-    'never studied, game closed' => ['never studied', 'off', 7],
-    'living series, game closed' => ['living series', 'off', 7],
-    'lapsed series, game closed' => ['lapsed series', 'off', 8],
-    'never studied, game open' => ['never studied', 'all', 9],
-    'living series, game open' => ['living series', 'all', 9],
-    'lapsed series, game open' => ['lapsed series', 'all', 10],
+    // GAME_ACCESS=all (the default) adds the runs of the game; the card of the class caravan is not read for a learner in no group (K10).
+    // Before K10: 7 / 7 / 8 closed, 9 / 9 / 10 open.
+    'never studied, game closed' => ['never studied', 'off', 5],
+    'living series, game closed' => ['living series', 'off', 5],
+    'lapsed series, game closed' => ['lapsed series', 'off', 6],
+    'never studied, game open' => ['never studied', 'all', 6],
+    'living series, game open' => ['living series', 'all', 6],
+    'lapsed series, game open' => ['lapsed series', 'all', 7],
 ]);
 
 it('writes nothing for a Pro learner whose week was handled, and shares today\'s row with the settle on the first read of the week', function (string $game, int $steadyBudget, int $firstBudget): void {
@@ -207,20 +212,22 @@ it('writes nothing for a Pro learner whose week was handled, and shares today\'s
     $handled = todayStreakLearner(3, '2026-10-20', freezes: 1, pro: true, refilledOn: '2026-10-19');
     $steady = todayStreakStatements($this, $handled);
 
-    // Before: 12 statements, two of them UPDATEs of the week marker that matched nothing; R12i: 10 -> 5.
-    expect(count($steady))->toBe($steadyBudget) // 6 with the game closed, 8 open: 5 + the candidates of the round of hard words (docs/06 §14)
+    // Before: 12 statements, two of them UPDATEs of the week marker that matched nothing; R12i: 10 -> 5; K10: the candidates of the
+    // round of hard words ride in the statement of the due cards: 5 with the game closed, 6 open (the runs of the game).
+    expect(count($steady))->toBe($steadyBudget)
         ->and(QueryLog::matching($steady, '/^(insert|update|delete)/'))->toBe([])
         ->and(QueryLog::matching($steady, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1);
 
     $monday = todayStreakLearner(3, '2026-10-20', freezes: 1, pro: true, refilledOn: '2026-10-12');
     $first = todayStreakStatements($this, $monday, fn (Learner $l) => $l->forceFill(['streak_freezes' => 1, 'streak_freezes_refilled_on' => '2026-10-12'])->save());
 
-    // Before: 14 statements - today's row was read for the settle and again for the goal block; R12i: 13 -> 8.
-    expect(count($first))->toBe($firstBudget) // 9 with the game closed, 11 open: 8 + the candidates of the round of hard words (docs/06 §14)
+    // Before: 14 statements - today's row was read for the settle and again for the goal block; R12i: 13 -> 8; K10: 8 closed, 9 open
+    // (the steady state + the stock read before the refill, the refill, the stock read after it).
+    expect(count($first))->toBe($firstBudget)
         ->and(QueryLog::matching($first, '/^select \* from ["`]learner_daily_stats["`] where/'))->toHaveCount(1)
         ->and(QueryLog::matching($first, '/^update ["`]learners["`] set ["`]streak_freezes["`] = ["`]streak_freezes["`] \+ 1/'))->toHaveCount(1)
         ->and(todayStreakStored($monday)['freezes'])->toBe(2);
-})->with(['game closed' => ['off', 6, 9], 'game open' => ['all', 8, 11]]);
+})->with(['game closed' => ['off', 5, 8], 'game open' => ['all', 6, 9]]);
 
 it('settles a Free learner\'s series exactly once: the state is the one two reads would have left', function (): void {
     $learner = todayStreakLearner(4, '2026-10-17', freezes: 2);
