@@ -919,7 +919,7 @@ it('validates /settings values against the same whitelists', function (string $d
 })->with([
     'unknown goal' => ['set1:goal:hacker'],
     'unknown step' => ['set1:role:admin'],
-    'level C2' => ['set1:level:C2'],
+    'level C3' => ['set1:level:C3'],
 ]);
 
 it('sends a learner who has not finished the onboarding back to it on /settings and ignores set1 buttons', function (): void {

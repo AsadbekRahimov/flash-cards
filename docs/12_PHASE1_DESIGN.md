@@ -845,7 +845,7 @@ flowchart TD
     D -- done --> H["/today: кнопка «Открыть LexiFlow»"]
     D -- иначе --> E["Шаг locale: 🇺🇿 O'zbekcha / 🇷🇺 Русский"]
     E --> F["Шаг goal: Общий английский / IELTS / SAT / Школа"]
-    F --> G["Шаг level: A1 / A2 / B1 / B2 / Не знаю (→A1)"]
+    F --> G["Шаг level: A1 / A2 / B1 / B2 / C1 / C2 / Не знаю (→A1)"]
     G --> I["(Шаг timezone — убран 2026-11-16)"]
     I --> J["Шаг reminder: 08:00 / 13:00 / 19:00 / 21:00 / Без напоминаний"]
     J --> K["recommend(goal, level) → active_course_id; state=done; onboarding.completed"]
