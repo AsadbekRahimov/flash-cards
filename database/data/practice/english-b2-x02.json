@@ -88,7 +88,7 @@
       "target_words": [
         "inflation"
       ],
-      "text": "Inflation has *raised* sharply since the spring, so food costs more.",
+      "text": "Since the spring, inflation has *raised* to its highest level in years.",
       "options": [
         "risen",
         "rose",
@@ -98,11 +98,11 @@
         "risen"
       ],
       "translation": {
-        "ru": "С весны инфляция резко выросла, поэтому еда стоит дороже.",
-        "uz": "Bahordan beri inflyatsiya keskin oshdi, shuning uchun oziq-ovqat qimmatlashdi."
+        "ru": "С весны инфляция выросла до самого высокого уровня за много лет.",
+        "uz": "Bahordan beri inflyatsiya so'nggi yillardagi eng yuqori darajaga ko'tarildi."
       },
       "explanation": {
-        "ru": "raise (raised) — поднимать что-то, нужен объект; rise (rose, risen) — расти самому. Инфляция растёт сама, после has — причастие risen.",
+        "ru": "raise (raised) — поднимать что-то, нужно дополнение; rise (rose, risen) — расти самому. Инфляция растёт сама, после has нужно причастие risen.",
         "uz": "raise (raised) — biror narsani ko'tarmoq, to'ldiruvchi kerak; rise (rose, risen) — o'zi oshmoq. Inflyatsiya o'zi oshadi, has so'zidan keyin risen sifatdoshi keladi."
       }
     },
@@ -283,7 +283,7 @@
       "options": [
         "overdue",
         "outdated",
-        "overdone"
+        "overtime"
       ],
       "correct": [
         "overdue"
@@ -308,7 +308,7 @@
       "target_words": [
         "installment"
       ],
-      "text": "Each monthly installment must *pay* on time, or the bank adds a fee.",
+      "text": "Each monthly installment must *pay* on time, or the bank charges extra.",
       "options": [
         "be paid",
         "be paying",
@@ -318,8 +318,8 @@
         "be paid"
       ],
       "translation": {
-        "ru": "Каждый ежемесячный взнос нужно вносить вовремя, иначе банк начисляет штраф.",
-        "uz": "Har bir oylik to'lov o'z vaqtida to'lanishi kerak, aks holda bank jarima qo'shadi."
+        "ru": "Каждый ежемесячный взнос нужно вносить вовремя, иначе банк берёт дополнительную плату.",
+        "uz": "Har bir oylik to'lov o'z vaqtida to'lanishi kerak, aks holda bank qo'shimcha haq oladi."
       },
       "explanation": {
         "ru": "Взнос не платит сам — его платят: нужен пассив после модального глагола: must be + третья форма (must be paid).",
@@ -344,7 +344,7 @@
       ],
       "translation": {
         "ru": "Покупка земли в новом городе — крайне спекулятивное вложение.",
-        "uz": "Yangi shahardan yer sotib olish juda xavfli, spekulyativ sarmoya hisoblanadi."
+        "uz": "Yangi shahardan yer sotib olish o'ta spekulyativ sarmoyadir."
       },
       "explanation": {
         "ru": "Между a highly и существительным investment нужно прилагательное: speculate → speculative (-ate → -ative).",
@@ -394,7 +394,7 @@
       ],
       "translation": {
         "ru": "В прошлом году мой брокер дал мне исключительно хороший совет.",
-        "uz": "O'tgan yili brokerim menga juda ajoyib maslahat berdi."
+        "uz": "O'tgan yili brokerim menga favqulodda yaxshi maslahat berdi."
       },
       "explanation": {
         "ru": "Прилагательное good усиливается наречием. Два шага: except → exception (-ion) → exceptional (-al) → exceptionally (-ly).",
@@ -415,8 +415,8 @@
       "text": "She owns a large *steak* in the family business.",
       "options": [
         "stake",
-        "stack",
-        "stage"
+        "stage",
+        "state"
       ],
       "correct": [
         "stake"
@@ -646,8 +646,8 @@
         "uz": "Kichik teatr faqat yangi moliyalashtirish olgani tufayli saqlanib qoldi."
       },
       "explanation": {
-        "ru": "funding — неисчисляемое существительное, окончания -s у него нет. fund в единственном числе нужен артикль a.",
-        "uz": "funding — sanalmaydigan ot, -s qo'shimchasini olmaydi. Birlikdagi fund so'zidan oldin a artikli kerak bo'lardi."
+        "ru": "funding — неисчисляемое существительное, окончания -s у него не бывает. Во множественном числе говорят funds, но не fundings.",
+        "uz": "funding — sanalmaydigan ot, -s qo'shimchasini olmaydi. Ko'plik ma'nosida funds deyiladi, fundings emas."
       }
     },
     {
@@ -898,22 +898,22 @@
       "target_words": [
         "hypothesis"
       ],
-      "text": "Both *hypothesis* were tested, but neither was confirmed.",
+      "text": "We tested the hypothesis *what* music helps plants grow.",
       "options": [
-        "hypotheses",
-        "hypothesis's",
-        "hypothesizes"
+        "that",
+        "which",
+        "when"
       ],
       "correct": [
-        "hypotheses"
+        "that"
       ],
       "translation": {
-        "ru": "Обе гипотезы проверили, но ни одна не подтвердилась.",
-        "uz": "Ikkala gipoteza ham tekshirildi, lekin birortasi ham tasdiqlanmadi."
+        "ru": "Мы проверили гипотезу о том, что музыка помогает растениям расти.",
+        "uz": "Biz musiqa o'simliklarning o'sishiga yordam beradi degan gipotezani tekshirdik."
       },
       "explanation": {
-        "ru": "Both и were требуют множественного числа. hypothesis — греческое слово: -is → -es (hypotheses), как crisis → crises.",
-        "uz": "Both va were ko'plikni talab qiladi. hypothesis — yunoncha so'z: -is o'rniga -es (hypotheses), crisis → crises kabi."
+        "ru": "Содержание гипотезы (как после idea, fact, belief) вводит союз that. Русское «что» здесь не what: what после существительного не ставится.",
+        "uz": "Gipotezaning mazmunini (idea, fact, belief so'zlaridan keyingi kabi) that bog'lovchisi kiritadi. Otdan keyin what ishlatilmaydi."
       }
     },
     {
@@ -1016,8 +1016,8 @@
         "probability"
       ],
       "translation": {
-        "ru": "Какова вероятность выбросить две шестёрки подряд?",
-        "uz": "Ketma-ket ikki marta olti tushish ehtimolligi qancha?"
+        "ru": "Какова вероятность выбросить на кубике две шестёрки подряд?",
+        "uz": "O'yin soqqasida ketma-ket ikki marta olti tushish ehtimolligi qancha?"
       },
       "explanation": {
         "ru": "Между the и of нужно существительное: probable → probability (-able → -ability).",
@@ -1388,7 +1388,7 @@
       "options": [
         "nucleus",
         "nuclei",
-        "nucleic"
+        "nucleus's"
       ],
       "correct": [
         "nucleus"
@@ -1546,7 +1546,7 @@
       "target_words": [
         "journal"
       ],
-      "text": "Two of his papers came out *on* a leading physics journal last year.",
+      "text": "Two of his papers came out *on* a leading physics journal.",
       "options": [
         "in",
         "at",
@@ -1556,8 +1556,8 @@
         "in"
       ],
       "translation": {
-        "ru": "В прошлом году две его статьи вышли в ведущем журнале по физике.",
-        "uz": "O'tgan yili uning ikkita maqolasi yetakchi fizika jurnalida chiqdi."
+        "ru": "Две его статьи вышли в ведущем журнале по физике.",
+        "uz": "Uning ikkita maqolasi yetakchi fizika jurnalida chiqdi."
       },
       "explanation": {
         "ru": "Статья выходит в журнале, внутри издания: in a journal. Предлог on здесь неверен.",
@@ -1578,8 +1578,8 @@
       "text": "Her *doctor* in biology took five years of hard work.",
       "options": [
         "doctorate",
-        "doctoral",
-        "doctrine"
+        "doctrine",
+        "doctoring"
       ],
       "correct": [
         "doctorate"
@@ -1589,8 +1589,8 @@
         "uz": "Biologiya bo'yicha doktorlik darajasi unga besh yillik mashaqqatli mehnat evaziga keldi."
       },
       "explanation": {
-        "ru": "doctor — человек (врач или доктор наук); степень называется doctorate. doctoral — прилагательное, doctrine — учение.",
-        "uz": "doctor — odam (shifokor yoki fan doktori); daraja esa doctorate deyiladi. doctoral — sifat, doctrine — ta'limot."
+        "ru": "doctor — человек (врач или доктор наук); учёная степень называется doctorate. doctrine — учение, доктрина.",
+        "uz": "doctor — odam (shifokor yoki fan doktori); ilmiy daraja esa doctorate deyiladi. doctrine — ta'limot."
       }
     },
     {
