@@ -1,0 +1,1626 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-a1-a2",
+  "items": [
+    {
+      "key": "a1a2-m09-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "hand"
+      ],
+      "text": "Yesterday the nurse ___ me a glass of water.",
+      "base": "hand",
+      "accepted": [
+        "handed"
+      ],
+      "translation": {
+        "ru": "Вчера медсестра подала мне стакан воды.",
+        "uz": "Kecha hamshira menga bir stakan suv uzatdi."
+      },
+      "explanation": {
+        "ru": "Здесь hand — глагол «подать, передать рукой». Yesterday требует прошедшего времени: hand + -ed → handed.",
+        "uz": "Bu yerda hand — «uzatmoq, qo'l bilan bermoq» fe'li. Yesterday so'zi o'tgan zamonni talab qiladi: hand + -ed → handed."
+      }
+    },
+    {
+      "key": "a1a2-m09-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "eye"
+      ],
+      "text": "My grandmother's ___ are not very good, so she wears glasses.",
+      "base": "eye",
+      "accepted": [
+        "eyes"
+      ],
+      "translation": {
+        "ru": "У моей бабушки слабые глаза, поэтому она носит очки.",
+        "uz": "Buvimning ko'zlari unchalik yaxshi emas, shuning uchun u ko'zoynak taqadi."
+      },
+      "explanation": {
+        "ru": "Глагол are показывает, что подлежащее во множественном числе: eye → eyes. Сравните: her eye is…, her eyes are….",
+        "uz": "are fe'li eganing ko'plikda ekanini ko'rsatadi: eye → eyes. Solishtiring: her eye is…, her eyes are…."
+      }
+    },
+    {
+      "key": "a1a2-m09-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "arm"
+      ],
+      "text": "My father lifted the baby with both ___ and smiled.",
+      "base": "arm",
+      "accepted": [
+        "arms"
+      ],
+      "translation": {
+        "ru": "Папа поднял малыша обеими руками и улыбнулся.",
+        "uz": "Dadam chaqaloqni ikkala qo'li bilan ko'tarib oldi va jilmaydi."
+      },
+      "explanation": {
+        "ru": "После both («обе») нужно множественное число: arm → arms.",
+        "uz": "both («ikkala») so'zidan keyin ko'plik kerak: arm → arms."
+      }
+    },
+    {
+      "key": "a1a2-m09-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "hair"
+      ],
+      "text": "My daughter's hair *are* short, and she washes it daily.",
+      "options": [
+        "is",
+        "be",
+        "have"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "У моей дочери короткие волосы, и она моет их каждый день.",
+        "uz": "Qizimning sochi kalta, u sochini har kuni yuvadi."
+      },
+      "explanation": {
+        "ru": "Hair («волосы») в английском — неисчисляемое существительное, глагол с ним в единственном числе: hair is; о нём говорят it. Русское «волосы» здесь сбивает.",
+        "uz": "Hair («soch») ingliz tilida sanalmaydigan ot, u bilan fe'l birlikda keladi: hair is; unga it olmoshi ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m09-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "head"
+      ],
+      "text": "*Do* his head still hurt today?",
+      "options": [
+        "Does",
+        "Are",
+        "Am"
+      ],
+      "correct": [
+        "Does"
+      ],
+      "translation": {
+        "ru": "У него сегодня всё ещё болит голова?",
+        "uz": "Uning boshi bugun hali ham og'riyaptimi?"
+      },
+      "explanation": {
+        "ru": "His head — 3-е лицо единственного числа («она»), поэтому в вопросе Does, а не Do. После does глагол hurt остаётся без -s.",
+        "uz": "His head — uchinchi shaxs birlik, shuning uchun so'roqda Do emas, Does keladi. Does so'zidan keyin hurt fe'li -s olmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m09-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "leg"
+      ],
+      "text": "A spider has eight thin *leg* and many eyes.",
+      "options": [
+        "legs",
+        "leg's",
+        "a leg"
+      ],
+      "correct": [
+        "legs"
+      ],
+      "translation": {
+        "ru": "У паука восемь тонких ног и много глаз.",
+        "uz": "O'rgimchakning sakkizta ingichka oyog'i va ko'plab ko'zlari bor."
+      },
+      "explanation": {
+        "ru": "После числа больше единицы существительное во множественном числе: eight legs. Апостроф ('s) означает принадлежность, а не множественное число.",
+        "uz": "Birdan katta sondan keyin ot ko'plikda keladi: eight legs (o'zbekchadagi «sakkizta oyoq» kabi birlikda emas). Apostrof ('s) qaratqichni bildiradi, ko'plikni emas."
+      }
+    },
+    {
+      "key": "a1a2-m09-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "tooth"
+      ],
+      "text": "Our baby is ten months old and already has six ___.",
+      "base": "tooth",
+      "accepted": [
+        "teeth"
+      ],
+      "translation": {
+        "ru": "Нашему малышу десять месяцев, и у него уже шесть зубов.",
+        "uz": "Chaqalog'imiz o'n oylik, allaqachon oltita tishi chiqqan."
+      },
+      "explanation": {
+        "ru": "После six нужно множественное число. Tooth — исключение: oo меняется на ee, tooth → teeth (не tooths).",
+        "uz": "six so'zidan keyin ko'plik kerak. Tooth — istisno: oo o'rniga ee yoziladi, tooth → teeth (tooths emas)."
+      }
+    },
+    {
+      "key": "a1a2-m09-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "body"
+      ],
+      "text": "Doctors say that our ___ need a lot of sleep.",
+      "base": "body",
+      "accepted": [
+        "bodies"
+      ],
+      "translation": {
+        "ru": "Врачи говорят, что нашему телу нужно много сна.",
+        "uz": "Shifokorlarning aytishicha, tanamizga ko'p uyqu kerak."
+      },
+      "explanation": {
+        "ru": "Глагол need без -s показывает множественное число: our bodies need. Если перед -y согласная, y → ies: body → bodies.",
+        "uz": "need fe'lining -s olmagani ko'plikni ko'rsatadi: our bodies need. -y dan oldin undosh bo'lsa, y → ies: body → bodies."
+      }
+    },
+    {
+      "key": "a1a2-m09-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "finger"
+      ],
+      "text": "This ring is too small for any of my ___.",
+      "base": "finger",
+      "accepted": [
+        "fingers"
+      ],
+      "translation": {
+        "ru": "Это кольцо мало на любой из моих пальцев.",
+        "uz": "Bu uzuk barmoqlarimning hech biriga to'g'ri kelmaydi, juda kichkina."
+      },
+      "explanation": {
+        "ru": "После any of my («любой из моих») нужно множественное число: any of my fingers.",
+        "uz": "any of my birikmasidan keyin ot ko'plikda keladi: any of my fingers («barmoqlarimning birortasi»)."
+      }
+    },
+    {
+      "key": "a1a2-m09-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "foot"
+      ],
+      "text": "These shoes are too small for my left *leg*.",
+      "options": [
+        "foot",
+        "feet",
+        "legs"
+      ],
+      "correct": [
+        "foot"
+      ],
+      "translation": {
+        "ru": "Эти ботинки малы мне на левую ногу.",
+        "uz": "Bu poyabzal chap oyog'imga tor."
+      },
+      "explanation": {
+        "ru": "Русское «нога» — это и leg (вся нога), и foot (ступня). Обувь носят на foot; my left — одна ступня, поэтому foot, а не feet.",
+        "uz": "O'zbekcha «oyoq» ham leg (butun oyoq), ham foot (oyoq panjasi). Poyabzal foot uchun; my left — bitta oyoq, shuning uchun feet emas, foot."
+      }
+    },
+    {
+      "key": "a1a2-m09-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "shoulder"
+      ],
+      "text": "My father carries my little brother *in* his shoulders.",
+      "options": [
+        "on",
+        "at",
+        "to"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Папа носит моего младшего брата на плечах.",
+        "uz": "Dadam ukamni yelkasida ko'tarib yuradi."
+      },
+      "explanation": {
+        "ru": "На поверхности чего-то — on: on his shoulders («на плечах»). In значит «внутри».",
+        "uz": "Biror narsaning ustida — on: on his shoulders («yelkasida»). In esa «ichida» degani; o'zbekcha -da qo'shimchasi har doim in emas."
+      }
+    },
+    {
+      "key": "a1a2-m09-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "knee"
+      ],
+      "text": "My grandfather is old, and both his knees *hurts*.",
+      "options": [
+        "hurt",
+        "hurting",
+        "is hurt"
+      ],
+      "correct": [
+        "hurt"
+      ],
+      "translation": {
+        "ru": "Мой дедушка старый, и у него болят оба колена.",
+        "uz": "Bobom qarib qolgan, ikkala tizzasi ham og'riydi."
+      },
+      "explanation": {
+        "ru": "Подлежащее both his knees — во множественном числе, поэтому глагол без -s: knees hurt. -s нужно только при подлежащем в 3-м лице единственного числа.",
+        "uz": "Ega — both his knees, ko'plikda, shuning uchun fe'l -s olmaydi: knees hurt. -s faqat ega uchinchi shaxs birlikda bo'lganda qo'shiladi."
+      }
+    },
+    {
+      "key": "a1a2-m09-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "healthy"
+      ],
+      "text": "Vegetables are ___ than cake, so eat more of them.",
+      "base": "healthy",
+      "accepted": [
+        "healthier"
+      ],
+      "translation": {
+        "ru": "Овощи полезнее торта, поэтому ешьте их больше.",
+        "uz": "Sabzavotlar tortdan foydaliroq, shuning uchun ularni ko'proq yeng."
+      },
+      "explanation": {
+        "ru": "Перед than нужна сравнительная степень. У прилагательных на -y после согласной y → i + er: healthy → healthier.",
+        "uz": "than so'zidan oldin qiyosiy daraja kerak. Undoshdan keyin -y bilan tugagan sifatlarda y → i + er: healthy → healthier."
+      }
+    },
+    {
+      "key": "a1a2-m09-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "cough"
+      ],
+      "text": "Last night my son ___ only twice, so he is better now.",
+      "base": "cough",
+      "accepted": [
+        "coughed"
+      ],
+      "translation": {
+        "ru": "Прошлой ночью сын кашлянул всего два раза, так что ему уже лучше.",
+        "uz": "Kechasi o'g'lim atigi ikki marta yo'taldi, shuning uchun hozir ahvoli yaxshiroq."
+      },
+      "explanation": {
+        "ru": "Здесь cough — глагол «кашлять». Last night требует прошедшего времени: cough + -ed → coughed.",
+        "uz": "Bu yerda cough — «yo'talmoq» fe'li. Last night birikmasi o'tgan zamonni talab qiladi: cough + -ed → coughed."
+      }
+    },
+    {
+      "key": "a1a2-m09-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "hurt"
+      ],
+      "text": "When I sit at my computer all day, my neck ___.",
+      "base": "hurt",
+      "accepted": [
+        "hurts"
+      ],
+      "translation": {
+        "ru": "Когда я весь день сижу за компьютером, у меня болит шея.",
+        "uz": "Kun bo'yi kompyuter oldida o'tirsam, bo'ynim og'riydi."
+      },
+      "explanation": {
+        "ru": "My neck — 3-е лицо единственного числа, время настоящее (I sit), поэтому hurt + -s → hurts.",
+        "uz": "My neck — uchinchi shaxs birlik, zamon hozirgi (I sit), shuning uchun hurt + -s → hurts."
+      }
+    },
+    {
+      "key": "a1a2-m09-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "pill"
+      ],
+      "text": "Put *this* pills away: they are not for children.",
+      "options": [
+        "these",
+        "that",
+        "each"
+      ],
+      "correct": [
+        "these"
+      ],
+      "translation": {
+        "ru": "Уберите эти таблетки: они не для детей.",
+        "uz": "Bu tabletkalarni olib qo'ying: ular bolalar uchun emas."
+      },
+      "explanation": {
+        "ru": "Pills — множественное число (это подтверждает и they), поэтому this → these. This, that и each ставятся только перед единственным числом.",
+        "uz": "Pills — ko'plikda (they olmoshi ham shuni ko'rsatadi), shuning uchun this → these. This, that va each faqat birlikdagi ot oldidan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m09-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "medicine"
+      ],
+      "text": "This medicine *make* me tired every time I take it.",
+      "options": [
+        "makes",
+        "making",
+        "to make"
+      ],
+      "correct": [
+        "makes"
+      ],
+      "translation": {
+        "ru": "От этого лекарства я устаю каждый раз, когда его принимаю.",
+        "uz": "Bu dorini har safar ichganimda charchab qolaman."
+      },
+      "explanation": {
+        "ru": "This medicine — 3-е лицо единственного числа, время настоящее (I take), поэтому make + -s → makes.",
+        "uz": "This medicine — uchinchi shaxs birlik, zamon hozirgi (I take), shuning uchun make + -s → makes."
+      }
+    },
+    {
+      "key": "a1a2-m09-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "fever"
+      ],
+      "text": "When my son *is* a fever, he sleeps all day.",
+      "options": [
+        "has",
+        "have",
+        "does"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "Когда у моего сына температура, он весь день спит.",
+        "uz": "O'g'limning isitmasi chiqsa, kun bo'yi uxlaydi."
+      },
+      "explanation": {
+        "ru": "О жаре, кашле, головной боли говорят с глаголом have: have a fever. С he (my son) — has. «У него температура» — не is.",
+        "uz": "Isitma, yo'tal, bosh og'rig'i haqida have fe'li ishlatiladi: have a fever. he (my son) bilan — has. «Isitmasi bor» — is emas."
+      }
+    },
+    {
+      "key": "a1a2-m09-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "sleep"
+      ],
+      "text": "Last night I ___ only four hours, so I am tired.",
+      "base": "sleep",
+      "accepted": [
+        "slept"
+      ],
+      "translation": {
+        "ru": "Прошлой ночью я спал всего четыре часа, поэтому я устал.",
+        "uz": "Kecha tunda atigi to'rt soat uxladim, shuning uchun charchaganman."
+      },
+      "explanation": {
+        "ru": "Last night — прошедшее время. Sleep — неправильный глагол: sleep → slept (не sleeped).",
+        "uz": "Last night — o'tgan zamon. Sleep — noto'g'ri fe'l: sleep → slept (sleeped emas)."
+      }
+    },
+    {
+      "key": "a1a2-m09-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "brush"
+      ],
+      "text": "My son ___ his teeth after every meal, and I check them.",
+      "base": "brush",
+      "accepted": [
+        "brushes"
+      ],
+      "translation": {
+        "ru": "Мой сын чистит зубы после каждой еды, а я их проверяю.",
+        "uz": "O'g'lim har ovqatdan keyin tishlarini tozalaydi, men esa tekshirib turaman."
+      },
+      "explanation": {
+        "ru": "My son — «он», время настоящее (I check), поэтому нужно -s. После sh пишется -es: brush → brushes.",
+        "uz": "My son — «u», zamon hozirgi (I check), shuning uchun -s kerak. sh harflaridan keyin -es yoziladi: brush → brushes."
+      }
+    },
+    {
+      "key": "a1a2-m09-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "smile"
+      ],
+      "text": "My grandmother is ___ because all her children are here.",
+      "base": "smile",
+      "accepted": [
+        "smiling"
+      ],
+      "translation": {
+        "ru": "Бабушка улыбается, потому что все её дети здесь.",
+        "uz": "Buvim jilmayib turibdi, chunki hamma farzandlari shu yerda."
+      },
+      "explanation": {
+        "ru": "После is нужна форма на -ing (действие происходит сейчас). Немое e в конце отпадает: smile → smiling.",
+        "uz": "is so'zidan keyin -ing shakli kerak (harakat hozir bo'lyapti). Oxiridagi o'qilmaydigan e tushib qoladi: smile → smiling."
+      }
+    },
+    {
+      "key": "a1a2-m09-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "breathe"
+      ],
+      "text": "It is hot in this room, and I cannot *breath*.",
+      "options": [
+        "breathe",
+        "breathing",
+        "breathes"
+      ],
+      "correct": [
+        "breathe"
+      ],
+      "translation": {
+        "ru": "В этой комнате жарко, и я не могу дышать.",
+        "uz": "Bu xonada issiq, nafas ololmayapman."
+      },
+      "explanation": {
+        "ru": "Breath — существительное («дыхание»), breathe — глагол («дышать»). После cannot нужен глагол в начальной форме: cannot breathe.",
+        "uz": "Breath — ot («nafas»), breathe — fe'l («nafas olmoq»). cannot so'zidan keyin fe'lning boshlang'ich shakli keladi: cannot breathe."
+      }
+    },
+    {
+      "key": "a1a2-m09-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "wake"
+      ],
+      "text": "My father *wake* up at five and then makes tea.",
+      "options": [
+        "wakes",
+        "waking",
+        "woken"
+      ],
+      "correct": [
+        "wakes"
+      ],
+      "translation": {
+        "ru": "Мой папа просыпается в пять и потом заваривает чай.",
+        "uz": "Dadam soat beshda uyg'onadi va keyin choy damlaydi."
+      },
+      "explanation": {
+        "ru": "My father — «он», время настоящее (второй глагол makes), поэтому wake + -s → wakes.",
+        "uz": "My father — «u», zamon hozirgi (ikkinchi fe'l makes), shuning uchun wake + -s → wakes."
+      }
+    },
+    {
+      "key": "a1a2-m09-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "soap"
+      ],
+      "text": "There *are* only a little soap in the bottle.",
+      "options": [
+        "is",
+        "be",
+        "have"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "В бутылке совсем мало мыла.",
+        "uz": "Idishda juda oz sovun bor."
+      },
+      "explanation": {
+        "ru": "Soap («мыло») — неисчисляемое существительное, поэтому There is: there is a little soap. There are ставится перед множественным числом.",
+        "uz": "Soap («sovun») — sanalmaydigan ot, shuning uchun There is: there is a little soap. There are esa ko'plikdagi ot oldidan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m09-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "hold"
+      ],
+      "text": "Yesterday I ___ my sister's baby for the first time.",
+      "base": "hold",
+      "accepted": [
+        "held"
+      ],
+      "translation": {
+        "ru": "Вчера я впервые подержал на руках ребёнка моей сестры.",
+        "uz": "Kecha birinchi marta opamning chaqalog'ini qo'limda ushlab ko'rdim."
+      },
+      "explanation": {
+        "ru": "Yesterday — прошедшее время. Hold — неправильный глагол: hold → held (не holded).",
+        "uz": "Yesterday — o'tgan zamon. Hold — noto'g'ri fe'l: hold → held (holded emas)."
+      }
+    },
+    {
+      "key": "a1a2-m09-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "carry"
+      ],
+      "text": "My son always ___ the shopping bags, and I open the door.",
+      "base": "carry",
+      "accepted": [
+        "carries"
+      ],
+      "translation": {
+        "ru": "Сумки с покупками всегда несёт мой сын, а я открываю дверь.",
+        "uz": "Xarid sumkalarini doim o'g'lim ko'taradi, men esa eshikni ochaman."
+      },
+      "explanation": {
+        "ru": "My son — «он», время настоящее (I open), поэтому нужно -s. Если перед y согласная, y → ies: carry → carries.",
+        "uz": "My son — «u», zamon hozirgi (I open), shuning uchun -s kerak. y dan oldin undosh bo'lsa, y → ies: carry → carries."
+      }
+    },
+    {
+      "key": "a1a2-m09-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "see"
+      ],
+      "text": "Last summer we ___ a big brown bear in the forest.",
+      "base": "see",
+      "accepted": [
+        "saw"
+      ],
+      "translation": {
+        "ru": "Прошлым летом мы видели в лесу большого бурого медведя.",
+        "uz": "O'tgan yozda o'rmonda katta qo'ng'ir ayiq ko'rdik."
+      },
+      "explanation": {
+        "ru": "Last summer — прошедшее время. See — неправильный глагол: see → saw.",
+        "uz": "Last summer — o'tgan zamon. See — noto'g'ri fe'l: see → saw."
+      }
+    },
+    {
+      "key": "a1a2-m09-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "cry"
+      ],
+      "text": "My little sister *crys* when she is hungry.",
+      "options": [
+        "cries",
+        "cry",
+        "crying"
+      ],
+      "correct": [
+        "cries"
+      ],
+      "translation": {
+        "ru": "Моя младшая сестрёнка плачет, когда хочет есть.",
+        "uz": "Singlim qorni ochsa, yig'laydi."
+      },
+      "explanation": {
+        "ru": "С she (my sister) к глаголу добавляется -s. Если перед y согласная, y → ies: cry → cries. Crys — ошибка.",
+        "uz": "she (my sister) bilan fe'lga -s qo'shiladi. y dan oldin undosh bo'lsa, y → ies: cry → cries. Crys — xato."
+      }
+    },
+    {
+      "key": "a1a2-m09-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "look"
+      ],
+      "text": "Why are you looking *on* me like that?",
+      "options": [
+        "at",
+        "in",
+        "from"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "Почему вы так на меня смотрите?",
+        "uz": "Nega menga bunday qarayapsiz?"
+      },
+      "explanation": {
+        "ru": "Смотреть на кого-то или на что-то — look at. Русское «на» здесь не on.",
+        "uz": "Kimgadir yoki nimagadir qaramoq — look at. O'zbekcha -ga qo'shimchasi bu yerda at bilan beriladi."
+      }
+    },
+    {
+      "key": "a1a2-m09-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "hear"
+      ],
+      "text": "Can you *listen* that strange sound outside?",
+      "options": [
+        "hear",
+        "hearing",
+        "hears"
+      ],
+      "correct": [
+        "hear"
+      ],
+      "translation": {
+        "ru": "Вы слышите этот странный звук на улице?",
+        "uz": "Tashqaridagi g'alati tovushni eshityapsizmi?"
+      },
+      "explanation": {
+        "ru": "Hear — «слышать» (звук сам доходит до вас), listen — «слушать», и после него нужен to. Здесь спрашивают, слышно ли звук: hear.",
+        "uz": "Hear — «eshitmoq» (tovush o'zi qulog'ingizga yetadi), listen — «tinglamoq», undan keyin to keladi. Bu yerda tovush eshitilyaptimi, deb so'ralyapti: hear."
+      }
+    },
+    {
+      "key": "a1a2-m10-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "sun"
+      ],
+      "text": "In our town most summer days are ___ and dry.",
+      "base": "sun",
+      "accepted": [
+        "sunny"
+      ],
+      "translation": {
+        "ru": "В нашем городе летние дни в основном солнечные и сухие.",
+        "uz": "Shahrimizda yozgi kunlarning ko'pi quyoshli va quruq bo'ladi."
+      },
+      "explanation": {
+        "ru": "После are нужно прилагательное, как dry рядом с ним: sun → sunny. После краткой гласной n удваивается: sunny.",
+        "uz": "are fe'lidan keyin yonidagi dry kabi sifat kerak: sun → sunny. Qisqa unlidan keyin n ikkilanadi: sunny."
+      }
+    },
+    {
+      "key": "a1a2-m10-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "rain"
+      ],
+      "text": "We cannot play outside because it is ___ very hard.",
+      "base": "rain",
+      "accepted": [
+        "raining"
+      ],
+      "translation": {
+        "ru": "Мы не можем играть на улице, потому что идёт сильный дождь.",
+        "uz": "Tashqarida o'ynay olmaymiz, chunki qattiq yomg'ir yog'yapti."
+      },
+      "explanation": {
+        "ru": "Здесь rain — глагол «идти (о дожде)». После is — форма на -ing: it is raining. Very hard описывает действие, поэтому не rainy.",
+        "uz": "Bu yerda rain — «yomg'ir yog'moq» fe'li. is so'zidan keyin -ing shakli keladi: it is raining. very hard harakatni tasvirlaydi, shuning uchun rainy emas."
+      }
+    },
+    {
+      "key": "a1a2-m10-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "snow"
+      ],
+      "text": "It ___ only twice last winter, so the children were sad.",
+      "base": "snow",
+      "accepted": [
+        "snowed"
+      ],
+      "translation": {
+        "ru": "Прошлой зимой снег шёл всего два раза, поэтому дети грустили.",
+        "uz": "O'tgan qishda atigi ikki marta qor yog'di, shuning uchun bolalar xafa bo'lishdi."
+      },
+      "explanation": {
+        "ru": "Здесь snow — глагол «идти (о снеге)». Last winter — прошедшее время: snow + -ed → snowed.",
+        "uz": "Bu yerda snow — «qor yog'moq» fe'li. Last winter — o'tgan zamon: snow + -ed → snowed."
+      }
+    },
+    {
+      "key": "a1a2-m10-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "sky"
+      ],
+      "text": "A small plane is flying high *on* the sky.",
+      "options": [
+        "in",
+        "at",
+        "by"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Высоко в небе летит маленький самолёт.",
+        "uz": "Kichkina samolyot osmonda baland uchib boryapti."
+      },
+      "explanation": {
+        "ru": "Небо — пространство, поэтому in the sky («в небе»). Русское «на небе» по-английски не on.",
+        "uz": "Osmon — fazo, shuning uchun in the sky («osmonda»). On esa biror narsaning ustida degani."
+      }
+    },
+    {
+      "key": "a1a2-m10-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "cloud"
+      ],
+      "text": "There *is* two white clouds above our house.",
+      "options": [
+        "are",
+        "be",
+        "has"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Над нашим домом два белых облака.",
+        "uz": "Uyimiz ustida ikkita oq bulut bor."
+      },
+      "explanation": {
+        "ru": "There is ставится перед единственным числом, There are — перед множественным. Two big clouds — множественное число, поэтому There are.",
+        "uz": "There is birikmasidan keyin birlikdagi ot, There are dan keyin ko'plikdagi ot keladi. Two big clouds — ko'plik, shuning uchun There are."
+      }
+    },
+    {
+      "key": "a1a2-m10-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "ice"
+      ],
+      "text": "Please put some *ices* in my glass of water.",
+      "options": [
+        "ice",
+        "icy",
+        "iced"
+      ],
+      "correct": [
+        "ice"
+      ],
+      "translation": {
+        "ru": "Положите, пожалуйста, немного льда в мой стакан с водой.",
+        "uz": "Iltimos, stakandagi suvimga ozgina muz soling."
+      },
+      "explanation": {
+        "ru": "Ice («лёд») — неисчисляемое существительное, без -s: some ice. Icy и iced — прилагательные («ледяной», «охлаждённый»), после some они не подходят.",
+        "uz": "Ice («muz») — sanalmaydigan ot, -s olmaydi: some ice. Icy va iced — sifatlar («muzdek», «sovutilgan»), some so'zidan keyin ular to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "hot"
+      ],
+      "text": "This is the ___ summer in fifty years.",
+      "base": "hot",
+      "accepted": [
+        "hottest"
+      ],
+      "translation": {
+        "ru": "Это самое жаркое лето за пятьдесят лет.",
+        "uz": "Bu so'nggi ellik yildagi eng issiq yoz."
+      },
+      "explanation": {
+        "ru": "The … in fifty years — превосходная степень (-est). После краткой гласной t удваивается: hot → hottest.",
+        "uz": "the … in fifty years — orttirma daraja (-est). Qisqa unlidan keyin t ikkilanadi: hot → hottest."
+      }
+    },
+    {
+      "key": "a1a2-m10-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "rainy"
+      ],
+      "text": "This spring is ___ than last spring, so the grass is green.",
+      "base": "rainy",
+      "accepted": [
+        "rainier"
+      ],
+      "translation": {
+        "ru": "Эта весна дождливее прошлой, поэтому трава такая зелёная.",
+        "uz": "Bu bahor o'tgan bahordan ko'ra yomg'irliroq, shuning uchun o'tlar yam-yashil."
+      },
+      "explanation": {
+        "ru": "Перед than нужна сравнительная степень. Если перед -y согласная, y → i + er: rainy → rainier.",
+        "uz": "than so'zidan oldin qiyosiy daraja kerak. -y dan oldin undosh bo'lsa, y → i + er: rainy → rainier."
+      }
+    },
+    {
+      "key": "a1a2-m10-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "dry"
+      ],
+      "text": "Yesterday the hot sun ___ our wet towels in an hour.",
+      "base": "dry",
+      "accepted": [
+        "dried"
+      ],
+      "translation": {
+        "ru": "Вчера жаркое солнце высушило наши мокрые полотенца за час.",
+        "uz": "Kecha jazirama quyosh ho'l sochiqlarimizni bir soatda quritdi."
+      },
+      "explanation": {
+        "ru": "Здесь dry — глагол «сушить». Yesterday — прошедшее время; y после согласной → ied: dry → dried.",
+        "uz": "Bu yerda dry — «quritmoq» fe'li. Yesterday — o'tgan zamon; undoshdan keyingi y → ied: dry → dried."
+      }
+    },
+    {
+      "key": "a1a2-m10-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "cold"
+      ],
+      "text": "January is the *colder* month of the year here.",
+      "options": [
+        "coldest",
+        "coldly",
+        "colds"
+      ],
+      "correct": [
+        "coldest"
+      ],
+      "translation": {
+        "ru": "Январь здесь самый холодный месяц в году.",
+        "uz": "Bu yerda yanvar yilning eng sovuq oyi."
+      },
+      "explanation": {
+        "ru": "The … of the year — сравнение со всеми месяцами, нужна превосходная степень: cold → coldest («самый холодный»). Colder сравнивает два предмета, обычно с than.",
+        "uz": "the … of the year — barcha oylar bilan solishtirish, orttirma daraja kerak: cold → coldest («eng sovuq»). Colder ikki narsani solishtiradi, odatda than bilan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "windy"
+      ],
+      "text": "The weather was cold and *wind*, so we stayed home.",
+      "options": [
+        "windy",
+        "winds",
+        "windier"
+      ],
+      "correct": [
+        "windy"
+      ],
+      "translation": {
+        "ru": "Погода была холодной и ветреной, поэтому мы остались дома.",
+        "uz": "Havo sovuq va shamolli edi, shuning uchun uyda qoldik."
+      },
+      "explanation": {
+        "ru": "После was cold and нужно второе прилагательное: wind («ветер») — существительное, windy («ветреный») — прилагательное.",
+        "uz": "was cold and birikmasidan keyin ikkinchi sifat kerak: wind («shamol») — ot, windy («shamolli») — sifat."
+      }
+    },
+    {
+      "key": "a1a2-m10-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "warm"
+      ],
+      "text": "It is *warmly* in our house in winter.",
+      "options": [
+        "warm",
+        "warmth",
+        "warms"
+      ],
+      "correct": [
+        "warm"
+      ],
+      "translation": {
+        "ru": "Зимой в нашем доме тепло.",
+        "uz": "Qishda uyimiz iliq bo'ladi."
+      },
+      "explanation": {
+        "ru": "После is нужно прилагательное: it is warm. Русское «тепло» похоже на наречие, но warmly описывает действие (welcome warmly — «тепло встретить») и после is не ставится.",
+        "uz": "is fe'lidan keyin sifat keladi: it is warm. warmly ravishi harakatni tasvirlaydi (welcome warmly — «iliq kutib olmoq»), is fe'lidan keyin kelmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "degree"
+      ],
+      "text": "Last summer it was over forty ___ for a whole week.",
+      "base": "degree",
+      "accepted": [
+        "degrees"
+      ],
+      "translation": {
+        "ru": "Прошлым летом целую неделю было больше сорока градусов.",
+        "uz": "O'tgan yozda bir hafta davomida harorat qirq darajadan yuqori bo'ldi."
+      },
+      "explanation": {
+        "ru": "После числа больше единицы существительное во множественном числе: forty degrees.",
+        "uz": "Birdan katta sondan keyin ot ko'plikda keladi: forty degrees. O'zbekchada «qirq daraja» birlikda bo'lsa ham, inglizchada -s kerak."
+      }
+    },
+    {
+      "key": "a1a2-m10-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "summer"
+      ],
+      "text": "In our country the ___ are long, hot and dry.",
+      "base": "summer",
+      "accepted": [
+        "summers"
+      ],
+      "translation": {
+        "ru": "В нашей стране лето долгое, жаркое и сухое.",
+        "uz": "Mamlakatimizda yozlar uzoq, issiq va quruq bo'ladi."
+      },
+      "explanation": {
+        "ru": "Глагол are требует множественного числа: the summers are — «лето каждый год». По-русски здесь единственное число, по-английски — summers.",
+        "uz": "are fe'li ko'plikni talab qiladi: the summers are — «har yilgi yozlar»."
+      }
+    },
+    {
+      "key": "a1a2-m10-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "temperature"
+      ],
+      "text": "In spring, day and night ___ are very different.",
+      "base": "temperature",
+      "accepted": [
+        "temperatures"
+      ],
+      "translation": {
+        "ru": "Весной дневная и ночная температура сильно различаются.",
+        "uz": "Bahorda kunduzgi va tungi harorat bir-biridan juda farq qiladi."
+      },
+      "explanation": {
+        "ru": "Day and night — это две разные температуры, и глагол are это подтверждает: temperatures.",
+        "uz": "day and night — ikki xil harorat, are fe'li ham ko'plikni ko'rsatadi: temperatures."
+      }
+    },
+    {
+      "key": "a1a2-m10-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "season"
+      ],
+      "text": "There *is* four seasons in a year.",
+      "options": [
+        "are",
+        "am",
+        "have"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "В году четыре времени года.",
+        "uz": "Bir yilda to'rt fasl bor."
+      },
+      "explanation": {
+        "ru": "Four seasons — множественное число, поэтому There are. There is ставится только перед единственным числом.",
+        "uz": "Four seasons — ko'plik, shuning uchun There are. There is faqat birlikdagi ot oldidan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "winter"
+      ],
+      "text": "Our family often goes skiing *at* winter.",
+      "options": [
+        "in",
+        "on",
+        "to"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Зимой наша семья часто катается на лыжах.",
+        "uz": "Qishda oilamiz tez-tez chang'i uchgani boradi."
+      },
+      "explanation": {
+        "ru": "С временами года — in: in winter, in summer. At ставится с точным временем (at five), on — с днями (on Monday).",
+        "uz": "Fasllar bilan in ishlatiladi: in winter, in summer. At aniq vaqt bilan (at five), on kunlar bilan (on Monday) keladi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "umbrella"
+      ],
+      "text": "I need to buy *a* umbrella because mine is broken.",
+      "options": [
+        "an",
+        "many",
+        "much"
+      ],
+      "correct": [
+        "an"
+      ],
+      "translation": {
+        "ru": "Мне нужно купить зонт, потому что мой сломался.",
+        "uz": "Soyabon sotib olishim kerak, chunki meniki buzilib qoldi."
+      },
+      "explanation": {
+        "ru": "Umbrella начинается с гласного звука, поэтому an: an umbrella. Many и much не ставятся перед исчисляемым существительным в единственном числе.",
+        "uz": "Umbrella unli tovush bilan boshlanadi, shuning uchun an: an umbrella. Many va much birlikdagi sanaladigan ot oldidan kelmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "tree"
+      ],
+      "text": "In autumn the ___ in our street turn yellow.",
+      "base": "tree",
+      "accepted": [
+        "trees"
+      ],
+      "translation": {
+        "ru": "Осенью деревья на нашей улице желтеют.",
+        "uz": "Kuzda ko'chamizdagi daraxtlar sarg'ayadi."
+      },
+      "explanation": {
+        "ru": "Глагол turn без -s показывает множественное число: the trees turn. Об одном дереве было бы the tree turns.",
+        "uz": "turn fe'lining -s olmagani ko'plikni ko'rsatadi: the trees turn. Bitta daraxt haqida the tree turns bo'lardi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "mountain"
+      ],
+      "text": "Some ___ near our village have snow all year.",
+      "base": "mountain",
+      "accepted": [
+        "mountains"
+      ],
+      "translation": {
+        "ru": "На некоторых горах рядом с нашей деревней снег лежит круглый год.",
+        "uz": "Qishlog'imiz yaqinidagi ba'zi tog'larda yil bo'yi qor bo'ladi."
+      },
+      "explanation": {
+        "ru": "Some («некоторые») и глагол have без -s указывают на множественное число: some mountains.",
+        "uz": "some («ba'zi») va -s olmagan have fe'li ko'plikni ko'rsatadi: some mountains."
+      }
+    },
+    {
+      "key": "a1a2-m10-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "stone"
+      ],
+      "text": "The children are throwing small ___ into the river.",
+      "base": "stone",
+      "accepted": [
+        "stones"
+      ],
+      "translation": {
+        "ru": "Дети бросают в реку маленькие камни.",
+        "uz": "Bolalar daryoga mayda toshlar otishyapti."
+      },
+      "explanation": {
+        "ru": "Перед small нет артикля a, значит, нужно множественное число: small stones. Об одном камне сказали бы a small stone.",
+        "uz": "small so'zidan oldin a artikli yo'q, demak, ko'plik kerak: small stones. Bitta tosh haqida a small stone deyilardi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "sea"
+      ],
+      "text": "Every summer we drive *on* the sea with our children.",
+      "options": [
+        "to",
+        "at",
+        "in"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Каждое лето мы с детьми ездим на море на машине.",
+        "uz": "Har yozda bolalarimiz bilan mashinada dengizga boramiz."
+      },
+      "explanation": {
+        "ru": "Ехать куда-то — движение к цели, поэтому to: drive to the sea («ехать на море»). Русское «на море» здесь не on.",
+        "uz": "Biror joyga bormoq — harakat manzilga qarab, shuning uchun to: drive to the sea («dengizga bormoq»). O'zbekcha -ga qo'shimchasi bu yerda to bilan beriladi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "lake"
+      ],
+      "text": "There are two clean *lake* near our village.",
+      "options": [
+        "lakes",
+        "lake's",
+        "a lake"
+      ],
+      "correct": [
+        "lakes"
+      ],
+      "translation": {
+        "ru": "Рядом с нашей деревней два чистых озера.",
+        "uz": "Qishlog'imiz yaqinida ikkita toza ko'l bor."
+      },
+      "explanation": {
+        "ru": "После two и There are нужно множественное число: two lakes. Апостроф ('s) означает принадлежность, а не множественное число.",
+        "uz": "two va There are dan keyin ot ko'plikda keladi: two lakes (o'zbekchadagi «ikkita ko'l» kabi birlikda emas). Apostrof ('s) qaratqichni bildiradi, ko'plikni emas."
+      }
+    },
+    {
+      "key": "a1a2-m10-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "flower"
+      ],
+      "text": "Look at *this* flowers: they smell so sweet!",
+      "options": [
+        "these",
+        "that",
+        "a"
+      ],
+      "correct": [
+        "these"
+      ],
+      "translation": {
+        "ru": "Посмотрите на эти цветы: как приятно они пахнут!",
+        "uz": "Mana bu gullarga qarang: qanday yoqimli hidi bor!"
+      },
+      "explanation": {
+        "ru": "Flowers — множественное число (это подтверждает и they), поэтому this → these. This, that и a — только перед единственным числом.",
+        "uz": "Flowers — ko'plikda (they olmoshi ham shuni ko'rsatadi), shuning uchun this → these. This, that va a faqat birlikdagi ot oldidan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "mouse"
+      ],
+      "text": "Our cat caught two ___ in the kitchen last night.",
+      "base": "mouse",
+      "accepted": [
+        "mice"
+      ],
+      "translation": {
+        "ru": "Прошлой ночью наша кошка поймала на кухне двух мышей.",
+        "uz": "Kecha kechasi mushugimiz oshxonada ikkita sichqon tutdi."
+      },
+      "explanation": {
+        "ru": "После two нужно множественное число. Mouse — исключение: mouse → mice (не mouses).",
+        "uz": "two so'zidan keyin ko'plik kerak. Mouse — istisno: mouse → mice (mouses emas)."
+      }
+    },
+    {
+      "key": "a1a2-m10-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "dog"
+      ],
+      "text": "Our ___ favorite toy is a ball, and he sleeps with it.",
+      "base": "dog",
+      "accepted": [
+        "dog's"
+      ],
+      "translation": {
+        "ru": "Любимая игрушка нашего пса — мяч, и он спит с ним.",
+        "uz": "Itimizning eng sevimli o'yinchog'i — to'p, u to'pi bilan birga uxlaydi."
+      },
+      "explanation": {
+        "ru": "Перед favorite toy нужен ответ на вопрос «чей?». Пёс один (he), поэтому апостроф и s: dog's.",
+        "uz": "favorite toy oldidan «kimning?» savoliga javob kerak. It bitta (he), shuning uchun apostrof va s: dog's."
+      }
+    },
+    {
+      "key": "a1a2-m10-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "chicken"
+      ],
+      "text": "My grandmother's ___ live in a small house behind the garden.",
+      "base": "chicken",
+      "accepted": [
+        "chickens"
+      ],
+      "translation": {
+        "ru": "Бабушкины куры живут в маленьком домике за садом.",
+        "uz": "Buvimning tovuqlari bog' ortidagi kichkina katakda yashaydi."
+      },
+      "explanation": {
+        "ru": "Глагол live без -s показывает множественное число: the chickens live. Об одной курице было бы lives.",
+        "uz": "live fe'lining -s olmagani ko'plikni ko'rsatadi: the chickens live. Bitta tovuq haqida lives bo'lardi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "sheep"
+      ],
+      "text": "My uncle has fifty *sheeps* on his farm.",
+      "options": [
+        "sheep",
+        "sheep's",
+        "a sheep"
+      ],
+      "correct": [
+        "sheep"
+      ],
+      "translation": {
+        "ru": "У моего дяди на ферме пятьдесят овец.",
+        "uz": "Amakimning fermasida ellikta qo'y bor."
+      },
+      "explanation": {
+        "ru": "Sheep — исключение: во множественном числе слово не меняется: one sheep, fifty sheep. Sheeps — ошибка.",
+        "uz": "Sheep — istisno: ko'plikda so'z o'zgarmaydi: one sheep, fifty sheep. Sheeps — xato."
+      }
+    },
+    {
+      "key": "a1a2-m10-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "horse"
+      ],
+      "text": "A horse *have* four strong legs and a long tail.",
+      "options": [
+        "has",
+        "is",
+        "having"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "У лошади четыре сильные ноги и длинный хвост.",
+        "uz": "Otning to'rtta kuchli oyog'i va uzun dumi bor."
+      },
+      "explanation": {
+        "ru": "A horse — 3-е лицо единственного числа («она»), поэтому has. Have — с I, you, we, they и множественным числом.",
+        "uz": "A horse — uchinchi shaxs birlik, shuning uchun has. Have esa I, you, we, they va ko'plikdagi ot bilan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m10-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "cow"
+      ],
+      "text": "Our cow *don't* like the rain, so she stays inside.",
+      "options": [
+        "doesn't",
+        "hasn't",
+        "aren't"
+      ],
+      "correct": [
+        "doesn't"
+      ],
+      "translation": {
+        "ru": "Наша корова не любит дождь, поэтому остаётся под крышей.",
+        "uz": "Sigirimiz yomg'irni yoqtirmaydi, shuning uchun ichkarida qoladi."
+      },
+      "explanation": {
+        "ru": "Our cow — «она» (she stays), время настоящее, поэтому отрицание doesn't: doesn't like. Don't — с I, you, we, they.",
+        "uz": "Our cow — «u» (she stays), zamon hozirgi, shuning uchun inkor doesn't: doesn't like. Don't esa I, you, we, they bilan keladi."
+      }
+    }
+  ]
+}

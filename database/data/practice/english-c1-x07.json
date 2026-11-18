@@ -1,0 +1,1628 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c1",
+  "items": [
+    {
+      "key": "c1-m13-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "mobility"
+      ],
+      "text": "In a rigid caste system, upward ___ was almost impossible.",
+      "base": "mobile",
+      "accepted": [
+        "mobility"
+      ],
+      "translation": {
+        "ru": "В жёсткой кастовой системе восходящая социальная мобильность была почти невозможна.",
+        "uz": "Qat'iy kasta tizimida yuqoriga yo'nalgan ijtimoiy mobillik deyarli imkonsiz edi."
+      },
+      "explanation": {
+        "ru": "После прилагательного upward нужно существительное: mobile → mobility; -ile меняется на -ility (как able → ability).",
+        "uz": "upward sifatidan keyin ot kerak: mobile → mobility; -ile qo'shimchasi -ility shakliga o'tadi (able → ability kabi)."
+      }
+    },
+    {
+      "key": "c1-m13-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "aristocracy"
+      ],
+      "text": "She was born into an old ___ family that had long since lost its land.",
+      "base": "aristocracy",
+      "accepted": [
+        "aristocratic"
+      ],
+      "translation": {
+        "ru": "Она родилась в старинной аристократической семье, которая давно лишилась своих земель.",
+        "uz": "U yerlaridan ancha oldin ayrilgan qadimiy zodagon oilada tug'ilgan."
+      },
+      "explanation": {
+        "ru": "Между an old и существительным family нужно прилагательное: aristocracy → aristocratic; -cy меняется на -tic (как democracy → democratic).",
+        "uz": "an old so'zlari bilan family oti orasida sifat kerak: aristocracy → aristocratic; -cy o'rniga -tic yoziladi (democracy → democratic kabi)."
+      }
+    },
+    {
+      "key": "c1-m13-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "demographic"
+      ],
+      "text": "Rural areas are ___ older than cities because young people keep moving away.",
+      "base": "demographic",
+      "accepted": [
+        "demographically"
+      ],
+      "translation": {
+        "ru": "Сельские районы в демографическом отношении старше городов, потому что молодёжь продолжает уезжать.",
+        "uz": "Qishloq hududlari demografik jihatdan shaharlardan keksaroq, chunki yoshlar ko'chib ketishda davom etmoqda."
+      },
+      "explanation": {
+        "ru": "Слово определяет прилагательное older, значит нужно наречие: demographic → demographically (прилагательные на -ic образуют наречие на -ically).",
+        "uz": "So'z older sifatini aniqlaydi, demak ravish kerak: demographic → demographically (-ic bilan tugagan sifatlardan ravish -ically orqali yasaladi)."
+      }
+    },
+    {
+      "key": "c1-m13-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "marginalize"
+      ],
+      "text": "*Marginalizing* for decades, rural voters have finally found a party that listens to them.",
+      "options": [
+        "Marginalized",
+        "Marginalize",
+        "Marginalization"
+      ],
+      "correct": [
+        "Marginalized"
+      ],
+      "translation": {
+        "ru": "Десятилетиями вытесняемые на обочину общества, сельские избиратели наконец нашли партию, которая к ним прислушивается.",
+        "uz": "O'n yillar davomida jamiyatdan chetga surilgan qishloq saylovchilari nihoyat ularni tinglaydigan partiyani topdi."
+      },
+      "explanation": {
+        "ru": "Избирателей вытесняли — значение страдательное, поэтому оборот начинается с причастия Marginalized. Форма на -ing означала бы, что они сами кого-то вытесняют.",
+        "uz": "Saylovchilarni chetga surishgan — ma'no majhul, shuning uchun ibora Marginalized sifatdoshi bilan boshlanadi. -ing shakli ular o'zlari kimnidir chetga surganini bildirardi."
+      }
+    },
+    {
+      "key": "c1-m13-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "socioeconomic"
+      ],
+      "text": "Pupils from a low *socioeconomically* background rarely have a quiet place to study.",
+      "options": [
+        "socioeconomic",
+        "socioeconomics",
+        "socially"
+      ],
+      "correct": [
+        "socioeconomic"
+      ],
+      "translation": {
+        "ru": "У школьников из семей с низким социально-экономическим статусом редко бывает тихое место для занятий.",
+        "uz": "Ijtimoiy-iqtisodiy ahvoli past oilalardan chiqqan o'quvchilarda dars tayyorlash uchun tinch joy kamdan-kam bo'ladi."
+      },
+      "explanation": {
+        "ru": "Слово определяет существительное background, значит нужно прилагательное socioeconomic: наречие не может определять существительное.",
+        "uz": "So'z background otini aniqlaydi, demak socioeconomic sifati kerak: ravish otni aniqlay olmaydi."
+      }
+    },
+    {
+      "key": "c1-m13-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "stratification"
+      ],
+      "text": "Rigid social *stratify* kept families in the same trades for generations.",
+      "options": [
+        "stratification",
+        "stratified",
+        "stratifies"
+      ],
+      "correct": [
+        "stratification"
+      ],
+      "translation": {
+        "ru": "Жёсткое социальное расслоение поколениями удерживало семьи в одних и тех же ремёслах.",
+        "uz": "Qattiq ijtimoiy tabaqalanish avlodlar davomida oilalarni bir xil kasblarda ushlab turgan."
+      },
+      "explanation": {
+        "ru": "Перед глаголом kept нужно подлежащее — существительное после прилагательного social: глагол stratify → stratification (-ify → -ification).",
+        "uz": "kept fe'lidan oldin ega kerak — social sifatidan keyin keladigan ot: stratify fe'li → stratification (-ify o'rniga -ification)."
+      }
+    },
+    {
+      "key": "c1-m13-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "assimilate"
+      ],
+      "text": "Learning the language is the first step toward full ___ into a new society.",
+      "base": "assimilate",
+      "accepted": [
+        "assimilation"
+      ],
+      "translation": {
+        "ru": "Изучение языка — первый шаг к полной ассимиляции в новом обществе.",
+        "uz": "Tilni o'rganish yangi jamiyatga to'liq singib ketish yo'lidagi birinchi qadamdir."
+      },
+      "explanation": {
+        "ru": "После прилагательного full нужно существительное: assimilate → assimilation; -ate меняется на -ation.",
+        "uz": "full sifatidan keyin ot kerak: assimilate → assimilation; -ate o'rniga -ation yoziladi."
+      }
+    },
+    {
+      "key": "c1-m13-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "xenophobia"
+      ],
+      "text": "The minister apologized for his openly ___ remarks about immigrants.",
+      "base": "xenophobia",
+      "accepted": [
+        "xenophobic"
+      ],
+      "translation": {
+        "ru": "Министр извинился за свои откровенно ксенофобские высказывания об иммигрантах.",
+        "uz": "Vazir immigrantlar haqidagi ochiqdan-ochiq ksenofobik gaplari uchun uzr so'radi."
+      },
+      "explanation": {
+        "ru": "Слово стоит перед существительным remarks после наречия openly, значит нужно прилагательное: xenophobia → xenophobic (-ia → -ic).",
+        "uz": "So'z openly ravishidan keyin, remarks oti oldida turibdi, demak sifat kerak: xenophobia → xenophobic (-ia o'rniga -ic)."
+      }
+    },
+    {
+      "key": "c1-m13-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "ethnicity"
+      ],
+      "text": "The risk of this disease varies with ___ as well as with age.",
+      "base": "ethnic",
+      "accepted": [
+        "ethnicity"
+      ],
+      "translation": {
+        "ru": "Риск этого заболевания зависит как от этнической принадлежности, так и от возраста.",
+        "uz": "Bu kasallik xavfi yoshga ham, etnik mansublikka ham qarab o'zgaradi."
+      },
+      "explanation": {
+        "ru": "После предлога with нужно существительное, как age: ethnic → ethnicity; -ic → -icity, ударение переходит на -ni-.",
+        "uz": "with predlogidan keyin age kabi ot kerak: ethnic → ethnicity; -ic o'rniga -icity, urg'u -ni- bo'g'iniga ko'chadi."
+      }
+    },
+    {
+      "key": "c1-m13-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "indigenous"
+      ],
+      "text": "Over twenty tribes indigenous *for* this coast still speak their own languages.",
+      "options": [
+        "to",
+        "with",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Более двадцати племён, исконно живущих на этом побережье, до сих пор говорят на своих языках.",
+        "uz": "Bu sohilning yigirmadan ortiq tub joyli qabilasi hanuz o'z tillarida so'zlashadi."
+      },
+      "explanation": {
+        "ru": "indigenous to — исконно живущий где-либо: место после indigenous вводится предлогом to (как native to); for, with, at здесь невозможны.",
+        "uz": "indigenous to — biror joyning tub aholisi bo'lgan: indigenous so'zidan keyin joy to predlogi bilan beriladi (native to kabi); for, with, at bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m13-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "repatriate"
+      ],
+      "text": "When the fighting stopped, thousands of refugees were *expatriated* back home.",
+      "options": [
+        "repatriated",
+        "emigrated",
+        "immigrated"
+      ],
+      "correct": [
+        "repatriated"
+      ],
+      "translation": {
+        "ru": "Когда боевые действия прекратились, тысячи беженцев вернули на родину.",
+        "uz": "Janglar to'xtagach, minglab qochoqlar vatanlariga qaytarildi."
+      },
+      "explanation": {
+        "ru": "repatriate — возвращать на родину (re- «обратно»); expatriate — высылать из страны, это противоположный смысл. emigrate и immigrate непереходные: страдательного залога у них нет.",
+        "uz": "repatriate — vataniga qaytarmoq (re- «qayta»); expatriate — mamlakatdan chiqarib yubormoq, ya'ni teskari ma'no. emigrate va immigrate fe'llari o'timsiz: ular majhul nisbatda kelmaydi."
+      }
+    },
+    {
+      "key": "c1-m13-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "expatriate"
+      ],
+      "text": "Many *expatriots* in the capital send their children to international schools.",
+      "options": [
+        "expatriates",
+        "expatriated",
+        "expatriation"
+      ],
+      "correct": [
+        "expatriates"
+      ],
+      "translation": {
+        "ru": "Многие экспатрианты в столице отдают детей в международные школы.",
+        "uz": "Poytaxtda yashayotgan ko'plab chet elliklar bolalarini xalqaro maktablarga beradi."
+      },
+      "explanation": {
+        "ru": "expatriate (ex- «вне» + лат. patria «родина») — тот, кто живёт вне своей страны. Слово образовано не от patriot, поэтому пишется -ate, а не -iot.",
+        "uz": "expatriate (ex- «tashqarida» + lotincha patria «vatan») — o'z mamlakatidan tashqarida yashovchi kishi. Bu so'z patriot so'zidan yasalmagan, shuning uchun -iot emas, -ate bilan yoziladi."
+      }
+    },
+    {
+      "key": "c1-m13-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "parental"
+      ],
+      "text": "Whether a child gets a phone is a purely ___ decision.",
+      "base": "parent",
+      "accepted": [
+        "parental"
+      ],
+      "translation": {
+        "ru": "Покупать ли ребёнку телефон — решение исключительно родительское.",
+        "uz": "Bolaga telefon olib berish-bermaslik faqat ota-onaning qaroridir."
+      },
+      "explanation": {
+        "ru": "Перед существительным decision после наречия purely нужно прилагательное: parent → parental (суффикс -al).",
+        "uz": "purely ravishidan keyin, decision oti oldida sifat kerak: parent → parental (-al qo'shimchasi)."
+      }
+    },
+    {
+      "key": "c1-m13-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "orphan"
+      ],
+      "text": "He spent his early childhood in an ___ run by a small charity.",
+      "base": "orphan",
+      "accepted": [
+        "orphanage"
+      ],
+      "translation": {
+        "ru": "Раннее детство он провёл в детском доме, которым руководила небольшая благотворительная организация.",
+        "uz": "U erta bolaligini kichik bir xayriya tashkiloti boshqaradigan yetimxonada o'tkazdi."
+      },
+      "explanation": {
+        "ru": "После in an нужно название места: orphan (сирота) → orphanage (детский дом); суффикс -age здесь образует название учреждения.",
+        "uz": "in an so'zlaridan keyin joy nomi kerak: orphan (yetim) → orphanage (yetimxona); -age qo'shimchasi bu yerda muassasa nomini yasaydi."
+      }
+    },
+    {
+      "key": "c1-m13-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "guardian"
+      ],
+      "text": "After the accident, the court gave their aunt ___ of the two boys.",
+      "base": "guardian",
+      "accepted": [
+        "guardianship"
+      ],
+      "translation": {
+        "ru": "После аварии суд передал их тёте опеку над двумя мальчиками.",
+        "uz": "Avariyadan so'ng sud ikki o'g'il bolaning vasiyligini xolasiga topshirdi."
+      },
+      "explanation": {
+        "ru": "После gave their aunt нужно существительное — то, что передали: guardian (опекун) → guardianship (опека); -ship обозначает положение и права.",
+        "uz": "gave their aunt so'zlaridan keyin berilgan narsani bildiruvchi ot kerak: guardian (vasiy) → guardianship (vasiylik); -ship maqom va huquqni bildiradi."
+      }
+    },
+    {
+      "key": "c1-m13-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "descendant"
+      ],
+      "text": "We must protect these forests for our *ancestors*, who will live long after us.",
+      "options": [
+        "descendants",
+        "predecessors",
+        "forefathers"
+      ],
+      "correct": [
+        "descendants"
+      ],
+      "translation": {
+        "ru": "Мы должны сберечь эти леса для наших потомков, которые будут жить ещё долго после нас.",
+        "uz": "Biz bu o'rmonlarni bizdan keyin ham uzoq yashaydigan avlodlarimiz uchun asrashimiz kerak."
+      },
+      "explanation": {
+        "ru": "ancestors — предки, они жили до нас; тех, кто будет жить после нас, называют descendants (потомки). predecessors и forefathers тоже обозначают тех, кто был раньше.",
+        "uz": "ancestors — ajdodlar, ular bizdan oldin yashagan; bizdan keyin yashaydiganlar descendants (avlodlar) deyiladi. predecessors va forefathers ham oldin o'tganlarni bildiradi."
+      }
+    },
+    {
+      "key": "c1-m13-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "foster"
+      ],
+      "text": "Children from troubled homes are often *foster* by relatives rather than strangers.",
+      "options": [
+        "fostered",
+        "fostering",
+        "fosters"
+      ],
+      "correct": [
+        "fostered"
+      ],
+      "translation": {
+        "ru": "Детей из неблагополучных семей часто берут на воспитание родственники, а не чужие люди.",
+        "uz": "Notinch oilalardan chiqqan bolalarni ko'pincha begonalar emas, qarindoshlar tarbiyasiga oladi."
+      },
+      "explanation": {
+        "ru": "Детей берут на воспитание родственники (by relatives) — нужен страдательный залог: are + причастие fostered.",
+        "uz": "Bolalarni qarindoshlar (by relatives) tarbiyaga oladi — majhul nisbat kerak: are + fostered sifatdoshi."
+      }
+    },
+    {
+      "key": "c1-m13-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "lineage"
+      ],
+      "text": "The family has traced its lineage back *until* a twelfth-century poet.",
+      "options": [
+        "to",
+        "up",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Семья проследила свою родословную вплоть до поэта двенадцатого века.",
+        "uz": "Oila o'z nasl-nasabini o'n ikkinchi asrda yashagan shoirgacha kuzatgan."
+      },
+      "explanation": {
+        "ru": "trace something back to — проследить вплоть до кого-то: конечная точка вводится предлогом to. Русское «до» здесь не until.",
+        "uz": "trace something back to — biror narsani kimgachadir kuzatmoq: oxirgi nuqta to predlogi bilan beriladi. O'zbekcha «-gacha» bu yerda until emas."
+      }
+    },
+    {
+      "key": "c1-m13-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "illiteracy"
+      ],
+      "text": "Because of widespread ___, many farmers could not read the contracts they signed.",
+      "base": "literate",
+      "accepted": [
+        "illiteracy"
+      ],
+      "translation": {
+        "ru": "Из-за повсеместной неграмотности многие фермеры не могли прочитать договоры, которые подписывали.",
+        "uz": "Savodsizlik keng tarqalgani sababli ko'plab fermerlar o'zlari imzolagan shartnomalarni o'qiy olmasdi."
+      },
+      "explanation": {
+        "ru": "После widespread нужно существительное, а смысл (не могли прочитать) отрицательный: literate → illiteracy; перед l приставка il-, -ate → -acy.",
+        "uz": "widespread so'zidan keyin ot kerak, ma'no esa (o'qiy olmagan) inkor: literate → illiteracy; l harfidan oldin il- old qo'shimchasi, -ate o'rniga -acy."
+      }
+    },
+    {
+      "key": "c1-m13-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "exclusion"
+      ],
+      "text": "Losing a job can mean social ___ as well as financial hardship.",
+      "base": "exclude",
+      "accepted": [
+        "exclusion"
+      ],
+      "translation": {
+        "ru": "Потеря работы может обернуться не только финансовыми трудностями, но и социальной изоляцией.",
+        "uz": "Ishdan ayrilish moddiy qiyinchilik bilan birga ijtimoiy yakkalanishni ham anglatishi mumkin."
+      },
+      "explanation": {
+        "ru": "После social нужно существительное, как hardship: exclude → exclusion; d меняется на s: -ude → -usion.",
+        "uz": "social sifatidan keyin hardship kabi ot kerak: exclude → exclusion; d harfi s ga almashadi: -ude → -usion."
+      }
+    },
+    {
+      "key": "c1-m13-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "exploitation"
+      ],
+      "text": "Forcing children to work in mines is the cruelest form of ___.",
+      "base": "exploit",
+      "accepted": [
+        "exploitation"
+      ],
+      "translation": {
+        "ru": "Принуждать детей работать в шахтах — самая жестокая форма эксплуатации.",
+        "uz": "Bolalarni konlarda ishlashga majburlash — ekspluatatsiyaning eng shafqatsiz shaklidir."
+      },
+      "explanation": {
+        "ru": "После form of нужно существительное: exploit → exploitation (-ation). Герундий exploiting без дополнения здесь не употребляется.",
+        "uz": "form of so'zlaridan keyin ot kerak: exploit → exploitation (-ation). To'ldiruvchisiz exploiting gerundiysi bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m13-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "unrest"
+      ],
+      "text": "After the mines closed, the region went through months of *unrests* and strikes.",
+      "options": [
+        "unrest",
+        "restless",
+        "unrest's"
+      ],
+      "correct": [
+        "unrest"
+      ],
+      "translation": {
+        "ru": "После закрытия шахт регион несколько месяцев охватывали волнения и забастовки.",
+        "uz": "Konlar yopilgach, hududda bir necha oy davomida ommaviy tartibsizliklar va ish tashlashlar bo'ldi."
+      },
+      "explanation": {
+        "ru": "unrest (волнения) — неисчисляемое существительное: формы множественного числа у него нет, хотя русское «волнения» стоит во множественном.",
+        "uz": "unrest (ommaviy tartibsizliklar) — sanalmaydigan ot: ko'plik shakli yo'q, garchi o'zbekcha «tartibsizliklar» ko'plikda bo'lsa ham."
+      }
+    },
+    {
+      "key": "c1-m13-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "delinquency"
+      ],
+      "text": "Juvenile *delinquent* has risen sharply since the town's only factory closed.",
+      "options": [
+        "delinquency",
+        "delinquents",
+        "delinquencies"
+      ],
+      "correct": [
+        "delinquency"
+      ],
+      "translation": {
+        "ru": "После закрытия единственной в городе фабрики подростковая преступность резко выросла.",
+        "uz": "Shahardagi yagona fabrika yopilganidan beri o'smirlar huquqbuzarligi keskin oshdi."
+      },
+      "explanation": {
+        "ru": "Выросло явление, а не человек: delinquent — правонарушитель, delinquency — (подростковая) преступность. juvenile delinquency — устойчивое сочетание; delinquents не согласуется с has.",
+        "uz": "Odam emas, hodisa oshgan: delinquent — huquqbuzar, delinquency — huquqbuzarlik. juvenile delinquency — barqaror birikma; delinquents esa has fe'li bilan moslashmaydi."
+      }
+    },
+    {
+      "key": "c1-m13-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "stigma"
+      ],
+      "text": "Honest public debate can help *delete* the stigma surrounding divorce.",
+      "options": [
+        "remove",
+        "cancel",
+        "liquidate"
+      ],
+      "correct": [
+        "remove"
+      ],
+      "translation": {
+        "ru": "Честное публичное обсуждение может помочь снять клеймо позора с развода.",
+        "uz": "Ochiq jamoatchilik muhokamasi ajrashish bilan bog'liq sharmandalik tamg'asini olib tashlashga yordam berishi mumkin."
+      },
+      "explanation": {
+        "ru": "Клеймо позора «снимают»: remove (или lift) the stigma. delete — удалять текст или файл, cancel — отменять, liquidate — ликвидировать; со stigma они не сочетаются.",
+        "uz": "Sharmandalik tamg'asi haqida remove (yoki lift) the stigma deyiladi. delete — matn yoki faylni o'chirish, cancel — bekor qilish, liquidate — tugatish; ular stigma bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m13-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "philanthropy"
+      ],
+      "text": "As a ___, she gave away most of her fortune to hospitals and schools.",
+      "base": "philanthropy",
+      "accepted": [
+        "philanthropist"
+      ],
+      "translation": {
+        "ru": "Как филантроп, она отдала большую часть своего состояния больницам и школам.",
+        "uz": "U saxovatpesha sifatida boyligining katta qismini kasalxona va maktablarga hadya qildi."
+      },
+      "explanation": {
+        "ru": "После As a нужно существительное — человек: philanthropy (филантропия) → philanthropist (филантроп); -y меняется на -ist.",
+        "uz": "As a so'zlaridan keyin shaxsni bildiruvchi ot kerak: philanthropy (xayr-saxovat) → philanthropist (saxovatpesha); -y o'rniga -ist."
+      }
+    },
+    {
+      "key": "c1-m13-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "advocacy"
+      ],
+      "text": "Writing letters to ministers is a quiet but effective form of ___.",
+      "base": "advocate",
+      "accepted": [
+        "advocacy"
+      ],
+      "translation": {
+        "ru": "Письма министрам — тихая, но действенная форма защиты прав.",
+        "uz": "Vazirlarga xat yozish — huquqlarni himoya qilishning sokin, ammo samarali shakli."
+      },
+      "explanation": {
+        "ru": "После a form of нужно существительное — вид деятельности: advocate → advocacy; -ate меняется на -acy (как accurate → accuracy).",
+        "uz": "a form of so'zlaridan keyin faoliyat turini bildiruvchi ot kerak: advocate → advocacy; -ate o'rniga -acy (accurate → accuracy kabi)."
+      }
+    },
+    {
+      "key": "c1-m13-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "charitable"
+      ],
+      "text": "The museum is run on a purely ___ basis: nobody involved earns a cent.",
+      "base": "charity",
+      "accepted": [
+        "charitable"
+      ],
+      "translation": {
+        "ru": "Музей работает на чисто благотворительной основе: никто из причастных не получает ни цента.",
+        "uz": "Muzey sof xayriya asosida ishlaydi: unga aloqador hech kim bir tiyin ham olmaydi."
+      },
+      "explanation": {
+        "ru": "Перед basis после наречия purely нужно прилагательное: charity → charitable; -y меняется на -able.",
+        "uz": "purely ravishidan keyin, basis oti oldida sifat kerak: charity → charitable; -y o'rniga -able."
+      }
+    },
+    {
+      "key": "c1-m13-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "benefactor"
+      ],
+      "text": "The clinic's *beneficiary*, a retired banker, paid for every new piece of equipment.",
+      "options": [
+        "benefactor",
+        "benefactors",
+        "beneficiaries"
+      ],
+      "correct": [
+        "benefactor"
+      ],
+      "translation": {
+        "ru": "Благодетель клиники, банкир на пенсии, оплатил всё новое оборудование.",
+        "uz": "Klinikaning homiysi — nafaqadagi bankir barcha yangi uskunalar uchun pul to'ladi."
+      },
+      "explanation": {
+        "ru": "benefactor — тот, кто даёт деньги (благодетель), beneficiary — тот, кто их получает. Банкир платит, значит он benefactor; он один — единственное число.",
+        "uz": "benefactor — pul beruvchi (homiy), beneficiary — undan foyda oluvchi. Bankir pul to'laydi, demak u benefactor; u bitta — birlik son."
+      }
+    },
+    {
+      "key": "c1-m13-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "fundraising"
+      ],
+      "text": "This year's fundraising *on* a new science lab has brought in half the cost.",
+      "options": [
+        "for",
+        "to",
+        "of"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Сбор средств на новую научную лабораторию в этом году уже принёс половину нужной суммы.",
+        "uz": "Bu yil yangi ilmiy laboratoriya uchun mablag' yig'ish xarajatning yarmini qopladi."
+      },
+      "explanation": {
+        "ru": "Сбор средств на что-то — fundraising for: цель вводится предлогом for. Русское «на» здесь не on.",
+        "uz": "Biror narsa uchun mablag' yig'ish — fundraising for: maqsad for predlogi bilan beriladi. O'zbekcha «uchun» bu yerda ham for."
+      }
+    },
+    {
+      "key": "c1-m13-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "nonprofit"
+      ],
+      "text": "The library is now run by a local *unprofitable* that relies on volunteers.",
+      "options": [
+        "nonprofit",
+        "nonprofits",
+        "profitable"
+      ],
+      "correct": [
+        "nonprofit"
+      ],
+      "translation": {
+        "ru": "Теперь библиотекой управляет местная некоммерческая организация, которая держится на волонтёрах.",
+        "uz": "Endi kutubxonani ko'ngillilarga tayanadigan mahalliy notijorat tashkilot boshqaradi."
+      },
+      "explanation": {
+        "ru": "После a local нужно существительное nonprofit — организация, которая не ставит целью прибыль. unprofitable — прилагательное «убыточный».",
+        "uz": "a local so'zlaridan keyin nonprofit oti kerak — foyda olishni maqsad qilmaydigan tashkilot. unprofitable esa «zarar ko'radigan» ma'nosidagi sifat."
+      }
+    },
+    {
+      "key": "c1-m14-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "investigative"
+      ],
+      "text": "The documentary is a fine example of patient ___ journalism.",
+      "base": "investigate",
+      "accepted": [
+        "investigative",
+        "investigatory"
+      ],
+      "translation": {
+        "ru": "Этот документальный фильм — прекрасный пример кропотливой расследовательской журналистики.",
+        "uz": "Bu hujjatli film sabr-toqat bilan olib boriladigan surishtiruv jurnalistikasining ajoyib namunasidir."
+      },
+      "explanation": {
+        "ru": "Перед journalism нужно прилагательное: investigate → investigative (-ate → -ative). Причастие investigating здесь не употребляется.",
+        "uz": "journalism oti oldida sifat kerak: investigate → investigative (-ate o'rniga -ative). Bu yerda investigating sifatdoshi ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m14-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "readership"
+      ],
+      "text": "The new magazine quickly built a loyal ___ among young parents.",
+      "base": "read",
+      "accepted": [
+        "readership"
+      ],
+      "translation": {
+        "ru": "Новый журнал быстро обрёл преданную читательскую аудиторию среди молодых родителей.",
+        "uz": "Yangi jurnal yosh ota-onalar orasida tezda sodiq o'quvchilar auditoriyasini yig'di."
+      },
+      "explanation": {
+        "ru": "После a loyal нужно собирательное существительное в единственном числе: read → reader → readership (-ship — все читатели издания).",
+        "uz": "a loyal so'zlaridan keyin birlikdagi jamlovchi ot kerak: read → reader → readership (-ship — nashrning barcha o'quvchilari)."
+      }
+    },
+    {
+      "key": "c1-m14-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "correspondent"
+      ],
+      "text": "She spent ten years abroad as the paper's foreign ___.",
+      "base": "correspond",
+      "accepted": [
+        "correspondent"
+      ],
+      "translation": {
+        "ru": "Десять лет она провела за границей в качестве зарубежного корреспондента газеты.",
+        "uz": "U o'n yil chet elda gazetaning xorijiy muxbiri bo'lib ishladi."
+      },
+      "explanation": {
+        "ru": "После as the paper's foreign нужно существительное — человек: correspond → correspondent; пишется -ent (как correspondence), не -ant.",
+        "uz": "as the paper's foreign so'zlaridan keyin shaxs oti kerak: correspond → correspondent; -ant emas, -ent bilan yoziladi (correspondence kabi)."
+      }
+    },
+    {
+      "key": "c1-m14-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "newscast"
+      ],
+      "text": "The evening *newscaster* is broadcast live and repeated after midnight.",
+      "options": [
+        "newscast",
+        "newsreader",
+        "newsletter"
+      ],
+      "correct": [
+        "newscast"
+      ],
+      "translation": {
+        "ru": "Вечерний выпуск новостей идёт в прямом эфире и повторяется после полуночи.",
+        "uz": "Kechki yangiliklar dasturi jonli efirda beriladi va yarim tundan keyin takrorlanadi."
+      },
+      "explanation": {
+        "ru": "newscaster — ведущий (человек), а в эфир выходит и повторяется программа — newscast (выпуск новостей).",
+        "uz": "newscaster — boshlovchi (odam), efirga uzatilib takrorlanadigan narsa esa dastur — newscast (yangiliklar dasturi)."
+      }
+    },
+    {
+      "key": "c1-m14-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "anchor"
+      ],
+      "text": "The evening news *leader* calmly read out the statement from the hospital.",
+      "options": [
+        "anchor",
+        "conductor",
+        "guide"
+      ],
+      "correct": [
+        "anchor"
+      ],
+      "translation": {
+        "ru": "Ведущий вечерних новостей спокойно зачитал заявление больницы.",
+        "uz": "Kechki yangiliklar boshlovchisi kasalxona bayonotini xotirjam o'qib berdi."
+      },
+      "explanation": {
+        "ru": "Ведущий новостей — news anchor (или presenter, newsreader). Русское «ведущий» здесь не leader: leader — руководитель, лидер.",
+        "uz": "Yangiliklar boshlovchisi — news anchor (yoki presenter, newsreader). O'zbekcha «boshlovchi» bu yerda leader emas: leader — rahbar, yetakchi."
+      }
+    },
+    {
+      "key": "c1-m14-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "airtime"
+      ],
+      "text": "Opposition parties complain that they get far less *airtimes* than the government.",
+      "options": [
+        "airtime",
+        "airtime's",
+        "aired"
+      ],
+      "correct": [
+        "airtime"
+      ],
+      "translation": {
+        "ru": "Оппозиционные партии жалуются, что получают гораздо меньше эфирного времени, чем правительство.",
+        "uz": "Muxolifat partiyalari hukumatga qaraganda ancha kam efir vaqti olayotganidan shikoyat qiladi."
+      },
+      "explanation": {
+        "ru": "airtime (эфирное время) — неисчисляемое существительное, как time в этом значении: множественного числа у него нет, поэтому и less, а не fewer.",
+        "uz": "airtime (efir vaqti) — bu ma'nodagi time kabi sanalmaydigan ot: ko'plik shakli yo'q, shu sababli fewer emas, less ishlatiladi."
+      }
+    },
+    {
+      "key": "c1-m14-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "credible"
+      ],
+      "text": "One fabricated quote was enough to destroy the paper's ___.",
+      "base": "credible",
+      "accepted": [
+        "credibility"
+      ],
+      "translation": {
+        "ru": "Одной выдуманной цитаты хватило, чтобы подорвать доверие к газете.",
+        "uz": "Gazetaga bo'lgan ishonchni yo'qotish uchun birgina to'qib chiqarilgan iqtibos yetarli bo'ldi."
+      },
+      "explanation": {
+        "ru": "После the paper's нужно существительное: credible → credibility (авторитет, доверие); -ible меняется на -ibility.",
+        "uz": "the paper's so'zidan keyin ot kerak: credible → credibility (ishonchlilik); -ible o'rniga -ibility."
+      }
+    },
+    {
+      "key": "c1-m14-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "retraction"
+      ],
+      "text": "The minister demanded a full ___ of the article that accused him of bribery.",
+      "base": "retract",
+      "accepted": [
+        "retraction"
+      ],
+      "translation": {
+        "ru": "Министр потребовал полного опровержения статьи, обвинявшей его во взяточничестве.",
+        "uz": "Vazir o'zini poraxo'rlikda ayblagan maqolaga to'liq raddiya berilishini talab qildi."
+      },
+      "explanation": {
+        "ru": "После a full нужно существительное: retract (отказаться от своих слов) → retraction (суффикс -ion).",
+        "uz": "a full so'zlaridan keyin ot kerak: retract (aytganidan qaytmoq) → retraction (-ion qo'shimchasi)."
+      }
+    },
+    {
+      "key": "c1-m14-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "unfounded"
+      ],
+      "text": "The judge dismissed the claims as completely ___ and closed the case.",
+      "base": "found",
+      "accepted": [
+        "unfounded"
+      ],
+      "translation": {
+        "ru": "Судья отклонил обвинения как совершенно необоснованные и закрыл дело.",
+        "uz": "Sudya da'volarni mutlaqo asossiz deb rad etdi va ishni yopdi."
+      },
+      "explanation": {
+        "ru": "Судья отклонил обвинения — значит, у них нет основания: found (основывать) → unfounded (приставка un- + причастие на -ed).",
+        "uz": "Sudya da'volarni rad etdi — demak ular asossiz: found (asoslamoq) → unfounded (un- inkor old qo'shimchasi + -ed sifatdoshi)."
+      }
+    },
+    {
+      "key": "c1-m14-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "allegation"
+      ],
+      "text": "Several former employees have *done* allegations of fraud against the director.",
+      "options": [
+        "made",
+        "said",
+        "told"
+      ],
+      "correct": [
+        "made"
+      ],
+      "translation": {
+        "ru": "Несколько бывших сотрудников выдвинули против директора обвинения в мошенничестве.",
+        "uz": "Bir nechta sobiq xodim direktorga qarshi firibgarlik haqida ayblovlar ilgari surdi."
+      },
+      "explanation": {
+        "ru": "Обвинения выдвигают: make an allegation. С allegation не употребляются do, say и tell.",
+        "uz": "Ayblov ilgari surish — make an allegation. allegation so'zi do, say va tell fe'llari bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m14-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "disinformation"
+      ],
+      "text": "During the election, fake accounts spread a flood of *disinformations* about the candidates.",
+      "options": [
+        "disinformation",
+        "disinformed",
+        "disinformation's"
+      ],
+      "correct": [
+        "disinformation"
+      ],
+      "translation": {
+        "ru": "Во время выборов фейковые аккаунты распространяли поток дезинформации о кандидатах.",
+        "uz": "Saylov paytida soxta akkauntlar nomzodlar haqida bir talay dezinformatsiya tarqatdi."
+      },
+      "explanation": {
+        "ru": "disinformation — неисчисляемое существительное, как information: формы disinformations нет.",
+        "uz": "disinformation — information kabi sanalmaydigan ot: disinformations shakli yo'q."
+      }
+    },
+    {
+      "key": "c1-m14-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "fabricate"
+      ],
+      "text": "*Fabricating* by an ambitious intern, the quotes fooled even the senior editors.",
+      "options": [
+        "Fabricated",
+        "Fabricate",
+        "Fabrication"
+      ],
+      "correct": [
+        "Fabricated"
+      ],
+      "translation": {
+        "ru": "Цитаты, выдуманные амбициозным стажёром, обманули даже старших редакторов.",
+        "uz": "Ambitsiyali stajyor to'qib chiqargan iqtiboslar hatto katta muharrirlarni ham aldab qo'ydi."
+      },
+      "explanation": {
+        "ru": "Цитаты выдумал стажёр — значение страдательное, поэтому оборот начинается с причастия Fabricated. Fabricating значило бы, что выдумывали сами цитаты.",
+        "uz": "Iqtiboslarni stajyor to'qigan — ma'no majhul, shuning uchun ibora Fabricated sifatdoshi bilan boshlanadi. Fabricating iqtiboslarning o'zi nimanidir to'qiganini bildirardi."
+      }
+    },
+    {
+      "key": "c1-m14-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "persuasion"
+      ],
+      "text": "Her ___ arguments won over even the most skeptical members of the board.",
+      "base": "persuasion",
+      "accepted": [
+        "persuasive"
+      ],
+      "translation": {
+        "ru": "Её убедительные доводы склонили на её сторону даже самых скептически настроенных членов совета.",
+        "uz": "Uning ishonarli dalillari hatto kengashning eng shubhachi a'zolarini ham ko'ndirdi."
+      },
+      "explanation": {
+        "ru": "Перед arguments нужно прилагательное: persuasion → persuasive; -sion меняется на -sive (как decision → decisive).",
+        "uz": "arguments oti oldida sifat kerak: persuasion → persuasive; -sion o'rniga -sive (decision → decisive kabi)."
+      }
+    },
+    {
+      "key": "c1-m14-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "publicist"
+      ],
+      "text": "As a ___, she spends her days keeping her clients in the headlines.",
+      "base": "publicity",
+      "accepted": [
+        "publicist"
+      ],
+      "translation": {
+        "ru": "Как пресс-агент, она целыми днями добивается, чтобы её клиенты не сходили с первых полос.",
+        "uz": "Matbuot agenti sifatida u kun bo'yi mijozlarini diqqat markazida ushlab turishga harakat qiladi."
+      },
+      "explanation": {
+        "ru": "После As a нужно существительное — человек: publicity (реклама, огласка) → publicist (пресс-агент); -ity меняется на -ist.",
+        "uz": "As a so'zlaridan keyin shaxs oti kerak: publicity (reklama, oshkoralik) → publicist (matbuot agenti); -ity o'rniga -ist."
+      }
+    },
+    {
+      "key": "c1-m14-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "gimmick"
+      ],
+      "text": "The commercial was clever, if a little ___, and sales rose sharply.",
+      "base": "gimmick",
+      "accepted": [
+        "gimmicky"
+      ],
+      "translation": {
+        "ru": "Рекламный ролик был остроумным, хотя и несколько нарочито эффектным, и продажи резко выросли.",
+        "uz": "Reklama roligi biroz nayrangga o'xshasa-da, aqlli chiqdi va savdo keskin oshdi."
+      },
+      "explanation": {
+        "ru": "После a little нужно прилагательное, как clever: gimmick → gimmicky; суффикс -y образует прилагательное (как trick → tricky).",
+        "uz": "a little so'zlaridan keyin clever kabi sifat kerak: gimmick → gimmicky; -y qo'shimchasi sifat yasaydi (trick → tricky kabi)."
+      }
+    },
+    {
+      "key": "c1-m14-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "sponsorship"
+      ],
+      "text": "The festival receives a lot of *sponsor* from local businesses.",
+      "options": [
+        "sponsorship",
+        "sponsored",
+        "sponsor's"
+      ],
+      "correct": [
+        "sponsorship"
+      ],
+      "translation": {
+        "ru": "Фестиваль получает большую спонсорскую поддержку от местных компаний.",
+        "uz": "Festival mahalliy korxonalardan katta homiylik oladi."
+      },
+      "explanation": {
+        "ru": "Фестиваль получает поддержку, а не человека: sponsor (спонсор) → sponsorship (спонсорство, суффикс -ship).",
+        "uz": "Festival odamni emas, qo'llab-quvvatlashni oladi: sponsor (homiy) → sponsorship (homiylik, -ship qo'shimchasi)."
+      }
+    },
+    {
+      "key": "c1-m14-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "exposure"
+      ],
+      "text": "One interview on a popular podcast *made* the young author a lot of exposure.",
+      "options": [
+        "gave",
+        "did",
+        "took"
+      ],
+      "correct": [
+        "gave"
+      ],
+      "translation": {
+        "ru": "Одно интервью в популярном подкасте принесло молодому автору широкую известность.",
+        "uz": "Mashhur podkastdagi birgina intervyu yosh muallifni ommaga keng tanitdi."
+      },
+      "explanation": {
+        "ru": "Известность «дают»: give someone exposure. С exposure в этом значении не употребляются make, do и take (make someone money — можно, make someone exposure — нет).",
+        "uz": "Tanilishga imkon berish — give someone exposure. Bu ma'nodagi exposure so'zi make, do va take fe'llari bilan birikmaydi (make someone money mumkin, make someone exposure — yo'q)."
+      }
+    },
+    {
+      "key": "c1-m14-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "branding"
+      ],
+      "text": "That agency has handled the *brandings* of several large banks.",
+      "options": [
+        "branding",
+        "branded",
+        "brand's"
+      ],
+      "correct": [
+        "branding"
+      ],
+      "translation": {
+        "ru": "Это агентство занималось брендингом нескольких крупных банков.",
+        "uz": "Bu agentlik bir nechta yirik bankning brendingi bilan shug'ullangan."
+      },
+      "explanation": {
+        "ru": "branding (брендинг) — неисчисляемое существительное: формы brandings нет, даже когда речь о нескольких компаниях.",
+        "uz": "branding so'zi sanalmaydigan ot: bir nechta kompaniya haqida gap ketsa ham, brandings shakli yo'q."
+      }
+    },
+    {
+      "key": "c1-m14-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "monetize"
+      ],
+      "text": "Every new app needs a clear ___ strategy if it wants to survive.",
+      "base": "monetize",
+      "accepted": [
+        "monetization",
+        "monetisation"
+      ],
+      "translation": {
+        "ru": "Каждому новому приложению нужна чёткая стратегия монетизации, если оно хочет выжить.",
+        "uz": "Har bir yangi ilova omon qolishni istasa, unga daromadga aylantirishning aniq strategiyasi kerak."
+      },
+      "explanation": {
+        "ru": "Перед strategy нужно существительное в роли определения: monetize → monetization; -ize меняется на -ization (как organize → organization).",
+        "uz": "strategy oti oldida aniqlovchi vazifasidagi ot kerak: monetize → monetization; -ize o'rniga -ization (organize → organization kabi)."
+      }
+    },
+    {
+      "key": "c1-m14-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "viewership"
+      ],
+      "text": "The channel's ___ has doubled since it began streaming football matches.",
+      "base": "viewer",
+      "accepted": [
+        "viewership"
+      ],
+      "translation": {
+        "ru": "Зрительская аудитория канала удвоилась с тех пор, как он начал транслировать футбольные матчи онлайн.",
+        "uz": "Kanal futbol o'yinlarini internetda translyatsiya qila boshlaganidan beri uning tomoshabinlar auditoriyasi ikki baravar oshdi."
+      },
+      "explanation": {
+        "ru": "Глагол has стоит в единственном числе: нужно собирательное viewer → viewership (-ship — все зрители канала); viewers потребовало бы have.",
+        "uz": "has fe'li birlikda: jamlovchi ot kerak: viewer → viewership (-ship — kanalning barcha tomoshabinlari); viewers bo'lsa, have kerak bo'lardi."
+      }
+    },
+    {
+      "key": "c1-m14-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "anonymity"
+      ],
+      "text": "The website promises complete ___ to anyone who reports corruption.",
+      "base": "anonymous",
+      "accepted": [
+        "anonymity"
+      ],
+      "translation": {
+        "ru": "Сайт обещает полную анонимность каждому, кто сообщает о коррупции.",
+        "uz": "Sayt korrupsiya haqida xabar bergan har bir kishiga to'liq anonimlikni va'da qiladi."
+      },
+      "explanation": {
+        "ru": "После прилагательного complete нужно существительное: anonymous → anonymity; -ous отпадает, добавляется -ity, ударение переходит на -nym-.",
+        "uz": "complete sifatidan keyin ot kerak: anonymous → anonymity; -ous tushib qoladi, -ity qo'shiladi, urg'u -nym- bo'g'iniga ko'chadi."
+      }
+    },
+    {
+      "key": "c1-m14-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "livestream"
+      ],
+      "text": "Last night's final was *livestreaming* by the club to fans all over the world.",
+      "options": [
+        "livestreamed",
+        "livestreams",
+        "livestreamer"
+      ],
+      "correct": [
+        "livestreamed"
+      ],
+      "translation": {
+        "ru": "Вчерашний финал клуб транслировал в прямом эфире для болельщиков по всему миру.",
+        "uz": "Kechagi finalni klub butun dunyodagi muxlislar uchun jonli efirda translyatsiya qildi."
+      },
+      "explanation": {
+        "ru": "Финал транслировал клуб (by the club) — страдательный залог: was + причастие livestreamed. was livestreaming означало бы, что финал сам что-то транслировал.",
+        "uz": "Finalni klub translyatsiya qilgan (by the club) — majhul nisbat: was + livestreamed sifatdoshi. was livestreaming finalning o'zi nimanidir translyatsiya qilganini bildirardi."
+      }
+    },
+    {
+      "key": "c1-m14-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "curate"
+      ],
+      "text": "*Curating* by hand every week, the reading list includes only the best new novels.",
+      "options": [
+        "Curated",
+        "Curate",
+        "Curation"
+      ],
+      "correct": [
+        "Curated"
+      ],
+      "translation": {
+        "ru": "Список для чтения, который каждую неделю составляют вручную, включает только лучшие новые романы.",
+        "uz": "Har hafta qo'lda saralab tuziladigan o'qish ro'yxatiga faqat eng yaxshi yangi romanlar kiritiladi."
+      },
+      "explanation": {
+        "ru": "Список отбирают — он не отбирает сам, значение страдательное: оборот начинается с причастия Curated.",
+        "uz": "Ro'yxatni saralab tuzishadi — u o'zi saralamaydi, ma'no majhul: ibora Curated sifatdoshi bilan boshlanadi."
+      }
+    },
+    {
+      "key": "c1-m14-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "paywall"
+      ],
+      "text": "Sadly, the full interview is hidden *after* a paywall.",
+      "options": [
+        "behind",
+        "across",
+        "over"
+      ],
+      "correct": [
+        "behind"
+      ],
+      "translation": {
+        "ru": "К сожалению, полное интервью скрыто за платным доступом.",
+        "uz": "Afsuski, intervyuning to'liq matni pullik kirish ortida yashiringan."
+      },
+      "explanation": {
+        "ru": "Платный доступ представляют как стену: материалы скрыты behind a paywall. Русское «за» здесь не after: after указывает на время или порядок.",
+        "uz": "Paywall devor sifatida tasavvur qilinadi: materiallar behind a paywall (devor ortida) turadi. «Ortida» bu yerda after emas: after vaqt yoki tartibni bildiradi."
+      }
+    },
+    {
+      "key": "c1-m14-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "secrecy"
+      ],
+      "text": "The project's ___ was so strict that even the engineers did not know its purpose.",
+      "base": "secret",
+      "accepted": [
+        "secrecy"
+      ],
+      "translation": {
+        "ru": "Секретность проекта была настолько строгой, что даже инженеры не знали его назначения.",
+        "uz": "Loyihaning maxfiyligi shunchalik qat'iy ediki, hatto muhandislar ham uning maqsadini bilmasdi."
+      },
+      "explanation": {
+        "ru": "После the project's нужно существительное, которое может быть strict: secret → secrecy; t меняется на c, добавляется -y (-cy).",
+        "uz": "the project's so'zidan keyin strict bo'la oladigan ot kerak: secret → secrecy; t harfi c ga o'zgarib, -y qo'shiladi (-cy)."
+      }
+    },
+    {
+      "key": "c1-m14-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "disclosure"
+      ],
+      "text": "Companies must make a public ___ of any serious data leak within three days.",
+      "base": "disclose",
+      "accepted": [
+        "disclosure"
+      ],
+      "translation": {
+        "ru": "Компании обязаны в течение трёх дней публично раскрыть сведения о любой серьёзной утечке данных.",
+        "uz": "Kompaniyalar har qanday jiddiy ma'lumot sizib chiqishi haqida uch kun ichida ommaga oshkor qilishi shart."
+      },
+      "explanation": {
+        "ru": "После a public нужно существительное: disclose → disclosure; -e меняется на -ure (как close → closure).",
+        "uz": "a public so'zlaridan keyin ot kerak: disclose → disclosure; -e o'rniga -ure (close → closure kabi)."
+      }
+    },
+    {
+      "key": "c1-m14-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "publicize"
+      ],
+      "text": "The family went to the newspapers to ___ their missing son's case.",
+      "base": "public",
+      "accepted": [
+        "publicize"
+      ],
+      "translation": {
+        "ru": "Семья обратилась в газеты, чтобы предать огласке дело пропавшего сына.",
+        "uz": "Oila bedarak yo'qolgan o'g'lining ishini keng ommaga yetkazish uchun gazetalarga murojaat qildi."
+      },
+      "explanation": {
+        "ru": "После to нужен глагол в начальной форме: public → publicize (предавать огласке); суффикс -ize образует глагол.",
+        "uz": "to so'zidan keyin fe'lning bosh shakli kerak: public → publicize (keng ommaga yetkazmoq); -ize qo'shimchasi fe'l yasaydi."
+      }
+    },
+    {
+      "key": "c1-m14-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "censor"
+      ],
+      "text": "Officials *censured* the war photos so that no military secrets would leak.",
+      "options": [
+        "censored",
+        "sensed",
+        "sentenced"
+      ],
+      "correct": [
+        "censored"
+      ],
+      "translation": {
+        "ru": "Чиновники подвергли военные фотографии цензуре, чтобы не просочились военные тайны.",
+        "uz": "Rasmiylar hech qanday harbiy sir oshkor bo'lmasligi uchun urush suratlarini senzura qildi."
+      },
+      "explanation": {
+        "ru": "censor — подвергать цензуре (вымарывать, запрещать), censure — официально порицать. Чтобы тайны не просочились, снимки подвергают цензуре: censored.",
+        "uz": "censor — senzura qilmoq (o'chirib tashlamoq, taqiqlamoq), censure — rasman qoralamoq. Sirlar oshkor bo'lmasligi uchun suratlar senzura qilinadi: censored."
+      }
+    },
+    {
+      "key": "c1-m14-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "confidentiality"
+      ],
+      "text": "The lawyer was fired for a serious *disturbance* of client confidentiality.",
+      "options": [
+        "breach",
+        "crack",
+        "damage"
+      ],
+      "correct": [
+        "breach"
+      ],
+      "translation": {
+        "ru": "Юриста уволили за серьёзное нарушение конфиденциальности клиента.",
+        "uz": "Advokat mijoz konfidensialligini qo'pol ravishda buzgani uchun ishdan bo'shatildi."
+      },
+      "explanation": {
+        "ru": "Нарушение конфиденциальности — breach of confidentiality. Русское «нарушение» здесь не disturbance: так говорят о шуме или беспорядке.",
+        "uz": "Konfidensiallikni buzish — breach of confidentiality. «Buzish» bu yerda disturbance emas: bu so'z shovqin yoki tartibsizlik haqida ishlatiladi."
+      }
+    },
+    {
+      "key": "c1-m14-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "classified"
+      ],
+      "text": "*Classifying* as top secret, the files remained sealed for half a century.",
+      "options": [
+        "Classified",
+        "Classify",
+        "Classification"
+      ],
+      "correct": [
+        "Classified"
+      ],
+      "translation": {
+        "ru": "Получив гриф «совершенно секретно», эти документы полвека оставались опечатанными.",
+        "uz": "«Mutlaqo maxfiy» deb belgilangan bu hujjatlar yarim asr davomida muhrlangan holda saqlandi."
+      },
+      "explanation": {
+        "ru": "Документы засекретили — они не засекречивают сами, значение страдательное: оборот начинается с причастия Classified.",
+        "uz": "Hujjatlarni maxfiy deb belgilashgan — ular o'zlari belgilamaydi, ma'no majhul: ibora Classified sifatdoshi bilan boshlanadi."
+      }
+    }
+  ]
+}

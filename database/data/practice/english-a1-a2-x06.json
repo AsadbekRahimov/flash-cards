@@ -1,0 +1,1626 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-a1-a2",
+  "items": [
+    {
+      "key": "a1a2-m11-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "plan"
+      ],
+      "text": "Last spring we ___ the whole trip ourselves, and everything went well.",
+      "base": "plan",
+      "accepted": [
+        "planned"
+      ],
+      "translation": {
+        "ru": "Прошлой весной мы сами спланировали всю поездку, и всё прошло хорошо.",
+        "uz": "O'tgan bahorda butun safarni o'zimiz rejalashtirdik va hammasi yaxshi o'tdi."
+      },
+      "explanation": {
+        "ru": "Last spring и went требуют прошедшего времени: plan + -ed. В односложном слове с кратким гласным и одной согласной на конце согласная удваивается: planned.",
+        "uz": "Last spring va went o'tgan zamonni talab qiladi: plan + -ed. Qisqa unli va bitta undosh bilan tugaydigan bir bo'g'inli so'zda undosh ikkilanadi: planned."
+      }
+    },
+    {
+      "key": "a1a2-m11-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "travel"
+      ],
+      "text": "My uncle is an experienced ___ and has visited many countries.",
+      "base": "travel",
+      "accepted": [
+        "traveler"
+      ],
+      "translation": {
+        "ru": "Мой дядя — опытный путешественник, он побывал во многих странах.",
+        "uz": "Amakim tajribali sayohatchi, ko'plab mamlakatlarda bo'lgan."
+      },
+      "explanation": {
+        "ru": "После an experienced нужно существительное — человек: travel + -er → traveler («путешественник»). В американском написании одна l, в британском две: traveller.",
+        "uz": "an experienced so'zlaridan keyin shaxsni bildiruvchi ot kerak: travel + -er → traveler («sayohatchi»). Amerikacha yozuvda bitta l, britancha yozuvda ikkita: traveller."
+      }
+    },
+    {
+      "key": "a1a2-m11-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "journey"
+      ],
+      "text": "My grandfather made many long ___ by train when he was young.",
+      "base": "journey",
+      "accepted": [
+        "journeys"
+      ],
+      "translation": {
+        "ru": "В молодости мой дедушка совершил много долгих путешествий на поезде.",
+        "uz": "Bobom yoshligida poyezdda ko'p uzoq safarlar qilgan."
+      },
+      "explanation": {
+        "ru": "После many нужно множественное число. Перед -y стоит гласная e, поэтому просто + s: journeys (не journies).",
+        "uz": "many so'zidan keyin ko'plik kerak. -y dan oldin e unlisi turgani uchun faqat -s qo'shiladi: journeys (journies emas)."
+      }
+    },
+    {
+      "key": "a1a2-m11-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "luggage"
+      ],
+      "text": "The driver helped us carry our *luggages* to the hotel.",
+      "options": [
+        "luggage",
+        "luggage's",
+        "a luggage"
+      ],
+      "correct": [
+        "luggage"
+      ],
+      "translation": {
+        "ru": "Водитель помог нам донести наш багаж до отеля.",
+        "uz": "Haydovchi yuklarimizni mehmonxonagacha olib borishga yordam berdi."
+      },
+      "explanation": {
+        "ru": "Luggage — неисчисляемое существительное: у него нет формы на -s, и с ним не говорят a. Сумки можно посчитать (two bags), а багаж — нет: our luggage.",
+        "uz": "Luggage — sanalmaydigan ot: u -s qo'shimchasini olmaydi va a bilan ishlatilmaydi. Sumkalarni sanash mumkin (two bags), yukni esa yo'q: our luggage. O'zbekcha «yuklar» bu yerda chalg'itadi."
+      }
+    },
+    {
+      "key": "a1a2-m11-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "reservation"
+      ],
+      "text": "We *did* a reservation at a small hotel.",
+      "options": [
+        "made",
+        "wrote",
+        "gave"
+      ],
+      "correct": [
+        "made"
+      ],
+      "translation": {
+        "ru": "Мы забронировали номер в маленьком отеле.",
+        "uz": "Kichik mehmonxonada joy band qildik."
+      },
+      "explanation": {
+        "ru": "С reservation говорят make: make a reservation — забронировать. Do здесь — калька с «сделать бронь».",
+        "uz": "Reservation so'zi bilan make fe'li ishlatiladi: make a reservation — joy band qilmoq. O'zbekcha «bron qilmoq» (qilmoq — do) bu yerda chalg'itadi."
+      }
+    },
+    {
+      "key": "a1a2-m11-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "tourist"
+      ],
+      "text": "In summer there are too *much* tourists here.",
+      "options": [
+        "many",
+        "more",
+        "lot"
+      ],
+      "correct": [
+        "many"
+      ],
+      "translation": {
+        "ru": "Летом здесь слишком много туристов.",
+        "uz": "Yozda bu yerda sayyohlar haddan tashqari ko'p bo'ladi."
+      },
+      "explanation": {
+        "ru": "Tourists — исчисляемое существительное во множественном числе, с ним нужно many: too many tourists. Much — только с неисчисляемыми: too much noise.",
+        "uz": "Tourists — sanaladigan ot, ko'plikda, u bilan many ishlatiladi: too many tourists. Much faqat sanalmaydigan otlar bilan keladi: too much noise."
+      }
+    },
+    {
+      "key": "a1a2-m11-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "cancel"
+      ],
+      "text": "Yesterday the airline ___ all flights because of the heavy snow.",
+      "base": "cancel",
+      "accepted": [
+        "canceled"
+      ],
+      "translation": {
+        "ru": "Вчера авиакомпания отменила все рейсы из-за сильного снегопада.",
+        "uz": "Kecha aviakompaniya kuchli qor tufayli barcha reyslarni bekor qildi."
+      },
+      "explanation": {
+        "ru": "Yesterday требует прошедшего времени: cancel + -ed. В американском написании l не удваивается: canceled (британское cancelled).",
+        "uz": "Yesterday o'tgan zamonni talab qiladi: cancel + -ed. Amerikacha yozuvda l ikkilanmaydi: canceled (britancha cancelled)."
+      }
+    },
+    {
+      "key": "a1a2-m11-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "delay"
+      ],
+      "text": "Our ___ flight finally took off at midnight.",
+      "base": "delay",
+      "accepted": [
+        "delayed"
+      ],
+      "translation": {
+        "ru": "Наш задержанный рейс наконец вылетел в полночь.",
+        "uz": "Kechiktirilgan reysimiz nihoyat yarim tunda uchib ketdi."
+      },
+      "explanation": {
+        "ru": "Между Our и flight нужно прилагательное: задержанный рейс — delayed, причастие на -ed. После гласной a буква y не меняется: delay → delayed.",
+        "uz": "Our va flight orasida sifat kerak: kechiktirilgan reys — delayed, -ed li sifatdosh. a unlisidan keyin y o'zgarmaydi: delay → delayed."
+      }
+    },
+    {
+      "key": "a1a2-m11-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "land"
+      ],
+      "text": "The plane has just ___, so please stay in your seats.",
+      "base": "land",
+      "accepted": [
+        "landed"
+      ],
+      "translation": {
+        "ru": "Самолёт только что приземлился, поэтому, пожалуйста, оставайтесь на своих местах.",
+        "uz": "Samolyot hozirgina qo'ndi, shuning uchun iltimos, o'z joylaringizda o'tirib turing."
+      },
+      "explanation": {
+        "ru": "Has just — это Present Perfect: has + третья форма глагола. Land — правильный глагол: landed.",
+        "uz": "Has just — bu Present Perfect: has va fe'lning uchinchi shakli. Land — to'g'ri fe'l: landed."
+      }
+    },
+    {
+      "key": "a1a2-m11-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "passenger"
+      ],
+      "text": "Each passenger *have* to wear a seat belt.",
+      "options": [
+        "has",
+        "are",
+        "having"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "Каждый пассажир должен пристегнуть ремень безопасности.",
+        "uz": "Har bir yo'lovchi xavfsizlik kamarini taqishi kerak."
+      },
+      "explanation": {
+        "ru": "Each passenger — третье лицо единственного числа, поэтому has to, а не have to («должен»).",
+        "uz": "Each passenger — uchinchi shaxs birlik, shuning uchun have to emas, has to keladi («...ishi kerak»)."
+      }
+    },
+    {
+      "key": "a1a2-m11-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "flight"
+      ],
+      "text": "Our flight *were* late, and it landed at midnight.",
+      "options": [
+        "was",
+        "been",
+        "be"
+      ],
+      "correct": [
+        "was"
+      ],
+      "translation": {
+        "ru": "Наш рейс опоздал и приземлился в полночь.",
+        "uz": "Reysimiz kechikdi va yarim tunda qo'ndi."
+      },
+      "explanation": {
+        "ru": "Flight — единственное число (it), поэтому в прошедшем времени was, а не were. Were — для you и для множественного числа.",
+        "uz": "Flight — birlik (it), shuning uchun o'tgan zamonda were emas, was keladi. Were — you va ko'plik uchun."
+      }
+    },
+    {
+      "key": "a1a2-m11-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "suitcase"
+      ],
+      "text": "This suitcase is *my*, and that one is yours.",
+      "options": [
+        "mine",
+        "me",
+        "myself"
+      ],
+      "correct": [
+        "mine"
+      ],
+      "translation": {
+        "ru": "Этот чемодан мой, а тот — ваш.",
+        "uz": "Bu chamadon meniki, anavisi esa sizniki."
+      },
+      "explanation": {
+        "ru": "Если после местоимения нет существительного, нужно mine («мой»), как yours. My ставится только перед существительным: my suitcase.",
+        "uz": "Olmoshdan keyin ot kelmasa, mine («meniki») kerak, xuddi yours kabi. My faqat ot oldidan keladi: my suitcase."
+      }
+    },
+    {
+      "key": "a1a2-m11-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "comfortable"
+      ],
+      "text": "The hotel bed was so ___ that I could not sleep.",
+      "base": "comfortable",
+      "accepted": [
+        "uncomfortable"
+      ],
+      "translation": {
+        "ru": "Кровать в отеле была такой неудобной, что я не мог уснуть.",
+        "uz": "Mehmonxonadagi karavot shu qadar noqulay ediki, uxlay olmadim."
+      },
+      "explanation": {
+        "ru": "I could not sleep показывает, что кровать плохая: нужно отрицание. Приставка un-: comfortable → uncomfortable.",
+        "uz": "I could not sleep karavot yomon ekanini ko'rsatadi, demak inkor kerak. Un- old qo'shimchasi: comfortable → uncomfortable."
+      }
+    },
+    {
+      "key": "a1a2-m11-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "quiet"
+      ],
+      "text": "Late at night we ___ opened the door of our hotel room.",
+      "base": "quiet",
+      "accepted": [
+        "quietly"
+      ],
+      "translation": {
+        "ru": "Поздно ночью мы тихо открыли дверь нашего номера.",
+        "uz": "Kech tunda mehmonxonadagi xonamiz eshigini sekin ochdik."
+      },
+      "explanation": {
+        "ru": "Слово описывает, как мы открыли дверь (opened), поэтому нужно наречие: quiet + -ly → quietly.",
+        "uz": "So'z eshikni qanday ochganimizni (opened) bildiradi, shuning uchun ravish kerak: quiet + -ly → quietly."
+      }
+    },
+    {
+      "key": "a1a2-m11-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "noise"
+      ],
+      "text": "Our room was above a bar, so it was very ___.",
+      "base": "noise",
+      "accepted": [
+        "noisy"
+      ],
+      "translation": {
+        "ru": "Наш номер был над баром, поэтому там было очень шумно.",
+        "uz": "Xonamiz bar ustida edi, shuning uchun u yer juda shovqinli edi."
+      },
+      "explanation": {
+        "ru": "После very нужно прилагательное: noise + -y → noisy («шумный»); конечное e перед -y выпадает.",
+        "uz": "very so'zidan keyin sifat kerak: noise + -y → noisy («shovqinli»); -y oldidan oxirgi e tushib qoladi."
+      }
+    },
+    {
+      "key": "a1a2-m11-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "stay"
+      ],
+      "text": "We didn't *stayed* at that hotel because it was expensive.",
+      "options": [
+        "stay",
+        "staying",
+        "stays"
+      ],
+      "correct": [
+        "stay"
+      ],
+      "translation": {
+        "ru": "Мы не остановились в том отеле, потому что он был дорогим.",
+        "uz": "O'sha mehmonxonada qolmadik, chunki u qimmat edi."
+      },
+      "explanation": {
+        "ru": "После didn't глагол стоит в начальной форме: didn't stay. Прошедшее время уже показано словом did.",
+        "uz": "didn't so'zidan keyin fe'l asosiy shaklda keladi: didn't stay. O'tgan zamon did so'zida allaqachon ko'rsatilgan."
+      }
+    },
+    {
+      "key": "a1a2-m11-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "view"
+      ],
+      "text": "We wanted a room with a view *on* the sea.",
+      "options": [
+        "of",
+        "at",
+        "in"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Мы хотели номер с видом на море.",
+        "uz": "Biz dengiz manzarasi ko'rinadigan xona olmoqchi edik."
+      },
+      "explanation": {
+        "ru": "Вид на что-то — a view of: a view of the sea. Русское «вид на» здесь не on.",
+        "uz": "Biror narsaning manzarasi — a view of: a view of the sea. On, at yoki in bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m11-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "balcony"
+      ],
+      "text": "Both of our rooms have small *balconys* above the pool.",
+      "options": [
+        "balconies",
+        "balcony",
+        "balcony's"
+      ],
+      "correct": [
+        "balconies"
+      ],
+      "translation": {
+        "ru": "В обоих наших номерах есть маленькие балконы над бассейном.",
+        "uz": "Ikkala xonamizda ham basseyn ustida kichkina balkonlar bor."
+      },
+      "explanation": {
+        "ru": "Both требует множественного числа. Перед -y стоит согласная n, поэтому y → ies: balconies. Апостроф ('s) означает принадлежность.",
+        "uz": "Both ko'plikni talab qiladi. -y dan oldin n undoshi turgani uchun y → ies: balconies. Apostrof ('s) qaratqichni bildiradi."
+      }
+    },
+    {
+      "key": "a1a2-m11-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "beach"
+      ],
+      "text": "This island has many beautiful sandy ___.",
+      "base": "beach",
+      "accepted": [
+        "beaches"
+      ],
+      "translation": {
+        "ru": "На этом острове много красивых песчаных пляжей.",
+        "uz": "Bu orolda ko'plab chiroyli qumli plyajlar bor."
+      },
+      "explanation": {
+        "ru": "После many нужно множественное число. После ch добавляется -es: beach → beaches.",
+        "uz": "many so'zidan keyin ko'plik kerak. ch dan keyin -es qo'shiladi: beach → beaches."
+      }
+    },
+    {
+      "key": "a1a2-m11-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "tour"
+      ],
+      "text": "Yesterday we ___ the old castle with a local guide.",
+      "base": "tour",
+      "accepted": [
+        "toured"
+      ],
+      "translation": {
+        "ru": "Вчера мы осмотрели старый замок с местным гидом.",
+        "uz": "Kecha mahalliy gid bilan eski qal'ani aylanib chiqdik."
+      },
+      "explanation": {
+        "ru": "Здесь tour — глагол «осматривать, совершать экскурсию». Yesterday требует прошедшего времени: tour + -ed → toured.",
+        "uz": "Bu yerda tour — «ekskursiya qilib aylanib chiqmoq» fe'li. Yesterday o'tgan zamonni talab qiladi: tour + -ed → toured."
+      }
+    },
+    {
+      "key": "a1a2-m11-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "guide"
+      ],
+      "text": "Our ___ English was perfect, and she answered every question.",
+      "base": "guide",
+      "accepted": [
+        "guide's"
+      ],
+      "translation": {
+        "ru": "У нашего гида был прекрасный английский, и она ответила на каждый вопрос.",
+        "uz": "Gidimizning ingliz tili a'lo darajada edi, u har bir savolga javob berdi."
+      },
+      "explanation": {
+        "ru": "Между Our и English нужен притяжательный падеж: чей английский — гида. Гид один (she), поэтому 's: guide's (не guides').",
+        "uz": "Our va English orasida qaratqich shakli kerak: kimning ingliz tili — gidning. Gid bitta (she), shuning uchun 's: guide's (guides' emas)."
+      }
+    },
+    {
+      "key": "a1a2-m11-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "camera"
+      ],
+      "text": "My camera *don't* work, and I cannot fix it.",
+      "options": [
+        "doesn't",
+        "isn't",
+        "aren't"
+      ],
+      "correct": [
+        "doesn't"
+      ],
+      "translation": {
+        "ru": "Мой фотоаппарат не работает, и я не могу его починить.",
+        "uz": "Fotoapparatim ishlamayapti, uni tuzata olmayman."
+      },
+      "explanation": {
+        "ru": "Camera — третье лицо единственного числа (it), поэтому отрицание с doesn't: doesn't work. Isn't и aren't не ставятся перед глаголом work.",
+        "uz": "Camera — uchinchi shaxs birlik (it), shuning uchun inkor doesn't bilan yasaladi: doesn't work. Isn't va aren't work fe'lidan oldin kelmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m11-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "island"
+      ],
+      "text": "Every summer we go *on* that small island by boat.",
+      "options": [
+        "to",
+        "at",
+        "in"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Каждое лето мы ездим на тот маленький остров на лодке.",
+        "uz": "Har yozda o'sha kichkina orolga qayiqda boramiz."
+      },
+      "explanation": {
+        "ru": "После go направление «куда» обозначает to: go to the island. On the island — «на острове» (где), а не «на остров».",
+        "uz": "go fe'lidan keyin «qayerga» yo'nalishi to bilan bildiriladi: go to the island. On the island — «orolda» (qayerda), «orolga» emas."
+      }
+    },
+    {
+      "key": "a1a2-m11-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "monument"
+      ],
+      "text": "Near the palace there *is* three old monuments.",
+      "options": [
+        "are",
+        "be",
+        "was"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Рядом с дворцом стоят три старых памятника.",
+        "uz": "Saroy yonida uchta eski yodgorlik bor."
+      },
+      "explanation": {
+        "ru": "После there глагол согласуется со словом после него: three monuments — множественное число, поэтому there are.",
+        "uz": "there so'zidan keyingi fe'l undan keyin keladigan ot bilan moslashadi: three monuments — ko'plik, shuning uchun there are."
+      }
+    },
+    {
+      "key": "a1a2-m11-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "lost"
+      ],
+      "text": "Yesterday we got ___ in the narrow streets of the old town.",
+      "base": "lose",
+      "accepted": [
+        "lost"
+      ],
+      "translation": {
+        "ru": "Вчера мы заблудились на узких улочках старого города.",
+        "uz": "Kecha eski shaharning tor ko'chalarida adashib qoldik."
+      },
+      "explanation": {
+        "ru": "Get lost — «заблудиться»: после got нужна третья форма глагола lose. Он неправильный: lose – lost – lost.",
+        "uz": "Get lost — «adashib qolmoq»: got fe'lidan keyin lose fe'lining uchinchi shakli keladi. Bu noto'g'ri fe'l: lose – lost – lost."
+      }
+    },
+    {
+      "key": "a1a2-m11-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "explore"
+      ],
+      "text": "He was a brave ___ and spent many years in the jungle.",
+      "base": "explore",
+      "accepted": [
+        "explorer"
+      ],
+      "translation": {
+        "ru": "Он был смелым исследователем и провёл много лет в джунглях.",
+        "uz": "U jasur tadqiqotchi edi va ko'p yillarini tropik o'rmonlarda o'tkazdi."
+      },
+      "explanation": {
+        "ru": "После a brave нужно существительное — человек, который исследует: explore + -r → explorer (слово уже кончается на e).",
+        "uz": "a brave so'zlaridan keyin shaxsni bildiruvchi ot kerak: explore + -r → explorer (so'z e harfi bilan tugagani uchun faqat -r qo'shiladi)."
+      }
+    },
+    {
+      "key": "a1a2-m11-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "currency"
+      ],
+      "text": "At the airport you can change money into many different ___.",
+      "base": "currency",
+      "accepted": [
+        "currencies"
+      ],
+      "translation": {
+        "ru": "В аэропорту можно обменять деньги на много разных валют.",
+        "uz": "Aeroportda pulni ko'plab turli valyutalarga almashtirish mumkin."
+      },
+      "explanation": {
+        "ru": "После many different нужно множественное число. Перед -y стоит согласная c, поэтому y → ies: currencies.",
+        "uz": "many different so'zlaridan keyin ko'plik kerak. -y dan oldin c undoshi turgani uchun y → ies: currencies."
+      }
+    },
+    {
+      "key": "a1a2-m11-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "return"
+      ],
+      "text": "When did your parents *returned* from their trip?",
+      "options": [
+        "return",
+        "returning",
+        "returns"
+      ],
+      "correct": [
+        "return"
+      ],
+      "translation": {
+        "ru": "Когда ваши родители вернулись из поездки?",
+        "uz": "Ota-onangiz safardan qachon qaytishdi?"
+      },
+      "explanation": {
+        "ru": "В вопросе с did глагол стоит в начальной форме: When did ... return? Прошедшее время уже показано словом did.",
+        "uz": "did bilan tuzilgan so'roqda fe'l asosiy shaklda keladi: When did ... return? O'tgan zamon did so'zida allaqachon ko'rsatilgan."
+      }
+    },
+    {
+      "key": "a1a2-m11-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "direction"
+      ],
+      "text": "We walked *to* the wrong direction for almost an hour.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Мы почти час шли не в том направлении.",
+        "uz": "Deyarli bir soat noto'g'ri yo'nalishda yurdik."
+      },
+      "explanation": {
+        "ru": "С direction используется in: in the wrong direction — «не в том направлении». To с direction так не употребляется.",
+        "uz": "direction so'zi bilan in ishlatiladi: in the wrong direction — «noto'g'ri yo'nalishda». To bu birikmada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m11-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "border"
+      ],
+      "text": "The border *were* closed, but it opened this morning.",
+      "options": [
+        "was",
+        "been",
+        "are"
+      ],
+      "correct": [
+        "was"
+      ],
+      "translation": {
+        "ru": "Граница была закрыта, но сегодня утром её открыли.",
+        "uz": "Chegara yopiq edi, lekin bugun ertalab ochildi."
+      },
+      "explanation": {
+        "ru": "Border — единственное число (it), поэтому в прошедшем времени was closed, а не were.",
+        "uz": "Border — birlik (it), shuning uchun o'tgan zamonda were emas, was closed keladi."
+      }
+    },
+    {
+      "key": "a1a2-m12-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "charger"
+      ],
+      "text": "I cannot find my phone ___, and the battery is almost dead.",
+      "base": "charge",
+      "accepted": [
+        "charger"
+      ],
+      "translation": {
+        "ru": "Я не могу найти зарядное устройство для телефона, а батарея почти села.",
+        "uz": "Telefonimning quvvatlagichini topa olmayapman, batareya esa deyarli tugab qoldi."
+      },
+      "explanation": {
+        "ru": "После my phone нужно существительное — предмет, который заряжает: charge + -r → charger («зарядное устройство»).",
+        "uz": "my phone so'zlaridan keyin ot kerak — quvvat beradigan narsa: charge + -r → charger («quvvatlagich»)."
+      }
+    },
+    {
+      "key": "a1a2-m12-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "battery"
+      ],
+      "text": "This toy car needs four new ___ every month.",
+      "base": "battery",
+      "accepted": [
+        "batteries"
+      ],
+      "translation": {
+        "ru": "Этой игрушечной машинке каждый месяц нужны четыре новые батарейки.",
+        "uz": "Bu o'yinchoq mashinaga har oy to'rtta yangi batareya kerak."
+      },
+      "explanation": {
+        "ru": "После four нужно множественное число. Перед -y стоит согласная r, поэтому y → ies: batteries.",
+        "uz": "four so'zidan keyin ko'plik kerak. -y dan oldin r undoshi turgani uchun y → ies: batteries."
+      }
+    },
+    {
+      "key": "a1a2-m12-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "printer"
+      ],
+      "text": "Our office bought a new color ___ for photos and posters.",
+      "base": "print",
+      "accepted": [
+        "printer"
+      ],
+      "translation": {
+        "ru": "Наш офис купил новый цветной принтер для фотографий и плакатов.",
+        "uz": "Ofisimiz suratlar va plakatlar uchun yangi rangli printer sotib oldi."
+      },
+      "explanation": {
+        "ru": "После a new color нужно существительное — машина, которая печатает: print + -er → printer.",
+        "uz": "a new color so'zlaridan keyin ot kerak — chop etadigan qurilma: print + -er → printer."
+      }
+    },
+    {
+      "key": "a1a2-m12-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "headphones"
+      ],
+      "text": "*This* headphones are light, and I wear them all day.",
+      "options": [
+        "These",
+        "That",
+        "Every"
+      ],
+      "correct": [
+        "These"
+      ],
+      "translation": {
+        "ru": "Эти наушники лёгкие, и я ношу их весь день.",
+        "uz": "Bu quloqchinlar yengil, ularni kun bo'yi taqib yuraman."
+      },
+      "explanation": {
+        "ru": "Headphones — множественное число (are, them), поэтому these, а не this. This и that — только с единственным числом.",
+        "uz": "Headphones — ko'plik (are, them), shuning uchun this emas, these keladi. This va that faqat birlik bilan ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m12-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "screen"
+      ],
+      "text": "The text *in* the screen is too small for me.",
+      "options": [
+        "on",
+        "at",
+        "to"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Текст на экране для меня слишком мелкий.",
+        "uz": "Ekrandagi matn men uchun juda mayda."
+      },
+      "explanation": {
+        "ru": "То, что показано на экране, — on the screen («на экране»), а не in.",
+        "uz": "Ekranda ko'rsatilgan narsa haqida on the screen deyiladi. O'zbekcha «ekranda» in ni eslatadi, lekin bu yerda on kerak."
+      }
+    },
+    {
+      "key": "a1a2-m12-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "device"
+      ],
+      "text": "Every device in our office *need* its own cable.",
+      "options": [
+        "needs",
+        "needing",
+        "to need"
+      ],
+      "correct": [
+        "needs"
+      ],
+      "translation": {
+        "ru": "Каждому устройству в нашем офисе нужен свой кабель.",
+        "uz": "Ofisimizdagi har bir qurilmaga o'z kabeli kerak."
+      },
+      "explanation": {
+        "ru": "Every device — третье лицо единственного числа (its), поэтому глагол в настоящем времени с -s: needs.",
+        "uz": "Every device — uchinchi shaxs birlik (its), shuning uchun hozirgi zamonda fe'l -s oladi: needs."
+      }
+    },
+    {
+      "key": "a1a2-m12-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "search"
+      ],
+      "text": "My sister ___ for songs online every day and never buys them.",
+      "base": "search",
+      "accepted": [
+        "searches"
+      ],
+      "translation": {
+        "ru": "Моя сестра каждый день ищет песни в интернете и никогда их не покупает.",
+        "uz": "Singlim har kuni internetdan qo'shiqlar qidiradi va ularni hech qachon sotib olmaydi."
+      },
+      "explanation": {
+        "ru": "Every day и never buys — настоящее время, подлежащее my sister (she): нужно -s. После ch добавляется -es: searches.",
+        "uz": "Every day va never buys — hozirgi zamon, ega my sister (she): -s kerak. ch dan keyin -es qo'shiladi: searches."
+      }
+    },
+    {
+      "key": "a1a2-m12-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "download"
+      ],
+      "text": "I have ___ the file, but I cannot open it.",
+      "base": "download",
+      "accepted": [
+        "downloaded"
+      ],
+      "translation": {
+        "ru": "Я скачал файл, но не могу его открыть.",
+        "uz": "Faylni yuklab oldim, lekin uni ocha olmayapman."
+      },
+      "explanation": {
+        "ru": "I have — это Present Perfect: have + третья форма глагола: download + -ed → downloaded.",
+        "uz": "I have — bu Present Perfect: have va fe'lning uchinchi shakli: download + -ed → downloaded."
+      }
+    },
+    {
+      "key": "a1a2-m12-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "click"
+      ],
+      "text": "My little brother is ___ on every button on the screen.",
+      "base": "click",
+      "accepted": [
+        "clicking"
+      ],
+      "translation": {
+        "ru": "Мой младший брат нажимает на все кнопки на экране.",
+        "uz": "Ukam ekrandagi hamma tugmalarni bosyapti."
+      },
+      "explanation": {
+        "ru": "После is нужна форма на -ing (Present Continuous): click + -ing → clicking.",
+        "uz": "is so'zidan keyin -ing shakli kerak (Present Continuous): click + -ing → clicking."
+      }
+    },
+    {
+      "key": "a1a2-m12-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "internet"
+      ],
+      "text": "We found this recipe *in* the internet yesterday.",
+      "options": [
+        "on",
+        "at",
+        "by"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Вчера мы нашли этот рецепт в интернете.",
+        "uz": "Bu retseptni kecha internetdan topdik."
+      },
+      "explanation": {
+        "ru": "По-английски говорят on the internet. Русское «в интернете» подсказывает in, но это ошибка.",
+        "uz": "Ingliz tilida on the internet deyiladi. O'zbekcha «internetda» in ni eslatadi, lekin bu xato."
+      }
+    },
+    {
+      "key": "a1a2-m12-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "page"
+      ],
+      "text": "This dictionary has too *much* pages, so it is heavy.",
+      "options": [
+        "many",
+        "lots",
+        "plenty"
+      ],
+      "correct": [
+        "many"
+      ],
+      "translation": {
+        "ru": "В этом словаре слишком много страниц, поэтому он тяжёлый.",
+        "uz": "Bu lug'atda sahifalar haddan tashqari ko'p, shuning uchun u og'ir."
+      },
+      "explanation": {
+        "ru": "Pages — исчисляемое существительное во множественном числе, поэтому too many pages. Much — только с неисчисляемыми.",
+        "uz": "Pages — sanaladigan ot, ko'plikda, shuning uchun too many pages. Much faqat sanalmaydigan otlar bilan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m12-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "password"
+      ],
+      "text": "I forgot *mine* password and could not open the website.",
+      "options": [
+        "my",
+        "me",
+        "myself"
+      ],
+      "correct": [
+        "my"
+      ],
+      "translation": {
+        "ru": "Я забыл свой пароль и не смог открыть сайт.",
+        "uz": "Parolimni unutib qo'ydim va saytni ocha olmadim."
+      },
+      "explanation": {
+        "ru": "Перед существительным нужно my: my password. Mine ставится без существительного: The password is mine.",
+        "uz": "Ot oldidan my keladi: my password. Mine esa otsiz ishlatiladi: The password is mine."
+      }
+    },
+    {
+      "key": "a1a2-m12-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "ring"
+      ],
+      "text": "During the lesson yesterday my phone ___ three times.",
+      "base": "ring",
+      "accepted": [
+        "rang"
+      ],
+      "translation": {
+        "ru": "Вчера во время урока мой телефон звонил три раза.",
+        "uz": "Kecha dars paytida telefonim uch marta jiringladi."
+      },
+      "explanation": {
+        "ru": "Yesterday требует прошедшего времени. Ring — неправильный глагол: ring – rang – rung.",
+        "uz": "Yesterday o'tgan zamonni talab qiladi. Ring — noto'g'ri fe'l: ring – rang – rung."
+      }
+    },
+    {
+      "key": "a1a2-m12-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "text"
+      ],
+      "text": "An hour ago my sister ___ me from the train.",
+      "base": "text",
+      "accepted": [
+        "texted"
+      ],
+      "translation": {
+        "ru": "Час назад сестра написала мне сообщение из поезда.",
+        "uz": "Bir soat oldin singlim poyezddan menga xabar yozdi."
+      },
+      "explanation": {
+        "ru": "An hour ago требует прошедшего времени: text + -ed → texted. Глагол правильный, хотя и кончается на t.",
+        "uz": "An hour ago o'tgan zamonni talab qiladi: text + -ed → texted. Fe'l t harfi bilan tugasa ham, to'g'ri fe'l."
+      }
+    },
+    {
+      "key": "a1a2-m12-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "chat"
+      ],
+      "text": "My daughter is ___ with her friends again instead of sleeping.",
+      "base": "chat",
+      "accepted": [
+        "chatting"
+      ],
+      "translation": {
+        "ru": "Моя дочь опять переписывается с друзьями вместо того, чтобы спать.",
+        "uz": "Qizim uxlash o'rniga yana do'stlari bilan yozishyapti."
+      },
+      "explanation": {
+        "ru": "После is нужна форма на -ing. Краткий гласный и одна согласная на конце — t удваивается: chatting.",
+        "uz": "is so'zidan keyin -ing shakli kerak. Oxirida qisqa unli va bitta undosh bo'lgani uchun t ikkilanadi: chatting."
+      }
+    },
+    {
+      "key": "a1a2-m12-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "reply"
+      ],
+      "text": "She never replied *on* my messages, so I called her.",
+      "options": [
+        "to",
+        "at",
+        "for"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Она так и не ответила на мои сообщения, поэтому я ей позвонил.",
+        "uz": "U xabarlarimga hech javob bermadi, shuning uchun unga qo'ng'iroq qildim."
+      },
+      "explanation": {
+        "ru": "Reply to — «отвечать на»: после reply ставится to. Русское «ответить на» здесь не on.",
+        "uz": "Reply to — «biror narsaga javob bermoq»: reply fe'lidan keyin to keladi. On bu yerda xato."
+      }
+    },
+    {
+      "key": "a1a2-m12-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "signal"
+      ],
+      "text": "My phone doesn't get *some* signal in the mountains.",
+      "options": [
+        "any",
+        "no",
+        "many"
+      ],
+      "correct": [
+        "any"
+      ],
+      "translation": {
+        "ru": "Мой телефон не ловит сигнал в горах.",
+        "uz": "Telefonim tog'larda signal tutmaydi."
+      },
+      "explanation": {
+        "ru": "В отрицании (doesn't) нужно any, а не some: doesn't get any signal. No после doesn't даёт двойное отрицание.",
+        "uz": "Inkor gapda (doesn't) some emas, any keladi: doesn't get any signal. doesn't so'zidan keyin no qo'yilsa, ikki marta inkor bo'ladi."
+      }
+    },
+    {
+      "key": "a1a2-m12-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "message"
+      ],
+      "text": "This morning there *was* three new messages on my phone.",
+      "options": [
+        "were",
+        "been",
+        "be"
+      ],
+      "correct": [
+        "were"
+      ],
+      "translation": {
+        "ru": "Сегодня утром на моём телефоне было три новых сообщения.",
+        "uz": "Bugun ertalab telefonimda uchta yangi xabar bor edi."
+      },
+      "explanation": {
+        "ru": "Three new messages — множественное число, поэтому в прошедшем времени there were, а не there was.",
+        "uz": "Three new messages — ko'plik, shuning uchun o'tgan zamonda there was emas, there were keladi."
+      }
+    },
+    {
+      "key": "a1a2-m12-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "program"
+      ],
+      "text": "My cousin works as a ___ and writes apps for banks.",
+      "base": "program",
+      "accepted": [
+        "programmer"
+      ],
+      "translation": {
+        "ru": "Мой двоюродный брат работает программистом и пишет приложения для банков.",
+        "uz": "Amakivachcham dasturchi bo'lib ishlaydi va banklar uchun ilovalar yozadi."
+      },
+      "explanation": {
+        "ru": "После works as a нужна профессия: program + -er → programmer; m удваивается.",
+        "uz": "works as a so'zlaridan keyin kasb kerak: program + -er → programmer; m ikkilanadi."
+      }
+    },
+    {
+      "key": "a1a2-m12-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "delete"
+      ],
+      "text": "Oh no, I have ___ all the photos by mistake!",
+      "base": "delete",
+      "accepted": [
+        "deleted"
+      ],
+      "translation": {
+        "ru": "Ой, я по ошибке удалил все фотографии!",
+        "uz": "Voy, hamma suratlarni bilmasdan o'chirib yubordim!"
+      },
+      "explanation": {
+        "ru": "I have — это Present Perfect: have + третья форма глагола. Delete кончается на e, поэтому добавляется только -d: deleted.",
+        "uz": "I have — bu Present Perfect: have va fe'lning uchinchi shakli. Delete e harfi bilan tugagani uchun faqat -d qo'shiladi: deleted."
+      }
+    },
+    {
+      "key": "a1a2-m12-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "update"
+      ],
+      "text": "My phone ___ itself every night while I sleep.",
+      "base": "update",
+      "accepted": [
+        "updates"
+      ],
+      "translation": {
+        "ru": "Мой телефон каждую ночь сам обновляется, пока я сплю.",
+        "uz": "Telefonim har kecha men uxlayotganimda o'zi yangilanadi."
+      },
+      "explanation": {
+        "ru": "While I sleep показывает настоящее время, подлежащее my phone (it): update + -s → updates.",
+        "uz": "While I sleep hozirgi zamonni ko'rsatadi, ega my phone (it): update + -s → updates."
+      }
+    },
+    {
+      "key": "a1a2-m12-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "save"
+      ],
+      "text": "Did you *saved* the photos in the new folder?",
+      "options": [
+        "save",
+        "saving",
+        "saves"
+      ],
+      "correct": [
+        "save"
+      ],
+      "translation": {
+        "ru": "Вы сохранили фотографии в новую папку?",
+        "uz": "Suratlarni yangi papkaga saqladingizmi?"
+      },
+      "explanation": {
+        "ru": "В вопросе с did глагол стоит в начальной форме: Did you save...? Прошедшее время уже показано словом did.",
+        "uz": "did bilan tuzilgan so'roqda fe'l asosiy shaklda keladi: Did you save...? O'tgan zamon did so'zida allaqachon ko'rsatilgan."
+      }
+    },
+    {
+      "key": "a1a2-m12-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "file"
+      ],
+      "text": "Where *is* those two files that I sent you yesterday?",
+      "options": [
+        "are",
+        "be",
+        "was"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Где те два файла, которые я вчера вам отправил?",
+        "uz": "Kecha sizga yuborgan o'sha ikkita fayl qayerda?"
+      },
+      "explanation": {
+        "ru": "Those two files — множественное число, поэтому are: Where are those two files?",
+        "uz": "Those two files — ko'plik, shuning uchun are keladi: Where are those two files?"
+      }
+    },
+    {
+      "key": "a1a2-m12-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "app"
+      ],
+      "text": "It is one of the best *app* for students.",
+      "options": [
+        "apps",
+        "app's",
+        "application"
+      ],
+      "correct": [
+        "apps"
+      ],
+      "translation": {
+        "ru": "Это одно из лучших приложений для студентов.",
+        "uz": "Bu talabalar uchun eng yaxshi ilovalardan biri."
+      },
+      "explanation": {
+        "ru": "После one of the best нужно множественное число: one of the best apps («одно из лучших приложений»).",
+        "uz": "one of the best birikmasidan keyin ot ko'plikda keladi: one of the best apps («eng yaxshi ilovalardan biri»)."
+      }
+    },
+    {
+      "key": "a1a2-m12-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "invent"
+      ],
+      "text": "She is a young ___ who has made a cleaning robot.",
+      "base": "invent",
+      "accepted": [
+        "inventor"
+      ],
+      "translation": {
+        "ru": "Она — молодой изобретатель, который создал робота-уборщика.",
+        "uz": "U tozalovchi robot yaratgan yosh ixtirochi."
+      },
+      "explanation": {
+        "ru": "После a young нужно существительное — человек (who): invent + -or → inventor (не -er).",
+        "uz": "a young so'zlaridan keyin shaxsni bildiruvchi ot kerak (who): invent + -or → inventor (-er emas)."
+      }
+    },
+    {
+      "key": "a1a2-m12-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "modern"
+      ],
+      "text": "Our new office is much ___ than the old one.",
+      "base": "modern",
+      "accepted": [
+        "more modern"
+      ],
+      "translation": {
+        "ru": "Наш новый офис гораздо современнее старого.",
+        "uz": "Yangi ofisimiz eskisidan ancha zamonaviyroq."
+      },
+      "explanation": {
+        "ru": "Than требует сравнительной степени. Modern образует её с more: more modern (не moderner).",
+        "uz": "Than qiyosiy darajani talab qiladi. Modern uni more bilan yasaydi: more modern (moderner emas)."
+      }
+    },
+    {
+      "key": "a1a2-m12-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "smart"
+      ],
+      "text": "This is the ___ robot in our school.",
+      "base": "smart",
+      "accepted": [
+        "smartest"
+      ],
+      "translation": {
+        "ru": "Это самый умный робот в нашей школе.",
+        "uz": "Bu maktabimizdagi eng aqlli robot."
+      },
+      "explanation": {
+        "ru": "The ... in our school — превосходная степень: smart + -est → smartest.",
+        "uz": "The ... in our school — orttirma daraja: smart + -est → smartest."
+      }
+    },
+    {
+      "key": "a1a2-m12-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "connect"
+      ],
+      "text": "I cannot connect *at* the hotel wifi.",
+      "options": [
+        "to",
+        "in",
+        "for"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Я не могу подключиться к вайфаю отеля.",
+        "uz": "Mehmonxonaning Wi-Fi tarmog'iga ulana olmayapman."
+      },
+      "explanation": {
+        "ru": "Connect to — «подключаться к»: после connect ставится to, а не at.",
+        "uz": "Connect to — «biror narsaga ulanmoq»: connect fe'lidan keyin at emas, to keladi."
+      }
+    },
+    {
+      "key": "a1a2-m12-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "technology"
+      ],
+      "text": "Technology *make* our lives easier, but it also takes time.",
+      "options": [
+        "makes",
+        "making",
+        "to make"
+      ],
+      "correct": [
+        "makes"
+      ],
+      "translation": {
+        "ru": "Технологии облегчают нам жизнь, но и отнимают время.",
+        "uz": "Texnologiyalar hayotimizni osonlashtiradi, lekin vaqtimizni ham oladi."
+      },
+      "explanation": {
+        "ru": "Technology здесь — неисчисляемое существительное в единственном числе (it), поэтому глагол с -s: makes. Русское «технологии» сбивает.",
+        "uz": "Technology bu yerda birlikdagi sanalmaydigan ot (it), shuning uchun fe'l -s oladi: makes. O'zbekcha «texnologiyalar» chalg'itadi."
+      }
+    },
+    {
+      "key": "a1a2-m12-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "social"
+      ],
+      "text": "My younger brother reads the news only on *socials* networks.",
+      "options": [
+        "social",
+        "society",
+        "socially"
+      ],
+      "correct": [
+        "social"
+      ],
+      "translation": {
+        "ru": "Мой младший брат читает новости только в социальных сетях.",
+        "uz": "Ukam yangiliklarni faqat ijtimoiy tarmoqlarda o'qiydi."
+      },
+      "explanation": {
+        "ru": "Прилагательные в английском не имеют множественного числа: social networks, без -s у social.",
+        "uz": "Ingliz tilida sifatlar ko'plik shaklini olmaydi: social networks, social so'ziga -s qo'shilmaydi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,1628 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b2",
+  "items": [
+    {
+      "key": "b2-m13-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "inequality"
+      ],
+      "text": "Free schools help to reduce the ___ that divides rich and poor families.",
+      "base": "equal",
+      "accepted": [
+        "inequality"
+      ],
+      "translation": {
+        "ru": "Бесплатные школы помогают уменьшить неравенство, которое разделяет богатые и бедные семьи.",
+        "uz": "Bepul maktablar boy va kambag'al oilalarni bir-biridan ajratib turgan tengsizlikni kamaytirishga yordam beradi."
+      },
+      "explanation": {
+        "ru": "После the нужно существительное, а смысл (reduce, divides) требует «неравенство». Два шага: equal → equality (-ity) → inequality (in-).",
+        "uz": "the so'zidan keyin ot kerak, ma'no esa (reduce, divides) «tengsizlik»ni talab qiladi. Ikki bosqich: equal → equality (-ity) → inequality (in-)."
+      }
+    },
+    {
+      "key": "b2-m13-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "injustice"
+      ],
+      "text": "Firing a nurse because of her age was a terrible ___.",
+      "base": "just",
+      "accepted": [
+        "injustice"
+      ],
+      "translation": {
+        "ru": "Уволить медсестру из-за её возраста было вопиющей несправедливостью.",
+        "uz": "Hamshirani yoshi sababli ishdan bo'shatish katta adolatsizlik edi."
+      },
+      "explanation": {
+        "ru": "После a terrible нужно существительное со смыслом «несправедливость»: just (справедливый) → justice → injustice, приставка in- (не un-).",
+        "uz": "a terrible so'zlaridan keyin «adolatsizlik» ma'nosidagi ot kerak: just (adolatli) → justice → injustice, in- old qo'shimchasi (un- emas)."
+      }
+    },
+    {
+      "key": "b2-m13-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "privilege"
+      ],
+      "text": "The charity buys laptops for ___ children whose parents cannot afford them.",
+      "base": "privilege",
+      "accepted": [
+        "underprivileged"
+      ],
+      "translation": {
+        "ru": "Благотворительный фонд покупает ноутбуки детям из малообеспеченных семей, чьи родители не могут себе их позволить.",
+        "uz": "Xayriya jamg'armasi ota-onasining bunga qurbi yetmaydigan, kam ta'minlangan bolalarga noutbuklar sotib oladi."
+      },
+      "explanation": {
+        "ru": "Перед children нужно прилагательное, а смысл (родители не могут купить) требует «обделённые»: under- + privilege + -d → underprivileged.",
+        "uz": "children so'zidan oldin sifat kerak, ma'no esa (ota-onasining qurbi yetmaydi) «imtiyozdan mahrum»ni talab qiladi: under- + privilege + -d → underprivileged."
+      }
+    },
+    {
+      "key": "b2-m13-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "barrier"
+      ],
+      "text": "For many families, cost is the main barrier to *get* higher education.",
+      "options": [
+        "getting",
+        "got",
+        "gets"
+      ],
+      "correct": [
+        "getting"
+      ],
+      "translation": {
+        "ru": "Для многих семей главная преграда на пути к высшему образованию — его стоимость.",
+        "uz": "Ko'plab oilalar uchun oliy ta'lim olish yo'lidagi asosiy to'siq — uning narxi."
+      },
+      "explanation": {
+        "ru": "В a barrier to слово to — предлог, а не частица инфинитива, поэтому после него форма на -ing: a barrier to getting (как look forward to doing).",
+        "uz": "a barrier to birikmasidagi to — predlog, infinitiv belgisi emas, shuning uchun undan keyin -ing shakli keladi: a barrier to getting."
+      }
+    },
+    {
+      "key": "b2-m13-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "discrimination"
+      ],
+      "text": "The company was fined for discrimination *to* older job applicants.",
+      "options": [
+        "against",
+        "with",
+        "on"
+      ],
+      "correct": [
+        "against"
+      ],
+      "translation": {
+        "ru": "Компанию оштрафовали за дискриминацию соискателей старшего возраста.",
+        "uz": "Kompaniya yoshi kattaroq ish izlovchilarni kamsitgani uchun jarimaga tortildi."
+      },
+      "explanation": {
+        "ru": "discrimination against somebody — дискриминация кого-либо: после discrimination ставят against («против»), а не to.",
+        "uz": "discrimination against somebody — kimnidir kamsitish: discrimination so'zidan keyin to emas, against («qarshi») predlogi keladi."
+      }
+    },
+    {
+      "key": "b2-m13-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "disadvantage"
+      ],
+      "text": "The school offers free lunches for *disadvantage* students.",
+      "options": [
+        "disadvantaged",
+        "disadvantages",
+        "disadvantaging"
+      ],
+      "correct": [
+        "disadvantaged"
+      ],
+      "translation": {
+        "ru": "Школа предлагает бесплатные обеды ученикам из малообеспеченных семей.",
+        "uz": "Maktab noqulay ahvoldagi o'quvchilarga bepul tushlik beradi."
+      },
+      "explanation": {
+        "ru": "Перед students нужно прилагательное disadvantaged (находящийся в невыгодном положении) — с -d на конце. disadvantage — существительное.",
+        "uz": "students so'zidan oldin disadvantaged (noqulay ahvoldagi) sifati kerak — oxirida -d bilan. disadvantage esa ot."
+      }
+    },
+    {
+      "key": "b2-m13-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "emigrate"
+      ],
+      "text": "Every year thousands of young ___ leave the country in search of work.",
+      "base": "emigrate",
+      "accepted": [
+        "emigrants"
+      ],
+      "translation": {
+        "ru": "Каждый год тысячи молодых эмигрантов уезжают из страны в поисках работы.",
+        "uz": "Har yili minglab yosh muhojirlar ish izlab mamlakatni tark etadi."
+      },
+      "explanation": {
+        "ru": "После young нужно существительное-лицо во множественном числе (thousands of): emigrate → emigrant (-ate → -ant) → emigrants.",
+        "uz": "young so'zidan keyin ko'plikdagi shaxs oti kerak (thousands of): emigrate → emigrant (-ate o'rniga -ant) → emigrants."
+      }
+    },
+    {
+      "key": "b2-m13-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "integrate"
+      ],
+      "text": "For new arrivals, learning the language is the key to successful ___.",
+      "base": "integrate",
+      "accepted": [
+        "integration"
+      ],
+      "translation": {
+        "ru": "Для новых приезжих изучение языка — ключ к успешной интеграции.",
+        "uz": "Yangi kelganlar uchun tilni o'rganish jamiyatga muvaffaqiyatli integratsiyalashuvning kalitidir."
+      },
+      "explanation": {
+        "ru": "После прилагательного successful нужно существительное: integrate → integration (-ate → -ation). Форму на -ing после прилагательного здесь не ставят.",
+        "uz": "successful sifatidan keyin ot kerak: integrate → integration (-ate o'rniga -ation). Bu yerda sifatdan keyin -ing shakli qo'yilmaydi."
+      }
+    },
+    {
+      "key": "b2-m13-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "inhabitant"
+      ],
+      "text": "After the mine closed, the town lost half of its ___.",
+      "base": "inhabit",
+      "accepted": [
+        "inhabitants"
+      ],
+      "translation": {
+        "ru": "После закрытия шахты город потерял половину своих жителей.",
+        "uz": "Kon yopilgach, shahar aholisining yarmini yo'qotdi."
+      },
+      "explanation": {
+        "ru": "После its нужно существительное, а half of указывает на множественное число: inhabit (населять) → inhabitant (-ant, житель) → inhabitants.",
+        "uz": "its so'zidan keyin ot kerak, half of esa ko'plikni bildiradi: inhabit (yashamoq) → inhabitant (-ant, yashovchi) → inhabitants."
+      }
+    },
+    {
+      "key": "b2-m13-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "refugee"
+      ],
+      "text": "Thousands of *refuges* crossed the mountains to escape the war.",
+      "options": [
+        "refugees",
+        "refugee",
+        "refuge"
+      ],
+      "correct": [
+        "refugees"
+      ],
+      "translation": {
+        "ru": "Тысячи беженцев перешли через горы, спасаясь от войны.",
+        "uz": "Minglab qochqinlar urushdan qochib, tog'lardan oshib o'tdi."
+      },
+      "explanation": {
+        "ru": "Беженцы — refugees (с -ee: человек, ищущий убежища). refuge — само убежище, место; оно не может переходить горы. После thousands of — множественное число.",
+        "uz": "Qochqinlar — refugees (-ee bilan: boshpana izlagan odam). refuge esa boshpananing o'zi, joy; u tog'dan oshib o'tolmaydi. thousands of so'zlaridan keyin ko'plik keladi."
+      }
+    },
+    {
+      "key": "b2-m13-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "immigrant"
+      ],
+      "text": "Many *immigrations* opened small shops and cafes on our street.",
+      "options": [
+        "immigrants",
+        "immigrant",
+        "immigrating"
+      ],
+      "correct": [
+        "immigrants"
+      ],
+      "translation": {
+        "ru": "Многие иммигранты открыли на нашей улице маленькие магазины и кафе.",
+        "uz": "Ko'plab immigrantlar ko'chamizda kichik do'kon va kafelar ochdi."
+      },
+      "explanation": {
+        "ru": "Магазины открывают люди: нужно существительное-лицо immigrant (-ant) во множественном числе после many. immigration — сам процесс переселения.",
+        "uz": "Do'konni odamlar ochadi: many so'zidan keyin shaxsni bildiruvchi immigrant (-ant) oti ko'plikda kerak. immigration esa ko'chib kelish jarayonining o'zi."
+      }
+    },
+    {
+      "key": "b2-m13-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "asylum"
+      ],
+      "text": "An asylum *searcher* may wait many months for an answer.",
+      "options": [
+        "seeker",
+        "hunter",
+        "finder"
+      ],
+      "correct": [
+        "seeker"
+      ],
+      "translation": {
+        "ru": "Человек, ищущий убежища, может ждать ответа много месяцев.",
+        "uz": "Boshpana so'ragan odam javobni ko'p oylab kutishi mumkin."
+      },
+      "explanation": {
+        "ru": "asylum seeker — устойчивое сочетание «лицо, ищущее убежища»: в нём глагол seek (seek asylum), а не search, hunt или find.",
+        "uz": "asylum seeker — «boshpana so'rovchi» degan turg'un birikma: unda seek fe'li ishlatiladi (seek asylum), search, hunt yoki find emas."
+      }
+    },
+    {
+      "key": "b2-m13-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "globalization"
+      ],
+      "text": "Rapid ___ has changed the way small farmers sell their crops.",
+      "base": "global",
+      "accepted": [
+        "globalization"
+      ],
+      "translation": {
+        "ru": "Стремительная глобализация изменила то, как мелкие фермеры продают свой урожай.",
+        "uz": "Jadal globallashuv kichik fermerlarning hosilini sotish usulini o'zgartirdi."
+      },
+      "explanation": {
+        "ru": "После прилагательного rapid нужно существительное: global → globalize (-ize) → globalization (-ize → -ization).",
+        "uz": "rapid sifatidan keyin ot kerak: global → globalize (-ize) → globalization (-ize o'rniga -ization)."
+      }
+    },
+    {
+      "key": "b2-m13-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "shortage"
+      ],
+      "text": "A serious ___ of nurses means that patients wait for hours.",
+      "base": "short",
+      "accepted": [
+        "shortage"
+      ],
+      "translation": {
+        "ru": "Из-за серьёзной нехватки медсестёр пациенты ждут часами.",
+        "uz": "Hamshiralarning jiddiy tanqisligi tufayli bemorlar soatlab kutadi."
+      },
+      "explanation": {
+        "ru": "После a serious нужно существительное со смыслом «нехватка»: short → shortage (суффикс -age). shortness — это «краткость, малый рост».",
+        "uz": "a serious so'zlaridan keyin «tanqislik» ma'nosidagi ot kerak: short → shortage (-age qo'shimchasi). shortness esa «qisqalik, pakanalik»."
+      }
+    },
+    {
+      "key": "b2-m13-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "relief"
+      ],
+      "text": "The first planes brought ___ to the flooded villages.",
+      "base": "relieve",
+      "accepted": [
+        "relief"
+      ],
+      "translation": {
+        "ru": "Первые самолёты доставили помощь в затопленные деревни.",
+        "uz": "Birinchi samolyotlar suv bosgan qishloqlarga yordam yetkazdi."
+      },
+      "explanation": {
+        "ru": "После brought нужно существительное: глагол relieve → существительное relief; v меняется на f, как в believe → belief.",
+        "uz": "brought fe'lidan keyin ot kerak: relieve fe'li → relief oti; v harfi f ga almashadi, xuddi believe → belief kabi."
+      }
+    },
+    {
+      "key": "b2-m13-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "humanitarian"
+      ],
+      "text": "Several countries have offered *humane* aid to the victims of the earthquake.",
+      "options": [
+        "humanitarian",
+        "humanist",
+        "humanity"
+      ],
+      "correct": [
+        "humanitarian"
+      ],
+      "translation": {
+        "ru": "Несколько стран предложили гуманитарную помощь пострадавшим от землетрясения.",
+        "uz": "Bir qancha davlatlar zilziladan jabrlanganlarga gumanitar yordam taklif qildi."
+      },
+      "explanation": {
+        "ru": "Гуманитарная помощь — humanitarian aid, устойчивое сочетание. humane — «гуманный, человечный» об отношении: humane treatment.",
+        "uz": "Gumanitar yordam — humanitarian aid, turg'un birikma. humane esa munosabat haqida «insonparvar, shafqatli»: humane treatment."
+      }
+    },
+    {
+      "key": "b2-m13-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "sanitation"
+      ],
+      "text": "Poor sanitation in the crowded camps *are* spreading disease.",
+      "options": [
+        "is",
+        "were",
+        "be"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Плохая санитария в переполненных лагерях распространяет болезни.",
+        "uz": "Gavjum lagerlardagi yomon sanitariya kasalliklarni tarqatmoqda."
+      },
+      "explanation": {
+        "ru": "Подлежащее — sanitation (неисчисляемое, единственное число), а не camps: глагол is. camps стоит рядом с глаголом, но подлежащим не является.",
+        "uz": "Ega — sanitation (sanalmaydigan ot, birlikda), camps emas: shuning uchun is. camps fe'lga yaqin turibdi, lekin ega emas."
+      }
+    },
+    {
+      "key": "b2-m13-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "malnutrition"
+      ],
+      "text": "Even mild *malnutritions* can harm a young child's development.",
+      "options": [
+        "malnutrition",
+        "malnourished",
+        "nutritious"
+      ],
+      "correct": [
+        "malnutrition"
+      ],
+      "translation": {
+        "ru": "Даже лёгкое недоедание может навредить развитию маленького ребёнка.",
+        "uz": "Hatto yengil to'yib ovqatlanmaslik ham yosh bolaning rivojlanishiga zarar yetkazishi mumkin."
+      },
+      "explanation": {
+        "ru": "malnutrition — неисчисляемое существительное, во множественном числе не употребляется: без -s. malnourished — прилагательное «истощённый».",
+        "uz": "malnutrition — sanalmaydigan ot, ko'plikda ishlatilmaydi: -s qo'shilmaydi. malnourished esa «ozib-to'zigan» degan sifat."
+      }
+    },
+    {
+      "key": "b2-m13-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "activist"
+      ],
+      "text": "She has been an ___ for animal rights since her student days.",
+      "base": "active",
+      "accepted": [
+        "activist"
+      ],
+      "translation": {
+        "ru": "Со студенческих лет она — активистка движения за права животных.",
+        "uz": "U talabalik yillaridan beri hayvonlar huquqlari uchun kurashuvchi faol."
+      },
+      "explanation": {
+        "ru": "После an нужно существительное-лицо: active → activist (суффикс -ist, «активист»).",
+        "uz": "an artiklidan keyin shaxsni bildiruvchi ot kerak: active → activist (-ist qo'shimchasi, «faol»)."
+      }
+    },
+    {
+      "key": "b2-m13-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "empower"
+      ],
+      "text": "Learning to read can ___ women to take control of their lives.",
+      "base": "power",
+      "accepted": [
+        "empower"
+      ],
+      "translation": {
+        "ru": "Умение читать может дать женщинам возможность взять жизнь в свои руки.",
+        "uz": "O'qishni o'rganish ayollarga o'z hayotini o'z qo'liga olish imkoniyatini berishi mumkin."
+      },
+      "explanation": {
+        "ru": "После can нужен глагол: power (сила) + приставка em- → empower (наделять возможностями). Перед p пишется em-, а не en-.",
+        "uz": "can so'zidan keyin fe'l kerak: power + em- old qo'shimchasi → empower (imkoniyat bermoq). p harfidan oldin en- emas, em- yoziladi."
+      }
+    },
+    {
+      "key": "b2-m13-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "engage"
+      ],
+      "text": "Bored and ___, many teenagers stop taking part in school life.",
+      "base": "engage",
+      "accepted": [
+        "disengaged"
+      ],
+      "translation": {
+        "ru": "Многие подростки, которым скучно и которые ни во что не вовлечены, перестают участвовать в школьной жизни.",
+        "uz": "Zerikkan va hech narsaga jalb qilinmagan ko'plab o'smirlar maktab hayotida ishtirok etmay qo'yadi."
+      },
+      "explanation": {
+        "ru": "Через and к bored нужно второе прилагательное с отрицательным смыслом (stop taking part): engage → engaged → disengaged (приставка dis-).",
+        "uz": "and orqali bored so'ziga inkor ma'nodagi ikkinchi sifat kerak (stop taking part): engage → engaged → disengaged (dis- old qo'shimchasi)."
+      }
+    },
+    {
+      "key": "b2-m13-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "solidarity"
+      ],
+      "text": "Hundreds of workers marched to show solidarity *to* the striking nurses.",
+      "options": [
+        "with",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Сотни рабочих вышли на марш, чтобы выразить солидарность с бастующими медсёстрами.",
+        "uz": "Ish tashlagan hamshiralar bilan birdamlik bildirish uchun yuzlab ishchilar namoyishga chiqdi."
+      },
+      "explanation": {
+        "ru": "solidarity with somebody — солидарность с кем-то: после solidarity предлог with, как русское «с».",
+        "uz": "solidarity with somebody — kimdir bilan birdamlik: solidarity so'zidan keyin with predlogi keladi, o'zbekchadagi «bilan» kabi."
+      }
+    },
+    {
+      "key": "b2-m13-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "participation"
+      ],
+      "text": "We thank the parents for their active *participate* in the school fair.",
+      "options": [
+        "participation",
+        "participant",
+        "participated"
+      ],
+      "correct": [
+        "participation"
+      ],
+      "translation": {
+        "ru": "Мы благодарим родителей за активное участие в школьной ярмарке.",
+        "uz": "Maktab yarmarkasida faol ishtirok etgani uchun ota-onalarga minnatdorchilik bildiramiz."
+      },
+      "explanation": {
+        "ru": "После their active нужно существительное: participate → participation (-ate → -ation). participant — это «участник», а не «участие».",
+        "uz": "their active so'zlaridan keyin ot kerak: participate → participation (-ate o'rniga -ation). participant — «ishtirokchi», «ishtirok» emas."
+      }
+    },
+    {
+      "key": "b2-m13-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "voluntary"
+      ],
+      "text": "Is the evening course *volunteer*, or do we all have to attend?",
+      "options": [
+        "voluntary",
+        "voluntarily",
+        "volunteering"
+      ],
+      "correct": [
+        "voluntary"
+      ],
+      "translation": {
+        "ru": "Вечерний курс добровольный или мы все обязаны его посещать?",
+        "uz": "Kechki kurs ixtiyoriymi yoki hammamiz qatnashishimiz shartmi?"
+      },
+      "explanation": {
+        "ru": "После is нужно прилагательное voluntary (добровольный). volunteer — существительное «доброволец»; как определение оно стоит только перед существительным: volunteer work.",
+        "uz": "is so'zidan keyin voluntary (ixtiyoriy) sifati kerak. volunteer — «ko'ngilli» degan ot; aniqlovchi bo'lib faqat ot oldida keladi: volunteer work."
+      }
+    },
+    {
+      "key": "b2-m13-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "convention"
+      ],
+      "text": "Unlike her colleagues, who follow the old rules, she uses ___ teaching methods.",
+      "base": "convention",
+      "accepted": [
+        "unconventional"
+      ],
+      "translation": {
+        "ru": "В отличие от коллег, которые следуют старым правилам, она использует нетрадиционные методы преподавания.",
+        "uz": "Eski qoidalarga amal qiladigan hamkasblaridan farqli o'laroq, u noan'anaviy o'qitish usullaridan foydalanadi."
+      },
+      "explanation": {
+        "ru": "Unlike и old rules задают противопоставление: нужно «нетрадиционные». Два шага: convention → conventional (-al) → unconventional (un-).",
+        "uz": "Unlike va old rules qarama-qarshilikni bildiradi: «noan'anaviy» kerak. Ikki bosqich: convention → conventional (-al) → unconventional (un-)."
+      }
+    },
+    {
+      "key": "b2-m13-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "accountability"
+      ],
+      "text": "Officials must accept full ___ for the decisions they make.",
+      "base": "accountable",
+      "accepted": [
+        "accountability"
+      ],
+      "translation": {
+        "ru": "Чиновники должны нести полную ответственность за принимаемые решения.",
+        "uz": "Amaldorlar qabul qiladigan qarorlari uchun to'liq hisobdor bo'lishi kerak."
+      },
+      "explanation": {
+        "ru": "После full нужно существительное: accountable (подотчётный) → accountability; -able меняется на -ability.",
+        "uz": "full so'zidan keyin ot kerak: accountable (hisobdor) → accountability; -able o'rniga -ability yoziladi."
+      }
+    },
+    {
+      "key": "b2-m13-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "moral"
+      ],
+      "text": "Selling fake medicine to sick people is deeply ___.",
+      "base": "moral",
+      "accepted": [
+        "immoral"
+      ],
+      "translation": {
+        "ru": "Продавать поддельные лекарства больным людям глубоко безнравственно.",
+        "uz": "Bemorlarga soxta dori sotish o'ta axloqsiz ishdir."
+      },
+      "explanation": {
+        "ru": "Смысл требует «безнравственный». Перед m отрицательная приставка im-: moral → immoral (две m).",
+        "uz": "Ma'no «axloqsiz» so'zini talab qiladi. m harfidan oldin im- inkor old qo'shimchasi keladi: moral → immoral (ikkita m)."
+      }
+    },
+    {
+      "key": "b2-m13-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "belief"
+      ],
+      "text": "Her strong belief *to* hard work helped her build the business.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Твёрдая вера в упорный труд помогла ей построить свой бизнес.",
+        "uz": "Mehnatga bo'lgan qat'iy ishonchi unga biznesini qurishga yordam berdi."
+      },
+      "explanation": {
+        "ru": "belief in something — вера во что-то: после belief предлог in, как после believe in.",
+        "uz": "belief in something — biror narsaga ishonch: belief so'zidan keyin in predlogi keladi, xuddi believe in kabi. O'zbekcha «-ga» bu yerda to emas."
+      }
+    },
+    {
+      "key": "b2-m13-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "ethics"
+      ],
+      "text": "Before working in hospitals, young doctors study medical *ethic* for a year.",
+      "options": [
+        "ethics",
+        "ethical",
+        "ethicist"
+      ],
+      "correct": [
+        "ethics"
+      ],
+      "translation": {
+        "ru": "Прежде чем работать в больницах, молодые врачи год изучают медицинскую этику.",
+        "uz": "Kasalxonalarda ishlashdan oldin yosh shifokorlar bir yil davomida tibbiyot etikasini o'rganadi."
+      },
+      "explanation": {
+        "ru": "Этика как наука — ethics, с -s на конце (как physics). ethic без -s — отдельный принцип, исчисляемое: a strong work ethic.",
+        "uz": "Fan sifatidagi etika — ethics, oxirida -s bilan (physics kabi). -s qo'shimchasiz ethic esa alohida tamoyil, sanaladi: a strong work ethic."
+      }
+    },
+    {
+      "key": "b2-m13-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "stereotype"
+      ],
+      "text": "Older people are often *stereotype* as slow and stubborn.",
+      "options": [
+        "stereotyped",
+        "stereotyping",
+        "stereotypes"
+      ],
+      "correct": [
+        "stereotyped"
+      ],
+      "translation": {
+        "ru": "О пожилых людях часто судят по стереотипу: считают их медлительными и упрямыми.",
+        "uz": "Keksa odamlarni ko'pincha qolipga solib, sekin va o'jar deb hisoblashadi."
+      },
+      "explanation": {
+        "ru": "Здесь пассив: о людях судят другие. После are нужна третья форма: be stereotyped as — «считаться (по стереотипу) кем-то».",
+        "uz": "Bu yerda majhul nisbat: odamlarga boshqalar baho beradi. are so'zidan keyin uchinchi shakl kerak: be stereotyped as."
+      }
+    },
+    {
+      "key": "b2-m14-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "depart"
+      ],
+      "text": "Please be at the gate thirty minutes before your ___.",
+      "base": "depart",
+      "accepted": [
+        "departure"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, будьте у выхода на посадку за тридцать минут до отправления.",
+        "uz": "Iltimos, jo'nashingizdan o'ttiz daqiqa oldin chiqish eshigi oldida bo'ling."
+      },
+      "explanation": {
+        "ru": "После your нужно существительное: depart → departure (суффикс -ure, «отправление»).",
+        "uz": "your so'zidan keyin ot kerak: depart → departure (-ure qo'shimchasi, «jo'nash»)."
+      }
+    },
+    {
+      "key": "b2-m14-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "embark"
+      ],
+      "text": "When the ship reached the port, passengers could ___ and explore the town.",
+      "base": "embark",
+      "accepted": [
+        "disembark"
+      ],
+      "translation": {
+        "ru": "Когда корабль прибыл в порт, пассажиры смогли сойти на берег и осмотреть город.",
+        "uz": "Kema portga yetib kelgach, yo'lovchilar qirg'oqqa tushib, shaharni aylanishlari mumkin edi."
+      },
+      "explanation": {
+        "ru": "Пассажиры сходят с корабля, а не садятся на него: embark (садиться на борт) + приставка dis- (обратное действие) → disembark.",
+        "uz": "Yo'lovchilar kemaga chiqmaydi, aksincha undan tushadi: embark (bortga chiqmoq) + dis- (teskari harakat) → disembark."
+      }
+    },
+    {
+      "key": "b2-m14-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "navigate"
+      ],
+      "text": "As the ___, she read the map and told the driver where to turn.",
+      "base": "navigate",
+      "accepted": [
+        "navigator"
+      ],
+      "translation": {
+        "ru": "В роли штурмана она читала карту и говорила водителю, где поворачивать.",
+        "uz": "Yo'l ko'rsatuvchi sifatida u xaritani o'qib, haydovchiga qayerda burilishni aytib turdi."
+      },
+      "explanation": {
+        "ru": "После As the нужно существительное-лицо: navigate → navigator (-ate → -ator, «штурман»).",
+        "uz": "As the so'zlaridan keyin shaxsni bildiruvchi ot kerak: navigate → navigator (-ate o'rniga -ator, «yo'l ko'rsatuvchi»)."
+      }
+    },
+    {
+      "key": "b2-m14-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "detour"
+      ],
+      "text": "Because of the floods, we had to *do* a long detour.",
+      "options": [
+        "make",
+        "give",
+        "put"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "Из-за наводнения нам пришлось сделать большой крюк.",
+        "uz": "Suv toshqini tufayli uzoq yo'l bilan aylanib o'tishga majbur bo'ldik."
+      },
+      "explanation": {
+        "ru": "С detour говорят make (или take): make a detour. Глагол do с detour не сочетается, хотя по-русски «сделать крюк».",
+        "uz": "detour so'zi make (yoki take) fe'li bilan keladi: make a detour. do fe'li bu so'z bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m14-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "itinerary"
+      ],
+      "text": "Each of the itineraries *include* its own local guide.",
+      "options": [
+        "includes",
+        "including",
+        "inclusive"
+      ],
+      "correct": [
+        "includes"
+      ],
+      "translation": {
+        "ru": "Каждый из маршрутов включает своего местного гида.",
+        "uz": "Sayohat yo'nalishlarining har biri o'z mahalliy gidini o'z ichiga oladi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — Each (каждый), а не itineraries: глагол в единственном числе, с -s: includes. На единственное число указывает и its.",
+        "uz": "Ega — Each (har biri), itineraries emas: fe'l birlikda, -s bilan keladi: includes. Birlikni its so'zi ham ko'rsatib turibdi."
+      }
+    },
+    {
+      "key": "b2-m14-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "backpacker"
+      ],
+      "text": "Our hostel gives a discount to every *backpack* who stays a week.",
+      "options": [
+        "backpacker",
+        "backpacking",
+        "backpacked"
+      ],
+      "correct": [
+        "backpacker"
+      ],
+      "translation": {
+        "ru": "Наш хостел даёт скидку каждому туристу с рюкзаком, который живёт у нас неделю.",
+        "uz": "Hostelimiz bir hafta qoladigan har bir ryukzakli sayyohga chegirma beradi."
+      },
+      "explanation": {
+        "ru": "who указывает на человека: нужен backpacker (-er, «турист с рюкзаком»). backpack — сам рюкзак.",
+        "uz": "who so'zi odamni bildiradi: backpacker (-er, «ryukzakli sayyoh») kerak. backpack esa ryukzakning o'zi."
+      }
+    },
+    {
+      "key": "b2-m14-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "civilization"
+      ],
+      "text": "The ancient ___ that built this temple was very advanced.",
+      "base": "civilize",
+      "accepted": [
+        "civilization"
+      ],
+      "translation": {
+        "ru": "Древняя цивилизация, построившая этот храм, была очень развитой.",
+        "uz": "Bu ibodatxonani qurgan qadimiy sivilizatsiya juda rivojlangan edi."
+      },
+      "explanation": {
+        "ru": "После The ancient нужно существительное, а was — единственное число: civilize → civilization (-ize → -ization).",
+        "uz": "The ancient so'zlaridan keyin ot kerak, was esa birlikni bildiradi: civilize → civilization (-ize o'rniga -ization)."
+      }
+    },
+    {
+      "key": "b2-m14-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "archaeology"
+      ],
+      "text": "She worked as an ___ in the desert for many years.",
+      "base": "archaeology",
+      "accepted": [
+        "archaeologist",
+        "archeologist"
+      ],
+      "translation": {
+        "ru": "Она много лет работала археологом в пустыне.",
+        "uz": "U ko'p yillar davomida cho'lda arxeolog bo'lib ishlagan."
+      },
+      "explanation": {
+        "ru": "После as an нужно существительное-лицо: archaeology (наука) → archaeologist (учёный): -logy → -logist. Допустимо и написание archeologist.",
+        "uz": "as an so'zlaridan keyin shaxsni bildiruvchi ot kerak: archaeology (fan) → archaeologist (olim): -logy o'rniga -logist. archeologist yozuvi ham to'g'ri."
+      }
+    },
+    {
+      "key": "b2-m14-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "sacred"
+      ],
+      "text": "Visitors remove their shoes out of respect for the ___ of the old mosque.",
+      "base": "sacred",
+      "accepted": [
+        "sacredness"
+      ],
+      "translation": {
+        "ru": "Из уважения к святости старой мечети посетители снимают обувь.",
+        "uz": "Eski masjidning muqaddasligini hurmat qilib, tashrif buyuruvchilar oyoq kiyimini yechadi."
+      },
+      "explanation": {
+        "ru": "После the нужно существительное: sacred (священный) → sacredness (святость), суффикс -ness.",
+        "uz": "the so'zidan keyin ot kerak: sacred (muqaddas) → sacredness (muqaddaslik), -ness qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m14-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "heritage"
+      ],
+      "text": "The old town is now on the list of world *inheritance* sites.",
+      "options": [
+        "heritage",
+        "legacy",
+        "heredity"
+      ],
+      "correct": [
+        "heritage"
+      ],
+      "translation": {
+        "ru": "Теперь старый город внесён в список объектов всемирного наследия.",
+        "uz": "Endi eski shahar jahon merosi obyektlari ro'yxatiga kiritilgan."
+      },
+      "explanation": {
+        "ru": "Культурное наследие — heritage: a world heritage site. inheritance — наследство (имущество от родственников), legacy — наследие человека или эпохи.",
+        "uz": "Madaniy meros — heritage: a world heritage site. inheritance — qarindoshdan qolgan mol-mulk, legacy esa bir inson yoki davrdan qolgan meros."
+      }
+    },
+    {
+      "key": "b2-m14-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "antique"
+      ],
+      "text": "My grandmother's house is full of *antiquity* furniture.",
+      "options": [
+        "antique",
+        "antiques",
+        "antiquities"
+      ],
+      "correct": [
+        "antique"
+      ],
+      "translation": {
+        "ru": "Дом моей бабушки полон старинной мебели.",
+        "uz": "Buvimning uyi antiqa mebellarga to'la."
+      },
+      "explanation": {
+        "ru": "Перед furniture нужно прилагательное antique (старинный, антикварный). antiquity — существительное «древность», antiques — «антикварные вещи».",
+        "uz": "furniture so'zidan oldin antique (ko'hna, antiqa) sifati kerak. antiquity — «qadimiyat» degan ot, antiques — «antiqa buyumlar»."
+      }
+    },
+    {
+      "key": "b2-m14-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "dynasty"
+      ],
+      "text": "It was one of the most powerful *dynasty* in the region's history.",
+      "options": [
+        "dynasties",
+        "dynasty's",
+        "dynastic"
+      ],
+      "correct": [
+        "dynasties"
+      ],
+      "translation": {
+        "ru": "Это была одна из самых могущественных династий в истории региона.",
+        "uz": "Bu mintaqa tarixidagi eng qudratli sulolalardan biri edi."
+      },
+      "explanation": {
+        "ru": "После one of the most… существительное стоит во множественном числе: одна из многих. dynasty → dynasties (-y после согласной → -ies).",
+        "uz": "one of the most… birikmasidan keyin ot ko'plikda bo'ladi: ko'pchilikdan biri. dynasty → dynasties (undoshdan keyingi -y o'rniga -ies)."
+      }
+    },
+    {
+      "key": "b2-m14-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "superstition"
+      ],
+      "text": "My grandmother is so ___ that she never opens an umbrella indoors.",
+      "base": "superstition",
+      "accepted": [
+        "superstitious"
+      ],
+      "translation": {
+        "ru": "Моя бабушка так суеверна, что никогда не открывает зонт в доме.",
+        "uz": "Buvim shunchalik irimchiki, uy ichida hech qachon soyabon ochmaydi."
+      },
+      "explanation": {
+        "ru": "После is so нужно прилагательное: superstition → superstitious; -tion меняется на -tious.",
+        "uz": "is so so'zlaridan keyin sifat kerak: superstition → superstitious; -tion o'rniga -tious yoziladi."
+      }
+    },
+    {
+      "key": "b2-m14-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "courtesy"
+      ],
+      "text": "The receptionists were ___ and helpful, even at midnight.",
+      "base": "courtesy",
+      "accepted": [
+        "courteous"
+      ],
+      "translation": {
+        "ru": "Администраторы были вежливы и услужливы даже в полночь.",
+        "uz": "Qabulxona xodimlari yarim tunda ham xushmuomala va yordamga tayyor edi."
+      },
+      "explanation": {
+        "ru": "После were нужно прилагательное, как helpful: courtesy (вежливость) → courteous; -y меняется на -eous.",
+        "uz": "were so'zidan keyin helpful kabi sifat kerak: courtesy (xushmuomalalik) → courteous; -y o'rniga -eous yoziladi."
+      }
+    },
+    {
+      "key": "b2-m14-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "hospitality"
+      ],
+      "text": "Thank you for your warm ___ during our stay in the village.",
+      "base": "hospitable",
+      "accepted": [
+        "hospitality"
+      ],
+      "translation": {
+        "ru": "Спасибо вам за тёплое гостеприимство во время нашего пребывания в деревне.",
+        "uz": "Qishloqda bo'lganimizda ko'rsatgan iliq mehmondo'stligingiz uchun rahmat."
+      },
+      "explanation": {
+        "ru": "После your warm нужно существительное: hospitable (гостеприимный) → hospitality; -able меняется на -ality.",
+        "uz": "your warm so'zlaridan keyin ot kerak: hospitable (mehmondo'st) → hospitality; -able o'rniga -ality yoziladi."
+      }
+    },
+    {
+      "key": "b2-m14-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "delicacy"
+      ],
+      "text": "In our region, smoked horse meat is considered a *delicatessen*.",
+      "options": [
+        "delicacy",
+        "delicate",
+        "delicately"
+      ],
+      "correct": [
+        "delicacy"
+      ],
+      "translation": {
+        "ru": "В нашем регионе копчёная конина считается деликатесом.",
+        "uz": "Bizning hududda dudlangan ot go'shti tansiq taom hisoblanadi."
+      },
+      "explanation": {
+        "ru": "Деликатес — delicacy. delicatessen — ложный друг: это магазин готовой еды и деликатесов (deli), а не само блюдо.",
+        "uz": "Tansiq taom — delicacy. delicatessen — yolg'on do'st: bu tayyor taomlar va noz-ne'matlar do'koni (deli), taomning o'zi emas."
+      }
+    },
+    {
+      "key": "b2-m14-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "folklore"
+      ],
+      "text": "Many of these old songs come from local *folklores*.",
+      "options": [
+        "folklore",
+        "folklorist",
+        "folkloric"
+      ],
+      "correct": [
+        "folklore"
+      ],
+      "translation": {
+        "ru": "Многие из этих старых песен пришли из местного фольклора.",
+        "uz": "Bu eski qo'shiqlarning ko'pi mahalliy folklordan kelib chiqqan."
+      },
+      "explanation": {
+        "ru": "folklore — неисчисляемое существительное: без -s и без a, даже если речь о многих народах: the folklore of many countries.",
+        "uz": "folklore — sanalmaydigan ot: -s va a artiklisiz ishlatiladi, ko'p xalqlar haqida gap ketganda ham: the folklore of many countries."
+      }
+    },
+    {
+      "key": "b2-m14-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "proverb"
+      ],
+      "text": "We have an old proverb *who* warns against lending money to friends.",
+      "options": [
+        "that",
+        "what",
+        "whom"
+      ],
+      "correct": [
+        "that"
+      ],
+      "translation": {
+        "ru": "У нас есть старая пословица, которая предостерегает от того, чтобы давать деньги в долг друзьям.",
+        "uz": "Bizda do'stlarga qarz berishdan ogohlantiradigan eski bir maqol bor."
+      },
+      "explanation": {
+        "ru": "Пословица — не человек: после proverb относительное местоимение that или which, а не who (who — только о людях). what не начинает определительное придаточное.",
+        "uz": "Maqol odam emas: proverb so'zidan keyin that yoki which ishlatiladi, who emas (who faqat odamlar uchun). what esa aniqlovchi ergash gapni boshlamaydi."
+      }
+    },
+    {
+      "key": "b2-m14-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "polar"
+      ],
+      "text": "Only a few ___ scientists spend the whole winter on the ice.",
+      "base": "pole",
+      "accepted": [
+        "polar"
+      ],
+      "translation": {
+        "ru": "Лишь немногие полярные исследователи проводят на льду всю зиму.",
+        "uz": "Muz ustida butun qishni o'tkazadigan qutb olimlari juda kam."
+      },
+      "explanation": {
+        "ru": "Перед scientists нужно прилагательное: pole (полюс) → polar (полярный), суффикс -ar.",
+        "uz": "scientists so'zidan oldin sifat kerak: pole (qutb) → polar (qutbiy), -ar qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m14-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "equator"
+      ],
+      "text": "Heavy rain falls almost every day in the ___ forests of the region.",
+      "base": "equator",
+      "accepted": [
+        "equatorial"
+      ],
+      "translation": {
+        "ru": "В экваториальных лесах региона почти каждый день идут сильные дожди.",
+        "uz": "Mintaqaning ekvatorial o'rmonlarida deyarli har kuni kuchli yomg'ir yog'adi."
+      },
+      "explanation": {
+        "ru": "Перед forests нужно прилагательное: equator → equatorial (суффикс -ial).",
+        "uz": "forests so'zidan oldin sifat kerak: equator → equatorial (-ial qo'shimchasi)."
+      }
+    },
+    {
+      "key": "b2-m14-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "plateau"
+      ],
+      "text": "The road climbs across two high ___ before it reaches the pass.",
+      "base": "plateau",
+      "accepted": [
+        "plateaus",
+        "plateaux"
+      ],
+      "translation": {
+        "ru": "Прежде чем достичь перевала, дорога поднимается через два высоких плато.",
+        "uz": "Yo'l dovonga yetib borishdan oldin ikkita baland yassi tog'likni kesib o'tadi."
+      },
+      "explanation": {
+        "ru": "После two нужно множественное число: plateau → plateaus (обычное -s) или plateaux (французское -x); верны оба.",
+        "uz": "two so'zidan keyin ko'plik kerak: plateau → plateaus (oddiy -s) yoki plateaux (fransuzcha -x); ikkalasi ham to'g'ri."
+      }
+    },
+    {
+      "key": "b2-m14-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "latitude"
+      ],
+      "text": "Lines of *longitude* run from east to west, just like the equator.",
+      "options": [
+        "latitude",
+        "altitude",
+        "attitude"
+      ],
+      "correct": [
+        "latitude"
+      ],
+      "translation": {
+        "ru": "Линии широты идут с востока на запад, так же как экватор.",
+        "uz": "Kenglik chiziqlari xuddi ekvator kabi sharqdan g'arbga qarab o'tadi."
+      },
+      "explanation": {
+        "ru": "С востока на запад, как экватор, идут линии широты — latitude. Линии долготы (longitude) идут с севера на юг.",
+        "uz": "Sharqdan g'arbga, ekvator kabi, kenglik chiziqlari — latitude o'tadi. Uzunlik chiziqlari (longitude) shimoldan janubga o'tadi."
+      }
+    },
+    {
+      "key": "b2-m14-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "altitude"
+      ],
+      "text": "Many tourists feel sick at *tall* altitudes.",
+      "options": [
+        "high",
+        "long",
+        "deep"
+      ],
+      "correct": [
+        "high"
+      ],
+      "translation": {
+        "ru": "Многим туристам становится плохо на большой высоте.",
+        "uz": "Ko'plab sayyohlar dengiz sathidan baland joylarda o'zini yomon his qiladi."
+      },
+      "explanation": {
+        "ru": "С altitude сочетается high: at high altitudes. tall говорят о людях, деревьях и зданиях, но не о высоте над уровнем моря.",
+        "uz": "altitude so'zi high sifati bilan keladi: at high altitudes. tall esa odam, daraxt va binolar haqida aytiladi, dengiz sathidan balandlik haqida emas."
+      }
+    },
+    {
+      "key": "b2-m14-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "terrain"
+      ],
+      "text": "Much of the terrain in the north *are* too steep for cars.",
+      "options": [
+        "is",
+        "were",
+        "be"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Большая часть местности на севере слишком крутая для машин.",
+        "uz": "Shimoldagi relyefning katta qismi mashinalar uchun juda tik."
+      },
+      "explanation": {
+        "ru": "Much of the terrain — неисчисляемое существительное, единственное число: глагол is. На это указывает и much (с исчисляемыми — many).",
+        "uz": "Much of the terrain — sanalmaydigan ot, birlikda: fe'l is bo'ladi. Buni much ham ko'rsatadi (sanaladigan otlar bilan many keladi)."
+      }
+    },
+    {
+      "key": "b2-m14-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "nostalgia"
+      ],
+      "text": "Old songs from my school years always make me feel ___.",
+      "base": "nostalgia",
+      "accepted": [
+        "nostalgic"
+      ],
+      "translation": {
+        "ru": "Старые песни школьных лет всегда вызывают у меня ностальгию.",
+        "uz": "Maktab yillarimdagi eski qo'shiqlar menda doim sog'inch hissini uyg'otadi."
+      },
+      "explanation": {
+        "ru": "После feel нужно прилагательное: nostalgia → nostalgic (-ia меняется на -ic).",
+        "uz": "feel fe'lidan keyin sifat kerak: nostalgia → nostalgic (-ia o'rniga -ic)."
+      }
+    },
+    {
+      "key": "b2-m14-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "spectacular"
+      ],
+      "text": "The festival ended ___, with fireworks over the whole bay.",
+      "base": "spectacle",
+      "accepted": [
+        "spectacularly"
+      ],
+      "translation": {
+        "ru": "Фестиваль завершился великолепно — фейерверком над всем заливом.",
+        "uz": "Festival butun ko'rfaz uzra otashinlar bilan ajoyib tarzda yakunlandi."
+      },
+      "explanation": {
+        "ru": "Глагол ended описывает наречие. Два шага: spectacle (зрелище) → spectacular (-ar) → spectacularly (-ly).",
+        "uz": "ended fe'lini ravish izohlaydi. Ikki bosqich: spectacle (tomosha) → spectacular (-ar) → spectacularly (-ly)."
+      }
+    },
+    {
+      "key": "b2-m14-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "picturesque"
+      ],
+      "text": "Artists come from far away to paint the ___ old harbor.",
+      "base": "picture",
+      "accepted": [
+        "picturesque"
+      ],
+      "translation": {
+        "ru": "Художники приезжают издалека, чтобы писать живописную старую гавань.",
+        "uz": "Rassomlar xushmanzara eski bandargohni chizish uchun uzoq-uzoqlardan keladi."
+      },
+      "explanation": {
+        "ru": "Перед old harbor нужно прилагательное: picture (картина) → picturesque (живописный, «как на картине»), суффикс -esque.",
+        "uz": "old harbor so'zlaridan oldin sifat kerak: picture (rasm) → picturesque (xushmanzara, «rasmdagidek»), -esque qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m14-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "dialect"
+      ],
+      "text": "The poet wrote most of his poems *on* the local dialect.",
+      "options": [
+        "in",
+        "at",
+        "by"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Поэт написал большую часть своих стихов на местном диалекте.",
+        "uz": "Shoir she'rlarining ko'p qismini mahalliy shevada yozgan."
+      },
+      "explanation": {
+        "ru": "На языке или диалекте — in: write in a dialect, speak in English. Русское «на диалекте» здесь не on.",
+        "uz": "Biror til yoki shevada — in: write in a dialect, speak in English. O'zbekcha «shevada» qo'shimchasi bu yerda in predlogiga to'g'ri keladi."
+      }
+    },
+    {
+      "key": "b2-m14-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "encounter"
+      ],
+      "text": "Since we arrived in the mountains, we *encounter* nothing but kindness.",
+      "options": [
+        "have encountered",
+        "are encountering",
+        "will encounter"
+      ],
+      "correct": [
+        "have encountered"
+      ],
+      "translation": {
+        "ru": "С тех пор как мы приехали в горы, мы встречаем только доброту.",
+        "uz": "Tog'larga kelganimizdan beri faqat mehr-oqibat ko'rmoqdamiz."
+      },
+      "explanation": {
+        "ru": "Since + момент в прошлом требует в главной части Present Perfect: we have encountered. По-русски здесь настоящее время, по-английски — нет.",
+        "uz": "Since + o'tmishdagi payt bosh gapda Present Perfect talab qiladi: we have encountered. O'zbekchada hozirgi zamon ishlatiladi, ingliz tilida esa yo'q."
+      }
+    },
+    {
+      "key": "b2-m14-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "scenic"
+      ],
+      "text": "Tourists often choose the longer but more *scenery* path over the hills.",
+      "options": [
+        "scenic",
+        "scenes",
+        "scenically"
+      ],
+      "correct": [
+        "scenic"
+      ],
+      "translation": {
+        "ru": "Туристы часто выбирают более длинную, но более живописную тропу через холмы.",
+        "uz": "Sayyohlar ko'pincha tepaliklar osha o'tadigan uzunroq, lekin manzaraliroq so'qmoqni tanlaydi."
+      },
+      "explanation": {
+        "ru": "Перед path нужно прилагательное: scenic (с красивыми видами). scenery — существительное «пейзаж», определением к path оно быть не может.",
+        "uz": "path so'zidan oldin sifat kerak: scenic (manzarali). scenery esa «manzara» degan ot, path so'ziga aniqlovchi bo'la olmaydi."
+      }
+    }
+  ]
+}

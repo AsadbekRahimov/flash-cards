@@ -1,0 +1,1628 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c2",
+  "items": [
+    {
+      "key": "c2-m13-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "pathology"
+      ],
+      "text": "As a ___, she spends long hours examining tissue samples under a microscope.",
+      "base": "pathology",
+      "accepted": [
+        "pathologist"
+      ],
+      "translation": {
+        "ru": "Будучи патологом, она часами изучает образцы тканей под микроскопом.",
+        "uz": "Patolog sifatida u soatlab mikroskop ostida to'qima namunalarini o'rganadi."
+      },
+      "explanation": {
+        "ru": "As a ___ требует человека — специалиста: pathology (патология) → pathologist (патолог); -logy меняется на -logist, как biology → biologist.",
+        "uz": "As a so'zlaridan keyin shaxs — mutaxassis kerak: pathology (patologiya) → pathologist (patolog); -logy o'rniga -logist, xuddi biology → biologist kabi."
+      }
+    },
+    {
+      "key": "c2-m13-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "anemia"
+      ],
+      "text": "Months of a poor diet had left the young runner pale and ___.",
+      "base": "anemia",
+      "accepted": [
+        "anemic",
+        "anaemic"
+      ],
+      "translation": {
+        "ru": "После нескольких месяцев плохого питания молодой бегун стал бледным и анемичным.",
+        "uz": "Bir necha oylik noto'g'ri ovqatlanish yosh yuguruvchini rangpar va kamqon qilib qo'ygan edi."
+      },
+      "explanation": {
+        "ru": "После pale and нужно второе прилагательное, однородное с pale: anemia (анемия) → anemic (анемичный); -ia меняется на -ic. Британское написание — anaemic.",
+        "uz": "pale and so'zlaridan keyin pale bilan uyushiq ikkinchi sifat kerak: anemia (kamqonlik) → anemic (kamqon); -ia o'rniga -ic. Britancha yozilishi — anaemic."
+      }
+    },
+    {
+      "key": "c2-m13-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "affliction"
+      ],
+      "text": "Gout was once a common ___ of wealthy men who ate too much rich food.",
+      "base": "afflict",
+      "accepted": [
+        "affliction"
+      ],
+      "translation": {
+        "ru": "Подагра когда-то была распространённым недугом богатых мужчин, которые ели слишком много жирной пищи.",
+        "uz": "Podagra bir paytlar haddan tashqari yog'li ovqat yeydigan badavlat erkaklarning keng tarqalgan dardi edi."
+      },
+      "explanation": {
+        "ru": "После a common нужно существительное: afflict (поражать, мучить) → affliction (недуг); глагол на -ct получает -ion, как protect → protection.",
+        "uz": "a common so'zlaridan keyin ot kerak: afflict (azob bermoq) → affliction (dard); -ct bilan tugaydigan fe'lga -ion qo'shiladi, xuddi protect → protection kabi."
+      }
+    },
+    {
+      "key": "c2-m13-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "debilitating"
+      ],
+      "text": "For weeks the traveler suffered from a *debilitated* fever that no doctor could explain.",
+      "options": [
+        "debilitating",
+        "debilitation",
+        "debility"
+      ],
+      "correct": [
+        "debilitating"
+      ],
+      "translation": {
+        "ru": "Неделями путешественник страдал от изнуряющей лихорадки, которую не мог объяснить ни один врач.",
+        "uz": "Sayyoh haftalab hech bir shifokor izohlay olmagan holsizlantiruvchi isitmadan azob chekdi."
+      },
+      "explanation": {
+        "ru": "Лихорадка сама ослабляет человека, поэтому нужно прилагательное на -ing: debilitating (изнуряющий). debilitated — «ослабленный»: так говорят о больном, а не о болезни.",
+        "uz": "Isitmaning o'zi odamni holsizlantiradi, shuning uchun -ing shakli kerak: debilitating (holsizlantiruvchi). debilitated — «holsizlangan»: bu bemor haqida aytiladi, kasallik haqida emas."
+      }
+    },
+    {
+      "key": "c2-m13-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "syndrome"
+      ],
+      "text": "Fever, headache and aching joints that regularly appear together form a recognized *symptom*.",
+      "options": [
+        "syndrome",
+        "symptoms",
+        "symptomatic"
+      ],
+      "correct": [
+        "syndrome"
+      ],
+      "translation": {
+        "ru": "Жар, головная боль и ломота в суставах, которые регулярно возникают вместе, образуют признанный медициной синдром.",
+        "uz": "Muntazam birga kuzatiladigan isitma, bosh og'rig'i va bo'g'imlardagi og'riq tibbiyotda tan olingan sindromni tashkil qiladi."
+      },
+      "explanation": {
+        "ru": "symptom — один признак болезни; устойчивое сочетание нескольких признаков — syndrome (синдром). После a нужно существительное в единственном числе, поэтому не symptoms.",
+        "uz": "symptom — kasallikning bitta belgisi; bir nechta belgining doimiy birikmasi — syndrome (sindrom). a artiklidan keyin birlikdagi ot kerak, shuning uchun symptoms emas."
+      }
+    },
+    {
+      "key": "c2-m13-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "congenital"
+      ],
+      "text": "Her younger brother was *congenital* deaf and learned sign language as a small child.",
+      "options": [
+        "congenitally",
+        "congenially",
+        "conventionally"
+      ],
+      "correct": [
+        "congenitally"
+      ],
+      "translation": {
+        "ru": "Её младший брат был глухим от рождения и освоил язык жестов ещё маленьким ребёнком.",
+        "uz": "Uning ukasi tug'ma kar edi va imo-ishora tilini juda yoshligidayoq o'rgangan."
+      },
+      "explanation": {
+        "ru": "Слово стоит перед прилагательным deaf и определяет его, поэтому нужно наречие: congenital → congenitally (от рождения). congenially значит «приятно, дружелюбно».",
+        "uz": "So'z deaf sifatidan oldin turib uni izohlaydi, shuning uchun ravish kerak: congenital → congenitally (tug'ma). congenially esa «yoqimli, do'stona» degani."
+      }
+    },
+    {
+      "key": "c2-m13-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "convalesce"
+      ],
+      "text": "During her long ___ after the operation, she read dozens of novels.",
+      "base": "convalesce",
+      "accepted": [
+        "convalescence"
+      ],
+      "translation": {
+        "ru": "За время долгого восстановления после операции она прочла десятки романов.",
+        "uz": "Operatsiyadan keyingi uzoq tuzalish davrida u o'nlab romanlarni o'qib chiqdi."
+      },
+      "explanation": {
+        "ru": "После her long нужно существительное: convalesce (восстанавливаться после болезни) → convalescence (выздоровление); окончание -ence, а не -ance, и sc сохраняется.",
+        "uz": "her long so'zlaridan keyin ot kerak: convalesce (darmonga kirmoq) → convalescence (tuzalish davri); -ance emas, -ence qo'shimchasi, sc harflari saqlanadi."
+      }
+    },
+    {
+      "key": "c2-m13-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "efficacy"
+      ],
+      "text": "The old remedy proved surprisingly ___, and the fever broke within a day.",
+      "base": "efficacy",
+      "accepted": [
+        "efficacious"
+      ],
+      "translation": {
+        "ru": "Старое средство оказалось на удивление действенным: жар спал уже через сутки.",
+        "uz": "Eski dori kutilmaganda ta'sirchan bo'lib chiqdi: isitma bir kun ichida tushdi."
+      },
+      "explanation": {
+        "ru": "proved surprisingly без артикля требует прилагательного, а спавший жар — положительного смысла: efficacy (действенность) → efficacious (действенный); -acy меняется на -acious.",
+        "uz": "Artiklsiz proved surprisingly so'zlaridan keyin sifat kerak, tushgan isitma esa ijobiy ma'noni talab qiladi: efficacy (ta'sirchanlik) → efficacious (ta'sirchan); -acy o'rniga -acious."
+      }
+    },
+    {
+      "key": "c2-m13-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "resuscitate"
+      ],
+      "text": "Despite twenty minutes of attempted ___, the swimmer could not be saved.",
+      "base": "resuscitate",
+      "accepted": [
+        "resuscitation"
+      ],
+      "translation": {
+        "ru": "Несмотря на двадцать минут попыток реанимации, пловца не удалось спасти.",
+        "uz": "Yigirma daqiqalik reanimatsiya urinishlariga qaramay, suzuvchini qutqarib bo'lmadi."
+      },
+      "explanation": {
+        "ru": "После attempted (предпринятая) нужно существительное: resuscitate (реанимировать) → resuscitation (реанимация); -ate меняется на -ation.",
+        "uz": "attempted (urinib ko'rilgan) so'zidan keyin ot kerak: resuscitate (hayotga qaytarmoq) → resuscitation (reanimatsiya); -ate o'rniga -ation."
+      }
+    },
+    {
+      "key": "c2-m13-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "inoculate"
+      ],
+      "text": "Before the trip, every student had to *inoculate* against yellow fever by the nurse.",
+      "options": [
+        "be inoculated",
+        "be inoculating",
+        "have inoculated"
+      ],
+      "correct": [
+        "be inoculated"
+      ],
+      "translation": {
+        "ru": "Перед поездкой медсестра должна была сделать каждому ученику прививку от жёлтой лихорадки.",
+        "uz": "Safardan oldin har bir o'quvchi hamshira tomonidan sariq isitmaga qarshi emlanishi kerak edi."
+      },
+      "explanation": {
+        "ru": "Ученик прививку получает, а делает её медсестра (by the nurse), поэтому нужен пассив: had to be inoculated. После had to — be + третья форма глагола.",
+        "uz": "O'quvchi emlanadi, emlovchi esa hamshira (by the nurse), shuning uchun majhul nisbat kerak: had to be inoculated. had to birikmasidan keyin be + fe'lning uchinchi shakli keladi."
+      }
+    },
+    {
+      "key": "c2-m13-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "palliative"
+      ],
+      "text": "Doctors switched him to *palliate* treatment once the cancer had spread.",
+      "options": [
+        "palliative",
+        "palliation",
+        "palliated"
+      ],
+      "correct": [
+        "palliative"
+      ],
+      "translation": {
+        "ru": "Когда рак распространился, врачи перевели его на паллиативное лечение.",
+        "uz": "Saraton tarqalgach, shifokorlar uni palliativ davolashga o'tkazishdi."
+      },
+      "explanation": {
+        "ru": "Перед существительным treatment нужно прилагательное: palliative treatment — паллиативное лечение (облегчает страдания, но не излечивает). palliate — глагол («облегчать»), palliation — существительное.",
+        "uz": "treatment otidan oldin sifat kerak: palliative treatment — palliativ davolash (azobni yengillashtiradi, lekin tuzatmaydi). palliate — fe'l («yengillashtirmoq»), palliation — ot."
+      }
+    },
+    {
+      "key": "c2-m13-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "regimen"
+      ],
+      "text": "Since the surgery, she has followed a daily *regiment* of pills and breathing exercises.",
+      "options": [
+        "regimen",
+        "regency",
+        "regimental"
+      ],
+      "correct": [
+        "regimen"
+      ],
+      "translation": {
+        "ru": "После операции она соблюдает ежедневный режим лечения: таблетки и дыхательные упражнения.",
+        "uz": "Operatsiyadan beri u har kungi davolanish tartibiga — dorilar va nafas mashqlariga amal qilib keladi."
+      },
+      "explanation": {
+        "ru": "regiment — полк (воинская часть). Режим лечения, питания или упражнений — regimen, без t на конце.",
+        "uz": "regiment — polk (harbiy qism). Davolanish, parhez yoki mashqlar tartibi — regimen, oxirida t yo'q."
+      }
+    },
+    {
+      "key": "c2-m13-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "vertebra"
+      ],
+      "text": "The fall cracked two ___ in the lower part of his spine.",
+      "base": "vertebra",
+      "accepted": [
+        "vertebrae",
+        "vertebras"
+      ],
+      "translation": {
+        "ru": "При падении у него треснули два позвонка в нижней части позвоночника.",
+        "uz": "Yiqilganda uning umurtqa pog'onasining pastki qismidagi ikkita umurtqasi darz ketdi."
+      },
+      "explanation": {
+        "ru": "После two нужно множественное число. vertebra — латинское слово, и обычно -a меняется на -ae: vertebrae; форма vertebras встречается реже.",
+        "uz": "two so'zidan keyin ko'plik kerak. vertebra — lotincha so'z, odatda -a o'rniga -ae yoziladi: vertebrae; vertebras shakli kamroq uchraydi."
+      }
+    },
+    {
+      "key": "c2-m13-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "larynx"
+      ],
+      "text": "The singer had to cancel the concert because of a bad case of ___.",
+      "base": "larynx",
+      "accepted": [
+        "laryngitis"
+      ],
+      "translation": {
+        "ru": "Певцу пришлось отменить концерт из-за тяжёлого ларингита.",
+        "uz": "Qo'shiqchi kuchli laringit tufayli konsertni bekor qilishga majbur bo'ldi."
+      },
+      "explanation": {
+        "ru": "После a bad case of нужно название болезни: larynx (гортань) → laryngitis (ларингит, воспаление гортани); x меняется на g, суффикс -itis.",
+        "uz": "a bad case of birikmasidan keyin kasallik nomi kerak: larynx (hiqildoq) → laryngitis (laringit, hiqildoq yallig'lanishi); x o'rniga g yoziladi, -itis qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m13-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "intestine"
+      ],
+      "text": "He was admitted with a serious ___ infection after drinking dirty water.",
+      "base": "intestine",
+      "accepted": [
+        "intestinal"
+      ],
+      "translation": {
+        "ru": "Его госпитализировали с тяжёлой кишечной инфекцией после того, как он выпил грязной воды.",
+        "uz": "U iflos suv ichganidan keyin og'ir ichak infeksiyasi bilan kasalxonaga yotqizildi."
+      },
+      "explanation": {
+        "ru": "Между a serious и infection нужно прилагательное: intestine (кишка) → intestinal (кишечный); конечная e выпадает, добавляется -al.",
+        "uz": "a serious va infection so'zlari orasida sifat kerak: intestine (ichak) → intestinal (ichakka oid); oxirgi e tushib qoladi, -al qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m13-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "marrow"
+      ],
+      "text": "Her brother donated bone *brain* to save her life.",
+      "options": [
+        "marrow",
+        "mind",
+        "cerebrum"
+      ],
+      "correct": [
+        "marrow"
+      ],
+      "translation": {
+        "ru": "Её брат стал донором костного мозга, чтобы спасти ей жизнь.",
+        "uz": "Akasi uning hayotini saqlab qolish uchun suyak iligi donori bo'ldi."
+      },
+      "explanation": {
+        "ru": "«Костный мозг» по-английски bone marrow: brain — только головной мозг. Русское «мозг» здесь не brain.",
+        "uz": "Suyak iligi inglizchada bone marrow deyiladi: brain — faqat bosh miya."
+      }
+    },
+    {
+      "key": "c2-m13-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "trachea"
+      ],
+      "text": "A breathing tube in her *esophagus* let a machine breathe for her.",
+      "options": [
+        "trachea",
+        "intestine",
+        "gullet"
+      ],
+      "correct": [
+        "trachea"
+      ],
+      "translation": {
+        "ru": "Дыхательная трубка в трахее позволяла аппарату дышать за неё.",
+        "uz": "Kekirdagiga qo'yilgan nafas naychasi orqali apparat uning o'rniga nafas olardi."
+      },
+      "explanation": {
+        "ru": "Дыхательную трубку вводят в trachea (трахею): по ней воздух идёт в лёгкие. esophagus — пищевод: по нему пища идёт в желудок; gullet — тоже пищевод.",
+        "uz": "Nafas naychasi trachea (kekirdak) ichiga qo'yiladi: u orqali havo o'pkaga boradi. esophagus — qizilo'ngach: u orqali ovqat oshqozonga tushadi; gullet ham qizilo'ngach."
+      }
+    },
+    {
+      "key": "c2-m13-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "pancreas"
+      ],
+      "text": "The pancreas, a long, flat gland, *sit* just behind the stomach.",
+      "options": [
+        "sits",
+        "sitting",
+        "seated"
+      ],
+      "correct": [
+        "sits"
+      ],
+      "translation": {
+        "ru": "Поджелудочная железа — длинная плоская железа — расположена прямо за желудком.",
+        "uz": "Oshqozon osti bezi — uzun, yassi bez — oshqozonning naq orqasida joylashgan."
+      },
+      "explanation": {
+        "ru": "pancreas — существительное в единственном числе, хотя кончается на -s (это подтверждает и a long, flat gland). Поэтому глагол с -s: sits.",
+        "uz": "pancreas -s bilan tugasa ham birlikdagi ot (buni a long, flat gland ham tasdiqlaydi). Shuning uchun fe'l -s oladi: sits."
+      }
+    },
+    {
+      "key": "c2-m13-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "numb"
+      ],
+      "text": "A strange ___ spread slowly from his toes to his knees.",
+      "base": "numb",
+      "accepted": [
+        "numbness"
+      ],
+      "translation": {
+        "ru": "Странное онемение медленно поднялось от пальцев ног до колен.",
+        "uz": "G'alati uvishish oyoq barmoqlaridan tizzalarigacha sekin tarqaldi."
+      },
+      "explanation": {
+        "ru": "После A strange нужно существительное: numb (онемевший) → numbness (онемение); непроизносимая b сохраняется: n-u-m-b-n-e-s-s.",
+        "uz": "A strange so'zlaridan keyin ot kerak: numb (uvishgan) → numbness (uvishish); talaffuz qilinmaydigan b saqlanadi: n-u-m-b-n-e-s-s."
+      }
+    },
+    {
+      "key": "c2-m13-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "queasy"
+      ],
+      "text": "A wave of ___ hit him the moment the boat left the harbor.",
+      "base": "queasy",
+      "accepted": [
+        "queasiness"
+      ],
+      "translation": {
+        "ru": "Как только лодка вышла из гавани, его накрыла волна тошноты.",
+        "uz": "Qayiq bandargohdan chiqishi bilanoq uning ko'ngli qattiq ayniy boshladi."
+      },
+      "explanation": {
+        "ru": "После A wave of нужно существительное: queasy (испытывающий тошноту) → queasiness (тошнота); y перед -ness меняется на i.",
+        "uz": "A wave of so'zlaridan keyin ot kerak: queasy (ko'ngli aynigan) → queasiness (ko'ngil aynishi); -ness oldidan y harfi i ga almashadi."
+      }
+    },
+    {
+      "key": "c2-m13-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "excruciating"
+      ],
+      "text": "After the long flight, her injured back was ___ painful.",
+      "base": "excruciating",
+      "accepted": [
+        "excruciatingly"
+      ],
+      "translation": {
+        "ru": "После долгого перелёта её травмированная спина нестерпимо болела.",
+        "uz": "Uzoq parvozdan keyin uning shikastlangan beli chidab bo'lmas darajada og'riyotgan edi."
+      },
+      "explanation": {
+        "ru": "Слово стоит перед прилагательным painful и усиливает его, поэтому нужно наречие: excruciating (нестерпимый) → excruciatingly (нестерпимо); суффикс -ly.",
+        "uz": "So'z painful sifatidan oldin turib uni kuchaytiradi, shuning uchun ravish kerak: excruciating (chidab bo'lmas) → excruciatingly (chidab bo'lmas darajada); -ly qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m13-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "drowsy"
+      ],
+      "text": "After the heavy lunch, everyone at the meeting began to feel *drowsily*.",
+      "options": [
+        "drowsy",
+        "drowsing",
+        "drowsed"
+      ],
+      "correct": [
+        "drowsy"
+      ],
+      "translation": {
+        "ru": "После сытного обеда всех на совещании стало клонить в сон.",
+        "uz": "To'yimli tushlikdan keyin yig'ilishdagi hammani uyqu bosa boshladi."
+      },
+      "explanation": {
+        "ru": "feel — глагол-связка: после него нужно прилагательное, а не наречие: feel drowsy. Наречие drowsily описывает действие: smiled drowsily.",
+        "uz": "feel — bog'lovchi fe'l: undan keyin ravish emas, sifat keladi: feel drowsy. drowsily ravishi esa harakatni izohlaydi: smiled drowsily."
+      }
+    },
+    {
+      "key": "c2-m13-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "parched"
+      ],
+      "text": "By noon the walkers were *parching*, but there was no water left.",
+      "options": [
+        "parched",
+        "parch",
+        "parchment"
+      ],
+      "correct": [
+        "parched"
+      ],
+      "translation": {
+        "ru": "К полудню путники изнывали от жажды, но воды больше не осталось.",
+        "uz": "Tushga yaqin piyoda sayohatchilar qattiq chanqab qolishdi, lekin suv qolmagan edi."
+      },
+      "explanation": {
+        "ru": "О людях, которых мучит жажда, говорят parched (-ed): were parched. parching значит «иссушающий» и описывает жару или солнце.",
+        "uz": "Chanqoqdan qiynalgan odamlar haqida -ed shakli ishlatiladi: were parched. parching esa «quritadigan» degani va jazirama yoki quyosh haqida aytiladi."
+      }
+    },
+    {
+      "key": "c2-m13-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "palpitation"
+      ],
+      "text": "Before every exam she suffered from *palpations* and shaking hands.",
+      "options": [
+        "palpitations",
+        "palpitates",
+        "palpitate"
+      ],
+      "correct": [
+        "palpitations"
+      ],
+      "translation": {
+        "ru": "Перед каждым экзаменом её мучили учащённое сердцебиение и дрожь в руках.",
+        "uz": "Har bir imtihon oldidan uning yuragi o'ynab, qo'llari titrab ketardi."
+      },
+      "explanation": {
+        "ru": "palpation — ощупывание (осмотр врача руками). Учащённое сердцебиение — palpitations, с -it- в середине; после from нужно существительное.",
+        "uz": "palpation — paypaslab tekshirish (shifokorning qo'l bilan ko'rigi). Yurak o'ynashi — palpitations, o'rtasida -it- bor; from predlogidan keyin ot kerak."
+      }
+    },
+    {
+      "key": "c2-m13-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "mortal"
+      ],
+      "text": "The ancient poets believed their verses would grant them ___.",
+      "base": "mortal",
+      "accepted": [
+        "immortality"
+      ],
+      "translation": {
+        "ru": "Древние поэты верили, что стихи подарят им бессмертие.",
+        "uz": "Qadimgi shoirlar she'rlari ularga boqiylik baxsh etishiga ishonishgan."
+      },
+      "explanation": {
+        "ru": "После grant them нужно существительное, а смысл — «жизнь навеки»: mortal (смертный) → immortal (бессмертный) → immortality (бессмертие); перед m приставка im-.",
+        "uz": "grant them so'zlaridan keyin ot kerak, ma'no esa «abadiy hayot»: mortal (foniy) → immortal (boqiy) → immortality (boqiylik); m oldidan im- old qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m13-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "posthumous"
+      ],
+      "text": "The novel was published ___, three years after its author died.",
+      "base": "posthumous",
+      "accepted": [
+        "posthumously"
+      ],
+      "translation": {
+        "ru": "Роман вышел посмертно, через три года после смерти автора.",
+        "uz": "Roman muallifi vafotidan keyin — u olamdan o'tganidan uch yil o'tib nashr etildi."
+      },
+      "explanation": {
+        "ru": "Слово описывает глагол was published, поэтому нужно наречие: posthumous (посмертный) → posthumously (посмертно); суффикс -ly.",
+        "uz": "So'z was published fe'lini izohlaydi, shuning uchun ravish kerak: posthumous (vafotidan keyingi) → posthumously (vafotidan keyin); -ly qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m13-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "geriatric"
+      ],
+      "text": "As a ___, she treats only patients over seventy.",
+      "base": "geriatric",
+      "accepted": [
+        "geriatrician"
+      ],
+      "translation": {
+        "ru": "Как гериатр, она лечит только пациентов старше семидесяти лет.",
+        "uz": "U geriatr sifatida faqat yetmish yoshdan oshgan bemorlarni davolaydi."
+      },
+      "explanation": {
+        "ru": "As a ___ требует человека — врача: geriatric (гериатрический) → geriatrician (гериатр); -ic меняется на -ician, как pediatric → pediatrician.",
+        "uz": "As a so'zlaridan keyin shaxs — shifokor kerak: geriatric (geriatrik) → geriatrician (geriatr); -ic o'rniga -ician, xuddi pediatric → pediatrician kabi."
+      }
+    },
+    {
+      "key": "c2-m13-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "infirm"
+      ],
+      "text": "The volunteers bring hot meals to the elderly and the *infirms* every day.",
+      "options": [
+        "infirm",
+        "infirmity",
+        "infirmly"
+      ],
+      "correct": [
+        "infirm"
+      ],
+      "translation": {
+        "ru": "Волонтёры каждый день приносят горячую еду пожилым и немощным.",
+        "uz": "Ko'ngillilar har kuni keksalar va notavonlarga issiq ovqat olib borishadi."
+      },
+      "explanation": {
+        "ru": "the + прилагательное обозначает группу людей (the elderly, the infirm, the poor) и не получает -s, хотя смысл множественный.",
+        "uz": "the + sifat odamlar guruhini bildiradi (the elderly, the infirm, the poor) va ma'nosi ko'plik bo'lsa ham -s olmaydi."
+      }
+    },
+    {
+      "key": "c2-m13-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "frailty"
+      ],
+      "text": "The doctor was worried by the growing *frail* of her elderly patient.",
+      "options": [
+        "frailty",
+        "frailly",
+        "frailer"
+      ],
+      "correct": [
+        "frailty"
+      ],
+      "translation": {
+        "ru": "Врача тревожила нарастающая физическая слабость её пожилого пациента.",
+        "uz": "Shifokorni keksa bemorining tobora ortib borayotgan nimjonligi xavotirga solardi."
+      },
+      "explanation": {
+        "ru": "После the growing и перед of нужно существительное: frail (хрупкий, слабый) → frailty (физическая слабость); суффикс -ty.",
+        "uz": "the growing so'zlaridan keyin va of predlogidan oldin ot kerak: frail (nimjon) → frailty (nimjonlik); -ty qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m13-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "decrepit"
+      ],
+      "text": "A *decrepid* old horse stood alone in the empty field.",
+      "options": [
+        "decrepit",
+        "decrepitude",
+        "deceased"
+      ],
+      "correct": [
+        "decrepit"
+      ],
+      "translation": {
+        "ru": "Дряхлая старая лошадь одиноко стояла в пустом поле.",
+        "uz": "Munkillagan qari ot bo'm-bo'sh dalada yolg'iz turardi."
+      },
+      "explanation": {
+        "ru": "Слово пишется decrepit — с t на конце, а не с d (decrepid — частая ошибка); существительное — decrepitude. deceased значит «покойный».",
+        "uz": "So'z decrepit tarzida — oxirida d emas, t bilan yoziladi (decrepid — keng tarqalgan xato); oti — decrepitude. deceased esa «marhum» degani."
+      }
+    },
+    {
+      "key": "c2-m14-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "tempest"
+      ],
+      "text": "The fishing boat disappeared in ___ seas off the northern coast.",
+      "base": "tempest",
+      "accepted": [
+        "tempestuous"
+      ],
+      "translation": {
+        "ru": "Рыболовецкое судно пропало в бурном море у северного побережья.",
+        "uz": "Baliqchilar qayig'i shimoliy qirg'oq yaqinidagi bo'ronli dengizda g'oyib bo'ldi."
+      },
+      "explanation": {
+        "ru": "Перед seas нужно прилагательное: tempest (буря) → tempestuous (бурный); суффикс -uous: tempest-uous.",
+        "uz": "seas otidan oldin sifat kerak: tempest (bo'ron) → tempestuous (bo'ronli); -uous qo'shimchasi: tempest-uous."
+      }
+    },
+    {
+      "key": "c2-m14-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "torrential"
+      ],
+      "text": "The village was cut off by three days of ___ rain.",
+      "base": "torrent",
+      "accepted": [
+        "torrential"
+      ],
+      "translation": {
+        "ru": "После трёх дней проливного дождя деревня оказалась отрезанной от мира.",
+        "uz": "Uch kun davom etgan sharros yomg'ir tufayli qishloq tashqi dunyodan uzilib qoldi."
+      },
+      "explanation": {
+        "ru": "Перед rain нужно прилагательное: torrent (бурный поток) → torrential (проливной); суффикс -ial, t перед ним читается как «ш».",
+        "uz": "rain otidan oldin sifat kerak: torrent (shiddatli oqim) → torrential (sharros); -ial qo'shimchasi, undan oldin t harfi «sh» deb o'qiladi."
+      }
+    },
+    {
+      "key": "c2-m14-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "balmy"
+      ],
+      "text": "This winter has been ___ than usual, with hardly any frost.",
+      "base": "balmy",
+      "accepted": [
+        "balmier"
+      ],
+      "translation": {
+        "ru": "Эта зима выдалась мягче обычного: морозов почти не было.",
+        "uz": "Bu qish odatdagidan iliqroq keldi, sovuq deyarli bo'lmadi."
+      },
+      "explanation": {
+        "ru": "Перед than нужна сравнительная степень: balmy (тёплый, мягкий) → balmier; y после согласной меняется на i, затем -er.",
+        "uz": "than so'zidan oldin qiyosiy daraja kerak: balmy (iliq, mayin) → balmier; undoshdan keyingi y harfi i ga almashadi, so'ng -er qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m14-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "sweltering"
+      ],
+      "text": "We spent a *sweltered* afternoon waiting for a bus that never came.",
+      "options": [
+        "sweltering",
+        "swelling",
+        "swollen"
+      ],
+      "correct": [
+        "sweltering"
+      ],
+      "translation": {
+        "ru": "Мы провели знойные полдня в ожидании автобуса, который так и не пришёл.",
+        "uz": "Jazirama kunning ikkinchi yarmini hech kelmagan avtobusni kutish bilan o'tkazdik."
+      },
+      "explanation": {
+        "ru": "Знойным бывает сам день, поэтому нужна форма на -ing: a sweltering afternoon. swelling и swollen — формы swell (опухать).",
+        "uz": "Jazirama bo'ladigan narsa — kunning o'zi, shuning uchun -ing shakli kerak: a sweltering afternoon. swelling va swollen — swell (shishmoq) fe'lining shakllari."
+      }
+    },
+    {
+      "key": "c2-m14-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "sleet"
+      ],
+      "text": "All night long, heavy *sleets* beat against the bedroom windows.",
+      "options": [
+        "sleet",
+        "sleety",
+        "sleeted"
+      ],
+      "correct": [
+        "sleet"
+      ],
+      "translation": {
+        "ru": "Всю ночь в окна спальни бил сильный мокрый снег.",
+        "uz": "Tun bo'yi yotoq xonasi derazalariga kuchli qor aralash yomg'ir urilib turdi."
+      },
+      "explanation": {
+        "ru": "sleet (мокрый снег) — неисчисляемое существительное: его не считают поштучно, поэтому окончания -s оно не получает.",
+        "uz": "sleet (qor aralash yomg'ir) — sanalmaydigan ot: uni dona-dona sanab bo'lmaydi, shuning uchun -s qo'shimchasini olmaydi."
+      }
+    },
+    {
+      "key": "c2-m14-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "inclement"
+      ],
+      "text": "The forecast promised sunshine, but the weather turned *inclemently* by noon.",
+      "options": [
+        "inclement",
+        "inclemency",
+        "incremental"
+      ],
+      "correct": [
+        "inclement"
+      ],
+      "translation": {
+        "ru": "Прогноз обещал солнце, но к полудню погода стала ненастной.",
+        "uz": "Ob-havo bashorati quyoshli kunni va'da qilgan edi, lekin tushga yaqin havo aynib qoldi."
+      },
+      "explanation": {
+        "ru": "turn в значении «становиться» — глагол-связка: после него нужно прилагательное, а не наречие на -ly: turned inclement.",
+        "uz": "turn fe'li «bo'lib qolmoq» ma'nosida bog'lovchi fe'l: undan keyin -ly qo'shimchali ravish emas, sifat keladi: turned inclement."
+      }
+    },
+    {
+      "key": "c2-m14-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "germinate"
+      ],
+      "text": "Poor ___ of the seeds left large gaps in the vegetable beds.",
+      "base": "germinate",
+      "accepted": [
+        "germination"
+      ],
+      "translation": {
+        "ru": "Из-за плохого прорастания семян на грядках остались большие проплешины.",
+        "uz": "Urug'lar yomon unib chiqqani uchun sabzavot egatlarida katta bo'sh joylar qoldi."
+      },
+      "explanation": {
+        "ru": "После Poor и перед of нужно существительное: germinate (прорастать) → germination (прорастание); -ate меняется на -ation.",
+        "uz": "Poor so'zidan keyin va of predlogidan oldin ot kerak: germinate (unib chiqmoq) → germination (unib chiqish); -ate o'rniga -ation."
+      }
+    },
+    {
+      "key": "c2-m14-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "wither"
+      ],
+      "text": "The ___ summer heat dried out every lawn in the neighborhood.",
+      "base": "wither",
+      "accepted": [
+        "withering"
+      ],
+      "translation": {
+        "ru": "Иссушающий летний зной высушил все газоны в округе.",
+        "uz": "Yozning so'ldiruvchi jaziramasi mahalladagi barcha maysazorlarni quritib yubordi."
+      },
+      "explanation": {
+        "ru": "Перед summer heat нужно прилагательное: жара сама заставляет растения увядать, поэтому форма на -ing: wither (увядать) → withering (иссушающий).",
+        "uz": "summer heat so'zlaridan oldin sifat kerak: jazirama o'simliklarni o'zi so'ldiradi, shuning uchun -ing shakli: wither (so'limoq) → withering (so'ldiruvchi)."
+      }
+    },
+    {
+      "key": "c2-m14-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "shrub"
+      ],
+      "text": "Goats feed on the dry, ___ hills above the village.",
+      "base": "shrub",
+      "accepted": [
+        "shrubby"
+      ],
+      "translation": {
+        "ru": "Козы пасутся на сухих, поросших кустарником холмах над деревней.",
+        "uz": "Echkilar qishloq tepasidagi quruq, butali tepaliklarda o'tlaydi."
+      },
+      "explanation": {
+        "ru": "После dry, перед hills нужно второе прилагательное: shrub (кустарник) → shrubby (поросший кустарником); b удваивается перед -y.",
+        "uz": "dry so'zidan keyin, hills otidan oldin ikkinchi sifat kerak: shrub (buta) → shrubby (butali); -y oldidan b ikkilanadi."
+      }
+    },
+    {
+      "key": "c2-m14-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "deciduous"
+      ],
+      "text": "Unlike pines, maples are *evergreen* and drop all their leaves in autumn.",
+      "options": [
+        "deciduous",
+        "coniferous",
+        "perpetual"
+      ],
+      "correct": [
+        "deciduous"
+      ],
+      "translation": {
+        "ru": "В отличие от сосен, клёны — листопадные деревья и осенью сбрасывают всю листву.",
+        "uz": "Qarag'aylardan farqli o'laroq, zarang barg to'kuvchi daraxt bo'lib, kuzda barcha barglarini to'kadi."
+      },
+      "explanation": {
+        "ru": "Деревья, которые осенью сбрасывают листья, — deciduous (листопадные). evergreen — вечнозелёные, а coniferous (хвойные) — как раз сосны.",
+        "uz": "Kuzda barglarini to'kadigan daraxtlar — deciduous (barg to'kuvchi). evergreen — doim yashil, coniferous (ignabargli) esa aynan qarag'aylar."
+      }
+    },
+    {
+      "key": "c2-m14-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "foliage"
+      ],
+      "text": "Deer hide among the dense *foliages* at the edge of the forest.",
+      "options": [
+        "foliage",
+        "foliate",
+        "foliaged"
+      ],
+      "correct": [
+        "foliage"
+      ],
+      "translation": {
+        "ru": "Олени прячутся в густой листве на опушке леса.",
+        "uz": "Bug'ular o'rmon chetidagi qalin barglar orasida yashirinadi."
+      },
+      "explanation": {
+        "ru": "foliage (листва) — неисчисляемое существительное: оно уже означает все листья вместе, поэтому окончания -s не получает.",
+        "uz": "foliage (barglar) — sanalmaydigan ot: u barcha barglarni birgalikda bildiradi, shuning uchun -s qo'shimchasini olmaydi."
+      }
+    },
+    {
+      "key": "c2-m14-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "pollinate"
+      ],
+      "text": "These rare flowers must *pollinate* by insects before any seeds can form.",
+      "options": [
+        "be pollinated",
+        "be pollinating",
+        "have pollinated"
+      ],
+      "correct": [
+        "be pollinated"
+      ],
+      "translation": {
+        "ru": "Эти редкие цветы должны быть опылены насекомыми, прежде чем образуются семена.",
+        "uz": "Urug' hosil bo'lishidan oldin bu noyob gullar hasharotlar tomonidan changlatilishi kerak."
+      },
+      "explanation": {
+        "ru": "Цветки не опыляют сами — их опыляют насекомые (by insects), поэтому нужен пассив: must be pollinated. После must — be + третья форма глагола.",
+        "uz": "Gullar o'zi changlatmaydi — ularni hasharotlar changlatadi (by insects), shuning uchun majhul nisbat kerak: must be pollinated. must so'zidan keyin be + fe'lning uchinchi shakli keladi."
+      }
+    },
+    {
+      "key": "c2-m14-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "predatory"
+      ],
+      "text": "Even a sleepy house cat is fiercely ___ by nature.",
+      "base": "predator",
+      "accepted": [
+        "predatory"
+      ],
+      "translation": {
+        "ru": "Даже сонная домашняя кошка по своей природе — свирепый хищник.",
+        "uz": "Hatto uyquchi uy mushugi ham tabiatan shafqatsiz yirtqichdir."
+      },
+      "explanation": {
+        "ru": "После is fiercely нужно прилагательное: predator (хищник) → predatory (хищный); -or меняется на -ory.",
+        "uz": "is fiercely so'zlaridan keyin sifat kerak: predator (yirtqich hayvon) → predatory (yirtqich); -or o'rniga -ory."
+      }
+    },
+    {
+      "key": "c2-m14-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "burrow"
+      ],
+      "text": "Rabbits and other ___ animals can ruin a garden in a week.",
+      "base": "burrow",
+      "accepted": [
+        "burrowing"
+      ],
+      "translation": {
+        "ru": "Кролики и другие роющие норы животные могут за неделю испортить сад.",
+        "uz": "Quyonlar va boshqa in qazuvchi hayvonlar bir hafta ichida bog'ni buzib tashlashi mumkin."
+      },
+      "explanation": {
+        "ru": "Перед animals нужно прилагательное: животные сами роют норы, поэтому форма на -ing: burrow (нора; рыть нору) → burrowing (роющий норы).",
+        "uz": "animals otidan oldin sifat kerak: hayvonlar inni o'zlari qazishadi, shuning uchun -ing shakli: burrow (in; in qazimoq) → burrowing (in qazuvchi)."
+      }
+    },
+    {
+      "key": "c2-m14-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "prowl"
+      ],
+      "text": "For weeks a hungry wolf had been ___ near the village every night.",
+      "base": "prowl",
+      "accepted": [
+        "prowling"
+      ],
+      "translation": {
+        "ru": "Неделями голодный волк каждую ночь рыскал возле деревни.",
+        "uz": "Haftalar davomida och bo'ri har kecha qishloq yaqinida izg'ib yurgan edi."
+      },
+      "explanation": {
+        "ru": "После had been нужна форма на -ing: это Past Perfect Continuous, действие длилось неделями. prowl (рыскать) → prowling.",
+        "uz": "had been so'zlaridan keyin -ing shakli kerak: bu Past Perfect Continuous, harakat haftalab davom etgan. prowl (izg'imoq) → prowling."
+      }
+    },
+    {
+      "key": "c2-m14-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "pounce"
+      ],
+      "text": "The hungry tiger pounced *to* the young deer as it stopped to drink.",
+      "options": [
+        "on",
+        "in",
+        "for"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Голодный тигр набросился на молодого оленя, когда тот остановился попить.",
+        "uz": "Och yo'lbars suv ichish uchun to'xtagan yosh bug'uga tashlandi."
+      },
+      "explanation": {
+        "ru": "pounce on — набрасываться на кого-либо: после pounce нужен on (или upon), а не to.",
+        "uz": "pounce on — biror kimga tashlanmoq: pounce fe'lidan keyin to emas, on (yoki upon) keladi. O'zbekcha «-ga» bu yerda to emas."
+      }
+    },
+    {
+      "key": "c2-m14-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "swarm"
+      ],
+      "text": "The boys ran from a *flock* of angry bees that stung them several times.",
+      "options": [
+        "swarm",
+        "herd",
+        "pack"
+      ],
+      "correct": [
+        "swarm"
+      ],
+      "translation": {
+        "ru": "Мальчики убегали от роя разъярённых пчёл, которые несколько раз их ужалили.",
+        "uz": "Bolalar ularni bir necha marta chaqib olgan g'azablangan arilar to'dasidan qochishdi."
+      },
+      "explanation": {
+        "ru": "Скопление летающих насекомых — a swarm (рой): a swarm of bees. flock — стая птиц или отара овец, herd — стадо, pack — стая волков или собак.",
+        "uz": "Uchar hasharotlar to'dasi — a swarm: a swarm of bees. flock — qushlar galasi yoki qo'y suruvi, herd — mol podasi, pack — bo'rilar yoki itlar to'dasi."
+      }
+    },
+    {
+      "key": "c2-m14-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "lair"
+      ],
+      "text": "The injured bear dragged itself back into its *layer* among the rocks.",
+      "options": [
+        "lair",
+        "liar",
+        "lain"
+      ],
+      "correct": [
+        "lair"
+      ],
+      "translation": {
+        "ru": "Раненый медведь дотащился обратно до своего логова среди скал.",
+        "uz": "Yarador ayiq o'zini sudrab, qoyalar orasidagi uyasiga qaytdi."
+      },
+      "explanation": {
+        "ru": "Логово зверя — lair: звучит похоже на layer, но пишется иначе. layer — слой, liar — лжец.",
+        "uz": "Yirtqichning uyasi — lair: talaffuzi layer so'ziga o'xshaydi, lekin boshqacha yoziladi. layer — qatlam, liar — yolg'onchi."
+      }
+    },
+    {
+      "key": "c2-m14-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "cataclysm"
+      ],
+      "text": "The eruption was a ___ event that changed the climate of the whole planet.",
+      "base": "cataclysm",
+      "accepted": [
+        "cataclysmic"
+      ],
+      "translation": {
+        "ru": "Извержение стало катастрофическим событием, изменившим климат всей планеты.",
+        "uz": "Vulqon otilishi butun sayyora iqlimini o'zgartirib yuborgan halokatli hodisa bo'ldi."
+      },
+      "explanation": {
+        "ru": "Между a и event нужно прилагательное: cataclysm (катаклизм) → cataclysmic (катастрофический); суффикс -ic.",
+        "uz": "a va event so'zlari orasida sifat kerak: cataclysm (kataklizm) → cataclysmic (halokatli); -ic qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m14-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "calamity"
+      ],
+      "text": "Cutting down the forest proved ___ for the villages in the valley below.",
+      "base": "calamity",
+      "accepted": [
+        "calamitous"
+      ],
+      "translation": {
+        "ru": "Вырубка леса оказалась губительной для деревень в долине.",
+        "uz": "O'rmonning kesib tashlanishi pastdagi vodiy qishloqlari uchun falokatli bo'lib chiqdi."
+      },
+      "explanation": {
+        "ru": "proved без артикля требует прилагательного: calamity (бедствие) → calamitous (губительный); -ity меняется на -itous.",
+        "uz": "Artiklsiz proved fe'lidan keyin sifat kerak: calamity (falokat) → calamitous (falokatli); -ity o'rniga -itous."
+      }
+    },
+    {
+      "key": "c2-m14-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "annihilate"
+      ],
+      "text": "The ancient city faced total ___ when the volcano exploded.",
+      "base": "annihilate",
+      "accepted": [
+        "annihilation"
+      ],
+      "translation": {
+        "ru": "Когда взорвался вулкан, древнему городу грозило полное уничтожение.",
+        "uz": "Vulqon portlaganda qadimiy shahar butunlay yo'q bo'lib ketish xavfiga duch keldi."
+      },
+      "explanation": {
+        "ru": "После faced total нужно существительное: annihilate (полностью уничтожать) → annihilation (полное уничтожение); -ate меняется на -ation.",
+        "uz": "faced total so'zlaridan keyin ot kerak: annihilate (butunlay yo'q qilmoq) → annihilation (butunlay yo'q qilinish); -ate o'rniga -ation."
+      }
+    },
+    {
+      "key": "c2-m14-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "havoc"
+      ],
+      "text": "Heavy snow *wrecked* havoc with train schedules across the country.",
+      "options": [
+        "wreaked",
+        "did",
+        "gave"
+      ],
+      "correct": [
+        "wreaked"
+      ],
+      "translation": {
+        "ru": "Сильный снегопад вызвал хаос в расписании поездов по всей стране.",
+        "uz": "Kuchli qor butun mamlakat bo'ylab poyezdlar jadvalini izdan chiqardi."
+      },
+      "explanation": {
+        "ru": "Устойчивое выражение — wreak havoc (учинить хаос, разрушения), в прошедшем времени wreaked. wrecked (от wreck — разбить) звучит похоже, но с havoc не сочетается.",
+        "uz": "Turg'un ibora — wreak havoc (vayronagarchilik, tartibsizlik keltirmoq), o'tgan zamonda wreaked. wrecked (wreck — sindirmoq) talaffuzi o'xshash, lekin havoc so'zi bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m14-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "ravage"
+      ],
+      "text": "Two hurricanes in one month *ravished* the towns along the coast.",
+      "options": [
+        "ravaged",
+        "raved",
+        "raveled"
+      ],
+      "correct": [
+        "ravaged"
+      ],
+      "translation": {
+        "ru": "Два урагана за один месяц опустошили города на побережье.",
+        "uz": "Bir oy ichida ikki to'fon sohil bo'yidagi shaharlarni vayron qildi."
+      },
+      "explanation": {
+        "ru": "ravage — опустошать (о бурях, пожарах, войнах). ravish — совсем другое слово («восхищать; похищать»), о стихии так не говорят.",
+        "uz": "ravage — vayron qilmoq (bo'ron, yong'in, urush haqida). ravish — butunlay boshqa so'z («maftun qilmoq; o'g'irlab ketmoq») va tabiiy ofat haqida ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m14-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "despoil"
+      ],
+      "text": "The invading army despoiled the town *from* all its wealth.",
+      "options": [
+        "of",
+        "off",
+        "by"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Захватчики разорили город, лишив его всех богатств.",
+        "uz": "Bosqinchi qo'shin shaharni xarob qilib, uning barcha boyliklarini talab ketdi."
+      },
+      "explanation": {
+        "ru": "despoil something of something — разорить, лишив чего-либо: после такого глагола нужен of, как в rob ... of, deprive ... of. Русское «лишить чего» не from.",
+        "uz": "despoil something of something — talab, biror narsadan mahrum qilmoq: bu fe'ldan keyin from emas, of keladi, xuddi rob ... of, deprive ... of kabi."
+      }
+    },
+    {
+      "key": "c2-m14-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "cavern"
+      ],
+      "text": "The old warehouse had been turned into a ___ concert hall.",
+      "base": "cavern",
+      "accepted": [
+        "cavernous"
+      ],
+      "translation": {
+        "ru": "Старый склад превратили в огромный, похожий на пещеру концертный зал.",
+        "uz": "Eski ombor g'ordek ulkan konsert zaliga aylantirilgan edi."
+      },
+      "explanation": {
+        "ru": "Между a и concert hall нужно прилагательное: cavern (большая пещера) → cavernous (огромный, как пещера); суффикс -ous.",
+        "uz": "a va concert hall so'zlari orasida sifat kerak: cavern (katta g'or) → cavernous (g'ordek ulkan); -ous qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m14-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "precipice"
+      ],
+      "text": "The village sits on a ___ cliff high above the sea.",
+      "base": "precipice",
+      "accepted": [
+        "precipitous"
+      ],
+      "translation": {
+        "ru": "Деревня стоит на отвесной скале высоко над морем.",
+        "uz": "Qishloq dengizdan baland tik qoya ustida joylashgan."
+      },
+      "explanation": {
+        "ru": "Перед cliff нужно прилагательное «отвесный»: precipice (обрыв) → precipitous. Не путайте с precipitate — «поспешный»: так говорят о решениях, а не о скалах.",
+        "uz": "cliff otidan oldin «tik» ma'nosidagi sifat kerak: precipice (tik jarlik) → precipitous. precipitate bilan adashtirmang: u «shoshqaloq» degani va qarorlar haqida aytiladi, qoyalar haqida emas."
+      }
+    },
+    {
+      "key": "c2-m14-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "bog"
+      ],
+      "text": "After a week of rain, the low meadow had become too ___ to walk across.",
+      "base": "bog",
+      "accepted": [
+        "boggy"
+      ],
+      "translation": {
+        "ru": "После недели дождей низинный луг стал слишком топким, чтобы по нему пройти.",
+        "uz": "Bir haftalik yomg'irdan keyin pastqamlikdagi o'tloq yurib bo'lmaydigan darajada botqoqlanib qoldi."
+      },
+      "explanation": {
+        "ru": "После too нужно прилагательное: bog (болото) → boggy (топкий, болотистый); g удваивается перед -y.",
+        "uz": "too so'zidan keyin sifat kerak: bog (botqoq) → boggy (botqoqli); -y oldidan g ikkilanadi."
+      }
+    },
+    {
+      "key": "c2-m14-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "crevice"
+      ],
+      "text": "Weeds and tiny ferns grew in every *crevasse* of the old stone wall.",
+      "options": [
+        "crevice",
+        "crease",
+        "crater"
+      ],
+      "correct": [
+        "crevice"
+      ],
+      "translation": {
+        "ru": "Сорняки и крошечные папоротники росли в каждой щели старой каменной стены.",
+        "uz": "Eski tosh devorning har bir yorig'ida begona o'tlar va mitti qirqquloqlar o'sardi."
+      },
+      "explanation": {
+        "ru": "crevasse — глубокая трещина в леднике. Узкая щель в камне или стене — crevice (с i и -ice на конце).",
+        "uz": "crevasse — muzlikdagi chuqur yoriq. Tosh yoki devordagi tor yoriq — crevice (i harfi bilan, oxirida -ice)."
+      }
+    },
+    {
+      "key": "c2-m14-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "silt"
+      ],
+      "text": "Over the centuries the old harbor silted *down*, and ships could no longer enter.",
+      "options": [
+        "up",
+        "off",
+        "away"
+      ],
+      "correct": [
+        "up"
+      ],
+      "translation": {
+        "ru": "За века старую гавань занесло илом, и корабли больше не могли в неё войти.",
+        "uz": "Asrlar davomida eski bandargohni loyqa bosdi va kemalar endi unga kira olmaydigan bo'ldi."
+      },
+      "explanation": {
+        "ru": "silt up — заиливаться, заполняться илом: с этим глаголом нужен up (как в fill up), а не down.",
+        "uz": "silt up — loyqa bilan to'lib qolmoq: bu fe'l bilan down emas, up keladi (xuddi fill up kabi)."
+      }
+    },
+    {
+      "key": "c2-m14-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "whirlpool"
+      ],
+      "text": "People swimming in the river are warned about the *whirlwind* below the old bridge.",
+      "options": [
+        "whirlpool",
+        "whirligig",
+        "windmill"
+      ],
+      "correct": [
+        "whirlpool"
+      ],
+      "translation": {
+        "ru": "Тех, кто купается в реке, предупреждают о водовороте под старым мостом.",
+        "uz": "Daryoda cho'miladiganlar eski ko'prik ostidagi girdob haqida ogohlantiriladi."
+      },
+      "explanation": {
+        "ru": "whirlwind — вихрь в воздухе. Вращающаяся вода в реке или море — whirlpool (водоворот).",
+        "uz": "whirlwind — havodagi quyun. Daryo yoki dengizdagi aylanma suv — whirlpool (girdob)."
+      }
+    }
+  ]
+}

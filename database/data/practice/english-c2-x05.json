@@ -1,0 +1,1631 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c2",
+  "items": [
+    {
+      "key": "c2-m09-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "autocrat"
+      ],
+      "text": "Within five years of the coup, the young republic had slid from democracy into ___.",
+      "base": "autocrat",
+      "accepted": [
+        "autocracy"
+      ],
+      "translation": {
+        "ru": "Через пять лет после переворота молодая республика скатилась от демократии к автократии.",
+        "uz": "Davlat to'ntarishidan keyin besh yil ichida yosh respublika demokratiyadan avtokratiyaga o'tib qoldi."
+      },
+      "explanation": {
+        "ru": "from democracy into ___: нужен строй, как democracy, а не человек: autocrat (автократ) → autocracy (автократия); -crat → -cracy, как democrat → democracy.",
+        "uz": "from democracy into ___: democracy kabi shaxs emas, tuzum nomi kerak: autocrat (yakkahokim) → autocracy (avtokratiya); -crat o'rniga -cracy, xuddi democrat → democracy kabi."
+      }
+    },
+    {
+      "key": "c2-m09-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "hegemony"
+      ],
+      "text": "Both superpowers pursued ___ ambitions across the region for most of the century.",
+      "base": "hegemony",
+      "accepted": [
+        "hegemonic"
+      ],
+      "translation": {
+        "ru": "Большую часть века обе сверхдержавы стремились к гегемонии в регионе.",
+        "uz": "Asrning katta qismida ikkala superdavlat ham mintaqada gegemonlikka intildi."
+      },
+      "explanation": {
+        "ru": "Перед существительным ambitions нужно прилагательное: hegemony → hegemonic («гегемонистский»); -y заменяется на -ic, как harmony → harmonic.",
+        "uz": "ambitions otidan oldin sifat kerak: hegemony → hegemonic («gegemonlikka intiluvchi»); -y o'rniga -ic yoziladi, xuddi harmony → harmonic kabi."
+      }
+    },
+    {
+      "key": "c2-m09-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "despot"
+      ],
+      "text": "The longer he stayed in power, the more ___ and suspicious the old ruler became.",
+      "base": "despot",
+      "accepted": [
+        "despotic"
+      ],
+      "translation": {
+        "ru": "Чем дольше старый правитель оставался у власти, тем деспотичнее и подозрительнее он становился.",
+        "uz": "Keksa hukmdor hokimiyatda qancha uzoq qolsa, shuncha mustabid va shubhakor bo'lib borardi."
+      },
+      "explanation": {
+        "ru": "После the more и рядом с прилагательным suspicious нужно прилагательное: despot (деспот) → despotic (деспотичный), суффикс -ic.",
+        "uz": "the more so'zlaridan keyin, suspicious sifati bilan yonma-yon sifat kerak: despot (mustabid) → despotic (mustabidona), -ic qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m09-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "usurp"
+      ],
+      "text": "The ambitious general was accused of plotting to *usurpate* the powers of parliament.",
+      "options": [
+        "usurp",
+        "usurper",
+        "usurpation"
+      ],
+      "correct": [
+        "usurp"
+      ],
+      "translation": {
+        "ru": "Честолюбивого генерала обвинили в том, что он замышлял узурпировать полномочия парламента.",
+        "uz": "Shuhratparast general parlament vakolatlarini g'ayriqonuniy egallab olishni rejalashtirganlikda ayblandi."
+      },
+      "explanation": {
+        "ru": "Глагол «узурпировать» — usurp; формы usurpate в английском нет, это калька с русского. После to нужен глагол, поэтому usurper (узурпатор) и usurpation не подходят.",
+        "uz": "«Uzurpatsiya qilmoq» fe'li inglizchada usurp; usurpate shakli yo'q, bu ruschadan kalka. to yuklamasidan keyin fe'l kerak, shuning uchun usurper (uzurpator) va usurpation otlari to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "c2-m09-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "depose"
+      ],
+      "text": "The *deposing* president fled abroad only hours after the army seized power.",
+      "options": [
+        "deposed",
+        "disposed",
+        "deposited"
+      ],
+      "correct": [
+        "deposed"
+      ],
+      "translation": {
+        "ru": "Свергнутый президент бежал за границу всего через несколько часов после того, как армия захватила власть.",
+        "uz": "Hokimiyatdan chetlatilgan prezident armiya hokimiyatni egallaganidan bir necha soat o'tib chet elga qochdi."
+      },
+      "explanation": {
+        "ru": "Президента свергли — действие совершили над ним, поэтому нужно причастие на -ed: deposed. deposing значило бы «свергающий»; disposed (склонный) и deposited (сданный на хранение) — другие слова.",
+        "uz": "Prezident hokimiyatdan chetlatilgan — harakat unga nisbatan bajarilgan, shuning uchun -ed sifatdoshi kerak: deposed. deposing «chetlatayotgan» degani bo'lardi; disposed (moyil) va deposited (omonatga qo'yilgan) — boshqa so'zlar."
+      }
+    },
+    {
+      "key": "c2-m09-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "demagogue"
+      ],
+      "text": "Thousands cheered the *demagogic* who promised them land, bread and jobs.",
+      "options": [
+        "demagogue",
+        "demagogy",
+        "demagoguery"
+      ],
+      "correct": [
+        "demagogue"
+      ],
+      "translation": {
+        "ru": "Тысячи людей приветствовали демагога, который обещал им землю, хлеб и работу.",
+        "uz": "Minglab odamlar ularga yer, non va ish va'da qilgan demagogni olqishladi."
+      },
+      "explanation": {
+        "ru": "Между the и who нужен человек — существительное demagogue (демагог). demagogic — прилагательное, а demagogy и demagoguery означают «демагогию», не человека.",
+        "uz": "the artikli bilan who olmoshi orasida shaxs kerak — demagogue (demagog) oti. demagogic — sifat, demagogy va demagoguery esa «demagogiya» degani, shaxs emas."
+      }
+    },
+    {
+      "key": "c2-m09-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "cronyism"
+      ],
+      "text": "The minister faced accusations of ___ after appointing his old classmates to key posts.",
+      "base": "crony",
+      "accepted": [
+        "cronyism"
+      ],
+      "translation": {
+        "ru": "Министра обвинили в протекции приятелям после того, как он назначил бывших одноклассников на ключевые посты.",
+        "uz": "Sobiq sinfdoshlarini muhim lavozimlarga tayinlaganidan keyin vazir oshna-og'aynigarchilikda ayblandi."
+      },
+      "explanation": {
+        "ru": "После accusations of нужно название явления, а не человека: crony (дружок) → cronyism (протекция приятелям): к слову добавляется -ism, как в nepotism.",
+        "uz": "accusations of so'zlaridan keyin shaxs emas, hodisa nomi kerak: crony (oshna) → cronyism (oshna-og'aynigarchilik): so'zga -ism qo'shimchasi qo'shiladi, xuddi nepotism so'zidagi kabi."
+      }
+    },
+    {
+      "key": "c2-m09-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "nepotism"
+      ],
+      "text": "It was a deeply ___ firm in which every manager was somebody's son or nephew.",
+      "base": "nepotism",
+      "accepted": [
+        "nepotistic"
+      ],
+      "translation": {
+        "ru": "Это была фирма, насквозь пропитанная кумовством: каждый руководитель был чьим-то сыном или племянником.",
+        "uz": "Bu qarindosh-urug'chilik avj olgan firma edi: har bir rahbar kimningdir o'g'li yoki jiyani edi."
+      },
+      "explanation": {
+        "ru": "После deeply и перед firm нужно прилагательное: nepotism → nepotistic; -ism → -istic, как optimism → optimistic.",
+        "uz": "deeply so'zidan keyin va firm otidan oldin sifat kerak: nepotism → nepotistic; -ism o'rniga -istic, xuddi optimism → optimistic kabi."
+      }
+    },
+    {
+      "key": "c2-m09-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "patronage"
+      ],
+      "text": "Under the ___ of the party boss, he rose quickly through the ranks.",
+      "base": "patron",
+      "accepted": [
+        "patronage"
+      ],
+      "translation": {
+        "ru": "Под покровительством партийного босса он быстро продвинулся по служебной лестнице.",
+        "uz": "Partiya rahbarining homiyligi ostida u martaba pog'onalaridan tez ko'tarildi."
+      },
+      "explanation": {
+        "ru": "Между the и of нужно существительное «покровительство», а не человек: patron (покровитель) → patronage; суффикс -age.",
+        "uz": "the va of orasida shaxs emas, «homiylik» degan ot kerak: patron (homiy) → patronage; -age qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m09-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "kickback"
+      ],
+      "text": "The official was fired for accepting a *rollback* from a construction firm.",
+      "options": [
+        "kickback",
+        "setback",
+        "feedback"
+      ],
+      "correct": [
+        "kickback"
+      ],
+      "translation": {
+        "ru": "Чиновника уволили за то, что он взял откат у строительной фирмы.",
+        "uz": "Amaldor qurilish firmasidan ulush tarzidagi pora olgani uchun ishdan bo'shatildi."
+      },
+      "explanation": {
+        "ru": "Взятка-«откат» по-английски — kickback. rollback — это снижение или отмена (цен, реформ), калька здесь не работает; setback — неудача, feedback — отзыв.",
+        "uz": "Pora ma'nosidagi «otkat» inglizchada kickback. rollback — narx yoki islohotlarni pasaytirish, bekor qilish, ruscha kalka bu yerda ishlamaydi; setback — muvaffaqiyatsizlik, feedback — fikr-mulohaza."
+      }
+    },
+    {
+      "key": "c2-m09-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "covert"
+      ],
+      "text": "The two governments had been negotiating *covert* for months before the deal was announced.",
+      "options": [
+        "covertly",
+        "covertness",
+        "covered"
+      ],
+      "correct": [
+        "covertly"
+      ],
+      "translation": {
+        "ru": "Правительства двух стран тайно вели переговоры несколько месяцев, прежде чем о сделке объявили.",
+        "uz": "Ikki davlat hukumati kelishuv e'lon qilinishidan oldin bir necha oy davomida yashirincha muzokara olib borgan edi."
+      },
+      "explanation": {
+        "ru": "Глагол negotiating определяет наречие: covert → covertly (тайно). covert — прилагательное (a covert operation), covertness — существительное, covered — «покрытый».",
+        "uz": "negotiating fe'lini ravish izohlaydi: covert → covertly (yashirincha). covert — sifat (a covert operation), covertness — ot, covered — «yopilgan»."
+      }
+    },
+    {
+      "key": "c2-m09-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "complicit"
+      ],
+      "text": "The inquiry found that several officials had been deeply complicit *to* the fraud.",
+      "options": [
+        "in",
+        "of",
+        "for"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Расследование показало, что несколько чиновников были глубоко замешаны в мошенничестве.",
+        "uz": "Tergov bir nechta amaldorning firibgarlikka bevosita sherik bo'lganini aniqladi."
+      },
+      "explanation": {
+        "ru": "complicit in something — причастный к преступлению, сговору: здесь нужен in. Русское «к» здесь не to; of и for с complicit не употребляются.",
+        "uz": "complicit in something — biror jinoyat yoki til biriktirishga sherik: bu yerda in predlogi kerak. O'zbekcha «-ga» bu yerda to emas; of va for predloglari complicit so'zi bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m09-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "placate"
+      ],
+      "text": "Despite every concession, the government still faced ___ opposition from the farmers.",
+      "base": "placate",
+      "accepted": [
+        "implacable"
+      ],
+      "translation": {
+        "ru": "Несмотря на все уступки, правительство по-прежнему сталкивалось с непримиримым сопротивлением фермеров.",
+        "uz": "Barcha yon berishlarga qaramay, hukumat hamon fermerlarning murosasiz qarshiligiga duch kelardi."
+      },
+      "explanation": {
+        "ru": "Despite every concession требует смысла «то, что не задобрить»: placate → implacable (непримиримый); -ate отпадает, добавляется -able и приставка im- перед p.",
+        "uz": "Despite every concession so'zlari «ko'nglini olib bo'lmaydigan» ma'nosini talab qiladi: placate → implacable (murosasiz); -ate tushib qoladi, -able va p harfidan oldin im- old qo'shimchasi qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m09-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "conciliatory"
+      ],
+      "text": "After months of hostility, both sides finally showed a spirit of ___.",
+      "base": "conciliatory",
+      "accepted": [
+        "conciliation"
+      ],
+      "translation": {
+        "ru": "После нескольких месяцев вражды обе стороны наконец проявили готовность к примирению.",
+        "uz": "Oylab davom etgan adovatdan so'ng ikki tomon nihoyat murosaga tayyorligini ko'rsatdi."
+      },
+      "explanation": {
+        "ru": "После a spirit of нужно существительное: conciliatory (примирительный) → conciliation (примирение); -atory → -ation.",
+        "uz": "a spirit of so'zlaridan keyin ot kerak: conciliatory (murosasoz) → conciliation (murosa, yarashuv); -atory o'rniga -ation."
+      }
+    },
+    {
+      "key": "c2-m09-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "reciprocity"
+      ],
+      "text": "The treaty rests on the principle of ___: each side grants what it receives.",
+      "base": "reciprocal",
+      "accepted": [
+        "reciprocity",
+        "reciprocation"
+      ],
+      "translation": {
+        "ru": "Договор основан на принципе взаимности: каждая сторона предоставляет то, что получает сама.",
+        "uz": "Shartnoma o'zarolik tamoyiliga asoslangan: har bir tomon o'zi olgan narsani beradi."
+      },
+      "explanation": {
+        "ru": "После the principle of нужно существительное: reciprocal (взаимный) → reciprocity (взаимность); -al заменяется на -ity. Принимается и reciprocation.",
+        "uz": "the principle of so'zlaridan keyin ot kerak: reciprocal (o'zaro) → reciprocity (o'zarolik); -al o'rniga -ity yoziladi. reciprocation shakli ham qabul qilinadi."
+      }
+    },
+    {
+      "key": "c2-m09-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "rapprochement"
+      ],
+      "text": "The new leader quietly sought a rapprochement *to* his country's old enemy.",
+      "options": [
+        "with",
+        "for",
+        "at"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Новый лидер без лишнего шума искал сближения со старым врагом своей страны.",
+        "uz": "Yangi rahbar mamlakatining eski dushmani bilan jimgina yaqinlashuv yo'lini izladi."
+      },
+      "explanation": {
+        "ru": "rapprochement with somebody — сближение с кем-то (или between двумя сторонами). to здесь не ставится, хотя approach to похоже; for и at тоже неверны.",
+        "uz": "rapprochement with somebody — kim bilandir yaqinlashuv (yoki ikki tomon orasida between). approach to iborasiga o'xshasa ham, bu yerda to qo'yilmaydi; for va at ham noto'g'ri."
+      }
+    },
+    {
+      "key": "c2-m09-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "overture"
+      ],
+      "text": "Despite years of hostility, the new government *did* friendly overtures to its neighbor.",
+      "options": [
+        "made",
+        "held",
+        "took"
+      ],
+      "correct": [
+        "made"
+      ],
+      "translation": {
+        "ru": "Несмотря на годы вражды, новое правительство сделало дружественные шаги навстречу соседу.",
+        "uz": "Yillar davomidagi adovatga qaramay, yangi hukumat qo'shnisi tomon do'stona yarashuv qadamlarini qo'ydi."
+      },
+      "explanation": {
+        "ru": "С overtures употребляется make: make overtures to somebody — делать шаги навстречу. Русское «делать» здесь не do; held и took с этим словом не сочетаются.",
+        "uz": "overtures so'zi bilan make fe'li ishlatiladi: make overtures to somebody — kimgadir yarashuv sari qadam qo'ymoq. Bu yerda do emas; held va took ham bu so'z bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c2-m09-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "concord"
+      ],
+      "text": "For centuries the two communities lived side by side in perfect *consent*.",
+      "options": [
+        "concord",
+        "accordance",
+        "concordat"
+      ],
+      "correct": [
+        "concord"
+      ],
+      "translation": {
+        "ru": "Веками две общины жили бок о бок в полном согласии.",
+        "uz": "Asrlar davomida ikki jamoa yonma-yon to'liq ahillik va totuvlikda yashadi."
+      },
+      "explanation": {
+        "ru": "Русское «согласие» — это и consent (разрешение), и concord (мир, лад). «Жить в согласии» — live in concord. in accordance требует with, concordat — договор церкви с государством.",
+        "uz": "Rus tilidagi «soglasiye» so'zi ham consent (rozilik, ruxsat), ham concord (ahillik) ma'nosini beradi, lekin inglizchada ular farq qiladi. «Ahil yashamoq» — live in concord. in accordance birikmasi with talab qiladi, concordat — cherkov va davlat shartnomasi."
+      }
+    },
+    {
+      "key": "c2-m09-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "sedition"
+      ],
+      "text": "Prosecutors called the pamphlet deeply ___ and demanded a long prison sentence for its author.",
+      "base": "sedition",
+      "accepted": [
+        "seditious"
+      ],
+      "translation": {
+        "ru": "Обвинение назвало памфлет откровенно подстрекательским и потребовало для его автора длительного срока.",
+        "uz": "Prokurorlar risolani isyonga ochiqdan-ochiq da'vat qiluvchi deb atab, muallifi uchun uzoq qamoq jazosini talab qildi."
+      },
+      "explanation": {
+        "ru": "called + объект + прилагательное: после deeply нужно прилагательное: sedition → seditious (подстрекательский); -tion → -tious, как ambition → ambitious.",
+        "uz": "called + to'ldiruvchi + sifat: deeply so'zidan keyin sifat kerak: sedition → seditious (isyonga da'vat qiluvchi); -tion o'rniga -tious, xuddi ambition → ambitious kabi."
+      }
+    },
+    {
+      "key": "c2-m09-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "defiance"
+      ],
+      "text": "In open ___ of the curfew, thousands of students marched through the capital.",
+      "base": "defy",
+      "accepted": [
+        "defiance"
+      ],
+      "translation": {
+        "ru": "Открыто не подчинившись комендантскому часу, тысячи студентов прошли маршем по столице.",
+        "uz": "Komendantlik soatiga ochiqdan-ochiq bo'ysunmay, minglab talabalar poytaxt bo'ylab yurish qildi."
+      },
+      "explanation": {
+        "ru": "В обороте in open ___ of нужно существительное: defy (бросать вызов) → defiance (открытое неповиновение); y меняется на i, суффикс -ance.",
+        "uz": "in open ___ of iborasida ot kerak: defy (bo'ysunmaslik) → defiance (ochiq bo'ysunmaslik); y o'rniga i va -ance qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m09-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "disenfranchise"
+      ],
+      "text": "Critics called the new voting rules a deliberate ___ of the rural poor.",
+      "base": "disenfranchise",
+      "accepted": [
+        "disenfranchisement",
+        "disenfranchising"
+      ],
+      "translation": {
+        "ru": "Критики назвали новые правила голосования намеренным лишением сельской бедноты избирательных прав.",
+        "uz": "Tanqidchilar yangi saylov qoidalarini qishloq kambag'allarini saylov huquqidan ataylab mahrum qilish deb atashdi."
+      },
+      "explanation": {
+        "ru": "После a deliberate и перед of нужно существительное: disenfranchise → disenfranchisement; -ment, конечное e сохраняется. Принимается и disenfranchising.",
+        "uz": "a deliberate so'zlaridan keyin va of predlogidan oldin ot kerak: disenfranchise → disenfranchisement; -ment qo'shimchasi, oxirgi e saqlanadi. disenfranchising shakli ham qabul qilinadi."
+      }
+    },
+    {
+      "key": "c2-m09-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "incite"
+      ],
+      "text": "Radio broadcasts incited the villagers *for* rise up against the government.",
+      "options": [
+        "to",
+        "into",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Радиопередачи подстрекали крестьян восстать против правительства.",
+        "uz": "Radio eshittirishlari qishloq aholisini hukumatga qarshi qo'zg'olon ko'tarishga gij-gijladi."
+      },
+      "explanation": {
+        "ru": "incite somebody to do something — подстрекать кого-то сделать что-то: после дополнения идёт to + глагол (rise up). for, into и at перед глаголом не ставятся.",
+        "uz": "incite somebody to do something — kimnidir biror ishga gij-gijlamoq: to'ldiruvchidan keyin to + fe'l (rise up) keladi. for, into va at predloglari fe'ldan oldin qo'yilmaydi."
+      }
+    },
+    {
+      "key": "c2-m09-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "subversive"
+      ],
+      "text": "The censors found the play's ending deeply *subversion* and cut it.",
+      "options": [
+        "subversive",
+        "subversively",
+        "subversiveness"
+      ],
+      "correct": [
+        "subversive"
+      ],
+      "translation": {
+        "ru": "Цензоры сочли финал пьесы крайне подрывным и вырезали его.",
+        "uz": "Senzorlar pyesaning yakunini o'ta buzg'unchi deb topib, uni olib tashlashdi."
+      },
+      "explanation": {
+        "ru": "found + объект + прилагательное (found it boring): после deeply нужно прилагательное subversive (подрывной). subversion — «подрывная деятельность», subversively — наречие, subversiveness — существительное.",
+        "uz": "found + to'ldiruvchi + sifat (found it boring): deeply so'zidan keyin sifat kerak — subversive (buzg'unchi). subversion — «buzg'unchilik», subversively — ravish, subversiveness — ot."
+      }
+    },
+    {
+      "key": "c2-m09-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "galvanize"
+      ],
+      "text": "The students, *galvanizing* by the unfair verdict, marched on parliament the next morning.",
+      "options": [
+        "galvanized",
+        "galvanize",
+        "galvanizes"
+      ],
+      "correct": [
+        "galvanized"
+      ],
+      "translation": {
+        "ru": "Студенты, которых несправедливый приговор побудил к действию, на следующее утро двинулись к парламенту.",
+        "uz": "Adolatsiz hukm harakatga undagan talabalar ertasi kuni ertalab parlament tomon yurish qildi."
+      },
+      "explanation": {
+        "ru": "Студентов побудил приговор — они объект действия, а by называет того, кто действует, поэтому нужно причастие на -ed: galvanized. galvanizing значило бы, что студенты сами кого-то побуждают.",
+        "uz": "Talabalarni hukm harakatga undagan — ular harakat obyekti, by esa harakat qiluvchini bildiradi, shuning uchun -ed sifatdoshi kerak: galvanized. galvanizing talabalar o'zlari kimnidir undayapti degani bo'lardi."
+      }
+    },
+    {
+      "key": "c2-m09-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "centralize"
+      ],
+      "text": "Supporters of ___ argue that each region should control its own budget.",
+      "base": "centralize",
+      "accepted": [
+        "decentralization",
+        "decentralisation"
+      ],
+      "translation": {
+        "ru": "Сторонники децентрализации считают, что каждый регион должен сам распоряжаться своим бюджетом.",
+        "uz": "Markazsizlashtirish tarafdorlari har bir hudud o'z byudjetini o'zi boshqarishi kerak, deb hisoblashadi."
+      },
+      "explanation": {
+        "ru": "После supporters of нужно существительное, а смысл (регион сам распоряжается) противоположен централизации: centralize → decentralization; приставка de-, e выпадает, -ation.",
+        "uz": "supporters of so'zlaridan keyin ot kerak, ma'no esa (hudud o'zi boshqaradi) markazlashtirishga teskari: centralize → decentralization; de- old qo'shimchasi, e tushib qoladi, -ation."
+      }
+    },
+    {
+      "key": "c2-m09-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "filibuster"
+      ],
+      "text": "Opposition senators kept ___ through the night until the majority leader withdrew the bill.",
+      "base": "filibuster",
+      "accepted": [
+        "filibustering"
+      ],
+      "translation": {
+        "ru": "Сенаторы от оппозиции всю ночь затягивали обсуждение, пока лидер большинства не отозвал законопроект.",
+        "uz": "Muxolifatdagi senatorlar ko'pchilik yetakchisi qonun loyihasini qaytarib olmaguncha tun bo'yi muhokamani ataylab cho'zishdi."
+      },
+      "explanation": {
+        "ru": "После kept (продолжали) нужна форма на -ing. Существительное filibuster служит и глаголом: filibustering — затягивать обсуждение.",
+        "uz": "kept (davom ettirdi) fe'lidan keyin -ing shakli kerak. filibuster oti fe'l sifatida ham ishlatiladi: filibustering — muhokamani ataylab cho'zish."
+      }
+    },
+    {
+      "key": "c2-m09-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "federalism"
+      ],
+      "text": "Like liberalism, ___ is a political doctrine rather than a type of state.",
+      "base": "federal",
+      "accepted": [
+        "federalism"
+      ],
+      "translation": {
+        "ru": "Как и либерализм, федерализм — это политическое учение, а не тип государства.",
+        "uz": "Liberalizm kabi federalizm ham davlat turi emas, balki siyosiy ta'limotdir."
+      },
+      "explanation": {
+        "ru": "Сравнение с liberalism и слово doctrine требуют названия учения: federal → federalism (-ism). federation — сама федерация, то есть тип государства.",
+        "uz": "liberalism bilan qiyoslash va doctrine so'zi ta'limot nomini talab qiladi: federal → federalism (-ism). federation esa federatsiyaning o'zi, ya'ni davlat turi."
+      }
+    },
+    {
+      "key": "c2-m09-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "statecraft"
+      ],
+      "text": "The old minister was a master of *statecrafts* and served three kings.",
+      "options": [
+        "statecraft",
+        "statesman",
+        "statehood"
+      ],
+      "correct": [
+        "statecraft"
+      ],
+      "translation": {
+        "ru": "Старый министр был мастером государственного управления и служил трём королям.",
+        "uz": "Keksa vazir davlatni boshqarish san'atining ustasi edi va uchta qirolga xizmat qilgan."
+      },
+      "explanation": {
+        "ru": "statecraft (искусство управления государством) — неисчисляемое существительное, формы statecrafts нет. statesman — государственный деятель, statehood — государственность.",
+        "uz": "statecraft (davlatni boshqarish san'ati) — sanalmaydigan ot, statecrafts shakli yo'q. statesman — davlat arbobi, statehood — davlatchilik."
+      }
+    },
+    {
+      "key": "c2-m09-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "technocrat"
+      ],
+      "text": "Instead of a politician, the president appointed a *technocratic* to run the central bank.",
+      "options": [
+        "technocrat",
+        "technocracy",
+        "technology"
+      ],
+      "correct": [
+        "technocrat"
+      ],
+      "translation": {
+        "ru": "Вместо политика президент назначил руководить центральным банком технократа.",
+        "uz": "Prezident markaziy bankni boshqarishga siyosatchini emas, texnokratni tayinladi."
+      },
+      "explanation": {
+        "ru": "После a и перед to run нужен человек, как politician: technocrat (технократ). technocratic — прилагательное, technocracy — власть технократов, technology — техника.",
+        "uz": "a artiklidan keyin va to run so'zlaridan oldin politician kabi shaxs kerak: technocrat (texnokrat). technocratic — sifat, technocracy — texnokratlar hokimiyati, technology — texnologiya."
+      }
+    },
+    {
+      "key": "c2-m09-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "plebiscite"
+      ],
+      "text": "The government agreed to *make* a plebiscite on the future of the province.",
+      "options": [
+        "hold",
+        "give",
+        "do"
+      ],
+      "correct": [
+        "hold"
+      ],
+      "translation": {
+        "ru": "Правительство согласилось провести всенародное голосование о будущем провинции.",
+        "uz": "Hukumat viloyatning kelajagi bo'yicha umumxalq ovoz berishini o'tkazishga rozi bo'ldi."
+      },
+      "explanation": {
+        "ru": "Провести плебисцит, как и референдум, — hold a plebiscite. make, give и do с этим словом не сочетаются.",
+        "uz": "Plebissit, xuddi referendum kabi, hold fe'li bilan o'tkaziladi: hold a plebiscite. make, give va do fe'llari bu so'z bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c2-m10-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "codify"
+      ],
+      "text": "Parliament rejected two earlier ___ of the commercial law before adopting this one.",
+      "base": "codify",
+      "accepted": [
+        "codifications"
+      ],
+      "translation": {
+        "ru": "Парламент отклонил две предыдущие кодификации торгового права, прежде чем принял эту.",
+        "uz": "Parlament buni qabul qilishdan oldin savdo huquqining avvalgi ikkita kodifikatsiyasini rad etgan edi."
+      },
+      "explanation": {
+        "ru": "two earlier и this one (принятый документ, не человек) требуют существительного во множественном числе: codify → codification → codifications; y → i и -cation, как classify → classification.",
+        "uz": "two earlier va this one (shaxs emas, qabul qilingan hujjat) so'zlari ko'plikdagi otni talab qiladi: codify → codification → codifications; y o'rniga i va -cation, xuddi classify → classification kabi."
+      }
+    },
+    {
+      "key": "c2-m10-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "adjudicate"
+      ],
+      "text": "The two companies chose an independent ___ who had no ties to either side.",
+      "base": "adjudicate",
+      "accepted": [
+        "adjudicator"
+      ],
+      "translation": {
+        "ru": "Обе компании выбрали независимого арбитра, не связанного ни с одной из сторон.",
+        "uz": "Ikki kompaniya hech bir tomon bilan aloqasi bo'lmagan mustaqil hakamni tanladi."
+      },
+      "explanation": {
+        "ru": "После an independent и перед who нужен человек — тот, кто разрешает спор: adjudicate → adjudicator; -ate → -ator, как negotiate → negotiator.",
+        "uz": "an independent so'zlaridan keyin va who olmoshidan oldin nizoni hal qiluvchi shaxs kerak: adjudicate → adjudicator; -ate o'rniga -ator, xuddi negotiate → negotiator kabi."
+      }
+    },
+    {
+      "key": "c2-m10-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "appellant"
+      ],
+      "text": "As the ___, she had to show that the trial judge had made a legal error.",
+      "base": "appeal",
+      "accepted": [
+        "appellant"
+      ],
+      "translation": {
+        "ru": "Как апеллянт она должна была доказать, что судья первой инстанции допустил правовую ошибку.",
+        "uz": "Apellyatsiya beruvchi sifatida u birinchi instansiya sudyasi huquqiy xatoga yo'l qo'yganini isbotlashi kerak edi."
+      },
+      "explanation": {
+        "ru": "После As the нужно лицо, и доказывать ошибку суда должен тот, кто обжалует решение: appeal → appellant; основа меняется: ea → e, удвоенная l, суффикс -ant.",
+        "uz": "As the so'zlaridan keyin shaxs kerak, sud xatosini esa hukm ustidan shikoyat qilgan tomon isbotlaydi: appeal → appellant; o'zak o'zgaradi: ea o'rniga e, ikkita l, -ant qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m10-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "counsel"
+      ],
+      "text": "The judge allowed defense *council* to question the witness once more.",
+      "options": [
+        "counsel",
+        "consul",
+        "consulate"
+      ],
+      "correct": [
+        "counsel"
+      ],
+      "translation": {
+        "ru": "Судья разрешил адвокату защиты ещё раз допросить свидетеля.",
+        "uz": "Sudya himoyachi advokatga guvohni yana bir bor so'roq qilishga ruxsat berdi."
+      },
+      "explanation": {
+        "ru": "Адвокат в суде — counsel (defense counsel). council (совет, орган власти) звучит так же, но значит другое; consul — консул, consulate — консульство.",
+        "uz": "Suddagi advokat — counsel (defense counsel). council (kengash) xuddi shunday eshitiladi, lekin boshqa ma'noni bildiradi; consul — konsul, consulate — konsullik."
+      }
+    },
+    {
+      "key": "c2-m10-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "duress"
+      ],
+      "text": "The judge ruled that the old man had signed his will *in* duress.",
+      "options": [
+        "under",
+        "with",
+        "at"
+      ],
+      "correct": [
+        "under"
+      ],
+      "translation": {
+        "ru": "Судья постановил, что старик подписал своё завещание под принуждением.",
+        "uz": "Sudya keksa odam vasiyatnomasini majburlash ostida imzolagan, degan qarorga keldi."
+      },
+      "explanation": {
+        "ru": "Устойчивое сочетание — under duress (под принуждением): подписать, признаться under duress. in, with и at в этом сочетании не употребляются.",
+        "uz": "Turg'un birikma — under duress (majburlash ostida): under duress imzolamoq, tan olmoq. in, with va at predloglari bu birikmada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m10-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "bylaw"
+      ],
+      "text": "The town council *took* a bylaw that bans dogs from the beach in summer.",
+      "options": [
+        "passed",
+        "gave",
+        "held"
+      ],
+      "correct": [
+        "passed"
+      ],
+      "translation": {
+        "ru": "Городской совет принял постановление, которое летом запрещает выгуливать собак на пляже.",
+        "uz": "Shahar kengashi yozda itlarni plyajga olib kirishni taqiqlovchi qoida qabul qildi."
+      },
+      "explanation": {
+        "ru": "Принять закон или постановление — pass a law, pass a bylaw (можно и adopt). Русское «принять» здесь не take; give и hold с bylaw не сочетаются.",
+        "uz": "Qonun yoki qoida qabul qilmoq — pass a law, pass a bylaw (adopt ham mumkin). O'zbekcha «qabul qilmoq» bu yerda take emas; give va hold fe'llari bylaw so'zi bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c2-m10-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "circumstantial"
+      ],
+      "text": "Without a witness or a weapon, the prosecution's case was entirely ___.",
+      "base": "circumstance",
+      "accepted": [
+        "circumstantial"
+      ],
+      "translation": {
+        "ru": "Без свидетеля и орудия преступления обвинение строилось исключительно на косвенных уликах.",
+        "uz": "Guvoh ham, qurol ham bo'lmagani uchun ayblov to'liq bilvosita dalillarga tayanardi."
+      },
+      "explanation": {
+        "ru": "После was entirely нужно прилагательное: circumstance → circumstantial (косвенный); -ance → -antial, как substance → substantial.",
+        "uz": "was entirely so'zlaridan keyin sifat kerak: circumstance → circumstantial (bilvosita); -ance o'rniga -antial, xuddi substance → substantial kabi."
+      }
+    },
+    {
+      "key": "c2-m10-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "premeditated"
+      ],
+      "text": "The jury found no evidence of ___, so he was convicted of a lesser offense.",
+      "base": "premeditated",
+      "accepted": [
+        "premeditation"
+      ],
+      "translation": {
+        "ru": "Присяжные не нашли доказательств заранее обдуманного умысла, поэтому его осудили за менее тяжкое преступление.",
+        "uz": "Hakamlar hay'ati jinoyat oldindan rejalashtirilganiga dalil topmadi, shuning uchun u yengilroq jinoyat uchun hukm qilindi."
+      },
+      "explanation": {
+        "ru": "После evidence of нужно существительное: premeditated (заранее обдуманный) → premeditation (заранее обдуманный умысел); -ated → -ation.",
+        "uz": "evidence of so'zlaridan keyin ot kerak: premeditated (oldindan rejalashtirilgan) → premeditation (oldindan o'ylangan niyat); -ated o'rniga -ation."
+      }
+    },
+    {
+      "key": "c2-m10-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "exonerate"
+      ],
+      "text": "Twelve years after his conviction, new evidence finally led to his complete ___.",
+      "base": "exonerate",
+      "accepted": [
+        "exoneration"
+      ],
+      "translation": {
+        "ru": "Через двенадцать лет после осуждения новые улики наконец привели к полному снятию с него обвинений.",
+        "uz": "Hukm qilinganidan o'n ikki yil o'tib, yangi dalillar nihoyat uning ayblovdan to'liq xalos bo'lishiga olib keldi."
+      },
+      "explanation": {
+        "ru": "После his complete нужно существительное: exonerate (снимать обвинения) → exoneration; -ate → -ation.",
+        "uz": "his complete so'zlaridan keyin ot kerak: exonerate (ayblovdan xalos qilmoq) → exoneration (ayblovdan xalos bo'lish); -ate o'rniga -ation."
+      }
+    },
+    {
+      "key": "c2-m10-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "implicate"
+      ],
+      "text": "Phone records later *implied* the mayor's deputy in the bribery scheme.",
+      "options": [
+        "implicated",
+        "implicit",
+        "imputed"
+      ],
+      "correct": [
+        "implicated"
+      ],
+      "translation": {
+        "ru": "Распечатки звонков позже указали на причастность заместителя мэра к схеме со взятками.",
+        "uz": "Telefon qo'ng'iroqlari qaydlari keyinchalik mer o'rinbosarining pora sxemasiga daxldorligini ko'rsatdi."
+      },
+      "explanation": {
+        "ru": "implicate somebody in something — указывать на причастность кого-то к чему-то. imply (подразумевать) не употребляется с человеком и in; implicit — прилагательное, impute — «приписывать что-то кому-то».",
+        "uz": "implicate somebody in something — kimningdir biror ishga daxldorligini ko'rsatmoq. imply (nazarda tutmoq) fe'li shaxs va in predlogi bilan ishlatilmaydi; implicit — sifat, impute — «biror narsani kimgadir to'nkamoq»."
+      }
+    },
+    {
+      "key": "c2-m10-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "extenuating"
+      ],
+      "text": "Severe poverty, the defense argued, should count as an *extenuated* circumstance.",
+      "options": [
+        "extenuating",
+        "extending",
+        "extensive"
+      ],
+      "correct": [
+        "extenuating"
+      ],
+      "translation": {
+        "ru": "Защита утверждала, что крайнюю бедность следует считать смягчающим обстоятельством.",
+        "uz": "Himoya tarafi o'ta qashshoqlikni yengillashtiruvchi holat deb hisoblash kerakligini ta'kidladi."
+      },
+      "explanation": {
+        "ru": "Обстоятельство само смягчает вину, поэтому нужно причастие на -ing: extenuating circumstance. extenuated значило бы «смягчённое кем-то»; extending и extensive — другие слова.",
+        "uz": "Holatning o'zi aybni yengillashtiradi, shuning uchun -ing sifatdoshi kerak: extenuating circumstance. extenuated «kimdir yengillashtirgan» degani bo'lardi; extending va extensive — boshqa so'zlar."
+      }
+    },
+    {
+      "key": "c2-m10-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "malice"
+      ],
+      "text": "The judge found that the editor had published the story out of personal *malices*.",
+      "options": [
+        "malice",
+        "malicious",
+        "maliciously"
+      ],
+      "correct": [
+        "malice"
+      ],
+      "translation": {
+        "ru": "Судья установил, что редактор опубликовал эту историю из личной злобы.",
+        "uz": "Sudya muharrir bu maqolani shaxsiy g'arazli niyat bilan e'lon qilganini aniqladi."
+      },
+      "explanation": {
+        "ru": "malice (злой умысел) — неисчисляемое существительное, множественного числа malices нет. После personal нужно существительное, а malicious — прилагательное, maliciously — наречие.",
+        "uz": "malice (g'arazli niyat) — sanalmaydigan ot, malices ko'plik shakli yo'q. personal so'zidan keyin ot kerak, malicious esa sifat, maliciously — ravish."
+      }
+    },
+    {
+      "key": "c2-m10-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "beneficiary"
+      ],
+      "text": "Her nephew was named the only ___ of the life insurance policy.",
+      "base": "benefit",
+      "accepted": [
+        "beneficiary"
+      ],
+      "translation": {
+        "ru": "Её племянник был назван единственным выгодоприобретателем по полису страхования жизни.",
+        "uz": "Uning jiyani hayot sug'urtasi polisining yagona naf oluvchisi etib belgilandi."
+      },
+      "explanation": {
+        "ru": "После the only нужно лицо — тот, кто получает выгоду: benefit → beneficiary; основа меняется: fit → fic, суффикс -iary.",
+        "uz": "the only so'zlaridan keyin naf oladigan shaxs kerak: benefit → beneficiary; o'zak o'zgaradi: fit o'rniga fic, -iary qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m10-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "trustee"
+      ],
+      "text": "Until the children turn eighteen, their uncle will act as a ___ of the family fund.",
+      "base": "trust",
+      "accepted": [
+        "trustee"
+      ],
+      "translation": {
+        "ru": "Пока дети не достигнут восемнадцати лет, их дядя будет доверительным управляющим семейного фонда.",
+        "uz": "Bolalar o'n sakkiz yoshga to'lgunga qadar amakisi oilaviy jamg'armaning ishonchli boshqaruvchisi bo'lib turadi."
+      },
+      "explanation": {
+        "ru": "После act as a нужно лицо, которому доверили управлять имуществом: trust → trustee; суффикс -ee, как employ → employee.",
+        "uz": "act as a so'zlaridan keyin mol-mulkni boshqarish ishonib topshirilgan shaxs kerak: trust → trustee; -ee qo'shimchasi, xuddi employ → employee kabi."
+      }
+    },
+    {
+      "key": "c2-m10-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "endowment"
+      ],
+      "text": "Thanks to a generous ___ from a former student, the college now offers ten scholarships.",
+      "base": "endow",
+      "accepted": [
+        "endowment"
+      ],
+      "translation": {
+        "ru": "Благодаря щедрому вкладу бывшего студента в целевой капитал колледж теперь даёт десять стипендий.",
+        "uz": "Sobiq talabaning saxovat bilan qo'shgan maqsadli jamg'armasi tufayli kollej endi o'nta stipendiya beradi."
+      },
+      "explanation": {
+        "ru": "После a generous нужно существительное: endow (обеспечивать капиталом) → endowment (целевой капитал); суффикс -ment.",
+        "uz": "a generous so'zlaridan keyin ot kerak: endow (mablag' bilan ta'minlamoq) → endowment (maqsadli jamg'arma); -ment qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m10-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "executor"
+      ],
+      "text": "Her brother, the *executioner* of their father's will, paid all the debts first.",
+      "options": [
+        "executor",
+        "execution",
+        "executive"
+      ],
+      "correct": [
+        "executor"
+      ],
+      "translation": {
+        "ru": "Её брат, исполнитель завещания их отца, первым делом оплатил все долги.",
+        "uz": "Uning akasi — otalarining vasiyatnomasi ijrochisi — avvalo barcha qarzlarni to'ladi."
+      },
+      "explanation": {
+        "ru": "Исполнитель завещания — executor. executioner — палач; execution — исполнение или казнь, executive — руководитель.",
+        "uz": "Vasiyatnoma ijrochisi — executor. executioner — jallod; execution — ijro yoki qatl, executive — rahbar."
+      }
+    },
+    {
+      "key": "c2-m10-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "testament"
+      ],
+      "text": "The lawyer read out the old man's last will and *testimony* to the family.",
+      "options": [
+        "testament",
+        "testimonial",
+        "testator"
+      ],
+      "correct": [
+        "testament"
+      ],
+      "translation": {
+        "ru": "Юрист зачитал семье последнюю волю старика.",
+        "uz": "Advokat oilaga keksa odamning so'nggi vasiyatnomasini o'qib berdi."
+      },
+      "explanation": {
+        "ru": "Устойчивое выражение — last will and testament (завещание). testimony — показания свидетеля, testimonial — рекомендация или отзыв, testator — завещатель.",
+        "uz": "Turg'un ibora — last will and testament (vasiyatnoma). testimony — guvohlik ko'rsatmasi, testimonial — tavsiyanoma yoki fikr, testator — vasiyat qiluvchi."
+      }
+    },
+    {
+      "key": "c2-m10-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "confiscate"
+      ],
+      "text": "All *confiscating* goods will be destroyed in front of witnesses.",
+      "options": [
+        "confiscated",
+        "confiscation",
+        "confiscates"
+      ],
+      "correct": [
+        "confiscated"
+      ],
+      "translation": {
+        "ru": "Все конфискованные товары будут уничтожены в присутствии свидетелей.",
+        "uz": "Barcha musodara qilingan tovarlar guvohlar ishtirokida yo'q qilinadi."
+      },
+      "explanation": {
+        "ru": "Товары конфисковали — действие совершили над ними, поэтому нужно причастие на -ed: confiscated goods. confiscating значило бы «конфискующие».",
+        "uz": "Tovarlar musodara qilingan — harakat ularga nisbatan bajarilgan, shuning uchun -ed sifatdoshi kerak: confiscated goods. confiscating «musodara qilayotgan» degani bo'lardi."
+      }
+    },
+    {
+      "key": "c2-m10-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "fraudulent"
+      ],
+      "text": "The accountant had ___ altered the figures to hide the missing money.",
+      "base": "fraud",
+      "accepted": [
+        "fraudulently"
+      ],
+      "translation": {
+        "ru": "Бухгалтер мошенническим путём изменил цифры, чтобы скрыть пропавшие деньги.",
+        "uz": "Hisobchi yo'qolgan pulni yashirish uchun raqamlarni firibgarlik yo'li bilan o'zgartirgan edi."
+      },
+      "explanation": {
+        "ru": "Между had и altered нужно наречие: fraud → fraudulent → fraudulently; суффиксы -ulent и -ly.",
+        "uz": "had va altered orasida ravish kerak: fraud → fraudulent → fraudulently; -ulent va -ly qo'shimchalari."
+      }
+    },
+    {
+      "key": "c2-m10-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "slander"
+      ],
+      "text": "She sued her neighbor for making ___ remarks about her at a public meeting.",
+      "base": "slander",
+      "accepted": [
+        "slanderous"
+      ],
+      "translation": {
+        "ru": "Она подала в суд на соседа за клеветнические высказывания о ней на общем собрании.",
+        "uz": "U qo'shnisi ustidan ommaviy yig'ilishda u haqida tuhmatli gaplar aytgani uchun sudga murojaat qildi."
+      },
+      "explanation": {
+        "ru": "Перед существительным remarks нужно прилагательное: slander (клевета) → slanderous (клеветнический); суффикс -ous.",
+        "uz": "remarks otidan oldin sifat kerak: slander (tuhmat) → slanderous (tuhmatli); -ous qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m10-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "counterfeit"
+      ],
+      "text": "Police finally arrested the ___ who had printed thousands of fake banknotes in his garage.",
+      "base": "counterfeit",
+      "accepted": [
+        "counterfeiter"
+      ],
+      "translation": {
+        "ru": "Полиция наконец арестовала фальшивомонетчика, который напечатал в своём гараже тысячи поддельных банкнот.",
+        "uz": "Politsiya nihoyat o'z garajida minglab qalbaki banknot bosib chiqargan qalbaki pul yasovchini qo'lga oldi."
+      },
+      "explanation": {
+        "ru": "После the и перед who нужно лицо: counterfeit (поддельный) → counterfeiter (фальшивомонетчик); суффикс -er.",
+        "uz": "the artiklidan keyin va who olmoshidan oldin shaxs kerak: counterfeit (qalbaki) → counterfeiter (qalbaki pul yasovchi); -er qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m10-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "illicit"
+      ],
+      "text": "The gang made millions from the *elicit* sale of ancient coins.",
+      "options": [
+        "illicit",
+        "illicitly",
+        "explicitly"
+      ],
+      "correct": [
+        "illicit"
+      ],
+      "translation": {
+        "ru": "Банда заработала миллионы на незаконной продаже старинных монет.",
+        "uz": "To'da qadimiy tangalarni g'ayriqonuniy sotishdan millionlab pul ishlab topdi."
+      },
+      "explanation": {
+        "ru": "Незаконный — illicit. elicit — глагол «вызывать, добиваться (ответа)», он похоже звучит, но перед существительным sale невозможен; наречия illicitly и explicitly существительное не определяют.",
+        "uz": "G'ayriqonuniy — illicit. elicit — «javob va hokazoni chiqarib olmoq» degan fe'l, talaffuzi o'xshash, lekin sale otidan oldin kela olmaydi; illicitly va explicitly ravishlari otni aniqlamaydi."
+      }
+    },
+    {
+      "key": "c2-m10-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "racketeering"
+      ],
+      "text": "Prosecutors charged the three brothers with *racket* and tax fraud.",
+      "options": [
+        "racketeering",
+        "racketeers",
+        "racketing"
+      ],
+      "correct": [
+        "racketeering"
+      ],
+      "translation": {
+        "ru": "Прокуроры обвинили трёх братьев в рэкете и уклонении от налогов.",
+        "uz": "Prokurorlar uch aka-ukani tovlamachilik va soliq firibgarligida aybladi."
+      },
+      "explanation": {
+        "ru": "Преступление «рэкет» — racketeering. Русское «рэкет» обманчиво: racket — это исчисляемое «афера» (a racket) или «шум», racketing — шумное веселье, racketeers — рэкетиры.",
+        "uz": "«Reket» jinoyati inglizchada racketeering. Rus tilidagi «reket» so'zi chalg'itadi: racket — sanaladigan «firibgarlik sxemasi» (a racket) yoki «shovqin», racketing — shovqin-suron, racketeers — reketchilar."
+      }
+    },
+    {
+      "key": "c2-m10-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "contraband"
+      ],
+      "text": "Customs officers seized a large amount of *contrabands* hidden in a shipment of bananas.",
+      "options": [
+        "contraband",
+        "smugglers",
+        "smuggling"
+      ],
+      "correct": [
+        "contraband"
+      ],
+      "translation": {
+        "ru": "Таможенники изъяли крупную партию контрабанды, спрятанной среди бананов.",
+        "uz": "Bojxona xodimlari banan partiyasiga yashirilgan katta miqdordagi kontrabandani musodara qilishdi."
+      },
+      "explanation": {
+        "ru": "contraband (контрабандный товар) — неисчисляемое существительное: a large amount of contraband, без -s. smuggling — сам провоз контрабанды, smugglers — контрабандисты.",
+        "uz": "contraband (kontrabanda mol) — sanalmaydigan ot: a large amount of contraband, -s qo'shimchasisiz. smuggling — kontrabanda olib o'tish jarayoni, smugglers — kontrabandachilar."
+      }
+    },
+    {
+      "key": "c2-m10-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "inviolable"
+      ],
+      "text": "Under the treaty, a diplomat's person is ___: he may not be arrested or detained.",
+      "base": "violate",
+      "accepted": [
+        "inviolable",
+        "inviolate"
+      ],
+      "translation": {
+        "ru": "По договору личность дипломата неприкосновенна: его нельзя арестовать или задержать.",
+        "uz": "Shartnomaga ko'ra diplomatning shaxsi daxlsiz: uni hibsga olish yoki ushlab turish mumkin emas."
+      },
+      "explanation": {
+        "ru": "После is нужно прилагательное, а вторая часть (нельзя арестовать) требует отрицания: violate → inviolable; -ate отпадает, -able и приставка in-. Верно и inviolate.",
+        "uz": "is fe'lidan keyin sifat kerak, ikkinchi qism (hibsga olib bo'lmaydi) esa inkorni talab qiladi: violate → inviolable; -ate tushib qoladi, -able va in- old qo'shimchasi. inviolate shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "c2-m10-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "stateless"
+      ],
+      "text": "The new citizenship law finally ended the ___ of thousands of children born in camps.",
+      "base": "stateless",
+      "accepted": [
+        "statelessness"
+      ],
+      "translation": {
+        "ru": "Новый закон о гражданстве наконец покончил с безгражданством тысяч детей, родившихся в лагерях.",
+        "uz": "Fuqarolik to'g'risidagi yangi qonun nihoyat lagerlarda tug'ilgan minglab bolalarning fuqaroligi yo'qligiga barham berdi."
+      },
+      "explanation": {
+        "ru": "Между the и of нужно существительное: stateless (без гражданства) → statelessness (безгражданство); к -less добавляется -ness, на стыке получается ssn.",
+        "uz": "the va of orasida ot kerak: stateless (fuqaroligi yo'q) → statelessness (fuqaroligi yo'qlik); -less qo'shimchasiga -ness qo'shiladi, chegarada ssn bo'ladi."
+      }
+    },
+    {
+      "key": "c2-m10-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "noncombatant"
+      ],
+      "text": "Army medics may not be attacked, because the conventions treat them as ___.",
+      "base": "combat",
+      "accepted": [
+        "noncombatants",
+        "non-combatants"
+      ],
+      "translation": {
+        "ru": "На армейских медиков нападать нельзя, потому что конвенции считают их некомбатантами.",
+        "uz": "Harbiy tibbiyot xodimlariga hujum qilish mumkin emas, chunki konvensiyalar ularni jang qilmaydigan shaxslar deb hisoblaydi."
+      },
+      "explanation": {
+        "ru": "treat them as требует существительного во множественном числе, а смысл (нападать нельзя) — отрицания: combat → combatant → noncombatants (non- и -ant).",
+        "uz": "treat them as so'zlaridan keyin ko'plikdagi ot kerak, ma'no esa (hujum qilib bo'lmaydi) inkorni talab qiladi: combat → combatant → noncombatants (non- va -ant)."
+      }
+    },
+    {
+      "key": "c2-m10-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "internment"
+      ],
+      "text": "During the war, thousands of foreign citizens were held in *internship* camps.",
+      "options": [
+        "internment",
+        "interment",
+        "internal"
+      ],
+      "correct": [
+        "internment"
+      ],
+      "translation": {
+        "ru": "Во время войны тысячи иностранных граждан содержались в лагерях для интернированных.",
+        "uz": "Urush yillarida minglab chet el fuqarolari majburiy ushlab turish lagerlarida saqlangan."
+      },
+      "explanation": {
+        "ru": "Интернирование — internment (internment camps). internship — стажировка, interment — погребение, internal — внутренний.",
+        "uz": "Majburiy ushlab turish — internment (internment camps). internship — amaliyot, stajirovka, interment — dafn, internal — ichki."
+      }
+    },
+    {
+      "key": "c2-m10-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "extradition"
+      ],
+      "text": "After a long hearing, the court approved the *extradite* of the former minister.",
+      "options": [
+        "extradition",
+        "extradites",
+        "extraditable"
+      ],
+      "correct": [
+        "extradition"
+      ],
+      "translation": {
+        "ru": "После долгого слушания суд одобрил экстрадицию бывшего министра.",
+        "uz": "Uzoq davom etgan sud majlisidan so'ng sud sobiq vazirni ekstraditsiya qilishni ma'qulladi."
+      },
+      "explanation": {
+        "ru": "Между the и of нужно существительное: extradition (экстрадиция). extradite — глагол «выдать», extradites — его форма, extraditable — прилагательное «подлежащий выдаче».",
+        "uz": "the va of orasida ot kerak: extradition (ekstraditsiya). extradite — «topshirmoq» degan fe'l, extradites — uning shakli, extraditable — «topshirilishi lozim» degan sifat."
+      }
+    },
+    {
+      "key": "c2-m10-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "reparation"
+      ],
+      "text": "The treaty forced the losing side to *do* reparations for the damage it caused.",
+      "options": [
+        "pay",
+        "hold",
+        "take"
+      ],
+      "correct": [
+        "pay"
+      ],
+      "translation": {
+        "ru": "Договор обязал проигравшую сторону выплатить репарации за причинённый ущерб.",
+        "uz": "Shartnoma mag'lub tomonni yetkazgan zarari uchun tovon to'lashga majbur qildi."
+      },
+      "explanation": {
+        "ru": "Репарации выплачивают: pay reparations (или make reparations). do, hold и take с этим словом не сочетаются.",
+        "uz": "Tovon to'lanadi: pay reparations (yoki make reparations). do, hold va take fe'llari bu so'z bilan birikmaydi."
+      }
+    }
+  ]
+}
