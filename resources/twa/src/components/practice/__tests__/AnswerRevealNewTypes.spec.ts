@@ -86,19 +86,22 @@ describe('AnswerReveal — error hunt', () => {
   const hunt = (overrides: Partial<PracticeOutcome> = {}): PracticeOutcome =>
     outcome({ element: errorHuntFixElement('tAm1'), answer: { option_id: 'oIn2' }, verdict: 'wrong', reveal: errorHuntReveal(), ...overrides })
 
-  it('the mistake missed and fixed: two lines with a symbol and a word each, "Was" and "Now" with their words marked', () => {
+  it('the mistake missed and fixed: two lines told by their outcome, the word picked, "Was" and "Now" with their words marked', () => {
     const wrapper = render(hunt())
 
     expect(wrapper.get('[data-testid=answer-reveal]').attributes('data-kind')).toBe('error_hunt')
     expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
     const found = wrapper.get('[data-testid=hunt-found]')
     expect(found.attributes('data-ok')).toBe('false')
-    expect(found.text()).toContain('Ошибку нашли')
-    expect(found.text()).toContain('нет')
+    expect(found.attributes('data-state')).toBe('wrong')
+    expect(found.get('[data-testid=hunt-step-label]').text()).toBe('Ошибку не нашли')
+    expect(wrapper.get('[data-testid=hunt-found-yours]').text()).toBe('Вы выбрали: am')
+    expect(wrapper.get('[data-testid=hunt-found-yours] [lang=en]').text()).toBe('am')
     const fixed = wrapper.get('[data-testid=hunt-fixed]')
     expect(fixed.attributes('data-ok')).toBe('true')
-    expect(fixed.text()).toContain('Исправили')
-    expect(fixed.text()).toContain('да')
+    expect(fixed.get('[data-testid=hunt-step-label]').text()).toBe('Исправили верно')
+    // A right step: nothing of "yours" under it.
+    expect(wrapper.find('[data-testid=hunt-fixed-yours]').exists()).toBe(false)
 
     expect(wrapper.get('[data-testid=hunt-was]').text()).toContain('Было')
     expect(wrapper.get('[data-testid=hunt-was]').text()).toContain('I am very interested on modern art.')
@@ -119,11 +122,68 @@ describe('AnswerReveal — error hunt', () => {
 
     expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Верно!')
     expect(wrapper.get('[data-testid=hunt-found]').attributes('data-ok')).toBe('true')
+    expect(wrapper.get('[data-testid=hunt-found] [data-testid=hunt-step-label]').text()).toBe('Ошибку нашли')
     expect(wrapper.get('[data-testid=hunt-fixed]').attributes('data-ok')).toBe('true')
+    expect(wrapper.get('[data-testid=hunt-fixed] [data-testid=hunt-step-label]').text()).toBe('Исправили верно')
+    expect(wrapper.find('[data-testid=hunt-found-yours]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=hunt-fixed-yours]').exists()).toBe(false)
     wrapper.unmount()
   })
 
-  it('a skip at the first step: nothing found, nothing fixed, the sentences still told (the words of the element are enough)', () => {
+  it('found but fixed wrong: "Fixed wrong" with the option picked', () => {
+    const wrapper = render(
+      hunt({
+        element: errorHuntFixElement('tOn4'),
+        answer: { option_id: 'oAt1' },
+        reveal: errorHuntReveal({ located_ok: true, fixed_ok: false, your_token_id: 'tOn4', your_option_id: 'oAt1' }),
+      }),
+    )
+
+    expect(wrapper.get('[data-testid=hunt-found] [data-testid=hunt-step-label]').text()).toBe('Ошибку нашли')
+    expect(wrapper.find('[data-testid=hunt-found-yours]').exists()).toBe(false)
+    const fixed = wrapper.get('[data-testid=hunt-fixed]')
+    expect(fixed.attributes('data-state')).toBe('wrong')
+    expect(fixed.get('[data-testid=hunt-step-label]').text()).toBe('Исправили неверно')
+    expect(wrapper.get('[data-testid=hunt-fixed-yours]').text()).toBe('Ваш вариант: at')
+    wrapper.unmount()
+  })
+
+  it('both wrong: the word and the option picked, each under its line', () => {
+    const wrapper = render(hunt({ answer: { option_id: 'oFor3' }, reveal: errorHuntReveal({ fixed_ok: false, your_option_id: 'oFor3' }) }))
+
+    expect(wrapper.get('[data-testid=hunt-found-yours]').text()).toBe('Вы выбрали: am')
+    expect(wrapper.get('[data-testid=hunt-fixed-yours]').text()).toBe('Ваш вариант: for')
+    wrapper.unmount()
+  })
+
+  it('a skip at the second step: the first line by its outcome, the second "Skipped", no option of the learner', () => {
+    const wrapper = render(hunt({ verdict: 'skipped', answer: { skip: true }, reveal: errorHuntReveal({ fixed_ok: false, your_option_id: null }) }))
+
+    expect(wrapper.get('[data-testid=hunt-found] [data-testid=hunt-step-label]').text()).toBe('Ошибку не нашли')
+    expect(wrapper.get('[data-testid=hunt-found-yours]').text()).toBe('Вы выбрали: am')
+    const fixed = wrapper.get('[data-testid=hunt-fixed]')
+    expect(fixed.attributes('data-state')).toBe('skipped')
+    expect(fixed.get('[data-testid=hunt-step-label]').text()).toBe('Пропущено')
+    expect(wrapper.find('[data-testid=hunt-fixed-yours]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('the words of the pick unknown here (the element without its corrections, a word not among the tokens): no line of "yours"', () => {
+    const wrapper = render(
+      hunt({
+        element: errorHuntElement(),
+        reveal: errorHuntReveal({ fixed_ok: false, your_token_id: 'tGone9', your_option_id: 'oFor3' }),
+      }),
+    )
+
+    expect(wrapper.get('[data-testid=hunt-found] [data-testid=hunt-step-label]').text()).toBe('Ошибку не нашли')
+    expect(wrapper.get('[data-testid=hunt-fixed] [data-testid=hunt-step-label]').text()).toBe('Исправили неверно')
+    expect(wrapper.find('[data-testid=hunt-found-yours]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=hunt-fixed-yours]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('a skip at the first step: one line "Skipped", the sentences still told (the words of the element are enough)', () => {
     const wrapper = render(
       hunt({
         verdict: 'skipped',
@@ -133,8 +193,12 @@ describe('AnswerReveal — error hunt', () => {
       }),
     )
 
-    expect(wrapper.get('[data-testid=hunt-found]').attributes('data-ok')).toBe('false')
-    expect(wrapper.get('[data-testid=hunt-fixed]').attributes('data-ok')).toBe('false')
+    expect(wrapper.findAll('[data-testid=hunt-steps] > li')).toHaveLength(1)
+    const found = wrapper.get('[data-testid=hunt-found]')
+    expect(found.attributes('data-state')).toBe('skipped')
+    expect(found.get('[data-testid=hunt-step-label]').text()).toBe('Пропущено')
+    expect(wrapper.find('[data-testid=hunt-fixed]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=hunt-found-yours]').exists()).toBe(false)
     expect(wrapper.get('[data-testid=hunt-error-word]').text()).toBe('on')
     expect(wrapper.get('[data-testid=hunt-fix-word]').text()).toBe('in')
     wrapper.unmount()
@@ -162,10 +226,31 @@ describe('AnswerReveal — error hunt', () => {
     setLocale('uz')
     const wrapper = render(hunt())
 
-    expect(wrapper.get('[data-testid=hunt-found]').text()).toContain('Xato topildi')
-    expect(wrapper.get('[data-testid=hunt-fixed]').text()).toContain('Tuzatildi')
+    expect(wrapper.get('[data-testid=hunt-found] [data-testid=hunt-step-label]').text()).toBe('Xato topilmadi')
+    expect(wrapper.get('[data-testid=hunt-found-yours]').text()).toBe("Siz tanlagan so'z: am")
+    expect(wrapper.get('[data-testid=hunt-fixed] [data-testid=hunt-step-label]').text()).toBe("To'g'ri tuzatildi")
     expect(wrapper.get('[data-testid=hunt-was]').text()).toContain('Avval')
     expect(wrapper.get('[data-testid=hunt-became]').text()).toContain('Keyin')
     wrapper.unmount()
+  })
+
+  it('speaks Uzbek: fixed wrong, a skip', () => {
+    setLocale('uz')
+    const wrong = render(hunt({ reveal: errorHuntReveal({ located_ok: true, your_token_id: 'tOn4', fixed_ok: false, your_option_id: 'oAt1' }) }))
+    expect(wrong.get('[data-testid=hunt-found] [data-testid=hunt-step-label]').text()).toBe('Xato topildi')
+    expect(wrong.get('[data-testid=hunt-fixed] [data-testid=hunt-step-label]').text()).toBe("Noto'g'ri tuzatildi")
+    expect(wrong.get('[data-testid=hunt-fixed-yours]').text()).toBe('Siz tanlagan variant: at')
+    wrong.unmount()
+
+    const skipped = render(
+      hunt({
+        verdict: 'skipped',
+        element: errorHuntElement(),
+        answer: { skip: true },
+        reveal: errorHuntReveal({ located_ok: false, fixed_ok: false, your_token_id: null, your_option_id: null }),
+      }),
+    )
+    expect(skipped.get('[data-testid=hunt-found] [data-testid=hunt-step-label]').text()).toBe("O'tkazib yuborildi")
+    skipped.unmount()
   })
 })

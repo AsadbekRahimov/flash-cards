@@ -120,6 +120,8 @@ describe('PracticeSessionView — "Error hunt"', () => {
     expect(wrapper.get('[data-testid=answer-reveal]').attributes('data-kind')).toBe('error_hunt')
     expect(wrapper.get('[data-testid=hunt-found]').attributes('data-ok')).toBe('false')
     expect(wrapper.get('[data-testid=hunt-fixed]').attributes('data-ok')).toBe('true')
+    // The pick of the learner, from what the screen has (the tokens of the element): the word of the wrong search.
+    expect(wrapper.get('[data-testid=hunt-found-yours]').text()).toBe('Вы выбрали: am')
 
     await wrapper.get('[data-testid=continue-btn]').trigger('click')
     await flushPromises()

@@ -297,6 +297,14 @@ describe('ModeCard — timed pairs', () => {
     expect(wrapper.get('[data-testid=mode-record]').text()).toBe('Рекорд: 23')
   })
 
+  it('lets a long example wrap to a second line instead of cutting it with an ellipsis', () => {
+    const wrapper = render({ info: info('pairs_timed', { estimate_seconds: 60 }) })
+
+    const example = wrapper.get('[data-testid=mode-example]')
+    expect(example.classes()).toContain('line-clamp-2')
+    expect(example.classes()).not.toContain('truncate')
+  })
+
   it('shows no record line before the first game, and none on the other cards', () => {
     expect(render({ info: info('pairs_timed', { record: null }) }).find('[data-testid=mode-record]').exists()).toBe(false)
     expect(render({ info: info('pairs') }).find('[data-testid=mode-record]').exists()).toBe(false)

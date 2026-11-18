@@ -123,11 +123,11 @@ onBeforeUnmount(() => {
           <template v-else>{{ element.text }}</template>
         </h2>
 
-        <!-- The word to make the form of: a chip in small capitals, named for a screen reader. -->
+        <!-- The word to make the form of: a chip with the word as it is (its own case: a small-caps "I" is all but invisible), named for a screen reader. -->
         <p class="flex flex-wrap items-center justify-center gap-2" data-testid="word-form-base-row">
           <span class="text-[13px] leading-[18px] text-tg-hint">{{ t('practice.word_form.base_hint') }}</span>
           <span
-            class="chip chip-accent text-[15px] font-semibold tracking-wide [font-variant-caps:all-small-caps]"
+            class="chip chip-accent h-8 px-3 text-[17px] leading-[22px] font-bold"
             lang="en"
             data-testid="word-form-base"
           >{{ element.base }}</span>

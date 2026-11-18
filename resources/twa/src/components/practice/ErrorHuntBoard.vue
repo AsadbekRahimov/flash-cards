@@ -3,13 +3,15 @@
  * "Error hunt" (docs/16 §5.7, §11.3): an English sentence with one wrong word, answered in TWO steps, each its own request.
  *
  * - Step `locate`: the words of the sentence are buttons in a wrapping row (each at least 44 px high, 6 px apart). A tap SELECTS a word
- *   (`aria-pressed`, marked by colour and a symbol); "This is the mistake" sends it (`{ token_id }`). The words are small on a phone, so a
- *   tap alone never sends: a miss of a finger would be an answer.
+ *   (`aria-pressed`, marked by colour, a thicker frame and a symbol in its corner); "This is the mistake" sends it (`{ token_id }`). The words
+ *   are small on a phone, so a tap alone never sends: a miss of a finger would be an answer. The selection changes no size: the symbol stands
+ *   over the corner, out of the flow, so the rows of words do not move under the finger.
  * - Step `fix`: the server has the first answer and tells where the learner looked and where the mistake is (`element.located`): a word
  *   found is green with ✓ and "Right, the mistake is here"; a word missed is red with ✕ ("your pick"), the real one has an orange frame
  *   ("mistake"), and the line says "The mistake is in another word". Colour is never alone: a symbol and words go with it. Under the
  *   sentence the corrections (`element.options`, sent only now); a tap on one IS the answer (`{ option_id }`), as in "Pick the
- *   collocation". The second step comes after a wrong first one too.
+ *   collocation". The second step comes after a wrong first one too. When the step comes (and when the screen opens at it) the corrections are
+ *   scrolled into view above the sticky buttons: on a short phone they are below the fold.
  * - "I don't know" (`skip`) is there on both steps.
  *
  * The board follows `element.step` of the projection: the session screen keeps the same component between the steps (its key does not
@@ -21,11 +23,12 @@
  * - `disabled` - an answer is on its way: nothing reacts.
  * Events: `answer` (`{ token_id }` / `{ option_id }`), `skip`.
  */
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { shownOptions } from '@/composables/collocationPhrase'
+import { prefersReducedMotion } from '@/composables/motion'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import type { ErrorHuntElement, PracticeAnswerPayload, PracticeChoice } from '@/api/types'
@@ -133,6 +136,27 @@ function tokenState(look: TokenLook): string {
 
 const options = computed(() => shownOptions(props.element.options ?? [], picked.value, null, null))
 
+/** The block of the corrections. */
+const optionsEl = ref<HTMLElement | null>(null)
+
+/**
+ * Brings the corrections into view. On a short phone they come below the fold, under the sticky buttons: the block keeps a margin of the
+ * height of those buttons (`--app-actions-h`, `scroll-margin-bottom`), so its last option ends above them. Smooth unless motion is reduced.
+ */
+function revealOptions(): void {
+  void nextTick(() => {
+    if (step.value !== 'fix') return
+    optionsEl.value?.scrollIntoView?.({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+  })
+}
+
+watch(step, (now) => {
+  if (now === 'fix') revealOptions()
+})
+onMounted(() => {
+  if (step.value === 'fix') revealOptions()
+})
+
 function pick(option: PracticeChoice): void {
   if (!canPick.value || step.value !== 'fix') return
   picked.value = option.id
@@ -167,7 +191,7 @@ function skip(): void {
             <button
               v-if="step === 'locate'"
               type="button"
-              class="inline-flex min-h-11 max-w-full min-w-11 items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-[17px] leading-[22px] font-medium [overflow-wrap:anywhere] transition-colors duration-150 active:scale-[0.97]"
+              class="relative inline-flex min-h-11 max-w-full min-w-11 items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-[17px] leading-[22px] font-medium [overflow-wrap:anywhere] transition-colors duration-150 active:scale-[0.97]"
               :class="[TOKEN_CLASSES[token.look], { 'opacity-60': !canPick && token.look === 'idle' }]"
               :aria-pressed="token.look === 'selected' ? 'true' : 'false'"
               :disabled="!canPick"
@@ -175,8 +199,16 @@ function skip(): void {
               :data-testid="`token-${token.id}`"
               @click="select(token)"
             >
-              <AppIcon v-if="token.look === 'selected'" name="check-circle" :size="18" />
               <span>{{ token.text }}</span>
+              <!-- The symbol of the selection stands over the corner, out of the flow: selecting a word changes no width. -->
+              <span
+                v-show="token.look === 'selected'"
+                class="pointer-events-none absolute -top-1 -right-1 flex size-[18px] items-center justify-center rounded-full bg-accent text-tg-button-text"
+                aria-hidden="true"
+                data-testid="token-mark"
+              >
+                <AppIcon name="check" :size="12" />
+              </span>
             </button>
             <span
               v-else
@@ -211,7 +243,12 @@ function skip(): void {
       <!-- The request got no reply: the pick cannot be changed, and it is sent again. -->
       <InlineAlert v-if="retrying" tone="warning" :message="t('practice.session.resend_note')" data-testid="error-hunt-resend-note" />
 
-      <div v-if="step === 'fix'" class="flex flex-col gap-2.5" role="group" :aria-label="t('practice.error_hunt.instruction_fix')" data-testid="error-hunt-options">
+      <div
+        v-if="step === 'fix'"
+        ref="optionsEl"
+        class="flex flex-col gap-2.5"
+        style="scroll-margin-bottom: calc(var(--app-actions-h, 0px) + 12px)"
+        role="group" :aria-label="t('practice.error_hunt.instruction_fix')" data-testid="error-hunt-options">
         <button
           v-for="(option, index) in options"
           :key="option.id"

@@ -9,6 +9,7 @@ import { verdictLabel } from '@/composables/practiceLabels'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
+import type { StringKey } from '@/i18n/ru'
 import type { AudioSlot, PracticeOutcome } from '@/stores/practice'
 import type {
   CollocationReveal,
@@ -30,8 +31,11 @@ import type {
  *   the picked one is the server's `your_option_id` when it sends it (the answer that COUNTED), else the pick this screen knows;
  * - word form — the right form (and the other accepted ones), what was typed struck through, "another form of the word is needed"
  *   when the base word itself was typed (`same_as_base`), the whole sentence with the form marked, the translation;
- * - error hunt — two lines of the result, "Mistake found ✓/✕" and "Fixed ✓/✕" (`located_ok`, `fixed_ok`: a symbol and a word each),
- *   "Was" with the wrong word underlined and "Now" with the correction marked, the translation;
+ * - error hunt — two lines of the result told by their outcome ("Mistake found" / "Mistake not found", "Fixed right" / "Fixed wrong",
+ *   "Skipped" for a step that was skipped; one line "Skipped" for a skip at the first step), each with a symbol; under a wrong one the
+ *   learner's own pick ("You picked: on", "Your option: at") when this screen has its words (the tokens and the corrections of the
+ *   element; after a reload the corrections may be unknown, and the line is simply not there); "Was" with the wrong word underlined
+ *   and "Now" with the correction marked, the translation;
  * - the end of a round of pairs — "Round 2 of 3 is done" and the number of wrong matches in it;
  * - an answer that was counted EARLIER (`outcome.earlier`, 409 `answer_already_accepted`: another tab, a reply that was lost) —
  *   only the verdict the server counted and the words "an answer sent earlier was counted": no right answer and no pick, for
@@ -111,21 +115,63 @@ const wordFormSentence = computed((): { before: string; filled: string; after: s
   return parts !== null && filled !== null ? { before: parts.before, filled, after: parts.after } : null
 })
 
+type HuntStepState = 'ok' | 'wrong' | 'skipped'
+
+interface HuntStep {
+  key: 'found' | 'fixed'
+  state: HuntStepState
+  label: string
+  /** A wrong step: what the learner picked ("You picked" + the word, "Your option" + the correction), when its words are known here. */
+  yours: { label: string; text: string } | null
+}
+
+const HUNT_LOOKS: Record<HuntStepState, { icon: IconName; tone: string }> = {
+  ok: { icon: 'check', tone: 'text-success-ink' },
+  wrong: { icon: 'x-mark', tone: 'text-danger-ink' },
+  skipped: { icon: 'minus', tone: 'text-tg-subtitle' },
+}
+
 /** Error hunt: the two steps in words, and the sentence before and after the correction, each cut around its word. */
 const hunt = computed(() => {
   const done = errorHunt.value
   if (done === null) return null
-  const tokens = props.outcome.element.kind === 'error_hunt' ? props.outcome.element.tokens : []
+  const element = props.outcome.element.kind === 'error_hunt' ? props.outcome.element : null
+  const tokens = element?.tokens ?? []
+  const textOf = (choices: readonly { id: string; text: string }[], id: string | null): string | null =>
+    id === null ? null : (choices.find((choice) => choice.id === id)?.text ?? null)
+
+  // A skip at the first step: neither step was taken, one line says so.
+  const located: HuntStep =
+    done.your_token_id === null
+      ? { key: 'found', state: 'skipped', label: t('practice.error_hunt.result.skipped'), yours: null }
+      : {
+          key: 'found',
+          state: done.located_ok ? 'ok' : 'wrong',
+          label: t(done.located_ok ? 'practice.error_hunt.result.found' : 'practice.error_hunt.result.not_found'),
+          yours: yoursLine(done.located_ok, 'practice.error_hunt.you_picked', textOf(tokens, done.your_token_id)),
+        }
+  const fixed: HuntStep | null =
+    done.your_token_id === null
+      ? null
+      : done.your_option_id === null && !done.fixed_ok
+        ? { key: 'fixed', state: 'skipped', label: t('practice.error_hunt.result.skipped'), yours: null }
+        : {
+            key: 'fixed',
+            state: done.fixed_ok ? 'ok' : 'wrong',
+            label: t(done.fixed_ok ? 'practice.error_hunt.result.fixed' : 'practice.error_hunt.result.not_fixed'),
+            yours: yoursLine(done.fixed_ok, 'practice.error_hunt.your_fix', textOf(element?.options ?? [], done.your_option_id)),
+          }
 
   return {
-    steps: [
-      { key: 'found', label: t('practice.error_hunt.result_found'), ok: done.located_ok },
-      { key: 'fixed', label: t('practice.error_hunt.result_fixed'), ok: done.fixed_ok },
-    ],
+    steps: fixed === null ? [located] : [located, fixed],
     was: wrongSentence(tokens, done.error_token_id),
     became: correctedSentence(tokens, done.error_token_id, done.full_text),
   }
 })
+
+function yoursLine(ok: boolean, key: StringKey, text: string | null): HuntStep['yours'] {
+  return ok || text === null ? null : { label: t(key), text }
+}
 
 /** Other accepted answers: orders of a sentence, forms of a word. */
 const alternatives = computed((): string[] => sentence.value?.alternatives ?? wordForm.value?.alternatives ?? [])
@@ -283,14 +329,18 @@ function onContinue(): void {
             <li
               v-for="row in hunt.steps"
               :key="row.key"
-              class="flex items-center justify-center gap-1.5 text-base leading-[22px] font-semibold"
-              :class="row.ok ? 'text-success-ink' : 'text-danger-ink'"
-              :data-ok="row.ok ? 'true' : 'false'"
+              class="flex flex-col items-center"
+              :data-ok="row.state === 'ok' ? 'true' : 'false'"
+              :data-state="row.state"
               :data-testid="`hunt-${row.key}`"
             >
-              <AppIcon :name="row.ok ? 'check' : 'x-mark'" :size="18" />
-              <span>{{ row.label }}</span>
-              <span class="sr-only">: {{ row.ok ? t('practice.error_hunt.yes') : t('practice.error_hunt.no') }}</span>
+              <span class="flex items-center justify-center gap-1.5 text-base leading-[22px] font-semibold" :class="HUNT_LOOKS[row.state].tone">
+                <AppIcon :name="HUNT_LOOKS[row.state].icon" :size="18" />
+                <span data-testid="hunt-step-label">{{ row.label }}</span>
+              </span>
+              <span v-if="row.yours" class="text-[15px] leading-5 text-tg-subtitle break-words" :data-testid="`hunt-${row.key}-yours`">
+                {{ row.yours.label }}: <span class="font-semibold text-tg-text" lang="en">{{ row.yours.text }}</span>
+              </span>
             </li>
           </ul>
           <div class="w-full text-left" data-testid="hunt-was">

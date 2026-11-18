@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import ErrorHuntBoard from '../ErrorHuntBoard.vue'
 import { setLocale } from '@/i18n'
@@ -71,6 +72,38 @@ describe('ErrorHuntBoard — step `locate`', () => {
 
     await confirmBtn(wrapper).trigger('click')
     expect(wrapper.emitted('answer')).toEqual([[{ token_id: 'tOn4' }]])
+    wrapper.unmount()
+  })
+
+  it('selecting a word changes only its look, never its size: the same elements in the flow, the same layout classes', async () => {
+    const wrapper = render()
+    /** The markup that makes the size of the word: its elements and their classes, all but the look (colour, frame, background). */
+    const shape = (id: string) => {
+      const button = token(wrapper, id).element as HTMLElement
+      // The look: background, colour of the text (not its size, `text-[17px]`), frame (an inset shadow), dimming.
+      const layout = [...button.classList].filter((name) => !/^(bg-|text-(?!\[)|shadow-|opacity-)/.test(name))
+      return {
+        classes: layout,
+        children: [...button.children].map((child) => ({ tag: child.tagName, classes: [...child.classList], hidden: (child as HTMLElement).style.display === 'none' })),
+      }
+    }
+    const before = shape('tAm1')
+
+    await token(wrapper, 'tAm1').trigger('click')
+    const after = shape('tAm1')
+
+    expect(token(wrapper, 'tAm1').attributes('aria-pressed')).toBe('true')
+    expect(after.classes).toEqual(before.classes)
+    expect(after.children.map(({ tag, classes }) => ({ tag, classes }))).toEqual(before.children.map(({ tag, classes }) => ({ tag, classes })))
+    // The only thing that appears is the symbol in the corner, out of the flow and silent for a screen reader.
+    const mark = token(wrapper, 'tAm1').get('[data-testid=token-mark]')
+    expect(before.children.find((child) => child.classes.includes('absolute'))?.hidden).toBe(true)
+    expect(mark.isVisible()).toBe(true)
+    expect(mark.classes()).toContain('absolute')
+    expect(mark.attributes('aria-hidden')).toBe('true')
+    expect(token(wrapper, 'tAm1').classes()).toContain('relative')
+    // Every element in the flow of the button is the same before and after: only the word itself.
+    expect(token(wrapper, 'tAm1').findAll(':scope > :not([data-testid=token-mark])').map((child) => child.text())).toEqual(['am'])
     wrapper.unmount()
   })
 
@@ -199,6 +232,41 @@ describe('ErrorHuntBoard — step `fix`', () => {
 
     expect(wrapper.emitted('answer')).toEqual([[{ option_id: 'oFor3' }], [{ option_id: 'oFor3' }]])
     wrapper.unmount()
+  })
+
+  it('brings the corrections into view above the sticky buttons when the step comes', async () => {
+    const scroll = vi.fn()
+    Element.prototype.scrollIntoView = scroll
+    const wrapper = render()
+    await token(wrapper, 'tAm1').trigger('click')
+    await confirmBtn(wrapper).trigger('click')
+    expect(scroll).not.toHaveBeenCalled()
+
+    await wrapper.setProps({ element: errorHuntFixElement('tAm1') })
+    await nextTick()
+
+    const options = wrapper.get('[data-testid=error-hunt-options]')
+    expect(scroll).toHaveBeenCalledTimes(1)
+    expect(scroll.mock.contexts[0]).toBe(options.element)
+    expect(scroll).toHaveBeenCalledWith({ block: 'nearest', behavior: 'smooth' })
+    // The margin of the height of the sticky buttons: the last option ends above them.
+    expect(options.attributes('style')).toContain('scroll-margin-bottom: calc(var(--app-actions-h, 0px) + 12px)')
+    wrapper.unmount()
+    Reflect.deleteProperty(Element.prototype, 'scrollIntoView')
+  })
+
+  it('scrolls without animation when the device asks for reduced motion, and on a screen opened at the second step', async () => {
+    const scroll = vi.fn()
+    Element.prototype.scrollIntoView = scroll
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: query === '(prefers-reduced-motion: reduce)' }))
+    const wrapper = render({ element: errorHuntFixElement('tAm1') })
+    await nextTick()
+
+    expect(scroll).toHaveBeenCalledTimes(1)
+    expect(scroll).toHaveBeenCalledWith({ block: 'nearest', behavior: 'auto' })
+    wrapper.unmount()
+    vi.unstubAllGlobals()
+    Reflect.deleteProperty(Element.prototype, 'scrollIntoView')
   })
 
   it('opens at the second step straight away (a reload in the middle of the task)', () => {

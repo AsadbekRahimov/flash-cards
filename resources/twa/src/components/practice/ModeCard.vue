@@ -108,7 +108,7 @@ function select(): void {
 
       <span class="min-w-0 flex-1">
         <span class="block text-[17px] leading-[22px] font-semibold" data-testid="mode-title">{{ title }}</span>
-        <span class="block truncate text-[15px] leading-5 text-tg-subtitle" data-testid="mode-example">{{ example }}</span>
+        <span class="line-clamp-2 text-[15px] leading-5 break-words text-tg-subtitle" data-testid="mode-example">{{ example }}</span>
         <!-- The length of a round and the state of the card: under the text, so that the title keeps the whole width. -->
         <span class="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1">
           <span class="flex items-center gap-1 text-[13px] leading-[18px] text-tg-hint" data-testid="mode-estimate">
