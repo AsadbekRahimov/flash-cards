@@ -23,8 +23,11 @@ declare(strict_types=1);
  * --write-accepted   rewrites `accepted` of every dictation task as the rule of docs/16 §5.2 gives it (text first), then checks.
  * --modules=1,2      the modules this file must hold completely (three tasks of each of its types in each of their five lessons).
  *
- * Output, one line per problem, then a summary "<n> tasks checked, <e> errors, <w> warnings":
- *   ERROR  a broken rule: the pack must not be committed (the test would fail or the content is wrong).
+ * Output, one line per problem, then a summary "<n> tasks checked, <e> errors, <w> warnings" ("<e> errors (<l> lexicon), ..." when there
+ * are errors: <l> of them are `LEXICON «word»` ones):
+ *   ERROR  a broken rule: the pack must not be committed (the test would fail or the content is wrong). An x-file author may hand in a
+ *          file whose only errors are `LEXICON «word»` (a word of a right form or of a corrected sentence the lexicon lacks): the
+ *          coordinator adds the word to resources/lexicon (EXTRA_TASK_BRIEF §8), PracticeExtraPackTest fails until then.
  *   WARN   a doubt to read by eye (a rare word, a long sentence, a target word not found as a regular form): fix it or accept it knowingly.
  *   NOTE   information only (a file was rewritten by --write-accepted).
  *
@@ -77,6 +80,11 @@ const FIELDS = [
     'word_form' => ['key', 'type', 'lesson', 'level', 'target_words', 'text', 'base', 'accepted', 'translation', 'explanation'],
     'error_hunt' => ['key', 'type', 'lesson', 'level', 'target_words', 'text', 'options', 'correct', 'translation', 'explanation'],
 ];
+/** The length of the sentence of an x-task by level, in words (EXTRA_TASK_BRIEF §3.1, §4.1): out of it is a WARN. */
+const X_LENGTHS = [
+    'word_form' => ['A1' => [6, 12], 'A2' => [6, 12], 'B1' => [7, 14], 'B2' => [7, 14], 'C1' => [8, 16], 'C2' => [8, 16]],
+    'error_hunt' => ['A1' => [6, 10], 'A2' => [6, 10], 'B1' => [7, 12], 'B2' => [7, 12], 'C1' => [8, 14], 'C2' => [8, 14]],
+];
 
 /** The level of a task of the course in the module. */
 function levelOf(string $slug, int $module): string
@@ -103,10 +111,16 @@ if ($files === []) {
 }
 
 $errors = 0;
+$lexiconErrors = 0;
 $warnings = 0;
 $err = static function (string $where, string $message) use (&$errors): void {
     $errors++;
     echo "ERROR {$where}: {$message}\n";
+};
+/** A word the lexicon lacks where a right answer stands: an error, but the only kind an x-file may be handed in with (brief §8). */
+$lexiconErr = static function (string $where, string $word, string $message) use ($err, &$lexiconErrors): void {
+    $lexiconErrors++;
+    $err($where, "LEXICON «{$word}» {$message}: keep it only if it is an ordinary, correctly spelled English word, and list it in your report");
 };
 $warn = static function (string $where, string $message) use (&$warnings): void {
     $warnings++;
@@ -201,6 +215,8 @@ foreach ($files as $file) {
     }
 
     $changed = false;
+    $pairs = [];        // x-file: "marked word -> right correction" => times
+    $optionSets = [];   // x-file: the sorted corrections => times
     foreach ($data['items'] as $index => &$task) {
         $total++;
         $key = is_array($task) && is_string($task['key'] ?? null) ? $task['key'] : "#{$index}";
@@ -378,17 +394,39 @@ foreach ($files as $file) {
             if (is_string($text) && (preg_match('/\A(?:\p{Lu}|___)/u', $text) !== 1 || preg_match('/[.!?]\z/', $text) !== 1)) {
                 $err($where, 'text must start with a capital letter (or the gap) and end with . ! or ?');
             }
+            if (is_string($text) && str_starts_with($text, '___')) {
+                $warn($where, 'the gap opens the sentence: the full sentence shown after the answer starts with a small letter');
+            }
             if (count(array_unique(array_map(static fn (string $form): int => count(PracticeTextNormalizer::tokens($form)), $accepted))) > 1) {
                 $warn($where, 'the right forms have different numbers of words: check that every one of them is really right');
             }
             if ($content !== null) {
                 foreach (PracticePackRules::wordFormProblems($content, array_values(array_filter($targets, 'is_string'))) as $problem) {
+                    if (preg_match('/\A«(.+)» of the right form «(.+)» is not in the lexicon\b/u', $problem, $m) === 1) {
+                        $lexiconErr($where, $m[1], "of the right form «{$m[2]}» is not in the lexicon");
+
+                        continue;
+                    }
                     $err($where, $problem);
                 }
+                $base = (string) $content['base'];
+                $first = (string) ($content['accepted'][0] ?? '');
+                foreach ($targets as $target) {
+                    if (is_string($target) && PracticeTextNormalizer::normalize($target) !== PracticeTextNormalizer::normalize($base)
+                        && ! PracticePackRules::writes($first, $target)) {
+                        $warn($where, "target word «{$target}» is neither the base «{$base}» nor a form in «{$first}»: the learner must produce a form of the lesson word");
+                    }
+                }
+                foreach (PracticeTextNormalizer::tokens($base) as $token) {
+                    if (! EnglishLexicon::isWord($token)) {
+                        $warn($where, "the base word «{$base}» is not in the lexicon: an ordinary word of the level, correctly spelled?");
+                    }
+                }
                 $sentence = PracticePackRules::wordFormSentence($content);
+                [$least, $most] = X_LENGTHS['word_form'][levelOf($slug, $stage)];
                 $length = count(PracticeTextNormalizer::tokens($sentence));
-                if ($length > 16) {
-                    $warn($where, "the sentence has {$length} words: at most 12 on A1-A2, 16 on C1-C2");
+                if ($length < $least || $length > $most) {
+                    $warn($where, "the sentence has {$length} words: {$least} to {$most} on ".levelOf($slug, $stage));
                 }
             }
         } elseif ($type === 'error_hunt') {
@@ -407,6 +445,11 @@ foreach ($files as $file) {
 
                         continue;
                     }
+                    if (preg_match('/\A«(.+)» of the corrected sentence is not in the lexicon\z/u', $problem, $m) === 1) {
+                        $lexiconErr($where, $m[1], 'of the corrected sentence is not in the lexicon');
+
+                        continue;
+                    }
                     $err($where, $problem);
                 }
                 ['corrected' => $sentence] = PracticePackRules::errorHuntSentences($content);
@@ -422,13 +465,40 @@ foreach ($files as $file) {
                         $others[PracticeTextNormalizer::normalize(ErrorHuntText::core($token))] = true;
                     }
                 }
-                foreach ($content['options'] as $option) {
+                foreach ($content['options'] as $i => $option) {
                     if (isset($others[PracticeTextNormalizer::normalize((string) $option)])) {
                         $warn($where, "the correction «{$option}» is another word of the same sentence: is the mistake really where it is marked?");
                     }
+                    // The right one is in the corrected sentence: the lexicon check of the rules (LEXICON above) covers it.
+                    if (! in_array($i, $content['correct'], true)) {
+                        foreach (PracticeTextNormalizer::tokens((string) $option) as $word) {
+                            if (preg_match('/\d/', $word) !== 1 && ! EnglishLexicon::isWord($word)) {
+                                $warn($where, "the correction «{$option}» is not in the lexicon («{$word}»): a wrong correction must be a real word (check the spelling; an ordinary word: list it in your report)");
+                            }
+                        }
+                    }
                 }
-                if (count($tokens) > 14) {
-                    $warn($where, 'the sentence has '.count($tokens).' words: the chips wrap into many lines on a phone of 320 px');
+                if ($content['correct'] !== [0]) {
+                    $warn($where, 'the right correction is not the first of options: write it first (the app shuffles them)');
+                }
+                [$least, $most] = X_LENGTHS['error_hunt'][levelOf($slug, $stage)];
+                if (count($tokens) < 6) {
+                    $warn($where, 'the sentence has '.count($tokens)." words: at least 6 ({$least} to {$most} on ".levelOf($slug, $stage).')');
+                } elseif (count($tokens) < $least || count($tokens) > $most) {
+                    $warn($where, 'the sentence has '.count($tokens)." words: {$least} to {$most} on ".levelOf($slug, $stage).($most < count($tokens) ? ' (the chips wrap into many lines on a phone of 320 px)' : ''));
+                }
+                $right = (string) ($content['options'][$content['correct'][0] ?? -1] ?? '');
+                $pair = PracticeTextNormalizer::normalize((string) $content['error']).' → '.PracticeTextNormalizer::normalize($right);
+                $pairs[$pair] = ($pairs[$pair] ?? 0) + 1;
+                if ($pairs[$pair] > 2) {
+                    $warn($where, "the mistake «{$pair}» is in the file {$pairs[$pair]} times so far: the same contrast at most twice");
+                }
+                $set = array_map(static fn (mixed $option): string => PracticeTextNormalizer::normalize((string) $option), $content['options']);
+                sort($set);
+                $set = implode(' / ', $set);
+                $optionSets[$set] = ($optionSets[$set] ?? 0) + 1;
+                if ($optionSets[$set] > 2) {
+                    $warn($where, "the corrections «{$set}» are in the file {$optionSets[$set]} times so far: the same set at most twice");
                 }
             }
         } elseif ($type === 'collocation') {
@@ -614,7 +684,9 @@ foreach ($files as $file) {
         file_put_contents($file, $encode($data));
         echo "NOTE  {$name}: accepted of the dictation tasks rewritten by the rule\n";
     } elseif ($raw !== $encode($data)) {
-        $err($name, 'the file is not in the canonical layout (2-space JSON, unescaped unicode, one trailing newline); run with --write-accepted or re-dump it');
+        $err($name, 'the file is not in the canonical layout (2-space JSON, unescaped unicode, one trailing newline); '.($kind === 'x'
+            ? 're-dump it with json.dumps(data, indent=2, ensure_ascii=False) + "\n"'
+            : 'run with --write-accepted or re-dump it'));
     }
 
     // ---- the lessons this file must hold completely
@@ -642,6 +714,9 @@ foreach ($perLesson as $slot => $info) {
     if ($info['kind'] === 'p' && $distinct < 9) {
         $err($slot, "the nine tasks of a lesson must target at least 9 different words of it, they target {$distinct}");
     }
+    if ($info['kind'] === 'x' && $distinct < 5) {
+        $warn($slot, "the tasks of the lesson target {$distinct} different words of it: six (five at the least, brief §2)");
+    }
     foreach ($info['kind'] === 'x' ? X_TYPES : P_TYPES as $type) {
         if (($info[$type] ?? 0) > 3) {
             $err($slot, "more than 3 {$type} tasks");
@@ -649,5 +724,5 @@ foreach ($perLesson as $slot => $info) {
     }
 }
 
-echo "{$total} tasks checked, {$errors} errors, {$warnings} warnings\n";
+echo "{$total} tasks checked, {$errors} errors".($errors > 0 ? " ({$lexiconErrors} lexicon)" : '').", {$warnings} warnings\n";
 exit($errors === 0 ? 0 : 1);

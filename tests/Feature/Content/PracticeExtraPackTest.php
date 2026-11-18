@@ -546,8 +546,11 @@ it('passes the checker of the authors on the pilot sample, and the checker repor
     rmdir($dir);
 
     expect($bad->exitCode())->toBe(1)
-        ->and($bad->output())->toContain('ERROR english-b1-x01.json b1-m01-l1-w1: «signatrue» of the right form «signatrue» is not in the lexicon')
+        ->and($bad->output())->toContain('ERROR english-b1-x01.json b1-m01-l1-w1: LEXICON «signatrue» of the right form «signatrue» is not in the lexicon')
         ->toContain('ERROR english-b1-x01.json b1-m01-l1-e1: validator: An option is the wrong word itself.')
         ->toContain('ERROR english-b1-x01.json b1-m01-l1-w9: key must be b1-m01-l1-e1..3 for this lesson and type')
-        ->toContain('not in the canonical layout');
+        ->toContain('WARN  english-b1-x01.json b1-m01-l1-w1: target word «signature» is neither the base «sign» nor a form in «signatrue»')
+        ->toContain('not in the canonical layout (2-space JSON, unescaped unicode, one trailing newline); re-dump it with json.dumps(')
+        ->not->toContain('--write-accepted')
+        ->toMatch('/^12 tasks checked, \d+ errors \(1 lexicon\), \d+ warnings$/m');
 });
