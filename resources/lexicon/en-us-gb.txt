@@ -47,6 +47,8 @@ authorises authorizes
 authorising authorizing
 behaviour behavior
 behaviours behaviors
+byelaw bylaw
+byelaws bylaws
 calibre caliber
 calibres calibers
 cancelled canceled
@@ -88,6 +90,8 @@ civiliser civilizer
 civilisers civilizers
 civilises civilizes
 civilising civilizing
+clamour clamor
+clamours clamors
 colour color
 coloured colored
 colourful colorful
@@ -120,8 +124,14 @@ decarbonises decarbonizes
 decarbonising decarbonizing
 defence defense
 defences defenses
+demagogue demagog
+demagogues demagogs
 demeanour demeanor
 demeanours demeanors
+despatch dispatch
+despatched dispatched
+despatches dispatches
+despatching dispatching
 dialogue dialog
 dialogues dialogs
 digitise digitize
@@ -130,6 +140,7 @@ digitiser digitizer
 digitisers digitizers
 digitises digitizes
 digitising digitizing
+dishevelled disheveled
 distil distill
 distils distills
 empathise empathize
@@ -185,6 +196,8 @@ finalising finalizing
 flavour flavor
 flavoured flavored
 flavours flavors
+fuelled fueled
+fuelling fueling
 fulfil fulfill
 fulfils fulfills
 galvanise galvanize
@@ -201,6 +214,7 @@ generalises generalizes
 generalising generalizing
 globalisation globalization
 grey gray
+gruelling grueling
 harbour harbor
 harbours harbors
 harmonisation harmonization
@@ -242,6 +256,7 @@ labelling labeling
 labour labor
 labourer laborer
 labours labors
+lacklustre lackluster
 legalisation legalization
 legalisations legalizations
 legalise legalize
@@ -274,6 +289,7 @@ maximiser maximizer
 maximisers maximizers
 maximises maximizes
 maximising maximizing
+mediaeval medieval
 memorisation memorization
 memorisations memorizations
 memorise memorize
@@ -411,6 +427,7 @@ publicisers publicizers
 publicises publicizes
 publicising publicizing
 pyjamas pajamas
+rancour rancor
 randomise randomize
 randomised randomized
 randomiser randomizer

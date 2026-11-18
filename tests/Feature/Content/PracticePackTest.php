@@ -36,7 +36,7 @@ uses(RefreshDatabase::class);
 
 /*
  * The practice packs of the courses of ppk_courses() (a1-a2: database/data/practice/english-a1-a2.json and -p*.json, docs/CONTENT_A1_A2.md,
- * 936 tasks; b1 and b2: english-b1-p*.json and english-b2-p*.json, 900 tasks each, exactly three tasks of each type in a lesson), each in files the importer takes whole (300 at most each). The files must keep: unique keys, tasks of each authored type in every one of
+ * 936 tasks; b1, b2, c1 and c2: english-<course>-p*.json, 900 tasks each, exactly three tasks of each type in a lesson), each in files the importer takes whole (300 at most each). The files must keep: unique keys, tasks of each authored type in every one of
  * the 100 lessons (per_type of the course exactly, else at least three; targets: that many different target words over a lesson),
  * every target word written in the English text of its task (the word or a regular form; `unwritten` lists the exceptions), target words of the task's own lesson only, the level of the module (1-10 A1,
  * 11-20 A2), uz in Latin script on «Siz» and ru on «вы», the writings of a dictation by the one rule of docs/16 §5.2, every
@@ -106,6 +106,26 @@ function ppk_courses(): array
             'targets' => 10,
             'unwritten' => [],
             'level' => static fn (int $module): string => 'B2',
+            'lesson' => static fn (int $module): int => ($module - 1) % 5 + 1,
+        ],
+        'english-c1' => [
+            'dir' => 'database/data/courses/english-c1',
+            'globs' => ['database/data/practice/english-c1-p*.json'],
+            'tasks' => 900,
+            'per_type' => 3,
+            'targets' => 10,
+            'unwritten' => [],
+            'level' => static fn (int $module): string => 'C1',
+            'lesson' => static fn (int $module): int => ($module - 1) % 5 + 1,
+        ],
+        'english-c2' => [
+            'dir' => 'database/data/courses/english-c2',
+            'globs' => ['database/data/practice/english-c2-p*.json'],
+            'tasks' => 900,
+            'per_type' => 3,
+            'targets' => 10,
+            'unwritten' => [],
+            'level' => static fn (int $module): string => 'C2',
             'lesson' => static fn (int $module): int => ($module - 1) % 5 + 1,
         ],
     ];

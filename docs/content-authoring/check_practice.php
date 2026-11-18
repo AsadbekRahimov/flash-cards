@@ -71,7 +71,8 @@ const OTHER_WRITINGS = [
     'rainforest' => 'rain forest', 'rainforests' => 'rain forests', 'shortlist' => 'short list', 'layoff' => 'lay-off', 'layoffs' => 'lay-offs',
     'backup' => 'back-up', 'backups' => 'back-ups', 'homemade' => 'home-made', 'coordinate' => 'co-ordinate', 'coordinates' => 'co-ordinates',
     'coordinated' => 'co-ordinated', 'counterargument' => 'counter-argument', 'username' => 'user name', 'checkup' => 'check-up',
-    'email' => 'e-mail', 'emails' => 'e-mails', 'worthwhile' => 'worth while',
+    'email' => 'e-mail', 'emails' => 'e-mails', 'worthwhile' => 'worth while', 'buyout' => 'buy-out', 'preeminent' => 'pre-eminent',
+    'noncombatants' => 'non-combatants',
 ];
 const FIELDS = [
     'collocation' => ['key', 'type', 'lesson', 'level', 'target_words', 'text', 'options', 'correct', 'translation', 'explanation'],
