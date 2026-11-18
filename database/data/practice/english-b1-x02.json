@@ -45,7 +45,7 @@
       ],
       "translation": {
         "ru": "Они сменили шумный центр города на тихую пригородную улицу с большими садами.",
-        "uz": "Ular gavjum shahar markazidan katta bog'lari bor tinch shahar atrofi ko'chasiga ko'chib o'tishdi."
+        "uz": "Ular gavjum shahar markazidan shahar atrofidagi katta bog'lari bor tinch ko'chaga ko'chib o'tishdi."
       },
       "explanation": {
         "ru": "Между a quiet и street нужно прилагательное: suburb (пригород) + -an → suburban (пригородный).",
@@ -363,18 +363,18 @@
       "target_words": [
         "unpack"
       ],
-      "text": "At the hotel, we ___ our bags and put our clothes on the shelves.",
+      "text": "At the hotel, we ___ our bags and hung our clothes in the wardrobe.",
       "base": "pack",
       "accepted": [
         "unpacked"
       ],
       "translation": {
-        "ru": "В гостинице мы распаковали сумки и разложили одежду по полкам.",
-        "uz": "Mehmonxonada sumkalarimizni ochib bo'shatdik va kiyimlarimizni javonlarga terib qo'ydik."
+        "ru": "В гостинице мы распаковали сумки и повесили одежду в шкаф.",
+        "uz": "Mehmonxonada sumkalarimizni ochib bo'shatdik va kiyimlarimizni shkafga ilib qo'ydik."
       },
       "explanation": {
-        "ru": "Одежду разложили по полкам — значит, сумки распаковали: un- + pack → unpack; прошедшее время, как put: unpacked.",
-        "uz": "Kiyimlar javonlarga terilgan — demak, sumkalar bo'shatilgan: un- + pack → unpack; put fe'li kabi o'tgan zamon: unpacked."
+        "ru": "Одежду повесили в шкаф — значит, сумки распаковали: un- + pack → unpack; прошедшее время, как hung: unpacked.",
+        "uz": "Kiyimlar shkafga ilingan — demak, sumkalar bo'shatilgan: un- + pack → unpack; hung fe'li kabi o'tgan zamon: unpacked."
       }
     },
     {
