@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 7,
+    "title": "Технологии",
+    "title_uz": "Texnologiyalar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Техника и механизмы",
+    "title_uz": "Texnika va mexanizmlar"
+  },
+  "words": [
+    {
+      "word": "mechanical",
+      "part_of_speech": "adjective",
+      "translation": "механический",
+      "translations": {
+        "ru": "механический",
+        "uz": "mexanik"
+      },
+      "example": "A mechanical clock runs on springs, not batteries.",
+      "example_translations": {
+        "ru": "Механические часы работают на пружинах, а не на батарейках.",
+        "uz": "Mexanik soat batareyada emas, prujinada ishlaydi."
+      }
+    },
+    {
+      "word": "hydraulic",
+      "part_of_speech": "adjective",
+      "translation": "гидравлический",
+      "translations": {
+        "ru": "гидравлический",
+        "uz": "gidravlik"
+      },
+      "example": "Hydraulic lifts use liquid pressure to raise cars.",
+      "example_translations": {
+        "ru": "Гидравлические подъёмники поднимают автомобили с помощью давления жидкости.",
+        "uz": "Gidravlik ko'targichlar avtomobillarni suyuqlik bosimi yordamida ko'taradi."
+      }
+    },
+    {
+      "word": "thermal",
+      "part_of_speech": "adjective",
+      "translation": "тепловой",
+      "translations": {
+        "ru": "тепловой",
+        "uz": "issiqlikka oid"
+      },
+      "example": "Thermal energy from the sun heats the water.",
+      "example_translations": {
+        "ru": "Тепловая энергия солнца нагревает воду.",
+        "uz": "Quyoshning issiqlik energiyasi suvni isitadi."
+      }
+    },
+    {
+      "word": "semiconductor",
+      "part_of_speech": "noun",
+      "translation": "полупроводник",
+      "translations": {
+        "ru": "полупроводник",
+        "uz": "yarimo'tkazgich"
+      },
+      "example": "Silicon is the semiconductor used in most chips.",
+      "example_translations": {
+        "ru": "Кремний — полупроводник, используемый в большинстве микросхем.",
+        "uz": "Kremniy — ko'pchilik mikrosxemalarda qo'llanadigan yarimo'tkazgich."
+      }
+    },
+    {
+      "word": "propulsion",
+      "part_of_speech": "noun",
+      "translation": "тяга",
+      "translations": {
+        "ru": "тяга",
+        "uz": "tortish kuchi"
+      },
+      "example": "Jet propulsion pushes the aircraft forward at high speed.",
+      "example_translations": {
+        "ru": "Реактивная тяга толкает самолёт вперёд на большой скорости.",
+        "uz": "Reaktiv tortish kuchi samolyotni katta tezlikda oldinga itaradi."
+      }
+    },
+    {
+      "word": "combustion",
+      "part_of_speech": "noun",
+      "translation": "сгорание",
+      "translations": {
+        "ru": "сгорание",
+        "uz": "yonish"
+      },
+      "example": "Combustion of fuel inside the engine produces power.",
+      "example_translations": {
+        "ru": "Сгорание топлива внутри двигателя вырабатывает энергию.",
+        "uz": "Dvigatel ichida yoqilg'ining yonishi energiya hosil qiladi."
+      }
+    },
+    {
+      "word": "calibrate",
+      "part_of_speech": "verb",
+      "translation": "калибровать",
+      "translations": {
+        "ru": "калибровать",
+        "uz": "kalibrlamoq"
+      },
+      "example": "Calibrate the scale so it shows the exact weight.",
+      "example_translations": {
+        "ru": "Откалибруйте весы, чтобы они показывали точный вес.",
+        "uz": "Tarozi aniq vaznni ko'rsatishi uchun uni kalibrlang."
+      }
+    },
+    {
+      "word": "configure",
+      "part_of_speech": "verb",
+      "translation": "настраивать",
+      "translations": {
+        "ru": "настраивать",
+        "uz": "sozlamoq"
+      },
+      "example": "You must configure the router before connecting any devices.",
+      "example_translations": {
+        "ru": "Вы должны настроить роутер, прежде чем подключать устройства.",
+        "uz": "Qurilmalarni ulashdan oldin routerni sozlashingiz kerak."
+      }
+    },
+    {
+      "word": "malfunction",
+      "part_of_speech": "noun",
+      "translation": "неисправность",
+      "translations": {
+        "ru": "неисправность",
+        "uz": "nosozlik"
+      },
+      "example": "A malfunction in the brakes forced the train to stop.",
+      "example_translations": {
+        "ru": "Неисправность тормозов заставила поезд остановиться.",
+        "uz": "Tormozlardagi nosozlik poyezdni to'xtashga majbur qildi."
+      }
+    },
+    {
+      "word": "modular",
+      "part_of_speech": "adjective",
+      "translation": "модульный",
+      "translations": {
+        "ru": "модульный",
+        "uz": "modulli"
+      },
+      "example": "The modular design lets you replace each part separately.",
+      "example_translations": {
+        "ru": "Модульная конструкция позволяет заменять каждую деталь по отдельности.",
+        "uz": "Modulli konstruksiya har bir qismni alohida almashtirish imkonini beradi."
+      }
+    }
+  ]
+}

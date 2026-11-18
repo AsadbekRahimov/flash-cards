@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 3,
+    "title": "Работа и карьера",
+    "title_uz": "Ish va karyera"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Обязанности и нагрузка",
+    "title_uz": "Vazifalar va ish hajmi"
+  },
+  "words": [
+    {
+      "word": "streamline",
+      "part_of_speech": "verb",
+      "translation": "упрощать, оптимизировать",
+      "translations": {
+        "ru": "упрощать, оптимизировать",
+        "uz": "soddalashtirmoq, maqbullashtirmoq"
+      },
+      "example": "We streamlined the process to save time.",
+      "example_translations": {
+        "ru": "Мы упростили процесс, чтобы сэкономить время.",
+        "uz": "Vaqtni tejash uchun jarayonni soddalashtirdik."
+      }
+    },
+    {
+      "word": "undertake",
+      "part_of_speech": "verb",
+      "translation": "брать на себя",
+      "translations": {
+        "ru": "брать на себя",
+        "uz": "o'z zimmasiga olmoq"
+      },
+      "example": "Who will undertake this difficult task?",
+      "example_translations": {
+        "ru": "Кто возьмёт на себя эту трудную задачу?",
+        "uz": "Bu qiyin vazifani kim o'z zimmasiga oladi?"
+      }
+    },
+    {
+      "word": "accountable",
+      "part_of_speech": "adjective",
+      "translation": "ответственный, подотчётный",
+      "translations": {
+        "ru": "ответственный, подотчётный",
+        "uz": "javobgar, hisobdor"
+      },
+      "example": "Managers are accountable for their team's results.",
+      "example_translations": {
+        "ru": "Руководители ответственны за результаты своей команды.",
+        "uz": "Rahbarlar o'z jamoasining natijalari uchun javobgar."
+      }
+    },
+    {
+      "word": "administer",
+      "part_of_speech": "verb",
+      "translation": "управлять, вести дела",
+      "translations": {
+        "ru": "управлять, вести дела",
+        "uz": "boshqarmoq, ish yuritmoq"
+      },
+      "example": "She administers the company's training budget.",
+      "example_translations": {
+        "ru": "Она управляет бюджетом компании на обучение.",
+        "uz": "U kompaniyaning o'qitish byudjetini boshqaradi."
+      }
+    },
+    {
+      "word": "liaise",
+      "part_of_speech": "verb",
+      "translation": "поддерживать связь",
+      "translations": {
+        "ru": "поддерживать связь",
+        "uz": "aloqa bog'lab turmoq"
+      },
+      "example": "Anna liaises between the office and our suppliers.",
+      "example_translations": {
+        "ru": "Анна поддерживает связь между офисом и нашими поставщиками.",
+        "uz": "Anna ofis bilan ta'minotchilarimiz o'rtasida aloqa bog'lab turadi."
+      }
+    },
+    {
+      "word": "fulfill",
+      "part_of_speech": "verb",
+      "translation": "выполнять, исполнять",
+      "translations": {
+        "ru": "выполнять, исполнять",
+        "uz": "ado etmoq, bajarmoq"
+      },
+      "example": "He always fulfills his duties on time.",
+      "example_translations": {
+        "ru": "Он всегда вовремя выполняет свои обязанности.",
+        "uz": "U o'z vazifalarini doim vaqtida ado etadi."
+      }
+    },
+    {
+      "word": "backlog",
+      "part_of_speech": "noun",
+      "translation": "завал работы",
+      "translations": {
+        "ru": "завал работы",
+        "uz": "to'planib qolgan ishlar"
+      },
+      "example": "We must clear the backlog of orders by Friday.",
+      "example_translations": {
+        "ru": "Мы должны разобрать завал заказов к пятнице.",
+        "uz": "Juma kunigacha to'planib qolgan buyurtmalarni bajarib bo'lishimiz kerak."
+      }
+    },
+    {
+      "word": "burnout",
+      "part_of_speech": "noun",
+      "translation": "профессиональное выгорание",
+      "translations": {
+        "ru": "профессиональное выгорание",
+        "uz": "kasbiy toliqish"
+      },
+      "example": "Working without rest for months leads to burnout.",
+      "example_translations": {
+        "ru": "Работа без отдыха месяцами приводит к профессиональному выгоранию.",
+        "uz": "Oylab dam olmasdan ishlash kasbiy toliqishga olib keladi."
+      }
+    },
+    {
+      "word": "handover",
+      "part_of_speech": "noun",
+      "translation": "передача дел",
+      "translations": {
+        "ru": "передача дел",
+        "uz": "ishlarni topshirish"
+      },
+      "example": "The handover to the new manager took a week.",
+      "example_translations": {
+        "ru": "Передача дел новому руководителю заняла неделю.",
+        "uz": "Yangi rahbarga ishlarni topshirish bir hafta davom etdi."
+      }
+    },
+    {
+      "word": "multitask",
+      "part_of_speech": "verb",
+      "translation": "делать несколько дел одновременно",
+      "translations": {
+        "ru": "делать несколько дел одновременно",
+        "uz": "bir vaqtda bir necha ish qilmoq"
+      },
+      "example": "Can you multitask when the office gets busy?",
+      "example_translations": {
+        "ru": "Вы умеете делать несколько дел одновременно, когда в офисе много работы?",
+        "uz": "Ofisda ish ko'payganda, bir vaqtda bir necha ish qila olasizmi?"
+      }
+    }
+  ]
+}

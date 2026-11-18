@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 5,
+    "title": "Экономика и финансы",
+    "title_uz": "Iqtisodiyot va moliya"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Долги и банкротство",
+    "title_uz": "Qarz va bankrotlik"
+  },
+  "words": [
+    {
+      "word": "insolvency",
+      "part_of_speech": "noun",
+      "translation": "неплатёжеспособность",
+      "translations": {
+        "ru": "неплатёжеспособность",
+        "uz": "to'lovga qobiliyatsizlik"
+      },
+      "example": "Insolvency left the firm unable to pay suppliers.",
+      "example_translations": {
+        "ru": "Из-за неплатёжеспособности фирма не могла расплатиться с поставщиками.",
+        "uz": "To'lovga qobiliyatsizlik tufayli firma yetkazib beruvchilarga pul to'lay olmadi."
+      }
+    },
+    {
+      "word": "bailout",
+      "part_of_speech": "noun",
+      "translation": "спасение от банкротства",
+      "translations": {
+        "ru": "спасение от банкротства",
+        "uz": "bankrotlikdan qutqarish"
+      },
+      "example": "Taxpayers funded the bailout of the failing bank.",
+      "example_translations": {
+        "ru": "Спасение разоряющегося банка от банкротства оплатили налогоплательщики.",
+        "uz": "Kasodga uchrayotgan bankni bankrotlikdan qutqarish soliq to'lovchilar hisobidan moliyalashtirildi."
+      }
+    },
+    {
+      "word": "debtor",
+      "part_of_speech": "noun",
+      "translation": "должник",
+      "translations": {
+        "ru": "должник",
+        "uz": "qarzdor"
+      },
+      "example": "The debtor promised to pay within thirty days.",
+      "example_translations": {
+        "ru": "Должник пообещал заплатить в течение тридцати дней.",
+        "uz": "Qarzdor o'ttiz kun ichida to'lashga va'da berdi."
+      }
+    },
+    {
+      "word": "liability",
+      "part_of_speech": "noun",
+      "translation": "долговое обязательство",
+      "translations": {
+        "ru": "долговое обязательство",
+        "uz": "qarz majburiyati"
+      },
+      "example": "A bank loan is a liability on the balance sheet.",
+      "example_translations": {
+        "ru": "Банковский кредит — это долговое обязательство в балансе.",
+        "uz": "Bank krediti balansdagi qarz majburiyatidir."
+      }
+    },
+    {
+      "word": "foreclosure",
+      "part_of_speech": "noun",
+      "translation": "изъятие заложенного имущества",
+      "translations": {
+        "ru": "изъятие заложенного имущества",
+        "uz": "garovdagi mulkni olib qo'yish"
+      },
+      "example": "They faced foreclosure after missing several mortgage payments.",
+      "example_translations": {
+        "ru": "После нескольких пропущенных платежей по ипотеке им грозило изъятие заложенного имущества.",
+        "uz": "Ipoteka to'lovlarini bir necha marta o'tkazib yuborgach, ularga garovdagi mulkni olib qo'yish xavfi tug'ildi."
+      }
+    },
+    {
+      "word": "repayment",
+      "part_of_speech": "noun",
+      "translation": "погашение долга",
+      "translations": {
+        "ru": "погашение долга",
+        "uz": "qarzni to'lash"
+      },
+      "example": "Repayment of the loan is spread over five years.",
+      "example_translations": {
+        "ru": "Погашение долга по кредиту растянуто на пять лет.",
+        "uz": "Kredit bo'yicha qarzni to'lash besh yilga taqsimlangan."
+      }
+    },
+    {
+      "word": "liquidation",
+      "part_of_speech": "noun",
+      "translation": "ликвидация компании",
+      "translations": {
+        "ru": "ликвидация компании",
+        "uz": "kompaniyani tugatish"
+      },
+      "example": "The company went into liquidation and sold its assets.",
+      "example_translations": {
+        "ru": "Началась ликвидация компании, и её активы были распроданы.",
+        "uz": "Kompaniyani tugatish boshlandi va uning aktivlari sotib yuborildi."
+      }
+    },
+    {
+      "word": "shortfall",
+      "part_of_speech": "noun",
+      "translation": "нехватка средств",
+      "translations": {
+        "ru": "нехватка средств",
+        "uz": "mablag' yetishmovchiligi"
+      },
+      "example": "A shortfall of two million forced budget cuts.",
+      "example_translations": {
+        "ru": "Нехватка средств в два миллиона вынудила урезать бюджет.",
+        "uz": "Ikki millionlik mablag' yetishmovchiligi budjetni qisqartirishga majbur qildi."
+      }
+    },
+    {
+      "word": "arrears",
+      "part_of_speech": "noun",
+      "translation": "просроченная задолженность",
+      "translations": {
+        "ru": "просроченная задолженность",
+        "uz": "muddati o'tgan qarz"
+      },
+      "example": "He is three months in arrears with rent.",
+      "example_translations": {
+        "ru": "У него просроченная задолженность по аренде за три месяца.",
+        "uz": "Uning ijara bo'yicha uch oylik muddati o'tgan qarzi bor."
+      }
+    },
+    {
+      "word": "indebted",
+      "part_of_speech": "adjective",
+      "translation": "обременённый долгами",
+      "translations": {
+        "ru": "обременённый долгами",
+        "uz": "qarzga botgan"
+      },
+      "example": "Heavily indebted families struggle to pay their bills.",
+      "example_translations": {
+        "ru": "Семьи, сильно обременённые долгами, с трудом оплачивают счета.",
+        "uz": "Qarzga chuqur botgan oilalar hisoblarni to'lashga qiynaladi."
+      }
+    }
+  ]
+}

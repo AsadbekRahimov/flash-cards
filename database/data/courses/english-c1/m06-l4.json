@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 6,
+    "title": "Наука и исследования",
+    "title_uz": "Fan va tadqiqotlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Физика и химия",
+    "title_uz": "Fizika va kimyo"
+  },
+  "words": [
+    {
+      "word": "catalyst",
+      "part_of_speech": "noun",
+      "translation": "катализатор",
+      "translations": {
+        "ru": "катализатор",
+        "uz": "katalizator"
+      },
+      "example": "A catalyst speeds up a reaction without being consumed.",
+      "example_translations": {
+        "ru": "Катализатор ускоряет реакцию, но сам при этом не расходуется.",
+        "uz": "Katalizator reaksiyani tezlashtiradi, lekin o'zi sarflanmaydi."
+      }
+    },
+    {
+      "word": "compound",
+      "part_of_speech": "noun",
+      "translation": "химическое соединение",
+      "translations": {
+        "ru": "химическое соединение",
+        "uz": "kimyoviy birikma"
+      },
+      "example": "Water is a compound of hydrogen and oxygen.",
+      "example_translations": {
+        "ru": "Вода — это химическое соединение водорода и кислорода.",
+        "uz": "Suv vodorod va kislorodning kimyoviy birikmasidir."
+      }
+    },
+    {
+      "word": "solvent",
+      "part_of_speech": "noun",
+      "translation": "растворитель",
+      "translations": {
+        "ru": "растворитель",
+        "uz": "erituvchi"
+      },
+      "example": "Use a solvent to dissolve the dried paint.",
+      "example_translations": {
+        "ru": "Используйте растворитель, чтобы растворить засохшую краску.",
+        "uz": "Qurib qolgan bo'yoqni eritish uchun erituvchidan foydalaning."
+      }
+    },
+    {
+      "word": "synthesis",
+      "part_of_speech": "noun",
+      "translation": "синтез",
+      "translations": {
+        "ru": "синтез",
+        "uz": "sintez"
+      },
+      "example": "The synthesis of this drug takes twelve steps.",
+      "example_translations": {
+        "ru": "Синтез этого лекарства проходит в двенадцать стадий.",
+        "uz": "Bu dorining sintezi o'n ikki bosqichdan iborat."
+      }
+    },
+    {
+      "word": "velocity",
+      "part_of_speech": "noun",
+      "translation": "скорость",
+      "translations": {
+        "ru": "скорость",
+        "uz": "tezlik"
+      },
+      "example": "The rocket reached a velocity of eight kilometers per second.",
+      "example_translations": {
+        "ru": "Ракета достигла скорости восемь километров в секунду.",
+        "uz": "Raketa sekundiga sakkiz kilometr tezlikka erishdi."
+      }
+    },
+    {
+      "word": "inertia",
+      "part_of_speech": "noun",
+      "translation": "инерция",
+      "translations": {
+        "ru": "инерция",
+        "uz": "inersiya"
+      },
+      "example": "Because of inertia, passengers lurch forward when buses brake.",
+      "example_translations": {
+        "ru": "Из-за инерции пассажиров бросает вперёд, когда автобус тормозит.",
+        "uz": "Inersiya tufayli avtobus tormoz berganda yo'lovchilar oldinga silkinadi."
+      }
+    },
+    {
+      "word": "density",
+      "part_of_speech": "noun",
+      "translation": "плотность",
+      "translations": {
+        "ru": "плотность",
+        "uz": "zichlik"
+      },
+      "example": "Ice floats because its density is lower than water's.",
+      "example_translations": {
+        "ru": "Лёд плавает, потому что его плотность ниже, чем у воды.",
+        "uz": "Muz suzadi, chunki uning zichligi suvnikidan past."
+      }
+    },
+    {
+      "word": "spectrum",
+      "part_of_speech": "noun",
+      "translation": "спектр",
+      "translations": {
+        "ru": "спектр",
+        "uz": "spektr"
+      },
+      "example": "A prism splits white light into a spectrum.",
+      "example_translations": {
+        "ru": "Призма разлагает белый свет в спектр.",
+        "uz": "Prizma oq nurni spektrga ajratadi."
+      }
+    },
+    {
+      "word": "wavelength",
+      "part_of_speech": "noun",
+      "translation": "длина волны",
+      "translations": {
+        "ru": "длина волны",
+        "uz": "to'lqin uzunligi"
+      },
+      "example": "Red light has a longer wavelength than blue light.",
+      "example_translations": {
+        "ru": "У красного света длина волны больше, чем у синего.",
+        "uz": "Qizil nurning to'lqin uzunligi ko'k nurnikidan kattaroq."
+      }
+    },
+    {
+      "word": "isotope",
+      "part_of_speech": "noun",
+      "translation": "изотоп",
+      "translations": {
+        "ru": "изотоп",
+        "uz": "izotop"
+      },
+      "example": "Each isotope of carbon has a different number of neutrons.",
+      "example_translations": {
+        "ru": "У каждого изотопа углерода разное число нейтронов.",
+        "uz": "Uglerodning har bir izotopida neytronlar soni har xil."
+      }
+    }
+  ]
+}

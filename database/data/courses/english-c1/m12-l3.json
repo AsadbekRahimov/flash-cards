@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 12,
+    "title": "Право и правосудие",
+    "title_uz": "Huquq va odil sudlov"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Наказание и помилование",
+    "title_uz": "Jazo va afv"
+  },
+  "words": [
+    {
+      "word": "incarceration",
+      "part_of_speech": "noun",
+      "translation": "лишение свободы",
+      "translations": {
+        "ru": "лишение свободы",
+        "uz": "ozodlikdan mahrum qilish"
+      },
+      "example": "Incarceration should be the last resort for young offenders.",
+      "example_translations": {
+        "ru": "Лишение свободы должно быть крайней мерой для молодых правонарушителей.",
+        "uz": "Ozodlikdan mahrum qilish yosh huquqbuzarlar uchun eng so'nggi chora bo'lishi kerak."
+      }
+    },
+    {
+      "word": "parole",
+      "part_of_speech": "noun",
+      "translation": "условно-досрочное освобождение",
+      "translations": {
+        "ru": "условно-досрочное освобождение",
+        "uz": "muddatidan ilgari shartli ozod qilish"
+      },
+      "example": "After five years in prison, she was granted parole.",
+      "example_translations": {
+        "ru": "После пяти лет в тюрьме ей предоставили условно-досрочное освобождение.",
+        "uz": "Besh yil qamoqda o'tirgach, unga muddatidan ilgari shartli ozod qilish qo'llanildi."
+      }
+    },
+    {
+      "word": "inmate",
+      "part_of_speech": "noun",
+      "translation": "заключённый",
+      "translations": {
+        "ru": "заключённый",
+        "uz": "mahbus"
+      },
+      "example": "Each inmate may receive visitors twice a month.",
+      "example_translations": {
+        "ru": "Каждый заключённый может принимать посетителей дважды в месяц.",
+        "uz": "Har bir mahbus oyiga ikki marta tashrif buyuruvchilarni qabul qilishi mumkin."
+      }
+    },
+    {
+      "word": "detention",
+      "part_of_speech": "noun",
+      "translation": "содержание под стражей",
+      "translations": {
+        "ru": "содержание под стражей",
+        "uz": "hibsda saqlash"
+      },
+      "example": "His detention lasted three days before charges were filed.",
+      "example_translations": {
+        "ru": "Его содержание под стражей длилось три дня до предъявления обвинений.",
+        "uz": "Uni hibsda saqlash ayb e'lon qilingunga qadar uch kun davom etdi."
+      }
+    },
+    {
+      "word": "confinement",
+      "part_of_speech": "noun",
+      "translation": "заточение",
+      "translations": {
+        "ru": "заточение",
+        "uz": "tutqunlik"
+      },
+      "example": "After months of confinement, the prisoner longed for sunlight.",
+      "example_translations": {
+        "ru": "После нескольких месяцев заточения узник тосковал по солнечному свету.",
+        "uz": "Bir necha oylik tutqunlikdan so'ng mahbus quyosh nurini sog'inardi."
+      }
+    },
+    {
+      "word": "restitution",
+      "part_of_speech": "noun",
+      "translation": "возмещение ущерба",
+      "translations": {
+        "ru": "возмещение ущерба",
+        "uz": "zararni qoplash"
+      },
+      "example": "The court ordered restitution to the victims of fraud.",
+      "example_translations": {
+        "ru": "Суд назначил возмещение ущерба жертвам мошенничества.",
+        "uz": "Sud firibgarlik qurbonlariga zararni qoplashni buyurdi."
+      }
+    },
+    {
+      "word": "forfeit",
+      "part_of_speech": "verb",
+      "translation": "лишаться",
+      "translations": {
+        "ru": "лишаться",
+        "uz": "mahrum bo'lmoq"
+      },
+      "example": "Drivers who break this rule forfeit their license.",
+      "example_translations": {
+        "ru": "Водители, нарушающие это правило, лишаются прав.",
+        "uz": "Bu qoidani buzgan haydovchilar guvohnomasidan mahrum bo'ladi."
+      }
+    },
+    {
+      "word": "amnesty",
+      "part_of_speech": "noun",
+      "translation": "амнистия",
+      "translations": {
+        "ru": "амнистия",
+        "uz": "amnistiya"
+      },
+      "example": "The new government declared an amnesty for political prisoners.",
+      "example_translations": {
+        "ru": "Новое правительство объявило амнистию для политических заключённых.",
+        "uz": "Yangi hukumat siyosiy mahbuslar uchun amnistiya e'lon qildi."
+      }
+    },
+    {
+      "word": "pardon",
+      "part_of_speech": "noun",
+      "translation": "помилование",
+      "translations": {
+        "ru": "помилование",
+        "uz": "afv"
+      },
+      "example": "The president granted a pardon to the elderly prisoner.",
+      "example_translations": {
+        "ru": "Президент даровал помилование пожилому заключённому.",
+        "uz": "Prezident keksa mahbusni afv etdi."
+      }
+    },
+    {
+      "word": "deport",
+      "part_of_speech": "verb",
+      "translation": "депортировать",
+      "translations": {
+        "ru": "депортировать",
+        "uz": "deportatsiya qilmoq"
+      },
+      "example": "Authorities may deport foreigners who overstay their visas.",
+      "example_translations": {
+        "ru": "Власти могут депортировать иностранцев, просрочивших визу.",
+        "uz": "Hukumat idoralari viza muddatini o'tkazib yuborgan chet elliklarni deportatsiya qilishi mumkin."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 9,
+    "title": "Психология и мышление",
+    "title_uz": "Psixologiya va tafakkur"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Восприятие и память",
+    "title_uz": "Idrok va xotira"
+  },
+  "words": [
+    {
+      "word": "sensory",
+      "part_of_speech": "adjective",
+      "translation": "сенсорный",
+      "translations": {
+        "ru": "сенсорный",
+        "uz": "sezgi a'zolariga oid"
+      },
+      "example": "The brain processes sensory information very quickly.",
+      "example_translations": {
+        "ru": "Мозг очень быстро обрабатывает сенсорную информацию.",
+        "uz": "Miya sezgi a'zolariga oid axborotni juda tez qayta ishlaydi."
+      }
+    },
+    {
+      "word": "subconscious",
+      "part_of_speech": "adjective",
+      "translation": "подсознательный",
+      "translations": {
+        "ru": "подсознательный",
+        "uz": "ongosti"
+      },
+      "example": "A subconscious fear kept him away from water.",
+      "example_translations": {
+        "ru": "Подсознательный страх удерживал его вдали от воды.",
+        "uz": "Ongosti qo'rquvi uni suvdan uzoq tutardi."
+      }
+    },
+    {
+      "word": "attentive",
+      "part_of_speech": "adjective",
+      "translation": "внимательный",
+      "translations": {
+        "ru": "внимательный",
+        "uz": "diqqatli"
+      },
+      "example": "An attentive listener notices every small detail.",
+      "example_translations": {
+        "ru": "Внимательный слушатель замечает каждую мелкую деталь.",
+        "uz": "Diqqatli tinglovchi har bir mayda tafsilotni payqaydi."
+      }
+    },
+    {
+      "word": "oblivious",
+      "part_of_speech": "adjective",
+      "translation": "не замечающий",
+      "translations": {
+        "ru": "не замечающий",
+        "uz": "bexabar"
+      },
+      "example": "Absorbed in her book, she was oblivious to the noise.",
+      "example_translations": {
+        "ru": "Поглощённая книгой, она не замечала шума.",
+        "uz": "Kitobga berilib ketib, u shovqindan bexabar edi."
+      }
+    },
+    {
+      "word": "sensation",
+      "part_of_speech": "noun",
+      "translation": "ощущение",
+      "translations": {
+        "ru": "ощущение",
+        "uz": "sezgi"
+      },
+      "example": "A strange tingling sensation spread through my fingers.",
+      "example_translations": {
+        "ru": "Странное ощущение покалывания разлилось по моим пальцам.",
+        "uz": "Barmoqlarimga g'alati jimirlash sezgisi tarqaldi."
+      }
+    },
+    {
+      "word": "amnesia",
+      "part_of_speech": "noun",
+      "translation": "потеря памяти, амнезия",
+      "translations": {
+        "ru": "потеря памяти, амнезия",
+        "uz": "xotira yo'qolishi"
+      },
+      "example": "After the fall, he suffered from temporary amnesia.",
+      "example_translations": {
+        "ru": "После падения у него была временная потеря памяти.",
+        "uz": "Yiqilgandan so'ng unda vaqtinchalik xotira yo'qolishi kuzatildi."
+      }
+    },
+    {
+      "word": "reminiscent",
+      "part_of_speech": "adjective",
+      "translation": "напоминающий",
+      "translations": {
+        "ru": "напоминающий",
+        "uz": "eslatuvchi"
+      },
+      "example": "The smell was reminiscent of my grandmother's kitchen.",
+      "example_translations": {
+        "ru": "Этот запах напоминал кухню моей бабушки.",
+        "uz": "Bu hid buvimning oshxonasini eslatardi."
+      }
+    },
+    {
+      "word": "illusion",
+      "part_of_speech": "noun",
+      "translation": "иллюзия",
+      "translations": {
+        "ru": "иллюзия",
+        "uz": "illyuziya"
+      },
+      "example": "Mirrors create the illusion of a larger room.",
+      "example_translations": {
+        "ru": "Зеркала создают иллюзию более просторной комнаты.",
+        "uz": "Ko'zgular xona kattaroqdek illyuziya hosil qiladi."
+      }
+    },
+    {
+      "word": "distraction",
+      "part_of_speech": "noun",
+      "translation": "отвлекающий фактор",
+      "translations": {
+        "ru": "отвлекающий фактор",
+        "uz": "chalg'ituvchi narsa"
+      },
+      "example": "Turn off your phone to avoid distractions while studying.",
+      "example_translations": {
+        "ru": "Выключите телефон, чтобы избежать отвлекающих факторов во время учёбы.",
+        "uz": "O'qish paytida chalg'ituvchi narsalardan qochish uchun telefoningizni o'chirib qo'ying."
+      }
+    },
+    {
+      "word": "vigilant",
+      "part_of_speech": "adjective",
+      "translation": "бдительный",
+      "translations": {
+        "ru": "бдительный",
+        "uz": "sergak"
+      },
+      "example": "Drivers must stay vigilant on icy mountain roads.",
+      "example_translations": {
+        "ru": "Водители должны оставаться бдительными на обледенелых горных дорогах.",
+        "uz": "Haydovchilar muzlagan tog' yo'llarida sergak bo'lishi kerak."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 9,
+    "title": "Психология и мышление",
+    "title_uz": "Psixologiya va tafakkur"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Самооценка и взросление",
+    "title_uz": "O'ziga baho va ulg'ayish"
+  },
+  "words": [
+    {
+      "word": "esteem",
+      "part_of_speech": "noun",
+      "translation": "уважение, почтение",
+      "translations": {
+        "ru": "уважение, почтение",
+        "uz": "ehtirom"
+      },
+      "example": "The teacher is held in high esteem by her students.",
+      "example_translations": {
+        "ru": "Ученики относятся к этой учительнице с большим уважением.",
+        "uz": "O'quvchilar bu o'qituvchiga yuksak ehtirom bilan qaraydi."
+      }
+    },
+    {
+      "word": "insecurity",
+      "part_of_speech": "noun",
+      "translation": "неуверенность в себе",
+      "translations": {
+        "ru": "неуверенность в себе",
+        "uz": "o'ziga ishonchsizlik"
+      },
+      "example": "Her insecurity stops her from speaking in public.",
+      "example_translations": {
+        "ru": "Неуверенность в себе мешает ей выступать на публике.",
+        "uz": "O'ziga ishonchsizlik unga omma oldida so'zlashga xalaqit beradi."
+      }
+    },
+    {
+      "word": "ego",
+      "part_of_speech": "noun",
+      "translation": "самолюбие",
+      "translations": {
+        "ru": "самолюбие",
+        "uz": "nafsoniyat"
+      },
+      "example": "Losing the match really hurt his ego.",
+      "example_translations": {
+        "ru": "Проигрыш в матче сильно задел его самолюбие.",
+        "uz": "O'yindagi mag'lubiyat uning nafsoniyatiga qattiq tegdi."
+      }
+    },
+    {
+      "word": "maturity",
+      "part_of_speech": "noun",
+      "translation": "зрелость",
+      "translations": {
+        "ru": "зрелость",
+        "uz": "yetuklik"
+      },
+      "example": "Aziz showed real maturity by admitting his mistake.",
+      "example_translations": {
+        "ru": "Азиз проявил настоящую зрелость, признав свою ошибку.",
+        "uz": "Aziz xatosini tan olib, haqiqiy yetuklik ko'rsatdi."
+      }
+    },
+    {
+      "word": "adolescence",
+      "part_of_speech": "noun",
+      "translation": "подростковый возраст",
+      "translations": {
+        "ru": "подростковый возраст",
+        "uz": "o'smirlik davri"
+      },
+      "example": "Friendships often change during adolescence.",
+      "example_translations": {
+        "ru": "В подростковом возрасте дружеские отношения часто меняются.",
+        "uz": "O'smirlik davrida do'stlik munosabatlari ko'pincha o'zgaradi."
+      }
+    },
+    {
+      "word": "upbringing",
+      "part_of_speech": "noun",
+      "translation": "воспитание",
+      "translations": {
+        "ru": "воспитание",
+        "uz": "tarbiya"
+      },
+      "example": "His strict upbringing taught him to respect elders.",
+      "example_translations": {
+        "ru": "Строгое воспитание научило его уважать старших.",
+        "uz": "Qattiq tarbiya unga kattalarni hurmat qilishni o'rgatdi."
+      }
+    },
+    {
+      "word": "inferiority",
+      "part_of_speech": "noun",
+      "translation": "неполноценность",
+      "translations": {
+        "ru": "неполноценность",
+        "uz": "o'zini kam sanash"
+      },
+      "example": "Constant criticism gave him a sense of inferiority.",
+      "example_translations": {
+        "ru": "Постоянная критика породила в нём чувство неполноценности.",
+        "uz": "Doimiy tanqid unda o'zini kam sanash hissini uyg'otdi."
+      }
+    },
+    {
+      "word": "narcissism",
+      "part_of_speech": "noun",
+      "translation": "самовлюблённость, нарциссизм",
+      "translations": {
+        "ru": "самовлюблённость, нарциссизм",
+        "uz": "o'ziga bino qo'yish"
+      },
+      "example": "His narcissism makes him ignore other people's feelings.",
+      "example_translations": {
+        "ru": "Из-за самовлюблённости он не замечает чувств других людей.",
+        "uz": "O'ziga bino qo'yishi sababli u boshqalarning his-tuyg'ularini e'tiborga olmaydi."
+      }
+    },
+    {
+      "word": "humiliation",
+      "part_of_speech": "noun",
+      "translation": "унижение",
+      "translations": {
+        "ru": "унижение",
+        "uz": "xo'rlik"
+      },
+      "example": "He never forgot the humiliation of failing publicly.",
+      "example_translations": {
+        "ru": "Он так и не забыл унижения от публичного провала.",
+        "uz": "U omma oldida muvaffaqiyatsizlikka uchrash xo'rligini hech qachon unutmadi."
+      }
+    },
+    {
+      "word": "mindfulness",
+      "part_of_speech": "noun",
+      "translation": "осознанность",
+      "translations": {
+        "ru": "осознанность",
+        "uz": "onglilik"
+      },
+      "example": "Practicing mindfulness helps me stay calm under pressure.",
+      "example_translations": {
+        "ru": "Практика осознанности помогает мне сохранять спокойствие в напряжённых ситуациях.",
+        "uz": "Onglilikni mashq qilish menga bosim ostida xotirjam bo'lishga yordam beradi."
+      }
+    }
+  ]
+}

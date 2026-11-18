@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 16,
+    "title": "Образование и научный стиль",
+    "title_uz": "Ta'lim va ilmiy uslub"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Методы преподавания",
+    "title_uz": "O'qitish usullari"
+  },
+  "words": [
+    {
+      "word": "pedagogy",
+      "part_of_speech": "noun",
+      "translation": "педагогика",
+      "translations": {
+        "ru": "педагогика",
+        "uz": "pedagogika"
+      },
+      "example": "Modern pedagogy puts the learner at the center.",
+      "example_translations": {
+        "ru": "Современная педагогика ставит в центр учащегося.",
+        "uz": "Zamonaviy pedagogika o'quvchini markazga qo'yadi."
+      }
+    },
+    {
+      "word": "didactic",
+      "part_of_speech": "adjective",
+      "translation": "поучительный",
+      "translations": {
+        "ru": "поучительный",
+        "uz": "ibratli"
+      },
+      "example": "Fables are didactic stories that teach moral lessons.",
+      "example_translations": {
+        "ru": "Басни — поучительные истории, которые преподают нравственные уроки.",
+        "uz": "Masallar — axloqiy saboq beradigan ibratli hikoyalar."
+      }
+    },
+    {
+      "word": "facilitate",
+      "part_of_speech": "verb",
+      "translation": "способствовать",
+      "translations": {
+        "ru": "способствовать",
+        "uz": "ko'maklashmoq"
+      },
+      "example": "Group work can facilitate learning for shy students.",
+      "example_translations": {
+        "ru": "Групповая работа может способствовать обучению застенчивых учеников.",
+        "uz": "Guruh bo'lib ishlash tortinchoq o'quvchilarning o'rganishiga ko'maklashishi mumkin."
+      }
+    },
+    {
+      "word": "instruct",
+      "part_of_speech": "verb",
+      "translation": "обучать",
+      "translations": {
+        "ru": "обучать",
+        "uz": "o'rgatmoq"
+      },
+      "example": "She instructs beginners in the basics of programming.",
+      "example_translations": {
+        "ru": "Она обучает новичков основам программирования.",
+        "uz": "U boshlovchilarga dasturlash asoslarini o'rgatadi."
+      }
+    },
+    {
+      "word": "formative",
+      "part_of_speech": "adjective",
+      "translation": "формирующий",
+      "translations": {
+        "ru": "формирующий",
+        "uz": "shakllantiruvchi"
+      },
+      "example": "Formative tests show teachers what students still misunderstand.",
+      "example_translations": {
+        "ru": "Формирующие тесты показывают учителям, что ученики всё ещё понимают неверно.",
+        "uz": "Shakllantiruvchi testlar o'qituvchilarga o'quvchilar hali nimani noto'g'ri tushunayotganini ko'rsatadi."
+      }
+    },
+    {
+      "word": "remedial",
+      "part_of_speech": "adjective",
+      "translation": "восполняющий пробелы",
+      "translations": {
+        "ru": "восполняющий пробелы",
+        "uz": "bo'shliqlarni to'ldiruvchi"
+      },
+      "example": "Remedial classes help pupils who have fallen behind.",
+      "example_translations": {
+        "ru": "Занятия, восполняющие пробелы, помогают отставшим ученикам.",
+        "uz": "Bo'shliqlarni to'ldiruvchi darslar ortda qolgan o'quvchilarga yordam beradi."
+      }
+    },
+    {
+      "word": "inclusive",
+      "part_of_speech": "adjective",
+      "translation": "инклюзивный",
+      "translations": {
+        "ru": "инклюзивный",
+        "uz": "inklyuziv"
+      },
+      "example": "An inclusive classroom welcomes children of all abilities.",
+      "example_translations": {
+        "ru": "Инклюзивный класс принимает детей с любыми способностями.",
+        "uz": "Inklyuziv sinf har qanday qobiliyatli bolalarni qabul qiladi."
+      }
+    },
+    {
+      "word": "rote",
+      "part_of_speech": "noun",
+      "translation": "зубрёжка",
+      "translations": {
+        "ru": "зубрёжка",
+        "uz": "quruq yodlash"
+      },
+      "example": "Learning by rote rarely leads to real understanding.",
+      "example_translations": {
+        "ru": "Зубрёжка редко ведёт к настоящему пониманию.",
+        "uz": "Quruq yodlash kamdan-kam hollarda chinakam tushunishga olib keladi."
+      }
+    },
+    {
+      "word": "immersion",
+      "part_of_speech": "noun",
+      "translation": "языковое погружение",
+      "translations": {
+        "ru": "языковое погружение",
+        "uz": "til muhitiga sho'ng'ish"
+      },
+      "example": "Immersion in Spanish helped him speak fluently within months.",
+      "example_translations": {
+        "ru": "Языковое погружение в испанскую среду помогло ему за несколько месяцев заговорить бегло.",
+        "uz": "Ispan tili muhitiga sho'ng'ish unga bir necha oyda ravon gapirishga yordam berdi."
+      }
+    },
+    {
+      "word": "bilingual",
+      "part_of_speech": "adjective",
+      "translation": "двуязычный",
+      "translations": {
+        "ru": "двуязычный",
+        "uz": "ikki tilli"
+      },
+      "example": "Bilingual children switch easily between two languages.",
+      "example_translations": {
+        "ru": "Двуязычные дети легко переключаются с одного языка на другой.",
+        "uz": "Ikki tilli bolalar bir tildan ikkinchisiga osongina o'tadi."
+      }
+    }
+  ]
+}

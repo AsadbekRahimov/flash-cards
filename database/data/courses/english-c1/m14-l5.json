@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 14,
+    "title": "СМИ и информация",
+    "title_uz": "OAV va axborot"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Свобода слова",
+    "title_uz": "So'z erkinligi"
+  },
+  "words": [
+    {
+      "word": "censor",
+      "part_of_speech": "verb",
+      "translation": "подвергать цензуре",
+      "translations": {
+        "ru": "подвергать цензуре",
+        "uz": "senzura qilmoq"
+      },
+      "example": "The authorities censored the film before its release.",
+      "example_translations": {
+        "ru": "Власти подвергли фильм цензуре перед выходом в прокат.",
+        "uz": "Rasmiylar filmni ekranga chiqishidan oldin senzura qildi."
+      }
+    },
+    {
+      "word": "outlaw",
+      "part_of_speech": "verb",
+      "translation": "объявлять вне закона",
+      "translations": {
+        "ru": "объявлять вне закона",
+        "uz": "qonun bilan taqiqlamoq"
+      },
+      "example": "Parliament outlawed advertising aimed at young children.",
+      "example_translations": {
+        "ru": "Парламент объявил вне закона рекламу, нацеленную на маленьких детей.",
+        "uz": "Parlament yosh bolalarga qaratilgan reklamani qonun bilan taqiqladi."
+      }
+    },
+    {
+      "word": "disclosure",
+      "part_of_speech": "noun",
+      "translation": "раскрытие сведений",
+      "translations": {
+        "ru": "раскрытие сведений",
+        "uz": "ma'lumotlarni oshkor qilish"
+      },
+      "example": "The law requires full disclosure of a politician's income.",
+      "example_translations": {
+        "ru": "Закон требует полного раскрытия сведений о доходах политика.",
+        "uz": "Qonun siyosatchining daromadlari haqidagi ma'lumotlarni to'liq oshkor qilishni talab etadi."
+      }
+    },
+    {
+      "word": "secrecy",
+      "part_of_speech": "noun",
+      "translation": "секретность",
+      "translations": {
+        "ru": "секретность",
+        "uz": "maxfiylik"
+      },
+      "example": "The talks were held in complete secrecy.",
+      "example_translations": {
+        "ru": "Переговоры проходили в обстановке полной секретности.",
+        "uz": "Muzokaralar to'liq maxfiylik sharoitida o'tkazildi."
+      }
+    },
+    {
+      "word": "confidentiality",
+      "part_of_speech": "noun",
+      "translation": "конфиденциальность",
+      "translations": {
+        "ru": "конфиденциальность",
+        "uz": "konfidensiallik"
+      },
+      "example": "Reporters promised confidentiality to everyone who spoke to them.",
+      "example_translations": {
+        "ru": "Репортёры пообещали конфиденциальность всем, кто с ними говорил.",
+        "uz": "Muxbirlar o'zlari bilan gaplashgan har bir kishiga konfidensiallikni va'da qildi."
+      }
+    },
+    {
+      "word": "classified",
+      "part_of_speech": "adjective",
+      "translation": "секретный",
+      "translations": {
+        "ru": "секретный",
+        "uz": "maxfiy"
+      },
+      "example": "The classified documents were locked in a steel safe.",
+      "example_translations": {
+        "ru": "Секретные документы были заперты в стальном сейфе.",
+        "uz": "Maxfiy hujjatlar po'lat seyfga qulflab qo'yilgan edi."
+      }
+    },
+    {
+      "word": "redact",
+      "part_of_speech": "verb",
+      "translation": "вымарывать",
+      "translations": {
+        "ru": "вымарывать",
+        "uz": "qoralab o'chirmoq"
+      },
+      "example": "Names were redacted from the report before publication.",
+      "example_translations": {
+        "ru": "Перед публикацией имена были вымараны из отчёта.",
+        "uz": "Nashr etishdan oldin hisobotdagi ismlar qoralab o'chirildi."
+      }
+    },
+    {
+      "word": "publicize",
+      "part_of_speech": "verb",
+      "translation": "предавать огласке",
+      "translations": {
+        "ru": "предавать огласке",
+        "uz": "keng ommaga yetkazmoq"
+      },
+      "example": "Activists publicized the case to gain public support.",
+      "example_translations": {
+        "ru": "Активисты предали дело огласке, чтобы заручиться поддержкой общества.",
+        "uz": "Faollar jamoatchilik qo'llovini olish uchun bu ishni keng ommaga yetkazdi."
+      }
+    },
+    {
+      "word": "watchdog",
+      "part_of_speech": "noun",
+      "translation": "надзорная организация",
+      "translations": {
+        "ru": "надзорная организация",
+        "uz": "nazorat tashkiloti"
+      },
+      "example": "A media watchdog criticized the channel for biased reporting.",
+      "example_translations": {
+        "ru": "Надзорная организация в сфере СМИ раскритиковала канал за предвзятые репортажи.",
+        "uz": "OAV sohasidagi nazorat tashkiloti kanalni noxolis xabarlari uchun tanqid qildi."
+      }
+    },
+    {
+      "word": "blacklist",
+      "part_of_speech": "noun",
+      "translation": "чёрный список",
+      "translations": {
+        "ru": "чёрный список",
+        "uz": "qora ro'yxat"
+      },
+      "example": "The writer was put on a blacklist for years.",
+      "example_translations": {
+        "ru": "Писатель на долгие годы попал в чёрный список.",
+        "uz": "Yozuvchi uzoq yillar qora ro'yxatga kiritilgan edi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 14,
+    "title": "СМИ и информация",
+    "title_uz": "OAV va axborot"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Реклама и продвижение",
+    "title_uz": "Reklama va targ'ibot"
+  },
+  "words": [
+    {
+      "word": "branding",
+      "part_of_speech": "noun",
+      "translation": "брендинг",
+      "translations": {
+        "ru": "брендинг",
+        "uz": "brending"
+      },
+      "example": "Clever branding made the small bakery famous nationwide.",
+      "example_translations": {
+        "ru": "Умный брендинг прославил маленькую пекарню на всю страну.",
+        "uz": "Puxta brending kichik novvoyxonani butun mamlakatga tanitdi."
+      }
+    },
+    {
+      "word": "sponsorship",
+      "part_of_speech": "noun",
+      "translation": "спонсорство",
+      "translations": {
+        "ru": "спонсорство",
+        "uz": "homiylik"
+      },
+      "example": "The team lost its sponsorship after a poor season.",
+      "example_translations": {
+        "ru": "Команда лишилась спонсорства после неудачного сезона.",
+        "uz": "Jamoa muvaffaqiyatsiz mavsumdan keyin homiylikdan mahrum bo'ldi."
+      }
+    },
+    {
+      "word": "publicist",
+      "part_of_speech": "noun",
+      "translation": "пресс-агент",
+      "translations": {
+        "ru": "пресс-агент",
+        "uz": "matbuot agenti"
+      },
+      "example": "The singer's publicist arranged interviews with several magazines.",
+      "example_translations": {
+        "ru": "Пресс-агент певицы организовал интервью с несколькими журналами.",
+        "uz": "Xonandaning matbuot agenti bir nechta jurnal bilan intervyu uyushtirdi."
+      }
+    },
+    {
+      "word": "testimonial",
+      "part_of_speech": "noun",
+      "translation": "отзыв клиента",
+      "translations": {
+        "ru": "отзыв клиента",
+        "uz": "mijoz fikri"
+      },
+      "example": "Every testimonial on the site praises the fast delivery.",
+      "example_translations": {
+        "ru": "Каждый отзыв клиента на сайте хвалит быструю доставку.",
+        "uz": "Saytdagi har bir mijoz fikri tez yetkazib berishni maqtaydi."
+      }
+    },
+    {
+      "word": "jingle",
+      "part_of_speech": "noun",
+      "translation": "рекламная песенка",
+      "translations": {
+        "ru": "рекламная песенка",
+        "uz": "reklama qo'shiqchasi"
+      },
+      "example": "That catchy radio jingle is stuck in my head.",
+      "example_translations": {
+        "ru": "Эта привязчивая рекламная песенка с радио засела у меня в голове.",
+        "uz": "Radiodagi o'sha jozibali reklama qo'shiqchasi miyamga o'rnashib qoldi."
+      }
+    },
+    {
+      "word": "teaser",
+      "part_of_speech": "noun",
+      "translation": "тизер",
+      "translations": {
+        "ru": "тизер",
+        "uz": "tizer"
+      },
+      "example": "A short teaser appeared weeks before the product launch.",
+      "example_translations": {
+        "ru": "Короткий тизер появился за несколько недель до запуска продукта.",
+        "uz": "Qisqa tizer mahsulot taqdimotidan bir necha hafta oldin paydo bo'ldi."
+      }
+    },
+    {
+      "word": "gimmick",
+      "part_of_speech": "noun",
+      "translation": "рекламная уловка",
+      "translations": {
+        "ru": "рекламная уловка",
+        "uz": "reklama hiylasi"
+      },
+      "example": "The free gift is just a gimmick to attract buyers.",
+      "example_translations": {
+        "ru": "Бесплатный подарок — просто рекламная уловка для привлечения покупателей.",
+        "uz": "Bepul sovg'a — shunchaki xaridorlarni jalb qilish uchun reklama hiylasi."
+      }
+    },
+    {
+      "word": "promotional",
+      "part_of_speech": "adjective",
+      "translation": "рекламный",
+      "translations": {
+        "ru": "рекламный",
+        "uz": "reklama maqsadidagi"
+      },
+      "example": "Promotional leaflets were handed out at the store entrance.",
+      "example_translations": {
+        "ru": "У входа в магазин раздавали рекламные листовки.",
+        "uz": "Do'kon kiraverishida reklama maqsadidagi varaqalar tarqatildi."
+      }
+    },
+    {
+      "word": "exposure",
+      "part_of_speech": "noun",
+      "translation": "известность",
+      "translations": {
+        "ru": "известность",
+        "uz": "tanilish"
+      },
+      "example": "The TV interview gave the young band valuable exposure.",
+      "example_translations": {
+        "ru": "Телеинтервью принесло молодой группе ценную известность.",
+        "uz": "Televideniyedagi intervyu yosh guruhga qimmatli tanilish olib keldi."
+      }
+    },
+    {
+      "word": "persuasion",
+      "part_of_speech": "noun",
+      "translation": "убеждение",
+      "translations": {
+        "ru": "убеждение",
+        "uz": "ishontirish"
+      },
+      "example": "Advertising is the art of gentle persuasion.",
+      "example_translations": {
+        "ru": "Реклама — это искусство мягкого убеждения.",
+        "uz": "Reklama — muloyim ishontirish san'ati."
+      }
+    }
+  ]
+}

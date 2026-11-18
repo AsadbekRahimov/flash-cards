@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 4,
+    "title": "Бизнес и управление",
+    "title_uz": "Biznes va boshqaruv"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Стратегия компании",
+    "title_uz": "Kompaniya strategiyasi"
+  },
+  "words": [
+    {
+      "word": "acquisition",
+      "part_of_speech": "noun",
+      "translation": "приобретение компании",
+      "translations": {
+        "ru": "приобретение компании",
+        "uz": "kompaniyani sotib olish"
+      },
+      "example": "The acquisition of a rival doubled their market share.",
+      "example_translations": {
+        "ru": "Приобретение компании-конкурента удвоило их долю рынка.",
+        "uz": "Raqib kompaniyani sotib olish ularning bozordagi ulushini ikki baravar oshirdi."
+      }
+    },
+    {
+      "word": "subsidiary",
+      "part_of_speech": "noun",
+      "translation": "дочерняя компания",
+      "translations": {
+        "ru": "дочерняя компания",
+        "uz": "sho'ba korxona"
+      },
+      "example": "The bank owns a subsidiary that sells insurance.",
+      "example_translations": {
+        "ru": "Банку принадлежит дочерняя компания, которая продаёт страховки.",
+        "uz": "Bankning sug'urta sotadigan sho'ba korxonasi bor."
+      }
+    },
+    {
+      "word": "conglomerate",
+      "part_of_speech": "noun",
+      "translation": "конгломерат",
+      "translations": {
+        "ru": "конгломерат",
+        "uz": "konglomerat"
+      },
+      "example": "The conglomerate owns hotels, airlines, and food factories.",
+      "example_translations": {
+        "ru": "Конгломерат владеет отелями, авиакомпаниями и пищевыми фабриками.",
+        "uz": "Konglomerat mehmonxonalar, aviakompaniyalar va oziq-ovqat fabrikalariga egalik qiladi."
+      }
+    },
+    {
+      "word": "diversify",
+      "part_of_speech": "verb",
+      "translation": "диверсифицировать",
+      "translations": {
+        "ru": "диверсифицировать",
+        "uz": "diversifikatsiya qilmoq"
+      },
+      "example": "The farm diversified into cheese and honey production.",
+      "example_translations": {
+        "ru": "Ферма диверсифицировала деятельность, начав производить сыр и мёд.",
+        "uz": "Ferma faoliyatini diversifikatsiya qilib, pishloq va asal ishlab chiqarishni boshladi."
+      }
+    },
+    {
+      "word": "consolidate",
+      "part_of_speech": "verb",
+      "translation": "объединять",
+      "translations": {
+        "ru": "объединять",
+        "uz": "birlashtirmoq"
+      },
+      "example": "They consolidated three small firms into one company.",
+      "example_translations": {
+        "ru": "Они объединили три небольшие фирмы в одну компанию.",
+        "uz": "Ular uchta kichik firmani bitta kompaniyaga birlashtirdi."
+      }
+    },
+    {
+      "word": "restructure",
+      "part_of_speech": "verb",
+      "translation": "реорганизовывать",
+      "translations": {
+        "ru": "реорганизовывать",
+        "uz": "qayta tashkil etmoq"
+      },
+      "example": "The new owner plans to restructure every department.",
+      "example_translations": {
+        "ru": "Новый владелец планирует реорганизовать каждый отдел.",
+        "uz": "Yangi egasi har bir bo'limni qayta tashkil etishni rejalashtirmoqda."
+      }
+    },
+    {
+      "word": "downsize",
+      "part_of_speech": "verb",
+      "translation": "сокращать штат",
+      "translations": {
+        "ru": "сокращать штат",
+        "uz": "xodimlar sonini qisqartirmoq"
+      },
+      "example": "Falling sales forced the firm to downsize.",
+      "example_translations": {
+        "ru": "Падение продаж вынудило фирму сократить штат.",
+        "uz": "Savdoning pasayishi firmani xodimlar sonini qisqartirishga majbur qildi."
+      }
+    },
+    {
+      "word": "synergy",
+      "part_of_speech": "noun",
+      "translation": "синергия",
+      "translations": {
+        "ru": "синергия",
+        "uz": "sinergiya"
+      },
+      "example": "The merger created synergy between the two research teams.",
+      "example_translations": {
+        "ru": "Слияние создало синергию между двумя исследовательскими группами.",
+        "uz": "Qo'shilish ikki tadqiqot guruhi o'rtasida sinergiya yaratdi."
+      }
+    },
+    {
+      "word": "benchmark",
+      "part_of_speech": "noun",
+      "translation": "эталон, ориентир",
+      "translations": {
+        "ru": "эталон, ориентир",
+        "uz": "etalon, mezon"
+      },
+      "example": "Their service is the benchmark for the whole industry.",
+      "example_translations": {
+        "ru": "Их сервис — эталон для всей отрасли.",
+        "uz": "Ularning xizmati butun soha uchun etalon hisoblanadi."
+      }
+    },
+    {
+      "word": "affiliate",
+      "part_of_speech": "noun",
+      "translation": "аффилированная компания",
+      "translations": {
+        "ru": "аффилированная компания",
+        "uz": "affillangan kompaniya"
+      },
+      "example": "Our local affiliate sells the group's products here.",
+      "example_translations": {
+        "ru": "Наша местная аффилированная компания продаёт здесь продукцию группы.",
+        "uz": "Mahalliy affillangan kompaniyamiz guruh mahsulotlarini shu yerda sotadi."
+      }
+    }
+  ]
+}

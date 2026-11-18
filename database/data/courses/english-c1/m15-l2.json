@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 15,
+    "title": "Искусство и культура",
+    "title_uz": "San'at va madaniyat"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Музыка и концерты",
+    "title_uz": "Musiqa va konsertlar"
+  },
+  "words": [
+    {
+      "word": "symphony",
+      "part_of_speech": "noun",
+      "translation": "симфония",
+      "translations": {
+        "ru": "симфония",
+        "uz": "simfoniya"
+      },
+      "example": "The orchestra performed a symphony in four movements.",
+      "example_translations": {
+        "ru": "Оркестр исполнил симфонию в четырёх частях.",
+        "uz": "Orkestr to'rt qismli simfoniyani ijro etdi."
+      }
+    },
+    {
+      "word": "ensemble",
+      "part_of_speech": "noun",
+      "translation": "ансамбль",
+      "translations": {
+        "ru": "ансамбль",
+        "uz": "ansambl"
+      },
+      "example": "A small string ensemble played at the wedding.",
+      "example_translations": {
+        "ru": "На свадьбе играл небольшой струнный ансамбль.",
+        "uz": "To'yda kichik torli cholg'ular ansambli kuy chaldi."
+      }
+    },
+    {
+      "word": "virtuoso",
+      "part_of_speech": "noun",
+      "translation": "виртуоз",
+      "translations": {
+        "ru": "виртуоз",
+        "uz": "virtuoz"
+      },
+      "example": "Only a virtuoso could play this piece so fast.",
+      "example_translations": {
+        "ru": "Только виртуоз мог сыграть эту пьесу так быстро.",
+        "uz": "Bu asarni faqat virtuozgina shunchalik tez chala olardi."
+      }
+    },
+    {
+      "word": "repertoire",
+      "part_of_speech": "noun",
+      "translation": "репертуар",
+      "translations": {
+        "ru": "репертуар",
+        "uz": "repertuar"
+      },
+      "example": "Her repertoire includes over two hundred folk songs.",
+      "example_translations": {
+        "ru": "В её репертуаре более двухсот народных песен.",
+        "uz": "Uning repertuarida ikki yuzdan ortiq xalq qo'shig'i bor."
+      }
+    },
+    {
+      "word": "improvise",
+      "part_of_speech": "verb",
+      "translation": "импровизировать",
+      "translations": {
+        "ru": "импровизировать",
+        "uz": "improvizatsiya qilmoq"
+      },
+      "example": "Jazz musicians often improvise instead of reading notes.",
+      "example_translations": {
+        "ru": "Джазовые музыканты часто импровизируют, а не играют по нотам.",
+        "uz": "Jaz musiqachilari ko'pincha notaga qaramay, improvizatsiya qilishadi."
+      }
+    },
+    {
+      "word": "concerto",
+      "part_of_speech": "noun",
+      "translation": "инструментальный концерт",
+      "translations": {
+        "ru": "инструментальный концерт",
+        "uz": "cholg'u konserti"
+      },
+      "example": "He wrote a concerto for piano and orchestra.",
+      "example_translations": {
+        "ru": "Он написал инструментальный концерт для фортепиано с оркестром.",
+        "uz": "U fortepiano va orkestr uchun cholg'u konserti yozdi."
+      }
+    },
+    {
+      "word": "acoustic",
+      "part_of_speech": "adjective",
+      "translation": "акустический",
+      "translations": {
+        "ru": "акустический",
+        "uz": "akustik"
+      },
+      "example": "She prefers an acoustic guitar to an electric one.",
+      "example_translations": {
+        "ru": "Она предпочитает акустическую гитару электрической.",
+        "uz": "U elektr gitaradan ko'ra akustik gitarani afzal ko'radi."
+      }
+    },
+    {
+      "word": "tempo",
+      "part_of_speech": "noun",
+      "translation": "темп",
+      "translations": {
+        "ru": "темп",
+        "uz": "temp"
+      },
+      "example": "The conductor slowed the tempo in the final part.",
+      "example_translations": {
+        "ru": "Дирижёр замедлил темп в заключительной части.",
+        "uz": "Dirijyor yakuniy qismda tempni sekinlashtirdi."
+      }
+    },
+    {
+      "word": "recital",
+      "part_of_speech": "noun",
+      "translation": "сольный концерт",
+      "translations": {
+        "ru": "сольный концерт",
+        "uz": "yakkaxon konsert"
+      },
+      "example": "The young pianist gave her first recital on Friday.",
+      "example_translations": {
+        "ru": "В пятницу юная пианистка дала свой первый сольный концерт.",
+        "uz": "Juma kuni yosh pianinochi qiz o'zining ilk yakkaxon konsertini berdi."
+      }
+    },
+    {
+      "word": "ovation",
+      "part_of_speech": "noun",
+      "translation": "овация",
+      "translations": {
+        "ru": "овация",
+        "uz": "gulduros qarsaklar"
+      },
+      "example": "The audience gave the singer a standing ovation.",
+      "example_translations": {
+        "ru": "Зрители стоя устроили певице овацию.",
+        "uz": "Tomoshabinlar xonandani tik turib, gulduros qarsaklar bilan olqishladi."
+      }
+    }
+  ]
+}

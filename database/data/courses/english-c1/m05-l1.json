@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 5,
+    "title": "Экономика и финансы",
+    "title_uz": "Iqtisodiyot va moliya"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Экономическая политика",
+    "title_uz": "Iqtisodiy siyosat"
+  },
+  "words": [
+    {
+      "word": "austerity",
+      "part_of_speech": "noun",
+      "translation": "жёсткая экономия",
+      "translations": {
+        "ru": "жёсткая экономия",
+        "uz": "qattiq tejamkorlik"
+      },
+      "example": "Austerity meant deep cuts in public spending.",
+      "example_translations": {
+        "ru": "Жёсткая экономия означала резкое сокращение государственных расходов.",
+        "uz": "Qattiq tejamkorlik davlat xarajatlarining keskin qisqarishini anglatardi."
+      }
+    },
+    {
+      "word": "stagnation",
+      "part_of_speech": "noun",
+      "translation": "застой, стагнация",
+      "translations": {
+        "ru": "застой, стагнация",
+        "uz": "turg'unlik"
+      },
+      "example": "After years of stagnation, the economy grew again.",
+      "example_translations": {
+        "ru": "После нескольких лет застоя экономика снова начала расти.",
+        "uz": "Bir necha yillik turg'unlikdan so'ng iqtisodiyot yana o'sa boshladi."
+      }
+    },
+    {
+      "word": "fiscal",
+      "part_of_speech": "adjective",
+      "translation": "бюджетно-налоговый",
+      "translations": {
+        "ru": "бюджетно-налоговый",
+        "uz": "soliq-budjet"
+      },
+      "example": "Fiscal policy covers taxes and government spending.",
+      "example_translations": {
+        "ru": "Бюджетно-налоговая политика охватывает налоги и государственные расходы.",
+        "uz": "Soliq-budjet siyosati soliqlar va davlat xarajatlarini qamrab oladi."
+      }
+    },
+    {
+      "word": "monetary",
+      "part_of_speech": "adjective",
+      "translation": "денежно-кредитный",
+      "translations": {
+        "ru": "денежно-кредитный",
+        "uz": "pul-kredit"
+      },
+      "example": "The central bank tightened monetary policy to curb inflation.",
+      "example_translations": {
+        "ru": "Центральный банк ужесточил денежно-кредитную политику, чтобы сдержать инфляцию.",
+        "uz": "Markaziy bank inflyatsiyani jilovlash uchun pul-kredit siyosatini qat'iylashtirdi."
+      }
+    },
+    {
+      "word": "deflation",
+      "part_of_speech": "noun",
+      "translation": "дефляция",
+      "translations": {
+        "ru": "дефляция",
+        "uz": "deflyatsiya"
+      },
+      "example": "During deflation, prices fall and people delay purchases.",
+      "example_translations": {
+        "ru": "При дефляции цены падают, и люди откладывают покупки.",
+        "uz": "Deflyatsiya davrida narxlar tushadi va odamlar xaridni kechiktiradi."
+      }
+    },
+    {
+      "word": "slump",
+      "part_of_speech": "noun",
+      "translation": "резкий спад",
+      "translations": {
+        "ru": "резкий спад",
+        "uz": "keskin pasayish"
+      },
+      "example": "The slump in house prices worried many owners.",
+      "example_translations": {
+        "ru": "Резкий спад цен на жильё встревожил многих владельцев.",
+        "uz": "Uy-joy narxlarining keskin pasayishi ko'plab uy egalarini xavotirga soldi."
+      }
+    },
+    {
+      "word": "stimulus",
+      "part_of_speech": "noun",
+      "translation": "меры стимулирования",
+      "translations": {
+        "ru": "меры стимулирования",
+        "uz": "rag'batlantirish choralari"
+      },
+      "example": "The government approved a stimulus to revive growth.",
+      "example_translations": {
+        "ru": "Правительство одобрило меры стимулирования, чтобы оживить экономический рост.",
+        "uz": "Hukumat iqtisodiy o'sishni jonlantirish uchun rag'batlantirish choralarini ma'qulladi."
+      }
+    },
+    {
+      "word": "deregulation",
+      "part_of_speech": "noun",
+      "translation": "дерегулирование",
+      "translations": {
+        "ru": "дерегулирование",
+        "uz": "davlat nazoratini yumshatish"
+      },
+      "example": "Deregulation let private airlines set their own fares.",
+      "example_translations": {
+        "ru": "Дерегулирование позволило частным авиакомпаниям самим устанавливать тарифы.",
+        "uz": "Davlat nazoratini yumshatish xususiy aviakompaniyalarga narxlarni o'zlari belgilash imkonini berdi."
+      }
+    },
+    {
+      "word": "privatize",
+      "part_of_speech": "verb",
+      "translation": "приватизировать",
+      "translations": {
+        "ru": "приватизировать",
+        "uz": "xususiylashtirmoq"
+      },
+      "example": "The state plans to privatize its railway company.",
+      "example_translations": {
+        "ru": "Государство планирует приватизировать свою железнодорожную компанию.",
+        "uz": "Davlat o'z temir yo'l kompaniyasini xususiylashtirishni rejalashtirmoqda."
+      }
+    },
+    {
+      "word": "protectionism",
+      "part_of_speech": "noun",
+      "translation": "протекционизм",
+      "translations": {
+        "ru": "протекционизм",
+        "uz": "proteksionizm"
+      },
+      "example": "Protectionism shields local producers from foreign competition.",
+      "example_translations": {
+        "ru": "Протекционизм защищает местных производителей от иностранной конкуренции.",
+        "uz": "Proteksionizm mahalliy ishlab chiqaruvchilarni xorijiy raqobatdan himoya qiladi."
+      }
+    }
+  ]
+}

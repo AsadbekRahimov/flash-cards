@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 3,
+    "title": "Работа и карьера",
+    "title_uz": "Ish va karyera"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Деловые качества",
+    "title_uz": "Ishchanlik sifatlari"
+  },
+  "words": [
+    {
+      "word": "proficient",
+      "part_of_speech": "adjective",
+      "translation": "умелый, искусный",
+      "translations": {
+        "ru": "умелый, искусный",
+        "uz": "mohir, usta"
+      },
+      "example": "Aziz is a proficient user of design software.",
+      "example_translations": {
+        "ru": "Азиз — умелый пользователь программ для дизайна.",
+        "uz": "Aziz — dizayn dasturlarining mohir foydalanuvchisi."
+      }
+    },
+    {
+      "word": "adaptability",
+      "part_of_speech": "noun",
+      "translation": "приспособляемость",
+      "translations": {
+        "ru": "приспособляемость",
+        "uz": "moslashuvchanlik"
+      },
+      "example": "Adaptability matters when your job changes every year.",
+      "example_translations": {
+        "ru": "Приспособляемость важна, когда ваша работа меняется каждый год.",
+        "uz": "Ishingiz har yili o'zgarib tursa, moslashuvchanlik muhim."
+      }
+    },
+    {
+      "word": "punctuality",
+      "part_of_speech": "noun",
+      "translation": "пунктуальность",
+      "translations": {
+        "ru": "пунктуальность",
+        "uz": "vaqtga rioya qilish"
+      },
+      "example": "Punctuality is essential; never arrive late for meetings.",
+      "example_translations": {
+        "ru": "Пунктуальность крайне важна: никогда не опаздывайте на совещания.",
+        "uz": "Vaqtga rioya qilish juda muhim: majlislarga hech qachon kechikmang."
+      }
+    },
+    {
+      "word": "acumen",
+      "part_of_speech": "noun",
+      "translation": "деловая хватка",
+      "translations": {
+        "ru": "деловая хватка",
+        "uz": "ishbilarmonlik qobiliyati"
+      },
+      "example": "Her business acumen turned a small shop into a chain.",
+      "example_translations": {
+        "ru": "Её деловая хватка превратила маленький магазин в сеть.",
+        "uz": "Uning ishbilarmonlik qobiliyati kichik do'konni tarmoqqa aylantirdi."
+      }
+    },
+    {
+      "word": "troubleshoot",
+      "part_of_speech": "verb",
+      "translation": "устранять неполадки",
+      "translations": {
+        "ru": "устранять неполадки",
+        "uz": "nosozliklarni bartaraf etmoq"
+      },
+      "example": "Our technician can troubleshoot any printer problem quickly.",
+      "example_translations": {
+        "ru": "Наш техник может быстро устранить неполадки любого принтера.",
+        "uz": "Texnigimiz har qanday printerdagi nosozliklarni tezda bartaraf eta oladi."
+      }
+    },
+    {
+      "word": "competent",
+      "part_of_speech": "adjective",
+      "translation": "компетентный, знающий",
+      "translations": {
+        "ru": "компетентный, знающий",
+        "uz": "malakali, bilimdon"
+      },
+      "example": "We need a competent accountant to check these figures.",
+      "example_translations": {
+        "ru": "Нам нужен компетентный бухгалтер, чтобы проверить эти цифры.",
+        "uz": "Bu raqamlarni tekshirish uchun bizga malakali hisobchi kerak."
+      }
+    },
+    {
+      "word": "diligence",
+      "part_of_speech": "noun",
+      "translation": "усердие, прилежание",
+      "translations": {
+        "ru": "усердие, прилежание",
+        "uz": "tirishqoqlik"
+      },
+      "example": "Thanks to her diligence, the report contained no errors.",
+      "example_translations": {
+        "ru": "Благодаря её усердию в отчёте не было ошибок.",
+        "uz": "Uning tirishqoqligi tufayli hisobotda birorta xato yo'q edi."
+      }
+    },
+    {
+      "word": "professionalism",
+      "part_of_speech": "noun",
+      "translation": "профессионализм",
+      "translations": {
+        "ru": "профессионализм",
+        "uz": "professionallik"
+      },
+      "example": "Customers praised the professionalism of our support team.",
+      "example_translations": {
+        "ru": "Клиенты похвалили профессионализм нашей службы поддержки.",
+        "uz": "Mijozlar qo'llab-quvvatlash xizmatimizning professionalligini maqtashdi."
+      }
+    },
+    {
+      "word": "interpersonal",
+      "part_of_speech": "adjective",
+      "translation": "межличностный",
+      "translations": {
+        "ru": "межличностный",
+        "uz": "shaxslararo"
+      },
+      "example": "Good interpersonal skills help you work with anyone.",
+      "example_translations": {
+        "ru": "Хорошие межличностные навыки помогают работать с кем угодно.",
+        "uz": "Yaxshi shaxslararo muloqot ko'nikmalari har kim bilan ishlashga yordam beradi."
+      }
+    },
+    {
+      "word": "numeracy",
+      "part_of_speech": "noun",
+      "translation": "математическая грамотность",
+      "translations": {
+        "ru": "математическая грамотность",
+        "uz": "matematik savodxonlik"
+      },
+      "example": "Cashiers need basic numeracy to give correct change.",
+      "example_translations": {
+        "ru": "Кассирам нужна базовая математическая грамотность, чтобы правильно давать сдачу.",
+        "uz": "Kassirlarga qaytimni to'g'ri berish uchun oddiy matematik savodxonlik kerak."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 10,
+    "title": "Природа и экология",
+    "title_uz": "Tabiat va ekologiya"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Ресурсы и энергия",
+    "title_uz": "Resurslar va energiya"
+  },
+  "words": [
+    {
+      "word": "extraction",
+      "part_of_speech": "noun",
+      "translation": "добыча",
+      "translations": {
+        "ru": "добыча",
+        "uz": "qazib olish"
+      },
+      "example": "Oil extraction has polluted the coast for decades.",
+      "example_translations": {
+        "ru": "Добыча нефти десятилетиями загрязняла побережье.",
+        "uz": "Neft qazib olish o'nlab yillar davomida sohilni ifloslantirib keldi."
+      }
+    },
+    {
+      "word": "ore",
+      "part_of_speech": "noun",
+      "translation": "руда",
+      "translations": {
+        "ru": "руда",
+        "uz": "ruda"
+      },
+      "example": "Iron ore is melted down to make steel.",
+      "example_translations": {
+        "ru": "Железную руду плавят, чтобы получить сталь.",
+        "uz": "Po'lat olish uchun temir rudasi eritiladi."
+      }
+    },
+    {
+      "word": "quarry",
+      "part_of_speech": "noun",
+      "translation": "карьер",
+      "translations": {
+        "ru": "карьер",
+        "uz": "karyer"
+      },
+      "example": "Workers cut huge blocks of marble from the quarry.",
+      "example_translations": {
+        "ru": "Рабочие вырезают из карьера огромные глыбы мрамора.",
+        "uz": "Ishchilar karyerdan ulkan marmar bo'laklarini kesib oladi."
+      }
+    },
+    {
+      "word": "refinery",
+      "part_of_speech": "noun",
+      "translation": "нефтеперерабатывающий завод",
+      "translations": {
+        "ru": "нефтеперерабатывающий завод",
+        "uz": "neftni qayta ishlash zavodi"
+      },
+      "example": "Crude oil is turned into fuel at the refinery.",
+      "example_translations": {
+        "ru": "Сырую нефть превращают в топливо на нефтеперерабатывающем заводе.",
+        "uz": "Xom neft neftni qayta ishlash zavodida yoqilg'iga aylantiriladi."
+      }
+    },
+    {
+      "word": "geothermal",
+      "part_of_speech": "adjective",
+      "translation": "геотермальный",
+      "translations": {
+        "ru": "геотермальный",
+        "uz": "geotermal"
+      },
+      "example": "Geothermal energy uses heat from deep underground.",
+      "example_translations": {
+        "ru": "Геотермальная энергия использует тепло из глубин земли.",
+        "uz": "Geotermal energiya yer qa'ridagi issiqlikdan foydalanadi."
+      }
+    },
+    {
+      "word": "biomass",
+      "part_of_speech": "noun",
+      "translation": "биомасса",
+      "translations": {
+        "ru": "биомасса",
+        "uz": "biomassa"
+      },
+      "example": "Farm waste can be burned as biomass for heating.",
+      "example_translations": {
+        "ru": "Сельскохозяйственные отходы можно сжигать как биомассу для отопления.",
+        "uz": "Qishloq xo'jaligi chiqindilarini isitish uchun biomassa sifatida yoqish mumkin."
+      }
+    },
+    {
+      "word": "irrigation",
+      "part_of_speech": "noun",
+      "translation": "орошение",
+      "translations": {
+        "ru": "орошение",
+        "uz": "sug'orish"
+      },
+      "example": "Without irrigation, nothing would grow in this dry valley.",
+      "example_translations": {
+        "ru": "Без орошения в этой засушливой долине ничего бы не росло.",
+        "uz": "Sug'orishsiz bu qurg'oqchil vodiyda hech narsa o'smagan bo'lardi."
+      }
+    },
+    {
+      "word": "aquifer",
+      "part_of_speech": "noun",
+      "translation": "водоносный горизонт",
+      "translations": {
+        "ru": "водоносный горизонт",
+        "uz": "suvli qatlam"
+      },
+      "example": "The town pumps its drinking water from an aquifer.",
+      "example_translations": {
+        "ru": "Город качает питьевую воду из водоносного горизонта.",
+        "uz": "Shahar ichimlik suvini yer osti suvli qatlamidan tortib oladi."
+      }
+    },
+    {
+      "word": "logging",
+      "part_of_speech": "noun",
+      "translation": "вырубка леса",
+      "translations": {
+        "ru": "вырубка леса",
+        "uz": "o'rmon kesish"
+      },
+      "example": "Illegal logging destroyed half of the ancient forest.",
+      "example_translations": {
+        "ru": "Незаконная вырубка леса уничтожила половину древнего леса.",
+        "uz": "Noqonuniy o'rmon kesish qadimiy o'rmonning yarmini yo'q qildi."
+      }
+    },
+    {
+      "word": "replenish",
+      "part_of_speech": "verb",
+      "translation": "пополнять",
+      "translations": {
+        "ru": "пополнять",
+        "uz": "qayta to'ldirmoq"
+      },
+      "example": "Heavy spring rains replenish the lakes and rivers.",
+      "example_translations": {
+        "ru": "Обильные весенние дожди пополняют озёра и реки.",
+        "uz": "Kuchli bahorgi yomg'irlar ko'l va daryolarni qayta to'ldiradi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 10,
+    "title": "Природа и экология",
+    "title_uz": "Tabiat va ekologiya"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Природные зоны",
+    "title_uz": "Tabiat zonalari"
+  },
+  "words": [
+    {
+      "word": "wetland",
+      "part_of_speech": "noun",
+      "translation": "водно-болотное угодье",
+      "translations": {
+        "ru": "водно-болотное угодье",
+        "uz": "suv-botqoq hududi"
+      },
+      "example": "Many rare birds nest in this protected wetland.",
+      "example_translations": {
+        "ru": "Многие редкие птицы гнездятся на этом охраняемом водно-болотном угодье.",
+        "uz": "Ko'plab noyob qushlar ushbu muhofaza qilinadigan suv-botqoq hududida in quradi."
+      }
+    },
+    {
+      "word": "estuary",
+      "part_of_speech": "noun",
+      "translation": "устье реки, эстуарий",
+      "translations": {
+        "ru": "устье реки, эстуарий",
+        "uz": "daryo mansabi"
+      },
+      "example": "Fresh and salt water mix in the estuary.",
+      "example_translations": {
+        "ru": "В устье реки смешиваются пресная и солёная вода.",
+        "uz": "Daryo mansabida chuchuk va sho'r suv aralashadi."
+      }
+    },
+    {
+      "word": "reef",
+      "part_of_speech": "noun",
+      "translation": "риф",
+      "translations": {
+        "ru": "риф",
+        "uz": "rif"
+      },
+      "example": "Colorful fish swim around the coral reef.",
+      "example_translations": {
+        "ru": "Разноцветные рыбы плавают вокруг кораллового рифа.",
+        "uz": "Rang-barang baliqlar marjon rifi atrofida suzib yuradi."
+      }
+    },
+    {
+      "word": "tundra",
+      "part_of_speech": "noun",
+      "translation": "тундра",
+      "translations": {
+        "ru": "тундра",
+        "uz": "tundra"
+      },
+      "example": "Only mosses and low shrubs grow on the tundra.",
+      "example_translations": {
+        "ru": "В тундре растут только мхи и низкие кустарники.",
+        "uz": "Tundrada faqat yo'sinlar va past butalar o'sadi."
+      }
+    },
+    {
+      "word": "savanna",
+      "part_of_speech": "noun",
+      "translation": "саванна",
+      "translations": {
+        "ru": "саванна",
+        "uz": "savanna"
+      },
+      "example": "Giraffes feed on tall trees scattered across the savanna.",
+      "example_translations": {
+        "ru": "Жирафы питаются листьями высоких деревьев, разбросанных по саванне.",
+        "uz": "Jirafalar savanna bo'ylab sochilgan baland daraxtlar bargi bilan oziqlanadi."
+      }
+    },
+    {
+      "word": "canopy",
+      "part_of_speech": "noun",
+      "translation": "полог леса",
+      "translations": {
+        "ru": "полог леса",
+        "uz": "o'rmon shox-shabbasi"
+      },
+      "example": "Little sunlight passes through the thick rainforest canopy.",
+      "example_translations": {
+        "ru": "Сквозь густой полог тропического леса проникает мало солнечного света.",
+        "uz": "Tropik o'rmonning qalin shox-shabbasidan quyosh nuri kam o'tadi."
+      }
+    },
+    {
+      "word": "marsh",
+      "part_of_speech": "noun",
+      "translation": "болото, топь",
+      "translations": {
+        "ru": "болото, топь",
+        "uz": "botqoq"
+      },
+      "example": "Our boots sank deep into the soft marsh.",
+      "example_translations": {
+        "ru": "Наши сапоги глубоко увязли в мягком болоте.",
+        "uz": "Etiklarimiz yumshoq botqoqqa chuqur botib ketdi."
+      }
+    },
+    {
+      "word": "grassland",
+      "part_of_speech": "noun",
+      "translation": "травянистая равнина",
+      "translations": {
+        "ru": "травянистая равнина",
+        "uz": "o'tloqzor"
+      },
+      "example": "Wild horses graze freely on the open grassland.",
+      "example_translations": {
+        "ru": "Дикие лошади свободно пасутся на открытой травянистой равнине.",
+        "uz": "Yovvoyi otlar ochiq o'tloqzorda erkin o'tlab yuradi."
+      }
+    },
+    {
+      "word": "tributary",
+      "part_of_speech": "noun",
+      "translation": "приток",
+      "translations": {
+        "ru": "приток",
+        "uz": "irmoq"
+      },
+      "example": "This small tributary joins the main river downstream.",
+      "example_translations": {
+        "ru": "Этот небольшой приток впадает в главную реку ниже по течению.",
+        "uz": "Bu kichik irmoq quyi oqimda asosiy daryoga quyiladi."
+      }
+    },
+    {
+      "word": "aquatic",
+      "part_of_speech": "adjective",
+      "translation": "водный",
+      "translations": {
+        "ru": "водный",
+        "uz": "suvda yashovchi"
+      },
+      "example": "Dolphins are aquatic mammals that breathe air.",
+      "example_translations": {
+        "ru": "Дельфины — водные млекопитающие, которые дышат воздухом.",
+        "uz": "Delfinlar havodan nafas oladigan suvda yashovchi sutemizuvchilardir."
+      }
+    }
+  ]
+}

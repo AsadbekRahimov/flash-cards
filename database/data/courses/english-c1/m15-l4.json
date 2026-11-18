@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 15,
+    "title": "Искусство и культура",
+    "title_uz": "San'at va madaniyat"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Кино и театр",
+    "title_uz": "Kino va teatr"
+  },
+  "words": [
+    {
+      "word": "cinematography",
+      "part_of_speech": "noun",
+      "translation": "операторская работа",
+      "translations": {
+        "ru": "операторская работа",
+        "uz": "operatorlik ishi"
+      },
+      "example": "The film won an award for its stunning cinematography.",
+      "example_translations": {
+        "ru": "Фильм получил награду за потрясающую операторскую работу.",
+        "uz": "Film ajoyib operatorlik ishi uchun mukofot oldi."
+      }
+    },
+    {
+      "word": "screenwriter",
+      "part_of_speech": "noun",
+      "translation": "сценарист",
+      "translations": {
+        "ru": "сценарист",
+        "uz": "ssenariynavis"
+      },
+      "example": "The screenwriter rewrote the final scene three times.",
+      "example_translations": {
+        "ru": "Сценарист трижды переписал финальную сцену.",
+        "uz": "Ssenariynavis yakuniy sahnani uch marta qayta yozdi."
+      }
+    },
+    {
+      "word": "monologue",
+      "part_of_speech": "noun",
+      "translation": "монолог",
+      "translations": {
+        "ru": "монолог",
+        "uz": "monolog"
+      },
+      "example": "The actor delivered a long monologue alone on stage.",
+      "example_translations": {
+        "ru": "Актёр произнёс длинный монолог, стоя один на сцене.",
+        "uz": "Aktyor sahnada yolg'iz o'zi uzun monolog aytdi."
+      }
+    },
+    {
+      "word": "backstage",
+      "part_of_speech": "adverb",
+      "translation": "за кулисами",
+      "translations": {
+        "ru": "за кулисами",
+        "uz": "sahna ortida"
+      },
+      "example": "The actors waited backstage before the show began.",
+      "example_translations": {
+        "ru": "Актёры ждали за кулисами перед началом спектакля.",
+        "uz": "Aktyorlar tomosha boshlanishidan oldin sahna ortida kutib turishdi."
+      }
+    },
+    {
+      "word": "blockbuster",
+      "part_of_speech": "noun",
+      "translation": "блокбастер",
+      "translations": {
+        "ru": "блокбастер",
+        "uz": "kassabop film"
+      },
+      "example": "The summer blockbuster earned millions in its first week.",
+      "example_translations": {
+        "ru": "Летний блокбастер заработал миллионы за первую неделю.",
+        "uz": "Yozgi kassabop film birinchi haftadayoq millionlab daromad keltirdi."
+      }
+    },
+    {
+      "word": "montage",
+      "part_of_speech": "noun",
+      "translation": "нарезка кадров",
+      "translations": {
+        "ru": "нарезка кадров",
+        "uz": "kadrlar tizmasi"
+      },
+      "example": "A quick montage shows the hero training for months.",
+      "example_translations": {
+        "ru": "Быстрая нарезка кадров показывает, как герой тренируется месяцами.",
+        "uz": "Tezkor kadrlar tizmasi qahramonning oylab mashq qilishini ko'rsatadi."
+      }
+    },
+    {
+      "word": "troupe",
+      "part_of_speech": "noun",
+      "translation": "труппа",
+      "translations": {
+        "ru": "труппа",
+        "uz": "truppa"
+      },
+      "example": "A traveling troupe of actors performed in our town.",
+      "example_translations": {
+        "ru": "В нашем городе выступала странствующая труппа актёров.",
+        "uz": "Shahrimizda sayyor aktyorlar truppasi tomosha ko'rsatdi."
+      }
+    },
+    {
+      "word": "cameo",
+      "part_of_speech": "noun",
+      "translation": "эпизодическая роль знаменитости",
+      "translations": {
+        "ru": "эпизодическая роль знаменитости",
+        "uz": "mashhur shaxsning epizodik roli"
+      },
+      "example": "The famous singer has a brief cameo in the film.",
+      "example_translations": {
+        "ru": "У знаменитого певца в фильме короткая эпизодическая роль.",
+        "uz": "Mashhur xonandaning filmda qisqa epizodik roli bor."
+      }
+    },
+    {
+      "word": "auditorium",
+      "part_of_speech": "noun",
+      "translation": "зрительный зал",
+      "translations": {
+        "ru": "зрительный зал",
+        "uz": "tomosha zali"
+      },
+      "example": "The auditorium seats nearly two thousand spectators.",
+      "example_translations": {
+        "ru": "Зрительный зал вмещает почти две тысячи зрителей.",
+        "uz": "Tomosha zali deyarli ikki ming tomoshabinni sig'diradi."
+      }
+    },
+    {
+      "word": "intermission",
+      "part_of_speech": "noun",
+      "translation": "антракт",
+      "translations": {
+        "ru": "антракт",
+        "uz": "antrakt"
+      },
+      "example": "We bought ice cream during the fifteen-minute intermission.",
+      "example_translations": {
+        "ru": "Во время пятнадцатиминутного антракта мы купили мороженое.",
+        "uz": "O'n besh daqiqalik antrakt paytida muzqaymoq sotib oldik."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 7,
+    "title": "Технологии",
+    "title_uz": "Texnologiyalar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Умные системы",
+    "title_uz": "Aqlli tizimlar"
+  },
+  "words": [
+    {
+      "word": "automate",
+      "part_of_speech": "verb",
+      "translation": "автоматизировать",
+      "translations": {
+        "ru": "автоматизировать",
+        "uz": "avtomatlashtirmoq"
+      },
+      "example": "Robots now automate tasks once done by hand.",
+      "example_translations": {
+        "ru": "Роботы теперь автоматизируют задачи, которые раньше выполнялись вручную.",
+        "uz": "Endi robotlar ilgari qo'lda bajarilgan vazifalarni avtomatlashtirmoqda."
+      }
+    },
+    {
+      "word": "predictive",
+      "part_of_speech": "adjective",
+      "translation": "прогнозирующий",
+      "translations": {
+        "ru": "прогнозирующий",
+        "uz": "bashorat qiluvchi"
+      },
+      "example": "Predictive software warns us before a machine breaks down.",
+      "example_translations": {
+        "ru": "Прогнозирующая программа предупреждает нас до того, как машина сломается.",
+        "uz": "Bashorat qiluvchi dastur mashina buzilishidan oldin bizni ogohlantiradi."
+      }
+    },
+    {
+      "word": "autonomous",
+      "part_of_speech": "adjective",
+      "translation": "автономный",
+      "translations": {
+        "ru": "автономный",
+        "uz": "avtonom"
+      },
+      "example": "Autonomous cars drive themselves without a human driver.",
+      "example_translations": {
+        "ru": "Автономные автомобили едут сами, без водителя-человека.",
+        "uz": "Avtonom avtomobillar haydovchisiz, o'zi yuradi."
+      }
+    },
+    {
+      "word": "generative",
+      "part_of_speech": "adjective",
+      "translation": "генеративный",
+      "translations": {
+        "ru": "генеративный",
+        "uz": "generativ"
+      },
+      "example": "Generative models create new images from simple text.",
+      "example_translations": {
+        "ru": "Генеративные модели создают новые изображения из простого текста.",
+        "uz": "Generativ modellar oddiy matndan yangi tasvirlar yaratadi."
+      }
+    },
+    {
+      "word": "adaptive",
+      "part_of_speech": "adjective",
+      "translation": "адаптивный",
+      "translations": {
+        "ru": "адаптивный",
+        "uz": "moslashuvchan"
+      },
+      "example": "Adaptive apps adjust lessons to each learner's level.",
+      "example_translations": {
+        "ru": "Адаптивные приложения подстраивают уроки под уровень каждого ученика.",
+        "uz": "Moslashuvchan ilovalar darslarni har bir o'quvchining darajasiga moslaydi."
+      }
+    },
+    {
+      "word": "analytics",
+      "part_of_speech": "noun",
+      "translation": "аналитика, анализ данных",
+      "translations": {
+        "ru": "аналитика, анализ данных",
+        "uz": "ma'lumotlar tahlili"
+      },
+      "example": "Analytics showed which products customers viewed most often.",
+      "example_translations": {
+        "ru": "Аналитика показала, какие товары покупатели просматривали чаще всего.",
+        "uz": "Ma'lumotlar tahlili xaridorlar qaysi mahsulotlarni eng ko'p ko'rganini ko'rsatdi."
+      }
+    },
+    {
+      "word": "augmented",
+      "part_of_speech": "adjective",
+      "translation": "дополненный",
+      "translations": {
+        "ru": "дополненный",
+        "uz": "kengaytirilgan"
+      },
+      "example": "Augmented reality adds digital images to the real world.",
+      "example_translations": {
+        "ru": "Дополненная реальность добавляет цифровые изображения в реальный мир.",
+        "uz": "Kengaytirilgan reallik haqiqiy dunyoga raqamli tasvirlar qo'shadi."
+      }
+    },
+    {
+      "word": "immersive",
+      "part_of_speech": "adjective",
+      "translation": "с эффектом погружения",
+      "translations": {
+        "ru": "с эффектом погружения",
+        "uz": "muhitga sho'ng'ituvchi"
+      },
+      "example": "Immersive headsets make you feel inside the game.",
+      "example_translations": {
+        "ru": "Шлемы с эффектом погружения создают ощущение, что вы внутри игры.",
+        "uz": "Muhitga sho'ng'ituvchi shlemlar sizni o'yin ichida his qildiradi."
+      }
+    },
+    {
+      "word": "optimize",
+      "part_of_speech": "verb",
+      "translation": "оптимизировать",
+      "translations": {
+        "ru": "оптимизировать",
+        "uz": "optimallashtirmoq"
+      },
+      "example": "The app optimizes your route to save fuel.",
+      "example_translations": {
+        "ru": "Приложение оптимизирует ваш маршрут, чтобы сэкономить топливо.",
+        "uz": "Ilova yoqilg'ini tejash uchun yo'nalishingizni optimallashtiradi."
+      }
+    },
+    {
+      "word": "computational",
+      "part_of_speech": "adjective",
+      "translation": "вычислительный",
+      "translations": {
+        "ru": "вычислительный",
+        "uz": "hisoblashga oid"
+      },
+      "example": "Weather forecasting demands enormous computational power.",
+      "example_translations": {
+        "ru": "Прогнозирование погоды требует огромной вычислительной мощности.",
+        "uz": "Ob-havoni bashorat qilish ulkan hisoblash quvvatini talab qiladi."
+      }
+    }
+  ]
+}

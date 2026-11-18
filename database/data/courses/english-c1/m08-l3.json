@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 8,
+    "title": "Здоровье и медицина",
+    "title_uz": "Sog'liq va tibbiyot"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Здоровье населения",
+    "title_uz": "Aholi salomatligi"
+  },
+  "words": [
+    {
+      "word": "immunize",
+      "part_of_speech": "verb",
+      "translation": "прививать",
+      "translations": {
+        "ru": "прививать",
+        "uz": "emlamoq"
+      },
+      "example": "Nurses immunize children against measles at school.",
+      "example_translations": {
+        "ru": "Медсёстры прививают детей от кори в школе.",
+        "uz": "Hamshiralar maktabda bolalarni qizamiqqa qarshi emlaydi."
+      }
+    },
+    {
+      "word": "quarantine",
+      "part_of_speech": "noun",
+      "translation": "карантин",
+      "translations": {
+        "ru": "карантин",
+        "uz": "karantin"
+      },
+      "example": "Sick travelers stayed in quarantine for two weeks.",
+      "example_translations": {
+        "ru": "Заболевшие путешественники оставались на карантине две недели.",
+        "uz": "Kasal sayohatchilar ikki hafta karantinda bo'lishdi."
+      }
+    },
+    {
+      "word": "mortality",
+      "part_of_speech": "noun",
+      "translation": "смертность",
+      "translations": {
+        "ru": "смертность",
+        "uz": "o'lim darajasi"
+      },
+      "example": "Clean water sharply reduced infant mortality in the region.",
+      "example_translations": {
+        "ru": "Чистая вода резко снизила младенческую смертность в регионе.",
+        "uz": "Toza suv hududda chaqaloqlar o'limi darajasini keskin kamaytirdi."
+      }
+    },
+    {
+      "word": "prevalence",
+      "part_of_speech": "noun",
+      "translation": "распространённость",
+      "translations": {
+        "ru": "распространённость",
+        "uz": "tarqalganlik"
+      },
+      "example": "The prevalence of diabetes is rising among young adults.",
+      "example_translations": {
+        "ru": "Распространённость диабета среди молодых людей растёт.",
+        "uz": "Yoshlar orasida qandli diabetning tarqalganligi ortib bormoqda."
+      }
+    },
+    {
+      "word": "incidence",
+      "part_of_speech": "noun",
+      "translation": "заболеваемость",
+      "translations": {
+        "ru": "заболеваемость",
+        "uz": "kasallanish darajasi"
+      },
+      "example": "The incidence of flu peaks every winter.",
+      "example_translations": {
+        "ru": "Заболеваемость гриппом достигает пика каждую зиму.",
+        "uz": "Gripp bilan kasallanish darajasi har qishda eng yuqori nuqtaga yetadi."
+      }
+    },
+    {
+      "word": "screening",
+      "part_of_speech": "noun",
+      "translation": "профилактическое обследование",
+      "translations": {
+        "ru": "профилактическое обследование",
+        "uz": "profilaktik tekshiruv"
+      },
+      "example": "Regular screening helps doctors find diseases early.",
+      "example_translations": {
+        "ru": "Регулярное профилактическое обследование помогает врачам выявлять болезни на ранней стадии.",
+        "uz": "Muntazam profilaktik tekshiruv shifokorlarga kasalliklarni erta aniqlashga yordam beradi."
+      }
+    },
+    {
+      "word": "eradicate",
+      "part_of_speech": "verb",
+      "translation": "искоренять",
+      "translations": {
+        "ru": "искоренять",
+        "uz": "tag-tomiri bilan yo'q qilmoq"
+      },
+      "example": "Vaccines helped eradicate smallpox across the whole world.",
+      "example_translations": {
+        "ru": "Вакцины помогли искоренить оспу во всём мире.",
+        "uz": "Vaksinalar butun dunyoda chinchechakni tag-tomiri bilan yo'q qilishga yordam berdi."
+      }
+    },
+    {
+      "word": "transmission",
+      "part_of_speech": "noun",
+      "translation": "передача инфекции",
+      "translations": {
+        "ru": "передача инфекции",
+        "uz": "yuqish"
+      },
+      "example": "Washing hands prevents the transmission of many infections.",
+      "example_translations": {
+        "ru": "Мытьё рук предотвращает передачу многих инфекций.",
+        "uz": "Qo'l yuvish ko'plab infeksiyalar yuqishining oldini oladi."
+      }
+    },
+    {
+      "word": "susceptible",
+      "part_of_speech": "adjective",
+      "translation": "восприимчивый",
+      "translations": {
+        "ru": "восприимчивый",
+        "uz": "beriluvchan"
+      },
+      "example": "Elderly people are more susceptible to infections.",
+      "example_translations": {
+        "ru": "Пожилые люди более восприимчивы к инфекциям.",
+        "uz": "Keksalar infeksiyalarga ko'proq beriluvchan bo'ladi."
+      }
+    },
+    {
+      "word": "endemic",
+      "part_of_speech": "adjective",
+      "translation": "эндемичный",
+      "translations": {
+        "ru": "эндемичный",
+        "uz": "endemik"
+      },
+      "example": "Malaria remains endemic in many warm, wet regions.",
+      "example_translations": {
+        "ru": "Малярия остаётся эндемичной во многих тёплых и влажных регионах.",
+        "uz": "Bezgak ko'plab issiq va nam hududlarda endemik bo'lib qolmoqda."
+      }
+    }
+  ]
+}

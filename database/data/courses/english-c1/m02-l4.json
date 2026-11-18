@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 2,
+    "title": "Чувства и отношения",
+    "title_uz": "His-tuyg'ular va munosabatlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Ссоры и обиды",
+    "title_uz": "Janjal va gina"
+  },
+  "words": [
+    {
+      "word": "rebuke",
+      "part_of_speech": "verb",
+      "translation": "отчитывать, делать выговор",
+      "translations": {
+        "ru": "отчитывать, делать выговор",
+        "uz": "qattiq tanbeh bermoq"
+      },
+      "example": "The coach rebuked the player for arriving late.",
+      "example_translations": {
+        "ru": "Тренер отчитал игрока за опоздание.",
+        "uz": "Murabbiy o'yinchiga kechikib kelgani uchun qattiq tanbeh berdi."
+      }
+    },
+    {
+      "word": "friction",
+      "part_of_speech": "noun",
+      "translation": "трения, разногласия",
+      "translations": {
+        "ru": "трения, разногласия",
+        "uz": "kelishmovchilik"
+      },
+      "example": "Money problems caused friction between the two brothers.",
+      "example_translations": {
+        "ru": "Денежные проблемы вызвали трения между двумя братьями.",
+        "uz": "Pul muammolari ikki aka-uka o'rtasida kelishmovchilik keltirib chiqardi."
+      }
+    },
+    {
+      "word": "hostility",
+      "part_of_speech": "noun",
+      "translation": "враждебность",
+      "translations": {
+        "ru": "враждебность",
+        "uz": "adovat, dushmanlik"
+      },
+      "example": "I felt the hostility in his cold stare.",
+      "example_translations": {
+        "ru": "Я почувствовал враждебность в его холодном взгляде.",
+        "uz": "Uning sovuq nigohida adovatni sezdim."
+      }
+    },
+    {
+      "word": "taunt",
+      "part_of_speech": "verb",
+      "translation": "насмехаться, дразнить",
+      "translations": {
+        "ru": "насмехаться, дразнить",
+        "uz": "mazax qilmoq"
+      },
+      "example": "Older boys taunted him about his old shoes.",
+      "example_translations": {
+        "ru": "Старшие мальчики насмехались над ним из-за его старых ботинок.",
+        "uz": "Katta bolalar eski poyabzali uchun uni mazax qilishardi."
+      }
+    },
+    {
+      "word": "reproach",
+      "part_of_speech": "noun",
+      "translation": "упрёк",
+      "translations": {
+        "ru": "упрёк",
+        "uz": "ta'na"
+      },
+      "example": "Her eyes were full of silent reproach.",
+      "example_translations": {
+        "ru": "Её глаза были полны немого упрёка.",
+        "uz": "Uning ko'zlari unsiz ta'naga to'la edi."
+      }
+    },
+    {
+      "word": "forgiveness",
+      "part_of_speech": "noun",
+      "translation": "прощение",
+      "translations": {
+        "ru": "прощение",
+        "uz": "kechirim"
+      },
+      "example": "He asked for forgiveness after breaking his promise.",
+      "example_translations": {
+        "ru": "Он попросил прощения за то, что нарушил обещание.",
+        "uz": "U va'dasini buzgani uchun kechirim so'radi."
+      }
+    },
+    {
+      "word": "truce",
+      "part_of_speech": "noun",
+      "translation": "перемирие",
+      "translations": {
+        "ru": "перемирие",
+        "uz": "vaqtinchalik sulh"
+      },
+      "example": "The neighbors called a truce after months of arguing.",
+      "example_translations": {
+        "ru": "Соседи заключили перемирие после нескольких месяцев споров.",
+        "uz": "Qo'shnilar bir necha oylik tortishuvdan so'ng vaqtinchalik sulh tuzishdi."
+      }
+    },
+    {
+      "word": "confrontation",
+      "part_of_speech": "noun",
+      "translation": "конфронтация, столкновение",
+      "translations": {
+        "ru": "конфронтация, столкновение",
+        "uz": "to'qnashuv, qarama-qarshilik"
+      },
+      "example": "She avoids confrontation and rarely argues with anyone.",
+      "example_translations": {
+        "ru": "Она избегает конфронтации и редко с кем-либо спорит.",
+        "uz": "U ochiq to'qnashuvdan qochadi va kamdan-kam birov bilan bahslashadi."
+      }
+    },
+    {
+      "word": "antagonize",
+      "part_of_speech": "verb",
+      "translation": "настраивать против себя",
+      "translations": {
+        "ru": "настраивать против себя",
+        "uz": "o'ziga qarshi qo'ymoq"
+      },
+      "example": "His rude jokes antagonized the whole team.",
+      "example_translations": {
+        "ru": "Своими грубыми шутками он настроил против себя всю команду.",
+        "uz": "U qo'pol hazillari bilan butun jamoani o'ziga qarshi qo'ydi."
+      }
+    },
+    {
+      "word": "retaliate",
+      "part_of_speech": "verb",
+      "translation": "отвечать тем же, мстить",
+      "translations": {
+        "ru": "отвечать тем же, мстить",
+        "uz": "javob qaytarmoq, o'ch olmoq"
+      },
+      "example": "When she insulted him, he retaliated with harsh words.",
+      "example_translations": {
+        "ru": "Когда она оскорбила его, он ответил тем же — резкими словами.",
+        "uz": "Ayol uni haqorat qilganida, u keskin so'zlar bilan javob qaytardi."
+      }
+    }
+  ]
+}

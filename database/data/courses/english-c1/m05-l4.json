@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 5,
+    "title": "Экономика и финансы",
+    "title_uz": "Iqtisodiyot va moliya"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Налоги и бюджет",
+    "title_uz": "Soliqlar va budjet"
+  },
+  "words": [
+    {
+      "word": "levy",
+      "part_of_speech": "noun",
+      "translation": "сбор",
+      "translations": {
+        "ru": "сбор",
+        "uz": "yig'im"
+      },
+      "example": "The city introduced a levy on plastic bags.",
+      "example_translations": {
+        "ru": "Город ввёл сбор за пластиковые пакеты.",
+        "uz": "Shahar plastik paketlar uchun yig'im joriy qildi."
+      }
+    },
+    {
+      "word": "excise",
+      "part_of_speech": "noun",
+      "translation": "акциз",
+      "translations": {
+        "ru": "акциз",
+        "uz": "aksiz"
+      },
+      "example": "Excise on fuel raises the price of gasoline.",
+      "example_translations": {
+        "ru": "Акциз на топливо повышает цену бензина.",
+        "uz": "Yoqilg'iga solinadigan aksiz benzin narxini oshiradi."
+      }
+    },
+    {
+      "word": "exemption",
+      "part_of_speech": "noun",
+      "translation": "освобождение от налога",
+      "translations": {
+        "ru": "освобождение от налога",
+        "uz": "soliqdan ozod qilish"
+      },
+      "example": "Charities enjoy an exemption from income tax.",
+      "example_translations": {
+        "ru": "Благотворительные организации пользуются освобождением от налога на доходы.",
+        "uz": "Xayriya tashkilotlari daromad solig'idan ozod qilish imtiyozidan foydalanadi."
+      }
+    },
+    {
+      "word": "rebate",
+      "part_of_speech": "noun",
+      "translation": "возврат части суммы",
+      "translations": {
+        "ru": "возврат части суммы",
+        "uz": "to'lovning bir qismini qaytarish"
+      },
+      "example": "Buyers of electric cars can claim a tax rebate.",
+      "example_translations": {
+        "ru": "Покупатели электромобилей могут получить возврат части суммы налога.",
+        "uz": "Elektromobil xaridorlari soliq to'lovining bir qismini qaytarib olishlari mumkin."
+      }
+    },
+    {
+      "word": "evasion",
+      "part_of_speech": "noun",
+      "translation": "уклонение от налогов",
+      "translations": {
+        "ru": "уклонение от налогов",
+        "uz": "soliqdan bo'yin tovlash"
+      },
+      "example": "Tax evasion is a crime, unlike legal tax planning.",
+      "example_translations": {
+        "ru": "Уклонение от налогов — преступление, в отличие от законного налогового планирования.",
+        "uz": "Soliqdan bo'yin tovlash qonuniy soliq rejalashtirishdan farqli o'laroq jinoyatdir."
+      }
+    },
+    {
+      "word": "deductible",
+      "part_of_speech": "adjective",
+      "translation": "подлежащий вычету",
+      "translations": {
+        "ru": "подлежащий вычету",
+        "uz": "chegirib tashlanadigan"
+      },
+      "example": "Business travel costs are fully deductible from taxable income.",
+      "example_translations": {
+        "ru": "Расходы на деловые поездки полностью подлежат вычету из налогооблагаемого дохода.",
+        "uz": "Xizmat safari xarajatlari soliqqa tortiladigan daromaddan to'liq chegirib tashlanadi."
+      }
+    },
+    {
+      "word": "surcharge",
+      "part_of_speech": "noun",
+      "translation": "доплата, надбавка",
+      "translations": {
+        "ru": "доплата, надбавка",
+        "uz": "qo'shimcha to'lov"
+      },
+      "example": "The airline adds a surcharge for heavy luggage.",
+      "example_translations": {
+        "ru": "Авиакомпания берёт доплату за тяжёлый багаж.",
+        "uz": "Aviakompaniya og'ir yuk uchun qo'shimcha to'lov oladi."
+      }
+    },
+    {
+      "word": "treasury",
+      "part_of_speech": "noun",
+      "translation": "казначейство",
+      "translations": {
+        "ru": "казначейство",
+        "uz": "g'aznachilik"
+      },
+      "example": "The treasury collects taxes and manages public money.",
+      "example_translations": {
+        "ru": "Казначейство собирает налоги и управляет государственными деньгами.",
+        "uz": "G'aznachilik soliqlarni yig'adi va davlat pullarini boshqaradi."
+      }
+    },
+    {
+      "word": "subsidize",
+      "part_of_speech": "verb",
+      "translation": "субсидировать",
+      "translations": {
+        "ru": "субсидировать",
+        "uz": "subsidiya bermoq"
+      },
+      "example": "The government subsidizes bread to keep it cheap.",
+      "example_translations": {
+        "ru": "Правительство субсидирует хлеб, чтобы он оставался дешёвым.",
+        "uz": "Hukumat non arzon bo'lib qolishi uchun unga subsidiya beradi."
+      }
+    },
+    {
+      "word": "budgetary",
+      "part_of_speech": "adjective",
+      "translation": "бюджетный",
+      "translations": {
+        "ru": "бюджетный",
+        "uz": "budjetga oid"
+      },
+      "example": "Budgetary limits forced the ministry to cancel projects.",
+      "example_translations": {
+        "ru": "Бюджетные ограничения вынудили министерство отменить проекты.",
+        "uz": "Budjetga oid cheklovlar vazirlikni loyihalarni bekor qilishga majbur qildi."
+      }
+    }
+  ]
+}

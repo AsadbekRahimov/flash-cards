@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 4,
+    "title": "Бизнес и управление",
+    "title_uz": "Biznes va boshqaruv"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Производство и поставки",
+    "title_uz": "Ishlab chiqarish va yetkazib berish"
+  },
+  "words": [
+    {
+      "word": "logistics",
+      "part_of_speech": "noun",
+      "translation": "логистика",
+      "translations": {
+        "ru": "логистика",
+        "uz": "logistika"
+      },
+      "example": "Good logistics gets products to stores on time.",
+      "example_translations": {
+        "ru": "Хорошая логистика доставляет товары в магазины вовремя.",
+        "uz": "Yaxshi logistika mahsulotlarni do'konlarga o'z vaqtida yetkazadi."
+      }
+    },
+    {
+      "word": "bottleneck",
+      "part_of_speech": "noun",
+      "translation": "узкое место",
+      "translations": {
+        "ru": "узкое место",
+        "uz": "tor joy"
+      },
+      "example": "Slow packing is the bottleneck in our production line.",
+      "example_translations": {
+        "ru": "Медленная упаковка — узкое место нашей производственной линии.",
+        "uz": "Sekin qadoqlash — ishlab chiqarish liniyamizning tor joyi."
+      }
+    },
+    {
+      "word": "dispatch",
+      "part_of_speech": "verb",
+      "translation": "отправлять",
+      "translations": {
+        "ru": "отправлять",
+        "uz": "jo'natmoq"
+      },
+      "example": "We dispatch all orders within two working days.",
+      "example_translations": {
+        "ru": "Мы отправляем все заказы в течение двух рабочих дней.",
+        "uz": "Biz barcha buyurtmalarni ikki ish kuni ichida jo'natamiz."
+      }
+    },
+    {
+      "word": "consignment",
+      "part_of_speech": "noun",
+      "translation": "партия груза",
+      "translations": {
+        "ru": "партия груза",
+        "uz": "yuk partiyasi"
+      },
+      "example": "A consignment of fresh fruit arrived by truck.",
+      "example_translations": {
+        "ru": "Партия груза со свежими фруктами прибыла на грузовике.",
+        "uz": "Yangi mevalardan iborat yuk partiyasi yuk mashinasida yetib keldi."
+      }
+    },
+    {
+      "word": "stockpile",
+      "part_of_speech": "noun",
+      "translation": "крупный запас",
+      "translations": {
+        "ru": "крупный запас",
+        "uz": "katta zaxira"
+      },
+      "example": "The factory keeps a stockpile of spare parts.",
+      "example_translations": {
+        "ru": "Завод держит крупный запас запчастей.",
+        "uz": "Zavod ehtiyot qismlarning katta zaxirasini saqlaydi."
+      }
+    },
+    {
+      "word": "downtime",
+      "part_of_speech": "noun",
+      "translation": "простой",
+      "translations": {
+        "ru": "простой",
+        "uz": "to'xtab turish"
+      },
+      "example": "Machine repairs caused two hours of downtime yesterday.",
+      "example_translations": {
+        "ru": "Ремонт станков вызвал вчера два часа простоя.",
+        "uz": "Dastgohlarni ta'mirlash kecha ikki soatlik to'xtab turishga sabab bo'ldi."
+      }
+    },
+    {
+      "word": "machinery",
+      "part_of_speech": "noun",
+      "translation": "машинное оборудование",
+      "translations": {
+        "ru": "машинное оборудование",
+        "uz": "mashina va uskunalar"
+      },
+      "example": "New machinery let the factory double production.",
+      "example_translations": {
+        "ru": "Новое машинное оборудование позволило заводу удвоить производство.",
+        "uz": "Yangi mashina va uskunalar zavodga ishlab chiqarishni ikki baravar oshirish imkonini berdi."
+      }
+    },
+    {
+      "word": "batch",
+      "part_of_speech": "noun",
+      "translation": "партия товара",
+      "translations": {
+        "ru": "партия товара",
+        "uz": "tovar partiyasi"
+      },
+      "example": "We test one item from every batch produced.",
+      "example_translations": {
+        "ru": "Мы проверяем одно изделие из каждой произведённой партии товара.",
+        "uz": "Ishlab chiqarilgan har bir tovar partiyasidan bitta buyumni tekshiramiz."
+      }
+    },
+    {
+      "word": "output",
+      "part_of_speech": "noun",
+      "translation": "объём выпуска",
+      "translations": {
+        "ru": "объём выпуска",
+        "uz": "ishlab chiqarish hajmi"
+      },
+      "example": "The plant raised its output to 500 cars daily.",
+      "example_translations": {
+        "ru": "Завод увеличил объём выпуска до 500 автомобилей в день.",
+        "uz": "Zavod ishlab chiqarish hajmini kuniga 500 ta avtomobilga yetkazdi."
+      }
+    },
+    {
+      "word": "defective",
+      "part_of_speech": "adjective",
+      "translation": "бракованный",
+      "translations": {
+        "ru": "бракованный",
+        "uz": "nuqsonli"
+      },
+      "example": "Customers returned the defective chairs for a refund.",
+      "example_translations": {
+        "ru": "Покупатели вернули бракованные стулья, чтобы получить деньги назад.",
+        "uz": "Xaridorlar pulini qaytarib olish uchun nuqsonli stullarni qaytarishdi."
+      }
+    }
+  ]
+}

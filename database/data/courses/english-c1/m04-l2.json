@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 4,
+    "title": "Бизнес и управление",
+    "title_uz": "Biznes va boshqaruv"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Рынок и конкуренция",
+    "title_uz": "Bozor va raqobat"
+  },
+  "words": [
+    {
+      "word": "lucrative",
+      "part_of_speech": "adjective",
+      "translation": "прибыльный, доходный",
+      "translations": {
+        "ru": "прибыльный, доходный",
+        "uz": "serdaromad"
+      },
+      "example": "Selling software proved far more lucrative than repairs.",
+      "example_translations": {
+        "ru": "Продажа программ оказалась гораздо более прибыльной, чем ремонт.",
+        "uz": "Dastur sotish ta'mirlashdan ancha serdaromad bo'lib chiqdi."
+      }
+    },
+    {
+      "word": "saturate",
+      "part_of_speech": "verb",
+      "translation": "насыщать",
+      "translations": {
+        "ru": "насыщать",
+        "uz": "to'yintirmoq"
+      },
+      "example": "Cheap phones have saturated the market in recent years.",
+      "example_translations": {
+        "ru": "За последние годы дешёвые телефоны насытили рынок.",
+        "uz": "So'nggi yillarda arzon telefonlar bozorni to'yintirdi."
+      }
+    },
+    {
+      "word": "segment",
+      "part_of_speech": "noun",
+      "translation": "сегмент рынка",
+      "translations": {
+        "ru": "сегмент рынка",
+        "uz": "bozor segmenti"
+      },
+      "example": "This brand targets the luxury segment of the market.",
+      "example_translations": {
+        "ru": "Этот бренд нацелен на люксовый сегмент рынка.",
+        "uz": "Bu brend bozorning hashamatli tovarlar segmentiga mo'ljallangan."
+      }
+    },
+    {
+      "word": "undercut",
+      "part_of_speech": "verb",
+      "translation": "продавать дешевле конкурентов",
+      "translations": {
+        "ru": "продавать дешевле конкурентов",
+        "uz": "raqiblardan arzonroq sotmoq"
+      },
+      "example": "Large chains can undercut their smaller competitors easily.",
+      "example_translations": {
+        "ru": "Крупные сети легко могут продавать дешевле своих мелких конкурентов.",
+        "uz": "Yirik tarmoqlar kichik raqiblaridan osongina arzonroq sota oladi."
+      }
+    },
+    {
+      "word": "cartel",
+      "part_of_speech": "noun",
+      "translation": "картель",
+      "translations": {
+        "ru": "картель",
+        "uz": "kartel"
+      },
+      "example": "The cartel secretly agreed to keep prices high.",
+      "example_translations": {
+        "ru": "Картель тайно договорился удерживать высокие цены.",
+        "uz": "Kartel narxlarni yuqori ushlab turishga yashirincha kelishib oldi."
+      }
+    },
+    {
+      "word": "foothold",
+      "part_of_speech": "noun",
+      "translation": "плацдарм, опорная позиция",
+      "translations": {
+        "ru": "плацдарм, опорная позиция",
+        "uz": "tayanch nuqta"
+      },
+      "example": "The firm gained a foothold in the Asian market.",
+      "example_translations": {
+        "ru": "Фирма завоевала плацдарм на азиатском рынке.",
+        "uz": "Firma Osiyo bozorida tayanch nuqtaga ega bo'ldi."
+      }
+    },
+    {
+      "word": "dominance",
+      "part_of_speech": "noun",
+      "translation": "господство",
+      "translations": {
+        "ru": "господство",
+        "uz": "hukmronlik"
+      },
+      "example": "Two giant companies share dominance of this market.",
+      "example_translations": {
+        "ru": "Две гигантские компании делят господство на этом рынке.",
+        "uz": "Ikki yirik kompaniya bu bozordagi hukmronlikni bo'lishib olgan."
+      }
+    },
+    {
+      "word": "viable",
+      "part_of_speech": "adjective",
+      "translation": "жизнеспособный",
+      "translations": {
+        "ru": "жизнеспособный",
+        "uz": "yashovchan"
+      },
+      "example": "Is a small bookstore still a viable business today?",
+      "example_translations": {
+        "ru": "Остаётся ли сегодня небольшой книжный магазин жизнеспособным бизнесом?",
+        "uz": "Kichik kitob do'koni bugun ham yashovchan biznesmi?"
+      }
+    },
+    {
+      "word": "clientele",
+      "part_of_speech": "noun",
+      "translation": "клиентура",
+      "translations": {
+        "ru": "клиентура",
+        "uz": "mijozlar doirasi"
+      },
+      "example": "The salon has a loyal clientele of local families.",
+      "example_translations": {
+        "ru": "У салона есть верная клиентура из местных семей.",
+        "uz": "Salonning mahalliy oilalardan iborat sodiq mijozlar doirasi bor."
+      }
+    },
+    {
+      "word": "rivalry",
+      "part_of_speech": "noun",
+      "translation": "соперничество",
+      "translations": {
+        "ru": "соперничество",
+        "uz": "raqiblik"
+      },
+      "example": "The rivalry between the two bakeries keeps prices low.",
+      "example_translations": {
+        "ru": "Соперничество между двумя пекарнями удерживает цены низкими.",
+        "uz": "Ikki novvoyxona o'rtasidagi raqiblik narxlarni past ushlab turadi."
+      }
+    }
+  ]
+}

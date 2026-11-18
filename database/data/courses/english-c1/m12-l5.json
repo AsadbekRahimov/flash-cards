@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 12,
+    "title": "Право и правосудие",
+    "title_uz": "Huquq va odil sudlov"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Законность и справедливость",
+    "title_uz": "Qonuniylik va adolat"
+  },
+  "words": [
+    {
+      "word": "equitable",
+      "part_of_speech": "adjective",
+      "translation": "справедливый, беспристрастный",
+      "translations": {
+        "ru": "справедливый, беспристрастный",
+        "uz": "adolatli, xolis"
+      },
+      "example": "The judge sought an equitable division of the property.",
+      "example_translations": {
+        "ru": "Судья стремился к справедливому разделу имущества.",
+        "uz": "Sudya mol-mulkni adolatli taqsimlashga intildi."
+      }
+    },
+    {
+      "word": "precedent",
+      "part_of_speech": "noun",
+      "translation": "прецедент",
+      "translations": {
+        "ru": "прецедент",
+        "uz": "pretsedent"
+      },
+      "example": "The ruling set a precedent for similar future cases.",
+      "example_translations": {
+        "ru": "Это решение создало прецедент для подобных дел в будущем.",
+        "uz": "Bu qaror kelgusidagi shunga o'xshash ishlar uchun pretsedent yaratdi."
+      }
+    },
+    {
+      "word": "statute",
+      "part_of_speech": "noun",
+      "translation": "законодательный акт",
+      "translations": {
+        "ru": "законодательный акт",
+        "uz": "qonun hujjati"
+      },
+      "example": "The statute requires employers to provide safe workplaces.",
+      "example_translations": {
+        "ru": "Этот законодательный акт требует от работодателей обеспечивать безопасные рабочие места.",
+        "uz": "Ushbu qonun hujjati ish beruvchilardan xavfsiz ish joylarini ta'minlashni talab qiladi."
+      }
+    },
+    {
+      "word": "legality",
+      "part_of_speech": "noun",
+      "translation": "законность",
+      "translations": {
+        "ru": "законность",
+        "uz": "qonuniylik"
+      },
+      "example": "Lawyers questioned the legality of the sudden tax increase.",
+      "example_translations": {
+        "ru": "Юристы усомнились в законности внезапного повышения налогов.",
+        "uz": "Huquqshunoslar soliqlarning to'satdan oshirilishi qonuniyligiga shubha bildirishdi."
+      }
+    },
+    {
+      "word": "unlawful",
+      "part_of_speech": "adjective",
+      "translation": "незаконный",
+      "translations": {
+        "ru": "незаконный",
+        "uz": "noqonuniy"
+      },
+      "example": "It is unlawful to sell goods without a license.",
+      "example_translations": {
+        "ru": "Продавать товары без лицензии незаконно.",
+        "uz": "Litsenziyasiz tovar sotish noqonuniy hisoblanadi."
+      }
+    },
+    {
+      "word": "wrongful",
+      "part_of_speech": "adjective",
+      "translation": "неправомерный, несправедливый",
+      "translations": {
+        "ru": "неправомерный, несправедливый",
+        "uz": "nohaq"
+      },
+      "example": "She won compensation for wrongful dismissal from her job.",
+      "example_translations": {
+        "ru": "Она получила компенсацию за неправомерное увольнение с работы.",
+        "uz": "U ishdan nohaq bo'shatilgani uchun kompensatsiya oldi."
+      }
+    },
+    {
+      "word": "redress",
+      "part_of_speech": "noun",
+      "translation": "возмещение",
+      "translations": {
+        "ru": "возмещение",
+        "uz": "tovon"
+      },
+      "example": "Customers who were overcharged can seek redress in court.",
+      "example_translations": {
+        "ru": "Клиенты, с которых взяли лишнее, могут добиваться возмещения в суде.",
+        "uz": "Ortiqcha haq olingan mijozlar sud orqali tovon talab qilishi mumkin."
+      }
+    },
+    {
+      "word": "uphold",
+      "part_of_speech": "verb",
+      "translation": "оставлять в силе",
+      "translations": {
+        "ru": "оставлять в силе",
+        "uz": "kuchda qoldirmoq"
+      },
+      "example": "We expect the appeals court to uphold the verdict.",
+      "example_translations": {
+        "ru": "Мы ожидаем, что апелляционный суд оставит приговор в силе.",
+        "uz": "Biz apellyatsiya sudi hukmni kuchda qoldirishini kutamiz."
+      }
+    },
+    {
+      "word": "arbitrary",
+      "part_of_speech": "adjective",
+      "translation": "произвольный",
+      "translations": {
+        "ru": "произвольный",
+        "uz": "o'zboshimchalik bilan qilingan"
+      },
+      "example": "Citizens are protected against arbitrary arrest by the police.",
+      "example_translations": {
+        "ru": "Граждане защищены от произвольного ареста со стороны полиции.",
+        "uz": "Fuqarolar politsiya tomonidan o'zboshimchalik bilan qilingan hibsdan himoyalangan."
+      }
+    },
+    {
+      "word": "inalienable",
+      "part_of_speech": "adjective",
+      "translation": "неотъемлемый",
+      "translations": {
+        "ru": "неотъемлемый",
+        "uz": "ajralmas"
+      },
+      "example": "Freedom of thought is an inalienable human right.",
+      "example_translations": {
+        "ru": "Свобода мысли — неотъемлемое право человека.",
+        "uz": "Fikr erkinligi — insonning ajralmas huquqi."
+      }
+    }
+  ]
+}

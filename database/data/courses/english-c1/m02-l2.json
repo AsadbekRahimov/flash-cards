@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 2,
+    "title": "Чувства и отношения",
+    "title_uz": "His-tuyg'ular va munosabatlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Душевное состояние",
+    "title_uz": "Ruhiy holat"
+  },
+  "words": [
+    {
+      "word": "apprehensive",
+      "part_of_speech": "adjective",
+      "translation": "встревоженный, полный опасений",
+      "translations": {
+        "ru": "встревоженный, полный опасений",
+        "uz": "xavotirga tushgan"
+      },
+      "example": "She felt apprehensive before her first flight alone.",
+      "example_translations": {
+        "ru": "Она была встревожена перед своим первым самостоятельным полётом.",
+        "uz": "Yolg'iz birinchi parvozi oldidan u xavotirga tushgan edi."
+      }
+    },
+    {
+      "word": "bewildered",
+      "part_of_speech": "adjective",
+      "translation": "озадаченный, сбитый с толку",
+      "translations": {
+        "ru": "озадаченный, сбитый с толку",
+        "uz": "gangib qolgan"
+      },
+      "example": "Bewildered tourists stared at the confusing street signs.",
+      "example_translations": {
+        "ru": "Озадаченные туристы разглядывали запутанные уличные указатели.",
+        "uz": "Gangib qolgan sayyohlar chalkash ko'cha belgilariga tikilib turardi."
+      }
+    },
+    {
+      "word": "exasperated",
+      "part_of_speech": "adjective",
+      "translation": "выведенный из себя",
+      "translations": {
+        "ru": "выведенный из себя",
+        "uz": "toqati toq bo'lgan"
+      },
+      "example": "Exasperated by the noise, he finally called the manager.",
+      "example_translations": {
+        "ru": "Выведенный из себя шумом, он наконец позвал управляющего.",
+        "uz": "Shovqindan toqati toq bo'lgan u nihoyat boshqaruvchini chaqirdi."
+      }
+    },
+    {
+      "word": "elated",
+      "part_of_speech": "adjective",
+      "translation": "окрылённый, ликующий",
+      "translations": {
+        "ru": "окрылённый, ликующий",
+        "uz": "shod-xurram"
+      },
+      "example": "Aziz was elated when he passed the final exam.",
+      "example_translations": {
+        "ru": "Азиз был окрылён, когда сдал последний экзамен.",
+        "uz": "Aziz yakuniy imtihondan o'tganida shod-xurram edi."
+      }
+    },
+    {
+      "word": "distraught",
+      "part_of_speech": "adjective",
+      "translation": "сам не свой, убитый горем",
+      "translations": {
+        "ru": "сам не свой, убитый горем",
+        "uz": "qayg'udan o'zini yo'qotgan"
+      },
+      "example": "He was distraught after losing all his savings.",
+      "example_translations": {
+        "ru": "Он был сам не свой, потеряв все свои сбережения.",
+        "uz": "Barcha jamg'armasidan ayrilgach, u qayg'udan o'zini yo'qotgan edi."
+      }
+    },
+    {
+      "word": "ecstatic",
+      "part_of_speech": "adjective",
+      "translation": "в полном восторге",
+      "translations": {
+        "ru": "в полном восторге",
+        "uz": "boshi osmonga yetgan"
+      },
+      "example": "The fans were ecstatic when their team won.",
+      "example_translations": {
+        "ru": "Болельщики были в полном восторге, когда их команда победила.",
+        "uz": "Jamoasi g'alaba qozonganida muxlislarning boshi osmonga yetgan edi."
+      }
+    },
+    {
+      "word": "overwhelmed",
+      "part_of_speech": "adjective",
+      "translation": "перегруженный, ошеломлённый",
+      "translations": {
+        "ru": "перегруженный, ошеломлённый",
+        "uz": "ezilib qolgan"
+      },
+      "example": "New parents often feel overwhelmed by endless tasks.",
+      "example_translations": {
+        "ru": "Молодые родители часто чувствуют себя перегруженными бесконечными делами.",
+        "uz": "Yosh ota-onalar ko'pincha bitmas-tuganmas yumushlardan o'zini ezilib qolgan his qiladi."
+      }
+    },
+    {
+      "word": "agitated",
+      "part_of_speech": "adjective",
+      "translation": "взволнованный, возбуждённый",
+      "translations": {
+        "ru": "взволнованный, возбуждённый",
+        "uz": "bezovta"
+      },
+      "example": "The agitated customer kept walking up and down.",
+      "example_translations": {
+        "ru": "Взволнованный клиент не переставая ходил взад-вперёд.",
+        "uz": "Bezovta mijoz to'xtovsiz u yoqdan bu yoqqa yurardi."
+      }
+    },
+    {
+      "word": "disillusioned",
+      "part_of_speech": "adjective",
+      "translation": "разочарованный",
+      "translations": {
+        "ru": "разочарованный",
+        "uz": "hafsalasi pir bo'lgan"
+      },
+      "example": "Disillusioned with city life, they moved to a village.",
+      "example_translations": {
+        "ru": "Разочарованные городской жизнью, они переехали в деревню.",
+        "uz": "Shahar hayotidan hafsalasi pir bo'lgan ular qishloqqa ko'chib ketishdi."
+      }
+    },
+    {
+      "word": "dismayed",
+      "part_of_speech": "adjective",
+      "translation": "удручённый, обескураженный",
+      "translations": {
+        "ru": "удручённый, обескураженный",
+        "uz": "qattiq xafa bo'lgan"
+      },
+      "example": "We were dismayed to see the park destroyed.",
+      "example_translations": {
+        "ru": "Мы были удручены, увидев уничтоженный парк.",
+        "uz": "Vayron qilingan bog'ni ko'rib, biz qattiq xafa bo'lgan edik."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 5,
+    "title": "Экономика и финансы",
+    "title_uz": "Iqtisodiyot va moliya"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Богатство и бедность",
+    "title_uz": "Boylik va qashshoqlik"
+  },
+  "words": [
+    {
+      "word": "affluent",
+      "part_of_speech": "adjective",
+      "translation": "состоятельный",
+      "translations": {
+        "ru": "состоятельный",
+        "uz": "badavlat"
+      },
+      "example": "Affluent families can afford private schools and tutors.",
+      "example_translations": {
+        "ru": "Состоятельные семьи могут позволить себе частные школы и репетиторов.",
+        "uz": "Badavlat oilalarning xususiy maktablar va repetitorlarga qurbi yetadi."
+      }
+    },
+    {
+      "word": "prosperous",
+      "part_of_speech": "adjective",
+      "translation": "процветающий",
+      "translations": {
+        "ru": "процветающий",
+        "uz": "gullab-yashnayotgan"
+      },
+      "example": "Trade turned the port into a prosperous city.",
+      "example_translations": {
+        "ru": "Торговля превратила порт в процветающий город.",
+        "uz": "Savdo portni gullab-yashnayotgan shaharga aylantirdi."
+      }
+    },
+    {
+      "word": "impoverished",
+      "part_of_speech": "adjective",
+      "translation": "обнищавший",
+      "translations": {
+        "ru": "обнищавший",
+        "uz": "qashshoqlashgan"
+      },
+      "example": "Aid finally reached the impoverished mountain villages.",
+      "example_translations": {
+        "ru": "Помощь наконец дошла до обнищавших горных деревень.",
+        "uz": "Yordam nihoyat qashshoqlashgan tog' qishloqlariga yetib bordi."
+      }
+    },
+    {
+      "word": "livelihood",
+      "part_of_speech": "noun",
+      "translation": "средства к существованию",
+      "translations": {
+        "ru": "средства к существованию",
+        "uz": "tirikchilik manbai"
+      },
+      "example": "Fishing is the main livelihood in this village.",
+      "example_translations": {
+        "ru": "Рыболовство — главный источник средств к существованию в этой деревне.",
+        "uz": "Baliqchilik bu qishloqdagi asosiy tirikchilik manbaidir."
+      }
+    },
+    {
+      "word": "subsistence",
+      "part_of_speech": "noun",
+      "translation": "пропитание, выживание",
+      "translations": {
+        "ru": "пропитание, выживание",
+        "uz": "kun ko'rish"
+      },
+      "example": "Many farmers grow crops only for subsistence.",
+      "example_translations": {
+        "ru": "Многие фермеры выращивают урожай лишь для собственного пропитания.",
+        "uz": "Ko'p dehqonlar ekinni faqat kun ko'rish uchun yetishtiradi."
+      }
+    },
+    {
+      "word": "disparity",
+      "part_of_speech": "noun",
+      "translation": "разрыв, неравенство",
+      "translations": {
+        "ru": "разрыв, неравенство",
+        "uz": "tafovut, tengsizlik"
+      },
+      "example": "The disparity between rich and poor keeps widening.",
+      "example_translations": {
+        "ru": "Разрыв между богатыми и бедными продолжает расти.",
+        "uz": "Boylar va kambag'allar o'rtasidagi tafovut kengayib bormoqda."
+      }
+    },
+    {
+      "word": "embargo",
+      "part_of_speech": "noun",
+      "translation": "эмбарго",
+      "translations": {
+        "ru": "эмбарго",
+        "uz": "embargo"
+      },
+      "example": "The embargo banned all trade with the island.",
+      "example_translations": {
+        "ru": "Эмбарго запретило любую торговлю с островом.",
+        "uz": "Embargo orol bilan har qanday savdoni taqiqladi."
+      }
+    },
+    {
+      "word": "sanction",
+      "part_of_speech": "noun",
+      "translation": "санкция",
+      "translations": {
+        "ru": "санкция",
+        "uz": "sanksiya"
+      },
+      "example": "Economic sanctions blocked the company from foreign markets.",
+      "example_translations": {
+        "ru": "Экономические санкции закрыли компании доступ на зарубежные рынки.",
+        "uz": "Iqtisodiy sanksiyalar kompaniyaning xorijiy bozorlarga chiqishini to'sib qo'ydi."
+      }
+    },
+    {
+      "word": "remittance",
+      "part_of_speech": "noun",
+      "translation": "денежный перевод",
+      "translations": {
+        "ru": "денежный перевод",
+        "uz": "pul o'tkazmasi"
+      },
+      "example": "His monthly remittance supports the family back home.",
+      "example_translations": {
+        "ru": "Его ежемесячный денежный перевод поддерживает семью на родине.",
+        "uz": "Uning har oylik pul o'tkazmasi vatandagi oilasini ta'minlaydi."
+      }
+    },
+    {
+      "word": "affordability",
+      "part_of_speech": "noun",
+      "translation": "ценовая доступность",
+      "translations": {
+        "ru": "ценовая доступность",
+        "uz": "hamyonboplik"
+      },
+      "example": "Housing affordability worsens as rents outpace wages.",
+      "example_translations": {
+        "ru": "Ценовая доступность жилья снижается, так как аренда растёт быстрее зарплат.",
+        "uz": "Ijara haqi maoshdan tezroq o'sgani sari uy-joyning hamyonbopligi pasaymoqda."
+      }
+    }
+  ]
+}

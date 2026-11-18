@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 14,
+    "title": "СМИ и информация",
+    "title_uz": "OAV va axborot"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Новости и репортёры",
+    "title_uz": "Yangiliklar va muxbirlar"
+  },
+  "words": [
+    {
+      "word": "correspondent",
+      "part_of_speech": "noun",
+      "translation": "корреспондент",
+      "translations": {
+        "ru": "корреспондент",
+        "uz": "muxbir"
+      },
+      "example": "Our correspondent is reporting live from the flooded town.",
+      "example_translations": {
+        "ru": "Наш корреспондент ведёт прямой репортаж из затопленного города.",
+        "uz": "Muxbirimiz suv bosgan shahardan jonli xabar bermoqda."
+      }
+    },
+    {
+      "word": "newscast",
+      "part_of_speech": "noun",
+      "translation": "выпуск новостей",
+      "translations": {
+        "ru": "выпуск новостей",
+        "uz": "yangiliklar dasturi"
+      },
+      "example": "The evening newscast starts at nine o'clock sharp.",
+      "example_translations": {
+        "ru": "Вечерний выпуск новостей начинается ровно в девять часов.",
+        "uz": "Kechki yangiliklar dasturi roppa-rosa soat to'qqizda boshlanadi."
+      }
+    },
+    {
+      "word": "scoop",
+      "part_of_speech": "noun",
+      "translation": "сенсационная новость",
+      "translations": {
+        "ru": "сенсационная новость",
+        "uz": "shov-shuvli yangilik"
+      },
+      "example": "The young reporter got the scoop before anyone else.",
+      "example_translations": {
+        "ru": "Молодой репортёр добыл сенсационную новость раньше всех.",
+        "uz": "Yosh reportyor shov-shuvli yangilikni hammadan oldin qo'lga kiritdi."
+      }
+    },
+    {
+      "word": "anchor",
+      "part_of_speech": "noun",
+      "translation": "ведущий новостей",
+      "translations": {
+        "ru": "ведущий новостей",
+        "uz": "yangiliklar boshlovchisi"
+      },
+      "example": "The anchor read the breaking news in a calm voice.",
+      "example_translations": {
+        "ru": "Ведущий новостей спокойным голосом зачитал срочное сообщение.",
+        "uz": "Yangiliklar boshlovchisi shoshilinch xabarni xotirjam ovozda o'qib berdi."
+      }
+    },
+    {
+      "word": "eyewitness",
+      "part_of_speech": "noun",
+      "translation": "очевидец",
+      "translations": {
+        "ru": "очевидец",
+        "uz": "shohid"
+      },
+      "example": "An eyewitness told reporters exactly what had happened.",
+      "example_translations": {
+        "ru": "Очевидец рассказал журналистам, что именно произошло.",
+        "uz": "Shohid jurnalistlarga aynan nima bo'lganini aytib berdi."
+      }
+    },
+    {
+      "word": "reportage",
+      "part_of_speech": "noun",
+      "translation": "репортаж",
+      "translations": {
+        "ru": "репортаж",
+        "uz": "reportaj"
+      },
+      "example": "Her reportage from the earthquake zone won an award.",
+      "example_translations": {
+        "ru": "Её репортаж из зоны землетрясения получил награду.",
+        "uz": "Uning zilzila hududidan tayyorlagan reportaji mukofotga sazovor bo'ldi."
+      }
+    },
+    {
+      "word": "investigative",
+      "part_of_speech": "adjective",
+      "translation": "расследовательский",
+      "translations": {
+        "ru": "расследовательский",
+        "uz": "surishtiruvga oid"
+      },
+      "example": "Investigative journalism exposed the company's hidden debts.",
+      "example_translations": {
+        "ru": "Расследовательская журналистика раскрыла скрытые долги компании.",
+        "uz": "Surishtiruv jurnalistikasi kompaniyaning yashirin qarzlarini fosh qildi."
+      }
+    },
+    {
+      "word": "obituary",
+      "part_of_speech": "noun",
+      "translation": "некролог",
+      "translations": {
+        "ru": "некролог",
+        "uz": "nekrolog"
+      },
+      "example": "The newspaper printed an obituary of the famous poet.",
+      "example_translations": {
+        "ru": "Газета напечатала некролог знаменитого поэта.",
+        "uz": "Gazeta mashhur shoir haqida nekrolog chop etdi."
+      }
+    },
+    {
+      "word": "airtime",
+      "part_of_speech": "noun",
+      "translation": "эфирное время",
+      "translations": {
+        "ru": "эфирное время",
+        "uz": "efir vaqti"
+      },
+      "example": "Each candidate received ten minutes of airtime.",
+      "example_translations": {
+        "ru": "Каждый кандидат получил десять минут эфирного времени.",
+        "uz": "Har bir nomzodga o'n daqiqa efir vaqti berildi."
+      }
+    },
+    {
+      "word": "readership",
+      "part_of_speech": "noun",
+      "translation": "читательская аудитория",
+      "translations": {
+        "ru": "читательская аудитория",
+        "uz": "o'quvchilar auditoriyasi"
+      },
+      "example": "The magazine's readership doubled after the redesign.",
+      "example_translations": {
+        "ru": "Читательская аудитория журнала выросла вдвое после смены дизайна.",
+        "uz": "Dizayn yangilangach, jurnalning o'quvchilar auditoriyasi ikki baravar ko'paydi."
+      }
+    }
+  ]
+}

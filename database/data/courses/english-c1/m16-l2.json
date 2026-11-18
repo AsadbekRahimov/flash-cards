@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 16,
+    "title": "Образование и научный стиль",
+    "title_uz": "Ta'lim va ilmiy uslub"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Научная публикация",
+    "title_uz": "Ilmiy nashr"
+  },
+  "words": [
+    {
+      "word": "bibliography",
+      "part_of_speech": "noun",
+      "translation": "библиография",
+      "translations": {
+        "ru": "библиография",
+        "uz": "adabiyotlar ro'yxati"
+      },
+      "example": "List every source you used in the bibliography.",
+      "example_translations": {
+        "ru": "Перечислите в библиографии все использованные источники.",
+        "uz": "Foydalangan barcha manbalaringizni adabiyotlar ro'yxatida keltiring."
+      }
+    },
+    {
+      "word": "appendix",
+      "part_of_speech": "noun",
+      "translation": "приложение",
+      "translations": {
+        "ru": "приложение",
+        "uz": "ilova"
+      },
+      "example": "The full survey results appear in the appendix.",
+      "example_translations": {
+        "ru": "Полные результаты опроса приведены в приложении.",
+        "uz": "So'rovnomaning to'liq natijalari ilovada keltirilgan."
+      }
+    },
+    {
+      "word": "footnote",
+      "part_of_speech": "noun",
+      "translation": "сноска",
+      "translations": {
+        "ru": "сноска",
+        "uz": "sahifa osti izohi"
+      },
+      "example": "A footnote at the bottom explains the rare term.",
+      "example_translations": {
+        "ru": "Сноска внизу страницы объясняет этот редкий термин.",
+        "uz": "Pastdagi sahifa osti izohi bu kam uchraydigan atamani tushuntiradi."
+      }
+    },
+    {
+      "word": "annotate",
+      "part_of_speech": "verb",
+      "translation": "снабжать примечаниями",
+      "translations": {
+        "ru": "снабжать примечаниями",
+        "uz": "izohlar bilan ta'minlamoq"
+      },
+      "example": "Students annotate the text with comments in the margins.",
+      "example_translations": {
+        "ru": "Студенты снабжают текст примечаниями на полях.",
+        "uz": "Talabalar matnni hoshiyalarda izohlar bilan ta'minlaydilar."
+      }
+    },
+    {
+      "word": "monograph",
+      "part_of_speech": "noun",
+      "translation": "монография",
+      "translations": {
+        "ru": "монография",
+        "uz": "monografiya"
+      },
+      "example": "His monograph examines one medieval city in great depth.",
+      "example_translations": {
+        "ru": "Его монография очень подробно исследует один средневековый город.",
+        "uz": "Uning monografiyasi bitta o'rta asr shahrini juda chuqur tadqiq etadi."
+      }
+    },
+    {
+      "word": "publication",
+      "part_of_speech": "noun",
+      "translation": "публикация",
+      "translations": {
+        "ru": "публикация",
+        "uz": "nashr"
+      },
+      "example": "Her latest publication appeared in a leading medical journal.",
+      "example_translations": {
+        "ru": "Её последняя публикация вышла в ведущем медицинском журнале.",
+        "uz": "Uning so'nggi nashri yetakchi tibbiyot jurnalida chiqdi."
+      }
+    },
+    {
+      "word": "preface",
+      "part_of_speech": "noun",
+      "translation": "предисловие",
+      "translations": {
+        "ru": "предисловие",
+        "uz": "so'zboshi"
+      },
+      "example": "The author explains her aims in the book's preface.",
+      "example_translations": {
+        "ru": "Автор объясняет свои цели в предисловии к книге.",
+        "uz": "Muallif o'z maqsadlarini kitobning so'zboshisida tushuntiradi."
+      }
+    },
+    {
+      "word": "glossary",
+      "part_of_speech": "noun",
+      "translation": "глоссарий",
+      "translations": {
+        "ru": "глоссарий",
+        "uz": "atamalar lug'ati"
+      },
+      "example": "Look up unfamiliar terms in the glossary at the back.",
+      "example_translations": {
+        "ru": "Незнакомые термины ищите в глоссарии в конце книги.",
+        "uz": "Notanish so'zlarni kitob oxiridagi atamalar lug'atidan qidiring."
+      }
+    },
+    {
+      "word": "synopsis",
+      "part_of_speech": "noun",
+      "translation": "краткое изложение",
+      "translations": {
+        "ru": "краткое изложение",
+        "uz": "qisqacha mazmun"
+      },
+      "example": "Please send a one-page synopsis of your thesis.",
+      "example_translations": {
+        "ru": "Пожалуйста, пришлите краткое изложение вашей диссертации на одну страницу.",
+        "uz": "Iltimos, dissertatsiyangizning bir sahifalik qisqacha mazmunini yuboring."
+      }
+    },
+    {
+      "word": "treatise",
+      "part_of_speech": "noun",
+      "translation": "трактат",
+      "translations": {
+        "ru": "трактат",
+        "uz": "risola"
+      },
+      "example": "The philosopher wrote a lengthy treatise on human freedom.",
+      "example_translations": {
+        "ru": "Философ написал объёмный трактат о человеческой свободе.",
+        "uz": "Faylasuf inson erkinligi haqida katta hajmli risola yozdi."
+      }
+    }
+  ]
+}

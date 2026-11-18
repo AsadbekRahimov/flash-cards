@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 10,
+    "title": "Природа и экология",
+    "title_uz": "Tabiat va ekologiya"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Жизнь животных",
+    "title_uz": "Hayvonlar hayoti"
+  },
+  "words": [
+    {
+      "word": "poach",
+      "part_of_speech": "verb",
+      "translation": "браконьерствовать, незаконно охотиться",
+      "translations": {
+        "ru": "браконьерствовать, незаконно охотиться",
+        "uz": "noqonuniy ovlamoq"
+      },
+      "example": "Anyone who poaches rare animals faces heavy fines.",
+      "example_translations": {
+        "ru": "Тем, кто незаконно охотится на редких животных, грозят крупные штрафы.",
+        "uz": "Noyob hayvonlarni noqonuniy ovlaganlarga katta jarima solinadi."
+      }
+    },
+    {
+      "word": "captivity",
+      "part_of_speech": "noun",
+      "translation": "неволя",
+      "translations": {
+        "ru": "неволя",
+        "uz": "tutqunlik"
+      },
+      "example": "Pandas rarely breed in captivity.",
+      "example_translations": {
+        "ru": "Панды редко размножаются в неволе.",
+        "uz": "Pandalar tutqunlikda kamdan-kam ko'payadi."
+      }
+    },
+    {
+      "word": "hibernate",
+      "part_of_speech": "verb",
+      "translation": "впадать в спячку",
+      "translations": {
+        "ru": "впадать в спячку",
+        "uz": "qishki uyquga ketmoq"
+      },
+      "example": "Bears hibernate in caves throughout the cold winter.",
+      "example_translations": {
+        "ru": "Медведи впадают в спячку в пещерах на всю холодную зиму.",
+        "uz": "Ayiqlar butun sovuq qish davomida g'orlarda qishki uyquga ketadi."
+      }
+    },
+    {
+      "word": "forage",
+      "part_of_speech": "verb",
+      "translation": "добывать корм",
+      "translations": {
+        "ru": "добывать корм",
+        "uz": "ozuqa izlamoq"
+      },
+      "example": "At dusk, deer forage for food near the village.",
+      "example_translations": {
+        "ru": "В сумерках олени добывают корм возле деревни.",
+        "uz": "Shom tushganda bug'ular qishloq yaqinida ozuqa izlaydi."
+      }
+    },
+    {
+      "word": "nocturnal",
+      "part_of_speech": "adjective",
+      "translation": "ночной",
+      "translations": {
+        "ru": "ночной",
+        "uz": "tungi"
+      },
+      "example": "Owls are nocturnal and sleep during the day.",
+      "example_translations": {
+        "ru": "Совы ведут ночной образ жизни и спят днём.",
+        "uz": "Boyqushlar tungi hayot kechiradi va kunduzi uxlaydi."
+      }
+    },
+    {
+      "word": "carnivore",
+      "part_of_speech": "noun",
+      "translation": "плотоядное животное",
+      "translations": {
+        "ru": "плотоядное животное",
+        "uz": "go'shtxo'r hayvon"
+      },
+      "example": "Like all carnivores, wolves eat mainly meat.",
+      "example_translations": {
+        "ru": "Как и все плотоядные животные, волки питаются в основном мясом.",
+        "uz": "Barcha go'shtxo'r hayvonlar singari, bo'rilar asosan go'sht bilan oziqlanadi."
+      }
+    },
+    {
+      "word": "herbivore",
+      "part_of_speech": "noun",
+      "translation": "травоядное животное",
+      "translations": {
+        "ru": "травоядное животное",
+        "uz": "o'txo'r hayvon"
+      },
+      "example": "Cows are herbivores and feed only on plants.",
+      "example_translations": {
+        "ru": "Коровы — травоядные животные и питаются только растениями.",
+        "uz": "Sigirlar o'txo'r hayvonlar bo'lib, faqat o'simliklar bilan oziqlanadi."
+      }
+    },
+    {
+      "word": "offspring",
+      "part_of_speech": "noun",
+      "translation": "потомство",
+      "translations": {
+        "ru": "потомство",
+        "uz": "nasl"
+      },
+      "example": "The mother fox protects her offspring from danger.",
+      "example_translations": {
+        "ru": "Лисица-мать защищает своё потомство от опасности.",
+        "uz": "Ona tulki o'z naslini xavfdan himoya qiladi."
+      }
+    },
+    {
+      "word": "camouflage",
+      "part_of_speech": "noun",
+      "translation": "защитная окраска",
+      "translations": {
+        "ru": "защитная окраска",
+        "uz": "himoya rangi"
+      },
+      "example": "A chameleon's camouflage hides it among green leaves.",
+      "example_translations": {
+        "ru": "Защитная окраска хамелеона скрывает его среди зелёных листьев.",
+        "uz": "Xameleonning himoya rangi uni yashil barglar orasida yashiradi."
+      }
+    },
+    {
+      "word": "invasive",
+      "part_of_speech": "adjective",
+      "translation": "инвазивный, чужеродный",
+      "translations": {
+        "ru": "инвазивный, чужеродный",
+        "uz": "kelgindi"
+      },
+      "example": "Invasive plants quickly crowd out the native species.",
+      "example_translations": {
+        "ru": "Инвазивные растения быстро вытесняют местные виды.",
+        "uz": "Kelgindi o'simliklar mahalliy turlarni tezda siqib chiqaradi."
+      }
+    }
+  ]
+}

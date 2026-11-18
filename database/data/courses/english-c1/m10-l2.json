@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 10,
+    "title": "Природа и экология",
+    "title_uz": "Tabiat va ekologiya"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Загрязнение и отходы",
+    "title_uz": "Ifloslanish va chiqindilar"
+  },
+  "words": [
+    {
+      "word": "toxin",
+      "part_of_speech": "noun",
+      "translation": "токсин, ядовитое вещество",
+      "translations": {
+        "ru": "токсин, ядовитое вещество",
+        "uz": "zaharli modda"
+      },
+      "example": "Some mushrooms contain toxins that damage the liver.",
+      "example_translations": {
+        "ru": "Некоторые грибы содержат токсины, поражающие печень.",
+        "uz": "Ba'zi qo'ziqorinlarda jigarni shikastlaydigan zaharli moddalar bor."
+      }
+    },
+    {
+      "word": "effluent",
+      "part_of_speech": "noun",
+      "translation": "сточные воды",
+      "translations": {
+        "ru": "сточные воды",
+        "uz": "oqova suv"
+      },
+      "example": "The factory was fined for dumping effluent into the lake.",
+      "example_translations": {
+        "ru": "Завод оштрафовали за сброс сточных вод в озеро.",
+        "uz": "Zavod oqova suvlarni ko'lga oqizgani uchun jarimaga tortildi."
+      }
+    },
+    {
+      "word": "residue",
+      "part_of_speech": "noun",
+      "translation": "остаток",
+      "translations": {
+        "ru": "остаток",
+        "uz": "qoldiq"
+      },
+      "example": "Wash fruit well to remove any pesticide residue.",
+      "example_translations": {
+        "ru": "Тщательно мойте фрукты, чтобы удалить остатки пестицидов.",
+        "uz": "Pestitsid qoldiqlarini ketkazish uchun mevalarni yaxshilab yuving."
+      }
+    },
+    {
+      "word": "debris",
+      "part_of_speech": "noun",
+      "translation": "обломки, мусор",
+      "translations": {
+        "ru": "обломки, мусор",
+        "uz": "siniq parchalar, axlat"
+      },
+      "example": "After the storm, debris covered the whole beach.",
+      "example_translations": {
+        "ru": "После шторма весь пляж был покрыт обломками и мусором.",
+        "uz": "Bo'rondan so'ng butun sohil siniq parchalar va axlat bilan qoplandi."
+      }
+    },
+    {
+      "word": "incinerate",
+      "part_of_speech": "verb",
+      "translation": "сжигать",
+      "translations": {
+        "ru": "сжигать",
+        "uz": "yoqib yubormoq"
+      },
+      "example": "The plant incinerates waste to produce electricity.",
+      "example_translations": {
+        "ru": "Завод сжигает отходы, чтобы вырабатывать электроэнергию.",
+        "uz": "Zavod elektr energiyasi ishlab chiqarish uchun chiqindilarni yoqib yuboradi."
+      }
+    },
+    {
+      "word": "biodegradable",
+      "part_of_speech": "adjective",
+      "translation": "биоразлагаемый",
+      "translations": {
+        "ru": "биоразлагаемый",
+        "uz": "biologik parchalanuvchi"
+      },
+      "example": "These biodegradable bags break down within a few months.",
+      "example_translations": {
+        "ru": "Эти биоразлагаемые пакеты разлагаются за несколько месяцев.",
+        "uz": "Bu biologik parchalanuvchi xaltalar bir necha oy ichida chirib ketadi."
+      }
+    },
+    {
+      "word": "compost",
+      "part_of_speech": "noun",
+      "translation": "компост",
+      "translations": {
+        "ru": "компост",
+        "uz": "kompost"
+      },
+      "example": "We turn kitchen scraps into compost for the garden.",
+      "example_translations": {
+        "ru": "Мы превращаем кухонные отходы в компост для сада.",
+        "uz": "Biz oshxona chiqindilarini bog' uchun kompostga aylantiramiz."
+      }
+    },
+    {
+      "word": "runoff",
+      "part_of_speech": "noun",
+      "translation": "поверхностный сток",
+      "translations": {
+        "ru": "поверхностный сток",
+        "uz": "yuza suv oqimi"
+      },
+      "example": "Runoff from farms carries fertilizer into the river.",
+      "example_translations": {
+        "ru": "Поверхностный сток с ферм несёт удобрения в реку.",
+        "uz": "Fermalardan kelgan yuza suv oqimi o'g'itlarni daryoga olib tushadi."
+      }
+    },
+    {
+      "word": "leakage",
+      "part_of_speech": "noun",
+      "translation": "утечка",
+      "translations": {
+        "ru": "утечка",
+        "uz": "sizib chiqish"
+      },
+      "example": "Leakage from old pipes wastes huge amounts of water.",
+      "example_translations": {
+        "ru": "Из-за утечки из старых труб теряется огромное количество воды.",
+        "uz": "Eski quvurlardan sizib chiqish tufayli juda ko'p suv isrof bo'ladi."
+      }
+    },
+    {
+      "word": "hazardous",
+      "part_of_speech": "adjective",
+      "translation": "опасный",
+      "translations": {
+        "ru": "опасный",
+        "uz": "xavfli"
+      },
+      "example": "Hazardous chemicals must be stored in sealed containers.",
+      "example_translations": {
+        "ru": "Опасные химикаты нужно хранить в герметичных контейнерах.",
+        "uz": "Xavfli kimyoviy moddalar germetik idishlarda saqlanishi kerak."
+      }
+    }
+  ]
+}

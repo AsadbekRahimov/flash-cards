@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 7,
+    "title": "Технологии",
+    "title_uz": "Texnologiyalar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Технологии и общество",
+    "title_uz": "Texnologiya va jamiyat"
+  },
+  "words": [
+    {
+      "word": "disruptive",
+      "part_of_speech": "adjective",
+      "translation": "прорывной, подрывной",
+      "translations": {
+        "ru": "прорывной, подрывной",
+        "uz": "tub burilish yasovchi"
+      },
+      "example": "Disruptive technologies like smartphones transformed entire industries.",
+      "example_translations": {
+        "ru": "Прорывные технологии вроде смартфонов преобразили целые отрасли.",
+        "uz": "Smartfon kabi tub burilish yasovchi texnologiyalar butun sohalarni o'zgartirib yubordi."
+      }
+    },
+    {
+      "word": "digitize",
+      "part_of_speech": "verb",
+      "translation": "оцифровывать",
+      "translations": {
+        "ru": "оцифровывать",
+        "uz": "raqamlashtirmoq"
+      },
+      "example": "The library digitized its old books for online readers.",
+      "example_translations": {
+        "ru": "Библиотека оцифровала свои старые книги для онлайн-читателей.",
+        "uz": "Kutubxona eski kitoblarini onlayn o'quvchilar uchun raqamlashtirdi."
+      }
+    },
+    {
+      "word": "connectivity",
+      "part_of_speech": "noun",
+      "translation": "подключение к сети",
+      "translations": {
+        "ru": "подключение к сети",
+        "uz": "tarmoqqa ulanish"
+      },
+      "example": "Remote villages still lack reliable network connectivity.",
+      "example_translations": {
+        "ru": "В отдалённых сёлах до сих пор нет надёжного подключения к сети.",
+        "uz": "Olis qishloqlarda hanuz tarmoqqa ishonchli ulanish yo'q."
+      }
+    },
+    {
+      "word": "innovate",
+      "part_of_speech": "verb",
+      "translation": "внедрять новшества",
+      "translations": {
+        "ru": "внедрять новшества",
+        "uz": "yangilik joriy qilmoq"
+      },
+      "example": "Companies that fail to innovate soon lose customers.",
+      "example_translations": {
+        "ru": "Компании, которые не внедряют новшества, быстро теряют клиентов.",
+        "uz": "Yangilik joriy qilmaydigan kompaniyalar tez orada mijozlarini yo'qotadi."
+      }
+    },
+    {
+      "word": "pervasive",
+      "part_of_speech": "adjective",
+      "translation": "вездесущий, повсеместный",
+      "translations": {
+        "ru": "вездесущий, повсеместный",
+        "uz": "hamma joyda uchraydigan"
+      },
+      "example": "Pervasive cameras now watch almost every city street.",
+      "example_translations": {
+        "ru": "Вездесущие камеры теперь следят почти за каждой городской улицей.",
+        "uz": "Hamma joyda uchraydigan kameralar endi deyarli har bir shahar ko'chasini kuzatadi."
+      }
+    },
+    {
+      "word": "dependence",
+      "part_of_speech": "noun",
+      "translation": "зависимость",
+      "translations": {
+        "ru": "зависимость",
+        "uz": "qaramlik"
+      },
+      "example": "Our dependence on phones grows stronger every year.",
+      "example_translations": {
+        "ru": "Наша зависимость от телефонов усиливается с каждым годом.",
+        "uz": "Telefonlarga qaramligimiz yil sayin kuchaymoqda."
+      }
+    },
+    {
+      "word": "displacement",
+      "part_of_speech": "noun",
+      "translation": "вытеснение",
+      "translations": {
+        "ru": "вытеснение",
+        "uz": "siqib chiqarilish"
+      },
+      "example": "Automation led to the displacement of thousands of workers.",
+      "example_translations": {
+        "ru": "Автоматизация привела к вытеснению тысяч работников.",
+        "uz": "Avtomatlashtirish minglab ishchilarning siqib chiqarilishiga olib keldi."
+      }
+    },
+    {
+      "word": "misuse",
+      "part_of_speech": "noun",
+      "translation": "злоупотребление",
+      "translations": {
+        "ru": "злоупотребление",
+        "uz": "suiiste'mol"
+      },
+      "example": "The law punishes the misuse of personal data.",
+      "example_translations": {
+        "ru": "Закон наказывает за злоупотребление персональными данными.",
+        "uz": "Qonun shaxsiy ma'lumotlarni suiiste'mol qilganlik uchun jazolaydi."
+      }
+    },
+    {
+      "word": "regulate",
+      "part_of_speech": "verb",
+      "translation": "регулировать",
+      "translations": {
+        "ru": "регулировать",
+        "uz": "tartibga solmoq"
+      },
+      "example": "Governments struggle to regulate fast-changing online platforms.",
+      "example_translations": {
+        "ru": "Государствам трудно регулировать быстро меняющиеся онлайн-платформы.",
+        "uz": "Davlatlar tez o'zgarayotgan onlayn platformalarni tartibga solishga qiynalmoqda."
+      }
+    },
+    {
+      "word": "intrusive",
+      "part_of_speech": "adjective",
+      "translation": "навязчивый",
+      "translations": {
+        "ru": "навязчивый",
+        "uz": "shilqim"
+      },
+      "example": "Many users find targeted ads intrusive and annoying.",
+      "example_translations": {
+        "ru": "Многие пользователи считают таргетированную рекламу навязчивой и раздражающей.",
+        "uz": "Ko'p foydalanuvchilar maqsadli reklamani shilqim va asabga teguvchi deb hisoblaydi."
+      }
+    }
+  ]
+}

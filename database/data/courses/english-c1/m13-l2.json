@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 13,
+    "title": "Общество",
+    "title_uz": "Jamiyat"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Миграция и идентичность",
+    "title_uz": "Migratsiya va o'zlik"
+  },
+  "words": [
+    {
+      "word": "assimilate",
+      "part_of_speech": "verb",
+      "translation": "ассимилироваться",
+      "translations": {
+        "ru": "ассимилироваться",
+        "uz": "singib ketmoq"
+      },
+      "example": "Their children assimilated quickly and spoke the local language.",
+      "example_translations": {
+        "ru": "Их дети быстро ассимилировались и заговорили на местном языке.",
+        "uz": "Ularning farzandlari yangi jamiyatga tez singib ketib, mahalliy tilda gapira boshladi."
+      }
+    },
+    {
+      "word": "diaspora",
+      "part_of_speech": "noun",
+      "translation": "диаспора",
+      "translations": {
+        "ru": "диаспора",
+        "uz": "diaspora"
+      },
+      "example": "The diaspora keeps its traditions far from home.",
+      "example_translations": {
+        "ru": "Диаспора хранит свои традиции вдали от родины.",
+        "uz": "Diaspora vatandan uzoqda o'z an'analarini saqlab keladi."
+      }
+    },
+    {
+      "word": "expatriate",
+      "part_of_speech": "noun",
+      "translation": "экспатриант",
+      "translations": {
+        "ru": "экспатриант",
+        "uz": "xorijda yashovchi kishi"
+      },
+      "example": "Many expatriates miss the food of their homeland.",
+      "example_translations": {
+        "ru": "Многие экспатрианты скучают по еде своей родины.",
+        "uz": "Xorijda yashovchi kishilarning ko'pi o'z vatani taomlarini sog'inadi."
+      }
+    },
+    {
+      "word": "resettle",
+      "part_of_speech": "verb",
+      "translation": "переселять",
+      "translations": {
+        "ru": "переселять",
+        "uz": "ko'chirib joylashtirmoq"
+      },
+      "example": "The agency resettled thousands of families after the flood.",
+      "example_translations": {
+        "ru": "После наводнения агентство переселило тысячи семей.",
+        "uz": "Toshqindan so'ng agentlik minglab oilalarni boshqa joyga ko'chirib joylashtirdi."
+      }
+    },
+    {
+      "word": "citizenship",
+      "part_of_speech": "noun",
+      "translation": "гражданство",
+      "translations": {
+        "ru": "гражданство",
+        "uz": "fuqarolik"
+      },
+      "example": "She applied for citizenship after five years of residence.",
+      "example_translations": {
+        "ru": "Она подала заявление на гражданство после пяти лет проживания в стране.",
+        "uz": "U mamlakatda besh yil yashaganidan keyin fuqarolik olish uchun ariza berdi."
+      }
+    },
+    {
+      "word": "ethnicity",
+      "part_of_speech": "noun",
+      "translation": "этническая принадлежность",
+      "translations": {
+        "ru": "этническая принадлежность",
+        "uz": "etnik mansublik"
+      },
+      "example": "Nobody should be judged by ethnicity or religion.",
+      "example_translations": {
+        "ru": "Никого нельзя судить по этнической принадлежности или религии.",
+        "uz": "Hech kimga etnik mansubligi yoki diniga qarab baho berilmasligi kerak."
+      }
+    },
+    {
+      "word": "indigenous",
+      "part_of_speech": "adjective",
+      "translation": "коренной",
+      "translations": {
+        "ru": "коренной",
+        "uz": "tub joyli"
+      },
+      "example": "Indigenous peoples lived here long before the settlers arrived.",
+      "example_translations": {
+        "ru": "Коренные народы жили здесь задолго до прихода поселенцев.",
+        "uz": "Tub joyli xalqlar bu yerda ko'chib kelganlardan ancha oldin yashagan."
+      }
+    },
+    {
+      "word": "xenophobia",
+      "part_of_speech": "noun",
+      "translation": "ксенофобия",
+      "translations": {
+        "ru": "ксенофобия",
+        "uz": "ksenofobiya"
+      },
+      "example": "Fear of strangers can easily turn into xenophobia.",
+      "example_translations": {
+        "ru": "Страх перед чужаками легко может перерасти в ксенофобию.",
+        "uz": "Begonalardan qo'rqish osonlik bilan ksenofobiyaga aylanishi mumkin."
+      }
+    },
+    {
+      "word": "segregation",
+      "part_of_speech": "noun",
+      "translation": "сегрегация",
+      "translations": {
+        "ru": "сегрегация",
+        "uz": "segregatsiya"
+      },
+      "example": "Segregation kept the two communities in separate schools.",
+      "example_translations": {
+        "ru": "Из-за сегрегации две общины учились в разных школах.",
+        "uz": "Segregatsiya tufayli ikki jamoa alohida maktablarda o'qirdi."
+      }
+    },
+    {
+      "word": "repatriate",
+      "part_of_speech": "verb",
+      "translation": "возвращать на родину",
+      "translations": {
+        "ru": "возвращать на родину",
+        "uz": "vataniga qaytarmoq"
+      },
+      "example": "The government repatriated its citizens stranded abroad.",
+      "example_translations": {
+        "ru": "Правительство вернуло на родину своих граждан, застрявших за границей.",
+        "uz": "Hukumat chet elda qolib ketgan fuqarolarini vataniga qaytardi."
+      }
+    }
+  ]
+}

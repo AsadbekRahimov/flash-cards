@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 6,
+    "title": "Наука и исследования",
+    "title_uz": "Fan va tadqiqotlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "План исследования",
+    "title_uz": "Tadqiqot rejasi"
+  },
+  "words": [
+    {
+      "word": "hypothesize",
+      "part_of_speech": "verb",
+      "translation": "выдвигать гипотезу",
+      "translations": {
+        "ru": "выдвигать гипотезу",
+        "uz": "gipoteza ilgari surmoq"
+      },
+      "example": "Scientists hypothesize that sleep strengthens memory.",
+      "example_translations": {
+        "ru": "Учёные выдвигают гипотезу, что сон укрепляет память.",
+        "uz": "Olimlar uyqu xotirani mustahkamlaydi, degan gipotezani ilgari surmoqda."
+      }
+    },
+    {
+      "word": "replicate",
+      "part_of_speech": "verb",
+      "translation": "воспроизводить",
+      "translations": {
+        "ru": "воспроизводить",
+        "uz": "qayta takrorlamoq"
+      },
+      "example": "Other labs failed to replicate the surprising results.",
+      "example_translations": {
+        "ru": "Другим лабораториям не удалось воспроизвести эти неожиданные результаты.",
+        "uz": "Boshqa laboratoriyalar bu kutilmagan natijalarni qayta takrorlay olmadi."
+      }
+    },
+    {
+      "word": "validate",
+      "part_of_speech": "verb",
+      "translation": "подтверждать достоверность",
+      "translations": {
+        "ru": "подтверждать достоверность",
+        "uz": "ishonchliligini tasdiqlamoq"
+      },
+      "example": "Further tests are needed to validate the method.",
+      "example_translations": {
+        "ru": "Нужны дополнительные испытания, чтобы подтвердить достоверность метода.",
+        "uz": "Usulning ishonchliligini tasdiqlash uchun qo'shimcha sinovlar kerak."
+      }
+    },
+    {
+      "word": "quantitative",
+      "part_of_speech": "adjective",
+      "translation": "количественный",
+      "translations": {
+        "ru": "количественный",
+        "uz": "miqdoriy"
+      },
+      "example": "Quantitative research relies on numbers and measurements.",
+      "example_translations": {
+        "ru": "Количественное исследование опирается на числа и измерения.",
+        "uz": "Miqdoriy tadqiqot raqamlar va o'lchovlarga tayanadi."
+      }
+    },
+    {
+      "word": "qualitative",
+      "part_of_speech": "adjective",
+      "translation": "качественный",
+      "translations": {
+        "ru": "качественный",
+        "uz": "sifatiy"
+      },
+      "example": "Interviews provide qualitative data about people's opinions.",
+      "example_translations": {
+        "ru": "Интервью дают качественные данные о мнениях людей.",
+        "uz": "Intervyular odamlarning fikrlari haqida sifatiy ma'lumotlar beradi."
+      }
+    },
+    {
+      "word": "longitudinal",
+      "part_of_speech": "adjective",
+      "translation": "лонгитюдный, длительный",
+      "translations": {
+        "ru": "лонгитюдный, длительный",
+        "uz": "uzoq muddatli"
+      },
+      "example": "A longitudinal study followed the children for decades.",
+      "example_translations": {
+        "ru": "В лонгитюдном исследовании за детьми наблюдали десятки лет.",
+        "uz": "Uzoq muddatli tadqiqotda bolalar o'nlab yillar davomida kuzatildi."
+      }
+    },
+    {
+      "word": "randomize",
+      "part_of_speech": "verb",
+      "translation": "распределять случайным образом",
+      "translations": {
+        "ru": "распределять случайным образом",
+        "uz": "tasodifiy taqsimlamoq"
+      },
+      "example": "Researchers randomize patients into two treatment groups.",
+      "example_translations": {
+        "ru": "Исследователи распределяют пациентов случайным образом по двум группам лечения.",
+        "uz": "Tadqiqotchilar bemorlarni ikki davolash guruhiga tasodifiy taqsimlaydi."
+      }
+    },
+    {
+      "word": "placebo",
+      "part_of_speech": "noun",
+      "translation": "плацебо",
+      "translations": {
+        "ru": "плацебо",
+        "uz": "platsebo"
+      },
+      "example": "Half the patients got a placebo, not medicine.",
+      "example_translations": {
+        "ru": "Половина пациентов получила плацебо, а не лекарство.",
+        "uz": "Bemorlarning yarmi dori emas, platsebo oldi."
+      }
+    },
+    {
+      "word": "cohort",
+      "part_of_speech": "noun",
+      "translation": "группа участников",
+      "translations": {
+        "ru": "группа участников",
+        "uz": "ishtirokchilar guruhi"
+      },
+      "example": "The study tracked a cohort of 500 nurses.",
+      "example_translations": {
+        "ru": "В исследовании наблюдали за группой участников из 500 медсестёр.",
+        "uz": "Tadqiqotda 500 hamshiradan iborat ishtirokchilar guruhi kuzatildi."
+      }
+    },
+    {
+      "word": "fieldwork",
+      "part_of_speech": "noun",
+      "translation": "полевые исследования",
+      "translations": {
+        "ru": "полевые исследования",
+        "uz": "dala tadqiqotlari"
+      },
+      "example": "She did her fieldwork in remote fishing villages.",
+      "example_translations": {
+        "ru": "Она проводила полевые исследования в отдалённых рыбацких деревнях.",
+        "uz": "U dala tadqiqotlarini olis baliqchilar qishloqlarida o'tkazdi."
+      }
+    }
+  ]
+}

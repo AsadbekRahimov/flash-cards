@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 13,
+    "title": "Общество",
+    "title_uz": "Jamiyat"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Социальные слои",
+    "title_uz": "Ijtimoiy qatlamlar"
+  },
+  "words": [
+    {
+      "word": "stratification",
+      "part_of_speech": "noun",
+      "translation": "социальное расслоение",
+      "translations": {
+        "ru": "социальное расслоение",
+        "uz": "ijtimoiy tabaqalanish"
+      },
+      "example": "Social stratification grows when wealth stays in few hands.",
+      "example_translations": {
+        "ru": "Социальное расслоение усиливается, когда богатство остаётся в руках немногих.",
+        "uz": "Boylik ozchilik qo'lida qolsa, ijtimoiy tabaqalanish kuchayadi."
+      }
+    },
+    {
+      "word": "mobility",
+      "part_of_speech": "noun",
+      "translation": "социальная мобильность",
+      "translations": {
+        "ru": "социальная мобильность",
+        "uz": "ijtimoiy mobillik"
+      },
+      "example": "Good education increases social mobility for poor families.",
+      "example_translations": {
+        "ru": "Хорошее образование повышает социальную мобильность бедных семей.",
+        "uz": "Yaxshi ta'lim kambag'al oilalarning ijtimoiy mobilligini oshiradi."
+      }
+    },
+    {
+      "word": "elite",
+      "part_of_speech": "noun",
+      "translation": "элита",
+      "translations": {
+        "ru": "элита",
+        "uz": "elita"
+      },
+      "example": "Only a small elite could afford private schools then.",
+      "example_translations": {
+        "ru": "Тогда частные школы могла себе позволить лишь немногочисленная элита.",
+        "uz": "O'sha paytda xususiy maktablarga faqat kichik elitaning qurbi yetardi."
+      }
+    },
+    {
+      "word": "aristocracy",
+      "part_of_speech": "noun",
+      "translation": "аристократия",
+      "translations": {
+        "ru": "аристократия",
+        "uz": "zodagonlar tabaqasi"
+      },
+      "example": "The aristocracy owned most of the land for centuries.",
+      "example_translations": {
+        "ru": "Аристократия веками владела большей частью земли.",
+        "uz": "Zodagonlar tabaqasi asrlar davomida yerning katta qismiga egalik qilgan."
+      }
+    },
+    {
+      "word": "underclass",
+      "part_of_speech": "noun",
+      "translation": "низший слой общества",
+      "translations": {
+        "ru": "низший слой общества",
+        "uz": "jamiyatning quyi qatlami"
+      },
+      "example": "Long-term unemployment created an underclass in the city.",
+      "example_translations": {
+        "ru": "Длительная безработица породила в городе низший слой общества.",
+        "uz": "Uzoq muddatli ishsizlik shaharda jamiyatning quyi qatlamini yuzaga keltirdi."
+      }
+    },
+    {
+      "word": "caste",
+      "part_of_speech": "noun",
+      "translation": "каста",
+      "translations": {
+        "ru": "каста",
+        "uz": "kasta"
+      },
+      "example": "In that society, people rarely married outside their caste.",
+      "example_translations": {
+        "ru": "В том обществе люди редко вступали в брак вне своей касты.",
+        "uz": "O'sha jamiyatda odamlar kamdan-kam hollarda o'z kastasidan tashqarida turmush qurardi."
+      }
+    },
+    {
+      "word": "meritocracy",
+      "part_of_speech": "noun",
+      "translation": "меритократия",
+      "translations": {
+        "ru": "меритократия",
+        "uz": "meritokratiya"
+      },
+      "example": "In a meritocracy, talent matters more than family name.",
+      "example_translations": {
+        "ru": "При меритократии талант важнее фамилии.",
+        "uz": "Meritokratiyada iste'dod familiyadan muhimroq."
+      }
+    },
+    {
+      "word": "marginalize",
+      "part_of_speech": "verb",
+      "translation": "вытеснять на обочину общества",
+      "translations": {
+        "ru": "вытеснять на обочину общества",
+        "uz": "jamiyatdan chetga surmoq"
+      },
+      "example": "Such policies marginalize people without a formal education.",
+      "example_translations": {
+        "ru": "Такая политика вытесняет на обочину общества людей без официального образования.",
+        "uz": "Bunday siyosat rasmiy ma'lumoti yo'q odamlarni jamiyatdan chetga suradi."
+      }
+    },
+    {
+      "word": "socioeconomic",
+      "part_of_speech": "adjective",
+      "translation": "социально-экономический",
+      "translations": {
+        "ru": "социально-экономический",
+        "uz": "ijtimoiy-iqtisodiy"
+      },
+      "example": "Health often depends on a family's socioeconomic status.",
+      "example_translations": {
+        "ru": "Здоровье часто зависит от социально-экономического положения семьи.",
+        "uz": "Salomatlik ko'pincha oilaning ijtimoiy-iqtisodiy ahvoliga bog'liq."
+      }
+    },
+    {
+      "word": "demographic",
+      "part_of_speech": "adjective",
+      "translation": "демографический",
+      "translations": {
+        "ru": "демографический",
+        "uz": "demografik"
+      },
+      "example": "An aging population is a major demographic change.",
+      "example_translations": {
+        "ru": "Старение населения — серьёзное демографическое изменение.",
+        "uz": "Aholining qarishi — jiddiy demografik o'zgarish."
+      }
+    }
+  ]
+}

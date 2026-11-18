@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 2,
+    "title": "Чувства и отношения",
+    "title_uz": "His-tuyg'ular va munosabatlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Близкие люди",
+    "title_uz": "Yaqin insonlar"
+  },
+  "words": [
+    {
+      "word": "rapport",
+      "part_of_speech": "noun",
+      "translation": "взаимопонимание",
+      "translations": {
+        "ru": "взаимопонимание",
+        "uz": "o'zaro tushunish"
+      },
+      "example": "The new teacher quickly built rapport with her class.",
+      "example_translations": {
+        "ru": "Новая учительница быстро нашла взаимопонимание с классом.",
+        "uz": "Yangi o'qituvchi sinfi bilan tezda o'zaro tushunishga erishdi."
+      }
+    },
+    {
+      "word": "devotion",
+      "part_of_speech": "noun",
+      "translation": "преданность",
+      "translations": {
+        "ru": "преданность",
+        "uz": "sadoqat"
+      },
+      "example": "His devotion to his sick wife touched everyone.",
+      "example_translations": {
+        "ru": "Его преданность больной жене тронула всех.",
+        "uz": "Uning bemor xotiniga sadoqati hammaga ta'sir qildi."
+      }
+    },
+    {
+      "word": "affection",
+      "part_of_speech": "noun",
+      "translation": "нежность, привязанность",
+      "translations": {
+        "ru": "нежность, привязанность",
+        "uz": "mehr"
+      },
+      "example": "Grandma always greeted us with warmth and affection.",
+      "example_translations": {
+        "ru": "Бабушка всегда встречала нас с теплотой и нежностью.",
+        "uz": "Buvim bizni doim iliqlik va mehr bilan kutib olardi."
+      }
+    },
+    {
+      "word": "companionship",
+      "part_of_speech": "noun",
+      "translation": "дружеское общение",
+      "translations": {
+        "ru": "дружеское общение",
+        "uz": "hamsuhbatlik, ulfatchilik"
+      },
+      "example": "After retiring, he missed the companionship of his colleagues.",
+      "example_translations": {
+        "ru": "Выйдя на пенсию, он скучал по дружескому общению с коллегами.",
+        "uz": "Nafaqaga chiqqach, u hamkasblari bilan hamsuhbatlikni sog'indi."
+      }
+    },
+    {
+      "word": "kinship",
+      "part_of_speech": "noun",
+      "translation": "родство",
+      "translations": {
+        "ru": "родство",
+        "uz": "qarindoshlik"
+      },
+      "example": "Kinship ties are very strong in this village.",
+      "example_translations": {
+        "ru": "Узы родства очень крепки в этой деревне.",
+        "uz": "Bu qishloqda qarindoshlik rishtalari juda mustahkam."
+      }
+    },
+    {
+      "word": "reconcile",
+      "part_of_speech": "verb",
+      "translation": "мириться",
+      "translations": {
+        "ru": "мириться",
+        "uz": "yarashmoq"
+      },
+      "example": "The brothers reconciled after years of silence.",
+      "example_translations": {
+        "ru": "Братья помирились после многих лет молчания.",
+        "uz": "Aka-uka yillar davom etgan jimlikdan so'ng yarashdi."
+      }
+    },
+    {
+      "word": "alienate",
+      "part_of_speech": "verb",
+      "translation": "отталкивать, отдалять",
+      "translations": {
+        "ru": "отталкивать, отдалять",
+        "uz": "o'zidan uzoqlashtirmoq"
+      },
+      "example": "His constant criticism alienated even his closest friends.",
+      "example_translations": {
+        "ru": "Его постоянная критика оттолкнула даже самых близких друзей.",
+        "uz": "Uning doimiy tanqidi hatto eng yaqin do'stlarini ham o'zidan uzoqlashtirdi."
+      }
+    },
+    {
+      "word": "cherish",
+      "part_of_speech": "verb",
+      "translation": "дорожить, лелеять",
+      "translations": {
+        "ru": "дорожить, лелеять",
+        "uz": "ardoqlamoq, qadrlamoq"
+      },
+      "example": "I cherish every moment spent with my grandparents.",
+      "example_translations": {
+        "ru": "Я дорожу каждым мгновением, проведённым с бабушкой и дедушкой.",
+        "uz": "Buvim va bobom bilan o'tkazgan har bir lahzani ardoqlayman."
+      }
+    },
+    {
+      "word": "confide",
+      "part_of_speech": "verb",
+      "translation": "доверяться, поверять тайны",
+      "translations": {
+        "ru": "доверяться, поверять тайны",
+        "uz": "sirini ishonib aytmoq"
+      },
+      "example": "She confides in her sister about everything.",
+      "example_translations": {
+        "ru": "Она во всём доверяется своей сестре.",
+        "uz": "U hamma sirini opasiga ishonib aytadi."
+      }
+    },
+    {
+      "word": "grudge",
+      "part_of_speech": "noun",
+      "translation": "затаённая обида",
+      "translations": {
+        "ru": "затаённая обида",
+        "uz": "kek"
+      },
+      "example": "He still holds a grudge against his old boss.",
+      "example_translations": {
+        "ru": "Он до сих пор таит обиду на бывшего начальника.",
+        "uz": "U hanuz sobiq boshlig'iga kek saqlaydi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 12,
+    "title": "Право и правосудие",
+    "title_uz": "Huquq va odil sudlov"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Преступления",
+    "title_uz": "Jinoyatlar"
+  },
+  "words": [
+    {
+      "word": "felony",
+      "part_of_speech": "noun",
+      "translation": "тяжкое преступление",
+      "translations": {
+        "ru": "тяжкое преступление",
+        "uz": "og'ir jinoyat"
+      },
+      "example": "Stealing a car is a felony in most states.",
+      "example_translations": {
+        "ru": "Угон автомобиля считается тяжким преступлением в большинстве штатов.",
+        "uz": "Avtomobil o'g'irlash ko'pchilik shtatlarda og'ir jinoyat hisoblanadi."
+      }
+    },
+    {
+      "word": "homicide",
+      "part_of_speech": "noun",
+      "translation": "убийство",
+      "translations": {
+        "ru": "убийство",
+        "uz": "odam o'ldirish"
+      },
+      "example": "Detectives treated the suspicious death as a homicide.",
+      "example_translations": {
+        "ru": "Следователи расценили подозрительную смерть как убийство.",
+        "uz": "Tergovchilar shubhali o'limni odam o'ldirish deb baholashdi."
+      }
+    },
+    {
+      "word": "arson",
+      "part_of_speech": "noun",
+      "translation": "поджог",
+      "translations": {
+        "ru": "поджог",
+        "uz": "qasddan o't qo'yish"
+      },
+      "example": "Investigators believe the warehouse fire was arson.",
+      "example_translations": {
+        "ru": "Следователи считают, что пожар на складе был поджогом.",
+        "uz": "Tergovchilar ombordagi yong'inni qasddan o't qo'yish deb hisoblamoqda."
+      }
+    },
+    {
+      "word": "assault",
+      "part_of_speech": "noun",
+      "translation": "нападение",
+      "translations": {
+        "ru": "нападение",
+        "uz": "hujum"
+      },
+      "example": "The victim reported the assault to the police immediately.",
+      "example_translations": {
+        "ru": "Потерпевший сразу сообщил полиции о нападении.",
+        "uz": "Jabrlanuvchi hujum haqida darhol politsiyaga xabar berdi."
+      }
+    },
+    {
+      "word": "extortion",
+      "part_of_speech": "noun",
+      "translation": "вымогательство",
+      "translations": {
+        "ru": "вымогательство",
+        "uz": "tovlamachilik"
+      },
+      "example": "Demanding money through threats is called extortion.",
+      "example_translations": {
+        "ru": "Требование денег с помощью угроз называется вымогательством.",
+        "uz": "Tahdid qilib pul talab qilish tovlamachilik deb ataladi."
+      }
+    },
+    {
+      "word": "embezzlement",
+      "part_of_speech": "noun",
+      "translation": "присвоение средств",
+      "translations": {
+        "ru": "присвоение средств",
+        "uz": "mablag'ni o'zlashtirish"
+      },
+      "example": "The accountant was convicted of embezzlement of company funds.",
+      "example_translations": {
+        "ru": "Бухгалтера осудили за присвоение средств компании.",
+        "uz": "Hisobchi kompaniya mablag'ini o'zlashtirishda aybdor deb topildi."
+      }
+    },
+    {
+      "word": "perjury",
+      "part_of_speech": "noun",
+      "translation": "лжесвидетельство",
+      "translations": {
+        "ru": "лжесвидетельство",
+        "uz": "yolg'on guvohlik berish"
+      },
+      "example": "Lying under oath in court is perjury.",
+      "example_translations": {
+        "ru": "Ложь под присягой в суде — это лжесвидетельство.",
+        "uz": "Sudda qasamyod ostida yolg'on gapirish — yolg'on guvohlik berish demakdir."
+      }
+    },
+    {
+      "word": "smuggle",
+      "part_of_speech": "verb",
+      "translation": "провозить контрабандой",
+      "translations": {
+        "ru": "провозить контрабандой",
+        "uz": "kontrabanda yo'li bilan olib o'tmoq"
+      },
+      "example": "They tried to smuggle rare birds across the border.",
+      "example_translations": {
+        "ru": "Они пытались провезти контрабандой редких птиц через границу.",
+        "uz": "Ular noyob qushlarni chegaradan kontrabanda yo'li bilan olib o'tishga urinishdi."
+      }
+    },
+    {
+      "word": "conspiracy",
+      "part_of_speech": "noun",
+      "translation": "сговор",
+      "translations": {
+        "ru": "сговор",
+        "uz": "til biriktirish"
+      },
+      "example": "Three men were accused of conspiracy to commit fraud.",
+      "example_translations": {
+        "ru": "Троих мужчин обвинили в сговоре с целью мошенничества.",
+        "uz": "Uch erkak firibgarlik qilish maqsadida til biriktirishda ayblandi."
+      }
+    },
+    {
+      "word": "accomplice",
+      "part_of_speech": "noun",
+      "translation": "соучастник",
+      "translations": {
+        "ru": "соучастник",
+        "uz": "jinoyat sherigi"
+      },
+      "example": "The thief's accomplice waited outside in a car.",
+      "example_translations": {
+        "ru": "Соучастник вора ждал снаружи в машине.",
+        "uz": "O'g'rining jinoyat sherigi tashqarida mashinada kutib turardi."
+      }
+    }
+  ]
+}

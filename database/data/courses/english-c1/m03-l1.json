@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 3,
+    "title": "Работа и карьера",
+    "title_uz": "Ish va karyera"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Должности и рост",
+    "title_uz": "Lavozim va o'sish"
+  },
+  "words": [
+    {
+      "word": "tenure",
+      "part_of_speech": "noun",
+      "translation": "срок пребывания в должности",
+      "translations": {
+        "ru": "срок пребывания в должности",
+        "uz": "lavozimda ishlash muddati"
+      },
+      "example": "Her tenure as school principal lasted ten years.",
+      "example_translations": {
+        "ru": "Срок её пребывания в должности директора школы составил десять лет.",
+        "uz": "Uning maktab direktori lavozimida ishlash muddati o'n yil bo'ldi."
+      }
+    },
+    {
+      "word": "seniority",
+      "part_of_speech": "noun",
+      "translation": "трудовой стаж",
+      "translations": {
+        "ru": "трудовой стаж",
+        "uz": "ish staji"
+      },
+      "example": "Vacation days here depend on your seniority.",
+      "example_translations": {
+        "ru": "Количество дней отпуска здесь зависит от вашего трудового стажа.",
+        "uz": "Bu yerda ta'til kunlari soni ish stajingizga bog'liq."
+      }
+    },
+    {
+      "word": "credential",
+      "part_of_speech": "noun",
+      "translation": "документ о квалификации",
+      "translations": {
+        "ru": "документ о квалификации",
+        "uz": "malakani tasdiqlovchi hujjat"
+      },
+      "example": "A teaching credential is required for this job.",
+      "example_translations": {
+        "ru": "Для этой работы требуется документ о квалификации преподавателя.",
+        "uz": "Bu ish uchun o'qituvchilik malakasini tasdiqlovchi hujjat talab qilinadi."
+      }
+    },
+    {
+      "word": "successor",
+      "part_of_speech": "noun",
+      "translation": "преемник",
+      "translations": {
+        "ru": "преемник",
+        "uz": "voris"
+      },
+      "example": "The director will name her successor next month.",
+      "example_translations": {
+        "ru": "Директор назовёт своего преемника в следующем месяце.",
+        "uz": "Direktor kelasi oy o'z vorisini e'lon qiladi."
+      }
+    },
+    {
+      "word": "predecessor",
+      "part_of_speech": "noun",
+      "translation": "предшественник",
+      "translations": {
+        "ru": "предшественник",
+        "uz": "o'tmishdosh"
+      },
+      "example": "Unlike his predecessor, the new manager listens to us.",
+      "example_translations": {
+        "ru": "В отличие от своего предшественника, новый руководитель нас слушает.",
+        "uz": "O'tmishdoshidan farqli o'laroq, yangi rahbar bizni tinglaydi."
+      }
+    },
+    {
+      "word": "demotion",
+      "part_of_speech": "noun",
+      "translation": "понижение в должности",
+      "translations": {
+        "ru": "понижение в должности",
+        "uz": "lavozimni pasaytirish"
+      },
+      "example": "After the mistake, he accepted a demotion to assistant.",
+      "example_translations": {
+        "ru": "После ошибки он согласился на понижение в должности до помощника.",
+        "uz": "Xatodan so'ng u lavozimini yordamchigacha pasaytirishga rozi bo'ldi."
+      }
+    },
+    {
+      "word": "advancement",
+      "part_of_speech": "noun",
+      "translation": "продвижение по службе",
+      "translations": {
+        "ru": "продвижение по службе",
+        "uz": "xizmatda ko'tarilish"
+      },
+      "example": "This company offers real opportunities for career advancement.",
+      "example_translations": {
+        "ru": "Эта компания даёт реальные возможности для продвижения по службе.",
+        "uz": "Bu kompaniya xizmatda ko'tarilish uchun haqiqiy imkoniyatlar beradi."
+      }
+    },
+    {
+      "word": "incumbent",
+      "part_of_speech": "noun",
+      "translation": "действующий обладатель должности",
+      "translations": {
+        "ru": "действующий обладатель должности",
+        "uz": "amaldagi lavozim egasi"
+      },
+      "example": "The incumbent has held this post for six years.",
+      "example_translations": {
+        "ru": "Действующий обладатель должности занимает этот пост шесть лет.",
+        "uz": "Amaldagi lavozim egasi bu o'rinni olti yildan beri egallab turibdi."
+      }
+    },
+    {
+      "word": "recruitment",
+      "part_of_speech": "noun",
+      "translation": "набор сотрудников",
+      "translations": {
+        "ru": "набор сотрудников",
+        "uz": "xodimlarni ishga olish"
+      },
+      "example": "Our recruitment of new staff begins every spring.",
+      "example_translations": {
+        "ru": "Набор новых сотрудников у нас начинается каждую весну.",
+        "uz": "Bizda yangi xodimlarni ishga olish har bahorda boshlanadi."
+      }
+    },
+    {
+      "word": "redundancy",
+      "part_of_speech": "noun",
+      "translation": "сокращение штата",
+      "translations": {
+        "ru": "сокращение штата",
+        "uz": "shtat qisqartirilishi"
+      },
+      "example": "Fifty workers face redundancy when the factory closes.",
+      "example_translations": {
+        "ru": "Пятидесяти рабочим грозит сокращение штата после закрытия завода.",
+        "uz": "Zavod yopilgach, ellik ishchiga shtat qisqartirilishi xavf solmoqda."
+      }
+    }
+  ]
+}

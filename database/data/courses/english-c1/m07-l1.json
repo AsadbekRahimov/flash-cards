@@ -1,0 +1,155 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 7,
+    "title": "Технологии",
+    "title_uz": "Texnologiyalar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Разработка программ",
+    "title_uz": "Dastur ishlab chiqish"
+  },
+  "words": [
+    {
+      "word": "debug",
+      "part_of_speech": "verb",
+      "translation": "отлаживать",
+      "translations": {
+        "ru": "отлаживать",
+        "uz": "xatolarni tuzatmoq"
+      },
+      "example": "It took hours to debug the faulty program.",
+      "example_translations": {
+        "ru": "Чтобы отладить неисправную программу, потребовались часы.",
+        "uz": "Nosoz dasturdagi xatolarni tuzatishga soatlar ketdi."
+      }
+    },
+    {
+      "word": "deploy",
+      "part_of_speech": "verb",
+      "translation": "развёртывать",
+      "translations": {
+        "ru": "развёртывать",
+        "uz": "joylashtirmoq"
+      },
+      "example": "We deploy the new version to the servers tonight.",
+      "example_translations": {
+        "ru": "Сегодня вечером мы развёртываем новую версию на серверах.",
+        "uz": "Bugun kechqurun yangi versiyani serverlarga joylashtiramiz."
+      }
+    },
+    {
+      "word": "repository",
+      "part_of_speech": "noun",
+      "translation": "репозиторий",
+      "translations": {
+        "ru": "репозиторий",
+        "uz": "repozitoriy"
+      },
+      "example": "All our source code is stored in one repository.",
+      "example_translations": {
+        "ru": "Весь наш исходный код хранится в одном репозитории.",
+        "uz": "Butun manba kodimiz bitta repozitoriyda saqlanadi."
+      }
+    },
+    {
+      "word": "syntax",
+      "part_of_speech": "noun",
+      "translation": "синтаксис",
+      "translations": {
+        "ru": "синтаксис",
+        "uz": "sintaksis"
+      },
+      "example": "Each programming language has its own syntax and rules.",
+      "example_translations": {
+        "ru": "У каждого языка программирования свой синтаксис и свои правила.",
+        "uz": "Har bir dasturlash tilining o'z sintaksisi va qoidalari bor."
+      }
+    },
+    {
+      "word": "iteration",
+      "part_of_speech": "noun",
+      "translation": "итерация",
+      "translations": {
+        "ru": "итерация",
+        "uz": "iteratsiya"
+      },
+      "example": "Each iteration of the app fixes earlier problems.",
+      "example_translations": {
+        "ru": "Каждая итерация приложения устраняет прежние проблемы.",
+        "uz": "Ilovaning har bir iteratsiyasi avvalgi muammolarni bartaraf etadi."
+      }
+    },
+    {
+      "word": "scalable",
+      "part_of_speech": "adjective",
+      "translation": "масштабируемый",
+      "translations": {
+        "ru": "масштабируемый",
+        "uz": "kengaytiriladigan"
+      },
+      "example": "A scalable system handles millions of new users easily.",
+      "example_translations": {
+        "ru": "Масштабируемая система легко справляется с миллионами новых пользователей.",
+        "uz": "Kengaytiriladigan tizim millionlab yangi foydalanuvchilarni bemalol ko'taradi."
+      }
+    },
+    {
+      "word": "plugin",
+      "part_of_speech": "noun",
+      "translation": "плагин",
+      "translations": {
+        "ru": "плагин",
+        "uz": "plagin"
+      },
+      "example": "Install this plugin to add extra features.",
+      "example_translations": {
+        "ru": "Установите этот плагин, чтобы добавить дополнительные функции.",
+        "uz": "Qo'shimcha funksiyalar qo'shish uchun ushbu plaginni o'rnating."
+      }
+    },
+    {
+      "word": "patch",
+      "part_of_speech": "noun",
+      "translation": "патч, исправление",
+      "translations": {
+        "ru": "патч, исправление",
+        "uz": "tuzatma"
+      },
+      "example": "The developers released a patch to remove the bug.",
+      "example_translations": {
+        "ru": "Разработчики выпустили патч, чтобы устранить ошибку.",
+        "uz": "Dasturchilar xatoni bartaraf etish uchun tuzatma chiqarishdi."
+      }
+    },
+    {
+      "word": "latency",
+      "part_of_speech": "noun",
+      "translation": "задержка",
+      "translations": {
+        "ru": "задержка",
+        "uz": "kechikish"
+      },
+      "example": "High latency makes video calls freeze and lag.",
+      "example_translations": {
+        "ru": "Из-за большой задержки видеозвонки зависают и отстают.",
+        "uz": "Katta kechikish tufayli videoqo'ng'iroqlar qotib, orqada qoladi."
+      }
+    },
+    {
+      "word": "bandwidth",
+      "part_of_speech": "noun",
+      "translation": "пропускная способность",
+      "translations": {
+        "ru": "пропускная способность",
+        "uz": "o'tkazish qobiliyati"
+      },
+      "example": "Streaming video in high quality requires a lot of bandwidth.",
+      "example_translations": {
+        "ru": "Потоковое видео высокого качества требует большой пропускной способности.",
+        "uz": "Yuqori sifatli video oqimi katta o'tkazish qobiliyatini talab qiladi."
+      }
+    }
+  ]
+}
