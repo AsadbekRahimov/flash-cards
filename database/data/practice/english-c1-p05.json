@@ -131,6 +131,15 @@
           "contemplate",
           "giving",
           "up"
+        ],
+        [
+          "she",
+          "did",
+          "not",
+          "contemplate",
+          "giving",
+          "up",
+          "once"
         ]
       ],
       "display": "Not once did she contemplate giving up.",
@@ -508,7 +517,7 @@
       "display": "What annoys me is his habitual lateness.",
       "explanation": {
         "ru": "What annoys me is … — выделительная конструкция «что меня раздражает, так это …». Habitual — привычный, постоянный: habitual lateness. Части можно поменять: His habitual lateness is what annoys me.",
-        "uz": "What annoys me is … — ajratib ko'rsatuvchi qurilma: «meni g'ashimga tegadigan narsa — …». Habitual — odatdagi, doimiy: habitual lateness. Qismlarni almashtirish mumkin: His habitual lateness is what annoys me."
+        "uz": "What annoys me is … — ajratib ko'rsatuvchi qurilma: «g'ashimga tegadigan narsa — …». Habitual — odatdagi, doimiy: habitual lateness. Qismlarni almashtirish mumkin: His habitual lateness is what annoys me."
       }
     },
     {
@@ -1785,7 +1794,7 @@
       },
       "explanation": {
         "ru": "be littered with something — быть усеянным чем-то: littered with debris. То, чем усеяно место, вводится через with; of и from невозможны.",
-        "uz": "be littered with something — biror narsa bilan to'lib-toshmoq: littered with debris. Joyni nima qoplagani with bilan beriladi; of va from mumkin emas."
+        "uz": "be littered with something — biror narsa bilan qoplanib qolmoq (hamma yoqda sochilib yotmoq): littered with debris. Joyni nima qoplagani with bilan beriladi; of va from mumkin emas."
       }
     },
     {
@@ -1802,8 +1811,8 @@
       "text": "We ___ our own compost from fallen leaves.",
       "options": [
         "make",
-        "do",
-        "build"
+        "put",
+        "set"
       ],
       "correct": [
         "make"
@@ -1813,8 +1822,8 @@
         "uz": "Biz to'kilgan barglardan o'zimiz kompost tayyorlaymiz."
       },
       "explanation": {
-        "ru": "make compost — делать компост. С compost употребляется make (или produce); do и build с ним не сочетаются.",
-        "uz": "make compost — kompost tayyorlamoq. Compost so'zi bilan make (yoki produce) ishlatiladi; do va build bu so'z bilan birikmaydi."
+        "ru": "make compost — делать компост. С compost употребляется make (или produce); put и set здесь невозможны: без указания места (put compost on the beds) они не дают предложения.",
+        "uz": "make compost — kompost tayyorlamoq. Compost so'zi bilan make (yoki produce) ishlatiladi; put va set bu yerda mumkin emas: joy ko'rsatilmasa (put compost on the beds), ular gap hosil qilmaydi."
       }
     },
     {
@@ -1958,7 +1967,7 @@
       ],
       "translation": {
         "ru": "Утечка опасных отходов — серьёзный риск",
-        "uz": "Xavfli chiqindilarning sizib chiqishi jiddiy xavf"
+        "uz": "Xavfli chiqindilarning sizib chiqishi jiddiy xatar"
       },
       "explanation": {
         "ru": "leakage: leak + -age. Hazardous оканчивается на -ous: h-a-z-a-r-d-o-u-s.",
@@ -2388,8 +2397,8 @@
         "uz": "Bu o'simlik mahalliy daryolarda kelgindi turga aylandi."
       },
       "explanation": {
-        "ru": "invasive species — инвазивный (чужеродный) вид. Species — биологический вид, форма одна для ед. и мн. числа. Kind и sort значат «разновидность» и требуют of, поэтому здесь невозможны.",
-        "uz": "invasive species — kelgindi tur. Species — biologik tur, birlik va ko'plikda shakli bir xil. Kind va sort «xil, nav» degani va ulardan keyin of kerak, shuning uchun bu yerda mumkin emas."
+        "ru": "invasive species — инвазивный (чужеродный) вид. Species — биологический вид, форма одна для ед. и мн. числа. Kind и sort значат «разновидность, сорт» и не служат названием биологического вида, поэтому здесь невозможны.",
+        "uz": "invasive species — kelgindi tur. Species — biologik tur, birlik va ko'plikda shakli bir xil. Kind va sort «xil, nav» degani, biologik tur nomi sifatida ishlatilmaydi, shuning uchun bu yerda mumkin emas."
       }
     },
     {

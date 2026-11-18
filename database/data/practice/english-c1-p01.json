@@ -45,7 +45,7 @@
       "text": "Let me be completely candid ___ you about the risks.",
       "options": [
         "with",
-        "to",
+        "on",
         "at"
       ],
       "correct": [
@@ -56,8 +56,8 @@
         "uz": "Ijozat bering, xatarlar haqida siz bilan butunlay ochiq gaplashay."
       },
       "explanation": {
-        "ru": "be candid with somebody — быть откровенным с кем-то, а о чём — about: candid with you about the risks. To и at после candid в этом значении не употребляются.",
-        "uz": "be candid with somebody — kim bilandir ochiq, ro'yirost gaplashmoq, nima haqida ekani esa about bilan beriladi: candid with you about the risks. Bu ma'noda candid so'zidan keyin to va at ishlatilmaydi."
+        "ru": "be candid with somebody — быть откровенным с кем-то, а о чём — about: candid with you about the risks. On и at после candid с человеком не употребляются.",
+        "uz": "be candid with somebody — kim bilandir ochiq, ro'yirost gaplashmoq, nima haqida ekani esa about bilan beriladi: candid with you about the risks. Odam haqida gap ketganda candid so'zidan keyin on va at ishlatilmaydi."
       }
     },
     {
@@ -317,7 +317,7 @@
       "options": [
         "about",
         "for",
-        "to"
+        "at"
       ],
       "correct": [
         "about"
@@ -327,8 +327,8 @@
         "uz": "O'qituvchilar o'quvchilarining yutuqlari borasida hech qachon xotirjamlikka berilmasligi kerak."
       },
       "explanation": {
-        "ru": "complacent about — самоуспокоенный, беспечный в отношении чего-то: complacent about progress, complacent about the risks. For и to после complacent не употребляются.",
-        "uz": "complacent about — biror narsa borasida xotirjamlikka berilgan, beparvo: complacent about progress, complacent about the risks. Complacent so'zidan keyin for va to ishlatilmaydi."
+        "ru": "complacent about — самоуспокоенный, беспечный в отношении чего-то: complacent about progress, complacent about the risks. For и at после complacent не употребляются.",
+        "uz": "complacent about — biror narsa borasida xotirjamlikka berilgan, beparvo: complacent about progress, complacent about the risks. Complacent so'zidan keyin for va at ishlatilmaydi."
       }
     },
     {
@@ -381,7 +381,7 @@
         "remark"
       ],
       "translation": {
-        "ru": "Она отпустила злое замечание о новом платье сестры.",
+        "ru": "Она отпустила язвительное замечание о новом платье сестры.",
         "uz": "U singlisining yangi ko'ylagi haqida g'arazli piching qildi."
       },
       "explanation": {
@@ -662,7 +662,7 @@
         "grew"
       ],
       "translation": {
-        "ru": "Слушатели становились всё беспокойнее, пока речь затягивалась.",
+        "ru": "Слушатели становились всё беспокойнее по мере того, как речь затягивалась.",
         "uz": "Nutq cho'zilgani sari tinglovchilar betoqat bo'la boshladi."
       },
       "explanation": {
@@ -876,8 +876,8 @@
       "text": "It took all her willpower to ___ the temptation.",
       "options": [
         "resist",
-        "oppose",
-        "stop"
+        "win",
+        "hold"
       ],
       "correct": [
         "resist"
@@ -887,8 +887,8 @@
         "uz": "Vasvasaga qarshi turish uchun unga butun iroda kuchi kerak bo'ldi."
       },
       "explanation": {
-        "ru": "resist the temptation — устоять перед соблазном. Oppose — выступать против (плана, идеи), stop — остановить: с temptation в этом значении они не употребляются.",
-        "uz": "resist the temptation — vasvasaga berilmaslik. Oppose — biror reja yoki g'oyaga qarshi chiqmoq, stop — to'xtatmoq: bu ma'noda ular temptation so'zi bilan ishlatilmaydi."
+        "ru": "resist the temptation — устоять перед соблазном. «Победить искушение» по-английски тоже resist (или overcome) the temptation; win и hold с temptation так не сочетаются.",
+        "uz": "resist the temptation — vasvasaga berilmaslik, unga qarshi tura olmoq. «Vasvasani yengmoq» ham resist (yoki overcome) the temptation bo'ladi; win va hold fe'llari temptation so'zi bilan bunday birikmaydi."
       }
     },
     {
@@ -906,7 +906,7 @@
       "options": [
         "on",
         "to",
-        "for"
+        "over"
       ],
       "correct": [
         "on"
@@ -916,8 +916,8 @@
         "uz": "Sudya yosh huquqbuzarga rahm qildi."
       },
       "explanation": {
-        "ru": "have mercy on somebody — сжалиться над кем-то, пощадить. После have mercy нужен on; to встречается после show (show mercy to), а for здесь не употребляется.",
-        "uz": "have mercy on somebody — kimgadir rahm qilmoq, kechirmoq. Have mercy iborasidan keyin on kerak; to esa show fe'lidan keyin keladi (show mercy to), for esa bu yerda ishlatilmaydi."
+        "ru": "have mercy on somebody — сжалиться над кем-то, пощадить. После have mercy нужен on; русское «над» здесь не over, а to после have mercy не употребляется (но show mercy to).",
+        "uz": "have mercy on somebody — kimgadir rahm qilmoq, uni ayamoq. Have mercy iborasidan keyin on kerak; over va to bu iboradan keyin ishlatilmaydi (lekin show mercy to deyiladi)."
       }
     },
     {
@@ -942,7 +942,7 @@
       ],
       "translation": {
         "ru": "У него даже не хватило порядочности мне позвонить.",
-        "uz": "U menga qo'ng'iroq qilishga ham odamgarchilik qilmadi."
+        "uz": "Uning menga qo'ng'iroq qilishga ham odamgarchiligi yetmadi."
       },
       "explanation": {
         "ru": "have the decency to do something — иметь порядочность что-то сделать; часто с упрёком: He did not even have the decency to… Make и take с decency так не сочетаются.",
@@ -1238,7 +1238,7 @@
         "knack"
       ],
       "prompt": {
-        "ru": "Она умеет сделать так, чтобы люди чувствовали себя желанными гостями.",
+        "ru": "У неё есть умение сделать так, чтобы люди чувствовали себя желанными гостями.",
         "uz": "Uning odamlarga o'zlarini xush ko'rilgan mehmondek his qildirish uquvi bor."
       },
       "fragments": [
@@ -1746,7 +1746,7 @@
       "text": "Many young teachers grow disillusioned ___ the system.",
       "options": [
         "with",
-        "of",
+        "on",
         "from"
       ],
       "correct": [
@@ -1757,8 +1757,8 @@
         "uz": "Ko'plab yosh o'qituvchilarning tizimdan hafsalasi pir bo'ladi."
       },
       "explanation": {
-        "ru": "disillusioned with — разочарованный в чём-то; встречается и disillusioned by. Of и from после disillusioned не употребляются.",
-        "uz": "disillusioned with — biror narsadan hafsalasi pir bo'lgan; disillusioned by ham uchraydi. Disillusioned so'zidan keyin of va from ishlatilmaydi."
+        "ru": "disillusioned with — разочарованный в чём-то; встречается и disillusioned by. On и from после disillusioned не употребляются.",
+        "uz": "disillusioned with — biror narsadan hafsalasi pir bo'lgan; disillusioned by ham uchraydi. Disillusioned so'zidan keyin on va from ishlatilmaydi."
       }
     },
     {
@@ -2074,7 +2074,7 @@
       "text": "It takes time to ___ rapport with new clients.",
       "options": [
         "build",
-        "make",
+        "take",
         "do"
       ],
       "correct": [
@@ -2085,8 +2085,8 @@
         "uz": "Yangi mijozlar bilan o'zaro tushunish o'rnatish uchun vaqt kerak."
       },
       "explanation": {
-        "ru": "build rapport with — наладить взаимопонимание с кем-то. Так же: establish rapport. Make и do с rapport не сочетаются.",
-        "uz": "build rapport with — kim bilandir o'zaro tushunish o'rnatmoq. Xuddi shunday: establish rapport. Make va do fe'llari rapport so'zi bilan birikmaydi."
+        "ru": "build rapport with — наладить взаимопонимание с кем-то. Так же: establish rapport. Take и do с rapport не сочетаются.",
+        "uz": "build rapport with — kim bilandir o'zaro tushunish o'rnatmoq. Xuddi shunday: establish rapport. Take va do fe'llari rapport so'zi bilan birikmaydi."
       }
     },
     {
@@ -2595,8 +2595,8 @@
       "text": "We would like to ___ our condolences to the family.",
       "options": [
         "offer",
-        "make",
-        "tell"
+        "tell",
+        "do"
       ],
       "correct": [
         "offer"
@@ -2606,8 +2606,8 @@
         "uz": "Oilaga ta'ziya bildirmoqchimiz."
       },
       "explanation": {
-        "ru": "offer (express) one's condolences — выразить соболезнования. Condolences обычно во множественном числе. Make и tell с condolences не употребляются.",
-        "uz": "offer (express) one's condolences — ta'ziya bildirmoq. Condolences odatda ko'plikda keladi. Make va tell fe'llari condolences so'zi bilan ishlatilmaydi."
+        "ru": "offer (express) one's condolences — выразить соболезнования. Condolences обычно во множественном числе. Tell и do с condolences не употребляются.",
+        "uz": "offer (express) one's condolences — ta'ziya bildirmoq. Condolences odatda ko'plikda keladi. Tell va do fe'llari condolences so'zi bilan ishlatilmaydi."
       }
     },
     {
@@ -2808,8 +2808,8 @@
         "uz": "Ahvolingizga chin dildan hamdardlik bildiraman"
       },
       "explanation": {
-        "ru": "sympathize: после s пишется y, звук «т» здесь th: s-y-m-p-a-t-h-i-z-e.",
-        "uz": "sympathize: s dan keyin y yoziladi, bu yerdagi «t» tovushi th bilan: s-y-m-p-a-t-h-i-z-e."
+        "ru": "sympathize: после s пишется y, а в середине — th: s-y-m-p-a-t-h-i-z-e.",
+        "uz": "sympathize: s dan keyin y, o'rtada esa th yoziladi: s-y-m-p-a-t-h-i-z-e."
       }
     },
     {

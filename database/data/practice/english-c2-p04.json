@@ -330,7 +330,7 @@
       ],
       "translation": {
         "ru": "В старом зале гулко раздавались смех и музыка.",
-        "uz": "Eski zal kulgi va musiqa sadolaridan gumburlab turardi."
+        "uz": "Eski zal kulgi va musiqa sadolaridan jaranglab turardi."
       },
       "explanation": {
         "ru": "reverberate with something — гудеть, отдаваться эхом от чего-то: the hall reverberated with laughter. Подлежащее — место, а звук вводит with. Of и by здесь невозможны.",
@@ -432,7 +432,7 @@
       ],
       "prompt": {
         "ru": "Чем резче становился его тон, тем меньше мы его слушали.",
-        "uz": "Uning ohangi o'tkirlashgani sari biz uni shunchalik kam tinglardik."
+        "uz": "Uning ohangi qanchalik o'tkirlashsa, biz uni shunchalik kam tinglardik."
       },
       "fragments": [
         "the more strident",
@@ -703,6 +703,14 @@
           "I",
           "have",
           "rarely",
+          "seen",
+          "so bleak",
+          "a landscape"
+        ],
+        [
+          "I",
+          "rarely",
+          "have",
           "seen",
           "so bleak",
           "a landscape"
@@ -1147,8 +1155,8 @@
         "uz": "U oldinda katta-katta qadam tashlab boradi, biz esa ortda bamaylixotir yuramiz"
       },
       "explanation": {
-        "ru": "saunter: au читается как «о»: s-a-u-n-t-e-r. В strides после i пишется d, в конце -es.",
-        "uz": "saunter: au «o» deb o'qiladi: s-a-u-n-t-e-r. Strides so'zida i harfidan keyin d, oxirida -es yoziladi."
+        "ru": "saunter: au читается как «о»: s-a-u-n-t-e-r. Strides = stride + s: немая e остаётся.",
+        "uz": "saunter: au «o» deb o'qiladi: s-a-u-n-t-e-r. Strides = stride + s: o'qilmaydigan e saqlanadi."
       }
     },
     {
@@ -1173,7 +1181,7 @@
       ],
       "translation": {
         "ru": "После операции он ходил неуверенной походкой.",
-        "uz": "Operatsiyadan keyin u beqaror yurish tarzi bilan yurardi."
+        "uz": "Operatsiyadan keyin uning yurishi beqaror edi."
       },
       "explanation": {
         "ru": "walk with a … gait — ходить какой-то походкой: walk with an unsteady gait, with a limping gait. Походку вводит with; by и on здесь невозможны.",
@@ -1267,6 +1275,14 @@
           "in",
           "her",
           "demeanor",
+          "betrayed",
+          "her fear"
+        ],
+        [
+          "in",
+          "her",
+          "demeanor",
+          "nothing",
           "betrayed",
           "her fear"
         ]
@@ -1738,7 +1754,7 @@
       "text": "He can never resist ___ a pun on someone's name.",
       "options": [
         "making",
-        "doing",
+        "taking",
         "playing"
       ],
       "correct": [
@@ -1749,8 +1765,8 @@
         "uz": "U birovning ismi bilan so'z o'yini qilishdan hech o'zini tiya olmaydi."
       },
       "explanation": {
-        "ru": "make a pun (on something) — скаламбурить, обыграть что-то. С pun употребляется make; do с ним не сочетается, а play есть в выражении a play on words, но не с pun.",
-        "uz": "make a pun (on something) — so'z o'yini qilmoq. Pun so'zi bilan make keladi; do u bilan birikmaydi, play esa a play on words iborasida bor, pun bilan emas."
+        "ru": "make a pun (on something) — скаламбурить, обыграть что-то. С pun употребляется make; take с ним не сочетается, а play есть в выражении a play on words, но не с pun.",
+        "uz": "make a pun (on something) — so'z o'yini qilmoq. Pun so'zi bilan make keladi; take u bilan birikmaydi, play esa a play on words iborasida bor, pun bilan emas."
       }
     },
     {
@@ -1803,8 +1819,8 @@
         "with"
       ],
       "translation": {
-        "ru": "Последний акт комедии окрашен грустной трогательностью.",
-        "uz": "Komediyaning so'nggi pardasiga hazin ta'sirchanlik singib ketgan."
+        "ru": "В последнем акте комедии есть оттенок трогательности.",
+        "uz": "Komediyaning so'nggi pardasi hazin ta'sirchanlik tusini olgan."
       },
       "explanation": {
         "ru": "tinged with something — окрашенный чем-то, с оттенком чего-то: tinged with pathos, with sadness, with regret. После tinged идёт with; of и on здесь невозможны.",
@@ -2087,7 +2103,7 @@
         "note"
       ],
       "translation": {
-        "ru": "Если же о более будничном — крышу всё ещё нужно чинить.",
+        "ru": "Если же говорить о более будничном, крышу всё ещё нужно чинить.",
         "uz": "Endi jo'nroq masalaga kelsak, tomni hali ham ta'mirlash kerak."
       },
       "explanation": {
@@ -2353,7 +2369,7 @@
       "text": "The whole story is told ___ an omniscient narrator.",
       "options": [
         "by",
-        "from",
+        "into",
         "at"
       ],
       "correct": [
@@ -2364,8 +2380,8 @@
         "uz": "Butun voqeani hamma narsani biluvchi hikoyachi hikoya qiladi."
       },
       "explanation": {
-        "ru": "be told by a narrator — рассказываться кем-то: в пассиве исполнителя вводит by. An omniscient narrator знает мысли всех героев. From и at здесь не подходят.",
-        "uz": "be told by a narrator — kim tomonidandir hikoya qilinmoq: majhul nisbatda bajaruvchi by predlogi bilan beriladi. An omniscient narrator barcha qahramonlarning o'ylarini biladi. From va at bu yerda to'g'ri kelmaydi."
+        "ru": "be told by a narrator — рассказываться кем-то: в пассиве исполнителя вводит by. An omniscient narrator знает мысли всех героев. Into и at здесь не подходят.",
+        "uz": "be told by a narrator — kim tomonidandir hikoya qilinmoq: majhul nisbatda bajaruvchi by predlogi bilan beriladi. An omniscient narrator barcha qahramonlarning o'ylarini biladi. Into va at bu yerda to'g'ri kelmaydi."
       }
     },
     {

@@ -182,7 +182,7 @@
       ],
       "prompt": {
         "ru": "Нравственность нельзя свести к простому послушанию.",
-        "uz": "Axloqni shunchaki itoatkorlikdan iborat deb bo'lmaydi."
+        "uz": "Axloqni shunchaki itoatkorlikdan iborat deb hisoblab bo'lmaydi."
       },
       "fragments": [
         "morality",
@@ -1171,7 +1171,7 @@
       ],
       "translation": {
         "ru": "Её благочестие было искренним, но никогда не ортодоксальным",
-        "uz": "Uning taqvosi samimiy edi, lekin hech qachon ortodoksal bo'lmagan"
+        "uz": "Uning taqvosi samimiy edi, lekin hech qachon ortodoksal emas edi"
       },
       "explanation": {
         "ru": "piety: после p идут i и e: p-i-e-t-y (от pious). Orthodox: в середине th, на конце x: o-r-t-h-o-d-o-x.",
@@ -1469,7 +1469,7 @@
       "options": [
         "of",
         "from",
-        "at"
+        "to"
       ],
       "correct": [
         "of"
@@ -1479,8 +1479,8 @@
         "uz": "U o'z lavozimini o'z ixtiyori bilan tark etdi."
       },
       "explanation": {
-        "ru": "of one's own volition — по собственной воле, добровольно (так же of one's own free will). From и at в этом выражении невозможны.",
-        "uz": "of one's own volition — o'z ixtiyori bilan, ixtiyoriy ravishda (of one's own free will ham deyiladi). From va at bu iborada ishlatilmaydi."
+        "ru": "of one's own volition — по собственной воле, добровольно (так же of one's own free will). From и to в этом выражении невозможны.",
+        "uz": "of one's own volition — o'z ixtiyori bilan, ixtiyoriy ravishda (of one's own free will ham deyiladi). From va to bu iborada ishlatilmaydi."
       }
     },
     {
@@ -1601,7 +1601,7 @@
       ],
       "prompt": {
         "ru": "Остаётся неясным, могут ли машины быть чувствующими.",
-        "uz": "Mashinalarning his qiluvchi bo'la olish-olmasligi noaniqligicha qolmoqda."
+        "uz": "Mashinalar his qiluvchi bo'la oladimi yoki yo'qmi, bu hanuz noaniq."
       },
       "fragments": [
         "whether",
@@ -1727,7 +1727,7 @@
       ],
       "translation": {
         "ru": "Сообщения, действующие на подсознание, не обманут острый ум",
-        "uz": "Ong ostiga ta'sir qiluvchi xabarlar o'tkir aql-zakovatni aldolmaydi"
+        "uz": "Ong ostiga ta'sir qiluvchi xabarlar o'tkir aql-zakovatni alday olmaydi"
       },
       "explanation": {
         "ru": "subliminal: sub + liminal, одна m: s-u-b-l-i-m-i-n-a-l. Intellect — с двойным l: i-n-t-e-l-l-e-c-t.",

@@ -120,6 +120,14 @@
           "forced",
           "many families",
           "to leave"
+        ],
+        [
+          "driven up",
+          "by gentrification",
+          "rents",
+          "forced",
+          "many families",
+          "to leave"
         ]
       ],
       "display": "Rents driven up by gentrification forced many families to leave.",
@@ -514,6 +522,15 @@
           "such a",
           "magnificent",
           "dome"
+        ],
+        [
+          "we",
+          "rarely",
+          "have",
+          "seen",
+          "such a",
+          "magnificent",
+          "dome"
         ]
       ],
       "display": "Rarely have we seen such a magnificent dome.",
@@ -610,7 +627,7 @@
       "options": [
         "from",
         "of",
-        "off"
+        "to"
       ],
       "correct": [
         "from"
@@ -620,8 +637,8 @@
         "uz": "O'tgan qish o'nlab ijarachilar binodan ko'chirib chiqarildi."
       },
       "explanation": {
-        "ru": "evict somebody from a place — выселить кого-то откуда-то: evicted from the building. Of и off после evict не употребляются.",
-        "uz": "evict somebody from a place — kimnidir biror joydan ko'chirib chiqarmoq: evicted from the building. Evict fe'lidan keyin of va off ishlatilmaydi."
+        "ru": "evict somebody from a place — выселить кого-то откуда-то: evicted from the building. Of и to здесь не подходят: место, откуда выселяют, вводится через from.",
+        "uz": "evict somebody from a place — kimnidir biror joydan ko'chirib chiqarmoq: evicted from the building. Of va to bu yerda to'g'ri kelmaydi: ko'chirib chiqariladigan joy from bilan keladi."
       }
     },
     {
@@ -930,8 +947,8 @@
       "text": "The fishing vessel ___ anchor in a quiet bay.",
       "options": [
         "dropped",
-        "threw",
-        "put"
+        "put",
+        "made"
       ],
       "correct": [
         "dropped"
@@ -941,8 +958,8 @@
         "uz": "Baliqchi kemasi sokin ko'rfazda langar tashladi."
       },
       "explanation": {
-        "ru": "drop anchor — бросить якорь, встать на якорь. Русское «бросить» здесь не throw; put anchor тоже не говорят.",
-        "uz": "drop anchor — langar tashlamoq. O'zbekcha «tashlamoq» bu yerda throw emas; put anchor ham deyilmaydi."
+        "ru": "drop anchor — бросить якорь, встать на якорь (книжное — cast anchor). Put и make с anchor в этом значении не употребляются.",
+        "uz": "drop anchor — langar tashlamoq (kitobiy uslubda cast anchor). Put va make fe'llari anchor so'zi bilan bu ma'noda ishlatilmaydi."
       }
     },
     {
@@ -1326,6 +1343,13 @@
           "as far as",
           "the eye",
           "can see"
+        ],
+        [
+          "as far as",
+          "the eye",
+          "can see",
+          "the steppe",
+          "stretches"
         ]
       ],
       "display": "The steppe stretches as far as the eye can see.",
@@ -1559,12 +1583,21 @@
           "than",
           "share prices",
           "plummeted"
+        ],
+        [
+          "the news",
+          "had",
+          "no sooner",
+          "broken",
+          "than",
+          "share prices",
+          "plummeted"
         ]
       ],
       "display": "No sooner had the news broken than share prices plummeted.",
       "explanation": {
-        "ru": "No sooner had … than … — «едва …, как …»: после no sooner инверсия (had the news broken), вторая часть начинается с than. The news broke — новость стала известна.",
-        "uz": "No sooner had … than … — «… bilanoq …»: no sooner dan keyin inversiya (had the news broken), ikkinchi qism than bilan boshlanadi. The news broke — xabar ma'lum bo'ldi."
+        "ru": "No sooner had … than … — «едва …, как …»: после no sooner в начале инверсия (had the news broken), вторая часть начинается с than. Без инверсии: the news had no sooner broken than… The news broke — новость стала известна.",
+        "uz": "No sooner had … than … — «… bilanoq …»: gap boshidagi no sooner dan keyin inversiya (had the news broken), ikkinchi qism than bilan boshlanadi. Inversiyasiz: the news had no sooner broken than… The news broke — xabar ma'lum bo'ldi."
       }
     },
     {
@@ -1778,8 +1811,8 @@
       "text": "The airline will incur heavy ___ if the strike continues.",
       "options": [
         "losses",
-        "defeats",
-        "drops"
+        "drops",
+        "minuses"
       ],
       "correct": [
         "losses"
@@ -1789,8 +1822,8 @@
         "uz": "Ish tashlash davom etsa, aviakompaniya katta zarar ko'radi."
       },
       "explanation": {
-        "ru": "incur losses — понести убытки. «Понести поражение» по-английски suffer a defeat, поэтому incur defeats не говорят; drops (падения) с incur тоже не сочетается.",
-        "uz": "incur losses — zarar ko'rmoq. «Mag'lubiyatga uchramoq» inglizchada suffer a defeat, shuning uchun incur defeats deyilmaydi; drops (pasayishlar) ham incur bilan birikmaydi."
+        "ru": "incur losses — понести убытки. Drops (падения) с incur не сочетается; minuses — калька с «минусы», в значении «убытки» так не говорят.",
+        "uz": "incur losses — zarar ko'rmoq. Drops (pasayishlar) incur fe'li bilan birikmaydi; minuses — «minus» so'zidan kalka, «zarar» ma'nosida bunday deyilmaydi."
       }
     },
     {
@@ -2031,7 +2064,7 @@
       ],
       "translation": {
         "ru": "Наши планы сковывает скромный бюджет.",
-        "uz": "Rejalarimizni tor byudjet cheklab qo'ymoqda."
+        "uz": "Rejalarimizni kamtarona byudjet cheklab qo'ymoqda."
       },
       "explanation": {
         "ru": "be constrained by something — быть ограниченным чем-то: constrained by a tight budget. В страдательном залоге то, что ограничивает, вводится через by.",
@@ -2341,7 +2374,7 @@
       ],
       "translation": {
         "ru": "У спортсменов часто удивительно высокий болевой порог.",
-        "uz": "Sportchilarda og'riq chegarasi ko'pincha ajoyib darajada yuqori bo'ladi."
+        "uz": "Sportchilarda og'riq chegarasi ko'pincha hayratlanarli darajada yuqori bo'ladi."
       },
       "explanation": {
         "ru": "a high pain threshold — высокий болевой порог. Порог бывает high или low; tall говорят о росте людей и высоте зданий, big — о размере.",
@@ -2668,12 +2701,12 @@
         "counterpart"
       ],
       "prompt": {
-        "ru": "Наш директор встретится со своим коллегой из компании-партнёра.",
-        "uz": "Direktorimiz hamkor kompaniyadagi hamkasbi bilan uchrashadi."
+        "ru": "Наш директор примет у себя своего коллегу из компании-партнёра.",
+        "uz": "Direktorimiz hamkor kompaniyadagi hamkasbini qabul qiladi."
       },
       "fragments": [
         "our director",
-        "will meet",
+        "will host",
         "his counterpart",
         "from",
         "the partner company"
@@ -2681,16 +2714,16 @@
       "accepted": [
         [
           "our director",
-          "will meet",
+          "will host",
           "his counterpart",
           "from",
           "the partner company"
         ]
       ],
-      "display": "Our director will meet his counterpart from the partner company.",
+      "display": "Our director will host his counterpart from the partner company.",
       "explanation": {
-        "ru": "counterpart — человек на такой же должности в другой организации: his counterpart from the partner company — директор компании-партнёра. Meet без предлога: meet somebody.",
-        "uz": "counterpart — boshqa tashkilotda xuddi shunday lavozimdagi odam: his counterpart from the partner company — hamkor kompaniya direktori. Meet fe'li predlogsiz: meet somebody."
+        "ru": "counterpart — человек на такой же должности в другой организации: his counterpart from the partner company — директор компании-партнёра. Host somebody — принимать кого-то у себя как гостя.",
+        "uz": "counterpart — boshqa tashkilotda xuddi shunday lavozimdagi odam: his counterpart from the partner company — hamkor kompaniya direktori. Host somebody — kimnidir mehmon sifatida qabul qilmoq."
       }
     },
     {

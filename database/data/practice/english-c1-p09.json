@@ -81,12 +81,12 @@
         "to"
       ],
       "translation": {
-        "ru": "Утверждается, что министр незаконно распоряжался государственными средствами.",
+        "ru": "Утверждается, что министр использовал государственные средства не по назначению.",
         "uz": "Da'vo qilinishicha, vazir davlat mablag'larini suiiste'mol qilgan."
       },
       "explanation": {
-        "ru": "be alleged to + инфинитив — «утверждается (без доказательств), что…»: He is alleged to have misused… То же самое: It is alleged that he misused… Но когда подлежащее — человек, после is alleged идёт to, а не that или of.",
-        "uz": "be alleged to + fe'l — «da'vo qilinishicha, …»: He is alleged to have misused… Xuddi shu ma'no: It is alleged that he misused… Lekin ega shaxs bo'lsa, is alleged so'zlaridan keyin that yoki of emas, to keladi."
+        "ru": "be alleged to + инфинитив — «утверждается (без доказательств), что…»: He is alleged to have misused… То же самое: It is alleged that he misused… Но если подлежащее стоит перед is alleged (а не it), дальше идёт to + инфинитив, а не that или of.",
+        "uz": "be alleged to + fe'l — «da'vo qilinishicha, …»: He is alleged to have misused… Xuddi shu ma'no: It is alleged that he misused… Lekin ega is alleged so'zlaridan oldin tursa (it emas), keyin that yoki of emas, to + fe'l keladi."
       }
     },
     {
@@ -308,8 +308,8 @@
         "uz": "Butun dalil odamlar oqilona harakat qiladi degan dastlabki asosga tayanadi."
       },
       "explanation": {
-        "ru": "be based on the premise that… — исходить из посылки, что… После based всегда on (в книжном стиле upon); at и to здесь невозможны.",
-        "uz": "be based on the premise that… — … degan dastlabki asosga tayanmoq. Based so'zidan keyin doim on (kitobiy uslubda upon) keladi; at va to bu yerda ishlatilmaydi."
+        "ru": "be based on the premise that… — исходить из посылки, что… В значении «основан на» после based стоит on (в книжном стиле upon); at и to здесь невозможны.",
+        "uz": "be based on the premise that… — … degan dastlabki asosga tayanmoq. «Asoslangan» ma'nosida based so'zidan keyin on (kitobiy uslubda upon) keladi; at va to bu yerda ishlatilmaydi."
       }
     },
     {
@@ -1098,7 +1098,7 @@
       },
       "explanation": {
         "ru": "hyperbole: пишется -bole, а произносится «-бели» — конечная e здесь читается. В начале hyper-, как в hypermarket.",
-        "uz": "hyperbole: oxiri -bole deb yoziladi, lekin «-bəli» deb o'qiladi — oxirgi e bu yerda talaffuz qilinadi. Boshida hyper-, hypermarket so'zidagi kabi."
+        "uz": "hyperbole: oxiri -bole deb yoziladi, lekin «-beli» deb o'qiladi — oxirgi e bu yerda talaffuz qilinadi. Boshida hyper-, hypermarket so'zidagi kabi."
       }
     },
     {
@@ -1449,7 +1449,7 @@
       ],
       "translation": {
         "ru": "Древний город оставался в осаде шесть долгих месяцев.",
-        "uz": "Qadimiy shahar olti uzoq oy davomida qamalda qoldi."
+        "uz": "Qadimiy shahar uzoq olti oy davomida qamalda qoldi."
       },
       "explanation": {
         "ru": "under siege — в осаде (буквально «под осадой»). Русское «в» подсказывает in, но по-английски только under; at тоже невозможно.",
@@ -2158,7 +2158,7 @@
         "feudal"
       ],
       "prompt": {
-        "ru": "Этот замок — реликвия феодальных времён.",
+        "ru": "Этот замок — реликт феодальных времён.",
         "uz": "Bu qal'a feodal zamonlardan qolgan osori atiqa."
       },
       "fragments": [
@@ -2183,7 +2183,7 @@
       ],
       "display": "This castle is a relic of feudal times.",
       "explanation": {
-        "ru": "a relic of… — реликвия, памятник ушедшей эпохи: a relic of feudal times. Times во мн. ч. — «времена»: feudal times, ancient times.",
+        "ru": "a relic of… — реликт, памятник ушедшей эпохи: a relic of feudal times. Times во мн. ч. — «времена»: feudal times, ancient times.",
         "uz": "a relic of… — o'tgan davrdan qolgan osori atiqa: a relic of feudal times. Times ko'plikda — «zamonlar»: feudal times, ancient times."
       }
     },
@@ -2204,7 +2204,7 @@
       ],
       "translation": {
         "ru": "Средневековый автор вёл подробную летопись",
-        "uz": "O'rta asrlarda bir muallif batafsil solnoma yuritgan"
+        "uz": "O'rta asrlik bir muallif batafsil solnoma yuritgan"
       },
       "explanation": {
         "ru": "chronicle: ch читается как «к» (как в chronology), на конце -icle, как в article.",

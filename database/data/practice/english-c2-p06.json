@@ -221,7 +221,7 @@
       ],
       "translation": {
         "ru": "Спрос оставался вялым всю зиму",
-        "uz": "Talab butun qish davomida sust bo'lib qoldi"
+        "uz": "Talab qish bo'yi sustligicha qoldi"
       },
       "explanation": {
         "ru": "В sluggish две g: s-l-u-g-g-i-s-h.",
@@ -270,7 +270,7 @@
       ],
       "translation": {
         "ru": "Рынок производных финансовых инструментов пережил невыразительный год",
-        "uz": "Hosilaviy moliyaviy vositalar bozori uchun bu yil o'rtamiyona bo'ldi"
+        "uz": "Hosilaviy moliyaviy vositalar bozori uchun yil o'rtamiyona o'tdi"
       },
       "explanation": {
         "ru": "lackluster пишется одним словом (lack + luster), американское окончание -er. Derivative оканчивается на -ive.",
@@ -321,7 +321,7 @@
       "options": [
         "out",
         "down",
-        "over"
+        "up"
       ],
       "correct": [
         "out"
@@ -331,8 +331,8 @@
         "uz": "Bir yil ichida giperinflyatsiya odamlarning jamg'armalarini yo'qqa chiqardi."
       },
       "explanation": {
-        "ru": "wipe out — полностью уничтожить: hyperinflation wiped out people's savings. Wipe down и wipe over значат «протереть» (стол, поверхность) и к сбережениям не подходят.",
-        "uz": "wipe out — butunlay yo'q qilmoq: hyperinflation wiped out people's savings. Wipe down va wipe over «(stol, sirtni) artib tozalamoq» degani, jamg'armaga to'g'ri kelmaydi."
+        "ru": "wipe out — полностью уничтожить: hyperinflation wiped out people's savings. Wipe down — протереть (стол, поверхность), wipe up — вытереть (пролитое); к сбережениям они не подходят.",
+        "uz": "wipe out — butunlay yo'q qilmoq: hyperinflation wiped out people's savings. Wipe down — (stol, sirtni) artib chiqmoq, wipe up — (to'kilgan suyuqlikni) artib olmoq; ular jamg'armaga to'g'ri kelmaydi."
       }
     },
     {
@@ -1125,7 +1125,7 @@
       ],
       "translation": {
         "ru": "Даже символическая плата казалась им непомерной",
-        "uz": "Hatto ramziy to'lov ham ularga haddan ziyod tuyulardi"
+        "uz": "Hatto ramziy to'lov ham ularga haddan ziyod tuyuldi"
       },
       "explanation": {
         "ru": "exorbitant пишется без h после x: e-x-o-r-b-i-t-a-n-t, окончание -ant. Nominal оканчивается на -al.",
@@ -1176,7 +1176,7 @@
       "options": [
         "by",
         "at",
-        "with"
+        "from"
       ],
       "correct": [
         "by"
@@ -1186,8 +1186,8 @@
         "uz": "Qatnasha olmaydigan aksiyadorlar ishonchli vakil orqali ovoz berishi mumkin."
       },
       "explanation": {
-        "ru": "vote by proxy — голосовать через доверенное лицо. Устойчивое выражение с by и без артикля (как by post, by phone); at и with здесь невозможны.",
-        "uz": "vote by proxy — ishonchli vakil orqali ovoz bermoq. By predlogi bilan, artiklsiz turg'un ibora (by post, by phone kabi); at va with bu yerda mumkin emas."
+        "ru": "vote by proxy — голосовать через доверенное лицо. Устойчивое выражение с by и без артикля (как by post, by phone); at и from здесь невозможны.",
+        "uz": "vote by proxy — ishonchli vakil orqali ovoz bermoq. By predlogi bilan, artiklsiz turg'un ibora (by post, by phone kabi); at va from bu yerda mumkin emas."
       }
     },
     {
@@ -2141,12 +2141,20 @@
           "in",
           "alkaline",
           "soil"
+        ],
+        [
+          "in",
+          "alkaline",
+          "soil",
+          "these plants",
+          "do not",
+          "thrive"
         ]
       ],
       "display": "These plants do not thrive in alkaline soil.",
       "explanation": {
-        "ru": "thrive — хорошо расти, процветать; do not thrive — «плохо растут». Alkaline soil — щелочная почва (её противоположность — acidic soil).",
-        "uz": "Thrive — yaxshi o'smoq, gullab-yashnamoq; do not thrive — «yaxshi o'smaydi». Alkaline soil — ishqoriy tuproq (uning teskarisi — acidic soil)."
+        "ru": "thrive — хорошо расти, процветать; do not thrive — «плохо растут». Alkaline soil — щелочная почва (её противоположность — acidic soil). Обстоятельство in alkaline soil может стоять и в начале.",
+        "uz": "Thrive — yaxshi o'smoq, gullab-yashnamoq; do not thrive — «yaxshi o'smaydi». Alkaline soil — ishqoriy tuproq (uning teskarisi — acidic soil). In alkaline soil hol birikmasi gap boshida ham kelishi mumkin."
       }
     },
     {
@@ -2315,7 +2323,7 @@
       "text": "This tiny worm is parasitic ___ freshwater fish.",
       "options": [
         "on",
-        "to",
+        "at",
         "with"
       ],
       "correct": [
@@ -2326,8 +2334,8 @@
         "uz": "Bu mitti qurt chuchuk suv baliqlarida parazitlik qiladi."
       },
       "explanation": {
-        "ru": "be parasitic on something — паразитировать на ком-то: parasitic on fish (как и feed on, live on). To и with после parasitic не употребляются.",
-        "uz": "be parasitic on something — kimningdir hisobiga parazitlik qilmoq: parasitic on fish (feed on, live on kabi). Parasitic so'zidan keyin to va with ishlatilmaydi."
+        "ru": "be parasitic on something — паразитировать на ком-то: parasitic on fish (как и feed on, live on). At и with после parasitic не употребляются.",
+        "uz": "be parasitic on something — kimningdir hisobiga parazitlik qilmoq: parasitic on fish (feed on, live on kabi). Parasitic so'zidan keyin at va with ishlatilmaydi."
       }
     },
     {

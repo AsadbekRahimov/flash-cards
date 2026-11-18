@@ -56,7 +56,7 @@
         "uz": "Avval yumshoq qalam bilan guldonning konturini chizib chiqing."
       },
       "explanation": {
-        "ru": "trace the contour — обвести контур, провести линию точно по очертанию предмета. Русское «вести линию» здесь не lead; pull с contour тоже не сочетается.",
+        "ru": "trace the contour — обвести контур, провести линию точно по очертанию предмета. Lead и pull с contour не сочетаются: в значении «провести линию» они не употребляются.",
         "uz": "trace the contour — konturni chizib chiqmoq, chiziqni aynan narsaning shakli bo'ylab o'tkazmoq. Lead va pull fe'llari contour so'zi bilan birikmaydi."
       }
     },
@@ -757,7 +757,7 @@
       ],
       "prompt": {
         "ru": "Мотив путешествия проходит через все её книги.",
-        "uz": "Safar motivi uning barcha kitoblaridan qizil ip bo'lib o'tadi."
+        "uz": "Safar motivi uning barcha kitoblari orqali o'tadi."
       },
       "fragments": [
         "the motif",
@@ -930,8 +930,8 @@
       "text": "After the concert, a few fans were allowed to ___ backstage.",
       "options": [
         "go",
-        "visit",
-        "attend"
+        "attend",
+        "join"
       ],
       "correct": [
         "go"
@@ -941,8 +941,8 @@
         "uz": "Konsertdan keyin bir necha muxlisga sahna ortiga o'tishga ruxsat berildi."
       },
       "explanation": {
-        "ru": "go backstage — пройти за кулисы. Backstage здесь наречие, как home: go home, go backstage. Visit и attend требуют дополнения-существительного (visit the theater) и с таким наречием не сочетаются.",
-        "uz": "go backstage — sahna ortiga o'tmoq. Backstage bu yerda ravish, home kabi: go home, go backstage. Visit va attend fe'llari ot to'ldiruvchini talab qiladi (visit the theater), bunday ravish bilan birikmaydi."
+        "ru": "go backstage — пройти за кулисы. Backstage здесь наречие, как home: go home, go backstage. Attend и join требуют дополнения (attend the concert, join the band) и с одним наречием backstage не употребляются.",
+        "uz": "go backstage — sahna ortiga o'tmoq. Backstage bu yerda ravish, home kabi: go home, go backstage. Attend va join fe'llari to'ldiruvchi talab qiladi (attend the concert, join the band), yolg'iz backstage ravishi bilan ishlatilmaydi."
       }
     },
     {
@@ -1310,7 +1310,7 @@
       ],
       "prompt": {
         "ru": "Мало кто понимал, насколько провидческими были её идеи.",
-        "uz": "Uning g'oyalari kelajakni naqadar oldindan ko'rganini kam odam anglagan."
+        "uz": "Uning g'oyalari naqadar bashoratli bo'lganini kam odam anglagan."
       },
       "fragments": [
         "few people",

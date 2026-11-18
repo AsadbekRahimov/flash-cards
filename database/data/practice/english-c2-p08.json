@@ -74,7 +74,7 @@
       "text": "Her family can ___ its pedigree back to the twelfth century.",
       "options": [
         "trace",
-        "follow",
+        "draw",
         "lead"
       ],
       "correct": [
@@ -82,11 +82,11 @@
       ],
       "translation": {
         "ru": "Её семья может проследить свою родословную до двенадцатого века.",
-        "uz": "Uning oilasi o'z nasl-nasabini o'n ikkinchi asrgacha kuzata oladi."
+        "uz": "Uning oilasi o'z nasl-nasabini o'n ikkinchi asrgacha kuzatib bora oladi."
       },
       "explanation": {
-        "ru": "trace something back to — проследить что-то (родословную, историю) до какого-то времени: trace its pedigree back to the twelfth century. Follow и lead в этом выражении не употребляются.",
-        "uz": "trace something back to — biror narsani (nasl-nasabni, tarixni) qaysidir davrgacha kuzatib bormoq: trace its pedigree back to the twelfth century. Follow va lead fe'llari bu iborada ishlatilmaydi."
+        "ru": "trace something back to — проследить что-то (родословную, историю) до какого-то времени: trace its pedigree back to the twelfth century. Draw и lead в этом выражении не употребляются.",
+        "uz": "trace something back to — biror narsani (nasl-nasabni, tarixni) qaysidir davrgacha kuzatib bormoq: trace its pedigree back to the twelfth century. Draw va lead fe'llari bu iborada ishlatilmaydi."
       }
     },
     {
@@ -1095,7 +1095,7 @@
       ],
       "translation": {
         "ru": "Она видный учёный в почтенном университете",
-        "uz": "U muhtaram universitetdagi atoqli olim"
+        "uz": "U ko'hna va obro'li universitetdagi atoqli olim"
       },
       "explanation": {
         "ru": "eminent начинается с e (не путайте с imminent «неминуемый»), окончание -ent. Venerable оканчивается на -able.",
@@ -1166,22 +1166,22 @@
       "target_words": [
         "pander"
       ],
-      "text": "Too many talk shows pander to the lowest common ___.",
+      "text": "Too many talk shows pander ___ the lowest common denominator.",
       "options": [
-        "denominator",
-        "divisor",
-        "fraction"
+        "to",
+        "with",
+        "over"
       ],
       "correct": [
-        "denominator"
+        "to"
       ],
       "translation": {
         "ru": "Слишком многие ток-шоу потакают самым непритязательным вкусам.",
         "uz": "Juda ko'p tok-shoular eng past didli tomoshabinlarning ko'ngliga qarab ish tutadi."
       },
       "explanation": {
-        "ru": "the lowest common denominator — «наименьший общий знаменатель»; в переносном смысле самые примитивные вкусы. Pander to the lowest common denominator — потакать невзыскательной публике. Divisor и fraction в этой идиоме не бывают.",
-        "uz": "the lowest common denominator — «eng kichik umumiy maxraj»; ko'chma ma'noda eng jaydari did. Pander to the lowest common denominator — talabchan bo'lmagan omma didiga qarab ish tutmoq. Divisor va fraction bu iborada ishlatilmaydi."
+        "ru": "pander to somebody / something — потакать кому-то, чему-то (вкусам, предрассудкам). Pander to the lowest common denominator — потакать самым непритязательным вкусам. Нужен предлог to; with и over невозможны.",
+        "uz": "pander to somebody / something — kimningdir, nimaningdir (didi, xurofoti) ko'ngliga qarab ish tutmoq. Pander to the lowest common denominator — eng jaydari didga moslashmoq. To predlogi kerak; with va over ishlatilmaydi."
       }
     },
     {
@@ -1772,7 +1772,7 @@
       ],
       "translation": {
         "ru": "Она не позволила себя запугать его угрозами.",
-        "uz": "U uning tahdidlari bilan qo'rqitilishiga yo'l qo'ymadi."
+        "uz": "U uning tahdidlaridan qo'rqib o'tirmadi."
       },
       "explanation": {
         "ru": "be intimidated by — быть запуганным кем-то или чем-то (пассив с by). Of и from после intimidated здесь не употребляются.",
@@ -1821,12 +1821,21 @@
           "such",
           "demands",
           "under no circumstances"
+        ],
+        [
+          "we",
+          "will",
+          "under no circumstances",
+          "capitulate",
+          "to",
+          "such",
+          "demands"
         ]
       ],
       "display": "Under no circumstances will we capitulate to such demands.",
       "explanation": {
-        "ru": "Under no circumstances в начале требует инверсии: will we capitulate. Capitulate to — капитулировать перед кем-то или чем-то.",
-        "uz": "Gap boshidagi under no circumstances inversiyani talab qiladi: will we capitulate. Capitulate to — kim yoki nima oldida taslim bo'lmoq."
+        "ru": "Under no circumstances в начале требует инверсии: will we capitulate. Без инверсии: we will under no circumstances capitulate. Capitulate to — капитулировать перед кем-то или чем-то.",
+        "uz": "Gap boshidagi under no circumstances inversiyani talab qiladi: will we capitulate. Inversiyasiz: we will under no circumstances capitulate. Capitulate to — kim yoki nima oldida taslim bo'lmoq."
       }
     },
     {
@@ -2047,8 +2056,8 @@
       "text": "Very few of his theories can withstand the test of ___.",
       "options": [
         "time",
-        "years",
-        "age"
+        "date",
+        "hour"
       ],
       "correct": [
         "time"
@@ -2058,8 +2067,8 @@
         "uz": "Uning nazariyalaridan juda ozigina vaqt sinoviga bardosh bera oladi."
       },
       "explanation": {
-        "ru": "withstand (stand) the test of time — выдержать проверку временем. Это устойчивое выражение, в нём только time.",
-        "uz": "withstand (stand) the test of time — vaqt sinovidan o'tmoq. Bu turg'un ibora, unda faqat time so'zi keladi."
+        "ru": "withstand (stand) the test of time — выдержать проверку временем. Это устойчивое выражение, в нём только time; date и hour здесь невозможны.",
+        "uz": "withstand (stand) the test of time — vaqt sinovidan o'tmoq. Bu turg'un ibora, unda faqat time so'zi keladi; date va hour bu yerda ishlatilmaydi."
       }
     },
     {
@@ -2509,7 +2518,7 @@
         "The new teacher is far too lenient"
       ],
       "translation": {
-        "ru": "Новый учитель слишком снисходителен",
+        "ru": "Новый учитель чересчур снисходителен",
         "uz": "Yangi o'qituvchi haddan tashqari kechirimli"
       },
       "explanation": {

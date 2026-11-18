@@ -45,7 +45,7 @@
       "text": "Promotion in the civil service was once based ___ seniority alone.",
       "options": [
         "on",
-        "from",
+        "by",
         "at"
       ],
       "correct": [
@@ -56,8 +56,8 @@
         "uz": "Bir vaqtlar davlat xizmatida lavozimga ko'tarilish faqat ish stajiga asoslanardi."
       },
       "explanation": {
-        "ru": "based on — основанный на чём-то: based on seniority — по стажу, based on merit — по заслугам. После based нужен on (в книжной речи upon); from и at здесь ошибка.",
-        "uz": "based on — biror narsaga asoslangan: based on seniority — ish stajiga qarab, based on merit — xizmatiga qarab. Based so'zidan keyin on (kitobiy uslubda upon) keladi; from va at bu yerda xato."
+        "ru": "based on — основанный на чём-то: based on seniority — по стажу, based on merit — по заслугам. После based нужен on (в книжной речи upon); by и at здесь ошибка.",
+        "uz": "based on — biror narsaga asoslangan: based on seniority — ish stajiga qarab, based on merit — xizmatiga qarab. Based so'zidan keyin on (kitobiy uslubda upon) keladi; by va at bu yerda xato."
       }
     },
     {
@@ -74,7 +74,7 @@
       "text": "The hospital's recruitment ___ attracted many young nurses.",
       "options": [
         "drive",
-        "race",
+        "ride",
         "walk"
       ],
       "correct": [
@@ -85,8 +85,8 @@
         "uz": "Shifoxonaning xodimlarni ishga olish kampaniyasi ko'plab yosh hamshiralarni jalb qildi."
       },
       "explanation": {
-        "ru": "recruitment drive — кампания по набору сотрудников. Drive здесь значит «активная кампания»: a recruitment drive, a fundraising drive. Race и walk в таком значении не употребляются.",
-        "uz": "recruitment drive — xodimlarni ishga olish kampaniyasi. Drive so'zi bu yerda «faol kampaniya» ma'nosida: a recruitment drive, a fundraising drive. Race va walk so'zlari bu ma'noda ishlatilmaydi."
+        "ru": "recruitment drive — кампания по набору сотрудников. Drive здесь значит «активная кампания»: a recruitment drive, a fundraising drive. Ride и walk в таком значении не употребляются.",
+        "uz": "recruitment drive — xodimlarni ishga olish kampaniyasi. Drive so'zi bu yerda «faol kampaniya» ma'nosida: a recruitment drive, a fundraising drive. Ride va walk so'zlari bu ma'noda ishlatilmaydi."
       }
     },
     {
@@ -344,8 +344,8 @@
         "uz": "Afsuski, u pianinochi sifatida o'z salohiyatini to'liq ro'yobga chiqara olmadi."
       },
       "explanation": {
-        "ru": "fulfill your potential — полностью раскрыть свои способности. С possibility и chance глагол fulfill не употребляется: шанс используют (take a chance), а не «исполняют».",
-        "uz": "fulfill your potential — o'z salohiyatini to'liq ro'yobga chiqarmoq. Fulfill fe'li possibility va chance so'zlari bilan ishlatilmaydi: imkoniyatdan foydalaniladi (take a chance)."
+        "ru": "fulfill your potential — полностью раскрыть свои способности. С possibility и chance глагол fulfill не употребляется: шансом пользуются (take the chance, seize the chance), а не «исполняют» его.",
+        "uz": "fulfill your potential — o'z salohiyatini to'liq ro'yobga chiqarmoq. Fulfill fe'li possibility va chance so'zlari bilan ishlatilmaydi: imkoniyatdan foydalaniladi (take the chance, seize the chance)."
       }
     },
     {
@@ -842,7 +842,7 @@
       ],
       "translation": {
         "ru": "Законно ли это удержание из моей зарплаты?",
-        "uz": "Maoshimdan bu ushlanma qonuniymi?"
+        "uz": "Maoshimdan qilingan bu ushlanma qonuniymi?"
       }
     },
     {
@@ -1544,12 +1544,20 @@
           "restructure",
           "rather than",
           "downsize"
+        ],
+        [
+          "the company",
+          "chose",
+          "rather than",
+          "downsize",
+          "to",
+          "restructure"
         ]
       ],
       "display": "Rather than downsize, the company chose to restructure.",
       "explanation": {
-        "ru": "rather than + глагол без to — «вместо того чтобы»: rather than downsize. Этот оборот может стоять и в начале, и в конце предложения.",
-        "uz": "rather than + to yuklamasisiz fe'l — «…ish o'rniga»: rather than downsize. Bu ibora gapning boshida ham, oxirida ham kelishi mumkin."
+        "ru": "rather than + глагол без to — «вместо того чтобы»: rather than downsize. Этот оборот может стоять в начале, в конце или в середине предложения.",
+        "uz": "rather than + to yuklamasisiz fe'l — «…ish o'rniga»: rather than downsize. Bu ibora gapning boshida, oxirida yoki o'rtasida kelishi mumkin."
       }
     },
     {
@@ -1604,7 +1612,7 @@
       ],
       "prompt": {
         "ru": "Акционеры проголосовали против предлагаемого приобретения компании.",
-        "uz": "Aksiyadorlar taklif qilingan kompaniyani sotib olish bitimiga qarshi ovoz berdi."
+        "uz": "Aksiyadorlar kompaniyani sotib olish bo'yicha taklif qilingan bitimga qarshi ovoz berdi."
       },
       "fragments": [
         "shareholders",
@@ -2287,7 +2295,7 @@
       "options": [
         "gave",
         "put",
-        "made"
+        "placed"
       ],
       "correct": [
         "gave"
@@ -2297,8 +2305,8 @@
         "uz": "Kasaba uyushmasi rahbariyatga aniq ultimatum qo'ydi."
       },
       "explanation": {
-        "ru": "give somebody an ultimatum — поставить кому-то ультиматум (без адресата — также issue an ultimatum). Русское «поставить» здесь не put; make с ultimatum не употребляется.",
-        "uz": "give somebody an ultimatum — kimgadir ultimatum qo'ymoq (kimga ekanini aytmasdan — issue an ultimatum ham). O'zbekcha «qo'ymoq» bu yerda put emas; make bu so'z bilan ishlatilmaydi."
+        "ru": "give somebody an ultimatum — поставить кому-то ультиматум (без адресата — также issue an ultimatum). Русское «поставить» здесь не put и не place: ультиматум в английском «дают» — give.",
+        "uz": "give somebody an ultimatum — kimgadir ultimatum qo'ymoq (kimga ekanini aytmasdan — issue an ultimatum ham). O'zbekcha «qo'ymoq» bu yerda put ham, place ham emas: inglizchada ultimatum «beriladi» — give."
       }
     },
     {

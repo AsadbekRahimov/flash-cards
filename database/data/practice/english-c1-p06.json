@@ -122,6 +122,15 @@
           "ruler",
           "admit",
           "a mistake"
+        ],
+        [
+          "the",
+          "authoritarian",
+          "ruler",
+          "never once",
+          "did",
+          "admit",
+          "a mistake"
         ]
       ],
       "display": "Never once did the authoritarian ruler admit a mistake.",
@@ -353,7 +362,7 @@
       "text": "Reformers fought for decades to win ___ suffrage.",
       "options": [
         "universal",
-        "total",
+        "overall",
         "whole"
       ],
       "correct": [
@@ -364,8 +373,8 @@
         "uz": "Islohotchilar o'nlab yillar davomida umumiy saylov huquqiga erishish uchun kurashdi."
       },
       "explanation": {
-        "ru": "universal suffrage — всеобщее избирательное право. «Всеобщий» здесь — universal; total значит «полный, итоговый», whole — «целый», и с suffrage они не сочетаются.",
-        "uz": "universal suffrage — umumiy saylov huquqi. Bu yerda «umumiy» — universal; total — «to'liq, jami», whole — «butun», ular suffrage so'zi bilan birikmaydi."
+        "ru": "universal suffrage — всеобщее избирательное право. «Всеобщий» здесь — universal; overall значит «общий, итоговый», whole — «целый», и с suffrage они не сочетаются.",
+        "uz": "universal suffrage — umumiy saylov huquqi. Bu yerda «umumiy» — universal; overall — «umumiy, yakuniy», whole — «butun», ular suffrage so'zi bilan birikmaydi."
       }
     },
     {
@@ -1250,6 +1259,15 @@
           "have been",
           "repealed",
           "years ago"
+        ],
+        [
+          "years ago",
+          "the",
+          "outdated",
+          "law",
+          "should",
+          "have been",
+          "repealed"
         ]
       ],
       "display": "The outdated law should have been repealed years ago.",
@@ -1310,7 +1328,7 @@
       ],
       "prompt": {
         "ru": "Похоже, мало кто из тех, кто определяет политику, готов пойти на этот риск.",
-        "uz": "Siyosatni belgilovchi shaxslar orasida bu tavakkalga tayyorlari kam ko'rinadi."
+        "uz": "Siyosatni belgilovchi shaxslardan kamdan-kami bu tavakkalga borishga tayyor ko'rinadi."
       },
       "fragments": [
         "few",
@@ -1431,7 +1449,7 @@
       ],
       "translation": {
         "ru": "Бывшему жильцу предъявили обвинение в поджоге.",
-        "uz": "Sobiq ijarachiga qasddan o't qo'yishda ayb qo'yildi."
+        "uz": "Sobiq ijarachi qasddan o't qo'yishda ayblandi."
       },
       "explanation": {
         "ru": "be charged with — быть официально обвинённым в чём-то: charged with arson. Of ставят после accused: accused of arson. Русское «в» здесь не in.",
@@ -1453,7 +1471,7 @@
       "options": [
         "of",
         "in",
-        "for"
+        "at"
       ],
       "correct": [
         "of"
@@ -1463,8 +1481,8 @@
         "uz": "Uchala erkak ham til biriktirishda aybdor deb topildi."
       },
       "explanation": {
-        "ru": "guilty of — виновный в чём-то: found guilty of conspiracy. Русское «в» здесь — of, а не in; found guilty for не говорят.",
-        "uz": "guilty of — biror narsada aybdor: found guilty of conspiracy. O'zbekcha «-da» bu yerda of bilan beriladi, in bilan emas; found guilty for deyilmaydi."
+        "ru": "guilty of — виновный в чём-то: found guilty of conspiracy. Русское «в» здесь — of, а не in; at после guilty тоже невозможно.",
+        "uz": "guilty of — biror narsada aybdor: found guilty of conspiracy. O'zbekcha «-da» bu yerda of bilan beriladi, in bilan emas; guilty so'zidan keyin at ham kelmaydi."
       }
     },
     {
@@ -1768,8 +1786,8 @@
       "text": "She was the key witness ___ the prosecution.",
       "options": [
         "for",
-        "of",
-        "from"
+        "by",
+        "at"
       ],
       "correct": [
         "for"
@@ -1779,8 +1797,8 @@
         "uz": "U ayblov tomonining asosiy guvohi edi."
       },
       "explanation": {
-        "ru": "a witness for the prosecution — свидетель обвинения, то есть свидетель, который выступает на стороне обвинения. Поэтому for, а не of или from.",
-        "uz": "a witness for the prosecution — ayblov tomoni guvohi, ya'ni ayblov tarafida guvohlik beradigan kishi. Shuning uchun for keladi, of yoki from emas."
+        "ru": "a witness for the prosecution — свидетель обвинения, то есть выступающий на стороне обвинения (иначе: a prosecution witness). Поэтому for; by и at здесь невозможны.",
+        "uz": "a witness for the prosecution — ayblov tomoni guvohi, ya'ni ayblov tarafida guvohlik beradigan kishi (yana: a prosecution witness). Shuning uchun for keladi; by va at bu yerda mumkin emas."
       }
     },
     {
@@ -2485,7 +2503,7 @@
         "The court granted an injunction"
       ],
       "translation": {
-        "ru": "Суд вынес судебный запрет",
+        "ru": "Суд наложил запрет",
         "uz": "Sud taqiq chiqardi"
       }
     },
@@ -2506,7 +2524,7 @@
       ],
       "translation": {
         "ru": "Каждый посетитель должен подписать отказ от претензий",
-        "uz": "Har bir tashrif buyuruvchi huquqdan voz kechish hujjatini imzolashi kerak"
+        "uz": "Har bir tashrif buyuruvchi da'vodan voz kechish to'g'risidagi hujjatni imzolashi kerak"
       },
       "explanation": {
         "ru": "waiver пишется с i: w-a-i-v-e-r. Не путайте с waver — «колебаться»: звучат одинаково.",
@@ -2633,7 +2651,7 @@
       ],
       "prompt": {
         "ru": "Мало кто ожидал, что вышестоящий суд оставит в силе такой суровый приговор.",
-        "uz": "Yuqori turuvchi sud bunday qattiq hukmni kuchda qoldirishini kam kishi kutgan edi."
+        "uz": "Yuqori instansiya sudi bunday qattiq hukmni kuchda qoldirishini kam kishi kutgan edi."
       },
       "fragments": [
         "few",

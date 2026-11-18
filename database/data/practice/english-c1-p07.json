@@ -24,7 +24,7 @@
       ],
       "translation": {
         "ru": "Низкая рождаемость породила демографическую бомбу замедленного действия.",
-        "uz": "Tug'ilishning pastligi demografik «soatli bomba»ni vujudga keltirdi."
+        "uz": "Tug'ilish darajasining pastligi demografik «soatli bomba»ni vujudga keltirdi."
       },
       "explanation": {
         "ru": "a demographic time bomb — «демографическая бомба замедленного действия»: проблема (старение, низкая рождаемость), которая неизбежно даст о себе знать позже. Устойчивое выражение — time bomb; time mine и time shell не говорят.",
@@ -872,7 +872,7 @@
       ],
       "translation": {
         "ru": "В подростковой преступности часто винят скуку.",
-        "uz": "O'smirlar huquqbuzarligida ko'pincha zerikish aybdor deb hisoblanadi."
+        "uz": "O'smirlar huquqbuzarligiga ko'pincha zerikish sabab qilib ko'rsatiladi."
       },
       "explanation": {
         "ru": "juvenile delinquency — подростковая преступность (устойчивый, официальный термин). Childish значит «ребяческий», а young с delinquency не сочетается: говорят young offenders.",
@@ -1043,7 +1043,7 @@
       "fragments": [
         "those",
         "involved in",
-        "trafficking",
+        "human trafficking",
         "face",
         "long",
         "prison sentences"
@@ -1052,16 +1052,16 @@
         [
           "those",
           "involved in",
-          "trafficking",
+          "human trafficking",
           "face",
           "long",
           "prison sentences"
         ]
       ],
-      "display": "Those involved in trafficking face long prison sentences.",
+      "display": "Those involved in human trafficking face long prison sentences.",
       "explanation": {
-        "ru": "Those involved in … — «те, кто причастен к …»: причастие involved стоит сразу после those, who are опущено. Face a sentence — «грозит срок» (дословно «стоять лицом к»).",
-        "uz": "Those involved in … — «… ga aloqador bo'lganlar»: involved sifatdoshi bevosita those dan keyin keladi, who are tushirib qoldirilgan. Face a sentence — jazoga duch kelmoq."
+        "ru": "Those involved in … — «те, кто причастен к …»: причастие involved стоит сразу после those, who are опущено. Human trafficking — торговля людьми. Face a sentence — «грозит срок» (дословно «стоять лицом к»).",
+        "uz": "Those involved in … — «… ga aloqador bo'lganlar»: involved sifatdoshi bevosita those dan keyin keladi, who are tushirib qoldirilgan. Human trafficking — odam savdosi. Face a sentence — jazoga duch kelmoq."
       }
     },
     {
@@ -1339,12 +1339,20 @@
           "to start",
           "her own",
           "nonprofit"
+        ],
+        [
+          "to start",
+          "her own",
+          "nonprofit",
+          "she",
+          "left",
+          "the bank"
         ]
       ],
       "display": "She left the bank to start her own nonprofit.",
       "explanation": {
-        "ru": "To start — инфинитив цели: «чтобы основать». Her own + существительное — «собственный»: her own nonprofit; nonprofit здесь существительное — некоммерческая организация.",
-        "uz": "To start — maqsad infinitivi: «ochish uchun». Her own + ot — «o'zining»: her own nonprofit; nonprofit bu yerda ot — notijorat tashkilot."
+        "ru": "To start — инфинитив цели: «чтобы основать»; его можно поставить и в начало: To start her own nonprofit, she left the bank. Her own — «собственный»; nonprofit здесь существительное — некоммерческая организация.",
+        "uz": "To start — maqsad infinitivi: «ochish uchun»; uni gap boshiga ham qo'yish mumkin: To start her own nonprofit, she left the bank. Her own — «o'zining»; nonprofit bu yerda ot — notijorat tashkilot."
       }
     },
     {
@@ -1387,8 +1395,8 @@
         "Her advocacy changed many lives"
       ],
       "translation": {
-        "ru": "Её правозащитная деятельность изменила многие жизни",
-        "uz": "Uning huquq himoyasi yo'lidagi faoliyati ko'plab hayotlarni o'zgartirdi"
+        "ru": "Её правозащитная деятельность изменила жизнь многих людей",
+        "uz": "Uning huquq himoyasi yo'lidagi faoliyati ko'plab insonlarning hayotini o'zgartirdi"
       },
       "explanation": {
         "ru": "advocacy оканчивается на -acy, как democracy: a-d-v-o-c-a-c-y; звук «с» на конце передаёт c.",
@@ -1407,13 +1415,13 @@
         "outreach",
         "communal"
       ],
-      "text": "Outreach workers share a communal office",
+      "text": "The outreach team meets in the communal hall",
       "accepted": [
-        "Outreach workers share a communal office"
+        "The outreach team meets in the communal hall"
       ],
       "translation": {
-        "ru": "Сотрудники отдела работы с населением делят общий кабинет",
-        "uz": "Aholi bilan ishlash bo'limi xodimlari umumiy xonada birga o'tiradi"
+        "ru": "Команда по работе с населением собирается в общем зале",
+        "uz": "Aholi bilan ishlash jamoasi umumiy zalda yig'iladi"
       },
       "explanation": {
         "ru": "outreach пишется одним словом: out + reach. В communal двойное m: c-o-m-m-u-n-a-l.",
@@ -1578,15 +1586,6 @@
           "far more airtime",
           "than",
           "it",
-          "deserved"
-        ],
-        [
-          "it",
-          "was",
-          "given",
-          "far more airtime",
-          "than",
-          "the issue",
           "deserved"
         ]
       ],

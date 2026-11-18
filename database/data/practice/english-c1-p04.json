@@ -235,7 +235,7 @@
         "We need more bandwidth and lower latency"
       ],
       "translation": {
-        "ru": "Нам нужна большая пропускная способность и меньшая задержка",
+        "ru": "Нам нужна более высокая пропускная способность и более низкая задержка",
         "uz": "Bizga yuqoriroq o'tkazuvchanlik qobiliyati va kamroq kechikish kerak"
       },
       "explanation": {
@@ -594,7 +594,7 @@
       "text": "The website has been optimized ___ mobile devices.",
       "options": [
         "for",
-        "to",
+        "at",
         "under"
       ],
       "correct": [
@@ -605,8 +605,8 @@
         "uz": "Veb-sayt mobil qurilmalar uchun optimallashtirilgan."
       },
       "explanation": {
-        "ru": "optimize for — оптимизировать для чего-то: optimized for mobile devices. Русское «под» («оптимизирован под телефоны») здесь не under; to тоже не подходит.",
-        "uz": "optimize for — biror narsa uchun optimallashtirmoq: optimized for mobile devices. Bu yerda under va to predloglari to'g'ri kelmaydi."
+        "ru": "optimize for — оптимизировать для чего-то: optimized for mobile devices, optimized for speed. Русское «под» («оптимизирован под телефоны») здесь не under; at тоже не подходит.",
+        "uz": "optimize for — biror narsa uchun optimallashtirmoq: optimized for mobile devices, optimized for speed. Bu yerda at va under predloglari to'g'ri kelmaydi."
       }
     },
     {
@@ -723,7 +723,7 @@
       ],
       "prompt": {
         "ru": "Вы бы доверили автономному автомобилю возить ваших детей в школу?",
-        "uz": "Farzandlaringizni maktabga olib borishni avtonom avtomobilga ishonib topshirgan bo'larmidingiz?"
+        "uz": "Farzandlaringizni maktabga olib borishni avtonom avtomobilga ishonib topshirarmidingiz?"
       },
       "fragments": [
         "would",
@@ -788,12 +788,22 @@
           "decide",
           "what",
           "to sell"
+        ],
+        [
+          "to",
+          "decide",
+          "what",
+          "to sell",
+          "we",
+          "rely",
+          "on",
+          "analytics"
         ]
       ],
       "display": "We rely on analytics to decide what to sell.",
       "explanation": {
-        "ru": "rely on — полагаться на что-то: rely on analytics. To decide — «чтобы решать»; what to sell — «что продавать».",
-        "uz": "rely on — biror narsaga tayanmoq: rely on analytics. To decide — «hal qilish uchun»; what to sell — «nimani sotish»."
+        "ru": "rely on — полагаться на что-то: rely on analytics. To decide — «чтобы решать»; what to sell — «что продавать». Часть с to decide может стоять и в начале предложения.",
+        "uz": "rely on — biror narsaga tayanmoq: rely on analytics. To decide — «hal qilish uchun»; what to sell — «nimani sotish». To decide qismi gap boshida ham turishi mumkin."
       }
     },
     {
@@ -1398,14 +1408,13 @@
         "digitize",
         "connectivity"
       ],
-      "text": "We cannot digitize schools without good connectivity",
+      "text": "The museum digitized its archive despite poor connectivity",
       "accepted": [
-        "We cannot digitize schools without good connectivity",
-        "We can't digitize schools without good connectivity"
+        "The museum digitized its archive despite poor connectivity"
       ],
       "translation": {
-        "ru": "Мы не можем оцифровать школы без хорошего подключения к сети",
-        "uz": "Yaxshi tarmoqqa ulanishsiz maktablarni raqamlashtira olmaymiz"
+        "ru": "Музей оцифровал свой архив, несмотря на плохое подключение к сети",
+        "uz": "Muzey tarmoqqa ulanish yomon bo'lishiga qaramay o'z arxivini raqamlashtirdi"
       },
       "explanation": {
         "ru": "connectivity пишется с двумя n, как connect: c-o-n-n-e-c-t-i-v-i-t-y.",
@@ -1454,7 +1463,7 @@
       ],
       "translation": {
         "ru": "Когда лодку качнуло, её внезапно накрыла волна тошноты.",
-        "uz": "Qayiq chayqalganda uning to'satdan qattiq ko'ngli ayniy boshladi."
+        "uz": "Qayiq chayqalganda uning ko'ngli birdan qattiq ayniy boshladi."
       },
       "explanation": {
         "ru": "a wave of nausea — внезапный приступ тошноты (дословно «волна»). Так же: a wave of panic. Flow и stream в этом выражении не употребляются.",
@@ -1504,7 +1513,7 @@
       "text": "The boy ___ a seizure during the school concert.",
       "options": [
         "suffered",
-        "underwent",
+        "caught",
         "passed"
       ],
       "correct": [
@@ -1515,8 +1524,8 @@
         "uz": "Maktab konserti paytida bolaning tutqanog'i tutdi."
       },
       "explanation": {
-        "ru": "suffer a seizure (или have a seizure) — перенести приступ. Undergo говорят о процедурах, которые проходит пациент: undergo surgery, undergo tests. Pass с seizure не сочетается.",
-        "uz": "suffer a seizure (yoki have a seizure) — tutqanoq tutmoq. Undergo bemor o'tadigan muolajalar haqida ishlatiladi: undergo surgery, undergo tests. Pass fe'li seizure bilan birikmaydi."
+        "ru": "suffer a seizure (или have a seizure) — перенести приступ. Catch говорят об инфекциях (catch a cold), а приступ не «ловят». Pass с seizure тоже не сочетается.",
+        "uz": "suffer a seizure (yoki have a seizure) — tutqanoq tutmoq. Catch fe'li yuqumli kasalliklar haqida ishlatiladi (catch a cold), seizure bilan emas. Pass fe'li ham seizure bilan birikmaydi."
       }
     },
     {
@@ -1551,12 +1560,20 @@
           "may",
           "be",
           "malignant"
+        ],
+        [
+          "the tumor",
+          "may",
+          "be",
+          "malignant",
+          "the doctors",
+          "fear"
         ]
       ],
       "display": "The doctors fear the tumor may be malignant.",
       "explanation": {
-        "ru": "fear (that) + придаточное — опасаться, что…; that можно опустить. Malignant — злокачественный, противоположность — benign (доброкачественный).",
-        "uz": "fear (that) + ergash gap — …dan xavotir olmoq; that tushirib qoldirilishi mumkin. Malignant — yomon sifatli, aksi — benign (xavfsiz, yaxshi sifatli)."
+        "ru": "fear (that) + придаточное — опасаться, что…; that можно опустить. The doctors fear может стоять и в конце. Malignant — злокачественный, противоположность — benign (доброкачественный).",
+        "uz": "fear (that) + ergash gap — …dan xavotir olmoq; that tushirib qoldirilishi mumkin. The doctors fear qismi oxirida ham turishi mumkin. Malignant — yomon sifatli, aksi — benign (yaxshi sifatli)."
       }
     },
     {
@@ -1700,9 +1717,9 @@
       "target_words": [
         "ailment"
       ],
-      "text": "Many minor ailments heal without medicine",
+      "text": "Many minor ailments go away without medicine",
       "accepted": [
-        "Many minor ailments heal without medicine"
+        "Many minor ailments go away without medicine"
       ],
       "translation": {
         "ru": "Многие лёгкие недомогания проходят без лекарств",
@@ -1731,7 +1748,7 @@
       ],
       "translation": {
         "ru": "Никогда не превышайте рекомендуемую дозировку, даже если боль не проходит.",
-        "uz": "Og'riq qolmasa ham, tavsiya etilgan dozani hech qachon oshirmang."
+        "uz": "Og'riq bosilmasa ham, tavsiya etilgan dozadan hech qachon oshirmang."
       },
       "explanation": {
         "ru": "exceed the dosage — превысить дозировку (exceed — «превышать»: exceed the speed limit). Overcome — преодолеть трудность, overtake — обогнать; с dosage они не сочетаются.",

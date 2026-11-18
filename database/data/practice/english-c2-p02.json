@@ -434,7 +434,7 @@
       "display": "I implore you not to make the same mistake.",
       "explanation": {
         "ru": "implore somebody (not) to do something — умолять кого-то (не) делать что-то. Not обычно ставят перед to: implore you not to make…",
-        "uz": "implore somebody (not) to do something — kimgadir biror ishni qilmaslikni yolvorib so'ramoq. Odatda not to dan oldin keladi: implore you not to make…"
+        "uz": "implore somebody (not) to do something — kimdandir biror ishni qilishni (qilmaslikni) yolvorib so'ramoq. Odatda not to dan oldin keladi: implore you not to make…"
       }
     },
     {
@@ -935,8 +935,8 @@
         "for"
       ],
       "translation": {
-        "ru": "Реструктуризация — часто лишь эвфемизм, за которым стоит сокращение рабочих мест.",
-        "uz": "Restrukturizatsiya ko'pincha ish o'rinlarini qisqartirishni yumshatib aytish uchun ishlatiladigan evfemizm xolos."
+        "ru": "Реструктуризация — зачастую лишь эвфемизм для сокращения рабочих мест.",
+        "uz": "Restrukturizatsiya ko'pincha ish o'rinlarini qisqartirishni anglatuvchi evfemizm, xolos."
       },
       "explanation": {
         "ru": "a euphemism for something — эвфемизм, смягчённое название чего-то: a euphemism for being fired. Нужен предлог for; to и at здесь невозможны.",
@@ -1119,10 +1119,6 @@
       "translation": {
         "ru": "Её ответы были расплывчатыми и уклончивыми",
         "uz": "Uning javoblari noaniq va mujmal edi"
-      },
-      "explanation": {
-        "ru": "evasive: звук «з» передаёт буква s — e-v-a-s-i-v-e.",
-        "uz": "evasive: «z» tovushi s harfi bilan yoziladi — e-v-a-s-i-v-e."
       }
     },
     {
@@ -1141,7 +1137,7 @@
         "The article relied on rumor and innuendo"
       ],
       "translation": {
-        "ru": "Статья держалась на слухах и двусмысленных намёках",
+        "ru": "Статья строилась на слухах и двусмысленных намёках",
         "uz": "Maqola mish-mishlar va kinoyali shamalarga tayangan edi"
       },
       "explanation": {
@@ -1965,8 +1961,8 @@
         "uz": "Iltimos, xizmat xatini va unga qo'shimchani o'qib chiqing"
       },
       "explanation": {
-        "ru": "memorandum и addendum оканчиваются на -um; в addendum двойная d в середине: a-d-d-e-n-d-u-m.",
-        "uz": "memorandum va addendum -um bilan tugaydi; addendum so'zining o'rtasida ikkita d: a-d-d-e-n-d-u-m."
+        "ru": "memorandum и addendum оканчиваются на -um; в addendum после a двойная d: a-d-d-e-n-d-u-m.",
+        "uz": "memorandum va addendum -um bilan tugaydi; addendum so'zida a dan keyin ikkita d: a-d-d-e-n-d-u-m."
       }
     },
     {
@@ -2332,7 +2328,7 @@
       "text": "Thousands of fans came to ___ homage to the late singer.",
       "options": [
         "pay",
-        "make",
+        "hold",
         "put"
       ],
       "correct": [
@@ -2343,8 +2339,8 @@
         "uz": "Minglab muxlislar marhum qo'shiqchiga ehtirom izhor qilish uchun kelishdi."
       },
       "explanation": {
-        "ru": "pay homage to somebody — отдать дань уважения кому-то. Как и pay tribute to, это сочетание строится с глаголом pay; make и put здесь не употребляются.",
-        "uz": "pay homage to somebody — kimgadir ehtirom izhor qilmoq. Pay tribute to kabi bu birikma ham pay fe'li bilan tuziladi; make va put bu yerda ishlatilmaydi."
+        "ru": "pay homage to somebody — отдать дань уважения кому-то. Как и pay tribute to, это сочетание строится с глаголом pay; hold и put здесь не употребляются.",
+        "uz": "pay homage to somebody — kimgadir ehtirom izhor qilmoq. Pay tribute to kabi bu birikma ham pay fe'li bilan tuziladi; hold va put bu yerda ishlatilmaydi."
       }
     },
     {
@@ -2457,7 +2453,7 @@
       ],
       "prompt": {
         "ru": "Никто никогда не сомневался в уместности её поведения.",
-        "uz": "Hech kim hech qachon uning xatti-harakatlari odobga muvofiqligiga shubha qilmagan."
+        "uz": "Hech kim hech qachon uning xatti-harakatlari odobga muvofiq ekaniga shubha qilmagan."
       },
       "fragments": [
         "nobody",
@@ -2545,8 +2541,8 @@
         "uz": "Ularning munosabatlari samimiyligicha qoldi"
       },
       "explanation": {
-        "ru": "cordial: звук «дж» передают буквы di — c-o-r-d-i-a-l.",
-        "uz": "cordial: «j» tovushi di harflari bilan yoziladi — c-o-r-d-i-a-l."
+        "ru": "cordial: в американском произношении звук «дж» передают буквы di — c-o-r-d-i-a-l.",
+        "uz": "cordial: Amerika talaffuzida «j» tovushi di harflari bilan yoziladi — c-o-r-d-i-a-l."
       }
     },
     {
@@ -2809,7 +2805,7 @@
         "Some fees are obligatory and others discretionary"
       ],
       "translation": {
-        "ru": "Одни сборы обязательны, а другие — на усмотрение",
+        "ru": "Одни сборы обязательны, а другие — по усмотрению",
         "uz": "Ba'zi to'lovlar majburiy, boshqalari esa ixtiyoriy"
       },
       "explanation": {

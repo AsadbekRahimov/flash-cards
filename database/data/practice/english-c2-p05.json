@@ -209,6 +209,13 @@
           "to decline",
           "having lost",
           "its hegemony"
+        ],
+        [
+          "the empire",
+          "having lost",
+          "its hegemony",
+          "began",
+          "to decline"
         ]
       ],
       "display": "Having lost its hegemony, the empire began to decline.",
@@ -315,8 +322,8 @@
         "uz": "Tanqidchilar idora faoliyatining sustligiga avj olgan qarindosh-urug'chilikni sabab qilib ko'rsatdi."
       },
       "explanation": {
-        "ru": "rampant — повальный, безудержный (о чём-то плохом): rampant nepotism, rampant corruption, rampant inflation. Furious (яростный) и stormy (бурный) говорят о людях и погоде; с nepotism они не сочетаются.",
-        "uz": "rampant — avj olgan, jilovsiz (yomon narsa haqida): rampant nepotism, rampant corruption, rampant inflation. Furious (g'azabnok) va stormy (bo'ronli) odam va ob-havo haqida aytiladi; nepotism so'zi bilan birikmaydi."
+        "ru": "rampant — повальный, безудержный (о чём-то плохом): rampant nepotism, rampant corruption, rampant inflation. Furious (яростный) и stormy (бурный) с nepotism не сочетаются.",
+        "uz": "rampant — avj olgan, jilovsiz (yomon narsa haqida): rampant nepotism, rampant corruption, rampant inflation. Furious (g'azabnok) va stormy (bo'ronli) so'zlari nepotism so'zi bilan birikmaydi."
       }
     },
     {
@@ -519,7 +526,7 @@
         "Cronyism and kickbacks ruined the agency"
       ],
       "translation": {
-        "ru": "Протекция приятелям и откаты погубили ведомство",
+        "ru": "Протекция друзьям и откаты погубили ведомство",
         "uz": "Oshna-og'aynigarchilik va ulush tarzidagi poralar idorani barbod qildi"
       },
       "explanation": {
@@ -787,6 +794,14 @@
           "a period",
           "of detente",
           "begin"
+        ],
+        [
+          "a period",
+          "of detente",
+          "did",
+          "begin",
+          "only after",
+          "the summit"
         ]
       ],
       "display": "Only after the summit did a period of detente begin.",
@@ -815,8 +830,8 @@
         "uz": "Endi asta-sekin yaqinlashuv mumkin"
       },
       "explanation": {
-        "ru": "rapprochement — французское слово: в начале pp, в середине ch, на конце -ment: r-a-p-p-r-o-c-h-e-m-e-n-t.",
-        "uz": "rapprochement — fransuzcha so'z: boshida pp, o'rtasida ch, oxirida -ment: r-a-p-p-r-o-c-h-e-m-e-n-t."
+        "ru": "rapprochement — французское слово: после ra двойное pp, в середине ch, на конце -ment: r-a-p-p-r-o-c-h-e-m-e-n-t.",
+        "uz": "rapprochement — fransuzcha so'z: ra dan keyin ikkita p, o'rtasida ch, oxirida -ment: r-a-p-p-r-o-c-h-e-m-e-n-t."
       }
     },
     {
@@ -890,7 +905,7 @@
       ],
       "translation": {
         "ru": "Тысячи людей собрались на площади вопреки запрету.",
-        "uz": "Minglab odamlar taqiqqa ochiqdan-ochiq bo'ysunmay maydonga yig'ildi."
+        "uz": "Minglab odamlar taqiqni ochiqdan-ochiq buzib, maydonga yig'ildi."
       },
       "explanation": {
         "ru": "in defiance of something — вопреки чему-то, открыто нарушая (запрет, приказ): in defiance of the ban, in defiance of the law. Предлоги on и at здесь не употребляются.",
@@ -991,6 +1006,13 @@
           "violence",
           "is",
           "a crime"
+        ],
+        [
+          "inciting",
+          "violence",
+          "is",
+          "in many countries",
+          "a crime"
         ]
       ],
       "display": "Inciting violence is a crime in many countries.",
@@ -1011,8 +1033,8 @@
         "stifle"
       ],
       "prompt": {
-        "ru": "Запрет не только не заглушил критику, но лишь усилил её.",
-        "uz": "Taqiq tanqidni bo'g'ish o'rniga uni yanada kuchaytirdi."
+        "ru": "Запрет не заглушил критику, а, напротив, лишь усилил её.",
+        "uz": "Taqiq tanqidni bo'g'ish u yoqda tursin, aksincha, uni faqat kuchaytirdi."
       },
       "fragments": [
         "far from",
@@ -1639,7 +1661,7 @@
       "display": "The appellant claimed that the trial had been unfair.",
       "explanation": {
         "ru": "После claimed (прошедшее время) более раннее событие передаётся в Past Perfect: had been unfair. Appellant — тот, кто обжалует решение суда в вышестоящей инстанции.",
-        "uz": "Claimed (o'tgan zamon) dan keyin undan oldingi voqea Past Perfect bilan beriladi: had been unfair. Appellant — sud qarori ustidan yuqori instansiyaga shikoyat qilgan shaxs."
+        "uz": "Claimed fe'lidan (o'tgan zamon) keyin undan oldingi voqea Past Perfect bilan beriladi: had been unfair. Appellant — sud qarori ustidan yuqori instansiyaga shikoyat qilgan shaxs."
       }
     },
     {
@@ -1951,7 +1973,7 @@
         "Can a judge be impeached?"
       ],
       "translation": {
-        "ru": "Может ли судье быть объявлен импичмент?",
+        "ru": "Можно ли объявить импичмент судье?",
         "uz": "Sudyaga impichment e'lon qilish mumkinmi?"
       },
       "explanation": {
@@ -2103,6 +2125,12 @@
           "was not declared",
           "was confiscated",
           "at the border"
+        ],
+        [
+          "at the border",
+          "whatever",
+          "was not declared",
+          "was confiscated"
         ]
       ],
       "display": "Whatever was not declared at the border was confiscated.",

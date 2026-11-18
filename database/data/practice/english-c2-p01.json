@@ -175,12 +175,22 @@
           "as",
           "she",
           "was"
+        ],
+        [
+          "she",
+          "stoic",
+          "as",
+          "she",
+          "was",
+          "could not",
+          "hide",
+          "her tears"
         ]
       ],
       "display": "Stoic as she was, she could not hide her tears.",
       "explanation": {
-        "ru": "Прилагательное + as + подлежащее + глагол — уступка, «хоть она и была …»: stoic as she was = although she was stoic. Эта часть может стоять и в начале, и в конце предложения.",
-        "uz": "Sifat + as + ega + fe'l — to'siqsizlik, «garchi … bo'lsa-da»: stoic as she was = although she was stoic. Bu qism gapning boshida ham, oxirida ham kelishi mumkin."
+        "ru": "Прилагательное + as + подлежащее + глагол — уступка, «хоть она и была …»: stoic as she was = although she was stoic. Эта часть может стоять в начале, в конце или (в запятых) после подлежащего.",
+        "uz": "Sifat + as + ega + fe'l — to'siqsizlik, «garchi … bo'lsa-da»: stoic as she was = although she was stoic. Bu qism gapning boshida, oxirida yoki (vergullar ichida) egadan keyin kelishi mumkin."
       }
     },
     {
@@ -219,12 +229,26 @@
           "remarkably unassuming",
           "for all",
           "his wealth"
+        ],
+        [
+          "he",
+          "for all",
+          "his wealth",
+          "remained",
+          "remarkably unassuming"
+        ],
+        [
+          "he",
+          "remained",
+          "for all",
+          "his wealth",
+          "remarkably unassuming"
         ]
       ],
       "display": "For all his wealth, he remained remarkably unassuming.",
       "explanation": {
-        "ru": "for all + существительное — «при всём …, несмотря на …»: for all his wealth. Remain + прилагательное — оставаться каким-то. Часть с for all может стоять и в конце.",
-        "uz": "for all + ot — «shuncha …ga qaramay»: for all his wealth. Remain + sifat — qandaydir bo'lib qolmoq. For all qismi gap oxirida ham kelishi mumkin."
+        "ru": "for all + существительное — «при всём …, несмотря на …»: for all his wealth. Remain + прилагательное — оставаться каким-то. Часть с for all может стоять в начале, в конце или (в запятых) внутри предложения.",
+        "uz": "for all + ot — «shuncha …ga qaramay»: for all his wealth. Remain + sifat — qandaydir bo'lib qolmoq. For all qismi gapning boshida, oxirida yoki (vergullar ichida) o'rtasida kelishi mumkin."
       }
     },
     {
@@ -318,7 +342,7 @@
       ],
       "translation": {
         "ru": "На мой неуклюжий вопрос она надменно подняла бровь.",
-        "uz": "Mening noo'rin savolimga u takabburona qoshini ko'tardi."
+        "uz": "Mening beo'xshov savolimga u takabburona qoshini ko'tardi."
       },
       "explanation": {
         "ru": "raise an eyebrow — поднять бровь (знак недоверия или высокомерия). Raise требует дополнения (raise something), а rise и arise дополнения не имеют. Кстати, supercilious восходит к латинскому supercilium — «бровь».",
@@ -660,7 +684,7 @@
       ],
       "translation": {
         "ru": "Наш молчаливый сосед — человек поистине немногословный.",
-        "uz": "Kamgap qo'shnimiz chindan ham so'zga xasis odam."
+        "uz": "Kamgap qo'shnimiz chindan ham ortiqcha gapirmaydigan odam."
       },
       "explanation": {
         "ru": "a man of few words — немногословный человек (дословно «человек немногих слов»). Это устойчивое выражение: phrases и talks в нём не употребляются.",
@@ -680,7 +704,7 @@
       ],
       "prompt": {
         "ru": "Работать на столь переменчивого начальника изнурительно.",
-        "uz": "Bunchalik o'zgaruvchan boshliq qo'l ostida ishlash juda toliqtiradi."
+        "uz": "Bunchalik o'zgaruvchan boshliq qo'l ostida ishlash kishini toliqtiradi."
       },
       "fragments": [
         "working",
@@ -745,12 +769,20 @@
           "grows",
           "more",
           "irascible"
+        ],
+        [
+          "he",
+          "grows",
+          "every",
+          "year",
+          "more",
+          "irascible"
         ]
       ],
       "display": "He grows more irascible every year.",
       "explanation": {
-        "ru": "grow + прилагательное — постепенно становиться каким-то: grows more irascible. У длинных прилагательных сравнительная степень образуется с more. Every year может стоять и в начале.",
-        "uz": "grow + sifat — asta-sekin qandaydir bo'lib bormoq: grows more irascible. Uzun sifatlarning qiyosiy darajasi more bilan yasaladi. Every year gap boshida ham kelishi mumkin."
+        "ru": "grow + прилагательное — постепенно становиться каким-то: grows more irascible. У длинных прилагательных сравнительная степень образуется с more. Every year может стоять в начале, в конце или (книжно) после grows.",
+        "uz": "grow + sifat — asta-sekin qandaydir bo'lib bormoq: grows more irascible. Uzun sifatlarning qiyosiy darajasi more bilan yasaladi. Every year gap boshida, oxirida yoki (kitobiy uslubda) grows dan keyin kelishi mumkin."
       }
     },
     {
@@ -1202,8 +1234,8 @@
         "uz": "Uning tinglashdan o'jarlarcha bosh tortishi muzokaralarni barbod qildi."
       },
       "explanation": {
-        "ru": "an obstinate refusal to do something — упрямый отказ что-то делать. Только refusal сочетается с to + глагол; rejection и denial требуют of + существительное (rejection of a plan, denial of the facts).",
-        "uz": "an obstinate refusal to do something — biror ishni qilishdan o'jarlarcha bosh tortish. Faqat refusal so'zi to + fe'l bilan keladi; rejection va denial esa of + ot talab qiladi (rejection of a plan, denial of the facts)."
+        "ru": "an obstinate refusal to do something — упрямый отказ что-то делать. Только refusal сочетается с to + глагол; rejection и denial так не употребляются, после них обычно of + существительное (rejection of a plan, denial of the facts).",
+        "uz": "an obstinate refusal to do something — biror ishni qilishdan o'jarlarcha bosh tortish. Faqat refusal so'zi to + fe'l bilan keladi; rejection va denial bunday ishlatilmaydi, ulardan keyin odatda of + ot keladi (rejection of a plan, denial of the facts)."
       }
     },
     {
@@ -1271,12 +1303,19 @@
           "fallen apart",
           "but for",
           "her fortitude"
+        ],
+        [
+          "the family",
+          "but for",
+          "her fortitude",
+          "would have",
+          "fallen apart"
         ]
       ],
       "display": "But for her fortitude, the family would have fallen apart.",
       "explanation": {
-        "ru": "but for + существительное — книжное «если бы не …»: but for her fortitude. Дальше would have + третья форма — о нереальном прошлом. But for может стоять и в конце.",
-        "uz": "but for + ot — kitobiy «… bo'lmaganida»: but for her fortitude. Keyin would have + uchinchi shakl — o'tmishdagi ro'y bermagan voqea. But for qismi gap oxirida ham kelishi mumkin."
+        "ru": "but for + существительное — книжное «если бы не …»: but for her fortitude. Дальше would have + третья форма — о нереальном прошлом. But for может стоять в начале, в конце или после подлежащего.",
+        "uz": "but for + ot — kitobiy «… bo'lmaganida»: but for her fortitude. Keyin would have + uchinchi shakl — o'tmishdagi ro'y bermagan voqea. But for qismi gapning boshida, oxirida yoki egadan keyin kelishi mumkin."
       }
     },
     {
@@ -1746,7 +1785,7 @@
       ],
       "translation": {
         "ru": "Когда умер её отец, она взяла недельный отпуск в связи с утратой.",
-        "uz": "Otasi vafot etgach, u bir haftaga motam ta'tiliga chiqdi."
+        "uz": "Otasi vafot etgach, u motam munosabati bilan bir haftalik ta'til oldi."
       },
       "explanation": {
         "ru": "bereavement leave — отпуск в связи со смертью близкого. Leave — официально разрешённое отсутствие на работе (sick leave, maternity leave); holiday и rest в этом сочетании не употребляются.",
@@ -1927,7 +1966,7 @@
       ],
       "translation": {
         "ru": "Она грустно-мечтательно вздохнула",
-        "uz": "U hasratli xo'rsindi"
+        "uz": "U hasrat bilan xo'rsinib qo'ydi"
       },
       "explanation": {
         "ru": "wistful: суффикс -ful пишется с одной l.",
@@ -2062,7 +2101,7 @@
         "in"
       ],
       "translation": {
-        "ru": "Их долгое деловое партнёрство закончилось ожесточённой враждой.",
+        "ru": "Их долгое деловое партнёрство закончилось взаимным ожесточением.",
         "uz": "Ularning uzoq yillik ishbilarmonlik hamkorligi achchiq janjal bilan yakunlandi."
       },
       "explanation": {
@@ -2499,7 +2538,7 @@
       ],
       "translation": {
         "ru": "У неё было дурное предчувствие",
-        "uz": "Unda noxush sezgi paydo bo'lgan edi"
+        "uz": "Uning ko'nglida noxush sezgi bor edi"
       },
       "explanation": {
         "ru": "foreboding начинается с fore- (как before), а не for-: f-o-r-e-b-o-d-i-n-g.",
@@ -2523,7 +2562,7 @@
         "His poems are full of angst and unease"
       ],
       "translation": {
-        "ru": "Его стихи полны тревоги и смятения",
+        "ru": "Его стихи полны душевного смятения и беспокойства",
         "uz": "Uning she'rlari iztirob va bezovtalikka to'la"
       },
       "explanation": {
@@ -2582,7 +2621,7 @@
       ],
       "translation": {
         "ru": "Он чувствовал себя странно отстранённым от всего вокруг.",
-        "uz": "U atrofidagi hamma narsaga g'alati tarzda befarq ekanini his qildi."
+        "uz": "U o'zini atrofidagi hamma narsadan g'alati tarzda uzilib qolgandek his qildi."
       },
       "explanation": {
         "ru": "detached from something — отстранённый, оторванный от чего-то: detached from reality, detached from everything. После detached нужен from; of и to не подходят.",

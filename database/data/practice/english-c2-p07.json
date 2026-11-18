@@ -86,7 +86,7 @@
       },
       "explanation": {
         "ru": "iron deficiency anemia — железодефицитная анемия, устойчивый медицинский термин (так же vitamin deficiency). Lack и shortage тоже значат «нехватка», но в этом термине не употребляются.",
-        "uz": "iron deficiency anemia — temir tanqisligi kamqonligi, turg'un tibbiy atama (vitamin deficiency ham shunday). Lack va shortage ham «yetishmovchilik» degani, lekin bu atamada ishlatilmaydi."
+        "uz": "iron deficiency anemia — temir tanqisligi anemiyasi, turg'un tibbiy atama (vitamin deficiency ham shunday). Lack va shortage ham «yetishmovchilik» degani, lekin bu atamada ishlatilmaydi."
       }
     },
     {
@@ -339,7 +339,7 @@
       },
       "explanation": {
         "ru": "a panacea for something — панацея от чего-то: a panacea for every problem. Русское «от» здесь передаётся предлогом for, а не from; at с panacea не употребляется.",
-        "uz": "a panacea for something — biror muammoga har dardga davo: a panacea for every problem. Bu birikmada for predlogi keladi; from va at panacea so'zi bilan ishlatilmaydi."
+        "uz": "a panacea for something — biror muammo uchun «har dardga davo»: a panacea for every problem. Bu birikmada for predlogi keladi; from va at panacea so'zi bilan ishlatilmaydi."
       }
     },
     {
@@ -901,7 +901,7 @@
       "text": "My left leg ___ numb during the long flight.",
       "options": [
         "went",
-        "fell",
+        "made",
         "came"
       ],
       "correct": [
@@ -912,8 +912,8 @@
         "uz": "Uzoq parvoz davomida chap oyog'im uvishib qoldi."
       },
       "explanation": {
-        "ru": "go numb — онеметь: глагол go + прилагательное о перемене состояния (go pale, go bald). Можно сказать и became numb, но fell и came с numb не употребляются.",
-        "uz": "go numb — uvishib qolmoq: holat o'zgarishi go + sifat bilan beriladi (go pale, go bald). Became numb ham mumkin, lekin fell va came so'zlari numb bilan ishlatilmaydi."
+        "ru": "go numb — онеметь: глагол go + прилагательное о перемене состояния (go pale, go bald). Можно сказать и became numb. Made требует дополнения (the cold made my leg numb), а came с numb не употребляется.",
+        "uz": "go numb — uvishib qolmoq: holat o'zgarishi go + sifat bilan beriladi (go pale, go bald). Became numb ham mumkin. Made fe'li to'ldiruvchini talab qiladi (the cold made my leg numb), came esa numb bilan ishlatilmaydi."
       }
     },
     {
@@ -1213,7 +1213,7 @@
       "text": "The firefighter was ___ a posthumous medal for bravery.",
       "options": [
         "awarded",
-        "rewarded",
+        "honored",
         "prized"
       ],
       "correct": [
@@ -1224,8 +1224,8 @@
         "uz": "O't o'chiruvchi vafotidan keyin jasorati uchun medal bilan taqdirlandi."
       },
       "explanation": {
-        "ru": "be awarded a medal — быть награждённым медалью: awarded a posthumous medal — посмертно награждён. Reward строится иначе (reward somebody with something), а prize значит «высоко ценить».",
-        "uz": "be awarded a medal — medal bilan taqdirlanmoq: awarded a posthumous medal — vafotidan keyin taqdirlangan. Reward fe'li boshqacha quriladi (reward somebody with something), prize esa «juda qadrlamoq» degani."
+        "ru": "be awarded a medal — быть награждённым медалью: awarded a posthumous medal — посмертно награждён. Honor строится с with (honored with a medal), а prize значит «высоко ценить».",
+        "uz": "be awarded a medal — medal bilan taqdirlanmoq: awarded a posthumous medal — vafotidan keyin taqdirlangan. Honor fe'li with bilan quriladi (honored with a medal), prize esa «juda qadrlamoq» degani."
       }
     },
     {
@@ -1728,7 +1728,7 @@
       ],
       "translation": {
         "ru": "Тёплый ветерок рассеял утреннюю дымку",
-        "uz": "Mayin shabada tonggi tumanni tarqatib yubordi"
+        "uz": "Mayin shabada tonggi yengil tumanni tarqatib yubordi"
       },
       "explanation": {
         "ru": "balmy: l часто не произносится, но пишется: b-a-l-m-y (от balm — бальзам). Haze пишется с z.",
@@ -2131,15 +2131,16 @@
         "prowl"
       ],
       "prompt": {
-        "ru": "Голод заставляет волков рыскать возле деревень.",
-        "uz": "Ochlik bo'rilarni qishloqlar yaqinida izg'ishga majbur qiladi."
+        "ru": "Голод заставляет волков рыскать по окраинам деревень.",
+        "uz": "Ochlik bo'rilarni qishloqlar chekkasida izg'ishga majbur qiladi."
       },
       "fragments": [
         "hunger",
         "drives",
         "the wolves",
         "to prowl",
-        "near",
+        "the outskirts",
+        "of",
         "villages"
       ],
       "accepted": [
@@ -2148,14 +2149,15 @@
           "drives",
           "the wolves",
           "to prowl",
-          "near",
+          "the outskirts",
+          "of",
           "villages"
         ]
       ],
-      "display": "Hunger drives the wolves to prowl near villages.",
+      "display": "Hunger drives the wolves to prowl the outskirts of villages.",
       "explanation": {
-        "ru": "drive somebody to do something — толкать, вынуждать кого-то что-то сделать: Hunger drives the wolves to prowl… Prowl — рыскать в поисках добычи.",
-        "uz": "drive somebody to do something — kimnidir biror ishga undamoq, majbur qilmoq: Hunger drives the wolves to prowl… Prowl — o'lja izlab izg'imoq."
+        "ru": "drive somebody to do something — толкать, вынуждать кого-то что-то сделать. Prowl — рыскать в поисках добычи; место идёт без предлога: prowl the outskirts — рыскать по окраинам.",
+        "uz": "drive somebody to do something — kimnidir biror ishga undamoq, majbur qilmoq. Prowl — o'lja izlab izg'imoq; joy predlogsiz keladi: prowl the outskirts — chekkalarda izg'imoq."
       }
     },
     {
@@ -2707,6 +2709,13 @@
           "dangerously close",
           "to",
           "the precipice"
+        ],
+        [
+          "dangerously close",
+          "to",
+          "the precipice",
+          "ran",
+          "the path"
         ]
       ],
       "display": "The path ran dangerously close to the precipice.",
@@ -2798,12 +2807,20 @@
           "once caught",
           "in",
           "the whirlpool"
+        ],
+        [
+          "the boat",
+          "once caught",
+          "in",
+          "the whirlpool",
+          "could not",
+          "escape"
         ]
       ],
       "display": "Once caught in the whirlpool, the boat could not escape.",
       "explanation": {
-        "ru": "Once + причастие — «раз попав, однажды оказавшись»: Once caught in the whirlpool = Once it was caught in the whirlpool. Эта часть может стоять и в конце.",
-        "uz": "Once + sifatdosh — «bir marta tushib qolgach»: Once caught in the whirlpool = Once it was caught in the whirlpool. Bu qism gap oxirida ham kelishi mumkin."
+        "ru": "Once + причастие — «раз попав, однажды оказавшись»: Once caught in the whirlpool = Once it was caught in the whirlpool. Эта часть может стоять и после подлежащего (The boat, once caught…, could not…), и в конце.",
+        "uz": "Once + sifatdosh — «bir marta tushib qolgach»: Once caught in the whirlpool = Once it was caught in the whirlpool. Bu qism egadan keyin (The boat, once caught…, could not…) yoki gap oxirida ham kelishi mumkin."
       }
     },
     {

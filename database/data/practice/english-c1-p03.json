@@ -1578,7 +1578,7 @@
       "display": "What do you hypothesize will happen?",
       "explanation": {
         "ru": "Вопрос со вставкой: What do you think / hypothesize will happen? Вспомогательный do стоит после what, а во второй части — прямой порядок без that: will happen.",
-        "uz": "Qo'shimcha fe'lli so'roq: What do you think / hypothesize will happen? Do yordamchi fe'li what dan keyin keladi, ikkinchi qismda esa that siz to'g'ri tartib: will happen."
+        "uz": "Qo'shimcha fe'lli so'roq: What do you think / hypothesize will happen? Do yordamchi fe'li what dan keyin keladi, ikkinchi qismda esa that bog'lovchisiz to'g'ri tartib: will happen."
       }
     },
     {
@@ -1949,7 +1949,7 @@
       ],
       "translation": {
         "ru": "Медианный доход почти не изменился",
-        "uz": "Mediana daromad deyarli o'zgarmadi"
+        "uz": "Daromadlar medianasi deyarli o'zgarmadi"
       }
     },
     {
@@ -2254,7 +2254,7 @@
       ],
       "translation": {
         "ru": "Доказательства скорее предварительные, чем окончательные",
-        "uz": "Dalillar uzil-kesil emas, balki qat'iy bo'lmagan"
+        "uz": "Dalillar uzil-kesil emas, balki taxminiy"
       },
       "explanation": {
         "ru": "tentative: t-e-n-t-a-t-i-v-e — три буквы t, в середине a (-tative). Conclusive оканчивается на -sive.",
@@ -2330,7 +2330,7 @@
       "target_words": [
         "spectrum"
       ],
-      "text": "Humans can see only a small part of the ___ spectrum.",
+      "text": "A rainbow shows all the colors of the ___ spectrum.",
       "options": [
         "visible",
         "seeing",
@@ -2340,8 +2340,8 @@
         "visible"
       ],
       "translation": {
-        "ru": "Люди видят лишь небольшую часть видимого спектра.",
-        "uz": "Odamlar ko'rinadigan spektrning faqat kichik bir qismini ko'ra oladi."
+        "ru": "Радуга показывает все цвета видимого спектра.",
+        "uz": "Kamalak ko'rinadigan spektrning barcha ranglarini namoyon etadi."
       },
       "explanation": {
         "ru": "the visible spectrum — видимый спектр. Visible — «который можно увидеть»; формы seeing и looking значат «тот, кто видит / смотрит» и со spectrum не сочетаются.",
@@ -2493,7 +2493,7 @@
       ],
       "translation": {
         "ru": "Ракета очень быстро набрала скорость",
-        "uz": "Raketa juda tez tezlik oldi"
+        "uz": "Raketa juda qisqa vaqtda tezlik oldi"
       },
       "explanation": {
         "ru": "velocity: v-e-l-o-c-i-t-y, после o пишется c, а не s.",
