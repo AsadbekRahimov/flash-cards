@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Checker of the practice packs (database/data/practice/<course>-p<NN>.json) for the level courses (english-b1, english-b2).
+ * Checker of the practice packs (database/data/practice/<course>-p<NN>.json) for the level courses (english-b1 ... english-c2).
  * A tool of the content author, not application code: it leans on `Tests\...` of autoload-dev, so it lives in docs/ (outside the
  * production image). The source of truth for the rules is tests/Feature/Content/PracticePackTest.php; when the two disagree, the test wins.
  *
@@ -47,6 +47,8 @@ $app->make(Kernel::class)->bootstrap();
 const COURSES = [
     'english-b1' => ['B1', 'b1'],
     'english-b2' => ['B2', 'b2'],
+    'english-c1' => ['C1', 'c1'],
+    'english-c2' => ['C2', 'c2'],
 ];
 const TYPE_LETTER = ['collocation' => 'c', 'sentence' => 's', 'dictation' => 'd'];
 /** Compounds with a second spelling in good dictionaries: a dictation phrase with one of them accepts the other writing too. */
