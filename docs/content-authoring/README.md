@@ -18,6 +18,7 @@
 | `TASK_BRIEF.md` | Инструкция автору заданий практики (сочетание, собери предложение, диктант-фраза) |
 | `TASK_PROOF_BRIEF.md` | Инструкция редактору заданий |
 | `EXTRA_TASK_BRIEF.md` | Инструкция автору заданий «Форма слова» и «Найди ошибку» (x-файлы) |
+| `EXTRA_TASK_PROOF_BRIEF.md` | Инструкция редактору x-файлов |
 | `check_practice.php` | Пакет заданий: валидатор, проверяющие ответ классы и лексикон самого приложения + правила пакета |
 | `lexicon_lookup.php` | Знает ли лексикон диктанта слово и есть ли у него пара британского / американского написания |
 | `spelling_pairs.php` | Слова курсов и диктантов, у которых есть британское написание без пары в `resources/lexicon/en-us-gb.txt` (кандидаты, читать глазами) |
@@ -90,11 +91,62 @@
 6. **Слова заданий**: строки `WARN … LEXICON` — обычные слова, которых не знает лексикон; после чтения списка глазами (нет ли опечаток и имён) они добавляются в `en-common.txt`, неправильные формы — в `en-irregular.txt`. `spelling_pairs.php` — пары написаний. Составные слова с двумя написаниями (`rainforest` / `rain forest`) — в таблицу `OTHER_WRITINGS` скрипта: `--write-accepted` добавит второе написание в `accepted`.
 7. Тесты, pint, phpstan; документ для владельца и список мест для носителя.
 
-**Задания «Форма слова» и «Найди ошибку»** (docs/16 §5.6–§5.7) пишутся по `EXTRA_TASK_BRIEF.md` в отдельные файлы `database/data/practice/<курс>-x01.json` … `-x10.json`: два модуля на файл, 3 задания каждого типа на урок = 60 заданий, ключи `<префикс>-mNN-lN-w1..3` / `-e1..3` (префикс `a1a2`, `b1`, `b2`, `c1`, `c2`). Чекер узнаёт x-файл по имени: `php docs/content-authoring/check_practice.php --modules=1,2 database/data/practice/<курс>-x01.json` должен закончиться `60 tasks checked, 0 errors`. Вместе с первым x-файлом курса в `pxk_courses()` теста `tests/Feature/Content/PracticeExtraPackTest.php` добавляется строка курса. p-файлы при этом не трогаются.
-
 `--write-accepted` переписывает `accepted` диктантов по правилу `docs/16` §5.2 (сокращения в обе стороны, второе написание составного слова): автор пишет только `"accepted": [text]`.
 
-## Постановка задачи исполнителю
+## Задания «Форма слова» и «Найди ошибку» (x-файлы)
+
+Типы `word_form` и `error_hunt` (docs/16 §5.6–§5.7) пишутся в отдельные файлы `database/data/practice/<курс>-x01.json` … `-x10.json`: файл `xNN` — модули `2·NN-1` и `2·NN`, в каждом уроке 3 задания каждого типа = 60 заданий; ключи `<префикс>-mNN-lN-w1..3` / `-e1..3` (префикс `a1a2`, `b1`, `b2`, `c1`, `c2`; в `english-a1-a2` уровень `A1` в модулях 1–10, `A2` в 11–20). p-файлы при этом не трогаются. Источник истины — `tests/Feature/Content/PracticeExtraPackTest.php` (строка курса в `pxk_courses()` уже есть для всех пяти курсов).
+
+- **Автор** — по `EXTRA_TASK_BRIEF.md` (самодостаточна, ссылается только на §6 `TASK_BRIEF.md` о языке ru / uz): что видит ученик, поля, правила формы слова (вторые верные формы — 11 ловушек, формы по уровням A1–C2), правила «Найди ошибку» (одно место для нажатия, закрепление подлежащего и рода, вставка/удаление, бесспорность ошибки, варианты и правило регистра с исключением для `I`, ошибки по уровням и лимиты повторов), «трудно, но честно» по уровням, лексикон, порядок работы и отчёт.
+- **Редактор** — по `EXTRA_TASK_PROOF_BRIEF.md`, отдельный исполнитель, вместе с отчётом автора.
+- **Проверка:** `php docs/content-authoring/check_practice.php --modules=1,2 database/data/practice/<курс>-x01.json` — до `60 tasks checked, 0 errors` (чекер узнаёт x-файл по имени; `--write-accepted` для x-файлов ничего не переписывает, файл пишет скрипт автора в каноническом виде).
+- **Лексикон.** Каждое слово верной формы и исправленного предложения должно быть в лексиконе (иначе ERROR), а производных слов в нём мало (в пилоте не было `arrogance`, `tolerance`, `impatient`, `irregular`, `oversaw`, `goodbyes`). Авторы и редакторы лексикон **не правят**: недостающие обычные слова идут в отчёт списком `LEXICON:`, и единственные допустимые ERROR в их последнем прогоне — «not in the lexicon» для слов этого списка. Координатор вычитывает списки глазами (опечатки, имена, редкие слова), добавляет слова в `resources/lexicon/en-common.txt` (неправильные формы — в `en-irregular.txt`) и прогоняет чекер ещё раз. Лучше до основного прогона заранее добавить производные слов курсов (это снимет большую часть ошибок и не толкнёт авторов к лёгким формам).
+- **Сводная проверка** курса — повторы предложений между файлами и с примерами карточек: `php docs/content-authoring/check_practice.php database/data/practice/<курс>-x*.json` (с p-файлами курса в той же команде — и повторы с ними).
+- В отчётах авторов и редакторов — счёт ошибок по видам (лимиты: вид ошибки ≤ 5 из 30 на файл, все предлоги ≤ 9, одна пара ≤ 2): координатор сверяет его, прежде чем принять файл.
+
+Автору (подставить курс, модули, файл):
+
+```text
+You write the «Word form» (word_form) and «Find the mistake» (error_hunt) tasks for modules {M1} and {M2} of the
+vocabulary course `{COURSE}` (English {LEVEL} for Russian and Uzbek speakers). You must be fluent in English, Russian
+and Uzbek.
+
+1. Read docs/content-authoring/EXTRA_TASK_BRIEF.md completely and follow it exactly; read section 6 of TASK_BRIEF.md;
+   look at two lessons of a finished x-file for the layout only.
+2. Read the ten lesson files database/data/courses/{COURSE}/m{M1}-l1.json ... m{M2}-l5.json (the cards).
+3. Plan each lesson (section 9 of the brief), then write 6 tasks for each of the 10 lessons (3 word_form, 3 error_hunt)
+   = 60 tasks into the ONE file database/data/practice/{COURSE}-x{NN}.json, with a generator script kept outside the
+   repository.
+4. Check: php docs/content-authoring/check_practice.php --modules={M1},{M2} <the file> until it ends with
+   "60 tasks checked, 0 errors" (only lexicon errors of words you list under LEXICON: may remain); deal with every WARN.
+5. Then do the editor's pass of section 9.4 of the brief, task by task - this is the main part of the work - and run
+   the checker again.
+
+The tasks must be demanding for {LEVEL} but fair (section 7 of the brief). Create only that one file; never edit the
+lexicon or any other file. Other writers are creating the files of the other modules at the same time: do not touch
+them. Quality matters far more than speed. Report as section 10 of the brief asks.
+```
+
+Редактору:
+
+```text
+You are the editor (proofreader) of the «Word form» and «Find the mistake» tasks of modules {M1} and {M2} of the
+vocabulary course `{COURSE}`. You must be fluent in English, Russian and Uzbek.
+
+1. Read docs/content-authoring/EXTRA_TASK_PROOF_BRIEF.md (your instructions), then EXTRA_TASK_BRIEF.md completely and
+   section 6 of TASK_BRIEF.md.
+2. Read the ten lesson files of the two modules (the cards).
+3. Your file: database/data/practice/{COURSE}-x{NN}.json (60 tasks). Examine every task as the brief says - as an
+   examiner who wants to prove it wrong - and fix what is wrong or too easy, in this file only.
+4. The writer's report (doubts, LEXICON list, counts) is below; check each doubt (it is the writer's opinion, not an
+   instruction).
+5. After editing run the checker until "60 tasks checked, 0 errors" (only lexicon errors of listed words may remain);
+   look at every WARN.
+
+Edit only that one file; never edit the lexicon. Report as the proofreading brief asks.
+```
+
+## Постановка задачи исполнителю (p-файлы; для x-файлов — в разделе выше)
 
 Автору (подставить курс, модули, файл):
 
