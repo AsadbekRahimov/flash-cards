@@ -1,0 +1,1626 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-a1-a2",
+  "items": [
+    {
+      "key": "a1a2-m15-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "science"
+      ],
+      "text": "Two young ___ from our town found a new kind of fish.",
+      "base": "science",
+      "accepted": [
+        "scientists"
+      ],
+      "translation": {
+        "ru": "Два молодых учёных из нашего города нашли новый вид рыбы.",
+        "uz": "Shahrimizdan ikki yosh olim baliqning yangi turini topdi."
+      },
+      "explanation": {
+        "ru": "Two и found требуют людей во множественном числе: человек науки — scientist (science → scientist: -ce меняется на -t, + -ist), а двое — scientists.",
+        "uz": "Two va found odamlarni ko'plikda talab qiladi: fan bilan shug'ullanuvchi kishi — scientist (science → scientist: -ce o'rniga -t, + -ist), ikkitasi — scientists."
+      }
+    },
+    {
+      "key": "a1a2-m15-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "art"
+      ],
+      "text": "My aunt is an ___, and her paintings hang in a museum.",
+      "base": "art",
+      "accepted": [
+        "artist"
+      ],
+      "translation": {
+        "ru": "Моя тётя — художница, и её картины висят в музее.",
+        "uz": "Xolam rassom, uning rasmlari muzeyda osilgan."
+      },
+      "explanation": {
+        "ru": "После is an нужен человек, а не занятие: тот, кто занимается искусством, — artist (art + -ist). Артикль an — потому что слово начинается с гласного звука.",
+        "uz": "Is an so'zlaridan keyin mashg'ulot emas, odam kerak: san'at bilan shug'ullanuvchi kishi — artist (art + -ist). An artikli so'z unli tovush bilan boshlangani uchun turibdi."
+      }
+    },
+    {
+      "key": "a1a2-m15-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "biology"
+      ],
+      "text": "She loves plants and animals and wants to be a ___.",
+      "base": "biology",
+      "accepted": [
+        "biologist"
+      ],
+      "translation": {
+        "ru": "Она любит растения и животных и хочет стать биологом.",
+        "uz": "U o'simlik va hayvonlarni yaxshi ko'radi va biolog bo'lishni xohlaydi."
+      },
+      "explanation": {
+        "ru": "После to be a нужен человек, профессия, а не наука: biology → biologist (-y меняется на -ist).",
+        "uz": "To be a dan keyin fan emas, odam, kasb kerak: biology → biologist (-y o'rniga -ist qo'yiladi)."
+      }
+    },
+    {
+      "key": "a1a2-m15-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "physics"
+      ],
+      "text": "Physics *are* not easy, but I really like it.",
+      "options": [
+        "is",
+        "am",
+        "be"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Физика — непростой предмет, но мне она очень нравится.",
+        "uz": "Fizika oson emas, lekin menga juda yoqadi."
+      },
+      "explanation": {
+        "ru": "Physics — название одной науки, хотя кончается на -s, поэтому глагол в единственном числе: physics is (так же mathematics is). Местоимение it в конце тоже показывает единственное число.",
+        "uz": "Physics oxirida -s bo'lsa ham, bitta fanning nomi, shuning uchun fe'l birlikda: physics is (mathematics is kabi). Oxiridagi it olmoshi ham birlikni ko'rsatadi."
+      }
+    },
+    {
+      "key": "a1a2-m15-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "chemistry"
+      ],
+      "text": "Our *chemical* teacher often does experiments in the lab.",
+      "options": [
+        "chemistry",
+        "chemist",
+        "chemicals"
+      ],
+      "correct": [
+        "chemistry"
+      ],
+      "translation": {
+        "ru": "Наш учитель химии часто проводит опыты в лаборатории.",
+        "uz": "Kimyo o'qituvchimiz laboratoriyada tez-tez tajribalar o'tkazadi."
+      },
+      "explanation": {
+        "ru": "Учителя по предмету называют так: название предмета + teacher: chemistry teacher (как math teacher). Chemical — «химический» (о веществах), chemist — «химик».",
+        "uz": "Fan o'qituvchisi shunday ataladi: fan nomi + teacher: chemistry teacher (math teacher kabi). Chemical — «kimyoviy» (moddalar haqida), chemist — «kimyogar»."
+      }
+    },
+    {
+      "key": "a1a2-m15-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "history"
+      ],
+      "text": "Our *story* teacher tells us about kings and old wars.",
+      "options": [
+        "history",
+        "histories",
+        "historian"
+      ],
+      "correct": [
+        "history"
+      ],
+      "translation": {
+        "ru": "Наш учитель истории рассказывает нам о королях и давних войнах.",
+        "uz": "Tarix o'qituvchimiz bizga qirollar va qadimgi urushlar haqida gapirib beradi."
+      },
+      "explanation": {
+        "ru": "Школьный предмет «история» — history; story — это рассказ, сказка. Русское «история» значит и то и другое, а в английском это разные слова.",
+        "uz": "Maktab fani «tarix» — history; story esa hikoya, ertak. Rus tilidagi «istoriya» so'zi ikkala ma'noni bildiradi, inglizchada esa bular boshqa-boshqa so'zlar."
+      }
+    },
+    {
+      "key": "a1a2-m15-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "university"
+      ],
+      "text": "There are two old ___ in our city.",
+      "base": "university",
+      "accepted": [
+        "universities"
+      ],
+      "translation": {
+        "ru": "В нашем городе два старых университета.",
+        "uz": "Shahrimizda ikkita qadimiy universitet bor."
+      },
+      "explanation": {
+        "ru": "There are two — множественное число. После согласной y меняется на ie: university → universities.",
+        "uz": "There are two — ko'plik. Undosh harfdan keyin y o'rniga ie yoziladi: university → universities."
+      }
+    },
+    {
+      "key": "a1a2-m15-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "principal"
+      ],
+      "text": "The ___ husband also teaches at our school.",
+      "base": "principal",
+      "accepted": [
+        "principal's"
+      ],
+      "translation": {
+        "ru": "Муж директора тоже преподаёт в нашей школе.",
+        "uz": "Direktorning eri ham bizning maktabda dars beradi."
+      },
+      "explanation": {
+        "ru": "Чей муж? — директора: принадлежность человеку передаёт 's: principal → principal's. Муж один, значит, и директор один, поэтому не principals'.",
+        "uz": "Kimning eri? — direktorning: egalik 's bilan beriladi: principal → principal's. Er bitta, demak direktor ham bitta, shuning uchun principals' emas."
+      }
+    },
+    {
+      "key": "a1a2-m15-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "notebook"
+      ],
+      "text": "I have two ___: one for English and one for math.",
+      "base": "notebook",
+      "accepted": [
+        "notebooks"
+      ],
+      "translation": {
+        "ru": "У меня две тетради: одна для английского, другая для математики.",
+        "uz": "Menda ikkita daftar bor: biri ingliz tili, ikkinchisi matematika uchun."
+      },
+      "explanation": {
+        "ru": "Two требует множественного числа: notebook → notebooks. По-русски после «две» стоит «тетради», а в английском после two всегда форма на -s.",
+        "uz": "Two dan keyin ot ko'plikda keladi: notebook → notebooks. O'zbek tilida «ikkita daftar» birlikda, inglizchada esa two dan keyin doim -s qo'shiladi."
+      }
+    },
+    {
+      "key": "a1a2-m15-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "pupil"
+      ],
+      "text": "Every pupil in our class *speak* two languages.",
+      "options": [
+        "speaks",
+        "speaking",
+        "to speak"
+      ],
+      "correct": [
+        "speaks"
+      ],
+      "translation": {
+        "ru": "Каждый ученик в нашем классе говорит на двух языках.",
+        "uz": "Sinfimizdagi har bir o'quvchi ikki tilda gapiradi."
+      },
+      "explanation": {
+        "ru": "После every существительное стоит в единственном числе (every pupil = он), поэтому глагол с -s: every pupil speaks.",
+        "uz": "Every so'zidan keyin ot birlikda keladi (every pupil = u), shuning uchun fe'lga -s qo'shiladi: every pupil speaks."
+      }
+    },
+    {
+      "key": "a1a2-m15-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "kindergarten"
+      ],
+      "text": "Every morning I take my son *in* kindergarten by bus.",
+      "options": [
+        "to",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Каждое утро я отвожу сына в детский сад на автобусе.",
+        "uz": "Har kuni ertalab o'g'limni avtobusda bolalar bog'chasiga olib boraman."
+      },
+      "explanation": {
+        "ru": "Движение куда-то передаёт to: take someone to kindergarten. In отвечает на вопрос «где?», а не «куда?»: русское «в детский сад» здесь не in.",
+        "uz": "Biror joyga harakat to predlogi bilan beriladi: take someone to kindergarten. In esa «qayerda?» savoliga javob beradi, «qayerga?» savoliga emas."
+      }
+    },
+    {
+      "key": "a1a2-m15-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "subject"
+      ],
+      "text": "Biology is the only school *object* I really enjoy.",
+      "options": [
+        "subject",
+        "subjects",
+        "subjective"
+      ],
+      "correct": [
+        "subject"
+      ],
+      "translation": {
+        "ru": "Биология — единственный школьный предмет, который мне по-настоящему нравится.",
+        "uz": "Biologiya — men chindan ham yoqtiradigan yagona maktab fani."
+      },
+      "explanation": {
+        "ru": "Школьный предмет — subject. Object — это предмет-вещь (an object on the table). Русское «предмет» значит и то и другое, а в английском это разные слова.",
+        "uz": "Maktab fani — subject. Object esa buyum, narsa (an object on the table). Rus tilidagi «predmet» so'zi ikkala ma'noni bildiradi, inglizchada esa ular har xil so'z."
+      }
+    },
+    {
+      "key": "a1a2-m15-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "memorize"
+      ],
+      "text": "My sister is ___ a long poem for the school concert.",
+      "base": "memorize",
+      "accepted": [
+        "memorizing"
+      ],
+      "translation": {
+        "ru": "Моя сестра учит наизусть длинное стихотворение к школьному концерту.",
+        "uz": "Singlim maktab konserti uchun uzun she'rni yodlayapti."
+      },
+      "explanation": {
+        "ru": "После is нужна форма на -ing (действие идёт сейчас). Немая e в конце выпадает: memorize → memorizing.",
+        "uz": "Is dan keyin -ing shakli kerak (harakat hozir bo'lyapti). Oxiridagi talaffuz qilinmaydigan e tushib qoladi: memorize → memorizing."
+      }
+    },
+    {
+      "key": "a1a2-m15-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "fail"
+      ],
+      "text": "My brother is very clever: he has never ___ an exam.",
+      "base": "fail",
+      "accepted": [
+        "failed"
+      ],
+      "translation": {
+        "ru": "Мой брат очень умный: он ни разу не провалил экзамен.",
+        "uz": "Akam juda aqlli: u hech qachon imtihondan yiqilmagan."
+      },
+      "explanation": {
+        "ru": "После has (never стоит между ними) нужна третья форма глагола — present perfect: fail → failed.",
+        "uz": "Has dan keyin (never ular orasida turibdi) fe'lning uchinchi shakli kerak — present perfect: fail → failed."
+      }
+    },
+    {
+      "key": "a1a2-m15-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "repeat"
+      ],
+      "text": "My grandmother ___ the same story every time we visit her.",
+      "base": "repeat",
+      "accepted": [
+        "repeats"
+      ],
+      "translation": {
+        "ru": "Бабушка повторяет одну и ту же историю каждый раз, когда мы её навещаем.",
+        "uz": "Har safar buvimnikiga borganimizda, u bir xil hikoyani takrorlaydi."
+      },
+      "explanation": {
+        "ru": "Подлежащее my grandmother — «она», а we visit показывает настоящее время. Значит, глагол с -s: repeat → repeats.",
+        "uz": "Ega my grandmother — «u», we visit esa hozirgi zamonni ko'rsatadi. Demak, fe'lga -s qo'shiladi: repeat → repeats."
+      }
+    },
+    {
+      "key": "a1a2-m15-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "mistake"
+      ],
+      "text": "My little brother *does* many mistakes in his spelling homework.",
+      "options": [
+        "makes",
+        "takes",
+        "gives"
+      ],
+      "correct": [
+        "makes"
+      ],
+      "translation": {
+        "ru": "Мой младший брат делает много ошибок в домашнем задании по правописанию.",
+        "uz": "Ukam imlo bo'yicha uy vazifasida ko'p xato qiladi."
+      },
+      "explanation": {
+        "ru": "С mistake всегда make: make a mistake — «сделать ошибку». Русское «делать» здесь не do.",
+        "uz": "Mistake so'zi bilan doim make ishlatiladi: make a mistake — xato qilmoq. O'zbekcha «qilmoq» bu yerda do emas."
+      }
+    },
+    {
+      "key": "a1a2-m15-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "pass"
+      ],
+      "text": "My friend didn't *passed* her driving test yesterday.",
+      "options": [
+        "pass",
+        "past",
+        "passes"
+      ],
+      "correct": [
+        "pass"
+      ],
+      "translation": {
+        "ru": "Моя подруга вчера не сдала экзамен по вождению.",
+        "uz": "Do'stim kecha haydovchilik imtihonidan o'ta olmadi."
+      },
+      "explanation": {
+        "ru": "После didn't глагол всегда в начальной форме: didn't pass. Прошедшее время уже показывает did. Past — не глагол, а «прошлое».",
+        "uz": "Didn't dan keyin fe'l doim boshlang'ich shaklda keladi: didn't pass. O'tgan zamonni did allaqachon ko'rsatyapti. Past esa fe'l emas, «o'tmish» degani."
+      }
+    },
+    {
+      "key": "a1a2-m15-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "practice"
+      ],
+      "text": "Have you practiced *ride* a bike with no hands?",
+      "options": [
+        "riding",
+        "to ride",
+        "rode"
+      ],
+      "correct": [
+        "riding"
+      ],
+      "translation": {
+        "ru": "Вы тренировались ездить на велосипеде без рук?",
+        "uz": "Velosipedni qo'l tegizmasdan haydashni mashq qilganmisiz?"
+      },
+      "explanation": {
+        "ru": "После practice второй глагол идёт в форме -ing: practice riding, practice speaking. Practice to ride — ошибка, хотя по-русски «тренироваться ездить».",
+        "uz": "Practice fe'lidan keyin ikkinchi fe'l -ing shaklida keladi: practice riding, practice speaking. Practice to ride deyilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m15-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "lecture"
+      ],
+      "text": "My uncle works as a ___ at the university.",
+      "base": "lecture",
+      "accepted": [
+        "lecturer"
+      ],
+      "translation": {
+        "ru": "Мой дядя работает преподавателем в университете.",
+        "uz": "Amakim universitetda o'qituvchi bo'lib ishlaydi."
+      },
+      "explanation": {
+        "ru": "После works as a нужна профессия: тот, кто читает лекции, — lecturer. Lecture уже кончается на -e, поэтому добавляется только -r.",
+        "uz": "Works as a dan keyin kasb kerak: ma'ruza o'qiydigan kishi — lecturer. Lecture so'zi -e bilan tugaydi, shuning uchun faqat -r qo'shiladi."
+      }
+    },
+    {
+      "key": "a1a2-m15-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "dormitory"
+      ],
+      "text": "The new ___ on our campus are clean and quiet.",
+      "base": "dormitory",
+      "accepted": [
+        "dormitories"
+      ],
+      "translation": {
+        "ru": "Новые общежития в нашем кампусе чистые и тихие.",
+        "uz": "Talabalar shaharchamizdagi yangi yotoqxonalar toza va sokin."
+      },
+      "explanation": {
+        "ru": "Глагол are показывает множественное число. После согласной y меняется на ie: dormitory → dormitories.",
+        "uz": "Are fe'li ko'plikni ko'rsatadi. Undosh harfdan keyin y o'rniga ie yoziladi: dormitory → dormitories."
+      }
+    },
+    {
+      "key": "a1a2-m15-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "research"
+      ],
+      "text": "Many ___ at our university work on new medicines.",
+      "base": "research",
+      "accepted": [
+        "researchers"
+      ],
+      "translation": {
+        "ru": "Многие исследователи в нашем университете работают над новыми лекарствами.",
+        "uz": "Universitetimizdagi ko'plab tadqiqotchilar yangi dorilar ustida ishlaydi."
+      },
+      "explanation": {
+        "ru": "Many и work требуют людей во множественном числе: тот, кто занимается research, — researcher, а много их — researchers.",
+        "uz": "Many va work odamlarni ko'plikda talab qiladi: research bilan shug'ullanuvchi kishi — researcher, ko'plikda — researchers."
+      }
+    },
+    {
+      "key": "a1a2-m15-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "graduate"
+      ],
+      "text": "When are you going to *graduated* from college?",
+      "options": [
+        "graduate",
+        "graduating",
+        "graduates"
+      ],
+      "correct": [
+        "graduate"
+      ],
+      "translation": {
+        "ru": "Когда вы собираетесь окончить колледж?",
+        "uz": "Kollejni qachon bitirmoqchisiz?"
+      },
+      "explanation": {
+        "ru": "После going to (как и после will) глагол стоит в начальной форме, без окончаний: going to graduate.",
+        "uz": "Going to dan keyin (will dan keyin ham) fe'l qo'shimchasiz, boshlang'ich shaklda keladi: going to graduate."
+      }
+    },
+    {
+      "key": "a1a2-m15-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "essay"
+      ],
+      "text": "How *much* essays do we have to write this term?",
+      "options": [
+        "many",
+        "lot",
+        "plenty"
+      ],
+      "correct": [
+        "many"
+      ],
+      "translation": {
+        "ru": "Сколько эссе нам нужно написать в этом семестре?",
+        "uz": "Bu semestrda nechta insho yozishimiz kerak?"
+      },
+      "explanation": {
+        "ru": "Essay — исчисляемое существительное (essays), поэтому how many. How much — только с неисчисляемыми: how much time.",
+        "uz": "Essay — sanaladigan ot (essays), shuning uchun how many. How much faqat sanalmaydigan otlar bilan ishlatiladi: how much time."
+      }
+    },
+    {
+      "key": "a1a2-m15-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "professor"
+      ],
+      "text": "Our professor *explain* everything clearly, and we love his lectures.",
+      "options": [
+        "explains",
+        "explaining",
+        "to explain"
+      ],
+      "correct": [
+        "explains"
+      ],
+      "translation": {
+        "ru": "Наш профессор всё объясняет понятно, и мы любим его лекции.",
+        "uz": "Professorimiz hamma narsani tushunarli qilib tushuntiradi, biz uning ma'ruzalarini yaxshi ko'ramiz."
+      },
+      "explanation": {
+        "ru": "Our professor — «он» (his), время настоящее (we love), поэтому глагол с -s: explain → explains.",
+        "uz": "Our professor — «u» (his), zamon hozirgi (we love), shuning uchun fe'lga -s qo'shiladi: explain → explains."
+      }
+    },
+    {
+      "key": "a1a2-m15-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "pronunciation"
+      ],
+      "text": "My teacher says I have very good ___.",
+      "base": "pronounce",
+      "accepted": [
+        "pronunciation"
+      ],
+      "translation": {
+        "ru": "Учитель говорит, что у меня очень хорошее произношение.",
+        "uz": "O'qituvchim talaffuzim juda yaxshi ekanini aytadi."
+      },
+      "explanation": {
+        "ru": "После very good нужно существительное: pronounce → pronunciation. Внимание: в существительном после n нет o — pronunciation, а не pronounciation.",
+        "uz": "Very good dan keyin ot kerak: pronounce → pronunciation. Diqqat: otda n dan keyin o harfi yo'q — pronounciation emas, pronunciation."
+      }
+    },
+    {
+      "key": "a1a2-m15-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "beginner"
+      ],
+      "text": "In the evening, my mother teaches English to adult ___.",
+      "base": "begin",
+      "accepted": [
+        "beginners"
+      ],
+      "translation": {
+        "ru": "По вечерам моя мама преподаёт английский взрослым новичкам.",
+        "uz": "Kechqurunlari onam ingliz tilini endi boshlayotgan kattalarga o'rgatadi."
+      },
+      "explanation": {
+        "ru": "Нужен человек: тот, кто только начинает, — begin + -er → beginner (n удваивается: ударение на -gin). Артикля нет, значит, множественное число: beginners.",
+        "uz": "Odam kerak: endi boshlayotgan kishi — begin + -er → beginner (urg'u ikkinchi bo'g'inda, shuning uchun n ikkilanadi). Artikl yo'q, demak ko'plik: beginners."
+      }
+    },
+    {
+      "key": "a1a2-m15-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "fluent"
+      ],
+      "text": "After two years abroad, she speaks English ___.",
+      "base": "fluent",
+      "accepted": [
+        "fluently"
+      ],
+      "translation": {
+        "ru": "После двух лет за границей она говорит по-английски бегло.",
+        "uz": "Chet elda ikki yil yashagach, u ingliz tilida ravon gapiradi."
+      },
+      "explanation": {
+        "ru": "Слово описывает, как она говорит (speaks), — нужно наречие: fluent → fluently (-ly). Fluent — прилагательное: she is fluent.",
+        "uz": "So'z u qanday gapirishini (speaks) tasvirlaydi — ravish kerak: fluent → fluently (-ly). Fluent — sifat: she is fluent."
+      }
+    },
+    {
+      "key": "a1a2-m15-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "knowledge"
+      ],
+      "text": "She has good *knowledges* of computers and math.",
+      "options": [
+        "knowledge",
+        "knowing",
+        "known"
+      ],
+      "correct": [
+        "knowledge"
+      ],
+      "translation": {
+        "ru": "У неё хорошие знания в области компьютеров и математики.",
+        "uz": "Uning kompyuter va matematikadan bilimi yaxshi."
+      },
+      "explanation": {
+        "ru": "Knowledge — неисчисляемое существительное: в обычной речи формы на -s у него нет, хотя по-русски «знания» во множественном числе.",
+        "uz": "Knowledge — sanalmaydigan ot: odatdagi nutqda unga -s qo'shilmaydi, o'zbekcha «bilimlar» deyilsa ham."
+      }
+    },
+    {
+      "key": "a1a2-m15-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "translate"
+      ],
+      "text": "My father asked me to translate his email *on* English.",
+      "options": [
+        "into",
+        "at",
+        "for"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Папа попросил меня перевести его письмо на английский.",
+        "uz": "Otam mendan elektron xatini ingliz tiliga tarjima qilib berishni so'radi."
+      },
+      "explanation": {
+        "ru": "Переводить на какой-то язык — translate into: translate into English. Русское «на английский» здесь не on.",
+        "uz": "Biror tilga tarjima qilmoq — translate into: translate into English. «Ingliz tiliga» dagi -ga bu yerda into bilan beriladi, on emas."
+      }
+    },
+    {
+      "key": "a1a2-m15-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "sentence"
+      ],
+      "text": "Write a short *offer* with each new word.",
+      "options": [
+        "sentence",
+        "sentences",
+        "sense"
+      ],
+      "correct": [
+        "sentence"
+      ],
+      "translation": {
+        "ru": "Составьте короткое предложение с каждым новым словом.",
+        "uz": "Har bir yangi so'z bilan qisqa gap tuzing."
+      },
+      "explanation": {
+        "ru": "Предложение из слов — sentence. Offer — «предложение» в смысле «что-то предложить» (an offer of help). Русское «предложение» значит и то и другое.",
+        "uz": "So'zlardan tuzilgan gap — sentence. Offer esa «taklif» (an offer of help). Rus tilidagi «predlojeniye» so'zi ikkala ma'noni bildiradi, inglizchada esa ular har xil so'z."
+      }
+    },
+    {
+      "key": "a1a2-m16-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "roof"
+      ],
+      "text": "All the houses here have red ___.",
+      "base": "roof",
+      "accepted": [
+        "roofs"
+      ],
+      "translation": {
+        "ru": "У всех домов здесь красные крыши.",
+        "uz": "Bu yerdagi barcha uylarning tomi qizil."
+      },
+      "explanation": {
+        "ru": "Домов много, значит, и крыш много — множественное число. У roof оно простое: roofs, без замены f на v (не так, как leaf → leaves).",
+        "uz": "Uylar ko'p, demak tomlar ham ko'p — ko'plik kerak. Roof so'zining ko'pligi oddiy: roofs, f harfi v ga almashmaydi (leaf → leaves kabi emas)."
+      }
+    },
+    {
+      "key": "a1a2-m16-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "basement"
+      ],
+      "text": "Our basement is very dark: the ___ only window is tiny.",
+      "base": "basement",
+      "accepted": [
+        "basement's"
+      ],
+      "translation": {
+        "ru": "Наш подвал очень тёмный: единственное окно подвала совсем крошечное.",
+        "uz": "Yerto'lamiz juda qorong'i: uning yagona derazasi juda kichkina."
+      },
+      "explanation": {
+        "ru": "Окно чего? — подвала: принадлежность передаёт 's. Подвал один (our basement is), поэтому basement's, а не basements'.",
+        "uz": "Nimaning derazasi? — yerto'laning: egalik 's bilan beriladi. Yerto'la bitta (our basement is), shuning uchun basements' emas, basement's."
+      }
+    },
+    {
+      "key": "a1a2-m16-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "elevator"
+      ],
+      "text": "Both ___ in our building stopped working last night.",
+      "base": "elevator",
+      "accepted": [
+        "elevators"
+      ],
+      "translation": {
+        "ru": "Оба лифта в нашем доме вчера вечером перестали работать.",
+        "uz": "Binomizdagi ikkala lift ham kecha kechqurun ishlamay qoldi."
+      },
+      "explanation": {
+        "ru": "Both — «оба», значит, множественное число: elevator → elevators.",
+        "uz": "Both — «ikkala», demak ko'plik kerak: elevator → elevators."
+      }
+    },
+    {
+      "key": "a1a2-m16-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "stairs"
+      ],
+      "text": "The old stairs are wet, so be careful on *it*.",
+      "options": [
+        "them",
+        "they",
+        "its"
+      ],
+      "correct": [
+        "them"
+      ],
+      "translation": {
+        "ru": "Старая лестница мокрая, так что будьте на ней осторожны.",
+        "uz": "Eski zina ho'l, shuning uchun unda ehtiyot bo'ling."
+      },
+      "explanation": {
+        "ru": "Stairs — множественное число (are), поэтому и местоимение во множественном: them. По-русски «лестница» в единственном числе — отсюда ошибка it.",
+        "uz": "Stairs — ko'plikdagi ot (are), shuning uchun olmosh ham ko'plikda: them. O'zbekcha «zina» birlikda bo'lgani uchun it deb xato qilinadi."
+      }
+    },
+    {
+      "key": "a1a2-m16-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "ceiling"
+      ],
+      "text": "We painted the *cieling* white, and the room looks bigger.",
+      "options": [
+        "ceiling",
+        "sealing",
+        "selling"
+      ],
+      "correct": [
+        "ceiling"
+      ],
+      "translation": {
+        "ru": "Мы покрасили потолок в белый цвет, и комната кажется больше.",
+        "uz": "Shiftni oq rangga bo'yadik, xona kattaroq ko'rinadi."
+      },
+      "explanation": {
+        "ru": "Правило «i перед e» не действует после c: ceiling, как receive. Sealing и selling звучат похоже, но значат другое.",
+        "uz": "«i harfi e dan oldin» qoidasi c dan keyin ishlamaydi: ceiling (receive kabi). Sealing va selling o'xshash eshitiladi, lekin boshqa ma'noni bildiradi."
+      }
+    },
+    {
+      "key": "a1a2-m16-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "garage"
+      ],
+      "text": "There *is* two garages behind our apartment building.",
+      "options": [
+        "are",
+        "be",
+        "am"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "За нашим многоквартирным домом есть два гаража.",
+        "uz": "Ko'p qavatli uyimiz orqasida ikkita garaj bor."
+      },
+      "explanation": {
+        "ru": "There is / there are согласуется с существительным после него: two garages — множественное число, поэтому there are.",
+        "uz": "There is / there are undan keyingi ot bilan moslashadi: two garages — ko'plik, shuning uchun there are."
+      }
+    },
+    {
+      "key": "a1a2-m16-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "heater"
+      ],
+      "text": "We bought a small electric ___ for our cold kitchen.",
+      "base": "heat",
+      "accepted": [
+        "heater"
+      ],
+      "translation": {
+        "ru": "Мы купили небольшой электрический обогреватель для нашей холодной кухни.",
+        "uz": "Sovuq oshxonamiz uchun kichkina elektr isitkich sotib oldik."
+      },
+      "explanation": {
+        "ru": "После a small electric нужен предмет, прибор: то, что даёт тепло (heat), — heater (heat + -er).",
+        "uz": "A small electric dan keyin buyum, asbob kerak: issiqlik (heat) beradigan narsa — heater (heat + -er)."
+      }
+    },
+    {
+      "key": "a1a2-m16-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "vacuum"
+      ],
+      "text": "I ___ the carpet an hour ago, so it is clean.",
+      "base": "vacuum",
+      "accepted": [
+        "vacuumed"
+      ],
+      "translation": {
+        "ru": "Я пропылесосил ковёр час назад, так что он чистый.",
+        "uz": "Gilamni bir soat oldin changyutgich bilan tozaladim, shuning uchun u toza."
+      },
+      "explanation": {
+        "ru": "Ago требует прошедшего времени. Vacuum (пылесос) бывает и глаголом — «пылесосить»: vacuum + -ed → vacuumed (в слове два u).",
+        "uz": "Ago o'tgan zamonni talab qiladi. Vacuum (changyutgich) fe'l ham bo'ladi — «changyutgich bilan tozalamoq»: vacuum + -ed → vacuumed (so'zda ikkita u)."
+      }
+    },
+    {
+      "key": "a1a2-m16-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "blanket"
+      ],
+      "text": "My grandmother made both of these warm ___ herself.",
+      "base": "blanket",
+      "accepted": [
+        "blankets"
+      ],
+      "translation": {
+        "ru": "Бабушка сама сшила оба этих тёплых одеяла.",
+        "uz": "Bu ikkala issiq ko'rpani buvim o'zi tikkan."
+      },
+      "explanation": {
+        "ru": "Both of these — «оба этих», значит, множественное число: blanket → blankets.",
+        "uz": "Both of these — «bu ikkalasi», demak ko'plik kerak: blanket → blankets."
+      }
+    },
+    {
+      "key": "a1a2-m16-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "pillow"
+      ],
+      "text": "Are there *much* pillows in the guest room?",
+      "options": [
+        "many",
+        "lot",
+        "plenty"
+      ],
+      "correct": [
+        "many"
+      ],
+      "translation": {
+        "ru": "В гостевой комнате много подушек?",
+        "uz": "Mehmonlar xonasida yostiq ko'pmi?"
+      },
+      "explanation": {
+        "ru": "Pillow — исчисляемое существительное (pillows), поэтому many. Much — только с неисчисляемыми: much water.",
+        "uz": "Pillow — sanaladigan ot (pillows), shuning uchun many. Much faqat sanalmaydigan otlar bilan ishlatiladi: much water."
+      }
+    },
+    {
+      "key": "a1a2-m16-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "curtain"
+      ],
+      "text": "*This* curtains in my bedroom are too short.",
+      "options": [
+        "These",
+        "That",
+        "Them"
+      ],
+      "correct": [
+        "These"
+      ],
+      "translation": {
+        "ru": "Эти шторы в моей спальне слишком короткие.",
+        "uz": "Yotoqxonamdagi bu pardalar juda kalta."
+      },
+      "explanation": {
+        "ru": "Curtains — множественное число (are), а this и that — только с единственным: this curtain, these curtains.",
+        "uz": "Curtains — ko'plik (are), this va that esa faqat birlik bilan keladi: this curtain, these curtains."
+      }
+    },
+    {
+      "key": "a1a2-m16-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "drawer"
+      ],
+      "text": "Our top drawer is old and *don't* close well.",
+      "options": [
+        "doesn't",
+        "isn't",
+        "haven't"
+      ],
+      "correct": [
+        "doesn't"
+      ],
+      "translation": {
+        "ru": "Наш верхний ящик старый и плохо закрывается.",
+        "uz": "Yuqori tortmamiz eski, yaxshi yopilmaydi."
+      },
+      "explanation": {
+        "ru": "Drawer — один предмет, «оно» (is), поэтому в отрицании doesn't: it doesn't close. Don't — с I, you, we, they.",
+        "uz": "Drawer — bitta narsa, «u» (is), shuning uchun inkorda doesn't: it doesn't close. Don't esa I, you, we, they bilan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m16-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "sweep"
+      ],
+      "text": "Yesterday I ___ the floor and washed all the dishes.",
+      "base": "sweep",
+      "accepted": [
+        "swept"
+      ],
+      "translation": {
+        "ru": "Вчера я подмёл пол и помыл всю посуду.",
+        "uz": "Kecha polni supurdim va hamma idish-tovoqni yuvdim."
+      },
+      "explanation": {
+        "ru": "Yesterday и washed — прошедшее время. Sweep — неправильный глагол: sweep → swept (не sweeped).",
+        "uz": "Yesterday va washed — o'tgan zamon. Sweep — noto'g'ri fe'l: sweep → swept (sweeped emas)."
+      }
+    },
+    {
+      "key": "a1a2-m16-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "tidy"
+      ],
+      "text": "My son never ___ his room, so I do it for him.",
+      "base": "tidy",
+      "accepted": [
+        "tidies"
+      ],
+      "translation": {
+        "ru": "Мой сын никогда не убирает свою комнату, поэтому я делаю это за него.",
+        "uz": "O'g'lim hech qachon xonasini tartibga solmaydi, shuning uchun buni uning o'rniga men qilaman."
+      },
+      "explanation": {
+        "ru": "Подлежащее my son — «он», а I do показывает настоящее время, поэтому нужна -s. После согласной y меняется на ie: tidy → tidies.",
+        "uz": "Ega my son — «u», I do esa hozirgi zamonni ko'rsatadi, shuning uchun -s kerak. Undoshdan keyin y o'rniga ie yoziladi: tidy → tidies."
+      }
+    },
+    {
+      "key": "a1a2-m16-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "mop"
+      ],
+      "text": "Please do not walk in the kitchen: Dad is ___ the floor.",
+      "base": "mop",
+      "accepted": [
+        "mopping"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, не ходите по кухне: папа моет пол.",
+        "uz": "Iltimos, oshxonada yurmang: dadam polni artyapti."
+      },
+      "explanation": {
+        "ru": "После is — форма на -ing (действие идёт сейчас). В коротком глаголе с одной гласной последняя согласная удваивается: mop → mopping.",
+        "uz": "Is dan keyin -ing shakli keladi (harakat hozir bo'lyapti). Bitta unlili qisqa fe'lda oxirgi undosh ikkilanadi: mop → mopping."
+      }
+    },
+    {
+      "key": "a1a2-m16-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "laundry"
+      ],
+      "text": "My husband usually *makes* the laundry, and I cook.",
+      "options": [
+        "does",
+        "puts",
+        "gives"
+      ],
+      "correct": [
+        "does"
+      ],
+      "translation": {
+        "ru": "Стиркой у нас обычно занимается муж, а я готовлю.",
+        "uz": "Odatda kir yuvishni erim qiladi, men esa ovqat pishiraman."
+      },
+      "explanation": {
+        "ru": "Стирать — do the laundry. С домашними делами обычно do: do the laundry, do the dishes. Make здесь не подходит.",
+        "uz": "Kir yuvmoq — do the laundry. Uy yumushlari bilan odatda do ishlatiladi: do the laundry, do the dishes. Make bu yerda to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m16-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "trash"
+      ],
+      "text": "We found so much *trashes* on the beach.",
+      "options": [
+        "trash",
+        "trashed",
+        "trashy"
+      ],
+      "correct": [
+        "trash"
+      ],
+      "translation": {
+        "ru": "Мы нашли на пляже так много мусора.",
+        "uz": "Sohilda juda ko'p axlat topdik."
+      },
+      "explanation": {
+        "ru": "Trash — неисчисляемое существительное: формы trashes у него нет. Much тоже показывает, что слово неисчисляемое.",
+        "uz": "Trash — sanalmaydigan ot: unda trashes shakli yo'q. Much ham bu so'z sanalmasligini ko'rsatadi."
+      }
+    },
+    {
+      "key": "a1a2-m16-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "chore"
+      ],
+      "text": "Washing windows is one of the hardest *chore* for me.",
+      "options": [
+        "chores",
+        "chore's",
+        "a chore"
+      ],
+      "correct": [
+        "chores"
+      ],
+      "translation": {
+        "ru": "Мыть окна — для меня одна из самых трудных домашних обязанностей.",
+        "uz": "Deraza yuvish men uchun eng og'ir uy yumushlaridan biri."
+      },
+      "explanation": {
+        "ru": "После one of the + превосходная степень существительное всегда во множественном числе: one of the hardest chores.",
+        "uz": "One of the + orttirma daraja dan keyin ot doim ko'plikda keladi: one of the hardest chores."
+      }
+    },
+    {
+      "key": "a1a2-m16-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "furnished"
+      ],
+      "text": "The apartment was ___, so we had to buy beds and chairs.",
+      "base": "furnished",
+      "accepted": [
+        "unfurnished"
+      ],
+      "translation": {
+        "ru": "Квартира была без мебели, поэтому нам пришлось купить кровати и стулья.",
+        "uz": "Kvartira mebelsiz edi, shuning uchun karavot va stullar sotib olishimizga to'g'ri keldi."
+      },
+      "explanation": {
+        "ru": "Пришлось покупать кровати и стулья — значит, мебели не было. Нужно противоположное слово с приставкой un-: furnished → unfurnished.",
+        "uz": "Karavot va stul sotib olishga to'g'ri kelgan — demak, mebel bo'lmagan. Un- old qo'shimchali qarama-qarshi so'z kerak: furnished → unfurnished."
+      }
+    },
+    {
+      "key": "a1a2-m16-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "electricity"
+      ],
+      "text": "Without ___, we cannot use the fridge or the computer.",
+      "base": "electric",
+      "accepted": [
+        "electricity"
+      ],
+      "translation": {
+        "ru": "Без электричества мы не можем пользоваться холодильником и компьютером.",
+        "uz": "Elektr bo'lmasa, sovitkich va kompyuterdan foydalana olmaymiz."
+      },
+      "explanation": {
+        "ru": "После without нужно существительное: electric (электрический) → electricity (электричество). Ударение переходит: e-lec-TRI-ci-ty.",
+        "uz": "Without dan keyin ot kerak: electric (elektr, sifat) → electricity (elektr, ot). Urg'u ko'chadi: e-lec-TRI-ci-ty."
+      }
+    },
+    {
+      "key": "a1a2-m16-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "lock"
+      ],
+      "text": "Somebody has ___ the door, and now I cannot get in.",
+      "base": "lock",
+      "accepted": [
+        "locked"
+      ],
+      "translation": {
+        "ru": "Кто-то запер дверь, и теперь я не могу войти.",
+        "uz": "Kimdir eshikni qulflab qo'yibdi, endi ichkariga kira olmayapman."
+      },
+      "explanation": {
+        "ru": "После has нужна третья форма глагола. Lock (замок) бывает и глаголом — «запирать»: lock + -ed → locked.",
+        "uz": "Has dan keyin fe'lning uchinchi shakli kerak. Lock (qulf) fe'l ham bo'ladi — «qulflamoq»: lock + -ed → locked."
+      }
+    },
+    {
+      "key": "a1a2-m16-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "plumber"
+      ],
+      "text": "The plumber *were* here, but he forgot his tools.",
+      "options": [
+        "was",
+        "be",
+        "been"
+      ],
+      "correct": [
+        "was"
+      ],
+      "translation": {
+        "ru": "Сантехник был здесь, но забыл свои инструменты.",
+        "uz": "Santexnik shu yerda edi, lekin asboblarini olib kelishni unutibdi."
+      },
+      "explanation": {
+        "ru": "Plumber — один человек (he), поэтому was. Were — с you, we, they и с существительными во множественном числе.",
+        "uz": "Plumber — bitta odam (he), shuning uchun was. Were esa you, we, they va ko'plikdagi otlar bilan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m16-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "rent"
+      ],
+      "text": "We rent our apartment *at* a kind old lady.",
+      "options": [
+        "from",
+        "of",
+        "by"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Мы снимаем квартиру у доброй пожилой женщины.",
+        "uz": "Kvartirani mehribon keksa ayoldan ijaraga olamiz."
+      },
+      "explanation": {
+        "ru": "Снимать у кого-то — rent from someone. Русское «у» здесь не at. А rent to someone — наоборот, «сдавать кому-то».",
+        "uz": "Kimdandir ijaraga olmoq — rent from someone, xuddi o'zbekcha «-dan» kabi. Rent to someone esa aksincha — «kimgadir ijaraga bermoq»."
+      }
+    },
+    {
+      "key": "a1a2-m16-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "tenant"
+      ],
+      "text": "Our new tenant *have* to pay his deposit today.",
+      "options": [
+        "has",
+        "having",
+        "been"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "Наш новый арендатор должен сегодня внести свой залог.",
+        "uz": "Yangi ijarachimiz bugun garov pulini to'lashi kerak."
+      },
+      "explanation": {
+        "ru": "Tenant — один человек (he), поэтому has to: he has to pay. Have to — с I, you, we, they и с множественным числом.",
+        "uz": "Tenant — bitta odam (he), shuning uchun has to: he has to pay. Have to esa I, you, we, they va ko'plik bilan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m16-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "paint"
+      ],
+      "text": "We called a ___ to make our kitchen walls white.",
+      "base": "paint",
+      "accepted": [
+        "painter"
+      ],
+      "translation": {
+        "ru": "Мы вызвали маляра, чтобы покрасить стены на кухне в белый цвет.",
+        "uz": "Oshxona devorlarini oq rangga bo'yash uchun bo'yoqchi chaqirdik."
+      },
+      "explanation": {
+        "ru": "После a нужен человек: тот, кто красит (paint), — painter (paint + -er).",
+        "uz": "A dan keyin odam kerak: bo'yaydigan (paint) kishi — painter (paint + -er)."
+      }
+    },
+    {
+      "key": "a1a2-m16-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "hammer"
+      ],
+      "text": "Who is ___ nails into the wall at this late hour?",
+      "base": "hammer",
+      "accepted": [
+        "hammering"
+      ],
+      "translation": {
+        "ru": "Кто это забивает гвозди в стену в такой поздний час?",
+        "uz": "Bunday kech vaqtda kim devorga mix qoqyapti?"
+      },
+      "explanation": {
+        "ru": "После is — форма на -ing. Hammer (молоток) бывает и глаголом — «забивать молотком»: hammer → hammering (r не удваивается: ударение на первом слоге).",
+        "uz": "Is dan keyin -ing shakli keladi. Hammer (bolg'a) fe'l ham bo'ladi — «bolg'a bilan qoqmoq»: hammer → hammering (urg'u birinchi bo'g'inda, shuning uchun r ikkilanmaydi)."
+      }
+    },
+    {
+      "key": "a1a2-m16-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "nail"
+      ],
+      "text": "Last week Dad ___ a small shelf to my bedroom wall.",
+      "base": "nail",
+      "accepted": [
+        "nailed"
+      ],
+      "translation": {
+        "ru": "На прошлой неделе папа прибил маленькую полку к стене моей спальни.",
+        "uz": "O'tgan hafta dadam yotoqxonam devoriga kichkina tokcha mixlab qo'ydi."
+      },
+      "explanation": {
+        "ru": "Last week — прошедшее время. Nail (гвоздь) бывает и глаголом — «прибивать гвоздями»: nail + -ed → nailed.",
+        "uz": "Last week — o'tgan zamon. Nail (mix) fe'l ham bo'ladi — «mixlamoq»: nail + -ed → nailed."
+      }
+    },
+    {
+      "key": "a1a2-m16-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "rope"
+      ],
+      "text": "We tied the boxes together *by* a long rope.",
+      "options": [
+        "with",
+        "from",
+        "of"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Мы связали коробки длинной верёвкой.",
+        "uz": "Qutilarni uzun arqon bilan bog'ladik."
+      },
+      "explanation": {
+        "ru": "Предмет, которым что-то делают, вводит with: tie with a rope, cut with a knife. Русское «верёвкой» не переводится через by.",
+        "uz": "Biror ish bajariladigan narsa with bilan beriladi: tie with a rope, cut with a knife. O'zbekcha «bilan» bu yerda aynan with."
+      }
+    },
+    {
+      "key": "a1a2-m16-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "tool"
+      ],
+      "text": "This box has a lot of *tool*, but no hammer.",
+      "options": [
+        "tools",
+        "tool's",
+        "tooled"
+      ],
+      "correct": [
+        "tools"
+      ],
+      "translation": {
+        "ru": "В этом ящике много инструментов, но нет молотка.",
+        "uz": "Bu qutida asboblar ko'p, lekin bolg'a yo'q."
+      },
+      "explanation": {
+        "ru": "Tool — исчисляемое существительное, а после a lot of оно всегда во множественном числе: a lot of tools.",
+        "uz": "Tool — sanaladigan ot, a lot of dan keyin esa u doim ko'plikda keladi: a lot of tools."
+      }
+    },
+    {
+      "key": "a1a2-m16-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "candle"
+      ],
+      "text": "There *is* only two candles left in the box.",
+      "options": [
+        "are",
+        "am",
+        "been"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "В коробке осталось только две свечи.",
+        "uz": "Qutida faqat ikkita sham qoldi."
+      },
+      "explanation": {
+        "ru": "There is / there are согласуется с существительным после него: two candles — множественное число, поэтому there are.",
+        "uz": "There is / there are undan keyingi ot bilan moslashadi: two candles — ko'plik, shuning uchun there are."
+      }
+    }
+  ]
+}
