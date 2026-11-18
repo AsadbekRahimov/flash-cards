@@ -16,6 +16,9 @@ final class ErrorHuntText
     /** The punctuation a core is taken out of: `. , ! ? ; : … " ' ( ) [ ]` and the typographic quotes. */
     private const EDGE = '.,!?;:…"\'()\[\]“”«»';
 
+    /** The pronoun `I` and its contractions: always written with a capital, so the capital gives nothing away inside a sentence. */
+    private const ALWAYS_CAPITAL = '/\AI(?:[\'’](?:m|ve|ll|d))?\z/u';
+
     /**
      * The tokens of a stored text: split at the spaces.
      *
@@ -67,7 +70,8 @@ final class ErrorHuntText
      * What is wrong with the case of the corrections (docs/16 §5.7), null when nothing: the case of a first letter must not give the
      * answer away. The mistake is the first word: every correction starts with a capital letter (`first_word`) - the corrected sentence
      * starts with one too. Another word: the corrections that start with a letter start with letters of one case (`mixed`). An option
-     * that does not start with a letter (`2`) has no case.
+     * that does not start with a letter (`2`) has no case; nor, inside the sentence, has the pronoun `I` (`I'm`, `I've`, `I'll`, `I'd`)
+     * - it is written with a capital anywhere (`John and *me* went` -> I / myself / mine).
      *
      * @param  list<string>  $options
      * @return 'first_word'|'mixed'|null
@@ -77,6 +81,7 @@ final class ErrorHuntText
         $cases = [];
         foreach ($options as $option) {
             $cases[] = match (true) {
+                $errorIndex !== 0 && preg_match(self::ALWAYS_CAPITAL, $option) === 1 => null,
                 preg_match('/\A\p{Lu}/u', $option) === 1 => 'upper',
                 preg_match('/\A\p{Ll}/u', $option) === 1 => 'lower',
                 default => null,

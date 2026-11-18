@@ -185,31 +185,29 @@
         "pallid"
       ],
       "prompt": {
-        "ru": "От страха её лицо стало бледным.",
-        "uz": "Qo'rquvdan uning yuzi rangpar tortdi."
+        "ru": "Месяцы, проведённые в четырёх стенах, сделали её кожу бледной.",
+        "uz": "Oylab xonada o'tirish uning terisini rangpar qilib qo'ygan edi."
       },
       "fragments": [
-        "her",
-        "face",
-        "turned",
-        "pallid",
-        "with",
-        "fear"
+        "months",
+        "indoors",
+        "had left",
+        "her skin",
+        "pallid"
       ],
       "accepted": [
         [
-          "her",
-          "face",
-          "turned",
-          "pallid",
-          "with",
-          "fear"
+          "months",
+          "indoors",
+          "had left",
+          "her skin",
+          "pallid"
         ]
       ],
-      "display": "Her face turned pallid with fear.",
+      "display": "Months indoors had left her skin pallid.",
       "explanation": {
-        "ru": "turn + прилагательное — внезапно стать каким-то (о цвете, состоянии): turn pallid, turn red. With fear — от страха: причину чувства здесь вводит with.",
-        "uz": "turn + sifat — birdan qandaydir tusga kirmoq (rang, holat haqida): turn pallid, turn red. With fear — qo'rquvdan: tuyg'u sababi bu yerda with predlogi bilan beriladi."
+        "ru": "leave + кого/что + прилагательное — оставить в каком-то состоянии как следствие чего-то: had left her skin pallid. Months indoors — месяцы в помещении.",
+        "uz": "leave + kimni/nimani + sifat — biror narsa oqibatida qandaydir holatda qoldirmoq: had left her skin pallid. Months indoors — oylab xona ichida o'tirish."
       }
     },
     {
@@ -775,12 +773,12 @@
         "tranquil"
       ],
       "prompt": {
-        "ru": "Больше всего мне нравится то, насколько безмятежны вечера.",
-        "uz": "Menga eng yoqadigani — oqshomlarning naqadar osuda ekani."
+        "ru": "Больше всего нам нравится то, насколько безмятежны вечера.",
+        "uz": "Bizga eng yoqadigani — oqshomlarning naqadar osuda ekani."
       },
       "fragments": [
         "what",
-        "I love",
+        "we love",
         "most",
         "is",
         "how tranquil",
@@ -790,7 +788,7 @@
       "accepted": [
         [
           "what",
-          "I love",
+          "we love",
           "most",
           "is",
           "how tranquil",
@@ -803,14 +801,14 @@
           "are",
           "is",
           "what",
-          "I love",
+          "we love",
           "most"
         ]
       ],
-      "display": "What I love most is how tranquil the evenings are.",
+      "display": "What we love most is how tranquil the evenings are.",
       "explanation": {
-        "ru": "What I love most is… — «больше всего мне нравится…»: выделение через what. После how порядок прямой: how tranquil the evenings are, а не are the evenings.",
-        "uz": "What I love most is… — «menga eng yoqadigani…»: what orqali ajratish. How so'zidan keyin tartib oddiy: how tranquil the evenings are, are the evenings emas."
+        "ru": "What we love most is… — «больше всего нам нравится…»: выделение через what. После how порядок прямой: how tranquil the evenings are, а не are the evenings.",
+        "uz": "What we love most is… — «bizga eng yoqadigani…»: what orqali ajratish. How so'zidan keyin tartib oddiy: how tranquil the evenings are, are the evenings emas."
       }
     },
     {
@@ -1362,6 +1360,13 @@
           "never",
           "anything but",
           "immaculate"
+        ],
+        [
+          "his uniform",
+          "never",
+          "was",
+          "anything but",
+          "immaculate"
         ]
       ],
       "display": "Never was his uniform anything but immaculate.",
@@ -1623,7 +1628,7 @@
         "aphorism"
       ],
       "prompt": {
-        "ru": "Мало кто из писателей мог сравниться с её даром афоризма.",
+        "ru": "Мало кто из писателей мог сравниться с её даром афориста.",
         "uz": "Kamdan-kam yozuvchi uning hikmatli so'z yaratish iste'dodiga bas kela olardi."
       },
       "fragments": [
@@ -1740,7 +1745,7 @@
         "making"
       ],
       "translation": {
-        "ru": "Он никак не может удержаться от каламбура на чьё-нибудь имя.",
+        "ru": "Он никогда не упустит случая скаламбурить, обыграв чьё-нибудь имя.",
         "uz": "U birovning ismi bilan so'z o'yini qilishdan hech o'zini tiya olmaydi."
       },
       "explanation": {

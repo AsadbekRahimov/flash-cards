@@ -495,10 +495,15 @@ it('finds the faults an author makes in a pack of the newer types', function ():
         [...$stored, 'text' => 'A elderly man crossed the road.', 'error_index' => 0, 'error' => 'A', 'options' => ['An', 'some', 'Many']],
         [],
     );
-    expect($inside)->toContain('the corrections start with letters of different case: the odd one gives the answer away')
+    expect($inside)->toContain('the corrections start with letters of different case (`I` and its contractions aside): the odd one gives the answer away')
         ->and(implode("\n", $first))->toContain('the mistake is the first word, but a correction starts with a small letter')
         ->and(PracticePackRules::errorHuntProblems([...$stored, 'text' => 'A elderly man crossed the road.', 'error_index' => 0, 'error' => 'A', 'options' => ['An', 'Some', 'Many']], []))
         ->toBe([]);
+
+    // The pronoun I is written with a capital anywhere: among small letters inside the sentence it gives nothing away.
+    $pronoun = [...$stored, 'text' => 'John and me went to the cinema.', 'error_index' => 2, 'error' => 'me', 'options' => ['I', 'myself', 'mine'], 'correct' => [0]];
+    expect(implode("\n", PracticePackRules::errorHuntProblems($pronoun, [])))->not->toContain('different case')
+        ->and(implode("\n", PracticePackRules::errorHuntProblems([...$pronoun, 'options' => ['I', 'Myself', 'mine']], [])))->toContain('different case');
 
     // Read as a real file x01, the sample lacks the other eight lessons of its modules 1 and 2 - and nothing else.
     $whole = pxk_file_problems('english-b1', pxk_files('english-b1', PXK_FIXTURE));
