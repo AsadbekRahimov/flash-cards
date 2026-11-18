@@ -14,6 +14,7 @@
     {
       "word": "mitigate",
       "part_of_speech": "verb",
+      "transcription": "/ˈmɪtəˌgeɪt/",
       "translation": "смягчать",
       "translations": {
         "ru": "смягчать",
@@ -28,6 +29,7 @@
     {
       "word": "adaptation",
       "part_of_speech": "noun",
+      "transcription": "/ˌædæpˈteɪʃən/",
       "translation": "приспособление",
       "translations": {
         "ru": "приспособление",
@@ -42,6 +44,7 @@
     {
       "word": "offset",
       "part_of_speech": "verb",
+      "transcription": "/ˈɔfˌsɛt/",
       "translation": "компенсировать",
       "translations": {
         "ru": "компенсировать",
@@ -56,6 +59,7 @@
     {
       "word": "decarbonize",
       "part_of_speech": "verb",
+      "transcription": "/diˈkɑrbəˌnaɪz/",
       "translation": "декарбонизировать",
       "translations": {
         "ru": "декарбонизировать",
@@ -70,6 +74,7 @@
     {
       "word": "heatwave",
       "part_of_speech": "noun",
+      "transcription": "/ˈhitˌweɪv/",
       "translation": "волна жары",
       "translations": {
         "ru": "волна жары",
@@ -84,6 +89,7 @@
     {
       "word": "thaw",
       "part_of_speech": "verb",
+      "transcription": "/θɔ/",
       "translation": "оттаивать, таять",
       "translations": {
         "ru": "оттаивать, таять",
@@ -98,6 +104,7 @@
     {
       "word": "permafrost",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɜrməˌfrɔst/",
       "translation": "вечная мерзлота",
       "translations": {
         "ru": "вечная мерзлота",
@@ -112,6 +119,7 @@
     {
       "word": "irreversible",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪrɪˈvɜrsəbəl/",
       "translation": "необратимый",
       "translations": {
         "ru": "необратимый",
@@ -126,6 +134,7 @@
     {
       "word": "atmospheric",
       "part_of_speech": "adjective",
+      "transcription": "/ˌætməsˈfɪrɪk/",
       "translation": "атмосферный",
       "translations": {
         "ru": "атмосферный",
@@ -140,6 +149,7 @@
     {
       "word": "desertification",
       "part_of_speech": "noun",
+      "transcription": "/dɪˌzɜrtəfəˈkeɪʃən/",
       "translation": "опустынивание",
       "translations": {
         "ru": "опустынивание",

@@ -14,6 +14,7 @@
     {
       "word": "novella",
       "part_of_speech": "noun",
+      "transcription": "/noʊˈvɛlə/",
       "translation": "повесть",
       "translations": {
         "ru": "повесть",
@@ -28,6 +29,7 @@
     {
       "word": "anthology",
       "part_of_speech": "noun",
+      "transcription": "/ænˈθɑlədʒi/",
       "translation": "антология",
       "translations": {
         "ru": "антология",
@@ -42,6 +44,7 @@
     {
       "word": "stanza",
       "part_of_speech": "noun",
+      "transcription": "/ˈstænzə/",
       "translation": "строфа",
       "translations": {
         "ru": "строфа",
@@ -56,6 +59,7 @@
     {
       "word": "allegory",
       "part_of_speech": "noun",
+      "transcription": "/ˈæləˌgɔri/",
       "translation": "аллегория",
       "translations": {
         "ru": "аллегория",
@@ -70,6 +74,7 @@
     {
       "word": "imagery",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪmɪdʒri/",
       "translation": "образность",
       "translations": {
         "ru": "образность",
@@ -84,6 +89,7 @@
     {
       "word": "symbolism",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪmbəˌlɪzəm/",
       "translation": "символика",
       "translations": {
         "ru": "символика",
@@ -98,6 +104,7 @@
     {
       "word": "motif",
       "part_of_speech": "noun",
+      "transcription": "/moʊˈtif/",
       "translation": "мотив",
       "translations": {
         "ru": "мотив",
@@ -112,6 +119,7 @@
     {
       "word": "narrator",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɛreɪtər/",
       "translation": "рассказчик",
       "translations": {
         "ru": "рассказчик",
@@ -126,6 +134,7 @@
     {
       "word": "climax",
       "part_of_speech": "noun",
+      "transcription": "/ˈklaɪˌmæks/",
       "translation": "кульминация",
       "translations": {
         "ru": "кульминация",
@@ -140,6 +149,7 @@
     {
       "word": "manuscript",
       "part_of_speech": "noun",
+      "transcription": "/ˈmænjəˌskrɪpt/",
       "translation": "рукопись",
       "translations": {
         "ru": "рукопись",

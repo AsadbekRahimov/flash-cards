@@ -14,6 +14,7 @@
     {
       "word": "therapeutic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌθɛrəˈpjutɪk/",
       "translation": "лечебный",
       "translations": {
         "ru": "лечебный",
@@ -28,6 +29,7 @@
     {
       "word": "surgical",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɜrdʒɪkəl/",
       "translation": "хирургический",
       "translations": {
         "ru": "хирургический",
@@ -42,6 +44,7 @@
     {
       "word": "anesthesia",
       "part_of_speech": "noun",
+      "transcription": "/ˌænəsˈθiʒə/",
       "translation": "анестезия",
       "translations": {
         "ru": "анестезия",
@@ -56,6 +59,7 @@
     {
       "word": "dosage",
       "part_of_speech": "noun",
+      "transcription": "/ˈdoʊsɪdʒ/",
       "translation": "дозировка",
       "translations": {
         "ru": "дозировка",
@@ -70,6 +74,7 @@
     {
       "word": "prognosis",
       "part_of_speech": "noun",
+      "transcription": "/prɑgˈnoʊsɪs/",
       "translation": "прогноз",
       "translations": {
         "ru": "прогноз",
@@ -84,6 +89,7 @@
     {
       "word": "remission",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈmɪʃən/",
       "translation": "ремиссия",
       "translations": {
         "ru": "ремиссия",
@@ -98,6 +104,7 @@
     {
       "word": "relapse",
       "part_of_speech": "noun",
+      "transcription": "/ˈriˌlæps/",
       "translation": "рецидив",
       "translations": {
         "ru": "рецидив",
@@ -112,6 +119,7 @@
     {
       "word": "transfusion",
       "part_of_speech": "noun",
+      "transcription": "/trænsˈfjuʒən/",
       "translation": "переливание крови",
       "translations": {
         "ru": "переливание крови",
@@ -126,6 +134,7 @@
     {
       "word": "implant",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪmˌplænt/",
       "translation": "имплантат",
       "translations": {
         "ru": "имплантат",
@@ -140,6 +149,7 @@
     {
       "word": "outpatient",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌpeɪʃənt/",
       "translation": "амбулаторный больной",
       "translations": {
         "ru": "амбулаторный больной",

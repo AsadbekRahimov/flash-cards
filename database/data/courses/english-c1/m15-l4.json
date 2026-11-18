@@ -14,6 +14,7 @@
     {
       "word": "cinematography",
       "part_of_speech": "noun",
+      "transcription": "/ˌsɪnəməˈtɑgrəfi/",
       "translation": "операторская работа",
       "translations": {
         "ru": "операторская работа",
@@ -28,6 +29,7 @@
     {
       "word": "screenwriter",
       "part_of_speech": "noun",
+      "transcription": "/ˈskrinˌraɪtər/",
       "translation": "сценарист",
       "translations": {
         "ru": "сценарист",
@@ -42,6 +44,7 @@
     {
       "word": "monologue",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑnəˌlɔg/",
       "translation": "монолог",
       "translations": {
         "ru": "монолог",
@@ -56,6 +59,7 @@
     {
       "word": "backstage",
       "part_of_speech": "adverb",
+      "transcription": "/ˌbækˈsteɪdʒ/",
       "translation": "за кулисами",
       "translations": {
         "ru": "за кулисами",
@@ -70,6 +74,7 @@
     {
       "word": "blockbuster",
       "part_of_speech": "noun",
+      "transcription": "/ˈblɑkˌbʌstər/",
       "translation": "блокбастер",
       "translations": {
         "ru": "блокбастер",
@@ -84,6 +89,7 @@
     {
       "word": "montage",
       "part_of_speech": "noun",
+      "transcription": "/mɑnˈtɑʒ/",
       "translation": "нарезка кадров",
       "translations": {
         "ru": "нарезка кадров",
@@ -98,6 +104,7 @@
     {
       "word": "troupe",
       "part_of_speech": "noun",
+      "transcription": "/trup/",
       "translation": "труппа",
       "translations": {
         "ru": "труппа",
@@ -112,6 +119,7 @@
     {
       "word": "cameo",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæmiˌoʊ/",
       "translation": "эпизодическая роль знаменитости",
       "translations": {
         "ru": "эпизодическая роль знаменитости",
@@ -126,6 +134,7 @@
     {
       "word": "auditorium",
       "part_of_speech": "noun",
+      "transcription": "/ˌɔdəˈtɔriəm/",
       "translation": "зрительный зал",
       "translations": {
         "ru": "зрительный зал",
@@ -140,6 +149,7 @@
     {
       "word": "intermission",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪntərˈmɪʃən/",
       "translation": "антракт",
       "translations": {
         "ru": "антракт",

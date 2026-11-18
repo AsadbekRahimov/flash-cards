@@ -14,6 +14,7 @@
     {
       "word": "assimilate",
       "part_of_speech": "verb",
+      "transcription": "/əˈsɪməˌleɪt/",
       "translation": "ассимилироваться",
       "translations": {
         "ru": "ассимилироваться",
@@ -28,6 +29,7 @@
     {
       "word": "diaspora",
       "part_of_speech": "noun",
+      "transcription": "/daɪˈæspərə/",
       "translation": "диаспора",
       "translations": {
         "ru": "диаспора",
@@ -42,6 +44,7 @@
     {
       "word": "expatriate",
       "part_of_speech": "noun",
+      "transcription": "/ɛkˈspeɪtriət/",
       "translation": "экспатриант",
       "translations": {
         "ru": "экспатриант",
@@ -56,6 +59,7 @@
     {
       "word": "resettle",
       "part_of_speech": "verb",
+      "transcription": "/riˈsɛtəl/",
       "translation": "переселять",
       "translations": {
         "ru": "переселять",
@@ -70,6 +74,7 @@
     {
       "word": "citizenship",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪtəzənˌʃɪp/",
       "translation": "гражданство",
       "translations": {
         "ru": "гражданство",
@@ -84,6 +89,7 @@
     {
       "word": "ethnicity",
       "part_of_speech": "noun",
+      "transcription": "/ɛθˈnɪsəti/",
       "translation": "этническая принадлежность",
       "translations": {
         "ru": "этническая принадлежность",
@@ -98,6 +104,7 @@
     {
       "word": "indigenous",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdɪdʒənəs/",
       "translation": "коренной",
       "translations": {
         "ru": "коренной",
@@ -112,6 +119,7 @@
     {
       "word": "xenophobia",
       "part_of_speech": "noun",
+      "transcription": "/ˌzɛnəˈfoʊbiə/",
       "translation": "ксенофобия",
       "translations": {
         "ru": "ксенофобия",
@@ -126,6 +134,7 @@
     {
       "word": "segregation",
       "part_of_speech": "noun",
+      "transcription": "/ˌsɛgrəˈgeɪʃən/",
       "translation": "сегрегация",
       "translations": {
         "ru": "сегрегация",
@@ -140,6 +149,7 @@
     {
       "word": "repatriate",
       "part_of_speech": "verb",
+      "transcription": "/riˈpeɪtriˌeɪt/",
       "translation": "возвращать на родину",
       "translations": {
         "ru": "возвращать на родину",

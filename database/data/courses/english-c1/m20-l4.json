@@ -14,6 +14,7 @@
     {
       "word": "negligible",
       "part_of_speech": "adjective",
+      "transcription": "/ˈnɛglədʒəbəl/",
       "translation": "ничтожно малый",
       "translations": {
         "ru": "ничтожно малый",
@@ -28,6 +29,7 @@
     {
       "word": "marginal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɑrdʒənəl/",
       "translation": "незначительный, минимальный",
       "translations": {
         "ru": "незначительный, минимальный",
@@ -42,6 +44,7 @@
     {
       "word": "ample",
       "part_of_speech": "adjective",
+      "transcription": "/ˈæmpəl/",
       "translation": "более чем достаточный",
       "translations": {
         "ru": "более чем достаточный",
@@ -56,6 +59,7 @@
     {
       "word": "sparse",
       "part_of_speech": "adjective",
+      "transcription": "/spɑrs/",
       "translation": "редкий, скудный",
       "translations": {
         "ru": "редкий, скудный",
@@ -70,6 +74,7 @@
     {
       "word": "multitude",
       "part_of_speech": "noun",
+      "transcription": "/ˈmʌltəˌtud/",
       "translation": "множество",
       "translations": {
         "ru": "множество",
@@ -84,6 +89,7 @@
     {
       "word": "magnitude",
       "part_of_speech": "noun",
+      "transcription": "/ˈmægnəˌtud/",
       "translation": "масштаб, величина",
       "translations": {
         "ru": "масштаб, величина",
@@ -98,6 +104,7 @@
     {
       "word": "threshold",
       "part_of_speech": "noun",
+      "transcription": "/ˈθrɛʃˌhoʊld/",
       "translation": "порог",
       "translations": {
         "ru": "порог",
@@ -112,6 +119,7 @@
     {
       "word": "increment",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnkrəmənt/",
       "translation": "прибавка, приращение",
       "translations": {
         "ru": "прибавка, приращение",
@@ -126,6 +134,7 @@
     {
       "word": "sheer",
       "part_of_speech": "adjective",
+      "transcription": "/ʃɪr/",
       "translation": "сущий, абсолютный",
       "translations": {
         "ru": "сущий, абсолютный",
@@ -140,6 +149,7 @@
     {
       "word": "profound",
       "part_of_speech": "adjective",
+      "transcription": "/prəˈfaʊnd/",
       "translation": "глубокий, значительный",
       "translations": {
         "ru": "глубокий, значительный",

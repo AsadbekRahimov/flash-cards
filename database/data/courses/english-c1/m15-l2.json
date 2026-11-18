@@ -14,6 +14,7 @@
     {
       "word": "symphony",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪmfəni/",
       "translation": "симфония",
       "translations": {
         "ru": "симфония",
@@ -28,6 +29,7 @@
     {
       "word": "ensemble",
       "part_of_speech": "noun",
+      "transcription": "/ɑnˈsɑmbəl/",
       "translation": "ансамбль",
       "translations": {
         "ru": "ансамбль",
@@ -42,6 +44,7 @@
     {
       "word": "virtuoso",
       "part_of_speech": "noun",
+      "transcription": "/ˌvɜrtʃuˈoʊsoʊ/",
       "translation": "виртуоз",
       "translations": {
         "ru": "виртуоз",
@@ -56,6 +59,7 @@
     {
       "word": "repertoire",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛpərˌtwɑr/",
       "translation": "репертуар",
       "translations": {
         "ru": "репертуар",
@@ -70,6 +74,7 @@
     {
       "word": "improvise",
       "part_of_speech": "verb",
+      "transcription": "/ˈɪmprəˌvaɪz/",
       "translation": "импровизировать",
       "translations": {
         "ru": "импровизировать",
@@ -84,6 +89,7 @@
     {
       "word": "concerto",
       "part_of_speech": "noun",
+      "transcription": "/kənˈtʃɛrtoʊ/",
       "translation": "инструментальный концерт",
       "translations": {
         "ru": "инструментальный концерт",
@@ -98,6 +104,7 @@
     {
       "word": "acoustic",
       "part_of_speech": "adjective",
+      "transcription": "/əˈkustɪk/",
       "translation": "акустический",
       "translations": {
         "ru": "акустический",
@@ -112,6 +119,7 @@
     {
       "word": "tempo",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛmpoʊ/",
       "translation": "темп",
       "translations": {
         "ru": "темп",
@@ -126,6 +134,7 @@
     {
       "word": "recital",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈsaɪtəl/",
       "translation": "сольный концерт",
       "translations": {
         "ru": "сольный концерт",
@@ -140,6 +149,7 @@
     {
       "word": "ovation",
       "part_of_speech": "noun",
+      "transcription": "/oʊˈveɪʃən/",
       "translation": "овация",
       "translations": {
         "ru": "овация",

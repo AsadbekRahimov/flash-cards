@@ -14,6 +14,7 @@
     {
       "word": "bilateral",
       "part_of_speech": "adjective",
+      "transcription": "/baɪˈlætərəl/",
       "translation": "двусторонний",
       "translations": {
         "ru": "двусторонний",
@@ -28,6 +29,7 @@
     {
       "word": "multilateral",
       "part_of_speech": "adjective",
+      "transcription": "/ˌmʌltiˈlætərəl/",
       "translation": "многосторонний",
       "translations": {
         "ru": "многосторонний",
@@ -42,6 +44,7 @@
     {
       "word": "diplomat",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪpləˌmæt/",
       "translation": "дипломат",
       "translations": {
         "ru": "дипломат",
@@ -56,6 +59,7 @@
     {
       "word": "envoy",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛnˌvɔɪ/",
       "translation": "посланник, спецпредставитель",
       "translations": {
         "ru": "посланник, спецпредставитель",
@@ -70,6 +74,7 @@
     {
       "word": "accord",
       "part_of_speech": "noun",
+      "transcription": "/əˈkɔrd/",
       "translation": "соглашение",
       "translations": {
         "ru": "соглашение",
@@ -84,6 +89,7 @@
     {
       "word": "pact",
       "part_of_speech": "noun",
+      "transcription": "/pækt/",
       "translation": "пакт, договор",
       "translations": {
         "ru": "пакт, договор",
@@ -98,6 +104,7 @@
     {
       "word": "ratify",
       "part_of_speech": "verb",
+      "transcription": "/ˈrætəˌfaɪ/",
       "translation": "ратифицировать",
       "translations": {
         "ru": "ратифицировать",
@@ -112,6 +119,7 @@
     {
       "word": "geopolitical",
       "part_of_speech": "adjective",
+      "transcription": "/ˌdʒioʊpəˈlɪtɪkəl/",
       "translation": "геополитический",
       "translations": {
         "ru": "геополитический",
@@ -126,6 +134,7 @@
     {
       "word": "neutrality",
       "part_of_speech": "noun",
+      "transcription": "/nuˈtræləti/",
       "translation": "нейтралитет",
       "translations": {
         "ru": "нейтралитет",
@@ -140,6 +149,7 @@
     {
       "word": "delegation",
       "part_of_speech": "noun",
+      "transcription": "/ˌdɛləˈgeɪʃən/",
       "translation": "делегация",
       "translations": {
         "ru": "делегация",

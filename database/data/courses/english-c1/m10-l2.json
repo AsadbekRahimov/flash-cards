@@ -14,6 +14,7 @@
     {
       "word": "toxin",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɑksɪn/",
       "translation": "токсин, ядовитое вещество",
       "translations": {
         "ru": "токсин, ядовитое вещество",
@@ -28,6 +29,7 @@
     {
       "word": "effluent",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛfluənt/",
       "translation": "сточные воды",
       "translations": {
         "ru": "сточные воды",
@@ -42,6 +44,7 @@
     {
       "word": "residue",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛzəˌdu/",
       "translation": "остаток",
       "translations": {
         "ru": "остаток",
@@ -56,6 +59,7 @@
     {
       "word": "debris",
       "part_of_speech": "noun",
+      "transcription": "/dəˈbri/",
       "translation": "обломки, мусор",
       "translations": {
         "ru": "обломки, мусор",
@@ -70,6 +74,7 @@
     {
       "word": "incinerate",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈsɪnəˌreɪt/",
       "translation": "сжигать",
       "translations": {
         "ru": "сжигать",
@@ -84,6 +89,7 @@
     {
       "word": "biodegradable",
       "part_of_speech": "adjective",
+      "transcription": "/ˌbaɪoʊdɪˈgreɪdəbəl/",
       "translation": "биоразлагаемый",
       "translations": {
         "ru": "биоразлагаемый",
@@ -98,6 +104,7 @@
     {
       "word": "compost",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑmˌpoʊst/",
       "translation": "компост",
       "translations": {
         "ru": "компост",
@@ -112,6 +119,7 @@
     {
       "word": "runoff",
       "part_of_speech": "noun",
+      "transcription": "/ˈrʌnˌɔf/",
       "translation": "поверхностный сток",
       "translations": {
         "ru": "поверхностный сток",
@@ -126,6 +134,7 @@
     {
       "word": "leakage",
       "part_of_speech": "noun",
+      "transcription": "/ˈlikɪdʒ/",
       "translation": "утечка",
       "translations": {
         "ru": "утечка",
@@ -140,6 +149,7 @@
     {
       "word": "hazardous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhæzərdəs/",
       "translation": "опасный",
       "translations": {
         "ru": "опасный",

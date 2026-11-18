@@ -14,6 +14,7 @@
     {
       "word": "automate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɔtəˌmeɪt/",
       "translation": "автоматизировать",
       "translations": {
         "ru": "автоматизировать",
@@ -28,6 +29,7 @@
     {
       "word": "predictive",
       "part_of_speech": "adjective",
+      "transcription": "/prɪˈdɪktɪv/",
       "translation": "прогнозирующий",
       "translations": {
         "ru": "прогнозирующий",
@@ -42,6 +44,7 @@
     {
       "word": "autonomous",
       "part_of_speech": "adjective",
+      "transcription": "/ɔˈtɑnəməs/",
       "translation": "автономный",
       "translations": {
         "ru": "автономный",
@@ -56,6 +59,7 @@
     {
       "word": "generative",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdʒɛnərətɪv/",
       "translation": "генеративный",
       "translations": {
         "ru": "генеративный",
@@ -70,6 +74,7 @@
     {
       "word": "adaptive",
       "part_of_speech": "adjective",
+      "transcription": "/əˈdæptɪv/",
       "translation": "адаптивный",
       "translations": {
         "ru": "адаптивный",
@@ -84,6 +89,7 @@
     {
       "word": "analytics",
       "part_of_speech": "noun",
+      "transcription": "/ˌænəˈlɪtɪks/",
       "translation": "аналитика, анализ данных",
       "translations": {
         "ru": "аналитика, анализ данных",
@@ -98,6 +104,7 @@
     {
       "word": "augmented",
       "part_of_speech": "adjective",
+      "transcription": "/ɔgˈmɛntɪd/",
       "translation": "дополненный",
       "translations": {
         "ru": "дополненный",
@@ -112,6 +119,7 @@
     {
       "word": "immersive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈmɜrsɪv/",
       "translation": "с эффектом погружения",
       "translations": {
         "ru": "с эффектом погружения",
@@ -126,6 +134,7 @@
     {
       "word": "optimize",
       "part_of_speech": "verb",
+      "transcription": "/ˈɑptəˌmaɪz/",
       "translation": "оптимизировать",
       "translations": {
         "ru": "оптимизировать",
@@ -140,6 +149,7 @@
     {
       "word": "computational",
       "part_of_speech": "adjective",
+      "transcription": "/ˌkɑmpjəˈteɪʃənəl/",
       "translation": "вычислительный",
       "translations": {
         "ru": "вычислительный",

@@ -14,6 +14,7 @@
     {
       "word": "deteriorate",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈtɪriəˌreɪt/",
       "translation": "ухудшаться",
       "translations": {
         "ru": "ухудшаться",
@@ -28,6 +29,7 @@
     {
       "word": "dwindle",
       "part_of_speech": "verb",
+      "transcription": "/ˈdwɪndəl/",
       "translation": "постепенно сокращаться",
       "translations": {
         "ru": "постепенно сокращаться",
@@ -42,6 +44,7 @@
     {
       "word": "proliferate",
       "part_of_speech": "verb",
+      "transcription": "/prəˈlɪfəˌreɪt/",
       "translation": "быстро множиться",
       "translations": {
         "ru": "быстро множиться",
@@ -56,6 +59,7 @@
     {
       "word": "plummet",
       "part_of_speech": "verb",
+      "transcription": "/ˈplʌmɪt/",
       "translation": "резко падать",
       "translations": {
         "ru": "резко падать",
@@ -70,6 +74,7 @@
     {
       "word": "culminate",
       "part_of_speech": "verb",
+      "transcription": "/ˈkʌlməˌneɪt/",
       "translation": "завершаться, увенчиваться",
       "translations": {
         "ru": "завершаться, увенчиваться",
@@ -84,6 +89,7 @@
     {
       "word": "revert",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈvɜrt/",
       "translation": "возвращаться к прежнему",
       "translations": {
         "ru": "возвращаться к прежнему",
@@ -98,6 +104,7 @@
     {
       "word": "stabilize",
       "part_of_speech": "verb",
+      "transcription": "/ˈsteɪbəˌlaɪz/",
       "translation": "стабилизироваться",
       "translations": {
         "ru": "стабилизироваться",
@@ -112,6 +119,7 @@
     {
       "word": "diverge",
       "part_of_speech": "verb",
+      "transcription": "/daɪˈvɜrdʒ/",
       "translation": "расходиться",
       "translations": {
         "ru": "расходиться",
@@ -126,6 +134,7 @@
     {
       "word": "converge",
       "part_of_speech": "verb",
+      "transcription": "/kənˈvɜrdʒ/",
       "translation": "сближаться, сходиться",
       "translations": {
         "ru": "сближаться, сходиться",
@@ -140,6 +149,7 @@
     {
       "word": "subside",
       "part_of_speech": "verb",
+      "transcription": "/səbˈsaɪd/",
       "translation": "утихать, спадать",
       "translations": {
         "ru": "утихать, спадать",

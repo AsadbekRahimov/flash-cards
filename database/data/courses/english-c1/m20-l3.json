@@ -14,6 +14,7 @@
     {
       "word": "hinder",
       "part_of_speech": "verb",
+      "transcription": "/ˈhɪndər/",
       "translation": "затруднять, мешать",
       "translations": {
         "ru": "затруднять, мешать",
@@ -28,6 +29,7 @@
     {
       "word": "obstruct",
       "part_of_speech": "verb",
+      "transcription": "/əbˈstrʌkt/",
       "translation": "преграждать",
       "translations": {
         "ru": "преграждать",
@@ -42,6 +44,7 @@
     {
       "word": "constrain",
       "part_of_speech": "verb",
+      "transcription": "/kənˈstreɪn/",
       "translation": "ограничивать, сковывать",
       "translations": {
         "ru": "ограничивать, сковывать",
@@ -56,6 +59,7 @@
     {
       "word": "curtail",
       "part_of_speech": "verb",
+      "transcription": "/kərˈteɪl/",
       "translation": "урезать, сокращать",
       "translations": {
         "ru": "урезать, сокращать",
@@ -70,6 +74,7 @@
     {
       "word": "thwart",
       "part_of_speech": "verb",
+      "transcription": "/θwɔrt/",
       "translation": "срывать, расстраивать",
       "translations": {
         "ru": "срывать, расстраивать",
@@ -84,6 +89,7 @@
     {
       "word": "hurdle",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɜrdəl/",
       "translation": "препятствие, барьер",
       "translations": {
         "ru": "препятствие, барьер",
@@ -98,6 +104,7 @@
     {
       "word": "pitfall",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɪtˌfɔl/",
       "translation": "ловушка, подводный камень",
       "translations": {
         "ru": "ловушка, подводный камень",
@@ -112,6 +119,7 @@
     {
       "word": "drawback",
       "part_of_speech": "noun",
+      "transcription": "/ˈdrɔˌbæk/",
       "translation": "недостаток",
       "translations": {
         "ru": "недостаток",
@@ -126,6 +134,7 @@
     {
       "word": "leeway",
       "part_of_speech": "noun",
+      "transcription": "/ˈliˌweɪ/",
       "translation": "свобода действий",
       "translations": {
         "ru": "свобода действий",
@@ -140,6 +149,7 @@
     {
       "word": "prospect",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑˌspɛkt/",
       "translation": "перспектива",
       "translations": {
         "ru": "перспектива",

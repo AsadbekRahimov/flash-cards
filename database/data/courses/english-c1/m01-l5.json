@@ -14,6 +14,7 @@
     {
       "word": "flair",
       "part_of_speech": "noun",
+      "transcription": "/flɛr/",
       "translation": "природный талант, чутьё",
       "translations": {
         "ru": "природный талант, чутьё",
@@ -28,6 +29,7 @@
     {
       "word": "knack",
       "part_of_speech": "noun",
+      "transcription": "/næk/",
       "translation": "сноровка, умение",
       "translations": {
         "ru": "сноровка, умение",
@@ -42,6 +44,7 @@
     {
       "word": "prowess",
       "part_of_speech": "noun",
+      "transcription": "/ˈpraʊəs/",
       "translation": "мастерство, искусность",
       "translations": {
         "ru": "мастерство, искусность",
@@ -56,6 +59,7 @@
     {
       "word": "inclination",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪnkləˈneɪʃən/",
       "translation": "склонность",
       "translations": {
         "ru": "склонность",
@@ -70,6 +74,7 @@
     {
       "word": "aspiration",
       "part_of_speech": "noun",
+      "transcription": "/ˌæspəˈreɪʃən/",
       "translation": "стремление, устремление",
       "translations": {
         "ru": "стремление, устремление",
@@ -84,6 +89,7 @@
     {
       "word": "ingenuity",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪndʒəˈnuəti/",
       "translation": "изобретательность",
       "translations": {
         "ru": "изобретательность",
@@ -98,6 +104,7 @@
     {
       "word": "prodigy",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɑdədʒi/",
       "translation": "вундеркинд",
       "translations": {
         "ru": "вундеркинд",
@@ -112,6 +119,7 @@
     {
       "word": "adept",
       "part_of_speech": "adjective",
+      "transcription": "/əˈdɛpt/",
       "translation": "искусный, умелый",
       "translations": {
         "ru": "искусный, умелый",
@@ -126,6 +134,7 @@
     {
       "word": "mastery",
       "part_of_speech": "noun",
+      "transcription": "/ˈmæstəri/",
       "translation": "совершенное владение",
       "translations": {
         "ru": "совершенное владение",
@@ -140,6 +149,7 @@
     {
       "word": "perseverance",
       "part_of_speech": "noun",
+      "transcription": "/ˌpɜrsəˈvɪrəns/",
       "translation": "упорство, настойчивость",
       "translations": {
         "ru": "упорство, настойчивость",

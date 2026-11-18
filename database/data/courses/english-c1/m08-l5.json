@@ -14,6 +14,7 @@
     {
       "word": "sedentary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɛdənˌtɛri/",
       "translation": "малоподвижный, сидячий",
       "translations": {
         "ru": "малоподвижный, сидячий",
@@ -28,6 +29,7 @@
     {
       "word": "wholesome",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhoʊlsəm/",
       "translation": "полезный для здоровья",
       "translations": {
         "ru": "полезный для здоровья",
@@ -42,6 +44,7 @@
     {
       "word": "nutritious",
       "part_of_speech": "adjective",
+      "transcription": "/nuˈtrɪʃəs/",
       "translation": "питательный",
       "translations": {
         "ru": "питательный",
@@ -56,6 +59,7 @@
     {
       "word": "dietary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdaɪəˌtɛri/",
       "translation": "пищевой, связанный с питанием",
       "translations": {
         "ru": "пищевой, связанный с питанием",
@@ -70,6 +74,7 @@
     {
       "word": "abstain",
       "part_of_speech": "verb",
+      "transcription": "/əbˈsteɪn/",
       "translation": "воздерживаться",
       "translations": {
         "ru": "воздерживаться",
@@ -84,6 +89,7 @@
     {
       "word": "moderation",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɑdəˈreɪʃən/",
       "translation": "умеренность",
       "translations": {
         "ru": "умеренность",
@@ -98,6 +104,7 @@
     {
       "word": "endurance",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈdʊrəns/",
       "translation": "выносливость",
       "translations": {
         "ru": "выносливость",
@@ -112,6 +119,7 @@
     {
       "word": "vitality",
       "part_of_speech": "noun",
+      "transcription": "/vaɪˈtæləti/",
       "translation": "жизненная энергия",
       "translations": {
         "ru": "жизненная энергия",
@@ -126,6 +134,7 @@
     {
       "word": "longevity",
       "part_of_speech": "noun",
+      "transcription": "/lɑnˈdʒɛvəti/",
       "translation": "долголетие",
       "translations": {
         "ru": "долголетие",
@@ -140,6 +149,7 @@
     {
       "word": "strenuous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstrɛnjuəs/",
       "translation": "напряжённый, тяжёлый",
       "translations": {
         "ru": "напряжённый, тяжёлый",

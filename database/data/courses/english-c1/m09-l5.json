@@ -14,6 +14,7 @@
     {
       "word": "esteem",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈstim/",
       "translation": "уважение, почтение",
       "translations": {
         "ru": "уважение, почтение",
@@ -28,6 +29,7 @@
     {
       "word": "insecurity",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪnsɪˈkjʊrəti/",
       "translation": "неуверенность в себе",
       "translations": {
         "ru": "неуверенность в себе",
@@ -42,6 +44,7 @@
     {
       "word": "ego",
       "part_of_speech": "noun",
+      "transcription": "/ˈigoʊ/",
       "translation": "самолюбие",
       "translations": {
         "ru": "самолюбие",
@@ -56,6 +59,7 @@
     {
       "word": "maturity",
       "part_of_speech": "noun",
+      "transcription": "/məˈtʃʊrəti/",
       "translation": "зрелость",
       "translations": {
         "ru": "зрелость",
@@ -70,6 +74,7 @@
     {
       "word": "adolescence",
       "part_of_speech": "noun",
+      "transcription": "/ˌædəˈlɛsəns/",
       "translation": "подростковый возраст",
       "translations": {
         "ru": "подростковый возраст",
@@ -84,6 +89,7 @@
     {
       "word": "upbringing",
       "part_of_speech": "noun",
+      "transcription": "/ˈʌpˌbrɪŋɪŋ/",
       "translation": "воспитание",
       "translations": {
         "ru": "воспитание",
@@ -98,6 +104,7 @@
     {
       "word": "inferiority",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˌfɪriˈɔrəti/",
       "translation": "неполноценность",
       "translations": {
         "ru": "неполноценность",
@@ -112,6 +119,7 @@
     {
       "word": "narcissism",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɑrsəˌsɪzəm/",
       "translation": "самовлюблённость, нарциссизм",
       "translations": {
         "ru": "самовлюблённость, нарциссизм",
@@ -126,6 +134,7 @@
     {
       "word": "humiliation",
       "part_of_speech": "noun",
+      "transcription": "/hjuˌmɪliˈeɪʃən/",
       "translation": "унижение",
       "translations": {
         "ru": "унижение",
@@ -140,6 +149,7 @@
     {
       "word": "mindfulness",
       "part_of_speech": "noun",
+      "transcription": "/ˈmaɪndfəlnəs/",
       "translation": "осознанность",
       "translations": {
         "ru": "осознанность",

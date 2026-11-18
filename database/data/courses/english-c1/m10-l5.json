@@ -14,6 +14,7 @@
     {
       "word": "extraction",
       "part_of_speech": "noun",
+      "transcription": "/ɪkˈstrækʃən/",
       "translation": "добыча",
       "translations": {
         "ru": "добыча",
@@ -28,6 +29,7 @@
     {
       "word": "ore",
       "part_of_speech": "noun",
+      "transcription": "/ɔr/",
       "translation": "руда",
       "translations": {
         "ru": "руда",
@@ -42,6 +44,7 @@
     {
       "word": "quarry",
       "part_of_speech": "noun",
+      "transcription": "/ˈkwɔri/",
       "translation": "карьер",
       "translations": {
         "ru": "карьер",
@@ -56,6 +59,7 @@
     {
       "word": "refinery",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈfaɪnəri/",
       "translation": "нефтеперерабатывающий завод",
       "translations": {
         "ru": "нефтеперерабатывающий завод",
@@ -70,6 +74,7 @@
     {
       "word": "geothermal",
       "part_of_speech": "adjective",
+      "transcription": "/ˌdʒioʊˈθɜrməl/",
       "translation": "геотермальный",
       "translations": {
         "ru": "геотермальный",
@@ -84,6 +89,7 @@
     {
       "word": "biomass",
       "part_of_speech": "noun",
+      "transcription": "/ˈbaɪoʊˌmæs/",
       "translation": "биомасса",
       "translations": {
         "ru": "биомасса",
@@ -98,6 +104,7 @@
     {
       "word": "irrigation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪrəˈgeɪʃən/",
       "translation": "орошение",
       "translations": {
         "ru": "орошение",
@@ -112,6 +119,7 @@
     {
       "word": "aquifer",
       "part_of_speech": "noun",
+      "transcription": "/ˈækwəfər/",
       "translation": "водоносный горизонт",
       "translations": {
         "ru": "водоносный горизонт",
@@ -126,6 +134,7 @@
     {
       "word": "logging",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɔgɪŋ/",
       "translation": "вырубка леса",
       "translations": {
         "ru": "вырубка леса",
@@ -140,6 +149,7 @@
     {
       "word": "replenish",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈplɛnɪʃ/",
       "translation": "пополнять",
       "translations": {
         "ru": "пополнять",

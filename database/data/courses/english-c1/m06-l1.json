@@ -14,6 +14,7 @@
     {
       "word": "hypothesize",
       "part_of_speech": "verb",
+      "transcription": "/haɪˈpɑθəˌsaɪz/",
       "translation": "выдвигать гипотезу",
       "translations": {
         "ru": "выдвигать гипотезу",
@@ -28,6 +29,7 @@
     {
       "word": "replicate",
       "part_of_speech": "verb",
+      "transcription": "/ˈrɛpləˌkeɪt/",
       "translation": "воспроизводить",
       "translations": {
         "ru": "воспроизводить",
@@ -42,6 +44,7 @@
     {
       "word": "validate",
       "part_of_speech": "verb",
+      "transcription": "/ˈvæləˌdeɪt/",
       "translation": "подтверждать достоверность",
       "translations": {
         "ru": "подтверждать достоверность",
@@ -56,6 +59,7 @@
     {
       "word": "quantitative",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkwɑntəˌteɪtɪv/",
       "translation": "количественный",
       "translations": {
         "ru": "количественный",
@@ -70,6 +74,7 @@
     {
       "word": "qualitative",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkwɑləˌteɪtɪv/",
       "translation": "качественный",
       "translations": {
         "ru": "качественный",
@@ -84,6 +89,7 @@
     {
       "word": "longitudinal",
       "part_of_speech": "adjective",
+      "transcription": "/ˌlɑndʒəˈtudənəl/",
       "translation": "лонгитюдный, длительный",
       "translations": {
         "ru": "лонгитюдный, длительный",
@@ -98,6 +104,7 @@
     {
       "word": "randomize",
       "part_of_speech": "verb",
+      "transcription": "/ˈrændəˌmaɪz/",
       "translation": "распределять случайным образом",
       "translations": {
         "ru": "распределять случайным образом",
@@ -112,6 +119,7 @@
     {
       "word": "placebo",
       "part_of_speech": "noun",
+      "transcription": "/pləˈsiboʊ/",
       "translation": "плацебо",
       "translations": {
         "ru": "плацебо",
@@ -126,6 +134,7 @@
     {
       "word": "cohort",
       "part_of_speech": "noun",
+      "transcription": "/ˈkoʊˌhɔrt/",
       "translation": "группа участников",
       "translations": {
         "ru": "группа участников",
@@ -140,6 +149,7 @@
     {
       "word": "fieldwork",
       "part_of_speech": "noun",
+      "transcription": "/ˈfildˌwɜrk/",
       "translation": "полевые исследования",
       "translations": {
         "ru": "полевые исследования",

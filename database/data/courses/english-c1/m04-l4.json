@@ -14,6 +14,7 @@
     {
       "word": "concession",
       "part_of_speech": "noun",
+      "transcription": "/kənˈsɛʃən/",
       "translation": "уступка",
       "translations": {
         "ru": "уступка",
@@ -28,6 +29,7 @@
     {
       "word": "leverage",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛvərɪdʒ/",
       "translation": "рычаг влияния",
       "translations": {
         "ru": "рычаг влияния",
@@ -42,6 +44,7 @@
     {
       "word": "stalemate",
       "part_of_speech": "noun",
+      "transcription": "/ˈsteɪlˌmeɪt/",
       "translation": "тупик, патовая ситуация",
       "translations": {
         "ru": "тупик, патовая ситуация",
@@ -56,6 +59,7 @@
     {
       "word": "ultimatum",
       "part_of_speech": "noun",
+      "transcription": "/ˌʌltəˈmeɪtəm/",
       "translation": "ультиматум",
       "translations": {
         "ru": "ультиматум",
@@ -70,6 +74,7 @@
     {
       "word": "proposition",
       "part_of_speech": "noun",
+      "transcription": "/ˌprɑpəˈzɪʃən/",
       "translation": "деловое предложение",
       "translations": {
         "ru": "деловое предложение",
@@ -84,6 +89,7 @@
     {
       "word": "stipulate",
       "part_of_speech": "verb",
+      "transcription": "/ˈstɪpjəˌleɪt/",
       "translation": "оговаривать, предусматривать",
       "translations": {
         "ru": "оговаривать, предусматривать",
@@ -98,6 +104,7 @@
     {
       "word": "procurement",
       "part_of_speech": "noun",
+      "transcription": "/prəˈkjʊrmənt/",
       "translation": "закупка",
       "translations": {
         "ru": "закупка",
@@ -112,6 +119,7 @@
     {
       "word": "haggle",
       "part_of_speech": "verb",
+      "transcription": "/ˈhægəl/",
       "translation": "торговаться",
       "translations": {
         "ru": "торговаться",
@@ -126,6 +134,7 @@
     {
       "word": "intermediary",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪntərˈmidiˌɛri/",
       "translation": "посредник",
       "translations": {
         "ru": "посредник",
@@ -140,6 +149,7 @@
     {
       "word": "tender",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛndər/",
       "translation": "тендер",
       "translations": {
         "ru": "тендер",

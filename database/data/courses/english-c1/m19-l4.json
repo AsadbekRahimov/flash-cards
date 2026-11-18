@@ -14,6 +14,7 @@
     {
       "word": "transit",
       "part_of_speech": "noun",
+      "transcription": "/ˈtrænzɪt/",
       "translation": "общественный транспорт",
       "translations": {
         "ru": "общественный транспорт",
@@ -28,6 +29,7 @@
     {
       "word": "haulage",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɔlɪdʒ/",
       "translation": "грузоперевозки",
       "translations": {
         "ru": "грузоперевозки",
@@ -42,6 +44,7 @@
     {
       "word": "interchange",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪntərˌtʃeɪndʒ/",
       "translation": "транспортная развязка",
       "translations": {
         "ru": "транспортная развязка",
@@ -56,6 +59,7 @@
     {
       "word": "overpass",
       "part_of_speech": "noun",
+      "transcription": "/ˈoʊvərˌpæs/",
       "translation": "путепровод, эстакада",
       "translations": {
         "ru": "путепровод, эстакада",
@@ -70,6 +74,7 @@
     {
       "word": "aviation",
       "part_of_speech": "noun",
+      "transcription": "/ˌeɪviˈeɪʃən/",
       "translation": "авиация",
       "translations": {
         "ru": "авиация",
@@ -84,6 +89,7 @@
     {
       "word": "maritime",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɛrəˌtaɪm/",
       "translation": "морской",
       "translations": {
         "ru": "морской",
@@ -98,6 +104,7 @@
     {
       "word": "vessel",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɛsəl/",
       "translation": "судно",
       "translations": {
         "ru": "судно",
@@ -112,6 +119,7 @@
     {
       "word": "locomotive",
       "part_of_speech": "noun",
+      "transcription": "/ˌloʊkəˈmoʊtɪv/",
       "translation": "локомотив",
       "translations": {
         "ru": "локомотив",
@@ -126,6 +134,7 @@
     {
       "word": "gridlock",
       "part_of_speech": "noun",
+      "transcription": "/ˈgrɪdˌlɑk/",
       "translation": "полный затор",
       "translations": {
         "ru": "полный затор",
@@ -140,6 +149,7 @@
     {
       "word": "carpool",
       "part_of_speech": "verb",
+      "transcription": "/ˈkɑrˌpul/",
       "translation": "ездить вместе на одной машине",
       "translations": {
         "ru": "ездить вместе на одной машине",

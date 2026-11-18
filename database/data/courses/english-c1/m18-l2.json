@@ -14,6 +14,7 @@
     {
       "word": "colonial",
       "part_of_speech": "adjective",
+      "transcription": "/kəˈloʊniəl/",
       "translation": "колониальный",
       "translations": {
         "ru": "колониальный",
@@ -28,6 +29,7 @@
     {
       "word": "imperial",
       "part_of_speech": "adjective",
+      "transcription": "/ɪmˈpɪriəl/",
       "translation": "имперский",
       "translations": {
         "ru": "имперский",
@@ -42,6 +44,7 @@
     {
       "word": "conquest",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnˌkwɛst/",
       "translation": "завоевание",
       "translations": {
         "ru": "завоевание",
@@ -56,6 +59,7 @@
     {
       "word": "annex",
       "part_of_speech": "verb",
+      "transcription": "/əˈnɛks/",
       "translation": "аннексировать",
       "translations": {
         "ru": "аннексировать",
@@ -70,6 +74,7 @@
     {
       "word": "dominion",
       "part_of_speech": "noun",
+      "transcription": "/dəˈmɪnjən/",
       "translation": "владычество",
       "translations": {
         "ru": "владычество",
@@ -84,6 +89,7 @@
     {
       "word": "settler",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛtlər/",
       "translation": "поселенец",
       "translations": {
         "ru": "поселенец",
@@ -98,6 +104,7 @@
     {
       "word": "slavery",
       "part_of_speech": "noun",
+      "transcription": "/ˈsleɪvəri/",
       "translation": "рабство",
       "translations": {
         "ru": "рабство",
@@ -112,6 +119,7 @@
     {
       "word": "emancipation",
       "part_of_speech": "noun",
+      "transcription": "/ɪˌmænsəˈpeɪʃən/",
       "translation": "освобождение от рабства",
       "translations": {
         "ru": "освобождение от рабства",
@@ -126,6 +134,7 @@
     {
       "word": "liberation",
       "part_of_speech": "noun",
+      "transcription": "/ˌlɪbəˈreɪʃən/",
       "translation": "освобождение",
       "translations": {
         "ru": "освобождение",
@@ -140,6 +149,7 @@
     {
       "word": "subjugate",
       "part_of_speech": "verb",
+      "transcription": "/ˈsʌbdʒəˌgeɪt/",
       "translation": "покорять, подчинять",
       "translations": {
         "ru": "покорять, подчинять",

@@ -14,6 +14,7 @@
     {
       "word": "wetland",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɛtˌlænd/",
       "translation": "водно-болотное угодье",
       "translations": {
         "ru": "водно-болотное угодье",
@@ -28,6 +29,7 @@
     {
       "word": "estuary",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛstʃuˌɛri/",
       "translation": "устье реки, эстуарий",
       "translations": {
         "ru": "устье реки, эстуарий",
@@ -42,6 +44,7 @@
     {
       "word": "reef",
       "part_of_speech": "noun",
+      "transcription": "/rif/",
       "translation": "риф",
       "translations": {
         "ru": "риф",
@@ -56,6 +59,7 @@
     {
       "word": "tundra",
       "part_of_speech": "noun",
+      "transcription": "/ˈtʌndrə/",
       "translation": "тундра",
       "translations": {
         "ru": "тундра",
@@ -70,6 +74,7 @@
     {
       "word": "savanna",
       "part_of_speech": "noun",
+      "transcription": "/səˈvænə/",
       "translation": "саванна",
       "translations": {
         "ru": "саванна",
@@ -84,6 +89,7 @@
     {
       "word": "canopy",
       "part_of_speech": "noun",
+      "transcription": "/ˈkænəpi/",
       "translation": "полог леса",
       "translations": {
         "ru": "полог леса",
@@ -98,6 +104,7 @@
     {
       "word": "marsh",
       "part_of_speech": "noun",
+      "transcription": "/mɑrʃ/",
       "translation": "болото, топь",
       "translations": {
         "ru": "болото, топь",
@@ -112,6 +119,7 @@
     {
       "word": "grassland",
       "part_of_speech": "noun",
+      "transcription": "/ˈgræsˌlænd/",
       "translation": "травянистая равнина",
       "translations": {
         "ru": "травянистая равнина",
@@ -126,6 +134,7 @@
     {
       "word": "tributary",
       "part_of_speech": "noun",
+      "transcription": "/ˈtrɪbjəˌtɛri/",
       "translation": "приток",
       "translations": {
         "ru": "приток",
@@ -140,6 +149,7 @@
     {
       "word": "aquatic",
       "part_of_speech": "adjective",
+      "transcription": "/əˈkwɑtɪk/",
       "translation": "водный",
       "translations": {
         "ru": "водный",

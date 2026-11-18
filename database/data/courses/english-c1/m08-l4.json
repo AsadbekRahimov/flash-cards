@@ -14,6 +14,7 @@
     {
       "word": "cardiac",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɑrdiˌæk/",
       "translation": "сердечный",
       "translations": {
         "ru": "сердечный",
@@ -28,6 +29,7 @@
     {
       "word": "spine",
       "part_of_speech": "noun",
+      "transcription": "/spaɪn/",
       "translation": "позвоночник",
       "translations": {
         "ru": "позвоночник",
@@ -42,6 +44,7 @@
     {
       "word": "artery",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrtəri/",
       "translation": "артерия",
       "translations": {
         "ru": "артерия",
@@ -56,6 +59,7 @@
     {
       "word": "ligament",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɪgəmənt/",
       "translation": "связка",
       "translations": {
         "ru": "связка",
@@ -70,6 +74,7 @@
     {
       "word": "hormone",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɔrˌmoʊn/",
       "translation": "гормон",
       "translations": {
         "ru": "гормон",
@@ -84,6 +89,7 @@
     {
       "word": "gland",
       "part_of_speech": "noun",
+      "transcription": "/glænd/",
       "translation": "железа",
       "translations": {
         "ru": "железа",
@@ -98,6 +104,7 @@
     {
       "word": "kidney",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɪdni/",
       "translation": "почка",
       "translations": {
         "ru": "почка",
@@ -112,6 +119,7 @@
     {
       "word": "liver",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɪvər/",
       "translation": "печень",
       "translations": {
         "ru": "печень",
@@ -126,6 +134,7 @@
     {
       "word": "abdomen",
       "part_of_speech": "noun",
+      "transcription": "/ˈæbdəmən/",
       "translation": "живот",
       "translations": {
         "ru": "живот",
@@ -140,6 +149,7 @@
     {
       "word": "circulation",
       "part_of_speech": "noun",
+      "transcription": "/ˌsɜrkjəˈleɪʃən/",
       "translation": "кровообращение",
       "translations": {
         "ru": "кровообращение",

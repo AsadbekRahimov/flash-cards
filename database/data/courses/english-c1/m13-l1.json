@@ -14,6 +14,7 @@
     {
       "word": "stratification",
       "part_of_speech": "noun",
+      "transcription": "/ˌstrætəfəˈkeɪʃən/",
       "translation": "социальное расслоение",
       "translations": {
         "ru": "социальное расслоение",
@@ -28,6 +29,7 @@
     {
       "word": "mobility",
       "part_of_speech": "noun",
+      "transcription": "/moʊˈbɪləti/",
       "translation": "социальная мобильность",
       "translations": {
         "ru": "социальная мобильность",
@@ -42,6 +44,7 @@
     {
       "word": "elite",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈlit/",
       "translation": "элита",
       "translations": {
         "ru": "элита",
@@ -56,6 +59,7 @@
     {
       "word": "aristocracy",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛrəˈstɑkrəsi/",
       "translation": "аристократия",
       "translations": {
         "ru": "аристократия",
@@ -70,6 +74,7 @@
     {
       "word": "underclass",
       "part_of_speech": "noun",
+      "transcription": "/ˈʌndərˌklæs/",
       "translation": "низший слой общества",
       "translations": {
         "ru": "низший слой общества",
@@ -84,6 +89,7 @@
     {
       "word": "caste",
       "part_of_speech": "noun",
+      "transcription": "/kæst/",
       "translation": "каста",
       "translations": {
         "ru": "каста",
@@ -98,6 +104,7 @@
     {
       "word": "meritocracy",
       "part_of_speech": "noun",
+      "transcription": "/ˌmɛrəˈtɑkrəsi/",
       "translation": "меритократия",
       "translations": {
         "ru": "меритократия",
@@ -112,6 +119,7 @@
     {
       "word": "marginalize",
       "part_of_speech": "verb",
+      "transcription": "/ˈmɑrdʒənəˌlaɪz/",
       "translation": "вытеснять на обочину общества",
       "translations": {
         "ru": "вытеснять на обочину общества",
@@ -126,6 +134,7 @@
     {
       "word": "socioeconomic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌsoʊsioʊˌɛkəˈnɑmɪk/",
       "translation": "социально-экономический",
       "translations": {
         "ru": "социально-экономический",
@@ -140,6 +149,7 @@
     {
       "word": "demographic",
       "part_of_speech": "adjective",
+      "transcription": "/ˌdɛməˈgræfɪk/",
       "translation": "демографический",
       "translations": {
         "ru": "демографический",

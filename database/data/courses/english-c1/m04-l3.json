@@ -14,6 +14,7 @@
     {
       "word": "governance",
       "part_of_speech": "noun",
+      "transcription": "/ˈgʌvərnəns/",
       "translation": "система управления",
       "translations": {
         "ru": "система управления",
@@ -28,6 +29,7 @@
     {
       "word": "oversight",
       "part_of_speech": "noun",
+      "transcription": "/ˈoʊvərˌsaɪt/",
       "translation": "надзор",
       "translations": {
         "ru": "надзор",
@@ -42,6 +44,7 @@
     {
       "word": "directive",
       "part_of_speech": "noun",
+      "transcription": "/dəˈrɛktɪv/",
       "translation": "директива, официальное указание",
       "translations": {
         "ru": "директива, официальное указание",
@@ -56,6 +59,7 @@
     {
       "word": "discretion",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈskrɛʃən/",
       "translation": "усмотрение, право решать",
       "translations": {
         "ru": "усмотрение, право решать",
@@ -70,6 +74,7 @@
     {
       "word": "contingency",
       "part_of_speech": "noun",
+      "transcription": "/kənˈtɪndʒənsi/",
       "translation": "непредвиденное обстоятельство",
       "translations": {
         "ru": "непредвиденное обстоятельство",
@@ -84,6 +89,7 @@
     {
       "word": "feasibility",
       "part_of_speech": "noun",
+      "transcription": "/ˌfizəˈbɪləti/",
       "translation": "осуществимость",
       "translations": {
         "ru": "осуществимость",
@@ -98,6 +104,7 @@
     {
       "word": "implementation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪmpləmənˈteɪʃən/",
       "translation": "внедрение",
       "translations": {
         "ru": "внедрение",
@@ -112,6 +119,7 @@
     {
       "word": "consultation",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑnsəlˈteɪʃən/",
       "translation": "консультация, обсуждение",
       "translations": {
         "ru": "консультация, обсуждение",
@@ -126,6 +134,7 @@
     {
       "word": "scrutiny",
       "part_of_speech": "noun",
+      "transcription": "/ˈskrutəni/",
       "translation": "тщательная проверка",
       "translations": {
         "ru": "тщательная проверка",
@@ -140,6 +149,7 @@
     {
       "word": "transparency",
       "part_of_speech": "noun",
+      "transcription": "/trænsˈpɛrənsi/",
       "translation": "прозрачность",
       "translations": {
         "ru": "прозрачность",

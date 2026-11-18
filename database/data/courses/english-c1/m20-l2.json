@@ -14,6 +14,7 @@
     {
       "word": "induce",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈdus/",
       "translation": "вызывать, приводить к",
       "translations": {
         "ru": "вызывать, приводить к",
@@ -28,6 +29,7 @@
     {
       "word": "elicit",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈlɪsɪt/",
       "translation": "вызывать отклик",
       "translations": {
         "ru": "вызывать отклик",
@@ -42,6 +44,7 @@
     {
       "word": "incur",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈkɜr/",
       "translation": "нести убытки, расходы",
       "translations": {
         "ru": "нести убытки, расходы",
@@ -56,6 +59,7 @@
     {
       "word": "ensue",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈsu/",
       "translation": "следовать, возникать вслед",
       "translations": {
         "ru": "следовать, возникать вслед",
@@ -70,6 +74,7 @@
     {
       "word": "underlie",
       "part_of_speech": "verb",
+      "transcription": "/ˌʌndərˈlaɪ/",
       "translation": "лежать в основе",
       "translations": {
         "ru": "лежать в основе",
@@ -84,6 +89,7 @@
     {
       "word": "repercussion",
       "part_of_speech": "noun",
+      "transcription": "/ˌripərˈkʌʃən/",
       "translation": "негативное последствие",
       "translations": {
         "ru": "негативное последствие",
@@ -98,6 +104,7 @@
     {
       "word": "ramification",
       "part_of_speech": "noun",
+      "transcription": "/ˌræməfəˈkeɪʃən/",
       "translation": "возможное последствие",
       "translations": {
         "ru": "возможное последствие",
@@ -112,6 +119,7 @@
     {
       "word": "impetus",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪmpətəs/",
       "translation": "импульс, толчок",
       "translations": {
         "ru": "импульс, толчок",
@@ -126,6 +134,7 @@
     {
       "word": "instigate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɪnstəˌgeɪt/",
       "translation": "инициировать, затевать",
       "translations": {
         "ru": "инициировать, затевать",
@@ -140,6 +149,7 @@
     {
       "word": "undermine",
       "part_of_speech": "verb",
+      "transcription": "/ˌʌndərˈmaɪn/",
       "translation": "подрывать",
       "translations": {
         "ru": "подрывать",

@@ -14,6 +14,7 @@
     {
       "word": "equity",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛkwəti/",
       "translation": "акционерный капитал",
       "translations": {
         "ru": "акционерный капитал",
@@ -28,6 +29,7 @@
     {
       "word": "yield",
       "part_of_speech": "noun",
+      "transcription": "/jild/",
       "translation": "доходность",
       "translations": {
         "ru": "доходность",
@@ -42,6 +44,7 @@
     {
       "word": "volatility",
       "part_of_speech": "noun",
+      "transcription": "/ˌvɑləˈtɪləti/",
       "translation": "волатильность, изменчивость",
       "translations": {
         "ru": "волатильность, изменчивость",
@@ -56,6 +59,7 @@
     {
       "word": "hedge",
       "part_of_speech": "verb",
+      "transcription": "/hɛdʒ/",
       "translation": "страховать риски, хеджировать",
       "translations": {
         "ru": "страховать риски, хеджировать",
@@ -70,6 +74,7 @@
     {
       "word": "liquidity",
       "part_of_speech": "noun",
+      "transcription": "/lɪˈkwɪdəti/",
       "translation": "ликвидность",
       "translations": {
         "ru": "ликвидность",
@@ -84,6 +89,7 @@
     {
       "word": "collateral",
       "part_of_speech": "noun",
+      "transcription": "/kəˈlætərəl/",
       "translation": "залог, обеспечение",
       "translations": {
         "ru": "залог, обеспечение",
@@ -98,6 +104,7 @@
     {
       "word": "depreciation",
       "part_of_speech": "noun",
+      "transcription": "/dɪˌpriʃiˈeɪʃən/",
       "translation": "обесценивание",
       "translations": {
         "ru": "обесценивание",
@@ -112,6 +119,7 @@
     {
       "word": "valuation",
       "part_of_speech": "noun",
+      "transcription": "/ˌvæljuˈeɪʃən/",
       "translation": "оценка стоимости",
       "translations": {
         "ru": "оценка стоимости",
@@ -126,6 +134,7 @@
     {
       "word": "speculation",
       "part_of_speech": "noun",
+      "transcription": "/ˌspɛkjəˈleɪʃən/",
       "translation": "биржевая спекуляция",
       "translations": {
         "ru": "биржевая спекуляция",
@@ -140,6 +149,7 @@
     {
       "word": "underwrite",
       "part_of_speech": "verb",
+      "transcription": "/ˈʌndərˌraɪt/",
       "translation": "гарантировать размещение",
       "translations": {
         "ru": "гарантировать размещение",

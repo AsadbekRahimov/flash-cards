@@ -14,6 +14,7 @@
     {
       "word": "assertive",
       "part_of_speech": "adjective",
+      "transcription": "/əˈsɜrtɪv/",
       "translation": "уверенный в себе, напористый",
       "translations": {
         "ru": "уверенный в себе, напористый",
@@ -28,6 +29,7 @@
     {
       "word": "outspoken",
       "part_of_speech": "adjective",
+      "transcription": "/ˌaʊtˈspoʊkən/",
       "translation": "открыто высказывающийся",
       "translations": {
         "ru": "открыто высказывающийся",
@@ -42,6 +44,7 @@
     {
       "word": "eccentric",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˈsɛntrɪk/",
       "translation": "чудаковатый, эксцентричный",
       "translations": {
         "ru": "чудаковатый, эксцентричный",
@@ -56,6 +59,7 @@
     {
       "word": "aloof",
       "part_of_speech": "adjective",
+      "transcription": "/əˈluf/",
       "translation": "отстранённый, нелюдимый",
       "translations": {
         "ru": "отстранённый, нелюдимый",
@@ -70,6 +74,7 @@
     {
       "word": "timid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtɪmɪd/",
       "translation": "робкий",
       "translations": {
         "ru": "робкий",
@@ -84,6 +89,7 @@
     {
       "word": "restless",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrɛstləs/",
       "translation": "неусидчивый, беспокойный",
       "translations": {
         "ru": "неусидчивый, беспокойный",
@@ -98,6 +104,7 @@
     {
       "word": "gullible",
       "part_of_speech": "adjective",
+      "transcription": "/ˈgʌləbəl/",
       "translation": "легковерный, доверчивый",
       "translations": {
         "ru": "легковерный, доверчивый",
@@ -112,6 +119,7 @@
     {
       "word": "blunt",
       "part_of_speech": "adjective",
+      "transcription": "/blʌnt/",
       "translation": "прямолинейный, резкий",
       "translations": {
         "ru": "прямолинейный, резкий",
@@ -126,6 +134,7 @@
     {
       "word": "shrewd",
       "part_of_speech": "adjective",
+      "transcription": "/ʃrud/",
       "translation": "проницательный, расчётливый",
       "translations": {
         "ru": "проницательный, расчётливый",
@@ -140,6 +149,7 @@
     {
       "word": "whimsical",
       "part_of_speech": "adjective",
+      "transcription": "/ˈwɪmzɪkəl/",
       "translation": "причудливый, забавный",
       "translations": {
         "ru": "причудливый, забавный",

@@ -14,6 +14,7 @@
     {
       "word": "condominium",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑndəˈmɪniəm/",
       "translation": "кондоминиум",
       "translations": {
         "ru": "кондоминиум",
@@ -28,6 +29,7 @@
     {
       "word": "tenancy",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛnənsi/",
       "translation": "наём жилья",
       "translations": {
         "ru": "наём жилья",
@@ -42,6 +44,7 @@
     {
       "word": "evict",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈvɪkt/",
       "translation": "выселять",
       "translations": {
         "ru": "выселять",
@@ -56,6 +59,7 @@
     {
       "word": "occupancy",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑkjəpənsi/",
       "translation": "заполняемость",
       "translations": {
         "ru": "заполняемость",
@@ -70,6 +74,7 @@
     {
       "word": "sublet",
       "part_of_speech": "verb",
+      "transcription": "/ˌsʌbˈlɛt/",
       "translation": "сдавать в субаренду",
       "translations": {
         "ru": "сдавать в субаренду",
@@ -84,6 +89,7 @@
     {
       "word": "realtor",
       "part_of_speech": "noun",
+      "transcription": "/ˈriəltər/",
       "translation": "риелтор",
       "translations": {
         "ru": "риелтор",
@@ -98,6 +104,7 @@
     {
       "word": "deed",
       "part_of_speech": "noun",
+      "transcription": "/did/",
       "translation": "документ о праве собственности",
       "translations": {
         "ru": "документ о праве собственности",
@@ -112,6 +119,7 @@
     {
       "word": "vacant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈveɪkənt/",
       "translation": "свободный, незанятый",
       "translations": {
         "ru": "свободный, незанятый",
@@ -126,6 +134,7 @@
     {
       "word": "dilapidated",
       "part_of_speech": "adjective",
+      "transcription": "/dəˈlæpəˌdeɪtɪd/",
       "translation": "обветшалый",
       "translations": {
         "ru": "обветшалый",
@@ -140,6 +149,7 @@
     {
       "word": "upkeep",
       "part_of_speech": "noun",
+      "transcription": "/ˈʌpˌkip/",
       "translation": "содержание, уход",
       "translations": {
         "ru": "содержание, уход",

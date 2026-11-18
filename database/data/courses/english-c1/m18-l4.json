@@ -14,6 +14,7 @@
     {
       "word": "upheaval",
       "part_of_speech": "noun",
+      "transcription": "/ʌpˈhivəl/",
       "translation": "потрясение",
       "translations": {
         "ru": "потрясение",
@@ -28,6 +29,7 @@
     {
       "word": "uprising",
       "part_of_speech": "noun",
+      "transcription": "/ˈʌpˌraɪzɪŋ/",
       "translation": "восстание",
       "translations": {
         "ru": "восстание",
@@ -42,6 +44,7 @@
     {
       "word": "rebellion",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈbɛljən/",
       "translation": "мятеж, бунт",
       "translations": {
         "ru": "мятеж, бунт",
@@ -56,6 +59,7 @@
     {
       "word": "insurrection",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪnsəˈrɛkʃən/",
       "translation": "вооружённое восстание",
       "translations": {
         "ru": "вооружённое восстание",
@@ -70,6 +74,7 @@
     {
       "word": "coup",
       "part_of_speech": "noun",
+      "transcription": "/ku/",
       "translation": "государственный переворот",
       "translations": {
         "ru": "государственный переворот",
@@ -84,6 +89,7 @@
     {
       "word": "turmoil",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɜrˌmɔɪl/",
       "translation": "смута, неразбериха",
       "translations": {
         "ru": "смута, неразбериха",
@@ -98,6 +104,7 @@
     {
       "word": "anarchy",
       "part_of_speech": "noun",
+      "transcription": "/ˈænərki/",
       "translation": "анархия, безвластие",
       "translations": {
         "ru": "анархия, безвластие",
@@ -112,6 +119,7 @@
     {
       "word": "secession",
       "part_of_speech": "noun",
+      "transcription": "/sɪˈsɛʃən/",
       "translation": "отделение, выход из состава",
       "translations": {
         "ru": "отделение, выход из состава",
@@ -126,6 +134,7 @@
     {
       "word": "unification",
       "part_of_speech": "noun",
+      "transcription": "/ˌjunəfəˈkeɪʃən/",
       "translation": "объединение",
       "translations": {
         "ru": "объединение",
@@ -140,6 +149,7 @@
     {
       "word": "downfall",
       "part_of_speech": "noun",
+      "transcription": "/ˈdaʊnˌfɔl/",
       "translation": "падение, крах",
       "translations": {
         "ru": "падение, крах",

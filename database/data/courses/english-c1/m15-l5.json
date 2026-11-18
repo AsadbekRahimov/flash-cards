@@ -14,6 +14,7 @@
     {
       "word": "critique",
       "part_of_speech": "noun",
+      "transcription": "/krɪˈtik/",
       "translation": "критический разбор",
       "translations": {
         "ru": "критический разбор",
@@ -28,6 +29,7 @@
     {
       "word": "connoisseur",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑnəˈsɜr/",
       "translation": "знаток",
       "translations": {
         "ru": "знаток",
@@ -42,6 +44,7 @@
     {
       "word": "exquisite",
       "part_of_speech": "adjective",
+      "transcription": "/ɪkˈskwɪzɪt/",
       "translation": "изысканный",
       "translations": {
         "ru": "изысканный",
@@ -56,6 +59,7 @@
     {
       "word": "evocative",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈvɑkətɪv/",
       "translation": "навевающий воспоминания",
       "translations": {
         "ru": "навевающий воспоминания",
@@ -70,6 +74,7 @@
     {
       "word": "poignant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɔɪnjənt/",
       "translation": "щемящий",
       "translations": {
         "ru": "щемящий",
@@ -84,6 +89,7 @@
     {
       "word": "mediocre",
       "part_of_speech": "adjective",
+      "transcription": "/ˌmidiˈoʊkər/",
       "translation": "посредственный",
       "translations": {
         "ru": "посредственный",
@@ -98,6 +104,7 @@
     {
       "word": "pretentious",
       "part_of_speech": "adjective",
+      "transcription": "/prɪˈtɛnʃəs/",
       "translation": "претенциозный",
       "translations": {
         "ru": "претенциозный",
@@ -112,6 +119,7 @@
     {
       "word": "visionary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvɪʒəˌnɛri/",
       "translation": "провидческий",
       "translations": {
         "ru": "провидческий",
@@ -126,6 +134,7 @@
     {
       "word": "timeless",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtaɪmləs/",
       "translation": "неподвластный времени",
       "translations": {
         "ru": "неподвластный времени",
@@ -140,6 +149,7 @@
     {
       "word": "iconic",
       "part_of_speech": "adjective",
+      "transcription": "/aɪˈkɑnɪk/",
       "translation": "культовый",
       "translations": {
         "ru": "культовый",

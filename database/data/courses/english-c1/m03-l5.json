@@ -14,6 +14,7 @@
     {
       "word": "proficient",
       "part_of_speech": "adjective",
+      "transcription": "/prəˈfɪʃənt/",
       "translation": "опытный, умелый",
       "translations": {
         "ru": "опытный, умелый",
@@ -28,6 +29,7 @@
     {
       "word": "adaptability",
       "part_of_speech": "noun",
+      "transcription": "/əˌdæptəˈbɪləti/",
       "translation": "приспособляемость",
       "translations": {
         "ru": "приспособляемость",
@@ -42,6 +44,7 @@
     {
       "word": "punctuality",
       "part_of_speech": "noun",
+      "transcription": "/ˌpʌŋktʃuˈæləti/",
       "translation": "пунктуальность",
       "translations": {
         "ru": "пунктуальность",
@@ -56,6 +59,7 @@
     {
       "word": "acumen",
       "part_of_speech": "noun",
+      "transcription": "/əˈkjumən/",
       "translation": "деловая хватка",
       "translations": {
         "ru": "деловая хватка",
@@ -70,6 +74,7 @@
     {
       "word": "troubleshoot",
       "part_of_speech": "verb",
+      "transcription": "/ˈtrʌbəlˌʃut/",
       "translation": "устранять неполадки",
       "translations": {
         "ru": "устранять неполадки",
@@ -84,6 +89,7 @@
     {
       "word": "competent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɑmpətənt/",
       "translation": "компетентный, знающий",
       "translations": {
         "ru": "компетентный, знающий",
@@ -98,6 +104,7 @@
     {
       "word": "diligence",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪlədʒəns/",
       "translation": "усердие, прилежание",
       "translations": {
         "ru": "усердие, прилежание",
@@ -112,6 +119,7 @@
     {
       "word": "professionalism",
       "part_of_speech": "noun",
+      "transcription": "/prəˈfɛʃənəˌlɪzəm/",
       "translation": "профессионализм",
       "translations": {
         "ru": "профессионализм",
@@ -126,6 +134,7 @@
     {
       "word": "interpersonal",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪntərˈpɜrsənəl/",
       "translation": "межличностный",
       "translations": {
         "ru": "межличностный",
@@ -140,6 +149,7 @@
     {
       "word": "numeracy",
       "part_of_speech": "noun",
+      "transcription": "/ˈnumərəsi/",
       "translation": "математическая грамотность",
       "translations": {
         "ru": "математическая грамотность",

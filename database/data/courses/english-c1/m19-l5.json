@@ -14,6 +14,7 @@
     {
       "word": "topography",
       "part_of_speech": "noun",
+      "transcription": "/təˈpɑgrəfi/",
       "translation": "рельеф местности",
       "translations": {
         "ru": "рельеф местности",
@@ -28,6 +29,7 @@
     {
       "word": "archipelago",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑrkəˈpɛləˌgoʊ/",
       "translation": "архипелаг",
       "translations": {
         "ru": "архипелаг",
@@ -42,6 +44,7 @@
     {
       "word": "strait",
       "part_of_speech": "noun",
+      "transcription": "/streɪt/",
       "translation": "пролив",
       "translations": {
         "ru": "пролив",
@@ -56,6 +59,7 @@
     {
       "word": "gorge",
       "part_of_speech": "noun",
+      "transcription": "/gɔrdʒ/",
       "translation": "ущелье",
       "translations": {
         "ru": "ущелье",
@@ -70,6 +74,7 @@
     {
       "word": "basin",
       "part_of_speech": "noun",
+      "transcription": "/ˈbeɪsən/",
       "translation": "бассейн реки",
       "translations": {
         "ru": "бассейн реки",
@@ -84,6 +89,7 @@
     {
       "word": "steppe",
       "part_of_speech": "noun",
+      "transcription": "/stɛp/",
       "translation": "степь",
       "translations": {
         "ru": "степь",
@@ -98,6 +104,7 @@
     {
       "word": "dune",
       "part_of_speech": "noun",
+      "transcription": "/dun/",
       "translation": "дюна, бархан",
       "translations": {
         "ru": "дюна, бархан",
@@ -112,6 +119,7 @@
     {
       "word": "oasis",
       "part_of_speech": "noun",
+      "transcription": "/oʊˈeɪsɪs/",
       "translation": "оазис",
       "translations": {
         "ru": "оазис",
@@ -126,6 +134,7 @@
     {
       "word": "ridge",
       "part_of_speech": "noun",
+      "transcription": "/rɪdʒ/",
       "translation": "горный гребень, хребет",
       "translations": {
         "ru": "горный гребень, хребет",
@@ -140,6 +149,7 @@
     {
       "word": "lagoon",
       "part_of_speech": "noun",
+      "transcription": "/ləˈgun/",
       "translation": "лагуна",
       "translations": {
         "ru": "лагуна",

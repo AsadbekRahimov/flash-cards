@@ -14,6 +14,7 @@
     {
       "word": "deliberation",
       "part_of_speech": "noun",
+      "transcription": "/dɪˌlɪbəˈreɪʃən/",
       "translation": "обсуждение, совещание",
       "translations": {
         "ru": "обсуждение, совещание",
@@ -28,6 +29,7 @@
     {
       "word": "discourse",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪsˌkɔrs/",
       "translation": "дискурс",
       "translations": {
         "ru": "дискурс",
@@ -42,6 +44,7 @@
     {
       "word": "unanimous",
       "part_of_speech": "adjective",
+      "transcription": "/juˈnænəməs/",
       "translation": "единогласный",
       "translations": {
         "ru": "единогласный",
@@ -56,6 +59,7 @@
     {
       "word": "contentious",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈtɛnʃəs/",
       "translation": "спорный",
       "translations": {
         "ru": "спорный",
@@ -70,6 +74,7 @@
     {
       "word": "divisive",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈvaɪsɪv/",
       "translation": "вызывающий раскол",
       "translations": {
         "ru": "вызывающий раскол",
@@ -84,6 +89,7 @@
     {
       "word": "polarize",
       "part_of_speech": "verb",
+      "transcription": "/ˈpoʊləˌraɪz/",
       "translation": "поляризовать, раскалывать",
       "translations": {
         "ru": "поляризовать, раскалывать",
@@ -98,6 +104,7 @@
     {
       "word": "discord",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪsˌkɔrd/",
       "translation": "разлад, раздор",
       "translations": {
         "ru": "разлад, раздор",
@@ -112,6 +119,7 @@
     {
       "word": "impasse",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪmˌpæs/",
       "translation": "безвыходное положение",
       "translations": {
         "ru": "безвыходное положение",
@@ -126,6 +134,7 @@
     {
       "word": "deadlock",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛdˌlɑk/",
       "translation": "тупик в переговорах",
       "translations": {
         "ru": "тупик в переговорах",
@@ -140,6 +149,7 @@
     {
       "word": "standpoint",
       "part_of_speech": "noun",
+      "transcription": "/ˈstændˌpɔɪnt/",
       "translation": "точка зрения",
       "translations": {
         "ru": "точка зрения",

@@ -14,6 +14,7 @@
     {
       "word": "engraving",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈgreɪvɪŋ/",
       "translation": "гравюра",
       "translations": {
         "ru": "гравюра",
@@ -28,6 +29,7 @@
     {
       "word": "fresco",
       "part_of_speech": "noun",
+      "transcription": "/ˈfrɛskoʊ/",
       "translation": "фреска",
       "translations": {
         "ru": "фреска",
@@ -42,6 +44,7 @@
     {
       "word": "palette",
       "part_of_speech": "noun",
+      "transcription": "/ˈpælət/",
       "translation": "палитра",
       "translations": {
         "ru": "палитра",
@@ -56,6 +59,7 @@
     {
       "word": "pigment",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɪgmənt/",
       "translation": "пигмент",
       "translations": {
         "ru": "пигмент",
@@ -70,6 +74,7 @@
     {
       "word": "easel",
       "part_of_speech": "noun",
+      "transcription": "/ˈizəl/",
       "translation": "мольберт",
       "translations": {
         "ru": "мольберт",
@@ -84,6 +89,7 @@
     {
       "word": "etching",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛtʃɪŋ/",
       "translation": "офорт",
       "translations": {
         "ru": "офорт",
@@ -98,6 +104,7 @@
     {
       "word": "contour",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑnˌtʊr/",
       "translation": "контур",
       "translations": {
         "ru": "контур",
@@ -112,6 +119,7 @@
     {
       "word": "composition",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑmpəˈzɪʃən/",
       "translation": "композиция",
       "translations": {
         "ru": "композиция",
@@ -126,6 +134,7 @@
     {
       "word": "silhouette",
       "part_of_speech": "noun",
+      "transcription": "/ˌsɪluˈɛt/",
       "translation": "силуэт",
       "translations": {
         "ru": "силуэт",
@@ -140,6 +149,7 @@
     {
       "word": "tapestry",
       "part_of_speech": "noun",
+      "transcription": "/ˈtæpəstri/",
       "translation": "гобелен",
       "translations": {
         "ru": "гобелен",

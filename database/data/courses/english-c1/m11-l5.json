@@ -14,6 +14,7 @@
     {
       "word": "legislate",
       "part_of_speech": "verb",
+      "transcription": "/ˈlɛdʒəˌsleɪt/",
       "translation": "издавать законы",
       "translations": {
         "ru": "издавать законы",
@@ -28,6 +29,7 @@
     {
       "word": "enact",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈnækt/",
       "translation": "принимать закон",
       "translations": {
         "ru": "принимать закон",
@@ -42,6 +44,7 @@
     {
       "word": "repeal",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈpil/",
       "translation": "отменять",
       "translations": {
         "ru": "отменять",
@@ -56,6 +59,7 @@
     {
       "word": "overhaul",
       "part_of_speech": "verb",
+      "transcription": "/ˌoʊvərˈhɔl/",
       "translation": "коренным образом реформировать",
       "translations": {
         "ru": "коренным образом реформировать",
@@ -70,6 +74,7 @@
     {
       "word": "provision",
       "part_of_speech": "noun",
+      "transcription": "/prəˈvɪʒən/",
       "translation": "положение закона",
       "translations": {
         "ru": "положение закона",
@@ -84,6 +89,7 @@
     {
       "word": "statutory",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstætʃəˌtɔri/",
       "translation": "установленный законом",
       "translations": {
         "ru": "установленный законом",
@@ -98,6 +104,7 @@
     {
       "word": "bureaucrat",
       "part_of_speech": "noun",
+      "transcription": "/ˈbjʊrəˌkræt/",
       "translation": "бюрократ",
       "translations": {
         "ru": "бюрократ",
@@ -112,6 +119,7 @@
     {
       "word": "regulatory",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrɛgjələˌtɔri/",
       "translation": "регулирующий",
       "translations": {
         "ru": "регулирующий",
@@ -126,6 +134,7 @@
     {
       "word": "policymaker",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑləsiˌmeɪkər/",
       "translation": "лицо, определяющее политику",
       "translations": {
         "ru": "лицо, определяющее политику",
@@ -140,6 +149,7 @@
     {
       "word": "mandatory",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmændəˌtɔri/",
       "translation": "обязательный",
       "translations": {
         "ru": "обязательный",

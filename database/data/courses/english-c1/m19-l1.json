@@ -14,6 +14,7 @@
     {
       "word": "gentrification",
       "part_of_speech": "noun",
+      "transcription": "/ˌdʒɛntrəfəˈkeɪʃən/",
       "translation": "джентрификация",
       "translations": {
         "ru": "джентрификация",
@@ -28,6 +29,7 @@
     {
       "word": "zoning",
       "part_of_speech": "noun",
+      "transcription": "/ˈzoʊnɪŋ/",
       "translation": "зонирование",
       "translations": {
         "ru": "зонирование",
@@ -42,6 +44,7 @@
     {
       "word": "redevelopment",
       "part_of_speech": "noun",
+      "transcription": "/ˌridɪˈvɛləpmənt/",
       "translation": "реконструкция, перестройка",
       "translations": {
         "ru": "реконструкция, перестройка",
@@ -56,6 +59,7 @@
     {
       "word": "suburban",
       "part_of_speech": "adjective",
+      "transcription": "/səˈbɜrbən/",
       "translation": "пригородный",
       "translations": {
         "ru": "пригородный",
@@ -70,6 +74,7 @@
     {
       "word": "sprawl",
       "part_of_speech": "noun",
+      "transcription": "/sprɔl/",
       "translation": "разрастание города",
       "translations": {
         "ru": "разрастание города",
@@ -84,6 +89,7 @@
     {
       "word": "slum",
       "part_of_speech": "noun",
+      "transcription": "/slʌm/",
       "translation": "трущоба",
       "translations": {
         "ru": "трущоба",
@@ -98,6 +104,7 @@
     {
       "word": "dwelling",
       "part_of_speech": "noun",
+      "transcription": "/ˈdwɛlɪŋ/",
       "translation": "жилище",
       "translations": {
         "ru": "жилище",
@@ -112,6 +119,7 @@
     {
       "word": "municipality",
       "part_of_speech": "noun",
+      "transcription": "/mjuˌnɪsəˈpæləti/",
       "translation": "муниципалитет",
       "translations": {
         "ru": "муниципалитет",
@@ -126,6 +134,7 @@
     {
       "word": "revitalize",
       "part_of_speech": "verb",
+      "transcription": "/riˈvaɪtəˌlaɪz/",
       "translation": "возрождать, оживлять",
       "translations": {
         "ru": "возрождать, оживлять",
@@ -140,6 +149,7 @@
     {
       "word": "thoroughfare",
       "part_of_speech": "noun",
+      "transcription": "/ˈθɜroʊˌfɛr/",
       "translation": "магистраль",
       "translations": {
         "ru": "магистраль",

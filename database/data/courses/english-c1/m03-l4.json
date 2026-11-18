@@ -14,6 +14,7 @@
     {
       "word": "grievance",
       "part_of_speech": "noun",
+      "transcription": "/ˈgrivəns/",
       "translation": "официальная жалоба",
       "translations": {
         "ru": "официальная жалоба",
@@ -28,6 +29,7 @@
     {
       "word": "arbitration",
       "part_of_speech": "noun",
+      "transcription": "/ˌɑrbəˈtreɪʃən/",
       "translation": "арбитраж",
       "translations": {
         "ru": "арбитраж",
@@ -42,6 +44,7 @@
     {
       "word": "mediation",
       "part_of_speech": "noun",
+      "transcription": "/ˌmidiˈeɪʃən/",
       "translation": "посредничество",
       "translations": {
         "ru": "посредничество",
@@ -56,6 +59,7 @@
     {
       "word": "picket",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɪkɪt/",
       "translation": "пикет",
       "translations": {
         "ru": "пикет",
@@ -70,6 +74,7 @@
     {
       "word": "harassment",
       "part_of_speech": "noun",
+      "transcription": "/həˈræsmənt/",
       "translation": "притеснение",
       "translations": {
         "ru": "притеснение",
@@ -84,6 +89,7 @@
     {
       "word": "misconduct",
       "part_of_speech": "noun",
+      "transcription": "/mɪsˈkɑndʌkt/",
       "translation": "служебный проступок",
       "translations": {
         "ru": "служебный проступок",
@@ -98,6 +104,7 @@
     {
       "word": "disciplinary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdɪsəpləˌnɛri/",
       "translation": "дисциплинарный",
       "translations": {
         "ru": "дисциплинарный",
@@ -112,6 +119,7 @@
     {
       "word": "whistleblower",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɪsəlˌbloʊər/",
       "translation": "разоблачитель",
       "translations": {
         "ru": "разоблачитель",
@@ -126,6 +134,7 @@
     {
       "word": "dismissal",
       "part_of_speech": "noun",
+      "transcription": "/dɪsˈmɪsəl/",
       "translation": "увольнение",
       "translations": {
         "ru": "увольнение",
@@ -140,6 +149,7 @@
     {
       "word": "walkout",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɔkˌaʊt/",
       "translation": "внезапная забастовка",
       "translations": {
         "ru": "внезапная забастовка",

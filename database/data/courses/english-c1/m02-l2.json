@@ -14,6 +14,7 @@
     {
       "word": "apprehensive",
       "part_of_speech": "adjective",
+      "transcription": "/ˌæprɪˈhɛnsɪv/",
       "translation": "встревоженный, полный опасений",
       "translations": {
         "ru": "встревоженный, полный опасений",
@@ -28,6 +29,7 @@
     {
       "word": "bewildered",
       "part_of_speech": "adjective",
+      "transcription": "/bɪˈwɪldərd/",
       "translation": "озадаченный, сбитый с толку",
       "translations": {
         "ru": "озадаченный, сбитый с толку",
@@ -42,6 +44,7 @@
     {
       "word": "exasperated",
       "part_of_speech": "adjective",
+      "transcription": "/ɪgˈzæspəˌreɪtɪd/",
       "translation": "выведенный из себя",
       "translations": {
         "ru": "выведенный из себя",
@@ -56,6 +59,7 @@
     {
       "word": "elated",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈleɪtɪd/",
       "translation": "окрылённый, ликующий",
       "translations": {
         "ru": "окрылённый, ликующий",
@@ -70,6 +74,7 @@
     {
       "word": "distraught",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈstrɔt/",
       "translation": "сам не свой, убитый горем",
       "translations": {
         "ru": "сам не свой, убитый горем",
@@ -84,6 +89,7 @@
     {
       "word": "ecstatic",
       "part_of_speech": "adjective",
+      "transcription": "/ɛkˈstætɪk/",
       "translation": "в полном восторге",
       "translations": {
         "ru": "в полном восторге",
@@ -98,6 +104,7 @@
     {
       "word": "overwhelmed",
       "part_of_speech": "adjective",
+      "transcription": "/ˌoʊvərˈwɛlmd/",
       "translation": "перегруженный, ошеломлённый",
       "translations": {
         "ru": "перегруженный, ошеломлённый",
@@ -112,6 +119,7 @@
     {
       "word": "agitated",
       "part_of_speech": "adjective",
+      "transcription": "/ˈædʒəˌteɪtɪd/",
       "translation": "взволнованный, возбуждённый",
       "translations": {
         "ru": "взволнованный, возбуждённый",
@@ -126,6 +134,7 @@
     {
       "word": "disillusioned",
       "part_of_speech": "adjective",
+      "transcription": "/ˌdɪsɪˈluʒənd/",
       "translation": "разочарованный",
       "translations": {
         "ru": "разочарованный",
@@ -140,6 +149,7 @@
     {
       "word": "dismayed",
       "part_of_speech": "adjective",
+      "transcription": "/dɪsˈmeɪd/",
       "translation": "удручённый, обескураженный",
       "translations": {
         "ru": "удручённый, обескураженный",

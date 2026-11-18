@@ -14,6 +14,7 @@
     {
       "word": "contend",
       "part_of_speech": "verb",
+      "transcription": "/kənˈtɛnd/",
       "translation": "утверждать, заявлять",
       "translations": {
         "ru": "утверждать, заявлять",
@@ -28,6 +29,7 @@
     {
       "word": "allege",
       "part_of_speech": "verb",
+      "transcription": "/əˈlɛdʒ/",
       "translation": "утверждать без доказательств",
       "translations": {
         "ru": "утверждать без доказательств",
@@ -42,6 +44,7 @@
     {
       "word": "rebut",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈbʌt/",
       "translation": "опровергать доводы",
       "translations": {
         "ru": "опровергать доводы",
@@ -56,6 +59,7 @@
     {
       "word": "reiterate",
       "part_of_speech": "verb",
+      "transcription": "/riˈɪtəˌreɪt/",
       "translation": "повторять, вновь заявлять",
       "translations": {
         "ru": "повторять, вновь заявлять",
@@ -70,6 +74,7 @@
     {
       "word": "proclaim",
       "part_of_speech": "verb",
+      "transcription": "/proʊˈkleɪm/",
       "translation": "провозглашать",
       "translations": {
         "ru": "провозглашать",
@@ -84,6 +89,7 @@
     {
       "word": "affirm",
       "part_of_speech": "verb",
+      "transcription": "/əˈfɜrm/",
       "translation": "подтверждать, твёрдо заявлять",
       "translations": {
         "ru": "подтверждать, твёрдо заявлять",
@@ -98,6 +104,7 @@
     {
       "word": "concur",
       "part_of_speech": "verb",
+      "transcription": "/kənˈkɜr/",
       "translation": "соглашаться, разделять мнение",
       "translations": {
         "ru": "соглашаться, разделять мнение",
@@ -112,6 +119,7 @@
     {
       "word": "retort",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈtɔrt/",
       "translation": "резко возражать, парировать",
       "translations": {
         "ru": "резко возражать, парировать",
@@ -126,6 +134,7 @@
     {
       "word": "disprove",
       "part_of_speech": "verb",
+      "transcription": "/dɪsˈpruv/",
       "translation": "доказывать ложность",
       "translations": {
         "ru": "доказывать ложность",
@@ -140,6 +149,7 @@
     {
       "word": "attest",
       "part_of_speech": "verb",
+      "transcription": "/əˈtɛst/",
       "translation": "свидетельствовать, удостоверять",
       "translations": {
         "ru": "свидетельствовать, удостоверять",

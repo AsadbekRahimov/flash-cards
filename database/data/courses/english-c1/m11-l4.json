@@ -14,6 +14,7 @@
     {
       "word": "oppression",
       "part_of_speech": "noun",
+      "transcription": "/əˈprɛʃən/",
       "translation": "угнетение",
       "translations": {
         "ru": "угнетение",
@@ -28,6 +29,7 @@
     {
       "word": "tyranny",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɪrəni/",
       "translation": "тирания",
       "translations": {
         "ru": "тирания",
@@ -42,6 +44,7 @@
     {
       "word": "coercion",
       "part_of_speech": "noun",
+      "transcription": "/koʊˈɜrʒən/",
       "translation": "принуждение",
       "translations": {
         "ru": "принуждение",
@@ -56,6 +59,7 @@
     {
       "word": "dissent",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈsɛnt/",
       "translation": "инакомыслие",
       "translations": {
         "ru": "инакомыслие",
@@ -70,6 +74,7 @@
     {
       "word": "dissident",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɪsədənt/",
       "translation": "диссидент",
       "translations": {
         "ru": "диссидент",
@@ -84,6 +89,7 @@
     {
       "word": "crackdown",
       "part_of_speech": "noun",
+      "transcription": "/ˈkrækˌdaʊn/",
       "translation": "жёсткие меры",
       "translations": {
         "ru": "жёсткие меры",
@@ -98,6 +104,7 @@
     {
       "word": "suppress",
       "part_of_speech": "verb",
+      "transcription": "/səˈprɛs/",
       "translation": "подавлять",
       "translations": {
         "ru": "подавлять",
@@ -112,6 +119,7 @@
     {
       "word": "persecute",
       "part_of_speech": "verb",
+      "transcription": "/ˈpɜrsəˌkjut/",
       "translation": "преследовать",
       "translations": {
         "ru": "преследовать",
@@ -126,6 +134,7 @@
     {
       "word": "overthrow",
       "part_of_speech": "verb",
+      "transcription": "/ˌoʊvərˈθroʊ/",
       "translation": "свергать",
       "translations": {
         "ru": "свергать",
@@ -140,6 +149,7 @@
     {
       "word": "exile",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛgˌzaɪl/",
       "translation": "изгнание, ссылка",
       "translations": {
         "ru": "изгнание, ссылка",

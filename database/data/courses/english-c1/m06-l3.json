@@ -14,6 +14,7 @@
     {
       "word": "conclusive",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈklusɪv/",
       "translation": "неопровержимый, окончательный",
       "translations": {
         "ru": "неопровержимый, окончательный",
@@ -28,6 +29,7 @@
     {
       "word": "tentative",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtɛntətɪv/",
       "translation": "неокончательный",
       "translations": {
         "ru": "неокончательный",
@@ -42,6 +44,7 @@
     {
       "word": "preliminary",
       "part_of_speech": "adjective",
+      "transcription": "/prɪˈlɪməˌnɛri/",
       "translation": "предварительный",
       "translations": {
         "ru": "предварительный",
@@ -56,6 +59,7 @@
     {
       "word": "substantiate",
       "part_of_speech": "verb",
+      "transcription": "/səbˈstænʃiˌeɪt/",
       "translation": "обосновывать",
       "translations": {
         "ru": "обосновывать",
@@ -70,6 +74,7 @@
     {
       "word": "corroborate",
       "part_of_speech": "verb",
+      "transcription": "/kəˈrɑbəˌreɪt/",
       "translation": "подтверждать",
       "translations": {
         "ru": "подтверждать",
@@ -84,6 +89,7 @@
     {
       "word": "refute",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈfjut/",
       "translation": "опровергать",
       "translations": {
         "ru": "опровергать",
@@ -98,6 +104,7 @@
     {
       "word": "generalize",
       "part_of_speech": "verb",
+      "transcription": "/ˈdʒɛnərəˌlaɪz/",
       "translation": "обобщать",
       "translations": {
         "ru": "обобщать",
@@ -112,6 +119,7 @@
     {
       "word": "causation",
       "part_of_speech": "noun",
+      "transcription": "/kɔˈzeɪʃən/",
       "translation": "причинно-следственная связь",
       "translations": {
         "ru": "причинно-следственная связь",
@@ -126,6 +134,7 @@
     {
       "word": "caveat",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæviˌæt/",
       "translation": "оговорка",
       "translations": {
         "ru": "оговорка",
@@ -140,6 +149,7 @@
     {
       "word": "rigorous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrɪgərəs/",
       "translation": "строгий, тщательный",
       "translations": {
         "ru": "строгий, тщательный",

@@ -14,6 +14,7 @@
     {
       "word": "disruptive",
       "part_of_speech": "adjective",
+      "transcription": "/dɪsˈrʌptɪv/",
       "translation": "прорывной, подрывной",
       "translations": {
         "ru": "прорывной, подрывной",
@@ -28,6 +29,7 @@
     {
       "word": "digitize",
       "part_of_speech": "verb",
+      "transcription": "/ˈdɪdʒəˌtaɪz/",
       "translation": "оцифровывать",
       "translations": {
         "ru": "оцифровывать",
@@ -42,6 +44,7 @@
     {
       "word": "connectivity",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑnɛkˈtɪvəti/",
       "translation": "подключение к сети",
       "translations": {
         "ru": "подключение к сети",
@@ -56,6 +59,7 @@
     {
       "word": "innovate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɪnəˌveɪt/",
       "translation": "внедрять новшества",
       "translations": {
         "ru": "внедрять новшества",
@@ -70,6 +74,7 @@
     {
       "word": "pervasive",
       "part_of_speech": "adjective",
+      "transcription": "/pərˈveɪsɪv/",
       "translation": "вездесущий, повсеместный",
       "translations": {
         "ru": "вездесущий, повсеместный",
@@ -84,6 +89,7 @@
     {
       "word": "dependence",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈpɛndəns/",
       "translation": "зависимость",
       "translations": {
         "ru": "зависимость",
@@ -98,6 +104,7 @@
     {
       "word": "displacement",
       "part_of_speech": "noun",
+      "transcription": "/dɪsˈpleɪsmənt/",
       "translation": "вытеснение",
       "translations": {
         "ru": "вытеснение",
@@ -112,6 +119,7 @@
     {
       "word": "misuse",
       "part_of_speech": "noun",
+      "transcription": "/mɪsˈjus/",
       "translation": "злоупотребление",
       "translations": {
         "ru": "злоупотребление",
@@ -126,6 +134,7 @@
     {
       "word": "regulate",
       "part_of_speech": "verb",
+      "transcription": "/ˈrɛgjəˌleɪt/",
       "translation": "регулировать",
       "translations": {
         "ru": "регулировать",
@@ -140,6 +149,7 @@
     {
       "word": "intrusive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtrusɪv/",
       "translation": "навязчивый",
       "translations": {
         "ru": "навязчивый",

@@ -14,6 +14,7 @@
     {
       "word": "branding",
       "part_of_speech": "noun",
+      "transcription": "/ˈbrændɪŋ/",
       "translation": "брендинг",
       "translations": {
         "ru": "брендинг",
@@ -28,6 +29,7 @@
     {
       "word": "sponsorship",
       "part_of_speech": "noun",
+      "transcription": "/ˈspɑnsərˌʃɪp/",
       "translation": "спонсорство",
       "translations": {
         "ru": "спонсорство",
@@ -42,6 +44,7 @@
     {
       "word": "publicist",
       "part_of_speech": "noun",
+      "transcription": "/ˈpʌbləsɪst/",
       "translation": "пресс-агент",
       "translations": {
         "ru": "пресс-агент",
@@ -56,6 +59,7 @@
     {
       "word": "testimonial",
       "part_of_speech": "noun",
+      "transcription": "/ˌtɛstəˈmoʊniəl/",
       "translation": "отзыв клиента",
       "translations": {
         "ru": "отзыв клиента",
@@ -70,6 +74,7 @@
     {
       "word": "jingle",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒɪŋgəl/",
       "translation": "рекламная песенка",
       "translations": {
         "ru": "рекламная песенка",
@@ -84,6 +89,7 @@
     {
       "word": "teaser",
       "part_of_speech": "noun",
+      "transcription": "/ˈtizər/",
       "translation": "тизер",
       "translations": {
         "ru": "тизер",
@@ -98,6 +104,7 @@
     {
       "word": "gimmick",
       "part_of_speech": "noun",
+      "transcription": "/ˈgɪmɪk/",
       "translation": "рекламная уловка",
       "translations": {
         "ru": "рекламная уловка",
@@ -112,6 +119,7 @@
     {
       "word": "promotional",
       "part_of_speech": "adjective",
+      "transcription": "/prəˈmoʊʃənəl/",
       "translation": "рекламный",
       "translations": {
         "ru": "рекламный",
@@ -126,6 +134,7 @@
     {
       "word": "exposure",
       "part_of_speech": "noun",
+      "transcription": "/ɪkˈspoʊʒər/",
       "translation": "известность",
       "translations": {
         "ru": "известность",
@@ -140,6 +149,7 @@
     {
       "word": "persuasion",
       "part_of_speech": "noun",
+      "transcription": "/pərˈsweɪʒən/",
       "translation": "убеждение",
       "translations": {
         "ru": "убеждение",

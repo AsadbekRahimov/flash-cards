@@ -14,6 +14,7 @@
     {
       "word": "lucrative",
       "part_of_speech": "adjective",
+      "transcription": "/ˈlukrətɪv/",
       "translation": "прибыльный, доходный",
       "translations": {
         "ru": "прибыльный, доходный",
@@ -28,6 +29,7 @@
     {
       "word": "saturate",
       "part_of_speech": "verb",
+      "transcription": "/ˈsætʃəˌreɪt/",
       "translation": "насыщать",
       "translations": {
         "ru": "насыщать",
@@ -42,6 +44,7 @@
     {
       "word": "segment",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɛgmənt/",
       "translation": "сегмент рынка",
       "translations": {
         "ru": "сегмент рынка",
@@ -56,6 +59,7 @@
     {
       "word": "undercut",
       "part_of_speech": "verb",
+      "transcription": "/ˌʌndərˈkʌt/",
       "translation": "продавать дешевле конкурентов",
       "translations": {
         "ru": "продавать дешевле конкурентов",
@@ -70,6 +74,7 @@
     {
       "word": "cartel",
       "part_of_speech": "noun",
+      "transcription": "/kɑrˈtɛl/",
       "translation": "картель",
       "translations": {
         "ru": "картель",
@@ -84,6 +89,7 @@
     {
       "word": "foothold",
       "part_of_speech": "noun",
+      "transcription": "/ˈfʊtˌhoʊld/",
       "translation": "плацдарм, опорная позиция",
       "translations": {
         "ru": "плацдарм, опорная позиция",
@@ -98,6 +104,7 @@
     {
       "word": "dominance",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɑmənəns/",
       "translation": "господство",
       "translations": {
         "ru": "господство",
@@ -112,6 +119,7 @@
     {
       "word": "viable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvaɪəbəl/",
       "translation": "жизнеспособный",
       "translations": {
         "ru": "жизнеспособный",
@@ -126,6 +134,7 @@
     {
       "word": "clientele",
       "part_of_speech": "noun",
+      "transcription": "/ˌklaɪənˈtɛl/",
       "translation": "клиентура",
       "translations": {
         "ru": "клиентура",
@@ -140,6 +149,7 @@
     {
       "word": "rivalry",
       "part_of_speech": "noun",
+      "transcription": "/ˈraɪvəlri/",
       "translation": "соперничество",
       "translations": {
         "ru": "соперничество",

@@ -14,6 +14,7 @@
     {
       "word": "outrage",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌreɪdʒ/",
       "translation": "возмущение, негодование",
       "translations": {
         "ru": "возмущение, негодование",
@@ -28,6 +29,7 @@
     {
       "word": "fury",
       "part_of_speech": "noun",
+      "transcription": "/ˈfjʊri/",
       "translation": "ярость",
       "translations": {
         "ru": "ярость",
@@ -42,6 +44,7 @@
     {
       "word": "resentment",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈzɛntmənt/",
       "translation": "обида, досада",
       "translations": {
         "ru": "обида, досада",
@@ -56,6 +59,7 @@
     {
       "word": "contempt",
       "part_of_speech": "noun",
+      "transcription": "/kənˈtɛmpt/",
       "translation": "презрение",
       "translations": {
         "ru": "презрение",
@@ -70,6 +74,7 @@
     {
       "word": "dread",
       "part_of_speech": "noun",
+      "transcription": "/drɛd/",
       "translation": "сильный страх, ужас",
       "translations": {
         "ru": "сильный страх, ужас",
@@ -84,6 +89,7 @@
     {
       "word": "anguish",
       "part_of_speech": "noun",
+      "transcription": "/ˈæŋgwɪʃ/",
       "translation": "душевная мука, страдание",
       "translations": {
         "ru": "душевная мука, страдание",
@@ -98,6 +104,7 @@
     {
       "word": "remorse",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈmɔrs/",
       "translation": "раскаяние, угрызения совести",
       "translations": {
         "ru": "раскаяние, угрызения совести",
@@ -112,6 +119,7 @@
     {
       "word": "bliss",
       "part_of_speech": "noun",
+      "transcription": "/blɪs/",
       "translation": "блаженство",
       "translations": {
         "ru": "блаженство",
@@ -126,6 +134,7 @@
     {
       "word": "awe",
       "part_of_speech": "noun",
+      "transcription": "/ɔ/",
       "translation": "благоговение, трепет",
       "translations": {
         "ru": "благоговение, трепет",
@@ -140,6 +149,7 @@
     {
       "word": "euphoria",
       "part_of_speech": "noun",
+      "transcription": "/juˈfɔriə/",
       "translation": "эйфория",
       "translations": {
         "ru": "эйфория",

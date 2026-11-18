@@ -14,6 +14,7 @@
     {
       "word": "rapport",
       "part_of_speech": "noun",
+      "transcription": "/ræˈpɔr/",
       "translation": "взаимопонимание",
       "translations": {
         "ru": "взаимопонимание",
@@ -28,6 +29,7 @@
     {
       "word": "devotion",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈvoʊʃən/",
       "translation": "преданность",
       "translations": {
         "ru": "преданность",
@@ -42,6 +44,7 @@
     {
       "word": "affection",
       "part_of_speech": "noun",
+      "transcription": "/əˈfɛkʃən/",
       "translation": "нежность, привязанность",
       "translations": {
         "ru": "нежность, привязанность",
@@ -56,6 +59,7 @@
     {
       "word": "companionship",
       "part_of_speech": "noun",
+      "transcription": "/kəmˈpænjənˌʃɪp/",
       "translation": "дружеское общение",
       "translations": {
         "ru": "дружеское общение",
@@ -70,6 +74,7 @@
     {
       "word": "kinship",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɪnˌʃɪp/",
       "translation": "родство",
       "translations": {
         "ru": "родство",
@@ -84,6 +89,7 @@
     {
       "word": "reconcile",
       "part_of_speech": "verb",
+      "transcription": "/ˈrɛkənˌsaɪl/",
       "translation": "мириться",
       "translations": {
         "ru": "мириться",
@@ -98,6 +104,7 @@
     {
       "word": "alienate",
       "part_of_speech": "verb",
+      "transcription": "/ˈeɪliəˌneɪt/",
       "translation": "отталкивать, отдалять",
       "translations": {
         "ru": "отталкивать, отдалять",
@@ -112,6 +119,7 @@
     {
       "word": "cherish",
       "part_of_speech": "verb",
+      "transcription": "/ˈtʃɛrɪʃ/",
       "translation": "дорожить, лелеять",
       "translations": {
         "ru": "дорожить, лелеять",
@@ -126,6 +134,7 @@
     {
       "word": "confide",
       "part_of_speech": "verb",
+      "transcription": "/kənˈfaɪd/",
       "translation": "доверяться, поверять тайны",
       "translations": {
         "ru": "доверяться, поверять тайны",
@@ -140,6 +149,7 @@
     {
       "word": "grudge",
       "part_of_speech": "noun",
+      "transcription": "/grʌdʒ/",
       "translation": "затаённая обида",
       "translations": {
         "ru": "затаённая обида",

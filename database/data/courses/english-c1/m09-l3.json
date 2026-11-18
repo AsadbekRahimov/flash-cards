@@ -14,6 +14,7 @@
     {
       "word": "paranoia",
       "part_of_speech": "noun",
+      "transcription": "/ˌpɛrəˈnɔɪə/",
       "translation": "паранойя",
       "translations": {
         "ru": "паранойя",
@@ -28,6 +29,7 @@
     {
       "word": "delusion",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈluʒən/",
       "translation": "бредовая идея",
       "translations": {
         "ru": "бредовая идея",
@@ -42,6 +44,7 @@
     {
       "word": "hallucination",
       "part_of_speech": "noun",
+      "transcription": "/həˌlusəˈneɪʃən/",
       "translation": "галлюцинация",
       "translations": {
         "ru": "галлюцинация",
@@ -56,6 +59,7 @@
     {
       "word": "dementia",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈmɛnʃə/",
       "translation": "деменция",
       "translations": {
         "ru": "деменция",
@@ -70,6 +74,7 @@
     {
       "word": "traumatic",
       "part_of_speech": "adjective",
+      "transcription": "/trəˈmætɪk/",
       "translation": "травмирующий",
       "translations": {
         "ru": "травмирующий",
@@ -84,6 +89,7 @@
     {
       "word": "psychiatric",
       "part_of_speech": "adjective",
+      "transcription": "/ˌsaɪkiˈætrɪk/",
       "translation": "психиатрический",
       "translations": {
         "ru": "психиатрический",
@@ -98,6 +104,7 @@
     {
       "word": "therapist",
       "part_of_speech": "noun",
+      "transcription": "/ˈθɛrəpɪst/",
       "translation": "психотерапевт",
       "translations": {
         "ru": "психотерапевт",
@@ -112,6 +119,7 @@
     {
       "word": "counseling",
       "part_of_speech": "noun",
+      "transcription": "/ˈkaʊnsəlɪŋ/",
       "translation": "психологическое консультирование",
       "translations": {
         "ru": "психологическое консультирование",
@@ -126,6 +134,7 @@
     {
       "word": "breakdown",
       "part_of_speech": "noun",
+      "transcription": "/ˈbreɪkˌdaʊn/",
       "translation": "нервный срыв",
       "translations": {
         "ru": "нервный срыв",
@@ -140,6 +149,7 @@
     {
       "word": "hysteria",
       "part_of_speech": "noun",
+      "transcription": "/hɪˈstɛriə/",
       "translation": "истерия",
       "translations": {
         "ru": "истерия",

@@ -14,6 +14,7 @@
     {
       "word": "sibling",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪblɪŋ/",
       "translation": "брат или сестра",
       "translations": {
         "ru": "брат или сестра",
@@ -28,6 +29,7 @@
     {
       "word": "spouse",
       "part_of_speech": "noun",
+      "transcription": "/spaʊs/",
       "translation": "супруг, супруга",
       "translations": {
         "ru": "супруг, супруга",
@@ -42,6 +44,7 @@
     {
       "word": "guardian",
       "part_of_speech": "noun",
+      "transcription": "/ˈgɑrdiən/",
       "translation": "опекун",
       "translations": {
         "ru": "опекун",
@@ -56,6 +59,7 @@
     {
       "word": "foster",
       "part_of_speech": "verb",
+      "transcription": "/ˈfɔstər/",
       "translation": "брать на воспитание",
       "translations": {
         "ru": "брать на воспитание",
@@ -70,6 +74,7 @@
     {
       "word": "lineage",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɪniɪdʒ/",
       "translation": "родословная",
       "translations": {
         "ru": "родословная",
@@ -84,6 +89,7 @@
     {
       "word": "descendant",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈsɛndənt/",
       "translation": "потомок",
       "translations": {
         "ru": "потомок",
@@ -98,6 +104,7 @@
     {
       "word": "orphan",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔrfən/",
       "translation": "сирота",
       "translations": {
         "ru": "сирота",
@@ -112,6 +119,7 @@
     {
       "word": "parental",
       "part_of_speech": "adjective",
+      "transcription": "/pəˈrɛntəl/",
       "translation": "родительский",
       "translations": {
         "ru": "родительский",
@@ -126,6 +134,7 @@
     {
       "word": "breadwinner",
       "part_of_speech": "noun",
+      "transcription": "/ˈbrɛdˌwɪnər/",
       "translation": "кормилец",
       "translations": {
         "ru": "кормилец",
@@ -140,6 +149,7 @@
     {
       "word": "caregiver",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɛrˌgɪvər/",
       "translation": "сиделка",
       "translations": {
         "ru": "сиделка",

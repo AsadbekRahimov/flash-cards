@@ -14,6 +14,7 @@
     {
       "word": "contemplate",
       "part_of_speech": "verb",
+      "transcription": "/ˈkɑntəmˌpleɪt/",
       "translation": "обдумывать",
       "translations": {
         "ru": "обдумывать",
@@ -28,6 +29,7 @@
     {
       "word": "ponder",
       "part_of_speech": "verb",
+      "transcription": "/ˈpɑndər/",
       "translation": "размышлять",
       "translations": {
         "ru": "размышлять",
@@ -42,6 +44,7 @@
     {
       "word": "discern",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈsɜrn/",
       "translation": "различать, распознавать",
       "translations": {
         "ru": "различать, распознавать",
@@ -56,6 +59,7 @@
     {
       "word": "deduce",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈdus/",
       "translation": "делать вывод",
       "translations": {
         "ru": "делать вывод",
@@ -70,6 +74,7 @@
     {
       "word": "envisage",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈvɪzɪdʒ/",
       "translation": "представлять себе",
       "translations": {
         "ru": "представлять себе",
@@ -84,6 +89,7 @@
     {
       "word": "conceive",
       "part_of_speech": "verb",
+      "transcription": "/kənˈsiv/",
       "translation": "задумать, замыслить",
       "translations": {
         "ru": "задумать, замыслить",
@@ -98,6 +104,7 @@
     {
       "word": "perceive",
       "part_of_speech": "verb",
+      "transcription": "/pərˈsiv/",
       "translation": "воспринимать",
       "translations": {
         "ru": "воспринимать",
@@ -112,6 +119,7 @@
     {
       "word": "comprehend",
       "part_of_speech": "verb",
+      "transcription": "/ˌkɑmprɪˈhɛnd/",
       "translation": "постигать, понимать",
       "translations": {
         "ru": "постигать, понимать",
@@ -126,6 +134,7 @@
     {
       "word": "recollect",
       "part_of_speech": "verb",
+      "transcription": "/ˌrɛkəˈlɛkt/",
       "translation": "припоминать",
       "translations": {
         "ru": "припоминать",
@@ -140,6 +149,7 @@
     {
       "word": "reckon",
       "part_of_speech": "verb",
+      "transcription": "/ˈrɛkən/",
       "translation": "полагать, считать",
       "translations": {
         "ru": "полагать, считать",

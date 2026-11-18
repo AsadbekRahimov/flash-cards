@@ -14,6 +14,7 @@
     {
       "word": "equitable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɛkwətəbəl/",
       "translation": "справедливый, беспристрастный",
       "translations": {
         "ru": "справедливый, беспристрастный",
@@ -28,6 +29,7 @@
     {
       "word": "precedent",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɛsədənt/",
       "translation": "прецедент",
       "translations": {
         "ru": "прецедент",
@@ -42,6 +44,7 @@
     {
       "word": "statute",
       "part_of_speech": "noun",
+      "transcription": "/ˈstætʃut/",
       "translation": "законодательный акт",
       "translations": {
         "ru": "законодательный акт",
@@ -56,6 +59,7 @@
     {
       "word": "legality",
       "part_of_speech": "noun",
+      "transcription": "/lɪˈgæləti/",
       "translation": "законность",
       "translations": {
         "ru": "законность",
@@ -70,6 +74,7 @@
     {
       "word": "unlawful",
       "part_of_speech": "adjective",
+      "transcription": "/ʌnˈlɔfəl/",
       "translation": "незаконный",
       "translations": {
         "ru": "незаконный",
@@ -84,6 +89,7 @@
     {
       "word": "wrongful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈrɔŋfəl/",
       "translation": "неправомерный, несправедливый",
       "translations": {
         "ru": "неправомерный, несправедливый",
@@ -98,6 +104,7 @@
     {
       "word": "redress",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈdrɛs/",
       "translation": "возмещение",
       "translations": {
         "ru": "возмещение",
@@ -112,6 +119,7 @@
     {
       "word": "uphold",
       "part_of_speech": "verb",
+      "transcription": "/ʌpˈhoʊld/",
       "translation": "оставлять в силе",
       "translations": {
         "ru": "оставлять в силе",
@@ -126,6 +134,7 @@
     {
       "word": "arbitrary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɑrbəˌtrɛri/",
       "translation": "произвольный",
       "translations": {
         "ru": "произвольный",
@@ -140,6 +149,7 @@
     {
       "word": "inalienable",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈeɪliənəbəl/",
       "translation": "неотъемлемый",
       "translations": {
         "ru": "неотъемлемый",

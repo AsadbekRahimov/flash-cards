@@ -14,6 +14,7 @@
     {
       "word": "chronicle",
       "part_of_speech": "noun",
+      "transcription": "/ˈkrɑnɪkəl/",
       "translation": "летопись, хроника",
       "translations": {
         "ru": "летопись, хроника",
@@ -28,6 +29,7 @@
     {
       "word": "chronology",
       "part_of_speech": "noun",
+      "transcription": "/krəˈnɑlədʒi/",
       "translation": "хронология",
       "translations": {
         "ru": "хронология",
@@ -42,6 +44,7 @@
     {
       "word": "antiquity",
       "part_of_speech": "noun",
+      "transcription": "/ænˈtɪkwəti/",
       "translation": "древность, античность",
       "translations": {
         "ru": "древность, античность",
@@ -56,6 +59,7 @@
     {
       "word": "excavate",
       "part_of_speech": "verb",
+      "transcription": "/ˈɛkskəˌveɪt/",
       "translation": "раскапывать",
       "translations": {
         "ru": "раскапывать",
@@ -70,6 +74,7 @@
     {
       "word": "relic",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛlɪk/",
       "translation": "реликвия",
       "translations": {
         "ru": "реликвия",
@@ -84,6 +89,7 @@
     {
       "word": "inscription",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈskrɪpʃən/",
       "translation": "надпись",
       "translations": {
         "ru": "надпись",
@@ -98,6 +104,7 @@
     {
       "word": "epoch",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛpək/",
       "translation": "эпоха",
       "translations": {
         "ru": "эпоха",
@@ -112,6 +119,7 @@
     {
       "word": "millennium",
       "part_of_speech": "noun",
+      "transcription": "/məˈlɛniəm/",
       "translation": "тысячелетие",
       "translations": {
         "ru": "тысячелетие",
@@ -126,6 +134,7 @@
     {
       "word": "prehistoric",
       "part_of_speech": "adjective",
+      "transcription": "/ˌprihɪˈstɔrɪk/",
       "translation": "доисторический",
       "translations": {
         "ru": "доисторический",
@@ -140,6 +149,7 @@
     {
       "word": "feudal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfjudəl/",
       "translation": "феодальный",
       "translations": {
         "ru": "феодальный",

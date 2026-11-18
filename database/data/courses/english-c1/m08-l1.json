@@ -14,6 +14,7 @@
     {
       "word": "ailment",
       "part_of_speech": "noun",
+      "transcription": "/ˈeɪlmənt/",
       "translation": "недомогание",
       "translations": {
         "ru": "недомогание",
@@ -28,6 +29,7 @@
     {
       "word": "inflammation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪnfləˈmeɪʃən/",
       "translation": "воспаление",
       "translations": {
         "ru": "воспаление",
@@ -42,6 +44,7 @@
     {
       "word": "tumor",
       "part_of_speech": "noun",
+      "transcription": "/ˈtumər/",
       "translation": "опухоль",
       "translations": {
         "ru": "опухоль",
@@ -56,6 +59,7 @@
     {
       "word": "seizure",
       "part_of_speech": "noun",
+      "transcription": "/ˈsiʒər/",
       "translation": "припадок, приступ",
       "translations": {
         "ru": "припадок, приступ",
@@ -70,6 +74,7 @@
     {
       "word": "nausea",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɔziə/",
       "translation": "тошнота",
       "translations": {
         "ru": "тошнота",
@@ -84,6 +89,7 @@
     {
       "word": "migraine",
       "part_of_speech": "noun",
+      "transcription": "/ˈmaɪˌgreɪn/",
       "translation": "мигрень",
       "translations": {
         "ru": "мигрень",
@@ -98,6 +104,7 @@
     {
       "word": "paralysis",
       "part_of_speech": "noun",
+      "transcription": "/pəˈræləsɪs/",
       "translation": "паралич",
       "translations": {
         "ru": "паралич",
@@ -112,6 +119,7 @@
     {
       "word": "hypertension",
       "part_of_speech": "noun",
+      "transcription": "/ˌhaɪpərˈtɛnʃən/",
       "translation": "гипертония",
       "translations": {
         "ru": "гипертония",
@@ -126,6 +134,7 @@
     {
       "word": "malignant",
       "part_of_speech": "adjective",
+      "transcription": "/məˈlɪgnənt/",
       "translation": "злокачественный",
       "translations": {
         "ru": "злокачественный",
@@ -140,6 +149,7 @@
     {
       "word": "acute",
       "part_of_speech": "adjective",
+      "transcription": "/əˈkjut/",
       "translation": "острый",
       "translations": {
         "ru": "острый",

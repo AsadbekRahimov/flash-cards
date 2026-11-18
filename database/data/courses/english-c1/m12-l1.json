@@ -14,6 +14,7 @@
     {
       "word": "felony",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɛləni/",
       "translation": "тяжкое преступление",
       "translations": {
         "ru": "тяжкое преступление",
@@ -28,6 +29,7 @@
     {
       "word": "homicide",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɑməˌsaɪd/",
       "translation": "убийство",
       "translations": {
         "ru": "убийство",
@@ -42,6 +44,7 @@
     {
       "word": "arson",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑrsən/",
       "translation": "поджог",
       "translations": {
         "ru": "поджог",
@@ -56,6 +59,7 @@
     {
       "word": "assault",
       "part_of_speech": "noun",
+      "transcription": "/əˈsɔlt/",
       "translation": "нападение",
       "translations": {
         "ru": "нападение",
@@ -70,6 +74,7 @@
     {
       "word": "extortion",
       "part_of_speech": "noun",
+      "transcription": "/ɪkˈstɔrʃən/",
       "translation": "вымогательство",
       "translations": {
         "ru": "вымогательство",
@@ -84,6 +89,7 @@
     {
       "word": "embezzlement",
       "part_of_speech": "noun",
+      "transcription": "/ɪmˈbɛzəlmənt/",
       "translation": "присвоение средств",
       "translations": {
         "ru": "присвоение средств",
@@ -98,6 +104,7 @@
     {
       "word": "perjury",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɜrdʒəri/",
       "translation": "лжесвидетельство",
       "translations": {
         "ru": "лжесвидетельство",
@@ -112,6 +119,7 @@
     {
       "word": "smuggle",
       "part_of_speech": "verb",
+      "transcription": "/ˈsmʌgəl/",
       "translation": "провозить контрабандой",
       "translations": {
         "ru": "провозить контрабандой",
@@ -126,6 +134,7 @@
     {
       "word": "conspiracy",
       "part_of_speech": "noun",
+      "transcription": "/kənˈspɪrəsi/",
       "translation": "сговор",
       "translations": {
         "ru": "сговор",
@@ -140,6 +149,7 @@
     {
       "word": "accomplice",
       "part_of_speech": "noun",
+      "transcription": "/əˈkɑmpləs/",
       "translation": "соучастник",
       "translations": {
         "ru": "соучастник",

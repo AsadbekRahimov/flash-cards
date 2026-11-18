@@ -14,6 +14,7 @@
     {
       "word": "authoritarian",
       "part_of_speech": "adjective",
+      "transcription": "/əˌθɔrəˈtɛriən/",
       "translation": "авторитарный",
       "translations": {
         "ru": "авторитарный",
@@ -28,6 +29,7 @@
     {
       "word": "totalitarian",
       "part_of_speech": "adjective",
+      "transcription": "/toʊˌtæləˈtɛriən/",
       "translation": "тоталитарный",
       "translations": {
         "ru": "тоталитарный",
@@ -42,6 +44,7 @@
     {
       "word": "dictatorship",
       "part_of_speech": "noun",
+      "transcription": "/dɪkˈteɪtərˌʃɪp/",
       "translation": "диктатура",
       "translations": {
         "ru": "диктатура",
@@ -56,6 +59,7 @@
     {
       "word": "oligarchy",
       "part_of_speech": "noun",
+      "transcription": "/ˈɑləˌgɑrki/",
       "translation": "олигархия",
       "translations": {
         "ru": "олигархия",
@@ -70,6 +74,7 @@
     {
       "word": "federal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɛdərəl/",
       "translation": "федеральный",
       "translations": {
         "ru": "федеральный",
@@ -84,6 +89,7 @@
     {
       "word": "sovereign",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɑvrən/",
       "translation": "суверенный",
       "translations": {
         "ru": "суверенный",
@@ -98,6 +104,7 @@
     {
       "word": "constitutional",
       "part_of_speech": "adjective",
+      "transcription": "/ˌkɑnstəˈtuʃənəl/",
       "translation": "конституционный",
       "translations": {
         "ru": "конституционный",
@@ -112,6 +119,7 @@
     {
       "word": "secular",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɛkjələr/",
       "translation": "светский",
       "translations": {
         "ru": "светский",
@@ -126,6 +134,7 @@
     {
       "word": "pluralism",
       "part_of_speech": "noun",
+      "transcription": "/ˈplʊrəˌlɪzəm/",
       "translation": "плюрализм",
       "translations": {
         "ru": "плюрализм",
@@ -140,6 +149,7 @@
     {
       "word": "legislature",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛdʒəˌsleɪtʃər/",
       "translation": "законодательный орган",
       "translations": {
         "ru": "законодательный орган",

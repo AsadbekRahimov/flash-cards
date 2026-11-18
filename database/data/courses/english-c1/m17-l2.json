@@ -14,6 +14,7 @@
     {
       "word": "premise",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɛmɪs/",
       "translation": "посылка, исходное положение",
       "translations": {
         "ru": "посылка, исходное положение",
@@ -28,6 +29,7 @@
     {
       "word": "fallacy",
       "part_of_speech": "noun",
+      "transcription": "/ˈfæləsi/",
       "translation": "логическая ошибка",
       "translations": {
         "ru": "логическая ошибка",
@@ -42,6 +44,7 @@
     {
       "word": "validity",
       "part_of_speech": "noun",
+      "transcription": "/vəˈlɪdəti/",
       "translation": "обоснованность",
       "translations": {
         "ru": "обоснованность",
@@ -56,6 +59,7 @@
     {
       "word": "paradox",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛrəˌdɑks/",
       "translation": "парадокс",
       "translations": {
         "ru": "парадокс",
@@ -70,6 +74,7 @@
     {
       "word": "analogy",
       "part_of_speech": "noun",
+      "transcription": "/əˈnælədʒi/",
       "translation": "аналогия",
       "translations": {
         "ru": "аналогия",
@@ -84,6 +89,7 @@
     {
       "word": "inconsistency",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪnkənˈsɪstənsi/",
       "translation": "противоречие, несоответствие",
       "translations": {
         "ru": "противоречие, несоответствие",
@@ -98,6 +104,7 @@
     {
       "word": "rationale",
       "part_of_speech": "noun",
+      "transcription": "/ˌræʃəˈnæl/",
       "translation": "обоснование",
       "translations": {
         "ru": "обоснование",
@@ -112,6 +119,7 @@
     {
       "word": "corollary",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɔrəˌlɛri/",
       "translation": "логическое следствие",
       "translations": {
         "ru": "логическое следствие",
@@ -126,6 +134,7 @@
     {
       "word": "axiom",
       "part_of_speech": "noun",
+      "transcription": "/ˈæksiəm/",
       "translation": "аксиома",
       "translations": {
         "ru": "аксиома",
@@ -140,6 +149,7 @@
     {
       "word": "flawed",
       "part_of_speech": "adjective",
+      "transcription": "/flɔd/",
       "translation": "ошибочный, с изъяном",
       "translations": {
         "ru": "ошибочный, с изъяном",

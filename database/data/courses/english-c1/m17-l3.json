@@ -14,6 +14,7 @@
     {
       "word": "arguably",
       "part_of_speech": "adverb",
+      "transcription": "/ˈɑrgjuəbli/",
       "translation": "пожалуй",
       "translations": {
         "ru": "пожалуй",
@@ -28,6 +29,7 @@
     {
       "word": "undoubtedly",
       "part_of_speech": "adverb",
+      "transcription": "/ʌnˈdaʊtɪdli/",
       "translation": "несомненно",
       "translations": {
         "ru": "несомненно",
@@ -42,6 +44,7 @@
     {
       "word": "presumably",
       "part_of_speech": "adverb",
+      "transcription": "/prɪˈzuməbli/",
       "translation": "надо полагать",
       "translations": {
         "ru": "надо полагать",
@@ -56,6 +59,7 @@
     {
       "word": "seemingly",
       "part_of_speech": "adverb",
+      "transcription": "/ˈsimɪŋli/",
       "translation": "на первый взгляд, казалось бы",
       "translations": {
         "ru": "на первый взгляд, казалось бы",
@@ -70,6 +74,7 @@
     {
       "word": "allegedly",
       "part_of_speech": "adverb",
+      "transcription": "/əˈlɛdʒɪdli/",
       "translation": "якобы, как утверждают",
       "translations": {
         "ru": "якобы, как утверждают",
@@ -84,6 +89,7 @@
     {
       "word": "evidently",
       "part_of_speech": "adverb",
+      "transcription": "/ˈɛvədəntli/",
       "translation": "очевидно, судя по всему",
       "translations": {
         "ru": "очевидно, судя по всему",
@@ -98,6 +104,7 @@
     {
       "word": "conceivably",
       "part_of_speech": "adverb",
+      "transcription": "/kənˈsivəbli/",
       "translation": "не исключено, возможно",
       "translations": {
         "ru": "не исключено, возможно",
@@ -112,6 +119,7 @@
     {
       "word": "admittedly",
       "part_of_speech": "adverb",
+      "transcription": "/ədˈmɪtɪdli/",
       "translation": "надо признать",
       "translations": {
         "ru": "надо признать",
@@ -126,6 +134,7 @@
     {
       "word": "supposedly",
       "part_of_speech": "adverb",
+      "transcription": "/səˈpoʊzɪdli/",
       "translation": "как считается, будто бы",
       "translations": {
         "ru": "как считается, будто бы",
@@ -140,6 +149,7 @@
     {
       "word": "reportedly",
       "part_of_speech": "adverb",
+      "transcription": "/rɪˈpɔrtɪdli/",
       "translation": "по сообщениям",
       "translations": {
         "ru": "по сообщениям",

@@ -14,6 +14,7 @@
     {
       "word": "correspondent",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɔrəˈspɑndənt/",
       "translation": "корреспондент",
       "translations": {
         "ru": "корреспондент",
@@ -28,6 +29,7 @@
     {
       "word": "newscast",
       "part_of_speech": "noun",
+      "transcription": "/ˈnuzˌkæst/",
       "translation": "выпуск новостей",
       "translations": {
         "ru": "выпуск новостей",
@@ -42,6 +44,7 @@
     {
       "word": "scoop",
       "part_of_speech": "noun",
+      "transcription": "/skup/",
       "translation": "сенсационная новость",
       "translations": {
         "ru": "сенсационная новость",
@@ -56,6 +59,7 @@
     {
       "word": "anchor",
       "part_of_speech": "noun",
+      "transcription": "/ˈæŋkər/",
       "translation": "ведущий новостей",
       "translations": {
         "ru": "ведущий новостей",
@@ -70,6 +74,7 @@
     {
       "word": "eyewitness",
       "part_of_speech": "noun",
+      "transcription": "/ˈaɪˌwɪtnəs/",
       "translation": "очевидец",
       "translations": {
         "ru": "очевидец",
@@ -84,6 +89,7 @@
     {
       "word": "reportage",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛpərˈtɑʒ/",
       "translation": "репортаж",
       "translations": {
         "ru": "репортаж",
@@ -98,6 +104,7 @@
     {
       "word": "investigative",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈvɛstəˌgeɪtɪv/",
       "translation": "расследовательский",
       "translations": {
         "ru": "расследовательский",
@@ -112,6 +119,7 @@
     {
       "word": "obituary",
       "part_of_speech": "noun",
+      "transcription": "/oʊˈbɪtʃuˌɛri/",
       "translation": "некролог",
       "translations": {
         "ru": "некролог",
@@ -126,6 +134,7 @@
     {
       "word": "airtime",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛrˌtaɪm/",
       "translation": "эфирное время",
       "translations": {
         "ru": "эфирное время",
@@ -140,6 +149,7 @@
     {
       "word": "readership",
       "part_of_speech": "noun",
+      "transcription": "/ˈridərˌʃɪp/",
       "translation": "читательская аудитория",
       "translations": {
         "ru": "читательская аудитория",

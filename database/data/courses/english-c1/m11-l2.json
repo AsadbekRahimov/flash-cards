@@ -14,6 +14,7 @@
     {
       "word": "constituency",
       "part_of_speech": "noun",
+      "transcription": "/kənˈstɪtʃuənsi/",
       "translation": "избирательный округ",
       "translations": {
         "ru": "избирательный округ",
@@ -28,6 +29,7 @@
     {
       "word": "candidacy",
       "part_of_speech": "noun",
+      "transcription": "/ˈkændədəsi/",
       "translation": "кандидатура",
       "translations": {
         "ru": "кандидатура",
@@ -42,6 +44,7 @@
     {
       "word": "manifesto",
       "part_of_speech": "noun",
+      "transcription": "/ˌmænəˈfɛstoʊ/",
       "translation": "предвыборная программа",
       "translations": {
         "ru": "предвыборная программа",
@@ -56,6 +59,7 @@
     {
       "word": "populism",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑpjəˌlɪzəm/",
       "translation": "популизм",
       "translations": {
         "ru": "популизм",
@@ -70,6 +74,7 @@
     {
       "word": "partisan",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɑrtəzən/",
       "translation": "узкопартийный, пристрастный",
       "translations": {
         "ru": "узкопартийный, пристрастный",
@@ -84,6 +89,7 @@
     {
       "word": "lobbyist",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɑbiɪst/",
       "translation": "лоббист",
       "translations": {
         "ru": "лоббист",
@@ -98,6 +104,7 @@
     {
       "word": "electoral",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈlɛktərəl/",
       "translation": "избирательный",
       "translations": {
         "ru": "избирательный",
@@ -112,6 +119,7 @@
     {
       "word": "suffrage",
       "part_of_speech": "noun",
+      "transcription": "/ˈsʌfrɪdʒ/",
       "translation": "избирательное право",
       "translations": {
         "ru": "избирательное право",
@@ -126,6 +134,7 @@
     {
       "word": "inauguration",
       "part_of_speech": "noun",
+      "transcription": "/ɪˌnɔgjəˈreɪʃən/",
       "translation": "инаугурация",
       "translations": {
         "ru": "инаугурация",
@@ -140,6 +149,7 @@
     {
       "word": "abstention",
       "part_of_speech": "noun",
+      "transcription": "/əbˈstɛnʃən/",
       "translation": "воздержание от голосования",
       "translations": {
         "ru": "воздержание от голосования",

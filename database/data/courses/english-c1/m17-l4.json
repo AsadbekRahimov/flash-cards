@@ -14,6 +14,7 @@
     {
       "word": "rhetoric",
       "part_of_speech": "noun",
+      "transcription": "/ˈrɛtərɪk/",
       "translation": "риторика",
       "translations": {
         "ru": "риторика",
@@ -28,6 +29,7 @@
     {
       "word": "eloquent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɛləkwənt/",
       "translation": "красноречивый",
       "translations": {
         "ru": "красноречивый",
@@ -42,6 +44,7 @@
     {
       "word": "sway",
       "part_of_speech": "verb",
+      "transcription": "/sweɪ/",
       "translation": "склонять на свою сторону",
       "translations": {
         "ru": "склонять на свою сторону",
@@ -56,6 +59,7 @@
     {
       "word": "cogent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkoʊdʒənt/",
       "translation": "убедительный, веский",
       "translations": {
         "ru": "убедительный, веский",
@@ -70,6 +74,7 @@
     {
       "word": "emotive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪˈmoʊtɪv/",
       "translation": "вызывающий эмоции",
       "translations": {
         "ru": "вызывающий эмоции",
@@ -84,6 +89,7 @@
     {
       "word": "oratory",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔrəˌtɔri/",
       "translation": "ораторское искусство",
       "translations": {
         "ru": "ораторское искусство",
@@ -98,6 +104,7 @@
     {
       "word": "forceful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɔrsfəl/",
       "translation": "напористый",
       "translations": {
         "ru": "напористый",
@@ -112,6 +119,7 @@
     {
       "word": "hyperbole",
       "part_of_speech": "noun",
+      "transcription": "/haɪˈpɜrbəli/",
       "translation": "гипербола, преувеличение",
       "translations": {
         "ru": "гипербола, преувеличение",
@@ -126,6 +134,7 @@
     {
       "word": "understatement",
       "part_of_speech": "noun",
+      "transcription": "/ˈʌndərˌsteɪtmənt/",
       "translation": "преуменьшение",
       "translations": {
         "ru": "преуменьшение",
@@ -140,6 +149,7 @@
     {
       "word": "emphatic",
       "part_of_speech": "adjective",
+      "transcription": "/ɪmˈfætɪk/",
       "translation": "категоричный",
       "translations": {
         "ru": "категоричный",

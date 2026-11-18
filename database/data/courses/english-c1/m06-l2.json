@@ -14,6 +14,7 @@
     {
       "word": "dataset",
       "part_of_speech": "noun",
+      "transcription": "/ˈdeɪtəˌsɛt/",
       "translation": "набор данных",
       "translations": {
         "ru": "набор данных",
@@ -28,6 +29,7 @@
     {
       "word": "median",
       "part_of_speech": "noun",
+      "transcription": "/ˈmidiən/",
       "translation": "медиана",
       "translations": {
         "ru": "медиана",
@@ -42,6 +44,7 @@
     {
       "word": "deviation",
       "part_of_speech": "noun",
+      "transcription": "/ˌdiviˈeɪʃən/",
       "translation": "отклонение",
       "translations": {
         "ru": "отклонение",
@@ -56,6 +59,7 @@
     {
       "word": "variance",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɛriəns/",
       "translation": "дисперсия",
       "translations": {
         "ru": "дисперсия",
@@ -70,6 +74,7 @@
     {
       "word": "anomaly",
       "part_of_speech": "noun",
+      "transcription": "/əˈnɑməli/",
       "translation": "аномалия",
       "translations": {
         "ru": "аномалия",
@@ -84,6 +89,7 @@
     {
       "word": "outlier",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌlaɪər/",
       "translation": "выброс в данных",
       "translations": {
         "ru": "выброс в данных",
@@ -98,6 +104,7 @@
     {
       "word": "extrapolate",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈstræpəˌleɪt/",
       "translation": "экстраполировать",
       "translations": {
         "ru": "экстраполировать",
@@ -112,6 +119,7 @@
     {
       "word": "aggregate",
       "part_of_speech": "verb",
+      "transcription": "/ˈægrəˌgeɪt/",
       "translation": "объединять данные",
       "translations": {
         "ru": "объединять данные",
@@ -126,6 +134,7 @@
     {
       "word": "discrepancy",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈskrɛpənsi/",
       "translation": "расхождение",
       "translations": {
         "ru": "расхождение",
@@ -140,6 +149,7 @@
     {
       "word": "parameter",
       "part_of_speech": "noun",
+      "transcription": "/pəˈræmətər/",
       "translation": "параметр",
       "translations": {
         "ru": "параметр",

@@ -14,6 +14,7 @@
     {
       "word": "rebuke",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈbjuk/",
       "translation": "отчитывать, делать выговор",
       "translations": {
         "ru": "отчитывать, делать выговор",
@@ -28,6 +29,7 @@
     {
       "word": "friction",
       "part_of_speech": "noun",
+      "transcription": "/ˈfrɪkʃən/",
       "translation": "трения, разногласия",
       "translations": {
         "ru": "трения, разногласия",
@@ -42,6 +44,7 @@
     {
       "word": "hostility",
       "part_of_speech": "noun",
+      "transcription": "/hɑˈstɪləti/",
       "translation": "враждебность",
       "translations": {
         "ru": "враждебность",
@@ -56,6 +59,7 @@
     {
       "word": "taunt",
       "part_of_speech": "verb",
+      "transcription": "/tɔnt/",
       "translation": "насмехаться, дразнить",
       "translations": {
         "ru": "насмехаться, дразнить",
@@ -70,6 +74,7 @@
     {
       "word": "reproach",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈproʊtʃ/",
       "translation": "упрёк",
       "translations": {
         "ru": "упрёк",
@@ -84,6 +89,7 @@
     {
       "word": "forgiveness",
       "part_of_speech": "noun",
+      "transcription": "/fərˈgɪvnəs/",
       "translation": "прощение",
       "translations": {
         "ru": "прощение",
@@ -98,6 +104,7 @@
     {
       "word": "truce",
       "part_of_speech": "noun",
+      "transcription": "/trus/",
       "translation": "перемирие",
       "translations": {
         "ru": "перемирие",
@@ -112,6 +119,7 @@
     {
       "word": "confrontation",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑnfrənˈteɪʃən/",
       "translation": "конфронтация, столкновение",
       "translations": {
         "ru": "конфронтация, столкновение",
@@ -126,6 +134,7 @@
     {
       "word": "antagonize",
       "part_of_speech": "verb",
+      "transcription": "/ænˈtægəˌnaɪz/",
       "translation": "настраивать против себя",
       "translations": {
         "ru": "настраивать против себя",
@@ -140,6 +149,7 @@
     {
       "word": "retaliate",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈtæliˌeɪt/",
       "translation": "отвечать тем же, мстить",
       "translations": {
         "ru": "отвечать тем же, мстить",

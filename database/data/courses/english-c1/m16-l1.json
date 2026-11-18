@@ -14,6 +14,7 @@
     {
       "word": "extracurricular",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɛkstrəkəˈrɪkjələr/",
       "translation": "внеучебный",
       "translations": {
         "ru": "внеучебный",
@@ -28,6 +29,7 @@
     {
       "word": "enrollment",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈroʊlmənt/",
       "translation": "зачисление",
       "translations": {
         "ru": "зачисление",
@@ -42,6 +44,7 @@
     {
       "word": "alumnus",
       "part_of_speech": "noun",
+      "transcription": "/əˈlʌmnəs/",
       "translation": "выпускник",
       "translations": {
         "ru": "выпускник",
@@ -56,6 +59,7 @@
     {
       "word": "accreditation",
       "part_of_speech": "noun",
+      "transcription": "/əˌkrɛdəˈteɪʃən/",
       "translation": "аккредитация",
       "translations": {
         "ru": "аккредитация",
@@ -70,6 +74,7 @@
     {
       "word": "symposium",
       "part_of_speech": "noun",
+      "transcription": "/sɪmˈpoʊziəm/",
       "translation": "симпозиум",
       "translations": {
         "ru": "симпозиум",
@@ -84,6 +89,7 @@
     {
       "word": "sabbatical",
       "part_of_speech": "noun",
+      "transcription": "/səˈbætɪkəl/",
       "translation": "творческий отпуск",
       "translations": {
         "ru": "творческий отпуск",
@@ -98,6 +104,7 @@
     {
       "word": "fellowship",
       "part_of_speech": "noun",
+      "transcription": "/ˈfɛloʊˌʃɪp/",
       "translation": "научная стипендия",
       "translations": {
         "ru": "научная стипендия",
@@ -112,6 +119,7 @@
     {
       "word": "interdisciplinary",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪntərˈdɪsəpləˌnɛri/",
       "translation": "междисциплинарный",
       "translations": {
         "ru": "междисциплинарный",
@@ -126,6 +134,7 @@
     {
       "word": "vocational",
       "part_of_speech": "adjective",
+      "transcription": "/voʊˈkeɪʃənəl/",
       "translation": "профессионально-технический",
       "translations": {
         "ru": "профессионально-технический",
@@ -140,6 +149,7 @@
     {
       "word": "prerequisite",
       "part_of_speech": "noun",
+      "transcription": "/priˈrɛkwəzɪt/",
       "translation": "предварительное требование",
       "translations": {
         "ru": "предварительное требование",

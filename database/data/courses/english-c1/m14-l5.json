@@ -14,6 +14,7 @@
     {
       "word": "censor",
       "part_of_speech": "verb",
+      "transcription": "/ˈsɛnsər/",
       "translation": "подвергать цензуре",
       "translations": {
         "ru": "подвергать цензуре",
@@ -28,6 +29,7 @@
     {
       "word": "outlaw",
       "part_of_speech": "verb",
+      "transcription": "/ˈaʊtˌlɔ/",
       "translation": "объявлять вне закона",
       "translations": {
         "ru": "объявлять вне закона",
@@ -42,6 +44,7 @@
     {
       "word": "disclosure",
       "part_of_speech": "noun",
+      "transcription": "/dɪsˈkloʊʒər/",
       "translation": "раскрытие сведений",
       "translations": {
         "ru": "раскрытие сведений",
@@ -56,6 +59,7 @@
     {
       "word": "secrecy",
       "part_of_speech": "noun",
+      "transcription": "/ˈsikrəsi/",
       "translation": "секретность",
       "translations": {
         "ru": "секретность",
@@ -70,6 +74,7 @@
     {
       "word": "confidentiality",
       "part_of_speech": "noun",
+      "transcription": "/ˌkɑnfəˌdɛnʃiˈæləti/",
       "translation": "конфиденциальность",
       "translations": {
         "ru": "конфиденциальность",
@@ -84,6 +89,7 @@
     {
       "word": "classified",
       "part_of_speech": "adjective",
+      "transcription": "/ˈklæsəˌfaɪd/",
       "translation": "секретный",
       "translations": {
         "ru": "секретный",
@@ -98,6 +104,7 @@
     {
       "word": "redact",
       "part_of_speech": "verb",
+      "transcription": "/rɪˈdækt/",
       "translation": "вымарывать",
       "translations": {
         "ru": "вымарывать",
@@ -112,6 +119,7 @@
     {
       "word": "publicize",
       "part_of_speech": "verb",
+      "transcription": "/ˈpʌbləˌsaɪz/",
       "translation": "предавать огласке",
       "translations": {
         "ru": "предавать огласке",
@@ -126,6 +134,7 @@
     {
       "word": "watchdog",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɑtʃˌdɔg/",
       "translation": "надзорная организация",
       "translations": {
         "ru": "надзорная организация",
@@ -140,6 +149,7 @@
     {
       "word": "blacklist",
       "part_of_speech": "noun",
+      "transcription": "/ˈblækˌlɪst/",
       "translation": "чёрный список",
       "translations": {
         "ru": "чёрный список",

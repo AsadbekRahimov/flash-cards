@@ -14,6 +14,7 @@
     {
       "word": "logistics",
       "part_of_speech": "noun",
+      "transcription": "/ləˈdʒɪstɪks/",
       "translation": "логистика",
       "translations": {
         "ru": "логистика",
@@ -28,6 +29,7 @@
     {
       "word": "bottleneck",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɑtəlˌnɛk/",
       "translation": "узкое место",
       "translations": {
         "ru": "узкое место",
@@ -42,6 +44,7 @@
     {
       "word": "dispatch",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈspætʃ/",
       "translation": "отправлять",
       "translations": {
         "ru": "отправлять",
@@ -56,6 +59,7 @@
     {
       "word": "consignment",
       "part_of_speech": "noun",
+      "transcription": "/kənˈsaɪnmənt/",
       "translation": "партия груза",
       "translations": {
         "ru": "партия груза",
@@ -70,6 +74,7 @@
     {
       "word": "stockpile",
       "part_of_speech": "noun",
+      "transcription": "/ˈstɑkˌpaɪl/",
       "translation": "крупный запас",
       "translations": {
         "ru": "крупный запас",
@@ -84,6 +89,7 @@
     {
       "word": "downtime",
       "part_of_speech": "noun",
+      "transcription": "/ˈdaʊnˌtaɪm/",
       "translation": "простой",
       "translations": {
         "ru": "простой",
@@ -98,6 +104,7 @@
     {
       "word": "machinery",
       "part_of_speech": "noun",
+      "transcription": "/məˈʃinəri/",
       "translation": "машинное оборудование",
       "translations": {
         "ru": "машинное оборудование",
@@ -112,6 +119,7 @@
     {
       "word": "batch",
       "part_of_speech": "noun",
+      "transcription": "/bætʃ/",
       "translation": "партия товара",
       "translations": {
         "ru": "партия товара",
@@ -126,6 +134,7 @@
     {
       "word": "output",
       "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌpʊt/",
       "translation": "объём выпуска",
       "translations": {
         "ru": "объём выпуска",
@@ -140,6 +149,7 @@
     {
       "word": "defective",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈfɛktɪv/",
       "translation": "бракованный",
       "translations": {
         "ru": "бракованный",

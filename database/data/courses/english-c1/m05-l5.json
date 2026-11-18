@@ -14,6 +14,7 @@
     {
       "word": "affluent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈæfluənt/",
       "translation": "состоятельный",
       "translations": {
         "ru": "состоятельный",
@@ -28,6 +29,7 @@
     {
       "word": "prosperous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈprɑspərəs/",
       "translation": "процветающий",
       "translations": {
         "ru": "процветающий",
@@ -42,6 +44,7 @@
     {
       "word": "impoverished",
       "part_of_speech": "adjective",
+      "transcription": "/ɪmˈpɑvərɪʃt/",
       "translation": "обнищавший",
       "translations": {
         "ru": "обнищавший",
@@ -56,6 +59,7 @@
     {
       "word": "livelihood",
       "part_of_speech": "noun",
+      "transcription": "/ˈlaɪvliˌhʊd/",
       "translation": "средства к существованию",
       "translations": {
         "ru": "средства к существованию",
@@ -70,6 +74,7 @@
     {
       "word": "subsistence",
       "part_of_speech": "noun",
+      "transcription": "/səbˈsɪstəns/",
       "translation": "пропитание, выживание",
       "translations": {
         "ru": "пропитание, выживание",
@@ -84,6 +89,7 @@
     {
       "word": "disparity",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈspɛrəti/",
       "translation": "разрыв, неравенство",
       "translations": {
         "ru": "разрыв, неравенство",
@@ -98,6 +104,7 @@
     {
       "word": "embargo",
       "part_of_speech": "noun",
+      "transcription": "/ɪmˈbɑrgoʊ/",
       "translation": "эмбарго",
       "translations": {
         "ru": "эмбарго",
@@ -112,6 +119,7 @@
     {
       "word": "sanction",
       "part_of_speech": "noun",
+      "transcription": "/ˈsæŋkʃən/",
       "translation": "санкция",
       "translations": {
         "ru": "санкция",
@@ -126,6 +134,7 @@
     {
       "word": "remittance",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈmɪtəns/",
       "translation": "денежный перевод",
       "translations": {
         "ru": "денежный перевод",
@@ -140,6 +149,7 @@
     {
       "word": "affordability",
       "part_of_speech": "noun",
+      "transcription": "/əˌfɔrdəˈbɪləti/",
       "translation": "ценовая доступность",
       "translations": {
         "ru": "ценовая доступность",

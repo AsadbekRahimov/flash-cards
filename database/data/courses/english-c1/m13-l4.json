@@ -14,6 +14,7 @@
     {
       "word": "homelessness",
       "part_of_speech": "noun",
+      "transcription": "/ˈhoʊmləsnəs/",
       "translation": "бездомность",
       "translations": {
         "ru": "бездомность",
@@ -28,6 +29,7 @@
     {
       "word": "delinquency",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈlɪŋkwənsi/",
       "translation": "подростковая преступность",
       "translations": {
         "ru": "подростковая преступность",
@@ -42,6 +44,7 @@
     {
       "word": "exploitation",
       "part_of_speech": "noun",
+      "transcription": "/ˌɛksplɔɪˈteɪʃən/",
       "translation": "эксплуатация",
       "translations": {
         "ru": "эксплуатация",
@@ -56,6 +59,7 @@
     {
       "word": "trafficking",
       "part_of_speech": "noun",
+      "transcription": "/ˈtræfɪkɪŋ/",
       "translation": "торговля людьми",
       "translations": {
         "ru": "торговля людьми",
@@ -70,6 +74,7 @@
     {
       "word": "abuse",
       "part_of_speech": "noun",
+      "transcription": "/əˈbjus/",
       "translation": "жестокое обращение",
       "translations": {
         "ru": "жестокое обращение",
@@ -84,6 +89,7 @@
     {
       "word": "neglect",
       "part_of_speech": "noun",
+      "transcription": "/nɪˈglɛkt/",
       "translation": "заброшенность, отсутствие заботы",
       "translations": {
         "ru": "заброшенность, отсутствие заботы",
@@ -98,6 +104,7 @@
     {
       "word": "unrest",
       "part_of_speech": "noun",
+      "transcription": "/ʌnˈrɛst/",
       "translation": "волнения",
       "translations": {
         "ru": "волнения",
@@ -112,6 +119,7 @@
     {
       "word": "illiteracy",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈlɪtərəsi/",
       "translation": "неграмотность",
       "translations": {
         "ru": "неграмотность",
@@ -126,6 +134,7 @@
     {
       "word": "stigma",
       "part_of_speech": "noun",
+      "transcription": "/ˈstɪgmə/",
       "translation": "клеймо позора",
       "translations": {
         "ru": "клеймо позора",
@@ -140,6 +149,7 @@
     {
       "word": "exclusion",
       "part_of_speech": "noun",
+      "transcription": "/ɪkˈskluʒən/",
       "translation": "социальная изоляция",
       "translations": {
         "ru": "социальная изоляция",

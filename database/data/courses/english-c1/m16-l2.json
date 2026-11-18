@@ -14,6 +14,7 @@
     {
       "word": "bibliography",
       "part_of_speech": "noun",
+      "transcription": "/ˌbɪbliˈɑgrəfi/",
       "translation": "библиография",
       "translations": {
         "ru": "библиография",
@@ -28,6 +29,7 @@
     {
       "word": "appendix",
       "part_of_speech": "noun",
+      "transcription": "/əˈpɛndɪks/",
       "translation": "приложение",
       "translations": {
         "ru": "приложение",
@@ -42,6 +44,7 @@
     {
       "word": "footnote",
       "part_of_speech": "noun",
+      "transcription": "/ˈfʊtˌnoʊt/",
       "translation": "сноска",
       "translations": {
         "ru": "сноска",
@@ -56,6 +59,7 @@
     {
       "word": "annotate",
       "part_of_speech": "verb",
+      "transcription": "/ˈænəˌteɪt/",
       "translation": "снабжать примечаниями",
       "translations": {
         "ru": "снабжать примечаниями",
@@ -70,6 +74,7 @@
     {
       "word": "monograph",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɑnəˌgræf/",
       "translation": "монография",
       "translations": {
         "ru": "монография",
@@ -84,6 +89,7 @@
     {
       "word": "publication",
       "part_of_speech": "noun",
+      "transcription": "/ˌpʌbləˈkeɪʃən/",
       "translation": "публикация",
       "translations": {
         "ru": "публикация",
@@ -98,6 +104,7 @@
     {
       "word": "preface",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɛfəs/",
       "translation": "предисловие",
       "translations": {
         "ru": "предисловие",
@@ -112,6 +119,7 @@
     {
       "word": "glossary",
       "part_of_speech": "noun",
+      "transcription": "/ˈglɑsəri/",
       "translation": "глоссарий",
       "translations": {
         "ru": "глоссарий",
@@ -126,6 +134,7 @@
     {
       "word": "synopsis",
       "part_of_speech": "noun",
+      "transcription": "/səˈnɑpsɪs/",
       "translation": "краткое изложение",
       "translations": {
         "ru": "краткое изложение",
@@ -140,6 +149,7 @@
     {
       "word": "treatise",
       "part_of_speech": "noun",
+      "transcription": "/ˈtritɪs/",
       "translation": "трактат",
       "translations": {
         "ru": "трактат",

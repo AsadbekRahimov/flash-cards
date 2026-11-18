@@ -14,6 +14,7 @@
     {
       "word": "levy",
       "part_of_speech": "noun",
+      "transcription": "/ˈlɛvi/",
       "translation": "сбор",
       "translations": {
         "ru": "сбор",
@@ -28,6 +29,7 @@
     {
       "word": "excise",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛkˌsaɪz/",
       "translation": "акциз",
       "translations": {
         "ru": "акциз",
@@ -42,6 +44,7 @@
     {
       "word": "exemption",
       "part_of_speech": "noun",
+      "transcription": "/ɪgˈzɛmpʃən/",
       "translation": "освобождение от налога",
       "translations": {
         "ru": "освобождение от налога",
@@ -56,6 +59,7 @@
     {
       "word": "rebate",
       "part_of_speech": "noun",
+      "transcription": "/ˈriˌbeɪt/",
       "translation": "возврат части суммы",
       "translations": {
         "ru": "возврат части суммы",
@@ -70,6 +74,7 @@
     {
       "word": "evasion",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈveɪʒən/",
       "translation": "уклонение от налогов",
       "translations": {
         "ru": "уклонение от налогов",
@@ -84,6 +89,7 @@
     {
       "word": "deductible",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈdʌktəbəl/",
       "translation": "подлежащий вычету",
       "translations": {
         "ru": "подлежащий вычету",
@@ -98,6 +104,7 @@
     {
       "word": "surcharge",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɜrˌtʃɑrdʒ/",
       "translation": "доплата, надбавка",
       "translations": {
         "ru": "доплата, надбавка",
@@ -112,6 +119,7 @@
     {
       "word": "treasury",
       "part_of_speech": "noun",
+      "transcription": "/ˈtrɛʒəri/",
       "translation": "казначейство",
       "translations": {
         "ru": "казначейство",
@@ -126,6 +134,7 @@
     {
       "word": "subsidize",
       "part_of_speech": "verb",
+      "transcription": "/ˈsʌbsəˌdaɪz/",
       "translation": "субсидировать",
       "translations": {
         "ru": "субсидировать",
@@ -140,6 +149,7 @@
     {
       "word": "budgetary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈbʌdʒəˌtɛri/",
       "translation": "бюджетный",
       "translations": {
         "ru": "бюджетный",

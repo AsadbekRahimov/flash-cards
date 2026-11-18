@@ -14,6 +14,7 @@
     {
       "word": "virtue",
       "part_of_speech": "noun",
+      "transcription": "/ˈvɜrtʃu/",
       "translation": "добродетель",
       "translations": {
         "ru": "добродетель",
@@ -28,6 +29,7 @@
     {
       "word": "vice",
       "part_of_speech": "noun",
+      "transcription": "/vaɪs/",
       "translation": "порок",
       "translations": {
         "ru": "порок",
@@ -42,6 +44,7 @@
     {
       "word": "humility",
       "part_of_speech": "noun",
+      "transcription": "/hjuˈmɪləti/",
       "translation": "скромность, смирение",
       "translations": {
         "ru": "скромность, смирение",
@@ -56,6 +59,7 @@
     {
       "word": "righteous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈraɪtʃəs/",
       "translation": "праведный",
       "translations": {
         "ru": "праведный",
@@ -70,6 +74,7 @@
     {
       "word": "honorable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈɑnərəbəl/",
       "translation": "благородный, достойный",
       "translations": {
         "ru": "благородный, достойный",
@@ -84,6 +89,7 @@
     {
       "word": "mercy",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɜrsi/",
       "translation": "милосердие, пощада",
       "translations": {
         "ru": "милосердие, пощада",
@@ -98,6 +104,7 @@
     {
       "word": "vanity",
       "part_of_speech": "noun",
+      "transcription": "/ˈvænəti/",
       "translation": "тщеславие",
       "translations": {
         "ru": "тщеславие",
@@ -112,6 +119,7 @@
     {
       "word": "altruism",
       "part_of_speech": "noun",
+      "transcription": "/ˈæltruˌɪzəm/",
       "translation": "альтруизм, бескорыстие",
       "translations": {
         "ru": "альтруизм, бескорыстие",
@@ -126,6 +134,7 @@
     {
       "word": "temptation",
       "part_of_speech": "noun",
+      "transcription": "/tɛmpˈteɪʃən/",
       "translation": "искушение, соблазн",
       "translations": {
         "ru": "искушение, соблазн",
@@ -140,6 +149,7 @@
     {
       "word": "decency",
       "part_of_speech": "noun",
+      "transcription": "/ˈdisənsi/",
       "translation": "порядочность",
       "translations": {
         "ru": "порядочность",

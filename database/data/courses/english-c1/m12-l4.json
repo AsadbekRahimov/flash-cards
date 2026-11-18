@@ -14,6 +14,7 @@
     {
       "word": "contractual",
       "part_of_speech": "adjective",
+      "transcription": "/kənˈtræktʃuəl/",
       "translation": "договорный",
       "translations": {
         "ru": "договорный",
@@ -28,6 +29,7 @@
     {
       "word": "negligence",
       "part_of_speech": "noun",
+      "transcription": "/ˈnɛglədʒəns/",
       "translation": "халатность",
       "translations": {
         "ru": "халатность",
@@ -42,6 +44,7 @@
     {
       "word": "injunction",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈdʒʌŋkʃən/",
       "translation": "судебный запрет",
       "translations": {
         "ru": "судебный запрет",
@@ -56,6 +59,7 @@
     {
       "word": "void",
       "part_of_speech": "adjective",
+      "transcription": "/vɔɪd/",
       "translation": "недействительный",
       "translations": {
         "ru": "недействительный",
@@ -70,6 +74,7 @@
     {
       "word": "waiver",
       "part_of_speech": "noun",
+      "transcription": "/ˈweɪvər/",
       "translation": "отказ от права",
       "translations": {
         "ru": "отказ от права",
@@ -84,6 +89,7 @@
     {
       "word": "infringe",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈfrɪndʒ/",
       "translation": "нарушать права",
       "translations": {
         "ru": "нарушать права",
@@ -98,6 +104,7 @@
     {
       "word": "copyright",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑpiˌraɪt/",
       "translation": "авторское право",
       "translations": {
         "ru": "авторское право",
@@ -112,6 +119,7 @@
     {
       "word": "defamation",
       "part_of_speech": "noun",
+      "transcription": "/ˌdɛfəˈmeɪʃən/",
       "translation": "клевета",
       "translations": {
         "ru": "клевета",
@@ -126,6 +134,7 @@
     {
       "word": "inheritance",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈhɛrətəns/",
       "translation": "наследство",
       "translations": {
         "ru": "наследство",
@@ -140,6 +149,7 @@
     {
       "word": "jurisdiction",
       "part_of_speech": "noun",
+      "transcription": "/ˌdʒʊrəsˈdɪkʃən/",
       "translation": "юрисдикция",
       "translations": {
         "ru": "юрисдикция",

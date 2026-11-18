@@ -14,6 +14,7 @@
     {
       "word": "acquisition",
       "part_of_speech": "noun",
+      "transcription": "/ˌækwəˈzɪʃən/",
       "translation": "приобретение компании",
       "translations": {
         "ru": "приобретение компании",
@@ -28,6 +29,7 @@
     {
       "word": "subsidiary",
       "part_of_speech": "noun",
+      "transcription": "/səbˈsɪdiˌɛri/",
       "translation": "дочерняя компания",
       "translations": {
         "ru": "дочерняя компания",
@@ -42,6 +44,7 @@
     {
       "word": "conglomerate",
       "part_of_speech": "noun",
+      "transcription": "/kənˈglɑmərət/",
       "translation": "конгломерат",
       "translations": {
         "ru": "конгломерат",
@@ -56,6 +59,7 @@
     {
       "word": "diversify",
       "part_of_speech": "verb",
+      "transcription": "/daɪˈvɜrsəˌfaɪ/",
       "translation": "диверсифицировать",
       "translations": {
         "ru": "диверсифицировать",
@@ -70,6 +74,7 @@
     {
       "word": "consolidate",
       "part_of_speech": "verb",
+      "transcription": "/kənˈsɑləˌdeɪt/",
       "translation": "объединять",
       "translations": {
         "ru": "объединять",
@@ -84,6 +89,7 @@
     {
       "word": "restructure",
       "part_of_speech": "verb",
+      "transcription": "/ˌriˈstrʌktʃər/",
       "translation": "реорганизовывать",
       "translations": {
         "ru": "реорганизовывать",
@@ -98,6 +104,7 @@
     {
       "word": "downsize",
       "part_of_speech": "verb",
+      "transcription": "/ˈdaʊnˌsaɪz/",
       "translation": "сокращать штат",
       "translations": {
         "ru": "сокращать штат",
@@ -112,6 +119,7 @@
     {
       "word": "synergy",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪnərdʒi/",
       "translation": "синергия",
       "translations": {
         "ru": "синергия",
@@ -126,6 +134,7 @@
     {
       "word": "benchmark",
       "part_of_speech": "noun",
+      "transcription": "/ˈbɛntʃˌmɑrk/",
       "translation": "эталон, ориентир",
       "translations": {
         "ru": "эталон, ориентир",
@@ -140,6 +149,7 @@
     {
       "word": "affiliate",
       "part_of_speech": "noun",
+      "transcription": "/əˈfɪliət/",
       "translation": "аффилированная компания",
       "translations": {
         "ru": "аффилированная компания",

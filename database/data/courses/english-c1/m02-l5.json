@@ -14,6 +14,7 @@
     {
       "word": "console",
       "part_of_speech": "verb",
+      "transcription": "/kənˈsoʊl/",
       "translation": "утешать",
       "translations": {
         "ru": "утешать",
@@ -28,6 +29,7 @@
     {
       "word": "solace",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɑləs/",
       "translation": "утешение",
       "translations": {
         "ru": "утешение",
@@ -42,6 +44,7 @@
     {
       "word": "reassure",
       "part_of_speech": "verb",
+      "transcription": "/ˌriəˈʃʊr/",
       "translation": "успокаивать, заверять",
       "translations": {
         "ru": "успокаивать, заверять",
@@ -56,6 +59,7 @@
     {
       "word": "sympathize",
       "part_of_speech": "verb",
+      "transcription": "/ˈsɪmpəˌθaɪz/",
       "translation": "сочувствовать",
       "translations": {
         "ru": "сочувствовать",
@@ -70,6 +74,7 @@
     {
       "word": "condolence",
       "part_of_speech": "noun",
+      "transcription": "/kənˈdoʊləns/",
       "translation": "соболезнование",
       "translations": {
         "ru": "соболезнование",
@@ -84,6 +89,7 @@
     {
       "word": "empathize",
       "part_of_speech": "verb",
+      "transcription": "/ˈɛmpəˌθaɪz/",
       "translation": "сопереживать",
       "translations": {
         "ru": "сопереживать",
@@ -98,6 +104,7 @@
     {
       "word": "nurture",
       "part_of_speech": "verb",
+      "transcription": "/ˈnɜrtʃər/",
       "translation": "заботливо растить",
       "translations": {
         "ru": "заботливо растить",
@@ -112,6 +119,7 @@
     {
       "word": "gratitude",
       "part_of_speech": "noun",
+      "transcription": "/ˈgrætəˌtud/",
       "translation": "благодарность",
       "translations": {
         "ru": "благодарность",
@@ -126,6 +134,7 @@
     {
       "word": "heartfelt",
       "part_of_speech": "adjective",
+      "transcription": "/ˈhɑrtˌfɛlt/",
       "translation": "сердечный, искренний",
       "translations": {
         "ru": "сердечный, искренний",
@@ -140,6 +149,7 @@
     {
       "word": "uplift",
       "part_of_speech": "verb",
+      "transcription": "/ʌpˈlɪft/",
       "translation": "воодушевлять, поднимать дух",
       "translations": {
         "ru": "воодушевлять, поднимать дух",

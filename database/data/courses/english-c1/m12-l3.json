@@ -14,6 +14,7 @@
     {
       "word": "incarceration",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˌkɑrsəˈreɪʃən/",
       "translation": "лишение свободы",
       "translations": {
         "ru": "лишение свободы",
@@ -28,6 +29,7 @@
     {
       "word": "parole",
       "part_of_speech": "noun",
+      "transcription": "/pəˈroʊl/",
       "translation": "условно-досрочное освобождение",
       "translations": {
         "ru": "условно-досрочное освобождение",
@@ -42,6 +44,7 @@
     {
       "word": "inmate",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnˌmeɪt/",
       "translation": "заключённый",
       "translations": {
         "ru": "заключённый",
@@ -56,6 +59,7 @@
     {
       "word": "detention",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈtɛnʃən/",
       "translation": "содержание под стражей",
       "translations": {
         "ru": "содержание под стражей",
@@ -70,6 +74,7 @@
     {
       "word": "confinement",
       "part_of_speech": "noun",
+      "transcription": "/kənˈfaɪnmənt/",
       "translation": "заточение",
       "translations": {
         "ru": "заточение",
@@ -84,6 +89,7 @@
     {
       "word": "restitution",
       "part_of_speech": "noun",
+      "transcription": "/ˌrɛstəˈtuʃən/",
       "translation": "возмещение ущерба",
       "translations": {
         "ru": "возмещение ущерба",
@@ -98,6 +104,7 @@
     {
       "word": "forfeit",
       "part_of_speech": "verb",
+      "transcription": "/ˈfɔrfɪt/",
       "translation": "лишаться",
       "translations": {
         "ru": "лишаться",
@@ -112,6 +119,7 @@
     {
       "word": "amnesty",
       "part_of_speech": "noun",
+      "transcription": "/ˈæmnəsti/",
       "translation": "амнистия",
       "translations": {
         "ru": "амнистия",
@@ -126,6 +134,7 @@
     {
       "word": "pardon",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɑrdən/",
       "translation": "помилование",
       "translations": {
         "ru": "помилование",
@@ -140,6 +149,7 @@
     {
       "word": "deport",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈpɔrt/",
       "translation": "депортировать",
       "translations": {
         "ru": "депортировать",

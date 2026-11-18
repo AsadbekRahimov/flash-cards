@@ -14,6 +14,7 @@
     {
       "word": "sensory",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɛnsəri/",
       "translation": "сенсорный",
       "translations": {
         "ru": "сенсорный",
@@ -28,6 +29,7 @@
     {
       "word": "subconscious",
       "part_of_speech": "adjective",
+      "transcription": "/ˌsʌbˈkɑnʃəs/",
       "translation": "подсознательный",
       "translations": {
         "ru": "подсознательный",
@@ -42,6 +44,7 @@
     {
       "word": "attentive",
       "part_of_speech": "adjective",
+      "transcription": "/əˈtɛntɪv/",
       "translation": "внимательный",
       "translations": {
         "ru": "внимательный",
@@ -56,6 +59,7 @@
     {
       "word": "oblivious",
       "part_of_speech": "adjective",
+      "transcription": "/əˈblɪviəs/",
       "translation": "не замечающий",
       "translations": {
         "ru": "не замечающий",
@@ -70,6 +74,7 @@
     {
       "word": "sensation",
       "part_of_speech": "noun",
+      "transcription": "/sɛnˈseɪʃən/",
       "translation": "ощущение",
       "translations": {
         "ru": "ощущение",
@@ -84,6 +89,7 @@
     {
       "word": "amnesia",
       "part_of_speech": "noun",
+      "transcription": "/æmˈniʒə/",
       "translation": "потеря памяти, амнезия",
       "translations": {
         "ru": "потеря памяти, амнезия",
@@ -98,6 +104,7 @@
     {
       "word": "reminiscent",
       "part_of_speech": "adjective",
+      "transcription": "/ˌrɛməˈnɪsənt/",
       "translation": "напоминающий",
       "translations": {
         "ru": "напоминающий",
@@ -112,6 +119,7 @@
     {
       "word": "illusion",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈluʒən/",
       "translation": "иллюзия",
       "translations": {
         "ru": "иллюзия",
@@ -126,6 +134,7 @@
     {
       "word": "distraction",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈstrækʃən/",
       "translation": "отвлекающий фактор",
       "translations": {
         "ru": "отвлекающий фактор",
@@ -140,6 +149,7 @@
     {
       "word": "vigilant",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvɪdʒələnt/",
       "translation": "бдительный",
       "translations": {
         "ru": "бдительный",

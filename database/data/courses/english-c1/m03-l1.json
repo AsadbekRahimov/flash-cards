@@ -14,6 +14,7 @@
     {
       "word": "tenure",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɛnjər/",
       "translation": "срок пребывания в должности",
       "translations": {
         "ru": "срок пребывания в должности",
@@ -28,6 +29,7 @@
     {
       "word": "seniority",
       "part_of_speech": "noun",
+      "transcription": "/sinˈjɔrəti/",
       "translation": "трудовой стаж",
       "translations": {
         "ru": "трудовой стаж",
@@ -42,6 +44,7 @@
     {
       "word": "credential",
       "part_of_speech": "noun",
+      "transcription": "/krəˈdɛnʃəl/",
       "translation": "документ о квалификации",
       "translations": {
         "ru": "документ о квалификации",
@@ -56,6 +59,7 @@
     {
       "word": "successor",
       "part_of_speech": "noun",
+      "transcription": "/səkˈsɛsər/",
       "translation": "преемник",
       "translations": {
         "ru": "преемник",
@@ -70,6 +74,7 @@
     {
       "word": "predecessor",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɛdəˌsɛsər/",
       "translation": "предшественник",
       "translations": {
         "ru": "предшественник",
@@ -84,6 +89,7 @@
     {
       "word": "demotion",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈmoʊʃən/",
       "translation": "понижение в должности",
       "translations": {
         "ru": "понижение в должности",
@@ -98,6 +104,7 @@
     {
       "word": "advancement",
       "part_of_speech": "noun",
+      "transcription": "/ədˈvænsmənt/",
       "translation": "продвижение по службе",
       "translations": {
         "ru": "продвижение по службе",
@@ -112,6 +119,7 @@
     {
       "word": "incumbent",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈkʌmbənt/",
       "translation": "действующий обладатель должности",
       "translations": {
         "ru": "действующий обладатель должности",
@@ -126,6 +134,7 @@
     {
       "word": "recruitment",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈkrutmənt/",
       "translation": "набор сотрудников",
       "translations": {
         "ru": "набор сотрудников",
@@ -140,6 +149,7 @@
     {
       "word": "redundancy",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈdʌndənsi/",
       "translation": "сокращение штата",
       "translations": {
         "ru": "сокращение штата",

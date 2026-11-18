@@ -14,6 +14,7 @@
     {
       "word": "austerity",
       "part_of_speech": "noun",
+      "transcription": "/ɔˈstɛrəti/",
       "translation": "жёсткая экономия",
       "translations": {
         "ru": "жёсткая экономия",
@@ -28,6 +29,7 @@
     {
       "word": "stagnation",
       "part_of_speech": "noun",
+      "transcription": "/stægˈneɪʃən/",
       "translation": "застой, стагнация",
       "translations": {
         "ru": "застой, стагнация",
@@ -42,6 +44,7 @@
     {
       "word": "fiscal",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɪskəl/",
       "translation": "бюджетно-налоговый",
       "translations": {
         "ru": "бюджетно-налоговый",
@@ -56,6 +59,7 @@
     {
       "word": "monetary",
       "part_of_speech": "adjective",
+      "transcription": "/ˈmɑnəˌtɛri/",
       "translation": "денежно-кредитный",
       "translations": {
         "ru": "денежно-кредитный",
@@ -70,6 +74,7 @@
     {
       "word": "deflation",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈfleɪʃən/",
       "translation": "дефляция",
       "translations": {
         "ru": "дефляция",
@@ -84,6 +89,7 @@
     {
       "word": "slump",
       "part_of_speech": "noun",
+      "transcription": "/slʌmp/",
       "translation": "резкий спад",
       "translations": {
         "ru": "резкий спад",
@@ -98,6 +104,7 @@
     {
       "word": "stimulus",
       "part_of_speech": "noun",
+      "transcription": "/ˈstɪmjələs/",
       "translation": "меры стимулирования",
       "translations": {
         "ru": "меры стимулирования",
@@ -112,6 +119,7 @@
     {
       "word": "deregulation",
       "part_of_speech": "noun",
+      "transcription": "/diˌrɛgjəˈleɪʃən/",
       "translation": "дерегулирование",
       "translations": {
         "ru": "дерегулирование",
@@ -126,6 +134,7 @@
     {
       "word": "privatize",
       "part_of_speech": "verb",
+      "transcription": "/ˈpraɪvəˌtaɪz/",
       "translation": "приватизировать",
       "translations": {
         "ru": "приватизировать",
@@ -140,6 +149,7 @@
     {
       "word": "protectionism",
       "part_of_speech": "noun",
+      "transcription": "/prəˈtɛkʃəˌnɪzəm/",
       "translation": "протекционизм",
       "translations": {
         "ru": "протекционизм",

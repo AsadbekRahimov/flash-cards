@@ -14,6 +14,7 @@
     {
       "word": "nonetheless",
       "part_of_speech": "adverb",
+      "transcription": "/ˌnʌnðəˈlɛs/",
       "translation": "тем не менее",
       "translations": {
         "ru": "тем не менее",
@@ -28,6 +29,7 @@
     {
       "word": "notwithstanding",
       "part_of_speech": "preposition",
+      "transcription": "/ˌnɑtwɪθˈstændɪŋ/",
       "translation": "несмотря на",
       "translations": {
         "ru": "несмотря на",
@@ -42,6 +44,7 @@
     {
       "word": "hitherto",
       "part_of_speech": "adverb",
+      "transcription": "/ˌhɪðərˈtu/",
       "translation": "до сих пор",
       "translations": {
         "ru": "до сих пор",
@@ -56,6 +59,7 @@
     {
       "word": "thereby",
       "part_of_speech": "adverb",
+      "transcription": "/ˌðɛrˈbaɪ/",
       "translation": "тем самым",
       "translations": {
         "ru": "тем самым",
@@ -70,6 +74,7 @@
     {
       "word": "whereby",
       "part_of_speech": "conjunction",
+      "transcription": "/wɛrˈbaɪ/",
       "translation": "посредством которого",
       "translations": {
         "ru": "посредством которого",
@@ -84,6 +89,7 @@
     {
       "word": "albeit",
       "part_of_speech": "conjunction",
+      "transcription": "/ɔlˈbiɪt/",
       "translation": "хотя и",
       "translations": {
         "ru": "хотя и",
@@ -98,6 +104,7 @@
     {
       "word": "conversely",
       "part_of_speech": "adverb",
+      "transcription": "/kənˈvɜrsli/",
       "translation": "напротив",
       "translations": {
         "ru": "напротив",
@@ -112,6 +119,7 @@
     {
       "word": "accordingly",
       "part_of_speech": "adverb",
+      "transcription": "/əˈkɔrdɪŋli/",
       "translation": "соответственно",
       "translations": {
         "ru": "соответственно",
@@ -126,6 +134,7 @@
     {
       "word": "subsequently",
       "part_of_speech": "adverb",
+      "transcription": "/ˈsʌbsəkwəntli/",
       "translation": "впоследствии",
       "translations": {
         "ru": "впоследствии",
@@ -140,6 +149,7 @@
     {
       "word": "likewise",
       "part_of_speech": "adverb",
+      "transcription": "/ˈlaɪkˌwaɪz/",
       "translation": "точно так же",
       "translations": {
         "ru": "точно так же",

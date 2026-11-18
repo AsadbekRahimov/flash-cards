@@ -14,6 +14,7 @@
     {
       "word": "warfare",
       "part_of_speech": "noun",
+      "transcription": "/ˈwɔrˌfɛr/",
       "translation": "ведение войны",
       "translations": {
         "ru": "ведение войны",
@@ -28,6 +29,7 @@
     {
       "word": "combat",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑmˌbæt/",
       "translation": "бой",
       "translations": {
         "ru": "бой",
@@ -42,6 +44,7 @@
     {
       "word": "artillery",
       "part_of_speech": "noun",
+      "transcription": "/ɑrˈtɪləri/",
       "translation": "артиллерия",
       "translations": {
         "ru": "артиллерия",
@@ -56,6 +59,7 @@
     {
       "word": "infantry",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnfəntri/",
       "translation": "пехота",
       "translations": {
         "ru": "пехота",
@@ -70,6 +74,7 @@
     {
       "word": "siege",
       "part_of_speech": "noun",
+      "transcription": "/sidʒ/",
       "translation": "осада",
       "translations": {
         "ru": "осада",
@@ -84,6 +89,7 @@
     {
       "word": "ambush",
       "part_of_speech": "noun",
+      "transcription": "/ˈæmˌbʊʃ/",
       "translation": "засада",
       "translations": {
         "ru": "засада",
@@ -98,6 +104,7 @@
     {
       "word": "casualty",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæʒuəlti/",
       "translation": "жертва, пострадавший",
       "translations": {
         "ru": "жертва, пострадавший",
@@ -112,6 +119,7 @@
     {
       "word": "ceasefire",
       "part_of_speech": "noun",
+      "transcription": "/ˈsisˌfaɪər/",
       "translation": "прекращение огня",
       "translations": {
         "ru": "прекращение огня",
@@ -126,6 +134,7 @@
     {
       "word": "conscription",
       "part_of_speech": "noun",
+      "transcription": "/kənˈskrɪpʃən/",
       "translation": "воинская повинность",
       "translations": {
         "ru": "воинская повинность",
@@ -140,6 +149,7 @@
     {
       "word": "surrender",
       "part_of_speech": "verb",
+      "transcription": "/səˈrɛndər/",
       "translation": "сдаваться",
       "translations": {
         "ru": "сдаваться",

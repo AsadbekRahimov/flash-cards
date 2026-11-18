@@ -14,6 +14,7 @@
     {
       "word": "authentication",
       "part_of_speech": "noun",
+      "transcription": "/ɔˌθɛntəˈkeɪʃən/",
       "translation": "аутентификация",
       "translations": {
         "ru": "аутентификация",
@@ -28,6 +29,7 @@
     {
       "word": "ransomware",
       "part_of_speech": "noun",
+      "transcription": "/ˈrænsəmˌwɛr/",
       "translation": "программа-вымогатель",
       "translations": {
         "ru": "программа-вымогатель",
@@ -42,6 +44,7 @@
     {
       "word": "spyware",
       "part_of_speech": "noun",
+      "transcription": "/ˈspaɪˌwɛr/",
       "translation": "шпионская программа",
       "translations": {
         "ru": "шпионская программа",
@@ -56,6 +59,7 @@
     {
       "word": "exploit",
       "part_of_speech": "verb",
+      "transcription": "/ɪkˈsplɔɪt/",
       "translation": "использовать уязвимость",
       "translations": {
         "ru": "использовать уязвимость",
@@ -70,6 +74,7 @@
     {
       "word": "intrusion",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈtruʒən/",
       "translation": "вторжение",
       "translations": {
         "ru": "вторжение",
@@ -84,6 +89,7 @@
     {
       "word": "biometric",
       "part_of_speech": "adjective",
+      "transcription": "/ˌbaɪoʊˈmɛtrɪk/",
       "translation": "биометрический",
       "translations": {
         "ru": "биометрический",
@@ -98,6 +104,7 @@
     {
       "word": "decrypt",
       "part_of_speech": "verb",
+      "transcription": "/diˈkrɪpt/",
       "translation": "расшифровывать",
       "translations": {
         "ru": "расшифровывать",
@@ -112,6 +119,7 @@
     {
       "word": "tamper",
       "part_of_speech": "verb",
+      "transcription": "/ˈtæmpər/",
       "translation": "несанкционированно изменять",
       "translations": {
         "ru": "несанкционированно изменять",
@@ -126,6 +134,7 @@
     {
       "word": "cipher",
       "part_of_speech": "noun",
+      "transcription": "/ˈsaɪfər/",
       "translation": "шифр",
       "translations": {
         "ru": "шифр",
@@ -140,6 +149,7 @@
     {
       "word": "cybercrime",
       "part_of_speech": "noun",
+      "transcription": "/ˈsaɪbərˌkraɪm/",
       "translation": "киберпреступность",
       "translations": {
         "ru": "киберпреступность",

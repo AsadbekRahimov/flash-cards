@@ -14,6 +14,7 @@
     {
       "word": "catalyst",
       "part_of_speech": "noun",
+      "transcription": "/ˈkætəlɪst/",
       "translation": "катализатор",
       "translations": {
         "ru": "катализатор",
@@ -28,6 +29,7 @@
     {
       "word": "compound",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑmˌpaʊnd/",
       "translation": "химическое соединение",
       "translations": {
         "ru": "химическое соединение",
@@ -42,6 +44,7 @@
     {
       "word": "solvent",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɑlvənt/",
       "translation": "растворитель",
       "translations": {
         "ru": "растворитель",
@@ -56,6 +59,7 @@
     {
       "word": "synthesis",
       "part_of_speech": "noun",
+      "transcription": "/ˈsɪnθəsɪs/",
       "translation": "синтез",
       "translations": {
         "ru": "синтез",
@@ -70,6 +74,7 @@
     {
       "word": "velocity",
       "part_of_speech": "noun",
+      "transcription": "/vəˈlɑsəti/",
       "translation": "скорость",
       "translations": {
         "ru": "скорость",
@@ -84,6 +89,7 @@
     {
       "word": "inertia",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈnɜrʃə/",
       "translation": "инерция",
       "translations": {
         "ru": "инерция",
@@ -98,6 +104,7 @@
     {
       "word": "density",
       "part_of_speech": "noun",
+      "transcription": "/ˈdɛnsəti/",
       "translation": "плотность",
       "translations": {
         "ru": "плотность",
@@ -112,6 +119,7 @@
     {
       "word": "spectrum",
       "part_of_speech": "noun",
+      "transcription": "/ˈspɛktrəm/",
       "translation": "спектр",
       "translations": {
         "ru": "спектр",
@@ -126,6 +134,7 @@
     {
       "word": "wavelength",
       "part_of_speech": "noun",
+      "transcription": "/ˈweɪvˌlɛŋθ/",
       "translation": "длина волны",
       "translations": {
         "ru": "длина волны",
@@ -140,6 +149,7 @@
     {
       "word": "isotope",
       "part_of_speech": "noun",
+      "transcription": "/ˈaɪsəˌtoʊp/",
       "translation": "изотоп",
       "translations": {
         "ru": "изотоп",

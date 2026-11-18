@@ -14,6 +14,7 @@
     {
       "word": "compulsion",
       "part_of_speech": "noun",
+      "transcription": "/kəmˈpʌlʃən/",
       "translation": "навязчивая потребность",
       "translations": {
         "ru": "навязчивая потребность",
@@ -28,6 +29,7 @@
     {
       "word": "urge",
       "part_of_speech": "noun",
+      "transcription": "/ɜrdʒ/",
       "translation": "сильное желание",
       "translations": {
         "ru": "сильное желание",
@@ -42,6 +44,7 @@
     {
       "word": "impulse",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪmˌpʌls/",
       "translation": "внезапный порыв",
       "translations": {
         "ru": "внезапный порыв",
@@ -56,6 +59,7 @@
     {
       "word": "inhibition",
       "part_of_speech": "noun",
+      "transcription": "/ˌɪnhəˈbɪʃən/",
       "translation": "скованность",
       "translations": {
         "ru": "скованность",
@@ -70,6 +74,7 @@
     {
       "word": "deterrent",
       "part_of_speech": "noun",
+      "transcription": "/dɪˈtɜrənt/",
       "translation": "сдерживающий фактор",
       "translations": {
         "ru": "сдерживающий фактор",
@@ -84,6 +89,7 @@
     {
       "word": "craving",
       "part_of_speech": "noun",
+      "transcription": "/ˈkreɪvɪŋ/",
       "translation": "острая тяга",
       "translations": {
         "ru": "острая тяга",
@@ -98,6 +104,7 @@
     {
       "word": "obsession",
       "part_of_speech": "noun",
+      "transcription": "/əbˈsɛʃən/",
       "translation": "одержимость",
       "translations": {
         "ru": "одержимость",
@@ -112,6 +119,7 @@
     {
       "word": "addiction",
       "part_of_speech": "noun",
+      "transcription": "/əˈdɪkʃən/",
       "translation": "пагубная зависимость",
       "translations": {
         "ru": "пагубная зависимость",
@@ -126,6 +134,7 @@
     {
       "word": "habitual",
       "part_of_speech": "adjective",
+      "transcription": "/həˈbɪtʃuəl/",
       "translation": "привычный",
       "translations": {
         "ru": "привычный",
@@ -140,6 +149,7 @@
     {
       "word": "disposition",
       "part_of_speech": "noun",
+      "transcription": "/ˌdɪspəˈzɪʃən/",
       "translation": "нрав, склад характера",
       "translations": {
         "ru": "нрав, склад характера",

@@ -14,6 +14,7 @@
     {
       "word": "membrane",
       "part_of_speech": "noun",
+      "transcription": "/ˈmɛmˌbreɪn/",
       "translation": "мембрана",
       "translations": {
         "ru": "мембрана",
@@ -28,6 +29,7 @@
     {
       "word": "enzyme",
       "part_of_speech": "noun",
+      "transcription": "/ˈɛnˌzaɪm/",
       "translation": "фермент",
       "translations": {
         "ru": "фермент",
@@ -42,6 +44,7 @@
     {
       "word": "genome",
       "part_of_speech": "noun",
+      "transcription": "/ˈdʒiˌnoʊm/",
       "translation": "геном",
       "translations": {
         "ru": "геном",
@@ -56,6 +59,7 @@
     {
       "word": "mutation",
       "part_of_speech": "noun",
+      "transcription": "/mjuˈteɪʃən/",
       "translation": "мутация",
       "translations": {
         "ru": "мутация",
@@ -70,6 +74,7 @@
     {
       "word": "chromosome",
       "part_of_speech": "noun",
+      "transcription": "/ˈkroʊməˌsoʊm/",
       "translation": "хромосома",
       "translations": {
         "ru": "хромосома",
@@ -84,6 +89,7 @@
     {
       "word": "hereditary",
       "part_of_speech": "adjective",
+      "transcription": "/həˈrɛdəˌtɛri/",
       "translation": "наследственный",
       "translations": {
         "ru": "наследственный",
@@ -98,6 +104,7 @@
     {
       "word": "pathogen",
       "part_of_speech": "noun",
+      "transcription": "/ˈpæθədʒən/",
       "translation": "возбудитель болезни",
       "translations": {
         "ru": "возбудитель болезни",
@@ -112,6 +119,7 @@
     {
       "word": "microbe",
       "part_of_speech": "noun",
+      "transcription": "/ˈmaɪˌkroʊb/",
       "translation": "микроб",
       "translations": {
         "ru": "микроб",
@@ -126,6 +134,7 @@
     {
       "word": "tissue",
       "part_of_speech": "noun",
+      "transcription": "/ˈtɪʃu/",
       "translation": "ткань организма",
       "translations": {
         "ru": "ткань организма",
@@ -140,6 +149,7 @@
     {
       "word": "cellular",
       "part_of_speech": "adjective",
+      "transcription": "/ˈsɛljələr/",
       "translation": "клеточный",
       "translations": {
         "ru": "клеточный",

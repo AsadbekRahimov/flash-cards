@@ -14,6 +14,7 @@
     {
       "word": "sensationalism",
       "part_of_speech": "noun",
+      "transcription": "/sɛnˈseɪʃənəˌlɪzəm/",
       "translation": "погоня за сенсациями",
       "translations": {
         "ru": "погоня за сенсациями",
@@ -28,6 +29,7 @@
     {
       "word": "disinformation",
       "part_of_speech": "noun",
+      "transcription": "/dɪsˌɪnfərˈmeɪʃən/",
       "translation": "дезинформация",
       "translations": {
         "ru": "дезинформация",
@@ -42,6 +44,7 @@
     {
       "word": "fabricate",
       "part_of_speech": "verb",
+      "transcription": "/ˈfæbrəˌkeɪt/",
       "translation": "фабриковать, выдумывать",
       "translations": {
         "ru": "фабриковать, выдумывать",
@@ -56,6 +59,7 @@
     {
       "word": "slant",
       "part_of_speech": "noun",
+      "transcription": "/slænt/",
       "translation": "тенденциозная подача",
       "translations": {
         "ru": "тенденциозная подача",
@@ -70,6 +74,7 @@
     {
       "word": "hype",
       "part_of_speech": "noun",
+      "transcription": "/haɪp/",
       "translation": "шумиха, ажиотаж",
       "translations": {
         "ru": "шумиха, ажиотаж",
@@ -84,6 +89,7 @@
     {
       "word": "unfounded",
       "part_of_speech": "adjective",
+      "transcription": "/ʌnˈfaʊndɪd/",
       "translation": "необоснованный",
       "translations": {
         "ru": "необоснованный",
@@ -98,6 +104,7 @@
     {
       "word": "hearsay",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɪrˌseɪ/",
       "translation": "сведения с чужих слов",
       "translations": {
         "ru": "сведения с чужих слов",
@@ -112,6 +119,7 @@
     {
       "word": "allegation",
       "part_of_speech": "noun",
+      "transcription": "/ˌæləˈgeɪʃən/",
       "translation": "недоказанное обвинение",
       "translations": {
         "ru": "недоказанное обвинение",
@@ -126,6 +134,7 @@
     {
       "word": "credible",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkrɛdəbəl/",
       "translation": "заслуживающий доверия",
       "translations": {
         "ru": "заслуживающий доверия",
@@ -140,6 +149,7 @@
     {
       "word": "retraction",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈtrækʃən/",
       "translation": "опровержение",
       "translations": {
         "ru": "опровержение",

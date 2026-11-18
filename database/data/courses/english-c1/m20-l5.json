@@ -14,6 +14,7 @@
     {
       "word": "analogous",
       "part_of_speech": "adjective",
+      "transcription": "/əˈnæləgəs/",
       "translation": "аналогичный",
       "translations": {
         "ru": "аналогичный",
@@ -28,6 +29,7 @@
     {
       "word": "akin",
       "part_of_speech": "adjective",
+      "transcription": "/əˈkɪn/",
       "translation": "сродни, близкий",
       "translations": {
         "ru": "сродни, близкий",
@@ -42,6 +44,7 @@
     {
       "word": "comparable",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkɑmpərəbəl/",
       "translation": "сопоставимый",
       "translations": {
         "ru": "сопоставимый",
@@ -56,6 +59,7 @@
     {
       "word": "disparate",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdɪspərət/",
       "translation": "совершенно разный, несхожий",
       "translations": {
         "ru": "совершенно разный, несхожий",
@@ -70,6 +74,7 @@
     {
       "word": "distinct",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈstɪŋkt/",
       "translation": "отличный, отдельный",
       "translations": {
         "ru": "отличный, отдельный",
@@ -84,6 +89,7 @@
     {
       "word": "homogeneous",
       "part_of_speech": "adjective",
+      "transcription": "/ˌhoʊməˈdʒiniəs/",
       "translation": "однородный",
       "translations": {
         "ru": "однородный",
@@ -98,6 +104,7 @@
     {
       "word": "counterpart",
       "part_of_speech": "noun",
+      "transcription": "/ˈkaʊntərˌpɑrt/",
       "translation": "коллега с другой стороны",
       "translations": {
         "ru": "коллега с другой стороны",
@@ -112,6 +119,7 @@
     {
       "word": "resemblance",
       "part_of_speech": "noun",
+      "transcription": "/rɪˈzɛmbləns/",
       "translation": "сходство",
       "translations": {
         "ru": "сходство",
@@ -126,6 +134,7 @@
     {
       "word": "synonymous",
       "part_of_speech": "adjective",
+      "transcription": "/səˈnɑnəməs/",
       "translation": "синонимичный, равнозначный",
       "translations": {
         "ru": "синонимичный, равнозначный",
@@ -140,6 +149,7 @@
     {
       "word": "incompatible",
       "part_of_speech": "adjective",
+      "transcription": "/ˌɪnkəmˈpætəbəl/",
       "translation": "несовместимый",
       "translations": {
         "ru": "несовместимый",

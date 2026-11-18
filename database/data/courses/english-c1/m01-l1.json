@@ -14,6 +14,7 @@
     {
       "word": "conscientious",
       "part_of_speech": "adjective",
+      "transcription": "/ˌkɑnʃiˈɛnʃəs/",
       "translation": "добросовестный",
       "translations": {
         "ru": "добросовестный",
@@ -28,6 +29,7 @@
     {
       "word": "resourceful",
       "part_of_speech": "adjective",
+      "transcription": "/rɪˈsɔrsfəl/",
       "translation": "находчивый",
       "translations": {
         "ru": "находчивый",
@@ -42,6 +44,7 @@
     {
       "word": "tenacious",
       "part_of_speech": "adjective",
+      "transcription": "/təˈneɪʃəs/",
       "translation": "упорный",
       "translations": {
         "ru": "упорный",
@@ -56,6 +59,7 @@
     {
       "word": "versatile",
       "part_of_speech": "adjective",
+      "transcription": "/ˈvɜrsətəl/",
       "translation": "разносторонний",
       "translations": {
         "ru": "разносторонний",
@@ -70,6 +74,7 @@
     {
       "word": "meticulous",
       "part_of_speech": "adjective",
+      "transcription": "/məˈtɪkjələs/",
       "translation": "скрупулёзный",
       "translations": {
         "ru": "скрупулёзный",
@@ -84,6 +89,7 @@
     {
       "word": "prudent",
       "part_of_speech": "adjective",
+      "transcription": "/ˈprudənt/",
       "translation": "осмотрительный, благоразумный",
       "translations": {
         "ru": "осмотрительный, благоразумный",
@@ -98,6 +104,7 @@
     {
       "word": "candid",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkændɪd/",
       "translation": "откровенный",
       "translations": {
         "ru": "откровенный",
@@ -112,6 +119,7 @@
     {
       "word": "tactful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈtæktfəl/",
       "translation": "тактичный",
       "translations": {
         "ru": "тактичный",
@@ -126,6 +134,7 @@
     {
       "word": "benevolent",
       "part_of_speech": "adjective",
+      "transcription": "/bəˈnɛvələnt/",
       "translation": "благожелательный, добрый",
       "translations": {
         "ru": "благожелательный, добрый",
@@ -140,6 +149,7 @@
     {
       "word": "steadfast",
       "part_of_speech": "adjective",
+      "transcription": "/ˈstɛdˌfæst/",
       "translation": "непоколебимый, стойкий",
       "translations": {
         "ru": "непоколебимый, стойкий",

@@ -14,6 +14,7 @@
     {
       "word": "litigation",
       "part_of_speech": "noun",
+      "transcription": "/ˌlɪtəˈgeɪʃən/",
       "translation": "судебная тяжба",
       "translations": {
         "ru": "судебная тяжба",
@@ -28,6 +29,7 @@
     {
       "word": "plaintiff",
       "part_of_speech": "noun",
+      "transcription": "/ˈpleɪntɪf/",
       "translation": "истец",
       "translations": {
         "ru": "истец",
@@ -42,6 +44,7 @@
     {
       "word": "prosecution",
       "part_of_speech": "noun",
+      "transcription": "/ˌprɑsəˈkjuʃən/",
       "translation": "сторона обвинения",
       "translations": {
         "ru": "сторона обвинения",
@@ -56,6 +59,7 @@
     {
       "word": "indictment",
       "part_of_speech": "noun",
+      "transcription": "/ɪnˈdaɪtmənt/",
       "translation": "обвинительное заключение",
       "translations": {
         "ru": "обвинительное заключение",
@@ -70,6 +74,7 @@
     {
       "word": "subpoena",
       "part_of_speech": "noun",
+      "transcription": "/səˈpinə/",
       "translation": "судебная повестка",
       "translations": {
         "ru": "судебная повестка",
@@ -84,6 +89,7 @@
     {
       "word": "testify",
       "part_of_speech": "verb",
+      "transcription": "/ˈtɛstəˌfaɪ/",
       "translation": "давать показания",
       "translations": {
         "ru": "давать показания",
@@ -98,6 +104,7 @@
     {
       "word": "acquit",
       "part_of_speech": "verb",
+      "transcription": "/əˈkwɪt/",
       "translation": "оправдывать",
       "translations": {
         "ru": "оправдывать",
@@ -112,6 +119,7 @@
     {
       "word": "tribunal",
       "part_of_speech": "noun",
+      "transcription": "/traɪˈbjunəl/",
       "translation": "трибунал",
       "translations": {
         "ru": "трибунал",
@@ -126,6 +134,7 @@
     {
       "word": "bail",
       "part_of_speech": "noun",
+      "transcription": "/beɪl/",
       "translation": "залог",
       "translations": {
         "ru": "залог",
@@ -140,6 +149,7 @@
     {
       "word": "plea",
       "part_of_speech": "noun",
+      "transcription": "/pli/",
       "translation": "заявление подсудимого",
       "translations": {
         "ru": "заявление подсудимого",

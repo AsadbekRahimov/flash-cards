@@ -14,6 +14,7 @@
     {
       "word": "immunize",
       "part_of_speech": "verb",
+      "transcription": "/ˈɪmjəˌnaɪz/",
       "translation": "прививать",
       "translations": {
         "ru": "прививать",
@@ -28,6 +29,7 @@
     {
       "word": "quarantine",
       "part_of_speech": "noun",
+      "transcription": "/ˈkwɔrənˌtin/",
       "translation": "карантин",
       "translations": {
         "ru": "карантин",
@@ -42,6 +44,7 @@
     {
       "word": "mortality",
       "part_of_speech": "noun",
+      "transcription": "/mɔrˈtæləti/",
       "translation": "смертность",
       "translations": {
         "ru": "смертность",
@@ -56,6 +59,7 @@
     {
       "word": "prevalence",
       "part_of_speech": "noun",
+      "transcription": "/ˈprɛvələns/",
       "translation": "распространённость",
       "translations": {
         "ru": "распространённость",
@@ -70,6 +74,7 @@
     {
       "word": "incidence",
       "part_of_speech": "noun",
+      "transcription": "/ˈɪnsədəns/",
       "translation": "заболеваемость",
       "translations": {
         "ru": "заболеваемость",
@@ -84,6 +89,7 @@
     {
       "word": "screening",
       "part_of_speech": "noun",
+      "transcription": "/ˈskrinɪŋ/",
       "translation": "профилактическое обследование",
       "translations": {
         "ru": "профилактическое обследование",
@@ -98,6 +104,7 @@
     {
       "word": "eradicate",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈrædəˌkeɪt/",
       "translation": "искоренять",
       "translations": {
         "ru": "искоренять",
@@ -112,6 +119,7 @@
     {
       "word": "transmission",
       "part_of_speech": "noun",
+      "transcription": "/trænsˈmɪʃən/",
       "translation": "передача инфекции",
       "translations": {
         "ru": "передача инфекции",
@@ -126,6 +134,7 @@
     {
       "word": "susceptible",
       "part_of_speech": "adjective",
+      "transcription": "/səˈsɛptəbəl/",
       "translation": "восприимчивый",
       "translations": {
         "ru": "восприимчивый",
@@ -140,6 +149,7 @@
     {
       "word": "endemic",
       "part_of_speech": "adjective",
+      "transcription": "/ɛnˈdɛmɪk/",
       "translation": "эндемичный",
       "translations": {
         "ru": "эндемичный",

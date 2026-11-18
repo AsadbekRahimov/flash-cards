@@ -14,6 +14,7 @@
     {
       "word": "poach",
       "part_of_speech": "verb",
+      "transcription": "/poʊtʃ/",
       "translation": "браконьерствовать, незаконно охотиться",
       "translations": {
         "ru": "браконьерствовать, незаконно охотиться",
@@ -28,6 +29,7 @@
     {
       "word": "captivity",
       "part_of_speech": "noun",
+      "transcription": "/kæpˈtɪvəti/",
       "translation": "неволя",
       "translations": {
         "ru": "неволя",
@@ -42,6 +44,7 @@
     {
       "word": "hibernate",
       "part_of_speech": "verb",
+      "transcription": "/ˈhaɪbərˌneɪt/",
       "translation": "впадать в спячку",
       "translations": {
         "ru": "впадать в спячку",
@@ -56,6 +59,7 @@
     {
       "word": "forage",
       "part_of_speech": "verb",
+      "transcription": "/ˈfɔrɪdʒ/",
       "translation": "добывать корм",
       "translations": {
         "ru": "добывать корм",
@@ -70,6 +74,7 @@
     {
       "word": "nocturnal",
       "part_of_speech": "adjective",
+      "transcription": "/nɑkˈtɜrnəl/",
       "translation": "ночной",
       "translations": {
         "ru": "ночной",
@@ -84,6 +89,7 @@
     {
       "word": "carnivore",
       "part_of_speech": "noun",
+      "transcription": "/ˈkɑrnəˌvɔr/",
       "translation": "плотоядное животное",
       "translations": {
         "ru": "плотоядное животное",
@@ -98,6 +104,7 @@
     {
       "word": "herbivore",
       "part_of_speech": "noun",
+      "transcription": "/ˈhɜrbəˌvɔr/",
       "translation": "травоядное животное",
       "translations": {
         "ru": "травоядное животное",
@@ -112,6 +119,7 @@
     {
       "word": "offspring",
       "part_of_speech": "noun",
+      "transcription": "/ˈɔfˌsprɪŋ/",
       "translation": "потомство",
       "translations": {
         "ru": "потомство",
@@ -126,6 +134,7 @@
     {
       "word": "camouflage",
       "part_of_speech": "noun",
+      "transcription": "/ˈkæməˌflɑʒ/",
       "translation": "защитная окраска",
       "translations": {
         "ru": "защитная окраска",
@@ -140,6 +149,7 @@
     {
       "word": "invasive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈveɪsɪv/",
       "translation": "инвазивный, чужеродный",
       "translations": {
         "ru": "инвазивный, чужеродный",

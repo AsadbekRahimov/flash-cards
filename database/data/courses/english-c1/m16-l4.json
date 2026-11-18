@@ -14,6 +14,7 @@
     {
       "word": "elucidate",
       "part_of_speech": "verb",
+      "transcription": "/ɪˈlusəˌdeɪt/",
       "translation": "разъяснять",
       "translations": {
         "ru": "разъяснять",
@@ -28,6 +29,7 @@
     {
       "word": "delineate",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈlɪniˌeɪt/",
       "translation": "чётко очерчивать",
       "translations": {
         "ru": "чётко очерчивать",
@@ -42,6 +44,7 @@
     {
       "word": "postulate",
       "part_of_speech": "verb",
+      "transcription": "/ˈpɑstʃəˌleɪt/",
       "translation": "постулировать",
       "translations": {
         "ru": "постулировать",
@@ -56,6 +59,7 @@
     {
       "word": "exemplify",
       "part_of_speech": "verb",
+      "transcription": "/ɪgˈzɛmpləˌfaɪ/",
       "translation": "служить примером",
       "translations": {
         "ru": "служить примером",
@@ -70,6 +74,7 @@
     {
       "word": "underscore",
       "part_of_speech": "verb",
+      "transcription": "/ˌʌndərˈskɔr/",
       "translation": "подчёркивать",
       "translations": {
         "ru": "подчёркивать",
@@ -84,6 +89,7 @@
     {
       "word": "encompass",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈkʌmpəs/",
       "translation": "охватывать",
       "translations": {
         "ru": "охватывать",
@@ -98,6 +104,7 @@
     {
       "word": "constitute",
       "part_of_speech": "verb",
+      "transcription": "/ˈkɑnstəˌtut/",
       "translation": "составлять",
       "translations": {
         "ru": "составлять",
@@ -112,6 +119,7 @@
     {
       "word": "pertain",
       "part_of_speech": "verb",
+      "transcription": "/pərˈteɪn/",
       "translation": "относиться",
       "translations": {
         "ru": "относиться",
@@ -126,6 +134,7 @@
     {
       "word": "denote",
       "part_of_speech": "verb",
+      "transcription": "/dɪˈnoʊt/",
       "translation": "обозначать",
       "translations": {
         "ru": "обозначать",
@@ -140,6 +149,7 @@
     {
       "word": "ascertain",
       "part_of_speech": "verb",
+      "transcription": "/ˌæsərˈteɪn/",
       "translation": "выяснять",
       "translations": {
         "ru": "выяснять",

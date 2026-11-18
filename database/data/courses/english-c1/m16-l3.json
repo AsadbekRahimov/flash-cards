@@ -14,6 +14,7 @@
     {
       "word": "pedagogy",
       "part_of_speech": "noun",
+      "transcription": "/ˈpɛdəˌgoʊdʒi/",
       "translation": "педагогика",
       "translations": {
         "ru": "педагогика",
@@ -28,6 +29,7 @@
     {
       "word": "didactic",
       "part_of_speech": "adjective",
+      "transcription": "/daɪˈdæktɪk/",
       "translation": "поучительный",
       "translations": {
         "ru": "поучительный",
@@ -42,6 +44,7 @@
     {
       "word": "facilitate",
       "part_of_speech": "verb",
+      "transcription": "/fəˈsɪləˌteɪt/",
       "translation": "способствовать",
       "translations": {
         "ru": "способствовать",
@@ -56,6 +59,7 @@
     {
       "word": "instruct",
       "part_of_speech": "verb",
+      "transcription": "/ɪnˈstrʌkt/",
       "translation": "обучать",
       "translations": {
         "ru": "обучать",
@@ -70,6 +74,7 @@
     {
       "word": "formative",
       "part_of_speech": "adjective",
+      "transcription": "/ˈfɔrmətɪv/",
       "translation": "формирующий",
       "translations": {
         "ru": "формирующий",
@@ -84,6 +89,7 @@
     {
       "word": "remedial",
       "part_of_speech": "adjective",
+      "transcription": "/rɪˈmidiəl/",
       "translation": "восполняющий пробелы",
       "translations": {
         "ru": "восполняющий пробелы",
@@ -98,6 +104,7 @@
     {
       "word": "inclusive",
       "part_of_speech": "adjective",
+      "transcription": "/ɪnˈklusɪv/",
       "translation": "инклюзивный",
       "translations": {
         "ru": "инклюзивный",
@@ -112,6 +119,7 @@
     {
       "word": "rote",
       "part_of_speech": "noun",
+      "transcription": "/roʊt/",
       "translation": "зубрёжка",
       "translations": {
         "ru": "зубрёжка",
@@ -126,6 +134,7 @@
     {
       "word": "immersion",
       "part_of_speech": "noun",
+      "transcription": "/ɪˈmɜrʒən/",
       "translation": "языковое погружение",
       "translations": {
         "ru": "языковое погружение",
@@ -140,6 +149,7 @@
     {
       "word": "bilingual",
       "part_of_speech": "adjective",
+      "transcription": "/baɪˈlɪŋgwəl/",
       "translation": "двуязычный",
       "translations": {
         "ru": "двуязычный",

@@ -14,6 +14,7 @@
     {
       "word": "abrasive",
       "part_of_speech": "adjective",
+      "transcription": "/əˈbreɪsɪv/",
       "translation": "резкий, грубый",
       "translations": {
         "ru": "резкий, грубый",
@@ -28,6 +29,7 @@
     {
       "word": "hypocritical",
       "part_of_speech": "adjective",
+      "transcription": "/ˌhɪpəˈkrɪtɪkəl/",
       "translation": "лицемерный",
       "translations": {
         "ru": "лицемерный",
@@ -42,6 +44,7 @@
     {
       "word": "deceitful",
       "part_of_speech": "adjective",
+      "transcription": "/dɪˈsitfəl/",
       "translation": "лживый",
       "translations": {
         "ru": "лживый",
@@ -56,6 +59,7 @@
     {
       "word": "vain",
       "part_of_speech": "adjective",
+      "transcription": "/veɪn/",
       "translation": "самовлюблённый, тщеславный",
       "translations": {
         "ru": "самовлюблённый, тщеславный",
@@ -70,6 +74,7 @@
     {
       "word": "petty",
       "part_of_speech": "adjective",
+      "transcription": "/ˈpɛti/",
       "translation": "мелочный",
       "translations": {
         "ru": "мелочный",
@@ -84,6 +89,7 @@
     {
       "word": "callous",
       "part_of_speech": "adjective",
+      "transcription": "/ˈkæləs/",
       "translation": "чёрствый, бездушный",
       "translations": {
         "ru": "чёрствый, бездушный",
@@ -98,6 +104,7 @@
     {
       "word": "devious",
       "part_of_speech": "adjective",
+      "transcription": "/ˈdiviəs/",
       "translation": "коварный, изворотливый",
       "translations": {
         "ru": "коварный, изворотливый",
@@ -112,6 +119,7 @@
     {
       "word": "spiteful",
       "part_of_speech": "adjective",
+      "transcription": "/ˈspaɪtfəl/",
       "translation": "злобный, язвительный",
       "translations": {
         "ru": "злобный, язвительный",
@@ -126,6 +134,7 @@
     {
       "word": "complacent",
       "part_of_speech": "adjective",
+      "transcription": "/kəmˈpleɪsənt/",
       "translation": "самоуспокоенный, самодовольный",
       "translations": {
         "ru": "самоуспокоенный, самодовольный",
@@ -140,6 +149,7 @@
     {
       "word": "obnoxious",
       "part_of_speech": "adjective",
+      "transcription": "/əbˈnɑkʃəs/",
       "translation": "несносный, противный",
       "translations": {
         "ru": "несносный, противный",
