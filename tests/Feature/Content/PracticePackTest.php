@@ -35,7 +35,7 @@ use Tests\Support\Practice\PracticePackRules;
 uses(RefreshDatabase::class);
 
 /*
- * The practice packs of the courses of ppk_courses() (a1-a2: database/data/practice/english-a1-a2*.json, docs/CONTENT_A1_A2.md,
+ * The practice packs of the courses of ppk_courses() (a1-a2: database/data/practice/english-a1-a2.json and -p*.json, docs/CONTENT_A1_A2.md,
  * 936 tasks; b1 and b2: english-b1-p*.json and english-b2-p*.json, 900 tasks each, exactly three tasks of each type in a lesson), each in files the importer takes whole (300 at most each). The files must keep: unique keys, tasks of each authored type in every one of
  * the 100 lessons (per_type of the course exactly, else at least three; targets: that many different target words over a lesson),
  * every target word written in the English text of its task (the word or a regular form; `unwritten` lists the exceptions), target words of the task's own lesson only, the level of the module (1-10 A1,
@@ -48,21 +48,23 @@ uses(RefreshDatabase::class);
 const PPK_TYPES = ['collocation', 'sentence', 'dictation'];
 
 /**
- * The courses with practice packs: add a course by adding a row here. Per course: the folder of its pack, the glob of its practice
- * files, the number of tasks, the level of a task by the number of its module, and the lesson of a module the session test opens.
+ * The courses with practice packs: add a course by adding a row here. Per course: the folder of its pack, the patterns of its practice
+ * files (`globs`: listed one by one - no GLOB_BRACE, the image is Alpine / musl - and never `*-x*.json`: those files of the two newer
+ * types are PracticeExtraPackTest's), the number of tasks, the level of a task by the number of its module, and the lesson of a module
+ * the session test opens.
  *
  * `per_type`: exactly so many tasks of each type in each lesson (null: at least three). `targets`: at least so many different target
  * words over the tasks of a lesson (null: not checked). `unwritten`: task key => why the target word is not in the English text of the
  * task as a word or a regular form of it (an irregular form, a compound).
  *
- * @return array<string, array{dir: string, glob: string, tasks: int, per_type: ?int, targets: ?int, unwritten: array<string, string>, level: Closure(int): string, lesson: Closure(int): int}>
+ * @return array<string, array{dir: string, globs: list<string>, tasks: int, per_type: ?int, targets: ?int, unwritten: array<string, string>, level: Closure(int): string, lesson: Closure(int): int}>
  */
 function ppk_courses(): array
 {
     return [
         'english-a1-a2' => [
             'dir' => 'database/data/courses/english-a1-a2',
-            'glob' => 'database/data/practice/english-a1-a2*.json',
+            'globs' => ['database/data/practice/english-a1-a2.json', 'database/data/practice/english-a1-a2-p*.json'],
             'tasks' => 936,
             'per_type' => null,
             'targets' => null,
@@ -88,7 +90,7 @@ function ppk_courses(): array
         ],
         'english-b1' => [
             'dir' => 'database/data/courses/english-b1',
-            'glob' => 'database/data/practice/english-b1-p*.json',
+            'globs' => ['database/data/practice/english-b1-p*.json'],
             'tasks' => 900,
             'per_type' => 3,
             'targets' => 10,
@@ -98,7 +100,7 @@ function ppk_courses(): array
         ],
         'english-b2' => [
             'dir' => 'database/data/courses/english-b2',
-            'glob' => 'database/data/practice/english-b2-p*.json',
+            'globs' => ['database/data/practice/english-b2-p*.json'],
             'tasks' => 900,
             'per_type' => 3,
             'targets' => 10,
@@ -118,10 +120,14 @@ dataset('ppk_courses', function (): array {
     return $rows;
 });
 
-/** @return list<string> the pack files */
+/** @return list<string> the pack files: the files of every pattern of the course, each once */
 function ppk_files(string $slug): array
 {
-    $files = glob(base_path(ppk_courses()[$slug]['glob'])) ?: [];
+    $files = [];
+    foreach (ppk_courses()[$slug]['globs'] as $pattern) {
+        $files = [...$files, ...(glob(base_path($pattern)) ?: [])];
+    }
+    $files = array_unique($files);
     natsort($files);
 
     return array_values($files);
@@ -376,6 +382,14 @@ it('keeps every practice file of a course in the glob of that course and of no o
         if (! isset($courses[$course]) || (ppk_read($file)['format'] ?? null) !== PracticeImporter::FORMAT) {
             continue;   // another course (`pilot-a1-a2.json` is of `default`), not a pack of this list
         }
+        if (preg_match(PracticePackRules::EXTRA_FILE, $file) === 1) {
+            // A file of the two newer types (`-x01.json`): PracticeExtraPackTest owns it - and no pattern here may take it.
+            foreach ($courses as $slug => $row) {
+                expect(in_array($file, ppk_files($slug), true))->toBeFalse(basename($file)." is in the patterns of {$slug}");
+            }
+
+            continue;
+        }
         $seen++;
         foreach ($courses as $slug => $row) {
             expect(in_array($file, ppk_files($slug), true))->toBe($slug === $course, basename($file)." is of {$course}, glob of {$slug}");
@@ -383,6 +397,17 @@ it('keeps every practice file of a course in the glob of that course and of no o
     }
 
     expect($seen)->toBeGreaterThan(0);
+});
+
+it('takes no file of the two newer types into the patterns of a course: english-<course>-x01.json matches none of them', function (): void {
+    foreach (ppk_courses() as $slug => $row) {
+        foreach (['english-a1-a2', 'english-b1', 'english-b2', 'english-c1', 'english-c2'] as $course) {
+            foreach ($row['globs'] as $pattern) {
+                expect(fnmatch(basename($pattern), "{$course}-x01.json"))->toBeFalse("{$pattern} of {$slug} takes {$course}-x01.json")
+                    ->and(fnmatch(basename($pattern), "{$course}-x10.json"))->toBeFalse("{$pattern} of {$slug} takes {$course}-x10.json");
+            }
+        }
+    }
 });
 
 // ---------------------------------------------------------------- the grading

@@ -304,6 +304,8 @@ function isolationRealWorld(): array
     foreach (range(1, 5) as $unused) {
         PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($words)->create();
         PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting($words)->create();
+        PracticeItem::factory()->wordForm()->published()->forLesson($lesson)->targeting($words)->create();
+        PracticeItem::factory()->errorHunt()->published()->forLesson($lesson)->targeting($words)->create();
     }
     DictationKit::stock($lesson, $learner, 6, 6);
 
@@ -404,6 +406,19 @@ function isolationRealAnswers(array $element, int $step): array
             3 => ['skip' => true],
             default => ['text' => mb_strtoupper($element['display']).'.'],
         }],
+        'word_form' => [match ($step) {
+            0, 2 => ['text' => $element['accepted'][0]],
+            1 => ['text' => 'nonsense'],
+            3 => ['skip' => true],
+            default => ['text' => $element['base']],
+        }],
+        // Two answers of one element: the word, then the correction (a skip ends it at once).
+        'error_hunt' => match ($step) {
+            0, 2 => [['token_id' => $element['error_id']], ['option_id' => $element['correct_ids'][0]]],
+            1 => [['token_id' => array_values(array_diff(array_column($element['tokens'], 'id'), [$element['error_id']]))[0]], ['option_id' => $element['correct_ids'][0]]],
+            3 => [['skip' => true]],
+            default => [['token_id' => $element['error_id']], ['option_id' => array_values(array_diff(array_column($element['options'], 'id'), $element['correct_ids']))[0]]],
+        },
         default => throw new RuntimeException("No answers for an element of the kind {$element['kind']}."),
     };
 }
@@ -525,6 +540,8 @@ it('leaves the learning of the learner exactly as it was after all four modes, t
     PracticeKit::fake(PracticeMode::Collocation, candidates: 8);
     PracticeKit::fake(PracticeMode::Sentence, candidates: 8);
     PracticeKit::fake(PracticeMode::Dictation, candidates: 8, spares: 2);
+    PracticeKit::fake(PracticeMode::WordForm, candidates: 8);
+    PracticeKit::fake(PracticeMode::ErrorHunt, candidates: 8);
 
     foreach ([...ISOLATION_TABLES, 'learners'] as $table) {
         expect(DB::table($table)->count())->toBeGreaterThan(0, "The baseline of {$table} is empty: the test would prove nothing.");
@@ -547,6 +564,8 @@ it('writes only the events of docs/16 §3.4, with the props the document lists a
     PracticeKit::fake(PracticeMode::Collocation, candidates: 8);
     PracticeKit::fake(PracticeMode::Sentence, candidates: 8);
     PracticeKit::fake(PracticeMode::Dictation, candidates: 8, spares: 2);
+    PracticeKit::fake(PracticeMode::WordForm, candidates: 8);
+    PracticeKit::fake(PracticeMode::ErrorHunt, candidates: 8);
     expect(ProductEvent::query()->count())->toBe(0);
 
     isolationPlayEverything($learner, $course, $lesson);
@@ -581,7 +600,7 @@ it('leaves the learning of the learner exactly as it was when the four REAL hand
             ->and((clone $sessions)->whereNotNull('retry_of_session_id')->count())->toBe($mode->isTimed() ? 0 : 1, "{$mode->value}: retries");
     }
     expect(PracticeSession::query()->whereIn('finish_reason', ['replaced', 'expired'])->count())->toBe(3)
-        ->and(PracticeSession::query()->count())->toBe(12)
+        ->and(PracticeSession::query()->count())->toBe(16)
         ->and(DB::table('practice_records')->where('mode', 'pairs_timed')->count())->toBe(1);
 });
 

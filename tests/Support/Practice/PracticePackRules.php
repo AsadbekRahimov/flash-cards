@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Support\Practice;
 
+use App\Domain\Practice\Enums\Verdict;
+use App\Domain\Practice\Exceptions\PracticeException;
+use App\Domain\Practice\Services\Grading\ErrorHuntGrader;
+use App\Domain\Practice\Services\Grading\WordFormGrader;
 use App\Domain\Practice\Support\EnglishLexicon;
+use App\Domain\Practice\Support\ErrorHuntText;
+use App\Domain\Practice\Support\PracticeTextNormalizer;
 
 /**
  * The rules a practice pack keeps (docs/16 §4.5, §5.2), free of any test framework: the pack tests and the checking script of the
@@ -130,5 +136,184 @@ final class PracticePackRules
         }
 
         return $writings;
+    }
+
+    // --- "word form" and "find the mistake" (docs/16 §5.6, §5.7; the x-files) ------------------------------------------------------
+
+    /** The keys of the tasks of an x-file: `<prefix>-mNN-lN-(w|e)[1-3]`. */
+    public const EXTRA_KEY = '/\A(a1a2|b1|b2|c1|c2)-m(0[1-9]|1\d|20)-l[1-5]-[we][1-3]\z/';
+
+    /** The name of an x-file: its tasks are of the two newer types. */
+    public const EXTRA_FILE = '/-x\d{2}\.json\z/';
+
+    /**
+     * The sentence of a word form with the canonical form in its blank.
+     *
+     * @param  array<string, mixed>  $content  the stored content (PracticeContentValidator::canonical)
+     */
+    public static function wordFormSentence(array $content): string
+    {
+        return str_replace('___', (string) ($content['accepted'][0] ?? ''), (string) ($content['text'] ?? ''));
+    }
+
+    /**
+     * The sentence of a find-the-mistake as the learner reads it (with the mistake), and corrected by the right option.
+     *
+     * @param  array<string, mixed>  $content  the stored content
+     * @return array{wrong: string, corrected: string}
+     */
+    public static function errorHuntSentences(array $content): array
+    {
+        $tokens = ErrorHuntText::tokens((string) ($content['text'] ?? ''));
+        $right = $content['options'][$content['correct'][0] ?? -1] ?? '';
+
+        return ['wrong' => implode(' ', $tokens), 'corrected' => ErrorHuntText::replace($tokens, (int) ($content['error_index'] ?? -1), (string) $right)];
+    }
+
+    /** The token is the word itself or a correctly spelled regular form of it (the rule of the target words of every pack). */
+    public static function isFormOf(string $token, string $word): bool
+    {
+        return $token === $word || in_array($word, EnglishLexicon::lemmas($token), true);
+    }
+
+    /**
+     * Is the target word written in the sentence: each of its words as itself or a regular form?
+     */
+    public static function writes(string $sentence, string $target): bool
+    {
+        $tokens = PracticeTextNormalizer::tokens($sentence);
+        foreach (PracticeTextNormalizer::tokens($target) as $word) {
+            $found = false;
+            foreach ($tokens as $token) {
+                if (self::isFormOf($token, $word)) {
+                    $found = true;
+                    break;
+                }
+            }
+            if (! $found) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * What is wrong with a word form whatever the course (the mistakes of an author that a learner pays for): a right form the grader
+     * does not take, the base word that it does not refuse with `same_as_base`, a right form that the sentence already shows, a word of a
+     * right form the lexicon does not know (a typo would make a right answer of a learner a «mistake»), a target word neither written in
+     * the sentence nor the base word.
+     *
+     * @param  array<string, mixed>  $content  the stored content
+     * @param  list<string>  $targets
+     * @return list<string>
+     */
+    public static function wordFormProblems(array $content, array $targets): array
+    {
+        $grader = new WordFormGrader;
+        $accepted = array_values(array_filter((array) ($content['accepted'] ?? []), 'is_string'));
+        $base = (string) ($content['base'] ?? '');
+        $text = (string) ($content['text'] ?? '');
+        $problems = [];
+
+        foreach ($accepted as $form) {
+            if ($grader->grade($accepted, $base, ['text' => $form])->verdict !== Verdict::Correct) {
+                $problems[] = "the right form «{$form}» is not graded correct";
+            }
+            if (self::contains(PracticeTextNormalizer::tokens($text), PracticeTextNormalizer::tokens($form))) {
+                $problems[] = "the right form «{$form}» is in the sentence already";
+            }
+            foreach (PracticeTextNormalizer::tokens($form) as $token) {
+                if (! EnglishLexicon::isWord($token)) {
+                    $problems[] = "«{$token}» of the right form «{$form}» is not in the lexicon (a typo? add an ordinary word to resources/lexicon/en-common.txt)";
+                }
+            }
+        }
+
+        $byBase = $grader->grade($accepted, $base, ['text' => $base]);
+        if ($byBase->verdict !== Verdict::Wrong || ($byBase->reveal['same_as_base'] ?? false) !== true) {
+            $problems[] = "the base word «{$base}» is not refused as the same word";
+        }
+
+        $sentence = self::wordFormSentence($content);
+        foreach ($targets as $target) {
+            if (! self::writes($sentence, $target) && PracticeTextNormalizer::normalize($target) !== PracticeTextNormalizer::normalize($base)) {
+                $problems[] = "target word «{$target}» is neither in «{$sentence}» nor the base word";
+            }
+        }
+
+        return $problems;
+    }
+
+    /**
+     * What is wrong with a find-the-mistake whatever the course: the grader on the task (words `t<i>`, options `o<i>`) does not find the
+     * mistake at its place, does not take the right correction or takes a wrong one; a word of the corrected sentence the lexicon does not
+     * know (a number is no word; `$names` are the lower-case names a course allows); a target word not written in the corrected sentence.
+     *
+     * @param  array<string, mixed>  $content  the stored content
+     * @param  list<string>  $targets
+     * @param  list<string>  $names
+     * @return list<string>
+     */
+    public static function errorHuntProblems(array $content, array $targets, array $names = []): array
+    {
+        $grader = new ErrorHuntGrader;
+        $tokens = ErrorHuntText::tokens((string) ($content['text'] ?? ''));
+        $index = (int) ($content['error_index'] ?? -1);
+        $tokenIds = array_map(static fn (int $i): string => "t{$i}", array_keys($tokens));
+        $options = array_values((array) ($content['options'] ?? []));
+        $optionIds = array_map(static fn (int $i): string => "o{$i}", array_keys($options));
+        $correctIds = array_map(static fn (mixed $i): string => 'o'.(int) $i, (array) ($content['correct'] ?? []));
+        $problems = [];
+
+        try {
+            if (! $grader->locate($tokenIds, "t{$index}", ['token_id' => "t{$index}"])) {
+                $problems[] = 'the mistake is not found at its place';
+            }
+            foreach ($optionIds as $i => $id) {
+                $right = $grader->fix($optionIds, $correctIds, ['option_id' => $id]);
+                if ($right !== in_array($id, $correctIds, true)) {
+                    $problems[] = 'the correction «'.$options[$i].'» is graded '.($right ? 'right' : 'wrong').' against the key';
+                }
+            }
+            if (count($correctIds) !== 1) {
+                $problems[] = 'not exactly one right correction';
+            }
+        } catch (PracticeException $e) {
+            $problems[] = 'the grader refuses the task: '.$e->errorCode;
+        }
+
+        $corrected = self::errorHuntSentences($content)['corrected'];
+        foreach (PracticeTextNormalizer::tokens($corrected) as $token) {
+            if (preg_match('/\d/', $token) !== 1 && ! EnglishLexicon::isWord($token) && ! in_array($token, $names, true)) {
+                $problems[] = "«{$token}» of the corrected sentence is not in the lexicon";
+            }
+        }
+        foreach ($targets as $target) {
+            if (! self::writes($corrected, $target)) {
+                $problems[] = "target word «{$target}» is not in the corrected sentence «{$corrected}»";
+            }
+        }
+
+        return $problems;
+    }
+
+    /**
+     * @param  list<string>  $haystack
+     * @param  list<string>  $needle
+     */
+    private static function contains(array $haystack, array $needle): bool
+    {
+        $length = count($needle);
+        if ($length === 0) {
+            return false;
+        }
+        for ($i = 0; $i + $length <= count($haystack); $i++) {
+            if (array_slice($haystack, $i, $length) === $needle) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

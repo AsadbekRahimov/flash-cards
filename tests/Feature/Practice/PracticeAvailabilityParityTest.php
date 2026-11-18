@@ -88,6 +88,22 @@ function parityWorld(): array
     $make('dictation', [$dead], 'ready');
     $make('dictation', [$w4], 'ready', ['text' => 'Good morning']);
 
+    // word forms (docs/16 §5.6): 2 fit, locked (one word / one of two), dead, a fit one that cannot be played
+    $make('wordForm', [$w1]);
+    $make('wordForm', [$w2]);
+    $make('wordForm', [$unseen]);
+    $make('wordForm', [$w1, $unseen]);
+    $make('wordForm', [$dead]);
+    $make('wordForm', [$w3], '', ['text' => 'no blank here']);
+
+    // find the mistake (docs/16 §5.7): 3 fit, locked, dead, a fit one that cannot be played
+    $make('errorHunt', [$w1]);
+    $make('errorHunt', [$w2]);
+    $make('errorHunt', [$w3]);
+    $make('errorHunt', [$unseen]);
+    $make('errorHunt', [$dead]);
+    $make('errorHunt', [$w4], '', ['error_index' => 99]);
+
     // not published: nothing of it counts
     PracticeItem::factory()->collocation()->draft()->forLesson($lesson)->targeting([$w1])->create();
 
@@ -111,7 +127,8 @@ function parityReport(Course $course, ?Lesson $lesson, ?Learner $learner, array 
 it('counts the modes of a lesson, of a course and of a battle as the code that hydrated the versions did', function (): void {
     ['course' => $course, 'lesson' => $lesson, 'learner' => $learner] = parityWorld();
 
-    $mode = ['pairs' => [4, 3, null], 'collocation' => [2, 3, 'items_locked'], 'sentence' => [2, 3, 'items_locked'], 'dictation' => [2, 3, 'audio_pending'], 'pairs_timed' => [4, 8, 'no_words']];
+    $mode = ['pairs' => [4, 3, null], 'collocation' => [2, 3, 'items_locked'], 'sentence' => [2, 3, 'items_locked'], 'dictation' => [2, 3, 'audio_pending'], 'pairs_timed' => [4, 8, 'no_words'],
+        'word_form' => [2, 3, 'items_locked'], 'error_hunt' => [3, 3, null]];
 
     expect(parityReport($course, $lesson, $learner))->toBe($mode)
         ->and(parityReport($course, null, $learner, ['ru', 'uz']))->toBe($mode)
@@ -121,6 +138,8 @@ it('counts the modes of a lesson, of a course and of a battle as the code that h
             'sentence' => [3, 5, 'no_items'],
             'dictation' => [3, 5, 'audio_pending'],
             'pairs_timed' => [5, 8, 'no_words'], // a battle has no such mode; the report still counts the words
+            'word_form' => [4, 5, 'no_items'], // nor these two: the report counts the tasks of all the active words
+            'error_hunt' => [4, 5, 'no_items'],
         ]);
 });
 
@@ -133,6 +152,8 @@ it('tells a learner without words that the tasks are there and the words are not
         'sentence' => [0, 3, 'items_locked'],
         'dictation' => [0, 3, 'items_locked'],
         'pairs_timed' => [0, 8, 'no_words'],
+        'word_form' => [0, 3, 'items_locked'],
+        'error_hunt' => [0, 3, 'items_locked'],
     ]);
 });
 
@@ -146,6 +167,8 @@ it('opens the modes when the minimum is low enough', function (): void {
         'sentence' => [2, 1, null],
         'dictation' => [2, 1, null],
         'pairs_timed' => [4, 8, 'no_words'],
+        'word_form' => [2, 1, null],
+        'error_hunt' => [3, 1, null],
     ]);
 });
 
@@ -166,8 +189,8 @@ it('gives the same numbers on the hub endpoint, with no model of a task or of a 
             ->assertOk()->json('modes');
     });
 
-    expect(array_column($modes, 'available', 'mode'))->toBe(['pairs' => 4, 'collocation' => 2, 'sentence' => 2, 'dictation' => 2, 'pairs_timed' => 4])
-        ->and(array_column($modes, 'reason', 'mode'))->toBe(['pairs' => null, 'collocation' => 'items_locked', 'sentence' => 'items_locked', 'dictation' => 'audio_pending', 'pairs_timed' => 'no_words'])
+    expect(array_column($modes, 'available', 'mode'))->toBe(['pairs' => 4, 'collocation' => 2, 'sentence' => 2, 'dictation' => 2, 'pairs_timed' => 4, 'word_form' => 2, 'error_hunt' => 3])
+        ->and(array_column($modes, 'reason', 'mode'))->toBe(['pairs' => null, 'collocation' => 'items_locked', 'sentence' => 'items_locked', 'dictation' => 'audio_pending', 'pairs_timed' => 'no_words', 'word_form' => 'items_locked', 'error_hunt' => null])
         ->and($retrieved)->toBe([])
         ->and(count($queries))->toBeLessThanOrEqual(PARITY_BUDGET_HUB, implode("\n", $queries));
 });
@@ -201,4 +224,17 @@ it('still hands the models to a session that is being opened', function (): void
         ->and($material->eligibleItems($scope, PracticeItemType::Dictation, $learner))->toHaveCount(3)
         ->and($material->lockedItems($scope, PracticeItemType::Dictation, $learner))->toBe(1)
         ->and($material->pendingAudioItems($scope, $learner))->toBe(2);
+});
+
+it('builds what the hub promised for the two newer modes: error_hunt opens with its three tasks, word_form is refused with the same numbers', function (): void {
+    ['course' => $course, 'lesson' => $lesson, 'learner' => $learner] = parityWorld();
+    config(['practice.modes.word_form' => true, 'practice.modes.error_hunt' => true]);
+    $open = fn (string $mode) => test()->withHeaders(PracticeKit::headers($learner))
+        ->postJson('/api/twa/practice/sessions', ['mode' => $mode, 'course' => $course->slug, 'lesson_id' => $lesson->id]);
+
+    $refused = $open('word_form')->assertStatus(422);
+    expect($refused->json('error.details'))->toMatchArray(['mode' => 'word_form', 'available' => 2, 'required' => 3, 'reason' => 'items_locked']);
+
+    $opened = $open('error_hunt')->assertCreated();
+    expect($opened->json('progress.total'))->toBe(3);
 });

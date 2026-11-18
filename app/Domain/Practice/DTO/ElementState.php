@@ -10,8 +10,9 @@ use App\Domain\Practice\Enums\Verdict;
  * The state of ONE element of a session as a mode handler sees it (docs/16 §1.2, §6.2).
  *
  * Stored (`practice_sessions.state`): `elements[id] = {status: answered, verdict, first, hints, answer, answered_at}`
- * for an element that is done, and, for a mode that keeps more, `pairs[id] = {...}` - the {@see $extra} block (pairs:
- * `matched {left: right}`, `mismatches`, `wrong_left`). An element nobody answered has no entry: {@see open()}.
+ * for an element that is done, and, for a mode that keeps more, `pairs[id] = {...}` - the {@see $extra} block of the mode (named after
+ * the pairs, which came first: `matched {left: right}`, `mismatches`, `wrong_left`; "find the mistake": `located`, `located_ok`, `fixed`,
+ * `fixed_ok`). An element nobody answered has no entry: {@see open()}.
  *
  * Not stored, filled by the service for `project()` (the handler cannot know them): {@see $audioUrl}, the URL of the
  * audio of the element, and {@see $replacementsLeft}, how many swaps of the session are left (docs/16 §7.2).

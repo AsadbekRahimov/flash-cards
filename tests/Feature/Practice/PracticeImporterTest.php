@@ -869,7 +869,7 @@ function pim_new_types(): array
             'explanation' => ['ru' => 'Одна мама — единственное число.', 'uz' => 'Bitta ona — birlik.']],
         ['key' => 'eh-1', 'type' => 'error_hunt', 'lesson' => ['stage' => 1, 'number' => 2], 'level' => 'A1', 'target_words' => ['family'],
             'text' => 'My family *are* very big and friendly.', 'options' => ['is', 'be', 'am'], 'correct' => ['is'],
-            'translation' => ['ru' => 'Моя семья очень большая и дружная.', 'uz' => "Mening oilam juda katta va inoq."],
+            'translation' => ['ru' => 'Моя семья очень большая и дружная.', 'uz' => 'Mening oilam juda katta va inoq.'],
             'explanation' => ['ru' => 'family — одна семья: is.', 'uz' => 'family — bitta oila: is.']],
     ];
 }

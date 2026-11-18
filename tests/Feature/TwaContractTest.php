@@ -172,7 +172,7 @@ it('GET /me keeps its exact JSON shape', function (): void {
         ->and($response->json('groups.0.id'))->toBe($s['group']->id)
         ->and($response->json('learner.id'))->toBe($s['learner']->id)
         // The block is always there; `PRACTICE_ACCESS=off` closes it (docs/16 §3.3).
-        ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null])
+        ->and($response->json('practice'))->toBe(['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed', 'word_form', 'error_hunt'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null])
         // ... and so is `GAME_ACCESS` (docs/18 §12.7.4): closed, nothing to promise, nothing counted.
         ->and($response->json('game'))->toBe(['available' => false, 'limits' => null, 'pro_promise' => 'none', 'coins' => 0, 'tickets' => 0]);
 });
@@ -260,7 +260,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
         // the IANA id of the learner's zone: the TWA dates the header of the screen by it
         ->and($response->json('timezone'))->toBe($learner->timezone)
         // the practice card: the flags of `/me.practice` (practice open to everybody, battles off - pinned above), no limits here
-        ->and($response->json('practice'))->toBe(['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'], 'battle' => false, 'pro_promise' => 'solo']);
+        ->and($response->json('practice'))->toBe(['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed', 'word_form', 'error_hunt'], 'battle' => false, 'pro_promise' => 'solo']);
 
     $bare = Learner::factory()->create();
     $this->withHeaders(contractHeaders($bare))

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Practice\DTO\Snapshot;
 use App\Domain\Practice\Enums\FinishReason;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Enums\SessionStatus;
@@ -17,6 +18,7 @@ use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tests\Support\ForkSafe;
+use Tests\Support\Practice\ErrorHuntKit;
 use Tests\Support\Practice\PracticeKit;
 
 /*
@@ -226,6 +228,38 @@ it('takes one answer to an element from two tabs with different request ids: the
         ->and(PracticeAttempt::query()->where('session_id', $sessionId)->count())->toBe(1)
         ->and($session->answered)->toBe(1)
         ->and($session->state['current'])->toBe(1);
+});
+
+it('takes one step locate of find the mistake from two tabs with different words: the second is 409 step_not_current {step: fix}', function (): void {
+    config(['practice.modes.error_hunt' => true]);
+    [, $course, $lesson] = ErrorHuntKit::world(3);
+    $learner = Learner::factory()->create();
+    foreach (Word::query()->where('lesson_id', $lesson->id)->get() as $word) {
+        PracticeKit::introduce($learner, $word);
+    }
+    $session = app(PracticeSessionService::class)->open($learner, PracticeMode::ErrorHunt, $course->slug, $lesson->id, 'hub', false, null);
+    $element = Snapshot::fromArray($session->snapshot)->at(0);
+    $tokens = array_column((array) $element?->get('tokens'), 'id');
+    $learnerId = $learner->id;
+    $sessionId = $session->id;
+    $elementId = (string) $element?->id;
+
+    $results = practiceRace(array_map(
+        fn (string $tokenId): Closure => fn (): array => app(PracticeSessionService::class)->answer(
+            $sessionId, Learner::query()->findOrFail($learnerId), (string) Str::uuid(), $elementId, ['token_id' => $tokenId], null,
+        )->result,
+        [$tokens[0], $tokens[1]],
+    ));
+
+    $session = PracticeSession::query()->findOrFail($sessionId);
+    $refused = array_values(array_filter($results, fn (array $r): bool => ! $r['ok']));
+    expect(practiceRaceCrashes($results))->toBe([])
+        ->and(array_count_values(array_map(fn (array $r): string => $r['ok'] ? 'accepted' : (string) $r['code'], $results)))->toEqual(['accepted' => 1, 'step_not_current' => 1])
+        ->and($refused[0]['details'])->toBe(['step' => 'fix'])
+        ->and(PracticeAttempt::query()->where('session_id', $sessionId)->count())->toBe(1)
+        ->and($session->answered)->toBe(0)
+        ->and($session->state['current'])->toBe(0)
+        ->and($session->state['pairs'][$elementId]['located'])->toBeIn([$tokens[0], $tokens[1]]);
 });
 
 it('takes one answer from two tabs with the SAME request id: both get the same result, one row is written', function (): void {

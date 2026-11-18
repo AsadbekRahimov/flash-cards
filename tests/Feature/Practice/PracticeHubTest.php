@@ -76,6 +76,8 @@ it('reports each mode with the numbers its handler gives and the reason when the
         ['mode' => 'sentence', 'state' => 'available', 'available' => 8, 'required' => 3, 'reason' => null, 'estimate_seconds' => 150],
         ['mode' => 'dictation', 'state' => 'not_enough', 'available' => 0, 'required' => 3, 'reason' => 'no_items', 'estimate_seconds' => 180],
         ['mode' => 'pairs_timed', 'state' => 'not_enough', 'available' => 0, 'required' => 8, 'reason' => 'no_words', 'estimate_seconds' => 60, 'record' => null],
+        ['mode' => 'word_form', 'state' => 'not_enough', 'available' => 0, 'required' => 3, 'reason' => 'no_items', 'estimate_seconds' => 120],
+        ['mode' => 'error_hunt', 'state' => 'not_enough', 'available' => 0, 'required' => 3, 'reason' => 'no_items', 'estimate_seconds' => 150],
     ]);
 });
 
@@ -88,7 +90,7 @@ it('shows a switched-off mode as disabled without numbers, and the others as the
 
     $modes = hubGet(Learner::factory()->create(), "course={$course->slug}")->assertOk()->json('modes');
 
-    expect(array_column($modes, 'state', 'mode'))->toBe(['pairs' => 'available', 'collocation' => 'available', 'sentence' => 'disabled', 'dictation' => 'available', 'pairs_timed' => 'available'])
+    expect(array_column($modes, 'state', 'mode'))->toBe(['pairs' => 'available', 'collocation' => 'available', 'sentence' => 'disabled', 'dictation' => 'available', 'pairs_timed' => 'available', 'word_form' => 'available', 'error_hunt' => 'available'])
         ->and($modes[2])->toBe(['mode' => 'sentence', 'state' => 'disabled', 'available' => 0, 'required' => 3, 'reason' => null, 'estimate_seconds' => 150]);
 });
 

@@ -166,6 +166,16 @@ it('blocks only the invitation and the acceptance when the battle is switched of
     BattleHttp::accept($friend, $waiting)->assertOk()->assertJsonPath('status', 'room');
 });
 
+it('refuses to invite to word_form and error_hunt and leaves them out of the options: the two newer modes are solo only', function (PracticeMode $mode): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+
+    BattleHttp::invite($me, $friendship, $mode, $course)->assertStatus(422)->assertJsonValidationErrors('mode');
+
+    $modes = BattleHttp::options($me, $friendship, $course, $lesson)->assertOk()->json('modes');
+    expect(array_column($modes, 'mode'))->not->toContain($mode->value)
+        ->and(Battle::query()->count())->toBe(0);
+})->with([PracticeMode::WordForm, PracticeMode::ErrorHunt]);
+
 it('takes surrender only with `confirm: true`: a body without it is 422 and the match goes on', function (): void {
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
     $id = BattleHttp::countdown($me, $friend, $friendship, PracticeMode::Collocation, $course, $lesson);

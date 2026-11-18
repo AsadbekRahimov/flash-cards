@@ -1737,7 +1737,7 @@ it('creates a find-the-mistake from the form with the asterisks, opens it again 
                     ['text' => 'would', 'correct' => false],
                     ['text' => 'shall to', 'correct' => false],
                 ],
-                'translation' => ['ru' => 'Мы встретимся завтра в полдень.', 'uz' => "Ertaga tushda uchrashamiz."],
+                'translation' => ['ru' => 'Мы встретимся завтра в полдень.', 'uz' => 'Ertaga tushda uchrashamiz.'],
                 'explanation' => ['ru' => 'После will — глагол без to.', 'uz' => "will dan keyin fe'l to siz."],
             ],
         ])
