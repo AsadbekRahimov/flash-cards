@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 17,
+    "title": "Время и перемены",
+    "title_uz": "Vaqt va o'zgarishlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Начало и конец",
+    "title_uz": "Ibtido va intiho"
+  },
+  "words": [
+    {
+      "word": "inception",
+      "part_of_speech": "noun",
+      "translation": "основание, создание",
+      "translations": {
+        "ru": "основание, создание",
+        "uz": "tashkil topish"
+      },
+      "example": "She has led the company since its inception.",
+      "example_translations": {
+        "ru": "Она руководит компанией с момента её основания.",
+        "uz": "U kompaniyani tashkil topishidan boshlab boshqarib keladi."
+      }
+    },
+    {
+      "word": "advent",
+      "part_of_speech": "noun",
+      "translation": "появление, приход",
+      "translations": {
+        "ru": "появление, приход",
+        "uz": "paydo bo'lish, kirib kelish"
+      },
+      "example": "The advent of the internet transformed how we communicate.",
+      "example_translations": {
+        "ru": "Появление интернета изменило то, как мы общаемся.",
+        "uz": "Internetning paydo bo'lishi muloqot qilish usulimizni o'zgartirdi."
+      }
+    },
+    {
+      "word": "onset",
+      "part_of_speech": "noun",
+      "translation": "наступление, начало",
+      "translations": {
+        "ru": "наступление, начало",
+        "uz": "boshlanish"
+      },
+      "example": "Farmers harvested the crops before the onset of winter.",
+      "example_translations": {
+        "ru": "Фермеры собрали урожай до наступления зимы.",
+        "uz": "Fermerlar qish boshlanishidan oldin hosilni yig'ib oldi."
+      }
+    },
+    {
+      "word": "genesis",
+      "part_of_speech": "noun",
+      "translation": "зарождение, возникновение",
+      "translations": {
+        "ru": "зарождение, возникновение",
+        "uz": "vujudga kelish"
+      },
+      "example": "Historians still debate the genesis of this ancient tradition.",
+      "example_translations": {
+        "ru": "Историки до сих пор спорят о зарождении этой древней традиции.",
+        "uz": "Tarixchilar bu qadimiy an'ananing vujudga kelishi haqida hamon bahslashadi."
+      }
+    },
+    {
+      "word": "nascent",
+      "part_of_speech": "adjective",
+      "translation": "зарождающийся",
+      "translations": {
+        "ru": "зарождающийся",
+        "uz": "endigina shakllanayotgan"
+      },
+      "example": "The nascent industry has only a few small firms.",
+      "example_translations": {
+        "ru": "В зарождающейся отрасли пока лишь несколько небольших фирм.",
+        "uz": "Endigina shakllanayotgan sohada hozircha bir nechta kichik firma bor."
+      }
+    },
+    {
+      "word": "herald",
+      "part_of_speech": "verb",
+      "translation": "возвещать, предвещать",
+      "translations": {
+        "ru": "возвещать, предвещать",
+        "uz": "darak bermoq"
+      },
+      "example": "The first swallows herald the arrival of spring.",
+      "example_translations": {
+        "ru": "Первые ласточки возвещают приход весны.",
+        "uz": "Ilk qaldirg'ochlar bahor kelishidan darak beradi."
+      }
+    },
+    {
+      "word": "harbinger",
+      "part_of_speech": "noun",
+      "translation": "предвестник",
+      "translations": {
+        "ru": "предвестник",
+        "uz": "darakchi"
+      },
+      "example": "Dark clouds were a harbinger of the coming storm.",
+      "example_translations": {
+        "ru": "Тёмные тучи были предвестником надвигающейся бури.",
+        "uz": "Qora bulutlar yaqinlashayotgan bo'ronning darakchisi edi."
+      }
+    },
+    {
+      "word": "precursor",
+      "part_of_speech": "noun",
+      "translation": "предшественник",
+      "translations": {
+        "ru": "предшественник",
+        "uz": "o'tmishdosh"
+      },
+      "example": "The telegraph was a precursor of the modern telephone.",
+      "example_translations": {
+        "ru": "Телеграф был предшественником современного телефона.",
+        "uz": "Telegraf zamonaviy telefonning o'tmishdoshi edi."
+      }
+    },
+    {
+      "word": "prelude",
+      "part_of_speech": "noun",
+      "translation": "прелюдия, пролог",
+      "translations": {
+        "ru": "прелюдия, пролог",
+        "uz": "debocha, muqaddima"
+      },
+      "example": "The quarrel proved a prelude to their final separation.",
+      "example_translations": {
+        "ru": "Ссора оказалась прелюдией к их окончательному расставанию.",
+        "uz": "Janjal ularning uzil-kesil ajralishiga debocha bo'ldi."
+      }
+    },
+    {
+      "word": "cessation",
+      "part_of_speech": "noun",
+      "translation": "прекращение",
+      "translations": {
+        "ru": "прекращение",
+        "uz": "to'xtash, tugash"
+      },
+      "example": "The cessation of the rain let the match resume.",
+      "example_translations": {
+        "ru": "Прекращение дождя позволило возобновить матч.",
+        "uz": "Yomg'irning to'xtashi o'yinni davom ettirishga imkon berdi."
+      }
+    }
+  ]
+}

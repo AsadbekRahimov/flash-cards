@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 20,
+    "title": "Труд и достижения",
+    "title_uz": "Mehnat va yutuqlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Вершины успеха",
+    "title_uz": "Muvaffaqiyat cho'qqilari"
+  },
+  "words": [
+    {
+      "word": "zenith",
+      "part_of_speech": "noun",
+      "translation": "зенит, высшая точка",
+      "translations": {
+        "ru": "зенит, высшая точка",
+        "uz": "avj pallasi"
+      },
+      "example": "The empire reached its zenith, then slowly declined.",
+      "example_translations": {
+        "ru": "Империя достигла зенита, а затем медленно пришла в упадок.",
+        "uz": "Imperiya avj pallasiga yetdi, so'ng asta-sekin tanazzulga yuz tutdi."
+      }
+    },
+    {
+      "word": "pinnacle",
+      "part_of_speech": "noun",
+      "translation": "вершина",
+      "translations": {
+        "ru": "вершина",
+        "uz": "cho'qqi"
+      },
+      "example": "Winning gold was the pinnacle of her career.",
+      "example_translations": {
+        "ru": "Золотая медаль стала вершиной её карьеры.",
+        "uz": "Oltin medal yutish uning faoliyatining cho'qqisi bo'ldi."
+      }
+    },
+    {
+      "word": "epitome",
+      "part_of_speech": "noun",
+      "translation": "воплощение",
+      "translations": {
+        "ru": "воплощение",
+        "uz": "timsol"
+      },
+      "example": "Calm and polite, he is the epitome of professionalism.",
+      "example_translations": {
+        "ru": "Спокойный и вежливый, он — воплощение профессионализма.",
+        "uz": "Vazmin va xushmuomala, u — professionallik timsoli."
+      }
+    },
+    {
+      "word": "paragon",
+      "part_of_speech": "noun",
+      "translation": "образец, эталон",
+      "translations": {
+        "ru": "образец, эталон",
+        "uz": "yuksak namuna"
+      },
+      "example": "Our teacher is a paragon of patience.",
+      "example_translations": {
+        "ru": "Наш учитель — образец терпения.",
+        "uz": "Ustozimiz — sabr-toqatning yuksak namunasi."
+      }
+    },
+    {
+      "word": "feat",
+      "part_of_speech": "noun",
+      "translation": "выдающееся достижение, подвиг",
+      "translations": {
+        "ru": "выдающееся достижение, подвиг",
+        "uz": "jasorat, ulkan yutuq"
+      },
+      "example": "Crossing the ocean alone was a remarkable feat.",
+      "example_translations": {
+        "ru": "Пересечь океан в одиночку было выдающимся достижением.",
+        "uz": "Okeanni yolg'iz kesib o'tish chinakam jasorat edi."
+      }
+    },
+    {
+      "word": "meteoric",
+      "part_of_speech": "adjective",
+      "translation": "стремительный, головокружительный",
+      "translations": {
+        "ru": "стремительный, головокружительный",
+        "uz": "shiddatli"
+      },
+      "example": "Her meteoric rise took just two years.",
+      "example_translations": {
+        "ru": "Её стремительный взлёт занял всего два года.",
+        "uz": "Uning shiddatli yuksalishi atigi ikki yil davom etdi."
+      }
+    },
+    {
+      "word": "preeminent",
+      "part_of_speech": "adjective",
+      "translation": "выдающийся, ведущий",
+      "translations": {
+        "ru": "выдающийся, ведущий",
+        "uz": "eng ko'zga ko'ringan"
+      },
+      "example": "She is the preeminent expert in her field.",
+      "example_translations": {
+        "ru": "Она — ведущий специалист в своей области.",
+        "uz": "U o'z sohasining eng ko'zga ko'ringan mutaxassisi."
+      }
+    },
+    {
+      "word": "surpass",
+      "part_of_speech": "verb",
+      "translation": "превосходить",
+      "translations": {
+        "ru": "превосходить",
+        "uz": "o'zib ketmoq"
+      },
+      "example": "This year's sales surpassed all our expectations.",
+      "example_translations": {
+        "ru": "Продажи этого года превзошли все наши ожидания.",
+        "uz": "Bu yilgi savdo barcha kutganlarimizdan o'zib ketdi."
+      }
+    },
+    {
+      "word": "attain",
+      "part_of_speech": "verb",
+      "translation": "достигать, добиваться",
+      "translations": {
+        "ru": "достигать, добиваться",
+        "uz": "erishmoq"
+      },
+      "example": "After years of study, she attained her doctorate.",
+      "example_translations": {
+        "ru": "После многих лет учёбы она добилась докторской степени.",
+        "uz": "Ko'p yillik o'qishdan so'ng u doktorlik darajasiga erishdi."
+      }
+    },
+    {
+      "word": "garner",
+      "part_of_speech": "verb",
+      "translation": "собирать, получать",
+      "translations": {
+        "ru": "собирать, получать",
+        "uz": "qozonmoq, to'plamoq"
+      },
+      "example": "The film garnered five awards and wide praise.",
+      "example_translations": {
+        "ru": "Фильм собрал пять наград и множество похвал.",
+        "uz": "Film beshta mukofot va keng olqish qozondi."
+      }
+    }
+  ]
+}

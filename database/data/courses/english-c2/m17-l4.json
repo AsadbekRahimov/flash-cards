@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 17,
+    "title": "Время и перемены",
+    "title_uz": "Vaqt va o'zgarishlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Изменчивость и неизбежность",
+    "title_uz": "O'zgaruvchanlik va muqarrarlik"
+  },
+  "words": [
+    {
+      "word": "volatile",
+      "part_of_speech": "adjective",
+      "translation": "нестабильный, резко меняющийся",
+      "translations": {
+        "ru": "нестабильный, резко меняющийся",
+        "uz": "beqaror, keskin o'zgaruvchan"
+      },
+      "example": "Oil prices are volatile and can double overnight.",
+      "example_translations": {
+        "ru": "Цены на нефть нестабильны и могут удвоиться за ночь.",
+        "uz": "Neft narxlari beqaror va bir kechada ikki baravar oshishi mumkin."
+      }
+    },
+    {
+      "word": "fickle",
+      "part_of_speech": "adjective",
+      "translation": "непостоянный, ветреный",
+      "translations": {
+        "ru": "непостоянный, ветреный",
+        "uz": "subutsiz"
+      },
+      "example": "Fickle fans abandoned the team after one defeat.",
+      "example_translations": {
+        "ru": "Непостоянные болельщики отвернулись от команды после одного поражения.",
+        "uz": "Subutsiz muxlislar bitta mag'lubiyatdan so'ng jamoadan yuz o'girdi."
+      }
+    },
+    {
+      "word": "erratic",
+      "part_of_speech": "adjective",
+      "translation": "беспорядочный, непредсказуемый",
+      "translations": {
+        "ru": "беспорядочный, непредсказуемый",
+        "uz": "betartib, oldindan bilib bo'lmas"
+      },
+      "example": "His erratic driving, swerving between lanes, alarmed the passengers.",
+      "example_translations": {
+        "ru": "Его беспорядочная езда с метаниями между полосами встревожила пассажиров.",
+        "uz": "Uning yo'laklar orasida u yoqdan bu yoqqa burilib, betartib haydashi yo'lovchilarni xavotirga soldi."
+      }
+    },
+    {
+      "word": "vicissitude",
+      "part_of_speech": "noun",
+      "translation": "превратность",
+      "translations": {
+        "ru": "превратность",
+        "uz": "past-balandlik"
+      },
+      "example": "They stayed together through all the vicissitudes of life.",
+      "example_translations": {
+        "ru": "Они оставались вместе, несмотря на все превратности жизни.",
+        "uz": "Ular hayotning barcha past-balandliklariga qaramay birga qoldi."
+      }
+    },
+    {
+      "word": "flux",
+      "part_of_speech": "noun",
+      "translation": "постоянное изменение",
+      "translations": {
+        "ru": "постоянное изменение",
+        "uz": "doimiy o'zgarish"
+      },
+      "example": "The language is in flux, with new words appearing daily.",
+      "example_translations": {
+        "ru": "Язык находится в постоянном изменении: новые слова появляются ежедневно.",
+        "uz": "Til doimiy o'zgarishda: har kuni yangi so'zlar paydo bo'ladi."
+      }
+    },
+    {
+      "word": "metamorphosis",
+      "part_of_speech": "noun",
+      "translation": "превращение, метаморфоза",
+      "translations": {
+        "ru": "превращение, метаморфоза",
+        "uz": "evrilish, tubdan o'zgarish"
+      },
+      "example": "The village underwent a metamorphosis into a modern town.",
+      "example_translations": {
+        "ru": "Деревня пережила превращение в современный город.",
+        "uz": "Qishloq zamonaviy shaharga evrilishni boshdan kechirdi."
+      }
+    },
+    {
+      "word": "vacillate",
+      "part_of_speech": "verb",
+      "translation": "колебаться",
+      "translations": {
+        "ru": "колебаться",
+        "uz": "ikkilanmoq"
+      },
+      "example": "She vacillated for weeks between the two job offers.",
+      "example_translations": {
+        "ru": "Она неделями колебалась между двумя предложениями работы.",
+        "uz": "U ikki ish taklifi o'rtasida haftalab ikkilandi."
+      }
+    },
+    {
+      "word": "inexorable",
+      "part_of_speech": "adjective",
+      "translation": "неумолимый, неотвратимый",
+      "translations": {
+        "ru": "неумолимый, неотвратимый",
+        "uz": "shafqatsiz, muqarrar"
+      },
+      "example": "The inexorable passage of time spares no one.",
+      "example_translations": {
+        "ru": "Неумолимый ход времени не щадит никого.",
+        "uz": "Vaqtning shafqatsiz o'tishi hech kimni ayamaydi."
+      }
+    },
+    {
+      "word": "irrevocable",
+      "part_of_speech": "adjective",
+      "translation": "бесповоротный, необратимый",
+      "translations": {
+        "ru": "бесповоротный, необратимый",
+        "uz": "qaytarib bo'lmas"
+      },
+      "example": "Think carefully: this decision is irrevocable and final.",
+      "example_translations": {
+        "ru": "Подумайте хорошенько: это решение бесповоротно и окончательно.",
+        "uz": "Yaxshilab o'ylab ko'ring: bu qaror qaytarib bo'lmas va uzil-kesildir."
+      }
+    },
+    {
+      "word": "stasis",
+      "part_of_speech": "noun",
+      "translation": "застой, неподвижность",
+      "translations": {
+        "ru": "застой, неподвижность",
+        "uz": "turg'unlik"
+      },
+      "example": "After years of stasis, the economy finally began growing.",
+      "example_translations": {
+        "ru": "После многих лет застоя экономика наконец начала расти.",
+        "uz": "Ko'p yillik turg'unlikdan so'ng iqtisodiyot nihoyat o'sa boshladi."
+      }
+    }
+  ]
+}

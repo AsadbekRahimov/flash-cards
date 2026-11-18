@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 18,
+    "title": "Мера и оценка",
+    "title_uz": "Me'yor va baho"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Очевидное и сомнительное",
+    "title_uz": "Ayon va shubhali"
+  },
+  "words": [
+    {
+      "word": "palpable",
+      "part_of_speech": "adjective",
+      "translation": "ощутимый, явственный",
+      "translations": {
+        "ru": "ощутимый, явственный",
+        "uz": "yaqqol seziladigan"
+      },
+      "example": "The tension in the room was palpable; nobody spoke.",
+      "example_translations": {
+        "ru": "Напряжение в комнате было ощутимым: никто не говорил.",
+        "uz": "Xonadagi taranglik yaqqol sezilardi: hech kim gapirmasdi."
+      }
+    },
+    {
+      "word": "conspicuous",
+      "part_of_speech": "adjective",
+      "translation": "заметный, бросающийся в глаза",
+      "translations": {
+        "ru": "заметный, бросающийся в глаза",
+        "uz": "ko'zga tashlanadigan"
+      },
+      "example": "His bright red coat made him conspicuous in the crowd.",
+      "example_translations": {
+        "ru": "Ярко-красное пальто делало его заметным в толпе.",
+        "uz": "Yorqin qizil paltosi tufayli u olomon ichida ko'zga tashlanib turardi."
+      }
+    },
+    {
+      "word": "blatant",
+      "part_of_speech": "adjective",
+      "translation": "наглый, вопиющий",
+      "translations": {
+        "ru": "наглый, вопиющий",
+        "uz": "ochiqdan-ochiq, surbetlarcha"
+      },
+      "example": "It was a blatant lie, and everyone knew it.",
+      "example_translations": {
+        "ru": "Это была наглая ложь, и все это знали.",
+        "uz": "Bu ochiqdan-ochiq yolg'on edi, buni hamma bilardi."
+      }
+    },
+    {
+      "word": "overt",
+      "part_of_speech": "adjective",
+      "translation": "открытый, нескрываемый",
+      "translations": {
+        "ru": "открытый, нескрываемый",
+        "uz": "oshkora, yashirilmagan"
+      },
+      "example": "There was no overt hostility, only cold politeness.",
+      "example_translations": {
+        "ru": "Открытой враждебности не было, лишь холодная вежливость.",
+        "uz": "Oshkora adovat yo'q edi, faqat sovuq xushmuomalalik bor edi."
+      }
+    },
+    {
+      "word": "ostensible",
+      "part_of_speech": "adjective",
+      "translation": "мнимый, заявленный для вида",
+      "translations": {
+        "ru": "мнимый, заявленный для вида",
+        "uz": "zohiriy, ko'z uchun aytilgan"
+      },
+      "example": "The ostensible reason was illness; really, he was bored.",
+      "example_translations": {
+        "ru": "Мнимой причиной была болезнь, на самом же деле ему стало скучно.",
+        "uz": "Zohiriy sabab kasallik edi, aslida esa u zerikkan edi."
+      }
+    },
+    {
+      "word": "unequivocal",
+      "part_of_speech": "adjective",
+      "translation": "недвусмысленный, однозначный",
+      "translations": {
+        "ru": "недвусмысленный, однозначный",
+        "uz": "uzil-kesil, aniq"
+      },
+      "example": "Her answer was an unequivocal no, leaving no doubt.",
+      "example_translations": {
+        "ru": "Её ответом было недвусмысленное «нет», не оставлявшее сомнений.",
+        "uz": "Uning javobi hech qanday shubha qoldirmaydigan uzil-kesil «yo'q» edi."
+      }
+    },
+    {
+      "word": "irrefutable",
+      "part_of_speech": "adjective",
+      "translation": "неопровержимый",
+      "translations": {
+        "ru": "неопровержимый",
+        "uz": "rad etib bo'lmas"
+      },
+      "example": "The fingerprints provided irrefutable proof of his presence.",
+      "example_translations": {
+        "ru": "Отпечатки пальцев стали неопровержимым доказательством его присутствия.",
+        "uz": "Barmoq izlari uning o'sha yerda bo'lganiga rad etib bo'lmas dalil bo'ldi."
+      }
+    },
+    {
+      "word": "dubious",
+      "part_of_speech": "adjective",
+      "translation": "сомнительный",
+      "translations": {
+        "ru": "сомнительный",
+        "uz": "shubhali"
+      },
+      "example": "That website makes dubious claims without any evidence.",
+      "example_translations": {
+        "ru": "Этот сайт делает сомнительные заявления без каких-либо доказательств.",
+        "uz": "Bu sayt hech qanday dalilsiz shubhali da'volarni ilgari suradi."
+      }
+    },
+    {
+      "word": "tenuous",
+      "part_of_speech": "adjective",
+      "translation": "шаткий, слабый",
+      "translations": {
+        "ru": "шаткий, слабый",
+        "uz": "zaif, omonat"
+      },
+      "example": "The link between the two events is tenuous at best.",
+      "example_translations": {
+        "ru": "Связь между этими двумя событиями в лучшем случае шаткая.",
+        "uz": "Bu ikki voqea o'rtasidagi bog'liqlik nari borsa zaif."
+      }
+    },
+    {
+      "word": "spurious",
+      "part_of_speech": "adjective",
+      "translation": "ложный, поддельный",
+      "translations": {
+        "ru": "ложный, поддельный",
+        "uz": "soxta, yolg'on"
+      },
+      "example": "The claim rested on spurious data invented by the author.",
+      "example_translations": {
+        "ru": "Утверждение опиралось на ложные данные, выдуманные автором.",
+        "uz": "Da'vo muallif to'qib chiqargan soxta ma'lumotlarga asoslangan edi."
+      }
+    }
+  ]
+}

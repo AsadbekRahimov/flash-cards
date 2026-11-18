@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 18,
+    "title": "Мера и оценка",
+    "title_uz": "Me'yor va baho"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Избыток и нехватка",
+    "title_uz": "Ortiqchalik va tanqislik"
+  },
+  "words": [
+    {
+      "word": "glut",
+      "part_of_speech": "noun",
+      "translation": "перенасыщение рынка",
+      "translations": {
+        "ru": "перенасыщение рынка",
+        "uz": "ortiqcha taklif"
+      },
+      "example": "A glut of apples drove prices down sharply.",
+      "example_translations": {
+        "ru": "Перенасыщение рынка яблоками резко сбило цены.",
+        "uz": "Olmaning ortiqcha taklifi narxlarni keskin tushirdi."
+      }
+    },
+    {
+      "word": "plethora",
+      "part_of_speech": "noun",
+      "translation": "великое множество",
+      "translations": {
+        "ru": "великое множество",
+        "uz": "behisob miqdor"
+      },
+      "example": "The store offers a plethora of options for every taste.",
+      "example_translations": {
+        "ru": "Магазин предлагает великое множество вариантов на любой вкус.",
+        "uz": "Do'kon har qanday didga mos behisob miqdorda tanlov taklif etadi."
+      }
+    },
+    {
+      "word": "superfluous",
+      "part_of_speech": "adjective",
+      "translation": "излишний, ненужный",
+      "translations": {
+        "ru": "излишний, ненужный",
+        "uz": "ortiqcha, keraksiz"
+      },
+      "example": "Delete any superfluous words; keep the text concise.",
+      "example_translations": {
+        "ru": "Удалите все излишние слова, пусть текст будет кратким.",
+        "uz": "Barcha ortiqcha so'zlarni o'chiring, matn ixcham bo'lsin."
+      }
+    },
+    {
+      "word": "copious",
+      "part_of_speech": "adjective",
+      "translation": "обильный",
+      "translations": {
+        "ru": "обильный",
+        "uz": "mo'l"
+      },
+      "example": "The tree bore copious fruit, far more than expected.",
+      "example_translations": {
+        "ru": "Дерево принесло обильные плоды, гораздо больше ожидаемого.",
+        "uz": "Daraxt kutilganidan ancha ko'p, mo'l hosil berdi."
+      }
+    },
+    {
+      "word": "replete",
+      "part_of_speech": "adjective",
+      "translation": "наполненный, изобилующий",
+      "translations": {
+        "ru": "наполненный, изобилующий",
+        "uz": "to'la, to'lib-toshgan"
+      },
+      "example": "The novel is replete with vivid historical details.",
+      "example_translations": {
+        "ru": "Роман наполнен яркими историческими подробностями.",
+        "uz": "Roman yorqin tarixiy tafsilotlarga to'la."
+      }
+    },
+    {
+      "word": "rife",
+      "part_of_speech": "adjective",
+      "translation": "широко распространённый",
+      "translations": {
+        "ru": "широко распространённый",
+        "uz": "keng tarqalgan"
+      },
+      "example": "Cheating was rife until stricter exam rules came in.",
+      "example_translations": {
+        "ru": "Списывание было широко распространено, пока не ввели более строгие правила экзаменов.",
+        "uz": "Imtihon qoidalari qat'iylashtirilgunga qadar ko'chirmachilik keng tarqalgan edi."
+      }
+    },
+    {
+      "word": "dearth",
+      "part_of_speech": "noun",
+      "translation": "нехватка, недостаток",
+      "translations": {
+        "ru": "нехватка, недостаток",
+        "uz": "tanqislik, yetishmovchilik"
+      },
+      "example": "A dearth of teachers forced the school to close.",
+      "example_translations": {
+        "ru": "Нехватка учителей вынудила школу закрыться.",
+        "uz": "O'qituvchilar tanqisligi maktabni yopilishga majbur qildi."
+      }
+    },
+    {
+      "word": "scant",
+      "part_of_speech": "adjective",
+      "translation": "скудный, недостаточный",
+      "translations": {
+        "ru": "скудный, недостаточный",
+        "uz": "kam, yetarsiz"
+      },
+      "example": "Scant rainfall left the reservoirs nearly empty this year.",
+      "example_translations": {
+        "ru": "Скудные осадки в этом году оставили водохранилища почти пустыми.",
+        "uz": "Bu yil kam yog'ingarchilik suv omborlarini deyarli bo'sh qoldirdi."
+      }
+    },
+    {
+      "word": "devoid",
+      "part_of_speech": "adjective",
+      "translation": "лишённый",
+      "translations": {
+        "ru": "лишённый",
+        "uz": "xoli, mahrum"
+      },
+      "example": "His voice was flat, devoid of any emotion.",
+      "example_translations": {
+        "ru": "Его голос был ровным, лишённым всяких эмоций.",
+        "uz": "Uning ovozi bir tekis, har qanday his-tuyg'udan xoli edi."
+      }
+    },
+    {
+      "word": "inordinate",
+      "part_of_speech": "adjective",
+      "translation": "чрезмерный, непомерный",
+      "translations": {
+        "ru": "чрезмерный, непомерный",
+        "uz": "haddan tashqari"
+      },
+      "example": "Filling in the forms took an inordinate amount of time.",
+      "example_translations": {
+        "ru": "Заполнение анкет заняло непомерное количество времени.",
+        "uz": "Anketalarni to'ldirish haddan tashqari ko'p vaqt oldi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 17,
+    "title": "Время и перемены",
+    "title_uz": "Vaqt va o'zgarishlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Упадок и возрождение",
+    "title_uz": "Tanazzul va tiklanish"
+  },
+  "words": [
+    {
+      "word": "decay",
+      "part_of_speech": "verb",
+      "translation": "разрушаться, ветшать",
+      "translations": {
+        "ru": "разрушаться, ветшать",
+        "uz": "yemirilmoq, chirimoq"
+      },
+      "example": "Without repairs, the old bridge slowly decayed and collapsed.",
+      "example_translations": {
+        "ru": "Без ремонта старый мост постепенно разрушался и наконец рухнул.",
+        "uz": "Ta'mirsiz eski ko'prik asta-sekin yemirilib, oxiri qulab tushdi."
+      }
+    },
+    {
+      "word": "decadence",
+      "part_of_speech": "noun",
+      "translation": "упадок нравов",
+      "translations": {
+        "ru": "упадок нравов",
+        "uz": "ma'naviy tanazzul"
+      },
+      "example": "Critics saw the lavish feasts as signs of decadence.",
+      "example_translations": {
+        "ru": "Критики видели в пышных пирах признаки упадка нравов.",
+        "uz": "Tanqidchilar dabdabali ziyofatlarni ma'naviy tanazzul belgisi deb bildi."
+      }
+    },
+    {
+      "word": "degenerate",
+      "part_of_speech": "verb",
+      "translation": "вырождаться, ухудшаться",
+      "translations": {
+        "ru": "вырождаться, ухудшаться",
+        "uz": "aynimoq, tubanlashmoq"
+      },
+      "example": "The polite debate soon degenerated into a shouting match.",
+      "example_translations": {
+        "ru": "Вежливый спор вскоре выродился в перебранку.",
+        "uz": "Xushmuomala bahs tez orada aynib, baqir-chaqirga aylandi."
+      }
+    },
+    {
+      "word": "atrophy",
+      "part_of_speech": "verb",
+      "translation": "атрофироваться",
+      "translations": {
+        "ru": "атрофироваться",
+        "uz": "atrofiyaga uchramoq"
+      },
+      "example": "Muscles atrophy quickly if you stop using them.",
+      "example_translations": {
+        "ru": "Мышцы быстро атрофируются, если перестать ими пользоваться.",
+        "uz": "Mushaklar ishlatilmasa, tezda atrofiyaga uchraydi."
+      }
+    },
+    {
+      "word": "wane",
+      "part_of_speech": "verb",
+      "translation": "ослабевать, убывать",
+      "translations": {
+        "ru": "ослабевать, убывать",
+        "uz": "susaymoq, kamaymoq"
+      },
+      "example": "Public interest in the scandal waned within a month.",
+      "example_translations": {
+        "ru": "Интерес публики к скандалу ослабел за месяц.",
+        "uz": "Jamoatchilikning mojaroga qiziqishi bir oy ichida susaydi."
+      }
+    },
+    {
+      "word": "ebb",
+      "part_of_speech": "verb",
+      "translation": "спадать, отступать",
+      "translations": {
+        "ru": "спадать, отступать",
+        "uz": "pasaymoq, chekinmoq"
+      },
+      "example": "His anger ebbed as Malika calmly explained everything.",
+      "example_translations": {
+        "ru": "Его гнев спадал по мере того, как Малика всё спокойно объясняла.",
+        "uz": "Malika hammasini xotirjam tushuntirgani sari uning g'azabi pasaydi."
+      }
+    },
+    {
+      "word": "dissipate",
+      "part_of_speech": "verb",
+      "translation": "рассеиваться",
+      "translations": {
+        "ru": "рассеиваться",
+        "uz": "tarqalib ketmoq"
+      },
+      "example": "The morning fog dissipated once the sun rose.",
+      "example_translations": {
+        "ru": "Утренний туман рассеялся, как только взошло солнце.",
+        "uz": "Quyosh chiqishi bilan tonggi tuman tarqalib ketdi."
+      }
+    },
+    {
+      "word": "resurgence",
+      "part_of_speech": "noun",
+      "translation": "возрождение, новый подъём",
+      "translations": {
+        "ru": "возрождение, новый подъём",
+        "uz": "qayta jonlanish"
+      },
+      "example": "Vinyl records are enjoying a resurgence among young listeners.",
+      "example_translations": {
+        "ru": "Виниловые пластинки переживают возрождение среди молодых слушателей.",
+        "uz": "Vinil plastinkalar yosh tinglovchilar orasida qayta jonlanishni boshdan kechirmoqda."
+      }
+    },
+    {
+      "word": "rejuvenate",
+      "part_of_speech": "verb",
+      "translation": "оживлять, омолаживать",
+      "translations": {
+        "ru": "оживлять, омолаживать",
+        "uz": "jonlantirmoq, yoshartirmoq"
+      },
+      "example": "New investment rejuvenated the declining town center.",
+      "example_translations": {
+        "ru": "Новые инвестиции оживили приходивший в упадок центр города.",
+        "uz": "Yangi sarmoyalar tanazzulga yuz tutgan shahar markazini jonlantirdi."
+      }
+    },
+    {
+      "word": "rekindle",
+      "part_of_speech": "verb",
+      "translation": "вновь пробуждать",
+      "translations": {
+        "ru": "вновь пробуждать",
+        "uz": "qayta uyg'otmoq"
+      },
+      "example": "The trip rekindled her childhood love of painting.",
+      "example_translations": {
+        "ru": "Поездка вновь пробудила в ней детскую любовь к живописи.",
+        "uz": "Sayohat unda bolalikdagi rasm chizishga muhabbatni qayta uyg'otdi."
+      }
+    }
+  ]
+}

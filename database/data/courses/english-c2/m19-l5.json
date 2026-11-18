@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 19,
+    "title": "Искусство и эстетика",
+    "title_uz": "San'at va estetika"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Зритель и впечатление",
+    "title_uz": "Tomoshabin va taassurot"
+  },
+  "words": [
+    {
+      "word": "dilettante",
+      "part_of_speech": "noun",
+      "translation": "дилетант",
+      "translations": {
+        "ru": "дилетант",
+        "uz": "yuzaki havaskor"
+      },
+      "example": "A mere dilettante, he never studied art seriously.",
+      "example_translations": {
+        "ru": "Всего лишь дилетант, он никогда всерьёз не изучал искусство.",
+        "uz": "U shunchaki yuzaki havaskor bo'lib, san'atni hech qachon jiddiy o'rganmagan."
+      }
+    },
+    {
+      "word": "aficionado",
+      "part_of_speech": "noun",
+      "translation": "страстный любитель, ценитель",
+      "translations": {
+        "ru": "страстный любитель, ценитель",
+        "uz": "shinavanda, ishqiboz"
+      },
+      "example": "A jazz aficionado, Tom owns thousands of records.",
+      "example_translations": {
+        "ru": "Страстный любитель джаза, Том собрал тысячи пластинок.",
+        "uz": "Jaz shinavandasi bo'lgan Tomning minglab plastinkalari bor."
+      }
+    },
+    {
+      "word": "patron",
+      "part_of_speech": "noun",
+      "translation": "меценат, покровитель искусств",
+      "translations": {
+        "ru": "меценат, покровитель искусств",
+        "uz": "homiy, san'at homiysi"
+      },
+      "example": "A wealthy patron funded the young sculptor's studio.",
+      "example_translations": {
+        "ru": "Богатый меценат оплатил мастерскую молодого скульптора.",
+        "uz": "Boy homiy yosh haykaltaroshning ustaxonasini moliyalashtirdi."
+      }
+    },
+    {
+      "word": "highbrow",
+      "part_of_speech": "adjective",
+      "translation": "элитарный, интеллектуальный",
+      "translations": {
+        "ru": "элитарный, интеллектуальный",
+        "uz": "yuksak didli, elitar"
+      },
+      "example": "He reads highbrow literary journals, never popular magazines.",
+      "example_translations": {
+        "ru": "Он читает элитарные литературные журналы и никогда — массовые.",
+        "uz": "U ommabop jurnallarni emas, yuksak didli adabiy jurnallarni o'qiydi."
+      }
+    },
+    {
+      "word": "captivate",
+      "part_of_speech": "verb",
+      "translation": "пленять, очаровывать",
+      "translations": {
+        "ru": "пленять, очаровывать",
+        "uz": "maftun etmoq"
+      },
+      "example": "Her graceful dancing captivated the entire audience.",
+      "example_translations": {
+        "ru": "Её грациозный танец пленил весь зал.",
+        "uz": "Uning nafis raqsi butun zalni maftun etdi."
+      }
+    },
+    {
+      "word": "mesmerize",
+      "part_of_speech": "verb",
+      "translation": "завораживать",
+      "translations": {
+        "ru": "завораживать",
+        "uz": "sehrlab qo'ymoq"
+      },
+      "example": "The swirling lights mesmerized us; nobody looked away.",
+      "example_translations": {
+        "ru": "Кружащиеся огни заворожили нас: никто не отводил глаз.",
+        "uz": "Aylanayotgan chiroqlar bizni sehrlab qo'ydi: hech kim ko'zini uzmadi."
+      }
+    },
+    {
+      "word": "riveting",
+      "part_of_speech": "adjective",
+      "translation": "захватывающий, приковывающий внимание",
+      "translations": {
+        "ru": "захватывающий, приковывающий внимание",
+        "uz": "nihoyatda qiziqarli"
+      },
+      "example": "The play was so riveting that nobody moved.",
+      "example_translations": {
+        "ru": "Пьеса была настолько захватывающей, что никто не шевелился.",
+        "uz": "Spektakl nihoyatda qiziqarli ediki, hech kim qimirlamadi."
+      }
+    },
+    {
+      "word": "engross",
+      "part_of_speech": "verb",
+      "translation": "поглощать, всецело занимать",
+      "translations": {
+        "ru": "поглощать, всецело занимать",
+        "uz": "xayolini butkul band qilmoq"
+      },
+      "example": "The film engrossed him; he forgot the time.",
+      "example_translations": {
+        "ru": "Фильм так поглотил его, что он забыл о времени.",
+        "uz": "Film uning xayolini butkul band qildi: u vaqtni unutdi."
+      }
+    },
+    {
+      "word": "visceral",
+      "part_of_speech": "adjective",
+      "translation": "идущий изнутри, нутряной",
+      "translations": {
+        "ru": "идущий изнутри, нутряной",
+        "uz": "ich-ichidan keluvchi"
+      },
+      "example": "The painting provoked a visceral reaction, not thought.",
+      "example_translations": {
+        "ru": "Картина вызвала идущую изнутри реакцию, а не размышления.",
+        "uz": "Rasm mulohaza emas, ich-ichidan keluvchi tuyg'u uyg'otdi."
+      }
+    },
+    {
+      "word": "resonate",
+      "part_of_speech": "verb",
+      "translation": "находить отклик",
+      "translations": {
+        "ru": "находить отклик",
+        "uz": "qalbda aks sado bermoq"
+      },
+      "example": "Her honest lyrics resonate with lonely teenagers.",
+      "example_translations": {
+        "ru": "Её честные тексты находят отклик у одиноких подростков.",
+        "uz": "Uning samimiy qo'shiq matnlari yolg'iz o'smirlar qalbida aks sado beradi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 20,
+    "title": "Труд и достижения",
+    "title_uz": "Mehnat va yutuqlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Усердие и лень",
+    "title_uz": "Tirishqoqlik va dangasalik"
+  },
+  "words": [
+    {
+      "word": "assiduous",
+      "part_of_speech": "adjective",
+      "translation": "усердный, прилежный",
+      "translations": {
+        "ru": "усердный, прилежный",
+        "uz": "tirishqoq, astoydil"
+      },
+      "example": "An assiduous student, Malika reviews her notes nightly.",
+      "example_translations": {
+        "ru": "Усердная ученица, Малика каждый вечер повторяет конспекты.",
+        "uz": "Tirishqoq o'quvchi Malika har oqshom yozuvlarini takrorlaydi."
+      }
+    },
+    {
+      "word": "industrious",
+      "part_of_speech": "adjective",
+      "translation": "трудолюбивый",
+      "translations": {
+        "ru": "трудолюбивый",
+        "uz": "mehnatsevar"
+      },
+      "example": "Industrious farmers work from dawn until dark.",
+      "example_translations": {
+        "ru": "Трудолюбивые фермеры работают с рассвета до темноты.",
+        "uz": "Mehnatsevar fermerlar tong sahardan qorong'igacha ishlaydilar."
+      }
+    },
+    {
+      "word": "zealous",
+      "part_of_speech": "adjective",
+      "translation": "рьяный, ревностный",
+      "translations": {
+        "ru": "рьяный, ревностный",
+        "uz": "jonkuyar, o'ta g'ayratli"
+      },
+      "example": "The zealous volunteer worked nights without being asked.",
+      "example_translations": {
+        "ru": "Рьяный волонтёр работал по ночам без всяких просьб.",
+        "uz": "Jonkuyar ko'ngilli hech kim so'ramasa ham tunlari ishlardi."
+      }
+    },
+    {
+      "word": "indolent",
+      "part_of_speech": "adjective",
+      "translation": "ленивый, праздный",
+      "translations": {
+        "ru": "ленивый, праздный",
+        "uz": "dangasa, tanbal"
+      },
+      "example": "Indolent by nature, he avoided any real effort.",
+      "example_translations": {
+        "ru": "Ленивый по натуре, он избегал любых настоящих усилий.",
+        "uz": "Tabiatan dangasa bo'lgani uchun u har qanday jiddiy harakatdan qochardi."
+      }
+    },
+    {
+      "word": "lackadaisical",
+      "part_of_speech": "adjective",
+      "translation": "вялый, безразличный",
+      "translations": {
+        "ru": "вялый, безразличный",
+        "uz": "loqayd, sust"
+      },
+      "example": "His lackadaisical attitude meant deadlines were constantly missed.",
+      "example_translations": {
+        "ru": "Из-за его безразличного отношения сроки постоянно срывались.",
+        "uz": "Uning loqayd munosabati tufayli muddatlar doim o'tib ketardi."
+      }
+    },
+    {
+      "word": "shirk",
+      "part_of_speech": "verb",
+      "translation": "увиливать, отлынивать",
+      "translations": {
+        "ru": "увиливать, отлынивать",
+        "uz": "bo'yin tovlamoq"
+      },
+      "example": "Tom shirks his chores whenever nobody is watching.",
+      "example_translations": {
+        "ru": "Том увиливает от домашних дел, когда никто не видит.",
+        "uz": "Hech kim qaramayotganda Tom uy ishlaridan bo'yin tovlaydi."
+      }
+    },
+    {
+      "word": "procrastinate",
+      "part_of_speech": "verb",
+      "translation": "откладывать на потом",
+      "translations": {
+        "ru": "откладывать на потом",
+        "uz": "paysalga solmoq"
+      },
+      "example": "Don't procrastinate; start the essay tonight, not tomorrow.",
+      "example_translations": {
+        "ru": "Не откладывайте на потом: начните эссе сегодня вечером, а не завтра.",
+        "uz": "Paysalga solmang: inshoni ertaga emas, bugun kechqurun boshlang."
+      }
+    },
+    {
+      "word": "toil",
+      "part_of_speech": "verb",
+      "translation": "тяжело трудиться",
+      "translations": {
+        "ru": "тяжело трудиться",
+        "uz": "og'ir mehnat qilmoq"
+      },
+      "example": "Miners toiled underground for twelve exhausting hours.",
+      "example_translations": {
+        "ru": "Шахтёры тяжело трудились под землёй двенадцать изнурительных часов.",
+        "uz": "Konchilar yer ostida o'n ikki soat tinka quritib og'ir mehnat qilishdi."
+      }
+    },
+    {
+      "word": "drudgery",
+      "part_of_speech": "noun",
+      "translation": "нудная тяжёлая работа",
+      "translations": {
+        "ru": "нудная тяжёлая работа",
+        "uz": "zerikarli og'ir ish"
+      },
+      "example": "Washing dishes all day is pure drudgery.",
+      "example_translations": {
+        "ru": "Целый день мыть посуду — сплошная нудная тяжёлая работа.",
+        "uz": "Kun bo'yi idish yuvish — g'irt zerikarli og'ir ish."
+      }
+    },
+    {
+      "word": "strive",
+      "part_of_speech": "verb",
+      "translation": "стремиться",
+      "translations": {
+        "ru": "стремиться",
+        "uz": "intilmoq"
+      },
+      "example": "We strive to improve our service every year.",
+      "example_translations": {
+        "ru": "Мы стремимся улучшать наш сервис каждый год.",
+        "uz": "Biz har yili xizmatimizni yaxshilashga intilamiz."
+      }
+    }
+  ]
+}

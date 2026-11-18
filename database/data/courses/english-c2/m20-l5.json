@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 20,
+    "title": "Труд и достижения",
+    "title_uz": "Mehnat va yutuqlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Замысел и расчёт",
+    "title_uz": "Reja va hisob-kitob"
+  },
+  "words": [
+    {
+      "word": "wary",
+      "part_of_speech": "adjective",
+      "translation": "настороженный",
+      "translations": {
+        "ru": "настороженный",
+        "uz": "sergak, hadiksiraydigan"
+      },
+      "example": "She grew wary after his third broken promise.",
+      "example_translations": {
+        "ru": "После его третьего нарушенного обещания она стала настороженной.",
+        "uz": "U va'dasini uchinchi marta buzganidan so'ng qiz sergak tortdi."
+      }
+    },
+    {
+      "word": "ploy",
+      "part_of_speech": "noun",
+      "translation": "уловка",
+      "translations": {
+        "ru": "уловка",
+        "uz": "nayrang"
+      },
+      "example": "The discount was just a ploy to attract customers.",
+      "example_translations": {
+        "ru": "Скидка была лишь уловкой, чтобы привлечь покупателей.",
+        "uz": "Chegirma xaridorlarni jalb qilish uchun shunchaki nayrang edi."
+      }
+    },
+    {
+      "word": "maneuver",
+      "part_of_speech": "noun",
+      "translation": "манёвр, ловкий ход",
+      "translations": {
+        "ru": "манёвр, ловкий ход",
+        "uz": "manyovr, epchil yurish"
+      },
+      "example": "With one clever maneuver, she won the negotiation.",
+      "example_translations": {
+        "ru": "Одним ловким манёвром она выиграла переговоры.",
+        "uz": "Birgina epchil manyovr bilan u muzokaralarda g'olib chiqdi."
+      }
+    },
+    {
+      "word": "devise",
+      "part_of_speech": "verb",
+      "translation": "придумывать, разрабатывать",
+      "translations": {
+        "ru": "придумывать, разрабатывать",
+        "uz": "o'ylab topmoq, ishlab chiqmoq"
+      },
+      "example": "Engineers devised a simple way to save water.",
+      "example_translations": {
+        "ru": "Инженеры придумали простой способ экономить воду.",
+        "uz": "Muhandislar suvni tejashning oddiy usulini o'ylab topdilar."
+      }
+    },
+    {
+      "word": "concoct",
+      "part_of_speech": "verb",
+      "translation": "состряпать, выдумать",
+      "translations": {
+        "ru": "состряпать, выдумать",
+        "uz": "to'qib chiqarmoq"
+      },
+      "example": "He concocted an excuse about a broken alarm.",
+      "example_translations": {
+        "ru": "Он состряпал отговорку про сломанный будильник.",
+        "uz": "U buzilgan uyg'otgich soat haqida bahona to'qib chiqardi."
+      }
+    },
+    {
+      "word": "orchestrate",
+      "part_of_speech": "verb",
+      "translation": "организовывать, режиссировать",
+      "translations": {
+        "ru": "организовывать, режиссировать",
+        "uz": "puxta uyushtirmoq"
+      },
+      "example": "She orchestrated the whole campaign behind the scenes.",
+      "example_translations": {
+        "ru": "Она из-за кулис организовала всю кампанию.",
+        "uz": "U butun kampaniyani parda ortidan puxta uyushtirdi."
+      }
+    },
+    {
+      "word": "mastermind",
+      "part_of_speech": "noun",
+      "translation": "автор замысла, вдохновитель",
+      "translations": {
+        "ru": "автор замысла, вдохновитель",
+        "uz": "reja muallifi"
+      },
+      "example": "Malika was the mastermind behind the surprise party.",
+      "example_translations": {
+        "ru": "Автором замысла вечеринки-сюрприза была Малика.",
+        "uz": "Kutilmagan ziyofat rejasining muallifi Malika edi."
+      }
+    },
+    {
+      "word": "cunning",
+      "part_of_speech": "adjective",
+      "translation": "хитрый",
+      "translations": {
+        "ru": "хитрый",
+        "uz": "ayyor"
+      },
+      "example": "A cunning salesman hid the car's real defects.",
+      "example_translations": {
+        "ru": "Хитрый продавец скрыл настоящие дефекты машины.",
+        "uz": "Ayyor sotuvchi mashinaning haqiqiy nuqsonlarini yashirdi."
+      }
+    },
+    {
+      "word": "circumspect",
+      "part_of_speech": "adjective",
+      "translation": "осторожный, всё взвешивающий",
+      "translations": {
+        "ru": "осторожный, всё взвешивающий",
+        "uz": "ehtiyotkor, mulohazali"
+      },
+      "example": "A circumspect investor studies every risk before buying.",
+      "example_translations": {
+        "ru": "Осторожный инвестор изучает каждый риск перед покупкой.",
+        "uz": "Ehtiyotkor sarmoyador sotib olishdan oldin har bir xavfni o'rganadi."
+      }
+    },
+    {
+      "word": "opportunist",
+      "part_of_speech": "noun",
+      "translation": "приспособленец, оппортунист",
+      "translations": {
+        "ru": "приспособленец, оппортунист",
+        "uz": "fursatparast"
+      },
+      "example": "An opportunist, he befriends whoever holds power.",
+      "example_translations": {
+        "ru": "Приспособленец, он заводит дружбу с каждым, у кого власть.",
+        "uz": "Fursatparast bo'lgani uchun u kimda hokimiyat bo'lsa, o'sha bilan do'stlashadi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 20,
+    "title": "Труд и достижения",
+    "title_uz": "Mehnat va yutuqlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Трудности и испытания",
+    "title_uz": "Qiyinchilik va sinovlar"
+  },
+  "words": [
+    {
+      "word": "arduous",
+      "part_of_speech": "adjective",
+      "translation": "тяжёлый, трудоёмкий",
+      "translations": {
+        "ru": "тяжёлый, трудоёмкий",
+        "uz": "mashaqqatli"
+      },
+      "example": "The arduous climb took nine exhausting hours.",
+      "example_translations": {
+        "ru": "Тяжёлый подъём занял девять изматывающих часов.",
+        "uz": "Mashaqqatli ko'tarilish charchatuvchi to'qqiz soat davom etdi."
+      }
+    },
+    {
+      "word": "onerous",
+      "part_of_speech": "adjective",
+      "translation": "обременительный",
+      "translations": {
+        "ru": "обременительный",
+        "uz": "malol keladigan, og'ir"
+      },
+      "example": "The onerous paperwork consumed his entire weekend.",
+      "example_translations": {
+        "ru": "Обременительная бумажная работа отняла у него все выходные.",
+        "uz": "Malol keladigan qog'oz ishlari uning butun dam olish kunlarini oldi."
+      }
+    },
+    {
+      "word": "grueling",
+      "part_of_speech": "adjective",
+      "translation": "изнурительный",
+      "translations": {
+        "ru": "изнурительный",
+        "uz": "holdan toydiruvchi"
+      },
+      "example": "After the grueling marathon, she could barely stand.",
+      "example_translations": {
+        "ru": "После изнурительного марафона она едва держалась на ногах.",
+        "uz": "Holdan toydiruvchi marafondan so'ng u zo'rg'a oyoqda turardi."
+      }
+    },
+    {
+      "word": "formidable",
+      "part_of_speech": "adjective",
+      "translation": "грозный, очень трудный",
+      "translations": {
+        "ru": "грозный, очень трудный",
+        "uz": "haybatli, o'ta qiyin"
+      },
+      "example": "The formidable mountain defeated even experienced climbers.",
+      "example_translations": {
+        "ru": "Грозная гора оказалась не по силам даже опытным альпинистам.",
+        "uz": "Haybatli tog' hatto tajribali alpinistlarga ham bo'y bermadi."
+      }
+    },
+    {
+      "word": "insurmountable",
+      "part_of_speech": "adjective",
+      "translation": "непреодолимый",
+      "translations": {
+        "ru": "непреодолимый",
+        "uz": "yengib bo'lmas"
+      },
+      "example": "No obstacle seemed insurmountable to the determined team.",
+      "example_translations": {
+        "ru": "Решительной команде ни одно препятствие не казалось непреодолимым.",
+        "uz": "Qat'iyatli jamoaga hech bir to'siq yengib bo'lmas bo'lib tuyulmasdi."
+      }
+    },
+    {
+      "word": "intractable",
+      "part_of_speech": "adjective",
+      "translation": "трудноразрешимый",
+      "translations": {
+        "ru": "трудноразрешимый",
+        "uz": "yechimi mushkul"
+      },
+      "example": "Experts have failed to solve this intractable problem.",
+      "example_translations": {
+        "ru": "Специалистам не удалось решить эту трудноразрешимую проблему.",
+        "uz": "Mutaxassislar bu yechimi mushkul muammoni hal qila olmadilar."
+      }
+    },
+    {
+      "word": "adversity",
+      "part_of_speech": "noun",
+      "translation": "невзгоды",
+      "translations": {
+        "ru": "невзгоды",
+        "uz": "kulfat, musibat"
+      },
+      "example": "She stayed cheerful despite years of adversity.",
+      "example_translations": {
+        "ru": "Она оставалась бодрой, несмотря на годы невзгод.",
+        "uz": "U yillab davom etgan kulfatlarga qaramay xushchaqchaq bo'lib qoldi."
+      }
+    },
+    {
+      "word": "predicament",
+      "part_of_speech": "noun",
+      "translation": "затруднительное положение",
+      "translations": {
+        "ru": "затруднительное положение",
+        "uz": "mushkul ahvol"
+      },
+      "example": "Losing his passport abroad was a real predicament.",
+      "example_translations": {
+        "ru": "Потеряв паспорт за границей, он попал в по-настоящему затруднительное положение.",
+        "uz": "Chet elda pasportini yo'qotib, u chinakam mushkul ahvolga tushdi."
+      }
+    },
+    {
+      "word": "plight",
+      "part_of_speech": "noun",
+      "translation": "бедственное положение",
+      "translations": {
+        "ru": "бедственное положение",
+        "uz": "ayanchli ahvol"
+      },
+      "example": "The film shows the plight of homeless families.",
+      "example_translations": {
+        "ru": "Фильм показывает бедственное положение бездомных семей.",
+        "uz": "Film boshpanasiz oilalarning ayanchli ahvolini ko'rsatadi."
+      }
+    },
+    {
+      "word": "ordeal",
+      "part_of_speech": "noun",
+      "translation": "тяжёлое испытание",
+      "translations": {
+        "ru": "тяжёлое испытание",
+        "uz": "og'ir sinov"
+      },
+      "example": "Being trapped in the elevator was an ordeal.",
+      "example_translations": {
+        "ru": "Застрять в лифте было тяжёлым испытанием.",
+        "uz": "Liftda qamalib qolish og'ir sinov bo'ldi."
+      }
+    }
+  ]
+}

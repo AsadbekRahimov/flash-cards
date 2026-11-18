@@ -1,0 +1,155 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 17,
+    "title": "Время и перемены",
+    "title_uz": "Vaqt va o'zgarishlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Мгновение и вечность",
+    "title_uz": "Lahza va abadiyat"
+  },
+  "words": [
+    {
+      "word": "ephemeral",
+      "part_of_speech": "adjective",
+      "translation": "мимолётный, эфемерный",
+      "translations": {
+        "ru": "мимолётный, эфемерный",
+        "uz": "o'tkinchi, umri qisqa"
+      },
+      "example": "Fame is ephemeral; few stars are remembered long.",
+      "example_translations": {
+        "ru": "Слава мимолётна: мало кого из звёзд помнят долго.",
+        "uz": "Shuhrat o'tkinchi: yulduzlarning kamini uzoq eslashadi."
+      }
+    },
+    {
+      "word": "sporadic",
+      "part_of_speech": "adjective",
+      "translation": "единичный, эпизодический",
+      "translations": {
+        "ru": "единичный, эпизодический",
+        "uz": "onda-sonda uchraydigan"
+      },
+      "example": "Sporadic cases of the illness still occur in remote villages.",
+      "example_translations": {
+        "ru": "В отдалённых сёлах всё ещё встречаются единичные случаи болезни.",
+        "uz": "Olis qishloqlarda kasallikning onda-sonda uchraydigan holatlari hali ham bor."
+      }
+    },
+    {
+      "word": "intermittent",
+      "part_of_speech": "adjective",
+      "translation": "прерывистый, с перерывами",
+      "translations": {
+        "ru": "прерывистый, с перерывами",
+        "uz": "uzilib-uzilib turadigan"
+      },
+      "example": "Intermittent rain kept stopping and starting all afternoon.",
+      "example_translations": {
+        "ru": "Прерывистый дождь всю вторую половину дня то прекращался, то начинался снова.",
+        "uz": "Uzilib-uzilib turadigan yomg'ir tushdan keyin goh tinib, goh yana yog'di."
+      }
+    },
+    {
+      "word": "momentary",
+      "part_of_speech": "adjective",
+      "translation": "мгновенный, секундный",
+      "translations": {
+        "ru": "мгновенный, секундный",
+        "uz": "bir lahzalik"
+      },
+      "example": "After a momentary pause, she continued her speech.",
+      "example_translations": {
+        "ru": "После секундной паузы она продолжила свою речь.",
+        "uz": "Bir lahzalik sukutdan so'ng u nutqini davom ettirdi."
+      }
+    },
+    {
+      "word": "perpetual",
+      "part_of_speech": "adjective",
+      "translation": "постоянный, непрерывный",
+      "translations": {
+        "ru": "постоянный, непрерывный",
+        "uz": "doimiy, muttasil"
+      },
+      "example": "They live in perpetual fear of losing their jobs.",
+      "example_translations": {
+        "ru": "Они живут в постоянном страхе потерять работу.",
+        "uz": "Ular ishdan ayrilishdan doimiy qo'rquvda yashaydi."
+      }
+    },
+    {
+      "word": "enduring",
+      "part_of_speech": "adjective",
+      "translation": "прочный, долговечный",
+      "translations": {
+        "ru": "прочный, долговечный",
+        "uz": "mustahkam, uzoq umrli"
+      },
+      "example": "Their enduring friendship has lasted over fifty years.",
+      "example_translations": {
+        "ru": "Их прочная дружба длится уже более пятидесяти лет.",
+        "uz": "Ularning mustahkam do'stligi ellik yildan ortiq davom etmoqda."
+      }
+    },
+    {
+      "word": "eternal",
+      "part_of_speech": "adjective",
+      "translation": "вечный",
+      "translations": {
+        "ru": "вечный",
+        "uz": "abadiy"
+      },
+      "example": "Poets have long dreamed of eternal youth.",
+      "example_translations": {
+        "ru": "Поэты издавна мечтали о вечной молодости.",
+        "uz": "Shoirlar azaldan abadiy yoshlikni orzu qilgan."
+      }
+    },
+    {
+      "word": "interminable",
+      "part_of_speech": "adjective",
+      "translation": "нескончаемый, бесконечно долгий",
+      "translations": {
+        "ru": "нескончаемый, бесконечно долгий",
+        "uz": "bitmas-tuganmas"
+      },
+      "example": "The interminable meeting dragged on for five hours.",
+      "example_translations": {
+        "ru": "Нескончаемое совещание тянулось пять часов.",
+        "uz": "Bitmas-tuganmas majlis besh soatga cho'zildi."
+      }
+    },
+    {
+      "word": "incessant",
+      "part_of_speech": "adjective",
+      "translation": "непрекращающийся, беспрерывный",
+      "translations": {
+        "ru": "непрекращающийся, беспрерывный",
+        "uz": "tinimsiz"
+      },
+      "example": "The incessant noise never stopped, even at night.",
+      "example_translations": {
+        "ru": "Непрекращающийся шум не стихал даже ночью.",
+        "uz": "Tinimsiz shovqin hatto kechasi ham to'xtamadi."
+      }
+    },
+    {
+      "word": "protracted",
+      "part_of_speech": "adjective",
+      "translation": "затянувшийся",
+      "translations": {
+        "ru": "затянувшийся",
+        "uz": "cho'zilib ketgan"
+      },
+      "example": "After protracted negotiations lasting months, they finally agreed.",
+      "example_translations": {
+        "ru": "После затянувшихся на месяцы переговоров они наконец договорились.",
+        "uz": "Oylab cho'zilib ketgan muzokaralardan so'ng ular nihoyat kelishdi."
+      }
+    }
+  ]
+}
