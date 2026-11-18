@@ -99,7 +99,7 @@
       ],
       "translation": {
         "ru": "Со стороны хозяев было любезно не придать значения нашему опозданию.",
-        "uz": "Mezbonlar kechikkanimizni yuzimizga solmay, iltifot ko'rsatishdi."
+        "uz": "Mezbonlar kechikib kelganimizni ko'rmaganga olib, iltifot ko'rsatishdi."
       },
       "explanation": {
         "ru": "Оценка поступка человека: It was + прилагательное + of + человек + to do (kind of you, gracious of them). Русское «со стороны» здесь не from.",
@@ -146,7 +146,7 @@
       "target_words": [
         "unassuming"
       ],
-      "text": "For all his fame, he lived in an *unassumed* little cottage by the sea.",
+      "text": "Though very rich, my neighbors live in an *unassumed* little house near the station.",
       "options": [
         "unassuming",
         "unassumingly",
@@ -156,8 +156,8 @@
         "unassuming"
       ],
       "translation": {
-        "ru": "Несмотря на всю свою славу, он жил в скромном домике у моря.",
-        "uz": "Shuhratiga qaramay, u dengiz bo'yidagi hashamsiz kichkina uychada yashardi."
+        "ru": "Хотя мои соседи очень богаты, они живут в скромном домике у вокзала.",
+        "uz": "Qo'shnilarim juda boy bo'lsa-da, vokzal yonidagi kamtarona kichkina uyda yashashadi."
       },
       "explanation": {
         "ru": "«Скромный, неброский» — прилагательное на -ing: unassuming (о человеке или доме). Формы unassumed в этом значении нет; assumed значит «вымышленный» (an assumed name).",
@@ -280,22 +280,22 @@
       "target_words": [
         "unscrupulous"
       ],
-      "text": "Some *inscrupulous* dealers cheat tourists by selling them fake antiques.",
+      "text": "A few *inscrupulous* reporters printed her private letters without her consent.",
       "options": [
         "unscrupulous",
-        "scrupulous",
-        "unscrupulously"
+        "unscrupulously",
+        "unscrupulousness"
       ],
       "correct": [
         "unscrupulous"
       ],
       "translation": {
-        "ru": "Некоторые недобросовестные торговцы обманывают туристов, продавая им поддельный антиквариат.",
-        "uz": "Ba'zi vijdonsiz savdogarlar sayyohlarga soxta antikvar buyumlar sotib, ularni aldaydi."
+        "ru": "Несколько беспринципных репортёров напечатали её личные письма без её согласия.",
+        "uz": "Bir nechta vijdonsiz muxbirlar uning shaxsiy xatlarini roziligisiz chop etishdi."
       },
       "explanation": {
-        "ru": "Отрицательная приставка у scrupulous — un-: unscrupulous (беспринципный). Слова inscrupulous нет, а scrupulous (честный, щепетильный) противоречит смыслу.",
-        "uz": "scrupulous so'zining inkor old qo'shimchasi — un-: unscrupulous (vijdonsiz). inscrupulous degan so'z yo'q, scrupulous (o'ta halol) esa ma'noga zid."
+        "ru": "Отрицательная приставка у scrupulous — un-: unscrupulous (беспринципный). Слова inscrupulous нет. Перед reporters нужно прилагательное, а не наречие или существительное.",
+        "uz": "scrupulous so'zining inkor old qo'shimchasi — un-: unscrupulous (vijdonsiz). inscrupulous degan so'z yo'q. reporters otidan oldin ravish yoki ot emas, sifat kerak."
       }
     },
     {
@@ -309,22 +309,22 @@
       "target_words": [
         "belligerent"
       ],
-      "text": "The passenger *belligerent* demanded to speak to the captain.",
+      "text": "The passenger sent the airline a *belligerent* worded letter demanding a full refund.",
       "options": [
         "belligerently",
         "belligerence",
-        "belligerents"
+        "hostile"
       ],
       "correct": [
         "belligerently"
       ],
       "translation": {
-        "ru": "Пассажир воинственно потребовал, чтобы ему дали поговорить с капитаном.",
-        "uz": "Yo'lovchi jangari ohangda kapitan bilan gaplashishni talab qildi."
+        "ru": "Пассажир отправил авиакомпании письмо в воинственном тоне с требованием полного возврата денег.",
+        "uz": "Yo'lovchi aviakompaniyaga pulini to'liq qaytarishni talab qilib, jangari ohangda yozilgan xat yubordi."
       },
       "explanation": {
-        "ru": "Перед глаголом demanded нужно наречие: belligerent → belligerently (воинственно). Прилагательное стоит перед существительным: a belligerent passenger.",
-        "uz": "demanded fe'lidan oldin ravish kerak: belligerent → belligerently (jangari ohangda). Sifat otdan oldin turadi: a belligerent passenger."
+        "ru": "Причастие worded описывается наречием, как в strongly worded: belligerently worded — написанный в воинственном тоне. belligerence — существительное, hostile — прилагательное.",
+        "uz": "worded sifatdoshini ravish izohlaydi, xuddi strongly worded kabi: belligerently worded — jangari ohangda yozilgan. belligerence — ot, hostile — sifat."
       }
     },
     {
@@ -525,18 +525,18 @@
       "target_words": [
         "ingenuous"
       ],
-      "text": "It was ___ of him to deny everything, since he had signed the papers himself.",
+      "text": "It was ___ of him to pretend to be surprised, since he had planned everything himself.",
       "base": "ingenuous",
       "accepted": [
         "disingenuous"
       ],
       "translation": {
-        "ru": "С его стороны было неискренне всё отрицать: ведь он сам подписал эти бумаги.",
-        "uz": "Hujjatlarni o'zi imzolagan bo'la turib, hammasini inkor etishi samimiyatsizlik edi."
+        "ru": "С его стороны было неискренне изображать удивление: ведь он сам всё это спланировал.",
+        "uz": "Hammasini o'zi rejalashtirgan bo'la turib, hayron bo'lgandek ko'rinishi samimiyatsizlik edi."
       },
       "explanation": {
-        "ru": "since he had signed... показывает, что он лукавит: нужно не ingenuous (простодушный), а disingenuous (неискренний). Отрицательная приставка — dis-.",
-        "uz": "since he had signed... qismi uning ayyorlik qilayotganini ko'rsatadi: ingenuous (soddadil) emas, disingenuous (samimiyatsiz) kerak. Inkor old qo'shimchasi — dis-."
+        "ru": "pretend и since he had planned... показывают, что он лукавит: нужно не ingenuous (простодушный), а disingenuous (неискренний). Отрицательная приставка — dis-.",
+        "uz": "pretend va since he had planned... qismlari uning ayyorlik qilayotganini ko'rsatadi: ingenuous (soddadil) emas, disingenuous (samimiyatsiz) kerak. Inkor old qo'shimchasi — dis-."
       }
     },
     {
@@ -580,7 +580,7 @@
       "options": [
         "credulous",
         "credulously",
-        "creditable"
+        "credulity"
       ],
       "correct": [
         "credulous"
@@ -590,8 +590,8 @@
         "uz": "Jinoyatchilar ko'pincha har bir qo'ng'iroq qiluvchiga ishonadigan laqma keksalarni nishonga oladi."
       },
       "explanation": {
-        "ru": "credible — заслуживающий доверия (о словах, источнике); credulous — легковерный (о человеке, который всему верит). Здесь речь о доверчивых людях.",
-        "uz": "credible — ishonchli (gap yoki manba haqida); credulous — laqma, hamma narsaga ishonadigan (odam haqida). Bu yerda gap ishonuvchan odamlar haqida."
+        "ru": "credible — заслуживающий доверия (о словах, источнике); credulous — легковерный (о человеке, который всему верит). Перед people нужно прилагательное credulous; credulity — существительное.",
+        "uz": "credible — ishonchli (gap yoki manba haqida); credulous — laqma, hamma narsaga ishonadigan (odam haqida). people otidan oldin credulous sifati kerak; credulity — ot."
       }
     },
     {
@@ -696,7 +696,7 @@
       ],
       "translation": {
         "ru": "Лидеры профсоюза винили в затянувшейся забастовке непримиримость руководителей.",
-        "uz": "Kasaba uyushmasi rahbarlari uzoq davom etgan ish tashlashda rahbarlarning murosasizligini aybladi."
+        "uz": "Kasaba uyushmasi yetakchilari uzoq cho'zilgan ish tashlashda boshqaruvchilarning murosasizligini aybdor deb bilishdi."
       },
       "explanation": {
         "ru": "The ___ of требует существительного: intransigent → intransigence (непримиримость); -ent меняется на -ence. Вариант intransigency тоже верен.",
@@ -833,7 +833,7 @@
       ],
       "translation": {
         "ru": "Их ликование по поводу повышения зарплаты длилось недолго.",
-        "uz": "Maosh oshirilishi haqidagi xabardan ularning shodu xurramligi uzoqqa cho'zilmadi."
+        "uz": "Maosh oshirilishi haqidagi xabar keltirgan shodu xurramliklari uzoqqa cho'zilmadi."
       },
       "explanation": {
         "ru": "После Their нужно существительное — подлежащее к was: jubilant → jubilation (ликование); -ant меняется на -ation.",
@@ -849,20 +849,20 @@
       },
       "level": "C2",
       "target_words": [
-        "serenity"
+        "glee"
       ],
-      "text": "After years in the noisy city, she found real ___ in the mountain village.",
-      "base": "serene",
+      "text": "Her little brother ___ reported every one of her mistakes to their parents.",
+      "base": "glee",
       "accepted": [
-        "serenity"
+        "gleefully"
       ],
       "translation": {
-        "ru": "После многих лет в шумном городе она обрела настоящую безмятежность в горной деревне.",
-        "uz": "Shovqinli shaharda ko'p yil yashagach, u tog' qishlog'ida chinakam osoyishtalik topdi."
+        "ru": "Её младший брат с ликованием докладывал родителям о каждой её ошибке.",
+        "uz": "Uning ukasi har bir xatosi haqida ota-onasiga shodlanib xabar berardi."
       },
       "explanation": {
-        "ru": "После found real нужно существительное: serene → serenity (безмятежность); перед -ity конечная e выпадает.",
-        "uz": "found real so'zlaridan keyin ot kerak: serene → serenity (osoyishtalik); -ity oldidan oxirgi e tushib qoladi."
+        "ru": "Глагол reported описывается наречием: glee → gleeful → gleefully (с ликованием, со злорадной радостью); -ful + -ly, поэтому две l.",
+        "uz": "reported fe'lini ravish izohlaydi: glee → gleeful → gleefully (shodlanib, xursand bo'lib); -ful va -ly qo'shiladi, shuning uchun ikkita l."
       }
     },
     {
@@ -1093,7 +1093,7 @@
       "target_words": [
         "yearn"
       ],
-      "text": "After months at sea, the sailors yearned *to* the smell of fresh bread.",
+      "text": "Stuck in the noisy capital, she yearned *to* the silence of the mountains.",
       "options": [
         "for",
         "on",
@@ -1103,8 +1103,8 @@
         "for"
       ],
       "translation": {
-        "ru": "После долгих месяцев в море матросы тосковали по запаху свежего хлеба.",
-        "uz": "Dengizda o'tgan uzoq oylardan so'ng dengizchilar yangi yopilgan non hidini qo'msashdi."
+        "ru": "Застряв в шумной столице, она тосковала по тишине гор.",
+        "uz": "Shovqinli poytaxtda qolib ketgan u tog'larning sokinligini qo'msardi."
       },
       "explanation": {
         "ru": "yearn for — тосковать по чему-то, страстно желать: перед существительным после yearn нужен for. yearn to — только перед глаголом: yearn to return.",
@@ -1176,18 +1176,18 @@
       "target_words": [
         "irk"
       ],
-      "text": "Checking the same figures every day is an ___ chore.",
+      "text": "Her constant whistling is ___ to everyone who shares her office.",
       "base": "irk",
       "accepted": [
         "irksome"
       ],
       "translation": {
-        "ru": "Каждый день проверять одни и те же цифры — докучливая рутина.",
-        "uz": "Har kuni bir xil raqamlarni tekshirish — g'ashga tegadigan zerikarli ish."
+        "ru": "Её постоянный свист досаждает всем, кто сидит с ней в одном кабинете.",
+        "uz": "Uning tinimsiz hushtak chalishi u bilan bir xonada ishlaydigan hammaning g'ashiga tegadi."
       },
       "explanation": {
-        "ru": "Между an и chore нужно прилагательное: irk → irksome (раздражающий, докучливый); суффикс -some, как в troublesome.",
-        "uz": "an va chore so'zlari orasida sifat kerak: irk → irksome (g'ashga tegadigan); -some qo'shimchasi, xuddi troublesome so'zidagi kabi."
+        "ru": "После is ___ to everyone нужно прилагательное: irk → irksome (раздражающий, докучливый); суффикс -some, как в troublesome.",
+        "uz": "is ___ to everyone qolipiga sifat kerak: irk → irksome (g'ashga tegadigan); -some qo'shimchasi, xuddi troublesome so'zidagi kabi."
       }
     },
     {
@@ -1208,7 +1208,7 @@
       ],
       "translation": {
         "ru": "Их злобная ссора из-за семейной земли длилась десятилетиями.",
-        "uz": "Oilaviy yer ustidagi kek-adovatga to'la janjallari o'nlab yillar davom etdi."
+        "uz": "Ularning oila yeri ustidagi adovatli janjali o'nlab yillar davom etdi."
       },
       "explanation": {
         "ru": "Перед quarrel нужно прилагательное: rancor → rancorous (злобный); суффикс -ous. В британском написании rancour, но прилагательное и там rancorous, без u.",
@@ -1508,7 +1508,7 @@
       ],
       "translation": {
         "ru": "Весь день вводить одни и те же данные — скучная, однообразная работа.",
-        "uz": "Kun bo'yi o'sha ma'lumotlarni kiritaverish — zerikarli, bir xildagi ish."
+        "uz": "Kun bo'yi ayni ma'lumotlarni qayta-qayta kiritish — zerikarli, bir xildagi ish."
       },
       "explanation": {
         "ru": "Перед job, в паре с dull, нужно прилагательное: monotony → monotonous (однообразный); -y меняется на -ous.",
@@ -1580,7 +1580,7 @@
       "target_words": [
         "tedium"
       ],
-      "text": "He could not bear the *tedious* any longer and resigned.",
+      "text": "He resigned because he could no longer bear the *tedious* of office life.",
       "options": [
         "tedium",
         "tediously",
@@ -1590,12 +1590,12 @@
         "tedium"
       ],
       "translation": {
-        "ru": "Он больше не мог выносить эту скуку и уволился.",
-        "uz": "U bu zerikarlilikka boshqa chiday olmadi va ishdan bo'shadi."
+        "ru": "Он уволился, потому что больше не мог выносить скуку офисной жизни.",
+        "uz": "U ishdan bo'shadi, chunki ofis hayotining zerikarliligiga boshqa chiday olmasdi."
       },
       "explanation": {
-        "ru": "После bear the нужно существительное: tedium (скука, нудность). tedious и boring — прилагательные, tediously — наречие.",
-        "uz": "bear the so'zlaridan keyin ot kerak: tedium (zerikarlilik). tedious va boring — sifatlar, tediously — ravish."
+        "ru": "После the ... of нужно существительное: tedium (скука, нудность). tedious и boring — прилагательные, tediously — наречие.",
+        "uz": "the ... of qolipiga ot kerak: tedium (zerikarlilik). tedious va boring — sifatlar, tediously — ravish."
       }
     },
     {

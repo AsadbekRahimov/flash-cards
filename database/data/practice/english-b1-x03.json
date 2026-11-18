@@ -281,20 +281,20 @@
       ],
       "text": "My lower back *aches* since Monday, so I cannot sit for long.",
       "options": [
-        "has ached",
-        "ached",
+        "has been aching",
+        "had been aching",
         "is aching"
       ],
       "correct": [
-        "has ached"
+        "has been aching"
       ],
       "translation": {
         "ru": "У меня с понедельника болит поясница, поэтому я не могу долго сидеть.",
         "uz": "Dushanbadan beri belim og'riyapti, shuning uchun uzoq o'tira olmayman."
       },
       "explanation": {
-        "ru": "since (с какого-то момента до сих пор) требует present perfect: has ached (или has been aching). По-русски «болит с понедельника» — настоящее время, по-английски так нельзя.",
-        "uz": "since (qachondandir hozirgacha) present perfect zamonini talab qiladi: has ached (yoki has been aching). O'zbekchada «dushanbadan beri og'riyapti» deyiladi, inglizchada esa hozirgi oddiy zamon bo'lmaydi."
+        "ru": "since (с какого-то момента до сих пор) требует present perfect: has been aching (или has ached). По-русски «болит с понедельника» — настоящее время, по-английски is aching или aches с since нельзя.",
+        "uz": "since (qachondandir hozirgacha) present perfect zamonini talab qiladi: has been aching (yoki has ached). O'zbekchada «dushanbadan beri og'riyapti» deyiladi, inglizchada esa since bilan is aching yoki aches bo'lmaydi."
       }
     },
     {
@@ -308,7 +308,7 @@
       "target_words": [
         "illness"
       ],
-      "text": "Because of a long *ill*, she missed half of the school year.",
+      "text": "After a serious *ill*, my uncle had to learn to walk again.",
       "options": [
         "illness",
         "sick",
@@ -318,12 +318,12 @@
         "illness"
       ],
       "translation": {
-        "ru": "Из-за долгой болезни она пропустила половину учебного года.",
-        "uz": "Uzoq davom etgan xastalik tufayli u o'quv yilining yarmini o'tkazib yubordi."
+        "ru": "После тяжёлой болезни моему дяде пришлось заново учиться ходить.",
+        "uz": "Og'ir xastalikdan keyin amakim qaytadan yurishni o'rganishiga to'g'ri keldi."
       },
       "explanation": {
-        "ru": "После a long нужно существительное: ill — прилагательное (больной), а болезнь — illness: ill + -ness.",
-        "uz": "a long so'zlaridan keyin ot kerak: ill — sifat (kasal), xastalik esa illness: ill + -ness."
+        "ru": "После a serious нужно существительное: ill — прилагательное (больной), а болезнь — illness: ill + -ness.",
+        "uz": "a serious so'zlaridan keyin ot kerak: ill — sifat (kasal), xastalik esa illness: ill + -ness."
       }
     },
     {
@@ -470,7 +470,7 @@
       "target_words": [
         "injection"
       ],
-      "text": "The nurse *made* me an injection, and the pain soon went away.",
+      "text": "Before the operation, the nurse *made* my father an injection.",
       "options": [
         "gave",
         "did",
@@ -480,12 +480,12 @@
         "gave"
       ],
       "translation": {
-        "ru": "Медсестра сделала мне укол, и боль скоро прошла.",
-        "uz": "Hamshira menga ukol qildi va og'riq tez orada o'tib ketdi."
+        "ru": "Перед операцией медсестра сделала моему отцу укол.",
+        "uz": "Operatsiyadan oldin hamshira otamga ukol qildi."
       },
       "explanation": {
-        "ru": "По-русски «сделать укол», но по-английски give somebody an injection: the nurse gave me an injection. make здесь не подходит.",
-        "uz": "O'zbekcha «ukol qilmoq», lekin inglizchada give somebody an injection deyiladi: the nurse gave me an injection. make fe'li bu yerda to'g'ri kelmaydi."
+        "ru": "По-русски «сделать укол», но по-английски give somebody an injection: the nurse gave my father an injection. make и do здесь не подходят.",
+        "uz": "O'zbekcha «ukol qilmoq», lekin inglizchada give somebody an injection deyiladi: the nurse gave my father an injection. make va do fe'llari bu yerda to'g'ri kelmaydi."
       }
     },
     {
@@ -717,7 +717,7 @@
         "sweaty"
       ],
       "translation": {
-        "ru": "После долгой пробежки моя рубашка была мокрой и потной.",
+        "ru": "После долгой пробежки моя рубашка была мокрой и пропотевшей.",
         "uz": "Uzoq yugurishdan keyin ko'ylagim ho'l bo'lib, terga botgan edi."
       },
       "explanation": {
@@ -734,24 +734,24 @@
       },
       "level": "B1",
       "target_words": [
-        "nap"
+        "awake"
       ],
-      "text": "When the baby *makes* a nap, I finally have time to read.",
+      "text": "Strong coffee helps me stay *awaken* during long drives at night.",
       "options": [
-        "takes",
-        "does",
-        "sleeps"
+        "awake",
+        "awoken",
+        "waking"
       ],
       "correct": [
-        "takes"
+        "awake"
       ],
       "translation": {
-        "ru": "Когда малыш спит днём, у меня наконец появляется время почитать.",
-        "uz": "Chaqaloq kunduzi uxlaganda, nihoyat kitob o'qishga vaqtim bo'ladi."
+        "ru": "Крепкий кофе помогает мне не засыпать в долгих ночных поездках за рулём.",
+        "uz": "Achchiq qahva tunda uzoq yo'l yurganimda uyg'oq qolishimga yordam beradi."
       },
       "explanation": {
-        "ru": "«Вздремнуть» — take a nap (или have a nap). make и do с nap не сочетаются, а sleep a nap — не по-английски.",
-        "uz": "«Qisqa uxlab olmoq» — take a nap (yoki have a nap). make va do fe'llari nap so'zi bilan birikmaydi, sleep a nap ham xato."
+        "ru": "После stay (оставаться) нужно прилагательное awake (не спящий): stay awake. awaken — глагол «будить, просыпаться», awoken — его причастие.",
+        "uz": "stay (qolmoq) fe'lidan keyin awake (uyg'oq) sifati keladi: stay awake. awaken — «uyg'otmoq, uyg'onmoq» fe'li, awoken esa uning sifatdoshi."
       }
     },
     {
@@ -855,7 +855,7 @@
       ],
       "translation": {
         "ru": "Каждое лето мой дядя с друзьями катается на мотоциклах в горах.",
-        "uz": "Har yozda amakim do'stlari bilan tog'larda mototsikl haydaydi."
+        "uz": "Har yozda amakim do'stlari bilan tog'larda mototsiklda sayr qiladi."
       },
       "explanation": {
         "ru": "Для занятий говорят go + -ing (go swimming, go skiing): motorcycle → motorcycling; немое e на конце выпадает.",
@@ -1205,7 +1205,7 @@
       ],
       "translation": {
         "ru": "Нам не удалось взять прямой рейс, поэтому мы полетели с пересадкой.",
-        "uz": "To'g'ridan-to'g'ri reysga chipta ololmadik, shuning uchun boshqa reysga o'tib uchdik."
+        "uz": "To'g'ridan-to'g'ri reysga chipta ololmadik, shuning uchun boshqa shahar orqali uchdik."
       },
       "explanation": {
         "ru": "Смысл (прямого рейса не было) и артикль an требуют отрицания: in- + direct → indirect (непрямой, с пересадкой).",
@@ -1523,7 +1523,7 @@
       "target_words": [
         "homesick"
       ],
-      "text": "Many students who study abroad suffer from ___ in the first year.",
+      "text": "Many students who study abroad suffer from ___ in their first year.",
       "base": "homesick",
       "accepted": [
         "homesickness"
@@ -1577,22 +1577,22 @@
       "target_words": [
         "landmark"
       ],
-      "text": "On our trip we visited all the famous *sightseeings* of the city.",
+      "text": "We only had time to visit one of the city's famous *landmark*.",
       "options": [
         "landmarks",
-        "scenery",
-        "tourism"
+        "landmark's",
+        "sightseeing"
       ],
       "correct": [
         "landmarks"
       ],
       "translation": {
-        "ru": "Во время поездки мы посетили все известные достопримечательности города.",
-        "uz": "Sayohatimiz davomida shaharning barcha mashhur diqqatga sazovor joylarini borib ko'rdik."
+        "ru": "Мы успели посетить только одну из знаменитых достопримечательностей города.",
+        "uz": "Shaharning mashhur diqqatga sazovor joylaridan faqat bittasini ko'rishga ulgurdik."
       },
       "explanation": {
-        "ru": "sightseeing — осмотр достопримечательностей (занятие), без -s. Сама достопримечательность — landmark (или sight): all the famous landmarks.",
-        "uz": "sightseeing — diqqatga sazovor joylarni tomosha qilish (mashg'ulot), -s qo'shilmaydi. Diqqatga sazovor joyning o'zi — landmark (yoki sight): all the famous landmarks."
+        "ru": "После one of the … нужно существительное во множественном числе: one of the famous landmarks. landmark's — притяжательная форма, а sightseeing — осмотр достопримечательностей (занятие), не сами места.",
+        "uz": "one of the … qurilmasidan keyin ot ko'plikda keladi: one of the famous landmarks. landmark's — qaratqich shakli, sightseeing esa joylarning o'zi emas, ularni tomosha qilish (mashg'ulot)."
       }
     },
     {

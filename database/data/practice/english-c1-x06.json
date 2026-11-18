@@ -48,8 +48,8 @@
         "uz": "Hujum kichik davlat suverenitetining ochiq-oydin buzilishi edi."
       },
       "explanation": {
-        "ru": "После the country's нужно существительное «суверенитет»: sovereign → sovereignty (-ty). Буква g не произносится, но пишется.",
-        "uz": "the country's so'zlaridan keyin «suverenitet» ma'nosidagi ot kerak: sovereign → sovereignty (-ty qo'shimchasi). g harfi talaffuz qilinmaydi, lekin yoziladi."
+        "ru": "После the small country's нужно существительное «суверенитет»: sovereign → sovereignty (-ty). Буква g не произносится, но пишется.",
+        "uz": "the small country's so'zlaridan keyin «suverenitet» ma'nosidagi ot kerak: sovereign → sovereignty (-ty qo'shimchasi). g harfi talaffuz qilinmaydi, lekin yoziladi."
       }
     },
     {
@@ -121,7 +121,7 @@
       "options": [
         "legislature",
         "legislator",
-        "legislative"
+        "legislating"
       ],
       "correct": [
         "legislature"
@@ -131,8 +131,8 @@
         "uz": "Mamlakat qonun chiqaruvchi organining uch yuz a'zosi bor va u yiliga ikki marta yig'iladi."
       },
       "explanation": {
-        "ru": "legislature — законодательный орган (парламент), legislation — сами законы, legislator — законодатель (человек). Члены и заседания бывают только у органа.",
-        "uz": "legislature — qonun chiqaruvchi organ (parlament), legislation — qonunlarning o'zi, legislator — qonun chiqaruvchi shaxs. A'zolar va majlislar faqat organda bo'ladi."
+        "ru": "legislature — законодательный орган (парламент), legislation — сами законы, legislator — законодатель (человек), legislating — процесс издания законов. Члены и заседания бывают только у органа.",
+        "uz": "legislature — qonun chiqaruvchi organ (parlament), legislation — qonunlarning o'zi, legislator — qonun chiqaruvchi shaxs, legislating — qonun chiqarish jarayoni. A'zolar va majlislar faqat organda bo'ladi."
       }
     },
     {
@@ -264,8 +264,8 @@
         "uz": "Janjal bir hafta ichida uning prezidentlikka nomzodligiga chek qo'ydi."
       },
       "explanation": {
-        "ru": "candidacy for — кандидатура на (пост): после candidacy всегда for. Русское «на» здесь не on.",
-        "uz": "candidacy for — biror lavozimga nomzodlik: candidacy so'zidan keyin doim for keladi. O'zbekcha «-ga» qo'shimchasi bu yerda to predlogi bilan berilmaydi."
+        "ru": "candidacy for — кандидатура на (пост): должность, на которую претендуют, вводится предлогом for. Русское «на» здесь не on.",
+        "uz": "candidacy for — biror lavozimga nomzodlik: da'vo qilinayotgan lavozim for predlogi bilan beriladi. O'zbekcha «-ga» qo'shimchasi bu yerda on yoki to predlogi bilan berilmaydi."
       }
     },
     {
@@ -344,7 +344,7 @@
       ],
       "translation": {
         "ru": "Годы терпеливой дипломатии наконец положили конец пограничному спору.",
-        "uz": "Yillar davom etgan sabrli diplomatiya nihoyat chegara mojarosiga barham berdi."
+        "uz": "Yillar davom etgan sabr-toqatli diplomatiya nihoyat chegara mojarosiga barham berdi."
       },
       "explanation": {
         "ru": "После Years of patient нужно существительное «дипломатия» (не люди): diplomat → diplomacy — t меняется на c, окончание -cy.",
@@ -362,14 +362,14 @@
       "target_words": [
         "neutrality"
       ],
-      "text": "The small country declared its ___ as soon as the war began.",
+      "text": "When the war broke out, the tiny island nation at once declared its ___.",
       "base": "neutral",
       "accepted": [
         "neutrality"
       ],
       "translation": {
-        "ru": "Маленькая страна объявила о своём нейтралитете, как только началась война.",
-        "uz": "Urush boshlanishi bilanoq kichik davlat o'z betarafligini e'lon qildi."
+        "ru": "Когда разразилась война, маленькое островное государство сразу объявило о своём нейтралитете.",
+        "uz": "Urush boshlanganda kichik orol davlati darhol o'z betarafligini e'lon qildi."
       },
       "explanation": {
         "ru": "После its нужно существительное: neutral → neutrality (-ity). declare neutrality — объявить нейтралитет.",
@@ -750,8 +750,8 @@
         "uz": "Harbiy xizmat o'n sakkiz yoshdan oshgan barcha erkaklar uchun majburiy."
       },
       "explanation": {
-        "ru": "mandatory for somebody — обязательный для кого-то: перед лицом — for. to бывает только перед глаголом: it is mandatory to wear a helmet.",
-        "uz": "mandatory for somebody — kim uchundir majburiy: shaxsdan oldin for keladi. to esa faqat fe'ldan oldin turadi: it is mandatory to wear a helmet."
+        "ru": "mandatory for somebody — обязательный для кого-то: перед тем, для кого обязательно, ставится for. to ставится перед глаголом: it is mandatory to wear a helmet.",
+        "uz": "mandatory for somebody — kim uchundir majburiy: kimga majburiy ekani for predlogi bilan beriladi. to esa fe'ldan oldin turadi: it is mandatory to wear a helmet."
       }
     },
     {
@@ -873,18 +873,18 @@
       "target_words": [
         "extortion"
       ],
-      "text": "The gang made most of its money from drugs, theft and ___.",
+      "text": "The gang made most of its money from fraud, theft and ___.",
       "base": "extort",
       "accepted": [
         "extortion"
       ],
       "translation": {
-        "ru": "Основные деньги банда получала от наркотиков, краж и вымогательства.",
-        "uz": "To'da pulning asosiy qismini giyohvand moddalar, o'g'irlik va tovlamachilikdan topardi."
+        "ru": "Основные деньги банда получала от мошенничества, краж и вымогательства.",
+        "uz": "To'da pulning asosiy qismini firibgarlik, o'g'irlik va tovlamachilikdan topardi."
       },
       "explanation": {
-        "ru": "В перечне существительных drugs, theft нужно ещё одно существительное «вымогательство»: extort → extortion (-ion). extorting требовал бы дополнения (extorting money).",
-        "uz": "drugs, theft otlari sanalgan qatorda yana bir ot — «tovlamachilik» kerak: extort → extortion (-ion). extorting shakli to'ldiruvchini talab qilardi (extorting money)."
+        "ru": "В перечне существительных fraud, theft нужно ещё одно существительное «вымогательство»: extort → extortion (-ion). extorting требовал бы дополнения (extorting money).",
+        "uz": "fraud, theft otlari sanalgan qatorda yana bir ot — «tovlamachilik» kerak: extort → extortion (-ion). extorting shakli to'ldiruvchini talab qilardi (extorting money)."
       }
     },
     {
@@ -927,7 +927,7 @@
       "target_words": [
         "smuggle"
       ],
-      "text": "Two sailors were accused of *smuggle* weapons into the country.",
+      "text": "Two sailors were accused of *smuggle* stolen paintings into the country.",
       "options": [
         "smuggling",
         "smuggled",
@@ -937,8 +937,8 @@
         "smuggling"
       ],
       "translation": {
-        "ru": "Двух моряков обвинили в провозе оружия в страну контрабандой.",
-        "uz": "Ikki dengizchi mamlakatga kontrabanda yo'li bilan qurol olib kirishda ayblandi."
+        "ru": "Двух моряков обвинили в контрабандном ввозе краденых картин в страну.",
+        "uz": "Ikki dengizchi mamlakatga o'g'irlangan rasmlarni kontrabanda yo'li bilan olib kirishda ayblandi."
       },
       "explanation": {
         "ru": "После предлога of (accused of) глагол стоит в форме -ing: accused of smuggling. Инфинитив и форма прошедшего времени после предлога невозможны.",
@@ -1251,7 +1251,7 @@
       "target_words": [
         "parole"
       ],
-      "text": "After twelve years in prison, he will become eligible *to* parole.",
+      "text": "Inmates who behave well become eligible *to* parole after serving half their sentence.",
       "options": [
         "for",
         "of",
@@ -1261,8 +1261,8 @@
         "for"
       ],
       "translation": {
-        "ru": "Через двенадцать лет заключения он получит право на условно-досрочное освобождение.",
-        "uz": "O'n ikki yillik qamoqdan so'ng u muddatidan ilgari shartli ozod qilinish huquqiga ega bo'ladi."
+        "ru": "Заключённые с хорошим поведением получают право на условно-досрочное освобождение, отбыв половину срока.",
+        "uz": "O'zini yaxshi tutgan mahbuslar jazo muddatining yarmini o'tagach, muddatidan ilgari shartli ozod qilinish huquqiga ega bo'ladi."
       },
       "explanation": {
         "ru": "eligible for something — имеющий право на что-то: перед существительным — for; to ставится только перед глаголом (eligible to vote).",
@@ -1334,18 +1334,18 @@
       "target_words": [
         "defamation"
       ],
-      "text": "The judge ruled that the article was ___ and ordered the paper to pay.",
+      "text": "The judge ruled that the article was highly ___ and ordered the paper to pay.",
       "base": "defamation",
       "accepted": [
         "defamatory"
       ],
       "translation": {
-        "ru": "Судья признал статью клеветнической и обязал газету выплатить компенсацию.",
-        "uz": "Sudya maqolani tuhmatli deb topdi va gazetaga tovon to'lashni buyurdi."
+        "ru": "Судья признал статью явно клеветнической и обязал газету выплатить компенсацию.",
+        "uz": "Sudya maqolani ochiq-oydin tuhmat deb topdi va gazetaga tovon to'lashni buyurdi."
       },
       "explanation": {
-        "ru": "После the article was нужно прилагательное «клеветнический»: defamation → defamatory (-ation меняется на -atory).",
-        "uz": "the article was so'zlaridan keyin «tuhmatli» ma'nosidagi sifat kerak: defamation → defamatory (-ation o'rniga -atory)."
+        "ru": "После was highly нужно прилагательное «клеветнический» (highly описывает прилагательное, не существительное): defamation → defamatory (-ation меняется на -atory).",
+        "uz": "was highly so'zlaridan keyin «tuhmat xarakteridagi» ma'nosidagi sifat kerak (highly otni emas, sifatni izohlaydi): defamation → defamatory (-ation o'rniga -atory)."
       }
     },
     {
@@ -1496,14 +1496,14 @@
       "target_words": [
         "uphold"
       ],
-      "text": "Last week the country's highest court ___ the ban on private weapons.",
+      "text": "Last week the country's highest court ___ the ban on plastic bags in shops.",
       "base": "uphold",
       "accepted": [
         "upheld"
       ],
       "translation": {
-        "ru": "На прошлой неделе высший суд страны оставил в силе запрет на личное оружие.",
-        "uz": "O'tgan hafta mamlakatning oliy sudi shaxsiy qurolga oid taqiqni kuchda qoldirdi."
+        "ru": "На прошлой неделе высший суд страны оставил в силе запрет на пластиковые пакеты в магазинах.",
+        "uz": "O'tgan hafta mamlakatning oliy sudi do'konlarda plastik paketlarga qo'yilgan taqiqni kuchda qoldirdi."
       },
       "explanation": {
         "ru": "Last week требует прошедшего времени: uphold — upheld — upheld (как hold — held). Формы upholded нет.",
@@ -1546,7 +1546,7 @@
       "target_words": [
         "statute"
       ],
-      "text": "Parliament passed a new *statue* requiring all bars to close at midnight.",
+      "text": "Parliament passed a new *statue* requiring all shops to close on Sundays.",
       "options": [
         "statute",
         "stature",
@@ -1556,8 +1556,8 @@
         "statute"
       ],
       "translation": {
-        "ru": "Парламент принял новый закон, обязывающий все бары закрываться в полночь.",
-        "uz": "Parlament barcha barlarni yarim tunda yopilishga majbur qiluvchi yangi qonun qabul qildi."
+        "ru": "Парламент принял новый закон, обязывающий все магазины закрываться по воскресеньям.",
+        "uz": "Parlament barcha do'konlarni yakshanba kunlari yopilishga majbur qiluvchi yangi qonun qabul qildi."
       },
       "explanation": {
         "ru": "statute — законодательный акт; statue — статуя, stature — рост, авторитет; status — положение. Парламент принимает statute.",
@@ -1604,7 +1604,7 @@
       "target_words": [
         "unlawful"
       ],
-      "text": "In this country it is *illawful* to sell alcohol to children.",
+      "text": "Firing workers for joining a trade union is *illawful* in most countries.",
       "options": [
         "unlawful",
         "lawfully",
@@ -1614,12 +1614,12 @@
         "unlawful"
       ],
       "translation": {
-        "ru": "В этой стране продавать алкоголь детям незаконно.",
-        "uz": "Bu mamlakatda bolalarga spirtli ichimlik sotish noqonuniy."
+        "ru": "В большинстве стран увольнять работников за вступление в профсоюз незаконно.",
+        "uz": "Ko'pchilik mamlakatlarda xodimlarni kasaba uyushmasiga a'zo bo'lgani uchun ishdan bo'shatish noqonuniy."
       },
       "explanation": {
-        "ru": "Отрицательная форма от lawful — unlawful (приставка un-). Приставка il- есть в illegal, но слова illawful нет. После it is нужно прилагательное, а не наречие (unlawfully).",
-        "uz": "lawful so'zining inkor shakli — unlawful (un- old qo'shimchasi). il- old qo'shimchasi illegal so'zida bor, lekin illawful degan so'z yo'q. it is so'zlaridan keyin ravish emas, sifat kerak (unlawfully emas)."
+        "ru": "Отрицательная форма от lawful — unlawful (приставка un-). Приставка il- есть в illegal, но слова illawful нет. После is нужно прилагательное, а не наречие (unlawfully).",
+        "uz": "lawful so'zining inkor shakli — unlawful (un- old qo'shimchasi). il- old qo'shimchasi illegal so'zida bor, lekin illawful degan so'z yo'q. is so'zidan keyin ravish emas, sifat kerak (unlawfully emas)."
       }
     }
   ]

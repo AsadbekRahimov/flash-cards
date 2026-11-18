@@ -21,7 +21,7 @@
       ],
       "translation": {
         "ru": "Из-за одной лишь многословности отчёта никто не читал его дальше первой страницы.",
-        "uz": "Hisobotning o'ta serso'zligi tufayli hech kim uni birinchi sahifadan nariga o'qimadi."
+        "uz": "Hisobotning o'ta serso'zligi tufayli hech kim birinchi sahifadan nariga o'tmadi."
       },
       "explanation": {
         "ru": "Между the sheer и of нужно существительное: verbose → verbosity (многословность), -ose → -osity. Реже встречается и verboseness.",
@@ -75,7 +75,7 @@
         "uz": "U butun munozarani bir jumlada lo'nda qilib xulosalab berdi."
       },
       "explanation": {
-        "ru": "Глагол summed up описывает наречие: pithy → pithily (ёмко); y после согласной перед -ly меняется на i.",
+        "ru": "К глаголу summed up нужно наречие: pithy → pithily (ёмко); y после согласной перед -ly меняется на i.",
         "uz": "summed up fe'lini ravish izohlaydi: pithy → pithily (lo'nda qilib); undoshdan keyingi y harfi -ly oldidan i ga aylanadi."
       }
     },
@@ -104,7 +104,7 @@
         "uz": "Vazir byudjet haqidagi barcha savollarni quruq va qisqa qilib rad etdi."
       },
       "explanation": {
-        "ru": "Глагол dismissed описывает наречие, а не прилагательное: terse → tersely. Прилагательное ставят при существительном: a terse reply.",
+        "ru": "К глаголу dismissed нужно наречие, а не прилагательное: terse → tersely. Прилагательное ставят при существительном: a terse reply.",
         "uz": "dismissed fe'lini sifat emas, ravish izohlaydi: terse → tersely. Sifat esa ot bilan keladi: a terse reply."
       }
     },
@@ -148,7 +148,7 @@
       "target_words": [
         "stilted"
       ],
-      "text": "The translation sounded *stilting*, like nothing a real person would say.",
+      "text": "Her letters to him were so *stilting* that they read like legal documents.",
       "options": [
         "stilted",
         "stiltedly",
@@ -158,12 +158,12 @@
         "stilted"
       ],
       "translation": {
-        "ru": "Перевод звучал неестественно: живой человек так никогда не скажет.",
-        "uz": "Tarjima sun'iy eshitilardi: oddiy odam hech qachon bunday gapirmaydi."
+        "ru": "Её письма к нему были настолько высокопарными и неестественными, что читались как юридические документы.",
+        "uz": "Uning unga yozgan xatlari shunchalik sun'iy va balandparvoz ediki, xuddi yuridik hujjatlardek o'qilardi."
       },
       "explanation": {
-        "ru": "stilted (неестественный) — прилагательное на -ed, формы stilting в этом значении нет. После sounded нужно прилагательное, а не наречие stiltedly.",
-        "uz": "stilted (sun'iy) — -ed bilan tugaydigan sifat, bu ma'noda stilting shakli yo'q. sounded fe'lidan keyin stiltedly ravishi emas, sifat keladi."
+        "ru": "stilted (высокопарный, неестественный) — прилагательное на -ed; формы stilting в этом значении нет. После so нужно прилагательное, а не наречие stiltedly; stilt — существительное «ходуля».",
+        "uz": "stilted (balandparvoz, sun'iy) — -ed bilan tugaydigan sifat; bu ma'noda stilting shakli yo'q. so so'zidan keyin stiltedly ravishi emas, sifat keladi; stilt esa «xoda oyoq» degan ot."
       }
     },
     {
@@ -237,7 +237,7 @@
         "uz": "Qizcha otasi kuchukchani olib berar degan umidda unga yolvorib tikilardi."
       },
       "explanation": {
-        "ru": "Глагол stared описывает наречие: implore → imploring → imploringly (умоляюще); e выпадает перед -ing, затем добавляется -ly.",
+        "ru": "К глаголу stared нужно наречие: implore → imploring → imploringly (умоляюще); e выпадает перед -ing, затем добавляется -ly.",
         "uz": "stared fe'lini ravish izohlaydi: implore → imploring → imploringly (yolvorib); -ing oldidan e tushib qoladi, keyin -ly qo'shiladi."
       }
     },
@@ -313,7 +313,7 @@
       "text": "*Admonishing* by the referee, the young player apologized to his opponent.",
       "options": [
         "Admonished",
-        "Admonish",
+        "Having admonished",
         "Admonishes"
       ],
       "correct": [
@@ -324,8 +324,8 @@
         "uz": "Hakamdan tanbeh olgan yosh o'yinchi raqibidan uzr so'radi."
       },
       "explanation": {
-        "ru": "Игрок не делал внушение, а получил его (by the referee), поэтому нужен оборот со страдательным причастием: Admonished by…, а не форма на -ing.",
-        "uz": "O'yinchi tanbeh bermagan, balki uni olgan (by the referee), shuning uchun -ing shakli emas, majhul sifatdosh bilan oborot kerak: Admonished by…"
+        "ru": "Игрок не делал внушение, а получил его (by the referee), поэтому нужен оборот со страдательным причастием: Admonished by…; Having admonished — действительный залог, он тоже не подходит.",
+        "uz": "O'yinchi tanbeh bermagan, balki uni olgan (by the referee), shuning uchun majhul sifatdosh bilan oborot kerak: Admonished by…; Having admonished esa aniq nisbatda, u ham to'g'ri kelmaydi."
       }
     },
     {
@@ -389,17 +389,17 @@
       "target_words": [
         "disparage"
       ],
-      "text": "She always spoke ___ of her former employer, which worried potential employers.",
+      "text": "She always spoke ___ of her former boss, which did not impress her new colleagues.",
       "base": "disparage",
       "accepted": [
         "disparagingly"
       ],
       "translation": {
-        "ru": "Она всегда пренебрежительно отзывалась о бывшем работодателе, и это настораживало потенциальных работодателей.",
-        "uz": "U doim sobiq ish beruvchisi haqida kamsitib gapirar, bu esa ehtimoliy ish beruvchilarni xavotirga solardi."
+        "ru": "Она всегда пренебрежительно отзывалась о бывшем начальнике, и новым коллегам это не нравилось.",
+        "uz": "U doim sobiq rahbari haqida kamsitib gapirardi, bu esa yangi hamkasblariga yoqmasdi."
       },
       "explanation": {
-        "ru": "Глагол spoke описывает наречие: disparage → disparaging → disparagingly (пренебрежительно); e выпадает перед -ing.",
+        "ru": "К глаголу spoke нужно наречие: disparage → disparaging → disparagingly (пренебрежительно); e выпадает перед -ing.",
         "uz": "spoke fe'lini ravish izohlaydi: disparage → disparaging → disparagingly (kamsitib); -ing oldidan e tushib qoladi."
       }
     },
@@ -511,8 +511,8 @@
         "uz": "Sovg'adan samimiy quvonganidan uning bu narsani chindan ham istagani ko'rinib turardi."
       },
       "explanation": {
-        "ru": "Конец фразы (she had really wanted it) требует смысла «непритворный»: feign → feigned (притворный) → unfeigned. feigned delight противоречило бы ему.",
-        "uz": "Gapning oxiri (she had really wanted it) «soxta emas» ma'nosini talab qiladi: feign → feigned (soxta) → unfeigned. feigned delight unga zid bo'lardi."
+        "ru": "Конец фразы (she had really wanted it) требует смысла «непритворный»: feign → feigned (притворный) → unfeigned. feigned joy противоречило бы ему.",
+        "uz": "Gapning oxiri (she had really wanted it) «soxta emas» ma'nosini talab qiladi: feign → feigned (soxta) → unfeigned. feigned joy unga zid bo'lardi."
       }
     },
     {
@@ -536,7 +536,7 @@
         "uz": "Kompaniya ommaviy ishdan bo'shatishlarni yumshatib, qayta tashkil etish deb atadi."
       },
       "explanation": {
-        "ru": "Глагол described описывает наречие: euphemism → euphemistic (-ism → -istic) → euphemistically (после -ic наречие образуется с -ally).",
+        "ru": "К глаголу described нужно наречие: euphemism → euphemistic (-ism → -istic) → euphemistically (после -ic наречие образуется с -ally).",
         "uz": "described fe'lini ravish izohlaydi: euphemism → euphemistic (-ism o'rniga -istic) → euphemistically (-ic qo'shimchasidan keyin ravish -ally bilan yasaladi)."
       }
     },
@@ -590,7 +590,7 @@
         "uz": "Menejerdan yo'qolgan pullar haqida so'rashganda, u har bir savolga mujmal javob berdi."
       },
       "explanation": {
-        "ru": "Глагол answered описывает наречие: evasive → evasively (уклончиво). Прилагательное evasive стоит при существительном: an evasive answer.",
+        "ru": "К глаголу answered нужно наречие: evasive → evasively (уклончиво). Прилагательное evasive стоит при существительном: an evasive answer.",
         "uz": "answered fe'lini ravish izohlaydi: evasive → evasively (mujmal qilib). evasive sifati esa ot bilan keladi: an evasive answer."
       }
     },
@@ -661,20 +661,20 @@
       },
       "level": "C2",
       "target_words": [
-        "nuance"
+        "sardonic"
       ],
-      "text": "Her highly ___ reading of the poem impressed even the strictest teachers.",
-      "base": "nuance",
+      "text": "He smiled ___ when his boss promised, yet again, that everything would soon improve.",
+      "base": "sardonic",
       "accepted": [
-        "nuanced"
+        "sardonically"
       ],
       "translation": {
-        "ru": "Её тонкая, учитывающая все нюансы трактовка стихотворения впечатлила даже самых строгих преподавателей.",
-        "uz": "Uning she'rni barcha nozik jihatlari bilan talqin qilishi hatto eng talabchan o'qituvchilarni ham qoyil qoldirdi."
+        "ru": "Он язвительно усмехнулся, когда начальник в очередной раз пообещал, что скоро всё наладится.",
+        "uz": "Boshlig'i yana bir bor hammasi tez orada yaxshilanishini va'da qilganida, u zaharxanda jilmayib qo'ydi."
       },
       "explanation": {
-        "ru": "Между highly и существительным reading нужно прилагательное: nuance → nuanced (тонкий, учитывающий нюансы), добавляется -d.",
-        "uz": "highly va reading oti orasida sifat kerak: nuance → nuanced (nozik jihatlarni hisobga olgan), oxiriga -d qo'shiladi."
+        "ru": "К глаголу smiled нужно наречие: sardonic → sardonically (язвительно). У прилагательных на -ic наречие образуется с -ally, а не -ly.",
+        "uz": "smiled fe'lini ravish izohlaydi: sardonic → sardonically (zaharxanda). -ic bilan tugaydigan sifatlardan ravish -ly emas, -ally orqali yasaladi."
       }
     },
     {
@@ -698,7 +698,7 @@
         "uz": "Shartnoma bu ma'lumotlarni boshqalarga berishni ochiq aytmasa-da, bilvosita taqiqlaydi."
       },
       "explanation": {
-        "ru": "Глагол forbids описывает наречие: implicit → implicitly (неявно, подразумеваемо). Конец фразы (never says so directly) указывает на «неявно».",
+        "ru": "К глаголу forbids нужно наречие: implicit → implicitly (неявно, подразумеваемо). Конец фразы (never says so directly) указывает на «неявно».",
         "uz": "forbids fe'lini ravish izohlaydi: implicit → implicitly (bilvosita). Gapning oxiri (never says so directly) aynan «bilvosita» ma'nosini ko'rsatadi."
       }
     },
@@ -796,7 +796,7 @@
       "target_words": [
         "intonation"
       ],
-      "text": "Questions that expect a yes or a no usually end with a *raising* intonation.",
+      "text": "Her sentences often ended with a *raising* intonation, which made her sound uncertain.",
       "options": [
         "rising",
         "risen",
@@ -806,8 +806,8 @@
         "rising"
       ],
       "translation": {
-        "ru": "Вопросы, на которые ждут ответа «да» или «нет», обычно заканчиваются восходящей интонацией.",
-        "uz": "«Ha» yoki «yo'q» javobini kutadigan savollar odatda ko'tariluvchi intonatsiya bilan tugaydi."
+        "ru": "Её фразы часто заканчивались восходящей интонацией, и из-за этого она казалась неуверенной в себе.",
+        "uz": "Uning gaplari ko'pincha ko'tariluvchi intonatsiya bilan tugar, shu bois u o'ziga ishonchsizdek tuyulardi."
       },
       "explanation": {
         "ru": "Восходящая интонация — rising intonation: rise (подниматься) не требует дополнения. raise — поднимать что-то, ему нужно дополнение.",
@@ -825,18 +825,18 @@
       "target_words": [
         "expedite"
       ],
-      "text": "All complaints will be handled as ___ as possible by our legal team.",
+      "text": "Urgent complaints are handled as ___ as possible, usually within a single day.",
       "base": "expedite",
       "accepted": [
         "expeditiously"
       ],
       "translation": {
-        "ru": "Все жалобы наш юридический отдел рассмотрит как можно оперативнее.",
-        "uz": "Barcha shikoyatlar yuridik bo'limimiz tomonidan imkon qadar tezkorlik bilan ko'rib chiqiladi."
+        "ru": "Срочные жалобы рассматриваются как можно оперативнее — обычно в течение одного дня.",
+        "uz": "Shoshilinch shikoyatlar imkon qadar tezkorlik bilan, odatda bir kun ichida ko'rib chiqiladi."
       },
       "explanation": {
-        "ru": "as … as possible при глаголе handled требует наречия: expedite → expeditious (оперативный) → expeditiously: -ite → -itious, затем -ly.",
-        "uz": "handled fe'li bilan as … as possible oralig'ida ravish kerak: expedite → expeditious (tezkor) → expeditiously: -ite o'rniga -itious, keyin -ly."
+        "ru": "Глагол handled с as … as possible требует наречия, а within a single day — смысла «быстро»: expedite → expeditious (оперативный) → expeditiously: -ite → -itious, затем -ly.",
+        "uz": "handled fe'li bilan as … as possible ravishni, within a single day esa «tez» ma'nosini talab qiladi: expedite → expeditious (tezkor) → expeditiously: -ite o'rniga -itious, keyin -ly."
       }
     },
     {
@@ -856,7 +856,7 @@
         "procurement"
       ],
       "translation": {
-        "ru": "Она двадцать лет работает в сфере государственных закупок и покупает оборудование для больниц.",
+        "ru": "Она двадцать лет работает в сфере государственных закупок, закупая оборудование для больниц.",
         "uz": "U yigirma yildan beri davlat xaridlari sohasida ishlab, kasalxonalar uchun asbob-uskunalar sotib oladi."
       },
       "explanation": {
@@ -990,15 +990,16 @@
       "text": "Two ___ were attached to the contract after the prices changed.",
       "base": "addendum",
       "accepted": [
-        "addenda"
+        "addenda",
+        "addendums"
       ],
       "translation": {
         "ru": "После изменения цен к договору приложили два дополнения.",
         "uz": "Narxlar o'zgargach, shartnomaga ikkita qo'shimcha ilova qilindi."
       },
       "explanation": {
-        "ru": "Two и were требуют множественного числа. addendum — латинское слово: -um → -a, addenda (как datum → data).",
-        "uz": "Two va were ko'plikni talab qiladi. addendum — lotincha so'z: -um o'rniga -a, addenda (xuddi datum → data kabi)."
+        "ru": "Two и were требуют множественного числа. addendum — латинское слово: -um → -a, addenda (как datum → data); словари допускают и addendums.",
+        "uz": "Two va were ko'plikni talab qiladi. addendum — lotincha so'z: -um o'rniga -a, addenda (xuddi datum → data kabi); lug'atlar addendums shaklini ham qabul qiladi."
       }
     },
     {
@@ -1102,7 +1103,7 @@
         "bring"
       ],
       "translation": {
-        "ru": "Семья решила возбудить судебное разбирательство против больницы.",
+        "ru": "Семья решила начать судебное разбирательство против больницы.",
         "uz": "Oila kasalxona ustidan sudga da'vo qo'zg'atishga qaror qildi."
       },
       "explanation": {
@@ -1121,7 +1122,7 @@
       "target_words": [
         "proviso"
       ],
-      "text": "We got the loan with the proviso *if* we repaid it within a year.",
+      "text": "The bank lends us money with the proviso *if* we pay it back promptly.",
       "options": [
         "that",
         "which",
@@ -1131,8 +1132,8 @@
         "that"
       ],
       "translation": {
-        "ru": "Мы получили кредит с условием, что вернём его в течение года.",
-        "uz": "Biz kreditni bir yil ichida qaytarish sharti bilan oldik."
+        "ru": "Банк даёт нам деньги в долг с условием, что мы быстро их вернём.",
+        "uz": "Bank bizga pulni tezda qaytarib berish sharti bilan qarzga beradi."
       },
       "explanation": {
         "ru": "with the proviso that — с оговоркой, что…: после proviso условие вводится союзом that, а не if, which или what.",
@@ -1201,18 +1202,18 @@
       "target_words": [
         "hereby"
       ],
-      "text": "The airline hereby ___ all responsibility for lost luggage, so no compensation is paid.",
+      "text": "The airline hereby ___ all responsibility for lost luggage and will pay no compensation.",
       "base": "claim",
       "accepted": [
         "disclaims"
       ],
       "translation": {
-        "ru": "Настоящим авиакомпания снимает с себя всякую ответственность за утерянный багаж, поэтому компенсация не выплачивается.",
-        "uz": "Shu bilan aviakompaniya yo'qolgan bagaj uchun har qanday javobgarlikdan voz kechadi, shu sababli tovon to'lanmaydi."
+        "ru": "Настоящим авиакомпания снимает с себя всякую ответственность за утерянный багаж и не будет выплачивать никакой компенсации.",
+        "uz": "Shu bilan aviakompaniya yo'qolgan bagaj uchun har qanday javobgarlikdan voz kechadi va hech qanday tovon to'lamaydi."
       },
       "explanation": {
-        "ru": "hereby требует настоящего времени, а airline — 3-е лицо: -s. Смысл (no compensation) требует «отказываться от»: claim → disclaim → disclaims.",
-        "uz": "hereby hozirgi zamonni talab qiladi, airline esa uchinchi shaxs birlikda: -s. Ma'no (no compensation) «voz kechmoq» fe'lini talab qiladi: claim → disclaim → disclaims."
+        "ru": "hereby требует настоящего времени, а airline — 3-е лицо: -s. Смысл (will pay no compensation) требует «снимать с себя»: claim → disclaim → disclaims.",
+        "uz": "hereby hozirgi zamonni talab qiladi, airline esa uchinchi shaxs birlikda: -s. Ma'no (will pay no compensation) «voz kechmoq» fe'lini talab qiladi: claim → disclaim → disclaims."
       }
     },
     {
@@ -1284,7 +1285,7 @@
       "target_words": [
         "insofar"
       ],
-      "text": "I will support the proposal insofar *that* it helps the poorest families.",
+      "text": "The company will protect your personal data insofar *that* it is technically possible.",
       "options": [
         "as",
         "so",
@@ -1294,8 +1295,8 @@
         "as"
       ],
       "translation": {
-        "ru": "Я поддержу предложение в той мере, в какой оно помогает самым бедным семьям.",
-        "uz": "Taklifni eng kambag'al oilalarga yordam bergan darajada qo'llab-quvvatlayman."
+        "ru": "Компания будет защищать ваши персональные данные в той мере, в какой это технически возможно.",
+        "uz": "Kompaniya shaxsiy ma'lumotlaringizni texnik jihatdan qanchalik imkon bo'lsa, shu darajada himoya qiladi."
       },
       "explanation": {
         "ru": "insofar as — в той мере, в какой: после insofar всегда идёт as. Сочетание insofar that — ошибка.",
@@ -1370,8 +1371,8 @@
         "undignified"
       ],
       "translation": {
-        "ru": "Ползать под столом в поисках серёжки было как-то несолидно.",
-        "uz": "Sirg'asini izlab stol tagida emaklash unga ancha nojo'ya, viqoriga to'g'ri kelmaydigan ish bo'lib tuyuldi."
+        "ru": "Ползать под столом в поисках серёжки ей казалось довольно несолидным.",
+        "uz": "Sirg'asini izlab stol tagida emaklash unga ancha nomunosib, viqorsiz ish bo'lib tuyuldi."
       },
       "explanation": {
         "ru": "felt — глагол-связка, после него прилагательное. Смысл (ползать под столом) требует «несолидный»: dignified → undignified.",
@@ -1461,7 +1462,7 @@
         "uz": "Muzokaralar boshlanishidan oldin ikki rahbar samimiy qo'l berib ko'rishdi."
       },
       "explanation": {
-        "ru": "shook hands описывает наречие: cordial → cordially (сердечно, радушно). Прилагательное cordial ставят при существительном: a cordial welcome.",
+        "ru": "К сочетанию shook hands нужно наречие: cordial → cordially (сердечно, радушно). Прилагательное cordial ставят при существительном: a cordial welcome.",
         "uz": "shook hands iborasini ravish izohlaydi: cordial → cordially (samimiy tarzda). cordial sifati esa ot bilan keladi: a cordial welcome."
       }
     },
@@ -1476,18 +1477,18 @@
       "target_words": [
         "admissible"
       ],
-      "text": "Because it was obtained illegally, the recording was ruled ___ in court.",
+      "text": "Because the confession was obtained under pressure, the judge declared it ___.",
       "base": "admissible",
       "accepted": [
         "inadmissible"
       ],
       "translation": {
-        "ru": "Поскольку запись была получена незаконно, суд признал её недопустимым доказательством.",
-        "uz": "Yozuv noqonuniy yo'l bilan olingani uchun sud uni nomaqbul dalil deb topdi."
+        "ru": "Поскольку признание было получено под давлением, судья признал его недопустимым.",
+        "uz": "Iqrornoma bosim ostida olingani uchun sudya uni nomaqbul deb topdi."
       },
       "explanation": {
-        "ru": "Смысл (obtained illegally) требует отрицания: admissible → inadmissible (недопустимый); приставка in- перед гласной a.",
-        "uz": "Ma'no (obtained illegally) inkorni talab qiladi: admissible → inadmissible (nomaqbul); unli a oldidan in- old qo'shimchasi."
+        "ru": "Смысл (obtained under pressure) требует отрицания: admissible → inadmissible (недопустимый); перед гласной a приставка in-.",
+        "uz": "Ma'no (obtained under pressure) inkorni talab qiladi: admissible → inadmissible (nomaqbul); unli a oldidan in- old qo'shimchasi qo'shiladi."
       }
     },
     {

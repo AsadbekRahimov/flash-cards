@@ -49,7 +49,7 @@
       },
       "explanation": {
         "ru": "Невиновным признают того, кого судят: defend → defendant (подсудимый). Суффикс -ant; defender — это защитник, его не судят.",
-        "uz": "Aybsiz deb sud qilinayotgan odam topiladi: defend → defendant (sudlanuvchi). Qo'shimcha -ant; defender — himoyachi, uni sud qilishmaydi."
+        "uz": "Aybsiz deb sudlanayotgan odam topiladi: defend → defendant (sudlanuvchi). Qo'shimcha -ant; defender — himoyachi, uni sud qilishmaydi."
       }
     },
     {
@@ -63,18 +63,18 @@
       "target_words": [
         "attorney"
       ],
-      "text": "Both ___ asked the judge for more time to prepare.",
+      "text": "The ___ on both sides have asked the judge for more time to prepare.",
       "base": "attorney",
       "accepted": [
         "attorneys"
       ],
       "translation": {
-        "ru": "Оба адвоката попросили у судьи больше времени на подготовку.",
-        "uz": "Ikkala advokat ham sudyadan tayyorgarlik uchun ko'proq vaqt so'radi."
+        "ru": "Адвокаты обеих сторон попросили у судьи больше времени на подготовку.",
+        "uz": "Ikkala tomonning advokatlari sudyadan tayyorgarlik uchun ko'proq vaqt so'radi."
       },
       "explanation": {
-        "ru": "Both требует множественного числа. Перед y стоит гласная e, поэтому y не меняется, просто -s: attorney → attorneys (не attornies).",
-        "uz": "Both so'zi ko'plikni talab qiladi. y harfidan oldin unli e turgani uchun y o'zgarmaydi, faqat -s qo'shiladi: attorney → attorneys (attornies emas)."
+        "ru": "Глагол have (не has) и on both sides требуют множественного числа. Перед y стоит гласная e, поэтому y не меняется, просто -s: attorney → attorneys (не attornies).",
+        "uz": "have fe'li (has emas) va on both sides birikmasi ko'plikni talab qiladi. y harfidan oldin unli e turgani uchun y o'zgarmaydi, faqat -s qo'shiladi: attorney → attorneys (attornies emas)."
       }
     },
     {
@@ -117,22 +117,22 @@
       "target_words": [
         "lawsuit"
       ],
-      "text": "Several patients have *given* a lawsuit against the hospital.",
+      "text": "Her neighbors decided to *give* a lawsuit over her noisy dog.",
       "options": [
-        "filed",
-        "filled",
-        "made"
+        "file",
+        "fill",
+        "make"
       ],
       "correct": [
-        "filed"
+        "file"
       ],
       "translation": {
-        "ru": "Несколько пациентов подали иск против больницы.",
-        "uz": "Bir nechta bemor kasalxona ustidan sudga da'vo arizasi berdi."
+        "ru": "Соседи решили подать на неё иск из-за её шумной собаки.",
+        "uz": "Qo'shnilari uning shovqinli iti sababli sudga da'vo kiritishga qaror qilishdi."
       },
       "explanation": {
-        "ru": "Иск подают глаголом file: file a lawsuit against. Русское «подать» здесь не give и не make; filled — форма fill («наполнять»).",
-        "uz": "Da'vo file fe'li bilan beriladi: file a lawsuit against. O'zbekcha «bermoq» bu yerda give ham, make ham emas; filled esa fill («to'ldirmoq») fe'lining shakli."
+        "ru": "Иск подают глаголом file: file a lawsuit. Русское «подать» здесь не give и не make; fill — «наполнять».",
+        "uz": "Da'vo file fe'li bilan kiritiladi: file a lawsuit. O'zbekcha «bermoq» bu yerda give ham, make ham emas; fill esa «to'ldirmoq» degani."
       }
     },
     {
@@ -181,8 +181,8 @@
         "fraudulent"
       ],
       "translation": {
-        "ru": "Его посадили в тюрьму за мошеннические заявления на страховые выплаты.",
-        "uz": "U sug'urta kompaniyasiga soxta talablar bilan murojaat qilgani uchun qamoqqa olindi."
+        "ru": "Его посадили в тюрьму за подачу мошеннических заявлений на страховые выплаты.",
+        "uz": "U sug'urta to'lovlarini olish uchun firibgarona arizalar bergani uchun qamaldi."
       },
       "explanation": {
         "ru": "Перед существительным claims нужно прилагательное: fraud → fraudulent (мошеннический); обратите внимание на -ulent.",
@@ -207,7 +207,7 @@
       ],
       "translation": {
         "ru": "Трое вооружённых мужчин совершили ограбление банка меньше чем за пять минут.",
-        "uz": "Uchta qurolli odam bankda besh daqiqaga yetmasdan talonchilik qildi."
+        "uz": "Uch nafar qurolli kishi besh daqiqaga qolmay bankda talonchilik qildi."
       },
       "explanation": {
         "ru": "После carried out a нужно существительное — само преступление: rob → robbery (ограбление). Согласная b удваивается: robber, robbery.",
@@ -231,8 +231,8 @@
         "vandalism"
       ],
       "translation": {
-        "ru": "Разрисовать стены новой школы краской было чистым вандализмом.",
-        "uz": "Yangi maktab devorlariga bo'yoq sepish sof vandalizm edi."
+        "ru": "Разрисовать стены новой школы из баллончика — это было чистой воды вандализмом.",
+        "uz": "Yangi maktab devorlariga bo'yoq purkash ochiqdan-ochiq vandalizm edi."
       },
       "explanation": {
         "ru": "Подлежащее — действие (spraying), поэтому после was pure нужно название поведения, а не человека: vandal → vandalism; -ism.",
@@ -412,22 +412,22 @@
       "target_words": [
         "prohibit"
       ],
-      "text": "The new law prohibits companies from *sell* personal data without permission.",
+      "text": "The new law prohibits companies *of* selling personal data without permission.",
       "options": [
-        "selling",
-        "to sell",
-        "sold"
+        "from",
+        "to",
+        "for"
       ],
       "correct": [
-        "selling"
+        "from"
       ],
       "translation": {
         "ru": "Новый закон запрещает компаниям продавать личные данные без разрешения.",
         "uz": "Yangi qonun kompaniyalarga shaxsiy ma'lumotlarni ruxsatsiz sotishni taqiqlaydi."
       },
       "explanation": {
-        "ru": "prohibit somebody from doing something: после предлога from нужна форма -ing — selling. Инфинитив после from невозможен.",
-        "uz": "prohibit somebody from doing something: from predlogidan keyin -ing shakli kerak — selling. from predlogidan keyin infinitiv ishlatilmaydi."
+        "ru": "prohibit somebody from doing something — запрещать кому-то что-то делать: после prohibit нужен from и форма -ing. of здесь невозможен (это не accuse of), to и for тоже.",
+        "uz": "prohibit somebody from doing something — kimgadir biror narsani taqiqlamoq: prohibit fe'lidan keyin from predlogi va -ing shakli keladi. of bu yerda ishlatilmaydi (bu accuse of emas), to va for ham."
       }
     },
     {
@@ -499,18 +499,18 @@
       "target_words": [
         "imprison"
       ],
-      "text": "The judge sentenced him to life ___ for the murder.",
+      "text": "Bribery can lead to a heavy fine or even ___.",
       "base": "imprison",
       "accepted": [
         "imprisonment"
       ],
       "translation": {
-        "ru": "Судья приговорил его к пожизненному заключению за убийство.",
-        "uz": "Sudya uni qotillik uchun umrbod qamoq jazosiga hukm qildi."
+        "ru": "Взяточничество может обернуться крупным штрафом или даже тюремным заключением.",
+        "uz": "Poraxo'rlik katta jarimaga yoki hatto qamoq jazosiga olib kelishi mumkin."
       },
       "explanation": {
-        "ru": "После life (пожизненное) нужно существительное: imprison → imprisonment (заключение); -ment присоединяется к глаголу без изменений.",
-        "uz": "life (umrbod) so'zidan keyin ot kerak: imprison → imprisonment (qamoq jazosi); -ment qo'shimchasi fe'lga o'zgarishsiz qo'shiladi."
+        "ru": "После a heavy fine or нужно второе существительное, как fine: imprison → imprisonment (тюремное заключение); -ment присоединяется к глаголу без изменений.",
+        "uz": "a heavy fine or so'zlaridan keyin fine kabi ikkinchi ot kerak: imprison → imprisonment (qamoq jazosi); -ment qo'shimchasi fe'lga o'zgarishsiz qo'shiladi."
       }
     },
     {
@@ -604,22 +604,22 @@
       "target_words": [
         "detain"
       ],
-      "text": "Officers *delayed* two young men overnight at the police station for questioning.",
+      "text": "The police can *delay* a suspect for a day without charging him.",
       "options": [
-        "detained",
-        "postponed",
-        "prevented"
+        "detain",
+        "postpone",
+        "prevent"
       ],
       "correct": [
-        "detained"
+        "detain"
       ],
       "translation": {
-        "ru": "Полицейские задержали двух молодых людей на ночь в участке для допроса.",
-        "uz": "Politsiyachilar ikki yigitni so'roq qilish uchun tun bo'yi politsiya bo'limida ushlab turdi."
+        "ru": "Полиция может задержать подозреваемого на сутки, не предъявляя ему обвинения.",
+        "uz": "Politsiya gumonlanuvchini ayb qo'ymasdan bir kunga ushlab turishi mumkin."
       },
       "explanation": {
-        "ru": "Полиция задерживает людей — detain; delay значит «задерживать» в смысле «вызывать опоздание» (рейс, поезд). Русское «задержать» покрывает оба.",
-        "uz": "Politsiya odamlarni ushlab turishi — detain; delay esa «kechiktirmoq» (reys, poyezd haqida). Odamni hibsda saqlash ma'nosida delay ishlatilmaydi."
+        "ru": "Полиция задерживает людей — detain; delay значит «задерживать» в смысле «вызывать опоздание» (рейс, поезд). Русское «задержать» покрывает оба значения.",
+        "uz": "Politsiyaning odamni ushlab turishi — detain; delay esa «kechiktirmoq» (reys, poyezd haqida). Odamni hibsda saqlash ma'nosida delay ishlatilmaydi."
       }
     },
     {
@@ -669,7 +669,7 @@
       ],
       "translation": {
         "ru": "Каждому эвакуированному в школе выдали одеяло и горячую еду.",
-        "uz": "Maktabdagi har bir evakuatsiya qilingan odamga adyol va issiq ovqat berildi."
+        "uz": "Maktabdagi evakuatsiya qilinganlarning har biriga adyol va issiq ovqat berildi."
       },
       "explanation": {
         "ru": "После Every нужно существительное в единственном числе — человек, которого эвакуировали: evacuate → evacuee; -ee обозначает того, с кем это сделали.",
@@ -766,7 +766,7 @@
       "target_words": [
         "alert"
       ],
-      "text": "Tired drivers find it hard to stay *alertly* on long night journeys.",
+      "text": "Tired drivers find it hard to stay *alertly* after hours of driving.",
       "options": [
         "alert",
         "alertness",
@@ -776,8 +776,8 @@
         "alert"
       ],
       "translation": {
-        "ru": "Уставшим водителям трудно оставаться бдительными в долгих ночных поездках.",
-        "uz": "Charchagan haydovchilarga uzoq tungi safarlarda hushyor bo'lib qolish qiyin."
+        "ru": "Уставшим водителям трудно оставаться бдительными после многих часов за рулём.",
+        "uz": "Charchagan haydovchilarga soatlab mashina haydagandan keyin hushyor bo'lib qolish qiyin."
       },
       "explanation": {
         "ru": "stay здесь — глагол-связка, как be: после него нужно прилагательное, а не наречие — stay alert.",
@@ -824,18 +824,18 @@
       "target_words": [
         "columnist"
       ],
-      "text": "The newspaper's most popular ___ writes about food and restaurants every week.",
+      "text": "After years as a reporter, she became a ___ for a weekly magazine.",
       "base": "column",
       "accepted": [
         "columnist"
       ],
       "translation": {
-        "ru": "Самый популярный колумнист газеты каждую неделю пишет о еде и ресторанах.",
-        "uz": "Gazetaning eng mashhur kolumnisti har hafta taomlar va restoranlar haqida yozadi."
+        "ru": "Проработав много лет репортёром, она стала колумнистом еженедельного журнала.",
+        "uz": "Ko'p yil muxbir bo'lib ishlagach, u haftalik jurnalda kolumnist bo'ldi."
       },
       "explanation": {
-        "ru": "Пишет (writes) человек: column (колонка) → columnist (колумнист); суффикс -ist обозначает того, кто этим занимается.",
-        "uz": "Yozadigan (writes) — shaxs: column (rukn) → columnist (kolumnist); -ist qo'shimchasi shu ish bilan shug'ullanuvchini bildiradi."
+        "ru": "После became a нужно слово для человека: column (колонка, рубрика) → columnist (колумнист); суффикс -ist обозначает того, кто этим занимается.",
+        "uz": "became a so'zlaridan keyin shaxsni bildiruvchi so'z kerak: column (rukn) → columnist (kolumnist); -ist qo'shimchasi shu ish bilan shug'ullanuvchini bildiradi."
       }
     },
     {
@@ -849,18 +849,18 @@
       "target_words": [
         "publisher"
       ],
-      "text": "The ___ has agreed to print five thousand copies of her first novel.",
+      "text": "The ___ has asked the author to cut fifty pages from the novel.",
       "base": "publish",
       "accepted": [
         "publisher"
       ],
       "translation": {
-        "ru": "Издатель согласился напечатать пять тысяч экземпляров её первого романа.",
-        "uz": "Noshir uning birinchi romanidan besh ming nusxa chop etishga rozi bo'ldi."
+        "ru": "Издатель попросил автора сократить роман на пятьдесят страниц.",
+        "uz": "Noshir muallifdan romandan ellik sahifani olib tashlashni so'radi."
       },
       "explanation": {
-        "ru": "Согласиться (has agreed) может человек или компания: publish → publisher (издатель); has указывает на единственное число.",
-        "uz": "Rozi bo'lishi (has agreed) mumkin bo'lgan — shaxs yoki kompaniya: publish → publisher (noshir); has birlikni ko'rsatadi."
+        "ru": "Просить автора (has asked) может человек или компания: publish → publisher (издатель); has указывает на единственное число.",
+        "uz": "Muallifdan so'rashi (has asked) mumkin bo'lgan — shaxs yoki kompaniya: publish → publisher (noshir); has birlikni ko'rsatadi."
       }
     },
     {
@@ -899,22 +899,22 @@
       "target_words": [
         "caption"
       ],
-      "text": "The *signature* under each photo explains what is happening in it.",
+      "text": "Each photo needs a short *signature* explaining who is in it.",
       "options": [
         "caption",
-        "headline",
+        "capture",
         "subscription"
       ],
       "correct": [
         "caption"
       ],
       "translation": {
-        "ru": "Подпись под каждой фотографией объясняет, что на ней происходит.",
-        "uz": "Har bir rasm ostidagi yozuv unda nima bo'layotganini tushuntiradi."
+        "ru": "Каждой фотографии нужна короткая подпись, объясняющая, кто на ней изображён.",
+        "uz": "Har bir surat ostida unda kim tasvirlanganini tushuntiradigan qisqa yozuv bo'lishi kerak."
       },
       "explanation": {
-        "ru": "Текст под фотографией — caption; signature — подпись человека на документе. Русское «подпись» значит и то и другое, английский их различает: под фото в газете — caption.",
-        "uz": "Rasm ostidagi izoh matni — caption; signature esa odamning hujjatdagi imzosi. Gazetadagi rasm ostida imzo emas, izoh turadi."
+        "ru": "Текст под фотографией — caption; signature — подпись человека на документе. Русское «подпись» значит и то и другое; subscription — «подписка», capture — «захватить, запечатлеть».",
+        "uz": "Surat ostidagi izoh matni — caption; signature esa odamning hujjatdagi imzosi. subscription — «obuna», capture — «qo'lga olmoq, suratga tushirmoq»."
       }
     },
     {
@@ -1094,7 +1094,7 @@
       "options": [
         "distorted",
         "distracted",
-        "disrupted"
+        "distanced"
       ],
       "correct": [
         "distorted"
@@ -1104,8 +1104,8 @@
         "uz": "Hisobot so'rovnoma natijalarini buzib ko'rsatgani uchun tanqid qilindi."
       },
       "explanation": {
-        "ru": "Искажать факты или результаты — distort. disturb — «беспокоить, мешать», distract — «отвлекать», disrupt — «нарушать ход чего-то».",
-        "uz": "Faktlar yoki natijalarni buzib ko'rsatish — distort. disturb — «bezovta qilmoq», distract — «chalg'itmoq», disrupt — «izdan chiqarmoq»."
+        "ru": "Искажать факты или результаты — distort. disturb — «беспокоить, мешать», distract — «отвлекать», distance — «отдалять».",
+        "uz": "Faktlar yoki natijalarni buzib ko'rsatish — distort. disturb — «bezovta qilmoq», distract — «chalg'itmoq», distance — «uzoqlashtirmoq»."
       }
     },
     {
@@ -1155,7 +1155,7 @@
       ],
       "translation": {
         "ru": "Мой сосед — фуд-блогер с тысячами читателей.",
-        "uz": "Qo'shnim — minglab o'quvchisi bor taom blogeri."
+        "uz": "Qo'shnim taomlar haqida yozadigan bloger, uning minglab o'quvchisi bor."
       },
       "explanation": {
         "ru": "Сосед — человек, поэтому нужно слово для человека: blog → blogger (блогер). После короткого гласного g удваивается перед -er.",
@@ -1505,7 +1505,7 @@
       ],
       "translation": {
         "ru": "Скандал привлёк к молодому актёру много негативного внимания.",
-        "uz": "Janjal yosh aktyorga jamoatchilikning salbiy e'tiborini keltirdi."
+        "uz": "Janjal tufayli yosh aktyor jamoatchilikning katta salbiy e'tiborini tortdi."
       },
       "explanation": {
         "ru": "После a lot of negative нужно существительное: public → publicity (огласка, внимание общественности); суффикс -ity.",
@@ -1551,7 +1551,7 @@
       "text": "The hospital will not *open* any details about the patient's health.",
       "options": [
         "disclose",
-        "enclose",
+        "dispose",
         "disclaim"
       ],
       "correct": [
@@ -1562,8 +1562,8 @@
         "uz": "Kasalxona bemorning sog'lig'i haqidagi hech qanday tafsilotni oshkor qilmaydi."
       },
       "explanation": {
-        "ru": "Раскрывать сведения, имена, подробности — disclose. open — открывать (дверь, коробку): русское «раскрыть» здесь не open.",
-        "uz": "Ma'lumot, ism yoki tafsilotni oshkor qilish — disclose. open — ochmoq (eshik, quti): bu yerda open ishlatilmaydi."
+        "ru": "Раскрывать сведения, имена, подробности — disclose. open — открывать (дверь, коробку): русское «раскрыть» здесь не open; dispose (of) — «избавляться», disclaim — «отрицать».",
+        "uz": "Ma'lumot, ism yoki tafsilotni oshkor qilish — disclose. open — ochmoq (eshik, quti): bu yerda open ishlatilmaydi; dispose (of) — «qutulmoq», disclaim — «rad etmoq»."
       }
     },
     {
@@ -1606,7 +1606,7 @@
       "target_words": [
         "transcript"
       ],
-      "text": "Lawyers asked the court for a full *transcribe* of the interview.",
+      "text": "Lawyers asked the court for a word-for-word *transcribe* of the interview.",
       "options": [
         "transcript",
         "transcribed",
@@ -1616,12 +1616,12 @@
         "transcript"
       ],
       "translation": {
-        "ru": "Адвокаты попросили у суда полную стенограмму беседы.",
-        "uz": "Advokatlar suddan suhbatning to'liq stenogrammasini so'radi."
+        "ru": "Адвокаты попросили у суда дословную стенограмму беседы.",
+        "uz": "Advokatlar suddan suhbatning so'zma-so'z stenogrammasini so'radi."
       },
       "explanation": {
-        "ru": "После a full нужно существительное: transcribe — глагол «записывать», а стенограмма — transcript.",
-        "uz": "a full so'zlaridan keyin ot kerak: transcribe — «yozib olmoq» fe'li, stenogramma esa — transcript."
+        "ru": "После a word-for-word нужно существительное: transcribe — глагол «записывать», а стенограмма — transcript.",
+        "uz": "a word-for-word so'zlaridan keyin ot kerak: transcribe — «yozib olmoq» fe'li, stenogramma esa — transcript."
       }
     }
   ]

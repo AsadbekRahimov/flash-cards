@@ -156,8 +156,8 @@
         "calm"
       ],
       "translation": {
-        "ru": "Наша учительница — спокойная женщина, которая никогда не кричит.",
-        "uz": "O'qituvchimiz hech qachon baqirmaydigan xotirjam ayol."
+        "ru": "Наша учительница — очень спокойная женщина, которая никогда не кричит.",
+        "uz": "O'qituvchimiz hech qachon baqirmaydigan juda xotirjam ayol."
       },
       "explanation": {
         "ru": "Перед существительным woman нужно прилагательное calm. Calmly — наречие, оно описывает действие: speak calmly.",
@@ -423,7 +423,7 @@
       ],
       "translation": {
         "ru": "Брат пообещал помочь мне с домашним заданием.",
-        "uz": "Akam uy vazifamga yordam berishga va'da berdi."
+        "uz": "Akam uy vazifamni bajarishda yordam berishga va'da berdi."
       },
       "explanation": {
         "ru": "После promise следующий глагол идёт с to: promise to help. Форма на -ing после promise невозможна.",
@@ -499,18 +499,18 @@
       "target_words": [
         "think"
       ],
-      "text": "This morning I ___ it was Monday, but it was Sunday.",
+      "text": "I woke up, ___ it was Monday and went to work.",
       "base": "think",
       "accepted": [
         "thought"
       ],
       "translation": {
-        "ru": "Сегодня утром я думал, что понедельник, а было воскресенье.",
-        "uz": "Bugun ertalab dushanba deb o'ylagandim, lekin yakshanba ekan."
+        "ru": "Я проснулся, подумал, что сегодня понедельник, и пошёл на работу.",
+        "uz": "Uyg'ondim, bugun dushanba deb o'yladim va ishga jo'nadim."
       },
       "explanation": {
-        "ru": "Речь о прошлом (was Sunday), а think — неправильный глагол: think → thought.",
-        "uz": "Gap o'tgan zamon haqida (was Sunday), think esa noto'g'ri fe'l: think → thought."
+        "ru": "Это цепочка законченных действий в прошлом (woke up, went), поэтому past simple. Think — неправильный глагол: think → thought.",
+        "uz": "Bu o'tgan zamondagi tugallangan harakatlar zanjiri (woke up, went), shuning uchun past simple kerak. Think — noto'g'ri fe'l: think → thought."
       }
     },
     {
@@ -692,7 +692,7 @@
         "unlucky"
       ],
       "translation": {
-        "ru": "Я потерял телефон и опоздал на автобус — какой невезучий день!",
+        "ru": "Я потерял телефон и опоздал на автобус — какой неудачный день!",
         "uz": "Telefonimni yo'qotdim, avtobusga ham kechikdim — qanday omadsiz kun!"
       },
       "explanation": {
@@ -765,7 +765,7 @@
       "target_words": [
         "wonderful"
       ],
-      "text": "It was the *wonderfulest* day of my life.",
+      "text": "This is the *wonderfulest* beach I have ever seen.",
       "options": [
         "most wonderful",
         "more wonderful",
@@ -775,11 +775,11 @@
         "most wonderful"
       ],
       "translation": {
-        "ru": "Это был самый чудесный день в моей жизни.",
-        "uz": "Bu hayotimdagi eng ajoyib kun edi."
+        "ru": "Это самый чудесный пляж, который я когда-либо видел.",
+        "uz": "Bu men hayotimda ko'rgan eng ajoyib plyaj."
       },
       "explanation": {
-        "ru": "Wonderful — длинное прилагательное (три слога), поэтому превосходная степень с most: the most wonderful. Формы wonderfulest нет.",
+        "ru": "Wonderful — длинное прилагательное (три слога), поэтому превосходная степень образуется с most: the most wonderful. Формы wonderfulest нет.",
         "uz": "Wonderful — uzun sifat (uch bo'g'in), shuning uchun orttirma daraja most bilan yasaladi: the most wonderful. Wonderfulest shakli yo'q."
       }
     },
@@ -1200,15 +1200,17 @@
       "text": "I saw an ___ for this new phone on TV.",
       "base": "advertise",
       "accepted": [
-        "advertisement"
+        "advertisement",
+        "advert",
+        "ad"
       ],
       "translation": {
         "ru": "Я видел рекламу этого нового телефона по телевизору.",
         "uz": "Bu yangi telefonning reklamasini televizorda ko'rdim."
       },
       "explanation": {
-        "ru": "После an нужно существительное: advertise + -ment → advertisement («рекламное объявление»); e перед -ment сохраняется.",
-        "uz": "an artiklidan keyin ot kerak: advertise + -ment → advertisement («reklama e'loni»); -ment oldidan e saqlanadi."
+        "ru": "После an нужно существительное: advertise + -ment → advertisement («реклама»); e перед -ment сохраняется. Верны и короткие формы advert, ad.",
+        "uz": "an artiklidan keyin ot kerak: advertise + -ment → advertisement («reklama»); -ment oldidan e saqlanadi. Qisqa advert, ad shakllari ham to'g'ri."
       }
     },
     {
@@ -1280,7 +1282,7 @@
       "target_words": [
         "profit"
       ],
-      "text": "My uncle's restaurant *did* a big profit last year.",
+      "text": "My uncle's restaurant *did* a profit for the first time.",
       "options": [
         "made",
         "became",
@@ -1290,8 +1292,8 @@
         "made"
       ],
       "translation": {
-        "ru": "В прошлом году ресторан моего дяди получил большую прибыль.",
-        "uz": "O'tgan yili amakimning restorani katta foyda ko'rdi."
+        "ru": "Ресторан моего дяди впервые получил прибыль.",
+        "uz": "Amakimning restorani ilk bor foyda ko'rdi."
       },
       "explanation": {
         "ru": "Make a profit — получать прибыль. С profit говорят make, а не do.",
@@ -1605,7 +1607,7 @@
       "target_words": [
         "produce"
       ],
-      "text": "Our village *products* very good cheese and butter.",
+      "text": "Our farm *products* milk for the whole village.",
       "options": [
         "produces",
         "production",
@@ -1615,12 +1617,12 @@
         "produces"
       ],
       "translation": {
-        "ru": "Наша деревня производит очень хороший сыр и сливочное масло.",
-        "uz": "Qishlog'imiz juda yaxshi pishloq va sariyog' ishlab chiqaradi."
+        "ru": "Наша ферма производит молоко для всей деревни.",
+        "uz": "Fermamiz butun qishloq uchun sut ishlab chiqaradi."
       },
       "explanation": {
-        "ru": "Здесь нужен глагол: produce — «производить», а product — «продукт» (существительное). Our village — «оно», поэтому produces.",
-        "uz": "Bu yerda fe'l kerak: produce — «ishlab chiqarmoq», product esa «mahsulot» (ot). Our village — «u», shuning uchun produces."
+        "ru": "Здесь нужен глагол: produce — «производить», а product — «продукт» (существительное). Our farm — это it, поэтому produces.",
+        "uz": "Bu yerda fe'l kerak: produce — «ishlab chiqarmoq», product esa «mahsulot» (ot). Our farm — bu it, shuning uchun produces."
       }
     }
   ]

@@ -160,8 +160,8 @@
         "uz": "Bu mijozlar kompaniyamiz uchun juda muhim."
       },
       "explanation": {
-        "ru": "Clients и are — множественное число, поэтому нужно these («эти»), а не this («этот»).",
-        "uz": "clients va are — ko'plik, shuning uchun this emas, these kerak. O'zbekcha «bu» o'zgarmaydi, inglizchada esa ko'plikda these bo'ladi."
+        "ru": "Clients и are — множественное число, поэтому this («этот») здесь невозможно: нужно these («эти»). Those тоже было бы верно, но среди вариантов его нет.",
+        "uz": "clients va are — ko'plik, shuning uchun this bo'lmaydi: these kerak. those ham to'g'ri bo'lardi, lekin u variantlar orasida yo'q. O'zbekcha «bu» o'zgarmaydi."
       }
     },
     {
@@ -207,7 +207,7 @@
       ],
       "translation": {
         "ru": "Наш учебный день заканчивается в два, поэтому мы обедаем дома.",
-        "uz": "Maktabdagi kunimiz soat ikkida tugaydi, shuning uchun uyda tushlik qilamiz."
+        "uz": "O'quv kunimiz soat ikkida tugaydi, shuning uchun uyda tushlik qilamiz."
       },
       "explanation": {
         "ru": "Our school day — это «он» (it), а have показывает настоящее время, поэтому нужен -s. После sh пишется -es: finish → finishes.",
@@ -661,14 +661,14 @@
       "target_words": [
         "stop"
       ],
-      "text": "The bus ___ near our house, and we got on.",
+      "text": "The taxi ___ in front of our house, and we got in.",
       "base": "stop",
       "accepted": [
         "stopped"
       ],
       "translation": {
-        "ru": "Автобус остановился возле нашего дома, и мы в него сели.",
-        "uz": "Avtobus uyimiz yonida to'xtadi va biz unga chiqdik."
+        "ru": "Такси остановилось перед нашим домом, и мы в него сели.",
+        "uz": "Taksi uyimiz oldida to'xtadi va biz unga o'tirdik."
       },
       "explanation": {
         "ru": "Got — прошедшее время, значит, и здесь прошедшее. Короткий глагол с одной гласной перед последней согласной удваивает её: stop → stopped.",
@@ -1147,14 +1147,14 @@
       "target_words": [
         "relax"
       ],
-      "text": "After work my husband ___ in the garden, and I cook dinner.",
+      "text": "On Sundays my husband ___ in the garden, and I cook lunch.",
       "base": "relax",
       "accepted": [
         "relaxes"
       ],
       "translation": {
-        "ru": "После работы мой муж отдыхает в саду, а я готовлю ужин.",
-        "uz": "Ishdan keyin turmush o'rtog'im bog'da dam oladi, men esa kechki ovqat tayyorlayman."
+        "ru": "По воскресеньям мой муж отдыхает в саду, а я готовлю обед.",
+        "uz": "Yakshanba kunlari turmush o'rtog'im bog'da dam oladi, men esa tushlik tayyorlayman."
       },
       "explanation": {
         "ru": "My husband — это «он», а I cook показывает настоящее время, поэтому нужен -s. После x пишется -es: relax → relaxes.",
@@ -1172,18 +1172,18 @@
       "target_words": [
         "enjoy"
       ],
-      "text": "We ___ the picnic in the park last Sunday.",
+      "text": "Our guests ___ the dinner very much last night.",
       "base": "enjoy",
       "accepted": [
         "enjoyed"
       ],
       "translation": {
-        "ru": "В прошлое воскресенье мы отлично провели время на пикнике в парке.",
-        "uz": "O'tgan yakshanba kuni bog'dagi piknikdan zavqlandik."
+        "ru": "Вчера вечером ужин очень понравился нашим гостям.",
+        "uz": "Kecha kechqurun mehmonlarimiz kechki ovqatdan juda zavqlanishdi."
       },
       "explanation": {
-        "ru": "Last Sunday — прошедшее время: + -ed. Перед y стоит гласная (o), поэтому y не меняется: enjoy → enjoyed.",
-        "uz": "last Sunday — o'tgan zamon: + -ed. y harfidan oldin unli (o) turibdi, shuning uchun y o'zgarmaydi: enjoy → enjoyed."
+        "ru": "Last night — прошедшее время: + -ed. Перед y стоит гласная (o), поэтому y не меняется: enjoy → enjoyed (не enjoied).",
+        "uz": "last night — o'tgan zamon: + -ed. y harfidan oldin unli (o) turibdi, shuning uchun y o'zgarmaydi: enjoy → enjoyed (enjoied emas)."
       }
     },
     {
@@ -1232,8 +1232,8 @@
         "me"
       ],
       "translation": {
-        "ru": "Соседка пригласила меня на свой день рождения.",
-        "uz": "Qo'shnim meni tug'ilgan kuni ziyofatiga taklif qildi."
+        "ru": "Наша соседка пригласила меня на свой день рождения.",
+        "uz": "Qo'shnimiz meni tug'ilgan kuniga taklif qildi."
       },
       "explanation": {
         "ru": "После глагола invite местоимение стоит в объектной форме: invite me («меня»), а не I («я»).",

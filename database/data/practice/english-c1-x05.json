@@ -176,14 +176,14 @@
       "target_words": [
         "compulsion"
       ],
-      "text": "Betting can turn from a harmless hobby into a ___ that ruins whole families.",
+      "text": "For some people, online shopping turns from a pleasure into a ___ that empties their savings.",
       "base": "compel",
       "accepted": [
         "compulsion"
       ],
       "translation": {
-        "ru": "Увлечение ставками может превратиться из безобидного хобби в навязчивую потребность, которая разрушает целые семьи.",
-        "uz": "Garov o'yinlari beozor ermakdan butun oilalarni xonavayron qiladigan yengib bo'lmas ehtiyojga aylanishi mumkin."
+        "ru": "Для некоторых людей онлайн-шопинг превращается из удовольствия в навязчивую потребность, которая опустошает их сбережения.",
+        "uz": "Ba'zi odamlar uchun onlayn xarid zavqdan jamg'armalarini sovuradigan yengib bo'lmas ehtiyojga aylanadi."
       },
       "explanation": {
         "ru": "После into a нужно существительное: compel (принуждать) → compulsion; основа меняется: -pel → -pulsion.",
@@ -212,7 +212,7 @@
       },
       "explanation": {
         "ru": "После a strong нужно исчисляемое существительное: deter (удерживать) → deterrent; r удваивается, суффикс -ent.",
-        "uz": "a strong so'zlaridan keyin sanaladigan ot kerak: deter (to'xtatmoq) → deterrent; r harfi ikkilanadi, -ent qo'shimchasi qo'shiladi."
+        "uz": "a strong so'zlaridan keyin sanaladigan ot kerak: deter (tiyib turmoq) → deterrent; r harfi ikkilanadi, -ent qo'shimchasi qo'shiladi."
       }
     },
     {
@@ -226,18 +226,18 @@
       "target_words": [
         "impulse"
       ],
-      "text": "When she feels stressed, she ___ buys clothes she does not need.",
+      "text": "When she feels stressed, she ___ spends money on clothes she does not need.",
       "base": "impulse",
       "accepted": [
         "impulsively"
       ],
       "translation": {
-        "ru": "Когда она в стрессе, она импульсивно покупает одежду, которая ей не нужна.",
-        "uz": "Asabiylashganda u o'ylamay-netmay keragi yo'q kiyimlarni sotib oladi."
+        "ru": "Когда она в стрессе, она импульсивно тратит деньги на одежду, которая ей не нужна.",
+        "uz": "Asabiylashganda u o'ylamay-netmay keragi yo'q kiyimlarga pul sarflaydi."
       },
       "explanation": {
-        "ru": "Перед глаголом buys нужно наречие, оно описывает действие. Два шага: impulse → impulsive (-ive) → impulsively (-ly).",
-        "uz": "buys fe'lidan oldin harakatni izohlovchi ravish kerak. Ikki bosqich: impulse → impulsive (-ive) → impulsively (-ly)."
+        "ru": "Перед глаголом spends нужно наречие, оно описывает действие. Два шага: impulse → impulsive (-ive) → impulsively (-ly).",
+        "uz": "spends fe'lidan oldin harakatni izohlovchi ravish kerak. Ikki bosqich: impulse → impulsive (-ive) → impulsively (-ly)."
       }
     },
     {
@@ -251,10 +251,10 @@
       "target_words": [
         "craving"
       ],
-      "text": "Pregnant women often develop a strong craving *of* unusual foods.",
+      "text": "Pregnant women often develop a strong craving *to* unusual foods.",
       "options": [
         "for",
-        "to",
+        "of",
         "on"
       ],
       "correct": [
@@ -280,7 +280,7 @@
       "target_words": [
         "disposition"
       ],
-      "text": "Our new manager has a calm, patient *disposal* that the whole team appreciates.",
+      "text": "Her calm *disposal* makes her ideal for dealing with angry customers.",
       "options": [
         "disposition",
         "deposition",
@@ -290,8 +290,8 @@
         "disposition"
       ],
       "translation": {
-        "ru": "У нашего нового руководителя спокойный, терпеливый нрав, и вся команда это ценит.",
-        "uz": "Yangi rahbarimiz xotirjam, sabrli fe'l-atvorga ega, buni butun jamoa qadrlaydi."
+        "ru": "Благодаря спокойному нраву она идеально подходит для работы с рассерженными клиентами.",
+        "uz": "Xotirjam fe'l-atvori tufayli u jahli chiqqan mijozlar bilan ishlashga juda mos keladi."
       },
       "explanation": {
         "ru": "disposition — нрав, склад характера. disposal — «утилизация; распоряжение» (at your disposal): о характере так не говорят.",
@@ -312,8 +312,8 @@
       "text": "Throughout the meeting, he fought the urge *checking* his phone.",
       "options": [
         "to check",
-        "of checking",
-        "for checking"
+        "to checking",
+        "of checking"
       ],
       "correct": [
         "to check"
@@ -323,8 +323,8 @@
         "uz": "Majlis davomida u telefoniga qarash istagini zo'rg'a bosib turdi."
       },
       "explanation": {
-        "ru": "После the urge глагол ставится в инфинитиве с to: the urge to do something. -ing здесь невозможно, ни сразу, ни с of или for.",
-        "uz": "the urge so'zidan keyin fe'l to bilan infinitivda keladi: the urge to do something. Bu yerda -ing shakli ishlatilmaydi, of yoki for bilan ham."
+        "ru": "После the urge глагол ставится в инфинитиве с to: the urge to do something. Ни -ing, ни to + -ing, ни of + -ing здесь невозможны.",
+        "uz": "the urge so'zidan keyin fe'l to bilan infinitivda keladi: the urge to do something. Bu yerda -ing shakli ham, to + -ing ham, of + -ing ham ishlatilmaydi."
       }
     },
     {
@@ -345,7 +345,7 @@
       ],
       "translation": {
         "ru": "После кражи со взломом он стал настолько мнительным, что трижды менял замки.",
-        "uz": "O'g'irlikdan keyin u shunchalik vahimaga berilib ketdiki, qulflarni uch marta almashtirdi."
+        "uz": "O'g'irlikdan keyin u shunchalik shubhaga berilib ketdiki, qulflarni uch marta almashtirdi."
       },
       "explanation": {
         "ru": "После became so нужно прилагательное: paranoia → paranoid (окончание -oia меняется на -oid).",
@@ -394,7 +394,7 @@
         "hysterically"
       ],
       "translation": {
-        "ru": "Когда клоун упал в бассейн, дети истерически хохотали.",
+        "ru": "Когда клоун упал в бассейн, дети хохотали до истерики.",
         "uz": "Masxaraboz hovuzga yiqilib tushganda, bolalar o'zlarini tutolmay qah-qah urib kulishdi."
       },
       "explanation": {
@@ -607,7 +607,7 @@
       "text": "Skilled painters create the *allusion* of depth on a flat surface.",
       "options": [
         "illusion",
-        "delusion",
+        "illustration",
         "collusion"
       ],
       "correct": [
@@ -618,8 +618,8 @@
         "uz": "Mohir rassomlar tekis yuzada chuqurlik illyuziyasini yaratadi."
       },
       "explanation": {
-        "ru": "illusion — иллюзия, обманчивое впечатление. allusion — намёк, отсылка; delusion — бредовая идея; collusion — сговор.",
-        "uz": "illusion — illyuziya, aldamchi taassurot. allusion — ishora; delusion — vasvasa g'oyasi; collusion — til biriktirish."
+        "ru": "illusion — иллюзия, обманчивое впечатление. allusion — намёк, отсылка; illustration — иллюстрация, пример; collusion — сговор.",
+        "uz": "illusion — illyuziya, aldamchi taassurot. allusion — ishora; illustration — rasm, misol; collusion — til biriktirish."
       }
     },
     {
@@ -718,7 +718,7 @@
         "adolescence"
       ],
       "translation": {
-        "ru": "Физические изменения в подростковом возрасте могут влиять на сон и настроение.",
+        "ru": "Физические изменения в подростковом возрасте могут влиять на сон и настроение подростка.",
         "uz": "O'smirlik davridagi jismoniy o'zgarishlar o'smirning uyqusi va kayfiyatiga ta'sir qilishi mumkin."
       },
       "explanation": {
@@ -737,7 +737,7 @@
       "target_words": [
         "esteem"
       ],
-      "text": "Her deep esteem *to* her teachers never faded.",
+      "text": "Her deep esteem *to* her former teachers has never faded over the years.",
       "options": [
         "for",
         "on",
@@ -747,8 +747,8 @@
         "for"
       ],
       "translation": {
-        "ru": "Её глубокое уважение к учителям так и не угасло.",
-        "uz": "Uning ustozlariga bo'lgan chuqur ehtiromi hech qachon so'nmadi."
+        "ru": "Её глубокое уважение к бывшим учителям с годами так и не угасло.",
+        "uz": "Uning sobiq ustozlariga bo'lgan chuqur ehtiromi yillar o'tsa ham so'nmadi."
       },
       "explanation": {
         "ru": "esteem for — уважение к кому-то: после esteem нужен for. Русское «к» здесь не to.",
@@ -849,18 +849,18 @@
       "target_words": [
         "irreversible"
       ],
-      "text": "Once the ice sheet melts, the damage will be ___: nothing can undo it.",
+      "text": "Once a species dies out, the loss is ___: nothing can bring it back.",
       "base": "reverse",
       "accepted": [
         "irreversible"
       ],
       "translation": {
-        "ru": "Когда ледяной щит растает, ущерб будет необратимым: ничто не сможет его исправить.",
-        "uz": "Muz qatlami erib bitgach, zararni qaytarib bo'lmaydi: uni hech narsa tuzata olmaydi."
+        "ru": "Когда вид вымирает, эта потеря необратима: ничто не может его вернуть.",
+        "uz": "Biror tur butunlay qirilib ketsa, bu qaytarib bo'lmaydigan yo'qotishdir: uni hech narsa qayta tiklay olmaydi."
       },
       "explanation": {
-        "ru": "«Ничто не исправит» — значит, «необратимый»: reverse → reversible (-ible) → irreversible (перед r приставка ir-).",
-        "uz": "«Hech narsa tuzata olmaydi» — demak, «qaytarib bo'lmaydigan»: reverse → reversible (-ible) → irreversible (r harfidan oldin ir- old qo'shimchasi)."
+        "ru": "«Ничто не вернёт» — значит, «необратимый»: reverse → reversible (-ible) → irreversible (перед r приставка ir-).",
+        "uz": "«Hech narsa qayta tiklay olmaydi» — demak, «qaytarib bo'lmaydigan»: reverse → reversible (-ible) → irreversible (r harfidan oldin ir- old qo'shimchasi)."
       }
     },
     {
@@ -1011,18 +1011,18 @@
       "target_words": [
         "biodegradable"
       ],
-      "text": "Tests showed that the ___ of the new bags had been greatly exaggerated.",
+      "text": "Many shoppers confuse a product's ___ with its recyclability.",
       "base": "biodegradable",
       "accepted": [
         "biodegradability"
       ],
       "translation": {
-        "ru": "Испытания показали, что биоразлагаемость новых пакетов сильно преувеличена.",
-        "uz": "Sinovlar yangi paketlarning biologik parchalanish xususiyati ancha bo'rttirilganini aniqladi."
+        "ru": "Многие покупатели путают биоразлагаемость товара с возможностью его переработки.",
+        "uz": "Ko'p xaridorlar mahsulotning biologik parchalanuvchanligini uni qayta ishlash mumkinligi bilan adashtiradi."
       },
       "explanation": {
-        "ru": "После the нужно существительное «свойство»: biodegradable → biodegradability (-able → -ability, как reliable → reliability).",
-        "uz": "the artiklidan keyin xususiyatni bildiruvchi ot kerak: biodegradable → biodegradability (-able o'rniga -ability, reliable → reliability kabi)."
+        "ru": "После a product's нужно существительное-свойство, парное к recyclability: biodegradable → biodegradability (-able → -ability, как reliable → reliability).",
+        "uz": "a product's so'zlaridan keyin recyclability so'ziga juft xususiyat oti kerak: biodegradable → biodegradability (-able o'rniga -ability, reliable → reliability kabi)."
       }
     },
     {
@@ -1036,14 +1036,14 @@
       "target_words": [
         "compost"
       ],
-      "text": "These coffee cups are fully ___ and can go straight into the garden bin.",
+      "text": "These coffee cups are fully ___ and can be thrown out with food waste.",
       "base": "compost",
       "accepted": [
         "compostable"
       ],
       "translation": {
-        "ru": "Эти стаканчики для кофе полностью компостируемые: их можно выбрасывать прямо в контейнер для садовых отходов.",
-        "uz": "Bu qahva stakanlari to'liq kompostga aylanadi: ularni to'g'ridan-to'g'ri bog' chiqindilari qutisiga tashlash mumkin."
+        "ru": "Эти стаканчики для кофе полностью компостируемые: их можно выбрасывать вместе с пищевыми отходами.",
+        "uz": "Bu qahva stakanlari to'liq kompostga yaroqli: ularni oziq-ovqat chiqindilari bilan birga tashlash mumkin."
       },
       "explanation": {
         "ru": "После are fully нужно прилагательное «пригодный для компоста»: compost + -able → compostable.",
@@ -1444,22 +1444,22 @@
       "target_words": [
         "poach"
       ],
-      "text": "Every year, thousands of elephants are *poach* by criminal gangs.",
+      "text": "In the last decade, thousands of elephants have been *poaching* for their ivory.",
       "options": [
         "poached",
-        "poaching",
+        "poach",
         "poacher"
       ],
       "correct": [
         "poached"
       ],
       "translation": {
-        "ru": "Каждый год преступные группировки незаконно убивают тысячи слонов.",
-        "uz": "Har yili jinoiy to'dalar minglab fillarni noqonuniy ovlaydi."
+        "ru": "За последнее десятилетие тысячи слонов были незаконно убиты ради бивней.",
+        "uz": "So'nggi o'n yil ichida minglab fillar fil suyagi uchun noqonuniy ovlandi."
       },
       "explanation": {
-        "ru": "Пассив: are + третья форма глагола; by criminal gangs показывает, кто совершает действие: are poached.",
-        "uz": "Majhul nisbat: are + fe'lning uchinchi shakli; by criminal gangs harakatni kim bajarishini ko'rsatadi: are poached."
+        "ru": "Слоны не браконьерствуют: на них охотятся, поэтому нужен пассив have been + третья форма: have been poached. С -ing вышло бы, что слоны браконьерствуют сами.",
+        "uz": "Fillar brakonerlik qilmaydi, ularni ovlashadi, shuning uchun majhul nisbat kerak: have been + fe'lning uchinchi shakli: have been poached. -ing shakli bilan fillarning o'zi ov qilgandek chiqadi."
       }
     },
     {
@@ -1483,8 +1483,8 @@
         "uz": "Ko'p yillik qurg'oqchilikdan so'ng suvli qatlam asta-sekin qayta to'lishi kerak, bu esa o'nlab yillar davom etishi mumkin."
       },
       "explanation": {
-        "ru": "После a slow нужно исчисляемое существительное: replenish → replenishment (-ment).",
-        "uz": "a slow so'zlaridan keyin sanaladigan ot kerak: replenish → replenishment (-ment)."
+        "ru": "После a slow нужно существительное: replenish → replenishment (-ment), «восполнение».",
+        "uz": "a slow so'zlaridan keyin ot kerak: replenish → replenishment (-ment), «qayta to'lish»."
       }
     },
     {
@@ -1577,7 +1577,7 @@
       "target_words": [
         "quarry"
       ],
-      "text": "Trucks carried huge blocks of stone from the *career* to the city.",
+      "text": "Dust from the stone *career* near our village covers every roof.",
       "options": [
         "quarry",
         "quarrel",
@@ -1587,8 +1587,8 @@
         "quarry"
       ],
       "translation": {
-        "ru": "Грузовики возили огромные каменные глыбы из карьера в город.",
-        "uz": "Yuk mashinalari karyerdan shaharga ulkan tosh bo'laklarini tashidi."
+        "ru": "Пыль из каменного карьера рядом с нашей деревней покрывает все крыши.",
+        "uz": "Qishlog'imiz yaqinidagi tosh karyeridan chiqqan chang hamma tomlarni qoplaydi."
       },
       "explanation": {
         "ru": "Карьер, где добывают камень, — quarry. career — «карьера, профессиональный путь»: это ложный друг переводчика.",

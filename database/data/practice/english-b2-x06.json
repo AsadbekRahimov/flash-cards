@@ -47,7 +47,7 @@
       ],
       "translation": {
         "ru": "Как мастер настенной росписи, она тратит целые месяцы на роспись одной стены.",
-        "uz": "Devoriy rasm ustasi sifatida u bitta devorni bezashga oylab vaqt sarflaydi."
+        "uz": "Devoriy rasm ustasi sifatida u bitta devorga rasm ishlash uchun butun-butun oylar sarflaydi."
       },
       "explanation": {
         "ru": "As a ___, she — нужно слово-человек: mural (роспись) → muralist (автор настенных росписей); суффикс -ist, как art → artist.",
@@ -284,7 +284,7 @@
       "target_words": [
         "trilogy"
       ],
-      "text": "The trilogy about three sisters *have* become a favorite of young readers.",
+      "text": "The trilogy about three sisters *have* won prizes since it came out.",
       "options": [
         "has",
         "is",
@@ -294,12 +294,12 @@
         "has"
       ],
       "translation": {
-        "ru": "Трилогия о трёх сёстрах стала любимой книгой юных читателей.",
-        "uz": "Uch opa-singil haqidagi trilogiya yosh kitobxonlarning sevimli asariga aylangan."
+        "ru": "Трилогия о трёх сёстрах с момента выхода получила уже несколько премий.",
+        "uz": "Uch opa-singil haqidagi trilogiya chiqqanidan beri bir necha mukofot oldi."
       },
       "explanation": {
-        "ru": "Подлежащее — The trilogy (ед. ч.), а about three sisters лишь уточняет его, поэтому has become. is и are с become здесь невозможны.",
-        "uz": "Ega — The trilogy (birlik), about three sisters esa uni faqat aniqlaydi, shuning uchun has become. become fe'li bilan is va are bu yerda ishlatilmaydi."
+        "ru": "Подлежащее — The trilogy (ед. ч., его повторяет it), а about three sisters лишь уточняет его, поэтому has won. is и are с won здесь невозможны.",
+        "uz": "Ega — The trilogy (birlik, uni it olmoshi takrorlaydi), about three sisters esa uni faqat aniqlaydi, shuning uchun has won. won bilan is va are bu yerda ishlatilmaydi."
       }
     },
     {
@@ -530,18 +530,18 @@
       "target_words": [
         "audition"
       ],
-      "text": "After ___ for dozens of roles, he finally got a small part.",
+      "text": "After ___ three times for the same role, he finally got it.",
       "base": "audition",
       "accepted": [
         "auditioning"
       ],
       "translation": {
-        "ru": "После проб на десятки ролей он наконец получил небольшую роль.",
-        "uz": "O'nlab rollar uchun kastinglarda qatnashgach, u nihoyat kichik bir rol oldi."
+        "ru": "После трёх проб на одну и ту же роль он наконец её получил.",
+        "uz": "Bir rol uchun uch marta kastingda qatnashgach, u nihoyat o'sha rolni oldi."
       },
       "explanation": {
-        "ru": "После предлога After нужен глагол с -ing. audition бывает и глаголом «пробоваться на роль» (audition for a role): auditioning.",
-        "uz": "After predlogidan keyin -ing shaklidagi fe'l kerak. audition so'zi «rolga sinovdan o'tmoq» fe'li ham bo'ladi (audition for a role): auditioning."
+        "ru": "После предлога After нужен глагол с -ing; three times показывает, что это действие, а не существительное auditions. audition — и глагол «проходить пробы»: auditioning.",
+        "uz": "After predlogidan keyin -ing shaklidagi fe'l kerak; three times birikmasi bu auditions oti emas, harakat ekanini ko'rsatadi. audition so'zi «sinovdan o'tmoq» fe'li ham bo'ladi: auditioning."
       }
     },
     {
@@ -905,22 +905,22 @@
       "target_words": [
         "admission"
       ],
-      "text": "She finally received a letter confirming her admission *in* the medical faculty.",
+      "text": "After several attempts, she finally gained admission *in* the medical faculty.",
       "options": [
         "to",
-        "for",
-        "by"
+        "on",
+        "for"
       ],
       "correct": [
         "to"
       ],
       "translation": {
-        "ru": "Она наконец получила письмо, подтверждающее её зачисление на медицинский факультет.",
-        "uz": "U nihoyat tibbiyot fakultetiga qabul qilinganini tasdiqlovchi xat oldi."
+        "ru": "После нескольких попыток её наконец зачислили на медицинский факультет.",
+        "uz": "Bir necha urinishdan so'ng u nihoyat tibbiyot fakultetiga qabul qilindi."
       },
       "explanation": {
-        "ru": "admission to — приём, зачисление куда-либо: после admission ставится to (реже into). Русские «на факультет», «в вуз» не переводятся через in.",
-        "uz": "admission to — biror joyga qabul: admission so'zidan keyin to (ba'zan into) keladi. «fakultetga» dagi -ga in predlogi bilan berilmaydi."
+        "ru": "admission to — приём, зачисление куда-либо: gain admission to the faculty. Русское «на факультет» не переводится ни через in, ни через on.",
+        "uz": "admission to — biror joyga qabul: gain admission to the faculty. «fakultetga» dagi -ga qo'shimchasi bu yerda ham to predlogiga mos keladi; in va on xato."
       }
     },
     {
@@ -937,8 +937,8 @@
       "text": "Every postgraduate in our department *have* to publish an article.",
       "options": [
         "has",
-        "having",
-        "been"
+        "are",
+        "were"
       ],
       "correct": [
         "has"
@@ -948,8 +948,8 @@
         "uz": "Kafedramizdagi har bir aspirant maqola chop etishi kerak."
       },
       "explanation": {
-        "ru": "После every существительное стоит в ед. ч., и глагол тоже в 3-м лице ед. ч.: Every postgraduate ... has to. in our department не меняет подлежащее.",
-        "uz": "every so'zidan keyin ot birlikda bo'ladi, fe'l ham III shaxs birlikda: Every postgraduate ... has to. in our department egani o'zgartirmaydi."
+        "ru": "После every существительное стоит в ед. ч., и глагол тоже в 3-м лице ед. ч.: Every postgraduate ... has to. in our department не меняет подлежащее, поэтому не are и не were.",
+        "uz": "every so'zidan keyin ot birlikda bo'ladi, fe'l ham III shaxs birlikda: Every postgraduate ... has to. in our department egani o'zgartirmaydi, shuning uchun are ham, were ham emas."
       }
     },
     {
@@ -1049,7 +1049,7 @@
         "plagiarising"
       ],
       "translation": {
-        "ru": "Студента обвинили в том, что он присвоил текст известной статьи.",
+        "ru": "Студента обвинили в плагиате известной статьи.",
         "uz": "Talaba mashhur maqolani ko'chirib, o'ziniki qilib ko'rsatganlikda ayblandi."
       },
       "explanation": {
@@ -1068,7 +1068,7 @@
       "target_words": [
         "proficiency"
       ],
-      "text": "A year abroad greatly improved her proficiency *of* English.",
+      "text": "All foreign applicants need a certificate of proficiency *of* English.",
       "options": [
         "in",
         "on",
@@ -1078,12 +1078,12 @@
         "in"
       ],
       "translation": {
-        "ru": "Год за границей заметно повысил её уровень владения английским.",
-        "uz": "Chet elda o'tgan bir yil uning ingliz tilini bilish darajasini ancha oshirdi."
+        "ru": "Всем иностранным абитуриентам нужен сертификат о владении английским языком.",
+        "uz": "Barcha xorijlik abituriyentlarga ingliz tilini bilish darajasini tasdiqlovchi sertifikat kerak."
       },
       "explanation": {
-        "ru": "proficiency in — уровень владения чем-либо: после proficiency ставится in. Русское «владение английским» подсказывает of, но это ошибка.",
-        "uz": "proficiency in — biror narsani bilish darajasi: proficiency so'zidan keyin in predlogi keladi, of emas."
+        "ru": "proficiency in — владение чем-либо: после proficiency ставится in (a certificate of proficiency in English). Русское «владение английским» подсказывает of, но это ошибка.",
+        "uz": "proficiency in — biror narsani bilish darajasi: proficiency so'zidan keyin of emas, in predlogi keladi (a certificate of proficiency in English)."
       }
     },
     {
@@ -1097,7 +1097,7 @@
       "target_words": [
         "aptitude"
       ],
-      "text": "All applicants must take an *attitude* test in math and logic.",
+      "text": "An *attitude* test showed that she has a gift for languages.",
       "options": [
         "aptitude",
         "altitude",
@@ -1107,12 +1107,12 @@
         "aptitude"
       ],
       "translation": {
-        "ru": "Все поступающие должны пройти тест на способности по математике и логике.",
-        "uz": "Barcha abituriyentlar matematika va mantiq bo'yicha qobiliyat testini topshirishi shart."
+        "ru": "Тест на способности показал, что у неё талант к языкам.",
+        "uz": "Qobiliyat testi uning tillarga iqtidori borligini ko'rsatdi."
       },
       "explanation": {
-        "ru": "aptitude — способность, склонность (aptitude test — тест на способности). attitude — отношение, позиция: слова похожи, но значения разные.",
-        "uz": "aptitude — qobiliyat, layoqat (aptitude test — qobiliyat testi). attitude esa munosabat, nuqtayi nazar: so'zlar o'xshash, ammo ma'nolari boshqa."
+        "ru": "Талант выявляет aptitude test — тест на способности (aptitude — способность, склонность). attitude — отношение, позиция: слова похожи, но значения разные.",
+        "uz": "Iqtidorni aptitude test — qobiliyat testi aniqlaydi (aptitude — qobiliyat, layoqat). attitude esa munosabat, nuqtayi nazar: so'zlar o'xshash, ammo ma'nolari boshqa."
       }
     },
     {
@@ -1450,7 +1450,7 @@
       "target_words": [
         "comprehension"
       ],
-      "text": "The exam checks your *comprehensive* of spoken English.",
+      "text": "The children's *comprehensive* of such a difficult poem surprised their teacher.",
       "options": [
         "comprehension",
         "comprehend",
@@ -1460,12 +1460,12 @@
         "comprehension"
       ],
       "translation": {
-        "ru": "Экзамен проверяет ваше понимание устной английской речи.",
-        "uz": "Imtihon og'zaki ingliz nutqini tushunishingizni tekshiradi."
+        "ru": "Учителя удивило, как хорошо дети поняли такое трудное стихотворение.",
+        "uz": "Bolalarning bunday murakkab she'rni tushunganidan o'qituvchi hayron qoldi."
       },
       "explanation": {
-        "ru": "После your и перед of нужно существительное: comprehension (понимание). comprehensive — прилагательное «всесторонний», comprehend — глагол.",
-        "uz": "your dan keyin va of dan oldin ot kerak: comprehension (tushunish). comprehensive — «har tomonlama» sifati, comprehend — fe'l."
+        "ru": "После children's и перед of нужно существительное: comprehension (понимание). comprehensive — прилагательное «всесторонний», comprehend — глагол.",
+        "uz": "children's dan keyin va of dan oldin ot kerak: comprehension (tushunish). comprehensive — «har tomonlama» sifati, comprehend esa fe'l."
       }
     },
     {
@@ -1593,8 +1593,8 @@
         "brainstorming"
       ],
       "translation": {
-        "ru": "Мы с нетерпением ждём, когда на следующей неделе будем вместе с вашей командой искать идеи.",
-        "uz": "Kelasi hafta jamoangiz bilan birga g'oyalar yuzasidan aqliy hujum o'tkazishni intiqlik bilan kutyapmiz."
+        "ru": "Мы с нетерпением ждём возможности провести мозговой штурм с вашей командой на следующей неделе.",
+        "uz": "Kelasi hafta jamoangiz bilan aqliy hujum o'tkazishni intiqlik bilan kutyapmiz."
       },
       "explanation": {
         "ru": "В look forward to слово to — предлог, а не частица инфинитива, поэтому после него глагол с -ing: brainstorming.",

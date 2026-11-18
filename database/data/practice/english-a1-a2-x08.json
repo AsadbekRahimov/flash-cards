@@ -45,7 +45,7 @@
       ],
       "translation": {
         "ru": "Моя тётя — художница, и её картины висят в музее.",
-        "uz": "Xolam rassom, uning rasmlari muzeyda osilgan."
+        "uz": "Xolam rassom, uning rasmlari muzeyda osig'liq turibdi."
       },
       "explanation": {
         "ru": "После is an нужен человек, а не занятие: тот, кто занимается искусством, — artist (art + -ist). Артикль an — потому что слово начинается с гласного звука.",
@@ -88,22 +88,22 @@
       "target_words": [
         "physics"
       ],
-      "text": "Physics *are* not easy, but I really like it.",
+      "text": "I think physics *are* the most useful subject at school.",
       "options": [
         "is",
-        "am",
+        "were",
         "be"
       ],
       "correct": [
         "is"
       ],
       "translation": {
-        "ru": "Физика — непростой предмет, но мне она очень нравится.",
-        "uz": "Fizika oson emas, lekin menga juda yoqadi."
+        "ru": "Я думаю, физика — самый полезный предмет в школе.",
+        "uz": "Menimcha, fizika maktabdagi eng foydali fan."
       },
       "explanation": {
-        "ru": "Physics — название одной науки, хотя кончается на -s, поэтому глагол в единственном числе: physics is (так же mathematics is). Местоимение it в конце тоже показывает единственное число.",
-        "uz": "Physics oxirida -s bo'lsa ham, bitta fanning nomi, shuning uchun fe'l birlikda: physics is (mathematics is kabi). Oxiridagi it olmoshi ham birlikni ko'rsatadi."
+        "ru": "Physics — название одной науки, хотя кончается на -s, поэтому глагол в единственном числе: physics is (так же mathematics is). The most useful subject тоже показывает единственное число.",
+        "uz": "Physics oxirida -s bo'lsa ham, bitta fanning nomi, shuning uchun fe'l birlikda: physics is (mathematics is kabi). The most useful subject ham birlikni ko'rsatadi."
       }
     },
     {
@@ -146,22 +146,22 @@
       "target_words": [
         "history"
       ],
-      "text": "Our *story* teacher tells us about kings and old wars.",
+      "text": "My brother wants to study *story* at university.",
       "options": [
         "history",
-        "histories",
-        "historian"
+        "historic",
+        "historical"
       ],
       "correct": [
         "history"
       ],
       "translation": {
-        "ru": "Наш учитель истории рассказывает нам о королях и давних войнах.",
-        "uz": "Tarix o'qituvchimiz bizga qirollar va qadimgi urushlar haqida gapirib beradi."
+        "ru": "Мой брат хочет изучать историю в университете.",
+        "uz": "Akam universitetda tarixni o'rganmoqchi."
       },
       "explanation": {
-        "ru": "Школьный предмет «история» — history; story — это рассказ, сказка. Русское «история» значит и то и другое, а в английском это разные слова.",
-        "uz": "Maktab fani «tarix» — history; story esa hikoya, ertak. Rus tilidagi «istoriya» so'zi ikkala ma'noni bildiradi, inglizchada esa bular boshqa-boshqa so'zlar."
+        "ru": "Наука об истории, предмет — history; story — это рассказ, сказка. Русское «история» значит и то и другое, а в английском это разные слова. Historic и historical — прилагательные «исторический».",
+        "uz": "Fan sifatida «tarix» — history; story esa hikoya, ertak. Rus tilidagi «istoriya» so'zi ikkala ma'noni bildiradi, inglizchada esa bular boshqa-boshqa so'zlar. Historic va historical — «tarixiy» degan sifatlar."
       }
     },
     {
@@ -225,18 +225,18 @@
       "target_words": [
         "notebook"
       ],
-      "text": "I have two ___: one for English and one for math.",
+      "text": "Each of my ___ has a different color.",
       "base": "notebook",
       "accepted": [
         "notebooks"
       ],
       "translation": {
-        "ru": "У меня две тетради: одна для английского, другая для математики.",
-        "uz": "Menda ikkita daftar bor: biri ingliz tili, ikkinchisi matematika uchun."
+        "ru": "У каждой из моих тетрадей свой цвет.",
+        "uz": "Har bir daftarimning rangi har xil."
       },
       "explanation": {
-        "ru": "Two требует множественного числа: notebook → notebooks. По-русски после «две» стоит «тетради», а в английском после two всегда форма на -s.",
-        "uz": "Two dan keyin ot ko'plikda keladi: notebook → notebooks. O'zbek tilida «ikkita daftar» birlikda, inglizchada esa two dan keyin doim -s qo'shiladi."
+        "ru": "После each of my существительное во множественном числе: each of my notebooks. Глагол has стоит в единственном, потому что согласуется с each, а не с notebooks.",
+        "uz": "Each of my so'zlaridan keyin ot ko'plikda keladi: each of my notebooks. Has fe'li esa birlikda, chunki u notebooks bilan emas, each bilan moslashadi."
       }
     },
     {
@@ -254,7 +254,7 @@
       "options": [
         "speaks",
         "speaking",
-        "to speak"
+        "spoken"
       ],
       "correct": [
         "speaks"
@@ -603,22 +603,22 @@
       "target_words": [
         "essay"
       ],
-      "text": "How *much* essays do we have to write this term?",
+      "text": "We have to write three *essaies* this week.",
       "options": [
-        "many",
-        "lot",
-        "plenty"
+        "essays",
+        "essay",
+        "essay's"
       ],
       "correct": [
-        "many"
+        "essays"
       ],
       "translation": {
-        "ru": "Сколько эссе нам нужно написать в этом семестре?",
-        "uz": "Bu semestrda nechta insho yozishimiz kerak?"
+        "ru": "На этой неделе нам нужно написать три эссе.",
+        "uz": "Bu hafta uchta insho yozishimiz kerak."
       },
       "explanation": {
-        "ru": "Essay — исчисляемое существительное (essays), поэтому how many. How much — только с неисчисляемыми: how much time.",
-        "uz": "Essay — sanaladigan ot (essays), shuning uchun how many. How much faqat sanalmaydigan otlar bilan ishlatiladi: how much time."
+        "ru": "После three нужно множественное число. Если перед y стоит гласная, y не меняется: essay → essays (как day → days, key → keys). Ie пишется только после согласной: study → studies.",
+        "uz": "Three dan keyin ko'plik kerak. y dan oldin unli harf bo'lsa, y o'zgarmaydi: essay → essays (day → days, key → keys kabi). ie faqat undoshdan keyin yoziladi: study → studies."
       }
     },
     {
@@ -794,7 +794,7 @@
       "target_words": [
         "sentence"
       ],
-      "text": "Write a short *offer* with each new word.",
+      "text": "Every *offer* in English starts with a capital letter.",
       "options": [
         "sentence",
         "sentences",
@@ -804,11 +804,11 @@
         "sentence"
       ],
       "translation": {
-        "ru": "Составьте короткое предложение с каждым новым словом.",
-        "uz": "Har bir yangi so'z bilan qisqa gap tuzing."
+        "ru": "Каждое предложение в английском языке начинается с заглавной буквы.",
+        "uz": "Ingliz tilida har bir gap bosh harf bilan boshlanadi."
       },
       "explanation": {
-        "ru": "Предложение из слов — sentence. Offer — «предложение» в смысле «что-то предложить» (an offer of help). Русское «предложение» значит и то и другое.",
+        "ru": "Предложение из слов — sentence. Offer — «предложение» в смысле «что-то предложить» (an offer of help). Русское «предложение» значит и то и другое, а в английском это разные слова.",
         "uz": "So'zlardan tuzilgan gap — sentence. Offer esa «taklif» (an offer of help). Rus tilidagi «predlojeniye» so'zi ikkala ma'noni bildiradi, inglizchada esa ular har xil so'z."
       }
     },
@@ -823,18 +823,18 @@
       "target_words": [
         "roof"
       ],
-      "text": "All the houses here have red ___.",
+      "text": "The ___ of all the houses on our street are red.",
       "base": "roof",
       "accepted": [
         "roofs"
       ],
       "translation": {
-        "ru": "У всех домов здесь красные крыши.",
-        "uz": "Bu yerdagi barcha uylarning tomi qizil."
+        "ru": "Крыши всех домов на нашей улице красные.",
+        "uz": "Ko'chamizdagi barcha uylarning tomlari qizil."
       },
       "explanation": {
-        "ru": "Домов много, значит, и крыш много — множественное число. У roof оно простое: roofs, без замены f на v (не так, как leaf → leaves).",
-        "uz": "Uylar ko'p, demak tomlar ham ko'p — ko'plik kerak. Roof so'zining ko'pligi oddiy: roofs, f harfi v ga almashmaydi (leaf → leaves kabi emas)."
+        "ru": "Глагол are показывает множественное число: roof → roofs. У roof оно простое, без замены f на v (не так, как leaf → leaves).",
+        "uz": "Are fe'li ko'plikni ko'rsatadi: roof → roofs. Roof so'zining ko'pligi oddiy: f harfi v ga almashmaydi (leaf → leaves kabi emas)."
       }
     },
     {
@@ -898,7 +898,7 @@
       "target_words": [
         "stairs"
       ],
-      "text": "The old stairs are wet, so be careful on *it*.",
+      "text": "Our stairs are steep, and my grandmother cannot climb *it*.",
       "options": [
         "them",
         "they",
@@ -908,12 +908,12 @@
         "them"
       ],
       "translation": {
-        "ru": "Старая лестница мокрая, так что будьте на ней осторожны.",
-        "uz": "Eski zina ho'l, shuning uchun unda ehtiyot bo'ling."
+        "ru": "У нас крутая лестница, и бабушка не может по ней подниматься.",
+        "uz": "Zinamiz tik, buvim undan chiqa olmaydi."
       },
       "explanation": {
-        "ru": "Stairs — множественное число (are), поэтому и местоимение во множественном: them. По-русски «лестница» в единственном числе — отсюда ошибка it.",
-        "uz": "Stairs — ko'plikdagi ot (are), shuning uchun olmosh ham ko'plikda: them. O'zbekcha «zina» birlikda bo'lgani uchun it deb xato qilinadi."
+        "ru": "Stairs — множественное число (are), поэтому и местоимение во множественном: climb them. По-русски «лестница» в единственном числе — отсюда ошибка it.",
+        "uz": "Stairs — ko'plikdagi ot (are), shuning uchun olmosh ham ko'plikda: climb them. O'zbekcha «zina» birlikda bo'lgani uchun it deb xato qilinadi."
       }
     },
     {
@@ -959,8 +959,8 @@
       "text": "There *is* two garages behind our apartment building.",
       "options": [
         "are",
-        "be",
-        "am"
+        "was",
+        "be"
       ],
       "correct": [
         "are"
@@ -1060,22 +1060,22 @@
       "target_words": [
         "pillow"
       ],
-      "text": "Are there *much* pillows in the guest room?",
+      "text": "There are too *much* pillows on this small bed.",
       "options": [
         "many",
-        "lot",
-        "plenty"
+        "lots",
+        "more"
       ],
       "correct": [
         "many"
       ],
       "translation": {
-        "ru": "В гостевой комнате много подушек?",
-        "uz": "Mehmonlar xonasida yostiq ko'pmi?"
+        "ru": "На этой маленькой кровати слишком много подушек.",
+        "uz": "Bu kichkina karavotda yostiq juda ko'p."
       },
       "explanation": {
-        "ru": "Pillow — исчисляемое существительное (pillows), поэтому many. Much — только с неисчисляемыми: much water.",
-        "uz": "Pillow — sanaladigan ot (pillows), shuning uchun many. Much faqat sanalmaydigan otlar bilan ishlatiladi: much water."
+        "ru": "Pillow — исчисляемое существительное (pillows, are), поэтому too many. Too much — только с неисчисляемыми: too much noise.",
+        "uz": "Pillow — sanaladigan ot (pillows, are), shuning uchun too many. Too much faqat sanalmaydigan otlar bilan ishlatiladi: too much noise."
       }
     },
     {
@@ -1100,7 +1100,7 @@
       ],
       "translation": {
         "ru": "Эти шторы в моей спальне слишком короткие.",
-        "uz": "Yotoqxonamdagi bu pardalar juda kalta."
+        "uz": "Yotoq xonamdagi bu pardalar juda kalta."
       },
       "explanation": {
         "ru": "Curtains — множественное число (are), а this и that — только с единственным: this curtain, these curtains.",
@@ -1233,7 +1233,7 @@
       ],
       "translation": {
         "ru": "Стиркой у нас обычно занимается муж, а я готовлю.",
-        "uz": "Odatda kir yuvishni erim qiladi, men esa ovqat pishiraman."
+        "uz": "Kirni odatda erim yuvadi, men esa ovqat pishiraman."
       },
       "explanation": {
         "ru": "Стирать — do the laundry. С домашними делами обычно do: do the laundry, do the dishes. Make здесь не подходит.",
@@ -1384,7 +1384,7 @@
       "target_words": [
         "plumber"
       ],
-      "text": "The plumber *were* here, but he forgot his tools.",
+      "text": "The plumber *were* here, but he had no tools.",
       "options": [
         "was",
         "be",
@@ -1394,8 +1394,8 @@
         "was"
       ],
       "translation": {
-        "ru": "Сантехник был здесь, но забыл свои инструменты.",
-        "uz": "Santexnik shu yerda edi, lekin asboblarini olib kelishni unutibdi."
+        "ru": "Сантехник был здесь, но у него не было инструментов.",
+        "uz": "Santexnik kelgan edi, lekin asboblari yo'q edi."
       },
       "explanation": {
         "ru": "Plumber — один человек (he), поэтому was. Were — с you, we, they и с существительными во множественном числе.",
@@ -1528,7 +1528,7 @@
       ],
       "translation": {
         "ru": "На прошлой неделе папа прибил маленькую полку к стене моей спальни.",
-        "uz": "O'tgan hafta dadam yotoqxonam devoriga kichkina tokcha mixlab qo'ydi."
+        "uz": "O'tgan hafta dadam yotoq xonam devoriga kichkina tokcha mixlab qo'ydi."
       },
       "explanation": {
         "ru": "Last week — прошедшее время. Nail (гвоздь) бывает и глаголом — «прибивать гвоздями»: nail + -ed → nailed.",

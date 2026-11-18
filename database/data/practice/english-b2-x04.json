@@ -415,8 +415,8 @@
       "text": "Waste from hospitals must never *dump* in ordinary landfills.",
       "options": [
         "be dumped",
-        "be dumping",
-        "been dumped"
+        "been dumped",
+        "have dumped"
       ],
       "correct": [
         "be dumped"
@@ -608,7 +608,7 @@
       "options": [
         "scarce",
         "scarcity",
-        "scarcest"
+        "scarceness"
       ],
       "correct": [
         "scarce"
@@ -662,14 +662,14 @@
       "target_words": [
         "erosion"
       ],
-      "text": "Without trees, heavy rain causes serious ___ of the soil.",
+      "text": "Strong winds cause serious ___ on these dry plains every spring.",
       "base": "erode",
       "accepted": [
         "erosion"
       ],
       "translation": {
-        "ru": "Без деревьев сильные дожди вызывают серьёзную эрозию почвы.",
-        "uz": "Daraxtlar bo'lmasa, kuchli yomg'irlar tuproqning jiddiy eroziyasiga sabab bo'ladi."
+        "ru": "Каждую весну сильные ветры вызывают серьёзную эрозию на этих засушливых равнинах.",
+        "uz": "Har bahorda kuchli shamollar bu quruq tekisliklarda jiddiy eroziyaga sabab bo'ladi."
       },
       "explanation": {
         "ru": "После прилагательного serious нужно существительное: erode (разрушать) → erosion (эрозия); d меняется на s: -sion.",
@@ -737,7 +737,7 @@
       "target_words": [
         "deforestation"
       ],
-      "text": "The deforestation of these hills *have* caused terrible floods.",
+      "text": "The deforestation of the mountain slopes *have* caused terrible floods.",
       "options": [
         "has",
         "is",
@@ -747,12 +747,12 @@
         "has"
       ],
       "translation": {
-        "ru": "Вырубка лесов на этих холмах вызвала страшные наводнения.",
-        "uz": "Bu tepaliklardagi o'rmonlarning kesilishi dahshatli toshqinlarga sabab bo'ldi."
+        "ru": "Вырубка лесов на горных склонах вызвала страшные наводнения.",
+        "uz": "Tog' yonbag'irlaridagi o'rmonlarning kesilishi dahshatli toshqinlarga sabab bo'ldi."
       },
       "explanation": {
-        "ru": "Подлежащее — deforestation (неисчисляемое, единственное число), а не hills, поэтому has caused.",
-        "uz": "Gapning egasi — deforestation (sanalmaydigan, birlikdagi ot), hills emas, shuning uchun has caused."
+        "ru": "Подлежащее — deforestation (неисчисляемое, единственное число), а не slopes, поэтому has caused.",
+        "uz": "Gapning egasi — deforestation (sanalmaydigan, birlikdagi ot), slopes emas, shuning uchun has caused."
       }
     },
     {
@@ -834,8 +834,8 @@
         "uz": "Hokim ilk bor xalq tomonidan demokratik yo'l bilan saylandi."
       },
       "explanation": {
-        "ru": "Причастие elected описывает наречие. Два шага: democracy → democratic (-cy → -tic) → democratically (после -ic — -ally).",
-        "uz": "elected sifatdoshini ravish izohlaydi. Ikki bosqich: democracy → democratic (-cy o'rniga -tic) → democratically (-ic dan keyin -ally)."
+        "ru": "К причастию elected нужно наречие. Два шага: democracy → democratic (-cy → -tic) → democratically (после -ic — -ally).",
+        "uz": "elected sifatdoshiga ravish kerak. Ikki bosqich: democracy → democratic (-cy o'rniga -tic) → democratically (-ic dan keyin -ally)."
       }
     },
     {
@@ -1009,21 +1009,20 @@
       },
       "level": "B2",
       "target_words": [
-        "referendum"
+        "majority"
       ],
-      "text": "Since independence, the country has held three ___ on this question.",
-      "base": "referendum",
+      "text": "In the last election the party won a clear ___ in parliament.",
+      "base": "major",
       "accepted": [
-        "referendums",
-        "referenda"
+        "majority"
       ],
       "translation": {
-        "ru": "С момента обретения независимости страна провела три референдума по этому вопросу.",
-        "uz": "Mustaqillikka erishgandan beri mamlakatda bu masala bo'yicha uchta referendum o'tkazildi."
+        "ru": "На последних выборах партия получила явное большинство в парламенте.",
+        "uz": "Oxirgi saylovda partiya parlamentda aniq ko'pchilikni qo'lga kiritdi."
       },
       "explanation": {
-        "ru": "После three нужно множественное число: referendums или латинское referenda — оба верны.",
-        "uz": "three so'zidan keyin ko'plik kerak: referendums yoki lotincha referenda — ikkalasi ham to'g'ri."
+        "ru": "После a clear нужно существительное: major (больший, главный) → majority (большинство), суффикс -ity.",
+        "uz": "a clear so'zlaridan keyin ot kerak: major (kattaroq, asosiy) → majority (ko'pchilik), -ity qo'shimchasi."
       }
     },
     {
@@ -1062,22 +1061,22 @@
       "target_words": [
         "poll"
       ],
-      "text": "The latest *pole* shows that most voters want lower taxes.",
+      "text": "A week before the vote, the party is behind in the *poles*.",
       "options": [
-        "poll",
-        "pool",
-        "pull"
+        "polls",
+        "pools",
+        "pulls"
       ],
       "correct": [
-        "poll"
+        "polls"
       ],
       "translation": {
-        "ru": "Последний опрос показывает, что большинство избирателей хотят снижения налогов.",
-        "uz": "So'nggi so'rov saylovchilarning ko'pchiligi soliqlar kamaytirilishini xohlashini ko'rsatmoqda."
+        "ru": "За неделю до голосования партия отстаёт по результатам опросов.",
+        "uz": "Ovoz berishdan bir hafta oldin partiya so'rovlarda ortda qolmoqda."
       },
       "explanation": {
-        "ru": "poll — опрос; pole — шест или полюс. Слова звучат почти одинаково, но пишутся по-разному.",
-        "uz": "poll — so'rov; pole esa xoda yoki qutb. Bu so'zlar deyarli bir xil eshitiladi, lekin turlicha yoziladi."
+        "ru": "polls — опросы (behind in the polls — отстаёт по опросам); poles — шесты или полюсы. Слова звучат почти одинаково, но пишутся по-разному.",
+        "uz": "polls — so'rovlar (behind in the polls — so'rovlarda ortda); poles esa xodalar yoki qutblar. Bu so'zlar deyarli bir xil eshitiladi, lekin turlicha yoziladi."
       }
     },
     {
@@ -1444,7 +1443,7 @@
       "target_words": [
         "mandate"
       ],
-      "text": "After its big win, the party claimed a mandate *cutting* income taxes.",
+      "text": "The party claimed a mandate *cutting* taxes, not to raise them.",
       "options": [
         "to cut",
         "of cutting",
@@ -1454,12 +1453,12 @@
         "to cut"
       ],
       "translation": {
-        "ru": "После убедительной победы партия заявила, что получила мандат на снижение подоходного налога.",
-        "uz": "Katta g'alabadan so'ng partiya daromad solig'ini kamaytirishga vakolat olganini ma'lum qildi."
+        "ru": "Партия заявила, что получила мандат на снижение налогов, а не на их повышение.",
+        "uz": "Partiya soliqlarni oshirishga emas, kamaytirishga vakolat olganini ma'lum qildi."
       },
       "explanation": {
-        "ru": "a mandate to do something — полномочия что-то сделать: после mandate нужен инфинитив с to.",
-        "uz": "a mandate to do something — biror ishni qilish vakolati: mandate so'zidan keyin to bilan infinitiv keladi."
+        "ru": "a mandate to do something — полномочия что-то сделать: после mandate инфинитив с to, как и во второй части (not to raise).",
+        "uz": "a mandate to do something — biror ishni qilish vakolati: mandate so'zidan keyin to bilan infinitiv keladi, ikkinchi qismdagi kabi (not to raise)."
       }
     },
     {
@@ -1473,14 +1472,14 @@
       "target_words": [
         "alliance"
       ],
-      "text": "The two countries formed a military ___ against a common enemy.",
+      "text": "These three countries have been in a military ___ for decades.",
       "base": "ally",
       "accepted": [
         "alliance"
       ],
       "translation": {
-        "ru": "Две страны создали военный союз против общего врага.",
-        "uz": "Ikki davlat umumiy dushmanga qarshi harbiy ittifoq tuzdi."
+        "ru": "Эти три страны уже несколько десятилетий состоят в военном союзе.",
+        "uz": "Bu uch davlat o'nlab yillardan beri harbiy ittifoq a'zosi."
       },
       "explanation": {
         "ru": "После a military нужно существительное: ally (союзник) → alliance (союз); y меняется на i, добавляется -ance.",
@@ -1581,7 +1580,7 @@
       "options": [
         "between",
         "beside",
-        "against"
+        "behind"
       ],
       "correct": [
         "between"
@@ -1609,7 +1608,7 @@
       "text": "The *negotiate* between the two companies lasted until midnight.",
       "options": [
         "negotiations",
-        "negotiators",
+        "negotiated",
         "negotiable"
       ],
       "correct": [

@@ -132,7 +132,7 @@
       },
       "explanation": {
         "ru": "would rather + начальная форма без to: would rather debug ... than read. Ни -ing, ни to после would rather не ставят.",
-        "uz": "would rather birikmasidan keyin fe'l to predlogisiz, asosiy shaklda keladi: would rather debug ... than read. -ing shakli ham, to ham qo'yilmaydi."
+        "uz": "would rather birikmasidan keyin fe'l to so'zisiz, asosiy shaklda keladi: would rather debug ... than read. -ing shakli ham, to ham qo'yilmaydi."
       }
     },
     {
@@ -175,18 +175,18 @@
       "target_words": [
         "cipher"
       ],
-      "text": "Without the key, nobody could ___ the enemy's secret radio messages.",
+      "text": "During the war, a small team of mathematicians managed to ___ the enemy's codes.",
       "base": "cipher",
       "accepted": [
         "decipher"
       ],
       "translation": {
-        "ru": "Без ключа никто не мог расшифровать секретные радиосообщения противника.",
-        "uz": "Kalitsiz hech kim dushmanning maxfiy radioxabarlari shifrini ocha olmadi."
+        "ru": "Во время войны небольшая группа математиков сумела расшифровать коды противника.",
+        "uz": "Urush paytida kichik bir guruh matematiklar dushman kodlarini ochishga muvaffaq bo'ldi."
       },
       "explanation": {
-        "ru": "После could нужен глагол «расшифровать». Приставка de- обозначает обратное действие: cipher (шифр) → decipher.",
-        "uz": "could so'zidan keyin «shifrni ochmoq» fe'li kerak. de- old qo'shimchasi teskari harakatni bildiradi: cipher (shifr) → decipher."
+        "ru": "После managed to нужен глагол «расшифровать». Приставка de- обозначает обратное действие: cipher (шифр) → decipher.",
+        "uz": "managed to so'zlaridan keyin «shifrni ochmoq» fe'li kerak. de- old qo'shimchasi teskari harakatni bildiradi: cipher (shifr) → decipher."
       }
     },
     {
@@ -225,18 +225,18 @@
       "target_words": [
         "exploit"
       ],
-      "text": "The ___ of old security flaws is now much harder thanks to regular updates.",
+      "text": "Today, ___ of old security flaws is much harder thanks to automatic updates.",
       "base": "exploit",
       "accepted": [
         "exploitation"
       ],
       "translation": {
-        "ru": "Благодаря регулярным обновлениям использовать старые уязвимости теперь гораздо сложнее.",
-        "uz": "Muntazam yangilanishlar tufayli eski xavfsizlik zaifliklaridan foydalanish endi ancha qiyin."
+        "ru": "Сегодня использовать старые уязвимости гораздо сложнее благодаря автоматическим обновлениям.",
+        "uz": "Bugungi kunda avtomatik yangilanishlar tufayli eski xavfsizlik zaifliklaridan foydalanish ancha qiyin."
       },
       "explanation": {
-        "ru": "Между The и of нужно существительное — подлежащее при is: exploit → exploitation (-ation), «использование уязвимостей».",
-        "uz": "The va of orasida is fe'lining egasi bo'lgan ot kerak: exploit → exploitation (-ation), «zaifliklardan foydalanish»."
+        "ru": "Перед of нужно существительное — подлежащее при is: exploit → exploitation (-ation). Форма exploiting с of без артикля не сочетается, а exploits не согласуется с is.",
+        "uz": "of so'zidan oldin is fe'lining egasi bo'lgan ot kerak: exploit → exploitation (-ation). exploiting shakli artiklsiz of bilan ishlatilmaydi, exploits esa is fe'li bilan moslashmaydi."
       }
     },
     {
@@ -712,14 +712,14 @@
       "target_words": [
         "disruptive"
       ],
-      "text": "Online shopping has proved highly ___ to small bookshops.",
+      "text": "Online shopping has proved highly ___ to small local stores.",
       "base": "disrupt",
       "accepted": [
         "disruptive"
       ],
       "translation": {
-        "ru": "Онлайн-торговля оказалась крайне разрушительной для небольших книжных магазинов.",
-        "uz": "Onlayn savdo kichik kitob do'konlari uchun juda katta zarba bo'ldi."
+        "ru": "Онлайн-торговля оказалась крайне разрушительной для небольших местных магазинов.",
+        "uz": "Onlayn savdo kichik mahalliy do'konlar uchun juda katta zarba bo'ldi."
       },
       "explanation": {
         "ru": "После proved highly нужно прилагательное: disrupt → disruptive (-ive). disruptive to — подрывающий что-либо.",
@@ -793,24 +793,24 @@
       },
       "level": "C1",
       "target_words": [
-        "innovate"
+        "pervasive"
       ],
-      "text": "Firms that refuse *innovating* rarely survive for long.",
+      "text": "Online tracking has become so *pervasively* that hardly any website is free of it.",
       "options": [
-        "to innovate",
-        "for innovating",
-        "to innovating"
+        "pervasive",
+        "pervaded",
+        "pervasiveness"
       ],
       "correct": [
-        "to innovate"
+        "pervasive"
       ],
       "translation": {
-        "ru": "Компании, которые отказываются внедрять новшества, редко держатся долго.",
-        "uz": "Yangilik joriy qilishdan bosh tortgan firmalar kamdan-kam hollarda uzoq vaqt saqlanib qoladi."
+        "ru": "Онлайн-слежка стала настолько повсеместной, что почти ни один сайт от неё не свободен.",
+        "uz": "Onlayn kuzatuv shu qadar keng tarqaldiki, deyarli hech bir veb-sayt undan xoli emas."
       },
       "explanation": {
-        "ru": "После refuse — инфинитив с to: refuse to do something. Форма -ing после refuse не употребляется.",
-        "uz": "refuse fe'lidan keyin to bilan infinitiv keladi: refuse to do something. refuse fe'lidan keyin -ing shakli ishlatilmaydi."
+        "ru": "become («стать») — глагол-связка: после него нужно прилагательное, а не наречие: has become so pervasive (настолько повсеместным).",
+        "uz": "become («bo'lib qolmoq») bog'lama fe'lidan keyin ravish emas, sifat keladi: has become so pervasive (shu qadar keng tarqalgan)."
       }
     },
     {
@@ -824,18 +824,18 @@
       "target_words": [
         "paralysis"
       ],
-      "text": "Doctors hope that the ___ in his left arm is only temporary.",
+      "text": "A rare virus left the young athlete with partial ___ of the face.",
       "base": "paralyze",
       "accepted": [
         "paralysis"
       ],
       "translation": {
-        "ru": "Врачи надеются, что паралич его левой руки лишь временный.",
-        "uz": "Shifokorlar uning chap qo'lidagi falaj vaqtinchalik ekaniga umid qilishmoqda."
+        "ru": "После редкого вируса у молодого спортсмена остался частичный паралич лица.",
+        "uz": "Noyob virus tufayli yosh sportchining yuzi qisman falaj bo'lib qoldi."
       },
       "explanation": {
-        "ru": "После the нужно существительное (подлежащее при is): paralyze → paralysis; окончание -yze меняется на -ysis.",
-        "uz": "the so'zidan keyin is fe'lining egasi bo'lgan ot kerak: paralyze → paralysis; -yze qo'shimchasi -ysis ga almashadi."
+        "ru": "После прилагательного partial нужно существительное: paralyze → paralysis; окончание -yze меняется на -ysis.",
+        "uz": "partial sifatidan keyin ot kerak: paralyze → paralysis; -yze qo'shimchasi -ysis ga almashadi."
       }
     },
     {
@@ -933,7 +933,7 @@
       "options": [
         "malignant",
         "malignancy",
-        "maligned"
+        "malevolent"
       ],
       "correct": [
         "malignant"
@@ -1149,18 +1149,18 @@
       "target_words": [
         "transmission"
       ],
-      "text": "Washing your hands is the simplest way to stop the ___ of bacteria.",
+      "text": "Mosquito nets have greatly reduced ___ of malaria in tropical villages.",
       "base": "transmit",
       "accepted": [
         "transmission"
       ],
       "translation": {
-        "ru": "Мытьё рук — самый простой способ остановить передачу бактерий.",
-        "uz": "Qo'l yuvish bakteriyalar yuqishini to'xtatishning eng oddiy yo'li."
+        "ru": "Москитные сетки значительно снизили передачу малярии в тропических деревнях.",
+        "uz": "Chivinlarga qarshi to'rlar tropik qishloqlarda bezgak yuqishini sezilarli darajada kamaytirdi."
       },
       "explanation": {
-        "ru": "Между the и of нужно существительное: transmit → transmission; t меняется на ss: -mit → -mission.",
-        "uz": "the va of orasida ot kerak: transmit → transmission; t o'rniga ss yoziladi: -mit → -mission."
+        "ru": "После reduced и перед of нужно существительное: transmit → transmission; t меняется на ss: -mit → -mission. Форма -ing с of без артикля не сочетается.",
+        "uz": "reduced va of orasida ot kerak: transmit → transmission; t o'rniga ss yoziladi: -mit → -mission. -ing shakli artiklsiz of bilan ishlatilmaydi."
       }
     },
     {
@@ -1224,22 +1224,22 @@
       "target_words": [
         "mortality"
       ],
-      "text": "Child *morality* fell sharply after the new hospital opened.",
+      "text": "The *morality* rate from this disease dropped once a new drug became available.",
       "options": [
         "mortality",
-        "mortals",
+        "mortal",
         "mortally"
       ],
       "correct": [
         "mortality"
       ],
       "translation": {
-        "ru": "После открытия новой больницы детская смертность резко снизилась.",
-        "uz": "Yangi kasalxona ochilgach, bolalar o'limi keskin kamaydi."
+        "ru": "Смертность от этой болезни снизилась, как только появилось новое лекарство.",
+        "uz": "Yangi dori paydo bo'lishi bilan bu kasallikdan o'lim darajasi pasaydi."
       },
       "explanation": {
-        "ru": "morality — мораль, нравственность. Смертность — mortality (от mortal — смертный); слова различаются одной буквой t.",
-        "uz": "morality — axloq. O'lim darajasi — mortality (mortal — «o'ladigan» so'zidan); bu so'zlar bitta t harfi bilan farqlanadi."
+        "ru": "morality — мораль, нравственность. Смертность — mortality rate (от mortal — смертный); слова различаются одной буквой t.",
+        "uz": "morality — axloq. O'lim darajasi — mortality rate (mortal — «o'ladigan» so'zidan); bu so'zlar bitta t harfi bilan farqlanadi."
       }
     },
     {
@@ -1253,7 +1253,7 @@
       "target_words": [
         "quarantine"
       ],
-      "text": "After the outbreak, all passengers were kept *on* quarantine for ten days.",
+      "text": "Our puppy had to spend a whole month *on* quarantine before entering the country.",
       "options": [
         "in",
         "at",
@@ -1263,8 +1263,8 @@
         "in"
       ],
       "translation": {
-        "ru": "После вспышки болезни всех пассажиров десять дней держали на карантине.",
-        "uz": "Kasallik tarqalgach, barcha yo'lovchilar o'n kun karantinda saqlandi."
+        "ru": "Нашему щенку пришлось провести целый месяц на карантине, прежде чем въехать в страну.",
+        "uz": "Kuchukchamiz mamlakatga kirishdan oldin butun bir oy karantinda turishi kerak edi."
       },
       "explanation": {
         "ru": "По-английски — in quarantine (или under quarantine). Русское «на карантине» здесь не on.",
@@ -1282,7 +1282,7 @@
       "target_words": [
         "prevalence"
       ],
-      "text": "Doctors are alarmed by the growing *prevalent* of obesity among children.",
+      "text": "Researchers compared the *prevalent* of asthma in cities and in rural areas.",
       "options": [
         "prevalence",
         "prevailing",
@@ -1292,12 +1292,12 @@
         "prevalence"
       ],
       "translation": {
-        "ru": "Врачей тревожит растущая распространённость ожирения среди детей.",
-        "uz": "Bolalar orasida semizlik tobora keng tarqalayotgani shifokorlarni xavotirga solmoqda."
+        "ru": "Исследователи сравнили распространённость астмы в городах и в сельской местности.",
+        "uz": "Tadqiqotchilar shaharlarda va qishloq joylarda astmaning tarqalganlik darajasini taqqosladi."
       },
       "explanation": {
-        "ru": "Между the growing и of нужно существительное: prevalence (распространённость). prevalent — прилагательное «распространённый».",
-        "uz": "the growing va of orasida ot kerak: prevalence (tarqalganlik). prevalent esa «keng tarqalgan» ma'nosidagi sifat."
+        "ru": "Между the и of нужно существительное — дополнение к compared: prevalence (распространённость). prevalent — прилагательное «распространённый».",
+        "uz": "the va of orasida compared fe'lining to'ldiruvchisi bo'lgan ot kerak: prevalence (tarqalganlik). prevalent esa «keng tarqalgan» ma'nosidagi sifat."
       }
     },
     {
@@ -1336,14 +1336,14 @@
       "target_words": [
         "abdomen"
       ],
-      "text": "These exercises strengthen the ___ muscles and protect your lower back.",
+      "text": "Good posture depends on strong ___ muscles that support the lower back.",
       "base": "abdomen",
       "accepted": [
         "abdominal"
       ],
       "translation": {
-        "ru": "Эти упражнения укрепляют мышцы живота и защищают поясницу.",
-        "uz": "Bu mashqlar qorin mushaklarini mustahkamlaydi va belni himoya qiladi."
+        "ru": "Хорошая осанка зависит от сильных мышц живота, которые поддерживают поясницу.",
+        "uz": "Qomatning to'g'ri bo'lishi belni tutib turuvchi kuchli qorin mushaklariga bog'liq."
       },
       "explanation": {
         "ru": "Перед muscles нужно прилагательное: abdomen → abdominal; основа меняется: -men → -minal.",
@@ -1386,7 +1386,7 @@
       "target_words": [
         "ligament"
       ],
-      "text": "He *broke* a knee ligament while skiing last winter.",
+      "text": "Our best player missed the whole season after he *broke* a ligament.",
       "options": [
         "tore",
         "torn",
@@ -1396,8 +1396,8 @@
         "tore"
       ],
       "translation": {
-        "ru": "Прошлой зимой он порвал связку колена, катаясь на лыжах.",
-        "uz": "O'tgan qish u chang'i uchayotganda tizza boylamini uzib oldi."
+        "ru": "Наш лучший игрок пропустил весь сезон, после того как порвал связку.",
+        "uz": "Eng yaxshi o'yinchimiz boylamini uzib olgani uchun butun mavsumni o'tkazib yubordi."
       },
       "explanation": {
         "ru": "Связки рвутся, а не ломаются: tear a ligament (прошедшее — tore). break говорят о костях: break a leg.",
@@ -1498,18 +1498,18 @@
       "target_words": [
         "endurance"
       ],
-      "text": "Long cycling trips gradually improved both her strength and her ___.",
+      "text": "Climbing the mountain without oxygen tested the team's ___ to the limit.",
       "base": "endure",
       "accepted": [
         "endurance"
       ],
       "translation": {
-        "ru": "Долгие велопоездки постепенно улучшили и её силу, и её выносливость.",
-        "uz": "Uzoq velosiped sayohatlari asta-sekin uning kuchini ham, chidamliligini ham oshirdi."
+        "ru": "Восхождение на гору без кислорода испытало выносливость команды до предела.",
+        "uz": "Tog'ga kislorodsiz chiqish jamoaning chidamliligini so'nggi chegarasigacha sinadi."
       },
       "explanation": {
-        "ru": "После her нужно существительное: endure → endurance; e отпадает, суффикс -ance (не -ence).",
-        "uz": "her so'zidan keyin ot kerak: endure → endurance; e tushib qoladi, qo'shimcha -ance (-ence emas)."
+        "ru": "После притяжательного team's нужно существительное: endure → endurance; e отпадает, суффикс -ance (не -ence).",
+        "uz": "team's egalik shaklidan keyin ot kerak: endure → endurance; e tushib qoladi, qo'shimcha -ance (-ence emas)."
       }
     },
     {

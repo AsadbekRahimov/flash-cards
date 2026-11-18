@@ -1,0 +1,1627 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b1",
+  "items": [
+    {
+      "key": "b1-m15-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "independence"
+      ],
+      "text": "The small island fought for ___ for almost a hundred years.",
+      "base": "independent",
+      "accepted": [
+        "independence"
+      ],
+      "translation": {
+        "ru": "Маленький остров почти сто лет боролся за независимость.",
+        "uz": "Kichik orol qariyb yuz yil davomida mustaqillik uchun kurashdi."
+      },
+      "explanation": {
+        "ru": "После предлога for нужно существительное: independent → independence. Прилагательное на -ent даёт существительное на -ence, а не -ance.",
+        "uz": "for predlogidan keyin ot kerak: independent → independence. -ent bilan tugaydigan sifatdan -ance emas, -ence qo'shimchali ot yasaladi."
+      }
+    },
+    {
+      "key": "b1-m15-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "region"
+      ],
+      "text": "My aunt writes for a ___ newspaper, not a national one.",
+      "base": "region",
+      "accepted": [
+        "regional"
+      ],
+      "translation": {
+        "ru": "Моя тётя пишет для региональной газеты, а не для общенациональной.",
+        "uz": "Xolam umummilliy emas, balki viloyat gazetasi uchun maqolalar yozadi."
+      },
+      "explanation": {
+        "ru": "Перед существительным newspaper нужно прилагательное, как national во второй части: region → regional (суффикс -al).",
+        "uz": "newspaper otidan oldin sifat kerak, xuddi gapning ikkinchi qismidagi national kabi: region → regional (-al qo'shimchasi)."
+      }
+    },
+    {
+      "key": "b1-m15-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "politics"
+      ],
+      "text": "My neighbor never shares his ___ views with strangers.",
+      "base": "politics",
+      "accepted": [
+        "political"
+      ],
+      "translation": {
+        "ru": "Мой сосед никогда не делится своими политическими взглядами с незнакомыми людьми.",
+        "uz": "Qo'shnim siyosiy qarashlarini notanish odamlar bilan hech qachon o'rtoqlashmaydi."
+      },
+      "explanation": {
+        "ru": "Между his и существительным views нужно прилагательное «политический»: politics → political (вместо -s суффикс -al).",
+        "uz": "his so'zi bilan views oti orasida «siyosiy» sifati kerak: politics → political (-s o'rniga -al qo'shimchasi)."
+      }
+    },
+    {
+      "key": "b1-m15-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "power"
+      ],
+      "text": "The same party has been *at* power for almost twenty years.",
+      "options": [
+        "in",
+        "on",
+        "by"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Одна и та же партия находится у власти почти двадцать лет.",
+        "uz": "Ayni bir partiya qariyb yigirma yildan beri hokimiyatda."
+      },
+      "explanation": {
+        "ru": "Быть у власти — be in power, только с in. Русское «у власти» подсказывает at, но at power, on power и by power — ошибки.",
+        "uz": "Hokimiyatda bo'lmoq — be in power, faqat in predlogi bilan. at power, on power va by power deyilmaydi."
+      }
+    },
+    {
+      "key": "b1-m15-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "minister"
+      ],
+      "text": "The *ministry* came in person and shook hands with every nurse.",
+      "options": [
+        "minister",
+        "ministerial",
+        "administer"
+      ],
+      "correct": [
+        "minister"
+      ],
+      "translation": {
+        "ru": "Министр приехал лично и пожал руку каждой медсестре.",
+        "uz": "Vazir shaxsan o'zi kelib, har bir hamshira bilan qo'l berib ko'rishdi."
+      },
+      "explanation": {
+        "ru": "Приехать лично и пожать руку может только человек — minister (министр). ministry — министерство, ministerial — прилагательное «министерский», administer — глагол «управлять».",
+        "uz": "Shaxsan kelib qo'l berib ko'rishish faqat odamga xos — minister (vazir). ministry — vazirlik, ministerial — «vazirlikka oid» sifati, administer — «boshqarmoq» fe'li."
+      }
+    },
+    {
+      "key": "b1-m15-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "embassy"
+      ],
+      "text": "Most foreign *embassys* are on the same quiet street.",
+      "options": [
+        "embassies",
+        "embassy's",
+        "embassy"
+      ],
+      "correct": [
+        "embassies"
+      ],
+      "translation": {
+        "ru": "Большинство иностранных посольств находятся на одной тихой улице.",
+        "uz": "Chet el elchixonalarining aksariyati bitta tinch ko'chada joylashgan."
+      },
+      "explanation": {
+        "ru": "После согласной буква y во множественном числе меняется на ies: embassy → embassies. embassy's — притяжательная форма, а не множественное число.",
+        "uz": "Undosh harfdan keyin kelgan y ko'plikda ies ga aylanadi: embassy → embassies. embassy's — qaratqich shakli, ko'plik emas."
+      }
+    },
+    {
+      "key": "b1-m15-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "innocent"
+      ],
+      "text": "The video from the shop camera finally proved his ___.",
+      "base": "innocent",
+      "accepted": [
+        "innocence"
+      ],
+      "translation": {
+        "ru": "Видео с камеры магазина наконец доказало его невиновность.",
+        "uz": "Do'kon kamerasidagi video nihoyat uning aybsizligini isbotladi."
+      },
+      "explanation": {
+        "ru": "После his нужно существительное: innocent → innocence. Как и в independent → independence, -ent меняется на -ence.",
+        "uz": "his so'zidan keyin ot kerak: innocent → innocence. independent → independence dagi kabi -ent o'rniga -ence yoziladi."
+      }
+    },
+    {
+      "key": "b1-m15-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "justice"
+      ],
+      "text": "Sending an innocent man to prison is a terrible ___.",
+      "base": "justice",
+      "accepted": [
+        "injustice"
+      ],
+      "translation": {
+        "ru": "Отправить невиновного человека в тюрьму — страшная несправедливость.",
+        "uz": "Aybsiz odamni qamoqqa jo'natish — dahshatli adolatsizlik."
+      },
+      "explanation": {
+        "ru": "Невиновного — в тюрьму: смысл требует противоположного justice. Отрицательная приставка здесь in-: injustice (несправедливость), а не unjustice.",
+        "uz": "Aybsiz odamni qamoqqa jo'natish — ma'no justice so'zining teskarisini talab qiladi. Bu yerda inkor old qo'shimchasi in-: injustice (adolatsizlik), unjustice emas."
+      }
+    },
+    {
+      "key": "b1-m15-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "guilty"
+      ],
+      "text": "The court found the manager ___ and ordered him to pay a large fine.",
+      "base": "guilt",
+      "accepted": [
+        "guilty"
+      ],
+      "translation": {
+        "ru": "Суд признал менеджера виновным и обязал его заплатить крупный штраф.",
+        "uz": "Sud menejerni aybdor deb topdi va unga katta jarima to'lashni buyurdi."
+      },
+      "explanation": {
+        "ru": "find somebody + прилагательное — признать кого-то каким-то, поэтому нужно прилагательное: guilt (вина) + -y → guilty (виновный).",
+        "uz": "find somebody + sifat — kimnidir qandaydir deb topmoq, shuning uchun sifat kerak: guilt (ayb) + -y → guilty (aybdor)."
+      }
+    },
+    {
+      "key": "b1-m15-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "judge"
+      ],
+      "text": "In court, the *referee* asked the witness to speak louder.",
+      "options": [
+        "judge",
+        "umpire",
+        "coach"
+      ],
+      "correct": [
+        "judge"
+      ],
+      "translation": {
+        "ru": "В суде судья попросил свидетеля говорить громче.",
+        "uz": "Sudda sudya guvohdan balandroq gapirishni so'radi."
+      },
+      "explanation": {
+        "ru": "Русское «судья» — это два английских слова: в суде judge, в спорте referee (в теннисе и крикете umpire). coach — тренер.",
+        "uz": "Sudda ish ko'radigan sudya — judge, sportdagi hakam esa referee (tennis va kriketda umpire). coach — murabbiy."
+      }
+    },
+    {
+      "key": "b1-m15-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "trial"
+      ],
+      "text": "The two brothers are *under* trial for robbery.",
+      "options": [
+        "on",
+        "to",
+        "by"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Двух братьев судят за грабёж.",
+        "uz": "Ikki aka-uka talonchilik ayblovi bilan sud qilinmoqda."
+      },
+      "explanation": {
+        "ru": "Находиться под судом — be on trial: только on. Русское «под судом» подсказывает under, но under trial — ошибка; to trial бывает только после go, bring (go to trial).",
+        "uz": "Sud qilinayotgan bo'lmoq — be on trial: faqat on predlogi bilan. under trial va by trial deyilmaydi; to trial faqat go, bring fe'llaridan keyin keladi (go to trial)."
+      }
+    },
+    {
+      "key": "b1-m15-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "punish"
+      ],
+      "text": "The boys were *punish* for breaking the school window.",
+      "options": [
+        "punished",
+        "punishing",
+        "punishes"
+      ],
+      "correct": [
+        "punished"
+      ],
+      "translation": {
+        "ru": "Мальчиков наказали за то, что они разбили окно в школе.",
+        "uz": "Bolalar maktab derazasini sindirgani uchun jazolandi."
+      },
+      "explanation": {
+        "ru": "Мальчиков наказали — действие направлено на них, это пассив: were + третья форма punished. were punishing значило бы, что наказывали они.",
+        "uz": "Bolalarni jazolashdi — harakat ularga qaratilgan, bu majhul nisbat: were + uchinchi shakl punished. were punishing esa jazolovchi ular ekanini bildirardi."
+      }
+    },
+    {
+      "key": "b1-m15-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "investigate"
+      ],
+      "text": "The police have started an ___ into the robbery at the bank.",
+      "base": "investigate",
+      "accepted": [
+        "investigation"
+      ],
+      "translation": {
+        "ru": "Полиция начала расследование ограбления банка.",
+        "uz": "Politsiya bankdagi talonchilik yuzasidan tergov boshladi."
+      },
+      "explanation": {
+        "ru": "После an нужно существительное: investigate → investigation (-ate → -ation). an investigation into — расследование чего-то.",
+        "uz": "an artiklidan keyin ot kerak: investigate → investigation (-ate → -ation). an investigation into — biror narsa yuzasidan tergov."
+      }
+    },
+    {
+      "key": "b1-m15-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "burglar"
+      ],
+      "text": "A ___ took place in our building last night, but luckily nothing was stolen.",
+      "base": "burglar",
+      "accepted": [
+        "burglary"
+      ],
+      "translation": {
+        "ru": "Прошлой ночью в нашем доме произошла кража со взломом, но, к счастью, ничего не украли.",
+        "uz": "Kecha tunda binomizda o'g'rilik sodir bo'ldi, lekin baxtimizga hech narsa o'g'irlanmadi."
+      },
+      "explanation": {
+        "ru": "took place (произошло) говорят о событии, а не о человеке: burglar (вор-взломщик) + -y → burglary (кража со взломом).",
+        "uz": "took place (sodir bo'ldi) odam haqida emas, voqea haqida aytiladi: burglar (uy o'g'risi) + -y → burglary (uyga o'g'ri tushishi)."
+      }
+    },
+    {
+      "key": "b1-m15-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "safety"
+      ],
+      "text": "For your own ___, never open the door to strangers.",
+      "base": "safe",
+      "accepted": [
+        "safety"
+      ],
+      "translation": {
+        "ru": "Ради собственной безопасности никогда не открывайте дверь незнакомым людям.",
+        "uz": "O'z xavfsizligingiz uchun eshikni hech qachon notanish odamlarga ochmang."
+      },
+      "explanation": {
+        "ru": "После your own нужно существительное: safe → safety (безопасность). Суффикс -ty присоединяется прямо к safe, e сохраняется.",
+        "uz": "your own so'zlaridan keyin ot kerak: safe → safety (xavfsizlik). -ty qo'shimchasi to'g'ridan-to'g'ri safe ga qo'shiladi, e saqlanadi."
+      }
+    },
+    {
+      "key": "b1-m15-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "rob"
+      ],
+      "text": "Two men *stole* a tourist of all his money last night.",
+      "options": [
+        "robbed",
+        "stolen",
+        "burgled"
+      ],
+      "correct": [
+        "robbed"
+      ],
+      "translation": {
+        "ru": "Вчера ночью двое мужчин ограбили туриста, отняв у него все деньги.",
+        "uz": "Kecha tunda ikki erkak sayyohni talab, uning bor pulini olib ketdi."
+      },
+      "explanation": {
+        "ru": "rob грабит человека или место: rob somebody of something — отнять у кого-то что-то. steal крадёт вещь: steal something from somebody, человека steal нельзя. burgle — обокрасть дом.",
+        "uz": "rob odamni yoki joyni talaydi: rob somebody of something — kimdandir biror narsani tortib olmoq. steal narsani o'g'irlaydi: steal something from somebody, odamni steal qilib bo'lmaydi. burgle — uyni o'marmoq."
+      }
+    },
+    {
+      "key": "b1-m15-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "detective"
+      ],
+      "text": "My grandmother loves reading *detectives* before she goes to sleep.",
+      "options": [
+        "detective stories",
+        "detective films",
+        "detective agencies"
+      ],
+      "correct": [
+        "detective stories"
+      ],
+      "translation": {
+        "ru": "Моя бабушка любит читать детективы перед сном.",
+        "uz": "Buvim uxlashdan oldin detektiv hikoyalar o'qishni yaxshi ko'radi."
+      },
+      "explanation": {
+        "ru": "detective — только сыщик (человек). Книга о сыщике — detective story или detective novel. Русское «читать детективы» по-английски не reading detectives.",
+        "uz": "detective — faqat izquvar (odam). Izquvar haqidagi kitob — detective story yoki detective novel. O'zbekcha «detektiv o'qimoq» inglizchada reading detectives emas."
+      }
+    },
+    {
+      "key": "b1-m15-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "arrest"
+      ],
+      "text": "Ten minutes after the robbery, the thief was already *in* arrest.",
+      "options": [
+        "under",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "under"
+      ],
+      "translation": {
+        "ru": "Через десять минут после ограбления вор уже был под арестом.",
+        "uz": "Talonchilikdan o'n daqiqa o'tib o'g'ri allaqachon hibsda edi."
+      },
+      "explanation": {
+        "ru": "Под арестом — under arrest, только с under. in, at и on с arrest в этом значении не употребляются.",
+        "uz": "Hibsda bo'lmoq — be under arrest, faqat under bilan. O'zbekcha «hibsda» in ga undaydi, lekin in, at va on bu ma'noda arrest bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m15-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "equal"
+      ],
+      "text": "Men and women did the same work, but their pay was ___.",
+      "base": "equal",
+      "accepted": [
+        "unequal"
+      ],
+      "translation": {
+        "ru": "Мужчины и женщины выполняли одинаковую работу, но зарплата у них была неравной.",
+        "uz": "Erkaklar va ayollar bir xil ish qilishgan, lekin ularning maoshi teng emas edi."
+      },
+      "explanation": {
+        "ru": "but противопоставляет the same work: нужно «неравный». Отрицательная приставка у equal — un-: unequal (не inequal).",
+        "uz": "but so'zi the same work ga qarama-qarshilikni bildiradi: «teng emas» kerak. equal so'zining inkor old qo'shimchasi un-: unequal (inequal emas)."
+      }
+    },
+    {
+      "key": "b1-m15-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "crisis"
+      ],
+      "text": "The world has seen several economic ___ in the last fifty years.",
+      "base": "crisis",
+      "accepted": [
+        "crises"
+      ],
+      "translation": {
+        "ru": "За последние пятьдесят лет мир пережил несколько экономических кризисов.",
+        "uz": "So'nggi ellik yil ichida dunyo bir necha iqtisodiy inqirozni boshdan kechirdi."
+      },
+      "explanation": {
+        "ru": "После several нужно множественное число. crisis — слово греческого происхождения: -is → -es, crisis → crises (не crisises).",
+        "uz": "several so'zidan keyin ko'plik kerak. crisis — yunoncha so'z: -is → -es, crisis → crises (crisises emas)."
+      }
+    },
+    {
+      "key": "b1-m15-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "donate"
+      ],
+      "text": "The children's hospital received a generous ___ from a local company.",
+      "base": "donate",
+      "accepted": [
+        "donation"
+      ],
+      "translation": {
+        "ru": "Детская больница получила щедрое пожертвование от местной компании.",
+        "uz": "Bolalar shifoxonasi mahalliy kompaniyadan saxiy xayriya oldi."
+      },
+      "explanation": {
+        "ru": "После a generous нужно существительное: donate → donation (-ate → -ation). Тот, кто жертвует, — donor, но donor нельзя получить.",
+        "uz": "a generous so'zlaridan keyin ot kerak: donate → donation (-ate → -ation). Xayriya qiluvchi odam — donor, lekin donorni «olib» bo'lmaydi."
+      }
+    },
+    {
+      "key": "b1-m15-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "homeless"
+      ],
+      "text": "In winter, all the homeless *needs* warm clothes and hot food.",
+      "options": [
+        "need",
+        "needing",
+        "to need"
+      ],
+      "correct": [
+        "need"
+      ],
+      "translation": {
+        "ru": "Зимой всем бездомным нужны тёплая одежда и горячая еда.",
+        "uz": "Qishda barcha boshpanasiz odamlarga issiq kiyim va issiq ovqat kerak."
+      },
+      "explanation": {
+        "ru": "the homeless — «бездомные люди», это всегда множественное число (как the rich, the poor), поэтому глагол без -s: need.",
+        "uz": "the homeless — «boshpanasiz odamlar», doim ko'plik ma'nosida (the rich, the poor kabi), shuning uchun fe'l -s qo'shimchasisiz: need."
+      }
+    },
+    {
+      "key": "b1-m15-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "volunteer"
+      ],
+      "text": "Every Saturday my cousin helps at the animal shelter as a *voluntary*.",
+      "options": [
+        "volunteer",
+        "volunteering",
+        "voluntarily"
+      ],
+      "correct": [
+        "volunteer"
+      ],
+      "translation": {
+        "ru": "Каждую субботу мой двоюродный брат помогает в приюте для животных как волонтёр.",
+        "uz": "Har shanba kuni amakivachcham hayvonlar boshpanasida ko'ngilli sifatida yordam beradi."
+      },
+      "explanation": {
+        "ru": "После as a нужно существительное — человек: volunteer (волонтёр). voluntary — прилагательное «добровольный» (voluntary work), voluntarily — наречие.",
+        "uz": "as a so'zlaridan keyin odamni bildiruvchi ot kerak: volunteer (ko'ngilli). voluntary — «ixtiyoriy» sifati (voluntary work), voluntarily — ravish."
+      }
+    },
+    {
+      "key": "b1-m15-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "fair"
+      ],
+      "text": "It is not *fare* to punish everyone for one pupil's mistake.",
+      "options": [
+        "fair",
+        "fairly",
+        "fear"
+      ],
+      "correct": [
+        "fair"
+      ],
+      "translation": {
+        "ru": "Несправедливо наказывать всех за ошибку одного ученика.",
+        "uz": "Bitta o'quvchining xatosi uchun hammani jazolash adolatdan emas."
+      },
+      "explanation": {
+        "ru": "fair (справедливый) и fare (плата за проезд) звучат одинаково. После It is not нужно прилагательное fair; fairly — наречие.",
+        "uz": "fair (adolatli) va fare (yo'l haqi) bir xil talaffuz qilinadi. It is not so'zlaridan keyin fair sifati kerak; fairly — ravish."
+      }
+    },
+    {
+      "key": "b1-m15-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "valid"
+      ],
+      "text": "My visa is ___ now, so I cannot travel with it.",
+      "base": "valid",
+      "accepted": [
+        "invalid"
+      ],
+      "translation": {
+        "ru": "Моя виза теперь недействительна, поэтому я не могу с ней путешествовать.",
+        "uz": "Vizam endi yaroqsiz, shuning uchun u bilan sayohat qila olmayman."
+      },
+      "explanation": {
+        "ru": "so I cannot travel — значит, виза «недействительная». Отрицательная приставка у valid — in-: invalid (не unvalid).",
+        "uz": "so I cannot travel — demak, viza «yaroqsiz». valid so'zining inkor old qo'shimchasi in-: invalid (unvalid emas)."
+      }
+    },
+    {
+      "key": "b1-m15-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "obey"
+      ],
+      "text": "If a player ___ the referee, he must leave the field at once.",
+      "base": "obey",
+      "accepted": [
+        "disobeys"
+      ],
+      "translation": {
+        "ru": "Если игрок не подчиняется судье, он должен сразу покинуть поле.",
+        "uz": "Agar o'yinchi hakamga bo'ysunmasa, u darhol maydonni tark etishi kerak."
+      },
+      "explanation": {
+        "ru": "he must leave the field — наказание, значит, игрок «не подчиняется»: dis- + obey → disobey. Подлежащее a player — 3-е лицо: disobeys.",
+        "uz": "he must leave the field — jazo, demak, o'yinchi «bo'ysunmaydi»: dis- + obey → disobey. Ega a player — uchinchi shaxs: disobeys."
+      }
+    },
+    {
+      "key": "b1-m15-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "participate"
+      ],
+      "text": "Thank you for your active ___ in our school project.",
+      "base": "participate",
+      "accepted": [
+        "participation"
+      ],
+      "translation": {
+        "ru": "Спасибо за ваше активное участие в нашем школьном проекте.",
+        "uz": "Maktab loyihamizdagi faol ishtirokingiz uchun rahmat."
+      },
+      "explanation": {
+        "ru": "После your active нужно существительное: participate → participation (-ate → -ation). Участник — participant, но здесь речь о действии.",
+        "uz": "your active so'zlaridan keyin ot kerak: participate → participation (-ate → -ation). Ishtirokchi — participant, lekin bu yerda gap harakat haqida."
+      }
+    },
+    {
+      "key": "b1-m15-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "illegal"
+      ],
+      "text": "Hunting these rare birds is *unlegal* in most countries.",
+      "options": [
+        "illegal",
+        "illegally",
+        "legally"
+      ],
+      "correct": [
+        "illegal"
+      ],
+      "translation": {
+        "ru": "Охота на этих редких птиц незаконна в большинстве стран.",
+        "uz": "Ko'pchilik mamlakatlarda bu noyob qushlarni ovlash noqonuniy."
+      },
+      "explanation": {
+        "ru": "Перед l отрицательная приставка il-, а не un-: legal → illegal. После is нужно прилагательное, поэтому не illegally; legally — наречие «законно».",
+        "uz": "l harfidan oldin inkor old qo'shimchasi un- emas, il-: legal → illegal. is fe'lidan keyin sifat kerak, shuning uchun illegally emas; legally — «qonuniy ravishda» ma'nosidagi ravish."
+      }
+    },
+    {
+      "key": "b1-m15-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "ban"
+      ],
+      "text": "After the accident, he was banned *of* driving for a year.",
+      "options": [
+        "from",
+        "at",
+        "with"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "После аварии ему на год запретили водить машину.",
+        "uz": "Avariyadan keyin unga bir yil mashina haydash taqiqlandi."
+      },
+      "explanation": {
+        "ru": "ban somebody from doing something — запретить кому-то что-то делать: после ban нужен from + -ing.",
+        "uz": "ban somebody from doing something — kimgadir biror ishni taqiqlamoq: ban fe'lidan keyin from + -ing shakli keladi."
+      }
+    },
+    {
+      "key": "b1-m15-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "require"
+      ],
+      "text": "All visitors are *require* to show their tickets at the door.",
+      "options": [
+        "required",
+        "requiring",
+        "requires"
+      ],
+      "correct": [
+        "required"
+      ],
+      "translation": {
+        "ru": "Все посетители обязаны показывать билеты на входе.",
+        "uz": "Barcha tashrif buyuruvchilar kirishda chiptalarini ko'rsatishlari shart."
+      },
+      "explanation": {
+        "ru": "be required to do something — быть обязанным что-то делать. Это пассив: после are нужна третья форма required.",
+        "uz": "be required to do something — biror ishni qilishga majbur bo'lmoq. Bu majhul nisbat: are fe'lidan keyin uchinchi shakl required kerak."
+      }
+    },
+    {
+      "key": "b1-m16-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "grateful"
+      ],
+      "text": "He never says thank you for anything; he is so ___.",
+      "base": "grateful",
+      "accepted": [
+        "ungrateful"
+      ],
+      "translation": {
+        "ru": "Он никогда ни за что не благодарит — он такой неблагодарный.",
+        "uz": "U hech narsa uchun rahmat aytmaydi — juda noshukur odam."
+      },
+      "explanation": {
+        "ru": "never says thank you — значит, человек «неблагодарный»: un- + grateful → ungrateful.",
+        "uz": "never says thank you — demak, u «noshukur»: un- + grateful → ungrateful."
+      }
+    },
+    {
+      "key": "b1-m16-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "pleasure"
+      ],
+      "text": "It was a real ___ to work with such kind people.",
+      "base": "please",
+      "accepted": [
+        "pleasure"
+      ],
+      "translation": {
+        "ru": "Работать с такими добрыми людьми было настоящим удовольствием.",
+        "uz": "Shunday mehribon odamlar bilan ishlash haqiqiy zavq edi."
+      },
+      "explanation": {
+        "ru": "После a real нужно существительное: please → pleasure (удовольствие); -ease меняется на -easure.",
+        "uz": "a real so'zlaridan keyin ot kerak: please → pleasure (zavq); -ease o'rniga -easure yoziladi."
+      }
+    },
+    {
+      "key": "b1-m16-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "impressed"
+      ],
+      "text": "I was really ___ with how well my little brother cooked dinner.",
+      "base": "impress",
+      "accepted": [
+        "impressed"
+      ],
+      "translation": {
+        "ru": "Меня очень впечатлило, как хорошо мой младший брат приготовил ужин.",
+        "uz": "Ukamning kechki ovqatni shunchalik yaxshi tayyorlaganiga juda qoyil qoldim."
+      },
+      "explanation": {
+        "ru": "Впечатление испытываю я (I), и после пропуска стоит with — нужно -ed: impress → impressed. impressive — о том, что впечатляет.",
+        "uz": "Taassurotni men (I) his qilaman va bo'shliqdan keyin with turibdi — -ed kerak: impress → impressed. impressive — ta'sirli narsa haqida."
+      }
+    },
+    {
+      "key": "b1-m16-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "joy"
+      ],
+      "text": "*For* our great joy, the rain stopped an hour before the wedding.",
+      "options": [
+        "To",
+        "With",
+        "By"
+      ],
+      "correct": [
+        "To"
+      ],
+      "translation": {
+        "ru": "К нашей большой радости, дождь прекратился за час до свадьбы.",
+        "uz": "Quvonchimizga, yomg'ir to'ydan bir soat oldin tindi."
+      },
+      "explanation": {
+        "ru": "«К чьей-то радости» — to somebody's joy: To our great joy… (как to our surprise). for joy стоит только после глагола: jump for joy — прыгать от радости.",
+        "uz": "«Kimningdir quvonchiga» — to somebody's joy: To our great joy… (to our surprise kabi). for joy faqat fe'ldan keyin keladi: jump for joy — quvonchdan sakramoq."
+      }
+    },
+    {
+      "key": "b1-m16-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "amazed"
+      ],
+      "text": "Our guests were *amazing* by how quickly the city had changed.",
+      "options": [
+        "amazed",
+        "amaze",
+        "amazement"
+      ],
+      "correct": [
+        "amazed"
+      ],
+      "translation": {
+        "ru": "Наши гости были поражены тем, как быстро изменился город.",
+        "uz": "Mehmonlarimiz shahar qanchalik tez o'zgarganidan hayratda qolishdi."
+      },
+      "explanation": {
+        "ru": "Удивление испытывают гости, и дальше идёт by — нужно -ed: amazed. amazing — «удивительный», о том, что удивляет.",
+        "uz": "Hayratni mehmonlar his qiladi va keyin by keladi — -ed kerak: amazed. amazing — «ajoyib», hayratga soladigan narsa haqida."
+      }
+    },
+    {
+      "key": "b1-m16-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "optimistic"
+      ],
+      "text": "After talking to the doctor, we felt more *optimist* about the future.",
+      "options": [
+        "optimistic",
+        "optimism",
+        "optimistically"
+      ],
+      "correct": [
+        "optimistic"
+      ],
+      "translation": {
+        "ru": "После разговора с врачом мы стали смотреть в будущее более оптимистично.",
+        "uz": "Shifokor bilan gaplashgach, kelajakka nekbinroq qaray boshladik."
+      },
+      "explanation": {
+        "ru": "После felt more нужно прилагательное: optimistic. optimist — существительное «оптимист», optimism — «оптимизм», optimistically — наречие.",
+        "uz": "felt more so'zlaridan keyin sifat kerak: optimistic. optimist — «nekbin odam» oti, optimism — «nekbinlik», optimistically — ravish."
+      }
+    },
+    {
+      "key": "b1-m16-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "embarrassed"
+      ],
+      "text": "My cheeks went red, and I felt terribly ___ in front of everyone.",
+      "base": "embarrass",
+      "accepted": [
+        "embarrassed"
+      ],
+      "translation": {
+        "ru": "У меня покраснели щёки, и мне было ужасно неловко перед всеми.",
+        "uz": "Yuzim qizarib ketdi va hammaning oldida qattiq xijolat bo'ldim."
+      },
+      "explanation": {
+        "ru": "После felt нужно прилагательное о чувстве самого человека — с -ed: embarrass → embarrassed. Запомните: два r и два s.",
+        "uz": "felt fe'lidan keyin odamning o'z his-tuyg'usini bildiruvchi -ed li sifat kerak: embarrass → embarrassed. Esda tuting: ikkita r va ikkita s."
+      }
+    },
+    {
+      "key": "b1-m16-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "uncomfortable"
+      ],
+      "text": "These new shoes are so ___ that I can hardly walk.",
+      "base": "comfortable",
+      "accepted": [
+        "uncomfortable"
+      ],
+      "translation": {
+        "ru": "Эти новые туфли такие неудобные, что я едва могу ходить.",
+        "uz": "Bu yangi tuflilar shunchalik noqulayki, zo'rg'a yuraman."
+      },
+      "explanation": {
+        "ru": "that I can hardly walk — значит, туфли «неудобные»: un- + comfortable → uncomfortable.",
+        "uz": "that I can hardly walk — demak, tuflilar «noqulay»: un- + comfortable → uncomfortable."
+      }
+    },
+    {
+      "key": "b1-m16-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "annoyed"
+      ],
+      "text": "I was really ___ by the loud music from the next apartment.",
+      "base": "annoy",
+      "accepted": [
+        "annoyed"
+      ],
+      "translation": {
+        "ru": "Меня очень раздражала громкая музыка из соседней квартиры.",
+        "uz": "Qo'shni xonadondan kelayotgan baland musiqa g'ashimni juda keltirdi."
+      },
+      "explanation": {
+        "ru": "Раздражение испытываю я, и после пропуска стоит by — нужно -ed: annoy → annoyed. После гласной y не меняется на i.",
+        "uz": "G'ashlanishni men his qilaman va bo'shliqdan keyin by turibdi — -ed kerak: annoy → annoyed. Unli harfdan keyin y harfi i ga o'zgarmaydi."
+      }
+    },
+    {
+      "key": "b1-m16-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "ashamed"
+      ],
+      "text": "The famous singer was never ashamed *from* her poor family.",
+      "options": [
+        "of",
+        "to",
+        "on"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Знаменитая певица никогда не стыдилась своей бедной семьи.",
+        "uz": "Mashhur xonanda hech qachon kambag'al oilasidan uyalmagan."
+      },
+      "explanation": {
+        "ru": "ashamed of somebody / something — стыдиться кого-то или чего-то: после ashamed перед существительным нужен of. Узбекское «-dan» подталкивает к from, но это ошибка.",
+        "uz": "ashamed of somebody / something — kimdandir yoki biror narsadan uyalmoq: ashamed so'zidan keyin ot kelsa, of ishlatiladi. O'zbekcha «-dan» from ga undaydi, lekin bu xato."
+      }
+    },
+    {
+      "key": "b1-m16-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "confused"
+      ],
+      "text": "I was completely *confusing* by his strange answer.",
+      "options": [
+        "confused",
+        "confuse",
+        "confusingly"
+      ],
+      "correct": [
+        "confused"
+      ],
+      "translation": {
+        "ru": "Его странный ответ совершенно сбил меня с толку.",
+        "uz": "Uning g'alati javobi meni butunlay gangitib qo'ydi."
+      },
+      "explanation": {
+        "ru": "Растерянность испытываю я, и дальше идёт by — нужно -ed: confused. confusing — «запутанный», о самом ответе.",
+        "uz": "Gangib qolgan odam — men (I), keyin esa by keladi — -ed kerak: confused. confusing — «chalkash», javobning o'zi haqida."
+      }
+    },
+    {
+      "key": "b1-m16-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "miserable"
+      ],
+      "text": "It rained all week, and everyone in the camp looked *misery*.",
+      "options": [
+        "miserable",
+        "miserably",
+        "miseries"
+      ],
+      "correct": [
+        "miserable"
+      ],
+      "translation": {
+        "ru": "Всю неделю шёл дождь, и все в лагере выглядели несчастными.",
+        "uz": "Butun hafta yomg'ir yog'di va lagerdagilarning hammasi baxtsiz ko'rinardi."
+      },
+      "explanation": {
+        "ru": "После look (выглядеть) нужно прилагательное: miserable. misery — существительное «страдание», miserably — наречие.",
+        "uz": "look (ko'rinmoq) fe'lidan keyin sifat kerak: miserable. misery — «azob, baxtsizlik» oti, miserably — ravish."
+      }
+    },
+    {
+      "key": "b1-m16-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "emotion"
+      ],
+      "text": "She became very ___ and started to cry when she read the letter.",
+      "base": "emotion",
+      "accepted": [
+        "emotional"
+      ],
+      "translation": {
+        "ru": "Прочитав письмо, она очень разволновалась и заплакала.",
+        "uz": "Xatni o'qigach, u qattiq hayajonlanib, yig'lab yubordi."
+      },
+      "explanation": {
+        "ru": "После became very нужно прилагательное: emotion → emotional (суффикс -al).",
+        "uz": "became very so'zlaridan keyin sifat kerak: emotion → emotional (-al qo'shimchasi)."
+      }
+    },
+    {
+      "key": "b1-m16-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "panic"
+      ],
+      "text": "The passengers ___ when the old boat began to shake.",
+      "base": "panic",
+      "accepted": [
+        "panicked"
+      ],
+      "translation": {
+        "ru": "Пассажиры запаниковали, когда старая лодка начала качаться.",
+        "uz": "Eski qayiq chayqala boshlaganda yo'lovchilar vahimaga tushishdi."
+      },
+      "explanation": {
+        "ru": "began — прошедшее время, поэтому и panic в прошедшем. Перед -ed и -ing к panic добавляется k: panicked.",
+        "uz": "began — o'tgan zamon, shuning uchun panic ham o'tgan zamonda. -ed va -ing dan oldin panic ga k qo'shiladi: panicked."
+      }
+    },
+    {
+      "key": "b1-m16-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "shock"
+      ],
+      "text": "The news about the accident was so ___ that nobody could say a word.",
+      "base": "shock",
+      "accepted": [
+        "shocking"
+      ],
+      "translation": {
+        "ru": "Новость об аварии была настолько шокирующей, что никто не мог вымолвить ни слова.",
+        "uz": "Avariya haqidagi xabar hammani shu qadar larzaga soldiki, hech kim bir og'iz ham so'z ayta olmadi."
+      },
+      "explanation": {
+        "ru": "Подлежащее news — то, что потрясает других, поэтому прилагательное на -ing: shock → shocking. shocked говорят о людях, которые испытали шок.",
+        "uz": "Ega news — boshqalarni larzaga soladigan narsa, shuning uchun -ing li sifat kerak: shock → shocking. shocked esa shok bo'lgan odamlar haqida aytiladi."
+      }
+    },
+    {
+      "key": "b1-m16-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "react"
+      ],
+      "text": "Nobody reacted *on* my joke, and the room went quiet.",
+      "options": [
+        "to",
+        "at",
+        "for"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Никто не отреагировал на мою шутку, и в комнате стало тихо.",
+        "uz": "Hech kim hazilimga munosabat bildirmadi va xonada jimlik cho'kdi."
+      },
+      "explanation": {
+        "ru": "react to something — реагировать на что-то: после react нужен to. Русское «на» подсказывает on, но react on — ошибка; at и for здесь тоже не подходят.",
+        "uz": "react to something — biror narsaga munosabat bildirmoq: react fe'lidan keyin to keladi. on, at va for bu yerda xato."
+      }
+    },
+    {
+      "key": "b1-m16-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "regret"
+      ],
+      "text": "I still regret *buy* that expensive phone last year.",
+      "options": [
+        "buying",
+        "to buy",
+        "bought"
+      ],
+      "correct": [
+        "buying"
+      ],
+      "translation": {
+        "ru": "Я до сих пор жалею, что купил в прошлом году этот дорогой телефон.",
+        "uz": "O'tgan yili o'sha qimmat telefonni sotib olganimdan hali ham afsusdaman."
+      },
+      "explanation": {
+        "ru": "О том, что уже сделано (last year), говорят regret + -ing: regret buying. regret to + глагол — «с сожалением сообщаю» (regret to tell you).",
+        "uz": "Allaqachon qilingan ish (last year) haqida regret + -ing ishlatiladi: regret buying. regret to + fe'l — «afsus bilan aytaman» (regret to tell you)."
+      }
+    },
+    {
+      "key": "b1-m16-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "express"
+      ],
+      "text": "My little brother cannot express *him* clearly in English yet.",
+      "options": [
+        "himself",
+        "his",
+        "itself"
+      ],
+      "correct": [
+        "himself"
+      ],
+      "translation": {
+        "ru": "Мой младший брат пока не может ясно выражать свои мысли по-английски.",
+        "uz": "Ukam hali ingliz tilida fikrini aniq ifodalay olmaydi."
+      },
+      "explanation": {
+        "ru": "express oneself — выражать свои мысли: нужно возвратное местоимение himself. him — другой человек, his ставят перед существительным, itself — о предмете.",
+        "uz": "express oneself — fikrini ifodalamoq: o'zlik olmoshi himself kerak. him — boshqa odam, his ot oldidan keladi, itself — narsa haqida."
+      }
+    },
+    {
+      "key": "b1-m16-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "certain"
+      ],
+      "text": "We are still ___ about the date, so we have not bought tickets.",
+      "base": "certain",
+      "accepted": [
+        "uncertain"
+      ],
+      "translation": {
+        "ru": "Мы ещё не уверены насчёт даты, поэтому не купили билеты.",
+        "uz": "Sana haqida hali amin emasmiz, shuning uchun chipta sotib olmadik."
+      },
+      "explanation": {
+        "ru": "so we have not bought tickets — значит, мы «не уверены»: un- + certain → uncertain.",
+        "uz": "so we have not bought tickets — demak, biz «amin emasmiz»: un- + certain → uncertain."
+      }
+    },
+    {
+      "key": "b1-m16-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "convince"
+      ],
+      "text": "His story sounded so ___ that even the police believed him.",
+      "base": "convince",
+      "accepted": [
+        "convincing"
+      ],
+      "translation": {
+        "ru": "Его рассказ звучал так убедительно, что даже полиция ему поверила.",
+        "uz": "Uning hikoyasi shunchalik ishonarli eshitildiki, hatto politsiya ham unga ishondi."
+      },
+      "explanation": {
+        "ru": "story (рассказ) сам убеждает других, поэтому -ing: convince → convincing (e выпадает). convinced — о человеке, которого убедили.",
+        "uz": "story (hikoya) boshqalarni o'zi ishontiradi, shuning uchun -ing: convince → convincing (e tushib qoladi). convinced — ishontirilgan odam haqida."
+      }
+    },
+    {
+      "key": "b1-m16-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "obvious"
+      ],
+      "text": "After the football match, the boys were ___ tired and went straight to bed.",
+      "base": "obvious",
+      "accepted": [
+        "obviously"
+      ],
+      "translation": {
+        "ru": "После футбольного матча мальчики явно устали и сразу легли спать.",
+        "uz": "Futbol o'yinidan keyin bolalarning charchagani yaqqol ko'rinib turardi va ular darrov uxlashga yotishdi."
+      },
+      "explanation": {
+        "ru": "Перед прилагательным tired нужно наречие: obvious → obviously (явно).",
+        "uz": "tired sifatidan oldin ravish kerak: obvious → obviously (yaqqol, aniq)."
+      }
+    },
+    {
+      "key": "b1-m16-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "prefer"
+      ],
+      "text": "Most children prefer sweet fruit *than* vegetables.",
+      "options": [
+        "to",
+        "from",
+        "with"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Большинство детей предпочитают сладкие фрукты овощам.",
+        "uz": "Ko'pchilik bolalar sabzavotdan ko'ra shirin mevani afzal ko'radi."
+      },
+      "explanation": {
+        "ru": "prefer A to B — предпочитать A, а не B: второй предмет вводит to. Сразу после prefer A слово than не ставят (только prefer A rather than B).",
+        "uz": "prefer A to B — B dan ko'ra A ni afzal ko'rmoq: ikkinchi narsadan oldin to keladi. prefer A dan keyin than to'g'ridan-to'g'ri kelmaydi (faqat prefer A rather than B)."
+      }
+    },
+    {
+      "key": "b1-m16-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "doubt"
+      ],
+      "text": "Our coach doubts *what* the team is ready for the final.",
+      "options": [
+        "that",
+        "which",
+        "who"
+      ],
+      "correct": [
+        "that"
+      ],
+      "translation": {
+        "ru": "Наш тренер сомневается, что команда готова к финалу.",
+        "uz": "Murabbiyimiz jamoa finalga tayyor ekaniga shubha qiladi."
+      },
+      "explanation": {
+        "ru": "После doubt придаточное вводят that (или if, whether). Русское «что» здесь не what: what значит «что именно».",
+        "uz": "doubt fe'lidan keyin ergash gap that (yoki if, whether) bilan boshlanadi. what — «nima» so'roq so'zi, bu yerda to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m16-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "necessary"
+      ],
+      "text": "It is not *need* to bring food, because lunch is included.",
+      "options": [
+        "necessary",
+        "necessity",
+        "necessarily"
+      ],
+      "correct": [
+        "necessary"
+      ],
+      "translation": {
+        "ru": "Еду брать с собой не нужно, потому что обед включён.",
+        "uz": "Ovqat olib kelish zarur emas, chunki tushlik narxga kiritilgan."
+      },
+      "explanation": {
+        "ru": "После it is (not) нужно прилагательное: necessary. need — существительное или глагол: There is no need… / You do not need… necessarily — наречие.",
+        "uz": "it is (not) so'zlaridan keyin sifat kerak: necessary. need — ot yoki fe'l: There is no need… / You do not need… necessarily — ravish."
+      }
+    },
+    {
+      "key": "b1-m16-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "willing"
+      ],
+      "text": "We were touched by her ___ to help us with the move.",
+      "base": "willing",
+      "accepted": [
+        "willingness"
+      ],
+      "translation": {
+        "ru": "Нас тронула её готовность помочь нам с переездом.",
+        "uz": "Uning ko'chishda bizga yordam berishga tayyor ekani bizni juda ta'sirlantirdi."
+      },
+      "explanation": {
+        "ru": "После her нужно существительное: willing → willingness (готовность). Суффикс -ness добавляется без изменений.",
+        "uz": "her so'zidan keyin ot kerak: willing → willingness (tayyorlik). -ness qo'shimchasi o'zgarishsiz qo'shiladi."
+      }
+    },
+    {
+      "key": "b1-m16-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "hesitate"
+      ],
+      "text": "He accepted the job offer without any ___.",
+      "base": "hesitate",
+      "accepted": [
+        "hesitation",
+        "hesitancy"
+      ],
+      "translation": {
+        "ru": "Он без всяких колебаний принял предложение о работе.",
+        "uz": "U ish taklifini hech ikkilanmasdan qabul qildi."
+      },
+      "explanation": {
+        "ru": "После without any нужно существительное: hesitate → hesitation (колебание; -ate → -ation).",
+        "uz": "without any so'zlaridan keyin ot kerak: hesitate → hesitation (ikkilanish; -ate → -ation)."
+      }
+    },
+    {
+      "key": "b1-m16-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "appreciate"
+      ],
+      "text": "We gave the nurses flowers as a small sign of our ___.",
+      "base": "appreciate",
+      "accepted": [
+        "appreciation"
+      ],
+      "translation": {
+        "ru": "Мы подарили медсёстрам цветы в знак нашей признательности.",
+        "uz": "Minnatdorchiligimiz belgisi sifatida hamshiralarga gul sovg'a qildik."
+      },
+      "explanation": {
+        "ru": "После our нужно существительное: appreciate → appreciation (признательность; -ate → -ation).",
+        "uz": "our so'zidan keyin ot kerak: appreciate → appreciation (minnatdorchilik, qadrlash; -ate → -ation)."
+      }
+    },
+    {
+      "key": "b1-m16-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "expect"
+      ],
+      "text": "Our teacher *waits* that most of us will pass the test.",
+      "options": [
+        "expects",
+        "awaits",
+        "attends"
+      ],
+      "correct": [
+        "expects"
+      ],
+      "translation": {
+        "ru": "Наш учитель ожидает, что большинство из нас сдаст тест.",
+        "uz": "O'qituvchimiz ko'pchiligimiz testdan o'tishimizni kutmoqda."
+      },
+      "explanation": {
+        "ru": "Ожидать, что что-то случится, — expect that. wait — ждать (wait for the bus), после него that не ставят; await — ждать чего-то, тоже без that.",
+        "uz": "Biror narsa bo'lishini kutmoq — expect that. wait — kutib turmoq (wait for the bus), undan keyin that kelmaydi; await ham that bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m16-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "deserve"
+      ],
+      "text": "With such a beautiful voice, she deserves *winning* the competition.",
+      "options": [
+        "to win",
+        "to winning",
+        "for winning"
+      ],
+      "correct": [
+        "to win"
+      ],
+      "translation": {
+        "ru": "С таким прекрасным голосом она заслуживает того, чтобы выиграть конкурс.",
+        "uz": "Shunday go'zal ovozi bilan u tanlovda g'olib bo'lishga loyiq."
+      },
+      "explanation": {
+        "ru": "deserve to do something — заслуживать (сделать что-то): deserves to win. deserve — переходный глагол, for после него не ставят; deserve + -ing бывает только в пассивном смысле (deserves mentioning).",
+        "uz": "deserve to do something — biror ishni qilishga loyiq bo'lmoq: deserves to win. deserve fe'lidan keyin for kelmaydi; deserve + -ing faqat majhul ma'noda keladi (deserves mentioning)."
+      }
+    },
+    {
+      "key": "b1-m16-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "dislike"
+      ],
+      "text": "My cat *unlikes* loud music and always hides when we play it.",
+      "options": [
+        "dislikes",
+        "disagrees",
+        "displeases"
+      ],
+      "correct": [
+        "dislikes"
+      ],
+      "translation": {
+        "ru": "Моя кошка не любит громкую музыку и всегда прячется, когда мы её включаем.",
+        "uz": "Mushugim baland musiqani yoqtirmaydi va biz uni qo'yganimizda doim berkinib oladi."
+      },
+      "explanation": {
+        "ru": "«Не любить» — dislike: у like отрицательная приставка dis-, а не un-. unlike — «в отличие от» (а как глагол — только «убрать лайк» в соцсетях).",
+        "uz": "«Yoqtirmaslik» — dislike: like so'zining inkor old qo'shimchasi un- emas, dis-. unlike — «...dan farqli o'laroq» (fe'l sifatida esa faqat ijtimoiy tarmoqda «layk»ni olib tashlash)."
+      }
+    }
+  ]
+}

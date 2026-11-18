@@ -20,11 +20,11 @@
       ],
       "translation": {
         "ru": "После слияния половина сотрудников бухгалтерии попала под сокращение.",
-        "uz": "Qo'shilishdan keyin buxgalteriya xodimlarining yarmi shtat qisqartirilishi bilan ishdan bo'shatildi."
+        "uz": "Qo'shilishdan keyin buxgalteriya xodimlarining yarmi shtat qisqartirilishi sababli ishdan bo'shatildi."
       },
       "explanation": {
-        "ru": "make somebody redundant — сократить (уволить по сокращению): после were made нужно прилагательное: redundancy → redundant (-ancy → -ant).",
-        "uz": "make somebody redundant — shtat qisqartirilishi bilan ishdan bo'shatmoq: were made iborasidan keyin sifat kerak: redundancy → redundant (-ancy → -ant)."
+        "ru": "make somebody redundant — уволить по сокращению штата. После were made нужно прилагательное: redundancy → redundant (-ancy → -ant).",
+        "uz": "make somebody redundant — shtat qisqartirilishi sababli ishdan bo'shatmoq. were made birikmasidan keyin sifat kerak: redundancy → redundant (-ancy → -ant)."
       }
     },
     {
@@ -48,8 +48,8 @@
         "uz": "Keksa direktor nafaqaga chiqqach, uning o'rinbosari vorisi etib tanlandi."
       },
       "explanation": {
-        "ru": "После his нужно существительное-лицо: succeed (сменить на посту) → successor, «тот, кто приходит на смену»; суффикс -or, в слове две c и две s.",
-        "uz": "his so'zidan keyin shaxsni bildiruvchi ot kerak: succeed (lavozimda o'rnini egallamoq) → successor, «o'rnini egallovchi»; -or qo'shimchasi, ikkita c va ikkita s yoziladi."
+        "ru": "После his нужно существительное-лицо: succeed (сменить на посту) → successor, «тот, кто приходит на смену»; суффикс -or, в слове удвоенные cc и ss.",
+        "uz": "his so'zidan keyin shaxsni bildiruvchi ot kerak: succeed (lavozimda o'rnini egallamoq) → successor, «o'rnini egallovchi»; -or qo'shimchasi, cc va ss qo'shaloq yoziladi."
       }
     },
     {
@@ -63,7 +63,7 @@
       "target_words": [
         "seniority"
       ],
-      "text": "Pay rises here are based on ___ rather than on performance, so loyalty is rewarded.",
+      "text": "Pay raises here are based on ___ rather than on performance, so loyalty is rewarded.",
       "base": "senior",
       "accepted": [
         "seniority"
@@ -207,11 +207,11 @@
       ],
       "translation": {
         "ru": "Она служит связующим звеном между отделом продаж и фабрикой.",
-        "uz": "U savdo bo'limi bilan fabrika o'rtasida aloqachi vazifasini bajaradi."
+        "uz": "U savdo bo'limi bilan fabrika o'rtasida bog'lovchi bo'g'in vazifasini bajaradi."
       },
       "explanation": {
         "ru": "После acts as a нужно существительное: liaise → liaison (связь; связной). Написание: окончание -e заменяется на -on, буква i перед s сохраняется.",
-        "uz": "acts as a so'zlaridan keyin ot kerak: liaise → liaison (aloqa; aloqachi). Imlosi: oxirgi -e o'rniga -on yoziladi, s dan oldingi i saqlanadi."
+        "uz": "acts as a so'zlaridan keyin ot kerak: liaise → liaison (aloqa; aloqani ta'minlovchi shaxs). Imlosi: oxirgi -e o'rniga -on yoziladi, s dan oldingi i saqlanadi."
       }
     },
     {
@@ -308,7 +308,7 @@
       "target_words": [
         "backlog"
       ],
-      "text": "The backlog of customer emails *are* growing every week, so we need help.",
+      "text": "The backlog of customer emails *are* growing, and nobody has time to clear it.",
       "options": [
         "is",
         "were",
@@ -318,12 +318,12 @@
         "is"
       ],
       "translation": {
-        "ru": "Завал писем от клиентов растёт с каждой неделей, поэтому нам нужна помощь.",
-        "uz": "Mijozlardan kelgan xatlar uyumi har hafta ortib bormoqda, shuning uchun bizga yordam kerak."
+        "ru": "Завал писем от клиентов растёт, а разобрать его ни у кого нет времени.",
+        "uz": "Mijozlardan kelgan xatlar uyumi ortib bormoqda, uni ko'rib chiqishga esa hech kimda vaqt yo'q."
       },
       "explanation": {
-        "ru": "Подлежащее — backlog (ед. ч.), а не emails: глагол согласуется с главным словом группы the backlog of …, поэтому is.",
-        "uz": "Ega — emails emas, birlikdagi backlog so'zi: fe'l the backlog of … birikmasining bosh so'zi bilan moslashadi, shuning uchun is."
+        "ru": "Подлежащее — backlog (ед. ч.), а не emails; на это указывает и it в конце. Глагол согласуется с главным словом группы the backlog of …, поэтому is.",
+        "uz": "Ega — emails emas, birlikdagi backlog so'zi; buni oxiridagi it olmoshi ham ko'rsatadi. Fe'l the backlog of … birikmasining bosh so'zi bilan moslashadi, shuning uchun is."
       }
     },
     {
@@ -387,14 +387,14 @@
       "target_words": [
         "deduction"
       ],
-      "text": "My employer made a large ___ from my salary to cover the broken laptop.",
+      "text": "The company made a large ___ from her wages to pay for the broken laptop.",
       "base": "deduct",
       "accepted": [
         "deduction"
       ],
       "translation": {
-        "ru": "Работодатель сделал крупное удержание из моей зарплаты, чтобы покрыть стоимость сломанного ноутбука.",
-        "uz": "Ish beruvchim singan noutbuk narxini qoplash uchun maoshimdan katta miqdorda ushlab qoldi."
+        "ru": "Компания удержала из её зарплаты крупную сумму в счёт сломанного ноутбука.",
+        "uz": "Kompaniya singan noutbuk uchun uning maoshidan katta miqdorda ushlab qoldi."
       },
       "explanation": {
         "ru": "После a large нужно существительное: deduct (удерживать) → deduction (удержание); к глаголу на -ct добавляется -ion.",
@@ -499,7 +499,7 @@
       "target_words": [
         "misconduct"
       ],
-      "text": "He was fired for gross ___ after he was caught taking money from the till.",
+      "text": "He was fired for gross ___ after he was caught taking money from the cash register.",
       "base": "conduct",
       "accepted": [
         "misconduct"
@@ -549,19 +549,19 @@
       "target_words": [
         "arbitration"
       ],
-      "text": "The ___ listened to both sides before making a final ruling.",
+      "text": "The ___ listened to both sides before announcing his final ruling.",
       "base": "arbitration",
       "accepted": [
         "arbitrator",
         "arbiter"
       ],
       "translation": {
-        "ru": "Арбитр выслушал обе стороны, прежде чем вынести окончательное решение.",
-        "uz": "Arbitr yakuniy qaror chiqarishdan oldin ikkala tomonni ham tingladi."
+        "ru": "Арбитр выслушал обе стороны, прежде чем объявить своё окончательное решение.",
+        "uz": "Arbitr yakuniy qarorini e'lon qilishdan oldin ikkala tomonni ham tingladi."
       },
       "explanation": {
-        "ru": "Слушать стороны и выносить решение может только человек: arbitration (процесс) → arbitrator (арбитр, суффикс -or). Допустимо и arbiter.",
-        "uz": "Tomonlarni tinglab, qaror chiqaradigan — shaxs: arbitration (jarayon) → arbitrator (arbitr, -or qo'shimchasi). arbiter shakli ham to'g'ri."
+        "ru": "Слушать стороны и выносить решение может только человек, и один (his): arbitration (процесс) → arbitrator (арбитр, суффикс -or). Допустимо и arbiter.",
+        "uz": "Tomonlarni tinglab, qaror chiqaradigan — bitta shaxs (his): arbitration (jarayon) → arbitrator (arbitr, -or qo'shimchasi). arbiter shakli ham to'g'ri."
       }
     },
     {
@@ -618,8 +618,8 @@
         "uz": "Ikki hamkasbi ogohlantirishsiz ishdan bo'shatilgach, port ishchilari to'satdan ish tashladi."
       },
       "explanation": {
-        "ru": "Устроить забастовку — stage a walkout (stage — «устраивать, проводить»). С walkout не сочетаются make, raise и put.",
-        "uz": "To'satdan ish tashlamoq — stage a walkout (stage — «uyushtirmoq, o'tkazmoq»). walkout so'zi make, raise va put fe'llari bilan ishlatilmaydi."
+        "ru": "Устроить забастовку — stage a walkout (stage — «устраивать, проводить»; можно и hold). make, raise и put с walkout не употребляются.",
+        "uz": "To'satdan ish tashlamoq — stage a walkout (stage — «uyushtirmoq, o'tkazmoq»; hold ham mumkin). walkout so'zi make, raise va put fe'llari bilan ishlatilmaydi."
       }
     },
     {
@@ -875,18 +875,18 @@
       "target_words": [
         "affiliate"
       ],
-      "text": "Our clinic has been ___ with the city university for over twenty years.",
+      "text": "The clinic's ___ with the city university has lasted for over two decades.",
       "base": "affiliate",
       "accepted": [
-        "affiliated"
+        "affiliation"
       ],
       "translation": {
-        "ru": "Наша клиника уже более двадцати лет аффилирована с городским университетом.",
-        "uz": "Klinikamiz yigirma yildan ortiq vaqtdan beri shahar universiteti bilan affillangan."
+        "ru": "Официальная связь клиники с городским университетом длится уже более двадцати лет.",
+        "uz": "Klinikaning shahar universiteti bilan rasmiy aloqasi yigirma yildan ortiq davom etib kelmoqda."
       },
       "explanation": {
-        "ru": "После has been и перед with нужно причастие-прилагательное: affiliate → affiliated (связанный, входящий в группу).",
-        "uz": "has been dan keyin va with dan oldin sifatdosh kerak: affiliate → affiliated (bog'langan, guruhga kiruvchi)."
+        "ru": "После The clinic's и перед has нужно существительное в ед. ч.: affiliate → affiliation (официальная связь, принадлежность к организации); -ate меняется на -ation.",
+        "uz": "The clinic's dan keyin va has fe'lidan oldin birlikdagi ot kerak: affiliate → affiliation (rasmiy aloqa, tashkilotga qarashlilik); -ate o'rniga -ation yoziladi."
       }
     },
     {
@@ -1199,18 +1199,18 @@
       "target_words": [
         "implementation"
       ],
-      "text": "Full ___ of the reform will take at least three years.",
+      "text": "The government has delayed the ___ of the pension reform until next spring.",
       "base": "implement",
       "accepted": [
         "implementation"
       ],
       "translation": {
-        "ru": "Полное внедрение реформы займёт не менее трёх лет.",
-        "uz": "Islohotni to'liq joriy etish kamida uch yil davom etadi."
+        "ru": "Правительство отложило внедрение пенсионной реформы до следующей весны.",
+        "uz": "Hukumat pensiya islohotini joriy etishni kelasi bahorgacha kechiktirdi."
       },
       "explanation": {
-        "ru": "После Full и перед of нужно существительное: implement → implementation (суффикс -ation, ударение на -ta-).",
-        "uz": "Full so'zidan keyin va of dan oldin ot kerak: implement → implementation (-ation qo'shimchasi, urg'u -ta- bo'g'inida)."
+        "ru": "Между the и of нужно существительное: implement (внедрять) → implementation (внедрение); суффикс -ation, ударение на -ta-.",
+        "uz": "the va of orasida ot kerak: implement (joriy etmoq) → implementation (joriy etish); -ation qo'shimchasi, urg'u -ta- bo'g'inida."
       }
     },
     {
@@ -1282,7 +1282,7 @@
       "target_words": [
         "contingency"
       ],
-      "text": "Every project needs a *contingent* plan in case a key supplier fails.",
+      "text": "A good project manager prepares for every *contingent*, however unlikely it seems.",
       "options": [
         "contingency",
         "contingencies",
@@ -1292,12 +1292,12 @@
         "contingency"
       ],
       "translation": {
-        "ru": "Каждому проекту нужен запасной план на случай, если ключевой поставщик подведёт.",
-        "uz": "Har bir loyihaga asosiy yetkazib beruvchi pand bersa, kutilmagan holat uchun zaxira reja kerak."
+        "ru": "Хороший руководитель проекта готовится к любой непредвиденной ситуации, какой бы маловероятной она ни казалась.",
+        "uz": "Yaxshi loyiha rahbari har qanday kutilmagan holatga, u qanchalik ehtimoldan yiroq ko'rinmasin, tayyorlanib qo'yadi."
       },
       "explanation": {
-        "ru": "План на непредвиденный случай — contingency plan: существительное contingency в роли определения. contingent — прилагательное «зависящий от» (contingent on).",
-        "uz": "Kutilmagan holat uchun reja — contingency plan: contingency oti aniqlovchi vazifasida. contingent — «biror narsaga bog'liq» sifati (contingent on)."
+        "ru": "Непредвиденное обстоятельство — contingency. contingent — прилагательное «зависящий от» или существительное «контингент, группа людей». После every — ед. ч., поэтому не contingencies.",
+        "uz": "Kutilmagan holat — contingency. contingent — «bog'liq» sifati yoki «kontingent, odamlar guruhi» oti. every so'zidan keyin birlik keladi, shuning uchun contingencies emas."
       }
     },
     {
@@ -1444,22 +1444,22 @@
       "target_words": [
         "leverage"
       ],
-      "text": "Our huge order gave us considerable *leverages* when we negotiated the price.",
+      "text": "The workers lost much of their *leverages* once the factory hired temporary staff.",
       "options": [
         "leverage",
-        "leveraging",
+        "levers",
         "leveraged"
       ],
       "correct": [
         "leverage"
       ],
       "translation": {
-        "ru": "Наш огромный заказ дал нам серьёзный рычаг влияния, когда мы обсуждали цену.",
-        "uz": "Katta buyurtmamiz narx bo'yicha muzokara olib borganimizda bizga jiddiy ta'sir dastagini berdi."
+        "ru": "Рабочие во многом лишились рычага влияния, когда завод нанял временный персонал.",
+        "uz": "Zavod vaqtinchalik xodimlarni yollagach, ishchilar ta'sir dastagining katta qismini yo'qotdi."
       },
       "explanation": {
-        "ru": "leverage в значении «рычаг влияния» — неисчисляемое существительное, без -s: considerable leverage.",
-        "uz": "«ta'sir dastagi» ma'nosidagi leverage — sanalmaydigan ot, -s qo'shilmaydi: considerable leverage."
+        "ru": "leverage («рычаг влияния») — неисчисляемое существительное, без -s: much of their leverage. levers — мн. ч. от lever (механический рычаг), с much не сочетается.",
+        "uz": "leverage («ta'sir dastagi») — sanalmaydigan ot, -s qo'shilmaydi: much of their leverage. levers — lever (mexanik richag) so'zining ko'pligi, much bilan ishlatilmaydi."
       }
     },
     {
@@ -1560,7 +1560,7 @@
       ],
       "translation": {
         "ru": "Целую партию вакцин две недели задерживали на таможне.",
-        "uz": "Bir butun vaksina partiyasi ikki hafta bojxonada ushlab turildi."
+        "uz": "Butun bir vaksina partiyasi ikki hafta davomida bojxonada ushlab turildi."
       },
       "explanation": {
         "ru": "Партия груза — consignment. party — «вечеринка» или «политическая партия, сторона», но не груз. assignment — «задание», commitment — «обязательство».",

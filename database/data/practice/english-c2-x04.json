@@ -1013,18 +1013,18 @@
       "target_words": [
         "juxtaposition"
       ],
-      "text": "The poem's sudden ___ of birth and death leaves the reader shaken.",
+      "text": "The poem ends with a striking ___ of birth and death.",
       "base": "juxtapose",
       "accepted": [
         "juxtaposition"
       ],
       "translation": {
-        "ru": "Неожиданное сопоставление рождения и смерти в стихотворении потрясает читателя.",
-        "uz": "She'rda tug'ilish va o'limning kutilmaganda yonma-yon qo'yilishi o'quvchini larzaga soladi."
+        "ru": "Стихотворение заканчивается поразительным сопоставлением рождения и смерти.",
+        "uz": "She'r tug'ilish va o'limning hayratlanarli tarzda yonma-yon qo'yilishi bilan yakunlanadi."
       },
       "explanation": {
-        "ru": "После The poem's sudden нужно существительное: juxtapose → juxtaposition (сопоставление); -e выпадает, добавляется -ition.",
-        "uz": "The poem's sudden so'zlaridan keyin ot kerak: juxtapose → juxtaposition (yonma-yon qo'yish); -e tushib qoladi, -ition qo'shiladi."
+        "ru": "После a striking и перед of нужно существительное: juxtapose → juxtaposition (сопоставление); -e выпадает, добавляется -ition. Герундий после a здесь неестествен.",
+        "uz": "a striking so'zlaridan keyin va of oldidan ot kerak: juxtapose → juxtaposition (yonma-yon qo'yish); -e tushib qoladi, -ition qo'shiladi. a artiklidan keyin gerundiy bu yerda tabiiy emas."
       }
     },
     {
@@ -1093,7 +1093,7 @@
       "target_words": [
         "pun"
       ],
-      "text": "His clever pun *with* the word \"bank\" made the whole class laugh.",
+      "text": "The newspaper headline contains a clever pun *with* the word \"bank\".",
       "options": [
         "on",
         "at",
@@ -1103,8 +1103,8 @@
         "on"
       ],
       "translation": {
-        "ru": "Его остроумный каламбур со словом «bank» рассмешил весь класс.",
-        "uz": "Uning «bank» so'zi ustidagi topqir so'z o'yini butun sinfni kuldirdi."
+        "ru": "В газетном заголовке есть остроумный каламбур со словом «bank».",
+        "uz": "Gazeta sarlavhasida «bank» so'zi ustidagi topqir so'z o'yini bor."
       },
       "explanation": {
         "ru": "a pun on a word — каламбур на каком-то слове: после pun ставится on. Русское «со словом» здесь не with; at и to тоже неверны.",
@@ -1230,7 +1230,7 @@
       "text": "The novel relies on *contrite* plot twists that no reader could believe.",
       "options": [
         "contrived",
-        "contriving",
+        "contrive",
         "contrivance"
       ],
       "correct": [
@@ -1241,8 +1241,8 @@
         "uz": "Roman hech bir kitobxon ishonmaydigan zo'raki syujet burilishlariga tayanadi."
       },
       "explanation": {
-        "ru": "contrite — раскаивающийся (о человеке); надуманный, искусственный — contrived. contriving значило бы «замышляющий», contrivance — существительное.",
-        "uz": "contrite — tavba qilgan, pushaymon (inson haqida); zo'raki, sun'iy — contrived. contriving «o'ylab topayotgan» degani bo'lardi, contrivance esa ot."
+        "ru": "contrite — раскаивающийся (о человеке); надуманный, искусственный — contrived. Перед plot twists нужно прилагательное: глагол contrive и существительное contrivance не подходят.",
+        "uz": "contrite — tavba qilgan, pushaymon (inson haqida); zo'raki, sun'iy — contrived. plot twists so'zlaridan oldin sifat kerak: contrive fe'li va contrivance oti to'g'ri kelmaydi."
       }
     },
     {
@@ -1390,7 +1390,7 @@
       "target_words": [
         "antagonist"
       ],
-      "text": "The evil queen is the *protagonist*, always plotting against the young princess.",
+      "text": "The young princess is the main character, and the evil queen is her *protagonist*.",
       "options": [
         "antagonist",
         "antagonism",
@@ -1400,12 +1400,12 @@
         "antagonist"
       ],
       "translation": {
-        "ru": "Злая королева — антагонист: она постоянно строит козни против юной принцессы.",
-        "uz": "Yovuz qirolicha — antagonist, u doimo yosh malikaga qarshi fitna uyushtiradi."
+        "ru": "Юная принцесса — главная героиня, а злая королева — её антагонист.",
+        "uz": "Yosh malika — bosh qahramon, yovuz qirolicha esa uning antagonisti."
       },
       "explanation": {
-        "ru": "protagonist — главный герой; персонаж, который противостоит героине, — antagonist. antagonism — вражда, antagonistic — прилагательное.",
-        "uz": "protagonist — bosh qahramon; qahramonga qarshi turuvchi personaj — antagonist. antagonism — adovat, antagonistic esa sifat."
+        "ru": "protagonist — это и есть главный герой, а главная героиня здесь принцесса; её противник — antagonist. antagonism — вражда, antagonistic — прилагательное.",
+        "uz": "protagonist — bosh qahramonning o'zi, bu yerda esa bosh qahramon — malika; unga qarshi turuvchi personaj — antagonist. antagonism — adovat, antagonistic esa sifat."
       }
     },
     {
@@ -1552,7 +1552,7 @@
       "target_words": [
         "verbatim"
       ],
-      "text": "The court reporter must record every word of the testimony *verbatimly*.",
+      "text": "She copied the whole paragraph *verbatimly* and forgot to mention the source.",
       "options": [
         "verbatim",
         "verbose",
@@ -1562,8 +1562,8 @@
         "verbatim"
       ],
       "translation": {
-        "ru": "Судебный стенографист должен записывать каждое слово показаний дословно.",
-        "uz": "Sud stenografisti guvohlik ko'rsatmalarining har bir so'zini so'zma-so'z yozib olishi shart."
+        "ru": "Она дословно скопировала весь абзац и забыла указать источник.",
+        "uz": "U butun xatboshini so'zma-so'z ko'chirib oldi va manbani ko'rsatishni unutdi."
       },
       "explanation": {
         "ru": "verbatim — уже наречие (дословно), формы verbatimly нет. verbose — прилагательное «многословный», verbiage — существительное «пустословие».",
@@ -1613,7 +1613,7 @@
       "text": "The contract was so full of legal *jargons* that nobody could understand it.",
       "options": [
         "jargon",
-        "jargonist",
+        "jargonized",
         "jargonize"
       ],
       "correct": [
@@ -1624,8 +1624,8 @@
         "uz": "Shartnoma huquqiy jargonga shu qadar to'la ediki, uni hech kim tushuna olmadi."
       },
       "explanation": {
-        "ru": "В значении «специальные слова какой-то профессии» jargon — неисчисляемое: full of legal jargon. jargonist — человек, jargonize — глагол.",
-        "uz": "«biror kasbning maxsus so'zlari» ma'nosida jargon sanalmaydigan ot: full of legal jargon. jargonist — shaxs, jargonize — fe'l."
+        "ru": "В значении «специальные слова какой-то профессии» jargon — неисчисляемое: full of legal jargon. jargonize — глагол, jargonized — его причастие.",
+        "uz": "«biror kasbning maxsus so'zlari» ma'nosida jargon sanalmaydigan ot: full of legal jargon. jargonize — fe'l, jargonized — uning sifatdoshi."
       }
     }
   ]

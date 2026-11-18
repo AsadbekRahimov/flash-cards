@@ -70,7 +70,7 @@
       ],
       "translation": {
         "ru": "Оба салата в меню подаются со свежим хлебом.",
-        "uz": "Menyudagi ikkala salat ham yangi non bilan tortiladi."
+        "uz": "Menyudagi ikkala salat ham yangi non bilan beriladi."
       },
       "explanation": {
         "ru": "Both («оба») требует множественного числа; это подтверждает и глагол come без -s: salad → salads.",
@@ -156,8 +156,8 @@
         "This"
       ],
       "translation": {
-        "ru": "Это любимый суп моей бабушки.",
-        "uz": "Bu sho'rva buvimning eng sevimli taomi."
+        "ru": "Этот суп — любимый у моей бабушки.",
+        "uz": "Bu sho'rvani buvim hammasidan ko'proq yaxshi ko'radi."
       },
       "explanation": {
         "ru": "soup здесь в единственном числе (is), а these и those — для множественного. Нужно this: this soup.",
@@ -343,8 +343,8 @@
         "drank"
       ],
       "translation": {
-        "ru": "Вчера на празднике гости выпили весь сок.",
-        "uz": "Kecha bayramda mehmonlar hamma sharbatni ichib qo'yishdi."
+        "ru": "Вчера на вечеринке гости выпили весь сок.",
+        "uz": "Kecha ziyofatda mehmonlar hamma sharbatni ichib qo'yishdi."
       },
       "explanation": {
         "ru": "Yesterday — прошлое время. drink — неправильный глагол: drink → drank (не drinked; drunk — третья форма).",
@@ -509,8 +509,8 @@
         "uz": "Bu oshxonadagi pichoqlar juda o'tkir."
       },
       "explanation": {
-        "ru": "Глагол are требует множественного числа. У knife особое множественное: f меняется на v, и добавляется -es → knives.",
-        "uz": "are fe'li ko'plikni talab qiladi. knife so'zining ko'pligi o'zgacha: f harfi v ga aylanadi va -es qo'shiladi → knives."
+        "ru": "Глагол are требует множественного числа. У knife особое множественное: -fe меняется на -ves → knives.",
+        "uz": "are fe'li ko'plikni talab qiladi. knife so'zining ko'pligi o'zgacha: oxiridagi -fe o'rniga -ves keladi → knives."
       }
     },
     {
@@ -693,7 +693,7 @@
       ],
       "translation": {
         "ru": "После школы мой сын всегда голоднее, чем его сестра.",
-        "uz": "Maktabdan keyin o'g'lim doim opasidan ko'ra ko'proq och bo'ladi."
+        "uz": "Maktabdan keyin o'g'lim doim opasidan ko'ra ochroq bo'ladi."
       },
       "explanation": {
         "ru": "than требует сравнительной степени. y после согласной меняется на i, и добавляется -er: hungry → hungrier.",
@@ -859,7 +859,7 @@
       },
       "explanation": {
         "ru": "a few («несколько») ставится только со множественным числом: a few weeks.",
-        "uz": "a few («bir necha») faqat ko'plik bilan keladi: a few weeks. O'zbekchada «bir necha hafta» birlikda bo'lsa ham."
+        "uz": "a few («bir necha») faqat ko'plik bilan keladi: a few weeks. O'zbekchada esa «bir necha hafta» birlikda aytiladi."
       }
     },
     {
@@ -879,8 +879,8 @@
         "weekends"
       ],
       "translation": {
-        "ru": "В большинство выходных мой папа работает в нашем маленьком саду.",
-        "uz": "Dam olish kunlarining ko'pida dadam kichik bog'imizda ishlaydi."
+        "ru": "Обычно по выходным мой папа работает в нашем маленьком саду.",
+        "uz": "Ko'pincha dam olish kunlari dadam kichik bog'imizda ishlaydi."
       },
       "explanation": {
         "ru": "Most («большинство») перед исчисляемым существительным требует множественного числа: most weekends.",
@@ -985,7 +985,7 @@
       "target_words": [
         "later"
       ],
-      "text": "The train came ten minutes ___ than usual.",
+      "text": "The train arrived ten minutes ___ than usual.",
       "base": "late",
       "accepted": [
         "later"
@@ -1334,14 +1334,14 @@
       "target_words": [
         "four"
       ],
-      "text": "Four boxes of ten eggs make ___ eggs.",
+      "text": "We bought four boxes of ten eggs, so we have ___ eggs.",
       "base": "four",
       "accepted": [
         "forty"
       ],
       "translation": {
-        "ru": "Четыре коробки по десять яиц — это сорок яиц.",
-        "uz": "O'ntadan tuxumli to'rtta quti — qirqta tuxum."
+        "ru": "Мы купили четыре коробки по десять яиц, так что у нас сорок яиц.",
+        "uz": "Biz o'ntadan tuxum solingan to'rtta quti oldik, demak, bizda qirqta tuxum bor."
       },
       "explanation": {
         "ru": "Четыре раза по десять — сорок: four → forty. Внимание: в forty нет u, хотя в four и fourteen она есть.",
@@ -1442,7 +1442,7 @@
       "target_words": [
         "seven"
       ],
-      "text": "My daughter *has* seven years old.",
+      "text": "My little daughter *has* seven years old today.",
       "options": [
         "is",
         "are",
@@ -1452,8 +1452,8 @@
         "is"
       ],
       "translation": {
-        "ru": "Моей дочери семь лет.",
-        "uz": "Qizim yetti yoshda."
+        "ru": "Моей маленькой дочке сегодня исполнилось семь лет.",
+        "uz": "Kichkina qizim bugun yetti yoshga to'ldi."
       },
       "explanation": {
         "ru": "Возраст в английском выражают глаголом be: she is seven (years old). Глагол have здесь не употребляется.",
@@ -1478,7 +1478,7 @@
       ],
       "translation": {
         "ru": "Разрежьте яблоко на две половины и дайте одну брату.",
-        "uz": "Olmani ikki bo'lakka bo'lib, birini ukangizga bering."
+        "uz": "Olmani ikki pallaga bo'lib, bittasini ukangizga bering."
       },
       "explanation": {
         "ru": "После two — множественное число. У half f меняется на v, и добавляется -es: half → halves.",
@@ -1503,7 +1503,7 @@
       ],
       "translation": {
         "ru": "Наша бабушка сегодня празднует свой сотый день рождения!",
-        "uz": "Buvimiz bugun yuz yoshini nishonlayapti!"
+        "uz": "Buvimiz bugun yuzinchi tug'ilgan kunini nishonlayapti!"
       },
       "explanation": {
         "ru": "Перед birthday нужно порядковое числительное («сотый»): hundred + th → hundredth (на конце dth).",
@@ -1560,8 +1560,8 @@
         "uz": "Qishlog'imizda ikki ming kishi yashaydi."
       },
       "explanation": {
-        "ru": "После числа hundred и thousand не получают ни -s, ни of: two thousand people. thousands of — только без числа («тысячи людей»).",
-        "uz": "Sondan keyin hundred va thousand so'zlari -s ham, of ham olmaydi: two thousand people. thousands of — faqat sonsiz («minglab odamlar»)."
+        "ru": "После числа (two, three…) thousand пишется без -s, и сразу за ним идёт существительное без of: two thousand people. thousands of — только без числа («тысячи людей»).",
+        "uz": "Sondan (two, three…) keyin thousand so'zi -s olmaydi va undan keyin ot of predlogisiz keladi: two thousand people. thousands of — faqat sonsiz («minglab odamlar»)."
       }
     },
     {

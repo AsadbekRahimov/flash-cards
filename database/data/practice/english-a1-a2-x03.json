@@ -442,7 +442,7 @@
       "target_words": [
         "traffic"
       ],
-      "text": "There is too much *traffics* in the city center today.",
+      "text": "The *traffics* on our road is terrible every morning.",
       "options": [
         "traffic",
         "traffic's",
@@ -452,12 +452,12 @@
         "traffic"
       ],
       "translation": {
-        "ru": "Сегодня в центре города слишком плотное движение.",
-        "uz": "Bugun shahar markazida yo'l harakati juda tig'iz."
+        "ru": "Каждое утро на нашей дороге ужасное движение.",
+        "uz": "Har kuni ertalab yo'limizda qatnov juda tig'iz bo'ladi."
       },
       "explanation": {
-        "ru": "Traffic — неисчисляемое существительное: у него нет множественного числа и нет артикля a, а с ним говорят much: too much traffic.",
-        "uz": "Traffic — sanalmaydigan ot: uning ko'plik shakli ham, a artikli ham bo'lmaydi, u bilan much ishlatiladi: too much traffic."
+        "ru": "Traffic — неисчисляемое существительное: у него нет множественного числа и артикля a, поэтому the traffic, и глагол в единственном числе: is.",
+        "uz": "Traffic — sanalmaydigan ot: uning ko'plik shakli ham, a artikli ham bo'lmaydi, shuning uchun the traffic, fe'l ham birlikda: is."
       }
     },
     {
@@ -551,14 +551,14 @@
       "target_words": [
         "corner"
       ],
-      "text": "There is a shop on all four ___ of this square.",
+      "text": "There are shops on all four ___ of this square.",
       "base": "corner",
       "accepted": [
         "corners"
       ],
       "translation": {
-        "ru": "На всех четырёх углах этой площади есть по магазину.",
-        "uz": "Bu maydonning to'rtala burchagida ham do'kon bor."
+        "ru": "На всех четырёх углах этой площади есть магазины.",
+        "uz": "Bu maydonning to'rtala burchagida ham do'konlar bor."
       },
       "explanation": {
         "ru": "После all four нужно множественное число: all four corners — «на всех четырёх углах».",
@@ -1207,7 +1207,7 @@
       ],
       "translation": {
         "ru": "У дедушки волосы седее, чем у папы.",
-        "uz": "Bobomning sochi otamnikidan oqroq."
+        "uz": "Bobomning sochi dadamnikidan ko'proq oqargan."
       },
       "explanation": {
         "ru": "than требует сравнительной степени: gray + -er → grayer (в британском написании greyer).",
@@ -1401,7 +1401,7 @@
         "uz": "Kitoblar tufayli sumkam siznikidan og'irroq."
       },
       "explanation": {
-        "ru": "После than нужна сравнительная степень. Согласный + y: перед -er y меняется на i: heavy → heavier (не heavyer).",
+        "ru": "Перед than нужна сравнительная степень. Согласный + y: перед -er y меняется на i: heavy → heavier (не heavyer).",
         "uz": "than so'zidan oldin qiyosiy daraja kerak. Undosh + y: -er oldidan y i ga aylanadi: heavy → heavier (heavyer emas)."
       }
     },
@@ -1549,7 +1549,7 @@
       "target_words": [
         "show"
       ],
-      "text": "Can you show *I* the way to the station, please?",
+      "text": "In the shop, a woman showed *I* three different bags.",
       "options": [
         "me",
         "my",
@@ -1559,12 +1559,12 @@
         "me"
       ],
       "translation": {
-        "ru": "Вы не покажете мне дорогу до вокзала?",
-        "uz": "Iltimos, menga vokzalga boradigan yo'lni ko'rsatib bera olasizmi?"
+        "ru": "В магазине женщина показала мне три разные сумки.",
+        "uz": "Do'konda bir ayol menga uchta har xil sumka ko'rsatdi."
       },
       "explanation": {
-        "ru": "После show идёт дополнение (кому?), поэтому нужна форма me, а не I: show me the way. I — только подлежащее.",
-        "uz": "show fe'lidan keyin to'ldiruvchi (kimga?) keladi, shuning uchun I emas, me: show me the way. I faqat ega bo'ladi."
+        "ru": "После show идёт дополнение (кому?), поэтому нужна форма me, а не I: showed me. I — только подлежащее.",
+        "uz": "show fe'lidan keyin to'ldiruvchi (kimga?) keladi, shuning uchun I emas, me: showed me. I faqat ega bo'ladi."
       }
     },
     {

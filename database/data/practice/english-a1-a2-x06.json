@@ -207,11 +207,11 @@
       ],
       "translation": {
         "ru": "Наш задержанный рейс наконец вылетел в полночь.",
-        "uz": "Kechiktirilgan reysimiz nihoyat yarim tunda uchib ketdi."
+        "uz": "Kechikkan reysimiz nihoyat yarim tunda havoga ko'tarildi."
       },
       "explanation": {
         "ru": "Между Our и flight нужно прилагательное: задержанный рейс — delayed, причастие на -ed. После гласной a буква y не меняется: delay → delayed.",
-        "uz": "Our va flight orasida sifat kerak: kechiktirilgan reys — delayed, -ed li sifatdosh. a unlisidan keyin y o'zgarmaydi: delay → delayed."
+        "uz": "Our va flight orasida sifat kerak: kechikkan reys — delayed, -ed li sifatdosh. a unlisidan keyin y o'zgarmaydi: delay → delayed."
       }
     },
     {
@@ -279,7 +279,7 @@
       "target_words": [
         "flight"
       ],
-      "text": "Our flight *were* late, and it landed at midnight.",
+      "text": "Every flight to the islands *were* late yesterday.",
       "options": [
         "was",
         "been",
@@ -289,12 +289,12 @@
         "was"
       ],
       "translation": {
-        "ru": "Наш рейс опоздал и приземлился в полночь.",
-        "uz": "Reysimiz kechikdi va yarim tunda qo'ndi."
+        "ru": "Вчера каждый рейс на острова опоздал.",
+        "uz": "Kecha orollarga uchadigan har bir reys kechikdi."
       },
       "explanation": {
-        "ru": "Flight — единственное число (it), поэтому в прошедшем времени was, а не were. Were — для you и для множественного числа.",
-        "uz": "Flight — birlik (it), shuning uchun o'tgan zamonda were emas, was keladi. Were — you va ko'plik uchun."
+        "ru": "Подлежащее — every flight, единственное число (it), поэтому was, а не were. Глагол согласуется с flight, а не со стоящим рядом islands.",
+        "uz": "Ega — every flight, birlik (it), shuning uchun were emas, was keladi. Fe'l yonidagi islands so'zi bilan emas, flight bilan moslashadi."
       }
     },
     {
@@ -369,7 +369,7 @@
       ],
       "translation": {
         "ru": "Поздно ночью мы тихо открыли дверь нашего номера.",
-        "uz": "Kech tunda mehmonxonadagi xonamiz eshigini sekin ochdik."
+        "uz": "Kech tunda mehmonxonadagi xonamiz eshigini ohista ochdik."
       },
       "explanation": {
         "ru": "Слово описывает, как мы открыли дверь (opened), поэтому нужно наречие: quiet + -ly → quietly.",
@@ -1251,7 +1251,7 @@
       "target_words": [
         "signal"
       ],
-      "text": "My phone doesn't get *some* signal in the mountains.",
+      "text": "We don't have *some* signal here, so we cannot call.",
       "options": [
         "any",
         "no",
@@ -1261,12 +1261,12 @@
         "any"
       ],
       "translation": {
-        "ru": "Мой телефон не ловит сигнал в горах.",
-        "uz": "Telefonim tog'larda signal tutmaydi."
+        "ru": "Здесь у нас нет сигнала, поэтому мы не можем позвонить.",
+        "uz": "Bu yerda signal yo'q, shuning uchun qo'ng'iroq qila olmaymiz."
       },
       "explanation": {
-        "ru": "В отрицании (doesn't) нужно any, а не some: doesn't get any signal. No после doesn't даёт двойное отрицание.",
-        "uz": "Inkor gapda (doesn't) some emas, any keladi: doesn't get any signal. doesn't so'zidan keyin no qo'yilsa, ikki marta inkor bo'ladi."
+        "ru": "В отрицании (don't) нужно any, а не some: don't have any signal. No после don't даёт двойное отрицание.",
+        "uz": "Inkor gapda (don't) some emas, any keladi: don't have any signal. don't so'zidan keyin no qo'yilsa, ikki marta inkor bo'ladi."
       }
     },
     {

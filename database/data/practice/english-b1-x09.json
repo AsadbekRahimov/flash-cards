@@ -1,0 +1,1627 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b1",
+  "items": [
+    {
+      "key": "b1-m17-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "weekday"
+      ],
+      "text": "The library opens early on ___ but late on Sundays.",
+      "base": "weekday",
+      "accepted": [
+        "weekdays"
+      ],
+      "translation": {
+        "ru": "По будним дням библиотека открывается рано, а по воскресеньям — поздно.",
+        "uz": "Kutubxona ish kunlari erta, yakshanba kunlari esa kech ochiladi."
+      },
+      "explanation": {
+        "ru": "on без артикля и пара on Sundays требуют множественного числа: on weekdays. После гласной a буква y сохраняется: weekdays, не weekdaies.",
+        "uz": "on predlogi artiklsiz va on Sundays jufti ko'plikni talab qiladi: on weekdays. Unli a harfidan keyin y saqlanadi: weekdays, weekdaies emas."
+      }
+    },
+    {
+      "key": "b1-m17-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "anniversary"
+      ],
+      "text": "My grandparents have celebrated many wedding ___ in this old house.",
+      "base": "anniversary",
+      "accepted": [
+        "anniversaries"
+      ],
+      "translation": {
+        "ru": "Дедушка с бабушкой отметили в этом старом доме много годовщин свадьбы.",
+        "uz": "Bobom bilan buvim bu eski uyda ko'plab to'y yilliklarini nishonlashgan."
+      },
+      "explanation": {
+        "ru": "many требует множественного числа. После согласной y меняется на i + -es: anniversary → anniversaries.",
+        "uz": "many so'zi ko'plikni talab qiladi. Undosh harfdan keyin y harfi i ga aylanib, -es qo'shiladi: anniversary → anniversaries."
+      }
+    },
+    {
+      "key": "b1-m17-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "century"
+      ],
+      "text": "The computer was one of the last ___ greatest inventions.",
+      "base": "century",
+      "accepted": [
+        "century's"
+      ],
+      "translation": {
+        "ru": "Компьютер стал одним из величайших изобретений прошлого века.",
+        "uz": "Kompyuter o'tgan asrning eng buyuk ixtirolaridan biri edi."
+      },
+      "explanation": {
+        "ru": "the last ___ greatest inventions — «величайшие изобретения прошлого века»: нужен притяжательный падеж 's. Век один (the last century), поэтому century's, а не centuries'.",
+        "uz": "the last ___ greatest inventions — «o'tgan asrning eng buyuk ixtirolari»: egalik shakli 's kerak. Asr bitta (the last century), shuning uchun centuries' emas, century's."
+      }
+    },
+    {
+      "key": "b1-m17-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "midnight"
+      ],
+      "text": "The fireworks over the river began exactly *in* midnight.",
+      "options": [
+        "at",
+        "to",
+        "during"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "Салют над рекой начался ровно в полночь.",
+        "uz": "Daryo ustidagi mushakbozlik roppa-rosa yarim tunda boshlandi."
+      },
+      "explanation": {
+        "ru": "С точным моментом времени — at: at midnight, at noon, at dawn. Русское «в полночь» здесь не in; during — «в течение» периода, а не момента.",
+        "uz": "Aniq vaqt payti bilan at predlogi ishlatiladi: at midnight, at noon, at dawn. during esa «davomida» degani, payt uchun emas, davr uchun."
+      }
+    },
+    {
+      "key": "b1-m17-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "decade"
+      ],
+      "text": "My uncle *works* at this factory for more than a decade now.",
+      "options": [
+        "has worked",
+        "is working",
+        "was working"
+      ],
+      "correct": [
+        "has worked"
+      ],
+      "translation": {
+        "ru": "Мой дядя работает на этом заводе уже больше десяти лет.",
+        "uz": "Amakim bu zavodda o'n yildan ortiq vaqtdan beri ishlab keladi."
+      },
+      "explanation": {
+        "ru": "for more than a decade now — действие началось давно и продолжается: нужен present perfect (has worked). Русское настоящее «работает уже» здесь не works.",
+        "uz": "for more than a decade now — ish ancha oldin boshlangan va hali davom etmoqda: present perfect kerak (has worked). Bunday holatda works ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m17-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "ancient"
+      ],
+      "text": "This town is *such* ancient that nobody knows its exact age.",
+      "options": [
+        "so",
+        "very",
+        "too"
+      ],
+      "correct": [
+        "so"
+      ],
+      "translation": {
+        "ru": "Этот город настолько древний, что никто не знает его точного возраста.",
+        "uz": "Bu shahar shunchalik qadimiyki, uning aniq yoshini hech kim bilmaydi."
+      },
+      "explanation": {
+        "ru": "Перед прилагательным без существительного — so: so ancient that... such ставится перед существительным: such an ancient town. very и too с that-частью не употребляются.",
+        "uz": "Otsiz sifat oldidan so keladi: so ancient that... such esa ot oldidan qo'yiladi: such an ancient town. very va too so'zlari bunday that qismi bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m17-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "immediately"
+      ],
+      "text": "If you feel any pain, stop the exercise ___.",
+      "base": "immediate",
+      "accepted": [
+        "immediately"
+      ],
+      "translation": {
+        "ru": "Если почувствуете боль, немедленно прекратите упражнение.",
+        "uz": "Agar biror og'riq sezsangiz, mashqni darhol to'xtating."
+      },
+      "explanation": {
+        "ru": "Глагол stop поясняется наречием: immediate → immediately. Конечная e перед -ly сохраняется.",
+        "uz": "stop fe'lini ravish izohlaydi: immediate → immediately. Oxiridagi e harfi -ly oldidan saqlanadi."
+      }
+    },
+    {
+      "key": "b1-m17-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "occasionally"
+      ],
+      "text": "We usually cook at home, but ___ we eat at a restaurant.",
+      "base": "occasional",
+      "accepted": [
+        "occasionally"
+      ],
+      "translation": {
+        "ru": "Обычно мы готовим дома, но время от времени едим в ресторане.",
+        "uz": "Odatda uyda ovqat qilamiz, lekin vaqti-vaqti bilan restoranda ovqatlanamiz."
+      },
+      "explanation": {
+        "ru": "Нужно наречие при глаголе eat: occasional → occasionally. -al + -ly даёт двойное l.",
+        "uz": "eat fe'li bilan ravish kerak: occasional → occasionally. -al va -ly qo'shilib, ikkita l yoziladi."
+      }
+    },
+    {
+      "key": "b1-m17-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "frequently"
+      ],
+      "text": "My grandparents visit us ___, almost every weekend.",
+      "base": "frequent",
+      "accepted": [
+        "frequently"
+      ],
+      "translation": {
+        "ru": "Дедушка с бабушкой часто навещают нас — почти каждые выходные.",
+        "uz": "Bobom bilan buvim bizni tez-tez, deyarli har dam olish kunlari ko'rgani kelishadi."
+      },
+      "explanation": {
+        "ru": "Глагол visit поясняется наречием: frequent → frequently. almost every weekend показывает «часто», поэтому не infrequently.",
+        "uz": "visit fe'lini ravish izohlaydi: frequent → frequently. almost every weekend qismi «tez-tez» ma'nosini beradi, shuning uchun infrequently emas."
+      }
+    },
+    {
+      "key": "b1-m17-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "eventually"
+      ],
+      "text": "After an hour of searching, we *lately* found the key.",
+      "options": [
+        "eventually",
+        "latest",
+        "late"
+      ],
+      "correct": [
+        "eventually"
+      ],
+      "translation": {
+        "ru": "Целый час поисков — и мы в конце концов нашли ключ.",
+        "uz": "Bir soatlik qidiruvdan so'ng oxir-oqibat kalitni topdik."
+      },
+      "explanation": {
+        "ru": "eventually — в конце концов, после долгих усилий. lately — «в последнее время» (обычно с present perfect), latest — «самый новый», late — «поздно».",
+        "uz": "eventually — uzoq urinishdan keyin oxir-oqibat. lately — «so'nggi paytlarda» (odatda present perfect bilan), latest — «eng yangi», late — «kech»."
+      }
+    },
+    {
+      "key": "b1-m17-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "nowadays"
+      ],
+      "text": "Nowadays my father rarely *carried* cash because he pays by phone.",
+      "options": [
+        "carries",
+        "carry",
+        "was carrying"
+      ],
+      "correct": [
+        "carries"
+      ],
+      "translation": {
+        "ru": "В наше время мой отец редко носит с собой наличные, потому что платит телефоном.",
+        "uz": "Hozirgi kunda otam kamdan-kam naqd pul olib yuradi, chunki telefon orqali to'laydi."
+      },
+      "explanation": {
+        "ru": "nowadays — «в наше время», это настоящее, как и he pays: нужен present simple. Подлежащее my father — третье лицо единственного числа: carries (y после согласной → ies).",
+        "uz": "nowadays — «hozirgi kunda», ya'ni hozirgi zamon, he pays qismi ham shuni ko'rsatadi: present simple kerak. Ega my father — uchinchi shaxs birlik: carries (undoshdan keyingi y harfi ies ga aylanadi)."
+      }
+    },
+    {
+      "key": "b1-m17-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "suddenly"
+      ],
+      "text": "The music stopped so *sudden* that everyone looked up.",
+      "options": [
+        "suddenly",
+        "suddenness",
+        "surprising"
+      ],
+      "correct": [
+        "suddenly"
+      ],
+      "translation": {
+        "ru": "Музыка оборвалась так внезапно, что все подняли головы.",
+        "uz": "Musiqa shunchalik to'satdan to'xtadiki, hamma boshini ko'tardi."
+      },
+      "explanation": {
+        "ru": "Глагол stopped поясняется наречием: sudden → suddenly. sudden и surprising — прилагательные, suddenness — существительное.",
+        "uz": "stopped fe'lini ravish izohlaydi: sudden → suddenly. sudden va surprising — sifat, suddenness esa ot."
+      }
+    },
+    {
+      "key": "b1-m17-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "rise"
+      ],
+      "text": "Bread prices have ___ twice since the spring.",
+      "base": "rise",
+      "accepted": [
+        "risen"
+      ],
+      "translation": {
+        "ru": "С весны цены на хлеб поднимались уже дважды.",
+        "uz": "Bahordan beri non narxi ikki marta oshdi."
+      },
+      "explanation": {
+        "ru": "После have нужна третья форма. rise — неправильный глагол: rise – rose – risen (не rised).",
+        "uz": "have so'zidan keyin uchinchi shakl kerak. rise — noto'g'ri fe'l: rise – rose – risen (rised emas)."
+      }
+    },
+    {
+      "key": "b1-m17-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "growth"
+      ],
+      "text": "Nobody expected such rapid ___ in the number of tourists.",
+      "base": "grow",
+      "accepted": [
+        "growth"
+      ],
+      "translation": {
+        "ru": "Никто не ожидал такого стремительного роста числа туристов.",
+        "uz": "Sayyohlar sonining bunchalik jadal o'sishini hech kim kutmagan edi."
+      },
+      "explanation": {
+        "ru": "После прилагательного rapid нужно существительное: grow → growth (рост), суффикс -th.",
+        "uz": "rapid sifatidan keyin ot kerak: grow → growth (o'sish), -th qo'shimchasi bilan."
+      }
+    },
+    {
+      "key": "b1-m17-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "improvement"
+      ],
+      "text": "The new bus schedule is a big ___ on the old one.",
+      "base": "improve",
+      "accepted": [
+        "improvement"
+      ],
+      "translation": {
+        "ru": "Новое расписание автобусов намного лучше старого.",
+        "uz": "Avtobuslarning yangi jadvali eskisidan ancha yaxshi."
+      },
+      "explanation": {
+        "ru": "После a big нужно существительное: improve → improvement (-ment). an improvement on — улучшение по сравнению с чем-то.",
+        "uz": "a big so'zlaridan keyin ot kerak: improve → improvement (-ment). an improvement on — biror narsaga nisbatan yaxshilanish."
+      }
+    },
+    {
+      "key": "b1-m17-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "decrease"
+      ],
+      "text": "The price of tomatoes *decrease* sharply last week.",
+      "options": [
+        "decreased",
+        "decreases",
+        "is decreasing"
+      ],
+      "correct": [
+        "decreased"
+      ],
+      "translation": {
+        "ru": "На прошлой неделе цена на помидоры резко снизилась.",
+        "uz": "O'tgan hafta pomidor narxi keskin kamaydi."
+      },
+      "explanation": {
+        "ru": "last week — законченное время в прошлом: нужен past simple, decreased. Настоящее время с last week не сочетается.",
+        "uz": "last week — o'tgan, tugagan vaqt: past simple kerak, decreased. Hozirgi zamon last week bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m17-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "rapid"
+      ],
+      "text": "Our city is growing *rapid*, and new houses appear every month.",
+      "options": [
+        "rapidly",
+        "rapidity",
+        "speedy"
+      ],
+      "correct": [
+        "rapidly"
+      ],
+      "translation": {
+        "ru": "Наш город стремительно растёт: каждый месяц появляются новые дома.",
+        "uz": "Shahrimiz jadal o'smoqda, har oy yangi uylar paydo bo'lmoqda."
+      },
+      "explanation": {
+        "ru": "Глагол growing поясняется наречием: rapid → rapidly. rapid и speedy — прилагательные (a rapid change), rapidity — существительное.",
+        "uz": "growing fe'lini ravish izohlaydi: rapid → rapidly. rapid va speedy — sifat (a rapid change), rapidity esa ot."
+      }
+    },
+    {
+      "key": "b1-m17-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "increase"
+      ],
+      "text": "Bus fares increased *on* ten percent last year.",
+      "options": [
+        "by",
+        "for",
+        "with"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "В прошлом году плата за проезд в автобусе выросла на десять процентов.",
+        "uz": "O'tgan yili avtobusda yo'l haqi o'n foizga oshdi."
+      },
+      "explanation": {
+        "ru": "increase by — увеличиться на сколько-то: by ten percent. Русское «на» здесь не on. increase to — вырасти до какого-то уровня.",
+        "uz": "increase by — qanchaga oshganini bildiradi: by ten percent. O'zbekcha «-ga» bu yerda by bilan beriladi; increase to esa «... gacha oshmoq» degani."
+      }
+    },
+    {
+      "key": "b1-m17-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "arrange"
+      ],
+      "text": "My aunt made all the ___ for the wedding herself.",
+      "base": "arrange",
+      "accepted": [
+        "arrangements"
+      ],
+      "translation": {
+        "ru": "Тётя сама занялась всей подготовкой к свадьбе.",
+        "uz": "To'yning barcha tayyorgarligini xolam o'zi ko'rdi."
+      },
+      "explanation": {
+        "ru": "После all the нужно существительное во множественном числе: arrange → arrangement → arrangements. make arrangements — всё подготовить, организовать.",
+        "uz": "all the so'zlaridan keyin ko'plikdagi ot kerak: arrange → arrangement → arrangements. make arrangements — hamma narsani tayyorlab, tashkil qilmoq."
+      }
+    },
+    {
+      "key": "b1-m17-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "predict"
+      ],
+      "text": "The weather in the mountains is ___, so always take a warm jacket.",
+      "base": "predict",
+      "accepted": [
+        "unpredictable"
+      ],
+      "translation": {
+        "ru": "Погода в горах непредсказуема, поэтому всегда берите тёплую куртку.",
+        "uz": "Tog'larda ob-havoni oldindan bilib bo'lmaydi, shuning uchun doim issiq kurtka oling."
+      },
+      "explanation": {
+        "ru": "Вторая часть (always take a warm jacket) значит, что погоду нельзя предсказать: un- + predict + -able = unpredictable.",
+        "uz": "Ikkinchi qism (always take a warm jacket) ob-havoni oldindan aytib bo'lmasligini bildiradi: un- + predict + -able = unpredictable."
+      }
+    },
+    {
+      "key": "b1-m17-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "possibility"
+      ],
+      "text": "Is there any ___ of getting tickets for tonight?",
+      "base": "possible",
+      "accepted": [
+        "possibility"
+      ],
+      "translation": {
+        "ru": "Есть ли какая-нибудь возможность достать билеты на сегодняшний вечер?",
+        "uz": "Bugun kechqurunga chipta olishning biror imkoni bormi?"
+      },
+      "explanation": {
+        "ru": "После is there any нужно существительное в единственном числе: possible → possibility (-ible → -ibility).",
+        "uz": "is there any so'zlaridan keyin birlikdagi ot kerak: possible → possibility (-ible o'rniga -ibility)."
+      }
+    },
+    {
+      "key": "b1-m17-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "postpone"
+      ],
+      "text": "The concert was *postpone* until next month because the singer is ill.",
+      "options": [
+        "postponed",
+        "postponing",
+        "postpones"
+      ],
+      "correct": [
+        "postponed"
+      ],
+      "translation": {
+        "ru": "Концерт перенесли на следующий месяц, потому что певец болен.",
+        "uz": "Xonanda kasal bo'lgani uchun konsert keyingi oyga qoldirildi."
+      },
+      "explanation": {
+        "ru": "Концерт не переносит сам, его переносят: пассив was + третья форма — was postponed.",
+        "uz": "Konsert o'zi qoldirmaydi, uni qoldirishadi: majhul nisbat, was + uchinchi shakl — was postponed."
+      }
+    },
+    {
+      "key": "b1-m17-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "opportunity"
+      ],
+      "text": "This course gives young people the *possibility* to study abroad.",
+      "options": [
+        "opportunity",
+        "probability",
+        "likelihood"
+      ],
+      "correct": [
+        "opportunity"
+      ],
+      "translation": {
+        "ru": "Этот курс даёт молодым людям возможность учиться за границей.",
+        "uz": "Bu kurs yoshlarga chet elda o'qish imkoniyatini beradi."
+      },
+      "explanation": {
+        "ru": "Возможность (шанс) что-то сделать — opportunity to do. possibility, probability и likelihood — «вероятность» того, что что-то случится; с to do их так не употребляют.",
+        "uz": "Biror ishni qilish imkoniyati — opportunity to do. possibility, probability va likelihood — biror narsa yuz berish ehtimoli; ular to do bilan bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b1-m17-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "aim"
+      ],
+      "text": "After years of hard work, she finally *got* her aim.",
+      "options": [
+        "achieved",
+        "made",
+        "did"
+      ],
+      "correct": [
+        "achieved"
+      ],
+      "translation": {
+        "ru": "После многих лет упорного труда она наконец достигла своей цели.",
+        "uz": "Yillar davomida tinmay mehnat qilib, u nihoyat o'z maqsadiga erishdi."
+      },
+      "explanation": {
+        "ru": "Достичь цели — achieve an aim (или reach). Глаголы get, make, do с aim в этом значении не сочетаются.",
+        "uz": "Maqsadga erishmoq — achieve an aim (yoki reach). get, make, do fe'llari bu ma'noda aim so'zi bilan birikmaydi."
+      }
+    },
+    {
+      "key": "b1-m17-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "punctual"
+      ],
+      "text": "Our teacher values ___ and hates it when students come late.",
+      "base": "punctual",
+      "accepted": [
+        "punctuality"
+      ],
+      "translation": {
+        "ru": "Наш учитель ценит пунктуальность и терпеть не может, когда ученики опаздывают.",
+        "uz": "Ustozimiz vaqtga rioya qilishni qadrlaydi va o'quvchilar kechikib kelishini yoqtirmaydi."
+      },
+      "explanation": {
+        "ru": "После глагола values нужно существительное: punctual → punctuality (-al + -ity).",
+        "uz": "values fe'lidan keyin ot kerak: punctual → punctuality (-al va -ity)."
+      }
+    },
+    {
+      "key": "b1-m17-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "complete"
+      ],
+      "text": "Your application is ___ because two pages are missing.",
+      "base": "complete",
+      "accepted": [
+        "incomplete"
+      ],
+      "translation": {
+        "ru": "Ваше заявление неполное, потому что не хватает двух страниц.",
+        "uz": "Arizangiz to'liq emas, chunki ikki sahifasi yetishmayapti."
+      },
+      "explanation": {
+        "ru": "Причина (two pages are missing) требует отрицания: complete → incomplete. Здесь приставка in-, а не un-.",
+        "uz": "Sabab (two pages are missing) inkor ma'nosini talab qiladi: complete → incomplete. Bu yerda un- emas, in- old qo'shimchasi."
+      }
+    },
+    {
+      "key": "b1-m17-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "original"
+      ],
+      "text": "This hotel was ___ the home of a rich family.",
+      "base": "original",
+      "accepted": [
+        "originally"
+      ],
+      "translation": {
+        "ru": "Изначально эта гостиница была домом богатой семьи.",
+        "uz": "Bu mehmonxona dastlab boy bir oilaning uyi bo'lgan."
+      },
+      "explanation": {
+        "ru": "Между was и the home нужно наречие, которое относится ко всему сказуемому: original → originally («изначально»); -al + -ly даёт двойное l.",
+        "uz": "was va the home orasida butun kesimga tegishli ravish kerak: original → originally («dastlab»); -al va -ly qo'shilib, ikkita l yoziladi."
+      }
+    },
+    {
+      "key": "b1-m17-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "current"
+      ],
+      "text": "Is this bus schedule still *actual*, or has it changed?",
+      "options": [
+        "current",
+        "currently",
+        "actually"
+      ],
+      "correct": [
+        "current"
+      ],
+      "translation": {
+        "ru": "Это расписание автобусов ещё актуально или его изменили?",
+        "uz": "Bu avtobus jadvali hali ham amaldami yoki o'zgarganmi?"
+      },
+      "explanation": {
+        "ru": "actual значит «настоящий, фактический», а не «актуальный». Действующий сейчас — current. actually («на самом деле») и currently («сейчас») — наречия.",
+        "uz": "actual so'zi «haqiqiy» degani, «dolzarb» emas. Hozir amalda bo'lgan narsa — current. actually («aslida») va currently («hozirda») — ravish."
+      }
+    },
+    {
+      "key": "b1-m17-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "brief"
+      ],
+      "text": "She answered all my questions *brief* but clearly.",
+      "options": [
+        "briefly",
+        "briefed",
+        "briefing"
+      ],
+      "correct": [
+        "briefly"
+      ],
+      "translation": {
+        "ru": "Она ответила на все мои вопросы кратко, но ясно.",
+        "uz": "U barcha savollarimga qisqa, lekin aniq javob berdi."
+      },
+      "explanation": {
+        "ru": "Глагол answered поясняется наречием, как и clearly: brief → briefly. briefed и briefing — формы глагола brief («инструктировать»).",
+        "uz": "answered fe'lini ravish izohlaydi, xuddi clearly kabi: brief → briefly. briefed va briefing — brief («yo'l-yo'riq bermoq») fe'lining shakllari."
+      }
+    },
+    {
+      "key": "b1-m17-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "final"
+      ],
+      "text": "Tomorrow is my *latest* day at this school before we move.",
+      "options": [
+        "final",
+        "later",
+        "latter"
+      ],
+      "correct": [
+        "final"
+      ],
+      "translation": {
+        "ru": "Завтра мой последний день в этой школе перед переездом.",
+        "uz": "Ertaga — ko'chib ketishimizdan oldin bu maktabdagi oxirgi kunim."
+      },
+      "explanation": {
+        "ru": "latest — «последний» в смысле «самый новый» (the latest news). Последний по порядку, заключительный — final (или last).",
+        "uz": "latest — «eng yangi» ma'nosidagi oxirgi (the latest news). Tartib bo'yicha oxirgi, yakuniy — final (yoki last)."
+      }
+    },
+    {
+      "key": "b1-m18-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "flat"
+      ],
+      "text": "Put a heavy book on the old map to ___ it.",
+      "base": "flat",
+      "accepted": [
+        "flatten"
+      ],
+      "translation": {
+        "ru": "Положите на старую карту тяжёлую книгу, чтобы её распрямить.",
+        "uz": "Eski xaritani tekislash uchun ustiga og'ir kitob qo'ying."
+      },
+      "explanation": {
+        "ru": "После to нужен глагол: flat → flatten (делать плоским). Суффикс -en, и t удваивается.",
+        "uz": "to so'zidan keyin fe'l kerak: flat → flatten (tekis qilmoq). -en qo'shimchasi, t harfi ikkilanadi."
+      }
+    },
+    {
+      "key": "b1-m18-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "tiny"
+      ],
+      "text": "This is the ___ kitten I have ever seen.",
+      "base": "tiny",
+      "accepted": [
+        "tiniest"
+      ],
+      "translation": {
+        "ru": "Это самый крошечный котёнок, какого я когда-либо видел.",
+        "uz": "Bu men umrimda ko'rgan eng mitti mushukcha."
+      },
+      "explanation": {
+        "ru": "the ... I have ever seen требует превосходной степени: tiny → tiniest (y → i + -est).",
+        "uz": "the ... I have ever seen orttirma darajani talab qiladi: tiny → tiniest (y harfi i ga aylanib, -est qo'shiladi)."
+      }
+    },
+    {
+      "key": "b1-m18-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "steep"
+      ],
+      "text": "Behind the village, the road climbs ___ into the mountains.",
+      "base": "steep",
+      "accepted": [
+        "steeply"
+      ],
+      "translation": {
+        "ru": "За деревней дорога круто поднимается в горы.",
+        "uz": "Qishloq ortida yo'l tog'larga tik ko'tarilib boradi."
+      },
+      "explanation": {
+        "ru": "Глагол climbs поясняется наречием: steep → steeply (-ly).",
+        "uz": "climbs fe'lini ravish izohlaydi: steep → steeply (-ly)."
+      }
+    },
+    {
+      "key": "b1-m18-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "shallow"
+      ],
+      "text": "Children should not dive here because the water is too *small*.",
+      "options": [
+        "shallow",
+        "thin",
+        "short"
+      ],
+      "correct": [
+        "shallow"
+      ],
+      "translation": {
+        "ru": "Детям не стоит здесь нырять: здесь слишком мелко.",
+        "uz": "Bolalar bu yerda sho'ng'imasligi kerak, chunki suv juda sayoz."
+      },
+      "explanation": {
+        "ru": "«Мелкий» о воде — shallow (неглубокий). small — «маленький по размеру», thin — «тонкий», short — «короткий»: глубину они не обозначают. Русское «мелкий» здесь не small.",
+        "uz": "Suv haqida «sayoz» — shallow. small — «kichik», thin — «yupqa», short — «qisqa»: ular chuqurlikni bildirmaydi."
+      }
+    },
+    {
+      "key": "b1-m18-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "shape"
+      ],
+      "text": "My grandmother baked a cake *on* the shape of a heart.",
+      "options": [
+        "in",
+        "at",
+        "by"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Бабушка испекла торт в форме сердца.",
+        "uz": "Buvim yurak shaklida tort pishirdi."
+      },
+      "explanation": {
+        "ru": "«В форме чего-то» — in the shape of: in the shape of a heart, in the shape of a star.",
+        "uz": "«Biror narsa shaklida» — in the shape of: in the shape of a heart, in the shape of a star."
+      }
+    },
+    {
+      "key": "b1-m18-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "enormous"
+      ],
+      "text": "The film was *enormous* popular with teenagers.",
+      "options": [
+        "enormously",
+        "enormity",
+        "huge"
+      ],
+      "correct": [
+        "enormously"
+      ],
+      "translation": {
+        "ru": "Фильм пользовался огромной популярностью у подростков.",
+        "uz": "Film o'smirlar orasida juda katta shuhrat qozongan edi."
+      },
+      "explanation": {
+        "ru": "Прилагательное popular усиливается наречием: enormous → enormously popular («невероятно популярный»). enormous и huge — прилагательные, enormity — существительное.",
+        "uz": "popular sifatini ravish kuchaytiradi: enormous → enormously popular («juda mashhur»). enormous va huge — sifat, enormity esa ot."
+      }
+    },
+    {
+      "key": "b1-m18-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "shiny"
+      ],
+      "text": "Her new shoes are very ___ and clean.",
+      "base": "shine",
+      "accepted": [
+        "shiny"
+      ],
+      "translation": {
+        "ru": "Её новые туфли очень блестящие и чистые.",
+        "uz": "Uning yangi tuflisi juda yaltiroq va toza."
+      },
+      "explanation": {
+        "ru": "После very нужно прилагательное: shine → shiny; конечная e выпадает перед -y.",
+        "uz": "very so'zidan keyin sifat kerak: shine → shiny; oxiridagi e harfi -y oldidan tushib qoladi."
+      }
+    },
+    {
+      "key": "b1-m18-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "rough"
+      ],
+      "text": "I could feel the ___ of the old stone wall under my hand.",
+      "base": "rough",
+      "accepted": [
+        "roughness"
+      ],
+      "translation": {
+        "ru": "Я чувствовал рукой шершавость старой каменной стены.",
+        "uz": "Qo'lim ostida eski tosh devorning g'adir-budurligini sezdim."
+      },
+      "explanation": {
+        "ru": "После the и перед of нужно существительное: rough → roughness (-ness); gh сохраняется.",
+        "uz": "the va of orasida ot kerak: rough → roughness (-ness); gh harflari saqlanadi."
+      }
+    },
+    {
+      "key": "b1-m18-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "smooth"
+      ],
+      "text": "After the repairs, the road became much ___ than before.",
+      "base": "smooth",
+      "accepted": [
+        "smoother"
+      ],
+      "translation": {
+        "ru": "После ремонта дорога стала гораздо ровнее, чем раньше.",
+        "uz": "Ta'mirdan keyin yo'l avvalgidan ancha silliq bo'ldi."
+      },
+      "explanation": {
+        "ru": "much ... than требует сравнительной степени: smooth → smoother (односложное прилагательное, -er).",
+        "uz": "much ... than qiyosiy darajani talab qiladi: smooth → smoother (bir bo'g'inli sifat, -er)."
+      }
+    },
+    {
+      "key": "b1-m18-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "wooden"
+      ],
+      "text": "We bought a beautiful *woody* table for our new kitchen.",
+      "options": [
+        "wooden",
+        "wooded",
+        "woods"
+      ],
+      "correct": [
+        "wooden"
+      ],
+      "translation": {
+        "ru": "Мы купили красивый деревянный стол для нашей новой кухни.",
+        "uz": "Yangi oshxonamiz uchun chiroyli yog'och stol sotib oldik."
+      },
+      "explanation": {
+        "ru": "Сделанный из дерева — wooden. woody — «древесный, похожий на дерево» (о растениях, запахе), wooded — «лесистый» (о местности).",
+        "uz": "Yog'ochdan yasalgan — wooden. woody — «yog'ochsimon» (o'simlik, hid haqida), wooded — «o'rmonli» (joy haqida)."
+      }
+    },
+    {
+      "key": "b1-m18-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "rubber"
+      ],
+      "text": "Rain boots *make* of rubber, so they keep your feet dry.",
+      "options": [
+        "are made",
+        "are making",
+        "have made"
+      ],
+      "correct": [
+        "are made"
+      ],
+      "translation": {
+        "ru": "Сапоги для дождя делают из резины, поэтому ноги в них остаются сухими.",
+        "uz": "Yomg'ir etiklari rezinadan tayyorlanadi, shuning uchun oyoq quruq qoladi."
+      },
+      "explanation": {
+        "ru": "Сапоги не делают сами, их делают: пассив are made of — «сделаны из».",
+        "uz": "Etiklar o'zi yasamaydi, ularni yasashadi: majhul nisbat are made of — «... dan yasalgan»."
+      }
+    },
+    {
+      "key": "b1-m18-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "leather"
+      ],
+      "text": "There is too *few* leather left to make another bag.",
+      "options": [
+        "little",
+        "less",
+        "many"
+      ],
+      "correct": [
+        "little"
+      ],
+      "translation": {
+        "ru": "Кожи осталось слишком мало, чтобы сделать ещё одну сумку.",
+        "uz": "Yana bitta sumka tikish uchun charm juda oz qoldi."
+      },
+      "explanation": {
+        "ru": "leather (кожа как материал) — неисчисляемое: с ним little. few и many — только с исчисляемыми во множественном числе; после too — little, не less.",
+        "uz": "leather (material sifatidagi charm) sanalmaydigan ot: u bilan little ishlatiladi. few va many faqat sanaladigan ko'plikdagi otlar bilan; too so'zidan keyin less emas, little."
+      }
+    },
+    {
+      "key": "b1-m18-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "similar"
+      ],
+      "text": "There is a strong ___ between the two brothers.",
+      "base": "similar",
+      "accepted": [
+        "similarity"
+      ],
+      "translation": {
+        "ru": "Между двумя братьями сильное сходство.",
+        "uz": "Ikki aka-uka o'rtasida kuchli o'xshashlik bor."
+      },
+      "explanation": {
+        "ru": "После a strong нужно существительное в единственном числе: similar → similarity (-ity).",
+        "uz": "a strong so'zlaridan keyin birlikdagi ot kerak: similar → similarity (-ity)."
+      }
+    },
+    {
+      "key": "b1-m18-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "common"
+      ],
+      "text": "Snow is ___ in our town, so children get very excited when it falls.",
+      "base": "common",
+      "accepted": [
+        "uncommon"
+      ],
+      "translation": {
+        "ru": "Снег в нашем городе — редкость, поэтому дети очень радуются, когда он выпадает.",
+        "uz": "Shahrimizda qor kam yog'adi, shuning uchun u yog'sa, bolalar juda xursand bo'lishadi."
+      },
+      "explanation": {
+        "ru": "Дети так радуются снегу, потому что он бывает редко: common → uncommon (приставка un-).",
+        "uz": "Bolalar qorga juda xursand bo'lishadi, chunki u kam yog'adi: common → uncommon (un- old qo'shimchasi)."
+      }
+    },
+    {
+      "key": "b1-m18-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "basic"
+      ],
+      "text": "The two phones look different, but they are ___ the same.",
+      "base": "basic",
+      "accepted": [
+        "basically"
+      ],
+      "translation": {
+        "ru": "Эти два телефона выглядят по-разному, но по сути они одинаковые.",
+        "uz": "Ikki telefon har xil ko'rinadi, lekin aslida ular bir xil."
+      },
+      "explanation": {
+        "ru": "Перед the same нужно наречие: basic → basically. После -ic пишется -ally, не basicly.",
+        "uz": "the same oldidan ravish kerak: basic → basically. -ic dan keyin -ally yoziladi, basicly emas."
+      }
+    },
+    {
+      "key": "b1-m18-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "condition"
+      ],
+      "text": "The hotel rooms were clean and *on* excellent condition.",
+      "options": [
+        "in",
+        "at",
+        "with"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Номера в гостинице были чистыми и в отличном состоянии.",
+        "uz": "Mehmonxona xonalari toza va a'lo holatda edi."
+      },
+      "explanation": {
+        "ru": "«В хорошем / отличном состоянии» — in good / excellent condition: с condition в этом значении in.",
+        "uz": "«Yaxshi / a'lo holatda» — in good / excellent condition: bu ma'noda condition so'zi bilan in predlogi ishlatiladi."
+      }
+    },
+    {
+      "key": "b1-m18-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "unique"
+      ],
+      "text": "Our town has *an* unique museum of old toys.",
+      "options": [
+        "a",
+        "any",
+        "much"
+      ],
+      "correct": [
+        "a"
+      ],
+      "translation": {
+        "ru": "В нашем городе есть уникальный музей старых игрушек.",
+        "uz": "Shahrimizda eski o'yinchoqlarning noyob muzeyi bor."
+      },
+      "explanation": {
+        "ru": "unique начинается со звука [j] (ю), а не с гласного звука, поэтому a unique, как a university. an ставится перед гласным звуком.",
+        "uz": "unique so'zi unli tovush bilan emas, [j] (yu) tovushi bilan boshlanadi, shuning uchun a unique, xuddi a university kabi. an unli tovush oldidan qo'yiladi."
+      }
+    },
+    {
+      "key": "b1-m18-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "practical"
+      ],
+      "text": "This small bag is very *practice* for long trips.",
+      "options": [
+        "practical",
+        "practiced",
+        "practicing"
+      ],
+      "correct": [
+        "practical"
+      ],
+      "translation": {
+        "ru": "Эта маленькая сумка очень практична для долгих поездок.",
+        "uz": "Bu kichik sumka uzoq safarlar uchun juda qulay."
+      },
+      "explanation": {
+        "ru": "После very нужно прилагательное practical (практичный). practice — существительное «практика» или глагол «тренироваться».",
+        "uz": "very so'zidan keyin sifat kerak: practical (qulay, amaliy). practice esa ot («amaliyot») yoki fe'l («mashq qilmoq»)."
+      }
+    },
+    {
+      "key": "b1-m18-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "surround"
+      ],
+      "text": "The hotel is old, but its ___ are beautiful.",
+      "base": "surround",
+      "accepted": [
+        "surroundings",
+        "surrounds"
+      ],
+      "translation": {
+        "ru": "Гостиница старая, но окрестности у неё красивые.",
+        "uz": "Mehmonxona eski, lekin uning atrofi juda go'zal."
+      },
+      "explanation": {
+        "ru": "its ... are — нужно существительное во множественном числе: surround → surroundings (окрестности). Это слово употребляется только во множественном числе.",
+        "uz": "its ... are — ko'plikdagi ot kerak: surround → surroundings (atrof-muhit, tevarak). Bu so'z faqat ko'plikda ishlatiladi."
+      }
+    },
+    {
+      "key": "b1-m18-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "central"
+      ],
+      "text": "We want to rent an apartment in a ___ part of the city.",
+      "base": "center",
+      "accepted": [
+        "central"
+      ],
+      "translation": {
+        "ru": "Мы хотим снять квартиру в центральной части города.",
+        "uz": "Shaharning markaziy qismidan kvartira ijaraga olmoqchimiz."
+      },
+      "explanation": {
+        "ru": "Между a и part нужно прилагательное: center → central (-al; e из -er выпадает).",
+        "uz": "a va part orasida sifat kerak: center → central (-al; -er dagi e harfi tushib qoladi)."
+      }
+    },
+    {
+      "key": "b1-m18-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "location"
+      ],
+      "text": "The ___ of the new school is perfect: it is near a park.",
+      "base": "locate",
+      "accepted": [
+        "location"
+      ],
+      "translation": {
+        "ru": "У новой школы отличное расположение: она рядом с парком.",
+        "uz": "Yangi maktabning joylashuvi juda qulay: u bog' yaqinida."
+      },
+      "explanation": {
+        "ru": "После the и перед of нужно существительное: locate → location (-ate → -ation).",
+        "uz": "the va of orasida ot kerak: locate → location (-ate o'rniga -ation)."
+      }
+    },
+    {
+      "key": "b1-m18-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "among"
+      ],
+      "text": "She was the only woman *between* the forty guests at the dinner.",
+      "options": [
+        "among",
+        "along",
+        "within"
+      ],
+      "correct": [
+        "among"
+      ],
+      "translation": {
+        "ru": "Она была единственной женщиной среди сорока гостей на ужине.",
+        "uz": "U kechki ziyofatdagi qirq nafar mehmon orasida yagona ayol edi."
+      },
+      "explanation": {
+        "ru": "Среди многих (группы) — among. between — «между» двумя или несколькими отдельно названными предметами.",
+        "uz": "Ko'pchilik (guruh) orasida — among. between esa ikki yoki alohida sanalgan bir necha narsa «o'rtasida» degani."
+      }
+    },
+    {
+      "key": "b1-m18-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "edge"
+      ],
+      "text": "Children must not play near the *border* of the roof.",
+      "options": [
+        "edge",
+        "limit",
+        "frontier"
+      ],
+      "correct": [
+        "edge"
+      ],
+      "translation": {
+        "ru": "Детям нельзя играть у края крыши.",
+        "uz": "Bolalar tomning chetiga yaqin joyda o'ynamasligi kerak."
+      },
+      "explanation": {
+        "ru": "Край крыши, стола, обрыва — edge. border — граница между странами или кайма, frontier — государственная граница, limit — предел. Русское «край» здесь не border.",
+        "uz": "Tom, stol, jarlikning cheti — edge. border — davlatlar orasidagi chegara yoki hoshiya, frontier — davlat chegarasi, limit — me'yor, chegara."
+      }
+    },
+    {
+      "key": "b1-m18-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "bottom"
+      ],
+      "text": "Her ring fell into deep water and sank to *a* bottom.",
+      "options": [
+        "the",
+        "one",
+        "some"
+      ],
+      "correct": [
+        "the"
+      ],
+      "translation": {
+        "ru": "Её кольцо упало в глубокую воду и опустилось на дно.",
+        "uz": "Uning uzugi chuqur suvga tushib, tubiga cho'kib ketdi."
+      },
+      "explanation": {
+        "ru": "Дно у этой воды одно, и понятно, какое: нужен артикль the — the bottom (of the river, of the lake), как the top, the edge.",
+        "uz": "Bu suvning tubi bitta va qaysi ekani aniq: the artikli kerak — the bottom (of the river, of the lake), xuddi the top, the edge kabi."
+      }
+    },
+    {
+      "key": "b1-m18-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "mysterious"
+      ],
+      "text": "Our new neighbor is very ___ and never talks about himself.",
+      "base": "mystery",
+      "accepted": [
+        "mysterious"
+      ],
+      "translation": {
+        "ru": "Наш новый сосед очень загадочный и никогда не рассказывает о себе.",
+        "uz": "Yangi qo'shnimiz juda sirli, o'zi haqida hech qachon gapirmaydi."
+      },
+      "explanation": {
+        "ru": "После very нужно прилагательное: mystery → mysterious (y → i + -ous).",
+        "uz": "very so'zidan keyin sifat kerak: mystery → mysterious (y harfi i ga aylanib, -ous qo'shiladi)."
+      }
+    },
+    {
+      "key": "b1-m18-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "peaceful"
+      ],
+      "text": "The baby slept ___ through the whole night.",
+      "base": "peaceful",
+      "accepted": [
+        "peacefully"
+      ],
+      "translation": {
+        "ru": "Малыш спокойно проспал всю ночь.",
+        "uz": "Chaqaloq tun bo'yi osoyishta uxladi."
+      },
+      "explanation": {
+        "ru": "Глагол slept поясняется наречием: peaceful → peacefully (-ful + -ly, двойное l).",
+        "uz": "slept fe'lini ravish izohlaydi: peaceful → peacefully (-ful va -ly, ikkita l)."
+      }
+    },
+    {
+      "key": "b1-m18-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "charming"
+      ],
+      "text": "The old town is really ___, with its narrow streets and little cafes.",
+      "base": "charm",
+      "accepted": [
+        "charming"
+      ],
+      "translation": {
+        "ru": "Старый город просто очарователен: узкие улочки, маленькие кафе.",
+        "uz": "Eski shahar tor ko'chalari va kichik kafelari bilan juda maftunkor."
+      },
+      "explanation": {
+        "ru": "Город сам очаровывает, поэтому -ing: charm → charming. charmed — о человеке, который очарован.",
+        "uz": "Shaharning o'zi maftun etadi, shuning uchun -ing: charm → charming. charmed esa maftun bo'lgan odam haqida aytiladi."
+      }
+    },
+    {
+      "key": "b1-m18-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "stunning"
+      ],
+      "text": "The view from the top of the tower was absolutely *stunned*.",
+      "options": [
+        "stunning",
+        "stunningly",
+        "shocked"
+      ],
+      "correct": [
+        "stunning"
+      ],
+      "translation": {
+        "ru": "Вид с вершины башни был просто потрясающий.",
+        "uz": "Minora tepasidan ochilgan manzara juda hayratlanarli edi."
+      },
+      "explanation": {
+        "ru": "Вид сам потрясает, поэтому -ing: stunning. stunned и shocked — о человеке, который потрясён (I was stunned).",
+        "uz": "Manzaraning o'zi hayratga soladi, shuning uchun -ing: stunning. stunned va shocked esa hayratga tushgan odam haqida (I was stunned)."
+      }
+    },
+    {
+      "key": "b1-m18-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "familiar"
+      ],
+      "text": "Are you familiar *to* the rules of this game?",
+      "options": [
+        "with",
+        "for",
+        "about"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Вы знакомы с правилами этой игры?",
+        "uz": "Bu o'yinning qoidalari bilan tanishmisiz?"
+      },
+      "explanation": {
+        "ru": "Знать что-то — be familiar with (I am familiar with the rules). familiar to — быть знакомым кому-то: The rules are familiar to me.",
+        "uz": "Biror narsani bilmoq — be familiar with (I am familiar with the rules). familiar to esa kimgadir tanish bo'lmoq: The rules are familiar to me."
+      }
+    },
+    {
+      "key": "b1-m18-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "dull"
+      ],
+      "text": "Without music, the party felt *dully* and quiet.",
+      "options": [
+        "dull",
+        "dullness",
+        "dulling"
+      ],
+      "correct": [
+        "dull"
+      ],
+      "translation": {
+        "ru": "Без музыки вечеринка казалась скучной и тихой.",
+        "uz": "Musiqasiz ziyofat zerikarli va jimjit tuyuldi."
+      },
+      "explanation": {
+        "ru": "После felt («казаться») нужно прилагательное, как и quiet: dull, а не наречие dully. Глаголы-связки feel, seem, look не поясняются наречием.",
+        "uz": "felt («tuyulmoq») fe'lidan keyin sifat kerak, xuddi quiet kabi: dully ravishi emas, dull. feel, seem, look kabi bog'lovchi fe'llardan keyin ravish emas, sifat keladi."
+      }
+    }
+  ]
+}

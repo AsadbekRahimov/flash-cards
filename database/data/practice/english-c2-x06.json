@@ -201,19 +201,19 @@
       "target_words": [
         "nationalize"
       ],
-      "text": "Workers cheered a ___ that finally put the coal mines under state control.",
+      "text": "After a sudden ___ of the coal industry, the state became the only employer.",
       "base": "nationalize",
       "accepted": [
         "nationalization",
         "nationalisation"
       ],
       "translation": {
-        "ru": "Рабочие приветствовали национализацию, которая наконец передала угольные шахты под контроль государства.",
-        "uz": "Ishchilar ko'mir konlarini nihoyat davlat nazoratiga o'tkazgan milliylashtirishni olqishlab kutib oldi."
+        "ru": "После внезапной национализации угольной промышленности государство стало единственным работодателем.",
+        "uz": "Ko'mir sanoati to'satdan milliylashtirilgach, davlat yagona ish beruvchiga aylandi."
       },
       "explanation": {
-        "ru": "После a нужно существительное: nationalize (национализировать) → nationalization; -ize меняется на -ization.",
-        "uz": "a artiklidan keyin ot kerak: nationalize (milliylashtirmoq) → nationalization (milliylashtirish); -ize o'rniga -ization."
+        "ru": "После a sudden и перед of нужно существительное (герундий с a не ставят): nationalize (национализировать) → nationalization; -ize меняется на -ization.",
+        "uz": "a sudden so'zlaridan keyin va of predlogidan oldin ot kerak (a artiklidan keyin gerundiy kelmaydi): nationalize (milliylashtirmoq) → nationalization; -ize o'rniga -ization."
       }
     },
     {
@@ -346,7 +346,7 @@
       ],
       "translation": {
         "ru": "Расточительность министра в обращении с государственными деньгами шокировала даже его ближайших союзников.",
-        "uz": "Vazirning davlat pullariga nisbatan isrofgarligi hatto eng yaqin ittifoqchilarini ham hayratga soldi."
+        "uz": "Vazirning davlat pullariga nisbatan isrofgarligi hatto eng yaqin ittifoqchilarini ham dahshatga soldi."
       },
       "explanation": {
         "ru": "После The minister's нужно существительное: profligate (расточительный) → profligacy (расточительность); -ate меняется на -acy, как accurate → accuracy.",
@@ -371,7 +371,7 @@
       ],
       "translation": {
         "ru": "Инспекторы обнаружили сорок рабочих, которые ночевали в грязных, убогих и тесных комнатах без отопления.",
-        "uz": "Inspektorlar qirqta ishchi isitilmaydigan, iflos va tiqilinch xonalarda tunayotganini aniqladi."
+        "uz": "Inspektorlar qirqta ishchining isitilmaydigan, iflos va tiqilinch xonalarda tunayotganini aniqladi."
       },
       "explanation": {
         "ru": "Перед overcrowded rooms нужно прилагательное: squalor (грязь и убожество) → squalid (грязный, убогий); -or меняется на -id, как splendor → splendid.",
@@ -551,19 +551,19 @@
       "target_words": [
         "amortize"
       ],
-      "text": "The ___ of a mortgage over thirty years keeps the monthly payments low.",
+      "text": "The bank approved a thirty-year ___ of the debt, which kept the monthly payments low.",
       "base": "amortize",
       "accepted": [
         "amortization",
         "amortisation"
       ],
       "translation": {
-        "ru": "Амортизация ипотечного кредита в течение тридцати лет позволяет держать ежемесячные платежи низкими.",
-        "uz": "Ipoteka kreditini o'ttiz yil davomida amortizatsiya qilish oylik to'lovlarni past darajada ushlab turadi."
+        "ru": "Банк одобрил амортизацию долга на тридцать лет, благодаря чему ежемесячные платежи остались низкими.",
+        "uz": "Bank qarzni o'ttiz yil davomida amortizatsiya qilishni ma'qulladi, shu tufayli oylik to'lovlar past bo'lib qoldi."
       },
       "explanation": {
-        "ru": "После The нужно существительное: amortize (амортизировать) → amortization (амортизация, постепенное погашение); -ize меняется на -ization.",
-        "uz": "The artiklidan keyin ot kerak: amortize (amortizatsiya qilmoq) → amortization (amortizatsiya, qarzni bosqichma-bosqich to'lash); -ize o'rniga -ization."
+        "ru": "После a thirty-year и перед of нужно существительное (герундий с a не ставят): amortize (амортизировать) → amortization (постепенное погашение); -ize меняется на -ization.",
+        "uz": "a thirty-year so'zlaridan keyin va of predlogidan oldin ot kerak (a artiklidan keyin gerundiy kelmaydi): amortize (amortizatsiya qilmoq) → amortization (qarzni bosqichma-bosqich to'lash); -ize o'rniga -ization."
       }
     },
     {
@@ -620,7 +620,7 @@
         "uz": "Har qanday investitsiyaga, u qanchalik puxta tanlanmasin, ma'lum darajada xavf xos bo'ladi."
       },
       "explanation": {
-        "ru": "intrinsic to something — присущий чему-либо: после intrinsic нужен to. Русское «присущ чему» и узбекское «-ga xos» тоже подсказывают to, а не for.",
+        "ru": "intrinsic to something — присущий чему-либо: после intrinsic нужен to. Русское «присущ чему» тоже подсказывает to, а не for.",
         "uz": "intrinsic to something — biror narsaga xos: intrinsic so'zidan keyin to predlogi keladi. O'zbekcha «-ga xos» ham for emas, to predlogiga mos."
       }
     },
@@ -752,7 +752,7 @@
       ],
       "translation": {
         "ru": "Доверительные управляющие несут фидуциарную обязанность перед семьями, чьими сбережениями они распоряжаются.",
-        "uz": "Ishonchli boshqaruvchilar jamg'armasini boshqarayotgan oilalar oldida ishonchga asoslangan majburiyatga ega."
+        "uz": "Ishonchli boshqaruvchilar jamg'armalari o'z boshqaruvidagi oilalar oldida ishonchga asoslangan majburiyatga ega."
       },
       "explanation": {
         "ru": "owe a duty to someone — быть обязанным перед кем-то: с fiduciary duty, как и с owe, нужен to. Русское «перед» не передаётся через for.",
@@ -834,8 +834,8 @@
         "serendipitous"
       ],
       "translation": {
-        "ru": "Многие великие изобретения начались со счастливых случайностей в лаборатории.",
-        "uz": "Ko'plab buyuk ixtirolar laboratoriyadagi baxtli tasodiflardan boshlangan."
+        "ru": "Многие великие изобретения начинались как счастливые случайности в лаборатории.",
+        "uz": "Ko'plab buyuk ixtirolar laboratoriyadagi baxtli tasodiflar sifatida boshlangan."
       },
       "explanation": {
         "ru": "Перед accidents нужно прилагательное: serendipity (счастливая случайность) → serendipitous; -ity меняется на -itous.",
@@ -917,8 +917,8 @@
         "uz": "Nazariya, agar biror kuzatuv uning noto'g'riligini isbotlay olsagina, ilmiy hisoblanadi."
       },
       "explanation": {
-        "ru": "«Опровергнуть» — falsify (суффикс -ify). Глагола falsificate нет, это калька с русского «фальсифицировать»; falsification — существительное.",
-        "uz": "«Noto'g'riligini isbotlamoq» — falsify (-ify qo'shimchasi). falsificate degan fe'l yo'q, bu ruscha «falsifitsirovat» so'zidan kalka; falsification esa ot."
+        "ru": "«Опровергнуть» — falsify (суффикс -ify). Глагола falsificate в современном английском нет, это калька с русского «фальсифицировать»; falsification — существительное.",
+        "uz": "«Noto'g'riligini isbotlamoq» — falsify (-ify qo'shimchasi). Hozirgi ingliz tilida falsificate degan fe'l yo'q, bu ruscha «falsifitsirovat» so'zidan kalka; falsification esa ot."
       }
     },
     {
@@ -1015,18 +1015,18 @@
       "target_words": [
         "cosmology"
       ],
-      "text": "As a ___, he spends his days modeling the birth of the universe.",
+      "text": "Most ___ now believe that the universe will keep expanding forever.",
       "base": "cosmology",
       "accepted": [
-        "cosmologist"
+        "cosmologists"
       ],
       "translation": {
-        "ru": "Как космолог он целыми днями моделирует рождение Вселенной.",
-        "uz": "Kosmolog sifatida u kunlarini koinotning paydo bo'lishini modellashtirish bilan o'tkazadi."
+        "ru": "Большинство космологов сейчас считают, что Вселенная будет расширяться вечно.",
+        "uz": "Hozir aksariyat kosmologlar koinot abadiy kengayib boraveradi, deb hisoblaydi."
       },
       "explanation": {
-        "ru": "As a ___ требует человека: cosmology (космология) → cosmologist (космолог); -y меняется на -ist.",
-        "uz": "As a so'zlaridan keyin shaxs kerak: cosmology (kosmologiya) → cosmologist (kosmolog); -y o'rniga -ist."
+        "ru": "believe требует людей, а Most — множественного числа: cosmology (космология) → cosmologist (космолог) → cosmologists; -y меняется на -ist.",
+        "uz": "believe fe'li shaxslarni, Most esa ko'plikni talab qiladi: cosmology (kosmologiya) → cosmologist (kosmolog) → cosmologists; -y o'rniga -ist."
       }
     },
     {
@@ -1040,18 +1040,18 @@
       "target_words": [
         "electromagnetic"
       ],
-      "text": "Electric motors work thanks to ___, the link between electricity and magnetism.",
+      "text": "Electric motors work thanks to ___, the force that links electricity and magnetism.",
       "base": "electromagnetic",
       "accepted": [
         "electromagnetism"
       ],
       "translation": {
-        "ru": "Электродвигатели работают благодаря электромагнетизму — связи между электричеством и магнетизмом.",
-        "uz": "Elektr dvigatellari elektromagnetizm, ya'ni elektr va magnetizm o'rtasidagi bog'liqlik tufayli ishlaydi."
+        "ru": "Электродвигатели работают благодаря электромагнетизму — силе, которая связывает электричество и магнетизм.",
+        "uz": "Elektr dvigatellari elektromagnetizm, ya'ni elektr va magnetizmni bog'lovchi kuch tufayli ishlaydi."
       },
       "explanation": {
-        "ru": "После thanks to нужно существительное — название явления: electromagnetic → electromagnetism; -ic + -ism, как magnetic → magnetism.",
-        "uz": "thanks to so'zlaridan keyin ot — hodisa nomi kerak: electromagnetic → electromagnetism; -ic + -ism, xuddi magnetic → magnetism kabi."
+        "ru": "После thanks to нужно существительное — название явления, силы (не electromagnetics — раздел физики): electromagnetic → electromagnetism; -ic + -ism, как magnetic → magnetism.",
+        "uz": "thanks to so'zlaridan keyin ot — hodisa, kuch nomi kerak (fizika bo'limi electromagnetics emas): electromagnetic → electromagnetism; -ic + -ism, xuddi magnetic → magnetism kabi."
       }
     },
     {
@@ -1105,7 +1105,7 @@
       ],
       "translation": {
         "ru": "Линзы фокусируют свет за счёт преломления: лучи отклоняются, проходя через стекло.",
-        "uz": "Linzalar yorug'likni sindirish orqali fokuslaydi: nurlar shishadan o'tayotganda og'adi."
+        "uz": "Linzalar yorug'likni sindirish orqali bir nuqtaga yig'adi: nurlar shishadan o'tayotganda og'adi."
       },
       "explanation": {
         "ru": "Отражение от зеркала — reflection, преломление при переходе в другую среду — refraction. Лучи «проходят через стекло», значит refraction; diffraction — огибание препятствий.",
@@ -1202,7 +1202,7 @@
       "target_words": [
         "oxidize"
       ],
-      "text": "Rust is the visible result of the slow ___ of iron.",
+      "text": "Rust is the visible result of a slow ___ of iron.",
       "base": "oxidize",
       "accepted": [
         "oxidation",
@@ -1214,8 +1214,8 @@
         "uz": "Zang — temirning sekin oksidlanishining ko'zga ko'rinadigan natijasi."
       },
       "explanation": {
-        "ru": "После the slow нужно существительное: oxidize (окисляться) → oxidation (окисление); -ize меняется на -ation (допустимо и oxidization).",
-        "uz": "the slow so'zlaridan keyin ot kerak: oxidize (oksidlanmoq) → oxidation (oksidlanish); -ize o'rniga -ation (oxidization shakli ham to'g'ri)."
+        "ru": "После a slow и перед of нужно существительное (герундий с a не ставят): oxidize (окисляться) → oxidation (окисление); -ize меняется на -ation (допустимо и oxidization).",
+        "uz": "a slow so'zlaridan keyin va of predlogidan oldin ot kerak (a artiklidan keyin gerundiy kelmaydi): oxidize (oksidlanmoq) → oxidation (oksidlanish); -ize o'rniga -ation (oxidization shakli ham to'g'ri)."
       }
     },
     {

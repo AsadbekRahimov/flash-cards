@@ -121,7 +121,7 @@
       "options": [
         "Does",
         "Are",
-        "Am"
+        "Have"
       ],
       "correct": [
         "Does"
@@ -131,8 +131,8 @@
         "uz": "Uning boshi bugun hali ham og'riyaptimi?"
       },
       "explanation": {
-        "ru": "His head — 3-е лицо единственного числа («она»), поэтому в вопросе Does, а не Do. После does глагол hurt остаётся без -s.",
-        "uz": "His head — uchinchi shaxs birlik, shuning uchun so'roqda Do emas, Does keladi. Does so'zidan keyin hurt fe'li -s olmaydi."
+        "ru": "His head — 3-е лицо единственного числа («она»), поэтому в вопросе Does, а не Do. После does глагол hurt остаётся без -s. Have здесь не подходит: hurt — не причастие.",
+        "uz": "His head — uchinchi shaxs birlik, shuning uchun so'roqda Do emas, Does keladi. Does so'zidan keyin hurt fe'li -s olmaydi. Have bu yerda to'g'ri kelmaydi."
       }
     },
     {
@@ -308,22 +308,22 @@
       "target_words": [
         "knee"
       ],
-      "text": "My grandfather is old, and both his knees *hurts*.",
+      "text": "My grandfather is old, and both his *knee* hurt.",
       "options": [
-        "hurt",
-        "hurting",
-        "is hurt"
+        "knees",
+        "knee's",
+        "a knee"
       ],
       "correct": [
-        "hurt"
+        "knees"
       ],
       "translation": {
         "ru": "Мой дедушка старый, и у него болят оба колена.",
         "uz": "Bobom qarib qolgan, ikkala tizzasi ham og'riydi."
       },
       "explanation": {
-        "ru": "Подлежащее both his knees — во множественном числе, поэтому глагол без -s: knees hurt. -s нужно только при подлежащем в 3-м лице единственного числа.",
-        "uz": "Ega — both his knees, ko'plikda, shuning uchun fe'l -s olmaydi: knees hurt. -s faqat ega uchinchi shaxs birlikda bo'lganda qo'shiladi."
+        "ru": "После both («оба») существительное во множественном числе: both his knees. Апостроф ('s) означает принадлежность, а не множественное число.",
+        "uz": "both («ikkala») so'zidan keyin ot ko'plikda keladi: both his knees. Apostrof ('s) qaratqichni bildiradi, ko'plikni emas."
       }
     },
     {
@@ -549,18 +549,18 @@
       "target_words": [
         "smile"
       ],
-      "text": "My grandmother is ___ because all her children are here.",
+      "text": "My grandmother is ___ at everyone because all her children are here.",
       "base": "smile",
       "accepted": [
         "smiling"
       ],
       "translation": {
-        "ru": "Бабушка улыбается, потому что все её дети здесь.",
-        "uz": "Buvim jilmayib turibdi, chunki hamma farzandlari shu yerda."
+        "ru": "Бабушка улыбается всем, потому что все её дети здесь.",
+        "uz": "Buvim hammaga jilmayib turibdi, chunki hamma farzandlari shu yerda."
       },
       "explanation": {
-        "ru": "После is нужна форма на -ing (действие происходит сейчас). Немое e в конце отпадает: smile → smiling.",
-        "uz": "is so'zidan keyin -ing shakli kerak (harakat hozir bo'lyapti). Oxiridagi o'qilmaydigan e tushib qoladi: smile → smiling."
+        "ru": "После is нужна форма на -ing (действие происходит сейчас), at everyone — «кому?». Немое e в конце отпадает: smile → smiling.",
+        "uz": "is so'zidan keyin -ing shakli kerak (harakat hozir bo'lyapti), at everyone — «kimga?». Oxiridagi o'qilmaydigan e tushib qoladi: smile → smiling."
       }
     },
     {
@@ -794,22 +794,22 @@
       "target_words": [
         "hear"
       ],
-      "text": "Can you *listen* that strange sound outside?",
+      "text": "Can your grandmother *hears* us from the kitchen?",
       "options": [
         "hear",
-        "hearing",
-        "hears"
+        "heard",
+        "hearing"
       ],
       "correct": [
         "hear"
       ],
       "translation": {
-        "ru": "Вы слышите этот странный звук на улице?",
-        "uz": "Tashqaridagi g'alati tovushni eshityapsizmi?"
+        "ru": "Ваша бабушка слышит нас из кухни?",
+        "uz": "Buvingiz oshxonadan bizni eshita oladimi?"
       },
       "explanation": {
-        "ru": "Hear — «слышать» (звук сам доходит до вас), listen — «слушать», и после него нужен to. Здесь спрашивают, слышно ли звук: hear.",
-        "uz": "Hear — «eshitmoq» (tovush o'zi qulog'ingizga yetadi), listen — «tinglamoq», undan keyin to keladi. Bu yerda tovush eshitilyaptimi, deb so'ralyapti: hear."
+        "ru": "После can глагол стоит в начальной форме, без -s, даже когда подлежащее в 3-м лице (your grandmother): can hear.",
+        "uz": "can fe'lidan keyin fe'l -s qo'shimchasiz boshlang'ich shaklda keladi, ega uchinchi shaxs birlik bo'lsa ham (your grandmother): can hear."
       }
     },
     {
@@ -941,8 +941,8 @@
         "uz": "Uyimiz ustida ikkita oq bulut bor."
       },
       "explanation": {
-        "ru": "There is ставится перед единственным числом, There are — перед множественным. Two big clouds — множественное число, поэтому There are.",
-        "uz": "There is birikmasidan keyin birlikdagi ot, There are dan keyin ko'plikdagi ot keladi. Two big clouds — ko'plik, shuning uchun There are."
+        "ru": "There is ставится перед единственным числом, There are — перед множественным. Two white clouds — множественное число, поэтому There are.",
+        "uz": "There is birikmasidan keyin birlikdagi ot, There are dan keyin ko'plikdagi ot keladi. Two white clouds — ko'plik, shuning uchun There are."
       }
     },
     {
@@ -1093,7 +1093,7 @@
       "options": [
         "windy",
         "winds",
-        "windier"
+        "winded"
       ],
       "correct": [
         "windy"
@@ -1103,8 +1103,8 @@
         "uz": "Havo sovuq va shamolli edi, shuning uchun uyda qoldik."
       },
       "explanation": {
-        "ru": "После was cold and нужно второе прилагательное: wind («ветер») — существительное, windy («ветреный») — прилагательное.",
-        "uz": "was cold and birikmasidan keyin ikkinchi sifat kerak: wind («shamol») — ot, windy («shamolli») — sifat."
+        "ru": "После was cold and нужно второе прилагательное: wind («ветер») — существительное, windy («ветреный») — прилагательное. Winded значит «запыхавшийся» — о погоде так не говорят.",
+        "uz": "was cold and birikmasidan keyin ikkinchi sifat kerak: wind («shamol») — ot, windy («shamolli») — sifat. winded so'zi «nafasi qisilgan» degani, ob-havo haqida aytilmaydi."
       }
     },
     {
@@ -1170,20 +1170,20 @@
       },
       "level": "A1",
       "target_words": [
-        "summer"
+        "winter"
       ],
-      "text": "In our country the ___ are long, hot and dry.",
-      "base": "summer",
+      "text": "The children are waiting for this ___ first snow.",
+      "base": "winter",
       "accepted": [
-        "summers"
+        "winter's"
       ],
       "translation": {
-        "ru": "В нашей стране лето долгое, жаркое и сухое.",
-        "uz": "Mamlakatimizda yozlar uzoq, issiq va quruq bo'ladi."
+        "ru": "Дети ждут первого снега этой зимы.",
+        "uz": "Bolalar shu qishning birinchi qorini kutishyapti."
       },
       "explanation": {
-        "ru": "Глагол are требует множественного числа: the summers are — «лето каждый год». По-русски здесь единственное число, по-английски — summers.",
-        "uz": "are fe'li ko'plikni talab qiladi: the summers are — «har yilgi yozlar»."
+        "ru": "Между this и first snow нужна форма «чей?» — «первый снег этой зимы»: winter + 's → winter's. This показывает, что зима одна, поэтому не winters'.",
+        "uz": "this va first snow orasida «nimaning?» shakli kerak — «shu qishning birinchi qori»: winter + 's → winter's. this so'zi qish bitta ekanini ko'rsatadi, shuning uchun winters' emas."
       }
     },
     {
@@ -1249,9 +1249,9 @@
       },
       "level": "A1",
       "target_words": [
-        "winter"
+        "spring"
       ],
-      "text": "Our family often goes skiing *at* winter.",
+      "text": "Our garden is full of birds *at* spring.",
       "options": [
         "in",
         "on",
@@ -1261,12 +1261,12 @@
         "in"
       ],
       "translation": {
-        "ru": "Зимой наша семья часто катается на лыжах.",
-        "uz": "Qishda oilamiz tez-tez chang'i uchgani boradi."
+        "ru": "Весной наш сад полон птиц.",
+        "uz": "Bahorda bog'imiz qushlarga to'lib ketadi."
       },
       "explanation": {
-        "ru": "С временами года — in: in winter, in summer. At ставится с точным временем (at five), on — с днями (on Monday).",
-        "uz": "Fasllar bilan in ishlatiladi: in winter, in summer. At aniq vaqt bilan (at five), on kunlar bilan (on Monday) keladi."
+        "ru": "С временами года — in: in spring, in winter. At ставится с точным временем (at five), on — с днями (on Monday).",
+        "uz": "Fasllar bilan in ishlatiladi: in spring, in winter. at aniq vaqt bilan (at five), on kunlar bilan (on Monday) keladi."
       }
     },
     {
@@ -1309,18 +1309,18 @@
       "target_words": [
         "tree"
       ],
-      "text": "In autumn the ___ in our street turn yellow.",
+      "text": "In autumn this old ___ leaves turn yellow.",
       "base": "tree",
       "accepted": [
-        "trees"
+        "tree's"
       ],
       "translation": {
-        "ru": "Осенью деревья на нашей улице желтеют.",
-        "uz": "Kuzda ko'chamizdagi daraxtlar sarg'ayadi."
+        "ru": "Осенью листья этого старого дерева желтеют.",
+        "uz": "Kuzda bu qari daraxtning barglari sarg'ayadi."
       },
       "explanation": {
-        "ru": "Глагол turn без -s показывает множественное число: the trees turn. Об одном дереве было бы the tree turns.",
-        "uz": "turn fe'lining -s olmagani ko'plikni ko'rsatadi: the trees turn. Bitta daraxt haqida the tree turns bo'lardi."
+        "ru": "Перед leaves нужна форма «чьи?» — листья дерева: tree + 's → tree's. This показывает, что дерево одно, поэтому не trees'.",
+        "uz": "leaves so'zidan oldin «nimaning?» shakli kerak — daraxtning barglari: tree + 's → tree's. this so'zi daraxt bitta ekanini ko'rsatadi, shuning uchun trees' emas."
       }
     },
     {

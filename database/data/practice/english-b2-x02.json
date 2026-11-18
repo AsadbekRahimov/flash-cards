@@ -38,18 +38,18 @@
       "target_words": [
         "subsidy"
       ],
-      "text": "The state has ___ public transport for many years, so tickets are cheap.",
+      "text": "Bus tickets are cheap because public transport is heavily ___ by the state.",
       "base": "subsidy",
       "accepted": [
         "subsidized"
       ],
       "translation": {
-        "ru": "Государство уже много лет субсидирует общественный транспорт, поэтому билеты дешёвые.",
-        "uz": "Davlat ko'p yillardan beri jamoat transportiga subsidiya ajratib keladi, shuning uchun chiptalar arzon."
+        "ru": "Билеты на автобус дешёвые, потому что общественный транспорт щедро субсидируется государством.",
+        "uz": "Avtobus chiptalari arzon, chunki jamoat transporti davlatdan katta subsidiya oladi."
       },
       "explanation": {
-        "ru": "После has нужно причастие глагола с дополнением: существительное subsidy → глагол subsidize (-y → -ize) → subsidized.",
-        "uz": "has so'zidan keyin to'ldiruvchili fe'lning sifatdoshi kerak: subsidy oti → subsidize fe'li (-y o'rniga -ize) → subsidized."
+        "ru": "is … by the state — пассив, нужно причастие глагола: существительное subsidy → глагол subsidize (-y → -ize) → subsidized.",
+        "uz": "is … by the state — majhul nisbat, fe'lning sifatdoshi kerak: subsidy oti → subsidize fe'li (-y o'rniga -ize) → subsidized."
       }
     },
     {
@@ -63,18 +63,18 @@
       "target_words": [
         "prosperity"
       ],
-      "text": "Years of peace brought great ___ to the farming villages of the valley.",
+      "text": "For many decades the valley enjoyed peace and ___.",
       "base": "prosperous",
       "accepted": [
         "prosperity"
       ],
       "translation": {
-        "ru": "Годы мира принесли большое процветание земледельческим сёлам долины.",
-        "uz": "Tinchlik yillari vodiydagi dehqon qishloqlariga katta farovonlik olib keldi."
+        "ru": "Много десятилетий в долине царили мир и процветание.",
+        "uz": "Ko'p o'n yilliklar davomida vodiyda tinchlik va farovonlik hukm surdi."
       },
       "explanation": {
-        "ru": "После brought и прилагательного great нужно существительное: prosperous → prosperity (-ous → -ity).",
-        "uz": "brought fe'li va great sifatidan keyin ot kerak: prosperous → prosperity (-ous o'rniga -ity)."
+        "ru": "После peace and нужно второе существительное, как peace: прилагательное prosperous → prosperity (-ous → -ity).",
+        "uz": "peace and so'zlaridan keyin peace kabi ikkinchi ot kerak: prosperous sifati → prosperity (-ous o'rniga -ity)."
       }
     },
     {
@@ -146,7 +146,7 @@
       "target_words": [
         "deficit"
       ],
-      "text": "The new government has managed to cut *it's* budget deficit in half.",
+      "text": "The budget deficit keeps growing, and *it's* size now worries investors.",
       "options": [
         "its",
         "it",
@@ -156,12 +156,12 @@
         "its"
       ],
       "translation": {
-        "ru": "Новому правительству удалось вдвое сократить дефицит бюджета.",
-        "uz": "Yangi hukumat byudjet taqchilligini ikki baravar qisqartirishga muvaffaq bo'ldi."
+        "ru": "Дефицит бюджета продолжает расти, и его размер уже тревожит инвесторов.",
+        "uz": "Byudjet taqchilligi o'sishda davom etmoqda va uning hajmi endi investorlarni xavotirga solmoqda."
       },
       "explanation": {
-        "ru": "its — притяжательное «свой, его» (дефицит правительства), без апострофа. it's — это it is или it has, здесь бессмысленно.",
-        "uz": "its — «uning, o'zining» ma'nosidagi egalik olmoshi (hukumatning taqchilligi), apostrofsiz. it's esa it is yoki it has qisqartmasi, bu yerda ma'nosiz."
+        "ru": "Перед существительным size нужно притяжательное its («его», размер дефицита), без апострофа. it's — это it is или it has.",
+        "uz": "size otidan oldin apostrofsiz its («uning», ya'ni taqchillikning) egalik olmoshi kerak. it's esa it is yoki it has qisqartmasi."
       }
     },
     {
@@ -175,18 +175,18 @@
       "target_words": [
         "creditor"
       ],
-      "text": "We still owe a lot of money to our main ___, the bank.",
+      "text": "As the largest ___, the bank will get its money back first.",
       "base": "credit",
       "accepted": [
         "creditor"
       ],
       "translation": {
-        "ru": "Мы всё ещё должны много денег нашему главному кредитору — банку.",
-        "uz": "Biz hali ham asosiy kreditorimiz — bankka ko'p pul qarzdormiz."
+        "ru": "Как крупнейший кредитор, банк первым получит свои деньги обратно.",
+        "uz": "Eng yirik kreditor sifatida bank o'z pulini birinchi bo'lib qaytarib oladi."
       },
       "explanation": {
-        "ru": "owe money to + тот, кому должны: нужно существительное-лицо (это банк). credit → creditor: суффикс -or, а не -er.",
-        "uz": "owe money to dan keyin qarzdor bo'lingan shaxs keladi (bu yerda bank): credit → creditor; qo'shimcha -er emas, -or."
+        "ru": "As the largest … — нужно существительное-лицо: тот, кому должны деньги (это банк). credit → creditor: суффикс -or, а не -er.",
+        "uz": "As the largest … — shaxsni bildiruvchi ot kerak: pul qarz berilgan tomon (bu yerda bank). credit → creditor; qo'shimcha -er emas, -or."
       }
     },
     {
@@ -200,18 +200,18 @@
       "target_words": [
         "bankruptcy"
       ],
-      "text": "Years of heavy losses finally drove the old airline into ___.",
+      "text": "The small bakery could not pay its debts and filed for ___ in March.",
       "base": "bankrupt",
       "accepted": [
         "bankruptcy"
       ],
       "translation": {
-        "ru": "Годы больших убытков в конце концов довели старую авиакомпанию до банкротства.",
-        "uz": "Ko'p yillik katta zararlar oxir-oqibat eski aviakompaniyani bankrotlikka olib keldi."
+        "ru": "Маленькая пекарня не смогла расплатиться с долгами и в марте подала заявление о банкротстве.",
+        "uz": "Kichik novvoyxona qarzlarini to'lay olmadi va mart oyida bankrotlik to'g'risida ariza berdi."
       },
       "explanation": {
-        "ru": "После предлога into нужно существительное: прилагательное bankrupt + -cy → bankruptcy (t сохраняется).",
-        "uz": "into predlogidan keyin ot kerak: bankrupt sifatiga -cy qo'shiladi → bankruptcy (t saqlanadi)."
+        "ru": "file for … — подать заявление о чём-то: нужно существительное. Прилагательное bankrupt + -cy → bankruptcy (t сохраняется).",
+        "uz": "file for … — biror narsa haqida ariza bermoq: ot kerak. bankrupt sifatiga -cy qo'shiladi → bankruptcy (t saqlanadi)."
       }
     },
     {
@@ -290,7 +290,7 @@
       ],
       "translation": {
         "ru": "Ваша арендная плата просрочена на две недели, поэтому, пожалуйста, внесите её сегодня.",
-        "uz": "Ijara haqini to'lash muddati ikki hafta o'tib ketdi, shuning uchun iltimos, uni bugun to'lang."
+        "uz": "Ijara to'lovingiz ikki haftaga kechikdi, shuning uchun iltimos, uni bugun to'lang."
       },
       "explanation": {
         "ru": "overdue — не оплаченный в срок (платёж, счёт). expired — с истёкшим сроком действия (паспорт, молоко). Русское «просроченный» охватывает оба значения.",
@@ -344,7 +344,7 @@
       ],
       "translation": {
         "ru": "Покупка земли в новом городе — крайне спекулятивное вложение.",
-        "uz": "Yangi shahardan yer sotib olish o'ta spekulyativ sarmoyadir."
+        "uz": "Yangi shaharda yer sotib olish o'ta spekulyativ sarmoyadir."
       },
       "explanation": {
         "ru": "Между a highly и существительным investment нужно прилагательное: speculate → speculative (-ate → -ative).",
@@ -385,20 +385,20 @@
       },
       "level": "B2",
       "target_words": [
-        "broker"
+        "portfolio"
       ],
-      "text": "My broker gave me some ___ good advice last year.",
-      "base": "except",
+      "text": "Wealthy investors often hold several ___ with different banks.",
+      "base": "portfolio",
       "accepted": [
-        "exceptionally"
+        "portfolios"
       ],
       "translation": {
-        "ru": "В прошлом году мой брокер дал мне исключительно хороший совет.",
-        "uz": "O'tgan yili brokerim menga favqulodda yaxshi maslahat berdi."
+        "ru": "Состоятельные инвесторы часто держат несколько инвестиционных портфелей в разных банках.",
+        "uz": "Badavlat investorlar ko'pincha turli banklarda bir nechta investitsiya portfellarini saqlaydi."
       },
       "explanation": {
-        "ru": "Прилагательное good усиливается наречием. Два шага: except → exception (-ion) → exceptional (-al) → exceptionally (-ly).",
-        "uz": "good sifatini ravish kuchaytiradi. Bosqichlar: except → exception (-ion) → exceptional (-al) → exceptionally (-ly)."
+        "ru": "several требует множественного числа. Если перед конечной -o стоит гласная, добавляется только -s: portfolio → portfolios (как radio → radios), а не -oes.",
+        "uz": "several so'zidan keyin ko'plik kerak. Oxiridagi -o dan oldin unli bo'lsa, faqat -s qo'shiladi: portfolio → portfolios (radio → radios kabi), -oes emas."
       }
     },
     {
@@ -412,7 +412,7 @@
       "target_words": [
         "stake"
       ],
-      "text": "She owns a large *steak* in the family business.",
+      "text": "The bank decided to sell its *steak* in the struggling airline.",
       "options": [
         "stake",
         "stage",
@@ -422,8 +422,8 @@
         "stake"
       ],
       "translation": {
-        "ru": "Ей принадлежит крупная доля в семейном бизнесе.",
-        "uz": "U oilaviy biznesda katta ulushga ega."
+        "ru": "Банк решил продать свою долю в испытывающей трудности авиакомпании.",
+        "uz": "Bank qiyin ahvoldagi aviakompaniyadagi ulushini sotishga qaror qildi."
       },
       "explanation": {
         "ru": "stake — доля в компании (a stake in). steak — кусок жареного мяса: слова звучат одинаково, но пишутся по-разному.",
@@ -439,24 +439,24 @@
       },
       "level": "B2",
       "target_words": [
-        "portfolio"
+        "stock"
       ],
-      "text": "Most of the risky shares *on* her portfolio were sold last year.",
+      "text": "Her grandfather left her some *actions* in a large oil company.",
       "options": [
-        "in",
-        "at",
-        "by"
+        "stock",
+        "promotion",
+        "campaign"
       ],
       "correct": [
-        "in"
+        "stock"
       ],
       "translation": {
-        "ru": "Большую часть рискованных акций из её портфеля продали в прошлом году.",
-        "uz": "Uning portfelidagi xavfli aksiyalarning ko'pi o'tgan yili sotildi."
+        "ru": "Дедушка оставил ей акции крупной нефтяной компании.",
+        "uz": "Bobosi unga yirik neft kompaniyasining aksiyalarini qoldirdi."
       },
       "explanation": {
-        "ru": "Акции находятся в портфеле, внутри него: in a portfolio. Предлог on с portfolio не употребляется.",
-        "uz": "Aksiyalar portfel ichida bo'ladi: in a portfolio. portfolio so'zi bilan on predlogi ishlatilmaydi."
+        "ru": "Акции компании — stock (или shares). action — «действие», а «акция» в смысле распродажи или кампании — promotion, campaign. Русское «акция» здесь не action.",
+        "uz": "Kompaniya aksiyalari — stock (yoki shares). action — «harakat», savdo yoki reklama aksiyasi esa promotion, campaign. O'zbekcha «aksiya» so'zi bu yerda action emas."
       }
     },
     {
@@ -559,7 +559,7 @@
         "uz": "Uzoq davom etadigan sud jarayoni kichik firma uchun juda qimmatga tushardi."
       },
       "explanation": {
-        "ru": "После too нужно прилагательное: cost + -ly → costly. Это прилагательное, а не наречие, как friendly.",
+        "ru": "После too нужно прилагательное: cost + -ly → costly. Здесь -ly образует прилагательное, а не наречие, как и в friendly.",
         "uz": "too so'zidan keyin sifat kerak: cost + -ly → costly. Bu friendly kabi sifat, ravish emas."
       }
     },
@@ -912,8 +912,8 @@
         "uz": "Biz musiqa o'simliklarning o'sishiga yordam beradi degan gipotezani tekshirdik."
       },
       "explanation": {
-        "ru": "Содержание гипотезы (как после idea, fact, belief) вводит союз that. Русское «что» здесь не what: what после существительного не ставится.",
-        "uz": "Gipotezaning mazmunini (idea, fact, belief so'zlaridan keyingi kabi) that bog'lovchisi kiritadi. Otdan keyin what ishlatilmaydi."
+        "ru": "Содержание гипотезы (как после idea, fact, belief) вводит союз that. Русское «что» здесь не what: такое придаточное после существительного what не вводит.",
+        "uz": "Gipotezaning mazmunini (idea, fact, belief so'zlaridan keyingi kabi) that bog'lovchisi kiritadi. Otdan keyingi bunday ergash gapni what kiritmaydi."
       }
     },
     {
@@ -1118,7 +1118,7 @@
       "target_words": [
         "ratio"
       ],
-      "text": "The ratio of teachers to pupils *are* low and keeps falling.",
+      "text": "The ratio of nurses to patients here *are* low and keeps falling.",
       "options": [
         "is",
         "were",
@@ -1128,12 +1128,12 @@
         "is"
       ],
       "translation": {
-        "ru": "Соотношение учителей и учеников низкое и продолжает снижаться.",
-        "uz": "O'qituvchilar va o'quvchilar nisbati past va pasayishda davom etmoqda."
+        "ru": "Соотношение медсестёр и пациентов здесь низкое и продолжает снижаться.",
+        "uz": "Bu yerda hamshiralar va bemorlar nisbati past va pasayishda davom etmoqda."
       },
       "explanation": {
-        "ru": "Подлежащее — ratio (единственное число), а не pupils, поэтому is; это подтверждает и keeps.",
-        "uz": "Ega — ratio (birlik), pupils emas, shuning uchun is keladi; buni keeps fe'li ham tasdiqlaydi."
+        "ru": "Подлежащее — ratio (единственное число), а не patients, поэтому is; это подтверждает и keeps.",
+        "uz": "Ega — ratio (birlik), patients emas, shuning uchun is keladi; buni keeps fe'li ham tasdiqlaydi."
       }
     },
     {
@@ -1442,7 +1442,7 @@
       "target_words": [
         "particle"
       ],
-      "text": "Tiny particles of dust *was* floating above the old books.",
+      "text": "Tiny particles of plastic *was* found in every sample of sea water.",
       "options": [
         "were",
         "is",
@@ -1452,12 +1452,12 @@
         "were"
       ],
       "translation": {
-        "ru": "Над старыми книгами парили крошечные частицы пыли.",
-        "uz": "Eski kitoblar ustida mayda chang zarralari suzib yurardi."
+        "ru": "Крошечные частицы пластика нашли в каждой пробе морской воды.",
+        "uz": "Dengiz suvining har bir namunasida mayda plastik zarralari topildi."
       },
       "explanation": {
-        "ru": "Подлежащее — particles (множественное число), а не dust, поэтому were.",
-        "uz": "Ega — particles (ko'plik), dust emas, shuning uchun were keladi."
+        "ru": "Подлежащее — particles (множественное число), а не plastic, поэтому were.",
+        "uz": "Ega — particles (ko'plik), plastic emas, shuning uchun were keladi."
       }
     },
     {
@@ -1496,18 +1496,18 @@
       "target_words": [
         "scholar"
       ],
-      "text": "She has published three ___ books on ancient history.",
+      "text": "Her ___ work on old coins is respected by many experts.",
       "base": "scholar",
       "accepted": [
         "scholarly"
       ],
       "translation": {
-        "ru": "Она опубликовала три научных труда по древней истории.",
-        "uz": "U qadimgi tarix bo'yicha uchta ilmiy kitob nashr etgan."
+        "ru": "Её научные труды о старинных монетах высоко ценят многие специалисты.",
+        "uz": "Uning qadimiy tangalar haqidagi ilmiy ishlarini ko'plab mutaxassislar qadrlaydi."
       },
       "explanation": {
-        "ru": "Перед существительным books нужно прилагательное: scholar + -ly → scholarly («научный»). Это прилагательное, как costly.",
-        "uz": "books otidan oldin sifat kerak: scholar + -ly → scholarly («ilmiy»). Bu costly kabi sifat."
+        "ru": "Перед существительным work нужно прилагательное: scholar + -ly → scholarly («научный»). Здесь -ly образует прилагательное, как в costly.",
+        "uz": "work otidan oldin sifat kerak: scholar + -ly → scholarly («ilmiy»). Bu yerda -ly costly so'zidagi kabi sifat yasaydi."
       }
     },
     {
@@ -1519,20 +1519,20 @@
       },
       "level": "B2",
       "target_words": [
-        "academy"
+        "citation"
       ],
-      "text": "She is ___ gifted but finds it hard to make friends.",
-      "base": "academy",
+      "text": "Without a proper ___, the quote looks like the student's own words.",
+      "base": "cite",
       "accepted": [
-        "academically"
+        "citation"
       ],
       "translation": {
-        "ru": "Она очень способна к учёбе, но ей трудно заводить друзей.",
-        "uz": "U o'qishda juda iqtidorli, lekin do'st orttirish unga qiyin."
+        "ru": "Без надлежащей ссылки на источник цитата выглядит как собственные слова студента.",
+        "uz": "Manbaga to'g'ri havola berilmasa, iqtibos talabaning o'z so'zlaridek ko'rinadi."
       },
       "explanation": {
-        "ru": "Прилагательное gifted описывается наречием. Два шага: academy → academic (-ic) → academically (-ally).",
-        "uz": "gifted sifatini ravish izohlaydi. Ikki bosqich: academy → academic (-ic) → academically (-ally)."
+        "ru": "После a proper нужно существительное: глагол cite → citation (-e выпадает, + -ation).",
+        "uz": "a proper so'zlaridan keyin ot kerak: cite fe'li → citation (-e tushib qoladi, -ation qo'shiladi)."
       }
     },
     {
@@ -1546,7 +1546,7 @@
       "target_words": [
         "journal"
       ],
-      "text": "Two of his papers came out *on* a leading physics journal.",
+      "text": "Which journal did your new article appear *on*?",
       "options": [
         "in",
         "at",
@@ -1556,12 +1556,12 @@
         "in"
       ],
       "translation": {
-        "ru": "Две его статьи вышли в ведущем журнале по физике.",
-        "uz": "Uning ikkita maqolasi yetakchi fizika jurnalida chiqdi."
+        "ru": "В каком журнале вышла ваша новая статья?",
+        "uz": "Yangi maqolangiz qaysi jurnalda chiqdi?"
       },
       "explanation": {
-        "ru": "Статья выходит в журнале, внутри издания: in a journal. Предлог on здесь неверен.",
-        "uz": "Maqola jurnal ichida chiqadi: in a journal. Bu yerda on predlogi xato."
+        "ru": "Статья выходит в журнале, внутри издания: appear in a journal. В вопросе предлог уходит в конец, но остаётся in.",
+        "uz": "Maqola jurnal ichida chiqadi: appear in a journal. So'roq gapda predlog oxirga o'tadi, lekin in bo'lib qoladi."
       }
     },
     {
@@ -1604,22 +1604,22 @@
       "target_words": [
         "dissertation"
       ],
-      "text": "The student *who's* dissertation won the prize will speak first.",
+      "text": "She plans to *protect* her dissertation before the end of the year.",
       "options": [
-        "whose",
-        "who",
-        "whom"
+        "defend",
+        "guard",
+        "safeguard"
       ],
       "correct": [
-        "whose"
+        "defend"
       ],
       "translation": {
-        "ru": "Первым выступит студент, чья диссертация получила премию.",
-        "uz": "Birinchi bo'lib dissertatsiyasi mukofot olgan talaba so'zga chiqadi."
+        "ru": "Она планирует защитить диссертацию до конца года.",
+        "uz": "U yil oxirigacha dissertatsiyasini himoya qilishni rejalashtirmoqda."
       },
       "explanation": {
-        "ru": "whose — «чей», притяжательное слово перед существительным. who's = who is / who has: «студент, кто есть диссертация» бессмысленно.",
-        "uz": "whose — «kimning», otdan oldin keladigan egalik so'zi. who's = who is / who has, bu yerda ma'nosiz."
+        "ru": "defend a dissertation — защитить диссертацию: с dissertation и thesis говорят defend. protect, guard, safeguard — защищать от опасности.",
+        "uz": "defend a dissertation — dissertatsiyani himoya qilmoq: dissertation va thesis so'zlari bilan defend ishlatiladi. protect, guard, safeguard esa xavfdan himoya qilmoq."
       }
     }
   ]

@@ -73,8 +73,8 @@
         "uz": "U hammaning oldida ayolning vazni haqida hazil qilib, andishasizlik qildi."
       },
       "explanation": {
-        "ru": "Шутка о весе при всех — бестактность, нужен антоним. Его образуют заменой -ful на -less: tactful → tactless (а не untactful).",
-        "uz": "Hammaning oldida vazn haqida hazil — andishasizlik, zid ma'noli so'z kerak. U -ful qo'shimchasini -less ga almashtirib yasaladi: tactful → tactless (untactful emas)."
+        "ru": "Шутка о весе при всех — бестактность, нужен антоним. Его образуют заменой -ful на -less: tactful → tactless (обычная форма; приставку un- здесь не используют).",
+        "uz": "Hammaning oldida vazn haqida hazil — andishasizlik, zid ma'noli so'z kerak. U -ful qo'shimchasini -less ga almashtirib yasaladi: tactful → tactless (odatiy shakl; bu yerda un- old qo'shimchasi ishlatilmaydi)."
       }
     },
     {
@@ -128,7 +128,7 @@
       ],
       "translation": {
         "ru": "Несмотря на травму, она упорно держалась за мечту играть профессионально.",
-        "uz": "Jarohatiga qaramay, u professional o'yinchi bo'lish orzusidan qat'iyat bilan voz kechmadi."
+        "uz": "Jarohatiga qaramay, u professional o'yinchi bo'lish orzusiga qat'iyat bilan sodiq qoldi."
       },
       "explanation": {
         "ru": "Глагол clung (держалась) описывается наречием, а не прилагательным: tenacious → tenaciously. Прилагательное ставят после связок вроде be, seem.",
@@ -416,7 +416,7 @@
       "text": "After hours in the car, the children grew *restful* and kicked the seats.",
       "options": [
         "restless",
-        "rested",
+        "restlessly",
         "resting"
       ],
       "correct": [
@@ -427,8 +427,8 @@
         "uz": "Mashinada bir necha soat o'tirgach, bolalar betoqat bo'lib, o'rindiqlarni tepishdi."
       },
       "explanation": {
-        "ru": "restful — «спокойный, дающий отдых» (a restful holiday). Тот, кто не может усидеть на месте, — restless (-less «без покоя»).",
-        "uz": "restful — «tinch, dam beradigan» (a restful holiday). Bir joyda o'tira olmaydigan odam — restless (-less «tinchliksiz»)."
+        "ru": "restful — «спокойный, дающий отдых» (a restful holiday). Тот, кто не может усидеть на месте, — restless (-less «без покоя»). После grew нужно прилагательное, не наречие restlessly.",
+        "uz": "restful — «tinch, dam beradigan» (a restful holiday). Bir joyda o'tira olmaydigan odam — restless (-less «tinchliksiz»). grew fe'lidan keyin restlessly ravishi emas, sifat keladi."
       }
     },
     {
@@ -633,22 +633,22 @@
       "target_words": [
         "mercy"
       ],
-      "text": "In the end, the strict headmaster *made* mercy and canceled the punishment.",
+      "text": "The strict examiner *made* mercy on the nervous student and allowed her extra time.",
       "options": [
-        "showed",
+        "had",
         "did",
         "held"
       ],
       "correct": [
-        "showed"
+        "had"
       ],
       "translation": {
-        "ru": "В конце концов строгий директор проявил милосердие и отменил наказание.",
-        "uz": "Oxir-oqibat qattiqqo'l direktor rahm-shafqat ko'rsatib, jazoni bekor qildi."
+        "ru": "Строгий экзаменатор сжалился над взволнованной студенткой и дал ей дополнительное время.",
+        "uz": "Qattiqqo'l imtihon oluvchi hayajonlangan talabaga rahm qilib, unga qo'shimcha vaqt berdi."
       },
       "explanation": {
-        "ru": "С mercy говорят show mercy — проявить милосердие (или have mercy on). Глаголы make и do с mercy не сочетаются.",
-        "uz": "mercy so'zi bilan show mercy — rahm-shafqat ko'rsatmoq (yoki have mercy on) deyiladi. «Rahm qilmoq» bu yerda make yoki do bilan berilmaydi."
+        "ru": "have mercy on somebody — сжалиться над кем-то, пощадить. С mercy говорят have (mercy on) или show (mercy to), но не make, do или hold.",
+        "uz": "have mercy on somebody — kimgadir rahm qilmoq. mercy so'zi bilan have (mercy on) yoki show (mercy to) ishlatiladi, make, do yoki hold emas."
       }
     },
     {
@@ -665,15 +665,16 @@
       "text": "The engineers solved the water shortage with remarkable ___ and very little money.",
       "base": "ingenious",
       "accepted": [
-        "ingenuity"
+        "ingenuity",
+        "ingeniousness"
       ],
       "translation": {
         "ru": "Инженеры решили проблему нехватки воды с удивительной изобретательностью и почти без денег.",
         "uz": "Muhandislar suv tanqisligi muammosini ajoyib ixtirochilik bilan va juda oz mablag' sarflab hal qilishdi."
       },
       "explanation": {
-        "ru": "После with remarkable нужно существительное: ingenious → ingenuity. Основа меняется: -ious → -uity (ingen-u-ity).",
-        "uz": "with remarkable so'zlaridan keyin ot kerak: ingenious → ingenuity. O'zak o'zgaradi: -ious o'rniga -uity (ingen-u-ity)."
+        "ru": "После with remarkable нужно существительное: ingenious → ingenuity. Основа меняется: -ious → -uity (ingen-u-ity). Реже встречается ingeniousness.",
+        "uz": "with remarkable so'zlaridan keyin ot kerak: ingenious → ingenuity. O'zak o'zgaradi: -ious o'rniga -uity (ingen-u-ity). Kamroq ingeniousness shakli ham uchraydi."
       }
     },
     {
@@ -741,7 +742,7 @@
       "options": [
         "child",
         "child's",
-        "childish"
+        "children's"
       ],
       "correct": [
         "child"
@@ -751,8 +752,8 @@
         "uz": "Ko'plab vunderkindlar yigirma yoshga to'lmasdan musiqani tashlab qo'yadi."
       },
       "explanation": {
-        "ru": "Существительное перед существительным стоит в единственном числе: a child prodigy → child prodigies (ср. shoe shops, а не shoes shops).",
-        "uz": "Otdan oldin aniqlovchi bo'lib kelgan ot birlikda turadi: a child prodigy → child prodigies (shoes shops emas, shoe shops kabi)."
+        "ru": "Существительное перед существительным стоит в единственном числе и без 's: a child prodigy → child prodigies (ср. shoe shops, а не shoes shops).",
+        "uz": "Otdan oldin aniqlovchi bo'lib kelgan ot birlikda va 's qo'shimchasisiz turadi: a child prodigy → child prodigies (shoes shops emas, shoe shops kabi)."
       }
     },
     {
@@ -830,8 +831,8 @@
         "resentful"
       ],
       "translation": {
-        "ru": "Он затаил обиду на успехи младшего брата и перестал ему звонить.",
-        "uz": "U ukasining muvaffaqiyatlaridan alam qilib, unga qo'ng'iroq qilmay qo'ydi."
+        "ru": "Успехи младшего брата стали вызывать у него обиду, и он перестал ему звонить.",
+        "uz": "Ukasining muvaffaqiyatlari unga alam qila boshladi va u ukasiga qo'ng'iroq qilmay qo'ydi."
       },
       "explanation": {
         "ru": "После grew (стал) нужно прилагательное: resentment → resentful (-ment меняется на -ful). resentful of — обиженный на что-то.",
@@ -1018,7 +1019,7 @@
       ],
       "translation": {
         "ru": "Когда принтер снова зажевал бумагу, она в раздражении всплеснула руками.",
-        "uz": "Printer yana qog'ozni tiqib qo'yganida, toqati toq bo'lib, qo'llarini ko'tardi."
+        "uz": "Printer yana qog'ozni tiqib qo'yganida, uning toqati toq bo'lib, qo'l siltab qo'ydi."
       },
       "explanation": {
         "ru": "После in нужно существительное: exasperated → exasperation (-ated → -ation). in exasperation — в раздражении, потеряв терпение.",
@@ -1047,7 +1048,7 @@
       },
       "explanation": {
         "ru": "После To our нужно существительное: dismayed → dismay (окончание -ed отбрасывается). To our dismay — к нашему огорчению.",
-        "uz": "To our iborasidan keyin ot kerak: dismayed → dismay (-ed qo'shimchasi tushib qoladi). To our dismay — «ko'nglimizni cho'ktirib»."
+        "uz": "To our iborasidan keyin ot kerak: dismayed → dismay (-ed qo'shimchasi tushib qoladi). To our dismay — «afsuski, ko'nglimiz cho'kdi» degan ma'noni beradi."
       }
     },
     {
@@ -1093,8 +1094,8 @@
       "text": "As the delay dragged on, the passengers grew more and more *agitatedly*.",
       "options": [
         "agitated",
-        "agitating",
-        "agitation"
+        "agitation",
+        "agitate"
       ],
       "correct": [
         "agitated"
@@ -1176,15 +1177,16 @@
       "text": "His older brother was his only ___ and knew all his secrets.",
       "base": "confide",
       "accepted": [
-        "confidant"
+        "confidant",
+        "confidante"
       ],
       "translation": {
         "ru": "Старший брат был его единственным наперсником и знал все его тайны.",
         "uz": "Akasi uning yagona sirdoshi edi va barcha sirlarini bilardi."
       },
       "explanation": {
-        "ru": "Нужно существительное-лицо: confide → confidant «наперсник, тот, кому доверяют тайны» (-e → -ant). Не путайте с confident «уверенный».",
-        "uz": "Shaxsni bildiruvchi ot kerak: confide → confidant «sirdosh» (-e o'rniga -ant). confident «o'ziga ishongan» so'zi bilan adashtirmang."
+        "ru": "Нужно существительное-лицо: confide → confidant «наперсник, тот, кому доверяют тайны» (-e → -ant; вариант confidante обычно о женщине). Не путайте с confident «уверенный».",
+        "uz": "Shaxsni bildiruvchi ot kerak: confide → confidant «sirdosh» (-e o'rniga -ant; confidante shakli odatda ayol haqida). confident «o'ziga ishongan» so'zi bilan adashtirmang."
       }
     },
     {
@@ -1226,8 +1228,8 @@
       "text": "My parents rarely argue, and they always *reconciliate* before going to bed.",
       "options": [
         "reconcile",
-        "reconciled",
-        "reconciles"
+        "reconciles",
+        "reconciling"
       ],
       "correct": [
         "reconcile"
@@ -1263,7 +1265,7 @@
       ],
       "translation": {
         "ru": "Моя бабушка затаила обиду на соседа, который срубил её яблоню.",
-        "uz": "Buvim olma daraxtini kesib tashlagan qo'shnidan kek saqlab yurdi."
+        "uz": "Buvim olma daraxtini kesib tashlagan qo'shnisiga nisbatan ichida kek saqlab yurdi."
       },
       "explanation": {
         "ru": "bear (hold) a grudge against someone — затаить обиду на кого-то: после grudge нужен предлог against.",
@@ -1292,7 +1294,7 @@
       ],
       "translation": {
         "ru": "Её преданность делу помощи бездомным животным вдохновила всю деревню.",
-        "uz": "Uning uysiz hayvonlarga sadoqat bilan yordam berishi butun qishloqni ilhomlantirdi."
+        "uz": "Uning qarovsiz hayvonlarga sadoqat bilan yordam berishi butun qishloqni ilhomlantirdi."
       },
       "explanation": {
         "ru": "В devotion to слово to — предлог, а не частица инфинитива, поэтому дальше форма -ing: devotion to helping (как look forward to seeing).",
@@ -1497,18 +1499,18 @@
       "target_words": [
         "empathize"
       ],
-      "text": "Good teachers show genuine ___ for students who are struggling at home.",
+      "text": "Children who lack ___ often find it hard to make and keep friends.",
       "base": "empathize",
       "accepted": [
         "empathy"
       ],
       "translation": {
-        "ru": "Хорошие учителя искренне сопереживают ученикам, у которых трудности дома.",
-        "uz": "Yaxshi o'qituvchilar uyida qiyinchiliklari bor o'quvchilarga chin dildan hamdardlik ko'rsatadi."
+        "ru": "Детям, которым не хватает умения сопереживать, часто трудно заводить друзей и сохранять дружбу.",
+        "uz": "O'zgalarning dardini his qila olmaydigan bolalar ko'pincha do'st orttirish va do'stlikni saqlashda qiynaladi."
       },
       "explanation": {
-        "ru": "После show genuine нужно существительное: empathize → empathy (-ize отбрасывается, на конце y).",
-        "uz": "show genuine so'zlaridan keyin ot kerak: empathize → empathy (-ize tushib qoladi, oxirida y)."
+        "ru": "После глагола lack нужно существительное: empathize → empathy (-ize отбрасывается, на конце y).",
+        "uz": "lack fe'lidan keyin ot kerak: empathize → empathy (-ize tushib qoladi, oxirida y)."
       }
     },
     {
@@ -1561,8 +1563,8 @@
         "uz": "Uchuvchi yo'lovchilarni tashvishlanishga hojat yo'q, deb xotirjam qildi."
       },
       "explanation": {
-        "ru": "reassure somebody that — успокоить, заверить кого-то. ensure («обеспечить») не берёт дополнение-лицо: ensure that everything is safe.",
-        "uz": "reassure somebody that — kimnidir xotirjam qilmoq, ishontirmoq. ensure («ta'minlamoq») fe'li shaxsni to'ldiruvchi qilib olmaydi: ensure that everything is safe."
+        "ru": "reassure somebody that — успокоить, заверить кого-то. ensure («обеспечить») не строят как «лицо + that»: говорят ensure that everything is safe.",
+        "uz": "reassure somebody that — kimnidir xotirjam qilmoq, ishontirmoq. ensure («ta'minlamoq») fe'li «shaxs + that» qolipida ishlatilmaydi: ensure that everything is safe deyiladi."
       }
     },
     {

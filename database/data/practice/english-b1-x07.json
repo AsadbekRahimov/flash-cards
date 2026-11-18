@@ -70,7 +70,7 @@
       ],
       "translation": {
         "ru": "Наш новый котёнок маленький и пушистый, как клубочек шерсти.",
-        "uz": "Yangi mushukchamiz kichkina va junli, xuddi kichik ip kalavasidek."
+        "uz": "Yangi mushukchamiz kichkina va momiq junli, xuddi kichkina jun kalavasidek."
       },
       "explanation": {
         "ru": "После is small and нужно второе прилагательное: fur + -y → furry (пушистый, покрытый мехом); r удваивается.",
@@ -226,18 +226,18 @@
       "target_words": [
         "penguin"
       ],
-      "text": "A young penguin is ___ to swim until its adult feathers grow.",
-      "base": "able",
+      "text": "A baby ___ thick gray feathers keep it warm on the ice.",
+      "base": "penguin",
       "accepted": [
-        "unable"
+        "penguin's"
       ],
       "translation": {
-        "ru": "Молодой пингвин не может плавать, пока у него не вырастут взрослые перья.",
-        "uz": "Yosh pingvinning kattalarnikidek patlari o'sib chiqmaguncha, u suza olmaydi."
+        "ru": "Густые серые перья пингвинёнка согревают его на льду.",
+        "uz": "Pingvin bolasining qalin kulrang patlari uni muz ustida isitib turadi."
       },
       "explanation": {
-        "ru": "until (пока не) показывает, что сейчас пингвин плавать не может: нужно отрицательное прилагательное. Приставка un-: able → unable (не в состоянии).",
-        "uz": "until (…maguncha) pingvin hozir suza olmasligini ko'rsatadi: inkor sifat kerak. un- old qo'shimchasi: able → unable (qodir emas)."
+        "ru": "Перья принадлежат пингвинёнку: между A baby и thick gray feathers нужен притяжательный падеж — penguin's. Артикль A и местоимение it показывают единственное число, поэтому не penguins'.",
+        "uz": "Patlar pingvin bolasiga tegishli: A baby va thick gray feathers orasida qaratqich shakli kerak — penguin's. A artikli va it olmoshi birlikni ko'rsatadi, shuning uchun penguins' emas."
       }
     },
     {
@@ -424,7 +424,7 @@
       ],
       "translation": {
         "ru": "Мы разбили лагерь на берегу тихого маленького пруда.",
-        "uz": "Biz sokin kichkina hovuz qirg'og'ida chodir tikib dam oldik."
+        "uz": "Biz sokin kichkina hovuz qirg'og'ida chodir tikdik."
       },
       "explanation": {
         "ru": "coast — морское побережье. Берег озера или пруда — shore (берег реки — bank). seaside — морской курорт, harbor — гавань.",
@@ -575,7 +575,7 @@
       "target_words": [
         "hail"
       ],
-      "text": "The farmers lost half their apples because of the *hails* yesterday.",
+      "text": "The farmers lost half their apples because of yesterday's *hails*.",
       "options": [
         "hail",
         "hailed",
@@ -607,7 +607,7 @@
       "text": "This year we had a very *soft* winter with almost no snow.",
       "options": [
         "mild",
-        "weak",
+        "tender",
         "smooth"
       ],
       "correct": [
@@ -618,8 +618,8 @@
         "uz": "Bu yil qish juda yumshoq keldi, deyarli qor yog'madi."
       },
       "explanation": {
-        "ru": "О погоде «мягкий» — mild: a mild winter. soft — мягкий на ощупь (soft fur); weak и smooth о погоде не говорят.",
-        "uz": "Ob-havo haqida «yumshoq» — mild: a mild winter. soft — ushlaganda yumshoq (soft fur); weak va smooth ob-havo haqida ishlatilmaydi."
+        "ru": "О погоде «мягкий» — mild: a mild winter. soft — мягкий на ощупь (soft fur); tender (нежный) и smooth (гладкий) о погоде не говорят.",
+        "uz": "Ob-havo haqida «yumshoq» — mild: a mild winter. soft — ushlaganda yumshoq (soft fur); tender (nozik) va smooth (silliq) ob-havo haqida ishlatilmaydi."
       }
     },
     {
@@ -662,13 +662,13 @@
       "target_words": [
         "preserve"
       ],
-      "text": "Many volunteers help with the ___ of this old forest.",
+      "text": "Many volunteers help with the ___ of this ancient forest.",
       "base": "preserve",
       "accepted": [
         "preservation"
       ],
       "translation": {
-        "ru": "Многие волонтёры помогают в сохранении этого старого леса.",
+        "ru": "Многие волонтёры помогают в сохранении этого древнего леса.",
         "uz": "Ko'plab ko'ngillilar bu qadimiy o'rmonni saqlab qolishga yordam beradi."
       },
       "explanation": {
@@ -1090,7 +1090,7 @@
       "target_words": [
         "space"
       ],
-      "text": "My son dreams of flying into *cosmos* like a real astronaut.",
+      "text": "My son dreams of flying into outer *cosmos* like a real astronaut.",
       "options": [
         "space",
         "spaces",
@@ -1104,8 +1104,8 @@
         "uz": "O'g'lim haqiqiy kosmonavt kabi kosmosga uchishni orzu qiladi."
       },
       "explanation": {
-        "ru": "Космос по-английски — space, без артикля: fly into space. Слово cosmos книжное и употребляется с the: русское «космос» здесь не cosmos.",
-        "uz": "Kosmos inglizchada space, artiklsiz: fly into space. cosmos so'zi kitobiy va the bilan ishlatiladi: o'zbekcha «kosmos» bu yerda cosmos emas."
+        "ru": "Космос по-английски — space, без артикля: outer space, fly into space. Слово cosmos книжное, и outer cosmos не говорят: русское «космос» здесь не cosmos.",
+        "uz": "Kosmos inglizchada space, artiklsiz: outer space, fly into space. cosmos so'zi kitobiy, outer cosmos deyilmaydi: o'zbekcha «kosmos» bu yerda cosmos emas."
       }
     },
     {
@@ -1180,7 +1180,7 @@
       ],
       "translation": {
         "ru": "Робот в фильме говорил холодным металлическим голосом.",
-        "uz": "Filmdagi robot sovuq, metall ohangli ovozda gapirdi."
+        "uz": "Filmdagi robot sovuq, metalldek ovozda gapirdi."
       },
       "explanation": {
         "ru": "Между a cold и voice нужно второе прилагательное: metal + -ic → metallic (металлический); l удваивается.",
@@ -1310,18 +1310,18 @@
       "target_words": [
         "depth"
       ],
-      "text": "Scientists measured the ___ of the lake near the old bridge.",
+      "text": "The ___ of the lake near the old bridge is almost ten meters.",
       "base": "deep",
       "accepted": [
         "depth"
       ],
       "translation": {
-        "ru": "Учёные измерили глубину озера возле старого моста.",
-        "uz": "Olimlar eski ko'prik yonida ko'lning chuqurligini o'lchashdi."
+        "ru": "Глубина озера возле старого моста — почти десять метров.",
+        "uz": "Eski ko'prik yonida ko'lning chuqurligi qariyb o'n metr."
       },
       "explanation": {
-        "ru": "Между the и of нужно существительное: deep → depth (глубина): ee → e, + -th.",
-        "uz": "the va of orasida ot kerak: deep → depth (chuqurlik): ee → e, + -th."
+        "ru": "Между The и of нужно существительное, а is — единственное число: deep → depth (глубина): ee → e, + -th.",
+        "uz": "The va of orasida ot kerak, is esa birlikni ko'rsatadi: deep → depth (chuqurlik): ee → e, + -th."
       }
     },
     {
@@ -1522,14 +1522,14 @@
       "target_words": [
         "reaction"
       ],
-      "text": "Rust is the result of a slow chemical ___ between iron and water.",
+      "text": "Rust is the result of a slow chemical ___ between iron, water and air.",
       "base": "react",
       "accepted": [
         "reaction"
       ],
       "translation": {
-        "ru": "Ржавчина — результат медленной химической реакции между железом и водой.",
-        "uz": "Zang — temir bilan suv o'rtasidagi sekin kimyoviy reaksiya natijasi."
+        "ru": "Ржавчина — результат медленной химической реакции между железом, водой и воздухом.",
+        "uz": "Zang — temir, suv va havo o'rtasidagi sekin kimyoviy reaksiya natijasi."
       },
       "explanation": {
         "ru": "После a slow chemical нужно существительное: react → reaction (-ion).",

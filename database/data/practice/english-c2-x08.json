@@ -1,0 +1,1627 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c2",
+  "items": [
+    {
+      "key": "c2-m15-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "nobility"
+      ],
+      "text": "Hunting deer in the royal forests was a privilege reserved for members of the ___.",
+      "base": "noble",
+      "accepted": [
+        "nobility"
+      ],
+      "translation": {
+        "ru": "Охота на оленей в королевских лесах была привилегией, доступной лишь представителям знати.",
+        "uz": "Qirollik o'rmonlarida bug'u ovlash faqat zodagonlar vakillariga berilgan imtiyoz edi."
+      },
+      "explanation": {
+        "ru": "members of the ___ требует названия сословия: noble (знатный) → nobility (знать); -ble меняется на -bility, как able → ability. «members of the nobles» не говорят.",
+        "uz": "members of the birikmasidan keyin tabaqa nomi kerak: noble (zodagon) → nobility (zodagonlar tabaqasi); -ble o'rniga -bility, xuddi able → ability kabi. «members of the nobles» deyilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "peasantry"
+      ],
+      "text": "By the war's end, the entire ___ of the region had risen against the landlords.",
+      "base": "peasant",
+      "accepted": [
+        "peasantry"
+      ],
+      "translation": {
+        "ru": "К концу войны всё крестьянство края восстало против помещиков.",
+        "uz": "Urush oxiriga kelib, o'lkadagi butun dehqonlar tabaqasi yer egalariga qarshi bosh ko'targan edi."
+      },
+      "explanation": {
+        "ru": "the entire ___ of требует собирательного существительного в единственном числе: peasant (крестьянин) → peasantry (крестьянство); суффикс -ry. peasants не подходит: the entire с таким множественным не сочетается.",
+        "uz": "the entire ___ of birikmasi birlikdagi jamlovchi otni talab qiladi: peasant (dehqon) → peasantry (dehqonlar tabaqasi); -ry qo'shimchasi. peasants to'g'ri kelmaydi: the entire bunday ko'plik bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "commoner"
+      ],
+      "text": "Although she was born a ___, she died a queen with three palaces.",
+      "base": "common",
+      "accepted": [
+        "commoner"
+      ],
+      "translation": {
+        "ru": "Хотя она родилась простолюдинкой, умерла она королевой, владелицей трёх дворцов.",
+        "uz": "U oddiy xalq vakili bo'lib tug'ilgan bo'lsa-da, uchta saroyga ega malika bo'lib vafot etdi."
+      },
+      "explanation": {
+        "ru": "После born a нужно существительное — человек: common (простой) → commoner (простолюдин), суффикс -er. Здесь это не сравнительная степень, а существительное.",
+        "uz": "born a so'zlaridan keyin shaxsni bildiruvchi ot kerak: common (oddiy) → commoner (oddiy xalq vakili), -er qo'shimchasi. Bu yerda u qiyosiy daraja emas, ot."
+      }
+    },
+    {
+      "key": "c2-m15-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "intelligentsia"
+      ],
+      "text": "Writers, teachers and doctors made up the town's small *intelligence*.",
+      "options": [
+        "intelligentsia",
+        "intellect",
+        "intelligences"
+      ],
+      "correct": [
+        "intelligentsia"
+      ],
+      "translation": {
+        "ru": "Писатели, учителя и врачи составляли немногочисленную интеллигенцию городка.",
+        "uz": "Yozuvchilar, o'qituvchilar va shifokorlar shaharchaning kichik ziyolilar qatlamini tashkil etardi."
+      },
+      "explanation": {
+        "ru": "intelligence — это ум, интеллект или разведка. Интеллигенция как слой общества — intelligentsia: русское «интеллигенция» обманчиво похоже на intelligence.",
+        "uz": "intelligence — aql-idrok yoki razvedka degani. Jamiyatning ziyolilar qatlami — intelligentsia. O'zbekcha «intelligensiya» so'zi intelligence so'ziga o'xshab chalg'itadi."
+      }
+    },
+    {
+      "key": "c2-m15-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "upstart"
+      ],
+      "text": "In the eyes of the older party leaders, the young reformers were mere *startups*.",
+      "options": [
+        "upstarts",
+        "upsets",
+        "outcomes"
+      ],
+      "correct": [
+        "upstarts"
+      ],
+      "translation": {
+        "ru": "В глазах старших партийных лидеров молодые реформаторы были всего лишь выскочками.",
+        "uz": "Partiyaning keksa rahbarlari nazarida yosh islohotchilar shunchaki birdan ko'tarilib qolgan kimsalar edi."
+      },
+      "explanation": {
+        "ru": "startup — новая компания, стартап. Выскочка, человек, внезапно разбогатевший или возвысившийся, — upstart.",
+        "uz": "startup — yangi tashkil etilgan kompaniya. Birdan boyib yoki mavqega erishib ketgan odam esa upstart deyiladi."
+      }
+    },
+    {
+      "key": "c2-m15-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "gentry"
+      ],
+      "text": "Sons of the *land* gentry were usually sent to expensive boarding schools.",
+      "options": [
+        "landed",
+        "landing",
+        "lands"
+      ],
+      "correct": [
+        "landed"
+      ],
+      "translation": {
+        "ru": "Сыновей поместного дворянства обычно отправляли в дорогие закрытые школы.",
+        "uz": "Zamindor zodagonlarning o'g'illari odatda qimmat internat-maktablarga yuborilardi."
+      },
+      "explanation": {
+        "ru": "the landed gentry — устойчивое сочетание «поместное дворянство» (landed — владеющий землёй). Существительное land в этом сочетании не употребляется.",
+        "uz": "the landed gentry — turg'un birikma, «yer-mulkka ega zodagonlar» (landed — yerga egalik qiluvchi). Bu birikmada land oti ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "observance"
+      ],
+      "text": "Her grandfather's ___ of religious holidays was so strict that he never worked on them.",
+      "base": "observe",
+      "accepted": [
+        "observance"
+      ],
+      "translation": {
+        "ru": "Её дедушка так строго соблюдал религиозные праздники, что никогда не работал в эти дни.",
+        "uz": "Uning bobosi diniy bayramlarga shu qadar qat'iy rioya qilardiki, bu kunlarda hech qachon ishlamasdi."
+      },
+      "explanation": {
+        "ru": "После her grandfather's нужно существительное, а речь о соблюдении праздников: observe → observance (соблюдение обряда, правила). observation значит «наблюдение».",
+        "uz": "her grandfather's so'zlaridan keyin ot kerak, gap esa bayramlarga rioya qilish haqida: observe → observance (marosim, qoidaga rioya qilish). observation esa «kuzatish» degani."
+      }
+    },
+    {
+      "key": "c2-m15-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "conformist"
+      ],
+      "text": "Unlike her obedient sisters, she was a born ___ who questioned every family rule.",
+      "base": "conformist",
+      "accepted": [
+        "nonconformist"
+      ],
+      "translation": {
+        "ru": "В отличие от послушных сестёр, она была прирождённой нонконформисткой и оспаривала каждое семейное правило.",
+        "uz": "Itoatkor opa-singillaridan farqli o'laroq, u tabiatan ko'pchilikka ergashmaydigan odam edi va oiladagi har bir qoidaga e'tiroz bildirardi."
+      },
+      "explanation": {
+        "ru": "Она оспаривала каждое правило — значит, она не конформист: приставка non-: conformist → nonconformist.",
+        "uz": "U har bir qoidaga e'tiroz bildirgan, demak, ko'pchilikka ergashmagan: non- old qo'shimchasi kerak: conformist → nonconformist."
+      }
+    },
+    {
+      "key": "c2-m15-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "iconoclast"
+      ],
+      "text": "Critics praised the young director's boldly ___ attitude toward national myths.",
+      "base": "iconoclast",
+      "accepted": [
+        "iconoclastic"
+      ],
+      "translation": {
+        "ru": "Критики хвалили смелое, ниспровергающее устои отношение молодого режиссёра к национальным мифам.",
+        "uz": "Tanqidchilar yosh rejissyorning milliy afsonalarga nisbatan dadil, an'analarni inkor etuvchi munosabatini maqtadi."
+      },
+      "explanation": {
+        "ru": "Перед существительным attitude стоит наречие boldly, значит, нужно прилагательное: iconoclast (ниспровергатель устоев) → iconoclastic; суффикс -ic.",
+        "uz": "attitude otidan oldin boldly ravishi turibdi, demak, sifat kerak: iconoclast (an'analarni inkor etuvchi) → iconoclastic; -ic qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m15-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "rite"
+      ],
+      "text": "For many teenagers, getting a first job is an important *right* of passage.",
+      "options": [
+        "rite",
+        "rote",
+        "rate"
+      ],
+      "correct": [
+        "rite"
+      ],
+      "translation": {
+        "ru": "Для многих подростков первая работа — важный обряд перехода во взрослую жизнь.",
+        "uz": "Ko'plab o'smirlar uchun birinchi ishga kirish — kattalar hayotiga o'tishning muhim marosimi."
+      },
+      "explanation": {
+        "ru": "a rite of passage — обряд перехода, важный рубеж в жизни. rite (обряд) и right (право) звучат одинаково, но в этом выражении пишется rite.",
+        "uz": "a rite of passage — hayotning yangi bosqichiga o'tish marosimi. rite (marosim) va right (huquq) bir xil eshitiladi, lekin bu iborada rite yoziladi."
+      }
+    },
+    {
+      "key": "c2-m15-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "mores"
+      ],
+      "text": "Village mores *is* still far stricter than those of the capital.",
+      "options": [
+        "are",
+        "was",
+        "has"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Деревенские нравы по-прежнему гораздо строже столичных.",
+        "uz": "Qishloqdagi axloq-odob me'yorlari hamon poytaxtdagidan ancha qat'iyroq."
+      },
+      "explanation": {
+        "ru": "mores (нравы) — существительное только во множественном числе, поэтому глагол are. На множественное число указывает и those.",
+        "uz": "mores (axloq-odob me'yorlari) faqat ko'plikda ishlatiladigan ot, shuning uchun fe'l are bo'ladi. Ko'plikni those so'zi ham ko'rsatib turibdi."
+      }
+    },
+    {
+      "key": "c2-m15-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "entrenched"
+      ],
+      "text": "Suspicion of strangers is deeply entrenched *to* the culture of the region.",
+      "options": [
+        "in",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Подозрительность к чужакам глубоко укоренилась в культуре этого края.",
+        "uz": "Begonalarga shubha bilan qarash bu o'lka madaniyatida chuqur ildiz otgan."
+      },
+      "explanation": {
+        "ru": "entrenched in — укоренившийся в чём-либо: после entrenched нужен in, как после rooted in.",
+        "uz": "entrenched in — biror narsada chuqur ildiz otgan: entrenched so'zidan keyin in predlogi keladi, xuddi rooted in kabi. «Madaniyatga singgan» deb tarjima qilinsa ham, to ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "estrangement"
+      ],
+      "text": "A bitter ___ had kept father and son apart for most of their lives.",
+      "base": "estrange",
+      "accepted": [
+        "estrangement"
+      ],
+      "translation": {
+        "ru": "Горькое отчуждение разделяло отца и сына большую часть их жизни.",
+        "uz": "Achchiq begonalashuv ota bilan o'g'ilni umrlarining ko'p qismida bir-biridan uzoqda tutib keldi."
+      },
+      "explanation": {
+        "ru": "После A bitter нужно существительное: estrange (отдалять) → estrangement (отчуждение); суффикс -ment.",
+        "uz": "A bitter so'zlaridan keyin ot kerak: estrange (begonalashtirmoq) → estrangement (begonalashuv); -ment qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m15-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "bigotry"
+      ],
+      "text": "Years of open ___ against newcomers had slowly emptied the old town.",
+      "base": "bigot",
+      "accepted": [
+        "bigotry"
+      ],
+      "translation": {
+        "ru": "Годы откровенной нетерпимости к приезжим постепенно опустошили старый городок.",
+        "uz": "Yangi kelganlarga nisbatan yillar davomida ochiq ko'rsatilgan toqatsizlik eski shaharchani asta-sekin huvillatib qo'ydi."
+      },
+      "explanation": {
+        "ru": "После Years of open нужно отвлечённое существительное: bigot (фанатик, нетерпимый человек) → bigotry (нетерпимость); суффикс -ry.",
+        "uz": "Years of open so'zlaridan keyin mavhum ot kerak: bigot (mutaassib odam) → bigotry (toqatsizlik, mutaassiblik); -ry qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m15-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "sectarian"
+      ],
+      "text": "The conflict was clearly ___ rather than ethnic: both sides spoke the same language.",
+      "base": "sect",
+      "accepted": [
+        "sectarian"
+      ],
+      "translation": {
+        "ru": "Конфликт был явно межконфессиональным, а не этническим: обе стороны говорили на одном языке.",
+        "uz": "Mojaro etnik emas, aniq mazhablararo tusda edi: ikki tomon ham bir tilda gaplashardi."
+      },
+      "explanation": {
+        "ru": "После was clearly и перед rather than ethnic нужно прилагательное, как ethnic: sect (секта, религиозное течение) → sectarian (межконфессиональный); суффикс -arian.",
+        "uz": "was clearly so'zlaridan keyin, ethnic kabi, sifat kerak: sect (sekta, diniy oqim) → sectarian (mazhablararo); -arian qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m15-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "demean"
+      ],
+      "text": "I am too proud to demean *me* by begging for favors.",
+      "options": [
+        "myself",
+        "mine",
+        "my"
+      ],
+      "correct": [
+        "myself"
+      ],
+      "translation": {
+        "ru": "Я слишком горд, чтобы унижаться, выпрашивая одолжения.",
+        "uz": "Iltifot so'rab o'zimni xo'rlashga g'ururim yo'l qo'ymaydi."
+      },
+      "explanation": {
+        "ru": "demean oneself — унижаться: действие направлено на само подлежащее I, поэтому нужно возвратное местоимение myself, а не me.",
+        "uz": "demean oneself — o'zini xo'rlamoq: harakat eganing (I) o'ziga qaratilgan, shuning uchun me emas, o'zlik olmoshi myself kerak."
+      }
+    },
+    {
+      "key": "c2-m15-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "derogatory"
+      ],
+      "text": "He later apologized for the *derogatorily* nickname he had given his rival.",
+      "options": [
+        "derogatory",
+        "derogation",
+        "derogated"
+      ],
+      "correct": [
+        "derogatory"
+      ],
+      "translation": {
+        "ru": "Позже он извинился за уничижительное прозвище, которое дал своему сопернику.",
+        "uz": "Keyinroq u raqibiga qo'ygan kamsituvchi laqabi uchun uzr so'radi."
+      },
+      "explanation": {
+        "ru": "Существительное nickname определяет прилагательное derogatory (уничижительный), а не наречие derogatorily.",
+        "uz": "nickname otini ravish emas, sifat izohlaydi: derogatorily emas, derogatory (kamsituvchi)."
+      }
+    },
+    {
+      "key": "c2-m15-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "scapegoat"
+      ],
+      "text": "The managers made a scapegoat *from* the youngest intern in the office.",
+      "options": [
+        "of",
+        "by",
+        "to"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Руководители сделали козлом отпущения самого молодого стажёра в офисе.",
+        "uz": "Rahbarlar ofisdagi eng yosh stajyorni balogardon qilib qo'yishdi."
+      },
+      "explanation": {
+        "ru": "make a scapegoat of somebody — сделать кого-то козлом отпущения: в этом обороте of. Русское «сделать из кого-то» здесь не from.",
+        "uz": "make a scapegoat of somebody — kimnidir balogardon qilmoq: bu iborada of predlogi ishlatiladi, from emas."
+      }
+    },
+    {
+      "key": "c2-m15-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "notoriety"
+      ],
+      "text": "The scandal brought the quiet village a kind of ___ it had never wanted.",
+      "base": "notorious",
+      "accepted": [
+        "notoriety"
+      ],
+      "translation": {
+        "ru": "Скандал принёс тихой деревне дурную славу, которой она вовсе не желала.",
+        "uz": "Janjal tinch qishloqqa u hech qachon istamagan yomon nom keltirdi."
+      },
+      "explanation": {
+        "ru": "После a kind of нужно существительное: notorious (печально известный) → notoriety (дурная слава); -ous меняется на -iety.",
+        "uz": "a kind of so'zlaridan keyin ot kerak: notorious (yomon nom chiqargan) → notoriety (yomon nom); -ous o'rniga -iety."
+      }
+    },
+    {
+      "key": "c2-m15-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "revere"
+      ],
+      "text": "The villagers still speak of the old healer with deep ___.",
+      "base": "revere",
+      "accepted": [
+        "reverence"
+      ],
+      "translation": {
+        "ru": "Жители деревни до сих пор говорят о старом лекаре с глубоким почтением.",
+        "uz": "Qishloq ahli keksa tabib haqida hanuz chuqur ehtirom bilan gapiradi."
+      },
+      "explanation": {
+        "ru": "После with deep нужно существительное: revere (почитать) → reverence (почтение); конечное e выпадает, суффикс -ence, а не -ance.",
+        "uz": "with deep so'zlaridan keyin ot kerak: revere (e'zozlamoq) → reverence (ehtirom); oxirgi e tushib qoladi, -ance emas, -ence qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m15-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "tarnish"
+      ],
+      "text": "Despite forty years in politics, her reputation remained ___ by any hint of scandal.",
+      "base": "tarnish",
+      "accepted": [
+        "untarnished"
+      ],
+      "translation": {
+        "ru": "Несмотря на сорок лет в политике, её репутацию не запятнал ни один намёк на скандал.",
+        "uz": "Siyosatdagi qirq yilga qaramay, uning obro'siga hech qanday janjal shamasi dog' tushirmadi."
+      },
+      "explanation": {
+        "ru": "Despite и any показывают, что репутация осталась чистой: нужно отрицательное причастие: tarnish (запятнать) → tarnished → untarnished (незапятнанный).",
+        "uz": "Despite va any so'zlari obro' pokligicha qolganini ko'rsatadi: inkor sifatdosh kerak: tarnish (dog' tushirmoq) → tarnished → untarnished (dog' tushmagan)."
+      }
+    },
+    {
+      "key": "c2-m15-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "eminent"
+      ],
+      "text": "Several *imminent* scientists signed the open letter to the minister.",
+      "options": [
+        "eminent",
+        "immanent",
+        "eminently"
+      ],
+      "correct": [
+        "eminent"
+      ],
+      "translation": {
+        "ru": "Несколько видных учёных подписали открытое письмо министру.",
+        "uz": "Bir necha atoqli olim vazirga yo'llangan ochiq xatni imzoladi."
+      },
+      "explanation": {
+        "ru": "imminent — «неминуемый, надвигающийся» (о событиях). Видный, выдающийся человек — eminent.",
+        "uz": "imminent — «muqarrar, yaqinlashib kelayotgan» (voqealar haqida). Atoqli, taniqli odam esa eminent deyiladi."
+      }
+    },
+    {
+      "key": "c2-m15-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "renown"
+      ],
+      "text": "The new bridge was designed by a *renown* architect from abroad.",
+      "options": [
+        "renowned",
+        "renounced",
+        "renewed"
+      ],
+      "correct": [
+        "renowned"
+      ],
+      "translation": {
+        "ru": "Новый мост спроектировал известный зарубежный архитектор.",
+        "uz": "Yangi ko'prikni xorijlik mashhur me'mor loyihalashtirgan."
+      },
+      "explanation": {
+        "ru": "renown — существительное («известность»). Перед существительным architect нужно прилагательное renowned (прославленный). renounced — «отвергнутый», renewed — «обновлённый».",
+        "uz": "renown — ot («dovruq»). architect otidan oldin sifat kerak: renowned (dovrug'i ketgan). renounced — «voz kechilgan», renewed — «yangilangan»."
+      }
+    },
+    {
+      "key": "c2-m15-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "disrepute"
+      ],
+      "text": "Run by a corrupt new director, the once respected academy quickly fell *in* disrepute.",
+      "options": [
+        "into",
+        "onto",
+        "under"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Под руководством продажного нового директора некогда уважаемая академия быстро приобрела плохую репутацию.",
+        "uz": "Poraxo'r yangi direktor qo'lida bir paytlar hurmatli bo'lgan akademiya tezda obro'sizlikka yuz tutdi."
+      },
+      "explanation": {
+        "ru": "fall into disrepute — приобрести плохую репутацию: это переход в новое состояние, поэтому into, а не in.",
+        "uz": "fall into disrepute — obro'sizlanmoq: bu yangi holatga o'tish, shuning uchun in emas, into ishlatiladi."
+      }
+    },
+    {
+      "key": "c2-m15-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "condescend"
+      ],
+      "text": "The senior partner smiled ___ at the nervous interns and explained it again.",
+      "base": "condescend",
+      "accepted": [
+        "condescendingly"
+      ],
+      "translation": {
+        "ru": "Старший партнёр снисходительно улыбнулся взволнованным стажёрам и объяснил всё ещё раз.",
+        "uz": "Katta hamkor hayajonlangan stajyorlarga mensimagandek jilmaydi va hammasini yana bir bor tushuntirdi."
+      },
+      "explanation": {
+        "ru": "Глагол smiled описывает наречие. Два шага: condescend (говорить свысока) → condescending (-ing) → condescendingly (-ly).",
+        "uz": "smiled fe'lini ravish izohlaydi. Ikki bosqich: condescend (mensimay gapirmoq) → condescending (-ing) → condescendingly (-ly)."
+      }
+    },
+    {
+      "key": "c2-m15-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "amiable"
+      ],
+      "text": "Although they had been rivals for years, the two men chatted ___ over coffee.",
+      "base": "amiable",
+      "accepted": [
+        "amiably"
+      ],
+      "translation": {
+        "ru": "Хотя они годами были соперниками, двое мужчин дружелюбно беседовали за кофе.",
+        "uz": "Yillar davomida raqib bo'lishganiga qaramay, ikki erkak qahva ustida xushmuomalalik bilan suhbatlashdi."
+      },
+      "explanation": {
+        "ru": "Глагол chatted описывает наречие. У прилагательных на -able конечное e меняется на y: amiable → amiably (не amiablely).",
+        "uz": "chatted fe'lini ravish izohlaydi. -able bilan tugaydigan sifatlarda oxirgi e harfi y ga almashadi: amiable → amiably (amiablely emas)."
+      }
+    },
+    {
+      "key": "c2-m15-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "convivial"
+      ],
+      "text": "The warm ___ of the evening made everyone forget the bad news for a while.",
+      "base": "convivial",
+      "accepted": [
+        "conviviality"
+      ],
+      "translation": {
+        "ru": "Тёплая, весёлая атмосфера вечера заставила всех на время забыть о плохих новостях.",
+        "uz": "Kechaning iliq va quvnoq muhiti hammaga yomon xabarlarni bir muddat unuttirdi."
+      },
+      "explanation": {
+        "ru": "После The warm нужно существительное: convivial (весёлый, компанейский) → conviviality (весёлая, дружеская атмосфера); суффикс -ity.",
+        "uz": "The warm so'zlaridan keyin ot kerak: convivial (quvnoq, xushchaqchaq) → conviviality (quvnoq, samimiy muhit); -ity qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m15-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "ingratiate"
+      ],
+      "text": "Rather than work harder, she ingratiated herself *to* the director by flattering her constantly.",
+      "options": [
+        "with",
+        "for",
+        "at"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Вместо того чтобы лучше работать, она втиралась в доверие к директору, постоянно ей льстя.",
+        "uz": "Yaxshiroq ishlash o'rniga u doimo xushomad qilib, direktorning pinjiga kirib oldi."
+      },
+      "explanation": {
+        "ru": "ingratiate oneself with somebody — втереться к кому-то в доверие: в этом обороте всегда with.",
+        "uz": "ingratiate oneself with somebody — kimningdir pinjiga kirmoq: bu iborada doim with predlogi ishlatiladi."
+      }
+    },
+    {
+      "key": "c2-m15-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "snub"
+      ],
+      "text": "Leaving her off the wedding guest list was an obvious *snob*.",
+      "options": [
+        "snub",
+        "snout",
+        "snobbish"
+      ],
+      "correct": [
+        "snub"
+      ],
+      "translation": {
+        "ru": "Не включить её в список гостей на свадьбу было явным пренебрежением.",
+        "uz": "Uni to'yga taklif qilinganlar ro'yxatiga kiritmaslik ochiqdan-ochiq mensimaslik edi."
+      },
+      "explanation": {
+        "ru": "a snub — демонстративное пренебрежение (существительное от snub). snob — сноб, то есть человек, а здесь речь о поступке.",
+        "uz": "a snub — ataylab e'tiborsiz qoldirish (snub fe'lidan yasalgan ot). snob — kibrli odam, bu yerda esa gap odam haqida emas, xatti-harakat haqida."
+      }
+    },
+    {
+      "key": "c2-m15-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "banter"
+      ],
+      "text": "Their emails were full of good-natured *banters* about each other's football teams.",
+      "options": [
+        "banter",
+        "bantered",
+        "banterer"
+      ],
+      "correct": [
+        "banter"
+      ],
+      "translation": {
+        "ru": "Их письма были полны добродушного подшучивания над футбольными командами друг друга.",
+        "uz": "Ularning xatlari bir-birining futbol jamoasi ustidan qilingan beozor hazil-mutoyibaga to'la edi."
+      },
+      "explanation": {
+        "ru": "banter (добродушное подшучивание) — неисчисляемое существительное, формы множественного числа у него нет: full of banter.",
+        "uz": "banter (hazil-mutoyiba) — sanalmaydigan ot, uning ko'plik shakli yo'q: full of banter."
+      }
+    },
+    {
+      "key": "c2-m16-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "antipathy"
+      ],
+      "text": "Most of the older members were openly ___ to the new chairman's reforms.",
+      "base": "antipathy",
+      "accepted": [
+        "antipathetic"
+      ],
+      "translation": {
+        "ru": "Большинство давних членов открыто выказывали неприязнь к реформам нового председателя.",
+        "uz": "Eski a'zolarning ko'pchiligi yangi raisning islohotlarini ochiqdan-ochiq yoqtirmasdi."
+      },
+      "explanation": {
+        "ru": "После were openly нужно прилагательное: antipathy (неприязнь) → antipathetic (неприязненный); -y меняется на -etic, как sympathy → sympathetic.",
+        "uz": "were openly so'zlaridan keyin sifat kerak: antipathy (yoqtirmaslik hissi) → antipathetic (xayrixoh bo'lmagan); -y o'rniga -etic, xuddi sympathy → sympathetic kabi."
+      }
+    },
+    {
+      "key": "c2-m16-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "schism"
+      ],
+      "text": "The ___ group broke away and founded a new church of its own.",
+      "base": "schism",
+      "accepted": [
+        "schismatic"
+      ],
+      "translation": {
+        "ru": "Раскольническая группа откололась и основала собственную новую церковь.",
+        "uz": "Bo'linishni yoqlagan guruh ajralib chiqib, o'zining yangi cherkovini tuzdi."
+      },
+      "explanation": {
+        "ru": "Перед существительным group нужно прилагательное: schism (раскол) → schismatic (раскольнический); суффикс -atic.",
+        "uz": "group otidan oldin sifat kerak: schism (bo'linish) → schismatic (bo'linishga sabab bo'lgan); -atic qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m16-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "fractious"
+      ],
+      "text": "The sheer ___ of the coalition government made even simple reforms take years.",
+      "base": "fractious",
+      "accepted": [
+        "fractiousness"
+      ],
+      "translation": {
+        "ru": "Из-за невероятной склочности коалиционного правительства даже простые реформы растягивались на годы.",
+        "uz": "Koalitsion hukumatning o'ta janjalkashligi tufayli hatto oddiy islohotlar ham yillab cho'zilardi."
+      },
+      "explanation": {
+        "ru": "После The sheer нужно существительное: fractious (склочный) → fractiousness (склочность); суффикс -ness.",
+        "uz": "The sheer so'zlaridan keyin ot kerak: fractious (janjalkash) → fractiousness (janjalkashlik); -ness qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m16-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "strife"
+      ],
+      "text": "The small country was torn apart by religious *strifes* for most of the century.",
+      "options": [
+        "strife",
+        "strives",
+        "strove"
+      ],
+      "correct": [
+        "strife"
+      ],
+      "translation": {
+        "ru": "Маленькую страну большую часть столетия раздирали религиозные распри.",
+        "uz": "Kichik mamlakatni asrning katta qismida diniy nizolar parchalab keldi."
+      },
+      "explanation": {
+        "ru": "strife (распри, раздоры) — неисчисляемое существительное: religious strife, без -s. strives и strove — формы глагола strive (стремиться).",
+        "uz": "strife (nizo, nifoq) — sanalmaydigan ot: religious strife, -s qo'shimchasiz. strives va strove — strive (intilmoq) fe'lining shakllari."
+      }
+    },
+    {
+      "key": "c2-m16-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "altercation"
+      ],
+      "text": "Neighbors said the landlord had a heated altercation *against* one of the tenants.",
+      "options": [
+        "with",
+        "to",
+        "for"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Соседи рассказали, что домовладелец вступил в яростную перепалку с одним из жильцов.",
+        "uz": "Qo'shnilarning aytishicha, uy egasi ijarachilardan biri bilan qattiq janjallashgan."
+      },
+      "explanation": {
+        "ru": "an altercation with somebody — перепалка с кем-то: собеседника вводит with, а не against.",
+        "uz": "an altercation with somebody — kim bilandir janjal: janjallashgan tomon with predlogi bilan keladi, against bilan emas."
+      }
+    },
+    {
+      "key": "c2-m16-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "rift"
+      ],
+      "text": "Only a shared tragedy finally *cured* the rift between the two families.",
+      "options": [
+        "healed",
+        "treated",
+        "recovered"
+      ],
+      "correct": [
+        "healed"
+      ],
+      "translation": {
+        "ru": "Лишь общая трагедия наконец уладила разлад между двумя семьями.",
+        "uz": "Faqat umumiy fojia ikki oila o'rtasidagi ora buzilishiga nihoyat barham berdi."
+      },
+      "explanation": {
+        "ru": "heal a rift — уладить разлад, помирить. С rift говорят heal или mend, а cure и treat употребляют о лечении болезней.",
+        "uz": "heal a rift — ora buzilishiga barham bermoq. rift so'zi bilan heal yoki mend ishlatiladi, cure va treat esa kasallikni davolash haqida aytiladi."
+      }
+    },
+    {
+      "key": "c2-m16-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "browbeat"
+      ],
+      "text": "By the end of the meeting, the clerk had been ___ into withdrawing her complaint.",
+      "base": "browbeat",
+      "accepted": [
+        "browbeaten"
+      ],
+      "translation": {
+        "ru": "К концу совещания служащую нажимом вынудили отозвать свою жалобу.",
+        "uz": "Majlis oxiriga kelib xodimani do'q-po'pisa bilan shikoyatini qaytarib olishga majbur qilishgan edi."
+      },
+      "explanation": {
+        "ru": "После had been нужна третья форма глагола (пассив): browbeat — browbeat — browbeaten, как beat — beat — beaten.",
+        "uz": "had been so'zlaridan keyin fe'lning uchinchi shakli kerak (majhul nisbat): browbeat — browbeat — browbeaten, xuddi beat — beat — beaten kabi."
+      }
+    },
+    {
+      "key": "c2-m16-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "acquiesce"
+      ],
+      "text": "Her silent ___ was wrongly taken as enthusiastic approval of the plan.",
+      "base": "acquiesce",
+      "accepted": [
+        "acquiescence"
+      ],
+      "translation": {
+        "ru": "Её молчаливое согласие ошибочно приняли за горячее одобрение плана.",
+        "uz": "Uning indamay noiloj rozi bo'lishi noto'g'ri ravishda rejani qizg'in ma'qullash deb tushunildi."
+      },
+      "explanation": {
+        "ru": "После Her silent нужно существительное: acquiesce (нехотя соглашаться) → acquiescence (молчаливое согласие); после sc пишется -ence.",
+        "uz": "Her silent so'zlaridan keyin ot kerak: acquiesce (noiloj rozi bo'lmoq) → acquiescence (indamay rozi bo'lish); sc harflaridan keyin -ence yoziladi."
+      }
+    },
+    {
+      "key": "c2-m16-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "capitulate"
+      ],
+      "text": "The general's sudden ___ shocked soldiers who were ready to fight on.",
+      "base": "capitulate",
+      "accepted": [
+        "capitulation"
+      ],
+      "translation": {
+        "ru": "Внезапная капитуляция генерала потрясла солдат, готовых сражаться дальше.",
+        "uz": "Generalning to'satdan taslim bo'lishi jang qilishga tayyor askarlarni larzaga soldi."
+      },
+      "explanation": {
+        "ru": "После The general's sudden нужно существительное: capitulate (капитулировать) → capitulation (капитуляция); -ate меняется на -ation.",
+        "uz": "The general's sudden so'zlaridan keyin ot kerak: capitulate (taslim bo'lmoq) → capitulation (taslim bo'lish); -ate o'rniga -ation."
+      }
+    },
+    {
+      "key": "c2-m16-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "succumb"
+      ],
+      "text": "After a week of strict dieting, she finally succumbed *under* the temptation of chocolate.",
+      "options": [
+        "to",
+        "from",
+        "with"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "После недели строгой диеты она наконец поддалась шоколадному соблазну.",
+        "uz": "Bir haftalik qattiq parhezdan so'ng u nihoyat shokolad vasvasasiga bo'yin egdi."
+      },
+      "explanation": {
+        "ru": "succumb to something — поддаться чему-то: после succumb нужен to. under не подходит, хотя по-русски говорят «под давлением».",
+        "uz": "succumb to something — biror narsaga bo'yin egmoq: succumb fe'lidan keyin to predlogi keladi, under emas."
+      }
+    },
+    {
+      "key": "c2-m16-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "intimidate"
+      ],
+      "text": "The panel's stern questions were so *intimidated* that I forgot my prepared answers.",
+      "options": [
+        "intimidating",
+        "intimidation",
+        "intimidate"
+      ],
+      "correct": [
+        "intimidating"
+      ],
+      "translation": {
+        "ru": "Строгие вопросы комиссии были такими пугающими, что я забыл заготовленные ответы.",
+        "uz": "Hay'atning qattiq savollari shunchalik qo'rqinchli ediki, tayyorlab qo'ygan javoblarimni unutib qo'ydim."
+      },
+      "explanation": {
+        "ru": "Вопросы сами пугают, поэтому нужно прилагательное на -ing: intimidating (пугающий). intimidated — «запуганный»: так говорят о человеке, который испытывает страх.",
+        "uz": "Savollarning o'zi qo'rqitadi, shuning uchun -ing shakli kerak: intimidating (qo'rqinchli). intimidated — «qo'rqib ketgan»: bu qo'rquvni his qilayotgan odam haqida aytiladi."
+      }
+    },
+    {
+      "key": "c2-m16-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "subdue"
+      ],
+      "text": "Everyone expected the rebels to *subdue* within weeks, but they held out for years.",
+      "options": [
+        "be subdued",
+        "be subduing",
+        "have subdued"
+      ],
+      "correct": [
+        "be subdued"
+      ],
+      "translation": {
+        "ru": "Все ожидали, что мятежников усмирят за несколько недель, но они продержались годами.",
+        "uz": "Hamma isyonchilar bir necha hafta ichida bo'ysundiriladi deb kutgandi, ammo ular yillar davomida bardosh berdi."
+      },
+      "explanation": {
+        "ru": "Мятежников усмиряют, а дополнения после subdue нет, поэтому нужен пассивный инфинитив: to be subdued (быть усмирёнными).",
+        "uz": "Isyonchilarni bo'ysundirishadi, subdue fe'lidan keyin to'ldiruvchi ham yo'q, shuning uchun majhul nisbatdagi infinitiv kerak: to be subdued."
+      }
+    },
+    {
+      "key": "c2-m16-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "withstand"
+      ],
+      "text": "Last winter the old stone bridge ___ two floods without a single crack.",
+      "base": "withstand",
+      "accepted": [
+        "withstood"
+      ],
+      "translation": {
+        "ru": "Прошлой зимой старый каменный мост выдержал два наводнения без единой трещины.",
+        "uz": "O'tgan qishda eski tosh ko'prik birorta ham yoriq bermay ikki suv toshqiniga bardosh berdi."
+      },
+      "explanation": {
+        "ru": "Last winter требует прошедшего времени. withstand — неправильный глагол, как stand: withstand — withstood — withstood.",
+        "uz": "Last winter o'tgan zamonni talab qiladi. withstand — noto'g'ri fe'l, xuddi stand kabi: withstand — withstood — withstood."
+      }
+    },
+    {
+      "key": "c2-m16-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "evade"
+      ],
+      "text": "The businessman was finally jailed for tax ___ on a huge scale.",
+      "base": "evade",
+      "accepted": [
+        "evasion"
+      ],
+      "translation": {
+        "ru": "Бизнесмена наконец посадили за уклонение от уплаты налогов в огромных масштабах.",
+        "uz": "Tadbirkor nihoyat katta miqyosda soliq to'lashdan bo'yin tovlagani uchun qamaldi."
+      },
+      "explanation": {
+        "ru": "После tax нужно существительное: evade (уклоняться) → evasion (уклонение); d меняется на s, суффикс -ion, как invade → invasion.",
+        "uz": "tax so'zidan keyin ot kerak: evade (bo'yin tovlamoq) → evasion (bo'yin tovlash); d harfi s ga almashadi, -ion qo'shiladi, xuddi invade → invasion kabi."
+      }
+    },
+    {
+      "key": "c2-m16-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "preempt"
+      ],
+      "text": "The company cut its prices in a ___ move to keep rivals out of the market.",
+      "base": "preempt",
+      "accepted": [
+        "preemptive"
+      ],
+      "translation": {
+        "ru": "Компания снизила цены, сделав упреждающий шаг, чтобы не пустить конкурентов на рынок.",
+        "uz": "Raqobatchilarni bozorga yo'latmaslik uchun kompaniya oldindan chora ko'rib, narxlarni pasaytirdi."
+      },
+      "explanation": {
+        "ru": "Перед существительным move нужно прилагательное: preempt (упреждать) → preemptive (упреждающий); суффикс -ive.",
+        "uz": "move otidan oldin sifat kerak: preempt (ilgarilab harakat qilmoq) → preemptive (oldini oluvchi); -ive qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m16-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "repel"
+      ],
+      "text": "With little more than sticks and stones, the villagers *repealed* the robbers twice.",
+      "options": [
+        "repelled",
+        "rebelled",
+        "repented"
+      ],
+      "correct": [
+        "repelled"
+      ],
+      "translation": {
+        "ru": "Имея лишь палки и камни, жители деревни дважды отбили грабителей.",
+        "uz": "Tayoq va toshdan boshqa quroli bo'lmagan qishloq ahli qaroqchilarni ikki marta daf qildi."
+      },
+      "explanation": {
+        "ru": "repeal — «отменять» (закон). Отбить нападение — repel; в прошедшем времени l удваивается: repelled.",
+        "uz": "repeal — «bekor qilmoq» (qonunni). Hujumni daf qilmoq — repel; o'tgan zamonda l ikkilanadi: repelled."
+      }
+    },
+    {
+      "key": "c2-m16-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "circumvent"
+      ],
+      "text": "Students quickly found new ways to *circumvention* the school's phone ban.",
+      "options": [
+        "circumvent",
+        "circumvented",
+        "circumventing"
+      ],
+      "correct": [
+        "circumvent"
+      ],
+      "translation": {
+        "ru": "Ученики быстро нашли новые способы обойти школьный запрет на телефоны.",
+        "uz": "O'quvchilar maktabdagi telefon taqiqini chetlab o'tishning yangi yo'llarini tezda topishdi."
+      },
+      "explanation": {
+        "ru": "После ways to нужен глагол в начальной форме с дополнением: circumvent the ban (обойти запрет). circumvention — существительное («обход»).",
+        "uz": "ways to so'zlaridan keyin to'ldiruvchili fe'lning boshlang'ich shakli kerak: circumvent the ban (taqiqni chetlab o'tmoq). circumvention esa ot («chetlab o'tish»)."
+      }
+    },
+    {
+      "key": "c2-m16-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "stymie"
+      ],
+      "text": "Work on the new road was stymied *from* repeated legal disputes.",
+      "options": [
+        "by",
+        "of",
+        "at"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "Строительство новой дороги зашло в тупик из-за повторяющихся судебных споров.",
+        "uz": "Takror-takror ko'tarilgan sud mojarolari yangi yo'l qurilishini boshi berk ko'chaga kiritib qo'ydi."
+      },
+      "explanation": {
+        "ru": "В пассиве причину или исполнителя вводит by: was stymied by — было заблокировано чем-то. Русское «из-за» здесь не from.",
+        "uz": "Majhul nisbatda sabab yoki bajaruvchi by predlogi bilan beriladi: was stymied by — biror narsa tufayli to'xtab qoldi. O'zbekcha «tufayli» bu yerda from emas."
+      }
+    },
+    {
+      "key": "c2-m16-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "renounce"
+      ],
+      "text": "In a public ___ of her privileges, the young woman gave her fortune to charity.",
+      "base": "renounce",
+      "accepted": [
+        "renunciation"
+      ],
+      "translation": {
+        "ru": "Публично отрёкшись от своих привилегий, молодая женщина отдала состояние на благотворительность.",
+        "uz": "Imtiyozlaridan ochiq-oshkora voz kechib, yosh ayol boyligini xayriyaga berdi."
+      },
+      "explanation": {
+        "ru": "После a public нужно существительное: renounce (отрекаться) → renunciation (отречение). В существительном нет o: -nounce → -nunciation, как pronounce → pronunciation.",
+        "uz": "a public so'zlaridan keyin ot kerak: renounce (voz kechmoq) → renunciation (voz kechish). Otda o harfi yo'q: -nounce → -nunciation, xuddi pronounce → pronunciation kabi."
+      }
+    },
+    {
+      "key": "c2-m16-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "contrite"
+      ],
+      "text": "Tears of genuine ___ ran down his face as he asked for forgiveness.",
+      "base": "contrite",
+      "accepted": [
+        "contrition"
+      ],
+      "translation": {
+        "ru": "Слёзы искреннего раскаяния текли по его лицу, когда он просил прощения.",
+        "uz": "U kechirim so'rarkan, yuzidan chin pushaymonlik ko'z yoshlari oqardi."
+      },
+      "explanation": {
+        "ru": "После Tears of genuine нужно существительное: contrite (раскаивающийся) → contrition (раскаяние); -ite меняется на -ition.",
+        "uz": "Tears of genuine so'zlaridan keyin ot kerak: contrite (pushaymon) → contrition (pushaymonlik); -ite o'rniga -ition."
+      }
+    },
+    {
+      "key": "c2-m16-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "relent"
+      ],
+      "text": "Despite our objections, the new manager pushed ___ for longer working hours.",
+      "base": "relent",
+      "accepted": [
+        "relentlessly",
+        "unrelentingly"
+      ],
+      "translation": {
+        "ru": "Несмотря на наши возражения, новый менеджер неустанно добивался удлинения рабочего дня.",
+        "uz": "E'tirozlarimizga qaramay, yangi menejer ish vaqtini uzaytirishni tinimsiz talab qildi."
+      },
+      "explanation": {
+        "ru": "Глагол pushed описывает наречие. Два шага: relent (уступать) → relentless (неумолимый, -less) → relentlessly (-ly).",
+        "uz": "pushed fe'lini ravish izohlaydi. Ikki bosqich: relent (yumshamoq) → relentless (shafqatsiz, tinimsiz, -less) → relentlessly (-ly)."
+      }
+    },
+    {
+      "key": "c2-m16-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "clemency"
+      ],
+      "text": "The governor refused to *make* clemency to the prisoner, despite many petitions.",
+      "options": [
+        "show",
+        "do",
+        "take"
+      ],
+      "correct": [
+        "show"
+      ],
+      "translation": {
+        "ru": "Несмотря на многочисленные прошения, губернатор отказался проявить снисхождение к заключённому.",
+        "uz": "Ko'plab arizalarga qaramay, gubernator mahbusga shafqat ko'rsatishdan bosh tortdi."
+      },
+      "explanation": {
+        "ru": "show clemency — проявить милосердие, снисхождение. С clemency говорят show или grant, но не make.",
+        "uz": "show clemency — shafqat ko'rsatmoq. clemency so'zi bilan show yoki grant ishlatiladi, make emas."
+      }
+    },
+    {
+      "key": "c2-m16-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "lenient"
+      ],
+      "text": "The court dealt with the young thief surprisingly *lenient*.",
+      "options": [
+        "leniently",
+        "leniency",
+        "lenience"
+      ],
+      "correct": [
+        "leniently"
+      ],
+      "translation": {
+        "ru": "Суд обошёлся с юным воришкой на удивление снисходительно.",
+        "uz": "Sud yosh o'g'riga nisbatan kutilmaganda kechirimli munosabatda bo'ldi."
+      },
+      "explanation": {
+        "ru": "Глагол dealt with описывает наречие: lenient → leniently (снисходительно). lenient — прилагательное, а leniency и lenience — существительные.",
+        "uz": "dealt with fe'lini ravish izohlaydi: lenient → leniently (kechirimlilik bilan). lenient — sifat, leniency va lenience esa ot."
+      }
+    },
+    {
+      "key": "c2-m16-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "mollify"
+      ],
+      "text": "*Mollifying* by a full refund, the passenger finally stopped shouting at the counter staff.",
+      "options": [
+        "Mollified",
+        "Mollify",
+        "Mollifies"
+      ],
+      "correct": [
+        "Mollified"
+      ],
+      "translation": {
+        "ru": "Успокоенный полным возвратом денег, пассажир наконец перестал кричать на сотрудников у стойки.",
+        "uz": "Puli to'liq qaytarilgach hovuridan tushgan yo'lovchi nihoyat peshtaxtadagi xodimlarga baqirishni bas qildi."
+      },
+      "explanation": {
+        "ru": "Пассажира успокоили (by a full refund), поэтому нужно страдательное причастие Mollified. Mollifying значило бы, что он сам кого-то успокаивал.",
+        "uz": "Yo'lovchini tinchlantirishgan (by a full refund), shuning uchun majhul sifatdosh Mollified kerak. Mollifying uning o'zi kimnidir tinchlantirganini bildirardi."
+      }
+    },
+    {
+      "key": "c2-m16-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "triumph"
+      ],
+      "text": "Smiling broadly, the ___ captain lifted the heavy cup above her head.",
+      "base": "triumph",
+      "accepted": [
+        "triumphant"
+      ],
+      "translation": {
+        "ru": "Широко улыбаясь, капитан команды с торжеством подняла тяжёлый кубок над головой.",
+        "uz": "Zafar quchgan sardor keng jilmayib, og'ir kubokni boshidan baland ko'tardi."
+      },
+      "explanation": {
+        "ru": "Перед существительным captain нужно прилагательное о человеке: triumph → triumphant (торжествующий). triumphal (триумфальный) говорят о событиях и сооружениях: a triumphal arch.",
+        "uz": "captain otidan oldin odam haqidagi sifat kerak: triumph → triumphant (zafar quchgan, tantana qilayotgan). triumphal esa voqea va inshootlar haqida aytiladi: a triumphal arch."
+      }
+    },
+    {
+      "key": "c2-m16-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "ignominious"
+      ],
+      "text": "The defending champion was ___ knocked out in the very first round.",
+      "base": "ignominious",
+      "accepted": [
+        "ignominiously"
+      ],
+      "translation": {
+        "ru": "Действующий чемпион позорно вылетел в самом первом раунде.",
+        "uz": "Amaldagi chempion eng birinchi raundning o'zidayoq sharmandalarcha musobaqadan chiqib ketdi."
+      },
+      "explanation": {
+        "ru": "Перед причастием knocked out нужно наречие: ignominious (позорный) → ignominiously (позорно); суффикс -ly.",
+        "uz": "knocked out sifatdoshidan oldin ravish kerak: ignominious (sharmandali) → ignominiously (sharmandalarcha); -ly qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m16-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "supremacy"
+      ],
+      "text": "Victory at sea secured the island's naval ___ for almost a century.",
+      "base": "supreme",
+      "accepted": [
+        "supremacy"
+      ],
+      "translation": {
+        "ru": "Победа в морском сражении обеспечила острову господство на море почти на столетие.",
+        "uz": "Dengizdagi g'alaba orolga qariyb bir asr davomida dengizda hukmronlik qilishni ta'minladi."
+      },
+      "explanation": {
+        "ru": "После the island's naval нужно существительное: supreme (верховный, высший) → supremacy (господство); конечное e выпадает, суффикс -acy.",
+        "uz": "the island's naval so'zlaridan keyin ot kerak: supreme (oliy) → supremacy (hukmronlik); oxirgi e tushib qoladi, -acy qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m16-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "rout"
+      ],
+      "text": "The ruling party suffered a humiliating *route* in the local elections.",
+      "options": [
+        "rout",
+        "root",
+        "rote"
+      ],
+      "correct": [
+        "rout"
+      ],
+      "translation": {
+        "ru": "Правящая партия потерпела унизительный разгром на местных выборах.",
+        "uz": "Hukmron partiya mahalliy saylovlarda sharmandali qaqshatqich mag'lubiyatga uchradi."
+      },
+      "explanation": {
+        "ru": "route — маршрут. Разгром — rout, без e на конце; rout рифмуется с out.",
+        "uz": "route — yo'nalish, marshrut. Qaqshatqich mag'lubiyat — rout, oxirida e yo'q; rout so'zi out bilan qofiyadosh."
+      }
+    },
+    {
+      "key": "c2-m16-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "undoing"
+      ],
+      "text": "His habit of trusting the wrong people was his *undone* in the end.",
+      "options": [
+        "undoing",
+        "undoer",
+        "undo"
+      ],
+      "correct": [
+        "undoing"
+      ],
+      "translation": {
+        "ru": "В конце концов его погубила привычка доверять не тем людям.",
+        "uz": "Oxir-oqibat noto'g'ri odamlarga ishonish odati uning halokatiga sabab bo'ldi."
+      },
+      "explanation": {
+        "ru": "После his нужно существительное undoing (погибель, причина краха). undone — причастие («погубленный, разорённый»), после his оно не ставится.",
+        "uz": "his so'zidan keyin ot kerak: undoing (halokat sababi). undone — sifatdosh («barbod bo'lgan»), u his so'zidan keyin kelmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "prevail"
+      ],
+      "text": "Against all odds, the small but determined army prevailed *above* a much larger enemy.",
+      "options": [
+        "over",
+        "under",
+        "onto"
+      ],
+      "correct": [
+        "over"
+      ],
+      "translation": {
+        "ru": "Вопреки всему маленькая, но решительная армия одержала верх над гораздо более сильным противником.",
+        "uz": "Barcha kutilganlarga qaramay, kichik, ammo qat'iyatli qo'shin ancha katta dushmandan ustun keldi."
+      },
+      "explanation": {
+        "ru": "prevail over somebody — одержать верх над кем-то: в этом значении после prevail нужен over. Русское «над» здесь не above.",
+        "uz": "prevail over somebody — kimdandir ustun kelmoq: bu ma'noda prevail fe'lidan keyin over keladi, above emas."
+      }
+    }
+  ]
+}

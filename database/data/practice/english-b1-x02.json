@@ -88,7 +88,7 @@
       "target_words": [
         "accommodation"
       ],
-      "text": "There is not *many* cheap accommodation near the university.",
+      "text": "There is not *many* cheap accommodation for students in this town.",
       "options": [
         "much",
         "few",
@@ -98,8 +98,8 @@
         "much"
       ],
       "translation": {
-        "ru": "Недорогого жилья рядом с университетом не так много.",
-        "uz": "Universitet yaqinida arzon turar joy unchalik ko'p emas."
+        "ru": "Недорогого жилья для студентов в этом городе не так много.",
+        "uz": "Bu shaharda talabalar uchun arzon turar joy unchalik ko'p emas."
       },
       "explanation": {
         "ru": "accommodation (жильё) — неисчисляемое существительное, поэтому much. many и few ставят только перед множественным числом (many hotels).",
@@ -117,7 +117,7 @@
       "target_words": [
         "owner"
       ],
-      "text": "The *own* of the cottage lives abroad and rarely visits it.",
+      "text": "We called the *own* of the cottage, but nobody answered.",
       "options": [
         "owner",
         "owning",
@@ -127,11 +127,11 @@
         "owner"
       ],
       "translation": {
-        "ru": "Владелец загородного домика живёт за границей и редко туда приезжает.",
-        "uz": "Dala hovlining egasi chet elda yashaydi va u yerga kamdan kam keladi."
+        "ru": "Мы позвонили владельцу загородного домика, но никто не ответил.",
+        "uz": "Dala hovli egasiga qo'ng'iroq qildik, lekin hech kim javob bermadi."
       },
       "explanation": {
-        "ru": "После The и перед of нужно существительное-человек: глагол own (владеть) + -er → owner (владелец). owning и owned — формы глагола.",
+        "ru": "После the и перед of нужно существительное-человек: глагол own (владеть) + -er → owner (владелец). owning и owned — формы глагола.",
         "uz": "The va of orasida shaxsni bildiruvchi ot kerak: own (egalik qilmoq) fe'li + -er → owner (ega). owning va owned — fe'l shakllari."
       }
     },
@@ -251,7 +251,7 @@
       "target_words": [
         "attic"
       ],
-      "text": "My grandparents keep their old letters *on* the attic.",
+      "text": "The children were playing *on* the attic all day.",
       "options": [
         "in",
         "at",
@@ -261,8 +261,8 @@
         "in"
       ],
       "translation": {
-        "ru": "Бабушка с дедушкой хранят свои старые письма на чердаке.",
-        "uz": "Bobom bilan buvim eski xatlarini chordoqda saqlashadi."
+        "ru": "Дети весь день играли на чердаке.",
+        "uz": "Bolalar kun bo'yi chordoqda o'ynashdi."
       },
       "explanation": {
         "ru": "in the attic — на чердаке: чердак — помещение внутри дома, поэтому in. Русское «на» здесь не on.",
@@ -309,22 +309,22 @@
       "target_words": [
         "corridor"
       ],
-      "text": "The bathroom is *in* the end of the corridor, on the left.",
+      "text": "The long corridor *where* connects the two buildings is closed today.",
       "options": [
-        "at",
-        "to",
-        "into"
+        "which",
+        "whose",
+        "what"
       ],
       "correct": [
-        "at"
+        "which"
       ],
       "translation": {
-        "ru": "Ванная — в конце коридора, слева.",
-        "uz": "Vannaxona yo'lakning oxirida, chap tomonda."
+        "ru": "Длинный коридор, который соединяет два здания, сегодня закрыт.",
+        "uz": "Ikki binoni bog'lab turadigan uzun yo'lak bugun yopiq."
       },
       "explanation": {
-        "ru": "О месте говорят at the end of — в конце (коридора, улицы). in the end значит «в конце концов» и о месте не говорится.",
-        "uz": "Joy haqida at the end of deyiladi — (yo'lak, ko'cha) oxirida. in the end esa «oxir-oqibat» degani, joy haqida ishlatilmaydi."
+        "ru": "where значит «где» и не может быть подлежащим придаточного: здания соединяет сам коридор, поэтому which (или that). whose — «чей», what после существительного не ставят.",
+        "uz": "where «qayerda» degani, ergash gapda ega bo'la olmaydi: binolarni yo'lakning o'zi bog'laydi, shuning uchun which (yoki that) kerak. whose — «kimning», what esa otdan keyin ishlatilmaydi."
       }
     },
     {
@@ -474,8 +474,8 @@
       "text": "Press the light *switcher* next to the door, please.",
       "options": [
         "switch",
-        "switched",
-        "switching"
+        "socket",
+        "plug"
       ],
       "correct": [
         "switch"
@@ -485,8 +485,8 @@
         "uz": "Iltimos, eshik yonidagi chiroq o'chirgichini bosing."
       },
       "explanation": {
-        "ru": "Выключатель — switch (light switch). Русское «выключатель» подсказывает лишний суффикс, но switcher выключателем не называют.",
-        "uz": "Chiroq o'chirgichi — switch (light switch). switcher so'zi o'chirgichni bildirmaydi."
+        "ru": "Выключатель — switch (light switch). Слова switcher в этом значении нет, хотя русское «выключатель» подсказывает суффикс. socket — розетка, plug — вилка.",
+        "uz": "Chiroq o'chirgichi — switch (light switch). switcher so'zi bu ma'noda ishlatilmaydi. socket — rozetka, plug — vilka."
       }
     },
     {
@@ -778,11 +778,11 @@
       ],
       "translation": {
         "ru": "Автобус был так переполнен, что нам пришлось стоять.",
-        "uz": "Avtobus shunchalik tirband ediki, tik turishga majbur bo'ldik."
+        "uz": "Avtobus odamga shunchalik liq to'la ediki, tik turishga majbur bo'ldik."
       },
       "explanation": {
         "ru": "После was so нужно прилагательное: существительное crowd (толпа) + -ed → crowded (переполненный).",
-        "uz": "was so so'zlaridan keyin sifat kerak: crowd (olomon) oti + -ed → crowded (tirband)."
+        "uz": "was so so'zlaridan keyin sifat kerak: crowd (olomon) oti + -ed → crowded (odamga to'la, tirband)."
       }
     },
     {
@@ -900,7 +900,7 @@
       "target_words": [
         "flour"
       ],
-      "text": "For this cake you need two cups of *flours* and three eggs.",
+      "text": "Mix two cups of *flours* with a little warm milk.",
       "options": [
         "flour",
         "flower",
@@ -910,8 +910,8 @@
         "flour"
       ],
       "translation": {
-        "ru": "Для этого торта нужны два стакана муки и три яйца.",
-        "uz": "Bu tort uchun ikki stakan un va uchta tuxum kerak."
+        "ru": "Смешайте два стакана муки с небольшим количеством тёплого молока.",
+        "uz": "Ikki stakan unni ozgina iliq sut bilan aralashtiring."
       },
       "explanation": {
         "ru": "flour (мука) — неисчисляемое существительное: two cups of flour, без -s. flower звучит так же, но значит «цветок»; floor — «пол».",
@@ -1063,22 +1063,22 @@
       "target_words": [
         "pour"
       ],
-      "text": "She *filled* hot water into the teapot.",
+      "text": "Could you *fill* a little milk into my tea, please?",
       "options": [
-        "poured",
-        "flowed",
-        "fell"
+        "pour",
+        "flow",
+        "fall"
       ],
       "correct": [
-        "poured"
+        "pour"
       ],
       "translation": {
-        "ru": "Она налила горячую воду в заварочный чайник.",
-        "uz": "U choynakka issiq suv quydi."
+        "ru": "Не могли бы вы налить мне в чай немного молока?",
+        "uz": "Choyimga ozgina sut quyib bera olasizmi?"
       },
       "explanation": {
-        "ru": "Наливать жидкость куда-то — pour water into. fill — «наполнять», после него называют сосуд: fill the teapot with water.",
-        "uz": "Suyuqlikni biror joyga quymoq — pour water into. fill — «to'ldirmoq», undan keyin idish aytiladi: fill the teapot with water."
+        "ru": "Наливать жидкость куда-то — pour (milk into tea). fill — «наполнять», после него называют сосуд: fill the cup with tea. flow и fall не берут дополнения.",
+        "uz": "Suyuqlikni biror narsaga quymoq — pour (milk into tea). fill — «to'ldirmoq», undan keyin idish aytiladi: fill the cup with tea. flow va fall fe'llari to'ldiruvchi olmaydi."
       }
     },
     {
@@ -1092,7 +1092,7 @@
       "target_words": [
         "peel"
       ],
-      "text": "Do not forget *peeling* the apples before you bake them.",
+      "text": "Next time, do not forget *peeling* the oranges for the fruit salad.",
       "options": [
         "to peel",
         "to peeling",
@@ -1102,8 +1102,8 @@
         "to peel"
       ],
       "translation": {
-        "ru": "Не забудьте почистить яблоки, прежде чем их запекать.",
-        "uz": "Olmalarni pishirishdan oldin po'stini archishni unutmang."
+        "ru": "В следующий раз не забудьте почистить апельсины для фруктового салата.",
+        "uz": "Keyingi safar mevali salat uchun apelsinlarning po'stini archishni unutmang."
       },
       "explanation": {
         "ru": "forget to do — забыть сделать то, что нужно сделать. forget doing — забыть то, что уже было. Здесь дело впереди, поэтому to peel.",
@@ -1150,18 +1150,18 @@
       "target_words": [
         "freezer"
       ],
-      "text": "Put the meat in the ___ to keep it for a month.",
+      "text": "We bought a bigger ___ to keep meat for the winter.",
       "base": "freeze",
       "accepted": [
         "freezer"
       ],
       "translation": {
-        "ru": "Положите мясо в морозильник, чтобы оно хранилось месяц.",
-        "uz": "Go'shtni bir oy saqlash uchun muzlatish kamerasiga qo'ying."
+        "ru": "Мы купили морозильник побольше, чтобы хранить мясо на зиму.",
+        "uz": "Qishga go'sht saqlash uchun kattaroq muzlatish kamerasi sotib oldik."
       },
       "explanation": {
-        "ru": "После in the нужно существительное — предмет, место: freeze (замораживать) + -er → freezer (морозильник).",
-        "uz": "in the so'zlaridan keyin buyum otini bildiruvchi so'z kerak: freeze (muzlatmoq) + -er → freezer (muzlatish kamerasi)."
+        "ru": "После a bigger нужно существительное — предмет: freeze (замораживать) + -er → freezer (морозильник); конечное e не удваивается.",
+        "uz": "a bigger so'zlaridan keyin buyum nomini bildiruvchi ot kerak: freeze (muzlatmoq) + -er → freezer (muzlatish kamerasi); oxirgi e ikkilanmaydi."
       }
     },
     {
@@ -1455,7 +1455,7 @@
         "sour"
       ],
       "translation": {
-        "ru": "Это молоко пахнет кислым, так что не пейте его.",
+        "ru": "Это молоко кисло пахнет, так что не пейте его.",
         "uz": "Bu sutdan nordon hid kelyapti, shuning uchun uni ichmang."
       },
       "explanation": {
@@ -1578,7 +1578,7 @@
       "target_words": [
         "portion"
       ],
-      "text": "They serve *so* big portions here that I can never finish mine.",
+      "text": "This cafe serves *so* huge portions that one feeds two people.",
       "options": [
         "such",
         "too",
@@ -1588,12 +1588,12 @@
         "such"
       ],
       "translation": {
-        "ru": "Здесь подают такие большие порции, что я никогда не могу доесть свою.",
-        "uz": "Bu yerda porsiyalar shunchalik katta beriladiki, men hech qachon o'zimnikini yeb tugata olmayman."
+        "ru": "В этом кафе подают такие огромные порции, что одной хватает на двоих.",
+        "uz": "Bu kafeda shunchalik katta porsiyalar beriladiki, bittasi ikki kishiga yetadi."
       },
       "explanation": {
-        "ru": "Перед прилагательным с существительным — such (such big portions); so ставят перед прилагательным без существительного (so big).",
-        "uz": "Sifat va ot oldidan such keladi (such big portions); so esa otsiz sifat oldidan qo'yiladi (so big)."
+        "ru": "Перед прилагательным с существительным — such (such huge portions); so ставят перед прилагательным без существительного (so huge). too и very с that не связывают.",
+        "uz": "Sifat va ot oldidan such keladi (such huge portions); so esa otsiz sifat oldidan qo'yiladi (so huge). too va very that bilan bog'lanmaydi."
       }
     },
     {

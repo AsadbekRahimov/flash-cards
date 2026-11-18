@@ -38,7 +38,7 @@
       "target_words": [
         "anemia"
       ],
-      "text": "Months of a poor diet had left the young runner pale and ___.",
+      "text": "Months on a poor diet had left the young runner pale and ___.",
       "base": "anemia",
       "accepted": [
         "anemic",
@@ -158,11 +158,11 @@
       ],
       "translation": {
         "ru": "Её младший брат был глухим от рождения и освоил язык жестов ещё маленьким ребёнком.",
-        "uz": "Uning ukasi tug'ma kar edi va imo-ishora tilini juda yoshligidayoq o'rgangan."
+        "uz": "Uning ukasi tug'ma kar edi va imo-ishora tilini juda yoshligidayoq o'rgandi."
       },
       "explanation": {
         "ru": "Слово стоит перед прилагательным deaf и определяет его, поэтому нужно наречие: congenital → congenitally (от рождения). congenially значит «приятно, дружелюбно».",
-        "uz": "So'z deaf sifatidan oldin turib uni izohlaydi, shuning uchun ravish kerak: congenital → congenitally (tug'ma). congenially esa «yoqimli, do'stona» degani."
+        "uz": "So'z deaf sifatidan oldin turib uni izohlaydi, shuning uchun ravish kerak: congenital → congenitally (tug'ilishdan). congenially esa «yoqimli, do'stona» degani."
       }
     },
     {
@@ -283,8 +283,8 @@
       "text": "Doctors switched him to *palliate* treatment once the cancer had spread.",
       "options": [
         "palliative",
-        "palliation",
-        "palliated"
+        "palliated",
+        "palliatively"
       ],
       "correct": [
         "palliative"
@@ -294,8 +294,8 @@
         "uz": "Saraton tarqalgach, shifokorlar uni palliativ davolashga o'tkazishdi."
       },
       "explanation": {
-        "ru": "Перед существительным treatment нужно прилагательное: palliative treatment — паллиативное лечение (облегчает страдания, но не излечивает). palliate — глагол («облегчать»), palliation — существительное.",
-        "uz": "treatment otidan oldin sifat kerak: palliative treatment — palliativ davolash (azobni yengillashtiradi, lekin tuzatmaydi). palliate — fe'l («yengillashtirmoq»), palliation — ot."
+        "ru": "Перед существительным treatment нужно прилагательное: palliative treatment — паллиативное лечение (облегчает страдания, но не излечивает). palliate — глагол («облегчать»), palliatively — наречие.",
+        "uz": "treatment otidan oldin sifat kerak: palliative treatment — palliativ davolash (azobni yengillashtiradi, lekin tuzatmaydi). palliate — fe'l («yengillashtirmoq»), palliatively — ravish."
       }
     },
     {
@@ -425,11 +425,11 @@
       ],
       "translation": {
         "ru": "Её брат стал донором костного мозга, чтобы спасти ей жизнь.",
-        "uz": "Akasi uning hayotini saqlab qolish uchun suyak iligi donori bo'ldi."
+        "uz": "Akasi uning hayotini saqlab qolish uchun donor sifatida suyak ko'migini berdi."
       },
       "explanation": {
         "ru": "«Костный мозг» по-английски bone marrow: brain — только головной мозг. Русское «мозг» здесь не brain.",
-        "uz": "Suyak iligi inglizchada bone marrow deyiladi: brain — faqat bosh miya."
+        "uz": "Suyak ko'migi inglizchada bone marrow deyiladi: brain — faqat bosh miya, u suyak ichida bo'lmaydi."
       }
     },
     {
@@ -605,7 +605,7 @@
       "target_words": [
         "parched"
       ],
-      "text": "By noon the walkers were *parching*, but there was no water left.",
+      "text": "Lost in the desert, the *parching* tourists dreamed only of cold water.",
       "options": [
         "parched",
         "parch",
@@ -615,12 +615,12 @@
         "parched"
       ],
       "translation": {
-        "ru": "К полудню путники изнывали от жажды, но воды больше не осталось.",
-        "uz": "Tushga yaqin piyoda sayohatchilar qattiq chanqab qolishdi, lekin suv qolmagan edi."
+        "ru": "Заблудившиеся в пустыне туристы, изнывая от жажды, мечтали только о холодной воде.",
+        "uz": "Cho'lda adashib qolgan, chanqoqdan qiynalgan sayyohlar faqat sovuq suvni orzu qilishardi."
       },
       "explanation": {
-        "ru": "О людях, которых мучит жажда, говорят parched (-ed): were parched. parching значит «иссушающий» и описывает жару или солнце.",
-        "uz": "Chanqoqdan qiynalgan odamlar haqida -ed shakli ishlatiladi: were parched. parching esa «quritadigan» degani va jazirama yoki quyosh haqida aytiladi."
+        "ru": "О людях, которых мучит жажда, говорят parched (-ed): the parched tourists. parching значит «иссушающий» и описывает солнце или жару: the parching sun.",
+        "uz": "Chanqoqdan qiynalgan odamlar haqida -ed shakli ishlatiladi: the parched tourists. parching esa «quritadigan» degani va quyosh yoki jazirama haqida aytiladi: the parching sun."
       }
     },
     {
@@ -695,7 +695,7 @@
       ],
       "translation": {
         "ru": "Роман вышел посмертно, через три года после смерти автора.",
-        "uz": "Roman muallifi vafotidan keyin — u olamdan o'tganidan uch yil o'tib nashr etildi."
+        "uz": "Roman muallifning vafotidan so'ng, u olamdan o'tganidan uch yil keyin nashr etildi."
       },
       "explanation": {
         "ru": "Слово описывает глагол was published, поэтому нужно наречие: posthumous (посмертный) → posthumously (посмертно); суффикс -ly.",
@@ -910,7 +910,7 @@
         "sweltering"
       ],
       "translation": {
-        "ru": "Мы провели знойные полдня в ожидании автобуса, который так и не пришёл.",
+        "ru": "Мы провели знойные послеобеденные часы в ожидании автобуса, который так и не пришёл.",
         "uz": "Jazirama kunning ikkinchi yarmini hech kelmagan avtobusni kutish bilan o'tkazdik."
       },
       "explanation": {
@@ -1037,14 +1037,14 @@
       "target_words": [
         "shrub"
       ],
-      "text": "Goats feed on the dry, ___ hills above the village.",
+      "text": "Goats wander over the dry, ___ hills above the village.",
       "base": "shrub",
       "accepted": [
         "shrubby"
       ],
       "translation": {
-        "ru": "Козы пасутся на сухих, поросших кустарником холмах над деревней.",
-        "uz": "Echkilar qishloq tepasidagi quruq, butali tepaliklarda o'tlaydi."
+        "ru": "Козы бродят по сухим, поросшим кустарником холмам над деревней.",
+        "uz": "Echkilar qishloq tepasidagi quruq, butali tepaliklarda kezib yuradi."
       },
       "explanation": {
         "ru": "После dry, перед hills нужно второе прилагательное: shrub (кустарник) → shrubby (поросший кустарником); b удваивается перед -y.",
@@ -1199,18 +1199,18 @@
       "target_words": [
         "prowl"
       ],
-      "text": "For weeks a hungry wolf had been ___ near the village every night.",
+      "text": "Neighbors called the police about a ___ looking into their windows at night.",
       "base": "prowl",
       "accepted": [
-        "prowling"
+        "prowler"
       ],
       "translation": {
-        "ru": "Неделями голодный волк каждую ночь рыскал возле деревни.",
-        "uz": "Haftalar davomida och bo'ri har kecha qishloq yaqinida izg'ib yurgan edi."
+        "ru": "Соседи вызвали полицию из-за неизвестного, который рыскал ночью у их домов и заглядывал в окна.",
+        "uz": "Qo'shnilar kechasi uylari atrofida izg'ib, derazalariga mo'ralagan notanish odam haqida politsiyaga xabar berishdi."
       },
       "explanation": {
-        "ru": "После had been нужна форма на -ing: это Past Perfect Continuous, действие длилось неделями. prowl (рыскать) → prowling.",
-        "uz": "had been so'zlaridan keyin -ing shakli kerak: bu Past Perfect Continuous, harakat haftalab davom etgan. prowl (izg'imoq) → prowling."
+        "ru": "После a нужно существительное — тот, кто совершает действие: prowl (рыскать) → prowler (человек, который тайком рыщет у чужих домов); суффикс -er.",
+        "uz": "a artiklidan keyin harakatni bajaruvchi shaxsni bildiruvchi ot kerak: prowl (izg'imoq) → prowler (begona uylar atrofida yashirincha izg'ib yuruvchi odam); -er qo'shimchasi."
       }
     },
     {
@@ -1224,7 +1224,7 @@
       "target_words": [
         "pounce"
       ],
-      "text": "The hungry tiger pounced *to* the young deer as it stopped to drink.",
+      "text": "The young deer was pounced *to* by a hungry tiger at the river.",
       "options": [
         "on",
         "in",
@@ -1234,12 +1234,12 @@
         "on"
       ],
       "translation": {
-        "ru": "Голодный тигр набросился на молодого оленя, когда тот остановился попить.",
-        "uz": "Och yo'lbars suv ichish uchun to'xtagan yosh bug'uga tashlandi."
+        "ru": "У реки на молодого оленя набросился голодный тигр.",
+        "uz": "Daryo bo'yida yosh bug'uga och yo'lbars tashlandi."
       },
       "explanation": {
-        "ru": "pounce on — набрасываться на кого-либо: после pounce нужен on (или upon), а не to.",
-        "uz": "pounce on — biror kimga tashlanmoq: pounce fe'lidan keyin to emas, on (yoki upon) keladi. O'zbekcha «-ga» bu yerda to emas."
+        "ru": "pounce on — набрасываться на кого-либо; on сохраняется и в пассиве: was pounced on by. Русское «на» здесь не to.",
+        "uz": "pounce on — biror kimga tashlanmoq; on predlogi majhul nisbatda ham saqlanadi: was pounced on by. O'zbekcha «-ga» bu yerda to emas."
       }
     },
     {
@@ -1293,11 +1293,11 @@
       ],
       "translation": {
         "ru": "Раненый медведь дотащился обратно до своего логова среди скал.",
-        "uz": "Yarador ayiq o'zini sudrab, qoyalar orasidagi uyasiga qaytdi."
+        "uz": "Yarador ayiq o'zini sudrab, qoyalar orasidagi iniga qaytdi."
       },
       "explanation": {
         "ru": "Логово зверя — lair: звучит похоже на layer, но пишется иначе. layer — слой, liar — лжец.",
-        "uz": "Yirtqichning uyasi — lair: talaffuzi layer so'ziga o'xshaydi, lekin boshqacha yoziladi. layer — qatlam, liar — yolg'onchi."
+        "uz": "Yirtqich hayvonning ini — lair: talaffuzi layer so'ziga o'xshaydi, lekin boshqacha yoziladi. layer — qatlam, liar — yolg'onchi."
       }
     },
     {
@@ -1551,7 +1551,7 @@
       "text": "Weeds and tiny ferns grew in every *crevasse* of the old stone wall.",
       "options": [
         "crevice",
-        "crease",
+        "crevices",
         "crater"
       ],
       "correct": [
@@ -1562,8 +1562,8 @@
         "uz": "Eski tosh devorning har bir yorig'ida begona o'tlar va mitti qirqquloqlar o'sardi."
       },
       "explanation": {
-        "ru": "crevasse — глубокая трещина в леднике. Узкая щель в камне или стене — crevice (с i и -ice на конце).",
-        "uz": "crevasse — muzlikdagi chuqur yoriq. Tosh yoki devordagi tor yoriq — crevice (i harfi bilan, oxirida -ice)."
+        "ru": "crevasse — глубокая трещина в леднике. Узкая щель в камне или стене — crevice (с i и -ice на конце); после every — единственное число.",
+        "uz": "crevasse — muzlikdagi chuqur yoriq. Tosh yoki devordagi tor yoriq — crevice (i harfi bilan, oxirida -ice); every so'zidan keyin birlik keladi."
       }
     },
     {

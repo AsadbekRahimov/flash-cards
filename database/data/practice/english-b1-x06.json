@@ -70,7 +70,7 @@
       ],
       "translation": {
         "ru": "Это была очень насыщенная событиями неделя: выборы, шторм и королевская свадьба.",
-        "uz": "Bu juda voqealarga boy hafta bo'ldi: saylov, bo'ron va qirollik to'yi."
+        "uz": "Hafta juda voqealarga boy o'tdi: saylov, bo'ron va qirollik to'yi."
       },
       "explanation": {
         "ru": "Между a really и week нужно прилагательное «богатый событиями»: event → eventful, суффикс -ful с одной l. Список событий исключает uneventful («спокойный»).",
@@ -128,7 +128,7 @@
       ],
       "translation": {
         "ru": "Сколько зрителей было у последней серии этого шоу?",
-        "uz": "Shouning so'nggi qismini nechta tomoshabin ko'rgan?"
+        "uz": "Shouning so'nggi qismini qancha tomoshabin ko'rgan?"
       },
       "explanation": {
         "ru": "viewers — исчисляемое существительное во множественном числе, поэтому how many. how much ставят только с неисчисляемыми (how much time). Русское «сколько» — одно слово для обоих случаев.",
@@ -322,8 +322,8 @@
         "uz": "Qahramon nega oilasini tashlab ketganini tushuntiradigan qismni ko'rmay qoldim."
       },
       "explanation": {
-        "ru": "episode — не человек, поэтому нужно относительное местоимение which (или that); who говорят только о людях. whose значит «чей», а what после существительного не ставится.",
-        "uz": "episode — odam emas, shuning uchun nisbiy olmosh which (yoki that) kerak; who faqat odamlar haqida ishlatiladi. whose «kimning» degani, what esa otdan keyin qo'yilmaydi."
+        "ru": "episode — не человек, поэтому нужно относительное местоимение which (или that); who говорят только о людях. whose значит «чей», а what не бывает относительным местоимением после существительного.",
+        "uz": "episode — odam emas, shuning uchun nisbiy olmosh which (yoki that) kerak; who faqat odamlar haqida ishlatiladi. whose «kimning» degani, what esa otdan keyin nisbiy olmosh bo'la olmaydi."
       }
     },
     {
@@ -337,18 +337,18 @@
       "target_words": [
         "perform"
       ],
-      "text": "Her ___ in last night's concert was the best of her career.",
+      "text": "Last night she gave the best ___ of her career.",
       "base": "perform",
       "accepted": [
         "performance"
       ],
       "translation": {
-        "ru": "Её выступление на вчерашнем концерте было лучшим за всю её карьеру.",
-        "uz": "Uning kechagi konsertdagi chiqishi butun faoliyatidagi eng yaxshisi bo'ldi."
+        "ru": "Вчера вечером она выступила лучше, чем когда-либо за всю свою карьеру.",
+        "uz": "Kecha kechqurun u butun faoliyatidagi eng yaxshi chiqishini qildi."
       },
       "explanation": {
-        "ru": "После her нужно существительное, а was требует единственного числа: perform → performance («выступление»). Суффикс -ance, а не -ence.",
-        "uz": "her so'zidan keyin ot kerak, was esa birlikni talab qiladi: perform → performance («chiqish»). Qo'shimcha -ence emas, -ance."
+        "ru": "После the best нужно существительное (gave the best ___ — что-то, что «дают»): perform → performance («выступление»), give a performance — «выступить». Суффикс -ance, а не -ence.",
+        "uz": "the best so'zlaridan keyin ot kerak (gave the best ___ — «beriladigan» narsa): perform → performance («chiqish»), give a performance — «chiqish qilmoq». Qo'shimcha -ence emas, -ance."
       }
     },
     {
@@ -441,7 +441,7 @@
       "target_words": [
         "rehearsal"
       ],
-      "text": "Before the concert, we *made* a long rehearsal in the empty hall.",
+      "text": "Before the show, we *made* a long rehearsal in the empty hall.",
       "options": [
         "had",
         "passed",
@@ -451,8 +451,8 @@
         "had"
       ],
       "translation": {
-        "ru": "Перед концертом мы провели долгую репетицию в пустом зале.",
-        "uz": "Konsert oldidan bo'sh zalda uzoq repetitsiya o'tkazdik."
+        "ru": "Перед выступлением мы провели долгую репетицию в пустом зале.",
+        "uz": "Chiqishdan oldin bo'sh zalda uzoq repetitsiya o'tkazdik."
       },
       "explanation": {
         "ru": "«Провести репетицию» — have или hold a rehearsal, но не make. pass и carry (без out) с rehearsal тоже не сочетаются.",
@@ -470,7 +470,7 @@
       "target_words": [
         "melody"
       ],
-      "text": "My parents danced *under* a slow, beautiful melody at their wedding.",
+      "text": "My parents danced *under* a slow, gentle melody at their wedding.",
       "options": [
         "to",
         "for",
@@ -480,8 +480,8 @@
         "to"
       ],
       "translation": {
-        "ru": "Мои родители танцевали под медленную красивую мелодию на своей свадьбе.",
-        "uz": "Ota-onam to'ylarida sekin va go'zal ohangga raqsga tushishgan."
+        "ru": "Мои родители танцевали на своей свадьбе под медленную нежную мелодию.",
+        "uz": "Ota-onam to'ylarida sekin va mayin ohangga raqsga tushishgan."
       },
       "explanation": {
         "ru": "Танцевать под музыку — dance to: dance to a melody. Русское «под» здесь не under: under значит «под чем-то» в пространстве.",
@@ -507,7 +507,7 @@
       ],
       "translation": {
         "ru": "Сыщик из этой книги вымышлен, но многие читатели верят, что он жил на самом деле.",
-        "uz": "Bu kitobdagi detektiv to'qima qahramon, lekin ko'plab o'quvchilar u haqiqatan yashagan deb ishonishadi."
+        "uz": "Bu kitobdagi izquvar to'qima qahramon, lekin ko'plab o'quvchilar u haqiqatan yashagan deb ishonishadi."
       },
       "explanation": {
         "ru": "После is нужно прилагательное, а but … really lived требует смысла «вымышленный»: fiction → fictional, суффикс -al. Принимается и fictitious.",
@@ -795,22 +795,22 @@
       "target_words": [
         "magic"
       ],
-      "text": "Even at eighty, my grandmother still believes *to* magic.",
+      "text": "My grandmother is very old, but she still believes *to* magic.",
       "options": [
         "in",
-        "on",
+        "at",
         "for"
       ],
       "correct": [
         "in"
       ],
       "translation": {
-        "ru": "Даже в восемьдесят лет моя бабушка всё ещё верит в волшебство.",
-        "uz": "Buvim sakson yoshda ham hamon sehrga ishonadi."
+        "ru": "Моя бабушка уже очень пожилая, но всё ещё верит в волшебство.",
+        "uz": "Buvim ancha keksa, lekin hamon sehrga ishonadi."
       },
       "explanation": {
         "ru": "Верить в существование чего-то — believe in: believe in magic. Другие предлоги после believe в этом значении не ставят.",
-        "uz": "Biror narsaning mavjudligiga ishonmoq — believe in: believe in magic. O'zbekcha «sehrga» shakli to ga undaydi, ammo inglizcha bu ma'noda faqat in ishlatiladi."
+        "uz": "Biror narsaning mavjudligiga ishonmoq — believe in: believe in magic. O'zbekcha «sehrga» shakli to ga undaydi, ammo inglizcha bu ma'noda faqat in ishlatiladi; at va for ham to'g'ri kelmaydi."
       }
     },
     {
@@ -957,22 +957,22 @@
       "target_words": [
         "gymnastics"
       ],
-      "text": "My two nieces *play* gymnastics after school every day.",
+      "text": "At our school, the girls *played* gymnastics and the boys played basketball.",
       "options": [
-        "do",
-        "make",
-        "go"
+        "did",
+        "made",
+        "went"
       ],
       "correct": [
-        "do"
+        "did"
       ],
       "translation": {
-        "ru": "Мои две племянницы каждый день после школы занимаются гимнастикой.",
-        "uz": "Ikki jiyanim har kuni maktabdan keyin gimnastika bilan shug'ullanadi."
+        "ru": "В нашей школе девочки занимались гимнастикой, а мальчики играли в баскетбол.",
+        "uz": "Maktabimizda qizlar gimnastika bilan shug'ullanar, o'g'il bolalar esa basketbol o'ynardi."
       },
       "explanation": {
-        "ru": "play говорят об играх с мячом (play football). С gymnastics, athletics и единоборствами — do: do gymnastics. go — с видами спорта на -ing (go swimming).",
-        "uz": "play to'p o'yinlari bilan ishlatiladi (play football). gymnastics, athletics va yakkakurash turlari bilan do keladi: do gymnastics. go esa -ing bilan tugaydigan sport turlari bilan ishlatiladi (go swimming)."
+        "ru": "play говорят об играх с мячом (play basketball). С gymnastics, athletics и единоборствами — do: did gymnastics. go — с видами спорта на -ing (go swimming), make здесь невозможно.",
+        "uz": "play to'p o'yinlari bilan ishlatiladi (play basketball). gymnastics, athletics va yakkakurash turlari bilan do keladi: did gymnastics. go -ing bilan tugaydigan sport turlari bilan ishlatiladi (go swimming), make bu yerda mumkin emas."
       }
     },
     {
@@ -1043,7 +1043,7 @@
       ],
       "translation": {
         "ru": "Наша команда до сих пор не знает поражений: в этом сезоне мы выиграли все двенадцать игр.",
-        "uz": "Jamoamiz hali ham mag'lubiyatsiz: bu mavsumda o'n ikkala o'yinda ham g'alaba qozondik."
+        "uz": "Jamoamiz hali birorta ham mag'lubiyatga uchramagan: bu mavsumda o'n ikki o'yinning hammasida g'alaba qozondik."
       },
       "explanation": {
         "ru": "Если выиграны все игры, команда «непобеждённая»: defeat → defeated → undefeated, приставка un-. defeated значило бы, что её победили.",
@@ -1090,7 +1090,7 @@
       "target_words": [
         "tournament"
       ],
-      "text": "Our team played very well *on* the tournament but lost the final.",
+      "text": "Our players played very well *on* the tournament but lost the final.",
       "options": [
         "in",
         "by",
@@ -1100,12 +1100,12 @@
         "in"
       ],
       "translation": {
-        "ru": "Наша команда очень хорошо играла на турнире, но проиграла финал.",
-        "uz": "Jamoamiz turnirda juda yaxshi o'ynadi, lekin finalda yutqazdi."
+        "ru": "Наши игроки очень хорошо играли на турнире, но проиграли финал.",
+        "uz": "O'yinchilarimiz turnirda juda yaxshi o'ynashdi, lekin finalda yutqazishdi."
       },
       "explanation": {
-        "ru": "О соревнованиях говорят in или at: play in a tournament. Русское «на турнире» подталкивает к on, но on с tournament не употребляется.",
-        "uz": "Musobaqa haqida in yoki at ishlatiladi: play in a tournament. on predlogi tournament so'zi bilan ishlatilmaydi."
+        "ru": "Об участии в соревновании говорят in или at: play in a tournament. Русское «на турнире» подталкивает к on, но play on a tournament не говорят.",
+        "uz": "Musobaqada qatnashish haqida in yoki at ishlatiladi: play in a tournament. play on a tournament deyilmaydi."
       }
     },
     {
@@ -1119,7 +1119,7 @@
       "target_words": [
         "score"
       ],
-      "text": "What was the *account* when the referee stopped the match?",
+      "text": "The *account* is three to one, with only five minutes left.",
       "options": [
         "score",
         "scorer",
@@ -1129,12 +1129,12 @@
         "score"
       ],
       "translation": {
-        "ru": "Какой был счёт, когда судья остановил матч?",
-        "uz": "Hakam o'yinni to'xtatganda hisob qanday edi?"
+        "ru": "Счёт три — один, а до конца осталось всего пять минут.",
+        "uz": "Hisob uch-bir, o'yin tugashiga atigi besh daqiqa qoldi."
       },
       "explanation": {
-        "ru": "Счёт в игре — score. account — это счёт в банке или рассказ: русское «счёт» и узбекское «hisob» значат и то и другое. scorer — игрок, забивший гол, а scores после was невозможно.",
-        "uz": "O'yindagi hisob — score. account esa bankdagi hisob yoki hikoya: o'zbekcha «hisob» ikkala ma'noni ham beradi. scorer — gol urgan o'yinchi, scores esa was fe'lidan keyin kelmaydi."
+        "ru": "Счёт в игре — score. account — это счёт в банке или рассказ: русское «счёт» значит и то и другое. scorer — игрок, забивший гол, а scores не согласуется с is.",
+        "uz": "O'yindagi hisob — score. account esa bankdagi hisob yoki hikoya: o'zbekcha «hisob» ikkala ma'noni ham beradi. scorer — gol urgan o'yinchi, scores esa is fe'li bilan moslashmaydi."
       }
     },
     {
@@ -1223,7 +1223,7 @@
       "target_words": [
         "intense"
       ],
-      "text": "We trained *intense* for two hours and then lay on the grass.",
+      "text": "We trained *intense* for two hours and then rested on the grass.",
       "options": [
         "intensely",
         "intensive",
@@ -1233,8 +1233,8 @@
         "intensely"
       ],
       "translation": {
-        "ru": "Мы интенсивно тренировались два часа, а потом лежали на траве.",
-        "uz": "Ikki soat jadal mashq qildik, keyin maysaga yotib oldik."
+        "ru": "Мы интенсивно тренировались два часа, а потом отдыхали на траве.",
+        "uz": "Ikki soat jadal mashq qildik, keyin maysada dam oldik."
       },
       "explanation": {
         "ru": "Слово описывает глагол trained (как тренировались), поэтому нужно наречие: intense → intensely. intensive — тоже прилагательное, intensity — существительное.",
@@ -1262,8 +1262,8 @@
         "kicked"
       ],
       "translation": {
-        "ru": "Маленький мальчик перебросил мяч ногой через забор.",
-        "uz": "To'pni kichkina bir bola panjaradan oshirib tepib yubordi."
+        "ru": "Маленький мальчик ногой перекинул мяч через забор.",
+        "uz": "Kichkina bir bola to'pni to'siqdan oshirib tepib yubordi."
       },
       "explanation": {
         "ru": "Мяч не бьёт сам — его бьют (by a little boy): нужен пассив, was + третья форма: was kicked. После was голый глагол не ставят.",
@@ -1310,18 +1310,18 @@
       "target_words": [
         "locker"
       ],
-      "text": "Each swimmer gets a small ___ with a key for clothes and shoes.",
+      "text": "I always put my phone and wallet in a ___ before swimming.",
       "base": "lock",
       "accepted": [
         "locker"
       ],
       "translation": {
-        "ru": "Каждый пловец получает небольшой шкафчик с ключом для одежды и обуви.",
-        "uz": "Har bir suzuvchiga kiyim va poyabzal uchun kalitli kichik javoncha beriladi."
+        "ru": "Перед плаванием я всегда кладу телефон и кошелёк в шкафчик.",
+        "uz": "Suzishdan oldin telefonim va hamyonimni doim javonchaga solib qo'yaman."
       },
       "explanation": {
-        "ru": "Нужно существительное — то, что запирают и куда кладут одежду: lock («запирать») → locker («шкафчик с замком»), суффикс -er.",
-        "uz": "Kiyim solinadigan va qulflanadigan narsa — ot kerak: lock («qulflamoq») → locker («qulfli javoncha»), -er qo'shimchasi."
+        "ru": "После put … in a нужно существительное — место, куда кладут вещи: lock («запирать») → locker («шкафчик с замком»), суффикс -er. Сам lock («замок») сюда не подходит.",
+        "uz": "put … in a so'zlaridan keyin narsa solinadigan joyni bildiruvchi ot kerak: lock («qulflamoq») → locker («qulfli javoncha»), -er qo'shimchasi. lock («qulf») so'zining o'zi bu yerga to'g'ri kelmaydi."
       }
     },
     {
@@ -1342,7 +1342,7 @@
       ],
       "translation": {
         "ru": "Старая арена была недоступна для людей в инвалидных колясках, поэтому построили новую.",
-        "uz": "Eski arenaga nogironlik aravachasidagilar kira olmas edi, shuning uchun yangisi qurildi."
+        "uz": "Eski arenaga nogironlik aravachasidagi odamlar kira olmas edi, shuning uchun yangisi qurildi."
       },
       "explanation": {
         "ru": "После was нужно прилагательное, а so a new one was built требует отрицательного смысла: access → accessible → inaccessible (приставка in-, суффикс -ible).",
@@ -1360,14 +1360,14 @@
       "target_words": [
         "whistle"
       ],
-      "text": "The referee kept ___, but the angry players did not stop fighting.",
+      "text": "The referee kept ___, but the angry players did not stop arguing.",
       "base": "whistle",
       "accepted": [
         "whistling"
       ],
       "translation": {
-        "ru": "Судья всё свистел в свисток, но разгневанные игроки не прекращали драку.",
-        "uz": "Hakam to'xtovsiz hushtak chalardi, lekin g'azablangan o'yinchilar mushtlashishni to'xtatmadi."
+        "ru": "Судья продолжал свистеть, но разгневанные игроки не переставали спорить.",
+        "uz": "Hakam to'xtovsiz hushtak chalardi, lekin g'azablangan o'yinchilar bahslashishdan to'xtamadi."
       },
       "explanation": {
         "ru": "После keep («продолжать») глагол ставится в форме -ing: kept whistling. whistle («свисток») — это и глагол «свистеть»; немая e перед -ing выпадает.",
@@ -1443,7 +1443,7 @@
       "target_words": [
         "racket"
       ],
-      "text": "He hits the ball *by* an old wooden racket but still wins.",
+      "text": "My grandfather still plays tennis *by* an old wooden racket.",
       "options": [
         "with",
         "at",
@@ -1453,12 +1453,12 @@
         "with"
       ],
       "translation": {
-        "ru": "Он бьёт по мячу старой деревянной ракеткой, но всё равно выигрывает.",
-        "uz": "U to'pni eski yog'och raketka bilan uradi, lekin baribir yutadi."
+        "ru": "Мой дедушка до сих пор играет в теннис старой деревянной ракеткой.",
+        "uz": "Bobom hanuz eski yog'och raketka bilan tennis o'ynaydi."
       },
       "explanation": {
-        "ru": "Инструмент, которым что-то делают, вводится предлогом with: hit the ball with a racket. Русский творительный падеж («ракеткой») здесь не by.",
-        "uz": "Ish bajariladigan asbob with predlogi bilan beriladi: hit the ball with a racket. O'zbekcha «bilan» ham with ga to'g'ri keladi, by ga emas."
+        "ru": "Инструмент, которым что-то делают, вводится предлогом with: play tennis with a racket. Русский творительный падеж («ракеткой») здесь не by.",
+        "uz": "Ish bajariladigan asbob with predlogi bilan beriladi: play tennis with a racket. O'zbekcha «bilan» ham with ga to'g'ri keladi, by ga emas."
       }
     },
     {
@@ -1522,15 +1522,15 @@
       "target_words": [
         "slope"
       ],
-      "text": "It was hard to put up the tent on such ___ ground.",
+      "text": "We had trouble putting up the tent on such ___ ground.",
       "base": "slope",
       "accepted": [
         "sloping",
         "sloped"
       ],
       "translation": {
-        "ru": "Было трудно поставить палатку на такой покатой земле.",
-        "uz": "Bunday nishab yerga chodir tikish qiyin edi."
+        "ru": "Нам было трудно поставить палатку на такой покатой земле.",
+        "uz": "Bunday nishab yerga chodir tikishda qiynaldik."
       },
       "explanation": {
         "ru": "Между such и ground нужно прилагательное «покатый, наклонный»: slope → sloping (принимается и sloped). Немая e перед -ing выпадает.",
@@ -1606,7 +1606,7 @@
       "target_words": [
         "canoe"
       ],
-      "text": "We crossed the lake *on* canoe and camped on the other side.",
+      "text": "Every summer we travel down the river *on* canoe.",
       "options": [
         "by",
         "with",
@@ -1616,8 +1616,8 @@
         "by"
       ],
       "translation": {
-        "ru": "Мы переправились через озеро на каноэ и разбили лагерь на другом берегу.",
-        "uz": "Ko'lni kanoeda suzib o'tdik va narigi qirg'oqda chodir tikdik."
+        "ru": "Каждое лето мы сплавляемся по реке на каноэ.",
+        "uz": "Har yozi daryo bo'ylab kanoeda suzib boramiz."
       },
       "explanation": {
         "ru": "Способ передвижения без артикля вводится предлогом by: by canoe, by bus. С артиклем говорят in a canoe; on canoe без артикля невозможно.",

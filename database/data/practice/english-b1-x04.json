@@ -88,7 +88,7 @@
       "target_words": [
         "architect"
       ],
-      "text": "My cousin wants to become an *architector* and design bridges.",
+      "text": "My cousin wants to become an *architector* and design modern houses.",
       "options": [
         "architect",
         "architecture",
@@ -98,8 +98,8 @@
         "architect"
       ],
       "translation": {
-        "ru": "Мой двоюродный брат хочет стать архитектором и проектировать мосты.",
-        "uz": "Amakivachcham me'mor bo'lib, ko'priklar loyihalashni xohlaydi."
+        "ru": "Мой двоюродный брат хочет стать архитектором и проектировать современные дома.",
+        "uz": "Amakivachcham me'mor bo'lishni va zamonaviy uylar loyihalashni xohlaydi."
       },
       "explanation": {
         "ru": "Архитектор по-английски — architect, без -or: русское «архитектор» сбивает. architecture — это архитектура, а не человек.",
@@ -200,14 +200,14 @@
       "target_words": [
         "suitable"
       ],
-      "text": "These shoes are ___ for a job interview, so wear the black ones.",
+      "text": "These red shoes are ___ for a job interview, so wear the black ones.",
       "base": "suitable",
       "accepted": [
         "unsuitable"
       ],
       "translation": {
-        "ru": "Эти туфли не подходят для собеседования, так что наденьте чёрные.",
-        "uz": "Bu tufli ish suhbati uchun mos emas, shuning uchun qora tuflini kiying."
+        "ru": "Эти красные туфли не подходят для собеседования, так что наденьте чёрные.",
+        "uz": "Bu qizil tufli ish suhbati uchun mos emas, shuning uchun qora tuflini kiying."
       },
       "explanation": {
         "ru": "Вторая часть (so wear the black ones) требует отрицания: suitable → unsuitable (неподходящий), приставка un-.",
@@ -250,22 +250,22 @@
       "target_words": [
         "internship"
       ],
-      "text": "My son wants to *make* an internship at a law firm.",
+      "text": "Most students who *made* an internship abroad last year found jobs quickly.",
       "options": [
-        "do",
-        "pass",
-        "visit"
+        "did",
+        "passed",
+        "visited"
       ],
       "correct": [
-        "do"
+        "did"
       ],
       "translation": {
-        "ru": "Мой сын хочет пройти стажировку в юридической фирме.",
-        "uz": "O'g'lim yuridik firmada amaliyot o'tamoqchi."
+        "ru": "Большинство студентов, которые в прошлом году прошли стажировку за границей, быстро нашли работу.",
+        "uz": "O'tgan yili chet elda amaliyot o'tgan talabalarning ko'pchiligi tezda ish topdi."
       },
       "explanation": {
-        "ru": "do an internship — проходить стажировку: глагол do, а не make. Русское «пройти» здесь не pass.",
-        "uz": "do an internship — amaliyot o'tamoq: make emas, do fe'li ishlatiladi. «O'tamoq» bu yerda pass emas."
+        "ru": "do an internship — проходить стажировку: глагол do (в прошлом did), а не make. Русское «пройти» здесь не pass.",
+        "uz": "do an internship — amaliyot o'tamoq: make emas, do fe'li ishlatiladi (o'tgan zamonda did). «O'tmoq» bu yerda pass emas."
       }
     },
     {
@@ -279,7 +279,7 @@
       "target_words": [
         "temporary"
       ],
-      "text": "My cousin is working *temporary* as a cashier at a supermarket.",
+      "text": "Because of the repairs, the library is *temporary* closed to visitors.",
       "options": [
         "temporarily",
         "temporally",
@@ -289,12 +289,12 @@
         "temporarily"
       ],
       "translation": {
-        "ru": "Мой двоюродный брат временно работает кассиром в супермаркете.",
-        "uz": "Amakivachcham supermarketda vaqtincha kassir bo'lib ishlayapti."
+        "ru": "Из-за ремонта библиотека временно закрыта для посетителей.",
+        "uz": "Ta'mir sababli kutubxona tashrif buyuruvchilar uchun vaqtincha yopiq."
       },
       "explanation": {
-        "ru": "Глагол is working описывает наречие: temporary → temporarily (временно), -y → -ily. temporal значит «связанный со временем».",
-        "uz": "is working fe'lini ravish izohlaydi: temporary → temporarily (vaqtincha), -y o'rniga -ily. temporal esa «vaqtga oid» degani."
+        "ru": "Слово closed (закрыта) уточняет наречие, а не прилагательное: temporary → temporarily (временно), -y → -ily. temporal значит «связанный со временем».",
+        "uz": "closed (yopiq) so'zini sifat emas, ravish izohlaydi: temporary → temporarily (vaqtincha), -y o'rniga -ily. temporal esa «vaqtga oid» degani."
       }
     },
     {
@@ -337,18 +337,18 @@
       "target_words": [
         "efficient"
       ],
-      "text": "The old system was slow and ___, so the company replaced it.",
+      "text": "The old printer was slow and ___, so the office replaced it.",
       "base": "efficient",
       "accepted": [
         "inefficient"
       ],
       "translation": {
-        "ru": "Старая система была медленной и неэффективной, поэтому компания её заменила.",
-        "uz": "Eski tizim sekin va samarasiz edi, shuning uchun kompaniya uni almashtirdi."
+        "ru": "Старый принтер был медленным и неэффективным, поэтому в офисе его заменили.",
+        "uz": "Eski printer sekin va samarasiz edi, shuning uchun ofisda uni almashtirishdi."
       },
       "explanation": {
-        "ru": "slow and … и so … replaced it требуют отрицания: efficient → inefficient (неэффективный). Приставка in-, а не un-.",
-        "uz": "slow and … va so … replaced it inkorni talab qiladi: efficient → inefficient (samarasiz). un- emas, in- old qo'shimchasi."
+        "ru": "slow and … и so the office replaced it требуют отрицания: efficient → inefficient (неэффективный). Приставка in-, а не un-.",
+        "uz": "slow and … va so the office replaced it inkorni talab qiladi: efficient → inefficient (samarasiz). un- emas, in- old qo'shimchasi."
       }
     },
     {
@@ -426,8 +426,8 @@
         "uz": "Jamoamizning yarmi kelasi haftadagi o'quv kursida qatnashishga qaror qildi."
       },
       "explanation": {
-        "ru": "После decide глагол идёт с to: decide to attend. Форма -ing после decide не употребляется.",
-        "uz": "decide fe'lidan keyin fe'l to bilan keladi: decide to attend. decide fe'lidan keyin -ing shakli ishlatilmaydi."
+        "ru": "Сразу после decide глагол идёт с to: decide to attend. Форма -ing прямо после decide не ставится.",
+        "uz": "decide fe'lidan keyin fe'l to bilan keladi: decide to attend. decide fe'lidan keyin to'g'ridan-to'g'ri -ing shakli qo'yilmaydi."
       }
     },
     {
@@ -509,8 +509,8 @@
         "uz": "Ikki eng katta raqobatchimiz hozirgina ko'chamizda do'kon ochdi."
       },
       "explanation": {
-        "ru": "После two biggest нужно существительное во множественном числе — тот, кто соревнуется: compete → competitor → competitors (-or).",
-        "uz": "two biggest so'zlaridan keyin ko'plikdagi ot kerak — raqobat qiluvchi: compete → competitor → competitors (-or)."
+        "ru": "После two biggest нужно существительное во множественном числе — тот, кто соревнуется: compete → competitor (-e меняется на -itor) → competitors.",
+        "uz": "two biggest so'zlaridan keyin ko'plikdagi ot kerak — raqobat qiluvchi: compete → competitor (-e o'rniga -itor) → competitors."
       }
     },
     {
@@ -574,7 +574,7 @@
       "target_words": [
         "supply"
       ],
-      "text": "This small farm supplies the local school *by* fresh vegetables.",
+      "text": "A new firm now supplies our office *by* paper and pens.",
       "options": [
         "with",
         "from",
@@ -584,11 +584,11 @@
         "with"
       ],
       "translation": {
-        "ru": "Эта небольшая ферма снабжает местную школу свежими овощами.",
-        "uz": "Bu kichik ferma mahalliy maktabni yangi sabzavotlar bilan ta'minlaydi."
+        "ru": "Теперь наш офис снабжает бумагой и ручками новая фирма.",
+        "uz": "Endi ofisimizni yangi firma qog'oz va ruchkalar bilan ta'minlaydi."
       },
       "explanation": {
-        "ru": "supply somebody with something — снабжать кого-то чем-то: предлог with. Русский творительный падеж («овощами») — не by.",
+        "ru": "supply somebody with something — снабжать кого-то чем-то: предлог with. Русский творительный падеж («бумагой») — не by.",
         "uz": "supply somebody with something — kimnidir biror narsa bilan ta'minlamoq: with predlogi, o'zbekcha «bilan» kabi."
       }
     },
@@ -661,18 +661,18 @@
       "target_words": [
         "unemployed"
       ],
-      "text": "My uncle lost his job in May and has been ___ ever since.",
+      "text": "My uncle lost his job in May and is still ___.",
       "base": "employ",
       "accepted": [
         "unemployed"
       ],
       "translation": {
-        "ru": "Мой дядя потерял работу в мае и с тех пор остаётся безработным.",
-        "uz": "Amakim may oyida ishini yo'qotdi va o'shandan beri ishsiz."
+        "ru": "Мой дядя потерял работу в мае и до сих пор остаётся безработным.",
+        "uz": "Amakim may oyida ishini yo'qotdi va hanuz ishsiz."
       },
       "explanation": {
-        "ru": "lost his job показывает отрицание: employ → employed (работающий) → unemployed (безработный): приставка un- и окончание -ed.",
-        "uz": "lost his job inkor ma'nosini ko'rsatadi: employ → employed (ishlaydigan) → unemployed (ishsiz): un- old qo'shimchasi va -ed."
+        "ru": "lost his job и still показывают, что работы нет до сих пор: employ → employed (работающий) → unemployed (безработный): приставка un- и окончание -ed.",
+        "uz": "lost his job va still hozir ham ish yo'qligini ko'rsatadi: employ → employed (ishlaydigan) → unemployed (ishsiz): un- old qo'shimchasi va -ed."
       }
     },
     {
@@ -750,8 +750,8 @@
         "uz": "Buvimning daromadi juda kam, shuning uchun har oy unga yordam beramiz."
       },
       "explanation": {
-        "ru": "income здесь неисчисляемое: с ним little (мало). few — только с исчисляемыми во множественном числе (few jobs).",
-        "uz": "income bu yerda sanalmaydigan ot: u bilan little (oz) ishlatiladi. few esa faqat ko'plikdagi sanaladigan otlar bilan (few jobs)."
+        "ru": "Здесь income стоит в единственном числе без артикля, как неисчисляемое: с ним little (мало). few — только с исчисляемыми во множественном числе (few jobs).",
+        "uz": "Bu yerda income birlikda, artiklsiz, sanalmaydigan ot sifatida turibdi: u bilan little (oz) ishlatiladi. few esa faqat ko'plikdagi sanaladigan otlar bilan (few jobs)."
       }
     },
     {
@@ -768,8 +768,8 @@
       "text": "Nobody can make good decisions *in* such pressure.",
       "options": [
         "under",
-        "at",
-        "on"
+        "on",
+        "by"
       ],
       "correct": [
         "under"
@@ -898,7 +898,7 @@
       "target_words": [
         "owe"
       ],
-      "text": "We still *own* our neighbors a hundred dollars for the broken window.",
+      "text": "Thanks to our new jobs, we no longer *own* anybody any money.",
       "options": [
         "owe",
         "borrow",
@@ -908,8 +908,8 @@
         "owe"
       ],
       "translation": {
-        "ru": "Мы всё ещё должны соседям сто долларов за разбитое окно.",
-        "uz": "Biz hali ham qo'shnilarimizga singan deraza uchun yuz dollar qarzdormiz."
+        "ru": "Благодаря новой работе мы больше никому ничего не должны.",
+        "uz": "Yangi ishlarimiz tufayli endi hech kimga qarzimiz yo'q."
       },
       "explanation": {
         "ru": "owe somebody money — быть должным кому-то. own — владеть чем-то. borrow — брать в долг: borrow money from somebody, без from нельзя.",
@@ -927,7 +927,7 @@
       "target_words": [
         "loss"
       ],
-      "text": "Our firm had a big *lost* last year.",
+      "text": "Because of the floods, many farmers sold their crops at a *lost*.",
       "options": [
         "loss",
         "lose",
@@ -937,12 +937,12 @@
         "loss"
       ],
       "translation": {
-        "ru": "В прошлом году у нашей фирмы был большой убыток.",
-        "uz": "O'tgan yili firmamiz katta zarar ko'rdi."
+        "ru": "Из-за наводнений многие фермеры продали урожай себе в убыток.",
+        "uz": "Suv toshqinlari sababli ko'p fermerlar hosilini zarariga sotdi."
       },
       "explanation": {
-        "ru": "После a big нужно существительное: loss (убыток). lost — форма глагола lose (терять), а не существительное.",
-        "uz": "a big so'zlaridan keyin ot kerak: loss (zarar). lost esa lose (yo'qotmoq) fe'lining shakli, ot emas."
+        "ru": "sell at a loss — продавать в убыток: после a нужно существительное loss (убыток). lost — форма глагола lose (терять), а не существительное.",
+        "uz": "sell at a loss — zarariga sotmoq: a artiklidan keyin loss (zarar) oti kerak. lost esa lose (yo'qotmoq) fe'lining shakli, ot emas."
       }
     },
     {
@@ -1010,18 +1010,18 @@
       "target_words": [
         "secure"
       ],
-      "text": "The ___ of your password is very important.",
+      "text": "For extra ___, the bank sends a code to your phone.",
       "base": "secure",
       "accepted": [
         "security"
       ],
       "translation": {
-        "ru": "Безопасность вашего пароля очень важна.",
-        "uz": "Parolingiz xavfsizligi juda muhim."
+        "ru": "Для дополнительной безопасности банк присылает код на ваш телефон.",
+        "uz": "Qo'shimcha xavfsizlik uchun bank telefoningizga kod yuboradi."
       },
       "explanation": {
-        "ru": "После the и перед of нужно существительное: secure → security (безопасность); -e выпадает, добавляется -ity.",
-        "uz": "the va of orasida ot kerak: secure → security (xavfsizlik); -e tushib qoladi, -ity qo'shiladi."
+        "ru": "После extra нужно существительное: secure → security (безопасность); -e выпадает, добавляется -ity.",
+        "uz": "extra so'zidan keyin ot kerak: secure → security (xavfsizlik); -e tushib qoladi, -ity qo'shiladi."
       }
     },
     {
@@ -1035,18 +1035,18 @@
       "target_words": [
         "transfer"
       ],
-      "text": "Yesterday my parents ___ some money to my account.",
+      "text": "Online banking is the easiest way of ___ money to your family abroad.",
       "base": "transfer",
       "accepted": [
         "transferred"
       ],
       "translation": {
-        "ru": "Вчера родители перевели немного денег на мой счёт.",
-        "uz": "Kecha ota-onam hisobimga biroz pul o'tkazishdi."
+        "ru": "Онлайн-банкинг — самый простой способ переводить деньги семье за границу.",
+        "uz": "Onlayn banking chet eldagi oilangizga pul o'tkazishning eng oson usuli."
       },
       "explanation": {
-        "ru": "Yesterday требует прошедшего времени. Перед -ed конечная r глагола transfer удваивается: transferred (и в британском, и в американском английском).",
-        "uz": "Yesterday o'tgan zamonni talab qiladi. -ed oldidan transfer fe'lining oxiridagi r ikkilanadi: transferred (Britaniya va Amerika ingliz tilida ham)."
+        "ru": "После предлога of нужен герундий (-ing). Ударение в глаголе transfer на втором слоге, поэтому r удваивается: transferring (и в британском, и в американском английском).",
+        "uz": "of predlogidan keyin gerundiy (-ing) kerak. transfer fe'lida urg'u ikkinchi bo'g'inda, shuning uchun r ikkilanadi: transferring (Britaniya va Amerika ingliz tilida ham)."
       }
     },
     {
@@ -1071,7 +1071,7 @@
       ],
       "translation": {
         "ru": "Банки в аэропорту обычно предлагают невыгодный обменный курс.",
-        "uz": "Aeroportdagi banklar odatda noqulay valyuta kursini taklif qiladi."
+        "uz": "Aeroportdagi banklar odatda foydasiz valyuta kursini taklif qiladi."
       },
       "explanation": {
         "ru": "Обменный курс — exchange rate. course по-английски — учебный курс или направление, но не курс валют.",
@@ -1197,19 +1197,19 @@
       "target_words": [
         "bakery"
       ],
-      "text": "We bought bread and cakes at a small ___ near the station.",
+      "text": "The smell of fresh bread comes from the ___ across the street.",
       "base": "bake",
       "accepted": [
         "bakery",
         "baker's"
       ],
       "translation": {
-        "ru": "Мы купили хлеб и пирожные в маленькой пекарне у вокзала.",
-        "uz": "Vokzal yonidagi kichkina novvoyxonadan non va pirojniy sotib oldik."
+        "ru": "Запах свежего хлеба идёт из пекарни через дорогу.",
+        "uz": "Yangi non hidi ko'chaning narigi tomonidagi novvoyxonadan kelyapti."
       },
       "explanation": {
-        "ru": "После at a small нужно место: bake (печь) → bakery (пекарня), суффикс -ery. Британское baker's тоже принимается; baker — это пекарь.",
-        "uz": "at a small so'zlaridan keyin joy kerak: bake (pishirmoq) → bakery (novvoyxona), -ery qo'shimchasi. Britancha baker's ham qabul qilinadi; baker — novvoy."
+        "ru": "После the нужно место, откуда идёт запах: bake (печь) → bakery (пекарня), суффикс -ery. Британское baker's тоже принимается; baker — это пекарь, человек.",
+        "uz": "the artiklidan keyin hid keladigan joy kerak: bake (pishirmoq) → bakery (novvoyxona), -ery qo'shimchasi. Britancha baker's ham qabul qilinadi; baker esa novvoy, shaxs."
       }
     },
     {
@@ -1234,7 +1234,7 @@
       ],
       "translation": {
         "ru": "Покупатели, которые сделают покупку сегодня, получат бесплатную сумку.",
-        "uz": "Bugun xarid qilgan xaridorlar bepul sumka oladi."
+        "uz": "Bugun xarid qilgan mijozlar bepul sumka oladi."
       },
       "explanation": {
         "ru": "make a purchase — сделать покупку: с purchase говорят make, а не do. buy a purchase — тавтология, так не говорят.",
@@ -1281,7 +1281,7 @@
       "target_words": [
         "cart"
       ],
-      "text": "Please take your shopping *card* back to the entrance.",
+      "text": "Please push your empty shopping *card* back to the entrance.",
       "options": [
         "cart",
         "chart",
@@ -1291,12 +1291,12 @@
         "cart"
       ],
       "translation": {
-        "ru": "Пожалуйста, отвезите свою тележку обратно ко входу.",
-        "uz": "Iltimos, aravachangizni kirish joyiga qaytarib qo'ying."
+        "ru": "Пожалуйста, отвезите пустую тележку обратно ко входу.",
+        "uz": "Iltimos, bo'sh aravachangizni kirish joyiga qaytarib olib boring."
       },
       "explanation": {
-        "ru": "Тележка для покупок — shopping cart, на конце t. card — карта, карточка; её не отвозят ко входу.",
-        "uz": "Savdo aravachasi — shopping cart, oxirida t. card esa karta, kartochka degani."
+        "ru": "Тележка для покупок — shopping cart, на конце t. card — карта, карточка; её не толкают ко входу.",
+        "uz": "Savdo aravachasi — shopping cart, oxirida t. card esa karta, kartochka degani, uni itarib bo'lmaydi."
       }
     },
     {
@@ -1310,18 +1310,18 @@
       "target_words": [
         "reduce"
       ],
-      "text": "There is a big ___ on all winter coats this week.",
+      "text": "Shoppers were happy about the sudden ___ in food prices.",
       "base": "reduce",
       "accepted": [
         "reduction"
       ],
       "translation": {
-        "ru": "На этой неделе на все зимние пальто большая скидка.",
-        "uz": "Bu hafta barcha qishki paltolarga katta chegirma bor."
+        "ru": "Покупатели обрадовались внезапному снижению цен на продукты.",
+        "uz": "Xaridorlar oziq-ovqat narxlarining kutilmaganda pasayishidan xursand bo'lishdi."
       },
       "explanation": {
-        "ru": "После a big нужно существительное: reduce → reduction (снижение цены); -duce меняется на -duction.",
-        "uz": "a big so'zlaridan keyin ot kerak: reduce → reduction (narxning pasayishi); -duce o'rniga -duction yoziladi."
+        "ru": "После the sudden нужно существительное: reduce → reduction (снижение); -duce меняется на -duction.",
+        "uz": "the sudden so'zlaridan keyin ot kerak: reduce → reduction (pasayish); -duce o'rniga -duction yoziladi."
       }
     },
     {
@@ -1414,7 +1414,7 @@
       "target_words": [
         "estimate"
       ],
-      "text": "The mechanic estimated the cost of the repair *in* five hundred dollars.",
+      "text": "Experts estimated the damage from the storm *in* two million dollars.",
       "options": [
         "at",
         "on",
@@ -1424,8 +1424,8 @@
         "at"
       ],
       "translation": {
-        "ru": "Механик оценил стоимость ремонта в пятьсот долларов.",
-        "uz": "Usta ta'mirlash narxini besh yuz dollar deb chamaladi."
+        "ru": "Эксперты оценили ущерб от шторма в два миллиона долларов.",
+        "uz": "Mutaxassislar bo'ron keltirgan zararni taxminan ikki million dollar deb chamalashdi."
       },
       "explanation": {
         "ru": "estimate something at + сумма — оценить что-то в какую-то сумму: предлог at. Русское «в» здесь не in.",
@@ -1609,8 +1609,8 @@
       "text": "Our manager reads all the *feedbacks* that customers leave on our website.",
       "options": [
         "feedback",
-        "fed back",
-        "feeding"
+        "feedback's",
+        "fed back"
       ],
       "correct": [
         "feedback"

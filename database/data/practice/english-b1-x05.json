@@ -146,18 +146,18 @@
       "target_words": [
         "private"
       ],
-      "text": "My parents were *private* educated, but I go to a state school.",
+      "text": "My father was *private* educated at a very expensive school.",
       "options": [
         "privately",
-        "privacy",
-        "privatize"
+        "privatized",
+        "privacy"
       ],
       "correct": [
         "privately"
       ],
       "translation": {
-        "ru": "Мои родители учились в частных школах, а я хожу в государственную.",
-        "uz": "Ota-onam xususiy maktabda o'qigan, men esa davlat maktabiga qatnayman."
+        "ru": "Мой отец получил образование в очень дорогой частной школе.",
+        "uz": "Otam juda qimmat xususiy maktabda ta'lim olgan."
       },
       "explanation": {
         "ru": "Перед причастием educated нужно наречие: privately educated — получивший образование в частной школе. private — прилагательное, оно стоит перед существительным: a private school.",
@@ -232,11 +232,11 @@
       ],
       "translation": {
         "ru": "Перед вступительными экзаменами в университет занятия с репетитором очень популярны среди школьников.",
-        "uz": "Universitetga kirish imtihonlari oldidan repetitorlik o'quvchilar orasida juda ommabop."
+        "uz": "Universitetga kirish imtihonlari oldidan o'quvchilar orasida repetitor bilan shug'ullanish juda ommabop."
       },
       "explanation": {
         "ru": "Private ___ is — нужно название занятия без артикля: tutor (репетитор) → tutoring (репетиторство). О человеке сказали бы a private tutor, с артиклем.",
-        "uz": "Private ___ is — artiklsiz mashg'ulot nomi kerak: tutor (repetitor) → tutoring (repetitorlik). Shaxs haqida artikl bilan a private tutor deyilardi."
+        "uz": "Private ___ is — artiklsiz mashg'ulot nomi kerak: tutor (repetitor) → tutoring (repetitor bilan shug'ullanish). Shaxs haqida artikl bilan a private tutor deyilardi."
       }
     },
     {
@@ -444,7 +444,7 @@
       "text": "Our teacher was pleased with the *progresses* of the whole class.",
       "options": [
         "progress",
-        "progressing",
+        "progressed",
         "progressive"
       ],
       "correct": [
@@ -603,7 +603,7 @@
       "target_words": [
         "solve"
       ],
-      "text": "My little brother *decided* all ten problems in one evening.",
+      "text": "My little brother *decided* all ten math problems in one evening.",
       "options": [
         "solved",
         "dissolved",
@@ -613,8 +613,8 @@
         "solved"
       ],
       "translation": {
-        "ru": "Мой младший брат за один вечер решил все десять задач.",
-        "uz": "Ukam o'nta masalaning hammasini bir kechada yechdi."
+        "ru": "Мой младший брат за один вечер решил все десять задач по математике.",
+        "uz": "Ukam bir kechada o'nta matematika masalasining hammasini yechdi."
       },
       "explanation": {
         "ru": "Решить задачу — solve a problem. decide — решить в смысле «принять решение». dissolve — растворить. Русское «решить» сбивает.",
@@ -1179,7 +1179,7 @@
       ],
       "translation": {
         "ru": "Моя сестра перестала выкладывать фотографии в сеть после того, как их скопировал незнакомец.",
-        "uz": "Begona odam suratlarini ko'chirib olgach, opam ularni internetga joylashni to'xtatdi."
+        "uz": "Notanish odam suratlarini ko'chirib olgach, opam internetga surat joylashni to'xtatdi."
       },
       "explanation": {
         "ru": "После give up (бросить, перестать) глагол стоит в форме на -ing: gave up posting.",
@@ -1294,8 +1294,8 @@
         "uz": "Jahl bilan yozgan postidan keyin qo'shiqchi minglab obunachilarini yo'qotdi."
       },
       "explanation": {
-        "ru": "Подписчик — follower (тот, кто следит за кем-то), множественное число followers. following — это вся аудитория в целом, во множественном числе так не говорят.",
-        "uz": "Obunachi — follower (kimnidir kuzatib boruvchi), ko'plikda followers. following esa butun auditoriya, ko'plikda bunday deyilmaydi."
+        "ru": "Подписчик — follower, тысячи подписчиков — thousands of followers. following — вся аудитория человека целиком (a large following), а не отдельные люди.",
+        "uz": "Obunachi — follower, minglab obunachilar — thousands of followers. following esa alohida odamlar emas, kishining butun auditoriyasi (a large following)."
       }
     },
     {
@@ -1312,7 +1312,9 @@
       "text": "The hackers ___ to publish the stolen data unless the company paid them.",
       "base": "threat",
       "accepted": [
-        "threatened"
+        "threatened",
+        "had threatened",
+        "were threatening"
       ],
       "translation": {
         "ru": "Хакеры пригрозили опубликовать украденные данные, если компания им не заплатит.",
@@ -1586,7 +1588,7 @@
       ],
       "translation": {
         "ru": "В прошлом году школа обновила все свои компьютеры до более новой системы.",
-        "uz": "O'tgan yili maktab barcha kompyuterlarini yangiroq tizimgacha yangiladi."
+        "uz": "O'tgan yili maktab barcha kompyuterlarini yangilab, yangiroq tizimga o'tkazdi."
       },
       "explanation": {
         "ru": "upgrade something to something — обновить что-то до новой версии: перед новой версией ставится to. Русское «на новую систему» подталкивает к on.",

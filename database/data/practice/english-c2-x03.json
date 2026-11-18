@@ -45,7 +45,7 @@
       ],
       "translation": {
         "ru": "Во искупление страданий, которые он причинил, он завещал всё своё состояние больнице.",
-        "uz": "Keltirgan azob-uqubatlari uchun gunohini yuvish maqsadida u butun boyligini shifoxonaga vasiyat qildi."
+        "uz": "Odamlarga yetkazgan azob-uqubatlari uchun gunohini yuvish maqsadida u butun boyligini shifoxonaga vasiyat qildi."
       },
       "explanation": {
         "ru": "После as нужно существительное: atone → atonement (искупление); -ment добавляется к глаголу без изменений. Устойчиво: as / in atonement for.",
@@ -71,7 +71,7 @@
       ],
       "translation": {
         "ru": "В политике соображения выгоды слишком часто берут верх над принципами.",
-        "uz": "Siyosatda manfaat ko'zlash juda ko'p hollarda tamoyildan ustun keladi."
+        "uz": "Siyosatda manfaat ko'zlash juda ko'p hollarda tamoyillardan ustun keladi."
       },
       "explanation": {
         "ru": "Подлежащее к wins (ед. ч., без артикля) — неисчисляемое существительное: expedient → expediency (целесообразность, выгода); -ent меняется на -ency. Вариант expedience тоже верен.",
@@ -100,7 +100,7 @@
       ],
       "translation": {
         "ru": "Роман ставит трудные вопросы о нравственности лжи ради защиты друга.",
-        "uz": "Roman do'stni himoya qilish uchun yolg'on gapirish axloqan qanchalik to'g'riligi haqida og'ir savollar qo'yadi."
+        "uz": "Roman do'stni himoya qilish uchun yolg'on gapirishning axloqiy tomoni haqida og'ir savollarni o'rtaga tashlaydi."
       },
       "explanation": {
         "ru": "morale — боевой дух, настрой (staff morale); «нравственность, моральная сторона чего-то» — morality. moralism — морализаторство, moralist — моралист.",
@@ -235,7 +235,7 @@
       ],
       "translation": {
         "ru": "В минуты глубокой молитвы она испытывала редкое чувство, что поднимается над всеми земными заботами.",
-        "uz": "Chuqur ibodat lahzalarida u barcha dunyoviy tashvishlardan yuksalib ketishdek kamyob holatni his qilardi."
+        "uz": "Chuqur ibodat lahzalarida u barcha dunyoviy tashvishlardan yuksalib ketgandek noyob bir holatni his qilardi."
       },
       "explanation": {
         "ru": "После a rare нужно существительное: transcend → transcendence (выход за пределы); глагол получает -ence, а не -ance. Вариант transcendency тоже верен.",
@@ -347,7 +347,7 @@
       ],
       "translation": {
         "ru": "Ни один серьёзный учёный не претендует на непогрешимость: любая теория однажды может оказаться неверной.",
-        "uz": "Hech bir jiddiy olim xato qilmaslikka da'vo qilmaydi: har qanday nazariya bir kun kelib noto'g'ri chiqishi mumkin."
+        "uz": "Hech bir jiddiy olim xatosizlikka da'vo qilmaydi: har qanday nazariya bir kun kelib noto'g'ri chiqishi mumkin."
       },
       "explanation": {
         "ru": "claims требует существительного, а вторая часть — смысла «никогда не ошибаться»: fallible → infallible → infallibility (непогрешимость). Две ступени: in- и -ible → -ibility.",
@@ -415,7 +415,7 @@
       "target_words": [
         "tenet"
       ],
-      "text": "Honesty even toward enemies is a basic *tenant* of their creed.",
+      "text": "As a teenager, he began to doubt the most basic *tenant* of his faith.",
       "options": [
         "tenet",
         "tenure",
@@ -425,8 +425,8 @@
         "tenet"
       ],
       "translation": {
-        "ru": "Честность даже по отношению к врагам — одно из основных положений их вероучения.",
-        "uz": "Hatto dushmanga nisbatan ham halol bo'lish ularning aqidasidagi asosiy tamoyillardan biri."
+        "ru": "Подростком он начал сомневаться в самом главном догмате своей веры.",
+        "uz": "U o'smirlik chog'ida o'z e'tiqodining eng asosiy tamoyiliga shubha qila boshladi."
       },
       "explanation": {
         "ru": "tenant — арендатор, жилец; «положение учения» — tenet. Слова похожи, но смысл разный; tenure — срок пребывания в должности, tenacity — упорство.",
@@ -510,7 +510,7 @@
       ],
       "translation": {
         "ru": "Несмотря на показное благочестие, он годами обманывал своих деловых партнёров.",
-        "uz": "Hammaning ko'z oldidagi taqvodorligiga qaramay, u yillar davomida sheriklarini aldab kelgan."
+        "uz": "Odamlar oldida ko'rsatgan taqvosiga qaramay, u yillar davomida biznes sheriklarini aldab kelgan."
       },
       "explanation": {
         "ru": "После his public нужно существительное, а despite противопоставляет его обману: pious → piety (благочестие); -ous выпадает, добавляется -ety. Вариант piousness тоже верен.",
@@ -560,11 +560,11 @@
       ],
       "translation": {
         "ru": "Её неортодоксальные методы шокировали консервативных членов совета.",
-        "uz": "Uning noan'anaviy usullari kengashning konservativ a'zolarini esankiratib qo'ydi."
+        "uz": "Uning noan'anaviy usullari kengashning konservativ a'zolarini hayratga soldi."
       },
       "explanation": {
         "ru": "Консервативных людей шокирует нестандартное, поэтому нужен отрицательный смысл: orthodox → unorthodox (неортодоксальный). Приставка un-, а не in-.",
-        "uz": "Konservativ odamlarni noodatiy narsa esankiratadi, shuning uchun inkor ma'nosi kerak: orthodox → unorthodox (noan'anaviy). Old qo'shimcha in- emas, un-."
+        "uz": "Konservativ odamlarni noodatiy narsa hayratga soladi, shuning uchun inkor ma'nosi kerak: orthodox → unorthodox (noan'anaviy). Old qo'shimcha in- emas, un-."
       }
     },
     {
@@ -578,7 +578,7 @@
       "target_words": [
         "theology"
       ],
-      "text": "After school she went on to study *theologian* at a famous university.",
+      "text": "Her younger brother chose to study *theologian* instead of law.",
       "options": [
         "theology",
         "theological",
@@ -588,12 +588,12 @@
         "theology"
       ],
       "translation": {
-        "ru": "После школы она стала изучать богословие в известном университете.",
-        "uz": "Maktabdan so'ng u mashhur universitetda ilohiyotni o'qiy boshladi."
+        "ru": "Её младший брат решил изучать богословие, а не право.",
+        "uz": "Uning ukasi huquqshunoslik o'rniga ilohiyotni o'qishni tanladi."
       },
       "explanation": {
-        "ru": "После study нужно название науки: theology (богословие). theologian — богослов (человек), theological — прилагательное, theologize — глагол.",
-        "uz": "study fe'lidan keyin fan nomi kerak: theology (ilohiyot). theologian — ilohiyotchi (shaxs), theological — sifat, theologize — fe'l."
+        "ru": "После study, в паре с law, нужно название науки: theology (богословие). theologian — богослов (человек), theological — прилагательное, theologize — глагол.",
+        "uz": "study fe'lidan keyin, law so'zi bilan juftlikda, fan nomi kerak: theology (ilohiyot). theologian — ilohiyotchi (shaxs), theological — sifat, theologize — fe'l."
       }
     },
     {
@@ -647,7 +647,7 @@
       ],
       "translation": {
         "ru": "Наконец мой дедушка совершил долгое паломничество к гробнице своих предков.",
-        "uz": "Nihoyat bobom ota-bobolarining qabrini ziyorat qilish uchun uzoq safarga chiqdi."
+        "uz": "Nihoyat bobom ajdodlarining maqbarasini ziyorat qilish uchun uzoq safarga chiqdi."
       },
       "explanation": {
         "ru": "«Совершить паломничество» — make a pilgrimage (или go on a pilgrimage). commit сочетается с проступками: commit a crime, commit a sin.",
@@ -697,11 +697,11 @@
       ],
       "translation": {
         "ru": "Их эгалитаризм был искренним: даже директор обедал вместе с рабочими.",
-        "uz": "Ularning tenglikparastligi samimiy edi: hatto direktor ham ishchilar bilan birga tushlik qilardi."
+        "uz": "Ularning tenglik g'oyasiga sadoqati samimiy edi: hatto direktor ham ishchilar bilan birga tushlik qilardi."
       },
       "explanation": {
         "ru": "После Their нужно существительное — название убеждения: egalitarian → egalitarianism (эгалитаризм, стремление к равенству); к прилагательному добавляется -ism.",
-        "uz": "Their so'zidan keyin ot — e'tiqod nomi kerak: egalitarian → egalitarianism (tenglikparastlik); sifatga -ism qo'shiladi."
+        "uz": "Their so'zidan keyin ot — e'tiqod nomi kerak: egalitarian → egalitarianism (egalitarizm, tenglik g'oyasi); sifatga -ism qo'shiladi."
       }
     },
     {
@@ -769,7 +769,7 @@
       "target_words": [
         "dystopia"
       ],
-      "text": "The novel is set in a dark *dystopian* where all books are forbidden.",
+      "text": "In the last chapter, the city becomes a bleak *dystopian* of hunger and fear.",
       "options": [
         "dystopia",
         "dystopias",
@@ -779,12 +779,12 @@
         "dystopia"
       ],
       "translation": {
-        "ru": "Действие романа происходит в мрачной антиутопии, где запрещены все книги.",
-        "uz": "Roman voqealari barcha kitoblar taqiqlangan qorong'i antiutopiyada kechadi."
+        "ru": "В последней главе город превращается в мрачную антиутопию голода и страха.",
+        "uz": "So'nggi bobda shahar ochlik va qo'rquv hukm surgan mash'um antiutopiyaga aylanadi."
       },
       "explanation": {
-        "ru": "После a dark нужно существительное: dystopia (антиутопия). dystopian — прилагательное, после него нужно существительное: a dystopian world.",
-        "uz": "a dark so'zlaridan keyin ot kerak: dystopia (antiutopiya). dystopian — sifat, undan keyin ot keladi: a dystopian world."
+        "ru": "После a bleak нужно существительное: dystopia (антиутопия). dystopian — прилагательное «антиутопический», после него нужно существительное: a dystopian world.",
+        "uz": "a bleak so'zlaridan keyin ot kerak: dystopia (antiutopiya). dystopian — «antiutopik» sifati, undan keyin ot keladi: a dystopian world."
       }
     },
     {
@@ -798,22 +798,22 @@
       "target_words": [
         "pragmatism"
       ],
-      "text": "Pragmatism, like every other theory, *have* its critics.",
+      "text": "The pragmatism of these young reformers *have* surprised many older politicians.",
       "options": [
         "has",
-        "are having",
-        "have had"
+        "are",
+        "having"
       ],
       "correct": [
         "has"
       ],
       "translation": {
-        "ru": "У прагматизма, как и у любой другой теории, есть свои критики.",
-        "uz": "Har qanday boshqa nazariya singari, pragmatizmning ham o'z tanqidchilari bor."
+        "ru": "Прагматизм этих молодых реформаторов удивил многих политиков старшего поколения.",
+        "uz": "Bu yosh islohotchilarning pragmatizmi ko'plab keksa siyosatchilarni hayratga soldi."
       },
       "explanation": {
-        "ru": "Подлежащее — Pragmatism (ед. ч.); оборот like every other theory в запятых на число глагола не влияет: Pragmatism has.",
-        "uz": "Ega — Pragmatism (birlikda); vergullar orasidagi like every other theory birikmasi fe'l soniga ta'sir qilmaydi: Pragmatism has."
+        "ru": "Подлежащее — The pragmatism (ед. ч.), а не reformers: глагол согласуется с ним — has surprised. Множественное reformers рядом с глаголом на его форму не влияет.",
+        "uz": "Ega — The pragmatism (birlikda), reformers emas: fe'l unga moslashadi — has surprised. Fe'l yonidagi ko'plikdagi reformers so'zi uning shakliga ta'sir qilmaydi."
       }
     },
     {
@@ -932,7 +932,7 @@
       "target_words": [
         "cognizant"
       ],
-      "text": "The minister insisted that he had never been *cognizance* of the payments.",
+      "text": "The minister insisted that he was never *cognizance* of the payments.",
       "options": [
         "cognizant",
         "cognitive",
@@ -946,8 +946,8 @@
         "uz": "Vazir bu to'lovlardan hech qachon xabardor bo'lmaganini qat'iy ta'kidladi."
       },
       "explanation": {
-        "ru": "После had been нужно прилагательное: cognizant of (осведомлённый о). cognizance — существительное (take cognizance of), cognitive — «познавательный».",
-        "uz": "had been so'zlaridan keyin sifat kerak: cognizant of (biror narsadan xabardor). cognizance — ot (take cognizance of), cognitive — «bilishga oid»."
+        "ru": "После was нужно прилагательное: cognizant of (осведомлённый о). cognizance — существительное (take cognizance of), cognitive — «познавательный», cognizable — «подсудный, познаваемый».",
+        "uz": "was so'zidan keyin sifat kerak: cognizant of (biror narsadan xabardor). cognizance — ot (take cognizance of), cognitive — «bilishga oid», cognizable — «bilish mumkin bo'lgan»."
       }
     },
     {
@@ -1040,14 +1040,14 @@
       "target_words": [
         "syllogism"
       ],
-      "text": "The argument has a neat ___ form: two premises lead to one conclusion.",
+      "text": "The argument has a neat ___ form, yet its first premise is false.",
       "base": "syllogism",
       "accepted": [
         "syllogistic"
       ],
       "translation": {
-        "ru": "У этого рассуждения стройная силлогистическая форма: из двух посылок следует один вывод.",
-        "uz": "Bu dalil puxta sillogistik shaklga ega: ikki muqaddimadan bitta xulosa kelib chiqadi."
+        "ru": "У этого рассуждения стройная силлогистическая форма, но его первая посылка ложна.",
+        "uz": "Bu dalil puxta sillogistik shaklga ega, biroq uning birinchi asosi noto'g'ri."
       },
       "explanation": {
         "ru": "Между a neat и form нужно прилагательное: syllogism → syllogistic (силлогистический); -ism меняется на -istic.",
@@ -1184,11 +1184,11 @@
       ],
       "translation": {
         "ru": "Местечковость деревенской политики раздражала молодого врача из столицы.",
-        "uz": "Qishloq siyosatining tor doiradaligi poytaxtdan kelgan yosh shifokorning g'ashiga tegardi."
+        "uz": "Qishloq siyosatidagi mahalliychilik poytaxtdan kelgan yosh shifokorning g'ashiga tegardi."
       },
       "explanation": {
         "ru": "Конструкция The ___ of требует существительного: parochial → parochialism (узость взглядов, местечковость); к прилагательному добавляется -ism.",
-        "uz": "The ___ of qolipi otni talab qiladi: parochial → parochialism (qarashlar torligi); sifatga -ism qo'shiladi."
+        "uz": "The ___ of qolipi otni talab qiladi: parochial → parochialism (mahalliychilik, qarashlar torligi); sifatga -ism qo'shiladi."
       }
     },
     {
@@ -1476,18 +1476,18 @@
       "target_words": [
         "fathom"
       ],
-      "text": "The motive for the crime remained ___: nothing about it made any sense.",
+      "text": "The motive for his crime remained ___ even to those who knew him best.",
       "base": "fathom",
       "accepted": [
         "unfathomable"
       ],
       "translation": {
-        "ru": "Мотив преступления оставался непостижимым: в нём не было никакого смысла.",
-        "uz": "Jinoyatning sababi anglab bo'lmas bo'lib qoldi: unda hech qanday mantiq yo'q edi."
+        "ru": "Мотив его преступления оставался непостижимым даже для тех, кто знал его лучше всех.",
+        "uz": "Uning jinoyati sababi hatto uni eng yaxshi biladiganlar uchun ham anglab bo'lmas bo'lib qoldi."
       },
       "explanation": {
-        "ru": "После remained нужно прилагательное, а вторая часть (nothing made any sense) — отрицательного смысла: fathom → fathomable → unfathomable (непостижимый). Две ступени: -able и приставка un-.",
-        "uz": "remained fe'lidan keyin sifat kerak, gapning ikkinchi qismi (nothing made any sense) esa salbiy ma'noni talab qiladi: fathom → fathomable → unfathomable (anglab bo'lmas). Ikki bosqich: -able va un-."
+        "ru": "После remained нужно прилагательное, а even to those who knew him best — смысла «никто не мог понять»: fathom → fathomable → unfathomable (непостижимый). Две ступени: -able и приставка un-.",
+        "uz": "remained fe'lidan keyin sifat kerak, even to those who knew him best qismi esa «hech kim tushuna olmadi» ma'nosini beradi: fathom → fathomable → unfathomable (anglab bo'lmas). Ikki bosqich: -able va un-."
       }
     },
     {
@@ -1501,18 +1501,18 @@
       "target_words": [
         "elusive"
       ],
-      "text": "Sleep remained ___ all night, however tired she felt.",
+      "text": "However tired she was, sleep proved ___ night after night.",
       "base": "elude",
       "accepted": [
         "elusive"
       ],
       "translation": {
-        "ru": "Как бы она ни устала, сон всю ночь не шёл к ней.",
-        "uz": "Qanchalik charchagan bo'lmasin, tun bo'yi uyqu unga yaqin kelmadi."
+        "ru": "Как бы она ни устала, сон ночь за ночью не шёл к ней.",
+        "uz": "Qanchalik charchamasin, har kecha uning uyqusi qochib ketardi."
       },
       "explanation": {
-        "ru": "После remained нужно прилагательное: elude (ускользать) → elusive (неуловимый); -de меняется на -sive.",
-        "uz": "remained fe'lidan keyin sifat kerak: elude (qochib qutulmoq) → elusive (tutqich bermas); -de o'rniga -sive yoziladi."
+        "ru": "После proved («оказался») нужно прилагательное: elude (ускользать) → elusive (неуловимый); -de меняется на -sive.",
+        "uz": "proved («bo'lib chiqdi») fe'lidan keyin sifat kerak: elude (qochib qutulmoq) → elusive (tutqich bermas); -de o'rniga -sive yoziladi."
       }
     },
     {
@@ -1609,22 +1609,22 @@
       "target_words": [
         "conundrum"
       ],
-      "text": "For small family farms, rising costs *put* a real conundrum.",
+      "text": "The sharp drop in student numbers *put* a conundrum that nobody could solve.",
       "options": [
-        "pose",
-        "lay",
-        "hold"
+        "posed",
+        "laid",
+        "held"
       ],
       "correct": [
-        "pose"
+        "posed"
       ],
       "translation": {
-        "ru": "Растущие расходы ставят перед небольшими семейными фермами настоящую головоломку.",
-        "uz": "O'sib borayotgan xarajatlar kichik oilaviy fermer xo'jaliklari oldiga jiddiy jumboq qo'ymoqda."
+        "ru": "Резкое сокращение числа учеников поставило головоломку, которую никто не мог решить.",
+        "uz": "O'quvchilar sonining keskin kamayishi hech kim yecha olmaydigan jumboqni keltirib chiqardi."
       },
       "explanation": {
-        "ru": "«Ставить задачу, головоломку» — pose a conundrum (как pose a problem, pose a question). Русское «ставить» здесь не put; lay и hold с conundrum не сочетаются.",
-        "uz": "«Jumboq tug'dirmoq» — pose a conundrum (xuddi pose a problem, pose a question kabi). put, lay va hold fe'llari bu ma'noda conundrum bilan birikmaydi."
+        "ru": "«Ставить задачу, головоломку» — pose a conundrum (как pose a problem, pose a question); здесь прошедшее posed. Русское «поставить» здесь не put; laid и held с conundrum не сочетаются.",
+        "uz": "«Jumboq tug'dirmoq» — pose a conundrum (xuddi pose a problem, pose a question kabi); bu yerda o'tgan zamon posed. put, lay va hold fe'llari bu ma'noda conundrum bilan birikmaydi."
       }
     }
   ]

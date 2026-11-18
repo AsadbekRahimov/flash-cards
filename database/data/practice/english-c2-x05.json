@@ -41,15 +41,16 @@
       "text": "Both superpowers pursued ___ ambitions across the region for most of the century.",
       "base": "hegemony",
       "accepted": [
-        "hegemonic"
+        "hegemonic",
+        "hegemonistic"
       ],
       "translation": {
         "ru": "Большую часть века обе сверхдержавы стремились к гегемонии в регионе.",
         "uz": "Asrning katta qismida ikkala superdavlat ham mintaqada gegemonlikka intildi."
       },
       "explanation": {
-        "ru": "Перед существительным ambitions нужно прилагательное: hegemony → hegemonic («гегемонистский»); -y заменяется на -ic, как harmony → harmonic.",
-        "uz": "ambitions otidan oldin sifat kerak: hegemony → hegemonic («gegemonlikka intiluvchi»); -y o'rniga -ic yoziladi, xuddi harmony → harmonic kabi."
+        "ru": "Перед существительным ambitions нужно прилагательное: hegemony → hegemonic («гегемонистский»); -y заменяется на -ic, как harmony → harmonic. Принимается и hegemonistic.",
+        "uz": "ambitions otidan oldin sifat kerak: hegemony → hegemonic («gegemonlikka intiluvchi»); -y o'rniga -ic yoziladi, xuddi harmony → harmonic kabi. hegemonistic shakli ham qabul qilinadi."
       }
     },
     {
@@ -74,7 +75,7 @@
       },
       "explanation": {
         "ru": "После the more и рядом с прилагательным suspicious нужно прилагательное: despot (деспот) → despotic (деспотичный), суффикс -ic.",
-        "uz": "the more so'zlaridan keyin, suspicious sifati bilan yonma-yon sifat kerak: despot (mustabid) → despotic (mustabidona), -ic qo'shimchasi."
+        "uz": "the more so'zlaridan keyin, suspicious sifati bilan yonma-yon sifat kerak: despot (mustabid) → despotic (mustabidlarga xos, zolim), -ic qo'shimchasi."
       }
     },
     {
@@ -175,18 +176,18 @@
       "target_words": [
         "cronyism"
       ],
-      "text": "The minister faced accusations of ___ after appointing his old classmates to key posts.",
+      "text": "The new president promised to end the ___ that had ruined the civil service.",
       "base": "crony",
       "accepted": [
         "cronyism"
       ],
       "translation": {
-        "ru": "Министра обвинили в протекции приятелям после того, как он назначил бывших одноклассников на ключевые посты.",
-        "uz": "Sobiq sinfdoshlarini muhim lavozimlarga tayinlaganidan keyin vazir oshna-og'aynigarchilikda ayblandi."
+        "ru": "Новый президент пообещал покончить с протекцией приятелям, которая развалила государственную службу.",
+        "uz": "Yangi prezident davlat xizmatini izdan chiqargan oshna-og'aynigarchilikka barham berishga va'da berdi."
       },
       "explanation": {
-        "ru": "После accusations of нужно название явления, а не человека: crony (дружок) → cronyism (протекция приятелям): к слову добавляется -ism, как в nepotism.",
-        "uz": "accusations of so'zlaridan keyin shaxs emas, hodisa nomi kerak: crony (oshna) → cronyism (oshna-og'aynigarchilik): so'zga -ism qo'shimchasi qo'shiladi, xuddi nepotism so'zidagi kabi."
+        "ru": "end the ___ that had ruined: покончить можно с явлением, а не с людьми, поэтому нужно не crony (дружок), а cronyism (протекция приятелям): к слову добавляется -ism, как в nepotism.",
+        "uz": "end the ___ that had ruined: shaxslarga emas, hodisaga barham beriladi, shuning uchun crony (oshna) emas, cronyism (oshna-og'aynigarchilik) kerak: so'zga -ism qo'shimchasi qo'shiladi, xuddi nepotism so'zidagi kabi."
       }
     },
     {
@@ -225,18 +226,18 @@
       "target_words": [
         "patronage"
       ],
-      "text": "Under the ___ of the party boss, he rose quickly through the ranks.",
+      "text": "The young painter could work in peace thanks to the ___ of a wealthy banker.",
       "base": "patron",
       "accepted": [
         "patronage"
       ],
       "translation": {
-        "ru": "Под покровительством партийного босса он быстро продвинулся по служебной лестнице.",
-        "uz": "Partiya rahbarining homiyligi ostida u martaba pog'onalaridan tez ko'tarildi."
+        "ru": "Молодой художник мог спокойно работать благодаря покровительству богатого банкира.",
+        "uz": "Yosh rassom boy bankirning homiyligi tufayli xotirjam ishlay olardi."
       },
       "explanation": {
-        "ru": "Между the и of нужно существительное «покровительство», а не человек: patron (покровитель) → patronage; суффикс -age.",
-        "uz": "the va of orasida shaxs emas, «homiylik» degan ot kerak: patron (homiy) → patronage; -age qo'shimchasi."
+        "ru": "Между the и of нужно существительное «покровительство»: покровитель здесь banker, поэтому не patron (покровитель), а patronage; суффикс -age.",
+        "uz": "the va of orasida «homiylik» degan ot kerak: homiy bu yerda banker, shuning uchun patron (homiy) emas, patronage kerak; -age qo'shimchasi."
       }
     },
     {
@@ -250,22 +251,22 @@
       "target_words": [
         "kickback"
       ],
-      "text": "The official was fired for accepting a *rollback* from a construction firm.",
+      "text": "The mayor demanded a secret *rollback* from every firm that won a city contract.",
       "options": [
         "kickback",
         "setback",
-        "feedback"
+        "drawback"
       ],
       "correct": [
         "kickback"
       ],
       "translation": {
-        "ru": "Чиновника уволили за то, что он взял откат у строительной фирмы.",
-        "uz": "Amaldor qurilish firmasidan ulush tarzidagi pora olgani uchun ishdan bo'shatildi."
+        "ru": "Мэр требовал тайный откат с каждой фирмы, получившей городской контракт.",
+        "uz": "Mer shahar shartnomasini yutib olgan har bir firmadan yashirin ulush tarzidagi pora talab qilardi."
       },
       "explanation": {
-        "ru": "Взятка-«откат» по-английски — kickback. rollback — это снижение или отмена (цен, реформ), калька здесь не работает; setback — неудача, feedback — отзыв.",
-        "uz": "Pora ma'nosidagi «otkat» inglizchada kickback. rollback — narx yoki islohotlarni pasaytirish, bekor qilish, ruscha kalka bu yerda ishlamaydi; setback — muvaffaqiyatsizlik, feedback — fikr-mulohaza."
+        "ru": "Взятка-«откат» по-английски — kickback. rollback — это снижение или отмена (цен, реформ), калька здесь не работает; setback — неудача, drawback — недостаток.",
+        "uz": "Pora ma'nosidagi «otkat» inglizchada kickback. rollback — narx yoki islohotlarni pasaytirish, bekor qilish, so'zma-so'z tarjima bu yerda ishlamaydi; setback — muvaffaqiyatsizlik, drawback — kamchilik."
       }
     },
     {
@@ -308,7 +309,7 @@
       "target_words": [
         "complicit"
       ],
-      "text": "The inquiry found that several officials had been deeply complicit *to* the fraud.",
+      "text": "By staying silent, the staff became fully complicit *to* the director's crimes.",
       "options": [
         "in",
         "of",
@@ -318,8 +319,8 @@
         "in"
       ],
       "translation": {
-        "ru": "Расследование показало, что несколько чиновников были глубоко замешаны в мошенничестве.",
-        "uz": "Tergov bir nechta amaldorning firibgarlikka bevosita sherik bo'lganini aniqladi."
+        "ru": "Промолчав, сотрудники стали полноправными соучастниками преступлений директора.",
+        "uz": "Sukut saqlab, xodimlar direktorning jinoyatlariga to'liq sherik bo'lib qolishdi."
       },
       "explanation": {
         "ru": "complicit in something — причастный к преступлению, сговору: здесь нужен in. Русское «к» здесь не to; of и for с complicit не употребляются.",
@@ -365,15 +366,16 @@
       "text": "After months of hostility, both sides finally showed a spirit of ___.",
       "base": "conciliatory",
       "accepted": [
-        "conciliation"
+        "conciliation",
+        "reconciliation"
       ],
       "translation": {
         "ru": "После нескольких месяцев вражды обе стороны наконец проявили готовность к примирению.",
         "uz": "Oylab davom etgan adovatdan so'ng ikki tomon nihoyat murosaga tayyorligini ko'rsatdi."
       },
       "explanation": {
-        "ru": "После a spirit of нужно существительное: conciliatory (примирительный) → conciliation (примирение); -atory → -ation.",
-        "uz": "a spirit of so'zlaridan keyin ot kerak: conciliatory (murosasoz) → conciliation (murosa, yarashuv); -atory o'rniga -ation."
+        "ru": "После a spirit of нужно существительное: conciliatory (примирительный) → conciliation (примирение); -atory → -ation. Принимается и reconciliation.",
+        "uz": "a spirit of so'zlaridan keyin ot kerak: conciliatory (murosasoz) → conciliation (murosa, yarashuv); -atory o'rniga -ation. reconciliation shakli ham qabul qilinadi."
       }
     },
     {
@@ -442,22 +444,22 @@
       "target_words": [
         "overture"
       ],
-      "text": "Despite years of hostility, the new government *did* friendly overtures to its neighbor.",
+      "text": "Even during the war, the prime minister kept *doing* quiet overtures to the enemy.",
       "options": [
-        "made",
-        "held",
-        "took"
+        "making",
+        "holding",
+        "taking"
       ],
       "correct": [
-        "made"
+        "making"
       ],
       "translation": {
-        "ru": "Несмотря на годы вражды, новое правительство сделало дружественные шаги навстречу соседу.",
-        "uz": "Yillar davomidagi adovatga qaramay, yangi hukumat qo'shnisi tomon do'stona yarashuv qadamlarini qo'ydi."
+        "ru": "Даже во время войны премьер-министр продолжал без огласки делать шаги навстречу противнику.",
+        "uz": "Urush paytida ham bosh vazir dushman tomon jimgina yarashuv sari qadam qo'yishda davom etdi."
       },
       "explanation": {
-        "ru": "С overtures употребляется make: make overtures to somebody — делать шаги навстречу. Русское «делать» здесь не do; held и took с этим словом не сочетаются.",
-        "uz": "overtures so'zi bilan make fe'li ishlatiladi: make overtures to somebody — kimgadir yarashuv sari qadam qo'ymoq. Bu yerda do emas; held va took ham bu so'z bilan birikmaydi."
+        "ru": "С overtures употребляется make: make overtures to somebody — делать шаги навстречу; после kept — making. Русское «делать» здесь не do; hold и take с этим словом не сочетаются.",
+        "uz": "overtures so'zi bilan make fe'li ishlatiladi: make overtures to somebody — kimgadir yarashuv sari qadam qo'ymoq; kept fe'lidan keyin making. Bu yerda do emas; hold va take ham bu so'z bilan birikmaydi."
       }
     },
     {
@@ -471,7 +473,7 @@
       "target_words": [
         "concord"
       ],
-      "text": "For centuries the two communities lived side by side in perfect *consent*.",
+      "text": "The treaty was meant to restore *consent* between the rival tribes.",
       "options": [
         "concord",
         "accordance",
@@ -481,12 +483,12 @@
         "concord"
       ],
       "translation": {
-        "ru": "Веками две общины жили бок о бок в полном согласии.",
-        "uz": "Asrlar davomida ikki jamoa yonma-yon to'liq ahillik va totuvlikda yashadi."
+        "ru": "Договор должен был восстановить согласие между враждующими племенами.",
+        "uz": "Shartnoma raqib qabilalar o'rtasida ahillikni tiklashi kerak edi."
       },
       "explanation": {
-        "ru": "Русское «согласие» — это и consent (разрешение), и concord (мир, лад). «Жить в согласии» — live in concord. in accordance требует with, concordat — договор церкви с государством.",
-        "uz": "Rus tilidagi «soglasiye» so'zi ham consent (rozilik, ruxsat), ham concord (ahillik) ma'nosini beradi, lekin inglizchada ular farq qiladi. «Ahil yashamoq» — live in concord. in accordance birikmasi with talab qiladi, concordat — cherkov va davlat shartnomasi."
+        "ru": "Русское «согласие» — это и consent (разрешение), и concord (мир, лад). Восстановить мир и лад — restore concord. accordance употребляется в in accordance with, concordat — договор церкви с государством.",
+        "uz": "consent — rozilik, ruxsat; concord — ahillik, totuvlik. Ahillikni tiklamoq — restore concord. accordance so'zi in accordance with birikmasida ishlatiladi, concordat — cherkov va davlat o'rtasidagi shartnoma."
       }
     },
     {
@@ -525,18 +527,18 @@
       "target_words": [
         "defiance"
       ],
-      "text": "In open ___ of the curfew, thousands of students marched through the capital.",
+      "text": "The old poet's quiet ___ of the regime made him a hero to millions.",
       "base": "defy",
       "accepted": [
         "defiance"
       ],
       "translation": {
-        "ru": "Открыто не подчинившись комендантскому часу, тысячи студентов прошли маршем по столице.",
-        "uz": "Komendantlik soatiga ochiqdan-ochiq bo'ysunmay, minglab talabalar poytaxt bo'ylab yurish qildi."
+        "ru": "Тихое неповиновение старого поэта режиму сделало его героем для миллионов.",
+        "uz": "Keksa shoirning rejimga jimgina bo'ysunmay kelgani uni millionlab odamlar nazdida qahramonga aylantirdi."
       },
       "explanation": {
-        "ru": "В обороте in open ___ of нужно существительное: defy (бросать вызов) → defiance (открытое неповиновение); y меняется на i, суффикс -ance.",
-        "uz": "in open ___ of iborasida ot kerak: defy (bo'ysunmaslik) → defiance (ochiq bo'ysunmaslik); y o'rniga i va -ance qo'shimchasi."
+        "ru": "После the old poet's quiet и перед of нужно существительное: defy (бросать вызов) → defiance (открытое неповиновение); y меняется на i, суффикс -ance.",
+        "uz": "the old poet's quiet so'zlaridan keyin va of predlogidan oldin ot kerak: defy (qarshi chiqmoq) → defiance (ochiq bo'ysunmaslik); y o'rniga i va -ance qo'shimchasi."
       }
     },
     {
@@ -550,19 +552,19 @@
       "target_words": [
         "disenfranchise"
       ],
-      "text": "Critics called the new voting rules a deliberate ___ of the rural poor.",
+      "text": "Many democracies now reject the automatic ___ of inmates serving long sentences.",
       "base": "disenfranchise",
       "accepted": [
         "disenfranchisement",
         "disenfranchising"
       ],
       "translation": {
-        "ru": "Критики назвали новые правила голосования намеренным лишением сельской бедноты избирательных прав.",
-        "uz": "Tanqidchilar yangi saylov qoidalarini qishloq kambag'allarini saylov huquqidan ataylab mahrum qilish deb atashdi."
+        "ru": "Многие демократические страны сейчас отказываются от автоматического лишения избирательных прав заключённых, отбывающих длительные сроки.",
+        "uz": "Ko'plab demokratik davlatlar endi uzoq muddatli jazoni o'tayotgan mahbuslarni avtomatik ravishda saylov huquqidan mahrum qilishdan voz kechmoqda."
       },
       "explanation": {
-        "ru": "После a deliberate и перед of нужно существительное: disenfranchise → disenfranchisement; -ment, конечное e сохраняется. Принимается и disenfranchising.",
-        "uz": "a deliberate so'zlaridan keyin va of predlogidan oldin ot kerak: disenfranchise → disenfranchisement; -ment qo'shimchasi, oxirgi e saqlanadi. disenfranchising shakli ham qabul qilinadi."
+        "ru": "После the automatic и перед of нужно существительное: disenfranchise → disenfranchisement; -ment, конечное e сохраняется. Принимается и disenfranchising.",
+        "uz": "the automatic so'zlaridan keyin va of predlogidan oldin ot kerak: disenfranchise → disenfranchisement; -ment qo'shimchasi, oxirgi e saqlanadi. disenfranchising shakli ham qabul qilinadi."
       }
     },
     {
@@ -605,7 +607,7 @@
       "target_words": [
         "subversive"
       ],
-      "text": "The censors found the play's ending deeply *subversion* and cut it.",
+      "text": "The professor was arrested for spreading what the government called *subversion* ideas.",
       "options": [
         "subversive",
         "subversively",
@@ -615,12 +617,12 @@
         "subversive"
       ],
       "translation": {
-        "ru": "Цензоры сочли финал пьесы крайне подрывным и вырезали его.",
-        "uz": "Senzorlar pyesaning yakunini o'ta buzg'unchi deb topib, uni olib tashlashdi."
+        "ru": "Профессора арестовали за распространение идей, которые правительство назвало подрывными.",
+        "uz": "Professor hukumat buzg'unchi deb atagan g'oyalarni tarqatgani uchun hibsga olindi."
       },
       "explanation": {
-        "ru": "found + объект + прилагательное (found it boring): после deeply нужно прилагательное subversive (подрывной). subversion — «подрывная деятельность», subversively — наречие, subversiveness — существительное.",
-        "uz": "found + to'ldiruvchi + sifat (found it boring): deeply so'zidan keyin sifat kerak — subversive (buzg'unchi). subversion — «buzg'unchilik», subversively — ravish, subversiveness — ot."
+        "ru": "Перед существительным ideas нужно прилагательное subversive (подрывной). subversion — «подрывная деятельность», subversively — наречие, subversiveness — существительное.",
+        "uz": "ideas otidan oldin sifat kerak — subversive (buzg'unchi). subversion — «buzg'unchilik faoliyati», subversively — ravish, subversiveness — ot."
       }
     },
     {
@@ -634,7 +636,7 @@
       "target_words": [
         "galvanize"
       ],
-      "text": "The students, *galvanizing* by the unfair verdict, marched on parliament the next morning.",
+      "text": "The workers, *galvanizing* by news of the mass layoffs, walked out the next morning.",
       "options": [
         "galvanized",
         "galvanize",
@@ -644,12 +646,12 @@
         "galvanized"
       ],
       "translation": {
-        "ru": "Студенты, которых несправедливый приговор побудил к действию, на следующее утро двинулись к парламенту.",
-        "uz": "Adolatsiz hukm harakatga undagan talabalar ertasi kuni ertalab parlament tomon yurish qildi."
+        "ru": "Рабочие, которых известие о массовых увольнениях побудило к действию, на следующее утро объявили забастовку.",
+        "uz": "Ommaviy ishdan bo'shatishlar haqidagi xabar harakatga undagan ishchilar ertasi kuni ertalab ish tashlashdi."
       },
       "explanation": {
-        "ru": "Студентов побудил приговор — они объект действия, а by называет того, кто действует, поэтому нужно причастие на -ed: galvanized. galvanizing значило бы, что студенты сами кого-то побуждают.",
-        "uz": "Talabalarni hukm harakatga undagan — ular harakat obyekti, by esa harakat qiluvchini bildiradi, shuning uchun -ed sifatdoshi kerak: galvanized. galvanizing talabalar o'zlari kimnidir undayapti degani bo'lardi."
+        "ru": "Рабочих побудило известие — они объект действия, а by называет того, кто действует, поэтому нужно причастие на -ed: galvanized. galvanizing значило бы, что рабочие сами кого-то побуждают.",
+        "uz": "Ishchilarni xabar harakatga undagan — ular harakat obyekti, by esa harakat qiluvchini bildiradi, shuning uchun -ed sifatdoshi kerak: galvanized. galvanizing ishchilar o'zlari kimnidir undayapti degani bo'lardi."
       }
     },
     {
@@ -797,7 +799,7 @@
       "target_words": [
         "plebiscite"
       ],
-      "text": "The government agreed to *make* a plebiscite on the future of the province.",
+      "text": "Next spring the province will *make* a plebiscite on leaving the federation.",
       "options": [
         "hold",
         "give",
@@ -807,8 +809,8 @@
         "hold"
       ],
       "translation": {
-        "ru": "Правительство согласилось провести всенародное голосование о будущем провинции.",
-        "uz": "Hukumat viloyatning kelajagi bo'yicha umumxalq ovoz berishini o'tkazishga rozi bo'ldi."
+        "ru": "Следующей весной провинция проведёт всенародное голосование о выходе из федерации.",
+        "uz": "Kelasi bahorda viloyat federatsiyadan chiqish bo'yicha umumxalq ovoz berishini o'tkazadi."
       },
       "explanation": {
         "ru": "Провести плебисцит, как и референдум, — hold a plebiscite. make, give и do с этим словом не сочетаются.",
@@ -901,7 +903,7 @@
       "target_words": [
         "counsel"
       ],
-      "text": "The judge allowed defense *council* to question the witness once more.",
+      "text": "The suspect refused to answer any questions until *council* arrived.",
       "options": [
         "counsel",
         "consul",
@@ -911,12 +913,12 @@
         "counsel"
       ],
       "translation": {
-        "ru": "Судья разрешил адвокату защиты ещё раз допросить свидетеля.",
-        "uz": "Sudya himoyachi advokatga guvohni yana bir bor so'roq qilishga ruxsat berdi."
+        "ru": "Подозреваемый отказывался отвечать на вопросы, пока не прибудет адвокат.",
+        "uz": "Gumonlanuvchi advokat kelmaguncha hech qanday savolga javob bermadi."
       },
       "explanation": {
-        "ru": "Адвокат в суде — counsel (defense counsel). council (совет, орган власти) звучит так же, но значит другое; consul — консул, consulate — консульство.",
-        "uz": "Suddagi advokat — counsel (defense counsel). council (kengash) xuddi shunday eshitiladi, lekin boshqa ma'noni bildiradi; consul — konsul, consulate — konsullik."
+        "ru": "Адвокат в суде и на допросе — counsel, часто без артикля (until counsel arrived). council (совет, орган власти) звучит так же, но значит другое; consul — консул, consulate — консульство.",
+        "uz": "Sud va so'roqdagi advokat — counsel, ko'pincha artiklsiz (until counsel arrived). council (kengash) xuddi shunday eshitiladi, lekin boshqa ma'noni bildiradi; consul — konsul, consulate — konsullik."
       }
     },
     {
@@ -959,18 +961,18 @@
       "target_words": [
         "bylaw"
       ],
-      "text": "The town council *took* a bylaw that bans dogs from the beach in summer.",
+      "text": "Residents asked the town council to *take* a bylaw against selling alcohol near schools.",
       "options": [
-        "passed",
-        "gave",
-        "held"
+        "pass",
+        "give",
+        "hold"
       ],
       "correct": [
-        "passed"
+        "pass"
       ],
       "translation": {
-        "ru": "Городской совет принял постановление, которое летом запрещает выгуливать собак на пляже.",
-        "uz": "Shahar kengashi yozda itlarni plyajga olib kirishni taqiqlovchi qoida qabul qildi."
+        "ru": "Жители попросили городской совет принять постановление, запрещающее продажу алкоголя рядом со школами.",
+        "uz": "Aholi shahar kengashidan maktablar yaqinida spirtli ichimlik sotishni taqiqlovchi qoida qabul qilishni so'radi."
       },
       "explanation": {
         "ru": "Принять закон или постановление — pass a law, pass a bylaw (можно и adopt). Русское «принять» здесь не take; give и hold с bylaw не сочетаются.",
@@ -988,18 +990,18 @@
       "target_words": [
         "circumstantial"
       ],
-      "text": "Without a witness or a weapon, the prosecution's case was entirely ___.",
+      "text": "Juries often hesitate to convict on purely ___ evidence.",
       "base": "circumstance",
       "accepted": [
         "circumstantial"
       ],
       "translation": {
-        "ru": "Без свидетеля и орудия преступления обвинение строилось исключительно на косвенных уликах.",
-        "uz": "Guvoh ham, qurol ham bo'lmagani uchun ayblov to'liq bilvosita dalillarga tayanardi."
+        "ru": "Присяжные часто не решаются вынести обвинительный приговор на основании одних лишь косвенных улик.",
+        "uz": "Hakamlar hay'ati ko'pincha faqat bilvosita dalillarga asoslanib ayblov hukmini chiqarishga ikkilanadi."
       },
       "explanation": {
-        "ru": "После was entirely нужно прилагательное: circumstance → circumstantial (косвенный); -ance → -antial, как substance → substantial.",
-        "uz": "was entirely so'zlaridan keyin sifat kerak: circumstance → circumstantial (bilvosita); -ance o'rniga -antial, xuddi substance → substantial kabi."
+        "ru": "После purely и перед существительным evidence нужно прилагательное: circumstance → circumstantial (косвенный); -ance → -antial, как substance → substantial.",
+        "uz": "purely so'zidan keyin va evidence otidan oldin sifat kerak: circumstance → circumstantial (bilvosita); -ance o'rniga -antial, xuddi substance → substantial kabi."
       }
     },
     {
@@ -1038,18 +1040,18 @@
       "target_words": [
         "exonerate"
       ],
-      "text": "Twelve years after his conviction, new evidence finally led to his complete ___.",
+      "text": "For the dead man's family, a pardon was not enough: they wanted his full ___.",
       "base": "exonerate",
       "accepted": [
         "exoneration"
       ],
       "translation": {
-        "ru": "Через двенадцать лет после осуждения новые улики наконец привели к полному снятию с него обвинений.",
-        "uz": "Hukm qilinganidan o'n ikki yil o'tib, yangi dalillar nihoyat uning ayblovdan to'liq xalos bo'lishiga olib keldi."
+        "ru": "Для семьи покойного помилования было мало: она добивалась полного снятия с него обвинений.",
+        "uz": "Marhumning oilasi uchun avf etish yetarli emas edi: ular uning ayblovdan to'liq oqlanishini istardi."
       },
       "explanation": {
-        "ru": "После his complete нужно существительное: exonerate (снимать обвинения) → exoneration; -ate → -ation.",
-        "uz": "his complete so'zlaridan keyin ot kerak: exonerate (ayblovdan xalos qilmoq) → exoneration (ayblovdan xalos bo'lish); -ate o'rniga -ation."
+        "ru": "После his full нужно существительное: exonerate (снимать обвинения) → exoneration; -ate → -ation. Помилование прощает вину, exoneration доказывает невиновность.",
+        "uz": "his full so'zlaridan keyin ot kerak: exonerate (ayblovdan xalos qilmoq) → exoneration (ayblovdan oqlanish); -ate o'rniga -ation. Avf aybni kechiradi, exoneration esa aybsizlikni tasdiqlaydi."
       }
     },
     {
@@ -1063,7 +1065,7 @@
       "target_words": [
         "implicate"
       ],
-      "text": "Phone records later *implied* the mayor's deputy in the bribery scheme.",
+      "text": "The driver's confession *implied* his own employer in the smuggling operation.",
       "options": [
         "implicated",
         "implicit",
@@ -1073,8 +1075,8 @@
         "implicated"
       ],
       "translation": {
-        "ru": "Распечатки звонков позже указали на причастность заместителя мэра к схеме со взятками.",
-        "uz": "Telefon qo'ng'iroqlari qaydlari keyinchalik mer o'rinbosarining pora sxemasiga daxldorligini ko'rsatdi."
+        "ru": "Признание водителя указало на причастность его собственного работодателя к контрабандной операции.",
+        "uz": "Haydovchining iqrori uning o'z ish beruvchisining kontrabanda operatsiyasiga daxldorligini ko'rsatdi."
       },
       "explanation": {
         "ru": "implicate somebody in something — указывать на причастность кого-то к чему-то. imply (подразумевать) не употребляется с человеком и in; implicit — прилагательное, impute — «приписывать что-то кому-то».",
@@ -1150,18 +1152,18 @@
       "target_words": [
         "beneficiary"
       ],
-      "text": "Her nephew was named the only ___ of the life insurance policy.",
+      "text": "Many people now name charities as ___ of their life insurance policies.",
       "base": "benefit",
       "accepted": [
-        "beneficiary"
+        "beneficiaries"
       ],
       "translation": {
-        "ru": "Её племянник был назван единственным выгодоприобретателем по полису страхования жизни.",
-        "uz": "Uning jiyani hayot sug'urtasi polisining yagona naf oluvchisi etib belgilandi."
+        "ru": "Сейчас многие указывают благотворительные организации выгодоприобретателями по своим полисам страхования жизни.",
+        "uz": "Hozir ko'pchilik o'z hayot sug'urtasi polislarida xayriya tashkilotlarini naf oluvchi sifatida ko'rsatadi."
       },
       "explanation": {
-        "ru": "После the only нужно лицо — тот, кто получает выгоду: benefit → beneficiary; основа меняется: fit → fic, суффикс -iary.",
-        "uz": "the only so'zlaridan keyin naf oladigan shaxs kerak: benefit → beneficiary; o'zak o'zgaradi: fit o'rniga fic, -iary qo'shimchasi."
+        "ru": "После name charities as нужно лицо во множественном числе (charities): benefit → beneficiary → beneficiaries; основа меняется (fit → fic), суффикс -iary, y → ies.",
+        "uz": "name charities as so'zlaridan keyin ko'plikdagi shaxs kerak (charities): benefit → beneficiary → beneficiaries; o'zak o'zgaradi (fit o'rniga fic), -iary qo'shimchasi, y o'rniga ies."
       }
     },
     {
@@ -1175,18 +1177,18 @@
       "target_words": [
         "trustee"
       ],
-      "text": "Until the children turn eighteen, their uncle will act as a ___ of the family fund.",
+      "text": "The court removed the ___ after he invested the children's money in his own business.",
       "base": "trust",
       "accepted": [
         "trustee"
       ],
       "translation": {
-        "ru": "Пока дети не достигнут восемнадцати лет, их дядя будет доверительным управляющим семейного фонда.",
-        "uz": "Bolalar o'n sakkiz yoshga to'lgunga qadar amakisi oilaviy jamg'armaning ishonchli boshqaruvchisi bo'lib turadi."
+        "ru": "Суд отстранил доверительного управляющего после того, как он вложил деньги детей в собственный бизнес.",
+        "uz": "Bolalarning pulini o'z biznesiga kiritgani uchun sud ishonchli boshqaruvchini vazifasidan chetlatdi."
       },
       "explanation": {
-        "ru": "После act as a нужно лицо, которому доверили управлять имуществом: trust → trustee; суффикс -ee, как employ → employee.",
-        "uz": "act as a so'zlaridan keyin mol-mulkni boshqarish ishonib topshirilgan shaxs kerak: trust → trustee; -ee qo'shimchasi, xuddi employ → employee kabi."
+        "ru": "После the и перед he нужно лицо, которому доверили чужие деньги: trust → trustee; суффикс -ee, как employ → employee.",
+        "uz": "the artiklidan keyin va he olmoshidan oldin boshqalarning puli ishonib topshirilgan shaxs kerak: trust → trustee; -ee qo'shimchasi, xuddi employ → employee kabi."
       }
     },
     {
@@ -1200,14 +1202,14 @@
       "target_words": [
         "endowment"
       ],
-      "text": "Thanks to a generous ___ from a former student, the college now offers ten scholarships.",
+      "text": "A generous ___ from a former student now pays the salary of a history professor.",
       "base": "endow",
       "accepted": [
         "endowment"
       ],
       "translation": {
-        "ru": "Благодаря щедрому вкладу бывшего студента в целевой капитал колледж теперь даёт десять стипендий.",
-        "uz": "Sobiq talabaning saxovat bilan qo'shgan maqsadli jamg'armasi tufayli kollej endi o'nta stipendiya beradi."
+        "ru": "Щедрый взнос бывшего студента в целевой капитал теперь покрывает зарплату профессора истории.",
+        "uz": "Sobiq talaba ajratgan saxovatli maqsadli jamg'arma endi tarix professorining maoshini qoplaydi."
       },
       "explanation": {
         "ru": "После a generous нужно существительное: endow (обеспечивать капиталом) → endowment (целевой капитал); суффикс -ment.",
@@ -1264,7 +1266,7 @@
         "testament"
       ],
       "translation": {
-        "ru": "Юрист зачитал семье последнюю волю старика.",
+        "ru": "Юрист зачитал семье завещание старика.",
         "uz": "Advokat oilaga keksa odamning so'nggi vasiyatnomasini o'qib berdi."
       },
       "explanation": {
@@ -1387,22 +1389,22 @@
       "target_words": [
         "illicit"
       ],
-      "text": "The gang made millions from the *elicit* sale of ancient coins.",
+      "text": "Doctors warned that the *elicit* drugs sold in clubs were often deadly.",
       "options": [
         "illicit",
         "illicitly",
-        "explicitly"
+        "explicit"
       ],
       "correct": [
         "illicit"
       ],
       "translation": {
-        "ru": "Банда заработала миллионы на незаконной продаже старинных монет.",
-        "uz": "To'da qadimiy tangalarni g'ayriqonuniy sotishdan millionlab pul ishlab topdi."
+        "ru": "Врачи предупреждали, что запрещённые препараты, которые продают в клубах, часто смертельно опасны.",
+        "uz": "Shifokorlar klublarda sotiladigan g'ayriqonuniy giyohvand moddalar ko'pincha o'limga olib kelishi haqida ogohlantirdi."
       },
       "explanation": {
-        "ru": "Незаконный — illicit. elicit — глагол «вызывать, добиваться (ответа)», он похоже звучит, но перед существительным sale невозможен; наречия illicitly и explicitly существительное не определяют.",
-        "uz": "G'ayriqonuniy — illicit. elicit — «javob va hokazoni chiqarib olmoq» degan fe'l, talaffuzi o'xshash, lekin sale otidan oldin kela olmaydi; illicitly va explicitly ravishlari otni aniqlamaydi."
+        "ru": "Незаконный, запрещённый — illicit (illicit drugs). elicit — глагол «вызывать, добиваться (ответа)», он звучит похоже, но перед существительным drugs невозможен; explicit — «явный», illicitly — наречие.",
+        "uz": "G'ayriqonuniy, taqiqlangan — illicit (illicit drugs). elicit — «javob va hokazoni chiqarib olmoq» degan fe'l, talaffuzi o'xshash, lekin drugs otidan oldin kela olmaydi; explicit — «aniq, ochiq», illicitly — ravish."
       }
     },
     {
@@ -1445,22 +1447,22 @@
       "target_words": [
         "contraband"
       ],
-      "text": "Customs officers seized a large amount of *contrabands* hidden in a shipment of bananas.",
+      "text": "The ferry crew earned extra money by carrying *contrabands* across the border.",
       "options": [
         "contraband",
-        "smugglers",
-        "smuggling"
+        "smuggling",
+        "smuggled"
       ],
       "correct": [
         "contraband"
       ],
       "translation": {
-        "ru": "Таможенники изъяли крупную партию контрабанды, спрятанной среди бананов.",
-        "uz": "Bojxona xodimlari banan partiyasiga yashirilgan katta miqdordagi kontrabandani musodara qilishdi."
+        "ru": "Команда парома подрабатывала, перевозя контрабанду через границу.",
+        "uz": "Parom ekipaji chegaradan kontrabanda olib o'tib, qo'shimcha pul ishlab olardi."
       },
       "explanation": {
-        "ru": "contraband (контрабандный товар) — неисчисляемое существительное: a large amount of contraband, без -s. smuggling — сам провоз контрабанды, smugglers — контрабандисты.",
-        "uz": "contraband (kontrabanda mol) — sanalmaydigan ot: a large amount of contraband, -s qo'shimchasisiz. smuggling — kontrabanda olib o'tish jarayoni, smugglers — kontrabandachilar."
+        "ru": "contraband (контрабандный товар) — неисчисляемое существительное, без -s: carrying contraband. smuggling — сам провоз контрабанды, smuggled — причастие, после carrying ему нужно существительное (smuggled goods).",
+        "uz": "contraband (kontrabanda mol) — sanalmaydigan ot, -s qo'shimchasisiz: carrying contraband. smuggling — kontrabanda olib o'tish jarayoni, smuggled — sifatdosh, carrying so'zidan keyin u ot bilan keladi (smuggled goods)."
       }
     },
     {
@@ -1474,19 +1476,19 @@
       "target_words": [
         "inviolable"
       ],
-      "text": "Under the treaty, a diplomat's person is ___: he may not be arrested or detained.",
+      "text": "A diplomat's person is ___, so the police could neither arrest nor search him.",
       "base": "violate",
       "accepted": [
         "inviolable",
         "inviolate"
       ],
       "translation": {
-        "ru": "По договору личность дипломата неприкосновенна: его нельзя арестовать или задержать.",
-        "uz": "Shartnomaga ko'ra diplomatning shaxsi daxlsiz: uni hibsga olish yoki ushlab turish mumkin emas."
+        "ru": "Личность дипломата неприкосновенна, поэтому полиция не могла ни арестовать, ни обыскать его.",
+        "uz": "Diplomatning shaxsi daxlsiz, shuning uchun politsiya uni na hibsga ola olardi, na tintuv qila olardi."
       },
       "explanation": {
-        "ru": "После is нужно прилагательное, а вторая часть (нельзя арестовать) требует отрицания: violate → inviolable; -ate отпадает, -able и приставка in-. Верно и inviolate.",
-        "uz": "is fe'lidan keyin sifat kerak, ikkinchi qism (hibsga olib bo'lmaydi) esa inkorni talab qiladi: violate → inviolable; -ate tushib qoladi, -able va in- old qo'shimchasi. inviolate shakli ham to'g'ri."
+        "ru": "После is нужно прилагательное, а вторая часть (нельзя ни арестовать, ни обыскать) требует отрицания: violate → inviolable; -ate отпадает, -able и приставка in-. Верно и inviolate.",
+        "uz": "is fe'lidan keyin sifat kerak, ikkinchi qism (na hibsga olib, na tintuv qilib bo'lmaydi) esa inkorni talab qiladi: violate → inviolable; -ate tushib qoladi, -able va in- old qo'shimchasi. inviolate shakli ham to'g'ri."
       }
     },
     {
@@ -1525,19 +1527,19 @@
       "target_words": [
         "noncombatant"
       ],
-      "text": "Army medics may not be attacked, because the conventions treat them as ___.",
+      "text": "Most of the victims were ___: farmers, teachers and children who carried no weapons.",
       "base": "combat",
       "accepted": [
         "noncombatants",
         "non-combatants"
       ],
       "translation": {
-        "ru": "На армейских медиков нападать нельзя, потому что конвенции считают их некомбатантами.",
-        "uz": "Harbiy tibbiyot xodimlariga hujum qilish mumkin emas, chunki konvensiyalar ularni jang qilmaydigan shaxslar deb hisoblaydi."
+        "ru": "Большинство жертв были некомбатантами: крестьяне, учителя и дети, у которых не было оружия.",
+        "uz": "Qurbonlarning aksariyati jang qilmaydigan shaxslar edi: qurol ko'tarmagan dehqonlar, o'qituvchilar va bolalar."
       },
       "explanation": {
-        "ru": "treat them as требует существительного во множественном числе, а смысл (нападать нельзя) — отрицания: combat → combatant → noncombatants (non- и -ant).",
-        "uz": "treat them as so'zlaridan keyin ko'plikdagi ot kerak, ma'no esa (hujum qilib bo'lmaydi) inkorni talab qiladi: combat → combatant → noncombatants (non- va -ant)."
+        "ru": "После were нужно существительное во множественном числе (victims), а смысл (не носили оружия) требует отрицания: combat → combatant → noncombatants (non- и -ant).",
+        "uz": "were fe'lidan keyin ko'plikdagi ot kerak (victims), ma'no esa (qurol ko'tarmagan) inkorni talab qiladi: combat → combatant → noncombatants (non- va -ant)."
       }
     },
     {
@@ -1555,7 +1557,7 @@
       "options": [
         "internment",
         "interment",
-        "internal"
+        "interning"
       ],
       "correct": [
         "internment"
@@ -1565,8 +1567,8 @@
         "uz": "Urush yillarida minglab chet el fuqarolari majburiy ushlab turish lagerlarida saqlangan."
       },
       "explanation": {
-        "ru": "Интернирование — internment (internment camps). internship — стажировка, interment — погребение, internal — внутренний.",
-        "uz": "Majburiy ushlab turish — internment (internment camps). internship — amaliyot, stajirovka, interment — dafn, internal — ichki."
+        "ru": "Интернирование — internment (internment camps). internship — стажировка, interment — погребение, interning — форма глагола, а перед camps нужно существительное.",
+        "uz": "Majburiy ushlab turish — internment (internment camps). internship — amaliyot, stajirovka, interment — dafn, interning — fe'l shakli, camps otidan oldin esa ot kerak."
       }
     },
     {
@@ -1580,7 +1582,7 @@
       "target_words": [
         "extradition"
       ],
-      "text": "After a long hearing, the court approved the *extradite* of the former minister.",
+      "text": "The two countries have no *extradite* treaty, so the banker cannot be returned.",
       "options": [
         "extradition",
         "extradites",
@@ -1590,12 +1592,12 @@
         "extradition"
       ],
       "translation": {
-        "ru": "После долгого слушания суд одобрил экстрадицию бывшего министра.",
-        "uz": "Uzoq davom etgan sud majlisidan so'ng sud sobiq vazirni ekstraditsiya qilishni ma'qulladi."
+        "ru": "Между двумя странами нет договора об экстрадиции, поэтому банкира нельзя выдать.",
+        "uz": "Ikki davlat o'rtasida ekstraditsiya to'g'risida shartnoma yo'q, shuning uchun bankirni qaytarib berib bo'lmaydi."
       },
       "explanation": {
-        "ru": "Между the и of нужно существительное: extradition (экстрадиция). extradite — глагол «выдать», extradites — его форма, extraditable — прилагательное «подлежащий выдаче».",
-        "uz": "the va of orasida ot kerak: extradition (ekstraditsiya). extradite — «topshirmoq» degan fe'l, extradites — uning shakli, extraditable — «topshirilishi lozim» degan sifat."
+        "ru": "Перед treaty нужно существительное в роли определения: extradition treaty — договор об экстрадиции. extradite — глагол «выдать», extradites — его форма, extraditable — прилагательное «подлежащий выдаче».",
+        "uz": "treaty otidan oldin aniqlovchi vazifasidagi ot kerak: extradition treaty — ekstraditsiya to'g'risidagi shartnoma. extradite — «topshirmoq» degan fe'l, extradites — uning shakli, extraditable — «topshirilishi lozim» degan sifat."
       }
     },
     {
@@ -1609,7 +1611,7 @@
       "target_words": [
         "reparation"
       ],
-      "text": "The treaty forced the losing side to *do* reparations for the damage it caused.",
+      "text": "Former camp inmates still want the state to *do* reparations for their suffering.",
       "options": [
         "pay",
         "hold",
@@ -1619,8 +1621,8 @@
         "pay"
       ],
       "translation": {
-        "ru": "Договор обязал проигравшую сторону выплатить репарации за причинённый ущерб.",
-        "uz": "Shartnoma mag'lub tomonni yetkazgan zarari uchun tovon to'lashga majbur qildi."
+        "ru": "Бывшие узники лагерей до сих пор хотят, чтобы государство выплатило репарации за их страдания.",
+        "uz": "Lagerlarning sobiq mahbuslari hamon davlat ularga chekkan azoblari uchun tovon to'lashini istaydi."
       },
       "explanation": {
         "ru": "Репарации выплачивают: pay reparations (или make reparations). do, hold и take с этим словом не сочетаются.",

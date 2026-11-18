@@ -91,8 +91,8 @@
       "text": "*Marginalizing* for decades, rural voters have finally found a party that listens to them.",
       "options": [
         "Marginalized",
-        "Marginalize",
-        "Marginalization"
+        "Having marginalized",
+        "Marginalize"
       ],
       "correct": [
         "Marginalized"
@@ -102,8 +102,8 @@
         "uz": "O'n yillar davomida jamiyatdan chetga surilgan qishloq saylovchilari nihoyat ularni tinglaydigan partiyani topdi."
       },
       "explanation": {
-        "ru": "Избирателей вытесняли — значение страдательное, поэтому оборот начинается с причастия Marginalized. Форма на -ing означала бы, что они сами кого-то вытесняют.",
-        "uz": "Saylovchilarni chetga surishgan — ma'no majhul, shuning uchun ibora Marginalized sifatdoshi bilan boshlanadi. -ing shakli ular o'zlari kimnidir chetga surganini bildirardi."
+        "ru": "Избирателей вытесняли — значение страдательное, поэтому оборот начинается с причастия Marginalized. Marginalizing и Having marginalized — действительные формы: избиратели сами кого-то вытесняли бы.",
+        "uz": "Saylovchilarni chetga surishgan — ma'no majhul, shuning uchun ibora Marginalized sifatdoshi bilan boshlanadi. Marginalizing va Having marginalized aniq nisbat shakllari: ular saylovchilar o'zlari kimnidir chetga surganini bildirardi."
       }
     },
     {
@@ -261,7 +261,7 @@
       ],
       "translation": {
         "ru": "Более двадцати племён, исконно живущих на этом побережье, до сих пор говорят на своих языках.",
-        "uz": "Bu sohilning yigirmadan ortiq tub joyli qabilasi hanuz o'z tillarida so'zlashadi."
+        "uz": "Bu sohilda azaldan yashab kelayotgan yigirmadan ortiq qabila hanuz o'z tillarida so'zlashadi."
       },
       "explanation": {
         "ru": "indigenous to — исконно живущий где-либо: место после indigenous вводится предлогом to (как native to); for, with, at здесь невозможны.",
@@ -343,7 +343,7 @@
         "parental"
       ],
       "translation": {
-        "ru": "Покупать ли ребёнку телефон — решение исключительно родительское.",
+        "ru": "Покупать ли ребёнку телефон — исключительно родительское решение.",
         "uz": "Bolaga telefon olib berish-bermaslik faqat ota-onaning qaroridir."
       },
       "explanation": {
@@ -394,7 +394,7 @@
       ],
       "translation": {
         "ru": "После аварии суд передал их тёте опеку над двумя мальчиками.",
-        "uz": "Avariyadan so'ng sud ikki o'g'il bolaning vasiyligini xolasiga topshirdi."
+        "uz": "Avariyadan so'ng sud ikki o'g'il bola ustidan vasiylikni ularning xolasiga topshirdi."
       },
       "explanation": {
         "ru": "После gave their aunt нужно существительное — то, что передали: guardian (опекун) → guardianship (опека); -ship обозначает положение и права.",
@@ -661,14 +661,14 @@
       "target_words": [
         "philanthropy"
       ],
-      "text": "As a ___, she gave away most of her fortune to hospitals and schools.",
+      "text": "As a ___, he has funded scholarships for thousands of poor students.",
       "base": "philanthropy",
       "accepted": [
         "philanthropist"
       ],
       "translation": {
-        "ru": "Как филантроп, она отдала большую часть своего состояния больницам и школам.",
-        "uz": "U saxovatpesha sifatida boyligining katta qismini kasalxona va maktablarga hadya qildi."
+        "ru": "Как филантроп он финансировал стипендии для тысяч бедных студентов.",
+        "uz": "U saxovatpesha sifatida minglab kambag'al talabalar uchun stipendiyalarni moliyalashtirgan."
       },
       "explanation": {
         "ru": "После As a нужно существительное — человек: philanthropy (филантропия) → philanthropist (филантроп); -y меняется на -ist.",
@@ -736,7 +736,7 @@
       "target_words": [
         "benefactor"
       ],
-      "text": "The clinic's *beneficiary*, a retired banker, paid for every new piece of equipment.",
+      "text": "The clinic's generous *beneficiary*, a retired banker, paid for every new piece of equipment.",
       "options": [
         "benefactor",
         "benefactors",
@@ -746,12 +746,12 @@
         "benefactor"
       ],
       "translation": {
-        "ru": "Благодетель клиники, банкир на пенсии, оплатил всё новое оборудование.",
-        "uz": "Klinikaning homiysi — nafaqadagi bankir barcha yangi uskunalar uchun pul to'ladi."
+        "ru": "Щедрый благодетель клиники, банкир на пенсии, оплатил всё новое оборудование.",
+        "uz": "Klinikaning saxiy homiysi — nafaqadagi bankir — barcha yangi uskunalar uchun pul to'ladi."
       },
       "explanation": {
-        "ru": "benefactor — тот, кто даёт деньги (благодетель), beneficiary — тот, кто их получает. Банкир платит, значит он benefactor; он один — единственное число.",
-        "uz": "benefactor — pul beruvchi (homiy), beneficiary — undan foyda oluvchi. Bankir pul to'laydi, demak u benefactor; u bitta — birlik son."
+        "ru": "benefactor — тот, кто даёт деньги (благодетель), beneficiary — тот, кто их получает. Щедрый банкир платит, значит он benefactor; он один — единственное число.",
+        "uz": "benefactor — pul beruvchi (homiy), beneficiary — undan foyda oluvchi. Saxiy bankir pul to'laydi, demak u benefactor; u bitta — birlik son."
       }
     },
     {
@@ -899,7 +899,7 @@
       "target_words": [
         "newscast"
       ],
-      "text": "The evening *newscaster* is broadcast live and repeated after midnight.",
+      "text": "The morning *newscaster* is broadcast live and repeated at noon.",
       "options": [
         "newscast",
         "newsreader",
@@ -909,8 +909,8 @@
         "newscast"
       ],
       "translation": {
-        "ru": "Вечерний выпуск новостей идёт в прямом эфире и повторяется после полуночи.",
-        "uz": "Kechki yangiliklar dasturi jonli efirda beriladi va yarim tundan keyin takrorlanadi."
+        "ru": "Утренний выпуск новостей идёт в прямом эфире и повторяется в полдень.",
+        "uz": "Ertalabki yangiliklar dasturi jonli efirda beriladi va peshinda takrorlanadi."
       },
       "explanation": {
         "ru": "newscaster — ведущий (человек), а в эфир выходит и повторяется программа — newscast (выпуск новостей).",
@@ -992,8 +992,8 @@
         "credibility"
       ],
       "translation": {
-        "ru": "Одной выдуманной цитаты хватило, чтобы подорвать доверие к газете.",
-        "uz": "Gazetaga bo'lgan ishonchni yo'qotish uchun birgina to'qib chiqarilgan iqtibos yetarli bo'ldi."
+        "ru": "Одной выдуманной цитаты хватило, чтобы уничтожить доверие к газете.",
+        "uz": "Gazetaga bo'lgan ishonchni yo'qqa chiqarish uchun birgina to'qib chiqarilgan iqtibos kifoya qildi."
       },
       "explanation": {
         "ru": "После the paper's нужно существительное: credible → credibility (авторитет, доверие); -ible меняется на -ibility.",
@@ -1122,8 +1122,8 @@
       "text": "*Fabricating* by an ambitious intern, the quotes fooled even the senior editors.",
       "options": [
         "Fabricated",
-        "Fabricate",
-        "Fabrication"
+        "Having fabricated",
+        "Fabricate"
       ],
       "correct": [
         "Fabricated"
@@ -1133,8 +1133,8 @@
         "uz": "Ambitsiyali stajyor to'qib chiqargan iqtiboslar hatto katta muharrirlarni ham aldab qo'ydi."
       },
       "explanation": {
-        "ru": "Цитаты выдумал стажёр — значение страдательное, поэтому оборот начинается с причастия Fabricated. Fabricating значило бы, что выдумывали сами цитаты.",
-        "uz": "Iqtiboslarni stajyor to'qigan — ma'no majhul, shuning uchun ibora Fabricated sifatdoshi bilan boshlanadi. Fabricating iqtiboslarning o'zi nimanidir to'qiganini bildirardi."
+        "ru": "Цитаты выдумал стажёр (by an ambitious intern) — значение страдательное, поэтому оборот начинается с причастия Fabricated. Fabricating и Having fabricated — действительные формы: выдумывали бы сами цитаты.",
+        "uz": "Iqtiboslarni stajyor to'qigan (by an ambitious intern) — ma'no majhul, shuning uchun ibora Fabricated sifatdoshi bilan boshlanadi. Fabricating va Having fabricated aniq nisbat shakllari: ular iqtiboslarning o'zi nimanidir to'qiganini bildirardi."
       }
     },
     {
@@ -1179,7 +1179,7 @@
         "publicist"
       ],
       "translation": {
-        "ru": "Как пресс-агент, она целыми днями добивается, чтобы её клиенты не сходили с первых полос.",
+        "ru": "Как пресс-агент она целыми днями добивается, чтобы её клиенты не сходили с первых полос.",
         "uz": "Matbuot agenti sifatida u kun bo'yi mijozlarini diqqat markazida ushlab turishga harakat qiladi."
       },
       "explanation": {
@@ -1204,8 +1204,8 @@
         "gimmicky"
       ],
       "translation": {
-        "ru": "Рекламный ролик был остроумным, хотя и несколько нарочито эффектным, и продажи резко выросли.",
-        "uz": "Reklama roligi biroz nayrangga o'xshasa-da, aqlli chiqdi va savdo keskin oshdi."
+        "ru": "Рекламный ролик был остроумным, хотя и несколько трюкаческим, и продажи резко выросли.",
+        "uz": "Reklama roligi biroz hiylakorona bo'lsa-da, aqlli chiqdi va savdo keskin oshdi."
       },
       "explanation": {
         "ru": "После a little нужно прилагательное, как clever: gimmick → gimmicky; суффикс -y образует прилагательное (как trick → tricky).",
@@ -1223,22 +1223,22 @@
       "target_words": [
         "sponsorship"
       ],
-      "text": "The festival receives a lot of *sponsor* from local businesses.",
+      "text": "The bank's *sponsor* of the festival has lasted for more than a decade.",
       "options": [
         "sponsorship",
-        "sponsored",
-        "sponsor's"
+        "sponsors",
+        "sponsored"
       ],
       "correct": [
         "sponsorship"
       ],
       "translation": {
-        "ru": "Фестиваль получает большую спонсорскую поддержку от местных компаний.",
-        "uz": "Festival mahalliy korxonalardan katta homiylik oladi."
+        "ru": "Спонсорская поддержка фестиваля со стороны банка длится уже больше десяти лет.",
+        "uz": "Bankning festivalga homiyligi o'n yildan ortiq davom etib kelmoqda."
       },
       "explanation": {
-        "ru": "Фестиваль получает поддержку, а не человека: sponsor (спонсор) → sponsorship (спонсорство, суффикс -ship).",
-        "uz": "Festival odamni emas, qo'llab-quvvatlashni oladi: sponsor (homiy) → sponsorship (homiylik, -ship qo'shimchasi)."
+        "ru": "Длится не человек, а поддержка: sponsor (спонсор) → sponsorship (спонсорство, суффикс -ship). sponsors не согласуется с has, sponsored — не существительное.",
+        "uz": "Odam emas, qo'llab-quvvatlash davom etadi: sponsor (homiy) → sponsorship (homiylik, -ship qo'shimchasi). sponsors has fe'li bilan moslashmaydi, sponsored esa ot emas."
       }
     },
     {
@@ -1252,22 +1252,22 @@
       "target_words": [
         "exposure"
       ],
-      "text": "One interview on a popular podcast *made* the young author a lot of exposure.",
+      "text": "Young designers can *make* valuable exposure by entering international competitions.",
       "options": [
-        "gave",
-        "did",
-        "took"
+        "gain",
+        "do",
+        "take"
       ],
       "correct": [
-        "gave"
+        "gain"
       ],
       "translation": {
-        "ru": "Одно интервью в популярном подкасте принесло молодому автору широкую известность.",
-        "uz": "Mashhur podkastdagi birgina intervyu yosh muallifni ommaga keng tanitdi."
+        "ru": "Участвуя в международных конкурсах, молодые дизайнеры могут получить столь нужную им известность.",
+        "uz": "Yosh dizaynerlar xalqaro tanlovlarda qatnashib, ommaga keng tanilishi mumkin."
       },
       "explanation": {
-        "ru": "Известность «дают»: give someone exposure. С exposure в этом значении не употребляются make, do и take (make someone money — можно, make someone exposure — нет).",
-        "uz": "Tanilishga imkon berish — give someone exposure. Bu ma'nodagi exposure so'zi make, do va take fe'llari bilan birikmaydi (make someone money mumkin, make someone exposure — yo'q)."
+        "ru": "Известность «получают»: gain (или get) exposure. С exposure в этом значении не сочетаются make, do и take.",
+        "uz": "Ommaga tanilish — gain (yoki get) exposure. Bu ma'nodagi exposure so'zi make, do va take fe'llari bilan birikmaydi."
       }
     },
     {
@@ -1336,14 +1336,14 @@
       "target_words": [
         "viewership"
       ],
-      "text": "The channel's ___ has doubled since it began streaming football matches.",
+      "text": "Ever since the channel added live sports, its ___ has kept growing.",
       "base": "viewer",
       "accepted": [
         "viewership"
       ],
       "translation": {
-        "ru": "Зрительская аудитория канала удвоилась с тех пор, как он начал транслировать футбольные матчи онлайн.",
-        "uz": "Kanal futbol o'yinlarini internetda translyatsiya qila boshlaganidan beri uning tomoshabinlar auditoriyasi ikki baravar oshdi."
+        "ru": "С тех пор как канал добавил прямые спортивные трансляции, его зрительская аудитория постоянно растёт.",
+        "uz": "Kanal jonli sport translyatsiyalarini qo'shganidan beri uning tomoshabinlar auditoriyasi o'sib bormoqda."
       },
       "explanation": {
         "ru": "Глагол has стоит в единственном числе: нужно собирательное viewer → viewership (-ship — все зрители канала); viewers потребовало бы have.",
@@ -1418,8 +1418,8 @@
       "text": "*Curating* by hand every week, the reading list includes only the best new novels.",
       "options": [
         "Curated",
-        "Curate",
-        "Curation"
+        "Having curated",
+        "Curate"
       ],
       "correct": [
         "Curated"
@@ -1429,8 +1429,8 @@
         "uz": "Har hafta qo'lda saralab tuziladigan o'qish ro'yxatiga faqat eng yaxshi yangi romanlar kiritiladi."
       },
       "explanation": {
-        "ru": "Список отбирают — он не отбирает сам, значение страдательное: оборот начинается с причастия Curated.",
-        "uz": "Ro'yxatni saralab tuzishadi — u o'zi saralamaydi, ma'no majhul: ibora Curated sifatdoshi bilan boshlanadi."
+        "ru": "Список отбирают — он не отбирает сам, значение страдательное: оборот начинается с причастия Curated. Curating и Having curated — действительные формы: список сам что-то отбирал бы.",
+        "uz": "Ro'yxatni saralab tuzishadi — u o'zi saralamaydi, ma'no majhul: ibora Curated sifatdoshi bilan boshlanadi. Curating va Having curated aniq nisbat shakllari: ular ro'yxatning o'zi nimanidir saralaganini bildirardi."
       }
     },
     {
@@ -1505,7 +1505,7 @@
       ],
       "translation": {
         "ru": "Компании обязаны в течение трёх дней публично раскрыть сведения о любой серьёзной утечке данных.",
-        "uz": "Kompaniyalar har qanday jiddiy ma'lumot sizib chiqishi haqida uch kun ichida ommaga oshkor qilishi shart."
+        "uz": "Kompaniyalar har qanday jiddiy ma'lumot sizib chiqishini uch kun ichida ommaga oshkor qilishi shart."
       },
       "explanation": {
         "ru": "После a public нужно существительное: disclose → disclosure; -e меняется на -ure (как close → closure).",
@@ -1609,8 +1609,8 @@
       "text": "*Classifying* as top secret, the files remained sealed for half a century.",
       "options": [
         "Classified",
-        "Classify",
-        "Classification"
+        "Having classified",
+        "Classify"
       ],
       "correct": [
         "Classified"
@@ -1620,8 +1620,8 @@
         "uz": "«Mutlaqo maxfiy» deb belgilangan bu hujjatlar yarim asr davomida muhrlangan holda saqlandi."
       },
       "explanation": {
-        "ru": "Документы засекретили — они не засекречивают сами, значение страдательное: оборот начинается с причастия Classified.",
-        "uz": "Hujjatlarni maxfiy deb belgilashgan — ular o'zlari belgilamaydi, ma'no majhul: ibora Classified sifatdoshi bilan boshlanadi."
+        "ru": "Документы засекретили — они не засекречивают сами, значение страдательное: оборот начинается с причастия Classified. Classifying и Having classified — действительные формы: документы сами что-то засекречивали бы.",
+        "uz": "Hujjatlarni maxfiy deb belgilashgan — ular o'zlari belgilamaydi, ma'no majhul: ibora Classified sifatdoshi bilan boshlanadi. Classifying va Having classified aniq nisbat shakllari: ular hujjatlarning o'zi nimanidir belgilaganini bildirardi."
       }
     }
   ]

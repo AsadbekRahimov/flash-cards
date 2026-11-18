@@ -232,7 +232,7 @@
       ],
       "translation": {
         "ru": "Некоторые школьные дружбы надолго сохраняются и во взрослой жизни.",
-        "uz": "Maktabdagi ba'zi do'stliklar katta yoshda ham uzoq davom etadi."
+        "uz": "Maktab davridagi ba'zi do'stliklar voyaga yetgandan keyin ham uzoq davom etadi."
       },
       "explanation": {
         "ru": "После предлога into нужно существительное — период жизни, а не человек: adult + -hood → adulthood (взрослая жизнь).",
@@ -279,7 +279,7 @@
       "target_words": [
         "youth"
       ],
-      "text": "My grandmother was a very good dancer *at* her youth.",
+      "text": "She traveled a lot *at* her youth but now rarely leaves home.",
       "options": [
         "in",
         "on",
@@ -289,11 +289,11 @@
         "in"
       ],
       "translation": {
-        "ru": "В молодости моя бабушка очень хорошо танцевала.",
-        "uz": "Buvim yoshligida juda yaxshi raqs tushardi."
+        "ru": "В молодости она много путешествовала, а теперь редко выходит из дома.",
+        "uz": "U yoshligida ko'p sayohat qilgan, endi esa uydan kam chiqadi."
       },
       "explanation": {
-        "ru": "in my / her youth — в молодости: с youth, как и с childhood, нужен предлог in, а не at.",
+        "ru": "in her youth — в молодости: с youth, как и с childhood, нужен предлог in, а не at.",
         "uz": "in her youth — yoshligida: youth so'zi bilan, childhood kabi, in predlogi ishlatiladi, at emas."
       }
     },
@@ -387,7 +387,7 @@
       "target_words": [
         "confident"
       ],
-      "text": "Speaking in front of a big audience needs a lot of ___.",
+      "text": "Speaking in front of a big audience takes a lot of ___.",
       "base": "confident",
       "accepted": [
         "confidence"
@@ -412,7 +412,7 @@
       "target_words": [
         "ambitious"
       ],
-      "text": "My brother is very *ambition* and wants to open his own company.",
+      "text": "She is too *ambition* to stay in the same job for long.",
       "options": [
         "ambitious",
         "ambitions",
@@ -422,12 +422,12 @@
         "ambitious"
       ],
       "translation": {
-        "ru": "Мой брат очень целеустремлённый и хочет открыть собственную компанию.",
-        "uz": "Akam juda maqsadga intiluvchan va o'z kompaniyasini ochmoqchi."
+        "ru": "Она слишком целеустремлённая, чтобы долго оставаться на одной работе.",
+        "uz": "U shunchalik maqsadga intiluvchanki, bir ishda uzoq qolib ketmaydi."
       },
       "explanation": {
-        "ru": "После is very нужно прилагательное: ambitious. ambition — существительное «стремление, честолюбие».",
-        "uz": "is very so'zlaridan keyin sifat kerak: ambitious. ambition esa ot — «intilish, orzu-maqsad»."
+        "ru": "После too нужно прилагательное: too ambitious. ambition — существительное «стремление, честолюбие», ambitions — его множественное число.",
+        "uz": "too so'zidan keyin sifat kerak: too ambitious. ambition esa ot — «intilish, orzu-maqsad», ambitions — uning ko'plik shakli."
       }
     },
     {
@@ -444,14 +444,14 @@
       "text": "On sunny mornings I always feel *cheerfully* and full of energy.",
       "options": [
         "cheerful",
-        "cheerfulness",
+        "cheering",
         "cheer"
       ],
       "correct": [
         "cheerful"
       ],
       "translation": {
-        "ru": "Солнечным утром я всегда чувствую себя бодрым и полным сил.",
+        "ru": "Солнечным утром я всегда чувствую себя весёлым и полным сил.",
         "uz": "Quyoshli tonglarda o'zimni doim quvnoq va kuchga to'la his qilaman."
       },
       "explanation": {
@@ -481,7 +481,7 @@
       ],
       "translation": {
         "ru": "С его стороны было эгоистично оставить все деньги себе.",
-        "uz": "Barcha pulni o'ziga olib qolgani uning xudbinligi edi."
+        "uz": "Pulning hammasini o'ziga olib qolib, u xudbinlik qildi."
       },
       "explanation": {
         "ru": "It was + прилагательное о характере + of + человек: selfish of him. Русское «с его стороны» здесь не from.",
@@ -718,7 +718,7 @@
         "admirable"
       ],
       "translation": {
-        "ru": "Она проявила восхитительную смелость, когда спасла ребёнка из реки.",
+        "ru": "Она проявила достойную восхищения смелость, когда спасла ребёнка из реки.",
         "uz": "U bolani daryodan qutqarganida tahsinga loyiq jasorat ko'rsatdi."
       },
       "explanation": {
@@ -776,7 +776,7 @@
         "heroes"
       ],
       "translation": {
-        "ru": "В этом фильме героями являются обычные люди из маленькой деревни.",
+        "ru": "В этом фильме герои — обычные люди из маленькой деревни.",
         "uz": "Bu filmda qahramonlar kichik qishloqdan chiqqan oddiy odamlar."
       },
       "explanation": {
@@ -884,7 +884,7 @@
         "uz": "Otalari nafaqaga chiqqach, ikki opa-singil biznes hamkorligini boshlashdi."
       },
       "explanation": {
-        "ru": "Начать можно союз, а не человека: после started a business нужно partner + -ship → partnership (партнёрство).",
+        "ru": "Начинают не человека, а совместное дело: после started a business нужно partner + -ship → partnership (партнёрство).",
         "uz": "Odamni emas, hamkorlikni boshlash mumkin: started a business so'zlaridan keyin partner + -ship → partnership (hamkorlik) kerak."
       }
     },
@@ -928,22 +928,22 @@
       "target_words": [
         "nephew"
       ],
-      "text": "My *niece* is ten, and he is my brother's only son.",
+      "text": "My *niece* is ten, but he already helps his father at work.",
       "options": [
         "nephew",
         "nephews",
-        "cousin"
+        "nieces"
       ],
       "correct": [
         "nephew"
       ],
       "translation": {
-        "ru": "Моему племяннику десять лет, он единственный сын моего брата.",
-        "uz": "O'g'il jiyanim o'n yoshda, u akamning yagona o'g'li."
+        "ru": "Моему племяннику десять лет, но он уже помогает отцу на работе.",
+        "uz": "O'g'il jiyanim o'n yoshda, lekin u allaqachon otasiga ishda yordam beradi."
       },
       "explanation": {
-        "ru": "he и son говорят о мальчике, поэтому nephew (племянник); niece — племянница, сын брата — не cousin.",
-        "uz": "he va son o'g'il bolani bildiradi, shuning uchun nephew (o'g'il jiyan); niece — qiz jiyan, akaning o'g'li esa cousin emas."
+        "ru": "he и his говорят о мальчике, поэтому nephew (племянник); niece — племянница. После is — единственное число, не nephews.",
+        "uz": "he va his o'g'il bolani bildiradi, shuning uchun nephew (o'g'il jiyan); niece — qiz jiyan. is fe'li birlikni talab qiladi, nephews emas."
       }
     },
     {
@@ -1176,15 +1176,16 @@
       "text": "The short video about the museum was very ___, and we learned a lot.",
       "base": "inform",
       "accepted": [
-        "informative"
+        "informative",
+        "informational"
       ],
       "translation": {
         "ru": "Короткое видео о музее было очень познавательным, и мы узнали много нового.",
         "uz": "Muzey haqidagi qisqa video juda ma'lumotlarga boy edi, biz ko'p narsani bilib oldik."
       },
       "explanation": {
-        "ru": "После was very нужно прилагательное о видео: inform → informative (-ative) — «познавательный, полезный».",
-        "uz": "was very so'zlaridan keyin video haqida sifat kerak: inform → informative (-ative) — «ma'lumotlarga boy, foydali»."
+        "ru": "После was very нужно прилагательное о видео: inform → informative (-ative) — «познавательный, полезный». Засчитывается и informational.",
+        "uz": "was very so'zlaridan keyin video haqida sifat kerak: inform → informative (-ative) — «ma'lumotlarga boy, foydali». informational shakli ham qabul qilinadi."
       }
     },
     {
@@ -1205,7 +1206,7 @@
       ],
       "translation": {
         "ru": "Два старых друга тепло поприветствовали друг друга на вокзале.",
-        "uz": "Ikki eski do'st bekatda bir-biri bilan iliq salomlashdi."
+        "uz": "Ikki eski do'st vokzalda bir-biri bilan iliq salomlashdi."
       },
       "explanation": {
         "ru": "После exchanged warm нужно существительное во множественном числе: обмениваются двое. greet → greeting → greetings.",
@@ -1252,7 +1253,7 @@
       "target_words": [
         "respond"
       ],
-      "text": "Nobody responded *on* my question at the meeting.",
+      "text": "The manager responded *on* our complaint within an hour.",
       "options": [
         "to",
         "for",
@@ -1262,8 +1263,8 @@
         "to"
       ],
       "translation": {
-        "ru": "На собрании никто не ответил на мой вопрос.",
-        "uz": "Yig'ilishda hech kim savolimga javob bermadi."
+        "ru": "Менеджер ответил на нашу жалобу в течение часа.",
+        "uz": "Menejer shikoyatimizga bir soat ichida javob berdi."
       },
       "explanation": {
         "ru": "respond to — отвечать на: после respond нужен предлог to. Русское «на» здесь не on.",
@@ -1429,7 +1430,7 @@
       },
       "explanation": {
         "ru": "remind somebody of something — напоминать кому-то о чём-то. remember значит «помнить» и такого дополнения (me of) не имеет.",
-        "uz": "remind somebody of something — kimgadir biror narsani eslatmoq. remember esa «eslab qolmoq, yodda tutmoq» va me of kabi to'ldiruvchi olmaydi."
+        "uz": "remind somebody of something — kimgadir biror narsani eslatmoq. remember esa «eslamoq, yodda tutmoq» va me of kabi to'ldiruvchi olmaydi."
       }
     },
     {
@@ -1446,8 +1447,8 @@
       "text": "She did not *except* my invitation to the wedding.",
       "options": [
         "accept",
-        "accepting",
-        "acceptance"
+        "accepted",
+        "accepts"
       ],
       "correct": [
         "accept"
@@ -1457,8 +1458,8 @@
         "uz": "U to'yga taklifimni qabul qilmadi."
       },
       "explanation": {
-        "ru": "После did not нужен глагол accept (принимать). except — предлог «кроме»; слова звучат похоже, но значат разное.",
-        "uz": "did not so'zlaridan keyin accept (qabul qilmoq) fe'li kerak. except — «…dan tashqari» degan predlog; ular o'xshash eshitiladi, lekin ma'nosi boshqa."
+        "ru": "После did not нужен глагол accept (принимать) в начальной форме, без -ed и -s. except — предлог «кроме»; слова звучат похоже, но значат разное.",
+        "uz": "did not so'zlaridan keyin accept (qabul qilmoq) fe'li -ed va -s qo'shimchalarisiz keladi. except — «…dan tashqari» degan predlog; ular o'xshash eshitiladi, lekin ma'nosi boshqa."
       }
     },
     {
@@ -1525,15 +1526,16 @@
       "text": "My manager gets angry at even a little ___ of her work.",
       "base": "criticize",
       "accepted": [
-        "criticism"
+        "criticism",
+        "critique"
       ],
       "translation": {
         "ru": "Моя начальница злится даже на небольшую критику своей работы.",
         "uz": "Rahbarim ishiga bildirilgan ozgina tanqiddan ham jahli chiqadi."
       },
       "explanation": {
-        "ru": "После a little нужно неисчисляемое существительное: criticize → criticism (-ize меняется на -ism).",
-        "uz": "a little so'zlaridan keyin sanalmaydigan ot kerak: criticize → criticism (-ize o'rniga -ism)."
+        "ru": "После a little нужно существительное: criticize → criticism (-ize меняется на -ism). Засчитывается и critique (критический разбор).",
+        "uz": "a little so'zlaridan keyin ot kerak: criticize → criticism (-ize o'rniga -ism). critique (tanqidiy tahlil) shakli ham qabul qilinadi."
       }
     },
     {
@@ -1576,7 +1578,7 @@
       "target_words": [
         "fault"
       ],
-      "text": "It was not my *guilt* that the bus arrived late.",
+      "text": "Everyone agreed that the delay was nobody's *guilt*.",
       "options": [
         "fault",
         "faults",
@@ -1586,12 +1588,12 @@
         "fault"
       ],
       "translation": {
-        "ru": "Не моя вина, что автобус пришёл поздно.",
-        "uz": "Avtobusning kech kelgani mening aybim emas edi."
+        "ru": "Все согласились, что в задержке никто не виноват.",
+        "uz": "Hamma kechikishda hech kimning aybi yo'q, degan fikrga keldi."
       },
       "explanation": {
-        "ru": "«Чья-то вина» в неприятности — fault: It was my fault. guilt — чувство вины или виновность в преступлении.",
-        "uz": "Biror noxushlikdagi «ayb» — fault: It was my fault. guilt esa aybdorlik hissi yoki jinoyatdagi aybdorlik."
+        "ru": "«Чья-то вина» в неприятности — fault: nobody's fault (никто не виноват). guilt — чувство вины или виновность в преступлении.",
+        "uz": "Biror noxushlikdagi «ayb» — fault: nobody's fault (hech kim aybdor emas). guilt esa aybdorlik hissi yoki jinoyatdagi aybdorlik."
       }
     },
     {
@@ -1605,7 +1607,7 @@
       "target_words": [
         "deny"
       ],
-      "text": "My little brother *refused* that he had taken my phone.",
+      "text": "He *refused* that he was tired, but he fell asleep at once.",
       "options": [
         "denied",
         "deny",
@@ -1615,8 +1617,8 @@
         "denied"
       ],
       "translation": {
-        "ru": "Младший брат отрицал, что взял мой телефон.",
-        "uz": "Ukam telefonimni olganini inkor qildi."
+        "ru": "Он отрицал, что устал, но тут же уснул.",
+        "uz": "U charchaganini inkor qildi, lekin darhol uxlab qoldi."
       },
       "explanation": {
         "ru": "deny that… — отрицать, что…; refuse значит «отказываться что-то сделать» (refuse to do) и с that-придаточным не употребляется.",

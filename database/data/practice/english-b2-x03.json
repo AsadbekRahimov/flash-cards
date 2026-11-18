@@ -70,7 +70,7 @@
       ],
       "translation": {
         "ru": "Как архивариус компании, она решает, какие старые файлы мы храним.",
-        "uz": "Kompaniyaning arxivchisi sifatida qaysi eski fayllarni saqlab qolishimizni u hal qiladi."
+        "uz": "U kompaniyaning arxiv xodimi sifatida qaysi eski fayllarni saqlab qolishimizni hal qiladi."
       },
       "explanation": {
         "ru": "As ... she требует человека, а не место: суффикс -ist обозначает специалиста. archive → archivist (e выпадает).",
@@ -156,7 +156,7 @@
         "frustrating"
       ],
       "translation": {
-        "ru": "Многим пожилым пользователям новый интерфейс кажется неудобным и раздражающим.",
+        "ru": "Многих пожилых пользователей раздражает работа с новым интерфейсом.",
         "uz": "Yangi interfeysdan foydalanish ko'plab keksa foydalanuvchilarning asabiga tegadi."
       },
       "explanation": {
@@ -470,7 +470,7 @@
       "target_words": [
         "revolutionary"
       ],
-      "text": "Many experts called the first smartphone a *revolutional* invention.",
+      "text": "Experts say this new battery is a *revolutional* step for electric cars.",
       "options": [
         "revolutionary",
         "revolutionized",
@@ -480,8 +480,8 @@
         "revolutionary"
       ],
       "translation": {
-        "ru": "Многие эксперты назвали первый смартфон революционным изобретением.",
-        "uz": "Ko'plab mutaxassislar birinchi smartfonni inqilobiy ixtiro deb atashdi."
+        "ru": "Эксперты говорят, что эта новая батарея — революционный шаг для электромобилей.",
+        "uz": "Mutaxassislarning aytishicha, bu yangi batareya elektromobillar uchun inqilobiy qadam."
       },
       "explanation": {
         "ru": "Прилагательное от revolution — revolutionary (суффикс -ary). Слова revolutional в словарях нет: русское «революционный» подсказывает неверный суффикс -al.",
@@ -661,18 +661,18 @@
       "target_words": [
         "durable"
       ],
-      "text": "Buyers love this brand of boots for its ___ and low price.",
+      "text": "Buyers love these boots for their ___ and low price.",
       "base": "durable",
       "accepted": [
         "durability"
       ],
       "translation": {
-        "ru": "Покупатели любят эту марку ботинок за прочность и низкую цену.",
-        "uz": "Xaridorlar bu brenddagi botinkalarni chidamliligi va arzon narxi uchun yaxshi ko'radi."
+        "ru": "Покупатели любят эти ботинки за прочность и низкую цену.",
+        "uz": "Xaridorlar bu botinkalarni chidamliligi va arzon narxi uchun yaxshi ko'radi."
       },
       "explanation": {
-        "ru": "После its нужно существительное, как и в паре low price: durable → durability; -able меняется на -ability.",
-        "uz": "its so'zidan keyin low price kabi ot kerak: durable → durability; -able o'rniga -ability yoziladi."
+        "ru": "После their нужно существительное, такое же, как price после low: durable → durability; -able меняется на -ability.",
+        "uz": "their so'zidan keyin low price birikmasidagi price kabi ot kerak: durable → durability; -able o'rniga -ability yoziladi."
       }
     },
     {
@@ -736,7 +736,7 @@
       "target_words": [
         "socket"
       ],
-      "text": "Push the plug into the *rosette*, or the charger will not work.",
+      "text": "My bedroom has no *rosette*, so I charge my phone downstairs.",
       "options": [
         "socket",
         "switch",
@@ -746,8 +746,8 @@
         "socket"
       ],
       "translation": {
-        "ru": "Вставьте вилку в розетку, иначе зарядное устройство не будет работать.",
-        "uz": "Vilkani rozetkaga tiqing, aks holda quvvatlagich ishlamaydi."
+        "ru": "В моей спальне нет розетки, поэтому я заряжаю телефон внизу.",
+        "uz": "Yotoqxonamda rozetka yo'q, shuning uchun telefonimni pastki qavatda quvvatlantiraman."
       },
       "explanation": {
         "ru": "Ложный друг: английское rosette — бант или украшение в форме розы. Электрическая розетка — socket (в американском английском также outlet).",
@@ -765,22 +765,22 @@
       "target_words": [
         "mechanism"
       ],
-      "text": "The *mechanic* inside this old clock still works perfectly.",
+      "text": "The *mechanic* inside this old music box still works perfectly.",
       "options": [
         "mechanism",
         "mechanical",
-        "mechanize"
+        "mechanization"
       ],
       "correct": [
         "mechanism"
       ],
       "translation": {
-        "ru": "Механизм внутри этих старых часов до сих пор работает безупречно.",
-        "uz": "Bu eski soat ichidagi mexanizm hali ham benuqson ishlaydi."
+        "ru": "Механизм внутри этой старой музыкальной шкатулки до сих пор работает безупречно.",
+        "uz": "Bu eski musiqali quticha ichidagi mexanizm hali ham benuqson ishlaydi."
       },
       "explanation": {
-        "ru": "mechanic — механик, человек, который чинит машины. Устройство из движущихся деталей — mechanism.",
-        "uz": "mechanic — mexanik, ya'ni mashinalarni tuzatadigan odam. Harakatlanuvchi qismlardan iborat qurilma — mechanism."
+        "ru": "mechanic — механик, человек, который чинит машины. Устройство из движущихся деталей — mechanism; mechanization — «механизация», процесс.",
+        "uz": "mechanic — mexanik, ya'ni mashinalarni tuzatadigan odam. Harakatlanuvchi qismlardan iborat qurilma — mechanism; mechanization esa «mexanizatsiyalash» jarayoni."
       }
     },
     {
@@ -873,13 +873,13 @@
       "target_words": [
         "diabetes"
       ],
-      "text": "My grandfather is ___, so he checks his sugar level every morning.",
+      "text": "My grandfather is ___, so he checks his blood sugar every morning.",
       "base": "diabetes",
       "accepted": [
         "diabetic"
       ],
       "translation": {
-        "ru": "Мой дедушка болеет диабетом, поэтому каждое утро проверяет уровень сахара.",
+        "ru": "Мой дедушка болеет диабетом, поэтому каждое утро проверяет уровень сахара в крови.",
         "uz": "Bobom qandli diabet bilan og'riydi, shuning uchun har kuni ertalab qonidagi qand miqdorini tekshiradi."
       },
       "explanation": {
@@ -913,7 +913,7 @@
       },
       "explanation": {
         "ru": "have a stroke — «перенести инсульт». Русское «у него был инсульт» не переводится через was: сам человек не инсульт.",
-        "uz": "have a stroke — «insultga uchramoq». Bunda was ishlatilmaydi: odamning o'zi insult emas-ku."
+        "uz": "have a stroke — «insultga uchramoq». Bunda was ishlatilmaydi: odamning o'zi insult emas."
       }
     },
     {
@@ -956,7 +956,7 @@
       "target_words": [
         "epidemic"
       ],
-      "text": "During this *epidemy*, all the schools in the city were closed.",
+      "text": "A flu *epidemy* has kept half of our students at home.",
       "options": [
         "epidemic",
         "epidemics",
@@ -966,12 +966,12 @@
         "epidemic"
       ],
       "translation": {
-        "ru": "Во время этой эпидемии все школы города были закрыты.",
-        "uz": "Bu epidemiya paytida shahardagi barcha maktablar yopildi."
+        "ru": "Из-за эпидемии гриппа половина наших учеников сидит дома.",
+        "uz": "Gripp epidemiyasi tufayli o'quvchilarimizning yarmi uyda qolmoqda."
       },
       "explanation": {
-        "ru": "Английское существительное — epidemic, на -ic, без -y, которую подсказывает русское «эпидемия». После this — единственное число: epidemic.",
-        "uz": "Inglizcha ot — epidemic, -ic bilan tugaydi; «epidemiya» so'zi eslatadigan -y yo'q. this so'zidan keyin birlik keladi: epidemic."
+        "ru": "Английское существительное — epidemic, на -ic, без -y, которую подсказывает русское «эпидемия». После A и с has — единственное число: epidemic.",
+        "uz": "Inglizcha ot — epidemic, -ic bilan tugaydi; «epidemiya» so'zi eslatadigan -y yo'q. A artikli va has fe'li birlikni talab qiladi: epidemic."
       }
     },
     {
@@ -985,18 +985,18 @@
       "target_words": [
         "diagnose"
       ],
-      "text": "Three doctors gave her three different ___, and all of them were wrong.",
+      "text": "Her illness was ___ twice before a third doctor found the real cause.",
       "base": "diagnose",
       "accepted": [
-        "diagnoses"
+        "misdiagnosed"
       ],
       "translation": {
-        "ru": "Три врача поставили ей три разных диагноза, и все они оказались ошибочными.",
-        "uz": "Uchta shifokor unga uch xil tashxis qo'ydi va ularning hammasi noto'g'ri chiqdi."
+        "ru": "Её болезнь дважды диагностировали неправильно, прежде чем третий врач нашёл настоящую причину.",
+        "uz": "Uchinchi shifokor asl sababni topgunicha, uning kasalligiga ikki marta noto'g'ri tashxis qo'yilgan edi."
       },
       "explanation": {
-        "ru": "three требует множественного числа существительного diagnosis: -is меняется на -es, diagnoses (как crisis → crises).",
-        "uz": "three so'zi diagnosis otining ko'plik shaklini talab qiladi: -is o'rniga -es yoziladi, diagnoses (xuddi crisis → crises kabi)."
+        "ru": "Слова before a third doctor found the real cause говорят, что диагноз был ошибочным: приставка mis- («неправильно»). После was — причастие: diagnose → misdiagnose → misdiagnosed.",
+        "uz": "before a third doctor found the real cause so'zlari tashxis noto'g'ri bo'lganini ko'rsatadi: mis- («noto'g'ri») old qo'shimchasi kerak. was fe'lidan keyin sifatdosh: diagnose → misdiagnose → misdiagnosed."
       }
     },
     {
@@ -1038,7 +1038,8 @@
       "text": "After the car accident, he spent six months in a ___ center.",
       "base": "rehabilitate",
       "accepted": [
-        "rehabilitation"
+        "rehabilitation",
+        "rehab"
       ],
       "translation": {
         "ru": "После автомобильной аварии он провёл полгода в реабилитационном центре.",
@@ -1129,7 +1130,7 @@
       ],
       "translation": {
         "ru": "Хирурги провели пересадку печени, которая спасла молодому человеку жизнь.",
-        "uz": "Jarrohlar yigitning hayotini saqlab qolgan jigar ko'chirib o'tkazish operatsiyasini bajarishdi."
+        "uz": "Jarrohlar yigitning hayotini saqlab qolgan jigar transplantatsiyasini o'tkazishdi."
       },
       "explanation": {
         "ru": "Об операциях говорят perform (в разговоре также do): perform a transplant. Русское «сделать пересадку» не переводится через make.",
@@ -1205,7 +1206,7 @@
       ],
       "translation": {
         "ru": "Спустя два года она всё ещё скорбит о младшем брате.",
-        "uz": "Oradan ikki yil o'tsa ham, u hamon ukasi uchun qayg'urmoqda."
+        "uz": "Oradan ikki yil o'tgan bo'lsa ham, u hali ham ukasi uchun motam tutmoqda."
       },
       "explanation": {
         "ru": "После is still нужна форма на -ing. Глагол от grief — grieve (f меняется на v); перед -ing e отпадает: grieving.",
@@ -1284,19 +1285,19 @@
       "text": "*For* my frustration, the last bus left just as I arrived.",
       "options": [
         "To",
-        "In",
-        "With"
+        "At",
+        "By"
       ],
       "correct": [
         "To"
       ],
       "translation": {
         "ru": "К моей досаде, последний автобус ушёл как раз тогда, когда я пришёл.",
-        "uz": "Men yetib kelishim bilan oxirgi avtobus jo'nab ketdi, bu esa alamimni keltirdi."
+        "uz": "Men yetib kelishim bilan oxirgi avtobus jo'nab ketdi va bu hafsalamni pir qildi."
       },
       "explanation": {
-        "ru": "to my frustration — «к моей досаде»: устойчивый оборот с to, как to my surprise. for здесь невозможен.",
-        "uz": "to my frustration — «alamimga, hafsalam pir bo'lib»: to bilan keladigan turg'un ibora, xuddi to my surprise kabi. for bu yerda ishlatilmaydi."
+        "ru": "to my frustration — «к моей досаде»: устойчивый оборот с to, как to my surprise. for, at и by здесь невозможны.",
+        "uz": "to my frustration — «hafsalam pir bo'lib»: to predlogi bilan keladigan turg'un ibora, xuddi to my surprise kabi. for, at va by bu yerda ishlatilmaydi."
       }
     },
     {

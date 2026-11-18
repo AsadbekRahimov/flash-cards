@@ -88,22 +88,22 @@
       "target_words": [
         "privatize"
       ],
-      "text": "The national railway, *privatizing* in the nineties, now makes a healthy profit.",
+      "text": "*Privatized* the national railway, the government then turned to the national airline.",
       "options": [
-        "privatized",
-        "privatize",
-        "privatization"
+        "Having privatized",
+        "Being privatized",
+        "Having been privatized"
       ],
       "correct": [
-        "privatized"
+        "Having privatized"
       ],
       "translation": {
-        "ru": "Национальная железная дорога, приватизированная в девяностые, теперь приносит хорошую прибыль.",
-        "uz": "To'qsoninchi yillarda xususiylashtirilgan milliy temir yo'l hozir yaxshi foyda keltirmoqda."
+        "ru": "Приватизировав национальную железную дорогу, правительство затем взялось за национальную авиакомпанию.",
+        "uz": "Milliy temir yo'lni xususiylashtirgach, hukumat so'ng milliy aviakompaniyaga qo'l urdi."
       },
       "explanation": {
-        "ru": "Железную дорогу приватизировали — значение страдательное, поэтому нужен оборот с причастием на -ed: privatized. Форма на -ing значила бы, что дорога сама что-то приватизирует.",
-        "uz": "Temir yo'lni xususiylashtirishgan — ma'no majhul, shuning uchun -ed shaklidagi sifatdosh kerak: privatized. -ing shakli temir yo'lning o'zi nimanidir xususiylashtirayotganini bildirardi."
+        "ru": "Страдательное privatized не может иметь дополнения (the national railway). Правительство само приватизировало дорогу, и раньше, чем занялось авиакомпанией: нужно Having privatized.",
+        "uz": "Majhul privatized shakli to'ldiruvchi (the national railway) ola olmaydi. Temir yo'lni hukumatning o'zi, aviakompaniyadan oldin xususiylashtirgan: Having privatized kerak."
       }
     },
     {
@@ -131,8 +131,8 @@
         "uz": "Talabning to'satdan keskin pasayishi fabrikani yuzlab ish o'rinlarini qisqartirishga majbur qildi."
       },
       "explanation": {
-        "ru": "После slump (как после fall, rise) то, что падает, вводится через in: a slump in demand. Of ставят только перед величиной: a slump of ten percent. Русский родительный падеж («спад спроса») толкает к of.",
-        "uz": "slump (xuddi fall, rise kabi) so'zidan keyin nima pasayganini in predlogi bildiradi: a slump in demand. Of faqat miqdordan oldin keladi: a slump of ten percent."
+        "ru": "После slump (как после fall, rise) то, что падает, вводится через in: a slump in demand. Of ставят перед размером спада: a slump of ten percent. Русский родительный падеж («спад спроса») толкает к of.",
+        "uz": "slump (xuddi fall, rise kabi) so'zidan keyin nima pasayganini in predlogi bildiradi: a slump in demand. Of esa pasayish miqdoridan oldin keladi: a slump of ten percent."
       }
     },
     {
@@ -157,7 +157,7 @@
       ],
       "translation": {
         "ru": "Министры договорились о пакете мер стимулирования стоимостью в миллиарды, чтобы помочь малому бизнесу.",
-        "uz": "Vazirlar kichik biznesga yordam berish uchun milliardlab mablag'lik rag'batlantirish choralari to'plami bo'yicha kelishib oldi."
+        "uz": "Vazirlar kichik biznesga yordam berish uchun qiymati milliardlarga yetadigan rag'batlantirish choralari to'plami bo'yicha kelishib oldi."
       },
       "explanation": {
         "ru": "Набор мер стимулирования — stimulus package. Русское «пакет» здесь не packet: packet — небольшая упаковка (a packet of seeds); pack и parcel тоже о коробках и посылках.",
@@ -211,7 +211,7 @@
         "uz": "O'tgan bahorda obligatsiyalarni joylashtirishni uchta bankdan iborat guruh kafolatladi."
       },
       "explanation": {
-        "ru": "was ... by — страдательный залог: нужен третий участник. underwrite спрягается как write: underwrite – underwrote – underwritten (двойное t).",
+        "ru": "was ... by — страдательный залог: нужна третья форма глагола. underwrite спрягается как write: underwrite – underwrote – underwritten (двойное t).",
         "uz": "was ... by — majhul nisbat: fe'lning uchinchi shakli kerak. underwrite fe'li write kabi tuslanadi: underwrite – underwrote – underwritten (ikkita t)."
       }
     },
@@ -284,7 +284,7 @@
       "options": [
         "depreciation",
         "deprivation",
-        "depreciating"
+        "depreciated"
       ],
       "correct": [
         "depreciation"
@@ -309,7 +309,7 @@
       "target_words": [
         "hedge"
       ],
-      "text": "Airlines hedge *from* sharp rises in fuel prices by buying fuel months in advance.",
+      "text": "Many investors buy gold as a way to hedge *from* rising inflation.",
       "options": [
         "against",
         "of",
@@ -319,8 +319,8 @@
         "against"
       ],
       "translation": {
-        "ru": "Авиакомпании страхуются от резкого роста цен на топливо, покупая его на несколько месяцев вперёд.",
-        "uz": "Aviakompaniyalar yoqilg'ini bir necha oy oldin sotib olib, uning narxi keskin oshishi xataridan o'zini sug'urtalaydi."
+        "ru": "Многие инвесторы покупают золото, чтобы застраховаться от растущей инфляции.",
+        "uz": "Ko'plab investorlar o'sib borayotgan inflyatsiya xataridan o'zini sug'urtalash uchun oltin sotib oladi."
       },
       "explanation": {
         "ru": "hedge against — страховаться от риска. Русское «от» здесь не from: в этом значении после hedge нужен against.",
@@ -417,7 +417,7 @@
       "options": [
         "liquidation",
         "liquidator",
-        "liquidating"
+        "liquidated"
       ],
       "correct": [
         "liquidation"
@@ -485,8 +485,8 @@
         "uz": "Bank to'lovni o'tkazib yuborgan har bir qarzdorga oxirgi ogohlantirish yubordi."
       },
       "explanation": {
-        "ru": "Должник по-английски — debtor (b не произносится). Русское «дебитор» сбивает: слова debitor в английском нет, а debit — запись о списании денег.",
-        "uz": "Qarzdor inglizcha debtor bo'ladi (b talaffuz qilinmaydi). Ruscha «debitor» so'zi chalg'itadi: ingliz tilida debitor so'zi yo'q, debit esa hisobdan pul yechilishi haqidagi yozuv."
+        "ru": "Должник по-английски — debtor (b не произносится). Русское «дебитор» сбивает: в современном английском слова debitor нет, а debit — запись о списании денег.",
+        "uz": "Qarzdor inglizcha debtor bo'ladi (b talaffuz qilinmaydi). «Debitor» so'zi chalg'itadi: hozirgi ingliz tilida debitor so'zi yo'q, debit esa hisobdan pul yechilishi haqidagi yozuv."
       }
     },
     {
@@ -550,18 +550,18 @@
       "target_words": [
         "exemption"
       ],
-      "text": "Farmers on very low incomes qualify for a full ___ from the land tax.",
+      "text": "The ___ of small firms from the new tax has angered their bigger rivals.",
       "base": "exempt",
       "accepted": [
         "exemption"
       ],
       "translation": {
-        "ru": "Фермеры с очень низким доходом имеют право на полное освобождение от земельного налога.",
-        "uz": "Daromadi juda past fermerlar yer solig'idan to'liq ozod qilinish huquqiga ega."
+        "ru": "Освобождение малых фирм от нового налога возмутило их более крупных конкурентов.",
+        "uz": "Kichik firmalarning yangi soliqdan ozod qilinishi ularning yirikroq raqiblarini g'azablantirdi."
       },
       "explanation": {
-        "ru": "После a full нужно существительное: exempt → exemption (+ -ion, t сохраняется: не -sion).",
-        "uz": "a full so'zlaridan keyin ot kerak: exempt → exemption (-ion qo'shiladi, t saqlanadi: -sion emas)."
+        "ru": "Между The и of нужно существительное, а has показывает единственное число: exempt → exemption (+ -ion; t сохраняется, не -sion).",
+        "uz": "The va of orasida ot kerak, has esa birlikni ko'rsatadi: exempt → exemption (-ion qo'shiladi; t saqlanadi, -sion emas)."
       }
     },
     {
@@ -856,7 +856,7 @@
       ],
       "translation": {
         "ru": "Прежде чем одобрить любое новое лекарство, необходимо, чтобы его результаты были независимо воспроизведены.",
-        "uz": "Har qanday yangi dori ma'qullanishidan oldin natijalarni mustaqil ravishda qayta takrorlash shart."
+        "uz": "Har qanday yangi dori ruxsat olishidan oldin natijalarni mustaqil ravishda qayta takrorlab ko'rish shart."
       },
       "explanation": {
         "ru": "После прилагательного Independent нужно существительное, а is показывает единственное число: replicate → replication (-ate → -ation).",
@@ -957,7 +957,7 @@
       "target_words": [
         "randomize"
       ],
-      "text": "*Randomizing* into two groups, the volunteers received either the new drug or a placebo.",
+      "text": "*Randomizing* by computer, each patient had an equal chance of getting the drug.",
       "options": [
         "Randomized",
         "Randomize",
@@ -967,12 +967,12 @@
         "Randomized"
       ],
       "translation": {
-        "ru": "Распределённые случайным образом на две группы, добровольцы получали либо новое лекарство, либо плацебо.",
-        "uz": "Ikki guruhga tasodifiy taqsimlangan ko'ngillilar yo yangi dori, yo platsebo oldi."
+        "ru": "Пациентов распределял случайным образом компьютер, поэтому у каждого были равные шансы получить препарат.",
+        "uz": "Kompyuter yordamida tasodifiy taqsimlangan har bir bemorning dorini olish imkoniyati teng edi."
       },
       "explanation": {
-        "ru": "Добровольцев распределили, сами они никого не распределяли — значение страдательное, нужен оборот с причастием на -ed: Randomized. Форма на -ing значила бы, что добровольцы сами кого-то распределяют.",
-        "uz": "Ko'ngillilarni taqsimlashgan, ular o'zlari hech kimni taqsimlamagan — ma'no majhul, -ed shaklidagi sifatdosh kerak: Randomized. -ing shakli ko'ngillilarning o'zi kimnidir taqsimlayotganini bildirardi."
+        "ru": "Пациента распределил компьютер (by computer), сам он никого не распределял — значение страдательное, нужен оборот с причастием на -ed: Randomized. Форма на -ing значила бы, что пациент сам кого-то распределяет.",
+        "uz": "Bemorni kompyuter taqsimlagan (by computer), u o'zi hech kimni taqsimlamagan — ma'no majhul, -ed shaklidagi sifatdosh kerak: Randomized. -ing shakli bemorning o'zi kimnidir taqsimlayotganini bildirardi."
       }
     },
     {
@@ -1011,14 +1011,14 @@
       "target_words": [
         "extrapolate"
       ],
-      "text": "Simple ___ from last year's sales suggests that our profits will double.",
+      "text": "Simple ___ from current trends suggests that the city's population will double.",
       "base": "extrapolate",
       "accepted": [
         "extrapolation"
       ],
       "translation": {
-        "ru": "Простая экстраполяция прошлогодних продаж говорит о том, что наша прибыль удвоится.",
-        "uz": "O'tgan yilgi savdoni oddiy ekstrapolyatsiya qilish foydamiz ikki baravar oshishini ko'rsatadi."
+        "ru": "Простая экстраполяция нынешних тенденций говорит о том, что население города удвоится.",
+        "uz": "Hozirgi tendensiyalarni oddiy ekstrapolyatsiya qilish shahar aholisi ikki baravar ko'payishini ko'rsatadi."
       },
       "explanation": {
         "ru": "После прилагательного Simple нужно существительное, а suggests — в единственном числе: extrapolate → extrapolation (-ate → -ation).",
@@ -1100,7 +1100,7 @@
         "outlier"
       ],
       "translation": {
-        "ru": "Один-единственный выброс в данных может сильно сместить среднее значение от типичных.",
+        "ru": "Один-единственный выброс в данных может далеко увести среднее значение от типичных значений.",
         "uz": "Birgina keskin ajralib turuvchi qiymat o'rtacha qiymatni odatiy qiymatlardan ancha uzoqlashtirishi mumkin."
       },
       "explanation": {
@@ -1202,15 +1202,16 @@
       "base": "generalize",
       "accepted": [
         "generalization",
-        "generalisation"
+        "generalisation",
+        "generality"
       ],
       "translation": {
         "ru": "Утверждать, что все подростки ленивы, — огульное обобщение.",
         "uz": "Barcha o'smirlarni dangasa deyish — haddan tashqari keng umumlashtirish."
       },
       "explanation": {
-        "ru": "После a sweeping нужно существительное: generalize → generalization (-ize → -ization). Британское написание generalisation тоже засчитывается.",
-        "uz": "a sweeping so'zlaridan keyin ot kerak: generalize → generalization (-ize o'rniga -ization). Britancha generalisation yozilishi ham qabul qilinadi."
+        "ru": "После a sweeping нужно существительное: generalize → generalization (-ize → -ization). Засчитываются и британское generalisation, и generality.",
+        "uz": "a sweeping so'zlaridan keyin ot kerak: generalize → generalization (-ize o'rniga -ization). Britancha generalisation va generality shakllari ham qabul qilinadi."
       }
     },
     {
@@ -1224,7 +1225,7 @@
       "target_words": [
         "refute"
       ],
-      "text": "A single careful experiment *refused* the theory that had stood for decades.",
+      "text": "Two later studies *refused* the hypothesis that coffee causes heart disease.",
       "options": [
         "refuted",
         "refunded",
@@ -1234,12 +1235,12 @@
         "refuted"
       ],
       "translation": {
-        "ru": "Один тщательно проведённый эксперимент опроверг теорию, которая держалась десятилетиями.",
-        "uz": "Birgina puxta o'tkazilgan tajriba o'nlab yillar davomida tan olinib kelgan nazariyani rad etdi."
+        "ru": "Два более поздних исследования опровергли гипотезу о том, что кофе вызывает болезни сердца.",
+        "uz": "Keyinroq o'tkazilgan ikkita tadqiqot qahva yurak kasalliklariga sabab bo'ladi degan gipotezani rad etdi."
       },
       "explanation": {
-        "ru": "refuse — отказываться, отклонять (просьбу, предложение). Доказать ложность теории — refute: refuted. По-узбекски оба значения — «rad etmoq», отсюда путаница.",
-        "uz": "refuse — biror narsadan bosh tortmoq, iltimos yoki taklifni qaytarmoq. Nazariyaning noto'g'riligini isbotlash — refute: refuted. O'zbekchada ikkalasi ham «rad etmoq», chalkashlik shundan."
+        "ru": "refuse — отказываться, отклонять (просьбу, предложение). Доказать ложность гипотезы — refute: refuted. По-узбекски оба значения — «rad etmoq», отсюда путаница.",
+        "uz": "refuse — biror narsadan bosh tortmoq, iltimos yoki taklifni qaytarmoq. Gipotezaning noto'g'riligini isbotlash — refute: refuted. O'zbekchada ikkalasi ham «rad etmoq», chalkashlik shundan."
       }
     },
     {
@@ -1253,7 +1254,7 @@
       "target_words": [
         "corroborate"
       ],
-      "text": "*Corroborating* by three other labs, the findings were finally accepted by the journal.",
+      "text": "*Corroborating* by two witnesses, the driver's story was finally accepted by the police.",
       "options": [
         "Corroborated",
         "Corroborate",
@@ -1263,12 +1264,12 @@
         "Corroborated"
       ],
       "translation": {
-        "ru": "Подтверждённые тремя другими лабораториями, результаты наконец были приняты журналом.",
-        "uz": "Uchta boshqa laboratoriya tomonidan tasdiqlangan natijalar nihoyat jurnal tomonidan qabul qilindi."
+        "ru": "Подтверждённые двумя свидетелями, показания водителя в конце концов были приняты полицией.",
+        "uz": "Ikki guvoh tasdiqlagan haydovchining ko'rsatmalari oxir-oqibat politsiya tomonidan qabul qilindi."
       },
       "explanation": {
-        "ru": "Результаты подтвердили другие лаборатории (by three other labs) — значение страдательное, нужен оборот с причастием на -ed: Corroborated. Форма на -ing значила бы, что результаты сами что-то подтверждают.",
-        "uz": "Natijalarni boshqa laboratoriyalar tasdiqlagan (by three other labs) — ma'no majhul, -ed shaklidagi sifatdosh kerak: Corroborated. -ing shakli natijalarning o'zi nimanidir tasdiqlayotganini bildirardi."
+        "ru": "Показания подтвердили свидетели (by two witnesses) — значение страдательное, нужен оборот с причастием на -ed: Corroborated. Форма на -ing значила бы, что показания сами что-то подтверждают.",
+        "uz": "Ko'rsatmalarni guvohlar tasdiqlagan (by two witnesses) — ma'no majhul, -ed shaklidagi sifatdosh kerak: Corroborated. -ing shakli ko'rsatmalarning o'zi nimanidir tasdiqlayotganini bildirardi."
       }
     },
     {
@@ -1282,7 +1283,7 @@
       "target_words": [
         "rigorous"
       ],
-      "text": "Every sample in the study was *rigorous* tested before use.",
+      "text": "The claims in the article were never *rigorous* checked by the editors.",
       "options": [
         "rigorously",
         "rigor",
@@ -1292,12 +1293,12 @@
         "rigorously"
       ],
       "translation": {
-        "ru": "Каждый образец в исследовании перед использованием тщательно проверяли.",
-        "uz": "Tadqiqotdagi har bir namuna ishlatilishidan oldin puxta tekshirilgan."
+        "ru": "Утверждения в статье так и не были тщательно проверены редакторами.",
+        "uz": "Maqoladagi da'volar muharrirlar tomonidan hech qachon puxta tekshirilmagan."
       },
       "explanation": {
-        "ru": "Слово описывает действие tested (как проверяли?) — нужно наречие: rigorous → rigorously. Прилагательное rigorous стоит перед существительным: rigorous testing.",
-        "uz": "So'z tested harakatini izohlaydi (qanday tekshirilgan?) — ravish kerak: rigorous → rigorously. rigorous sifati otdan oldin keladi: rigorous testing."
+        "ru": "Слово описывает действие checked (как проверяли?) — нужно наречие: rigorous → rigorously. Прилагательное rigorous стоит перед существительным: rigorous checks.",
+        "uz": "So'z checked harakatini izohlaydi (qanday tekshirilgan?) — ravish kerak: rigorous → rigorously. rigorous sifati otdan oldin keladi: rigorous checks."
       }
     },
     {
@@ -1337,18 +1338,18 @@
       "target_words": [
         "density"
       ],
-      "text": "Oil and water have different ___, so the oil floats on top.",
+      "text": "The ___ of the planets differ: some are rocky, while others are mostly gas.",
       "base": "dense",
       "accepted": [
         "densities"
       ],
       "translation": {
-        "ru": "У масла и воды разная плотность, поэтому масло всплывает наверх.",
-        "uz": "Moy va suvning zichligi har xil, shuning uchun moy suv yuzasiga qalqib chiqadi."
+        "ru": "Плотность у планет разная: одни каменистые, а другие состоят в основном из газа.",
+        "uz": "Sayyoralarning zichligi har xil: ba'zilari toshloq, boshqalari esa asosan gazdan iborat."
       },
       "explanation": {
-        "ru": "После different нужно существительное во множественном числе (у двух веществ две плотности): dense → density → densities; -e → -ity, y → ies.",
-        "uz": "different so'zidan keyin ko'plikdagi ot kerak (ikki moddaning ikki xil zichligi bor): dense → density → densities; -e → -ity, y → ies."
+        "ru": "Между The и of нужно существительное, а глагол differ (не differs) требует множественного числа: dense → density → densities; -e → -ity, y → ies.",
+        "uz": "The va of orasida ot kerak, differ fe'li (differs emas) esa ko'plikni talab qiladi: dense → density → densities; -e → -ity, y → ies."
       }
     },
     {
@@ -1456,7 +1457,7 @@
       ],
       "translation": {
         "ru": "Падая с башни, камень постепенно набирал скорость.",
-        "uz": "Minoradan tushayotgan tosh asta-sekin tezlik oshirib bordi."
+        "uz": "Minoradan qulayotgan toshning tezligi tobora oshib bordi."
       },
       "explanation": {
         "ru": "Набирать скорость — gain velocity (или gain speed). Русское «набирать» здесь не collect: collect — собирать предметы.",
@@ -1509,7 +1510,7 @@
         "uz": "Vaksina tayyor bo'lgunga qadar virus allaqachon ikki marta mutatsiyaga uchragan edi."
       },
       "explanation": {
-        "ru": "После had нужен третий участник глагола. Глагол от mutation — mutate (-ion отпадает): mutated.",
+        "ru": "После had нужна третья форма глагола. Глагол от mutation — mutate (-ion отпадает): mutated.",
         "uz": "had so'zidan keyin fe'lning uchinchi shakli kerak. mutation so'zining fe'li — mutate (-ion tushib qoladi): mutated."
       }
     },
@@ -1547,24 +1548,24 @@
       },
       "level": "C1",
       "target_words": [
-        "enzyme"
+        "tissue"
       ],
-      "text": "Many washing powders contain *ferments* that break down dirt at low temperatures.",
+      "text": "The surgeon removed a small piece of damaged *fabric* from the patient's lung.",
       "options": [
-        "enzymes",
-        "yeasts",
-        "fermentations"
+        "tissue",
+        "cloth",
+        "textile"
       ],
       "correct": [
-        "enzymes"
+        "tissue"
       ],
       "translation": {
-        "ru": "Многие стиральные порошки содержат ферменты, которые расщепляют грязь при низкой температуре.",
-        "uz": "Ko'plab kir yuvish kukunlarida past haroratda kirni parchalaydigan fermentlar bor."
+        "ru": "Хирург удалил небольшой участок повреждённой ткани из лёгкого пациента.",
+        "uz": "Jarroh bemorning o'pkasidan shikastlangan to'qimaning kichik bo'lagini olib tashladi."
       },
       "explanation": {
-        "ru": "Фермент по-английски — enzyme. Русское и узбекское «фермент» сбивают: ferment — прежде всего глагол «бродить, вызывать брожение».",
-        "uz": "Ferment inglizcha enzyme bo'ladi. O'zbekcha va ruscha «ferment» chalg'itadi: ferment — avvalo «achimoq, bijg'imoq» degan fe'l."
+        "ru": "Ткань организма — tissue. Русское «ткань» здесь не fabric: fabric, cloth, textile — ткань для одежды и штор.",
+        "uz": "Organizm to'qimasi — tissue. «To'qima» so'zi bu yerda fabric emas: fabric, cloth, textile — kiyim va parda uchun mato."
       }
     },
     {
@@ -1607,7 +1608,7 @@
       "target_words": [
         "hereditary"
       ],
-      "text": "This kind of hearing loss is *heredity*: it passes from parents to children.",
+      "text": "Doctors suspect a *heredity* condition, since both her parents had the same problem.",
       "options": [
         "hereditary",
         "heritage",
@@ -1617,12 +1618,12 @@
         "hereditary"
       ],
       "translation": {
-        "ru": "Этот вид потери слуха наследственный: он передаётся от родителей к детям.",
-        "uz": "Eshitish qobiliyatini yo'qotishning bu turi irsiy: u ota-onadan farzandlarga o'tadi."
+        "ru": "Врачи подозревают наследственное заболевание, поскольку у обоих её родителей была такая же проблема.",
+        "uz": "Shifokorlar irsiy kasallik deb gumon qilmoqda, chunki uning ota-onasining ikkalasida ham xuddi shunday muammo bo'lgan."
       },
       "explanation": {
-        "ru": "После is нужно прилагательное: hereditary («наследственный»). heredity — существительное «наследственность», heritage — «наследие».",
-        "uz": "is fe'lidan keyin sifat kerak: hereditary («irsiy»). heredity — «irsiyat» degan ot, heritage — «meros»."
+        "ru": "Перед существительным condition нужно прилагательное: hereditary («наследственный»). heredity — существительное «наследственность», heritage — «наследие», inheritance — «наследство».",
+        "uz": "condition otidan oldin sifat kerak: hereditary («irsiy»). heredity — «irsiyat» degan ot, heritage — «meros», inheritance — «meros (mulk)»."
       }
     }
   ]

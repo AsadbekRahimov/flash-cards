@@ -66,15 +66,16 @@
       "text": "The charity buys laptops for ___ children whose parents cannot afford them.",
       "base": "privilege",
       "accepted": [
-        "underprivileged"
+        "underprivileged",
+        "unprivileged"
       ],
       "translation": {
         "ru": "Благотворительный фонд покупает ноутбуки детям из малообеспеченных семей, чьи родители не могут себе их позволить.",
         "uz": "Xayriya jamg'armasi ota-onasining bunga qurbi yetmaydigan, kam ta'minlangan bolalarga noutbuklar sotib oladi."
       },
       "explanation": {
-        "ru": "Перед children нужно прилагательное, а смысл (родители не могут купить) требует «обделённые»: under- + privilege + -d → underprivileged.",
-        "uz": "children so'zidan oldin sifat kerak, ma'no esa (ota-onasining qurbi yetmaydi) «imtiyozdan mahrum»ni talab qiladi: under- + privilege + -d → underprivileged."
+        "ru": "Перед children нужно прилагательное, а смысл (родители не могут купить) требует «обделённые»: under- + privilege + -d → underprivileged (реже unprivileged).",
+        "uz": "children so'zidan oldin sifat kerak, ma'no esa (ota-onasining qurbi yetmaydi) «imtiyozdan mahrum»ni talab qiladi: under- + privilege + -d → underprivileged (kamroq unprivileged)."
       }
     },
     {
@@ -451,8 +452,8 @@
         "is"
       ],
       "translation": {
-        "ru": "Плохая санитария в переполненных лагерях распространяет болезни.",
-        "uz": "Gavjum lagerlardagi yomon sanitariya kasalliklarni tarqatmoqda."
+        "ru": "Плохие санитарные условия в переполненных лагерях способствуют распространению болезней.",
+        "uz": "Gavjum lagerlardagi yomon sanitariya sharoiti kasalliklarning tarqalishiga sabab bo'lmoqda."
       },
       "explanation": {
         "ru": "Подлежащее — sanitation (неисчисляемое, единственное число), а не camps: глагол is. camps стоит рядом с глаголом, но подлежащим не является.",
@@ -506,7 +507,7 @@
       ],
       "translation": {
         "ru": "Со студенческих лет она — активистка движения за права животных.",
-        "uz": "U talabalik yillaridan beri hayvonlar huquqlari uchun kurashuvchi faol."
+        "uz": "U talabalik yillaridan beri hayvonlar huquqlarini himoya qiluvchi faol."
       },
       "explanation": {
         "ru": "После an нужно существительное-лицо: active → activist (суффикс -ist, «активист»).",
@@ -805,7 +806,7 @@
       ],
       "translation": {
         "ru": "О пожилых людях часто судят по стереотипу: считают их медлительными и упрямыми.",
-        "uz": "Keksa odamlarni ko'pincha qolipga solib, sekin va o'jar deb hisoblashadi."
+        "uz": "Keksa odamlarni ko'pincha qolipga solib, sust va o'jar deb hisoblashadi."
       },
       "explanation": {
         "ru": "Здесь пассив: о людях судят другие. После are нужна третья форма: be stereotyped as — «считаться (по стереотипу) кем-то».",
@@ -927,22 +928,22 @@
       "target_words": [
         "itinerary"
       ],
-      "text": "Each of the itineraries *include* its own local guide.",
+      "text": "The itinerary for these two weeks *look* rather busy, doesn't it?",
       "options": [
-        "includes",
-        "including",
-        "inclusive"
+        "looks",
+        "looked",
+        "looking"
       ],
       "correct": [
-        "includes"
+        "looks"
       ],
       "translation": {
-        "ru": "Каждый из маршрутов включает своего местного гида.",
-        "uz": "Sayohat yo'nalishlarining har biri o'z mahalliy gidini o'z ichiga oladi."
+        "ru": "Маршрут на эти две недели выглядит довольно насыщенным, не так ли?",
+        "uz": "Bu ikki haftalik sayohat yo'nalishi ancha tig'iz ko'rinadi, shunday emasmi?"
       },
       "explanation": {
-        "ru": "Подлежащее — Each (каждый), а не itineraries: глагол в единственном числе, с -s: includes. На единственное число указывает и its.",
-        "uz": "Ega — Each (har biri), itineraries emas: fe'l birlikda, -s bilan keladi: includes. Birlikni its so'zi ham ko'rsatib turibdi."
+        "ru": "Подлежащее — itinerary (единственное число), а не weeks, которое стоит рядом с глаголом: нужно looks. Единственное число подтверждает и хвостик doesn't it; looked не сочетается с doesn't.",
+        "uz": "Ega — itinerary (birlikda), fe'lga yaqin turgan weeks emas: looks kerak. Birlikni doesn't it so'roq qo'shimchasi ham ko'rsatadi; looked esa doesn't bilan mos kelmaydi."
       }
     },
     {
@@ -1101,11 +1102,11 @@
       ],
       "translation": {
         "ru": "Дом моей бабушки полон старинной мебели.",
-        "uz": "Buvimning uyi antiqa mebellarga to'la."
+        "uz": "Buvimning uyi qadimiy mebellarga to'la."
       },
       "explanation": {
         "ru": "Перед furniture нужно прилагательное antique (старинный, антикварный). antiquity — существительное «древность», antiques — «антикварные вещи».",
-        "uz": "furniture so'zidan oldin antique (ko'hna, antiqa) sifati kerak. antiquity — «qadimiyat» degan ot, antiques — «antiqa buyumlar»."
+        "uz": "furniture so'zidan oldin antique (ko'hna, qadimiy) sifati kerak. antiquity — «qadimiyat» degan ot, antiques — «antikvar buyumlar»."
       }
     },
     {
@@ -1252,7 +1253,7 @@
       "target_words": [
         "folklore"
       ],
-      "text": "Many of these old songs come from local *folklores*.",
+      "text": "Much of our local *folklores* is about clever foxes and foolish wolves.",
       "options": [
         "folklore",
         "folklorist",
@@ -1262,12 +1263,12 @@
         "folklore"
       ],
       "translation": {
-        "ru": "Многие из этих старых песен пришли из местного фольклора.",
-        "uz": "Bu eski qo'shiqlarning ko'pi mahalliy folklordan kelib chiqqan."
+        "ru": "Большая часть нашего местного фольклора — о хитрых лисах и глупых волках.",
+        "uz": "Mahalliy folklorimizning katta qismi ayyor tulkilar va ahmoq bo'rilar haqida."
       },
       "explanation": {
-        "ru": "folklore — неисчисляемое существительное: без -s и без a, даже если речь о многих народах: the folklore of many countries.",
-        "uz": "folklore — sanalmaydigan ot: -s va a artiklisiz ishlatiladi, ko'p xalqlar haqida gap ketganda ham: the folklore of many countries."
+        "ru": "folklore — неисчисляемое существительное, без -s. Здесь на это указывают Much of (с исчисляемыми — many of) и глагол is. folklorist — «фольклорист», folkloric — прилагательное.",
+        "uz": "folklore — sanalmaydigan ot, -s qo'shilmaydi. Buni Much of (sanaladigan otlar bilan many of) va is fe'li ko'rsatadi. folklorist — «folklorshunos», folkloric esa sifat."
       }
     },
     {
@@ -1281,22 +1282,22 @@
       "target_words": [
         "proverb"
       ],
-      "text": "We have an old proverb *who* warns against lending money to friends.",
+      "text": "As the proverb *speaks*, a friend in need is a friend indeed.",
       "options": [
-        "that",
-        "what",
-        "whom"
+        "says",
+        "talks",
+        "sounds"
       ],
       "correct": [
-        "that"
+        "says"
       ],
       "translation": {
-        "ru": "У нас есть старая пословица, которая предостерегает от того, чтобы давать деньги в долг друзьям.",
-        "uz": "Bizda do'stlarga qarz berishdan ogohlantiradigan eski bir maqol bor."
+        "ru": "Как гласит пословица, друг познаётся в беде.",
+        "uz": "Maqolda aytilganidek, do'st boshga ish tushganda bilinadi."
       },
       "explanation": {
-        "ru": "Пословица — не человек: после proverb относительное местоимение that или which, а не who (who — только о людях). what не начинает определительное придаточное.",
-        "uz": "Maqol odam emas: proverb so'zidan keyin that yoki which ishlatiladi, who emas (who faqat odamlar uchun). what esa aniqlovchi ergash gapni boshlamaydi."
+        "ru": "О пословице говорят says (или goes): as the proverb says. speak и talk значат «говорить, разговаривать», а sounds — дословный перевод «как звучит пословица».",
+        "uz": "Maqol haqida says (yoki goes) deyiladi: as the proverb says. speak va talk fe'llari «gapirmoq, so'zlashmoq» degani, sounds esa «maqol yangraydi» degan so'zma-so'z tarjima."
       }
     },
     {
@@ -1317,7 +1318,7 @@
       ],
       "translation": {
         "ru": "Лишь немногие полярные исследователи проводят на льду всю зиму.",
-        "uz": "Muz ustida butun qishni o'tkazadigan qutb olimlari juda kam."
+        "uz": "Qutb olimlaridan faqat bir nechtasigina butun qishni muz ustida o'tkazadi."
       },
       "explanation": {
         "ru": "Перед scientists нужно прилагательное: pole (полюс) → polar (полярный), суффикс -ar.",
@@ -1360,14 +1361,14 @@
       "target_words": [
         "plateau"
       ],
-      "text": "The road climbs across two high ___ before it reaches the pass.",
+      "text": "The road crosses two high ___ before it reaches the pass.",
       "base": "plateau",
       "accepted": [
         "plateaus",
         "plateaux"
       ],
       "translation": {
-        "ru": "Прежде чем достичь перевала, дорога поднимается через два высоких плато.",
+        "ru": "Прежде чем достичь перевала, дорога пересекает два высоких плато.",
         "uz": "Yo'l dovonga yetib borishdan oldin ikkita baland yassi tog'likni kesib o'tadi."
       },
       "explanation": {
@@ -1473,18 +1474,18 @@
       "target_words": [
         "nostalgia"
       ],
-      "text": "Old songs from my school years always make me feel ___.",
+      "text": "Old songs from my school years always make me feel very ___.",
       "base": "nostalgia",
       "accepted": [
         "nostalgic"
       ],
       "translation": {
-        "ru": "Старые песни школьных лет всегда вызывают у меня ностальгию.",
-        "uz": "Maktab yillarimdagi eski qo'shiqlar menda doim sog'inch hissini uyg'otadi."
+        "ru": "Старые песни школьных лет всегда пробуждают во мне сильную ностальгию.",
+        "uz": "Maktab yillarimdagi eski qo'shiqlar menda doim kuchli sog'inch hissini uyg'otadi."
       },
       "explanation": {
-        "ru": "После feel нужно прилагательное: nostalgia → nostalgic (-ia меняется на -ic).",
-        "uz": "feel fe'lidan keyin sifat kerak: nostalgia → nostalgic (-ia o'rniga -ic)."
+        "ru": "После feel very нужно прилагательное (very не ставят перед существительным nostalgia): nostalgia → nostalgic (-ia меняется на -ic).",
+        "uz": "feel very so'zlaridan keyin sifat kerak (very nostalgia oti oldida kelmaydi): nostalgia → nostalgic (-ia o'rniga -ic)."
       }
     },
     {
@@ -1498,18 +1499,18 @@
       "target_words": [
         "spectacular"
       ],
-      "text": "The festival ended ___, with fireworks over the whole bay.",
+      "text": "The sun set ___ behind the mountains, turning the whole sky red.",
       "base": "spectacle",
       "accepted": [
         "spectacularly"
       ],
       "translation": {
-        "ru": "Фестиваль завершился великолепно — фейерверком над всем заливом.",
-        "uz": "Festival butun ko'rfaz uzra otashinlar bilan ajoyib tarzda yakunlandi."
+        "ru": "Солнце эффектно село за горы, окрасив всё небо в красный цвет.",
+        "uz": "Quyosh tog'lar ortiga ajoyib tarzda botib, butun osmonni qizilga bo'yadi."
       },
       "explanation": {
-        "ru": "Глагол ended описывает наречие. Два шага: spectacle (зрелище) → spectacular (-ar) → spectacularly (-ly).",
-        "uz": "ended fe'lini ravish izohlaydi. Ikki bosqich: spectacle (tomosha) → spectacular (-ar) → spectacularly (-ly)."
+        "ru": "Глагол set (село) описывает наречие. Два шага: spectacle (зрелище) → spectacular (-ar) → spectacularly (-ly).",
+        "uz": "set (botdi) fe'lini ravish izohlaydi. Ikki bosqich: spectacle (tomosha) → spectacular (-ar) → spectacularly (-ly)."
       }
     },
     {
@@ -1563,7 +1564,7 @@
       },
       "explanation": {
         "ru": "На языке или диалекте — in: write in a dialect, speak in English. Русское «на диалекте» здесь не on.",
-        "uz": "Biror til yoki shevada — in: write in a dialect, speak in English. O'zbekcha «shevada» qo'shimchasi bu yerda in predlogiga to'g'ri keladi."
+        "uz": "Biror til yoki shevada — in: write in a dialect, speak in English. O'zbekcha «-da» qo'shimchasi bu yerda in predlogiga to'g'ri keladi, on emas."
       }
     },
     {
