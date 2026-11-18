@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 1,
+    "title": "Оттенки характера",
+    "title_uz": "Xarakter qirralari"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Ум и ограниченность",
+    "title_uz": "Aql va tor fikrlilik"
+  },
+  "words": [
+    {
+      "word": "erudite",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɛrjəˌdaɪt/",
+      "translation": "эрудированный",
+      "translations": {
+        "ru": "эрудированный",
+        "uz": "bilimdon, keng bilimli"
+      },
+      "example": "The erudite historian quoted ancient texts from memory.",
+      "example_translations": {
+        "ru": "Эрудированный историк цитировал древние тексты по памяти.",
+        "uz": "Bilimdon tarixchi qadimiy matnlarni yoddan keltirardi."
+      }
+    },
+    {
+      "word": "incisive",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈsaɪsɪv/",
+      "translation": "острый, проницательный",
+      "translations": {
+        "ru": "острый, проницательный",
+        "uz": "o'tkir, teran"
+      },
+      "example": "Her incisive questions exposed every flaw in the plan.",
+      "example_translations": {
+        "ru": "Её острые вопросы вскрыли все изъяны плана.",
+        "uz": "Uning o'tkir savollari rejaning barcha kamchiliklarini ochib berdi."
+      }
+    },
+    {
+      "word": "discerning",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈsɜrnɪŋ/",
+      "translation": "взыскательный, разборчивый",
+      "translations": {
+        "ru": "взыскательный, разборчивый",
+        "uz": "nozik didli"
+      },
+      "example": "Discerning readers will notice the novel's subtle humor.",
+      "example_translations": {
+        "ru": "Взыскательные читатели заметят тонкий юмор романа.",
+        "uz": "Nozik didli kitobxonlar romandagi yashirin hazilni payqaydi."
+      }
+    },
+    {
+      "word": "obtuse",
+      "part_of_speech": "adjective",
+      "transcription": "/əbˈtus/",
+      "translation": "несообразительный, тупой",
+      "translations": {
+        "ru": "несообразительный, тупой",
+        "uz": "befahm, kaltafahm"
+      },
+      "example": "Am I being obtuse, or is this explanation unclear?",
+      "example_translations": {
+        "ru": "Это я такой несообразительный или объяснение непонятное?",
+        "uz": "Men shunchalik befahmmanmi yoki bu tushuntirish tushunarsizmi?"
+      }
+    },
+    {
+      "word": "precocious",
+      "part_of_speech": "adjective",
+      "transcription": "/prɪˈkoʊʃəs/",
+      "translation": "не по годам развитой",
+      "translations": {
+        "ru": "не по годам развитой",
+        "uz": "yoshiga nisbatan zehnli"
+      },
+      "example": "A precocious child, Malika read novels at four.",
+      "example_translations": {
+        "ru": "Не по годам развитая Малика читала романы в четыре года.",
+        "uz": "Yoshiga nisbatan zehnli Malika to'rt yoshida romanlar o'qirdi."
+      }
+    },
+    {
+      "word": "canny",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkæni/",
+      "translation": "расчётливый, сметливый",
+      "translations": {
+        "ru": "расчётливый, сметливый",
+        "uz": "uddaburon, pishiq"
+      },
+      "example": "Canny shoppers wait for the end-of-season sales.",
+      "example_translations": {
+        "ru": "Расчётливые покупатели ждут распродаж в конце сезона.",
+        "uz": "Uddaburon xaridorlar mavsum oxiridagi chegirmalarni kutadi."
+      }
+    },
+    {
+      "word": "credulous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkrɛdʒələs/",
+      "translation": "легковерный, доверчивый",
+      "translations": {
+        "ru": "легковерный, доверчивый",
+        "uz": "laqma, ishonuvchan"
+      },
+      "example": "Credulous viewers believed every word of the advertisement.",
+      "example_translations": {
+        "ru": "Легковерные зрители поверили каждому слову рекламы.",
+        "uz": "Laqma tomoshabinlar reklamaning har bir so'ziga ishonishdi."
+      }
+    },
+    {
+      "word": "ingenuous",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdʒɛnjuəs/",
+      "translation": "простодушный, бесхитростный",
+      "translations": {
+        "ru": "простодушный, бесхитростный",
+        "uz": "soddadil"
+      },
+      "example": "With an ingenuous smile, he told strangers his salary.",
+      "example_translations": {
+        "ru": "С простодушной улыбкой он называл незнакомцам свою зарплату.",
+        "uz": "U soddadil tabassum bilan notanish kishilarga maoshini aytib berardi."
+      }
+    },
+    {
+      "word": "pedantic",
+      "part_of_speech": "adjective",
+      "transcription": "/pəˈdæntɪk/",
+      "translation": "педантичный",
+      "translations": {
+        "ru": "педантичный",
+        "uz": "maydakash, rasmiyatchi"
+      },
+      "example": "Don't be pedantic; a missing comma hardly matters.",
+      "example_translations": {
+        "ru": "Не будьте таким педантичным: пропущенная запятая едва ли важна.",
+        "uz": "Bunchalik maydakash bo'lmang: tushib qolgan vergul unchalik muhim emas."
+      }
+    },
+    {
+      "word": "dogmatic",
+      "part_of_speech": "adjective",
+      "transcription": "/dɔgˈmætɪk/",
+      "translation": "догматичный, категоричный",
+      "translations": {
+        "ru": "догматичный, категоричный",
+        "uz": "dogmatik, aqidaga yopishgan"
+      },
+      "example": "Dogmatic thinkers reject evidence that contradicts their beliefs.",
+      "example_translations": {
+        "ru": "Догматичные мыслители отвергают факты, противоречащие их убеждениям.",
+        "uz": "Dogmatik mutafakkirlar o'z qarashlariga zid dalillarni rad etadi."
+      }
+    }
+  ]
+}

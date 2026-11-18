@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 13,
+    "title": "Общество",
+    "title_uz": "Jamiyat"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Семья и родство",
+    "title_uz": "Oila va qarindoshlik"
+  },
+  "words": [
+    {
+      "word": "sibling",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪblɪŋ/",
+      "translation": "брат или сестра",
+      "translations": {
+        "ru": "брат или сестра",
+        "uz": "tug'ishgan"
+      },
+      "example": "She has three siblings: two brothers and a sister.",
+      "example_translations": {
+        "ru": "У неё трое братьев и сестёр: два брата и сестра.",
+        "uz": "Uning uchta tug'ishgani bor: ikkita aka-ukasi va bitta singlisi."
+      }
+    },
+    {
+      "word": "spouse",
+      "part_of_speech": "noun",
+      "transcription": "/spaʊs/",
+      "translation": "супруг, супруга",
+      "translations": {
+        "ru": "супруг, супруга",
+        "uz": "turmush o'rtog'i"
+      },
+      "example": "Employees may bring a spouse to the company dinner.",
+      "example_translations": {
+        "ru": "Сотрудники могут привести на ужин компании супруга или супругу.",
+        "uz": "Xodimlar kompaniya ziyofatiga turmush o'rtog'ini olib kelishi mumkin."
+      }
+    },
+    {
+      "word": "guardian",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgɑrdiən/",
+      "translation": "опекун",
+      "translations": {
+        "ru": "опекун",
+        "uz": "vasiy"
+      },
+      "example": "A court appointed his aunt as his legal guardian.",
+      "example_translations": {
+        "ru": "Суд назначил тётю его законным опекуном.",
+        "uz": "Sud xolasini uning qonuniy vasiysi etib tayinladi."
+      }
+    },
+    {
+      "word": "foster",
+      "part_of_speech": "verb",
+      "transcription": "/ˈfɔstər/",
+      "translation": "брать на воспитание",
+      "translations": {
+        "ru": "брать на воспитание",
+        "uz": "tarbiyasiga olmoq"
+      },
+      "example": "They fostered two children whose parents could not cope.",
+      "example_translations": {
+        "ru": "Они взяли на воспитание двоих детей, чьи родители не справлялись.",
+        "uz": "Ular ota-onasi eplay olmagan ikki bolani tarbiyasiga oldi."
+      }
+    },
+    {
+      "word": "lineage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɪniɪdʒ/",
+      "translation": "родословная",
+      "translations": {
+        "ru": "родословная",
+        "uz": "nasl-nasab"
+      },
+      "example": "She can trace her lineage back four hundred years.",
+      "example_translations": {
+        "ru": "Она может проследить свою родословную на четыреста лет назад.",
+        "uz": "U o'z nasl-nasabini to'rt yuz yil avvalgi davrgacha aniqlay oladi."
+      }
+    },
+    {
+      "word": "descendant",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈsɛndənt/",
+      "translation": "потомок",
+      "translations": {
+        "ru": "потомок",
+        "uz": "avlod"
+      },
+      "example": "He is a direct descendant of the village's founder.",
+      "example_translations": {
+        "ru": "Он прямой потомок основателя деревни.",
+        "uz": "U qishloq asoschisining bevosita avlodi."
+      }
+    },
+    {
+      "word": "orphan",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɔrfən/",
+      "translation": "сирота",
+      "translations": {
+        "ru": "сирота",
+        "uz": "yetim"
+      },
+      "example": "The orphan was raised by his loving grandparents.",
+      "example_translations": {
+        "ru": "Сироту вырастили любящие бабушка и дедушка.",
+        "uz": "Yetimni mehribon buvisi va bobosi katta qildi."
+      }
+    },
+    {
+      "word": "parental",
+      "part_of_speech": "adjective",
+      "transcription": "/pəˈrɛntəl/",
+      "translation": "родительский",
+      "translations": {
+        "ru": "родительский",
+        "uz": "ota-onalik"
+      },
+      "example": "Parental leave lets both parents care for a newborn.",
+      "example_translations": {
+        "ru": "Родительский отпуск позволяет обоим родителям ухаживать за новорождённым.",
+        "uz": "Ota-onalik ta'tili ota ham, ona ham chaqaloqqa qarashiga imkon beradi."
+      }
+    },
+    {
+      "word": "breadwinner",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbrɛdˌwɪnər/",
+      "translation": "кормилец",
+      "translations": {
+        "ru": "кормилец",
+        "uz": "boquvchi"
+      },
+      "example": "After her husband fell ill, she became the breadwinner.",
+      "example_translations": {
+        "ru": "Когда муж заболел, она стала кормильцем семьи.",
+        "uz": "Eri kasal bo'lib qolgach, u oila boquvchisiga aylandi."
+      }
+    },
+    {
+      "word": "caregiver",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɛrˌgɪvər/",
+      "translation": "сиделка",
+      "translations": {
+        "ru": "сиделка",
+        "uz": "parvarish qiluvchi"
+      },
+      "example": "A caregiver helps my grandfather wash and dress.",
+      "example_translations": {
+        "ru": "Сиделка помогает моему дедушке умываться и одеваться.",
+        "uz": "Parvarish qiluvchi bobomga yuvinish va kiyinishda yordam beradi."
+      }
+    }
+  ]
+}

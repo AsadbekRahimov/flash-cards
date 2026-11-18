@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 2,
+    "title": "Чувства и отношения",
+    "title_uz": "His-tuyg'ular va munosabatlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Сочувствие и поддержка",
+    "title_uz": "Hamdardlik va qo'llab-quvvatlash"
+  },
+  "words": [
+    {
+      "word": "console",
+      "part_of_speech": "verb",
+      "transcription": "/kənˈsoʊl/",
+      "translation": "утешать",
+      "translations": {
+        "ru": "утешать",
+        "uz": "yupatmoq"
+      },
+      "example": "Nothing could console the child after his toy broke.",
+      "example_translations": {
+        "ru": "Ничто не могло утешить ребёнка после того, как сломалась его игрушка.",
+        "uz": "O'yinchog'i singach, bolani hech narsa yupata olmadi."
+      }
+    },
+    {
+      "word": "solace",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɑləs/",
+      "translation": "утешение",
+      "translations": {
+        "ru": "утешение",
+        "uz": "tasalli"
+      },
+      "example": "After the loss, she found solace in music.",
+      "example_translations": {
+        "ru": "После утраты она нашла утешение в музыке.",
+        "uz": "Judolikdan so'ng u musiqadan tasalli topdi."
+      }
+    },
+    {
+      "word": "reassure",
+      "part_of_speech": "verb",
+      "transcription": "/ˌriəˈʃʊr/",
+      "translation": "успокаивать, заверять",
+      "translations": {
+        "ru": "успокаивать, заверять",
+        "uz": "xotirjam qilmoq"
+      },
+      "example": "The doctor reassured us that the operation was safe.",
+      "example_translations": {
+        "ru": "Врач успокоил нас, заверив, что операция безопасна.",
+        "uz": "Shifokor operatsiya xavfsiz ekanini aytib, bizni xotirjam qildi."
+      }
+    },
+    {
+      "word": "sympathize",
+      "part_of_speech": "verb",
+      "transcription": "/ˈsɪmpəˌθaɪz/",
+      "translation": "сочувствовать",
+      "translations": {
+        "ru": "сочувствовать",
+        "uz": "hamdardlik bildirmoq"
+      },
+      "example": "I sympathize with anyone who works night shifts.",
+      "example_translations": {
+        "ru": "Я сочувствую всем, кто работает в ночные смены.",
+        "uz": "Tungi smenada ishlaydigan har kimga hamdardlik bildiraman."
+      }
+    },
+    {
+      "word": "condolence",
+      "part_of_speech": "noun",
+      "transcription": "/kənˈdoʊləns/",
+      "translation": "соболезнование",
+      "translations": {
+        "ru": "соболезнование",
+        "uz": "ta'ziya"
+      },
+      "example": "We sent a letter of condolence to the family.",
+      "example_translations": {
+        "ru": "Мы отправили семье письмо с соболезнованиями.",
+        "uz": "Biz oilaga ta'ziya maktubi yubordik."
+      }
+    },
+    {
+      "word": "empathize",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɛmpəˌθaɪz/",
+      "translation": "сопереживать",
+      "translations": {
+        "ru": "сопереживать",
+        "uz": "dardini his qilmoq"
+      },
+      "example": "Good nurses empathize with frightened patients.",
+      "example_translations": {
+        "ru": "Хорошие медсёстры сопереживают напуганным пациентам.",
+        "uz": "Yaxshi hamshiralar qo'rqib ketgan bemorlarning dardini his qiladi."
+      }
+    },
+    {
+      "word": "nurture",
+      "part_of_speech": "verb",
+      "transcription": "/ˈnɜrtʃər/",
+      "translation": "заботливо растить",
+      "translations": {
+        "ru": "заботливо растить",
+        "uz": "mehr bilan o'stirmoq"
+      },
+      "example": "She nurtured the orphaned kittens until they grew strong.",
+      "example_translations": {
+        "ru": "Она заботливо растила осиротевших котят, пока они не окрепли.",
+        "uz": "U yetim mushukchalarni kuchga to'lguncha mehr bilan o'stirdi."
+      }
+    },
+    {
+      "word": "gratitude",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgrætəˌtud/",
+      "translation": "благодарность",
+      "translations": {
+        "ru": "благодарность",
+        "uz": "minnatdorlik"
+      },
+      "example": "She expressed her gratitude with a handwritten note.",
+      "example_translations": {
+        "ru": "Она выразила благодарность запиской, написанной от руки.",
+        "uz": "U minnatdorligini qo'lda yozilgan xatcha bilan bildirdi."
+      }
+    },
+    {
+      "word": "heartfelt",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈhɑrtˌfɛlt/",
+      "translation": "сердечный, искренний",
+      "translations": {
+        "ru": "сердечный, искренний",
+        "uz": "samimiy, chin yurakdan"
+      },
+      "example": "Please accept my heartfelt thanks for your support.",
+      "example_translations": {
+        "ru": "Примите, пожалуйста, мою сердечную благодарность за вашу поддержку.",
+        "uz": "Qo'llab-quvvatlaganingiz uchun samimiy minnatdorligimni qabul qiling."
+      }
+    },
+    {
+      "word": "uplift",
+      "part_of_speech": "verb",
+      "transcription": "/ʌpˈlɪft/",
+      "translation": "воодушевлять, поднимать дух",
+      "translations": {
+        "ru": "воодушевлять, поднимать дух",
+        "uz": "ruhini ko'tarmoq"
+      },
+      "example": "Her kind words uplifted everyone after the defeat.",
+      "example_translations": {
+        "ru": "Её добрые слова воодушевили всех после поражения.",
+        "uz": "Mag'lubiyatdan so'ng uning iliq so'zlari hammaning ruhini ko'tardi."
+      }
+    }
+  ]
+}

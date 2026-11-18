@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 19,
+    "title": "Город и пространство",
+    "title_uz": "Shahar va makon"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Транспорт",
+    "title_uz": "Transport"
+  },
+  "words": [
+    {
+      "word": "transit",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtrænzɪt/",
+      "translation": "общественный транспорт",
+      "translations": {
+        "ru": "общественный транспорт",
+        "uz": "jamoat transporti"
+      },
+      "example": "Most commuters here rely on transit, not cars.",
+      "example_translations": {
+        "ru": "Большинство жителей ездят здесь на работу на общественном транспорте, а не на машинах.",
+        "uz": "Bu yerda ko'pchilik ishga mashinada emas, jamoat transportida qatnaydi."
+      }
+    },
+    {
+      "word": "haulage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɔlɪdʒ/",
+      "translation": "грузоперевозки",
+      "translations": {
+        "ru": "грузоперевозки",
+        "uz": "yuk tashish"
+      },
+      "example": "The haulage company owns two hundred trucks.",
+      "example_translations": {
+        "ru": "Компании, занимающейся грузоперевозками, принадлежит двести грузовиков.",
+        "uz": "Yuk tashish kompaniyasining ikki yuzta yuk mashinasi bor."
+      }
+    },
+    {
+      "word": "interchange",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪntərˌtʃeɪndʒ/",
+      "translation": "транспортная развязка",
+      "translations": {
+        "ru": "транспортная развязка",
+        "uz": "ko'p sathli chorraha"
+      },
+      "example": "Leave the highway at the next interchange.",
+      "example_translations": {
+        "ru": "Съезжайте с шоссе на следующей транспортной развязке.",
+        "uz": "Keyingi ko'p sathli chorrahada katta yo'ldan chiqing."
+      }
+    },
+    {
+      "word": "overpass",
+      "part_of_speech": "noun",
+      "transcription": "/ˈoʊvərˌpæs/",
+      "translation": "путепровод, эстакада",
+      "translations": {
+        "ru": "путепровод, эстакада",
+        "uz": "yo'l o'tkazgich"
+      },
+      "example": "Cars cross the railway on a new overpass.",
+      "example_translations": {
+        "ru": "Машины пересекают железную дорогу по новому путепроводу.",
+        "uz": "Mashinalar temir yo'l ustidan yangi yo'l o'tkazgich orqali o'tadi."
+      }
+    },
+    {
+      "word": "aviation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌeɪviˈeɪʃən/",
+      "translation": "авиация",
+      "translations": {
+        "ru": "авиация",
+        "uz": "aviatsiya"
+      },
+      "example": "Safety rules in aviation are extremely strict.",
+      "example_translations": {
+        "ru": "Правила безопасности в авиации чрезвычайно строги.",
+        "uz": "Aviatsiyada xavfsizlik qoidalari nihoyatda qat'iy."
+      }
+    },
+    {
+      "word": "maritime",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmɛrəˌtaɪm/",
+      "translation": "морской",
+      "translations": {
+        "ru": "морской",
+        "uz": "dengizga oid"
+      },
+      "example": "The museum displays maritime maps and ship models.",
+      "example_translations": {
+        "ru": "В музее выставлены морские карты и модели кораблей.",
+        "uz": "Muzeyda dengizga oid xaritalar va kema maketlari namoyish etilgan."
+      }
+    },
+    {
+      "word": "vessel",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvɛsəl/",
+      "translation": "судно",
+      "translations": {
+        "ru": "судно",
+        "uz": "kema"
+      },
+      "example": "The cargo vessel sailed slowly into the harbor.",
+      "example_translations": {
+        "ru": "Грузовое судно медленно вошло в гавань.",
+        "uz": "Yuk kemasi asta-sekin bandargohga kirib keldi."
+      }
+    },
+    {
+      "word": "locomotive",
+      "part_of_speech": "noun",
+      "transcription": "/ˌloʊkəˈmoʊtɪv/",
+      "translation": "локомотив",
+      "translations": {
+        "ru": "локомотив",
+        "uz": "lokomotiv"
+      },
+      "example": "A powerful locomotive pulled forty freight cars uphill.",
+      "example_translations": {
+        "ru": "Мощный локомотив тянул в гору сорок товарных вагонов.",
+        "uz": "Kuchli lokomotiv qirqta yuk vagonini tepalikka tortib chiqdi."
+      }
+    },
+    {
+      "word": "gridlock",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgrɪdˌlɑk/",
+      "translation": "полный затор",
+      "translations": {
+        "ru": "полный затор",
+        "uz": "to'liq tirbandlik"
+      },
+      "example": "The accident caused gridlock across the entire downtown.",
+      "example_translations": {
+        "ru": "Авария вызвала полный затор во всём центре города.",
+        "uz": "Avariya butun shahar markazida to'liq tirbandlikka sabab bo'ldi."
+      }
+    },
+    {
+      "word": "carpool",
+      "part_of_speech": "verb",
+      "transcription": "/ˈkɑrˌpul/",
+      "translation": "ездить вместе на одной машине",
+      "translations": {
+        "ru": "ездить вместе на одной машине",
+        "uz": "bir mashinada birga qatnamoq"
+      },
+      "example": "We carpool to work to save on fuel.",
+      "example_translations": {
+        "ru": "Мы ездим на работу вместе на одной машине, чтобы экономить на топливе.",
+        "uz": "Yoqilg'ini tejash uchun ishga bir mashinada birga qatnaymiz."
+      }
+    }
+  ]
+}

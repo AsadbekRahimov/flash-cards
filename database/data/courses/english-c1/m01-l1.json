@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 1,
+    "title": "Характер и личность",
+    "title_uz": "Xarakter va shaxs"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Достоинства",
+    "title_uz": "Yaxshi fazilatlar"
+  },
+  "words": [
+    {
+      "word": "conscientious",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌkɑnʃiˈɛnʃəs/",
+      "translation": "добросовестный",
+      "translations": {
+        "ru": "добросовестный",
+        "uz": "vijdonli"
+      },
+      "example": "A conscientious nurse checks every dose twice.",
+      "example_translations": {
+        "ru": "Добросовестная медсестра проверяет каждую дозу дважды.",
+        "uz": "Vijdonli hamshira har bir dozani ikki marta tekshiradi."
+      }
+    },
+    {
+      "word": "resourceful",
+      "part_of_speech": "adjective",
+      "transcription": "/rɪˈsɔrsfəl/",
+      "translation": "находчивый",
+      "translations": {
+        "ru": "находчивый",
+        "uz": "topqir"
+      },
+      "example": "Our resourceful guide fixed the tent with a belt.",
+      "example_translations": {
+        "ru": "Наш находчивый проводник починил палатку ремнём.",
+        "uz": "Topqir yo'lboshlovchimiz chodirni kamar bilan tuzatdi."
+      }
+    },
+    {
+      "word": "tenacious",
+      "part_of_speech": "adjective",
+      "transcription": "/təˈneɪʃəs/",
+      "translation": "упорный",
+      "translations": {
+        "ru": "упорный",
+        "uz": "qat'iyatli"
+      },
+      "example": "The tenacious reporter kept asking until she got answers.",
+      "example_translations": {
+        "ru": "Упорная журналистка продолжала спрашивать, пока не получила ответы.",
+        "uz": "Qat'iyatli jurnalist javob olmaguncha so'rayverdi."
+      }
+    },
+    {
+      "word": "versatile",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈvɜrsətəl/",
+      "translation": "разносторонний",
+      "translations": {
+        "ru": "разносторонний",
+        "uz": "serqirra"
+      },
+      "example": "A versatile actor can play heroes and villains.",
+      "example_translations": {
+        "ru": "Разносторонний актёр может играть и героев, и злодеев.",
+        "uz": "Serqirra aktyor ham qahramon, ham yovuz odam rolini o'ynay oladi."
+      }
+    },
+    {
+      "word": "meticulous",
+      "part_of_speech": "adjective",
+      "transcription": "/məˈtɪkjələs/",
+      "translation": "скрупулёзный",
+      "translations": {
+        "ru": "скрупулёзный",
+        "uz": "sinchkov"
+      },
+      "example": "She is meticulous and checks every tiny detail.",
+      "example_translations": {
+        "ru": "Она скрупулёзна и проверяет каждую мелочь.",
+        "uz": "U sinchkov va har bir mayda tafsilotni tekshiradi."
+      }
+    },
+    {
+      "word": "prudent",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈprudənt/",
+      "translation": "осмотрительный, благоразумный",
+      "translations": {
+        "ru": "осмотрительный, благоразумный",
+        "uz": "ehtiyotkor, tadbirli"
+      },
+      "example": "A prudent person saves money for hard times.",
+      "example_translations": {
+        "ru": "Осмотрительный человек откладывает деньги на трудные времена.",
+        "uz": "Ehtiyotkor odam qiyin kunlar uchun pul jamg'aradi."
+      }
+    },
+    {
+      "word": "candid",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkændɪd/",
+      "translation": "откровенный",
+      "translations": {
+        "ru": "откровенный",
+        "uz": "ochiq, ro'yirost"
+      },
+      "example": "I appreciate your candid opinion about my work.",
+      "example_translations": {
+        "ru": "Я ценю ваше откровенное мнение о моей работе.",
+        "uz": "Ishim haqidagi ochiq fikringizni qadrlayman."
+      }
+    },
+    {
+      "word": "tactful",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtæktfəl/",
+      "translation": "тактичный",
+      "translations": {
+        "ru": "тактичный",
+        "uz": "andishali"
+      },
+      "example": "A tactful friend never mentions your mistakes in public.",
+      "example_translations": {
+        "ru": "Тактичный друг никогда не упоминает о ваших ошибках при людях.",
+        "uz": "Andishali do'st xatolaringizni hech qachon odamlar oldida aytmaydi."
+      }
+    },
+    {
+      "word": "benevolent",
+      "part_of_speech": "adjective",
+      "transcription": "/bəˈnɛvələnt/",
+      "translation": "благожелательный, добрый",
+      "translations": {
+        "ru": "благожелательный, добрый",
+        "uz": "xayrixoh, mehribon"
+      },
+      "example": "The benevolent old teacher helped poor students for free.",
+      "example_translations": {
+        "ru": "Благожелательный старый учитель бесплатно помогал бедным ученикам.",
+        "uz": "Xayrixoh keksa o'qituvchi kambag'al o'quvchilarga bepul yordam berardi."
+      }
+    },
+    {
+      "word": "steadfast",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈstɛdˌfæst/",
+      "translation": "непоколебимый, стойкий",
+      "translations": {
+        "ru": "непоколебимый, стойкий",
+        "uz": "sobitqadam"
+      },
+      "example": "He remained steadfast despite all the pressure.",
+      "example_translations": {
+        "ru": "Он оставался непоколебимым, несмотря на всё давление.",
+        "uz": "Barcha bosimlarga qaramay, u sobitqadam bo'lib qoldi."
+      }
+    }
+  ]
+}

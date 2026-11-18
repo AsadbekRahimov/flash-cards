@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 4,
+    "title": "Бизнес и управление",
+    "title_uz": "Biznes va boshqaruv"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Управление и контроль",
+    "title_uz": "Boshqaruv va nazorat"
+  },
+  "words": [
+    {
+      "word": "governance",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgʌvərnəns/",
+      "translation": "система управления",
+      "translations": {
+        "ru": "система управления",
+        "uz": "boshqaruv tizimi"
+      },
+      "example": "Good governance protects a company from costly scandals.",
+      "example_translations": {
+        "ru": "Хорошая система управления защищает компанию от дорогостоящих скандалов.",
+        "uz": "Yaxshi boshqaruv tizimi kompaniyani qimmatga tushadigan janjallardan himoya qiladi."
+      }
+    },
+    {
+      "word": "oversight",
+      "part_of_speech": "noun",
+      "transcription": "/ˈoʊvərˌsaɪt/",
+      "translation": "надзор",
+      "translations": {
+        "ru": "надзор",
+        "uz": "nazorat"
+      },
+      "example": "An independent board provides oversight of the fund.",
+      "example_translations": {
+        "ru": "Независимый совет осуществляет надзор за фондом.",
+        "uz": "Mustaqil kengash jamg'arma ustidan nazoratni amalga oshiradi."
+      }
+    },
+    {
+      "word": "directive",
+      "part_of_speech": "noun",
+      "transcription": "/dəˈrɛktɪv/",
+      "translation": "директива, официальное указание",
+      "translations": {
+        "ru": "директива, официальное указание",
+        "uz": "rasmiy ko'rsatma"
+      },
+      "example": "Head office issued a directive banning overtime.",
+      "example_translations": {
+        "ru": "Головной офис издал директиву, запрещающую сверхурочные.",
+        "uz": "Bosh ofis qo'shimcha ish soatlarini taqiqlovchi rasmiy ko'rsatma chiqardi."
+      }
+    },
+    {
+      "word": "discretion",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈskrɛʃən/",
+      "translation": "усмотрение, право решать",
+      "translations": {
+        "ru": "усмотрение, право решать",
+        "uz": "ixtiyor, hal qilish huquqi"
+      },
+      "example": "Managers have discretion over how to spend the budget.",
+      "example_translations": {
+        "ru": "Руководители вправе по своему усмотрению решать, как тратить бюджет.",
+        "uz": "Rahbarlar budjetni qanday sarflashni o'z ixtiyoriga ko'ra hal qiladi."
+      }
+    },
+    {
+      "word": "contingency",
+      "part_of_speech": "noun",
+      "transcription": "/kənˈtɪndʒənsi/",
+      "translation": "непредвиденное обстоятельство",
+      "translations": {
+        "ru": "непредвиденное обстоятельство",
+        "uz": "kutilmagan holat"
+      },
+      "example": "We keep extra funds for any contingency.",
+      "example_translations": {
+        "ru": "Мы держим дополнительные средства на случай любого непредвиденного обстоятельства.",
+        "uz": "Har qanday kutilmagan holat uchun qo'shimcha mablag' saqlaymiz."
+      }
+    },
+    {
+      "word": "feasibility",
+      "part_of_speech": "noun",
+      "transcription": "/ˌfizəˈbɪləti/",
+      "translation": "осуществимость",
+      "translations": {
+        "ru": "осуществимость",
+        "uz": "amalga oshirish mumkinligi"
+      },
+      "example": "Engineers are studying the feasibility of a new bridge.",
+      "example_translations": {
+        "ru": "Инженеры изучают осуществимость строительства нового моста.",
+        "uz": "Muhandislar yangi ko'prik qurish loyihasini amalga oshirish mumkinligini o'rganmoqda."
+      }
+    },
+    {
+      "word": "implementation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪmpləmənˈteɪʃən/",
+      "translation": "внедрение",
+      "translations": {
+        "ru": "внедрение",
+        "uz": "joriy etish"
+      },
+      "example": "Implementation of the new system took six months.",
+      "example_translations": {
+        "ru": "Внедрение новой системы заняло шесть месяцев.",
+        "uz": "Yangi tizimni joriy etish olti oy davom etdi."
+      }
+    },
+    {
+      "word": "consultation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑnsəlˈteɪʃən/",
+      "translation": "консультация, обсуждение",
+      "translations": {
+        "ru": "консультация, обсуждение",
+        "uz": "maslahatlashuv"
+      },
+      "example": "The plan changed after consultation with the staff.",
+      "example_translations": {
+        "ru": "План изменился после консультаций с персоналом.",
+        "uz": "Xodimlar bilan maslahatlashuvdan so'ng reja o'zgardi."
+      }
+    },
+    {
+      "word": "scrutiny",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskrutəni/",
+      "translation": "тщательная проверка",
+      "translations": {
+        "ru": "тщательная проверка",
+        "uz": "sinchkov tekshiruv"
+      },
+      "example": "The merger faces scrutiny from auditors and regulators.",
+      "example_translations": {
+        "ru": "Слияние проходит тщательную проверку аудиторов и регуляторов.",
+        "uz": "Qo'shilish auditorlar va nazorat organlari tomonidan sinchkov tekshiruvdan o'tmoqda."
+      }
+    },
+    {
+      "word": "transparency",
+      "part_of_speech": "noun",
+      "transcription": "/trænsˈpɛrənsi/",
+      "translation": "прозрачность",
+      "translations": {
+        "ru": "прозрачность",
+        "uz": "shaffoflik"
+      },
+      "example": "Publishing all salaries increased transparency inside the firm.",
+      "example_translations": {
+        "ru": "Публикация всех зарплат повысила прозрачность внутри фирмы.",
+        "uz": "Barcha maoshlarni e'lon qilish firma ichidagi shaffoflikni oshirdi."
+      }
+    }
+  ]
+}

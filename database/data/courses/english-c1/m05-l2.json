@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 5,
+    "title": "Экономика и финансы",
+    "title_uz": "Iqtisodiyot va moliya"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Инвестиции",
+    "title_uz": "Investitsiyalar"
+  },
+  "words": [
+    {
+      "word": "equity",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛkwəti/",
+      "translation": "акционерный капитал",
+      "translations": {
+        "ru": "акционерный капитал",
+        "uz": "aksiyadorlik kapitali"
+      },
+      "example": "Investors received equity in exchange for their money.",
+      "example_translations": {
+        "ru": "Инвесторы получили долю в акционерном капитале в обмен на свои деньги.",
+        "uz": "Investorlar pullari evaziga aksiyadorlik kapitalidan ulush oldilar."
+      }
+    },
+    {
+      "word": "yield",
+      "part_of_speech": "noun",
+      "transcription": "/jild/",
+      "translation": "доходность",
+      "translations": {
+        "ru": "доходность",
+        "uz": "daromadlilik"
+      },
+      "example": "These bonds offer a yield of four percent.",
+      "example_translations": {
+        "ru": "Эти облигации дают доходность в четыре процента.",
+        "uz": "Bu obligatsiyalar to'rt foizlik daromadlilikni ta'minlaydi."
+      }
+    },
+    {
+      "word": "volatility",
+      "part_of_speech": "noun",
+      "transcription": "/ˌvɑləˈtɪləti/",
+      "translation": "волатильность, изменчивость",
+      "translations": {
+        "ru": "волатильность, изменчивость",
+        "uz": "o'zgaruvchanlik"
+      },
+      "example": "Market volatility makes share prices swing wildly.",
+      "example_translations": {
+        "ru": "Из-за волатильности рынка цены акций резко колеблются.",
+        "uz": "Bozorning o'zgaruvchanligi tufayli aksiya narxlari keskin tebranadi."
+      }
+    },
+    {
+      "word": "hedge",
+      "part_of_speech": "verb",
+      "transcription": "/hɛdʒ/",
+      "translation": "страховать риски, хеджировать",
+      "translations": {
+        "ru": "страховать риски, хеджировать",
+        "uz": "xatarni sug'urtalamoq"
+      },
+      "example": "Farmers hedge against falling prices with futures contracts.",
+      "example_translations": {
+        "ru": "Фермеры страхуют риски падения цен с помощью фьючерсных контрактов.",
+        "uz": "Fermerlar fyuchers shartnomalari yordamida narx tushishi xatarini sug'urtalaydi."
+      }
+    },
+    {
+      "word": "liquidity",
+      "part_of_speech": "noun",
+      "transcription": "/lɪˈkwɪdəti/",
+      "translation": "ликвидность",
+      "translations": {
+        "ru": "ликвидность",
+        "uz": "likvidlik"
+      },
+      "example": "Banks need liquidity to meet sudden withdrawals.",
+      "example_translations": {
+        "ru": "Банкам нужна ликвидность, чтобы покрывать внезапное снятие вкладов.",
+        "uz": "Banklarga omonatlar to'satdan yechib olinganda to'lash uchun likvidlik kerak."
+      }
+    },
+    {
+      "word": "collateral",
+      "part_of_speech": "noun",
+      "transcription": "/kəˈlætərəl/",
+      "translation": "залог, обеспечение",
+      "translations": {
+        "ru": "залог, обеспечение",
+        "uz": "garov"
+      },
+      "example": "She offered her house as collateral for the loan.",
+      "example_translations": {
+        "ru": "Она предложила свой дом в качестве залога по кредиту.",
+        "uz": "U kredit uchun uyini garov sifatida taklif qildi."
+      }
+    },
+    {
+      "word": "depreciation",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˌpriʃiˈeɪʃən/",
+      "translation": "обесценивание",
+      "translations": {
+        "ru": "обесценивание",
+        "uz": "qadrsizlanish"
+      },
+      "example": "Depreciation of the currency made imports more expensive.",
+      "example_translations": {
+        "ru": "Обесценивание валюты сделало импорт дороже.",
+        "uz": "Valyutaning qadrsizlanishi importni qimmatlashtirdi."
+      }
+    },
+    {
+      "word": "valuation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌvæljuˈeɪʃən/",
+      "translation": "оценка стоимости",
+      "translations": {
+        "ru": "оценка стоимости",
+        "uz": "qiymatni baholash"
+      },
+      "example": "The valuation put the company at two billion dollars.",
+      "example_translations": {
+        "ru": "Оценка стоимости показала, что компания стоит два миллиарда долларов.",
+        "uz": "Qiymatni baholash kompaniya ikki milliard dollar turishini ko'rsatdi."
+      }
+    },
+    {
+      "word": "speculation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌspɛkjəˈleɪʃən/",
+      "translation": "биржевая спекуляция",
+      "translations": {
+        "ru": "биржевая спекуляция",
+        "uz": "birja chayqovchiligi"
+      },
+      "example": "Speculation in oil futures drove prices sharply higher.",
+      "example_translations": {
+        "ru": "Биржевая спекуляция нефтяными фьючерсами резко подняла цены.",
+        "uz": "Neft fyucherslari bilan birja chayqovchiligi narxlarni keskin oshirdi."
+      }
+    },
+    {
+      "word": "underwrite",
+      "part_of_speech": "verb",
+      "transcription": "/ˈʌndərˌraɪt/",
+      "translation": "гарантировать размещение",
+      "translations": {
+        "ru": "гарантировать размещение",
+        "uz": "joylashtirishni kafolatlamoq"
+      },
+      "example": "Two banks agreed to underwrite the share issue.",
+      "example_translations": {
+        "ru": "Два банка согласились гарантировать размещение выпуска акций.",
+        "uz": "Ikki bank chiqarilgan aksiyalarni joylashtirishni kafolatlashga rozi bo'ldi."
+      }
+    }
+  ]
+}

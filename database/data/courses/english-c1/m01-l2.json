@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 1,
+    "title": "Характер и личность",
+    "title_uz": "Xarakter va shaxs"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Недостатки",
+    "title_uz": "Salbiy xislatlar"
+  },
+  "words": [
+    {
+      "word": "abrasive",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈbreɪsɪv/",
+      "translation": "резкий, грубый",
+      "translations": {
+        "ru": "резкий, грубый",
+        "uz": "dag'al, qo'pol"
+      },
+      "example": "His abrasive manner upsets everyone in meetings.",
+      "example_translations": {
+        "ru": "Его резкая манера общения расстраивает всех на совещаниях.",
+        "uz": "Uning dag'al muomalasi yig'ilishlarda hammani xafa qiladi."
+      }
+    },
+    {
+      "word": "hypocritical",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌhɪpəˈkrɪtɪkəl/",
+      "translation": "лицемерный",
+      "translations": {
+        "ru": "лицемерный",
+        "uz": "ikkiyuzlamachi"
+      },
+      "example": "Her hypocritical boss demands honesty but lies himself.",
+      "example_translations": {
+        "ru": "Её лицемерный начальник требует честности, а сам лжёт.",
+        "uz": "Uning ikkiyuzlamachi boshlig'i halollikni talab qiladi-yu, o'zi yolg'on gapiradi."
+      }
+    },
+    {
+      "word": "deceitful",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈsitfəl/",
+      "translation": "лживый",
+      "translations": {
+        "ru": "лживый",
+        "uz": "aldamchi"
+      },
+      "example": "The deceitful seller hid the car's real problems.",
+      "example_translations": {
+        "ru": "Лживый продавец скрыл настоящие неисправности машины.",
+        "uz": "Aldamchi sotuvchi mashinaning haqiqiy nosozliklarini yashirdi."
+      }
+    },
+    {
+      "word": "vain",
+      "part_of_speech": "adjective",
+      "transcription": "/veɪn/",
+      "translation": "самовлюблённый, тщеславный",
+      "translations": {
+        "ru": "самовлюблённый, тщеславный",
+        "uz": "o'ziga bino qo'ygan"
+      },
+      "example": "He is so vain that he checks every mirror.",
+      "example_translations": {
+        "ru": "Он настолько самовлюблённый, что смотрится в каждое зеркало.",
+        "uz": "U shunchalik o'ziga bino qo'yganki, har bir oynaga qaraydi."
+      }
+    },
+    {
+      "word": "petty",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpɛti/",
+      "translation": "мелочный",
+      "translations": {
+        "ru": "мелочный",
+        "uz": "maydakash"
+      },
+      "example": "Don't be petty; it was only one cookie.",
+      "example_translations": {
+        "ru": "Не будьте мелочным: это было всего одно печенье.",
+        "uz": "Maydakash bo'lmang: bu bor-yo'g'i bitta pechenye edi."
+      }
+    },
+    {
+      "word": "callous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkæləs/",
+      "translation": "чёрствый, бездушный",
+      "translations": {
+        "ru": "чёрствый, бездушный",
+        "uz": "bag'ritosh"
+      },
+      "example": "Only a callous person ignores a crying child.",
+      "example_translations": {
+        "ru": "Только чёрствый человек не обратит внимания на плачущего ребёнка.",
+        "uz": "Faqat bag'ritosh odamgina yig'layotgan bolaga e'tibor bermaydi."
+      }
+    },
+    {
+      "word": "devious",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdiviəs/",
+      "translation": "коварный, изворотливый",
+      "translations": {
+        "ru": "коварный, изворотливый",
+        "uz": "makkor, hiylakor"
+      },
+      "example": "She used a devious plan to get his job.",
+      "example_translations": {
+        "ru": "Она воспользовалась коварным планом, чтобы занять его должность.",
+        "uz": "U uning lavozimini egallash uchun makkorona rejadan foydalandi."
+      }
+    },
+    {
+      "word": "spiteful",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈspaɪtfəl/",
+      "translation": "злобный, язвительный",
+      "translations": {
+        "ru": "злобный, язвительный",
+        "uz": "g'arazli"
+      },
+      "example": "She wrote a spiteful comment to hurt her rival.",
+      "example_translations": {
+        "ru": "Она написала злобный комментарий, чтобы задеть соперницу.",
+        "uz": "U raqibining ko'ngliga tegish uchun g'arazli izoh yozdi."
+      }
+    },
+    {
+      "word": "complacent",
+      "part_of_speech": "adjective",
+      "transcription": "/kəmˈpleɪsənt/",
+      "translation": "самоуспокоенный, самодовольный",
+      "translations": {
+        "ru": "самоуспокоенный, самодовольный",
+        "uz": "xotirjamlikka berilgan"
+      },
+      "example": "After three wins, the team became complacent and lost.",
+      "example_translations": {
+        "ru": "После трёх побед команда стала самоуспокоенной и проиграла.",
+        "uz": "Uch g'alabadan so'ng jamoa xotirjamlikka berilib, yutqazdi."
+      }
+    },
+    {
+      "word": "obnoxious",
+      "part_of_speech": "adjective",
+      "transcription": "/əbˈnɑkʃəs/",
+      "translation": "несносный, противный",
+      "translations": {
+        "ru": "несносный, противный",
+        "uz": "o'ta yoqimsiz"
+      },
+      "example": "That obnoxious passenger shouted at the staff all flight.",
+      "example_translations": {
+        "ru": "Тот несносный пассажир весь полёт кричал на персонал.",
+        "uz": "O'sha o'ta yoqimsiz yo'lovchi butun parvoz davomida xodimlarga baqirdi."
+      }
+    }
+  ]
+}

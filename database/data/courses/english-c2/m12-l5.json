@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 12,
+    "title": "Точные и естественные науки",
+    "title_uz": "Aniq va tabiiy fanlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Математика",
+    "title_uz": "Matematika"
+  },
+  "words": [
+    {
+      "word": "theorem",
+      "part_of_speech": "noun",
+      "transcription": "/ˈθiərəm/",
+      "translation": "теорема",
+      "translations": {
+        "ru": "теорема",
+        "uz": "teorema"
+      },
+      "example": "Every theorem must be proved by strict logic.",
+      "example_translations": {
+        "ru": "Каждая теорема должна быть доказана строгой логикой.",
+        "uz": "Har bir teorema qat'iy mantiq bilan isbotlanishi kerak."
+      }
+    },
+    {
+      "word": "logarithm",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɔgəˌrɪðəm/",
+      "translation": "логарифм",
+      "translations": {
+        "ru": "логарифм",
+        "uz": "logarifm"
+      },
+      "example": "The logarithm of 100 to base ten is two.",
+      "example_translations": {
+        "ru": "Логарифм числа 100 по основанию десять равен двум.",
+        "uz": "100 sonining o'n asosga ko'ra logarifmi ikkiga teng."
+      }
+    },
+    {
+      "word": "exponential",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɛkspəˈnɛnʃəl/",
+      "translation": "экспоненциальный",
+      "translations": {
+        "ru": "экспоненциальный",
+        "uz": "eksponensial"
+      },
+      "example": "Exponential growth means doubling again and again.",
+      "example_translations": {
+        "ru": "Экспоненциальный рост означает удвоение снова и снова.",
+        "uz": "Eksponensial o'sish qayta-qayta ikki baravar ko'payishni anglatadi."
+      }
+    },
+    {
+      "word": "permutation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌpɜrmjuˈteɪʃən/",
+      "translation": "перестановка",
+      "translations": {
+        "ru": "перестановка",
+        "uz": "o'rin almashtirish"
+      },
+      "example": "Each permutation arranges the same letters differently.",
+      "example_translations": {
+        "ru": "Каждая перестановка располагает одни и те же буквы по-разному.",
+        "uz": "Har bir o'rin almashtirish bir xil harflarni turlicha joylashtiradi."
+      }
+    },
+    {
+      "word": "stochastic",
+      "part_of_speech": "adjective",
+      "transcription": "/stəˈkæstɪk/",
+      "translation": "стохастический, случайный",
+      "translations": {
+        "ru": "стохастический, случайный",
+        "uz": "stoxastik, tasodifiy"
+      },
+      "example": "Stochastic models include chance, so outcomes vary randomly.",
+      "example_translations": {
+        "ru": "Стохастические модели учитывают случайность, поэтому результаты меняются непредсказуемо.",
+        "uz": "Stoxastik modellar tasodifni hisobga oladi, shuning uchun natijalar har xil chiqadi."
+      }
+    },
+    {
+      "word": "integer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪntədʒər/",
+      "translation": "целое число",
+      "translations": {
+        "ru": "целое число",
+        "uz": "butun son"
+      },
+      "example": "Seven is an integer, but 7.5 is not.",
+      "example_translations": {
+        "ru": "Семь — целое число, а 7,5 — нет.",
+        "uz": "Yetti — butun son, 7,5 esa unday emas."
+      }
+    },
+    {
+      "word": "vector",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvɛktər/",
+      "translation": "вектор",
+      "translations": {
+        "ru": "вектор",
+        "uz": "vektor"
+      },
+      "example": "A vector has both a length and a direction.",
+      "example_translations": {
+        "ru": "У вектора есть и длина, и направление.",
+        "uz": "Vektor ham uzunlikka, ham yo'nalishga ega."
+      }
+    },
+    {
+      "word": "matrix",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmeɪtrɪks/",
+      "translation": "матрица",
+      "translations": {
+        "ru": "матрица",
+        "uz": "matritsa"
+      },
+      "example": "This matrix has three rows and four columns.",
+      "example_translations": {
+        "ru": "В этой матрице три строки и четыре столбца.",
+        "uz": "Bu matritsada uchta satr va to'rtta ustun bor."
+      }
+    },
+    {
+      "word": "symmetry",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪmətri/",
+      "translation": "симметрия",
+      "translations": {
+        "ru": "симметрия",
+        "uz": "simmetriya"
+      },
+      "example": "A circle has perfect symmetry around its center.",
+      "example_translations": {
+        "ru": "У круга идеальная симметрия относительно центра.",
+        "uz": "Doira markaziga nisbatan mukammal simmetriyaga ega."
+      }
+    },
+    {
+      "word": "interpolate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈtɜrpəˌleɪt/",
+      "translation": "интерполировать",
+      "translations": {
+        "ru": "интерполировать",
+        "uz": "interpolyatsiya qilmoq"
+      },
+      "example": "We interpolated the missing values between two known points.",
+      "example_translations": {
+        "ru": "Мы интерполировали недостающие значения между двумя известными точками.",
+        "uz": "Ikki ma'lum nuqta orasidagi yetishmayotgan qiymatlarni interpolyatsiya qildik."
+      }
+    }
+  ]
+}

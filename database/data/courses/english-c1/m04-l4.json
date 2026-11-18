@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 4,
+    "title": "Бизнес и управление",
+    "title_uz": "Biznes va boshqaruv"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Переговоры и сделки",
+    "title_uz": "Muzokara va bitimlar"
+  },
+  "words": [
+    {
+      "word": "concession",
+      "part_of_speech": "noun",
+      "transcription": "/kənˈsɛʃən/",
+      "translation": "уступка",
+      "translations": {
+        "ru": "уступка",
+        "uz": "yon berish"
+      },
+      "example": "Each side made a concession to close the deal.",
+      "example_translations": {
+        "ru": "Каждая сторона пошла на уступку, чтобы заключить сделку.",
+        "uz": "Bitim tuzish uchun har bir tomon yon berishga rozi bo'ldi."
+      }
+    },
+    {
+      "word": "leverage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɛvərɪdʒ/",
+      "translation": "рычаг влияния",
+      "translations": {
+        "ru": "рычаг влияния",
+        "uz": "ta'sir dastagi"
+      },
+      "example": "Being their only supplier gives us leverage in talks.",
+      "example_translations": {
+        "ru": "То, что мы их единственный поставщик, даёт нам рычаг влияния на переговорах.",
+        "uz": "Ularning yagona ta'minotchisi ekanimiz muzokaralarda bizga ta'sir dastagi beradi."
+      }
+    },
+    {
+      "word": "stalemate",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsteɪlˌmeɪt/",
+      "translation": "тупик, патовая ситуация",
+      "translations": {
+        "ru": "тупик, патовая ситуация",
+        "uz": "boshi berk holat"
+      },
+      "example": "Talks ended in stalemate because neither side would compromise.",
+      "example_translations": {
+        "ru": "Переговоры зашли в тупик, потому что ни одна сторона не шла на компромисс.",
+        "uz": "Hech bir tomon murosaga bormagani uchun muzokaralar boshi berk holatga tushdi."
+      }
+    },
+    {
+      "word": "ultimatum",
+      "part_of_speech": "noun",
+      "transcription": "/ˌʌltəˈmeɪtəm/",
+      "translation": "ультиматум",
+      "translations": {
+        "ru": "ультиматум",
+        "uz": "ultimatum"
+      },
+      "example": "They issued an ultimatum: accept by Friday or leave.",
+      "example_translations": {
+        "ru": "Они выдвинули ультиматум: согласиться до пятницы или уйти.",
+        "uz": "Ular ultimatum qo'ydi: juma kunigacha rozi bo'lish yoki ketish."
+      }
+    },
+    {
+      "word": "proposition",
+      "part_of_speech": "noun",
+      "transcription": "/ˌprɑpəˈzɪʃən/",
+      "translation": "деловое предложение",
+      "translations": {
+        "ru": "деловое предложение",
+        "uz": "tijoriy taklif"
+      },
+      "example": "Opening a joint store was an attractive proposition.",
+      "example_translations": {
+        "ru": "Открытие совместного магазина было привлекательным деловым предложением.",
+        "uz": "Qo'shma do'kon ochish jozibali tijoriy taklif edi."
+      }
+    },
+    {
+      "word": "stipulate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈstɪpjəˌleɪt/",
+      "translation": "оговаривать, предусматривать",
+      "translations": {
+        "ru": "оговаривать, предусматривать",
+        "uz": "shart qilib belgilamoq"
+      },
+      "example": "The contract stipulates payment within thirty days.",
+      "example_translations": {
+        "ru": "Договор оговаривает оплату в течение тридцати дней.",
+        "uz": "Shartnoma to'lovni o'ttiz kun ichida amalga oshirishni shart qilib belgilaydi."
+      }
+    },
+    {
+      "word": "procurement",
+      "part_of_speech": "noun",
+      "transcription": "/prəˈkjʊrmənt/",
+      "translation": "закупка",
+      "translations": {
+        "ru": "закупка",
+        "uz": "xarid"
+      },
+      "example": "She manages procurement of all office equipment.",
+      "example_translations": {
+        "ru": "Она руководит закупкой всего офисного оборудования.",
+        "uz": "U barcha ofis jihozlari xaridini boshqaradi."
+      }
+    },
+    {
+      "word": "haggle",
+      "part_of_speech": "verb",
+      "transcription": "/ˈhægəl/",
+      "translation": "торговаться",
+      "translations": {
+        "ru": "торговаться",
+        "uz": "savdolashmoq"
+      },
+      "example": "We haggled over the price for an hour.",
+      "example_translations": {
+        "ru": "Мы целый час торговались из-за цены.",
+        "uz": "Biz narx ustida bir soat savdolashdik."
+      }
+    },
+    {
+      "word": "intermediary",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪntərˈmidiˌɛri/",
+      "translation": "посредник",
+      "translations": {
+        "ru": "посредник",
+        "uz": "vositachi"
+      },
+      "example": "An intermediary carried offers between the two companies.",
+      "example_translations": {
+        "ru": "Посредник передавал предложения между двумя компаниями.",
+        "uz": "Vositachi ikki kompaniya o'rtasida takliflarni yetkazib turdi."
+      }
+    },
+    {
+      "word": "tender",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɛndər/",
+      "translation": "тендер",
+      "translations": {
+        "ru": "тендер",
+        "uz": "tender"
+      },
+      "example": "The city announced a tender for new buses.",
+      "example_translations": {
+        "ru": "Город объявил тендер на поставку новых автобусов.",
+        "uz": "Shahar yangi avtobuslar yetkazib berish uchun tender e'lon qildi."
+      }
+    }
+  ]
+}

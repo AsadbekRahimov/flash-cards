@@ -135,9 +135,11 @@ final class DailyCaravanService
      * The block `game` of `GET /today` (docs/04 A.2a): nothing is read while the game is closed; `available` is the answer of `GameAccess` (the config and the learner's pilot mark, no query). `class_caravan` (G2.9b) is the card of
      * the caravan of the learner's class that is on its way (one more read), the same as on the map.
      *
+     * @param  bool  $inGroup  whether the learner is an active member of an active Telegram group at all (the caller knows it from its
+     *                         snapshot, docs/19 K10): a caravan of a class belongs to a group, so without one the card is null and costs no read
      * @return array{available: bool, daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, class_caravan: array{id: int, stars_total: int, target_stars: int, ends_at: string}|null}
      */
-    public function todayBlock(Learner $learner, CarbonImmutable $now, int $dueCount): array
+    public function todayBlock(Learner $learner, CarbonImmutable $now, int $dueCount, bool $inGroup = true): array
     {
         if (! $this->access->state($learner)->isAvailable()) {
             return ['available' => false, 'daily_available' => false, 'active_run' => null, 'class_caravan' => null];
@@ -149,7 +151,7 @@ final class DailyCaravanService
             'available' => true,
             'daily_available' => $state['daily']['available'],
             'active_run' => $state['active_run'],
-            'class_caravan' => $this->classCaravans->activeCardFor($learner, $now),
+            'class_caravan' => $inGroup ? $this->classCaravans->activeCardFor($learner, $now) : null,
         ];
     }
 

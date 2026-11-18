@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 7,
+    "title": "Художественное описание",
+    "title_uz": "Badiiy tasvir"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Облик человека",
+    "title_uz": "Inson qiyofasi"
+  },
+  "words": [
+    {
+      "word": "countenance",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkaʊntənəns/",
+      "translation": "выражение лица, лик",
+      "translations": {
+        "ru": "выражение лица, лик",
+        "uz": "chehra, yuz ifodasi"
+      },
+      "example": "Her calm countenance reassured the frightened passengers.",
+      "example_translations": {
+        "ru": "Спокойное выражение её лица успокоило испуганных пассажиров.",
+        "uz": "Uning xotirjam chehrasi qo'rqib ketgan yo'lovchilarni tinchlantirdi."
+      }
+    },
+    {
+      "word": "demeanor",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈminər/",
+      "translation": "манера держаться",
+      "translations": {
+        "ru": "манера держаться",
+        "uz": "o'zini tutish"
+      },
+      "example": "His polite demeanor impressed everyone at the interview.",
+      "example_translations": {
+        "ru": "Его вежливая манера держаться произвела впечатление на всех на собеседовании.",
+        "uz": "Uning o'zini xushmuomala tutishi suhbatda hammada yaxshi taassurot qoldirdi."
+      }
+    },
+    {
+      "word": "physique",
+      "part_of_speech": "noun",
+      "transcription": "/fəˈzik/",
+      "translation": "телосложение",
+      "translations": {
+        "ru": "телосложение",
+        "uz": "gavda tuzilishi"
+      },
+      "example": "Years of swimming gave him a powerful physique.",
+      "example_translations": {
+        "ru": "Годы занятий плаванием дали ему мощное телосложение.",
+        "uz": "Yillar davomida suzish bilan shug'ullanib, u baquvvat gavda tuzilishiga ega bo'ldi."
+      }
+    },
+    {
+      "word": "gait",
+      "part_of_speech": "noun",
+      "transcription": "/geɪt/",
+      "translation": "походка",
+      "translations": {
+        "ru": "походка",
+        "uz": "yurish tarzi"
+      },
+      "example": "I recognized Grandpa by his slow, uneven gait.",
+      "example_translations": {
+        "ru": "Я узнал дедушку по его медленной неровной походке.",
+        "uz": "Bobomni sekin, notekis yurish tarzidan tanidim."
+      }
+    },
+    {
+      "word": "stature",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstætʃər/",
+      "translation": "рост",
+      "translations": {
+        "ru": "рост",
+        "uz": "bo'y, bo'y-bast"
+      },
+      "example": "Despite her small stature, Malika plays basketball brilliantly.",
+      "example_translations": {
+        "ru": "Несмотря на небольшой рост, Малика блестяще играет в баскетбол.",
+        "uz": "Past bo'yiga qaramay, Malika basketbolni a'lo darajada o'ynaydi."
+      }
+    },
+    {
+      "word": "complexion",
+      "part_of_speech": "noun",
+      "transcription": "/kəmˈplɛkʃən/",
+      "translation": "цвет лица",
+      "translations": {
+        "ru": "цвет лица",
+        "uz": "yuz rangi"
+      },
+      "example": "Fresh mountain air gave her a rosy complexion.",
+      "example_translations": {
+        "ru": "От свежего горного воздуха у неё появился румяный цвет лица.",
+        "uz": "Toza tog' havosi uning yuz rangini gulgun qildi."
+      }
+    },
+    {
+      "word": "gaunt",
+      "part_of_speech": "adjective",
+      "transcription": "/gɔnt/",
+      "translation": "исхудалый, костлявый",
+      "translations": {
+        "ru": "исхудалый, костлявый",
+        "uz": "ozib-to'zgan"
+      },
+      "example": "After the long illness he looked gaunt.",
+      "example_translations": {
+        "ru": "После долгой болезни он выглядел исхудалым.",
+        "uz": "Uzoq kasallikdan so'ng u ozib-to'zgan ko'rinardi."
+      }
+    },
+    {
+      "word": "haggard",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈhægərd/",
+      "translation": "осунувшийся, измученный",
+      "translations": {
+        "ru": "осунувшийся, измученный",
+        "uz": "so'lg'in, horg'in"
+      },
+      "example": "Sleepless nights had left the nurse looking haggard.",
+      "example_translations": {
+        "ru": "После бессонных ночей медсестра выглядела осунувшейся и измученной.",
+        "uz": "Uyqusiz tunlardan so'ng hamshira so'lg'in va horg'in ko'rinardi."
+      }
+    },
+    {
+      "word": "disheveled",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈʃɛvəld/",
+      "translation": "растрёпанный",
+      "translations": {
+        "ru": "растрёпанный",
+        "uz": "to'zg'igan, pala-partish"
+      },
+      "example": "He woke up late and arrived looking disheveled.",
+      "example_translations": {
+        "ru": "Он поздно проснулся и пришёл растрёпанным.",
+        "uz": "U kech uyg'onib, to'zg'igan, pala-partish holda yetib keldi."
+      }
+    },
+    {
+      "word": "immaculate",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈmækjələt/",
+      "translation": "безупречно чистый",
+      "translations": {
+        "ru": "безупречно чистый",
+        "uz": "top-toza, benuqson"
+      },
+      "example": "The waiter wore an immaculate white shirt.",
+      "example_translations": {
+        "ru": "На официанте была безупречно чистая белая рубашка.",
+        "uz": "Ofitsiant top-toza, benuqson oq ko'ylak kiygan edi."
+      }
+    }
+  ]
+}

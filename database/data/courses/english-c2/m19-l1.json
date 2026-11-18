@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 19,
+    "title": "Искусство и эстетика",
+    "title_uz": "San'at va estetika"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Красота и вкус",
+    "title_uz": "Go'zallik va did"
+  },
+  "words": [
+    {
+      "word": "sublime",
+      "part_of_speech": "adjective",
+      "transcription": "/səˈblaɪm/",
+      "translation": "возвышенный, величественный",
+      "translations": {
+        "ru": "возвышенный, величественный",
+        "uz": "yuksak, ulug'vor"
+      },
+      "example": "The sublime mountain view left us speechless.",
+      "example_translations": {
+        "ru": "Величественный горный вид лишил нас дара речи.",
+        "uz": "Ulug'vor tog' manzarasi bizni lol qoldirdi."
+      }
+    },
+    {
+      "word": "grotesque",
+      "part_of_speech": "adjective",
+      "transcription": "/groʊˈtɛsk/",
+      "translation": "гротескный, уродливо-причудливый",
+      "translations": {
+        "ru": "гротескный, уродливо-причудливый",
+        "uz": "grotesk, badbashara"
+      },
+      "example": "Grotesque stone faces stared down from the roof.",
+      "example_translations": {
+        "ru": "С крыши вниз смотрели гротескные каменные лица.",
+        "uz": "Tomdan badbashara tosh yuzlar pastga tikilib turardi."
+      }
+    },
+    {
+      "word": "kitsch",
+      "part_of_speech": "noun",
+      "transcription": "/kɪtʃ/",
+      "translation": "китч, безвкусица",
+      "translations": {
+        "ru": "китч, безвкусица",
+        "uz": "kitch, didsiz buyum"
+      },
+      "example": "Those plastic souvenirs are pure kitsch, not art.",
+      "example_translations": {
+        "ru": "Эти пластмассовые сувениры — чистый китч, а не искусство.",
+        "uz": "Bu plastmassa esdaliklar san'at emas, g'irt kitch."
+      }
+    },
+    {
+      "word": "gaudy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈgɔdi/",
+      "translation": "аляповатый, кричащий",
+      "translations": {
+        "ru": "аляповатый, кричащий",
+        "uz": "bachkana, o'ta yaltiroq"
+      },
+      "example": "Her gaudy gold curtains clashed with everything else.",
+      "example_translations": {
+        "ru": "Её аляповатые золотые шторы не сочетались ни с чем.",
+        "uz": "Uning bachkana tilla rang pardalari hech narsaga mos kelmasdi."
+      }
+    },
+    {
+      "word": "ostentatious",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɑstənˈteɪʃəs/",
+      "translation": "показной, нарочито роскошный",
+      "translations": {
+        "ru": "показной, нарочито роскошный",
+        "uz": "dabdabali, namoyishkorona"
+      },
+      "example": "Their ostentatious mansion was built to impress neighbors.",
+      "example_translations": {
+        "ru": "Их показной особняк построили, чтобы поразить соседей.",
+        "uz": "Ularning dabdabali qasri qo'shnilarni lol qoldirish uchun qurilgan."
+      }
+    },
+    {
+      "word": "austere",
+      "part_of_speech": "adjective",
+      "transcription": "/ɔˈstɪr/",
+      "translation": "строгий, аскетичный",
+      "translations": {
+        "ru": "строгий, аскетичный",
+        "uz": "sodda, bezaksiz"
+      },
+      "example": "The austere white chapel had no decoration.",
+      "example_translations": {
+        "ru": "В строгой белой часовне не было никаких украшений.",
+        "uz": "Sodda oq ibodatxonada hech qanday bezak yo'q edi."
+      }
+    },
+    {
+      "word": "understated",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌndərˈsteɪtəd/",
+      "translation": "неброский, сдержанный",
+      "translations": {
+        "ru": "неброский, сдержанный",
+        "uz": "kamtarona, ko'zga tashlanmaydigan"
+      },
+      "example": "He prefers understated suits to flashy designer clothes.",
+      "example_translations": {
+        "ru": "Он предпочитает неброские костюмы кричащей дизайнерской одежде.",
+        "uz": "U ko'zni oladigan dizayner kiyimlaridan ko'ra kamtarona kostyumlarni afzal ko'radi."
+      }
+    },
+    {
+      "word": "minimalist",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmɪnəməlɪst/",
+      "translation": "минималистичный",
+      "translations": {
+        "ru": "минималистичный",
+        "uz": "minimalistik"
+      },
+      "example": "A minimalist room holds only a bed and lamp.",
+      "example_translations": {
+        "ru": "В минималистичной комнате есть только кровать и лампа.",
+        "uz": "Minimalistik xonada faqat karavot va chiroq bor."
+      }
+    },
+    {
+      "word": "ethereal",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈθɪriəl/",
+      "translation": "неземной, воздушный",
+      "translations": {
+        "ru": "неземной, воздушный",
+        "uz": "samoviy, nafis"
+      },
+      "example": "Morning mist gave the lake an ethereal glow.",
+      "example_translations": {
+        "ru": "Утренний туман придал озеру неземное сияние.",
+        "uz": "Tonggi tuman ko'lga samoviy jilo baxsh etdi."
+      }
+    },
+    {
+      "word": "surreal",
+      "part_of_speech": "adjective",
+      "transcription": "/səˈriəl/",
+      "translation": "сюрреалистичный, фантастически странный",
+      "translations": {
+        "ru": "сюрреалистичный, фантастически странный",
+        "uz": "syurreal, tushga o'xshash"
+      },
+      "example": "Melting clocks fill his strange, surreal paintings.",
+      "example_translations": {
+        "ru": "Его странные сюрреалистичные картины полны тающих часов.",
+        "uz": "Uning g'alati, syurreal rasmlari eriyotgan soatlarga to'la."
+      }
+    }
+  ]
+}

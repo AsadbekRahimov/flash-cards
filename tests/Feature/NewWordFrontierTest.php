@@ -511,10 +511,12 @@ it('serves nothing while the course is private or archived and finds the words a
         WordRepetition::query()->where('learner_id', $learner->id)->where('word_id', $fx['words']['1.1']['active'][1])->delete();
     }
 
-    // A rename is no availability change: the version stays.
+    // A rename is no availability change, yet since K10 (docs/19 §5.2) ANY saved change of the course moves its version: the cached row
+    // of the course shows the new name at once, and the hint is simply computed again (one narrowed search, the same words).
     $before = $key();
     $course->update(['title' => ['ru' => 'Другое имя', 'uz' => 'Boshqa nom'], 'position' => 5]);
-    expect($key())->toBe($before);
+    expect($key())->not->toBe($before)
+        ->and(nwfPick($learner, $course)->word?->id)->toBe($fx['words']['1.1']['active'][1]);
 });
 
 it('treats a learner\'s own deck like any course: the hint applies and every deck write moves the version', function (): void {

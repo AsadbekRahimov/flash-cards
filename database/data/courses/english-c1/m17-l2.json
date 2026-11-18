@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 17,
+    "title": "Аргументация и дискуссия",
+    "title_uz": "Dalillash va munozara"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Логика",
+    "title_uz": "Mantiq"
+  },
+  "words": [
+    {
+      "word": "premise",
+      "part_of_speech": "noun",
+      "transcription": "/ˈprɛmɪs/",
+      "translation": "посылка, исходное положение",
+      "translations": {
+        "ru": "посылка, исходное положение",
+        "uz": "dastlabki asos"
+      },
+      "example": "His whole argument rests on a false premise.",
+      "example_translations": {
+        "ru": "Всё его рассуждение строится на ложной посылке.",
+        "uz": "Uning butun mulohazasi noto'g'ri dastlabki asosga tayanadi."
+      }
+    },
+    {
+      "word": "fallacy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfæləsi/",
+      "translation": "логическая ошибка",
+      "translations": {
+        "ru": "логическая ошибка",
+        "uz": "mantiqiy xato"
+      },
+      "example": "Attacking the speaker, not the idea, is a fallacy.",
+      "example_translations": {
+        "ru": "Нападать на оратора, а не на идею — логическая ошибка.",
+        "uz": "G'oyaga emas, notiqqa hujum qilish — mantiqiy xato."
+      }
+    },
+    {
+      "word": "validity",
+      "part_of_speech": "noun",
+      "transcription": "/vəˈlɪdəti/",
+      "translation": "обоснованность",
+      "translations": {
+        "ru": "обоснованность",
+        "uz": "asoslilik"
+      },
+      "example": "Several scientists questioned the validity of his conclusions.",
+      "example_translations": {
+        "ru": "Несколько учёных усомнились в обоснованности его выводов.",
+        "uz": "Bir necha olim uning xulosalarining asosliligiga shubha bildirdi."
+      }
+    },
+    {
+      "word": "paradox",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɛrəˌdɑks/",
+      "translation": "парадокс",
+      "translations": {
+        "ru": "парадокс",
+        "uz": "paradoks"
+      },
+      "example": "It is a paradox that haste wastes time.",
+      "example_translations": {
+        "ru": "Парадокс в том, что спешка отнимает время.",
+        "uz": "Shoshqaloqlik vaqtni behuda sarflashi — paradoks."
+      }
+    },
+    {
+      "word": "analogy",
+      "part_of_speech": "noun",
+      "transcription": "/əˈnælədʒi/",
+      "translation": "аналогия",
+      "translations": {
+        "ru": "аналогия",
+        "uz": "qiyos"
+      },
+      "example": "The teacher drew an analogy between memory and muscles.",
+      "example_translations": {
+        "ru": "Учитель провёл аналогию между памятью и мышцами.",
+        "uz": "O'qituvchi xotira bilan mushaklar o'rtasida qiyos o'tkazdi."
+      }
+    },
+    {
+      "word": "inconsistency",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪnkənˈsɪstənsi/",
+      "translation": "противоречие, несоответствие",
+      "translations": {
+        "ru": "противоречие, несоответствие",
+        "uz": "ziddiyat"
+      },
+      "example": "The lawyer noticed an inconsistency in the two reports.",
+      "example_translations": {
+        "ru": "Юрист заметил противоречие в двух отчётах.",
+        "uz": "Huquqshunos ikki hisobotda ziddiyatni payqadi."
+      }
+    },
+    {
+      "word": "rationale",
+      "part_of_speech": "noun",
+      "transcription": "/ˌræʃəˈnæl/",
+      "translation": "обоснование",
+      "translations": {
+        "ru": "обоснование",
+        "uz": "mantiqiy asos"
+      },
+      "example": "Nobody explained the rationale behind this strange decision.",
+      "example_translations": {
+        "ru": "Никто не привёл обоснования этого странного решения.",
+        "uz": "Hech kim bu g'alati qarorning mantiqiy asosini tushuntirmadi."
+      }
+    },
+    {
+      "word": "corollary",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɔrəˌlɛri/",
+      "translation": "логическое следствие",
+      "translations": {
+        "ru": "логическое следствие",
+        "uz": "mantiqiy natija"
+      },
+      "example": "Higher prices are a logical corollary of scarce supply.",
+      "example_translations": {
+        "ru": "Рост цен — логическое следствие дефицита товаров.",
+        "uz": "Narxlarning oshishi — tovar taqchilligining mantiqiy natijasi."
+      }
+    },
+    {
+      "word": "axiom",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæksiəm/",
+      "translation": "аксиома",
+      "translations": {
+        "ru": "аксиома",
+        "uz": "aksioma"
+      },
+      "example": "It is an axiom that the whole exceeds its part.",
+      "example_translations": {
+        "ru": "То, что целое больше своей части, — аксиома.",
+        "uz": "Butun o'z qismidan katta ekani — aksioma."
+      }
+    },
+    {
+      "word": "flawed",
+      "part_of_speech": "adjective",
+      "transcription": "/flɔd/",
+      "translation": "ошибочный, с изъяном",
+      "translations": {
+        "ru": "ошибочный, с изъяном",
+        "uz": "nuqsonli"
+      },
+      "example": "The plan failed because its logic was flawed.",
+      "example_translations": {
+        "ru": "План провалился, потому что его логика была ошибочной.",
+        "uz": "Reja barbod bo'ldi, chunki uning mantig'i nuqsonli edi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 11,
+    "title": "Экономика и капитал",
+    "title_uz": "Iqtisodiyot va kapital"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Роскошь и нищета",
+    "title_uz": "Hashamat va qashshoqlik"
+  },
+  "words": [
+    {
+      "word": "opulent",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɑpjələnt/",
+      "translation": "пышный",
+      "translations": {
+        "ru": "пышный",
+        "uz": "dabdabali"
+      },
+      "example": "The opulent palace glittered with gold and marble.",
+      "example_translations": {
+        "ru": "Пышный дворец сверкал золотом и мрамором.",
+        "uz": "Dabdabali saroy oltin va marmar bilan yaltirab turardi."
+      }
+    },
+    {
+      "word": "lavish",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈlævɪʃ/",
+      "translation": "роскошный, щедрый",
+      "translations": {
+        "ru": "роскошный, щедрый",
+        "uz": "hashamatli, saxovatli"
+      },
+      "example": "They threw a lavish banquet with hundreds of dishes.",
+      "example_translations": {
+        "ru": "Они устроили роскошный банкет с сотнями блюд.",
+        "uz": "Ular yuzlab taom tortilgan hashamatli ziyofat uyushtirdi."
+      }
+    },
+    {
+      "word": "frugal",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈfrugəl/",
+      "translation": "бережливый",
+      "translations": {
+        "ru": "бережливый",
+        "uz": "tejamkor"
+      },
+      "example": "Her frugal grandmother never wasted a single coin.",
+      "example_translations": {
+        "ru": "Её бережливая бабушка никогда не тратила впустую ни монеты.",
+        "uz": "Uning tejamkor buvisi hech qachon bir tiyinni ham behuda sarflamagan."
+      }
+    },
+    {
+      "word": "destitute",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdɛstəˌtut/",
+      "translation": "нищий, неимущий",
+      "translations": {
+        "ru": "нищий, неимущий",
+        "uz": "qashshoq, nochor"
+      },
+      "example": "The flood left thousands of families destitute and homeless.",
+      "example_translations": {
+        "ru": "Наводнение оставило тысячи семей нищими и бездомными.",
+        "uz": "Toshqin minglab oilalarni qashshoq va boshpanasiz qoldirdi."
+      }
+    },
+    {
+      "word": "penury",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɛnjəri/",
+      "translation": "крайняя нужда",
+      "translations": {
+        "ru": "крайняя нужда",
+        "uz": "o'ta muhtojlik"
+      },
+      "example": "The forgotten poet died in penury, owning nothing.",
+      "example_translations": {
+        "ru": "Забытый поэт умер в крайней нужде, не имея ничего.",
+        "uz": "Unutilgan shoir hech vaqosiz, o'ta muhtojlikda vafot etdi."
+      }
+    },
+    {
+      "word": "squalor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskwɑlər/",
+      "translation": "грязь и убожество",
+      "translations": {
+        "ru": "грязь и убожество",
+        "uz": "iflos va xarob ahvol"
+      },
+      "example": "The workers lived in squalor, without clean water.",
+      "example_translations": {
+        "ru": "Рабочие жили в грязи и убожестве, без чистой воды.",
+        "uz": "Ishchilar toza suvsiz, iflos va xarob ahvolda yashardi."
+      }
+    },
+    {
+      "word": "privation",
+      "part_of_speech": "noun",
+      "transcription": "/praɪˈveɪʃən/",
+      "translation": "лишения",
+      "translations": {
+        "ru": "лишения",
+        "uz": "mahrumlik"
+      },
+      "example": "The settlers endured privation, lacking food and warmth.",
+      "example_translations": {
+        "ru": "Поселенцы терпели лишения, не имея ни еды, ни тепла.",
+        "uz": "Ko'chib kelganlar ovqat va issiqlikdan mosuvo bo'lib, mahrumliklarga chidadi."
+      }
+    },
+    {
+      "word": "largesse",
+      "part_of_speech": "noun",
+      "transcription": "/lɑrˈʒɛs/",
+      "translation": "щедрость",
+      "translations": {
+        "ru": "щедрость",
+        "uz": "saxovat"
+      },
+      "example": "The museum depends on the largesse of wealthy donors.",
+      "example_translations": {
+        "ru": "Музей зависит от щедрости богатых меценатов.",
+        "uz": "Muzey boy homiylarning saxovatiga tayanadi."
+      }
+    },
+    {
+      "word": "profligate",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈprɑflɪgət/",
+      "translation": "расточительный",
+      "translations": {
+        "ru": "расточительный",
+        "uz": "isrofgar"
+      },
+      "example": "The profligate heir spent his fortune within two years.",
+      "example_translations": {
+        "ru": "Расточительный наследник растратил своё состояние за два года.",
+        "uz": "Isrofgar merosxo'r boyligini ikki yil ichida sarflab bo'ldi."
+      }
+    },
+    {
+      "word": "squander",
+      "part_of_speech": "verb",
+      "transcription": "/ˈskwɑndər/",
+      "translation": "проматывать",
+      "translations": {
+        "ru": "проматывать",
+        "uz": "sovurmoq"
+      },
+      "example": "Don't squander your savings on things you never use.",
+      "example_translations": {
+        "ru": "Не проматывайте сбережения на вещи, которыми никогда не пользуетесь.",
+        "uz": "Jamg'armangizni hech qachon ishlatmaydigan narsalarga sovurmang."
+      }
+    }
+  ]
+}

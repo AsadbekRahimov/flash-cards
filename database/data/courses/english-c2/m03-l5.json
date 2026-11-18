@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 3,
+    "title": "Речь и оттенки смысла",
+    "title_uz": "Nutq va ma'no nozikliklari"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Тон и подтекст",
+    "title_uz": "Ohang va tagma'no"
+  },
+  "words": [
+    {
+      "word": "connotation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑnəˈteɪʃən/",
+      "translation": "коннотация, окраска слова",
+      "translations": {
+        "ru": "коннотация, окраска слова",
+        "uz": "ma'no bo'yog'i"
+      },
+      "example": "The word \"stubborn\" carries a clearly negative connotation.",
+      "example_translations": {
+        "ru": "Слово «упрямый» несёт явно отрицательную коннотацию.",
+        "uz": "«Qaysar» so'zi yaqqol salbiy ma'no bo'yog'iga ega."
+      }
+    },
+    {
+      "word": "nuance",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnuˌɑns/",
+      "translation": "нюанс, тонкое различие",
+      "translations": {
+        "ru": "нюанс, тонкое различие",
+        "uz": "nozik farq"
+      },
+      "example": "A good translator catches every nuance of meaning.",
+      "example_translations": {
+        "ru": "Хороший переводчик улавливает каждый нюанс значения.",
+        "uz": "Yaxshi tarjimon ma'nodagi har bir nozik farqni ilg'aydi."
+      }
+    },
+    {
+      "word": "undertone",
+      "part_of_speech": "noun",
+      "transcription": "/ˈʌndərˌtoʊn/",
+      "translation": "скрытая нотка",
+      "translations": {
+        "ru": "скрытая нотка",
+        "uz": "yashirin ohang"
+      },
+      "example": "There was an undertone of fear in her voice.",
+      "example_translations": {
+        "ru": "В её голосе слышалась скрытая нотка страха.",
+        "uz": "Uning ovozida qo'rquvning yashirin ohangi sezilardi."
+      }
+    },
+    {
+      "word": "implicit",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪmˈplɪsət/",
+      "translation": "подразумеваемый, неявный",
+      "translations": {
+        "ru": "подразумеваемый, неявный",
+        "uz": "ochiq aytilmagan"
+      },
+      "example": "Criticism was implicit in her very polite questions.",
+      "example_translations": {
+        "ru": "В её очень вежливых вопросах содержалась неявная критика.",
+        "uz": "Uning juda xushmuomala savollarida ochiq aytilmagan tanqid bor edi."
+      }
+    },
+    {
+      "word": "tacit",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtæsət/",
+      "translation": "молчаливый, негласный",
+      "translations": {
+        "ru": "молчаливый, негласный",
+        "uz": "sukut bilan bildirilgan"
+      },
+      "example": "Her smile gave tacit approval to the plan.",
+      "example_translations": {
+        "ru": "Её улыбка выражала молчаливое одобрение плана.",
+        "uz": "Uning tabassumi rejaga sukut bilan bildirilgan rozilik edi."
+      }
+    },
+    {
+      "word": "allusion",
+      "part_of_speech": "noun",
+      "transcription": "/əˈluʒən/",
+      "translation": "аллюзия, намёк",
+      "translations": {
+        "ru": "аллюзия, намёк",
+        "uz": "ishora"
+      },
+      "example": "The title is an allusion to an old myth.",
+      "example_translations": {
+        "ru": "Название — это аллюзия на древний миф.",
+        "uz": "Sarlavha qadimiy afsonaga ishoradir."
+      }
+    },
+    {
+      "word": "subtext",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsʌbˌtɛkst/",
+      "translation": "подтекст",
+      "translations": {
+        "ru": "подтекст",
+        "uz": "tagma'no"
+      },
+      "example": "The subtext of his joke was clearly a complaint.",
+      "example_translations": {
+        "ru": "Подтекстом его шутки явно была жалоба.",
+        "uz": "Uning hazilining tagma'nosi shikoyat ekani aniq edi."
+      }
+    },
+    {
+      "word": "intonation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪntəˈneɪʃən/",
+      "translation": "интонация",
+      "translations": {
+        "ru": "интонация",
+        "uz": "intonatsiya"
+      },
+      "example": "Rising intonation turns this statement into a question.",
+      "example_translations": {
+        "ru": "Восходящая интонация превращает это утверждение в вопрос.",
+        "uz": "Ko'tariluvchi intonatsiya bu darak gapni so'roq gapga aylantiradi."
+      }
+    },
+    {
+      "word": "facetious",
+      "part_of_speech": "adjective",
+      "transcription": "/fəˈsiʃəs/",
+      "translation": "неуместно шутливый",
+      "translations": {
+        "ru": "неуместно шутливый",
+        "uz": "o'rinsiz hazilomuz"
+      },
+      "example": "His facetious remarks irritated everyone at the solemn meeting.",
+      "example_translations": {
+        "ru": "Его неуместно шутливые замечания раздражали всех на торжественном собрании.",
+        "uz": "Uning o'rinsiz hazilomuz gaplari tantanali yig'ilishda hammaning g'ashiga tegdi."
+      }
+    },
+    {
+      "word": "sardonic",
+      "part_of_speech": "adjective",
+      "transcription": "/sɑrˈdɑnɪk/",
+      "translation": "язвительный, сардонический",
+      "translations": {
+        "ru": "язвительный, сардонический",
+        "uz": "zaharxanda"
+      },
+      "example": "\"Great job,\" he said with a sardonic smile.",
+      "example_translations": {
+        "ru": "«Отличная работа», — сказал он с язвительной усмешкой.",
+        "uz": "«Zo'r ish», — dedi u zaharxanda tabassum bilan."
+      }
+    }
+  ]
+}

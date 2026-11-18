@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 12,
+    "title": "Точные и естественные науки",
+    "title_uz": "Aniq va tabiiy fanlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Вещества и реакции",
+    "title_uz": "Moddalar va reaksiyalar"
+  },
+  "words": [
+    {
+      "word": "reagent",
+      "part_of_speech": "noun",
+      "transcription": "/riˈeɪdʒənt/",
+      "translation": "реактив",
+      "translations": {
+        "ru": "реактив",
+        "uz": "reaktiv"
+      },
+      "example": "Add the reagent slowly to trigger the reaction.",
+      "example_translations": {
+        "ru": "Медленно добавляйте реактив, чтобы запустить реакцию.",
+        "uz": "Reaksiyani boshlash uchun reaktivni sekin qo'shing."
+      }
+    },
+    {
+      "word": "distill",
+      "part_of_speech": "verb",
+      "transcription": "/dɪˈstɪl/",
+      "translation": "дистиллировать, перегонять",
+      "translations": {
+        "ru": "дистиллировать, перегонять",
+        "uz": "distillamoq, haydamoq"
+      },
+      "example": "We distilled seawater to obtain pure drinking water.",
+      "example_translations": {
+        "ru": "Мы дистиллировали морскую воду, чтобы получить чистую питьевую.",
+        "uz": "Toza ichimlik suvi olish uchun dengiz suvini distilladik."
+      }
+    },
+    {
+      "word": "viscous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈvɪskəs/",
+      "translation": "вязкий",
+      "translations": {
+        "ru": "вязкий",
+        "uz": "qovushqoq"
+      },
+      "example": "Honey is so viscous that it pours slowly.",
+      "example_translations": {
+        "ru": "Мёд настолько вязкий, что льётся медленно.",
+        "uz": "Asal shunchalik qovushqoqki, sekin quyiladi."
+      }
+    },
+    {
+      "word": "inert",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈnɜrt/",
+      "translation": "инертный",
+      "translations": {
+        "ru": "инертный",
+        "uz": "inert"
+      },
+      "example": "Helium is an inert gas that rarely reacts.",
+      "example_translations": {
+        "ru": "Гелий — инертный газ, который редко вступает в реакции.",
+        "uz": "Geliy — kamdan-kam reaksiyaga kirishadigan inert gaz."
+      }
+    },
+    {
+      "word": "soluble",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɑljəbəl/",
+      "translation": "растворимый",
+      "translations": {
+        "ru": "растворимый",
+        "uz": "eruvchan"
+      },
+      "example": "Salt is soluble in water, but sand isn't.",
+      "example_translations": {
+        "ru": "Соль растворима в воде, а песок — нет.",
+        "uz": "Tuz suvda eruvchan, qum esa yo'q."
+      }
+    },
+    {
+      "word": "corrosive",
+      "part_of_speech": "adjective",
+      "transcription": "/kəˈroʊsɪv/",
+      "translation": "едкий, разъедающий",
+      "translations": {
+        "ru": "едкий, разъедающий",
+        "uz": "yemiruvchi"
+      },
+      "example": "Wear gloves, because this acid is highly corrosive.",
+      "example_translations": {
+        "ru": "Наденьте перчатки: эта кислота очень едкая.",
+        "uz": "Qo'lqop kiying, chunki bu kislota kuchli yemiruvchi."
+      }
+    },
+    {
+      "word": "oxidize",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɑksəˌdaɪz/",
+      "translation": "окисляться",
+      "translations": {
+        "ru": "окисляться",
+        "uz": "oksidlanmoq"
+      },
+      "example": "Iron oxidizes quickly in damp air, forming rust.",
+      "example_translations": {
+        "ru": "Во влажном воздухе железо быстро окисляется, образуя ржавчину.",
+        "uz": "Nam havoda temir tez oksidlanib, zang hosil qiladi."
+      }
+    },
+    {
+      "word": "alkaline",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈælkəˌlaɪn/",
+      "translation": "щелочной",
+      "translations": {
+        "ru": "щелочной",
+        "uz": "ishqoriy"
+      },
+      "example": "Alkaline substances neutralize acids, as baking soda does.",
+      "example_translations": {
+        "ru": "Щелочные вещества нейтрализуют кислоты, как это делает пищевая сода.",
+        "uz": "Ishqoriy moddalar, ichimlik sodasi kabi, kislotalarni neytrallaydi."
+      }
+    },
+    {
+      "word": "crystalline",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkrɪstələn/",
+      "translation": "кристаллический",
+      "translations": {
+        "ru": "кристаллический",
+        "uz": "kristall"
+      },
+      "example": "Under the microscope, salt shows a crystalline structure.",
+      "example_translations": {
+        "ru": "Под микроскопом у соли видна кристаллическая структура.",
+        "uz": "Mikroskop ostida tuzning kristall tuzilishi ko'rinadi."
+      }
+    },
+    {
+      "word": "polymer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɑləmər/",
+      "translation": "полимер",
+      "translations": {
+        "ru": "полимер",
+        "uz": "polimer"
+      },
+      "example": "Plastic is a polymer built from repeating molecules.",
+      "example_translations": {
+        "ru": "Пластик — это полимер, построенный из повторяющихся молекул.",
+        "uz": "Plastik — takrorlanuvchi molekulalardan tuzilgan polimer."
+      }
+    }
+  ]
+}

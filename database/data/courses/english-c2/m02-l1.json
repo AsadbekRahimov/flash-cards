@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 2,
+    "title": "Эмоции и состояния души",
+    "title_uz": "Tuyg'ular va ruhiy holatlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Радость и восторг",
+    "title_uz": "Quvonch va zavq"
+  },
+  "words": [
+    {
+      "word": "jubilant",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdʒubələnt/",
+      "translation": "ликующий",
+      "translations": {
+        "ru": "ликующий",
+        "uz": "shodon, shodu xurram"
+      },
+      "example": "Jubilant fans poured into the streets after the final.",
+      "example_translations": {
+        "ru": "Ликующие болельщики высыпали на улицы после финала.",
+        "uz": "Shodon muxlislar finaldan so'ng ko'chalarga otilib chiqishdi."
+      }
+    },
+    {
+      "word": "rapture",
+      "part_of_speech": "noun",
+      "transcription": "/ˈræptʃər/",
+      "translation": "упоение, восторг",
+      "translations": {
+        "ru": "упоение, восторг",
+        "uz": "zavq-shavq"
+      },
+      "example": "The audience listened in rapture to her violin.",
+      "example_translations": {
+        "ru": "Публика в упоении слушала её скрипку.",
+        "uz": "Tomoshabinlar uning skripkasini zavq-shavq bilan tinglashdi."
+      }
+    },
+    {
+      "word": "mirth",
+      "part_of_speech": "noun",
+      "transcription": "/mɜrθ/",
+      "translation": "веселье, смех",
+      "translations": {
+        "ru": "веселье, смех",
+        "uz": "quvnoqlik, kulgi"
+      },
+      "example": "Her joke filled the whole room with mirth.",
+      "example_translations": {
+        "ru": "Её шутка наполнила весельем всю комнату.",
+        "uz": "Uning hazili butun xonaga quvnoqlik baxsh etdi."
+      }
+    },
+    {
+      "word": "glee",
+      "part_of_speech": "noun",
+      "transcription": "/gli/",
+      "translation": "бурная радость, ликование",
+      "translations": {
+        "ru": "бурная радость, ликование",
+        "uz": "shodlik"
+      },
+      "example": "The children shrieked with glee at the first snow.",
+      "example_translations": {
+        "ru": "Дети визжали от бурной радости, увидев первый снег.",
+        "uz": "Bolalar birinchi qorni ko'rib, shodlikdan chinqirishdi."
+      }
+    },
+    {
+      "word": "exhilaration",
+      "part_of_speech": "noun",
+      "transcription": "/ɪgˌzɪləˈreɪʃən/",
+      "translation": "радостное возбуждение",
+      "translations": {
+        "ru": "радостное возбуждение",
+        "uz": "zavqli hayajon"
+      },
+      "example": "Skiers know the exhilaration of racing down a mountain.",
+      "example_translations": {
+        "ru": "Лыжникам знакомо радостное возбуждение от стремительного спуска с горы.",
+        "uz": "Chang'ichilarga tog'dan shiddat bilan tushishning zavqli hayajoni tanish."
+      }
+    },
+    {
+      "word": "rejoice",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈdʒɔɪs/",
+      "translation": "ликовать, радоваться",
+      "translations": {
+        "ru": "ликовать, радоваться",
+        "uz": "shodlanmoq, quvonmoq"
+      },
+      "example": "The whole town rejoiced when the miners were rescued.",
+      "example_translations": {
+        "ru": "Весь город ликовал, когда шахтёров спасли.",
+        "uz": "Konchilar qutqarilganda butun shahar shodlandi."
+      }
+    },
+    {
+      "word": "revel",
+      "part_of_speech": "verb",
+      "transcription": "/ˈrɛvəl/",
+      "translation": "упиваться, наслаждаться",
+      "translations": {
+        "ru": "упиваться, наслаждаться",
+        "uz": "rohatlanmoq, huzur qilmoq"
+      },
+      "example": "She reveled in the attention her painting attracted.",
+      "example_translations": {
+        "ru": "Она упивалась вниманием, которое привлекла её картина.",
+        "uz": "U rasmi jalb qilgan e'tibordan rohatlanardi."
+      }
+    },
+    {
+      "word": "contentment",
+      "part_of_speech": "noun",
+      "transcription": "/kənˈtɛntmənt/",
+      "translation": "удовлетворённость, довольство",
+      "translations": {
+        "ru": "удовлетворённость, довольство",
+        "uz": "mamnunlik, ko'ngil to'qligi"
+      },
+      "example": "Sitting by the fire, she felt deep contentment.",
+      "example_translations": {
+        "ru": "Сидя у огня, она чувствовала глубокое довольство жизнью.",
+        "uz": "Olov yonida o'tirib, u chuqur mamnunlik his qilardi."
+      }
+    },
+    {
+      "word": "serenity",
+      "part_of_speech": "noun",
+      "transcription": "/səˈrɛnəti/",
+      "translation": "безмятежность, умиротворение",
+      "translations": {
+        "ru": "безмятежность, умиротворение",
+        "uz": "osoyishtalik, xotirjamlik"
+      },
+      "example": "Daily meditation gave him a lasting sense of serenity.",
+      "example_translations": {
+        "ru": "Ежедневная медитация дарила ему стойкое чувство безмятежности.",
+        "uz": "Kundalik meditatsiya unga barqaror osoyishtalik hissini baxsh etardi."
+      }
+    },
+    {
+      "word": "buoyant",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈbɔɪənt/",
+      "translation": "жизнерадостный, бодрый",
+      "translations": {
+        "ru": "жизнерадостный, бодрый",
+        "uz": "xushchaqchaq, tetik"
+      },
+      "example": "Despite the rain, everyone was in a buoyant mood.",
+      "example_translations": {
+        "ru": "Несмотря на дождь, у всех было жизнерадостное настроение.",
+        "uz": "Yomg'irga qaramay, hamma xushchaqchaq kayfiyatda edi."
+      }
+    }
+  ]
+}

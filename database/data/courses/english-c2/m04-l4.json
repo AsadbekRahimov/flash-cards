@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 4,
+    "title": "Официальный стиль",
+    "title_uz": "Rasmiy uslub"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Вежливость и церемониал",
+    "title_uz": "Odob va marosim"
+  },
+  "words": [
+    {
+      "word": "decorum",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈkɔrəm/",
+      "translation": "благопристойность",
+      "translations": {
+        "ru": "благопристойность",
+        "uz": "odob qoidalari"
+      },
+      "example": "Visitors are expected to maintain decorum in court.",
+      "example_translations": {
+        "ru": "От посетителей ожидают соблюдения благопристойности в суде.",
+        "uz": "Tashrif buyuruvchilardan sudda odob qoidalariga rioya qilish kutiladi."
+      }
+    },
+    {
+      "word": "propriety",
+      "part_of_speech": "noun",
+      "transcription": "/prəˈpraɪəti/",
+      "translation": "уместность, приличие",
+      "translations": {
+        "ru": "уместность, приличие",
+        "uz": "odobga muvofiqlik"
+      },
+      "example": "She questioned the propriety of accepting expensive gifts.",
+      "example_translations": {
+        "ru": "Она усомнилась в уместности принятия дорогих подарков.",
+        "uz": "U qimmatbaho sovg'alarni qabul qilishning odobga muvofiqligiga shubha qildi."
+      }
+    },
+    {
+      "word": "deference",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɛfərəns/",
+      "translation": "почтительность",
+      "translations": {
+        "ru": "почтительность",
+        "uz": "izzat-hurmat"
+      },
+      "example": "Out of deference to her age, everyone stood.",
+      "example_translations": {
+        "ru": "Из почтительности к её возрасту все встали.",
+        "uz": "Uning yoshiga izzat-hurmat yuzasidan hamma o'rnidan turdi."
+      }
+    },
+    {
+      "word": "civility",
+      "part_of_speech": "noun",
+      "transcription": "/səˈvɪləti/",
+      "translation": "учтивость, вежливость",
+      "translations": {
+        "ru": "учтивость, вежливость",
+        "uz": "xushmuomalalik"
+      },
+      "example": "Even rivals should treat each other with civility.",
+      "example_translations": {
+        "ru": "Даже соперники должны относиться друг к другу с учтивостью.",
+        "uz": "Hatto raqiblar ham bir-biriga xushmuomalalik bilan munosabatda bo'lishi kerak."
+      }
+    },
+    {
+      "word": "cordial",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkɔrdʒəl/",
+      "translation": "радушный, сердечный",
+      "translations": {
+        "ru": "радушный, сердечный",
+        "uz": "samimiy"
+      },
+      "example": "The hosts gave us a warm, cordial welcome.",
+      "example_translations": {
+        "ru": "Хозяева оказали нам тёплый, радушный приём.",
+        "uz": "Mezbonlar bizni iliq va samimiy kutib olishdi."
+      }
+    },
+    {
+      "word": "reverence",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɛvərəns/",
+      "translation": "благоговение",
+      "translations": {
+        "ru": "благоговение",
+        "uz": "chuqur ehtirom"
+      },
+      "example": "Pilgrims entered the ancient temple with quiet reverence.",
+      "example_translations": {
+        "ru": "Паломники вошли в древний храм с тихим благоговением.",
+        "uz": "Ziyoratchilar qadimiy ibodatxonaga sokinlik va chuqur ehtirom bilan kirishdi."
+      }
+    },
+    {
+      "word": "homage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɑmɪdʒ/",
+      "translation": "дань уважения",
+      "translations": {
+        "ru": "дань уважения",
+        "uz": "ehtirom izhori"
+      },
+      "example": "The concert paid homage to a great composer.",
+      "example_translations": {
+        "ru": "Концерт стал данью уважения великому композитору.",
+        "uz": "Konsert buyuk bastakorga ehtirom izhori bo'ldi."
+      }
+    },
+    {
+      "word": "ceremonial",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌsɛrəˈmoʊniəl/",
+      "translation": "церемониальный, парадный",
+      "translations": {
+        "ru": "церемониальный, парадный",
+        "uz": "tantanali, marosimga oid"
+      },
+      "example": "Guards wear ceremonial uniforms on national holidays.",
+      "example_translations": {
+        "ru": "В государственные праздники гвардейцы надевают церемониальную форму.",
+        "uz": "Davlat bayramlarida soqchilar tantanali marosim libosini kiyadilar."
+      }
+    },
+    {
+      "word": "formality",
+      "part_of_speech": "noun",
+      "transcription": "/fɔrˈmæləti/",
+      "translation": "формальность",
+      "translations": {
+        "ru": "формальность",
+        "uz": "rasmiyatchilik"
+      },
+      "example": "Signing the form is just a formality.",
+      "example_translations": {
+        "ru": "Подписание бланка — всего лишь формальность.",
+        "uz": "Blankani imzolash shunchaki rasmiyatchilik, xolos."
+      }
+    },
+    {
+      "word": "dignified",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdɪgnəˌfaɪd/",
+      "translation": "полный достоинства",
+      "translations": {
+        "ru": "полный достоинства",
+        "uz": "viqorli"
+      },
+      "example": "She remained calm and dignified despite the insults.",
+      "example_translations": {
+        "ru": "Несмотря на оскорбления, она оставалась спокойной и полной достоинства.",
+        "uz": "Haqoratlarga qaramay, u xotirjam va viqorli bo'lib qoldi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 8,
+    "title": "Литература и язык",
+    "title_uz": "Adabiyot va til"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Малые жанры",
+    "title_uz": "Kichik janrlar"
+  },
+  "words": [
+    {
+      "word": "elegy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛlədʒi/",
+      "translation": "элегия",
+      "translations": {
+        "ru": "элегия",
+        "uz": "marsiya"
+      },
+      "example": "The poet wrote an elegy for his late teacher.",
+      "example_translations": {
+        "ru": "Поэт написал элегию в память о своём покойном учителе.",
+        "uz": "Shoir marhum ustoziga atab marsiya yozdi."
+      }
+    },
+    {
+      "word": "ode",
+      "part_of_speech": "noun",
+      "transcription": "/oʊd/",
+      "translation": "ода",
+      "translations": {
+        "ru": "ода",
+        "uz": "qasida, oda"
+      },
+      "example": "This ode praises the beauty of spring.",
+      "example_translations": {
+        "ru": "Эта ода воспевает красоту весны.",
+        "uz": "Bu qasida bahor go'zalligini madh etadi."
+      }
+    },
+    {
+      "word": "epigram",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛpəˌgræm/",
+      "translation": "эпиграмма",
+      "translations": {
+        "ru": "эпиграмма",
+        "uz": "epigramma"
+      },
+      "example": "His witty epigram mocked vain critics in two lines.",
+      "example_translations": {
+        "ru": "Его остроумная эпиграмма в двух строках высмеивала тщеславных критиков.",
+        "uz": "Uning o'tkir epigrammasi manman tanqidchilarni ikki misrada masxara qilardi."
+      }
+    },
+    {
+      "word": "aphorism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæfəˌrɪzəm/",
+      "translation": "афоризм",
+      "translations": {
+        "ru": "афоризм",
+        "uz": "hikmatli so'z"
+      },
+      "example": "The teacher ended every lesson with a short, wise aphorism.",
+      "example_translations": {
+        "ru": "Учитель заканчивал каждый урок коротким мудрым афоризмом.",
+        "uz": "O'qituvchi har bir darsni qisqa va teran hikmatli so'z bilan yakunlardi."
+      }
+    },
+    {
+      "word": "parable",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɛrəbəl/",
+      "translation": "притча",
+      "translations": {
+        "ru": "притча",
+        "uz": "ibratli rivoyat"
+      },
+      "example": "The old parable teaches us to forgive others.",
+      "example_translations": {
+        "ru": "Эта старая притча учит нас прощать других.",
+        "uz": "Bu qadimiy ibratli rivoyat bizga boshqalarni kechirishni o'rgatadi."
+      }
+    },
+    {
+      "word": "pastiche",
+      "part_of_speech": "noun",
+      "transcription": "/pæˈstiʃ/",
+      "translation": "стилизация, пастиш",
+      "translations": {
+        "ru": "стилизация, пастиш",
+        "uz": "taqlidiy asar"
+      },
+      "example": "Her novel is a pastiche of old detective stories.",
+      "example_translations": {
+        "ru": "Её роман — стилизация под старые детективы.",
+        "uz": "Uning romani eski detektiv hikoyalar uslubidagi taqlidiy asardir."
+      }
+    },
+    {
+      "word": "vignette",
+      "part_of_speech": "noun",
+      "transcription": "/vɪnˈjɛt/",
+      "translation": "зарисовка",
+      "translations": {
+        "ru": "зарисовка",
+        "uz": "lavha"
+      },
+      "example": "Each vignette describes one moment of village life.",
+      "example_translations": {
+        "ru": "Каждая зарисовка описывает один момент деревенской жизни.",
+        "uz": "Har bir lavha qishloq hayotining bir lahzasini tasvirlaydi."
+      }
+    },
+    {
+      "word": "soliloquy",
+      "part_of_speech": "noun",
+      "transcription": "/səˈlɪləkwi/",
+      "translation": "монолог наедине с собой",
+      "translations": {
+        "ru": "монолог наедине с собой",
+        "uz": "o'ziga qaratilgan monolog"
+      },
+      "example": "Alone on stage, the prince began his soliloquy.",
+      "example_translations": {
+        "ru": "Оставшись на сцене один, принц начал монолог наедине с собой.",
+        "uz": "Sahnada yolg'iz qolgan shahzoda o'ziga qaratilgan monologini boshladi."
+      }
+    },
+    {
+      "word": "polemic",
+      "part_of_speech": "noun",
+      "transcription": "/pəˈlɛmɪk/",
+      "translation": "полемическое сочинение",
+      "translations": {
+        "ru": "полемическое сочинение",
+        "uz": "keskin tanqidiy asar"
+      },
+      "example": "Her essay is a fierce polemic against lazy journalism.",
+      "example_translations": {
+        "ru": "Её эссе — яростное полемическое сочинение против ленивой журналистики.",
+        "uz": "Uning essesi dangasa jurnalistikaga qarshi ayovsiz, keskin tanqidiy asardir."
+      }
+    },
+    {
+      "word": "farce",
+      "part_of_speech": "noun",
+      "transcription": "/fɑrs/",
+      "translation": "фарс",
+      "translations": {
+        "ru": "фарс",
+        "uz": "fars"
+      },
+      "example": "The audience laughed throughout the absurd farce.",
+      "example_translations": {
+        "ru": "Зрители смеялись на протяжении всего абсурдного фарса.",
+        "uz": "Tomoshabinlar bema'ni fars davomida tinmay kulishdi."
+      }
+    }
+  ]
+}

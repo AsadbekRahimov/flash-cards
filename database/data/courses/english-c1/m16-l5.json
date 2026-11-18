@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 16,
+    "title": "Образование и научный стиль",
+    "title_uz": "Ta'lim va ilmiy uslub"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Слова-связки",
+    "title_uz": "Bog'lovchi so'zlar"
+  },
+  "words": [
+    {
+      "word": "nonetheless",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌnʌnðəˈlɛs/",
+      "translation": "тем не менее",
+      "translations": {
+        "ru": "тем не менее",
+        "uz": "shunga qaramay"
+      },
+      "example": "The method is costly; nonetheless, it is widely used.",
+      "example_translations": {
+        "ru": "Метод дорог; тем не менее он широко применяется.",
+        "uz": "Usul qimmat; shunga qaramay, u keng qo'llaniladi."
+      }
+    },
+    {
+      "word": "notwithstanding",
+      "part_of_speech": "preposition",
+      "transcription": "/ˌnɑtwɪθˈstændɪŋ/",
+      "translation": "несмотря на",
+      "translations": {
+        "ru": "несмотря на",
+        "uz": "qaramasdan"
+      },
+      "example": "Notwithstanding the delays, the project finished on time.",
+      "example_translations": {
+        "ru": "Несмотря на задержки, проект был завершён вовремя.",
+        "uz": "Kechikishlarga qaramasdan, loyiha o'z vaqtida yakunlandi."
+      }
+    },
+    {
+      "word": "hitherto",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌhɪðərˈtu/",
+      "translation": "до сих пор",
+      "translations": {
+        "ru": "до сих пор",
+        "uz": "shu paytgacha"
+      },
+      "example": "The study reveals hitherto unknown facts about the disease.",
+      "example_translations": {
+        "ru": "Исследование раскрывает до сих пор неизвестные факты об этой болезни.",
+        "uz": "Tadqiqot bu kasallik haqidagi shu paytgacha noma'lum bo'lgan faktlarni ochib beradi."
+      }
+    },
+    {
+      "word": "thereby",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌðɛrˈbaɪ/",
+      "translation": "тем самым",
+      "translations": {
+        "ru": "тем самым",
+        "uz": "shu tariqa"
+      },
+      "example": "He cut costs, thereby increasing the company's profit.",
+      "example_translations": {
+        "ru": "Он сократил расходы, тем самым увеличив прибыль компании.",
+        "uz": "U xarajatlarni qisqartirdi va shu tariqa kompaniya foydasini oshirdi."
+      }
+    },
+    {
+      "word": "whereby",
+      "part_of_speech": "conjunction",
+      "transcription": "/wɛrˈbaɪ/",
+      "translation": "посредством которого",
+      "translations": {
+        "ru": "посредством которого",
+        "uz": "u orqali"
+      },
+      "example": "They proposed a system whereby students assess each other.",
+      "example_translations": {
+        "ru": "Они предложили систему, посредством которой студенты оценивают друг друга.",
+        "uz": "Ular shunday tizimni taklif qilishdiki, u orqali talabalar bir-birini baholaydi."
+      }
+    },
+    {
+      "word": "albeit",
+      "part_of_speech": "conjunction",
+      "transcription": "/ɔlˈbiɪt/",
+      "translation": "хотя и",
+      "translations": {
+        "ru": "хотя и",
+        "uz": "garchi"
+      },
+      "example": "It was a useful, albeit brief, discussion.",
+      "example_translations": {
+        "ru": "Это было полезное, хотя и краткое, обсуждение.",
+        "uz": "Bu foydali, garchi qisqa bo'lsa-da, muhokama edi."
+      }
+    },
+    {
+      "word": "conversely",
+      "part_of_speech": "adverb",
+      "transcription": "/kənˈvɜrsli/",
+      "translation": "напротив",
+      "translations": {
+        "ru": "напротив",
+        "uz": "aksincha"
+      },
+      "example": "Rich soil helps crops; conversely, poor soil limits growth.",
+      "example_translations": {
+        "ru": "Плодородная почва помогает посевам; напротив, бедная почва ограничивает рост.",
+        "uz": "Unumdor tuproq ekinlarga foyda beradi; aksincha, unumsiz tuproq o'sishni cheklaydi."
+      }
+    },
+    {
+      "word": "accordingly",
+      "part_of_speech": "adverb",
+      "transcription": "/əˈkɔrdɪŋli/",
+      "translation": "соответственно",
+      "translations": {
+        "ru": "соответственно",
+        "uz": "shunga muvofiq"
+      },
+      "example": "Prices rose, and wages were adjusted accordingly.",
+      "example_translations": {
+        "ru": "Цены выросли, и зарплаты были соответственно скорректированы.",
+        "uz": "Narxlar oshdi va ish haqi shunga muvofiq o'zgartirildi."
+      }
+    },
+    {
+      "word": "subsequently",
+      "part_of_speech": "adverb",
+      "transcription": "/ˈsʌbsəkwəntli/",
+      "translation": "впоследствии",
+      "translations": {
+        "ru": "впоследствии",
+        "uz": "keyinchalik"
+      },
+      "example": "The theory was subsequently confirmed by several experiments.",
+      "example_translations": {
+        "ru": "Впоследствии теория была подтверждена несколькими экспериментами.",
+        "uz": "Keyinchalik bu nazariya bir necha tajriba bilan tasdiqlandi."
+      }
+    },
+    {
+      "word": "likewise",
+      "part_of_speech": "adverb",
+      "transcription": "/ˈlaɪkˌwaɪz/",
+      "translation": "точно так же",
+      "translations": {
+        "ru": "точно так же",
+        "uz": "xuddi shunday"
+      },
+      "example": "Reading improved; likewise, writing scores rose sharply.",
+      "example_translations": {
+        "ru": "Навыки чтения улучшились; точно так же резко выросли оценки за письмо.",
+        "uz": "O'qish ko'nikmalari yaxshilandi; xuddi shunday, yozish baholari ham keskin oshdi."
+      }
+    }
+  ]
+}

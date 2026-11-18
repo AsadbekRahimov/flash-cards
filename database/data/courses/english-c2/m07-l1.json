@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 7,
+    "title": "Художественное описание",
+    "title_uz": "Badiiy tasvir"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Свет и цвет",
+    "title_uz": "Yorug'lik va rang"
+  },
+  "words": [
+    {
+      "word": "luminous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈlumənəs/",
+      "translation": "светящийся",
+      "translations": {
+        "ru": "светящийся",
+        "uz": "nur sochuvchi"
+      },
+      "example": "Luminous jellyfish drifted through the black water.",
+      "example_translations": {
+        "ru": "Светящиеся медузы плыли в чёрной воде.",
+        "uz": "Nur sochuvchi meduzalar qop-qora suvda suzib yurardi."
+      }
+    },
+    {
+      "word": "radiant",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈreɪdiənt/",
+      "translation": "сияющий, лучезарный",
+      "translations": {
+        "ru": "сияющий, лучезарный",
+        "uz": "nurafshon"
+      },
+      "example": "A radiant moon hung over the silent desert.",
+      "example_translations": {
+        "ru": "Сияющая луна висела над безмолвной пустыней.",
+        "uz": "Nurafshon oy sokin sahro uzra osilib turardi."
+      }
+    },
+    {
+      "word": "iridescent",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪrəˈdɛsənt/",
+      "translation": "переливчатый, радужный",
+      "translations": {
+        "ru": "переливчатый, радужный",
+        "uz": "kamalakdek tovlanuvchi"
+      },
+      "example": "Iridescent soap bubbles floated above the children.",
+      "example_translations": {
+        "ru": "Переливчатые мыльные пузыри парили над детьми.",
+        "uz": "Kamalakdek tovlanuvchi sovun pufakchalari bolalar tepasida suzib yurardi."
+      }
+    },
+    {
+      "word": "translucent",
+      "part_of_speech": "adjective",
+      "transcription": "/trænsˈlusənt/",
+      "translation": "полупрозрачный",
+      "translations": {
+        "ru": "полупрозрачный",
+        "uz": "yarim shaffof"
+      },
+      "example": "Sunlight filtered softly through the translucent curtains.",
+      "example_translations": {
+        "ru": "Солнечный свет мягко проникал сквозь полупрозрачные занавески.",
+        "uz": "Quyosh nuri yarim shaffof pardalar orqali mayin sizib kirardi."
+      }
+    },
+    {
+      "word": "opaque",
+      "part_of_speech": "adjective",
+      "transcription": "/oʊˈpeɪk/",
+      "translation": "непрозрачный",
+      "translations": {
+        "ru": "непрозрачный",
+        "uz": "noshaffof"
+      },
+      "example": "Nothing is visible through the opaque glass door.",
+      "example_translations": {
+        "ru": "Сквозь непрозрачную стеклянную дверь ничего не видно.",
+        "uz": "Noshaffof shisha eshik orqali hech narsa ko'rinmaydi."
+      }
+    },
+    {
+      "word": "gleam",
+      "part_of_speech": "verb",
+      "transcription": "/glim/",
+      "translation": "мягко блестеть",
+      "translations": {
+        "ru": "мягко блестеть",
+        "uz": "yiltiramoq"
+      },
+      "example": "Polished brass handles gleamed in the candlelight.",
+      "example_translations": {
+        "ru": "Начищенные латунные ручки мягко блестели при свете свечей.",
+        "uz": "Sayqallangan jez tutqichlar sham yorug'ida yiltirardi."
+      }
+    },
+    {
+      "word": "shimmer",
+      "part_of_speech": "verb",
+      "transcription": "/ˈʃɪmər/",
+      "translation": "мерцать, переливаться",
+      "translations": {
+        "ru": "мерцать, переливаться",
+        "uz": "jilvalanmoq"
+      },
+      "example": "The lake shimmered under the midday sun.",
+      "example_translations": {
+        "ru": "Озеро мерцало под полуденным солнцем.",
+        "uz": "Ko'l tush payti quyoshi ostida jilvalanardi."
+      }
+    },
+    {
+      "word": "pallid",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpæləd/",
+      "translation": "бледный, блёклый",
+      "translations": {
+        "ru": "бледный, блёклый",
+        "uz": "rangpar"
+      },
+      "example": "A pallid winter sun barely warmed the fields.",
+      "example_translations": {
+        "ru": "Бледное зимнее солнце едва согревало поля.",
+        "uz": "Rangpar qish quyoshi dalalarni arang isitardi."
+      }
+    },
+    {
+      "word": "murky",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmɜrki/",
+      "translation": "мутный",
+      "translations": {
+        "ru": "мутный",
+        "uz": "loyqa, xira"
+      },
+      "example": "We could not see fish in the murky pond.",
+      "example_translations": {
+        "ru": "В мутном пруду мы не могли разглядеть рыб.",
+        "uz": "Hovuzning loyqa, xira suvida baliqlarni ko'ra olmadik."
+      }
+    },
+    {
+      "word": "hue",
+      "part_of_speech": "noun",
+      "transcription": "/hju/",
+      "translation": "оттенок цвета",
+      "translations": {
+        "ru": "оттенок цвета",
+        "uz": "rang tusi"
+      },
+      "example": "Autumn leaves glowed in every hue of red.",
+      "example_translations": {
+        "ru": "Осенние листья пылали всеми оттенками красного.",
+        "uz": "Kuzgi barglar qizil rangning barcha tuslarida yonardi."
+      }
+    }
+  ]
+}

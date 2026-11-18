@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 6,
+    "title": "Наука и исследования",
+    "title_uz": "Fan va tadqiqotlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Выводы и доказательства",
+    "title_uz": "Xulosa va dalillar"
+  },
+  "words": [
+    {
+      "word": "conclusive",
+      "part_of_speech": "adjective",
+      "transcription": "/kənˈklusɪv/",
+      "translation": "неопровержимый, окончательный",
+      "translations": {
+        "ru": "неопровержимый, окончательный",
+        "uz": "uzil-kesil"
+      },
+      "example": "The tests gave conclusive proof of the theory.",
+      "example_translations": {
+        "ru": "Испытания дали неопровержимое доказательство теории.",
+        "uz": "Sinovlar nazariyaning uzil-kesil isbotini berdi."
+      }
+    },
+    {
+      "word": "tentative",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtɛntətɪv/",
+      "translation": "неокончательный",
+      "translations": {
+        "ru": "неокончательный",
+        "uz": "qat'iy bo'lmagan"
+      },
+      "example": "These tentative conclusions may change with more data.",
+      "example_translations": {
+        "ru": "Эти неокончательные выводы могут измениться с появлением новых данных.",
+        "uz": "Bu qat'iy bo'lmagan xulosalar yangi ma'lumotlar paydo bo'lishi bilan o'zgarishi mumkin."
+      }
+    },
+    {
+      "word": "preliminary",
+      "part_of_speech": "adjective",
+      "transcription": "/prɪˈlɪməˌnɛri/",
+      "translation": "предварительный",
+      "translations": {
+        "ru": "предварительный",
+        "uz": "dastlabki"
+      },
+      "example": "Preliminary results will be published before the full report.",
+      "example_translations": {
+        "ru": "Предварительные результаты опубликуют до выхода полного отчёта.",
+        "uz": "Dastlabki natijalar to'liq hisobotdan oldin e'lon qilinadi."
+      }
+    },
+    {
+      "word": "substantiate",
+      "part_of_speech": "verb",
+      "transcription": "/səbˈstænʃiˌeɪt/",
+      "translation": "обосновывать",
+      "translations": {
+        "ru": "обосновывать",
+        "uz": "asoslamoq"
+      },
+      "example": "Can you substantiate that claim with solid data?",
+      "example_translations": {
+        "ru": "Можете ли вы обосновать это утверждение надёжными данными?",
+        "uz": "Bu da'voni ishonchli ma'lumotlar bilan asoslay olasizmi?"
+      }
+    },
+    {
+      "word": "corroborate",
+      "part_of_speech": "verb",
+      "transcription": "/kəˈrɑbəˌreɪt/",
+      "translation": "подтверждать",
+      "translations": {
+        "ru": "подтверждать",
+        "uz": "tasdiqlamoq"
+      },
+      "example": "A second experiment corroborated the original findings.",
+      "example_translations": {
+        "ru": "Второй эксперимент подтвердил первоначальные выводы.",
+        "uz": "Ikkinchi tajriba avvalgi xulosalarni tasdiqladi."
+      }
+    },
+    {
+      "word": "refute",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈfjut/",
+      "translation": "опровергать",
+      "translations": {
+        "ru": "опровергать",
+        "uz": "rad etmoq"
+      },
+      "example": "New evidence refuted the long-accepted theory.",
+      "example_translations": {
+        "ru": "Новые данные опровергли давно признанную теорию.",
+        "uz": "Yangi dalillar uzoq vaqt e'tirof etilgan nazariyani rad etdi."
+      }
+    },
+    {
+      "word": "generalize",
+      "part_of_speech": "verb",
+      "transcription": "/ˈdʒɛnərəˌlaɪz/",
+      "translation": "обобщать",
+      "translations": {
+        "ru": "обобщать",
+        "uz": "umumlashtirmoq"
+      },
+      "example": "You cannot generalize from such a small sample.",
+      "example_translations": {
+        "ru": "Нельзя обобщать на основе такой маленькой выборки.",
+        "uz": "Bunday kichik tanlanma asosida umumlashtirib bo'lmaydi."
+      }
+    },
+    {
+      "word": "causation",
+      "part_of_speech": "noun",
+      "transcription": "/kɔˈzeɪʃən/",
+      "translation": "причинно-следственная связь",
+      "translations": {
+        "ru": "причинно-следственная связь",
+        "uz": "sabab-oqibat bog'liqligi"
+      },
+      "example": "Correlation between two trends does not prove causation.",
+      "example_translations": {
+        "ru": "Корреляция между двумя тенденциями не доказывает причинно-следственную связь.",
+        "uz": "Ikki tendensiya o'rtasidagi korrelyatsiya sabab-oqibat bog'liqligini isbotlamaydi."
+      }
+    },
+    {
+      "word": "caveat",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkæviˌæt/",
+      "translation": "оговорка",
+      "translations": {
+        "ru": "оговорка",
+        "uz": "ogohlantiruvchi izoh"
+      },
+      "example": "The authors add one caveat: the sample was small.",
+      "example_translations": {
+        "ru": "Авторы делают одну оговорку: выборка была небольшой.",
+        "uz": "Mualliflar bitta ogohlantiruvchi izoh qo'shadi: tanlanma kichik edi."
+      }
+    },
+    {
+      "word": "rigorous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈrɪgərəs/",
+      "translation": "строгий, тщательный",
+      "translations": {
+        "ru": "строгий, тщательный",
+        "uz": "qat'iy, puxta"
+      },
+      "example": "Every new drug undergoes rigorous testing before approval.",
+      "example_translations": {
+        "ru": "Каждое новое лекарство проходит строгую проверку перед одобрением.",
+        "uz": "Har bir yangi dori ma'qullanishidan oldin qat'iy sinovdan o'tadi."
+      }
+    }
+  ]
+}

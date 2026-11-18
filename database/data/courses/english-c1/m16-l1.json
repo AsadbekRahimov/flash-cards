@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 16,
+    "title": "Образование и научный стиль",
+    "title_uz": "Ta'lim va ilmiy uslub"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Высшее образование",
+    "title_uz": "Oliy ta'lim"
+  },
+  "words": [
+    {
+      "word": "extracurricular",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɛkstrəkəˈrɪkjələr/",
+      "translation": "внеучебный",
+      "translations": {
+        "ru": "внеучебный",
+        "uz": "darsdan tashqari"
+      },
+      "example": "Extracurricular activities like debating build students' confidence.",
+      "example_translations": {
+        "ru": "Внеучебные занятия, такие как дебаты, укрепляют уверенность студентов.",
+        "uz": "Munozara kabi darsdan tashqari mashg'ulotlar talabalarning o'ziga ishonchini oshiradi."
+      }
+    },
+    {
+      "word": "enrollment",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈroʊlmənt/",
+      "translation": "зачисление",
+      "translations": {
+        "ru": "зачисление",
+        "uz": "o'qishga qabul"
+      },
+      "example": "Enrollment for the fall semester opens in June.",
+      "example_translations": {
+        "ru": "Зачисление на осенний семестр начинается в июне.",
+        "uz": "Kuzgi semestr uchun o'qishga qabul iyunda boshlanadi."
+      }
+    },
+    {
+      "word": "alumnus",
+      "part_of_speech": "noun",
+      "transcription": "/əˈlʌmnəs/",
+      "translation": "выпускник",
+      "translations": {
+        "ru": "выпускник",
+        "uz": "bitiruvchi"
+      },
+      "example": "As an alumnus, he still donates to the university.",
+      "example_translations": {
+        "ru": "Как выпускник, он до сих пор жертвует деньги университету.",
+        "uz": "Bitiruvchi sifatida u hanuz universitetga xayriya qilib turadi."
+      }
+    },
+    {
+      "word": "accreditation",
+      "part_of_speech": "noun",
+      "transcription": "/əˌkrɛdəˈteɪʃən/",
+      "translation": "аккредитация",
+      "translations": {
+        "ru": "аккредитация",
+        "uz": "akkreditatsiya"
+      },
+      "example": "Without accreditation, the college cannot award recognized degrees.",
+      "example_translations": {
+        "ru": "Без аккредитации колледж не может присваивать признанные степени.",
+        "uz": "Akkreditatsiyasiz kollej tan olingan darajalarni bera olmaydi."
+      }
+    },
+    {
+      "word": "symposium",
+      "part_of_speech": "noun",
+      "transcription": "/sɪmˈpoʊziəm/",
+      "translation": "симпозиум",
+      "translations": {
+        "ru": "симпозиум",
+        "uz": "simpozium"
+      },
+      "example": "Researchers presented their findings at an international symposium.",
+      "example_translations": {
+        "ru": "Исследователи представили свои результаты на международном симпозиуме.",
+        "uz": "Tadqiqotchilar o'z natijalarini xalqaro simpoziumda taqdim etishdi."
+      }
+    },
+    {
+      "word": "sabbatical",
+      "part_of_speech": "noun",
+      "transcription": "/səˈbætɪkəl/",
+      "translation": "творческий отпуск",
+      "translations": {
+        "ru": "творческий отпуск",
+        "uz": "ijodiy ta'til"
+      },
+      "example": "Professor Lee took a sabbatical to write her book.",
+      "example_translations": {
+        "ru": "Профессор Ли взяла творческий отпуск, чтобы написать книгу.",
+        "uz": "Professor Li kitobini yozish uchun ijodiy ta'til oldi."
+      }
+    },
+    {
+      "word": "fellowship",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɛloʊˌʃɪp/",
+      "translation": "научная стипендия",
+      "translations": {
+        "ru": "научная стипендия",
+        "uz": "ilmiy stipendiya"
+      },
+      "example": "She won a fellowship to do research abroad.",
+      "example_translations": {
+        "ru": "Она выиграла научную стипендию для исследований за рубежом.",
+        "uz": "U chet elda tadqiqot olib borish uchun ilmiy stipendiya yutib oldi."
+      }
+    },
+    {
+      "word": "interdisciplinary",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪntərˈdɪsəpləˌnɛri/",
+      "translation": "междисциплинарный",
+      "translations": {
+        "ru": "междисциплинарный",
+        "uz": "fanlararo"
+      },
+      "example": "This interdisciplinary course combines biology, ethics, and law.",
+      "example_translations": {
+        "ru": "Этот междисциплинарный курс объединяет биологию, этику и право.",
+        "uz": "Bu fanlararo kurs biologiya, etika va huquqni birlashtiradi."
+      }
+    },
+    {
+      "word": "vocational",
+      "part_of_speech": "adjective",
+      "transcription": "/voʊˈkeɪʃənəl/",
+      "translation": "профессионально-технический",
+      "translations": {
+        "ru": "профессионально-технический",
+        "uz": "kasb-hunarga oid"
+      },
+      "example": "Vocational training prepares students for specific practical jobs.",
+      "example_translations": {
+        "ru": "Профессионально-техническое обучение готовит учащихся к конкретным практическим профессиям.",
+        "uz": "Kasb-hunarga oid ta'lim o'quvchilarni aniq amaliy kasblarga tayyorlaydi."
+      }
+    },
+    {
+      "word": "prerequisite",
+      "part_of_speech": "noun",
+      "transcription": "/priˈrɛkwəzɪt/",
+      "translation": "предварительное требование",
+      "translations": {
+        "ru": "предварительное требование",
+        "uz": "dastlabki talab"
+      },
+      "example": "Basic statistics is a prerequisite for this course.",
+      "example_translations": {
+        "ru": "Базовая статистика — предварительное требование для этого курса.",
+        "uz": "Boshlang'ich statistika — bu kurs uchun dastlabki talab."
+      }
+    }
+  ]
+}

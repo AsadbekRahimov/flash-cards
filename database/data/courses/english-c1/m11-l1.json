@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 11,
+    "title": "Политика и власть",
+    "title_uz": "Siyosat va hokimiyat"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Государственный строй",
+    "title_uz": "Davlat tuzumi"
+  },
+  "words": [
+    {
+      "word": "authoritarian",
+      "part_of_speech": "adjective",
+      "transcription": "/əˌθɔrəˈtɛriən/",
+      "translation": "авторитарный",
+      "translations": {
+        "ru": "авторитарный",
+        "uz": "avtoritar"
+      },
+      "example": "The authoritarian ruler tolerated no criticism at all.",
+      "example_translations": {
+        "ru": "Авторитарный правитель не терпел вообще никакой критики.",
+        "uz": "Avtoritar hukmdor hech qanday tanqidga toqat qilmasdi."
+      }
+    },
+    {
+      "word": "totalitarian",
+      "part_of_speech": "adjective",
+      "transcription": "/toʊˌtæləˈtɛriən/",
+      "translation": "тоталитарный",
+      "translations": {
+        "ru": "тоталитарный",
+        "uz": "totalitar"
+      },
+      "example": "A totalitarian state controls every aspect of life.",
+      "example_translations": {
+        "ru": "Тоталитарное государство контролирует все стороны жизни.",
+        "uz": "Totalitar davlat hayotning barcha jabhalarini nazorat qiladi."
+      }
+    },
+    {
+      "word": "dictatorship",
+      "part_of_speech": "noun",
+      "transcription": "/dɪkˈteɪtərˌʃɪp/",
+      "translation": "диктатура",
+      "translations": {
+        "ru": "диктатура",
+        "uz": "diktatura"
+      },
+      "example": "Under the dictatorship, free elections were never held.",
+      "example_translations": {
+        "ru": "При диктатуре свободные выборы никогда не проводились.",
+        "uz": "Diktatura davrida erkin saylovlar hech qachon o'tkazilmagan."
+      }
+    },
+    {
+      "word": "oligarchy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑləˌgɑrki/",
+      "translation": "олигархия",
+      "translations": {
+        "ru": "олигархия",
+        "uz": "oligarxiya"
+      },
+      "example": "In an oligarchy, a few wealthy families hold power.",
+      "example_translations": {
+        "ru": "При олигархии власть принадлежит нескольким богатым семьям.",
+        "uz": "Oligarxiyada hokimiyat bir necha boy oilaning qo'lida bo'ladi."
+      }
+    },
+    {
+      "word": "federal",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈfɛdərəl/",
+      "translation": "федеральный",
+      "translations": {
+        "ru": "федеральный",
+        "uz": "federal"
+      },
+      "example": "Federal laws apply in every state of the country.",
+      "example_translations": {
+        "ru": "Федеральные законы действуют в каждом штате страны.",
+        "uz": "Federal qonunlar mamlakatning har bir shtatida amal qiladi."
+      }
+    },
+    {
+      "word": "sovereign",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɑvrən/",
+      "translation": "суверенный",
+      "translations": {
+        "ru": "суверенный",
+        "uz": "suveren"
+      },
+      "example": "Every sovereign nation decides its own laws.",
+      "example_translations": {
+        "ru": "Каждое суверенное государство само определяет свои законы.",
+        "uz": "Har bir suveren davlat o'z qonunlarini o'zi belgilaydi."
+      }
+    },
+    {
+      "word": "constitutional",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌkɑnstəˈtuʃənəl/",
+      "translation": "конституционный",
+      "translations": {
+        "ru": "конституционный",
+        "uz": "konstitutsiyaviy"
+      },
+      "example": "Constitutional reform would limit the president to two terms.",
+      "example_translations": {
+        "ru": "Конституционная реформа ограничила бы президента двумя сроками.",
+        "uz": "Konstitutsiyaviy islohot prezident vakolatini ikki muddat bilan cheklagan bo'lardi."
+      }
+    },
+    {
+      "word": "secular",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɛkjələr/",
+      "translation": "светский",
+      "translations": {
+        "ru": "светский",
+        "uz": "dunyoviy"
+      },
+      "example": "In a secular state, religion and government are separate.",
+      "example_translations": {
+        "ru": "В светском государстве религия отделена от власти.",
+        "uz": "Dunyoviy davlatda din hokimiyatdan ajratilgan."
+      }
+    },
+    {
+      "word": "pluralism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈplʊrəˌlɪzəm/",
+      "translation": "плюрализм",
+      "translations": {
+        "ru": "плюрализм",
+        "uz": "plyuralizm"
+      },
+      "example": "Political pluralism allows many parties to compete freely.",
+      "example_translations": {
+        "ru": "Политический плюрализм позволяет многим партиям свободно соперничать.",
+        "uz": "Siyosiy plyuralizm ko'plab partiyalarga erkin raqobatlashish imkonini beradi."
+      }
+    },
+    {
+      "word": "legislature",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɛdʒəˌsleɪtʃər/",
+      "translation": "законодательный орган",
+      "translations": {
+        "ru": "законодательный орган",
+        "uz": "qonun chiqaruvchi organ"
+      },
+      "example": "The legislature passed the new budget last night.",
+      "example_translations": {
+        "ru": "Законодательный орган принял новый бюджет вчера вечером.",
+        "uz": "Qonun chiqaruvchi organ kecha kechqurun yangi budjetni qabul qildi."
+      }
+    }
+  ]
+}

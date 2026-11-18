@@ -31,6 +31,8 @@ function tfHeaders(Learner $learner): array
 }
 
 it('lists friends with streak and words, the incoming and outgoing requests, and the invite link', function (): void {
+    // The camel of a friend is there only while the game is open; this test is about the closed-game shape, whatever the local .env says.
+    config(['game.access' => 'off']);
     $me = Learner::factory()->create(['referral_code' => 'MYCODE23']);
     $friend = Learner::factory()->create(['first_name' => 'Dilnoza', 'username' => 'dil_secret', 'streak_current' => 4, 'streak_last_date' => now()->toDateString()]);
     $asker = Learner::factory()->create(['first_name' => 'Bek']);

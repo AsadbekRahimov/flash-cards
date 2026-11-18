@@ -1,0 +1,16 @@
+{
+  "slug": "english-c1",
+  "title": {
+    "ru": "Английский C1: продвинутый",
+    "uz": "Ingliz tili C1: ilg'or daraja"
+  },
+  "description": {
+    "ru": "1 000 слов для учёбы, работы и экзаменов: 20 модулей по темам, у каждого слова пример и перевод на русский и узбекский.",
+    "uz": "O'qish, ish va imtihonlar uchun 1 000 ta so'z: mavzular bo'yicha 20 ta modul, har bir so'zga misol va rus hamda o'zbek tilidagi tarjima berilgan."
+  },
+  "level": "C1",
+  "exam_tag": "general",
+  "visibility": "public",
+  "position": 40,
+  "is_featured": false
+}

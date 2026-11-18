@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 1,
+    "title": "Характер и личность",
+    "title_uz": "Xarakter va shaxs"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Нравственность",
+    "title_uz": "Axloq"
+  },
+  "words": [
+    {
+      "word": "virtue",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvɜrtʃu/",
+      "translation": "добродетель",
+      "translations": {
+        "ru": "добродетель",
+        "uz": "fazilat"
+      },
+      "example": "Patience is a virtue that few people have.",
+      "example_translations": {
+        "ru": "Терпение — добродетель, которой обладают немногие.",
+        "uz": "Sabr — kam odamda bo'ladigan fazilat."
+      }
+    },
+    {
+      "word": "vice",
+      "part_of_speech": "noun",
+      "transcription": "/vaɪs/",
+      "translation": "порок",
+      "translations": {
+        "ru": "порок",
+        "uz": "illat"
+      },
+      "example": "Greed is a vice that destroys friendships.",
+      "example_translations": {
+        "ru": "Жадность — порок, который разрушает дружбу.",
+        "uz": "Ochko'zlik — do'stlikni buzadigan illat."
+      }
+    },
+    {
+      "word": "humility",
+      "part_of_speech": "noun",
+      "transcription": "/hjuˈmɪləti/",
+      "translation": "скромность, смирение",
+      "translations": {
+        "ru": "скромность, смирение",
+        "uz": "kamtarlik"
+      },
+      "example": "Despite his fame, he speaks with great humility.",
+      "example_translations": {
+        "ru": "Несмотря на славу, он говорит с большой скромностью.",
+        "uz": "Shon-shuhratiga qaramay, u katta kamtarlik bilan gapiradi."
+      }
+    },
+    {
+      "word": "righteous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈraɪtʃəs/",
+      "translation": "праведный",
+      "translations": {
+        "ru": "праведный",
+        "uz": "solih"
+      },
+      "example": "A righteous person does good without expecting rewards.",
+      "example_translations": {
+        "ru": "Праведный человек творит добро, не ожидая награды.",
+        "uz": "Solih inson mukofot kutmasdan yaxshilik qiladi."
+      }
+    },
+    {
+      "word": "honorable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɑnərəbəl/",
+      "translation": "благородный, достойный",
+      "translations": {
+        "ru": "благородный, достойный",
+        "uz": "olijanob"
+      },
+      "example": "Admitting your mistake was the honorable thing to do.",
+      "example_translations": {
+        "ru": "Признать свою ошибку было благородным поступком.",
+        "uz": "Xatoyingizni tan olish olijanob ish edi."
+      }
+    },
+    {
+      "word": "mercy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɜrsi/",
+      "translation": "милосердие, пощада",
+      "translations": {
+        "ru": "милосердие, пощада",
+        "uz": "rahm-shafqat"
+      },
+      "example": "The judge showed mercy and reduced his sentence.",
+      "example_translations": {
+        "ru": "Судья проявил милосердие и смягчил его приговор.",
+        "uz": "Sudya rahm-shafqat ko'rsatib, uning jazosini yengillashtirdi."
+      }
+    },
+    {
+      "word": "vanity",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvænəti/",
+      "translation": "тщеславие",
+      "translations": {
+        "ru": "тщеславие",
+        "uz": "shuhratparastlik"
+      },
+      "example": "Vanity made him post photos of every award.",
+      "example_translations": {
+        "ru": "Тщеславие заставляло его выкладывать фотографии каждой награды.",
+        "uz": "Shuhratparastlik uni har bir mukofotining suratini joylashga undardi."
+      }
+    },
+    {
+      "word": "altruism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæltruˌɪzəm/",
+      "translation": "альтруизм, бескорыстие",
+      "translations": {
+        "ru": "альтруизм, бескорыстие",
+        "uz": "altruizm, beg'arazlik"
+      },
+      "example": "Pure altruism means helping others without any personal gain.",
+      "example_translations": {
+        "ru": "Чистый альтруизм — это помощь другим без всякой личной выгоды.",
+        "uz": "Sof altruizm — boshqalarga hech qanday shaxsiy manfaatsiz yordam berish."
+      }
+    },
+    {
+      "word": "temptation",
+      "part_of_speech": "noun",
+      "transcription": "/tɛmpˈteɪʃən/",
+      "translation": "искушение, соблазн",
+      "translations": {
+        "ru": "искушение, соблазн",
+        "uz": "vasvasa, nafs xohishi"
+      },
+      "example": "She resisted the temptation to read his diary.",
+      "example_translations": {
+        "ru": "Она устояла перед искушением прочитать его дневник.",
+        "uz": "U uning kundaligini o'qish vasvasasiga berilmadi."
+      }
+    },
+    {
+      "word": "decency",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdisənsi/",
+      "translation": "порядочность",
+      "translations": {
+        "ru": "порядочность",
+        "uz": "odamgarchilik"
+      },
+      "example": "He had the decency to apologize in person.",
+      "example_translations": {
+        "ru": "У него хватило порядочности извиниться лично.",
+        "uz": "Uning shaxsan kechirim so'rashga odamgarchiligi yetdi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 11,
+    "title": "Политика и власть",
+    "title_uz": "Siyosat va hokimiyat"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Подавление и протест",
+    "title_uz": "Bostirish va norozilik"
+  },
+  "words": [
+    {
+      "word": "oppression",
+      "part_of_speech": "noun",
+      "transcription": "/əˈprɛʃən/",
+      "translation": "угнетение",
+      "translations": {
+        "ru": "угнетение",
+        "uz": "zulm"
+      },
+      "example": "People fled the country to escape political oppression.",
+      "example_translations": {
+        "ru": "Люди бежали из страны, спасаясь от политического угнетения.",
+        "uz": "Odamlar siyosiy zulmdan qochib, mamlakatni tark etishdi."
+      }
+    },
+    {
+      "word": "tyranny",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɪrəni/",
+      "translation": "тирания",
+      "translations": {
+        "ru": "тирания",
+        "uz": "istibdod"
+      },
+      "example": "The people finally rose up against the king's tyranny.",
+      "example_translations": {
+        "ru": "Народ наконец восстал против тирании короля.",
+        "uz": "Xalq nihoyat qirolning istibdodiga qarshi bosh ko'tardi."
+      }
+    },
+    {
+      "word": "coercion",
+      "part_of_speech": "noun",
+      "transcription": "/koʊˈɜrʒən/",
+      "translation": "принуждение",
+      "translations": {
+        "ru": "принуждение",
+        "uz": "majburlash"
+      },
+      "example": "He signed the confession under coercion, not freely.",
+      "example_translations": {
+        "ru": "Он подписал признание по принуждению, а не добровольно.",
+        "uz": "U iqrornomani o'z ixtiyori bilan emas, majburlash ostida imzoladi."
+      }
+    },
+    {
+      "word": "dissent",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈsɛnt/",
+      "translation": "инакомыслие",
+      "translations": {
+        "ru": "инакомыслие",
+        "uz": "o'zgacha fikrlash"
+      },
+      "example": "The regime refused to tolerate any public dissent.",
+      "example_translations": {
+        "ru": "Режим не желал терпеть никакого публичного инакомыслия.",
+        "uz": "Tuzum har qanday ochiq o'zgacha fikrlashga toqat qilishni istamasdi."
+      }
+    },
+    {
+      "word": "dissident",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɪsədənt/",
+      "translation": "диссидент",
+      "translations": {
+        "ru": "диссидент",
+        "uz": "dissident"
+      },
+      "example": "The dissident was jailed for criticizing the government.",
+      "example_translations": {
+        "ru": "Диссидента посадили в тюрьму за критику правительства.",
+        "uz": "Dissident hukumatni tanqid qilgani uchun qamoqqa tashlandi."
+      }
+    },
+    {
+      "word": "crackdown",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkrækˌdaʊn/",
+      "translation": "жёсткие меры",
+      "translations": {
+        "ru": "жёсткие меры",
+        "uz": "qattiq choralar"
+      },
+      "example": "Police launched a crackdown on unauthorized street protests.",
+      "example_translations": {
+        "ru": "Полиция начала применять жёсткие меры против несанкционированных уличных протестов.",
+        "uz": "Politsiya ruxsat etilmagan ko'cha namoyishlariga qarshi qattiq choralar ko'ra boshladi."
+      }
+    },
+    {
+      "word": "suppress",
+      "part_of_speech": "verb",
+      "transcription": "/səˈprɛs/",
+      "translation": "подавлять",
+      "translations": {
+        "ru": "подавлять",
+        "uz": "bostirmoq"
+      },
+      "example": "Why did the rulers suppress every peaceful protest?",
+      "example_translations": {
+        "ru": "Почему правители подавляли каждый мирный протест?",
+        "uz": "Nega hukmdorlar har bir tinch namoyishni bostirgan?"
+      }
+    },
+    {
+      "word": "persecute",
+      "part_of_speech": "verb",
+      "transcription": "/ˈpɜrsəˌkjut/",
+      "translation": "преследовать",
+      "translations": {
+        "ru": "преследовать",
+        "uz": "ta'qib qilmoq"
+      },
+      "example": "The regime persecuted journalists who reported the truth.",
+      "example_translations": {
+        "ru": "Режим преследовал журналистов, сообщавших правду.",
+        "uz": "Tuzum haqiqatni yoritgan jurnalistlarni ta'qib qilardi."
+      }
+    },
+    {
+      "word": "overthrow",
+      "part_of_speech": "verb",
+      "transcription": "/ˌoʊvərˈθroʊ/",
+      "translation": "свергать",
+      "translations": {
+        "ru": "свергать",
+        "uz": "ag'darmoq"
+      },
+      "example": "Rebels plotted to overthrow the corrupt government.",
+      "example_translations": {
+        "ru": "Повстанцы замышляли свергнуть коррумпированное правительство.",
+        "uz": "Isyonchilar korrupsiyaga botgan hukumatni ag'darishni rejalashtirgan edi."
+      }
+    },
+    {
+      "word": "exile",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛgˌzaɪl/",
+      "translation": "изгнание, ссылка",
+      "translations": {
+        "ru": "изгнание, ссылка",
+        "uz": "surgun"
+      },
+      "example": "The writer spent twenty years in exile abroad.",
+      "example_translations": {
+        "ru": "Писатель провёл двадцать лет в изгнании за границей.",
+        "uz": "Yozuvchi yigirma yilni xorijda surgunda o'tkazdi."
+      }
+    }
+  ]
+}

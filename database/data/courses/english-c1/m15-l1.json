@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 15,
+    "title": "Искусство и культура",
+    "title_uz": "San'at va madaniyat"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Живопись и графика",
+    "title_uz": "Rangtasvir va grafika"
+  },
+  "words": [
+    {
+      "word": "engraving",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈgreɪvɪŋ/",
+      "translation": "гравюра",
+      "translations": {
+        "ru": "гравюра",
+        "uz": "gravyura"
+      },
+      "example": "This old engraving was cut into a copper plate.",
+      "example_translations": {
+        "ru": "Эта старинная гравюра была вырезана на медной пластине.",
+        "uz": "Bu qadimiy gravyura mis taxtachaga o'yib ishlangan."
+      }
+    },
+    {
+      "word": "fresco",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfrɛskoʊ/",
+      "translation": "фреска",
+      "translations": {
+        "ru": "фреска",
+        "uz": "freska"
+      },
+      "example": "A faded fresco covers the ceiling of the chapel.",
+      "example_translations": {
+        "ru": "Потускневшая фреска покрывает потолок часовни.",
+        "uz": "Rangi o'chgan freska ibodatxona shiftini qoplab turibdi."
+      }
+    },
+    {
+      "word": "palette",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpælət/",
+      "translation": "палитра",
+      "translations": {
+        "ru": "палитра",
+        "uz": "palitra"
+      },
+      "example": "The artist mixed bright colors on her palette.",
+      "example_translations": {
+        "ru": "Художница смешивала яркие краски на своей палитре.",
+        "uz": "Rassom o'z palitrasida yorqin bo'yoqlarni aralashtirdi."
+      }
+    },
+    {
+      "word": "pigment",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɪgmənt/",
+      "translation": "пигмент",
+      "translations": {
+        "ru": "пигмент",
+        "uz": "pigment"
+      },
+      "example": "This blue pigment was once made from crushed stone.",
+      "example_translations": {
+        "ru": "Этот синий пигмент когда-то делали из толчёного камня.",
+        "uz": "Bu ko'k pigment bir vaqtlar maydalangan toshdan tayyorlangan."
+      }
+    },
+    {
+      "word": "easel",
+      "part_of_speech": "noun",
+      "transcription": "/ˈizəl/",
+      "translation": "мольберт",
+      "translations": {
+        "ru": "мольберт",
+        "uz": "molbert"
+      },
+      "example": "She set her canvas on a wooden easel.",
+      "example_translations": {
+        "ru": "Она поставила свой холст на деревянный мольберт.",
+        "uz": "U rasm matosini yog'och molbertga o'rnatdi."
+      }
+    },
+    {
+      "word": "etching",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛtʃɪŋ/",
+      "translation": "офорт",
+      "translations": {
+        "ru": "офорт",
+        "uz": "ofort"
+      },
+      "example": "Each etching is printed from an acid-treated metal plate.",
+      "example_translations": {
+        "ru": "Каждый офорт печатают с металлической пластины, протравленной кислотой.",
+        "uz": "Har bir ofort kislota bilan ishlov berilgan metall plastinadan bosiladi."
+      }
+    },
+    {
+      "word": "contour",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑnˌtʊr/",
+      "translation": "контур",
+      "translations": {
+        "ru": "контур",
+        "uz": "kontur"
+      },
+      "example": "First, sketch the contour of the face in pencil.",
+      "example_translations": {
+        "ru": "Сначала набросайте контур лица карандашом.",
+        "uz": "Avval yuzning konturini qalam bilan chizib oling."
+      }
+    },
+    {
+      "word": "composition",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑmpəˈzɪʃən/",
+      "translation": "композиция",
+      "translations": {
+        "ru": "композиция",
+        "uz": "kompozitsiya"
+      },
+      "example": "The composition of the painting draws your eye upward.",
+      "example_translations": {
+        "ru": "Композиция картины направляет взгляд вверх.",
+        "uz": "Rasmning kompozitsiyasi nigohni yuqoriga yo'naltiradi."
+      }
+    },
+    {
+      "word": "silhouette",
+      "part_of_speech": "noun",
+      "transcription": "/ˌsɪluˈɛt/",
+      "translation": "силуэт",
+      "translations": {
+        "ru": "силуэт",
+        "uz": "siluet"
+      },
+      "example": "A dark silhouette of a tree stood against the sunset.",
+      "example_translations": {
+        "ru": "Тёмный силуэт дерева выделялся на фоне заката.",
+        "uz": "Daraxtning qora silueti shafaq fonida ko'zga tashlanib turardi."
+      }
+    },
+    {
+      "word": "tapestry",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtæpəstri/",
+      "translation": "гобелен",
+      "translations": {
+        "ru": "гобелен",
+        "uz": "gobelen"
+      },
+      "example": "A huge woven tapestry hung on the castle wall.",
+      "example_translations": {
+        "ru": "На стене замка висел огромный тканый гобелен.",
+        "uz": "Qasr devorida ulkan to'qima gobelen osilib turardi."
+      }
+    }
+  ]
+}

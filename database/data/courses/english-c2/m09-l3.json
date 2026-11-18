@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 9,
+    "title": "Власть и государство",
+    "title_uz": "Hokimiyat va davlat"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Дипломатия",
+    "title_uz": "Diplomatiya"
+  },
+  "words": [
+    {
+      "word": "rapprochement",
+      "part_of_speech": "noun",
+      "transcription": "/ˌræproʊʃˈmɑn/",
+      "translation": "сближение",
+      "translations": {
+        "ru": "сближение",
+        "uz": "yaqinlashuv"
+      },
+      "example": "The summit marked a rapprochement between the two rivals.",
+      "example_translations": {
+        "ru": "Саммит ознаменовал сближение двух соперников.",
+        "uz": "Sammit ikki raqibning yaqinlashuvini boshlab berdi."
+      }
+    },
+    {
+      "word": "emissary",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛməˌsɛri/",
+      "translation": "посланник, эмиссар",
+      "translations": {
+        "ru": "посланник, эмиссар",
+        "uz": "maxsus elchi"
+      },
+      "example": "The king sent an emissary to negotiate peace.",
+      "example_translations": {
+        "ru": "Король отправил посланника вести переговоры о мире.",
+        "uz": "Qirol tinchlik muzokaralarini olib borish uchun maxsus elchi yubordi."
+      }
+    },
+    {
+      "word": "brinkmanship",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbrɪŋkmənˌʃɪp/",
+      "translation": "балансирование на грани",
+      "translations": {
+        "ru": "балансирование на грани",
+        "uz": "tahlika yoqasidagi siyosat"
+      },
+      "example": "Such brinkmanship could push both countries into war.",
+      "example_translations": {
+        "ru": "Такое балансирование на грани может втянуть обе страны в войну.",
+        "uz": "Bunday tahlika yoqasidagi siyosat ikkala mamlakatni urushga tortishi mumkin."
+      }
+    },
+    {
+      "word": "conciliatory",
+      "part_of_speech": "adjective",
+      "transcription": "/kənˈsɪliəˌtɔri/",
+      "translation": "примирительный",
+      "translations": {
+        "ru": "примирительный",
+        "uz": "murosasoz"
+      },
+      "example": "Her conciliatory tone eased the tension at the talks.",
+      "example_translations": {
+        "ru": "Её примирительный тон снял напряжение на переговорах.",
+        "uz": "Uning murosasoz ohangi muzokaralardagi keskinlikni yumshatdi."
+      }
+    },
+    {
+      "word": "placate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈpleɪˌkeɪt/",
+      "translation": "задабривать, успокаивать",
+      "translations": {
+        "ru": "задабривать, успокаивать",
+        "uz": "ko'nglini olmoq"
+      },
+      "example": "The minister offered concessions to placate the angry neighbors.",
+      "example_translations": {
+        "ru": "Министр пошёл на уступки, чтобы задобрить рассерженных соседей.",
+        "uz": "Vazir g'azablangan qo'shnilarning ko'nglini olish uchun yon berdi."
+      }
+    },
+    {
+      "word": "overture",
+      "part_of_speech": "noun",
+      "transcription": "/ˈoʊvərtʃər/",
+      "translation": "шаг навстречу",
+      "translations": {
+        "ru": "шаг навстречу",
+        "uz": "yarashuv sari qadam"
+      },
+      "example": "They rejected our overture and refused even to talk.",
+      "example_translations": {
+        "ru": "Они отвергли наш шаг навстречу и отказались даже разговаривать.",
+        "uz": "Ular bizning yarashuv sari qadamimizni rad etib, hatto gaplashishdan ham bosh tortdi."
+      }
+    },
+    {
+      "word": "reciprocity",
+      "part_of_speech": "noun",
+      "transcription": "/ˌrɛsəˈprɑsəti/",
+      "translation": "взаимность",
+      "translations": {
+        "ru": "взаимность",
+        "uz": "o'zarolik"
+      },
+      "example": "Visa rules are based on reciprocity between states.",
+      "example_translations": {
+        "ru": "Визовые правила основаны на взаимности между государствами.",
+        "uz": "Viza qoidalari davlatlar o'rtasidagi o'zarolikka asoslanadi."
+      }
+    },
+    {
+      "word": "armistice",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑrməstəs/",
+      "translation": "перемирие",
+      "translations": {
+        "ru": "перемирие",
+        "uz": "yarash sulhi"
+      },
+      "example": "Both armies signed an armistice and stopped fighting.",
+      "example_translations": {
+        "ru": "Обе армии подписали перемирие и прекратили бои.",
+        "uz": "Ikkala armiya yarash sulhini imzolab, janglarni to'xtatdi."
+      }
+    },
+    {
+      "word": "concord",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑnˌkɔrd/",
+      "translation": "согласие",
+      "translations": {
+        "ru": "согласие",
+        "uz": "ahillik, totuvlik"
+      },
+      "example": "The two nations lived in concord for decades.",
+      "example_translations": {
+        "ru": "Два народа десятилетиями жили в согласии.",
+        "uz": "Ikki xalq o'nlab yillar davomida ahillik va totuvlikda yashadi."
+      }
+    },
+    {
+      "word": "detente",
+      "part_of_speech": "noun",
+      "transcription": "/deɪˈtɑnt/",
+      "translation": "разрядка",
+      "translations": {
+        "ru": "разрядка",
+        "uz": "keskinlikning yumshashi"
+      },
+      "example": "A period of detente followed years of hostility.",
+      "example_translations": {
+        "ru": "За годами вражды последовал период разрядки.",
+        "uz": "Ko'p yillik adovatdan so'ng keskinlikning yumshashi davri boshlandi."
+      }
+    }
+  ]
+}

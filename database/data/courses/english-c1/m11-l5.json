@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 11,
+    "title": "Политика и власть",
+    "title_uz": "Siyosat va hokimiyat"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Законы и реформы",
+    "title_uz": "Qonunlar va islohotlar"
+  },
+  "words": [
+    {
+      "word": "legislate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈlɛdʒəˌsleɪt/",
+      "translation": "издавать законы",
+      "translations": {
+        "ru": "издавать законы",
+        "uz": "qonun chiqarmoq"
+      },
+      "example": "Only elected representatives should have the power to legislate.",
+      "example_translations": {
+        "ru": "Только избранные представители должны иметь право издавать законы.",
+        "uz": "Faqat saylangan vakillar qonun chiqarish vakolatiga ega bo'lishi kerak."
+      }
+    },
+    {
+      "word": "enact",
+      "part_of_speech": "verb",
+      "transcription": "/ɪˈnækt/",
+      "translation": "принимать закон",
+      "translations": {
+        "ru": "принимать закон",
+        "uz": "qonun qabul qilmoq"
+      },
+      "example": "Parliament enacted a law protecting consumers' personal data.",
+      "example_translations": {
+        "ru": "Парламент принял закон о защите персональных данных потребителей.",
+        "uz": "Parlament iste'molchilarning shaxsiy ma'lumotlarini himoya qiluvchi qonun qabul qildi."
+      }
+    },
+    {
+      "word": "repeal",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈpil/",
+      "translation": "отменять",
+      "translations": {
+        "ru": "отменять",
+        "uz": "bekor qilmoq"
+      },
+      "example": "Lawmakers voted to repeal the outdated tax law.",
+      "example_translations": {
+        "ru": "Законодатели проголосовали за то, чтобы отменить устаревший налоговый закон.",
+        "uz": "Qonunchilar eskirgan soliq qonunini bekor qilish uchun ovoz berishdi."
+      }
+    },
+    {
+      "word": "overhaul",
+      "part_of_speech": "verb",
+      "transcription": "/ˌoʊvərˈhɔl/",
+      "translation": "коренным образом реформировать",
+      "translations": {
+        "ru": "коренным образом реформировать",
+        "uz": "tubdan isloh qilmoq"
+      },
+      "example": "The government plans to overhaul the entire pension system.",
+      "example_translations": {
+        "ru": "Правительство планирует коренным образом реформировать всю пенсионную систему.",
+        "uz": "Hukumat butun pensiya tizimini tubdan isloh qilishni rejalashtirmoqda."
+      }
+    },
+    {
+      "word": "provision",
+      "part_of_speech": "noun",
+      "transcription": "/prəˈvɪʒən/",
+      "translation": "положение закона",
+      "translations": {
+        "ru": "положение закона",
+        "uz": "qonun qoidasi"
+      },
+      "example": "A new provision in the law protects tenants' rights.",
+      "example_translations": {
+        "ru": "Новое положение закона защищает права арендаторов.",
+        "uz": "Qonunning yangi qoidasi ijarachilarning huquqlarini himoya qiladi."
+      }
+    },
+    {
+      "word": "statutory",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈstætʃəˌtɔri/",
+      "translation": "установленный законом",
+      "translations": {
+        "ru": "установленный законом",
+        "uz": "qonunda belgilangan"
+      },
+      "example": "Employees have a statutory right to paid leave.",
+      "example_translations": {
+        "ru": "Работники имеют установленное законом право на оплачиваемый отпуск.",
+        "uz": "Xodimlar qonunda belgilangan haq to'lanadigan ta'til huquqiga ega."
+      }
+    },
+    {
+      "word": "bureaucrat",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbjʊrəˌkræt/",
+      "translation": "бюрократ",
+      "translations": {
+        "ru": "бюрократ",
+        "uz": "byurokrat"
+      },
+      "example": "A bureaucrat rejected the form over a missing stamp.",
+      "example_translations": {
+        "ru": "Бюрократ отклонил заявление из-за отсутствия печати.",
+        "uz": "Byurokrat muhr yo'qligi sababli arizani rad etdi."
+      }
+    },
+    {
+      "word": "regulatory",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈrɛgjələˌtɔri/",
+      "translation": "регулирующий",
+      "translations": {
+        "ru": "регулирующий",
+        "uz": "tartibga soluvchi"
+      },
+      "example": "A regulatory agency monitors the safety of new medicines.",
+      "example_translations": {
+        "ru": "Регулирующий орган следит за безопасностью новых лекарств.",
+        "uz": "Tartibga soluvchi idora yangi dori-darmonlar xavfsizligini nazorat qiladi."
+      }
+    },
+    {
+      "word": "policymaker",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɑləsiˌmeɪkər/",
+      "translation": "лицо, определяющее политику",
+      "translations": {
+        "ru": "лицо, определяющее политику",
+        "uz": "siyosatni belgilovchi shaxs"
+      },
+      "example": "Policymakers must weigh economic growth against environmental damage.",
+      "example_translations": {
+        "ru": "Лица, определяющие политику, должны соизмерять экономический рост с ущербом для природы.",
+        "uz": "Siyosatni belgilovchi shaxslar iqtisodiy o'sishni tabiatga yetadigan zarar bilan taqqoslashi kerak."
+      }
+    },
+    {
+      "word": "mandatory",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmændəˌtɔri/",
+      "translation": "обязательный",
+      "translations": {
+        "ru": "обязательный",
+        "uz": "majburiy"
+      },
+      "example": "Is wearing a seat belt mandatory in your country?",
+      "example_translations": {
+        "ru": "Обязателен ли ремень безопасности в вашей стране?",
+        "uz": "Mamlakatingizda xavfsizlik kamarini taqish majburiymi?"
+      }
+    }
+  ]
+}

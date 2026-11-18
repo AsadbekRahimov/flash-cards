@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 12,
+    "title": "Точные и естественные науки",
+    "title_uz": "Aniq va tabiiy fanlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Физика и космос",
+    "title_uz": "Fizika va koinot"
+  },
+  "words": [
+    {
+      "word": "quantum",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkwɑntəm/",
+      "translation": "квант",
+      "translations": {
+        "ru": "квант",
+        "uz": "kvant"
+      },
+      "example": "A quantum is the smallest possible unit of energy.",
+      "example_translations": {
+        "ru": "Квант — это наименьшая возможная порция энергии.",
+        "uz": "Kvant — energiyaning mumkin bo'lgan eng kichik ulushi."
+      }
+    },
+    {
+      "word": "relativity",
+      "part_of_speech": "noun",
+      "transcription": "/ˌrɛləˈtɪvəti/",
+      "translation": "относительность",
+      "translations": {
+        "ru": "относительность",
+        "uz": "nisbiylik"
+      },
+      "example": "Relativity shows that time slows at high speeds.",
+      "example_translations": {
+        "ru": "Теория относительности показывает, что время замедляется на высоких скоростях.",
+        "uz": "Nisbiylik nazariyasi yuqori tezliklarda vaqt sekinlashishini ko'rsatadi."
+      }
+    },
+    {
+      "word": "entropy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛntrəpi/",
+      "translation": "энтропия",
+      "translations": {
+        "ru": "энтропия",
+        "uz": "entropiya"
+      },
+      "example": "Entropy measures the disorder within a physical system.",
+      "example_translations": {
+        "ru": "Энтропия измеряет беспорядок внутри физической системы.",
+        "uz": "Entropiya fizik tizim ichidagi tartibsizlikni o'lchaydi."
+      }
+    },
+    {
+      "word": "thermodynamics",
+      "part_of_speech": "noun",
+      "transcription": "/ˌθɜrmoʊdaɪˈnæmɪks/",
+      "translation": "термодинамика",
+      "translations": {
+        "ru": "термодинамика",
+        "uz": "termodinamika"
+      },
+      "example": "Thermodynamics studies how heat turns into work.",
+      "example_translations": {
+        "ru": "Термодинамика изучает, как тепло превращается в работу.",
+        "uz": "Termodinamika issiqlikning ishga qanday aylanishini o'rganadi."
+      }
+    },
+    {
+      "word": "electromagnetic",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˌlɛktroʊmægˈnɛtɪk/",
+      "translation": "электромагнитный",
+      "translations": {
+        "ru": "электромагнитный",
+        "uz": "elektromagnit"
+      },
+      "example": "Light is an electromagnetic wave traveling through space.",
+      "example_translations": {
+        "ru": "Свет — это электромагнитная волна, распространяющаяся в пространстве.",
+        "uz": "Yorug'lik — fazoda tarqaladigan elektromagnit to'lqin."
+      }
+    },
+    {
+      "word": "oscillate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɑsəˌleɪt/",
+      "translation": "совершать колебания",
+      "translations": {
+        "ru": "совершать колебания",
+        "uz": "tebranmoq"
+      },
+      "example": "The pendulum oscillates steadily from side to side.",
+      "example_translations": {
+        "ru": "Маятник равномерно совершает колебания из стороны в сторону.",
+        "uz": "Mayatnik u yoqdan bu yoqqa bir tekis tebranadi."
+      }
+    },
+    {
+      "word": "refraction",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈfrækʃən/",
+      "translation": "преломление",
+      "translations": {
+        "ru": "преломление",
+        "uz": "sinish"
+      },
+      "example": "Refraction makes a straw look bent in water.",
+      "example_translations": {
+        "ru": "Из-за преломления света соломинка в воде кажется изогнутой.",
+        "uz": "Yorug'likning sinishi tufayli suvdagi naycha egilgandek ko'rinadi."
+      }
+    },
+    {
+      "word": "celestial",
+      "part_of_speech": "adjective",
+      "transcription": "/səˈlɛstʃəl/",
+      "translation": "небесный",
+      "translations": {
+        "ru": "небесный",
+        "uz": "samoviy"
+      },
+      "example": "Astronomers track celestial bodies such as planets and comets.",
+      "example_translations": {
+        "ru": "Астрономы следят за небесными телами, такими как планеты и кометы.",
+        "uz": "Astronomlar sayyora va kometalar kabi samoviy jismlarni kuzatadi."
+      }
+    },
+    {
+      "word": "cosmology",
+      "part_of_speech": "noun",
+      "transcription": "/kɑzˈmɑlədʒi/",
+      "translation": "космология",
+      "translations": {
+        "ru": "космология",
+        "uz": "kosmologiya"
+      },
+      "example": "Cosmology explores the origin and fate of the universe.",
+      "example_translations": {
+        "ru": "Космология исследует происхождение и судьбу Вселенной.",
+        "uz": "Kosmologiya koinotning kelib chiqishi va taqdirini tadqiq etadi."
+      }
+    },
+    {
+      "word": "kinetic",
+      "part_of_speech": "adjective",
+      "transcription": "/kəˈnɛtɪk/",
+      "translation": "кинетический",
+      "translations": {
+        "ru": "кинетический",
+        "uz": "kinetik"
+      },
+      "example": "A rolling ball possesses kinetic energy due to motion.",
+      "example_translations": {
+        "ru": "Катящийся мяч обладает кинетической энергией благодаря движению.",
+        "uz": "Dumalayotgan to'p harakati tufayli kinetik energiyaga ega."
+      }
+    }
+  ]
+}

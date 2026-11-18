@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 5,
+    "title": "Философия и этика",
+    "title_uz": "Falsafa va etika"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Добро и зло",
+    "title_uz": "Ezgulik va yovuzlik"
+  },
+  "words": [
+    {
+      "word": "morality",
+      "part_of_speech": "noun",
+      "transcription": "/məˈræləti/",
+      "translation": "мораль, нравственность",
+      "translations": {
+        "ru": "мораль, нравственность",
+        "uz": "axloq"
+      },
+      "example": "Philosophers still argue about the foundations of morality.",
+      "example_translations": {
+        "ru": "Философы до сих пор спорят об основах морали.",
+        "uz": "Faylasuflar hanuzgacha axloq asoslari haqida bahslashadilar."
+      }
+    },
+    {
+      "word": "utilitarian",
+      "part_of_speech": "adjective",
+      "transcription": "/juˌtɪləˈtɛriən/",
+      "translation": "утилитарный",
+      "translations": {
+        "ru": "утилитарный",
+        "uz": "utilitar, foydani ko'zlovchi"
+      },
+      "example": "Her utilitarian approach valued usefulness over beauty.",
+      "example_translations": {
+        "ru": "Её утилитарный подход ставил пользу выше красоты.",
+        "uz": "Uning utilitar yondashuvi foydalilikni go'zallikdan ustun qo'yardi."
+      }
+    },
+    {
+      "word": "hedonism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhidəˌnɪzəm/",
+      "translation": "гедонизм",
+      "translations": {
+        "ru": "гедонизм",
+        "uz": "gedonizm"
+      },
+      "example": "Hedonism holds that pleasure is the highest good.",
+      "example_translations": {
+        "ru": "Гедонизм утверждает, что удовольствие — высшее благо.",
+        "uz": "Gedonizm lazzatni oliy ne'mat deb hisoblaydi."
+      }
+    },
+    {
+      "word": "asceticism",
+      "part_of_speech": "noun",
+      "transcription": "/əˈsɛtəˌsɪzəm/",
+      "translation": "аскетизм",
+      "translations": {
+        "ru": "аскетизм",
+        "uz": "zohidlik"
+      },
+      "example": "Monks practiced asceticism, renouncing every worldly comfort.",
+      "example_translations": {
+        "ru": "Монахи практиковали аскетизм, отказываясь от всех мирских удобств.",
+        "uz": "Rohiblar zohidlik qilib, har qanday dunyoviy qulaylikdan voz kechardilar."
+      }
+    },
+    {
+      "word": "culpable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkʌlpəbəl/",
+      "translation": "виновный, заслуживающий порицания",
+      "translations": {
+        "ru": "виновный, заслуживающий порицания",
+        "uz": "aybdor, ayblanishga loyiq"
+      },
+      "example": "The court found the negligent manager culpable.",
+      "example_translations": {
+        "ru": "Суд признал халатного управляющего виновным.",
+        "uz": "Sud beparvo boshqaruvchini aybdor deb topdi."
+      }
+    },
+    {
+      "word": "absolve",
+      "part_of_speech": "verb",
+      "transcription": "/əbˈzɑlv/",
+      "translation": "снимать вину",
+      "translations": {
+        "ru": "снимать вину",
+        "uz": "aybni soqit qilmoq"
+      },
+      "example": "The inquiry absolved the pilot of all blame.",
+      "example_translations": {
+        "ru": "Расследование сняло с пилота всю вину.",
+        "uz": "Tekshiruv uchuvchidan barcha aybni soqit qildi."
+      }
+    },
+    {
+      "word": "atone",
+      "part_of_speech": "verb",
+      "transcription": "/əˈtoʊn/",
+      "translation": "искупать вину",
+      "translations": {
+        "ru": "искупать вину",
+        "uz": "gunohini yuvmoq"
+      },
+      "example": "He tried to atone for his past mistakes.",
+      "example_translations": {
+        "ru": "Он старался искупить вину за прошлые ошибки.",
+        "uz": "U o'tmishdagi xatolari uchun gunohini yuvishga urindi."
+      }
+    },
+    {
+      "word": "transgress",
+      "part_of_speech": "verb",
+      "transcription": "/trænzˈgrɛs/",
+      "translation": "преступать, нарушать",
+      "translations": {
+        "ru": "преступать, нарушать",
+        "uz": "buzmoq, chegaradan chiqmoq"
+      },
+      "example": "Anyone who transgresses these moral rules is shunned.",
+      "example_translations": {
+        "ru": "Всякого, кто преступает эти нравственные правила, сторонятся.",
+        "uz": "Bu axloqiy qoidalarni buzgan har kimdan yuz o'giriladi."
+      }
+    },
+    {
+      "word": "malevolent",
+      "part_of_speech": "adjective",
+      "transcription": "/məˈlɛvələnt/",
+      "translation": "злобный, злонамеренный",
+      "translations": {
+        "ru": "злобный, злонамеренный",
+        "uz": "badniyat"
+      },
+      "example": "A malevolent neighbor spread cruel rumors about them.",
+      "example_translations": {
+        "ru": "Злобный сосед распускал о них жестокие слухи.",
+        "uz": "Badniyat qo'shni ular haqida shafqatsiz mish-mishlar tarqatdi."
+      }
+    },
+    {
+      "word": "expedient",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪkˈspidiənt/",
+      "translation": "выгодный, целесообразный",
+      "translations": {
+        "ru": "выгодный, целесообразный",
+        "uz": "manfaatli, maqsadga muvofiq"
+      },
+      "example": "Lying seemed expedient, though it was hardly right.",
+      "example_translations": {
+        "ru": "Солгать казалось выгодным, хотя вряд ли это было правильно.",
+        "uz": "Yolg'on gapirish manfaatli tuyulardi, ammo bu to'g'ri ish emasdi."
+      }
+    }
+  ]
+}

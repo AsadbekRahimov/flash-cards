@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 12,
+    "title": "Право и правосудие",
+    "title_uz": "Huquq va odil sudlov"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Гражданское право",
+    "title_uz": "Fuqarolik huquqi"
+  },
+  "words": [
+    {
+      "word": "contractual",
+      "part_of_speech": "adjective",
+      "transcription": "/kənˈtræktʃuəl/",
+      "translation": "договорный",
+      "translations": {
+        "ru": "договорный",
+        "uz": "shartnomaviy"
+      },
+      "example": "The company failed to meet its contractual obligations.",
+      "example_translations": {
+        "ru": "Компания не выполнила свои договорные обязательства.",
+        "uz": "Kompaniya o'zining shartnomaviy majburiyatlarini bajarmadi."
+      }
+    },
+    {
+      "word": "negligence",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnɛglədʒəns/",
+      "translation": "халатность",
+      "translations": {
+        "ru": "халатность",
+        "uz": "beparvolik"
+      },
+      "example": "The hospital was sued for negligence after the error.",
+      "example_translations": {
+        "ru": "На больницу подали в суд за халатность после этой ошибки.",
+        "uz": "Xatodan so'ng shifoxona beparvolik uchun sudga berildi."
+      }
+    },
+    {
+      "word": "injunction",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈdʒʌŋkʃən/",
+      "translation": "судебный запрет",
+      "translations": {
+        "ru": "судебный запрет",
+        "uz": "sud taqiqi"
+      },
+      "example": "A court injunction stopped construction of the factory.",
+      "example_translations": {
+        "ru": "Судебный запрет остановил строительство завода.",
+        "uz": "Sud taqiqi zavod qurilishini to'xtatdi."
+      }
+    },
+    {
+      "word": "void",
+      "part_of_speech": "adjective",
+      "transcription": "/vɔɪd/",
+      "translation": "недействительный",
+      "translations": {
+        "ru": "недействительный",
+        "uz": "haqiqiy emas"
+      },
+      "example": "The contract is void because nobody signed it.",
+      "example_translations": {
+        "ru": "Договор недействителен, поскольку его никто не подписал.",
+        "uz": "Shartnoma haqiqiy emas, chunki uni hech kim imzolamagan."
+      }
+    },
+    {
+      "word": "waiver",
+      "part_of_speech": "noun",
+      "transcription": "/ˈweɪvər/",
+      "translation": "отказ от права",
+      "translations": {
+        "ru": "отказ от права",
+        "uz": "huquqdan voz kechish"
+      },
+      "example": "She signed a waiver giving up her right to sue.",
+      "example_translations": {
+        "ru": "Она подписала отказ от права обращаться в суд.",
+        "uz": "U sudga murojaat qilish huquqidan voz kechish haqidagi hujjatni imzoladi."
+      }
+    },
+    {
+      "word": "infringe",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈfrɪndʒ/",
+      "translation": "нарушать права",
+      "translations": {
+        "ru": "нарушать права",
+        "uz": "huquqni buzmoq"
+      },
+      "example": "Does the new rule infringe the right to privacy?",
+      "example_translations": {
+        "ru": "Нарушает ли новое правило право на частную жизнь?",
+        "uz": "Yangi qoida shaxsiy hayot daxlsizligi huquqini buzadimi?"
+      }
+    },
+    {
+      "word": "copyright",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑpiˌraɪt/",
+      "translation": "авторское право",
+      "translations": {
+        "ru": "авторское право",
+        "uz": "mualliflik huquqi"
+      },
+      "example": "Copyright protects authors from having their work copied.",
+      "example_translations": {
+        "ru": "Авторское право защищает авторов от копирования их произведений.",
+        "uz": "Mualliflik huquqi mualliflarni asarlaridan nusxa ko'chirilishidan himoya qiladi."
+      }
+    },
+    {
+      "word": "defamation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdɛfəˈmeɪʃən/",
+      "translation": "клевета",
+      "translations": {
+        "ru": "клевета",
+        "uz": "tuhmat"
+      },
+      "example": "The actor sued the magazine for defamation.",
+      "example_translations": {
+        "ru": "Актёр подал на журнал в суд за клевету.",
+        "uz": "Aktyor jurnalni tuhmat uchun sudga berdi."
+      }
+    },
+    {
+      "word": "inheritance",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈhɛrətəns/",
+      "translation": "наследство",
+      "translations": {
+        "ru": "наследство",
+        "uz": "meros"
+      },
+      "example": "The brothers argued over their father's inheritance.",
+      "example_translations": {
+        "ru": "Братья спорили из-за отцовского наследства.",
+        "uz": "Aka-ukalar otasidan qolgan meros ustida tortishishdi."
+      }
+    },
+    {
+      "word": "jurisdiction",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdʒʊrəsˈdɪkʃən/",
+      "translation": "юрисдикция",
+      "translations": {
+        "ru": "юрисдикция",
+        "uz": "yurisdiksiya"
+      },
+      "example": "This court has no jurisdiction over foreign companies.",
+      "example_translations": {
+        "ru": "Иностранные компании не подпадают под юрисдикцию этого суда.",
+        "uz": "Xorijiy kompaniyalar bu sudning yurisdiksiyasiga kirmaydi."
+      }
+    }
+  ]
+}

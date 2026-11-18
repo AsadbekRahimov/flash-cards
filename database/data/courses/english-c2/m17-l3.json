@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 17,
+    "title": "Время и перемены",
+    "title_uz": "Vaqt va o'zgarishlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Старое и новое",
+    "title_uz": "Eski va yangi"
+  },
+  "words": [
+    {
+      "word": "antiquated",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈæntəˌkweɪtəd/",
+      "translation": "устаревший, допотопный",
+      "translations": {
+        "ru": "устаревший, допотопный",
+        "uz": "eskirgan, zamondan qolgan"
+      },
+      "example": "The office still relies on antiquated computers from the nineties.",
+      "example_translations": {
+        "ru": "Офис до сих пор работает на устаревших компьютерах девяностых годов.",
+        "uz": "Ofis hali ham to'qsoninchi yillarning eskirgan kompyuterlarida ishlaydi."
+      }
+    },
+    {
+      "word": "defunct",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈfʌŋkt/",
+      "translation": "ныне не существующий",
+      "translations": {
+        "ru": "ныне не существующий",
+        "uz": "faoliyati to'xtagan"
+      },
+      "example": "He once wrote for a now defunct local newspaper.",
+      "example_translations": {
+        "ru": "Когда-то он писал для ныне не существующей местной газеты.",
+        "uz": "U bir paytlar hozir faoliyati to'xtagan mahalliy gazetaga yozgan."
+      }
+    },
+    {
+      "word": "bygone",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈbaɪˌgɔn/",
+      "translation": "минувший, былой",
+      "translations": {
+        "ru": "минувший, былой",
+        "uz": "o'tib ketgan, o'tmishdagi"
+      },
+      "example": "The old photographs recall a bygone era of steam trains.",
+      "example_translations": {
+        "ru": "Старые фотографии напоминают о минувшей эпохе паровозов.",
+        "uz": "Eski suratlar parovozlarning o'tib ketgan davrini eslatadi."
+      }
+    },
+    {
+      "word": "erstwhile",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɜrstˌwaɪl/",
+      "translation": "бывший, прежний",
+      "translations": {
+        "ru": "бывший, прежний",
+        "uz": "sobiq"
+      },
+      "example": "His erstwhile friends now refuse to speak to him.",
+      "example_translations": {
+        "ru": "Его бывшие друзья теперь отказываются с ним разговаривать.",
+        "uz": "Uning sobiq do'stlari endi u bilan gaplashishdan bosh tortadi."
+      }
+    },
+    {
+      "word": "anachronism",
+      "part_of_speech": "noun",
+      "transcription": "/əˈnækrəˌnɪzəm/",
+      "translation": "анахронизм",
+      "translations": {
+        "ru": "анахронизм",
+        "uz": "anaxronizm"
+      },
+      "example": "Handwritten letters seem an anachronism in the digital age.",
+      "example_translations": {
+        "ru": "В цифровую эпоху письма от руки кажутся анахронизмом.",
+        "uz": "Raqamli asrda qo'lda yozilgan xatlar anaxronizmdek tuyuladi."
+      }
+    },
+    {
+      "word": "vestige",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvɛstɪdʒ/",
+      "translation": "остаток, след",
+      "translations": {
+        "ru": "остаток, след",
+        "uz": "qoldiq, iz"
+      },
+      "example": "These ruins are the last vestige of the ancient city.",
+      "example_translations": {
+        "ru": "Эти руины — последний остаток древнего города.",
+        "uz": "Bu xarobalar qadimiy shaharning so'nggi qoldig'idir."
+      }
+    },
+    {
+      "word": "supersede",
+      "part_of_speech": "verb",
+      "transcription": "/ˌsupərˈsid/",
+      "translation": "вытеснять, заменять",
+      "translations": {
+        "ru": "вытеснять, заменять",
+        "uz": "o'rnini egallamoq"
+      },
+      "example": "Digital cameras have largely superseded traditional film ones.",
+      "example_translations": {
+        "ru": "Цифровые камеры почти полностью вытеснили традиционные плёночные.",
+        "uz": "Raqamli kameralar an'anaviy plyonkali kameralarning o'rnini deyarli egalladi."
+      }
+    },
+    {
+      "word": "transient",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtrænʃənt/",
+      "translation": "временный, недолговечный",
+      "translations": {
+        "ru": "временный, недолговечный",
+        "uz": "vaqtinchalik, o'tkinchi"
+      },
+      "example": "The pain was transient and vanished within an hour.",
+      "example_translations": {
+        "ru": "Боль была временной и прошла в течение часа.",
+        "uz": "Og'riq vaqtinchalik edi va bir soat ichida o'tib ketdi."
+      }
+    },
+    {
+      "word": "unprecedented",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈprɛsəˌdɛntəd/",
+      "translation": "беспрецедентный",
+      "translations": {
+        "ru": "беспрецедентный",
+        "uz": "misli ko'rilmagan"
+      },
+      "example": "The region was hit by unprecedented rainfall this spring.",
+      "example_translations": {
+        "ru": "Этой весной на регион обрушились беспрецедентные осадки.",
+        "uz": "Bu bahorda mintaqada misli ko'rilmagan yog'ingarchilik bo'ldi."
+      }
+    },
+    {
+      "word": "burgeoning",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈbɜrdʒənɪŋ/",
+      "translation": "бурно растущий",
+      "translations": {
+        "ru": "бурно растущий",
+        "uz": "jadal o'sayotgan"
+      },
+      "example": "The burgeoning tech sector creates thousands of jobs yearly.",
+      "example_translations": {
+        "ru": "Бурно растущий технологический сектор ежегодно создаёт тысячи рабочих мест.",
+        "uz": "Jadal o'sayotgan texnologiya sohasi har yili minglab ish o'rni yaratadi."
+      }
+    }
+  ]
+}

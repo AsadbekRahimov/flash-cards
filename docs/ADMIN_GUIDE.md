@@ -131,6 +131,8 @@ title only when it is worth reading in one language for everybody (a learner who
 it cannot be changed after creation), a **title in every language** (RU and UZ are both required),
 an optional description, level (A1–C2), goal (General / School / IELTS / SAT), visibility
 (`public` — in the catalog, `unlisted` — by link or group, `private`) and a position in the catalog.
+The ready course packs (`english-a1-a2`, `english-b1`, `english-b2`, `english-c1`, `english-c2`; 1 000 words each) are
+loaded with `php artisan content:import-course <folder> --create` and arrive as drafts (see `docs/CONTENT_C1_C2.md`).
 The **Modules (stages)** table (Модули курса) on the course page adds and edits the modules of the course; lessons and
 words are edited on the stage / lesson screens.
 

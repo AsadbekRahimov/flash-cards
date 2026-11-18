@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 3,
+    "title": "Речь и оттенки смысла",
+    "title_uz": "Nutq va ma'no nozikliklari"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Глаголы речи",
+    "title_uz": "Nutq fe'llari"
+  },
+  "words": [
+    {
+      "word": "enunciate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪˈnʌnsiˌeɪt/",
+      "translation": "чётко произносить",
+      "translations": {
+        "ru": "чётко произносить",
+        "uz": "dona-dona talaffuz qilmoq"
+      },
+      "example": "Please enunciate so the back row can hear.",
+      "example_translations": {
+        "ru": "Пожалуйста, произносите чётко, чтобы слышал последний ряд.",
+        "uz": "Iltimos, oxirgi qator eshitishi uchun dona-dona talaffuz qiling."
+      }
+    },
+    {
+      "word": "expound",
+      "part_of_speech": "verb",
+      "transcription": "/ɪkˈspaʊnd/",
+      "translation": "подробно излагать",
+      "translations": {
+        "ru": "подробно излагать",
+        "uz": "batafsil bayon qilmoq"
+      },
+      "example": "The professor expounded his theory for two hours.",
+      "example_translations": {
+        "ru": "Профессор два часа подробно излагал свою теорию.",
+        "uz": "Professor o'z nazariyasini ikki soat batafsil bayon qildi."
+      }
+    },
+    {
+      "word": "extol",
+      "part_of_speech": "verb",
+      "transcription": "/ɪkˈstoʊl/",
+      "translation": "превозносить",
+      "translations": {
+        "ru": "превозносить",
+        "uz": "ko'klarga ko'tarmoq"
+      },
+      "example": "Critics extol the novel as a modern masterpiece.",
+      "example_translations": {
+        "ru": "Критики превозносят этот роман как современный шедевр.",
+        "uz": "Tanqidchilar bu romanni zamonaviy durdona deb ko'klarga ko'taradilar."
+      }
+    },
+    {
+      "word": "berate",
+      "part_of_speech": "verb",
+      "transcription": "/bɪˈreɪt/",
+      "translation": "отчитывать, распекать",
+      "translations": {
+        "ru": "отчитывать, распекать",
+        "uz": "qattiq koyimoq"
+      },
+      "example": "The coach berated the team for arriving late.",
+      "example_translations": {
+        "ru": "Тренер отчитал команду за опоздание.",
+        "uz": "Murabbiy jamoani kech kelgani uchun qattiq koyidi."
+      }
+    },
+    {
+      "word": "admonish",
+      "part_of_speech": "verb",
+      "transcription": "/ədˈmɑnɪʃ/",
+      "translation": "делать внушение",
+      "translations": {
+        "ru": "делать внушение",
+        "uz": "tanbeh bermoq"
+      },
+      "example": "The teacher gently admonished him for interrupting.",
+      "example_translations": {
+        "ru": "Учительница мягко сделала ему внушение за то, что он перебивал.",
+        "uz": "O'qituvchi gapni bo'lgani uchun unga muloyimlik bilan tanbeh berdi."
+      }
+    },
+    {
+      "word": "cajole",
+      "part_of_speech": "verb",
+      "transcription": "/kəˈdʒoʊl/",
+      "translation": "уговаривать лестью",
+      "translations": {
+        "ru": "уговаривать лестью",
+        "uz": "xushomad bilan ko'ndirmoq"
+      },
+      "example": "She cajoled her father into lending the car.",
+      "example_translations": {
+        "ru": "Она лестью уговорила отца одолжить машину.",
+        "uz": "U otasini xushomad bilan mashinasini berib turishga ko'ndirdi."
+      }
+    },
+    {
+      "word": "implore",
+      "part_of_speech": "verb",
+      "transcription": "/ɪmˈplɔr/",
+      "translation": "умолять",
+      "translations": {
+        "ru": "умолять",
+        "uz": "yolvormoq"
+      },
+      "example": "I implore you to reconsider before it's too late.",
+      "example_translations": {
+        "ru": "Умоляю вас передумать, пока не поздно.",
+        "uz": "Kech bo'lmasidan fikringizni o'zgartiring, deb yolvoraman."
+      }
+    },
+    {
+      "word": "exhort",
+      "part_of_speech": "verb",
+      "transcription": "/ɪgˈzɔrt/",
+      "translation": "призывать, побуждать",
+      "translations": {
+        "ru": "призывать, побуждать",
+        "uz": "da'vat etmoq"
+      },
+      "example": "The captain exhorted his players to keep fighting.",
+      "example_translations": {
+        "ru": "Капитан призывал своих игроков продолжать борьбу.",
+        "uz": "Sardor o'yinchilarini kurashni davom ettirishga da'vat etdi."
+      }
+    },
+    {
+      "word": "insinuate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈsɪnjuˌeɪt/",
+      "translation": "намекать на дурное",
+      "translations": {
+        "ru": "намекать на дурное",
+        "uz": "yomonlikka shama qilmoq"
+      },
+      "example": "Are you insinuating that I took the money?",
+      "example_translations": {
+        "ru": "Вы намекаете, что деньги взял я?",
+        "uz": "Pulni men olganman, deb shama qilyapsizmi?"
+      }
+    },
+    {
+      "word": "divulge",
+      "part_of_speech": "verb",
+      "transcription": "/daɪˈvʌldʒ/",
+      "translation": "разглашать",
+      "translations": {
+        "ru": "разглашать",
+        "uz": "oshkor qilmoq"
+      },
+      "example": "The doctor refused to divulge any patient details.",
+      "example_translations": {
+        "ru": "Врач отказался разглашать какие-либо сведения о пациентах.",
+        "uz": "Shifokor bemorlar haqidagi biror ma'lumotni oshkor qilishdan bosh tortdi."
+      }
+    }
+  ]
+}

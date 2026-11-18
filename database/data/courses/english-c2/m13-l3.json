@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 13,
+    "title": "Медицина и организм",
+    "title_uz": "Tibbiyot va organizm"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Анатомия",
+    "title_uz": "Anatomiya"
+  },
+  "words": [
+    {
+      "word": "cranium",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkreɪniəm/",
+      "translation": "череп",
+      "translations": {
+        "ru": "череп",
+        "uz": "bosh chanog'i"
+      },
+      "example": "The human cranium consists of several joined bones.",
+      "example_translations": {
+        "ru": "Череп человека состоит из нескольких сросшихся костей.",
+        "uz": "Odamning bosh chanog'i bir-biriga birikkan bir necha suyakdan iborat."
+      }
+    },
+    {
+      "word": "vertebra",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvɜrtəbrə/",
+      "translation": "позвонок",
+      "translations": {
+        "ru": "позвонок",
+        "uz": "umurtqa"
+      },
+      "example": "Each vertebra in the spine protects the spinal cord.",
+      "example_translations": {
+        "ru": "Каждый позвонок позвоночника защищает спинной мозг.",
+        "uz": "Umurtqa pog'onasidagi har bir umurtqa orqa miyani himoya qiladi."
+      }
+    },
+    {
+      "word": "retina",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɛtənə/",
+      "translation": "сетчатка",
+      "translations": {
+        "ru": "сетчатка",
+        "uz": "to'r parda"
+      },
+      "example": "Light entering the eye falls on the retina.",
+      "example_translations": {
+        "ru": "Свет, попадающий в глаз, падает на сетчатку.",
+        "uz": "Ko'zga kirgan yorug'lik to'r pardaga tushadi."
+      }
+    },
+    {
+      "word": "larynx",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɛrɪŋks/",
+      "translation": "гортань",
+      "translations": {
+        "ru": "гортань",
+        "uz": "hiqildoq"
+      },
+      "example": "Your vocal cords are located inside the larynx.",
+      "example_translations": {
+        "ru": "Ваши голосовые связки находятся внутри гортани.",
+        "uz": "Tovush paychalaringiz hiqildoq ichida joylashgan."
+      }
+    },
+    {
+      "word": "trachea",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtreɪkiə/",
+      "translation": "трахея",
+      "translations": {
+        "ru": "трахея",
+        "uz": "kekirdak"
+      },
+      "example": "Air travels down the trachea into the lungs.",
+      "example_translations": {
+        "ru": "Воздух проходит по трахее в лёгкие.",
+        "uz": "Havo kekirdak orqali o'pkaga o'tadi."
+      }
+    },
+    {
+      "word": "pancreas",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpæŋkriəs/",
+      "translation": "поджелудочная железа",
+      "translations": {
+        "ru": "поджелудочная железа",
+        "uz": "oshqozon osti bezi"
+      },
+      "example": "The pancreas produces insulin to control blood sugar.",
+      "example_translations": {
+        "ru": "Поджелудочная железа вырабатывает инсулин для контроля сахара в крови.",
+        "uz": "Oshqozon osti bezi qondagi qand miqdorini boshqarish uchun insulin ishlab chiqaradi."
+      }
+    },
+    {
+      "word": "marrow",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɛroʊ/",
+      "translation": "костный мозг",
+      "translations": {
+        "ru": "костный мозг",
+        "uz": "suyak iligi"
+      },
+      "example": "Blood cells are made in the marrow of bones.",
+      "example_translations": {
+        "ru": "Клетки крови образуются в костном мозге.",
+        "uz": "Qon hujayralari suyak iligida hosil bo'ladi."
+      }
+    },
+    {
+      "word": "intestine",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈtɛstən/",
+      "translation": "кишка",
+      "translations": {
+        "ru": "кишка",
+        "uz": "ichak"
+      },
+      "example": "Most nutrients are absorbed in the small intestine.",
+      "example_translations": {
+        "ru": "Большинство питательных веществ всасывается в тонкой кишке.",
+        "uz": "Oziq moddalarning aksariyati ingichka ichakda so'riladi."
+      }
+    },
+    {
+      "word": "capillary",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkæpəˌlɛri/",
+      "translation": "капилляр",
+      "translations": {
+        "ru": "капилляр",
+        "uz": "qil tomir"
+      },
+      "example": "A capillary is the thinnest blood vessel.",
+      "example_translations": {
+        "ru": "Капилляр — самый тонкий кровеносный сосуд.",
+        "uz": "Qil tomir — eng ingichka qon tomiri."
+      }
+    },
+    {
+      "word": "cortex",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɔrˌtɛks/",
+      "translation": "кора головного мозга",
+      "translations": {
+        "ru": "кора головного мозга",
+        "uz": "bosh miya po'stlog'i"
+      },
+      "example": "The cortex handles language, memory, and conscious thought.",
+      "example_translations": {
+        "ru": "Кора головного мозга отвечает за речь, память и сознательное мышление.",
+        "uz": "Bosh miya po'stlog'i nutq, xotira va ongli tafakkur uchun javob beradi."
+      }
+    }
+  ]
+}

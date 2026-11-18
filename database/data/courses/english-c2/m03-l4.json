@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 3,
+    "title": "Речь и оттенки смысла",
+    "title_uz": "Nutq va ma'no nozikliklari"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Уклончивость и притворство",
+    "title_uz": "Mujmallik va mug'ombirlik"
+  },
+  "words": [
+    {
+      "word": "equivocate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪˈkwɪvəˌkeɪt/",
+      "translation": "юлить, говорить двусмысленно",
+      "translations": {
+        "ru": "юлить, говорить двусмысленно",
+        "uz": "ikki ma'noli gapirmoq"
+      },
+      "example": "Stop equivocating and give me a straight answer.",
+      "example_translations": {
+        "ru": "Перестаньте юлить и дайте мне прямой ответ.",
+        "uz": "Ikki ma'noli gapirishni bas qiling va menga to'g'ri javob bering."
+      }
+    },
+    {
+      "word": "obfuscate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɑbfəˌskeɪt/",
+      "translation": "запутывать, затемнять",
+      "translations": {
+        "ru": "запутывать, затемнять",
+        "uz": "chalkashtirmoq"
+      },
+      "example": "Legal jargon often obfuscates the simplest facts.",
+      "example_translations": {
+        "ru": "Юридический жаргон часто запутывает самые простые факты.",
+        "uz": "Yuridik jargon ko'pincha eng oddiy faktlarni ham chalkashtiradi."
+      }
+    },
+    {
+      "word": "feign",
+      "part_of_speech": "verb",
+      "transcription": "/feɪn/",
+      "translation": "притворяться, изображать",
+      "translations": {
+        "ru": "притворяться, изображать",
+        "uz": "o'zini solmoq, soxta ko'rsatmoq"
+      },
+      "example": "She feigned surprise, though she already knew everything.",
+      "example_translations": {
+        "ru": "Она изобразила удивление, хотя уже всё знала.",
+        "uz": "U hammasini allaqachon bilsa-da, o'zini hayron bo'lganga soldi."
+      }
+    },
+    {
+      "word": "evasive",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈveɪsɪv/",
+      "translation": "уклончивый",
+      "translations": {
+        "ru": "уклончивый",
+        "uz": "mujmal"
+      },
+      "example": "His evasive answers never addressed the actual question.",
+      "example_translations": {
+        "ru": "Его уклончивые ответы так и не касались самого вопроса.",
+        "uz": "Uning mujmal javoblari asl savolga umuman to'xtalmasdi."
+      }
+    },
+    {
+      "word": "euphemism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈjufəˌmɪzəm/",
+      "translation": "эвфемизм",
+      "translations": {
+        "ru": "эвфемизм",
+        "uz": "evfemizm"
+      },
+      "example": "\"Between jobs\" is a polite euphemism for unemployed.",
+      "example_translations": {
+        "ru": "«Между работами» — вежливый эвфемизм, означающий «безработный».",
+        "uz": "«Ishlar oralig'ida» — «ishsiz» degan ma'noni bildiruvchi muloyim evfemizm."
+      }
+    },
+    {
+      "word": "innuendo",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪnjuˈɛndoʊ/",
+      "translation": "двусмысленный намёк",
+      "translations": {
+        "ru": "двусмысленный намёк",
+        "uz": "kinoyali shama"
+      },
+      "example": "The article was full of innuendo, not facts.",
+      "example_translations": {
+        "ru": "Статья была полна двусмысленных намёков, а не фактов.",
+        "uz": "Maqola faktlarga emas, kinoyali shamalarga to'la edi."
+      }
+    },
+    {
+      "word": "subterfuge",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsʌbtərˌfjudʒ/",
+      "translation": "уловка, увёртка",
+      "translations": {
+        "ru": "уловка, увёртка",
+        "uz": "hiyla, nayrang"
+      },
+      "example": "He used subterfuge to enter the closed archive.",
+      "example_translations": {
+        "ru": "Он прибегнул к уловке, чтобы попасть в закрытый архив.",
+        "uz": "U yopiq arxivga kirish uchun hiyla ishlatdi."
+      }
+    },
+    {
+      "word": "pretext",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpriˌtɛkst/",
+      "translation": "предлог, отговорка",
+      "translations": {
+        "ru": "предлог, отговорка",
+        "uz": "bahona"
+      },
+      "example": "He left early on the pretext of illness.",
+      "example_translations": {
+        "ru": "Он ушёл раньше под предлогом болезни.",
+        "uz": "U kasallikni bahona qilib ertaroq ketdi."
+      }
+    },
+    {
+      "word": "disingenuous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌdɪsɪnˈdʒɛnjuəs/",
+      "translation": "неискренний, лукавый",
+      "translations": {
+        "ru": "неискренний, лукавый",
+        "uz": "nosamimiy"
+      },
+      "example": "Her disingenuous apology fooled nobody in the room.",
+      "example_translations": {
+        "ru": "Её неискреннее извинение никого в комнате не обмануло.",
+        "uz": "Uning nosamimiy uzri xonadagi hech kimni alday olmadi."
+      }
+    },
+    {
+      "word": "embellish",
+      "part_of_speech": "verb",
+      "transcription": "/ɪmˈbɛlɪʃ/",
+      "translation": "приукрашивать",
+      "translations": {
+        "ru": "приукрашивать",
+        "uz": "qo'shib-chatib aytmoq"
+      },
+      "example": "Grandpa embellishes his fishing stories every single year.",
+      "example_translations": {
+        "ru": "Дедушка каждый год приукрашивает свои рыбацкие истории.",
+        "uz": "Bobom har yili baliq ovi haqidagi hikoyalarini qo'shib-chatib aytadi."
+      }
+    }
+  ]
+}

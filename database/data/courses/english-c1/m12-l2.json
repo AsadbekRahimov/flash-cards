@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 12,
+    "title": "Право и правосудие",
+    "title_uz": "Huquq va odil sudlov"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Судебный процесс",
+    "title_uz": "Sud jarayoni"
+  },
+  "words": [
+    {
+      "word": "litigation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌlɪtəˈgeɪʃən/",
+      "translation": "судебная тяжба",
+      "translations": {
+        "ru": "судебная тяжба",
+        "uz": "sudlashuv"
+      },
+      "example": "The company settled to avoid years of costly litigation.",
+      "example_translations": {
+        "ru": "Компания пошла на мировое соглашение, чтобы избежать многолетней дорогостоящей судебной тяжбы.",
+        "uz": "Kompaniya ko'p yillik qimmat sudlashuvdan qochish uchun kelishuvga rozi bo'ldi."
+      }
+    },
+    {
+      "word": "plaintiff",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpleɪntɪf/",
+      "translation": "истец",
+      "translations": {
+        "ru": "истец",
+        "uz": "da'vogar"
+      },
+      "example": "The plaintiff sued his employer for unpaid wages.",
+      "example_translations": {
+        "ru": "Истец подал в суд на своего работодателя из-за невыплаченной зарплаты.",
+        "uz": "Da'vogar to'lanmagan ish haqi uchun ish beruvchisini sudga berdi."
+      }
+    },
+    {
+      "word": "prosecution",
+      "part_of_speech": "noun",
+      "transcription": "/ˌprɑsəˈkjuʃən/",
+      "translation": "сторона обвинения",
+      "translations": {
+        "ru": "сторона обвинения",
+        "uz": "ayblov tomoni"
+      },
+      "example": "The prosecution presented strong evidence against the defendant.",
+      "example_translations": {
+        "ru": "Сторона обвинения представила веские доказательства против подсудимого.",
+        "uz": "Ayblov tomoni sudlanuvchiga qarshi kuchli dalillar taqdim etdi."
+      }
+    },
+    {
+      "word": "indictment",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈdaɪtmənt/",
+      "translation": "обвинительное заключение",
+      "translations": {
+        "ru": "обвинительное заключение",
+        "uz": "ayblov xulosasi"
+      },
+      "example": "The indictment listed five charges against the banker.",
+      "example_translations": {
+        "ru": "В обвинительном заключении перечислялось пять обвинений против банкира.",
+        "uz": "Ayblov xulosasida bankirga qo'yilgan beshta ayb sanab o'tilgan edi."
+      }
+    },
+    {
+      "word": "subpoena",
+      "part_of_speech": "noun",
+      "transcription": "/səˈpinə/",
+      "translation": "судебная повестка",
+      "translations": {
+        "ru": "судебная повестка",
+        "uz": "sud chaqiruv qog'ozi"
+      },
+      "example": "The witness received a subpoena to appear in court.",
+      "example_translations": {
+        "ru": "Свидетель получил судебную повестку с требованием явиться в суд.",
+        "uz": "Guvoh sudga kelish haqida sud chaqiruv qog'ozini oldi."
+      }
+    },
+    {
+      "word": "testify",
+      "part_of_speech": "verb",
+      "transcription": "/ˈtɛstəˌfaɪ/",
+      "translation": "давать показания",
+      "translations": {
+        "ru": "давать показания",
+        "uz": "sudda guvohlik bermoq"
+      },
+      "example": "Two neighbors agreed to testify at the trial.",
+      "example_translations": {
+        "ru": "Двое соседей согласились дать показания на суде.",
+        "uz": "Ikki qo'shni sudda guvohlik berishga rozi bo'ldi."
+      }
+    },
+    {
+      "word": "acquit",
+      "part_of_speech": "verb",
+      "transcription": "/əˈkwɪt/",
+      "translation": "оправдывать",
+      "translations": {
+        "ru": "оправдывать",
+        "uz": "oqlamoq"
+      },
+      "example": "The jury will acquit him if the evidence is weak.",
+      "example_translations": {
+        "ru": "Присяжные оправдают его, если доказательства окажутся слабыми.",
+        "uz": "Dalillar zaif bo'lsa, maslahatchilar hay'ati uni oqlaydi."
+      }
+    },
+    {
+      "word": "tribunal",
+      "part_of_speech": "noun",
+      "transcription": "/traɪˈbjunəl/",
+      "translation": "трибунал",
+      "translations": {
+        "ru": "трибунал",
+        "uz": "tribunal"
+      },
+      "example": "An international tribunal will hear the border dispute.",
+      "example_translations": {
+        "ru": "Международный трибунал рассмотрит пограничный спор.",
+        "uz": "Xalqaro tribunal chegara nizosini ko'rib chiqadi."
+      }
+    },
+    {
+      "word": "bail",
+      "part_of_speech": "noun",
+      "transcription": "/beɪl/",
+      "translation": "залог",
+      "translations": {
+        "ru": "залог",
+        "uz": "garov puli"
+      },
+      "example": "The judge released her on bail until the trial.",
+      "example_translations": {
+        "ru": "Судья отпустил её под залог до суда.",
+        "uz": "Sudya uni sudgacha garov puli evaziga ozod qildi."
+      }
+    },
+    {
+      "word": "plea",
+      "part_of_speech": "noun",
+      "transcription": "/pli/",
+      "translation": "заявление подсудимого",
+      "translations": {
+        "ru": "заявление подсудимого",
+        "uz": "sudlanuvchining bayonoti"
+      },
+      "example": "His plea of not guilty surprised the whole courtroom.",
+      "example_translations": {
+        "ru": "Заявление подсудимого о невиновности удивило весь зал суда.",
+        "uz": "Sudlanuvchining aybsizlik haqidagi bayonoti butun sud zalini hayratga soldi."
+      }
+    }
+  ]
+}

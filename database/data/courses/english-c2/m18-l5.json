@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 18,
+    "title": "Мера и оценка",
+    "title_uz": "Me'yor va baho"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Обычное и исключительное",
+    "title_uz": "Odatiy va noyob"
+  },
+  "words": [
+    {
+      "word": "ubiquitous",
+      "part_of_speech": "adjective",
+      "transcription": "/juˈbɪkwətəs/",
+      "translation": "вездесущий, повсеместный",
+      "translations": {
+        "ru": "вездесущий, повсеместный",
+        "uz": "hamma yerda uchraydigan"
+      },
+      "example": "Smartphones are ubiquitous; you see them absolutely everywhere.",
+      "example_translations": {
+        "ru": "Смартфоны вездесущи: их видишь абсолютно повсюду.",
+        "uz": "Smartfonlar hamma yerda uchraydi: ularni mutlaqo har joyda ko'rasiz."
+      }
+    },
+    {
+      "word": "rampant",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈræmpənt/",
+      "translation": "безудержный, свирепствующий",
+      "translations": {
+        "ru": "безудержный, свирепствующий",
+        "uz": "avj olgan"
+      },
+      "example": "Rampant inflation doubled food prices within a single year.",
+      "example_translations": {
+        "ru": "Безудержная инфляция за один год удвоила цены на продукты.",
+        "uz": "Avj olgan inflyatsiya bir yil ichida oziq-ovqat narxlarini ikki baravar oshirdi."
+      }
+    },
+    {
+      "word": "commonplace",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkɑmənˌpleɪs/",
+      "translation": "привычный, обыденный",
+      "translations": {
+        "ru": "привычный, обыденный",
+        "uz": "odatiy"
+      },
+      "example": "Electric cars, once rare, are now commonplace in cities.",
+      "example_translations": {
+        "ru": "Электромобили, некогда редкие, теперь привычны в городах.",
+        "uz": "Bir paytlar kamyob bo'lgan elektromobillar endi shaharlarda odatiy holga aylandi."
+      }
+    },
+    {
+      "word": "prolific",
+      "part_of_speech": "adjective",
+      "transcription": "/prəˈlɪfɪk/",
+      "translation": "плодовитый",
+      "translations": {
+        "ru": "плодовитый",
+        "uz": "sermahsul"
+      },
+      "example": "The prolific author published three novels every year.",
+      "example_translations": {
+        "ru": "Плодовитый автор публиковал по три романа каждый год.",
+        "uz": "Sermahsul muallif har yili uchtadan roman nashr etardi."
+      }
+    },
+    {
+      "word": "idiosyncratic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪdiəsɪnˈkrætɪk/",
+      "translation": "своеобразный, сугубо индивидуальный",
+      "translations": {
+        "ru": "своеобразный, сугубо индивидуальный",
+        "uz": "o'ziga xos, o'zgacha"
+      },
+      "example": "Her idiosyncratic style is unlike any other painter's.",
+      "example_translations": {
+        "ru": "Её своеобразный стиль не похож на стиль ни одного другого художника.",
+        "uz": "Uning o'ziga xos uslubi boshqa hech bir rassomnikiga o'xshamaydi."
+      }
+    },
+    {
+      "word": "aberration",
+      "part_of_speech": "noun",
+      "transcription": "/ˌæbəˈreɪʃən/",
+      "translation": "отклонение от нормы",
+      "translations": {
+        "ru": "отклонение от нормы",
+        "uz": "me'yordan chetlanish"
+      },
+      "example": "That defeat was an aberration; the team usually wins.",
+      "example_translations": {
+        "ru": "То поражение было отклонением от нормы: обычно команда побеждает.",
+        "uz": "O'sha mag'lubiyat me'yordan chetlanish edi: jamoa odatda g'alaba qozonadi."
+      }
+    },
+    {
+      "word": "unparalleled",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈpɛrəˌlɛld/",
+      "translation": "непревзойдённый, бесподобный",
+      "translations": {
+        "ru": "непревзойдённый, бесподобный",
+        "uz": "tengsiz"
+      },
+      "example": "No rival can match her unparalleled skill at chess.",
+      "example_translations": {
+        "ru": "Ни один соперник не сравнится с её непревзойдённым мастерством в шахматах.",
+        "uz": "Hech bir raqib uning shaxmatdagi tengsiz mahoratiga yeta olmaydi."
+      }
+    },
+    {
+      "word": "inimitable",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈnɪmətəbəl/",
+      "translation": "неподражаемый",
+      "translations": {
+        "ru": "неподражаемый",
+        "uz": "betakror, taqlid qilib bo'lmas"
+      },
+      "example": "Nobody could copy the singer's inimitable voice and manner.",
+      "example_translations": {
+        "ru": "Никто не мог скопировать неподражаемый голос и манеру певца.",
+        "uz": "Hech kim xonandaning betakror ovozi va uslubini takrorlay olmasdi."
+      }
+    },
+    {
+      "word": "atypical",
+      "part_of_speech": "adjective",
+      "transcription": "/eɪˈtɪpɪkəl/",
+      "translation": "нетипичный",
+      "translations": {
+        "ru": "нетипичный",
+        "uz": "xos bo'lmagan, g'ayriodatiy"
+      },
+      "example": "Snow in May is atypical for this warm region.",
+      "example_translations": {
+        "ru": "Снег в мае нетипичен для этого тёплого региона.",
+        "uz": "May oyida qor yog'ishi bu iliq mintaqaga xos emas."
+      }
+    },
+    {
+      "word": "outlandish",
+      "part_of_speech": "adjective",
+      "transcription": "/aʊtˈlændɪʃ/",
+      "translation": "диковинный, нелепый",
+      "translations": {
+        "ru": "диковинный, нелепый",
+        "uz": "g'aroyib, g'alati"
+      },
+      "example": "She wore an outlandish hat covered in plastic fruit.",
+      "example_translations": {
+        "ru": "На ней была диковинная шляпа, покрытая пластиковыми фруктами.",
+        "uz": "U plastik mevalar bilan qoplangan g'aroyib shlyapa kiygan edi."
+      }
+    }
+  ]
+}

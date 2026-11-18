@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 5,
+    "title": "Философия и этика",
+    "title_uz": "Falsafa va etika"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Идеи и мировоззрения",
+    "title_uz": "G'oyalar va dunyoqarash"
+  },
+  "words": [
+    {
+      "word": "egalitarian",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˌgæləˈtɛriən/",
+      "translation": "эгалитарный, основанный на равенстве",
+      "translations": {
+        "ru": "эгалитарный, основанный на равенстве",
+        "uz": "tenglikka asoslangan"
+      },
+      "example": "They dreamed of an egalitarian society without privileged classes.",
+      "example_translations": {
+        "ru": "Они мечтали об эгалитарном обществе без привилегированных классов.",
+        "uz": "Ular imtiyozli tabaqalarsiz, tenglikka asoslangan jamiyatni orzu qilardilar."
+      }
+    },
+    {
+      "word": "utopia",
+      "part_of_speech": "noun",
+      "transcription": "/juˈtoʊpiə/",
+      "translation": "утопия",
+      "translations": {
+        "ru": "утопия",
+        "uz": "utopiya"
+      },
+      "example": "His perfect island society was merely a utopia.",
+      "example_translations": {
+        "ru": "Его идеальное островное общество было всего лишь утопией.",
+        "uz": "Uning oroldagi mukammal jamiyati shunchaki utopiya edi."
+      }
+    },
+    {
+      "word": "dystopia",
+      "part_of_speech": "noun",
+      "transcription": "/dɪsˈtoʊpiə/",
+      "translation": "антиутопия",
+      "translations": {
+        "ru": "антиутопия",
+        "uz": "antiutopiya"
+      },
+      "example": "The novel depicts a dystopia ruled by constant surveillance.",
+      "example_translations": {
+        "ru": "Роман изображает антиутопию, где царит постоянная слежка.",
+        "uz": "Roman doimiy kuzatuv hukmron bo'lgan antiutopiyani tasvirlaydi."
+      }
+    },
+    {
+      "word": "paternalism",
+      "part_of_speech": "noun",
+      "transcription": "/pəˈtɜrnəˌlɪzəm/",
+      "translation": "патернализм",
+      "translations": {
+        "ru": "патернализм",
+        "uz": "paternalizm, otalarcha vasiylik"
+      },
+      "example": "Paternalism treats adults like children needing protection.",
+      "example_translations": {
+        "ru": "Патернализм обращается со взрослыми как с детьми, нуждающимися в защите.",
+        "uz": "Paternalizm kattalarga himoyaga muhtoj bolalardek munosabatda bo'ladi."
+      }
+    },
+    {
+      "word": "collectivism",
+      "part_of_speech": "noun",
+      "transcription": "/kəˈlɛktɪˌvɪzəm/",
+      "translation": "коллективизм",
+      "translations": {
+        "ru": "коллективизм",
+        "uz": "kollektivizm, jamoaviylik"
+      },
+      "example": "Collectivism puts the group's needs before the individual's.",
+      "example_translations": {
+        "ru": "Коллективизм ставит потребности группы выше потребностей личности.",
+        "uz": "Kollektivizm guruh ehtiyojlarini shaxs ehtiyojlaridan ustun qo'yadi."
+      }
+    },
+    {
+      "word": "individualism",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪndəˈvɪdʒuəˌlɪzəm/",
+      "translation": "индивидуализм",
+      "translations": {
+        "ru": "индивидуализм",
+        "uz": "individualizm"
+      },
+      "example": "Individualism celebrates personal freedom and relying on oneself.",
+      "example_translations": {
+        "ru": "Индивидуализм превозносит личную свободу и опору на собственные силы.",
+        "uz": "Individualizm shaxsiy erkinlik va o'z kuchiga tayanishni ulug'laydi."
+      }
+    },
+    {
+      "word": "nihilism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnaɪəˌlɪzəm/",
+      "translation": "нигилизм",
+      "translations": {
+        "ru": "нигилизм",
+        "uz": "nigilizm"
+      },
+      "example": "Nihilism insists that life has no inherent meaning.",
+      "example_translations": {
+        "ru": "Нигилизм настаивает, что в жизни нет изначального смысла.",
+        "uz": "Nigilizm hayotning azaliy ma'nosi yo'q deb ta'kidlaydi."
+      }
+    },
+    {
+      "word": "pragmatism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈprægməˌtɪzəm/",
+      "translation": "прагматизм",
+      "translations": {
+        "ru": "прагматизм",
+        "uz": "pragmatizm"
+      },
+      "example": "Her pragmatism favored workable solutions over grand theories.",
+      "example_translations": {
+        "ru": "Её прагматизм отдавал предпочтение работающим решениям, а не громким теориям.",
+        "uz": "Uning pragmatizmi balandparvoz nazariyalardan ko'ra amaliy yechimlarni afzal ko'rardi."
+      }
+    },
+    {
+      "word": "idealism",
+      "part_of_speech": "noun",
+      "transcription": "/aɪˈdiəˌlɪzəm/",
+      "translation": "идеализм",
+      "translations": {
+        "ru": "идеализм",
+        "uz": "idealizm"
+      },
+      "example": "Youthful idealism made him believe the world could change.",
+      "example_translations": {
+        "ru": "Юношеский идеализм заставлял его верить, что мир можно изменить.",
+        "uz": "Yoshlik idealizmi uni dunyoni o'zgartirish mumkinligiga ishontirardi."
+      }
+    },
+    {
+      "word": "fatalism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfeɪtəˌlɪzəm/",
+      "translation": "фатализм",
+      "translations": {
+        "ru": "фатализм",
+        "uz": "fatalizm, taqdirga tan berish"
+      },
+      "example": "With quiet fatalism, she accepted whatever fate brought.",
+      "example_translations": {
+        "ru": "С тихим фатализмом она принимала всё, что приносила судьба.",
+        "uz": "U sokin fatalizm bilan taqdir nima keltirsa, hammasini qabul qilardi."
+      }
+    }
+  ]
+}

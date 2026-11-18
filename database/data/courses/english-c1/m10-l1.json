@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 10,
+    "title": "Природа и экология",
+    "title_uz": "Tabiat va ekologiya"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Климатический кризис",
+    "title_uz": "Iqlim inqirozi"
+  },
+  "words": [
+    {
+      "word": "mitigate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈmɪtəˌgeɪt/",
+      "translation": "смягчать",
+      "translations": {
+        "ru": "смягчать",
+        "uz": "yumshatmoq"
+      },
+      "example": "Planting trees can mitigate the effects of floods.",
+      "example_translations": {
+        "ru": "Посадка деревьев может смягчить последствия наводнений.",
+        "uz": "Daraxt ekish suv toshqinlari oqibatlarini yumshatishi mumkin."
+      }
+    },
+    {
+      "word": "adaptation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌædæpˈteɪʃən/",
+      "translation": "приспособление",
+      "translations": {
+        "ru": "приспособление",
+        "uz": "moslashuv"
+      },
+      "example": "Adaptation to hotter summers requires better city planning.",
+      "example_translations": {
+        "ru": "Приспособление к более жаркому лету требует более продуманного городского планирования.",
+        "uz": "Yanada issiq yozga moslashuv shaharni puxtaroq rejalashtirishni talab qiladi."
+      }
+    },
+    {
+      "word": "offset",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɔfˌsɛt/",
+      "translation": "компенсировать",
+      "translations": {
+        "ru": "компенсировать",
+        "uz": "o'rnini qoplamoq"
+      },
+      "example": "The company plants forests to offset its emissions.",
+      "example_translations": {
+        "ru": "Компания сажает леса, чтобы компенсировать свои выбросы.",
+        "uz": "Kompaniya havoga chiqargan gazlari o'rnini qoplash uchun o'rmonlar barpo etadi."
+      }
+    },
+    {
+      "word": "decarbonize",
+      "part_of_speech": "verb",
+      "transcription": "/diˈkɑrbəˌnaɪz/",
+      "translation": "декарбонизировать",
+      "translations": {
+        "ru": "декарбонизировать",
+        "uz": "ugleroddan xoli qilmoq"
+      },
+      "example": "Cities must decarbonize public transport within ten years.",
+      "example_translations": {
+        "ru": "Города должны декарбонизировать общественный транспорт в течение десяти лет.",
+        "uz": "Shaharlar o'n yil ichida jamoat transportini ugleroddan xoli qilishi kerak."
+      }
+    },
+    {
+      "word": "heatwave",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhitˌweɪv/",
+      "translation": "волна жары",
+      "translations": {
+        "ru": "волна жары",
+        "uz": "issiqlik to'lqini"
+      },
+      "example": "Schools closed early during the July heatwave.",
+      "example_translations": {
+        "ru": "Во время июльской волны жары школы закрывались раньше.",
+        "uz": "Iyuldagi issiqlik to'lqini paytida maktablar ertaroq yopildi."
+      }
+    },
+    {
+      "word": "thaw",
+      "part_of_speech": "verb",
+      "transcription": "/θɔ/",
+      "translation": "оттаивать, таять",
+      "translations": {
+        "ru": "оттаивать, таять",
+        "uz": "erimoq"
+      },
+      "example": "The frozen lake begins to thaw in early spring.",
+      "example_translations": {
+        "ru": "Замёрзшее озеро начинает оттаивать ранней весной.",
+        "uz": "Muzlagan ko'l erta bahorda eriy boshlaydi."
+      }
+    },
+    {
+      "word": "permafrost",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɜrməˌfrɔst/",
+      "translation": "вечная мерзлота",
+      "translations": {
+        "ru": "вечная мерзлота",
+        "uz": "abadiy muzloq"
+      },
+      "example": "Roads crack when the permafrost beneath them melts.",
+      "example_translations": {
+        "ru": "Дороги трескаются, когда вечная мерзлота под ними тает.",
+        "uz": "Ostidagi abadiy muzloq eriganda yo'llar yoriladi."
+      }
+    },
+    {
+      "word": "irreversible",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪrɪˈvɜrsəbəl/",
+      "translation": "необратимый",
+      "translations": {
+        "ru": "необратимый",
+        "uz": "qaytarib bo'lmaydigan"
+      },
+      "example": "Scientists warn that some climate damage is irreversible.",
+      "example_translations": {
+        "ru": "Учёные предупреждают, что часть ущерба климату необратима.",
+        "uz": "Olimlar iqlimga yetkazilgan zararning bir qismi qaytarib bo'lmaydigan ekanidan ogohlantirmoqda."
+      }
+    },
+    {
+      "word": "atmospheric",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌætməsˈfɪrɪk/",
+      "translation": "атмосферный",
+      "translations": {
+        "ru": "атмосферный",
+        "uz": "atmosferaga oid"
+      },
+      "example": "Atmospheric pressure drops as you climb higher.",
+      "example_translations": {
+        "ru": "Атмосферное давление падает по мере подъёма.",
+        "uz": "Yuqoriga ko'tarilgan sari atmosfera bosimi pasayadi."
+      }
+    },
+    {
+      "word": "desertification",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˌzɜrtəfəˈkeɪʃən/",
+      "translation": "опустынивание",
+      "translations": {
+        "ru": "опустынивание",
+        "uz": "cho'llanish"
+      },
+      "example": "Overgrazing speeds up desertification in dry regions.",
+      "example_translations": {
+        "ru": "Чрезмерный выпас скота ускоряет опустынивание в засушливых регионах.",
+        "uz": "Chorvani haddan ortiq boqish qurg'oqchil hududlarda cho'llanishni tezlashtiradi."
+      }
+    }
+  ]
+}

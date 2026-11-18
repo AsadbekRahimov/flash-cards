@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 15,
+    "title": "Искусство и культура",
+    "title_uz": "San'at va madaniyat"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Литература",
+    "title_uz": "Adabiyot"
+  },
+  "words": [
+    {
+      "word": "novella",
+      "part_of_speech": "noun",
+      "transcription": "/noʊˈvɛlə/",
+      "translation": "повесть",
+      "translations": {
+        "ru": "повесть",
+        "uz": "qissa"
+      },
+      "example": "A novella is longer than a short story.",
+      "example_translations": {
+        "ru": "Повесть длиннее рассказа.",
+        "uz": "Qissa hikoyadan uzunroq bo'ladi."
+      }
+    },
+    {
+      "word": "anthology",
+      "part_of_speech": "noun",
+      "transcription": "/ænˈθɑlədʒi/",
+      "translation": "антология",
+      "translations": {
+        "ru": "антология",
+        "uz": "antologiya"
+      },
+      "example": "This anthology collects poems by fifty different authors.",
+      "example_translations": {
+        "ru": "В этой антологии собраны стихи пятидесяти разных авторов.",
+        "uz": "Bu antologiyada ellik nafar muallifning she'rlari jamlangan."
+      }
+    },
+    {
+      "word": "stanza",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstænzə/",
+      "translation": "строфа",
+      "translations": {
+        "ru": "строфа",
+        "uz": "band"
+      },
+      "example": "The poem's second stanza has only four lines.",
+      "example_translations": {
+        "ru": "Во второй строфе стихотворения всего четыре строки.",
+        "uz": "She'rning ikkinchi bandi atigi to'rt misradan iborat."
+      }
+    },
+    {
+      "word": "allegory",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæləˌgɔri/",
+      "translation": "аллегория",
+      "translations": {
+        "ru": "аллегория",
+        "uz": "allegoriya"
+      },
+      "example": "The fable is an allegory about human greed.",
+      "example_translations": {
+        "ru": "Эта басня — аллегория человеческой жадности.",
+        "uz": "Bu masal inson ochko'zligi haqidagi allegoriyadir."
+      }
+    },
+    {
+      "word": "imagery",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪmɪdʒri/",
+      "translation": "образность",
+      "translations": {
+        "ru": "образность",
+        "uz": "obrazlilik"
+      },
+      "example": "The poet's vivid imagery makes every scene come alive.",
+      "example_translations": {
+        "ru": "Яркая образность поэта оживляет каждую сцену.",
+        "uz": "Shoirning yorqin obrazliligi har bir manzarani jonlantiradi."
+      }
+    },
+    {
+      "word": "symbolism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪmbəˌlɪzəm/",
+      "translation": "символика",
+      "translations": {
+        "ru": "символика",
+        "uz": "ramziylik"
+      },
+      "example": "In the novel, the symbolism of water suggests rebirth.",
+      "example_translations": {
+        "ru": "В романе символика воды намекает на возрождение.",
+        "uz": "Romanda suvning ramziyligi qayta tug'ilishga ishora qiladi."
+      }
+    },
+    {
+      "word": "motif",
+      "part_of_speech": "noun",
+      "transcription": "/moʊˈtif/",
+      "translation": "мотив",
+      "translations": {
+        "ru": "мотив",
+        "uz": "motiv"
+      },
+      "example": "Loneliness is a recurring motif in his stories.",
+      "example_translations": {
+        "ru": "Одиночество — повторяющийся мотив в его рассказах.",
+        "uz": "Yolg'izlik — uning hikoyalarida takrorlanib turadigan motiv."
+      }
+    },
+    {
+      "word": "narrator",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnɛreɪtər/",
+      "translation": "рассказчик",
+      "translations": {
+        "ru": "рассказчик",
+        "uz": "hikoyachi"
+      },
+      "example": "The narrator of the novel is a ten-year-old boy.",
+      "example_translations": {
+        "ru": "Рассказчик в романе — десятилетний мальчик.",
+        "uz": "Romandagi hikoyachi — o'n yoshli bola."
+      }
+    },
+    {
+      "word": "climax",
+      "part_of_speech": "noun",
+      "transcription": "/ˈklaɪˌmæks/",
+      "translation": "кульминация",
+      "translations": {
+        "ru": "кульминация",
+        "uz": "kulminatsiya"
+      },
+      "example": "The story reaches its climax when the hero confesses.",
+      "example_translations": {
+        "ru": "История достигает кульминации, когда герой во всём признаётся.",
+        "uz": "Qahramon iqror bo'lganda voqea kulminatsiyasiga yetadi."
+      }
+    },
+    {
+      "word": "manuscript",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmænjəˌskrɪpt/",
+      "translation": "рукопись",
+      "translations": {
+        "ru": "рукопись",
+        "uz": "qo'lyozma"
+      },
+      "example": "The author sent her manuscript to three publishers.",
+      "example_translations": {
+        "ru": "Писательница отправила свою рукопись трём издательствам.",
+        "uz": "Yozuvchi o'z qo'lyozmasini uchta nashriyotga yubordi."
+      }
+    }
+  ]
+}

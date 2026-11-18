@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 20,
+    "title": "Абстрактные понятия",
+    "title_uz": "Mavhum tushunchalar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Препятствия и возможности",
+    "title_uz": "To'siqlar va imkoniyatlar"
+  },
+  "words": [
+    {
+      "word": "hinder",
+      "part_of_speech": "verb",
+      "transcription": "/ˈhɪndər/",
+      "translation": "затруднять, мешать",
+      "translations": {
+        "ru": "затруднять, мешать",
+        "uz": "qiyinlashtirmoq, xalaqit bermoq"
+      },
+      "example": "Heavy snow hindered the rescue team's progress.",
+      "example_translations": {
+        "ru": "Сильный снегопад затруднял продвижение спасателей.",
+        "uz": "Qalin qor qutqaruvchilarning oldinga siljishini qiyinlashtirdi."
+      }
+    },
+    {
+      "word": "obstruct",
+      "part_of_speech": "verb",
+      "transcription": "/əbˈstrʌkt/",
+      "translation": "преграждать",
+      "translations": {
+        "ru": "преграждать",
+        "uz": "to'sib qo'ymoq"
+      },
+      "example": "A fallen tree obstructed the road for hours.",
+      "example_translations": {
+        "ru": "Упавшее дерево на несколько часов преградило дорогу.",
+        "uz": "Yiqilgan daraxt yo'lni bir necha soat to'sib qo'ydi."
+      }
+    },
+    {
+      "word": "constrain",
+      "part_of_speech": "verb",
+      "transcription": "/kənˈstreɪn/",
+      "translation": "ограничивать, сковывать",
+      "translations": {
+        "ru": "ограничивать, сковывать",
+        "uz": "cheklab qo'ymoq"
+      },
+      "example": "Lack of space constrained the school's plans to grow.",
+      "example_translations": {
+        "ru": "Нехватка места ограничивала планы школы по расширению.",
+        "uz": "Joy yetishmasligi maktabning kengayish rejalarini cheklab qo'ydi."
+      }
+    },
+    {
+      "word": "curtail",
+      "part_of_speech": "verb",
+      "transcription": "/kərˈteɪl/",
+      "translation": "урезать, сокращать",
+      "translations": {
+        "ru": "урезать, сокращать",
+        "uz": "qisqartirmoq"
+      },
+      "example": "Budget cuts forced us to curtail the program.",
+      "example_translations": {
+        "ru": "Сокращение бюджета вынудило нас урезать программу.",
+        "uz": "Byudjet kamaytirilgani bizni dasturni qisqartirishga majbur qildi."
+      }
+    },
+    {
+      "word": "thwart",
+      "part_of_speech": "verb",
+      "transcription": "/θwɔrt/",
+      "translation": "срывать, расстраивать",
+      "translations": {
+        "ru": "срывать, расстраивать",
+        "uz": "barbod qilmoq"
+      },
+      "example": "Bad weather thwarted our plan to climb the peak.",
+      "example_translations": {
+        "ru": "Плохая погода сорвала наш план подняться на вершину.",
+        "uz": "Yomon ob-havo cho'qqiga chiqish rejamizni barbod qildi."
+      }
+    },
+    {
+      "word": "hurdle",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɜrdəl/",
+      "translation": "препятствие, барьер",
+      "translations": {
+        "ru": "препятствие, барьер",
+        "uz": "to'siq"
+      },
+      "example": "Finding investors was the first hurdle we faced.",
+      "example_translations": {
+        "ru": "Поиск инвесторов был первым препятствием, с которым мы столкнулись.",
+        "uz": "Sarmoyador topish biz duch kelgan birinchi to'siq bo'ldi."
+      }
+    },
+    {
+      "word": "pitfall",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɪtˌfɔl/",
+      "translation": "ловушка, подводный камень",
+      "translations": {
+        "ru": "ловушка, подводный камень",
+        "uz": "tuzoq, yashirin xavf"
+      },
+      "example": "Overconfidence is a common pitfall for new drivers.",
+      "example_translations": {
+        "ru": "Самоуверенность — частая ловушка для начинающих водителей.",
+        "uz": "O'ziga ortiqcha ishonish yangi haydovchilar uchun keng tarqalgan tuzoqdir."
+      }
+    },
+    {
+      "word": "drawback",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdrɔˌbæk/",
+      "translation": "недостаток",
+      "translations": {
+        "ru": "недостаток",
+        "uz": "kamchilik"
+      },
+      "example": "The only drawback of the apartment is noise.",
+      "example_translations": {
+        "ru": "Единственный недостаток этой квартиры — шум.",
+        "uz": "Bu xonadonning yagona kamchiligi — shovqin."
+      }
+    },
+    {
+      "word": "leeway",
+      "part_of_speech": "noun",
+      "transcription": "/ˈliˌweɪ/",
+      "translation": "свобода действий",
+      "translations": {
+        "ru": "свобода действий",
+        "uz": "harakat erkinligi"
+      },
+      "example": "Teachers have some leeway in choosing their materials.",
+      "example_translations": {
+        "ru": "У учителей есть некоторая свобода действий в выборе материалов.",
+        "uz": "O'qituvchilar material tanlashda ma'lum darajada harakat erkinligiga ega."
+      }
+    },
+    {
+      "word": "prospect",
+      "part_of_speech": "noun",
+      "transcription": "/ˈprɑˌspɛkt/",
+      "translation": "перспектива",
+      "translations": {
+        "ru": "перспектива",
+        "uz": "istiqbol"
+      },
+      "example": "The prospect of promotion motivated her to stay.",
+      "example_translations": {
+        "ru": "Перспектива повышения побудила её остаться.",
+        "uz": "Lavozimga ko'tarilish istiqboli uni qolishga undadi."
+      }
+    }
+  ]
+}

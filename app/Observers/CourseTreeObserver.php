@@ -19,8 +19,11 @@ use Illuminate\Support\Facades\DB;
  *
  * The data version the tree is keyed with ({@see CourseCatalogService::courseTreeVersionKey()}) also keys the new-word frontier
  * of every learner of the course (`App\Domain\Learning\Services\NewWordFrontier`), which depends on the course being AVAILABLE
- * to them as well: a saved {@see Course} whose `status`, `visibility` or owner changed moves the version on too (the status
- * change of `CoursePublisher::transition()` does it itself; twice is harmless). A course that is only renamed does not.
+ * to them, and the cached row of the course itself ({@see CourseCatalogService::cachedCourse()}, docs/19 K10), which shows its
+ * title, level and status on the Today screen: a saved change of any column of a {@see Course} that is read from
+ * them ({@see COURSE_READ_COLUMNS}) moves the version on (the status change of `CoursePublisher::transition()` and the recount
+ * do it themselves; twice is harmless). A rename alone drops a tree and a frontier that were still right - a recomputation,
+ * nothing more, and the row shows the new name at once; a change of `position` / `is_featured` moves nothing.
  *
  * The course of a lesson is its module's: read from the module when the lesson carries it (the relation is loaded, it is the module
  * asked about, and it has its `course_id` - a module selected without that column does not count), and with one primary-key lookup
@@ -28,15 +31,20 @@ use Illuminate\Support\Facades\DB;
  */
 final class CourseTreeObserver
 {
-    /** The columns of `courses` the availability rule reads (`Course::scopeAvailableTo()`, `CourseCatalogService::isAvailable()`). */
-    private const AVAILABILITY_COLUMNS = ['status', 'visibility', 'owner_type', 'owner_id'];
+    /**
+     * The columns of a course that a cached tree, a frontier or the cached row read: availability (status, visibility, owner), what
+     * the Today screen and the catalog card show (slug, title, description, level, exam tag, meta, word total). Ordering and the
+     * featured flag (`position`, `is_featured`) and the publication stamp are not read from them - a reorder of the catalog must not
+     * drop the trees and frontiers of every learner of the course.
+     */
+    private const COURSE_READ_COLUMNS = ['status', 'visibility', 'owner_type', 'owner_id', 'slug', 'title', 'description', 'level', 'exam_tag', 'meta', 'words_count'];
 
     public function __construct(private readonly CourseCatalogService $catalog) {}
 
     public function saved(Stage|Lesson|Course $model): void
     {
         if ($model instanceof Course) {
-            if ($model->wasChanged(self::AVAILABILITY_COLUMNS)) {
+            if ($model->wasRecentlyCreated || $model->wasChanged(self::COURSE_READ_COLUMNS)) {
                 $this->forgetAfterCommit([(int) $model->getKey()]);
             }
 

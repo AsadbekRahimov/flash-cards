@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 7,
+    "title": "Технологии",
+    "title_uz": "Texnologiyalar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Кибербезопасность",
+    "title_uz": "Kiberxavfsizlik"
+  },
+  "words": [
+    {
+      "word": "authentication",
+      "part_of_speech": "noun",
+      "transcription": "/ɔˌθɛntəˈkeɪʃən/",
+      "translation": "аутентификация",
+      "translations": {
+        "ru": "аутентификация",
+        "uz": "autentifikatsiya"
+      },
+      "example": "Two-step authentication protects your account from strangers.",
+      "example_translations": {
+        "ru": "Двухэтапная аутентификация защищает ваш аккаунт от посторонних.",
+        "uz": "Ikki bosqichli autentifikatsiya hisobingizni begonalardan himoya qiladi."
+      }
+    },
+    {
+      "word": "ransomware",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrænsəmˌwɛr/",
+      "translation": "программа-вымогатель",
+      "translations": {
+        "ru": "программа-вымогатель",
+        "uz": "tovlamachi dastur"
+      },
+      "example": "Ransomware locked their files and demanded payment.",
+      "example_translations": {
+        "ru": "Программа-вымогатель заблокировала их файлы и потребовала плату.",
+        "uz": "Tovlamachi dastur ularning fayllarini bloklab, to'lov talab qildi."
+      }
+    },
+    {
+      "word": "spyware",
+      "part_of_speech": "noun",
+      "transcription": "/ˈspaɪˌwɛr/",
+      "translation": "шпионская программа",
+      "translations": {
+        "ru": "шпионская программа",
+        "uz": "josus dastur"
+      },
+      "example": "Spyware secretly recorded everything he typed.",
+      "example_translations": {
+        "ru": "Шпионская программа тайно записывала всё, что он печатал.",
+        "uz": "Josus dastur u tergan hamma narsani yashirincha yozib olardi."
+      }
+    },
+    {
+      "word": "exploit",
+      "part_of_speech": "verb",
+      "transcription": "/ɪkˈsplɔɪt/",
+      "translation": "использовать уязвимость",
+      "translations": {
+        "ru": "использовать уязвимость",
+        "uz": "zaiflikdan foydalanmoq"
+      },
+      "example": "Hackers exploited a weakness in the old software.",
+      "example_translations": {
+        "ru": "Хакеры использовали уязвимость в старой программе.",
+        "uz": "Xakerlar eski dasturdagi zaiflikdan foydalanishdi."
+      }
+    },
+    {
+      "word": "intrusion",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈtruʒən/",
+      "translation": "вторжение",
+      "translations": {
+        "ru": "вторжение",
+        "uz": "ruxsatsiz kirish"
+      },
+      "example": "The system detected an intrusion into the company network.",
+      "example_translations": {
+        "ru": "Система обнаружила вторжение в сеть компании.",
+        "uz": "Tizim kompaniya tarmog'iga ruxsatsiz kirishni aniqladi."
+      }
+    },
+    {
+      "word": "biometric",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌbaɪoʊˈmɛtrɪk/",
+      "translation": "биометрический",
+      "translations": {
+        "ru": "биометрический",
+        "uz": "biometrik"
+      },
+      "example": "Biometric locks open only with your fingerprint.",
+      "example_translations": {
+        "ru": "Биометрические замки открываются только по вашему отпечатку пальца.",
+        "uz": "Biometrik qulflar faqat barmoq izingiz bilan ochiladi."
+      }
+    },
+    {
+      "word": "decrypt",
+      "part_of_speech": "verb",
+      "transcription": "/diˈkrɪpt/",
+      "translation": "расшифровывать",
+      "translations": {
+        "ru": "расшифровывать",
+        "uz": "shifrni ochmoq"
+      },
+      "example": "Only the right key can decrypt this secret message.",
+      "example_translations": {
+        "ru": "Только правильный ключ может расшифровать это секретное сообщение.",
+        "uz": "Bu maxfiy xabarning shifrini faqat to'g'ri kalit ocha oladi."
+      }
+    },
+    {
+      "word": "tamper",
+      "part_of_speech": "verb",
+      "transcription": "/ˈtæmpər/",
+      "translation": "несанкционированно изменять",
+      "translations": {
+        "ru": "несанкционированно изменять",
+        "uz": "ruxsatsiz o'zgartirmoq"
+      },
+      "example": "Someone tampered with the records to hide the error.",
+      "example_translations": {
+        "ru": "Кто-то несанкционированно изменил записи, чтобы скрыть ошибку.",
+        "uz": "Kimdir xatoni yashirish uchun yozuvlarni ruxsatsiz o'zgartirgan."
+      }
+    },
+    {
+      "word": "cipher",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsaɪfər/",
+      "translation": "шифр",
+      "translations": {
+        "ru": "шифр",
+        "uz": "shifr"
+      },
+      "example": "Nobody could read the letter without knowing the cipher.",
+      "example_translations": {
+        "ru": "Никто не мог прочитать письмо, не зная шифра.",
+        "uz": "Shifrni bilmasdan turib hech kim xatni o'qiy olmasdi."
+      }
+    },
+    {
+      "word": "cybercrime",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsaɪbərˌkraɪm/",
+      "translation": "киберпреступность",
+      "translations": {
+        "ru": "киберпреступность",
+        "uz": "kiberjinoyatchilik"
+      },
+      "example": "Online fraud is the most common form of cybercrime.",
+      "example_translations": {
+        "ru": "Интернет-мошенничество — самый распространённый вид киберпреступности.",
+        "uz": "Internetdagi firibgarlik — kiberjinoyatchilikning eng keng tarqalgan turi."
+      }
+    }
+  ]
+}

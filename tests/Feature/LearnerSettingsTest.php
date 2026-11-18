@@ -174,6 +174,11 @@ it('accepts the onboarding goal and level too, the goal only while it is enabled
         ->assertJsonPath('settings.goal', 'general')
         ->assertJsonPath('settings.level', 'B2');
 
+    foreach (['C1', 'C2'] as $level) {
+        patchSettings($this, $learner, ['level' => $level])->assertOk()->assertJsonPath('settings.level', $level);
+        expect($learner->fresh()->level)->toBe($level);
+    }
+
     config(['learners.goals' => ['general', 'sat']]);
     patchSettings($this, $learner, ['goal' => 'sat'])->assertOk()->assertJsonPath('settings.goal', 'sat');
 });
@@ -323,7 +328,7 @@ it('rejects invalid values with 422 and changes nothing', function (string $fiel
     'goal huge' => ['daily_goal', 1000000],
     'learning goal unknown' => ['goal', 'toefl'],
     'learning goal switched off' => ['goal', 'ielts'],
-    'level beyond the self-assessment' => ['level', 'C2'],
+    'level beyond the self-assessment' => ['level', 'C3'],
     'level unknown' => ['level', 'unknown'],
 ]);
 

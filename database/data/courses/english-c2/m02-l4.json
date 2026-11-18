@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 2,
+    "title": "Эмоции и состояния души",
+    "title_uz": "Tuyg'ular va ruhiy holatlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Страх и тревога",
+    "title_uz": "Qo'rquv va xavotir"
+  },
+  "words": [
+    {
+      "word": "trepidation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌtrɛpəˈdeɪʃən/",
+      "translation": "трепет, тревожное опасение",
+      "translations": {
+        "ru": "трепет, тревожное опасение",
+        "uz": "hadik"
+      },
+      "example": "With some trepidation, I opened the examiner's letter.",
+      "example_translations": {
+        "ru": "Не без трепета я вскрыл письмо экзаменатора.",
+        "uz": "Men hadik bilan imtihonchining xatini ochdim."
+      }
+    },
+    {
+      "word": "foreboding",
+      "part_of_speech": "noun",
+      "transcription": "/fɔrˈboʊdɪŋ/",
+      "translation": "дурное предчувствие",
+      "translations": {
+        "ru": "дурное предчувствие",
+        "uz": "noxush sezgi"
+      },
+      "example": "A sense of foreboding grew as the sky darkened.",
+      "example_translations": {
+        "ru": "По мере того как небо темнело, росло дурное предчувствие.",
+        "uz": "Osmon qoraygan sari noxush sezgi kuchayib borardi."
+      }
+    },
+    {
+      "word": "qualm",
+      "part_of_speech": "noun",
+      "transcription": "/kwɑm/",
+      "translation": "угрызение совести, сомнение",
+      "translations": {
+        "ru": "угрызение совести, сомнение",
+        "uz": "vijdon qiynog'i, ikkilanish"
+      },
+      "example": "Malika had qualms about hiding the mistake.",
+      "example_translations": {
+        "ru": "Малика испытывала угрызения совести из-за того, что скрывает ошибку.",
+        "uz": "Malika xatoni yashirayotgani uchun vijdon qiynog'ini his qilardi."
+      }
+    },
+    {
+      "word": "harrowing",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈhɛroʊɪŋ/",
+      "translation": "душераздирающий, мучительный",
+      "translations": {
+        "ru": "душераздирающий, мучительный",
+        "uz": "yurakni ezuvchi"
+      },
+      "example": "Survivors gave a harrowing account of the storm.",
+      "example_translations": {
+        "ru": "Выжившие рассказали душераздирающую историю о шторме.",
+        "uz": "Omon qolganlar bo'ron haqida yurakni ezuvchi hikoya so'zlab berishdi."
+      }
+    },
+    {
+      "word": "unease",
+      "part_of_speech": "noun",
+      "transcription": "/ʌnˈiz/",
+      "translation": "беспокойство",
+      "translations": {
+        "ru": "беспокойство",
+        "uz": "bezovtalik"
+      },
+      "example": "A vague unease kept her awake all night.",
+      "example_translations": {
+        "ru": "Смутное беспокойство не давало ей уснуть всю ночь.",
+        "uz": "Mavhum bezovtalik uni tun bo'yi uxlatmadi."
+      }
+    },
+    {
+      "word": "angst",
+      "part_of_speech": "noun",
+      "transcription": "/ɑŋst/",
+      "translation": "душевное смятение, тревога",
+      "translations": {
+        "ru": "душевное смятение, тревога",
+        "uz": "ruhiy iztirob"
+      },
+      "example": "Teenage angst fills the pages of her diary.",
+      "example_translations": {
+        "ru": "Страницы её дневника полны подросткового душевного смятения.",
+        "uz": "Uning kundaligi sahifalari o'smirlik ruhiy iztirobiga to'la."
+      }
+    },
+    {
+      "word": "consternation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑnstərˈneɪʃən/",
+      "translation": "смятение, оторопь",
+      "translations": {
+        "ru": "смятение, оторопь",
+        "uz": "sarosima"
+      },
+      "example": "To our consternation, the bridge had vanished overnight.",
+      "example_translations": {
+        "ru": "К нашему смятению, мост за ночь исчез.",
+        "uz": "Bizni sarosimaga solib, ko'prik bir kechada g'oyib bo'lgan edi."
+      }
+    },
+    {
+      "word": "perturb",
+      "part_of_speech": "verb",
+      "transcription": "/pərˈtɜrb/",
+      "translation": "тревожить, выводить из равновесия",
+      "translations": {
+        "ru": "тревожить, выводить из равновесия",
+        "uz": "tashvishga solmoq"
+      },
+      "example": "News of the delay did not perturb her.",
+      "example_translations": {
+        "ru": "Известие о задержке её не встревожило.",
+        "uz": "Kechikish haqidagi xabar uni tashvishga solmadi."
+      }
+    },
+    {
+      "word": "unnerve",
+      "part_of_speech": "verb",
+      "transcription": "/ʌnˈnɜrv/",
+      "translation": "лишать самообладания",
+      "translations": {
+        "ru": "лишать самообладания",
+        "uz": "esankiratmoq"
+      },
+      "example": "The examiner's cold stare unnerved the young pianist.",
+      "example_translations": {
+        "ru": "Холодный взгляд экзаменатора лишил юную пианистку самообладания.",
+        "uz": "Imtihonchining sovuq nigohi yosh pianinochini esankiratib qo'ydi."
+      }
+    },
+    {
+      "word": "daunt",
+      "part_of_speech": "verb",
+      "transcription": "/dɔnt/",
+      "translation": "устрашать, обескураживать",
+      "translations": {
+        "ru": "устрашать, обескураживать",
+        "uz": "cho'chitmoq, qo'rqitmoq"
+      },
+      "example": "The steep climb did not daunt the hikers.",
+      "example_translations": {
+        "ru": "Крутой подъём не устрашил туристов.",
+        "uz": "Tik ko'tarilish sayyohlarni cho'chitmadi."
+      }
+    }
+  ]
+}

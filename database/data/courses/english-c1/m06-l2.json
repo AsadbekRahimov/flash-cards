@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 6,
+    "title": "Наука и исследования",
+    "title_uz": "Fan va tadqiqotlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Данные и статистика",
+    "title_uz": "Ma'lumotlar va statistika"
+  },
+  "words": [
+    {
+      "word": "dataset",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdeɪtəˌsɛt/",
+      "translation": "набор данных",
+      "translations": {
+        "ru": "набор данных",
+        "uz": "ma'lumotlar to'plami"
+      },
+      "example": "The dataset contains records from ten thousand patients.",
+      "example_translations": {
+        "ru": "Набор данных содержит записи о десяти тысячах пациентов.",
+        "uz": "Ma'lumotlar to'plamida o'n ming bemor haqidagi yozuvlar bor."
+      }
+    },
+    {
+      "word": "median",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmidiən/",
+      "translation": "медиана",
+      "translations": {
+        "ru": "медиана",
+        "uz": "mediana"
+      },
+      "example": "Half of all salaries fall below the median.",
+      "example_translations": {
+        "ru": "Половина всех зарплат ниже медианы.",
+        "uz": "Barcha maoshlarning yarmi medianadan past."
+      }
+    },
+    {
+      "word": "deviation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdiviˈeɪʃən/",
+      "translation": "отклонение",
+      "translations": {
+        "ru": "отклонение",
+        "uz": "og'ish"
+      },
+      "example": "A small deviation from the average is normal.",
+      "example_translations": {
+        "ru": "Небольшое отклонение от среднего значения — это нормально.",
+        "uz": "O'rtacha qiymatdan kichik og'ish normal holat."
+      }
+    },
+    {
+      "word": "variance",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvɛriəns/",
+      "translation": "дисперсия",
+      "translations": {
+        "ru": "дисперсия",
+        "uz": "dispersiya"
+      },
+      "example": "High variance means the values are widely spread.",
+      "example_translations": {
+        "ru": "Высокая дисперсия означает, что значения сильно разбросаны.",
+        "uz": "Yuqori dispersiya qiymatlarning keng tarqalganini bildiradi."
+      }
+    },
+    {
+      "word": "anomaly",
+      "part_of_speech": "noun",
+      "transcription": "/əˈnɑməli/",
+      "translation": "аномалия",
+      "translations": {
+        "ru": "аномалия",
+        "uz": "anomaliya"
+      },
+      "example": "The sudden temperature spike was an anomaly.",
+      "example_translations": {
+        "ru": "Внезапный скачок температуры был аномалией.",
+        "uz": "Haroratning to'satdan keskin ko'tarilishi anomaliya edi."
+      }
+    },
+    {
+      "word": "outlier",
+      "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌlaɪər/",
+      "translation": "выброс в данных",
+      "translations": {
+        "ru": "выброс в данных",
+        "uz": "keskin ajralib turuvchi qiymat"
+      },
+      "example": "That result is an outlier, far from the rest.",
+      "example_translations": {
+        "ru": "Этот результат — выброс в данных: он далёк от остальных.",
+        "uz": "Bu natija keskin ajralib turuvchi qiymat: u qolganlaridan ancha uzoqda."
+      }
+    },
+    {
+      "word": "extrapolate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪkˈstræpəˌleɪt/",
+      "translation": "экстраполировать",
+      "translations": {
+        "ru": "экстраполировать",
+        "uz": "ekstrapolyatsiya qilmoq"
+      },
+      "example": "We cannot extrapolate future sales from one month.",
+      "example_translations": {
+        "ru": "Мы не можем экстраполировать будущие продажи по одному месяцу.",
+        "uz": "Bir oyga qarab kelgusi savdoni ekstrapolyatsiya qila olmaymiz."
+      }
+    },
+    {
+      "word": "aggregate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈægrəˌgeɪt/",
+      "translation": "объединять данные",
+      "translations": {
+        "ru": "объединять данные",
+        "uz": "ma'lumotlarni jamlamoq"
+      },
+      "example": "The software aggregates data from hundreds of sensors.",
+      "example_translations": {
+        "ru": "Программа объединяет данные с сотен датчиков.",
+        "uz": "Dastur yuzlab datchiklardan olingan ma'lumotlarni jamlaydi."
+      }
+    },
+    {
+      "word": "discrepancy",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈskrɛpənsi/",
+      "translation": "расхождение",
+      "translations": {
+        "ru": "расхождение",
+        "uz": "nomuvofiqlik"
+      },
+      "example": "There is a discrepancy between the two reports.",
+      "example_translations": {
+        "ru": "Между двумя отчётами есть расхождение.",
+        "uz": "Ikki hisobot o'rtasida nomuvofiqlik bor."
+      }
+    },
+    {
+      "word": "parameter",
+      "part_of_speech": "noun",
+      "transcription": "/pəˈræmətər/",
+      "translation": "параметр",
+      "translations": {
+        "ru": "параметр",
+        "uz": "parametr"
+      },
+      "example": "Change one parameter and the model behaves differently.",
+      "example_translations": {
+        "ru": "Измените один параметр — и модель поведёт себя иначе.",
+        "uz": "Bitta parametrni o'zgartirsangiz, model boshqacha ishlaydi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 4,
+    "title": "Официальный стиль",
+    "title_uz": "Rasmiy uslub"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Документы и заседания",
+    "title_uz": "Hujjatlar va majlislar"
+  },
+  "words": [
+    {
+      "word": "memorandum",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɛməˈrændəm/",
+      "translation": "служебная записка",
+      "translations": {
+        "ru": "служебная записка",
+        "uz": "xizmat xati"
+      },
+      "example": "The director sent a memorandum to all staff.",
+      "example_translations": {
+        "ru": "Директор разослал служебную записку всем сотрудникам.",
+        "uz": "Direktor barcha xodimlarga xizmat xati yubordi."
+      }
+    },
+    {
+      "word": "addendum",
+      "part_of_speech": "noun",
+      "transcription": "/əˈdɛndəm/",
+      "translation": "дополнение к документу",
+      "translations": {
+        "ru": "дополнение к документу",
+        "uz": "hujjatga qo'shimcha"
+      },
+      "example": "An addendum to the contract lists the new prices.",
+      "example_translations": {
+        "ru": "В дополнении к договору указаны новые цены.",
+        "uz": "Shartnomaga qo'shimchada yangi narxlar ko'rsatilgan."
+      }
+    },
+    {
+      "word": "proviso",
+      "part_of_speech": "noun",
+      "transcription": "/prəˈvaɪzoʊ/",
+      "translation": "оговорка, условие",
+      "translations": {
+        "ru": "оговорка, условие",
+        "uz": "qo'shimcha shart"
+      },
+      "example": "I agreed, with the proviso that costs stay low.",
+      "example_translations": {
+        "ru": "Я согласился с оговоркой, что расходы останутся низкими.",
+        "uz": "Xarajatlar kamligicha qolishi sharti bilan rozi bo'ldim."
+      }
+    },
+    {
+      "word": "affidavit",
+      "part_of_speech": "noun",
+      "transcription": "/ˌæfəˈdeɪvət/",
+      "translation": "письменное показание под присягой",
+      "translations": {
+        "ru": "письменное показание под присягой",
+        "uz": "qasamyod bilan tasdiqlangan yozma ko'rsatuv"
+      },
+      "example": "She signed an affidavit confirming what she had seen.",
+      "example_translations": {
+        "ru": "Она подписала письменное показание под присягой о том, что видела.",
+        "uz": "U ko'rganlari haqidagi qasamyod bilan tasdiqlangan yozma ko'rsatuvni imzoladi."
+      }
+    },
+    {
+      "word": "proceedings",
+      "part_of_speech": "noun",
+      "transcription": "/prəˈsidɪŋz/",
+      "translation": "разбирательство, заседание",
+      "translations": {
+        "ru": "разбирательство, заседание",
+        "uz": "sud muhokamasi"
+      },
+      "example": "Court proceedings were postponed until next month.",
+      "example_translations": {
+        "ru": "Судебное разбирательство отложили до следующего месяца.",
+        "uz": "Sud muhokamasi keyingi oygacha qoldirildi."
+      }
+    },
+    {
+      "word": "quorum",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkwɔrəm/",
+      "translation": "кворум",
+      "translations": {
+        "ru": "кворум",
+        "uz": "kvorum"
+      },
+      "example": "Only three members came, so there was no quorum.",
+      "example_translations": {
+        "ru": "Пришли только три члена, поэтому кворума не было.",
+        "uz": "Faqat uch a'zo keldi, shuning uchun kvorum bo'lmadi."
+      }
+    },
+    {
+      "word": "protocol",
+      "part_of_speech": "noun",
+      "transcription": "/ˈproʊtəˌkɔl/",
+      "translation": "протокол, установленный порядок",
+      "translations": {
+        "ru": "протокол, установленный порядок",
+        "uz": "protokol, belgilangan tartib"
+      },
+      "example": "Diplomatic protocol requires guests to stand for the anthem.",
+      "example_translations": {
+        "ru": "Дипломатический протокол требует, чтобы гости вставали при исполнении гимна.",
+        "uz": "Diplomatik protokol mehmonlardan madhiya paytida tik turishni talab qiladi."
+      }
+    },
+    {
+      "word": "dossier",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɔsiˌeɪ/",
+      "translation": "досье",
+      "translations": {
+        "ru": "досье",
+        "uz": "hujjatlar to'plami"
+      },
+      "example": "Investigators compiled a thick dossier on the company.",
+      "example_translations": {
+        "ru": "Следователи собрали толстое досье на эту компанию.",
+        "uz": "Tergovchilar bu kompaniya bo'yicha qalin hujjatlar to'plamini yig'ishdi."
+      }
+    },
+    {
+      "word": "correspondence",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɔrəˈspɑndəns/",
+      "translation": "переписка",
+      "translations": {
+        "ru": "переписка",
+        "uz": "yozishma"
+      },
+      "example": "All correspondence with clients is kept on file.",
+      "example_translations": {
+        "ru": "Вся переписка с клиентами хранится в архиве.",
+        "uz": "Mijozlar bilan barcha yozishmalar arxivda saqlanadi."
+      }
+    },
+    {
+      "word": "ordinance",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɔrdənəns/",
+      "translation": "постановление местных властей",
+      "translations": {
+        "ru": "постановление местных властей",
+        "uz": "mahalliy hokimlik qarori"
+      },
+      "example": "A city ordinance bans loud music after midnight.",
+      "example_translations": {
+        "ru": "Постановление городских властей запрещает громкую музыку после полуночи.",
+        "uz": "Shahar hokimligi qarori yarim tundan keyin baland musiqani taqiqlaydi."
+      }
+    }
+  ]
+}

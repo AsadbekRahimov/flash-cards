@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 18,
+    "title": "Мера и оценка",
+    "title_uz": "Me'yor va baho"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Главное и второстепенное",
+    "title_uz": "Asosiy va ikkinchi darajali"
+  },
+  "words": [
+    {
+      "word": "paramount",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpɛrəˌmaʊnt/",
+      "translation": "первостепенный",
+      "translations": {
+        "ru": "первостепенный",
+        "uz": "birinchi darajali"
+      },
+      "example": "Passenger safety is paramount; everything else comes second.",
+      "example_translations": {
+        "ru": "Безопасность пассажиров первостепенна, всё остальное вторично.",
+        "uz": "Yo'lovchilar xavfsizligi birinchi darajali, qolgan hammasi ikkinchi o'rinda."
+      }
+    },
+    {
+      "word": "pivotal",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpɪvətəl/",
+      "translation": "ключевой, решающий",
+      "translations": {
+        "ru": "ключевой, решающий",
+        "uz": "hal qiluvchi"
+      },
+      "example": "Her testimony played a pivotal role in the verdict.",
+      "example_translations": {
+        "ru": "Её показания сыграли ключевую роль в вынесении вердикта.",
+        "uz": "Uning ko'rsatmasi hukm chiqarilishida hal qiluvchi rol o'ynadi."
+      }
+    },
+    {
+      "word": "salient",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈseɪliənt/",
+      "translation": "главный, самый заметный",
+      "translations": {
+        "ru": "главный, самый заметный",
+        "uz": "asosiy, eng ko'zga tashlanadigan"
+      },
+      "example": "The report summarizes only the salient points, omitting details.",
+      "example_translations": {
+        "ru": "В отчёте кратко изложены только главные моменты, без подробностей.",
+        "uz": "Hisobotda tafsilotlarsiz faqat asosiy jihatlar jamlangan."
+      }
+    },
+    {
+      "word": "momentous",
+      "part_of_speech": "adjective",
+      "transcription": "/moʊˈmɛntəs/",
+      "translation": "судьбоносный",
+      "translations": {
+        "ru": "судьбоносный",
+        "uz": "taqdirni belgilovchi"
+      },
+      "example": "Moving abroad was a momentous decision that changed everything.",
+      "example_translations": {
+        "ru": "Переезд за границу был судьбоносным решением, которое изменило всё.",
+        "uz": "Chet elga ko'chish hamma narsani o'zgartirgan, taqdirni belgilovchi qaror edi."
+      }
+    },
+    {
+      "word": "seminal",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɛmənəl/",
+      "translation": "основополагающий",
+      "translations": {
+        "ru": "основополагающий",
+        "uz": "asos soluvchi"
+      },
+      "example": "Her seminal paper inspired decades of later research.",
+      "example_translations": {
+        "ru": "Её основополагающая статья вдохновила десятилетия последующих исследований.",
+        "uz": "Uning asos soluvchi maqolasi keyingi o'nlab yillik tadqiqotlarga ilhom berdi."
+      }
+    },
+    {
+      "word": "quintessential",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌkwɪntəˈsɛnʃəl/",
+      "translation": "самый типичный, образцовый",
+      "translations": {
+        "ru": "самый типичный, образцовый",
+        "uz": "eng xos, namunaviy"
+      },
+      "example": "Plov is the quintessential dish of any Uzbek wedding.",
+      "example_translations": {
+        "ru": "Плов — самое типичное блюдо любой узбекской свадьбы.",
+        "uz": "Palov har qanday o'zbek to'yining eng xos taomidir."
+      }
+    },
+    {
+      "word": "indispensable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪndɪˈspɛnsəbəl/",
+      "translation": "незаменимый, необходимый",
+      "translations": {
+        "ru": "незаменимый, необходимый",
+        "uz": "o'ta zarur, almashtirib bo'lmas"
+      },
+      "example": "A good dictionary is indispensable for any serious translator.",
+      "example_translations": {
+        "ru": "Хороший словарь незаменим для любого серьёзного переводчика.",
+        "uz": "Yaxshi lug'at har qanday jiddiy tarjimon uchun o'ta zarur."
+      }
+    },
+    {
+      "word": "inconsequential",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˌkɑnsəˈkwɛnʃəl/",
+      "translation": "несущественный, незначительный",
+      "translations": {
+        "ru": "несущественный, незначительный",
+        "uz": "ahamiyatsiz"
+      },
+      "example": "Ignore such inconsequential details and focus on results.",
+      "example_translations": {
+        "ru": "Не обращайте внимания на такие несущественные детали и сосредоточьтесь на результатах.",
+        "uz": "Bunday ahamiyatsiz tafsilotlarga e'tibor bermang, natijalarga diqqat qarating."
+      }
+    },
+    {
+      "word": "peripheral",
+      "part_of_speech": "adjective",
+      "transcription": "/pəˈrɪfərəl/",
+      "translation": "второстепенный",
+      "translations": {
+        "ru": "второстепенный",
+        "uz": "ikkinchi darajali"
+      },
+      "example": "Cost is a peripheral issue; quality matters most.",
+      "example_translations": {
+        "ru": "Стоимость — второстепенный вопрос, важнее всего качество.",
+        "uz": "Narx ikkinchi darajali masala, eng muhimi sifat."
+      }
+    },
+    {
+      "word": "extraneous",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪkˈstreɪniəs/",
+      "translation": "посторонний, не по существу",
+      "translations": {
+        "ru": "посторонний, не по существу",
+        "uz": "mavzuga aloqasiz"
+      },
+      "example": "Remove extraneous details unrelated to the main argument.",
+      "example_translations": {
+        "ru": "Уберите посторонние детали, не связанные с основным доводом.",
+        "uz": "Asosiy dalilga bog'liq bo'lmagan, mavzuga aloqasiz tafsilotlarni olib tashlang."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 19,
+    "title": "Искусство и эстетика",
+    "title_uz": "San'at va estetika"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Скульптура и зодчество",
+    "title_uz": "Haykaltaroshlik va me'morchilik"
+  },
+  "words": [
+    {
+      "word": "frieze",
+      "part_of_speech": "noun",
+      "transcription": "/friz/",
+      "translation": "фриз",
+      "translations": {
+        "ru": "фриз",
+        "uz": "friz"
+      },
+      "example": "A carved frieze runs along the temple wall.",
+      "example_translations": {
+        "ru": "Вдоль стены храма тянется резной фриз.",
+        "uz": "Ibodatxona devori bo'ylab o'yma friz cho'zilgan."
+      }
+    },
+    {
+      "word": "effigy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛfədʒi/",
+      "translation": "скульптурное изображение",
+      "translations": {
+        "ru": "скульптурное изображение",
+        "uz": "haykaliy tasvir"
+      },
+      "example": "A stone effigy of the knight tops his tomb.",
+      "example_translations": {
+        "ru": "Гробницу рыцаря венчает его каменное скульптурное изображение.",
+        "uz": "Ritsar maqbarasi ustida uning toshdan ishlangan haykaliy tasviri turibdi."
+      }
+    },
+    {
+      "word": "collage",
+      "part_of_speech": "noun",
+      "transcription": "/kəˈlɑʒ/",
+      "translation": "коллаж",
+      "translations": {
+        "ru": "коллаж",
+        "uz": "kollaj"
+      },
+      "example": "Her collage combines torn paper, fabric, and photos.",
+      "example_translations": {
+        "ru": "Её коллаж сочетает рваную бумагу, ткань и фотографии.",
+        "uz": "Uning kollaji yirtilgan qog'oz, mato va fotosuratlarni birlashtiradi."
+      }
+    },
+    {
+      "word": "patina",
+      "part_of_speech": "noun",
+      "transcription": "/pəˈtinə/",
+      "translation": "патина",
+      "translations": {
+        "ru": "патина",
+        "uz": "patina, zang qatlami"
+      },
+      "example": "Centuries gave the bronze statue a green patina.",
+      "example_translations": {
+        "ru": "За столетия бронзовая статуя покрылась зелёной патиной.",
+        "uz": "Asrlar davomida bronza haykal yashil patina bilan qoplandi."
+      }
+    },
+    {
+      "word": "glaze",
+      "part_of_speech": "noun",
+      "transcription": "/gleɪz/",
+      "translation": "глазурь",
+      "translations": {
+        "ru": "глазурь",
+        "uz": "sir, sopol qoplamasi"
+      },
+      "example": "A glossy blue glaze covers the ceramic tiles.",
+      "example_translations": {
+        "ru": "Керамические плитки покрыты блестящей синей глазурью.",
+        "uz": "Sopol koshinlar yaltiroq ko'k sir bilan qoplangan."
+      }
+    },
+    {
+      "word": "filigree",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɪləˌgri/",
+      "translation": "филигрань",
+      "translations": {
+        "ru": "филигрань",
+        "uz": "filigran, nafis sim naqsh"
+      },
+      "example": "Delicate silver filigree decorates the antique box.",
+      "example_translations": {
+        "ru": "Старинную шкатулку украшает тонкая серебряная филигрань.",
+        "uz": "Qadimiy qutichani nozik kumush filigran bezab turibdi."
+      }
+    },
+    {
+      "word": "colonnade",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑləˈneɪd/",
+      "translation": "колоннада",
+      "translations": {
+        "ru": "колоннада",
+        "uz": "kolonnada, ustunlar qatori"
+      },
+      "example": "We strolled beneath a colonnade of marble columns.",
+      "example_translations": {
+        "ru": "Мы прогуливались под колоннадой из мраморных колонн.",
+        "uz": "Biz marmar ustunlardan iborat kolonnada ostida sayr qildik."
+      }
+    },
+    {
+      "word": "spire",
+      "part_of_speech": "noun",
+      "transcription": "/spaɪr/",
+      "translation": "шпиль",
+      "translations": {
+        "ru": "шпиль",
+        "uz": "shpil, nayzasimon uch"
+      },
+      "example": "The cathedral's slender spire pierces the evening sky.",
+      "example_translations": {
+        "ru": "Тонкий шпиль собора пронзает вечернее небо.",
+        "uz": "Soborning ingichka shpili kechki osmonga sanchilib turibdi."
+      }
+    },
+    {
+      "word": "minaret",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɪnəˈrɛt/",
+      "translation": "минарет",
+      "translations": {
+        "ru": "минарет",
+        "uz": "minora"
+      },
+      "example": "A tall minaret rises beside the old mosque.",
+      "example_translations": {
+        "ru": "Рядом со старой мечетью возвышается высокий минарет.",
+        "uz": "Eski masjid yonida baland minora qad ko'targan."
+      }
+    },
+    {
+      "word": "portico",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɔrtɪˌkoʊ/",
+      "translation": "портик",
+      "translations": {
+        "ru": "портик",
+        "uz": "portik, ustunli ayvon"
+      },
+      "example": "Guests sheltered from rain under the columned portico.",
+      "example_translations": {
+        "ru": "Гости укрылись от дождя под портиком с колоннами.",
+        "uz": "Mehmonlar yomg'irdan ustunli portik ostiga yashirinishdi."
+      }
+    }
+  ]
+}

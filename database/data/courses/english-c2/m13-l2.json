@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 13,
+    "title": "Медицина и организм",
+    "title_uz": "Tibbiyot va organizm"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Средства лечения",
+    "title_uz": "Davo vositalari"
+  },
+  "words": [
+    {
+      "word": "analgesic",
+      "part_of_speech": "noun",
+      "transcription": "/ˌænəlˈdʒizɪk/",
+      "translation": "обезболивающее",
+      "translations": {
+        "ru": "обезболивающее",
+        "uz": "og'riq qoldiruvchi dori"
+      },
+      "example": "An analgesic eased the pain in her shoulder.",
+      "example_translations": {
+        "ru": "Обезболивающее сняло боль в её плече.",
+        "uz": "Og'riq qoldiruvchi dori uning yelkasidagi og'riqni yengillashtirdi."
+      }
+    },
+    {
+      "word": "antiseptic",
+      "part_of_speech": "noun",
+      "transcription": "/ˌæntəˈsɛptɪk/",
+      "translation": "антисептик",
+      "translations": {
+        "ru": "антисептик",
+        "uz": "antiseptik"
+      },
+      "example": "Clean the cut with antiseptic to prevent infection.",
+      "example_translations": {
+        "ru": "Обработайте порез антисептиком, чтобы избежать инфекции.",
+        "uz": "Infeksiyaning oldini olish uchun kesilgan joyni antiseptik bilan tozalang."
+      }
+    },
+    {
+      "word": "antidote",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæntɪˌdoʊt/",
+      "translation": "противоядие",
+      "translations": {
+        "ru": "противоядие",
+        "uz": "ziddizahar"
+      },
+      "example": "Is there an antidote to this snake's venom?",
+      "example_translations": {
+        "ru": "Существует ли противоядие от яда этой змеи?",
+        "uz": "Bu ilon zahariga ziddizahar bormi?"
+      }
+    },
+    {
+      "word": "panacea",
+      "part_of_speech": "noun",
+      "transcription": "/ˌpænəˈsiə/",
+      "translation": "панацея",
+      "translations": {
+        "ru": "панацея",
+        "uz": "har dardga davo"
+      },
+      "example": "Many people wrongly consider vitamins a panacea.",
+      "example_translations": {
+        "ru": "Многие ошибочно считают витамины панацеей.",
+        "uz": "Ko'pchilik vitaminlarni yanglish ravishda har dardga davo deb biladi."
+      }
+    },
+    {
+      "word": "palliative",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpæliˌeɪtɪv/",
+      "translation": "паллиативный",
+      "translations": {
+        "ru": "паллиативный",
+        "uz": "palliativ"
+      },
+      "example": "Palliative care eases pain without curing the disease.",
+      "example_translations": {
+        "ru": "Паллиативная помощь облегчает боль, не излечивая болезнь.",
+        "uz": "Palliativ yordam kasallikni davolamay, og'riqni yengillashtiradi."
+      }
+    },
+    {
+      "word": "convalesce",
+      "part_of_speech": "verb",
+      "transcription": "/ˌkɑnvəˈlɛs/",
+      "translation": "восстанавливаться после болезни",
+      "translations": {
+        "ru": "восстанавливаться после болезни",
+        "uz": "darmonga kirmoq"
+      },
+      "example": "After surgery, she convalesced at her sister's house.",
+      "example_translations": {
+        "ru": "После операции она восстанавливалась в доме сестры.",
+        "uz": "Operatsiyadan keyin u opasining uyida darmonga kirdi."
+      }
+    },
+    {
+      "word": "regimen",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɛdʒəmən/",
+      "translation": "режим лечения",
+      "translations": {
+        "ru": "режим лечения",
+        "uz": "davolanish tartibi"
+      },
+      "example": "The doctor prescribed a strict regimen of diet and rest.",
+      "example_translations": {
+        "ru": "Врач назначил строгий режим лечения: диету и покой.",
+        "uz": "Shifokor parhez va dam olishdan iborat qat'iy davolanish tartibini belgiladi."
+      }
+    },
+    {
+      "word": "resuscitate",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈsʌsəˌteɪt/",
+      "translation": "реанимировать",
+      "translations": {
+        "ru": "реанимировать",
+        "uz": "hayotga qaytarmoq"
+      },
+      "example": "Paramedics resuscitated the man whose heart had stopped.",
+      "example_translations": {
+        "ru": "Фельдшеры реанимировали мужчину, у которого остановилось сердце.",
+        "uz": "Tez yordam xodimlari yuragi to'xtab qolgan erkakni hayotga qaytarishdi."
+      }
+    },
+    {
+      "word": "inoculate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪˈnɑkjəˌleɪt/",
+      "translation": "прививать",
+      "translations": {
+        "ru": "прививать",
+        "uz": "emlamoq"
+      },
+      "example": "Nurses inoculated the children against measles before winter.",
+      "example_translations": {
+        "ru": "Медсёстры привили детей от кори до наступления зимы.",
+        "uz": "Hamshiralar qish kelguncha bolalarni qizamiqqa qarshi emlashdi."
+      }
+    },
+    {
+      "word": "efficacy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛfɪkəsi/",
+      "translation": "действенность",
+      "translations": {
+        "ru": "действенность",
+        "uz": "ta'sirchanlik"
+      },
+      "example": "Trials confirmed the efficacy of the new vaccine.",
+      "example_translations": {
+        "ru": "Испытания подтвердили действенность новой вакцины.",
+        "uz": "Sinovlar yangi vaksinaning ta'sirchanligini tasdiqladi."
+      }
+    }
+  ]
+}

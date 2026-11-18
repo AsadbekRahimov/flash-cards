@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 11,
+    "title": "Политика и власть",
+    "title_uz": "Siyosat va hokimiyat"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Международные отношения",
+    "title_uz": "Xalqaro munosabatlar"
+  },
+  "words": [
+    {
+      "word": "bilateral",
+      "part_of_speech": "adjective",
+      "transcription": "/baɪˈlætərəl/",
+      "translation": "двусторонний",
+      "translations": {
+        "ru": "двусторонний",
+        "uz": "ikki tomonlama"
+      },
+      "example": "The two countries began bilateral talks on trade.",
+      "example_translations": {
+        "ru": "Две страны начали двусторонние переговоры о торговле.",
+        "uz": "Ikki davlat savdo bo'yicha ikki tomonlama muzokaralarni boshladi."
+      }
+    },
+    {
+      "word": "multilateral",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌmʌltiˈlætərəl/",
+      "translation": "многосторонний",
+      "translations": {
+        "ru": "многосторонний",
+        "uz": "ko'p tomonlama"
+      },
+      "example": "Climate change demands multilateral action by many governments.",
+      "example_translations": {
+        "ru": "Изменение климата требует многосторонних действий многих правительств.",
+        "uz": "Iqlim o'zgarishi ko'plab hukumatlarning ko'p tomonlama harakatlarini talab qiladi."
+      }
+    },
+    {
+      "word": "diplomat",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɪpləˌmæt/",
+      "translation": "дипломат",
+      "translations": {
+        "ru": "дипломат",
+        "uz": "diplomat"
+      },
+      "example": "An experienced diplomat represented the country at the talks.",
+      "example_translations": {
+        "ru": "На переговорах страну представлял опытный дипломат.",
+        "uz": "Muzokaralarda mamlakat nomidan tajribali diplomat qatnashdi."
+      }
+    },
+    {
+      "word": "envoy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛnˌvɔɪ/",
+      "translation": "посланник, спецпредставитель",
+      "translations": {
+        "ru": "посланник, спецпредставитель",
+        "uz": "maxsus vakil"
+      },
+      "example": "The president sent a special envoy to the region.",
+      "example_translations": {
+        "ru": "Президент направил в регион специального посланника.",
+        "uz": "Prezident mintaqaga maxsus vakil yubordi."
+      }
+    },
+    {
+      "word": "accord",
+      "part_of_speech": "noun",
+      "transcription": "/əˈkɔrd/",
+      "translation": "соглашение",
+      "translations": {
+        "ru": "соглашение",
+        "uz": "bitim"
+      },
+      "example": "The peace accord ended ten years of conflict.",
+      "example_translations": {
+        "ru": "Мирное соглашение положило конец десятилетнему конфликту.",
+        "uz": "Tinchlik bitimi o'n yillik mojaroga chek qo'ydi."
+      }
+    },
+    {
+      "word": "pact",
+      "part_of_speech": "noun",
+      "transcription": "/pækt/",
+      "translation": "пакт, договор",
+      "translations": {
+        "ru": "пакт, договор",
+        "uz": "ahdnoma"
+      },
+      "example": "Both nations signed a pact to defend each other.",
+      "example_translations": {
+        "ru": "Обе страны подписали пакт о взаимной защите.",
+        "uz": "Ikki davlat bir-birini himoya qilish to'g'risida ahdnoma imzoladi."
+      }
+    },
+    {
+      "word": "ratify",
+      "part_of_speech": "verb",
+      "transcription": "/ˈrætəˌfaɪ/",
+      "translation": "ратифицировать",
+      "translations": {
+        "ru": "ратифицировать",
+        "uz": "ratifikatsiya qilmoq"
+      },
+      "example": "Parliament must ratify the treaty before it takes effect.",
+      "example_translations": {
+        "ru": "Парламент должен ратифицировать договор, прежде чем он вступит в силу.",
+        "uz": "Shartnoma kuchga kirishidan oldin parlament uni ratifikatsiya qilishi kerak."
+      }
+    },
+    {
+      "word": "geopolitical",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌdʒioʊpəˈlɪtɪkəl/",
+      "translation": "геополитический",
+      "translations": {
+        "ru": "геополитический",
+        "uz": "geosiyosiy"
+      },
+      "example": "The canal has great geopolitical importance for world trade.",
+      "example_translations": {
+        "ru": "Канал имеет огромное геополитическое значение для мировой торговли.",
+        "uz": "Kanal jahon savdosi uchun katta geosiyosiy ahamiyatga ega."
+      }
+    },
+    {
+      "word": "neutrality",
+      "part_of_speech": "noun",
+      "transcription": "/nuˈtræləti/",
+      "translation": "нейтралитет",
+      "translations": {
+        "ru": "нейтралитет",
+        "uz": "betaraflik"
+      },
+      "example": "Will the small country keep its neutrality in this dispute?",
+      "example_translations": {
+        "ru": "Сохранит ли маленькая страна нейтралитет в этом споре?",
+        "uz": "Kichik davlat bu nizoda betarafligini saqlab qoladimi?"
+      }
+    },
+    {
+      "word": "delegation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdɛləˈgeɪʃən/",
+      "translation": "делегация",
+      "translations": {
+        "ru": "делегация",
+        "uz": "delegatsiya"
+      },
+      "example": "A delegation of ministers arrived for the summit.",
+      "example_translations": {
+        "ru": "На саммит прибыла делегация министров.",
+        "uz": "Sammitga vazirlar delegatsiyasi yetib keldi."
+      }
+    }
+  ]
+}

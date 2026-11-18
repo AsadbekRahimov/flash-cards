@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 4,
+    "title": "Официальный стиль",
+    "title_uz": "Rasmiy uslub"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Разрешено и запрещено",
+    "title_uz": "Ruxsat va taqiq"
+  },
+  "words": [
+    {
+      "word": "obligatory",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈblɪgəˌtɔri/",
+      "translation": "обязательный",
+      "translations": {
+        "ru": "обязательный",
+        "uz": "majburiy"
+      },
+      "example": "Wearing a helmet is obligatory on this site.",
+      "example_translations": {
+        "ru": "Ношение каски на этой площадке обязательно.",
+        "uz": "Bu maydonda kaska kiyish majburiy."
+      }
+    },
+    {
+      "word": "permissible",
+      "part_of_speech": "adjective",
+      "transcription": "/pərˈmɪsəbəl/",
+      "translation": "разрешённый, дозволенный",
+      "translations": {
+        "ru": "разрешённый, дозволенный",
+        "uz": "ruxsat etilgan"
+      },
+      "example": "Is it permissible to bring food into the library?",
+      "example_translations": {
+        "ru": "Разрешено ли приносить еду в библиотеку?",
+        "uz": "Kutubxonaga ovqat olib kirish ruxsat etilganmi?"
+      }
+    },
+    {
+      "word": "admissible",
+      "part_of_speech": "adjective",
+      "transcription": "/ədˈmɪsəbəl/",
+      "translation": "допустимый",
+      "translations": {
+        "ru": "допустимый",
+        "uz": "maqbul"
+      },
+      "example": "The judge ruled that the recording was admissible evidence.",
+      "example_translations": {
+        "ru": "Судья постановил, что запись является допустимым доказательством.",
+        "uz": "Sudya yozuvni maqbul dalil deb topdi."
+      }
+    },
+    {
+      "word": "discretionary",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈskrɛʃəˌnɛri/",
+      "translation": "по усмотрению, дискреционный",
+      "translations": {
+        "ru": "по усмотрению, дискреционный",
+        "uz": "ixtiyoriga ko'ra beriladigan"
+      },
+      "example": "Bonuses are discretionary, so managers decide who gets them.",
+      "example_translations": {
+        "ru": "Премии выдаются по усмотрению руководства: менеджеры решают, кто их получит.",
+        "uz": "Mukofotlar rahbariyat ixtiyoriga ko'ra beriladi: kim olishini menejerlar hal qiladi."
+      }
+    },
+    {
+      "word": "prerogative",
+      "part_of_speech": "noun",
+      "transcription": "/prɪˈrɑgətɪv/",
+      "translation": "исключительное право",
+      "translations": {
+        "ru": "исключительное право",
+        "uz": "mutlaq huquq"
+      },
+      "example": "Choosing the team is the coach's prerogative alone.",
+      "example_translations": {
+        "ru": "Выбор состава — исключительное право тренера.",
+        "uz": "Tarkibni tanlash — faqat murabbiyning mutlaq huquqi."
+      }
+    },
+    {
+      "word": "dispensation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdɪspənˈseɪʃən/",
+      "translation": "особое разрешение",
+      "translations": {
+        "ru": "особое разрешение",
+        "uz": "maxsus ruxsat"
+      },
+      "example": "He got a dispensation to take the exam later.",
+      "example_translations": {
+        "ru": "Он получил особое разрешение сдать экзамен позже.",
+        "uz": "U imtihonni keyinroq topshirish uchun maxsus ruxsat oldi."
+      }
+    },
+    {
+      "word": "preclude",
+      "part_of_speech": "verb",
+      "transcription": "/prɪˈklud/",
+      "translation": "исключать возможность",
+      "translations": {
+        "ru": "исключать возможность",
+        "uz": "imkonini yo'qqa chiqarmoq"
+      },
+      "example": "His injury precludes any return to professional sport.",
+      "example_translations": {
+        "ru": "Травма исключает возможность его возвращения в профессиональный спорт.",
+        "uz": "Jarohati uning professional sportga qaytish imkonini yo'qqa chiqaradi."
+      }
+    },
+    {
+      "word": "proscribe",
+      "part_of_speech": "verb",
+      "transcription": "/proʊˈskraɪb/",
+      "translation": "запрещать",
+      "translations": {
+        "ru": "запрещать",
+        "uz": "taqiqlamoq"
+      },
+      "example": "The law proscribes dumping waste into rivers.",
+      "example_translations": {
+        "ru": "Закон запрещает сбрасывать отходы в реки.",
+        "uz": "Qonun chiqindilarni daryolarga tashlashni taqiqlaydi."
+      }
+    },
+    {
+      "word": "contravene",
+      "part_of_speech": "verb",
+      "transcription": "/ˌkɑntrəˈvin/",
+      "translation": "нарушать, противоречить",
+      "translations": {
+        "ru": "нарушать, противоречить",
+        "uz": "buzmoq, zid kelmoq"
+      },
+      "example": "Parking here contravenes the city's traffic regulations.",
+      "example_translations": {
+        "ru": "Парковка здесь нарушает городские правила дорожного движения.",
+        "uz": "Bu yerda mashina qo'yish shaharning yo'l harakati qoidalarini buzadi."
+      }
+    },
+    {
+      "word": "adhere",
+      "part_of_speech": "verb",
+      "transcription": "/ədˈhɪr/",
+      "translation": "придерживаться",
+      "translations": {
+        "ru": "придерживаться",
+        "uz": "rioya qilmoq"
+      },
+      "example": "All members must adhere to the club's rules.",
+      "example_translations": {
+        "ru": "Все члены должны придерживаться правил клуба.",
+        "uz": "Barcha a'zolar klub qoidalariga rioya qilishi shart."
+      }
+    }
+  ]
+}

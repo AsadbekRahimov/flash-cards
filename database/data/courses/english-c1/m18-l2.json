@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 18,
+    "title": "История и конфликты",
+    "title_uz": "Tarix va mojarolar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Империи и колонии",
+    "title_uz": "Imperiyalar va mustamlakalar"
+  },
+  "words": [
+    {
+      "word": "colonial",
+      "part_of_speech": "adjective",
+      "transcription": "/kəˈloʊniəl/",
+      "translation": "колониальный",
+      "translations": {
+        "ru": "колониальный",
+        "uz": "mustamlaka davriga oid"
+      },
+      "example": "The town still has many beautiful colonial buildings.",
+      "example_translations": {
+        "ru": "В городе до сих пор много красивых колониальных зданий.",
+        "uz": "Shaharda hali ham mustamlaka davriga oid ko'plab chiroyli binolar bor."
+      }
+    },
+    {
+      "word": "imperial",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪmˈpɪriəl/",
+      "translation": "имперский",
+      "translations": {
+        "ru": "имперский",
+        "uz": "imperiyaga oid"
+      },
+      "example": "The imperial army controlled lands on three continents.",
+      "example_translations": {
+        "ru": "Имперская армия контролировала земли на трёх континентах.",
+        "uz": "Imperiya armiyasi uch qit'adagi yerlarni nazorat qilgan."
+      }
+    },
+    {
+      "word": "conquest",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑnˌkwɛst/",
+      "translation": "завоевание",
+      "translations": {
+        "ru": "завоевание",
+        "uz": "istilo"
+      },
+      "example": "The conquest of the region took nearly ten years.",
+      "example_translations": {
+        "ru": "Завоевание этого региона заняло почти десять лет.",
+        "uz": "Bu hududni istilo qilish deyarli o'n yil davom etdi."
+      }
+    },
+    {
+      "word": "annex",
+      "part_of_speech": "verb",
+      "transcription": "/əˈnɛks/",
+      "translation": "аннексировать",
+      "translations": {
+        "ru": "аннексировать",
+        "uz": "o'ziga qo'shib olmoq"
+      },
+      "example": "The empire annexed the small neighboring kingdom without resistance.",
+      "example_translations": {
+        "ru": "Империя без сопротивления аннексировала небольшое соседнее королевство.",
+        "uz": "Imperiya qo'shni kichik qirollikni qarshiliksiz o'ziga qo'shib oldi."
+      }
+    },
+    {
+      "word": "dominion",
+      "part_of_speech": "noun",
+      "transcription": "/dəˈmɪnjən/",
+      "translation": "владычество",
+      "translations": {
+        "ru": "владычество",
+        "uz": "hukmronlik"
+      },
+      "example": "The king held dominion over vast territories.",
+      "example_translations": {
+        "ru": "Владычество короля распространялось на обширные территории.",
+        "uz": "Qirolning hukmronligi bepoyon hududlarga yoyilgan edi."
+      }
+    },
+    {
+      "word": "settler",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɛtlər/",
+      "translation": "поселенец",
+      "translations": {
+        "ru": "поселенец",
+        "uz": "ko'chkindi"
+      },
+      "example": "The first settlers built their houses near the river.",
+      "example_translations": {
+        "ru": "Первые поселенцы построили свои дома у реки.",
+        "uz": "Ilk ko'chkindilar uylarini daryo yaqinida qurishgan."
+      }
+    },
+    {
+      "word": "slavery",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsleɪvəri/",
+      "translation": "рабство",
+      "translations": {
+        "ru": "рабство",
+        "uz": "qullik"
+      },
+      "example": "Slavery was abolished there in the nineteenth century.",
+      "example_translations": {
+        "ru": "Рабство было отменено там в девятнадцатом веке.",
+        "uz": "Qullik u yerda o'n to'qqizinchi asrda bekor qilingan."
+      }
+    },
+    {
+      "word": "emancipation",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˌmænsəˈpeɪʃən/",
+      "translation": "освобождение от рабства",
+      "translations": {
+        "ru": "освобождение от рабства",
+        "uz": "qullikdan ozod etilish"
+      },
+      "example": "After emancipation, former slaves could finally own land.",
+      "example_translations": {
+        "ru": "После освобождения от рабства бывшие рабы наконец смогли владеть землёй.",
+        "uz": "Qullikdan ozod etilgach, sobiq qullar nihoyat yerga egalik qila oldilar."
+      }
+    },
+    {
+      "word": "liberation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌlɪbəˈreɪʃən/",
+      "translation": "освобождение",
+      "translations": {
+        "ru": "освобождение",
+        "uz": "ozod qilinish"
+      },
+      "example": "Crowds celebrated the liberation of their city.",
+      "example_translations": {
+        "ru": "Толпы людей праздновали освобождение своего города.",
+        "uz": "Olomon o'z shahrining ozod qilinishini nishonladi."
+      }
+    },
+    {
+      "word": "subjugate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈsʌbdʒəˌgeɪt/",
+      "translation": "покорять, подчинять",
+      "translations": {
+        "ru": "покорять, подчинять",
+        "uz": "bo'ysundirmoq"
+      },
+      "example": "The invaders subjugated the local tribes within a year.",
+      "example_translations": {
+        "ru": "Захватчики покорили местные племена за год.",
+        "uz": "Bosqinchilar mahalliy qabilalarni bir yil ichida bo'ysundirdi."
+      }
+    }
+  ]
+}

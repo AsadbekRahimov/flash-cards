@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 14,
+    "title": "Мир природы",
+    "title_uz": "Tabiat olami"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Погода и стихия",
+    "title_uz": "Ob-havo va bo'ron"
+  },
+  "words": [
+    {
+      "word": "tempest",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɛmpəst/",
+      "translation": "буря",
+      "translations": {
+        "ru": "буря",
+        "uz": "bo'ron"
+      },
+      "example": "The ship was tossed about by a fierce tempest.",
+      "example_translations": {
+        "ru": "Корабль швыряла свирепая буря.",
+        "uz": "Kemani shiddatli bo'ron u yoqdan-bu yoqqa uloqtirardi."
+      }
+    },
+    {
+      "word": "deluge",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɛljudʒ/",
+      "translation": "сильнейший ливень, потоп",
+      "translations": {
+        "ru": "сильнейший ливень, потоп",
+        "uz": "kuchli jala"
+      },
+      "example": "The deluge flooded every street within an hour.",
+      "example_translations": {
+        "ru": "Сильнейший ливень за час затопил все улицы.",
+        "uz": "Kuchli jala bir soat ichida barcha ko'chalarni suvga to'ldirdi."
+      }
+    },
+    {
+      "word": "torrential",
+      "part_of_speech": "adjective",
+      "transcription": "/təˈrɛnʃəl/",
+      "translation": "проливной",
+      "translations": {
+        "ru": "проливной",
+        "uz": "sharros"
+      },
+      "example": "Torrential rain turned the path into a river.",
+      "example_translations": {
+        "ru": "Проливной дождь превратил тропинку в реку.",
+        "uz": "Sharros yomg'ir so'qmoqni daryoga aylantirdi."
+      }
+    },
+    {
+      "word": "squall",
+      "part_of_speech": "noun",
+      "transcription": "/skwɔl/",
+      "translation": "шквал",
+      "translations": {
+        "ru": "шквал",
+        "uz": "to'satdan ko'tarilgan shamol"
+      },
+      "example": "A sudden squall nearly overturned our small sailboat.",
+      "example_translations": {
+        "ru": "Внезапный шквал едва не перевернул нашу маленькую парусную лодку.",
+        "uz": "To'satdan ko'tarilgan shamol kichkina yelkanli qayig'imizni ag'darib yuborishiga sal qoldi."
+      }
+    },
+    {
+      "word": "gale",
+      "part_of_speech": "noun",
+      "transcription": "/geɪl/",
+      "translation": "штормовой ветер",
+      "translations": {
+        "ru": "штормовой ветер",
+        "uz": "dovul"
+      },
+      "example": "The gale tore branches off the old oak.",
+      "example_translations": {
+        "ru": "Штормовой ветер сорвал ветки со старого дуба.",
+        "uz": "Dovul keksa emanning shoxlarini sindirib ketdi."
+      }
+    },
+    {
+      "word": "sleet",
+      "part_of_speech": "noun",
+      "transcription": "/slit/",
+      "translation": "мокрый снег",
+      "translations": {
+        "ru": "мокрый снег",
+        "uz": "qor aralash yomg'ir"
+      },
+      "example": "Cold sleet stung our faces as we walked.",
+      "example_translations": {
+        "ru": "Холодный мокрый снег хлестал нас по лицу, пока мы шли.",
+        "uz": "Yurib borarkanmiz, sovuq qor aralash yomg'ir yuzimizga urilardi."
+      }
+    },
+    {
+      "word": "haze",
+      "part_of_speech": "noun",
+      "transcription": "/heɪz/",
+      "translation": "дымка",
+      "translations": {
+        "ru": "дымка",
+        "uz": "yengil tuman"
+      },
+      "example": "A thin haze hid the distant mountains at dawn.",
+      "example_translations": {
+        "ru": "На рассвете лёгкая дымка скрывала далёкие горы.",
+        "uz": "Tong payti yengil tuman olisdagi tog'larni to'sib turardi."
+      }
+    },
+    {
+      "word": "balmy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈbɑmi/",
+      "translation": "тёплый, мягкий",
+      "translations": {
+        "ru": "тёплый, мягкий",
+        "uz": "iliq, mayin"
+      },
+      "example": "We dined outside on a balmy summer evening.",
+      "example_translations": {
+        "ru": "Мы ужинали на улице тёплым, мягким летним вечером.",
+        "uz": "Iliq, mayin yoz oqshomida tashqarida kechki ovqat yedik."
+      }
+    },
+    {
+      "word": "inclement",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈklɛmənt/",
+      "translation": "ненастный",
+      "translations": {
+        "ru": "ненастный",
+        "uz": "noqulay"
+      },
+      "example": "The match was postponed owing to inclement weather.",
+      "example_translations": {
+        "ru": "Матч перенесли из-за ненастной погоды.",
+        "uz": "O'yin noqulay ob-havo tufayli qoldirildi."
+      }
+    },
+    {
+      "word": "sweltering",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈswɛltərɪŋ/",
+      "translation": "знойный",
+      "translations": {
+        "ru": "знойный",
+        "uz": "jazirama"
+      },
+      "example": "It was a sweltering day, far too hot to work.",
+      "example_translations": {
+        "ru": "День был знойный, слишком жаркий, чтобы работать.",
+        "uz": "Kun jazirama edi, ishlash uchun haddan tashqari issiq."
+      }
+    }
+  ]
+}

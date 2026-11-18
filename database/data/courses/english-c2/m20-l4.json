@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 20,
+    "title": "Труд и достижения",
+    "title_uz": "Mehnat va yutuqlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Промахи и слабости",
+    "title_uz": "Xato va zaifliklar"
+  },
+  "words": [
+    {
+      "word": "blunder",
+      "part_of_speech": "noun",
+      "transcription": "/ˈblʌndər/",
+      "translation": "грубая ошибка, промах",
+      "translations": {
+        "ru": "грубая ошибка, промах",
+        "uz": "qo'pol xato"
+      },
+      "example": "Sending the wrong file was a costly blunder.",
+      "example_translations": {
+        "ru": "Отправка не того файла оказалась грубой ошибкой, которая дорого обошлась.",
+        "uz": "Noto'g'ri faylni yuborish qimmatga tushgan qo'pol xato bo'ldi."
+      }
+    },
+    {
+      "word": "gaffe",
+      "part_of_speech": "noun",
+      "transcription": "/gæf/",
+      "translation": "бестактность, ляп",
+      "translations": {
+        "ru": "бестактность, ляп",
+        "uz": "nojo'ya ish, andishasizlik"
+      },
+      "example": "Forgetting the host's name was an embarrassing gaffe.",
+      "example_translations": {
+        "ru": "Забыть имя хозяина дома было досадной бестактностью.",
+        "uz": "Mezbonning ismini unutish xijolatli nojo'ya ish bo'ldi."
+      }
+    },
+    {
+      "word": "lapse",
+      "part_of_speech": "noun",
+      "transcription": "/læps/",
+      "translation": "кратковременный сбой, оплошность",
+      "translations": {
+        "ru": "кратковременный сбой, оплошность",
+        "uz": "bir lahzalik chalg'ish"
+      },
+      "example": "A brief lapse of attention caused the mistake.",
+      "example_translations": {
+        "ru": "Кратковременный сбой внимания привёл к ошибке.",
+        "uz": "Diqqatning bir lahzalik chalg'ishi xatoga sabab bo'ldi."
+      }
+    },
+    {
+      "word": "folly",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɑli/",
+      "translation": "безрассудство, глупость",
+      "translations": {
+        "ru": "безрассудство, глупость",
+        "uz": "aqlsizlik, tentaklik"
+      },
+      "example": "Sailing in such a storm would be folly.",
+      "example_translations": {
+        "ru": "Выходить в море в такой шторм было бы безрассудством.",
+        "uz": "Bunday bo'ronda dengizga chiqish aqlsizlik bo'lardi."
+      }
+    },
+    {
+      "word": "botch",
+      "part_of_speech": "verb",
+      "transcription": "/bɑtʃ/",
+      "translation": "испортить, сделать кое-как",
+      "translations": {
+        "ru": "испортить, сделать кое-как",
+        "uz": "rasvo qilmoq"
+      },
+      "example": "He botched the repair, and the pipe leaked.",
+      "example_translations": {
+        "ru": "Он испортил ремонт, и труба потекла.",
+        "uz": "U ta'mirni rasvo qildi va quvur oqa boshladi."
+      }
+    },
+    {
+      "word": "flounder",
+      "part_of_speech": "verb",
+      "transcription": "/ˈflaʊndər/",
+      "translation": "не справляться, барахтаться",
+      "translations": {
+        "ru": "не справляться, барахтаться",
+        "uz": "eplay olmay qiynalmoq"
+      },
+      "example": "Without clear instructions, the new team floundered badly.",
+      "example_translations": {
+        "ru": "Без чётких указаний новая команда совсем не справлялась.",
+        "uz": "Aniq ko'rsatmalarsiz yangi jamoa ishni eplay olmay qiynaldi."
+      }
+    },
+    {
+      "word": "falter",
+      "part_of_speech": "verb",
+      "transcription": "/ˈfɔltər/",
+      "translation": "дрогнуть, пошатнуться",
+      "translations": {
+        "ru": "дрогнуть, пошатнуться",
+        "uz": "zaiflashmoq, bo'shashmoq"
+      },
+      "example": "Her confidence faltered after the second failed attempt.",
+      "example_translations": {
+        "ru": "Её уверенность пошатнулась после второй неудачной попытки.",
+        "uz": "Ikkinchi muvaffaqiyatsiz urinishdan so'ng uning o'ziga ishonchi zaiflashdi."
+      }
+    },
+    {
+      "word": "shortcoming",
+      "part_of_speech": "noun",
+      "transcription": "/ˈʃɔrtˌkʌmɪŋ/",
+      "translation": "недостаток",
+      "translations": {
+        "ru": "недостаток",
+        "uz": "kamchilik"
+      },
+      "example": "Impatience is his only real shortcoming.",
+      "example_translations": {
+        "ru": "Нетерпеливость — его единственный настоящий недостаток.",
+        "uz": "Sabrsizlik — uning yagona haqiqiy kamchiligi."
+      }
+    },
+    {
+      "word": "inept",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈnɛpt/",
+      "translation": "неумелый",
+      "translations": {
+        "ru": "неумелый",
+        "uz": "no'noq, uquvsiz"
+      },
+      "example": "The inept waiter spilled soup on three guests.",
+      "example_translations": {
+        "ru": "Неумелый официант пролил суп на трёх гостей.",
+        "uz": "No'noq ofitsiant uch mehmonning ustiga sho'rva to'kib yubordi."
+      }
+    },
+    {
+      "word": "rectify",
+      "part_of_speech": "verb",
+      "transcription": "/ˈrɛktəˌfaɪ/",
+      "translation": "исправлять",
+      "translations": {
+        "ru": "исправлять",
+        "uz": "tuzatmoq"
+      },
+      "example": "We will rectify the billing error immediately.",
+      "example_translations": {
+        "ru": "Мы немедленно исправим ошибку в счёте.",
+        "uz": "Biz hisobdagi xatoni darhol tuzatamiz."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 9,
+    "title": "Психология и мышление",
+    "title_uz": "Psixologiya va tafakkur"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Побуждения и привычки",
+    "title_uz": "Mayl va odatlar"
+  },
+  "words": [
+    {
+      "word": "compulsion",
+      "part_of_speech": "noun",
+      "transcription": "/kəmˈpʌlʃən/",
+      "translation": "навязчивая потребность",
+      "translations": {
+        "ru": "навязчивая потребность",
+        "uz": "yengib bo'lmas ehtiyoj"
+      },
+      "example": "He felt a compulsion to check the door again.",
+      "example_translations": {
+        "ru": "Он чувствовал навязчивую потребность снова проверить дверь.",
+        "uz": "U eshikni yana tekshirishga yengib bo'lmas ehtiyoj sezdi."
+      }
+    },
+    {
+      "word": "urge",
+      "part_of_speech": "noun",
+      "transcription": "/ɜrdʒ/",
+      "translation": "сильное желание",
+      "translations": {
+        "ru": "сильное желание",
+        "uz": "kuchli istak"
+      },
+      "example": "She resisted the urge to answer him rudely.",
+      "example_translations": {
+        "ru": "Она подавила сильное желание ответить ему грубо.",
+        "uz": "U unga qo'pol javob berishdek kuchli istakni bosdi."
+      }
+    },
+    {
+      "word": "impulse",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪmˌpʌls/",
+      "translation": "внезапный порыв",
+      "translations": {
+        "ru": "внезапный порыв",
+        "uz": "to'satdan tug'ilgan xohish"
+      },
+      "example": "Acting on impulse, Tom booked a flight that night.",
+      "example_translations": {
+        "ru": "Поддавшись внезапному порыву, Том в тот же вечер забронировал билет на самолёт.",
+        "uz": "To'satdan tug'ilgan xohishga berilib, Tom o'sha kechasiyoq samolyotga chipta band qildi."
+      }
+    },
+    {
+      "word": "inhibition",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪnhəˈbɪʃən/",
+      "translation": "скованность",
+      "translations": {
+        "ru": "скованность",
+        "uz": "tortinish"
+      },
+      "example": "Children sing and dance without any inhibitions.",
+      "example_translations": {
+        "ru": "Дети поют и танцуют без всякой скованности.",
+        "uz": "Bolalar hech qanday tortinishsiz qo'shiq aytib, raqsga tushadi."
+      }
+    },
+    {
+      "word": "deterrent",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈtɜrənt/",
+      "translation": "сдерживающий фактор",
+      "translations": {
+        "ru": "сдерживающий фактор",
+        "uz": "tiyib turuvchi omil"
+      },
+      "example": "High fines act as a deterrent to speeding.",
+      "example_translations": {
+        "ru": "Высокие штрафы служат сдерживающим фактором против превышения скорости.",
+        "uz": "Yuqori jarimalar tezlikni oshirishdan tiyib turuvchi omil bo'lib xizmat qiladi."
+      }
+    },
+    {
+      "word": "craving",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkreɪvɪŋ/",
+      "translation": "острая тяга",
+      "translations": {
+        "ru": "острая тяга",
+        "uz": "kuchli tusash"
+      },
+      "example": "At midnight I had a craving for something sweet.",
+      "example_translations": {
+        "ru": "В полночь у меня появилась острая тяга к сладкому.",
+        "uz": "Yarim tunda menda shirinlikni kuchli tusash paydo bo'ldi."
+      }
+    },
+    {
+      "word": "obsession",
+      "part_of_speech": "noun",
+      "transcription": "/əbˈsɛʃən/",
+      "translation": "одержимость",
+      "translations": {
+        "ru": "одержимость",
+        "uz": "ruju qo'yish"
+      },
+      "example": "His obsession with cleanliness annoys his roommates.",
+      "example_translations": {
+        "ru": "Его одержимость чистотой раздражает его соседей по комнате.",
+        "uz": "Uning tozalikka ruju qo'yishi xonadoshlarining g'ashiga tegadi."
+      }
+    },
+    {
+      "word": "addiction",
+      "part_of_speech": "noun",
+      "transcription": "/əˈdɪkʃən/",
+      "translation": "пагубная зависимость",
+      "translations": {
+        "ru": "пагубная зависимость",
+        "uz": "mubtalolik"
+      },
+      "example": "Phone addiction is common among teenagers today.",
+      "example_translations": {
+        "ru": "Пагубная зависимость от телефона сегодня распространена среди подростков.",
+        "uz": "Bugungi kunda o'smirlar orasida telefonga mubtalolik keng tarqalgan."
+      }
+    },
+    {
+      "word": "habitual",
+      "part_of_speech": "adjective",
+      "transcription": "/həˈbɪtʃuəl/",
+      "translation": "привычный",
+      "translations": {
+        "ru": "привычный",
+        "uz": "odatdagi"
+      },
+      "example": "Malika took her habitual seat by the window.",
+      "example_translations": {
+        "ru": "Малика заняла своё привычное место у окна.",
+        "uz": "Malika deraza yonidagi odatdagi joyiga o'tirdi."
+      }
+    },
+    {
+      "word": "disposition",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdɪspəˈzɪʃən/",
+      "translation": "нрав, склад характера",
+      "translations": {
+        "ru": "нрав, склад характера",
+        "uz": "fe'l-atvor"
+      },
+      "example": "Our neighbor has a cheerful, friendly disposition.",
+      "example_translations": {
+        "ru": "У нашего соседа весёлый, дружелюбный нрав.",
+        "uz": "Qo'shnimizning fe'l-atvori quvnoq va do'stona."
+      }
+    }
+  ]
+}

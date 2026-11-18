@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 10,
+    "title": "Тонкости права",
+    "title_uz": "Huquq nozikliklari"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Вина и доказательства",
+    "title_uz": "Ayb va dalillar"
+  },
+  "words": [
+    {
+      "word": "exonerate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪgˈzɑnəˌreɪt/",
+      "translation": "снимать обвинения",
+      "translations": {
+        "ru": "снимать обвинения",
+        "uz": "ayblovdan xalos qilmoq"
+      },
+      "example": "New evidence exonerated the man after ten years.",
+      "example_translations": {
+        "ru": "Новые доказательства сняли обвинения с этого человека спустя десять лет.",
+        "uz": "Yangi dalillar o'n yildan so'ng bu odamni ayblovdan xalos qildi."
+      }
+    },
+    {
+      "word": "incriminate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈkrɪməˌneɪt/",
+      "translation": "изобличать",
+      "translations": {
+        "ru": "изобличать",
+        "uz": "aybini fosh qilmoq"
+      },
+      "example": "The fingerprints on the safe incriminated the clerk.",
+      "example_translations": {
+        "ru": "Отпечатки пальцев на сейфе изобличили служащего.",
+        "uz": "Seyfdagi barmoq izlari xizmatchining aybini fosh qildi."
+      }
+    },
+    {
+      "word": "implicate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɪmpləˌkeɪt/",
+      "translation": "указывать на причастность",
+      "translations": {
+        "ru": "указывать на причастность",
+        "uz": "daxldorligini ko'rsatmoq"
+      },
+      "example": "The letters implicated two senior officials in the fraud.",
+      "example_translations": {
+        "ru": "Письма указывали на причастность двух высокопоставленных чиновников к мошенничеству.",
+        "uz": "Xatlar ikki yuqori martabali amaldorning firibgarlikka daxldorligini ko'rsatdi."
+      }
+    },
+    {
+      "word": "circumstantial",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌsɜrkəmˈstænʃəl/",
+      "translation": "косвенный",
+      "translations": {
+        "ru": "косвенный",
+        "uz": "bilvosita"
+      },
+      "example": "The evidence was circumstantial; nobody had seen him there.",
+      "example_translations": {
+        "ru": "Улики были косвенными: его там никто не видел.",
+        "uz": "Dalillar bilvosita edi: uni u yerda hech kim ko'rmagan."
+      }
+    },
+    {
+      "word": "recant",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈkænt/",
+      "translation": "отказываться от показаний",
+      "translations": {
+        "ru": "отказываться от показаний",
+        "uz": "ko'rsatmasidan qaytmoq"
+      },
+      "example": "The witness recanted and admitted she had lied.",
+      "example_translations": {
+        "ru": "Свидетельница отказалась от показаний и призналась, что солгала.",
+        "uz": "Guvoh ko'rsatmasidan qaytib, yolg'on gapirganini tan oldi."
+      }
+    },
+    {
+      "word": "impeach",
+      "part_of_speech": "verb",
+      "transcription": "/ɪmˈpitʃ/",
+      "translation": "объявлять импичмент",
+      "translations": {
+        "ru": "объявлять импичмент",
+        "uz": "impichment e'lon qilmoq"
+      },
+      "example": "Lawmakers voted to impeach the governor for taking bribes.",
+      "example_translations": {
+        "ru": "Законодатели проголосовали за то, чтобы объявить импичмент губернатору за взятки.",
+        "uz": "Qonunchilar pora olgani uchun gubernatorga impichment e'lon qilishga ovoz berdi."
+      }
+    },
+    {
+      "word": "vindicate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈvɪndəˌkeɪt/",
+      "translation": "доказывать правоту",
+      "translations": {
+        "ru": "доказывать правоту",
+        "uz": "haqligini isbotlamoq"
+      },
+      "example": "The court's ruling fully vindicated the accused doctor.",
+      "example_translations": {
+        "ru": "Решение суда полностью доказало правоту обвиняемого врача.",
+        "uz": "Sud qarori ayblangan shifokorning haqligini to'liq isbotladi."
+      }
+    },
+    {
+      "word": "premeditated",
+      "part_of_speech": "adjective",
+      "transcription": "/priˈmɛdəˌteɪtəd/",
+      "translation": "заранее обдуманный",
+      "translations": {
+        "ru": "заранее обдуманный",
+        "uz": "oldindan rejalashtirilgan"
+      },
+      "example": "The theft was premeditated, planned weeks in advance.",
+      "example_translations": {
+        "ru": "Кража была заранее обдуманной: её готовили несколько недель.",
+        "uz": "O'g'rilik oldindan rejalashtirilgan edi: unga bir necha hafta tayyorgarlik ko'rilgan."
+      }
+    },
+    {
+      "word": "extenuating",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪkˈstɛnjuˌeɪtɪŋ/",
+      "translation": "смягчающий",
+      "translations": {
+        "ru": "смягчающий",
+        "uz": "yengillashtiruvchi"
+      },
+      "example": "The judge considered his illness an extenuating circumstance.",
+      "example_translations": {
+        "ru": "Судья счёл его болезнь смягчающим обстоятельством.",
+        "uz": "Sudya uning kasalligini yengillashtiruvchi holat deb hisobladi."
+      }
+    },
+    {
+      "word": "malice",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmæləs/",
+      "translation": "злой умысел",
+      "translations": {
+        "ru": "злой умысел",
+        "uz": "g'arazli niyat"
+      },
+      "example": "She acted from malice, wanting to ruin his career.",
+      "example_translations": {
+        "ru": "Она действовала со злым умыслом, желая разрушить его карьеру.",
+        "uz": "U g'arazli niyat bilan, uning martabasini barbod qilishni istab harakat qildi."
+      }
+    }
+  ]
+}

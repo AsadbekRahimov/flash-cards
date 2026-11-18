@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 14,
+    "title": "СМИ и информация",
+    "title_uz": "OAV va axborot"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Правда и вымысел",
+    "title_uz": "Haqiqat va uydirma"
+  },
+  "words": [
+    {
+      "word": "sensationalism",
+      "part_of_speech": "noun",
+      "transcription": "/sɛnˈseɪʃənəˌlɪzəm/",
+      "translation": "погоня за сенсациями",
+      "translations": {
+        "ru": "погоня за сенсациями",
+        "uz": "shov-shuvbozlik"
+      },
+      "example": "Serious papers avoid sensationalism and stick to facts.",
+      "example_translations": {
+        "ru": "Серьёзные газеты избегают погони за сенсациями и придерживаются фактов.",
+        "uz": "Jiddiy gazetalar shov-shuvbozlikdan qochib, faktlarga tayanadi."
+      }
+    },
+    {
+      "word": "disinformation",
+      "part_of_speech": "noun",
+      "transcription": "/dɪsˌɪnfərˈmeɪʃən/",
+      "translation": "дезинформация",
+      "translations": {
+        "ru": "дезинформация",
+        "uz": "dezinformatsiya"
+      },
+      "example": "The website spread disinformation to mislead its readers.",
+      "example_translations": {
+        "ru": "Сайт распространял дезинформацию, чтобы ввести читателей в заблуждение.",
+        "uz": "Sayt o'quvchilarni chalg'itish uchun dezinformatsiya tarqatgan."
+      }
+    },
+    {
+      "word": "fabricate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈfæbrəˌkeɪt/",
+      "translation": "фабриковать, выдумывать",
+      "translations": {
+        "ru": "фабриковать, выдумывать",
+        "uz": "to'qib chiqarmoq"
+      },
+      "example": "The reporter fabricated quotes from people who never existed.",
+      "example_translations": {
+        "ru": "Репортёр выдумывал цитаты людей, которых никогда не существовало.",
+        "uz": "Muxbir hech qachon mavjud bo'lmagan odamlarning so'zlarini to'qib chiqargan."
+      }
+    },
+    {
+      "word": "slant",
+      "part_of_speech": "noun",
+      "transcription": "/slænt/",
+      "translation": "тенденциозная подача",
+      "translations": {
+        "ru": "тенденциозная подача",
+        "uz": "bir yoqlama talqin"
+      },
+      "example": "Readers noticed the slant in the paper's election coverage.",
+      "example_translations": {
+        "ru": "Читатели заметили тенденциозную подачу в том, как газета освещала выборы.",
+        "uz": "O'quvchilar gazetaning saylovni yoritishidagi bir yoqlama talqinni payqadi."
+      }
+    },
+    {
+      "word": "hype",
+      "part_of_speech": "noun",
+      "transcription": "/haɪp/",
+      "translation": "шумиха, ажиотаж",
+      "translations": {
+        "ru": "шумиха, ажиотаж",
+        "uz": "shov-shuv"
+      },
+      "example": "Despite all the hype, the movie was rather dull.",
+      "example_translations": {
+        "ru": "Несмотря на всю шумиху, фильм оказался довольно скучным.",
+        "uz": "Shuncha shov-shuvga qaramay, film ancha zerikarli chiqdi."
+      }
+    },
+    {
+      "word": "unfounded",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈfaʊndɪd/",
+      "translation": "необоснованный",
+      "translations": {
+        "ru": "необоснованный",
+        "uz": "asossiz"
+      },
+      "example": "The rumors proved unfounded; the bank was perfectly safe.",
+      "example_translations": {
+        "ru": "Слухи оказались необоснованными: банк был абсолютно надёжен.",
+        "uz": "Mish-mishlar asossiz chiqdi: bank mutlaqo xavfsiz edi."
+      }
+    },
+    {
+      "word": "hearsay",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɪrˌseɪ/",
+      "translation": "сведения с чужих слов",
+      "translations": {
+        "ru": "сведения с чужих слов",
+        "uz": "birovdan eshitilgan gap"
+      },
+      "example": "That is only hearsay; nobody actually saw it.",
+      "example_translations": {
+        "ru": "Это лишь сведения с чужих слов: на самом деле никто этого не видел.",
+        "uz": "Bu shunchaki birovdan eshitilgan gap: aslida buni hech kim ko'rmagan."
+      }
+    },
+    {
+      "word": "allegation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌæləˈgeɪʃən/",
+      "translation": "недоказанное обвинение",
+      "translations": {
+        "ru": "недоказанное обвинение",
+        "uz": "isbotlanmagan ayblov"
+      },
+      "example": "So far it is only an allegation, not a fact.",
+      "example_translations": {
+        "ru": "Пока это лишь недоказанное обвинение, а не факт.",
+        "uz": "Hozircha bu fakt emas, faqat isbotlanmagan ayblov."
+      }
+    },
+    {
+      "word": "credible",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkrɛdəbəl/",
+      "translation": "заслуживающий доверия",
+      "translations": {
+        "ru": "заслуживающий доверия",
+        "uz": "ishonchli"
+      },
+      "example": "We checked the story with two credible sources.",
+      "example_translations": {
+        "ru": "Мы проверили эту историю по двум заслуживающим доверия источникам.",
+        "uz": "Biz bu xabarni ikkita ishonchli manba orqali tekshirdik."
+      }
+    },
+    {
+      "word": "retraction",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈtrækʃən/",
+      "translation": "опровержение",
+      "translations": {
+        "ru": "опровержение",
+        "uz": "raddiya"
+      },
+      "example": "The paper printed a retraction and apologized for the error.",
+      "example_translations": {
+        "ru": "Газета напечатала опровержение и извинилась за ошибку.",
+        "uz": "Gazeta raddiya chop etib, xato uchun uzr so'radi."
+      }
+    }
+  ]
+}

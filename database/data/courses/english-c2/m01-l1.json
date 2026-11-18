@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 1,
+    "title": "Оттенки характера",
+    "title_uz": "Xarakter qirralari"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Благородные качества",
+    "title_uz": "Olijanob fazilatlar"
+  },
+  "words": [
+    {
+      "word": "magnanimous",
+      "part_of_speech": "adjective",
+      "transcription": "/mægˈnænəməs/",
+      "translation": "великодушный",
+      "translations": {
+        "ru": "великодушный",
+        "uz": "oliyhimmat"
+      },
+      "example": "The magnanimous champion warmly praised his defeated rival.",
+      "example_translations": {
+        "ru": "Великодушный чемпион тепло похвалил побеждённого соперника.",
+        "uz": "Oliyhimmat chempion mag'lub raqibini samimiy maqtadi."
+      }
+    },
+    {
+      "word": "scrupulous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈskrupjələs/",
+      "translation": "щепетильный, добросовестный",
+      "translations": {
+        "ru": "щепетильный, добросовестный",
+        "uz": "vijdonli, o'ta halol"
+      },
+      "example": "She is scrupulous about returning every borrowed cent.",
+      "example_translations": {
+        "ru": "Она очень щепетильна: возвращает каждый взятый в долг цент.",
+        "uz": "U juda vijdonli: qarzga olgan har bir sentini qaytaradi."
+      }
+    },
+    {
+      "word": "unassuming",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌnəˈsumɪŋ/",
+      "translation": "скромный, непритязательный",
+      "translations": {
+        "ru": "скромный, непритязательный",
+        "uz": "kamtar, kamsuqum"
+      },
+      "example": "Despite his fame, the unassuming professor avoided attention.",
+      "example_translations": {
+        "ru": "Несмотря на славу, скромный профессор избегал внимания.",
+        "uz": "Shuhratiga qaramay, kamtar professor e'tibordan qochardi."
+      }
+    },
+    {
+      "word": "affable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈæfəbəl/",
+      "translation": "приветливый, радушный",
+      "translations": {
+        "ru": "приветливый, радушный",
+        "uz": "xushmuomala, ochiq chehrali"
+      },
+      "example": "Our affable host chatted warmly with every guest.",
+      "example_translations": {
+        "ru": "Наш приветливый хозяин тепло беседовал с каждым гостем.",
+        "uz": "Xushmuomala mezbonimiz har bir mehmon bilan iliq suhbatlashdi."
+      }
+    },
+    {
+      "word": "astute",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈstut/",
+      "translation": "проницательный",
+      "translations": {
+        "ru": "проницательный",
+        "uz": "ziyrak"
+      },
+      "example": "An astute investor spotted the risk before anyone else.",
+      "example_translations": {
+        "ru": "Проницательный инвестор заметил риск раньше всех остальных.",
+        "uz": "Ziyrak sarmoyador xavfni hammadan oldin payqadi."
+      }
+    },
+    {
+      "word": "sagacious",
+      "part_of_speech": "adjective",
+      "transcription": "/səˈgeɪʃəs/",
+      "translation": "мудрый, прозорливый",
+      "translations": {
+        "ru": "мудрый, прозорливый",
+        "uz": "dono, uzoqni ko'ruvchi"
+      },
+      "example": "Villagers sought advice from the sagacious old teacher.",
+      "example_translations": {
+        "ru": "Жители деревни шли за советом к мудрому старому учителю.",
+        "uz": "Qishloq ahli dono keksa ustozdan maslahat so'rardi."
+      }
+    },
+    {
+      "word": "intrepid",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtrɛpəd/",
+      "translation": "бесстрашный, неустрашимый",
+      "translations": {
+        "ru": "бесстрашный, неустрашимый",
+        "uz": "qo'rqmas, dovyurak"
+      },
+      "example": "Intrepid explorers crossed the frozen desert on foot.",
+      "example_translations": {
+        "ru": "Бесстрашные исследователи пешком пересекли ледяную пустыню.",
+        "uz": "Qo'rqmas tadqiqotchilar muzli sahroni piyoda kesib o'tishdi."
+      }
+    },
+    {
+      "word": "stoic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈstoʊɪk/",
+      "translation": "стойкий, невозмутимый",
+      "translations": {
+        "ru": "стойкий, невозмутимый",
+        "uz": "matonatli, sabr-bardoshli"
+      },
+      "example": "He remained stoic throughout the long, painful treatment.",
+      "example_translations": {
+        "ru": "Он оставался стойким на протяжении всего долгого и болезненного лечения.",
+        "uz": "U uzoq va og'riqli davolanish davomida matonatli bo'lib qoldi."
+      }
+    },
+    {
+      "word": "gracious",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈgreɪʃəs/",
+      "translation": "любезный",
+      "translations": {
+        "ru": "любезный",
+        "uz": "iltifotli"
+      },
+      "example": "She was gracious enough to forgive our mistake.",
+      "example_translations": {
+        "ru": "Она была настолько любезна, что простила нашу ошибку.",
+        "uz": "U shu qadar iltifotli ediki, xatomizni kechirdi."
+      }
+    },
+    {
+      "word": "judicious",
+      "part_of_speech": "adjective",
+      "transcription": "/dʒuˈdɪʃəs/",
+      "translation": "рассудительный, благоразумный",
+      "translations": {
+        "ru": "рассудительный, благоразумный",
+        "uz": "mulohazali"
+      },
+      "example": "A judicious manager weighs every option before deciding.",
+      "example_translations": {
+        "ru": "Рассудительный руководитель взвешивает все варианты, прежде чем принять решение.",
+        "uz": "Mulohazali rahbar qaror qilishdan oldin har bir variantni chamalab ko'radi."
+      }
+    }
+  ]
+}

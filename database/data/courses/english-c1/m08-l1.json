@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 8,
+    "title": "Здоровье и медицина",
+    "title_uz": "Sog'liq va tibbiyot"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Болезни и симптомы",
+    "title_uz": "Kasalliklar va alomatlar"
+  },
+  "words": [
+    {
+      "word": "ailment",
+      "part_of_speech": "noun",
+      "transcription": "/ˈeɪlmənt/",
+      "translation": "недомогание",
+      "translations": {
+        "ru": "недомогание",
+        "uz": "betoblik"
+      },
+      "example": "Colds and coughs are common winter ailments.",
+      "example_translations": {
+        "ru": "Простуда и кашель — обычные зимние недомогания.",
+        "uz": "Shamollash va yo'tal — qishda ko'p uchraydigan betobliklar."
+      }
+    },
+    {
+      "word": "inflammation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪnfləˈmeɪʃən/",
+      "translation": "воспаление",
+      "translations": {
+        "ru": "воспаление",
+        "uz": "yallig'lanish"
+      },
+      "example": "Ice reduces inflammation and swelling after an injury.",
+      "example_translations": {
+        "ru": "Лёд уменьшает воспаление и отёк после травмы.",
+        "uz": "Muz jarohatdan keyingi yallig'lanish va shishni kamaytiradi."
+      }
+    },
+    {
+      "word": "tumor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtumər/",
+      "translation": "опухоль",
+      "translations": {
+        "ru": "опухоль",
+        "uz": "o'sma"
+      },
+      "example": "Doctors removed the tumor before it could grow.",
+      "example_translations": {
+        "ru": "Врачи удалили опухоль, пока она не успела вырасти.",
+        "uz": "Shifokorlar o'smani kattalashib ulgurmasidan olib tashlashdi."
+      }
+    },
+    {
+      "word": "seizure",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsiʒər/",
+      "translation": "припадок, приступ",
+      "translations": {
+        "ru": "припадок, приступ",
+        "uz": "tutqanoq"
+      },
+      "example": "During a seizure, the body shakes uncontrollably.",
+      "example_translations": {
+        "ru": "Во время припадка тело неконтролируемо трясётся.",
+        "uz": "Tutqanoq paytida tana beixtiyor qaltiraydi."
+      }
+    },
+    {
+      "word": "nausea",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnɔziə/",
+      "translation": "тошнота",
+      "translations": {
+        "ru": "тошнота",
+        "uz": "ko'ngil aynishi"
+      },
+      "example": "Nausea made her unable to eat anything all day.",
+      "example_translations": {
+        "ru": "Из-за тошноты она весь день не могла ничего есть.",
+        "uz": "Ko'ngil aynishi tufayli u kun bo'yi hech narsa yeya olmadi."
+      }
+    },
+    {
+      "word": "migraine",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmaɪˌgreɪn/",
+      "translation": "мигрень",
+      "translations": {
+        "ru": "мигрень",
+        "uz": "migren"
+      },
+      "example": "A migraine is far worse than an ordinary headache.",
+      "example_translations": {
+        "ru": "Мигрень гораздо тяжелее обычной головной боли.",
+        "uz": "Migren oddiy bosh og'rig'idan ancha og'irroq."
+      }
+    },
+    {
+      "word": "paralysis",
+      "part_of_speech": "noun",
+      "transcription": "/pəˈræləsɪs/",
+      "translation": "паралич",
+      "translations": {
+        "ru": "паралич",
+        "uz": "falaj"
+      },
+      "example": "The injury caused paralysis in both of his legs.",
+      "example_translations": {
+        "ru": "Травма вызвала паралич обеих его ног.",
+        "uz": "Jarohat uning ikkala oyog'i falaj bo'lishiga olib keldi."
+      }
+    },
+    {
+      "word": "hypertension",
+      "part_of_speech": "noun",
+      "transcription": "/ˌhaɪpərˈtɛnʃən/",
+      "translation": "гипертония",
+      "translations": {
+        "ru": "гипертония",
+        "uz": "gipertoniya"
+      },
+      "example": "Hypertension means your blood pressure is constantly too high.",
+      "example_translations": {
+        "ru": "Гипертония означает, что ваше кровяное давление постоянно слишком высокое.",
+        "uz": "Gipertoniya qon bosimingiz doimo haddan tashqari yuqori ekanini bildiradi."
+      }
+    },
+    {
+      "word": "malignant",
+      "part_of_speech": "adjective",
+      "transcription": "/məˈlɪgnənt/",
+      "translation": "злокачественный",
+      "translations": {
+        "ru": "злокачественный",
+        "uz": "yomon sifatli"
+      },
+      "example": "A malignant tumor can spread to other organs.",
+      "example_translations": {
+        "ru": "Злокачественная опухоль может распространиться на другие органы.",
+        "uz": "Yomon sifatli o'sma boshqa a'zolarga tarqalishi mumkin."
+      }
+    },
+    {
+      "word": "acute",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈkjut/",
+      "translation": "острый",
+      "translations": {
+        "ru": "острый",
+        "uz": "o'tkir"
+      },
+      "example": "Acute chest pain made him call a doctor.",
+      "example_translations": {
+        "ru": "Острая боль в груди заставила его вызвать врача.",
+        "uz": "Ko'krakdagi o'tkir og'riq uni shifokor chaqirishga majbur qildi."
+      }
+    }
+  ]
+}

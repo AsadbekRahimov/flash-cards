@@ -16,6 +16,7 @@ use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Enums\WordStage;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Operations\Support\PureCache;
+use App\Models\CachedCourse;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
@@ -55,6 +56,12 @@ final class CourseCatalogService
 
     private const COURSE_TREE_TTL = 1800;
 
+    /** `catalog:course:row:v1:{course id}:n{data version}`: the row of `courses` as the driver returned it (docs/19 K10). */
+    public const COURSE_ROW_PREFIX = 'catalog:course:row:v1:';
+
+    /** Ten minutes: what the version does not cover (nothing since every save of a course moves it; a belt to the braces) ages out soon. */
+    public const COURSE_ROW_TTL = 600;
+
     /** The columns of `stages` in table order (`title_uz` was added last), selected beside a lesson's under the prefix `stage__` (a join cannot return two `id`s). */
     private const STAGE_COLUMNS = ['id', 'course_id', 'number', 'title', 'description', 'created_at', 'updated_at', 'title_uz'];
 
@@ -85,6 +92,39 @@ final class CourseCatalogService
     public function findBySlug(string $slug): ?Course
     {
         return Course::query()->where('slug', $slug)->first();
+    }
+
+    /**
+     * The course by id from the pure cache (docs/19 K10): the row of `courses` as the driver returned it, hydrated into a model exactly
+     * as a read would (`newFromBuilder`), under the data version of the course - the one the tree is keyed with, which every saved change
+     * of the course moves on (CourseTreeObserver; `CoursePublisher::recount()` / `transition()` do it themselves). For the hot reads that
+     * only need the course's facts (the Today screen: availability, title, `words_count`, the level). A missing course is not cached.
+     * The model is a {@see CachedCourse}: it refuses to be saved or deleted - whoever changes a course reads it from the database.
+     */
+    public function cachedCourse(int $courseId): ?Course
+    {
+        $key = self::courseRowKey($courseId);
+
+        $attributes = PureCache::store()->get($key);
+        if (is_array($attributes) && isset($attributes['id'])) {
+            /** @var array<string, mixed> $attributes */
+            return (new CachedCourse)->newFromBuilder($attributes);
+        }
+
+        /** @var Course|null $course */
+        $course = Course::query()->find($courseId);
+        if ($course === null) {
+            return null;
+        }
+        $attributes = $course->getAttributes();
+        PureCache::store()->put($key, $attributes, self::COURSE_ROW_TTL);
+
+        return (new CachedCourse)->newFromBuilder($attributes);
+    }
+
+    public static function courseRowKey(int $courseId): string
+    {
+        return self::COURSE_ROW_PREFIX.$courseId.':n'.(int) Cache::get(self::courseTreeVersionKey($courseId), 0);
     }
 
     /** The course teacher commands of $group (`/start_training`, `/start_exam`) work in. */

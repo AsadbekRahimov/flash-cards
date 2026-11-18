@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 2,
+    "title": "Эмоции и состояния души",
+    "title_uz": "Tuyg'ular va ruhiy holatlar"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Гнев и раздражение",
+    "title_uz": "G'azab va jahl"
+  },
+  "words": [
+    {
+      "word": "indignation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪndɪgˈneɪʃən/",
+      "translation": "негодование, возмущение",
+      "translations": {
+        "ru": "негодование, возмущение",
+        "uz": "qattiq norozilik, g'azab"
+      },
+      "example": "The unfair verdict provoked widespread indignation among residents.",
+      "example_translations": {
+        "ru": "Несправедливый вердикт вызвал всеобщее негодование жителей.",
+        "uz": "Adolatsiz hukm aholi orasida qattiq norozilik uyg'otdi."
+      }
+    },
+    {
+      "word": "wrath",
+      "part_of_speech": "noun",
+      "transcription": "/ræθ/",
+      "translation": "гнев, ярость",
+      "translations": {
+        "ru": "гнев, ярость",
+        "uz": "qahr-g'azab"
+      },
+      "example": "Late again, he feared his coach's wrath.",
+      "example_translations": {
+        "ru": "Снова опоздав, он боялся гнева тренера.",
+        "uz": "Yana kechikkan u murabbiyining qahr-g'azabidan qo'rqardi."
+      }
+    },
+    {
+      "word": "irk",
+      "part_of_speech": "verb",
+      "transcription": "/ɜrk/",
+      "translation": "раздражать, досаждать",
+      "translations": {
+        "ru": "раздражать, досаждать",
+        "uz": "g'ashiga tegmoq"
+      },
+      "example": "It irks me when people interrupt constantly.",
+      "example_translations": {
+        "ru": "Меня раздражает, когда люди постоянно перебивают.",
+        "uz": "Odamlar tinmay gapni bo'lishi g'ashimga tegadi."
+      }
+    },
+    {
+      "word": "infuriate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈfjʊriˌeɪt/",
+      "translation": "приводить в ярость",
+      "translations": {
+        "ru": "приводить в ярость",
+        "uz": "qattiq g'azablantirmoq"
+      },
+      "example": "His constant lateness infuriated the whole team.",
+      "example_translations": {
+        "ru": "Его постоянные опоздания приводили в ярость всю команду.",
+        "uz": "Uning doimiy kechikishi butun jamoani qattiq g'azablantirardi."
+      }
+    },
+    {
+      "word": "seethe",
+      "part_of_speech": "verb",
+      "transcription": "/sið/",
+      "translation": "кипеть от злости",
+      "translations": {
+        "ru": "кипеть от злости",
+        "uz": "g'azabdan qaynamoq"
+      },
+      "example": "Anna seethed quietly while he took all the credit.",
+      "example_translations": {
+        "ru": "Анна молча кипела от злости, пока он присваивал все заслуги.",
+        "uz": "U barcha xizmatlarni o'ziniki qilib ko'rsatayotganda, Anna ichida g'azabdan qaynardi."
+      }
+    },
+    {
+      "word": "rancor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈræŋkər/",
+      "translation": "злоба, затаённая обида",
+      "translations": {
+        "ru": "злоба, затаённая обида",
+        "uz": "kek, gina"
+      },
+      "example": "They parted without rancor and remained good friends.",
+      "example_translations": {
+        "ru": "Они расстались без злобы и остались хорошими друзьями.",
+        "uz": "Ular kek saqlamay ajralishdi va yaxshi do'st bo'lib qolishdi."
+      }
+    },
+    {
+      "word": "acrimony",
+      "part_of_speech": "noun",
+      "transcription": "/ˈækrəˌmoʊni/",
+      "translation": "ожесточённость, желчность",
+      "translations": {
+        "ru": "ожесточённость, желчность",
+        "uz": "achchiqlik, zaharxandalik"
+      },
+      "example": "The debate was conducted without a trace of acrimony.",
+      "example_translations": {
+        "ru": "Спор прошёл без тени ожесточённости.",
+        "uz": "Bahsda zarracha achchiqlik sezilmadi."
+      }
+    },
+    {
+      "word": "animosity",
+      "part_of_speech": "noun",
+      "transcription": "/ˌænəˈmɑsəti/",
+      "translation": "враждебность, неприязнь",
+      "translations": {
+        "ru": "враждебность, неприязнь",
+        "uz": "adovat, xusumat"
+      },
+      "example": "There is no animosity between the two rival teams.",
+      "example_translations": {
+        "ru": "Между двумя командами-соперницами нет никакой враждебности.",
+        "uz": "Ikki raqib jamoa o'rtasida hech qanday adovat yo'q."
+      }
+    },
+    {
+      "word": "livid",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈlɪvəd/",
+      "translation": "взбешённый",
+      "translations": {
+        "ru": "взбешённый",
+        "uz": "darg'azab, tutoqqan"
+      },
+      "example": "Dad was livid when he saw the broken window.",
+      "example_translations": {
+        "ru": "Папа был взбешён, когда увидел разбитое окно.",
+        "uz": "Dadam singan oynani ko'rib, darg'azab bo'ldi."
+      }
+    },
+    {
+      "word": "bitterness",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɪtərnəs/",
+      "translation": "горечь, обида",
+      "translations": {
+        "ru": "горечь, обида",
+        "uz": "alam"
+      },
+      "example": "He recalled his dismissal with obvious bitterness.",
+      "example_translations": {
+        "ru": "Он вспоминал своё увольнение с явной горечью.",
+        "uz": "U ishdan bo'shatilganini yaqqol alam bilan eslardi."
+      }
+    }
+  ]
+}

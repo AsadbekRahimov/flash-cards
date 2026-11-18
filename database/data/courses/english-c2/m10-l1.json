@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 10,
+    "title": "Тонкости права",
+    "title_uz": "Huquq nozikliklari"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Юридические понятия",
+    "title_uz": "Huquqiy tushunchalar"
+  },
+  "words": [
+    {
+      "word": "jurisprudence",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdʒʊrəsˈprudəns/",
+      "translation": "правоведение",
+      "translations": {
+        "ru": "правоведение",
+        "uz": "huquqshunoslik"
+      },
+      "example": "She lectures on jurisprudence at the law school.",
+      "example_translations": {
+        "ru": "Она читает лекции по правоведению на юридическом факультете.",
+        "uz": "U yuridik fakultetda huquqshunoslikdan ma'ruza o'qiydi."
+      }
+    },
+    {
+      "word": "adjudicate",
+      "part_of_speech": "verb",
+      "transcription": "/əˈdʒudɪˌkeɪt/",
+      "translation": "разрешать спор",
+      "translations": {
+        "ru": "разрешать спор",
+        "uz": "nizoni hal qilmoq"
+      },
+      "example": "A special court will adjudicate the land dispute.",
+      "example_translations": {
+        "ru": "Специальный суд будет разрешать спор о земле.",
+        "uz": "Maxsus sud yer to'g'risidagi nizoni hal qiladi."
+      }
+    },
+    {
+      "word": "arbiter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑrbətər/",
+      "translation": "арбитр",
+      "translations": {
+        "ru": "арбитр",
+        "uz": "hakam"
+      },
+      "example": "The supreme court is the final arbiter of the constitution.",
+      "example_translations": {
+        "ru": "Верховный суд — окончательный арбитр в вопросах конституции.",
+        "uz": "Oliy sud konstitutsiya masalalarida yakuniy hakamdir."
+      }
+    },
+    {
+      "word": "litigant",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɪtɪgənt/",
+      "translation": "сторона судебного процесса",
+      "translations": {
+        "ru": "сторона судебного процесса",
+        "uz": "sud jarayoni tarafi"
+      },
+      "example": "Each litigant presented documents to the judge.",
+      "example_translations": {
+        "ru": "Каждая сторона судебного процесса представила судье документы.",
+        "uz": "Sud jarayonining har bir tarafi sudyaga hujjatlar taqdim etdi."
+      }
+    },
+    {
+      "word": "appellant",
+      "part_of_speech": "noun",
+      "transcription": "/əˈpɛlənt/",
+      "translation": "апеллянт",
+      "translations": {
+        "ru": "апеллянт",
+        "uz": "apellyatsiya beruvchi"
+      },
+      "example": "The appellant asked a higher court to overturn the verdict.",
+      "example_translations": {
+        "ru": "Апеллянт просил вышестоящий суд отменить приговор.",
+        "uz": "Apellyatsiya beruvchi yuqori suddan hukmni bekor qilishni so'radi."
+      }
+    },
+    {
+      "word": "counsel",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkaʊnsəl/",
+      "translation": "адвокат",
+      "translations": {
+        "ru": "адвокат",
+        "uz": "advokat"
+      },
+      "example": "Counsel for the defense questioned the witness.",
+      "example_translations": {
+        "ru": "Адвокат защиты допросил свидетеля.",
+        "uz": "Himoya tarafining advokati guvohni so'roq qildi."
+      }
+    },
+    {
+      "word": "tort",
+      "part_of_speech": "noun",
+      "transcription": "/tɔrt/",
+      "translation": "гражданское правонарушение",
+      "translations": {
+        "ru": "гражданское правонарушение",
+        "uz": "fuqarolik huquqbuzarligi"
+      },
+      "example": "Damaging a neighbor's fence is a tort, not a crime.",
+      "example_translations": {
+        "ru": "Повредить забор соседа — гражданское правонарушение, а не преступление.",
+        "uz": "Qo'shnining to'sig'ini shikastlash jinoyat emas, fuqarolik huquqbuzarligidir."
+      }
+    },
+    {
+      "word": "bylaw",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbaɪˌlɔ/",
+      "translation": "постановление местной власти",
+      "translations": {
+        "ru": "постановление местной власти",
+        "uz": "mahalliy hokimiyat qoidasi"
+      },
+      "example": "A local bylaw bans loud music after midnight.",
+      "example_translations": {
+        "ru": "Постановление местной власти запрещает громкую музыку после полуночи.",
+        "uz": "Mahalliy hokimiyat qoidasi yarim tundan keyin baland musiqani taqiqlaydi."
+      }
+    },
+    {
+      "word": "codify",
+      "part_of_speech": "verb",
+      "transcription": "/ˈkɑdəˌfaɪ/",
+      "translation": "кодифицировать",
+      "translations": {
+        "ru": "кодифицировать",
+        "uz": "kodifikatsiya qilmoq"
+      },
+      "example": "Lawmakers codified the old customs into written law.",
+      "example_translations": {
+        "ru": "Законодатели кодифицировали старые обычаи, превратив их в писаное право.",
+        "uz": "Qonunchilar eski odatlarni kodifikatsiya qilib, yozma qonunga aylantirdi."
+      }
+    },
+    {
+      "word": "duress",
+      "part_of_speech": "noun",
+      "transcription": "/dʊˈrɛs/",
+      "translation": "принуждение",
+      "translations": {
+        "ru": "принуждение",
+        "uz": "majburlash"
+      },
+      "example": "A contract signed under duress is not valid.",
+      "example_translations": {
+        "ru": "Договор, подписанный под принуждением, недействителен.",
+        "uz": "Majburlash ta'sirida imzolangan shartnoma haqiqiy emas."
+      }
+    }
+  ]
+}

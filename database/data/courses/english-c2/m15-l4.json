@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 15,
+    "title": "Общество и нравы",
+    "title_uz": "Jamiyat va urf-odatlar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Слава и репутация",
+    "title_uz": "Shuhrat va obro'"
+  },
+  "words": [
+    {
+      "word": "renown",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈnaʊn/",
+      "translation": "известность, слава",
+      "translations": {
+        "ru": "известность, слава",
+        "uz": "dovruq"
+      },
+      "example": "Her paintings won international renown within a decade.",
+      "example_translations": {
+        "ru": "Её картины за десять лет снискали международную известность.",
+        "uz": "Uning rasmlari o'n yil ichida xalqaro dovruq qozondi."
+      }
+    },
+    {
+      "word": "eminent",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɛmənənt/",
+      "translation": "выдающийся, видный",
+      "translations": {
+        "ru": "выдающийся, видный",
+        "uz": "atoqli"
+      },
+      "example": "An eminent surgeon was invited to lead the clinic.",
+      "example_translations": {
+        "ru": "Возглавить клинику пригласили выдающегося хирурга.",
+        "uz": "Klinikaga rahbarlik qilishga atoqli jarroh taklif etildi."
+      }
+    },
+    {
+      "word": "illustrious",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈlʌstriəs/",
+      "translation": "прославленный",
+      "translations": {
+        "ru": "прославленный",
+        "uz": "dongdor"
+      },
+      "example": "The university honors its most illustrious graduates every year.",
+      "example_translations": {
+        "ru": "Университет ежегодно чествует своих самых прославленных выпускников.",
+        "uz": "Universitet har yili eng dongdor bitiruvchilarini sharaflaydi."
+      }
+    },
+    {
+      "word": "venerable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈvɛnərəbəl/",
+      "translation": "почтенный",
+      "translations": {
+        "ru": "почтенный",
+        "uz": "muhtaram"
+      },
+      "example": "The venerable professor had taught three generations of doctors.",
+      "example_translations": {
+        "ru": "Почтенный профессор выучил три поколения врачей.",
+        "uz": "Muhtaram professor uch avlod shifokorlariga saboq bergan edi."
+      }
+    },
+    {
+      "word": "notoriety",
+      "part_of_speech": "noun",
+      "transcription": "/ˌnoʊtəˈraɪəti/",
+      "translation": "дурная слава",
+      "translations": {
+        "ru": "дурная слава",
+        "uz": "yomon nom"
+      },
+      "example": "The hotel gained notoriety for its rude staff.",
+      "example_translations": {
+        "ru": "Отель приобрёл дурную славу из-за грубого персонала.",
+        "uz": "Mehmonxona qo'pol xodimlari tufayli yomon nom chiqardi."
+      }
+    },
+    {
+      "word": "revere",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈvɪr/",
+      "translation": "почитать, чтить",
+      "translations": {
+        "ru": "почитать, чтить",
+        "uz": "e'zozlamoq"
+      },
+      "example": "Students revered the old teacher for his wisdom.",
+      "example_translations": {
+        "ru": "Ученики почитали старого учителя за мудрость.",
+        "uz": "Shogirdlar keksa ustozni donoligi uchun e'zozlashardi."
+      }
+    },
+    {
+      "word": "disrepute",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdɪsrɪˈpjut/",
+      "translation": "плохая репутация",
+      "translations": {
+        "ru": "плохая репутация",
+        "uz": "obro'sizlik"
+      },
+      "example": "Cheating scandals brought the whole sport into disrepute.",
+      "example_translations": {
+        "ru": "Скандалы с жульничеством создали всему этому виду спорта плохую репутацию.",
+        "uz": "G'irromlik bilan bog'liq janjallar butun sport turini obro'sizlikka olib keldi."
+      }
+    },
+    {
+      "word": "prestige",
+      "part_of_speech": "noun",
+      "transcription": "/prɛˈstiʒ/",
+      "translation": "престиж",
+      "translations": {
+        "ru": "престиж",
+        "uz": "nufuz"
+      },
+      "example": "Winning the award greatly increased the school's prestige.",
+      "example_translations": {
+        "ru": "Получение этой награды значительно повысило престиж школы.",
+        "uz": "Bu mukofotni qo'lga kiritish maktabning nufuzini ancha oshirdi."
+      }
+    },
+    {
+      "word": "luminary",
+      "part_of_speech": "noun",
+      "transcription": "/ˈluməˌnɛri/",
+      "translation": "светило, корифей",
+      "translations": {
+        "ru": "светило, корифей",
+        "uz": "yirik namoyanda"
+      },
+      "example": "Several luminaries of modern physics attended the conference.",
+      "example_translations": {
+        "ru": "На конференции присутствовали несколько светил современной физики.",
+        "uz": "Anjumanda zamonaviy fizikaning bir necha yirik namoyandasi qatnashdi."
+      }
+    },
+    {
+      "word": "tarnish",
+      "part_of_speech": "verb",
+      "transcription": "/ˈtɑrnɪʃ/",
+      "translation": "запятнать, опорочить",
+      "translations": {
+        "ru": "запятнать, опорочить",
+        "uz": "dog' tushirmoq"
+      },
+      "example": "One careless remark tarnished the mayor's good name.",
+      "example_translations": {
+        "ru": "Одно неосторожное замечание запятнало доброе имя мэра.",
+        "uz": "Bitta ehtiyotsiz gap hokimning yaxshi nomiga dog' tushirdi."
+      }
+    }
+  ]
+}

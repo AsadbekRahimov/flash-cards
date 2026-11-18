@@ -8,7 +8,7 @@ use RuntimeException;
 
 /**
  * Is this token a known English word? A pure function of the token and of two text files (no database, no network):
- *   - `resources/lexicon/en-common.txt` - the LEMMAS and the ordinary words of the levels A1-B2 (function words, numerals, days and
+ *   - `resources/lexicon/en-common.txt` - the LEMMAS and the ordinary words of the levels A1-C2 (function words, numerals, days and
  *     months, everyday nouns, verbs, adjectives, adverbs): the only words a rule of spelling may start from;
  *   - `resources/lexicon/en-irregular.txt` - the irregular forms: the past and the participle of the irregular verbs, the irregular
  *     plurals and degrees of comparison. They are words, but never a base: `met` is a word, `meting` is not `met` + `ing`.

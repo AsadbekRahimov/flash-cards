@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 8,
+    "title": "Здоровье и медицина",
+    "title_uz": "Sog'liq va tibbiyot"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Лечение",
+    "title_uz": "Davolash"
+  },
+  "words": [
+    {
+      "word": "therapeutic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌθɛrəˈpjutɪk/",
+      "translation": "лечебный",
+      "translations": {
+        "ru": "лечебный",
+        "uz": "shifobaxsh"
+      },
+      "example": "Massage has a therapeutic effect on sore muscles.",
+      "example_translations": {
+        "ru": "Массаж оказывает лечебное действие на больные мышцы.",
+        "uz": "Massaj og'riyotgan mushaklarga shifobaxsh ta'sir ko'rsatadi."
+      }
+    },
+    {
+      "word": "surgical",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɜrdʒɪkəl/",
+      "translation": "хирургический",
+      "translations": {
+        "ru": "хирургический",
+        "uz": "jarrohlikka oid"
+      },
+      "example": "Surgical instruments must be perfectly clean before an operation.",
+      "example_translations": {
+        "ru": "Хирургические инструменты перед операцией должны быть идеально чистыми.",
+        "uz": "Jarrohlik asboblari operatsiyadan oldin benuqson toza bo'lishi kerak."
+      }
+    },
+    {
+      "word": "anesthesia",
+      "part_of_speech": "noun",
+      "transcription": "/ˌænəsˈθiʒə/",
+      "translation": "анестезия",
+      "translations": {
+        "ru": "анестезия",
+        "uz": "og'riqsizlantirish"
+      },
+      "example": "Anesthesia ensures patients feel no pain during surgery.",
+      "example_translations": {
+        "ru": "Анестезия позволяет пациентам не чувствовать боли во время операции.",
+        "uz": "Og'riqsizlantirish tufayli bemorlar operatsiya paytida og'riq sezmaydi."
+      }
+    },
+    {
+      "word": "dosage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdoʊsɪdʒ/",
+      "translation": "дозировка",
+      "translations": {
+        "ru": "дозировка",
+        "uz": "doza, dori miqdori"
+      },
+      "example": "The doctor increased the dosage to two pills daily.",
+      "example_translations": {
+        "ru": "Врач увеличил дозировку до двух таблеток в день.",
+        "uz": "Shifokor dozani kuniga ikki tabletkagacha oshirdi."
+      }
+    },
+    {
+      "word": "prognosis",
+      "part_of_speech": "noun",
+      "transcription": "/prɑgˈnoʊsɪs/",
+      "translation": "прогноз",
+      "translations": {
+        "ru": "прогноз",
+        "uz": "prognoz"
+      },
+      "example": "With early treatment, the prognosis for recovery is excellent.",
+      "example_translations": {
+        "ru": "При раннем лечении прогноз на выздоровление отличный.",
+        "uz": "Erta davolansa, sog'ayish prognozi juda yaxshi."
+      }
+    },
+    {
+      "word": "remission",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈmɪʃən/",
+      "translation": "ремиссия",
+      "translations": {
+        "ru": "ремиссия",
+        "uz": "remissiya"
+      },
+      "example": "After treatment, the disease went into remission and symptoms vanished.",
+      "example_translations": {
+        "ru": "После лечения болезнь перешла в ремиссию, и симптомы исчезли.",
+        "uz": "Davolanishdan so'ng kasallik remissiyaga o'tdi va alomatlar yo'qoldi."
+      }
+    },
+    {
+      "word": "relapse",
+      "part_of_speech": "noun",
+      "transcription": "/ˈriˌlæps/",
+      "translation": "рецидив",
+      "translations": {
+        "ru": "рецидив",
+        "uz": "qaytalanish"
+      },
+      "example": "Stopping the medicine too early may cause a relapse.",
+      "example_translations": {
+        "ru": "Слишком раннее прекращение приёма лекарства может вызвать рецидив.",
+        "uz": "Dorini juda erta to'xtatish kasallikning qaytalanishiga sabab bo'lishi mumkin."
+      }
+    },
+    {
+      "word": "transfusion",
+      "part_of_speech": "noun",
+      "transcription": "/trænsˈfjuʒən/",
+      "translation": "переливание крови",
+      "translations": {
+        "ru": "переливание крови",
+        "uz": "qon quyish"
+      },
+      "example": "After the accident, she needed an urgent blood transfusion.",
+      "example_translations": {
+        "ru": "После аварии ей потребовалось срочное переливание крови.",
+        "uz": "Avariyadan keyin unga zudlik bilan qon quyish kerak bo'ldi."
+      }
+    },
+    {
+      "word": "implant",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪmˌplænt/",
+      "translation": "имплантат",
+      "translations": {
+        "ru": "имплантат",
+        "uz": "implant"
+      },
+      "example": "A dental implant replaced the tooth he had lost.",
+      "example_translations": {
+        "ru": "Зубной имплантат заменил зуб, который он потерял.",
+        "uz": "Tish implanti u yo'qotgan tish o'rnini bosdi."
+      }
+    },
+    {
+      "word": "outpatient",
+      "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌpeɪʃənt/",
+      "translation": "амбулаторный больной",
+      "translations": {
+        "ru": "амбулаторный больной",
+        "uz": "ambulator bemor"
+      },
+      "example": "As an outpatient, he goes home after each treatment.",
+      "example_translations": {
+        "ru": "Как амбулаторный больной, он уходит домой после каждой процедуры.",
+        "uz": "Ambulator bemor sifatida u har bir muolajadan keyin uyiga ketadi."
+      }
+    }
+  ]
+}

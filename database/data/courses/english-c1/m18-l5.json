@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 18,
+    "title": "История и конфликты",
+    "title_uz": "Tarix va mojarolar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Угрозы безопасности",
+    "title_uz": "Xavfsizlikka tahdidlar"
+  },
+  "words": [
+    {
+      "word": "extremism",
+      "part_of_speech": "noun",
+      "transcription": "/ɪkˈstriˌmɪzəm/",
+      "translation": "экстремизм",
+      "translations": {
+        "ru": "экстремизм",
+        "uz": "ekstremizm"
+      },
+      "example": "Education is a powerful tool against extremism.",
+      "example_translations": {
+        "ru": "Образование — мощное средство против экстремизма.",
+        "uz": "Ta'lim — ekstremizmga qarshi kuchli vosita."
+      }
+    },
+    {
+      "word": "militant",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɪlətənt/",
+      "translation": "боевик",
+      "translations": {
+        "ru": "боевик",
+        "uz": "jangari"
+      },
+      "example": "Police arrested an armed militant near the border.",
+      "example_translations": {
+        "ru": "Полиция арестовала вооружённого боевика близ границы.",
+        "uz": "Politsiya chegara yaqinida qurollangan jangarini hibsga oldi."
+      }
+    },
+    {
+      "word": "insurgent",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈsɜrdʒənt/",
+      "translation": "повстанец",
+      "translations": {
+        "ru": "повстанец",
+        "uz": "isyonchi"
+      },
+      "example": "The insurgents controlled several villages in the mountains.",
+      "example_translations": {
+        "ru": "Повстанцы контролировали несколько деревень в горах.",
+        "uz": "Isyonchilar tog'lardagi bir necha qishloqni nazorat qilgan."
+      }
+    },
+    {
+      "word": "hostage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɑstɪdʒ/",
+      "translation": "заложник",
+      "translations": {
+        "ru": "заложник",
+        "uz": "garovga olingan kishi"
+      },
+      "example": "All the hostages were released unharmed after talks.",
+      "example_translations": {
+        "ru": "После переговоров все заложники были освобождены невредимыми.",
+        "uz": "Muzokaralardan so'ng garovga olingan kishilarning barchasi sog'-omon ozod qilindi."
+      }
+    },
+    {
+      "word": "atrocity",
+      "part_of_speech": "noun",
+      "transcription": "/əˈtrɑsəti/",
+      "translation": "зверство",
+      "translations": {
+        "ru": "зверство",
+        "uz": "vahshiylik"
+      },
+      "example": "The court investigated atrocities committed during the war.",
+      "example_translations": {
+        "ru": "Суд расследовал зверства, совершённые во время войны.",
+        "uz": "Sud urush paytida sodir etilgan vahshiyliklarni tekshirdi."
+      }
+    },
+    {
+      "word": "genocide",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʒɛnəˌsaɪd/",
+      "translation": "геноцид",
+      "translations": {
+        "ru": "геноцид",
+        "uz": "genotsid"
+      },
+      "example": "Genocide is the gravest crime under international law.",
+      "example_translations": {
+        "ru": "Геноцид — тягчайшее преступление по международному праву.",
+        "uz": "Genotsid — xalqaro huquq bo'yicha eng og'ir jinoyat."
+      }
+    },
+    {
+      "word": "massacre",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmæsəkər/",
+      "translation": "массовое убийство, резня",
+      "translations": {
+        "ru": "массовое убийство, резня",
+        "uz": "qirg'in"
+      },
+      "example": "A monument honors the victims of the massacre.",
+      "example_translations": {
+        "ru": "Памятник посвящён жертвам массового убийства.",
+        "uz": "Yodgorlik qirg'in qurbonlari xotirasiga bag'ishlangan."
+      }
+    },
+    {
+      "word": "espionage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛspiəˌnɑʒ/",
+      "translation": "шпионаж",
+      "translations": {
+        "ru": "шпионаж",
+        "uz": "josuslik"
+      },
+      "example": "The diplomat was accused of espionage and expelled.",
+      "example_translations": {
+        "ru": "Дипломата обвинили в шпионаже и выслали из страны.",
+        "uz": "Diplomat josuslikda ayblanib, mamlakatdan chiqarib yuborildi."
+      }
+    },
+    {
+      "word": "sabotage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsæbəˌtɑʒ/",
+      "translation": "диверсия, саботаж",
+      "translations": {
+        "ru": "диверсия, саботаж",
+        "uz": "qo'poruvchilik"
+      },
+      "example": "Engineers suspected sabotage when the bridge lights failed.",
+      "example_translations": {
+        "ru": "Инженеры заподозрили диверсию, когда на мосту погас свет.",
+        "uz": "Ko'prikdagi chiroqlar o'chganda muhandislar qo'poruvchilikdan gumon qilishdi."
+      }
+    },
+    {
+      "word": "disarmament",
+      "part_of_speech": "noun",
+      "transcription": "/dɪsˈɑrməmənt/",
+      "translation": "разоружение",
+      "translations": {
+        "ru": "разоружение",
+        "uz": "qurolsizlanish"
+      },
+      "example": "Both nations signed a treaty on nuclear disarmament.",
+      "example_translations": {
+        "ru": "Обе страны подписали договор о ядерном разоружении.",
+        "uz": "Ikkala davlat yadroviy qurolsizlanish to'g'risida shartnoma imzoladi."
+      }
+    }
+  ]
+}

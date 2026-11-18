@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 13,
+    "title": "Медицина и организм",
+    "title_uz": "Tibbiyot va organizm"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "От рождения до старости",
+    "title_uz": "Tug'ilishdan qarilikkacha"
+  },
+  "words": [
+    {
+      "word": "gestation",
+      "part_of_speech": "noun",
+      "transcription": "/dʒɛˈsteɪʃən/",
+      "translation": "беременность, вынашивание плода",
+      "translations": {
+        "ru": "беременность, вынашивание плода",
+        "uz": "homiladorlik davri"
+      },
+      "example": "Gestation in elephants lasts almost two years.",
+      "example_translations": {
+        "ru": "Беременность у слонов длится почти два года.",
+        "uz": "Fillarda homiladorlik davri deyarli ikki yil davom etadi."
+      }
+    },
+    {
+      "word": "infancy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪnfənsi/",
+      "translation": "младенчество",
+      "translations": {
+        "ru": "младенчество",
+        "uz": "go'daklik"
+      },
+      "example": "Babies learn to recognize faces early in infancy.",
+      "example_translations": {
+        "ru": "Малыши учатся узнавать лица ещё в раннем младенчестве.",
+        "uz": "Chaqaloqlar go'daklikning ilk davridayoq yuzlarni tanishni o'rganadi."
+      }
+    },
+    {
+      "word": "juvenile",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdʒuvəˌnaɪl/",
+      "translation": "несовершеннолетний",
+      "translations": {
+        "ru": "несовершеннолетний",
+        "uz": "voyaga yetmagan"
+      },
+      "example": "Juvenile offenders are judged differently from adults.",
+      "example_translations": {
+        "ru": "Несовершеннолетних правонарушителей судят иначе, чем взрослых.",
+        "uz": "Voyaga yetmagan huquqbuzarlar kattalardan boshqacha sud qilinadi."
+      }
+    },
+    {
+      "word": "geriatric",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌdʒɛriˈætrɪk/",
+      "translation": "гериатрический",
+      "translations": {
+        "ru": "гериатрический",
+        "uz": "geriatrik"
+      },
+      "example": "She works in the geriatric ward, caring for the elderly.",
+      "example_translations": {
+        "ru": "Она работает в гериатрическом отделении, ухаживая за пожилыми.",
+        "uz": "U geriatrik bo'limda ishlab, keksalarga g'amxo'rlik qiladi."
+      }
+    },
+    {
+      "word": "frailty",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfreɪlti/",
+      "translation": "физическая слабость",
+      "translations": {
+        "ru": "физическая слабость",
+        "uz": "nimjonlik"
+      },
+      "example": "Despite her frailty, Grandma walks to the market daily.",
+      "example_translations": {
+        "ru": "Несмотря на физическую слабость, бабушка каждый день ходит на рынок пешком.",
+        "uz": "Nimjonligiga qaramay, buvim har kuni bozorga piyoda boradi."
+      }
+    },
+    {
+      "word": "decrepit",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈkrɛpət/",
+      "translation": "дряхлый",
+      "translations": {
+        "ru": "дряхлый",
+        "uz": "munkillagan"
+      },
+      "example": "The decrepit old man could barely climb the stairs.",
+      "example_translations": {
+        "ru": "Дряхлый старик едва мог подняться по лестнице.",
+        "uz": "Munkillagan chol zinadan zo'rg'a chiqa olardi."
+      }
+    },
+    {
+      "word": "infirm",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈfɜrm/",
+      "translation": "немощный",
+      "translations": {
+        "ru": "немощный",
+        "uz": "notavon"
+      },
+      "example": "The nurse visits elderly and infirm people at home.",
+      "example_translations": {
+        "ru": "Медсестра навещает пожилых и немощных людей на дому.",
+        "uz": "Hamshira keksa va notavon kishilarning uyiga borib turadi."
+      }
+    },
+    {
+      "word": "demise",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈmaɪz/",
+      "translation": "кончина",
+      "translations": {
+        "ru": "кончина",
+        "uz": "vafot"
+      },
+      "example": "The whole town mourned the demise of its doctor.",
+      "example_translations": {
+        "ru": "Весь город оплакивал кончину своего врача.",
+        "uz": "Butun shahar o'z shifokorining vafotiga aza tutdi."
+      }
+    },
+    {
+      "word": "mortal",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmɔrtəl/",
+      "translation": "смертный",
+      "translations": {
+        "ru": "смертный",
+        "uz": "foniy"
+      },
+      "example": "All humans are mortal, however long they live.",
+      "example_translations": {
+        "ru": "Все люди смертны, сколько бы они ни прожили.",
+        "uz": "Qancha yashamasin, barcha insonlar foniydir."
+      }
+    },
+    {
+      "word": "posthumous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpɑstʃəməs/",
+      "translation": "посмертный",
+      "translations": {
+        "ru": "посмертный",
+        "uz": "vafotidan keyingi"
+      },
+      "example": "Unknown in life, the painter won posthumous fame.",
+      "example_translations": {
+        "ru": "Неизвестный при жизни, художник обрёл посмертную славу.",
+        "uz": "Hayotligida tanilmagan rassom vafotidan keyingi shuhratga erishdi."
+      }
+    }
+  ]
+}

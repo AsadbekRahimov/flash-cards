@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 16,
+    "title": "Образование и научный стиль",
+    "title_uz": "Ta'lim va ilmiy uslub"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Глаголы научной речи",
+    "title_uz": "Ilmiy nutq fe'llari"
+  },
+  "words": [
+    {
+      "word": "elucidate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪˈlusəˌdeɪt/",
+      "translation": "разъяснять",
+      "translations": {
+        "ru": "разъяснять",
+        "uz": "oydinlashtirmoq"
+      },
+      "example": "The diagram elucidates a rather complex chemical process.",
+      "example_translations": {
+        "ru": "Схема разъясняет довольно сложный химический процесс.",
+        "uz": "Chizma ancha murakkab kimyoviy jarayonni oydinlashtiradi."
+      }
+    },
+    {
+      "word": "delineate",
+      "part_of_speech": "verb",
+      "transcription": "/dɪˈlɪniˌeɪt/",
+      "translation": "чётко очерчивать",
+      "translations": {
+        "ru": "чётко очерчивать",
+        "uz": "aniq belgilab bermoq"
+      },
+      "example": "The report delineates the duties of each department.",
+      "example_translations": {
+        "ru": "Отчёт чётко очерчивает обязанности каждого отдела.",
+        "uz": "Hisobot har bir bo'limning vazifalarini aniq belgilab beradi."
+      }
+    },
+    {
+      "word": "postulate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈpɑstʃəˌleɪt/",
+      "translation": "постулировать",
+      "translations": {
+        "ru": "постулировать",
+        "uz": "faraz sifatida ilgari surmoq"
+      },
+      "example": "Scientists postulate that the planet once had water.",
+      "example_translations": {
+        "ru": "Учёные постулируют, что на этой планете когда-то была вода.",
+        "uz": "Olimlar bu sayyorada bir vaqtlar suv bo'lganini faraz sifatida ilgari surmoqdalar."
+      }
+    },
+    {
+      "word": "exemplify",
+      "part_of_speech": "verb",
+      "transcription": "/ɪgˈzɛmpləˌfaɪ/",
+      "translation": "служить примером",
+      "translations": {
+        "ru": "служить примером",
+        "uz": "misol bo'lmoq"
+      },
+      "example": "These results exemplify the problem described in chapter two.",
+      "example_translations": {
+        "ru": "Эти результаты служат примером проблемы, описанной во второй главе.",
+        "uz": "Bu natijalar ikkinchi bobda tasvirlangan muammoga misol bo'ladi."
+      }
+    },
+    {
+      "word": "underscore",
+      "part_of_speech": "verb",
+      "transcription": "/ˌʌndərˈskɔr/",
+      "translation": "подчёркивать",
+      "translations": {
+        "ru": "подчёркивать",
+        "uz": "alohida ta'kidlamoq"
+      },
+      "example": "The findings underscore the need for further research.",
+      "example_translations": {
+        "ru": "Полученные данные подчёркивают необходимость дальнейших исследований.",
+        "uz": "Olingan natijalar keyingi tadqiqotlar zarurligini alohida ta'kidlaydi."
+      }
+    },
+    {
+      "word": "encompass",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈkʌmpəs/",
+      "translation": "охватывать",
+      "translations": {
+        "ru": "охватывать",
+        "uz": "qamrab olmoq"
+      },
+      "example": "The study encompasses all schools in the region.",
+      "example_translations": {
+        "ru": "Исследование охватывает все школы региона.",
+        "uz": "Tadqiqot mintaqadagi barcha maktablarni qamrab oladi."
+      }
+    },
+    {
+      "word": "constitute",
+      "part_of_speech": "verb",
+      "transcription": "/ˈkɑnstəˌtut/",
+      "translation": "составлять",
+      "translations": {
+        "ru": "составлять",
+        "uz": "tashkil etmoq"
+      },
+      "example": "Women constitute nearly sixty percent of the sample.",
+      "example_translations": {
+        "ru": "Женщины составляют почти шестьдесят процентов выборки.",
+        "uz": "Ayollar tanlanmaning deyarli oltmish foizini tashkil etadi."
+      }
+    },
+    {
+      "word": "pertain",
+      "part_of_speech": "verb",
+      "transcription": "/pərˈteɪn/",
+      "translation": "относиться",
+      "translations": {
+        "ru": "относиться",
+        "uz": "taalluqli bo'lmoq"
+      },
+      "example": "These questions pertain directly to the second experiment.",
+      "example_translations": {
+        "ru": "Эти вопросы относятся непосредственно ко второму эксперименту.",
+        "uz": "Bu savollar bevosita ikkinchi tajribaga taalluqlidir."
+      }
+    },
+    {
+      "word": "denote",
+      "part_of_speech": "verb",
+      "transcription": "/dɪˈnoʊt/",
+      "translation": "обозначать",
+      "translations": {
+        "ru": "обозначать",
+        "uz": "bildirmoq"
+      },
+      "example": "In this formula, the letter t denotes time.",
+      "example_translations": {
+        "ru": "В этой формуле буква t обозначает время.",
+        "uz": "Bu formulada t harfi vaqtni bildiradi."
+      }
+    },
+    {
+      "word": "ascertain",
+      "part_of_speech": "verb",
+      "transcription": "/ˌæsərˈteɪn/",
+      "translation": "выяснять",
+      "translations": {
+        "ru": "выяснять",
+        "uz": "aniqlamoq"
+      },
+      "example": "Further tests are needed to ascertain the cause.",
+      "example_translations": {
+        "ru": "Чтобы выяснить причину, необходимы дополнительные испытания.",
+        "uz": "Sababni aniqlash uchun qo'shimcha sinovlar zarur."
+      }
+    }
+  ]
+}

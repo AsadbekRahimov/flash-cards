@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 18,
+    "title": "Мера и оценка",
+    "title_uz": "Me'yor va baho"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Тщательность и небрежность",
+    "title_uz": "Puxtalik va beparvolik"
+  },
+  "words": [
+    {
+      "word": "painstaking",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpeɪnzˌteɪkɪŋ/",
+      "translation": "кропотливый",
+      "translations": {
+        "ru": "кропотливый",
+        "uz": "zahmatli, puxta"
+      },
+      "example": "Years of painstaking research finally produced a cure.",
+      "example_translations": {
+        "ru": "Годы кропотливых исследований наконец дали лекарство.",
+        "uz": "Ko'p yillik zahmatli tadqiqotlar nihoyat davo topishga olib keldi."
+      }
+    },
+    {
+      "word": "exacting",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪgˈzæktɪŋ/",
+      "translation": "требовательный, взыскательный",
+      "translations": {
+        "ru": "требовательный, взыскательный",
+        "uz": "talabchan"
+      },
+      "example": "Our exacting coach accepts nothing less than perfection.",
+      "example_translations": {
+        "ru": "Наш требовательный тренер не согласен ни на что, кроме совершенства.",
+        "uz": "Talabchan murabbiyimiz mukammallikdan kamiga rozi bo'lmaydi."
+      }
+    },
+    {
+      "word": "fastidious",
+      "part_of_speech": "adjective",
+      "transcription": "/fæˈstɪdiəs/",
+      "translation": "щепетильный, привередливый",
+      "translations": {
+        "ru": "щепетильный, привередливый",
+        "uz": "injiq, nozikta'b"
+      },
+      "example": "Fastidious about cleanliness, he washes his hands constantly.",
+      "example_translations": {
+        "ru": "Щепетильный в вопросах чистоты, он постоянно моет руки.",
+        "uz": "Tozalik masalasida injiq bo'lgani uchun u qo'lini tinmay yuvadi."
+      }
+    },
+    {
+      "word": "stringent",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈstrɪndʒənt/",
+      "translation": "строгий, жёсткий",
+      "translations": {
+        "ru": "строгий, жёсткий",
+        "uz": "qat'iy"
+      },
+      "example": "Stringent safety rules apply to every chemical laboratory.",
+      "example_translations": {
+        "ru": "К каждой химической лаборатории применяются строгие правила безопасности.",
+        "uz": "Har bir kimyo laboratoriyasiga qat'iy xavfsizlik qoidalari qo'llanadi."
+      }
+    },
+    {
+      "word": "cursory",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkɜrsəri/",
+      "translation": "беглый, поверхностный",
+      "translations": {
+        "ru": "беглый, поверхностный",
+        "uz": "yuzaki, shoshilinch"
+      },
+      "example": "A cursory glance revealed several obvious spelling mistakes.",
+      "example_translations": {
+        "ru": "Беглый взгляд выявил несколько явных орфографических ошибок.",
+        "uz": "Yuzaki ko'z yugurtirishning o'zi bir nechta ochiq-oydin imlo xatosini ko'rsatdi."
+      }
+    },
+    {
+      "word": "perfunctory",
+      "part_of_speech": "adjective",
+      "transcription": "/pərˈfʌŋktəri/",
+      "translation": "формальный, для галочки",
+      "translations": {
+        "ru": "формальный, для галочки",
+        "uz": "nomigagina, xo'jako'rsinga"
+      },
+      "example": "His perfunctory apology showed he did not really care.",
+      "example_translations": {
+        "ru": "Его формальное извинение показало, что ему на самом деле всё равно.",
+        "uz": "Uning nomigagina so'ragan uzri aslida unga baribirligini ko'rsatdi."
+      }
+    },
+    {
+      "word": "haphazard",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌhæpˈhæzərd/",
+      "translation": "бессистемный, беспорядочный",
+      "translations": {
+        "ru": "бессистемный, беспорядочный",
+        "uz": "pala-partish, tizimsiz"
+      },
+      "example": "Books lay in haphazard piles, without any order.",
+      "example_translations": {
+        "ru": "Книги лежали беспорядочными стопками, без всякой системы.",
+        "uz": "Kitoblar hech qanday tartibsiz, pala-partish uyumlarda yotardi."
+      }
+    },
+    {
+      "word": "lax",
+      "part_of_speech": "adjective",
+      "transcription": "/læks/",
+      "translation": "нестрогий, небрежный",
+      "translations": {
+        "ru": "нестрогий, небрежный",
+        "uz": "qat'iy bo'lmagan, bo'sh"
+      },
+      "example": "Lax rules allowed students to arrive whenever they liked.",
+      "example_translations": {
+        "ru": "Нестрогие правила позволяли ученикам приходить, когда им вздумается.",
+        "uz": "Qat'iy bo'lmagan qoidalar o'quvchilarga xohlagan paytda kelishga imkon berardi."
+      }
+    },
+    {
+      "word": "exhaustive",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪgˈzɔstɪv/",
+      "translation": "исчерпывающий",
+      "translations": {
+        "ru": "исчерпывающий",
+        "uz": "to'liq, mufassal"
+      },
+      "example": "The book gives an exhaustive list of all known species.",
+      "example_translations": {
+        "ru": "В книге приведён исчерпывающий список всех известных видов.",
+        "uz": "Kitobda barcha ma'lum turlarning to'liq ro'yxati berilgan."
+      }
+    },
+    {
+      "word": "pinpoint",
+      "part_of_speech": "verb",
+      "transcription": "/ˈpɪnˌpɔɪnt/",
+      "translation": "точно определять",
+      "translations": {
+        "ru": "точно определять",
+        "uz": "aniq belgilamoq"
+      },
+      "example": "Engineers could not pinpoint the exact cause of the failure.",
+      "example_translations": {
+        "ru": "Инженеры не смогли точно определить причину сбоя.",
+        "uz": "Muhandislar nosozlikning sababini aniq belgilay olmadi."
+      }
+    }
+  ]
+}

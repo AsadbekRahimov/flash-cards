@@ -109,7 +109,7 @@ it('walks a new learner through the four steps (goal enabled) with four callback
         ->and($this->tg->lastCallbackData())->toBe(['onb1:goal:general', 'onb1:goal:ielts', 'onb1:goal:sat', 'onb1:goal:school']);
 
     onbTap(7001, 'onb1:goal:ielts', 2);
-    expect($this->tg->lastCallbackData())->toBe(['onb1:level:A1', 'onb1:level:A2', 'onb1:level:B1', 'onb1:level:B2', 'onb1:level:unknown']);
+    expect($this->tg->lastCallbackData())->toBe(['onb1:level:A1', 'onb1:level:A2', 'onb1:level:B1', 'onb1:level:B2', 'onb1:level:C1', 'onb1:level:C2', 'onb1:level:unknown']);
 
     onbTap(7001, 'onb1:level:B1', 3);
     expect($this->tg->lastCallbackData())->toBe(['onb1:reminder:0800', 'onb1:reminder:1300', 'onb1:reminder:1900', 'onb1:reminder:2100', 'onb1:reminder:off']);
@@ -208,6 +208,20 @@ it('recommends by goal, then level, then featured, and ignores private and draft
         ->and($catalog->recommend(null, 'B2'))->toBeNull()
         ->and($plain->id)->not->toBe($featured->id);
 });
+
+it('takes the advanced levels C1 and C2 in the onboarding and recommends the course of that level', function (string $level, string $slug): void {
+    config(['learners.goals' => ['general', 'ielts']]);
+    onbCourse('general-a1', 'general', 'A1', true);
+    $levelled = onbCourse($slug, 'general', $level);
+
+    onbSend(7030, '/start');
+    onbComplete(7030, 'ru', 'general', $level);
+
+    $learner = onbLearner(7030);
+    expect($learner->onboarding_state)->toBe('done')
+        ->and($learner->level)->toBe($level)
+        ->and($learner->active_course_id)->toBe($levelled->id);
+})->with(['C1' => ['C1', 'english-c1'], 'C2' => ['C2', 'english-c2']]);
 
 it('does not recommend a course without words', function (): void {
     $catalog = app(CourseCatalogService::class);
@@ -360,7 +374,7 @@ it('rejects values outside the whitelists and malformed callback_data without ch
     'locale with a path' => ['locale', 'onb1:locale:../etc'],
     'unknown goal' => ['goal', 'onb1:goal:hacker'],
     'goal in upper case' => ['goal', 'onb1:goal:IELTS'],
-    'level C2' => ['level', 'onb1:level:C2'],
+    'level C3' => ['level', 'onb1:level:C3'],
     'level lower case' => ['level', 'onb1:level:b1'],
     'reminder not offered' => ['reminder', 'onb1:reminder:0300'],
     'extra segment' => ['goal', 'onb1:goal:ielts:extra'],
@@ -905,7 +919,7 @@ it('validates /settings values against the same whitelists', function (string $d
 })->with([
     'unknown goal' => ['set1:goal:hacker'],
     'unknown step' => ['set1:role:admin'],
-    'level C2' => ['set1:level:C2'],
+    'level C3' => ['set1:level:C3'],
 ]);
 
 it('sends a learner who has not finished the onboarding back to it on /settings and ignores set1 buttons', function (): void {

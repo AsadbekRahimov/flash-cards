@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 4,
+    "title": "Официальный стиль",
+    "title_uz": "Rasmiy uslub"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Глаголы делового языка",
+    "title_uz": "Rasmiy nutq fe'llari"
+  },
+  "words": [
+    {
+      "word": "ameliorate",
+      "part_of_speech": "verb",
+      "transcription": "/əˈmiljəˌreɪt/",
+      "translation": "улучшать",
+      "translations": {
+        "ru": "улучшать",
+        "uz": "yaxshilamoq"
+      },
+      "example": "New measures were adopted to ameliorate living conditions.",
+      "example_translations": {
+        "ru": "Были приняты новые меры, чтобы улучшить условия жизни.",
+        "uz": "Turmush sharoitini yaxshilash uchun yangi choralar qabul qilindi."
+      }
+    },
+    {
+      "word": "alleviate",
+      "part_of_speech": "verb",
+      "transcription": "/əˈliviˌeɪt/",
+      "translation": "облегчать",
+      "translations": {
+        "ru": "облегчать",
+        "uz": "yengillatmoq, pasaytirmoq"
+      },
+      "example": "This medicine should alleviate the pain within minutes.",
+      "example_translations": {
+        "ru": "Это лекарство должно облегчить боль за несколько минут.",
+        "uz": "Bu dori og'riqni bir necha daqiqada yengillatishi kerak."
+      }
+    },
+    {
+      "word": "exacerbate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪgˈzæsərˌbeɪt/",
+      "translation": "усугублять, обострять",
+      "translations": {
+        "ru": "усугублять, обострять",
+        "uz": "og'irlashtirmoq"
+      },
+      "example": "Cutting staff will only exacerbate the existing delays.",
+      "example_translations": {
+        "ru": "Сокращение персонала лишь усугубит нынешние задержки.",
+        "uz": "Xodimlarni qisqartirish mavjud kechikishlarni faqat og'irlashtiradi."
+      }
+    },
+    {
+      "word": "expedite",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɛkspəˌdaɪt/",
+      "translation": "ускорять",
+      "translations": {
+        "ru": "ускорять",
+        "uz": "tezlashtirmoq"
+      },
+      "example": "Paying an extra fee will expedite your application.",
+      "example_translations": {
+        "ru": "Дополнительный сбор ускорит рассмотрение вашего заявления.",
+        "uz": "Qo'shimcha to'lov arizangizni ko'rib chiqishni tezlashtiradi."
+      }
+    },
+    {
+      "word": "promulgate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈprɑməlˌgeɪt/",
+      "translation": "обнародовать",
+      "translations": {
+        "ru": "обнародовать",
+        "uz": "rasman e'lon qilmoq"
+      },
+      "example": "The new regulations were promulgated in the official journal.",
+      "example_translations": {
+        "ru": "Новые правила были обнародованы в официальном вестнике.",
+        "uz": "Yangi qoidalar rasmiy axborotnomada rasman e'lon qilindi."
+      }
+    },
+    {
+      "word": "rescind",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈsɪnd/",
+      "translation": "отменять, аннулировать",
+      "translations": {
+        "ru": "отменять, аннулировать",
+        "uz": "bekor qilmoq"
+      },
+      "example": "The board rescinded its decision after public protests.",
+      "example_translations": {
+        "ru": "Правление отменило своё решение после общественных протестов.",
+        "uz": "Kengash jamoatchilik noroziligidan so'ng o'z qarorini bekor qildi."
+      }
+    },
+    {
+      "word": "relinquish",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈlɪŋkwɪʃ/",
+      "translation": "отказываться, уступать",
+      "translations": {
+        "ru": "отказываться, уступать",
+        "uz": "voz kechmoq, bo'shatib bermoq"
+      },
+      "example": "She voluntarily relinquished her seat on the board.",
+      "example_translations": {
+        "ru": "Она добровольно отказалась от своего места в правлении.",
+        "uz": "U kengashdagi o'rnidan ixtiyoriy ravishda voz kechdi."
+      }
+    },
+    {
+      "word": "procure",
+      "part_of_speech": "verb",
+      "transcription": "/prəˈkjʊr/",
+      "translation": "приобретать, добывать",
+      "translations": {
+        "ru": "приобретать, добывать",
+        "uz": "xarid qilmoq, qo'lga kiritmoq"
+      },
+      "example": "The agency procures medical supplies for rural hospitals.",
+      "example_translations": {
+        "ru": "Агентство приобретает медицинские материалы для сельских больниц.",
+        "uz": "Agentlik qishloq shifoxonalari uchun tibbiy vositalarni xarid qiladi."
+      }
+    },
+    {
+      "word": "commence",
+      "part_of_speech": "verb",
+      "transcription": "/kəˈmɛns/",
+      "translation": "начинаться",
+      "translations": {
+        "ru": "начинаться",
+        "uz": "boshlanmoq"
+      },
+      "example": "The ceremony will commence at ten o'clock sharp.",
+      "example_translations": {
+        "ru": "Церемония начнётся ровно в десять часов.",
+        "uz": "Marosim roppa-rosa soat o'nda boshlanadi."
+      }
+    },
+    {
+      "word": "convene",
+      "part_of_speech": "verb",
+      "transcription": "/kənˈvin/",
+      "translation": "созывать",
+      "translations": {
+        "ru": "созывать",
+        "uz": "chaqirmoq, yig'moq"
+      },
+      "example": "The chairman convened an emergency meeting on Friday.",
+      "example_translations": {
+        "ru": "Председатель созвал экстренное заседание в пятницу.",
+        "uz": "Rais juma kuni favqulodda majlis chaqirdi."
+      }
+    }
+  ]
+}

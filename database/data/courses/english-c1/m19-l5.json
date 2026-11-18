@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 19,
+    "title": "Город и пространство",
+    "title_uz": "Shahar va makon"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Рельеф и ландшафт",
+    "title_uz": "Relyef va landshaft"
+  },
+  "words": [
+    {
+      "word": "topography",
+      "part_of_speech": "noun",
+      "transcription": "/təˈpɑgrəfi/",
+      "translation": "рельеф местности",
+      "translations": {
+        "ru": "рельеф местности",
+        "uz": "joy relyefi"
+      },
+      "example": "The island's mountainous topography makes road building difficult.",
+      "example_translations": {
+        "ru": "Гористый рельеф местности на острове затрудняет строительство дорог.",
+        "uz": "Oroldagi tog'li joy relyefi yo'l qurishni qiyinlashtiradi."
+      }
+    },
+    {
+      "word": "archipelago",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɑrkəˈpɛləˌgoʊ/",
+      "translation": "архипелаг",
+      "translations": {
+        "ru": "архипелаг",
+        "uz": "arxipelag"
+      },
+      "example": "The archipelago consists of over two hundred islands.",
+      "example_translations": {
+        "ru": "Архипелаг состоит из более чем двухсот островов.",
+        "uz": "Arxipelag ikki yuzdan ortiq oroldan iborat."
+      }
+    },
+    {
+      "word": "strait",
+      "part_of_speech": "noun",
+      "transcription": "/streɪt/",
+      "translation": "пролив",
+      "translations": {
+        "ru": "пролив",
+        "uz": "bo'g'oz"
+      },
+      "example": "A narrow strait separates the island from the mainland.",
+      "example_translations": {
+        "ru": "Узкий пролив отделяет остров от материка.",
+        "uz": "Tor bo'g'oz orolni materikdan ajratib turadi."
+      }
+    },
+    {
+      "word": "gorge",
+      "part_of_speech": "noun",
+      "transcription": "/gɔrdʒ/",
+      "translation": "ущелье",
+      "translations": {
+        "ru": "ущелье",
+        "uz": "dara"
+      },
+      "example": "The river runs through a deep, rocky gorge.",
+      "example_translations": {
+        "ru": "Река течёт по глубокому скалистому ущелью.",
+        "uz": "Daryo chuqur qoyali daradan oqib o'tadi."
+      }
+    },
+    {
+      "word": "basin",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbeɪsən/",
+      "translation": "бассейн реки",
+      "translations": {
+        "ru": "бассейн реки",
+        "uz": "daryo havzasi"
+      },
+      "example": "Millions of people farm the fertile river basin.",
+      "example_translations": {
+        "ru": "Миллионы людей возделывают землю в плодородном бассейне реки.",
+        "uz": "Millionlab odamlar unumdor daryo havzasida dehqonchilik qiladi."
+      }
+    },
+    {
+      "word": "steppe",
+      "part_of_speech": "noun",
+      "transcription": "/stɛp/",
+      "translation": "степь",
+      "translations": {
+        "ru": "степь",
+        "uz": "dasht"
+      },
+      "example": "Wild horses once roamed the vast, grassy steppe.",
+      "example_translations": {
+        "ru": "Когда-то по бескрайней травянистой степи бродили дикие лошади.",
+        "uz": "Bir vaqtlar bepoyon o't-o'lanli dashtda yovvoyi otlar kezib yurgan."
+      }
+    },
+    {
+      "word": "dune",
+      "part_of_speech": "noun",
+      "transcription": "/dun/",
+      "translation": "дюна, бархан",
+      "translations": {
+        "ru": "дюна, бархан",
+        "uz": "qum tepaligi, barxan"
+      },
+      "example": "Wind slowly shapes each dune in the desert.",
+      "example_translations": {
+        "ru": "Ветер медленно придаёт форму каждой дюне в пустыне.",
+        "uz": "Shamol sahrodagi har bir qum tepaligiga asta-sekin shakl beradi."
+      }
+    },
+    {
+      "word": "oasis",
+      "part_of_speech": "noun",
+      "transcription": "/oʊˈeɪsɪs/",
+      "translation": "оазис",
+      "translations": {
+        "ru": "оазис",
+        "uz": "voha"
+      },
+      "example": "Travelers rested at an oasis in the desert.",
+      "example_translations": {
+        "ru": "Путники отдохнули в оазисе посреди пустыни.",
+        "uz": "Sayohatchilar sahro o'rtasidagi vohada dam olishdi."
+      }
+    },
+    {
+      "word": "ridge",
+      "part_of_speech": "noun",
+      "transcription": "/rɪdʒ/",
+      "translation": "горный гребень, хребет",
+      "translations": {
+        "ru": "горный гребень, хребет",
+        "uz": "tog' qirrasi"
+      },
+      "example": "We hiked along the ridge between two valleys.",
+      "example_translations": {
+        "ru": "Мы шли по горному гребню между двумя долинами.",
+        "uz": "Biz ikki vodiy orasidagi tog' qirrasi bo'ylab piyoda yurdik."
+      }
+    },
+    {
+      "word": "lagoon",
+      "part_of_speech": "noun",
+      "transcription": "/ləˈgun/",
+      "translation": "лагуна",
+      "translations": {
+        "ru": "лагуна",
+        "uz": "laguna"
+      },
+      "example": "Warm, shallow water fills the lagoon behind the reef.",
+      "example_translations": {
+        "ru": "Лагуну за рифом заполняет тёплая мелкая вода.",
+        "uz": "Rif ortidagi lagunani iliq sayoz suv to'ldirib turadi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 19,
+    "title": "Искусство и эстетика",
+    "title_uz": "San'at va estetika"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Мастерство творца",
+    "title_uz": "Ijodkor mahorati"
+  },
+  "words": [
+    {
+      "word": "muse",
+      "part_of_speech": "noun",
+      "transcription": "/mjuz/",
+      "translation": "муза, источник вдохновения",
+      "translations": {
+        "ru": "муза, источник вдохновения",
+        "uz": "ilhom parisi"
+      },
+      "example": "His wife was the muse behind every poem.",
+      "example_translations": {
+        "ru": "Жена была его музой, вдохновившей каждое стихотворение.",
+        "uz": "Har bir she'rining ortida uning ilhom parisi — xotini turardi."
+      }
+    },
+    {
+      "word": "spontaneity",
+      "part_of_speech": "noun",
+      "transcription": "/ˌspɑntəˈneɪəti/",
+      "translation": "спонтанность, непосредственность",
+      "translations": {
+        "ru": "спонтанность, непосредственность",
+        "uz": "beixtiyorlik, tabiiylik"
+      },
+      "example": "Jazz thrives on spontaneity rather than careful planning.",
+      "example_translations": {
+        "ru": "Джаз живёт спонтанностью, а не тщательным планированием.",
+        "uz": "Jaz puxta rejaga emas, beixtiyorlikka tayanadi."
+      }
+    },
+    {
+      "word": "originality",
+      "part_of_speech": "noun",
+      "transcription": "/əˌrɪdʒəˈnæləti/",
+      "translation": "оригинальность, самобытность",
+      "translations": {
+        "ru": "оригинальность, самобытность",
+        "uz": "o'ziga xoslik"
+      },
+      "example": "Critics praised the originality of her unusual designs.",
+      "example_translations": {
+        "ru": "Критики хвалили оригинальность её необычных эскизов.",
+        "uz": "Tanqidchilar uning g'ayrioddiy eskizlaridagi o'ziga xoslikni maqtashdi."
+      }
+    },
+    {
+      "word": "craftsmanship",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkræftsmənˌʃɪp/",
+      "translation": "ремесленное мастерство",
+      "translations": {
+        "ru": "ремесленное мастерство",
+        "uz": "hunarmandlik mahorati"
+      },
+      "example": "Fine craftsmanship shows in every hand-carved chair.",
+      "example_translations": {
+        "ru": "Тонкое ремесленное мастерство видно в каждом резном стуле ручной работы.",
+        "uz": "Qo'lda o'yilgan har bir stulda yuksak hunarmandlik mahorati ko'rinadi."
+      }
+    },
+    {
+      "word": "artistry",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑrtəstri/",
+      "translation": "художественное мастерство, артистизм",
+      "translations": {
+        "ru": "художественное мастерство, артистизм",
+        "uz": "badiiy mahorat"
+      },
+      "example": "The dancer's artistry moved the audience to tears.",
+      "example_translations": {
+        "ru": "Художественное мастерство танцовщицы тронуло зрителей до слёз.",
+        "uz": "Raqqosaning badiiy mahorati tomoshabinlarning ko'ziga yosh keltirdi."
+      }
+    },
+    {
+      "word": "finesse",
+      "part_of_speech": "noun",
+      "transcription": "/fəˈnɛs/",
+      "translation": "изящество, тонкость",
+      "translations": {
+        "ru": "изящество, тонкость",
+        "uz": "nafosat, noziklik"
+      },
+      "example": "She plays difficult passages with remarkable finesse.",
+      "example_translations": {
+        "ru": "Она исполняет трудные пассажи с удивительным изяществом.",
+        "uz": "U murakkab passajlarni hayratlanarli nafosat bilan ijro etadi."
+      }
+    },
+    {
+      "word": "dexterity",
+      "part_of_speech": "noun",
+      "transcription": "/dɛkˈstɛrəti/",
+      "translation": "ловкость, сноровка",
+      "translations": {
+        "ru": "ловкость, сноровка",
+        "uz": "epchillik, chaqqonlik"
+      },
+      "example": "Playing the harp demands great dexterity of fingers.",
+      "example_translations": {
+        "ru": "Игра на арфе требует большой ловкости пальцев.",
+        "uz": "Arfa chalish barmoqlarning katta epchilligini talab qiladi."
+      }
+    },
+    {
+      "word": "rendition",
+      "part_of_speech": "noun",
+      "transcription": "/rɛnˈdɪʃən/",
+      "translation": "трактовка, исполнение",
+      "translations": {
+        "ru": "трактовка, исполнение",
+        "uz": "talqin, ijro"
+      },
+      "example": "Her rendition of the old ballad sounded fresh.",
+      "example_translations": {
+        "ru": "Её трактовка старинной баллады прозвучала свежо.",
+        "uz": "Uning talqinida eski ballada yangicha yangradi."
+      }
+    },
+    {
+      "word": "emulate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɛmjəˌleɪt/",
+      "translation": "подражать, равняться на",
+      "translations": {
+        "ru": "подражать, равняться на",
+        "uz": "taqlid qilmoq, ibrat olmoq"
+      },
+      "example": "Young painters often emulate the masters they admire.",
+      "example_translations": {
+        "ru": "Молодые художники часто подражают мастерам, которыми восхищаются.",
+        "uz": "Yosh rassomlar ko'pincha o'zlari havas qilgan ustalarga taqlid qiladilar."
+      }
+    },
+    {
+      "word": "retrospective",
+      "part_of_speech": "noun",
+      "transcription": "/ˌrɛtrəˈspɛktɪv/",
+      "translation": "ретроспектива",
+      "translations": {
+        "ru": "ретроспектива",
+        "uz": "retrospektiva"
+      },
+      "example": "The retrospective displays forty years of her paintings.",
+      "example_translations": {
+        "ru": "Ретроспектива представляет её картины за сорок лет.",
+        "uz": "Retrospektiva uning qirq yillik rasmlarini namoyish etadi."
+      }
+    }
+  ]
+}

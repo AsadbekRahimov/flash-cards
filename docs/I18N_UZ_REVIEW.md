@@ -278,7 +278,7 @@
 > Из `bot.start.not_linked` убрана строка «аккаунт не привязан к учителю»: неизвестный человек в ЛС теперь проходит онбординг (в списке выше она больше не показана).
 > Названия языков в выборе языка (`config/localization.php` → `names`) не переводятся: «🇷🇺 Русский» и «🇺🇿 O'zbekcha» одинаковы в обоих языках.
 > В подписях часовых поясов `:offset` — смещение вида `UTC+5`; в `options.reminder.time` `:time` — `08:00`, `13:00`, `19:00`, `21:00`.
-> Проверить в первую очередь: «Maqsad» (цель), «Daraja» (уровень), «Vaqt mintaqasi» (часовой пояс), «Eslatmalar» (напоминания), уровни `A1 — boshlayapman` / `B2 — o'rtadan yuqori`, названия городов (Almati, Ashxobod, Moskva).
+> Проверить в первую очередь: «Maqsad» (цель), «Daraja» (уровень), «Vaqt mintaqasi» (часовой пояс), «Eslatmalar» (напоминания), уровни `A1 — boshlayapman` / `B2 — o'rtadan yuqori` / `C1 — ilg'or` / `C2 — erkin`, названия городов (Almati, Ashxobod, Moskva).
 
 ### Бот (`lang/uz/onboarding.php`)
 
@@ -298,6 +298,8 @@
 | `onboarding.options.level.A2` | A2 — elementar | A2 — базовый |
 | `onboarding.options.level.B1` | B1 — o'rta | B1 — средний |
 | `onboarding.options.level.B2` | B2 — o'rtadan yuqori | B2 — выше среднего |
+| `onboarding.options.level.C1` | C1 — ilg'or | C1 — продвинутый |
+| `onboarding.options.level.C2` | C2 — erkin | C2 — свободно |
 | `onboarding.options.level.unknown` | Bilmayman | Не знаю |
 | `onboarding.options.timezone.tashkent` | Toshkent (:offset) | Ташкент (:offset) |
 | `onboarding.options.timezone.almaty` | Almati (:offset) | Алматы (:offset) |

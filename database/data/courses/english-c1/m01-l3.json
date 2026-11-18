@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 1,
+    "title": "Характер и личность",
+    "title_uz": "Xarakter va shaxs"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Манера держаться",
+    "title_uz": "O'zini tutish"
+  },
+  "words": [
+    {
+      "word": "assertive",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈsɜrtɪv/",
+      "translation": "уверенный в себе, напористый",
+      "translations": {
+        "ru": "уверенный в себе, напористый",
+        "uz": "dadil"
+      },
+      "example": "An assertive manager states her demands calmly and firmly.",
+      "example_translations": {
+        "ru": "Уверенная в себе начальница излагает требования спокойно и твёрдо.",
+        "uz": "Dadil rahbar o'z talablarini xotirjam va qat'iy bayon qiladi."
+      }
+    },
+    {
+      "word": "outspoken",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌaʊtˈspoʊkən/",
+      "translation": "открыто высказывающийся",
+      "translations": {
+        "ru": "открыто высказывающийся",
+        "uz": "fikrini ochiq aytadigan"
+      },
+      "example": "She is an outspoken critic of the new rules.",
+      "example_translations": {
+        "ru": "Она открыто высказывается против новых правил.",
+        "uz": "U yangi qoidalarga qarshi fikrini ochiq aytadigan tanqidchi."
+      }
+    },
+    {
+      "word": "eccentric",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪkˈsɛntrɪk/",
+      "translation": "чудаковатый, эксцентричный",
+      "translations": {
+        "ru": "чудаковатый, эксцентричный",
+        "uz": "g'alati, antiqa"
+      },
+      "example": "My eccentric neighbor walks his cat on a leash.",
+      "example_translations": {
+        "ru": "Мой чудаковатый сосед выгуливает кошку на поводке.",
+        "uz": "G'alati qo'shnim mushugini bog'ichda sayr qildiradi."
+      }
+    },
+    {
+      "word": "aloof",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈluf/",
+      "translation": "отстранённый, нелюдимый",
+      "translations": {
+        "ru": "отстранённый, нелюдимый",
+        "uz": "odamovi"
+      },
+      "example": "He seemed aloof and rarely joined our conversations.",
+      "example_translations": {
+        "ru": "Он казался отстранённым и редко присоединялся к нашим разговорам.",
+        "uz": "U odamovi ko'rinardi va suhbatlarimizga kamdan-kam qo'shilardi."
+      }
+    },
+    {
+      "word": "timid",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtɪmɪd/",
+      "translation": "робкий",
+      "translations": {
+        "ru": "робкий",
+        "uz": "tortinchoq, jur'atsiz"
+      },
+      "example": "The timid boy was afraid to ask a question.",
+      "example_translations": {
+        "ru": "Робкий мальчик боялся задать вопрос.",
+        "uz": "Tortinchoq bola savol berishga qo'rqardi."
+      }
+    },
+    {
+      "word": "restless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈrɛstləs/",
+      "translation": "неусидчивый, беспокойный",
+      "translations": {
+        "ru": "неусидчивый, беспокойный",
+        "uz": "betoqat, bezovta"
+      },
+      "example": "The restless children could not sit still for long.",
+      "example_translations": {
+        "ru": "Неусидчивые дети не могли долго сидеть спокойно.",
+        "uz": "Betoqat bolalar uzoq vaqt tinch o'tira olmasdi."
+      }
+    },
+    {
+      "word": "gullible",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈgʌləbəl/",
+      "translation": "легковерный, доверчивый",
+      "translations": {
+        "ru": "легковерный, доверчивый",
+        "uz": "laqma, ishonuvchan"
+      },
+      "example": "Gullible people believe every advertisement they see.",
+      "example_translations": {
+        "ru": "Легковерные люди верят каждой рекламе, которую видят.",
+        "uz": "Laqma odamlar ko'rgan har bir reklamaga ishonadi."
+      }
+    },
+    {
+      "word": "blunt",
+      "part_of_speech": "adjective",
+      "transcription": "/blʌnt/",
+      "translation": "прямолинейный, резкий",
+      "translations": {
+        "ru": "прямолинейный, резкий",
+        "uz": "cho'rtkesar"
+      },
+      "example": "Her blunt answer hurt, but it was honest.",
+      "example_translations": {
+        "ru": "Её прямолинейный ответ задел, но он был честным.",
+        "uz": "Uning cho'rtkesar javobi og'ir botdi, ammo halol edi."
+      }
+    },
+    {
+      "word": "shrewd",
+      "part_of_speech": "adjective",
+      "transcription": "/ʃrud/",
+      "translation": "проницательный, расчётливый",
+      "translations": {
+        "ru": "проницательный, расчётливый",
+        "uz": "ziyrak, uddaburon"
+      },
+      "example": "The shrewd investor sold just before prices fell.",
+      "example_translations": {
+        "ru": "Проницательный инвестор продал всё как раз перед падением цен.",
+        "uz": "Ziyrak sarmoyador narxlar tushishidan sal oldin hammasini sotdi."
+      }
+    },
+    {
+      "word": "whimsical",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈwɪmzɪkəl/",
+      "translation": "причудливый, забавный",
+      "translations": {
+        "ru": "причудливый, забавный",
+        "uz": "g'aroyib, hazilomuz"
+      },
+      "example": "His whimsical humor makes even serious meetings fun.",
+      "example_translations": {
+        "ru": "Его причудливый юмор делает весёлыми даже серьёзные совещания.",
+        "uz": "Uning g'aroyib hazillari hatto jiddiy yig'ilishlarni ham quvnoq qiladi."
+      }
+    }
+  ]
+}

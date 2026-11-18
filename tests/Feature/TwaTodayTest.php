@@ -387,12 +387,14 @@ it('treats an active course that is no longer published as absent', function ():
 it('treats a published but private active course as absent (the single availability rule)', function (): void {
     $lessons = todayCourse(1, 1);
     $learner = Learner::factory()->create(['active_course_id' => $lessons[0]->stage?->course_id]);
-    Course::query()->whereKey($learner->active_course_id)->update(['visibility' => 'private']);
+    // Saved through the model, as the panel and CoursePublisher do: the observer moves the course's data version, so the cached row
+    // (docs/19 K10) is not read any more. A query-builder update would bypass the model events (CourseTreeObserver).
+    Course::query()->findOrFail($learner->active_course_id)->update(['visibility' => 'private']);
 
     todayGet($this, $learner)->assertOk()->assertJsonPath('active_course', null);
 
     // `unlisted` is "by link" and stays available.
-    Course::query()->whereKey($learner->active_course_id)->update(['visibility' => 'unlisted']);
+    Course::query()->findOrFail($learner->active_course_id)->update(['visibility' => 'unlisted']);
     todayGet($this, $learner)->assertOk()->assertJsonPath('active_course.id', $learner->active_course_id);
 });
 

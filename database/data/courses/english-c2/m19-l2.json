@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 19,
+    "title": "Искусство и эстетика",
+    "title_uz": "San'at va estetika"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Музыкальные термины",
+    "title_uz": "Musiqa atamalari"
+  },
+  "words": [
+    {
+      "word": "crescendo",
+      "part_of_speech": "noun",
+      "transcription": "/krəˈʃɛndoʊ/",
+      "translation": "крещендо, нарастание звука",
+      "translations": {
+        "ru": "крещендо, нарастание звука",
+        "uz": "kreshendo, tovushning kuchayishi"
+      },
+      "example": "The music built slowly to a thunderous crescendo.",
+      "example_translations": {
+        "ru": "Музыка медленно нарастала до громового крещендо.",
+        "uz": "Musiqa asta-sekin kuchayib, gumburlagan kreshendoga yetdi."
+      }
+    },
+    {
+      "word": "cadence",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkeɪdəns/",
+      "translation": "каденция, заключительный оборот",
+      "translations": {
+        "ru": "каденция, заключительный оборот",
+        "uz": "kadensiya, yakunlovchi ohang"
+      },
+      "example": "The piece ends with a gentle final cadence.",
+      "example_translations": {
+        "ru": "Пьеса завершается мягкой финальной каденцией.",
+        "uz": "Asar mayin yakuniy kadensiya bilan tugaydi."
+      }
+    },
+    {
+      "word": "timbre",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtæmbər/",
+      "translation": "тембр",
+      "translations": {
+        "ru": "тембр",
+        "uz": "tembr"
+      },
+      "example": "A cello's warm timbre differs from a violin's.",
+      "example_translations": {
+        "ru": "Тёплый тембр виолончели отличается от тембра скрипки.",
+        "uz": "Violonchelning iliq tembri skripkanikidan farq qiladi."
+      }
+    },
+    {
+      "word": "aria",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑriə/",
+      "translation": "ария",
+      "translations": {
+        "ru": "ария",
+        "uz": "ariya"
+      },
+      "example": "The soprano sang a moving aria alone onstage.",
+      "example_translations": {
+        "ru": "Сопрано исполнила трогательную арию одна на сцене.",
+        "uz": "Soprano sahnada yolg'iz o'zi ta'sirli ariya kuyladi."
+      }
+    },
+    {
+      "word": "sonata",
+      "part_of_speech": "noun",
+      "transcription": "/səˈnɑtə/",
+      "translation": "соната",
+      "translations": {
+        "ru": "соната",
+        "uz": "sonata"
+      },
+      "example": "She practiced a three-movement piano sonata all week.",
+      "example_translations": {
+        "ru": "Она всю неделю разучивала фортепианную сонату в трёх частях.",
+        "uz": "U butun hafta uch qismli fortepiano sonatasini mashq qildi."
+      }
+    },
+    {
+      "word": "dissonance",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɪsənəns/",
+      "translation": "диссонанс, неблагозвучие",
+      "translations": {
+        "ru": "диссонанс, неблагозвучие",
+        "uz": "dissonans, ohangsizlik"
+      },
+      "example": "Clashing notes created a harsh, uneasy dissonance.",
+      "example_translations": {
+        "ru": "Сталкивающиеся ноты создавали резкий, тревожный диссонанс.",
+        "uz": "Bir-biriga zid notalar keskin, bezovta qiluvchi dissonans hosil qildi."
+      }
+    },
+    {
+      "word": "counterpoint",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkaʊntərˌpɔɪnt/",
+      "translation": "контрапункт",
+      "translations": {
+        "ru": "контрапункт",
+        "uz": "kontrapunkt"
+      },
+      "example": "In counterpoint, two independent melodies sound together.",
+      "example_translations": {
+        "ru": "В контрапункте две самостоятельные мелодии звучат одновременно.",
+        "uz": "Kontrapunktda ikki mustaqil kuy bir vaqtda yangraydi."
+      }
+    },
+    {
+      "word": "refrain",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈfreɪn/",
+      "translation": "припев, рефрен",
+      "translations": {
+        "ru": "припев, рефрен",
+        "uz": "naqarot"
+      },
+      "example": "Everyone joined in whenever the refrain came around.",
+      "example_translations": {
+        "ru": "Все подхватывали, как только снова звучал припев.",
+        "uz": "Naqarot kelganda hamma jo'r bo'lardi."
+      }
+    },
+    {
+      "word": "interlude",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪntərˌlud/",
+      "translation": "интерлюдия",
+      "translations": {
+        "ru": "интерлюдия",
+        "uz": "interlyudiya, oraliq kuy"
+      },
+      "example": "A short piano interlude separated the two songs.",
+      "example_translations": {
+        "ru": "Две песни разделяла короткая фортепианная интерлюдия.",
+        "uz": "Ikki qo'shiqni qisqa fortepiano interlyudiyasi ajratib turardi."
+      }
+    },
+    {
+      "word": "medley",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɛdli/",
+      "translation": "попурри",
+      "translations": {
+        "ru": "попурри",
+        "uz": "popurri"
+      },
+      "example": "The band played a medley of old favorites.",
+      "example_translations": {
+        "ru": "Группа сыграла попурри из любимых старых песен.",
+        "uz": "Guruh sevimli eski qo'shiqlardan popurri ijro etdi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 6,
+    "title": "Разум и познание",
+    "title_uz": "Aql va bilish"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Суждение и вывод",
+    "title_uz": "Mulohaza va xulosa"
+  },
+  "words": [
+    {
+      "word": "heuristic",
+      "part_of_speech": "noun",
+      "transcription": "/hjʊˈrɪstɪk/",
+      "translation": "эвристика, практическое правило",
+      "translations": {
+        "ru": "эвристика, практическое правило",
+        "uz": "evristika, amaliy qoida"
+      },
+      "example": "This simple heuristic helps doctors reach quick decisions.",
+      "example_translations": {
+        "ru": "Эта простая эвристика помогает врачам быстро принимать решения.",
+        "uz": "Bu oddiy evristika shifokorlarga tez qaror qabul qilishga yordam beradi."
+      }
+    },
+    {
+      "word": "surmise",
+      "part_of_speech": "verb",
+      "transcription": "/sərˈmaɪz/",
+      "translation": "догадываться",
+      "translations": {
+        "ru": "догадываться",
+        "uz": "fahmlamoq"
+      },
+      "example": "From her silence, I surmised she disagreed.",
+      "example_translations": {
+        "ru": "По её молчанию я догадался, что она не согласна.",
+        "uz": "Uning sukutidan rozi emasligini fahmladim."
+      }
+    },
+    {
+      "word": "presume",
+      "part_of_speech": "verb",
+      "transcription": "/prɪˈzum/",
+      "translation": "предполагать, считать вероятным",
+      "translations": {
+        "ru": "предполагать, считать вероятным",
+        "uz": "faraz qilmoq"
+      },
+      "example": "I presume you have already read the report.",
+      "example_translations": {
+        "ru": "Я предполагаю, что вы уже прочитали отчёт.",
+        "uz": "Hisobotni allaqachon o'qigansiz deb faraz qilaman."
+      }
+    },
+    {
+      "word": "construe",
+      "part_of_speech": "verb",
+      "transcription": "/kənˈstru/",
+      "translation": "истолковывать",
+      "translations": {
+        "ru": "истолковывать",
+        "uz": "talqin qilmoq"
+      },
+      "example": "His silence was wrongly construed as agreement.",
+      "example_translations": {
+        "ru": "Его молчание ошибочно истолковали как согласие.",
+        "uz": "Uning sukuti noto'g'ri ravishda rozilik deb talqin qilindi."
+      }
+    },
+    {
+      "word": "deem",
+      "part_of_speech": "verb",
+      "transcription": "/dim/",
+      "translation": "считать, признавать",
+      "translations": {
+        "ru": "считать, признавать",
+        "uz": "deb hisoblamoq"
+      },
+      "example": "The committee deemed the proposal unworthy of funding.",
+      "example_translations": {
+        "ru": "Комитет счёл предложение не заслуживающим финансирования.",
+        "uz": "Qo'mita taklifni moliyalashtirishga noloyiq deb hisobladi."
+      }
+    },
+    {
+      "word": "appraise",
+      "part_of_speech": "verb",
+      "transcription": "/əˈpreɪz/",
+      "translation": "оценивать",
+      "translations": {
+        "ru": "оценивать",
+        "uz": "baholamoq"
+      },
+      "example": "Experts appraised the painting before the museum bought it.",
+      "example_translations": {
+        "ru": "Эксперты оценили картину, прежде чем музей её купил.",
+        "uz": "Muzey sotib olishidan oldin mutaxassislar rasmni baholadilar."
+      }
+    },
+    {
+      "word": "gauge",
+      "part_of_speech": "verb",
+      "transcription": "/geɪdʒ/",
+      "translation": "определять, прикидывать",
+      "translations": {
+        "ru": "определять, прикидывать",
+        "uz": "chamalamoq"
+      },
+      "example": "Our teacher paused to gauge the students' reaction.",
+      "example_translations": {
+        "ru": "Наш учитель сделал паузу, чтобы определить реакцию учеников.",
+        "uz": "O'qituvchimiz o'quvchilarning munosabatini chamalash uchun to'xtadi."
+      }
+    },
+    {
+      "word": "inference",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪnfərəns/",
+      "translation": "умозаключение, вывод",
+      "translations": {
+        "ru": "умозаключение, вывод",
+        "uz": "mantiqiy xulosa"
+      },
+      "example": "Her inference from the data proved entirely correct.",
+      "example_translations": {
+        "ru": "Её умозаключение на основе данных оказалось совершенно верным.",
+        "uz": "Uning ma'lumotlardan chiqargan mantiqiy xulosasi mutlaqo to'g'ri bo'lib chiqdi."
+      }
+    },
+    {
+      "word": "syllogism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪləˌdʒɪzəm/",
+      "translation": "силлогизм",
+      "translations": {
+        "ru": "силлогизм",
+        "uz": "sillogizm"
+      },
+      "example": "A syllogism draws a conclusion from two premises.",
+      "example_translations": {
+        "ru": "Силлогизм выводит заключение из двух посылок.",
+        "uz": "Sillogizm ikki muqaddimadan xulosa chiqaradi."
+      }
+    },
+    {
+      "word": "dialectic",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdaɪəˈlɛktɪk/",
+      "translation": "диалектика",
+      "translations": {
+        "ru": "диалектика",
+        "uz": "dialektika"
+      },
+      "example": "Through dialectic, opposing views produce a deeper truth.",
+      "example_translations": {
+        "ru": "Посредством диалектики противоположные взгляды рождают более глубокую истину.",
+        "uz": "Dialektika orqali qarama-qarshi qarashlar chuqurroq haqiqatni yuzaga chiqaradi."
+      }
+    }
+  ]
+}

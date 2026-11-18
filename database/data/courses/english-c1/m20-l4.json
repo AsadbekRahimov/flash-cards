@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 20,
+    "title": "Абстрактные понятия",
+    "title_uz": "Mavhum tushunchalar"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Количество и масштаб",
+    "title_uz": "Miqdor va ko'lam"
+  },
+  "words": [
+    {
+      "word": "negligible",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈnɛglədʒəbəl/",
+      "translation": "ничтожно малый",
+      "translations": {
+        "ru": "ничтожно малый",
+        "uz": "arzimas"
+      },
+      "example": "The difference in price is negligible, so choose freely.",
+      "example_translations": {
+        "ru": "Разница в цене ничтожно мала, так что выбирайте свободно.",
+        "uz": "Narxdagi farq arzimas, shuning uchun bemalol tanlang."
+      }
+    },
+    {
+      "word": "marginal",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmɑrdʒənəl/",
+      "translation": "незначительный, минимальный",
+      "translations": {
+        "ru": "незначительный, минимальный",
+        "uz": "juz'iy"
+      },
+      "example": "The new engine brought only marginal fuel savings.",
+      "example_translations": {
+        "ru": "Новый двигатель дал лишь незначительную экономию топлива.",
+        "uz": "Yangi dvigatel yoqilg'ini tejashda faqat juz'iy natija berdi."
+      }
+    },
+    {
+      "word": "ample",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈæmpəl/",
+      "translation": "более чем достаточный",
+      "translations": {
+        "ru": "более чем достаточный",
+        "uz": "bemalol yetarli"
+      },
+      "example": "There is ample parking space behind the hotel.",
+      "example_translations": {
+        "ru": "За отелем более чем достаточно места для парковки.",
+        "uz": "Mehmonxona ortida mashina qo'yish uchun bemalol yetarli joy bor."
+      }
+    },
+    {
+      "word": "sparse",
+      "part_of_speech": "adjective",
+      "transcription": "/spɑrs/",
+      "translation": "редкий, скудный",
+      "translations": {
+        "ru": "редкий, скудный",
+        "uz": "siyrak"
+      },
+      "example": "Vegetation is sparse in this dry, rocky region.",
+      "example_translations": {
+        "ru": "В этом сухом каменистом краю растительность редкая.",
+        "uz": "Bu quruq toshloq hududda o'simliklar siyrak."
+      }
+    },
+    {
+      "word": "multitude",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmʌltəˌtud/",
+      "translation": "множество",
+      "translations": {
+        "ru": "множество",
+        "uz": "son-sanoqsiz miqdor"
+      },
+      "example": "A multitude of stars filled the night sky.",
+      "example_translations": {
+        "ru": "Ночное небо заполнило множество звёзд.",
+        "uz": "Tungi osmonni son-sanoqsiz yulduzlar to'ldirdi."
+      }
+    },
+    {
+      "word": "magnitude",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmægnəˌtud/",
+      "translation": "масштаб, величина",
+      "translations": {
+        "ru": "масштаб, величина",
+        "uz": "ko'lam"
+      },
+      "example": "Nobody understood the magnitude of the problem then.",
+      "example_translations": {
+        "ru": "Тогда никто не понимал масштаба проблемы.",
+        "uz": "O'shanda hech kim muammoning ko'lamini tushunmagan edi."
+      }
+    },
+    {
+      "word": "threshold",
+      "part_of_speech": "noun",
+      "transcription": "/ˈθrɛʃˌhoʊld/",
+      "translation": "порог",
+      "translations": {
+        "ru": "порог",
+        "uz": "chegara, bo'sag'a"
+      },
+      "example": "Incomes below this threshold are not taxed.",
+      "example_translations": {
+        "ru": "Доходы ниже этого порога не облагаются налогом.",
+        "uz": "Bu chegaradan past daromadlarga soliq solinmaydi."
+      }
+    },
+    {
+      "word": "increment",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪnkrəmənt/",
+      "translation": "прибавка, приращение",
+      "translations": {
+        "ru": "прибавка, приращение",
+        "uz": "qo'shimcha, o'sim"
+      },
+      "example": "Salaries rise in small annual increments here.",
+      "example_translations": {
+        "ru": "Зарплаты здесь растут небольшими ежегодными прибавками.",
+        "uz": "Bu yerda maoshlar har yili kichik qo'shimchalar bilan oshib boradi."
+      }
+    },
+    {
+      "word": "sheer",
+      "part_of_speech": "adjective",
+      "transcription": "/ʃɪr/",
+      "translation": "сущий, абсолютный",
+      "translations": {
+        "ru": "сущий, абсолютный",
+        "uz": "sof, mutlaq"
+      },
+      "example": "Winning that match was sheer luck, not skill.",
+      "example_translations": {
+        "ru": "Победа в том матче была сущим везением, а не мастерством.",
+        "uz": "O'sha o'yindagi g'alaba mahorat emas, sof omad edi."
+      }
+    },
+    {
+      "word": "profound",
+      "part_of_speech": "adjective",
+      "transcription": "/prəˈfaʊnd/",
+      "translation": "глубокий, значительный",
+      "translations": {
+        "ru": "глубокий, значительный",
+        "uz": "chuqur, kuchli"
+      },
+      "example": "The book had a profound effect on me.",
+      "example_translations": {
+        "ru": "Эта книга оказала на меня глубокое влияние.",
+        "uz": "Bu kitob menga chuqur ta'sir ko'rsatdi."
+      }
+    }
+  ]
+}

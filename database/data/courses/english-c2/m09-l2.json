@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 9,
+    "title": "Власть и государство",
+    "title_uz": "Hokimiyat va davlat"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Коррупция и интриги",
+    "title_uz": "Korrupsiya va fitnalar"
+  },
+  "words": [
+    {
+      "word": "nepotism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnɛpəˌtɪzəm/",
+      "translation": "кумовство",
+      "translations": {
+        "ru": "кумовство",
+        "uz": "qarindosh-urug'chilik"
+      },
+      "example": "Hiring his nephew as director was pure nepotism.",
+      "example_translations": {
+        "ru": "Назначение племянника директором было чистым кумовством.",
+        "uz": "Jiyanini direktor qilib tayinlash g'irt qarindosh-urug'chilik edi."
+      }
+    },
+    {
+      "word": "cronyism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkroʊniˌɪzəm/",
+      "translation": "протекция приятелям",
+      "translations": {
+        "ru": "протекция приятелям",
+        "uz": "oshna-og'aynigarchilik"
+      },
+      "example": "Cronyism filled city hall with the mayor's old friends.",
+      "example_translations": {
+        "ru": "Из-за протекции приятелям мэрию заполнили старые друзья мэра.",
+        "uz": "Oshna-og'aynigarchilik tufayli shahar hokimligi hokimning eski do'stlari bilan to'ldi."
+      }
+    },
+    {
+      "word": "patronage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpeɪtrənɪdʒ/",
+      "translation": "покровительство",
+      "translations": {
+        "ru": "покровительство",
+        "uz": "homiylik"
+      },
+      "example": "He owed his post to the minister's patronage.",
+      "example_translations": {
+        "ru": "Своей должностью он был обязан покровительству министра.",
+        "uz": "U o'z lavozimiga vazirning homiyligi tufayli erishgan edi."
+      }
+    },
+    {
+      "word": "collusion",
+      "part_of_speech": "noun",
+      "transcription": "/kəˈluʒən/",
+      "translation": "сговор",
+      "translations": {
+        "ru": "сговор",
+        "uz": "til biriktirish"
+      },
+      "example": "The two firms fixed prices in secret collusion.",
+      "example_translations": {
+        "ru": "Две фирмы установили цены в тайном сговоре.",
+        "uz": "Ikki firma yashirin til biriktirish yo'li bilan narxlarni belgiladi."
+      }
+    },
+    {
+      "word": "machination",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmækəˈneɪʃən/",
+      "translation": "козни, махинация",
+      "translations": {
+        "ru": "козни, махинация",
+        "uz": "hiyla-nayrang"
+      },
+      "example": "His machinations to remove the chairman finally failed.",
+      "example_translations": {
+        "ru": "Его козни с целью сместить председателя в итоге провалились.",
+        "uz": "Uning raisni chetlatishga qaratilgan hiyla-nayranglari oxiri barbod bo'ldi."
+      }
+    },
+    {
+      "word": "intrigue",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪnˌtrig/",
+      "translation": "интрига, происки",
+      "translations": {
+        "ru": "интрига, происки",
+        "uz": "fitna"
+      },
+      "example": "Palace intrigue cost the honest minister his position.",
+      "example_translations": {
+        "ru": "Дворцовые интриги стоили честному министру должности.",
+        "uz": "Saroy fitnalari halol vazirni lavozimidan mahrum qildi."
+      }
+    },
+    {
+      "word": "clandestine",
+      "part_of_speech": "adjective",
+      "transcription": "/klænˈdɛstən/",
+      "translation": "подпольный",
+      "translations": {
+        "ru": "подпольный",
+        "uz": "xufiya"
+      },
+      "example": "Banned parties held clandestine meetings in a cellar.",
+      "example_translations": {
+        "ru": "Запрещённые партии проводили подпольные собрания в подвале.",
+        "uz": "Taqiqlangan partiyalar yerto'lada xufiya yig'ilishlar o'tkazardi."
+      }
+    },
+    {
+      "word": "covert",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkoʊvərt/",
+      "translation": "тайный, скрытый",
+      "translations": {
+        "ru": "тайный, скрытый",
+        "uz": "yashirin"
+      },
+      "example": "Agents carried out a covert operation at night.",
+      "example_translations": {
+        "ru": "Агенты провели ночью тайную операцию.",
+        "uz": "Agentlar tunda yashirin operatsiya o'tkazdi."
+      }
+    },
+    {
+      "word": "kickback",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɪkˌbæk/",
+      "translation": "откат",
+      "translations": {
+        "ru": "откат",
+        "uz": "ulush tarzidagi pora"
+      },
+      "example": "The official took a kickback for awarding the contract.",
+      "example_translations": {
+        "ru": "Чиновник получил откат за предоставление контракта.",
+        "uz": "Amaldor shartnomani bergani uchun ulush tarzidagi pora oldi."
+      }
+    },
+    {
+      "word": "complicit",
+      "part_of_speech": "adjective",
+      "transcription": "/kəmˈplɪsət/",
+      "translation": "замешанный, причастный",
+      "translations": {
+        "ru": "замешанный, причастный",
+        "uz": "sherik bo'lgan"
+      },
+      "example": "Several managers were complicit in hiding the bribes.",
+      "example_translations": {
+        "ru": "Несколько менеджеров были замешаны в сокрытии взяток.",
+        "uz": "Bir necha menejer poralarni yashirishda sherik bo'lgan."
+      }
+    }
+  ]
+}

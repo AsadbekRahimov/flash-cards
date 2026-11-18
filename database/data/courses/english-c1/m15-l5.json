@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 15,
+    "title": "Искусство и культура",
+    "title_uz": "San'at va madaniyat"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Оценка произведения",
+    "title_uz": "Asarga baho"
+  },
+  "words": [
+    {
+      "word": "critique",
+      "part_of_speech": "noun",
+      "transcription": "/krɪˈtik/",
+      "translation": "критический разбор",
+      "translations": {
+        "ru": "критический разбор",
+        "uz": "tanqidiy tahlil"
+      },
+      "example": "Her critique of the novel was fair but strict.",
+      "example_translations": {
+        "ru": "Её критический разбор романа был справедливым, но строгим.",
+        "uz": "Uning roman bo'yicha tanqidiy tahlili adolatli, ammo qattiq edi."
+      }
+    },
+    {
+      "word": "connoisseur",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑnəˈsɜr/",
+      "translation": "знаток",
+      "translations": {
+        "ru": "знаток",
+        "uz": "bilimdon"
+      },
+      "example": "A true connoisseur can tell a copy from the original.",
+      "example_translations": {
+        "ru": "Истинный знаток отличит копию от оригинала.",
+        "uz": "Haqiqiy bilimdon nusxani asl asardan ajrata oladi."
+      }
+    },
+    {
+      "word": "exquisite",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪkˈskwɪzɪt/",
+      "translation": "изысканный",
+      "translations": {
+        "ru": "изысканный",
+        "uz": "nafis"
+      },
+      "example": "The exquisite details of the carving amazed everyone.",
+      "example_translations": {
+        "ru": "Изысканные детали резьбы поразили всех.",
+        "uz": "O'ymakorlikning nafis tafsilotlari hammani hayratga soldi."
+      }
+    },
+    {
+      "word": "evocative",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈvɑkətɪv/",
+      "translation": "навевающий воспоминания",
+      "translations": {
+        "ru": "навевающий воспоминания",
+        "uz": "xotiralarni uyg'otuvchi"
+      },
+      "example": "The evocative melody brought back her childhood summers.",
+      "example_translations": {
+        "ru": "Навевающая воспоминания мелодия вернула её в летние дни детства.",
+        "uz": "Xotiralarni uyg'otuvchi kuy uni bolalikning yoz kunlariga qaytardi."
+      }
+    },
+    {
+      "word": "poignant",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpɔɪnjənt/",
+      "translation": "щемящий",
+      "translations": {
+        "ru": "щемящий",
+        "uz": "yurakni o'rtovchi"
+      },
+      "example": "The poignant final scene left many viewers in tears.",
+      "example_translations": {
+        "ru": "Щемящая финальная сцена довела многих зрителей до слёз.",
+        "uz": "Yurakni o'rtovchi so'nggi sahna ko'plab tomoshabinlarni yig'latdi."
+      }
+    },
+    {
+      "word": "mediocre",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌmidiˈoʊkər/",
+      "translation": "посредственный",
+      "translations": {
+        "ru": "посредственный",
+        "uz": "o'rtamiyona"
+      },
+      "example": "Critics called the sequel mediocre and easily forgotten.",
+      "example_translations": {
+        "ru": "Критики назвали продолжение посредственным и легко забываемым.",
+        "uz": "Tanqidchilar filmning davomini o'rtamiyona va tez unutiladigan deb atashdi."
+      }
+    },
+    {
+      "word": "pretentious",
+      "part_of_speech": "adjective",
+      "transcription": "/prɪˈtɛnʃəs/",
+      "translation": "претенциозный",
+      "translations": {
+        "ru": "претенциозный",
+        "uz": "balandparvoz"
+      },
+      "example": "The play seemed pretentious, full of empty clever phrases.",
+      "example_translations": {
+        "ru": "Пьеса казалась претенциозной, полной пустых умных фраз.",
+        "uz": "Pyesa balandparvoz, quruq aqlli iboralarga to'la bo'lib tuyuldi."
+      }
+    },
+    {
+      "word": "visionary",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈvɪʒəˌnɛri/",
+      "translation": "провидческий",
+      "translations": {
+        "ru": "провидческий",
+        "uz": "kelajakni oldindan ko'ruvchi"
+      },
+      "example": "Her visionary designs were decades ahead of their time.",
+      "example_translations": {
+        "ru": "Её провидческие проекты на десятилетия опередили своё время.",
+        "uz": "Uning kelajakni oldindan ko'ruvchi loyihalari o'z davridan o'nlab yillar ilgarilab ketgan edi."
+      }
+    },
+    {
+      "word": "timeless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtaɪmləs/",
+      "translation": "неподвластный времени",
+      "translations": {
+        "ru": "неподвластный времени",
+        "uz": "eskirmas"
+      },
+      "example": "This timeless story still moves readers after centuries.",
+      "example_translations": {
+        "ru": "Эта неподвластная времени история и спустя столетия трогает читателей.",
+        "uz": "Bu eskirmas hikoya asrlar o'tsa ham o'quvchilarni hayajonga soladi."
+      }
+    },
+    {
+      "word": "iconic",
+      "part_of_speech": "adjective",
+      "transcription": "/aɪˈkɑnɪk/",
+      "translation": "культовый",
+      "translations": {
+        "ru": "культовый",
+        "uz": "timsolga aylangan"
+      },
+      "example": "That iconic poster is recognized all over the world.",
+      "example_translations": {
+        "ru": "Этот культовый плакат узнают во всём мире.",
+        "uz": "O'sha timsolga aylangan plakatni butun dunyoda tanishadi."
+      }
+    }
+  ]
+}

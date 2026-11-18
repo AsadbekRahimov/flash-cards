@@ -74,7 +74,7 @@ final class PerfSeeder
 
     private const LAST_NAMES = ['Karimov', 'Rahimova', 'Yusupov', 'Abdullayeva', 'Tursunov', 'Ismoilova', 'Nazarov', 'Saidova', 'Ergashev', 'Mirzayeva', 'Ivanov', 'Petrova', 'Sidorov', 'Smirnova', 'Kuznetsov', 'Popova', 'Volkov', 'Sokolova', 'Lebedev', 'Kozlova'];
 
-    private const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
+    private const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
     private const GOALS = ['general', 'ielts', 'work', 'travel', 'school'];
 

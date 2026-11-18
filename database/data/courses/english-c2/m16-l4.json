@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 16,
+    "title": "Конфликт и согласие",
+    "title_uz": "Nizo va murosa"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Примирение и прощение",
+    "title_uz": "Yarashuv va kechirim"
+  },
+  "words": [
+    {
+      "word": "mollify",
+      "part_of_speech": "verb",
+      "transcription": "/ˈmɑləˌfaɪ/",
+      "translation": "успокаивать, задабривать",
+      "translations": {
+        "ru": "успокаивать, задабривать",
+        "uz": "hovuridan tushirmoq"
+      },
+      "example": "A sincere apology mollified the angry customer.",
+      "example_translations": {
+        "ru": "Искреннее извинение успокоило рассерженного клиента.",
+        "uz": "Samimiy uzr jahli chiqqan mijozni hovuridan tushirdi."
+      }
+    },
+    {
+      "word": "amity",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæməti/",
+      "translation": "дружба, согласие",
+      "translations": {
+        "ru": "дружба, согласие",
+        "uz": "totuvlik"
+      },
+      "example": "The two villages have lived in amity for centuries.",
+      "example_translations": {
+        "ru": "Эти две деревни веками живут в дружбе и согласии.",
+        "uz": "Bu ikki qishloq asrlar davomida totuvlikda yashab kelmoqda."
+      }
+    },
+    {
+      "word": "assuage",
+      "part_of_speech": "verb",
+      "transcription": "/əˈsweɪdʒ/",
+      "translation": "унимать, смягчать",
+      "translations": {
+        "ru": "унимать, смягчать",
+        "uz": "yengillatmoq"
+      },
+      "example": "Nothing could assuage her guilt over the broken promise.",
+      "example_translations": {
+        "ru": "Ничто не могло унять её чувство вины за нарушенное обещание.",
+        "uz": "Buzilgan va'da uchun aybdorlik hissini hech narsa yengillata olmasdi."
+      }
+    },
+    {
+      "word": "clemency",
+      "part_of_speech": "noun",
+      "transcription": "/ˈklɛmənsi/",
+      "translation": "милосердие, снисхождение",
+      "translations": {
+        "ru": "милосердие, снисхождение",
+        "uz": "shafqat"
+      },
+      "example": "The judge showed clemency because of his young age.",
+      "example_translations": {
+        "ru": "Судья проявил милосердие ввиду его юного возраста.",
+        "uz": "Sudya uning yoshligini hisobga olib shafqat ko'rsatdi."
+      }
+    },
+    {
+      "word": "lenient",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈliniənt/",
+      "translation": "снисходительный",
+      "translations": {
+        "ru": "снисходительный",
+        "uz": "kechirimli"
+      },
+      "example": "Lenient teachers rarely punish students for late homework.",
+      "example_translations": {
+        "ru": "Снисходительные учителя редко наказывают учеников за опоздание с домашним заданием.",
+        "uz": "Kechirimli o'qituvchilar uy vazifasini kech topshirgan o'quvchilarni kamdan-kam jazolaydi."
+      }
+    },
+    {
+      "word": "forbearance",
+      "part_of_speech": "noun",
+      "transcription": "/fɔrˈbɛrəns/",
+      "translation": "сдержанность, долготерпение",
+      "translations": {
+        "ru": "сдержанность, долготерпение",
+        "uz": "sabr-toqat"
+      },
+      "example": "She listened to his complaints with remarkable forbearance.",
+      "example_translations": {
+        "ru": "Она выслушивала его жалобы с поразительной сдержанностью.",
+        "uz": "U uning shikoyatlarini hayratlanarli sabr-toqat bilan tinglardi."
+      }
+    },
+    {
+      "word": "forgo",
+      "part_of_speech": "verb",
+      "transcription": "/fɔrˈgoʊ/",
+      "translation": "отказываться, обходиться без",
+      "translations": {
+        "ru": "отказываться, обходиться без",
+        "uz": "bahridan o'tmoq"
+      },
+      "example": "For the sake of peace, he will forgo compensation.",
+      "example_translations": {
+        "ru": "Ради мира он откажется от компенсации.",
+        "uz": "Tinchlik yo'lida u tovon pulining bahridan o'tadi."
+      }
+    },
+    {
+      "word": "renounce",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈnaʊns/",
+      "translation": "отрекаться",
+      "translations": {
+        "ru": "отрекаться",
+        "uz": "voz kechmoq"
+      },
+      "example": "The prince renounced his claim to the throne.",
+      "example_translations": {
+        "ru": "Принц отрёкся от притязаний на престол.",
+        "uz": "Shahzoda taxtga da'vosidan voz kechdi."
+      }
+    },
+    {
+      "word": "relent",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈlɛnt/",
+      "translation": "смягчаться, уступать",
+      "translations": {
+        "ru": "смягчаться, уступать",
+        "uz": "yumshamoq, ko'nmoq"
+      },
+      "example": "After hours of pleading, her father finally relented.",
+      "example_translations": {
+        "ru": "После нескольких часов уговоров её отец наконец смягчился.",
+        "uz": "Bir necha soatlik yalinishlardan so'ng otasi nihoyat yumshadi."
+      }
+    },
+    {
+      "word": "contrite",
+      "part_of_speech": "adjective",
+      "transcription": "/kənˈtraɪt/",
+      "translation": "раскаивающийся",
+      "translations": {
+        "ru": "раскаивающийся",
+        "uz": "pushaymon"
+      },
+      "example": "Looking contrite, the boy apologized for the broken window.",
+      "example_translations": {
+        "ru": "С раскаивающимся видом мальчик извинился за разбитое окно.",
+        "uz": "Pushaymon qiyofada bola singan oyna uchun uzr so'radi."
+      }
+    }
+  ]
+}

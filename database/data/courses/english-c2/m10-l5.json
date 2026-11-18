@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 10,
+    "title": "Тонкости права",
+    "title_uz": "Huquq nozikliklari"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Международное право",
+    "title_uz": "Xalqaro huquq"
+  },
+  "words": [
+    {
+      "word": "extradition",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɛkstrəˈdɪʃən/",
+      "translation": "экстрадиция",
+      "translations": {
+        "ru": "экстрадиция",
+        "uz": "ekstraditsiya"
+      },
+      "example": "The country requested the extradition of the fugitive banker.",
+      "example_translations": {
+        "ru": "Страна запросила экстрадицию беглого банкира.",
+        "uz": "Mamlakat qochoq bankirning ekstraditsiyasini so'radi."
+      }
+    },
+    {
+      "word": "stateless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsteɪtləs/",
+      "translation": "без гражданства",
+      "translations": {
+        "ru": "без гражданства",
+        "uz": "fuqaroligi yo'q"
+      },
+      "example": "Stateless people hold no passport from any country.",
+      "example_translations": {
+        "ru": "У людей без гражданства нет паспорта ни одной страны.",
+        "uz": "Fuqaroligi yo'q kishilarda hech bir mamlakatning pasporti bo'lmaydi."
+      }
+    },
+    {
+      "word": "impunity",
+      "part_of_speech": "noun",
+      "transcription": "/ɪmˈpjunəti/",
+      "translation": "безнаказанность",
+      "translations": {
+        "ru": "безнаказанность",
+        "uz": "jazosizlik"
+      },
+      "example": "The treaty aims to end impunity for such crimes.",
+      "example_translations": {
+        "ru": "Договор призван положить конец безнаказанности за такие преступления.",
+        "uz": "Shartnoma bunday jinoyatlar uchun jazosizlikka chek qo'yishni maqsad qilgan."
+      }
+    },
+    {
+      "word": "reparation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌrɛpəˈreɪʃən/",
+      "translation": "репарация",
+      "translations": {
+        "ru": "репарация",
+        "uz": "tovon"
+      },
+      "example": "The defeated state paid reparations to its neighbors.",
+      "example_translations": {
+        "ru": "Побеждённое государство выплатило соседям репарации.",
+        "uz": "Mag'lub davlat qo'shnilariga tovon to'ladi."
+      }
+    },
+    {
+      "word": "internment",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈtɜrnmənt/",
+      "translation": "интернирование",
+      "translations": {
+        "ru": "интернирование",
+        "uz": "majburiy ushlab turish"
+      },
+      "example": "Internment of civilians without trial violates the convention.",
+      "example_translations": {
+        "ru": "Интернирование гражданских лиц без суда нарушает конвенцию.",
+        "uz": "Tinch aholini sudsiz majburiy ushlab turish konvensiyani buzadi."
+      }
+    },
+    {
+      "word": "inviolable",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈvaɪələbəl/",
+      "translation": "неприкосновенный",
+      "translations": {
+        "ru": "неприкосновенный",
+        "uz": "daxlsiz"
+      },
+      "example": "Under the treaty, embassy grounds are inviolable.",
+      "example_translations": {
+        "ru": "Согласно договору, территория посольства неприкосновенна.",
+        "uz": "Shartnomaga ko'ra, elchixona hududi daxlsizdir."
+      }
+    },
+    {
+      "word": "signatory",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪgnəˌtɔri/",
+      "translation": "подписавшая сторона",
+      "translations": {
+        "ru": "подписавшая сторона",
+        "uz": "imzolagan tomon"
+      },
+      "example": "Every signatory to the treaty must reduce emissions.",
+      "example_translations": {
+        "ru": "Каждая подписавшая сторона договора обязана сократить выбросы.",
+        "uz": "Shartnomani imzolagan tomonlarning har biri chiqindi gazlarni kamaytirishi shart."
+      }
+    },
+    {
+      "word": "covenant",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkʌvənənt/",
+      "translation": "международный пакт",
+      "translations": {
+        "ru": "международный пакт",
+        "uz": "xalqaro pakt"
+      },
+      "example": "The covenant obliges states to protect free speech.",
+      "example_translations": {
+        "ru": "Международный пакт обязывает государства защищать свободу слова.",
+        "uz": "Xalqaro pakt davlatlarni so'z erkinligini himoya qilishga majbur etadi."
+      }
+    },
+    {
+      "word": "moratorium",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɔrəˈtɔriəm/",
+      "translation": "мораторий",
+      "translations": {
+        "ru": "мораторий",
+        "uz": "moratoriy"
+      },
+      "example": "States agreed on a five-year moratorium on deep-sea mining.",
+      "example_translations": {
+        "ru": "Государства договорились о пятилетнем моратории на глубоководную добычу.",
+        "uz": "Davlatlar dengiz tubidan foydali qazilma qazib olishga besh yillik moratoriy joriy etish to'g'risida kelishdi."
+      }
+    },
+    {
+      "word": "noncombatant",
+      "part_of_speech": "noun",
+      "transcription": "/ˌnɑnkəmˈbætənt/",
+      "translation": "некомбатант",
+      "translations": {
+        "ru": "некомбатант",
+        "uz": "jang qilmaydigan shaxs"
+      },
+      "example": "As a medic, he was treated as a noncombatant.",
+      "example_translations": {
+        "ru": "Как медик, он считался некомбатантом.",
+        "uz": "Tibbiyot xodimi sifatida u jang qilmaydigan shaxs hisoblanardi."
+      }
+    }
+  ]
+}

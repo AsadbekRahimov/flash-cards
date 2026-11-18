@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 6,
+    "title": "Разум и познание",
+    "title_uz": "Aql va bilish"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Сознание",
+    "title_uz": "Ong"
+  },
+  "words": [
+    {
+      "word": "sentient",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɛnʃənt/",
+      "translation": "чувствующий, наделённый чувствами",
+      "translations": {
+        "ru": "чувствующий, наделённый чувствами",
+        "uz": "his qiluvchi"
+      },
+      "example": "Animals are sentient beings capable of feeling pain.",
+      "example_translations": {
+        "ru": "Животные — чувствующие существа, способные испытывать боль.",
+        "uz": "Hayvonlar og'riqni seza oladigan, his qiluvchi mavjudotlardir."
+      }
+    },
+    {
+      "word": "cognizant",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkɑgnəzənt/",
+      "translation": "осведомлённый, сознающий",
+      "translations": {
+        "ru": "осведомлённый, сознающий",
+        "uz": "xabardor"
+      },
+      "example": "We are fully cognizant of the risks involved.",
+      "example_translations": {
+        "ru": "Мы полностью осведомлены о связанных с этим рисках.",
+        "uz": "Biz bu bilan bog'liq xatarlardan to'liq xabardormiz."
+      }
+    },
+    {
+      "word": "lucid",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈlusəd/",
+      "translation": "в ясном сознании",
+      "translations": {
+        "ru": "в ясном сознании",
+        "uz": "es-hushi joyida"
+      },
+      "example": "Despite her fever, the patient remained perfectly lucid.",
+      "example_translations": {
+        "ru": "Несмотря на жар, пациентка оставалась в совершенно ясном сознании.",
+        "uz": "Isitmasiga qaramay, bemorning es-hushi butunlay joyida edi."
+      }
+    },
+    {
+      "word": "introspective",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪntrəˈspɛktɪv/",
+      "translation": "склонный к самоанализу",
+      "translations": {
+        "ru": "склонный к самоанализу",
+        "uz": "o'zini tahlil qilishga moyil"
+      },
+      "example": "An introspective child, he often examined his own feelings.",
+      "example_translations": {
+        "ru": "Склонный к самоанализу ребёнок, он часто разбирался в собственных чувствах.",
+        "uz": "O'zini tahlil qilishga moyil bola bo'lgani uchun u ko'pincha o'z his-tuyg'ularini o'rganardi."
+      }
+    },
+    {
+      "word": "subliminal",
+      "part_of_speech": "adjective",
+      "transcription": "/səˈblɪmənəl/",
+      "translation": "действующий на подсознание",
+      "translations": {
+        "ru": "действующий на подсознание",
+        "uz": "ong ostiga ta'sir qiluvchi"
+      },
+      "example": "Subliminal messages influence us without our noticing them.",
+      "example_translations": {
+        "ru": "Сообщения, действующие на подсознание, влияют на нас незаметно для нас самих.",
+        "uz": "Ong ostiga ta'sir qiluvchi xabarlar bizga o'zimiz sezmagan holda ta'sir qiladi."
+      }
+    },
+    {
+      "word": "volition",
+      "part_of_speech": "noun",
+      "transcription": "/voʊˈlɪʃən/",
+      "translation": "воля",
+      "translations": {
+        "ru": "воля",
+        "uz": "ixtiyor, iroda"
+      },
+      "example": "She left the company of her own volition.",
+      "example_translations": {
+        "ru": "Она ушла из компании по собственной воле.",
+        "uz": "U kompaniyadan o'z ixtiyori bilan ketdi."
+      }
+    },
+    {
+      "word": "psyche",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsaɪki/",
+      "translation": "психика",
+      "translations": {
+        "ru": "психика",
+        "uz": "ruhiyat"
+      },
+      "example": "Childhood experiences shape the human psyche profoundly.",
+      "example_translations": {
+        "ru": "Детские переживания глубоко формируют человеческую психику.",
+        "uz": "Bolalikdagi kechinmalar inson ruhiyatini chuqur shakllantiradi."
+      }
+    },
+    {
+      "word": "intellect",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪntəˌlɛkt/",
+      "translation": "ум, интеллект",
+      "translations": {
+        "ru": "ум, интеллект",
+        "uz": "aql-zakovat"
+      },
+      "example": "Her sharp intellect solved problems others found impossible.",
+      "example_translations": {
+        "ru": "Её острый ум решал задачи, которые другим казались неразрешимыми.",
+        "uz": "Uning o'tkir aql-zakovati boshqalarga imkonsiz tuyulgan masalalarni hal qilardi."
+      }
+    },
+    {
+      "word": "reverie",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɛvəri/",
+      "translation": "грёзы, мечтания",
+      "translations": {
+        "ru": "грёзы, мечтания",
+        "uz": "shirin xayol"
+      },
+      "example": "The bell roused him from a pleasant reverie.",
+      "example_translations": {
+        "ru": "Звонок вывел его из приятных грёз.",
+        "uz": "Qo'ng'iroq uni shirin xayoldan uyg'otdi."
+      }
+    },
+    {
+      "word": "trance",
+      "part_of_speech": "noun",
+      "transcription": "/træns/",
+      "translation": "транс",
+      "translations": {
+        "ru": "транс",
+        "uz": "trans holati"
+      },
+      "example": "Rhythmic drumming put the dancers into a trance.",
+      "example_translations": {
+        "ru": "Ритмичный бой барабанов погрузил танцоров в транс.",
+        "uz": "Bir maromdagi nog'ora sadosi raqqoslarni trans holatiga tushirdi."
+      }
+    }
+  ]
+}

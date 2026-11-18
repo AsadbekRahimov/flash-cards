@@ -51,7 +51,7 @@ final class OnboardingService
     /** Every goal the system knows (captions in lang); which of them are offered is `learners.goals`. */
     public const GOALS = [self::GENERAL_GOAL, 'ielts', 'sat', 'school'];
 
-    public const LEVELS = ['A1', 'A2', 'B1', 'B2'];
+    public const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
     /** "I don't know" is stored as A1 (docs/12 §7.1). */
     public const LEVEL_UNKNOWN = 'unknown';

@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 5,
+    "title": "Философия и этика",
+    "title_uz": "Falsafa va etika"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Вера и религия",
+    "title_uz": "E'tiqod va din"
+  },
+  "words": [
+    {
+      "word": "theology",
+      "part_of_speech": "noun",
+      "transcription": "/θiˈɑlədʒi/",
+      "translation": "богословие, теология",
+      "translations": {
+        "ru": "богословие, теология",
+        "uz": "ilohiyot"
+      },
+      "example": "She studied theology before becoming a religious scholar.",
+      "example_translations": {
+        "ru": "Она изучала богословие, прежде чем стать религиоведом.",
+        "uz": "U dinshunos bo'lishdan oldin ilohiyotni o'rgangan."
+      }
+    },
+    {
+      "word": "deity",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdiəti/",
+      "translation": "божество",
+      "translations": {
+        "ru": "божество",
+        "uz": "ma'bud"
+      },
+      "example": "Ancient farmers prayed to a deity of rain.",
+      "example_translations": {
+        "ru": "Древние земледельцы молились божеству дождя.",
+        "uz": "Qadimgi dehqonlar yomg'ir ma'budiga sig'inishgan."
+      }
+    },
+    {
+      "word": "divine",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈvaɪn/",
+      "translation": "божественный",
+      "translations": {
+        "ru": "божественный",
+        "uz": "ilohiy"
+      },
+      "example": "Believers saw the sudden rain as divine mercy.",
+      "example_translations": {
+        "ru": "Верующие увидели во внезапном дожде божественную милость.",
+        "uz": "Dindorlar to'satdan yoqqan yomg'irni ilohiy marhamat deb bildilar."
+      }
+    },
+    {
+      "word": "piety",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpaɪəti/",
+      "translation": "благочестие",
+      "translations": {
+        "ru": "благочестие",
+        "uz": "taqvo"
+      },
+      "example": "Her piety showed in daily prayer and charity.",
+      "example_translations": {
+        "ru": "Её благочестие проявлялось в ежедневной молитве и благотворительности.",
+        "uz": "Uning taqvosi har kungi ibodat va xayr-ehsonda namoyon bo'lardi."
+      }
+    },
+    {
+      "word": "devout",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈvaʊt/",
+      "translation": "набожный",
+      "translations": {
+        "ru": "набожный",
+        "uz": "taqvodor, dindor"
+      },
+      "example": "His devout grandmother never missed her morning prayers.",
+      "example_translations": {
+        "ru": "Его набожная бабушка никогда не пропускала утреннюю молитву.",
+        "uz": "Uning taqvodor buvisi ertalabki ibodatni hech qachon qoldirmasdi."
+      }
+    },
+    {
+      "word": "orthodox",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɔrθəˌdɑks/",
+      "translation": "ортодоксальный, общепринятый",
+      "translations": {
+        "ru": "ортодоксальный, общепринятый",
+        "uz": "ortodoksal, an'anaga sodiq"
+      },
+      "example": "She rejected orthodox teaching and formed her own beliefs.",
+      "example_translations": {
+        "ru": "Она отвергла ортодоксальное учение и выработала собственные убеждения.",
+        "uz": "U ortodoksal ta'limotni rad etib, o'z e'tiqodini shakllantirdi."
+      }
+    },
+    {
+      "word": "clergy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈklɜrdʒi/",
+      "translation": "духовенство",
+      "translations": {
+        "ru": "духовенство",
+        "uz": "ruhoniylar"
+      },
+      "example": "Local clergy led the ceremony at the temple.",
+      "example_translations": {
+        "ru": "Местное духовенство провело церемонию в храме.",
+        "uz": "Mahalliy ruhoniylar ibodatxonadagi marosimni o'tkazdilar."
+      }
+    },
+    {
+      "word": "pilgrimage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɪlgrəmɪdʒ/",
+      "translation": "паломничество",
+      "translations": {
+        "ru": "паломничество",
+        "uz": "ziyorat"
+      },
+      "example": "Thousands make a pilgrimage to this holy site yearly.",
+      "example_translations": {
+        "ru": "Тысячи людей ежегодно совершают паломничество к этому святому месту.",
+        "uz": "Minglab odamlar har yili bu muqaddas joyga ziyorat qiladi."
+      }
+    },
+    {
+      "word": "sanctity",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsæŋktəti/",
+      "translation": "святость",
+      "translations": {
+        "ru": "святость",
+        "uz": "muqaddaslik"
+      },
+      "example": "Most religions teach the sanctity of human life.",
+      "example_translations": {
+        "ru": "Большинство религий учат о святости человеческой жизни.",
+        "uz": "Aksariyat dinlar inson hayotining muqaddasligini o'rgatadi."
+      }
+    },
+    {
+      "word": "creed",
+      "part_of_speech": "noun",
+      "transcription": "/krid/",
+      "translation": "вероучение",
+      "translations": {
+        "ru": "вероучение",
+        "uz": "aqida"
+      },
+      "example": "Their creed forbids lying under any circumstances.",
+      "example_translations": {
+        "ru": "Их вероучение запрещает лгать при любых обстоятельствах.",
+        "uz": "Ularning aqidasi har qanday vaziyatda yolg'on gapirishni taqiqlaydi."
+      }
+    }
+  ]
+}

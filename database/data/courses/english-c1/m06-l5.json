@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 6,
+    "title": "Наука и исследования",
+    "title_uz": "Fan va tadqiqotlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Клетка и гены",
+    "title_uz": "Hujayra va genlar"
+  },
+  "words": [
+    {
+      "word": "membrane",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɛmˌbreɪn/",
+      "translation": "мембрана",
+      "translations": {
+        "ru": "мембрана",
+        "uz": "membrana"
+      },
+      "example": "A thin membrane surrounds every living cell.",
+      "example_translations": {
+        "ru": "Каждую живую клетку окружает тонкая мембрана.",
+        "uz": "Har bir tirik hujayrani yupqa membrana o'rab turadi."
+      }
+    },
+    {
+      "word": "enzyme",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛnˌzaɪm/",
+      "translation": "фермент",
+      "translations": {
+        "ru": "фермент",
+        "uz": "ferment"
+      },
+      "example": "This enzyme helps the body digest milk sugar.",
+      "example_translations": {
+        "ru": "Этот фермент помогает организму переваривать молочный сахар.",
+        "uz": "Bu ferment organizmga sut shakarini hazm qilishga yordam beradi."
+      }
+    },
+    {
+      "word": "genome",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʒiˌnoʊm/",
+      "translation": "геном",
+      "translations": {
+        "ru": "геном",
+        "uz": "genom"
+      },
+      "example": "The genome holds all of an organism's genetic information.",
+      "example_translations": {
+        "ru": "Геном содержит всю генетическую информацию организма.",
+        "uz": "Genom organizmning barcha genetik axborotini o'z ichiga oladi."
+      }
+    },
+    {
+      "word": "mutation",
+      "part_of_speech": "noun",
+      "transcription": "/mjuˈteɪʃən/",
+      "translation": "мутация",
+      "translations": {
+        "ru": "мутация",
+        "uz": "mutatsiya"
+      },
+      "example": "A single mutation can change how a gene works.",
+      "example_translations": {
+        "ru": "Одна-единственная мутация может изменить работу гена.",
+        "uz": "Birgina mutatsiya genning ishlashini o'zgartirishi mumkin."
+      }
+    },
+    {
+      "word": "chromosome",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkroʊməˌsoʊm/",
+      "translation": "хромосома",
+      "translations": {
+        "ru": "хромосома",
+        "uz": "xromosoma"
+      },
+      "example": "Each human cell normally contains forty-six chromosomes.",
+      "example_translations": {
+        "ru": "Каждая клетка человека в норме содержит сорок шесть хромосом.",
+        "uz": "Insonning har bir hujayrasida odatda qirq oltita xromosoma bo'ladi."
+      }
+    },
+    {
+      "word": "hereditary",
+      "part_of_speech": "adjective",
+      "transcription": "/həˈrɛdəˌtɛri/",
+      "translation": "наследственный",
+      "translations": {
+        "ru": "наследственный",
+        "uz": "irsiy"
+      },
+      "example": "The disease is hereditary and runs in families.",
+      "example_translations": {
+        "ru": "Эта болезнь наследственная и передаётся в семье из поколения в поколение.",
+        "uz": "Bu kasallik irsiy bo'lib, oilada avloddan avlodga o'tadi."
+      }
+    },
+    {
+      "word": "pathogen",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpæθədʒən/",
+      "translation": "возбудитель болезни",
+      "translations": {
+        "ru": "возбудитель болезни",
+        "uz": "kasallik qo'zg'atuvchisi"
+      },
+      "example": "Doctors identified the pathogen that caused the outbreak.",
+      "example_translations": {
+        "ru": "Врачи определили возбудителя болезни, вызвавшего вспышку.",
+        "uz": "Shifokorlar epidemiyaga sabab bo'lgan kasallik qo'zg'atuvchisini aniqladi."
+      }
+    },
+    {
+      "word": "microbe",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmaɪˌkroʊb/",
+      "translation": "микроб",
+      "translations": {
+        "ru": "микроб",
+        "uz": "mikrob"
+      },
+      "example": "A microbe is too small to see without a microscope.",
+      "example_translations": {
+        "ru": "Микроб слишком мал, чтобы увидеть его без микроскопа.",
+        "uz": "Mikrob shu qadar kichikki, uni mikroskopsiz ko'rib bo'lmaydi."
+      }
+    },
+    {
+      "word": "tissue",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɪʃu/",
+      "translation": "ткань организма",
+      "translations": {
+        "ru": "ткань организма",
+        "uz": "organizm to'qimasi"
+      },
+      "example": "Muscle tissue repairs itself after hard exercise.",
+      "example_translations": {
+        "ru": "Мышечная ткань восстанавливается после тяжёлых нагрузок.",
+        "uz": "Mushak to'qimasi og'ir mashqlardan keyin o'zini tiklaydi."
+      }
+    },
+    {
+      "word": "cellular",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɛljələr/",
+      "translation": "клеточный",
+      "translations": {
+        "ru": "клеточный",
+        "uz": "hujayraviy"
+      },
+      "example": "Aging begins with damage at the cellular level.",
+      "example_translations": {
+        "ru": "Старение начинается с повреждений на клеточном уровне.",
+        "uz": "Qarish hujayraviy darajadagi shikastlanishlardan boshlanadi."
+      }
+    }
+  ]
+}

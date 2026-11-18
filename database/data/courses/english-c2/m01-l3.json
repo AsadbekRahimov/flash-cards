@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 1,
+    "title": "Оттенки характера",
+    "title_uz": "Xarakter qirralari"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Темперамент",
+    "title_uz": "Fe'l-atvor"
+  },
+  "words": [
+    {
+      "word": "mercurial",
+      "part_of_speech": "adjective",
+      "transcription": "/mərˈkjʊriəl/",
+      "translation": "переменчивый",
+      "translations": {
+        "ru": "переменчивый",
+        "uz": "o'zgaruvchan, beqaror"
+      },
+      "example": "Her mercurial moods shifted from joy to fury.",
+      "example_translations": {
+        "ru": "Её переменчивое настроение скакало от радости к ярости.",
+        "uz": "Uning o'zgaruvchan kayfiyati quvonchdan g'azabga o'tib turardi."
+      }
+    },
+    {
+      "word": "gregarious",
+      "part_of_speech": "adjective",
+      "transcription": "/grɪˈgɛriəs/",
+      "translation": "общительный, компанейский",
+      "translations": {
+        "ru": "общительный, компанейский",
+        "uz": "kirishimli, dilkash"
+      },
+      "example": "Gregarious by nature, Tom hates spending evenings alone.",
+      "example_translations": {
+        "ru": "Общительный по натуре, Том терпеть не может проводить вечера в одиночестве.",
+        "uz": "Tabiatan kirishimli Tom oqshomlarni yolg'iz o'tkazishni yomon ko'radi."
+      }
+    },
+    {
+      "word": "taciturn",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtæsəˌtɜrn/",
+      "translation": "молчаливый, неразговорчивый",
+      "translations": {
+        "ru": "молчаливый, неразговорчивый",
+        "uz": "kamgap, indamas"
+      },
+      "example": "My taciturn grandfather rarely spoke more than a sentence.",
+      "example_translations": {
+        "ru": "Мой молчаливый дедушка редко произносил больше одной фразы.",
+        "uz": "Kamgap bobom kamdan-kam hollarda bir gapdan ortiq gapirardi."
+      }
+    },
+    {
+      "word": "ebullient",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈbʊljənt/",
+      "translation": "восторженный, кипучий",
+      "translations": {
+        "ru": "восторженный, кипучий",
+        "uz": "jo'shqin"
+      },
+      "example": "The ebullient coach hugged everyone after the victory.",
+      "example_translations": {
+        "ru": "Восторженный тренер обнял всех после победы.",
+        "uz": "Jo'shqin murabbiy g'alabadan so'ng hammani quchoqladi."
+      }
+    },
+    {
+      "word": "irascible",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈræsəbəl/",
+      "translation": "вспыльчивый, раздражительный",
+      "translations": {
+        "ru": "вспыльчивый, раздражительный",
+        "uz": "jizzaki, serjahl"
+      },
+      "example": "Our irascible neighbor shouts at the slightest noise.",
+      "example_translations": {
+        "ru": "Наш вспыльчивый сосед кричит при малейшем шуме.",
+        "uz": "Jizzaki qo'shnimiz arzimas shovqinga ham baqiradi."
+      }
+    },
+    {
+      "word": "placid",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈplæsəd/",
+      "translation": "спокойный, безмятежный",
+      "translations": {
+        "ru": "спокойный, безмятежный",
+        "uz": "bosiq, osoyishta"
+      },
+      "example": "Nothing ever upsets their placid, easygoing daughter.",
+      "example_translations": {
+        "ru": "Их спокойную, покладистую дочь ничто не выводит из себя.",
+        "uz": "Ularning bosiq, muloyim qizini hech narsa xafa qila olmaydi."
+      }
+    },
+    {
+      "word": "capricious",
+      "part_of_speech": "adjective",
+      "transcription": "/kəˈprɪʃəs/",
+      "translation": "взбалмошный, своенравный",
+      "translations": {
+        "ru": "взбалмошный, своенравный",
+        "uz": "injiq"
+      },
+      "example": "The capricious director changed the script every single day.",
+      "example_translations": {
+        "ru": "Взбалмошный режиссёр менял сценарий буквально каждый день.",
+        "uz": "Injiq rejissyor ssenariyni har kuni o'zgartirardi."
+      }
+    },
+    {
+      "word": "petulant",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpɛtʃələnt/",
+      "translation": "обидчивый, капризный",
+      "translations": {
+        "ru": "обидчивый, капризный",
+        "uz": "arazchi, tajang"
+      },
+      "example": "Stop being petulant just because you lost the game!",
+      "example_translations": {
+        "ru": "Не будь таким обидчивым только из-за того, что проиграл!",
+        "uz": "O'yinda yutqazganing uchungina bunchalik arazchi bo'lma!"
+      }
+    },
+    {
+      "word": "sullen",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsʌlən/",
+      "translation": "угрюмый, насупленный",
+      "translations": {
+        "ru": "угрюмый, насупленный",
+        "uz": "tumtaygan, qovog'i soliq"
+      },
+      "example": "After the argument, he sat in sullen silence.",
+      "example_translations": {
+        "ru": "После ссоры он сидел в угрюмом молчании.",
+        "uz": "Janjaldan so'ng u tumtaygan holda jim o'tirdi."
+      }
+    },
+    {
+      "word": "diffident",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdɪfədənt/",
+      "translation": "неуверенный в себе, застенчивый",
+      "translations": {
+        "ru": "неуверенный в себе, застенчивый",
+        "uz": "tortinchoq, o'ziga ishonmaydigan"
+      },
+      "example": "Diffident students rarely raise their hands in class.",
+      "example_translations": {
+        "ru": "Неуверенные в себе ученики редко поднимают руку на уроке.",
+        "uz": "Tortinchoq o'quvchilar darsda kamdan-kam qo'l ko'taradi."
+      }
+    }
+  ]
+}

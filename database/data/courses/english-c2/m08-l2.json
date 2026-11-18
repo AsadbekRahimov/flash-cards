@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 8,
+    "title": "Литература и язык",
+    "title_uz": "Adabiyot va til"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Стилистические приёмы",
+    "title_uz": "Uslubiy vositalar"
+  },
+  "words": [
+    {
+      "word": "alliteration",
+      "part_of_speech": "noun",
+      "transcription": "/əˌlɪtəˈreɪʃən/",
+      "translation": "аллитерация",
+      "translations": {
+        "ru": "аллитерация",
+        "uz": "alliteratsiya"
+      },
+      "example": "\"Wild winds whistle\" is a good example of alliteration.",
+      "example_translations": {
+        "ru": "«Wild winds whistle» — хороший пример аллитерации.",
+        "uz": "\"Wild winds whistle\" — alliteratsiyaning yaxshi namunasi."
+      }
+    },
+    {
+      "word": "onomatopoeia",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɑnəˌmætəˈpiə/",
+      "translation": "звукоподражание",
+      "translations": {
+        "ru": "звукоподражание",
+        "uz": "tovushga taqlid"
+      },
+      "example": "The word \"buzz\" is a classic onomatopoeia.",
+      "example_translations": {
+        "ru": "Слово «buzz» — классическое звукоподражание.",
+        "uz": "\"Buzz\" so'zi — tovushga taqlidning klassik namunasi."
+      }
+    },
+    {
+      "word": "personification",
+      "part_of_speech": "noun",
+      "transcription": "/pərˌsɑnəfəˈkeɪʃən/",
+      "translation": "олицетворение",
+      "translations": {
+        "ru": "олицетворение",
+        "uz": "jonlantirish"
+      },
+      "example": "Calling the wind angry is simple personification.",
+      "example_translations": {
+        "ru": "Назвать ветер сердитым — простое олицетворение.",
+        "uz": "Shamolni jahldor deb atash — oddiy jonlantirishdir."
+      }
+    },
+    {
+      "word": "simile",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪməli/",
+      "translation": "сравнение",
+      "translations": {
+        "ru": "сравнение",
+        "uz": "o'xshatish"
+      },
+      "example": "\"Brave as a lion\" is a familiar simile.",
+      "example_translations": {
+        "ru": "«Храбрый как лев» — знакомое всем сравнение.",
+        "uz": "\"Sherdek jasur\" — hammaga tanish o'xshatish."
+      }
+    },
+    {
+      "word": "oxymoron",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɑksɪˈmɔrˌɑn/",
+      "translation": "оксюморон",
+      "translations": {
+        "ru": "оксюморон",
+        "uz": "oksimoron"
+      },
+      "example": "The phrase \"deafening silence\" is an oxymoron.",
+      "example_translations": {
+        "ru": "Выражение «оглушительная тишина» — это оксюморон.",
+        "uz": "\"Quloqni qomatga keltiruvchi sukunat\" birikmasi — oksimoron."
+      }
+    },
+    {
+      "word": "juxtaposition",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdʒʌkstəpəˈzɪʃən/",
+      "translation": "сопоставление",
+      "translations": {
+        "ru": "сопоставление",
+        "uz": "yonma-yon qo'yish"
+      },
+      "example": "The juxtaposition of wealth and poverty shocks readers.",
+      "example_translations": {
+        "ru": "Сопоставление богатства и нищеты потрясает читателей.",
+        "uz": "Boylik va qashshoqlikni yonma-yon qo'yish o'quvchilarni larzaga soladi."
+      }
+    },
+    {
+      "word": "antithesis",
+      "part_of_speech": "noun",
+      "transcription": "/ænˈtɪθəsəs/",
+      "translation": "антитеза, противопоставление",
+      "translations": {
+        "ru": "антитеза, противопоставление",
+        "uz": "tazod, antiteza"
+      },
+      "example": "Antithesis sets two opposite ideas against each other.",
+      "example_translations": {
+        "ru": "Антитеза сталкивает две противоположные идеи.",
+        "uz": "Tazod ikki qarama-qarshi g'oyani bir-biriga ro'baro' qo'yadi."
+      }
+    },
+    {
+      "word": "pun",
+      "part_of_speech": "noun",
+      "transcription": "/pʌn/",
+      "translation": "каламбур",
+      "translations": {
+        "ru": "каламбур",
+        "uz": "so'z o'yini"
+      },
+      "example": "Dad's pun on \"flour\" and \"flower\" made everyone smile.",
+      "example_translations": {
+        "ru": "Папин каламбур со словами «flour» и «flower» заставил всех улыбнуться.",
+        "uz": "Dadamning \"flour\" va \"flower\" so'zlari bilan qilgan so'z o'yini hammani jilmaytirdi."
+      }
+    },
+    {
+      "word": "trope",
+      "part_of_speech": "noun",
+      "transcription": "/troʊp/",
+      "translation": "троп, образный приём",
+      "translations": {
+        "ru": "троп, образный приём",
+        "uz": "ko'chim, trop"
+      },
+      "example": "Metaphor is the most common trope in poetry.",
+      "example_translations": {
+        "ru": "Метафора — самый распространённый троп в поэзии.",
+        "uz": "Metafora — she'riyatda eng ko'p uchraydigan ko'chim."
+      }
+    },
+    {
+      "word": "pathos",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpeɪˌθɑs/",
+      "translation": "трогательность",
+      "translations": {
+        "ru": "трогательность",
+        "uz": "hazin ta'sirchanlik"
+      },
+      "example": "The pathos of the final scene moved us deeply.",
+      "example_translations": {
+        "ru": "Трогательность финальной сцены глубоко нас взволновала.",
+        "uz": "So'nggi sahnaning hazin ta'sirchanligi bizni chuqur to'lqinlantirdi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 16,
+    "title": "Конфликт и согласие",
+    "title_uz": "Nizo va murosa"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Вражда и раздоры",
+    "title_uz": "Adovat va nizolar"
+  },
+  "words": [
+    {
+      "word": "enmity",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛnməti/",
+      "translation": "вражда",
+      "translations": {
+        "ru": "вражда",
+        "uz": "adovat"
+      },
+      "example": "Decades of enmity separated the two neighboring clans.",
+      "example_translations": {
+        "ru": "Два соседних клана разделяли десятилетия вражды.",
+        "uz": "Ikki qo'shni urug'ni o'nlab yillik adovat ajratib turardi."
+      }
+    },
+    {
+      "word": "antipathy",
+      "part_of_speech": "noun",
+      "transcription": "/ænˈtɪpəθi/",
+      "translation": "неприязнь, антипатия",
+      "translations": {
+        "ru": "неприязнь, антипатия",
+        "uz": "yoqtirmaslik hissi"
+      },
+      "example": "She felt a deep antipathy toward her arrogant rival.",
+      "example_translations": {
+        "ru": "Она испытывала глубокую неприязнь к своей высокомерной сопернице.",
+        "uz": "U takabbur raqibiga nisbatan kuchli yoqtirmaslik hissini tuyardi."
+      }
+    },
+    {
+      "word": "fractious",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈfrækʃəs/",
+      "translation": "склочный, вздорный",
+      "translations": {
+        "ru": "склочный, вздорный",
+        "uz": "janjalkash"
+      },
+      "example": "The fractious committee argued over every small detail.",
+      "example_translations": {
+        "ru": "Склочный комитет спорил из-за каждой мелочи.",
+        "uz": "Janjalkash qo'mita har bir mayda-chuyda ustida bahslashardi."
+      }
+    },
+    {
+      "word": "altercation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɔltərˈkeɪʃən/",
+      "translation": "перепалка",
+      "translations": {
+        "ru": "перепалка",
+        "uz": "shovqinli janjal"
+      },
+      "example": "A loud altercation broke out over a parking space.",
+      "example_translations": {
+        "ru": "Из-за парковочного места вспыхнула громкая перепалка.",
+        "uz": "Avtoturargohdagi joy uchun shovqinli janjal chiqdi."
+      }
+    },
+    {
+      "word": "skirmish",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskɜrmɪʃ/",
+      "translation": "стычка",
+      "translations": {
+        "ru": "стычка",
+        "uz": "to'qnashuv"
+      },
+      "example": "After a brief skirmish, both patrols withdrew unharmed.",
+      "example_translations": {
+        "ru": "После короткой стычки оба патруля отступили без потерь.",
+        "uz": "Qisqa to'qnashuvdan keyin ikkala patrul talafotsiz chekindi."
+      }
+    },
+    {
+      "word": "squabble",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskwɑbəl/",
+      "translation": "перебранка, мелкая ссора",
+      "translations": {
+        "ru": "перебранка, мелкая ссора",
+        "uz": "mayda janjal"
+      },
+      "example": "The children's squabble over toys ended in tears.",
+      "example_translations": {
+        "ru": "Детская перебранка из-за игрушек закончилась слезами.",
+        "uz": "Bolalarning o'yinchoq ustidagi mayda janjali ko'z yoshi bilan tugadi."
+      }
+    },
+    {
+      "word": "vendetta",
+      "part_of_speech": "noun",
+      "transcription": "/vɛnˈdɛtə/",
+      "translation": "вендетта, кровная месть",
+      "translations": {
+        "ru": "вендетта, кровная месть",
+        "uz": "qonli qasos"
+      },
+      "example": "The vendetta between the families lasted four generations.",
+      "example_translations": {
+        "ru": "Вендетта между этими семьями длилась четыре поколения.",
+        "uz": "Bu oilalar o'rtasidagi qonli qasos to'rt avlod davom etdi."
+      }
+    },
+    {
+      "word": "strife",
+      "part_of_speech": "noun",
+      "transcription": "/straɪf/",
+      "translation": "распри, раздоры",
+      "translations": {
+        "ru": "распри, раздоры",
+        "uz": "nizo, nifoq"
+      },
+      "example": "Years of civil strife had ruined the economy.",
+      "example_translations": {
+        "ru": "Годы гражданских распрей разрушили экономику.",
+        "uz": "Yillab davom etgan ichki nizolar iqtisodiyotni xarob qildi."
+      }
+    },
+    {
+      "word": "schism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskɪzəm/",
+      "translation": "раскол",
+      "translations": {
+        "ru": "раскол",
+        "uz": "bo'linish"
+      },
+      "example": "The schism split the church into two rival branches.",
+      "example_translations": {
+        "ru": "Раскол разделил церковь на две соперничающие ветви.",
+        "uz": "Bo'linish cherkovni ikki raqib tarmoqqa ajratib yubordi."
+      }
+    },
+    {
+      "word": "rift",
+      "part_of_speech": "noun",
+      "transcription": "/rɪft/",
+      "translation": "разлад, разрыв",
+      "translations": {
+        "ru": "разлад, разрыв",
+        "uz": "ora buzilishi"
+      },
+      "example": "A quarrel over money caused a rift between the sisters.",
+      "example_translations": {
+        "ru": "Ссора из-за денег привела к разладу между сёстрами.",
+        "uz": "Pul ustidagi janjal opa-singillarning orasi buzilishiga sabab bo'ldi."
+      }
+    }
+  ]
+}

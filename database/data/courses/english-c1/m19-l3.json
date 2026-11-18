@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 19,
+    "title": "Город и пространство",
+    "title_uz": "Shahar va makon"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Аренда и недвижимость",
+    "title_uz": "Ijara va ko'chmas mulk"
+  },
+  "words": [
+    {
+      "word": "condominium",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑndəˈmɪniəm/",
+      "translation": "кондоминиум",
+      "translations": {
+        "ru": "кондоминиум",
+        "uz": "kondominium"
+      },
+      "example": "Every owner in the condominium pays a monthly fee.",
+      "example_translations": {
+        "ru": "Каждый собственник в кондоминиуме платит ежемесячный взнос.",
+        "uz": "Kondominiumdagi har bir mulkdor oylik to'lov to'laydi."
+      }
+    },
+    {
+      "word": "tenancy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɛnənsi/",
+      "translation": "наём жилья",
+      "translations": {
+        "ru": "наём жилья",
+        "uz": "uy-joy ijarasi"
+      },
+      "example": "Their tenancy ends in June, so they must move.",
+      "example_translations": {
+        "ru": "Срок их найма жилья истекает в июне, так что им придётся съехать.",
+        "uz": "Ularning uy-joy ijarasi iyunda tugaydi, shuning uchun ko'chishlari kerak."
+      }
+    },
+    {
+      "word": "evict",
+      "part_of_speech": "verb",
+      "transcription": "/ɪˈvɪkt/",
+      "translation": "выселять",
+      "translations": {
+        "ru": "выселять",
+        "uz": "ko'chirib chiqarmoq"
+      },
+      "example": "The landlord evicted them for not paying rent.",
+      "example_translations": {
+        "ru": "Хозяин выселил их за неуплату аренды.",
+        "uz": "Uy egasi ijara haqini to'lamaganlari uchun ularni ko'chirib chiqardi."
+      }
+    },
+    {
+      "word": "occupancy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑkjəpənsi/",
+      "translation": "заполняемость",
+      "translations": {
+        "ru": "заполняемость",
+        "uz": "to'lganlik darajasi"
+      },
+      "example": "Occupancy in the new office tower reached ninety percent.",
+      "example_translations": {
+        "ru": "Заполняемость новой офисной башни достигла девяноста процентов.",
+        "uz": "Yangi ofis minorasining to'lganlik darajasi to'qson foizga yetdi."
+      }
+    },
+    {
+      "word": "sublet",
+      "part_of_speech": "verb",
+      "transcription": "/ˌsʌbˈlɛt/",
+      "translation": "сдавать в субаренду",
+      "translations": {
+        "ru": "сдавать в субаренду",
+        "uz": "qayta ijaraga bermoq"
+      },
+      "example": "Can I sublet my room while I'm abroad?",
+      "example_translations": {
+        "ru": "Могу ли я сдать свою комнату в субаренду, пока я за границей?",
+        "uz": "Chet elda bo'lganimda xonamni qayta ijaraga bersam bo'ladimi?"
+      }
+    },
+    {
+      "word": "realtor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈriəltər/",
+      "translation": "риелтор",
+      "translations": {
+        "ru": "риелтор",
+        "uz": "rieltor"
+      },
+      "example": "A realtor showed us five houses last weekend.",
+      "example_translations": {
+        "ru": "В прошлые выходные риелтор показал нам пять домов.",
+        "uz": "O'tgan dam olish kunlari rieltor bizga beshta uyni ko'rsatdi."
+      }
+    },
+    {
+      "word": "deed",
+      "part_of_speech": "noun",
+      "transcription": "/did/",
+      "translation": "документ о праве собственности",
+      "translations": {
+        "ru": "документ о праве собственности",
+        "uz": "mulk huquqi hujjati"
+      },
+      "example": "Keep the deed to your house somewhere safe.",
+      "example_translations": {
+        "ru": "Храните документ о праве собственности на дом в надёжном месте.",
+        "uz": "Uyingizga bo'lgan mulk huquqi hujjatini ishonchli joyda saqlang."
+      }
+    },
+    {
+      "word": "vacant",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈveɪkənt/",
+      "translation": "свободный, незанятый",
+      "translations": {
+        "ru": "свободный, незанятый",
+        "uz": "bo'sh"
+      },
+      "example": "The apartment upstairs has been vacant since March.",
+      "example_translations": {
+        "ru": "Квартира этажом выше свободна с марта.",
+        "uz": "Yuqori qavatdagi xonadon martdan beri bo'sh turibdi."
+      }
+    },
+    {
+      "word": "dilapidated",
+      "part_of_speech": "adjective",
+      "transcription": "/dəˈlæpəˌdeɪtɪd/",
+      "translation": "обветшалый",
+      "translations": {
+        "ru": "обветшалый",
+        "uz": "nurab qolgan"
+      },
+      "example": "Nobody wanted to rent the dilapidated old cottage.",
+      "example_translations": {
+        "ru": "Никто не хотел снимать обветшалый старый домик.",
+        "uz": "Hech kim nurab qolgan eski uychani ijaraga olishni istamadi."
+      }
+    },
+    {
+      "word": "upkeep",
+      "part_of_speech": "noun",
+      "transcription": "/ˈʌpˌkip/",
+      "translation": "содержание, уход",
+      "translations": {
+        "ru": "содержание, уход",
+        "uz": "qarov, saqlab turish"
+      },
+      "example": "The upkeep of a large house costs a fortune.",
+      "example_translations": {
+        "ru": "Содержание большого дома стоит целое состояние.",
+        "uz": "Katta uyning qarovi juda qimmatga tushadi."
+      }
+    }
+  ]
+}

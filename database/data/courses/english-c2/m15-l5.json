@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 15,
+    "title": "Общество и нравы",
+    "title_uz": "Jamiyat va urf-odatlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Манера общения",
+    "title_uz": "Muomala"
+  },
+  "words": [
+    {
+      "word": "condescend",
+      "part_of_speech": "verb",
+      "transcription": "/ˌkɑndɪˈsɛnd/",
+      "translation": "говорить свысока",
+      "translations": {
+        "ru": "говорить свысока",
+        "uz": "mensimay gapirmoq"
+      },
+      "example": "Good teachers never condescend to their students.",
+      "example_translations": {
+        "ru": "Хорошие учителя никогда не говорят с учениками свысока.",
+        "uz": "Yaxshi o'qituvchilar o'quvchilari bilan hech qachon mensimay gapirmaydi."
+      }
+    },
+    {
+      "word": "ingratiate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈgreɪʃiˌeɪt/",
+      "translation": "втираться в доверие",
+      "translations": {
+        "ru": "втираться в доверие",
+        "uz": "pinjiga kirmoq"
+      },
+      "example": "He tried to ingratiate himself with the new boss.",
+      "example_translations": {
+        "ru": "Он пытался втереться в доверие к новому начальнику.",
+        "uz": "U yangi boshliqning pinjiga kirishga urindi."
+      }
+    },
+    {
+      "word": "pander",
+      "part_of_speech": "verb",
+      "transcription": "/ˈpændər/",
+      "translation": "потакать",
+      "translations": {
+        "ru": "потакать",
+        "uz": "ko'ngliga qarab ish tutmoq"
+      },
+      "example": "The channel panders to viewers' love of gossip.",
+      "example_translations": {
+        "ru": "Канал потакает любви зрителей к сплетням.",
+        "uz": "Kanal g'iybatni yaxshi ko'radigan tomoshabinlarning ko'ngliga qarab ish tutadi."
+      }
+    },
+    {
+      "word": "mingle",
+      "part_of_speech": "verb",
+      "transcription": "/ˈmɪŋgəl/",
+      "translation": "непринуждённо общаться",
+      "translations": {
+        "ru": "непринуждённо общаться",
+        "uz": "aralashib suhbatlashmoq"
+      },
+      "example": "Guests mingled in the garden before dinner was served.",
+      "example_translations": {
+        "ru": "Перед ужином гости непринуждённо общались в саду.",
+        "uz": "Kechki ovqatdan oldin mehmonlar bog'da aralashib suhbatlashdi."
+      }
+    },
+    {
+      "word": "convivial",
+      "part_of_speech": "adjective",
+      "transcription": "/kənˈvɪviəl/",
+      "translation": "весёлый, компанейский",
+      "translations": {
+        "ru": "весёлый, компанейский",
+        "uz": "quvnoq, xushchaqchaq"
+      },
+      "example": "Laughter and songs made the dinner truly convivial.",
+      "example_translations": {
+        "ru": "Смех и песни сделали ужин по-настоящему весёлым.",
+        "uz": "Kulgi va qo'shiqlar kechki ziyofatni chinakam quvnoq qildi."
+      }
+    },
+    {
+      "word": "amiable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈeɪmiəbəl/",
+      "translation": "приветливый, дружелюбный",
+      "translations": {
+        "ru": "приветливый, дружелюбный",
+        "uz": "xushmuomala"
+      },
+      "example": "Our amiable neighbor greets everyone with a warm smile.",
+      "example_translations": {
+        "ru": "Наш приветливый сосед встречает каждого тёплой улыбкой.",
+        "uz": "Xushmuomala qo'shnimiz har kimni iliq tabassum bilan qarshi oladi."
+      }
+    },
+    {
+      "word": "snub",
+      "part_of_speech": "verb",
+      "transcription": "/snʌb/",
+      "translation": "демонстративно игнорировать",
+      "translations": {
+        "ru": "демонстративно игнорировать",
+        "uz": "ataylab e'tiborsiz qoldirmoq"
+      },
+      "example": "Why did she snub her old classmates yesterday?",
+      "example_translations": {
+        "ru": "Почему она вчера демонстративно игнорировала бывших одноклассников?",
+        "uz": "Nega u kecha eski sinfdoshlarini ataylab e'tiborsiz qoldirdi?"
+      }
+    },
+    {
+      "word": "rebuff",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈbʌf/",
+      "translation": "резко отвергать",
+      "translations": {
+        "ru": "резко отвергать",
+        "uz": "keskin rad etmoq"
+      },
+      "example": "Malika rebuffed every offer of help from them.",
+      "example_translations": {
+        "ru": "Малика резко отвергала любое их предложение помочь.",
+        "uz": "Malika ularning har qanday yordam taklifini keskin rad etardi."
+      }
+    },
+    {
+      "word": "camaraderie",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑməˈrɑdəri/",
+      "translation": "дух товарищества",
+      "translations": {
+        "ru": "дух товарищества",
+        "uz": "o'rtoqlik ruhi"
+      },
+      "example": "Long expeditions create real camaraderie among the climbers.",
+      "example_translations": {
+        "ru": "Долгие экспедиции рождают среди альпинистов настоящий дух товарищества.",
+        "uz": "Uzoq ekspeditsiyalar alpinistlar orasida chinakam o'rtoqlik ruhini paydo qiladi."
+      }
+    },
+    {
+      "word": "banter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbæntər/",
+      "translation": "добродушное подшучивание",
+      "translations": {
+        "ru": "добродушное подшучивание",
+        "uz": "hazil-mutoyiba"
+      },
+      "example": "Friendly banter between the brothers filled the kitchen.",
+      "example_translations": {
+        "ru": "Кухню наполняло добродушное подшучивание братьев друг над другом.",
+        "uz": "Oshxona aka-ukalarning do'stona hazil-mutoyibasi bilan to'ldi."
+      }
+    }
+  ]
+}

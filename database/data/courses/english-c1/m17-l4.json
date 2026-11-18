@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 17,
+    "title": "Аргументация и дискуссия",
+    "title_uz": "Dalillash va munozara"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Искусство убеждать",
+    "title_uz": "Ishontirish san'ati"
+  },
+  "words": [
+    {
+      "word": "rhetoric",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɛtərɪk/",
+      "translation": "риторика",
+      "translations": {
+        "ru": "риторика",
+        "uz": "ritorika"
+      },
+      "example": "Voters were tired of empty rhetoric and promises.",
+      "example_translations": {
+        "ru": "Избиратели устали от пустой риторики и обещаний.",
+        "uz": "Saylovchilar quruq ritorika va va'dalardan charchagan edi."
+      }
+    },
+    {
+      "word": "eloquent",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɛləkwənt/",
+      "translation": "красноречивый",
+      "translations": {
+        "ru": "красноречивый",
+        "uz": "so'zga chechan"
+      },
+      "example": "An eloquent lawyer can win over any jury.",
+      "example_translations": {
+        "ru": "Красноречивый адвокат способен расположить к себе любых присяжных.",
+        "uz": "So'zga chechan advokat har qanday hakamlar hay'atini o'ziga rom qila oladi."
+      }
+    },
+    {
+      "word": "sway",
+      "part_of_speech": "verb",
+      "transcription": "/sweɪ/",
+      "translation": "склонять на свою сторону",
+      "translations": {
+        "ru": "склонять на свою сторону",
+        "uz": "o'z tomoniga og'dirmoq"
+      },
+      "example": "Her calm arguments swayed the undecided voters.",
+      "example_translations": {
+        "ru": "Её спокойные доводы склонили на её сторону колеблющихся избирателей.",
+        "uz": "Uning xotirjam dalillari ikkilanayotgan saylovchilarni o'z tomoniga og'dirdi."
+      }
+    },
+    {
+      "word": "cogent",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkoʊdʒənt/",
+      "translation": "убедительный, веский",
+      "translations": {
+        "ru": "убедительный, веский",
+        "uz": "ishonarli"
+      },
+      "example": "She presented a cogent case for changing the law.",
+      "example_translations": {
+        "ru": "Она привела убедительные доводы в пользу изменения закона.",
+        "uz": "U qonunni o'zgartirish foydasiga ishonarli dalillar keltirdi."
+      }
+    },
+    {
+      "word": "emotive",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈmoʊtɪv/",
+      "translation": "вызывающий эмоции",
+      "translations": {
+        "ru": "вызывающий эмоции",
+        "uz": "his-hayajon uyg'otuvchi"
+      },
+      "example": "Animal testing remains a highly emotive subject.",
+      "example_translations": {
+        "ru": "Опыты на животных остаются темой, вызывающей сильные эмоции.",
+        "uz": "Hayvonlarda tajriba o'tkazish kuchli his-hayajon uyg'otuvchi mavzu bo'lib qolmoqda."
+      }
+    },
+    {
+      "word": "oratory",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɔrəˌtɔri/",
+      "translation": "ораторское искусство",
+      "translations": {
+        "ru": "ораторское искусство",
+        "uz": "notiqlik san'ati"
+      },
+      "example": "The senator was famous for his powerful oratory.",
+      "example_translations": {
+        "ru": "Сенатор славился своим мощным ораторским искусством.",
+        "uz": "Senator o'zining kuchli notiqlik san'ati bilan mashhur edi."
+      }
+    },
+    {
+      "word": "forceful",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈfɔrsfəl/",
+      "translation": "напористый",
+      "translations": {
+        "ru": "напористый",
+        "uz": "shiddatli"
+      },
+      "example": "He made a forceful speech against the proposal.",
+      "example_translations": {
+        "ru": "Он произнёс напористую речь против этого предложения.",
+        "uz": "U bu taklifga qarshi shiddatli nutq so'zladi."
+      }
+    },
+    {
+      "word": "hyperbole",
+      "part_of_speech": "noun",
+      "transcription": "/haɪˈpɜrbəli/",
+      "translation": "гипербола, преувеличение",
+      "translations": {
+        "ru": "гипербола, преувеличение",
+        "uz": "mubolag'a"
+      },
+      "example": "Calling him a genius is pure hyperbole.",
+      "example_translations": {
+        "ru": "Называть его гением — чистая гипербола.",
+        "uz": "Uni daho deb atash — g'irt mubolag'a."
+      }
+    },
+    {
+      "word": "understatement",
+      "part_of_speech": "noun",
+      "transcription": "/ˈʌndərˌsteɪtmənt/",
+      "translation": "преуменьшение",
+      "translations": {
+        "ru": "преуменьшение",
+        "uz": "kamaytirib aytish"
+      },
+      "example": "Saying the exam was hard is an understatement.",
+      "example_translations": {
+        "ru": "Сказать, что экзамен был трудным, — это преуменьшение.",
+        "uz": "Imtihon qiyin bo'ldi deyish — kamaytirib aytish."
+      }
+    },
+    {
+      "word": "emphatic",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪmˈfætɪk/",
+      "translation": "категоричный",
+      "translations": {
+        "ru": "категоричный",
+        "uz": "qat'iy"
+      },
+      "example": "Their answer was an emphatic no.",
+      "example_translations": {
+        "ru": "Их ответом было категоричное «нет».",
+        "uz": "Ularning javobi qat'iy «yo'q» bo'ldi."
+      }
+    }
+  ]
+}

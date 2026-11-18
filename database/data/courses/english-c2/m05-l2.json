@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 5,
+    "title": "Философия и этика",
+    "title_uz": "Falsafa va etika"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Бытие и реальность",
+    "title_uz": "Borliq va voqelik"
+  },
+  "words": [
+    {
+      "word": "metaphysics",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɛtəˈfɪzɪks/",
+      "translation": "метафизика",
+      "translations": {
+        "ru": "метафизика",
+        "uz": "metafizika"
+      },
+      "example": "Metaphysics asks what reality ultimately consists of.",
+      "example_translations": {
+        "ru": "Метафизика спрашивает, из чего в конечном счёте состоит реальность.",
+        "uz": "Metafizika voqelik aslida nimadan iboratligini so'raydi."
+      }
+    },
+    {
+      "word": "existential",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɛgzɪˈstɛnʃəl/",
+      "translation": "экзистенциальный",
+      "translations": {
+        "ru": "экзистенциальный",
+        "uz": "ekzistensial, borliqqa oid"
+      },
+      "example": "Illness forced him to face existential questions about life.",
+      "example_translations": {
+        "ru": "Болезнь заставила его столкнуться с экзистенциальными вопросами о жизни.",
+        "uz": "Kasallik uni hayot haqidagi ekzistensial savollarga ro'para qildi."
+      }
+    },
+    {
+      "word": "essence",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛsəns/",
+      "translation": "суть",
+      "translations": {
+        "ru": "суть",
+        "uz": "mohiyat"
+      },
+      "example": "Freedom is the very essence of human dignity.",
+      "example_translations": {
+        "ru": "Свобода — сама суть человеческого достоинства.",
+        "uz": "Erkinlik — inson qadr-qimmatining asl mohiyati."
+      }
+    },
+    {
+      "word": "entity",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛntəti/",
+      "translation": "сущность, объект",
+      "translations": {
+        "ru": "сущность, объект",
+        "uz": "mavjud narsa, obyekt"
+      },
+      "example": "Is the mind an entity separate from the body?",
+      "example_translations": {
+        "ru": "Является ли разум сущностью, отдельной от тела?",
+        "uz": "Aql tanadan alohida mavjud narsami?"
+      }
+    },
+    {
+      "word": "transcend",
+      "part_of_speech": "verb",
+      "transcription": "/trænˈsɛnd/",
+      "translation": "выходить за пределы",
+      "translations": {
+        "ru": "выходить за пределы",
+        "uz": "chegarasidan oshib o'tmoq"
+      },
+      "example": "Great art transcends the boundaries of language and culture.",
+      "example_translations": {
+        "ru": "Великое искусство выходит за пределы языка и культуры.",
+        "uz": "Buyuk san'at til va madaniyat chegarasidan oshib o'tadi."
+      }
+    },
+    {
+      "word": "finite",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈfaɪˌnaɪt/",
+      "translation": "конечный, ограниченный",
+      "translations": {
+        "ru": "конечный, ограниченный",
+        "uz": "chekli"
+      },
+      "example": "Human life is finite, which makes time precious.",
+      "example_translations": {
+        "ru": "Человеческая жизнь конечна, и потому время драгоценно.",
+        "uz": "Inson umri chekli, shuning uchun vaqt qimmatlidir."
+      }
+    },
+    {
+      "word": "temporal",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtɛmpərəl/",
+      "translation": "временной",
+      "translations": {
+        "ru": "временной",
+        "uz": "vaqtga oid"
+      },
+      "example": "The temporal order of events cannot be reversed.",
+      "example_translations": {
+        "ru": "Временной порядок событий нельзя обратить вспять.",
+        "uz": "Voqealarning vaqtga oid ketma-ketligini ortga qaytarib bo'lmaydi."
+      }
+    },
+    {
+      "word": "immutable",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈmjutəbəl/",
+      "translation": "неизменный, непреложный",
+      "translations": {
+        "ru": "неизменный, непреложный",
+        "uz": "o'zgarmas"
+      },
+      "example": "Are the laws of nature truly immutable?",
+      "example_translations": {
+        "ru": "Действительно ли законы природы неизменны?",
+        "uz": "Tabiat qonunlari haqiqatan ham o'zgarmasmi?"
+      }
+    },
+    {
+      "word": "determinism",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈtɜrməˌnɪzəm/",
+      "translation": "детерминизм",
+      "translations": {
+        "ru": "детерминизм",
+        "uz": "determinizm"
+      },
+      "example": "Determinism claims every event has a prior cause.",
+      "example_translations": {
+        "ru": "Детерминизм утверждает, что у каждого события есть предшествующая причина.",
+        "uz": "Determinizm har bir hodisaning oldingi sababi bor deb ta'kidlaydi."
+      }
+    },
+    {
+      "word": "tangible",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtændʒəbəl/",
+      "translation": "осязаемый",
+      "translations": {
+        "ru": "осязаемый",
+        "uz": "ushlab ko'rsa bo'ladigan"
+      },
+      "example": "Ideas, unlike stones, are not tangible things.",
+      "example_translations": {
+        "ru": "Идеи, в отличие от камней, — не осязаемые вещи.",
+        "uz": "G'oyalar toshlardan farqli o'laroq, ushlab ko'rsa bo'ladigan narsalar emas."
+      }
+    }
+  ]
+}

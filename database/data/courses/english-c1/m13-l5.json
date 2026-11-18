@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 13,
+    "title": "Общество",
+    "title_uz": "Jamiyat"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Благотворительность",
+    "title_uz": "Xayriya"
+  },
+  "words": [
+    {
+      "word": "philanthropy",
+      "part_of_speech": "noun",
+      "transcription": "/fəˈlænθrəpi/",
+      "translation": "филантропия",
+      "translations": {
+        "ru": "филантропия",
+        "uz": "xayr-saxovat"
+      },
+      "example": "He made a fortune and turned to philanthropy.",
+      "example_translations": {
+        "ru": "Он сколотил состояние и занялся филантропией.",
+        "uz": "U katta boylik orttirib, xayr-saxovat bilan shug'ullana boshladi."
+      }
+    },
+    {
+      "word": "charitable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtʃɛrətəbəl/",
+      "translation": "благотворительный",
+      "translations": {
+        "ru": "благотворительный",
+        "uz": "xayriya"
+      },
+      "example": "A charitable organization pays for the children's operations.",
+      "example_translations": {
+        "ru": "Благотворительная организация оплачивает операции детей.",
+        "uz": "Xayriya tashkiloti bolalarning operatsiyalari uchun pul to'laydi."
+      }
+    },
+    {
+      "word": "benefactor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɛnəˌfæktər/",
+      "translation": "благодетель",
+      "translations": {
+        "ru": "благодетель",
+        "uz": "homiy"
+      },
+      "example": "An unknown benefactor paid for the new library.",
+      "example_translations": {
+        "ru": "Неизвестный благодетель оплатил новую библиотеку.",
+        "uz": "Noma'lum homiy yangi kutubxona xarajatlarini to'ladi."
+      }
+    },
+    {
+      "word": "donor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdoʊnər/",
+      "translation": "жертвователь",
+      "translations": {
+        "ru": "жертвователь",
+        "uz": "ehson qiluvchi"
+      },
+      "example": "Every donor received a thank-you letter from the school.",
+      "example_translations": {
+        "ru": "Каждый жертвователь получил от школы благодарственное письмо.",
+        "uz": "Har bir ehson qiluvchi maktabdan minnatdorchilik xati oldi."
+      }
+    },
+    {
+      "word": "grassroots",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈgræsˌruts/",
+      "translation": "низовой",
+      "translations": {
+        "ru": "низовой",
+        "uz": "quyidan boshlangan"
+      },
+      "example": "It began as a grassroots movement of ordinary parents.",
+      "example_translations": {
+        "ru": "Всё началось как низовое движение обычных родителей.",
+        "uz": "Hammasi oddiy ota-onalarning quyidan boshlangan harakati sifatida yuzaga kelgan."
+      }
+    },
+    {
+      "word": "nonprofit",
+      "part_of_speech": "noun",
+      "transcription": "/ˌnɑnˈprɑfɪt/",
+      "translation": "некоммерческая организация",
+      "translations": {
+        "ru": "некоммерческая организация",
+        "uz": "notijorat tashkilot"
+      },
+      "example": "She works for a nonprofit that feeds homeless people.",
+      "example_translations": {
+        "ru": "Она работает в некоммерческой организации, которая кормит бездомных.",
+        "uz": "U uysizlarni ovqatlantiradigan notijorat tashkilotda ishlaydi."
+      }
+    },
+    {
+      "word": "advocacy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈædvəkəsi/",
+      "translation": "защита прав",
+      "translations": {
+        "ru": "защита прав",
+        "uz": "huquqlarni himoya qilish"
+      },
+      "example": "Her advocacy for disabled children changed the school rules.",
+      "example_translations": {
+        "ru": "Её работа по защите прав детей с инвалидностью изменила школьные правила.",
+        "uz": "Uning nogironligi bor bolalar huquqlarini himoya qilishi maktab qoidalarini o'zgartirdi."
+      }
+    },
+    {
+      "word": "outreach",
+      "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌritʃ/",
+      "translation": "работа с населением",
+      "translations": {
+        "ru": "работа с населением",
+        "uz": "aholi bilan ishlash"
+      },
+      "example": "Outreach programs bring doctors to remote villages.",
+      "example_translations": {
+        "ru": "Программы работы с населением привозят врачей в отдалённые деревни.",
+        "uz": "Aholi bilan ishlash dasturlari shifokorlarni chekka qishloqlarga olib boradi."
+      }
+    },
+    {
+      "word": "fundraising",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfʌndˌreɪzɪŋ/",
+      "translation": "сбор средств",
+      "translations": {
+        "ru": "сбор средств",
+        "uz": "mablag' yig'ish"
+      },
+      "example": "Fundraising for the new playground took six months.",
+      "example_translations": {
+        "ru": "Сбор средств на новую детскую площадку занял полгода.",
+        "uz": "Yangi bolalar maydonchasi uchun mablag' yig'ish olti oy davom etdi."
+      }
+    },
+    {
+      "word": "communal",
+      "part_of_speech": "adjective",
+      "transcription": "/kəˈmjunəl/",
+      "translation": "общий, общинный",
+      "translations": {
+        "ru": "общий, общинный",
+        "uz": "umumiy, jamoaviy"
+      },
+      "example": "Neighbors grow vegetables together in the communal garden.",
+      "example_translations": {
+        "ru": "Соседи вместе выращивают овощи в общем саду.",
+        "uz": "Qo'shnilar umumiy bog'da birgalikda sabzavot yetishtiradi."
+      }
+    }
+  ]
+}

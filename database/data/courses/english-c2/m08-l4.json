@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 8,
+    "title": "Литература и язык",
+    "title_uz": "Adabiyot va til"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Сюжет и герои",
+    "title_uz": "Syujet va qahramonlar"
+  },
+  "words": [
+    {
+      "word": "exposition",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɛkspəˈzɪʃən/",
+      "translation": "экспозиция, вводная часть",
+      "translations": {
+        "ru": "экспозиция, вводная часть",
+        "uz": "ekspozitsiya, kirish qismi"
+      },
+      "example": "The exposition introduces the heroes and their village.",
+      "example_translations": {
+        "ru": "Экспозиция знакомит с героями и их деревней.",
+        "uz": "Ekspozitsiya qahramonlar va ularning qishlog'i bilan tanishtiradi."
+      }
+    },
+    {
+      "word": "epiphany",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˈpɪfəni/",
+      "translation": "озарение",
+      "translations": {
+        "ru": "озарение",
+        "uz": "birdan anglab yetish"
+      },
+      "example": "In a moment of epiphany, the hero understands his mistake.",
+      "example_translations": {
+        "ru": "В миг озарения герой понимает свою ошибку.",
+        "uz": "Birdan anglab yetish lahzasida qahramon o'z xatosini tushunadi."
+      }
+    },
+    {
+      "word": "catharsis",
+      "part_of_speech": "noun",
+      "transcription": "/kəˈθɑrsəs/",
+      "translation": "катарсис",
+      "translations": {
+        "ru": "катарсис",
+        "uz": "ruhiy poklanish, katarsis"
+      },
+      "example": "Tragedy offers the audience catharsis through shared tears.",
+      "example_translations": {
+        "ru": "Трагедия дарит зрителям катарсис через общие слёзы.",
+        "uz": "Fojia tomoshabinlarga birga to'kilgan ko'z yoshlari orqali ruhiy poklanish baxsh etadi."
+      }
+    },
+    {
+      "word": "hubris",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhjubrəs/",
+      "translation": "гордыня",
+      "translations": {
+        "ru": "гордыня",
+        "uz": "kibr-havo"
+      },
+      "example": "The king's hubris led to his downfall.",
+      "example_translations": {
+        "ru": "Гордыня короля привела его к падению.",
+        "uz": "Qirolning kibr-havosi uni halokatga olib keldi."
+      }
+    },
+    {
+      "word": "nemesis",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnɛməsəs/",
+      "translation": "заклятый противник",
+      "translations": {
+        "ru": "заклятый противник",
+        "uz": "ashaddiy raqib"
+      },
+      "example": "The detective finally faced his nemesis, a brilliant thief.",
+      "example_translations": {
+        "ru": "Сыщик наконец встретился со своим заклятым противником — гениальным вором.",
+        "uz": "Izquvar nihoyat o'zining ashaddiy raqibi — o'ta ustamon o'g'ri bilan yuzma-yuz keldi."
+      }
+    },
+    {
+      "word": "antagonist",
+      "part_of_speech": "noun",
+      "transcription": "/ænˈtægənəst/",
+      "translation": "антагонист",
+      "translations": {
+        "ru": "антагонист",
+        "uz": "antagonist, qarshi qahramon"
+      },
+      "example": "The antagonist blocks every plan the heroine makes.",
+      "example_translations": {
+        "ru": "Антагонист мешает каждому замыслу героини.",
+        "uz": "Antagonist bosh qahramon qizning har bir rejasiga to'sqinlik qiladi."
+      }
+    },
+    {
+      "word": "archetype",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑrkɪˌtaɪp/",
+      "translation": "архетип",
+      "translations": {
+        "ru": "архетип",
+        "uz": "arxetip"
+      },
+      "example": "The wise old mentor is a familiar archetype.",
+      "example_translations": {
+        "ru": "Мудрый старый наставник — знакомый всем архетип.",
+        "uz": "Dono keksa ustoz — hammaga tanish arxetip."
+      }
+    },
+    {
+      "word": "omniscient",
+      "part_of_speech": "adjective",
+      "transcription": "/ɑmˈnɪʃənt/",
+      "translation": "всеведущий",
+      "translations": {
+        "ru": "всеведущий",
+        "uz": "hamma narsani biluvchi"
+      },
+      "example": "An omniscient narrator knows every character's secret thoughts.",
+      "example_translations": {
+        "ru": "Всеведущий рассказчик знает тайные мысли каждого персонажа.",
+        "uz": "Hamma narsani biluvchi hikoyachi har bir qahramonning yashirin o'ylarini biladi."
+      }
+    },
+    {
+      "word": "flashback",
+      "part_of_speech": "noun",
+      "transcription": "/ˈflæʃˌbæk/",
+      "translation": "флешбэк, сцена из прошлого",
+      "translations": {
+        "ru": "флешбэк, сцена из прошлого",
+        "uz": "o'tmishga qaytish sahnasi"
+      },
+      "example": "A flashback shows the heroine's childhood in the village.",
+      "example_translations": {
+        "ru": "Флешбэк показывает детство героини в деревне.",
+        "uz": "O'tmishga qaytish sahnasi qahramon qizning qishloqdagi bolaligini ko'rsatadi."
+      }
+    },
+    {
+      "word": "digression",
+      "part_of_speech": "noun",
+      "transcription": "/daɪˈgrɛʃən/",
+      "translation": "отступление от темы",
+      "translations": {
+        "ru": "отступление от темы",
+        "uz": "mavzudan chekinish"
+      },
+      "example": "After a long digression, the narrator resumes the story.",
+      "example_translations": {
+        "ru": "После долгого отступления от темы рассказчик возвращается к истории.",
+        "uz": "Mavzudan uzoq chekinishdan so'ng hikoyachi voqeaga qaytadi."
+      }
+    }
+  ]
+}

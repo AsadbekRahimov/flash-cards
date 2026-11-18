@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 9,
+    "title": "Власть и государство",
+    "title_uz": "Hokimiyat va davlat"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Устройство государства",
+    "title_uz": "Davlat tuzilishi"
+  },
+  "words": [
+    {
+      "word": "technocrat",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɛknəˌkræt/",
+      "translation": "технократ",
+      "translations": {
+        "ru": "технократ",
+        "uz": "texnokrat"
+      },
+      "example": "The technocrat ran the ministry with data, not slogans.",
+      "example_translations": {
+        "ru": "Технократ управлял министерством, опираясь на данные, а не на лозунги.",
+        "uz": "Texnokrat vazirlikni shiorlarga emas, ma'lumotlarga tayanib boshqardi."
+      }
+    },
+    {
+      "word": "apparatus",
+      "part_of_speech": "noun",
+      "transcription": "/ˌæpəˈrætəs/",
+      "translation": "государственный аппарат",
+      "translations": {
+        "ru": "государственный аппарат",
+        "uz": "davlat apparati"
+      },
+      "example": "The state apparatus employs thousands of civil servants.",
+      "example_translations": {
+        "ru": "В государственном аппарате работают тысячи госслужащих.",
+        "uz": "Davlat apparatida minglab davlat xizmatchilari ishlaydi."
+      }
+    },
+    {
+      "word": "statecraft",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsteɪtˌkræft/",
+      "translation": "искусство управления государством",
+      "translations": {
+        "ru": "искусство управления государством",
+        "uz": "davlatni boshqarish san'ati"
+      },
+      "example": "Young princes studied statecraft before taking the throne.",
+      "example_translations": {
+        "ru": "Юные принцы изучали искусство управления государством, прежде чем взойти на трон.",
+        "uz": "Yosh shahzodalar taxtga o'tirishdan oldin davlatni boshqarish san'atini o'rganardi."
+      }
+    },
+    {
+      "word": "polity",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɑləti/",
+      "translation": "государственное образование",
+      "translations": {
+        "ru": "государственное образование",
+        "uz": "davlat tuzilmasi"
+      },
+      "example": "Each city was once a small independent polity.",
+      "example_translations": {
+        "ru": "Каждый город был когда-то небольшим независимым государственным образованием.",
+        "uz": "Har bir shahar bir vaqtlar kichik mustaqil davlat tuzilmasi bo'lgan."
+      }
+    },
+    {
+      "word": "federalism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɛdərəˌlɪzəm/",
+      "translation": "федерализм",
+      "translations": {
+        "ru": "федерализм",
+        "uz": "federalizm"
+      },
+      "example": "Federalism divides power between national and regional governments.",
+      "example_translations": {
+        "ru": "Федерализм разделяет власть между центральным и региональными правительствами.",
+        "uz": "Federalizm hokimiyatni markaziy va mintaqaviy hukumatlar o'rtasida taqsimlaydi."
+      }
+    },
+    {
+      "word": "devolution",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdɛvəˈluʃən/",
+      "translation": "передача полномочий регионам",
+      "translations": {
+        "ru": "передача полномочий регионам",
+        "uz": "vakolatlarni hududlarga berish"
+      },
+      "example": "Devolution gave the regions control over their schools.",
+      "example_translations": {
+        "ru": "Передача полномочий регионам дала им контроль над своими школами.",
+        "uz": "Vakolatlarni hududlarga berish ularga o'z maktablarini boshqarish imkonini berdi."
+      }
+    },
+    {
+      "word": "purview",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɜrˌvju/",
+      "translation": "сфера полномочий",
+      "translations": {
+        "ru": "сфера полномочий",
+        "uz": "vakolat doirasi"
+      },
+      "example": "Tax policy falls outside the purview of this committee.",
+      "example_translations": {
+        "ru": "Налоговая политика не входит в сферу полномочий этого комитета.",
+        "uz": "Soliq siyosati bu qo'mitaning vakolat doirasiga kirmaydi."
+      }
+    },
+    {
+      "word": "centralize",
+      "part_of_speech": "verb",
+      "transcription": "/ˈsɛntrəˌlaɪz/",
+      "translation": "централизовать",
+      "translations": {
+        "ru": "централизовать",
+        "uz": "markazlashtirmoq"
+      },
+      "example": "The president centralized all decisions in his own office.",
+      "example_translations": {
+        "ru": "Президент централизовал все решения в собственной администрации.",
+        "uz": "Prezident barcha qarorlarni o'z devonida markazlashtirdi."
+      }
+    },
+    {
+      "word": "filibuster",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɪləˌbʌstər/",
+      "translation": "парламентская обструкция",
+      "translations": {
+        "ru": "парламентская обструкция",
+        "uz": "muhokamani ataylab cho'zish"
+      },
+      "example": "The senator's ten-hour filibuster delayed the final vote.",
+      "example_translations": {
+        "ru": "Десятичасовая парламентская обструкция сенатора задержала итоговое голосование.",
+        "uz": "Senatorning o'n soat davomida muhokamani ataylab cho'zishi yakuniy ovoz berishni kechiktirdi."
+      }
+    },
+    {
+      "word": "plebiscite",
+      "part_of_speech": "noun",
+      "transcription": "/ˈplɛbəˌsaɪt/",
+      "translation": "всенародное голосование",
+      "translations": {
+        "ru": "всенародное голосование",
+        "uz": "umumxalq ovoz berishi"
+      },
+      "example": "The border question was settled by a plebiscite.",
+      "example_translations": {
+        "ru": "Вопрос о границе был решён всенародным голосованием.",
+        "uz": "Chegara masalasi umumxalq ovoz berishi orqali hal qilindi."
+      }
+    }
+  ]
+}

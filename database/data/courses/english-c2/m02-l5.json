@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 2,
+    "title": "Эмоции и состояния души",
+    "title_uz": "Tuyg'ular va ruhiy holatlar"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Равнодушие и скука",
+    "title_uz": "Loqaydlik va zerikish"
+  },
+  "words": [
+    {
+      "word": "apathy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæpəθi/",
+      "translation": "апатия, безразличие",
+      "translations": {
+        "ru": "апатия, безразличие",
+        "uz": "loqaydlik"
+      },
+      "example": "The teacher was worried by her students' apathy.",
+      "example_translations": {
+        "ru": "Учительницу тревожила апатия её учеников.",
+        "uz": "O'qituvchini o'quvchilarining loqaydligi xavotirga solardi."
+      }
+    },
+    {
+      "word": "lethargy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɛθərdʒi/",
+      "translation": "вялость, заторможенность",
+      "translations": {
+        "ru": "вялость, заторможенность",
+        "uz": "karaxtlik, sustlik"
+      },
+      "example": "The summer heat produced a lethargy nobody could resist.",
+      "example_translations": {
+        "ru": "Летняя жара вызывала вялость, которой никто не мог противиться.",
+        "uz": "Yoz jaziramasi hech kim yenga olmaydigan karaxtlik keltirib chiqarardi."
+      }
+    },
+    {
+      "word": "listless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈlɪstləs/",
+      "translation": "вялый, безжизненный",
+      "translations": {
+        "ru": "вялый, безжизненный",
+        "uz": "lanj, holsiz"
+      },
+      "example": "Feverish and listless, the boy ignored his favorite toys.",
+      "example_translations": {
+        "ru": "Вялый, с температурой, мальчик не обращал внимания на любимые игрушки.",
+        "uz": "Isitmasi chiqqan lanj bola sevimli o'yinchoqlariga qaramasdi."
+      }
+    },
+    {
+      "word": "languid",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈlæŋgwəd/",
+      "translation": "томный, расслабленный",
+      "translations": {
+        "ru": "томный, расслабленный",
+        "uz": "erinchoq, bo'shashgan"
+      },
+      "example": "We spent a languid afternoon lying by the pool.",
+      "example_translations": {
+        "ru": "Мы провели томный, расслабленный день, лёжа у бассейна.",
+        "uz": "Biz tushdan keyingi vaqtni hovuz bo'yida yotib, erinchoq kayfiyatda o'tkazdik."
+      }
+    },
+    {
+      "word": "weary",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈwɪri/",
+      "translation": "уставший, измученный",
+      "translations": {
+        "ru": "уставший, измученный",
+        "uz": "charchagan, toliqqan"
+      },
+      "example": "Weary travelers finally reached the inn at midnight.",
+      "example_translations": {
+        "ru": "Измученные путники наконец добрались до гостиницы в полночь.",
+        "uz": "Toliqqan yo'lovchilar nihoyat yarim tunda mehmonxonaga yetib kelishdi."
+      }
+    },
+    {
+      "word": "jaded",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdʒeɪdəd/",
+      "translation": "пресыщенный",
+      "translations": {
+        "ru": "пресыщенный",
+        "uz": "to'yib ketgan, bezgan"
+      },
+      "example": "Even jaded critics were moved by the performance.",
+      "example_translations": {
+        "ru": "Даже пресыщенных критиков тронуло это выступление.",
+        "uz": "Hatto hamma narsadan to'yib ketgan tanqidchilar ham bu chiqishdan ta'sirlandi."
+      }
+    },
+    {
+      "word": "nonchalant",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌnɑnʃəˈlɑnt/",
+      "translation": "беспечный, невозмутимый",
+      "translations": {
+        "ru": "беспечный, невозмутимый",
+        "uz": "beparvo"
+      },
+      "example": "He gave a nonchalant shrug and kept walking.",
+      "example_translations": {
+        "ru": "Он с беспечным видом пожал плечами и пошёл дальше.",
+        "uz": "U beparvo yelka qisib, yo'lida davom etdi."
+      }
+    },
+    {
+      "word": "detached",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈtætʃt/",
+      "translation": "отстранённый, безучастный",
+      "translations": {
+        "ru": "отстранённый, безучастный",
+        "uz": "befarq, hissiz"
+      },
+      "example": "He stayed oddly detached while everyone else panicked.",
+      "example_translations": {
+        "ru": "Он оставался странно отстранённым, пока все остальные паниковали.",
+        "uz": "Hamma vahimaga tushganda, u g'alati darajada befarq bo'lib qoldi."
+      }
+    },
+    {
+      "word": "tedium",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtidiəm/",
+      "translation": "скука, нудность",
+      "translations": {
+        "ru": "скука, нудность",
+        "uz": "zerikarlilik"
+      },
+      "example": "Music relieved the tedium of the long drive.",
+      "example_translations": {
+        "ru": "Музыка развеивала скуку долгой поездки.",
+        "uz": "Musiqa uzoq safarning zerikarliligini yengillatardi."
+      }
+    },
+    {
+      "word": "monotony",
+      "part_of_speech": "noun",
+      "transcription": "/məˈnɑtəni/",
+      "translation": "однообразие, монотонность",
+      "translations": {
+        "ru": "однообразие, монотонность",
+        "uz": "bir xillik"
+      },
+      "example": "A surprise visit broke the monotony of his week.",
+      "example_translations": {
+        "ru": "Неожиданный визит нарушил однообразие его недели.",
+        "uz": "Kutilmagan tashrif uning haftasidagi bir xillikni buzdi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 14,
+    "title": "СМИ и информация",
+    "title_uz": "OAV va axborot"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Цифровые медиа",
+    "title_uz": "Raqamli media"
+  },
+  "words": [
+    {
+      "word": "clickbait",
+      "part_of_speech": "noun",
+      "transcription": "/ˈklɪkˌbeɪt/",
+      "translation": "кликбейт",
+      "translations": {
+        "ru": "кликбейт",
+        "uz": "klikbeyt"
+      },
+      "example": "That shocking headline was pure clickbait; the article was empty.",
+      "example_translations": {
+        "ru": "Этот шокирующий заголовок был чистым кликбейтом: статья оказалась пустой.",
+        "uz": "O'sha hayratga soluvchi sarlavha sof klikbeyt edi: maqola bo'm-bo'sh chiqdi."
+      }
+    },
+    {
+      "word": "livestream",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlaɪvˌstrim/",
+      "translation": "прямая трансляция",
+      "translations": {
+        "ru": "прямая трансляция",
+        "uz": "jonli efir"
+      },
+      "example": "Thousands watched the livestream of the concert online.",
+      "example_translations": {
+        "ru": "Тысячи людей смотрели прямую трансляцию концерта в интернете.",
+        "uz": "Minglab odamlar konsertning jonli efirini internetda tomosha qildi."
+      }
+    },
+    {
+      "word": "monetize",
+      "part_of_speech": "verb",
+      "transcription": "/ˈmɑnəˌtaɪz/",
+      "translation": "монетизировать",
+      "translations": {
+        "ru": "монетизировать",
+        "uz": "daromad manbaiga aylantirmoq"
+      },
+      "example": "She monetized her cooking blog through advertising.",
+      "example_translations": {
+        "ru": "Она монетизировала свой кулинарный блог с помощью рекламы.",
+        "uz": "U oshpazlik blogini reklama orqali daromad manbaiga aylantirdi."
+      }
+    },
+    {
+      "word": "avatar",
+      "part_of_speech": "noun",
+      "transcription": "/ˈævəˌtɑr/",
+      "translation": "аватар",
+      "translations": {
+        "ru": "аватар",
+        "uz": "avatar"
+      },
+      "example": "He chose a cartoon cat as his profile avatar.",
+      "example_translations": {
+        "ru": "Он выбрал мультяшного кота в качестве аватара профиля.",
+        "uz": "U profili uchun avatar sifatida multfilmdagi mushukni tanladi."
+      }
+    },
+    {
+      "word": "anonymity",
+      "part_of_speech": "noun",
+      "transcription": "/ˌænəˈnɪməti/",
+      "translation": "анонимность",
+      "translations": {
+        "ru": "анонимность",
+        "uz": "anonimlik"
+      },
+      "example": "Anonymity online makes some people behave rudely.",
+      "example_translations": {
+        "ru": "Анонимность в интернете побуждает некоторых людей вести себя грубо.",
+        "uz": "Internetdagi anonimlik ba'zi odamlarni o'zini qo'pol tutishga undaydi."
+      }
+    },
+    {
+      "word": "troll",
+      "part_of_speech": "noun",
+      "transcription": "/troʊl/",
+      "translation": "интернет-тролль",
+      "translations": {
+        "ru": "интернет-тролль",
+        "uz": "internet trolli"
+      },
+      "example": "Ignore the troll; he only wants an angry reaction.",
+      "example_translations": {
+        "ru": "Не обращайте внимания на этого интернет-тролля: ему нужна лишь гневная реакция.",
+        "uz": "Bu internet trolliga e'tibor bermang: unga faqat g'azabli javob kerak."
+      }
+    },
+    {
+      "word": "meme",
+      "part_of_speech": "noun",
+      "transcription": "/mim/",
+      "translation": "мем",
+      "translations": {
+        "ru": "мем",
+        "uz": "mem"
+      },
+      "example": "The funny cat meme spread across the internet overnight.",
+      "example_translations": {
+        "ru": "Смешной мем с котом разлетелся по интернету за одну ночь.",
+        "uz": "Mushuk tasvirlangan kulgili mem bir kechada butun internetga tarqaldi."
+      }
+    },
+    {
+      "word": "paywall",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpeɪˌwɔl/",
+      "translation": "платный доступ",
+      "translations": {
+        "ru": "платный доступ",
+        "uz": "pullik kirish"
+      },
+      "example": "Most of the newspaper's articles are behind a paywall.",
+      "example_translations": {
+        "ru": "Большинство статей газеты закрыто платным доступом.",
+        "uz": "Gazeta maqolalarining ko'pini faqat pullik kirish orqali o'qish mumkin."
+      }
+    },
+    {
+      "word": "curate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈkjʊrˌeɪt/",
+      "translation": "тщательно отбирать",
+      "translations": {
+        "ru": "тщательно отбирать",
+        "uz": "saralab tanlamoq"
+      },
+      "example": "She curates the best science articles for her newsletter.",
+      "example_translations": {
+        "ru": "Она тщательно отбирает лучшие научные статьи для своей рассылки.",
+        "uz": "U o'z axborotnomasi uchun eng yaxshi ilmiy maqolalarni saralab tanlaydi."
+      }
+    },
+    {
+      "word": "viewership",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvjuərˌʃɪp/",
+      "translation": "зрительская аудитория",
+      "translations": {
+        "ru": "зрительская аудитория",
+        "uz": "tomoshabinlar auditoriyasi"
+      },
+      "example": "The show's viewership fell when it moved to midnight.",
+      "example_translations": {
+        "ru": "Зрительская аудитория шоу сократилась, когда его перенесли на полночь.",
+        "uz": "Ko'rsatuv yarim tunga ko'chirilgach, uning tomoshabinlar auditoriyasi kamaydi."
+      }
+    }
+  ]
+}

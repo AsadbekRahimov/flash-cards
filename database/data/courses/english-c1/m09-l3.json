@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 9,
+    "title": "Психология и мышление",
+    "title_uz": "Psixologiya va tafakkur"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Психические расстройства",
+    "title_uz": "Ruhiy buzilishlar"
+  },
+  "words": [
+    {
+      "word": "paranoia",
+      "part_of_speech": "noun",
+      "transcription": "/ˌpɛrəˈnɔɪə/",
+      "translation": "паранойя",
+      "translations": {
+        "ru": "паранойя",
+        "uz": "paranoyya"
+      },
+      "example": "His paranoia made him distrust even close friends.",
+      "example_translations": {
+        "ru": "Из-за паранойи он не доверял даже близким друзьям.",
+        "uz": "Paranoyya tufayli u hatto yaqin do'stlariga ham ishonmasdi."
+      }
+    },
+    {
+      "word": "delusion",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈluʒən/",
+      "translation": "бредовая идея",
+      "translations": {
+        "ru": "бредовая идея",
+        "uz": "vasvasa g'oyasi"
+      },
+      "example": "He suffers from the delusion that everyone watches him.",
+      "example_translations": {
+        "ru": "Он страдает бредовой идеей, будто все за ним наблюдают.",
+        "uz": "U hamma uni kuzatyapti degan vasvasa g'oyasidan aziyat chekadi."
+      }
+    },
+    {
+      "word": "hallucination",
+      "part_of_speech": "noun",
+      "transcription": "/həˌlusəˈneɪʃən/",
+      "translation": "галлюцинация",
+      "translations": {
+        "ru": "галлюцинация",
+        "uz": "gallyutsinatsiya"
+      },
+      "example": "A high fever can sometimes cause hallucinations.",
+      "example_translations": {
+        "ru": "Высокая температура иногда может вызывать галлюцинации.",
+        "uz": "Yuqori harorat ba'zan gallyutsinatsiyalarga sabab bo'lishi mumkin."
+      }
+    },
+    {
+      "word": "dementia",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈmɛnʃə/",
+      "translation": "деменция",
+      "translations": {
+        "ru": "деменция",
+        "uz": "demensiya"
+      },
+      "example": "Her grandfather has dementia and forgets familiar faces.",
+      "example_translations": {
+        "ru": "У её дедушки деменция, и он забывает знакомые лица.",
+        "uz": "Uning bobosida demensiya bor, u tanish chehralarni unutib qo'yadi."
+      }
+    },
+    {
+      "word": "traumatic",
+      "part_of_speech": "adjective",
+      "transcription": "/trəˈmætɪk/",
+      "translation": "травмирующий",
+      "translations": {
+        "ru": "травмирующий",
+        "uz": "ruhiy jarohat yetkazuvchi"
+      },
+      "example": "The accident was a traumatic experience for him.",
+      "example_translations": {
+        "ru": "Авария стала для него травмирующим переживанием.",
+        "uz": "Avariya uning uchun ruhiy jarohat yetkazuvchi kechinma bo'ldi."
+      }
+    },
+    {
+      "word": "psychiatric",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌsaɪkiˈætrɪk/",
+      "translation": "психиатрический",
+      "translations": {
+        "ru": "психиатрический",
+        "uz": "psixiatrik"
+      },
+      "example": "She works as a nurse in a psychiatric hospital.",
+      "example_translations": {
+        "ru": "Она работает медсестрой в психиатрической больнице.",
+        "uz": "U psixiatrik shifoxonada hamshira bo'lib ishlaydi."
+      }
+    },
+    {
+      "word": "therapist",
+      "part_of_speech": "noun",
+      "transcription": "/ˈθɛrəpɪst/",
+      "translation": "психотерапевт",
+      "translations": {
+        "ru": "психотерапевт",
+        "uz": "psixoterapevt"
+      },
+      "example": "My therapist taught me to manage stress.",
+      "example_translations": {
+        "ru": "Мой психотерапевт научил меня справляться со стрессом.",
+        "uz": "Psixoterapevtim menga stressni yengishni o'rgatdi."
+      }
+    },
+    {
+      "word": "counseling",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkaʊnsəlɪŋ/",
+      "translation": "психологическое консультирование",
+      "translations": {
+        "ru": "психологическое консультирование",
+        "uz": "psixologik maslahat"
+      },
+      "example": "Counseling helped them cope with the loss.",
+      "example_translations": {
+        "ru": "Психологическое консультирование помогло им справиться с утратой.",
+        "uz": "Psixologik maslahat ularga yo'qotishni yengishga yordam berdi."
+      }
+    },
+    {
+      "word": "breakdown",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbreɪkˌdaʊn/",
+      "translation": "нервный срыв",
+      "translations": {
+        "ru": "нервный срыв",
+        "uz": "asab buzilishi"
+      },
+      "example": "Years of overwork led to a nervous breakdown.",
+      "example_translations": {
+        "ru": "Годы переработок привели к нервному срыву.",
+        "uz": "Yillar davomidagi ortiqcha ish asab buzilishiga olib keldi."
+      }
+    },
+    {
+      "word": "hysteria",
+      "part_of_speech": "noun",
+      "transcription": "/hɪˈstɛriə/",
+      "translation": "истерия",
+      "translations": {
+        "ru": "истерия",
+        "uz": "jazava"
+      },
+      "example": "The false alarm caused hysteria in the crowd.",
+      "example_translations": {
+        "ru": "Ложная тревога вызвала истерию в толпе.",
+        "uz": "Soxta xavf signali olomon orasida jazava qo'zg'atdi."
+      }
+    }
+  ]
+}

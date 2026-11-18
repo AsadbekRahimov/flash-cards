@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 13,
+    "title": "Общество",
+    "title_uz": "Jamiyat"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Социальные проблемы",
+    "title_uz": "Ijtimoiy muammolar"
+  },
+  "words": [
+    {
+      "word": "homelessness",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhoʊmləsnəs/",
+      "translation": "бездомность",
+      "translations": {
+        "ru": "бездомность",
+        "uz": "uysizlik"
+      },
+      "example": "Rising rents have increased homelessness in big cities.",
+      "example_translations": {
+        "ru": "Из-за роста арендной платы бездомность в крупных городах выросла.",
+        "uz": "Ijara haqining oshishi tufayli yirik shaharlarda uysizlik ko'paydi."
+      }
+    },
+    {
+      "word": "delinquency",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈlɪŋkwənsi/",
+      "translation": "подростковая преступность",
+      "translations": {
+        "ru": "подростковая преступность",
+        "uz": "o'smirlar huquqbuzarligi"
+      },
+      "example": "Youth clubs help reduce delinquency in poor neighborhoods.",
+      "example_translations": {
+        "ru": "Молодёжные клубы помогают снизить подростковую преступность в бедных районах.",
+        "uz": "Yoshlar klublari kambag'al mahallalarda o'smirlar huquqbuzarligini kamaytirishga yordam beradi."
+      }
+    },
+    {
+      "word": "exploitation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɛksplɔɪˈteɪʃən/",
+      "translation": "эксплуатация",
+      "translations": {
+        "ru": "эксплуатация",
+        "uz": "ekspluatatsiya"
+      },
+      "example": "Paying workers almost nothing is exploitation.",
+      "example_translations": {
+        "ru": "Почти ничего не платить рабочим — это эксплуатация.",
+        "uz": "Ishchilarga deyarli hech narsa to'lamaslik — ekspluatatsiya."
+      }
+    },
+    {
+      "word": "trafficking",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtræfɪkɪŋ/",
+      "translation": "торговля людьми",
+      "translations": {
+        "ru": "торговля людьми",
+        "uz": "odam savdosi"
+      },
+      "example": "Police uncovered a network involved in human trafficking.",
+      "example_translations": {
+        "ru": "Полиция раскрыла сеть, занимавшуюся торговлей людьми.",
+        "uz": "Politsiya odam savdosi bilan shug'ullangan tarmoqni fosh qildi."
+      }
+    },
+    {
+      "word": "abuse",
+      "part_of_speech": "noun",
+      "transcription": "/əˈbjus/",
+      "translation": "жестокое обращение",
+      "translations": {
+        "ru": "жестокое обращение",
+        "uz": "shafqatsiz muomala"
+      },
+      "example": "The charity protects children from abuse at home.",
+      "example_translations": {
+        "ru": "Благотворительная организация защищает детей от жестокого обращения дома.",
+        "uz": "Xayriya tashkiloti bolalarni uydagi shafqatsiz muomaladan himoya qiladi."
+      }
+    },
+    {
+      "word": "neglect",
+      "part_of_speech": "noun",
+      "transcription": "/nɪˈglɛkt/",
+      "translation": "заброшенность, отсутствие заботы",
+      "translations": {
+        "ru": "заброшенность, отсутствие заботы",
+        "uz": "qarovsizlik"
+      },
+      "example": "The children showed clear signs of neglect and hunger.",
+      "example_translations": {
+        "ru": "У детей были явные признаки заброшенности и голода.",
+        "uz": "Bolalarda qarovsizlik va ochlikning yaqqol belgilari bor edi."
+      }
+    },
+    {
+      "word": "unrest",
+      "part_of_speech": "noun",
+      "transcription": "/ʌnˈrɛst/",
+      "translation": "волнения",
+      "translations": {
+        "ru": "волнения",
+        "uz": "ommaviy tartibsizliklar"
+      },
+      "example": "Rising food prices led to unrest in the capital.",
+      "example_translations": {
+        "ru": "Рост цен на продукты привёл к волнениям в столице.",
+        "uz": "Oziq-ovqat narxlarining oshishi poytaxtda ommaviy tartibsizliklarga olib keldi."
+      }
+    },
+    {
+      "word": "illiteracy",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˈlɪtərəsi/",
+      "translation": "неграмотность",
+      "translations": {
+        "ru": "неграмотность",
+        "uz": "savodsizlik"
+      },
+      "example": "Free village schools helped to end illiteracy.",
+      "example_translations": {
+        "ru": "Бесплатные сельские школы помогли покончить с неграмотностью.",
+        "uz": "Bepul qishloq maktablari savodsizlikka barham berishga yordam berdi."
+      }
+    },
+    {
+      "word": "stigma",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɪgmə/",
+      "translation": "клеймо позора",
+      "translations": {
+        "ru": "клеймо позора",
+        "uz": "sharmandalik tamg'asi"
+      },
+      "example": "There is still a stigma attached to mental illness.",
+      "example_translations": {
+        "ru": "На психических заболеваниях до сих пор лежит клеймо позора.",
+        "uz": "Ruhiy kasalliklarga hanuzgacha sharmandalik tamg'asi bosiladi."
+      }
+    },
+    {
+      "word": "exclusion",
+      "part_of_speech": "noun",
+      "transcription": "/ɪkˈskluʒən/",
+      "translation": "социальная изоляция",
+      "translations": {
+        "ru": "социальная изоляция",
+        "uz": "ijtimoiy yakkalanish"
+      },
+      "example": "Poverty often leads to social exclusion and loneliness.",
+      "example_translations": {
+        "ru": "Бедность часто ведёт к социальной изоляции и одиночеству.",
+        "uz": "Qashshoqlik ko'pincha ijtimoiy yakkalanish va yolg'izlikka olib keladi."
+      }
+    }
+  ]
+}

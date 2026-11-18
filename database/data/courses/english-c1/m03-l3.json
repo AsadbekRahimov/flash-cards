@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 3,
+    "title": "Работа и карьера",
+    "title_uz": "Ish va karyera"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Оплата труда",
+    "title_uz": "Mehnat haqi"
+  },
+  "words": [
+    {
+      "word": "remuneration",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˌmjunəˈreɪʃən/",
+      "translation": "вознаграждение за труд",
+      "translations": {
+        "ru": "вознаграждение за труд",
+        "uz": "mehnat haqi"
+      },
+      "example": "The remuneration includes salary and a yearly bonus.",
+      "example_translations": {
+        "ru": "Вознаграждение за труд включает зарплату и годовую премию.",
+        "uz": "Mehnat haqi maosh va yillik mukofotni o'z ichiga oladi."
+      }
+    },
+    {
+      "word": "perk",
+      "part_of_speech": "noun",
+      "transcription": "/pɜrk/",
+      "translation": "дополнительная льгота",
+      "translations": {
+        "ru": "дополнительная льгота",
+        "uz": "qo'shimcha imtiyoz"
+      },
+      "example": "Free lunch is a nice perk of this job.",
+      "example_translations": {
+        "ru": "Бесплатный обед — приятная дополнительная льгота на этой работе.",
+        "uz": "Bepul tushlik — bu ishning yoqimli qo'shimcha imtiyozi."
+      }
+    },
+    {
+      "word": "annuity",
+      "part_of_speech": "noun",
+      "transcription": "/əˈnuəti/",
+      "translation": "рента, аннуитет",
+      "translations": {
+        "ru": "рента, аннуитет",
+        "uz": "renta, annuitet"
+      },
+      "example": "Her pension plan pays an annuity for life.",
+      "example_translations": {
+        "ru": "По её пенсионному плану пожизненно выплачивается рента.",
+        "uz": "Uning pensiya rejasi bo'yicha umrbod renta to'lanadi."
+      }
+    },
+    {
+      "word": "severance",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɛvərəns/",
+      "translation": "выходное пособие",
+      "translations": {
+        "ru": "выходное пособие",
+        "uz": "ishdan bo'shatish nafaqasi"
+      },
+      "example": "The company paid severance to everyone it laid off.",
+      "example_translations": {
+        "ru": "Компания выплатила выходное пособие всем, кого уволила.",
+        "uz": "Kompaniya ishdan bo'shatilganlarning barchasiga ishdan bo'shatish nafaqasi to'ladi."
+      }
+    },
+    {
+      "word": "stipend",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstaɪˌpɛnd/",
+      "translation": "стипендия",
+      "translations": {
+        "ru": "стипендия",
+        "uz": "stipendiya"
+      },
+      "example": "Interns receive a small monthly stipend for living costs.",
+      "example_translations": {
+        "ru": "Стажёры получают небольшую ежемесячную стипендию на проживание.",
+        "uz": "Stajyorlar yashash xarajatlari uchun har oy kichik stipendiya oladi."
+      }
+    },
+    {
+      "word": "reimburse",
+      "part_of_speech": "verb",
+      "transcription": "/ˌriɪmˈbɜrs/",
+      "translation": "возмещать расходы",
+      "translations": {
+        "ru": "возмещать расходы",
+        "uz": "xarajatlarni qoplamoq"
+      },
+      "example": "The firm will reimburse your travel expenses.",
+      "example_translations": {
+        "ru": "Фирма возместит ваши расходы на поездку.",
+        "uz": "Firma safar xarajatlaringizni qoplab beradi."
+      }
+    },
+    {
+      "word": "entitlement",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈtaɪtəlmənt/",
+      "translation": "право на выплаты",
+      "translations": {
+        "ru": "право на выплаты",
+        "uz": "to'lov olish huquqi"
+      },
+      "example": "Check your entitlement to sick pay in the contract.",
+      "example_translations": {
+        "ru": "Проверьте в договоре своё право на выплаты по болезни.",
+        "uz": "Shartnomada kasallik bo'yicha to'lov olish huquqingizni tekshiring."
+      }
+    },
+    {
+      "word": "payroll",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpeɪˌroʊl/",
+      "translation": "платёжная ведомость",
+      "translations": {
+        "ru": "платёжная ведомость",
+        "uz": "ish haqi qaydnomasi"
+      },
+      "example": "The company has two hundred people on its payroll.",
+      "example_translations": {
+        "ru": "В платёжной ведомости компании двести человек.",
+        "uz": "Kompaniyaning ish haqi qaydnomasida ikki yuz kishi bor."
+      }
+    },
+    {
+      "word": "accrue",
+      "part_of_speech": "verb",
+      "transcription": "/əˈkru/",
+      "translation": "накапливаться, начисляться",
+      "translations": {
+        "ru": "накапливаться, начисляться",
+        "uz": "to'planib bormoq, hisoblanmoq"
+      },
+      "example": "Vacation days accrue each month you work here.",
+      "example_translations": {
+        "ru": "Дни отпуска накапливаются за каждый месяц вашей работы здесь.",
+        "uz": "Ta'til kunlari bu yerda ishlagan har oyingiz uchun to'planib boradi."
+      }
+    },
+    {
+      "word": "deduction",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈdʌkʃən/",
+      "translation": "удержание, вычет",
+      "translations": {
+        "ru": "удержание, вычет",
+        "uz": "ushlanma"
+      },
+      "example": "Tax is the largest deduction from my salary.",
+      "example_translations": {
+        "ru": "Налог — самое большое удержание из моей зарплаты.",
+        "uz": "Soliq — maoshimdan eng katta ushlanma."
+      }
+    }
+  ]
+}

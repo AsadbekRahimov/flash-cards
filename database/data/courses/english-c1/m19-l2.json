@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 19,
+    "title": "Город и пространство",
+    "title_uz": "Shahar va makon"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Архитектура и стройка",
+    "title_uz": "Me'morchilik va qurilish"
+  },
+  "words": [
+    {
+      "word": "facade",
+      "part_of_speech": "noun",
+      "transcription": "/fəˈsɑd/",
+      "translation": "фасад",
+      "translations": {
+        "ru": "фасад",
+        "uz": "fasad"
+      },
+      "example": "The building's glass facade reflects the evening sky.",
+      "example_translations": {
+        "ru": "Стеклянный фасад здания отражает вечернее небо.",
+        "uz": "Binoning shisha fasadi kechki osmonni aks ettiradi."
+      }
+    },
+    {
+      "word": "scaffolding",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskæfəldɪŋ/",
+      "translation": "строительные леса",
+      "translations": {
+        "ru": "строительные леса",
+        "uz": "qurilish havozasi"
+      },
+      "example": "Workers climbed the scaffolding to paint the wall.",
+      "example_translations": {
+        "ru": "Рабочие поднялись на строительные леса, чтобы покрасить стену.",
+        "uz": "Ishchilar devorni bo'yash uchun qurilish havozasiga chiqishdi."
+      }
+    },
+    {
+      "word": "refurbish",
+      "part_of_speech": "verb",
+      "transcription": "/riˈfɜrbɪʃ/",
+      "translation": "ремонтировать, обновлять",
+      "translations": {
+        "ru": "ремонтировать, обновлять",
+        "uz": "ta'mirlab yangilamoq"
+      },
+      "example": "The hotel was completely refurbished before reopening to guests.",
+      "example_translations": {
+        "ru": "Перед тем как снова принять гостей, отель полностью отремонтировали.",
+        "uz": "Mehmonlarga qayta ochilishidan oldin mehmonxona to'liq ta'mirlab yangilandi."
+      }
+    },
+    {
+      "word": "blueprint",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbluˌprɪnt/",
+      "translation": "чертёж",
+      "translations": {
+        "ru": "чертёж",
+        "uz": "chizma"
+      },
+      "example": "The architect unrolled the blueprint on the table.",
+      "example_translations": {
+        "ru": "Архитектор развернул чертёж на столе.",
+        "uz": "Me'mor chizmani stol ustiga yoyib qo'ydi."
+      }
+    },
+    {
+      "word": "masonry",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmeɪsənri/",
+      "translation": "каменная кладка",
+      "translations": {
+        "ru": "каменная кладка",
+        "uz": "tosh terimi"
+      },
+      "example": "Cracks appeared in the masonry of the old bridge.",
+      "example_translations": {
+        "ru": "В каменной кладке старого моста появились трещины.",
+        "uz": "Eski ko'prikning tosh terimida yoriqlar paydo bo'ldi."
+      }
+    },
+    {
+      "word": "structural",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈstrʌktʃərəl/",
+      "translation": "конструктивный",
+      "translations": {
+        "ru": "конструктивный",
+        "uz": "konstruksiyaga oid"
+      },
+      "example": "Engineers found serious structural damage after the earthquake.",
+      "example_translations": {
+        "ru": "После землетрясения инженеры обнаружили серьёзные конструктивные повреждения.",
+        "uz": "Zilziladan keyin muhandislar konstruksiyaga oid jiddiy shikastlarni aniqlashdi."
+      }
+    },
+    {
+      "word": "dome",
+      "part_of_speech": "noun",
+      "transcription": "/doʊm/",
+      "translation": "купол",
+      "translations": {
+        "ru": "купол",
+        "uz": "gumbaz"
+      },
+      "example": "A blue dome rises above the ancient mosque.",
+      "example_translations": {
+        "ru": "Над древней мечетью возвышается голубой купол.",
+        "uz": "Qadimiy masjid tepasida moviy gumbaz ko'tarilib turadi."
+      }
+    },
+    {
+      "word": "pillar",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɪlər/",
+      "translation": "колонна, столб",
+      "translations": {
+        "ru": "колонна, столб",
+        "uz": "ustun"
+      },
+      "example": "Four marble pillars support the heavy roof.",
+      "example_translations": {
+        "ru": "Тяжёлую крышу поддерживают четыре мраморные колонны.",
+        "uz": "Og'ir tomni to'rtta marmar ustun ko'tarib turadi."
+      }
+    },
+    {
+      "word": "atrium",
+      "part_of_speech": "noun",
+      "transcription": "/ˈeɪtriəm/",
+      "translation": "атриум",
+      "translations": {
+        "ru": "атриум",
+        "uz": "atrium"
+      },
+      "example": "Sunlight floods the atrium through its glass roof.",
+      "example_translations": {
+        "ru": "Солнечный свет заливает атриум через стеклянную крышу.",
+        "uz": "Quyosh nuri shisha tom orqali atriumni yoritib turadi."
+      }
+    },
+    {
+      "word": "retrofit",
+      "part_of_speech": "verb",
+      "transcription": "/ˈrɛtroʊˌfɪt/",
+      "translation": "дооснащать, модернизировать",
+      "translations": {
+        "ru": "дооснащать, модернизировать",
+        "uz": "qayta jihozlamoq"
+      },
+      "example": "The city will retrofit old schools with solar panels.",
+      "example_translations": {
+        "ru": "Город дооснастит старые школы солнечными панелями.",
+        "uz": "Shahar eski maktablarni quyosh panellari bilan qayta jihozlaydi."
+      }
+    }
+  ]
+}

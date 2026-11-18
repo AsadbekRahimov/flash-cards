@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 2,
+    "title": "Эмоции и состояния души",
+    "title_uz": "Tuyg'ular va ruhiy holatlar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Печаль и тоска",
+    "title_uz": "G'am va sog'inch"
+  },
+  "words": [
+    {
+      "word": "melancholy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɛlənˌkɑli/",
+      "translation": "меланхолия, тихая грусть",
+      "translations": {
+        "ru": "меланхолия, тихая грусть",
+        "uz": "mahzunlik"
+      },
+      "example": "Autumn evenings always fill him with gentle melancholy.",
+      "example_translations": {
+        "ru": "Осенние вечера всегда наполняют его тихой меланхолией.",
+        "uz": "Kuz oqshomlari uning qalbini doim sokin mahzunlikka to'ldiradi."
+      }
+    },
+    {
+      "word": "despondent",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈspɑndənt/",
+      "translation": "унылый, упавший духом",
+      "translations": {
+        "ru": "унылый, упавший духом",
+        "uz": "tushkun, ruhi tushgan"
+      },
+      "example": "After failing twice, he grew despondent and stopped trying.",
+      "example_translations": {
+        "ru": "После двух неудач он упал духом и бросил попытки.",
+        "uz": "Ikki marta omadsizlikka uchragach, uning ruhi tushdi va urinishni to'xtatdi."
+      }
+    },
+    {
+      "word": "forlorn",
+      "part_of_speech": "adjective",
+      "transcription": "/fərˈlɔrn/",
+      "translation": "покинутый, несчастный",
+      "translations": {
+        "ru": "покинутый, несчастный",
+        "uz": "g'arib, tashlandiq"
+      },
+      "example": "A forlorn puppy waited outside the closed shop.",
+      "example_translations": {
+        "ru": "Покинутый, несчастный щенок ждал у закрытого магазина.",
+        "uz": "G'arib kuchukcha yopiq do'kon oldida kutib o'tirardi."
+      }
+    },
+    {
+      "word": "sorrow",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɑroʊ/",
+      "translation": "горе, печаль",
+      "translations": {
+        "ru": "горе, печаль",
+        "uz": "qayg'u, g'am"
+      },
+      "example": "Words could not ease the sorrow of her loss.",
+      "example_translations": {
+        "ru": "Слова не могли облегчить её горе от утраты.",
+        "uz": "So'zlar uning yo'qotish qayg'usini yengillata olmasdi."
+      }
+    },
+    {
+      "word": "lament",
+      "part_of_speech": "verb",
+      "transcription": "/ləˈmɛnt/",
+      "translation": "сокрушаться, оплакивать",
+      "translations": {
+        "ru": "сокрушаться, оплакивать",
+        "uz": "afsus chekmoq, nola qilmoq"
+      },
+      "example": "Farmers lament the loss of their fertile land.",
+      "example_translations": {
+        "ru": "Фермеры сокрушаются об утрате своей плодородной земли.",
+        "uz": "Fermerlar unumdor yerlaridan ayrilganiga afsus chekadi."
+      }
+    },
+    {
+      "word": "mourn",
+      "part_of_speech": "verb",
+      "transcription": "/mɔrn/",
+      "translation": "скорбеть по умершему",
+      "translations": {
+        "ru": "скорбеть по умершему",
+        "uz": "motam tutmoq, aza tutmoq"
+      },
+      "example": "The whole village mourned the beloved old doctor.",
+      "example_translations": {
+        "ru": "Вся деревня скорбела по любимому старому доктору.",
+        "uz": "Butun qishloq sevimli keksa shifokorga motam tutdi."
+      }
+    },
+    {
+      "word": "bereavement",
+      "part_of_speech": "noun",
+      "transcription": "/bɪˈrivmənt/",
+      "translation": "утрата близкого",
+      "translations": {
+        "ru": "утрата близкого",
+        "uz": "judolik"
+      },
+      "example": "After his bereavement, friends visited him every day.",
+      "example_translations": {
+        "ru": "После утраты близкого человека друзья навещали его каждый день.",
+        "uz": "Judolikdan so'ng do'stlari uni har kuni yo'qlab turishdi."
+      }
+    },
+    {
+      "word": "wistful",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈwɪstfəl/",
+      "translation": "тоскующий, грустно-мечтательный",
+      "translations": {
+        "ru": "тоскующий, грустно-мечтательный",
+        "uz": "hasratli, sog'inchli"
+      },
+      "example": "She gave a wistful glance at her childhood home.",
+      "example_translations": {
+        "ru": "Она бросила тоскующий взгляд на дом своего детства.",
+        "uz": "U bolaligi o'tgan uyga hasratli nigoh tashladi."
+      }
+    },
+    {
+      "word": "somber",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɑmbər/",
+      "translation": "мрачный, угрюмый",
+      "translations": {
+        "ru": "мрачный, угрюмый",
+        "uz": "tund, ma'yus"
+      },
+      "example": "Everyone wore somber expressions at the memorial service.",
+      "example_translations": {
+        "ru": "На поминальной службе у всех были мрачные лица.",
+        "uz": "Xotira marosimida hammaning chehrasi tund edi."
+      }
+    },
+    {
+      "word": "yearn",
+      "part_of_speech": "verb",
+      "transcription": "/jɜrn/",
+      "translation": "тосковать, страстно желать",
+      "translations": {
+        "ru": "тосковать, страстно желать",
+        "uz": "orziqmoq, sog'inmoq"
+      },
+      "example": "Living abroad, Aziz yearned for his mother's cooking.",
+      "example_translations": {
+        "ru": "Живя за границей, Азиз тосковал по маминой стряпне.",
+        "uz": "Chet elda yashar ekan, Aziz onasining taomlarini orziqib sog'inardi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 7,
+    "title": "Художественное описание",
+    "title_uz": "Badiiy tasvir"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Пейзаж",
+    "title_uz": "Manzara"
+  },
+  "words": [
+    {
+      "word": "idyllic",
+      "part_of_speech": "adjective",
+      "transcription": "/aɪˈdɪlɪk/",
+      "translation": "идиллический",
+      "translations": {
+        "ru": "идиллический",
+        "uz": "jannatmonand"
+      },
+      "example": "The cottage stands in an idyllic mountain valley.",
+      "example_translations": {
+        "ru": "Домик стоит в идиллической горной долине.",
+        "uz": "Uycha jannatmonand tog' vodiysida joylashgan."
+      }
+    },
+    {
+      "word": "pastoral",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpæstərəl/",
+      "translation": "пасторальный, сельский",
+      "translations": {
+        "ru": "пасторальный, сельский",
+        "uz": "qishloqona, pastoral"
+      },
+      "example": "Sheep grazed peacefully in this pastoral landscape.",
+      "example_translations": {
+        "ru": "В этом пасторальном пейзаже мирно паслись овцы.",
+        "uz": "Bu qishloqona manzarada qo'ylar osoyishta o'tlab yurardi."
+      }
+    },
+    {
+      "word": "verdant",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈvɜrdənt/",
+      "translation": "зеленеющий, покрытый зеленью",
+      "translations": {
+        "ru": "зеленеющий, покрытый зеленью",
+        "uz": "yam-yashil"
+      },
+      "example": "Verdant hills rolled gently toward the sea.",
+      "example_translations": {
+        "ru": "Зеленеющие холмы плавно спускались к морю.",
+        "uz": "Yam-yashil adirlar dengiz tomon ohista pasayib borardi."
+      }
+    },
+    {
+      "word": "lush",
+      "part_of_speech": "adjective",
+      "transcription": "/lʌʃ/",
+      "translation": "пышный, буйный",
+      "translations": {
+        "ru": "пышный, буйный",
+        "uz": "barq urgan"
+      },
+      "example": "Lush ferns grew thickly beside the stream.",
+      "example_translations": {
+        "ru": "У ручья густо росли пышные папоротники.",
+        "uz": "Soy bo'yida barq urgan qirqquloqlar qalin o'sgan edi."
+      }
+    },
+    {
+      "word": "desolate",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdɛsələt/",
+      "translation": "безлюдный, заброшенный",
+      "translations": {
+        "ru": "безлюдный, заброшенный",
+        "uz": "kimsasiz, huvillagan"
+      },
+      "example": "Not a soul lived on the desolate island.",
+      "example_translations": {
+        "ru": "На этом безлюдном, заброшенном острове не жило ни души.",
+        "uz": "Kimsasiz, huvillagan orolda biror jon yashamasdi."
+      }
+    },
+    {
+      "word": "bleak",
+      "part_of_speech": "adjective",
+      "transcription": "/blik/",
+      "translation": "унылый, суровый",
+      "translations": {
+        "ru": "унылый, суровый",
+        "uz": "fayzsiz, sovuq"
+      },
+      "example": "A bleak gray moor stretched before the travelers.",
+      "example_translations": {
+        "ru": "Перед путниками простиралась унылая серая пустошь.",
+        "uz": "Yo'lovchilar oldida fayzsiz kulrang yalanglik yoyilib yotardi."
+      }
+    },
+    {
+      "word": "barren",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈbɛrən/",
+      "translation": "бесплодный",
+      "translations": {
+        "ru": "бесплодный",
+        "uz": "unumsiz"
+      },
+      "example": "Nothing grows on this barren, stony soil.",
+      "example_translations": {
+        "ru": "На этой бесплодной каменистой почве ничего не растёт.",
+        "uz": "Bu unumsiz toshloq tuproqda hech narsa o'smaydi."
+      }
+    },
+    {
+      "word": "rugged",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈrʌgəd/",
+      "translation": "скалистый, пересечённый",
+      "translations": {
+        "ru": "скалистый, пересечённый",
+        "uz": "qoyali, o'nqir-cho'nqir"
+      },
+      "example": "Hikers need strong boots for this rugged coast.",
+      "example_translations": {
+        "ru": "Для этого скалистого побережья туристам нужны крепкие ботинки.",
+        "uz": "Bu qoyali, o'nqir-cho'nqir sohil uchun sayyohlarga mustahkam botinka kerak."
+      }
+    },
+    {
+      "word": "pristine",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈprɪˌstin/",
+      "translation": "первозданный, нетронутый",
+      "translations": {
+        "ru": "первозданный, нетронутый",
+        "uz": "qo'l tegmagan"
+      },
+      "example": "Few tourists ever reach these pristine forests.",
+      "example_translations": {
+        "ru": "Немногие туристы добираются до этих первозданных лесов.",
+        "uz": "Bu qo'l tegmagan o'rmonlarga kamdan-kam sayyoh yetib boradi."
+      }
+    },
+    {
+      "word": "tranquil",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtræŋkwəl/",
+      "translation": "безмятежный, тихий",
+      "translations": {
+        "ru": "безмятежный, тихий",
+        "uz": "osuda"
+      },
+      "example": "Swans glided across the tranquil evening lake.",
+      "example_translations": {
+        "ru": "Лебеди скользили по безмятежному вечернему озеру.",
+        "uz": "Oqqushlar oqshomgi osuda ko'l yuzida sirpanib suzardi."
+      }
+    }
+  ]
+}

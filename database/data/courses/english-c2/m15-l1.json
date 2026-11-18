@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 15,
+    "title": "Общество и нравы",
+    "title_uz": "Jamiyat va urf-odatlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Сословия и положение",
+    "title_uz": "Tabaqa va mavqe"
+  },
+  "words": [
+    {
+      "word": "echelon",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛʃəˌlɑn/",
+      "translation": "эшелон, уровень иерархии",
+      "translations": {
+        "ru": "эшелон, уровень иерархии",
+        "uz": "pog'ona"
+      },
+      "example": "Few women reached the upper echelons of the company.",
+      "example_translations": {
+        "ru": "Немногие женщины достигали высших эшелонов компании.",
+        "uz": "Kam sonli ayollar kompaniyaning yuqori pog'onalariga yetib borgan."
+      }
+    },
+    {
+      "word": "gentry",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʒɛntri/",
+      "translation": "мелкопоместное дворянство",
+      "translations": {
+        "ru": "мелкопоместное дворянство",
+        "uz": "mayda zamindorlar"
+      },
+      "example": "The local gentry owned most of the farmland.",
+      "example_translations": {
+        "ru": "Местное мелкопоместное дворянство владело большей частью пахотных земель.",
+        "uz": "Mahalliy mayda zamindorlar ekin yerlarining ko'p qismiga egalik qilardi."
+      }
+    },
+    {
+      "word": "nobility",
+      "part_of_speech": "noun",
+      "transcription": "/noʊˈbɪləti/",
+      "translation": "знать, дворянство",
+      "translations": {
+        "ru": "знать, дворянство",
+        "uz": "zodagonlar, aslzodalar"
+      },
+      "example": "Only the nobility could attend the royal ball.",
+      "example_translations": {
+        "ru": "Только знать могла присутствовать на королевском балу.",
+        "uz": "Qirol baliga faqat zodagonlar qatnasha olardi."
+      }
+    },
+    {
+      "word": "commoner",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑmənər/",
+      "translation": "простолюдин",
+      "translations": {
+        "ru": "простолюдин",
+        "uz": "oddiy xalq vakili"
+      },
+      "example": "The prince shocked everyone by marrying a commoner.",
+      "example_translations": {
+        "ru": "Принц поразил всех, женившись на простолюдинке.",
+        "uz": "Shahzoda oddiy xalq vakiliga uylanib, hammani hayratda qoldirdi."
+      }
+    },
+    {
+      "word": "peasantry",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɛzəntri/",
+      "translation": "крестьянство",
+      "translations": {
+        "ru": "крестьянство",
+        "uz": "dehqonlar tabaqasi"
+      },
+      "example": "Heavy taxes left the peasantry poor and hungry.",
+      "example_translations": {
+        "ru": "Тяжёлые налоги оставляли крестьянство в нищете и голоде.",
+        "uz": "Og'ir soliqlar dehqonlar tabaqasini qashshoq va och qoldirardi."
+      }
+    },
+    {
+      "word": "upstart",
+      "part_of_speech": "noun",
+      "transcription": "/ˈʌpˌstɑrt/",
+      "translation": "выскочка",
+      "translations": {
+        "ru": "выскочка",
+        "uz": "birdan ko'tarilgan odam"
+      },
+      "example": "Old families dismissed the rich newcomer as an upstart.",
+      "example_translations": {
+        "ru": "Старинные семьи презрительно называли богатого новичка выскочкой.",
+        "uz": "Qadimiy oilalar yangi kelgan boyni birdan ko'tarilgan odam deb mensimasdi."
+      }
+    },
+    {
+      "word": "pariah",
+      "part_of_speech": "noun",
+      "transcription": "/pəˈraɪə/",
+      "translation": "пария",
+      "translations": {
+        "ru": "пария",
+        "uz": "hamma yuz o'girgan odam"
+      },
+      "example": "After the scandal, he became a pariah in town.",
+      "example_translations": {
+        "ru": "После скандала он стал в городе парией.",
+        "uz": "Janjaldan keyin u shaharda hamma yuz o'girgan odamga aylandi."
+      }
+    },
+    {
+      "word": "outcast",
+      "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌkæst/",
+      "translation": "изгой, отверженный",
+      "translations": {
+        "ru": "изгой, отверженный",
+        "uz": "quvg'indi"
+      },
+      "example": "Rejected by her family, she lived as an outcast.",
+      "example_translations": {
+        "ru": "Отвергнутая семьёй, она жила как изгой.",
+        "uz": "Oilasi rad etgach, u quvg'indi bo'lib yashadi."
+      }
+    },
+    {
+      "word": "intelligentsia",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˌtɛləˈdʒɛntsiə/",
+      "translation": "интеллигенция",
+      "translations": {
+        "ru": "интеллигенция",
+        "uz": "ziyolilar"
+      },
+      "example": "The city's intelligentsia gathered at literary evenings.",
+      "example_translations": {
+        "ru": "Городская интеллигенция собиралась на литературных вечерах.",
+        "uz": "Shahar ziyolilari adabiy kechalarda yig'ilishardi."
+      }
+    },
+    {
+      "word": "pedigree",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɛdəˌgri/",
+      "translation": "родословная, происхождение",
+      "translations": {
+        "ru": "родословная, происхождение",
+        "uz": "nasl-nasab"
+      },
+      "example": "Her aristocratic pedigree opened many doors for her.",
+      "example_translations": {
+        "ru": "Аристократическая родословная открывала перед ней многие двери.",
+        "uz": "Zodagonlarga xos nasl-nasabi unga ko'p eshiklarni ochib berdi."
+      }
+    }
+  ]
+}

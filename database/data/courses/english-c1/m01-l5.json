@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 1,
+    "title": "Характер и личность",
+    "title_uz": "Xarakter va shaxs"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Талант и мастерство",
+    "title_uz": "Iste'dod va mahorat"
+  },
+  "words": [
+    {
+      "word": "flair",
+      "part_of_speech": "noun",
+      "transcription": "/flɛr/",
+      "translation": "природный талант, чутьё",
+      "translations": {
+        "ru": "природный талант, чутьё",
+        "uz": "tug'ma iste'dod"
+      },
+      "example": "Malika has a real flair for designing clothes.",
+      "example_translations": {
+        "ru": "У Малики настоящий природный талант к моделированию одежды.",
+        "uz": "Malikada kiyim dizayni bo'yicha chinakam tug'ma iste'dod bor."
+      }
+    },
+    {
+      "word": "knack",
+      "part_of_speech": "noun",
+      "transcription": "/næk/",
+      "translation": "сноровка, умение",
+      "translations": {
+        "ru": "сноровка, умение",
+        "uz": "uquv"
+      },
+      "example": "Tom has a knack for fixing broken things.",
+      "example_translations": {
+        "ru": "У Тома особая сноровка в починке сломанных вещей.",
+        "uz": "Tomda buzilgan narsalarni tuzatishga uquv bor."
+      }
+    },
+    {
+      "word": "prowess",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpraʊəs/",
+      "translation": "мастерство, искусность",
+      "translations": {
+        "ru": "мастерство, искусность",
+        "uz": "mahorat"
+      },
+      "example": "Her prowess on the tennis court amazed everyone.",
+      "example_translations": {
+        "ru": "Её мастерство на теннисном корте поразило всех.",
+        "uz": "Uning tennis kortidagi mahorati hammani hayratga soldi."
+      }
+    },
+    {
+      "word": "inclination",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪnkləˈneɪʃən/",
+      "translation": "склонность",
+      "translations": {
+        "ru": "склонность",
+        "uz": "moyillik"
+      },
+      "example": "From childhood he showed an inclination toward music.",
+      "example_translations": {
+        "ru": "С детства он проявлял склонность к музыке.",
+        "uz": "U bolaligidan musiqaga moyillik ko'rsatgan."
+      }
+    },
+    {
+      "word": "aspiration",
+      "part_of_speech": "noun",
+      "transcription": "/ˌæspəˈreɪʃən/",
+      "translation": "стремление, устремление",
+      "translations": {
+        "ru": "стремление, устремление",
+        "uz": "intilish, orzu"
+      },
+      "example": "Her aspiration is to become a world-class surgeon.",
+      "example_translations": {
+        "ru": "Её стремление — стать хирургом мирового уровня.",
+        "uz": "Uning intilishi — jahon darajasidagi jarroh bo'lish."
+      }
+    },
+    {
+      "word": "ingenuity",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪndʒəˈnuəti/",
+      "translation": "изобретательность",
+      "translations": {
+        "ru": "изобретательность",
+        "uz": "ixtirochilik"
+      },
+      "example": "With great ingenuity, they built a boat from bottles.",
+      "example_translations": {
+        "ru": "Проявив большую изобретательность, они построили лодку из бутылок.",
+        "uz": "Ular katta ixtirochilik bilan shishalardan qayiq yasashdi."
+      }
+    },
+    {
+      "word": "prodigy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈprɑdədʒi/",
+      "translation": "вундеркинд",
+      "translations": {
+        "ru": "вундеркинд",
+        "uz": "vunderkind"
+      },
+      "example": "The chess prodigy beat adults at age seven.",
+      "example_translations": {
+        "ru": "Шахматный вундеркинд обыгрывал взрослых в семь лет.",
+        "uz": "Shaxmat vunderkindi yetti yoshida kattalarni yutardi."
+      }
+    },
+    {
+      "word": "adept",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈdɛpt/",
+      "translation": "искусный, умелый",
+      "translations": {
+        "ru": "искусный, умелый",
+        "uz": "mohir"
+      },
+      "example": "She is adept at solving difficult technical problems.",
+      "example_translations": {
+        "ru": "Она искусна в решении сложных технических задач.",
+        "uz": "U murakkab texnik muammolarni hal qilishda mohir."
+      }
+    },
+    {
+      "word": "mastery",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmæstəri/",
+      "translation": "совершенное владение",
+      "translations": {
+        "ru": "совершенное владение",
+        "uz": "mukammal egallash"
+      },
+      "example": "His mastery of the violin took twenty years.",
+      "example_translations": {
+        "ru": "Совершенное владение скрипкой потребовало от него двадцати лет.",
+        "uz": "Skripkani mukammal egallash undan yigirma yil talab qildi."
+      }
+    },
+    {
+      "word": "perseverance",
+      "part_of_speech": "noun",
+      "transcription": "/ˌpɜrsəˈvɪrəns/",
+      "translation": "упорство, настойчивость",
+      "translations": {
+        "ru": "упорство, настойчивость",
+        "uz": "qat'iyat, matonat"
+      },
+      "example": "Learning a language takes time and perseverance.",
+      "example_translations": {
+        "ru": "Изучение языка требует времени и упорства.",
+        "uz": "Til o'rganish vaqt va qat'iyat talab qiladi."
+      }
+    }
+  ]
+}

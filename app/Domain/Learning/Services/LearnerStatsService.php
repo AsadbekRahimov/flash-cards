@@ -6,12 +6,11 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Learning\DTO\LearnerStats;
 use App\Domain\Learning\Support\DueRepetitionCriteria;
+use App\Domain\Operations\Support\ScalarBatch;
 use App\Models\Learner;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use InvalidArgumentException;
 
 final class LearnerStatsService
 {
@@ -39,7 +38,8 @@ final class LearnerStatsService
 
     /**
      * `count(*)` of every query in ONE statement: `select (select count(*) ...) as a, (select count(*) ...) as b`. For the
-     * counters of a screen that are read together (the Today screen: the due cards and the cards served today).
+     * counters of a screen that are read together (`/me`: learned and due). A screen that reads other scalars beside its counts
+     * builds the {@see ScalarBatch} itself (the Today screen).
      *
      * @param  array<string, Builder<WordRepetition>>  $queries  alias => the rows to count (the alias is a plain identifier)
      * @return array<string, int> the same aliases
@@ -50,19 +50,15 @@ final class LearnerStatsService
             return [];
         }
 
-        $statement = DB::query();
+        $batch = new ScalarBatch;
         foreach ($queries as $alias => $query) {
-            if (preg_match('/^[a-z_]+$/', $alias) !== 1) {
-                throw new InvalidArgumentException("Count alias '{$alias}' is not a plain identifier.");
-            }
-            $statement->selectSub($query->toBase()->selectRaw('count(*)'), $alias);
+            $batch->count($alias, $query);
         }
 
-        /** @var object|null $row */
-        $row = $statement->first();
+        $row = $batch->run();
         $counts = [];
         foreach (array_keys($queries) as $alias) {
-            $counts[$alias] = (int) ($row->{$alias} ?? 0);
+            $counts[$alias] = ScalarBatch::int($row, $alias);
         }
 
         return $counts;

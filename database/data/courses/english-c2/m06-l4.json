@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 6,
+    "title": "Разум и познание",
+    "title_uz": "Aql va bilish"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Память и воображение",
+    "title_uz": "Xotira va tasavvur"
+  },
+  "words": [
+    {
+      "word": "conjure",
+      "part_of_speech": "verb",
+      "transcription": "/ˈkɑndʒər/",
+      "translation": "вызывать в воображении",
+      "translations": {
+        "ru": "вызывать в воображении",
+        "uz": "ko'z oldiga keltirmoq"
+      },
+      "example": "The smell of bread conjures up my grandmother's kitchen.",
+      "example_translations": {
+        "ru": "Запах хлеба вызывает в воображении бабушкину кухню.",
+        "uz": "Non hidi buvimning oshxonasini ko'z oldiga keltiradi."
+      }
+    },
+    {
+      "word": "envision",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈvɪʒən/",
+      "translation": "представлять себе",
+      "translations": {
+        "ru": "представлять себе",
+        "uz": "tasavvur qilmoq"
+      },
+      "example": "She envisions a future where everyone can read.",
+      "example_translations": {
+        "ru": "Она представляет себе будущее, в котором каждый умеет читать.",
+        "uz": "U hamma o'qiy oladigan kelajakni tasavvur qiladi."
+      }
+    },
+    {
+      "word": "retrospect",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɛtrəˌspɛkt/",
+      "translation": "взгляд в прошлое",
+      "translations": {
+        "ru": "взгляд в прошлое",
+        "uz": "o'tmishga nazar"
+      },
+      "example": "In retrospect, selling the house was a mistake.",
+      "example_translations": {
+        "ru": "Если бросить взгляд в прошлое, продажа дома была ошибкой.",
+        "uz": "O'tmishga nazar tashlasak, uyni sotish xato bo'lgan."
+      }
+    },
+    {
+      "word": "hindsight",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhaɪndˌsaɪt/",
+      "translation": "понимание задним числом",
+      "translations": {
+        "ru": "понимание задним числом",
+        "uz": "voqeadan keyingi anglash"
+      },
+      "example": "Hindsight makes every past mistake look easily avoidable.",
+      "example_translations": {
+        "ru": "Благодаря пониманию задним числом любая прошлая ошибка кажется легко предотвратимой.",
+        "uz": "Voqeadan keyingi anglash o'tmishdagi har bir xatoni osongina oldini olish mumkin bo'lgandek ko'rsatadi."
+      }
+    },
+    {
+      "word": "foresight",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɔrˌsaɪt/",
+      "translation": "предусмотрительность, дальновидность",
+      "translations": {
+        "ru": "предусмотрительность, дальновидность",
+        "uz": "uzoqni ko'rarlik"
+      },
+      "example": "She had the foresight to save money before the crisis.",
+      "example_translations": {
+        "ru": "Ей хватило предусмотрительности накопить деньги до кризиса.",
+        "uz": "Uzoqni ko'rarligi tufayli u inqirozdan oldin pul jamg'arib qo'ydi."
+      }
+    },
+    {
+      "word": "premonition",
+      "part_of_speech": "noun",
+      "transcription": "/ˌprɛməˈnɪʃən/",
+      "translation": "предчувствие",
+      "translations": {
+        "ru": "предчувствие",
+        "uz": "oldindan sezish"
+      },
+      "example": "I had a premonition that something would go wrong.",
+      "example_translations": {
+        "ru": "У меня было предчувствие, что что-то пойдёт не так.",
+        "uz": "Menda nimadir chatoq bo'lishini oldindan sezish hissi paydo bo'ldi."
+      }
+    },
+    {
+      "word": "mnemonic",
+      "part_of_speech": "noun",
+      "transcription": "/nɪˈmɑnɪk/",
+      "translation": "мнемонический приём",
+      "translations": {
+        "ru": "мнемонический приём",
+        "uz": "eslab qolish usuli"
+      },
+      "example": "This rhyme is a mnemonic for remembering the planets.",
+      "example_translations": {
+        "ru": "Этот стишок — мнемонический приём для запоминания планет.",
+        "uz": "Bu she'rcha — sayyoralarni eslab qolish usuli."
+      }
+    },
+    {
+      "word": "indelible",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdɛləbəl/",
+      "translation": "неизгладимый",
+      "translations": {
+        "ru": "неизгладимый",
+        "uz": "o'chmas"
+      },
+      "example": "That journey left an indelible mark on my memory.",
+      "example_translations": {
+        "ru": "То путешествие оставило неизгладимый след в моей памяти.",
+        "uz": "O'sha sayohat xotiramda o'chmas iz qoldirdi."
+      }
+    },
+    {
+      "word": "figment",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɪgmənt/",
+      "translation": "плод воображения, вымысел",
+      "translations": {
+        "ru": "плод воображения, вымысел",
+        "uz": "xayol mahsuli"
+      },
+      "example": "The monster was merely a figment of his imagination.",
+      "example_translations": {
+        "ru": "Чудовище было всего лишь плодом его воображения.",
+        "uz": "Maxluq shunchaki uning xayoli mahsuli edi."
+      }
+    },
+    {
+      "word": "commemorate",
+      "part_of_speech": "verb",
+      "transcription": "/kəˈmɛməˌreɪt/",
+      "translation": "увековечивать память",
+      "translations": {
+        "ru": "увековечивать память",
+        "uz": "xotirasini abadiylashtirmoq"
+      },
+      "example": "This monument commemorates the scientists who founded our university.",
+      "example_translations": {
+        "ru": "Этот памятник увековечивает память учёных, основавших наш университет.",
+        "uz": "Bu yodgorlik universitetimizga asos solgan olimlar xotirasini abadiylashtiradi."
+      }
+    }
+  ]
+}

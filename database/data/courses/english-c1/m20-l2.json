@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 20,
+    "title": "Абстрактные понятия",
+    "title_uz": "Mavhum tushunchalar"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Причина и следствие",
+    "title_uz": "Sabab va oqibat"
+  },
+  "words": [
+    {
+      "word": "induce",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈdus/",
+      "translation": "вызывать, приводить к",
+      "translations": {
+        "ru": "вызывать, приводить к",
+        "uz": "keltirib chiqarmoq"
+      },
+      "example": "This medicine may induce sleepiness in some patients.",
+      "example_translations": {
+        "ru": "Это лекарство может вызывать сонливость у некоторых пациентов.",
+        "uz": "Bu dori ba'zi bemorlarda uyquchanlikni keltirib chiqarishi mumkin."
+      }
+    },
+    {
+      "word": "elicit",
+      "part_of_speech": "verb",
+      "transcription": "/ɪˈlɪsɪt/",
+      "translation": "вызывать отклик",
+      "translations": {
+        "ru": "вызывать отклик",
+        "uz": "munosabat uyg'otmoq"
+      },
+      "example": "Her speech elicited a warm response from listeners.",
+      "example_translations": {
+        "ru": "Её речь вызвала тёплый отклик у слушателей.",
+        "uz": "Uning nutqi tinglovchilarda iliq munosabat uyg'otdi."
+      }
+    },
+    {
+      "word": "incur",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈkɜr/",
+      "translation": "нести убытки, расходы",
+      "translations": {
+        "ru": "нести убытки, расходы",
+        "uz": "zarar ko'rmoq, chiqimdor bo'lmoq"
+      },
+      "example": "Small shops may incur losses during the roadworks.",
+      "example_translations": {
+        "ru": "Во время дорожных работ небольшие магазины могут понести убытки.",
+        "uz": "Yo'l ta'mirlash ishlari paytida kichik do'konlar zarar ko'rishi mumkin."
+      }
+    },
+    {
+      "word": "ensue",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈsu/",
+      "translation": "следовать, возникать вслед",
+      "translations": {
+        "ru": "следовать, возникать вслед",
+        "uz": "ortidan yuzaga kelmoq"
+      },
+      "example": "A long silence ensued after his announcement.",
+      "example_translations": {
+        "ru": "За его объявлением последовало долгое молчание.",
+        "uz": "Uning e'loni ortidan uzoq sukunat yuzaga keldi."
+      }
+    },
+    {
+      "word": "underlie",
+      "part_of_speech": "verb",
+      "transcription": "/ˌʌndərˈlaɪ/",
+      "translation": "лежать в основе",
+      "translations": {
+        "ru": "лежать в основе",
+        "uz": "asosida yotmoq"
+      },
+      "example": "Fear of failure underlies many of his decisions.",
+      "example_translations": {
+        "ru": "В основе многих его решений лежит страх неудачи.",
+        "uz": "Uning ko'p qarorlari asosida muvaffaqiyatsizlikdan qo'rqish yotadi."
+      }
+    },
+    {
+      "word": "repercussion",
+      "part_of_speech": "noun",
+      "transcription": "/ˌripərˈkʌʃən/",
+      "translation": "негативное последствие",
+      "translations": {
+        "ru": "негативное последствие",
+        "uz": "salbiy oqibat"
+      },
+      "example": "The factory's closure had serious repercussions for the town.",
+      "example_translations": {
+        "ru": "Закрытие завода имело серьёзные негативные последствия для города.",
+        "uz": "Zavodning yopilishi shahar uchun jiddiy salbiy oqibatlarga olib keldi."
+      }
+    },
+    {
+      "word": "ramification",
+      "part_of_speech": "noun",
+      "transcription": "/ˌræməfəˈkeɪʃən/",
+      "translation": "возможное последствие",
+      "translations": {
+        "ru": "возможное последствие",
+        "uz": "ehtimoliy oqibat"
+      },
+      "example": "Have you considered all the ramifications of resigning?",
+      "example_translations": {
+        "ru": "Вы обдумали все возможные последствия увольнения?",
+        "uz": "Ishdan bo'shashning barcha ehtimoliy oqibatlarini o'ylab ko'rdingizmi?"
+      }
+    },
+    {
+      "word": "impetus",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪmpətəs/",
+      "translation": "импульс, толчок",
+      "translations": {
+        "ru": "импульс, толчок",
+        "uz": "turtki"
+      },
+      "example": "The award gave fresh impetus to her research.",
+      "example_translations": {
+        "ru": "Премия дала новый импульс её исследованиям.",
+        "uz": "Mukofot uning tadqiqotlariga yangi turtki berdi."
+      }
+    },
+    {
+      "word": "instigate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɪnstəˌgeɪt/",
+      "translation": "инициировать, затевать",
+      "translations": {
+        "ru": "инициировать, затевать",
+        "uz": "boshlab bermoq"
+      },
+      "example": "The manager instigated a review of safety procedures.",
+      "example_translations": {
+        "ru": "Руководитель инициировал проверку правил безопасности.",
+        "uz": "Rahbar xavfsizlik qoidalarini tekshirishni boshlab berdi."
+      }
+    },
+    {
+      "word": "undermine",
+      "part_of_speech": "verb",
+      "transcription": "/ˌʌndərˈmaɪn/",
+      "translation": "подрывать",
+      "translations": {
+        "ru": "подрывать",
+        "uz": "putur yetkazmoq"
+      },
+      "example": "Constant criticism undermined her confidence at work.",
+      "example_translations": {
+        "ru": "Постоянная критика подрывала её уверенность в себе на работе.",
+        "uz": "Doimiy tanqid uning ishdagi o'ziga ishonchiga putur yetkazdi."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 11,
+    "title": "Политика и власть",
+    "title_uz": "Siyosat va hokimiyat"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Выборы и партии",
+    "title_uz": "Saylovlar va partiyalar"
+  },
+  "words": [
+    {
+      "word": "constituency",
+      "part_of_speech": "noun",
+      "transcription": "/kənˈstɪtʃuənsi/",
+      "translation": "избирательный округ",
+      "translations": {
+        "ru": "избирательный округ",
+        "uz": "saylov okrugi"
+      },
+      "example": "She represents a rural constituency in the north.",
+      "example_translations": {
+        "ru": "Она представляет сельский избирательный округ на севере.",
+        "uz": "U shimoldagi qishloq saylov okrugining vakili."
+      }
+    },
+    {
+      "word": "candidacy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkændədəsi/",
+      "translation": "кандидатура",
+      "translations": {
+        "ru": "кандидатура",
+        "uz": "nomzodlik"
+      },
+      "example": "He announced his candidacy for mayor yesterday.",
+      "example_translations": {
+        "ru": "Вчера он объявил о выдвижении своей кандидатуры на пост мэра.",
+        "uz": "Kecha u shahar hokimi lavozimiga nomzodligini e'lon qildi."
+      }
+    },
+    {
+      "word": "manifesto",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmænəˈfɛstoʊ/",
+      "translation": "предвыборная программа",
+      "translations": {
+        "ru": "предвыборная программа",
+        "uz": "saylovoldi dasturi"
+      },
+      "example": "The party's manifesto promises lower taxes for families.",
+      "example_translations": {
+        "ru": "Предвыборная программа партии обещает семьям снижение налогов.",
+        "uz": "Partiyaning saylovoldi dasturi oilalarga soliqlarni kamaytirishni va'da qiladi."
+      }
+    },
+    {
+      "word": "populism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɑpjəˌlɪzəm/",
+      "translation": "популизм",
+      "translations": {
+        "ru": "популизм",
+        "uz": "populizm"
+      },
+      "example": "Critics dismissed his simple promises as pure populism.",
+      "example_translations": {
+        "ru": "Критики назвали его простые обещания чистым популизмом.",
+        "uz": "Tanqidchilar uning jo'n va'dalarini sof populizm deb atashdi."
+      }
+    },
+    {
+      "word": "partisan",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpɑrtəzən/",
+      "translation": "узкопартийный, пристрастный",
+      "translations": {
+        "ru": "узкопартийный, пристрастный",
+        "uz": "tor partiyaviy, tarafkash"
+      },
+      "example": "Partisan debates kept the two parties from cooperating.",
+      "example_translations": {
+        "ru": "Узкопартийные споры мешали двум партиям сотрудничать.",
+        "uz": "Tor partiyaviy bahslar ikki partiyaning hamkorlik qilishiga to'sqinlik qilardi."
+      }
+    },
+    {
+      "word": "lobbyist",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɑbiɪst/",
+      "translation": "лоббист",
+      "translations": {
+        "ru": "лоббист",
+        "uz": "lobbichi"
+      },
+      "example": "The lobbyist urged lawmakers to protect local farmers.",
+      "example_translations": {
+        "ru": "Лоббист призывал законодателей защитить местных фермеров.",
+        "uz": "Lobbichi qonunchilarni mahalliy fermerlarni himoya qilishga chaqirdi."
+      }
+    },
+    {
+      "word": "electoral",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈlɛktərəl/",
+      "translation": "избирательный",
+      "translations": {
+        "ru": "избирательный",
+        "uz": "saylovga oid"
+      },
+      "example": "Electoral reform should make every vote count equally.",
+      "example_translations": {
+        "ru": "Избирательная реформа должна сделать все голоса равными по весу.",
+        "uz": "Saylovga oid islohot har bir ovozni teng kuchli qilishi kerak."
+      }
+    },
+    {
+      "word": "suffrage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsʌfrɪdʒ/",
+      "translation": "избирательное право",
+      "translations": {
+        "ru": "избирательное право",
+        "uz": "saylov huquqi"
+      },
+      "example": "Universal suffrage gives every adult the right to vote.",
+      "example_translations": {
+        "ru": "Всеобщее избирательное право даёт каждому взрослому возможность голосовать.",
+        "uz": "Umumiy saylov huquqi har bir katta yoshli kishiga ovoz berish imkonini beradi."
+      }
+    },
+    {
+      "word": "inauguration",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˌnɔgjəˈreɪʃən/",
+      "translation": "инаугурация",
+      "translations": {
+        "ru": "инаугурация",
+        "uz": "inauguratsiya"
+      },
+      "example": "Thousands attended the inauguration of the new president.",
+      "example_translations": {
+        "ru": "Тысячи людей присутствовали на инаугурации нового президента.",
+        "uz": "Yangi prezidentning inauguratsiyasida minglab odamlar qatnashdi."
+      }
+    },
+    {
+      "word": "abstention",
+      "part_of_speech": "noun",
+      "transcription": "/əbˈstɛnʃən/",
+      "translation": "воздержание от голосования",
+      "translations": {
+        "ru": "воздержание от голосования",
+        "uz": "ovoz berishdan tiyilish"
+      },
+      "example": "High abstention showed that voters had lost interest.",
+      "example_translations": {
+        "ru": "Массовое воздержание от голосования показало, что избиратели потеряли интерес.",
+        "uz": "Ko'pchilikning ovoz berishdan tiyilishi saylovchilar qiziqishni yo'qotganini ko'rsatdi."
+      }
+    }
+  ]
+}

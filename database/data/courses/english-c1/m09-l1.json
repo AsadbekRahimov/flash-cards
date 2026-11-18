@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 9,
+    "title": "Психология и мышление",
+    "title_uz": "Psixologiya va tafakkur"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Как мы думаем",
+    "title_uz": "Qanday fikrlaymiz"
+  },
+  "words": [
+    {
+      "word": "contemplate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈkɑntəmˌpleɪt/",
+      "translation": "обдумывать",
+      "translations": {
+        "ru": "обдумывать",
+        "uz": "obdon o'ylab ko'rmoq"
+      },
+      "example": "She is seriously contemplating a move to another country.",
+      "example_translations": {
+        "ru": "Она всерьёз обдумывает переезд в другую страну.",
+        "uz": "U boshqa mamlakatga ko'chishni obdon o'ylab ko'ryapti."
+      }
+    },
+    {
+      "word": "ponder",
+      "part_of_speech": "verb",
+      "transcription": "/ˈpɑndər/",
+      "translation": "размышлять",
+      "translations": {
+        "ru": "размышлять",
+        "uz": "mulohaza yuritmoq"
+      },
+      "example": "He pondered the question for several minutes.",
+      "example_translations": {
+        "ru": "Он несколько минут размышлял над этим вопросом.",
+        "uz": "U bu savol ustida bir necha daqiqa mulohaza yuritdi."
+      }
+    },
+    {
+      "word": "discern",
+      "part_of_speech": "verb",
+      "transcription": "/dɪˈsɜrn/",
+      "translation": "различать, распознавать",
+      "translations": {
+        "ru": "различать, распознавать",
+        "uz": "ilg'amoq"
+      },
+      "example": "I could barely discern a figure in the fog.",
+      "example_translations": {
+        "ru": "Я едва мог различить фигуру в тумане.",
+        "uz": "Tuman ichida bir gavdani zo'rg'a ilg'adim."
+      }
+    },
+    {
+      "word": "deduce",
+      "part_of_speech": "verb",
+      "transcription": "/dɪˈdus/",
+      "translation": "делать вывод",
+      "translations": {
+        "ru": "делать вывод",
+        "uz": "xulosa chiqarmoq"
+      },
+      "example": "From the muddy boots, he deduced they had hiked.",
+      "example_translations": {
+        "ru": "По грязным ботинкам он сделал вывод, что они ходили в поход.",
+        "uz": "Loy etiklarga qarab, u ular piyoda sayrga chiqqan, deb xulosa chiqardi."
+      }
+    },
+    {
+      "word": "envisage",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈvɪzɪdʒ/",
+      "translation": "представлять себе",
+      "translations": {
+        "ru": "представлять себе",
+        "uz": "tasavvur qilmoq"
+      },
+      "example": "I cannot envisage a future without books.",
+      "example_translations": {
+        "ru": "Я не могу представить себе будущее без книг.",
+        "uz": "Men kitoblarsiz kelajakni tasavvur qila olmayman."
+      }
+    },
+    {
+      "word": "conceive",
+      "part_of_speech": "verb",
+      "transcription": "/kənˈsiv/",
+      "translation": "задумать, замыслить",
+      "translations": {
+        "ru": "задумать, замыслить",
+        "uz": "o'ylab topmoq"
+      },
+      "example": "He conceived the project while still a student.",
+      "example_translations": {
+        "ru": "Он задумал этот проект, ещё будучи студентом.",
+        "uz": "U bu loyihani hali talabalik chog'idayoq o'ylab topgan."
+      }
+    },
+    {
+      "word": "perceive",
+      "part_of_speech": "verb",
+      "transcription": "/pərˈsiv/",
+      "translation": "воспринимать",
+      "translations": {
+        "ru": "воспринимать",
+        "uz": "idrok etmoq"
+      },
+      "example": "Children perceive time differently from adults.",
+      "example_translations": {
+        "ru": "Дети воспринимают время иначе, чем взрослые.",
+        "uz": "Bolalar vaqtni kattalardan boshqacha idrok etadi."
+      }
+    },
+    {
+      "word": "comprehend",
+      "part_of_speech": "verb",
+      "transcription": "/ˌkɑmprɪˈhɛnd/",
+      "translation": "постигать, понимать",
+      "translations": {
+        "ru": "постигать, понимать",
+        "uz": "anglab yetmoq"
+      },
+      "example": "I cannot comprehend how anyone solves this so fast.",
+      "example_translations": {
+        "ru": "Я не могу постичь, как можно решать это так быстро.",
+        "uz": "Buni qanday qilib shu qadar tez yechish mumkinligini anglab yeta olmayman."
+      }
+    },
+    {
+      "word": "recollect",
+      "part_of_speech": "verb",
+      "transcription": "/ˌrɛkəˈlɛkt/",
+      "translation": "припоминать",
+      "translations": {
+        "ru": "припоминать",
+        "uz": "eslamoq"
+      },
+      "example": "Can you recollect where you first met him?",
+      "example_translations": {
+        "ru": "Можете ли вы припомнить, где впервые встретили его?",
+        "uz": "U bilan ilk bor qayerda uchrashganingizni eslay olasizmi?"
+      }
+    },
+    {
+      "word": "reckon",
+      "part_of_speech": "verb",
+      "transcription": "/ˈrɛkən/",
+      "translation": "полагать, считать",
+      "translations": {
+        "ru": "полагать, считать",
+        "uz": "deb hisoblamoq"
+      },
+      "example": "I reckon we will finish by Friday.",
+      "example_translations": {
+        "ru": "Я полагаю, что мы закончим к пятнице.",
+        "uz": "Juma kunigacha tugatamiz, deb hisoblayman."
+      }
+    }
+  ]
+}

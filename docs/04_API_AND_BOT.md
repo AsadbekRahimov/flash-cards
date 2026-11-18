@@ -184,8 +184,8 @@
 - `hard_round` **(с 18.11.2026, docs/06 §14)** — карточка «Раунд трудных слов»; ключ **есть всегда**, `null` только при `LEARNING_HARD_ROUND_ENABLED=false`. `available` — раунд можно открыть или продолжить;
   `reason` (когда `available = false`): `not_enough` (трудных слов ближайших дней — срок не позже `now + LEARNING_HARD_ROUND_DUE_WITHIN_DAYS` (2) дней — меньше `LEARNING_HARD_ROUND_MIN_WORDS`, 6) · `played_today` (в локальном дне уже был раунд; `resets_at` — ISO-8601 UTC с миллисекундами, конец окна дня) ·
   `no_objective_exercise` (недоступны и «Выбери перевод», и «Выбери слово»: выключены конфигом или учеником) · `disabled` не приходит (вместо блока `null`); `words` — размер раунда, который откроется (0 при `not_enough`; у живого раунда — размер его набора);
-  `open_session_id` — живая сегодняшняя `hard_review`-сессия: клиент показывает «Продолжить» и идёт на её экран, иначе — «Разобрать» (`POST /training/sessions {mode: hard_review}`, A.3). Стоимость: +1 оператор (кандидаты по
-  индексу `word_repetitions_hard_idx`); «сыграно сегодня» и живая hard-сессия читаются в том же операторе, что `open_session_id` ежедневной.
+  `open_session_id` — живая сегодняшняя `hard_review`-сессия: клиент показывает «Продолжить» и идёт на её экран, иначе — «Разобрать» (`POST /training/sessions {mode: hard_review}`, A.3). Стоимость: кандидаты (по индексу `word_repetitions_hard_idx`) — `count(*)` в общем операторе скаляров экрана (`docs/19` §5.2 K10), не свой оператор; «сыграно сегодня» и живая hard-сессия читаются в том же операторе, что `open_session_id` ежедневной.
+  Бюджет всего `GET /today` после K10: у Free с курсом 5 операторов при закрытой игре, 6 при `GAME_ACCESS=all`; таблица — `docs/19` §5.2.
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
@@ -1783,7 +1783,7 @@ public function __invoke(Request $request, string $secret)
 
 #### Онбординг и `/settings`: шаги и `callback_data`
 
-Шаги по порядку: `locale` (🇷🇺/🇺🇿, каждый язык своим названием) → `goal` (`general`/`ielts`/`sat`/`school`) → `level` (`A1`/`A2`/`B1`/`B2`/`unknown`→`A1`) → `timezone` (список из `config('learners.timezone_options')`, по умолчанию Ташкент и соседи; значение — IANA-id, ещё раз проверяется по `DateTimeZone::listIdentifiers`) → `reminder` (`0800`/`1300`/`1900`/`2100`/`off` → `reminder_time` или `NULL`). `learners.onboarding_state` — текущий шаг (`new` → `locale` … `reminder` → `done`). Дефолты тем, кто их не меняет: цель 20 карточек в день (`daily_goal`), напоминание 19:00, `Asia/Tashkent`.
+Шаги по порядку: `locale` (🇷🇺/🇺🇿, каждый язык своим названием) → `goal` (`general`/`ielts`/`sat`/`school`) → `level` (`A1`/`A2`/`B1`/`B2`/`C1`/`C2`/`unknown`→`A1`) → `timezone` (список из `config('learners.timezone_options')`, по умолчанию Ташкент и соседи; значение — IANA-id, ещё раз проверяется по `DateTimeZone::listIdentifiers`) → `reminder` (`0800`/`1300`/`1900`/`2100`/`off` → `reminder_time` или `NULL`). `learners.onboarding_state` — текущий шаг (`new` → `locale` … `reminder` → `done`). Дефолты тем, кто их не меняет: цель 20 карточек в день (`daily_goal`), напоминание 19:00, `Asia/Tashkent`.
 
 | `callback_data` | Смысл |
 |---|---|

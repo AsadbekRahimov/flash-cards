@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 8,
+    "title": "Здоровье и медицина",
+    "title_uz": "Sog'liq va tibbiyot"
+  },
+  "lesson": {
+    "number": 4,
+    "title": "Тело человека",
+    "title_uz": "Inson tanasi"
+  },
+  "words": [
+    {
+      "word": "cardiac",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkɑrdiˌæk/",
+      "translation": "сердечный",
+      "translations": {
+        "ru": "сердечный",
+        "uz": "yurakka oid"
+      },
+      "example": "Regular exercise strengthens cardiac muscle and improves heart health.",
+      "example_translations": {
+        "ru": "Регулярные упражнения укрепляют сердечную мышцу и улучшают здоровье сердца.",
+        "uz": "Muntazam mashqlar yurak mushagini mustahkamlab, yurak salomatligini yaxshilaydi."
+      }
+    },
+    {
+      "word": "spine",
+      "part_of_speech": "noun",
+      "transcription": "/spaɪn/",
+      "translation": "позвоночник",
+      "translations": {
+        "ru": "позвоночник",
+        "uz": "umurtqa pog'onasi"
+      },
+      "example": "Sitting badly for hours can damage your spine.",
+      "example_translations": {
+        "ru": "Многочасовое сидение в неправильной позе может повредить ваш позвоночник.",
+        "uz": "Soatlab noto'g'ri o'tirish umurtqa pog'onangizga zarar yetkazishi mumkin."
+      }
+    },
+    {
+      "word": "artery",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑrtəri/",
+      "translation": "артерия",
+      "translations": {
+        "ru": "артерия",
+        "uz": "arteriya"
+      },
+      "example": "Each artery carries blood away from the heart.",
+      "example_translations": {
+        "ru": "Каждая артерия несёт кровь от сердца.",
+        "uz": "Har bir arteriya qonni yurakdan olib ketadi."
+      }
+    },
+    {
+      "word": "ligament",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɪgəmənt/",
+      "translation": "связка",
+      "translations": {
+        "ru": "связка",
+        "uz": "boylam"
+      },
+      "example": "He tore a ligament in his knee playing soccer.",
+      "example_translations": {
+        "ru": "Он порвал связку в колене, играя в футбол.",
+        "uz": "U futbol o'ynayotib tizzasidagi boylamni uzib oldi."
+      }
+    },
+    {
+      "word": "hormone",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɔrˌmoʊn/",
+      "translation": "гормон",
+      "translations": {
+        "ru": "гормон",
+        "uz": "gormon"
+      },
+      "example": "This hormone controls how fast children grow.",
+      "example_translations": {
+        "ru": "Этот гормон управляет тем, как быстро растут дети.",
+        "uz": "Bu gormon bolalarning qanchalik tez o'sishini boshqaradi."
+      }
+    },
+    {
+      "word": "gland",
+      "part_of_speech": "noun",
+      "transcription": "/glænd/",
+      "translation": "железа",
+      "translations": {
+        "ru": "железа",
+        "uz": "bez"
+      },
+      "example": "The gland in your neck produces important hormones.",
+      "example_translations": {
+        "ru": "Железа в вашей шее вырабатывает важные гормоны.",
+        "uz": "Bo'yningizdagi bez muhim gormonlarni ishlab chiqaradi."
+      }
+    },
+    {
+      "word": "kidney",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɪdni/",
+      "translation": "почка",
+      "translations": {
+        "ru": "почка",
+        "uz": "buyrak"
+      },
+      "example": "Each kidney filters waste from the blood.",
+      "example_translations": {
+        "ru": "Каждая почка очищает кровь от продуктов обмена.",
+        "uz": "Har bir buyrak qonni chiqindi moddalardan tozalaydi."
+      }
+    },
+    {
+      "word": "liver",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɪvər/",
+      "translation": "печень",
+      "translations": {
+        "ru": "печень",
+        "uz": "jigar"
+      },
+      "example": "The liver stores energy and helps digest fat.",
+      "example_translations": {
+        "ru": "Печень запасает энергию и помогает переваривать жиры.",
+        "uz": "Jigar energiya to'playdi va yog'larni hazm qilishga yordam beradi."
+      }
+    },
+    {
+      "word": "abdomen",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæbdəmən/",
+      "translation": "живот",
+      "translations": {
+        "ru": "живот",
+        "uz": "qorin"
+      },
+      "example": "Sharp pain in the lower abdomen may mean appendicitis.",
+      "example_translations": {
+        "ru": "Резкая боль внизу живота может означать аппендицит.",
+        "uz": "Qorinning pastki qismidagi keskin og'riq appenditsitni bildirishi mumkin."
+      }
+    },
+    {
+      "word": "circulation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌsɜrkjəˈleɪʃən/",
+      "translation": "кровообращение",
+      "translations": {
+        "ru": "кровообращение",
+        "uz": "qon aylanishi"
+      },
+      "example": "Regular walking improves blood circulation in your legs.",
+      "example_translations": {
+        "ru": "Регулярная ходьба улучшает кровообращение в ногах.",
+        "uz": "Muntazam piyoda yurish oyoqlaringizda qon aylanishini yaxshilaydi."
+      }
+    }
+  ]
+}

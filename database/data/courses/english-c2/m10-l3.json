@@ -1,0 +1,165 @@
+{
+  "course": "english-c2",
+  "stage": {
+    "number": 10,
+    "title": "Тонкости права",
+    "title_uz": "Huquq nozikliklari"
+  },
+  "lesson": {
+    "number": 3,
+    "title": "Наследство и имущество",
+    "title_uz": "Meros va mol-mulk"
+  },
+  "words": [
+    {
+      "word": "bequeath",
+      "part_of_speech": "verb",
+      "transcription": "/bɪˈkwið/",
+      "translation": "завещать",
+      "translations": {
+        "ru": "завещать",
+        "uz": "vasiyat qilib qoldirmoq"
+      },
+      "example": "She bequeathed her house to her only grandson.",
+      "example_translations": {
+        "ru": "Она завещала свой дом единственному внуку.",
+        "uz": "U uyini yolg'iz nabirasiga vasiyat qilib qoldirdi."
+      }
+    },
+    {
+      "word": "testament",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɛstəmənt/",
+      "translation": "завещание",
+      "translations": {
+        "ru": "завещание",
+        "uz": "vasiyatnoma"
+      },
+      "example": "In his last testament, he left everything to charity.",
+      "example_translations": {
+        "ru": "В своём последнем завещании он оставил всё на благотворительность.",
+        "uz": "So'nggi vasiyatnomasida u hamma narsani xayriyaga qoldirdi."
+      }
+    },
+    {
+      "word": "probate",
+      "part_of_speech": "noun",
+      "transcription": "/ˈproʊˌbeɪt/",
+      "translation": "утверждение завещания",
+      "translations": {
+        "ru": "утверждение завещания",
+        "uz": "vasiyatnomani tasdiqlash"
+      },
+      "example": "Probate took a year before the heirs received anything.",
+      "example_translations": {
+        "ru": "Утверждение завещания заняло год, и лишь потом наследники что-то получили.",
+        "uz": "Vasiyatnomani tasdiqlash bir yil davom etdi, shundan keyingina merosxo'rlar biror narsa oldi."
+      }
+    },
+    {
+      "word": "executor",
+      "part_of_speech": "noun",
+      "transcription": "/ɪgˈzɛkjətər/",
+      "translation": "исполнитель завещания",
+      "translations": {
+        "ru": "исполнитель завещания",
+        "uz": "vasiyatnoma ijrochisi"
+      },
+      "example": "As executor, Tom distributed his aunt's property.",
+      "example_translations": {
+        "ru": "Как исполнитель завещания Том распределил имущество своей тёти.",
+        "uz": "Vasiyatnoma ijrochisi sifatida Tom xolasining mol-mulkini taqsimladi."
+      }
+    },
+    {
+      "word": "beneficiary",
+      "part_of_speech": "noun",
+      "transcription": "/ˌbɛnəˈfɪʃiˌɛri/",
+      "translation": "выгодоприобретатель",
+      "translations": {
+        "ru": "выгодоприобретатель",
+        "uz": "naf oluvchi"
+      },
+      "example": "His daughter is the sole beneficiary of the will.",
+      "example_translations": {
+        "ru": "Его дочь — единственный выгодоприобретатель по завещанию.",
+        "uz": "Uning qizi vasiyatnoma bo'yicha yagona naf oluvchidir."
+      }
+    },
+    {
+      "word": "trustee",
+      "part_of_speech": "noun",
+      "transcription": "/ˌtrʌˈsti/",
+      "translation": "доверительный управляющий",
+      "translations": {
+        "ru": "доверительный управляющий",
+        "uz": "ishonchli boshqaruvchi"
+      },
+      "example": "A trustee manages the money until the child grows up.",
+      "example_translations": {
+        "ru": "Доверительный управляющий распоряжается деньгами, пока ребёнок не вырастет.",
+        "uz": "Bola ulg'ayguncha pulni ishonchli boshqaruvchi tasarruf etadi."
+      }
+    },
+    {
+      "word": "escrow",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛskroʊ/",
+      "translation": "счёт эскроу",
+      "translations": {
+        "ru": "счёт эскроу",
+        "uz": "eskrou hisobvarag'i"
+      },
+      "example": "The payment stays in escrow until the sale closes.",
+      "example_translations": {
+        "ru": "Платёж остаётся на счёте эскроу до завершения сделки.",
+        "uz": "To'lov bitim yakunlanguncha eskrou hisobvarag'ida turadi."
+      }
+    },
+    {
+      "word": "endowment",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈdaʊmənt/",
+      "translation": "целевой капитал",
+      "translations": {
+        "ru": "целевой капитал",
+        "uz": "maqsadli jamg'arma"
+      },
+      "example": "The university's endowment pays for student scholarships.",
+      "example_translations": {
+        "ru": "Целевой капитал университета оплачивает студенческие стипендии.",
+        "uz": "Universitetning maqsadli jamg'armasi talabalar stipendiyalarini to'laydi."
+      }
+    },
+    {
+      "word": "expropriate",
+      "part_of_speech": "verb",
+      "transcription": "/ɛkˈsproʊpriˌeɪt/",
+      "translation": "принудительно изымать",
+      "translations": {
+        "ru": "принудительно изымать",
+        "uz": "majburan olib qo'ymoq"
+      },
+      "example": "The state expropriated farmland to build the highway.",
+      "example_translations": {
+        "ru": "Государство принудительно изъяло сельскохозяйственные земли для строительства шоссе.",
+        "uz": "Davlat magistral yo'l qurish uchun qishloq xo'jaligi yerlarini majburan olib qo'ydi."
+      }
+    },
+    {
+      "word": "confiscate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈkɑnfəˌskeɪt/",
+      "translation": "конфисковать",
+      "translations": {
+        "ru": "конфисковать",
+        "uz": "musodara qilmoq"
+      },
+      "example": "Customs officers confiscated the undeclared jewelry.",
+      "example_translations": {
+        "ru": "Таможенники конфисковали незадекларированные украшения.",
+        "uz": "Bojxonachilar deklaratsiya qilinmagan zargarlik buyumlarini musodara qildi."
+      }
+    }
+  ]
+}

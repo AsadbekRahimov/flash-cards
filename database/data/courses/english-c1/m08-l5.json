@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 8,
+    "title": "Здоровье и медицина",
+    "title_uz": "Sog'liq va tibbiyot"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Образ жизни",
+    "title_uz": "Turmush tarzi"
+  },
+  "words": [
+    {
+      "word": "sedentary",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɛdənˌtɛri/",
+      "translation": "малоподвижный, сидячий",
+      "translations": {
+        "ru": "малоподвижный, сидячий",
+        "uz": "kamharakat"
+      },
+      "example": "A sedentary job keeps you at a desk all day.",
+      "example_translations": {
+        "ru": "Малоподвижная работа держит вас за столом весь день.",
+        "uz": "Kamharakat ish sizni kun bo'yi stol oldida ushlab turadi."
+      }
+    },
+    {
+      "word": "wholesome",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈhoʊlsəm/",
+      "translation": "полезный для здоровья",
+      "translations": {
+        "ru": "полезный для здоровья",
+        "uz": "sog'liqqa foydali"
+      },
+      "example": "Grandma cooks wholesome meals from fresh garden vegetables.",
+      "example_translations": {
+        "ru": "Бабушка готовит полезную для здоровья еду из свежих овощей с огорода.",
+        "uz": "Buvim tomorqadagi yangi sabzavotlardan sog'liqqa foydali taomlar pishiradi."
+      }
+    },
+    {
+      "word": "nutritious",
+      "part_of_speech": "adjective",
+      "transcription": "/nuˈtrɪʃəs/",
+      "translation": "питательный",
+      "translations": {
+        "ru": "питательный",
+        "uz": "to'yimli"
+      },
+      "example": "Nuts are a nutritious snack full of protein.",
+      "example_translations": {
+        "ru": "Орехи — питательный перекус, богатый белком.",
+        "uz": "Yong'oqlar — oqsilga boy to'yimli yengil tamaddi."
+      }
+    },
+    {
+      "word": "dietary",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdaɪəˌtɛri/",
+      "translation": "пищевой, связанный с питанием",
+      "translations": {
+        "ru": "пищевой, связанный с питанием",
+        "uz": "ovqatlanishga oid"
+      },
+      "example": "Dietary habits formed in childhood last a lifetime.",
+      "example_translations": {
+        "ru": "Пищевые привычки, сформированные в детстве, сохраняются на всю жизнь.",
+        "uz": "Bolalikda shakllangan ovqatlanish odatlari umrbod saqlanib qoladi."
+      }
+    },
+    {
+      "word": "abstain",
+      "part_of_speech": "verb",
+      "transcription": "/əbˈsteɪn/",
+      "translation": "воздерживаться",
+      "translations": {
+        "ru": "воздерживаться",
+        "uz": "o'zini tiymoq"
+      },
+      "example": "Athletes abstain from junk food before important competitions.",
+      "example_translations": {
+        "ru": "Перед важными соревнованиями спортсмены воздерживаются от вредной еды.",
+        "uz": "Sportchilar muhim musobaqalar oldidan zararli taomlardan o'zini tiyadi."
+      }
+    },
+    {
+      "word": "moderation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɑdəˈreɪʃən/",
+      "translation": "умеренность",
+      "translations": {
+        "ru": "умеренность",
+        "uz": "me'yor"
+      },
+      "example": "Moderation in eating keeps your weight under control.",
+      "example_translations": {
+        "ru": "Умеренность в еде помогает держать вес под контролем.",
+        "uz": "Ovqatlanishda me'yorni saqlash vazningizni nazorat qilishga yordam beradi."
+      }
+    },
+    {
+      "word": "endurance",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈdʊrəns/",
+      "translation": "выносливость",
+      "translations": {
+        "ru": "выносливость",
+        "uz": "chidamlilik"
+      },
+      "example": "Long-distance running builds endurance over many months.",
+      "example_translations": {
+        "ru": "Бег на длинные дистанции развивает выносливость за многие месяцы.",
+        "uz": "Uzoq masofaga yugurish oylar davomida chidamlilikni oshiradi."
+      }
+    },
+    {
+      "word": "vitality",
+      "part_of_speech": "noun",
+      "transcription": "/vaɪˈtæləti/",
+      "translation": "жизненная энергия",
+      "translations": {
+        "ru": "жизненная энергия",
+        "uz": "hayotiy quvvat"
+      },
+      "example": "At eighty, she is still full of vitality.",
+      "example_translations": {
+        "ru": "В восемьдесят лет она всё ещё полна жизненной энергии.",
+        "uz": "Sakson yoshida ham u hayotiy quvvatga to'la."
+      }
+    },
+    {
+      "word": "longevity",
+      "part_of_speech": "noun",
+      "transcription": "/lɑnˈdʒɛvəti/",
+      "translation": "долголетие",
+      "translations": {
+        "ru": "долголетие",
+        "uz": "uzoq umr ko'rish"
+      },
+      "example": "A healthy diet and exercise contribute to longevity.",
+      "example_translations": {
+        "ru": "Здоровое питание и физические упражнения способствуют долголетию.",
+        "uz": "Sog'lom ovqatlanish va jismoniy mashqlar uzoq umr ko'rishga yordam beradi."
+      }
+    },
+    {
+      "word": "strenuous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈstrɛnjuəs/",
+      "translation": "напряжённый, тяжёлый",
+      "translations": {
+        "ru": "напряжённый, тяжёлый",
+        "uz": "zo'riqtiruvchi"
+      },
+      "example": "Avoid strenuous exercise like heavy lifting after surgery.",
+      "example_translations": {
+        "ru": "После операции избегайте напряжённых нагрузок, таких как подъём тяжестей.",
+        "uz": "Operatsiyadan keyin og'ir yuk ko'tarish kabi zo'riqtiruvchi mashqlardan saqlaning."
+      }
+    }
+  ]
+}

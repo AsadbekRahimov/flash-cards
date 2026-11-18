@@ -1,0 +1,165 @@
+{
+  "course": "english-c1",
+  "stage": {
+    "number": 2,
+    "title": "Чувства и отношения",
+    "title_uz": "His-tuyg'ular va munosabatlar"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Сильные чувства",
+    "title_uz": "Kuchli tuyg'ular"
+  },
+  "words": [
+    {
+      "word": "outrage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌreɪdʒ/",
+      "translation": "возмущение, негодование",
+      "translations": {
+        "ru": "возмущение, негодование",
+        "uz": "g'azab, qattiq norozilik"
+      },
+      "example": "The unfair decision caused outrage among the fans.",
+      "example_translations": {
+        "ru": "Несправедливое решение вызвало возмущение среди болельщиков.",
+        "uz": "Adolatsiz qaror muxlislar orasida g'azab uyg'otdi."
+      }
+    },
+    {
+      "word": "fury",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfjʊri/",
+      "translation": "ярость",
+      "translations": {
+        "ru": "ярость",
+        "uz": "qahr"
+      },
+      "example": "She tore up the letter in a fury.",
+      "example_translations": {
+        "ru": "Она в ярости разорвала письмо.",
+        "uz": "U qahr bilan xatni yirtib tashladi."
+      }
+    },
+    {
+      "word": "resentment",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈzɛntmənt/",
+      "translation": "обида, досада",
+      "translations": {
+        "ru": "обида, досада",
+        "uz": "alam, gina"
+      },
+      "example": "He felt deep resentment after being ignored for years.",
+      "example_translations": {
+        "ru": "Он чувствовал глубокую обиду после того, как его годами игнорировали.",
+        "uz": "Yillar davomida e'tiborsiz qoldirilgach, u chuqur alam his qildi."
+      }
+    },
+    {
+      "word": "contempt",
+      "part_of_speech": "noun",
+      "transcription": "/kənˈtɛmpt/",
+      "translation": "презрение",
+      "translations": {
+        "ru": "презрение",
+        "uz": "mensimaslik, nafrat"
+      },
+      "example": "She looked at the liar with open contempt.",
+      "example_translations": {
+        "ru": "Она посмотрела на лжеца с нескрываемым презрением.",
+        "uz": "U yolg'onchiga ochiq mensimaslik bilan qaradi."
+      }
+    },
+    {
+      "word": "dread",
+      "part_of_speech": "noun",
+      "transcription": "/drɛd/",
+      "translation": "сильный страх, ужас",
+      "translations": {
+        "ru": "сильный страх, ужас",
+        "uz": "vahima"
+      },
+      "example": "The thought of the exam filled him with dread.",
+      "example_translations": {
+        "ru": "Мысль об экзамене наполняла его сильным страхом.",
+        "uz": "Imtihon haqidagi o'y uni vahimaga solardi."
+      }
+    },
+    {
+      "word": "anguish",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæŋgwɪʃ/",
+      "translation": "душевная мука, страдание",
+      "translations": {
+        "ru": "душевная мука, страдание",
+        "uz": "iztirob"
+      },
+      "example": "Parents waited in anguish for news of their son.",
+      "example_translations": {
+        "ru": "Родители в душевной муке ждали вестей о сыне.",
+        "uz": "Ota-ona iztirob ichida o'g'lidan xabar kutardi."
+      }
+    },
+    {
+      "word": "remorse",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈmɔrs/",
+      "translation": "раскаяние, угрызения совести",
+      "translations": {
+        "ru": "раскаяние, угрызения совести",
+        "uz": "pushaymonlik"
+      },
+      "example": "He felt remorse for lying to his best friend.",
+      "example_translations": {
+        "ru": "Он испытывал раскаяние из-за того, что солгал лучшему другу.",
+        "uz": "U eng yaqin do'stiga yolg'on gapirgani uchun pushaymonlik his qildi."
+      }
+    },
+    {
+      "word": "bliss",
+      "part_of_speech": "noun",
+      "transcription": "/blɪs/",
+      "translation": "блаженство",
+      "translations": {
+        "ru": "блаженство",
+        "uz": "huzur-halovat"
+      },
+      "example": "A quiet week by the sea was pure bliss.",
+      "example_translations": {
+        "ru": "Тихая неделя у моря была чистым блаженством.",
+        "uz": "Dengiz bo'yidagi sokin hafta chinakam huzur-halovat edi."
+      }
+    },
+    {
+      "word": "awe",
+      "part_of_speech": "noun",
+      "transcription": "/ɔ/",
+      "translation": "благоговение, трепет",
+      "translations": {
+        "ru": "благоговение, трепет",
+        "uz": "ehtiromli hayrat"
+      },
+      "example": "We stared in awe at the enormous waterfall.",
+      "example_translations": {
+        "ru": "Мы с благоговением смотрели на огромный водопад.",
+        "uz": "Biz ulkan sharsharaga ehtiromli hayrat bilan tikilib qoldik."
+      }
+    },
+    {
+      "word": "euphoria",
+      "part_of_speech": "noun",
+      "transcription": "/juˈfɔriə/",
+      "translation": "эйфория",
+      "translations": {
+        "ru": "эйфория",
+        "uz": "eyforiya"
+      },
+      "example": "The winning goal sent the crowd into euphoria.",
+      "example_translations": {
+        "ru": "Победный гол привёл толпу в эйфорию.",
+        "uz": "G'alaba goli olomonni eyforiyaga soldi."
+      }
+    }
+  ]
+}
