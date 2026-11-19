@@ -5,12 +5,18 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   allocateMix,
+  burstKindPool,
+  burstLearner,
   burstPool,
   burstProblem,
+  burstRosterProblem,
   burstStages,
   burstToken,
   burstVus,
   BURST_REOPEN_GAP_SECONDS,
+  classLearnerCount,
+  classRoster,
+  isClassLearner,
   isClassOpen,
   MIX_FLOWS,
   mixSlot,
@@ -358,4 +364,106 @@ test('burstProblem refuses a bad rate, durations or share', () => {
   assert.match(burstProblem(20, '30s', '2m', 1.5), /CLASS_SHARE/);
   assert.match(burstProblem(20, '30s', '2m', -0.1), /CLASS_SHARE/);
   assert.match(burstProblem(20, '30s', '2m', NaN), /CLASS_SHARE/);
+  assert.equal(burstProblem(20, '30s', '2m', 0.2, 0.2), null);
+  assert.equal(burstProblem(20, '30s', '2m', 0.2, 0), null);
+  assert.match(burstProblem(20, '30s', '2m', 0.2, 1.2), /LOAD_SCENARIO_CLASS_SHARE/);
+  assert.match(burstProblem(20, '30s', '2m', 0.2, NaN), /LOAD_SCENARIO_CLASS_SHARE/);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The class learners of the seed (LoadTestClassroom on the PHP side) and the burst
+// ---------------------------------------------------------------------------------------------------------------------
+
+test('isClassLearner: the rule of LoadTestClassroom::isMember (Load5, Load10, ... at 0.2), the same count on every prefix', () => {
+  // The same list LoadScenarioSeederTest checks on the PHP side.
+  assert.deepEqual([...Array(30).keys()].filter((i) => isClassLearner(i, 0.2)), [4, 9, 14, 19, 24, 29]);
+  for (const share of [0, 0.1, 0.2, 0.25, 1 / 3, 0.5, 1]) {
+    let members = 0;
+    for (let n = 1; n <= 2000; n++) {
+      if (isClassLearner(n - 1, share)) {
+        members++;
+      }
+      assert.equal(members, classLearnerCount(n, share), `share ${share}, ${n} learners`);
+    }
+  }
+  assert.equal(classLearnerCount(1250, 0.2), 250);
+  const roster = classRoster(1250, 0.2);
+  assert.equal(roster.members.length, 250);
+  assert.equal(roster.solo.length, 1000);
+  assert.deepEqual(classRoster(10, 0), { members: [], solo: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] });
+  // A smaller token file holds exactly the members of its range: the seed of 1250 serves a file of 200.
+  assert.deepEqual(classRoster(200, 0.2).members, roster.members.slice(0, 40));
+});
+
+test('class learners and the battle pairs of the mix do not conflict: a pair is two friends whoever of them is in a class', () => {
+  // The pairs are (2k, 2k + 1) from index 0; at 0.2 a member sits in every fifth index, so a pair holds at most one member.
+  const allocation = allocateMix(1250, { training: 0.45, game: 0.2, practice: 0.2, battle: 0.15 });
+  const { start, end } = allocation.ranges.battle;
+  for (let i = start; i < end; i += 2) {
+    assert.ok(!(isClassLearner(i, 0.2) && isClassLearner(i + 1, 0.2)), `pair ${i}`);
+  }
+  // Every range of the mix holds about its share of class learners (the browse flow then asks `/assignments` for them).
+  const browse = allocateMix(1250, { training: 0.38, game: 0.17, practice: 0.17, battle: 0.13, browse: 0.15 }).ranges.browse;
+  const inBrowse = classLearnerCount(browse.end, 0.2) - classLearnerCount(browse.start, 0.2);
+  assert.ok(Math.abs(inBrowse - (browse.end - browse.start) * 0.2) <= 1, `${inBrowse} class learners in browse`);
+});
+
+test('burstLearner: class opens by class learners only, solo opens by the others, no reopen within the gap', () => {
+  for (const [rate, ramp, hold, classShare, size] of [[20, '30s', '2m', 0.2, 1250], [20, '30s', '10m', 0.2, 1205], [7, '1m', '5m', 0.5, 2000], [50, '10s', '1m', 0.1, 3400], [5, '30s', '0', 0.2, 100]]) {
+    const opens = plannedOpens(rate, ramp, hold);
+    const roster = classRoster(size, 0.2);
+    assert.equal(burstRosterProblem(size, 0.2, rate, opens, classShare), null, `${rate}/s, CLASS_SHARE ${classShare}, ${size} learners`);
+    const members = new Set(roster.members);
+    const lastOpen = new Map();
+    let classOpens = 0;
+    for (let i = 0; i < opens; i++) {
+      const { index, member } = burstLearner(i, classShare, roster);
+      assert.ok(index >= 0 && index < size);
+      assert.equal(member, isClassOpen(i, classShare));
+      assert.equal(members.has(index), member, `open ${i}: a class open is played by a class learner and only it`);
+      classOpens += member ? 1 : 0;
+      if (lastOpen.has(index)) {
+        assert.ok((i - lastOpen.get(index)) / rate >= BURST_REOPEN_GAP_SECONDS, `token ${index} again after ${i - lastOpen.get(index)} opens at ${rate}/s`);
+      }
+      lastOpen.set(index, i);
+    }
+    assert.equal(classOpens, Math.floor(opens * classShare + 1e-9));
+  }
+  // The defaults: 2700 opens, 540 of them class opens by the 250 members, each member at most three times.
+  const roster = classRoster(1250, 0.2);
+  const uses = new Map();
+  for (let i = 0; i < 2700; i++) {
+    const { index, member } = burstLearner(i, 0.2, roster);
+    if (member) {
+      uses.set(index, (uses.get(index) || 0) + 1);
+    }
+  }
+  assert.equal([...uses.values()].reduce((a, b) => a + b, 0), 540);
+  assert.equal(uses.size, 250);
+});
+
+test('burstLearner without class learners in the seed: the whole file in turn, as before', () => {
+  const roster = classRoster(1250, 0);
+  for (const i of [0, 4, 9, 1249, 1300]) {
+    assert.deepEqual(burstLearner(i, 0.2, roster), { index: burstToken(i, 1250), member: isClassOpen(i, 0.2) });
+  }
+  assert.equal(burstRosterProblem(1250, 0, 20, 2700, 0.2), null, 'no class learners: burstPool covers the file');
+  // CLASS_SHARE 0 with a seed of classes: every open solo, by the others only.
+  const seeded = classRoster(1250, 0.2);
+  assert.ok([...Array(500).keys()].every((i) => !isClassLearner(burstLearner(i, 0, seeded).index, 0.2)));
+});
+
+test('burstRosterProblem: a file too small for either kind is refused with the size that fits', () => {
+  assert.equal(burstKindPool(4, 540), 241);
+  assert.equal(burstKindPool(16, 2160), 961);
+  assert.equal(burstKindPool(4, 100), 100);
+  assert.equal(burstKindPool(0, 0), 0);
+  // 1200 learners: 240 members, one short of the 241 the class opens need at 4 a second.
+  assert.match(burstRosterProblem(1200, 0.2, 20, 2700, 0.2), /240 class learners .* needs 241 and 961 .*TARGET_VUS=1205/);
+  assert.equal(burstRosterProblem(1205, 0.2, 20, 2700, 0.2), null);
+  // More class opens than the seed has class learners for: the advice names both shares.
+  assert.match(burstRosterProblem(1250, 0.2, 20, 2700, 0.5), /CLASS_SHARE at most LOAD_SCENARIO_CLASS_SHARE=0.2/);
+  // A short burst: every open its own learner, the file is enough when each kind has as many as its opens.
+  assert.equal(burstRosterProblem(100, 0.2, 5, plannedOpens(5, '30s', '0'), 0.2), null);
+  assert.match(burstRosterProblem(100, 0.2, 5, plannedOpens(5, '30s', '1m'), 0.2), /needs 61 and 241 .*TARGET_VUS=305/);
 });

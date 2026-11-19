@@ -92,3 +92,56 @@ describe('useTts', () => {
     expect(speakSpy).not.toHaveBeenCalled()
   })
 })
+
+describe('useTts — the first word heard in the open (docs/04 A.21)', () => {
+  let clock = 0
+  let playImpl2: () => Promise<void>
+  const spoken: Array<{ onstart?: () => void }> = []
+
+  beforeEach(async () => {
+    const { resetTimingMarks, startTimingMarks } = await import('../useTimingMarks')
+    resetTimingMarks()
+    startTimingMarks({ now: () => clock, openId: '00000006-0000-4000-8000-000000000006', send: async () => undefined })
+    clock = 0
+    spoken.length = 0
+    playImpl2 = () => Promise.resolve()
+    vi.stubGlobal('Audio', class {
+      currentTime = 0
+      constructor(public src: string) {}
+      play(): Promise<void> {
+        return playImpl2()
+      }
+      pause(): void {}
+    })
+    vi.stubGlobal('SpeechSynthesisUtterance', class { onstart?: () => void; constructor(public text: string) {} })
+    vi.stubGlobal('speechSynthesis', { getVoices: () => [], addEventListener: () => {}, cancel: () => {}, speak: (u: { onstart?: () => void }) => spoken.push(u) })
+    vi.stubGlobal('window', globalThis)
+  })
+
+  afterEach(async () => {
+    vi.unstubAllGlobals()
+    ;(await import('../useTimingMarks')).resetTimingMarks()
+  })
+
+  it('marks first_audio once the file has started, once', async () => {
+    const { timingMarks } = await import('../useTimingMarks')
+    clock = 2900
+    await useTts().speak('resilient', 'en-US', '/storage/audio/a.mp3')
+    clock = 5000
+    await useTts().speak('resilient', 'en-US', '/storage/audio/a.mp3')
+
+    expect(timingMarks()).toEqual({ first_audio: 2900 })
+  })
+
+  it('does not mark a file that failed; the speech synthesis marks when it starts speaking', async () => {
+    const { timingMarks } = await import('../useTimingMarks')
+    playImpl2 = () => Promise.reject(new Error('404'))
+    clock = 1000
+    await useTts().speak('resilient', 'en-US', '/storage/audio/missing.mp3')
+    expect(timingMarks()).toEqual({})
+
+    clock = 1300
+    spoken[0]?.onstart?.()
+    expect(timingMarks()).toEqual({ first_audio: 1300 })
+  })
+})

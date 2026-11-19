@@ -43,7 +43,8 @@
     "locale": "ru",
     "onboarding_completed": false
   },
-  "account_restored": null
+  "account_restored": null,
+  "client_timing": { "sample_percent": 10 }
 }
 ```
 
@@ -51,6 +52,8 @@
   оживляет строку, docs/03 §8 п. 2) и ему ещё не сказали об этом — `{"pro_can_resume": bool}`: автопродление Pro, снятое при удалении, можно включить снова
   (то же `can_resume`, что в сводке подписки). Поле приходит при каждом `/auth`, пока не вызван A.2d (или бот не показал то же в `/start`); Mini App показывает лист
   один раз за сессию (docs/05).
+- `client_timing.sample_percent` (0..100) — доля открытий, которые сообщают свои временные метки (A.21); из конфига
+  (`CLIENT_TIMING_SAMPLE_PERCENT`), без запроса к БД. `0` — клиент ничего не шлёт. Нет поля (старый сервер) — тоже ничего.
 
 Токен — JWT **v2**: `{iss, sub: learner_id, v: 2, iat, exp}` (без `gid`), TTL 15 мин. Токен без `v = 2` (старый формат,
 где `sub` был `students.id`) отклоняется с 401 `invalid_token`; клиент перелогинивается автоматически (`api/client.ts`).
@@ -1719,6 +1722,44 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 `percent` — пол от `100 · correct / total` (неотвеченный вопрос — неверный). `scored: false` — тренировочный тест или тест без ответов. Тест **не пишет** в `word_repetitions`, `training_*`, `learner_daily_stats` и не даёт очков рейтинга (docs/13 §8.5).
 
 **События:** `readiness.viewed {course_id, percent, learned, total, source}` · `level_quiz.started {exam_session_id, course_id, week_start, scored, questions, met, unmet}` · `level_quiz.finished {exam_session_id, course_id, week_start, scored, correct, total, percent, answered, reason, too_few_answers}` (`reason` — `finished | expired`, ровно один раз; `too_few_answers` — ответов меньше `READINESS_QUIZ_MIN_ANSWERED_RATIO` от вопросов, попытка не зачтена; `/result` тогда `scored: false`).
+
+### A.21 `POST /api/twa/client-timing` — временные метки открытия (аудит 18.11.2026, «Как увидеть выигрыш»)
+
+Сколько ученик ждёт первую кнопку «Сегодня», сколько времени ему нужно, чтобы понять экран, когда сервер подтвердил первый ответ и когда
+зазвучало первое слово. Метки собирает Mini App, **выборочно**: доля открытий — `client_timing.sample_percent` из ответа `/auth` (A.1;
+по умолчанию 10 %, `0` — выключено). Открытие в выборке, если `crc32("client_timing:<open_id>") % 100 < доли` — то же правило проверяет
+сервер (`ClientTimingRecorder::sampled`, `ExperimentBucket`), открытие вне выборки он не записывает.
+
+**Request** (лимитеры `twa-api` + `twa-client-timing`: **6/мин на learner'а**, 429):
+```json
+{ "open_id": "6f1c…-uuid", "platform": "android", "cold": true, "entry": "home",
+  "auth_ready": 310, "today_received": 640, "button_ready": 702, "first_tap": 2150, "first_answer_ack": 4890, "first_audio": 3010 }
+```
+- `open_id` — uuid, случайный на каждое открытие (не устройство и не человек); `platform` — `Telegram.WebApp.platform`: `android | ios |
+  tdesktop | macos | web | weba | webk | unknown`, всё иное сервер (и клиент) записывает как `other`; строка до 32 символов;
+  `cold` — первое открытие в этом webview (нет маркера сессии, не перезагрузка) / `false` — возврат; `entry` — `home | deep_link | other`
+  (`deep_link` — `start_param` ссылки из группы или кнопка напоминания / объявления `?from=…`).
+- Метки — целые миллисекунды от начала открытия (navigation start страницы, `performance.timeOrigin`), каждая необязательна, `0..600000`:
+  `auth_ready` (ответ `/auth`), `today_received` (ответ `/today`), `button_ready` (главная кнопка «Сегодня» нарисована и доступна:
+  «Выбрать курс» стартовой карточки, «Начать / Продолжить занятие», урок задания центра), `first_tap` (первое нажатие на неё),
+  `first_answer_ack` (сервер принял первый ответ), `first_audio` (первое слово начало звучать).
+- Любой другой ключ — **422** (в том числе `learner_id`: пишется только за learner'а токена); иное значение `entry`, не-uuid, метка вне
+  границ, дробная или `null` — 422.
+
+**Response 204** без тела — всегда (вне выборки, повтор, доля `0`). Пишет `client.timing` (docs/12 §7.7) **не больше раза на `open_id`**:
+маркер `analytics:client_timing:v1:<open_id>` (`Cache::add`, невытесняемое хранилище, TTL 24 ч). Props — ровно `open_id, platform, cold,
+entry, locale` (язык интерфейса из строки learner'а), присланные метки и `class` — `assignments` снимка «Сегодня» (`TodayProfileCache`:
+активный участник группы центра) **если снимок есть в кэше**, иначе поле опущено. Стоимость пути запроса — **без SQL сверх
+аутентификации** (два чтения кэша и `add`), INSERT события — после ответа (`ProductEventBuffer`).
+
+**Клиент** (`composables/useTimingMarks.ts`): начало — первая строка `main.ts`; одна отправка на открытие — сразу после
+`first_answer_ack` или при `visibilitychange → hidden` / `pagehide` с тем, что есть; `fetch` с `keepalive` и заголовком `Authorization`
+(`sendBeacon` его не несёт); без повторов и без обновления токена, ошибки глотаются, на запросы экранов не влияет.
+
+**Отчёт:** `php artisan analytics:client-timing --days=7` (docs/ADMIN_GUIDE.md «Скорость открытия»).
+
+**Что НЕ собирается:** имя, username, Telegram id в props, user agent, модель устройства, версия ОС, IP, размер экрана, тексты, адреса
+страниц. Ученик связан с событием только через `learner_id` строки, как у любого продуктового события.
 
 ## Часть B — Telegram Bot
 

@@ -76,6 +76,7 @@ import type {
 } from './gameRunTypes'
 import type { GameClass, GameClassList } from './gameClassTypes'
 import type { OfferPlacement } from '@/composables/offerViewed'
+import type { ClientTimingPayload } from '@/composables/useTimingMarks'
 import type { GameBoosterRequest, GameBuyRequest, GameEquipRequest, GameProfile, GameShop, GameWallet } from './gameShopTypes'
 
 /**
@@ -120,6 +121,10 @@ export const api = {
         init_data: initData,
         ...(context ? { context: { type: context.type, session_id: context.sessionId } } : {}),
       }),
+  },
+  telemetry: {
+    /** The timing marks of a sampled open (docs/04 A.21): `keepalive`, no token refresh, no retry; the caller swallows a failure. */
+    clientTiming: (payload: ClientTimingPayload) => client().postKeepalive('/client-timing', { ...payload }),
   },
   me: {
     get: () => client().get<MeResponse>('/me'),

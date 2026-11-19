@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Twa\BattleController;
 use App\Http\Controllers\Api\Twa\BillingController;
 use App\Http\Controllers\Api\Twa\ChallengeController;
 use App\Http\Controllers\Api\Twa\ClassCaravanController;
+use App\Http\Controllers\Api\Twa\ClientTimingController;
 use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
@@ -84,6 +85,11 @@ Route::prefix('twa')->group(function (): void {
             Route::post('/challenges/{challenge}/accept', [ChallengeController::class, 'accept'])->name('twa.challenges.accept');
             Route::post('/challenges/{challenge}/decline', [ChallengeController::class, 'decline'])->name('twa.challenges.decline');
         });
+
+        // Timing marks of one sampled open (docs/04 A.21): 204, one event per open, nothing recorded while the rate is 0.
+        Route::post('/client-timing', ClientTimingController::class)
+            ->middleware('throttle:twa-client-timing')
+            ->name('twa.client_timing');
 
         Route::post('/promo/redeem', [PromoController::class, 'redeem'])
             ->middleware('throttle:twa-promo')

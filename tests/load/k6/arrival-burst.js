@@ -7,18 +7,21 @@
 // From 0 to BURST_RATE opens a second over BURST_RAMP (default 30s), held for HOLD (default 2m). One iteration = one open by one
 // learner, with no think time:
 //   - a self-study learner (1 - CLASS_SHARE of the opens): `GET /today`, then `GET /assignments` only when the answer does not say
-//     `assignments_possible: false` (stores/assignments.ts; every learner of load:tokens is in no group, so it is skipped), `GET /me`;
+//     `assignments_possible: false` (stores/assignments.ts; a learner in no class of the seed gets false, so it is skipped), `GET /me`;
 //   - a member of a class who opens the link of an announcement (`/twa/?from=assignment&lesson=<id>`, CLASS_SHARE of the opens): the
 //     device remembers "maybe", so `/today` and `/assignments` go in parallel, `GET /me`, then the lesson opens at once
 //     (`POST /training/sessions {mode: lesson, source: assignment}`) - the first open assignment of the list, or, when the list is
-//     empty, the first lesson of the course (the lesson of the announcement). LoadScenarioSeeder makes no centers, groups or
-//     assignments, so on a staging seeded only by `make load-seed` the list is empty and `/today` says false: `burst_assignment_found`
-//     shows that share (0 = the lesson came from the course, not from an assignment).
+//     empty, the first lesson of the course (the lesson of the announcement). `make load-seed` puts LOAD_SCENARIO_CLASS_SHARE (0.2) of
+//     the learners into test classes with an active assignment each, and the class opens are played by exactly them, so
+//     `burst_assignment_found` (the share of class opens whose list had the assignment) is ~1; on a staging seeded without classes it
+//     is 0 and the lesson comes from the course (the partial path).
 //
-// Learners (plan.js burstToken): the open number i (exec.scenario.iterationInTest, unique over the run) plays the token i mod the size
-// of the file, so a learner opens again only after all the others have - at least BURST_REOPEN_GAP_SECONDS (60 s) later at the full
-// rate; setup() refuses a file too small for that (burstPool). `/api/twa/auth` (initData HMAC and its limiter) is NOT under load: the
-// tokens are issued in advance by load:tokens.
+// Learners (plan.js burstLearner): with class learners in the file (classRoster: the token indexes the seed made members, by the rule
+// of isClassLearner, LOAD_SCENARIO_CLASS_SHARE - the same value as for the seed) the class opens take them in turn and the solo opens
+// the others in turn; without (LOAD_SCENARIO_CLASS_SHARE=0) the open number i (exec.scenario.iterationInTest, unique over the run)
+// plays the token i mod the size of the file. Either way a learner opens again only after the others of its kind have - at least
+// BURST_REOPEN_GAP_SECONDS (60 s) later at the full rate; setup() refuses a file too small for that (burstPool, burstRosterProblem).
+// `/api/twa/auth` (initData HMAC and its limiter) is NOT under load: the tokens are issued in advance by load:tokens.
 //
 // Thresholds: p95 < 300 ms on the requests of an open (and on the lesson open), no 5xx, no 429, `dropped_iterations` at most
 // BURST_MAX_DROPPED (default 0). Run: `make load-test-burst`.
@@ -30,11 +33,12 @@ import { openAssignedLesson, openToday } from './flows.js';
 import {
   BURST_REOPEN_GAP_SECONDS,
   burstPool,
+  burstLearner,
   burstProblem,
+  burstRosterProblem,
   burstStages,
-  burstToken,
   burstVus,
-  isClassOpen,
+  classRoster,
   plannedOpens,
   plannedRunSeconds,
   tokenProblem,
@@ -45,11 +49,14 @@ const BURST_RAMP = __ENV.BURST_RAMP || '30s';
 const HOLD = __ENV.HOLD || '2m';
 const CLASS_SHARE = Number(__ENV.CLASS_SHARE === undefined || __ENV.CLASS_SHARE === '' ? '0.2' : __ENV.CLASS_SHARE);
 const MAX_DROPPED = parseInt(__ENV.BURST_MAX_DROPPED || '0', 10);
+// The share of class learners `make load-seed` was run with (LoadScenarioSeeder, the same variable and default): who the members are.
+const SEED_CLASS_SHARE = Number(__ENV.LOAD_SCENARIO_CLASS_SHARE === undefined || __ENV.LOAD_SCENARIO_CLASS_SHARE === ''
+  ? '0.2' : __ENV.LOAD_SCENARIO_CLASS_SHARE);
 // The default of the arrival-rate executors: the opens started before the end get 30 s to finish.
 const GRACEFUL_STOP = '30s';
 
 // Throws (and so stops k6 before the start) on a bad rate, duration or share: the stages are built from them.
-const problem = burstProblem(BURST_RATE, BURST_RAMP, HOLD, CLASS_SHARE);
+const problem = burstProblem(BURST_RATE, BURST_RAMP, HOLD, CLASS_SHARE, SEED_CLASS_SHARE);
 if (problem) {
   throw new Error(problem);
 }
@@ -63,7 +70,9 @@ const vus = burstVus(BURST_RATE, parseInt(__ENV.BURST_PREALLOCATED_VUS || '', 10
 
 const learners = sharedLearners('learners');
 const tokenFileMeta = sharedTokenFileMeta('token-file-meta');
-/** Class opens whose `/assignments` listed an open assignment (its lesson was opened); 0 on a staging without centers and groups. */
+// Which token indexes the seed made class members (a few thousand integers per VU, built once in the init context).
+const roster = classRoster(learners.length, SEED_CLASS_SHARE);
+/** Class opens whose `/assignments` listed an open assignment (its lesson was opened); ~1 after `make load-seed`, 0 without its classes. */
 const assignmentFound = new Rate('burst_assignment_found');
 
 const thresholds = {
@@ -103,12 +112,19 @@ export function setup() {
   if (refusal) {
     fail(refusal);
   }
+  const rosterRefusal = burstRosterProblem(learners.length, SEED_CLASS_SHARE, BURST_RATE, OPENS, CLASS_SHARE);
+  if (rosterRefusal) {
+    fail(rosterRefusal);
+  }
   // tokenProblem() has made sure of the gap: learners.length >= POOL, so a reopen comes >= BURST_REOPEN_GAP_SECONDS later.
   const reuse = OPENS <= learners.length
     ? 'each learner opens once'
     : `up to ${Math.ceil(OPENS / learners.length)} opens a learner, again after >= ${Math.floor(learners.length / BURST_RATE)} s (at least ${BURST_REOPEN_GAP_SECONDS})`;
   console.log(`burst: 0 -> ${BURST_RATE} opens/s over ${BURST_RAMP}, held ${HOLD}: ~${OPENS} opens (${Math.round(CLASS_SHARE * 100)} % class) `
     + `by ${Math.min(OPENS, learners.length)} learners, ${reuse}; VUs ${vus.preAllocatedVUs}..${vus.maxVUs}`);
+  console.log(roster.members.length > 0
+    ? `burst: class opens by the ${roster.members.length} class learners of the seed (LOAD_SCENARIO_CLASS_SHARE=${SEED_CLASS_SHARE}), solo opens by the other ${roster.solo.length}`
+    : 'burst: no class learners (LOAD_SCENARIO_CLASS_SHARE=0): every open by the whole file in turn, class opens find no assignment');
 
   const res = get(`/api/twa/courses/${file.course}`, learners[0].token, 'setup');
   const detail = json(res);
@@ -127,8 +143,8 @@ export function setup() {
 
 export default function (data) {
   const open = exec.scenario.iterationInTest;
-  const token = learners[burstToken(open, learners.length)].token;
-  const member = isClassOpen(open, CLASS_SHARE);
+  const { index, member } = burstLearner(open, CLASS_SHARE, roster);
+  const token = learners[index].token;
 
   // The device of a member remembers "maybe" from its earlier opens; a self-study learner's remembers false or nothing - the same path.
   const { assignments } = openToday(token, { assignmentsPossible: member ? true : undefined });

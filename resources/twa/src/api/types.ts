@@ -18,6 +18,8 @@ export interface AuthResponse {
   learner: Learner
   /** Optional so that an answer of an older server reads as "nothing to say". */
   account_restored?: AccountRestored | null
+  /** The share of opens (0..100) that report their timing marks (docs/04 A.21); absent (an older server) - none report. */
+  client_timing?: { sample_percent: number }
 }
 
 /** `POST /me/delete` (docs/04 A.1a): the account is soft-deleted; `/start` in the bot brings it back until `restorable_until`. */

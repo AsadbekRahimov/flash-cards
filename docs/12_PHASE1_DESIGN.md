@@ -962,6 +962,8 @@ flowchart TD
 
 Готовность к уровню и тест недели (docs/13 §8.5, 18.11.2026): `readiness.viewed {course_id, percent, learned, total, source}`, `level_quiz.started {exam_session_id, course_id, week_start, scored, questions, met, unmet}`, `level_quiz.finished {exam_session_id, course_id, week_start, scored, correct, total, percent, answered, reason, too_few_answers}` (`reason` — `finished` / `expired`, ровно один раз; `too_few_answers` — мало ответов, не зачтён).
 
+Скорость открытия для ученика (аудит 18.11.2026, «Как увидеть выигрыш», 19.11.2026): `client.timing {open_id, platform, cold, entry, locale, class?, auth_ready?, today_received?, button_ready?, first_tap?, first_answer_ack?, first_audio?}` — клиентское событие через `POST /api/twa/client-timing` (docs/04 A.21), только у выборки открытий (`CLIENT_TIMING_SAMPLE_PERCENT`, по умолчанию 10 %, `0` — выключено), не больше раза на `open_id`. Метки — целые миллисекунды от начала открытия; `class` — есть ли у ученика задания центра (снимок «Сегодня» в кэше), опущено, если снимка нет. Ни устройства, ни текстов, ни имён. Отчёт — `analytics:client-timing` (p50 / p75 / p95 по платформе, холодному / тёплому старту и классу / самостоятельному входу).
+
 ---
 
 ## 8. Безопасность Фазы 1

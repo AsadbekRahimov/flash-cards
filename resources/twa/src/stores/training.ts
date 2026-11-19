@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { errorMessage } from '@/i18n/errors'
+import { markTiming } from '@/composables/useTimingMarks'
 import { useTodayStore } from '@/stores/today'
 import {
   EXERCISE_TYPES,
@@ -343,6 +344,8 @@ export const useTrainingStore = defineStore('training', {
         const res = await send(this.sessionId, wordId, timeSpent, serveToken, shown)
         // The learner has moved on to another session while the answer was on its way: it is no use to this one.
         if (generation !== this.generation) return
+        // The first answer of the open the server accepted (docs/04 A.21): this sends the timing marks of a sampled open.
+        markTiming('first_answer_ack')
         this.reviewedCount += 1
         this.lastIntervalDays = res.new_interval_days
         if (!introduction) this.recordOutcome(shown, selfGrade, res.graded ?? null)

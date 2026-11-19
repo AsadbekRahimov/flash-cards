@@ -29,6 +29,7 @@ import { trialDaysLeft, trialEndsAt } from '@/composables/trial'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
+import { markTiming } from '@/composables/useTimingMarks'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
@@ -106,12 +107,21 @@ async function openSession(body: OpenSessionRequest): Promise<void> {
   if (sessionId !== null) await router.push({ name: 'training', params: { sessionId } })
 }
 
-const review = (): Promise<void> => openSession({ mode: 'daily_review', source: 'self' })
+/** The first tap on the primary action of the screen (docs/04 A.21): how long the learner needed to understand it. */
+const tapPrimary = (): void => markTiming('first_tap')
+
+function review(): Promise<void> {
+  tapPrimary()
+  return openSession({ mode: 'daily_review', source: 'self' })
+}
 
 /** The round of hard words: opens it, or continues the one that is open (docs/06 §14); a refusal shows under the session button. */
 const startHardRound = (): Promise<void> => openSession({ mode: 'hard_review', source: 'self' })
 
-const openAssignment = (lessonId: number): Promise<void> => openSession({ mode: 'lesson', lesson_id: lessonId, source: 'assignment' })
+function openAssignment(lessonId: number): Promise<void> {
+  tapPrimary()
+  return openSession({ mode: 'lesson', lesson_id: lessonId, source: 'assignment' })
+}
 
 function learnNext(lessonId: number): Promise<void> {
   return openSession({ mode: 'lesson', lesson_id: lessonId, source: 'self' })
@@ -345,6 +355,20 @@ const leagueRow = computed(() => {
   }
 })
 
+/**
+ * The primary action of the screen can be used (docs/04 A.21, `button_ready`): the screen is drawn and one of its primary buttons is
+ * there and enabled - "Choose a course" of the start card or of the session card, "Start / Continue session", or a lesson of the
+ * center's assignments. "All done" with no assignment has none, so that open has no such mark.
+ */
+const primaryReady = computed(() => {
+  if (data.value === null || status.value === 'idle' || status.value === 'loading' || awaitingAssignments.value || opening.value) return false
+  return showStart.value || needsCourseToStart.value || needsOtherCourse.value || !allDone.value || assignmentItems.value.length > 0
+})
+// After the render (`post`): the button is on the screen when the mark is taken.
+watch(primaryReady, (ready) => {
+  if (ready) markTiming('button_ready')
+}, { flush: 'post', immediate: true })
+
 // The message sits under the session button, but a failed lesson or assignment is opened from further down.
 const openErrorBox = ref<InstanceType<typeof InlineAlert> | null>(null)
 watch(openError, async (message) => {
@@ -402,7 +426,7 @@ onBeforeUnmount(() => {
         <span class="icon-tile size-16 rounded-2xl tile-blue"><AppIcon name="academic-cap" :size="32" /></span>
         <h2 class="text-[22px] leading-7 font-bold">{{ t('today.start.title') }}</h2>
         <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('today.start.text') }}</p>
-        <RouterLink :to="{ name: 'courses' }" class="btn btn-primary btn-lg btn-block mt-1" data-testid="start-choose-course">
+        <RouterLink :to="{ name: 'courses' }" class="btn btn-primary btn-lg btn-block mt-1" data-testid="start-choose-course" @click="tapPrimary">
           <AppIcon name="academic-cap" :size="20" />
           {{ t('today.course.choose') }}
         </RouterLink>
@@ -520,6 +544,7 @@ onBeforeUnmount(() => {
           :to="{ name: 'courses' }"
           class="btn btn-primary btn-lg btn-block mt-3"
           data-testid="start-choose-course"
+          @click="tapPrimary"
         >
           <AppIcon name="academic-cap" :size="20" />
           {{ t('today.course.choose') }}
@@ -529,6 +554,7 @@ onBeforeUnmount(() => {
           :to="{ name: 'courses' }"
           class="btn btn-primary btn-lg btn-block mt-3"
           data-testid="start-next-course"
+          @click="tapPrimary"
         >
           <AppIcon name="academic-cap" :size="20" />
           {{ t('today.course.choose_other') }}

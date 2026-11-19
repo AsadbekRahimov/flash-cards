@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import type { AccountRestored, AuthContext, Learner } from '@/api/types'
 import { useTelegram } from '@/composables/useTelegram'
+import { markTiming, setTimingSampleRate } from '@/composables/useTimingMarks'
 import { setLocale, SUPPORTED_LOCALES, type Locale } from '@/i18n'
 
 interface AuthState {
@@ -59,6 +60,9 @@ export const useAuthStore = defineStore('auth', {
           if (res.account_restored && !this.restoredShown) this.accountRestored = res.account_restored
           // The learner's own choice (onboarding / settings) beats Telegram's language_code picked at startup.
           if ((SUPPORTED_LOCALES as readonly string[]).includes(res.learner.locale)) setLocale(res.learner.locale as Locale)
+          // The timing marks of the open (docs/04 A.21): the share of opens that report, and "authenticated" (both once per open).
+          setTimingSampleRate(res.client_timing?.sample_percent)
+          markTiming('auth_ready')
         })
         .catch((err: unknown) => {
           if (pendingLogins.get(this) === attempt) {

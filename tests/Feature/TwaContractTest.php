@@ -132,9 +132,12 @@ it('POST /auth keeps its exact JSON shape', function (): void {
             'expires_in',
             'learner' => ['id', 'first_name', 'locale', 'onboarding_completed'],
             'account_restored',
+            // The share of opens that report their timing marks (docs/04 A.21).
+            'client_timing' => ['sample_percent'],
         ]);
 
     expect($response->json('expires_in'))->toBeInt()
+        ->and($response->json('client_timing.sample_percent'))->toBeInt()
         ->and($response->json('account_restored'))->toBeNull()
         ->and($response->json('learner.onboarding_completed'))->toBeFalse();
 });

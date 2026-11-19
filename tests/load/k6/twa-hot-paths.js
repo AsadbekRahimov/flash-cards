@@ -8,7 +8,7 @@
 // scenario gets the first card from `POST /training/sessions` and subsequent cards from `POST /review`. The
 // fallback `GET /next` is for older servers without a `card` key. The browsing is browse() of flows.js (shared with the mix): Today
 // asks `/assignments` only when `/today` does not say `assignments_possible: false` (stores/assignments.ts), so a learner in no group
-// of a center - every test learner of load:tokens - makes 5 browsing requests, a member 6. With CARDS_PER_SESSION=8 an iteration makes
+// of a center makes 5 browsing requests, a member 6 (after `make load-seed`: LOAD_SCENARIO_CLASS_SHARE, 0.2, of the test learners). With CARDS_PER_SESSION=8 an iteration makes
 // at most 16 requests (6 browsing + open + 8 review + finish) with at least ~30.5 s of pauses at THINK_SCALE=1 (0.5-1.5 s,
 // 4 x 1-3 s, 8 x 3-6 s, 2-5 s; the request time is not counted), so the worst case is ~31 requests a minute against
 // `twa-api` 60, ~16 reviews against `twa-review` 60 and ~2 session opens against `twa-session-create` 10: a well-paced run

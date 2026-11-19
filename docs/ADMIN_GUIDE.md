@@ -942,6 +942,51 @@ window that ended at least 7 days ago — the command warns about learners whose
 | Learners answer in the chat and more of them review within 24 h | Keep the question; check the effect after the first week and the share who turned reminders off |
 | They answer in the chat but reviewing within 24 h stays rare | Walk the path from the answer to the first card on a phone; try a wording with the real number of due words |
 
+## Open speed (Скорость открытия)
+
+The audit of 2026-11-18 («Как увидеть выигрыш», «Скорость для ученика») asks how long a learner really waits on their phone: for the
+button of «Сегодня», for the first word to sound and for the first answer to be accepted, and how long they need to understand the
+screen. Owner decision: the Mini App reports timing marks from **10 % of opens** (`CLIENT_TIMING_SAMPLE_PERCENT`, `0` switches it
+off on both sides, then `php artisan config:cache`), as `client.timing` events (docs/04 A.21).
+
+**What is collected:** a random id of the open (new every time, not of the device), the Telegram platform (`android`, `ios`,
+`tdesktop`, `macos`, `web`, `weba`, `webk`, `unknown`, else `other`), cold (the first open in this Telegram webview) or warm
+(a return), the entry (`home`, `deep_link` — a group-chat link or a reminder / announcement button, `other`), the interface
+language, whether the learner has assignments of a center (`class`, when the server knows it without a query), and up to six
+offsets in milliseconds from the start of the open. **Not collected:** names, usernames, Telegram ids in the props, device model,
+OS version, user agent, IP, screen size, any text or page address.
+
+**Read it:** `php artisan analytics:client-timing --days=7` (1..90). One table, a block of four lines per cell; the first cell
+`all / all / all` is everything together, then each `platform × cold / warm × class / solo / unknown`:
+
+| Measure | Meaning |
+|---|---|
+| `start → button` (`button_ready`) | from the start of loading to the moment the primary button of «Сегодня» is drawn and enabled: network, sign-in, `/today` and drawing together |
+| `button → tap` (`first_tap − button_ready`) | how long the person needed to understand what to press; a fast API with an unclear wording shows up here |
+| `start → 1st answer` (`first_answer_ack`) | the server accepted the first answer of the open |
+| `start → 1st audio` (`first_audio`) | the first word began to sound |
+
+`Opens` counts every open of the cell, `n` only those that have the measure (an open closed before the first answer has no
+`1st answer`; a session started from a reminder link has no Home button). Values are p50 / p75 / p95 in milliseconds; decide by
+**p75 and p95**. A cell of fewer than 30 opens is marked `too small (< 30 opens)` — read its numbers as a hint, never as a result.
+`unknown` in the segment means the server had no fresh `/today` snapshot of that learner at the moment of the report.
+
+Example (abridged):
+
+```
++----------+-------+---------+-------+-------------------+----+------+------+------+------------------------+
+| Platform | Start | Segment | Opens | Measure           | n  | p50  | p75  | p95  | Note                   |
++----------+-------+---------+-------+-------------------+----+------+------+------+------------------------+
+| all      | all   | all     | 46    | start → button    | 46 | 1750 | 2875 | 3775 |                        |
+| android  | cold  | class   | 40    | button → tap      | 40 | 500  | 500  | 500  |                        |
+| ios      | warm  | solo    | 5     | start → 1st audio | 5  | 3000 | 4000 | 4800 | too small (< 30 opens) |
++----------+-------+---------+-------+-------------------+----+------+------+------+------------------------+
+```
+
+For a release decision compare the real distributions of Android and iOS and of class and solo learners, before and after; for a
+purely technical comparison repeat the scenario on one device with the same network instead. The server p95 of `/today` and
+`/review` (monitoring) tells the cause when `start → button` grows.
+
 ## Dashboard Widgets
 
 | Widget | Who sees it | What it shows |

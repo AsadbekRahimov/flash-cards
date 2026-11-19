@@ -268,10 +268,11 @@ export function burstPool(rate, opens) {
 }
 
 /**
- * The refusals of a burst before it starts (null when it may run): the rate, the durations, the share of class opens. The size of
- * the token file and the lifetime of its tokens are tokenProblem()'s, with burstPool() learners.
+ * The refusals of a burst before it starts (null when it may run): the rate, the durations, the share of class opens, the share of
+ * class learners of the seed (`seedShare`, LOAD_SCENARIO_CLASS_SHARE). The size of the token file and the lifetime of its tokens are
+ * tokenProblem()'s, with burstPool() learners; the split of the file into class and solo learners is burstRosterProblem()'s.
  */
-export function burstProblem(rate, ramp, hold, classShare) {
+export function burstProblem(rate, ramp, hold, classShare, seedShare = 0) {
   if (!Number.isInteger(rate) || rate < 1) {
     return `BURST_RATE must be a whole number of opens a second >= 1, got ${rate}.`;
   }
@@ -283,6 +284,9 @@ export function burstProblem(rate, ramp, hold, classShare) {
   }
   if (!Number.isFinite(classShare) || classShare < 0 || classShare > 1) {
     return `CLASS_SHARE must be a number from 0 to 1, got ${classShare}.`;
+  }
+  if (!Number.isFinite(seedShare) || seedShare < 0 || seedShare > 1) {
+    return `LOAD_SCENARIO_CLASS_SHARE must be a number from 0 to 1, got ${seedShare}.`;
   }
   return null;
 }
@@ -302,4 +306,93 @@ export function burstToken(iteration, pool) {
  */
 export function isClassOpen(iteration, share) {
   return Math.floor((iteration + 1) * share + EPSILON) > Math.floor(iteration * share + EPSILON);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The class learners of the seed (LoadScenarioSeeder, LoadTestClassroom): who they are, and which opens of a burst play them
+// ---------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Whether the learner at token index `index` (0-based: learner N of load:tokens is index N - 1) is a member of a test class of the
+ * seed with LOAD_SCENARIO_CLASS_SHARE = `share`. The SAME rule as LoadTestClassroom::isMember() on the PHP side (and as
+ * isClassOpen() here): evenly spread, so every prefix of the token file holds floor(n x share) members - Load5, Load10, ... at 0.2.
+ * Class learners sit all over the file: a battle pair (2k, 2k + 1) may hold one, a flow range of the mix holds its share of them.
+ */
+export function isClassLearner(index, share) {
+  return Math.floor((index + 1) * share + EPSILON) > Math.floor(index * share + EPSILON);
+}
+
+/** Class learners of the seed among the first `size` tokens: floor(size x share), by the prefix property of isClassLearner(). */
+export function classLearnerCount(size, share) {
+  return share > 0 ? Math.floor(size * share + EPSILON) : 0;
+}
+
+/** The token file of `size` learners split into the class learners of the seed and the others (token indexes, ascending). */
+export function classRoster(size, share) {
+  const members = [];
+  const solo = [];
+  for (let i = 0; i < size; i++) {
+    (share > 0 && isClassLearner(i, share) ? members : solo).push(i);
+  }
+  return { members, solo };
+}
+
+/**
+ * The learners a kind of opens (class or solo) needs so that nobody opens twice within BURST_REOPEN_GAP_SECONDS: every open its own
+ * learner when there are few (`opens`), otherwise the opens of a gap at that kind's rate, plus one - the opens of a kind are spread
+ * evenly but not exactly periodically (floor), and the extra learner covers that.
+ */
+export function burstKindPool(kindRate, opens) {
+  if (opens <= 0) {
+    return 0;
+  }
+  return Math.min(opens, Math.ceil(kindRate * BURST_REOPEN_GAP_SECONDS - EPSILON) + 1);
+}
+
+/**
+ * The learner of the open number `iteration` (exec.scenario.iterationInTest) when the seed has class learners (`roster` of
+ * classRoster()): a class open (isClassOpen) takes the class learners in turn, a solo open the others in turn - so every class open is
+ * played by a member of a class (`/assignments` lists its assignment) and no solo open by one. Without class learners in the file
+ * (LOAD_SCENARIO_CLASS_SHARE=0, or a pool too small for any) it is burstToken() over the whole file, as before the seed had classes.
+ * Returns `{ index, member }`: the token index, and whether the open takes the class path.
+ */
+export function burstLearner(iteration, classShare, roster) {
+  const member = isClassOpen(iteration, classShare);
+  const pool = member ? roster.members : roster.solo;
+  if (roster.members.length === 0 || pool.length === 0) {
+    return { index: burstToken(iteration, roster.members.length + roster.solo.length), member };
+  }
+  // Class opens before this one: floor(iteration x share) (isClassOpen's prefix count); the rest of the earlier opens were solo.
+  const classBefore = Math.floor(iteration * classShare + EPSILON);
+  const rank = member ? classBefore : iteration - classBefore;
+  return { index: pool[rank % pool.length], member };
+}
+
+/**
+ * The refusal of a burst whose token file of `size` learners cannot keep the reopen gap once the opens are split by kind (null when
+ * it can, or when the seed has no class learners - burstPool() then covers it): the class opens (`classShare` of `opens`, at
+ * `rate x classShare` a second) need burstKindPool() class learners of the seed (`seedShare`), the solo opens as many others.
+ */
+export function burstRosterProblem(size, seedShare, rate, opens, classShare) {
+  if (classLearnerCount(size, seedShare) === 0) {
+    return null;
+  }
+  const classOpens = Math.floor(opens * classShare + EPSILON);
+  const needClass = burstKindPool(rate * classShare, classOpens);
+  const needSolo = burstKindPool(rate * (1 - classShare), opens - classOpens);
+  const fits = (n) => classLearnerCount(n, seedShare) >= needClass && n - classLearnerCount(n, seedShare) >= needSolo;
+  if (fits(size)) {
+    return null;
+  }
+  let enough = size + 1;
+  while (enough < 100000 && !fits(enough)) {
+    enough++;
+  }
+  const members = classLearnerCount(size, seedShare);
+  const advice = needClass > members && classShare > seedShare
+    ? ` (or keep CLASS_SHARE at most LOAD_SCENARIO_CLASS_SHARE=${seedShare}, or seed more class learners)`
+    : '';
+  return `The token file holds ${members} class learners of the seed (LOAD_SCENARIO_CLASS_SHARE=${seedShare}) and ${size - members} others; `
+    + `at ${rate} opens/s with CLASS_SHARE=${classShare} the burst needs ${needClass} and ${needSolo} so that nobody opens twice within `
+    + `${BURST_REOPEN_GAP_SECONDS} s: run \`make load-tokens TARGET_VUS=${enough}\` and \`make load-seed\`${advice}.`;
 }

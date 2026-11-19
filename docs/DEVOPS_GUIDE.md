@@ -1436,6 +1436,7 @@ chmod 600 .env
 | `REMINDERS_QUIZ_EXPERIMENT_SHARE` / `_SALT` / `_STARTS_AT` | optional | `50` (percent in the quiz arm) / `reminder-quiz-2026-11` (a new salt reshuffles every learner — only for a new experiment) / empty (UTC date or instant; no split before it, and the default `--from` of `analytics:reminder-experiment`) |
 | `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` | optional | `25` (bot-wide ceiling of background sends per second — reminders, assignment posts, renewal reminders, DMs of centers/offers, leaderboards; Bot API allows ~30/s per bot, the rest is for replies to updates; `0` = off). A job without a free slot is put back for 1-5 s; keep the Redis cache (the counter `telegram:outbound:global:{sec}` is shared by all workers) |
 | `PRODUCT_EVENTS_RETENTION_DAYS` / `NOTIFICATIONS_LOG_RETENTION_DAYS` | optional | `400` / `400` |
+| `CLIENT_TIMING_SAMPLE_PERCENT` | optional | `10` (the share of Mini App opens, 0..100, that report their timing marks as `client.timing` — platform and millisecond offsets only, docs/04 A.21; handed to the client in `POST /api/twa/auth`; `0` = off on both sides; read with `php artisan analytics:client-timing --days=7`, docs/ADMIN_GUIDE.md "Open speed") |
 
 ### Phase 2 variables
 

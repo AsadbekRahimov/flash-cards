@@ -199,6 +199,29 @@ export function createApiClient(opts: ClientOptions) {
     throw apiErr
   }
 
+  /**
+   * A POST that may outlive the page: plain `fetch` with `keepalive` (a request started in `pagehide` still goes out; `sendBeacon` cannot
+   * carry the `Authorization` header). For analytics only: no token - not sent; no refresh of the token on a 401 and no retry - the
+   * failure is thrown and the caller swallows it.
+   */
+  async function postKeepalive(path: string, body: Record<string, unknown>): Promise<void> {
+    const token = opts.getToken()
+    if (!token) throw new ApiClientError('unauthorized', 401, 'missing_token', 'Not authenticated')
+    let response: Response
+    try {
+      response = await fetch(baseURL + localPath(path), {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+        credentials: 'omit',
+        keepalive: true,
+      })
+    } catch (err) {
+      throw new ApiClientError('network', 0, 'network', (err as Error)?.message ?? 'Request failed', err)
+    }
+    if (!response.ok) throw await errorOf(response)
+  }
+
   return {
     get: <T>(path: string, query?: Record<string, unknown>, options?: RequestOptions) =>
       request<T>(path, { method: 'GET', query, ...options }),
@@ -217,6 +240,8 @@ export function createApiClient(opts: ClientOptions) {
      * Gives up after `BLOB_TIMEOUT_MS`, or when `signal` fires: a `network` error either way.
      */
     getBlob: (path: string, signal?: AbortSignal) => requestBlob(path, signal),
+    /** Fire-and-forget POST that survives the closing of the page (`keepalive`); no token refresh, no retry. */
+    postKeepalive: (path: string, body: Record<string, unknown>) => postKeepalive(path, body),
   }
 }
 

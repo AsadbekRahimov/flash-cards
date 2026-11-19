@@ -187,4 +187,9 @@ enum ProductEventName: string
     case LevelQuizFinished = 'level_quiz.finished';
     /** The round of hard words was refused (props: reason - disabled / not_enough / played_today / no_objective_exercise, source; docs/06 §14). Opening is `training.session_opened` with mode = hard_review. */
     case HardRoundRefused = 'hard_round.refused';
+    /**
+     * Timing marks of one sampled open of the Mini App, reported by the client (docs/04 A.21; props: open_id, platform, cold, entry, locale,
+     * class, and the millisecond offsets auth_ready, today_received, button_ready, first_tap, first_answer_ack, first_audio - each only when set).
+     */
+    case ClientTiming = 'client.timing';
 }
