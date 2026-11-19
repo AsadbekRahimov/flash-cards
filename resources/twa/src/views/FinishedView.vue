@@ -10,6 +10,7 @@ import { useMonthlyRatingStore } from '@/stores/monthlyRating'
 import { useTodayStore } from '@/stores/today'
 import { COMBO_MIN, useTrainingStore } from '@/stores/training'
 import { prefersReducedMotion } from '@/composables/motion'
+import { reportOfferViewed } from '@/composables/offerViewed'
 import { resolveBenefits } from '@/composables/proBenefits'
 import {
   FINISHED_BEFORE_KEY,
@@ -373,6 +374,8 @@ watch(showTip, (on, was) => {
 watch(showTrialEnding, (on, was) => {
   if (on && !was) markDay(TRIAL_ENDING_DAY_KEY, reminderZone)
 }, { immediate: true })
+// The tip and the trial card offer Pro: the first step of the Pro funnel (docs/13 §5.1), quiet while nothing is for sale.
+watch([showTip, showTrialEnding], ([tip, ending]) => { if (ending) reportOfferViewed('finished_trial_ending'); else if (tip) reportOfferViewed('finished_pro_tip') }, { immediate: true })
 
 /** "Repeat words" in the paywall: closes it and starts a daily review; a failure is shown on this screen. */
 const { reviewFromPaywall } = useReviewFromPaywall(() => {
