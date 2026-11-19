@@ -7,6 +7,7 @@
 # bore, lay, spoke, rent) stays in en-common.txt, where `founded`, `grounded`, `roses` come from.
 # Format: one word to a line, lower case, sorted in byte order (LC_ALL=C sort), no repeats, no blank lines; a line with # is a comment.
 # Written for this project, not copied from anywhere. Keep it sorted: tests/Unit/Practice/EnglishLexiconTest.php checks both files.
+addenda
 alumni
 am
 analyses
@@ -15,6 +16,7 @@ are
 arisen
 arose
 ate
+auditoria
 awoke
 awoken
 bacteria
@@ -38,6 +40,7 @@ bred
 broke
 broken
 brought
+browbeaten
 built
 burnt
 cacti
@@ -48,7 +51,9 @@ children
 chose
 chosen
 clung
+consortia
 crept
+crescendi
 crises
 criteria
 curricula
@@ -97,6 +102,7 @@ further
 furthest
 gave
 geese
+geneses
 gentlemen
 given
 gone
@@ -131,6 +137,7 @@ led
 left
 lent
 less
+lesser
 lice
 lit
 loaves
@@ -147,17 +154,22 @@ mistook
 more
 most
 nuclei
+oases
 overcame
 oversaw
 overtaken
+overthrown
 oxen
 paid
 people
 phenomena
+plateaux
+prognoses
 proven
 radii
 ran
 rang
+repaid
 ridden
 risen
 rode
@@ -200,6 +212,10 @@ stimuli
 stole
 stolen
 stood
+strata
+stricken
+striven
+strode
 strove
 struck
 strung
@@ -208,6 +224,7 @@ stung
 stunk
 sung
 sunk
+sunken
 swam
 swept
 swollen
@@ -215,6 +232,7 @@ swore
 sworn
 swum
 swung
+synopses
 taken
 taught
 teeth
@@ -230,9 +248,12 @@ torn
 trod
 trodden
 understood
+underwritten
 undid
 undone
+upheld
 vertices
+viscera
 was
 went
 wept

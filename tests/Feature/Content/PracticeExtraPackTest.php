@@ -31,9 +31,9 @@ uses(RefreshDatabase::class);
 /*
  * The packs of the two newer types, «Word form» and «Find the mistake» (docs/16 §5.6, §5.7, §15.1): the files
  * database/data/practice/<course>-x01.json … -x10.json. File xNN holds the modules 2·NN-1 and 2·NN whole: 3 tasks of each type in every
- * one of their ten lessons (60 tasks); the course is complete with its ten files (600). The checks run over every x-file there is - a
- * course without one is skipped - and over the pilot sample of the tests (tests/Fixtures/Practice: two lessons of english-b1), so the
- * rules are proven before the first real file comes. The rules of the tasks themselves are PracticePackRules', shared with
+ * one of their ten lessons (60 tasks); every course is complete with its ten files (600 tasks, 300 of each type, 3 of each type in every
+ * lesson of its cards). The checks run over the x-files of every course - none is skipped - and over the pilot sample of the tests
+ * (tests/Fixtures/Practice: two lessons of english-b1), which proves the rules on a sample of its own. The rules of the tasks themselves are PracticePackRules', shared with
  * docs/content-authoring/check_practice.php; the p-files (PracticePackTest) are never matched here.
  */
 
@@ -92,13 +92,11 @@ function pxk_files(string $slug, string $dir = PXK_DIR): array
     return array_values($files);
 }
 
-/** The x-files of the course, or the test is skipped: a course gets its checks with its first file. @return list<string> */
-function pxk_files_or_skip(string $slug): array
+/** The ten x-files of the course, in order: x01 … x10 (a course without them fails, it is not skipped). @return list<string> */
+function pxk_course_files(string $slug): array
 {
     $files = pxk_files($slug);
-    if ($files === []) {
-        test()->markTestSkipped("No x-file of {$slug} yet.");
-    }
+    expect(array_map('basename', $files))->toBe(array_map(static fn (int $number): string => sprintf('%s-x%02d.json', $slug, $number), range(1, 10)), $slug);
 
     return $files;
 }
@@ -420,18 +418,44 @@ it('keeps every x-file in the folder of the practice a pack of exactly one cours
 });
 
 it('keeps the x-files of the course whole: the format, the keys, two modules a file with 3 tasks of each type in every lesson', function (string $slug): void {
-    $files = pxk_files_or_skip($slug);
+    $files = pxk_course_files($slug);
 
     expect(pxk_file_problems($slug, $files))->toBe([])
         ->and(count(pxk_tasks($files)))->toBe(60 * count($files));
 })->with('pxk_courses');
 
+it('holds the whole course in its ten x-files: 600 tasks, 300 of each type, 3 of each type in every lesson of the cards', function (string $slug): void {
+    $perType = pxk_courses()[$slug]['per_type'];
+    $tasks = pxk_tasks(pxk_course_files($slug));
+    $lessons = array_values(array_unique(pxk_course_words($slug)));
+
+    $counts = [];
+    foreach ($tasks as $task) {
+        $counts[pxk_lesson($task)][$task['type']] = ($counts[pxk_lesson($task)][$task['type']] ?? 0) + 1;
+    }
+    $short = [];
+    foreach ($lessons as $lesson) {
+        foreach (PXK_TYPES as $type) {
+            if (($counts[$lesson][$type] ?? 0) !== $perType) {
+                $short[] = "{$lesson} {$type}: ".($counts[$lesson][$type] ?? 0);
+            }
+        }
+    }
+
+    expect($lessons)->toHaveCount(100)
+        ->and($tasks)->toHaveCount(600)
+        ->and(count(array_filter($tasks, static fn (array $task): bool => $task['type'] === 'word_form')))->toBe(300)
+        ->and(count(array_filter($tasks, static fn (array $task): bool => $task['type'] === 'error_hunt')))->toBe(300)
+        ->and($short)->toBe([])
+        ->and(array_diff(array_keys($counts), $lessons))->toBe([]);
+})->with('pxk_courses');
+
 it('keeps the tasks of the x-files right: the validator, the target words of the lesson, the level, the languages, the grading', function (string $slug): void {
-    expect(pxk_task_problems($slug, pxk_tasks(pxk_files_or_skip($slug))))->toBe([]);
+    expect(pxk_task_problems($slug, pxk_tasks(pxk_course_files($slug))))->toBe([]);
 })->with('pxk_courses');
 
 it('imports the x-files after the course without a refusal, again as a no-op, publishes them, and opens both modes in a lesson of every module', function (string $slug): void {
-    $files = pxk_files_or_skip($slug);
+    $files = pxk_course_files($slug);
     $modules = [];
     foreach (pxk_tasks($files) as $task) {
         $modules[$task['lesson']['stage']] = true;

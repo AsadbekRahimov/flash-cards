@@ -203,7 +203,8 @@
       "text": "Unlike her obedient sisters, she was a born ___ who questioned every family rule.",
       "base": "conformist",
       "accepted": [
-        "nonconformist"
+        "nonconformist",
+        "non-conformist"
       ],
       "translation": {
         "ru": "В отличие от послушных сестёр, она была прирождённой нонконформисткой и оспаривала каждое семейное правило.",
@@ -1200,7 +1201,8 @@
       "text": "The company cut its prices in a ___ move to keep rivals out of the market.",
       "base": "preempt",
       "accepted": [
-        "preemptive"
+        "preemptive",
+        "pre-emptive"
       ],
       "translation": {
         "ru": "Компания снизила цены, сделав упреждающий шаг, чтобы не пустить конкурентов на рынок.",

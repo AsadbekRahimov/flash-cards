@@ -414,7 +414,7 @@
       "target_words": [
         "marrow"
       ],
-      "text": "Her brother donated bone *brain* to save her life.",
+      "text": "The sick girl was waiting for a bone *brain* transplant from her older sister.",
       "options": [
         "marrow",
         "mind",
@@ -424,8 +424,8 @@
         "marrow"
       ],
       "translation": {
-        "ru": "Её брат стал донором костного мозга, чтобы спасти ей жизнь.",
-        "uz": "Akasi uning hayotini saqlab qolish uchun donor sifatida suyak ko'migini berdi."
+        "ru": "Больная девочка ждала пересадки костного мозга от старшей сестры.",
+        "uz": "Kasal qizcha opasidan suyak ko'migi ko'chirib o'tkazilishini kutayotgan edi."
       },
       "explanation": {
         "ru": "«Костный мозг» по-английски bone marrow: brain — только головной мозг. Русское «мозг» здесь не brain.",

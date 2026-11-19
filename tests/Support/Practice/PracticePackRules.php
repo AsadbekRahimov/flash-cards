@@ -223,9 +223,16 @@ final class PracticePackRules
             if (self::contains(PracticeTextNormalizer::tokens($text), PracticeTextNormalizer::tokens($form))) {
                 $problems[] = "the right form «{$form}» is in the sentence already";
             }
-            foreach (PracticeTextNormalizer::tokens($form) as $token) {
-                if (! EnglishLexicon::isWord($token)) {
-                    $problems[] = "«{$token}» of the right form «{$form}» is not in the lexicon (a typo? add an ordinary word to resources/lexicon/en-common.txt)";
+            // A hyphenated word is known as one word (`non-renewable` as `nonrenewable`) or by its parts, as the dictation reads it.
+            foreach (preg_split('/\s+/u', trim($form)) ?: [] as $chunk) {
+                $tokens = PracticeTextNormalizer::tokens($chunk);
+                if (count($tokens) > 1 && EnglishLexicon::isWord(implode('', $tokens))) {
+                    continue;
+                }
+                foreach ($tokens as $token) {
+                    if (! EnglishLexicon::isWord($token)) {
+                        $problems[] = "«{$token}» of the right form «{$form}» is not in the lexicon (a typo? add an ordinary word to resources/lexicon/en-common.txt)";
+                    }
                 }
             }
         }

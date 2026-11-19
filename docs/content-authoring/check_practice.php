@@ -649,12 +649,16 @@ foreach ($files as $file) {
                 }
             }
             if ($type !== 'dictation' && $type !== 'error_hunt') {
-                foreach ($tokens as $token) {
-                    if (preg_match('/\d/', $token) === 1) {
+                // A hyphenated word is known as one word (`semi-aquatic` as `semiaquatic`) or by its parts.
+                foreach (preg_split('/\s+/u', trim($sentence)) ?: [] as $chunk) {
+                    $parts = PracticeTextNormalizer::tokens($chunk);
+                    if (count($parts) > 1 && EnglishLexicon::isWord(implode('', $parts))) {
                         continue;
                     }
-                    if (! EnglishLexicon::isWord($token)) {
-                        $warn($where, "«{$token}» is not in the lexicon (a name, a rare word, or a typo?)");
+                    foreach ($parts as $token) {
+                        if (preg_match('/\d/', $token) !== 1 && ! EnglishLexicon::isWord($token)) {
+                            $warn($where, "«{$token}» is not in the lexicon (a name, a rare word, or a typo?)");
+                        }
                     }
                 }
             }
