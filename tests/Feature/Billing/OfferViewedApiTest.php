@@ -47,8 +47,8 @@ it('records one event with the placement and the locale snapshot, and answers 20
     $events = offerViews();
     expect($events)->toHaveCount(1)
         ->and($events[0]->learner_id)->toBe($this->learner->id)
-        // Exactly these two props: no name, no username, no Telegram id.
-        ->and($events[0]->props)->toBe(['placement' => 'paywall_quota', 'locale' => 'uz']);
+        // Exactly these two props (any order: jsonb sorts keys): no name, no username, no Telegram id.
+        ->and($events[0]->props)->toEqual(['placement' => 'paywall_quota', 'locale' => 'uz']);
 });
 
 it('counts a placement once per local day of the learner, every placement on its own', function (): void {

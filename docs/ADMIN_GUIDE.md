@@ -675,6 +675,23 @@ If the provider returned the money but the panel then reported an error, do not 
 **Payments** list; if the charge is still `succeeded`, repeat with the "returned by hand" switch (the money is already
 back) and tell DevOps (log `billing.admin_refund_unrecorded`).
 
+### Pro funnel (dashboard widget «Воронка Pro — 30 дней»)
+Admin only, on the dashboard under the money widgets. Definitions: docs/13 §5.1. In unique learners over the last 30 days:
+
+- **Показ** — saw a Pro offer in the Mini App (`billing.offer_viewed`, once a day per place). The learner's language is that of
+  the first view of the period.
+- **Начал оплату** — after that view started a checkout with the provider of the row («Все провайдеры» counts a learner once).
+- **Оплатил** — the first payment after the start (renewals are not counted).
+- **Учился 7 дней** — opened a training session within 7 days after the payment. «ещё идут 7 дней: N» — paid recently, may still study.
+- Every step cell reads «n / of · %»: the learners of the step out of the learners of the step before.
+- **Потеряны до оплаты** (viewed, never started) and **Потеряны при оплате** (started, did not pay): if the losses are before the
+  checkout, look at how the value of Pro is explained (the places table shows where the offer was seen); if they are between the
+  start and the payment, look first at the **Заказы учеников** table — expired / canceled / failed orders with their reasons.
+- **Вне воронки** — starts and payments with no offer view before them (the bot, an old app, purchases made before the event existed).
+
+The figures are cached for 10 minutes (the time of the count is under the heading); the page never waits for them after the first open.
+Telegram Stars only for now: Payme / Click rows appear by themselves once those providers sell.
+
 ### Promo codes
 **Billing → Promo codes → New** (Оплата → Промокоды → Создать промокод). The code is suggested automatically (10 characters); you may type your own —
 spaces and dashes are ignored and the code is stored in upper case (`summer-2026` → `SUMMER2026`), 6–32 Latin

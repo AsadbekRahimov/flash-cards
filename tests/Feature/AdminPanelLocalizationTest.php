@@ -41,6 +41,7 @@ use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Filament\Resources\WordResource;
 use App\Filament\Widgets\ActivityChartWidget;
+use App\Filament\Widgets\BillingFunnelWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\ExerciseMixTableWidget;
 use App\Filament\Widgets\GameActivityWidget;
@@ -560,10 +561,11 @@ it('titles every dashboard widget in Russian', function (string $widget, string 
     [GameActivityWidget::class, 'Караван — 7 дней', 'Caravan'],
     [OrgActivationTableWidget::class, 'Учебные центры — путь до первого результата', 'first assignment'],
     [ExerciseMixTableWidget::class, 'Форматы заданий — 7 дней', 'Exercise mix'],
+    [BillingFunnelWidget::class, 'Воронка Pro — 30 дней', 'Pro funnel'],
 ]);
 
 it('lists every widget of the panel in the dataset above', function (): void {
-    expect(Filament::getPanel('admin')->getWidgets())->toHaveCount(15);
+    expect(Filament::getPanel('admin')->getWidgets())->toHaveCount(16);
 });
 
 // --- values -----------------------------------------------------------------------------------
