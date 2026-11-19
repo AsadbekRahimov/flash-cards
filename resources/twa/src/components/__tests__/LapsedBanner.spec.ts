@@ -6,10 +6,11 @@ import { api } from '@/api'
 import { setLocale } from '@/i18n'
 import { ICONS } from '@/components/ui/icons'
 import { useBillingStore } from '@/stores/billing'
+import { resetOfferViewed } from '@/composables/offerViewed'
 import type { Lapsed, MeResponse } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
-vi.mock('@/api', () => ({ api: { me: { get: vi.fn() }, today: { get: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { me: { get: vi.fn() }, today: { get: vi.fn() }, billing: { offerViewed: vi.fn() } } }))
 
 const ENDED = '2026-10-18T09:30:00+00:00'
 
@@ -126,6 +127,15 @@ describe('LapsedBanner', () => {
     const w = await render(me(lapsed()), { renewable: true })
 
     expect(w.find('[data-testid=lapsed-renew]').exists()).toBe(true)
+  })
+
+  it('reports the offer of Pro once it shows with its renew button (docs/13 §5.1), not without the button', async () => {
+    resetOfferViewed()
+    await render(me(lapsed()), { preloaded: true, renewable: false })
+    expect(api.billing.offerViewed).not.toHaveBeenCalled()
+
+    await render(me(lapsed()), { preloaded: true })
+    expect(api.billing.offerViewed).toHaveBeenCalledExactlyOnceWith('lapsed_banner')
   })
 
   it('emits renew from the button', async () => {

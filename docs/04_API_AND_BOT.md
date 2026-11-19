@@ -291,9 +291,15 @@ Learner завершает **свою личную** сессию (`status = clo
   "practice_entry": { "course": "english-a1", "lesson_id": 41 },
   "league_points": 35,
   "hard_round": null,
+  "corrected": null,
   "hard_round_offer": { "available": true, "reason": null, "words": 10, "open_session_id": null, "resets_at": null }
 }
 ```
+**С 19.11.2026 (docs/06 §14, аудит 18.11 §3):** `corrected` — одна исправленная ошибка на итоге раунда трудных слов, иначе `null` (ключ есть всегда; старые клиенты его не читают):
+`{"word_id": 41, "word": "borrow", "translation": "занимать", "mistaken_at": "2026-11-13T07:30:00+00:00", "answer": "borow"}`. Слово сессии `hard_review`, чья ПЕРВАЯ оценка в сессии —
+объективное упражнение (не `flash`, не `pretest`) с `quality >= 3`, а в более ранней сессии (id оценки меньше первой оценки этой сессии) была объективная оценка `< 3`; из таких — с самой поздней прошлой ошибкой.
+`translation` — на языке ученика (`WordTranslationResolver`, запасной — ru), `mistaken_at` — время той ошибки (ISO-8601 UTC), `answer` — что ученик тогда ВВЁЛ (только `spelling` / `gap_fill`; не пустое и не само слово), иначе `null`.
+Стоимость — +1 оператор только у `/finish` сессии `hard_review` (`CorrectedMistakeFinder`; перевод тёплый — карточка выдавалась в этом раунде); у остальных режимов оператора нет.
 **С 18.11.2026 (docs/06 §14):** `hard_round` — `{"total": 10, "won": 8}` у сессии `hard_review` (`won` — слова набора, чья ПОСЛЕДНЯЯ оценка в сессии ≥ 3), `null` у остальных режимов; `hard_round_offer` — приглашение на раунд трудных слов
 на итоге ежедневного занятия / урока: тот же блок, что `hard_round` в `GET /today` (A.2a), `null` у самого раунда трудных слов и при `LEARNING_HARD_ROUND_ENABLED=false`. Стоимость `/finish` — +2 оператора (сессии окна дня и
 кандидаты). Событие `training.session_finished` у `hard_review` получает `hard_won`, `hard_total`; `practice_entry` у него `null`.

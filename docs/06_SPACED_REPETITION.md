@@ -975,6 +975,29 @@ UPDATE word_repetitions SET next_review_at = :now, updated_at = :now
 только для `hard_review`; `SessionSummary.hardWon/hardTotal`; у остальных режимов `null`); событие `training.session_finished` получает `hard_won`, `hard_total`. `PracticeEntryResolver::forSession` для `hard_review` — `null`.
 Очки — как у любой сессии: оценка + верный (+1 +1), новых слов нет (+2 невозможно), цель дня +10; ограничители накрутки — раз в день, ≤ 10 слов, слова дня исключены, повтор `/review` — 409 `card_not_due`.
 
+**Исправленная ошибка** (`/finish.corrected`, 19.11.2026, аудит 18.11 §3; всем, без A/B): итог раунда показывает одну **достоверную** пару «раньше ошибся → сейчас ответил» — короткое объяснение того, чему помог раунд.
+`CorrectedMistakeFinder::find` (вызывается из `TrainingSessionService::finish(..., withCorrected: true)` только контроллером `/finish` и только для `hard_review`, после commit) — один оператор:
+
+```sql
+SELECT w.id, w.word, w.translation, m.exercise, m.answer_text, m.created_at
+  FROM (SELECT word_id, quality, exercise,
+               row_number() OVER (PARTITION BY word_id ORDER BY id) AS n,   -- n-я оценка слова в сессии
+               min(id) OVER () AS session_first_id                          -- первая оценка всей сессии
+          FROM training_reviews WHERE training_session_id = :session AND learner_id = :me) f
+  JOIN training_reviews m ON m.word_id = f.word_id AND m.id < f.session_first_id AND m.learner_id = :me
+  JOIN words w ON w.id = f.word_id
+ WHERE f.n = 1 AND f.quality >= 3 AND f.exercise NOT IN ('flash', 'pretest')
+   AND m.quality < 3 AND m.exercise NOT IN ('flash', 'pretest')
+ ORDER BY m.id DESC LIMIT 1;
+```
+
+Обе стороны объективны: `flash` — мнение ученика, `pretest` — первая встреча. «Сейчас» — ПЕРВАЯ оценка слова в раунде (провал в раунде и верный ответ потом — это доучивание, не исправление);
+«раньше» — только в более ранней сессии (id оценок растут со временем; ошибка в этом же раунде не считается). Из подходящих — самая поздняя прошлая ошибка. Индексы: оценки сессии —
+`training_reviews_session_learner_idx`, прошлые оценки каждого из ≤ 10 слов — `training_reviews_learner_word_idx (learner_id, word_id, id)`. Перевод — `WordTranslationResolver` на языке ученика
+(тёплый: карточка выдавалась в раунде). Ответ ученика тогда (`answer`) — только для введённого с клавиатуры (`spelling`, `gap_fill`), не пустой и не равный самому слову после нормализации `SpellingGrader`;
+выбранный вариант четырёх кнопок не показывается (это наш текст, не ученика). Бюджет `/finish` раунда: 9 → 10 (`TrainingCycleQueryBudgetTest`, `HardRoundFlowTest`); у остальных режимов без изменений.
+Клиент: строка «Раньше вы ошибались в слове «X» — сегодня ответили верно.» под заметкой итога и бледная «Тогда: …» (docs/05 §8e). Тесты: `CorrectedMistakeFinderTest` (sqlite и PostgreSQL), `HardRoundFlowTest`, `FinishedHardRound.spec.ts`.
+
 **Приглашение**: блок `hard_round` в `GET /today` (кандидаты — `count(*)` над тем же запросом с `limit` в общем операторе скаляров экрана, `docs/19` §5.2 K10, и только когда ответ зависит от них — `HardRoundService::needsCandidates()`; «сыграно сегодня» и открытая hard-сессия едут в том же операторе, что и открытая daily-сессия) и `hard_round_offer` в `/finish` ежедневной сессии / урока
 (+2 оператора: сессии окна и кандидаты); `null` в обоих при `enabled = false` и у `/finish` самого раунда. Закрытие просроченных (`training:close-expired`) закрывает `hard_review` как любую личную сессию (`expired`, а доигранную — `finished`).
 Отчёт «Удержание» (`RetentionReportService`): hard-сессия — активность (её оценки в `learner_daily_stats`), но **не** «первое» и **не** «второе занятие» (`mode <> 'hard_review'` в подзапросах).

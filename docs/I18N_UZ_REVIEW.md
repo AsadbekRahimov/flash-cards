@@ -4118,3 +4118,14 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `org.assignments.repeat.description` | Bu darsning guruhdagi kamida ikki o'quvchi qayta-qayta xato qilayotgan so'zlari. Faqat o'quvchilar soni ko'rsatiladi, ismlar ko'rsatilmaydi. | Слова этого урока, в которых минимум двое учеников группы ошибаются снова и снова. Показано только число учеников, без имён. |
 | `org.assignments.repeat.word` | :word — :translation (xato qilayotganlar: :count) | :word — :translation (ошибаются: :count) |
 | `org.assignments.repeat.word_confused` | :word — :translation (xato qilayotganlar: :count; «:confused» bilan chalkashtiriladi) | :word — :translation (ошибаются: :count; путают с «:confused») |
+
+## Исправленная ошибка на итоге раунда трудных слов (19.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`, ключи `finished.corrected.line`, `finished.corrected.answer`)
+
+На итоге раунда трудных слов, под строкой «Bu so'zlar yana qaytadi…», — одно слово, в котором ученик ошибся на одном из прошлых занятий и сегодня в раунде сразу ответил верно. Если тогда ученик вводил слово с клавиатуры, второй бледной строкой показан его тогдашний ответ. `{word}` — английское слово. Стиль кавычек «…» — как в `decks.edit.delete.confirm`. Прошу проверить «so'zida xato qilgan edingiz» и не лучше ли «O'shanda» заменить на «Avvalgi javob».
+
+| Ключ | uz | ru |
+|---|---|---|
+| `finished.corrected.line` | Avval «{word}» so'zida xato qilgan edingiz — bugun to'g'ri javob berdingiz. | Раньше вы ошибались в слове «{word}» — сегодня ответили верно. |
+| `finished.corrected.answer` | O'shanda: {answer} | Тогда: {answer} (бледная строка под предыдущей: что ученик ввёл тогда, например «Тогда: borow») |

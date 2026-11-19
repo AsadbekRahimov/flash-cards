@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import PaywallSheet from '../PaywallSheet.vue'
+import { resetOfferViewed } from '@/composables/offerViewed'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
@@ -18,7 +19,7 @@ vi.mock('@/api', () => ({
     me: { get: vi.fn() },
     promo: { redeem: vi.fn() },
     today: { get: vi.fn() },
-    billing: { catalog: vi.fn(), checkout: vi.fn(), order: vi.fn() },
+    billing: { catalog: vi.fn(), checkout: vi.fn(), order: vi.fn(), offerViewed: vi.fn() },
   },
 }))
 
@@ -76,6 +77,35 @@ describe('PaywallSheet in purchase mode', () => {
   afterEach(() => {
     vi.useRealTimers()
     setLocale('ru')
+  })
+
+  describe('the Pro funnel (docs/13 §5.1)', () => {
+    beforeEach(() => resetOfferViewed())
+
+    it('reports the sheet as seen, by its reason, and starts the checkout with the same placement', async () => {
+      vi.mocked(api.billing.checkout).mockRejectedValue(new Error('stop here'))
+      const w = await render({ reason: 'quota' })
+
+      expect(api.billing.offerViewed).toHaveBeenCalledExactlyOnceWith('paywall_quota')
+
+      await w.get('[data-testid=pay-telegram_stars]').trigger('click')
+      await flushPromises()
+      expect(api.billing.checkout).toHaveBeenCalledWith('month', 'telegram_stars', 'paywall_quota')
+    })
+
+    it('reports nothing while Pro is only coming', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('coming_soon'))
+      await render({ reason: 'quota' })
+
+      expect(api.billing.offerViewed).not.toHaveBeenCalled()
+    })
+
+    it('shows the sheet even when the report fails', async () => {
+      vi.mocked(api.billing.offerViewed).mockRejectedValue(new Error('network'))
+      const w = await render()
+
+      expect(w.find('[data-testid=pay-telegram_stars]').exists()).toBe(true)
+    })
   })
 
   it('shows the prices of the first period and a pay button per provider: the name on the left, the price on the right', async () => {
@@ -310,7 +340,7 @@ describe('PaywallSheet in purchase mode', () => {
     await vi.advanceTimersByTimeAsync(0)
     await flushPromises()
 
-    expect(api.billing.checkout).toHaveBeenCalledWith('month', 'telegram_stars')
+    expect(api.billing.checkout).toHaveBeenCalledWith('month', 'telegram_stars', 'paywall_info')
     expect(tg.openInvoice).toHaveBeenCalledWith('https://t.me/$inv')
     expect(w.get('[data-testid=paywall-title]').text()).toBe('Pro')
     expect(w.get('[data-testid=paywall-paid]').text()).toMatch(/^Спасибо! Pro активен до .*2026/)
@@ -708,7 +738,7 @@ describe('PaywallSheet in purchase mode', () => {
         await vi.advanceTimersByTimeAsync(0)
         await flushPromises()
 
-        expect(api.billing.checkout).toHaveBeenLastCalledWith('month', 'payme')
+        expect(api.billing.checkout).toHaveBeenLastCalledWith('month', 'payme', 'paywall_info')
         expect(tg.openLink).toHaveBeenCalledWith('https://payme.uz/pay')
         expect(w.find('[data-testid=purchase-error]').exists()).toBe(false)
       })

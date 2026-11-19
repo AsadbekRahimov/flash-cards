@@ -103,7 +103,8 @@ describe('billing store: catalog and purchase', () => {
     await vi.advanceTimersByTimeAsync(POLL_INTERVAL_MS)
     await done
 
-    expect(api.billing.checkout).toHaveBeenCalledWith('month', 'telegram_stars')
+    // No placement from a caller that names none (the bot-like path): the server records null.
+    expect(api.billing.checkout).toHaveBeenCalledWith('month', 'telegram_stars', undefined)
     expect(tg.openInvoice).toHaveBeenCalledWith('https://t.me/$inv')
     expect(tg.openLink).not.toHaveBeenCalled()
     expect(api.billing.order).toHaveBeenCalledTimes(2)
