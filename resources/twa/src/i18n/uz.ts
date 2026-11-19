@@ -135,6 +135,7 @@ export const uz: Translations = {
   'assignments.continue': 'Davom etish',
   'assignments.done': 'Bajarilgan',
   'assignments.done_late': 'Kechikib bajarilgan',
+  'assignments.load_failed': "Markaz vazifalarini yuklab bo'lmadi.",
   'today.onboarding_hint': 'Sozlashni tugatish uchun botga /start yuboring',
   'today.onboarding_btn': 'Sozlashni botda tugatish',
   'today.greeting': 'Salom, {name}!',
@@ -261,9 +262,9 @@ export const uz: Translations = {
 
   // ---- readiness for the level and the test of the week (docs/04 A.20) ----
   'readiness.title': 'Darajaga tayyorlik',
-  'readiness.percent_level': "{level} darajasi so'zlarining {percent}% o'zlashtirildi",
-  'readiness.percent_course': "Kurs so'zlarining {percent}% o'zlashtirildi",
-  'readiness.progress_label': "So'zlarning {percent}% o'zlashtirildi: {learned} ta o'zlashtirildi, {in_progress} ta o'rganilmoqda, {not_started} ta hali oldinda",
+  'readiness.percent_level': "{level} darajasi so'zlarining {percent}% o'zlashtirildi: {total} tadan {learned} ta",
+  'readiness.percent_course': "Kurs so'zlarining {percent}% o'zlashtirildi: {total} tadan {learned} ta",
+  'readiness.progress_label': "So'zlarning {percent}% o'zlashtirildi: {total} tadan {learned} ta o'zlashtirildi, {in_progress} ta o'rganilmoqda, {not_started} ta hali oldinda",
   'readiness.learned': "o'zlashtirildi",
   'readiness.in_progress': "o'rganilmoqda",
   'readiness.not_started': 'hali oldinda',
@@ -274,6 +275,10 @@ export const uz: Translations = {
   },
   'readiness.modules': "Modullar bo'yicha",
   'readiness.module': '{number}-modul',
+  'readiness.module_words': {
+    one: "{count} ta so'zdan {learned} ta",
+    other: "{count} ta so'zdan {learned} ta",
+  },
   'readiness.quiz.title': 'Hafta testi',
   'readiness.quiz.result': '{total} tadan {correct} ta',
   'readiness.quiz.line': 'Hafta testi: {total} tadan {correct} ta',
@@ -368,6 +373,9 @@ export const uz: Translations = {
     one: "{count} ta qiyin so'zni tahlil qilish",
     other: "{count} ta qiyin so'zni tahlil qilish",
   },
+  'finished.corrected.lead': 'Avval «{word}»',
+  'finished.corrected.tail': "so'zida xato qilgan edingiz — bugun to'g'ri javob berdingiz.",
+  'finished.corrected.answer': "O'shanda: {answer}",
 
   // ---- promo code ----
   'promo.toggle': 'Promokodingiz bormi?',

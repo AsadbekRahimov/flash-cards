@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Twa;
 
+use App\Domain\Analytics\Services\ClientTimingRecorder;
 use App\Models\Learner;
 use Illuminate\Http\Request;
 
@@ -19,7 +20,8 @@ final class AuthTokenResource extends TwaResource
      *   token: string,
      *   expires_in: int,
      *   learner: array{id: int, first_name: string|null, locale: string, onboarding_completed: bool},
-     *   account_restored: array{pro_can_resume: bool}|null
+     *   account_restored: array{pro_can_resume: bool}|null,
+     *   client_timing: array{sample_percent: int}
      * }
      */
     public function toArray(Request $request): array
@@ -36,6 +38,8 @@ final class AuthTokenResource extends TwaResource
                 'onboarding_completed' => $learner->onboarding_state === 'done',
             ],
             'account_restored' => $this->resource['account_restored'],
+            // The share of opens that report their timing marks (docs/04 A.21): config only, no query; 0 - the client sends nothing.
+            'client_timing' => ['sample_percent' => ClientTimingRecorder::samplePercent()],
         ];
     }
 }

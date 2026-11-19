@@ -12,9 +12,11 @@
 import { fail } from 'k6';
 import { BASE_URL, get, json, learnerFor, sharedLearners, sharedTokenFileMeta } from './lib.js';
 import { practiceSession, rampStages, tokenProblem } from './flows.js';
+import { plannedRunSeconds } from './plan.js';
 
 const TARGET_VUS = parseInt(__ENV.TARGET_VUS || '300', 10);
 const HOLD = __ENV.HOLD || '10m';
+const STAGES = rampStages(TARGET_VUS, HOLD);
 const MODE = __ENV.PRACTICE_MODE || 'collocation';
 
 const learners = sharedLearners('learners');
@@ -33,7 +35,7 @@ const thresholds = {
 
 export const options = {
   scenarios: {
-    practice: { executor: 'ramping-vus', startVUs: 0, stages: rampStages(TARGET_VUS, HOLD), gracefulRampDown: '30s' },
+    practice: { executor: 'ramping-vus', startVUs: 0, stages: STAGES, gracefulRampDown: '30s' },
   },
   thresholds,
   summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'],
@@ -44,7 +46,7 @@ export function setup() {
     fail('PRACTICE_MODE must be pairs, collocation, sentence or dictation.');
   }
   const file = tokenFileMeta[0];
-  const problem = tokenProblem(learners, file, TARGET_VUS);
+  const problem = tokenProblem(learners, file, TARGET_VUS, plannedRunSeconds(STAGES, '30s'));
   if (problem) {
     fail(problem);
   }

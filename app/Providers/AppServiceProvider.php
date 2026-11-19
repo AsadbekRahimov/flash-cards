@@ -328,6 +328,24 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(6)->by('twa-subscription|'.$key);
         });
 
+        // "A Pro offer was seen" (docs/13 §5.1): a dozen places at most per screen change; a script is cut at 20/min per learner.
+        RateLimiter::for('twa-offer-viewed', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(20)->by('twa-offer-viewed|'.$key);
+        });
+
+        // Timing marks of an open (docs/04 A.21): one send per open of the Mini App; a script is cut at 6/min per learner.
+        RateLimiter::for('twa-client-timing', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(6)->by('twa-client-timing|'.$key);
+        });
+
         // Payment provider webhooks (docs/13 §4): 120/min per caller IP; the provider retries on 429 like on any non-200.
         RateLimiter::for('billing-webhook', function (Request $request): Limit {
             return Limit::perMinute(120)->by('billing-webhook|ip|'.$request->ip());

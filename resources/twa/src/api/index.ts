@@ -75,6 +75,8 @@ import type {
   GameRunView,
 } from './gameRunTypes'
 import type { GameClass, GameClassList } from './gameClassTypes'
+import type { OfferPlacement } from '@/composables/offerViewed'
+import type { ClientTimingPayload } from '@/composables/useTimingMarks'
 import type { GameBoosterRequest, GameBuyRequest, GameEquipRequest, GameProfile, GameShop, GameWallet } from './gameShopTypes'
 
 /**
@@ -119,6 +121,10 @@ export const api = {
         init_data: initData,
         ...(context ? { context: { type: context.type, session_id: context.sessionId } } : {}),
       }),
+  },
+  telemetry: {
+    /** The timing marks of a sampled open (docs/04 A.21): `keepalive`, no token refresh, no retry; the caller swallows a failure. */
+    clientTiming: (payload: ClientTimingPayload) => client().postKeepalive('/client-timing', { ...payload }),
   },
   me: {
     get: () => client().get<MeResponse>('/me'),
@@ -178,8 +184,10 @@ export const api = {
   billing: {
     catalog: () => client().get<BillingCatalog>('/billing/catalog'),
     /** The amount is the server's; only what to buy and how to pay is sent. */
-    checkout: (period: BillingPeriod, provider: BillingProviderKey) =>
-      client().post<CheckoutResponse>('/billing/checkout', { plan: 'pro', period, provider }),
+    checkout: (period: BillingPeriod, provider: BillingProviderKey, placement?: OfferPlacement) =>
+      client().post<CheckoutResponse>('/billing/checkout', { plan: 'pro', period, provider, ...(placement ? { placement } : {}) }),
+    /** A Pro offer became visible (docs/13 §5.1): 204, counted once a day per placement by the server. */
+    offerViewed: (placement: OfferPlacement) => client().post<void>('/billing/offer-viewed', { placement }),
     order: (token: string) => client().get<OrderStatusResponse>(`/billing/orders/${encodeURIComponent(token)}`),
     cancel: () => client().post<MeResponse>('/billing/subscription/cancel'),
     resume: () => client().post<MeResponse>('/billing/subscription/resume'),

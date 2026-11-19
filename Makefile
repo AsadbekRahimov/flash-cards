@@ -1,4 +1,4 @@
-.PHONY: help up down build shell test lint lint-fix analyse migrate fresh seed cache-clear pg-check pg-upgrade prod-build prod-build-octane prod-logs-api prod-shell-api prod-up prod-down deploy backup prod-pg-check prod-pg-upgrade load-tokens load-seed load-test load-test-mature load-test-game load-test-practice load-test-battle load-test-mixed load-test-webhook zap-baseline
+.PHONY: help up down build shell test lint lint-fix analyse migrate fresh seed cache-clear pg-check pg-upgrade prod-build prod-build-octane prod-logs-api prod-shell-api prod-up prod-down deploy backup prod-pg-check prod-pg-upgrade load-tokens load-seed load-test load-test-mature load-test-game load-test-practice load-test-battle load-test-mixed load-test-burst load-test-webhook load-plan-test zap-baseline
 
 DC      ?= docker compose
 APP     ?= $(DC) exec app
@@ -95,24 +95,33 @@ TOKENS_FILE  ?= $(K6_DIR)/tokens.json
 K6_OUT       ?= $(K6_DIR)/results
 BASE_URL     ?=
 TARGET_VUS   ?= 1250
-# Where `load:tokens` runs: the app container of the staging stack (override for a dev stack: LOAD_ARTISAN="$(ARTISAN)" with -T).
-LOAD_ARTISAN ?= $(PROD_DC) exec -T app php artisan
+# Lifetime of the load tokens, seconds (load:tokens --ttl, at most 86400). The scenarios refuse to start unless the tokens outlive
+# the whole run: ramp (8 min) + HOLD + ramp-down (1 min) + graceful stop + 5 min, at least 30 min. HOLD=1h needs ~76 min.
+TOKENS_TTL   ?= 7200
+# The settings of LoadScenarioSeeder given on the make command line or in the environment, passed into the container (`docker compose
+# exec -e`): the seeder reads the process environment, which `exec` does not inherit.
+LOAD_SEED_VARS = LOAD_SCENARIO_COURSE LOAD_SCENARIO_WORDS LOAD_SCENARIO_CLASS_SHARE LOAD_SCENARIO_CLASS_SIZE
+LOAD_SEED_ENV  = $(foreach v,$(LOAD_SEED_VARS),$(if $(filter environment command line,$(origin $(v))),-e $(v)="$($(v))"))
+# Where `load:tokens` and the seed run: the app container of the staging stack (override for a dev stack:
+# LOAD_ARTISAN='docker compose exec -T $(LOAD_SEED_ENV) app php artisan').
+LOAD_ARTISAN ?= $(PROD_DC) exec -T $(LOAD_SEED_ENV) app php artisan
 # K6_NET=host lets the container reach a staging on this very machine (Linux). K6_INSECURE_SKIP_TLS_VERIFY=true: a staging
 # with a self-signed or private-CA certificate (k6 is told to skip the check; never for a public host).
 K6_RUN        = docker run --rm -i $(if $(K6_NET),--network $(K6_NET)) --user "$$(id -u):$$(id -g)" \
 	-v "$(CURDIR)/$(K6_DIR):/scripts:ro" -v "$(abspath $(K6_OUT)):/out" \
 	$(if $(wildcard $(TOKENS_FILE)),-v "$(abspath $(TOKENS_FILE)):/data/load-tokens.json:ro") \
 	-e BASE_URL="$(BASE_URL)" -e TARGET_VUS="$(TARGET_VUS)" -e HOLD -e THINK_SCALE -e CARDS_PER_SESSION -e WEBHOOK_RPS \
-	-e TARGET_PAIRS -e PRACTICE_MODE -e BATTLE_MODE -e MIX_TRAINING -e MIX_GAME -e MIX_PRACTICE -e MIX_BATTLE \
+	-e TARGET_PAIRS -e PRACTICE_MODE -e BATTLE_MODE -e MIX_TRAINING -e MIX_GAME -e MIX_PRACTICE -e MIX_BATTLE -e MIX_BROWSE \
+	-e BURST_RATE -e BURST_RAMP -e BURST_PREALLOCATED_VUS -e BURST_MAX_VUS -e BURST_MAX_DROPPED -e CLASS_SHARE -e LOAD_SCENARIO_CLASS_SHARE \
 	-e TELEGRAM_URL_SECRET -e TELEGRAM_HEADER_SECRET -e K6_INSECURE_SKIP_TLS_VERIFY $(K6_IMAGE)
 
 # The heavier scenarios default to a smaller size than the 1250 learners of the hot paths: TARGET_VUS from the command line wins.
 K6_RUN_300   = $(subst TARGET_VUS="$(TARGET_VUS)",TARGET_VUS="$(if $(filter command line,$(origin TARGET_VUS)),$(TARGET_VUS),300)",$(K6_RUN))
 
-load-tokens: ## Write TARGET_VUS test learners and their JWTs to TOKENS_FILE (local, testing, staging only)
+load-tokens: ## Write TARGET_VUS test learners and their JWTs (TOKENS_TTL s, default 2 h) to TOKENS_FILE (local, testing, staging only)
 	@mkdir -p "$(dir $(TOKENS_FILE))"
 	@umask 077; tmp="$(TOKENS_FILE).tmp.$$$$"; \
-	  if $(LOAD_ARTISAN) load:tokens --count=$(TARGET_VUS) --output=- > "$$tmp"; then mv "$$tmp" "$(TOKENS_FILE)"; \
+	  if $(LOAD_ARTISAN) load:tokens --count=$(TARGET_VUS) --ttl=$(TOKENS_TTL) --output=- > "$$tmp"; then mv "$$tmp" "$(TOKENS_FILE)"; \
 	  else cat "$$tmp" >&2; rm -f "$$tmp"; echo "load:tokens failed, $(TOKENS_FILE) left as it was"; exit 1; fi
 	@chmod 600 "$(TOKENS_FILE)"
 	@echo "Tokens in $(TOKENS_FILE): live tokens, remove the file after the run"
@@ -123,7 +132,7 @@ load-test: ## k6: learner hot paths up to TARGET_VUS (BASE_URL=https://staging..
 	@mkdir -p "$(abspath $(K6_OUT))" && chmod a+rwx "$(abspath $(K6_OUT))"
 	$(K6_RUN) run --summary-export=/out/twa-hot-paths-summary.json /scripts/twa-hot-paths.js
 
-load-seed: ## Staging: mature due cards, practice pilot and friend pairs for the test learners (after load-tokens; LOAD_SCENARIO_WORDS, LOAD_SCENARIO_COURSE)
+load-seed: ## Staging: mature due cards, practice pilot, friend pairs, classes with assignments (after load-tokens; LOAD_SCENARIO_WORDS, _COURSE, _CLASS_SHARE 0.2 (0 removes the classes), _CLASS_SIZE 25)
 	$(LOAD_ARTISAN) db:seed --class=LoadScenarioSeeder --force
 
 # The scenarios beyond the hot paths (tests/load/k6/README.md). Run `make load-tokens` and `make load-seed` first. Each has its own
@@ -150,9 +159,16 @@ load-test-battle: ## k6: battle, TARGET_PAIRS pairs (default 100) with the 5/3/2
 	$(call K6_SCENARIO,load-test-battle)
 	$(K6_RUN) run --summary-export=/out/battle-summary.json /scripts/battle.js
 
-load-test-mixed: ## k6: the mixed profile (training / game / practice / battle shares MIX_*) for TARGET_VUS active learners
+load-test-mixed: ## k6: the mixed profile (shares MIX_*) for TARGET_VUS active learners, HOLD at the peak (default 10m); one run per target
 	$(call K6_SCENARIO,load-test-mixed)
-	$(K6_RUN) run --summary-export=/out/mixed-profile-summary.json /scripts/mixed-profile.js
+	$(K6_RUN) run --summary-export=/out/mixed-profile-$(TARGET_VUS)-summary.json /scripts/mixed-profile.js
+
+load-test-burst: ## k6: a burst of Mini App opens (arrival rate 0 -> BURST_RATE/s over BURST_RAMP, HOLD 2m; CLASS_SHARE class opens by the seed's class learners, LOAD_SCENARIO_CLASS_SHARE); dropped_iterations
+	$(call K6_SCENARIO,load-test-burst)
+	$(K6_RUN) run --summary-export=/out/arrival-burst-$(or $(BURST_RATE),20)-summary.json /scripts/arrival-burst.js
+
+load-plan-test: ## Node tests of the arithmetic of the k6 scenarios (tests/load/k6/plan.js: mix, token ranges, token lifetime, burst); no k6 needed
+	node --test $(K6_DIR)/plan.test.js
 
 load-test-webhook: ## k6: Telegram webhook (BASE_URL, env TELEGRAM_URL_SECRET and TELEGRAM_HEADER_SECRET): p95 < 300 ms
 	@test -n "$(BASE_URL)" || { echo "BASE_URL is required"; exit 1; }

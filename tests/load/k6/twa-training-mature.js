@@ -10,9 +10,11 @@
 import { fail } from 'k6';
 import { BASE_URL, get, json, learnerFor, sharedLearners, sharedTokenFileMeta } from './lib.js';
 import { matureTraining, rampStages, tokenProblem } from './flows.js';
+import { plannedRunSeconds } from './plan.js';
 
 const TARGET_VUS = parseInt(__ENV.TARGET_VUS || '1250', 10);
 const HOLD = __ENV.HOLD || '10m';
+const STAGES = rampStages(TARGET_VUS, HOLD);
 const CARDS_PER_SESSION = parseInt(__ENV.CARDS_PER_SESSION || '8', 10);
 
 const learners = sharedLearners('learners');
@@ -34,14 +36,14 @@ for (const name of ['training_open', 'training_review', 'training_finish']) {
 
 export const options = {
   scenarios: {
-    learners: { executor: 'ramping-vus', startVUs: 0, stages: rampStages(TARGET_VUS, HOLD), gracefulRampDown: '30s' },
+    learners: { executor: 'ramping-vus', startVUs: 0, stages: STAGES, gracefulRampDown: '30s' },
   },
   thresholds,
   summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'],
 };
 
 export function setup() {
-  const problem = tokenProblem(learners, tokenFileMeta[0], TARGET_VUS);
+  const problem = tokenProblem(learners, tokenFileMeta[0], TARGET_VUS, plannedRunSeconds(STAGES, '30s'));
   if (problem) {
     fail(problem);
   }

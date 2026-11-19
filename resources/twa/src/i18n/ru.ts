@@ -152,6 +152,7 @@ export const ru = {
   'assignments.continue': 'Продолжить',
   'assignments.done': 'Выполнено',
   'assignments.done_late': 'Выполнено с опозданием',
+  'assignments.load_failed': 'Не удалось загрузить задания центра.',
   'today.onboarding_hint': 'Чтобы завершить настройку, отправьте боту /start',
   'today.onboarding_btn': 'Закончить настройку в боте',
   'today.greeting': 'Привет, {name}!',
@@ -285,9 +286,9 @@ export const ru = {
 
   // ---- readiness for the level and the test of the week (docs/04 A.20) ----
   'readiness.title': 'Готовность к уровню',
-  'readiness.percent_level': 'Освоено {percent}% слов уровня {level}',
-  'readiness.percent_course': 'Освоено {percent}% слов курса',
-  'readiness.progress_label': 'Освоено {percent}% слов: {learned} освоено, {in_progress} в работе, {not_started} ещё впереди',
+  'readiness.percent_level': 'Освоено {percent}% слов уровня {level}: {learned} из {total}',
+  'readiness.percent_course': 'Освоено {percent}% слов курса: {learned} из {total}',
+  'readiness.progress_label': 'Освоено {percent}% слов: {learned} из {total} освоено, {in_progress} в работе, {not_started} ещё впереди',
   'readiness.learned': 'освоено',
   'readiness.in_progress': 'в работе',
   'readiness.not_started': 'ещё впереди',
@@ -300,6 +301,12 @@ export const ru = {
   },
   'readiness.modules': 'По модулям',
   'readiness.module': 'Модуль {number}',
+  'readiness.module_words': {
+    one: '{learned} из {count} слова',
+    few: '{learned} из {count} слов',
+    many: '{learned} из {count} слов',
+    other: '{learned} из {count} слова',
+  },
   'readiness.quiz.title': 'Тест недели',
   'readiness.quiz.result': '{correct} из {total}',
   'readiness.quiz.line': 'Тест недели: {correct} из {total}',
@@ -402,6 +409,10 @@ export const ru = {
     many: 'Разобрать {count} трудных слов',
     other: 'Разобрать {count} трудных слова',
   },
+  // One sentence in two keys: the muted translation «(занимать)» goes between them, after the word.
+  'finished.corrected.lead': 'Раньше вы ошибались в слове «{word}»',
+  'finished.corrected.tail': '— сегодня ответили верно.',
+  'finished.corrected.answer': 'Тогда: {answer}',
 
   // ---- promo code ----
   'promo.toggle': 'Есть промокод?',

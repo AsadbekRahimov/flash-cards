@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Content\Services\WordAudioService;
+use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Engagement\Support\LeaguePoints;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Twa\Services\JwtService;
@@ -14,7 +15,10 @@ use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\CardAnswers;
 use Tests\Support\HotPathFixtures as Fx;
@@ -147,6 +151,7 @@ it('plays a whole round: ten words, no flash card, a failure repeated in the rou
 
     expect($finish['hard_round'])->toBe(['total' => 10, 'won' => 10])
         ->and($finish['hard_round_offer'])->toBeNull()
+        ->and($finish['corrected'])->toBeNull() // no mistake in an earlier session: the failed word failed in this round only
         ->and($finish['reviewed'])->toBe(11)->and($finish['correct'])->toBe(10)->and($finish['new_words'])->toBe(0)
         ->and($finish['practice_entry'])->toBeNull()
         // The ordinary points: a grade, a right answer, the goal of ten met in this session; no new word.
@@ -379,9 +384,105 @@ it('shows a card as flash, as the card builder does, when the word has too few o
         ->assertJsonPath('progress.done', 1);
 });
 
+// --- the corrected mistake ---------------------------------------------------------------------------------------
+
+/** A wrong answer to the word in a closed daily round three days ago (an earlier session: its review ids are below the round's). */
+function hardRoundFlowEarlierMistake(Learner $learner, int $wordId, string $exercise = 'spelling', ?string $answer = 'wrnog'): void
+{
+    $at = now()->subDays(3);
+    $session = TrainingSession::factory()->personal($learner, 'daily_review')->closed()->create(['started_at' => $at, 'ended_at' => $at]);
+    DB::table('training_reviews')->insert([
+        'training_session_id' => $session->id, 'learner_id' => $learner->id, 'word_id' => $wordId, 'quality' => 1, 'exercise' => $exercise,
+        'answer_text' => $answer, 'scheduler' => 'sm2', 'interval_before_days' => 4, 'time_spent_ms' => 2000, 'created_at' => $at,
+    ]);
+}
+
+it('tells on the finish one word failed in an earlier session and answered right in the round, the typed answer with it', function (): void {
+    ['learner' => $learner, 'words' => $words, 'headers' => $h] = hardRoundFlowWorld();
+    $word = Word::query()->findOrFail($words[3]);
+    hardRoundFlowEarlierMistake($learner, (int) $word->id);
+
+    $opened = hardRoundFlowOpen($this, $h);
+    hardRoundFlowPlay($this, $h, $opened);
+    $url = "/api/twa/training/sessions/{$opened['session_id']}/finish";
+    $finish = $this->withHeaders($h)->postJson($url)->assertOk()->json();
+
+    expect($finish['corrected'])->toBe([
+        'word_id' => $word->id,
+        'word' => $word->word,
+        'translation' => app(WordTranslationResolver::class)->for($word, 'ru'),
+        'mistaken_at' => now()->subDays(3)->utc()->toIso8601String(),
+        'answer' => 'wrnog',
+    ])
+        ->and($finish['hard_round'])->toBe(['total' => 10, 'won' => 10])
+        // Idempotent: a repeat of /finish tells the same word.
+        ->and($this->withHeaders($h)->postJson($url)->assertOk()->json('corrected.word_id'))->toBe($word->id);
+});
+
+it('still finishes the round when the search for a corrected mistake fails: the summary without it, the failure reported', function (): void {
+    Exceptions::fake();
+    ['learner' => $learner, 'words' => $words, 'headers' => $h] = hardRoundFlowWorld();
+    hardRoundFlowEarlierMistake($learner, (int) $words[3]);
+    $opened = hardRoundFlowOpen($this, $h);
+    hardRoundFlowPlay($this, $h, $opened);
+    // The one statement of CorrectedMistakeFinder (its window column) breaks, after the session is closed and committed.
+    DB::listen(static function (QueryExecuted $query): void {
+        if (str_contains($query->sql, 'session_first_id')) {
+            throw new RuntimeException('corrected mistake lookup failed');
+        }
+    });
+    $url = "/api/twa/training/sessions/{$opened['session_id']}/finish";
+
+    $finish = $this->withHeaders($h)->postJson($url)->assertOk()->json();
+    $retry = $this->withHeaders($h)->postJson($url)->assertOk()->json();
+
+    expect($finish['corrected'])->toBeNull()
+        ->and($finish['hard_round'])->toBe(['total' => 10, 'won' => 10])
+        ->and($retry['corrected'])->toBeNull()
+        ->and($retry['hard_round'])->toBe(['total' => 10, 'won' => 10])
+        ->and(TrainingSession::query()->findOrFail($opened['session_id'])->status)->toBe('closed');
+    Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'corrected mistake lookup failed');
+});
+
+it('tells nothing when the earlier mistake was a self-grade, or the word failed first in the round', function (string $case): void {
+    ['learner' => $learner, 'words' => $words, 'headers' => $h] = hardRoundFlowWorld();
+    $wordId = (int) $words[3];
+    hardRoundFlowEarlierMistake($learner, $wordId, $case === 'flash' ? 'flash' : 'meaning', null);
+
+    $opened = hardRoundFlowOpen($this, $h);
+    $failed = false;
+    hardRoundFlowPlay($this, $h, $opened, function (array $card) use ($case, $wordId, &$failed): int {
+        if ($case === 'failed first' && (int) $card['word_id'] === $wordId && ! $failed) {
+            $failed = true;
+
+            return 2;
+        }
+
+        return 4;
+    });
+    $finish = $this->withHeaders($h)->postJson("/api/twa/training/sessions/{$opened['session_id']}/finish")->assertOk()->json();
+
+    expect($finish['corrected'])->toBeNull()->and($finish['hard_round']['won'])->toBe(10);
+})->with(['flash', 'failed first']);
+
+it('does not look for a corrected mistake on the finish of a daily round', function (): void {
+    ['learner' => $learner, 'words' => $words, 'headers' => $h] = hardRoundFlowWorld();
+    hardRoundFlowEarlierMistake($learner, (int) $words[3]);
+    $daily = $this->withHeaders($h)->postJson('/api/twa/training/sessions', ['mode' => 'daily_review'])->assertOk()->json();
+    $this->withHeaders($h)->postJson("/api/twa/training/sessions/{$daily['session_id']}/review", CardAnswers::body($daily['card'], 4))->assertOk();
+
+    $finish = null;
+    $log = QueryLog::during(function () use (&$finish, $daily, $h): void {
+        $finish = $this->withHeaders($h)->postJson("/api/twa/training/sessions/{$daily['session_id']}/finish")->assertOk()->json();
+    });
+
+    expect($finish)->toHaveKey('corrected')->and($finish['corrected'])->toBeNull()
+        ->and(QueryLog::matching($log, '/from ["`]training_reviews["`]/'))->toHaveCount(1);
+});
+
 // --- the statements ---------------------------------------------------------------------------------------------
 
-it('keeps the round inside the budgets of the training cycle: /next, /review, /finish +2, /today nine', function (): void {
+it('keeps the round inside the budgets of the training cycle: /next, /review, /finish +1, /today nine', function (): void {
     ['headers' => $h] = hardRoundFlowWorld();
     $opened = hardRoundFlowOpen($this, $h);
     $base = "/api/twa/training/sessions/{$opened['session_id']}";
@@ -411,7 +512,7 @@ it('keeps the round inside the budgets of the training cycle: /next, /review, /f
     $finish = QueryLog::during(function () use ($base, $h): void {
         $this->withHeaders($h)->postJson("{$base}/finish")->assertOk()->assertJsonPath('hard_round_offer', null);
     });
-    // 9 as for any session; the round itself carries no invitation, so it costs no more.
-    expect(count($finish))->toBeLessThanOrEqual(9)
-        ->and(QueryLog::matching($finish, '/from ["`]training_reviews["`]/'))->toHaveCount(1);
+    // 9 as for any session (the round itself carries no invitation) +1: the corrected mistake (CorrectedMistakeFinder, one statement).
+    expect(count($finish))->toBeLessThanOrEqual(10)
+        ->and(QueryLog::matching($finish, '/from ["`]training_reviews["`]/'))->toHaveCount(2);
 });

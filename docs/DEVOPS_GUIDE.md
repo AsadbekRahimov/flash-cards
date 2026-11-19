@@ -786,7 +786,11 @@ Words are voiced once by the edge-tts service (`TTS_SERVICE_URL`, `TTS_SERVICE_T
 ```bash
 php artisan audio:pregenerate <course-slug>          # queue jobs for active words without current audio
 php artisan audio:pregenerate <course-slug> --force  # re-synthesize existing files (one TTS call per unique text)
+php artisan audio:coverage <course-slug>             # report: active words vs words with audio_path, per module and total
+php artisan audio:coverage <course-slug> --verify --min=95   # also stat the files; exit 1 below 95% (gate for a publish script)
 ```
+
+- Coverage (`audio:coverage`, read-only): one grouped query for the per-module counts by `words.audio_path`; `--verify` walks the active words in chunks of 500 and stats each unique file once, counting a word as voiced only when its `audio_path` is the one its current text hashes to and the file exists and is non-empty (same rule as the pre-generation skip). The broken words are listed with the reason `missing` / `empty` / `stale` (first `--limit`, default 20); `audio:pregenerate` without `--force` fixes all three. Exit codes: 0 — ok, 1 — unknown course or coverage below `--min` (a course without active words is below any `--min` > 0), 2 — bad option.
 
 - Files: `storage/app/public/audio/{sha1(text|voice|version)}.mp3` (public disk), `words.audio_path` holds the relative path. Same text in several words/courses = one file. Writes are atomic: the body goes to `audio/.tmp/{name}.{random}` and is renamed onto the final name; an empty or truncated file counts as "not generated" and is rebuilt. Changing `TTS_VOICE` or `TTS_AUDIO_VERSION` produces new file names on its own, so run the command **without** `--force` after that (`--force` is only for replacing the contents of files that already exist, e.g. a bad batch); old files stay on disk (delete `storage/app/public/audio` and re-run the command to clean up). Editing a word's English text in the admin panel clears its `audio_path` and queues a new job.
 - The `tts` container must be reachable from the queue worker. If it is down, jobs retry and then land in `failed_jobs` (`php artisan queue:retry all` when it is back); the rest of the batch is not affected, learners just keep getting Web Speech / live `/api/twa/tts` (503 `tts_unavailable` when the TTS service is down or unreachable).
@@ -1428,8 +1432,11 @@ chmod 600 .env
 | `REMINDERS_QUIZ_ENABLED` | optional | `true` (the reminder is a question with four answers in the chat, docs/12 §7.5; `false` = the plain text with one button, as before, no redeploy of code needed) |
 | `REMINDERS_QUIZ_MAX_IDLE_DAYS` | optional | `7` (a question goes out up to this many idle days; the rarer sparse days stay text; raise up to 60 to ask there too) |
 | `REMINDERS_QUIZ_TTL_HOURS` | optional | `26` (how long a question can be answered; its state `reminders:quiz:v1:{learner}` lives in the non-evicting Redis, so a Redis restart without persistence only turns old taps into "outdated") |
+| `REMINDERS_QUIZ_EXPERIMENT` | optional | `false` (the owner's switch: quiz-eligible reminders are split into the question and the plain text, sticky per learner; docs/ADMIN_GUIDE.md "Reminder experiment", docs/12 §7.5) |
+| `REMINDERS_QUIZ_EXPERIMENT_SHARE` / `_SALT` / `_STARTS_AT` | optional | `50` (percent in the quiz arm) / `reminder-quiz-2026-11` (a new salt reshuffles every learner — only for a new experiment) / empty (UTC date or instant; no split before it, and the default `--from` of `analytics:reminder-experiment`) |
 | `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` | optional | `25` (bot-wide ceiling of background sends per second — reminders, assignment posts, renewal reminders, DMs of centers/offers, leaderboards; Bot API allows ~30/s per bot, the rest is for replies to updates; `0` = off). A job without a free slot is put back for 1-5 s; keep the Redis cache (the counter `telegram:outbound:global:{sec}` is shared by all workers) |
 | `PRODUCT_EVENTS_RETENTION_DAYS` / `NOTIFICATIONS_LOG_RETENTION_DAYS` | optional | `400` / `400` |
+| `CLIENT_TIMING_SAMPLE_PERCENT` | optional | `10` (the share of Mini App opens, 0..100, that report their timing marks as `client.timing` — platform and millisecond offsets only, docs/04 A.21; handed to the client in `POST /api/twa/auth`; `0` = off on both sides; read with `php artisan analytics:client-timing --days=7`, docs/ADMIN_GUIDE.md "Open speed") |
 
 ### Phase 2 variables
 

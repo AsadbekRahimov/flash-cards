@@ -207,7 +207,8 @@ final class PaymentApplier
 
                 $this->events->record(
                     ProductEventName::PaymentSucceeded,
-                    ['payment_id' => $payment->id, 'payment_order_id' => $order->id, 'provider' => $e->provider->value, 'kind' => $kind, 'amount' => $e->amount, 'currency' => $e->currency, 'subscriber_type' => $order->subscriber_type],
+                    // `locale`: the learner's interface language now, a snapshot for the Pro funnel (docs/13 §5.1); null for a center.
+                    ['payment_id' => $payment->id, 'payment_order_id' => $order->id, 'provider' => $e->provider->value, 'kind' => $kind, 'amount' => $e->amount, 'currency' => $e->currency, 'subscriber_type' => $order->subscriber_type, 'locale' => $subject instanceof Learner ? $subject->interface_locale : null],
                     learner: $subject instanceof Learner ? $subject : null,
                 );
 

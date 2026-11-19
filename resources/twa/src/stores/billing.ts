@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { nextReset, reachedLimit, shownLimit } from '@/composables/practiceLimits'
+import type { OfferPlacement } from '@/composables/offerViewed'
 import { useTelegram } from '@/composables/useTelegram'
 import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
@@ -315,8 +316,8 @@ export const useBillingStore = defineStore('billing', {
       this.purchase = idlePurchase()
     },
 
-    /** Creates the order, opens the payment and waits for the confirmation. */
-    async buy(period: BillingPeriod, provider: BillingProviderKey): Promise<void> {
+    /** Creates the order, opens the payment and waits for the confirmation; `placement` (where the sheet was opened) is analytics only. */
+    async buy(period: BillingPeriod, provider: BillingProviderKey, placement?: OfferPlacement): Promise<void> {
       if (this.purchase.status === 'starting') return
 
       this.purchase = { status: 'starting', orderToken: null, error: '', notice: '' }
@@ -325,7 +326,7 @@ export const useBillingStore = defineStore('billing', {
       let kind: 'invoice_link' | 'redirect'
       let token: string
       try {
-        const created = await api.billing.checkout(period, provider)
+        const created = await api.billing.checkout(period, provider, placement)
         token = created.order.token
         url = created.checkout.url
         kind = created.checkout.kind

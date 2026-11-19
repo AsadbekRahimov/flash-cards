@@ -5,17 +5,28 @@ declare(strict_types=1);
 namespace App\Filament\Org\Resources\AssignmentResource\Pages;
 
 use App\Domain\Organizations\Services\AssignmentService;
+use App\Domain\Organizations\Services\OrgHardWordsReport;
 use App\Filament\Org\Resources\AssignmentResource;
 use App\Models\Assignment;
+use App\Models\Organization;
+use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Support\Components\Attributes\Unexposed;
 
 class ViewAssignment extends ViewRecord
 {
     protected static string $resource = AssignmentResource::class;
 
-    /** The report opens with a fresh snapshot: recounted when older than `stale_after_minutes`. */
+    /** @var list<array{word_id: int, word: string, translation: string, learners: int, confused_with: string|null}>|null */
+    private ?array $toRepeat = null;
+
+    /**
+     * The report opens with a fresh snapshot: recounted when older than `stale_after_minutes`. After a recount the counts are
+     * read again, so the summary shows the new snapshot, not the one the record was loaded with (one statement, only then).
+     */
     public function mount(int|string $record): void
     {
         parent::mount($record);
@@ -23,7 +34,38 @@ class ViewAssignment extends ViewRecord
         /** @var Assignment $assignment */
         $assignment = $this->getRecord();
 
-        app(AssignmentService::class)->refreshIfStale($assignment);
+        if (app(AssignmentService::class)->refreshIfStale($assignment)) {
+            // The schema already holds this instance: its counts are refreshed in place.
+            $counts = Assignment::query()->whereKey($assignment->id)->select('assignments.id')->withProgressCounts()->firstOrFail();
+            foreach (['total_count', 'started_count', 'done_count'] as $count) {
+                $assignment->setAttribute($count, $counts->getAttribute($count));
+            }
+            $assignment->syncOriginalAttributes(['total_count', 'started_count', 'done_count']);
+        }
+    }
+
+    /**
+     * "Material to repeat": up to 3 hard words of the assigned lesson that at least 2 learners of the group keep failing
+     * ({@see OrgHardWordsReport::toRepeat()}, scoped to what the user sees). One statement per request, empty = no block.
+     *
+     * @return list<array{word_id: int, word: string, translation: string, learners: int, confused_with: string|null}>
+     */
+    #[Unexposed]
+    public function materialToRepeat(): array
+    {
+        if ($this->toRepeat !== null) {
+            return $this->toRepeat;
+        }
+
+        $assignment = $this->assignment();
+        $user = Filament::auth()->user();
+        $tenant = Filament::getTenant();
+
+        if (! $user instanceof User || ! $tenant instanceof Organization) {
+            return $this->toRepeat = [];
+        }
+
+        return $this->toRepeat = app(OrgHardWordsReport::class)->toRepeat($user, $tenant, $assignment->group, $assignment->lesson_id);
     }
 
     /** @return array<int, Action> */

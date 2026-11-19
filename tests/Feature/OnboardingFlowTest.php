@@ -171,6 +171,31 @@ it('stores "I do not know" as A1, switches reminders off and falls back to the d
         ->and($learner->active_course_id)->toBe($default->id);
 });
 
+it('records reminders.disabled when the onboarding switches the default reminder off, and only then', function (): void {
+    app(CourseCatalogService::class)->defaultCourse()->update(['words_count' => 5]);
+
+    onbSend(7031, '/start');
+    onbComplete(7031, 'ru', 'general', 'B1', 'off');
+    onbSend(7032, '/start');
+    onbComplete(7032, 'ru', 'general', 'B1', '0800');
+
+    $events = ProductEvent::query()->where('name', ProductEventName::RemindersDisabled->value)->get();
+    expect($events)->toHaveCount(1)
+        ->and($events[0]->learner_id)->toBe(onbLearner(7031)->id)
+        ->and($events[0]->props)->toBe(['via' => 'onboarding']);
+});
+
+it('records no reminders.disabled for "off" when the learner had no reminder time at all', function (): void {
+    app(CourseCatalogService::class)->defaultCourse()->update(['words_count' => 5]);
+    onbSend(7033, '/start');
+    onbLearner(7033)->update(['reminder_time' => null]);
+
+    onbComplete(7033, 'ru', 'general', 'B1', 'off');
+
+    expect(onbLearner(7033)->reminder_time)->toBeNull()
+        ->and(ProductEvent::query()->where('name', ProductEventName::RemindersDisabled->value)->count())->toBe(0);
+});
+
 it('keeps a course the learner already picked instead of recommending one', function (): void {
     $picked = onbCourse('picked', 'school');
     onbCourse('ielts-academic', 'ielts');

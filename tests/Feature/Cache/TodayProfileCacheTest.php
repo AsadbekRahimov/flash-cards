@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /*
- * The two entries of `GET /today` in the pure cache (docs/19 K10): the Today snapshot `twa:today:v1:{learner}:n{version}` (the lapse
- * banner and the "in a group" fact, keyed by the learner's version `entitlement:ver`) and the course row `catalog:course:row:v1:{course}:n{version}`
+ * The two entries of `GET /today` in the pure cache (docs/19 K10): the Today snapshot `twa:today:v2:{learner}:n{version}` (the lapse
+ * banner, the "in a group" fact and the "may have an assignment" fact, keyed by the learner's version `entitlement:ver`) and the course row `catalog:course:row:v1:{course}:n{version}`
  * (keyed by the course's data version). Every write that changes one of them moves the version, so the old entry is never read again:
  * "записал -> старое не отдаётся" for each path. A failing `redis-cache` leaves the answer right.
  */
@@ -71,8 +71,8 @@ it('keeps the lapse banner in the snapshot: arrays only, under the learner\'s ve
     $key = todaySnapshotKey($learner);
 
     expect($first['provider'])->toBe('payme')
-        ->and($key)->toStartWith('twa:today:v1:'.$learner->id.':n')
-        ->and(PureCache::store()->get($key))->toBe(['lapsed' => $first, 'groups' => false, 'until' => null]);
+        ->and($key)->toStartWith('twa:today:v2:'.$learner->id.':n')
+        ->and(PureCache::store()->get($key))->toBe(['lapsed' => $first, 'groups' => false, 'assignments' => false, 'until' => null]);
 
     $queries = QueryLog::during(fn () => todayCacheGet($this, $learner)->assertJsonPath('entitlement.lapsed', $first));
 
@@ -165,13 +165,13 @@ it('reads no class caravan for a learner in no group, and shows the card at once
     todayCacheGet($this, $member);
     $queries = QueryLog::during(fn () => todayCacheGet($this, $member)->assertJsonPath('game.class_caravan.stars_total', 7));
     expect(QueryLog::matching($queries, '/from ["`]class_caravans["`]/'))->toHaveCount(1)
-        ->and(PureCache::store()->get(todaySnapshotKey($member)))->toBe(['lapsed' => null, 'groups' => true, 'until' => null]);
+        ->and(PureCache::store()->get(todaySnapshotKey($member)))->toBe(['lapsed' => null, 'groups' => true, 'assignments' => true, 'until' => null]);
 
     // The stranger: no card, and no read of the class tables once the snapshot says "in no group".
     todayCacheGet($this, $stranger)->assertJsonPath('game.class_caravan', null);
     $queries = QueryLog::during(fn () => todayCacheGet($this, $stranger)->assertJsonPath('game.class_caravan', null));
     expect(QueryLog::matching($queries, '/from ["`](class_caravans|group_members|telegram_groups)["`]/'))->toBe([])
-        ->and(PureCache::store()->get(todaySnapshotKey($stranger)))->toBe(['lapsed' => null, 'groups' => false, 'until' => null]);
+        ->and(PureCache::store()->get(todaySnapshotKey($stranger)))->toBe(['lapsed' => null, 'groups' => false, 'assignments' => false, 'until' => null]);
 
     // Joins the class: the join moves the version, the next /today reads the card.
     $before = todaySnapshotKey($stranger);
@@ -206,19 +206,24 @@ it('counts the memberships in the statement of scalars on a cold snapshot, not i
 
     $queries = QueryLog::during(fn () => todayCacheGet($this, $member));
 
-    expect(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].*\(select 1 from ["`]group_members["`] as ["`]gm["`] inner join ["`]telegram_groups["`] as ["`]tg["`] on ["`]tg["`].["`]id["`] = ["`]gm["`].["`]telegram_group_id["`] and ["`]tg["`].["`]status["`] = \? where ["`]gm["`].["`]learner_id["`] = \? and ["`]gm["`].["`]status["`] = \? limit 1\) as ["`]groups["`]/s'))->toHaveCount(1)
+    expect(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].*\(select 1 from ["`]group_members["`] as ["`]gm["`] inner join ["`]telegram_groups["`] as ["`]tg["`] on ["`]tg["`].["`]id["`] = ["`]gm["`].["`]telegram_group_id["`] and ["`]tg["`].["`]status["`] = \? where ["`]gm["`].["`]learner_id["`] = \? and ["`]gm["`].["`]status["`] = \? limit 1\) as ["`]groups["`], \(select 1 from ["`]group_members["`] as ["`]gm["`] inner join ["`]telegram_groups["`] as ["`]tg["`] on ["`]tg["`].["`]id["`] = ["`]gm["`].["`]telegram_group_id["`] and ["`]tg["`].["`]organization_id["`] is not null where ["`]gm["`].["`]learner_id["`] = \? and ["`]gm["`].["`]status["`] = \? limit 1\) as ["`]assignments["`]/s'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/^select [^(]*from ["`]group_members["`]/'))->toBe([]) // no statement of its own
-        ->and(PureCache::store()->get(todaySnapshotKey($member)))->toBe(['lapsed' => null, 'groups' => true, 'until' => null]);
+        ->and(PureCache::store()->get(todaySnapshotKey($member)))->toBe(['lapsed' => null, 'groups' => true, 'assignments' => true, 'until' => null]);
 });
 
 it('ignores a snapshot that is not of the expected shape and computes afresh', function (): void {
     $learner = Learner::factory()->onboarded()->create();
     Subscription::factory()->expired()->create(['subscriber_id' => $learner->id, 'provider' => 'payme', 'ended_at' => CarbonImmutable::now()->subDays(3)]);
     PureCache::store()->put(todaySnapshotKey($learner), ['lapsed' => 'yes', 'groups' => '1', 'until' => null], 600);
+    $groupless = Learner::factory()->onboarded()->create();
+    PureCache::store()->put(todaySnapshotKey($groupless), ['lapsed' => null, 'groups' => false, 'until' => null], 600); // the v1 shape, without `assignments`
 
     todayCacheGet($this, $learner)->assertJsonPath('entitlement.lapsed.provider', 'payme');
 
     expect(PureCache::store()->get(todaySnapshotKey($learner))['groups'])->toBeFalse();
+
+    todayCacheGet($this, $groupless)->assertJsonPath('assignments_possible', false);
+    expect(PureCache::store()->get(todaySnapshotKey($groupless)))->toBe(['lapsed' => null, 'groups' => false, 'assignments' => false, 'until' => null]);
 });
 
 // --- the course row --------------------------------------------------------------------------------------------------

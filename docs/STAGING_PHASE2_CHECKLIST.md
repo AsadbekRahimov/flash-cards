@@ -533,7 +533,7 @@
 
 Порог `training_review_coverage` требует в среднем выполнить хотя бы 90 % запланированных оценок. Если квота Free или запас слов исчерпаны, прогон теряет нагрузку на запись и не проходит этот порог. Для замера длительной тренировки нужны свежие тестовые данные, уроки с достаточным числом активных слов и повышенный `BILLING_FREE_NEW_WORDS_PER_DAY` на выделенном staging.
 
-Файлы: `tests/load/k6/twa-hot-paths.js` (ученик), `tests/load/k6/telegram-webhook.js` (вебхук), `tests/load/k6/lib.js` (общее), `tests/load/k6/fixtures/telegram-update.json` (апдейт).
+Файлы: `tests/load/k6/twa-hot-paths.js` (ученик), `tests/load/k6/arrival-burst.js` (всплеск открытий), `tests/load/k6/telegram-webhook.js` (вебхук), `tests/load/k6/lib.js` (общее), `tests/load/k6/fixtures/telegram-update.json` (апдейт).
 Токены: `php artisan load:tokens` (`app/Console/Commands/LoadTestTokens.php`) создаёт (или берёт те же) тестовых учеников `telegram_user_id = 8 000 000 000 + N`, помечает их `meta.load_test`, глушит ЛС (`dm_blocked_at`), привязывает к первому опубликованному курсу (или `--course=<slug>`) и пишет JWT; работает только в `local`, `testing`, `staging`; найденного по ID ученика без метки не трогает (отказ); `--output` — внутри `storage/` или `-`.
 
 Подготовка и запуск (на машине с Docker; staging — стек `docker-compose.prod.yml` с `APP_ENV=staging`):
@@ -543,6 +543,8 @@ make load-tokens TARGET_VUS=1250                 # токены в tests/load/k6
 make load-test BASE_URL=https://<staging>        # рампа 8 мин до 1 250 VU (20 % → 50 % → 100 %), затем HOLD (по умолчанию 10m), 1 мин спад
 # разведка на малом числе: make load-tokens TARGET_VUS=20 && make load-test BASE_URL=... TARGET_VUS=20 HOLD=1m
 TELEGRAM_URL_SECRET=... TELEGRAM_HEADER_SECRET=... make load-test-webhook BASE_URL=https://<staging>   # WEBHOOK_RPS=50 по умолчанию
+make load-seed                                   # после load-tokens: зрелые карточки, пары друзей, классы (LOAD_SCENARIO_CLASS_SHARE=0.2)
+make load-test-burst BASE_URL=https://<staging> BURST_RATE=20 HOLD=2m CLASS_SHARE=0.2   # всплеск открытий Mini App
 ```
 
 Переменные: `K6_IMAGE` (по умолчанию `grafana/k6:1.0.0`), `TOKENS_FILE`, `LOAD_ARTISAN` (где запускать `load:tokens`), `THINK_SCALE` (множитель пауз, по умолчанию 1; не ниже 0,8: итерация — 16 запросов при CARDS_PER_SESSION=8 и минимум ~30,5 с пауз, при 0,5 это ~63 запроса в минуту на ученика против лимита `twa-api` 60 — получатся 429; при 0,8 худший случай ~39/мин), `CARDS_PER_SESSION`, `K6_NET=host` (staging на этой же машине).
@@ -553,6 +555,15 @@ Webhook: IP машины должен проходить `TELEGRAM_IP_ALLOWLIST_
 `server_errors` = 0, `rate_limited` = 0, `http_req_failed` < 1 %, `checks` > 99 %. Код выхода k6 `99` = порог нарушен. Параллельно — Grafana/логи/`/health/ready` (см. следующий пункт).
 
 - [ ] Сценарий «ученик» (`make load-test`) читает `/today` и `/assignments`, `/me`, `/courses`, `/practice/hub`, `/billing/catalog`. Тренировка проходит через `POST /training/sessions`, цикл `POST /review` (`quality` или `answer` для spelling/gap-fill) и `POST /finish`. Все пороги зелёные.
+- [ ] Сценарий «всплеск открытий» (`make load-test-burst`, `tests/load/k6/arrival-burst.js`, подробности — `tests/load/k6/README.md`
+      «Всплеск открытий»): открытия Mini App поступают с заданным темпом (`ramping-arrival-rate`, 0 → `BURST_RATE` в секунду за
+      `BURST_RAMP`, удержание `HOLD`), доля `CLASS_SHARE` — открытия по объявлению класса (`/today` + `/assignments` параллельно, `/me`,
+      открытие урока задания). Перед прогоном — `make load-tokens TARGET_VUS=1250` и `make load-seed`: сид делает участниками тестовых
+      классов (центры `load-test-center-N`, группы `Load test class N`, по активному заданию на группу) долю `LOAD_SCENARIO_CLASS_SHARE`
+      (0.2) учеников, и открытия класса играют ровно они. Зелёные: p95 < 300 мс у `today`, `assignments`, `me`, `training_open`; 5xx и
+      429 — ноль; `dropped_iterations` ≤ `BURST_MAX_DROPPED` (0); `burst_assignment_found` ≈ 100 % (меньше — сид без классов или с
+      другой долей). Фактический темп — `iterations` в секунду в сводке. После приёмки тестовые классы удаляются:
+      `LOAD_SCENARIO_CLASS_SHARE=0 make load-seed`.
 - [ ] Сценарий «вебхук Telegram» (`make load-test-webhook`): `POST /telegram/webhook/{secret}` с `X-Telegram-Bot-Api-Secret-Token`; тяжёлое уходит в очередь, ответ быстрый; p95 < 300 мс.
 - [ ] Payme/Click RPC под k6 не гоняются (лимит `billing-webhook` 120/мин на IP, песочничные ключи): проверяются руками по §3.2 и §4.3 с фикстурами `tests/Fixtures/billing/*`; повторы `Perform` не должны давать второй платёж.
 - [ ] Во время теста: `/health/ready` остаётся 200; backlog очередей `high`/`default` ниже `READINESS_QUEUE_MAX_SIZE` (1000) и рассасывается; `failed_jobs` не растёт; нет 5xx на `/billing/webhook/*`.

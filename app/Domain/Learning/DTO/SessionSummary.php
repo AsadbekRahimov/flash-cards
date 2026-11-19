@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\DTO;
 
+use App\Domain\Learning\Services\CorrectedMistakeFinder;
 use App\Models\TrainingSession;
 
 /**
@@ -22,6 +23,8 @@ final readonly class SessionSummary
      * @param  int  $mastered  words that reached the `mastered` stage in this session
      * @param  int|null  $hardWon  round of hard words only: its words whose last grade in the session is a pass; null in other modes
      * @param  int|null  $hardTotal  round of hard words only: the size of its set; null in other modes
+     * @param  CorrectedMistake|null  $corrected  round of hard words only, on `/finish`: one mistake of an earlier session the learner
+     *                                            corrected in this round ({@see CorrectedMistakeFinder}); null otherwise
      */
     public function __construct(
         public TrainingSession $session,
@@ -34,5 +37,23 @@ final readonly class SessionSummary
         public int $mastered = 0,
         public ?int $hardWon = null,
         public ?int $hardTotal = null,
+        public ?CorrectedMistake $corrected = null,
     ) {}
+
+    public function withCorrected(?CorrectedMistake $corrected): self
+    {
+        return new self(
+            $this->session,
+            $this->reviewed,
+            $this->correct,
+            $this->newWords,
+            $this->wasOpen,
+            graduated: $this->graduated,
+            promoted: $this->promoted,
+            mastered: $this->mastered,
+            hardWon: $this->hardWon,
+            hardTotal: $this->hardTotal,
+            corrected: $corrected,
+        );
+    }
 }

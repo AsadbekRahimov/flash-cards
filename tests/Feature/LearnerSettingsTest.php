@@ -572,6 +572,39 @@ it('records settings.changed with the fields that really changed', function (): 
     expect(ProductEvent::query()->where('name', ProductEventName::SettingsChanged->value)->count())->toBe(1);
 });
 
+it('records reminders.disabled only when a reminder time is switched off', function (): void {
+    $learner = settingsLearner();
+    $disabled = fn () => ProductEvent::query()->where('name', ProductEventName::RemindersDisabled->value)->get();
+
+    // A new time is not "off".
+    patchSettings($this, $learner, ['reminder_time' => '21:00'])->assertOk();
+    expect($disabled())->toHaveCount(0);
+
+    patchSettings($this, $learner, ['reminder_time' => null])->assertOk();
+    expect($disabled())->toHaveCount(1)
+        ->and($disabled()[0]->learner_id)->toBe($learner->id)
+        ->and($disabled()[0]->props)->toBe(['via' => 'settings']);
+
+    // Already off: nothing changes, no second event; on again: no event either.
+    patchSettings($this, $learner, ['reminder_time' => null])->assertOk();
+    patchSettings($this, $learner, ['reminder_time' => '08:00'])->assertOk();
+    expect($disabled())->toHaveCount(1);
+
+    // The bot's /settings "off" is the same service.
+    app(OnboardingService::class)->applySetting($learner, 'reminder', OnboardingService::REMINDER_OFF);
+    expect($disabled())->toHaveCount(2)
+        ->and($disabled()[1]->props)->toBe(['via' => 'settings']);
+});
+
+it('records no reminders.disabled when an invalid change is refused', function (): void {
+    $learner = settingsLearner();
+
+    expect(fn () => app(LearnerSettingsService::class)->update($learner, ['reminder_time' => null, 'daily_goal' => 7]))
+        ->toThrow(InvalidSettingException::class)
+        ->and($learner->fresh()->reminder_time)->not->toBeNull()
+        ->and(ProductEvent::query()->where('name', ProductEventName::RemindersDisabled->value)->count())->toBe(0);
+});
+
 // --- Service ----------------------------------------------------------------------
 
 it('refuses unknown fields and values outside the rules, with the field named', function (array $changes, string $field): void {

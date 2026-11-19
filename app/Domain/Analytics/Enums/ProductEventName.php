@@ -30,6 +30,8 @@ enum ProductEventName: string
     case ReminderQuizAnswered = 'reminder.quiz_answered';
     /** A tap on a question that is no longer there (props: reason — missing / token_mismatch / no_message). */
     case ReminderQuizExpired = 'reminder.quiz_expired';
+    /** The learner turned the personal reminders off: `reminder_time` went from a time to null (props: via — settings / onboarding). */
+    case RemindersDisabled = 'reminders.disabled';
     case GroupBotAdded = 'group.bot_added';
     case GroupMemberJoined = 'group.member_joined';
     case GroupMemberLeft = 'group.member_left';
@@ -56,6 +58,8 @@ enum ProductEventName: string
     case PaymentRefunded = 'payment.refunded';
     /** A Free learner ran into the daily new-word limit: `done_reason = new_quota_exhausted` was answered (once per local day; docs/12 §5.4). */
     case PaywallShown = 'paywall.shown';
+    /** A Pro offer became visible in the TWA, reported by the client, once per (learner, placement, local day) (props: placement, locale; docs/13 §5.1). */
+    case BillingOfferViewed = 'billing.offer_viewed';
     /** A personal discount was issued (props: offer_id, kind, discount_pct, plan, period, organization_id — docs/13 §2.1). */
     case OfferCreated = 'offer.created';
     /** The discount was used by a paid order (props: offer_id, kind, discount_pct, payment_order_id). */
@@ -183,4 +187,9 @@ enum ProductEventName: string
     case LevelQuizFinished = 'level_quiz.finished';
     /** The round of hard words was refused (props: reason - disabled / not_enough / played_today / no_objective_exercise, source; docs/06 §14). Opening is `training.session_opened` with mode = hard_review. */
     case HardRoundRefused = 'hard_round.refused';
+    /**
+     * Timing marks of one sampled open of the Mini App, reported by the client (docs/04 A.21; props: open_id, platform, cold, entry, locale,
+     * class, and the millisecond offsets auth_ready, today_received, button_ready, first_tap, first_answer_ack, first_audio - each only when set).
+     */
+    case ClientTiming = 'client.timing';
 }

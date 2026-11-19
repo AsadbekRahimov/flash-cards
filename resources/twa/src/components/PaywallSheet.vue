@@ -9,6 +9,7 @@ import ProBenefits from '@/components/ui/ProBenefits.vue'
 import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedControl.vue'
 import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, yearSavingPct } from '@/composables/billingFormat'
 import { formatDate } from '@/composables/format'
+import { paywallPlacement, reportOfferViewed } from '@/composables/offerViewed'
 import { resetWhen } from '@/composables/practiceLimits'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBillingStore } from '@/stores/billing'
@@ -271,7 +272,7 @@ function openInvite(): void {
 }
 
 function pay(provider: BillingProviderKey): void {
-  if (period.value && !busy.value) void billing.buy(period.value, provider)
+  if (period.value && !busy.value) void billing.buy(period.value, provider, paywallPlacement(props.reason))
 }
 
 function onRedeemed(me: MeResponse): void {
@@ -295,7 +296,10 @@ useDialogFocus(sheet, () => emit('close'))
 
 onMounted(() => {
   void billing.load().then(() => {
-    if (billing.paywall?.mode === 'purchase') void billing.loadCatalog()
+    if (billing.paywall?.mode !== 'purchase') return
+    void billing.loadCatalog()
+    // The sheet with prices is the offer itself: the first step of the Pro funnel (docs/13 §5.1).
+    reportOfferViewed(paywallPlacement(props.reason))
   })
 })
 

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Lapsed } from '@/api/types'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { formatDate } from '@/composables/format'
+import { reportOfferViewed } from '@/composables/offerViewed'
 import { LAPSED_DISMISSED_KEY } from '@/composables/proReminders'
 import { useBillingStore } from '@/stores/billing'
 import { useI18n } from '@/i18n'
@@ -13,7 +14,8 @@ import { useI18n } from '@/i18n'
  * is remembered on the device per `ended_at`, so a later lapse shows the banner again.
  *
  * Today passes `lapsed` (including null). BillingView already loaded `/me` and passes `preloaded`.
- * With an older Today response, the banner loads `/me` itself and waits for fresh data.
+ * With an older Today response, the banner loads `/me` itself and waits for fresh data. A visible banner whose `/me` is not known yet
+ * asks for it in the background only to report the offer (below), never to decide whether it shows.
  *
  * An ended welcome trial (`lapsed.provider === 'trial'`, docs/04 A.2) has its own words: "Trial Pro ended: buy Pro or invite
  * friends" and a second button `invite` (the parent opens the "Invite a friend" screen; the banner knows no router).
@@ -47,6 +49,29 @@ const visible = computed(() => (props.lapsed !== undefined || ready.value) && la
 
 const isTrial = computed(() => lapsed.value?.provider === 'trial')
 const dateText = computed(() => (lapsed.value ? formatDate(lapsed.value.ended_at, 'dayMonth', locale.value) : ''))
+
+/** `/me` was asked for the report below once in this banner's life (a failure is not asked again: the next open will). */
+let meRequested = false
+
+/**
+ * A banner with its "Renew" button offers Pro (docs/13 §5.1): reported once `/me` says Pro is for sale (`paywall.mode` purchase), which
+ * is why the mode is part of the source - the paywall may come after the banner. On Today the banner lives on `/today` alone and nothing
+ * else loads `/me` on a cold open of a Free learner, so the banner asks for it itself, once, in the background (the store shares a request
+ * in flight and keeps a fresh answer; `load()` never throws): nothing waits for it and nothing is shown of a failure.
+ */
+watch(() => [visible.value && props.renewable, billing.paywall?.mode === 'purchase'] as const, ([on, forSale]) => {
+  if (!on) return
+  if (forSale) {
+    reportOfferViewed('lapsed_banner')
+    return
+  }
+  if (billing.paywall === null && !meRequested) {
+    meRequested = true
+    billing.load().catch(() => {
+      // analytics only
+    })
+  }
+}, { immediate: true })
 
 function dismiss(): void {
   if (!lapsed.value) return

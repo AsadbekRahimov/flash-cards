@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { errorMessage } from '@/i18n/errors'
+import { markTiming } from '@/composables/useTimingMarks'
 import type { TodayResponse } from '@/api/types'
 
 export type TodayStatus = 'idle' | 'loading' | 'ready' | 'error'
@@ -26,6 +27,7 @@ export const useTodayStore = defineStore('today', {
       try {
         this.data = await api.today.get()
         this.status = 'ready'
+        markTiming('today_received')
       } catch (err) {
         this.status = 'error'
         this.errorMessage = errorMessage(err, 'today')

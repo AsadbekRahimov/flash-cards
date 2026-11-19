@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
@@ -12,6 +12,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
 import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace } from '@/composables/billingFormat'
 import { formatDate } from '@/composables/format'
+import { reportOfferViewed } from '@/composables/offerViewed'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBackButton } from '@/composables/useBackButton'
 import { trialEndsAt } from '@/composables/trial'
@@ -74,6 +75,11 @@ const graceMessage = computed(() => graceText(subscription.value?.ends_at ?? ent
 const canBuy = computed(
   () => billing.canPurchase && !subscription.value?.auto_renew && !subscription.value?.perpetual && !grace.value && !sponsored.value,
 )
+
+// The screen offers Pro once "Buy / Renew" is on it (docs/13 §5.1): the first step of the Pro funnel.
+watch(canBuy, (on) => {
+  if (on) reportOfferViewed('billing_view')
+}, { immediate: true })
 
 /** The welcome trial: "Trial period until ..." with no word on renewal or on who pays. */
 const trialEnd = computed(() => trialEndsAt(entitlement.value))

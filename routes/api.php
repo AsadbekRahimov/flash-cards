@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Twa\BattleController;
 use App\Http\Controllers\Api\Twa\BillingController;
 use App\Http\Controllers\Api\Twa\ChallengeController;
 use App\Http\Controllers\Api\Twa\ClassCaravanController;
+use App\Http\Controllers\Api\Twa\ClientTimingController;
 use App\Http\Controllers\Api\Twa\CourseController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
@@ -26,6 +27,7 @@ use App\Http\Controllers\Api\Twa\LevelQuizController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
 use App\Http\Controllers\Api\Twa\MonthlyRatingController;
+use App\Http\Controllers\Api\Twa\OfferViewedController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
 use App\Http\Controllers\Api\Twa\PracticeAudioController;
 use App\Http\Controllers\Api\Twa\PracticeHubController;
@@ -84,6 +86,11 @@ Route::prefix('twa')->group(function (): void {
             Route::post('/challenges/{challenge}/decline', [ChallengeController::class, 'decline'])->name('twa.challenges.decline');
         });
 
+        // Timing marks of one sampled open (docs/04 A.21): 204, one event per open, nothing recorded while the rate is 0.
+        Route::post('/client-timing', ClientTimingController::class)
+            ->middleware('throttle:twa-client-timing')
+            ->name('twa.client_timing');
+
         Route::post('/promo/redeem', [PromoController::class, 'redeem'])
             ->middleware('throttle:twa-promo')
             ->name('twa.promo.redeem');
@@ -95,6 +102,10 @@ Route::prefix('twa')->group(function (): void {
                 ->middleware('throttle:twa-checkout')
                 ->name('twa.billing.checkout');
             Route::get('/orders/{token}', [BillingController::class, 'order'])->name('twa.billing.order');
+            // The first step of the Pro funnel (docs/13 §5.1): a Pro offer became visible; 204, deduplicated per placement and local day.
+            Route::post('/offer-viewed', OfferViewedController::class)
+                ->middleware('throttle:twa-offer-viewed')
+                ->name('twa.billing.offer_viewed');
             Route::middleware('throttle:twa-subscription')->group(function (): void {
                 Route::post('/subscription/cancel', [BillingController::class, 'cancel'])->name('twa.billing.cancel');
                 Route::post('/subscription/resume', [BillingController::class, 'resume'])->name('twa.billing.resume');

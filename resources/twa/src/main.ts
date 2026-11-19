@@ -6,7 +6,12 @@ import router from './router'
 import { initLocale } from './i18n'
 import { useTelegram } from './composables/useTelegram'
 import { initTelegramTheme } from './composables/telegramTheme'
+import { startTimingMarks } from './composables/useTimingMarks'
 import './style.css'
+
+// The timing marks of this open (docs/04 A.21) start first: the offsets are from the navigation start, the open id and the
+// platform are taken now. Nothing is sent unless `/auth` says this open is in the sample.
+startTimingMarks()
 
 // Initialize Telegram Web App. If opened outside Telegram these are no-ops
 // (the landing view will detect the missing initData and show a hint).

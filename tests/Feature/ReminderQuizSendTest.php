@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Analytics\Support\ExperimentBucket;
 use App\Domain\Learners\Enums\ReminderOutcome;
 use App\Domain\Learners\Services\ReminderQuizStore;
 use App\Domain\Learners\Services\ReminderSender;
@@ -343,4 +344,164 @@ it('has every quiz text in ru and uz, and the three plural forms in ru', functio
         preg_match_all('/:[a-z]+/', $uzQuiz[$key], $b);
         expect(array_unique($b[0]))->toEqualCanonicalizing(array_unique($a[0]), $key);
     }
+});
+
+// --- the question vs the plain text experiment (audit 2026-11-18) -----------------------------------
+
+/** @param array<string, mixed> $overrides */
+function reminderExperimentOn(array $overrides = []): void
+{
+    config(['learning.reminders.quiz.experiment' => [
+        'enabled' => true,
+        'share' => 50,
+        'salt' => 'reminder-quiz-test',
+        'starts_at' => null,
+        ...$overrides,
+    ]]);
+}
+
+/** How many times the question builder read the learner's cards (the plain arm must never get there). */
+function reminderQuizBuilderReads(): Closure
+{
+    $reads = 0;
+    Event::listen('eloquent.retrieved: '.WordRepetition::class, static function () use (&$reads): void {
+        $reads++;
+    });
+
+    return static function () use (&$reads): int {
+        return $reads;
+    };
+}
+
+it('splits quiz-eligible learners by the sticky bucket of their id', function (): void {
+    reminderExperimentOn();
+
+    $learners = [];
+    foreach (range(1, 12) as $i) {
+        $learners[] = reminderQuizDueLearner(3, ['telegram_user_id' => 778000 + $i]);
+    }
+    foreach ($learners as $learner) {
+        expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Sent);
+    }
+
+    $arms = [];
+    foreach ($learners as $learner) {
+        $expected = ExperimentBucket::in('reminder-quiz-test', $learner->id, 50) ? 'quiz' : 'plain';
+        $sent = ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->where('learner_id', $learner->id)->sole();
+        $log = NotificationLog::query()->where('learner_id', $learner->id)->sole();
+
+        expect($sent->props['variant'])->toBe($expected)
+            ->and($sent->props['experiment'])->toBe('reminder-quiz-test')
+            ->and($log->payload['variant'])->toBe($expected)
+            ->and($log->payload['experiment'])->toBe('reminder-quiz-test')
+            ->and($log->payload['quiz'] !== null)->toBe($expected === 'quiz');
+        $arms[$expected] = ($arms[$expected] ?? 0) + 1;
+    }
+
+    // Twelve ids are enough for both arms under this salt (a fixed, deterministic split).
+    expect($arms['quiz'] ?? 0)->toBeGreaterThan(0)->and($arms['plain'] ?? 0)->toBeGreaterThan(0)
+        ->and(ProductEvent::query()->where('name', ProductEventName::ReminderQuizSent->value)->count())->toBe($arms['quiz']);
+});
+
+it('never builds a question in the plain arm and sends the old text', function (): void {
+    reminderExperimentOn(['share' => 0]);
+    $learner = reminderQuizDueLearner(5);
+    $reads = reminderQuizBuilderReads();
+
+    expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Sent)
+        ->and($reads())->toBe(0)
+        ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в LexiFlow.\n\nИзменить время или отключить: /settings")
+        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow')
+        ->and(Cache::has(ReminderQuizStore::key($learner->id)))->toBeFalse()
+        ->and(ProductEvent::query()->where('name', ProductEventName::ReminderQuizSent->value)->count())->toBe(0)
+        ->and(reminderQuizSorted(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->sole()->props))
+        ->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 5, 'variant' => 'plain', 'experiment' => 'reminder-quiz-test']))
+        ->and(NotificationLog::query()->sole()->payload)->toMatchArray(['variant' => 'plain', 'experiment' => 'reminder-quiz-test']);
+});
+
+it('marks a built question of the quiz arm', function (): void {
+    reminderExperimentOn(['share' => 100]);
+    $learner = reminderQuizDueLearner(3);
+
+    reminderQuizSend($learner);
+
+    expect($this->tg->sent[0]['markup'])->not->toBeNull()
+        ->and(reminderQuizSorted(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->sole()->props))
+        ->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 3, 'quiz' => true, 'variant' => 'quiz', 'experiment' => 'reminder-quiz-test', 'quiz_built' => true]))
+        ->and(NotificationLog::query()->sole()->payload)->toMatchArray(['variant' => 'quiz', 'experiment' => 'reminder-quiz-test']);
+});
+
+it('keeps a learner whose question could not be built in the quiz arm (intent to treat)', function (): void {
+    Exceptions::fake();
+    reminderExperimentOn(['share' => 100]);
+    $learner = reminderQuizDueLearner(3);
+    Event::listen('eloquent.retrieved: '.WordRepetition::class, static function (): void {
+        throw new RuntimeException('no question today');
+    });
+
+    expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Sent)
+        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow')
+        ->and(reminderQuizSorted(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->sole()->props))
+        ->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 3, 'variant' => 'quiz', 'experiment' => 'reminder-quiz-test', 'quiz_built' => false]))
+        ->and(NotificationLog::query()->sole()->payload)->toMatchArray(['quiz' => null, 'variant' => 'quiz', 'experiment' => 'reminder-quiz-test']);
+});
+
+it('keeps the arm of a learner from one send to the next', function (): void {
+    reminderExperimentOn();
+    $learner = reminderQuizDueLearner(3);
+
+    reminderQuizSend($learner);
+    $this->travelTo(CarbonImmutable::parse('2026-10-19 14:05:00', 'UTC'));
+    app(ReminderSender::class)->send($learner->id, CarbonImmutable::parse('2026-10-19 14:00:00', 'UTC'));
+
+    $variants = ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->orderBy('id')->get()->map(fn (ProductEvent $e) => $e->props['variant']);
+    expect($variants)->toHaveCount(2)
+        ->and($variants[0])->toBe($variants[1])
+        ->and($variants[0])->toBe(ExperimentBucket::in('reminder-quiz-test', $learner->id, 50) ? 'quiz' : 'plain');
+});
+
+it('changes nothing while the experiment is off, not started, or the reminder cannot be a question', function (): void {
+    // off (the default)
+    $off = reminderQuizDueLearner(3);
+    reminderQuizSend($off);
+    // starts tomorrow
+    reminderExperimentOn(['share' => 0, 'starts_at' => '2026-10-19']);
+    $early = reminderQuizDueLearner(3, ['telegram_user_id' => 777031]);
+    reminderQuizSend($early);
+    // running, but a learner who never started gets the text whatever the arm
+    reminderExperimentOn(['share' => 0]);
+    $never = Fx::learner(['telegram_user_id' => 777032, 'active_course_id' => Course::factory()->published()->create()->id]);
+    reminderQuizSend($never);
+
+    $props = ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->orderBy('id')->pluck('props')->all();
+    expect(config('learning.reminders.quiz.experiment.enabled'))->toBeTrue()
+        ->and(reminderQuizSorted($props[0]))->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 3, 'quiz' => true]))
+        ->and(reminderQuizSorted($props[1]))->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 3, 'quiz' => true]))
+        ->and(array_keys($props[2]))->not->toContain('variant')
+        ->and(array_keys($props[2]))->not->toContain('experiment')
+        ->and(NotificationLog::query()->get()->filter(fn (NotificationLog $log): bool => array_key_exists('variant', $log->payload) || array_key_exists('experiment', $log->payload)))->toHaveCount(0)
+        ->and($this->tg->sent[0]['markup'])->not->toBeNull()
+        ->and($this->tg->sent[1]['markup'])->not->toBeNull();
+});
+
+it('reads an unreadable starts_at as "not started"', function (): void {
+    reminderExperimentOn(['share' => 0, 'starts_at' => 'next tuesday-ish']);
+    $learner = reminderQuizDueLearner(3);
+
+    reminderQuizSend($learner);
+
+    expect(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->sole()->props)->not->toHaveKey('variant')
+        ->and($this->tg->sent[0]['markup'])->not->toBeNull();
+});
+
+it('puts the arm on the failure of a blocked send', function (): void {
+    reminderExperimentOn(['share' => 0]);
+    $learner = reminderQuizDueLearner(3);
+    $telegram = Mockery::mock(TelegramClient::class);
+    $telegram->shouldReceive('sendWebAppButton')->once()->andThrow(new TelegramForbiddenException(TelegramForbiddenException::REASON_BOT_BLOCKED));
+    $this->app->instance(TelegramClient::class, $telegram);
+
+    expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Forbidden)
+        ->and(ProductEvent::query()->where('name', ProductEventName::ReminderFailed->value)->sole()->props)->toMatchArray(['variant' => 'plain', 'experiment' => 'reminder-quiz-test'])
+        ->and(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->count())->toBe(0);
 });

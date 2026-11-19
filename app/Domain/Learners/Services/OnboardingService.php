@@ -270,13 +270,18 @@ final class OnboardingService
         $completed = false;
         $via = null;
         $course = null;
+        $remindersDisabled = false;
 
-        DB::transaction(function () use ($learner, $step, $changes, &$completed, &$course, &$via): void {
+        DB::transaction(function () use ($learner, $step, $changes, &$completed, &$course, &$via, &$remindersDisabled): void {
             $fresh = $this->lock($learner);
             $this->settleLocked($fresh);
             if ($fresh->onboarding_state !== $step) {
                 throw OnboardingException::staleStep($step);
             }
+
+            // "Off" over the default time of a new learner: reminders turned off (`reminders.disabled`, audit 2026-11-18).
+            $remindersDisabled = array_key_exists('reminder_time', $changes) && $changes['reminder_time'] === null
+                && $fresh->reminder_time !== null && $fresh->reminder_time !== '';
 
             $fresh->fill($changes);
             if ($step === 'locale') {
@@ -304,6 +309,9 @@ final class OnboardingService
         $learner->refresh();
 
         $this->events->record(ProductEventName::OnboardingStepCompleted, ['step' => $step], learner: $learner);
+        if ($remindersDisabled) {
+            $this->events->record(ProductEventName::RemindersDisabled, ['via' => 'onboarding'], learner: $learner);
+        }
 
         if ($completed) {
             $this->events->record(ProductEventName::OnboardingCompleted, [

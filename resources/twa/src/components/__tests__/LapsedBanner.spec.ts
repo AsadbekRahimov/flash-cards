@@ -6,10 +6,11 @@ import { api } from '@/api'
 import { setLocale } from '@/i18n'
 import { ICONS } from '@/components/ui/icons'
 import { useBillingStore } from '@/stores/billing'
+import { resetOfferViewed } from '@/composables/offerViewed'
 import type { Lapsed, MeResponse } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
-vi.mock('@/api', () => ({ api: { me: { get: vi.fn() }, today: { get: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { me: { get: vi.fn() }, today: { get: vi.fn() }, billing: { offerViewed: vi.fn() } } }))
 
 const ENDED = '2026-10-18T09:30:00+00:00'
 
@@ -126,6 +127,86 @@ describe('LapsedBanner', () => {
     const w = await render(me(lapsed()), { renewable: true })
 
     expect(w.find('[data-testid=lapsed-renew]').exists()).toBe(true)
+  })
+
+  it('reports the offer of Pro once it shows with its renew button (docs/13 §5.1), not without the button', async () => {
+    resetOfferViewed()
+    await render(me(lapsed()), { preloaded: true, renewable: false })
+    expect(api.billing.offerViewed).not.toHaveBeenCalled()
+
+    await render(me(lapsed()), { preloaded: true })
+    expect(api.billing.offerViewed).toHaveBeenCalledExactlyOnceWith('lapsed_banner')
+  })
+
+  describe('on Today (the `lapsed` prop) with `/me` not loaded yet', () => {
+    beforeEach(() => resetOfferViewed())
+
+    it('asks for /me once in the background and reports the offer when the paywall comes in purchase mode', async () => {
+      let answer: (value: MeResponse) => void = () => {}
+      vi.mocked(api.me.get).mockReturnValue(new Promise<MeResponse>((resolve) => {
+        answer = resolve
+      }))
+
+      const w = mount(LapsedBanner, { props: { lapsed: lapsed() } })
+      // The banner does not wait for /me: it shows at once.
+      expect(w.find('[data-testid=lapsed-banner]').exists()).toBe(true)
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(api.billing.offerViewed).not.toHaveBeenCalled()
+
+      await w.setProps({ lapsed: lapsed() }) // a new /today with the same lapse: no second request
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+
+      answer(me(lapsed()))
+      await flushPromises()
+
+      expect(api.billing.offerViewed).toHaveBeenCalledExactlyOnceWith('lapsed_banner')
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+    })
+
+    it('reports nothing when the server sells nothing (paywall not in purchase mode)', async () => {
+      vi.mocked(api.me.get).mockResolvedValue({ ...me(lapsed()), paywall: { mode: 'coming_soon', contact: null } })
+
+      const w = mount(LapsedBanner, { props: { lapsed: lapsed() } })
+      await flushPromises()
+
+      expect(w.find('[data-testid=lapsed-banner]').exists()).toBe(true)
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(api.billing.offerViewed).not.toHaveBeenCalled()
+    })
+
+    it('swallows a failed /me: the banner stays, nothing is reported, nothing is asked again', async () => {
+      vi.mocked(api.me.get).mockRejectedValue(new Error('offline'))
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const w = mount(LapsedBanner, { props: { lapsed: lapsed() } })
+      await flushPromises()
+      await w.setProps({ lapsed: lapsed() })
+      await flushPromises()
+
+      expect(w.find('[data-testid=lapsed-banner]').exists()).toBe(true)
+      expect(api.me.get).toHaveBeenCalledTimes(1)
+      expect(api.billing.offerViewed).not.toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
+    it('asks nothing while the banner is hidden (no lapse, or dismissed)', async () => {
+      mount(LapsedBanner, { props: { lapsed: null } })
+      window.localStorage.setItem('lexiflow:lapsed-dismissed', ENDED)
+      mount(LapsedBanner, { props: { lapsed: lapsed() } })
+      await flushPromises()
+
+      expect(api.me.get).not.toHaveBeenCalled()
+    })
+
+    it('uses a /me the store already has: no request, reported at once', async () => {
+      useBillingStore().apply(me(lapsed()))
+
+      mount(LapsedBanner, { props: { lapsed: lapsed() } })
+      await flushPromises()
+
+      expect(api.me.get).not.toHaveBeenCalled()
+      expect(api.billing.offerViewed).toHaveBeenCalledExactlyOnceWith('lapsed_banner')
+    })
   })
 
   it('emits renew from the button', async () => {

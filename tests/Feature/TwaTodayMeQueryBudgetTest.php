@@ -11,18 +11,22 @@ declare(strict_types=1);
  *           the subscription blocks and the course are the profile snapshot of the pure cache;
  *   /today: the learner, today + yesterday in one statement, the open sessions, ONE statement of scalars (the due cards, the Free
  *           quota, the candidates of the round of hard words, the quiz of the week), the progress over the lessons of the course and,
- *           with the game open, the runs of the game. The course row, the lapse banner and the "in a group" fact (no group - no card
- *           of a class caravan to read) come from the pure cache; the plan from its cache; the league line from the cached facts.
+ *           with the game open, the runs of the game. The course row, the lapse banner, the "in a group" fact (no group - no card
+ *           of a class caravan to read) and the "may have an assignment" fact (`assignments_possible`) come from the pure cache; the
+ *           plan from its cache; the league line from the cached facts.
  */
 
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Operations\Support\PureCache;
 use App\Domain\Twa\Services\JwtService;
 use App\Domain\Twa\Services\TodayProfileCache;
 use App\Models\Course;
 use App\Models\Learner;
+use App\Models\Organization;
 use App\Models\Subscription;
+use App\Models\TelegramGroup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\HotPathFixtures as Fx;
 use Tests\Support\QueryLog;
@@ -86,7 +90,8 @@ it('answers the second /today within a pinned number of statements, the caches w
         ->assertJsonPath('league.rank', 1)->assertJsonPath('goal.done', 5)->assertJsonPath('new_words_remaining', $pro ? null : 14) // five graded, a sixth served
         ->assertJsonPath('game.available', $game === 'all')->assertJsonPath('game.class_caravan', null)
         ->assertJsonPath('active_course.readiness.quiz.enabled', true)->assertJsonPath('active_course.readiness.quiz.this_week', null)
-        ->assertJsonPath('hard_round.available', false)->assertJsonPath('hard_round.reason', 'not_enough'));
+        ->assertJsonPath('hard_round.available', false)->assertJsonPath('hard_round.reason', 'not_enough')
+        ->assertJsonPath('assignments_possible', false)); // from the snapshot: no group of a center, no statement for it
 
     // History: 13 before R12i (the plan six times, two day rows, two counts, five league statements); 7 after it; 8 with the quiz line
     // (docs/13 §8.5); 9 with the candidates of the round of hard words (docs/06 §14); 11 with the game open (docs/18: the runs of the day
@@ -134,6 +139,8 @@ it('pays one statement for the course row and one for the lapse banner of Free w
         ->and(QueryLog::matching($queries, '/from ["`]courses["`] where ["`]courses["`].["`]id["`] = \?/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`]subscriptions["`].*order by ["`]ended_at["`] desc/'))->toHaveCount($pro ? 0 : 1)
         ->and(QueryLog::matching($queries, '/\(select 1 from ["`]group_members["`] as ["`]gm["`] inner join ["`]telegram_groups["`] as ["`]tg["`].*\) as ["`]groups["`]/s'))->toHaveCount(1)
+        // "may have an assignment" (`assignments_possible`) rides in the same statement of scalars, beside the groups.
+        ->and(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].*\) as ["`]groups["`], \(select 1 from ["`]group_members["`] as ["`]gm["`].*\) as ["`]assignments["`]/s'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, TODAY_SCALARS))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`]class_caravans["`]/'))->toBe([])
         ->and(PureCache::store()->has(TodayProfileCache::key($learner, EntitlementResolver::version($learner->id))))->toBeTrue()
@@ -167,3 +174,17 @@ it('answers the same /today from the warm caches as from the cold ones', functio
 
     expect($cold)->toBe($warm);
 })->with(['Free' => [false], 'Pro' => [true]]);
+
+it('pays nothing for `assignments_possible`: a member of a center\'s group answers true within the same budget', function (bool $pro, int $budget): void {
+    ['learner' => $learner, 'headers' => $h] = todayMeScenario($this, 'all', $pro);
+    // A switched-off group of a center: the list of assignments still looks at it (true), the class caravan does not (no card to read),
+    // so the statements are those of the learner in no group.
+    $group = TelegramGroup::factory()->create(['organization_id' => Organization::factory()->create()->id, 'status' => 'disabled']);
+    app(GroupMembershipService::class)->join($learner, $group, 'test');
+    $this->withHeaders($h)->getJson('/api/twa/today')->assertOk()->assertJsonPath('assignments_possible', true); // the snapshot anew
+
+    $queries = QueryLog::during(fn () => $this->withHeaders($h)->getJson('/api/twa/today')->assertOk()->assertJsonPath('assignments_possible', true));
+
+    expect(count($queries))->toBe($budget)
+        ->and(QueryLog::matching($queries, '/from ["`](group_members|telegram_groups|assignments)["`]/'))->toBe([]);
+})->with(['Free' => [false, 6], 'Pro' => [true, 7]]);

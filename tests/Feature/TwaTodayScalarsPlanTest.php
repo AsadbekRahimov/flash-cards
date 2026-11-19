@@ -105,5 +105,13 @@ it('plans every scalar as an InitPlan on an index of its own (PostgreSQL plan)',
         ->map(fn ($row): string => (string) ((array) $row)['QUERY PLAN'])->implode("\n");
     expect($cold)->toContain('group_members_learner_id_status_index')->and($cold)->not->toContain('Seq Scan');
 
+    // ... and so is its second member, "may have an assignment" (`assignments_possible`): any status of the group, linked to a center.
+    $linked = DB::table('group_members as gm')
+        ->join('telegram_groups as tg', fn ($join) => $join->on('tg.id', '=', 'gm.telegram_group_id')->whereNotNull('tg.organization_id'))
+        ->where('gm.learner_id', $learner->id)->where('gm.status', 'active')->selectRaw('count(*)');
+    $linkedPlan = collect(DB::select('EXPLAIN '.$linked->toSql(), $linked->getBindings()))
+        ->map(fn ($row): string => (string) ((array) $row)['QUERY PLAN'])->implode("\n");
+    expect($linkedPlan)->toContain('group_members_learner_id_status_index')->and($linkedPlan)->not->toContain('Seq Scan');
+
     expect(CourseCatalogService::courseRowKey($course->id))->toContain(':n');
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'EXPLAIN is PostgreSQL-only.');

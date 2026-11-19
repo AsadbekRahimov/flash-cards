@@ -32,6 +32,14 @@ use stdClass;
  *    the learner's own zone, the way {@see LearnerClock} reads a day); "within 7 days": any of the days 1-7;
  *  - a cell is shown only when day N has ended for EVERY learner of the cohort in their own zone, otherwise it is null
  *    (a dash, never 0 %);
+ *  - activation: share of the cohort with a first accepted learning answer (any `training_reviews` row) earlier than
+ *    {@see ACTIVATION_HOURS} hours after `learners.created_at` (23 h 59 counts, 24 h 00 does not); cut by `interface_locale`
+ *    (ru / uz) and by solo / class, "class" = a `group_members` row with `joined_at` earlier than 24 hours after registration in
+ *    a group that is linked to a center now (`telegram_groups.organization_id` not null; a later leave does not undo it). The
+ *    cell is null until 24 hours have passed since the registration of the cohort's youngest learner;
+ *  - played the game on day N ({@see GAME_DAYS}): a `learner_daily_stats` row of that local day with `game_runs_count > 0`
+ *    (completed and failed runs), shown beside learning D1 / D7 and never added into them; the same maturity rule. The practice
+ *    has no per-day column and is not shown;
  *  - first session: the learner's first personal `training_sessions` row; "finished" = `done_reason = finished`, "abandoned" =
  *    closed any other way or still open past `expires_at`; cards = `training_reviews` rows of that session; time = the sum of
  *    their `time_spent_ms` (the active time, not `ended_at - started_at`, which for an expired session is the moment the
@@ -41,7 +49,8 @@ use stdClass;
  *    a session that began sooner than {@see ROUND_GAP_MINUTES} minutes after the first one, among learners whose first session
  *    began at least that long ago.
  *
- * Queries: a constant number (zones, cohorts, retention, first-session totals, first-session histograms), each one
+ * Queries: a constant number (zones, cohorts with the activation, retention with the game days, first-session totals,
+ * first-session histograms), each one
  * aggregate over the learners of the window - no learner is loaded into memory, so the count does not depend on their number;
  * medians come from a histogram (value => learners), a few hundred rows at most. The result is an array of scalars in the
  * pure cache ({@see WidgetCache}, docs/19 §3); on read every number is cast back ({@see coerce()}) because Redis hands a
@@ -62,6 +71,15 @@ final class RetentionReportService
 
     /** "Came back within N days": any day 1..N. */
     public const WITHIN_DAYS = 7;
+
+    /** The days the game row is shown for, beside the learning D1 / D7 (never added into them). */
+    public const GAME_DAYS = [1, 7];
+
+    /** Activation: the first accepted learning answer within this many hours of registration. */
+    public const ACTIVATION_HOURS = 24;
+
+    /** The cuts of the activation, in the order of the columns: everybody, interface language, solo / class. */
+    public const ACTIVATION_CUTS = ['all', 'ru', 'uz', 'solo', 'class'];
 
     /** The first-session block looks at learners registered in this many last days. */
     public const FIRST_SESSION_DAYS = 30;
@@ -156,7 +174,8 @@ final class RetentionReportService
     {
         return isset($report['generated_at'], $report['cohorts'], $report['segments'], $report['first_session'])
             && is_string($report['generated_at']) && is_array($report['cohorts']) && is_array($report['segments'])
-            && is_array($report['first_session']) && array_key_exists('round_again', $report['first_session']);
+            && is_array($report['first_session']) && array_key_exists('round_again', $report['first_session'])
+            && isset($report['cohorts'][0]) && is_array($report['cohorts'][0]) && array_key_exists('activation', $report['cohorts'][0]);
     }
 
     // -------------------------------------------------------------------------------------------------------------------
@@ -204,8 +223,9 @@ final class RetentionReportService
         [$cte, $cteBindings] = $this->cohortCte($sql, $weeks, $names, $now, $from, $to);
 
         $cohortRows = array_values(DB::select(
-            "WITH c AS ({$cte}) SELECT wk, locale, trial, COUNT(*) AS size, SUM(onboarded) AS onboarded, SUM(started) AS started, "
-            .'MIN('.$sql->daysBetween('today', 'reg').') AS elapsed FROM c GROUP BY wk, locale, trial',
+            "WITH c AS ({$cte}) SELECT wk, locale, trial, cls, COUNT(*) AS size, SUM(onboarded) AS onboarded, SUM(started) AS started, "
+            .'SUM(act) AS activated, SUM(young) AS young, '
+            .'MIN('.$sql->daysBetween('today', 'reg').') AS elapsed FROM c GROUP BY wk, locale, trial, cls',
             $cteBindings,
         ));
 
@@ -215,8 +235,10 @@ final class RetentionReportService
     }
 
     /**
-     * The learners of the window with their week, local registration date, local "today", language, trial flag and
-     * first-answer flag; one row per learner, bindings in the order of the placeholders.
+     * The learners of the window with their week, local registration date, local "today", language, trial flag, first-answer
+     * flag and the activation flags (answered in 24 hours, joined a center's group in 24 hours, registered less than 24 hours
+     * ago); one row per learner, bindings in the order of the placeholders. The `EXISTS` subqueries run on the indexes
+     * `training_reviews (learner_id, created_at)` and `group_members (learner_id, status)`.
      *
      * @param  list<array{CarbonImmutable, CarbonImmutable}>  $weeks
      * @param  list<string>  $names  the zone names that occur
@@ -252,11 +274,17 @@ final class RetentionReportService
 
         $registered = $sql->dateOf($sql->shift('l.created_at', $createdOffset));
         $today = $sql->dateOf($sql->shift($sql->ts(), $nowOffset));
+        $deadline = $sql->shift('l.created_at', $sql->int());
+        $window = self::ACTIVATION_HOURS * 3600;
 
         $query = "SELECT l.id AS id, l.interface_locale AS locale, {$week} AS wk, {$registered} AS reg, {$today} AS today, "
             .'CASE WHEN l.onboarding_completed_at IS NULL THEN 0 ELSE 1 END AS onboarded, '
             ."CASE WHEN EXISTS (SELECT 1 FROM subscriptions su WHERE su.subscriber_type = 'learner' AND su.subscriber_id = l.id AND su.provider = ?) THEN 1 ELSE 0 END AS trial, "
-            .'CASE WHEN EXISTS (SELECT 1 FROM training_reviews r WHERE r.learner_id = l.id) THEN 1 ELSE 0 END AS started '
+            .'CASE WHEN EXISTS (SELECT 1 FROM training_reviews r WHERE r.learner_id = l.id) THEN 1 ELSE 0 END AS started, '
+            .'CASE WHEN EXISTS (SELECT 1 FROM training_reviews ra WHERE ra.learner_id = l.id AND ra.created_at < '.$deadline.') THEN 1 ELSE 0 END AS act, '
+            .'CASE WHEN EXISTS (SELECT 1 FROM group_members gm JOIN telegram_groups tg ON tg.id = gm.telegram_group_id '
+            .'WHERE gm.learner_id = l.id AND tg.organization_id IS NOT NULL AND gm.joined_at < '.$deadline.') THEN 1 ELSE 0 END AS cls, '
+            ."CASE WHEN l.created_at > {$sql->ts()} THEN 1 ELSE 0 END AS young "
             ."FROM learners l WHERE l.deleted_at IS NULL AND l.created_at >= {$sql->ts()} AND l.created_at < {$sql->ts()}";
 
         return [$query, [
@@ -265,6 +293,9 @@ final class RetentionReportService
             self::db($now),
             ...$nowBindings,
             SubscriptionProvider::Trial->value,
+            $window,
+            $window,
+            self::db($now->subSeconds($window)),
             self::db($from),
             self::db($to),
         ]];
@@ -272,7 +303,9 @@ final class RetentionReportService
 
     /**
      * Per (week, language, trial): how many learners studied exactly on day N after registration, and on any of the days
-     * 1..WITHIN_DAYS. `learner_daily_stats (learner_id, date)` is unique, so a row is one learner on one day.
+     * 1..WITHIN_DAYS; and, apart from them, how many played the game on day N of {@see GAME_DAYS} (`g1`, `g7`). A row of a day
+     * with only a game run is read for the game and never counted as studying. `learner_daily_stats (learner_id, date)` is
+     * unique, so a row is one learner on one day.
      *
      * @param  list<int|string>  $cteBindings
      * @return list<stdClass>
@@ -282,10 +315,14 @@ final class RetentionReportService
         $select = '';
         $bindings = [];
         foreach (self::DAYS as $day) {
-            $select .= ' SUM(CASE WHEN x.d = ? THEN 1 ELSE 0 END) AS d'.$day.',';
+            $select .= ' SUM(CASE WHEN x.st = 1 AND x.d = ? THEN 1 ELSE 0 END) AS d'.$day.',';
             $bindings[] = $day;
         }
-        $select .= ' COUNT(DISTINCT CASE WHEN x.d BETWEEN ? AND ? THEN x.id END) AS within';
+        foreach (self::GAME_DAYS as $day) {
+            $select .= ' SUM(CASE WHEN x.gm = 1 AND x.d = ? THEN 1 ELSE 0 END) AS g'.$day.',';
+            $bindings[] = $day;
+        }
+        $select .= ' COUNT(DISTINCT CASE WHEN x.st = 1 AND x.d BETWEEN ? AND ? THEN x.id END) AS within';
         array_push($bindings, 1, self::WITHIN_DAYS);
 
         // A learner's local date is at most a day before the UTC date of the window start: the lower bound only narrows the scan.
@@ -293,8 +330,9 @@ final class RetentionReportService
 
         return array_values(DB::select(
             "WITH c AS ({$cte}) SELECT x.wk, x.locale, x.trial,{$select} FROM ("
-            .'SELECT c.id AS id, c.wk AS wk, c.locale AS locale, c.trial AS trial, '.$sql->daysBetween($sql->storedDate('s.date'), 'c.reg').' AS d '
-            .'FROM c JOIN learner_daily_stats s ON s.learner_id = c.id WHERE s.reviews_count > 0 AND s.date >= ?'
+            .'SELECT c.id AS id, c.wk AS wk, c.locale AS locale, c.trial AS trial, '.$sql->daysBetween($sql->storedDate('s.date'), 'c.reg').' AS d, '
+            .'CASE WHEN s.reviews_count > 0 THEN 1 ELSE 0 END AS st, CASE WHEN s.game_runs_count > 0 THEN 1 ELSE 0 END AS gm '
+            .'FROM c JOIN learner_daily_stats s ON s.learner_id = c.id WHERE (s.reviews_count > 0 OR s.game_runs_count > 0) AND s.date >= ?'
             .') x WHERE x.d BETWEEN ? AND ? GROUP BY x.wk, x.locale, x.trial',
             [...$cteBindings, ...$bindings, $lowerBound, 1, max(self::DAYS)],
         ));
@@ -310,10 +348,12 @@ final class RetentionReportService
     {
         $keys = array_map(static fn (int $day): string => 'd'.$day, self::DAYS);
         $keys[] = 'within';
+        $gameKeys = array_map(static fn (int $day): string => 'g'.$day, self::GAME_DAYS);
+        $rowKeys = [...$keys, ...$gameKeys];
 
         $perWeek = [];
         foreach (array_keys($weeks) as $index) {
-            $perWeek[$index] = new RetentionWeek($keys);
+            $perWeek[$index] = new RetentionWeek($rowKeys);
         }
 
         foreach ($cohortRows as $row) {
@@ -324,6 +364,9 @@ final class RetentionReportService
                 (int) $row->onboarded,
                 (int) $row->started,
                 $row->elapsed === null ? null : (int) $row->elapsed,
+                (int) $row->cls,
+                (int) $row->activated,
+                (int) $row->young,
             );
         }
 
@@ -331,7 +374,7 @@ final class RetentionReportService
             $perWeek[(int) $row->wk]->addRetention(
                 (string) $row->locale,
                 (int) $row->trial,
-                array_combine($keys, array_map(static fn (string $key): int => (int) $row->{$key}, $keys)),
+                array_combine($rowKeys, array_map(static fn (string $key): int => (int) $row->{$key}, $rowKeys)),
             );
         }
 
@@ -343,6 +386,20 @@ final class RetentionReportService
                 $retention[$key] = self::matured($week->elapsed, $key) ? self::cell($week->hits[$key], $week->size) : null;
             }
 
+            // The game row: the same days, the same base and maturity, a key of its own (never mixed into `retention`).
+            $game = [];
+            foreach (self::GAME_DAYS as $day) {
+                $game['d'.$day] = self::matured($week->elapsed, 'd'.$day) ? self::cell($week->hits['g'.$day], $week->size) : null;
+            }
+
+            // Activation: unknown while a learner of the week is younger than 24 hours.
+            $activation = [];
+            foreach (self::ACTIVATION_CUTS as $cut) {
+                $activation[$cut] = $week->young === 0
+                    ? self::cell($week->activation[$cut]['count'] ?? 0, $week->activation[$cut]['of'] ?? 0)
+                    : null;
+            }
+
             $cohorts[] = [
                 'week_start' => $start->toDateString(),
                 'week_end' => $start->addDays(6)->toDateString(),
@@ -352,6 +409,8 @@ final class RetentionReportService
                 'started' => $week->started,
                 'started_pct' => self::pct($week->started, $week->size),
                 'retention' => $retention,
+                'game' => $game,
+                'activation' => $activation,
             ];
         }
 

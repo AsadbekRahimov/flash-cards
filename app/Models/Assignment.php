@@ -38,6 +38,7 @@ use Illuminate\Support\Str;
  * @property-read TelegramGroup $group
  * @property-read Lesson $lesson
  * @property-read int|null $total_count with scopeWithProgressCounts()
+ * @property-read int|null $started_count with scopeWithProgressCounts()
  * @property-read int|null $done_count with scopeWithProgressCounts()
  */
 class Assignment extends Model
@@ -166,8 +167,11 @@ class Assignment extends Model
     }
 
     /**
-     * `total_count` / `done_count`: result rows of the learners who are STILL active in the group
-     * (a learner who left keeps a snapshot, but is not counted as someone who "should do it").
+     * `total_count` / `started_count` / `done_count`: result rows of the learners who are STILL active in
+     * the group (a learner who left keeps a snapshot, but is not counted as someone who "should do it";
+     * one who joined after the assignment was given is, from the first recount that wrote their row).
+     * Started = some progress or completed (done ones included); done = threshold reached, late too.
+     * Three subqueries of the same SELECT — no statement of their own.
      *
      * @param  Builder<Assignment>  $query
      */
@@ -181,6 +185,9 @@ class Assignment extends Model
 
         $query->withCount([
             'results as total_count' => fn (Builder $q) => $q->whereExists($activeInGroup),
+            'results as started_count' => fn (Builder $q) => $q
+                ->where(fn (Builder $w) => $w->where('progress_pct', '>', 0)->orWhereNotNull('completed_at'))
+                ->whereExists($activeInGroup),
             'results as done_count' => fn (Builder $q) => $q->whereNotNull('completed_at')->whereExists($activeInGroup),
         ]);
     }

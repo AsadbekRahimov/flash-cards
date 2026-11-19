@@ -6,6 +6,7 @@ use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Domain\Organizations\Services\OrgHardWordsReport;
 use App\Filament\Org\Pages\HardWords;
 use App\Models\Learner;
+use App\Models\Lesson;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\Subscription;
@@ -133,6 +134,57 @@ it('ignores a learner who left the group and a word below the threshold', functi
 
     expect($report['class_size'])->toBe(2)
         ->and(array_column($report['rows'], 'learners', 'word'))->toBe(['mother' => 1, 'bread' => 1]);
+});
+
+it('narrows the report to the active words of one lesson, keeping the size of the class', function (): void {
+    $lesson = Lesson::factory()->create();
+    $inLesson = Word::factory()->for($lesson)->create(['word' => 'apple']);
+    $inactive = Word::factory()->for($lesson)->create(['word' => 'pear', 'is_active' => false]);
+    hwLapses($this->l1, $inLesson, 4);
+    hwLapses($this->l1, $inactive, 4);
+    hwLapses($this->l2, $inactive, 4);
+
+    $report = app(OrgHardWordsReport::class)->forGroup($this->ownerA, $this->a, $this->g1, $lesson->id);
+
+    expect($report['class_size'])->toBe(3)
+        ->and(array_column($report['rows'], 'learners', 'word'))->toBe(['apple' => 1])
+        // Without the lesson: every word, the lesson's too.
+        ->and(array_column(app(OrgHardWordsReport::class)->forGroup($this->ownerA, $this->a, $this->g1)['rows'], 'learners', 'word'))
+        ->toBe(['mother' => 2, 'pear' => 2, 'bread' => 1, 'apple' => 1]);
+});
+
+it('gives the material to repeat of a lesson: shared by at least two learners, at most the limit, in one statement', function (): void {
+    $lesson = Lesson::factory()->create();
+    $words = collect(['one', 'two', 'three', 'four', 'solo'])->map(fn (string $w): Word => Word::factory()->for($lesson)->create(['word' => $w]));
+    foreach ([[$this->l1, $this->l2, $this->l3], [$this->l1, $this->l2], [$this->l2, $this->l3], [$this->l1, $this->l3], [$this->l1]] as $i => $learners) {
+        foreach ($learners as $learner) {
+            hwLapses($learner, $words[$i], 4 + $i);
+        }
+    }
+    $report = app(OrgHardWordsReport::class);
+    $report->toRepeat($this->teacherA, $this->a, $this->g1, $lesson->id); // warms the memo of the teacher's groups
+
+    $statements = QueryLog::during(function () use ($report, $lesson, &$rows): void {
+        $rows = $report->toRepeat($this->teacherA, $this->a, $this->g1, $lesson->id);
+    });
+
+    expect($statements)->toHaveCount(1)
+        ->and(array_column($rows, 'learners', 'word'))->toBe(['one' => 3, 'two' => 2, 'three' => 2])
+        ->and(array_column($report->toRepeat($this->ownerA, $this->a, $this->g1, $lesson->id, minLearners: 3), 'word'))->toBe(['one'])
+        ->and($report->toRepeat($this->ownerA, $this->a, $this->g1, $this->mother->lesson_id))->toHaveCount(1);
+});
+
+it('gives no material to repeat outside the scope or with leeches off', function (): void {
+    $lessonId = $this->mother->lesson_id;
+    $report = app(OrgHardWordsReport::class);
+
+    // mother: 2 learners of g1 -> material of g1; the teacher does not run g2, center B is not center A.
+    expect(array_column($report->toRepeat($this->teacherA, $this->a, $this->g1, $lessonId), 'word'))->toBe(['mother'])
+        ->and($report->toRepeat($this->teacherA, $this->a, $this->g2, $lessonId))->toBe([])
+        ->and($report->toRepeat($this->ownerA, $this->b, $this->gB, $lessonId))->toBe([]);
+
+    config(['learning.leech.threshold' => 0]);
+    expect(app(OrgHardWordsReport::class)->toRepeat($this->ownerA, $this->a, $this->g1, $lessonId))->toBe([]);
 });
 
 it('is empty when leeches are off', function (): void {

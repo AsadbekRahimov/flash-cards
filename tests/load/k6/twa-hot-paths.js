@@ -6,25 +6,37 @@
 // Pacing: one VU = one learner with a token of its own. `twa-api` allows 60 requests a minute per learner for ALL routes,
 // `twa-review` 60 and `twa-session-create` 10 more. Like the Mini App (resources/twa/src/stores/training.ts, submit()), the
 // scenario gets the first card from `POST /training/sessions` and subsequent cards from `POST /review`. The
-// fallback `GET /next` is for older servers without a `card` key. With CARDS_PER_SESSION=8 an iteration makes
-// 16 requests (6 browsing + open + 8 review + finish) with at least ~30.5 s of pauses at THINK_SCALE=1 (0.5-1.5 s,
+// fallback `GET /next` is for older servers without a `card` key. The browsing is browse() of flows.js (shared with the mix): Today
+// asks `/assignments` only when `/today` does not say `assignments_possible: false` (stores/assignments.ts), so a learner in no group
+// of a center makes 5 browsing requests, a member 6 (after `make load-seed`: LOAD_SCENARIO_CLASS_SHARE, 0.2, of the test learners). With CARDS_PER_SESSION=8 an iteration makes
+// at most 16 requests (6 browsing + open + 8 review + finish) with at least ~30.5 s of pauses at THINK_SCALE=1 (0.5-1.5 s,
 // 4 x 1-3 s, 8 x 3-6 s, 2-5 s; the request time is not counted), so the worst case is ~31 requests a minute against
 // `twa-api` 60, ~16 reviews against `twa-review` 60 and ~2 session opens against `twa-session-create` 10: a well-paced run
 // never sees a 429 (the `rate_limited` threshold checks exactly that).
 //
 // Run: `make load-test` (see docs/STAGING_PHASE2_CHECKLIST.md §7.3).
 import { check, fail } from 'k6';
-import { Trend } from 'k6/metrics';
 // `server_errors` and `rate_limited` (lib.js) are counted by get()/post() and checked in the thresholds below.
-import { BASE_URL, get, getBatch, post, ok, think, json, learnerFor, sharedLearners, sharedTokenFileMeta } from './lib.js';
+import { BASE_URL, get, post, ok, think, json, learnerFor, sharedLearners, sharedTokenFileMeta } from './lib.js';
+// browse() and the coverage Trend live in flows.js: one registration of `training_review_coverage` per script.
+import { browse, trainingCoverage as reviewCoverage } from './flows.js';
+import { plannedRunSeconds, requiredTokenSeconds } from './plan.js';
 
 const TARGET_VUS = parseInt(__ENV.TARGET_VUS || '1250', 10);
 const HOLD = __ENV.HOLD || '10m';
 const CARDS_PER_SESSION = parseInt(__ENV.CARDS_PER_SESSION || '8', 10);
+const STAGES = [
+  { duration: '2m', target: Math.round(TARGET_VUS * 0.2) },
+  { duration: '3m', target: Math.round(TARGET_VUS * 0.5) },
+  { duration: '3m', target: TARGET_VUS },
+  { duration: HOLD, target: TARGET_VUS },
+  { duration: '1m', target: 0 },
+];
+// The tokens must live through the ramp, the hold, the ramp-down and a margin (plan.js; at least 30 minutes).
+const TOKEN_SECONDS = requiredTokenSeconds(plannedRunSeconds(STAGES, '30s'));
 
 const learners = sharedLearners('learners');
 const tokenFileMeta = sharedTokenFileMeta('token-file-meta');
-const reviewCoverage = new Trend('training_review_coverage');
 
 const HOT = ['me', 'today', 'assignments', 'courses', 'practice_hub', 'billing_catalog', 'training_open', 'training_review'];
 
@@ -48,13 +60,7 @@ export const options = {
     learners: {
       executor: 'ramping-vus',
       startVUs: 0,
-      stages: [
-        { duration: '2m', target: Math.round(TARGET_VUS * 0.2) },
-        { duration: '3m', target: Math.round(TARGET_VUS * 0.5) },
-        { duration: '3m', target: TARGET_VUS },
-        { duration: HOLD, target: TARGET_VUS },
-        { duration: '1m', target: 0 },
-      ],
+      stages: STAGES,
       gracefulRampDown: '30s',
     },
   },
@@ -71,8 +77,11 @@ export function setup() {
   if (!Number.isInteger(CARDS_PER_SESSION) || CARDS_PER_SESSION < 1) {
     fail('CARDS_PER_SESSION must be a positive integer.');
   }
-  if (file.expires_at * 1000 < Date.now() + 30 * 60 * 1000) {
-    fail('The tokens expire in less than 30 minutes: issue new ones with `load:tokens`.');
+  if (!Number.isFinite(TOKEN_SECONDS)) {
+    fail('HOLD is not a k6 duration (e.g. 10m, 1h, 1h30m).');
+  }
+  if (file.expires_at * 1000 < Date.now() + TOKEN_SECONDS * 1000) {
+    fail(`The tokens expire in less than ${Math.ceil(TOKEN_SECONDS / 60)} minutes (ramp, hold, ramp-down and a margin): issue new ones with \`make load-tokens\` (TOKENS_TTL for a long hold).`);
   }
   if (!file.course) {
     fail('The token file has no course: publish a course, then run `load:tokens` again.');
@@ -97,28 +106,15 @@ export function setup() {
   return { course: file.course, lessonIds: lessonIds.slice(0, 20) };
 }
 
+// What the device of this VU's learner remembers of its last `/today` (flows.js openToday()): one VU = one learner = one device.
+const device = {};
+
 export default function (data) {
   const learner = learnerFor(learners, __VU);
   const token = learner.token;
 
-  // 1. The main screen loads the two reads in parallel, as TodayView does.
-  const [today, assignments] = getBatch([
-    ['/api/twa/today', 'today'],
-    ['/api/twa/assignments', 'assignments'],
-  ], token);
-  ok(today, 'today');
-  ok(assignments, 'assignments');
-  think(0.5, 1.5);
-  ok(get('/api/twa/me', token, 'me'), 'me');
-  think(1, 3);
-
-  // 2. Browsing: courses, practice hub, billing catalog.
-  ok(get('/api/twa/courses', token, 'courses'), 'courses');
-  think(1, 3);
-  ok(get(`/api/twa/practice/hub?course=${data.course}`, token, 'practice_hub'), 'practice_hub');
-  think(1, 3);
-  ok(get('/api/twa/billing/catalog', token, 'billing_catalog'), 'billing_catalog');
-  think(1, 3);
+  // 1-2. The main screen (Today, assignments by `assignments_possible`), profile, courses, practice hub, billing catalog.
+  browse(token, data.course, device);
 
   // 3. Training: a lesson session, cards one by one.
   const lessonId = data.lessonIds[(__VU + __ITER) % data.lessonIds.length];

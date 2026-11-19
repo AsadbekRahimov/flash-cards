@@ -43,7 +43,8 @@
     "locale": "ru",
     "onboarding_completed": false
   },
-  "account_restored": null
+  "account_restored": null,
+  "client_timing": { "sample_percent": 10 }
 }
 ```
 
@@ -51,6 +52,8 @@
   оживляет строку, docs/03 §8 п. 2) и ему ещё не сказали об этом — `{"pro_can_resume": bool}`: автопродление Pro, снятое при удалении, можно включить снова
   (то же `can_resume`, что в сводке подписки). Поле приходит при каждом `/auth`, пока не вызван A.2d (или бот не показал то же в `/start`); Mini App показывает лист
   один раз за сессию (docs/05).
+- `client_timing.sample_percent` (0..100) — доля открытий, которые сообщают свои временные метки (A.21); из конфига
+  (`CLIENT_TIMING_SAMPLE_PERCENT`), без запроса к БД. `0` — клиент ничего не шлёт. Нет поля (старый сервер) — тоже ничего.
 
 Токен — JWT **v2**: `{iss, sub: learner_id, v: 2, iat, exp}` (без `gid`), TTL 15 мин. Токен без `v = 2` (старый формат,
 где `sub` был `students.id`) отклоняется с 401 `invalid_token`; клиент перелогинивается автоматически (`api/client.ts`).
@@ -163,7 +166,8 @@
   "timezone": "Asia/Tashkent",
   "game": { "available": true, "daily_available": true, "active_run": null, "class_caravan": null },
   "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": false, "pro_promise": "solo" },
-  "hard_round": { "available": true, "reason": null, "words": 10, "open_session_id": null, "resets_at": null }
+  "hard_round": { "available": true, "reason": null, "words": 10, "open_session_id": null, "resets_at": null },
+  "assignments_possible": false
 }
 ```
 
@@ -186,6 +190,7 @@
   `no_objective_exercise` (недоступны и «Выбери перевод», и «Выбери слово»: выключены конфигом или учеником) · `disabled` не приходит (вместо блока `null`); `words` — размер раунда, который откроется (0 при `not_enough`; у живого раунда — размер его набора);
   `open_session_id` — живая сегодняшняя `hard_review`-сессия: клиент показывает «Продолжить» и идёт на её экран, иначе — «Разобрать» (`POST /training/sessions {mode: hard_review}`, A.3). Стоимость: кандидаты (по индексу `word_repetitions_hard_idx`) — `count(*)` в общем операторе скаляров экрана (`docs/19` §5.2 K10), не свой оператор; «сыграно сегодня» и живая hard-сессия читаются в том же операторе, что `open_session_id` ежедневной.
   Бюджет всего `GET /today` после K10: у Free с курсом 5 операторов при закрытой игре, 6 при `GAME_ACCESS=all`; таблица — `docs/19` §5.2.
+- `assignments_possible` **(с 19.11.2026, аудит 18.11.2026 «Рабочая спецификация первого входа»)** — может ли `GET /assignments` (A.9) вернуть хоть что-то: `false` — **точно нет**, `true` — «возможно». Условие — у ученика есть активное членство (`group_members.status = active`) в группе, привязанной к центру (`telegram_groups.organization_id IS NOT NULL`), **при любом статусе группы и центра**. Это надмножество выборки `AssignmentService::forLearner` (активное членство + группа всё ещё привязана к центру задания + центр активен + задание активно; статус группы список не проверяет — задание видно и после удаления бота из чата), поэтому `false` никогда не прячет задание; `true` при приостановленном центре или без активных заданий — норма. Значение — из снимка «Сегодня» (`twa:today:v2`, docs/19 K10): на тёплом запросе **ни одного оператора**, на холодном — ещё один подзапрос `select 1 … limit 1` в общем операторе скаляров (число операторов прежнее). Версию снимка поднимает каждая запись, которая может превратить «нет» в «да»: вступление (`GroupMembershipService::join` — сообщение о входе, `chat_member`), привязка группы к центру (`TelegramGroupObserver`), а также выход/удаление/бан, отвязка, смена статуса и удаление группы. TWA при `false` не запрашивает `/assignments` и не держит экран загрузки; при `true` и при отсутствии поля (старый сервер) — прежний путь (docs/05, «Сегодня»).
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
@@ -289,9 +294,15 @@ Learner завершает **свою личную** сессию (`status = clo
   "practice_entry": { "course": "english-a1", "lesson_id": 41 },
   "league_points": 35,
   "hard_round": null,
+  "corrected": null,
   "hard_round_offer": { "available": true, "reason": null, "words": 10, "open_session_id": null, "resets_at": null }
 }
 ```
+**С 19.11.2026 (docs/06 §14, аудит 18.11 §3):** `corrected` — одна исправленная ошибка на итоге раунда трудных слов, иначе `null` (ключ есть всегда; старые клиенты его не читают):
+`{"word_id": 41, "word": "borrow", "translation": "занимать", "mistaken_at": "2026-11-13T07:30:00+00:00", "answer": "borow"}`. Слово сессии `hard_review`, чья ПЕРВАЯ оценка в сессии —
+объективное упражнение (не `flash`, не `pretest`) с `quality >= 3`, а в более ранней сессии (id оценки меньше первой оценки этой сессии) была объективная оценка `< 3`; из таких — с самой поздней прошлой ошибкой.
+`translation` — на языке ученика (`WordTranslationResolver`, запасной — ru), `mistaken_at` — время той ошибки (ISO-8601 UTC), `answer` — что ученик тогда ВВЁЛ (только `spelling` / `gap_fill`; не пустое и не само слово), иначе `null`.
+Стоимость — +1 оператор только у `/finish` сессии `hard_review` (`CorrectedMistakeFinder`; перевод тёплый — карточка выдавалась в этом раунде); у остальных режимов оператора нет.
 **С 18.11.2026 (docs/06 §14):** `hard_round` — `{"total": 10, "won": 8}` у сессии `hard_review` (`won` — слова набора, чья ПОСЛЕДНЯЯ оценка в сессии ≥ 3), `null` у остальных режимов; `hard_round_offer` — приглашение на раунд трудных слов
 на итоге ежедневного занятия / урока: тот же блок, что `hard_round` в `GET /today` (A.2a), `null` у самого раунда трудных слов и при `LEARNING_HARD_ROUND_ENABLED=false`. Стоимость `/finish` — +2 оператора (сессии окна дня и
 кандидаты). Событие `training.session_finished` у `hard_review` получает `hard_won`, `hard_total`; `practice_entry` у него `null`.
@@ -750,6 +761,8 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 ```
 `title` — название задания: своё, если учитель его задал, иначе название урока на языке ученика (`ru` или `uz`, если у урока есть узбекское), иначе «Урок N»; `lesson_id` — то, что принимает `POST /training/sessions {mode: "lesson", lesson_id, source: "assignment"}` (`source = assignment` теперь допустим; тренировка идёт обычным путём, без отдельного режима); `overdue` — срок прошёл, а задание ещё открыто (опоздавшие выполнения учитываются до закрытия); `late` — выполнено после `due_at`. `progress_pct` = доля активных слов урока с `word_repetitions.repetitions >= 1`; `completed` — достигнут порог задания (`completion_threshold`).
 
+**Когда TWA его запрашивает (с 19.11.2026).** Если последний `/today` на этом устройстве сказал `assignments_possible: true` — параллельно с `/today`, как раньше; иначе (первое открытие, или было `false`) — после ответа `/today`, и только при `true` или без поля (старый сервер). При `false` запроса нет вовсе. Сбой запроса — не пустой список: у участника группы «Сегодня» показывает строку «Не удалось загрузить задания центра» с кнопкой «Повторить»; личная тренировка доступна.
+
 **Ссылка из группы.** Объявление в чате — одно сообщение с `web_app`-кнопкой `/twa/?from=assignment&lesson=<id>`: TWA убирает метку из URL и открывает сессию урока (`source = assignment`); доступ к уроку перепроверяет сервер обычными правилами. Ошибка открытия остаётся на экране «Сегодня».
 
 ### A.10 Свои колоды learner'а (docs/13 §8.1, Фаза 2 / 2D.1)
@@ -844,6 +857,7 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 |---|---|---|
 | GET | `/billing/catalog` | что можно купить сейчас |
 | POST | `/billing/checkout` | создаёт заказ `pending` и платёжную ссылку; **throttle `twa-checkout`: 10/мин на learner'а и 120/мин на IP** (429) |
+| POST | `/billing/offer-viewed` | предложение Pro показано (первый шаг воронки Pro, docs/13 §5.1); `204`; **throttle `twa-offer-viewed`: 20/мин на learner'а** (429) |
 | GET | `/billing/orders/{token}` | статус заказа (только владельцу) — TWA опрашивает после оплаты |
 | POST | `/billing/subscription/cancel` | отключает автопродление Stars (сначала у провайдера, вне транзакции), подписка → `canceled`, Pro до конца периода |
 | POST | `/billing/subscription/resume` | включает обратно (`canceled` → `active`, пока период не закончился) |
@@ -865,13 +879,15 @@ Request: `{ "slug": "english-a1" }` (обязателен, строка ≤ 64 �
 `offer` — открытый offer (`null` — нет; `period` — период, на который он действует, `null` — любой; цены в `items` уже со скидкой для подходящих периодов, `list_prices` — прайс; offer создаётся при потере seated-места в центре, 2B.7, и применяется к заказу автоматически), `subscription` — собственная live-подписка (`null` — нет): `ends_at` — конец действия (ISO 8601, `null` — бессрочно), `auto_renew` — автопродление идёт,
 `can_cancel` / `can_resume` — какие из кнопок «Отключить» / «Включить» показывать (`auto_renew` / `can_cancel` — только для подписки Stars `month`; разовый годовой счёт Stars их не даёт, 2A.8); `perpetual` — Pro без даты окончания (ручной грант): кнопки покупки скрыты, checkout отвечает `already_perpetual` (2A.8). (В docs/13 §5 массив назван `plans`; фактическое имя — `items`.)
 
-**`POST /billing/checkout`** `{ "plan": "pro", "period": "month", "provider": "telegram_stars" }` — `plan` ∈ `Plan`, `period` ∈ `config('billing.periods')`, `provider` ∈ `telegram_stars|payme|click` (иное — `422` валидации Laravel). → `201`:
+**`POST /billing/checkout`** `{ "plan": "pro", "period": "month", "provider": "telegram_stars", "placement": "paywall_quota" }` — `plan` ∈ `Plan`, `period` ∈ `config('billing.periods')`, `provider` ∈ `telegram_stars|payme|click`, `placement` — необязательное место, откуда открыт лист покупки (`OfferPlacement`, см. `POST /billing/offer-viewed`; нет поля или `null` — `null` в событии; на заказ не влияет) (иное — `422` валидации Laravel). → `201`:
 ```json
 { "order": { "id": 17, "token": "q3…32 символа", "status": "pending", "amount": 150, "currency": "XTR", "expires_at": "2026-10-20T12:00:00+00:00" },
   "checkout": { "url": "https://t.me/$AbCd…", "kind": "invoice_link" } }
 ```
 `checkout.kind`: `invoice_link` (Stars — открыть `Telegram.WebApp.openInvoice(url)`) | `redirect` (Payme/Click — `openLink(url)`). Заказ живёт `BILLING_ORDER_TTL_MINUTES` (24 ч); просроченные закрывает `billing:expire-orders` (каждые 15 мин).
-Событие `checkout.started`. Если провайдер не смог выдать ссылку — заказ `failed`, ответ `502 provider_unavailable`.
+Событие `checkout.started` (с `locale` — язык интерфейса ученика на момент начала — и `placement`). Если провайдер не смог выдать ссылку — заказ `failed`, ответ `502 provider_unavailable`.
+
+**`POST /billing/offer-viewed`** `{ "placement": "paywall_quota" }` → `204` без тела. Клиент шлёт, когда предложение Pro стало видно (fire-and-forget: не ждёт ответа, ошибки глотает), и только при `paywall.mode = purchase` в `/me`. `placement` ∈ `OfferPlacement` (`App\Domain\Billing\Enums\OfferPlacement`, зеркало — `resources/twa/src/composables/offerViewed.ts`): `paywall_quota | paywall_info | paywall_decks | paywall_streak_freeze | paywall_exam_simulator | paywall_practice | paywall_practice_limit | paywall_game` (лист покупки `PaywallSheet` по своей причине), `billing_view` (экран «Подписка» с кнопкой «Купить / Продлить»), `lapsed_banner` («Pro закончился» с кнопкой продления), `finished_pro_tip` (совет о Pro на экране итога), `finished_trial_ending` (карточка «пробный период кончается»); иное — `422`. Пишет `billing.offer_viewed {placement, locale}` не чаще раза на (ученик, место, локальный день ученика): маркер `billing:offer_viewed:v1:<learner>:<placement>:<Y-m-d>` (`Cache::add`, невытесняемое хранилище, TTL 48 ч). Повтор того же дня — `204` без записи и **без SQL сверх аутентификации** (1 оператор: ученик); новый — плюс один INSERT после ответа. Пока продавать нечего (`paywall.mode` опущен до `coming_soon`, как в `/me`) — `204` без записи и без маркера.
 
 **`GET /billing/orders/{token}`** → `200 { "status": "pending|paid|canceled|expired|failed", "paid_at": "…"|null, "reason": "replaced"|null, "replaced_by": "<token>"|null, "subscription": { …как в catalog.subscription… }|null }`;
 `subscription` заполнена у `paid`. `reason = replaced` — заказ `canceled` самой логикой offer (скидка перенесена на более новый заказ или уже использована): это **не ошибка**, TWA показывает «Заказ заменён новым» и переходит к `replaced_by` — **токену** (не id) заказа-преемника, если он известен и принадлежит тому же learner'у, иначе `null`. У прочих заказов `reason` и `replaced_by` — `null`. Чужой, неизвестный или неправильный `token` — `404 order_not_found` (чужой заказ неотличим от несуществующего).
@@ -1706,6 +1722,44 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 `percent` — пол от `100 · correct / total` (неотвеченный вопрос — неверный). `scored: false` — тренировочный тест или тест без ответов. Тест **не пишет** в `word_repetitions`, `training_*`, `learner_daily_stats` и не даёт очков рейтинга (docs/13 §8.5).
 
 **События:** `readiness.viewed {course_id, percent, learned, total, source}` · `level_quiz.started {exam_session_id, course_id, week_start, scored, questions, met, unmet}` · `level_quiz.finished {exam_session_id, course_id, week_start, scored, correct, total, percent, answered, reason, too_few_answers}` (`reason` — `finished | expired`, ровно один раз; `too_few_answers` — ответов меньше `READINESS_QUIZ_MIN_ANSWERED_RATIO` от вопросов, попытка не зачтена; `/result` тогда `scored: false`).
+
+### A.21 `POST /api/twa/client-timing` — временные метки открытия (аудит 18.11.2026, «Как увидеть выигрыш»)
+
+Сколько ученик ждёт первую кнопку «Сегодня», сколько времени ему нужно, чтобы понять экран, когда сервер подтвердил первый ответ и когда
+зазвучало первое слово. Метки собирает Mini App, **выборочно**: доля открытий — `client_timing.sample_percent` из ответа `/auth` (A.1;
+по умолчанию 10 %, `0` — выключено). Открытие в выборке, если `crc32("client_timing:<open_id>") % 100 < доли` — то же правило проверяет
+сервер (`ClientTimingRecorder::sampled`, `ExperimentBucket`), открытие вне выборки он не записывает.
+
+**Request** (лимитеры `twa-api` + `twa-client-timing`: **6/мин на learner'а**, 429):
+```json
+{ "open_id": "6f1c…-uuid", "platform": "android", "cold": true, "entry": "home",
+  "auth_ready": 310, "today_received": 640, "button_ready": 702, "first_tap": 2150, "first_answer_ack": 4890, "first_audio": 3010 }
+```
+- `open_id` — uuid, случайный на каждое открытие (не устройство и не человек); `platform` — `Telegram.WebApp.platform`: `android | ios |
+  tdesktop | macos | web | weba | webk | unknown`, всё иное сервер (и клиент) записывает как `other`; строка до 32 символов;
+  `cold` — первое открытие в этом webview (нет маркера сессии, не перезагрузка) / `false` — возврат; `entry` — `home | deep_link | other`
+  (`deep_link` — `start_param` ссылки из группы или кнопка напоминания / объявления `?from=…`).
+- Метки — целые миллисекунды от начала открытия (navigation start страницы, `performance.timeOrigin`), каждая необязательна, `0..600000`:
+  `auth_ready` (ответ `/auth`), `today_received` (ответ `/today`), `button_ready` (главная кнопка «Сегодня» нарисована и доступна:
+  «Выбрать курс» стартовой карточки, «Начать / Продолжить занятие», урок задания центра), `first_tap` (первое нажатие на неё),
+  `first_answer_ack` (сервер принял первый ответ), `first_audio` (первое слово начало звучать).
+- Любой другой ключ — **422** (в том числе `learner_id`: пишется только за learner'а токена); иное значение `entry`, не-uuid, метка вне
+  границ, дробная или `null` — 422.
+
+**Response 204** без тела — всегда (вне выборки, повтор, доля `0`). Пишет `client.timing` (docs/12 §7.7) **не больше раза на `open_id`**:
+маркер `analytics:client_timing:v1:<open_id>` (`Cache::add`, невытесняемое хранилище, TTL 24 ч). Props — ровно `open_id, platform, cold,
+entry, locale` (язык интерфейса из строки learner'а), присланные метки и `class` — `assignments` снимка «Сегодня» (`TodayProfileCache`:
+активный участник группы центра) **если снимок есть в кэше**, иначе поле опущено. Стоимость пути запроса — **без SQL сверх
+аутентификации** (два чтения кэша и `add`), INSERT события — после ответа (`ProductEventBuffer`).
+
+**Клиент** (`composables/useTimingMarks.ts`): начало — первая строка `main.ts`; одна отправка на открытие — сразу после
+`first_answer_ack` или при `visibilitychange → hidden` / `pagehide` с тем, что есть; `fetch` с `keepalive` и заголовком `Authorization`
+(`sendBeacon` его не несёт); без повторов и без обновления токена, ошибки глотаются, на запросы экранов не влияет.
+
+**Отчёт:** `php artisan analytics:client-timing --days=7` (docs/ADMIN_GUIDE.md «Скорость открытия»).
+
+**Что НЕ собирается:** имя, username, Telegram id в props, user agent, модель устройства, версия ОС, IP, размер экрана, тексты, адреса
+страниц. Ученик связан с событием только через `learner_id` строки, как у любого продуктового события.
 
 ## Часть B — Telegram Bot
 

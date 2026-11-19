@@ -25,14 +25,17 @@ const { t } = useI18n()
 
 const segments = computed(() => readinessSegments(props.readiness.words))
 const title = computed(() => {
-  const { percent, level_label: level } = props.readiness
-  return level ? t('readiness.percent_level', { percent, level }) : t('readiness.percent_course', { percent })
+  // The same two numbers the percent is floored from (`LevelReadinessService`: 100 × learned / total).
+  const { percent, level_label: level, words } = props.readiness
+  const counts = { percent, learned: words.learned, total: words.total }
+  return level ? t('readiness.percent_level', { ...counts, level }) : t('readiness.percent_course', counts)
 })
 const barLabel = computed(() => {
   const { words, percent } = props.readiness
   return t('readiness.progress_label', {
     percent,
     learned: words.learned,
+    total: words.total,
     in_progress: words.in_progress,
     not_started: words.not_started,
   })

@@ -132,9 +132,12 @@ it('POST /auth keeps its exact JSON shape', function (): void {
             'expires_in',
             'learner' => ['id', 'first_name', 'locale', 'onboarding_completed'],
             'account_restored',
+            // The share of opens that report their timing marks (docs/04 A.21).
+            'client_timing' => ['sample_percent'],
         ]);
 
     expect($response->json('expires_in'))->toBeInt()
+        ->and($response->json('client_timing.sample_percent'))->toBeInt()
         ->and($response->json('account_restored'))->toBeNull()
         ->and($response->json('learner.onboarding_completed'))->toBeFalse();
 });
@@ -250,9 +253,12 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'game' => ['available', 'daily_available', 'active_run', 'class_caravan'],
             'practice' => CONTRACT_PRACTICE_TODAY,
             'hard_round' => CONTRACT_HARD_ROUND,
+            'assignments_possible',
         ]);
 
     expect($response->json('due_count'))->toBeInt()
+        // no group of a center: `GET /assignments` is surely empty, the TWA does not ask it
+        ->and($response->json('assignments_possible'))->toBeFalse()
         ->and($response->json('new_words_remaining'))->toBe(20)
         ->and($response->json('open_session_id'))->toBeInt()
         ->and($response->json('onboarding_completed'))->toBeTrue()
@@ -271,6 +277,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until', 'lapsed'], 'onboarding_completed', 'league', 'timezone', 'game' => ['available', 'daily_available', 'active_run', 'class_caravan'],
             'practice' => CONTRACT_PRACTICE_TODAY,
             'hard_round' => CONTRACT_HARD_ROUND,
+            'assignments_possible',
         ])
         ->assertJsonPath('active_course', null)
         ->assertJsonPath('open_session_id', null)
@@ -623,6 +630,7 @@ it('POST /training/finish keeps its exact JSON shape', function (): void {
             'practice_entry',
             'league_points',
             'hard_round',
+            'corrected',
             'hard_round_offer' => CONTRACT_HARD_ROUND,
         ]);
 
@@ -637,7 +645,9 @@ it('POST /training/finish keeps its exact JSON shape', function (): void {
         ->and($response->json('goal.met'))->toBeBool()
         ->and($response->json('streak.at_risk'))->toBeBool()
         // The key is always there; `null` while the practice is closed to the learner or the session has no place to lead to (docs/16 §11.1).
-        ->and($response->json('practice_entry'))->toBeNull();
+        ->and($response->json('practice_entry'))->toBeNull()
+        // The corrected mistake of a round of hard words (docs/06 §14): the key is always there, null in every other mode.
+        ->and($response->json('corrected'))->toBeNull();
 });
 
 it('POST /training/finish carries the practice entry {course, lesson_id} of a lesson and of a daily review', function (): void {
@@ -651,10 +661,10 @@ it('POST /training/finish carries the practice entry {course, lesson_id} of a le
 
     $forLesson = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$lessonSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points', 'hard_round', 'hard_round_offer' => CONTRACT_HARD_ROUND]);
+        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points', 'hard_round', 'corrected', 'hard_round_offer' => CONTRACT_HARD_ROUND]);
     $forReview = $this->withHeaders($headers)->postJson("/api/twa/training/sessions/{$reviewSession->id}/finish")
         ->assertOk()
-        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points', 'hard_round', 'hard_round_offer' => CONTRACT_HARD_ROUND]);
+        ->assertExactJsonStructure(['started_at', 'reviewed', 'correct', 'new_words', 'stages' => ['graduated', 'promoted', 'mastered'], 'goal' => CONTRACT_GOAL, 'streak' => CONTRACT_STREAK, 'practice_entry' => ['course', 'lesson_id'], 'league_points', 'hard_round', 'corrected', 'hard_round_offer' => CONTRACT_HARD_ROUND]);
 
     // A lesson leads to its lesson (an id), a daily review to the course (null instead of the lesson).
     expect($forLesson->json('practice_entry'))->toBe(['course' => 'english-a1', 'lesson_id' => $lesson->id])

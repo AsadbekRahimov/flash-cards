@@ -29,6 +29,7 @@ import { trialDaysLeft, trialEndsAt } from '@/composables/trial'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
+import { markTiming } from '@/composables/useTimingMarks'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
@@ -57,6 +58,9 @@ const { opening, openError } = storeToRefs(training)
 
 useBackButton(null)
 
+/** This screen's own `/today` is on its way: it follows `assignments_possible` itself, the watch below stays out of it. */
+let ownLoad = false
+
 async function load(): Promise<void> {
   try {
     await auth.ensure()
@@ -65,9 +69,17 @@ async function load(): Promise<void> {
     today.errorMessage = errorMessage(err, 'today')
     return
   }
-  // The center's assignments are secondary: they load alongside Today, never blocking or breaking it.
-  void assignments.load()
-  await today.load()
+  // The center's assignments are secondary, never blocking or breaking Today. A device that knows its learner may have some (the last
+  // `/today` said so) asks them alongside Today; otherwise `/today.assignments_possible` decides first, so a self-study learner asks
+  // no `/assignments` at all (docs/04 A.2a).
+  const started = assignments.loadEarly()
+  ownLoad = true
+  try {
+    await today.load()
+  } finally {
+    ownLoad = false
+  }
+  if (today.data !== null) assignments.followToday(today.data.assignments_possible, started)
 
   // Opened from a reminder (`/twa/?from=reminder`, docs/12 §7.5): go straight into the daily
   // review. `from=reminder_quiz` is the button left on the reminder after the answer in the chat; it
@@ -95,12 +107,21 @@ async function openSession(body: OpenSessionRequest): Promise<void> {
   if (sessionId !== null) await router.push({ name: 'training', params: { sessionId } })
 }
 
-const review = (): Promise<void> => openSession({ mode: 'daily_review', source: 'self' })
+/** The first tap on the primary action of the screen (docs/04 A.21): how long the learner needed to understand it. */
+const tapPrimary = (): void => markTiming('first_tap')
+
+function review(): Promise<void> {
+  tapPrimary()
+  return openSession({ mode: 'daily_review', source: 'self' })
+}
 
 /** The round of hard words: opens it, or continues the one that is open (docs/06 §14); a refusal shows under the session button. */
 const startHardRound = (): Promise<void> => openSession({ mode: 'hard_review', source: 'self' })
 
-const openAssignment = (lessonId: number): Promise<void> => openSession({ mode: 'lesson', lesson_id: lessonId, source: 'assignment' })
+function openAssignment(lessonId: number): Promise<void> {
+  tapPrimary()
+  return openSession({ mode: 'lesson', lesson_id: lessonId, source: 'assignment' })
+}
 
 function learnNext(lessonId: number): Promise<void> {
   return openSession({ mode: 'lesson', lesson_id: lessonId, source: 'self' })
@@ -189,9 +210,31 @@ const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target
  */
 const startCandidate = computed(() => data.value !== null && data.value.active_course === null && data.value.open_session_id === null
   && data.value.due_count === 0)
+/**
+ * `/today` says the learner surely has no assignment of a center (`assignments_possible: false`): nothing to wait for. Absent (an older
+ * server) or true: the list may still come.
+ */
+const noAssignments = computed(() => data.value?.assignments_possible === false)
 /** Only the assignments of a group can still turn the start card off, so only then is the screen held back for them (a failed load counts as loaded). */
-const awaitingAssignments = computed(() => startCandidate.value && !assignments.loaded)
-const showStart = computed(() => startCandidate.value && assignments.loaded && assignments.items.length === 0)
+const awaitingAssignments = computed(() => startCandidate.value && !noAssignments.value && !assignments.loaded)
+const showStart = computed(() => startCandidate.value && (noAssignments.value || (assignments.loaded && assignments.items.length === 0)))
+/**
+ * The list of a group member failed (state 5 of the audit's first-open table): a short line with a retry, so a failure does not read as
+ * an empty class; personal training stays as it is. Never for a self-study learner (`assignments_possible: false`, nothing is asked);
+ * for a member and with an older server that does not send the field alike - `failed` is only set by a list request that was made and failed.
+ */
+const showAssignmentsError = computed(() => data.value !== null && data.value.assignments_possible !== false && assignments.failed)
+
+/**
+ * A `/today` asked elsewhere while this screen stays open (a payment, the paywall, a refused hard round) may change
+ * `assignments_possible` - a learner who has just joined a group, or left it: the list follows the new word. Synchronous, so it runs while
+ * `ownLoad` still tells this screen's own `/today` apart (that one is followed in `load()`); an unchanged value runs nothing, and a list
+ * request already on its way is not repeated.
+ */
+watch(() => data.value?.assignments_possible, (possible) => {
+  if (ownLoad || data.value === null) return
+  assignments.followToday(possible, assignments.loading)
+}, { flush: 'sync' })
 
 const needsCourseToStart = computed(() => data.value !== null &&
   data.value.active_course === null && data.value.due_count === 0 && data.value.open_session_id === null)
@@ -312,6 +355,20 @@ const leagueRow = computed(() => {
   }
 })
 
+/**
+ * The primary action of the screen can be used (docs/04 A.21, `button_ready`): the screen is drawn and one of its primary buttons is
+ * there and enabled - "Choose a course" of the start card or of the session card, "Start / Continue session", or a lesson of the
+ * center's assignments. "All done" with no assignment has none, so that open has no such mark.
+ */
+const primaryReady = computed(() => {
+  if (data.value === null || status.value === 'idle' || status.value === 'loading' || awaitingAssignments.value || opening.value) return false
+  return showStart.value || needsCourseToStart.value || needsOtherCourse.value || !allDone.value || assignmentItems.value.length > 0
+})
+// After the render (`post`): the button is on the screen when the mark is taken.
+watch(primaryReady, (ready) => {
+  if (ready) markTiming('button_ready')
+}, { flush: 'post', immediate: true })
+
 // The message sits under the session button, but a failed lesson or assignment is opened from further down.
 const openErrorBox = ref<InstanceType<typeof InlineAlert> | null>(null)
 watch(openError, async (message) => {
@@ -369,7 +426,7 @@ onBeforeUnmount(() => {
         <span class="icon-tile size-16 rounded-2xl tile-blue"><AppIcon name="academic-cap" :size="32" /></span>
         <h2 class="text-[22px] leading-7 font-bold">{{ t('today.start.title') }}</h2>
         <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('today.start.text') }}</p>
-        <RouterLink :to="{ name: 'courses' }" class="btn btn-primary btn-lg btn-block mt-1" data-testid="start-choose-course">
+        <RouterLink :to="{ name: 'courses' }" class="btn btn-primary btn-lg btn-block mt-1" data-testid="start-choose-course" @click="tapPrimary">
           <AppIcon name="academic-cap" :size="20" />
           {{ t('today.course.choose') }}
         </RouterLink>
@@ -487,6 +544,7 @@ onBeforeUnmount(() => {
           :to="{ name: 'courses' }"
           class="btn btn-primary btn-lg btn-block mt-3"
           data-testid="start-choose-course"
+          @click="tapPrimary"
         >
           <AppIcon name="academic-cap" :size="20" />
           {{ t('today.course.choose') }}
@@ -496,6 +554,7 @@ onBeforeUnmount(() => {
           :to="{ name: 'courses' }"
           class="btn btn-primary btn-lg btn-block mt-3"
           data-testid="start-next-course"
+          @click="tapPrimary"
         >
           <AppIcon name="academic-cap" :size="20" />
           {{ t('today.course.choose_other') }}
@@ -654,6 +713,20 @@ onBeforeUnmount(() => {
       </section>
 
       <AssignmentsBlock v-if="assignmentItems.length > 0" :items="assignmentItems" :busy="opening" @open="openAssignment" />
+
+      <div v-if="showAssignmentsError" class="flex items-center gap-2 px-1" role="status" data-testid="assignments-error">
+        <AppIcon name="exclamation-circle" :size="18" class="shrink-0 text-warning-ink" />
+        <p class="min-w-0 flex-1 text-[13px] leading-[18px] text-tg-subtitle">{{ t('assignments.load_failed') }}</p>
+        <button
+          type="button"
+          class="btn btn-plain btn-sm shrink-0"
+          :disabled="assignments.loading"
+          data-testid="assignments-retry"
+          @click="assignments.load()"
+        >
+          {{ t('common.retry') }}
+        </button>
+      </div>
 
       <section v-if="!showStart" data-testid="course-card">
         <h2 class="section-label">{{ t('today.course.title') }}</h2>

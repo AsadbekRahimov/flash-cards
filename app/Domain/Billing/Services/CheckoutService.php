@@ -7,6 +7,7 @@ namespace App\Domain\Billing\Services;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\DTO\BillingCatalog;
+use App\Domain\Billing\Enums\OfferPlacement;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
@@ -73,6 +74,7 @@ final class CheckoutService
      * @param  string|null  $tier  organization tariff (required for organizations, ignored for learners)
      * @param  string  $via  `twa` | `bot` | `org_panel` | `admin`
      * @param  Offer|null  $offer  explicit offer; null = the learner's best applicable open offer, if any
+     * @param  OfferPlacement|null  $placement  where the TWA's purchase sheet was opened from: a prop of `checkout.started` only (docs/13 §5.1)
      *
      * @throws CheckoutException price_not_configured | provider_disabled | provider_not_supported | checkout_conflict | tier_change_requires_support | too_many_pending | offer_not_applicable | offer_busy | invalid_period | invalid_tier
      */
@@ -85,6 +87,7 @@ final class CheckoutService
         string $via,
         ?Offer $offer = null,
         ?CarbonImmutable $now = null,
+        ?OfferPlacement $placement = null,
     ): PaymentOrder {
         $now ??= CarbonImmutable::now();
         $subscriberType = SubscriptionService::subscriberType($subscriber);
@@ -131,8 +134,8 @@ final class CheckoutService
 
         $order = null;
         for ($attempt = 1; $attempt <= self::MAX_ATTEMPTS && $order === null; $attempt++) {
-            $order = DB::transaction(function () use ($subscriber, $subscriberType, $plan, $tier, $period, $provider, $currency, $amount, $listAmount, $offer, $via, $now, $maxPending, $ttl): ?PaymentOrder {
-                return $this->insertOrder($subscriber, $subscriberType, $plan, $tier, $period, $provider, $currency, $amount, $listAmount, $offer, $via, $now, $maxPending, $ttl);
+            $order = DB::transaction(function () use ($subscriber, $subscriberType, $plan, $tier, $period, $provider, $currency, $amount, $listAmount, $offer, $via, $now, $maxPending, $ttl, $placement): ?PaymentOrder {
+                return $this->insertOrder($subscriber, $subscriberType, $plan, $tier, $period, $provider, $currency, $amount, $listAmount, $offer, $via, $now, $maxPending, $ttl, $placement);
             });
         }
 
@@ -189,6 +192,7 @@ final class CheckoutService
         CarbonImmutable $now,
         int $maxPending,
         int $ttl,
+        ?OfferPlacement $placement,
     ): ?PaymentOrder {
         // 1. The pending orders that hold this offer — before the subject (docs/13 §3).
         $holders = $offer === null ? (new PaymentOrder)->newCollection() : $this->offers->lockHolders($offer);
@@ -266,7 +270,8 @@ final class CheckoutService
 
         $this->events->record(
             ProductEventName::CheckoutStarted,
-            ['payment_order_id' => $order->id, 'plan' => $plan->value, 'tier' => $tier, 'period' => $period, 'provider' => $provider->value, 'currency' => $currency, 'amount' => $amount, 'discount_pct' => $offer?->discount_pct, 'via' => $via, 'subscriber_type' => $subscriberType],
+            // `locale` (the learner's interface language, a snapshot) and `placement` segment the Pro funnel (docs/13 §5.1); null for a center.
+            ['payment_order_id' => $order->id, 'plan' => $plan->value, 'tier' => $tier, 'period' => $period, 'provider' => $provider->value, 'currency' => $currency, 'amount' => $amount, 'discount_pct' => $offer?->discount_pct, 'via' => $via, 'subscriber_type' => $subscriberType, 'locale' => $subscriber instanceof Learner ? $subscriber->interface_locale : null, 'placement' => $placement?->value],
             learner: $subscriber instanceof Learner ? $subscriber : null,
         );
 

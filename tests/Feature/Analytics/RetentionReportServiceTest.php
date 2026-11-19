@@ -6,9 +6,12 @@ use App\Domain\Administration\Services\WidgetCache;
 use App\Domain\Analytics\Services\RetentionReportService;
 use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Operations\Support\PureCache;
+use App\Models\GroupMember;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
+use App\Models\Organization;
 use App\Models\Subscription;
+use App\Models\TelegramGroup;
 use App\Models\TrainingReview;
 use App\Models\TrainingSession;
 use App\Models\Word;
@@ -51,6 +54,25 @@ function rt_active(Learner $learner, string ...$dates): void
     foreach ($dates as $date) {
         LearnerDailyStats::query()->create(['learner_id' => $learner->id, 'date' => $date, 'reviews_count' => 3]);
     }
+}
+
+/** One accepted learning answer of the learner at this UTC moment (a `training_reviews` row). */
+function rt_answer(Learner $learner, string $atUtc): void
+{
+    TrainingReview::factory()->create(['learner_id' => $learner->id, 'created_at' => $atUtc]);
+}
+
+/** The learner joined a group at this UTC moment; the group belongs to a center unless `$center` is false. */
+function rt_join(Learner $learner, string $joinedUtc, bool $center = true, string $status = 'active'): void
+{
+    $group = TelegramGroup::factory()->create(['organization_id' => $center ? Organization::factory()->create()->id : null]);
+    GroupMember::factory()->create([
+        'telegram_group_id' => $group->id,
+        'learner_id' => $learner->id,
+        'status' => $status,
+        'joined_at' => $joinedUtc,
+        'left_at' => $status === 'active' ? null : RT_NOW,
+    ]);
 }
 
 /** @return array<string, mixed> the cohort of the week that starts on this Monday */
@@ -378,7 +400,11 @@ it('runs the same number of queries for 5 learners and for 60', function (): voi
             $zone = ['Asia/Tashkent', 'America/New_York', 'Europe/London'][$i % 3];
             $learner = rt_learner('2026-11-0'.(3 + $i % 4).' 06:00:00', ['timezone' => $zone, 'interface_locale' => $i % 2 === 0 ? 'uz' : 'ru']);
             rt_active($learner, '2026-11-0'.(4 + $i % 4));
+            LearnerDailyStats::query()->create(['learner_id' => $learner->id, 'date' => '2026-11-1'.($i % 4), 'reviews_count' => 0, 'game_runs_count' => 1]);
             rt_reviews(rt_session($learner, '2026-11-08 08:00:00'), 1000);
+            if ($i % 3 === 0) {
+                rt_join($learner, '2026-11-0'.(3 + $i % 4).' 07:00:00');
+            }
         }
 
         return count(QueryLog::during(fn () => rt_report()));
@@ -387,7 +413,9 @@ it('runs the same number of queries for 5 learners and for 60', function (): voi
     $few = $queries(5);
     $many = $queries(55);
 
-    expect($few)->toBe($many)->and($few)->toBeLessThanOrEqual(6);
+    // Zones, cohorts (with the activation), retention (with the game days), first-session totals and histograms: the same five
+    // statements as before the activation and the game row were added.
+    expect($few)->toBe($many)->and($few)->toBe(5);
 });
 
 it('serves the second read from the cache and recomputes after forget()', function (): void {
@@ -435,4 +463,93 @@ it('drops a cached value that is not a report of this version and computes again
 
     expect($report)->toHaveKeys(['cohorts', 'segments', 'first_session'])
         ->and(rt_cohort($report, '2026-11-02')['size'])->toBe(1);
+});
+
+it('counts the activation as the first accepted answer earlier than 24 hours after registration: 23 h 59 yes, 24 h 00 and 24 h 01 no', function (): void {
+    // Week of Nov 2-8, registered at 06:00 UTC on Nov 3.
+    $justInTime = rt_learner('2026-11-03 06:00:00');
+    rt_answer($justInTime, '2026-11-04 05:59:00');                 // 23 h 59
+    $exactly = rt_learner('2026-11-03 06:00:00');
+    rt_answer($exactly, '2026-11-04 06:00:00');                    // 24 h 00: not "within 24 hours"
+    $late = rt_learner('2026-11-03 06:00:00');
+    rt_answer($late, '2026-11-04 06:01:00');                       // 24 h 01
+    rt_learner('2026-11-03 06:00:00');                             // never answered
+    $uz = rt_learner('2026-11-03 06:00:00', ['interface_locale' => 'uz']);
+    rt_answer($uz, '2026-11-03 07:00:00');                         // within the hour
+    rt_answer($uz, '2026-11-05 07:00:00');                         // a later answer changes nothing
+
+    $cohort = rt_cohort(rt_report(), '2026-11-02');
+
+    expect($cohort['started'])->toBe(4)
+        ->and($cohort['activation']['all'])->toBe(['count' => 2, 'of' => 5, 'pct' => 40.0])
+        ->and($cohort['activation']['ru'])->toBe(['count' => 1, 'of' => 4, 'pct' => 25.0])
+        ->and($cohort['activation']['uz'])->toBe(['count' => 1, 'of' => 1, 'pct' => 100.0])
+        // Nobody joined a group: everybody is "solo", the class cut has no base.
+        ->and($cohort['activation']['solo'])->toBe(['count' => 2, 'of' => 5, 'pct' => 40.0])
+        ->and($cohort['activation']['class'])->toBeNull();
+});
+
+it('cuts the activation by solo and class: a group of a center joined within 24 hours makes the learner "class"', function (): void {
+    $classActive = rt_learner('2026-11-03 06:00:00');
+    rt_join($classActive, '2026-11-04 05:59:00');                  // a center's group at 23 h 59: class
+    rt_answer($classActive, '2026-11-03 07:00:00');
+    $classLeft = rt_learner('2026-11-03 06:00:00');
+    rt_join($classLeft, '2026-11-03 08:00:00', status: 'left');    // joined in time and left later: still class
+    $lateJoin = rt_learner('2026-11-03 06:00:00');
+    rt_join($lateJoin, '2026-11-04 06:01:00');                     // 24 h 01: solo
+    $noCenter = rt_learner('2026-11-03 06:00:00');
+    rt_join($noCenter, '2026-11-03 07:00:00', center: false);      // a group of no center: solo
+    rt_answer($noCenter, '2026-11-03 08:00:00');
+
+    $activation = rt_cohort(rt_report(), '2026-11-02')['activation'];
+
+    expect($activation['all'])->toBe(['count' => 2, 'of' => 4, 'pct' => 50.0])
+        ->and($activation['class'])->toBe(['count' => 1, 'of' => 2, 'pct' => 50.0])
+        ->and($activation['solo'])->toBe(['count' => 1, 'of' => 2, 'pct' => 50.0])
+        ->and($activation['uz'])->toBeNull();
+});
+
+it('leaves the activation of a week empty until 24 hours have passed since its youngest learner registered', function (): void {
+    // now = 2026-11-18 10:00 UTC; week of Nov 16.
+    $old = rt_learner('2026-11-16 08:00:00');
+    rt_answer($old, '2026-11-16 09:00:00');
+    rt_learner('2026-11-17 10:30:00');                              // 23 h 30 ago
+
+    expect(rt_cohort(rt_report(), '2026-11-16')['activation'])->each->toBeNull();
+
+    // Exactly 24 hours after the youngest registered, the week is known: 1 of 2.
+    $at24 = rt_cohort(rt_report('2026-11-18 10:30:00'), '2026-11-16')['activation'];
+    expect($at24['all'])->toBe(['count' => 1, 'of' => 2, 'pct' => 50.0])
+        ->and($at24['ru'])->toBe(['count' => 1, 'of' => 2, 'pct' => 50.0]);
+});
+
+it('shows the game days apart from the learning days and never adds a game-only day into D1 / D7', function (): void {
+    $both = rt_learner('2026-11-03 06:00:00');
+    LearnerDailyStats::query()->create(['learner_id' => $both->id, 'date' => '2026-11-04', 'reviews_count' => 3, 'game_runs_count' => 2]); // day 1: studied and played
+    LearnerDailyStats::query()->create(['learner_id' => $both->id, 'date' => '2026-11-10', 'reviews_count' => 0, 'game_runs_count' => 1]); // day 7: game only
+    $gamer = rt_learner('2026-11-03 06:00:00');
+    LearnerDailyStats::query()->create(['learner_id' => $gamer->id, 'date' => '2026-11-04', 'reviews_count' => 0, 'game_runs_count' => 4]); // day 1: game only
+    rt_learner('2026-11-03 06:00:00');
+
+    $report = rt_report();
+    $cohort = rt_cohort($report, '2026-11-02');
+
+    expect($cohort['retention']['d1'])->toBe(['count' => 1, 'of' => 3, 'pct' => 33.3])
+        ->and($cohort['retention']['d7'])->toBe(['count' => 0, 'of' => 3, 'pct' => 0.0])
+        ->and($cohort['retention']['within'])->toBe(['count' => 1, 'of' => 3, 'pct' => 33.3])
+        ->and($cohort['game']['d1'])->toBe(['count' => 2, 'of' => 3, 'pct' => 66.7])
+        ->and($cohort['game']['d7'])->toBe(['count' => 1, 'of' => 3, 'pct' => 33.3])
+        ->and(array_keys($cohort['game']))->toBe(['d1', 'd7']);
+
+    // The slice is about learning only: the game-only learner has no D1 there.
+    $ru = collect($report['segments']['locale'])->keyBy('key')['ru'];
+    expect($ru['d1'])->toBe(['count' => 1, 'of' => 3, 'pct' => 33.3]);
+});
+
+it('dashes the game row of a day that has not ended for the whole cohort', function (): void {
+    $fresh = rt_learner('2026-11-17 06:00:00');
+    LearnerDailyStats::query()->create(['learner_id' => $fresh->id, 'date' => '2026-11-18', 'reviews_count' => 0, 'game_runs_count' => 1]);
+
+    expect(rt_cohort(rt_report(), '2026-11-16')['game'])->toBe(['d1' => null, 'd7' => null])
+        ->and(rt_cohort(rt_report('2026-11-19 10:00:00'), '2026-11-16')['game']['d1'])->toBe(['count' => 1, 'of' => 1, 'pct' => 100.0]);
 });

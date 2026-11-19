@@ -146,8 +146,9 @@ final class LearnerSettingsService
         }
 
         $changed = [];
+        $remindersDisabled = false;
 
-        DB::transaction(function () use ($learner, $values, &$changed): void {
+        DB::transaction(function () use ($learner, $values, &$changed, &$remindersDisabled): void {
             // `FOR NO KEY UPDATE` on PostgreSQL (as in CardPicker): the row is rewritten, but rows that
             // reference `learners` (daily stats, events, ...) can keep being inserted meanwhile.
             $lock = Learner::query()->whereKey($learner->id);
@@ -177,6 +178,9 @@ final class LearnerSettingsService
                     $changed[] = $field;
                 }
             }
+            // A time → null (not a change of the time): the guardrail of the reminder experiment (audit 2026-11-18).
+            $remindersDisabled = array_key_exists('reminder_time', $values) && $values['reminder_time'] === null
+                && $this->shortTime($fresh->reminder_time) !== null;
 
             if (array_key_exists('leagues_opt_out', $values)) {
                 $fresh->meta = [...($fresh->meta ?? []), LeagueService::OPT_OUT_META => (bool) $values['leagues_opt_out']];
@@ -214,6 +218,9 @@ final class LearnerSettingsService
 
         if ($changed !== []) {
             $this->events->record(ProductEventName::SettingsChanged, ['fields' => implode(',', $changed)], learner: $learner);
+        }
+        if ($remindersDisabled) {
+            $this->events->record(ProductEventName::RemindersDisabled, ['via' => 'settings'], learner: $learner);
         }
 
         if (in_array('daily_goal', $changed, true)) {

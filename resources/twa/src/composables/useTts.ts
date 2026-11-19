@@ -8,6 +8,7 @@
  */
 
 import { trackTtsAudio, trackTtsUtterance } from '@/composables/ttsActivity'
+import { markTiming } from '@/composables/useTimingMarks'
 
 // One sound at a time, across all useTts() instances: a fast second tap stops the first
 // instead of layering on top of it. `seq` lets a stale (superseded) speak() drop out quietly.
@@ -51,6 +52,8 @@ export function useTts() {
         current = audio
         trackTtsAudio(audio)
         await audio.play()
+        // play() resolves once the sound has started: the first word heard in this open (docs/04 A.21).
+        markTiming('first_audio')
         return
       } catch {
         // File missing / blocked — fall through to Web Speech.
@@ -69,6 +72,7 @@ export function useTts() {
         u.rate = 0.9
         if (voice) u.voice = voice
         trackTtsUtterance(u)
+        u.onstart = () => markTiming('first_audio')
         synth.cancel()
         synth.speak(u)
         return
@@ -86,6 +90,7 @@ export function useTts() {
       current = audio
       trackTtsAudio(audio)
       await audio.play()
+      markTiming('first_audio')
     } catch {
       // Silent — TTS is best-effort.
       if (mine === seq) current = null

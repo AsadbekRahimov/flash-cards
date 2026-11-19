@@ -13,6 +13,7 @@ use App\Domain\Learning\DTO\SessionSummary;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Enums\WordStage;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
+use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\GroupMember;
@@ -27,6 +28,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use LogicException;
+use Throwable;
 
 /**
  * Opens and closes training sessions (docs/12 §1.4, §3.3, §7.6).
@@ -57,6 +59,8 @@ final class TrainingSessionService
         private readonly ProductEventRecorder $events,
         private readonly ReferralService $referrals,
         private readonly LearnerClock $clock,
+        private readonly CorrectedMistakeFinder $corrections,
+        private readonly LocaleResolver $locales,
     ) {}
 
     /**
@@ -229,8 +233,12 @@ final class TrainingSessionService
      * closed the session with `finished`: `/finish` and the re-open of a completed round share them, a repeat of `/finish`
      * and a close as `expired` have none.
      *
+     * The summary of a round of hard words may carry one corrected mistake (`$withCorrected`, `/finish` only, docs/06 §14): one statement
+     * more, after the commit and only for `hard_review` - the internal closes (a round re-opened, the scheduler) do not ask for it.
+     *
      * @param  string  $reason  `done_reason` to store: `finished` (default) | `expired`
      * @param  Learner|null  $learner  the owner, when the caller has the row (read otherwise, for the side effects only)
+     * @param  bool  $withCorrected  look for a corrected mistake ({@see CorrectedMistakeFinder}); needs `$learner` (the locale)
      *
      * @throws TrainingSessionException not_personal for a group session
      */
@@ -239,6 +247,7 @@ final class TrainingSessionService
         string $reason = TrainingSession::DONE_FINISHED,
         ?CarbonImmutable $now = null,
         ?Learner $learner = null,
+        bool $withCorrected = false,
     ): SessionSummary {
         $now ??= CarbonImmutable::now();
 
@@ -246,6 +255,26 @@ final class TrainingSessionService
             throw TrainingSessionException::notPersonal();
         }
 
+        $summary = $this->close($session, $reason, $now, $learner);
+
+        if ($withCorrected && $learner !== null && $summary->session->mode === TrainingSession::MODE_HARD_REVIEW) {
+            // The session is closed and committed already: a failure of this extra line must not turn every retry of `/finish` into a 500.
+            try {
+                $corrected = $this->corrections->find($summary->session, $this->locales->forTrainingSession($summary->session, $learner));
+            } catch (Throwable $e) {
+                report($e);
+                $corrected = null;
+            }
+
+            return $summary->withCorrected($corrected);
+        }
+
+        return $summary;
+    }
+
+    /** The transaction of {@see finish()}: the lock, the close, the summary and the side effects after the commit. */
+    private function close(TrainingSession $session, string $reason, CarbonImmutable $now, ?Learner $learner): SessionSummary
+    {
         return DB::transaction(function () use ($session, $reason, $now, $learner): SessionSummary {
             /** @var TrainingSession $locked */
             $locked = TrainingSession::query()->lockForUpdate()->findOrFail($session->id);

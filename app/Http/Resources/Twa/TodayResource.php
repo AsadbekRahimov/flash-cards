@@ -37,7 +37,8 @@ final class TodayResource extends TwaResource
      *   timezone: string,
      *   game: array{available: bool, daily_available: bool, active_run: array{id: int, kind: string, progress: array{answered: int, total: int}}|null, class_caravan: array{id: int, stars_total: int, target_stars: int, ends_at: string}|null},
      *   practice: array{available: bool, pro_required: bool, modes: list<string>, battle: bool, pro_promise: string},
-     *   hard_round: array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null
+     *   hard_round: array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null,
+     *   assignments_possible: bool
      * }
      */
     public function toArray(Request $request): array
@@ -83,6 +84,8 @@ final class TodayResource extends TwaResource
             'practice' => $summary->practice,
             // The round of hard words (docs/06 §14): always present, null while `learning.hard_round.enabled` is off.
             'hard_round' => $summary->hardRound,
+            // false - surely no assignment of a center (no active membership of a linked group): the TWA does not ask `/assignments`.
+            'assignments_possible' => $summary->assignmentsPossible,
         ];
     }
 }

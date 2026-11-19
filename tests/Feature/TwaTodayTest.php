@@ -111,6 +111,8 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'practice' => ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'], 'battle' => false, 'pro_promise' => 'solo'],
         // The round of hard words (docs/06 §14): a fresh learner has no hard words.
         'hard_round' => ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null],
+        // In no group of a center: `GET /assignments` is surely empty (docs/04 A.2a).
+        'assignments_possible' => false,
     ]);
 });
 
@@ -432,6 +434,7 @@ it('adds the day\'s goal and streak to the /finish summary and keeps them on a r
         'league_points' => 18,
         // The round of hard words (docs/06 §14): none in this session; the invitation is the block of /today (no hard words yet).
         'hard_round' => null,
+        'corrected' => null, // a corrected mistake is told on the finish of the round of hard words only
         'hard_round_offer' => ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null],
     ];
     $this->withHeaders(todayHeaders($learner))->postJson("/api/twa/training/sessions/{$id}/finish")
