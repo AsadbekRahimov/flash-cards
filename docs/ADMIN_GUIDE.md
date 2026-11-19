@@ -245,6 +245,8 @@ The original PRD schema is also supported for compatibility (`course` may be add
 ### Word audio (pre-generation)
 Cards play a pre-generated mp3 when the word has one; otherwise the app falls back to the browser voice / live TTS. After importing a lesson pack or publishing a course, ask the developer/DevOps to run `php artisan audio:pregenerate <course-slug>` (it only queues the words that do not have current audio yet; `--force` redoes all). It runs in the background — voiced words appear within minutes. Editing a word's English text clears its audio and queues a new voice-over automatically. Inactive words are skipped. Publishing does not start it automatically.
 
+**Check the coverage before publishing.** `php artisan audio:coverage <course-slug>` prints, per module and in total, how many active words have audio recorded (read-only, nothing is queued). Add `--verify` to also check the files on the disk: it lists the words whose file is missing, empty or belongs to an old text (`--limit=N`, default 20; fix them with `audio:pregenerate`). `--min=95` makes the command end with a non-zero exit code below 95% (checked on the files with `--verify`), so a publish script can stop on it. Since the jobs run in the background, run the check after the queue is done.
+
 ### Manual word editing
 Open any Stage → Lesson → click on a word to edit its translation, example, or transcription. The word screen also has:
 - **Путают с** (confusable words) — English words of the *same course* this word is mixed up with (up to 10; Enter adds a tag).

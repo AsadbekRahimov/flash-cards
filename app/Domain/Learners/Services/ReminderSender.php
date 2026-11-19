@@ -10,6 +10,7 @@ use App\Domain\Learners\DTO\ReminderContent;
 use App\Domain\Learners\DTO\ReminderQuiz;
 use App\Domain\Learners\Enums\ReminderKind;
 use App\Domain\Learners\Enums\ReminderOutcome;
+use App\Domain\Learners\Enums\ReminderVariant;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
@@ -40,6 +41,10 @@ use Throwable;
  *     state of the question is stored BEFORE the Telegram call (a tap can only come after it) and the message has the
  *     answer buttons instead of the one app button. Whatever goes wrong while building or storing it, the reminder goes
  *     out as the plain text — it is never lost to the question.
+ *     While the experiment of {@see ReminderExperiment} runs, a quiz-eligible reminder gets the learner's sticky arm first:
+ *     the `plain` arm never builds a question; the `quiz` arm tries as always (intent to treat: a learner whose question
+ *     could not be built stays in the quiz arm, with `quiz_built = false`). The arm goes to `reminder.sent` /
+ *     `reminder.failed` and to the log row as `variant`; without the experiment none of them changes.
  *
  * At most once: the `notifications_log` row is written BEFORE the Telegram call, inside
  * the same lock. A timeout or 5xx may mean "delivered anyway", so on such an error the
@@ -67,6 +72,7 @@ final class ReminderSender
         private readonly ReminderQuizBuilder $quizzes,
         private readonly ReminderQuizStore $quizStore,
         private readonly ReminderQuizMessenger $quizMessenger,
+        private readonly ReminderExperiment $experiment,
     ) {}
 
     public function send(int $learnerId, CarbonImmutable $scheduledFor, ?CarbonImmutable $now = null): ReminderOutcome
@@ -100,7 +106,10 @@ final class ReminderSender
             }
 
             $locale = $this->locales->forLearner($learner);
-            $quiz = $this->quizFor($learner, $content, $locale, $now);
+            $variant = $this->experiment->variantFor($learner, $content, $now);
+            $quiz = $variant === ReminderVariant::Plain ? null : $this->quizFor($learner, $content, $locale, $now);
+            // The arm only while the experiment runs: the props and the payload of the other reminders stay what they were.
+            $arm = $variant === null ? [] : ['variant' => $variant->value];
 
             // Before the call, not after: see the class comment.
             $log = NotificationLog::query()->create([
@@ -113,6 +122,7 @@ final class ReminderSender
                     'idle_days' => $content->idleDays,
                     'quiz' => $quiz === null ? null : ['word_id' => $quiz->wordId, 'exercise' => $quiz->exercise->value],
                     'scheduled_for' => $scheduledFor->utc()->toIso8601String(),
+                    ...$arm,
                 ],
                 'sent_at' => $now,
             ]);
@@ -143,17 +153,23 @@ final class ReminderSender
                 ]);
                 $this->events->record(
                     ProductEventName::ReminderFailed,
-                    ['reason' => $e->reason, 'kind' => $content->kind->value],
+                    ['reason' => $e->reason, 'kind' => $content->kind->value, ...$arm],
                     learner: $learner,
                 );
 
                 return ReminderOutcome::Forbidden;
             }
 
-            // `quiz` only on a question: the props of a plain reminder stay exactly what they were.
+            // `quiz` only on a question: the props of a plain reminder stay exactly what they were. `quiz_built` only in the quiz arm.
             $this->events->record(
                 ProductEventName::ReminderSent,
-                ['kind' => $content->kind->value, 'due_count' => $content->dueCount, ...($quiz === null ? [] : ['quiz' => true])],
+                [
+                    'kind' => $content->kind->value,
+                    'due_count' => $content->dueCount,
+                    ...($quiz === null ? [] : ['quiz' => true]),
+                    ...$arm,
+                    ...($variant === ReminderVariant::Quiz ? ['quiz_built' => $quiz !== null] : []),
+                ],
                 learner: $learner,
             );
             if ($quiz !== null) {

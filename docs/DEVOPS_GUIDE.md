@@ -786,7 +786,11 @@ Words are voiced once by the edge-tts service (`TTS_SERVICE_URL`, `TTS_SERVICE_T
 ```bash
 php artisan audio:pregenerate <course-slug>          # queue jobs for active words without current audio
 php artisan audio:pregenerate <course-slug> --force  # re-synthesize existing files (one TTS call per unique text)
+php artisan audio:coverage <course-slug>             # report: active words vs words with audio_path, per module and total
+php artisan audio:coverage <course-slug> --verify --min=95   # also stat the files; exit 1 below 95% (gate for a publish script)
 ```
+
+- Coverage (`audio:coverage`, read-only): one grouped query for the per-module counts by `words.audio_path`; `--verify` walks the active words in chunks of 500 and stats each unique file once, counting a word as voiced only when its `audio_path` is the one its current text hashes to and the file exists and is non-empty (same rule as the pre-generation skip). The broken words are listed with the reason `missing` / `empty` / `stale` (first `--limit`, default 20); `audio:pregenerate` without `--force` fixes all three. Exit codes: 0 — ok, 1 — unknown course or coverage below `--min` (a course without active words is below any `--min` > 0), 2 — bad option.
 
 - Files: `storage/app/public/audio/{sha1(text|voice|version)}.mp3` (public disk), `words.audio_path` holds the relative path. Same text in several words/courses = one file. Writes are atomic: the body goes to `audio/.tmp/{name}.{random}` and is renamed onto the final name; an empty or truncated file counts as "not generated" and is rebuilt. Changing `TTS_VOICE` or `TTS_AUDIO_VERSION` produces new file names on its own, so run the command **without** `--force` after that (`--force` is only for replacing the contents of files that already exist, e.g. a bad batch); old files stay on disk (delete `storage/app/public/audio` and re-run the command to clean up). Editing a word's English text in the admin panel clears its `audio_path` and queues a new job.
 - The `tts` container must be reachable from the queue worker. If it is down, jobs retry and then land in `failed_jobs` (`php artisan queue:retry all` when it is back); the rest of the batch is not affected, learners just keep getting Web Speech / live `/api/twa/tts` (503 `tts_unavailable` when the TTS service is down or unreachable).

@@ -90,7 +90,7 @@ final class WordAudioCoverageService
      */
     private function countByStage(Course $course): array
     {
-        return $this->activeWords($course)
+        $rows = $this->activeWords($course)
             ->groupBy('stages.id', 'stages.number', 'stages.title')
             ->orderBy('stages.number')
             ->selectRaw(
@@ -99,16 +99,15 @@ final class WordAudioCoverageService
                 [''],
             )
             ->toBase()
-            ->get()
-            ->map(fn (object $row): array => [
-                'number' => (int) $row->stage_number,
-                'title' => (string) $row->stage_title,
-                'words' => (int) $row->words_total,
-                'with_audio' => (int) $row->with_audio,
-                'verified' => null,
-            ])
-            ->values()
-            ->all();
+            ->get();
+
+        return array_values($rows->map(fn (object $row): array => [
+            'number' => (int) $row->stage_number,
+            'title' => (string) $row->stage_title,
+            'words' => (int) $row->words_total,
+            'with_audio' => (int) $row->with_audio,
+            'verified' => null,
+        ])->all());
     }
 
     /** @return Builder<Word> the active words of the course, joined to their lesson and module */

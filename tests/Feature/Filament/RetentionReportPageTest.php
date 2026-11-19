@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 use App\Domain\Administration\Services\WidgetCache;
 use App\Domain\Analytics\Services\RetentionReportService;
+use App\Domain\Analytics\Support\WilsonInterval;
 use App\Domain\Operations\Support\PureCache;
 use App\Filament\Pages\RetentionReport;
+use App\Filament\Resources\Support\AdminNumbers;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\User;
@@ -92,7 +94,26 @@ it('shows the cohorts, the first session, the slice and the notes of how to read
         ->assertSee('Первое занятие')
         ->assertSee('Срез по языку и пробному Pro')
         ->assertSee('Интерфейс: узбекский')
-        ->assertSee('D1 около 14 %');
+        ->assertSee('D1 около 14 %')
+        ->assertSee('Активация за 24 часа')
+        ->assertSee('Самостоятельно')
+        ->assertSee('Учёба и игра: D1 и D7')
+        ->assertSee('Практика здесь не показана');
+});
+
+it('shows "count / of" under every percent and the Wilson interval of a small base', function (): void {
+    rtp_fill(6);
+    $this->actingAs(rtp_user('admin'));
+
+    // The week of Nov 2 has six learners, each studied on day 1..4 of it; the D1 cell of that week is some k of 6 with its interval.
+    $cohort = collect(app(RetentionReportService::class)->report()['cohorts'])->firstWhere('week_start', '2026-11-02');
+    $d1 = $cohort['retention']['d1'];
+    $interval = WilsonInterval::of($d1['count'], $d1['of']);
+
+    livewire(RetentionReport::class)
+        ->assertOk()
+        ->assertSee($d1['count'].' / '.$d1['of'])
+        ->assertSee('95 %: '.AdminNumbers::decimal($interval['low'], 1).'–'.AdminNumbers::decimal($interval['high'], 1));
 });
 
 it('runs the same number of queries for 5 learners and for 60', function (): void {

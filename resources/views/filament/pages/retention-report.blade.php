@@ -1,5 +1,6 @@
 @php
     use App\Domain\Analytics\Services\RetentionReportService;
+    use App\Domain\Analytics\Support\WilsonInterval;
     use App\Filament\Resources\Support\AdminDates;
     use App\Filament\Resources\Support\AdminNumbers;
     use Carbon\CarbonImmutable;
@@ -9,9 +10,21 @@
     $first = $report['first_session'];
     $segments = $report['segments'];
 
-    // A cell is null (a dash, never 0 %) or ['count', 'of', 'pct']; the percent above, the number of learners under it.
+    // A cell is null (a dash, never 0 %) or ['count', 'of', 'pct']; the percent above, "count / of" under it and, for a base
+    // under WilsonInterval::SMALL_BASE, the Wilson 95 % interval under that (audit 2026-11-18: show the uncertainty of small cohorts).
     $cellPct = fn (mixed $cell): string => is_array($cell) ? AdminNumbers::decimal((float) $cell['pct'], 1).' %' : '—';
-    $cellCount = fn (mixed $cell): string => is_array($cell) ? (string) (int) $cell['count'] : '';
+    $cellCount = fn (mixed $cell): string => is_array($cell) ? (int) $cell['count'].' / '.(int) $cell['of'] : '';
+    $cellCi = function (mixed $cell): string {
+        $interval = is_array($cell) ? WilsonInterval::forSmallBase((int) $cell['count'], (int) $cell['of']) : null;
+
+        return $interval === null ? '' : __('admin.retention.interval', [
+            'low' => AdminNumbers::decimal($interval['low'], 1),
+            'high' => AdminNumbers::decimal($interval['high'], 1),
+        ]);
+    };
+    $startedCell = fn (array $cohort): ?array => $cohort['started_pct'] === null
+        ? null
+        : ['count' => (int) $cohort['started'], 'of' => (int) $cohort['size'], 'pct' => (float) $cohort['started_pct']];
     $seconds = function (mixed $value): string {
         if ($value === null) {
             return '—';
@@ -37,6 +50,7 @@
             .rt-cell { display: flex; flex-direction: column; align-items: center; line-height: 1.1rem; }
             .rt-cell strong { font-weight: 600; }
             .rt-cell .lm-muted { line-height: 0.875rem; }
+            .rt-cell .rt-ci { font-size: 0.6875rem; opacity: 0.55; white-space: nowrap; }
             .rt-dash { opacity: 0.45; }
             .rt-help { display: flex; flex-direction: column; gap: 0.375rem; margin: 0; padding-inline-start: 1.1rem; list-style: disc; font-size: 0.875rem; }
             .rt-updated { margin: 0; font-size: 0.8125rem; opacity: 0.65; }
@@ -56,6 +70,9 @@
             <li>{{ __('admin.retention.help.dn') }}</li>
             <li>{{ __('admin.retention.help.dash') }}</li>
             <li>{{ __('admin.retention.help.weeks') }}</li>
+            <li>{{ __('admin.retention.help.interval', ['base' => WilsonInterval::SMALL_BASE]) }}</li>
+            <li>{{ __('admin.retention.help.activation') }}</li>
+            <li>{{ __('admin.retention.help.game') }}</li>
             <li>{{ __('admin.retention.help.benchmarks') }}</li>
         </ul>
     </x-filament::section>
@@ -92,19 +109,9 @@
                             </td>
                             <td class="lm-num">{{ (int) $cohort['size'] }}</td>
                             <td class="lm-num">{{ (int) $cohort['onboarded'] }}</td>
-                            <td class="lm-num">
-                                <span class="rt-cell">
-                                    <strong>{{ $cohort['started_pct'] === null ? '—' : AdminNumbers::decimal((float) $cohort['started_pct'], 1).' %' }}</strong>
-                                    <span class="lm-muted">{{ (int) $cohort['started'] }}</span>
-                                </span>
-                            </td>
-                            @foreach ($retentionKeys as $key)
-                                @php($cell = $cohort['retention'][$key] ?? null)
+                            @foreach ([$startedCell($cohort), ...array_map(fn (string $key): mixed => $cohort['retention'][$key] ?? null, $retentionKeys)] as $cell)
                                 <td class="lm-num">
-                                    <span class="rt-cell {{ is_array($cell) ? '' : 'rt-dash' }}">
-                                        <strong>{{ $cellPct($cell) }}</strong>
-                                        <span class="lm-muted">{{ $cellCount($cell) }}</span>
-                                    </span>
+                                    @include('filament.pages.partials.retention-cell', ['cell' => $cell])
                                 </td>
                             @endforeach
                         </tr>
@@ -113,6 +120,76 @@
             </table>
         @endif
     </x-filament::section>
+
+    @if (collect($cohorts)->sum('size') > 0)
+        <x-filament::section
+            :heading="__('admin.retention.activation.heading')"
+            :description="__('admin.retention.activation.description', ['hours' => RetentionReportService::ACTIVATION_HOURS])"
+        >
+            <table class="lm-table rt-table">
+                <thead>
+                    <tr>
+                        <th>{{ __('admin.retention.cohorts.columns.week') }}</th>
+                        <th class="lm-num">{{ __('admin.retention.cohorts.columns.size') }}</th>
+                        @foreach (RetentionReportService::ACTIVATION_CUTS as $cut)
+                            <th class="lm-num">{{ __('admin.retention.activation.columns.'.$cut) }}</th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($cohorts as $cohort)
+                        <tr wire:key="activation-{{ $cohort['week_start'] }}">
+                            <td class="lm-nowrap lm-small"><strong>{{ AdminDates::date(CarbonImmutable::parse((string) $cohort['week_start'])) }}</strong></td>
+                            <td class="lm-num">{{ (int) $cohort['size'] }}</td>
+                            @foreach (RetentionReportService::ACTIVATION_CUTS as $cut)
+                                <td class="lm-num">
+                                    @include('filament.pages.partials.retention-cell', ['cell' => $cohort['activation'][$cut] ?? null])
+                                </td>
+                            @endforeach
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+            <p class="lm-note">{{ __('admin.retention.activation.note', ['hours' => RetentionReportService::ACTIVATION_HOURS]) }}</p>
+        </x-filament::section>
+
+        <x-filament::section
+            :heading="__('admin.retention.game.heading')"
+            :description="__('admin.retention.game.description')"
+        >
+            <table class="lm-table rt-table">
+                <thead>
+                    <tr>
+                        <th>{{ __('admin.retention.cohorts.columns.week') }}</th>
+                        <th class="lm-num">{{ __('admin.retention.cohorts.columns.size') }}</th>
+                        <th>{{ __('admin.retention.game.columns.kind') }}</th>
+                        @foreach (RetentionReportService::GAME_DAYS as $day)
+                            <th class="lm-num">{{ __('admin.retention.cohorts.columns.d'.$day) }}</th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($cohorts as $cohort)
+                        @foreach (['study' => $cohort['retention'], 'game' => $cohort['game']] as $kind => $cells)
+                            <tr wire:key="game-{{ $cohort['week_start'] }}-{{ $kind }}">
+                                @if ($kind === 'study')
+                                    <td class="lm-nowrap lm-small" rowspan="2"><strong>{{ AdminDates::date(CarbonImmutable::parse((string) $cohort['week_start'])) }}</strong></td>
+                                    <td class="lm-num" rowspan="2">{{ (int) $cohort['size'] }}</td>
+                                @endif
+                                <td class="lm-nowrap lm-small">{{ __('admin.retention.game.rows.'.$kind) }}</td>
+                                @foreach (RetentionReportService::GAME_DAYS as $day)
+                                    <td class="lm-num">
+                                        @include('filament.pages.partials.retention-cell', ['cell' => $cells['d'.$day] ?? null])
+                                    </td>
+                                @endforeach
+                            </tr>
+                        @endforeach
+                    @endforeach
+                </tbody>
+            </table>
+            <p class="lm-note">{{ __('admin.retention.game.note') }}</p>
+        </x-filament::section>
+    @endif
 
     <x-filament::section
         :heading="__('admin.retention.first_session.heading')"
@@ -126,7 +203,7 @@
             @foreach (['opened', 'finished', 'abandoned', 'round_again', 'second_24h', 'second_7d'] as $metric)
                 <div>
                     <dt>{{ __('admin.retention.first_session.'.$metric, ['minutes' => RetentionReportService::ROUND_GAP_MINUTES]) }}</dt>
-                    <dd>{{ $cellPct($first[$metric]) }} @if (is_array($first[$metric]))<small>{{ (int) $first[$metric]['count'] }} / {{ (int) $first[$metric]['of'] }}</small>@endif</dd>
+                    <dd>{{ $cellPct($first[$metric]) }} @if (is_array($first[$metric]))<small>{{ $cellCount($first[$metric]) }}@if ($cellCi($first[$metric]) !== '') · {{ $cellCi($first[$metric]) }}@endif</small>@endif</dd>
                 </div>
             @endforeach
             <div>
@@ -166,10 +243,7 @@
                             <td class="lm-num">{{ (int) $row['size'] }}</td>
                             @foreach (['d1', 'd7'] as $key)
                                 <td class="lm-num">
-                                    <span class="rt-cell {{ is_array($row[$key]) ? '' : 'rt-dash' }}">
-                                        <strong>{{ $cellPct($row[$key]) }}</strong>
-                                        <span class="lm-muted">{{ is_array($row[$key]) ? (int) $row[$key]['count'].' / '.(int) $row[$key]['of'] : '' }}</span>
-                                    </span>
+                                    @include('filament.pages.partials.retention-cell', ['cell' => $row[$key]])
                                 </td>
                             @endforeach
                         </tr>

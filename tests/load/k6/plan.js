@@ -80,13 +80,22 @@ export function tokenProblem(learners, file, needed, runSeconds = 0, nowMs = Dat
 // The mixed profile: who plays what, and with which tokens
 // ---------------------------------------------------------------------------------------------------------------------
 
-/** The flows of the mix, in the order that breaks ties (of the remainders, of the interleaving). */
-export const MIX_FLOWS = ['training', 'game', 'practice', 'battle'];
+/**
+ * The flows of the mix, in the order that breaks ties (of the remainders, of the interleaving). `browse` (Today, profile, courses, practice
+ * hub, catalog - the light path of twa-hot-paths.js) is LAST: with its share 0 every other flow gets what it got before it existed.
+ */
+export const MIX_FLOWS = ['training', 'game', 'practice', 'battle', 'browse'];
+
+/** The flows of one learner per VU, the ones a last odd learner can go to. */
+const SOLO_FLOWS = MIX_FLOWS.filter((flow) => flow !== 'battle');
+
+/** The token file is cut in this order: the battle first (its pairs must start on an even index), the new flows at the end. */
+const RANGE_ORDER = ['battle', 'training', 'game', 'practice', 'browse'];
 
 const EPSILON = 1e-9;
 
 /**
- * Splits `targetVus` active learners over the flows of the mix by `shares` ({training, game, practice, battle}, each >= 0; their sum
+ * Splits `targetVus` active learners over the flows of the mix by `shares` ({training, game, practice, battle, browse}, each >= 0, a missing one is 0; their sum
  * may be below 1 - the rest stays idle - but not above it). A battle VU plays a PAIR of learners, so the battle gets whole pairs.
  *
  * Largest remainder: every flow first takes the whole part of its quota (in learners; the battle the whole pairs of it), then the
@@ -96,7 +105,7 @@ const EPSILON = 1e-9;
  *
  * The token file is cut into ranges that do not overlap, [start, end) by index: the battle FIRST, from index 0 - the pairs of
  * LoadScenarioSeeder are the learners 1-2, 3-4, ... i.e. the indexes (0, 1), (2, 3), ..., so the pool must start on an even index,
- * and only index 0 is even whatever the other counts are - then training, game, practice.
+ * and only index 0 is even whatever the other counts are - then training, game, practice, browse.
  */
 export function allocateMix(targetVus, shares) {
   if (!Number.isInteger(targetVus) || targetVus < 0) {
@@ -113,7 +122,7 @@ export function allocateMix(targetVus, shares) {
     quota[flow] = targetVus * share;
   }
   if (shareSum > 1 + EPSILON) {
-    throw new Error(`MIX_TRAINING + MIX_GAME + MIX_PRACTICE + MIX_BATTLE = ${shareSum.toFixed(4)}: the shares of the learners may not add up to more than 1.`);
+    throw new Error(`MIX_TRAINING + MIX_GAME + MIX_PRACTICE + MIX_BATTLE + MIX_BROWSE = ${shareSum.toFixed(4)}: the shares of the learners may not add up to more than 1.`);
   }
 
   // Learners per flow; the battle in steps of two.
@@ -134,7 +143,7 @@ export function allocateMix(targetVus, shares) {
     }
     if (best === null) {
       // Only a pair is short and one learner is left: it goes to the solo flow with the biggest shortfall rather than idle.
-      for (const flow of ['training', 'game', 'practice']) {
+      for (const flow of SOLO_FLOWS) {
         if (quota[flow] > 0 && (best === null || quota[flow] - learners[flow] > quota[best] - learners[best] + EPSILON)) {
           best = flow;
         }
@@ -151,7 +160,7 @@ export function allocateMix(targetVus, shares) {
   const pairs = learners.battle / 2;
   const ranges = {};
   let next = 0;
-  for (const flow of ['battle', 'training', 'game', 'practice']) {
+  for (const flow of RANGE_ORDER) {
     ranges[flow] = { start: next, end: next + learners[flow] };
     next += learners[flow];
   }
@@ -161,10 +170,11 @@ export function allocateMix(targetVus, shares) {
     training: learners.training,
     game: learners.game,
     practice: learners.practice,
+    browse: learners.browse,
     pairs,
     // VUs of each flow: one per solo learner, one per pair.
-    vus: { training: learners.training, game: learners.game, practice: learners.practice, battle: pairs },
-    totalVus: learners.training + learners.game + learners.practice + pairs,
+    vus: { training: learners.training, game: learners.game, practice: learners.practice, battle: pairs, browse: learners.browse },
+    totalVus: learners.training + learners.game + learners.practice + pairs + learners.browse,
     // Learners in the run = tokens it needs: the ranges cover exactly [0, participants).
     participants: next,
     ranges,
@@ -187,7 +197,7 @@ export function mixSlot(allocation, vuId) {
   if (!Number.isInteger(vuId) || vuId < 1 || vuId > total) {
     return null;
   }
-  const dealt = { training: 0, game: 0, practice: 0, battle: 0 };
+  const dealt = Object.fromEntries(MIX_FLOWS.map((name) => [name, 0]));
   let flow = null;
   for (let n = 1; n <= vuId; n++) {
     flow = null;

@@ -30,6 +30,8 @@ enum ProductEventName: string
     case ReminderQuizAnswered = 'reminder.quiz_answered';
     /** A tap on a question that is no longer there (props: reason — missing / token_mismatch / no_message). */
     case ReminderQuizExpired = 'reminder.quiz_expired';
+    /** The learner turned the personal reminders off: `reminder_time` went from a time to null (props: via — settings / onboarding). */
+    case RemindersDisabled = 'reminders.disabled';
     case GroupBotAdded = 'group.bot_added';
     case GroupMemberJoined = 'group.member_joined';
     case GroupMemberLeft = 'group.member_left';

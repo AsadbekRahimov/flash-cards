@@ -29,12 +29,15 @@ use App\Models\Stage;
 use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\User;
+use App\Models\Word;
+use App\Models\WordRepetition;
 use Database\Seeders\RolePermissionSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Livewire\Livewire;
 use PHPUnit\Framework\ExpectationFailedException;
 use Tests\Support\FilamentQueryBudget;
 use Tests\Support\QueryLog;
@@ -292,6 +295,52 @@ it('lists the results of an assignment within budget', function (string $who): v
     };
 
     FilamentQueryBudget::assert(ResultsRelationManager::class, $fill, ceiling: 16, parameters: ['ownerRecord' => $assignment, 'pageClass' => ViewAssignment::class]);
+})->with(['owner', 'teacher']);
+
+it('renders the view page of an assignment with its summary and material to repeat within budget', function (string $who): void {
+    config(['learning.leech.threshold' => 4]);
+    $c = budgetCenter();
+    budgetEnter($c[$who], $c['organization']);
+    $assignment = Assignment::factory()->create(['organization_id' => $c['organization']->id, 'telegram_group_id' => $c['group']->id, 'lesson_id' => $c['lesson']->id]);
+    $words = Word::factory()->count(5)->for($c['lesson'])->create();
+
+    // Learners of the group in every state of the summary (fresh rows: opening the page recounts nothing), each failing
+    // every word of the lesson - the summary and the hard words are aggregates, so neither grows with the class.
+    $fill = function (int $rows) use ($c, $assignment, $words): void {
+        $have = AssignmentResult::query()->where('assignment_id', $assignment->id)->count();
+
+        for ($i = $have; $i < $rows; $i++) {
+            $learner = Learner::factory()->memberOf($c['group'])->seatedIn($c['organization'])->create();
+            AssignmentResult::factory()
+                ->when($i % 3 === 0, fn ($factory) => $factory->completed())
+                ->create(['assignment_id' => $assignment->id, 'learner_id' => $learner->id, 'progress_pct' => [100, 50, 0][$i % 3]]);
+            foreach ($words as $word) {
+                WordRepetition::factory()->create(['learner_id' => $learner->id, 'word_id' => $word->id, 'lapses' => 5]);
+            }
+        }
+    };
+
+    // A render nobody measures first, as FilamentQueryBudget does: once-per-process work is not counted against one size.
+    Livewire::test(ViewAssignment::class, ['record' => $assignment->id]);
+
+    $queries = [];
+    foreach ([FilamentQueryBudget::SMALL, FilamentQueryBudget::LARGE] as $rows) {
+        $fill($rows);
+        app()->forgetScopedInstances();
+        $component = null;
+        $queries[$rows] = QueryLog::during(function () use (&$component, $assignment): void {
+            $component = Livewire::test(ViewAssignment::class, ['record' => $assignment->id]);
+        });
+        $component?->assertSee(__('org.assignments.repeat.heading'))->assertSee('из '.$rows);
+    }
+
+    $large = $queries[FilamentQueryBudget::LARGE];
+    expect(count($large))->toBe(count($queries[FilamentQueryBudget::SMALL]))
+        // 13 before the summary and the material to repeat (docs/AUDIT_2026-11-18 "утром после занятия"): one statement more.
+        ->and(count($large))->toBeLessThanOrEqual(14, implode("\n", $large))
+        // The material to repeat is ONE statement; the summary none of its own (the record's query counts it, see the ceiling).
+        ->and(QueryLog::matching($large, '/join ["`]word_repetitions["`]/'))->toHaveCount(1)
+        ->and(roleLookups($large))->toBe(1);
 })->with(['owner', 'teacher']);
 
 it('reports the statements that run once per row when a page has an N+1', function (): void {

@@ -134,7 +134,8 @@ final class TrainingController
         try {
             // The event `training.session_finished` and the referral evaluation are the service's (after its commit, once):
             // the re-open of a round played to the end without `/finish` closes it the same way (docs/06 §13.2).
-            $summary = $this->sessions->finish($session, learner: $learner);
+            // The round of hard words may tell one mistake of an earlier session corrected in it (`corrected`, docs/06 §14).
+            $summary = $this->sessions->finish($session, learner: $learner, withCorrected: true);
         } catch (TrainingSessionException $e) {
             return ApiErrorResource::respond(403, $e->reason, $e->getMessage());
         }
