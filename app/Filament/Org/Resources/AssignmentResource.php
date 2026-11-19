@@ -324,7 +324,7 @@ class AssignmentResource extends OrgResource
         return [
             'index' => Pages\ListAssignments::route('/'),
             'create' => Pages\CreateAssignment::route('/create'),
-            'view' => Pages\ViewAssignment::route('/{record}'),
+            'view' => ViewAssignment::route('/{record}'),
         ];
     }
 }

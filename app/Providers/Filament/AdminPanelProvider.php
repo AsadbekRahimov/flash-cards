@@ -7,10 +7,12 @@ namespace App\Providers\Filament;
 use App\Filament\Support\InitialAvatarProvider;
 use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
+use App\Filament\Widgets\ExerciseMixTableWidget;
 use App\Filament\Widgets\GameActivityWidget;
 use App\Filament\Widgets\HardestWordsTableWidget;
 use App\Filament\Widgets\LeagueGroupsTableWidget;
 use App\Filament\Widgets\OnboardingFunnelWidget;
+use App\Filament\Widgets\OrgActivationTableWidget;
 use App\Filament\Widgets\OrganizationSeatsTableWidget;
 use App\Filament\Widgets\PlatformSubscriptionsWidget;
 use App\Filament\Widgets\RevenueLast30DaysWidget;
@@ -72,6 +74,8 @@ class AdminPanelProvider extends PanelProvider
                 RevenueLast30DaysWidget::class,
                 WebhookErrorsWidget::class,
                 GameActivityWidget::class,
+                OrgActivationTableWidget::class,
+                ExerciseMixTableWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

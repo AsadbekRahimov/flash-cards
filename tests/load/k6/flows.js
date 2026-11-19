@@ -1,6 +1,7 @@
-// One iteration of each kind of learner activity of the Mini App, as functions: the scenario files (twa-training-mature.js,
-// game-caravan.js, practice-session.js, battle.js) call one each, mixed-profile.js calls all of them side by side. The shapes of
-// the calls follow resources/twa/src (stores/training.ts, game, practice, battle) and docs/04 A.x.
+// One iteration of each kind of learner activity of the Mini App, as functions: the scenario files (twa-hot-paths.js,
+// twa-training-mature.js, game-caravan.js, practice-session.js, battle.js, arrival-burst.js) call one each, mixed-profile.js calls all
+// of them side by side. The shapes of the calls follow resources/twa/src (views/TodayView.vue, stores/assignments.ts, training.ts,
+// game, practice, battle) and docs/04 A.x.
 //
 // Pacing follows the cost table of docs/AUDIT_2026-11-10_RU.md §2: training ~13-20 requests a minute per learner, game and
 // practice 10-40, battle ~40 (two polls every 2 s for a pair = 30 a minute per player, plus the answers). All of the
@@ -8,9 +9,12 @@
 // `rate_limited` threshold of the scenarios says when they do not.
 import { check, sleep } from 'k6';
 import { Counter, Rate, Trend } from 'k6/metrics';
-import { get, post, ok, think, json, uuid, answerFor, getAudio, pick } from './lib.js';
+import { get, getBatch, post, ok, think, json, uuid, answerFor, getAudio, pick } from './lib.js';
 
-/** Flows that ended on a refusal or an unexpected answer of the API (limit reached, no material, 4xx): the run measured less than it should. */
+/**
+ * Flows that ended on a refusal or an unexpected answer of the API (limit reached, no material, 4xx): the run measured less than it
+ * should. Tags: `step` (where it stopped: training_mature, game_run, practice_answer, battle, ...) and `status`; the mix adds `flow`.
+ */
 export const flowAborted = new Counter('flow_aborted');
 /** A flow that reached its natural end (a session finished, a run ended, a match closed): `rate>0.95` in the thresholds. */
 export const flowCompleted = new Rate('flow_completed');
@@ -22,11 +26,19 @@ export const gameAnswers = new Counter('game_answers');
 export const practiceAnswers = new Counter('practice_answers');
 export const battleAnswers = new Counter('battle_answers');
 export const battleDuration = new Trend('battle_duration_s');
+/**
+ * How a match ended, tag `reason`: `finished` - played to its last round; `closed` - the room closed before that (cancelled,
+ * declined, the invitation or the room timed out on the server); `abandoned` - still open after 5 minutes, the script cancelled or
+ * surrendered it; `poll_failed` - the poll answered no JSON. `flow_completed` counts the first two alike; this tells them apart.
+ */
+export const battleEndings = new Counter('battle_endings');
+/** Opens of Today that asked `GET /assignments` (true) or skipped it on `assignments_possible: false` (false). */
+export const assignmentsRequested = new Rate('assignments_requested');
 
 const BATTLE_POLL_SECONDS = { invited: 5, room: 3, countdown: 2, playing: 2, finished: 2, closed: 2 };
 
 function refused(res, what) {
-  flowAborted.add(1, { flow: what, status: String(res.status) });
+  flowAborted.add(1, { step: what, status: String(res.status) });
   flowCompleted.add(false);
   const body = json(res);
   // The code of the refusal is the thing to read in the output of k6 (limits, access, material): print the first of each kind.
@@ -42,6 +54,82 @@ function refused(res, what) {
 
 function elapsed(since) {
   return (Date.now() - since) / 1000;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// (0) Opening the Mini App and browsing: Today, profile, courses, practice hub, catalog
+// ---------------------------------------------------------------------------------------------------------------------
+
+/**
+ * The first screen, the way TodayView.vue loads it: `GET /today` and, by the rule of stores/assignments.ts, `GET /assignments`.
+ * `device` is what the device remembers of the last `/today` of this learner (`{ assignmentsPossible: undefined | true | false }`,
+ * localStorage `lexiflow:assignments-possible` in the client) and is updated here:
+ *  - remembered true (a member of a center's group): the list goes out at once, in parallel with `/today`;
+ *  - otherwise (first open, or the last answer was false): `/today` first; `assignments_possible: false` - no `/assignments` at all;
+ *    true or no field (an older server) - the list is asked then.
+ * A failed `/today` asks nothing more (the client has no answer to follow). Returns the two responses (`assignments` null when not
+ * asked).
+ */
+export function openToday(token, device) {
+  const early = device.assignmentsPossible === true;
+  let today;
+  let assignments = null;
+  if (early) {
+    [today, assignments] = getBatch([
+      ['/api/twa/today', 'today'],
+      ['/api/twa/assignments', 'assignments'],
+    ], token);
+  } else {
+    today = get('/api/twa/today', token, 'today');
+  }
+  const todayOk = ok(today, 'today');
+  if (todayOk) {
+    const body = json(today);
+    // Exactly false skips the list; absent (an older server) or true keeps the old path.
+    device.assignmentsPossible = !(body !== null && body.assignments_possible === false);
+    if (!early && device.assignmentsPossible) {
+      assignments = get('/api/twa/assignments', token, 'assignments');
+    }
+  }
+  assignmentsRequested.add(assignments !== null);
+  if (assignments !== null) {
+    ok(assignments, 'assignments');
+  }
+  return { today, assignments };
+}
+
+/**
+ * Opening the Mini App and looking around (the light path of twa-hot-paths.js, docs/11 O4): Today (+ assignments by the rule of
+ * openToday()), profile, courses, practice hub, billing catalog. 5 requests (6 for a member of a group) with ~9 s of pauses at
+ * THINK_SCALE=1 (0.5-1.5 s, 4 x 1-3 s): ~33 requests a minute of a learner who only browses, under `twa-api` 60.
+ */
+export function browse(token, course, device) {
+  openToday(token, device);
+  think(0.5, 1.5);
+  ok(get('/api/twa/me', token, 'me'), 'me');
+  think(1, 3);
+
+  ok(get('/api/twa/courses', token, 'courses'), 'courses');
+  think(1, 3);
+  ok(get(`/api/twa/practice/hub?course=${encodeURIComponent(course)}`, token, 'practice_hub'), 'practice_hub');
+  think(1, 3);
+  ok(get('/api/twa/billing/catalog', token, 'billing_catalog'), 'billing_catalog');
+  think(1, 3);
+}
+
+/**
+ * The lesson of an announcement (`/twa/?from=assignment&lesson=<id>`, TodayView.vue): after Today the client opens the lesson at once
+ * with `source: assignment`; an open session of the same lesson is returned again, so an open of the same learner a minute later does
+ * not stack sessions. Returns the response (201 / 200 with `session_id` and the first card).
+ */
+export function openAssignedLesson(token, lessonId) {
+  const opened = post('/api/twa/training/sessions', { mode: 'lesson', lesson_id: lessonId, source: 'assignment' }, token, 'training_open');
+  if (ok(opened, 'training_open')) {
+    flowCompleted.add(true);
+  } else {
+    refused(opened, 'class_lesson');
+  }
+  return opened;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -269,7 +357,7 @@ export function battle(a, b, course, mode) {
   const partner = `Load${b.telegram_user_id - 8000000000}`;
   const friendship = (friends?.friends || []).find((f) => f.first_name === partner);
   if (!friendship) {
-    flowAborted.add(1, { flow: 'battle', status: 'no_friendship' });
+    flowAborted.add(1, { step: 'battle', status: 'no_friendship' });
     flowCompleted.add(false);
     console.warn(`battle: ${partner} is not a friend of the first player: run \`db:seed --class=LoadScenarioSeeder\` (pairs 1-2, 3-4, ...)`);
     sleep(10);
@@ -300,12 +388,14 @@ export function battle(a, b, course, mode) {
   ];
   let roomSince = 0;
   let status = 'invited';
+  let mineFailed = false;
 
   // At most ~5 minutes: an invitation lives 300 s, a match of five rounds a lot less.
   while (elapsed(started) < 300 && status !== 'finished' && status !== 'closed') {
     const polls = players.filter((p) => p.accepted).map((p) => ({ p, poll: json(get(`${base}/poll`, p.who.token, 'battle_poll')) }));
     const mine = polls[0].poll;
     if (!mine) {
+      mineFailed = true;
       break;
     }
     status = mine.status;
@@ -352,6 +442,7 @@ export function battle(a, b, course, mode) {
   }
 
   const done = status === 'finished' || status === 'closed';
+  battleEndings.add(1, { reason: done ? status : (mineFailed ? 'poll_failed' : 'abandoned') });
   if (done) {
     // The result screen of each player.
     ok(get(base, a.token, 'battle_result'), 'battle_result');

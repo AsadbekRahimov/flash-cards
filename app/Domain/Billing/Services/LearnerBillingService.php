@@ -6,6 +6,7 @@ namespace App\Domain\Billing\Services;
 
 use App\Domain\Billing\DTO\Checkout;
 use App\Domain\Billing\DTO\Entitlement;
+use App\Domain\Billing\Enums\OfferPlacement;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
@@ -43,13 +44,14 @@ final class LearnerBillingService
      * Creates the pending order and the provider's payment link.
      *
      * @param  string  $via  `twa` | `bot`
+     * @param  OfferPlacement|null  $placement  where the TWA's purchase sheet was opened from (`checkout.started` only); null from the bot
      *
      * @throws BillingException CheckoutException codes, or provider_unavailable when the provider failed
      */
-    public function checkout(Learner $learner, Plan $plan, string $period, SubscriptionProvider $provider, string $via): Checkout
+    public function checkout(Learner $learner, Plan $plan, string $period, SubscriptionProvider $provider, string $via, ?OfferPlacement $placement = null): Checkout
     {
         try {
-            $order = $this->checkout->create($learner, $plan, $period, $provider, null, $via);
+            $order = $this->checkout->create($learner, $plan, $period, $provider, null, $via, placement: $placement);
         } catch (Throwable $e) {
             // CheckoutService has already failed the order and logged the cause.
             throw self::isProviderFailure($e) ? ProviderUnavailableException::during('checkout', $provider->value) : $e;

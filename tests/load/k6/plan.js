@@ -223,3 +223,83 @@ export function mixSlot(allocation, vuId) {
 
   return { flow, rank, tokens };
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The burst of Mini App opens (arrival-burst.js): how many opens, which learner each one plays, which ones take the class path
+// ---------------------------------------------------------------------------------------------------------------------
+
+/**
+ * A learner may open the app again in the same burst (a second tap on the broadcast, back from another chat), but not sooner than
+ * this: an open takes a second or two, so with this gap a learner never runs two opens at once unless an open hangs for a minute -
+ * which the thresholds fail anyway.
+ */
+export const BURST_REOPEN_GAP_SECONDS = 60;
+
+/** The arrival-rate stages of a burst: from 0 up to `rate` opens a second over `ramp`, then `rate` held for `hold`. */
+export function burstStages(rate, ramp, hold) {
+  return [
+    { duration: ramp, target: rate },
+    { duration: hold, target: rate },
+  ];
+}
+
+/** The opens a burst plans: half the rate over the linear ramp, the full rate over the hold. NaN on a bad duration. */
+export function plannedOpens(rate, ramp, hold) {
+  return Math.ceil((rate * parseDuration(ramp)) / 2 + rate * parseDuration(hold));
+}
+
+/**
+ * The VUs of the burst: `preAllocatedVUs` and `maxVUs` of ramping-arrival-rate. An open is 2-4 requests with no think time (~1 s on a
+ * healthy server), so twice the rate starts it without allocating mid-run, and ten times the rate covers a server ten times slower
+ * before k6 has to drop opens (`dropped_iterations`). Explicit values win; maxVUs is never below preAllocatedVUs.
+ */
+export function burstVus(rate, preAllocated, max) {
+  const pre = Number.isInteger(preAllocated) && preAllocated > 0 ? preAllocated : Math.max(10, rate * 2);
+  const ceiling = Number.isInteger(max) && max > 0 ? max : Math.max(50, rate * 10);
+  return { preAllocatedVUs: pre, maxVUs: Math.max(pre, ceiling) };
+}
+
+/**
+ * The learners a burst needs so that nobody opens twice within BURST_REOPEN_GAP_SECONDS: every open its own learner when the run is
+ * short (`opens`), otherwise the opens of a gap at the full rate (the token of iteration i comes back at iteration i + pool).
+ */
+export function burstPool(rate, opens) {
+  return Math.max(1, Math.min(opens, Math.ceil(rate * BURST_REOPEN_GAP_SECONDS)));
+}
+
+/**
+ * The refusals of a burst before it starts (null when it may run): the rate, the durations, the share of class opens. The size of
+ * the token file and the lifetime of its tokens are tokenProblem()'s, with burstPool() learners.
+ */
+export function burstProblem(rate, ramp, hold, classShare) {
+  if (!Number.isInteger(rate) || rate < 1) {
+    return `BURST_RATE must be a whole number of opens a second >= 1, got ${rate}.`;
+  }
+  if (!Number.isFinite(parseDuration(ramp)) || parseDuration(ramp) <= 0) {
+    return `BURST_RAMP is not a k6 duration above 0 (e.g. 30s, 1m), got "${ramp}".`;
+  }
+  if (!Number.isFinite(parseDuration(hold))) {
+    return `HOLD is not a k6 duration (e.g. 2m, 10m), got "${hold}".`;
+  }
+  if (!Number.isFinite(classShare) || classShare < 0 || classShare > 1) {
+    return `CLASS_SHARE must be a number from 0 to 1, got ${classShare}.`;
+  }
+  return null;
+}
+
+/**
+ * The token index of the open number `iteration` (0-based, unique over the run: k6's exec.scenario.iterationInTest) in a pool of
+ * `pool` learners: in turn, so a learner comes back only after all the others have opened once - `pool / rate` seconds later.
+ */
+export function burstToken(iteration, pool) {
+  return iteration % pool;
+}
+
+/**
+ * Whether the open number `iteration` takes the class path (an announcement of the group: assignments, then the assigned lesson):
+ * `share` of the opens, spread evenly - on every prefix of the run the class opens are floor((i + 1) x share), so the ramp has its
+ * share too and a run is repeatable.
+ */
+export function isClassOpen(iteration, share) {
+  return Math.floor((iteration + 1) * share + EPSILON) > Math.floor(iteration * share + EPSILON);
+}

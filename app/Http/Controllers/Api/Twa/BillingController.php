@@ -37,7 +37,7 @@ final class BillingController
     public function checkout(CheckoutRequest $request): JsonResponse
     {
         try {
-            $checkout = $this->billing->checkout($this->learner($request), $request->plan(), $request->period(), $request->provider(), CheckoutService::VIA_TWA);
+            $checkout = $this->billing->checkout($this->learner($request), $request->plan(), $request->period(), $request->provider(), CheckoutService::VIA_TWA, $request->placement());
         } catch (BillingException $e) {
             return ApiErrorResource::respond($e->httpStatus(), $e->errorCode, $e->getMessage());
         }

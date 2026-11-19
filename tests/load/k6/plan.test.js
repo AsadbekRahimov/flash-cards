@@ -5,7 +5,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   allocateMix,
+  burstPool,
+  burstProblem,
+  burstStages,
+  burstToken,
+  burstVus,
+  BURST_REOPEN_GAP_SECONDS,
+  isClassOpen,
+  MIX_FLOWS,
   mixSlot,
+  plannedOpens,
   parseDuration,
   plannedRunSeconds,
   rampStages,
@@ -15,16 +24,19 @@ import {
 } from './plan.js';
 
 const DEFAULT_SHARES = { training: 0.45, game: 0.2, practice: 0.2, battle: 0.15 };
+/** The suggested mix with browsing (README): 15 % browse, the rest of the default scaled by 0.85 and rounded. */
+const BROWSE_SHARES = { training: 0.38, game: 0.17, practice: 0.17, battle: 0.13, browse: 0.15 };
+const RANGE_ORDER = ['battle', 'training', 'game', 'practice', 'browse'];
 
 /** Every slot of an allocation, by VU number, with the invariants checked on the way. */
 function checkAllocation(mix) {
-  const sumOfFlows = mix.training + mix.game + mix.practice + 2 * mix.pairs;
+  const sumOfFlows = mix.training + mix.game + mix.practice + 2 * mix.pairs + mix.browse;
   assert.equal(mix.participants, sumOfFlows, 'participants = the learners of the flows');
   assert.ok(mix.participants <= mix.targetVus, `${mix.participants} participants > pool ${mix.targetVus}`);
-  assert.equal(mix.totalVus, mix.training + mix.game + mix.practice + mix.pairs);
+  assert.equal(mix.totalVus, mix.training + mix.game + mix.practice + mix.pairs + mix.browse);
 
   // The ranges tile [0, participants) without overlapping; the battle starts on an even index.
-  const ranges = ['battle', 'training', 'game', 'practice'].map((flow) => mix.ranges[flow]);
+  const ranges = RANGE_ORDER.map((flow) => mix.ranges[flow]);
   let at = 0;
   for (const range of ranges) {
     assert.equal(range.start, at);
@@ -37,7 +49,7 @@ function checkAllocation(mix) {
 
   // Every VU number has one slot; no token is played twice; each token lies in the range of its flow; pairs are seeded friends.
   const used = new Set();
-  const dealt = { training: 0, game: 0, practice: 0, battle: 0 };
+  const dealt = Object.fromEntries(MIX_FLOWS.map((flow) => [flow, 0]));
   for (let vu = 1; vu <= mix.totalVus; vu++) {
     const slot = mixSlot(mix, vu);
     assert.ok(slot !== null, `VU ${vu} has no slot`);
@@ -67,14 +79,56 @@ test('the default mix of 1250 fits a token file of exactly 1250', () => {
   assert.equal(mix.practice, 250);
   assert.equal(mix.pairs, 94);
   assert.equal(mix.participants, 1250);
+  assert.equal(mix.browse, 0);
   assert.equal(mix.totalVus, 1156);
   assert.deepEqual(mix.ranges, {
     battle: { start: 0, end: 188 },
     training: { start: 188, end: 750 },
     game: { start: 750, end: 1000 },
     practice: { start: 1000, end: 1250 },
+    browse: { start: 1250, end: 1250 },
   });
   checkAllocation(mix);
+});
+
+test('MIX_BROWSE=0 changes nothing: the same slots as without the key, for any pool', () => {
+  for (const target of [1, 7, 100, 101, 1250]) {
+    const without = allocateMix(target, DEFAULT_SHARES);
+    const zero = allocateMix(target, { ...DEFAULT_SHARES, browse: 0 });
+    assert.deepEqual(zero, without);
+    for (let vu = 1; vu <= without.totalVus; vu++) {
+      assert.notEqual(mixSlot(zero, vu).flow, 'browse');
+    }
+  }
+});
+
+test('the suggested mix with browsing: five flows of 1250', () => {
+  const mix = allocateMix(1250, BROWSE_SHARES);
+  // Quotas 475 / 212.5 / 212.5 / 162.5 (81 pairs) / 187.5: two learners left after the whole parts, game and practice take them.
+  assert.deepEqual(
+    [mix.training, mix.game, mix.practice, mix.pairs, mix.browse, mix.participants, mix.totalVus],
+    [475, 213, 213, 81, 187, 1250, 1169],
+  );
+  assert.deepEqual(mix.ranges, {
+    battle: { start: 0, end: 162 },
+    training: { start: 162, end: 637 },
+    game: { start: 637, end: 850 },
+    practice: { start: 850, end: 1063 },
+    browse: { start: 1063, end: 1250 },
+  });
+  checkAllocation(mix);
+});
+
+test('browse alone, and a last odd learner going to browse', () => {
+  const only = allocateMix(10, { browse: 1 });
+  assert.deepEqual([only.browse, only.participants, only.totalVus], [10, 10, 10]);
+  assert.deepEqual(only.ranges.browse, { start: 0, end: 10 });
+  checkAllocation(only);
+
+  // Five learners: two pairs and one left that no pair can use; browse is the only solo flow with a quota.
+  const odd = allocateMix(5, { battle: 0.9, browse: 0.1 });
+  assert.deepEqual([odd.pairs, odd.browse, odd.participants], [2, 1, 5]);
+  checkAllocation(odd);
 });
 
 test('the documented targets 100 / 300 / 600 fit their own pool', () => {
@@ -143,6 +197,8 @@ test('shares below 1 leave the rest idle', () => {
 
 test('shares above 1 and bad input are refused', () => {
   assert.throws(() => allocateMix(1250, { training: 0.5, game: 0.3, practice: 0.2, battle: 0.15 }), /may not add up to more than 1/);
+  assert.throws(() => allocateMix(1250, { ...DEFAULT_SHARES, browse: 0.15 }), /MIX_BROWSE = 1\.1500: the shares/);
+  assert.throws(() => allocateMix(1250, { ...BROWSE_SHARES, browse: -0.15 }), /share of browse must be a number >= 0/);
   assert.throws(() => allocateMix(1250, { ...DEFAULT_SHARES, game: -0.1 }), /must be a number >= 0/);
   assert.throws(() => allocateMix(1250, { ...DEFAULT_SHARES, game: NaN }), /must be a number >= 0/);
   assert.throws(() => allocateMix(-1, DEFAULT_SHARES), /TARGET_VUS/);
@@ -157,27 +213,34 @@ test('property: any pool, several mixes - participants within the pool, ranges a
     { training: 1 / 3, game: 1 / 3, practice: 0, battle: 1 / 3 },
     { training: 0.2, game: 0.2, practice: 0.2, battle: 0.2 },
     { training: 0, game: 0, practice: 0, battle: 1 },
+    BROWSE_SHARES,
+    { training: 0.2, game: 0.2, practice: 0.2, battle: 0.2, browse: 0.2 },
+    { training: 0, game: 0, practice: 0, battle: 0.5, browse: 0.5 },
+    { training: 0, game: 0, practice: 0, battle: 0, browse: 1 },
+    { training: 0.1, game: 0, practice: 0.1, battle: 0.3, browse: 0.25 },
   ];
   for (const shares of mixes) {
-    const sum = shares.training + shares.game + shares.practice + shares.battle;
+    const sum = MIX_FLOWS.reduce((total, flow) => total + (shares[flow] ?? 0), 0);
     for (let target = 0; target <= 1400; target += target < 300 ? 1 : 37) {
       const mix = allocateMix(target, shares);
       checkAllocation(mix);
       // Nothing is left on the table: floor(target x sum) learners play, but for an odd one when the battle is the only flow.
-      const onlyBattle = shares.training + shares.game + shares.practice === 0;
+      const onlyBattle = shares.training + shares.game + shares.practice + (shares.browse ?? 0) === 0;
       assert.ok(mix.participants >= Math.floor(target * sum + 1e-9) - (onlyBattle ? 1 : 0), `${JSON.stringify(shares)} at ${target}: ${mix.participants}`);
     }
   }
 });
 
 test('the interleaving keeps the shares on every prefix of the VU numbers (the ramp)', () => {
-  const mix = allocateMix(1250, DEFAULT_SHARES);
-  const dealt = { training: 0, game: 0, practice: 0, battle: 0 };
-  for (let vu = 1; vu <= mix.totalVus; vu++) {
-    dealt[mixSlot(mix, vu).flow]++;
-    for (const flow of Object.keys(dealt)) {
-      const ideal = (mix.vus[flow] * vu) / mix.totalVus;
-      assert.ok(Math.abs(dealt[flow] - ideal) <= 1, `${flow} at VU ${vu}: ${dealt[flow]} vs ${ideal.toFixed(2)}`);
+  for (const shares of [DEFAULT_SHARES, BROWSE_SHARES]) {
+    const mix = allocateMix(1250, shares);
+    const dealt = Object.fromEntries(MIX_FLOWS.map((flow) => [flow, 0]));
+    for (let vu = 1; vu <= mix.totalVus; vu++) {
+      dealt[mixSlot(mix, vu).flow]++;
+      for (const flow of Object.keys(dealt)) {
+        const ideal = (mix.vus[flow] * vu) / mix.totalVus;
+        assert.ok(Math.abs(dealt[flow] - ideal) <= 1, `${flow} at VU ${vu}: ${dealt[flow]} vs ${ideal.toFixed(2)}`);
+      }
     }
   }
 });
@@ -220,4 +283,79 @@ test('tokenProblem refuses a file the run would outlive', () => {
   assert.match(tokenProblem(learners, file(120), 11, 0, now), /holds 10 learners, the scenario needs 11/);
   assert.match(tokenProblem(learners, { ...file(120), course: null }, 10, 0, now), /no course/);
   assert.match(tokenProblem(learners, file(120), 10, NaN, now), /HOLD is not a k6 duration/);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The burst of opens (arrival-burst.js)
+// ---------------------------------------------------------------------------------------------------------------------
+
+test('the burst plan: stages, opens, VUs', () => {
+  assert.deepEqual(burstStages(20, '30s', '2m'), [{ duration: '30s', target: 20 }, { duration: '2m', target: 20 }]);
+  // 20 a second: 300 opens on the ramp, 2400 on the hold.
+  assert.equal(plannedOpens(20, '30s', '2m'), 2700);
+  assert.equal(plannedOpens(7, '45s', '0'), 158);
+  assert.ok(Number.isNaN(plannedOpens(20, '30s', 'soon')));
+  // 30 s of ramp + 2 m of hold + 30 s of graceful stop (the default of the executor).
+  assert.equal(plannedRunSeconds(burstStages(20, '30s', '2m'), '30s'), 180);
+
+  assert.deepEqual(burstVus(20, NaN, NaN), { preAllocatedVUs: 40, maxVUs: 200 });
+  assert.deepEqual(burstVus(2, NaN, NaN), { preAllocatedVUs: 10, maxVUs: 50 });
+  assert.deepEqual(burstVus(20, 100, 500), { preAllocatedVUs: 100, maxVUs: 500 });
+  assert.deepEqual(burstVus(20, 300, 100), { preAllocatedVUs: 300, maxVUs: 300 }, 'maxVUs never below preAllocatedVUs');
+  assert.deepEqual(burstVus(20, 0, -1), { preAllocatedVUs: 40, maxVUs: 200 }, 'nonsense falls back to the defaults');
+});
+
+test('the burst pool: every open its own learner for a short run, a gap of a minute for a long one', () => {
+  assert.equal(burstPool(20, 2700), 20 * BURST_REOPEN_GAP_SECONDS);
+  assert.equal(burstPool(5, 200), 200);
+  assert.equal(burstPool(1, 0), 1);
+});
+
+test('burstToken: no learner opens twice within the reopen gap, whatever the rate', () => {
+  for (const [rate, ramp, hold] of [[20, '30s', '2m'], [3, '30s', '10m'], [50, '10s', '30s'], [7, '1m', '0']]) {
+    const opens = plannedOpens(rate, ramp, hold);
+    const pool = burstPool(rate, opens);
+    const lastOpen = new Map();
+    for (let i = 0; i < opens; i++) {
+      const token = burstToken(i, pool);
+      assert.ok(token >= 0 && token < pool);
+      if (lastOpen.has(token)) {
+        // The rate never exceeds `rate`, so `i - last` opens take at least (i - last) / rate seconds.
+        assert.ok((i - lastOpen.get(token)) / rate >= BURST_REOPEN_GAP_SECONDS, `token ${token} again after ${i - lastOpen.get(token)} opens at ${rate}/s`);
+      }
+      lastOpen.set(token, i);
+    }
+    if (opens <= pool) {
+      assert.equal(lastOpen.size, opens, 'a short burst: every open its own learner');
+    }
+  }
+  // A bigger token file is used whole: the gap only grows.
+  assert.equal(burstToken(1300, 1250), 50);
+});
+
+test('isClassOpen: the share on every prefix, evenly', () => {
+  for (const share of [0, 0.1, 0.25, 1 / 3, 0.5, 0.9, 1]) {
+    let classOpens = 0;
+    for (let i = 0; i < 2000; i++) {
+      if (isClassOpen(i, share)) {
+        classOpens++;
+      }
+      assert.equal(classOpens, Math.floor((i + 1) * share + 1e-9), `share ${share} at open ${i}`);
+    }
+  }
+  assert.deepEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => isClassOpen(i, 0.2)), [false, false, false, false, true, false, false, false, false, true]);
+});
+
+test('burstProblem refuses a bad rate, durations or share', () => {
+  assert.equal(burstProblem(20, '30s', '2m', 0.2), null);
+  assert.equal(burstProblem(1, '1s', '0', 0), null);
+  assert.match(burstProblem(0, '30s', '2m', 0.2), /BURST_RATE/);
+  assert.match(burstProblem(2.5, '30s', '2m', 0.2), /BURST_RATE/);
+  assert.match(burstProblem(NaN, '30s', '2m', 0.2), /BURST_RATE/);
+  assert.match(burstProblem(20, '30', '2m', 0.2), /BURST_RAMP/);
+  assert.match(burstProblem(20, '0', '2m', 0.2), /BURST_RAMP/);
+  assert.match(burstProblem(20, '30s', 'long', 0.2), /HOLD/);
+  assert.match(burstProblem(20, '30s', '2m', 1.5), /CLASS_SHARE/);
+  assert.match(burstProblem(20, '30s', '2m', -0.1), /CLASS_SHARE/);
+  assert.match(burstProblem(20, '30s', '2m', NaN), /CLASS_SHARE/);
 });

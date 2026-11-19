@@ -58,6 +58,8 @@ enum ProductEventName: string
     case PaymentRefunded = 'payment.refunded';
     /** A Free learner ran into the daily new-word limit: `done_reason = new_quota_exhausted` was answered (once per local day; docs/12 §5.4). */
     case PaywallShown = 'paywall.shown';
+    /** A Pro offer became visible in the TWA, reported by the client, once per (learner, placement, local day) (props: placement, locale; docs/13 §5.1). */
+    case BillingOfferViewed = 'billing.offer_viewed';
     /** A personal discount was issued (props: offer_id, kind, discount_pct, plan, period, organization_id — docs/13 §2.1). */
     case OfferCreated = 'offer.created';
     /** The discount was used by a paid order (props: offer_id, kind, discount_pct, payment_order_id). */

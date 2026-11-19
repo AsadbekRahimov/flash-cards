@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\Twa\LevelQuizController;
 use App\Http\Controllers\Api\Twa\MeController;
 use App\Http\Controllers\Api\Twa\MockExamController;
 use App\Http\Controllers\Api\Twa\MonthlyRatingController;
+use App\Http\Controllers\Api\Twa\OfferViewedController;
 use App\Http\Controllers\Api\Twa\OrganizationController;
 use App\Http\Controllers\Api\Twa\PracticeAudioController;
 use App\Http\Controllers\Api\Twa\PracticeHubController;
@@ -95,6 +96,10 @@ Route::prefix('twa')->group(function (): void {
                 ->middleware('throttle:twa-checkout')
                 ->name('twa.billing.checkout');
             Route::get('/orders/{token}', [BillingController::class, 'order'])->name('twa.billing.order');
+            // The first step of the Pro funnel (docs/13 §5.1): a Pro offer became visible; 204, deduplicated per placement and local day.
+            Route::post('/offer-viewed', OfferViewedController::class)
+                ->middleware('throttle:twa-offer-viewed')
+                ->name('twa.billing.offer_viewed');
             Route::middleware('throttle:twa-subscription')->group(function (): void {
                 Route::post('/subscription/cancel', [BillingController::class, 'cancel'])->name('twa.billing.cancel');
                 Route::post('/subscription/resume', [BillingController::class, 'resume'])->name('twa.billing.resume');

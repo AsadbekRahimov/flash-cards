@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Twa;
 
+use App\Domain\Billing\Enums\OfferPlacement;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use Illuminate\Foundation\Http\FormRequest;
@@ -19,6 +20,8 @@ final class CheckoutRequest extends FormRequest
             'plan' => ['required', 'string', Rule::enum(Plan::class)],
             'period' => ['required', 'string', Rule::in(array_map('strval', array_keys((array) config('billing.periods', []))))],
             'provider' => ['required', 'string', Rule::in(array_map(static fn (SubscriptionProvider $p): string => $p->value, SubscriptionProvider::paid()))],
+            // Where the purchase sheet was opened from (docs/13 §5.1): analytics only, never changes the order; absent = null.
+            'placement' => ['sometimes', 'nullable', 'string', Rule::enum(OfferPlacement::class)],
         ];
     }
 
@@ -35,5 +38,10 @@ final class CheckoutRequest extends FormRequest
     public function provider(): SubscriptionProvider
     {
         return SubscriptionProvider::from($this->string('provider')->toString());
+    }
+
+    public function placement(): ?OfferPlacement
+    {
+        return $this->filled('placement') ? OfferPlacement::from($this->string('placement')->toString()) : null;
     }
 }

@@ -434,6 +434,7 @@ it('adds the day\'s goal and streak to the /finish summary and keeps them on a r
         'league_points' => 18,
         // The round of hard words (docs/06 §14): none in this session; the invitation is the block of /today (no hard words yet).
         'hard_round' => null,
+        'corrected' => null, // a corrected mistake is told on the finish of the round of hard words only
         'hard_round_offer' => ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null],
     ];
     $this->withHeaders(todayHeaders($learner))->postJson("/api/twa/training/sessions/{$id}/finish")
