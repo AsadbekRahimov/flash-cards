@@ -1882,6 +1882,10 @@ it('has the CHECK constraints of the practice tables (PostgreSQL)', function ():
     expectConstraintViolation(fn () => DB::table('practice_items')->insert([...$item, 'status' => 'published', 'published_version_id' => 7, 'archived_at' => now()]));
     DB::table('practice_items')->insert([...$item, 'key' => 'k-published', 'status' => 'published', 'published_version_id' => 7]);
     DB::table('practice_items')->insert([...$item, 'key' => 'k-archived', 'status' => 'archived', 'published_version_id' => 7, 'archived_at' => now()]);
+    // The two types of 2026_11_19_100001 (docs/16 §5.6, §5.7) fit; a made-up one does not.
+    DB::table('practice_items')->insert([...$item, 'key' => 'k-word-form', 'type' => 'word_form']);
+    DB::table('practice_items')->insert([...$item, 'key' => 'k-error-hunt', 'type' => 'error_hunt']);
+    expectConstraintViolation(fn () => DB::table('practice_items')->insert([...$item, 'key' => 'k-bogus', 'type' => 'bogus']));
 
     // practice_item_versions
     $itemId = (int) DB::table('practice_items')->where('key', 'k-published')->value('id');
@@ -1898,6 +1902,9 @@ it('has the CHECK constraints of the practice tables (PostgreSQL)', function ():
     expectConstraintViolation(fn () => DB::table('practice_sessions')->insert(practiceRawSession(['active_learner_id' => Learner::factory()->create()->id])));
     DB::table('practice_sessions')->insert(practiceRawSession());
     DB::table('practice_sessions')->insert(practiceRawSession(['status' => 'finished', 'active_learner_id' => null]));
+    DB::table('practice_sessions')->insert(practiceRawSession(['mode' => 'word_form']));
+    DB::table('practice_sessions')->insert(practiceRawSession(['mode' => 'error_hunt']));
+    expectConstraintViolation(fn () => DB::table('practice_sessions')->insert(practiceRawSession(['mode' => 'bogus'])));
 
     // battles: two different players, a round 0..5, the status, the phase only while playing.
     $same = Learner::factory()->create()->id;
@@ -2270,6 +2277,39 @@ it('adds the clock of pairs_timed to the practice, keeps one record per learner 
     expect(Schema::hasColumns('practice_sessions', ['deadline_at', 'score']))->toBeTrue()
         ->and(Schema::hasTable('practice_records'))->toBeTrue();
 });
+
+it('lets the tasks and the sessions of word_form and error_hunt in, refuses a rollback that would lose them, and rolls back clean (PostgreSQL)', function (string $table, array $row): void {
+    $migration = require database_path('migrations/2026_11_19_100001_add_word_form_and_error_hunt_to_practice.php');
+    $insert = fn (): int => DB::table($table)->insertGetId($row);
+    $id = $insert();
+
+    // The narrower CHECKs could not hold the row: the rollback says so and changes nothing.
+    expect(fn () => $migration->down())->toThrow(RuntimeException::class, 'word_form / error_hunt');
+    DB::table($table)->where('id', $id)->delete();
+    $insert();
+    DB::table($table)->delete();
+
+    // Without such rows it rolls back: the old CHECKs refuse the new values again; up() lets them in once more.
+    $migration->down();
+    expectConstraintViolation($insert);
+    $migration->up();
+    expect($insert())->toBeGreaterThan(0);
+})->with([
+    'a task of the type word_form' => fn (): array => ['practice_items', ['course_id' => Course::factory()->create()->id, 'key' => 'k', 'type' => 'word_form', 'status' => 'draft']],
+    'a task of the type error_hunt' => fn (): array => ['practice_items', ['course_id' => Course::factory()->create()->id, 'key' => 'k', 'type' => 'error_hunt', 'status' => 'draft']],
+    'a session of the mode word_form' => fn (): array => ['practice_sessions', practiceRawSession(['mode' => 'word_form'])],
+    'a session of the mode error_hunt' => fn (): array => ['practice_sessions', practiceRawSession(['status' => 'finished', 'active_learner_id' => null, 'mode' => 'error_hunt'])],
+])->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraints are PostgreSQL-only; on SQLite the migration does nothing either way.');
+
+it('leaves SQLite alone in both directions: the migration of word_form and error_hunt has nothing to do there', function (): void {
+    $migration = require database_path('migrations/2026_11_19_100001_add_word_form_and_error_hunt_to_practice.php');
+    DB::table('practice_items')->insert(['course_id' => Course::factory()->create()->id, 'key' => 'k', 'type' => 'word_form', 'status' => 'draft']);
+
+    $migration->down();
+    $migration->up();
+
+    expect(DB::table('practice_items')->where('type', 'word_form')->count())->toBe(1);
+})->skip(fn (): bool => DB::getDriverName() === 'pgsql', 'SQLite only.');
 
 // --- the round of hard words (docs/06 §14): 2026_11_18_300001 / 2026_11_18_300002 ---
 

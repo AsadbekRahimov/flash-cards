@@ -8,9 +8,11 @@ use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Services\Modes\CollocationMode;
 use App\Domain\Practice\Services\Modes\DictationMode;
+use App\Domain\Practice\Services\Modes\ErrorHuntMode;
 use App\Domain\Practice\Services\Modes\PairsMode;
 use App\Domain\Practice\Services\Modes\PairsTimedMode;
 use App\Domain\Practice\Services\Modes\SentenceMode;
+use App\Domain\Practice\Services\Modes\WordFormMode;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
@@ -72,6 +74,8 @@ final class PracticeKit
             PracticeMode::Sentence => SentenceMode::class,
             PracticeMode::Dictation => DictationMode::class,
             PracticeMode::PairsTimed => PairsTimedMode::class,
+            PracticeMode::WordForm => WordFormMode::class,
+            PracticeMode::ErrorHunt => ErrorHuntMode::class,
         };
     }
 

@@ -251,6 +251,8 @@
 | Доступ | `config/game.php`: `GAME_ACCESS=all\|pilot\|off` (по умолчанию `all` с 2026-11-17; пилот — та же `learners.practice_pilot_at`), фичи entitlement `game.unlimited_runs`, `game.all_bosses`, `game.boosters_plus`; все числа — через env |
 | Карточка шеринга | Победа над боссом — `AchievementCardRenderer::renderSpec(CardSpec)` (обобщение существующего рендера) с именем города; ЛС через тот же путь, что `SendAchievementJob` (`notifications_log`, один раз) |
 
+> **Новые типы практики (2026-11, docs/16 §5.6–§5.7).** Задания `word_form` и `error_hunt` в забег **не идут**: `RunSnapshotBuilder::authoredCandidates` перебирает `PracticeItemType::inGame()` (три типа, для которых сделан забег), а `PracticeTaskAdapter::modeOf` у новых типов бросает `InvalidArgumentException`. Включить их — отдельная задача (нужны `TaskKind`, разбор в забеге, правило SRS для двухшагового `error_hunt`).
+
 Отвергнутые варианты — в конце соответствующих разделов, одной строкой.
 
 ### 12.1 Границы и раскладка

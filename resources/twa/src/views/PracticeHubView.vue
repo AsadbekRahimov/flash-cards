@@ -15,7 +15,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { progressPercent } from '@/composables/courseLabels'
 import { showErrorToast } from '@/composables/errorToast'
-import { MODE_LOOK, lessonHeader, lessonNumber, modeTitle } from '@/composables/practiceLabels'
+import { MODE_LOOK, isKnownPracticeMode, lessonHeader, lessonNumber, modeTitle } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -117,14 +117,27 @@ function resumeFor(info: PracticeModeInfo): PracticeActiveSession | null {
 }
 
 /**
- * A mode that lacks only its recordings (`not_enough` with the reason `audio_pending` / `no_audio_words`: the dictation, while the files of
- * the course are not made) is not shown at all - there is nothing the learner can do about it, and a card that never opens is noise.
- * The other reasons ("learn the words", "no tasks yet") stay: they say what the next step is.
+ * The cards that are not shown at all:
+ * - a mode this build does not know (a newer server, an old bundle still open in the WebView during a release): it could not be drawn;
+ * - a mode that lacks only its recordings (`not_enough` with the reason `audio_pending` / `no_audio_words`: the dictation, while the files
+ *   of the course are not made) - there is nothing the learner can do about it, and a card that never opens is noise;
+ * - a mode of authored tasks with no task for the topic at all (`no_items` with `available = 0`: the newer modes before their packs, the
+ *   courses whose tasks are not written yet) - the same noise.
+ * The other reasons ("learn the words", "few tasks yet: 2 of 3") stay: they say what the next step is, or that tasks are coming.
  */
 const AUDIO_SHORTAGES: readonly (PracticeModeInfo['reason'])[] = ['audio_pending', 'no_audio_words']
-const modes = computed((): PracticeModeInfo[] =>
-  (hub.value?.modes ?? []).filter((info) => !(info.state === 'not_enough' && AUDIO_SHORTAGES.includes(info.reason))),
-)
+function hidden(info: PracticeModeInfo): boolean {
+  if (!isKnownPracticeMode(info.mode)) return true
+  if (info.state !== 'not_enough') return false
+  return AUDIO_SHORTAGES.includes(info.reason) || (info.reason === 'no_items' && info.available === 0)
+}
+const modes = computed((): PracticeModeInfo[] => (hub.value?.modes ?? []).filter((info) => !hidden(info)))
+
+/** The unfinished session, when this build can draw its mode (one of a newer server is left alone: the server keeps it). */
+const activeSession = computed((): PracticeActiveSession | null => {
+  const active = hub.value?.active_session ?? null
+  return active !== null && isKnownPracticeMode(active.mode) ? active : null
+})
 
 const learnKind = computed(() => (hub.value?.lesson ? 'lesson' : 'course'))
 
@@ -137,7 +150,7 @@ const conflictPlace = computed((): string | null => (conflict.value === null ? n
 
 /** "Continue: Find the pairs, 1 of 3 done" for a screen reader, and where the session is. */
 const continueLabel = computed((): string => {
-  const active = hub.value?.active_session ?? null
+  const active = activeSession.value
   if (active === null) return ''
   const words = t('practice.hub.card.aria_resume', { title: modeTitle(active.mode), done: active.progress.done, total: active.progress.total })
   return activePlace.value === null ? words : `${words}. ${activePlace.value}`
@@ -325,24 +338,24 @@ onBeforeUnmount(() => {
 
       <!-- The unfinished session: one tap back into it. -->
       <RouterLink
-        v-if="hub.active_session"
-        :to="{ name: 'practice-session', params: { id: hub.active_session.id } }"
+        v-if="activeSession"
+        :to="{ name: 'practice-session', params: { id: activeSession.id } }"
         class="card mb-4 flex items-center gap-3 transition-transform active:scale-[0.99]"
         :aria-label="continueLabel"
         data-testid="continue-card"
       >
-        <span class="icon-tile size-10 rounded-xl" :class="`tile-${MODE_LOOK[hub.active_session.mode].tile}`">
-          <AppIcon :name="MODE_LOOK[hub.active_session.mode].icon" :size="22" />
+        <span class="icon-tile size-10 rounded-xl" :class="`tile-${MODE_LOOK[activeSession.mode].tile}`">
+          <AppIcon :name="MODE_LOOK[activeSession.mode].icon" :size="22" />
         </span>
         <span class="min-w-0 flex-1">
           <span class="block text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('practice.hub.continue') }}</span>
-          <span class="block text-[17px] leading-[22px] font-semibold" data-testid="continue-title">{{ modeTitle(hub.active_session.mode) }}</span>
+          <span class="block text-[17px] leading-[22px] font-semibold" data-testid="continue-title">{{ modeTitle(activeSession.mode) }}</span>
           <span v-if="activePlace" class="block text-[15px] leading-5 text-tg-subtitle" data-testid="continue-place">{{ activePlace }}</span>
           <span class="block text-[13px] leading-[18px] text-tg-hint" data-testid="continue-progress">
-            {{ t('practice.session.progress', { done: hub.active_session.progress.done, total: hub.active_session.progress.total }) }}
+            {{ t('practice.session.progress', { done: activeSession.progress.done, total: activeSession.progress.total }) }}
           </span>
           <span class="progress mt-1.5 block h-1" aria-hidden="true">
-            <span class="progress-fill block" :style="{ width: `${progressPercent(hub.active_session.progress)}%` }" />
+            <span class="progress-fill block" :style="{ width: `${progressPercent(activeSession.progress)}%` }" />
           </span>
         </span>
         <AppIcon name="chevron-right" :size="16" class="text-tg-hint" />

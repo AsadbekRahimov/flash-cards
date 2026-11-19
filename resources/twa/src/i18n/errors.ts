@@ -99,6 +99,7 @@ export const KNOWN_ERROR_CODES = [
   'practice_time_over',
   'practice_not_timed',
   'element_not_current',
+  'step_not_current',
   'answer_already_accepted',
   'pair_already_matched',
   'invalid_answer_shape',

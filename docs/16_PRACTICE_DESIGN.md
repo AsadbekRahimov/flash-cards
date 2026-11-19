@@ -27,6 +27,7 @@
 | 18.9b | Правки по ревью сервера соло-практики: пары — ключи `base|…`; диктант — другое слово и другая форма есть ошибка, а не опечатка (`EnglishLexicon`); снимок ≤ 40 КБ в UTF-8; причина `items_locked`; одно решение для `retry_available` и открытия повтора, порядок проверок `open()`, `source: retry` ↔ `retry_of`, `request_id_reused`, диск замены вне блокировки, `your_option_id` в разборе сочетания; `PracticeIsolationTest` ещё и на четырёх настоящих режимах | сделано |
 | 18.7c | Документация баттла по коду: `docs/04` A.17 (маршруты, лимитеры, JSON по статусам, коды с `details`) и B.14 (ЛС), `USER_GUIDE` «Баттл 1 на 1 с другом», `docs/07` (угрозы, лимитеры, чек-лист пен-теста), `docs/05` §5a.5 сверен с API, `ADMIN_GUIDE` / `DEVOPS_GUIDE` / `VPS_DEPLOY_GUIDE_RU` (выключатель, дворник `practice:battles-sweep`, «завис»), `docs/03` §2.45–§2.47 (ключи `meta`), блоки «Реализация 18.6b» и «Реализация 18.9t» здесь. Браузерный e2e двух игроков (§14.4) в 18.7c не входит — отдельная задача | сделано |
 | G1 (backend) | Лимиты Free вместо «всё или ничего» (`docs/18` §3, §9): `config('practice.free_limits')`, фича `practice.unlimited` у Pro, `PracticeLimits` (окно `LearnerClock::limitWindowUtc`, подсчёт под `FOR NO KEY UPDATE` строки ученика), 403 `practice_limit_reached`, событие `practice.limit_reached`, блок `limits` в `/me.practice`, хабе и ответах 201 (`PracticeSessionOpenedResource`, `BattleInvitedResource`), `lang/{ru,uz,en}/practice.php`; `PracticeLimitsTest`, `PracticeLimitsConcurrencyTest` (§3.2, §3.3, §3.4, §7, §8.2, §9 правило 16) | сделано; TWA — G1.2 |
+| NT (B1–B4) | Два новых авторских типа и сольных режима: «Форма слова» `word_form` и «Найди ошибку» `error_hunt` (§5.6, §5.7): enum'ы и `inGame()`, миграция 9 (CHECK), валидатор и импорт (`base`, звёздочки ошибки), форма админки, `WordFormGrader` / `ErrorHuntGrader`, режимы, правки `accept()` (`correct_first` по окончательному шагу, `element_done`, 409 `step_not_current`), `PracticeExtraPackTest` и x-файлы в чекере. Баттлу и «Каравану» не предлагаются | сервер сделан; TWA — T1–T3; контент — 3 000 заданий (по 600 на курс, 50 x-файлов) написаны, вычитаны и подключены, импортируются черновиками до чтения носителем (`docs/CONTENT_EXTRA_PRACTICE_REVIEW.md`) |
 | 18.12a | Присутствие в баттле по находкам e2e 18.8e: часы раньше отметки — любой запрос участника сначала продвигает матч по прежним `last_seen_at` и только у живого матча пишет heartbeat (`BattleClock::advanceThenTouch`, `BattleReader::settle`); первый вернувшийся после общего отсутствия получает `closed/both_absent`, ушедший дольше grace проигрывает, кто бы ни спросил первым; нижняя граница grace 15 с (`BattleSettings::presenceGraceFloorSeconds`); `BattlePresenceTest`, `BattleSettingsTest`, две гонки в `BattleConcurrencyTest`, e2e `battle:absent-lazy` в основном прогоне (§8.1, §8.4, §9, §13, §14) | сделано |
 
 **Где реализация уточнила проект** (по коду и тестам):
@@ -50,7 +51,7 @@
 
 | Тема | Решение |
 |---|---|
-| Объём (этапы 0–7 docs/15 §6) | Пять сольных режимов (`pairs`, `collocation`, `sentence`, `dictation` и «Пары на время» `pairs_timed`, §5.5a — только соло, баттлу недоступен: `PracticeMode::battleable()`), баттл 1 на 1 с другом, входы из курса / после занятия / из друзей, итоги, повтор ошибок, ru/uz, админ-редактор + JSON-импорт, пилотный контент, флаги. Этап 8 (публичный выпуск, тарифы) — не делаем |
+| Объём (этапы 0–7 docs/15 §6) | Семь сольных режимов (`pairs`, `collocation`, `sentence`, `dictation`, «Пары на время» `pairs_timed` (§5.5a), «Форма слова» `word_form` (§5.6) и «Найди ошибку» `error_hunt` (§5.7); три последних — только соло, баттлу недоступны: `PracticeMode::battleable()`), баттл 1 на 1 с другом, входы из курса / после занятия / из друзей, итоги, повтор ошибок, ru/uz, админ-редактор + JSON-импорт, пилотный контент, флаги. Этап 8 (публичный выпуск, тарифы) — не делаем |
 | Значения docs/15 §8 | Приняты все: самостоятельная практика без влияния на основное обучение; 3 темы A1–A2; пилот по флагу; соло без таймера (кроме «Пар на время»: там часы и счёт — серверные, §5.5a); баттл — 5 раундов, лимиты раунда, без бонуса за скорость, ничья при равном счёте; два друга, один формат |
 | Изоляция | Практика и баттл **не пишут** `word_repetitions`, `training_sessions`, `training_reviews`, `learner_daily_stats`, `learners.streak_*`/`streak_freezes`, лиги, `assignment_results`, `achievements`, квоту новых слов, `challenges`. Пишут только свои таблицы (§2) и `product_events` (§3.4). Инвариант закреплён тестом `PracticeIsolationTest` (§14) |
 | Домен | Один домен `app/Domain/Practice` (подпапки `Services/Modes`, `Services/Grading`, `Services/Battle`); тексты бота — `app/Domain/Telegram/Services/BattleMessenger`. Отдельный `app/Domain/Battle` отвергнут: баттл переиспользует материал, снимки и грейдеры режимов на уровне классов (§1.1) |
@@ -329,7 +330,7 @@ final class BattleReader
 | id | bigint PK | |
 | course_id | bigint FK → courses, ON DELETE CASCADE | курс задания; только `owner_type ∈ {platform, organization}` (колоды learner'ов заданий не имеют — проверка сервиса) |
 | lesson_id | bigint nullable FK → lessons, ON DELETE SET NULL | урок (вход «практика урока»); `NULL` — задание курса. **Проекция версии** (см. ниже и §2.4): читает `PracticeMaterialService`, пишет только `PracticeItemService` |
-| type | varchar(12) | `collocation` / `sentence` / `dictation` (пары заданий не имеют — берут `words`) |
+| type | varchar(12) | `collocation` / `sentence` / `dictation` / `word_form` / `error_hunt` (пары заданий не имеют — берут `words`) |
 | key | varchar(64) | стабильный ключ автора (`/\A[a-z0-9][a-z0-9._-]{0,63}\z/`), идемпотентность импорта |
 | level | varchar(2) nullable | `A1`..`C2`; проекция версии, как `lesson_id` |
 | status | varchar(10) default 'draft' | `draft` / `reviewed` / `published` / `archived` — см. правила ниже |
@@ -339,7 +340,7 @@ final class BattleReader
 | archived_at | timestamp nullable | |
 
 **Индексы:** unique `(course_id, key)`; `(course_id, status, type)`; `(lesson_id, status, type)`; `current_version_id`; `published_version_id`.
-**PG CHECK:** `practice_items_type_check (type IN ('collocation','sentence','dictation'))`, `practice_items_status_check (status IN ('draft','reviewed','published','archived'))`,
+**PG CHECK:** `practice_items_type_check (type IN ('collocation','sentence','dictation','word_form','error_hunt'))` (два последних — миграция 9, §2.9), `practice_items_status_check (status IN ('draft','reviewed','published','archived'))`,
 `practice_items_published_shape_check ((status = 'published') = (published_version_id IS NOT NULL AND archived_at IS NULL))`.
 
 **Статус = проекция версий** (пишет только `PracticeItemService`): `archived` — `archived_at NOT NULL`; иначе `published` — есть `published_version_id`; иначе — `state` текущей версии (`draft` / `reviewed`). Правка опубликованного задания создаёт новую версию `draft`, `current_version_id` переезжает, `status` остаётся `published` (ученики продолжают получать `published_version_id` — **вместе со словами, уроком и уровнем той версии**: они в версии, §2.3); у такого задания в админке признак «есть неопубликованная правка» (`current_version_id <> published_version_id`), он покрывает любое из четырёх изменений (текст, слова, урок, уровень). Переходы версии: `draft → reviewed` («Проверено»), `reviewed → published` («Опубликовать»: прежняя опубликованная → `superseded`), любая → `archived` всего задания. Публиковать `draft` напрямую нельзя (прямой переход — только через `import --publish`, который сразу создаёт версию `published`, минуя `reviewed`: это явное решение владельца «опубликовать сразу — только для проверенного контента», подтверждённое чекбоксом/опцией, а не файлом).
@@ -384,6 +385,14 @@ final class BattleReader
 // dictation (фраза)
 { "text": "See you tomorrow", "accepted": ["See you tomorrow"],   // accepted всегда содержит text первым
   "translation": {"ru": "До завтра", "uz": "Ertagacha"}, "explanation": {"ru": "…", "uz": "…"} | null }
+// word_form (§5.6): хранится как написал автор; первый вариант accepted — канонический
+{ "text": "We need to make a ___ by Friday.", "base": "decide", "accepted": ["decision"],
+  "translation": {"ru": "…", "uz": "…"}, "explanation": {"ru": "…", "uz": "…"} }
+// error_hunt (§5.7): автор пишет "I am very interested *on* modern art.", correct — текстом варианта
+{ "text": "I am very interested on modern art.",                 // без звёздочек
+  "error_index": 4, "error": "on",                                // номер токена (с 0) и его ядро (без пунктуации по краям)
+  "options": ["in", "at", "for"], "correct": [0],
+  "translation": {"ru": "…", "uz": "…"}, "explanation": {"ru": "…", "uz": "…"} }
 ```
 
 Почему JSON, а не колонки: структура различается по типу, не фильтруется и не агрегируется SQL, читается целиком при построении снимка и в редакторе; индексов по содержимому нет. Почему версии — отдельная таблица, а не `version int` в `practice_items`: аудио принадлежит тексту (`audio_key` версии), снимки ссылаются на `version_id` для аналитики, а «проверено/опубликовано» относится к конкретному тексту.
@@ -561,6 +570,7 @@ final class BattleReader
 | 6 | `2026_10_30_100010_add_scope_to_practice_item_versions_table` | `practice_item_versions.target_word_ids` / `lesson_id` / `level` + backfill всех версий из их заданий (чанки по `chunkById`, query builder); на SQLite FK добавляется пересборкой таблицы, поэтому partial-индекс аудио снимается и ставится заново; `down()` — drop FK и три колонки |
 | 7 | `2026_10_30_100011_add_lesson_index_to_practice_item_versions_table` (18.11b) | индекс `practice_item_versions (lesson_id)` (внешний ключ версии на урок, `ON DELETE SET NULL`, без индекса); `down()` — drop index |
 | 8 | `2026_11_18_200001_add_timed_pairs_to_practice` | `practice_sessions.deadline_at` timestamp(3) nullable + `score` smallint default 0; PG: `practice_sessions_mode_check` пересоздан с `pairs_timed`; таблица `practice_records` (§2.10) с PG CHECK режима; `down()` — **отказывает** (RuntimeException), если есть строки `pairs_timed` (не терять данные молча), иначе drop таблицы, возврат CHECK к четырём режимам, drop колонок |
+| 9 | `2026_11_19_100001_add_word_form_and_error_hunt_to_practice` | только PG: `practice_items_type_check` += `word_form`, `error_hunt`; `practice_sessions_mode_check` += `word_form`, `error_hunt` (колонки `varchar(12)` вмещают оба значения; `practice_records_mode_check` не трогается — рекордов у новых режимов нет); `down()` — **отказывает** (RuntimeException), если есть задания или сессии новых типов, иначе CHECK возвращаются к прежним спискам; на SQLite — no-op |
 
 Правила: новые forward-миграции (не правка на месте — прод-релиз был); `uuid` — `$table->uuid('request_id')` (на SQLite — `char(36)`); CHECK — только `if (DB::getDriverName() === 'pgsql')` (образец `2026_10_23_400001`); partial-индекс — raw `CREATE INDEX` для `pgsql`/`sqlite` (образец `2026_07_13_000002`). **На SQLite** инварианты «один активный» держат unique-колонки `active_learner_id` (работают везде), а CHECK-инварианты дублируются в сервисах (`assertShape`) и тестах.
 
@@ -600,6 +610,8 @@ return [
         'sentence' => (bool) env('PRACTICE_MODE_SENTENCE', true),
         'dictation' => (bool) env('PRACTICE_MODE_DICTATION', true),
         'pairs_timed' => (bool) env('PRACTICE_MODE_PAIRS_TIMED', true),
+        'word_form' => (bool) env('PRACTICE_MODE_WORD_FORM', true),     // §5.6; выключатель — на случай аварии
+        'error_hunt' => (bool) env('PRACTICE_MODE_ERROR_HUNT', true),   // §5.7
     ],
     'battle' => [
         'enabled' => (bool) env('PRACTICE_BATTLE', true),
@@ -622,6 +634,9 @@ return [
         'sentence_fragments' => ['min' => 3, 'max' => 8], 'sentence_accepted_max' => 6, 'fragment_max_length' => 40,
         'collocation_options' => 3, 'collocation_text_max' => 160,
         'dictation_text_max' => 80, 'dictation_accepted_max' => 5,
+        'word_form_text_max' => 160, 'word_form_base_max' => 30, 'word_form_answer_max' => 40,
+        'word_form_answer_tokens' => 3, 'word_form_accepted_max' => 4,
+        'error_hunt_text_max' => 160, 'error_hunt_tokens' => ['min' => 4, 'max' => 16], 'error_hunt_options' => 3,
         'key_pattern' => '/\A[a-z0-9][a-z0-9._-]{0,63}\z/',
         'explanation_max' => 300, 'prompt_max' => 200,
     ],
@@ -758,7 +773,7 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 | Режим | Соло | Баттл |
 |---|---|---|
 | `pairs` | `k = min(3, floor(N/3))` раундов из `N` пригодных слов; `k = 0` → мало материала; `total = min(N, 4k)` слов делится поровну: первые `total mod k` раундов получают `floor(total/k)+1`, остальные `floor(total/k)` (всегда 3 или 4). Примеры: 12 → 4,4,4; 11 → 4,4,3; 10 → 4,3,3; 9 → 3,3,3; 8 → 4,4; 7 → 4,3; 6 → 3,3; 5 → 4; 4 → 4; 3 → 3; 2 → ошибка. Раунд, в который после упаковки (§4.4) попало < 3 слов, отбрасывается; 0 раундов → ошибка | ровно 5 раундов × 4 пары = 20 слов, упакованных без конфликтов в **каждой** локали игроков; иначе формат недоступен |
-| `collocation`, `sentence`, `dictation` | `size = 5`, `min = 3`: `n = min(5, available)`, `n < 3` → ошибка | ровно 5 заданий (диктант — только фразы с готовым аудио) |
+| `collocation`, `sentence`, `dictation`, `word_form`, `error_hunt` | `size = 5`, `min = 3`: `n = min(5, available)`, `n < 3` → ошибка | ровно 5 заданий (диктант — только фразы с готовым аудио) |
 | `dictation` соло — состав | `phrases = min(eligible_phrases, 3)`, остальное — слова; слов не хватает → добирается фразами; `n < 3` → ошибка | только фразы |
 
 Ошибка 422 `practice_not_enough_material` (соло) / `battle_material_unavailable` (баттл) с `details`:
@@ -789,7 +804,7 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 |---|---|
 | `key_invalid` | `key` не по `content.key_pattern` |
 | `key_duplicate` | второй `key` в одном курсе (unique `(course_id, key)`) |
-| `type_invalid` | тип вне трёх |
+| `type_invalid` | тип вне пяти (`collocation`, `sentence`, `dictation`, `word_form`, `error_hunt`) |
 | `course_invalid` | курс — колода learner'а или не найден |
 | `lesson_not_in_course` | урок не из курса |
 | `level_invalid` | не `A1`..`C2` |
@@ -809,6 +824,19 @@ WHERE i.course_id = :course [AND i.lesson_id = :lesson] AND i.type = :type AND i
 | `options_count` / `options_duplicate` | не ровно 3 варианта / совпадают после нормализации |
 | `correct_invalid` / `all_options_correct` | `correct` пуст, вне `options` или содержит все 3 |
 | `dictation_accepted_invalid` | вариант пуст / длиннее 80 / больше 5 дополнительных; `text` добавляется в `accepted` первым автоматически |
+| `base_invalid` | `word_form`: `base` пуст, длиннее `word_form_base_max` (30), больше 2 токенов или не только буквы, апостроф, дефис, пробел |
+| `answer_invalid` | `word_form`: вариант `accepted` пуст (`cause: empty`), длиннее 40 (`length`), больше 3 токенов (`tokens`) или не только буквы, апостроф, дефис, пробел (`chars`) |
+| `accepted_required` / `accepted_too_many` | `word_form`: `accepted` пуст / больше `word_form_accepted_max` (4) различных вариантов (совпадающие по нормализованному тексту схлопываются молча) |
+| `answer_equals_base` | `word_form`: нормализованный вариант `accepted` равен нормализованному `base` |
+| `placeholder_invalid` (`word_form`) | в `text` не ровно один `___` (как у сочетания) |
+| `error_mark_invalid` | `error_hunt`: в `text` не ровно одна пара `*…*`, либо внутри пробел, пунктуация, пусто, либо пометка не на целом слове |
+| `tokens_count` | `error_hunt`: токенов (по пробелам, без звёздочек) вне `error_hunt_tokens` (4..16) |
+| `token_invalid` | `error_hunt`: токен без буквы и цифры или длиннее `fragment_max_length` (40) |
+| `options_count` / `options_duplicate` (`error_hunt`) | не ровно `error_hunt_options` (3) вариантов / совпадают после нормализации; вариант длиннее 40 символов — `text_too_long`, больше 3 слов — `text_too_long` с `cause: words` (`max` — число слов) |
+| `option_is_error` | `error_hunt`: вариант совпадает (после нормализации) с ошибочным словом |
+| `options_case` | `error_hunt`: регистр первой буквы вариантов выдаёт ответ — ошибка в первом слове (`error_index = 0`), а вариант начинается со строчной (`cause: first_word`; все три — с заглавной, тогда и исправленное предложение начинается с заглавной), или ошибка не в первом слове, а варианты начинаются с букв разного регистра (`cause: mixed`). Вариант не с буквы регистра не имеет |
+| `correct_invalid` (`error_hunt`) | `correct` — не список ровно из одного текста варианта |
+| `locale_text_required` (П, новые типы) | `translation` и `explanation` обязательны на `ru` и `uz` у `word_form` и `error_hunt` |
 | `audio_not_ready` | **не** блокирует публикацию: выдача фильтрует `audio_status = ready` (§4.2); в админке — колонка «Аудио» и действие «Сгенерировать заново» |
 
 Отвергнуто: блокировать публикацию до готовности аудио — ломает `import --publish` (аудио генерируется асинхронно после commit); требовать 4–8 фрагментов — A1-контент часто из 3 слов, 3 фрагмента дают 6 перестановок.
@@ -981,6 +1009,30 @@ Seed создаётся вызывающим (`PracticeSessionService`, `BattleS
 - **Очки рейтинга** — нет (практика не пишет `learner_daily_stats`, §0; 90 пар/мин были бы накруткой). Рекорд — личный.
 - **Итог** (§6.4): `{total: 10, answered, correct_first, typos: 0, hints: 0, mismatches, duration_ms (сыгранные мс: от старта часов до min(конец, дедлайн)), finish_reason, retry_available: false, mistakes: [], score, best_score, is_record}`; `is_record` фиксируется при финализации в `state.timed.is_record`, `best_score` — рекорд на момент чтения (один запрос).
 
+### 5.6 «Форма слова» (`word_form`, только соло)
+
+Задание — предложение с одним `___` и базовым словом `base`; ученик **печатает** нужную форму (`decide → decision`). Формат и правила текста — §2.3, §4.5, §15.1.
+- **Классы:** `Grading/WordFormGrader` (чистая функция), `Modes/WordFormMode` (материал и доступность — как у сочетания: `eligibleRows` / `eligibleItems` типа `word_form`, `minItems`, `shortageReason` → `no_items` / `items_locked`; содержимое, которое нельзя сыграть, не считается и не строится, лог `practice.word_form_content_unplayable`).
+- **Снимок:** `{id, kind: word_form, item_id, version_id, text, base, accepted (как у автора, первый — канонический), full_text (text с accepted[0] на месте ___), translation, explanation}` (тексты — по локалям `LocaleSet`). **Проекция:** `{id, kind, text, base}` — ни `accepted`, ни `full_text`, ни переводов.
+- **Ответ:** `{text: ≤ 200}` или `{skip: true}`; иное — 422 `invalid_answer_shape {expected: text_or_skip}`.
+- **Проверка** (`WordFormGrader::grade(list<string> $accepted, string $base, array $answer)`): `skip` или пустой после нормализации текст → `skipped`; токены ответа (`PracticeTextNormalizer::tokens`, ввод обрезается до 60 символов) совпадают с токенами одного из `accepted` той же длины, попозиционно `SpellingVariants::same` (британское и американское написание — один токен) → `correct`; иначе `wrong`, и если токены ответа равны токенам `base` — в разборе `same_as_base: true`. **Вердикта `typo` нет**: написание формы и есть проверяемый навык (`happyer` вместо `happier` — ошибка правила, а не описка), а лексикон диктанта как раз считает такие формы «не-словом» и простил бы их. `points` 100 / 0.
+- **Разбор (соло):** `{expected: accepted[0], alternatives: остальные accepted, your_text, same_as_base, full_text, translation, explanation}`; `reveal()` — `{expected, alternatives, full_text, translation, explanation}`. `mistakeLabel` → `label = full_text`, `your_answer` — `text` с ответом на месте `___` (null при `skip`).
+- Баттла, рекорда, таймера, аудио нет; `estimate_seconds` 120.
+
+### 5.7 «Найди ошибку» (`error_hunt`, только соло, два шага)
+
+Задание — предложение из слов, ровно одно из них ошибочное. Автор помечает ошибку звёздочками: `I am very interested *on* modern art.` (§15.1). Хранится текст без звёздочек, номер ошибочного токена `error_index`, его ядро `error` (токен без пунктуации по краям `.,!?;:…"'()[]`), три варианта исправления и номер верного. Регистр первой буквы не должен выдавать ответ: если ошибка — первое слово, все три варианта пишутся с заглавной, иначе первые буквы трёх вариантов одного регистра (§4.5 `options_case`); местоимение `I` и его сокращения (`I'm`, `I've`, `I'll`, `I'd`) всегда пишутся с заглавной и регистр не выдают — среди строчных вариантов они допустимы (`John and *me* went` → I / myself / mine).
+- **Классы:** `Grading/ErrorHuntGrader` (`locate()` и `fix()`, чистые функции с проверкой формы), `Modes/ErrorHuntMode`; материал и доступность — как у сочетания.
+- **Снимок:** `{id, kind: error_hunt, item_id, version_id, tokens: [{id: t…, text}] (порядок предложения, не перемешан), error_id, options: [{id: o…, text}] (SeededShuffle, метка error_hunt:options:{version_id}), correct_ids, wrong_text, full_text, translation, explanation}`. Секрет — только случайность id токенов.
+- **Два запроса на задание.** Шаг `locate`: `{token_id}`. Шаг `fix`: `{option_id}` из 3 вариантов. Варианты клиент получает **только после** принятого `locate` (они называют ошибочное слово). Шаг `fix` есть всегда, и после неверного поиска: ошибка подсвечивается, ученик выбирает исправление. `{skip: true}` — на любом шаге, окончательный: skip закрывает элемент на любом шаге (номера шага в запросе нет; после `locate` разбор сохраняет `your_token_id` и `located_ok`, итог — `skipped`).
+- **Состояние шага** — блок режима `state.pairs[element_id]` (§6.2): после `locate` `{located, located_ok}`, после `fix` ещё `{fixed, fixed_ok}`.
+- **Проекция:** до `locate` — `{id, kind, step: "locate", tokens: [{id, text}], located: null, options: null}`; после — `{…, step: "fix", located: {token_id, ok, error_token_id}, options: [{id, text} ×3]}`. `error_id`, `correct_ids`, `wrong_text`, `full_text` и переводы в проекцию не попадают.
+- **Проверка** (`ErrorHuntMode::grade`, по порядку): `skip` → `skipped`, `final`, несделанные шаги `*_ok = false`; шаг `locate` (в блоке нет `located`): строка `token_id` → токен снимка, иначе 422 `unknown_element_id`; есть только `option_id` → 409 `step_not_current {step: locate}`; ничего → 422 `invalid_answer_shape {expected: token_id}`. Результат — вердикт поиска, `final: false`, `first_attempt: true`, разбор `{step: locate, located_ok, your_token_id, error_token_id}`. Шаг `fix`: строка `option_id` → вариант снимка, иначе 422 `unknown_element_id`; только `token_id` → 409 `step_not_current {step: fix}`; ничего → 422 `invalid_answer_shape {expected: option_id}`. Итог `correct` только при верных обоих шагах, иначе `wrong`; `final: true`.
+- **Разбор окончательного шага (соло):** `{step: fix, located_ok, fixed_ok, your_token_id, error_token_id, your_option_id, correct_option_ids, wrong_text, full_text, translation, explanation}` (при `skip` на `locate` — `your_token_id` и `your_option_id` null). `reveal()` — `{error_token_id, correct_option_ids, wrong_text, full_text, translation, explanation}`. `mistakeLabel` → `label = full_text`; `your_answer`: ошибка не найдена — `wrong_text`; найдена, но исправлена неверно — предложение с выбранным вариантом на месте ошибки; `skip` — null.
+- Баттла, рекорда, таймера, аудио нет; `estimate_seconds` 150. В «Караван» (docs/18 §12) задания новых типов не идут (`PracticeItemType::inGame()`).
+
+Отвергнуто: один запрос `{token_id, option_id}` — варианты пришлось бы отдать до поиска; варианты к каждому токену — втрое больше авторской работы; конец элемента сразу после неверного поиска — теряется частичный результат.
+
 ---
 
 ## 6. Жизненный цикл сольной сессии
@@ -1025,6 +1077,8 @@ Seed создаётся вызывающим (`PracticeSessionService`, `BattleS
 
 Итоговые счётчики (`answered`, `correct_first`, `hints`, `mismatches`) дублируются колонками для отчётов и пишутся тем же UPDATE.
 
+Блок `pairs` исторически назван по парам, но это **блок режима** (`ElementState::$extra`, `GradeResult::$extra`): сервис хранит в нём любой режимный блок. «Найди ошибку» держит там шаги: `{ "eB…": {"located": "tW…", "located_ok": false, "fixed": "oB…", "fixed_ok": true} }` (§5.7).
+
 ### 6.3 Приём ответа (транзакция, порядок §9)
 
 ```
@@ -1043,6 +1097,8 @@ afterCommit: product_events (session_finished при завершении)
 ```
 
 Ответ: `verdict`, `reveal` (по режиму §5), `first_attempt`, `session` (обновлённый `SessionView` с следующим элементом или `summary`). Повтор того же `request_id` возвращает тот же `verdict`/`reveal` (из `practice_attempts.result`) и **текущий** view.
+
+**Многошаговые элементы** (`PracticeMode::isMultiStep()`: `error_hunt`, §5.7). Элемент становится `answered` только на окончательном шаге (`GradeResult::$final`). `correct_first` растёт у не-пар **только на окончательном шаге** (`$result->final || $element->isPairsRound()`): верный `locate` не засчитывается, засчитывается итог; пары — как раньше (каждое верное сопоставление первой попытки). В теле ответа многошагового режима есть `element_done: bool` (у других режимов ключа нет, как `round_done` есть только у пар). Ответ не на тот шаг — 409 `step_not_current {step}` (ожидаемый сервером шаг: вторая вкладка, потерянный ответ); его бросает `grade()`, поэтому порядок проверок прежний: `answer_already_accepted` → `element_not_current` → `step_not_current`. Шаг `locate` пишет строку попытки `kind = answer` с вердиктом поиска. Повтор `request_id` любого шага отдаёт сохранённый результат шага и **текущий** вид (на шаге `fix` — с вариантами).
 
 `request_id` принадлежит одному виду запроса (`practice_attempts.kind`: `answer` | `replace`, 18.9b): ответ и замена с одним и тем же `request_id` — 409 `request_id_reused` (без `details`; одна строка журнала не может быть и тем и другим), а не молчаливый «успех» с чужим результатом. Клиент берёт новый uuid на каждый запрос; повторяет только тот, чей ответ потерял.
 
@@ -1075,14 +1131,16 @@ afterCommit: product_events (session_finished при завершении)
     { "mode": "sentence", "state": "disabled", "available": 0, "required": 3, "reason": null, "estimate_seconds": 150 },
     { "mode": "dictation", "state": "available", "available": 7, "required": 3, "reason": null, "estimate_seconds": 180 },
     { "mode": "pairs_timed", "state": "available", "available": 12, "required": 8, "reason": null, "estimate_seconds": 60,
-      "record": { "score": 28, "achieved_at": "2026-11-17T09:00:00.000Z" } | null }
+      "record": { "score": 28, "achieved_at": "2026-11-17T09:00:00.000Z" } | null },
+    { "mode": "word_form", "state": "available", "available": 3, "required": 3, "reason": null, "estimate_seconds": 120 },
+    { "mode": "error_hunt", "state": "not_enough", "available": 0, "required": 3, "reason": "no_items", "estimate_seconds": 150 }
   ],
   "active_session": { "id": 77, "mode": "pairs", "course": "english-a1", "course_title": "Английский A1", "lesson_id": 41,
                       "lesson": { "stage": 2, "number": 4, "title": "Еда" }, "progress": { "done": 1, "total": 3 } } | null,
   "battle": { "enabled": true, "active_battle_id": null, "incoming_count": 1 },
   "limits": { "sessions": { "limit": 2, "used": 1, "remaining": 1, "resets_at": "…" }, "battles": { "limit": 1, "used": 0, "remaining": 1, "resets_at": "…" } } | null }
 ```
-Ключ `record` есть только у строки `pairs_timed` (личный рекорд — один запрос к `practice_records`, пропускается за paywall'ом). `state`: `available` / `not_enough` / `disabled` / `pro_required`. Поле `available` при `state = available` — «не меньше»: курс считается по выборке до `practice.count_sample` (300) слов, чтобы не грузить весь курс ради экрана; при `not_enough` число (и `reason`) точное — режим, которому на выборке не хватило, пересчитывается по всем словам. `limits` — лимиты Free на сегодня (§3.3, G1; `null` у Pro и за пейволом). Ошибки: 403 `practice_unavailable`, 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course`.
+Строки `word_form` и `error_hunt` (§5.6, §5.7) считаются по уже прочитанным строкам `stock()` (задания всех типов читаются одним запросом): **0 новых запросов** хаба. TWA скрывает карточку авторского режима при `state = not_enough`, `reason = no_items`, `available = 0` (решение владельца). Ключ `record` есть только у строки `pairs_timed` (личный рекорд — один запрос к `practice_records`, пропускается за paywall'ом). `state`: `available` / `not_enough` / `disabled` / `pro_required`. Поле `available` при `state = available` — «не меньше»: курс считается по выборке до `practice.count_sample` (300) слов, чтобы не грузить весь курс ради экрана; при `not_enough` число (и `reason`) точное — режим, которому на выборке не хватило, пересчитывается по всем словам. `limits` — лимиты Free на сегодня (§3.3, G1; `null` у Pro и за пейволом). Ошибки: 403 `practice_unavailable`, 404 `course_not_found` / `lesson_not_found`, 422 `lesson_not_in_course`.
 
 `active_session` называет место сессии и id, и словами (М4 повторного ревью; `PracticeSessionService::activeSummary`): `course_title` — название курса на языке сессии (иначе любой язык снимка, иначе slug), `lesson` — `{stage, number, title}` либо `null`
 (практика курса; снимок без названий; часть, которой у урока нет, — `null`). Всё берётся из снимка, который `activeSummary` и так разбирает ради slug: ни одного запроса сверх бюджета хаба. Те же поля — в `details` 409 `practice_session_active` (`session_id` вместо `id`).
@@ -1093,7 +1151,7 @@ afterCommit: product_events (session_finished при завершении)
 ```json
 { "mode": "pairs", "course": "english-a1", "lesson_id": 41, "source": "hub", "replace_active": false, "retry_of": null }
 ```
-`mode` ∈ 5 (`pairs`, `collocation`, `sentence`, `dictation`, `pairs_timed`); `course` строка ≤ 64; `lesson_id` int ≥ 1 nullable; `source` ∈ `hub|after_training|retry|deeplink`; `replace_active` bool; `retry_of` int nullable (при нём `mode`/`course`/`lesson_id` берутся из исходной, присланные игнорируются). `source: retry` и `retry_of` — **только вместе** (одно без другого — 422, валидация). Ответ **201** `PracticeSessionOpenedResource` — сессия как в `GET` плюс `limits` (§3.3, значение после открытия; `null` у Pro). Ошибки: 403 `practice_unavailable` / `practice_pro_required` / `practice_limit_reached` (G1, details `{kind: sessions, limit, used, resets_at}`; один повтор ошибок на исходную сессию дня бесплатен, остальные повторы считаются как сессия); 409 `practice_mode_disabled`, `practice_session_active` (details), `retry_not_available`; 404 `course_not_found`, `lesson_not_found`, `practice_session_not_found` (чужая/нет `retry_of`); 422 `lesson_not_in_course`, `practice_not_enough_material` (details §4.3), валидация Laravel.
+`mode` ∈ 7 (`pairs`, `collocation`, `sentence`, `dictation`, `pairs_timed`, `word_form`, `error_hunt`); `course` строка ≤ 64; `lesson_id` int ≥ 1 nullable; `source` ∈ `hub|after_training|retry|deeplink`; `replace_active` bool; `retry_of` int nullable (при нём `mode`/`course`/`lesson_id` берутся из исходной, присланные игнорируются). `source: retry` и `retry_of` — **только вместе** (одно без другого — 422, валидация). Ответ **201** `PracticeSessionOpenedResource` — сессия как в `GET` плюс `limits` (§3.3, значение после открытия; `null` у Pro). Ошибки: 403 `practice_unavailable` / `practice_pro_required` / `practice_limit_reached` (G1, details `{kind: sessions, limit, used, resets_at}`; один повтор ошибок на исходную сессию дня бесплатен, остальные повторы считаются как сессия); 409 `practice_mode_disabled`, `practice_session_active` (details), `retry_not_available`; 404 `course_not_found`, `lesson_not_found`, `practice_session_not_found` (чужая/нет `retry_of`); 422 `lesson_not_in_course`, `practice_not_enough_material` (details §4.3), валидация Laravel.
 
 **`GET /practice/sessions/{id}`** — `PracticeSessionResource`:
 ```json
@@ -1111,7 +1169,9 @@ afterCommit: product_events (session_finished при завершении)
 - `pairs_round`: `{ "id", "kind": "pairs_round", "round": 2, "rounds": 3, "left": [{id, text}], "right": [{id, text}], "matched": [["lM…","rT…"]], "mismatches": 1 }`;
 - `collocation`: `{ "id", "kind": "collocation", "text": "Let's ___ a meeting on Monday.", "options": [{id, text} ×3] }`;
 - `sentence`: как выше;
-- `dictation`: `{ "id", "kind": "dictation", "source": "phrase", "audio_url": "/api/twa/practice/sessions/77/audio/eD4…", "words": 3, "replacements_left": 2 }` — текста нет; `words` — число слов (для пустых плашек), не буквы.
+- `dictation`: `{ "id", "kind": "dictation", "source": "phrase", "audio_url": "/api/twa/practice/sessions/77/audio/eD4…", "words": 3, "replacements_left": 2 }` — текста нет; `words` — число слов (для пустых плашек), не буквы;
+- `word_form`: `{ "id", "kind": "word_form", "text": "We need to make a ___ by Friday.", "base": "decide" }`;
+- `error_hunt`: `{ "id", "kind": "error_hunt", "step": "locate"|"fix", "tokens": [{id, text}], "located": null | {"token_id", "ok", "error_token_id"}, "options": null | [{id, text} ×3] }` — ключи `located` и `options` есть всегда; до шага `locate` они `null` (§5.7).
 `status = finished` → `current: null`, `summary` (§6.4). Ошибки: 404 `practice_session_not_found`.
 
 **`POST /practice/sessions/{id}/start`** (`twa-api` + `twa-practice-answer`; без тела) — `pairs_timed`: запускает часы (§5.5a), 200 `PracticeSessionResource` с `timed.deadline_at`, `server_now` и **`current` с доской первого раунда** (до старта `current: null`); повтор — тот же `deadline_at`. Ошибки: 404, 410 `practice_session_closed`, 409 `practice_not_timed`.
@@ -1121,7 +1181,7 @@ afterCommit: product_events (session_finished при завершении)
 { "request_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d", "element_id": "eK7qM2x9Ab", "time_spent_ms": 8200,
   "answer": { "order": ["fW2…", "fQ1…", …] } }
 ```
-`answer` по режиму: пары `{left_id, right_id}`; сочетание `{option_id}` или `{skip: true}`; предложение `{order: [...]}` или `{skip: true}`; диктант `{text: "…" ≤ 200}` или `{skip: true}`. `request_id` — uuid (валидация `uuid`). Ответ 200 `PracticeAnswerResource`:
+`answer` по режиму: пары `{left_id, right_id}`; сочетание `{option_id}` или `{skip: true}`; предложение `{order: [...]}` или `{skip: true}`; диктант `{text: "…" ≤ 200}` или `{skip: true}`; форма слова `{text}` или `{skip: true}`; «Найди ошибку» — шаг `locate` `{token_id}` (≤ 16), затем шаг `fix` `{option_id}`, на любом шаге `{skip: true}`. `request_id` — uuid (валидация `uuid`). Ответ 200 `PracticeAnswerResource`:
 ```json
 { "verdict": "typo", "first_attempt": true,
   "reveal": { "expected": "See you tomorrow", "your_text": "see you tomorow", "diff": [ { "expected": "see", "got": "see", "ok": true }, … ], "translation": "До завтра", "explanation": null },
@@ -1129,6 +1189,7 @@ afterCommit: product_events (session_finished при завершении)
   "session": { "...PracticeSessionResource..." } }
 ```
 Пары: `verdict` `correct|wrong`, `pair: {left_id, right_id}`, `reveal: null`, `round_done: bool`; у `pairs_timed` ещё `penalty_ms` (2000 за неверный, 0 за верный) и `session.timed` с новым `deadline_at`; ошибки `pairs_timed`: 409 `practice_not_started`, 409 `practice_time_over` `{score}`. Ошибки: 404; 410 `practice_session_closed`; 409 `element_not_current` (details `{current}`), `answer_already_accepted` (details `{verdict}`), `pair_already_matched`, `request_id_reused` (этот `request_id` уже принят как замена, §6.3); 422 `invalid_answer_shape`, `unknown_element_id`, валидация.
+«Найди ошибку»: у каждого шага свой `request_id`; в теле ответа есть `element_done: bool` (у других режимов ключа нет); на шаге `locate` `verdict` — вердикт поиска, `first_attempt: true`, `reveal` — `{step: "locate", located_ok, your_token_id, error_token_id}`, а `session.current` — проекция шага `fix` с вариантами; ответ не на тот шаг — 409 `step_not_current {step}`. Разборы новых режимов — §5.6, §5.7; `summary.mistakes[].kind` может быть `word_form` / `error_hunt`.
 Разбор сочетания в **соло-ответе** — `{correct_option_ids, full_text, translation, explanation, your_option_id}`: `your_option_id` — id варианта, который выбрал ученик (`null` при «Не знаю»), чтобы экран отметил выбор среди трёх (18.9b). Разбор раунда баттла (`reveal()`) один на двоих, без этого ключа; повтор `request_id` отдаёт его же из `practice_attempts.result`.
 
 **`POST /practice/sessions/{id}/replace`** (`twa-practice-answer`) — `{ "request_id", "element_id", "reason": "audio_unavailable" }` → 200 `PracticeSessionResource` (элемент заменён/удалён, `progress.total` мог уменьшиться). Ошибки: 409 `replace_not_allowed` (не диктант, не текущий, лимит `max_replacements`), `request_id_reused` (этот `request_id` уже принят как ответ), 404, 410.
@@ -1251,7 +1312,8 @@ afterCommit: product_events (session_finished при завершении)
 | `element_not_current` | 409 | `{current}` |
 | `answer_already_accepted` | 409 | `{verdict[, points]}` |
 | `pair_already_matched` | 409 | `{left_id}` |
-| `invalid_answer_shape` | 422 | `{expected}` — словесно: `order_of_all_fragments`, `option_id`, `left_right`, `text_or_skip`, `bijection` |
+| `step_not_current` | 409 | `{step: locate|fix}` — ответ не на тот шаг многошагового элемента (`error_hunt`, §5.7): другая вкладка или потерянный ответ; клиент перечитывает сессию |
+| `invalid_answer_shape` | 422 | `{expected}` — словесно: `order_of_all_fragments`, `option_id`, `left_right`, `text_or_skip`, `bijection`, `token_id` |
 | `unknown_element_id` | 422 | — |
 | `replace_not_allowed` | 409 | `{reason: not_dictation|not_current|limit}` |
 | `request_id_reused` | 409 | — (`request_id` уже принят как запрос другого вида: ответ ≠ замена, §6.3) |
@@ -1542,6 +1604,8 @@ Blob не загрузился (503/сеть) → экран показывае�
 
 `components/practice/`: `ModeCard.vue`, `PairsBoard.vue` (две колонки; выбранное слово подсвечено; верная пара — `correct` и исчезает через 400 мс; неверная — `incorrect` 600 мс + хаптик `error`; клавиатура: Tab/Enter), `SentenceBuilder.vue` (строка ответа + банк фрагментов; тап переносит; «Начать заново»; «Проверить» активна при всех фрагментах; первая буква первого фрагмента в строке ответа отображается заглавной — только отображение, в ответ уходят id), `CollocationChoice.vue` (3 `.option`), `DictationInput.vue` (кнопка-круг «Прослушать», поле `.field-surface`, «Проверить», «Не знаю»), `AnswerReveal.vue` (общий разбор по `kind`), `PracticeSummary.vue`, `AudioTrouble.vue` (лист). `components/battle/`: `BattleRoom.vue`, `RoundTimer.vue`, `BattleReveal.vue`, `BattleResult.vue`, `OpponentStatus.vue`, `LeaveConfirm.vue` (`.sheet`: «Сдаться и выйти?» — `btn-danger` «Сдаться», `btn-secondary` «Остаться»). Компоненты режимов принимают `element` + `mode: 'solo' | 'battle'` (баттл: один окончательный ответ, пары — набор + «Проверить»).
 
+**Новые типы (§5.6, §5.7; задачи T1–T3 проекта новых типов).** `WordFormInput.vue` (по образцу `DictationInput`: поле ввода, чип базового слова, «Не знаю» / «Проверить») и `ErrorHuntBoard.vue` (шаг `locate`: токены-чипы, выбор + «Это ошибка»; шаг `fix`: подсветка своего и настоящего токена, 3 варианта, нажатие = ответ; перерисовка по `element.step`, `elementSeq` между шагами не растёт); ветки `AnswerReveal` обоих; стор: ключ ожидающего `request_id` у `error_hunt` — `${element.id}:${element.step}`, `element_done: false` → снова `ready` с проекцией шага `fix`, `step_not_current` → перечитать сессию и тост; хаб отбрасывает режимы, которых клиент не знает (`KNOWN_PRACTICE_MODES`), и скрывает пустую карточку авторского режима (`not_enough` + `no_items` + `available = 0`). i18n — блоки `practice: word_form` / `practice: error_hunt`, `error.code.step_not_current`.
+
 Назад/✕ в `BattleView`: `invited`/`room`/`countdown` → лист «Выйти из комнаты?» → `cancel` → `friends`; `playing` → `LeaveConfirm` → `surrender` → остаёмся на экране итогов; `finished|closed` → `friends` (или `course`, если пришли из хаба — по `history.state.back`).
 
 ### 11.4 Сторы
@@ -1606,6 +1670,7 @@ Blob не загрузился (503/сеть) → экран показывае�
 | Контент из импорта (XSS) | Строки — untrusted: Filament экранирует; TWA выводит через `{{ }}` (без `v-html`); текст со знаками `<` и `>` отклоняется (`markup_not_allowed`), управляющие символы удаляются при сохранении версии; уведомления админки об ошибках файла собираются из строк, пропущенных через `e()` (тело уведомления Filament выводит как HTML) |
 | Чужая практика в админке | Только активный `admin` (`PracticeItemPolicy` → `viewAny/create/update/review/publish/archive` = admin; teacher — 403); кабинет `/org` ресурса не получает; пилот — действие на `LearnerResource` только admin, с `audit_logs` |
 | Изоляция обучения | Практика не вызывает сервисы SRS/статистики/лиг; `PracticeIsolationTest` (§14) |
+| Утечка ответа в новых режимах (§5.6, §5.7) | `word_form`: ни `accepted`, ни `full_text` до ответа; `error_hunt`: `error_id`, `correct_ids`, `wrong_text`, `full_text` только в снимке, **тексты вариантов** не уходят до принятого шага `locate` (они называют ошибочное слово), `error_token_id` появляется только после необратимого `locate`. `NEVER_SHOWN` += `error_id`, `wrong_text`; `PracticeContractTest` проверяет ключи и тексты вариантов в теле |
 
 Чек-лист пен-теста (docs/07 §14) дополняется: ответ сессии содержит `pairs`/`accepted`/`expected`? — нет; чужой `GET /practice/sessions/{id}` — 404; второй `accept` другого приглашения при активном — 409 `battle_busy`; `answer` после `round_deadline_at + 1.5 с` — 409 `round_closed`; `audio` будущего раунда — 404; `order` без одного фрагмента — 422; повтор `request_id` с другим телом — ответ первого запроса.
 
@@ -1642,6 +1707,8 @@ Blob не загрузился (503/сеть) → экран показывае�
 **Реализация 18.6b (бюджеты на маршрутах, с запросом `learners` от `TwaAuth`; `PracticeQueryBudgetTest`):** фактически — poll 4 без перехода (3, если присутствие свежее) / 9 таймаут / 7 следующий раунд / 10 финал / 4 у законченного матча (бюджет 4 и 10); answer 7 и 8 (второй разрешает раунд; бюджет 8), повтор 7; приглашение 14 (пары; бюджет 14) / 12 (диктант) / 13 (реванш); раунд 4, матч 4, список 7, клип 3 (`BattleReader::find` читает участников: на один запрос больше соло-клипа). Размер опроса — до 404 байт в самом тяжёлом состоянии (раунд с обоими часами и «молчащий» соперник), бюджет 600.
 
 **Реализация 18.12a:** бюджеты не изменились — отметка присутствия та же одна и переставлена после часов (poll без перехода 3/4, с переходом ≤ 9/10, answer ≤ 7/8, sweep прежний); у опроса, который сам завершает матч (в т. ч. `both_absent` первым вернувшимся), отметки нет вовсе — на один запрос меньше (`BattlePresenceTest`: ≤ 9 на сервисе).
+
+**Новые типы (§5.6, §5.7):** бюджеты не меняются. `PracticeMaterialService::stock()` читает задания **всех** типов одним запросом без фильтра по `type`, версии — вторым, `MaterialScope` их помнит: два новых режима добавляют 0 запросов в хаб (≤ 10), открытие (≤ 12) и повтор. Шаг `locate` — обычный ответ (≤ 6), окончательный `fix` последнего элемента ≤ 7. Закреплено `PracticeQueryBudgetTest` (мир с заданиями `word_form` и `error_hunt`) и `PracticeAvailabilityParityTest`.
 
 Индексы — §2; дополнительных не нужно: все выборки учениковые (`learner_id`/участник) или по `(course_id, status, type)`. Кэшей нет (все ответы персональные и короткоживущие), кроме существующего кэша entitlement. Генерация аудио — только в job.
 
@@ -1682,6 +1749,7 @@ Blob не загрузился (503/сеть) → экран показывае�
 | `tests/Feature/Practice/PracticeAdminTest` | Filament: список/фильтры, формы по типам, действия «Проверено/Опубликовать/В архив», импорт JSON, переключатель пилота + `audit_logs`, teacher → 403 |
 | `tests/Feature/Practice/PracticeSchedulerTest` | `practice:close-expired`, `practice:battles-sweep` (expire, advance, voided при `off`) |
 | `DatabaseSchemaTest` | rollback четырёх миграций; миграция «Пар на время» (колонки, `practice_records`, отказ отката при строках `pairs_timed`) |
+| Новые типы (§5.6, §5.7) | `tests/Unit/Practice/WordFormGraderTest`, `ErrorHuntGraderTest`, коды и круговой путь `canonical → authorForm → canonical` в `PracticeContentValidatorTest`; `tests/Feature/Practice/WordFormModeTest`, `ErrorHuntModeTest`, `ErrorHuntSessionTest` (два шага через HTTP, `correct_first`, повтор `request_id`, `step_not_current`, итог и повтор ошибок); контракт (тексты вариантов `error_hunt` и ответ `word_form` не уходят клиенту до ответа, `element_done` только у `error_hunt`), бюджеты и паритет хаба, изоляция, 422 приглашения баттла, `DatabaseSchemaTest` (CHECK и отказ `down()`), «Караван» не берёт новые типы; `tests/Feature/Content/PracticeExtraPackTest` (x-файлы, §15.1) |
 
 ### 14.2 PostgreSQL-гонки (pcntl, `DatabaseTruncation`, образец `ImportConcurrencyTest`)
 
@@ -1704,6 +1772,7 @@ Blob не загрузился (503/сеть) → экран показывае�
 | | (18.12a) оба отсутствуют > grace: опросы обоих, `GET` одного и дворник в один миг | ровно одно `battle.closed/both_absent`, без победителя, `last_seen_at` обоих не тронуты, все читают `closed` |
 | | (18.12a) один отсутствует дольше grace: его опрос и его ответ ∥ опрос соперника ∥ дворник | ровно одно `battle.finished/absent`, победа оставшегося, ответ → 409 `battle_closed {absent}`, строк ответа нет, отметки прежние |
 | | импорт заданий ∥ импорт слов того же курса | без deadlock, оба успешны |
+| | (новые типы) две вкладки одновременно шлют шаг `locate` «Найди ошибку» с разными токенами | ровно один принят, второй — 409 `step_not_current {step: fix}`; одна строка попытки шага |
 
 ### 14.3 Vitest
 
@@ -1758,6 +1827,19 @@ Blob не загрузился (503/сеть) → экран показывае�
       "text": "See you tomorrow", "accepted": ["See you tomorrow"], "translation": {"ru": "До завтра", "uz": "Ertagacha"} }
   ] }
 ```
+
+Новые типы (§5.6, §5.7):
+```json
+    { "key": "b1-m03-l2-w1", "type": "word_form", "lesson": {"stage": 3, "number": 2}, "level": "B1", "target_words": ["decide"],
+      "text": "We need to make a ___ by Friday.", "base": "decide", "accepted": ["decision"],
+      "translation": {"ru": "…", "uz": "…"}, "explanation": {"ru": "…", "uz": "…"} },
+    { "key": "b1-m05-l1-e1", "type": "error_hunt", "lesson": {"stage": 5, "number": 1}, "level": "B1", "target_words": ["interested"],
+      "text": "I am very interested *on* modern art.", "options": ["in", "at", "for"], "correct": ["in"],
+      "translation": {"ru": "…", "uz": "…"}, "explanation": {"ru": "…", "uz": "…"} }
+```
+`word_form`: `accepted` — 1..4 верные формы, первая — каноническая (её показывает разбор); британское написание отдельно указывать не нужно, если пара есть в `resources/lexicon/en-us-gb.txt`. `error_hunt`: ошибочное слово помечено звёздочками прямо в тексте (одно целое слово, без пробелов и пунктуации внутри; пунктуация снаружи: `*informations*.`), номер токена в файл не пишется; `correct` — список ровно из одного текста варианта. Поля импортёра: `word_form` — `text, base, accepted, translation, explanation`; `error_hunt` — `text, options, correct, translation, explanation`.
+
+Пакеты новых типов — отдельные файлы `database/data/practice/<course>-x01.json` … `-x10.json` (модули `2k-1` и `2k`, 3 задания каждого типа на урок, 60 на файл), ключи `<prefix>-mNN-lN-(w|e)[1-3]` (`prefix` — `a1a2`, `b1`, `b2`, `c1`, `c2`). Их проверяет `tests/Feature/Content/PracticeExtraPackTest` (все пять курсов полные: по десять файлов, 600 заданий — 300 каждого типа, по 3 в каждом уроке; курс без файлов — провал, а не пропуск) и `docs/content-authoring/check_practice.php` (тип файла по имени `-xNN.json`). p-файлы не меняются; шаблоны p-файлов в `PracticePackTest` перечислены явно (`globs`), x-файлы ими не захватываются.
 
 Отличия от предложения координатора: **`key` обязателен** (ключ идемпотентности задаёт автор; производный от содержимого ключ ломал бы идемпотентность при правке опечатки — вместо новой версии рождалось бы новое задание); `format` обязателен и равен `lexiflow-practice/1` (иначе `format_unsupported`); `lesson` необязателен (`null`/отсутствие — задание курса), `course` обязателен (slug существующего курса, не колоды); флага публикации в файле нет — он у вызывающего (чекбокс/`--publish`). `accepted` у предложения — массивы **строк-фрагментов**, при сохранении превращаются в индексы (одинаковые фрагменты сопоставляются по порядку появления; на проверку это не влияет — сравнивается текст). Необязательное поле предложения `display` (строка) — каноническая запись первой допустимой последовательности с регистром и пунктуацией для разбора (`display_mismatch`, §4.5); фрагменты в файле — строчные, кроме `I` и имён собственных (§5.3). Неизвестные поля задания **и ключи внутри объекта `lesson`** (кроме `stage`, `number`) — ошибка `field_unknown` (опечатка в имени поля не должна молча терять текст).
 

@@ -46,7 +46,7 @@ it('is the fifth mode, solo only, with the handler of its own', function (): voi
         ->and(PracticeMode::PairsTimed->itemType())->toBeNull()
         ->and(PracticeMode::PairsTimed->estimateSeconds())->toBe(60)
         ->and(PracticeMode::PairsTimed->battleable())->toBeFalse()
-        ->and(array_filter(PracticeMode::cases(), fn (PracticeMode $m): bool => ! $m->battleable()))->toHaveCount(1)
+        ->and(array_values(array_filter(PracticeMode::cases(), fn (PracticeMode $m): bool => ! $m->battleable())))->toBe([PracticeMode::PairsTimed, PracticeMode::WordForm, PracticeMode::ErrorHunt])
         ->and(app(ModeRegistry::class)->for(PracticeMode::PairsTimed))->toBeInstanceOf(PairsTimedMode::class);
 });
 

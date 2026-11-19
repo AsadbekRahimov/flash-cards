@@ -1,0 +1,1628 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b1",
+  "items": [
+    {
+      "key": "b1-m05-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "bone"
+      ],
+      "text": "My children do not like this fish because it is too ___.",
+      "base": "bone",
+      "accepted": [
+        "bony"
+      ],
+      "translation": {
+        "ru": "Мои дети не любят эту рыбу, потому что в ней слишком много костей.",
+        "uz": "Bolalarim bu baliqni yoqtirmaydi, chunki uning suyagi juda ko'p."
+      },
+      "explanation": {
+        "ru": "После too нужно прилагательное: bone + -y → bony (костлявый, с множеством костей). Немое e на конце выпадает.",
+        "uz": "too so'zidan keyin sifat kerak: bone + -y → bony (suyagi ko'p). Oxiridagi talaffuz qilinmaydigan e tushib qoladi."
+      }
+    },
+    {
+      "key": "b1-m05-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "elbow"
+      ],
+      "text": "The man ___ his way through the crowd and reached the exit first.",
+      "base": "elbow",
+      "accepted": [
+        "elbowed"
+      ],
+      "translation": {
+        "ru": "Мужчина протолкался локтями сквозь толпу и первым добрался до выхода.",
+        "uz": "Erkak tirsaklari bilan olomonni yorib o'tdi va chiqishga birinchi bo'lib yetib bordi."
+      },
+      "explanation": {
+        "ru": "Нужен глагол в прошедшем времени, как reached. Существительное elbow (локоть) бывает и глаголом: elbow one's way — пробираться, расталкивая локтями; elbow → elbowed.",
+        "uz": "reached fe'li kabi o'tgan zamondagi fe'l kerak. elbow (tirsak) oti fe'l ham bo'ladi: elbow one's way — tirsak bilan turtib yo'l ochmoq; elbow → elbowed."
+      }
+    },
+    {
+      "key": "b1-m05-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "brain"
+      ],
+      "text": "She was the ___ of all my classmates and loved math.",
+      "base": "brain",
+      "accepted": [
+        "brainiest"
+      ],
+      "translation": {
+        "ru": "Она была самой умной из всех моих одноклассников и любила математику.",
+        "uz": "U barcha sinfdoshlarim orasida eng aqllisi edi va matematikani yaxshi ko'rardi."
+      },
+      "explanation": {
+        "ru": "the … of all требует превосходной степени. От brain (мозг) образуется прилагательное brainy (умный, мозговитый); y меняется на i: brainiest.",
+        "uz": "the … of all qurilmasi orttirma darajani talab qiladi. brain (miya) otidan brainy (aqlli) sifati yasaladi; y harfi i ga almashadi: brainiest."
+      }
+    },
+    {
+      "key": "b1-m05-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "wrist"
+      ],
+      "text": "I slipped on the ice yesterday and broke *the* wrist.",
+      "options": [
+        "my",
+        "mine",
+        "me"
+      ],
+      "correct": [
+        "my"
+      ],
+      "translation": {
+        "ru": "Вчера я поскользнулся на льду и сломал запястье.",
+        "uz": "Kecha muz ustida sirpanib ketib, bilagimni sindirib oldim."
+      },
+      "explanation": {
+        "ru": "Со своими частями тела в английском ставят притяжательное местоимение: I broke my wrist. В русском «сломал запястье» слова «своё» нет, отсюда ошибка.",
+        "uz": "O'z tana a'zolari haqida ingliz tilida egalik olmoshi qo'yiladi: I broke my wrist. O'zbekchadagi -im qo'shimchasi (bilagim) o'rnida inglizchada my so'zi keladi."
+      }
+    },
+    {
+      "key": "b1-m05-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "skin"
+      ],
+      "text": "The strong sun can damage the *leather* on your face.",
+      "options": [
+        "skin",
+        "peel",
+        "fur"
+      ],
+      "correct": [
+        "skin"
+      ],
+      "translation": {
+        "ru": "Сильное солнце может повредить кожу лица.",
+        "uz": "Kuchli quyosh yuz terisiga zarar yetkazishi mumkin."
+      },
+      "explanation": {
+        "ru": "Русское «кожа» — это два английских слова: skin (кожа человека) и leather (выделанная кожа для сумок и обуви). У человека — skin.",
+        "uz": "O'zbekcha «teri» ikki inglizcha so'zga to'g'ri keladi: skin (odam terisi) va leather (sumka, poyabzal uchun ishlov berilgan teri). Odamda skin bo'ladi."
+      }
+    },
+    {
+      "key": "b1-m05-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "organ"
+      ],
+      "text": "The lungs are the organs *who* take oxygen from the air.",
+      "options": [
+        "which",
+        "what",
+        "whom"
+      ],
+      "correct": [
+        "which"
+      ],
+      "translation": {
+        "ru": "Лёгкие — это органы, которые получают кислород из воздуха.",
+        "uz": "O'pkalar havodan kislorod oladigan a'zolardir."
+      },
+      "explanation": {
+        "ru": "who — только о людях. О предметах и органах — which (или that): the organs which take oxygen. Русское «которые» подходит к обоим.",
+        "uz": "who faqat odamlar haqida ishlatiladi. Narsalar va a'zolar haqida which (yoki that) keladi: the organs which take oxygen."
+      }
+    },
+    {
+      "key": "b1-m05-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "dizzy"
+      ],
+      "text": "This medicine can cause headaches and ___, so do not drive after taking it.",
+      "base": "dizzy",
+      "accepted": [
+        "dizziness"
+      ],
+      "translation": {
+        "ru": "Это лекарство может вызывать головную боль и головокружение, поэтому после него не садитесь за руль.",
+        "uz": "Bu dori bosh og'rig'i va bosh aylanishiga sabab bo'lishi mumkin, shuning uchun uni ichgandan keyin mashina haydamang."
+      },
+      "explanation": {
+        "ru": "После cause и headaches and нужно существительное: dizzy + -ness → dizziness (головокружение); y после согласной меняется на i.",
+        "uz": "cause fe'li va headaches and so'zlaridan keyin ot kerak: dizzy + -ness → dizziness (bosh aylanishi); undoshdan keyingi y harfi i ga almashadi."
+      }
+    },
+    {
+      "key": "b1-m05-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "injure"
+      ],
+      "text": "Our best player has had three serious ___ this season.",
+      "base": "injure",
+      "accepted": [
+        "injuries"
+      ],
+      "translation": {
+        "ru": "В этом сезоне наш лучший игрок получил три серьёзные травмы.",
+        "uz": "Bu mavsumda eng yaxshi o'yinchimiz uch marta jiddiy jarohat oldi."
+      },
+      "explanation": {
+        "ru": "После three serious нужно существительное во множественном числе: injure → injury (травма) → injuries; y после согласной → ies.",
+        "uz": "three serious so'zlaridan keyin ko'plikdagi ot kerak: injure → injury (jarohat) → injuries; undoshdan keyingi y → ies."
+      }
+    },
+    {
+      "key": "b1-m05-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "bruise"
+      ],
+      "text": "He fell off his bike and came home with a badly ___ knee.",
+      "base": "bruise",
+      "accepted": [
+        "bruised"
+      ],
+      "translation": {
+        "ru": "Он упал с велосипеда и пришёл домой с сильно ушибленным коленом.",
+        "uz": "U velosipeddan yiqilib, tizzasi qattiq ko'kargan holda uyga keldi."
+      },
+      "explanation": {
+        "ru": "Между badly и knee нужно причастие-прилагательное: колено ушибли — bruise → bruised (в синяках, ушибленный).",
+        "uz": "badly va knee orasida sifatdosh kerak: tizza lat yegan — bruise → bruised (ko'kargan)."
+      }
+    },
+    {
+      "key": "b1-m05-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "sore"
+      ],
+      "text": "I cannot sing today because my throat is *ill*.",
+      "options": [
+        "sore",
+        "sick",
+        "ached"
+      ],
+      "correct": [
+        "sore"
+      ],
+      "translation": {
+        "ru": "Я не могу сегодня петь, потому что у меня болит горло.",
+        "uz": "Bugun qo'shiq ayta olmayman, chunki tomog'im og'riyapti."
+      },
+      "explanation": {
+        "ru": "О горле, глазах, мышцах говорят sore: a sore throat, my throat is sore. ill и sick описывают человека в целом, а не часть тела.",
+        "uz": "Tomoq, ko'z, mushak haqida sore deyiladi: a sore throat, my throat is sore. ill va sick so'zlari tana a'zosini emas, butun odamni tasvirlaydi."
+      }
+    },
+    {
+      "key": "b1-m05-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "ache"
+      ],
+      "text": "My lower back *aches* since Monday, so I cannot sit for long.",
+      "options": [
+        "has been aching",
+        "had been aching",
+        "is aching"
+      ],
+      "correct": [
+        "has been aching"
+      ],
+      "translation": {
+        "ru": "У меня с понедельника болит поясница, поэтому я не могу долго сидеть.",
+        "uz": "Dushanbadan beri belim og'riyapti, shuning uchun uzoq o'tira olmayman."
+      },
+      "explanation": {
+        "ru": "since (с какого-то момента до сих пор) требует present perfect: has been aching (или has ached). По-русски «болит с понедельника» — настоящее время, по-английски is aching или aches с since нельзя.",
+        "uz": "since (qachondandir hozirgacha) present perfect zamonini talab qiladi: has been aching (yoki has ached). O'zbekchada «dushanbadan beri og'riyapti» deyiladi, inglizchada esa since bilan is aching yoki aches bo'lmaydi."
+      }
+    },
+    {
+      "key": "b1-m05-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "illness"
+      ],
+      "text": "After a serious *ill*, my uncle had to learn to walk again.",
+      "options": [
+        "illness",
+        "sick",
+        "sickly"
+      ],
+      "correct": [
+        "illness"
+      ],
+      "translation": {
+        "ru": "После тяжёлой болезни моему дяде пришлось заново учиться ходить.",
+        "uz": "Og'ir xastalikdan keyin amakim qaytadan yurishni o'rganishiga to'g'ri keldi."
+      },
+      "explanation": {
+        "ru": "После a serious нужно существительное: ill — прилагательное (больной), а болезнь — illness: ill + -ness.",
+        "uz": "a serious so'zlaridan keyin ot kerak: ill — sifat (kasal), xastalik esa illness: ill + -ness."
+      }
+    },
+    {
+      "key": "b1-m05-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "cure"
+      ],
+      "text": "His disease is ___, so he must take medicine all his life.",
+      "base": "cure",
+      "accepted": [
+        "incurable"
+      ],
+      "translation": {
+        "ru": "Его болезнь неизлечима, поэтому он должен принимать лекарства всю жизнь.",
+        "uz": "Uning kasalligi bedavo, shuning uchun u umr bo'yi dori ichishi kerak."
+      },
+      "explanation": {
+        "ru": "Смысл (лекарства всю жизнь) требует «неизлечимый»: cure + -able → curable, с приставкой in- → incurable.",
+        "uz": "Ma'no (umr bo'yi dori ichish) «bedavo» so'zini talab qiladi: cure + -able → curable, in- old qo'shimchasi bilan → incurable."
+      }
+    },
+    {
+      "key": "b1-m05-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "treat"
+      ],
+      "text": "If this infection is left ___, it can damage your heart.",
+      "base": "treat",
+      "accepted": [
+        "untreated"
+      ],
+      "translation": {
+        "ru": "Если эту инфекцию не лечить, она может повредить сердце.",
+        "uz": "Agar bu infeksiya davolanmasa, yurakka zarar yetkazishi mumkin."
+      },
+      "explanation": {
+        "ru": "leave something untreated — оставить без лечения. Смысл (повредит сердце) требует отрицания: treat → treated → untreated.",
+        "uz": "leave something untreated — davolamasdan qoldirmoq. Ma'no (yurakka zarar) inkorni talab qiladi: treat → treated → untreated."
+      }
+    },
+    {
+      "key": "b1-m05-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "operation"
+      ],
+      "text": "This surgeon performs three or four ___ a day.",
+      "base": "operate",
+      "accepted": [
+        "operations"
+      ],
+      "translation": {
+        "ru": "Этот хирург делает по три-четыре операции в день.",
+        "uz": "Bu jarroh kuniga uch-to'rtta operatsiya qiladi."
+      },
+      "explanation": {
+        "ru": "После performs three or four нужно существительное во множественном числе: operate → operation → operations.",
+        "uz": "performs three or four so'zlaridan keyin ko'plikdagi ot kerak: operate → operation → operations."
+      }
+    },
+    {
+      "key": "b1-m05-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "heal"
+      ],
+      "text": "The burn on his arm *cured* in two weeks without a scar.",
+      "options": [
+        "healed",
+        "treated",
+        "repaired"
+      ],
+      "correct": [
+        "healed"
+      ],
+      "translation": {
+        "ru": "Ожог на его руке зажил за две недели без шрама.",
+        "uz": "Uning qo'lidagi kuygan joy ikki haftada chandiqsiz bitib ketdi."
+      },
+      "explanation": {
+        "ru": "Рана или ожог заживает сам — heal. cure — вылечить болезнь или больного; это делает врач или лекарство.",
+        "uz": "Yara yoki kuygan joy o'zi bitadi — heal. cure — kasallikni yoki bemorni davolab tuzatmoq; buni shifokor yoki dori qiladi."
+      }
+    },
+    {
+      "key": "b1-m05-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "prevent"
+      ],
+      "text": "Warm clothes will prevent the children from *catch* a cold.",
+      "options": [
+        "catching",
+        "to catch",
+        "caught"
+      ],
+      "correct": [
+        "catching"
+      ],
+      "translation": {
+        "ru": "Тёплая одежда не даст детям простудиться.",
+        "uz": "Issiq kiyim bolalarni shamollashdan saqlaydi."
+      },
+      "explanation": {
+        "ru": "prevent somebody from + -ing: после предлога from глагол стоит в форме на -ing — from catching.",
+        "uz": "prevent somebody from + -ing: from predlogidan keyin fe'l -ing shaklida keladi — from catching."
+      }
+    },
+    {
+      "key": "b1-m05-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "injection"
+      ],
+      "text": "Before the operation, the nurse *made* my father an injection.",
+      "options": [
+        "gave",
+        "did",
+        "put"
+      ],
+      "correct": [
+        "gave"
+      ],
+      "translation": {
+        "ru": "Перед операцией медсестра сделала моему отцу укол.",
+        "uz": "Operatsiyadan oldin hamshira otamga ukol qildi."
+      },
+      "explanation": {
+        "ru": "По-русски «сделать укол», но по-английски give somebody an injection: the nurse gave my father an injection. make и do здесь не подходят.",
+        "uz": "O'zbekcha «ukol qilmoq», lekin inglizchada give somebody an injection deyiladi: the nurse gave my father an injection. make va do fe'llari bu yerda to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b1-m05-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "medical"
+      ],
+      "text": "The injured driver needed ___ help at once.",
+      "base": "medicine",
+      "accepted": [
+        "medical"
+      ],
+      "translation": {
+        "ru": "Пострадавшему водителю сразу же понадобилась медицинская помощь.",
+        "uz": "Jarohatlangan haydovchiga darhol tibbiy yordam kerak bo'ldi."
+      },
+      "explanation": {
+        "ru": "Перед существительным help нужно прилагательное: medicine (медицина, лекарство) → medical (медицинский).",
+        "uz": "help otidan oldin sifat kerak: medicine (tibbiyot, dori) → medical (tibbiy)."
+      }
+    },
+    {
+      "key": "b1-m05-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "visitor"
+      ],
+      "text": "Only two ___ can stay with a patient at the same time.",
+      "base": "visit",
+      "accepted": [
+        "visitors"
+      ],
+      "translation": {
+        "ru": "С пациентом одновременно могут находиться только два посетителя.",
+        "uz": "Bemor yonida bir vaqtda faqat ikki nafar tashrif buyuruvchi bo'lishi mumkin."
+      },
+      "explanation": {
+        "ru": "После only two нужны люди во множественном числе: visit + -or → visitor (посетитель) → visitors. Суффикс -or, а не -er.",
+        "uz": "only two so'zlaridan keyin ko'plikdagi shaxs oti kerak: visit + -or → visitor (tashrif buyuruvchi) → visitors. Qo'shimcha -er emas, -or."
+      }
+    },
+    {
+      "key": "b1-m05-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "urgent"
+      ],
+      "text": "The hospital ___ needs blood donors, so please help.",
+      "base": "urgent",
+      "accepted": [
+        "urgently"
+      ],
+      "translation": {
+        "ru": "Больнице срочно нужны доноры крови, поэтому, пожалуйста, помогите.",
+        "uz": "Kasalxonaga shoshilinch ravishda qon donorlari kerak, iltimos, yordam bering."
+      },
+      "explanation": {
+        "ru": "Глагол needs описывает наречие: urgent + -ly → urgently (срочно).",
+        "uz": "needs fe'lini ravish izohlaydi: urgent + -ly → urgently (shoshilinch ravishda)."
+      }
+    },
+    {
+      "key": "b1-m05-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "surgeon"
+      ],
+      "text": "My uncle is a famous heart *surgery* who has saved many lives.",
+      "options": [
+        "surgeon",
+        "surgical",
+        "operation"
+      ],
+      "correct": [
+        "surgeon"
+      ],
+      "translation": {
+        "ru": "Мой дядя — известный кардиохирург, который спас много жизней.",
+        "uz": "Amakim ko'plab odamlarning hayotini saqlab qolgan mashhur yurak jarrohi."
+      },
+      "explanation": {
+        "ru": "surgery — операция или хирургия, а человек — surgeon (хирург). My uncle is … who требует слова о человеке.",
+        "uz": "surgery — operatsiya yoki jarrohlik, odam esa surgeon (jarroh). My uncle is … who qurilmasi shaxs otini talab qiladi."
+      }
+    },
+    {
+      "key": "b1-m05-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "checkup"
+      ],
+      "text": "Even healthy people should *make* a checkup once a year.",
+      "options": [
+        "have",
+        "give",
+        "visit"
+      ],
+      "correct": [
+        "have"
+      ],
+      "translation": {
+        "ru": "Даже здоровым людям стоит раз в год проходить медосмотр.",
+        "uz": "Hatto sog'lom odamlar ham yiliga bir marta tibbiy ko'rikdan o'tishi kerak."
+      },
+      "explanation": {
+        "ru": "«Пройти медосмотр» — have (или get) a checkup. make a checkup — ошибка; give a checkup говорит врач, а не пациент.",
+        "uz": "«Tibbiy ko'rikdan o'tmoq» — have (yoki get) a checkup. make a checkup — xato; give a checkup bemor haqida emas, shifokor haqida aytiladi."
+      }
+    },
+    {
+      "key": "b1-m05-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "insurance"
+      ],
+      "text": "Will the operation be *cover* by your insurance?",
+      "options": [
+        "covered",
+        "covering",
+        "to cover"
+      ],
+      "correct": [
+        "covered"
+      ],
+      "translation": {
+        "ru": "Покроет ли ваша страховка стоимость операции?",
+        "uz": "Operatsiya xarajatini sug'urtangiz qoplaydimi?"
+      },
+      "explanation": {
+        "ru": "be … by your insurance — пассив, после be нужна третья форма: be covered by insurance (оплачиваться страховкой). cover → covered.",
+        "uz": "be … by your insurance — majhul nisbat, be fe'lidan keyin uchinchi shakl kerak: be covered by insurance (sug'urta hisobidan to'lanmoq). cover → covered."
+      }
+    },
+    {
+      "key": "b1-m05-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "anxious"
+      ],
+      "text": "Her greatest ___ before the exam was that she would forget everything.",
+      "base": "anxious",
+      "accepted": [
+        "anxiety"
+      ],
+      "translation": {
+        "ru": "Больше всего перед экзаменом она боялась, что всё забудет.",
+        "uz": "Imtihon oldidan uning eng katta xavotiri hamma narsani unutib qo'yish edi."
+      },
+      "explanation": {
+        "ru": "После her greatest нужно существительное: anxious (встревоженный) → anxiety (тревога, беспокойство); -ous заменяется на -ety.",
+        "uz": "her greatest so'zlaridan keyin ot kerak: anxious (xavotirga tushgan) → anxiety (xavotir); -ous o'rniga -ety keladi."
+      }
+    },
+    {
+      "key": "b1-m05-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "breath"
+      ],
+      "text": "The bus was so hot and crowded that I could hardly ___.",
+      "base": "breath",
+      "accepted": [
+        "breathe"
+      ],
+      "translation": {
+        "ru": "В автобусе было так жарко и тесно, что я едва мог дышать.",
+        "uz": "Avtobus shunchalik issiq va tiqilinch ediki, zo'rg'a nafas olardim."
+      },
+      "explanation": {
+        "ru": "После could нужен глагол: существительное breath (дыхание) → глагол breathe (дышать) с -e на конце.",
+        "uz": "could so'zidan keyin fe'l kerak: breath (nafas) oti → breathe (nafas olmoq) fe'li, oxirida -e bor."
+      }
+    },
+    {
+      "key": "b1-m05-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "sweat"
+      ],
+      "text": "After the long run, my shirt was wet and ___.",
+      "base": "sweat",
+      "accepted": [
+        "sweaty"
+      ],
+      "translation": {
+        "ru": "После долгой пробежки моя рубашка была мокрой и пропотевшей.",
+        "uz": "Uzoq yugurishdan keyin ko'ylagim ho'l bo'lib, terga botgan edi."
+      },
+      "explanation": {
+        "ru": "После was wet and нужно ещё одно прилагательное: sweat (пот, потеть) + -y → sweaty (потный).",
+        "uz": "was wet and so'zlaridan keyin yana bir sifat kerak: sweat (ter, terlamoq) + -y → sweaty (terlagan)."
+      }
+    },
+    {
+      "key": "b1-m05-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "awake"
+      ],
+      "text": "Strong coffee helps me stay *awaken* during long drives at night.",
+      "options": [
+        "awake",
+        "awoken",
+        "waking"
+      ],
+      "correct": [
+        "awake"
+      ],
+      "translation": {
+        "ru": "Крепкий кофе помогает мне не засыпать в долгих ночных поездках за рулём.",
+        "uz": "Achchiq qahva tunda uzoq yo'l yurganimda uyg'oq qolishimga yordam beradi."
+      },
+      "explanation": {
+        "ru": "После stay (оставаться) нужно прилагательное awake (не спящий): stay awake. awaken — глагол «будить, просыпаться», awoken — его причастие.",
+        "uz": "stay (qolmoq) fe'lidan keyin awake (uyg'oq) sifati keladi: stay awake. awaken — «uyg'otmoq, uyg'onmoq» fe'li, awoken esa uning sifatdoshi."
+      }
+    },
+    {
+      "key": "b1-m05-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "exhausted"
+      ],
+      "text": "After a night shift at the hospital, the nurse felt completely *exhausting*.",
+      "options": [
+        "exhausted",
+        "exhaust",
+        "exhaustion"
+      ],
+      "correct": [
+        "exhausted"
+      ],
+      "translation": {
+        "ru": "После ночной смены в больнице медсестра чувствовала себя совершенно измученной.",
+        "uz": "Kasalxonadagi tungi smenadan keyin hamshira butunlay holdan toygan edi."
+      },
+      "explanation": {
+        "ru": "Состояние человека передаёт форма на -ed: she felt exhausted (измученная). exhausting — «изматывающий»: так говорят о работе или дороге.",
+        "uz": "Odamning holatini -ed shakli beradi: she felt exhausted (holdan toygan). exhausting — «holdan toydiradigan»: bu ish yoki yo'l haqida aytiladi."
+      }
+    },
+    {
+      "key": "b1-m05-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 5,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "yawn"
+      ],
+      "text": "The movie was so boring that my father kept *yawn*.",
+      "options": [
+        "yawning",
+        "yawned",
+        "to yawn"
+      ],
+      "correct": [
+        "yawning"
+      ],
+      "translation": {
+        "ru": "Фильм был таким скучным, что папа всё время зевал.",
+        "uz": "Film shunchalik zerikarli ediki, dadam tinmay esnadi."
+      },
+      "explanation": {
+        "ru": "После keep (продолжать, всё время) глагол идёт с -ing: kept yawning — всё время зевал.",
+        "uz": "keep (davom ettirmoq, tinmay) fe'lidan keyin fe'l -ing shaklida keladi: kept yawning — tinmay esnadi."
+      }
+    },
+    {
+      "key": "b1-m06-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "ferry"
+      ],
+      "text": "Last summer, small boats ___ thousands of tourists to the island.",
+      "base": "ferry",
+      "accepted": [
+        "ferried"
+      ],
+      "translation": {
+        "ru": "Прошлым летом небольшие суда перевезли на остров тысячи туристов.",
+        "uz": "O'tgan yozda kichik kemalar orolga minglab sayyohlarni olib o'tdi."
+      },
+      "explanation": {
+        "ru": "Last summer требует прошедшего времени. Существительное ferry (паром) бывает и глаголом «перевозить по воде»; y после согласной → ied: ferried.",
+        "uz": "Last summer o'tgan zamonni talab qiladi. ferry (parom) oti fe'l ham bo'ladi — «suv orqali olib o'tmoq»; undoshdan keyingi y → ied: ferried."
+      }
+    },
+    {
+      "key": "b1-m06-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "motorcycle"
+      ],
+      "text": "Every summer my uncle and his friends go ___ in the mountains.",
+      "base": "motorcycle",
+      "accepted": [
+        "motorcycling"
+      ],
+      "translation": {
+        "ru": "Каждое лето мой дядя с друзьями катается на мотоциклах в горах.",
+        "uz": "Har yozda amakim do'stlari bilan tog'larda mototsiklda sayr qiladi."
+      },
+      "explanation": {
+        "ru": "Для занятий говорят go + -ing (go swimming, go skiing): motorcycle → motorcycling; немое e на конце выпадает.",
+        "uz": "Mashg'ulotlar haqida go + -ing ishlatiladi (go swimming, go skiing): motorcycle → motorcycling; oxiridagi e tushib qoladi."
+      }
+    },
+    {
+      "key": "b1-m06-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "minibus"
+      ],
+      "text": "Both ___ were already full, so we waited for the next one.",
+      "base": "minibus",
+      "accepted": [
+        "minibuses",
+        "minibusses"
+      ],
+      "translation": {
+        "ru": "Оба микроавтобуса были уже полны, поэтому мы ждали следующий.",
+        "uz": "Ikkala mikroavtobus ham to'lib bo'lgan edi, shuning uchun keyingisini kutdik."
+      },
+      "explanation": {
+        "ru": "Both и were требуют множественного числа; после s добавляется -es: minibus → minibuses.",
+        "uz": "Both va were ko'plikni talab qiladi; s harfidan keyin -es qo'shiladi: minibus → minibuses."
+      }
+    },
+    {
+      "key": "b1-m06-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "aircraft"
+      ],
+      "text": "This small airport can take only two *aircrafts* an hour.",
+      "options": [
+        "aircraft",
+        "airplane",
+        "aircraft's"
+      ],
+      "correct": [
+        "aircraft"
+      ],
+      "translation": {
+        "ru": "Этот маленький аэропорт может принимать только два воздушных судна в час.",
+        "uz": "Bu kichik aeroport soatiga faqat ikkita havo kemasini qabul qila oladi."
+      },
+      "explanation": {
+        "ru": "Множественное число aircraft (воздушное судно) не меняется: one aircraft, two aircraft. Формы aircrafts нет.",
+        "uz": "aircraft (havo kemasi) so'zining ko'plik shakli o'zgarmaydi: one aircraft, two aircraft. aircrafts shakli yo'q."
+      }
+    },
+    {
+      "key": "b1-m06-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "tram"
+      ],
+      "text": "My grandparents always travel to the market *with* tram.",
+      "options": [
+        "by",
+        "on",
+        "in"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "Бабушка с дедушкой всегда ездят на рынок на трамвае.",
+        "uz": "Bobom bilan buvim bozorga doim tramvayda borishadi."
+      },
+      "explanation": {
+        "ru": "Вид транспорта без артикля — с предлогом by: by tram, by bus. Русское «на трамвае» здесь не with и не on.",
+        "uz": "Artiklsiz transport turi by predlogi bilan keladi: by tram, by bus. O'zbekcha «tramvay bilan» bu yerda with emas."
+      }
+    },
+    {
+      "key": "b1-m06-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "vehicle"
+      ],
+      "text": "On this bridge, cars, buses and other *transports* must slow down.",
+      "options": [
+        "vehicles",
+        "vehicle",
+        "traffics"
+      ],
+      "correct": [
+        "vehicles"
+      ],
+      "translation": {
+        "ru": "На этом мосту легковые машины, автобусы и другие транспортные средства должны снижать скорость.",
+        "uz": "Bu ko'prikda yengil mashinalar, avtobuslar va boshqa transport vositalari tezlikni pasaytirishi kerak."
+      },
+      "explanation": {
+        "ru": "Русское «транспорт» в общем смысле — transport, без -s. Отдельная машина или автобус — vehicle (транспортное средство), во множественном числе vehicles.",
+        "uz": "Umumiy ma'nodagi «transport» inglizchada transport, -s qo'shimchasisiz. Alohida mashina yoki avtobus — vehicle (transport vositasi), ko'plikda vehicles."
+      }
+    },
+    {
+      "key": "b1-m06-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "brake"
+      ],
+      "text": "The driver ___ hard when a dog ran into the road.",
+      "base": "brake",
+      "accepted": [
+        "braked"
+      ],
+      "translation": {
+        "ru": "Водитель резко затормозил, когда на дорогу выбежала собака.",
+        "uz": "Yo'lga it yugurib chiqqanda, haydovchi keskin tormoz berdi."
+      },
+      "explanation": {
+        "ru": "Нужен глагол в прошедшем времени, как ran. Существительное brake (тормоз) — и глагол «тормозить»: brake → braked. Не путайте с break (ломать).",
+        "uz": "ran fe'li kabi o'tgan zamondagi fe'l kerak. brake (tormoz) oti fe'l ham bo'ladi — «tormoz bermoq»: brake → braked. break (sindirmoq) fe'li bilan adashtirmang."
+      }
+    },
+    {
+      "key": "b1-m06-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "steer"
+      ],
+      "text": "Keep both hands on the ___ wheel while you drive.",
+      "base": "steer",
+      "accepted": [
+        "steering"
+      ],
+      "translation": {
+        "ru": "Во время езды держите обе руки на руле.",
+        "uz": "Mashina haydayotganda ikkala qo'lingizni rulda ushlang."
+      },
+      "explanation": {
+        "ru": "steering wheel — руль: перед wheel стоит форма на -ing, «колесо для управления». steer → steering.",
+        "uz": "steering wheel — rul: wheel so'zidan oldin -ing shakli keladi, «boshqarish g'ildiragi». steer → steering."
+      }
+    },
+    {
+      "key": "b1-m06-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "speed"
+      ],
+      "text": "The police stopped him for ___ near a school.",
+      "base": "speed",
+      "accepted": [
+        "speeding"
+      ],
+      "translation": {
+        "ru": "Полиция остановила его за превышение скорости возле школы.",
+        "uz": "Politsiya uni maktab yaqinida tezlikni oshirgani uchun to'xtatdi."
+      },
+      "explanation": {
+        "ru": "После предлога for нужен герундий: speed (скорость) → speeding (превышение скорости).",
+        "uz": "for predlogidan keyin gerundiy kerak: speed (tezlik) → speeding (tezlikni oshirish)."
+      }
+    },
+    {
+      "key": "b1-m06-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "license"
+      ],
+      "text": "The police officer asked to see my driver's *rights*.",
+      "options": [
+        "license",
+        "rules",
+        "laws"
+      ],
+      "correct": [
+        "license"
+      ],
+      "translation": {
+        "ru": "Полицейский попросил показать мои водительские права.",
+        "uz": "Politsiyachi haydovchilik guvohnomamni ko'rsatishimni so'radi."
+      },
+      "explanation": {
+        "ru": "Русское «права» здесь ложный друг: rights — права человека. Документ водителя — driver's license.",
+        "uz": "So'zlashuvdagi «prava» so'zi chalg'itadi: rights — huquqlar. Haydovchining hujjati — driver's license."
+      }
+    },
+    {
+      "key": "b1-m06-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "engine"
+      ],
+      "text": "It was so cold this morning that the engine would not *launch*.",
+      "options": [
+        "start",
+        "begin",
+        "open"
+      ],
+      "correct": [
+        "start"
+      ],
+      "translation": {
+        "ru": "Утром было так холодно, что двигатель не заводился.",
+        "uz": "Bugun ertalab shunchalik sovuq ediki, dvigatel o't olmadi."
+      },
+      "explanation": {
+        "ru": "Двигатель «заводится» — start: the engine would not start. launch — запускать ракету, корабль или новый продукт.",
+        "uz": "Dvigatel «o't oladi» — start: the engine would not start. launch — raketa, kema yoki yangi mahsulotni ishga tushirmoq."
+      }
+    },
+    {
+      "key": "b1-m06-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "crash"
+      ],
+      "text": "The bus slid on the ice and crashed *in* a tree.",
+      "options": [
+        "into",
+        "onto",
+        "at"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Автобус занесло на льду, и он врезался в дерево.",
+        "uz": "Avtobus muzda sirpanib ketib, daraxtga borib urildi."
+      },
+      "explanation": {
+        "ru": "crash into — врезаться во что-то: удар о препятствие передаёт into, а не in. Русское «в дерево» здесь не in.",
+        "uz": "crash into — biror narsaga borib urilmoq: to'siqqa urilishni in emas, into predlogi beradi."
+      }
+    },
+    {
+      "key": "b1-m06-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "arrival"
+      ],
+      "text": "Because of the snow, the ___ of our plane was delayed.",
+      "base": "arrive",
+      "accepted": [
+        "arrival"
+      ],
+      "translation": {
+        "ru": "Из-за снега прибытие нашего самолёта задержалось.",
+        "uz": "Qor tufayli samolyotimizning yetib kelishi kechikdi."
+      },
+      "explanation": {
+        "ru": "Между the и of нужно существительное: arrive + -al → arrival (прибытие); немое e выпадает.",
+        "uz": "the va of orasida ot kerak: arrive + -al → arrival (yetib kelish); oxiridagi e tushib qoladi."
+      }
+    },
+    {
+      "key": "b1-m06-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "announce"
+      ],
+      "text": "Please listen carefully: there will be an important ___ in a few minutes.",
+      "base": "announce",
+      "accepted": [
+        "announcement"
+      ],
+      "translation": {
+        "ru": "Слушайте внимательно: через несколько минут будет важное объявление.",
+        "uz": "Diqqat bilan tinglang: bir necha daqiqadan keyin muhim e'lon bo'ladi."
+      },
+      "explanation": {
+        "ru": "После an important нужно существительное: announce + -ment → announcement (объявление); e перед -ment сохраняется.",
+        "uz": "an important so'zlaridan keyin ot kerak: announce + -ment → announcement (e'lon); -ment oldidan e saqlanadi."
+      }
+    },
+    {
+      "key": "b1-m06-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "direct"
+      ],
+      "text": "We could not get a direct flight, so we took an ___ one.",
+      "base": "direct",
+      "accepted": [
+        "indirect"
+      ],
+      "translation": {
+        "ru": "Нам не удалось взять прямой рейс, поэтому мы полетели с пересадкой.",
+        "uz": "To'g'ridan-to'g'ri reysga chipta ololmadik, shuning uchun boshqa shahar orqali uchdik."
+      },
+      "explanation": {
+        "ru": "Смысл (прямого рейса не было) и артикль an требуют отрицания: in- + direct → indirect (непрямой, с пересадкой).",
+        "uz": "Ma'no (to'g'ridan-to'g'ri reys yo'q edi) va an artikli inkorni talab qiladi: in- + direct → indirect (to'g'ridan-to'g'ri bo'lmagan, boshqa reysga o'tiladigan)."
+      }
+    },
+    {
+      "key": "b1-m06-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "baggage"
+      ],
+      "text": "We had too much *baggages*, so we paid extra at the airport.",
+      "options": [
+        "baggage",
+        "bags",
+        "suitcases"
+      ],
+      "correct": [
+        "baggage"
+      ],
+      "translation": {
+        "ru": "У нас было слишком много багажа, поэтому в аэропорту мы доплатили.",
+        "uz": "Yukimiz juda ko'p edi, shuning uchun aeroportda qo'shimcha pul to'ladik."
+      },
+      "explanation": {
+        "ru": "baggage — неисчисляемое существительное: формы на -s у него нет, и с ним говорят much. bags и suitcases исчисляемые, с much они не сочетаются.",
+        "uz": "baggage — sanalmaydigan ot: -s shakli yo'q va u bilan much ishlatiladi. bags va suitcases sanaladigan otlar, much bilan birikmaydi."
+      }
+    },
+    {
+      "key": "b1-m06-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "cabin"
+      ],
+      "text": "The plane's *salon* was so cold that I needed a blanket.",
+      "options": [
+        "cabin",
+        "hall",
+        "lobby"
+      ],
+      "correct": [
+        "cabin"
+      ],
+      "translation": {
+        "ru": "В салоне самолёта было так холодно, что мне понадобился плед.",
+        "uz": "Samolyot salonida shunchalik sovuq ediki, menga adyol kerak bo'ldi."
+      },
+      "explanation": {
+        "ru": "«Салон самолёта» по-английски — cabin. salon — это парикмахерская или салон красоты.",
+        "uz": "«Samolyot saloni» inglizchada cabin. salon so'zi inglizchada sartaroshxona yoki go'zallik saloni degani."
+      }
+    },
+    {
+      "key": "b1-m06-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "aisle"
+      ],
+      "text": "Would you like a window seat or an *isle* seat?",
+      "options": [
+        "aisle",
+        "island",
+        "isles"
+      ],
+      "correct": [
+        "aisle"
+      ],
+      "translation": {
+        "ru": "Вы хотите место у окна или у прохода?",
+        "uz": "Deraza yonidagi joyni xohlaysizmi yoki yo'lak yonidagisini?"
+      },
+      "explanation": {
+        "ru": "aisle (проход между рядами) и isle (остров) звучат одинаково. Место у прохода — an aisle seat; пишется a-i-s-l-e, s не читается.",
+        "uz": "aisle (qatorlar orasidagi yo'lak) va isle (orol) bir xil talaffuz qilinadi. Yo'lak yonidagi joy — an aisle seat; a-i-s-l-e deb yoziladi, s o'qilmaydi."
+      }
+    },
+    {
+      "key": "b1-m06-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "backpack"
+      ],
+      "text": "The cheap hostel was full of young ___ from all over the world.",
+      "base": "backpack",
+      "accepted": [
+        "backpackers"
+      ],
+      "translation": {
+        "ru": "Дешёвый хостел был полон молодых путешественников с рюкзаками со всего мира.",
+        "uz": "Arzon xostel butun dunyodan kelgan ryukzakli yosh sayyohlarga to'la edi."
+      },
+      "explanation": {
+        "ru": "После young нужны люди во множественном числе: backpack (рюкзак) + -er → backpacker (путешественник с рюкзаком) → backpackers.",
+        "uz": "young so'zidan keyin ko'plikdagi shaxs oti kerak: backpack (ryukzak) + -er → backpacker (ryukzak bilan sayohat qiluvchi) → backpackers."
+      }
+    },
+    {
+      "key": "b1-m06-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "cruise"
+      ],
+      "text": "Last spring our ship ___ slowly along the coast for two weeks.",
+      "base": "cruise",
+      "accepted": [
+        "cruised"
+      ],
+      "translation": {
+        "ru": "Прошлой весной наш корабль две недели медленно плыл вдоль побережья.",
+        "uz": "O'tgan bahorda kemamiz ikki hafta davomida qirg'oq bo'ylab sekin suzdi."
+      },
+      "explanation": {
+        "ru": "Last spring требует прошедшего времени. Существительное cruise (круиз) — и глагол «плыть, путешествовать на судне»: cruise → cruised.",
+        "uz": "Last spring o'tgan zamonni talab qiladi. cruise (kruiz) oti fe'l ham bo'ladi — «kemada suzib sayohat qilmoq»: cruise → cruised."
+      }
+    },
+    {
+      "key": "b1-m06-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "lobby"
+      ],
+      "text": "The ___ of both hotels were full of tourists.",
+      "base": "lobby",
+      "accepted": [
+        "lobbies"
+      ],
+      "translation": {
+        "ru": "Холлы обеих гостиниц были полны туристов.",
+        "uz": "Ikkala mehmonxonaning vestibyullari ham sayyohlarga to'la edi."
+      },
+      "explanation": {
+        "ru": "were показывает множественное число (холлы двух гостиниц); y после согласной → ies: lobby → lobbies.",
+        "uz": "were ko'plikni ko'rsatadi (ikki mehmonxonaning vestibyullari); undoshdan keyingi y → ies: lobby → lobbies."
+      }
+    },
+    {
+      "key": "b1-m06-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "campsite"
+      ],
+      "text": "We spent three nights at a quiet *camping* in the forest.",
+      "options": [
+        "campsite",
+        "campus",
+        "campaign"
+      ],
+      "correct": [
+        "campsite"
+      ],
+      "translation": {
+        "ru": "Мы провели три ночи в тихом кемпинге в лесу.",
+        "uz": "Biz o'rmondagi sokin kempingda uch kecha o'tkazdik."
+      },
+      "explanation": {
+        "ru": "Русское «кемпинг» (место) — campsite. camping — само занятие: go camping (ходить в поход с палатками).",
+        "uz": "«Kemping» (joy) inglizchada campsite. camping — mashg'ulotning o'zi: go camping (chodir bilan sayohatga chiqmoq)."
+      }
+    },
+    {
+      "key": "b1-m06-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "sightseeing"
+      ],
+      "text": "We did a lot of *sightseeings* in the old town.",
+      "options": [
+        "sightseeing",
+        "sightseers",
+        "excursion"
+      ],
+      "correct": [
+        "sightseeing"
+      ],
+      "translation": {
+        "ru": "Мы много осматривали достопримечательности в старом городе.",
+        "uz": "Eski shaharda ko'plab diqqatga sazovor joylarni tomosha qildik."
+      },
+      "explanation": {
+        "ru": "sightseeing — неисчисляемое существительное, без -s: do a lot of sightseeing (много осматривать достопримечательности).",
+        "uz": "sightseeing — sanalmaydigan ot, -s qo'shilmaydi: do a lot of sightseeing (ko'p diqqatga sazovor joylarni tomosha qilmoq)."
+      }
+    },
+    {
+      "key": "b1-m06-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "brochure"
+      ],
+      "text": "The brochure *writes* that breakfast is included in the price.",
+      "options": [
+        "says",
+        "tells",
+        "speaks"
+      ],
+      "correct": [
+        "says"
+      ],
+      "translation": {
+        "ru": "В брошюре написано, что завтрак включён в стоимость.",
+        "uz": "Broshyurada nonushta narxga kiritilgani yozilgan."
+      },
+      "explanation": {
+        "ru": "О тексте говорят say: the brochure says… Русское «в брошюре пишут» — не writes. tell требует дополнения: it tells us.",
+        "uz": "Matn haqida say ishlatiladi: the brochure says… «Broshyurada yozilgan» inglizchada writes emas. tell fe'lidan keyin kimga ekani keladi: it tells us."
+      }
+    },
+    {
+      "key": "b1-m06-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "foreign"
+      ],
+      "text": "As a ___, she needed a special visa to work here.",
+      "base": "foreign",
+      "accepted": [
+        "foreigner"
+      ],
+      "translation": {
+        "ru": "Как иностранке, ей нужна была особая виза, чтобы работать здесь.",
+        "uz": "Chet ellik bo'lgani uchun unga bu yerda ishlash uchun maxsus viza kerak edi."
+      },
+      "explanation": {
+        "ru": "После as a нужен человек: foreign (иностранный) + -er → foreigner (иностранец, иностранка).",
+        "uz": "as a so'zlaridan keyin shaxs oti kerak: foreign (xorijiy) + -er → foreigner (chet ellik)."
+      }
+    },
+    {
+      "key": "b1-m06-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "adventure"
+      ],
+      "text": "My grandmother is very ___: last year she climbed a volcano.",
+      "base": "adventure",
+      "accepted": [
+        "adventurous",
+        "adventuresome"
+      ],
+      "translation": {
+        "ru": "Моя бабушка очень любит приключения: в прошлом году она поднялась на вулкан.",
+        "uz": "Buvim sarguzashtni juda yaxshi ko'radi: o'tgan yili u vulqonga chiqdi."
+      },
+      "explanation": {
+        "ru": "После very нужно прилагательное: adventure + -ous → adventurous (смелый, любящий приключения); e выпадает.",
+        "uz": "very so'zidan keyin sifat kerak: adventure + -ous → adventurous (sarguzashtni yaxshi ko'radigan); e tushib qoladi."
+      }
+    },
+    {
+      "key": "b1-m06-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "homesick"
+      ],
+      "text": "Many students who study abroad suffer from ___ in their first year.",
+      "base": "homesick",
+      "accepted": [
+        "homesickness"
+      ],
+      "translation": {
+        "ru": "Многие студенты, которые учатся за границей, в первый год страдают от тоски по дому.",
+        "uz": "Chet elda o'qiydigan ko'plab talabalar birinchi yili uyni sog'inib qiynaladi."
+      },
+      "explanation": {
+        "ru": "После suffer from нужно существительное: homesick + -ness → homesickness (тоска по дому).",
+        "uz": "suffer from so'zlaridan keyin ot kerak: homesick + -ness → homesickness (uyni sog'inish)."
+      }
+    },
+    {
+      "key": "b1-m06-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "wander"
+      ],
+      "text": "After dinner we *wondered* along the river and watched the boats.",
+      "options": [
+        "wandered",
+        "wandering",
+        "wanders"
+      ],
+      "correct": [
+        "wandered"
+      ],
+      "translation": {
+        "ru": "После ужина мы бродили вдоль реки и смотрели на лодки.",
+        "uz": "Kechki ovqatdan keyin daryo bo'ylab kezib, qayiqlarni tomosha qildik."
+      },
+      "explanation": {
+        "ru": "wander (бродить) и wonder (задаваться вопросом) — разные глаголы, хотя похожи: we wandered along the river — мы бродили вдоль реки.",
+        "uz": "wander (kezmoq) va wonder (o'ylanib qolmoq) — o'xshash, lekin boshqa-boshqa fe'llar: we wandered along the river — daryo bo'ylab kezdik."
+      }
+    },
+    {
+      "key": "b1-m06-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "landmark"
+      ],
+      "text": "We only had time to visit one of the city's famous *landmark*.",
+      "options": [
+        "landmarks",
+        "landmark's",
+        "sightseeing"
+      ],
+      "correct": [
+        "landmarks"
+      ],
+      "translation": {
+        "ru": "Мы успели посетить только одну из знаменитых достопримечательностей города.",
+        "uz": "Shaharning mashhur diqqatga sazovor joylaridan faqat bittasini ko'rishga ulgurdik."
+      },
+      "explanation": {
+        "ru": "После one of the … нужно существительное во множественном числе: one of the famous landmarks. landmark's — притяжательная форма, а sightseeing — осмотр достопримечательностей (занятие), не сами места.",
+        "uz": "one of the … qurilmasidan keyin ot ko'plikda keladi: one of the famous landmarks. landmark's — qaratqich shakli, sightseeing esa joylarning o'zi emas, ularni tomosha qilish (mashg'ulot)."
+      }
+    },
+    {
+      "key": "b1-m06-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "scenery"
+      ],
+      "text": "The *sceneries* along this road is so beautiful that drivers often stop.",
+      "options": [
+        "scenery",
+        "scenes",
+        "scenic"
+      ],
+      "correct": [
+        "scenery"
+      ],
+      "translation": {
+        "ru": "Пейзаж вдоль этой дороги такой красивый, что водители часто останавливаются.",
+        "uz": "Bu yo'l bo'yidagi manzara shunchalik go'zalki, haydovchilar tez-tez to'xtashadi."
+      },
+      "explanation": {
+        "ru": "scenery (пейзаж) — неисчисляемое существительное: формы на -s нет, глагол — is. Русское «пейзажи» во множественном числе здесь не помогает.",
+        "uz": "scenery (manzara) — sanalmaydigan ot: -s shakli yo'q, fe'l is bo'ladi."
+      }
+    }
+  ]
+}

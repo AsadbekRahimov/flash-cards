@@ -1,0 +1,2840 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c2",
+  "items": [
+    {
+      "key": "c2-m15-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "echelon"
+      ],
+      "text": "She eventually rose to the ___ echelons of the civil service.",
+      "options": [
+        "upper",
+        "tall",
+        "long"
+      ],
+      "correct": [
+        "upper"
+      ],
+      "translation": {
+        "ru": "В итоге она поднялась до высших эшелонов государственной службы.",
+        "uz": "Oxir-oqibat u davlat xizmatining yuqori pog'onalariga ko'tarildi."
+      },
+      "explanation": {
+        "ru": "the upper echelons — высшие эшелоны, верхушка иерархии; говорят также the higher / top echelons. Tall и long описывают рост и длину и с echelons не сочетаются.",
+        "uz": "the upper echelons — yuqori pog'onalar, ierarxiya cho'qqisi; the higher / top echelons ham deyiladi. Tall va long so'zlari bo'y va uzunlikni bildiradi, echelons so'zi bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "gentry"
+      ],
+      "text": "Most of the land in the valley belonged to the ___ gentry.",
+      "options": [
+        "landed",
+        "grounded",
+        "earthed"
+      ],
+      "correct": [
+        "landed"
+      ],
+      "translation": {
+        "ru": "Большая часть земли в долине принадлежала поместному дворянству.",
+        "uz": "Vodiydagi yerlarning katta qismi yer egasi bo'lgan mayda zodagonlarga tegishli edi."
+      },
+      "explanation": {
+        "ru": "the landed gentry — поместное дворянство, землевладельцы (landed — владеющий землёй). Это устойчивое сочетание; grounded («обоснованный») и earthed («заземлённый») здесь невозможны.",
+        "uz": "the landed gentry — yer egasi bo'lgan mayda zodagonlar (landed — yerga egalik qiluvchi). Bu turg'un birikma; grounded («asosli») va earthed («yerga ulangan») so'zlari bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "pedigree"
+      ],
+      "text": "Her family can ___ its pedigree back to the twelfth century.",
+      "options": [
+        "trace",
+        "draw",
+        "lead"
+      ],
+      "correct": [
+        "trace"
+      ],
+      "translation": {
+        "ru": "Её семья может проследить свою родословную до двенадцатого века.",
+        "uz": "Uning oilasi o'z nasl-nasabini o'n ikkinchi asrgacha kuzatib bora oladi."
+      },
+      "explanation": {
+        "ru": "trace something back to — проследить что-то (родословную, историю) до какого-то времени: trace its pedigree back to the twelfth century. Draw и lead в этом выражении не употребляются.",
+        "uz": "trace something back to — biror narsani (nasl-nasabni, tarixni) qaysidir davrgacha kuzatib bormoq: trace its pedigree back to the twelfth century. Draw va lead fe'llari bu iborada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "commoner"
+      ],
+      "prompt": {
+        "ru": "Лишь после реформы простолюдин смог владеть землёй.",
+        "uz": "Faqat islohotdan keyingina oddiy xalq vakili yerga egalik qila oldi."
+      },
+      "fragments": [
+        "not until",
+        "the reform",
+        "could",
+        "a commoner",
+        "own",
+        "land"
+      ],
+      "accepted": [
+        [
+          "not until",
+          "the reform",
+          "could",
+          "a commoner",
+          "own",
+          "land"
+        ]
+      ],
+      "display": "Not until the reform could a commoner own land.",
+      "explanation": {
+        "ru": "Not until … в начале предложения требует инверсии в главной части: could a commoner own, а не a commoner could own. Без инверсии: A commoner could not own land until the reform.",
+        "uz": "Gap boshidagi not until … asosiy qismda inversiyani talab qiladi: could a commoner own, a commoner could own emas. Inversiyasiz: A commoner could not own land until the reform."
+      }
+    },
+    {
+      "key": "c2-m15-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "peasantry"
+      ],
+      "prompt": {
+        "ru": "Именно крестьянство заплатило за войну.",
+        "uz": "Urushning bahosini aynan dehqonlar tabaqasi to'ladi."
+      },
+      "fragments": [
+        "it",
+        "was",
+        "the peasantry",
+        "who",
+        "paid",
+        "for",
+        "the war"
+      ],
+      "accepted": [
+        [
+          "it",
+          "was",
+          "the peasantry",
+          "who",
+          "paid",
+          "for",
+          "the war"
+        ]
+      ],
+      "display": "It was the peasantry who paid for the war.",
+      "explanation": {
+        "ru": "It was … who … — выделительная конструкция, русское «именно»: It was the peasantry who paid. Peasantry — собирательное существительное («крестьянство»), употребляется с the.",
+        "uz": "It was … who … — ajratib ko'rsatish qurilmasi, o'zbekcha «aynan»: It was the peasantry who paid. Peasantry — jamlovchi ot («dehqonlar tabaqasi»), the artikli bilan ishlatiladi."
+      }
+    },
+    {
+      "key": "c2-m15-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "intelligentsia"
+      ],
+      "prompt": {
+        "ru": "Значительная часть интеллигенции предпочла эмигрировать.",
+        "uz": "Ziyolilarning katta qismi chet elga ko'chib ketishni afzal ko'rdi."
+      },
+      "fragments": [
+        "much",
+        "of",
+        "the intelligentsia",
+        "chose",
+        "to",
+        "emigrate"
+      ],
+      "accepted": [
+        [
+          "much",
+          "of",
+          "the intelligentsia",
+          "chose",
+          "to",
+          "emigrate"
+        ]
+      ],
+      "display": "Much of the intelligentsia chose to emigrate.",
+      "explanation": {
+        "ru": "much of + существительное в единственном числе — «значительная часть»: much of the intelligentsia. Choose to do something — решить, предпочесть что-то сделать.",
+        "uz": "much of + birlikdagi ot — «katta qismi»: much of the intelligentsia. Choose to do something — biror ishni qilishni tanlamoq, afzal ko'rmoq."
+      }
+    },
+    {
+      "key": "c2-m15-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "pariah"
+      ],
+      "text": "He became a pariah among his colleagues",
+      "accepted": [
+        "He became a pariah among his colleagues"
+      ],
+      "translation": {
+        "ru": "Он стал парией среди коллег",
+        "uz": "U hamkasblari orasida hamma yuz o'girgan odamga aylandi"
+      },
+      "explanation": {
+        "ru": "pariah: на конце -iah (p-a-r-i-a-h), конечная h не произносится.",
+        "uz": "pariah: oxiri -iah (p-a-r-i-a-h), oxiridagi h talaffuz qilinmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "outcast"
+      ],
+      "text": "She always felt like an outcast at school",
+      "accepted": [
+        "She always felt like an outcast at school"
+      ],
+      "translation": {
+        "ru": "В школе она всегда чувствовала себя изгоем",
+        "uz": "U maktabda doim o'zini quvg'indidek his qilardi"
+      },
+      "explanation": {
+        "ru": "outcast пишется слитно, одним словом: out + cast.",
+        "uz": "outcast bitta so'z bo'lib, qo'shib yoziladi: out + cast."
+      }
+    },
+    {
+      "key": "c2-m15-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "nobility",
+        "upstart"
+      ],
+      "text": "To the nobility he was always an upstart",
+      "accepted": [
+        "To the nobility he was always an upstart"
+      ],
+      "translation": {
+        "ru": "Для знати он всегда был выскочкой",
+        "uz": "Zodagonlar nazarida u doim birdan ko'tarilgan odam edi"
+      },
+      "explanation": {
+        "ru": "nobility: окончание -ility (n-o-b-i-l-i-t-y). Upstart пишется слитно, одним словом.",
+        "uz": "nobility: oxiri -ility (n-o-b-i-l-i-t-y). Upstart bitta so'z bo'lib, qo'shib yoziladi."
+      }
+    },
+    {
+      "key": "c2-m15-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "rite"
+      ],
+      "text": "For many teenagers, passing the driving test is a rite ___ passage.",
+      "options": [
+        "of",
+        "for",
+        "to"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Для многих подростков сдать экзамен на права — своего рода обряд посвящения во взрослую жизнь.",
+        "uz": "Ko'plab o'smirlar uchun haydovchilik imtihonini topshirish — kattalar hayotiga o'tish marosimi kabidir."
+      },
+      "explanation": {
+        "ru": "a rite of passage — обряд перехода, посвящения; в переносном смысле — важный этап взросления. Это устойчивое выражение, в нём только of.",
+        "uz": "a rite of passage — o'tish marosimi; ko'chma ma'noda — ulg'ayishdagi muhim bosqich. Bu turg'un ibora faqat of predlogi bilan keladi."
+      }
+    },
+    {
+      "key": "c2-m15-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "observance"
+      ],
+      "text": "Many shops close early ___ observance of the holiday.",
+      "options": [
+        "in",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "По случаю праздника многие магазины закрываются раньше.",
+        "uz": "Bayram munosabati bilan ko'plab do'konlar erta yopiladi."
+      },
+      "explanation": {
+        "ru": "in observance of — в соблюдение (праздника, обычая), по случаю: in observance of the holiday. В этом выражении только in; at и on не употребляются.",
+        "uz": "in observance of — (bayram, odatga) rioya qilib, munosabati bilan: in observance of the holiday. Bu iborada faqat in ishlatiladi; at va on ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "zeitgeist"
+      ],
+      "text": "Few novels ___ the zeitgeist as vividly as hers did.",
+      "options": [
+        "captured",
+        "took",
+        "held"
+      ],
+      "correct": [
+        "captured"
+      ],
+      "translation": {
+        "ru": "Мало какой роман передал дух времени так ярко, как её роман.",
+        "uz": "Zamon ruhini uning romanichalik yorqin aks ettirgan roman kam bo'lgan."
+      },
+      "explanation": {
+        "ru": "capture the zeitgeist — уловить и передать дух времени (говорят и catch the zeitgeist). Take и hold с zeitgeist в этом значении не употребляются.",
+        "uz": "capture the zeitgeist — zamon ruhini ilg'ab, aks ettirmoq (catch the zeitgeist ham deyiladi). Take va hold fe'llari zeitgeist so'zi bilan bu ma'noda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "sacrosanct"
+      ],
+      "prompt": {
+        "ru": "Нет правила настолько неприкосновенного, чтобы его нельзя было изменить.",
+        "uz": "Hech bir qoida o'zgartirib bo'lmaydigan darajada daxlsiz emas."
+      },
+      "fragments": [
+        "no rule",
+        "is",
+        "so sacrosanct",
+        "that",
+        "it",
+        "cannot",
+        "be changed"
+      ],
+      "accepted": [
+        [
+          "no rule",
+          "is",
+          "so sacrosanct",
+          "that",
+          "it",
+          "cannot",
+          "be changed"
+        ]
+      ],
+      "display": "No rule is so sacrosanct that it cannot be changed.",
+      "explanation": {
+        "ru": "so + прилагательное + that … — «настолько …, что …»: no rule is so sacrosanct that it cannot be changed — любое правило можно изменить.",
+        "uz": "so + sifat + that … — «shu qadar …ki, …»: no rule is so sacrosanct that it cannot be changed — har qanday qoidani o'zgartirish mumkin."
+      }
+    },
+    {
+      "key": "c2-m15-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "maverick",
+        "entrenched"
+      ],
+      "prompt": {
+        "ru": "Лишь по-настоящему независимый человек бросил бы вызов столь укоренившимся обычаям.",
+        "uz": "Bunday chuqur ildiz otgan odatlarga faqat chinakam mustaqil fikrli odamgina qarshi chiqardi."
+      },
+      "fragments": [
+        "only",
+        "a true maverick",
+        "would",
+        "challenge",
+        "such",
+        "entrenched",
+        "customs"
+      ],
+      "accepted": [
+        [
+          "only",
+          "a true maverick",
+          "would",
+          "challenge",
+          "such",
+          "entrenched",
+          "customs"
+        ]
+      ],
+      "display": "Only a true maverick would challenge such entrenched customs.",
+      "explanation": {
+        "ru": "would здесь — предположение: «бросил бы». Such + прилагательное + существительное во множественном числе — без артикля: such entrenched customs.",
+        "uz": "would bu yerda taxminni bildiradi: «qarshi chiqardi». Such + sifat + ko'plikdagi ot artiklsiz keladi: such entrenched customs."
+      }
+    },
+    {
+      "key": "c2-m15-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "conformist"
+      ],
+      "prompt": {
+        "ru": "Он был слишком большим конформистом, чтобы протестовать.",
+        "uz": "U norozilik bildira olmaydigan darajada ko'pchilikka ergashuvchi odam edi."
+      },
+      "fragments": [
+        "he",
+        "was",
+        "too much of",
+        "a conformist",
+        "to",
+        "protest"
+      ],
+      "accepted": [
+        [
+          "he",
+          "was",
+          "too much of",
+          "a conformist",
+          "to",
+          "protest"
+        ]
+      ],
+      "display": "He was too much of a conformist to protest.",
+      "explanation": {
+        "ru": "too much of a + существительное + to do — «слишком (большой) …, чтобы»: too much of a conformist to protest. Перед существительным с a нужно too much of, а не просто too.",
+        "uz": "too much of a + ot + to do — «… qila olmaydigan darajada …»: too much of a conformist to protest. a artikli bilan kelgan ot oldidan oddiy too emas, too much of keladi."
+      }
+    },
+    {
+      "key": "c2-m15-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "mores"
+      ],
+      "text": "Social mores have changed a great deal",
+      "accepted": [
+        "Social mores have changed a great deal"
+      ],
+      "translation": {
+        "ru": "Общественные нравы сильно изменились",
+        "uz": "Jamiyatdagi axloq-odob me'yorlari ancha o'zgardi"
+      },
+      "explanation": {
+        "ru": "mores читается примерно «мóрейз», а пишется m-o-r-e-s; слово употребляется только во множественном числе.",
+        "uz": "mores taxminan «moreyz» deb o'qiladi, lekin m-o-r-e-s deb yoziladi; bu so'z faqat ko'plikda ishlatiladi."
+      }
+    },
+    {
+      "key": "c2-m15-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "ethos"
+      ],
+      "text": "Honesty lies at the heart of our ethos",
+      "accepted": [
+        "Honesty lies at the heart of our ethos"
+      ],
+      "translation": {
+        "ru": "Честность лежит в основе нашей системы ценностей",
+        "uz": "Halollik qadriyatlar tizimimizning negizida turadi"
+      },
+      "explanation": {
+        "ru": "ethos: в середине th, на конце -os: e-t-h-o-s.",
+        "uz": "ethos: o'rtada th, oxiri -os: e-t-h-o-s."
+      }
+    },
+    {
+      "key": "c2-m15-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "iconoclast"
+      ],
+      "text": "He remained an iconoclast all his life",
+      "accepted": [
+        "He remained an iconoclast all his life"
+      ],
+      "translation": {
+        "ru": "Он всю жизнь оставался ниспровергателем устоев",
+        "uz": "U butun umri davomida an'analarni inkor etuvchi bo'lib qoldi"
+      },
+      "explanation": {
+        "ru": "iconoclast пишется слитно: icono + clast (i-c-o-n-o-c-l-a-s-t).",
+        "uz": "iconoclast qo'shib yoziladi: icono + clast (i-c-o-n-o-c-l-a-s-t)."
+      }
+    },
+    {
+      "key": "c2-m15-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "scapegoat"
+      ],
+      "text": "Desperate to blame someone, they ___ a scapegoat in the intern.",
+      "options": [
+        "found",
+        "did",
+        "took"
+      ],
+      "correct": [
+        "found"
+      ],
+      "translation": {
+        "ru": "Отчаянно желая хоть кого-то обвинить, они нашли козла отпущения в лице стажёра.",
+        "uz": "Kimnidir ayblashga zor bo'lib, ular stajyorni balogardon qilib topishdi."
+      },
+      "explanation": {
+        "ru": "find a scapegoat (in somebody) — найти козла отпущения (в лице кого-то); говорят и make a scapegoat of somebody. Did и took с scapegoat не сочетаются.",
+        "uz": "find a scapegoat (in somebody) — (kimnidir) balogardon qilib topmoq; make a scapegoat of somebody ham deyiladi. Did va took fe'llari scapegoat so'zi bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "bigotry"
+      ],
+      "text": "The new coach vowed to ___ out bigotry in the sport.",
+      "options": [
+        "stamp",
+        "step",
+        "walk"
+      ],
+      "correct": [
+        "stamp"
+      ],
+      "translation": {
+        "ru": "Новый тренер пообещал искоренить нетерпимость в этом виде спорта.",
+        "uz": "Yangi murabbiy bu sport turidagi mutaassiblikka butunlay barham berishga ahd qildi."
+      },
+      "explanation": {
+        "ru": "stamp out — искоренить, покончить с чем-то (буквально «затоптать»): stamp out bigotry, stamp out corruption. Step out и walk out значат «выйти», «уйти» и дополнения не берут.",
+        "uz": "stamp out — biror narsaga butunlay barham bermoq (so'zma-so'z «oyoq bilan bosib o'chirmoq»): stamp out bigotry. Step out va walk out «chiqib ketmoq» degani, ular to'ldiruvchi olmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "estrangement"
+      ],
+      "text": "His long estrangement ___ his father ended last spring.",
+      "options": [
+        "from",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Его долгое отчуждение от отца закончилось прошлой весной.",
+        "uz": "Uning otasidan uzoq yillik begonalashuvi o'tgan bahorda barham topdi."
+      },
+      "explanation": {
+        "ru": "estrangement from somebody — отчуждение от кого-то, разрыв отношений (как и be estranged from). Предлоги to и at здесь невозможны.",
+        "uz": "estrangement from somebody — kimdandir begonalashuv, munosabatlarning uzilishi (be estranged from kabi). To va at predloglari bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "belittle"
+      ],
+      "prompt": {
+        "ru": "Никогда не принижайте того, чего добились другие.",
+        "uz": "Boshqalar erishgan narsalarni hech qachon arzimas qilib ko'rsatmang."
+      },
+      "fragments": [
+        "never",
+        "belittle",
+        "what",
+        "others",
+        "have",
+        "achieved"
+      ],
+      "accepted": [
+        [
+          "never",
+          "belittle",
+          "what",
+          "others",
+          "have",
+          "achieved"
+        ]
+      ],
+      "display": "Never belittle what others have achieved.",
+      "explanation": {
+        "ru": "Never + глагол — запрет без don't: never belittle. What others have achieved — «то, чего добились другие»: в этой части прямой порядок слов.",
+        "uz": "Never + fe'l — don't qo'shilmaydigan taqiq: never belittle. What others have achieved — «boshqalar erishgan narsa»: bu qismda so'z tartibi oddiy."
+      }
+    },
+    {
+      "key": "c2-m15-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "ostracize"
+      ],
+      "prompt": {
+        "ru": "Скажи он правду, его подвергли бы остракизму.",
+        "uz": "Agar u haqiqatni aytguday bo'lsa, uni jamiyatdan chetlatishgan bo'lardi."
+      },
+      "fragments": [
+        "were",
+        "he",
+        "to tell",
+        "the truth",
+        "he",
+        "would be",
+        "ostracized"
+      ],
+      "accepted": [
+        [
+          "were",
+          "he",
+          "to tell",
+          "the truth",
+          "he",
+          "would be",
+          "ostracized"
+        ],
+        [
+          "he",
+          "would be",
+          "ostracized",
+          "were",
+          "he",
+          "to tell",
+          "the truth"
+        ]
+      ],
+      "display": "Were he to tell the truth, he would be ostracized.",
+      "explanation": {
+        "ru": "Were he to tell = If he were to tell — книжное условие с инверсией, без if. Условную часть можно поставить и в конце: He would be ostracized were he to tell the truth.",
+        "uz": "Were he to tell = If he were to tell — inversiyali, if so'zisiz kitobiy shart. Shart qismi gap oxirida ham kelishi mumkin: He would be ostracized were he to tell the truth."
+      }
+    },
+    {
+      "key": "c2-m15-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "sectarian"
+      ],
+      "prompt": {
+        "ru": "Город был разделён по межконфессиональному признаку.",
+        "uz": "Shahar mazhablar bo'yicha bo'lingan edi."
+      },
+      "fragments": [
+        "the town",
+        "was",
+        "divided",
+        "along",
+        "sectarian",
+        "lines"
+      ],
+      "accepted": [
+        [
+          "the town",
+          "was",
+          "divided",
+          "along",
+          "sectarian",
+          "lines"
+        ]
+      ],
+      "display": "The town was divided along sectarian lines.",
+      "explanation": {
+        "ru": "along … lines — «по … признаку»: divided along sectarian lines — разделён по межконфессиональному признаку. Так же along party lines — по партийному признаку.",
+        "uz": "along … lines — «… bo'yicha, … asosida»: divided along sectarian lines — mazhablar bo'yicha bo'lingan. Xuddi shunday: along party lines — partiyaviy mansublik bo'yicha."
+      }
+    },
+    {
+      "key": "c2-m15-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "shun"
+      ],
+      "text": "They shun anyone who disagrees with them",
+      "accepted": [
+        "They shun anyone who disagrees with them"
+      ],
+      "translation": {
+        "ru": "Они сторонятся всех, кто с ними не согласен",
+        "uz": "Ular o'zlari bilan kelishmaydigan har kimdan o'zini olib qochishadi"
+      }
+    },
+    {
+      "key": "c2-m15-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "chauvinism"
+      ],
+      "text": "His chauvinism offended many people",
+      "accepted": [
+        "His chauvinism offended many people"
+      ],
+      "translation": {
+        "ru": "Его шовинизм оскорблял многих",
+        "uz": "Uning shovinizmi ko'pchilikning nafsoniyatiga tegardi"
+      },
+      "explanation": {
+        "ru": "chauvinism: звук «ш» передаётся буквами ch, за ним au: c-h-a-u-v-i-n-i-s-m.",
+        "uz": "chauvinism: «sh» tovushi ch harflari bilan yoziladi, undan keyin au: c-h-a-u-v-i-n-i-s-m."
+      }
+    },
+    {
+      "key": "c2-m15-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "derogatory",
+        "demean"
+      ],
+      "text": "Derogatory comments demean the whole team",
+      "accepted": [
+        "Derogatory comments demean the whole team"
+      ],
+      "translation": {
+        "ru": "Уничижительные замечания унижают всю команду",
+        "uz": "Kamsituvchi gaplar butun jamoani xo'rlaydi"
+      },
+      "explanation": {
+        "ru": "derogatory: окончание -ory (d-e-r-o-g-a-t-o-r-y). Demean пишется одним словом: d-e-m-e-a-n.",
+        "uz": "derogatory: oxiri -ory (d-e-r-o-g-a-t-o-r-y). Demean bitta so'z bo'lib yoziladi: d-e-m-e-a-n."
+      }
+    },
+    {
+      "key": "c2-m15-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "renown"
+      ],
+      "text": "She is a pianist ___ world renown.",
+      "options": [
+        "of",
+        "in",
+        "at"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Она пианистка с мировым именем.",
+        "uz": "U dunyoga dovrug'i ketgan pianinochi."
+      },
+      "explanation": {
+        "ru": "of world / international renown — с мировой (международной) известностью: a pianist of world renown. В этом выражении нужен предлог of; in и at не подходят.",
+        "uz": "of world / international renown — dunyoga (xalqaro miqyosda) dovrug'i ketgan: a pianist of world renown. Bu iborada of predlogi keladi; in va at to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "disrepute"
+      ],
+      "text": "The old method has ___ into disrepute among doctors.",
+      "options": [
+        "fallen",
+        "dropped",
+        "stepped"
+      ],
+      "correct": [
+        "fallen"
+      ],
+      "translation": {
+        "ru": "Старый метод утратил авторитет среди врачей.",
+        "uz": "Eski usul shifokorlar orasida obro'sizlanib qoldi."
+      },
+      "explanation": {
+        "ru": "fall into disrepute — приобрести дурную репутацию, утратить доверие; bring something into disrepute — опорочить. Dropped и stepped в этом выражении не употребляются.",
+        "uz": "fall into disrepute — obro'sizlanmoq, ishonchni yo'qotmoq; bring something into disrepute — obro'sizlantirmoq. Dropped va stepped bu iborada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "revere"
+      ],
+      "text": "The poet is still revered ___ a national hero.",
+      "options": [
+        "as",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "as"
+      ],
+      "translation": {
+        "ru": "Поэта до сих пор чтят как национального героя.",
+        "uz": "Shoir hanuzgacha milliy qahramon sifatida e'zozlanadi."
+      },
+      "explanation": {
+        "ru": "be revered as — почитаться как кто-то, в качестве кого-то: revered as a national hero. Предлоги to и at после revered здесь невозможны.",
+        "uz": "be revered as — kimdir sifatida e'zozlanmoq: revered as a national hero. Revered so'zidan keyin to va at predloglari bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "tarnish"
+      ],
+      "prompt": {
+        "ru": "Даже скандал не смог запятнать его репутацию.",
+        "uz": "Hatto mojaro ham uning obro'siga dog' tushira olmadi."
+      },
+      "fragments": [
+        "not even",
+        "the scandal",
+        "could",
+        "tarnish",
+        "his reputation"
+      ],
+      "accepted": [
+        [
+          "not even",
+          "the scandal",
+          "could",
+          "tarnish",
+          "his reputation"
+        ]
+      ],
+      "display": "Not even the scandal could tarnish his reputation.",
+      "explanation": {
+        "ru": "Not even + подлежащее — «даже … не»: отрицание уже стоит в начале, поэтому глагол без not: could tarnish. Tarnish a reputation / a name — запятнать репутацию, имя.",
+        "uz": "Not even + ega — «hatto … ham …ma-»: inkor gap boshida turgani uchun fe'l not so'zisiz keladi: could tarnish. Tarnish a reputation / a name — obro'ga dog' tushirmoq."
+      }
+    },
+    {
+      "key": "c2-m15-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "prestige"
+      ],
+      "prompt": {
+        "ru": "Чем престижнее работа, тем труднее её получить.",
+        "uz": "Ish qanchalik nufuzli bo'lsa, unga ega bo'lish shunchalik qiyin."
+      },
+      "fragments": [
+        "the more prestige",
+        "a job",
+        "has",
+        "the harder",
+        "it is",
+        "to get"
+      ],
+      "accepted": [
+        [
+          "the more prestige",
+          "a job",
+          "has",
+          "the harder",
+          "it is",
+          "to get"
+        ]
+      ],
+      "display": "The more prestige a job has, the harder it is to get.",
+      "explanation": {
+        "ru": "The more …, the … — «чем больше …, тем …». Prestige — неисчисляемое существительное: the more prestige, без -s.",
+        "uz": "The more …, the … — «qanchalik ko'p …, shunchalik …». Prestige — sanalmaydigan ot: the more prestige, -s qo'shimchasisiz."
+      }
+    },
+    {
+      "key": "c2-m15-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "luminary"
+      ],
+      "prompt": {
+        "ru": "Её считали светилом современной медицины.",
+        "uz": "U zamonaviy tibbiyotning yirik namoyandasi deb hisoblanardi."
+      },
+      "fragments": [
+        "she",
+        "was",
+        "regarded",
+        "as",
+        "a luminary",
+        "of",
+        "modern",
+        "medicine"
+      ],
+      "accepted": [
+        [
+          "she",
+          "was",
+          "regarded",
+          "as",
+          "a luminary",
+          "of",
+          "modern",
+          "medicine"
+        ]
+      ],
+      "display": "She was regarded as a luminary of modern medicine.",
+      "explanation": {
+        "ru": "be regarded as — считаться кем-то. A luminary of + область — светило, корифей какой-то науки или искусства.",
+        "uz": "be regarded as — kimdir deb hisoblanmoq. A luminary of + soha — biror fan yoki san'atning yirik namoyandasi."
+      }
+    },
+    {
+      "key": "c2-m15-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "illustrious"
+      ],
+      "text": "She comes from an illustrious family",
+      "accepted": [
+        "She comes from an illustrious family"
+      ],
+      "translation": {
+        "ru": "Она из прославленной семьи",
+        "uz": "U dongdor oiladan chiqqan"
+      },
+      "explanation": {
+        "ru": "illustrious: в начале две l (i-l-l), окончание -ious.",
+        "uz": "illustrious: boshida ikkita l (i-l-l), oxiri -ious."
+      }
+    },
+    {
+      "key": "c2-m15-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "eminent",
+        "venerable"
+      ],
+      "text": "She is an eminent scholar at a venerable university",
+      "accepted": [
+        "She is an eminent scholar at a venerable university",
+        "She's an eminent scholar at a venerable university"
+      ],
+      "translation": {
+        "ru": "Она видный учёный в почтенном университете",
+        "uz": "U ko'hna va obro'li universitetdagi atoqli olim"
+      },
+      "explanation": {
+        "ru": "eminent начинается с e (не путайте с imminent «неминуемый»), окончание -ent. Venerable оканчивается на -able.",
+        "uz": "eminent e harfi bilan boshlanadi (imminent «muqarrar» so'zi bilan adashtirmang), oxiri -ent. Venerable -able bilan tugaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "notoriety"
+      ],
+      "text": "The case earned him sudden notoriety",
+      "accepted": [
+        "The case earned him sudden notoriety"
+      ],
+      "translation": {
+        "ru": "Это дело внезапно принесло ему дурную славу",
+        "uz": "Bu ish unga to'satdan yomon nom keltirdi"
+      },
+      "explanation": {
+        "ru": "notoriety: после r — -iety (n-o-t-o-r-i-e-t-y), хотя прилагательное notorious пишется с -ious.",
+        "uz": "notoriety: r dan keyin -iety (n-o-t-o-r-i-e-t-y), garchi notorious sifati -ious bilan yozilsa ham."
+      }
+    },
+    {
+      "key": "c2-m15-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "ingratiate"
+      ],
+      "text": "The new manager tried hard to ingratiate herself ___ the staff.",
+      "options": [
+        "with",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Новая начальница изо всех сил старалась втереться в доверие к сотрудникам.",
+        "uz": "Yangi rahbar xodimlarning pinjiga kirishga astoydil urindi."
+      },
+      "explanation": {
+        "ru": "ingratiate oneself with somebody — втереться в доверие к кому-то, снискать расположение. Глагол идёт с возвратным местоимением (herself), обычно с предлогом with; at и on невозможны.",
+        "uz": "ingratiate oneself with somebody — kimningdir pinjiga kirmoq, ishonchini qozonmoq. Fe'l o'zlik olmoshi (herself) bilan, odatda with predlogi bilan keladi; at va on ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "pander"
+      ],
+      "text": "Too many talk shows pander ___ the lowest common denominator.",
+      "options": [
+        "to",
+        "with",
+        "over"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Слишком многие ток-шоу потакают самым непритязательным вкусам.",
+        "uz": "Juda ko'p tok-shoular eng past didli tomoshabinlarning ko'ngliga qarab ish tutadi."
+      },
+      "explanation": {
+        "ru": "pander to somebody / something — потакать кому-то, чему-то (вкусам, предрассудкам). Pander to the lowest common denominator — потакать самым непритязательным вкусам. Нужен предлог to; with и over невозможны.",
+        "uz": "pander to somebody / something — kimningdir, nimaningdir (didi, xurofoti) ko'ngliga qarab ish tutmoq. Pander to the lowest common denominator — eng jaydari didga moslashmoq. To predlogi kerak; with va over ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "condescend"
+      ],
+      "text": "A good doctor never condescends ___ her patients.",
+      "options": [
+        "to",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Хороший врач никогда не говорит с пациентами свысока.",
+        "uz": "Yaxshi shifokor bemorlari bilan hech qachon mensimay gapirmaydi."
+      },
+      "explanation": {
+        "ru": "condescend to somebody — говорить с кем-то свысока, снисходительно. Нужен предлог to; at и on здесь невозможны.",
+        "uz": "condescend to somebody — kim bilandir mensimay, o'zini yuqori tutib gapirmoq. To predlogi kerak; at va on bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "rebuff"
+      ],
+      "prompt": {
+        "ru": "Каждая попытка примирения была резко отвергнута.",
+        "uz": "Yarashish uchun qilingan har bir urinish keskin rad etildi."
+      },
+      "fragments": [
+        "every",
+        "attempt",
+        "at",
+        "reconciliation",
+        "was",
+        "rebuffed"
+      ],
+      "accepted": [
+        [
+          "every",
+          "attempt",
+          "at",
+          "reconciliation",
+          "was",
+          "rebuffed"
+        ]
+      ],
+      "display": "Every attempt at reconciliation was rebuffed.",
+      "explanation": {
+        "ru": "an attempt at something — попытка чего-то (с предлогом at): an attempt at reconciliation. После every — единственное число, поэтому was rebuffed.",
+        "uz": "an attempt at something — biror narsaga urinish (at predlogi bilan): an attempt at reconciliation. Every so'zidan keyin birlik keladi, shuning uchun was rebuffed."
+      }
+    },
+    {
+      "key": "c2-m15-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "snub"
+      ],
+      "prompt": {
+        "ru": "Он почувствовал, что им демонстративно пренебрегли, когда его никто не пригласил.",
+        "uz": "Uni hech kim taklif qilmaganida, u o'zini ataylab e'tiborsiz qoldirilgandek his qildi."
+      },
+      "fragments": [
+        "he",
+        "felt",
+        "snubbed",
+        "when",
+        "nobody",
+        "invited",
+        "him"
+      ],
+      "accepted": [
+        [
+          "he",
+          "felt",
+          "snubbed",
+          "when",
+          "nobody",
+          "invited",
+          "him"
+        ],
+        [
+          "when",
+          "nobody",
+          "invited",
+          "him",
+          "he",
+          "felt",
+          "snubbed"
+        ]
+      ],
+      "display": "He felt snubbed when nobody invited him.",
+      "explanation": {
+        "ru": "feel snubbed — почувствовать себя демонстративно обойдённым, проигнорированным (feel + причастие на -ed). Часть с when может стоять и в начале предложения.",
+        "uz": "feel snubbed — o'zini ataylab e'tiborsiz qoldirilgandek his qilmoq (feel + -ed sifatdoshi). When qismi gap boshida ham kelishi mumkin."
+      }
+    },
+    {
+      "key": "c2-m15-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "camaraderie"
+      ],
+      "prompt": {
+        "ru": "Ничто так не укрепляет дух товарищества, как общие невзгоды.",
+        "uz": "Hech narsa o'rtoqlik ruhini umumiy qiyinchiliklar kabi mustahkamlamaydi."
+      },
+      "fragments": [
+        "nothing",
+        "builds",
+        "camaraderie",
+        "like",
+        "shared",
+        "hardship"
+      ],
+      "accepted": [
+        [
+          "nothing",
+          "builds",
+          "camaraderie",
+          "like",
+          "shared",
+          "hardship"
+        ]
+      ],
+      "display": "Nothing builds camaraderie like shared hardship.",
+      "explanation": {
+        "ru": "Nothing … like … — «ничто не … так, как …»: nothing builds camaraderie like shared hardship. Camaraderie и hardship здесь неисчисляемые, без артикля.",
+        "uz": "Nothing … like … — «hech narsa … kabi …-maydi»: nothing builds camaraderie like shared hardship. Camaraderie va hardship bu yerda sanalmaydigan ot, artiklsiz keladi."
+      }
+    },
+    {
+      "key": "c2-m15-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "mingle"
+      ],
+      "text": "She mingled easily with strangers",
+      "accepted": [
+        "She mingled easily with strangers"
+      ],
+      "translation": {
+        "ru": "Она непринуждённо общалась с незнакомыми людьми",
+        "uz": "U notanish odamlar bilan bemalol aralashib suhbatlashardi"
+      }
+    },
+    {
+      "key": "c2-m15-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "convivial",
+        "banter"
+      ],
+      "text": "The evening was full of convivial banter",
+      "accepted": [
+        "The evening was full of convivial banter"
+      ],
+      "translation": {
+        "ru": "Вечер был полон весёлого добродушного подшучивания",
+        "uz": "Kecha quvnoq hazil-mutoyibaga to'la edi"
+      },
+      "explanation": {
+        "ru": "convivial: окончание -ial (c-o-n-v-i-v-i-a-l). Banter оканчивается на -er.",
+        "uz": "convivial: oxiri -ial (c-o-n-v-i-v-i-a-l). Banter -er bilan tugaydi."
+      }
+    },
+    {
+      "key": "c2-m15-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "amiable"
+      ],
+      "text": "Our new manager seems very amiable",
+      "accepted": [
+        "Our new manager seems very amiable"
+      ],
+      "translation": {
+        "ru": "Наш новый руководитель кажется очень приветливым",
+        "uz": "Yangi rahbarimiz juda xushmuomala ko'rinadi"
+      },
+      "explanation": {
+        "ru": "amiable: после m — i, затем -able: a-m-i-a-b-l-e.",
+        "uz": "amiable: m dan keyin i, so'ng -able: a-m-i-a-b-l-e."
+      }
+    },
+    {
+      "key": "c2-m16-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "rift"
+      ],
+      "text": "It took years to ___ the rift between the two departments.",
+      "options": [
+        "heal",
+        "cure",
+        "treat"
+      ],
+      "correct": [
+        "heal"
+      ],
+      "translation": {
+        "ru": "Чтобы преодолеть разлад между двумя отделами, понадобились годы.",
+        "uz": "Ikki bo'lim o'rtasidagi ora buzilishini bartaraf etish uchun yillar kerak bo'ldi."
+      },
+      "explanation": {
+        "ru": "heal the rift — преодолеть разлад, восстановить отношения (говорят и mend / bridge the rift). Cure и treat относятся к лечению болезней и с rift не сочетаются.",
+        "uz": "heal the rift — ora buzilishini tuzatmoq, munosabatni tiklamoq (mend / bridge the rift ham deyiladi). Cure va treat kasallikni davolashga oid, rift so'zi bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "antipathy"
+      ],
+      "text": "He made no secret of his antipathy ___ modern art.",
+      "options": [
+        "toward",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "toward"
+      ],
+      "translation": {
+        "ru": "Он не скрывал своей неприязни к современному искусству.",
+        "uz": "U zamonaviy san'atni yoqtirmasligini yashirmasdi."
+      },
+      "explanation": {
+        "ru": "antipathy toward (брит. towards) или to something — неприязнь к чему-то. Предлоги at и on после antipathy не употребляются. Make no secret of — не скрывать.",
+        "uz": "antipathy toward (Britaniyada towards) yoki to something — biror narsani yoqtirmaslik. Antipathy so'zidan keyin at va on ishlatilmaydi. Make no secret of — yashirmaslik."
+      }
+    },
+    {
+      "key": "c2-m16-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "vendetta"
+      ],
+      "text": "The editor was accused of waging a personal vendetta ___ the mayor.",
+      "options": [
+        "against",
+        "at",
+        "to"
+      ],
+      "correct": [
+        "against"
+      ],
+      "translation": {
+        "ru": "Редактора обвинили в том, что он ведёт личную вендетту против мэра.",
+        "uz": "Muharrir merga qarshi shaxsiy qasos kurashini olib borishda ayblandi."
+      },
+      "explanation": {
+        "ru": "a vendetta against somebody — вендетта, долгая месть кому-то; a personal vendetta — личная война против кого-то. Нужен предлог against; at и to невозможны.",
+        "uz": "a vendetta against somebody — kimgadir qarshi uzoq davom etadigan qasos; a personal vendetta — kimgadir qarshi shaxsiy urush. Against predlogi kerak; at va to ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "schism"
+      ],
+      "prompt": {
+        "ru": "То, что началось как мелкий спор, закончилось расколом.",
+        "uz": "Kichik bahs sifatida boshlangan narsa bo'linish bilan yakunlandi."
+      },
+      "fragments": [
+        "what",
+        "began",
+        "as",
+        "a minor dispute",
+        "ended",
+        "in",
+        "a schism"
+      ],
+      "accepted": [
+        [
+          "what",
+          "began",
+          "as",
+          "a minor dispute",
+          "ended",
+          "in",
+          "a schism"
+        ]
+      ],
+      "display": "What began as a minor dispute ended in a schism.",
+      "explanation": {
+        "ru": "What began as … — «то, что началось как …» — подлежащее всего предложения. End in something — закончиться чем-то: ended in a schism.",
+        "uz": "What began as … — «… sifatida boshlangan narsa» — butun gapning egasi. End in something — biror narsa bilan yakunlanmoq: ended in a schism."
+      }
+    },
+    {
+      "key": "c2-m16-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "fractious"
+      ],
+      "prompt": {
+        "ru": "Редко какое собрание проходило настолько склочно.",
+        "uz": "Kamdan-kam yig'ilish bunchalik janjalli o'tgan."
+      },
+      "fragments": [
+        "rarely",
+        "has",
+        "a meeting",
+        "been",
+        "so fractious"
+      ],
+      "accepted": [
+        [
+          "rarely",
+          "has",
+          "a meeting",
+          "been",
+          "so fractious"
+        ],
+        [
+          "a meeting",
+          "has",
+          "rarely",
+          "been",
+          "so fractious"
+        ]
+      ],
+      "display": "Rarely has a meeting been so fractious.",
+      "explanation": {
+        "ru": "Rarely в начале предложения требует инверсии: rarely has a meeting been. Без инверсии: A meeting has rarely been so fractious.",
+        "uz": "Gap boshidagi rarely inversiyani talab qiladi: rarely has a meeting been. Inversiyasiz: A meeting has rarely been so fractious."
+      }
+    },
+    {
+      "key": "c2-m16-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "strife"
+      ],
+      "prompt": {
+        "ru": "Страну раздирали гражданские распри.",
+        "uz": "Mamlakatni ichki nizolar parchalab tashlagan edi."
+      },
+      "fragments": [
+        "the country",
+        "was",
+        "torn apart",
+        "by",
+        "civil strife"
+      ],
+      "accepted": [
+        [
+          "the country",
+          "was",
+          "torn apart",
+          "by",
+          "civil strife"
+        ]
+      ],
+      "display": "The country was torn apart by civil strife.",
+      "explanation": {
+        "ru": "be torn apart by something — быть раздираемым чем-то. Civil strife — гражданские распри, внутренние раздоры; strife — неисчисляемое, без артикля.",
+        "uz": "be torn apart by something — biror narsa tufayli parchalanmoq. Civil strife — ichki nizolar, fuqarolar o'rtasidagi nifoq; strife — sanalmaydigan ot, artiklsiz keladi."
+      }
+    },
+    {
+      "key": "c2-m16-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "enmity"
+      ],
+      "text": "The enmity between them never faded",
+      "accepted": [
+        "The enmity between them never faded"
+      ],
+      "translation": {
+        "ru": "Вражда между ними так и не угасла",
+        "uz": "Ular o'rtasidagi adovat hech qachon so'nmadi"
+      },
+      "explanation": {
+        "ru": "enmity: e-n-m-i-t-y — после n сразу m, без e (не enemity).",
+        "uz": "enmity: e-n-m-i-t-y — n dan keyin darhol m keladi, e yo'q (enemity emas)."
+      }
+    },
+    {
+      "key": "c2-m16-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "altercation"
+      ],
+      "text": "There was an altercation at the door",
+      "accepted": [
+        "There was an altercation at the door"
+      ],
+      "translation": {
+        "ru": "У двери произошла перепалка",
+        "uz": "Eshik oldida shovqinli janjal bo'ldi"
+      },
+      "explanation": {
+        "ru": "altercation: alter + cation, окончание -tion: a-l-t-e-r-c-a-t-i-o-n.",
+        "uz": "altercation: alter + cation, oxiri -tion: a-l-t-e-r-c-a-t-i-o-n."
+      }
+    },
+    {
+      "key": "c2-m16-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "squabble",
+        "skirmish"
+      ],
+      "text": "The squabble soon turned into a skirmish",
+      "accepted": [
+        "The squabble soon turned into a skirmish"
+      ],
+      "translation": {
+        "ru": "Перебранка вскоре переросла в стычку",
+        "uz": "Mayda janjal tez orada to'qnashuvga aylandi"
+      },
+      "explanation": {
+        "ru": "squabble: после squ — a, затем двойная b: s-q-u-a-b-b-l-e. Skirmish оканчивается на -ish.",
+        "uz": "squabble: squ dan keyin a, so'ng ikkita b: s-q-u-a-b-b-l-e. Skirmish -ish bilan tugaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "browbeat"
+      ],
+      "text": "The lawyer tried to browbeat the witness ___ changing her story.",
+      "options": [
+        "into",
+        "to",
+        "for"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Адвокат пытался нажимом заставить свидетельницу изменить показания.",
+        "uz": "Advokat do'q-po'pisa bilan guvohni ko'rsatmalarini o'zgartirishga majburlamoqchi bo'ldi."
+      },
+      "explanation": {
+        "ru": "browbeat somebody into doing something — нажимом, запугиванием заставить кого-то что-то сделать; после into — форма на -ing. To и for здесь невозможны.",
+        "uz": "browbeat somebody into doing something — do'q-po'pisa bilan kimnidir biror ishga majburlamoq; into dan keyin -ing shakli keladi. To va for bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "succumb"
+      ],
+      "text": "After months of resistance, he finally succumbed ___ the pressure.",
+      "options": [
+        "to",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "После нескольких месяцев сопротивления он наконец поддался давлению.",
+        "uz": "Bir necha oylik qarshilikdan so'ng u nihoyat tazyiqqa bo'yin egdi."
+      },
+      "explanation": {
+        "ru": "succumb to something — поддаться чему-то (давлению, искушению, болезни). Нужен предлог to; at и on невозможны.",
+        "uz": "succumb to something — biror narsaga (tazyiqqa, vasvasaga, kasallikka) bo'yin egmoq. To predlogi kerak; at va on ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "intimidate"
+      ],
+      "text": "She refused to be intimidated ___ his threats.",
+      "options": [
+        "by",
+        "of",
+        "from"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "Она не позволила себя запугать его угрозами.",
+        "uz": "U uning tahdidlaridan qo'rqib o'tirmadi."
+      },
+      "explanation": {
+        "ru": "be intimidated by — быть запуганным кем-то или чем-то (пассив с by). Of и from после intimidated здесь не употребляются.",
+        "uz": "be intimidated by — kim yoki nimadandir qo'rqib qolmoq (by bilan majhul nisbat). Intimidated so'zidan keyin of va from bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "capitulate"
+      ],
+      "prompt": {
+        "ru": "Ни при каких обстоятельствах мы не капитулируем перед такими требованиями.",
+        "uz": "Biz hech qanday sharoitda bunday talablar oldida taslim bo'lmaymiz."
+      },
+      "fragments": [
+        "under no circumstances",
+        "will",
+        "we",
+        "capitulate",
+        "to",
+        "such",
+        "demands"
+      ],
+      "accepted": [
+        [
+          "under no circumstances",
+          "will",
+          "we",
+          "capitulate",
+          "to",
+          "such",
+          "demands"
+        ],
+        [
+          "we",
+          "will",
+          "capitulate",
+          "to",
+          "such",
+          "demands",
+          "under no circumstances"
+        ],
+        [
+          "we",
+          "will",
+          "under no circumstances",
+          "capitulate",
+          "to",
+          "such",
+          "demands"
+        ]
+      ],
+      "display": "Under no circumstances will we capitulate to such demands.",
+      "explanation": {
+        "ru": "Under no circumstances в начале требует инверсии: will we capitulate. Без инверсии: we will under no circumstances capitulate. Capitulate to — капитулировать перед кем-то или чем-то.",
+        "uz": "Gap boshidagi under no circumstances inversiyani talab qiladi: will we capitulate. Inversiyasiz: we will under no circumstances capitulate. Capitulate to — kim yoki nima oldida taslim bo'lmoq."
+      }
+    },
+    {
+      "key": "c2-m16-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "badger"
+      ],
+      "prompt": {
+        "ru": "Перестаньте донимать сестру из-за её оценок.",
+        "uz": "Singlingizga baholari haqida xiralik qilishni bas qiling."
+      },
+      "fragments": [
+        "stop",
+        "badgering",
+        "your sister",
+        "about",
+        "her grades"
+      ],
+      "accepted": [
+        [
+          "stop",
+          "badgering",
+          "your sister",
+          "about",
+          "her grades"
+        ]
+      ],
+      "display": "Stop badgering your sister about her grades.",
+      "explanation": {
+        "ru": "stop + -ing — перестать что-то делать: stop badgering. Badger somebody about something — донимать кого-то чем-то.",
+        "uz": "stop + -ing — biror ishni qilishni to'xtatmoq: stop badgering. Badger somebody about something — kimgadir biror narsa haqida xiralik qilmoq."
+      }
+    },
+    {
+      "key": "c2-m16-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "subdue",
+        "vanquish"
+      ],
+      "prompt": {
+        "ru": "Мятежников усмирили, но так и не сокрушили.",
+        "uz": "Isyonchilar bo'ysundirildi, biroq hech qachon butunlay mag'lub etilmadi."
+      },
+      "fragments": [
+        "the rebels",
+        "were",
+        "subdued",
+        "but",
+        "never",
+        "vanquished"
+      ],
+      "accepted": [
+        [
+          "the rebels",
+          "were",
+          "subdued",
+          "but",
+          "never",
+          "vanquished"
+        ]
+      ],
+      "display": "The rebels were subdued but never vanquished.",
+      "explanation": {
+        "ru": "Два причастия при одном were: subdued but never vanquished — усмирены, но не сокрушены. Never стоит перед причастием.",
+        "uz": "Bitta were bilan ikki sifatdosh: subdued but never vanquished — bo'ysundirilgan, ammo mag'lub etilmagan. Never sifatdosh oldida turadi."
+      }
+    },
+    {
+      "key": "c2-m16-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "blackmail"
+      ],
+      "text": "They tried to blackmail the judge",
+      "accepted": [
+        "They tried to blackmail the judge"
+      ],
+      "translation": {
+        "ru": "Они пытались шантажировать судью",
+        "uz": "Ular sudyani shantaj qilishga urinishdi"
+      },
+      "explanation": {
+        "ru": "blackmail пишется слитно, одним словом: black + mail.",
+        "uz": "blackmail bitta so'z bo'lib, qo'shib yoziladi: black + mail."
+      }
+    },
+    {
+      "key": "c2-m16-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "goad"
+      ],
+      "text": "Do not let them goad you into an argument",
+      "accepted": [
+        "Do not let them goad you into an argument",
+        "Don't let them goad you into an argument"
+      ],
+      "translation": {
+        "ru": "Не позволяйте им спровоцировать вас на спор",
+        "uz": "Ularning sizni bahsga gij-gijlashiga yo'l qo'ymang"
+      }
+    },
+    {
+      "key": "c2-m16-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "acquiesce"
+      ],
+      "text": "In the end she had to acquiesce",
+      "accepted": [
+        "In the end she had to acquiesce"
+      ],
+      "translation": {
+        "ru": "В конце концов ей пришлось нехотя согласиться",
+        "uz": "Oxir-oqibat u noiloj rozi bo'lishga majbur bo'ldi"
+      },
+      "explanation": {
+        "ru": "acquiesce: перед q стоит c (a-c-q-u-i-e-s-c-e), а на конце -sce.",
+        "uz": "acquiesce: q dan oldin c turadi (a-c-q-u-i-e-s-c-e), oxiri esa -sce."
+      }
+    },
+    {
+      "key": "c2-m16-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "avert"
+      ],
+      "text": "A strike was ___ averted at the last minute.",
+      "options": [
+        "narrowly",
+        "closely",
+        "thinly"
+      ],
+      "correct": [
+        "narrowly"
+      ],
+      "translation": {
+        "ru": "Забастовку удалось предотвратить лишь в последнюю минуту.",
+        "uz": "Ish tashlashning oldi so'nggi daqiqada zo'rg'a olindi."
+      },
+      "explanation": {
+        "ru": "narrowly avert — с трудом, едва-едва предотвратить (так же narrowly escape, narrowly miss). Closely и thinly в этом значении не употребляются.",
+        "uz": "narrowly avert — zo'rg'a, arang oldini olmoq (xuddi shunday narrowly escape, narrowly miss). Closely va thinly bu ma'noda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "evade"
+      ],
+      "text": "The thief managed to evade ___ for nearly a month.",
+      "options": [
+        "capture",
+        "catch",
+        "hunt"
+      ],
+      "correct": [
+        "capture"
+      ],
+      "translation": {
+        "ru": "Вору почти месяц удавалось уходить от поимки.",
+        "uz": "O'g'ri qariyb bir oy qo'lga tushmaslikka muvaffaq bo'ldi."
+      },
+      "explanation": {
+        "ru": "evade capture — избежать поимки (так же evade arrest). Существительное catch значит «улов» или «подвох», hunt — «охота»; с evade в этом смысле они не сочетаются.",
+        "uz": "evade capture — qo'lga tushishdan qochib qutulmoq (evade arrest ham deyiladi). Catch oti «ov o'ljasi» yoki «hiyla», hunt — «ov» degani; evade fe'li bilan bu ma'noda birikmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "withstand"
+      ],
+      "text": "Very few of his theories can withstand the test of ___.",
+      "options": [
+        "time",
+        "date",
+        "hour"
+      ],
+      "correct": [
+        "time"
+      ],
+      "translation": {
+        "ru": "Лишь немногие из его теорий способны выдержать проверку временем.",
+        "uz": "Uning nazariyalaridan juda ozigina vaqt sinoviga bardosh bera oladi."
+      },
+      "explanation": {
+        "ru": "withstand (stand) the test of time — выдержать проверку временем. Это устойчивое выражение, в нём только time; date и hour здесь невозможны.",
+        "uz": "withstand (stand) the test of time — vaqt sinovidan o'tmoq. Bu turg'un ibora, unda faqat time so'zi keladi; date va hour bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "flout"
+      ],
+      "prompt": {
+        "ru": "Тех, кто открыто нарушает правила, следует штрафовать.",
+        "uz": "Qoidalarni bepisandlik bilan buzganlar jarimaga tortilishi kerak."
+      },
+      "fragments": [
+        "those who",
+        "flout",
+        "the rules",
+        "should be",
+        "fined"
+      ],
+      "accepted": [
+        [
+          "those who",
+          "flout",
+          "the rules",
+          "should be",
+          "fined"
+        ]
+      ],
+      "display": "Those who flout the rules should be fined.",
+      "explanation": {
+        "ru": "flout the rules — открыто, демонстративно нарушать правила. Those who … — «те, кто …». Should be fined — пассив: «следует оштрафовать».",
+        "uz": "flout the rules — qoidalarni ochiqdan-ochiq, bepisandlik bilan buzmoq. Those who … — «… qilganlar». Should be fined — majhul nisbat: «jarimaga tortilishi kerak»."
+      }
+    },
+    {
+      "key": "c2-m16-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "preempt"
+      ],
+      "prompt": {
+        "ru": "Она упредила критику, опубликовав данные.",
+        "uz": "U ma'lumotlarni e'lon qilib, tanqidni ilgarilab qaytardi."
+      },
+      "fragments": [
+        "she",
+        "preempted",
+        "criticism",
+        "by",
+        "publishing",
+        "the data"
+      ],
+      "accepted": [
+        [
+          "she",
+          "preempted",
+          "criticism",
+          "by",
+          "publishing",
+          "the data"
+        ],
+        [
+          "by",
+          "publishing",
+          "the data",
+          "she",
+          "preempted",
+          "criticism"
+        ]
+      ],
+      "display": "She preempted criticism by publishing the data.",
+      "explanation": {
+        "ru": "preempt something — упредить что-то, действуя первым. By + -ing — «тем, что …»: by publishing the data. Эта часть может стоять и в начале предложения.",
+        "uz": "preempt something — birinchi bo'lib harakat qilib, biror narsani ilgarilab qaytarmoq. By + -ing — «… qilib, … orqali»: by publishing the data. Bu qism gap boshida ham kelishi mumkin."
+      }
+    },
+    {
+      "key": "c2-m16-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "stymie",
+        "circumvent"
+      ],
+      "prompt": {
+        "ru": "Зайдя из-за правил в тупик, они попытались их обойти.",
+        "uz": "Qoidalar tufayli boshi berk ko'chaga kirib qolgan ular bu qoidalarni aylanib o'tishga urinishdi."
+      },
+      "fragments": [
+        "stymied by",
+        "the rules",
+        "they",
+        "tried",
+        "to circumvent",
+        "them"
+      ],
+      "accepted": [
+        [
+          "stymied by",
+          "the rules",
+          "they",
+          "tried",
+          "to circumvent",
+          "them"
+        ],
+        [
+          "they",
+          "stymied by",
+          "the rules",
+          "tried",
+          "to circumvent",
+          "them"
+        ]
+      ],
+      "display": "Stymied by the rules, they tried to circumvent them.",
+      "explanation": {
+        "ru": "Stymied by the rules — причастный оборот: «заведённые правилами в тупик»; он может стоять и после they. Circumvent the rules — обойти правила.",
+        "uz": "Stymied by the rules — sifatdosh oborot: «qoidalar tufayli boshi berk ko'chaga kirib qolgan»; u they so'zidan keyin ham kelishi mumkin. Circumvent the rules — qoidalarni aylanib o'tmoq."
+      }
+    },
+    {
+      "key": "c2-m16-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "repel"
+      ],
+      "text": "The small army repelled every attack",
+      "accepted": [
+        "The small army repelled every attack"
+      ],
+      "translation": {
+        "ru": "Небольшое войско отразило все атаки",
+        "uz": "Kichik qo'shin barcha hujumlarni daf qildi"
+      },
+      "explanation": {
+        "ru": "repel пишется с одной l, но в прошедшем времени l удваивается: repelled.",
+        "uz": "repel bitta l bilan yoziladi, lekin o'tgan zamonda l ikkilanadi: repelled."
+      }
+    },
+    {
+      "key": "c2-m16-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "counteract"
+      ],
+      "text": "Exercise can counteract the effects of stress",
+      "accepted": [
+        "Exercise can counteract the effects of stress"
+      ],
+      "translation": {
+        "ru": "Физические упражнения могут ослабить воздействие стресса",
+        "uz": "Jismoniy mashqlar stress ta'sirini kamaytira oladi"
+      },
+      "explanation": {
+        "ru": "counteract пишется слитно: counter + act. Effects здесь существительное, с e в начале.",
+        "uz": "counteract qo'shib yoziladi: counter + act. Effects bu yerda ot, e harfi bilan boshlanadi."
+      }
+    },
+    {
+      "key": "c2-m16-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "forestall"
+      ],
+      "text": "They acted early to forestall any panic",
+      "accepted": [
+        "They acted early to forestall any panic"
+      ],
+      "translation": {
+        "ru": "Они действовали заблаговременно, чтобы не допустить паники",
+        "uz": "Ular har qanday vahimaning oldini olish uchun barvaqt harakat qilishdi"
+      },
+      "explanation": {
+        "ru": "forestall пишется слитно: fore + stall, на конце двойная l.",
+        "uz": "forestall qo'shib yoziladi: fore + stall, oxirida ikkita l."
+      }
+    },
+    {
+      "key": "c2-m16-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "clemency"
+      ],
+      "text": "The governor ___ clemency to the elderly prisoner.",
+      "options": [
+        "granted",
+        "made",
+        "put"
+      ],
+      "correct": [
+        "granted"
+      ],
+      "translation": {
+        "ru": "Губернатор помиловал пожилого заключённого.",
+        "uz": "Gubernator keksa mahbusni afv etdi."
+      },
+      "explanation": {
+        "ru": "grant clemency — помиловать, официально проявить снисхождение (так говорят о главе государства, губернаторе); говорят и show clemency. Made и put с clemency не сочетаются.",
+        "uz": "grant clemency — afv etmoq, rasman shafqat ko'rsatmoq (davlat rahbari, gubernator haqida); show clemency ham deyiladi. Made va put fe'llari clemency so'zi bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "amity"
+      ],
+      "text": "For centuries the two communities lived together ___ amity.",
+      "options": [
+        "in",
+        "on",
+        "by"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Веками две общины жили в дружбе и согласии.",
+        "uz": "Asrlar davomida ikki jamoa totuvlikda yashab keldi."
+      },
+      "explanation": {
+        "ru": "live in amity — жить в дружбе и согласии. In здесь как в in peace, in harmony; on и by невозможны.",
+        "uz": "live in amity — totuvlikda yashamoq. In bu yerda in peace, in harmony iboralaridagi kabi; on va by ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "forbearance"
+      ],
+      "text": "She ___ great forbearance toward her difficult neighbors.",
+      "options": [
+        "showed",
+        "made",
+        "did"
+      ],
+      "correct": [
+        "showed"
+      ],
+      "translation": {
+        "ru": "Она проявляла большое терпение к своим трудным соседям.",
+        "uz": "U injiq qo'shnilariga nisbatan katta sabr-toqat ko'rsatardi."
+      },
+      "explanation": {
+        "ru": "show forbearance — проявлять сдержанность, долготерпение. Made и did с forbearance не сочетаются.",
+        "uz": "show forbearance — sabr-toqat, vazminlik ko'rsatmoq. Made va did fe'llari forbearance so'zi bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "relent"
+      ],
+      "prompt": {
+        "ru": "Совет уступил лишь после нескольких недель протестов.",
+        "uz": "Kengash faqat bir necha haftalik noroziliklardan keyingina yon berdi."
+      },
+      "fragments": [
+        "only after",
+        "weeks of protests",
+        "did",
+        "the council",
+        "relent"
+      ],
+      "accepted": [
+        [
+          "only after",
+          "weeks of protests",
+          "did",
+          "the council",
+          "relent"
+        ]
+      ],
+      "display": "Only after weeks of protests did the council relent.",
+      "explanation": {
+        "ru": "Only after … в начале требует инверсии: did the council relent. Relent — смягчиться, уступить после долгого сопротивления.",
+        "uz": "Gap boshidagi only after … inversiyani talab qiladi: did the council relent. Relent — uzoq qarshilikdan keyin yumshamoq, yon bermoq."
+      }
+    },
+    {
+      "key": "c2-m16-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "contrite",
+        "mollify"
+      ],
+      "prompt": {
+        "ru": "Его покаянное письмо почти не успокоило её.",
+        "uz": "Uning pushaymonlik bilan yozgan maktubi uni deyarli hovuridan tushirmadi."
+      },
+      "fragments": [
+        "his",
+        "contrite",
+        "letter",
+        "did little",
+        "to mollify",
+        "her"
+      ],
+      "accepted": [
+        [
+          "his",
+          "contrite",
+          "letter",
+          "did little",
+          "to mollify",
+          "her"
+        ]
+      ],
+      "display": "His contrite letter did little to mollify her.",
+      "explanation": {
+        "ru": "do little to do something — мало помочь, почти не: did little to mollify her — почти её не успокоило. Contrite — прилагательное, стоит перед letter.",
+        "uz": "do little to do something — deyarli yordam bermaslik: did little to mollify her — uni deyarli hovuridan tushirmadi. Contrite — sifat, letter so'zidan oldin turadi."
+      }
+    },
+    {
+      "key": "c2-m16-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "forgo"
+      ],
+      "prompt": {
+        "ru": "Мало кто отказался бы от такой возможности.",
+        "uz": "Bunday imkoniyatning bahridan kam odam o'tardi."
+      },
+      "fragments": [
+        "few",
+        "people",
+        "would",
+        "forgo",
+        "such an",
+        "opportunity"
+      ],
+      "accepted": [
+        [
+          "few",
+          "people",
+          "would",
+          "forgo",
+          "such an",
+          "opportunity"
+        ]
+      ],
+      "display": "Few people would forgo such an opportunity.",
+      "explanation": {
+        "ru": "forgo something — отказаться от чего-то, обойтись без чего-то; дополнение идёт без предлога, в отличие от русского «от». Few people — «мало кто».",
+        "uz": "forgo something — biror narsadan voz kechmoq; to'ldiruvchi predlogsiz keladi. Few people — «kam odam»."
+      }
+    },
+    {
+      "key": "c2-m16-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "assuage"
+      ],
+      "text": "Her kind words assuaged my anxiety",
+      "accepted": [
+        "Her kind words assuaged my anxiety"
+      ],
+      "translation": {
+        "ru": "Её добрые слова уняли мою тревогу",
+        "uz": "Uning mehribon so'zlari xavotirimni yengillatdi"
+      },
+      "explanation": {
+        "ru": "assuage: двойная s и окончание -uage: a-s-s-u-a-g-e.",
+        "uz": "assuage: ikkita s va -uage oxiri: a-s-s-u-a-g-e."
+      }
+    },
+    {
+      "key": "c2-m16-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "lenient"
+      ],
+      "text": "The new teacher is far too lenient",
+      "accepted": [
+        "The new teacher is far too lenient"
+      ],
+      "translation": {
+        "ru": "Новый учитель чересчур снисходителен",
+        "uz": "Yangi o'qituvchi haddan tashqari kechirimli"
+      },
+      "explanation": {
+        "ru": "lenient: после n — ie, окончание -ient: l-e-n-i-e-n-t.",
+        "uz": "lenient: n dan keyin ie, oxiri -ient: l-e-n-i-e-n-t."
+      }
+    },
+    {
+      "key": "c2-m16-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "renounce"
+      ],
+      "text": "He renounced his right to the inheritance",
+      "accepted": [
+        "He renounced his right to the inheritance"
+      ],
+      "translation": {
+        "ru": "Он отказался от своего права на наследство",
+        "uz": "U merosga bo'lgan huquqidan voz kechdi"
+      },
+      "explanation": {
+        "ru": "renounce: окончание -ounce, как в announce: r-e-n-o-u-n-c-e.",
+        "uz": "renounce: oxiri -ounce, announce so'zidagi kabi: r-e-n-o-u-n-c-e."
+      }
+    },
+    {
+      "key": "c2-m16-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "triumph"
+      ],
+      "text": "She raised her arms ___ triumph as she crossed the line.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Пересекая финишную черту, она торжествующе вскинула руки.",
+        "uz": "Marra chizig'ini kesib o'tar ekan, u zafar bilan qo'llarini ko'tardi."
+      },
+      "explanation": {
+        "ru": "in triumph — торжествуя, с торжеством: raise one's arms in triumph, return home in triumph. В этом выражении только in; on и at невозможны.",
+        "uz": "in triumph — zafar bilan, tantana qilib: raise one's arms in triumph, return home in triumph. Bu iborada faqat in keladi; on va at ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "undoing"
+      ],
+      "text": "In the end, his stubbornness would ___ to be his undoing.",
+      "options": [
+        "prove",
+        "show",
+        "turn"
+      ],
+      "correct": [
+        "prove"
+      ],
+      "translation": {
+        "ru": "В конце концов именно упрямству суждено было его погубить.",
+        "uz": "Oxir-oqibat uning o'jarligi halokatiga sabab bo'lib chiqadigan edi."
+      },
+      "explanation": {
+        "ru": "prove (to be) somebody's undoing — оказаться чьей-то погибелью, причиной краха. Show to be здесь невозможно, а turn требует out: turn out to be.",
+        "uz": "prove (to be) somebody's undoing — kimningdir halokatiga sabab bo'lib chiqmoq. Show to be bu yerda ishlatilmaydi, turn esa out so'zini talab qiladi: turn out to be."
+      }
+    },
+    {
+      "key": "c2-m16-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "supremacy"
+      ],
+      "text": "The two rivals are locked in a battle ___ supremacy.",
+      "options": [
+        "for",
+        "after",
+        "to"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Два соперника ведут упорную борьбу за господство.",
+        "uz": "Ikki raqib ustunlik uchun murosasiz kurash olib bormoqda."
+      },
+      "explanation": {
+        "ru": "a battle / struggle for supremacy — борьба за господство, первенство. Be locked in a battle — быть втянутым в упорную борьбу. After и to здесь невозможны.",
+        "uz": "a battle / struggle for supremacy — ustunlik uchun kurash. Be locked in a battle — murosasiz kurashga kirishib qolmoq. After va to bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m16-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "overpower"
+      ],
+      "prompt": {
+        "ru": "Одолеваемая усталостью, она уснула за своим столом.",
+        "uz": "Charchoq yengib qo'ygan u o'z stoli ustida uxlab qoldi."
+      },
+      "fragments": [
+        "overpowered by",
+        "exhaustion",
+        "she",
+        "fell asleep",
+        "at her desk"
+      ],
+      "accepted": [
+        [
+          "overpowered by",
+          "exhaustion",
+          "she",
+          "fell asleep",
+          "at her desk"
+        ],
+        [
+          "she",
+          "overpowered by",
+          "exhaustion",
+          "fell asleep",
+          "at her desk"
+        ],
+        [
+          "she",
+          "fell asleep",
+          "at her desk",
+          "overpowered by",
+          "exhaustion"
+        ]
+      ],
+      "display": "Overpowered by exhaustion, she fell asleep at her desk.",
+      "explanation": {
+        "ru": "Overpowered by exhaustion — причастный оборот: «одолеваемая усталостью». Он может стоять в начале, после she или в конце предложения.",
+        "uz": "Overpowered by exhaustion — sifatdosh oborot: «charchoq yengib qo'ygan». U gap boshida, she so'zidan keyin yoki gap oxirida kelishi mumkin."
+      }
+    },
+    {
+      "key": "c2-m16-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "ignominious",
+        "rout"
+      ],
+      "prompt": {
+        "ru": "Кампания закончилась позорным разгромом.",
+        "uz": "Kampaniya sharmandali qaqshatqich mag'lubiyat bilan yakunlandi."
+      },
+      "fragments": [
+        "the campaign",
+        "ended",
+        "in",
+        "an ignominious",
+        "rout"
+      ],
+      "accepted": [
+        [
+          "the campaign",
+          "ended",
+          "in",
+          "an ignominious",
+          "rout"
+        ]
+      ],
+      "display": "The campaign ended in an ignominious rout.",
+      "explanation": {
+        "ru": "end in a rout — закончиться разгромом. Ignominious начинается с гласного звука, поэтому an.",
+        "uz": "end in a rout — qaqshatqich mag'lubiyat bilan yakunlanmoq. Ignominious unli tovush bilan boshlanadi, shuning uchun an."
+      }
+    },
+    {
+      "key": "c2-m16-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "trounce"
+      ],
+      "prompt": {
+        "ru": "Нас разгромила команда вдвое меньше нашей.",
+        "uz": "Bizni o'zimizdan ikki baravar kichik jamoa tor-mor qildi."
+      },
+      "fragments": [
+        "we",
+        "were",
+        "trounced",
+        "by",
+        "a team",
+        "half",
+        "our size"
+      ],
+      "accepted": [
+        [
+          "we",
+          "were",
+          "trounced",
+          "by",
+          "a team",
+          "half",
+          "our size"
+        ]
+      ],
+      "display": "We were trounced by a team half our size.",
+      "explanation": {
+        "ru": "be trounced by — быть разгромленным кем-то. Half our size — «вдвое меньше нас»: half стоит перед our size.",
+        "uz": "be trounced by — kim tomonidandir tor-mor qilinmoq. Half our size — «bizdan ikki baravar kichik»: half so'zi our size oldida turadi."
+      }
+    },
+    {
+      "key": "c2-m16-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "prevail"
+      ],
+      "text": "I am sure that justice will prevail",
+      "accepted": [
+        "I am sure that justice will prevail",
+        "I'm sure that justice will prevail"
+      ],
+      "translation": {
+        "ru": "Я уверен, что справедливость восторжествует",
+        "uz": "Adolat ustun kelishiga ishonaman"
+      },
+      "explanation": {
+        "ru": "prevail: окончание -ail: p-r-e-v-a-i-l.",
+        "uz": "prevail: oxiri -ail: p-r-e-v-a-i-l."
+      }
+    },
+    {
+      "key": "c2-m16-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "debacle"
+      ],
+      "text": "The whole trip was a debacle",
+      "accepted": [
+        "The whole trip was a debacle"
+      ],
+      "translation": {
+        "ru": "Вся поездка обернулась полным провалом",
+        "uz": "Butun sayohat butunlay barbod bo'ldi"
+      },
+      "explanation": {
+        "ru": "debacle: одна b и окончание -cle: d-e-b-a-c-l-e.",
+        "uz": "debacle: bitta b va -cle oxiri: d-e-b-a-c-l-e."
+      }
+    },
+    {
+      "key": "c2-m16-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 16,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "fiasco"
+      ],
+      "text": "The party turned into a total fiasco",
+      "accepted": [
+        "The party turned into a total fiasco"
+      ],
+      "translation": {
+        "ru": "Вечеринка обернулась полным фиаско",
+        "uz": "Ziyofat butunlay chippakka chiqdi"
+      }
+    }
+  ]
+}

@@ -236,6 +236,81 @@ class PracticeItemResource extends Resource
                     ->rows(2)
                     ->maxLength((int) config('practice.content.explanation_max')),
             ]),
+
+            Section::make(__('admin.practice_items.sections.word_form'))->visible($is('word_form'))->disabled($archived)->schema([
+                Forms\Components\Textarea::make('word_form.text')
+                    ->label(__('admin.practice_items.fields.word_form_text'))
+                    ->helperText(__('admin.practice_items.fields.word_form_text_help'))
+                    ->rows(2)
+                    ->required()
+                    ->maxLength((int) config('practice.content.word_form_text_max')),
+                Forms\Components\TextInput::make('word_form.base')
+                    ->label(__('admin.practice_items.fields.base'))
+                    ->helperText(__('admin.practice_items.fields.base_help'))
+                    ->required()
+                    ->maxLength((int) config('practice.content.word_form_base_max')),
+                Forms\Components\Textarea::make('word_form.accepted')
+                    ->label(__('admin.practice_items.fields.word_form_accepted'))
+                    ->helperText(__('admin.practice_items.fields.word_form_accepted_help', ['max' => config('practice.content.word_form_accepted_max')]))
+                    ->rows(3)
+                    ->required(),
+                Forms\Components\TextInput::make('word_form.translation.ru')
+                    ->label(__('admin.practice_items.fields.translation_ru'))
+                    ->maxLength((int) config('practice.content.prompt_max')),
+                Forms\Components\TextInput::make('word_form.translation.uz')
+                    ->label(__('admin.practice_items.fields.translation_uz'))
+                    ->maxLength((int) config('practice.content.prompt_max')),
+                Forms\Components\Textarea::make('word_form.explanation.ru')
+                    ->label(__('admin.practice_items.fields.explanation_ru'))
+                    ->rows(2)
+                    ->maxLength((int) config('practice.content.explanation_max')),
+                Forms\Components\Textarea::make('word_form.explanation.uz')
+                    ->label(__('admin.practice_items.fields.explanation_uz'))
+                    ->rows(2)
+                    ->maxLength((int) config('practice.content.explanation_max')),
+            ]),
+
+            Section::make(__('admin.practice_items.sections.error_hunt'))->visible($is('error_hunt'))->disabled($archived)->schema([
+                Forms\Components\Textarea::make('error_hunt.text')
+                    ->label(__('admin.practice_items.fields.error_text'))
+                    ->helperText(__('admin.practice_items.fields.error_text_help', ['min' => config('practice.content.error_hunt_tokens.min'), 'max' => config('practice.content.error_hunt_tokens.max')]))
+                    ->rows(2)
+                    ->required()
+                    // The two asterisks of the mark are not part of the stored text.
+                    ->maxLength((int) config('practice.content.error_hunt_text_max') + 2),
+                Forms\Components\Repeater::make('error_hunt.options')
+                    ->label(__('admin.practice_items.fields.corrections'))
+                    ->helperText(__('admin.practice_items.fields.corrections_help'))
+                    ->schema([
+                        Forms\Components\TextInput::make('text')
+                            ->label(__('admin.practice_items.fields.correction_text'))
+                            ->maxLength((int) config('practice.content.fragment_max_length')),
+                        Forms\Components\Toggle::make('correct')
+                            ->label(__('admin.practice_items.fields.option_correct'))
+                            ->inline(false),
+                    ])
+                    ->columns(2)
+                    ->defaultItems((int) config('practice.content.error_hunt_options'))
+                    ->minItems((int) config('practice.content.error_hunt_options'))
+                    ->maxItems((int) config('practice.content.error_hunt_options'))
+                    ->addable(false)
+                    ->deletable(false)
+                    ->reorderable(false),
+                Forms\Components\TextInput::make('error_hunt.translation.ru')
+                    ->label(__('admin.practice_items.fields.translation_fixed_ru'))
+                    ->maxLength((int) config('practice.content.prompt_max')),
+                Forms\Components\TextInput::make('error_hunt.translation.uz')
+                    ->label(__('admin.practice_items.fields.translation_fixed_uz'))
+                    ->maxLength((int) config('practice.content.prompt_max')),
+                Forms\Components\Textarea::make('error_hunt.explanation.ru')
+                    ->label(__('admin.practice_items.fields.explanation_ru'))
+                    ->rows(2)
+                    ->maxLength((int) config('practice.content.explanation_max')),
+                Forms\Components\Textarea::make('error_hunt.explanation.uz')
+                    ->label(__('admin.practice_items.fields.explanation_uz'))
+                    ->rows(2)
+                    ->maxLength((int) config('practice.content.explanation_max')),
+            ]),
         ]);
     }
 

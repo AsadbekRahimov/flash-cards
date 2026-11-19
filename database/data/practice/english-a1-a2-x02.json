@@ -1,0 +1,1626 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-a1-a2",
+  "items": [
+    {
+      "key": "a1a2-m03-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "cheese"
+      ],
+      "text": "This small shop sells more than twenty different ___.",
+      "base": "cheese",
+      "accepted": [
+        "cheeses"
+      ],
+      "translation": {
+        "ru": "Этот маленький магазин продаёт больше двадцати разных сыров.",
+        "uz": "Bu kichkina do'konda yigirmadan ortiq turdagi pishloq sotiladi."
+      },
+      "explanation": {
+        "ru": "После twenty different нужно множественное число: речь о сортах сыра, а в этом значении cheese исчисляемое. cheese + s → cheeses.",
+        "uz": "twenty different so'zlaridan keyin ko'plik kerak: gap pishloq turlari haqida, bu ma'noda cheese sanaladigan ot. cheese + s → cheeses."
+      }
+    },
+    {
+      "key": "a1a2-m03-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "egg"
+      ],
+      "text": "Our ___ come from a small farm near the village.",
+      "base": "egg",
+      "accepted": [
+        "eggs"
+      ],
+      "translation": {
+        "ru": "Наши яйца — с маленькой фермы недалеко от деревни.",
+        "uz": "Tuxumlarimiz qishloq yaqinidagi kichik fermadan keladi."
+      },
+      "explanation": {
+        "ru": "Глагол come стоит без -s, значит, подлежащее во множественном числе: egg → eggs. С одним яйцом было бы comes.",
+        "uz": "come fe'li -s qo'shimchasisiz kelgan, demak, ega ko'plikda: egg → eggs. Bitta tuxum bo'lsa, comes bo'lardi."
+      }
+    },
+    {
+      "key": "a1a2-m03-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "salad"
+      ],
+      "text": "Both ___ on the menu come with fresh bread.",
+      "base": "salad",
+      "accepted": [
+        "salads"
+      ],
+      "translation": {
+        "ru": "Оба салата в меню подаются со свежим хлебом.",
+        "uz": "Menyudagi ikkala salat ham yangi non bilan beriladi."
+      },
+      "explanation": {
+        "ru": "Both («оба») требует множественного числа; это подтверждает и глагол come без -s: salad → salads.",
+        "uz": "Both («ikkala») so'zi ko'plikni talab qiladi; buni -s qo'shimchasisiz come fe'li ham tasdiqlaydi: salad → salads."
+      }
+    },
+    {
+      "key": "a1a2-m03-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "rice"
+      ],
+      "text": "The rice in these bowls *are* still hot.",
+      "options": [
+        "is",
+        "am",
+        "be"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Рис в этих мисках ещё горячий.",
+        "uz": "Bu kosalardagi guruch hali ham issiq."
+      },
+      "explanation": {
+        "ru": "Подлежащее — the rice, а не bowls. rice — неисчисляемое существительное, поэтому глагол в единственном числе: is.",
+        "uz": "Ega — bowls emas, the rice. rice — sanalmaydigan ot, shuning uchun fe'l birlikda: is."
+      }
+    },
+    {
+      "key": "a1a2-m03-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "butter"
+      ],
+      "text": "I bought some butter and put *them* in the fridge.",
+      "options": [
+        "it",
+        "its",
+        "they"
+      ],
+      "correct": [
+        "it"
+      ],
+      "translation": {
+        "ru": "Я купил сливочное масло и положил его в холодильник.",
+        "uz": "Sariyog' sotib olib, uni muzlatkichga qo'ydim."
+      },
+      "explanation": {
+        "ru": "butter — неисчисляемое существительное, даже после some. О нём говорят it, а не them.",
+        "uz": "butter — sanalmaydigan ot, some so'zidan keyin ham. U haqida them emas, it deyiladi."
+      }
+    },
+    {
+      "key": "a1a2-m03-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "soup"
+      ],
+      "text": "*These* soup is my grandmother's favorite.",
+      "options": [
+        "This",
+        "Those",
+        "There"
+      ],
+      "correct": [
+        "This"
+      ],
+      "translation": {
+        "ru": "Этот суп — любимый у моей бабушки.",
+        "uz": "Bu sho'rvani buvim hammasidan ko'proq yaxshi ko'radi."
+      },
+      "explanation": {
+        "ru": "soup здесь в единственном числе (is), а these и those — для множественного. Нужно this: this soup.",
+        "uz": "soup bu yerda birlikda (is), these va those esa ko'plik uchun. this kerak: this soup."
+      }
+    },
+    {
+      "key": "a1a2-m03-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "potato"
+      ],
+      "text": "These ___ are from my grandmother's garden.",
+      "base": "potato",
+      "accepted": [
+        "potatoes"
+      ],
+      "translation": {
+        "ru": "Эта картошка — с огорода моей бабушки.",
+        "uz": "Bu kartoshka buvimning tomorqasidan."
+      },
+      "explanation": {
+        "ru": "These и are требуют множественного числа. Многие слова на -o получают -es: potato → potatoes. По-русски «картошка» — единственное число, по-английски — нет.",
+        "uz": "These va are ko'plikni talab qiladi. -o bilan tugaydigan ko'p so'zlar -es oladi: potato → potatoes."
+      }
+    },
+    {
+      "key": "a1a2-m03-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "lemon"
+      ],
+      "text": "On hot days we drink cold ___ with ice.",
+      "base": "lemon",
+      "accepted": [
+        "lemonade"
+      ],
+      "translation": {
+        "ru": "В жаркие дни мы пьём холодный лимонад со льдом.",
+        "uz": "Issiq kunlarda muzli sovuq limonad ichamiz."
+      },
+      "explanation": {
+        "ru": "Пьют не сам лимон, а напиток из него: lemon + -ade → lemonade (одна m).",
+        "uz": "Limonning o'zi emas, undan qilingan ichimlik ichiladi: lemon + -ade → lemonade (bitta m)."
+      }
+    },
+    {
+      "key": "a1a2-m03-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "onion"
+      ],
+      "text": "Cut the ___ and fry them in butter.",
+      "base": "onion",
+      "accepted": [
+        "onions"
+      ],
+      "translation": {
+        "ru": "Порежьте лук и обжарьте его на сливочном масле.",
+        "uz": "Piyozni to'g'rab, sariyog'da qovuring."
+      },
+      "explanation": {
+        "ru": "Местоимение them показывает, что луковиц несколько: onion → onions. По-русски «лук» без множественного числа, а onion — исчисляемое.",
+        "uz": "them olmoshi piyoz bir nechta ekanini ko'rsatadi: onion → onions. Inglizchada onion sanaladigan ot."
+      }
+    },
+    {
+      "key": "a1a2-m03-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "grape"
+      ],
+      "text": "We bought some grapes, but the children ate *it* all.",
+      "options": [
+        "them",
+        "they",
+        "their"
+      ],
+      "correct": [
+        "them"
+      ],
+      "translation": {
+        "ru": "Мы купили виноград, но дети весь его съели.",
+        "uz": "Uzum sotib oldik, lekin bolalar hammasini yeb qo'yishdi."
+      },
+      "explanation": {
+        "ru": "grapes — множественное число (отдельные ягоды), поэтому them. По-русски «виноград» — единственное число, отсюда ошибка it.",
+        "uz": "grapes — ko'plik (alohida donalar), shuning uchun them. O'zbekchada «uzum» birlikda bo'lgani uchun it deb xato qilinadi."
+      }
+    },
+    {
+      "key": "a1a2-m03-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "vegetable"
+      ],
+      "text": "My son hates *vegetable*, so I hide them in soup.",
+      "options": [
+        "vegetables",
+        "vegetable's",
+        "the vegetable"
+      ],
+      "correct": [
+        "vegetables"
+      ],
+      "translation": {
+        "ru": "Мой сын терпеть не может овощи, поэтому я прячу их в суп.",
+        "uz": "O'g'lim sabzavotlarni yomon ko'radi, shuning uchun ularni sho'rvaga yashirincha qo'shaman."
+      },
+      "explanation": {
+        "ru": "Когда говорят об овощах вообще, исчисляемое существительное ставят во множественном числе: vegetables. На это указывает и them. Апостроф здесь не нужен.",
+        "uz": "Umuman sabzavot haqida gapirilganda, sanaladigan ot ko'plikda keladi: vegetables. Buni them olmoshi ham ko'rsatadi. Apostrof bu yerda kerak emas."
+      }
+    },
+    {
+      "key": "a1a2-m03-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "orange"
+      ],
+      "text": "There is *a* orange in my bag for you.",
+      "options": [
+        "an",
+        "any",
+        "many"
+      ],
+      "correct": [
+        "an"
+      ],
+      "translation": {
+        "ru": "В моей сумке есть апельсин для вас.",
+        "uz": "Sumkamda siz uchun apelsin bor."
+      },
+      "explanation": {
+        "ru": "orange начинается с гласного звука, поэтому an: an orange. a ставится только перед согласным звуком.",
+        "uz": "orange so'zi unli tovush bilan boshlanadi, shuning uchun an: an orange. a faqat undosh tovush oldidan qo'yiladi."
+      }
+    },
+    {
+      "key": "a1a2-m03-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "drink"
+      ],
+      "text": "At the party yesterday, the guests ___ all the juice.",
+      "base": "drink",
+      "accepted": [
+        "drank"
+      ],
+      "translation": {
+        "ru": "Вчера на вечеринке гости выпили весь сок.",
+        "uz": "Kecha ziyofatda mehmonlar hamma sharbatni ichib qo'yishdi."
+      },
+      "explanation": {
+        "ru": "Yesterday — прошлое время. drink — неправильный глагол: drink → drank (не drinked; drunk — третья форма).",
+        "uz": "Yesterday — o'tgan zamon. drink — noto'g'ri fe'l: drink → drank (drinked emas; drunk — uchinchi shakl)."
+      }
+    },
+    {
+      "key": "a1a2-m03-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "glass"
+      ],
+      "text": "Please put six clean ___ on the table for our guests.",
+      "base": "glass",
+      "accepted": [
+        "glasses"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, поставьте на стол шесть чистых стаканов для гостей.",
+        "uz": "Iltimos, mehmonlar uchun stolga oltita toza stakan qo'ying."
+      },
+      "explanation": {
+        "ru": "После six нужно множественное число. Слова на -s, -ss, -sh, -ch, -x получают -es: glass → glasses.",
+        "uz": "six so'zidan keyin ko'plik kerak. -s, -ss, -sh, -ch, -x bilan tugaydigan so'zlarga -es qo'shiladi: glass → glasses."
+      }
+    },
+    {
+      "key": "a1a2-m03-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "salt"
+      ],
+      "text": "The soup is too ___: please add some water.",
+      "base": "salt",
+      "accepted": [
+        "salty"
+      ],
+      "translation": {
+        "ru": "Суп слишком солёный: добавьте, пожалуйста, немного воды.",
+        "uz": "Sho'rva haddan tashqari sho'r: iltimos, ozroq suv qo'shing."
+      },
+      "explanation": {
+        "ru": "После too нужно прилагательное: salt («соль») + -y → salty («солёный»).",
+        "uz": "too so'zidan keyin sifat kerak: salt («tuz») + -y → salty («sho'r»)."
+      }
+    },
+    {
+      "key": "a1a2-m03-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "water"
+      ],
+      "text": "There *are* no water in this bottle.",
+      "options": [
+        "is",
+        "be",
+        "am"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "В этой бутылке нет воды.",
+        "uz": "Bu butilkada suv yo'q."
+      },
+      "explanation": {
+        "ru": "water — неисчисляемое существительное, поэтому there is, и с no тоже: there is no water.",
+        "uz": "water — sanalmaydigan ot, shuning uchun there is, no bilan ham: there is no water."
+      }
+    },
+    {
+      "key": "a1a2-m03-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "cup"
+      ],
+      "text": "*This* cups are clean, but those are dirty.",
+      "options": [
+        "These",
+        "That",
+        "There"
+      ],
+      "correct": [
+        "These"
+      ],
+      "translation": {
+        "ru": "Эти чашки чистые, а те грязные.",
+        "uz": "Bu piyolalar toza, anavilari esa iflos."
+      },
+      "explanation": {
+        "ru": "cups — множественное число (и глагол are), поэтому these, а не this. this — только с одним предметом.",
+        "uz": "cups — ko'plik (fe'l ham are), shuning uchun this emas, these. this faqat bitta narsa bilan ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m03-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "milk"
+      ],
+      "text": "This milk *don't* smell good, so do not drink it.",
+      "options": [
+        "doesn't",
+        "isn't",
+        "aren't"
+      ],
+      "correct": [
+        "doesn't"
+      ],
+      "translation": {
+        "ru": "Это молоко плохо пахнет, так что не пейте его.",
+        "uz": "Bu sutdan yoqimsiz hid kelyapti, shuning uchun uni ichmang."
+      },
+      "explanation": {
+        "ru": "milk — неисчисляемое существительное, о нём говорят it, поэтому doesn't: this milk doesn't smell good.",
+        "uz": "milk — sanalmaydigan ot, u haqida it deyiladi, shuning uchun doesn't: this milk doesn't smell good."
+      }
+    },
+    {
+      "key": "a1a2-m03-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "knife"
+      ],
+      "text": "The ___ in this kitchen are very sharp.",
+      "base": "knife",
+      "accepted": [
+        "knives"
+      ],
+      "translation": {
+        "ru": "Ножи на этой кухне очень острые.",
+        "uz": "Bu oshxonadagi pichoqlar juda o'tkir."
+      },
+      "explanation": {
+        "ru": "Глагол are требует множественного числа. У knife особое множественное: -fe меняется на -ves → knives.",
+        "uz": "are fe'li ko'plikni talab qiladi. knife so'zining ko'pligi o'zgacha: oxiridagi -fe o'rniga -ves keladi → knives."
+      }
+    },
+    {
+      "key": "a1a2-m03-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "lunch"
+      ],
+      "text": "School ___ are free for all young children here.",
+      "base": "lunch",
+      "accepted": [
+        "lunches"
+      ],
+      "translation": {
+        "ru": "Школьные обеды здесь бесплатные для всех маленьких детей.",
+        "uz": "Bu yerda barcha kichik bolalar uchun maktab tushliklari bepul."
+      },
+      "explanation": {
+        "ru": "Глагол are показывает множественное число. Слова на -ch получают -es: lunch → lunches.",
+        "uz": "are fe'li ko'plikni ko'rsatadi. -ch bilan tugaydigan so'zlarga -es qo'shiladi: lunch → lunches."
+      }
+    },
+    {
+      "key": "a1a2-m03-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "bottle"
+      ],
+      "text": "Please throw away all the empty ___ in the kitchen.",
+      "base": "bottle",
+      "accepted": [
+        "bottles"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, выбросьте все пустые бутылки на кухне.",
+        "uz": "Iltimos, oshxonadagi hamma bo'sh butilkalarni tashlab yuboring."
+      },
+      "explanation": {
+        "ru": "all the («все») с исчисляемым существительным требует множественного числа: bottle → bottles.",
+        "uz": "all the («hamma») sanaladigan ot bilan ko'plikni talab qiladi: bottle → bottles."
+      }
+    },
+    {
+      "key": "a1a2-m03-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "breakfast"
+      ],
+      "text": "What would you like *on* breakfast tomorrow?",
+      "options": [
+        "for",
+        "in",
+        "of"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Что бы вы хотели на завтрак завтра?",
+        "uz": "Ertaga nonushtaga nima yeyishni xohlaysiz?"
+      },
+      "explanation": {
+        "ru": "«На завтрак, на обед» — for breakfast, for lunch. Русское «на» и узбекское -ga здесь не on.",
+        "uz": "«Nonushtaga, tushlikka» — for breakfast, for lunch. O'zbekcha -ga qo'shimchasi bu yerda on emas."
+      }
+    },
+    {
+      "key": "a1a2-m03-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "fork"
+      ],
+      "text": "*That* forks on the table are dirty.",
+      "options": [
+        "Those",
+        "This",
+        "Them"
+      ],
+      "correct": [
+        "Those"
+      ],
+      "translation": {
+        "ru": "Те вилки на столе грязные.",
+        "uz": "Stol ustidagi anavi sanchqilar iflos."
+      },
+      "explanation": {
+        "ru": "forks — множественное число (и глагол are), поэтому those, а не that. that — только с одним предметом.",
+        "uz": "forks — ko'plik (fe'l ham are), shuning uchun that emas, those. that faqat bitta narsa bilan ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m03-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "menu"
+      ],
+      "text": "This menu *have* no pictures, so I cannot choose.",
+      "options": [
+        "has",
+        "is",
+        "are"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "В этом меню нет картинок, поэтому я не могу выбрать.",
+        "uz": "Bu menyuda rasmlar yo'q, shuning uchun tanlay olmayapman."
+      },
+      "explanation": {
+        "ru": "this menu — одно меню, это it, поэтому has, а не have.",
+        "uz": "this menu — bitta menyu, u it hisoblanadi, shuning uchun have emas, has."
+      }
+    },
+    {
+      "key": "a1a2-m03-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "eat"
+      ],
+      "text": "The children ___ all the bread yesterday, so I bought more today.",
+      "base": "eat",
+      "accepted": [
+        "ate"
+      ],
+      "translation": {
+        "ru": "Дети вчера съели весь хлеб, поэтому сегодня я купил ещё.",
+        "uz": "Bolalar kecha hamma nonni yeb qo'yishdi, shuning uchun bugun yana non oldim."
+      },
+      "explanation": {
+        "ru": "Yesterday — прошлое время. eat — неправильный глагол: eat → ate (не eated; eaten — третья форма).",
+        "uz": "Yesterday — o'tgan zamon. eat — noto'g'ri fe'l: eat → ate (eated emas; eaten — uchinchi shakl)."
+      }
+    },
+    {
+      "key": "a1a2-m03-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "hungry"
+      ],
+      "text": "After school my son is always ___ than his sister.",
+      "base": "hungry",
+      "accepted": [
+        "hungrier"
+      ],
+      "translation": {
+        "ru": "После школы мой сын всегда голоднее, чем его сестра.",
+        "uz": "Maktabdan keyin o'g'lim doim opasidan ko'ra ochroq bo'ladi."
+      },
+      "explanation": {
+        "ru": "than требует сравнительной степени. y после согласной меняется на i, и добавляется -er: hungry → hungrier.",
+        "uz": "than so'zi qiyosiy darajani talab qiladi. Undoshdan keyingi y harfi i ga aylanadi va -er qo'shiladi: hungry → hungrier."
+      }
+    },
+    {
+      "key": "a1a2-m03-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "spicy"
+      ],
+      "text": "Of the three soups, this one is the ___.",
+      "base": "spicy",
+      "accepted": [
+        "spiciest"
+      ],
+      "translation": {
+        "ru": "Из трёх супов этот самый острый.",
+        "uz": "Uchta sho'rvaning ichida eng achchig'i shu."
+      },
+      "explanation": {
+        "ru": "the и выбор из трёх — превосходная степень (из двух было бы spicier). y → i + -est: spicy → spiciest.",
+        "uz": "the va uchtasi ichidan tanlash — orttirma daraja (ikkitadan bo'lsa, spicier). y → i + -est: spicy → spiciest."
+      }
+    },
+    {
+      "key": "a1a2-m03-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "thirsty"
+      ],
+      "text": "After the long walk we were very *thirst*.",
+      "options": [
+        "thirsty",
+        "thirsting",
+        "thirsts"
+      ],
+      "correct": [
+        "thirsty"
+      ],
+      "translation": {
+        "ru": "После долгой прогулки нам очень хотелось пить.",
+        "uz": "Uzoq sayrdan keyin juda chanqadik."
+      },
+      "explanation": {
+        "ru": "После were very нужно прилагательное: thirsty («испытывающий жажду»). thirst — существительное «жажда».",
+        "uz": "were very so'zlaridan keyin sifat kerak: thirsty («chanqagan»). thirst — «chanqoq» ma'nosidagi ot."
+      }
+    },
+    {
+      "key": "a1a2-m03-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "restaurant"
+      ],
+      "text": "There *is* two good restaurants on our street.",
+      "options": [
+        "are",
+        "am",
+        "be"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "На нашей улице есть два хороших ресторана.",
+        "uz": "Ko'chamizda ikkita yaxshi restoran bor."
+      },
+      "explanation": {
+        "ru": "После there глагол be согласуется с существительным после него: two restaurants — множественное число, поэтому there are.",
+        "uz": "there so'zidan keyin be fe'li undan keyingi ot bilan moslashadi: two restaurants — ko'plik, shuning uchun there are."
+      }
+    },
+    {
+      "key": "a1a2-m03-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "order"
+      ],
+      "text": "My husband always *order* fish, but he never finishes it.",
+      "options": [
+        "orders",
+        "ordering",
+        "to order"
+      ],
+      "correct": [
+        "orders"
+      ],
+      "translation": {
+        "ru": "Мой муж всегда заказывает рыбу, но никогда её не доедает.",
+        "uz": "Erim doim baliq buyurtma qiladi, lekin uni hech qachon oxirigacha yemaydi."
+      },
+      "explanation": {
+        "ru": "My husband — это he, время настоящее (always, finishes), поэтому глагол с -s: orders.",
+        "uz": "My husband — bu he, zamon hozirgi (always, finishes), shuning uchun fe'l -s bilan: orders."
+      }
+    },
+    {
+      "key": "a1a2-m04-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "day"
+      ],
+      "text": "My father reads a ___ newspaper, not a weekly one.",
+      "base": "day",
+      "accepted": [
+        "daily"
+      ],
+      "translation": {
+        "ru": "Мой папа читает ежедневную газету, а не еженедельную.",
+        "uz": "Dadam haftalik emas, kundalik gazeta o'qiydi."
+      },
+      "explanation": {
+        "ru": "Перед newspaper нужно прилагательное «ежедневный», пара к weekly: day → daily. y меняется на i: не dayly.",
+        "uz": "newspaper so'zidan oldin weekly so'ziga juft «kundalik» sifati kerak: day → daily. y harfi i ga aylanadi: dayly emas."
+      }
+    },
+    {
+      "key": "a1a2-m04-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "week"
+      ],
+      "text": "My grandparents visited us a few ___ ago.",
+      "base": "week",
+      "accepted": [
+        "weeks"
+      ],
+      "translation": {
+        "ru": "Бабушка с дедушкой приезжали к нам несколько недель назад.",
+        "uz": "Bobom bilan buvim bir necha hafta oldin bizni ko'rgani kelishdi."
+      },
+      "explanation": {
+        "ru": "a few («несколько») ставится только со множественным числом: a few weeks.",
+        "uz": "a few («bir necha») faqat ko'plik bilan keladi: a few weeks. O'zbekchada esa «bir necha hafta» birlikda aytiladi."
+      }
+    },
+    {
+      "key": "a1a2-m04-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "weekend"
+      ],
+      "text": "Most ___ my father works in our small garden.",
+      "base": "weekend",
+      "accepted": [
+        "weekends"
+      ],
+      "translation": {
+        "ru": "Обычно по выходным мой папа работает в нашем маленьком саду.",
+        "uz": "Ko'pincha dam olish kunlari dadam kichik bog'imizda ishlaydi."
+      },
+      "explanation": {
+        "ru": "Most («большинство») перед исчисляемым существительным требует множественного числа: most weekends.",
+        "uz": "Most («ko'pchilik») sanaladigan ot oldida ko'plikni talab qiladi: most weekends."
+      }
+    },
+    {
+      "key": "a1a2-m04-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "friday"
+      ],
+      "text": "My sister arrives *in* Friday evening.",
+      "options": [
+        "on",
+        "at",
+        "of"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Моя сестра приезжает в пятницу вечером.",
+        "uz": "Opam juma kuni kechqurun keladi."
+      },
+      "explanation": {
+        "ru": "С днями недели — on, и с частью конкретного дня тоже: on Friday evening (но in the evening). Русское «в» здесь не in.",
+        "uz": "Hafta kunlari bilan on ishlatiladi, aniq kunning qismi bilan ham: on Friday evening (lekin in the evening)."
+      }
+    },
+    {
+      "key": "a1a2-m04-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "monday"
+      ],
+      "text": "We missed *Mondays* lesson because of the snow.",
+      "options": [
+        "Monday's",
+        "Mondays'",
+        "Monday"
+      ],
+      "correct": [
+        "Monday's"
+      ],
+      "translation": {
+        "ru": "Мы пропустили понедельничный урок из-за снега.",
+        "uz": "Qor sababli dushanbadagi darsni o'tkazib yubordik."
+      },
+      "explanation": {
+        "ru": "«Урок понедельника» — притяжательная форма с апострофом: Monday's lesson. Mondays без апострофа — просто «понедельники».",
+        "uz": "«Dushanba darsi» — apostrofli egalik shakli: Monday's lesson. Apostrofsiz Mondays — shunchaki «dushanbalar»."
+      }
+    },
+    {
+      "key": "a1a2-m04-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "thursday"
+      ],
+      "text": "*These* Thursday our class has an English test.",
+      "options": [
+        "This",
+        "Those",
+        "There"
+      ],
+      "correct": [
+        "This"
+      ],
+      "translation": {
+        "ru": "В этот четверг у нашего класса тест по английскому.",
+        "uz": "Shu payshanba sinfimizda ingliz tilidan test bo'ladi."
+      },
+      "explanation": {
+        "ru": "Речь об одном четверге, поэтому this Thursday («в этот четверг»). these и those — только перед множественным числом.",
+        "uz": "Gap bitta payshanba haqida, shuning uchun this Thursday («shu payshanba»). these va those faqat ko'plik oldidan keladi."
+      }
+    },
+    {
+      "key": "a1a2-m04-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "later"
+      ],
+      "text": "The train arrived ten minutes ___ than usual.",
+      "base": "late",
+      "accepted": [
+        "later"
+      ],
+      "translation": {
+        "ru": "Поезд пришёл на десять минут позже обычного.",
+        "uz": "Poyezd odatdagidan o'n daqiqa kechroq keldi."
+      },
+      "explanation": {
+        "ru": "than требует сравнительной степени: late + r → later («позже»).",
+        "uz": "than so'zi qiyosiy darajani talab qiladi: late + r → later («kechroq»)."
+      }
+    },
+    {
+      "key": "a1a2-m04-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "today"
+      ],
+      "text": "I did not understand ___ lesson at all.",
+      "base": "today",
+      "accepted": [
+        "today's"
+      ],
+      "translation": {
+        "ru": "Я совсем не понял сегодняшний урок.",
+        "uz": "Bugungi darsni umuman tushunmadim."
+      },
+      "explanation": {
+        "ru": "Перед существительным lesson нужна притяжательная форма с апострофом: today's lesson — «сегодняшний урок».",
+        "uz": "lesson oti oldidan apostrofli egalik shakli kerak: today's lesson — «bugungi dars»."
+      }
+    },
+    {
+      "key": "a1a2-m04-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "night"
+      ],
+      "text": "Some ___ I cannot sleep because of the noise.",
+      "base": "night",
+      "accepted": [
+        "nights"
+      ],
+      "translation": {
+        "ru": "Иногда по ночам я не могу уснуть из-за шума.",
+        "uz": "Ba'zi tunlari shovqin tufayli uxlay olmayman."
+      },
+      "explanation": {
+        "ru": "Some в значении «некоторые» требует множественного числа: some nights — «некоторые ночи».",
+        "uz": "«Ba'zi» ma'nosidagi some so'zi ko'plikni talab qiladi: some nights — «ba'zi tunlar»."
+      }
+    },
+    {
+      "key": "a1a2-m04-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "morning"
+      ],
+      "text": "My father always runs *at* the morning before work.",
+      "options": [
+        "in",
+        "to",
+        "of"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Мой папа всегда бегает утром перед работой.",
+        "uz": "Dadam doim ertalab ishdan oldin yuguradi."
+      },
+      "explanation": {
+        "ru": "Части дня — с in the: in the morning, in the afternoon, in the evening (но at night).",
+        "uz": "Kun qismlari in the bilan keladi: in the morning, in the afternoon, in the evening (lekin at night)."
+      }
+    },
+    {
+      "key": "a1a2-m04-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "yesterday"
+      ],
+      "text": "Yesterday my sister *cook* dinner for the whole family.",
+      "options": [
+        "cooked",
+        "cooks",
+        "cooking"
+      ],
+      "correct": [
+        "cooked"
+      ],
+      "translation": {
+        "ru": "Вчера моя сестра приготовила ужин для всей семьи.",
+        "uz": "Kecha opam butun oila uchun kechki ovqat tayyorladi."
+      },
+      "explanation": {
+        "ru": "Yesterday — прошлое, поэтому глагол в past simple: cook + -ed → cooked.",
+        "uz": "Yesterday — o'tgan zamon, shuning uchun fe'l past simple shaklida: cook + -ed → cooked."
+      }
+    },
+    {
+      "key": "a1a2-m04-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "now"
+      ],
+      "text": "Please be quiet: the baby *sleep* now.",
+      "options": [
+        "is sleeping",
+        "are sleeping",
+        "is sleep"
+      ],
+      "correct": [
+        "is sleeping"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, тише: малыш сейчас спит.",
+        "uz": "Iltimos, jim bo'ling: chaqaloq hozir uxlayapti."
+      },
+      "explanation": {
+        "ru": "now — действие идёт прямо сейчас: am / is / are + глагол с -ing. the baby — один, поэтому is sleeping.",
+        "uz": "now — harakat ayni paytda bo'lyapti: am / is / are + -ing qo'shimchali fe'l. the baby — birlik, shuning uchun is sleeping."
+      }
+    },
+    {
+      "key": "a1a2-m04-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "early"
+      ],
+      "text": "In winter the sun goes down ___ than in summer.",
+      "base": "early",
+      "accepted": [
+        "earlier"
+      ],
+      "translation": {
+        "ru": "Зимой солнце садится раньше, чем летом.",
+        "uz": "Qishda quyosh yozdagidan ertaroq botadi."
+      },
+      "explanation": {
+        "ru": "than требует сравнительной степени. y после согласной меняется на i: early → earlier.",
+        "uz": "than so'zi qiyosiy darajani talab qiladi. Undoshdan keyingi y harfi i ga aylanadi: early → earlier."
+      }
+    },
+    {
+      "key": "a1a2-m04-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "month"
+      ],
+      "text": "Our baby is six ___ old and already has two teeth.",
+      "base": "month",
+      "accepted": [
+        "months"
+      ],
+      "translation": {
+        "ru": "Нашему малышу шесть месяцев, и у него уже два зуба.",
+        "uz": "Chaqalog'imiz olti oylik, allaqachon ikkita tishi chiqqan."
+      },
+      "explanation": {
+        "ru": "После six — множественное число: six months old. По-узбекски «olti oylik», а по-английски нужно -s.",
+        "uz": "six so'zidan keyin ko'plik keladi: six months old. O'zbekchada «olti oylik», inglizchada esa -s kerak."
+      }
+    },
+    {
+      "key": "a1a2-m04-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "minute"
+      ],
+      "text": "How many ___ do you need to cook rice?",
+      "base": "minute",
+      "accepted": [
+        "minutes"
+      ],
+      "translation": {
+        "ru": "Сколько минут нужно, чтобы сварить рис?",
+        "uz": "Guruch pishirish uchun necha daqiqa kerak?"
+      },
+      "explanation": {
+        "ru": "How many («сколько») ставится только с исчисляемыми существительными во множественном числе: how many minutes.",
+        "uz": "How many («nechta») faqat ko'plikdagi sanaladigan otlar bilan keladi: how many minutes. O'zbekchada «necha daqiqa» birlikda."
+      }
+    },
+    {
+      "key": "a1a2-m04-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "hour"
+      ],
+      "text": "We waited for the bus for *a* hour.",
+      "options": [
+        "an",
+        "any",
+        "many"
+      ],
+      "correct": [
+        "an"
+      ],
+      "translation": {
+        "ru": "Мы ждали автобус час.",
+        "uz": "Avtobusni bir soat kutdik."
+      },
+      "explanation": {
+        "ru": "В hour буква h не читается, слово начинается с гласного звука, поэтому an: an hour.",
+        "uz": "hour so'zida h harfi o'qilmaydi, so'z unli tovush bilan boshlanadi, shuning uchun an: an hour."
+      }
+    },
+    {
+      "key": "a1a2-m04-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "sometimes"
+      ],
+      "text": "We *sometime* eat fish for dinner.",
+      "options": [
+        "sometimes",
+        "something",
+        "someday"
+      ],
+      "correct": [
+        "sometimes"
+      ],
+      "translation": {
+        "ru": "Иногда мы едим рыбу на ужин.",
+        "uz": "Ba'zan kechki ovqatga baliq yeymiz."
+      },
+      "explanation": {
+        "ru": "«Иногда» — sometimes, с -s на конце. sometime — другое слово: «когда-нибудь» (sometime next week).",
+        "uz": "«Ba'zan» — sometimes, oxirida -s bor. sometime — boshqa so'z: «qachondir» (sometime next week)."
+      }
+    },
+    {
+      "key": "a1a2-m04-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "never"
+      ],
+      "text": "My aunt never *eat* meat, but she cooks it.",
+      "options": [
+        "eats",
+        "eating",
+        "eaten"
+      ],
+      "correct": [
+        "eats"
+      ],
+      "translation": {
+        "ru": "Моя тётя никогда не ест мясо, но готовит его.",
+        "uz": "Xolam hech qachon go'sht yemaydi, lekin uni pishiradi."
+      },
+      "explanation": {
+        "ru": "never не меняет форму глагола: подлежащее my aunt (she), время настоящее (cooks), поэтому -s: never eats.",
+        "uz": "never so'zi fe'l shaklini o'zgartirmaydi: ega my aunt (she), zamon hozirgi (cooks), shuning uchun -s kerak: never eats."
+      }
+    },
+    {
+      "key": "a1a2-m04-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "eight"
+      ],
+      "text": "August is the ___ month of the year.",
+      "base": "eight",
+      "accepted": [
+        "eighth"
+      ],
+      "translation": {
+        "ru": "Август — восьмой месяц года.",
+        "uz": "Avgust — yilning sakkizinchi oyi."
+      },
+      "explanation": {
+        "ru": "the ... month — нужно порядковое числительное: eight + h → eighth (к eight добавляется только h).",
+        "uz": "the ... month — tartib son kerak: eight + h → eighth (eight so'ziga faqat h qo'shiladi)."
+      }
+    },
+    {
+      "key": "a1a2-m04-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "four"
+      ],
+      "text": "We bought four boxes of ten eggs, so we have ___ eggs.",
+      "base": "four",
+      "accepted": [
+        "forty"
+      ],
+      "translation": {
+        "ru": "Мы купили четыре коробки по десять яиц, так что у нас сорок яиц.",
+        "uz": "Biz o'ntadan tuxum solingan to'rtta quti oldik, demak, bizda qirqta tuxum bor."
+      },
+      "explanation": {
+        "ru": "Четыре раза по десять — сорок: four → forty. Внимание: в forty нет u, хотя в four и fourteen она есть.",
+        "uz": "To'rt marta o'n — qirq: four → forty. Diqqat: forty so'zida u harfi yo'q, four va fourteen so'zlarida esa bor."
+      }
+    },
+    {
+      "key": "a1a2-m04-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "six"
+      ],
+      "text": "We live on the ___ floor, between the fifth and the seventh.",
+      "base": "six",
+      "accepted": [
+        "sixth"
+      ],
+      "translation": {
+        "ru": "Мы живём на шестом этаже, между пятым и седьмым.",
+        "uz": "Biz beshinchi va yettinchi qavatlar o'rtasidagi oltinchi qavatda yashaymiz."
+      },
+      "explanation": {
+        "ru": "the ... floor — порядковое числительное, как fifth и seventh в этом же предложении: six + th → sixth.",
+        "uz": "the ... floor — tartib son kerak, shu gapdagi fifth va seventh so'zlari kabi: six + th → sixth."
+      }
+    },
+    {
+      "key": "a1a2-m04-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "two"
+      ],
+      "text": "My two *sister* both live near us.",
+      "options": [
+        "sisters",
+        "sister's",
+        "sisters'"
+      ],
+      "correct": [
+        "sisters"
+      ],
+      "translation": {
+        "ru": "Обе мои сестры живут рядом с нами.",
+        "uz": "Ikkala opam ham yaqinimizda yashaydi."
+      },
+      "explanation": {
+        "ru": "После two (и любого числа больше одного) существительное во множественном числе: two sisters. Апостроф здесь не нужен.",
+        "uz": "two so'zidan (va birdan katta har qanday sondan) keyin ot ko'plikda keladi: two sisters. O'zbekchada sondan keyin birlik ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m04-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "five"
+      ],
+      "text": "There *is* five people in my family.",
+      "options": [
+        "are",
+        "am",
+        "be"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "В моей семье пять человек.",
+        "uz": "Oilamda besh kishi bor."
+      },
+      "explanation": {
+        "ru": "five people — множественное число (people — уже множественное, одно лицо — person), поэтому there are.",
+        "uz": "five people — ko'plik (people o'zi ko'plik, birligi person), shuning uchun there are."
+      }
+    },
+    {
+      "key": "a1a2-m04-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "seven"
+      ],
+      "text": "My little daughter *has* seven years old today.",
+      "options": [
+        "is",
+        "are",
+        "am"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Моей маленькой дочке сегодня исполнилось семь лет.",
+        "uz": "Kichkina qizim bugun yetti yoshga to'ldi."
+      },
+      "explanation": {
+        "ru": "Возраст в английском выражают глаголом be: she is seven (years old). Глагол have здесь не употребляется.",
+        "uz": "Ingliz tilida yosh be fe'li bilan aytiladi: she is seven (years old). have fe'li bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m04-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "half"
+      ],
+      "text": "Cut the apple into two ___ and give one to your brother.",
+      "base": "half",
+      "accepted": [
+        "halves"
+      ],
+      "translation": {
+        "ru": "Разрежьте яблоко на две половины и дайте одну брату.",
+        "uz": "Olmani ikki pallaga bo'lib, bittasini ukangizga bering."
+      },
+      "explanation": {
+        "ru": "После two — множественное число. У half f меняется на v, и добавляется -es: half → halves.",
+        "uz": "two so'zidan keyin ko'plik kerak. half so'zida f harfi v ga aylanadi va -es qo'shiladi: half → halves."
+      }
+    },
+    {
+      "key": "a1a2-m04-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "hundred"
+      ],
+      "text": "Our grandmother is celebrating her ___ birthday today!",
+      "base": "hundred",
+      "accepted": [
+        "hundredth"
+      ],
+      "translation": {
+        "ru": "Наша бабушка сегодня празднует свой сотый день рождения!",
+        "uz": "Buvimiz bugun yuzinchi tug'ilgan kunini nishonlayapti!"
+      },
+      "explanation": {
+        "ru": "Перед birthday нужно порядковое числительное («сотый»): hundred + th → hundredth (на конце dth).",
+        "uz": "birthday so'zidan oldin tartib son kerak («yuzinchi»): hundred + th → hundredth (oxirida dth)."
+      }
+    },
+    {
+      "key": "a1a2-m04-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "twenty"
+      ],
+      "text": "My birthday is on the ___ of May.",
+      "base": "twenty",
+      "accepted": [
+        "twentieth"
+      ],
+      "translation": {
+        "ru": "Мой день рождения — двадцатого мая.",
+        "uz": "Mening tug'ilgan kunim 20-mayda."
+      },
+      "explanation": {
+        "ru": "Даты называют порядковым числительным: the twentieth of May. y меняется на ie, и добавляется -th: twenty → twentieth.",
+        "uz": "Sanalar tartib son bilan aytiladi: the twentieth of May. y harfi ie ga aylanadi va -th qo'shiladi: twenty → twentieth."
+      }
+    },
+    {
+      "key": "a1a2-m04-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "thousand"
+      ],
+      "text": "Two *thousands* people live in our village.",
+      "options": [
+        "thousand",
+        "thousands of",
+        "thousand of"
+      ],
+      "correct": [
+        "thousand"
+      ],
+      "translation": {
+        "ru": "В нашей деревне живут две тысячи человек.",
+        "uz": "Qishlog'imizda ikki ming kishi yashaydi."
+      },
+      "explanation": {
+        "ru": "После числа (two, three…) thousand пишется без -s, и сразу за ним идёт существительное без of: two thousand people. thousands of — только без числа («тысячи людей»).",
+        "uz": "Sondan (two, three…) keyin thousand so'zi -s olmaydi va undan keyin ot of predlogisiz keladi: two thousand people. thousands of — faqat sonsiz («minglab odamlar»)."
+      }
+    },
+    {
+      "key": "a1a2-m04-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "date"
+      ],
+      "text": "Today's *data* is the fifth of May.",
+      "options": [
+        "date",
+        "dates",
+        "dated"
+      ],
+      "correct": [
+        "date"
+      ],
+      "translation": {
+        "ru": "Сегодняшняя дата — пятое мая.",
+        "uz": "Bugungi sana — 5-may."
+      },
+      "explanation": {
+        "ru": "«Дата» — date. data — «данные, информация», это другое слово, хотя оно похоже на русское «дата».",
+        "uz": "«Sana» — date. data — «ma'lumotlar», bu boshqa so'z, garchi «sana» ma'nosidagi ruscha so'zga o'xshasa ham."
+      }
+    },
+    {
+      "key": "a1a2-m04-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "number"
+      ],
+      "text": "*Those* phone number is not mine.",
+      "options": [
+        "That",
+        "These",
+        "Them"
+      ],
+      "correct": [
+        "That"
+      ],
+      "translation": {
+        "ru": "Этот номер телефона не мой.",
+        "uz": "Anavi telefon raqami meniki emas."
+      },
+      "explanation": {
+        "ru": "number здесь в единственном числе (is), поэтому that, а не those. those — для множественного: those numbers.",
+        "uz": "number bu yerda birlikda (is), shuning uchun those emas, that. those ko'plik uchun: those numbers."
+      }
+    }
+  ]
+}

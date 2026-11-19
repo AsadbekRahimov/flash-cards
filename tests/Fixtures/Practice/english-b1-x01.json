@@ -1,0 +1,330 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b1",
+  "items": [
+    {
+      "key": "b1-m01-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "signature"
+      ],
+      "text": "Please put your ___ at the bottom of the form.",
+      "base": "sign",
+      "accepted": [
+        "signature"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, поставьте подпись внизу формы.",
+        "uz": "Iltimos, shaklning pastki qismiga imzo qo'ying."
+      },
+      "explanation": {
+        "ru": "После your нужно существительное: sign → signature (подпись).",
+        "uz": "your dan keyin ot kerak: sign → signature (imzo)."
+      }
+    },
+    {
+      "key": "b1-m01-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "personal"
+      ],
+      "text": "I never share ___ information online.",
+      "base": "person",
+      "accepted": [
+        "personal"
+      ],
+      "translation": {
+        "ru": "Я никогда не публикую личную информацию в интернете.",
+        "uz": "Men hech qachon shaxsiy ma'lumotni internetda baham ko'rmayman."
+      },
+      "explanation": {
+        "ru": "Перед существительным information нужно прилагательное: person → personal.",
+        "uz": "information otidan oldin sifat kerak: person → personal."
+      }
+    },
+    {
+      "key": "b1-m01-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "nationality"
+      ],
+      "text": "Please write your ___ on the visa form.",
+      "base": "nation",
+      "accepted": [
+        "nationality"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, укажите своё гражданство в визовой анкете.",
+        "uz": "Iltimos, viza anketasiga fuqaroligingizni yozing."
+      },
+      "explanation": {
+        "ru": "Гражданство человека — nationality: nation → nationality.",
+        "uz": "Insonning fuqaroligi — nationality: nation → nationality."
+      }
+    },
+    {
+      "key": "b1-m01-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "surname"
+      ],
+      "text": "My surname *are* very long.",
+      "options": [
+        "is",
+        "be",
+        "am"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Моя фамилия очень длинная.",
+        "uz": "Mening familiyam juda uzun."
+      },
+      "explanation": {
+        "ru": "Surname — одно слово в единственном числе, поэтому глагол is.",
+        "uz": "Surname — birlikdagi bitta so'z, shuning uchun fe'l is."
+      }
+    },
+    {
+      "key": "b1-m01-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "occupation"
+      ],
+      "text": "What is *you* occupation, sir?",
+      "options": [
+        "your",
+        "yours",
+        "you're"
+      ],
+      "correct": [
+        "your"
+      ],
+      "translation": {
+        "ru": "Какой у вас род занятий, сэр?",
+        "uz": "Kasbingiz nima, janob?"
+      },
+      "explanation": {
+        "ru": "Перед существительным нужно притяжательное your, а не you.",
+        "uz": "Ot oldidan you emas, egalik olmoshi your kerak."
+      }
+    },
+    {
+      "key": "b1-m01-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "background"
+      ],
+      "text": "She comes *of* a poor background.",
+      "options": [
+        "from",
+        "in",
+        "at"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Она из бедной семьи.",
+        "uz": "U kambag'al oiladan chiqqan."
+      },
+      "explanation": {
+        "ru": "Говорят come from a background — происходить из какой-то среды.",
+        "uz": "come from a background deyiladi — biror muhitdan chiqmoq."
+      }
+    },
+    {
+      "key": "b1-m01-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "childhood"
+      ],
+      "text": "I spent my ___ in a small village.",
+      "base": "child",
+      "accepted": [
+        "childhood"
+      ],
+      "translation": {
+        "ru": "Я провёл детство в маленькой деревне.",
+        "uz": "Bolaligimni kichik bir qishloqda o'tkazdim."
+      },
+      "explanation": {
+        "ru": "Детство — childhood: child + -hood.",
+        "uz": "Bolalik — childhood: child + -hood."
+      }
+    },
+    {
+      "key": "b1-m01-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "mature"
+      ],
+      "text": "She is very ___ for her age.",
+      "base": "maturity",
+      "accepted": [
+        "mature"
+      ],
+      "translation": {
+        "ru": "Она очень взрослая для своего возраста.",
+        "uz": "U yoshiga nisbatan juda yetuk."
+      },
+      "explanation": {
+        "ru": "После is very нужно прилагательное: maturity → mature.",
+        "uz": "is very dan keyin sifat kerak: maturity → mature."
+      }
+    },
+    {
+      "key": "b1-m01-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "death"
+      ],
+      "text": "His sudden ___ shocked the whole town.",
+      "base": "die",
+      "accepted": [
+        "death"
+      ],
+      "translation": {
+        "ru": "Его внезапная смерть потрясла весь город.",
+        "uz": "Uning to'satdan vafoti butun shaharni larzaga soldi."
+      },
+      "explanation": {
+        "ru": "После прилагательного sudden нужно существительное: die → death.",
+        "uz": "sudden sifatidan keyin ot kerak: die → death."
+      }
+    },
+    {
+      "key": "b1-m01-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "teenager"
+      ],
+      "text": "When I was a teenager, I *goed* to school by bus.",
+      "options": [
+        "went",
+        "go",
+        "going"
+      ],
+      "correct": [
+        "went"
+      ],
+      "translation": {
+        "ru": "Когда я был подростком, я ездил в школу на автобусе.",
+        "uz": "O'smirligimda maktabga avtobusda borardim."
+      },
+      "explanation": {
+        "ru": "Go — неправильный глагол: прошедшее время went.",
+        "uz": "Go — noto'g'ri fe'l: o'tgan zamon shakli went."
+      }
+    },
+    {
+      "key": "b1-m01-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "generation"
+      ],
+      "text": "People of my generation *doesn't* use paper maps.",
+      "options": [
+        "don't",
+        "isn't",
+        "not"
+      ],
+      "correct": [
+        "don't"
+      ],
+      "translation": {
+        "ru": "Люди моего поколения не пользуются бумажными картами.",
+        "uz": "Mening avlodimdagi odamlar qog'oz xaritalardan foydalanmaydi."
+      },
+      "explanation": {
+        "ru": "People — множественное число, поэтому don't, а не doesn't.",
+        "uz": "People — ko'plik, shuning uchun doesn't emas, don't."
+      }
+    },
+    {
+      "key": "b1-m01-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "elderly"
+      ],
+      "text": "She helped *a* elderly man cross the road.",
+      "options": [
+        "an",
+        "some",
+        "many"
+      ],
+      "correct": [
+        "an"
+      ],
+      "translation": {
+        "ru": "Она помогла пожилому мужчине перейти дорогу.",
+        "uz": "U keksa odamga yo'ldan o'tishga yordam berdi."
+      },
+      "explanation": {
+        "ru": "Перед гласным звуком артикль an: an elderly man.",
+        "uz": "Unli tovush oldidan an artikli: an elderly man."
+      }
+    }
+  ]
+}

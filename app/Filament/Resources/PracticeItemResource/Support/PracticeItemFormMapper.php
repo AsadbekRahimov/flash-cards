@@ -18,7 +18,9 @@ use App\Models\PracticeItemWord;
  * sections never clash, and writes lists the way a person types them:
  *   - the fragments of a sentence and the other accepted writings of a dictation: one per line;
  *   - the OTHER accepted orders of a sentence: one order per line, its fragments told apart by " | ";
- *   - the options of a collocation: three rows, each with its text and a switch "correct".
+ *   - the options of a collocation and the corrections of a "find the mistake": three rows, each with its text and a switch "correct";
+ *   - the right forms of a "word form": one per line, the first the canonical one.
+ * The wrong word of a "find the mistake" is marked in its text by asterisks, as in the import file (`interested *on* art`).
  * The order of the fragments is always the first accepted order of a sentence (PracticeContentValidator wants it so, and the
  * review of an answer shows the first as the right one): the field lists only the orders besides it, and left empty it means "no
  * other order" - the common case needs no second typing of the sentence.
@@ -72,6 +74,19 @@ final class PracticeItemFormMapper
                 'translation' => self::texts($author['translation'] ?? null),
                 'explanation' => self::texts($author['explanation'] ?? null),
             ],
+            PracticeItemType::WordForm => [
+                'text' => $author['text'] ?? null,
+                'base' => $author['base'] ?? null,
+                'accepted' => implode("\n", self::strings($author['accepted'] ?? [])),
+                'translation' => self::texts($author['translation'] ?? null),
+                'explanation' => self::texts($author['explanation'] ?? null),
+            ],
+            PracticeItemType::ErrorHunt => [
+                'text' => $author['text'] ?? null,
+                'options' => self::optionRows(self::strings($author['options'] ?? []), self::strings($author['correct'] ?? []), 'error_hunt_options'),
+                'translation' => self::texts($author['translation'] ?? null),
+                'explanation' => self::texts($author['explanation'] ?? null),
+            ],
         };
 
         return $state;
@@ -99,6 +114,8 @@ final class PracticeItemFormMapper
                 PracticeItemType::Sentence => self::sentence($part),
                 PracticeItemType::Collocation => self::collocation($part),
                 PracticeItemType::Dictation => self::dictation($part),
+                PracticeItemType::WordForm => self::wordForm($part),
+                PracticeItemType::ErrorHunt => self::collocation($part),
                 null => [],
             },
         ];
@@ -180,6 +197,21 @@ final class PracticeItemFormMapper
     }
 
     /**
+     * @param  array<array-key, mixed>  $part
+     * @return array<string, mixed>
+     */
+    private static function wordForm(array $part): array
+    {
+        return [
+            'text' => $part['text'] ?? null,
+            'base' => $part['base'] ?? null,
+            'accepted' => self::lines($part['accepted'] ?? null),
+            'translation' => $part['translation'] ?? [],
+            'explanation' => $part['explanation'] ?? [],
+        ];
+    }
+
+    /**
      * The accepted orders of a sentence that its field lists: all but the first, which is the order of the fragments - accepted
      * always, so nobody types it. A first order that reads otherwise (a task saved before that rule) is not hidden: every order
      * is shown, so that saving the task again loses none of them.
@@ -230,16 +262,16 @@ final class PracticeItemFormMapper
     }
 
     /**
-     * Three rows for the three options of a collocation (the form always shows three, filled or not).
+     * Three rows for the three options of a collocation or a "find the mistake" (the form always shows them all, filled or not).
      *
      * @param  list<string>  $options
      * @param  list<string>  $correct
      * @return list<array{text: string, correct: bool}>
      */
-    private static function optionRows(array $options, array $correct): array
+    private static function optionRows(array $options, array $correct, string $countKey = 'collocation_options'): array
     {
         $rows = array_map(static fn (string $text): array => ['text' => $text, 'correct' => in_array($text, $correct, true)], $options);
-        while (count($rows) < (int) config('practice.content.collocation_options')) {
+        while (count($rows) < (int) config('practice.content.'.$countKey)) {
             $rows[] = ['text' => '', 'correct' => false];
         }
 

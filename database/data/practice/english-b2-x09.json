@@ -1,0 +1,1626 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b2",
+  "items": [
+    {
+      "key": "b2-m17-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "emphasize"
+      ],
+      "text": "Our new principal places great ___ on reading and writing.",
+      "base": "emphasize",
+      "accepted": [
+        "emphasis"
+      ],
+      "translation": {
+        "ru": "Наш новый директор делает большой акцент на чтении и письме.",
+        "uz": "Yangi direktorimiz o'qish va yozishga katta urg'u beradi."
+      },
+      "explanation": {
+        "ru": "После great нужно существительное: emphasize → emphasis (-ize отпадает, добавляется -is). place emphasis on — делать акцент на чём-либо.",
+        "uz": "great so'zidan keyin ot kerak: emphasize → emphasis (-ize tushib qoladi, -is qo'shiladi). place emphasis on — biror narsaga urg'u bermoq."
+      }
+    },
+    {
+      "key": "b2-m17-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "insist"
+      ],
+      "text": "We left the party early at my grandmother's ___.",
+      "base": "insist",
+      "accepted": [
+        "insistence"
+      ],
+      "translation": {
+        "ru": "Мы рано ушли с праздника по настоянию моей бабушки.",
+        "uz": "Buvim turib olgani uchun ziyofatdan erta ketdik."
+      },
+      "explanation": {
+        "ru": "После my grandmother's нужно существительное; at someone's insistence — по чьему-либо настоянию. insist → insistence: суффикс -ence, не -ance.",
+        "uz": "my grandmother's so'zidan keyin ot kerak; at someone's insistence — kimningdir talabi bilan. insist → insistence: -ance emas, -ence qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m17-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "assert"
+      ],
+      "text": "You will have to be more ___ if you want your ideas heard.",
+      "base": "assert",
+      "accepted": [
+        "assertive"
+      ],
+      "translation": {
+        "ru": "Вам придётся вести себя увереннее и напористее, если вы хотите, чтобы ваши идеи услышали.",
+        "uz": "G'oyalaringizni eshitishlarini istasangiz, o'zingizni dadilroq tutishingizga to'g'ri keladi."
+      },
+      "explanation": {
+        "ru": "После be more нужно прилагательное: assert (уверенно заявлять) → assertive (уверенный, напористый); суффикс -ive.",
+        "uz": "be more so'zlaridan keyin sifat kerak: assert (ishonch bilan aytmoq) → assertive (dadil, o'ziga ishongan); -ive qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m17-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "claim"
+      ],
+      "text": "He claims *being* a doctor but faints at the sight of blood.",
+      "options": [
+        "to be",
+        "of being",
+        "for being"
+      ],
+      "correct": [
+        "to be"
+      ],
+      "translation": {
+        "ru": "Он утверждает, что он врач, но падает в обморок при виде крови.",
+        "uz": "U o'zini shifokor deb da'vo qiladi, lekin qon ko'rsa hushidan ketadi."
+      },
+      "explanation": {
+        "ru": "claim в значении «утверждать о себе» требует инфинитива: claim to be a doctor — утверждать, что он врач. Форма на -ing здесь невозможна.",
+        "uz": "O'zi haqida «da'vo qilmoq» ma'nosidagi claim fe'lidan keyin infinitiv keladi: claim to be — o'zini kimdir deb da'vo qilmoq. Bu yerda -ing shakli ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m17-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "firmly"
+      ],
+      "text": "The director has *firm* refused to discuss the matter again.",
+      "options": [
+        "firmly",
+        "firmer",
+        "firmest"
+      ],
+      "correct": [
+        "firmly"
+      ],
+      "translation": {
+        "ru": "Директор твёрдо отказался снова обсуждать этот вопрос.",
+        "uz": "Direktor bu masalani qayta muhokama qilishdan qat'iy bosh tortdi."
+      },
+      "explanation": {
+        "ru": "Глагол refused нужно пояснить наречием, а не прилагательным: firm (твёрдый) → firmly (твёрдо).",
+        "uz": "refused fe'lini sifat emas, ravish izohlaydi: firm (qat'iy, sifat) → firmly (qat'iy ravishda)."
+      }
+    },
+    {
+      "key": "b2-m17-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "acknowledge"
+      ],
+      "text": "Such a serious mistake must *acknowledge* in the official report.",
+      "options": [
+        "be acknowledged",
+        "be acknowledging",
+        "have acknowledged"
+      ],
+      "correct": [
+        "be acknowledged"
+      ],
+      "translation": {
+        "ru": "Такая серьёзная ошибка должна быть признана в официальном отчёте.",
+        "uz": "Bunday jiddiy xato rasmiy hisobotda tan olinishi shart."
+      },
+      "explanation": {
+        "ru": "Ошибка сама ничего не признаёт — её признают люди, поэтому нужен пассив: после must → be + третья форма: be acknowledged.",
+        "uz": "Xato o'zi hech narsani tan olmaydi, uni odamlar tan oladi, shuning uchun majhul nisbat kerak: must so'zidan keyin be + uchinchi shakl: be acknowledged."
+      }
+    },
+    {
+      "key": "b2-m17-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "contradict"
+      ],
+      "text": "The two reports are completely ___: one praises the plan, the other attacks it.",
+      "base": "contradict",
+      "accepted": [
+        "contradictory"
+      ],
+      "translation": {
+        "ru": "Эти два отчёта полностью противоречат друг другу: один хвалит план, а другой его критикует.",
+        "uz": "Bu ikki hisobot bir-biriga butunlay zid: biri rejani maqtaydi, ikkinchisi esa uni tanqid qiladi."
+      },
+      "explanation": {
+        "ru": "После are completely нужно прилагательное: contradict → contradictory (противоречивый, противоречащий друг другу); суффикс -ory, не -ary.",
+        "uz": "are completely so'zlaridan keyin sifat kerak: contradict → contradictory (bir-biriga zid, qarama-qarshi); -ary emas, -ory qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m17-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "concede"
+      ],
+      "text": "Both sides had to make major ___ to reach an agreement.",
+      "base": "concede",
+      "accepted": [
+        "concessions"
+      ],
+      "translation": {
+        "ru": "Обеим сторонам пришлось пойти на серьёзные уступки, чтобы прийти к соглашению.",
+        "uz": "Kelishuvga erishish uchun har ikki tomon jiddiy yon berishga majbur bo'ldi."
+      },
+      "explanation": {
+        "ru": "make concessions — идти на уступки; артикля нет, значит, нужно множественное число. concede → concession: -cede → -cession.",
+        "uz": "make concessions — yon bermoq; artikl yo'q, demak, ko'plik kerak. concede → concession: -cede o'rniga -cession."
+      }
+    },
+    {
+      "key": "b2-m17-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "reject"
+      ],
+      "text": "Getting a polite ___ from her dream university hurt her deeply.",
+      "base": "reject",
+      "accepted": [
+        "rejection"
+      ],
+      "translation": {
+        "ru": "Вежливый отказ университета её мечты сильно её ранил.",
+        "uz": "Orzusidagi universitetdan muloyim rad javobini olish uni qattiq ranjitdi."
+      },
+      "explanation": {
+        "ru": "После a polite нужно существительное в ед. ч.: reject → rejection (отказ); суффикс -ion.",
+        "uz": "a polite so'zlaridan keyin birlikdagi ot kerak: reject → rejection (rad javobi); -ion qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m17-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "objection"
+      ],
+      "text": "Would you have any objection to *open* the window for a minute?",
+      "options": [
+        "opening",
+        "opened",
+        "opens"
+      ],
+      "correct": [
+        "opening"
+      ],
+      "translation": {
+        "ru": "Вы не возражаете, если я открою окно на минутку?",
+        "uz": "Derazani bir daqiqaga ochsam, e'tirozingiz yo'qmi?"
+      },
+      "explanation": {
+        "ru": "В objection to слово to — предлог, а не часть инфинитива, поэтому после него нужна форма на -ing: objection to opening.",
+        "uz": "objection to birikmasidagi to — infinitiv qismi emas, predlog, shuning uchun undan keyin -ing shakli keladi: objection to opening."
+      }
+    },
+    {
+      "key": "b2-m17-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "oppose"
+      ],
+      "text": "Most local residents are strongly *opposite* to the new airport.",
+      "options": [
+        "opposed",
+        "opposing",
+        "opponent"
+      ],
+      "correct": [
+        "opposed"
+      ],
+      "translation": {
+        "ru": "Большинство местных жителей решительно выступают против нового аэропорта.",
+        "uz": "Mahalliy aholining aksariyati yangi aeroportga qat'iy qarshi."
+      },
+      "explanation": {
+        "ru": "be opposed to — быть против чего-либо. opposite значит «противоположный, напротив» и не выражает чьё-то мнение.",
+        "uz": "be opposed to — biror narsaga qarshi bo'lmoq. opposite esa «qarama-qarshi, ro'paradagi» degani, kimningdir fikrini bildirmaydi."
+      }
+    },
+    {
+      "key": "b2-m17-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "disapprove"
+      ],
+      "text": "My grandmother would strongly disapprove *with* your bright green hair.",
+      "options": [
+        "of",
+        "about",
+        "against"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Моя бабушка решительно не одобрила бы ваши ярко-зелёные волосы.",
+        "uz": "Buvim sizning yorqin yashil sochingizni qat'iyan noma'qul ko'rgan bo'lardi."
+      },
+      "explanation": {
+        "ru": "Когда называют, что именно не одобряют, после disapprove ставится of: disapprove of something. with, about и against здесь невозможны.",
+        "uz": "Nimani noma'qul ko'rishni aytganda, disapprove fe'lidan keyin of predlogi keladi: disapprove of something. with, about va against bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m17-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "plausible"
+      ],
+      "text": "His story was so ___ that even his own mother did not believe it.",
+      "base": "plausible",
+      "accepted": [
+        "implausible"
+      ],
+      "translation": {
+        "ru": "Его история была настолько неправдоподобной, что даже собственная мать ему не поверила.",
+        "uz": "Uning hikoyasi shunchalik aqlga sig'maydigan ediki, hatto o'z onasi ham ishonmadi."
+      },
+      "explanation": {
+        "ru": "Смысл (даже мать не поверила) требует отрицания. Перед p приставка im-, а не un-: plausible → implausible.",
+        "uz": "Ma'no (hatto onasi ham ishonmadi) inkorni talab qiladi. p harfidan oldin un- emas, im- old qo'shimchasi: plausible → implausible."
+      }
+    },
+    {
+      "key": "b2-m17-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "consistent"
+      ],
+      "text": "One small ___ in her story made the police doubt everything.",
+      "base": "consistent",
+      "accepted": [
+        "inconsistency"
+      ],
+      "translation": {
+        "ru": "Одна маленькая нестыковка в её рассказе заставила полицию усомниться во всём.",
+        "uz": "Hikoyasidagi bitta kichik nomuvofiqlik politsiyani hamma narsaga shubha bilan qarashga majbur qildi."
+      },
+      "explanation": {
+        "ru": "После one small нужно существительное, а смысл — отрицательный. Два шага: consistent → inconsistent → inconsistency (-ent → -ency).",
+        "uz": "one small so'zlaridan keyin ot kerak, ma'no esa inkor. Ikki bosqich: consistent → inconsistent → inconsistency (-ent o'rniga -ency)."
+      }
+    },
+    {
+      "key": "b2-m17-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "factual"
+      ],
+      "text": "The article was interesting but contained several ___ errors.",
+      "base": "fact",
+      "accepted": [
+        "factual"
+      ],
+      "translation": {
+        "ru": "Статья была интересной, но содержала несколько фактических ошибок.",
+        "uz": "Maqola qiziqarli edi, lekin unda bir nechta faktik xato bor edi."
+      },
+      "explanation": {
+        "ru": "Перед существительным errors нужно прилагательное: fact → factual (фактический, основанный на фактах); добавляется -ual.",
+        "uz": "errors otidan oldin sifat kerak: fact → factual (faktik, faktlarga asoslangan); -ual qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m17-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "proof"
+      ],
+      "text": "The police found no *prove* that he had been in the house.",
+      "options": [
+        "proof",
+        "proving",
+        "proven"
+      ],
+      "correct": [
+        "proof"
+      ],
+      "translation": {
+        "ru": "Полиция не нашла никаких доказательств того, что он был в доме.",
+        "uz": "Politsiya uning uyda bo'lganiga hech qanday dalil topmadi."
+      },
+      "explanation": {
+        "ru": "После no нужно существительное proof (доказательство); prove — глагол «доказывать». Разница в одной букве: f у существительного, v у глагола.",
+        "uz": "no so'zidan keyin proof (isbot, dalil) oti kerak; prove esa «isbotlamoq» fe'li. Farq bitta harfda: otda f, fe'lda v."
+      }
+    },
+    {
+      "key": "b2-m17-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "assumption"
+      ],
+      "text": "Never *do* assumptions about people you have only just met.",
+      "options": [
+        "make",
+        "take",
+        "give"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "Никогда не делайте предположений о людях, с которыми вы только что познакомились.",
+        "uz": "Siz endigina tanishgan odamlar haqida hech qachon taxmin qilmang."
+      },
+      "explanation": {
+        "ru": "make an assumption — делать предположение: с assumption употребляется make, а не do (калька с русского «делать»).",
+        "uz": "make an assumption — taxmin qilmoq: assumption so'zi bilan do emas, make ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m17-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "convincing"
+      ],
+      "text": "Her arguments were clever but not very *convinced*.",
+      "options": [
+        "convincing",
+        "convincingly",
+        "conviction"
+      ],
+      "correct": [
+        "convincing"
+      ],
+      "translation": {
+        "ru": "Её доводы были умными, но не очень убедительными.",
+        "uz": "Uning dalillari aqlli edi, lekin unchalik ishonarli emasdi."
+      },
+      "explanation": {
+        "ru": "convincing — убедительный (о доводах); convinced — убеждённый (о человеке, который поверил). Доводы убеждают других, поэтому -ing.",
+        "uz": "convincing — ishonarli (dalil haqida); convinced — ishongan, amin bo'lgan (odam haqida). Dalillar boshqalarni ishontiradi, shuning uchun -ing."
+      }
+    },
+    {
+      "key": "b2-m17-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "controversy"
+      ],
+      "text": "The new law on smoking in parks is highly ___.",
+      "base": "controversy",
+      "accepted": [
+        "controversial"
+      ],
+      "translation": {
+        "ru": "Новый закон о курении в парках крайне спорный.",
+        "uz": "Bog'larda chekish haqidagi yangi qonun juda munozarali."
+      },
+      "explanation": {
+        "ru": "После highly нужно прилагательное: controversy → controversial (спорный); y → -ial.",
+        "uz": "highly so'zidan keyin sifat kerak: controversy → controversial (munozarali); y o'rniga -ial."
+      }
+    },
+    {
+      "key": "b2-m17-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "confront"
+      ],
+      "text": "My father always tries to avoid a ___ with our noisy neighbors.",
+      "base": "confront",
+      "accepted": [
+        "confrontation"
+      ],
+      "translation": {
+        "ru": "Мой отец всегда старается избегать открытого столкновения с нашими шумными соседями.",
+        "uz": "Otam doim shovqinli qo'shnilarimiz bilan ochiq to'qnashuvdan qochishga harakat qiladi."
+      },
+      "explanation": {
+        "ru": "После a нужно существительное: confront → confrontation (столкновение, противостояние); суффикс -ation.",
+        "uz": "a artiklidan keyin ot kerak: confront → confrontation (to'qnashuv, qarama-qarshilik); -ation qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m17-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "persuasive"
+      ],
+      "text": "She wrote a short but very ___ letter to the city council.",
+      "base": "persuade",
+      "accepted": [
+        "persuasive"
+      ],
+      "translation": {
+        "ru": "Она написала в городской совет короткое, но очень убедительное письмо.",
+        "uz": "U shahar kengashiga qisqa, ammo juda ishonarli xat yozdi."
+      },
+      "explanation": {
+        "ru": "После very перед существительным нужно прилагательное: persuade → persuasive (убедительный): d меняется на s, добавляется -ive.",
+        "uz": "very so'zidan keyin, ot oldidan sifat kerak: persuade → persuasive (ishonarli): d o'rniga s, -ive qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m17-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "outweigh"
+      ],
+      "text": "The many advantages of the new system clearly *outweighs* its few risks.",
+      "options": [
+        "outweigh",
+        "outweighing",
+        "to outweigh"
+      ],
+      "correct": [
+        "outweigh"
+      ],
+      "translation": {
+        "ru": "Многочисленные преимущества новой системы явно перевешивают её немногие риски.",
+        "uz": "Yangi tizimning ko'plab afzalliklari uning ozgina xavflaridan aniq ustun keladi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — advantages (мн. ч.), а не system, поэтому outweigh без -s. Не дайте стоящему рядом слову system себя запутать.",
+        "uz": "Ega — system emas, advantages (ko'plik), shuning uchun outweigh -s qo'shimchasisiz. Fe'l yonidagi system so'zi chalg'itmasin."
+      }
+    },
+    {
+      "key": "b2-m17-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "debate"
+      ],
+      "text": "Our school *made* a debate on whether homework should be banned.",
+      "options": [
+        "held",
+        "put",
+        "took"
+      ],
+      "correct": [
+        "held"
+      ],
+      "translation": {
+        "ru": "В нашей школе провели дебаты о том, стоит ли запретить домашние задания.",
+        "uz": "Maktabimizda uy vazifasini taqiqlash kerakmi, degan mavzuda munozara o'tkazildi."
+      },
+      "explanation": {
+        "ru": "hold a debate — проводить дебаты: с debate говорят hold (held), а не make (калька с «сделать»).",
+        "uz": "hold a debate — munozara o'tkazmoq: debate so'zi bilan make emas, hold (held) ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m17-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "compelling"
+      ],
+      "text": "The lawyer presented *compelled* reasons for a new trial.",
+      "options": [
+        "compelling",
+        "compulsory",
+        "compulsive"
+      ],
+      "correct": [
+        "compelling"
+      ],
+      "translation": {
+        "ru": "Адвокат привёл веские доводы в пользу нового судебного разбирательства.",
+        "uz": "Advokat ishni qayta ko'rish uchun salmoqli dalillar keltirdi."
+      },
+      "explanation": {
+        "ru": "compelling — веский, убедительный (о доводах); compelled — вынужденный (о человеке), compulsory — обязательный.",
+        "uz": "compelling — salmoqli, asosli (dalil haqida); compelled — majbur bo'lgan (odam haqida), compulsory — majburiy."
+      }
+    },
+    {
+      "key": "b2-m17-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "alternatively"
+      ],
+      "text": "The museum is closed on Mondays; ___, you could visit the old castle.",
+      "base": "alternative",
+      "accepted": [
+        "alternatively"
+      ],
+      "translation": {
+        "ru": "По понедельникам музей закрыт; как вариант, можно посетить старый замок.",
+        "uz": "Muzey dushanba kunlari yopiq; yoki bo'lmasa, eski qal'aga borishingiz mumkin."
+      },
+      "explanation": {
+        "ru": "Слово-связка перед запятой относится ко всему предложению — это наречие: alternative → alternatively (как вариант, или же).",
+        "uz": "Verguldan oldingi bog'lovchi so'z butun gapga tegishli, demak, ravish: alternative → alternatively (yoki bo'lmasa)."
+      }
+    },
+    {
+      "key": "b2-m17-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "similarly"
+      ],
+      "text": "Boys must wear dark trousers to school; ___, girls must wear dark skirts.",
+      "base": "similar",
+      "accepted": [
+        "similarly"
+      ],
+      "translation": {
+        "ru": "Мальчики должны носить в школу тёмные брюки; аналогично девочки должны носить тёмные юбки.",
+        "uz": "O'g'il bolalar maktabga to'q rangli shim kiyishi shart; xuddi shunday, qizlar to'q rangli yubka kiyishi shart."
+      },
+      "explanation": {
+        "ru": "Связка перед запятой, которая сопоставляет две части, — наречие: similar → similarly (аналогично).",
+        "uz": "Ikki qismni solishtiruvchi, verguldan oldingi bog'lovchi so'z ravish bo'ladi: similar → similarly (xuddi shunday)."
+      }
+    },
+    {
+      "key": "b2-m17-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "nevertheless"
+      ],
+      "text": "The hotel bed was rather ___; nevertheless, we slept quite well.",
+      "base": "comfort",
+      "accepted": [
+        "uncomfortable"
+      ],
+      "translation": {
+        "ru": "Кровать в гостинице была довольно неудобной; тем не менее мы неплохо выспались.",
+        "uz": "Mehmonxonadagi karavot ancha noqulay edi; shunga qaramay, biz yaxshi uxladik."
+      },
+      "explanation": {
+        "ru": "nevertheless (тем не менее) противопоставляет кровать хорошему сну, значит, она неудобная: comfort → comfortable → uncomfortable.",
+        "uz": "nevertheless (shunga qaramay) karavotni yaxshi uyquga qarama-qarshi qo'yadi, demak, u noqulay: comfort → comfortable → uncomfortable."
+      }
+    },
+    {
+      "key": "b2-m17-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "regardless"
+      ],
+      "text": "These trees grow well regardless *from* the climate.",
+      "options": [
+        "of",
+        "on",
+        "to"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Эти деревья хорошо растут независимо от климата.",
+        "uz": "Bu daraxtlar iqlimdan qat'i nazar yaxshi o'sadi."
+      },
+      "explanation": {
+        "ru": "regardless of — независимо от: перед существительным после regardless ставится of. Русское «от» здесь не from.",
+        "uz": "regardless of — qat'i nazar: ot oldidan regardless so'zidan keyin of keladi. O'zbekcha «-dan» bu yerda from emas."
+      }
+    },
+    {
+      "key": "b2-m17-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "moreover"
+      ],
+      "text": "Smoking damages your health; *nevertheless*, it costs a lot of money.",
+      "options": [
+        "moreover",
+        "however",
+        "otherwise"
+      ],
+      "correct": [
+        "moreover"
+      ],
+      "translation": {
+        "ru": "Курение вредит здоровью; более того, оно стоит больших денег.",
+        "uz": "Chekish sog'liqqa zarar yetkazadi; buning ustiga, u juda qimmatga tushadi."
+      },
+      "explanation": {
+        "ru": "Вторая часть не противоречит первой, а добавляет ещё один довод против курения, поэтому нужно moreover (более того), а не nevertheless (тем не менее).",
+        "uz": "Ikkinchi qism birinchisiga zid emas, chekishga qarshi yana bir dalil qo'shadi, shuning uchun nevertheless (shunga qaramay) emas, moreover (buning ustiga) kerak."
+      }
+    },
+    {
+      "key": "b2-m17-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "whereas"
+      ],
+      "text": "My brother saves every penny, whereas my sister *spend* everything she earns.",
+      "options": [
+        "spends",
+        "spending",
+        "to spend"
+      ],
+      "correct": [
+        "spends"
+      ],
+      "translation": {
+        "ru": "Мой брат копит каждую копейку, тогда как моя сестра тратит всё, что зарабатывает.",
+        "uz": "Akam har bir tiyinni tejaydi, holbuki singlim topganining hammasini sarflaydi."
+      },
+      "explanation": {
+        "ru": "После whereas идёт полное предложение со своим подлежащим: my sister (и she) — 3-е лицо ед. ч., поэтому spends.",
+        "uz": "whereas so'zidan keyin o'z egasi bor to'liq gap keladi: my sister (va she) — III shaxs birlik, shuning uchun spends."
+      }
+    },
+    {
+      "key": "b2-m18-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "origin"
+      ],
+      "text": "My grandfather is ___ from a small village in the mountains.",
+      "base": "origin",
+      "accepted": [
+        "originally"
+      ],
+      "translation": {
+        "ru": "Мой дедушка родом из маленькой деревни в горах.",
+        "uz": "Bobom asli tog'lardagi kichik bir qishloqdan."
+      },
+      "explanation": {
+        "ru": "Между is и from нужно наречие «родом, изначально». Два шага: origin → original → originally (+ -ly, две l).",
+        "uz": "is va from orasida «asli» ma'nosidagi ravish kerak. Ikki bosqich: origin → original → originally (-ly qo'shiladi, ikkita l)."
+      }
+    },
+    {
+      "key": "b2-m18-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "contribute"
+      ],
+      "text": "She has been a regular ___ to the school magazine for years.",
+      "base": "contribute",
+      "accepted": [
+        "contributor"
+      ],
+      "translation": {
+        "ru": "Она уже много лет постоянный автор школьного журнала.",
+        "uz": "U ko'p yillardan beri maktab jurnalining doimiy muallifi."
+      },
+      "explanation": {
+        "ru": "После a regular нужен человек: contribute → contributor (тот, кто вносит вклад, автор); суффикс -or, не -er.",
+        "uz": "a regular so'zlaridan keyin shaxs kerak: contribute → contributor (hissa qo'shuvchi, muallif); -er emas, -or qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m18-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "stimulate"
+      ],
+      "text": "It was a very ___ discussion, and everyone left with new ideas.",
+      "base": "stimulate",
+      "accepted": [
+        "stimulating"
+      ],
+      "translation": {
+        "ru": "Обсуждение было очень вдохновляющим, и все ушли с новыми идеями.",
+        "uz": "Muhokama juda ilhomlantiruvchi bo'ldi, hamma yangi g'oyalar bilan ketdi."
+      },
+      "explanation": {
+        "ru": "После very перед существительным нужно прилагательное. Обсуждение само побуждает к мысли, поэтому -ing: stimulate → stimulating (e отпадает).",
+        "uz": "very so'zidan keyin, ot oldidan sifat kerak. Muhokama o'zi fikrlashga undaydi, shuning uchun -ing: stimulate → stimulating (e tushib qoladi)."
+      }
+    },
+    {
+      "key": "b2-m18-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "prompt"
+      ],
+      "text": "The bad reviews prompted the owners *improving* the menu.",
+      "options": [
+        "to improve",
+        "on improving",
+        "for improving"
+      ],
+      "correct": [
+        "to improve"
+      ],
+      "translation": {
+        "ru": "Плохие отзывы побудили владельцев улучшить меню.",
+        "uz": "Yomon sharhlar egalarini menyuni yaxshilashga undadi."
+      },
+      "explanation": {
+        "ru": "prompt somebody to do something — побуждать кого-то что-то сделать: после дополнения нужен инфинитив с to.",
+        "uz": "prompt somebody to do something — kimnidir biror ishga undamoq: to'ldiruvchidan keyin to bilan infinitiv keladi."
+      }
+    },
+    {
+      "key": "b2-m18-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "attribute"
+      ],
+      "text": "She attributes her good health *on* long daily walks.",
+      "options": [
+        "to",
+        "with",
+        "for"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Своё хорошее здоровье она объясняет долгими ежедневными прогулками.",
+        "uz": "U sog'lig'i yaxshiligini har kungi uzoq sayrlar bilan bog'laydi."
+      },
+      "explanation": {
+        "ru": "attribute something to something — объяснять что-то чем-то: после дополнения ставится to. on бывает после blame (blame something on), а русский творительный падеж («прогулками») не передаётся через with.",
+        "uz": "attribute something to something — biror narsani nimagadir bog'lamoq: to'ldiruvchidan keyin to keladi. on predlogi blame fe'lidan keyin ishlatiladi (blame something on); o'zbekcha «bilan» bu yerda with emas."
+      }
+    },
+    {
+      "key": "b2-m18-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "underlying"
+      ],
+      "text": "Doctors are still looking for the *underlining* cause of his headaches.",
+      "options": [
+        "underlying",
+        "underlie",
+        "underlaying"
+      ],
+      "correct": [
+        "underlying"
+      ],
+      "translation": {
+        "ru": "Врачи всё ещё ищут глубинную причину его головных болей.",
+        "uz": "Shifokorlar hali ham uning bosh og'rig'ining tub sababini izlamoqda."
+      },
+      "explanation": {
+        "ru": "underlying — глубинный, лежащий в основе (от underlie: ie → y + -ing). underlining — подчёркивание (от underline), underlaying — от underlay «подкладывать».",
+        "uz": "underlying — tub, asl (underlie fe'lidan: ie o'rniga y + -ing). underlining — «tagiga chizish» (underline fe'lidan), underlaying esa underlay («ostiga qo'ymoq») fe'lidan."
+      }
+    },
+    {
+      "key": "b2-m18-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "inevitable"
+      ],
+      "text": "Sooner or later, we all have to accept the ___ of change.",
+      "base": "inevitable",
+      "accepted": [
+        "inevitability"
+      ],
+      "translation": {
+        "ru": "Рано или поздно всем нам приходится принять неизбежность перемен.",
+        "uz": "Ertami-kechmi barchamiz o'zgarishlarning muqarrarligini tan olishimiz kerak."
+      },
+      "explanation": {
+        "ru": "Между the и of нужно существительное: inevitable → inevitability (неизбежность); -able → -ability.",
+        "uz": "the va of orasida ot kerak: inevitable → inevitability (muqarrarlik); -able o'rniga -ability."
+      }
+    },
+    {
+      "key": "b2-m18-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "beneficial"
+      ],
+      "text": "A short walk after lunch is ___ for your digestion.",
+      "base": "benefit",
+      "accepted": [
+        "beneficial"
+      ],
+      "translation": {
+        "ru": "Короткая прогулка после обеда полезна для пищеварения.",
+        "uz": "Tushlikdan keyingi qisqa sayr ovqat hazm qilish uchun foydali."
+      },
+      "explanation": {
+        "ru": "После is без артикля нужно прилагательное: benefit → beneficial (полезный): t меняется на c, добавляется -ial.",
+        "uz": "is so'zidan keyin, artiklsiz, sifat kerak: benefit → beneficial (foydali): t o'rniga c, -ial qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m18-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "implication"
+      ],
+      "text": "One ___ of the new law is that small shops may close.",
+      "base": "imply",
+      "accepted": [
+        "implication"
+      ],
+      "translation": {
+        "ru": "Одно из возможных последствий нового закона — маленькие магазины могут закрыться.",
+        "uz": "Yangi qonunning ehtimoliy oqibatlaridan biri — kichik do'konlar yopilib qolishi mumkin."
+      },
+      "explanation": {
+        "ru": "После one нужно исчисляемое существительное в ед. ч.: imply → implication (возможное последствие); y → -ication.",
+        "uz": "one so'zidan keyin birlikdagi sanaladigan ot kerak: imply → implication (ehtimoliy oqibat); y o'rniga -ication."
+      }
+    },
+    {
+      "key": "b2-m18-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "aftermath"
+      ],
+      "text": "Many families moved away *at* the aftermath of the flood.",
+      "options": [
+        "in",
+        "by",
+        "under"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "В тяжёлое время после наводнения многие семьи уехали.",
+        "uz": "Toshqindan keyingi og'ir davrda ko'plab oilalar boshqa joyga ko'chib ketdi."
+      },
+      "explanation": {
+        "ru": "in the aftermath of — в тяжёлый период после чего-либо: устойчивое сочетание с in, не at.",
+        "uz": "in the aftermath of — biror falokatdan keyingi og'ir davrda: bu turg'un birikma at bilan emas, in bilan ishlatiladi."
+      }
+    },
+    {
+      "key": "b2-m18-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "ultimately"
+      ],
+      "text": "Our first attempts failed, but the project was *ultimate* successful.",
+      "options": [
+        "ultimately",
+        "eventual",
+        "lastly"
+      ],
+      "correct": [
+        "ultimately"
+      ],
+      "translation": {
+        "ru": "Наши первые попытки не удались, но в конечном счёте проект оказался успешным.",
+        "uz": "Dastlabki urinishlarimiz muvaffaqiyatsiz bo'ldi, lekin loyiha oxir-oqibat muvaffaqiyatli chiqdi."
+      },
+      "explanation": {
+        "ru": "Прилагательное successful поясняется наречием: ultimate → ultimately (в конечном счёте). eventual — прилагательное, а lastly значит «и последнее» при перечислении.",
+        "uz": "successful sifatini ravish izohlaydi: ultimate → ultimately (oxir-oqibat). eventual — sifat, lastly esa sanab o'tishda «va nihoyat» degani."
+      }
+    },
+    {
+      "key": "b2-m18-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "outcome"
+      ],
+      "text": "The outcome of these talks *remain* unclear, and nobody can predict it.",
+      "options": [
+        "remains",
+        "remaining",
+        "to remain"
+      ],
+      "correct": [
+        "remains"
+      ],
+      "translation": {
+        "ru": "Исход этих переговоров остаётся неясным, и никто не может его предсказать.",
+        "uz": "Bu muzokaralarning natijasi hali noaniq va uni hech kim oldindan ayta olmaydi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — outcome (ед. ч., на это указывает и it), а не talks, поэтому remains с -s.",
+        "uz": "Ega — talks emas, outcome (birlik, buni it olmoshi ham ko'rsatadi), shuning uchun remains -s bilan."
+      }
+    },
+    {
+      "key": "b2-m18-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "fluctuate"
+      ],
+      "text": "Sudden ___ in temperature are bad for young plants.",
+      "base": "fluctuate",
+      "accepted": [
+        "fluctuations"
+      ],
+      "translation": {
+        "ru": "Резкие колебания температуры вредны для молодых растений.",
+        "uz": "Haroratning keskin o'zgarishlari yosh o'simliklar uchun zararli."
+      },
+      "explanation": {
+        "ru": "После sudden нужно существительное, а глагол are требует множественного числа: fluctuate → fluctuation → fluctuations.",
+        "uz": "sudden so'zidan keyin ot kerak, are fe'li esa ko'plikni talab qiladi: fluctuate → fluctuation → fluctuations."
+      }
+    },
+    {
+      "key": "b2-m18-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "escalate"
+      ],
+      "text": "Both governments want to avoid a dangerous ___ of the conflict.",
+      "base": "escalate",
+      "accepted": [
+        "escalation"
+      ],
+      "translation": {
+        "ru": "Оба правительства хотят избежать опасного обострения конфликта.",
+        "uz": "Ikkala hukumat ham mojaroning xavfli keskinlashuvidan qochishni istaydi."
+      },
+      "explanation": {
+        "ru": "После a dangerous нужно существительное: escalate → escalation (обострение); -ate → -ation.",
+        "uz": "a dangerous so'zlaridan keyin ot kerak: escalate → escalation (keskinlashuv); -ate o'rniga -ation."
+      }
+    },
+    {
+      "key": "b2-m18-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "diminish"
+      ],
+      "text": "Despite her long illness, her love of music remained ___.",
+      "base": "diminish",
+      "accepted": [
+        "undiminished"
+      ],
+      "translation": {
+        "ru": "Несмотря на долгую болезнь, её любовь к музыке не ослабла.",
+        "uz": "Uzoq kasalligiga qaramay, uning musiqaga bo'lgan mehri susaymadi."
+      },
+      "explanation": {
+        "ru": "Despite показывает, что болезнь не ослабила любовь, значит, нужно «неослабевший»: diminish → diminished → undiminished (un- + причастие).",
+        "uz": "Despite kasallik mehrni susaytirmaganini ko'rsatadi, demak, «susaymagan» kerak: diminish → diminished → undiminished (un- + sifatdosh)."
+      }
+    },
+    {
+      "key": "b2-m18-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "lessen"
+      ],
+      "text": "Regular short breaks can *lesson* the stress of long exams.",
+      "options": [
+        "lessen",
+        "less",
+        "lesser"
+      ],
+      "correct": [
+        "lessen"
+      ],
+      "translation": {
+        "ru": "Регулярные короткие перерывы могут ослабить стресс от долгих экзаменов.",
+        "uz": "Muntazam qisqa tanaffuslar uzoq imtihonlar keltiradigan stressni kamaytirishi mumkin."
+      },
+      "explanation": {
+        "ru": "После can нужен глагол lessen (уменьшать, ослаблять). lesson — существительное «урок»; оба слова звучат одинаково.",
+        "uz": "can so'zidan keyin lessen (kamaytirmoq) fe'li kerak. lesson esa «dars» degan ot; ikkala so'z bir xil talaffuz qilinadi."
+      }
+    },
+    {
+      "key": "b2-m18-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "decline"
+      ],
+      "text": "Sales of paper books declined *on* a third last year.",
+      "options": [
+        "by",
+        "at",
+        "for"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "В прошлом году продажи бумажных книг сократились на треть.",
+        "uz": "O'tgan yili qog'oz kitoblar savdosi uchdan birga kamaydi."
+      },
+      "explanation": {
+        "ru": "На сколько что-то уменьшилось или выросло, показывает by: declined by a third — сократились на треть. Русское «на» здесь не on.",
+        "uz": "Biror narsa qanchaga kamaygani yoki oshganini by ko'rsatadi: declined by a third — uchdan birga kamaydi. Bu yerda on ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m18-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "intensify"
+      ],
+      "text": "The wind *intensed* during the night, and several old trees fell down.",
+      "options": [
+        "intensified",
+        "intensifies",
+        "intensifying"
+      ],
+      "correct": [
+        "intensified"
+      ],
+      "translation": {
+        "ru": "Ночью ветер усилился, и несколько старых деревьев упали.",
+        "uz": "Tunda shamol kuchaydi va bir nechta keksa daraxt qulab tushdi."
+      },
+      "explanation": {
+        "ru": "Глагола intense нет: «усиливаться» — intensify (intense + -ify). Действие в прошлом (fell), поэтому intensified (y → ied).",
+        "uz": "intense degan fe'l yo'q: «kuchaymoq» — intensify (intense + -ify). Harakat o'tgan zamonda (fell), shuning uchun intensified (y o'rniga ied)."
+      }
+    },
+    {
+      "key": "b2-m18-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "adjust"
+      ],
+      "text": "We bought our son an ___ desk that can grow with him.",
+      "base": "adjust",
+      "accepted": [
+        "adjustable"
+      ],
+      "translation": {
+        "ru": "Мы купили сыну регулируемый стол, который будет «расти» вместе с ним.",
+        "uz": "O'g'limizga u bilan birga «o'sadigan», balandligi sozlanadigan stol sotib oldik."
+      },
+      "explanation": {
+        "ru": "После an перед существительным нужно прилагательное «такой, который можно регулировать»: adjust → adjustable (-able).",
+        "uz": "an artiklidan keyin, ot oldidan «sozlasa bo'ladigan» ma'nosidagi sifat kerak: adjust → adjustable (-able)."
+      }
+    },
+    {
+      "key": "b2-m18-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "alter"
+      ],
+      "text": "The tailor made a few ___ to my wedding suit.",
+      "base": "alter",
+      "accepted": [
+        "alterations"
+      ],
+      "translation": {
+        "ru": "Портной внёс несколько изменений в мой свадебный костюм.",
+        "uz": "Tikuvchi to'y kostyumimga bir nechta o'zgartirish kiritdi."
+      },
+      "explanation": {
+        "ru": "После a few нужно существительное во множественном числе: alter → alteration → alterations (переделки).",
+        "uz": "a few so'zlaridan keyin ko'plikdagi ot kerak: alter → alteration → alterations (o'zgartirishlar)."
+      }
+    },
+    {
+      "key": "b2-m18-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "vary"
+      ],
+      "text": "Our school offers a wide ___ of clubs and sports.",
+      "base": "vary",
+      "accepted": [
+        "variety"
+      ],
+      "translation": {
+        "ru": "Наша школа предлагает большой выбор кружков и спортивных секций.",
+        "uz": "Maktabimiz turli-tuman to'garaklar va sport seksiyalarini taklif qiladi."
+      },
+      "explanation": {
+        "ru": "После a wide нужно существительное: a wide variety of — большое разнообразие. vary → variety: y → i, затем -ety.",
+        "uz": "a wide so'zlaridan keyin ot kerak: a wide variety of — keng xilma-xillik. vary → variety: y o'rniga i, keyin -ety."
+      }
+    },
+    {
+      "key": "b2-m18-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "adapt"
+      ],
+      "text": "It took our old cat weeks to *adopt* to the new apartment.",
+      "options": [
+        "adapt",
+        "adept",
+        "adapted"
+      ],
+      "correct": [
+        "adapt"
+      ],
+      "translation": {
+        "ru": "Нашей старой кошке понадобились недели, чтобы привыкнуть к новой квартире.",
+        "uz": "Keksa mushugimiz yangi kvartiraga moslashishi uchun bir necha hafta vaqt ketdi."
+      },
+      "explanation": {
+        "ru": "adapt to — приспосабливаться к чему-либо; adopt — усыновлять, принимать (решение, закон). Слова различаются одной буквой.",
+        "uz": "adapt to — biror narsaga moslashmoq; adopt esa «farzandlikka olmoq, qabul qilmoq (qaror, qonun)». So'zlar bitta harf bilan farq qiladi."
+      }
+    },
+    {
+      "key": "b2-m18-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "evolve"
+      ],
+      "text": "Over time, their friendship evolved *in* something much deeper.",
+      "options": [
+        "into",
+        "onto",
+        "at"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Со временем их дружба переросла в нечто гораздо более глубокое.",
+        "uz": "Vaqt o'tib, ularning do'stligi ancha chuqurroq tuyg'uga aylandi."
+      },
+      "explanation": {
+        "ru": "evolve into — постепенно превращаться во что-либо: результат изменения вводится предлогом into, не in.",
+        "uz": "evolve into — asta-sekin biror narsaga aylanmoq: o'zgarish natijasi in bilan emas, into predlogi bilan beriladi."
+      }
+    },
+    {
+      "key": "b2-m18-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "modify"
+      ],
+      "text": "These old engines must *modify* before they can use the new fuel.",
+      "options": [
+        "be modified",
+        "be modifying",
+        "have modified"
+      ],
+      "correct": [
+        "be modified"
+      ],
+      "translation": {
+        "ru": "Эти старые двигатели нужно доработать, прежде чем они смогут работать на новом топливе.",
+        "uz": "Bu eski dvigatellar yangi yoqilg'ida ishlashi uchun avval ularga o'zgartirish kiritilishi kerak."
+      },
+      "explanation": {
+        "ru": "Двигатели не изменяют себя сами — их изменяют люди, поэтому нужен пассив: после must → be + третья форма: be modified.",
+        "uz": "Dvigatellar o'zini o'zi o'zgartirmaydi, ularni odamlar o'zgartiradi, shuning uchun majhul nisbat kerak: must so'zidan keyin be + uchinchi shakl: be modified."
+      }
+    },
+    {
+      "key": "b2-m18-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "stability"
+      ],
+      "text": "The country has enjoyed peace and political ___ for many years.",
+      "base": "stable",
+      "accepted": [
+        "stability"
+      ],
+      "translation": {
+        "ru": "Уже много лет в стране сохраняются мир и политическая стабильность.",
+        "uz": "Mamlakatda ko'p yillardan beri tinchlik va siyosiy barqarorlik hukm surmoqda."
+      },
+      "explanation": {
+        "ru": "После political нужно существительное-состояние: stable → stability (стабильность), -le → -ility. Процесс stabilization не подходит: has enjoyed ... for many years говорит о состоянии.",
+        "uz": "political so'zidan keyin holatni bildiruvchi ot kerak: stable → stability (barqarorlik), -le o'rniga -ility. has enjoyed ... for many years holatni bildiradi, shuning uchun stabilization (jarayon) to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b2-m18-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "accelerate"
+      ],
+      "text": "A sudden ___ of the car pushed me back into my seat.",
+      "base": "accelerate",
+      "accepted": [
+        "acceleration"
+      ],
+      "translation": {
+        "ru": "Резкое ускорение машины вдавило меня в сиденье.",
+        "uz": "Mashinaning keskin tezlashishi meni o'rindiqqa qisib qo'ydi."
+      },
+      "explanation": {
+        "ru": "После a sudden нужно существительное: accelerate → acceleration (ускорение); -ate → -ation.",
+        "uz": "a sudden so'zlaridan keyin ot kerak: accelerate → acceleration (tezlashish); -ate o'rniga -ation."
+      }
+    },
+    {
+      "key": "b2-m18-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "steady"
+      ],
+      "text": "House prices in our town have risen ___ since the spring.",
+      "base": "steady",
+      "accepted": [
+        "steadily"
+      ],
+      "translation": {
+        "ru": "С весны цены на жильё в нашем городе стабильно растут.",
+        "uz": "Bahordan beri shahrimizda uy narxlari bir maromda oshib bormoqda."
+      },
+      "explanation": {
+        "ru": "Глагол risen поясняется наречием: steady → steadily (y → i, затем -ly).",
+        "uz": "risen fe'lini ravish izohlaydi: steady → steadily (y o'rniga i, keyin -ly)."
+      }
+    },
+    {
+      "key": "b2-m18-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "abrupt"
+      ],
+      "text": "The bus stopped *abrupt*, and all the passengers fell forward.",
+      "options": [
+        "abruptly",
+        "abruptness",
+        "sudden"
+      ],
+      "correct": [
+        "abruptly"
+      ],
+      "translation": {
+        "ru": "Автобус резко остановился, и все пассажиры повалились вперёд.",
+        "uz": "Avtobus keskin to'xtadi va barcha yo'lovchilar oldinga yiqilib ketdi."
+      },
+      "explanation": {
+        "ru": "Глагол stopped поясняется наречием, а не прилагательным: abrupt → abruptly (резко). sudden — тоже прилагательное.",
+        "uz": "stopped fe'lini sifat emas, ravish izohlaydi: abrupt → abruptly (keskin). sudden ham sifat."
+      }
+    },
+    {
+      "key": "b2-m18-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "momentum"
+      ],
+      "text": "The campaign slowly *took* momentum as more volunteers joined it.",
+      "options": [
+        "gained",
+        "made",
+        "did"
+      ],
+      "correct": [
+        "gained"
+      ],
+      "translation": {
+        "ru": "Кампания постепенно набирала обороты по мере того, как к ней присоединялись новые волонтёры.",
+        "uz": "Ko'proq ko'ngillilar qo'shilgani sari kampaniya asta-sekin avj oldi."
+      },
+      "explanation": {
+        "ru": "gain momentum — набирать обороты: с momentum говорят gain, gather или pick up, но не take.",
+        "uz": "gain momentum — avj olmoq, kuch yig'moq: momentum so'zi bilan gain, gather yoki pick up ishlatiladi, take emas. «Avj olmoq»dagi «olmoq» bu yerda take emas."
+      }
+    },
+    {
+      "key": "b2-m18-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "emerge"
+      ],
+      "text": "The tired workers finally emerged *of* the tunnel after a long night.",
+      "options": [
+        "from",
+        "with",
+        "to"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Уставшие рабочие наконец появились из туннеля после долгой ночи.",
+        "uz": "Tun bo'yi ishlagan charchagan ishchilar nihoyat tunneldan chiqib kelishdi."
+      },
+      "explanation": {
+        "ru": "emerge from — появляться, выходить откуда-либо: то, откуда появляются, вводится предлогом from, не of. Можно сказать и emerge out of, но не emerge of.",
+        "uz": "emerge from — biror joydan chiqib kelmoq, paydo bo'lmoq: qayerdan chiqqani of emas, from predlogi bilan beriladi. emerge out of ham to'g'ri, lekin emerge of noto'g'ri."
+      }
+    }
+  ]
+}

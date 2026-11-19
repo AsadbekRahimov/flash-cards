@@ -1,0 +1,1627 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b2",
+  "items": [
+    {
+      "key": "b2-m01-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "diligent"
+      ],
+      "text": "Her ___ earned her the highest grade in the class.",
+      "base": "diligent",
+      "accepted": [
+        "diligence"
+      ],
+      "translation": {
+        "ru": "Прилежание принесло ей самую высокую оценку в классе.",
+        "uz": "Tirishqoqligi unga sinfdagi eng yuqori bahoni olib berdi."
+      },
+      "explanation": {
+        "ru": "После her нужно существительное: diligent → diligence (прилежание); -ent меняется на -ence.",
+        "uz": "her so'zidan keyin ot kerak: diligent → diligence (tirishqoqlik); -ent o'rniga -ence yoziladi."
+      }
+    },
+    {
+      "key": "b2-m01-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "persistent"
+      ],
+      "text": "She phoned the office ___ until somebody finally answered.",
+      "base": "persist",
+      "accepted": [
+        "persistently"
+      ],
+      "translation": {
+        "ru": "Она настойчиво звонила в офис, пока кто-то наконец не ответил.",
+        "uz": "Kimdir nihoyat javob bermaguncha, u ofisga tinmay qo'ng'iroq qilaverdi."
+      },
+      "explanation": {
+        "ru": "Глагол phoned описывает наречие. Два шага: persist → persistent (-ent) → persistently (-ly).",
+        "uz": "phoned fe'lini ravish izohlaydi. Ikki bosqich: persist → persistent (-ent) → persistently (-ly)."
+      }
+    },
+    {
+      "key": "b2-m01-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "courage"
+      ],
+      "text": "Last spring her kind words ___ me to enter the competition, and I won.",
+      "base": "courage",
+      "accepted": [
+        "encouraged"
+      ],
+      "translation": {
+        "ru": "Прошлой весной её добрые слова вдохновили меня принять участие в конкурсе, и я победил.",
+        "uz": "O'tgan bahorda uning iliq so'zlari meni tanlovda qatnashishga ruhlantirdi va men g'olib bo'ldim."
+      },
+      "explanation": {
+        "ru": "Нужен глагол «придать смелости, ободрить»: приставка en- делает из courage глагол encourage; last spring и won требуют прошедшего времени: encouraged.",
+        "uz": "«Jasorat bag'ishlamoq, ruhlantirmoq» fe'li kerak: en- old qo'shimchasi courage otidan encourage fe'lini yasaydi; last spring va won o'tgan zamonni talab qiladi: encouraged."
+      }
+    },
+    {
+      "key": "b2-m01-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "committed"
+      ],
+      "text": "Our new nurse is deeply committed *for* her work.",
+      "options": [
+        "to",
+        "with",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Наша новая медсестра глубоко предана своему делу.",
+        "uz": "Yangi hamshiramiz o'z ishiga chin dildan berilgan."
+      },
+      "explanation": {
+        "ru": "committed to — преданный чему-либо: после committed в этом значении всегда to.",
+        "uz": "committed to — biror narsaga berilgan: bu ma'noda committed so'zidan keyin doim to predlogi keladi."
+      }
+    },
+    {
+      "key": "b2-m01-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "disciplined"
+      ],
+      "text": "My grandfather is very *discipline* and gets up at five every morning.",
+      "options": [
+        "disciplined",
+        "disciplinary",
+        "disciplining"
+      ],
+      "correct": [
+        "disciplined"
+      ],
+      "translation": {
+        "ru": "Мой дедушка очень дисциплинированный и каждое утро встаёт в пять.",
+        "uz": "Bobom juda intizomli, har kuni ertalab soat beshda turadi."
+      },
+      "explanation": {
+        "ru": "После is very нужно прилагательное, а discipline — существительное (дисциплина). Прилагательное — disciplined; disciplinary значит «дисциплинарный» (о наказаниях).",
+        "uz": "is very so'zlaridan keyin sifat kerak, discipline esa ot (intizom). Sifat shakli — disciplined; disciplinary esa «intizomiy» (jazo bilan bog'liq) degani."
+      }
+    },
+    {
+      "key": "b2-m01-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "decisive"
+      ],
+      "text": "The new manager acted quickly and *decisive* to save the company.",
+      "options": [
+        "decisively",
+        "decision",
+        "decisiveness"
+      ],
+      "correct": [
+        "decisively"
+      ],
+      "translation": {
+        "ru": "Новый руководитель действовал быстро и решительно, чтобы спасти компанию.",
+        "uz": "Yangi rahbar kompaniyani qutqarish uchun tez va qat'iyat bilan harakat qildi."
+      },
+      "explanation": {
+        "ru": "Глагол acted описывает наречие, как и quickly рядом: decisive → decisively. Существительные decision и decisiveness здесь не подходят.",
+        "uz": "acted fe'lini quickly kabi ravish izohlaydi: decisive → decisively. decision va decisiveness otlari bu yerga to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b2-m01-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "immature"
+      ],
+      "text": "Leaving the meeting after losing the vote was very ___ of him.",
+      "base": "mature",
+      "accepted": [
+        "immature"
+      ],
+      "translation": {
+        "ru": "Уйти с собрания, проиграв голосование, было очень незрело с его стороны.",
+        "uz": "Ovoz berishda yutqazib, majlisni tashlab ketishi juda g'o'rlik edi."
+      },
+      "explanation": {
+        "ru": "Обидеться и уйти — поступок «незрелый»: нужно отрицание. Перед m отрицательная приставка im-: mature → immature (две m).",
+        "uz": "Arazlab chiqib ketish — «g'o'rlik»: inkor shakli kerak. m harfidan oldin inkor old qo'shimchasi im- bo'ladi: mature → immature (ikkita m)."
+      }
+    },
+    {
+      "key": "b2-m01-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "cynical"
+      ],
+      "text": "When we promised to finish on time, our boss laughed ___.",
+      "base": "cynic",
+      "accepted": [
+        "cynically"
+      ],
+      "translation": {
+        "ru": "Когда мы пообещали закончить вовремя, начальник цинично рассмеялся.",
+        "uz": "Ishni o'z vaqtida tugatishga va'da berganimizda, boshlig'imiz istehzo bilan kulib qo'ydi."
+      },
+      "explanation": {
+        "ru": "Глагол laughed описывает наречие. Два шага: cynic (циник) → cynical (-al) → cynically (-ly).",
+        "uz": "laughed fe'lini ravish izohlaydi. Ikki bosqich: cynic → cynical (-al) → cynically (-ly)."
+      }
+    },
+    {
+      "key": "b2-m01-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "arrogant"
+      ],
+      "text": "His ___ made him the least popular manager in the company.",
+      "base": "arrogant",
+      "accepted": [
+        "arrogance"
+      ],
+      "translation": {
+        "ru": "Из-за высокомерия он стал самым непопулярным руководителем в компании.",
+        "uz": "Takabburligi uni kompaniyadagi eng yoqimsiz rahbarga aylantirdi."
+      },
+      "explanation": {
+        "ru": "После his перед глаголом made нужно существительное: arrogant → arrogance (высокомерие). Прилагательным на -ant обычно соответствуют существительные на -ance, а не -ence.",
+        "uz": "his so'zidan keyin, made fe'lidan oldin ot kerak: arrogant → arrogance (takabburlik). -ant bilan tugaydigan sifatlardan odatda -ence emas, -ance bilan ot yasaladi."
+      }
+    },
+    {
+      "key": "b2-m01-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "reckless"
+      ],
+      "text": "He drove his father's car *reckless* and crashed it into a tree.",
+      "options": [
+        "recklessly",
+        "recklessness",
+        "more reckless"
+      ],
+      "correct": [
+        "recklessly"
+      ],
+      "translation": {
+        "ru": "Он безрассудно вёл машину отца и врезался в дерево.",
+        "uz": "U otasining mashinasini ehtiyotsizlik bilan haydab, daraxtga urib oldi."
+      },
+      "explanation": {
+        "ru": "Как вёл машину? Глагол drove описывает наречие: reckless → recklessly. Прилагательное reckless стоит при существительном: a reckless driver.",
+        "uz": "Mashinani qanday haydadi? drove fe'lini ravish izohlaydi: reckless → recklessly. reckless sifati esa ot bilan keladi: a reckless driver."
+      }
+    },
+    {
+      "key": "b2-m01-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "pessimistic"
+      ],
+      "text": "He has become even more *pessimist* since he lost his job.",
+      "options": [
+        "pessimistic",
+        "pessimism",
+        "pessimistically"
+      ],
+      "correct": [
+        "pessimistic"
+      ],
+      "translation": {
+        "ru": "С тех пор как он потерял работу, он стал ещё более пессимистичным.",
+        "uz": "Ishini yo'qotganidan beri u yanada badbin bo'lib qoldi."
+      },
+      "explanation": {
+        "ru": "pessimist — существительное («пессимист»), а после become more нужно прилагательное: pessimistic. Русское «он пессимист» по-английски he is a pessimist.",
+        "uz": "pessimist — ot («pessimist odam»), become more so'zlaridan keyin esa sifat kerak: pessimistic. «U pessimist» inglizchada he is a pessimist bo'ladi."
+      }
+    },
+    {
+      "key": "b2-m01-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "naive"
+      ],
+      "text": "It was naive *from* you to trust a stranger with your money.",
+      "options": [
+        "of",
+        "by",
+        "at"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Было наивно с вашей стороны доверить свои деньги незнакомцу.",
+        "uz": "Pulingizni notanish odamga ishonib topshirganingiz soddalik edi."
+      },
+      "explanation": {
+        "ru": "It is naive / kind / silly of somebody — оценка поступка человека: после такого прилагательного of. «С вашей стороны» — of you.",
+        "uz": "It is naive / kind / silly of somebody — insonning qilmishiga baho: bunday sifatdan keyin of predlogi keladi: of you."
+      }
+    },
+    {
+      "key": "b2-m01-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "hostile"
+      ],
+      "text": "The new rules were met with open ___ from the staff.",
+      "base": "hostile",
+      "accepted": [
+        "hostility"
+      ],
+      "translation": {
+        "ru": "Сотрудники встретили новые правила с открытой враждебностью.",
+        "uz": "Xodimlar yangi qoidalarni ochiq dushmanlik bilan kutib oldi."
+      },
+      "explanation": {
+        "ru": "После прилагательного open нужно существительное: hostile → hostility (враждебность), суффикс -ity.",
+        "uz": "open sifatidan keyin ot kerak: hostile → hostility (dushmanlik), -ity qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m01-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "sympathetic"
+      ],
+      "text": "When my dog died, my boss was very ___ and let me go home.",
+      "base": "sympathy",
+      "accepted": [
+        "sympathetic"
+      ],
+      "translation": {
+        "ru": "Когда умерла моя собака, начальник отнёсся ко мне с большим участием и отпустил меня домой.",
+        "uz": "Itim nobud bo'lganida, boshlig'im menga juda hamdard bo'ldi va uyga ketishimga ruxsat berdi."
+      },
+      "explanation": {
+        "ru": "После was very нужно прилагательное: sympathy → sympathetic (участливый); а отпустил домой — значит, не unsympathetic. Это не «симпатичный» (nice, attractive).",
+        "uz": "was very so'zlaridan keyin sifat kerak: sympathy → sympathetic (hamdard); uyga javob bergani uchun unsympathetic emas. Bu so'z «yoqimtoy» (nice, attractive) degani emas."
+      }
+    },
+    {
+      "key": "b2-m01-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "tolerant"
+      ],
+      "text": "Our teacher does not ___ cheating in her classroom.",
+      "base": "tolerant",
+      "accepted": [
+        "tolerate"
+      ],
+      "translation": {
+        "ru": "Наша учительница не терпит списывания на своих уроках.",
+        "uz": "O'qituvchimiz darsida ko'chirishga toqat qilmaydi."
+      },
+      "explanation": {
+        "ru": "После does not нужен глагол в начальной форме: от tolerant (терпимый) — глагол tolerate (терпеть), -ant меняется на -ate.",
+        "uz": "does not so'zlaridan keyin fe'lning bosh shakli kerak: tolerant (bag'rikeng) so'zining fe'li — tolerate (toqat qilmoq), -ant o'rniga -ate."
+      }
+    },
+    {
+      "key": "b2-m01-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "considerate"
+      ],
+      "text": "It was very *considerable* of you to call before your visit.",
+      "options": [
+        "considerate",
+        "considering",
+        "considered"
+      ],
+      "correct": [
+        "considerate"
+      ],
+      "translation": {
+        "ru": "Очень внимательно с вашей стороны, что вы позвонили перед визитом.",
+        "uz": "Kelishingizdan oldin qo'ng'iroq qilganingiz juda e'tiborli ish bo'ldi."
+      },
+      "explanation": {
+        "ru": "considerate — внимательный к другим; considerable — значительный (considerable money). О поступке человека: it was considerate of you.",
+        "uz": "considerate — boshqalarga e'tiborli; considerable — ancha katta, salmoqli (considerable money). Insonning qilmishi haqida: it was considerate of you."
+      }
+    },
+    {
+      "key": "b2-m01-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "indifferent"
+      ],
+      "text": "Many young people are indifferent *for* politics.",
+      "options": [
+        "to",
+        "on",
+        "with"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Многие молодые люди равнодушны к политике.",
+        "uz": "Ko'plab yoshlar siyosatga befarq."
+      },
+      "explanation": {
+        "ru": "indifferent to — равнодушный к чему-либо: предлог to, как русское «к».",
+        "uz": "indifferent to — biror narsaga befarq: to predlogi ishlatiladi (o'zbekchadagi «-ga»)."
+      }
+    },
+    {
+      "key": "b2-m01-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "sincere"
+      ],
+      "text": "I *sincere* hope that your mother feels better soon.",
+      "options": [
+        "sincerely",
+        "sincerity",
+        "sincerest"
+      ],
+      "correct": [
+        "sincerely"
+      ],
+      "translation": {
+        "ru": "Я искренне надеюсь, что ваша мама скоро поправится.",
+        "uz": "Onangiz tezroq tuzalib ketishiga chin dildan umid qilaman."
+      },
+      "explanation": {
+        "ru": "Глагол hope описывает наречие: sincere → sincerely (искренне). Прилагательное sincere ставят при существительном: my sincere apologies.",
+        "uz": "hope fe'lini ravish izohlaydi: sincere → sincerely (chin dildan). sincere sifati esa ot bilan keladi: my sincere apologies."
+      }
+    },
+    {
+      "key": "b2-m01-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "tendency"
+      ],
+      "text": "Doctors have noticed a growing ___ among teenagers to stay up late.",
+      "base": "tend",
+      "accepted": [
+        "tendency"
+      ],
+      "translation": {
+        "ru": "Врачи заметили у подростков растущую склонность поздно ложиться спать.",
+        "uz": "Shifokorlar o'smirlarda kech yotishga moyillik ortib borayotganini payqashgan."
+      },
+      "explanation": {
+        "ru": "После a growing нужно существительное: tend → tendency (склонность), суффикс -ency. a tendency to do — склонность что-то делать.",
+        "uz": "a growing so'zlaridan keyin ot kerak: tend → tendency (moyillik), -ency qo'shimchasi. a tendency to do — biror narsaga moyillik."
+      }
+    },
+    {
+      "key": "b2-m01-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "misbehave"
+      ],
+      "text": "Our puppy ___ and chews our shoes whenever we leave it alone.",
+      "base": "behave",
+      "accepted": [
+        "misbehaves"
+      ],
+      "translation": {
+        "ru": "Наш щенок плохо себя ведёт и грызёт нашу обувь, когда мы оставляем его одного.",
+        "uz": "Uni yolg'iz qoldirganimizda kuchukchamiz o'zini yomon tutadi va poyabzallarimizni g'ajiydi."
+      },
+      "explanation": {
+        "ru": "Нужен смысл «плохо себя вести»: приставка mis- значит «неправильно»: behave → misbehave, и -s для it.",
+        "uz": "«O'zini yomon tutmoq» ma'nosi kerak: mis- old qo'shimchasi «noto'g'ri» degani: behave → misbehave, it uchun -s qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m01-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "flatter"
+      ],
+      "text": "Do not trust him: he is a ___ who praises everyone.",
+      "base": "flatter",
+      "accepted": [
+        "flatterer"
+      ],
+      "translation": {
+        "ru": "Не доверяйте ему: он льстец, который хвалит всех подряд.",
+        "uz": "Unga ishonmang: u hammani maqtaydigan xushomadgo'y."
+      },
+      "explanation": {
+        "ru": "После a нужно существительное, обозначающее человека: flatter (льстить) → flatterer (льстец), суффикс -er.",
+        "uz": "a artiklidan keyin shaxsni bildiruvchi ot kerak: flatter (xushomad qilmoq) → flatterer (xushomadgo'y), -er qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m01-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "provoke"
+      ],
+      "text": "Do not let them *provocate* you into a fight.",
+      "options": [
+        "provoke",
+        "provocation",
+        "provoking"
+      ],
+      "correct": [
+        "provoke"
+      ],
+      "translation": {
+        "ru": "Не позволяйте им спровоцировать вас на драку.",
+        "uz": "Ularning sizni janjalga gij-gijlashiga yo'l qo'ymang."
+      },
+      "explanation": {
+        "ru": "Глагол — provoke; слова provocate в английском нет, его подсказывают «провоцировать» и provokatsiya. После let them — начальная форма: let them provoke you.",
+        "uz": "Fe'l — provoke; ingliz tilida provocate so'zi yo'q, uni «provokatsiya» so'zi yanglish eslatadi. let them so'zlaridan keyin fe'lning bosh shakli keladi: let them provoke you."
+      }
+    },
+    {
+      "key": "b2-m01-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "interfere"
+      ],
+      "text": "Our neighbors never interfere *to* our family affairs.",
+      "options": [
+        "in",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Наши соседи никогда не вмешиваются в наши семейные дела.",
+        "uz": "Qo'shnilarimiz hech qachon oilaviy ishlarimizga aralashmaydi."
+      },
+      "explanation": {
+        "ru": "interfere in — вмешиваться во что-то: предлог in, как русское «в», а не to.",
+        "uz": "interfere in — biror ishga aralashmoq: in predlogi keladi; o'zbekcha «-ga» bu yerda to emas."
+      }
+    },
+    {
+      "key": "b2-m01-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "deceive"
+      ],
+      "text": "Even careful buyers can easily *deceive* by clever advertising.",
+      "options": [
+        "be deceived",
+        "be deceiving",
+        "have deceived"
+      ],
+      "correct": [
+        "be deceived"
+      ],
+      "translation": {
+        "ru": "Даже осторожных покупателей легко обмануть умелой рекламой.",
+        "uz": "Hatto ehtiyotkor xaridorlar ham ustalik bilan qilingan reklamaga osongina aldanib qolishi mumkin."
+      },
+      "explanation": {
+        "ru": "Покупателей обманывают, а не они обманывают: by clever advertising требует пассива. После can — be + третья форма: can be deceived.",
+        "uz": "Xaridorlarni aldashadi, ular aldamaydi: by clever advertising majhul nisbatni talab qiladi. can so'zidan keyin be + uchinchi shakl: can be deceived."
+      }
+    },
+    {
+      "key": "b2-m01-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "pride"
+      ],
+      "text": "Her parents are very ___ of her new job.",
+      "base": "pride",
+      "accepted": [
+        "proud"
+      ],
+      "translation": {
+        "ru": "Её родители очень гордятся её новой работой.",
+        "uz": "Ota-onasi uning yangi ishi bilan juda faxrlanadi."
+      },
+      "explanation": {
+        "ru": "После are very нужно прилагательное: pride (гордость) → proud (гордый). be proud of — гордиться чем-то.",
+        "uz": "are very so'zlaridan keyin sifat kerak: pride (g'urur) → proud. be proud of — biror narsa bilan faxrlanmoq."
+      }
+    },
+    {
+      "key": "b2-m01-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "charisma"
+      ],
+      "text": "Our new director is so ___ that everyone wants to work for him.",
+      "base": "charisma",
+      "accepted": [
+        "charismatic"
+      ],
+      "translation": {
+        "ru": "Наш новый директор настолько харизматичен, что все хотят у него работать.",
+        "uz": "Yangi direktorimiz shunchalik xarizmatikki, hamma uning qo'l ostida ishlashni xohlaydi."
+      },
+      "explanation": {
+        "ru": "После is so нужно прилагательное: charisma → charismatic (харизматичный); к слову на -a прибавляется -tic.",
+        "uz": "is so so'zlaridan keyin sifat kerak: charisma → charismatic (xarizmatik); -a bilan tugaydigan so'zga -tic qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m01-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "dignity"
+      ],
+      "text": "Even after losing, she gave a calm and ___ speech.",
+      "base": "dignity",
+      "accepted": [
+        "dignified"
+      ],
+      "translation": {
+        "ru": "Даже после поражения она произнесла спокойную речь, полную достоинства.",
+        "uz": "Mag'lubiyatdan keyin ham u xotirjam va viqor bilan nutq so'zladi."
+      },
+      "explanation": {
+        "ru": "Перед speech, как и calm, нужно прилагательное: dignity (достоинство) → dignified (полный достоинства).",
+        "uz": "speech otidan oldin, calm kabi, sifat kerak: dignity (qadr-qimmat) → dignified (viqorli)."
+      }
+    },
+    {
+      "key": "b2-m01-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "conscience"
+      ],
+      "text": "He had a guilty *conscious* after shouting at his little sister.",
+      "options": [
+        "conscience",
+        "conscientious",
+        "consciously"
+      ],
+      "correct": [
+        "conscience"
+      ],
+      "translation": {
+        "ru": "Его мучила совесть после того, как он накричал на младшую сестру.",
+        "uz": "Singlisiga baqirgandan keyin uni vijdon azobi qiynadi."
+      },
+      "explanation": {
+        "ru": "conscience — совесть (существительное): a guilty conscience — нечистая совесть. conscious — прилагательное «в сознании, осознающий»; conscientious — «добросовестный».",
+        "uz": "conscience — vijdon (ot): a guilty conscience — vijdon azobi. conscious — «hushida, anglaydigan» ma'nosidagi sifat; conscientious — «vijdonli, sidqidildan ishlaydigan»."
+      }
+    },
+    {
+      "key": "b2-m01-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "outlook"
+      ],
+      "text": "Despite her illness, my grandmother keeps a cheerful outlook *at* life.",
+      "options": [
+        "on",
+        "with",
+        "from"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Несмотря на болезнь, моя бабушка сохраняет бодрый взгляд на жизнь.",
+        "uz": "Buvim kasal bo'lsa ham, hayotga nekbin qarashini yo'qotmagan."
+      },
+      "explanation": {
+        "ru": "outlook on life — взгляд на жизнь: с outlook предлог on, а не at, хотя по-русски «смотреть на».",
+        "uz": "outlook on life — hayotga qarash: outlook so'zi bilan at emas, on predlogi keladi."
+      }
+    },
+    {
+      "key": "b2-m01-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "trait"
+      ],
+      "text": "Honesty is one of the *trait* I value most in people.",
+      "options": [
+        "traits",
+        "trait's",
+        "traits'"
+      ],
+      "correct": [
+        "traits"
+      ],
+      "translation": {
+        "ru": "Честность — одна из черт, которые я больше всего ценю в людях.",
+        "uz": "Halollik — men odamlarda eng qadrlaydigan xislatlardan biri."
+      },
+      "explanation": {
+        "ru": "После one of нужно существительное во множественном числе: one of the traits. Апостроф здесь не нужен: trait's и traits' — притяжательные формы.",
+        "uz": "one of so'zlaridan keyin ot ko'plikda keladi: one of the traits. Bu yerda apostrof kerak emas: trait's va traits' — egalik shakllari."
+      }
+    },
+    {
+      "key": "b2-m02-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "applicant"
+      ],
+      "text": "Every ___ must fill in the online form first.",
+      "base": "apply",
+      "accepted": [
+        "applicant"
+      ],
+      "translation": {
+        "ru": "Каждый соискатель сначала должен заполнить онлайн-анкету.",
+        "uz": "Har bir nomzod avval onlayn anketani to'ldirishi kerak."
+      },
+      "explanation": {
+        "ru": "После every нужно существительное, обозначающее человека: apply → applicant (соискатель), суффикс -ant.",
+        "uz": "every so'zidan keyin shaxsni bildiruvchi ot kerak: apply → applicant (nomzod), -ant qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m02-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "resignation"
+      ],
+      "text": "She handed in her ___ after ten years at the bank.",
+      "base": "resign",
+      "accepted": [
+        "resignation"
+      ],
+      "translation": {
+        "ru": "Она подала заявление об уходе после десяти лет работы в банке.",
+        "uz": "U bankda o'n yil ishlagach, iste'fo arizasini topshirdi."
+      },
+      "explanation": {
+        "ru": "hand in your resignation — подать заявление об уходе. После her нужно существительное: resign → resignation.",
+        "uz": "hand in your resignation — iste'fo arizasini topshirmoq. her so'zidan keyin ot kerak: resign → resignation."
+      }
+    },
+    {
+      "key": "b2-m02-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "apprenticeship"
+      ],
+      "text": "He learned to repair cars during a long ___ at a local garage.",
+      "base": "apprentice",
+      "accepted": [
+        "apprenticeship"
+      ],
+      "translation": {
+        "ru": "Он научился ремонтировать машины за время долгого ученичества в местной автомастерской.",
+        "uz": "U mahalliy avtoustaxonada uzoq yillar shogirdlik qilib, mashina ta'mirlashni o'rgandi."
+      },
+      "explanation": {
+        "ru": "После a long нужно существительное «ученичество»: apprentice (ученик мастера) → apprenticeship, суффикс -ship.",
+        "uz": "a long so'zlaridan keyin «shogirdlik» ma'nosidagi ot kerak: apprentice (shogird) → apprenticeship, -ship qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m02-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "probation"
+      ],
+      "text": "He is still *in* probation, so he cannot take time off yet.",
+      "options": [
+        "on",
+        "at",
+        "by"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Он ещё на испытательном сроке, поэтому пока не может уйти в отпуск.",
+        "uz": "U hali sinov muddatida, shuning uchun hozircha ta'tilga chiqa olmaydi."
+      },
+      "explanation": {
+        "ru": "be on probation — быть на испытательном сроке: предлог on, как русское «на».",
+        "uz": "be on probation — sinov muddatida bo'lmoq: on predlogi keladi; o'zbekcha «-da» bu yerda in emas."
+      }
+    },
+    {
+      "key": "b2-m02-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "recruit"
+      ],
+      "text": "The hospital is struggling to *recruitment* enough nurses.",
+      "options": [
+        "recruit",
+        "recruiter",
+        "recruits"
+      ],
+      "correct": [
+        "recruit"
+      ],
+      "translation": {
+        "ru": "Больница с трудом набирает достаточно медсестёр.",
+        "uz": "Kasalxona yetarlicha hamshira yollashda qiynalmoqda."
+      },
+      "explanation": {
+        "ru": "После struggling to нужен глагол в начальной форме: recruit (набирать). recruitment — существительное «набор персонала», recruiter — тот, кто набирает.",
+        "uz": "struggling to so'zlaridan keyin fe'lning bosh shakli kerak: recruit (yollamoq). recruitment — «xodim yollash» oti, recruiter — yollovchi shaxs."
+      }
+    },
+    {
+      "key": "b2-m02-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "shortlist"
+      ],
+      "text": "Only five of the forty applicants were *shortlist* for an interview.",
+      "options": [
+        "shortlisted",
+        "shortlisting",
+        "shortlists"
+      ],
+      "correct": [
+        "shortlisted"
+      ],
+      "translation": {
+        "ru": "Из сорока соискателей на собеседование отобрали только пятерых.",
+        "uz": "Qirqta nomzoddan faqat beshtasi suhbatga saralab olindi."
+      },
+      "explanation": {
+        "ru": "Кандидатов отбирают — нужен пассив: were + третья форма. shortlist как глагол — «включить в короткий список»: were shortlisted.",
+        "uz": "Nomzodlarni saralashadi — majhul nisbat kerak: were + uchinchi shakl. shortlist fe'l sifatida — «saralangan ro'yxatga kiritmoq»: were shortlisted."
+      }
+    },
+    {
+      "key": "b2-m02-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "leadership"
+      ],
+      "text": "Strong ___ is exactly what this team needs right now.",
+      "base": "leader",
+      "accepted": [
+        "leadership"
+      ],
+      "translation": {
+        "ru": "Именно сильное руководство сейчас нужно этой команде.",
+        "uz": "Bu jamoaga hozir aynan kuchli rahbarlik kerak."
+      },
+      "explanation": {
+        "ru": "Нужно абстрактное существительное с глаголом is: leader (лидер) → leadership (руководство), суффикс -ship.",
+        "uz": "is fe'li bilan mavhum ot kerak: leader (rahbar) → leadership (rahbarlik), -ship qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m02-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "oversee"
+      ],
+      "text": "Last year she ___ the building of our new office.",
+      "base": "oversee",
+      "accepted": [
+        "oversaw"
+      ],
+      "translation": {
+        "ru": "В прошлом году она руководила строительством нашего нового офиса.",
+        "uz": "O'tgan yili u yangi ofisimiz qurilishini nazorat qildi."
+      },
+      "explanation": {
+        "ru": "Last year требует прошедшего времени. oversee спрягается как see: see → saw, oversee → oversaw (не overseed).",
+        "uz": "Last year o'tgan zamonni talab qiladi. oversee fe'li see kabi tuslanadi: see → saw, oversee → oversaw (overseed emas)."
+      }
+    },
+    {
+      "key": "b2-m02-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "delegate"
+      ],
+      "text": "Effective ___ gives a busy manager more time for planning.",
+      "base": "delegate",
+      "accepted": [
+        "delegation",
+        "delegating"
+      ],
+      "translation": {
+        "ru": "Умелое делегирование даёт занятому руководителю больше времени на планирование.",
+        "uz": "Vazifalarni boshqalarga samarali topshirish band rahbarga rejalashtirish uchun ko'proq vaqt qoldiradi."
+      },
+      "explanation": {
+        "ru": "После прилагательного effective нужно существительное: delegate → delegation (делегирование); верно и delegating.",
+        "uz": "effective sifatidan keyin ot kerak: delegate → delegation (vazifalarni topshirish); delegating shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "b2-m02-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "guidance"
+      ],
+      "text": "This website offers some very practical *guidances* on writing reports.",
+      "options": [
+        "guidance",
+        "guided",
+        "guiding"
+      ],
+      "correct": [
+        "guidance"
+      ],
+      "translation": {
+        "ru": "Этот сайт даёт очень практичные советы о том, как писать отчёты.",
+        "uz": "Bu sayt hisobot yozish bo'yicha juda amaliy yo'l-yo'riq beradi."
+      },
+      "explanation": {
+        "ru": "guidance — неисчисляемое существительное, формы guidances нет: some guidance, a piece of guidance. Русское «советы» во множественном числе здесь не помогает.",
+        "uz": "guidance — sanalmaydigan ot, guidances shakli yo'q: some guidance, a piece of guidance."
+      }
+    },
+    {
+      "key": "b2-m02-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "mentor"
+      ],
+      "text": "She thanked her former boss for *mentor* her in her first year.",
+      "options": [
+        "mentoring",
+        "mentored",
+        "mentors"
+      ],
+      "correct": [
+        "mentoring"
+      ],
+      "translation": {
+        "ru": "Она поблагодарила бывшего начальника за то, что он был её наставником в первый год.",
+        "uz": "U sobiq boshlig'iga birinchi yili unga ustozlik qilgani uchun rahmat aytdi."
+      },
+      "explanation": {
+        "ru": "После предлога for глагол стоит в форме на -ing: thank somebody for doing something — for mentoring her. Здесь mentor — глагол «быть наставником».",
+        "uz": "for predlogidan keyin fe'l -ing shaklida keladi: thank somebody for doing something — for mentoring her. Bu yerda mentor — «ustozlik qilmoq» fe'li."
+      }
+    },
+    {
+      "key": "b2-m02-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "subordinate"
+      ],
+      "text": "The director thanked all her *subordinate's* for their hard work.",
+      "options": [
+        "subordinates",
+        "subordinate",
+        "subordinated"
+      ],
+      "correct": [
+        "subordinates"
+      ],
+      "translation": {
+        "ru": "Директор поблагодарила всех своих подчинённых за усердную работу.",
+        "uz": "Direktor barcha qo'l ostidagi xodimlariga mehnati uchun minnatdorchilik bildirdi."
+      },
+      "explanation": {
+        "ru": "После all her нужно множественное число: subordinates, без апострофа. 's — знак принадлежности (my subordinate's idea), а не множественного числа.",
+        "uz": "all her so'zlaridan keyin ko'plik kerak: subordinates, apostrofsiz. 's — egalik belgisi (my subordinate's idea), ko'plik belgisi emas."
+      }
+    },
+    {
+      "key": "b2-m02-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "efficiency"
+      ],
+      "text": "The new software has greatly improved the ___ of our team.",
+      "base": "efficient",
+      "accepted": [
+        "efficiency"
+      ],
+      "translation": {
+        "ru": "Новая программа значительно повысила эффективность нашей команды.",
+        "uz": "Yangi dastur jamoamiz samaradorligini ancha oshirdi."
+      },
+      "explanation": {
+        "ru": "После the нужно существительное: efficient → efficiency (эффективность); -ent меняется на -ency.",
+        "uz": "the artiklidan keyin ot kerak: efficient → efficiency (samaradorlik); -ent o'rniga -ency yoziladi."
+      }
+    },
+    {
+      "key": "b2-m02-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "competence"
+      ],
+      "text": "Nobody trusts him because he is a completely ___ accountant.",
+      "base": "competence",
+      "accepted": [
+        "incompetent"
+      ],
+      "translation": {
+        "ru": "Ему никто не доверяет, потому что он совершенно некомпетентный бухгалтер.",
+        "uz": "Unga hech kim ishonmaydi, chunki u mutlaqo layoqatsiz buxgalter."
+      },
+      "explanation": {
+        "ru": "Перед accountant нужно прилагательное, а nobody trusts требует отрицания. Два шага: competence → competent → incompetent (приставка in-).",
+        "uz": "accountant otidan oldin sifat kerak, nobody trusts esa inkor ma'nosini talab qiladi. Ikki bosqich: competence → competent → incompetent (in- old qo'shimchasi)."
+      }
+    },
+    {
+      "key": "b2-m02-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "appraisal"
+      ],
+      "text": "My annual ___ is next week, so I am a little nervous.",
+      "base": "appraise",
+      "accepted": [
+        "appraisal"
+      ],
+      "translation": {
+        "ru": "Моя ежегодная аттестация на следующей неделе, поэтому я немного нервничаю.",
+        "uz": "Yillik attestatsiyam keyingi haftada, shuning uchun biroz xavotirdaman."
+      },
+      "explanation": {
+        "ru": "После прилагательного annual нужно существительное: appraise (оценивать) → appraisal (аттестация), суффикс -al.",
+        "uz": "annual sifatidan keyin ot kerak: appraise (baholamoq) → appraisal (attestatsiya), -al qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m02-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "initiative"
+      ],
+      "text": "She often *makes* the initiative and suggests new ideas.",
+      "options": [
+        "takes",
+        "does",
+        "gives"
+      ],
+      "correct": [
+        "takes"
+      ],
+      "translation": {
+        "ru": "Она часто проявляет инициативу и предлагает новые идеи.",
+        "uz": "U tez-tez tashabbus ko'rsatib, yangi g'oyalar taklif qiladi."
+      },
+      "explanation": {
+        "ru": "take the initiative — проявить инициативу, первым взяться за дело. С initiative не говорят make.",
+        "uz": "take the initiative — tashabbus ko'rsatmoq, ishni birinchi bo'lib boshlamoq. initiative so'zi bilan make ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m02-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "accomplish"
+      ],
+      "text": "Since January we have *accomplish* more than in all of last year.",
+      "options": [
+        "accomplished",
+        "accomplishing",
+        "accomplishes"
+      ],
+      "correct": [
+        "accomplished"
+      ],
+      "translation": {
+        "ru": "С января мы сделали больше, чем за весь прошлый год.",
+        "uz": "Yanvardan beri biz butun o'tgan yildagidan ko'ra ko'proq ish bajardik."
+      },
+      "explanation": {
+        "ru": "Since January и have требуют present perfect: have + третья форма — have accomplished. Форма на -ing после have без been не ставится.",
+        "uz": "Since January va have present perfect zamonini talab qiladi: have + uchinchi shakl — have accomplished. have so'zidan keyin been bo'lmasa, -ing shakli kelmaydi."
+      }
+    },
+    {
+      "key": "b2-m02-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "exceed"
+      ],
+      "text": "This year our sales exceeded the target *on* ten percent.",
+      "options": [
+        "by",
+        "for",
+        "with"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "В этом году наши продажи превысили план на десять процентов.",
+        "uz": "Bu yil savdomiz rejadan o'n foizga oshdi."
+      },
+      "explanation": {
+        "ru": "exceed by — превысить на сколько-то: разница вводится предлогом by. Русское «на» здесь by.",
+        "uz": "exceed by — qanchagadir oshmoq: farq by predlogi bilan beriladi. O'zbekcha «-ga» bu yerda by bo'ladi."
+      }
+    },
+    {
+      "key": "b2-m02-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "assign"
+      ],
+      "text": "Our boss gave each of us a difficult ___ for the weekend.",
+      "base": "assign",
+      "accepted": [
+        "assignment"
+      ],
+      "translation": {
+        "ru": "Начальник дал каждому из нас трудное задание на выходные.",
+        "uz": "Boshlig'imiz har birimizga dam olish kunlari uchun qiyin topshiriq berdi."
+      },
+      "explanation": {
+        "ru": "После a difficult нужно существительное: assign (поручать) → assignment (задание, поручение), суффикс -ment.",
+        "uz": "a difficult so'zlaridan keyin ot kerak: assign (topshiriq bermoq) → assignment (topshiriq), -ment qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m02-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "consult"
+      ],
+      "text": "She works as a ___ and helps companies reduce their costs.",
+      "base": "consult",
+      "accepted": [
+        "consultant"
+      ],
+      "translation": {
+        "ru": "Она работает консультантом и помогает компаниям сокращать расходы.",
+        "uz": "U maslahatchi bo'lib ishlaydi va kompaniyalarga xarajatlarni kamaytirishda yordam beradi."
+      },
+      "explanation": {
+        "ru": "После works as a нужно существительное, обозначающее человека: consult → consultant (консультант), суффикс -ant.",
+        "uz": "works as a so'zlaridan keyin shaxsni bildiruvchi ot kerak: consult → consultant (maslahatchi), -ant qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m02-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "prioritize"
+      ],
+      "text": "For our company, customer safety is the top ___.",
+      "base": "prioritize",
+      "accepted": [
+        "priority"
+      ],
+      "translation": {
+        "ru": "Для нашей компании безопасность клиентов — главный приоритет.",
+        "uz": "Kompaniyamiz uchun mijozlar xavfsizligi eng ustuvor vazifadir."
+      },
+      "explanation": {
+        "ru": "После the top нужно существительное: prioritize (расставлять приоритеты) → priority (приоритет).",
+        "uz": "the top so'zlaridan keyin ot kerak: prioritize (ustuvorliklarni belgilamoq) → priority (ustuvor vazifa)."
+      }
+    },
+    {
+      "key": "b2-m02-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "submit"
+      ],
+      "text": "Please submit your monthly report *until* Friday at noon.",
+      "options": [
+        "by",
+        "to",
+        "since"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, сдайте ежемесячный отчёт до полудня пятницы.",
+        "uz": "Iltimos, oylik hisobotingizni juma kuni tushgacha topshiring."
+      },
+      "explanation": {
+        "ru": "by + срок — «не позже чем»: submit by Friday. until — «вплоть до» для действия, которое длится: wait until Friday. Русское «к пятнице» — тоже by.",
+        "uz": "by + muddat — «kechiktirmay»: submit by Friday. until esa davom etadigan ish uchun: wait until Friday."
+      }
+    },
+    {
+      "key": "b2-m02-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "implement"
+      ],
+      "text": "The government plans to *implementation* stricter rules for drivers.",
+      "options": [
+        "implement",
+        "implementing",
+        "implemented"
+      ],
+      "correct": [
+        "implement"
+      ],
+      "translation": {
+        "ru": "Правительство планирует ввести более строгие правила для водителей.",
+        "uz": "Hukumat haydovchilar uchun qat'iyroq qoidalarni joriy etishni rejalashtirmoqda."
+      },
+      "explanation": {
+        "ru": "После plans to нужен глагол в начальной форме: implement (внедрять). implementation — существительное «внедрение».",
+        "uz": "plans to so'zlaridan keyin fe'lning bosh shakli kerak: implement (joriy etmoq). implementation — «joriy etish» oti."
+      }
+    },
+    {
+      "key": "b2-m02-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "authorize"
+      ],
+      "text": "Travel expenses must *authorize* by your manager in advance.",
+      "options": [
+        "be authorized",
+        "be authorizing",
+        "have authorized"
+      ],
+      "correct": [
+        "be authorized"
+      ],
+      "translation": {
+        "ru": "Командировочные расходы должен заранее официально одобрить ваш руководитель.",
+        "uz": "Xizmat safari xarajatlariga rahbaringiz oldindan rasman ruxsat berishi kerak."
+      },
+      "explanation": {
+        "ru": "Расходы не разрешают сами — их разрешают: by your manager требует пассива. После must — be + третья форма: must be authorized.",
+        "uz": "Xarajatlar o'zi ruxsat bermaydi, ularga ruxsat beriladi: by your manager majhul nisbatni talab qiladi. must so'zidan keyin be + uchinchi shakl: must be authorized."
+      }
+    },
+    {
+      "key": "b2-m02-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "retirement"
+      ],
+      "text": "My aunt is planning a big trip to celebrate her ___.",
+      "base": "retire",
+      "accepted": [
+        "retirement"
+      ],
+      "translation": {
+        "ru": "Моя тётя планирует большое путешествие, чтобы отметить выход на пенсию.",
+        "uz": "Xolam nafaqaga chiqishini nishonlash uchun katta sayohat rejalashtirmoqda."
+      },
+      "explanation": {
+        "ru": "После her нужно существительное: retire (уходить на пенсию) → retirement (выход на пенсию), суффикс -ment.",
+        "uz": "her so'zidan keyin ot kerak: retire (nafaqaga chiqmoq) → retirement (nafaqaga chiqish), -ment qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m02-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "compensation"
+      ],
+      "text": "Passengers whose flight was delayed for ten hours received ___.",
+      "base": "compensate",
+      "accepted": [
+        "compensation"
+      ],
+      "translation": {
+        "ru": "Пассажиры, чей рейс задержали на десять часов, получили компенсацию.",
+        "uz": "Reysi o'n soatga kechikkan yo'lovchilar kompensatsiya oldi."
+      },
+      "explanation": {
+        "ru": "После received нужно существительное: compensate → compensation (компенсация), -ate меняется на -ation.",
+        "uz": "received fe'lidan keyin ot kerak: compensate → compensation (kompensatsiya), -ate o'rniga -ation."
+      }
+    },
+    {
+      "key": "b2-m02-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "allowance"
+      ],
+      "text": "Our company pays every employee a monthly travel ___.",
+      "base": "allow",
+      "accepted": [
+        "allowance"
+      ],
+      "translation": {
+        "ru": "Наша компания выплачивает каждому сотруднику ежемесячную доплату на проезд.",
+        "uz": "Kompaniyamiz har bir xodimga har oy yo'l xarajatlari uchun qo'shimcha to'lov beradi."
+      },
+      "explanation": {
+        "ru": "После a monthly travel нужно существительное «доплата»: allow → allowance, суффикс -ance.",
+        "uz": "a monthly travel so'zlaridan keyin «qo'shimcha to'lov» ma'nosidagi ot kerak: allow → allowance, -ance qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m02-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "strike"
+      ],
+      "text": "The factory workers have been *in* strike for a week.",
+      "options": [
+        "on",
+        "at",
+        "under"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Рабочие завода бастуют уже неделю.",
+        "uz": "Zavod ishchilari bir haftadan beri ish tashlashda."
+      },
+      "explanation": {
+        "ru": "be on strike — бастовать, go on strike — начать забастовку: всегда предлог on.",
+        "uz": "be on strike — ish tashlashda bo'lmoq, go on strike — ish tashlashni boshlamoq: doim on predlogi."
+      }
+    },
+    {
+      "key": "b2-m02-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "expertise"
+      ],
+      "text": "The new manager brought a lot of *expertises* to our small company.",
+      "options": [
+        "expertise",
+        "expert",
+        "expertly"
+      ],
+      "correct": [
+        "expertise"
+      ],
+      "translation": {
+        "ru": "Новый руководитель принёс в нашу небольшую компанию много профессиональных знаний.",
+        "uz": "Yangi rahbar kichik kompaniyamizga katta kasbiy tajriba olib keldi."
+      },
+      "explanation": {
+        "ru": "expertise — неисчисляемое существительное, формы expertises нет: a lot of expertise. expert — специалист, expertly — наречие «умело».",
+        "uz": "expertise — sanalmaydigan ot, expertises shakli yo'q: a lot of expertise. expert — mutaxassis, expertly — «mohirona» ravishi."
+      }
+    },
+    {
+      "key": "b2-m02-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "vocation"
+      ],
+      "text": "She followed her *vacation* and became a nurse at eighteen.",
+      "options": [
+        "vocation",
+        "vacancy",
+        "location"
+      ],
+      "correct": [
+        "vocation"
+      ],
+      "translation": {
+        "ru": "Она последовала своему призванию и в восемнадцать лет стала медсестрой.",
+        "uz": "U ko'ngli tortgan kasbni tanlab, o'n sakkiz yoshida hamshira bo'ldi."
+      },
+      "explanation": {
+        "ru": "vocation — призвание; vacation — отпуск, каникулы. Слова похожи, но смысл разный.",
+        "uz": "vocation — ko'ngil qo'ygan kasb; vacation — ta'til. So'zlar o'xshash, ma'nosi boshqa."
+      }
+    }
+  ]
+}

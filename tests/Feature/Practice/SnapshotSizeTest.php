@@ -130,6 +130,42 @@ function snapWorstWorld(string $locale = 'ru'): array
         DictationKit::word($lesson, $learner, snapLatin(40, "word{$i}x"), snapCyrillic(100));
     }
 
+    // Word forms (docs/16 §5.6): the sentence, the base word and four right forms of 40 letters, the texts at their limits.
+    $letter = fn (int $i): string => chr(ord('a') + $i);
+    for ($i = 1; $i <= 5; $i++) {
+        $forms = [];
+        for ($v = 0; $v < $limit('word_form_accepted_max'); $v++) {
+            $forms[] = snapLatin($limit('word_form_answer_max'), 'q'.$letter($i).$letter($v));
+        }
+        $content = $validator->canonical(PracticeItemType::WordForm, [
+            'text' => substr("We ___ {$i} ".str_repeat('word ', 40), 0, $limit('word_form_text_max')),
+            'base' => snapLatin($limit('word_form_base_max'), 'z'.$letter($i)),
+            'accepted' => $forms,
+            'translation' => ['ru' => snapCyrillic($limit('prompt_max')), 'uz' => snapLatin($limit('prompt_max'))],
+            'explanation' => ['ru' => snapCyrillic($limit('explanation_max')), 'uz' => snapLatin($limit('explanation_max'))],
+        ]);
+        PracticeItem::factory()->wordForm()->published()->forLesson($lesson)->targeting($target)->withContent($content)->create();
+    }
+
+    // Find the mistake (docs/16 §5.7): the most words the sentence may have (each a word with an id of its own) within its length,
+    // three corrections of 40 characters, the texts at their limits.
+    for ($i = 1; $i <= 5; $i++) {
+        $words = [];
+        for ($w = 0; $w < $limit('error_hunt_tokens.max'); $w++) {
+            $words[] = $w === 3 ? '*'.$letter($i).'wrongwor*' : $letter($i).substr('abcdefghij', 0, 8);
+        }
+        $options = [snapLatin($limit('fragment_max_length'), "a{$i}"), snapLatin($limit('fragment_max_length'), "b{$i}"), snapLatin($limit('fragment_max_length'), "c{$i}")];
+        $content = $validator->canonical(PracticeItemType::ErrorHunt, [
+            'text' => implode(' ', $words),
+            'options' => $options,
+            'correct' => [$options[0]],
+            'translation' => ['ru' => snapCyrillic($limit('prompt_max')), 'uz' => snapLatin($limit('prompt_max'))],
+            'explanation' => ['ru' => snapCyrillic($limit('explanation_max')), 'uz' => snapLatin($limit('explanation_max'))],
+        ]);
+        expect(mb_strlen($content['text']))->toBeGreaterThan($limit('error_hunt_text_max') - 10);
+        PracticeItem::factory()->errorHunt()->published()->forLesson($lesson)->targeting($target)->withContent($content)->create();
+    }
+
     return [$learner, $course, $lesson];
 }
 
@@ -168,7 +204,7 @@ it('builds the biggest snapshot the content limits allow in every mode, for ever
     }
 })->with(function (): array {
     $rows = [];
-    foreach (['collocation', 'sentence', 'dictation'] as $mode) {
+    foreach (['collocation', 'sentence', 'dictation', 'word_form', 'error_hunt'] as $mode) {
         foreach (['solo-ru', 'solo-uz', 'battle'] as $audience) {
             $rows["{$mode} {$audience}"] = [$mode, $audience];
         }

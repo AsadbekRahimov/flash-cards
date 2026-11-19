@@ -134,7 +134,8 @@ it('makes the demo practice work: a demo learner of the pilot gets the tasks of 
         $lesson = $course->stages()->where('number', $stage)->firstOrFail()->lessons()->where('number', $number)->firstOrFail();
         $scope = new MaterialScope($course, $lesson);
 
-        foreach (PracticeItemType::cases() as $type) {
+        // The pilot package has the three first types (10 of each per lesson), none of the newer ones.
+        foreach ([PracticeItemType::Collocation, PracticeItemType::Sentence, PracticeItemType::Dictation] as $type) {
             expect($material->eligibleItems($scope, $type, $learner))->toHaveCount(10, "{$type->value} of module {$stage} lesson {$number}");
         }
     }

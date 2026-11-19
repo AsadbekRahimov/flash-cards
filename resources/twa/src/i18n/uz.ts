@@ -841,6 +841,10 @@ export const uz: Translations = {
   'practice.mode.dictation.example': 'Eshitganingizni inglizcha yozing',
   'practice.mode.pairs_timed.title': 'Vaqtga juftlar',
   'practice.mode.pairs_timed.example': "60 soniya — iloji boricha ko'proq juft toping",
+  'practice.mode.word_form.title': "So'z shakli",
+  'practice.mode.word_form.example': 'decide → decision',
+  'practice.mode.error_hunt.title': 'Xatoni toping',
+  'practice.mode.error_hunt.example': 'interested on → in',
 
   // ---- practice: session ----
   'practice.session.progress': '{total} tadan {done} tasi bajarildi',
@@ -970,6 +974,32 @@ export const uz: Translations = {
   'practice.dictation.diff.right': "to'g'ri",
   'practice.dictation.diff.wrong': 'xato',
   'practice.dictation.diff_hint': "Xato yozilgan so'zlar belgilandi.",
+
+  // ---- practice: word_form ----
+  'practice.word_form.instruction': "So'zni kerakli shaklda qo'ying",
+  'practice.word_form.base_hint': "Shu so'zdan shakl yasang",
+  'practice.word_form.placeholder': 'Javobingiz',
+  'practice.word_form.same_as_base': "So'zning boshqa shakli kerak",
+
+  // ---- practice: error_hunt ----
+  'practice.error_hunt.instruction_locate': "Xato so'zni toping",
+  'practice.error_hunt.confirm': 'Xato shu yerda',
+  'practice.error_hunt.instruction_fix': 'Qanday tuzatiladi?',
+  'practice.error_hunt.located_ok': "To'g'ri, xato shu yerda",
+  'practice.error_hunt.located_wrong': "Xato boshqa so'zda",
+  'practice.error_hunt.result.found': 'Xato topildi',
+  'practice.error_hunt.result.not_found': 'Xato topilmadi',
+  'practice.error_hunt.result.fixed': "To'g'ri tuzatildi",
+  'practice.error_hunt.result.not_fixed': "Noto'g'ri tuzatildi",
+  'practice.error_hunt.result.skipped': "O'tkazib yuborildi",
+  'practice.error_hunt.you_picked': "Siz tanlagan so'z",
+  'practice.error_hunt.your_fix': 'Siz tanlagan variant',
+  'practice.error_hunt.was': 'Avval',
+  'practice.error_hunt.became': 'Keyin',
+  'practice.error_hunt.words': "Gapdagi so'zlar",
+  'practice.error_hunt.token.selected': 'tanlandi',
+  'practice.error_hunt.token.yours': 'sizning tanlovingiz',
+  'practice.error_hunt.token.error': 'xato',
 
   // ---- battle ----
   'battle.title': 'Bellashuv',
@@ -1427,6 +1457,7 @@ export const uz: Translations = {
   'error.code.practice_time_over': "Vaqt tugadi. Natijani ko'ramiz.",
   'error.code.practice_not_timed': "Bu vaqtga o'yin emas.",
   'error.code.element_not_current': 'Topshiriq almashgan. Ekran yangilandi.',
+  'error.code.step_not_current': 'Topshiriq boshqa oynada davom etgan. Ekran yangilandi.',
   'error.code.answer_already_accepted': 'Bu topshiriqqa javob allaqachon qabul qilingan.',
   'error.code.pair_already_matched': 'Bu juftlik allaqachon topilgan.',
   'error.code.invalid_answer_shape': "Javobni yuborib bo'lmadi. Qayta urinib ko'ring.",

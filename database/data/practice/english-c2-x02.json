@@ -1,0 +1,1632 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c2",
+  "items": [
+    {
+      "key": "c2-m03-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "verbose"
+      ],
+      "text": "The sheer ___ of the report meant that nobody read past the first page.",
+      "base": "verbose",
+      "accepted": [
+        "verbosity",
+        "verboseness"
+      ],
+      "translation": {
+        "ru": "Из-за одной лишь многословности отчёта никто не читал его дальше первой страницы.",
+        "uz": "Hisobotning o'ta serso'zligi tufayli hech kim birinchi sahifadan nariga o'tmadi."
+      },
+      "explanation": {
+        "ru": "Между the sheer и of нужно существительное: verbose → verbosity (многословность), -ose → -osity. Реже встречается и verboseness.",
+        "uz": "the sheer va of oralig'ida ot kerak: verbose → verbosity (serso'zlik), -ose o'rniga -osity. Kamroq verboseness shakli ham uchraydi."
+      }
+    },
+    {
+      "key": "c2-m03-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "garrulous"
+      ],
+      "text": "Her ___ turned every short phone call into an hour-long monologue.",
+      "base": "garrulous",
+      "accepted": [
+        "garrulity",
+        "garrulousness"
+      ],
+      "translation": {
+        "ru": "Из-за её болтливости каждый короткий телефонный звонок превращался в часовой монолог.",
+        "uz": "Uning sergapligi tufayli har bir qisqa telefon suhbati bir soatlik monologga aylanib ketardi."
+      },
+      "explanation": {
+        "ru": "После her нужно существительное: garrulous → garrulity (болтливость): -ous выпадает, к основе garrul- добавляется -ity. Верно и garrulousness.",
+        "uz": "her so'zidan keyin ot kerak: garrulous → garrulity (sergaplik): -ous tushib qoladi, garrul- o'zagiga -ity qo'shiladi. garrulousness shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "c2-m03-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "pithy"
+      ],
+      "text": "In a single sentence, she summed up the whole debate ___.",
+      "base": "pithy",
+      "accepted": [
+        "pithily"
+      ],
+      "translation": {
+        "ru": "Она ёмко подвела итог всей дискуссии одной фразой.",
+        "uz": "U butun munozarani bir jumlada lo'nda qilib xulosalab berdi."
+      },
+      "explanation": {
+        "ru": "К глаголу summed up нужно наречие: pithy → pithily (ёмко); y после согласной перед -ly меняется на i.",
+        "uz": "summed up fe'lini ravish izohlaydi: pithy → pithily (lo'nda qilib); undoshdan keyingi y harfi -ly oldidan i ga aylanadi."
+      }
+    },
+    {
+      "key": "c2-m03-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "terse"
+      ],
+      "text": "The minister *terse* dismissed every question about the budget.",
+      "options": [
+        "tersely",
+        "terseness",
+        "terser"
+      ],
+      "correct": [
+        "tersely"
+      ],
+      "translation": {
+        "ru": "Министр сухо и отрывисто отмёл все вопросы о бюджете.",
+        "uz": "Vazir byudjet haqidagi barcha savollarni quruq va qisqa qilib rad etdi."
+      },
+      "explanation": {
+        "ru": "К глаголу dismissed нужно наречие, а не прилагательное: terse → tersely. Прилагательное ставят при существительном: a terse reply.",
+        "uz": "dismissed fe'lini sifat emas, ravish izohlaydi: terse → tersely. Sifat esa ot bilan keladi: a terse reply."
+      }
+    },
+    {
+      "key": "c2-m03-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "succinct"
+      ],
+      "text": "The professor's answer was *succint* and far clearer than the textbook.",
+      "options": [
+        "succinct",
+        "succinctly",
+        "succinctness"
+      ],
+      "correct": [
+        "succinct"
+      ],
+      "translation": {
+        "ru": "Ответ профессора был кратким и ясным — куда понятнее, чем учебник.",
+        "uz": "Professorning javobi qisqa va aniq bo'lib, darslikdagidan ancha tushunarli edi."
+      },
+      "explanation": {
+        "ru": "Слово пишется succinct: две c в середине (suc-cinct) и ct в конце; succint — частая орфографическая ошибка. После was нужно прилагательное.",
+        "uz": "So'z succinct deb yoziladi: o'rtada ikkita c (suc-cinct), oxirida ct; succint — keng tarqalgan imlo xatosi. was fe'lidan keyin sifat kerak."
+      }
+    },
+    {
+      "key": "c2-m03-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "stilted"
+      ],
+      "text": "Her letters to him were so *stilting* that they read like legal documents.",
+      "options": [
+        "stilted",
+        "stiltedly",
+        "stilt"
+      ],
+      "correct": [
+        "stilted"
+      ],
+      "translation": {
+        "ru": "Её письма к нему были настолько высокопарными и неестественными, что читались как юридические документы.",
+        "uz": "Uning unga yozgan xatlari shunchalik sun'iy va balandparvoz ediki, xuddi yuridik hujjatlardek o'qilardi."
+      },
+      "explanation": {
+        "ru": "stilted (высокопарный, неестественный) — прилагательное на -ed; формы stilting в этом значении нет. После so нужно прилагательное, а не наречие stiltedly; stilt — существительное «ходуля».",
+        "uz": "stilted (balandparvoz, sun'iy) — -ed bilan tugaydigan sifat; bu ma'noda stilting shakli yo'q. so so'zidan keyin stiltedly ravishi emas, sifat keladi; stilt esa «xoda oyoq» degan ot."
+      }
+    },
+    {
+      "key": "c2-m03-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "extol"
+      ],
+      "text": "Last spring every critic in the country ___ the young pianist's first recording.",
+      "base": "extol",
+      "accepted": [
+        "extolled"
+      ],
+      "translation": {
+        "ru": "Прошлой весной все критики страны превозносили первую запись молодого пианиста.",
+        "uz": "O'tgan bahorda mamlakatdagi barcha tanqidchilar yosh pianinochining ilk yozuvini ko'klarga ko'tarishdi."
+      },
+      "explanation": {
+        "ru": "Last spring требует прошедшего времени. Ударение в extol падает на последний слог, поэтому l удваивается: extolled (в обоих вариантах английского).",
+        "uz": "Last spring o'tgan zamonni talab qiladi. extol fe'lida urg'u oxirgi bo'g'inga tushadi, shuning uchun l ikkilanadi: extolled (ingliz tilining ikkala variantida ham)."
+      }
+    },
+    {
+      "key": "c2-m03-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "insinuate"
+      ],
+      "text": "At the meeting he made several nasty ___ about my salary.",
+      "base": "insinuate",
+      "accepted": [
+        "insinuations"
+      ],
+      "translation": {
+        "ru": "На собрании он сделал несколько гадких намёков насчёт моей зарплаты.",
+        "uz": "Majlisda u maoshim haqida bir necha bor yomon shama qildi."
+      },
+      "explanation": {
+        "ru": "После several nasty нужно существительное во множественном числе: insinuate → insinuation (-ate → -ation) → insinuations.",
+        "uz": "several nasty so'zlaridan keyin ko'plikdagi ot kerak: insinuate → insinuation (-ate o'rniga -ation) → insinuations."
+      }
+    },
+    {
+      "key": "c2-m03-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "implore"
+      ],
+      "text": "The little girl stared ___ at her father, hoping he would buy the puppy.",
+      "base": "implore",
+      "accepted": [
+        "imploringly"
+      ],
+      "translation": {
+        "ru": "Девочка умоляюще смотрела на отца в надежде, что он купит щенка.",
+        "uz": "Qizcha otasi kuchukchani olib berar degan umidda unga yolvorib tikilardi."
+      },
+      "explanation": {
+        "ru": "К глаголу stared нужно наречие: implore → imploring → imploringly (умоляюще); e выпадает перед -ing, затем добавляется -ly.",
+        "uz": "stared fe'lini ravish izohlaydi: implore → imploring → imploringly (yolvorib); -ing oldidan e tushib qoladi, keyin -ly qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m03-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "cajole"
+      ],
+      "text": "The salesman cajoled the old couple *for* buying an expensive new sofa.",
+      "options": [
+        "into",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Продавец лестью уговорил пожилую пару купить дорогой новый диван.",
+        "uz": "Sotuvchi xushomad bilan keksa er-xotinni qimmat yangi divan sotib olishga ko'ndirdi."
+      },
+      "explanation": {
+        "ru": "cajole somebody into doing something — лестью уговорить кого-то сделать что-то: после cajole нужен предлог into и форма на -ing.",
+        "uz": "cajole somebody into doing something — kimnidir xushomad bilan biror ishga ko'ndirmoq: cajole fe'lidan keyin into predlogi va -ing shakli keladi."
+      }
+    },
+    {
+      "key": "c2-m03-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "exhort"
+      ],
+      "text": "The doctor exhorted her patients *eating* less salt and more vegetables.",
+      "options": [
+        "to eat",
+        "eat",
+        "for eating"
+      ],
+      "correct": [
+        "to eat"
+      ],
+      "translation": {
+        "ru": "Врач призывала своих пациентов есть меньше соли и больше овощей.",
+        "uz": "Shifokor bemorlarini kamroq tuz va ko'proq sabzavot iste'mol qilishga da'vat etdi."
+      },
+      "explanation": {
+        "ru": "exhort somebody to do something — призывать кого-то что-то сделать: после exhort и дополнения нужен инфинитив с to, а не -ing.",
+        "uz": "exhort somebody to do something — kimnidir biror ishga da'vat etmoq: exhort fe'li va to'ldiruvchidan keyin -ing emas, to bilan infinitiv keladi."
+      }
+    },
+    {
+      "key": "c2-m03-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "admonish"
+      ],
+      "text": "*Admonishing* by the referee, the young player apologized to his opponent.",
+      "options": [
+        "Admonished",
+        "Having admonished",
+        "Admonishes"
+      ],
+      "correct": [
+        "Admonished"
+      ],
+      "translation": {
+        "ru": "Получив от судьи внушение, молодой игрок извинился перед соперником.",
+        "uz": "Hakamdan tanbeh olgan yosh o'yinchi raqibidan uzr so'radi."
+      },
+      "explanation": {
+        "ru": "Игрок не делал внушение, а получил его (by the referee), поэтому нужен оборот со страдательным причастием: Admonished by…; Having admonished — действительный залог, он тоже не подходит.",
+        "uz": "O'yinchi tanbeh bermagan, balki uni olgan (by the referee), shuning uchun majhul sifatdosh bilan oborot kerak: Admonished by…; Having admonished esa aniq nisbatda, u ham to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "c2-m03-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "laud"
+      ],
+      "text": "Your desire to help is entirely ___, but the plan itself will never work.",
+      "base": "laud",
+      "accepted": [
+        "laudable"
+      ],
+      "translation": {
+        "ru": "Ваше желание помочь вполне похвально, но сам план никогда не сработает.",
+        "uz": "Yordam berish istagingiz mutlaqo maqtovga loyiq, ammo rejaning o'zi hech qachon ish bermaydi."
+      },
+      "explanation": {
+        "ru": "После is entirely нужно прилагательное «достойный похвалы»: laud → laudable (-able). laudatory значит «хвалебный» (о речи, отзыве) и к желанию не подходит.",
+        "uz": "is entirely so'zlaridan keyin «maqtovga loyiq» ma'nosidagi sifat kerak: laud → laudable (-able). laudatory esa «maqtov ruhidagi» (nutq, taqriz haqida) degani, istakka mos kelmaydi."
+      }
+    },
+    {
+      "key": "c2-m03-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "deride"
+      ],
+      "text": "The minister's proposal was greeted with open ___ by the opposition.",
+      "base": "deride",
+      "accepted": [
+        "derision"
+      ],
+      "translation": {
+        "ru": "Оппозиция встретила предложение министра откровенными насмешками.",
+        "uz": "Muxolifat vazirning taklifini ochiqdan-ochiq masxara bilan kutib oldi."
+      },
+      "explanation": {
+        "ru": "После with open нужно существительное: deride → derision (насмешка): -ide → -ision, как decide → decision.",
+        "uz": "with open so'zlaridan keyin ot kerak: deride → derision (masxara): -ide o'rniga -ision, xuddi decide → decision kabi."
+      }
+    },
+    {
+      "key": "c2-m03-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "disparage"
+      ],
+      "text": "She always spoke ___ of her former boss, which did not impress her new colleagues.",
+      "base": "disparage",
+      "accepted": [
+        "disparagingly"
+      ],
+      "translation": {
+        "ru": "Она всегда пренебрежительно отзывалась о бывшем начальнике, и новым коллегам это не нравилось.",
+        "uz": "U doim sobiq rahbari haqida kamsitib gapirardi, bu esa yangi hamkasblariga yoqmasdi."
+      },
+      "explanation": {
+        "ru": "К глаголу spoke нужно наречие: disparage → disparaging → disparagingly (пренебрежительно); e выпадает перед -ing.",
+        "uz": "spoke fe'lini ravish izohlaydi: disparage → disparaging → disparagingly (kamsitib); -ing oldidan e tushib qoladi."
+      }
+    },
+    {
+      "key": "c2-m03-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "censure"
+      ],
+      "text": "After the scandal, parliament passed a vote of *censor* against the minister.",
+      "options": [
+        "censure",
+        "censorship",
+        "sensor"
+      ],
+      "correct": [
+        "censure"
+      ],
+      "translation": {
+        "ru": "После скандала парламент вынес министру вотум порицания.",
+        "uz": "Janjaldan so'ng parlament vazirga rasmiy tanbeh berish to'g'risida qaror qabul qildi."
+      },
+      "explanation": {
+        "ru": "censure — официальное порицание (a vote of censure — вотум порицания). censor — цензор, censorship — цензура, sensor — датчик.",
+        "uz": "censure — rasmiy tanbeh (a vote of censure — tanbeh haqida ovoz berish). censor — senzor (tekshiruvchi), censorship — senzura, sensor — datchik."
+      }
+    },
+    {
+      "key": "c2-m03-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "adulation"
+      ],
+      "text": "The aging actor still missed the *adulations* of his former audiences.",
+      "options": [
+        "adulation",
+        "adulate",
+        "adulatory"
+      ],
+      "correct": [
+        "adulation"
+      ],
+      "translation": {
+        "ru": "Стареющий актёр всё ещё тосковал по неумеренному восхищению своих прежних зрителей.",
+        "uz": "Keksayib qolgan aktyor hamon avvalgi tomoshabinlarining haddan ziyod olqishlarini sog'inardi."
+      },
+      "explanation": {
+        "ru": "adulation — неисчисляемое существительное, формы множественного числа у него нет: the adulation of fans. adulate — глагол, adulatory — прилагательное.",
+        "uz": "adulation — sanalmaydigan ot, ko'plik shakli yo'q: the adulation of fans. adulate — fe'l, adulatory — sifat."
+      }
+    },
+    {
+      "key": "c2-m03-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "vilify"
+      ],
+      "text": "Several newspapers *villified* the judge for his lenient sentence.",
+      "options": [
+        "vilified",
+        "verified",
+        "vivified"
+      ],
+      "correct": [
+        "vilified"
+      ],
+      "translation": {
+        "ru": "Несколько газет очернили судью за мягкий приговор.",
+        "uz": "Bir nechta gazeta sudyani yengil hukm chiqargani uchun badnom qildi."
+      },
+      "explanation": {
+        "ru": "vilify пишется с одной l: vilified. Двойное ll — влияние слова villain (злодей). verify — проверять, vivify — оживлять.",
+        "uz": "vilify bitta l bilan yoziladi: vilified. ll — villain (yovuz odam) so'zining ta'siri. verify — tekshirmoq, vivify — jonlantirmoq."
+      }
+    },
+    {
+      "key": "c2-m03-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "feign"
+      ],
+      "text": "Her ___ joy at the gift showed that she had really wanted it.",
+      "base": "feign",
+      "accepted": [
+        "unfeigned"
+      ],
+      "translation": {
+        "ru": "Её неподдельный восторг от подарка показал, что она действительно о нём мечтала.",
+        "uz": "Sovg'adan samimiy quvonganidan uning bu narsani chindan ham istagani ko'rinib turardi."
+      },
+      "explanation": {
+        "ru": "Конец фразы (she had really wanted it) требует смысла «непритворный»: feign → feigned (притворный) → unfeigned. feigned joy противоречило бы ему.",
+        "uz": "Gapning oxiri (she had really wanted it) «soxta emas» ma'nosini talab qiladi: feign → feigned (soxta) → unfeigned. feigned joy unga zid bo'lardi."
+      }
+    },
+    {
+      "key": "c2-m03-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "euphemism"
+      ],
+      "text": "The company ___ described the mass layoffs as a restructuring.",
+      "base": "euphemism",
+      "accepted": [
+        "euphemistically"
+      ],
+      "translation": {
+        "ru": "Компания эвфемистически назвала массовые увольнения реструктуризацией.",
+        "uz": "Kompaniya ommaviy ishdan bo'shatishlarni yumshatib, qayta tashkil etish deb atadi."
+      },
+      "explanation": {
+        "ru": "К глаголу described нужно наречие: euphemism → euphemistic (-ism → -istic) → euphemistically (после -ic наречие образуется с -ally).",
+        "uz": "described fe'lini ravish izohlaydi: euphemism → euphemistic (-ism o'rniga -istic) → euphemistically (-ic qo'shimchasidan keyin ravish -ally bilan yasaladi)."
+      }
+    },
+    {
+      "key": "c2-m03-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "embellish"
+      ],
+      "text": "Every ___ he added made the old story a little less convincing.",
+      "base": "embellish",
+      "accepted": [
+        "embellishment"
+      ],
+      "translation": {
+        "ru": "Каждое новое приукрашивание делало старую историю чуть менее правдоподобной.",
+        "uz": "U qo'shib-chatgan har bir tafsilot eski hikoyani biroz kamroq ishonarli qilib qo'yardi."
+      },
+      "explanation": {
+        "ru": "После every нужно исчисляемое существительное в единственном числе: embellish → embellishment (приукрашивание), суффикс -ment.",
+        "uz": "every so'zidan keyin birlikdagi sanaladigan ot kerak: embellish → embellishment (bo'yab-bejash), -ment qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m03-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "evasive"
+      ],
+      "text": "Asked about the missing money, the manager answered every question *evasive*.",
+      "options": [
+        "evasively",
+        "evasion",
+        "evasiveness"
+      ],
+      "correct": [
+        "evasively"
+      ],
+      "translation": {
+        "ru": "Когда управляющего спросили о пропавших деньгах, он уклончиво отвечал на каждый вопрос.",
+        "uz": "Menejerdan yo'qolgan pullar haqida so'rashganda, u har bir savolga mujmal javob berdi."
+      },
+      "explanation": {
+        "ru": "К глаголу answered нужно наречие: evasive → evasively (уклончиво). Прилагательное evasive стоит при существительном: an evasive answer.",
+        "uz": "answered fe'lini ravish izohlaydi: evasive → evasively (mujmal qilib). evasive sifati esa ot bilan keladi: an evasive answer."
+      }
+    },
+    {
+      "key": "c2-m03-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "equivocate"
+      ],
+      "text": "The minister kept on *equivocate* until the reporters finally lost patience.",
+      "options": [
+        "equivocating",
+        "equivocated",
+        "equivocation"
+      ],
+      "correct": [
+        "equivocating"
+      ],
+      "translation": {
+        "ru": "Министр продолжал юлить, пока у журналистов наконец не лопнуло терпение.",
+        "uz": "Muxbirlarning sabri nihoyat tugaguncha vazir ikki ma'noli gapirishda davom etdi."
+      },
+      "explanation": {
+        "ru": "keep on (продолжать) требует формы на -ing: kept on equivocating. Ни инфинитив, ни существительное equivocation здесь невозможны.",
+        "uz": "keep on (davom etmoq) iborasidan keyin -ing shakli keladi: kept on equivocating. Infinitiv ham, equivocation oti ham bu yerda mumkin emas."
+      }
+    },
+    {
+      "key": "c2-m03-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "disingenuous"
+      ],
+      "text": "It is *disingenious* of the company to blame the weather for its losses.",
+      "options": [
+        "disingenuous",
+        "disingenuously",
+        "ingenuity"
+      ],
+      "correct": [
+        "disingenuous"
+      ],
+      "translation": {
+        "ru": "Со стороны компании неискренне винить в своих убытках погоду.",
+        "uz": "Kompaniyaning o'z zararlari uchun ob-havoni ayblashi nosamimiylikdir."
+      },
+      "explanation": {
+        "ru": "Слово пишется disingenuous (от ingenuous — простодушный), а не через -ious, как ingenious (изобретательный). После It is нужно прилагательное.",
+        "uz": "So'z disingenuous deb yoziladi (ingenuous — soddadil so'zidan), ingenious (zukko) so'zidagi kabi -ious bilan emas. It is so'zlaridan keyin sifat kerak."
+      }
+    },
+    {
+      "key": "c2-m03-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "sardonic"
+      ],
+      "text": "He smiled ___ when his boss promised, yet again, that everything would soon improve.",
+      "base": "sardonic",
+      "accepted": [
+        "sardonically"
+      ],
+      "translation": {
+        "ru": "Он язвительно усмехнулся, когда начальник в очередной раз пообещал, что скоро всё наладится.",
+        "uz": "Boshlig'i yana bir bor hammasi tez orada yaxshilanishini va'da qilganida, u zaharxanda jilmayib qo'ydi."
+      },
+      "explanation": {
+        "ru": "К глаголу smiled нужно наречие: sardonic → sardonically (язвительно). У прилагательных на -ic наречие образуется с -ally, а не -ly.",
+        "uz": "smiled fe'lini ravish izohlaydi: sardonic → sardonically (zaharxanda). -ic bilan tugaydigan sifatlardan ravish -ly emas, -ally orqali yasaladi."
+      }
+    },
+    {
+      "key": "c2-m03-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "implicit"
+      ],
+      "text": "The contract ___ forbids sharing the data, though it never says so directly.",
+      "base": "implicit",
+      "accepted": [
+        "implicitly"
+      ],
+      "translation": {
+        "ru": "Договор неявно запрещает передавать эти данные, хотя прямо нигде об этом не говорит.",
+        "uz": "Shartnoma bu ma'lumotlarni boshqalarga berishni ochiq aytmasa-da, bilvosita taqiqlaydi."
+      },
+      "explanation": {
+        "ru": "К глаголу forbids нужно наречие: implicit → implicitly (неявно, подразумеваемо). Конец фразы (never says so directly) указывает на «неявно».",
+        "uz": "forbids fe'lini ravish izohlaydi: implicit → implicitly (bilvosita). Gapning oxiri (never says so directly) aynan «bilvosita» ma'nosini ko'rsatadi."
+      }
+    },
+    {
+      "key": "c2-m03-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "facetious"
+      ],
+      "text": "Nobody at the funeral appreciated his ___, and several guests left early.",
+      "base": "facetious",
+      "accepted": [
+        "facetiousness"
+      ],
+      "translation": {
+        "ru": "Никто на похоронах не оценил его неуместной шутливости, и несколько гостей ушли раньше.",
+        "uz": "Dafn marosimida hech kim uning o'rinsiz hazilkashligini yoqtirmadi, bir nechta mehmon esa erta ketib qoldi."
+      },
+      "explanation": {
+        "ru": "После his нужно существительное: facetious → facetiousness (неуместная шутливость), суффикс -ness.",
+        "uz": "his so'zidan keyin ot kerak: facetious → facetiousness (o'rinsiz hazilkashlik), -ness qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m03-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "allusion"
+      ],
+      "text": "Few readers noticed the *illusion* to an old fairy tale in the last chapter.",
+      "options": [
+        "allusion",
+        "delusion",
+        "collusion"
+      ],
+      "correct": [
+        "allusion"
+      ],
+      "translation": {
+        "ru": "Мало кто из читателей заметил в последней главе отсылку к старой сказке.",
+        "uz": "Oxirgi bobdagi eski ertakka qilingan ishorani kam o'quvchi payqadi."
+      },
+      "explanation": {
+        "ru": "allusion to — отсылка, намёк на что-то (от allude to). illusion — иллюзия, обман чувств; delusion — заблуждение; collusion — сговор.",
+        "uz": "allusion to — biror narsaga ishora (allude to fe'lidan). illusion — xayol, ko'z aldanishi; delusion — adashish; collusion — til biriktirish."
+      }
+    },
+    {
+      "key": "c2-m03-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "undertone"
+      ],
+      "text": "Beneath his polite congratulations lay an undertone *with* resentment.",
+      "options": [
+        "of",
+        "from",
+        "by"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "За его вежливыми поздравлениями скрывалась нотка обиды.",
+        "uz": "Uning xushmuomala tabriklari ortida yashirin norozilik ohangi bor edi."
+      },
+      "explanation": {
+        "ru": "an undertone of something — скрытая нотка чего-то: после undertone нужен предлог of, как в an undertone of fear.",
+        "uz": "an undertone of something — biror narsaning yashirin ohangi: undertone so'zidan keyin of predlogi keladi, masalan: an undertone of fear."
+      }
+    },
+    {
+      "key": "c2-m03-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "intonation"
+      ],
+      "text": "Her sentences often ended with a *raising* intonation, which made her sound uncertain.",
+      "options": [
+        "rising",
+        "risen",
+        "rose"
+      ],
+      "correct": [
+        "rising"
+      ],
+      "translation": {
+        "ru": "Её фразы часто заканчивались восходящей интонацией, и из-за этого она казалась неуверенной в себе.",
+        "uz": "Uning gaplari ko'pincha ko'tariluvchi intonatsiya bilan tugar, shu bois u o'ziga ishonchsizdek tuyulardi."
+      },
+      "explanation": {
+        "ru": "Восходящая интонация — rising intonation: rise (подниматься) не требует дополнения. raise — поднимать что-то, ему нужно дополнение.",
+        "uz": "Ko'tariluvchi intonatsiya — rising intonation: rise (ko'tarilmoq) to'ldiruvchisiz keladi. raise — biror narsani ko'tarmoq, unga to'ldiruvchi kerak."
+      }
+    },
+    {
+      "key": "c2-m04-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "expedite"
+      ],
+      "text": "Urgent complaints are handled as ___ as possible, usually within a single day.",
+      "base": "expedite",
+      "accepted": [
+        "expeditiously"
+      ],
+      "translation": {
+        "ru": "Срочные жалобы рассматриваются как можно оперативнее — обычно в течение одного дня.",
+        "uz": "Shoshilinch shikoyatlar imkon qadar tezkorlik bilan, odatda bir kun ichida ko'rib chiqiladi."
+      },
+      "explanation": {
+        "ru": "Глагол handled с as … as possible требует наречия, а within a single day — смысла «быстро»: expedite → expeditious (оперативный) → expeditiously: -ite → -itious, затем -ly.",
+        "uz": "handled fe'li bilan as … as possible ravishni, within a single day esa «tez» ma'nosini talab qiladi: expedite → expeditious (tezkor) → expeditiously: -ite o'rniga -itious, keyin -ly."
+      }
+    },
+    {
+      "key": "c2-m04-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "procure"
+      ],
+      "text": "She has worked in public ___ for twenty years, buying equipment for hospitals.",
+      "base": "procure",
+      "accepted": [
+        "procurement"
+      ],
+      "translation": {
+        "ru": "Она двадцать лет работает в сфере государственных закупок, закупая оборудование для больниц.",
+        "uz": "U yigirma yildan beri davlat xaridlari sohasida ishlab, kasalxonalar uchun asbob-uskunalar sotib oladi."
+      },
+      "explanation": {
+        "ru": "После public нужно существительное — название сферы: procure → procurement (закупки), суффикс -ment; public procurement — госзакупки.",
+        "uz": "public so'zidan keyin soha nomini bildiruvchi ot kerak: procure → procurement (xaridlar), -ment qo'shimchasi; public procurement — davlat xaridlari."
+      }
+    },
+    {
+      "key": "c2-m04-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "commence"
+      ],
+      "text": "The ___ of the new academic year has been postponed by a week.",
+      "base": "commence",
+      "accepted": [
+        "commencement"
+      ],
+      "translation": {
+        "ru": "Начало нового учебного года перенесли на неделю.",
+        "uz": "Yangi o'quv yilining boshlanishi bir haftaga kechiktirildi."
+      },
+      "explanation": {
+        "ru": "Между The и of нужно существительное: commence → commencement (начало), суффикс -ment; e перед ним сохраняется.",
+        "uz": "The va of oralig'ida ot kerak: commence → commencement (boshlanish), -ment qo'shimchasi; undan oldin e saqlanadi."
+      }
+    },
+    {
+      "key": "c2-m04-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "exacerbate"
+      ],
+      "text": "The long drought has seriously *exasperated* the food shortages in the region.",
+      "options": [
+        "exacerbated",
+        "exaggerated",
+        "exonerated"
+      ],
+      "correct": [
+        "exacerbated"
+      ],
+      "translation": {
+        "ru": "Долгая засуха серьёзно усугубила нехватку продовольствия в регионе.",
+        "uz": "Uzoq davom etgan qurg'oqchilik mintaqadagi oziq-ovqat tanqisligini ancha og'irlashtirdi."
+      },
+      "explanation": {
+        "ru": "exacerbate — усугублять (проблему). exasperate — выводить из себя (человека), exaggerate — преувеличивать, exonerate — снимать обвинение.",
+        "uz": "exacerbate — (muammoni) og'irlashtirmoq. exasperate — (odamning) jig'iga tegmoq, exaggerate — bo'rttirmoq, exonerate — aybsiz deb topmoq."
+      }
+    },
+    {
+      "key": "c2-m04-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "rescind"
+      ],
+      "text": "The order, *rescinding* only a week later, had already caused chaos.",
+      "options": [
+        "rescinded",
+        "rescinds",
+        "rescission"
+      ],
+      "correct": [
+        "rescinded"
+      ],
+      "translation": {
+        "ru": "Приказ, отменённый всего через неделю, уже успел вызвать хаос.",
+        "uz": "Bir haftadan keyinoq bekor qilingan buyruq allaqachon tartibsizlik keltirib chiqargan edi."
+      },
+      "explanation": {
+        "ru": "Приказ не отменял, а его отменили, поэтому нужно страдательное причастие: rescinded (= which was rescinded), а не rescinding.",
+        "uz": "Buyruq o'zi bekor qilmagan, uni bekor qilishgan, shuning uchun majhul sifatdosh kerak: rescinded (= which was rescinded), rescinding emas."
+      }
+    },
+    {
+      "key": "c2-m04-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "alleviate"
+      ],
+      "text": "Instead of *alleviate* the pain, the new drug actually made it worse.",
+      "options": [
+        "alleviating",
+        "alleviated",
+        "alleviation"
+      ],
+      "correct": [
+        "alleviating"
+      ],
+      "translation": {
+        "ru": "Вместо того чтобы облегчить боль, новое лекарство на самом деле её усилило.",
+        "uz": "Yangi dori og'riqni yengillatish o'rniga, aslida uni kuchaytirib yubordi."
+      },
+      "explanation": {
+        "ru": "После предлога instead of глагол стоит в форме на -ing: instead of alleviating. Существительное alleviation не может иметь дополнения the pain.",
+        "uz": "instead of predlogidan keyin fe'l -ing shaklida keladi: instead of alleviating. alleviation oti esa the pain to'ldiruvchisini ololmaydi."
+      }
+    },
+    {
+      "key": "c2-m04-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "addendum"
+      ],
+      "text": "Two ___ were attached to the contract after the prices changed.",
+      "base": "addendum",
+      "accepted": [
+        "addenda",
+        "addendums"
+      ],
+      "translation": {
+        "ru": "После изменения цен к договору приложили два дополнения.",
+        "uz": "Narxlar o'zgargach, shartnomaga ikkita qo'shimcha ilova qilindi."
+      },
+      "explanation": {
+        "ru": "Two и were требуют множественного числа. addendum — латинское слово: -um → -a, addenda (как datum → data); словари допускают и addendums.",
+        "uz": "Two va were ko'plikni talab qiladi. addendum — lotincha so'z: -um o'rniga -a, addenda (xuddi datum → data kabi); lug'atlar addendums shaklini ham qabul qiladi."
+      }
+    },
+    {
+      "key": "c2-m04-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "correspondence"
+      ],
+      "text": "She kept up a lively ___ with the poet for over forty years.",
+      "base": "correspond",
+      "accepted": [
+        "correspondence"
+      ],
+      "translation": {
+        "ru": "Она больше сорока лет вела оживлённую переписку с поэтом.",
+        "uz": "U shoir bilan qirq yildan ortiq jonli yozishma olib bordi."
+      },
+      "explanation": {
+        "ru": "После a lively нужно существительное: correspond → correspondence (переписка), суффикс -ence. correspondent — это человек, корреспондент.",
+        "uz": "a lively so'zlaridan keyin ot kerak: correspond → correspondence (yozishma), -ence qo'shimchasi. correspondent esa odam — muxbir."
+      }
+    },
+    {
+      "key": "c2-m04-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "memorandum"
+      ],
+      "text": "Several confidential ___ from the director were leaked to the press last week.",
+      "base": "memorandum",
+      "accepted": [
+        "memoranda",
+        "memorandums"
+      ],
+      "translation": {
+        "ru": "На прошлой неделе в прессу просочились несколько конфиденциальных служебных записок директора.",
+        "uz": "O'tgan hafta direktorning bir nechta maxfiy xizmat xatlari matbuotga sizib chiqdi."
+      },
+      "explanation": {
+        "ru": "Several и were требуют множественного числа: memorandum → memoranda (латинское -um → -a); допустимо и memorandums.",
+        "uz": "Several va were ko'plikni talab qiladi: memorandum → memoranda (lotincha -um o'rniga -a); memorandums shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "c2-m04-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "ordinance"
+      ],
+      "text": "Under a recent *ordnance*, dogs are no longer allowed in city parks.",
+      "options": [
+        "ordinance",
+        "ordination",
+        "ordinal"
+      ],
+      "correct": [
+        "ordinance"
+      ],
+      "translation": {
+        "ru": "Согласно недавнему постановлению местных властей, собак больше не пускают в городские парки.",
+        "uz": "Hokimlikning yaqinda chiqqan qaroriga ko'ra, endi shahar bog'lariga itlarni olib kirish mumkin emas."
+      },
+      "explanation": {
+        "ru": "ordinance — постановление местных властей. ordnance (без i) — военное снаряжение, боеприпасы; ordination — рукоположение; ordinal — порядковое число.",
+        "uz": "ordinance — mahalliy hokimlik qarori. ordnance (i harfisiz) — harbiy qurol-aslaha; ordination — ruhoniylikka tayinlash; ordinal — tartib son."
+      }
+    },
+    {
+      "key": "c2-m04-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "proceedings"
+      ],
+      "text": "The family has decided to *make* legal proceedings against the hospital.",
+      "options": [
+        "bring",
+        "give",
+        "put"
+      ],
+      "correct": [
+        "bring"
+      ],
+      "translation": {
+        "ru": "Семья решила начать судебное разбирательство против больницы.",
+        "uz": "Oila kasalxona ustidan sudga da'vo qo'zg'atishga qaror qildi."
+      },
+      "explanation": {
+        "ru": "bring (take, start) proceedings against somebody — начать судебное разбирательство против кого-то. В этом значении с proceedings не говорят make, give или put.",
+        "uz": "bring (take, start) proceedings against somebody — kimgadir qarshi sud ishini qo'zg'atmoq. Bu ma'noda proceedings so'zi bilan make, give yoki put ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m04-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "proviso"
+      ],
+      "text": "The bank lends us money with the proviso *if* we pay it back promptly.",
+      "options": [
+        "that",
+        "which",
+        "what"
+      ],
+      "correct": [
+        "that"
+      ],
+      "translation": {
+        "ru": "Банк даёт нам деньги в долг с условием, что мы быстро их вернём.",
+        "uz": "Bank bizga pulni tezda qaytarib berish sharti bilan qarzga beradi."
+      },
+      "explanation": {
+        "ru": "with the proviso that — с оговоркой, что…: после proviso условие вводится союзом that, а не if, which или what.",
+        "uz": "with the proviso that — … sharti bilan: proviso so'zidan keyin shart if, which yoki what bilan emas, that bog'lovchisi bilan kiritiladi."
+      }
+    },
+    {
+      "key": "c2-m04-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "aforementioned"
+      ],
+      "text": "Copies of the ___ letters must be sent to every member of the board.",
+      "base": "mention",
+      "accepted": [
+        "aforementioned",
+        "above-mentioned"
+      ],
+      "translation": {
+        "ru": "Копии вышеупомянутых писем необходимо разослать всем членам правления.",
+        "uz": "Yuqorida qayd etilgan xatlarning nusxalari boshqaruvning har bir a'zosiga yuborilishi shart."
+      },
+      "explanation": {
+        "ru": "Перед letters нужно официальное «вышеупомянутый»: mention → aforementioned (afore- «ранее» + mentioned). Одно mentioned перед существительным обычно не ставят.",
+        "uz": "letters oti oldidan rasmiy «yuqorida qayd etilgan» sifati kerak: mention → aforementioned (afore- «ilgari» + mentioned). Yolg'iz mentioned odatda ot oldidan qo'yilmaydi."
+      }
+    },
+    {
+      "key": "c2-m04-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "pursuant"
+      ],
+      "text": "The fine was imposed in ___ of the new traffic regulations.",
+      "base": "pursuant",
+      "accepted": [
+        "pursuance"
+      ],
+      "translation": {
+        "ru": "Штраф был наложен во исполнение новых правил дорожного движения.",
+        "uz": "Jarima yangi yo'l harakati qoidalariga muvofiq solindi."
+      },
+      "explanation": {
+        "ru": "Между in и of нужно существительное: pursuant → pursuance (-ant → -ance); in pursuance of = pursuant to, «во исполнение, в соответствии с».",
+        "uz": "in va of oralig'ida ot kerak: pursuant → pursuance (-ant o'rniga -ance); in pursuance of = pursuant to, ya'ni «… ga muvofiq, … ni ijro etib»."
+      }
+    },
+    {
+      "key": "c2-m04-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "hereby"
+      ],
+      "text": "The airline hereby ___ all responsibility for lost luggage and will pay no compensation.",
+      "base": "claim",
+      "accepted": [
+        "disclaims"
+      ],
+      "translation": {
+        "ru": "Настоящим авиакомпания снимает с себя всякую ответственность за утерянный багаж и не будет выплачивать никакой компенсации.",
+        "uz": "Shu bilan aviakompaniya yo'qolgan bagaj uchun har qanday javobgarlikdan voz kechadi va hech qanday tovon to'lamaydi."
+      },
+      "explanation": {
+        "ru": "hereby требует настоящего времени, а airline — 3-е лицо: -s. Смысл (will pay no compensation) требует «снимать с себя»: claim → disclaim → disclaims.",
+        "uz": "hereby hozirgi zamonni talab qiladi, airline esa uchinchi shaxs birlikda: -s. Ma'no (will pay no compensation) «voz kechmoq» fe'lini talab qiladi: claim → disclaim → disclaims."
+      }
+    },
+    {
+      "key": "c2-m04-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "thereafter"
+      ],
+      "text": "The bridge was repaired in the spring and reopened to traffic soon *therefore*.",
+      "options": [
+        "thereafter",
+        "thereby",
+        "therein"
+      ],
+      "correct": [
+        "thereafter"
+      ],
+      "translation": {
+        "ru": "Весной мост отремонтировали, и вскоре после этого его вновь открыли для движения.",
+        "uz": "Ko'prik bahorda ta'mirlandi va shundan so'ng tez orada transport uchun qayta ochildi."
+      },
+      "explanation": {
+        "ru": "soon thereafter — вскоре после этого. therefore значит «поэтому», thereby — «тем самым», therein — «в этом»; с soon по смыслу сочетается только thereafter.",
+        "uz": "soon thereafter — shundan so'ng tez orada. therefore — «shuning uchun», thereby — «shu tariqa», therein — «unda»; soon so'zi bilan faqat thereafter mos keladi."
+      }
+    },
+    {
+      "key": "c2-m04-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "wherein"
+      ],
+      "text": "The will contains a clause *whereas* the house is left to the eldest son.",
+      "options": [
+        "wherein",
+        "whereupon",
+        "wherever"
+      ],
+      "correct": [
+        "wherein"
+      ],
+      "translation": {
+        "ru": "В завещании есть пункт, в котором дом оставлен старшему сыну.",
+        "uz": "Vasiyatnomada uyning to'ng'ich o'g'ilga qoldirilishi yozilgan band bor."
+      },
+      "explanation": {
+        "ru": "wherein = in which (в котором): оно вводит придаточное к слову clause. whereas — союз «тогда как», определительное придаточное он не вводит.",
+        "uz": "wherein = in which (unda): clause otiga tegishli ergash gapni kiritadi. whereas esa «holbuki» bog'lovchisi, aniqlovchi ergash gapni kiritmaydi."
+      }
+    },
+    {
+      "key": "c2-m04-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "insofar"
+      ],
+      "text": "The company will protect your personal data insofar *that* it is technically possible.",
+      "options": [
+        "as",
+        "so",
+        "than"
+      ],
+      "correct": [
+        "as"
+      ],
+      "translation": {
+        "ru": "Компания будет защищать ваши персональные данные в той мере, в какой это технически возможно.",
+        "uz": "Kompaniya shaxsiy ma'lumotlaringizni texnik jihatdan qanchalik imkon bo'lsa, shu darajada himoya qiladi."
+      },
+      "explanation": {
+        "ru": "insofar as — в той мере, в какой: после insofar всегда идёт as. Сочетание insofar that — ошибка.",
+        "uz": "insofar as — … darajada, … qadar: insofar so'zidan keyin doim as keladi. insofar that birikmasi xato hisoblanadi."
+      }
+    },
+    {
+      "key": "c2-m04-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "deference"
+      ],
+      "text": "The young lawyer was almost too ___ toward the senior judge.",
+      "base": "deference",
+      "accepted": [
+        "deferential"
+      ],
+      "translation": {
+        "ru": "Молодой адвокат держался со старшим судьёй едва ли не чересчур почтительно.",
+        "uz": "Yosh advokat yuqori lavozimdagi sudyaga nisbatan deyarli haddan ortiq izzat-hurmat ko'rsatardi."
+      },
+      "explanation": {
+        "ru": "После too нужно прилагательное: deference → deferential (почтительный); -ence → -ential, как confidence → confidential.",
+        "uz": "too so'zidan keyin sifat kerak: deference → deferential (hurmat ko'rsatuvchi); -ence o'rniga -ential, xuddi confidence → confidential kabi."
+      }
+    },
+    {
+      "key": "c2-m04-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "propriety"
+      ],
+      "text": "The minister resigned after allegations of financial ___.",
+      "base": "propriety",
+      "accepted": [
+        "impropriety",
+        "improprieties"
+      ],
+      "translation": {
+        "ru": "Министр ушёл в отставку после обвинений в финансовой нечистоплотности.",
+        "uz": "Vazir moliyaviy nojo'ya ishlarda ayblanib, iste'foga chiqdi."
+      },
+      "explanation": {
+        "ru": "Смысл (allegations — обвинения) требует «неподобающее поведение»: propriety → impropriety, приставка im- перед p. Возможно и мн. ч. improprieties.",
+        "uz": "Ma'no (allegations — ayblovlar) «nojo'ya xatti-harakat» so'zini talab qiladi: propriety → impropriety, p harfidan oldin im- old qo'shimchasi. Ko'plikdagi improprieties ham to'g'ri."
+      }
+    },
+    {
+      "key": "c2-m04-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "dignified"
+      ],
+      "text": "Crawling under the table to look for her earring felt rather ___.",
+      "base": "dignified",
+      "accepted": [
+        "undignified"
+      ],
+      "translation": {
+        "ru": "Ползать под столом в поисках серёжки ей казалось довольно несолидным.",
+        "uz": "Sirg'asini izlab stol tagida emaklash unga ancha nomunosib, viqorsiz ish bo'lib tuyuldi."
+      },
+      "explanation": {
+        "ru": "felt — глагол-связка, после него прилагательное. Смысл (ползать под столом) требует «несолидный»: dignified → undignified.",
+        "uz": "felt — bog'lovchi fe'l, undan keyin sifat keladi. Ma'no (stol tagida emaklash) «viqorsiz» degan sifatni talab qiladi: dignified → undignified."
+      }
+    },
+    {
+      "key": "c2-m04-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "ceremonial"
+      ],
+      "text": "At the parade, each officer carried a *ceremonious* sword with a golden handle.",
+      "options": [
+        "ceremonial",
+        "ceremonially",
+        "ceremonies"
+      ],
+      "correct": [
+        "ceremonial"
+      ],
+      "translation": {
+        "ru": "На параде каждый офицер нёс парадную саблю с золотой рукоятью.",
+        "uz": "Paradda har bir ofitser tilla dastali tantanali qilich ko'tarib bordi."
+      },
+      "explanation": {
+        "ru": "ceremonial — церемониальный, парадный (о предметах, одежде). ceremonious — церемонный, чересчур формальный (о поведении людей).",
+        "uz": "ceremonial — marosimga oid, tantanali (buyum, kiyim haqida). ceremonious — haddan tashqari rasmiy, takallufli (odamlarning xatti-harakati haqida)."
+      }
+    },
+    {
+      "key": "c2-m04-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "decorum"
+      ],
+      "text": "The guests behaved with perfect *decorous* throughout the ceremony.",
+      "options": [
+        "decorum",
+        "decorously",
+        "decoration"
+      ],
+      "correct": [
+        "decorum"
+      ],
+      "translation": {
+        "ru": "Гости вели себя с безупречной благопристойностью на протяжении всей церемонии.",
+        "uz": "Mehmonlar butun marosim davomida odob qoidalariga to'liq rioya qilishdi."
+      },
+      "explanation": {
+        "ru": "После with perfect нужно существительное: decorum (благопристойность). decorous — прилагательное, decorously — наречие, decoration — украшение.",
+        "uz": "with perfect so'zlaridan keyin ot kerak: decorum (odob qoidalari). decorous — sifat, decorously — ravish, decoration — bezak."
+      }
+    },
+    {
+      "key": "c2-m04-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "cordial"
+      ],
+      "text": "The two leaders shook hands *cordial* before the talks began.",
+      "options": [
+        "cordially",
+        "cordiality",
+        "cordialities"
+      ],
+      "correct": [
+        "cordially"
+      ],
+      "translation": {
+        "ru": "Перед началом переговоров оба лидера сердечно пожали друг другу руки.",
+        "uz": "Muzokaralar boshlanishidan oldin ikki rahbar samimiy qo'l berib ko'rishdi."
+      },
+      "explanation": {
+        "ru": "К сочетанию shook hands нужно наречие: cordial → cordially (сердечно, радушно). Прилагательное cordial ставят при существительном: a cordial welcome.",
+        "uz": "shook hands iborasini ravish izohlaydi: cordial → cordially (samimiy tarzda). cordial sifati esa ot bilan keladi: a cordial welcome."
+      }
+    },
+    {
+      "key": "c2-m04-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "admissible"
+      ],
+      "text": "Because the confession was obtained under pressure, the judge declared it ___.",
+      "base": "admissible",
+      "accepted": [
+        "inadmissible"
+      ],
+      "translation": {
+        "ru": "Поскольку признание было получено под давлением, судья признал его недопустимым.",
+        "uz": "Iqrornoma bosim ostida olingani uchun sudya uni nomaqbul deb topdi."
+      },
+      "explanation": {
+        "ru": "Смысл (obtained under pressure) требует отрицания: admissible → inadmissible (недопустимый); перед гласной a приставка in-.",
+        "uz": "Ma'no (obtained under pressure) inkorni talab qiladi: admissible → inadmissible (nomaqbul); unli a oldidan in- old qo'shimchasi qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m04-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "contravene"
+      ],
+      "text": "The factory was fined for operating in ___ of the safety rules.",
+      "base": "contravene",
+      "accepted": [
+        "contravention"
+      ],
+      "translation": {
+        "ru": "Завод оштрафовали за работу в нарушение правил техники безопасности.",
+        "uz": "Zavod xavfsizlik qoidalarini buzgan holda ishlagani uchun jarimaga tortildi."
+      },
+      "explanation": {
+        "ru": "Между in и of нужно существительное: contravene → contravention (нарушение): -ene → -ention; in contravention of — в нарушение чего-то.",
+        "uz": "in va of oralig'ida ot kerak: contravene → contravention (buzish): -ene o'rniga -ention; in contravention of — biror narsani buzgan holda."
+      }
+    },
+    {
+      "key": "c2-m04-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "discretionary"
+      ],
+      "text": "Tips are entirely ___, so you may leave as much or as little as you like.",
+      "base": "discretion",
+      "accepted": [
+        "discretionary"
+      ],
+      "translation": {
+        "ru": "Чаевые целиком на ваше усмотрение, так что можете оставить сколько угодно — много или мало.",
+        "uz": "Choychaqa butunlay o'z ixtiyoringizda, shuning uchun xohlagancha ko'p yoki oz qoldirishingiz mumkin."
+      },
+      "explanation": {
+        "ru": "После are entirely нужно прилагательное: discretion → discretionary (оставляемый на усмотрение), суффикс -ary.",
+        "uz": "are entirely so'zlaridan keyin sifat kerak: discretion → discretionary (ixtiyorga ko'ra beriladigan), -ary qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m04-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "proscribe"
+      ],
+      "text": "The school's code of conduct strictly *prescribes* cheating of any kind.",
+      "options": [
+        "proscribes",
+        "ascribes",
+        "subscribes"
+      ],
+      "correct": [
+        "proscribes"
+      ],
+      "translation": {
+        "ru": "Кодекс поведения школы строго запрещает обман в любой форме.",
+        "uz": "Maktabning odob-axloq kodeksi har qanday ko'rinishdagi aldov va ko'chirmachilikni qat'iyan taqiqlaydi."
+      },
+      "explanation": {
+        "ru": "proscribe — запрещать. prescribe — предписывать: «кодекс предписывает обман» — абсурд. ascribe — приписывать, subscribe — подписываться.",
+        "uz": "proscribe — taqiqlamoq. prescribe — buyurmoq, belgilamoq: «kodeks aldovni buyuradi» degani bema'ni. ascribe — nisbat bermoq, subscribe — obuna bo'lmoq."
+      }
+    },
+    {
+      "key": "c2-m04-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "permissible"
+      ],
+      "text": "Under the new rules, it is no longer *permissive* to smoke on the balcony.",
+      "options": [
+        "permissible",
+        "permission",
+        "permissibly"
+      ],
+      "correct": [
+        "permissible"
+      ],
+      "translation": {
+        "ru": "По новым правилам курить на балконе больше не разрешается.",
+        "uz": "Yangi qoidalarga ko'ra, balkonda chekishga endi ruxsat etilmaydi."
+      },
+      "explanation": {
+        "ru": "permissible — допустимый, разрешённый (о действии). permissive — снисходительный, позволяющий слишком многое (о людях, обществе): a permissive parent.",
+        "uz": "permissible — ruxsat etilgan (harakat haqida). permissive esa haddan tashqari ko'p narsaga yo'l qo'yuvchi (odam, jamiyat haqida): a permissive parent."
+      }
+    },
+    {
+      "key": "c2-m04-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "preclude"
+      ],
+      "text": "Her lack of a degree does not preclude her from *apply* for the post.",
+      "options": [
+        "applying",
+        "applied",
+        "to apply"
+      ],
+      "correct": [
+        "applying"
+      ],
+      "translation": {
+        "ru": "Отсутствие диплома не лишает её возможности претендовать на эту должность.",
+        "uz": "Diplomi yo'qligi uning bu lavozimga ariza topshirish imkonini yo'qqa chiqarmaydi."
+      },
+      "explanation": {
+        "ru": "preclude somebody from doing something — лишать кого-то возможности что-то сделать: после предлога from глагол в форме на -ing.",
+        "uz": "preclude somebody from doing something — kimningdir biror ishni qilish imkonini yo'qqa chiqarmoq: from predlogidan keyin fe'l -ing shaklida keladi."
+      }
+    }
+  ]
+}

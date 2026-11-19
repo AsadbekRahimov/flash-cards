@@ -1,0 +1,1627 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b2",
+  "items": [
+    {
+      "key": "b2-m07-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "emission"
+      ],
+      "text": "Last year the factory's ___ were twice as high as the law allows.",
+      "base": "emit",
+      "accepted": [
+        "emissions"
+      ],
+      "translation": {
+        "ru": "В прошлом году выбросы завода были вдвое выше, чем позволяет закон.",
+        "uz": "O'tgan yili zavodning tashlanmalari qonun ruxsat berganidan ikki baravar ko'p bo'ldi."
+      },
+      "explanation": {
+        "ru": "После factory's нужно существительное, а were требует множественного числа: emit → emission → emissions. Конечное t меняется на ss: -ssion.",
+        "uz": "factory's so'zidan keyin ot kerak, were fe'li esa ko'plikni talab qiladi: emit → emission → emissions. Oxiridagi t harfi ss ga aylanadi: -ssion."
+      }
+    },
+    {
+      "key": "b2-m07-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "humidity"
+      ],
+      "text": "In July the ___ here is so high that clothes take days to dry.",
+      "base": "humid",
+      "accepted": [
+        "humidity"
+      ],
+      "translation": {
+        "ru": "В июле влажность здесь такая высокая, что одежда сохнет по нескольку дней.",
+        "uz": "Iyulda bu yerda namlik shu qadar yuqori bo'ladiki, kiyimlar bir necha kunda zo'rg'a quriydi."
+      },
+      "explanation": {
+        "ru": "После the нужно существительное — подлежащее к is: humid (влажный) → humidity (влажность), суффикс -ity.",
+        "uz": "the artiklidan keyin is fe'liga ega bo'ladigan ot kerak: humid (nam) → humidity (namlik), -ity qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m07-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "absorb"
+      ],
+      "text": "This kind of soil is very ___ and soaks up rain like a sponge.",
+      "base": "absorb",
+      "accepted": [
+        "absorbent"
+      ],
+      "translation": {
+        "ru": "Такая почва отлично впитывает влагу и вбирает дождевую воду, как губка.",
+        "uz": "Bu turdagi tuproq namni juda yaxshi shimadi va yomg'ir suvini gubkadek o'ziga tortadi."
+      },
+      "explanation": {
+        "ru": "После is very нужно прилагательное «впитывающий»: absorb → absorbent (-ent). absorbing значит «увлекательный».",
+        "uz": "is very so'zlaridan keyin «shimuvchi» ma'nosidagi sifat kerak: absorb → absorbent (-ent). absorbing esa «qiziqarli» degani."
+      }
+    },
+    {
+      "key": "b2-m07-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "greenhouse"
+      ],
+      "text": "Cars and factories release huge amounts of *greenhouses* gases.",
+      "options": [
+        "greenhouse",
+        "greenhouse's",
+        "green house"
+      ],
+      "correct": [
+        "greenhouse"
+      ],
+      "translation": {
+        "ru": "Автомобили и заводы выбрасывают огромное количество парниковых газов.",
+        "uz": "Avtomobillar va zavodlar juda ko'p miqdorda issiqxona gazlarini chiqaradi."
+      },
+      "explanation": {
+        "ru": "Существительное перед другим существительным работает как определение и не получает -s: greenhouse gases (парниковые газы). greenhouse пишется слитно.",
+        "uz": "Boshqa ot oldida turgan ot aniqlovchi vazifasini bajaradi va -s qo'shimchasini olmaydi: greenhouse gases (issiqxona gazlari). greenhouse so'zi qo'shib yoziladi."
+      }
+    },
+    {
+      "key": "b2-m07-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "methane"
+      ],
+      "text": "Thanks to the new feed, the cows produce *fewer* methane than before.",
+      "options": [
+        "less",
+        "lower",
+        "smaller"
+      ],
+      "correct": [
+        "less"
+      ],
+      "translation": {
+        "ru": "Благодаря новому корму коровы выделяют меньше метана, чем раньше.",
+        "uz": "Yangi yem tufayli sigirlar avvalgidan kamroq metan chiqaradi."
+      },
+      "explanation": {
+        "ru": "methane — неисчисляемое существительное, с ним less (меньше); fewer — только с исчисляемыми во множественном числе: fewer cows.",
+        "uz": "methane — sanalmaydigan ot, u bilan less (kamroq) ishlatiladi; fewer esa faqat ko'plikdagi sanaladigan otlar bilan keladi: fewer cows."
+      }
+    },
+    {
+      "key": "b2-m07-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "glacier"
+      ],
+      "text": "The glacier above these villages *have* lost half of its ice.",
+      "options": [
+        "has",
+        "is",
+        "are"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "Ледник над этими деревнями потерял половину своего льда.",
+        "uz": "Bu qishloqlar tepasidagi muzlik o'z muzining yarmini yo'qotdi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — The glacier (единственное число), а не villages, поэтому has lost. Это подтверждает и its.",
+        "uz": "Gapning egasi — The glacier (birlikda), villages emas, shuning uchun has lost. Buni its olmoshi ham tasdiqlaydi."
+      }
+    },
+    {
+      "key": "b2-m07-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "extinction"
+      ],
+      "text": "Hunting brought this bird close to ___ a hundred years ago.",
+      "base": "extinct",
+      "accepted": [
+        "extinction"
+      ],
+      "translation": {
+        "ru": "Сто лет назад из-за охоты эта птица оказалась на грани вымирания.",
+        "uz": "Yuz yil oldin ov tufayli bu qush yo'qolib ketish arafasiga kelib qolgan edi."
+      },
+      "explanation": {
+        "ru": "В close to (близко к) to — предлог, после него нужно существительное: extinct (вымерший) → extinction (вымирание).",
+        "uz": "close to birikmasidagi to — predlog, undan keyin ot kerak: extinct (yo'qolib ketgan) → extinction (yo'qolib ketish)."
+      }
+    },
+    {
+      "key": "b2-m07-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "conservation"
+      ],
+      "text": "She has worked as a wildlife ___ for twenty years.",
+      "base": "conservation",
+      "accepted": [
+        "conservationist"
+      ],
+      "translation": {
+        "ru": "Она уже двадцать лет работает специалистом по охране дикой природы.",
+        "uz": "U yigirma yildan beri yovvoyi tabiatni muhofaza qilish bo'yicha mutaxassis bo'lib ishlaydi."
+      },
+      "explanation": {
+        "ru": "После worked as a нужен человек: conservation (охрана природы) → conservationist (защитник природы), суффикс -ist.",
+        "uz": "worked as a birikmasidan keyin shaxsni bildiruvchi ot kerak: conservation (tabiatni muhofaza qilish) → conservationist (tabiat himoyachisi), -ist qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m07-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "predator"
+      ],
+      "text": "Eagles are highly ___ birds with excellent eyesight.",
+      "base": "predator",
+      "accepted": [
+        "predatory"
+      ],
+      "translation": {
+        "ru": "Орлы — очень хищные птицы с превосходным зрением.",
+        "uz": "Burgutlar a'lo ko'rish qobiliyatiga ega juda yirtqich qushlardir."
+      },
+      "explanation": {
+        "ru": "Между highly и birds нужно прилагательное: predator (хищник) → predatory (хищный), окончание -ory.",
+        "uz": "highly va birds so'zlari orasida sifat kerak: predator (yirtqich hayvon) → predatory (yirtqich), -ory qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m07-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "prey"
+      ],
+      "text": "Owls usually catch their *preys* at night, in the dark.",
+      "options": [
+        "prey",
+        "pray",
+        "prays"
+      ],
+      "correct": [
+        "prey"
+      ],
+      "translation": {
+        "ru": "Совы обычно ловят добычу ночью, в темноте.",
+        "uz": "Boyqushlar odatda o'ljasini kechasi, qorong'ida tutadi."
+      },
+      "explanation": {
+        "ru": "prey (добыча) — неисчисляемое существительное: their prey без -s, даже если жертв много. pray — «молиться».",
+        "uz": "prey (o'lja) — sanalmaydigan ot: o'ljalar ko'p bo'lsa ham their prey, -s qo'shimchasisiz. pray esa «ibodat qilmoq»."
+      }
+    },
+    {
+      "key": "b2-m07-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "mammal"
+      ],
+      "text": "The dolphin is one of the cleverest *mammal* on the planet.",
+      "options": [
+        "mammals",
+        "mammal's",
+        "mammals'"
+      ],
+      "correct": [
+        "mammals"
+      ],
+      "translation": {
+        "ru": "Дельфин — одно из самых умных млекопитающих на планете.",
+        "uz": "Delfin sayyoradagi eng aqlli sutemizuvchilardan biri."
+      },
+      "explanation": {
+        "ru": "После one of the + превосходная степень существительное всегда во множественном числе: one of the cleverest mammals.",
+        "uz": "one of the + orttirma daraja birikmasidan keyin ot doim ko'plikda bo'ladi: one of the cleverest mammals."
+      }
+    },
+    {
+      "key": "b2-m07-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "vegetation"
+      ],
+      "text": "After years of drought, only a *few* vegetation remains on these hills.",
+      "options": [
+        "little",
+        "less",
+        "many"
+      ],
+      "correct": [
+        "little"
+      ],
+      "translation": {
+        "ru": "После многих лет засухи на этих холмах осталось совсем немного растительности.",
+        "uz": "Ko'p yillik qurg'oqchilikdan so'ng bu tepaliklarda juda oz o'simlik qoplami qoldi."
+      },
+      "explanation": {
+        "ru": "vegetation — неисчисляемое существительное, поэтому a little (немного); a few — только с исчисляемыми во множественном числе: a few trees.",
+        "uz": "vegetation — sanalmaydigan ot, shuning uchun a little (ozgina); a few esa faqat ko'plikdagi sanaladigan otlar bilan keladi: a few trees."
+      }
+    },
+    {
+      "key": "b2-m07-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "pollutant"
+      ],
+      "text": "Lead is a dangerous ___ that is still found in old paint.",
+      "base": "pollute",
+      "accepted": [
+        "pollutant"
+      ],
+      "translation": {
+        "ru": "Свинец — опасное загрязняющее вещество, которое до сих пор встречается в старой краске.",
+        "uz": "Qo'rg'oshin — eski bo'yoqlarda hanuzgacha uchraydigan xavfli ifloslantiruvchi modda."
+      },
+      "explanation": {
+        "ru": "После a dangerous нужно исчисляемое существительное — вещество: pollute → pollutant (-ant). pollution — само загрязнение, процесс.",
+        "uz": "a dangerous so'zlaridan keyin sanaladigan ot — modda kerak: pollute → pollutant (-ant). pollution esa ifloslanishning o'zi, jarayon."
+      }
+    },
+    {
+      "key": "b2-m07-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "contaminate"
+      ],
+      "text": "Our well ___ since the factory opened, so we buy bottled water.",
+      "base": "contaminate",
+      "accepted": [
+        "has been contaminated"
+      ],
+      "translation": {
+        "ru": "С тех пор как открылся завод, наш колодец загрязнён, поэтому мы покупаем воду в бутылках.",
+        "uz": "Zavod ochilgandan beri qudug'imiz ifloslangan, shuning uchun biz shishadagi suv sotib olamiz."
+      },
+      "explanation": {
+        "ru": "since и настоящее время (buy) требуют Present Perfect; колодец не загрязняет сам — его загрязняют, нужен пассив. Итого: has been contaminated.",
+        "uz": "since so'zi va hozirgi zamon (buy) Present Perfect zamonini talab qiladi; quduq o'zi ifloslantirmaydi — uni ifloslantirishgan, majhul nisbat kerak. Natija: has been contaminated."
+      }
+    },
+    {
+      "key": "b2-m07-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "disposal"
+      ],
+      "text": "Used cooking oil needs careful ___, so never pour it down the sink.",
+      "base": "dispose",
+      "accepted": [
+        "disposal"
+      ],
+      "translation": {
+        "ru": "Отработанное растительное масло требует аккуратной утилизации, поэтому никогда не выливайте его в раковину.",
+        "uz": "Ovqat pishirishda ishlatilgan yog'ni ehtiyotkorlik bilan utilizatsiya qilish kerak, shuning uchun uni hech qachon rakovinaga to'kmang."
+      },
+      "explanation": {
+        "ru": "После прилагательного careful нужно существительное: dispose → disposal (утилизация); -e меняется на -al.",
+        "uz": "careful sifatidan keyin ot kerak: dispose → disposal (utilizatsiya); oxiridagi -e o'rniga -al qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m07-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "dump"
+      ],
+      "text": "Waste from hospitals must never *dump* in ordinary landfills.",
+      "options": [
+        "be dumped",
+        "been dumped",
+        "have dumped"
+      ],
+      "correct": [
+        "be dumped"
+      ],
+      "translation": {
+        "ru": "Отходы больниц ни в коем случае нельзя сбрасывать на обычные свалки.",
+        "uz": "Kasalxona chiqindilarini hech qachon oddiy chiqindixonalarga tashlab bo'lmaydi."
+      },
+      "explanation": {
+        "ru": "Отходы сами ничего не сбрасывают — их сбрасывают. После модального must пассив: be + третья форма, be dumped.",
+        "uz": "Chiqindilar o'zi hech narsani tashlamaydi — ularni tashlashadi. must modal fe'lidan keyin majhul nisbat: be + uchinchi shakl, be dumped."
+      }
+    },
+    {
+      "key": "b2-m07-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "sewage"
+      ],
+      "text": "The old town still pumps its *sewages* straight into the sea.",
+      "options": [
+        "sewage",
+        "sewers",
+        "sewing"
+      ],
+      "correct": [
+        "sewage"
+      ],
+      "translation": {
+        "ru": "Старый город до сих пор сбрасывает сточные воды прямо в море.",
+        "uz": "Eski shahar hanuzgacha oqova suvlarini to'g'ridan-to'g'ri dengizga oqizadi."
+      },
+      "explanation": {
+        "ru": "sewage (сточные воды) — неисчисляемое существительное и -s не получает, хотя по-русски «воды». sewers — канализационные трубы.",
+        "uz": "sewage (oqova suv) — sanalmaydigan ot, -s qo'shimchasini olmaydi. sewers esa kanalizatsiya quvurlari."
+      }
+    },
+    {
+      "key": "b2-m07-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "exhaust"
+      ],
+      "text": "Black *exhaustion* from old buses makes the air hard to breathe.",
+      "options": [
+        "exhaust",
+        "exhausting",
+        "exhausted"
+      ],
+      "correct": [
+        "exhaust"
+      ],
+      "translation": {
+        "ru": "Из-за чёрных выхлопных газов старых автобусов трудно дышать.",
+        "uz": "Eski avtobuslarning qora chiqindi gazi tufayli nafas olish qiyinlashadi."
+      },
+      "explanation": {
+        "ru": "exhaust — выхлопные газы; exhaustion значит «сильная усталость, истощение». Нужно существительное exhaust.",
+        "uz": "exhaust — chiqindi gaz; exhaustion esa «qattiq charchoq, holdan toyish» degani. Bu yerda exhaust oti kerak."
+      }
+    },
+    {
+      "key": "b2-m07-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "renewable"
+      ],
+      "text": "Oil is a ___ resource: once we burn it, it is gone forever.",
+      "base": "renewable",
+      "accepted": [
+        "nonrenewable",
+        "non-renewable"
+      ],
+      "translation": {
+        "ru": "Нефть — невозобновляемый ресурс: сожжённую нефть уже не вернуть.",
+        "uz": "Neft — qayta tiklanmaydigan resurs: uni yoqib bo'lgach, u butunlay yo'qoladi."
+      },
+      "explanation": {
+        "ru": "Вторая часть (gone forever) требует отрицания; к renewable добавляется приставка non-: nonrenewable (пишут и через дефис).",
+        "uz": "Gapning ikkinchi qismi (gone forever) inkor ma'nosini talab qiladi; renewable so'ziga non- old qo'shimchasi qo'shiladi: nonrenewable (chiziqcha bilan ham yoziladi)."
+      }
+    },
+    {
+      "key": "b2-m07-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "sustainable"
+      ],
+      "text": "The company now puts ___ before quick profits.",
+      "base": "sustainable",
+      "accepted": [
+        "sustainability"
+      ],
+      "translation": {
+        "ru": "Теперь компания ставит устойчивость выше быстрой прибыли.",
+        "uz": "Endi kompaniya barqarorlikni tez foydadan ustun qo'yadi."
+      },
+      "explanation": {
+        "ru": "После puts нужно существительное-дополнение: sustainable → sustainability (устойчивость); -able меняется на -ability.",
+        "uz": "puts fe'lidan keyin to'ldiruvchi bo'ladigan ot kerak: sustainable → sustainability (barqarorlik); -able o'rniga -ability."
+      }
+    },
+    {
+      "key": "b2-m07-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "deplete"
+      ],
+      "text": "Years of drought have caused a serious ___ of our water supplies.",
+      "base": "deplete",
+      "accepted": [
+        "depletion"
+      ],
+      "translation": {
+        "ru": "Годы засухи привели к серьёзному истощению наших запасов воды.",
+        "uz": "Yillar davom etgan qurg'oqchilik suv zaxiralarimizning jiddiy kamayib ketishiga sabab bo'ldi."
+      },
+      "explanation": {
+        "ru": "После a serious нужно существительное: deplete (истощать) → depletion (истощение); -e меняется на -ion.",
+        "uz": "a serious so'zlaridan keyin ot kerak: deplete (tugatmoq) → depletion (tugab borish); oxiridagi -e o'rniga -ion."
+      }
+    },
+    {
+      "key": "b2-m07-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "mineral"
+      ],
+      "text": "The hills hide valuable *fossils*, such as gold and copper.",
+      "options": [
+        "minerals",
+        "fuels",
+        "stones"
+      ],
+      "correct": [
+        "minerals"
+      ],
+      "translation": {
+        "ru": "В этих холмах скрыты ценные полезные ископаемые, например золото и медь.",
+        "uz": "Bu tepaliklar bag'rida oltin va mis kabi qimmatli foydali qazilmalar yashiringan."
+      },
+      "explanation": {
+        "ru": "«Полезные ископаемые» — minerals. fossil — окаменелость (остатки древних животных и растений); fossil fuels — ископаемое топливо.",
+        "uz": "«Foydali qazilmalar» inglizcha minerals. fossil — qadimgi hayvon va o'simliklarning toshga aylangan qoldig'i; fossil fuels — qazilma yoqilg'i."
+      }
+    },
+    {
+      "key": "b2-m07-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "scarce"
+      ],
+      "text": "Clean drinking water is becoming *scarcely* in the south.",
+      "options": [
+        "scarce",
+        "scarcity",
+        "scarceness"
+      ],
+      "correct": [
+        "scarce"
+      ],
+      "translation": {
+        "ru": "На юге чистая питьевая вода становится дефицитной.",
+        "uz": "Janubda toza ichimlik suvi tanqis bo'lib bormoqda."
+      },
+      "explanation": {
+        "ru": "После become нужно прилагательное, а не наречие: becoming scarce (становится дефицитной). scarcely — наречие «едва».",
+        "uz": "become fe'lidan keyin ravish emas, sifat keladi: becoming scarce (tanqis bo'lib bormoqda). scarcely — «zo'rg'a» ma'nosidagi ravish."
+      }
+    },
+    {
+      "key": "b2-m07-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "coal"
+      ],
+      "text": "Our village still burns hundreds of tons of *coals* each winter.",
+      "options": [
+        "coal",
+        "coal's",
+        "coals'"
+      ],
+      "correct": [
+        "coal"
+      ],
+      "translation": {
+        "ru": "Наша деревня до сих пор сжигает каждую зиму сотни тонн угля.",
+        "uz": "Qishlog'imizda hanuzgacha har qishda yuzlab tonna ko'mir yoqiladi."
+      },
+      "explanation": {
+        "ru": "coal (уголь как топливо) — неисчисляемое существительное: tons of coal без -s. Апостроф обозначает принадлежность, а не количество.",
+        "uz": "coal (yoqilg'i sifatidagi ko'mir) — sanalmaydigan ot: tons of coal, -s qo'shimchasisiz. Apostrof esa egalikni bildiradi, miqdorni emas."
+      }
+    },
+    {
+      "key": "b2-m07-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "erosion"
+      ],
+      "text": "Strong winds cause serious ___ on these dry plains every spring.",
+      "base": "erode",
+      "accepted": [
+        "erosion"
+      ],
+      "translation": {
+        "ru": "Каждую весну сильные ветры вызывают серьёзную эрозию на этих засушливых равнинах.",
+        "uz": "Har bahorda kuchli shamollar bu quruq tekisliklarda jiddiy eroziyaga sabab bo'ladi."
+      },
+      "explanation": {
+        "ru": "После прилагательного serious нужно существительное: erode (разрушать) → erosion (эрозия); d меняется на s: -sion.",
+        "uz": "serious sifatidan keyin ot kerak: erode (yemirmoq) → erosion (eroziya); d harfi s ga aylanadi: -sion."
+      }
+    },
+    {
+      "key": "b2-m07-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "eruption"
+      ],
+      "text": "The volcano's sudden ___ last spring was a shock to everyone.",
+      "base": "erupt",
+      "accepted": [
+        "eruption"
+      ],
+      "translation": {
+        "ru": "Внезапное извержение вулкана прошлой весной стало для всех потрясением.",
+        "uz": "O'tgan bahorda vulqonning to'satdan otilishi hamma uchun katta zarba bo'ldi."
+      },
+      "explanation": {
+        "ru": "После volcano's sudden нужно существительное, was — единственное число: erupt (извергаться) → eruption (извержение), -ion.",
+        "uz": "volcano's sudden so'zlaridan keyin ot kerak, was esa birlikni ko'rsatadi: erupt (otilmoq) → eruption (otilish), -ion."
+      }
+    },
+    {
+      "key": "b2-m07-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "catastrophe"
+      ],
+      "text": "The floods had ___ effects on farming in the valley.",
+      "base": "catastrophe",
+      "accepted": [
+        "catastrophic"
+      ],
+      "translation": {
+        "ru": "Наводнения имели катастрофические последствия для сельского хозяйства в долине.",
+        "uz": "Toshqinlar vodiydagi dehqonchilik uchun halokatli oqibatlarga olib keldi."
+      },
+      "explanation": {
+        "ru": "Перед существительным effects нужно прилагательное: catastrophe → catastrophic; конечное -e меняется на -ic.",
+        "uz": "effects oti oldida sifat kerak: catastrophe → catastrophic; oxiridagi -e o'rniga -ic qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m07-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "deforestation"
+      ],
+      "text": "The deforestation of the mountain slopes *have* caused terrible floods.",
+      "options": [
+        "has",
+        "is",
+        "were"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "Вырубка лесов на горных склонах вызвала страшные наводнения.",
+        "uz": "Tog' yonbag'irlaridagi o'rmonlarning kesilishi dahshatli toshqinlarga sabab bo'ldi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — deforestation (неисчисляемое, единственное число), а не slopes, поэтому has caused.",
+        "uz": "Gapning egasi — deforestation (sanalmaydigan, birlikdagi ot), slopes emas, shuning uchun has caused."
+      }
+    },
+    {
+      "key": "b2-m07-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "tsunami"
+      ],
+      "text": "The tsunami *who* hit the coast last year destroyed the old port.",
+      "options": [
+        "which",
+        "whom",
+        "whose"
+      ],
+      "correct": [
+        "which"
+      ],
+      "translation": {
+        "ru": "Цунами, обрушившееся на побережье в прошлом году, разрушило старый порт.",
+        "uz": "O'tgan yili qirg'oqqa urilgan sunami eski portni vayron qildi."
+      },
+      "explanation": {
+        "ru": "О предметах и явлениях природы говорят which (или that); who — только о людях.",
+        "uz": "Narsa va tabiat hodisalari haqida which (yoki that) ishlatiladi; who esa faqat odamlar haqida."
+      }
+    },
+    {
+      "key": "b2-m07-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "tornado"
+      ],
+      "text": "The tornado left a line of broken trees along *it's* path.",
+      "options": [
+        "its",
+        "his",
+        "their"
+      ],
+      "correct": [
+        "its"
+      ],
+      "translation": {
+        "ru": "Торнадо оставил на своём пути полосу сломанных деревьев.",
+        "uz": "Tornado o'tgan yo'li bo'ylab bir qator singan daraxtlarni qoldirdi."
+      },
+      "explanation": {
+        "ru": "its — притяжательное «его, свой» о предметах и явлениях, без апострофа; it's = it is или it has.",
+        "uz": "its — narsa va hodisalar haqida «uning» degan egalik olmoshi, apostrofsiz yoziladi; it's esa it is yoki it has qisqartmasi."
+      }
+    },
+    {
+      "key": "b2-m08-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "democracy"
+      ],
+      "text": "For the first time, the mayor was ___ elected by the people.",
+      "base": "democracy",
+      "accepted": [
+        "democratically"
+      ],
+      "translation": {
+        "ru": "Впервые мэр был избран народом демократическим путём.",
+        "uz": "Hokim ilk bor xalq tomonidan demokratik yo'l bilan saylandi."
+      },
+      "explanation": {
+        "ru": "К причастию elected нужно наречие. Два шага: democracy → democratic (-cy → -tic) → democratically (после -ic — -ally).",
+        "uz": "elected sifatdoshiga ravish kerak. Ikki bosqich: democracy → democratic (-cy o'rniga -tic) → democratically (-ic dan keyin -ally)."
+      }
+    },
+    {
+      "key": "b2-m08-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "constitution"
+      ],
+      "text": "The court ruled that the new tax was ___, so it was never collected.",
+      "base": "constitution",
+      "accepted": [
+        "unconstitutional"
+      ],
+      "translation": {
+        "ru": "Суд постановил, что новый налог противоречит конституции, поэтому его так и не стали взимать.",
+        "uz": "Sud yangi soliqni konstitutsiyaga zid deb topdi, shuning uchun u hech qachon undirilmadi."
+      },
+      "explanation": {
+        "ru": "Налог так и не взимали — значит, он неконституционный. Два шага: constitution → constitutional (-al) → unconstitutional (un-).",
+        "uz": "Soliq hech qachon undirilmagan — demak, u konstitutsiyaga zid. Ikki bosqich: constitution → constitutional (-al) → unconstitutional (un-)."
+      }
+    },
+    {
+      "key": "b2-m08-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "autonomy"
+      ],
+      "text": "In the nineties the island became an ___ region.",
+      "base": "autonomy",
+      "accepted": [
+        "autonomous"
+      ],
+      "translation": {
+        "ru": "В девяностые годы остров стал автономным регионом.",
+        "uz": "To'qsoninchi yillarda orol muxtor hududga aylandi."
+      },
+      "explanation": {
+        "ru": "Между an и region нужно прилагательное: autonomy (автономия) → autonomous (автономный); -y меняется на -ous.",
+        "uz": "an va region so'zlari orasida sifat kerak: autonomy (muxtoriyat) → autonomous (muxtor); -y o'rniga -ous."
+      }
+    },
+    {
+      "key": "b2-m08-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "sovereignty"
+      ],
+      "text": "Both countries claim sovereignty *above* these small islands.",
+      "options": [
+        "over",
+        "under",
+        "across"
+      ],
+      "correct": [
+        "over"
+      ],
+      "translation": {
+        "ru": "Обе страны претендуют на суверенитет над этими маленькими островами.",
+        "uz": "Ikkala davlat ham bu kichik orollar ustidan suverenitetga da'vo qilmoqda."
+      },
+      "explanation": {
+        "ru": "sovereignty over — суверенитет над территорией: предлог over. above значит «выше» в пространстве, и с sovereignty его не используют.",
+        "uz": "sovereignty over — biror hudud ustidan suverenitet: over predlogi. above fazoda «yuqorida» degani va sovereignty so'zi bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m08-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "monarchy"
+      ],
+      "text": "The country has been a *monarch* for over a thousand years.",
+      "options": [
+        "monarchy",
+        "monarchist",
+        "monarchic"
+      ],
+      "correct": [
+        "monarchy"
+      ],
+      "translation": {
+        "ru": "Страна является монархией уже более тысячи лет.",
+        "uz": "Mamlakat ming yildan ortiq vaqtdan beri monarxiya bo'lib kelmoqda."
+      },
+      "explanation": {
+        "ru": "monarch — монарх, человек (король, королева); monarchy — монархия, форма правления. Страна может быть только monarchy.",
+        "uz": "monarch — monarx, ya'ni shaxs (qirol, qirolicha); monarchy — monarxiya, boshqaruv shakli. Mamlakat faqat monarchy bo'la oladi."
+      }
+    },
+    {
+      "key": "b2-m08-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "empire"
+      ],
+      "text": "It was a vast empire *who's* borders reached three seas.",
+      "options": [
+        "whose",
+        "which",
+        "that's"
+      ],
+      "correct": [
+        "whose"
+      ],
+      "translation": {
+        "ru": "Это была огромная империя, границы которой доходили до трёх морей.",
+        "uz": "Bu chegaralari uchta dengizgacha yetgan ulkan imperiya edi."
+      },
+      "explanation": {
+        "ru": "whose — «чей, которого» (принадлежность), и о людях, и о предметах: an empire whose borders. who's = who is или who has.",
+        "uz": "whose — «kimning, qaysining» (egalik), odamlar haqida ham, narsalar haqida ham: an empire whose borders. who's esa who is yoki who has."
+      }
+    },
+    {
+      "key": "b2-m08-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "nominate"
+      ],
+      "text": "Only one of the five ___ will become the party's candidate.",
+      "base": "nominate",
+      "accepted": [
+        "nominees"
+      ],
+      "translation": {
+        "ru": "Только один из пяти выдвинутых станет кандидатом от партии.",
+        "uz": "Nomzodlikka ko'rsatilgan beshta kishidan faqat bittasi partiyaning nomzodi bo'ladi."
+      },
+      "explanation": {
+        "ru": "После of the five нужно существительное во множественном числе — люди, которых выдвинули: nominate → nominee (-ee: тот, кого...) → nominees.",
+        "uz": "of the five so'zlaridan keyin ko'plikdagi ot kerak — nomzod qilib ko'rsatilgan odamlar: nominate → nominee (-ee: ish-harakat kimga qaratilgan bo'lsa) → nominees."
+      }
+    },
+    {
+      "key": "b2-m08-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "majority"
+      ],
+      "text": "In the last election the party won a clear ___ in parliament.",
+      "base": "major",
+      "accepted": [
+        "majority"
+      ],
+      "translation": {
+        "ru": "На последних выборах партия получила явное большинство в парламенте.",
+        "uz": "Oxirgi saylovda partiya parlamentda aniq ko'pchilikni qo'lga kiritdi."
+      },
+      "explanation": {
+        "ru": "После a clear нужно существительное: major (больший, главный) → majority (большинство), суффикс -ity.",
+        "uz": "a clear so'zlaridan keyin ot kerak: major (kattaroq, asosiy) → majority (ko'pchilik), -ity qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m08-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "campaign"
+      ],
+      "text": "My grandmother was a tireless ___ for clean air.",
+      "base": "campaign",
+      "accepted": [
+        "campaigner"
+      ],
+      "translation": {
+        "ru": "Моя бабушка была неутомимым борцом за чистый воздух.",
+        "uz": "Buvim toza havo uchun tinimsiz kurashgan faol edi."
+      },
+      "explanation": {
+        "ru": "После a tireless нужен человек: campaign (кампания) → campaigner (участник кампании, борец за что-то), суффикс -er.",
+        "uz": "a tireless so'zlaridan keyin shaxsni bildiruvchi ot kerak: campaign (kampaniya) → campaigner (biror narsa uchun kurashuvchi), -er qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m08-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "poll"
+      ],
+      "text": "A week before the vote, the party is behind in the *poles*.",
+      "options": [
+        "polls",
+        "pools",
+        "pulls"
+      ],
+      "correct": [
+        "polls"
+      ],
+      "translation": {
+        "ru": "За неделю до голосования партия отстаёт по результатам опросов.",
+        "uz": "Ovoz berishdan bir hafta oldin partiya so'rovlarda ortda qolmoqda."
+      },
+      "explanation": {
+        "ru": "polls — опросы (behind in the polls — отстаёт по опросам); poles — шесты или полюсы. Слова звучат почти одинаково, но пишутся по-разному.",
+        "uz": "polls — so'rovlar (behind in the polls — so'rovlarda ortda); poles esa xodalar yoki qutblar. Bu so'zlar deyarli bir xil eshitiladi, lekin turlicha yoziladi."
+      }
+    },
+    {
+      "key": "b2-m08-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "minority"
+      ],
+      "text": "A tiny minority *from* the residents opposed the new road.",
+      "options": [
+        "of",
+        "by",
+        "in"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Против новой дороги выступило лишь крошечное меньшинство жителей.",
+        "uz": "Yangi yo'lga aholining juda kichik ozchiligigina qarshi chiqdi."
+      },
+      "explanation": {
+        "ru": "a minority of + существительное — меньшинство кого-либо: предлог of. Русское «из жителей» здесь не переводится через from.",
+        "uz": "a minority of + ot — kimlarningdir ozchiligi: of predlogi keladi. «Aholi orasidan» ma'nosida bu yerda from ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m08-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "ballot"
+      ],
+      "text": "Members vote by *secretly* ballot, so nobody knows their choice.",
+      "options": [
+        "secret",
+        "secrets",
+        "secretive"
+      ],
+      "correct": [
+        "secret"
+      ],
+      "translation": {
+        "ru": "Члены голосуют тайным голосованием, так что никто не знает их выбора.",
+        "uz": "A'zolar yashirin ovoz berish yo'li bilan saylaydi, shuning uchun hech kim ularning tanlovini bilmaydi."
+      },
+      "explanation": {
+        "ru": "Перед существительным ballot нужно прилагательное: secret ballot — тайное голосование. secretly — наречие.",
+        "uz": "ballot oti oldida sifat kerak: secret ballot — yashirin ovoz berish. secretly esa ravish."
+      }
+    },
+    {
+      "key": "b2-m08-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "administration"
+      ],
+      "text": "These changes are purely ___ and will not affect students.",
+      "base": "administration",
+      "accepted": [
+        "administrative"
+      ],
+      "translation": {
+        "ru": "Эти изменения чисто административные и не затронут студентов.",
+        "uz": "Bu o'zgarishlar sof ma'muriy xarakterga ega va talabalarga ta'sir qilmaydi."
+      },
+      "explanation": {
+        "ru": "После are purely нужно прилагательное: administration → administrative; -ion меняется на -ive.",
+        "uz": "are purely so'zlaridan keyin sifat kerak: administration → administrative; -ion o'rniga -ive."
+      }
+    },
+    {
+      "key": "b2-m08-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "assembly"
+      ],
+      "text": "Both regional ___ voted for the new law.",
+      "base": "assemble",
+      "accepted": [
+        "assemblies"
+      ],
+      "translation": {
+        "ru": "Обе региональные ассамблеи проголосовали за новый закон.",
+        "uz": "Ikkala hududiy majlis ham yangi qonun uchun ovoz berdi."
+      },
+      "explanation": {
+        "ru": "После Both regional нужно существительное во множественном числе: assemble → assembly (-e → -y) → assemblies (y → ies).",
+        "uz": "Both regional so'zlaridan keyin ko'plikdagi ot kerak: assemble → assembly (-e o'rniga -y) → assemblies (y o'rniga ies)."
+      }
+    },
+    {
+      "key": "b2-m08-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "governor"
+      ],
+      "text": "She was elected ___ of the region last spring.",
+      "base": "govern",
+      "accepted": [
+        "governor"
+      ],
+      "translation": {
+        "ru": "Прошлой весной её избрали губернатором области.",
+        "uz": "O'tgan bahorda u viloyat gubernatori etib saylandi."
+      },
+      "explanation": {
+        "ru": "После was elected нужна должность — человек: govern (управлять) → governor (губернатор), -or. Перед единственной должностью артикль не нужен.",
+        "uz": "was elected so'zlaridan keyin lavozim — shaxs kerak: govern (boshqarmoq) → governor (gubernator), -or. Yagona lavozim oldida artikl kerak emas."
+      }
+    },
+    {
+      "key": "b2-m08-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "council"
+      ],
+      "text": "The city *counsel* meets every Monday to discuss local problems.",
+      "options": [
+        "council",
+        "cancel",
+        "console"
+      ],
+      "correct": [
+        "council"
+      ],
+      "translation": {
+        "ru": "Городской совет собирается каждый понедельник, чтобы обсуждать местные проблемы.",
+        "uz": "Shahar kengashi har dushanba kuni mahalliy muammolarni muhokama qilish uchun yig'iladi."
+      },
+      "explanation": {
+        "ru": "council — совет как орган власти; counsel — совет-рекомендация или адвокат. Слова звучат одинаково.",
+        "uz": "council — hokimiyat organi sifatidagi kengash; counsel esa maslahat yoki advokat. Bu so'zlar bir xil eshitiladi."
+      }
+    },
+    {
+      "key": "b2-m08-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "agency"
+      ],
+      "text": "Two different *agency's* are now investigating the accident at the port.",
+      "options": [
+        "agencies",
+        "agency",
+        "agencies'"
+      ],
+      "correct": [
+        "agencies"
+      ],
+      "translation": {
+        "ru": "Два разных агентства сейчас расследуют аварию в порту.",
+        "uz": "Hozir ikki xil agentlik portdagi avariyani tekshirmoqda."
+      },
+      "explanation": {
+        "ru": "Множественное число agency — agencies: y после согласной меняется на ies. Апостроф обозначает принадлежность, а не множественное число.",
+        "uz": "agency so'zining ko'pligi — agencies: undoshdan keyingi y harfi ies ga aylanadi. Apostrof egalikni bildiradi, ko'plikni emas."
+      }
+    },
+    {
+      "key": "b2-m08-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "bureaucracy"
+      ],
+      "text": "There is too *many* bureaucracy in our city hall.",
+      "options": [
+        "much",
+        "few",
+        "lots"
+      ],
+      "correct": [
+        "much"
+      ],
+      "translation": {
+        "ru": "В нашей мэрии слишком много бюрократии.",
+        "uz": "Shahar hokimiyatimizda byurokratiya haddan tashqari ko'p."
+      },
+      "explanation": {
+        "ru": "bureaucracy в значении «волокита» — неисчисляемое: too much. many ставят только перед исчисляемыми во множественном числе.",
+        "uz": "bureaucracy «qog'ozbozlik» ma'nosida sanalmaydi: too much. many esa faqat ko'plikdagi sanaladigan otlar oldida keladi."
+      }
+    },
+    {
+      "key": "b2-m08-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "ideology"
+      ],
+      "text": "The two parties have deep ___ differences.",
+      "base": "ideology",
+      "accepted": [
+        "ideological"
+      ],
+      "translation": {
+        "ru": "У двух партий глубокие идеологические разногласия.",
+        "uz": "Ikki partiya o'rtasida chuqur mafkuraviy tafovutlar bor."
+      },
+      "explanation": {
+        "ru": "Перед существительным differences нужно прилагательное: ideology → ideological; -y меняется на -ical.",
+        "uz": "differences oti oldida sifat kerak: ideology → ideological; -y o'rniga -ical."
+      }
+    },
+    {
+      "key": "b2-m08-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "veto"
+      ],
+      "text": "The president issued two ___ during his first year in office.",
+      "base": "veto",
+      "accepted": [
+        "vetoes"
+      ],
+      "translation": {
+        "ru": "За первый год у власти президент дважды наложил вето.",
+        "uz": "Prezident lavozimdagi birinchi yilida ikki marta veto qo'ydi."
+      },
+      "explanation": {
+        "ru": "После two нужно множественное число: veto → vetoes. После -o здесь добавляется -es, как в potatoes и heroes.",
+        "uz": "two so'zidan keyin ko'plik kerak: veto → vetoes. Bu so'zda -o dan keyin -es qo'shiladi, potatoes va heroes kabi."
+      }
+    },
+    {
+      "key": "b2-m08-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "senate"
+      ],
+      "text": "Each region elects two ___ to the upper house.",
+      "base": "senate",
+      "accepted": [
+        "senators"
+      ],
+      "translation": {
+        "ru": "Каждый регион избирает двух сенаторов в верхнюю палату.",
+        "uz": "Har bir hudud yuqori palataga ikkita senator saylaydi."
+      },
+      "explanation": {
+        "ru": "Избирают людей, а two требует множественного числа: senate (сенат) → senator (сенатор), -e → -or → senators.",
+        "uz": "Odamlar saylanadi, two esa ko'plikni talab qiladi: senate (senat) → senator, -e o'rniga -or → senators."
+      }
+    },
+    {
+      "key": "b2-m08-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "policy"
+      ],
+      "text": "Our school has a strict *politics* on mobile phones in class.",
+      "options": [
+        "policy",
+        "police",
+        "policies"
+      ],
+      "correct": [
+        "policy"
+      ],
+      "translation": {
+        "ru": "В нашей школе действует строгая политика в отношении мобильных телефонов на уроках.",
+        "uz": "Maktabimizda darsda mobil telefonlardan foydalanish bo'yicha qat'iy siyosat bor."
+      },
+      "explanation": {
+        "ru": "policy — политика как курс, правила (a policy on something); politics — политика как сфера, борьба партий, и с a не употребляется.",
+        "uz": "policy — yo'l, qoidalar ma'nosidagi siyosat (a policy on something); politics esa siyosat sohasi, partiyalar kurashi va a artikli bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m08-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "decree"
+      ],
+      "text": "The new public holiday was created *with* presidential decree.",
+      "options": [
+        "by",
+        "from",
+        "at"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "Новый государственный праздник был учреждён указом президента.",
+        "uz": "Yangi davlat bayrami prezident farmoni bilan joriy etildi."
+      },
+      "explanation": {
+        "ru": "by decree — указом: способ принятия решения передаёт предлог by. Русский творительный падеж («указом») не переводится через with.",
+        "uz": "by decree — farmon bilan: qaror qanday qabul qilinganini by predlogi bildiradi. O'zbekcha «bilan» bu yerda with emas."
+      }
+    },
+    {
+      "key": "b2-m08-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "mandate"
+      ],
+      "text": "The party claimed a mandate *cutting* taxes, not to raise them.",
+      "options": [
+        "to cut",
+        "of cutting",
+        "for cut"
+      ],
+      "correct": [
+        "to cut"
+      ],
+      "translation": {
+        "ru": "Партия заявила, что получила мандат на снижение налогов, а не на их повышение.",
+        "uz": "Partiya soliqlarni oshirishga emas, kamaytirishga vakolat olganini ma'lum qildi."
+      },
+      "explanation": {
+        "ru": "a mandate to do something — полномочия что-то сделать: после mandate инфинитив с to, как и во второй части (not to raise).",
+        "uz": "a mandate to do something — biror ishni qilish vakolati: mandate so'zidan keyin to bilan infinitiv keladi, ikkinchi qismdagi kabi (not to raise)."
+      }
+    },
+    {
+      "key": "b2-m08-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "alliance"
+      ],
+      "text": "These three countries have been in a military ___ for decades.",
+      "base": "ally",
+      "accepted": [
+        "alliance"
+      ],
+      "translation": {
+        "ru": "Эти три страны уже несколько десятилетий состоят в военном союзе.",
+        "uz": "Bu uch davlat o'nlab yillardan beri harbiy ittifoq a'zosi."
+      },
+      "explanation": {
+        "ru": "После a military нужно существительное: ally (союзник) → alliance (союз); y меняется на i, добавляется -ance.",
+        "uz": "a military so'zlaridan keyin ot kerak: ally (ittifoqchi) → alliance (ittifoq); y harfi i ga aylanadi va -ance qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m08-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "neutral"
+      ],
+      "text": "The country has kept its ___ for over two hundred years.",
+      "base": "neutral",
+      "accepted": [
+        "neutrality"
+      ],
+      "translation": {
+        "ru": "Страна сохраняет нейтралитет уже более двухсот лет.",
+        "uz": "Mamlakat ikki yuz yildan ortiq vaqtdan beri betarafligini saqlab kelmoqda."
+      },
+      "explanation": {
+        "ru": "После its нужно существительное: neutral (нейтральный) → neutrality (нейтралитет), суффикс -ity.",
+        "uz": "its olmoshidan keyin ot kerak: neutral (betaraf) → neutrality (betaraflik), -ity qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m08-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "territory"
+      ],
+      "text": "Foreign fishing boats may not enter the country's ___ waters.",
+      "base": "territory",
+      "accepted": [
+        "territorial"
+      ],
+      "translation": {
+        "ru": "Иностранным рыболовецким судам нельзя заходить в территориальные воды страны.",
+        "uz": "Xorijiy baliqchi kemalarga mamlakatning hududiy suvlariga kirish taqiqlangan."
+      },
+      "explanation": {
+        "ru": "Перед существительным waters нужно прилагательное: territory → territorial; -y меняется на -ial.",
+        "uz": "waters oti oldida sifat kerak: territory → territorial; -y o'rniga -ial."
+      }
+    },
+    {
+      "key": "b2-m08-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "summit"
+      ],
+      "text": "Climate change will be the main topic *on* next week's summit.",
+      "options": [
+        "at",
+        "by",
+        "under"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "Изменение климата станет главной темой саммита на следующей неделе.",
+        "uz": "Kelasi haftadagi sammitda iqlim o'zgarishi asosiy mavzu bo'ladi."
+      },
+      "explanation": {
+        "ru": "at the summit — на саммите: о встречах и мероприятиях говорят at (at a meeting, at a conference). Русское «на» здесь не on.",
+        "uz": "at the summit — sammitda: uchrashuv va tadbirlar haqida at ishlatiladi (at a meeting, at a conference)."
+      }
+    },
+    {
+      "key": "b2-m08-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "cooperation"
+      ],
+      "text": "The project grew out of cooperation *among* our school and the hospital.",
+      "options": [
+        "between",
+        "beside",
+        "behind"
+      ],
+      "correct": [
+        "between"
+      ],
+      "translation": {
+        "ru": "Проект вырос из сотрудничества нашей школы и больницы.",
+        "uz": "Loyiha maktabimiz va kasalxona o'rtasidagi hamkorlikdan o'sib chiqdi."
+      },
+      "explanation": {
+        "ru": "cooperation between A and B — сотрудничество между двумя сторонами: с двумя участниками и с конструкцией A and B — between; among — среди трёх и более.",
+        "uz": "cooperation between A and B — ikki tomon o'rtasidagi hamkorlik: ikki ishtirokchi va A and B qurilmasi bilan between keladi; among esa uch va undan ortiq ishtirokchi uchun."
+      }
+    },
+    {
+      "key": "b2-m08-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 8,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "negotiation"
+      ],
+      "text": "The *negotiate* between the two companies lasted until midnight.",
+      "options": [
+        "negotiations",
+        "negotiated",
+        "negotiable"
+      ],
+      "correct": [
+        "negotiations"
+      ],
+      "translation": {
+        "ru": "Переговоры между двумя компаниями продолжались до полуночи.",
+        "uz": "Ikki kompaniya o'rtasidagi muzokaralar yarim tungacha davom etdi."
+      },
+      "explanation": {
+        "ru": "После The нужно существительное, а не глагол: negotiate (вести переговоры) → negotiations (переговоры), -e → -ion.",
+        "uz": "The artiklidan keyin fe'l emas, ot kerak: negotiate (muzokara olib bormoq) → negotiations (muzokaralar), -e o'rniga -ion."
+      }
+    }
+  ]
+}

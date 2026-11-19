@@ -1,0 +1,1627 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c1",
+  "items": [
+    {
+      "key": "c1-m17-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "proclaim"
+      ],
+      "text": "The new king's first ___ abolished the hated tax on salt.",
+      "base": "proclaim",
+      "accepted": [
+        "proclamation"
+      ],
+      "translation": {
+        "ru": "Первый же манифест нового короля отменил всеми ненавистный налог на соль.",
+        "uz": "Yangi qirolning ilk farmoni hamma yomon ko'rgan tuz solig'ini bekor qildi."
+      },
+      "explanation": {
+        "ru": "После king's first нужно существительное: proclaim → proclamation. Буква i из -aim выпадает: proclam + -ation (как exclaim → exclamation).",
+        "uz": "king's first so'zlaridan keyin ot kerak: proclaim → proclamation. -aim qismidagi i harfi tushib qoladi: proclam + -ation (exclaim → exclamation kabi)."
+      }
+    },
+    {
+      "key": "c1-m17-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "contend"
+      ],
+      "text": "The main ___ of her book is that big cities make people lonely.",
+      "base": "contend",
+      "accepted": [
+        "contention"
+      ],
+      "translation": {
+        "ru": "Главное утверждение её книги состоит в том, что большие города делают людей одинокими.",
+        "uz": "Uning kitobidagi asosiy da'vo shuki, katta shaharlar odamlarni yolg'iz qilib qo'yadi."
+      },
+      "explanation": {
+        "ru": "После The main и перед of нужно существительное «утверждение»: contend → contention. Конечное -d заменяется на -tion (как intend → intention).",
+        "uz": "The main so'zlaridan keyin va of predlogidan oldin «da'vo» ma'nosidagi ot kerak: contend → contention. Oxiridagi -d o'rniga -tion keladi (intend → intention kabi)."
+      }
+    },
+    {
+      "key": "c1-m17-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "rebut"
+      ],
+      "text": "Within hours, the minister published a detailed ___ of every claim in the report.",
+      "base": "rebut",
+      "accepted": [
+        "rebuttal"
+      ],
+      "translation": {
+        "ru": "Уже через несколько часов министр опубликовал подробное опровержение каждого утверждения доклада.",
+        "uz": "Bir necha soat o'tmay vazir hisobotdagi har bir da'voga batafsil raddiya e'lon qildi."
+      },
+      "explanation": {
+        "ru": "После a detailed нужно существительное: rebut → rebuttal (+ -al). Ударение на последнем слоге (re-BUT), поэтому t удваивается.",
+        "uz": "a detailed so'zlaridan keyin ot kerak: rebut → rebuttal (+ -al). Urg'u oxirgi bo'g'inda (re-BUT), shuning uchun t harfi ikkilanadi."
+      }
+    },
+    {
+      "key": "c1-m17-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "concur"
+      ],
+      "text": "In this case, I fully concur *to* my colleague: the evidence is too weak.",
+      "options": [
+        "with",
+        "on",
+        "for"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "В данном случае я полностью согласен с коллегой: доказательства слишком слабы.",
+        "uz": "Bu holatda men hamkasbimning fikriga to'liq qo'shilaman: dalillar juda zaif."
+      },
+      "explanation": {
+        "ru": "concur with somebody — соглашаться с кем-то: с человеком после concur ставится with, как после agree. on бывает с вопросом (concur on a point), но не с человеком.",
+        "uz": "concur with somebody — kimningdir fikriga qo'shilmoq: shaxs bilan concur fe'lidan keyin with keladi, agree fe'lidagi kabi. on predlogi masala bilan keladi (concur on a point), shaxs bilan emas."
+      }
+    },
+    {
+      "key": "c1-m17-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "disprove"
+      ],
+      "text": "A single old photograph *disapproved* the suspect's whole story about that night.",
+      "options": [
+        "disproved",
+        "reproved",
+        "unproved"
+      ],
+      "correct": [
+        "disproved"
+      ],
+      "translation": {
+        "ru": "Одна-единственная старая фотография доказала ложность всего рассказа подозреваемого о той ночи.",
+        "uz": "Birgina eski surat gumonlanuvchining o'sha tun haqidagi butun gaplari yolg'on ekanini isbotladi."
+      },
+      "explanation": {
+        "ru": "disapprove (of) — не одобрять; так относится человек, а не фотография. Доказать ложность — disprove, прош. вр. disproved. reprove — упрекать, unproved — «недоказанный», а не глагол.",
+        "uz": "disapprove (of) — ma'qullamaslik; bu suratning emas, odamning munosabati. Noto'g'riligini isbotlamoq — disprove, o'tgan zamonda disproved. reprove — tanbeh bermoq, unproved esa fe'l emas, «isbotlanmagan» degani."
+      }
+    },
+    {
+      "key": "c1-m17-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "allege"
+      ],
+      "text": "Several workers *accused* that the manager had ignored the safety rules.",
+      "options": [
+        "alleged",
+        "blamed",
+        "reproached"
+      ],
+      "correct": [
+        "alleged"
+      ],
+      "translation": {
+        "ru": "Несколько рабочих голословно утверждали, что начальник пренебрегал правилами техники безопасности.",
+        "uz": "Bir necha ishchi rahbar xavfsizlik qoidalariga amal qilmagan, deb isbotsiz da'vo qildi."
+      },
+      "explanation": {
+        "ru": "После accuse нужно дополнение-человек: accuse somebody of something, а не accuse that. Заявить без доказательств, что… — allege that. blame и reproach тоже требуют дополнения-человека.",
+        "uz": "accuse fe'lidan keyin shaxs kelishi shart: accuse somebody of something; accuse that deyilmaydi. Isbotsiz «…, deb da'vo qilmoq» — allege that. blame va reproach fe'llari ham shaxsni talab qiladi."
+      }
+    },
+    {
+      "key": "c1-m17-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "paradox"
+      ],
+      "text": "Building more roads has, ___, made the traffic jams in the city even worse.",
+      "base": "paradox",
+      "accepted": [
+        "paradoxically"
+      ],
+      "translation": {
+        "ru": "Строительство новых дорог, как ни парадоксально, сделало пробки в городе ещё хуже.",
+        "uz": "Ko'proq yo'l qurish, paradoksal tarzda, shahardagi tirbandliklarni yanada kuchaytirdi."
+      },
+      "explanation": {
+        "ru": "Слово между запятыми оценивает всё высказывание — нужно наречие «как ни парадоксально»: paradox → paradoxical → paradoxically (-ally, а не -ly).",
+        "uz": "Vergullar orasidagi so'z butun fikrga baho beradi — «paradoksal tarzda» ma'nosidagi ravish kerak: paradox → paradoxical → paradoxically (-ly emas, -ally)."
+      }
+    },
+    {
+      "key": "c1-m17-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "inconsistency"
+      ],
+      "text": "One tiny ___ between his two stories made the police doubt everything he said.",
+      "base": "consistent",
+      "accepted": [
+        "inconsistency"
+      ],
+      "translation": {
+        "ru": "Из-за одного крошечного несоответствия между двумя его рассказами полиция усомнилась во всём, что он говорил.",
+        "uz": "Uning ikki hikoyasi orasidagi bitta kichik ziddiyat tufayli politsiya uning har bir so'ziga shubha bilan qaray boshladi."
+      },
+      "explanation": {
+        "ru": "После One tiny нужно существительное, а недоверие полиции требует отрицания: consistent → inconsistent → inconsistency (in- и -ent → -ency).",
+        "uz": "One tiny so'zlaridan keyin ot kerak, politsiyaning ishonchsizligi esa inkor ma'nosini talab qiladi: consistent → inconsistent → inconsistency (in- va -ent → -ency)."
+      }
+    },
+    {
+      "key": "c1-m17-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "fallacy"
+      ],
+      "text": "The argument sounds convincing, but the reasoning behind it is entirely ___.",
+      "base": "fallacy",
+      "accepted": [
+        "fallacious"
+      ],
+      "translation": {
+        "ru": "Этот довод звучит убедительно, но рассуждения, на которых он построен, совершенно ошибочны.",
+        "uz": "Bu dalil ishonarli eshitiladi, lekin uning ortidagi mulohazalar butunlay mantiqan xato."
+      },
+      "explanation": {
+        "ru": "После is entirely нужно прилагательное «логически ошибочный»: fallacy → fallacious; -y заменяется на -ious, ll сохраняется.",
+        "uz": "is entirely so'zlaridan keyin «mantiqan xato» ma'nosidagi sifat kerak: fallacy → fallacious; -y o'rniga -ious keladi, ll saqlanadi."
+      }
+    },
+    {
+      "key": "c1-m17-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "premise"
+      ],
+      "text": "The whole policy was based *in* the premise that people always act rationally.",
+      "options": [
+        "on",
+        "at",
+        "from"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Вся эта политика строилась на посылке, что люди всегда действуют рационально.",
+        "uz": "Butun siyosat odamlar doim oqilona harakat qiladi, degan dastlabki asosga qurilgan edi."
+      },
+      "explanation": {
+        "ru": "based on the premise that… — исходя из посылки, что…: после based ставится on. based in говорят о месте (a company based in a city).",
+        "uz": "based on the premise that… — «…, degan asosga qurilgan»: based so'zidan keyin on keladi. based in birikmasi joy haqida ishlatiladi (a company based in a city)."
+      }
+    },
+    {
+      "key": "c1-m17-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "rationale"
+      ],
+      "text": "Could you explain the *rational* for cutting the research budget again?",
+      "options": [
+        "rationale",
+        "rationing",
+        "ration"
+      ],
+      "correct": [
+        "rationale"
+      ],
+      "translation": {
+        "ru": "Не могли бы вы объяснить, чем обосновано очередное сокращение бюджета на исследования?",
+        "uz": "Tadqiqot byudjeti yana qisqartirilishining mantiqiy asosini tushuntirib bera olasizmi?"
+      },
+      "explanation": {
+        "ru": "rational — прилагательное «разумный», после the без существительного оно здесь не стоит. Обоснование — существительное rationale (с -e на конце). rationing — нормирование, ration — паёк.",
+        "uz": "rational — «oqilona» ma'nosidagi sifat, bu yerda the artiklidan keyin otsiz kela olmaydi. Mantiqiy asos — rationale oti (oxirida -e bor). rationing — me'yorlash, ration — ulush, payok."
+      }
+    },
+    {
+      "key": "c1-m17-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "analogy"
+      ],
+      "text": "Critics praised the clever analogy the author *brought* between ants and office workers.",
+      "options": [
+        "drew",
+        "held",
+        "led"
+      ],
+      "correct": [
+        "drew"
+      ],
+      "translation": {
+        "ru": "Критики высоко оценили остроумную аналогию, которую автор провёл между муравьями и офисными работниками.",
+        "uz": "Tanqidchilar muallifning chumolilar bilan ofis xodimlari o'rtasida keltirgan zukko qiyosini yuqori baholashdi."
+      },
+      "explanation": {
+        "ru": "Провести аналогию — draw an analogy (between / with), прош. вр. drew. Русское «привести» сбивает на bring, но brought an analogy по-английски не говорят; held и led с analogy тоже не сочетаются.",
+        "uz": "Qiyos keltirmoq — draw an analogy (between / with), o'tgan zamonda drew. O'zbekcha «keltirmoq» bring fe'liga undaydi, ammo inglizchada brought an analogy deyilmaydi; held va led fe'llari ham analogy bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m17-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "admittedly"
+      ],
+      "text": "The hotel was, ___, rather expensive, but the view from our room was wonderful.",
+      "base": "admit",
+      "accepted": [
+        "admittedly"
+      ],
+      "translation": {
+        "ru": "Отель, надо признать, был довольно дорогим, но вид из нашего номера был чудесным.",
+        "uz": "Mehmonxona, tan olish kerakki, ancha qimmat edi, lekin xonamizdan ochiladigan manzara ajoyib edi."
+      },
+      "explanation": {
+        "ru": "Слово между запятыми с but дальше — уступка «надо признать», нужно наречие: admit → admittedly. Ударение на -mit, поэтому tt, затем -edly.",
+        "uz": "Vergullar orasidagi so'z va undan keyingi but «tan olish kerakki» degan yon berishni bildiradi, ravish kerak: admit → admittedly. Urg'u -mit bo'g'inida, shuning uchun tt, keyin -edly."
+      }
+    },
+    {
+      "key": "c1-m17-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "arguably"
+      ],
+      "text": "Her second film, ___ her finest, was largely ignored by critics at first.",
+      "base": "argue",
+      "accepted": [
+        "arguably"
+      ],
+      "translation": {
+        "ru": "Её второй фильм, пожалуй лучший у неё, поначалу почти не заметили критики.",
+        "uz": "Uning ikkinchi filmi — aytish mumkinki, eng yaxshi ishi — avvaliga tanqidchilar e'tiboridan deyarli chetda qoldi."
+      },
+      "explanation": {
+        "ru": "Перед her finest нужно наречие-оценка «пожалуй, можно утверждать»: argue → arguable → arguably. Конечное -e у argue выпадает: argu-ably.",
+        "uz": "her finest so'zlaridan oldin «aytish mumkinki» ma'nosidagi baho ravishi kerak: argue → arguable → arguably. argue so'zining oxiridagi -e tushib qoladi: argu-ably."
+      }
+    },
+    {
+      "key": "c1-m17-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "seemingly"
+      ],
+      "text": "We waited for hours in a ___ endless line at the border crossing.",
+      "base": "seem",
+      "accepted": [
+        "seemingly"
+      ],
+      "translation": {
+        "ru": "Мы часами стояли на пограничном переходе в казавшейся бесконечной очереди.",
+        "uz": "Chegara o'tish punktida cheksizdek tuyulgan navbatda soatlab kutdik."
+      },
+      "explanation": {
+        "ru": "Перед прилагательным endless нужно наречие «казалось бы»: seem → seeming → seemingly. Определять прилагательное может только наречие.",
+        "uz": "endless sifatidan oldin «bir qarashda, go'yo» ma'nosidagi ravish kerak: seem → seeming → seemingly. Sifatni faqat ravish aniqlay oladi."
+      }
+    },
+    {
+      "key": "c1-m17-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "allegedly"
+      ],
+      "text": "The letter, *alleged* written by the minister himself, appeared in several newspapers.",
+      "options": [
+        "allegedly",
+        "alleging",
+        "allegation"
+      ],
+      "correct": [
+        "allegedly"
+      ],
+      "translation": {
+        "ru": "Письмо, якобы написанное самим министром, появилось в нескольких газетах.",
+        "uz": "Da'vo qilinishicha vazirning o'zi yozgan maktub bir nechta gazetada chop etildi."
+      },
+      "explanation": {
+        "ru": "Перед причастием written нужно наречие allegedly («якобы»). alleged — прилагательное: оно определяет существительное (the alleged author), а не причастие.",
+        "uz": "written sifatdoshidan oldin allegedly («da'vo qilinishicha») ravishi kerak. alleged — sifat: u sifatdoshni emas, otni aniqlaydi (the alleged author)."
+      }
+    },
+    {
+      "key": "c1-m17-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "presumably"
+      ],
+      "text": "Nobody has seen our neighbors for weeks; they are *presumptuously* away on vacation.",
+      "options": [
+        "presumably",
+        "presuming",
+        "presumptuous"
+      ],
+      "correct": [
+        "presumably"
+      ],
+      "translation": {
+        "ru": "Соседей не видно уже несколько недель: надо полагать, они уехали в отпуск.",
+        "uz": "Qo'shnilarimiz bir necha haftadan beri ko'rinmayapti: chamasi, ular ta'tilga ketgan."
+      },
+      "explanation": {
+        "ru": "presumptuously — «самонадеянно, дерзко», это о манере поведения. Вывод «надо полагать» — presumably. Оба слова от presume, но значат разное.",
+        "uz": "presumptuously — «manmanlik bilan, surbetlarcha», bu xatti-harakat uslubi haqida. «Chamasi» degan xulosa — presumably. Ikkala so'z ham presume fe'lidan, lekin ma'nosi boshqa."
+      }
+    },
+    {
+      "key": "c1-m17-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "undoubtedly"
+      ],
+      "text": "The new metro line will *undoubtly* make life easier for people in the suburbs.",
+      "options": [
+        "undoubtedly",
+        "undoubted",
+        "undoubting"
+      ],
+      "correct": [
+        "undoubtedly"
+      ],
+      "translation": {
+        "ru": "Новая линия метро, несомненно, облегчит жизнь жителям пригородов.",
+        "uz": "Yangi metro liniyasi, shubhasiz, shahar chekkasida yashovchilarning hayotini yengillashtiradi."
+      },
+      "explanation": {
+        "ru": "Наречие образуется от прилагательного undoubted: un- + doubt + -ed + -ly → undoubtedly. Слова undoubtly нет; undoubted — прилагательное, а перед глаголом make нужно наречие.",
+        "uz": "Ravish undoubted sifatidan yasaladi: un- + doubt + -ed + -ly → undoubtedly. undoubtly degan so'z yo'q; undoubted — sifat, make fe'lidan oldin esa ravish kerak."
+      }
+    },
+    {
+      "key": "c1-m17-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "eloquent"
+      ],
+      "text": "Even her fiercest opponents admired the quiet ___ of her final speech.",
+      "base": "eloquent",
+      "accepted": [
+        "eloquence"
+      ],
+      "translation": {
+        "ru": "Даже самые яростные противники восхищались сдержанным красноречием её последней речи.",
+        "uz": "Hatto eng ashaddiy raqiblari ham uning so'nggi nutqidagi vazmin so'zamollikka qoyil qolishdi."
+      },
+      "explanation": {
+        "ru": "После the quiet и перед of нужно существительное: eloquent → eloquence. Прилагательные на -ent дают существительные на -ence, а не -ance.",
+        "uz": "the quiet so'zlaridan keyin va of predlogidan oldin ot kerak: eloquent → eloquence. -ent bilan tugaydigan sifatlardan -ance emas, -ence bilan ot yasaladi."
+      }
+    },
+    {
+      "key": "c1-m17-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "rhetoric"
+      ],
+      "text": "Do not answer that: it was only a ___ question.",
+      "base": "rhetoric",
+      "accepted": [
+        "rhetorical"
+      ],
+      "translation": {
+        "ru": "Не отвечайте на это: это был всего лишь риторический вопрос.",
+        "uz": "Bunga javob bermang: bu shunchaki ritorik savol edi."
+      },
+      "explanation": {
+        "ru": "Перед question нужно прилагательное: rhetoric → rhetorical (+ -al). a rhetorical question — вопрос, на который не ждут ответа; на это указывает Do not answer.",
+        "uz": "question otidan oldin sifat kerak: rhetoric → rhetorical (+ -al). a rhetorical question — javob kutilmaydigan savol; buni Do not answer so'zlari ko'rsatadi."
+      }
+    },
+    {
+      "key": "c1-m17-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "emphatic"
+      ],
+      "text": "In an ___ statement, the company denied any link to the scandal.",
+      "base": "emphasis",
+      "accepted": [
+        "emphatic"
+      ],
+      "translation": {
+        "ru": "В категоричном заявлении компания отвергла любую связь со скандалом.",
+        "uz": "Kompaniya qat'iy bayonot bilan janjalga har qanday aloqasi borligini rad etdi."
+      },
+      "explanation": {
+        "ru": "Между an и statement нужно прилагательное «категоричный»: emphasis → emphatic; -sis заменяется на -tic (как analysis → analytic).",
+        "uz": "an artikli bilan statement oti orasida «qat'iy» ma'nosidagi sifat kerak: emphasis → emphatic; -sis o'rniga -tic keladi (analysis → analytic kabi)."
+      }
+    },
+    {
+      "key": "c1-m17-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "sway"
+      ],
+      "text": "A good judge should never be swayed *with* emotional appeals, however moving they are.",
+      "options": [
+        "by",
+        "from",
+        "at"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "Хороший судья никогда не должен поддаваться эмоциональным призывам, какими бы трогательными они ни были.",
+        "uz": "Yaxshi sudya hissiy da'vatlar qanchalik ta'sirli bo'lmasin, hech qachon ularga berilmasligi kerak."
+      },
+      "explanation": {
+        "ru": "be swayed by something — поддаться влиянию чего-то: в страдательном залоге то, что влияет, вводится через by. with здесь неверно.",
+        "uz": "be swayed by something — biror narsa ta'siriga berilmoq: majhul nisbatda ta'sir qiluvchi narsa by predlogi bilan keladi. with bu yerda xato."
+      }
+    },
+    {
+      "key": "c1-m17-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "hyperbole"
+      ],
+      "text": "Advertising relies heavily on *hyperbola*: every product is the best in the world.",
+      "options": [
+        "hyperbole",
+        "hyperbolic",
+        "hyperbolize"
+      ],
+      "correct": [
+        "hyperbole"
+      ],
+      "translation": {
+        "ru": "Реклама во многом держится на гиперболе: любой товар в ней — лучший в мире.",
+        "uz": "Reklama ko'p jihatdan mubolag'aga tayanadi: undagi har bir mahsulot dunyodagi eng yaxshisi."
+      },
+      "explanation": {
+        "ru": "hyperbola — гипербола в математике (кривая). Преувеличение как приём речи — hyperbole (на конце -e). Русское «гипербола» означает и то и другое, английские слова — нет.",
+        "uz": "hyperbola — matematikadagi giperbola (egri chiziq). Nutqdagi mubolag'a — hyperbole (oxirida -e). O'zbekchada «giperbola» ikkala ma'noda ham uchrashi mumkin, inglizcha so'zlar esa farq qiladi."
+      }
+    },
+    {
+      "key": "c1-m17-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "understatement"
+      ],
+      "text": "With typical *overstatement*, he called losing his house a small setback.",
+      "options": [
+        "understatement",
+        "exaggeration",
+        "overreaction"
+      ],
+      "correct": [
+        "understatement"
+      ],
+      "translation": {
+        "ru": "Со свойственным ему преуменьшением он назвал потерю дома небольшой неудачей.",
+        "uz": "Odatdagidek kamaytirib aytib, u uyidan ayrilganini kichik bir omadsizlik deb atadi."
+      },
+      "explanation": {
+        "ru": "Потеря дома — это гораздо больше, чем «небольшая неудача»: сказано слишком мало, это understatement (преуменьшение). overstatement и exaggeration — преувеличение, overreaction — слишком бурная реакция.",
+        "uz": "Uydan ayrilish «kichik omadsizlik»dan ancha jiddiy: juda kam aytilgan, bu understatement (kamaytirib aytish). overstatement va exaggeration — mubolag'a, overreaction — haddan tashqari keskin munosabat."
+      }
+    },
+    {
+      "key": "c1-m17-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "unanimous"
+      ],
+      "text": "There was complete ___ among the judges: all ten chose the same winner.",
+      "base": "unanimous",
+      "accepted": [
+        "unanimity"
+      ],
+      "translation": {
+        "ru": "Среди судей царило полное единодушие: все десять выбрали одного и того же победителя.",
+        "uz": "Hakamlar o'rtasida to'liq yakdillik bor edi: o'ntasi ham bir xil g'olibni tanladi."
+      },
+      "explanation": {
+        "ru": "После There was complete нужно существительное «единодушие»: unanimous → unanimity; -ous заменяется на -ity (как generous → generosity).",
+        "uz": "There was complete so'zlaridan keyin «yakdillik» ma'nosidagi ot kerak: unanimous → unanimity; -ous o'rniga -ity keladi (generous → generosity kabi)."
+      }
+    },
+    {
+      "key": "c1-m17-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "deliberation"
+      ],
+      "text": "The council's ___ lasted two whole days, but in the end the vote was close.",
+      "base": "deliberate",
+      "accepted": [
+        "deliberation",
+        "deliberations"
+      ],
+      "translation": {
+        "ru": "Совещание совета длилось целых два дня, но в итоге голоса разделились почти поровну.",
+        "uz": "Kengashdagi muhokama ikki kun davom etdi, ammo oxir-oqibat ovozlar deyarli teng bo'lindi."
+      },
+      "explanation": {
+        "ru": "После council's нужно существительное «обсуждение, совещание»: deliberate (совещаться) → deliberation; -e выпадает, + -ion. Подходит и множественное deliberations.",
+        "uz": "council's so'zidan keyin «muhokama» ma'nosidagi ot kerak: deliberate (maslahatlashmoq) → deliberation; -e tushadi, -ion qo'shiladi. Ko'plikdagi deliberations shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "c1-m17-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "contentious"
+      ],
+      "text": "Whether to ban cars from the old town remains a fiercely ___ question.",
+      "base": "contend",
+      "accepted": [
+        "contentious"
+      ],
+      "translation": {
+        "ru": "Вопрос о том, запрещать ли машины в старом городе, по-прежнему остаётся крайне спорным.",
+        "uz": "Eski shaharga mashinalar kirishini taqiqlash-taqiqlamaslik masalasi hamon qizg'in bahsli bo'lib qolmoqda."
+      },
+      "explanation": {
+        "ru": "Перед question нужно прилагательное «спорный»: contend (спорить, утверждать) → contentious; d меняется на t, + -ious (как в contention).",
+        "uz": "question otidan oldin «bahsli» ma'nosidagi sifat kerak: contend (bahslashmoq, da'vo qilmoq) → contentious; d o'rniga t, so'ng -ious (contention so'zidagi kabi)."
+      }
+    },
+    {
+      "key": "c1-m17-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "standpoint"
+      ],
+      "text": "The merger makes sense *in* a purely financial standpoint, but many jobs will disappear.",
+      "options": [
+        "from",
+        "at",
+        "with"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "С чисто финансовой точки зрения слияние оправдано, но многие рабочие места исчезнут.",
+        "uz": "Sof moliyaviy nuqtai nazardan qo'shilish o'zini oqlaydi, ammo ko'plab ish o'rinlari yo'qoladi."
+      },
+      "explanation": {
+        "ru": "С какой-то точки зрения — from a … standpoint (или from the standpoint of): с standpoint ставится from. in здесь неверно, а русское «с» сбивает на with — тоже ошибка.",
+        "uz": "Qandaydir nuqtai nazardan — from a … standpoint (yoki from the standpoint of): standpoint so'zi bilan from keladi, xuddi o'zbekcha «-dan» kabi. in va with bu yerda xato."
+      }
+    },
+    {
+      "key": "c1-m17-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "deadlock"
+      ],
+      "text": "Only a new offer from the union could *destroy* the deadlock.",
+      "options": [
+        "break",
+        "tear",
+        "crush"
+      ],
+      "correct": [
+        "break"
+      ],
+      "translation": {
+        "ru": "Только новое предложение профсоюза могло вывести переговоры из тупика.",
+        "uz": "Faqat kasaba uyushmasining yangi taklifigina muzokaralarni boshi berk ko'chadan olib chiqa olardi."
+      },
+      "explanation": {
+        "ru": "Выйти из тупика в переговорах — break the deadlock (break a deadlock). С deadlock не сочетаются destroy, tear и crush.",
+        "uz": "Muzokaralarni boshi berk ko'chadan olib chiqmoq — break the deadlock. deadlock so'zi destroy, tear va crush fe'llari bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m17-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "divisive"
+      ],
+      "text": "The new language law has become a deeply *divisible* issue in the country.",
+      "options": [
+        "divisive",
+        "divisional",
+        "dividable"
+      ],
+      "correct": [
+        "divisive"
+      ],
+      "translation": {
+        "ru": "Новый закон о языке стал в стране вопросом, вызывающим глубокий раскол.",
+        "uz": "Til haqidagi yangi qonun mamlakatda jiddiy ixtilof tug'diruvchi masalaga aylandi."
+      },
+      "explanation": {
+        "ru": "divisible — «делимый» (10 is divisible by 5), как и dividable. Вызывающий раскол — divisive. divisional — относящийся к подразделению.",
+        "uz": "divisible — «bo'linadigan» (10 is divisible by 5), dividable ham shunday. Ixtilof tug'diruvchi — divisive. divisional — bo'linmaga oid."
+      }
+    },
+    {
+      "key": "c1-m18-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "siege"
+      ],
+      "text": "For eight long months, the ___ fortress refused to surrender.",
+      "base": "siege",
+      "accepted": [
+        "besieged"
+      ],
+      "translation": {
+        "ru": "Восемь долгих месяцев осаждённая крепость отказывалась сдаться.",
+        "uz": "Qamal qilingan qal'a sakkiz uzoq oy davomida taslim bo'lishni rad etdi."
+      },
+      "explanation": {
+        "ru": "Перед fortress нужно причастие «осаждённый»: от siege образуется глагол besiege (приставка be-), причастие — besieged; в корне -ie-.",
+        "uz": "fortress otidan oldin «qamal qilingan» ma'nosidagi sifatdosh kerak: siege so'zidan be- old qo'shimchasi bilan besiege fe'li yasaladi, sifatdoshi — besieged; o'zakda -ie-."
+      }
+    },
+    {
+      "key": "c1-m18-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "combat"
+      ],
+      "text": "The treaty protects ordinary citizens and wounded ___ alike.",
+      "base": "combat",
+      "accepted": [
+        "combatants"
+      ],
+      "translation": {
+        "ru": "Договор в равной мере защищает и простых граждан, и раненых участников боевых действий.",
+        "uz": "Shartnoma oddiy fuqarolarni ham, yarador jangchilarni ham birdek himoya qiladi."
+      },
+      "explanation": {
+        "ru": "После wounded нужно существительное-лицо во множественном числе (citizens and … alike): combat → combatant (участник боя) → combatants.",
+        "uz": "wounded so'zidan keyin ko'plikdagi shaxs oti kerak (citizens and … alike): combat → combatant (jang qatnashchisi) → combatants."
+      }
+    },
+    {
+      "key": "c1-m18-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "conscription"
+      ],
+      "text": "When the government introduced ___ for all men under thirty, many fled abroad.",
+      "base": "conscript",
+      "accepted": [
+        "conscription"
+      ],
+      "translation": {
+        "ru": "Когда правительство ввело воинскую повинность для всех мужчин моложе тридцати, многие бежали за границу.",
+        "uz": "Hukumat o'ttiz yoshgacha bo'lgan barcha erkaklar uchun majburiy harbiy xizmatni joriy qilganida, ko'pchilik chet elga qochib ketdi."
+      },
+      "explanation": {
+        "ru": "После introduced нужно существительное «воинская повинность»: conscript (призывать) → conscription (+ -ion). conscripts — это призывники, их не «вводят».",
+        "uz": "introduced fe'lidan keyin «majburiy harbiy xizmat» ma'nosidagi ot kerak: conscript (harbiy xizmatga chaqirmoq) → conscription (+ -ion). conscripts — chaqiriluvchilar, ular joriy qilinmaydi."
+      }
+    },
+    {
+      "key": "c1-m18-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "casualty"
+      ],
+      "text": "The enemy *carried* heavy casualties and had to retreat before dawn.",
+      "options": [
+        "suffered",
+        "made",
+        "held"
+      ],
+      "correct": [
+        "suffered"
+      ],
+      "translation": {
+        "ru": "Противник понёс тяжёлые потери и был вынужден отступить до рассвета.",
+        "uz": "Dushman katta talafot ko'rib, tong otguncha chekinishga majbur bo'ldi."
+      },
+      "explanation": {
+        "ru": "Понести потери — suffer casualties. Русское «понести» сбивает на carry, но carry значит «нести на себе». made и held с casualties не сочетаются.",
+        "uz": "Talafot ko'rmoq — suffer casualties. carry fe'li «ko'tarib yurmoq» degani, talafot bilan ishlatilmaydi. made va held fe'llari ham casualties bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m18-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "warfare"
+      ],
+      "text": "Chemical *welfare* has been banned by international law for many decades.",
+      "options": [
+        "warfare",
+        "wartime",
+        "warring"
+      ],
+      "correct": [
+        "warfare"
+      ],
+      "translation": {
+        "ru": "Химическая война уже много десятилетий запрещена международным правом.",
+        "uz": "Kimyoviy urush olib borish ko'p o'n yilliklardan beri xalqaro huquq bilan taqiqlangan."
+      },
+      "explanation": {
+        "ru": "welfare — благосостояние, социальная помощь. Ведение войны — warfare: chemical warfare — химическая война. wartime — военное время, warring — воюющий.",
+        "uz": "welfare — farovonlik, ijtimoiy yordam. Urush olib borish — warfare: chemical warfare — kimyoviy urush. wartime — urush davri, warring — urushayotgan."
+      }
+    },
+    {
+      "key": "c1-m18-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "ambush"
+      ],
+      "text": "That night, a group of rebels lay *at* ambush near the old bridge.",
+      "options": [
+        "in",
+        "on",
+        "under"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "В ту ночь отряд повстанцев сидел в засаде у старого моста.",
+        "uz": "O'sha kechasi bir guruh isyonchilar eski ko'prik yonida pistirmada poylab yotishdi."
+      },
+      "explanation": {
+        "ru": "Сидеть в засаде — lie in ambush (прош. вр. lay in ambush): предлог in, без артикля. at, on и under здесь невозможны.",
+        "uz": "Pistirmada poylab yotmoq — lie in ambush (o'tgan zamonda lay in ambush): in predlogi, artiklsiz. at, on va under bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m18-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "imperial"
+      ],
+      "text": "The ___ crown was kept in a guarded room deep inside the palace.",
+      "base": "empire",
+      "accepted": [
+        "imperial"
+      ],
+      "translation": {
+        "ru": "Императорскую корону хранили в охраняемой комнате в глубине дворца.",
+        "uz": "Imperator tojini saroyning ichkari qismidagi qo'riqlanadigan xonada saqlashardi."
+      },
+      "explanation": {
+        "ru": "Перед crown нужно прилагательное: empire → imperial. Корень меняется: em- → im-, -ire → -erial.",
+        "uz": "crown otidan oldin sifat kerak: empire → imperial. O'zak o'zgaradi: em- → im-, -ire → -erial."
+      }
+    },
+    {
+      "key": "c1-m18-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "conquest"
+      ],
+      "text": "People still wonder how such a small army achieved such a rapid ___.",
+      "base": "conquer",
+      "accepted": [
+        "conquest"
+      ],
+      "translation": {
+        "ru": "Люди до сих пор удивляются, как столь небольшая армия добилась столь стремительного завоевания.",
+        "uz": "Odamlar shunday kichik qo'shin qanday qilib bunchalik tez istiloga erishganiga hamon hayron."
+      },
+      "explanation": {
+        "ru": "После such a rapid нужно существительное «завоевание»: conquer → conquest. Окончание -er меняется на -est, суффикса -ion здесь нет.",
+        "uz": "such a rapid so'zlaridan keyin «istilo» ma'nosidagi ot kerak: conquer → conquest. Oxiridagi -er o'rniga -est keladi, -ion qo'shimchasi yo'q."
+      }
+    },
+    {
+      "key": "c1-m18-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "annex"
+      ],
+      "text": "Most countries called the move an illegal ___ of a neighbor's land.",
+      "base": "annex",
+      "accepted": [
+        "annexation"
+      ],
+      "translation": {
+        "ru": "Большинство стран назвали этот шаг незаконной аннексией соседней территории.",
+        "uz": "Ko'pchilik davlatlar bu harakatni qo'shni davlat yerining noqonuniy anneksiyasi deb atadi."
+      },
+      "explanation": {
+        "ru": "После an illegal и перед of нужно существительное: annex → annexation (+ -ation). Слово annexing после an здесь невозможно.",
+        "uz": "an illegal so'zlaridan keyin va of predlogidan oldin ot kerak: annex → annexation (+ -ation). an artiklidan keyin annexing shakli kela olmaydi."
+      }
+    },
+    {
+      "key": "c1-m18-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "subjugate"
+      ],
+      "text": "*Subjugating* for three centuries, the native people almost lost their own language.",
+      "options": [
+        "Subjugated",
+        "Subjugate",
+        "Subjugation"
+      ],
+      "correct": [
+        "Subjugated"
+      ],
+      "translation": {
+        "ru": "Пробыв три столетия под чужой властью, коренной народ почти утратил родной язык.",
+        "uz": "Uch asr davomida bo'ysundirilgan mahalliy xalq o'z tilini deyarli yo'qotib qo'ydi."
+      },
+      "explanation": {
+        "ru": "Народ не покорял, а был покорён: оборот должен быть страдательным — Subjugated. Subjugating значило бы, что покоряет сам народ.",
+        "uz": "Xalq bo'ysundirmagan, aksincha, bo'ysundirilgan: ibora majhul bo'lishi kerak — Subjugated. Subjugating xalqning o'zi bo'ysundiradi degan ma'noni berardi."
+      }
+    },
+    {
+      "key": "c1-m18-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "dominion"
+      ],
+      "text": "Within a century, the empire had gained dominion *on* the whole coast.",
+      "options": [
+        "over",
+        "above",
+        "under"
+      ],
+      "correct": [
+        "over"
+      ],
+      "translation": {
+        "ru": "За столетие империя установила владычество над всем побережьем.",
+        "uz": "Bir asr ichida imperiya butun sohil ustidan hukmronlik o'rnatdi."
+      },
+      "explanation": {
+        "ru": "dominion over — власть, владычество над чем-то: как и в power over, rule over, после dominion ставится over. on здесь неверно.",
+        "uz": "dominion over — biror narsa ustidan hukmronlik: power over, rule over birikmalaridagi kabi, dominion so'zidan keyin over keladi. on bu yerda xato."
+      }
+    },
+    {
+      "key": "c1-m18-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "slavery"
+      ],
+      "text": "The country *canceled* slavery long before its neighbors did.",
+      "options": [
+        "abolished",
+        "deleted",
+        "repealed"
+      ],
+      "correct": [
+        "abolished"
+      ],
+      "translation": {
+        "ru": "Эта страна отменила рабство задолго до своих соседей.",
+        "uz": "Bu mamlakat qullikni qo'shnilaridan ancha oldin bekor qildi."
+      },
+      "explanation": {
+        "ru": "Отменить рабство, налог, смертную казнь — abolish. cancel отменяют встречу или заказ; repeal — закон, а не само рабство; delete — удалить текст.",
+        "uz": "Qullikni, soliqni, o'lim jazosini bekor qilmoq — abolish. cancel uchrashuv yoki buyurtma bilan ishlatiladi; repeal — qonunni bekor qilmoq, qullikni emas; delete — matnni o'chirmoq."
+      }
+    },
+    {
+      "key": "c1-m18-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "inscription"
+      ],
+      "text": "Only an expert could read the worn ___ that runs around the edge of the coin.",
+      "base": "inscribe",
+      "accepted": [
+        "inscription"
+      ],
+      "translation": {
+        "ru": "Только специалист смог бы прочесть стёршуюся надпись, которая идёт по краю монеты.",
+        "uz": "Tanga chetini aylanib o'tgan xira tortgan bitikni faqat mutaxassis o'qiy olardi."
+      },
+      "explanation": {
+        "ru": "После the worn нужно существительное в единственном числе (runs): inscribe → inscription; b меняется на p (как describe → description).",
+        "uz": "the worn so'zlaridan keyin birlikdagi ot kerak (runs): inscribe → inscription; b o'rniga p keladi (describe → description kabi)."
+      }
+    },
+    {
+      "key": "c1-m18-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "chronology"
+      ],
+      "text": "The letters in the museum archive are arranged in strict ___ order.",
+      "base": "chronology",
+      "accepted": [
+        "chronological"
+      ],
+      "translation": {
+        "ru": "Письма в музейном архиве расположены в строгом хронологическом порядке.",
+        "uz": "Muzey arxividagi xatlar qat'iy xronologik tartibda joylashtirilgan."
+      },
+      "explanation": {
+        "ru": "Перед order нужно прилагательное: chronology → chronological; -y заменяется на -ical.",
+        "uz": "order otidan oldin sifat kerak: chronology → chronological; -y o'rniga -ical keladi."
+      }
+    },
+    {
+      "key": "c1-m18-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "prehistoric"
+      ],
+      "text": "Long before anyone could write, ___ hunters made tools from stone and bone.",
+      "base": "history",
+      "accepted": [
+        "prehistoric"
+      ],
+      "translation": {
+        "ru": "Задолго до появления письменности доисторические охотники делали орудия из камня и кости.",
+        "uz": "Yozuv paydo bo'lishidan ancha oldin tarixdan oldingi ovchilar tosh va suyakdan qurollar yasashgan."
+      },
+      "explanation": {
+        "ru": "Время до письменности — доисторическое: history → prehistoric (pre- «до» + -ic). historic значило бы «исторический», а это противоречит началу предложения.",
+        "uz": "Yozuvdan oldingi davr — tarixdan oldingi davr: history → prehistoric (pre- «oldin» + -ic). historic «tarixiy» degani bo'lib, gapning boshiga zid keladi."
+      }
+    },
+    {
+      "key": "c1-m18-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "millennium"
+      ],
+      "text": "Each *millennia* has left its own layer of ruins beneath the modern town.",
+      "options": [
+        "millennium",
+        "millenniums",
+        "millennial"
+      ],
+      "correct": [
+        "millennium"
+      ],
+      "translation": {
+        "ru": "Каждое тысячелетие оставило свой слой руин под современным городом.",
+        "uz": "Har bir ming yillik zamonaviy shahar ostida o'z xarobalar qatlamini qoldirgan."
+      },
+      "explanation": {
+        "ru": "millennia — латинское множественное число. После each и с has нужно единственное: millennium. millenniums — тоже множественное, millennial — прилагательное.",
+        "uz": "millennia — lotincha ko'plik shakli. each so'zi va has fe'li birlikni talab qiladi: millennium. millenniums ham ko'plik, millennial esa sifat."
+      }
+    },
+    {
+      "key": "c1-m18-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "antiquity"
+      ],
+      "text": "Merchants already used this mountain road *at* antiquity.",
+      "options": [
+        "in",
+        "on",
+        "for"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Этой горной дорогой купцы пользовались ещё в древности.",
+        "uz": "Savdogarlar bu tog' yo'lidan qadim zamondayoq foydalanishgan."
+      },
+      "explanation": {
+        "ru": "in antiquity — в древности: с эпохами ставится in (in antiquity, in the Middle Ages). at — с точкой во времени (at noon).",
+        "uz": "in antiquity — qadim zamonda: davrlar bilan in ishlatiladi (in antiquity, in the Middle Ages). at esa aniq vaqt nuqtasi bilan keladi (at noon)."
+      }
+    },
+    {
+      "key": "c1-m18-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "excavate"
+      ],
+      "text": "*Excavated* an ancient grave, the team found a small bronze mirror.",
+      "options": [
+        "Excavating",
+        "Excavation",
+        "Excavate"
+      ],
+      "correct": [
+        "Excavating"
+      ],
+      "translation": {
+        "ru": "Раскапывая древнее захоронение, команда нашла маленькое бронзовое зеркало.",
+        "uz": "Qadimiy qabrni qazib ochayotganda guruh kichik bronza ko'zgu topdi."
+      },
+      "explanation": {
+        "ru": "Команда сама раскапывала, и после причастия стоит дополнение (an ancient grave): нужен действительный оборот — Excavating. Excavated — страдательное причастие, прямого дополнения после него быть не может.",
+        "uz": "Guruhning o'zi qazigan, sifatdoshdan keyin esa to'ldiruvchi bor (an ancient grave): aniq nisbatdagi ibora kerak — Excavating. Excavated — majhul sifatdosh, undan keyin vositasiz to'ldiruvchi kelmaydi."
+      }
+    },
+    {
+      "key": "c1-m18-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "rebellion"
+      ],
+      "text": "The ___ was crushed within a week, and its leaders fled abroad.",
+      "base": "rebel",
+      "accepted": [
+        "rebellion"
+      ],
+      "translation": {
+        "ru": "Мятеж подавили за неделю, а его зачинщики бежали за границу.",
+        "uz": "Isyon bir hafta ichida bostirildi, uning yetakchilari esa chet elga qochib ketishdi."
+      },
+      "explanation": {
+        "ru": "После The нужно существительное в единственном числе (was, its): rebel → rebellion; l удваивается, + -ion.",
+        "uz": "The artiklidan keyin birlikdagi ot kerak (was, its): rebel → rebellion; l harfi ikkilanadi, -ion qo'shiladi."
+      }
+    },
+    {
+      "key": "c1-m18-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "unification"
+      ],
+      "text": "The divided country went through a slow and difficult ___.",
+      "base": "unify",
+      "accepted": [
+        "unification"
+      ],
+      "translation": {
+        "ru": "Разделённая страна прошла через медленное и трудное объединение.",
+        "uz": "Bo'lingan mamlakat sekin va qiyin birlashuv jarayonini boshdan kechirdi."
+      },
+      "explanation": {
+        "ru": "После a slow and difficult нужно существительное: unify → unification; -y заменяется на -ication (как classify → classification).",
+        "uz": "a slow and difficult so'zlaridan keyin ot kerak: unify → unification; -y o'rniga -ication keladi (classify → classification kabi)."
+      }
+    },
+    {
+      "key": "c1-m18-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "secession"
+      ],
+      "text": "The region's leaders demanded a peaceful ___ from the federation.",
+      "base": "secede",
+      "accepted": [
+        "secession"
+      ],
+      "translation": {
+        "ru": "Лидеры региона потребовали мирного выхода из состава федерации.",
+        "uz": "Mintaqa rahbarlari federatsiya tarkibidan tinch yo'l bilan ajralib chiqishni talab qilishdi."
+      },
+      "explanation": {
+        "ru": "После a peaceful нужно существительное: secede → secession; -cede меняется на -cession (как concede → concession).",
+        "uz": "a peaceful so'zlaridan keyin ot kerak: secede → secession; -cede o'rniga -cession keladi (concede → concession kabi)."
+      }
+    },
+    {
+      "key": "c1-m18-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "anarchy"
+      ],
+      "text": "Years of civil war had left the country in a state of complete *anarchism*.",
+      "options": [
+        "anarchy",
+        "anarchist",
+        "anarchic"
+      ],
+      "correct": [
+        "anarchy"
+      ],
+      "translation": {
+        "ru": "Годы гражданской войны оставили страну в состоянии полной анархии.",
+        "uz": "Yillar davom etgan fuqarolar urushi mamlakatni butunlay boshboshdoqlik holatida qoldirgan edi."
+      },
+      "explanation": {
+        "ru": "anarchism — анархизм, политическое учение. Хаос и безвластие — anarchy: a state of anarchy. anarchist — анархист, anarchic — прилагательное.",
+        "uz": "anarchism — anarxizm, siyosiy ta'limot. Tartibsizlik va hokimiyatsizlik — anarchy: a state of anarchy. anarchist — anarxist, anarchic — sifat."
+      }
+    },
+    {
+      "key": "c1-m18-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "turmoil"
+      ],
+      "text": "The sudden collapse of the currency threw the whole country *to* turmoil.",
+      "options": [
+        "into",
+        "onto",
+        "under"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Внезапный обвал национальной валюты поверг всю страну в хаос.",
+        "uz": "Milliy valyutaning to'satdan qulashi butun mamlakatni parokandalikka solib qo'ydi."
+      },
+      "explanation": {
+        "ru": "throw something into turmoil — ввергнуть в смуту, в хаос: движение внутрь состояния — into. to, onto и under с turmoil не употребляются.",
+        "uz": "throw something into turmoil — parokandalikka solmoq: holat ichiga kirish into bilan ifodalanadi. O'zbekcha «-ga» to predlogiga undaydi, ammo to, onto va under turmoil bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m18-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "coup"
+      ],
+      "text": "Several army officers were arrested after a failed *coupe* against the president.",
+      "options": [
+        "coup",
+        "coop",
+        "coupon"
+      ],
+      "correct": [
+        "coup"
+      ],
+      "translation": {
+        "ru": "После неудавшегося переворота против президента несколько армейских офицеров были арестованы.",
+        "uz": "Prezidentga qarshi muvaffaqiyatsiz davlat to'ntarishidan so'ng bir necha armiya zobiti hibsga olindi."
+      },
+      "explanation": {
+        "ru": "coupe — автомобиль-купе. Государственный переворот — coup (p не произносится). coop — курятник, coupon — купон.",
+        "uz": "coupe — kupe avtomobil. Davlat to'ntarishi — coup (p talaffuz qilinmaydi). coop — tovuqxona, coupon — kupon."
+      }
+    },
+    {
+      "key": "c1-m18-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "disarmament"
+      ],
+      "text": "For the rebels, handing in their weapons was the first step toward complete ___.",
+      "base": "arm",
+      "accepted": [
+        "disarmament"
+      ],
+      "translation": {
+        "ru": "Сдача оружия стала для повстанцев первым шагом к полному разоружению.",
+        "uz": "Qurollarni topshirish isyonchilar uchun to'liq qurolsizlanish sari birinchi qadam bo'ldi."
+      },
+      "explanation": {
+        "ru": "Сдача оружия — это разоружение, после complete нужно существительное: arm → disarm (dis- — обратное действие) → disarmament (+ -ment).",
+        "uz": "Qurollarni topshirish — qurolsizlanish, complete so'zidan keyin ot kerak: arm → disarm (dis- teskari harakat) → disarmament (+ -ment)."
+      }
+    },
+    {
+      "key": "c1-m18-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "genocide"
+      ],
+      "text": "The court found that the regime had followed an openly ___ policy toward the minority.",
+      "base": "genocide",
+      "accepted": [
+        "genocidal"
+      ],
+      "translation": {
+        "ru": "Суд установил, что режим открыто проводил в отношении меньшинства политику геноцида.",
+        "uz": "Sud rejim ozchilikka nisbatan ochiqdan-ochiq genotsid siyosatini olib borganini aniqladi."
+      },
+      "explanation": {
+        "ru": "Перед policy нужно прилагательное, и наречие openly это подтверждает: оно может определять прилагательное, но не существительное. genocide → genocidal (-e выпадает, + -al).",
+        "uz": "policy otidan oldin sifat kerak, openly ravishi buni tasdiqlaydi: u sifatni aniqlay oladi, otni emas. genocide → genocidal (-e tushadi, -al qo'shiladi)."
+      }
+    },
+    {
+      "key": "c1-m18-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "insurgent"
+      ],
+      "text": "For a decade, the army struggled to contain a growing ___ in the northern hills.",
+      "base": "insurgent",
+      "accepted": [
+        "insurgency"
+      ],
+      "translation": {
+        "ru": "Целое десятилетие армия пыталась сдержать нарастающее повстанческое движение в северных горах.",
+        "uz": "O'n yil davomida armiya shimoliy tog'larda kuchayib borayotgan isyonchilik harakatini jilovlashga urindi."
+      },
+      "explanation": {
+        "ru": "После a growing нужно существительное-явление, а не лицо: insurgent (повстанец) → insurgency (повстанческое движение); -ent → -ency.",
+        "uz": "a growing so'zlaridan keyin shaxs emas, hodisani bildiruvchi ot kerak: insurgent (isyonchi) → insurgency (isyonchilik harakati); -ent → -ency."
+      }
+    },
+    {
+      "key": "c1-m18-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "atrocity"
+      ],
+      "text": "The soldiers who *made* these atrocities were never brought to justice.",
+      "options": [
+        "committed",
+        "produced",
+        "achieved"
+      ],
+      "correct": [
+        "committed"
+      ],
+      "translation": {
+        "ru": "Солдаты, совершившие эти зверства, так и не предстали перед судом.",
+        "uz": "Bu vahshiyliklarni sodir etgan askarlar hech qachon javobgarlikka tortilmadi."
+      },
+      "explanation": {
+        "ru": "Совершать преступление или зверство — commit (commit a crime, commit atrocities). make, produce и achieve с atrocities не сочетаются.",
+        "uz": "Jinoyat yoki vahshiylik sodir etmoq — commit (commit a crime, commit atrocities). make, produce va achieve fe'llari atrocities bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m18-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "hostage"
+      ],
+      "text": "*Freeing* after nine months in captivity, the hostages were greeted by cheering crowds.",
+      "options": [
+        "Freed",
+        "Having freed",
+        "To free"
+      ],
+      "correct": [
+        "Freed"
+      ],
+      "translation": {
+        "ru": "Освобождённых после девяти месяцев плена заложников встречали ликующие толпы.",
+        "uz": "To'qqiz oylik asirlikdan keyin ozod qilingan garovdagilarni shod-xurram olomon kutib oldi."
+      },
+      "explanation": {
+        "ru": "Заложники не освобождали, а были освобождены: нужен страдательный оборот — Freed. Freeing и Having freed значили бы, что освобождали они сами.",
+        "uz": "Garovdagilar ozod qilmagan, aksincha, ozod qilingan: majhul ibora kerak — Freed. Freeing va Having freed ularning o'zi ozod qilgan degan ma'noni berardi."
+      }
+    },
+    {
+      "key": "c1-m18-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "sabotage"
+      ],
+      "text": "The group carried out several acts of *diversion* against power stations.",
+      "options": [
+        "sabotage",
+        "deviation",
+        "distraction"
+      ],
+      "correct": [
+        "sabotage"
+      ],
+      "translation": {
+        "ru": "Группа совершила несколько диверсий против электростанций.",
+        "uz": "Guruh elektr stansiyalariga qarshi bir necha qo'poruvchilik harakatini amalga oshirdi."
+      },
+      "explanation": {
+        "ru": "diversion по-английски — отвлечение внимания или объезд, а не «диверсия». Порча и подрыв объектов — sabotage (acts of sabotage).",
+        "uz": "diversion inglizchada «e'tiborni chalg'itish» yoki «aylanma yo'l» degani, «diversiya» emas. Obyektlarni ataylab buzish — sabotage (acts of sabotage)."
+      }
+    }
+  ]
+}

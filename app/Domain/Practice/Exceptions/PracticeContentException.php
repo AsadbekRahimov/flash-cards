@@ -36,6 +36,7 @@ final class PracticeContentException extends RuntimeException
 
     public const TEXT_REQUIRED = 'text_required';
 
+    /** A text is too long: in characters, or (`cause`: words) an option of a find-the-mistake in words. */
     public const TEXT_TOO_LONG = 'text_too_long';
 
     public const MARKUP_NOT_ALLOWED = 'markup_not_allowed';
@@ -69,6 +70,33 @@ final class PracticeContentException extends RuntimeException
     public const ALL_OPTIONS_CORRECT = 'all_options_correct';
 
     public const DICTATION_ACCEPTED_INVALID = 'dictation_accepted_invalid';
+
+    /** "Word form" (docs/16 §5.6): the base word is not one or two words of letters. */
+    public const BASE_INVALID = 'base_invalid';
+
+    /** "Word form": a right answer is empty, too long, of too many words or not letters (`cause`: empty | length | tokens | chars). */
+    public const ANSWER_INVALID = 'answer_invalid';
+
+    /** "Word form": a right answer reads like the base word. */
+    public const ANSWER_EQUALS_BASE = 'answer_equals_base';
+
+    /** "Find the mistake" (docs/16 §5.7): not exactly one whole word marked `*…*`. */
+    public const ERROR_MARK_INVALID = 'error_mark_invalid';
+
+    /** "Find the mistake": too few or too many words in the sentence. */
+    public const TOKENS_COUNT = 'tokens_count';
+
+    /** "Find the mistake": a word is only punctuation or too long. */
+    public const TOKEN_INVALID = 'token_invalid';
+
+    /** "Find the mistake": a correction is the wrong word itself. */
+    public const OPTION_IS_ERROR = 'option_is_error';
+
+    /**
+     * "Find the mistake": the case of the first letters gives the right correction away (`cause`: first_word - the mistake is the first
+     * word and a correction starts with a small letter | mixed - the corrections start with letters of different case).
+     */
+    public const OPTIONS_CASE = 'options_case';
 
     /** @var array{field: string, code: string} */
     public readonly array $details;

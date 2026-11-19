@@ -89,6 +89,8 @@ final class PracticeImporter
         'sentence' => ['prompt', 'fragments', 'accepted', 'display', 'explanation'],
         'collocation' => ['text', 'options', 'correct', 'translation', 'explanation'],
         'dictation' => ['text', 'accepted', 'translation', 'explanation'],
+        'word_form' => ['text', 'base', 'accepted', 'translation', 'explanation'],
+        'error_hunt' => ['text', 'options', 'correct', 'translation', 'explanation'],
     ];
 
     /** Fields that are `{locale: text}` objects. */
@@ -98,7 +100,7 @@ final class PracticeImporter
     private const LIST_FIELDS = ['target_words', 'fragments', 'accepted', 'options', 'correct'];
 
     /** Fields that are one text. */
-    private const TEXT_FIELDS = ['text', 'display'];
+    private const TEXT_FIELDS = ['text', 'display', 'base'];
 
     public function __construct(
         private readonly CourseCatalogService $catalog,

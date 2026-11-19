@@ -17,8 +17,12 @@ use Normalizer;
  *   sentence    {prompt: {ru, uz}, fragments: [..], accepted: [[fragment texts], ..], display?: str, explanation: {ru, uz}}
  *   collocation {text, options: [..3], correct: [option texts], translation: {ru, uz}, explanation: {ru, uz}}
  *   dictation   {text, accepted: [other accepted texts], translation: {ru, uz}, explanation: {ru, uz}|null}
+ *   word_form   {text (one ___), base, accepted: [1..4 forms, the first is the canonical one], translation: {ru, uz}, explanation: {ru, uz}}
+ *   error_hunt  {text (the wrong word between asterisks: `interested *on* art`), options: [..3], correct: [one option text], translation, explanation}
  * The stored form replaces the sequences of the sentence by indices of the fragments and `correct` by indices of the
- * options, adds `text` as the first of the `accepted` of a dictation and keeps only the texts that are not empty.
+ * options, adds `text` as the first of the `accepted` of a dictation and keeps only the texts that are not empty. A word form
+ * is stored as written; a "find the mistake" keeps the text WITHOUT the asterisks, the number of the wrong token (`error_index`,
+ * from 0) and its core (`error`, {@see ErrorHuntText}).
  *
  * Every text is cleaned on the way in ({@see clean()}): control and invisible characters removed, NFC, one-line, trimmed - the
  * content comes from a file or a form and is displayed to learners (docs/16 §12). A text with `<` or `>` is REFUSED
@@ -46,6 +50,8 @@ final class PracticeContentValidator
             PracticeItemType::Sentence => $this->sentence($content),
             PracticeItemType::Collocation => $this->collocation($content),
             PracticeItemType::Dictation => $this->dictation($content),
+            PracticeItemType::WordForm => $this->wordForm($content),
+            PracticeItemType::ErrorHunt => $this->errorHunt($content),
         };
     }
 
@@ -67,6 +73,7 @@ final class PracticeContentValidator
             PracticeItemType::Sentence => ['prompt', 'explanation'],
             PracticeItemType::Collocation => ['translation', 'explanation'],
             PracticeItemType::Dictation => ['translation'],
+            PracticeItemType::WordForm, PracticeItemType::ErrorHunt => ['translation', 'explanation'],
         };
 
         foreach ($required as $field) {
@@ -115,6 +122,22 @@ final class PracticeContentValidator
             );
 
             return [...$content, 'correct' => $correct];
+        }
+
+        if ($type === PracticeItemType::ErrorHunt) {
+            // The asterisks back around the core of the wrong token, `correct` as the text of its option; the stored extras go.
+            $options = $this->strings($content['options'] ?? []);
+            $index = $content['error_index'] ?? null;
+            $text = is_string($content['text'] ?? null) ? $content['text'] : '';
+            $correct = array_map(
+                static fn (mixed $i): string => is_int($i) ? ($options[$i] ?? '') : '',
+                is_array($content['correct'] ?? null) ? array_values($content['correct']) : [],
+            );
+
+            $form = [...$content, 'text' => is_int($index) ? ErrorHuntText::marked(ErrorHuntText::tokens($text), $index) : $text, 'correct' => $correct];
+            unset($form['error_index'], $form['error']);
+
+            return $form;
         }
 
         return $content;
@@ -327,7 +350,7 @@ final class PracticeContentValidator
             $this->fail(PracticeContentException::PLACEHOLDER_INVALID, 'text', 'The text needs exactly one gap written as ___.');
         }
 
-        $options = $this->options($in['options'] ?? null);
+        $options = $this->options($in['options'] ?? null, 'collocation_options');
         $correct = $this->correct($options, $in['correct'] ?? null);
 
         return [
@@ -339,10 +362,15 @@ final class PracticeContentValidator
         ];
     }
 
-    /** @return list<string> */
-    private function options(mixed $raw): array
+    /**
+     * The options of a collocation or of the corrections of a "find the mistake": exactly `$countKey` of them, each not longer than
+     * `fragment_max_length` (and, when `$maxWords` is given, of at most that many words), no two that read the same.
+     *
+     * @return list<string>
+     */
+    private function options(mixed $raw, string $countKey, ?int $maxWords = null): array
     {
-        $required = $this->limit('collocation_options');
+        $required = $this->limit($countKey);
         $options = [];
         foreach (is_array($raw) && array_is_list($raw) ? $raw : [] as $option) {
             $clean = is_string($option) ? $this->text($option, 'options') : '';
@@ -352,7 +380,7 @@ final class PracticeContentValidator
         }
 
         if (count($options) !== $required) {
-            $this->fail(PracticeContentException::OPTIONS_COUNT, 'options', "A collocation needs exactly {$required} options.", ['count' => $required]);
+            $this->fail(PracticeContentException::OPTIONS_COUNT, 'options', "The task needs exactly {$required} options.", ['count' => $required]);
         }
 
         $longest = $this->limit('fragment_max_length');
@@ -360,6 +388,10 @@ final class PracticeContentValidator
         foreach ($options as $option) {
             if (mb_strlen($option) > $longest) {
                 $this->fail(PracticeContentException::TEXT_TOO_LONG, 'options', "An option is longer than {$longest} characters.", ['max' => $longest]);
+            }
+            if ($maxWords !== null && count(PracticeTextNormalizer::tokens($option)) > $maxWords) {
+                // `cause: words` - the limit is in words, not characters: the admin panel says so.
+                $this->fail(PracticeContentException::TEXT_TOO_LONG, 'options', "An option is longer than {$maxWords} words.", ['cause' => 'words', 'max' => $maxWords]);
             }
 
             $reading = PracticeTextNormalizer::normalize($option);
@@ -454,6 +486,199 @@ final class PracticeContentValidator
             'translation' => $this->localized($in['translation'] ?? null, 'translation', $this->limit('prompt_max')),
             'explanation' => $explanation === [] ? null : $explanation,
         ];
+    }
+
+    // --- word form --------------------------------------------------------------------------------------------------
+
+    /**
+     * @param  array<string, mixed>  $in
+     * @return array<string, mixed>
+     */
+    private function wordForm(array $in): array
+    {
+        $text = $this->requiredText($in['text'] ?? null, 'text', $this->limit('word_form_text_max'));
+        if (preg_match_all('/_{3,}/', $text, $gaps) !== 1 || $gaps[0][0] !== '___') {
+            $this->fail(PracticeContentException::PLACEHOLDER_INVALID, 'text', 'The text needs exactly one gap written as ___.');
+        }
+
+        $base = is_string($in['base'] ?? null) ? $this->text($in['base'], 'base') : '';
+        $baseMax = $this->limit('word_form_base_max');
+        $baseTokens = PracticeTextNormalizer::tokens($base);
+        if ($baseTokens === [] || count($baseTokens) > 2 || mb_strlen($base) > $baseMax || ! self::isWordText($base)) {
+            $this->fail(PracticeContentException::BASE_INVALID, 'base', "The base word must be one or two words of letters, at most {$baseMax} characters.", ['max' => $baseMax]);
+        }
+
+        $accepted = $this->wordFormAnswers($in['accepted'] ?? null, PracticeTextNormalizer::normalize($base));
+
+        return [
+            'text' => $text,
+            'base' => $base,
+            'accepted' => $accepted,
+            'translation' => $this->localized($in['translation'] ?? null, 'translation', $this->limit('prompt_max')),
+            'explanation' => $this->localized($in['explanation'] ?? null, 'explanation', $this->limit('explanation_max')),
+        ];
+    }
+
+    /**
+     * The right forms, the first the canonical one: variants that read the same are kept once; a form that reads like the base
+     * word is refused (the task would ask for no change at all).
+     *
+     * @return list<string>
+     */
+    private function wordFormAnswers(mixed $raw, string $base): array
+    {
+        if (! is_array($raw) || ! array_is_list($raw) || $raw === []) {
+            $this->fail(PracticeContentException::ACCEPTED_REQUIRED, 'accepted', 'A word form needs at least one right answer.');
+        }
+
+        $longest = $this->limit('word_form_answer_max');
+        $maxTokens = $this->limit('word_form_answer_tokens');
+        $accepted = [];
+        foreach ($raw as $i => $variant) {
+            $index = $i + 1;
+            $clean = is_string($variant) ? $this->text($variant, 'accepted', ['index' => $index]) : '';
+            $reading = PracticeTextNormalizer::normalize($clean);
+            // `cause` tells the admin panel which of the faults of this code it is: empty, length, tokens, chars.
+            $cause = match (true) {
+                $reading === '' => 'empty',
+                mb_strlen($clean) > $longest => 'length',
+                count(PracticeTextNormalizer::tokens($clean)) > $maxTokens => 'tokens',
+                ! self::isWordText($clean) => 'chars',
+                default => null,
+            };
+            if ($cause !== null) {
+                $this->fail(
+                    PracticeContentException::ANSWER_INVALID,
+                    'accepted',
+                    "Right answer {$index} must be 1..{$maxTokens} words of letters, at most {$longest} characters.",
+                    ['cause' => $cause, 'index' => $index, 'max' => $cause === 'tokens' ? $maxTokens : $longest],
+                );
+            }
+            if ($reading === $base) {
+                $this->fail(PracticeContentException::ANSWER_EQUALS_BASE, 'accepted', "Right answer {$index} is the base word itself.", ['index' => $index]);
+            }
+
+            $accepted[$reading] ??= $clean;
+        }
+
+        $max = $this->limit('word_form_accepted_max');
+        if (count($accepted) > $max) {
+            $this->fail(PracticeContentException::ACCEPTED_TOO_MANY, 'accepted', "A word form takes at most {$max} right answers.", ['max' => $max]);
+        }
+
+        return array_values($accepted);
+    }
+
+    /** Letters, apostrophes, hyphens and spaces only: no digits, no punctuation. */
+    private static function isWordText(string $value): bool
+    {
+        return preg_match("/\A[\p{L}\p{M}'’\- ]+\z/u", $value) === 1;
+    }
+
+    // --- find the mistake -------------------------------------------------------------------------------------------
+
+    /**
+     * @param  array<string, mixed>  $in
+     * @return array<string, mixed>
+     */
+    private function errorHunt(array $in): array
+    {
+        $marked = is_string($in['text'] ?? null) ? $this->text($in['text'], 'text') : '';
+        if (PracticeTextNormalizer::normalize(str_replace('*', '', $marked)) === '') {
+            $this->fail(PracticeContentException::TEXT_REQUIRED, 'text', "The text 'text' is required.");
+        }
+
+        [$text, $errorIndex, $error] = $this->errorMark($marked);
+
+        $max = $this->limit('error_hunt_text_max');
+        if (mb_strlen($text) > $max) {
+            $this->fail(PracticeContentException::TEXT_TOO_LONG, 'text', "The text 'text' is longer than {$max} characters.", ['max' => $max]);
+        }
+
+        $tokens = ErrorHuntText::tokens($text);
+        $min = $this->limit('error_hunt_tokens.min');
+        $most = $this->limit('error_hunt_tokens.max');
+        if (count($tokens) < $min || count($tokens) > $most) {
+            $this->fail(PracticeContentException::TOKENS_COUNT, 'text', "The sentence needs {$min}..{$most} words.", ['min' => $min, 'max' => $most]);
+        }
+
+        $longest = $this->limit('fragment_max_length');
+        foreach ($tokens as $i => $token) {
+            if (preg_match('/[\p{L}\p{N}]/u', $token) !== 1 || mb_strlen($token) > $longest) {
+                $this->fail(PracticeContentException::TOKEN_INVALID, 'text', 'Word '.($i + 1)." is only punctuation or longer than {$longest} characters.", ['index' => $i + 1, 'max' => $longest]);
+            }
+        }
+
+        $options = $this->options($in['options'] ?? null, 'error_hunt_options', 3);
+        $wrong = PracticeTextNormalizer::normalize($error);
+        foreach ($options as $option) {
+            if (PracticeTextNormalizer::normalize($option) === $wrong) {
+                $this->fail(PracticeContentException::OPTION_IS_ERROR, 'options', 'An option is the wrong word itself.', ['option' => $option]);
+            }
+        }
+
+        // The one option of another case would give the answer away; a mistake in the first word is corrected with a capital.
+        $caseFault = ErrorHuntText::optionsCaseFault($options, $errorIndex);
+        if ($caseFault !== null) {
+            $this->fail(
+                PracticeContentException::OPTIONS_CASE,
+                'options',
+                $caseFault === 'first_word'
+                    ? 'The mistake is the first word: every option must start with a capital letter.'
+                    : 'The options must start with letters of the same case.',
+                ['cause' => $caseFault],
+            );
+        }
+
+        $rawCorrect = $in['correct'] ?? null;
+        if (! is_array($rawCorrect) || ! array_is_list($rawCorrect) || count($rawCorrect) !== 1) {
+            $this->fail(PracticeContentException::CORRECT_INVALID, 'correct', 'Exactly one option is the right correction.');
+        }
+        $correct = $this->correct($options, $rawCorrect);
+
+        return [
+            'text' => $text,
+            'error_index' => $errorIndex,
+            'error' => $error,
+            'options' => $options,
+            'correct' => $correct,
+            'translation' => $this->localized($in['translation'] ?? null, 'translation', $this->limit('prompt_max')),
+            'explanation' => $this->localized($in['explanation'] ?? null, 'explanation', $this->limit('explanation_max')),
+        ];
+    }
+
+    /**
+     * The mark of the wrong word: exactly one pair of asterisks around the core of exactly one token - one whole word, no space
+     * and no punctuation at its ends inside (`*on*`, `*informations*.`, `*it's*`; not `*on modern*`, `*art.*`, `in*on*`).
+     *
+     * @return array{0: string, 1: int, 2: string} the text without the asterisks, the number of the wrong token, its core
+     */
+    private function errorMark(string $marked): array
+    {
+        $invalid = fn (): never => $this->fail(
+            PracticeContentException::ERROR_MARK_INVALID,
+            'text',
+            'Mark exactly one whole word of the sentence as the mistake: *word*.',
+        );
+
+        if (substr_count($marked, '*') !== 2 || preg_match('/\*([^*]*)\*/u', $marked, $m, PREG_OFFSET_CAPTURE) !== 1) {
+            $invalid();
+        }
+
+        $word = $m[1][0];
+        if (preg_match("/\A[\p{L}\p{N}](?:[\p{L}\p{M}\p{N}'’\-]*[\p{L}\p{N}])?\z/u", $word) !== 1) {
+            $invalid();
+        }
+
+        $text = str_replace('*', '', $marked);
+        $before = substr($marked, 0, $m[0][1]);
+        $index = substr_count($before, ' ');
+        $tokens = ErrorHuntText::tokens($text);
+        if (! isset($tokens[$index]) || ErrorHuntText::core($tokens[$index]) !== $word) {
+            $invalid();
+        }
+
+        return [$text, $index, $word];
     }
 
     // --- shared -----------------------------------------------------------------------------------------------------

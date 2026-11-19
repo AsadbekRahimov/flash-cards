@@ -14,10 +14,12 @@ use App\Domain\Practice\Enums\Verdict;
  * - `reveal`: what the client may be shown after the answer (the correct text, the explanation...); null for pairs;
  * - `normalizedAnswer`: the answer as it is stored in `practice_attempts.payload` (pairs: `{left_id, right_id}`, and
  *   that is also what the service returns as `pair`);
- * - `final`: the element is done with this answer (always true, except pairs: the round is done when every word is matched);
+ * - `final`: the element is done with this answer (always true, except pairs - the round is done when every word is matched - and
+ *   the step `locate` of "find the mistake");
  * - `points`: a battle, 0..100;
- * - `firstAttempt`: first try at the element (pairs: at this left word); only a correct first try counts in `correct_first`;
- * - `extra`: pairs - the new `state.pairs[element]` block; null = the block is not changed.
+ * - `firstAttempt`: first try at the element (pairs: at this left word); only a correct first try of a FINAL answer counts in
+ *   `correct_first` (pairs: of every match);
+ * - `extra`: the new block of the mode, `state.pairs[element]` (pairs: the matches; "find the mistake": the steps); null = not changed.
  */
 final readonly class GradeResult
 {

@@ -1,0 +1,2877 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c2",
+  "items": [
+    {
+      "key": "c2-m19-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "kitsch"
+      ],
+      "text": "The hotel's pink and gold decor verges ___ kitsch.",
+      "options": [
+        "on",
+        "with",
+        "at"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Розово-золотой интерьер отеля граничит с китчем.",
+        "uz": "Mehmonxonaning pushti-oltin rangli bezagi kitch bilan chegaradosh."
+      },
+      "explanation": {
+        "ru": "verge on — граничить с чем-то, быть на грани: verges on kitsch. Русское «граничит с» подсказывает with, но после verge в этом значении стоит on; at здесь тоже невозможно.",
+        "uz": "verge on — biror narsa bilan chegaradosh bo'lmoq, uning yoqasida turmoq: verges on kitsch. Bu ma'noda verge fe'lidan keyin on keladi; with va at bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "ostentatious"
+      ],
+      "text": "The huge wedding was an ostentatious ___ of wealth.",
+      "options": [
+        "display",
+        "exposure",
+        "sample"
+      ],
+      "correct": [
+        "display"
+      ],
+      "translation": {
+        "ru": "Огромная свадьба стала нарочитой демонстрацией богатства.",
+        "uz": "Katta to'y boylikning dabdabali namoyishi bo'ldi."
+      },
+      "explanation": {
+        "ru": "an ostentatious display of wealth — показная демонстрация богатства; a display of — «выставление напоказ» (a display of courage, of affection). Exposure («разоблачение, воздействие») и sample («образец») здесь не подходят.",
+        "uz": "an ostentatious display of wealth — boylikni dabdaba bilan ko'z-ko'z qilish; a display of — «namoyish etish» (a display of courage, of affection). Exposure («fosh qilish, ta'sirga uchrash») va sample («namuna») bu yerda to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "understated"
+      ],
+      "text": "Many designers prefer understated colors ___ bright ones.",
+      "options": [
+        "to",
+        "from",
+        "against"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Многие дизайнеры предпочитают неброские цвета ярким.",
+        "uz": "Ko'p dizaynerlar yorqin ranglardan ko'ra ko'zga tashlanmaydigan ranglarni afzal ko'radi."
+      },
+      "explanation": {
+        "ru": "prefer A to B — предпочитать A, а не B: prefer understated colors to bright ones. Второе из сравниваемого вводится через to; from и against после prefer так не употребляются.",
+        "uz": "prefer A to B — B dan ko'ra A ni afzal ko'rmoq: prefer understated colors to bright ones. Prefer fe'lidan keyin ikkinchi narsa to bilan keladi; from va against bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "sublime"
+      ],
+      "prompt": {
+        "ru": "Мне редко доводилось видеть нечто столь возвышенное.",
+        "uz": "Kamdan-kam hollarda bunchalik ulug'vor narsani ko'rganman."
+      },
+      "fragments": [
+        "rarely",
+        "have",
+        "I",
+        "seen",
+        "anything",
+        "so",
+        "sublime"
+      ],
+      "accepted": [
+        [
+          "rarely",
+          "have",
+          "I",
+          "seen",
+          "anything",
+          "so",
+          "sublime"
+        ],
+        [
+          "I",
+          "have",
+          "rarely",
+          "seen",
+          "anything",
+          "so",
+          "sublime"
+        ],
+        [
+          "I",
+          "rarely",
+          "have",
+          "seen",
+          "anything",
+          "so",
+          "sublime"
+        ]
+      ],
+      "display": "Rarely have I seen anything so sublime.",
+      "explanation": {
+        "ru": "Rarely в начале предложения требует инверсии: Rarely have I seen. Без инверсии: I have rarely seen anything so sublime. Anything so sublime — «нечто столь возвышенное».",
+        "uz": "Gap boshidagi rarely inversiyani talab qiladi: Rarely have I seen. Inversiyasiz: I have rarely seen anything so sublime. Anything so sublime — «bunchalik ulug'vor narsa»."
+      }
+    },
+    {
+      "key": "c2-m19-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "grotesque"
+      ],
+      "prompt": {
+        "ru": "Детей напугали именно гротескные маски.",
+        "uz": "Bolalarni aynan grotesk niqoblar qo'rqitdi."
+      },
+      "fragments": [
+        "it",
+        "was",
+        "the grotesque masks",
+        "that",
+        "frightened",
+        "the children"
+      ],
+      "accepted": [
+        [
+          "it",
+          "was",
+          "the grotesque masks",
+          "that",
+          "frightened",
+          "the children"
+        ]
+      ],
+      "display": "It was the grotesque masks that frightened the children.",
+      "explanation": {
+        "ru": "It was … that … — выделительная конструкция, русское «именно»: It was the grotesque masks that frightened the children. It was стоит в единственном числе даже перед masks.",
+        "uz": "It was … that … — ajratib ko'rsatish qurilmasi, o'zbekcha «aynan»: It was the grotesque masks that frightened the children. Masks ko'plikda bo'lsa ham, it was birlikda qoladi."
+      }
+    },
+    {
+      "key": "c2-m19-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "minimalist"
+      ],
+      "prompt": {
+        "ru": "Минималистичный дизайн сложнее, чем кажется.",
+        "uz": "Minimalistik dizayn ko'rinishidan ko'ra murakkabroq."
+      },
+      "fragments": [
+        "minimalist",
+        "design",
+        "is",
+        "harder",
+        "than",
+        "it",
+        "looks"
+      ],
+      "accepted": [
+        [
+          "minimalist",
+          "design",
+          "is",
+          "harder",
+          "than",
+          "it",
+          "looks"
+        ]
+      ],
+      "display": "Minimalist design is harder than it looks.",
+      "explanation": {
+        "ru": "harder than it looks — «сложнее, чем кажется» (дословно «чем выглядит»). It заменяет design, и без него фраза неграмматична.",
+        "uz": "harder than it looks — «ko'rinishidan ko'ra qiyinroq». It olmoshi design so'zining o'rnida keladi, usiz gap grammatik jihatdan noto'g'ri bo'ladi."
+      }
+    },
+    {
+      "key": "c2-m19-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "gaudy"
+      ],
+      "text": "The gaudy decorations hurt my eyes",
+      "accepted": [
+        "The gaudy decorations hurt my eyes"
+      ],
+      "translation": {
+        "ru": "От аляповатых украшений у меня рябит в глазах",
+        "uz": "Bachkana bezaklardan ko'zlarim qamashadi"
+      },
+      "explanation": {
+        "ru": "gaudy: пишется через au (g-a-u-d-y), хотя слышится долгое «о».",
+        "uz": "gaudy: au harflari bilan yoziladi (g-a-u-d-y), garchi cho'ziq «o» eshitilsa ham."
+      }
+    },
+    {
+      "key": "c2-m19-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "ethereal"
+      ],
+      "text": "Her voice had an ethereal quality",
+      "accepted": [
+        "Her voice had an ethereal quality"
+      ],
+      "translation": {
+        "ru": "В её голосе было что-то неземное",
+        "uz": "Uning ovozida qandaydir samoviy nafosat bor edi"
+      },
+      "explanation": {
+        "ru": "ethereal: после th идёт e, а в конце -eal (e-t-h-e-r-e-a-l).",
+        "uz": "ethereal: th dan keyin e keladi, oxiri -eal (e-t-h-e-r-e-a-l)."
+      }
+    },
+    {
+      "key": "c2-m19-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "austere",
+        "surreal"
+      ],
+      "text": "The austere hall looked surreal at night",
+      "accepted": [
+        "The austere hall looked surreal at night"
+      ],
+      "translation": {
+        "ru": "Ночью строгий зал выглядел сюрреалистично",
+        "uz": "Kechasi bezaksiz zal xuddi tushdagidek ko'rinardi"
+      },
+      "explanation": {
+        "ru": "austere начинается с au и кончается на -ere (a-u-s-t-e-r-e); surreal пишется с двумя r (s-u-r-r-e-a-l).",
+        "uz": "austere au bilan boshlanib, -ere bilan tugaydi (a-u-s-t-e-r-e); surreal ikkita r bilan yoziladi (s-u-r-r-e-a-l)."
+      }
+    },
+    {
+      "key": "c2-m19-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "crescendo"
+      ],
+      "text": "In the final bars the music ___ a powerful crescendo.",
+      "options": [
+        "reached",
+        "arrived",
+        "came"
+      ],
+      "correct": [
+        "reached"
+      ],
+      "translation": {
+        "ru": "В последних тактах музыка достигла мощного крещендо.",
+        "uz": "So'nggi taktlarda musiqa kuchli kreshendoga yetdi."
+      },
+      "explanation": {
+        "ru": "reach a crescendo — достичь крещендо, высшей точки нарастания звука. Arrive и come без предлога прямого дополнения не принимают, поэтому здесь невозможны.",
+        "uz": "reach a crescendo — kreshendoga, ya'ni tovush kuchayishining eng yuqori nuqtasiga yetmoq. Arrive va come fe'llari predlogsiz to'ldiruvchi olmaydi, shuning uchun bu yerda bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "sonata"
+      ],
+      "text": "She is learning a difficult sonata ___ cello and piano.",
+      "options": [
+        "for",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Она разучивает трудную сонату для виолончели и фортепиано.",
+        "uz": "U violonchel va fortepiano uchun yozilgan qiyin sonatani o'rganyapti."
+      },
+      "explanation": {
+        "ru": "a sonata for cello and piano — соната для виолончели и фортепиано: инструменты, для которых написана музыка, вводятся через for. To и at здесь невозможны.",
+        "uz": "a sonata for cello and piano — violonchel va fortepiano uchun sonata: musiqa qaysi cholg'ular uchun yozilgani for bilan beriladi. To va at bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "counterpoint"
+      ],
+      "text": "Throughout the piece the two voices move ___ counterpoint.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "На протяжении всей пьесы два голоса движутся в контрапункте.",
+        "uz": "Asar davomida ikki ovoz kontrapunktda harakatlanadi."
+      },
+      "explanation": {
+        "ru": "in counterpoint — в контрапункте, то есть одновременно и независимо друг от друга. Как in harmony и in unison, это выражение строится с in; on и at невозможны.",
+        "uz": "in counterpoint — kontrapunktda, ya'ni bir vaqtda va bir-biridan mustaqil. In harmony, in unison kabi bu ibora ham in bilan tuziladi; on va at bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "timbre"
+      ],
+      "prompt": {
+        "ru": "Уникальным её голос делает тембр.",
+        "uz": "Uning ovozini noyob qiladigan narsa — tembri."
+      },
+      "fragments": [
+        "what",
+        "makes",
+        "her voice",
+        "unique",
+        "is",
+        "its timbre"
+      ],
+      "accepted": [
+        [
+          "what",
+          "makes",
+          "her voice",
+          "unique",
+          "is",
+          "its timbre"
+        ],
+        [
+          "its timbre",
+          "is",
+          "what",
+          "makes",
+          "her voice",
+          "unique"
+        ]
+      ],
+      "display": "What makes her voice unique is its timbre.",
+      "explanation": {
+        "ru": "What makes … unique is … — «уникальным … делает …»: так выделяют главное. Make + дополнение + прилагательное: makes her voice unique. Можно и наоборот: Its timbre is what makes her voice unique.",
+        "uz": "What makes … unique is … — «… ni noyob qiladigan narsa — …»: asosiy narsa shunday ajratiladi. Make + to'ldiruvchi + sifat: makes her voice unique. Teskarisi ham to'g'ri: Its timbre is what makes her voice unique."
+      }
+    },
+    {
+      "key": "c2-m19-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "dissonance"
+      ],
+      "prompt": {
+        "ru": "Диссонанс был таким сильным, что некоторые слушатели ушли.",
+        "uz": "Dissonans shu qadar kuchli ediki, ba'zi tinglovchilar chiqib ketishdi."
+      },
+      "fragments": [
+        "such",
+        "was",
+        "the dissonance",
+        "that",
+        "some listeners",
+        "left"
+      ],
+      "accepted": [
+        [
+          "such",
+          "was",
+          "the dissonance",
+          "that",
+          "some listeners",
+          "left"
+        ],
+        [
+          "the dissonance",
+          "was",
+          "such",
+          "that",
+          "some listeners",
+          "left"
+        ]
+      ],
+      "display": "Such was the dissonance that some listeners left.",
+      "explanation": {
+        "ru": "Such was + подлежащее + that … — книжная инверсия: «так силён был…, что…». Без инверсии: The dissonance was such that some listeners left.",
+        "uz": "Such was + ega + that … — kitobiy inversiya: «… shu qadar kuchli ediki, …». Inversiyasiz: The dissonance was such that some listeners left."
+      }
+    },
+    {
+      "key": "c2-m19-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "aria"
+      ],
+      "prompt": {
+        "ru": "Ария, которую она спела, растрогала всех до слёз.",
+        "uz": "U kuylagan ariya hammaning ko'zlariga yosh keltirdi."
+      },
+      "fragments": [
+        "the aria",
+        "she",
+        "sang",
+        "moved",
+        "everyone",
+        "to tears"
+      ],
+      "accepted": [
+        [
+          "the aria",
+          "she",
+          "sang",
+          "moved",
+          "everyone",
+          "to tears"
+        ]
+      ],
+      "display": "The aria she sang moved everyone to tears.",
+      "explanation": {
+        "ru": "the aria she sang — «ария, которую она спела»: that / which после aria можно опустить. Move somebody to tears — растрогать до слёз.",
+        "uz": "the aria she sang — «u kuylagan ariya»: aria so'zidan keyin that / which tushib qolishi mumkin. Move somebody to tears — kimnidir yig'latib yubormoq, ko'ziga yosh keltirmoq."
+      }
+    },
+    {
+      "key": "c2-m19-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "cadence"
+      ],
+      "text": "Each phrase ends with a quiet cadence",
+      "accepted": [
+        "Each phrase ends with a quiet cadence"
+      ],
+      "translation": {
+        "ru": "Каждая фраза завершается тихой каденцией",
+        "uz": "Har bir musiqiy jumla sokin kadensiya bilan tugaydi"
+      },
+      "explanation": {
+        "ru": "cadence: в конце -ence, а не -ance (c-a-d-e-n-c-e).",
+        "uz": "cadence: oxiri -ance emas, -ence (c-a-d-e-n-c-e)."
+      }
+    },
+    {
+      "key": "c2-m19-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "refrain"
+      ],
+      "text": "Everyone knows the words of the refrain",
+      "accepted": [
+        "Everyone knows the words of the refrain"
+      ],
+      "translation": {
+        "ru": "Все знают слова припева",
+        "uz": "Naqarot so'zlarini hamma biladi"
+      }
+    },
+    {
+      "key": "c2-m19-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "interlude",
+        "medley"
+      ],
+      "text": "After a brief interlude the band played a medley",
+      "accepted": [
+        "After a brief interlude the band played a medley"
+      ],
+      "translation": {
+        "ru": "После короткой интерлюдии группа сыграла попурри",
+        "uz": "Qisqa oraliq kuydan so'ng guruh popurri ijro etdi"
+      },
+      "explanation": {
+        "ru": "medley: в конце -ey (m-e-d-l-e-y); interlude пишется слитно, на конце -lude.",
+        "uz": "medley: oxiri -ey (m-e-d-l-e-y); interlude qo'shib yoziladi, oxiri -lude."
+      }
+    },
+    {
+      "key": "c2-m19-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "frieze"
+      ],
+      "text": "A painted frieze ___ around the top of the hall.",
+      "options": [
+        "runs",
+        "walks",
+        "drives"
+      ],
+      "correct": [
+        "runs"
+      ],
+      "translation": {
+        "ru": "По верху стен зала тянется расписной фриз.",
+        "uz": "Zal devorlarining yuqori qismi bo'ylab bo'yalgan friz o'tadi."
+      },
+      "explanation": {
+        "ru": "run along / around — тянуться, проходить (о фризе, бордюре, дороге): a frieze runs around the hall. Walk и drive описывают движение людей и машин и здесь невозможны.",
+        "uz": "run along / around — bo'ylab cho'zilib o'tmoq (friz, hoshiya, yo'l haqida): a frieze runs around the hall. Walk va drive odamlar va mashinalar harakatini bildiradi, bu yerda bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "glaze"
+      ],
+      "text": "The potter ___ a thin glaze to each bowl.",
+      "options": [
+        "applied",
+        "put",
+        "laid"
+      ],
+      "correct": [
+        "applied"
+      ],
+      "translation": {
+        "ru": "Гончар нанёс на каждую миску тонкий слой глазури.",
+        "uz": "Kulol har bir kosaga yupqa qatlam sir surtdi."
+      },
+      "explanation": {
+        "ru": "apply a glaze to — нанести глазурь на что-то. Put и lay с to в этом значении не употребляются (put a glaze on — уже с on).",
+        "uz": "apply a glaze to — biror narsaga sir surtmoq. Put va laid fe'llari bu ma'noda to bilan ishlatilmaydi (put a glaze on — on bilan)."
+      }
+    },
+    {
+      "key": "c2-m19-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "effigy"
+      ],
+      "text": "A marble effigy ___ the queen lies on her tomb.",
+      "options": [
+        "of",
+        "about",
+        "at"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "На гробнице королевы лежит её мраморное изваяние.",
+        "uz": "Qirolicha qabri ustida uning marmar haykaliy tasviri yotadi."
+      },
+      "explanation": {
+        "ru": "an effigy of somebody — скульптурное изображение кого-то. Как a portrait of и a statue of, оно строится с of; about и at невозможны.",
+        "uz": "an effigy of somebody — kimningdir haykaliy tasviri. A portrait of, a statue of kabi of bilan tuziladi; about va at bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "collage"
+      ],
+      "prompt": {
+        "ru": "Её последний коллаж состоит из старых железнодорожных билетов.",
+        "uz": "Uning so'nggi kollaji eski poyezd chiptalaridan tashkil topgan."
+      },
+      "fragments": [
+        "her",
+        "latest",
+        "collage",
+        "is",
+        "made up of",
+        "old",
+        "train tickets"
+      ],
+      "accepted": [
+        [
+          "her",
+          "latest",
+          "collage",
+          "is",
+          "made up of",
+          "old",
+          "train tickets"
+        ]
+      ],
+      "display": "Her latest collage is made up of old train tickets.",
+      "explanation": {
+        "ru": "be made up of — состоять из частей: is made up of old train tickets. Latest — «последний, самый новый».",
+        "uz": "be made up of — qismlardan tashkil topmoq: is made up of old train tickets. Latest — «eng so'nggi, eng yangi»."
+      }
+    },
+    {
+      "key": "c2-m19-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "spire"
+      ],
+      "prompt": {
+        "ru": "Если смотреть с холма, шпиль кажется крошечным.",
+        "uz": "Tepalikdan qaraganda shpil juda kichkina ko'rinadi."
+      },
+      "fragments": [
+        "seen",
+        "from the hill",
+        "the spire",
+        "looks",
+        "tiny"
+      ],
+      "accepted": [
+        [
+          "seen",
+          "from the hill",
+          "the spire",
+          "looks",
+          "tiny"
+        ],
+        [
+          "the spire",
+          "looks",
+          "tiny",
+          "seen",
+          "from the hill"
+        ],
+        [
+          "the spire",
+          "seen",
+          "from the hill",
+          "looks",
+          "tiny"
+        ]
+      ],
+      "display": "Seen from the hill, the spire looks tiny.",
+      "explanation": {
+        "ru": "Seen from the hill — причастный оборот («если смотреть с холма»); его подлежащее совпадает с подлежащим главной части: the spire. Оборот может стоять и после the spire или в конце.",
+        "uz": "Seen from the hill — sifatdosh oborot («tepalikdan qaraganda»); uning egasi bosh gapning egasi bilan bir xil: the spire. Oborot the spire so'zidan keyin yoki gap oxirida ham kelishi mumkin."
+      }
+    },
+    {
+      "key": "c2-m19-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "portico"
+      ],
+      "prompt": {
+        "ru": "У дома есть портик, который поддерживают шесть колонн.",
+        "uz": "Uyning oltita ustun ko'tarib turgan portigi bor."
+      },
+      "fragments": [
+        "the house",
+        "has",
+        "a portico",
+        "supported",
+        "by",
+        "six columns"
+      ],
+      "accepted": [
+        [
+          "the house",
+          "has",
+          "a portico",
+          "supported",
+          "by",
+          "six columns"
+        ]
+      ],
+      "display": "The house has a portico supported by six columns.",
+      "explanation": {
+        "ru": "a portico supported by six columns — причастие прошедшего времени вместо придаточного which is supported by. «У дома есть» — the house has.",
+        "uz": "a portico supported by six columns — which is supported by ergash gapi o'rnida o'tgan zamon sifatdoshi. «Uyning … bor» — the house has."
+      }
+    },
+    {
+      "key": "c2-m19-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "patina"
+      ],
+      "text": "The old coins had a dark patina",
+      "accepted": [
+        "The old coins had a dark patina"
+      ],
+      "translation": {
+        "ru": "На старых монетах была тёмная патина",
+        "uz": "Eski tangalarda qoramtir patina bor edi"
+      }
+    },
+    {
+      "key": "c2-m19-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "filigree"
+      ],
+      "text": "She wore earrings of silver filigree",
+      "accepted": [
+        "She wore earrings of silver filigree"
+      ],
+      "translation": {
+        "ru": "На ней были серьги из серебряной филиграни",
+        "uz": "U kumush filigrandan ishlangan sirg'a taqib olgan edi"
+      },
+      "explanation": {
+        "ru": "filigree: на конце -ee (f-i-l-i-g-r-e-e).",
+        "uz": "filigree: oxiri -ee (f-i-l-i-g-r-e-e)."
+      }
+    },
+    {
+      "key": "c2-m19-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "minaret",
+        "colonnade"
+      ],
+      "text": "A minaret stood behind the colonnade",
+      "accepted": [
+        "A minaret stood behind the colonnade"
+      ],
+      "translation": {
+        "ru": "За колоннадой стоял минарет",
+        "uz": "Kolonnada ortida minora turardi"
+      },
+      "explanation": {
+        "ru": "colonnade: одна l и две n (c-o-l-o-n-n-a-d-e). Minaret — m-i-n-a-r-e-t.",
+        "uz": "colonnade: bitta l va ikkita n (c-o-l-o-n-n-a-d-e). Minaret — m-i-n-a-r-e-t."
+      }
+    },
+    {
+      "key": "c2-m19-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "retrospective"
+      ],
+      "text": "This year the gallery is ___ a retrospective of his work.",
+      "options": [
+        "holding",
+        "keeping",
+        "passing"
+      ],
+      "correct": [
+        "holding"
+      ],
+      "translation": {
+        "ru": "В этом году галерея проводит ретроспективу его работ.",
+        "uz": "Bu yil galereya uning ijodi retrospektivasini o'tkazmoqda."
+      },
+      "explanation": {
+        "ru": "hold a retrospective — проводить ретроспективу (как hold an exhibition, hold a meeting). Keep значит «хранить, держать», pass — «проходить, передавать»: здесь они невозможны.",
+        "uz": "hold a retrospective — retrospektiva o'tkazmoq (hold an exhibition, hold a meeting kabi). O'zbekcha «o'tkazmoq» pass emas: pass «o'tmoq, uzatmoq», keep «saqlamoq» degani, ular bu yerda bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "finesse"
+      ],
+      "text": "The young violinist played the slow movement ___ real finesse.",
+      "options": [
+        "with",
+        "by",
+        "on"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Юный скрипач исполнил медленную часть с настоящим изяществом.",
+        "uz": "Yosh skripkachi sekin qismni chinakam nafosat bilan ijro etdi."
+      },
+      "explanation": {
+        "ru": "with finesse — с изяществом, тонко (как with skill, with care). By и on здесь невозможны.",
+        "uz": "with finesse — nafosat bilan, nozik qilib (with skill, with care kabi). By va on bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "originality"
+      ],
+      "text": "Although well written, the screenplay ___ originality.",
+      "options": [
+        "lacks",
+        "misses",
+        "fails"
+      ],
+      "correct": [
+        "lacks"
+      ],
+      "translation": {
+        "ru": "Хотя сценарий хорошо написан, ему не хватает оригинальности.",
+        "uz": "Ssenariy yaxshi yozilgan bo'lsa-da, unda o'ziga xoslik yetishmaydi."
+      },
+      "explanation": {
+        "ru": "lack something — испытывать недостаток в чём-то; lack — переходный глагол без предлога: lacks originality. Miss значит «скучать по, пропускать», а fail не принимает такого дополнения.",
+        "uz": "lack something — biror narsa yetishmasligi; lack — predlogsiz o'timli fe'l: lacks originality. Miss «sog'inmoq, o'tkazib yubormoq» degani, fail esa bunday to'ldiruvchi olmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "emulate"
+      ],
+      "prompt": {
+        "ru": "Её стилю почти невозможно подражать.",
+        "uz": "Uning uslubiga taqlid qilish deyarli imkonsiz."
+      },
+      "fragments": [
+        "her style",
+        "is",
+        "almost",
+        "impossible",
+        "to",
+        "emulate"
+      ],
+      "accepted": [
+        [
+          "her style",
+          "is",
+          "almost",
+          "impossible",
+          "to",
+          "emulate"
+        ]
+      ],
+      "display": "Her style is almost impossible to emulate.",
+      "explanation": {
+        "ru": "Her style is impossible to emulate — дополнение (her style) становится подлежащим, а в конце остаётся to + глагол, без it. Emulate — подражать, переходный глагол без предлога.",
+        "uz": "Her style is impossible to emulate — to'ldiruvchi (her style) ega bo'lib keladi, oxirida esa it olmoshisiz to + fe'l qoladi. Emulate — taqlid qilmoq, predlogsiz o'timli fe'l."
+      }
+    },
+    {
+      "key": "c2-m19-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "rendition"
+      ],
+      "prompt": {
+        "ru": "Его исполнение песни было лучше оригинала.",
+        "uz": "Uning qo'shiq ijrosi asl nusxadan yaxshiroq edi."
+      },
+      "fragments": [
+        "his rendition",
+        "of",
+        "the song",
+        "was",
+        "better",
+        "than",
+        "the original"
+      ],
+      "accepted": [
+        [
+          "his rendition",
+          "of",
+          "the song",
+          "was",
+          "better",
+          "than",
+          "the original"
+        ]
+      ],
+      "display": "His rendition of the song was better than the original.",
+      "explanation": {
+        "ru": "rendition of — исполнение, трактовка чего-то: his rendition of the song. Better than — «лучше, чем».",
+        "uz": "rendition of — biror asarning ijrosi, talqini: his rendition of the song. Better than — «… dan yaxshiroq»."
+      }
+    },
+    {
+      "key": "c2-m19-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "muse"
+      ],
+      "prompt": {
+        "ru": "Музой ему служила именно жена.",
+        "uz": "Uning ilhom parisi vazifasini aynan rafiqasi bajargan."
+      },
+      "fragments": [
+        "it",
+        "was",
+        "his wife",
+        "who",
+        "served",
+        "as",
+        "his muse"
+      ],
+      "accepted": [
+        [
+          "it",
+          "was",
+          "his wife",
+          "who",
+          "served",
+          "as",
+          "his muse"
+        ]
+      ],
+      "display": "It was his wife who served as his muse.",
+      "explanation": {
+        "ru": "It was … who … — выделение лица, русское «именно». Serve as — служить кем-то, выполнять роль: served as his muse.",
+        "uz": "It was … who … — shaxsni ajratib ko'rsatish, o'zbekcha «aynan». Serve as — kimdir vazifasini bajarmoq: served as his muse."
+      }
+    },
+    {
+      "key": "c2-m19-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "craftsmanship"
+      ],
+      "text": "The furniture shows superb craftsmanship",
+      "accepted": [
+        "The furniture shows superb craftsmanship"
+      ],
+      "translation": {
+        "ru": "В этой мебели видно превосходное мастерство",
+        "uz": "Bu mebelda yuksak hunarmandlik mahorati ko'rinib turibdi"
+      },
+      "explanation": {
+        "ru": "craftsmanship пишется слитно, одним словом: crafts + man + ship.",
+        "uz": "craftsmanship bitta so'z bo'lib, qo'shib yoziladi: crafts + man + ship."
+      }
+    },
+    {
+      "key": "c2-m19-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "dexterity",
+        "spontaneity"
+      ],
+      "text": "Her playing combines dexterity and spontaneity",
+      "accepted": [
+        "Her playing combines dexterity and spontaneity"
+      ],
+      "translation": {
+        "ru": "В её игре сочетаются ловкость и непосредственность",
+        "uz": "Uning ijrosida epchillik va tabiiylik uyg'unlashgan"
+      },
+      "explanation": {
+        "ru": "spontaneity: после n идут e-i-t-y (s-p-o-n-t-a-n-e-i-t-y). Dexterity — d-e-x-t-e-r-i-t-y.",
+        "uz": "spontaneity: n dan keyin e-i-t-y keladi (s-p-o-n-t-a-n-e-i-t-y). Dexterity — d-e-x-t-e-r-i-t-y."
+      }
+    },
+    {
+      "key": "c2-m19-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "artistry"
+      ],
+      "text": "We admired the artistry of the dancers",
+      "accepted": [
+        "We admired the artistry of the dancers"
+      ],
+      "translation": {
+        "ru": "Мы восхищались мастерством танцоров",
+        "uz": "Raqqoslarning badiiy mahoratiga qoyil qoldik"
+      }
+    },
+    {
+      "key": "c2-m19-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "resonate"
+      ],
+      "text": "His novels still resonate ___ young readers today.",
+      "options": [
+        "with",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Его романы и сегодня находят отклик у молодых читателей.",
+        "uz": "Uning romanlari bugun ham yosh kitobxonlar qalbida aks sado beradi."
+      },
+      "explanation": {
+        "ru": "resonate with somebody — находить отклик у кого-то. Русское «у» подсказывает at, но в этом значении после resonate стоит только with; on тоже невозможно.",
+        "uz": "resonate with somebody — kimningdir qalbida aks sado bermoq. Bu ma'noda resonate fe'lidan keyin faqat with keladi; at va on bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "engross"
+      ],
+      "text": "She was so engrossed ___ the book that she missed her stop.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Она так увлеклась книгой, что проехала свою остановку.",
+        "uz": "U kitobga shu qadar berilib ketdiki, bekatidan o'tib ketdi."
+      },
+      "explanation": {
+        "ru": "be engrossed in — быть поглощённым чем-то (книгой, работой, разговором). После engrossed стоит in; on и at невозможны.",
+        "uz": "be engrossed in — biror narsaga (kitobga, ishga, suhbatga) butunlay berilib ketmoq. Engrossed so'zidan keyin in keladi; on va at bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "patron"
+      ],
+      "text": "She was a generous patron ___ the arts all her life.",
+      "options": [
+        "of",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Всю жизнь она была щедрой покровительницей искусств.",
+        "uz": "U butun umri davomida san'atning saxiy homiysi bo'lgan."
+      },
+      "explanation": {
+        "ru": "a patron of the arts — покровитель искусств, меценат; of передаёт русское «чего». On и at в этом выражении не употребляются.",
+        "uz": "a patron of the arts — san'at homiysi; of o'zbekcha qaratqich «-ning» ma'nosini beradi. On va at bu iborada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m19-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "riveting"
+      ],
+      "prompt": {
+        "ru": "Спектакль был настолько захватывающим, что никто не ушёл.",
+        "uz": "Spektakl shu qadar o'ziga rom etuvchi ediki, hech kim chiqib ketmadi."
+      },
+      "fragments": [
+        "so",
+        "riveting",
+        "was",
+        "the play",
+        "that",
+        "nobody",
+        "left"
+      ],
+      "accepted": [
+        [
+          "so",
+          "riveting",
+          "was",
+          "the play",
+          "that",
+          "nobody",
+          "left"
+        ],
+        [
+          "the play",
+          "was",
+          "so",
+          "riveting",
+          "that",
+          "nobody",
+          "left"
+        ]
+      ],
+      "display": "So riveting was the play that nobody left.",
+      "explanation": {
+        "ru": "So + прилагательное в начале предложения требует инверсии: So riveting was the play that … Обычный порядок тоже верен: The play was so riveting that nobody left.",
+        "uz": "Gap boshidagi so + sifat inversiyani talab qiladi: So riveting was the play that … Odatdagi tartib ham to'g'ri: The play was so riveting that nobody left."
+      }
+    },
+    {
+      "key": "c2-m19-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "highbrow"
+      ],
+      "prompt": {
+        "ru": "Хотя роман и элитарный, он хорошо продавался.",
+        "uz": "Roman elitar bo'lsa-da, yaxshi sotildi."
+      },
+      "fragments": [
+        "highbrow",
+        "as",
+        "the novel",
+        "is",
+        "it",
+        "sold",
+        "well"
+      ],
+      "accepted": [
+        [
+          "highbrow",
+          "as",
+          "the novel",
+          "is",
+          "it",
+          "sold",
+          "well"
+        ],
+        [
+          "highbrow",
+          "as",
+          "it",
+          "is",
+          "the novel",
+          "sold",
+          "well"
+        ],
+        [
+          "the novel",
+          "highbrow",
+          "as",
+          "it",
+          "is",
+          "sold",
+          "well"
+        ],
+        [
+          "the novel",
+          "sold",
+          "well",
+          "highbrow",
+          "as",
+          "it",
+          "is"
+        ]
+      ],
+      "display": "Highbrow as the novel is, it sold well.",
+      "explanation": {
+        "ru": "прилагательное + as + подлежащее + глагол — книжная уступка «хотя и»: Highbrow as the novel is = Although the novel is highbrow. Оборот может стоять и после the novel или в конце: The novel, highbrow as it is, sold well.",
+        "uz": "sifat + as + ega + fe'l — kitobiy to'siqsiz qurilma «… bo'lsa-da»: Highbrow as the novel is = Although the novel is highbrow. Oborot the novel so'zidan keyin yoki oxirida ham kelishi mumkin: The novel, highbrow as it is, sold well."
+      }
+    },
+    {
+      "key": "c2-m19-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "visceral"
+      ],
+      "prompt": {
+        "ru": "Фильмы ужасов играют на наших самых глубинных страхах.",
+        "uz": "Qo'rqinchli filmlar eng chuqur, ich-ichimizdagi qo'rquvlarimizdan foydalanadi."
+      },
+      "fragments": [
+        "horror films",
+        "play",
+        "on",
+        "our",
+        "most",
+        "visceral",
+        "fears"
+      ],
+      "accepted": [
+        [
+          "horror films",
+          "play",
+          "on",
+          "our",
+          "most",
+          "visceral",
+          "fears"
+        ]
+      ],
+      "display": "Horror films play on our most visceral fears.",
+      "explanation": {
+        "ru": "play on somebody's fears — играть на чьих-то страхах. Visceral — «идущий изнутри, инстинктивный»; our most visceral fears — превосходная степень после притяжательного our, без the.",
+        "uz": "play on somebody's fears — kimningdir qo'rquvlaridan foydalanmoq. Visceral — «ich-ichidan keluvchi»; our most visceral fears — our egalik olmoshidan keyin orttirma daraja, the artiklisiz."
+      }
+    },
+    {
+      "key": "c2-m19-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "dilettante"
+      ],
+      "text": "He was never more than a dilettante",
+      "accepted": [
+        "He was never more than a dilettante"
+      ],
+      "translation": {
+        "ru": "Он так и остался всего лишь дилетантом",
+        "uz": "U hech qachon yuzaki havaskordan nariga o'tmagan"
+      },
+      "explanation": {
+        "ru": "dilettante: одна l, две t и e на конце (d-i-l-e-t-t-a-n-t-e).",
+        "uz": "dilettante: bitta l, ikkita t va oxirida e (d-i-l-e-t-t-a-n-t-e)."
+      }
+    },
+    {
+      "key": "c2-m19-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "aficionado"
+      ],
+      "text": "My uncle is an opera aficionado",
+      "accepted": [
+        "My uncle is an opera aficionado"
+      ],
+      "translation": {
+        "ru": "Мой дядя — страстный любитель оперы",
+        "uz": "Amakim opera shinavandasi"
+      },
+      "explanation": {
+        "ru": "aficionado: одна f, затем -cio- (a-f-i-c-i-o-n-a-d-o).",
+        "uz": "aficionado: bitta f, keyin -cio- (a-f-i-c-i-o-n-a-d-o)."
+      }
+    },
+    {
+      "key": "c2-m19-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "captivate",
+        "mesmerize"
+      ],
+      "text": "The dancers captivated and mesmerized us",
+      "accepted": [
+        "The dancers captivated and mesmerized us"
+      ],
+      "translation": {
+        "ru": "Танцоры пленили и заворожили нас",
+        "uz": "Raqqoslar bizni maftun etib, sehrlab qo'ydi"
+      },
+      "explanation": {
+        "ru": "mesmerize: в середине -mer- (m-e-s-m-e-r-i-z-e); captivate — c-a-p-t-i-v-a-t-e.",
+        "uz": "mesmerize: o'rtasida -mer- (m-e-s-m-e-r-i-z-e); captivate — c-a-p-t-i-v-a-t-e."
+      }
+    },
+    {
+      "key": "c2-m20-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "strive"
+      ],
+      "text": "Our team will always strive ___ excellence.",
+      "options": [
+        "for",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Наша команда всегда будет стремиться к совершенству.",
+        "uz": "Jamoamiz doimo mukammallikka intiladi."
+      },
+      "explanation": {
+        "ru": "strive for something — стремиться к чему-то: strive for excellence, strive for perfection. Русское «к» сбивает, но перед существительным после strive нужен for; at и on невозможны.",
+        "uz": "strive for something — biror narsaga intilmoq: strive for excellence, strive for perfection. O'zbekcha -ga qo'shimchasi chalg'itadi, lekin strive fe'lidan keyin ot oldidan for kerak; at va on bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "drudgery"
+      ],
+      "text": "Few people enjoy the drudgery ___ filling in tax forms.",
+      "options": [
+        "of",
+        "at",
+        "by"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Мало кому нравится нудная работа по заполнению налоговых деклараций.",
+        "uz": "Soliq deklaratsiyalarini to'ldirishdek zerikarli ishni kamdan-kam odam yoqtiradi."
+      },
+      "explanation": {
+        "ru": "the drudgery of doing something — нудная, тяжёлая работа, состоящая в чём-то: the drudgery of filling in forms. At и by здесь невозможны.",
+        "uz": "the drudgery of doing something — biror ishdan iborat zerikarli og'ir mehnat: the drudgery of filling in forms. At va by bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "toil"
+      ],
+      "text": "For years he toiled ___ at a novel nobody wanted.",
+      "options": [
+        "away",
+        "out",
+        "off"
+      ],
+      "correct": [
+        "away"
+      ],
+      "translation": {
+        "ru": "Годами он корпел над романом, который никому не был нужен.",
+        "uz": "U yillar davomida hech kimga kerak bo'lmagan roman ustida tinmay mehnat qildi."
+      },
+      "explanation": {
+        "ru": "toil away at something — упорно, подолгу трудиться над чем-то; away добавляет «без остановки» (так же work away at). Out и off с toil в этом значении не употребляются.",
+        "uz": "toil away at something — biror narsa ustida uzoq va tinmay mehnat qilmoq; away «to'xtovsiz» ma'nosini qo'shadi (work away at kabi). Out va off bu ma'noda toil bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "procrastinate"
+      ],
+      "prompt": {
+        "ru": "Чем больше вы откладываете дела, тем тяжелее становится.",
+        "uz": "Ishlarni qancha ko'p paysalga solsangiz, shuncha qiyinlashadi."
+      },
+      "fragments": [
+        "the more",
+        "you",
+        "procrastinate",
+        "the harder",
+        "it",
+        "gets"
+      ],
+      "accepted": [
+        [
+          "the more",
+          "you",
+          "procrastinate",
+          "the harder",
+          "it",
+          "gets"
+        ]
+      ],
+      "display": "The more you procrastinate, the harder it gets.",
+      "explanation": {
+        "ru": "The more …, the harder … — «чем больше…, тем труднее…»: обе части начинаются с the + сравнительная степень. It gets — «становится». Procrastinate не требует дополнения.",
+        "uz": "The more …, the harder … — «qancha ko'p…, shuncha qiyin…»: ikkala qism ham the + qiyosiy daraja bilan boshlanadi. It gets — «bo'ladi, bo'lib boradi». Procrastinate to'ldiruvchisiz ishlatiladi."
+      }
+    },
+    {
+      "key": "c2-m20-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "shirk"
+      ],
+      "prompt": {
+        "ru": "Ни разу он не уклонился от своих обязанностей.",
+        "uz": "U biror marta ham o'z vazifalaridan bo'yin tovlamadi."
+      },
+      "fragments": [
+        "not once",
+        "did",
+        "he",
+        "shirk",
+        "his duties"
+      ],
+      "accepted": [
+        [
+          "not once",
+          "did",
+          "he",
+          "shirk",
+          "his duties"
+        ],
+        [
+          "he",
+          "did",
+          "not once",
+          "shirk",
+          "his duties"
+        ]
+      ],
+      "display": "Not once did he shirk his duties.",
+      "explanation": {
+        "ru": "Not once в начале предложения требует инверсии: Not once did he shirk. Без инверсии: He did not once shirk his duties. Shirk — переходный глагол, без предлога: shirk his duties.",
+        "uz": "Gap boshidagi not once inversiyani talab qiladi: Not once did he shirk. Inversiyasiz: He did not once shirk his duties. Shirk — o'timli fe'l, predlogsiz: shirk his duties."
+      }
+    },
+    {
+      "key": "c2-m20-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "zealous"
+      ],
+      "prompt": {
+        "ru": "Новый руководитель немного чересчур рьяный.",
+        "uz": "Yangi rahbar biroz ortiqcha jonkuyar."
+      },
+      "fragments": [
+        "the new manager",
+        "is",
+        "a little",
+        "too",
+        "zealous"
+      ],
+      "accepted": [
+        [
+          "the new manager",
+          "is",
+          "a little",
+          "too",
+          "zealous"
+        ]
+      ],
+      "display": "The new manager is a little too zealous.",
+      "explanation": {
+        "ru": "a little too + прилагательное — «немного чересчур», мягкая критика. Zealous — рьяный, ревностный (часто — сверх меры).",
+        "uz": "a little too + sifat — «biroz ortiqcha», yumshoq tanqid. Zealous — o'ta g'ayratli, jonkuyar (ko'pincha me'yordan ortiq)."
+      }
+    },
+    {
+      "key": "c2-m20-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "assiduous",
+        "industrious"
+      ],
+      "text": "She is an assiduous and industrious worker",
+      "accepted": [
+        "She is an assiduous and industrious worker",
+        "She's an assiduous and industrious worker"
+      ],
+      "translation": {
+        "ru": "Она прилежный и трудолюбивый работник",
+        "uz": "U tirishqoq va mehnatsevar xodim"
+      },
+      "explanation": {
+        "ru": "assiduous: две s (a-s-s-i-d-u-o-u-s), в конце -uous; industrious — в конце -ious.",
+        "uz": "assiduous: ikkita s (a-s-s-i-d-u-o-u-s), oxiri -uous; industrious so'zining oxiri -ious."
+      }
+    },
+    {
+      "key": "c2-m20-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "indolent"
+      ],
+      "text": "He was too indolent to look for work",
+      "accepted": [
+        "He was too indolent to look for work"
+      ],
+      "translation": {
+        "ru": "Он был слишком ленив, чтобы искать работу",
+        "uz": "U ish izlashga ham erinadigan darajada dangasa edi"
+      },
+      "explanation": {
+        "ru": "indolent: в конце -ent (i-n-d-o-l-e-n-t).",
+        "uz": "indolent: oxiri -ent (i-n-d-o-l-e-n-t)."
+      }
+    },
+    {
+      "key": "c2-m20-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "lackadaisical"
+      ],
+      "text": "Their lackadaisical approach annoyed everyone",
+      "accepted": [
+        "Their lackadaisical approach annoyed everyone"
+      ],
+      "translation": {
+        "ru": "Их вялый подход всех раздражал",
+        "uz": "Ularning loqayd yondashuvi hammaning g'ashiga tegdi"
+      },
+      "explanation": {
+        "ru": "lackadaisical пишется слитно: l-a-c-k-a-d-a-i-s-i-c-a-l (в середине -ai-).",
+        "uz": "lackadaisical qo'shib yoziladi: l-a-c-k-a-d-a-i-s-i-c-a-l (o'rtasida -ai-)."
+      }
+    },
+    {
+      "key": "c2-m20-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "adversity"
+      ],
+      "text": "He remained remarkably calm in the ___ of adversity.",
+      "options": [
+        "face",
+        "front",
+        "eyes"
+      ],
+      "correct": [
+        "face"
+      ],
+      "translation": {
+        "ru": "Перед лицом невзгод он сохранял удивительное спокойствие.",
+        "uz": "U kulfatlar qarshisida ham ajoyib xotirjamlikni saqlab qoldi."
+      },
+      "explanation": {
+        "ru": "in the face of adversity — перед лицом невзгод, несмотря на трудности. In front of говорит только о месте («перед»), а in the eyes of — «в глазах, по мнению кого-то».",
+        "uz": "in the face of adversity — kulfatlar qarshisida, qiyinchiliklarga qaramay. In front of faqat joyni bildiradi («oldida»), in the eyes of esa «kimningdir nazarida» degani."
+      }
+    },
+    {
+      "key": "c2-m20-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "predicament"
+      ],
+      "text": "After missing the last train, we found ourselves ___ an awkward predicament.",
+      "options": [
+        "in",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Опоздав на последний поезд, мы оказались в неловком положении.",
+        "uz": "Oxirgi poyezdga ulgurmay, noqulay ahvolga tushib qoldik."
+      },
+      "explanation": {
+        "ru": "be / find oneself in a predicament — оказаться в затруднительном положении. Как in trouble и in a difficult situation, — с in; at и on невозможны.",
+        "uz": "be / find oneself in a predicament — mushkul ahvolga tushib qolmoq. In trouble, in a difficult situation kabi in bilan; at va on bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "onerous"
+      ],
+      "text": "The new rules place an onerous burden ___ small businesses.",
+      "options": [
+        "on",
+        "at",
+        "over"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Новые правила ложатся тяжким бременем на малый бизнес.",
+        "uz": "Yangi qoidalar kichik biznes zimmasiga og'ir yuk yuklaydi."
+      },
+      "explanation": {
+        "ru": "place a burden on somebody — возлагать бремя на кого-то; an onerous burden — тяжкое, обременительное бремя. Нужен on; at и over невозможны.",
+        "uz": "place a burden on somebody — kimningdir zimmasiga yuk yuklamoq; an onerous burden — og'ir, malol keladigan yuk. On kerak; at va over bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "insurmountable"
+      ],
+      "prompt": {
+        "ru": "То, что казалось непреодолимым, оказалось довольно простым.",
+        "uz": "Yengib bo'lmasdek tuyulgan narsa ancha oddiy bo'lib chiqdi."
+      },
+      "fragments": [
+        "what",
+        "had seemed",
+        "insurmountable",
+        "turned out",
+        "to be",
+        "quite",
+        "simple"
+      ],
+      "accepted": [
+        [
+          "what",
+          "had seemed",
+          "insurmountable",
+          "turned out",
+          "to be",
+          "quite",
+          "simple"
+        ]
+      ],
+      "display": "What had seemed insurmountable turned out to be quite simple.",
+      "explanation": {
+        "ru": "What had seemed … — «то, что казалось…»: придаточное-подлежащее. Had seemed — Past Perfect: казалось раньше, чем выяснилось обратное. Turn out to be — оказаться.",
+        "uz": "What had seemed … — «… tuyulgan narsa»: ega vazifasidagi ergash gap. Had seemed — Past Perfect: aksi ma'lum bo'lishidan oldin shunday tuyulgan. Turn out to be — bo'lib chiqmoq."
+      }
+    },
+    {
+      "key": "c2-m20-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "ordeal"
+      ],
+      "prompt": {
+        "ru": "Они и не подозревали, какое тяжёлое испытание их ждёт.",
+        "uz": "Ularni qanday og'ir sinov kutayotganini xayollariga ham keltirmagan edilar."
+      },
+      "fragments": [
+        "little",
+        "did",
+        "they",
+        "know",
+        "what",
+        "an ordeal",
+        "awaited",
+        "them"
+      ],
+      "accepted": [
+        [
+          "little",
+          "did",
+          "they",
+          "know",
+          "what",
+          "an ordeal",
+          "awaited",
+          "them"
+        ]
+      ],
+      "display": "Little did they know what an ordeal awaited them.",
+      "explanation": {
+        "ru": "Little did they know — книжная инверсия: «они и не подозревали». What an ordeal — «какое испытание»: после what перед исчисляемым существительным в единственном числе ставят a / an.",
+        "uz": "Little did they know — kitobiy inversiya: «xayollariga ham keltirmagan edilar». What an ordeal — «qanday sinov»: what so'zidan keyin birlikdagi sanaladigan ot oldidan a / an qo'yiladi."
+      }
+    },
+    {
+      "key": "c2-m20-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "intractable"
+      ],
+      "prompt": {
+        "ru": "Спор оказался более трудноразрешимым, чем ожидалось.",
+        "uz": "Nizoning yechimi kutilganidan ham mushkulroq bo'lib chiqdi."
+      },
+      "fragments": [
+        "the dispute",
+        "has proved",
+        "more",
+        "intractable",
+        "than",
+        "expected"
+      ],
+      "accepted": [
+        [
+          "the dispute",
+          "has proved",
+          "more",
+          "intractable",
+          "than",
+          "expected"
+        ]
+      ],
+      "display": "The dispute has proved more intractable than expected.",
+      "explanation": {
+        "ru": "prove + прилагательное — оказаться каким-то: has proved intractable. More … than expected — «более…, чем ожидалось», без it и was.",
+        "uz": "prove + sifat — qandaydir bo'lib chiqmoq: has proved intractable. More … than expected — «kutilganidan ko'ra …roq», it va was so'zlarisiz."
+      }
+    },
+    {
+      "key": "c2-m20-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "arduous"
+      ],
+      "text": "The journey was long and arduous",
+      "accepted": [
+        "The journey was long and arduous"
+      ],
+      "translation": {
+        "ru": "Путь был долгим и тяжёлым",
+        "uz": "Safar uzoq va mashaqqatli bo'ldi"
+      },
+      "explanation": {
+        "ru": "arduous: в конце -uous (a-r-d-u-o-u-s).",
+        "uz": "arduous: oxiri -uous (a-r-d-u-o-u-s)."
+      }
+    },
+    {
+      "key": "c2-m20-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "formidable",
+        "grueling"
+      ],
+      "text": "They faced a formidable and grueling climb",
+      "accepted": [
+        "They faced a formidable and grueling climb"
+      ],
+      "translation": {
+        "ru": "Им предстоял очень трудный и изнурительный подъём",
+        "uz": "Ularni o'ta qiyin va tinka qurituvchi ko'tarilish kutardi"
+      },
+      "explanation": {
+        "ru": "grueling: в американском написании одна l (g-r-u-e-l-i-n-g), в британском gruelling. Formidable кончается на -able.",
+        "uz": "grueling: amerikacha yozuvda bitta l (g-r-u-e-l-i-n-g), britaniyachasida gruelling. Formidable so'zi -able bilan tugaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "plight"
+      ],
+      "text": "Nobody seemed to care about their plight",
+      "accepted": [
+        "Nobody seemed to care about their plight"
+      ],
+      "translation": {
+        "ru": "Казалось, никому нет дела до их бедственного положения",
+        "uz": "Ularning ayanchli ahvoli hech kimni qiziqtirmayotgandek edi"
+      },
+      "explanation": {
+        "ru": "plight: на конце -ight (p-l-i-g-h-t), gh не произносится.",
+        "uz": "plight: oxiri -ight (p-l-i-g-h-t), gh talaffuz qilinmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "meteoric"
+      ],
+      "text": "Nobody predicted the band's meteoric ___ to fame.",
+      "options": [
+        "rise",
+        "raise",
+        "lift"
+      ],
+      "correct": [
+        "rise"
+      ],
+      "translation": {
+        "ru": "Никто не предсказывал стремительного взлёта группы к славе.",
+        "uz": "Guruhning shon-shuhrat sari shiddatli yuksalishini hech kim oldindan aytmagan edi."
+      },
+      "explanation": {
+        "ru": "a meteoric rise to fame — стремительный взлёт к славе. Существительное raise значит «повышение (зарплаты)», а в этом выражении говорят rise; lift здесь тоже не употребляется.",
+        "uz": "a meteoric rise to fame — shon-shuhrat sari shiddatli yuksalish. Raise oti «maosh oshishi» degani, bu iborada esa rise ishlatiladi; lift ham bu yerda qo'llanmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "feat"
+      ],
+      "text": "Running a marathon at seventy is no ___ feat.",
+      "options": [
+        "mean",
+        "poor",
+        "cheap"
+      ],
+      "correct": [
+        "mean"
+      ],
+      "translation": {
+        "ru": "Пробежать марафон в семьдесят лет — немалый подвиг.",
+        "uz": "Yetmish yoshda marafon yugurish — kichik yutuq emas."
+      },
+      "explanation": {
+        "ru": "no mean feat — немалое достижение (mean здесь — «посредственный»). Так же говорят no small feat; poor и cheap в этом выражении не употребляются.",
+        "uz": "no mean feat — kichik yutuq emas (mean bu yerda «o'rtamiyona» degani). No small feat ham deyiladi; poor va cheap bu iborada ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "paragon"
+      ],
+      "text": "Her father was regarded as a paragon ___ honesty.",
+      "options": [
+        "of",
+        "at",
+        "to"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Её отец считался образцом честности.",
+        "uz": "Uning otasi halollikning yuksak namunasi hisoblanardi."
+      },
+      "explanation": {
+        "ru": "a paragon of virtue / honesty — образец, эталон какого-то качества: после paragon стоит of. At и to здесь невозможны.",
+        "uz": "a paragon of virtue / honesty — biror fazilatning yuksak namunasi: paragon so'zidan keyin of keladi. At va to bu yerda bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "epitome"
+      ],
+      "prompt": {
+        "ru": "Он — само воплощение хороших манер.",
+        "uz": "U yaxshi odobning ayni timsoli."
+      },
+      "fragments": [
+        "he",
+        "is",
+        "the very epitome",
+        "of",
+        "good manners"
+      ],
+      "accepted": [
+        [
+          "he",
+          "is",
+          "the very epitome",
+          "of",
+          "good manners"
+        ]
+      ],
+      "display": "He is the very epitome of good manners.",
+      "explanation": {
+        "ru": "the very epitome of — «само воплощение»: very здесь усиливает («тот самый»). Epitome обычно стоит с the и of.",
+        "uz": "the very epitome of — «ayni timsoli»: very bu yerda kuchaytiradi. Epitome odatda the va of bilan keladi."
+      }
+    },
+    {
+      "key": "c2-m20-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "surpass"
+      ],
+      "prompt": {
+        "ru": "Её второй роман намного превзошёл первый.",
+        "uz": "Uning ikkinchi romani birinchisidan ancha o'zib ketdi."
+      },
+      "fragments": [
+        "her",
+        "second",
+        "novel",
+        "far",
+        "surpassed",
+        "her",
+        "first"
+      ],
+      "accepted": [
+        [
+          "her",
+          "second",
+          "novel",
+          "far",
+          "surpassed",
+          "her",
+          "first"
+        ]
+      ],
+      "display": "Her second novel far surpassed her first.",
+      "explanation": {
+        "ru": "far + глагол сравнения — «намного»: far surpassed. Surpass — переходный глагол без предлога: surpassed her first (novel); второй раз novel можно не повторять.",
+        "uz": "far + qiyoslash fe'li — «ancha»: far surpassed. Surpass — predlogsiz o'timli fe'l: surpassed her first (novel); novel so'zini ikkinchi marta takrorlash shart emas."
+      }
+    },
+    {
+      "key": "c2-m20-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "garner"
+      ],
+      "prompt": {
+        "ru": "Предложение получило поддержку обеих сторон.",
+        "uz": "Taklif ikkala tomonning ham qo'llab-quvvatlashini qozondi."
+      },
+      "fragments": [
+        "the proposal",
+        "garnered",
+        "support",
+        "from",
+        "both sides"
+      ],
+      "accepted": [
+        [
+          "the proposal",
+          "garnered",
+          "support",
+          "from",
+          "both sides"
+        ]
+      ],
+      "display": "The proposal garnered support from both sides.",
+      "explanation": {
+        "ru": "garner support — заручиться поддержкой, собрать её (книжное слово). Так же garner praise, garner votes. Support from — поддержка со стороны кого-то.",
+        "uz": "garner support — qo'llab-quvvatlashni qozonmoq (kitobiy so'z). Garner praise, garner votes ham shunday. Support from — kimningdir qo'llab-quvvatlashi."
+      }
+    },
+    {
+      "key": "c2-m20-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "zenith"
+      ],
+      "text": "Her career was at its zenith",
+      "accepted": [
+        "Her career was at its zenith"
+      ],
+      "translation": {
+        "ru": "Её карьера была в зените",
+        "uz": "Uning faoliyati avj pallasida edi"
+      },
+      "explanation": {
+        "ru": "zenith: z-e-n-i-t-h, на конце th.",
+        "uz": "zenith: z-e-n-i-t-h, oxirida th."
+      }
+    },
+    {
+      "key": "c2-m20-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "pinnacle"
+      ],
+      "text": "This award is the pinnacle of his career",
+      "accepted": [
+        "This award is the pinnacle of his career"
+      ],
+      "translation": {
+        "ru": "Эта награда — вершина его карьеры",
+        "uz": "Bu mukofot uning faoliyatidagi cho'qqi"
+      },
+      "explanation": {
+        "ru": "pinnacle: две n и окончание -acle (p-i-n-n-a-c-l-e).",
+        "uz": "pinnacle: ikkita n va oxiri -acle (p-i-n-n-a-c-l-e)."
+      }
+    },
+    {
+      "key": "c2-m20-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "attain",
+        "preeminent"
+      ],
+      "text": "Few ever attain such a preeminent position",
+      "accepted": [
+        "Few ever attain such a preeminent position",
+        "Few ever attain such a pre-eminent position"
+      ],
+      "translation": {
+        "ru": "Мало кому удаётся достичь столь выдающегося положения",
+        "uz": "Kamdan-kam odam bunday yuksak mavqega erishadi"
+      },
+      "explanation": {
+        "ru": "preeminent в американском написании слитно, без дефиса (в британском чаще pre-eminent). Attain — на конце -ain.",
+        "uz": "preeminent amerikacha yozuvda chiziqchasiz, qo'shib yoziladi (britaniyachada ko'proq pre-eminent). Attain oxiri -ain."
+      }
+    },
+    {
+      "key": "c2-m20-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "blunder"
+      ],
+      "text": "The new manager ___ a costly blunder on his first day.",
+      "options": [
+        "made",
+        "did",
+        "took"
+      ],
+      "correct": [
+        "made"
+      ],
+      "translation": {
+        "ru": "Новый менеджер в первый же день совершил дорогостоящий промах.",
+        "uz": "Yangi menejer birinchi kuniyoq qimmatga tushgan qo'pol xatoga yo'l qo'ydi."
+      },
+      "explanation": {
+        "ru": "make a blunder — совершить грубую ошибку, как make a mistake. Do и take с blunder не употребляются.",
+        "uz": "make a blunder — qo'pol xatoga yo'l qo'ymoq, make a mistake kabi. Do va take fe'llari blunder so'zi bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "lapse"
+      ],
+      "text": "A momentary lapse ___ concentration cost him the match.",
+      "options": [
+        "of",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Минутная потеря концентрации стоила ему матча.",
+        "uz": "Bir lahzalik chalg'ish unga o'yinni boy berishga sabab bo'ldi."
+      },
+      "explanation": {
+        "ru": "a lapse of concentration / memory — кратковременный сбой внимания, памяти. Говорят также a lapse in concentration; at и on невозможны.",
+        "uz": "a lapse of concentration / memory — diqqat yoki xotiraning bir lahzalik chalg'ishi. A lapse in concentration ham deyiladi; at va on bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "folly"
+      ],
+      "text": "Ignoring the storm warning was the ___ of folly.",
+      "options": [
+        "height",
+        "top",
+        "ceiling"
+      ],
+      "correct": [
+        "height"
+      ],
+      "translation": {
+        "ru": "Пренебречь штормовым предупреждением было верхом безрассудства.",
+        "uz": "Bo'ron haqidagi ogohlantirishga e'tibor bermaslik aqlsizlikning cho'qqisi edi."
+      },
+      "explanation": {
+        "ru": "the height of folly — верх безрассудства (так же the height of fashion, the height of rudeness). Русское «верх» подсказывает top, но в этом выражении говорят height; ceiling — «потолок».",
+        "uz": "the height of folly — aqlsizlikning cho'qqisi (the height of fashion, the height of rudeness kabi). Bu iborada top emas, height ishlatiladi; ceiling — «ship»."
+      }
+    },
+    {
+      "key": "c2-m20-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "rectify"
+      ],
+      "prompt": {
+        "ru": "Ошибку исправили только после жалобы.",
+        "uz": "Xato faqat shikoyatdan keyingina tuzatildi."
+      },
+      "fragments": [
+        "only after",
+        "the complaint",
+        "was",
+        "the error",
+        "rectified"
+      ],
+      "accepted": [
+        [
+          "only after",
+          "the complaint",
+          "was",
+          "the error",
+          "rectified"
+        ],
+        [
+          "the error",
+          "was",
+          "rectified",
+          "only after",
+          "the complaint"
+        ]
+      ],
+      "display": "Only after the complaint was the error rectified.",
+      "explanation": {
+        "ru": "Only after … в начале предложения вызывает инверсию: Only after the complaint was the error rectified. Без инверсии: The error was rectified only after the complaint.",
+        "uz": "Gap boshidagi only after … inversiyani talab qiladi: Only after the complaint was the error rectified. Inversiyasiz: The error was rectified only after the complaint."
+      }
+    },
+    {
+      "key": "c2-m20-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "falter"
+      ],
+      "prompt": {
+        "ru": "Её решимость ни разу не дрогнула.",
+        "uz": "Uning qat'iyati hech bir lahzada zaiflashmadi."
+      },
+      "fragments": [
+        "at no point",
+        "did",
+        "her",
+        "resolve",
+        "falter"
+      ],
+      "accepted": [
+        [
+          "at no point",
+          "did",
+          "her",
+          "resolve",
+          "falter"
+        ]
+      ],
+      "display": "At no point did her resolve falter.",
+      "explanation": {
+        "ru": "At no point — «ни разу, ни на миг»; в начале предложения требует инверсии: did her resolve falter. Resolve здесь существительное — «решимость».",
+        "uz": "At no point — «hech bir lahzada»; gap boshida inversiyani talab qiladi: did her resolve falter. Resolve bu yerda ot — «qat'iyat»."
+      }
+    },
+    {
+      "key": "c2-m20-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "shortcoming"
+      ],
+      "prompt": {
+        "ru": "Несмотря на свои недостатки, план был одобрен.",
+        "uz": "Kamchiliklariga qaramay, reja ma'qullandi."
+      },
+      "fragments": [
+        "despite",
+        "its shortcomings",
+        "the plan",
+        "was",
+        "approved"
+      ],
+      "accepted": [
+        [
+          "despite",
+          "its shortcomings",
+          "the plan",
+          "was",
+          "approved"
+        ],
+        [
+          "the plan",
+          "was",
+          "approved",
+          "despite",
+          "its shortcomings"
+        ]
+      ],
+      "display": "Despite its shortcomings, the plan was approved.",
+      "explanation": {
+        "ru": "despite + существительное, без of: despite its shortcomings. Shortcoming обычно стоит во множественном числе — «недостатки». Оборот с despite может стоять и в конце.",
+        "uz": "despite + ot, of predlogisiz: despite its shortcomings. Shortcoming odatda ko'plikda ishlatiladi — «kamchiliklar». Despite oboroti gap oxirida ham kelishi mumkin."
+      }
+    },
+    {
+      "key": "c2-m20-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "gaffe"
+      ],
+      "text": "He made an awful gaffe at dinner",
+      "accepted": [
+        "He made an awful gaffe at dinner"
+      ],
+      "translation": {
+        "ru": "За ужином он допустил ужасную бестактность",
+        "uz": "U kechki ovqat paytida juda nojo'ya gap qilib qo'ydi"
+      },
+      "explanation": {
+        "ru": "gaffe: две f и e на конце (g-a-f-f-e).",
+        "uz": "gaffe: ikkita f va oxirida e (g-a-f-f-e)."
+      }
+    },
+    {
+      "key": "c2-m20-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "inept",
+        "botch"
+      ],
+      "text": "The inept builder botched the whole job",
+      "accepted": [
+        "The inept builder botched the whole job"
+      ],
+      "translation": {
+        "ru": "Неумелый строитель испортил всю работу",
+        "uz": "No'noq quruvchi butun ishni rasvo qildi"
+      },
+      "explanation": {
+        "ru": "botched: перед h стоит t (b-o-t-c-h-e-d). Inept — i-n-e-p-t.",
+        "uz": "botched: h dan oldin t yoziladi (b-o-t-c-h-e-d). Inept — i-n-e-p-t."
+      }
+    },
+    {
+      "key": "c2-m20-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "flounder"
+      ],
+      "text": "Without a leader the team began to flounder",
+      "accepted": [
+        "Without a leader the team began to flounder"
+      ],
+      "translation": {
+        "ru": "Без лидера команда начала буксовать",
+        "uz": "Rahbarsiz jamoa ishni eplay olmay qiynala boshladi"
+      }
+    },
+    {
+      "key": "c2-m20-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "wary"
+      ],
+      "text": "Older people are often wary ___ new technology.",
+      "options": [
+        "of",
+        "at",
+        "from"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Пожилые люди часто настороженно относятся к новым технологиям.",
+        "uz": "Keksa odamlar ko'pincha yangi texnologiyalarga sergaklik bilan qaraydi."
+      },
+      "explanation": {
+        "ru": "be wary of — относиться настороженно к чему-то, остерегаться. Русские «к» и «от» тянут к другим предлогам, но после wary стоит of; at и from невозможны.",
+        "uz": "be wary of — biror narsaga sergaklik bilan qaramoq, undan hadiksiramoq. Wary so'zidan keyin of keladi; at va from bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "mastermind"
+      ],
+      "text": "Everyone knew she was the real mastermind ___ the merger.",
+      "options": [
+        "behind",
+        "after",
+        "over"
+      ],
+      "correct": [
+        "behind"
+      ],
+      "translation": {
+        "ru": "Все знали, что настоящим вдохновителем слияния была она.",
+        "uz": "Qo'shilish rejasining asl muallifi u ekanini hamma bilardi."
+      },
+      "explanation": {
+        "ru": "the mastermind behind something — тот, кто стоит за замыслом (дословно «позади»): the mastermind behind the merger. After и over здесь невозможны.",
+        "uz": "the mastermind behind something — biror rejaning ortida turgan odam (so'zma-so'z «ortida»): the mastermind behind the merger. After va over bu yerda bo'lmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "ploy"
+      ],
+      "text": "The sudden price cut was merely a ploy ___ win back customers.",
+      "options": [
+        "to",
+        "for",
+        "of"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Внезапное снижение цен было всего лишь уловкой, чтобы вернуть покупателей.",
+        "uz": "To'satdan narx tushirish mijozlarni qaytarish uchun shunchaki nayrang edi."
+      },
+      "explanation": {
+        "ru": "a ploy to do something — уловка, чтобы сделать что-то: a ploy to win back customers. Перед глаголом в начальной форме нужно to; for и of с ним невозможны.",
+        "uz": "a ploy to do something — biror ishni qilish uchun nayrang: a ploy to win back customers. Fe'lning lug'aviy shaklidan oldin to kerak; for va of u bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c2-m20-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "orchestrate"
+      ],
+      "prompt": {
+        "ru": "Всю кампанию организовала именно она.",
+        "uz": "Butun kampaniyani aynan u puxta uyushtirgan."
+      },
+      "fragments": [
+        "it",
+        "was",
+        "she",
+        "who",
+        "orchestrated",
+        "the entire campaign"
+      ],
+      "accepted": [
+        [
+          "it",
+          "was",
+          "she",
+          "who",
+          "orchestrated",
+          "the entire campaign"
+        ]
+      ],
+      "display": "It was she who orchestrated the entire campaign.",
+      "explanation": {
+        "ru": "It was … who … — выделение лица, русское «именно». Orchestrate — организовать, срежиссировать (часто за кулисами). It was she — книжный вариант, в разговорной речи It was her.",
+        "uz": "It was … who … — shaxsni ajratib ko'rsatish, o'zbekcha «aynan». Orchestrate — puxta uyushtirmoq (ko'pincha parda ortida). It was she — kitobiy shakl, so'zlashuvda It was her."
+      }
+    },
+    {
+      "key": "c2-m20-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "circumspect"
+      ],
+      "prompt": {
+        "ru": "Дипломатам приходится быть осмотрительными в том, что они говорят.",
+        "uz": "Diplomatlar aytayotgan gaplarida ehtiyotkor bo'lishlari kerak."
+      },
+      "fragments": [
+        "diplomats",
+        "have to",
+        "be",
+        "circumspect",
+        "in",
+        "what",
+        "they say"
+      ],
+      "accepted": [
+        [
+          "diplomats",
+          "have to",
+          "be",
+          "circumspect",
+          "in",
+          "what",
+          "they say"
+        ]
+      ],
+      "display": "Diplomats have to be circumspect in what they say.",
+      "explanation": {
+        "ru": "be circumspect in / about — быть осмотрительным в чём-то. What they say — «то, что они говорят»: придаточное после предлога, с прямым порядком слов.",
+        "uz": "be circumspect in / about — biror narsada ehtiyotkor bo'lmoq. What they say — «ular aytadigan gaplar»: predlogdan keyingi ergash gap, so'z tartibi to'g'ri."
+      }
+    },
+    {
+      "key": "c2-m20-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "concoct"
+      ],
+      "prompt": {
+        "ru": "Отговорка, которую он состряпал, едва ли была убедительной.",
+        "uz": "U to'qib chiqargan bahona unchalik ishonarli emas edi."
+      },
+      "fragments": [
+        "the excuse",
+        "he",
+        "concocted",
+        "was",
+        "hardly",
+        "convincing"
+      ],
+      "accepted": [
+        [
+          "the excuse",
+          "he",
+          "concocted",
+          "was",
+          "hardly",
+          "convincing"
+        ]
+      ],
+      "display": "The excuse he concocted was hardly convincing.",
+      "explanation": {
+        "ru": "the excuse he concocted — «отговорка, которую он состряпал»: that можно опустить. Hardly — «едва ли»; не путать с hard («усердно, тяжело»).",
+        "uz": "the excuse he concocted — «u to'qib chiqargan bahona»: that tushib qolishi mumkin. Hardly — «deyarli … emas»; hard («qattiq, astoydil») bilan adashtirmang."
+      }
+    },
+    {
+      "key": "c2-m20-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "maneuver"
+      ],
+      "text": "It was a clever political maneuver",
+      "accepted": [
+        "It was a clever political maneuver"
+      ],
+      "translation": {
+        "ru": "Это был ловкий политический манёвр",
+        "uz": "Bu epchil siyosiy manyovr edi"
+      },
+      "explanation": {
+        "ru": "maneuver: в середине -eu- (m-a-n-e-u-v-e-r); это американское написание, британское — manoeuvre.",
+        "uz": "maneuver: o'rtasida -eu- (m-a-n-e-u-v-e-r); bu amerikacha yozuv, britaniyachasi — manoeuvre."
+      }
+    },
+    {
+      "key": "c2-m20-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "devise",
+        "cunning"
+      ],
+      "text": "They devised a cunning plan",
+      "accepted": [
+        "They devised a cunning plan"
+      ],
+      "translation": {
+        "ru": "Они придумали хитрый план",
+        "uz": "Ular ayyorona reja o'ylab topishdi"
+      },
+      "explanation": {
+        "ru": "devise (глагол) пишется с s, а device (существительное, «устройство») — с c. Cunning — две n в середине.",
+        "uz": "devise (fe'l) s bilan, device (ot, «qurilma») esa c bilan yoziladi. Cunning — o'rtasida ikkita n."
+      }
+    },
+    {
+      "key": "c2-m20-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "opportunist"
+      ],
+      "text": "Everyone saw him as an opportunist",
+      "accepted": [
+        "Everyone saw him as an opportunist"
+      ],
+      "translation": {
+        "ru": "Все считали его приспособленцем",
+        "uz": "Hamma uni fursatparast deb bilardi"
+      },
+      "explanation": {
+        "ru": "opportunist: две p (o-p-p-o-r-t-u-n-i-s-t).",
+        "uz": "opportunist: ikkita p (o-p-p-o-r-t-u-n-i-s-t)."
+      }
+    }
+  ]
+}

@@ -1,0 +1,1634 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b2",
+  "items": [
+    {
+      "key": "b2-m11-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "abstract"
+      ],
+      "text": "Late in his career, the painter moved from realism to pure ___.",
+      "base": "abstract",
+      "accepted": [
+        "abstraction",
+        "abstractionism",
+        "abstractions"
+      ],
+      "translation": {
+        "ru": "В конце творческого пути художник перешёл от реализма к чистой абстракции.",
+        "uz": "Rassom ijodining so'nggi yillarida realizmdan sof abstraksiyaga o'tdi."
+      },
+      "explanation": {
+        "ru": "from realism to pure ___ — нужно существительное, как realism: abstract → abstraction (абстракция, абстрактное искусство); суффикс -ion. Принимается и abstractionism.",
+        "uz": "from realism to pure ___ — realism kabi ot kerak: abstract → abstraction (abstraksiya, abstrakt san'at); -ion qo'shimchasi. abstractionism ham qabul qilinadi."
+      }
+    },
+    {
+      "key": "b2-m11-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "mural"
+      ],
+      "text": "As a ___, she spends whole months painting a single wall.",
+      "base": "mural",
+      "accepted": [
+        "muralist"
+      ],
+      "translation": {
+        "ru": "Как мастер настенной росписи, она тратит целые месяцы на роспись одной стены.",
+        "uz": "Devoriy rasm ustasi sifatida u bitta devorga rasm ishlash uchun butun-butun oylar sarflaydi."
+      },
+      "explanation": {
+        "ru": "As a ___, she — нужно слово-человек: mural (роспись) → muralist (автор настенных росписей); суффикс -ist, как art → artist.",
+        "uz": "As a ___, she — odamni bildiruvchi so'z kerak: mural (devoriy rasm) → muralist (devoriy rasm ustasi); art → artist kabi -ist qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m11-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "calligraphy"
+      ],
+      "text": "Her grandfather was a skilled ___ who wrote wedding invitations by hand.",
+      "base": "calligraphy",
+      "accepted": [
+        "calligrapher",
+        "calligraphist"
+      ],
+      "translation": {
+        "ru": "Её дедушка был искусным каллиграфом и писал свадебные приглашения от руки.",
+        "uz": "Uning bobosi mohir xattot bo'lib, to'y taklifnomalarini qo'lda yozardi."
+      },
+      "explanation": {
+        "ru": "a skilled ___ who wrote — нужен человек: calligraphy → calligrapher (каллиграф): -y отпадает, добавляется -er, как photography → photographer.",
+        "uz": "a skilled ___ who wrote — odam kerak: calligraphy → calligrapher (xattot): -y tushib qoladi va -er qo'shiladi, photography → photographer kabi."
+      }
+    },
+    {
+      "key": "b2-m11-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "carving"
+      ],
+      "text": "My grandfather earned his living by wood *carve* and pottery.",
+      "options": [
+        "carving",
+        "carved",
+        "carver"
+      ],
+      "correct": [
+        "carving"
+      ],
+      "translation": {
+        "ru": "Мой дедушка зарабатывал на жизнь резьбой по дереву и гончарным делом.",
+        "uz": "Bobom yog'och o'ymakorligi va kulolchilik bilan tirikchilik qilgan."
+      },
+      "explanation": {
+        "ru": "После by нужно существительное — название ремесла, как pottery: wood carving (резьба по дереву). carve — глагол «вырезать», carver — резчик (человек).",
+        "uz": "by predlogidan keyin pottery kabi hunar nomi — ot kerak: wood carving (yog'och o'ymakorligi). carve — «o'ymoq» fe'li, carver esa o'ymakor (odam)."
+      }
+    },
+    {
+      "key": "b2-m11-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "pottery"
+      ],
+      "text": "Every summer my aunt sells her beautiful *potteries* to tourists.",
+      "options": [
+        "pottery",
+        "potters",
+        "potter"
+      ],
+      "correct": [
+        "pottery"
+      ],
+      "translation": {
+        "ru": "Каждое лето моя тётя продаёт туристам свою красивую керамику.",
+        "uz": "Har yozda xolam o'zining chiroyli kulolchilik buyumlarini sayyohlarga sotadi."
+      },
+      "explanation": {
+        "ru": "pottery в значении «керамика, гончарные изделия» неисчисляемое: формы potteries в этом значении нет. potter, potters — гончар, гончары (люди).",
+        "uz": "pottery so'zi «kulolchilik buyumlari» ma'nosida sanalmaydi: bu ma'noda potteries shakli yo'q. potter, potters esa kulol, kulollar (odamlar)."
+      }
+    },
+    {
+      "key": "b2-m11-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "mosaic"
+      ],
+      "text": "Over the centuries, the mosaic has lost many of *it's* tiny stones.",
+      "options": [
+        "its",
+        "their",
+        "it"
+      ],
+      "correct": [
+        "its"
+      ],
+      "translation": {
+        "ru": "За многие века мозаика лишилась многих своих крошечных камешков.",
+        "uz": "Asrlar davomida mozaika o'zining ko'plab mayda toshlarini yo'qotgan."
+      },
+      "explanation": {
+        "ru": "its — притяжательное «её, свой» для предмета, без апострофа; it's = it is или it has. their не подходит: mosaic — единственное число.",
+        "uz": "its — narsaga tegishli «uning» egalik olmoshi, apostrofsiz yoziladi; it's esa it is yoki it has qisqartmasi. mosaic so'zi birlikda, shuning uchun their to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "b2-m11-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "satire"
+      ],
+      "text": "The ___ mocked greedy officials in every story he wrote.",
+      "base": "satire",
+      "accepted": [
+        "satirist"
+      ],
+      "translation": {
+        "ru": "Этот сатирик высмеивал жадных чиновников в каждом своём рассказе.",
+        "uz": "Bu hajvchi yozgan har bir hikoyasida ochko'z amaldorlarni masxara qilgan."
+      },
+      "explanation": {
+        "ru": "Подлежащее — человек (mocked, he wrote): satire (сатира) → satirist (сатирик); суффикс -ist, конечная -e отпадает.",
+        "uz": "Ega — odam (mocked, he wrote): satire (hajv) → satirist (hajvchi); oxirgi -e tushib qoladi va -ist qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m11-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "parody"
+      ],
+      "text": "This famous love scene has been ___ in dozens of comedy shows.",
+      "base": "parody",
+      "accepted": [
+        "parodied"
+      ],
+      "translation": {
+        "ru": "Эту знаменитую любовную сцену пародировали в десятках юмористических шоу.",
+        "uz": "Bu mashhur sevgi sahnasi o'nlab hajviy shoularda parodiya qilingan."
+      },
+      "explanation": {
+        "ru": "has been ___ — пассив, нужна третья форма глагола. parody бывает и глаголом «пародировать»; y после согласной → ied: parodied.",
+        "uz": "has been ___ — majhul nisbat, fe'lning uchinchi shakli kerak. parody so'zi «parodiya qilmoq» fe'li ham bo'ladi; undoshdan keyingi y → ied: parodied."
+      }
+    },
+    {
+      "key": "b2-m11-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "myth"
+      ],
+      "text": "The book is full of ___ creatures, such as giants who live under mountains.",
+      "base": "myth",
+      "accepted": [
+        "mythical",
+        "mythological",
+        "mythic"
+      ],
+      "translation": {
+        "ru": "Книга полна мифических существ, например великанов, живущих под горами.",
+        "uz": "Kitob tog'lar ostida yashovchi devlar kabi afsonaviy maxluqlarga to'la."
+      },
+      "explanation": {
+        "ru": "Перед существительным creatures нужно прилагательное: myth → mythical (мифический); подходят также mythological и mythic.",
+        "uz": "creatures otidan oldin sifat kerak: myth → mythical (afsonaviy); mythological va mythic shakllari ham to'g'ri."
+      }
+    },
+    {
+      "key": "b2-m11-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "prose"
+      ],
+      "text": "Critics admire her clear and simple *proses*.",
+      "options": [
+        "prose",
+        "prosaic",
+        "prosaically"
+      ],
+      "correct": [
+        "prose"
+      ],
+      "translation": {
+        "ru": "Критики восхищаются её ясной и простой прозой.",
+        "uz": "Tanqidchilar uning ravon va sodda nasriga qoyil qolishadi."
+      },
+      "explanation": {
+        "ru": "prose (проза) — неисчисляемое существительное, формы proses нет. prosaic — прилагательное «прозаичный, скучный», prosaically — наречие.",
+        "uz": "prose (nasr) sanalmaydigan ot, proses shakli yo'q. prosaic — «zerikarli, oddiy» ma'nosidagi sifat, prosaically esa ravish."
+      }
+    },
+    {
+      "key": "b2-m11-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "trilogy"
+      ],
+      "text": "The trilogy about three sisters *have* won prizes since it came out.",
+      "options": [
+        "has",
+        "is",
+        "are"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "Трилогия о трёх сёстрах с момента выхода получила уже несколько премий.",
+        "uz": "Uch opa-singil haqidagi trilogiya chiqqanidan beri bir necha mukofot oldi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — The trilogy (ед. ч., его повторяет it), а about three sisters лишь уточняет его, поэтому has won. is и are с won здесь невозможны.",
+        "uz": "Ega — The trilogy (birlik, uni it olmoshi takrorlaydi), about three sisters esa uni faqat aniqlaydi, shuning uchun has won. won bilan is va are bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m11-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "tragedy"
+      ],
+      "text": "The play begins as a comedy but slowly turns into a *tragic*.",
+      "options": [
+        "tragedy",
+        "tragedies",
+        "tragically"
+      ],
+      "correct": [
+        "tragedy"
+      ],
+      "translation": {
+        "ru": "Пьеса начинается как комедия, но постепенно превращается в трагедию.",
+        "uz": "Spektakl komediya sifatida boshlanib, asta-sekin tragediyaga aylanadi."
+      },
+      "explanation": {
+        "ru": "После turns into a нужно существительное в ед. ч., как comedy: tragedy (трагедия). tragic — прилагательное «трагический», tragically — наречие.",
+        "uz": "turns into a dan keyin comedy kabi birlikdagi ot kerak: tragedy (tragediya). tragic — «fojiali» sifati, tragically esa ravish."
+      }
+    },
+    {
+      "key": "b2-m11-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "symbol"
+      ],
+      "text": "In the novel, the clock ___ time and the broken window stands for loss.",
+      "base": "symbol",
+      "accepted": [
+        "symbolizes"
+      ],
+      "translation": {
+        "ru": "В романе часы символизируют время, а разбитое окно — утрату.",
+        "uz": "Romanda soat vaqtni, singan deraza esa yo'qotishni ramziy ifodalaydi."
+      },
+      "explanation": {
+        "ru": "Нужен глагол в настоящем времени, как stands во второй части; clock — 3-е лицо ед. ч.: symbol → symbolize (-ize) → symbolizes.",
+        "uz": "Ikkinchi qismdagi stands kabi hozirgi zamon fe'li kerak; clock — III shaxs birlik: symbol → symbolize (-ize) → symbolizes."
+      }
+    },
+    {
+      "key": "b2-m11-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "irony"
+      ],
+      "text": "The new fire station, ___, was destroyed by a fire last night.",
+      "base": "irony",
+      "accepted": [
+        "ironically"
+      ],
+      "translation": {
+        "ru": "Новое пожарное депо, по иронии судьбы, прошлой ночью уничтожил пожар.",
+        "uz": "Taqdirning kinoyasini qarangki, yangi o't o'chirish deposi kecha tunda yong'indan vayron bo'ldi."
+      },
+      "explanation": {
+        "ru": "Между запятыми нужно наречие, оценивающее всё событие («по иронии судьбы»): irony → ironic → ironically; к -ic добавляется -ally.",
+        "uz": "Vergullar orasida butun voqeaga baho beruvchi ravish kerak («taqdir kinoyasi bilan»): irony → ironic → ironically; -ic dan keyin -ally qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m11-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "metaphor"
+      ],
+      "text": "Many words have both a literal and a ___ meaning.",
+      "base": "metaphor",
+      "accepted": [
+        "metaphorical",
+        "metaphoric"
+      ],
+      "translation": {
+        "ru": "У многих слов есть и прямое, и переносное значение.",
+        "uz": "Ko'p so'zlarning ham to'g'ri, ham ko'chma ma'nosi bor."
+      },
+      "explanation": {
+        "ru": "Между a и meaning нужно прилагательное, как literal: metaphor → metaphorical (метафорический, переносный); допустимо и metaphoric.",
+        "uz": "a va meaning orasida literal kabi sifat kerak: metaphor → metaphorical (ko'chma, metaforik); metaphoric shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "b2-m11-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "rhyme"
+      ],
+      "text": "She could not find a single word that rhymed *to* her name.",
+      "options": [
+        "with",
+        "for",
+        "on"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Она не смогла найти ни одного слова, которое рифмовалось бы с её именем.",
+        "uz": "U o'z ismiga qofiyadosh bo'ladigan birorta ham so'z topa olmadi."
+      },
+      "explanation": {
+        "ru": "rhyme with — рифмоваться с чем-либо: после глагола rhyme ставится with, а не to.",
+        "uz": "rhyme with — biror so'z bilan qofiyadosh bo'lmoq: rhyme fe'lidan keyin to emas, with predlogi keladi."
+      }
+    },
+    {
+      "key": "b2-m11-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "protagonist"
+      ],
+      "text": "The protagonist of both novels *are* a lonely young doctor.",
+      "options": [
+        "is",
+        "were",
+        "been"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Главный герой обоих романов — одинокий молодой врач.",
+        "uz": "Ikkala romanning bosh qahramoni — yolg'iz yosh shifokor."
+      },
+      "explanation": {
+        "ru": "Подлежащее — The protagonist (ед. ч.), of both novels лишь уточняет его; и a lonely young doctor тоже ед. ч. Поэтому is.",
+        "uz": "Ega — The protagonist (birlik), of both novels esa uni faqat aniqlaydi; a lonely young doctor ham birlikda. Shuning uchun is."
+      }
+    },
+    {
+      "key": "b2-m11-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "excerpt"
+      ],
+      "text": "The exam paper included a long *except* from a famous play.",
+      "options": [
+        "excerpt",
+        "exception",
+        "expert"
+      ],
+      "correct": [
+        "excerpt"
+      ],
+      "translation": {
+        "ru": "В экзаменационное задание вошёл длинный отрывок из известной пьесы.",
+        "uz": "Imtihon topshirig'iga mashhur pyesadan olingan uzun parcha kiritilgan edi."
+      },
+      "explanation": {
+        "ru": "excerpt (отрывок) легко спутать с except (кроме) — это предлог, после a long ему не место. Пишется e-x-c-e-r-p-t.",
+        "uz": "excerpt (parcha) so'zini except (-dan tashqari) bilan adashtirish oson, lekin except — predlog, a long dan keyin kelmaydi. Yozilishi: e-x-c-e-r-p-t."
+      }
+    },
+    {
+      "key": "b2-m11-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "choreography"
+      ],
+      "text": "The ___ spent weeks teaching the dancers every step of the new show.",
+      "base": "choreography",
+      "accepted": [
+        "choreographer"
+      ],
+      "translation": {
+        "ru": "Хореограф несколько недель учил танцоров каждому движению нового шоу.",
+        "uz": "Xoreograf raqqoslarga yangi shouning har bir harakatini haftalab o'rgatdi."
+      },
+      "explanation": {
+        "ru": "Учит танцоров человек: choreography → choreographer (хореограф); -y отпадает, добавляется -er, как в photography → photographer.",
+        "uz": "Raqqoslarga odam o'rgatadi: choreography → choreographer (xoreograf); -y tushib qoladi va -er qo'shiladi, photography → photographer kabi."
+      }
+    },
+    {
+      "key": "b2-m11-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "audition"
+      ],
+      "text": "After ___ three times for the same role, he finally got it.",
+      "base": "audition",
+      "accepted": [
+        "auditioning"
+      ],
+      "translation": {
+        "ru": "После трёх проб на одну и ту же роль он наконец её получил.",
+        "uz": "Bir rol uchun uch marta kastingda qatnashgach, u nihoyat o'sha rolni oldi."
+      },
+      "explanation": {
+        "ru": "После предлога After нужен глагол с -ing; three times показывает, что это действие, а не существительное auditions. audition — и глагол «проходить пробы»: auditioning.",
+        "uz": "After predlogidan keyin -ing shaklidagi fe'l kerak; three times birikmasi bu auditions oti emas, harakat ekanini ko'rsatadi. audition so'zi «sinovdan o'tmoq» fe'li ham bo'ladi: auditioning."
+      }
+    },
+    {
+      "key": "b2-m11-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "premiere"
+      ],
+      "text": "The film ___ at a small festival last spring and soon became a hit.",
+      "base": "premiere",
+      "accepted": [
+        "premiered"
+      ],
+      "translation": {
+        "ru": "Премьера фильма прошла прошлой весной на небольшом фестивале, и вскоре он стал хитом.",
+        "uz": "Filmning premyerasi o'tgan bahorda kichik bir festivalda bo'lib o'tdi va u tez orada xitga aylandi."
+      },
+      "explanation": {
+        "ru": "last spring и became требуют прошедшего времени. premiere здесь глагол «впервые показываться»; e на конце уже есть, добавляется -d: premiered.",
+        "uz": "last spring va became o'tgan zamonni talab qiladi. premiere bu yerda «ilk bor namoyish etilmoq» fe'li; oxirida e bor, faqat -d qo'shiladi: premiered."
+      }
+    },
+    {
+      "key": "b2-m11-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "sequel"
+      ],
+      "text": "The sequel *of* this film is even funnier than the original.",
+      "options": [
+        "to",
+        "for",
+        "from"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Продолжение этого фильма даже смешнее, чем первый фильм.",
+        "uz": "Bu filmning davomi birinchi qismidan ham kulgiliroq."
+      },
+      "explanation": {
+        "ru": "a sequel to — продолжение чего-либо: после sequel ставится to. Русское «продолжение фильма» подсказывает of, но это ошибка.",
+        "uz": "a sequel to — biror asarning davomi: sequel so'zidan keyin to predlogi keladi. «filmning davomi» birikmasi of ni eslatadi, lekin bu xato."
+      }
+    },
+    {
+      "key": "b2-m11-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "applause"
+      ],
+      "text": "The actors bowed again and again as the warm *applauses* continued.",
+      "options": [
+        "applause",
+        "applauds",
+        "applaud"
+      ],
+      "correct": [
+        "applause"
+      ],
+      "translation": {
+        "ru": "Актёры кланялись снова и снова, а тёплые аплодисменты всё не стихали.",
+        "uz": "Iliq qarsaklar tinmas, aktyorlar esa qayta-qayta ta'zim qilardi."
+      },
+      "explanation": {
+        "ru": "applause — неисчисляемое существительное, хотя «аплодисменты» по-русски во мн. ч.: формы applauses нет. applaud, applauds — формы глагола.",
+        "uz": "applause — sanalmaydigan ot, garchi «qarsaklar» ko'plikda bo'lsa ham: applauses shakli yo'q. applaud, applauds — fe'l shakllari."
+      }
+    },
+    {
+      "key": "b2-m11-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "playwright"
+      ],
+      "text": "This comedy is the work of a young *playwrite* from the north.",
+      "options": [
+        "playwright",
+        "playwrights",
+        "playwriting"
+      ],
+      "correct": [
+        "playwright"
+      ],
+      "translation": {
+        "ru": "Эта комедия — работа молодого драматурга с севера.",
+        "uz": "Bu komediya shimollik yosh dramaturgning ijodi."
+      },
+      "explanation": {
+        "ru": "playwright пишется с -wright (старое «мастер», как в shipwright), а не с write, хотя драматург пишет пьесы. После a нужно ед. ч.",
+        "uz": "playwright so'zi write bilan emas, -wright bilan yoziladi (eski «usta» so'zi, shipwright dagi kabi), garchi dramaturg pyesa yozsa ham. a dan keyin birlik kerak."
+      }
+    },
+    {
+      "key": "b2-m11-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "authentic"
+      ],
+      "text": "The museum bought the letters without checking their ___ first.",
+      "base": "authentic",
+      "accepted": [
+        "authenticity"
+      ],
+      "translation": {
+        "ru": "Музей купил письма, не проверив сначала их подлинность.",
+        "uz": "Muzey xatlarni avval ularning haqiqiyligini tekshirmasdan sotib oldi."
+      },
+      "explanation": {
+        "ru": "После checking their нужно существительное: authentic → authenticity (подлинность); суффикс -ity, c перед ним сохраняется.",
+        "uz": "checking their dan keyin ot kerak: authentic → authenticity (haqiqiylik, asl ekani); -ity qo'shimchasi, undan oldin c saqlanadi."
+      }
+    },
+    {
+      "key": "b2-m11-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "depict"
+      ],
+      "text": "The film's ___ of family life is honest and detailed.",
+      "base": "depict",
+      "accepted": [
+        "depiction"
+      ],
+      "translation": {
+        "ru": "Изображение семейной жизни в фильме честное и подробное.",
+        "uz": "Filmdagi oila hayoti tasviri haqqoniy va batafsil."
+      },
+      "explanation": {
+        "ru": "После The film's нужно существительное, к нему относится is: depict → depiction (изображение); суффикс -ion.",
+        "uz": "The film's dan keyin ot kerak, is fe'li unga tegishli: depict → depiction (tasvir); -ion qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m11-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "acclaim"
+      ],
+      "text": "This highly ___ director has never studied at a film school.",
+      "base": "acclaim",
+      "accepted": [
+        "acclaimed"
+      ],
+      "translation": {
+        "ru": "Этот режиссёр, получивший широкое признание, никогда не учился в киношколе.",
+        "uz": "Keng e'tirof etilgan bu rejissyor hech qachon kino maktabida o'qimagan."
+      },
+      "explanation": {
+        "ru": "highly ___ перед существительным director — нужно причастие-прилагательное: acclaim (признание) → acclaimed (признанный).",
+        "uz": "director otidan oldin highly bilan sifatdosh kerak: acclaim (e'tirof) → acclaimed (e'tirof etilgan)."
+      }
+    },
+    {
+      "key": "b2-m11-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "striking"
+      ],
+      "text": "The most *struck* thing about this portrait is the soft light.",
+      "options": [
+        "striking",
+        "strike",
+        "stricken"
+      ],
+      "correct": [
+        "striking"
+      ],
+      "translation": {
+        "ru": "Самое поразительное в этом портрете — мягкий свет.",
+        "uz": "Bu portretdagi eng hayratlanarli jihat — mayin yorug'lik."
+      },
+      "explanation": {
+        "ru": "О том, что производит впечатление, говорят -ing: striking (поразительный). struck — «поражённый»: так говорят о том, кого что-то поразило (I was struck by).",
+        "uz": "Taassurot qoldiradigan narsa haqida -ing shakli ishlatiladi: striking (hayratlanarli). struck — «hayratga tushgan»: biror narsadan hayron qolgan kishi haqida (I was struck by)."
+      }
+    },
+    {
+      "key": "b2-m11-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "graceful"
+      ],
+      "text": "Even at seventy, the dancer moves *graceful* across the stage.",
+      "options": [
+        "gracefully",
+        "gracefulness",
+        "grace"
+      ],
+      "correct": [
+        "gracefully"
+      ],
+      "translation": {
+        "ru": "Даже в семьдесят лет танцовщица грациозно двигается по сцене.",
+        "uz": "Yetmish yoshda ham raqqosa sahnada nafis harakatlanadi."
+      },
+      "explanation": {
+        "ru": "moves — глагол действия, его описывает наречие: graceful → gracefully (graceful + -ly, поэтому две l).",
+        "uz": "moves — harakat fe'li, uni ravish izohlaydi: graceful → gracefully (graceful + -ly, shuning uchun ikkita l)."
+      }
+    },
+    {
+      "key": "b2-m11-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "critic"
+      ],
+      "text": "As a film *critique*, she watches about five new films a week.",
+      "options": [
+        "critic",
+        "criticism",
+        "critical"
+      ],
+      "correct": [
+        "critic"
+      ],
+      "translation": {
+        "ru": "Как кинокритик, она смотрит около пяти новых фильмов в неделю.",
+        "uz": "Kino tanqidchisi sifatida u haftasiga beshtacha yangi film ko'radi."
+      },
+      "explanation": {
+        "ru": "As a film ___, she — нужен человек: critic (критик). critique — рецензия, разбор произведения; criticism — критика, неодобрение.",
+        "uz": "As a film ___, she — odam kerak: critic (tanqidchi). critique — taqriz, asar tahlili; criticism esa tanqid, norozilik."
+      }
+    },
+    {
+      "key": "b2-m12-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "curriculum"
+      ],
+      "text": "The two schools have very different ___ for their final year.",
+      "base": "curriculum",
+      "accepted": [
+        "curricula",
+        "curriculums"
+      ],
+      "translation": {
+        "ru": "У этих двух школ очень разные учебные планы для выпускного класса.",
+        "uz": "Bu ikki maktabning bitiruv sinfi uchun o'quv rejalari bir-biridan juda farq qiladi."
+      },
+      "explanation": {
+        "ru": "The two schools ... very different — нужно мн. ч.: curriculum → curricula (латинское -um → -a); допустима и форма curriculums.",
+        "uz": "The two schools ... very different — ko'plik kerak: curriculum → curricula (lotincha -um → -a); curriculums shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "b2-m12-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "module"
+      ],
+      "text": "The course is fully ___, so students can choose which parts to take.",
+      "base": "module",
+      "accepted": [
+        "modular"
+      ],
+      "translation": {
+        "ru": "Курс полностью модульный, поэтому студенты могут выбирать, какие части проходить.",
+        "uz": "Kurs to'liq modulli, shuning uchun talabalar uning qaysi qismlarini o'qishni o'zlari tanlay oladi."
+      },
+      "explanation": {
+        "ru": "После is fully нужно прилагательное: module → modular (модульный); конечная -e отпадает, добавляется -ar.",
+        "uz": "is fully dan keyin sifat kerak: module → modular (modulli); oxirgi -e tushib qoladi va -ar qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m12-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "tutorial"
+      ],
+      "text": "Every week each student attends a one-hour ___ with a small group.",
+      "base": "tutor",
+      "accepted": [
+        "tutorial"
+      ],
+      "translation": {
+        "ru": "Каждую неделю каждый студент посещает часовое занятие в малой группе.",
+        "uz": "Har hafta har bir talaba kichik guruhda bir soatlik mashg'ulotga qatnashadi."
+      },
+      "explanation": {
+        "ru": "После a one-hour нужно существительное — само занятие, а не человек: tutor (наставник) → tutorial (занятие в малой группе); суффикс -ial.",
+        "uz": "a one-hour dan keyin odam emas, mashg'ulotning o'zini bildiruvchi ot kerak: tutor (ustoz) → tutorial (kichik guruhdagi mashg'ulot); -ial qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m12-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "admission"
+      ],
+      "text": "After several attempts, she finally gained admission *in* the medical faculty.",
+      "options": [
+        "to",
+        "on",
+        "for"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "После нескольких попыток её наконец зачислили на медицинский факультет.",
+        "uz": "Bir necha urinishdan so'ng u nihoyat tibbiyot fakultetiga qabul qilindi."
+      },
+      "explanation": {
+        "ru": "admission to — приём, зачисление куда-либо: gain admission to the faculty. Русское «на факультет» не переводится ни через in, ни через on.",
+        "uz": "admission to — biror joyga qabul: gain admission to the faculty. «fakultetga» dagi -ga qo'shimchasi bu yerda ham to predlogiga mos keladi; in va on xato."
+      }
+    },
+    {
+      "key": "b2-m12-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "postgraduate"
+      ],
+      "text": "Every postgraduate in our department *have* to publish an article.",
+      "options": [
+        "has",
+        "are",
+        "were"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "Каждый аспирант нашей кафедры должен опубликовать статью.",
+        "uz": "Kafedramizdagi har bir aspirant maqola chop etishi kerak."
+      },
+      "explanation": {
+        "ru": "После every существительное стоит в ед. ч., и глагол тоже в 3-м лице ед. ч.: Every postgraduate ... has to. in our department не меняет подлежащее, поэтому не are и не were.",
+        "uz": "every so'zidan keyin ot birlikda bo'ladi, fe'l ham III shaxs birlikda: Every postgraduate ... has to. in our department egani o'zgartirmaydi, shuning uchun are ham, were ham emas."
+      }
+    },
+    {
+      "key": "b2-m12-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "B2",
+      "target_words": [
+        "lecturer"
+      ],
+      "text": "Our chemistry *lecture* always answers our emails within a day.",
+      "options": [
+        "lecturer",
+        "lecturing",
+        "lectures"
+      ],
+      "correct": [
+        "lecturer"
+      ],
+      "translation": {
+        "ru": "Наш преподаватель химии всегда отвечает на наши письма в течение дня.",
+        "uz": "Kimyo o'qituvchimiz xatlarimizga doim bir kun ichida javob beradi."
+      },
+      "explanation": {
+        "ru": "Отвечает на письма человек: lecturer (преподаватель вуза). lecture — сама лекция; lectures не подходит и по числу (answers).",
+        "uz": "Xatlarga odam javob beradi: lecturer (universitet o'qituvchisi). lecture — ma'ruzaning o'zi; lectures esa son jihatidan ham to'g'ri kelmaydi (answers)."
+      }
+    },
+    {
+      "key": "b2-m12-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "criterion"
+      ],
+      "text": "The judges used three ___ to choose the best essay.",
+      "base": "criterion",
+      "accepted": [
+        "criteria"
+      ],
+      "translation": {
+        "ru": "Чтобы выбрать лучшее эссе, жюри использовало три критерия.",
+        "uz": "Hakamlar eng yaxshi inshoni tanlash uchun uchta mezondan foydalandi."
+      },
+      "explanation": {
+        "ru": "После three нужно мн. ч.: criterion → criteria (греческое -on → -a). Форма criterias — ошибка.",
+        "uz": "three dan keyin ko'plik kerak: criterion → criteria (yunoncha -on → -a). criterias shakli xato."
+      }
+    },
+    {
+      "key": "b2-m12-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "literacy"
+      ],
+      "text": "In some remote villages, ___ is still common: many adults cannot read.",
+      "base": "literacy",
+      "accepted": [
+        "illiteracy"
+      ],
+      "translation": {
+        "ru": "В некоторых отдалённых сёлах неграмотность всё ещё обычное дело: многие взрослые не умеют читать.",
+        "uz": "Ba'zi chekka qishloqlarda savodsizlik hali ham keng tarqalgan: ko'p kattalar o'qishni bilmaydi."
+      },
+      "explanation": {
+        "ru": "Вторая часть (many adults cannot read) требует противоположного смысла: literacy → illiteracy (неграмотность); перед l приставка il-, поэтому две l.",
+        "uz": "Ikkinchi qism (many adults cannot read) teskari ma'noni talab qiladi: literacy → illiteracy (savodsizlik); l dan oldin il- old qo'shimchasi, shuning uchun ikkita l."
+      }
+    },
+    {
+      "key": "b2-m12-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "plagiarism"
+      ],
+      "text": "The student was accused of ___ a famous article.",
+      "base": "plagiarism",
+      "accepted": [
+        "plagiarizing",
+        "plagiarising"
+      ],
+      "translation": {
+        "ru": "Студента обвинили в плагиате известной статьи.",
+        "uz": "Talaba mashhur maqolani ko'chirib, o'ziniki qilib ko'rsatganlikda ayblandi."
+      },
+      "explanation": {
+        "ru": "После предлога of нужен глагол с -ing, ведь дальше идёт дополнение a famous article: plagiarism → plagiarize (-ize) → plagiarizing.",
+        "uz": "of predlogidan keyin -ing shaklidagi fe'l kerak, chunki undan keyin a famous article to'ldiruvchisi keladi: plagiarism → plagiarize (-ize) → plagiarizing."
+      }
+    },
+    {
+      "key": "b2-m12-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "proficiency"
+      ],
+      "text": "All foreign applicants need a certificate of proficiency *of* English.",
+      "options": [
+        "in",
+        "on",
+        "to"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Всем иностранным абитуриентам нужен сертификат о владении английским языком.",
+        "uz": "Barcha xorijlik abituriyentlarga ingliz tilini bilish darajasini tasdiqlovchi sertifikat kerak."
+      },
+      "explanation": {
+        "ru": "proficiency in — владение чем-либо: после proficiency ставится in (a certificate of proficiency in English). Русское «владение английским» подсказывает of, но это ошибка.",
+        "uz": "proficiency in — biror narsani bilish darajasi: proficiency so'zidan keyin of emas, in predlogi keladi (a certificate of proficiency in English)."
+      }
+    },
+    {
+      "key": "b2-m12-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "aptitude"
+      ],
+      "text": "An *attitude* test showed that she has a gift for languages.",
+      "options": [
+        "aptitude",
+        "altitude",
+        "aptness"
+      ],
+      "correct": [
+        "aptitude"
+      ],
+      "translation": {
+        "ru": "Тест на способности показал, что у неё талант к языкам.",
+        "uz": "Qobiliyat testi uning tillarga iqtidori borligini ko'rsatdi."
+      },
+      "explanation": {
+        "ru": "Талант выявляет aptitude test — тест на способности (aptitude — способность, склонность). attitude — отношение, позиция: слова похожи, но значения разные.",
+        "uz": "Iqtidorni aptitude test — qobiliyat testi aniqlaydi (aptitude — qobiliyat, layoqat). attitude esa munosabat, nuqtayi nazar: so'zlar o'xshash, ammo ma'nolari boshqa."
+      }
+    },
+    {
+      "key": "b2-m12-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "evaluate"
+      ],
+      "text": "Every essay must *evaluate* by two different teachers.",
+      "options": [
+        "be evaluated",
+        "be evaluating",
+        "have evaluated"
+      ],
+      "correct": [
+        "be evaluated"
+      ],
+      "translation": {
+        "ru": "Каждое эссе должны оценить два разных преподавателя.",
+        "uz": "Har bir insho ikki xil o'qituvchi tomonidan baholanishi kerak."
+      },
+      "explanation": {
+        "ru": "Эссе не оценивает само — его оценивают (by two different teachers): пассив после модального глагола must + be + evaluated.",
+        "uz": "Insho o'zi baholamaydi, uni baholashadi (by two different teachers): modal fe'ldan keyin majhul nisbat: must + be + evaluated."
+      }
+    },
+    {
+      "key": "b2-m12-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "infer"
+      ],
+      "text": "From the dirty boots, the detective drew a clever ___.",
+      "base": "infer",
+      "accepted": [
+        "inference"
+      ],
+      "translation": {
+        "ru": "По грязным ботинкам сыщик сделал остроумный вывод.",
+        "uz": "Iflos etiklarga qarab, detektiv aqlli xulosa chiqardi."
+      },
+      "explanation": {
+        "ru": "После a clever нужно существительное: infer → inference (вывод); суффикс -ence, r не удваивается (в отличие от inferred).",
+        "uz": "a clever dan keyin ot kerak: infer → inference (xulosa); -ence qo'shimchasi, r ikkilanmaydi (inferred dan farqli)."
+      }
+    },
+    {
+      "key": "b2-m12-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "intellectual"
+      ],
+      "text": "This job is ___ demanding but physically easy.",
+      "base": "intellectual",
+      "accepted": [
+        "intellectually"
+      ],
+      "translation": {
+        "ru": "Эта работа требует большого умственного напряжения, но физически лёгкая.",
+        "uz": "Bu ish aqliy jihatdan og'ir, ammo jismonan yengil."
+      },
+      "explanation": {
+        "ru": "Прилагательное demanding описывает наречие, как physically описывает easy: intellectual → intellectually (-ly, поэтому две l).",
+        "uz": "demanding sifatini ravish izohlaydi, xuddi physically so'zi easy ni izohlagani kabi: intellectual → intellectually (-ly, shuning uchun ikkita l)."
+      }
+    },
+    {
+      "key": "b2-m12-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "wisdom"
+      ],
+      "text": "My grandmother's ___ helped our family through many hard years.",
+      "base": "wise",
+      "accepted": [
+        "wisdom"
+      ],
+      "translation": {
+        "ru": "Мудрость моей бабушки помогла нашей семье пережить много трудных лет.",
+        "uz": "Buvimning donoligi oilamizga ko'p og'ir yillarni yengib o'tishga yordam berdi."
+      },
+      "explanation": {
+        "ru": "После grandmother's нужно существительное: wise → wisdom (мудрость); конечная -e отпадает, суффикс -dom.",
+        "uz": "grandmother's dan keyin ot kerak: wise → wisdom (donolik); oxirgi -e tushib qoladi, -dom qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m12-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "logical"
+      ],
+      "text": "Your explanation sounds *logically*, but the numbers do not support it.",
+      "options": [
+        "logical",
+        "logic",
+        "logician"
+      ],
+      "correct": [
+        "logical"
+      ],
+      "translation": {
+        "ru": "Ваше объяснение звучит логично, но цифры его не подтверждают.",
+        "uz": "Tushuntirishingiz mantiqiy tuyuladi, ammo raqamlar buni tasdiqlamaydi."
+      },
+      "explanation": {
+        "ru": "sound (звучать, казаться) — глагол-связка, после него прилагательное, а не наречие: sounds logical. Русское «звучит логично» толкает к -ly.",
+        "uz": "sound (tuyulmoq) — bog'lovchi fe'l, undan keyin ravish emas, sifat keladi: sounds logical."
+      }
+    },
+    {
+      "key": "b2-m12-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "rational"
+      ],
+      "text": "We need a calm, *rationale* solution to this problem.",
+      "options": [
+        "rational",
+        "rationally",
+        "rationality"
+      ],
+      "correct": [
+        "rational"
+      ],
+      "translation": {
+        "ru": "Нам нужно спокойное, разумное решение этой проблемы.",
+        "uz": "Bu muammoga xotirjam va oqilona yechim kerak."
+      },
+      "explanation": {
+        "ru": "Перед solution, как и calm, нужно прилагательное: rational (разумный). rationale — существительное «обоснование», оно пишется с -e на конце.",
+        "uz": "solution otidan oldin, calm kabi, sifat kerak: rational (oqilona). rationale — «asos, sabab» ma'nosidagi ot, oxirida -e bilan yoziladi."
+      }
+    },
+    {
+      "key": "b2-m12-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "curiosity"
+      ],
+      "text": "Her endless *curious* about other cultures makes her a great traveler.",
+      "options": [
+        "curiosity",
+        "curiously",
+        "curiosities"
+      ],
+      "correct": [
+        "curiosity"
+      ],
+      "translation": {
+        "ru": "Неутолимое любопытство к другим культурам делает её прекрасной путешественницей.",
+        "uz": "Boshqa madaniyatlarga cheksiz qiziquvchanligi uni ajoyib sayyohga aylantiradi."
+      },
+      "explanation": {
+        "ru": "После Her endless нужно существительное в ед. ч. (makes): curiosity (любознательность); u из curious выпадает. curious — прилагательное.",
+        "uz": "Her endless dan keyin birlikdagi ot kerak (makes): curiosity (qiziquvchanlik); curious dagi u tushib qoladi. curious — sifat."
+      }
+    },
+    {
+      "key": "b2-m12-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "ignorance"
+      ],
+      "text": "Many tourists are completely ___ of the local customs.",
+      "base": "ignorance",
+      "accepted": [
+        "ignorant"
+      ],
+      "translation": {
+        "ru": "Многие туристы совершенно не знают местных обычаев.",
+        "uz": "Ko'p sayyohlar mahalliy urf-odatlardan mutlaqo bexabar."
+      },
+      "explanation": {
+        "ru": "После are completely нужно прилагательное: ignorance → ignorant (несведущий); -ance → -ant. ignorant of — не знающий чего-либо.",
+        "uz": "are completely dan keyin sifat kerak: ignorance → ignorant (bexabar); -ance → -ant. ignorant of — biror narsadan bexabar."
+      }
+    },
+    {
+      "key": "b2-m12-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "insight"
+      ],
+      "text": "Her comments on my essay were short but very ___.",
+      "base": "insight",
+      "accepted": [
+        "insightful"
+      ],
+      "translation": {
+        "ru": "Её замечания к моему эссе были краткими, но очень глубокими.",
+        "uz": "Uning inshoyimga bildirgan fikrlari qisqa, ammo juda teran edi."
+      },
+      "explanation": {
+        "ru": "После very нужно прилагательное, как short: insight → insightful (глубокий, проницательный); суффикс -ful пишется с одной l.",
+        "uz": "very dan keyin short kabi sifat kerak: insight → insightful (teran, chuqur); -ful qo'shimchasi bitta l bilan yoziladi."
+      }
+    },
+    {
+      "key": "b2-m12-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "concept"
+      ],
+      "text": "The difference between the two theories is ___, not practical.",
+      "base": "concept",
+      "accepted": [
+        "conceptual"
+      ],
+      "translation": {
+        "ru": "Разница между двумя теориями концептуальная, а не практическая.",
+        "uz": "Ikki nazariya o'rtasidagi farq amaliy emas, balki konseptual."
+      },
+      "explanation": {
+        "ru": "Нужно прилагательное, как practical: concept → conceptual (концептуальный, понятийный); суффикс -ual.",
+        "uz": "practical kabi sifat kerak: concept → conceptual (konseptual, tushunchaga oid); -ual qo'shimchasi."
+      }
+    },
+    {
+      "key": "b2-m12-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "principle"
+      ],
+      "text": "Honesty is the first *principal* of good journalism.",
+      "options": [
+        "principle",
+        "principally",
+        "principled"
+      ],
+      "correct": [
+        "principle"
+      ],
+      "translation": {
+        "ru": "Честность — первый принцип хорошей журналистики.",
+        "uz": "Halollik — yaxshi jurnalistikaning birinchi tamoyili."
+      },
+      "explanation": {
+        "ru": "principle — принцип. principal звучит так же, но значит «главный» или «директор школы». principled — «принципиальный», principally — «главным образом».",
+        "uz": "principle — tamoyil. principal xuddi shunday talaffuz qilinadi, lekin «asosiy» yoki «maktab direktori» degani. principled — «printsipial», principally — «asosan»."
+      }
+    },
+    {
+      "key": "b2-m12-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "notion"
+      ],
+      "text": "Scientists have long rejected the notion *what* intelligence never changes.",
+      "options": [
+        "that",
+        "which",
+        "whose"
+      ],
+      "correct": [
+        "that"
+      ],
+      "translation": {
+        "ru": "Учёные давно отвергли представление о том, что интеллект никогда не меняется.",
+        "uz": "Olimlar aql hech qachon o'zgarmaydi degan tasavvurni allaqachon rad etgan."
+      },
+      "explanation": {
+        "ru": "Содержание notion раскрывает придаточное с союзом that: the notion that... Русское «о том, что» не переводится через what.",
+        "uz": "notion so'zining mazmunini that bog'lovchili ergash gap ochib beradi: the notion that... «degan» ma'nosida what ishlatilmaydi."
+      }
+    },
+    {
+      "key": "b2-m12-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "comprehension"
+      ],
+      "text": "The children's *comprehensive* of such a difficult poem surprised their teacher.",
+      "options": [
+        "comprehension",
+        "comprehend",
+        "comprehensively"
+      ],
+      "correct": [
+        "comprehension"
+      ],
+      "translation": {
+        "ru": "Учителя удивило, как хорошо дети поняли такое трудное стихотворение.",
+        "uz": "Bolalarning bunday murakkab she'rni tushunganidan o'qituvchi hayron qoldi."
+      },
+      "explanation": {
+        "ru": "После children's и перед of нужно существительное: comprehension (понимание). comprehensive — прилагательное «всесторонний», comprehend — глагол.",
+        "uz": "children's dan keyin va of dan oldin ot kerak: comprehension (tushunish). comprehensive — «har tomonlama» sifati, comprehend esa fe'l."
+      }
+    },
+    {
+      "key": "b2-m12-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "summarize"
+      ],
+      "text": "Our manager asked me to ___ the long report on one page.",
+      "base": "summary",
+      "accepted": [
+        "summarize"
+      ],
+      "translation": {
+        "ru": "Руководитель попросил меня кратко изложить длинный отчёт на одной странице.",
+        "uz": "Rahbar mendan uzun hisobotni bir sahifada qisqacha bayon qilib berishimni so'radi."
+      },
+      "explanation": {
+        "ru": "После asked me to нужен глагол в начальной форме: summary (краткое изложение) → summarize (кратко излагать); -y отпадает, добавляется -ize.",
+        "uz": "asked me to dan keyin fe'lning noaniq shakli kerak: summary (qisqacha bayon) → summarize (qisqacha bayon qilmoq); -y tushib qoladi, -ize qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m12-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "skim"
+      ],
+      "text": "I have only ___ the article, so I cannot answer detailed questions about it.",
+      "base": "skim",
+      "accepted": [
+        "skimmed"
+      ],
+      "translation": {
+        "ru": "Я только бегло просмотрел статью, поэтому не могу ответить на подробные вопросы о ней.",
+        "uz": "Maqolaga faqat ko'z yugurtirib chiqdim, shuning uchun u haqidagi batafsil savollarga javob bera olmayman."
+      },
+      "explanation": {
+        "ru": "have only ___ — Present Perfect, нужна третья форма: skim → skimmed; после краткой ударной гласной конечная m удваивается.",
+        "uz": "have only ___ — Present Perfect, fe'lning uchinchi shakli kerak: skim → skimmed; qisqa urg'uli unlidan keyin oxirgi m ikkilanadi."
+      }
+    },
+    {
+      "key": "b2-m12-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "compile"
+      ],
+      "text": "This album is a ___ of her best songs from the last ten years.",
+      "base": "compile",
+      "accepted": [
+        "compilation"
+      ],
+      "translation": {
+        "ru": "Этот альбом — сборник её лучших песен за последние десять лет.",
+        "uz": "Bu albom uning so'nggi o'n yildagi eng yaxshi qo'shiqlari to'plami."
+      },
+      "explanation": {
+        "ru": "После a нужно существительное: compile → compilation (сборник); конечная -e отпадает, добавляется -ation.",
+        "uz": "a dan keyin ot kerak: compile → compilation (to'plam); oxirgi -e tushib qoladi, -ation qo'shiladi."
+      }
+    },
+    {
+      "key": "b2-m12-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "proofread"
+      ],
+      "text": "I *proofreaded* the letter twice, but I still missed one mistake.",
+      "options": [
+        "proofread",
+        "proofreads",
+        "proofreading"
+      ],
+      "correct": [
+        "proofread"
+      ],
+      "translation": {
+        "ru": "Я дважды вычитал письмо, но всё равно пропустил одну ошибку.",
+        "uz": "Xatni ikki marta tekshirib o'qib chiqdim, lekin baribir bitta xatoni o'tkazib yubordim."
+      },
+      "explanation": {
+        "ru": "proofread образован от read, поэтому формы те же: proofread — proofread — proofread (в прошедшем читается [red]). Формы proofreaded нет.",
+        "uz": "proofread fe'li read dan yasalgan, shuning uchun shakllari bir xil: proofread — proofread — proofread (o'tgan zamonda [red] deb o'qiladi). proofreaded shakli yo'q."
+      }
+    },
+    {
+      "key": "b2-m12-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "brainstorm"
+      ],
+      "text": "We look forward to *brainstorm* ideas with your team next week.",
+      "options": [
+        "brainstorming",
+        "brainstormed",
+        "brainstorms"
+      ],
+      "correct": [
+        "brainstorming"
+      ],
+      "translation": {
+        "ru": "Мы с нетерпением ждём возможности провести мозговой штурм с вашей командой на следующей неделе.",
+        "uz": "Kelasi hafta jamoangiz bilan aqliy hujum o'tkazishni intiqlik bilan kutyapmiz."
+      },
+      "explanation": {
+        "ru": "В look forward to слово to — предлог, а не частица инфинитива, поэтому после него глагол с -ing: brainstorming.",
+        "uz": "look forward to dagi to — infinitiv yuklamasi emas, predlog, shuning uchun undan keyin -ing shaklidagi fe'l keladi: brainstorming."
+      }
+    },
+    {
+      "key": "b2-m12-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "draft"
+      ],
+      "text": "Such an important letter should *draft* very carefully.",
+      "options": [
+        "be drafted",
+        "be drafting",
+        "have drafted"
+      ],
+      "correct": [
+        "be drafted"
+      ],
+      "translation": {
+        "ru": "Черновик такого важного письма нужно писать очень тщательно.",
+        "uz": "Bunday muhim xatning qoralamasi juda puxta yozilishi kerak."
+      },
+      "explanation": {
+        "ru": "Письмо не пишет само себя — его пишут: пассив после модального глагола should + be + drafted.",
+        "uz": "Xat o'zini o'zi yozmaydi, uni yozishadi: modal fe'ldan keyin majhul nisbat: should + be + drafted."
+      }
+    }
+  ]
+}

@@ -43,6 +43,10 @@ export function shownCorrect(element: PracticeElement, correct: BattleReveal['co
       })
       return { text: null, pairs }
     }
+    // Solo only (never a format of a battle): nothing to say if a round ever brought one.
+    case 'word_form':
+    case 'error_hunt':
+      return { text: null, pairs: [] }
   }
 }
 
@@ -66,5 +70,8 @@ export function shownAnswer(element: PracticeElement, answer: Record<string, unk
       const right = Object.entries(given).filter(([left, match]) => correct.pairs?.[left] === match).length
       return { text: null, pairs: { right, total: element.left.length } }
     }
+    case 'word_form':
+    case 'error_hunt':
+      return { text: null }
   }
 }

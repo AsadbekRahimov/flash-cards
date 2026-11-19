@@ -10,7 +10,7 @@ import { showErrorToast } from '@/composables/errorToast'
 import { useBillingStore } from '@/stores/billing'
 import { usePracticeStore } from '@/stores/practice'
 import { activeSession, freeLimits, hub, inHours, limitDetails, session } from '@/api/__tests__/practiceFixtures'
-import type { BattleListResponse, FriendsResponse, PracticeHubResponse } from '@/api/types'
+import type { BattleListResponse, FriendsResponse, PracticeHubResponse, PracticeMode, PracticeModeInfo } from '@/api/types'
 
 vi.mock('@/api', () => ({
   api: {
@@ -901,14 +901,23 @@ describe('PracticeHubView — Pro', () => {
 describe('PracticeHubView — short of material: no tasks, and tasks that wait for the words', () => {
   // The server tells `no_items` (there are no tasks for the topic: nothing to learn will change it) from `items_locked` (the tasks are
   // there and open when the words of the lesson are met). The hub does not promise what will not come, and offers learning where it helps.
-  it('says in a lesson that there are no tasks, with no promise and no "Learn the lesson"', async () => {
-    const { wrapper } = await render({}, hub({ modes: { collocation: { state: 'not_enough', available: 0, reason: 'no_items' } } }))
+  // A mode with no task for the topic at all is not shown (DESIGN newtypes §5, §8.4, owner question 1): a card that never opens is noise.
+  // With a task or two already there (`available > 0`) it stays and says "few" (below).
+  it('hides the card of a mode that has no task for the topic at all, in a lesson and in a course', async () => {
+    const lesson = await render({}, hub({ modes: { collocation: { state: 'not_enough', available: 0, reason: 'no_items' } } }))
+    expect(lesson.wrapper.find('[data-testid=mode-card-collocation]').exists()).toBe(false)
+    expect(lesson.wrapper.find('[data-testid=mode-card-pairs]').exists()).toBe(true)
+    expect(lesson.wrapper.text()).not.toContain('Для этой темы заданий пока нет.')
+    lesson.wrapper.unmount()
 
-    const collocation = card(wrapper, 'collocation')
-    expect(collocation.get('[data-testid=mode-reason]').text()).toBe('Для этой темы заданий пока нет.')
-    expect(collocation.find('[data-testid=mode-learn-collocation]').exists()).toBe(false)
-    expect(collocation.text()).not.toContain('Учить урок')
-    wrapper.unmount()
+    const course = await render(
+      { lessonId: null },
+      hub({ lesson: null, modes: { collocation: { state: 'not_enough', available: 0, reason: 'no_items' }, sentence: { state: 'not_enough', available: 0, reason: 'items_locked' } } }),
+    )
+    expect(course.wrapper.find('[data-testid=mode-card-collocation]').exists()).toBe(false)
+    // Tasks that wait for the words are there: that card stays, with its way to them.
+    expect(card(course.wrapper, 'sentence').get('[data-testid=mode-reason]').text()).toBe('Выучите слова уроков — задания откроются.')
+    course.wrapper.unmount()
   })
 
   it('says in a lesson that the tasks open with its words, and offers "Learn the lesson" - which starts the lesson', async () => {
@@ -1781,6 +1790,77 @@ describe('PracticeHubView — one kind of limit without a counter (null inside t
 
     expect(wrapper.get('[data-testid=paywall]').attributes('data-kind')).toBe('sessions')
     expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 0 из 2')
+    wrapper.unmount()
+  })
+})
+
+describe('PracticeHubView — the newer modes, and modes this build does not know', () => {
+  const info = (mode: string, overrides: Partial<PracticeModeInfo> = {}): PracticeModeInfo => ({
+    mode: mode as PracticeMode,
+    state: 'available',
+    available: 3,
+    required: 3,
+    reason: null,
+    estimate_seconds: 120,
+    ...overrides,
+  })
+
+  it('draws "Word form" and "Error hunt" with their icons, and opens them', async () => {
+    vi.mocked(api.practice.open).mockResolvedValue(session({ id: 91, mode: 'error_hunt' }))
+    const { wrapper, router } = await render({}, hub({ modes: [info('pairs'), info('word_form'), info('error_hunt', { estimate_seconds: 150 })] }))
+
+    expect(card(wrapper, 'word_form').get('[data-testid=mode-title]').text()).toBe('Форма слова')
+    expect(card(wrapper, 'word_form').get('[data-testid=mode-example]').text()).toBe('decide → decision')
+    expect(card(wrapper, 'word_form').get('.icon-tile').classes()).toContain('tile-green')
+    expect(card(wrapper, 'error_hunt').get('[data-testid=mode-title]').text()).toBe('Найди ошибку')
+    expect(card(wrapper, 'error_hunt').get('.icon-tile').classes()).toContain('tile-red')
+
+    await card(wrapper, 'error_hunt').trigger('click')
+    await flushPromises()
+    expect(api.practice.open).toHaveBeenCalledWith(expect.objectContaining({ mode: 'error_hunt', course: 'english-a1', lesson_id: 41 }))
+    expect(router.currentRoute.value.name).toBe('practice-session')
+    wrapper.unmount()
+  })
+
+  it('drops a card of a mode it does not know instead of failing, and draws the rest', async () => {
+    const { wrapper } = await render({}, hub({ modes: [info('pairs'), info('speed_round'), info('word_form')] }))
+
+    expect(wrapper.find('[data-testid=error]').exists()).toBe(false)
+    const cards = wrapper.findAll('[data-testid^=mode-card-]').map((node) => node.attributes('data-testid'))
+    expect(cards).toEqual(['mode-card-pairs', 'mode-card-word_form'])
+    wrapper.unmount()
+  })
+
+  it('leaves out the "Continue" card of a session of a mode it does not know', async () => {
+    const { wrapper } = await render({}, hub({ modes: [info('pairs')], active_session: activeSession({ mode: 'speed_round' as PracticeMode }) }))
+
+    expect(wrapper.find('[data-testid=continue-card]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=mode-card-pairs]').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('hides a new mode with no tasks yet, keeps one with a few', async () => {
+    const { wrapper } = await render(
+      {},
+      hub({
+        modes: [
+          info('word_form', { state: 'not_enough', available: 0, reason: 'no_items' }),
+          info('error_hunt', { state: 'not_enough', available: 2, reason: 'no_items' }),
+        ],
+      }),
+    )
+
+    expect(wrapper.find('[data-testid=mode-card-word_form]').exists()).toBe(false)
+    expect(card(wrapper, 'error_hunt').get('[data-testid=mode-reason]').text()).toBe('Заданий пока мало: 2 из 3.')
+    wrapper.unmount()
+  })
+
+  it('names the new modes in Uzbek', async () => {
+    setLocale('uz')
+    const { wrapper } = await render({}, hub({ modes: [info('word_form'), info('error_hunt')] }))
+
+    expect(card(wrapper, 'word_form').get('[data-testid=mode-title]').text()).toBe("So'z shakli")
+    expect(card(wrapper, 'error_hunt').get('[data-testid=mode-title]').text()).toBe('Xatoni toping')
     wrapper.unmount()
   })
 })

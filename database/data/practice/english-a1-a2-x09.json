@@ -1,0 +1,1628 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-a1-a2",
+  "items": [
+    {
+      "key": "a1a2-m17-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "lend"
+      ],
+      "text": "Last month the bank ___ us money for a new car.",
+      "base": "lend",
+      "accepted": [
+        "lent"
+      ],
+      "translation": {
+        "ru": "В прошлом месяце банк одолжил нам деньги на новую машину.",
+        "uz": "O'tgan oy bank bizga yangi mashina uchun qarz berdi."
+      },
+      "explanation": {
+        "ru": "Last month требует прошедшего времени. Lend — неправильный глагол: lend → lent (не lended).",
+        "uz": "Last month o'tgan zamonni talab qiladi. Lend — noto'g'ri fe'l: lend → lent (lended emas)."
+      }
+    },
+    {
+      "key": "a1a2-m17-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "withdraw"
+      ],
+      "text": "I have already ___ all my savings from that old account.",
+      "base": "withdraw",
+      "accepted": [
+        "withdrawn"
+      ],
+      "translation": {
+        "ru": "Я уже снял все свои сбережения с того старого счёта.",
+        "uz": "Men o'sha eski hisob raqamimdagi barcha jamg'armamni allaqachon yechib oldim."
+      },
+      "explanation": {
+        "ru": "После have нужна третья форма глагола (present perfect). Withdraw — неправильный глагол: withdraw → withdrew → withdrawn.",
+        "uz": "Have so'zidan keyin fe'lning uchinchi shakli keladi (present perfect). Withdraw — noto'g'ri fe'l: withdraw → withdrew → withdrawn."
+      }
+    },
+    {
+      "key": "a1a2-m17-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "tax"
+      ],
+      "text": "The ___ on cars and houses are very high in our country.",
+      "base": "tax",
+      "accepted": [
+        "taxes"
+      ],
+      "translation": {
+        "ru": "Налоги на машины и дома в нашей стране очень высокие.",
+        "uz": "Mamlakatimizda mashina va uylarga solinadigan soliqlar juda yuqori."
+      },
+      "explanation": {
+        "ru": "Глагол are показывает, что подлежащее во множественном числе. После x окончание -es: tax → taxes.",
+        "uz": "Are fe'li eganing ko'plikda ekanini ko'rsatadi. x harfidan keyin -es qo'shiladi: tax → taxes."
+      }
+    },
+    {
+      "key": "a1a2-m17-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "borrow"
+      ],
+      "text": "I had no cash, so I *lent* some from friends.",
+      "options": [
+        "borrowed",
+        "borrow",
+        "lend"
+      ],
+      "correct": [
+        "borrowed"
+      ],
+      "translation": {
+        "ru": "У меня не было наличных, поэтому я занял немного у друзей.",
+        "uz": "Menda naqd pul yo'q edi, shuning uchun do'stlarimdan biroz qarz oldim."
+      },
+      "explanation": {
+        "ru": "Взять в долг у кого-то — borrow from: borrowed some from friends. Lend (lent) значит «дать в долг», с ним говорят lend to.",
+        "uz": "Kimdandir qarz olmoq — borrow from: borrowed some from friends. Lend (lent) esa «qarz bermoq», u bilan lend to ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m17-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "cash"
+      ],
+      "text": "I never carry much *cashes* in my wallet.",
+      "options": [
+        "cash",
+        "coins",
+        "cashier"
+      ],
+      "correct": [
+        "cash"
+      ],
+      "translation": {
+        "ru": "Я никогда не ношу в кошельке много наличных.",
+        "uz": "Men hamyonimda hech qachon ko'p naqd pul olib yurmayman."
+      },
+      "explanation": {
+        "ru": "Cash — неисчисляемое существительное: формы cashes у него нет, а much ставят только с неисчисляемыми (поэтому и не coins). Русское «наличные» — множественное число, а cash — нет.",
+        "uz": "Cash — sanalmaydigan ot: uning cashes shakli yo'q, much ham faqat sanalmaydigan otlar bilan keladi. Coins sanaladigan, u bilan much ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m17-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "credit"
+      ],
+      "text": "We bought our new fridge *in* credit, not with cash.",
+      "options": [
+        "on",
+        "by",
+        "at"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Мы купили новый холодильник в кредит, а не за наличные.",
+        "uz": "Yangi muzlatkichimizni naqd pulga emas, kreditga sotib oldik."
+      },
+      "explanation": {
+        "ru": "Купить в кредит — buy on credit, только с предлогом on. Русское «в кредит» здесь не in.",
+        "uz": "Kreditga sotib olmoq — buy on credit, faqat on predlogi bilan. In, by yoki at bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m17-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "tailor"
+      ],
+      "text": "The old ___ eyes are bad, but he still makes suits.",
+      "base": "tailor",
+      "accepted": [
+        "tailor's"
+      ],
+      "translation": {
+        "ru": "У старого портного плохое зрение, но он всё ещё шьёт костюмы.",
+        "uz": "Keksa tikuvchining ko'zlari yaxshi ko'rmaydi, lekin u hali ham kostyum tikadi."
+      },
+      "explanation": {
+        "ru": "Чьи глаза? — портного: принадлежность передаёт 's: tailor → tailor's. Портной один (he), поэтому не tailors'.",
+        "uz": "Kimning ko'zlari? — tikuvchining: egalik 's bilan beriladi: tailor → tailor's. Tikuvchi bitta (he), shuning uchun tailors' emas."
+      }
+    },
+    {
+      "key": "a1a2-m17-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "queue"
+      ],
+      "text": "We spent an hour ___ for tickets at the station.",
+      "base": "queue",
+      "accepted": [
+        "queuing",
+        "queueing"
+      ],
+      "translation": {
+        "ru": "Мы целый час простояли в очереди за билетами на вокзале.",
+        "uz": "Vokzalda chipta olish uchun bir soat navbatda turdik."
+      },
+      "explanation": {
+        "ru": "После spent an hour (провести час) глагол стоит с -ing. Обычно конечное e отбрасывают: queue → queuing; форма queueing тоже верна.",
+        "uz": "Spent an hour (bir soat o'tkazmoq) iborasidan keyin fe'l -ing bilan keladi. Odatda oxirgi e tushib qoladi: queue → queuing; queueing shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "a1a2-m17-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "mechanic"
+      ],
+      "text": "Both ___ at our garage know my old car very well.",
+      "base": "mechanic",
+      "accepted": [
+        "mechanics"
+      ],
+      "translation": {
+        "ru": "Оба механика в нашей автомастерской очень хорошо знают мою старую машину.",
+        "uz": "Avtoservisimizdagi ikkala mexanik ham eski mashinamni juda yaxshi biladi."
+      },
+      "explanation": {
+        "ru": "Both (оба) требует множественного числа: mechanic → mechanics. По-русски «оба механика», а по-английски обязательно -s.",
+        "uz": "Both (ikkala) so'zidan keyin ot ko'plikda keladi: mechanic → mechanics. O'zbekchada «ikkala mexanik» deyiladi, inglizchada esa -s kerak."
+      }
+    },
+    {
+      "key": "a1a2-m17-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "deliver"
+      ],
+      "text": "The shop didn't *delivered* any of our furniture yesterday.",
+      "options": [
+        "deliver",
+        "delivers",
+        "delivering"
+      ],
+      "correct": [
+        "deliver"
+      ],
+      "translation": {
+        "ru": "Вчера магазин не доставил нам ничего из мебели.",
+        "uz": "Do'kon kecha mebelimizdan hech narsani yetkazib bermadi."
+      },
+      "explanation": {
+        "ru": "После didn't глагол всегда в начальной форме: прошедшее время уже выражено словом did, второй раз его не показывают.",
+        "uz": "Didn't so'zidan keyin fe'l doim boshlang'ich shaklda keladi: o'tgan zamon did orqali ko'rsatilgan, ikkinchi marta ko'rsatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m17-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "parcel"
+      ],
+      "text": "There *is* two heavy parcels for our neighbor downstairs.",
+      "options": [
+        "are",
+        "has",
+        "have"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Для нашего соседа снизу пришли две тяжёлые посылки.",
+        "uz": "Pastki qavatdagi qo'shnimiz uchun ikkita og'ir posilka bor."
+      },
+      "explanation": {
+        "ru": "В обороте there is / there are глагол согласуется с тем, что идёт после него: two parcels — множественное число, значит there are. Have и has в этом обороте не ставят.",
+        "uz": "There is / there are iborasida fe'l undan keyingi ot bilan moslashadi: two parcels — ko'plik, demak there are. Bu iborada have yoki has ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m17-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "envelope"
+      ],
+      "text": "*This* envelopes are too small for my photos.",
+      "options": [
+        "These",
+        "That",
+        "Them"
+      ],
+      "correct": [
+        "These"
+      ],
+      "translation": {
+        "ru": "Эти конверты слишком малы для моих фотографий.",
+        "uz": "Bu konvertlar fotosuratlarim uchun juda kichik."
+      },
+      "explanation": {
+        "ru": "Envelopes и are — множественное число, поэтому нужно these (эти), а не this (этот). That — тоже единственное число.",
+        "uz": "Envelopes va are — ko'plik, shuning uchun this emas, these kerak. That ham birlikni bildiradi."
+      }
+    },
+    {
+      "key": "a1a2-m17-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "shopping"
+      ],
+      "text": "My mother goes ___ every Friday after work.",
+      "base": "shop",
+      "accepted": [
+        "shopping"
+      ],
+      "translation": {
+        "ru": "Моя мама ходит за покупками каждую пятницу после работы.",
+        "uz": "Onam har juma kuni ishdan keyin xarid qilishga boradi."
+      },
+      "explanation": {
+        "ru": "Go + -ing — ходить куда-то по делу: go shopping. После краткой гласной одна согласная удваивается: shop → shopping.",
+        "uz": "Go + -ing — biror ish bilan bormoq: go shopping. Qisqa unlidan keyingi bitta undosh ikkilanadi: shop → shopping."
+      }
+    },
+    {
+      "key": "a1a2-m17-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "label"
+      ],
+      "text": "Yesterday my sister ___ all the jars in her kitchen.",
+      "base": "label",
+      "accepted": [
+        "labeled"
+      ],
+      "translation": {
+        "ru": "Вчера моя сестра наклеила этикетки на все банки у себя на кухне.",
+        "uz": "Kecha singlim oshxonasidagi barcha shisha idishlarga yorliq yopishtirib chiqdi."
+      },
+      "explanation": {
+        "ru": "Yesterday требует прошедшего времени: label → labeled. В американском написании l не удваивается, в британском — labelled; верны оба.",
+        "uz": "Yesterday o'tgan zamonni talab qiladi: label → labeled. Amerika yozuvida l ikkilanmaydi, Britaniya yozuvida esa labelled; ikkalasi ham to'g'ri."
+      }
+    },
+    {
+      "key": "a1a2-m17-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "refund"
+      ],
+      "text": "Last week the shop ___ the full price of my broken phone.",
+      "base": "refund",
+      "accepted": [
+        "refunded"
+      ],
+      "translation": {
+        "ru": "На прошлой неделе магазин вернул мне полную стоимость моего сломанного телефона.",
+        "uz": "O'tgan hafta do'kon buzilgan telefonimning to'liq narxini qaytarib berdi."
+      },
+      "explanation": {
+        "ru": "Last week требует прошедшего времени. Refund — правильный глагол: refund → refunded (после d окончание -ed читается [ɪd]).",
+        "uz": "Last week o'tgan zamonni talab qiladi. Refund — to'g'ri fe'l: refund → refunded (d harfidan keyin -ed [ɪd] deb o'qiladi)."
+      }
+    },
+    {
+      "key": "a1a2-m17-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "receipt"
+      ],
+      "text": "This shop will not take back shoes without a *recipe*.",
+      "options": [
+        "receipt",
+        "prescription",
+        "reception"
+      ],
+      "correct": [
+        "receipt"
+      ],
+      "translation": {
+        "ru": "Этот магазин не принимает обувь обратно без чека.",
+        "uz": "Bu do'kon chek bo'lmasa, poyabzalni qaytarib olmaydi."
+      },
+      "explanation": {
+        "ru": "Чек из магазина — receipt (p не читается). Recipe — рецепт блюда, prescription — рецепт врача, reception — приём, стойка регистрации.",
+        "uz": "Do'kon cheki — receipt (p o'qilmaydi). Recipe — taom retsepti, prescription — shifokor retsepti, reception — qabulxona."
+      }
+    },
+    {
+      "key": "a1a2-m17-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "discount"
+      ],
+      "text": "The seller *made* us a discount for the damaged box.",
+      "options": [
+        "gave",
+        "did",
+        "took"
+      ],
+      "correct": [
+        "gave"
+      ],
+      "translation": {
+        "ru": "Продавец сделал нам скидку за повреждённую коробку.",
+        "uz": "Sotuvchi shikastlangan quti uchun bizga chegirma qildi."
+      },
+      "explanation": {
+        "ru": "Скидку по-английски не «делают», а дают: give a discount. Make и do с discount не употребляют, хотя по-русски «сделать скидку».",
+        "uz": "Inglizchada chegirma «qilinmaydi», balki beriladi: give a discount. Make va do bu so'z bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m17-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "brand"
+      ],
+      "text": "There are too *much* brands of coffee in this supermarket.",
+      "options": [
+        "many",
+        "more",
+        "lots"
+      ],
+      "correct": [
+        "many"
+      ],
+      "translation": {
+        "ru": "В этом супермаркете слишком много брендов кофе.",
+        "uz": "Bu supermarketda kofe brendlari haddan tashqari ko'p."
+      },
+      "explanation": {
+        "ru": "Brands — исчисляемое существительное во множественном числе (are), с ним too many. Much ставят с неисчисляемыми: too much sugar.",
+        "uz": "Brands — sanaladigan ot, ko'plikda (are); u bilan too many keladi. Much sanalmaydigan otlar bilan ishlatiladi: too much sugar."
+      }
+    },
+    {
+      "key": "a1a2-m17-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "scarf"
+      ],
+      "text": "My grandmother made three warm ___ for us this winter.",
+      "base": "scarf",
+      "accepted": [
+        "scarves",
+        "scarfs"
+      ],
+      "translation": {
+        "ru": "Этой зимой бабушка связала нам три тёплых шарфа.",
+        "uz": "Bu qish buvim bizga uchta issiq sharf to'qib berdi."
+      },
+      "explanation": {
+        "ru": "Three требует множественного числа. У scarf во множественном f меняется на v: scarves; форма scarfs тоже правильная.",
+        "uz": "Three so'zidan keyin ot ko'plikda keladi. Scarf so'zida ko'plikda f o'rniga v yoziladi: scarves; scarfs shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "a1a2-m17-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "necklace"
+      ],
+      "text": "All of her ___ are in a small wooden box.",
+      "base": "necklace",
+      "accepted": [
+        "necklaces"
+      ],
+      "translation": {
+        "ru": "Все её ожерелья лежат в маленькой деревянной шкатулке.",
+        "uz": "Uning barcha marjonlari kichik yog'och qutichada turadi."
+      },
+      "explanation": {
+        "ru": "All of her и are показывают множественное число: necklace → necklaces (к e добавляется только -s, окончание читается [ɪz]).",
+        "uz": "All of her va are ko'plikni ko'rsatadi: necklace → necklaces (e harfiga faqat -s qo'shiladi, oxiri [ɪz] deb o'qiladi)."
+      }
+    },
+    {
+      "key": "a1a2-m17-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "wallet"
+      ],
+      "text": "My dad has two ___, one black and one brown.",
+      "base": "wallet",
+      "accepted": [
+        "wallets"
+      ],
+      "translation": {
+        "ru": "У моего папы два кошелька: один чёрный, другой коричневый.",
+        "uz": "Dadamning ikkita hamyoni bor: biri qora, biri jigarrang."
+      },
+      "explanation": {
+        "ru": "Two и one black and one brown — кошельков два, значит, множественное число: wallet → wallets. По-русски «два кошелька», а по-английски -s.",
+        "uz": "Two va one black and one brown — hamyon ikkita, demak ot ko'plikda: wallet → wallets. O'zbekchada «ikkita hamyon», inglizchada esa -s kerak."
+      }
+    },
+    {
+      "key": "a1a2-m17-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "gloves"
+      ],
+      "text": "I dropped one of my warm *glove* in the snow.",
+      "options": [
+        "gloves",
+        "glove's",
+        "gloved"
+      ],
+      "correct": [
+        "gloves"
+      ],
+      "translation": {
+        "ru": "Я уронил в снег одну из своих тёплых перчаток.",
+        "uz": "Issiq qo'lqoplarimdan birini qorga tushirib yubordim."
+      },
+      "explanation": {
+        "ru": "После one of нужно множественное число: one of my gloves — одна из моих перчаток. Glove's — притяжательная форма, а не множественное число.",
+        "uz": "One of iborasidan keyin ot ko'plikda keladi: one of my gloves — qo'lqoplarimdan biri. Glove's — egalik shakli, ko'plik emas."
+      }
+    },
+    {
+      "key": "a1a2-m17-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "sunglasses"
+      ],
+      "text": "These new sunglasses *is* too dark for me.",
+      "options": [
+        "are",
+        "was",
+        "seems"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Эти новые солнцезащитные очки слишком тёмные для меня.",
+        "uz": "Bu yangi quyosh ko'zoynagi men uchun juda to'q rangli."
+      },
+      "explanation": {
+        "ru": "Sunglasses — всегда множественное число (как glasses, jeans), поэтому are; на это указывает и these. Was и seems — формы единственного числа.",
+        "uz": "Sunglasses doim ko'plikda bo'ladi (glasses, jeans kabi), shuning uchun are; these so'zi ham shuni ko'rsatadi. Was va seems — birlik shakllari. O'zbekchadagi «ko'zoynak» esa birlikda."
+      }
+    },
+    {
+      "key": "a1a2-m17-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "jewelry"
+      ],
+      "text": "My aunt makes beautiful *jewelries* from glass and silver.",
+      "options": [
+        "jewelry",
+        "jewel",
+        "jeweler"
+      ],
+      "correct": [
+        "jewelry"
+      ],
+      "translation": {
+        "ru": "Моя тётя делает красивые украшения из стекла и серебра.",
+        "uz": "Xolam shisha va kumushdan chiroyli taqinchoqlar yasaydi."
+      },
+      "explanation": {
+        "ru": "Jewelry — неисчисляемое существительное (как furniture), формы на -s у него нет, хотя русское «украшения» — множественное число. Jeweler — ювелир.",
+        "uz": "Jewelry — sanalmaydigan ot (furniture kabi), uning -s shakli yo'q, garchi o'zbekchada «taqinchoqlar» ko'plikda bo'lsa ham. Jeweler — zargar."
+      }
+    },
+    {
+      "key": "a1a2-m17-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "tight"
+      ],
+      "text": "My new boots are even ___ than my old ones.",
+      "base": "tight",
+      "accepted": [
+        "tighter"
+      ],
+      "translation": {
+        "ru": "Мои новые ботинки ещё теснее, чем старые.",
+        "uz": "Yangi botinkalarim eskilaridan ham tor."
+      },
+      "explanation": {
+        "ru": "Than требует сравнительной степени. Tight — короткое прилагательное: tight → tighter, а не more tight.",
+        "uz": "Than so'zi qiyosiy darajani talab qiladi. Tight — qisqa sifat: tight → tighter, more tight emas."
+      }
+    },
+    {
+      "key": "a1a2-m17-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "fashionable"
+      ],
+      "text": "Short jackets are ___ than long ones, so everyone buys them.",
+      "base": "fashionable",
+      "accepted": [
+        "more fashionable"
+      ],
+      "translation": {
+        "ru": "Короткие куртки моднее длинных, поэтому их все покупают.",
+        "uz": "Kalta kurtkalar uzunlariga qaraganda ko'proq urfda, shuning uchun hamma ularni sotib olyapti."
+      },
+      "explanation": {
+        "ru": "Than требует сравнительной степени, а so everyone buys them — «больше», а не «меньше». Fashionable — длинное прилагательное: more fashionable (два слова).",
+        "uz": "Than qiyosiy darajani talab qiladi, so everyone buys them esa «ko'proq» ekanini ko'rsatadi. Fashionable — uzun sifat: more fashionable (ikki so'z)."
+      }
+    },
+    {
+      "key": "a1a2-m17-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "reasonable"
+      ],
+      "text": "The price is ___, so I will not buy this bag.",
+      "base": "reasonable",
+      "accepted": [
+        "unreasonable"
+      ],
+      "translation": {
+        "ru": "Цена неприемлемая, так что я не куплю эту сумку.",
+        "uz": "Narxi maqbul emas, shuning uchun bu sumkani sotib olmayman."
+      },
+      "explanation": {
+        "ru": "Вторая часть (so I will not buy this bag) показывает, что цена плохая: нужна отрицательная форма с приставкой un-: reasonable → unreasonable.",
+        "uz": "Gapning ikkinchi qismi (so I will not buy this bag) narx yomon ekanini ko'rsatadi: un- old qo'shimchasi bilan inkor shakl kerak: reasonable → unreasonable."
+      }
+    },
+    {
+      "key": "a1a2-m17-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "suit"
+      ],
+      "text": "Short hair really *fits* you and makes you look younger.",
+      "options": [
+        "suits",
+        "goes",
+        "looks"
+      ],
+      "correct": [
+        "suits"
+      ],
+      "translation": {
+        "ru": "Короткая стрижка вам очень идёт и делает вас моложе.",
+        "uz": "Kalta soch sizga juda yarashadi va sizni yoshroq ko'rsatadi."
+      },
+      "explanation": {
+        "ru": "Быть к лицу (о причёске, цвете, фасоне) — suit: short hair suits you. Fit — подходить по размеру. Русское «подходит» передаёт оба значения.",
+        "uz": "Yarashmoq (soch turmagi, rang, fason haqida) — suit: short hair suits you. Fit esa o'lchami bo'yicha mos kelmoq."
+      }
+    },
+    {
+      "key": "a1a2-m17-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "loose"
+      ],
+      "text": "After my diet, all my old jeans are too *lose*.",
+      "options": [
+        "loose",
+        "lost",
+        "loss"
+      ],
+      "correct": [
+        "loose"
+      ],
+      "translation": {
+        "ru": "После диеты все мои старые джинсы стали слишком свободными.",
+        "uz": "Parhezdan keyin barcha eski jinsi shimlarim juda keng bo'lib qoldi."
+      },
+      "explanation": {
+        "ru": "Свободный, широкий — loose (два o, на конце звук [s]). Lose (одно o) — глагол «терять», lost — его прошедшее время, loss — «потеря».",
+        "uz": "Keng, bo'sh — loose (ikkita o, oxirida [s] tovushi). Lose (bitta o) — «yo'qotmoq» fe'li, lost — uning o'tgan zamon shakli, loss — «yo'qotish»."
+      }
+    },
+    {
+      "key": "a1a2-m17-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "afford"
+      ],
+      "text": "Young families often cannot afford *buying* a house.",
+      "options": [
+        "to buy",
+        "for buying",
+        "to buying"
+      ],
+      "correct": [
+        "to buy"
+      ],
+      "translation": {
+        "ru": "Молодые семьи часто не могут позволить себе купить дом.",
+        "uz": "Yosh oilalarning ko'pincha uy sotib olishga qurbi yetmaydi."
+      },
+      "explanation": {
+        "ru": "После afford глагол стоит с to и в начальной форме: afford to buy — позволить себе купить. Ни -ing, ни for перед ним после afford не ставят.",
+        "uz": "Afford fe'lidan keyin fe'l to bilan, boshlang'ich shaklda keladi: afford to buy — sotib olishga qurbi yetmoq. Undan keyin -ing shakli ham, for ham ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m18-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "bleed"
+      ],
+      "text": "My nose has ___ twice this week because the air is dry.",
+      "base": "bleed",
+      "accepted": [
+        "bled"
+      ],
+      "translation": {
+        "ru": "На этой неделе у меня дважды шла кровь из носа, потому что воздух сухой.",
+        "uz": "Havo quruq bo'lgani uchun bu hafta burnimdan ikki marta qon ketdi."
+      },
+      "explanation": {
+        "ru": "После has нужна третья форма глагола (present perfect). Bleed — неправильный глагол: bleed → bled → bled (не bleeded).",
+        "uz": "Has so'zidan keyin fe'lning uchinchi shakli keladi (present perfect). Bleed — noto'g'ri fe'l: bleed → bled → bled (bleeded emas)."
+      }
+    },
+    {
+      "key": "a1a2-m18-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "sneeze"
+      ],
+      "text": "Why are you ___ so often today?",
+      "base": "sneeze",
+      "accepted": [
+        "sneezing"
+      ],
+      "translation": {
+        "ru": "Почему вы сегодня так часто чихаете?",
+        "uz": "Nega bugun buncha ko'p aksiryapsiz?"
+      },
+      "explanation": {
+        "ru": "Are you + -ing — действие происходит сейчас, сегодня. Конечное e отбрасывается: sneeze → sneezing.",
+        "uz": "Are you + -ing — harakat hozir, bugun bo'lyapti. Oxirgi e tushib qoladi: sneeze → sneezing."
+      }
+    },
+    {
+      "key": "a1a2-m18-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "recover"
+      ],
+      "text": "My sister has ___ from the flu and gone back to school.",
+      "base": "recover",
+      "accepted": [
+        "recovered"
+      ],
+      "translation": {
+        "ru": "Моя сестра выздоровела после гриппа и вернулась в школу.",
+        "uz": "Singlim grippdan tuzalib, maktabga qaytdi."
+      },
+      "explanation": {
+        "ru": "После has нужна третья форма (present perfect); gone во второй части — тоже она. Recover — правильный глагол: recover → recovered.",
+        "uz": "Has so'zidan keyin fe'lning uchinchi shakli keladi (present perfect); ikkinchi qismdagi gone ham shu shakl. Recover — to'g'ri fe'l: recover → recovered."
+      }
+    },
+    {
+      "key": "a1a2-m18-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "allergy"
+      ],
+      "text": "Her allergy *on* cats makes her sneeze all day.",
+      "options": [
+        "to",
+        "of",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Из-за аллергии на кошек она чихает весь день.",
+        "uz": "Mushuklarga allergiyasi tufayli u kun bo'yi aksiradi."
+      },
+      "explanation": {
+        "ru": "Аллергия на что-то — allergy to: an allergy to cats. Русское «на» здесь не on.",
+        "uz": "Biror narsaga allergiya — allergy to: an allergy to cats. On, of yoki at bu so'z bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m18-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "symptom"
+      ],
+      "text": "Fever and cough are two typical *symptom* of the flu.",
+      "options": [
+        "symptoms",
+        "symptom's",
+        "sign"
+      ],
+      "correct": [
+        "symptoms"
+      ],
+      "translation": {
+        "ru": "Температура и кашель — два типичных симптома гриппа.",
+        "uz": "Isitma va yo'tal — grippning ikkita odatiy alomati."
+      },
+      "explanation": {
+        "ru": "После two нужно множественное число: two symptoms. По-русски «два симптома», а по-английски -s обязательно. Symptom's — притяжательная форма.",
+        "uz": "Two so'zidan keyin ot ko'plikda keladi: two symptoms. O'zbekchada «ikkita alomat» deyiladi, inglizchada esa -s kerak. Symptom's — egalik shakli."
+      }
+    },
+    {
+      "key": "a1a2-m18-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "injury"
+      ],
+      "text": "There were too *much* injuries in yesterday's game.",
+      "options": [
+        "many",
+        "more",
+        "lot"
+      ],
+      "correct": [
+        "many"
+      ],
+      "translation": {
+        "ru": "Во вчерашней игре было слишком много травм.",
+        "uz": "Kechagi o'yinda jarohatlar haddan tashqari ko'p bo'ldi."
+      },
+      "explanation": {
+        "ru": "Injuries — исчисляемое существительное во множественном числе (were), поэтому too many. Much ставят с неисчисляемыми: too much pain.",
+        "uz": "Injuries — sanaladigan ot, ko'plikda (were), shuning uchun too many. Much sanalmaydigan otlar bilan keladi: too much pain."
+      }
+    },
+    {
+      "key": "a1a2-m18-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "examine"
+      ],
+      "text": "The doctor is ___ my little brother now, so please wait outside.",
+      "base": "examine",
+      "accepted": [
+        "examining"
+      ],
+      "translation": {
+        "ru": "Врач сейчас осматривает моего младшего брата, поэтому, пожалуйста, подождите снаружи.",
+        "uz": "Shifokor hozir ukamni ko'rikdan o'tkazyapti, shuning uchun iltimos, tashqarida kutib turing."
+      },
+      "explanation": {
+        "ru": "Is + -ing и now — действие идёт прямо сейчас. Конечное e отбрасывается: examine → examining.",
+        "uz": "Is + -ing va now — harakat aynan hozir bo'lyapti. Oxirgi e tushib qoladi: examine → examining."
+      }
+    },
+    {
+      "key": "a1a2-m18-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "emergency"
+      ],
+      "text": "The doctors in a big city hospital see many ___ every night.",
+      "base": "emergency",
+      "accepted": [
+        "emergencies"
+      ],
+      "translation": {
+        "ru": "Врачи большой городской больницы каждую ночь сталкиваются с множеством экстренных случаев.",
+        "uz": "Katta shahar kasalxonasidagi shifokorlar har kecha ko'plab shoshilinch holatlarga duch keladi."
+      },
+      "explanation": {
+        "ru": "Many требует множественного числа. После согласной y меняется на ie: emergency → emergencies.",
+        "uz": "Many so'zidan keyin ot ko'plikda keladi. Undosh harfdan keyin y o'rniga ie yoziladi: emergency → emergencies."
+      }
+    },
+    {
+      "key": "a1a2-m18-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "pharmacist"
+      ],
+      "text": "I always follow my ___ advice, because she knows medicines well.",
+      "base": "pharmacist",
+      "accepted": [
+        "pharmacist's"
+      ],
+      "translation": {
+        "ru": "Я всегда следую советам своего фармацевта, потому что она хорошо разбирается в лекарствах.",
+        "uz": "Men doim farmatsevtimning maslahatiga amal qilaman, chunki u dorilarni yaxshi biladi."
+      },
+      "explanation": {
+        "ru": "Чей совет? — фармацевта: принадлежность передаёт 's. Фармацевт — один человек (she), поэтому pharmacist's, а не pharmacists'.",
+        "uz": "Kimning maslahati? — farmatsevtning: egalik 's bilan beriladi. Farmatsevt bitta (she), shuning uchun pharmacists' emas, pharmacist's."
+      }
+    },
+    {
+      "key": "a1a2-m18-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "prescription"
+      ],
+      "text": "Take the doctor's *recipe* to the pharmacy downstairs.",
+      "options": [
+        "prescription",
+        "receipt",
+        "reception"
+      ],
+      "correct": [
+        "prescription"
+      ],
+      "translation": {
+        "ru": "Отнесите рецепт врача в аптеку на первом этаже.",
+        "uz": "Shifokor retseptini pastki qavatdagi dorixonaga olib boring."
+      },
+      "explanation": {
+        "ru": "Рецепт врача — prescription. Recipe — рецепт блюда, receipt — чек. Русское «рецепт» значит и то, и другое, а в английском это разные слова.",
+        "uz": "Shifokor retsepti — prescription. Recipe — taom retsepti, receipt — chek. O'zbekchadagi «retsept» ikkala ma'noni bildiradi, inglizchada esa ular har xil so'z."
+      }
+    },
+    {
+      "key": "a1a2-m18-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "vaccine"
+      ],
+      "text": "Every autumn my grandmother gets a vaccine *from* the flu.",
+      "options": [
+        "against",
+        "of",
+        "on"
+      ],
+      "correct": [
+        "against"
+      ],
+      "translation": {
+        "ru": "Каждую осень моя бабушка делает прививку от гриппа.",
+        "uz": "Har kuzda buvim grippga qarshi vaksina oladi."
+      },
+      "explanation": {
+        "ru": "Вакцина от болезни — a vaccine against (или for) a disease. From значит «откуда», поэтому русское «от» здесь не from.",
+        "uz": "Kasallikka qarshi vaksina — a vaccine against (yoki for) a disease. From «qayerdan» degan ma'noni beradi, shuning uchun bu yerda ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m18-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "clinic"
+      ],
+      "text": "Our local clinic *open* at eight and closes at six.",
+      "options": [
+        "opens",
+        "opening",
+        "opened"
+      ],
+      "correct": [
+        "opens"
+      ],
+      "translation": {
+        "ru": "Наша районная клиника открывается в восемь и закрывается в шесть.",
+        "uz": "Mahallamizdagi klinika soat sakkizda ochiladi va oltida yopiladi."
+      },
+      "explanation": {
+        "ru": "Clinic — это it, поэтому в настоящем времени глагол с -s: opens, как closes во второй части.",
+        "uz": "Clinic — bu it, shuning uchun hozirgi zamonda fe'lga -s qo'shiladi: opens, ikkinchi qismdagi closes kabi."
+      }
+    },
+    {
+      "key": "a1a2-m18-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "diet"
+      ],
+      "text": "My mother is ___ again, so she eats only salad for dinner.",
+      "base": "diet",
+      "accepted": [
+        "dieting"
+      ],
+      "translation": {
+        "ru": "Мама снова сидит на диете, поэтому на ужин ест только салат.",
+        "uz": "Onam yana parhez qilyapti, shuning uchun kechki ovqatga faqat salat yeydi."
+      },
+      "explanation": {
+        "ru": "После is нужна форма на -ing. Ударение в diet на первом слоге, поэтому t не удваивается: dieting.",
+        "uz": "Is so'zidan keyin -ing shakli kerak. Diet so'zida urg'u birinchi bo'g'inda, shuning uchun t ikkilanmaydi: dieting."
+      }
+    },
+    {
+      "key": "a1a2-m18-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "meal"
+      ],
+      "text": "Try not to eat sweets between ___.",
+      "base": "meal",
+      "accepted": [
+        "meals"
+      ],
+      "translation": {
+        "ru": "Старайтесь не есть сладкое между приёмами пищи.",
+        "uz": "Ovqatlanishlar orasida shirinlik yemaslikka harakat qiling."
+      },
+      "explanation": {
+        "ru": "Between без and означает «между» несколькими предметами, поэтому здесь нужно множественное число: between meals.",
+        "uz": "And bo'lmasa, between bir nechta narsa «orasida» degan ma'noni beradi, shuning uchun bu yerda ot ko'plikda keladi: between meals."
+      }
+    },
+    {
+      "key": "a1a2-m18-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "vegetarian"
+      ],
+      "text": "We cooked a special dinner for the four ___ in our group.",
+      "base": "vegetarian",
+      "accepted": [
+        "vegetarians"
+      ],
+      "translation": {
+        "ru": "Мы приготовили особый ужин для четырёх вегетарианцев из нашей группы.",
+        "uz": "Guruhimizdagi to'rtta vegetarian uchun maxsus kechki ovqat tayyorladik."
+      },
+      "explanation": {
+        "ru": "После four нет другого существительного, значит, vegetarian здесь само существительное (вегетарианец), и после four нужно -s: vegetarians.",
+        "uz": "Four so'zidan keyin boshqa ot yo'q, demak vegetarian bu yerda otning o'zi (vegetarian odam), four so'zidan keyin esa -s kerak: vegetarians."
+      }
+    },
+    {
+      "key": "a1a2-m18-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "snack"
+      ],
+      "text": "There *isn't* any snacks left, because we ate them all.",
+      "options": [
+        "aren't",
+        "doesn't",
+        "don't"
+      ],
+      "correct": [
+        "aren't"
+      ],
+      "translation": {
+        "ru": "Перекусов не осталось, потому что мы их все съели.",
+        "uz": "Yengil yeguliklar qolmadi, chunki hammasini yeb qo'ydik."
+      },
+      "explanation": {
+        "ru": "Snacks — множественное число (на это указывает и them), поэтому there aren't, а не there isn't. Отрицание в обороте there is / are строится без do и does.",
+        "uz": "Snacks — ko'plik (them olmoshi ham shuni ko'rsatadi), shuning uchun there isn't emas, there aren't. There is / are iborasining inkori do va does yordamisiz yasaladi."
+      }
+    },
+    {
+      "key": "a1a2-m18-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "calorie"
+      ],
+      "text": "One small banana has about a hundred *calorie*.",
+      "options": [
+        "calories",
+        "of calories",
+        "calorie's"
+      ],
+      "correct": [
+        "calories"
+      ],
+      "translation": {
+        "ru": "В одном маленьком банане около ста калорий.",
+        "uz": "Bitta kichik bananda taxminan yuz kaloriya bor."
+      },
+      "explanation": {
+        "ru": "После a hundred (сто) существительное стоит во множественном числе: a hundred calories. По-русски «ста калорий», а по-английски -s обязательно. Calorie's — притяжательная форма.",
+        "uz": "A hundred (yuz) so'zidan keyin ot ko'plikda keladi: a hundred calories. O'zbekchada «yuz kaloriya» deyiladi, inglizchada esa -s kerak. Calorie's — egalik shakli."
+      }
+    },
+    {
+      "key": "a1a2-m18-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "nutrition"
+      ],
+      "text": "Healthy nutrition *give* children energy and helps them grow.",
+      "options": [
+        "gives",
+        "giving",
+        "given"
+      ],
+      "correct": [
+        "gives"
+      ],
+      "translation": {
+        "ru": "Здоровое питание даёт детям энергию и помогает им расти.",
+        "uz": "Sog'lom ovqatlanish bolalarga quvvat beradi va o'sishlariga yordam beradi."
+      },
+      "explanation": {
+        "ru": "Nutrition — это it, поэтому в настоящем времени глагол с -s: gives, как helps во второй части.",
+        "uz": "Nutrition — bu it, shuning uchun hozirgi zamonda fe'lga -s qo'shiladi: gives, ikkinchi qismdagi helps kabi."
+      }
+    },
+    {
+      "key": "a1a2-m18-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "jog"
+      ],
+      "text": "Yesterday my brother and I ___ around the whole lake.",
+      "base": "jog",
+      "accepted": [
+        "jogged"
+      ],
+      "translation": {
+        "ru": "Вчера мы с братом пробежали трусцой вокруг всего озера.",
+        "uz": "Kecha akam bilan butun ko'l atrofida yugurib chiqdik."
+      },
+      "explanation": {
+        "ru": "Yesterday требует прошедшего времени. После краткой гласной одна согласная удваивается: jog → jogged.",
+        "uz": "Yesterday o'tgan zamonni talab qiladi. Qisqa unlidan keyingi bitta undosh ikkilanadi: jog → jogged."
+      }
+    },
+    {
+      "key": "a1a2-m18-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "cycle"
+      ],
+      "text": "We went ___ in the mountains last summer.",
+      "base": "cycle",
+      "accepted": [
+        "cycling"
+      ],
+      "translation": {
+        "ru": "Прошлым летом мы катались на велосипедах в горах.",
+        "uz": "O'tgan yozda tog'larda velosipedda sayr qildik."
+      },
+      "explanation": {
+        "ru": "Go (went) + -ing — заниматься чем-то: went cycling. Конечное e отбрасывается: cycle → cycling.",
+        "uz": "Go (went) + -ing — biror mashg'ulot bilan shug'ullanmoq: went cycling. Oxirgi e tushib qoladi: cycle → cycling."
+      }
+    },
+    {
+      "key": "a1a2-m18-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "stretch"
+      ],
+      "text": "My sister always ___ for ten minutes before she runs.",
+      "base": "stretch",
+      "accepted": [
+        "stretches"
+      ],
+      "translation": {
+        "ru": "Моя сестра всегда десять минут делает растяжку перед бегом.",
+        "uz": "Opam yugurishdan oldin doim o'n daqiqa cho'zilish mashqlarini bajaradi."
+      },
+      "explanation": {
+        "ru": "My sister (она) и runs показывают настоящее время, 3-е лицо. После ch окончание -es: stretch → stretches.",
+        "uz": "My sister (u) va runs hozirgi zamon, uchinchi shaxsni ko'rsatadi. ch harflaridan keyin -es qo'shiladi: stretch → stretches."
+      }
+    },
+    {
+      "key": "a1a2-m18-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "exercise"
+      ],
+      "text": "Every morning I *make* ten minutes of exercise.",
+      "options": [
+        "do",
+        "play",
+        "train"
+      ],
+      "correct": [
+        "do"
+      ],
+      "translation": {
+        "ru": "Каждое утро я десять минут делаю зарядку.",
+        "uz": "Har kuni ertalab o'n daqiqa mashq qilaman."
+      },
+      "explanation": {
+        "ru": "С exercise говорят do: do exercise — делать упражнения, зарядку. Make значит «изготовить, создать», поэтому русское «делать» здесь не make.",
+        "uz": "Exercise so'zi bilan do ishlatiladi: do exercise — mashq qilmoq. Make esa «yasamoq, yaratmoq» degan ma'noni beradi."
+      }
+    },
+    {
+      "key": "a1a2-m18-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "lift"
+      ],
+      "text": "My back hurt, so yesterday I didn't *lifted* any weights.",
+      "options": [
+        "lift",
+        "lifting",
+        "lifts"
+      ],
+      "correct": [
+        "lift"
+      ],
+      "translation": {
+        "ru": "У меня болела спина, поэтому вчера я не поднимал тяжести.",
+        "uz": "Belim og'rigani uchun kecha hech qanday og'irlik ko'tarmadim."
+      },
+      "explanation": {
+        "ru": "После didn't глагол всегда в начальной форме: прошедшее время уже выражено словом did.",
+        "uz": "Didn't so'zidan keyin fe'l doim boshlang'ich shaklda keladi: o'tgan zamon did orqali ko'rsatilgan."
+      }
+    },
+    {
+      "key": "a1a2-m18-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "weight"
+      ],
+      "text": "Swimming helped my aunt *loose* weight quickly.",
+      "options": [
+        "lose",
+        "lost",
+        "loss"
+      ],
+      "correct": [
+        "lose"
+      ],
+      "translation": {
+        "ru": "Плавание помогло моей тёте быстро сбросить вес.",
+        "uz": "Suzish xolamga tezda vazn tashlashga yordam berdi."
+      },
+      "explanation": {
+        "ru": "Сбросить вес — lose weight; lose (одно o) — глагол «терять». Loose (два o) — прилагательное «свободный, широкий».",
+        "uz": "Vazn tashlamoq — lose weight; lose (bitta o) — «yo'qotmoq» fe'li. Loose (ikkita o) — «keng, bo'sh» sifati."
+      }
+    },
+    {
+      "key": "a1a2-m18-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "smoke"
+      ],
+      "text": "My uncle was a heavy ___, but now he runs every day.",
+      "base": "smoke",
+      "accepted": [
+        "smoker"
+      ],
+      "translation": {
+        "ru": "Мой дядя был заядлым курильщиком, а теперь каждый день бегает.",
+        "uz": "Amakim ashaddiy chekuvchi bo'lgan, endi esa har kuni yuguradi."
+      },
+      "explanation": {
+        "ru": "После a heavy нужно существительное — человек: курильщик — smoker. К конечному e добавляется только -r: smoke → smoker.",
+        "uz": "A heavy so'zlaridan keyin odamni bildiruvchi ot kerak: chekuvchi — smoker. Oxirgi e harfiga faqat -r qo'shiladi: smoke → smoker."
+      }
+    },
+    {
+      "key": "a1a2-m18-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "regular"
+      ],
+      "text": "You should visit your dentist ___, not only when it hurts.",
+      "base": "regular",
+      "accepted": [
+        "regularly"
+      ],
+      "translation": {
+        "ru": "К стоматологу нужно ходить регулярно, а не только когда болит.",
+        "uz": "Tish shifokoriga faqat og'riganda emas, muntazam ravishda borish kerak."
+      },
+      "explanation": {
+        "ru": "Слово описывает глагол visit (как часто ходить?), поэтому нужно наречие: regular → regularly.",
+        "uz": "So'z visit fe'lini tasvirlaydi (qanchalik tez-tez borish?), shuning uchun ravish kerak: regular → regularly."
+      }
+    },
+    {
+      "key": "a1a2-m18-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "harmful"
+      ],
+      "text": "Loud music can be ___ to your ears, so turn it down.",
+      "base": "harm",
+      "accepted": [
+        "harmful"
+      ],
+      "translation": {
+        "ru": "Громкая музыка может быть вредной для ушей, так что сделайте потише.",
+        "uz": "Baland musiqa quloqlarga zararli bo'lishi mumkin, shuning uchun ovozini pasaytiring."
+      },
+      "explanation": {
+        "ru": "После can be нужно прилагательное, а turn it down показывает, что музыка вредит: harm + -ful = harmful (суффикс -ful с одной l).",
+        "uz": "Can be so'zlaridan keyin sifat kerak, turn it down esa musiqa zarar berishini ko'rsatadi: harm + -ful = harmful (-ful qo'shimchasida bitta l)."
+      }
+    },
+    {
+      "key": "a1a2-m18-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "avoid"
+      ],
+      "text": "I try to avoid *drink* coffee in the evening.",
+      "options": [
+        "drinking",
+        "drank",
+        "drinks"
+      ],
+      "correct": [
+        "drinking"
+      ],
+      "translation": {
+        "ru": "Я стараюсь не пить кофе вечером.",
+        "uz": "Kechqurun kofe ichmaslikka harakat qilaman."
+      },
+      "explanation": {
+        "ru": "После avoid глагол стоит в форме на -ing: avoid drinking. Ни начальная форма, ни прошедшее время, ни to drink после avoid не ставятся.",
+        "uz": "Avoid fe'lidan keyin fe'l -ing shaklida keladi: avoid drinking. Undan keyin na boshlang'ich shakl, na o'tgan zamon, na to drink ishlatiladi."
+      }
+    },
+    {
+      "key": "a1a2-m18-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "stress"
+      ],
+      "text": "Exams always make me feel *stressful*.",
+      "options": [
+        "stressed",
+        "stressing",
+        "stresses"
+      ],
+      "correct": [
+        "stressed"
+      ],
+      "translation": {
+        "ru": "Из-за экзаменов я всегда чувствую стресс.",
+        "uz": "Imtihonlar meni doim stressga soladi."
+      },
+      "explanation": {
+        "ru": "О человеке, который испытывает стресс, говорят stressed (-ed). Stressful — «напряжённый, вызывающий стресс»: так говорят об экзаменах или работе (exams are stressful).",
+        "uz": "Stressni his qilayotgan odam haqida stressed (-ed) deyiladi. Stressful — «stress keltiradigan»: imtihon yoki ish haqida shunday deyiladi (exams are stressful)."
+      }
+    },
+    {
+      "key": "a1a2-m18-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "mental"
+      ],
+      "text": "Stress at work is bad for your *psychic* health.",
+      "options": [
+        "mental",
+        "mind",
+        "mentally"
+      ],
+      "correct": [
+        "mental"
+      ],
+      "translation": {
+        "ru": "Стресс на работе вреден для психического здоровья.",
+        "uz": "Ishdagi stress ruhiy salomatlikka zarar keltiradi."
+      },
+      "explanation": {
+        "ru": "Психическое здоровье — mental health. Psychic — «экстрасенс; сверхъестественный», это ложный друг: русское «психический» здесь не psychic.",
+        "uz": "Ruhiy salomatlik — mental health. Psychic esa «ekstrasens; g'ayritabiiy» degani, shuning uchun bu yerda ishlatilmaydi."
+      }
+    }
+  ]
+}

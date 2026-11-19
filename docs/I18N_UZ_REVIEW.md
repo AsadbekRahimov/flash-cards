@@ -4035,3 +4035,44 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `reminders.quiz.after_none` | Ilovada davom eting — u yerda yangi so'zlar bor. | Продолжите в приложении — там новые слова. |
 | `reminders.quiz.open_more` | LexiFlow'ni ochish | Открыть LexiFlow |
 | `reminders.quiz.expired` | Bu savol eskirgan. Ilovani oching — u yerda yangi so'zlar bor. | Этот вопрос устарел. Откройте приложение — там свежие слова. |
+
+## Практика: новые типы 2026-11 (форма слова, найди ошибку) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`, ключи `practice.mode.word_form.*`, `practice.mode.error_hunt.*`, `practice.word_form.*`, `practice.error_hunt.*`, `error.code.step_not_current`)
+
+«Shakl» — форма слова (decide → decision), «gap» — предложение. В «Найди ошибку» два шага: сначала ученик выбирает слово с ошибкой (`instruction_locate`, кнопка `confirm`), затем выбирает исправление (`instruction_fix`). Примеры в карточке режима (`*.example`) — английские, не переводятся. `token.*` и `words` слышит только экранный диктор (подписи слов в предложении). В разборе две строки по исходу шагов (`result.*`: «ошибку нашли / не нашли», «исправили верно / неверно», «пропущено»), под неверным шагом — выбор ученика: «Siz tanlagan so'z: on», «Siz tanlagan variant: at» (`you_picked`, `your_fix`; после двоеточия — английское слово/вариант). Прошу проверить:
+- `was` / `became` — заголовки капителью над предложением с ошибкой и исправленным предложением («Было» / «Стало»). Раньше стояло «Edi» / «Bo'ldi»: «edi» одно не употребляется как подпись, «bo'ldi» читается как «готово / хватит», поэтому заменено на «Avval» / «Keyin». Если есть вариант точнее — предложите;
+- `base_hint` стоит перед чипом со словом («Shu so'zdan shakl yasang: DECIDE») — естественно ли;
+- `step_not_current`: «davom etgan» или «davom ettirilgan» (задание продолжили в другой вкладке/окне);
+- `result.fixed` / `result.not_fixed` — «To'g'ri tuzatildi» / «Noto'g'ri tuzatildi»: естественно ли, или лучше «To'g'ri tuzatdingiz» (обращение к ученику);
+- `you_picked` / `your_fix` — подпись перед выбором ученика («Siz tanlagan so'z: on», «Siz tanlagan variant: at»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.mode.word_form.title` | So'z shakli | Форма слова |
+| `practice.mode.word_form.example` | decide → decision | decide → decision (не переводится) |
+| `practice.mode.error_hunt.title` | Xatoni toping | Найди ошибку |
+| `practice.mode.error_hunt.example` | interested on → in | interested on → in (не переводится) |
+| `practice.word_form.instruction` | So'zni kerakli shaklda qo'ying | Вставьте слово в нужной форме |
+| `practice.word_form.base_hint` | Shu so'zdan shakl yasang | Образуйте форму от слова |
+| `practice.word_form.placeholder` | Javobingiz | Ваш ответ |
+| `practice.word_form.same_as_base` | So'zning boshqa shakli kerak | Нужна другая форма слова (ответ совпал с исходным словом) |
+| `practice.error_hunt.instruction_locate` | Xato so'zni toping | Найдите слово с ошибкой |
+| `practice.error_hunt.confirm` | Xato shu yerda | Это ошибка (кнопка подтверждения выбора) |
+| `practice.error_hunt.instruction_fix` | Qanday tuzatiladi? | Как исправить? |
+| `practice.error_hunt.located_ok` | To'g'ri, xato shu yerda | Верно, ошибка здесь |
+| `practice.error_hunt.located_wrong` | Xato boshqa so'zda | Ошибка в другом слове |
+| `practice.error_hunt.result.found` | Xato topildi | Ошибку нашли (строка разбора: первый шаг верный) |
+| `practice.error_hunt.result.not_found` | Xato topilmadi | Ошибку не нашли (первый шаг неверный) |
+| `practice.error_hunt.result.fixed` | To'g'ri tuzatildi | Исправили верно (второй шаг верный) |
+| `practice.error_hunt.result.not_fixed` | Noto'g'ri tuzatildi | Исправили неверно (второй шаг неверный) |
+| `practice.error_hunt.result.skipped` | O'tkazib yuborildi | Пропущено (шаг пропущен кнопкой «Не знаю») |
+| `practice.error_hunt.you_picked` | Siz tanlagan so'z | Вы выбрали (перед словом, которое ученик счёл ошибкой: «Вы выбрали: on») |
+| `practice.error_hunt.your_fix` | Siz tanlagan variant | Ваш вариант (перед исправлением, выбранным учеником: «Ваш вариант: at») |
+| `practice.error_hunt.was` | Avval | Было (заголовок над предложением с ошибкой) |
+| `practice.error_hunt.became` | Keyin | Стало (заголовок над исправленным предложением) |
+| `practice.error_hunt.words` | Gapdagi so'zlar | Слова предложения (для экранных дикторов) |
+| `practice.error_hunt.token.selected` | tanlandi | выбрано (для экранных дикторов) |
+| `practice.error_hunt.token.yours` | sizning tanlovingiz | ваш выбор (для экранных дикторов) |
+| `practice.error_hunt.token.error` | xato | ошибка (для экранных дикторов) |
+| `error.code.step_not_current` | Topshiriq boshqa oynada davom etgan. Ekran yangilandi. | Задание уже продвинулось в другой вкладке. Экран обновлён. |

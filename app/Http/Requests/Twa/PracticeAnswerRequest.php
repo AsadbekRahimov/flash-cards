@@ -31,6 +31,7 @@ final class PracticeAnswerRequest extends FormRequest
             'answer.text' => ['nullable', 'string', 'max:200'],
             'answer.skip' => ['nullable', 'boolean'],
             'answer.option_id' => ['nullable', 'string', 'max:16'],
+            'answer.token_id' => ['nullable', 'string', 'max:16'],
             'answer.order' => ['nullable', 'array', 'max:8'],
             'answer.order.*' => ['string', 'max:16'],
             'answer.left_id' => ['nullable', 'string', 'max:16'],

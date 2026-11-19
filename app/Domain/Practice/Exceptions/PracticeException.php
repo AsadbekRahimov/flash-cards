@@ -30,6 +30,8 @@ use RuntimeException;
  *   element_not_current             409  {current}: the id of the element to answer now
  *   answer_already_accepted         409  {verdict[, points]}: the element has its final answer
  *   pair_already_matched            409  {left_id}
+ *   step_not_current                409  {step: locate|fix}: an answer to the other step of a multi-step element (`error_hunt`): the
+ *                                        step the server expects is named; another tab or a lost answer moved the element on
  *   invalid_answer_shape            422  {expected}: see the EXPECTED_* constants
  *   unknown_element_id              422  an id that is not in the snapshot
  *   replace_not_allowed             409  {reason}: not_dictation | not_current | limit
@@ -65,6 +67,8 @@ final class PracticeException extends RuntimeException
 
     public const PAIR_ALREADY_MATCHED = 'pair_already_matched';
 
+    public const STEP_NOT_CURRENT = 'step_not_current';
+
     public const INVALID_ANSWER_SHAPE = 'invalid_answer_shape';
 
     public const UNKNOWN_ELEMENT_ID = 'unknown_element_id';
@@ -99,6 +103,13 @@ final class PracticeException extends RuntimeException
     public const EXPECTED_TEXT_OR_SKIP = 'text_or_skip';
 
     public const EXPECTED_BIJECTION = 'bijection';
+
+    public const EXPECTED_TOKEN = 'token_id';
+
+    /** `details.step` of `step_not_current`: the steps of "find the mistake" (docs/16 §5.7). */
+    public const STEP_LOCATE = 'locate';
+
+    public const STEP_FIX = 'fix';
 
     /** `details.reason` of `replace_not_allowed`. */
     public const REPLACE_NOT_DICTATION = 'not_dictation';
@@ -191,6 +202,12 @@ final class PracticeException extends RuntimeException
     public static function pairAlreadyMatched(string $leftId): self
     {
         return new self(self::PAIR_ALREADY_MATCHED, 'This word is already matched.', ['left_id' => $leftId]);
+    }
+
+    /** @param string $step the step the server expects now: {@see STEP_LOCATE} | {@see STEP_FIX} */
+    public static function stepNotCurrent(string $step): self
+    {
+        return new self(self::STEP_NOT_CURRENT, 'This answer is for another step of the element.', ['step' => $step]);
     }
 
     /** @param string $expected one of the EXPECTED_* constants */

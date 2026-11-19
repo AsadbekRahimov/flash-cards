@@ -80,10 +80,13 @@ function budgetWorld(string $locale = 'ru'): array
         PracticeItem::factory()->collocation()->published()->forLesson($lesson)->targeting($word)->create();
         PracticeItem::factory()->sentence()->published()->forLesson($lesson)->targeting([$word, $words[($i + 1) % 6]])->create();
         PracticeItem::factory()->dictation()->published()->audioReady()->forLesson($lesson)->targeting($word)->create();
+        PracticeItem::factory()->wordForm()->published()->forLesson($lesson)->targeting($word)->create();
+        PracticeItem::factory()->errorHunt()->published()->forLesson($lesson)->targeting($word)->create();
     }
 
+    // The two newer modes (docs/16 §5.6, §5.7) play on their REAL handlers here: they must cost the hub nothing beyond the shared reads.
     foreach (PracticeMode::cases() as $mode) {
-        if ($mode !== PracticeMode::Pairs) {
+        if (! in_array($mode, [PracticeMode::Pairs, PracticeMode::WordForm, PracticeMode::ErrorHunt], true)) {
             PracticeKit::fake($mode, candidates: 9, spares: 2)->readsMaterial = true;
         }
     }
@@ -135,6 +138,59 @@ it('reads the hub in at most 9 statements, whatever the language, and asks for t
             ->and(budgetReads($queries, 'practice_sessions'))->toBe(1)
             ->and(budgetReads($queries, 'battles'))->toBe(1);
     }
+});
+
+it('counts word_form and error_hunt in the hub on the real handlers with no statement of their own', function (): void {
+    foreach (['ru', 'uz'] as $locale) {
+        [$learner, $course, $lesson] = budgetWorld($locale);
+        config(['practice.modes.word_form' => true, 'practice.modes.error_hunt' => true]);
+
+        $modes = null;
+        $queries = QueryLog::during(function () use (&$modes, $learner, $course, $lesson): void {
+            $modes = budgetHub($learner, $course, $lesson)->assertOk()->json('modes');
+        });
+        $rows = array_column($modes, null, 'mode');
+
+        expect($rows['word_form'])->toMatchArray(['state' => 'available', 'available' => 6])
+            ->and($rows['error_hunt'])->toMatchArray(['state' => 'available', 'available' => 6])
+            ->and(count($queries))->toBeLessThanOrEqual(BUDGET_HUB, "hub ({$locale}): ".implode("\n", $queries))
+            ->and(budgetReads($queries, 'practice_items'))->toBe(1)
+            ->and(budgetReads($queries, 'practice_item_versions'))->toBe(1);
+    }
+});
+
+it('opens word_form and error_hunt within the budget, takes the step locate as an answer and the last step fix as the last answer', function (): void {
+    [$learner, $course, $lesson] = budgetWorld();
+    config(['practice.modes.word_form' => true, 'practice.modes.error_hunt' => true]);
+
+    $wordForm = QueryLog::during(fn () => budgetOpen($learner, $course, 'word_form', ['lesson_id' => $lesson->id])->assertCreated());
+    $opened = null;
+    $errorHunt = QueryLog::during(function () use (&$opened, $learner, $course, $lesson): void {
+        $opened = budgetOpen($learner, $course, 'error_hunt', ['lesson_id' => $lesson->id, 'replace_active' => true])->assertCreated()->json();
+    });
+    expect(count($wordForm))->toBeLessThanOrEqual(BUDGET_OPEN, implode("\n", $wordForm))
+        ->and(count($errorHunt))->toBeLessThanOrEqual(BUDGET_OPEN, implode("\n", $errorHunt))
+        ->and(budgetReads($errorHunt, 'practice_items'))->toBe(1);
+
+    $session = $opened;
+    $locates = [];
+    $fixes = [];
+    while ($session['status'] === 'active') {
+        $element = collect(PracticeSession::query()->findOrFail($session['id'])->snapshot['elements'])->firstWhere('id', $session['current']['id']);
+        $locates[] = QueryLog::during(function () use (&$session, $learner, $element): void {
+            $session = budgetAnswer($learner, $session['id'], $element['id'], ['token_id' => $element['error_id']])->assertOk()->json('session');
+        });
+        $fixes[] = QueryLog::during(function () use (&$session, $learner, $element): void {
+            $session = budgetAnswer($learner, $session['id'], $element['id'], ['option_id' => $element['correct_ids'][0]])->assertOk()->json('session');
+        });
+    }
+    $last = array_pop($fixes);
+
+    expect($session['status'])->toBe('finished');
+    foreach ([...$locates, ...$fixes] as $queries) {
+        expect(count($queries))->toBeLessThanOrEqual(BUDGET_ANSWER, implode("\n", $queries));
+    }
+    expect(count($last))->toBeLessThanOrEqual(BUDGET_ANSWER_LAST, implode("\n", $last));
 });
 
 it('reads the hub within the budget with an unfinished session - which costs it no statement: its place is named from its snapshot - and for a Pro learner at PRACTICE_PLAN=pro (the entitlement is cached)', function (): void {

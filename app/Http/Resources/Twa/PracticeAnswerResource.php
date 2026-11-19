@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 /**
  * POST /api/twa/practice/sessions/{id}/answer (docs/16 §7.2): the stored verdict of the answer and the current session.
- * `round_done` is only there for a matching of pairs. The body is the `result` of the attempt (the same bytes for a repeated
+ * `round_done` is only there for a matching of pairs, `element_done` only for a step of a multi-step element ("find the mistake"). The body is the `result` of the attempt (the same bytes for a repeated
  * request), picked key by key.
  *
  * @property AnswerOutcome $resource
@@ -31,6 +31,9 @@ final class PracticeAnswerResource extends TwaResource
         ];
         if (array_key_exists('round_done', $result)) {
             $body['round_done'] = (bool) $result['round_done'];
+        }
+        if (array_key_exists('element_done', $result)) {
+            $body['element_done'] = (bool) $result['element_done'];
         }
         if (array_key_exists('penalty_ms', $result)) {
             $body['penalty_ms'] = (int) $result['penalty_ms'];

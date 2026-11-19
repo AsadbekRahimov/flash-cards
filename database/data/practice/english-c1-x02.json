@@ -1,0 +1,1629 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c1",
+  "items": [
+    {
+      "key": "c1-m03-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "redundancy"
+      ],
+      "text": "After the merger, half of the accounting staff were made ___.",
+      "base": "redundancy",
+      "accepted": [
+        "redundant"
+      ],
+      "translation": {
+        "ru": "После слияния половина сотрудников бухгалтерии попала под сокращение.",
+        "uz": "Qo'shilishdan keyin buxgalteriya xodimlarining yarmi shtat qisqartirilishi sababli ishdan bo'shatildi."
+      },
+      "explanation": {
+        "ru": "make somebody redundant — уволить по сокращению штата. После were made нужно прилагательное: redundancy → redundant (-ancy → -ant).",
+        "uz": "make somebody redundant — shtat qisqartirilishi sababli ishdan bo'shatmoq. were made birikmasidan keyin sifat kerak: redundancy → redundant (-ancy → -ant)."
+      }
+    },
+    {
+      "key": "c1-m03-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "successor"
+      ],
+      "text": "When the old director retired, his deputy was chosen as his ___.",
+      "base": "succeed",
+      "accepted": [
+        "successor"
+      ],
+      "translation": {
+        "ru": "Когда старый директор ушёл на пенсию, его преемником выбрали заместителя.",
+        "uz": "Keksa direktor nafaqaga chiqqach, uning o'rinbosari vorisi etib tanlandi."
+      },
+      "explanation": {
+        "ru": "После his нужно существительное-лицо: succeed (сменить на посту) → successor, «тот, кто приходит на смену»; суффикс -or, в слове удвоенные cc и ss.",
+        "uz": "his so'zidan keyin shaxsni bildiruvchi ot kerak: succeed (lavozimda o'rnini egallamoq) → successor, «o'rnini egallovchi»; -or qo'shimchasi, cc va ss qo'shaloq yoziladi."
+      }
+    },
+    {
+      "key": "c1-m03-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "seniority"
+      ],
+      "text": "Pay raises here are based on ___ rather than on performance, so loyalty is rewarded.",
+      "base": "senior",
+      "accepted": [
+        "seniority"
+      ],
+      "translation": {
+        "ru": "Повышение зарплаты здесь зависит от трудового стажа, а не от результатов работы, так что верность вознаграждается.",
+        "uz": "Bu yerda maosh ish natijalariga emas, ish stajiga qarab oshiriladi, shuning uchun sadoqat taqdirlanadi."
+      },
+      "explanation": {
+        "ru": "После based on и в паре с performance нужно существительное: senior (старший) → seniority (стаж, старшинство); суффикс -ity.",
+        "uz": "based on iborasidan keyin va performance so'ziga juft qilib ot kerak: senior (katta) → seniority (ish staji); -ity qo'shimchasi."
+      }
+    },
+    {
+      "key": "c1-m03-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "predecessor"
+      ],
+      "text": "I spent my first year fixing mistakes my *successor* had made before I arrived.",
+      "options": [
+        "predecessor",
+        "ancestor",
+        "precedent"
+      ],
+      "correct": [
+        "predecessor"
+      ],
+      "translation": {
+        "ru": "Первый год я исправлял ошибки, которые мой предшественник допустил до моего прихода.",
+        "uz": "Birinchi yilimni o'tmishdoshim men kelgunimcha yo'l qo'ygan xatolarni tuzatish bilan o'tkazdim."
+      },
+      "explanation": {
+        "ru": "successor — преемник, тот, кто приходит ПОСЛЕ вас. Кто занимал пост ДО вас (before I arrived) — predecessor. ancestor — предок, precedent — прецедент (случай, а не человек).",
+        "uz": "successor — sizdan KEYIN keladigan voris. Lavozimni sizdan OLDIN egallagan odam (before I arrived) — predecessor. ancestor — ajdod, precedent — pretsedent (odam emas, holat)."
+      }
+    },
+    {
+      "key": "c1-m03-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "credential"
+      ],
+      "text": "All of the candidate's *credential* were checked before the interview.",
+      "options": [
+        "credentials",
+        "credibility",
+        "credentialed"
+      ],
+      "correct": [
+        "credentials"
+      ],
+      "translation": {
+        "ru": "Все документы кандидата о квалификации проверили перед собеседованием.",
+        "uz": "Suhbatdan oldin nomzodning malakasini tasdiqlovchi barcha hujjatlari tekshirildi."
+      },
+      "explanation": {
+        "ru": "credential — исчисляемое существительное; All of … и глагол were требуют мн. ч.: credentials. credibility (доверие) и credentialed (дипломированный) здесь не подходят.",
+        "uz": "credential — sanaladigan ot; All of … va were fe'li ko'plikni talab qiladi: credentials. credibility (ishonchlilik) va credentialed (diplomli) bu yerga to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "demotion"
+      ],
+      "text": "She was shocked by the *demote*, as she had been expecting a promotion.",
+      "options": [
+        "demotion",
+        "demoted",
+        "demotes"
+      ],
+      "correct": [
+        "demotion"
+      ],
+      "translation": {
+        "ru": "Понижение в должности потрясло её: она ждала повышения.",
+        "uz": "Lavozimi pasaytirilgani uni larzaga soldi, chunki u lavozimi ko'tarilishini kutayotgan edi."
+      },
+      "explanation": {
+        "ru": "После артикля the нужно существительное: demote — глагол «понизить в должности», а «понижение» — demotion (-ion).",
+        "uz": "the artiklidan keyin ot kerak: demote — «lavozimini pasaytirmoq» fe'li, «lavozimni pasaytirish» esa demotion (-ion)."
+      }
+    },
+    {
+      "key": "c1-m03-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "undertake"
+      ],
+      "text": "Building a new hospital in just two years was an enormous ___.",
+      "base": "undertake",
+      "accepted": [
+        "undertaking"
+      ],
+      "translation": {
+        "ru": "Построить новую больницу всего за два года было огромным делом.",
+        "uz": "Atigi ikki yilda yangi kasalxona qurish juda ulkan ish edi."
+      },
+      "explanation": {
+        "ru": "После an enormous нужно существительное: undertake → undertaking — «(трудное) дело, которое взяли на себя».",
+        "uz": "an enormous so'zlaridan keyin ot kerak: undertake → undertaking — «zimmaga olingan (qiyin) ish»."
+      }
+    },
+    {
+      "key": "c1-m03-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "liaise"
+      ],
+      "text": "She acts as a ___ between the sales team and the factory.",
+      "base": "liaise",
+      "accepted": [
+        "liaison"
+      ],
+      "translation": {
+        "ru": "Она служит связующим звеном между отделом продаж и фабрикой.",
+        "uz": "U savdo bo'limi bilan fabrika o'rtasida bog'lovchi bo'g'in vazifasini bajaradi."
+      },
+      "explanation": {
+        "ru": "После acts as a нужно существительное: liaise → liaison (связь; связной). Написание: окончание -e заменяется на -on, буква i перед s сохраняется.",
+        "uz": "acts as a so'zlaridan keyin ot kerak: liaise → liaison (aloqa; aloqani ta'minlovchi shaxs). Imlosi: oxirgi -e o'rniga -on yoziladi, s dan oldingi i saqlanadi."
+      }
+    },
+    {
+      "key": "c1-m03-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "fulfill"
+      ],
+      "text": "The minister made many promises, but most of them remained ___.",
+      "base": "fulfill",
+      "accepted": [
+        "unfulfilled"
+      ],
+      "translation": {
+        "ru": "Министр дал много обещаний, но большинство из них так и остались невыполненными.",
+        "uz": "Vazir ko'p va'dalar berdi, lekin ularning aksariyati bajarilmay qoldi."
+      },
+      "explanation": {
+        "ru": "but показывает противопоставление: обещания НЕ выполнены. После remained нужно прилагательное: un- + fulfilled → unfulfilled.",
+        "uz": "but bog'lovchisi zidlikni bildiradi: va'dalar bajarilMAgan. remained fe'lidan keyin sifat kerak: un- + fulfilled → unfulfilled."
+      }
+    },
+    {
+      "key": "c1-m03-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "accountable"
+      ],
+      "text": "The board is accountable *before* the shareholders for every decision it makes.",
+      "options": [
+        "to",
+        "with",
+        "from"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Совет директоров подотчётен акционерам за каждое принятое решение.",
+        "uz": "Direktorlar kengashi qabul qilgan har bir qarori uchun aksiyadorlar oldida hisobdor."
+      },
+      "explanation": {
+        "ru": "accountable to somebody for something — подотчётен кому-то за что-то. Русское «отвечать перед акционерами» здесь не before, а to.",
+        "uz": "accountable to somebody for something — kimningdir oldida biror narsa uchun hisobdor. O'zbekcha «oldida» bu yerda before emas, to predlogi bilan beriladi."
+      }
+    },
+    {
+      "key": "c1-m03-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "multitask"
+      ],
+      "text": "Many people believe they are good at *multitask*, but studies show otherwise.",
+      "options": [
+        "multitasking",
+        "multitasks",
+        "multitasked"
+      ],
+      "correct": [
+        "multitasking"
+      ],
+      "translation": {
+        "ru": "Многие считают, что хорошо умеют делать несколько дел одновременно, но исследования показывают обратное.",
+        "uz": "Ko'pchilik o'zini bir vaqtda bir necha ishni bajarishga usta deb hisoblaydi, ammo tadqiqotlar buning aksini ko'rsatadi."
+      },
+      "explanation": {
+        "ru": "После предлога at глагол ставится в форме -ing: good at multitasking. Глагол без -ing после предлога невозможен.",
+        "uz": "at predlogidan keyin fe'l -ing shaklida keladi: good at multitasking. Predlogdan keyin fe'lning sof shakli ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "backlog"
+      ],
+      "text": "The backlog of customer emails *are* growing, and nobody has time to clear it.",
+      "options": [
+        "is",
+        "were",
+        "have"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Завал писем от клиентов растёт, а разобрать его ни у кого нет времени.",
+        "uz": "Mijozlardan kelgan xatlar uyumi ortib bormoqda, uni ko'rib chiqishga esa hech kimda vaqt yo'q."
+      },
+      "explanation": {
+        "ru": "Подлежащее — backlog (ед. ч.), а не emails; на это указывает и it в конце. Глагол согласуется с главным словом группы the backlog of …, поэтому is.",
+        "uz": "Ega — emails emas, birlikdagi backlog so'zi; buni oxiridagi it olmoshi ham ko'rsatadi. Fe'l the backlog of … birikmasining bosh so'zi bilan moslashadi, shuning uchun is."
+      }
+    },
+    {
+      "key": "c1-m03-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "reimburse"
+      ],
+      "text": "Staff who travel on business can claim full ___ of their hotel costs.",
+      "base": "reimburse",
+      "accepted": [
+        "reimbursement"
+      ],
+      "translation": {
+        "ru": "Сотрудники, которые ездят в командировки, могут требовать полного возмещения расходов на гостиницу.",
+        "uz": "Xizmat safariga boradigan xodimlar mehmonxona xarajatlarini to'liq qoplab berishni talab qilishlari mumkin."
+      },
+      "explanation": {
+        "ru": "После full и перед of нужно существительное: reimburse → reimbursement (возмещение расходов); -ment прибавляется к целому глаголу, e сохраняется.",
+        "uz": "full so'zidan keyin va of dan oldin ot kerak: reimburse → reimbursement (xarajatlarni qoplash); -ment fe'lning to'liq shakliga qo'shiladi, e saqlanadi."
+      }
+    },
+    {
+      "key": "c1-m03-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "entitlement"
+      ],
+      "text": "Every employee has an ___ to four weeks of paid leave a year.",
+      "base": "entitle",
+      "accepted": [
+        "entitlement"
+      ],
+      "translation": {
+        "ru": "Каждый сотрудник имеет право на четыре недели оплачиваемого отпуска в год.",
+        "uz": "Har bir xodim yiliga to'rt haftalik haq to'lanadigan ta'til olish huquqiga ega."
+      },
+      "explanation": {
+        "ru": "После артикля an нужно существительное: глагол entitle (давать право) + -ment → entitlement, «право на что-то».",
+        "uz": "an artiklidan keyin ot kerak: entitle (huquq bermoq) fe'li + -ment → entitlement, «biror narsaga huquq»."
+      }
+    },
+    {
+      "key": "c1-m03-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "deduction"
+      ],
+      "text": "The company made a large ___ from her wages to pay for the broken laptop.",
+      "base": "deduct",
+      "accepted": [
+        "deduction"
+      ],
+      "translation": {
+        "ru": "Компания удержала из её зарплаты крупную сумму в счёт сломанного ноутбука.",
+        "uz": "Kompaniya singan noutbuk uchun uning maoshidan katta miqdorda ushlab qoldi."
+      },
+      "explanation": {
+        "ru": "После a large нужно существительное: deduct (удерживать) → deduction (удержание); к глаголу на -ct добавляется -ion.",
+        "uz": "a large so'zlaridan keyin ot kerak: deduct (ushlab qolmoq) → deduction (ushlanma); -ct bilan tugagan fe'lga -ion qo'shiladi."
+      }
+    },
+    {
+      "key": "c1-m03-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "remuneration"
+      ],
+      "text": "Senior engineers here receive *renumeration* well above the national average.",
+      "options": [
+        "remuneration",
+        "enumeration",
+        "numeration"
+      ],
+      "correct": [
+        "remuneration"
+      ],
+      "translation": {
+        "ru": "Старшие инженеры здесь получают вознаграждение намного выше среднего по стране.",
+        "uz": "Bu yerdagi katta muhandislar mamlakat bo'yicha o'rtachadan ancha yuqori mehnat haqi oladi."
+      },
+      "explanation": {
+        "ru": "Слово пишется remuneration: re-mu-ner-ation (от латинского munus — «дар»). renumeration — частая ошибка под влиянием number; enumeration — «перечисление».",
+        "uz": "So'z remuneration deb yoziladi: re-mu-ner-ation (lotincha munus — «sovg'a»). renumeration — number so'zi ta'sirida ko'p uchraydigan xato; enumeration — «sanab o'tish»."
+      }
+    },
+    {
+      "key": "c1-m03-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "payroll"
+      ],
+      "text": "Half of the people *in* the payroll had never actually worked for the firm.",
+      "options": [
+        "on",
+        "at",
+        "by"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Половина людей, числившихся в платёжной ведомости, на самом деле никогда не работала в фирме.",
+        "uz": "Ish haqi qaydnomasida turgan odamlarning yarmi aslida hech qachon firmada ishlamagan edi."
+      },
+      "explanation": {
+        "ru": "Числиться в штате, в платёжной ведомости — be on the payroll, с предлогом on. Русское «в ведомости» здесь не in.",
+        "uz": "Shtatda, ish haqi qaydnomasida turmoq — be on the payroll, on predlogi bilan. O'zbekcha «-da» qo'shimchasi bu yerda in emas."
+      }
+    },
+    {
+      "key": "c1-m03-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "accrue"
+      ],
+      "text": "Interest on these savings accounts *accrue* daily and is paid out monthly.",
+      "options": [
+        "accrues",
+        "accruing",
+        "accrual"
+      ],
+      "correct": [
+        "accrues"
+      ],
+      "translation": {
+        "ru": "Проценты по этим сберегательным счетам начисляются ежедневно и выплачиваются ежемесячно.",
+        "uz": "Bu jamg'arma hisobvaraqlari bo'yicha foizlar har kuni hisoblanib, har oy to'lab beriladi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — неисчисляемое interest (ед. ч.), а не accounts; на это указывает и is paid. Значит, accrues с -s. Русское «проценты» — мн. ч., но interest — нет.",
+        "uz": "Ega — accounts emas, sanalmaydigan interest so'zi (birlik); buni is paid ham ko'rsatadi. Demak, -s bilan accrues. O'zbekcha «foizlar» ko'plikda, lekin interest birlikda."
+      }
+    },
+    {
+      "key": "c1-m03-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "misconduct"
+      ],
+      "text": "He was fired for gross ___ after he was caught taking money from the cash register.",
+      "base": "conduct",
+      "accepted": [
+        "misconduct"
+      ],
+      "translation": {
+        "ru": "Его уволили за грубый служебный проступок после того, как поймали на краже денег из кассы.",
+        "uz": "U kassadan pul olayotganda qo'lga tushgach, xizmatdagi qo'pol nojo'ya harakati uchun ishdan bo'shatildi."
+      },
+      "explanation": {
+        "ru": "fired for gross ___ требует слова «проступок»: conduct (поведение) + приставка mis- (неправильно) → misconduct.",
+        "uz": "fired for gross ___ birikmasi «nojo'ya harakat» ma'nosidagi so'zni talab qiladi: conduct (xulq) + mis- old qo'shimchasi (noto'g'ri) → misconduct."
+      }
+    },
+    {
+      "key": "c1-m03-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "dismissal"
+      ],
+      "text": "She won her case for unfair ___ and received a year's salary.",
+      "base": "dismiss",
+      "accepted": [
+        "dismissal"
+      ],
+      "translation": {
+        "ru": "Она выиграла дело о незаконном увольнении и получила годовую зарплату.",
+        "uz": "U noqonuniy ishdan bo'shatish bo'yicha ishni yutib, bir yillik maoshini oldi."
+      },
+      "explanation": {
+        "ru": "После прилагательного unfair нужно существительное: dismiss → dismissal (суффикс -al; двойная s сохраняется).",
+        "uz": "unfair sifatidan keyin ot kerak: dismiss → dismissal (-al qo'shimchasi; ikkita s saqlanadi)."
+      }
+    },
+    {
+      "key": "c1-m03-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "arbitration"
+      ],
+      "text": "The ___ listened to both sides before announcing his final ruling.",
+      "base": "arbitration",
+      "accepted": [
+        "arbitrator",
+        "arbiter"
+      ],
+      "translation": {
+        "ru": "Арбитр выслушал обе стороны, прежде чем объявить своё окончательное решение.",
+        "uz": "Arbitr yakuniy qarorini e'lon qilishdan oldin ikkala tomonni ham tingladi."
+      },
+      "explanation": {
+        "ru": "Слушать стороны и выносить решение может только человек, и один (his): arbitration (процесс) → arbitrator (арбитр, суффикс -or). Допустимо и arbiter.",
+        "uz": "Tomonlarni tinglab, qaror chiqaradigan — bitta shaxs (his): arbitration (jarayon) → arbitrator (arbitr, -or qo'shimchasi). arbiter shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "c1-m03-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "mediation"
+      ],
+      "text": "After weeks of *meditation* by a neutral expert, the two sides finally agreed.",
+      "options": [
+        "mediation",
+        "medication",
+        "mediocrity"
+      ],
+      "correct": [
+        "mediation"
+      ],
+      "translation": {
+        "ru": "После нескольких недель посредничества нейтрального эксперта стороны наконец договорились.",
+        "uz": "Betaraf ekspertning bir necha haftalik vositachiligidan so'ng ikki tomon nihoyat kelishib oldi."
+      },
+      "explanation": {
+        "ru": "meditation — медитация, размышление. Посредничество в споре — mediation (без t). medication — лекарство, mediocrity — посредственность.",
+        "uz": "meditation — meditatsiya, mulohaza. Nizodagi vositachilik — mediation (t harfisiz). medication — dori, mediocrity — o'rtamiyonalik."
+      }
+    },
+    {
+      "key": "c1-m03-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "walkout"
+      ],
+      "text": "Dock workers *made* a walkout after two colleagues were fired without warning.",
+      "options": [
+        "staged",
+        "raised",
+        "put"
+      ],
+      "correct": [
+        "staged"
+      ],
+      "translation": {
+        "ru": "Докеры устроили внезапную забастовку после того, как двух коллег уволили без предупреждения.",
+        "uz": "Ikki hamkasbi ogohlantirishsiz ishdan bo'shatilgach, port ishchilari to'satdan ish tashladi."
+      },
+      "explanation": {
+        "ru": "Устроить забастовку — stage a walkout (stage — «устраивать, проводить»; можно и hold). make, raise и put с walkout не употребляются.",
+        "uz": "To'satdan ish tashlamoq — stage a walkout (stage — «uyushtirmoq, o'tkazmoq»; hold ham mumkin). walkout so'zi make, raise va put fe'llari bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "harassment"
+      ],
+      "text": "The new policy protects staff from all forms of *harassments* at work.",
+      "options": [
+        "harassment",
+        "harassers",
+        "harassed"
+      ],
+      "correct": [
+        "harassment"
+      ],
+      "translation": {
+        "ru": "Новые правила защищают сотрудников от любых форм притеснения на работе.",
+        "uz": "Yangi qoidalar xodimlarni ishdagi har qanday ko'rinishdagi tazyiqdan himoya qiladi."
+      },
+      "explanation": {
+        "ru": "harassment — неисчисляемое существительное, формы мн. ч. у него нет: all forms of harassment. Отдельные случаи — cases of harassment.",
+        "uz": "harassment — sanalmaydigan ot, ko'plik shakli yo'q: all forms of harassment. Alohida holatlar — cases of harassment."
+      }
+    },
+    {
+      "key": "c1-m03-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "proficient"
+      ],
+      "text": "Applicants must prove a high level of ___ in at least two languages.",
+      "base": "proficient",
+      "accepted": [
+        "proficiency"
+      ],
+      "translation": {
+        "ru": "Кандидаты должны подтвердить высокий уровень владения как минимум двумя языками.",
+        "uz": "Nomzodlar kamida ikki tilni yuqori darajada bilishlarini isbotlashlari kerak."
+      },
+      "explanation": {
+        "ru": "После a high level of нужно существительное: proficient → proficiency; -ent меняется на -ency.",
+        "uz": "a high level of birikmasidan keyin ot kerak: proficient → proficiency; -ent o'rniga -ency yoziladi."
+      }
+    },
+    {
+      "key": "c1-m03-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "competent"
+      ],
+      "text": "The ___ of the new accountant cost the company thousands of dollars.",
+      "base": "competent",
+      "accepted": [
+        "incompetence",
+        "incompetency"
+      ],
+      "translation": {
+        "ru": "Некомпетентность нового бухгалтера стоила компании тысячи долларов.",
+        "uz": "Yangi hisobchining malakasizligi kompaniyaga minglab dollarga tushdi."
+      },
+      "explanation": {
+        "ru": "Потеря денег говорит, что нужно отрицание; между The и of — существительное: competent → incompetence (in- и -ence вместо -ent). Реже — incompetency.",
+        "uz": "Pul yo'qotilgani inkor kerakligini ko'rsatadi; The va of orasida ot keladi: competent → incompetence (in- va -ent o'rniga -ence). Kamroq incompetency shakli ham bor."
+      }
+    },
+    {
+      "key": "c1-m03-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "adaptability"
+      ],
+      "text": "Her greatest strength is her ___: give her any new role and she copes.",
+      "base": "adapt",
+      "accepted": [
+        "adaptability"
+      ],
+      "translation": {
+        "ru": "Её главная сильная сторона — приспособляемость: дайте ей любую новую роль, и она справится.",
+        "uz": "Uning eng kuchli tomoni — moslashuvchanligi: unga istalgan yangi vazifani bering, u uddalaydi."
+      },
+      "explanation": {
+        "ru": "После her нужно существительное-качество: adapt → adaptable → adaptability (способность приспосабливаться); -able меняется на -ability.",
+        "uz": "her so'zidan keyin xislatni bildiruvchi ot kerak: adapt → adaptable → adaptability (moslashuvchanlik); -able o'rniga -ability yoziladi."
+      }
+    },
+    {
+      "key": "c1-m03-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "professionalism"
+      ],
+      "text": "Clients trust our firm because of the *professionality* of its lawyers.",
+      "options": [
+        "professionalism",
+        "professionals",
+        "professionally"
+      ],
+      "correct": [
+        "professionalism"
+      ],
+      "translation": {
+        "ru": "Клиенты доверяют нашей фирме благодаря профессионализму её юристов.",
+        "uz": "Mijozlar firmamizga uning yuristlari professionalligi tufayli ishonadi."
+      },
+      "explanation": {
+        "ru": "Профессионализм — professionalism, с суффиксом -ism, как и в русском. Слово professionality в стандартном английском не употребляется.",
+        "uz": "«Professionallik» inglizchada professionalism (-ism qo'shimchasi bilan). -lik ga qarab -ity qo'shish xato: professionality so'zi standart ingliz tilida ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m03-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "interpersonal"
+      ],
+      "text": "This job requires strong *impersonal* skills, as you will deal with angry customers daily.",
+      "options": [
+        "interpersonal",
+        "personnel",
+        "personality"
+      ],
+      "correct": [
+        "interpersonal"
+      ],
+      "translation": {
+        "ru": "Эта работа требует хороших навыков межличностного общения: вам придётся ежедневно иметь дело с рассерженными клиентами.",
+        "uz": "Bu ish kuchli shaxslararo muloqot ko'nikmalarini talab qiladi, chunki Siz har kuni jahli chiqqan mijozlar bilan ishlaysiz."
+      },
+      "explanation": {
+        "ru": "impersonal — «безличный, холодный». Навыки общения с людьми — interpersonal skills (inter- «между» + personal).",
+        "uz": "impersonal — «shaxssiz, sovuq». Odamlar bilan muloqot ko'nikmalari — interpersonal skills (inter- «o'rtasida» + personal)."
+      }
+    },
+    {
+      "key": "c1-m03-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "troubleshoot"
+      ],
+      "text": "The engineers spent two days *troubleshoot* the new payment system.",
+      "options": [
+        "troubleshooting",
+        "troubleshoots",
+        "to troubleshoot"
+      ],
+      "correct": [
+        "troubleshooting"
+      ],
+      "translation": {
+        "ru": "Инженеры два дня устраняли неполадки в новой платёжной системе.",
+        "uz": "Muhandislar yangi to'lov tizimidagi nosozliklarni bartaraf etishga ikki kun sarfladi."
+      },
+      "explanation": {
+        "ru": "После spend + время глагол ставится в форме -ing: spent two days troubleshooting. Инфинитив (to troubleshoot) в этой конструкции не употребляется.",
+        "uz": "spend + vaqt qolipidan keyin fe'l -ing shaklida keladi: spent two days troubleshooting. Bu qolipda infinitiv (to troubleshoot) ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "acquisition"
+      ],
+      "text": "The bank announced a major ___ that will double its size.",
+      "base": "acquire",
+      "accepted": [
+        "acquisition"
+      ],
+      "translation": {
+        "ru": "Банк объявил о крупном приобретении, которое удвоит его размер.",
+        "uz": "Bank o'z hajmini ikki baravar oshiradigan yirik kompaniya xaridini e'lon qildi."
+      },
+      "explanation": {
+        "ru": "После a major нужно существительное: acquire → acquisition; основа меняется: -quire → -quisition.",
+        "uz": "a major so'zlaridan keyin ot kerak: acquire → acquisition; o'zak o'zgaradi: -quire → -quisition."
+      }
+    },
+    {
+      "key": "c1-m04-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "consolidate"
+      ],
+      "text": "Last year's ___ of three regional offices into one saved the firm millions.",
+      "base": "consolidate",
+      "accepted": [
+        "consolidation"
+      ],
+      "translation": {
+        "ru": "Прошлогоднее объединение трёх региональных офисов в один сэкономило фирме миллионы.",
+        "uz": "O'tgan yili uchta mintaqaviy ofisning bittaga birlashtirilishi firmaning millionlab mablag'ini tejab qoldi."
+      },
+      "explanation": {
+        "ru": "После Last year's и перед of нужно существительное: consolidate → consolidation; -ate меняется на -ation.",
+        "uz": "Last year's dan keyin va of dan oldin ot kerak: consolidate → consolidation; -ate o'rniga -ation yoziladi."
+      }
+    },
+    {
+      "key": "c1-m04-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "affiliate"
+      ],
+      "text": "The clinic's ___ with the city university has lasted for over two decades.",
+      "base": "affiliate",
+      "accepted": [
+        "affiliation"
+      ],
+      "translation": {
+        "ru": "Официальная связь клиники с городским университетом длится уже более двадцати лет.",
+        "uz": "Klinikaning shahar universiteti bilan rasmiy aloqasi yigirma yildan ortiq davom etib kelmoqda."
+      },
+      "explanation": {
+        "ru": "После The clinic's и перед has нужно существительное в ед. ч.: affiliate → affiliation (официальная связь, принадлежность к организации); -ate меняется на -ation.",
+        "uz": "The clinic's dan keyin va has fe'lidan oldin birlikdagi ot kerak: affiliate → affiliation (rasmiy aloqa, tashkilotga qarashlilik); -ate o'rniga -ation yoziladi."
+      }
+    },
+    {
+      "key": "c1-m04-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "diversify"
+      ],
+      "text": "To survive the crisis, the company needs to *diverse* its range of products.",
+      "options": [
+        "diversify",
+        "diversity",
+        "diverge"
+      ],
+      "correct": [
+        "diversify"
+      ],
+      "translation": {
+        "ru": "Чтобы пережить кризис, компании нужно диверсифицировать ассортимент продукции.",
+        "uz": "Inqirozdan omon qolish uchun kompaniya mahsulotlar turini diversifikatsiya qilishi kerak."
+      },
+      "explanation": {
+        "ru": "После needs to нужен глагол: diverse — прилагательное «разнообразный», diversity — существительное, diverge — «расходиться». «Разнообразить» — diversify.",
+        "uz": "needs to dan keyin fe'l kerak: diverse — «xilma-xil» sifati, diversity — ot, diverge — «ajralib ketmoq». «Xilma-xil qilmoq» — diversify."
+      }
+    },
+    {
+      "key": "c1-m04-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "benchmark"
+      ],
+      "text": "Their latest phone has *put* a new benchmark for battery life.",
+      "options": [
+        "set",
+        "placed",
+        "installed"
+      ],
+      "correct": [
+        "set"
+      ],
+      "translation": {
+        "ru": "Их новый телефон установил новый эталон по времени работы батареи.",
+        "uz": "Ularning yangi telefoni batareya quvvati bo'yicha yangi mezon o'rnatdi."
+      },
+      "explanation": {
+        "ru": "Установить эталон — set a benchmark. Русское «поставить» здесь не put; place и install с benchmark тоже не сочетаются.",
+        "uz": "Mezon o'rnatmoq — set a benchmark. O'zbekcha «qo'ymoq» bu yerda put emas; place va install fe'llari ham benchmark bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "subsidiary"
+      ],
+      "text": "The insurer is a wholly owned subsidiary *from* a large banking group.",
+      "options": [
+        "of",
+        "at",
+        "for"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Эта страховая компания — стопроцентная дочерняя компания крупной банковской группы.",
+        "uz": "Bu sug'urta kompaniyasi yirik bank guruhining to'liq qarashli sho'ba korxonasi."
+      },
+      "explanation": {
+        "ru": "Дочерняя компания кого-то — a subsidiary of. Принадлежность («группы») передаётся через of, а не from.",
+        "uz": "Kimningdir sho'ba korxonasi — a subsidiary of. Qarashlilik («guruhning») of bilan beriladi, from bilan emas."
+      }
+    },
+    {
+      "key": "c1-m04-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "rivalry"
+      ],
+      "text": "Decades of bitter ___ ended when the two firms finally merged.",
+      "base": "rival",
+      "accepted": [
+        "rivalry"
+      ],
+      "translation": {
+        "ru": "Десятилетия ожесточённого соперничества закончились, когда две фирмы наконец объединились.",
+        "uz": "Ikki firma nihoyat birlashgach, o'n yillab davom etgan keskin raqiblikka chek qo'yildi."
+      },
+      "explanation": {
+        "ru": "После Decades of bitter нужно существительное-процесс: rival (соперник) → rivalry (соперничество), суффикс -ry.",
+        "uz": "Decades of bitter so'zlaridan keyin jarayonni bildiruvchi ot kerak: rival (raqib) → rivalry (raqiblik), -ry qo'shimchasi."
+      }
+    },
+    {
+      "key": "c1-m04-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "viable"
+      ],
+      "text": "Investors doubted the long-term ___ of such a small airline.",
+      "base": "viable",
+      "accepted": [
+        "viability"
+      ],
+      "translation": {
+        "ru": "Инвесторы сомневались в долгосрочной жизнеспособности столь маленькой авиакомпании.",
+        "uz": "Investorlar bunday kichik aviakompaniyaning uzoq muddatli yashovchanligiga shubha qilishdi."
+      },
+      "explanation": {
+        "ru": "Между the long-term и of нужно существительное: viable → viability; -able меняется на -ability.",
+        "uz": "the long-term va of orasida ot kerak: viable → viability; -able o'rniga -ability yoziladi."
+      }
+    },
+    {
+      "key": "c1-m04-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "saturate"
+      ],
+      "text": "Market ___ means that new phone brands now struggle to find buyers.",
+      "base": "saturate",
+      "accepted": [
+        "saturation"
+      ],
+      "translation": {
+        "ru": "Из-за насыщения рынка новым маркам телефонов теперь трудно найти покупателей.",
+        "uz": "Bozor to'yinganligi sababli yangi telefon brendlari endi xaridor topishga qiynalmoqda."
+      },
+      "explanation": {
+        "ru": "После Market нужно существительное-подлежащее (перед глаголом means): saturate → saturation; -ate меняется на -ation.",
+        "uz": "Market so'zidan keyin ega vazifasidagi ot kerak (means fe'lidan oldin): saturate → saturation; -ate o'rniga -ation yoziladi."
+      }
+    },
+    {
+      "key": "c1-m04-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "foothold"
+      ],
+      "text": "The firm needed five years to gain a foothold *on* the foreign market.",
+      "options": [
+        "in",
+        "at",
+        "over"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Фирме понадобилось пять лет, чтобы закрепиться на зарубежном рынке.",
+        "uz": "Firmaga xorijiy bozorda tayanch nuqtaga ega bo'lish uchun besh yil kerak bo'ldi."
+      },
+      "explanation": {
+        "ru": "Закрепиться на рынке — gain a foothold in the market: с market здесь нужен in. Русское «на рынке» подсказывает on, но это ошибка.",
+        "uz": "Bozorda mustahkam o'rnashmoq — gain a foothold in the market: market so'zi bilan bu yerda in keladi. on predlogi bu yerda xato."
+      }
+    },
+    {
+      "key": "c1-m04-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "undercut"
+      ],
+      "text": "Last year the new supermarket *undercutted* every grocery store in town.",
+      "options": [
+        "undercut",
+        "undercuts",
+        "undercutting"
+      ],
+      "correct": [
+        "undercut"
+      ],
+      "translation": {
+        "ru": "В прошлом году новый супермаркет продавал дешевле всех продуктовых магазинов города.",
+        "uz": "O'tgan yili yangi supermarket shahardagi barcha oziq-ovqat do'konlaridan arzonroq sotdi."
+      },
+      "explanation": {
+        "ru": "undercut — неправильный глагол, как cut: прошедшее время тоже undercut, без -ed. Прошедшее время задаёт Last year.",
+        "uz": "undercut — cut kabi noto'g'ri fe'l: o'tgan zamon shakli ham undercut, -ed qo'shilmaydi. O'tgan zamonni Last year belgilaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "dominance"
+      ],
+      "text": "After the merger, the group achieved total *dominant* in the soft drinks market.",
+      "options": [
+        "dominance",
+        "dominating",
+        "dominated"
+      ],
+      "correct": [
+        "dominance"
+      ],
+      "translation": {
+        "ru": "После слияния группа добилась полного господства на рынке безалкогольных напитков.",
+        "uz": "Qo'shilishdan keyin guruh alkogolsiz ichimliklar bozorida to'liq hukmron mavqega erishdi."
+      },
+      "explanation": {
+        "ru": "После achieved total нужно существительное: dominant — прилагательное «господствующий»; «господство» — dominance (-ant → -ance).",
+        "uz": "achieved total so'zlaridan keyin ot kerak: dominant — «hukmron» sifati; «hukmron mavqe» — dominance (-ant → -ance)."
+      }
+    },
+    {
+      "key": "c1-m04-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "governance"
+      ],
+      "text": "After the scandal, shareholders demanded better corporate ___ and more independent directors.",
+      "base": "govern",
+      "accepted": [
+        "governance"
+      ],
+      "translation": {
+        "ru": "После скандала акционеры потребовали улучшить корпоративное управление и ввести больше независимых директоров.",
+        "uz": "Janjaldan keyin aksiyadorlar korporativ boshqaruv tizimini yaxshilash va mustaqil direktorlar sonini ko'paytirishni talab qilishdi."
+      },
+      "explanation": {
+        "ru": "Система управления компанией — corporate governance: govern + -ance. government — «правительство», с corporate в этом смысле не сочетается.",
+        "uz": "Kompaniyani boshqarish tizimi — corporate governance: govern + -ance. government — «hukumat», bu ma'noda corporate so'zi bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "feasibility"
+      ],
+      "text": "The city ordered a ___ study before approving the new metro line.",
+      "base": "feasible",
+      "accepted": [
+        "feasibility"
+      ],
+      "translation": {
+        "ru": "Город заказал исследование осуществимости, прежде чем одобрить новую линию метро.",
+        "uz": "Shahar yangi metro liniyasini tasdiqlashdan oldin uni amalga oshirish mumkinligini o'rganishni buyurdi."
+      },
+      "explanation": {
+        "ru": "В сочетании a ___ study нужно существительное в роли определения: feasible → feasibility (осуществимость); -ible меняется на -ibility.",
+        "uz": "a ___ study birikmasida aniqlovchi vazifasidagi ot kerak: feasible → feasibility (amalga oshirish mumkinligi); -ible o'rniga -ibility yoziladi."
+      }
+    },
+    {
+      "key": "c1-m04-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "implementation"
+      ],
+      "text": "The government has delayed the ___ of the pension reform until next spring.",
+      "base": "implement",
+      "accepted": [
+        "implementation"
+      ],
+      "translation": {
+        "ru": "Правительство отложило внедрение пенсионной реформы до следующей весны.",
+        "uz": "Hukumat pensiya islohotini joriy etishni kelasi bahorgacha kechiktirdi."
+      },
+      "explanation": {
+        "ru": "Между the и of нужно существительное: implement (внедрять) → implementation (внедрение); суффикс -ation, ударение на -ta-.",
+        "uz": "the va of orasida ot kerak: implement (joriy etmoq) → implementation (joriy etish); -ation qo'shimchasi, urg'u -ta- bo'g'inida."
+      }
+    },
+    {
+      "key": "c1-m04-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "discretion"
+      ],
+      "text": "Annual bonuses are paid *on* the manager's discretion rather than by fixed rules.",
+      "options": [
+        "at",
+        "to",
+        "for"
+      ],
+      "correct": [
+        "at"
+      ],
+      "translation": {
+        "ru": "Годовые премии выплачиваются на усмотрение руководителя, а не по твёрдым правилам.",
+        "uz": "Yillik mukofotlar qat'iy qoidalar bo'yicha emas, rahbarning ixtiyoriga ko'ra to'lanadi."
+      },
+      "explanation": {
+        "ru": "На чьё-то усмотрение — at somebody's discretion. Русское «на усмотрение» подсказывает on, но правильно только at.",
+        "uz": "Kimningdir ixtiyoriga ko'ra — at somebody's discretion. on predlogi bu yerda xato, faqat at to'g'ri."
+      }
+    },
+    {
+      "key": "c1-m04-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "oversight"
+      ],
+      "text": "Every bank in the country operates under the strict *overlook* of the central bank.",
+      "options": [
+        "oversight",
+        "overview",
+        "overseer"
+      ],
+      "correct": [
+        "oversight"
+      ],
+      "translation": {
+        "ru": "Каждый банк страны работает под строгим надзором центрального банка.",
+        "uz": "Mamlakatdagi har bir bank markaziy bankning qattiq nazorati ostida faoliyat yuritadi."
+      },
+      "explanation": {
+        "ru": "overlook — глагол «не заметить, упустить». «Надзор» — существительное oversight; overview — «обзор», overseer — «надсмотрщик» (человек).",
+        "uz": "overlook — «e'tibordan chetda qoldirmoq» fe'li. «Nazorat» — oversight oti; overview — «umumiy sharh», overseer — «nazoratchi» (shaxs)."
+      }
+    },
+    {
+      "key": "c1-m04-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "contingency"
+      ],
+      "text": "A good project manager prepares for every *contingent*, however unlikely it seems.",
+      "options": [
+        "contingency",
+        "contingencies",
+        "contingently"
+      ],
+      "correct": [
+        "contingency"
+      ],
+      "translation": {
+        "ru": "Хороший руководитель проекта готовится к любой непредвиденной ситуации, какой бы маловероятной она ни казалась.",
+        "uz": "Yaxshi loyiha rahbari har qanday kutilmagan holatga, u qanchalik ehtimoldan yiroq ko'rinmasin, tayyorlanib qo'yadi."
+      },
+      "explanation": {
+        "ru": "Непредвиденное обстоятельство — contingency. contingent — прилагательное «зависящий от» или существительное «контингент, группа людей». После every — ед. ч., поэтому не contingencies.",
+        "uz": "Kutilmagan holat — contingency. contingent — «bog'liq» sifati yoki «kontingent, odamlar guruhi» oti. every so'zidan keyin birlik keladi, shuning uchun contingencies emas."
+      }
+    },
+    {
+      "key": "c1-m04-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "concession"
+      ],
+      "text": "Neither side was willing to make a single ___, so the talks failed.",
+      "base": "concede",
+      "accepted": [
+        "concession"
+      ],
+      "translation": {
+        "ru": "Ни одна из сторон не была готова пойти хотя бы на одну уступку, поэтому переговоры провалились.",
+        "uz": "Tomonlarning hech biri birorta ham yon berishga tayyor emas edi, shuning uchun muzokaralar barbod bo'ldi."
+      },
+      "explanation": {
+        "ru": "После make a single нужно существительное: concede (уступать) → concession (уступка); основа меняется: -cede → -cession.",
+        "uz": "make a single so'zlaridan keyin ot kerak: concede (yon bermoq) → concession (yon berish); o'zak o'zgaradi: -cede → -cession."
+      }
+    },
+    {
+      "key": "c1-m04-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "procurement"
+      ],
+      "text": "Corruption in public ___ costs the state millions every year.",
+      "base": "procure",
+      "accepted": [
+        "procurement"
+      ],
+      "translation": {
+        "ru": "Коррупция в государственных закупках ежегодно обходится государству в миллионы.",
+        "uz": "Davlat xaridlaridagi korrupsiya har yili davlatga millionlab zarar keltiradi."
+      },
+      "explanation": {
+        "ru": "После in public нужно существительное: procure (закупать) → procurement (закупки); -ment прибавляется к целому глаголу.",
+        "uz": "in public so'zlaridan keyin ot kerak: procure (xarid qilmoq) → procurement (xarid); -ment fe'lning to'liq shakliga qo'shiladi."
+      }
+    },
+    {
+      "key": "c1-m04-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "haggle"
+      ],
+      "text": "Tourists are often surprised by how much ___ goes on at the market.",
+      "base": "haggle",
+      "accepted": [
+        "haggling"
+      ],
+      "translation": {
+        "ru": "Туристов часто удивляет, как много на рынке торгуются.",
+        "uz": "Sayyohlar bozorda qanchalik ko'p savdolashilishidan ko'pincha hayron qolishadi."
+      },
+      "explanation": {
+        "ru": "После how much и перед goes нужно неисчисляемое существительное-процесс: haggle → haggling (торг); немое e перед -ing выпадает.",
+        "uz": "how much dan keyin va goes fe'lidan oldin sanalmaydigan, jarayonni bildiruvchi ot kerak: haggle → haggling (savdolashish); -ing oldidan e tushib qoladi."
+      }
+    },
+    {
+      "key": "c1-m04-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "ultimatum"
+      ],
+      "text": "The union *put* management an ultimatum: higher pay or a strike.",
+      "options": [
+        "gave",
+        "placed",
+        "raised"
+      ],
+      "correct": [
+        "gave"
+      ],
+      "translation": {
+        "ru": "Профсоюз поставил руководству ультиматум: повышение зарплаты или забастовка.",
+        "uz": "Kasaba uyushmasi rahbariyatga ultimatum qo'ydi: maoshni oshirish yoki ish tashlash."
+      },
+      "explanation": {
+        "ru": "Русское «поставить ультиматум» — give somebody an ultimatum (или issue an ultimatum). Глагол put в этой конструкции невозможен.",
+        "uz": "O'zbekcha «ultimatum qo'ymoq» — give somebody an ultimatum (yoki issue an ultimatum). Bu qolipda put fe'li ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "stipulate"
+      ],
+      "text": "Our agreement clearly *stimulates* that the supplier pays for any damage.",
+      "options": [
+        "stipulates",
+        "speculates",
+        "calculates"
+      ],
+      "correct": [
+        "stipulates"
+      ],
+      "translation": {
+        "ru": "В нашем договоре чётко оговорено, что за любые повреждения платит поставщик.",
+        "uz": "Shartnomamizda har qanday zarar uchun yetkazib beruvchi to'lashi aniq shart qilib belgilangan."
+      },
+      "explanation": {
+        "ru": "stimulate — «стимулировать». Оговаривать условие в договоре — stipulate (that …). speculate — «строить догадки», calculate — «вычислять».",
+        "uz": "stimulate — «rag'batlantirmoq». Shartnomada shartni belgilamoq — stipulate (that …). speculate — «taxmin qilmoq», calculate — «hisoblamoq»."
+      }
+    },
+    {
+      "key": "c1-m04-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "leverage"
+      ],
+      "text": "The workers lost much of their *leverages* once the factory hired temporary staff.",
+      "options": [
+        "leverage",
+        "levers",
+        "leveraged"
+      ],
+      "correct": [
+        "leverage"
+      ],
+      "translation": {
+        "ru": "Рабочие во многом лишились рычага влияния, когда завод нанял временный персонал.",
+        "uz": "Zavod vaqtinchalik xodimlarni yollagach, ishchilar ta'sir dastagining katta qismini yo'qotdi."
+      },
+      "explanation": {
+        "ru": "leverage («рычаг влияния») — неисчисляемое существительное, без -s: much of their leverage. levers — мн. ч. от lever (механический рычаг), с much не сочетается.",
+        "uz": "leverage («ta'sir dastagi») — sanalmaydigan ot, -s qo'shilmaydi: much of their leverage. levers — lever (mexanik richag) so'zining ko'pligi, much bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m04-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "logistics"
+      ],
+      "text": "The main problems with the project were ___ rather than technical.",
+      "base": "logistics",
+      "accepted": [
+        "logistical",
+        "logistic"
+      ],
+      "translation": {
+        "ru": "Главные проблемы проекта были логистическими, а не техническими.",
+        "uz": "Loyihadagi asosiy muammolar texnik emas, balki logistik muammolar edi."
+      },
+      "explanation": {
+        "ru": "В паре с прилагательным technical нужно прилагательное: logistics → logistical (-ics → -ical). Допустимо и logistic.",
+        "uz": "technical sifatiga juft qilib sifat kerak: logistics → logistical (-ics → -ical). logistic shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "c1-m04-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "stockpile"
+      ],
+      "text": "The company was accused of ___ fuel to push prices up.",
+      "base": "stockpile",
+      "accepted": [
+        "stockpiling"
+      ],
+      "translation": {
+        "ru": "Компанию обвинили в накоплении запасов топлива ради повышения цен.",
+        "uz": "Kompaniya narxlarni ko'tarish uchun yoqilg'ini zaxira qilib to'plashda ayblandi."
+      },
+      "explanation": {
+        "ru": "После предлога of глагол стоит в форме -ing: stockpile (крупный запас; запасать) → stockpiling; немое e выпадает.",
+        "uz": "of predlogidan keyin fe'l -ing shaklida keladi: stockpile (katta zaxira; zaxira qilmoq) → stockpiling; e tushib qoladi."
+      }
+    },
+    {
+      "key": "c1-m04-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "dispatch"
+      ],
+      "text": "She has worked as a ___ for a delivery company for ten years.",
+      "base": "dispatch",
+      "accepted": [
+        "dispatcher"
+      ],
+      "translation": {
+        "ru": "Она уже десять лет работает диспетчером в службе доставки.",
+        "uz": "U o'n yildan beri yetkazib berish kompaniyasida dispetcher bo'lib ishlaydi."
+      },
+      "explanation": {
+        "ru": "После as a нужна профессия: dispatch (отправлять) → dispatcher, «диспетчер, тот, кто отправляет заказы и машины»; суффикс -er.",
+        "uz": "as a so'zlaridan keyin kasb kerak: dispatch (jo'natmoq) → dispatcher, «buyurtma va mashinalarni jo'natuvchi dispetcher»; -er qo'shimchasi."
+      }
+    },
+    {
+      "key": "c1-m04-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "consignment"
+      ],
+      "text": "An entire *party* of vaccines was held at customs for two weeks.",
+      "options": [
+        "consignment",
+        "assignment",
+        "commitment"
+      ],
+      "correct": [
+        "consignment"
+      ],
+      "translation": {
+        "ru": "Целую партию вакцин две недели задерживали на таможне.",
+        "uz": "Butun bir vaksina partiyasi ikki hafta davomida bojxonada ushlab turildi."
+      },
+      "explanation": {
+        "ru": "Партия груза — consignment. party — «вечеринка» или «политическая партия, сторона», но не груз. assignment — «задание», commitment — «обязательство».",
+        "uz": "Yuk partiyasi — consignment. party — «ziyofat» yoki «siyosiy partiya, tomon», lekin yuk emas. assignment — «topshiriq», commitment — «majburiyat»."
+      }
+    },
+    {
+      "key": "c1-m04-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "defective"
+      ],
+      "text": "The shop refused to replace the *defect* kettle because I had lost the receipt.",
+      "options": [
+        "defective",
+        "defected",
+        "defecting"
+      ],
+      "correct": [
+        "defective"
+      ],
+      "translation": {
+        "ru": "Магазин отказался заменить бракованный чайник, потому что я потерял чек.",
+        "uz": "Chekni yo'qotib qo'yganim uchun do'kon nuqsonli choynakni almashtirib berishdan bosh tortdi."
+      },
+      "explanation": {
+        "ru": "Перед существительным kettle нужно прилагательное: defect — существительное «дефект», «бракованный» — defective. defected, defecting — от глагола defect «перейти на сторону противника».",
+        "uz": "kettle otidan oldin sifat kerak: defect — «nuqson» oti, «nuqsonli» — defective. defected, defecting — defect («dushman tomoniga o'tmoq») fe'lidan."
+      }
+    },
+    {
+      "key": "c1-m04-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "machinery"
+      ],
+      "text": "The factory has invested in a lot of expensive *machineries* this year.",
+      "options": [
+        "machinery",
+        "machine",
+        "mechanism"
+      ],
+      "correct": [
+        "machinery"
+      ],
+      "translation": {
+        "ru": "В этом году завод вложил много денег в дорогое оборудование.",
+        "uz": "Bu yil zavod ko'plab qimmatbaho mashina va uskunalarga sarmoya kiritdi."
+      },
+      "explanation": {
+        "ru": "machinery — неисчисляемое собирательное существительное (машины, оборудование вообще), формы мн. ч. нет. Отдельные машины — machines.",
+        "uz": "machinery — sanalmaydigan jamlovchi ot (umuman mashina va uskunalar), ko'plik shakli yo'q. Alohida mashinalar — machines."
+      }
+    }
+  ]
+}

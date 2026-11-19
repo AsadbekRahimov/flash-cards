@@ -320,7 +320,7 @@ after a change run `php artisan config:cache` and restart the queue workers (`do
 |---|---|---|
 | `PRACTICE_ACCESS` | `off` (default) · `pilot` · `all` | Who may practise. `off` — nobody: the entries disappear from the TWA and every practice endpoint answers 403. `pilot` — only the learners with the pilot mark (below). `all` — everybody. Anything else (a typo) counts as `off`: a mistake in `.env` never opens the practice to everybody |
 | `PRACTICE_PLAN` | `all` (default) · `pro` | `pro` — the practice is a Pro feature: a Free learner still sees the entries, with a **Pro** chip, and is shown the paywall instead of the hub (the server answers 403 `practice_pro_required`). Applies on top of `PRACTICE_ACCESS` |
-| `PRACTICE_MODE_PAIRS` · `_COLLOCATION` · `_SENTENCE` · `_DICTATION` | `true` (default) · `false` | Switches one mode off. The hub shows it as «Выключено» and **no new session** of that mode can be opened; sessions already started are played to the end |
+| `PRACTICE_MODE_PAIRS` · `_COLLOCATION` · `_SENTENCE` · `_DICTATION` · `_PAIRS_TIMED` · `_WORD_FORM` · `_ERROR_HUNT` | `true` (default) · `false` | Switches one mode off. The hub shows it as «Выключено» and **no new session** of that mode can be opened; sessions already started are played to the end |
 | `PRACTICE_BATTLE` | `true` (default) · `false` | The switch of the 1-on-1 battle (see *Battle 1-on-1* below). `false` hides the battle entries in the TWA (the card in the hub, the «Баттл» buttons in Friends) and refuses a **new invitation** and the **acceptance** of one that was already sent (409 `battle_disabled`); matches that are on go to the end, invitations that were sent run out by themselves |
 
 Recommended roll-out: keep `off` while the tasks are imported and checked; set `pilot`, put a few learners into the pilot (button on **Learners**), watch them; then `all`. To stop the practice in a hurry
@@ -336,6 +336,13 @@ A task is handed out to a learner only when the learner has been introduced to *
 In a *sentence* the order of the fragments you type is always a right answer, and it is the first one (the review of an answer shows it). The field
 **«Другие допустимые порядки»** takes only the OTHER right orders, one per line, fragments told apart by ` | ` (an order that repeats the one above, or an earlier line, is
 dropped); leave it empty if there is no other. Text fields take plain text: a `<` or a `>` is refused («разметка не поддерживается»), `&` and quotes are fine.
+
+**Two more types** (solo only; not in the battle and not in the game «Караван»): *Форма слова* (`word_form`: a sentence with one gap `___`, the **base word**
+the learner must change, e.g. `decide`, and the **right forms**, one per line — the first is the one the review shows; up to 4, each at most 3 words of letters,
+apostrophes and hyphens; a form equal to the base word is refused) and *Найди ошибку* (`error_hunt`: a sentence with exactly ONE wrong word, marked by
+**asterisks** right in the text — `I am very interested *on* modern art.` — one whole word, punctuation outside the asterisks: `*informations*.`;
+4–16 words; **three corrections**, exactly one of them right, none equal to the wrong word). Both need the translation of the **correct** sentence and the
+explanation in Russian and Uzbek to be published. The form shows the sections of the chosen type.
 
 **Versions.** The text of a task is never changed: **Save** writes a *new version* (a draft). The task moves by buttons:
 **Проверено** (the current version has been checked) → **Опубликовать** (learners get this version; the previous published one is

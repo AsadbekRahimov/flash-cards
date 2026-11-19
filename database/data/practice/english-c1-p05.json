@@ -1,0 +1,2889 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c1",
+  "items": [
+    {
+      "key": "c1-m09-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "deduce"
+      ],
+      "text": "What can we deduce ___ these sales figures?",
+      "options": [
+        "from",
+        "of",
+        "at"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Какой вывод мы можем сделать из этих данных о продажах?",
+        "uz": "Bu savdo ko'rsatkichlaridan qanday xulosa chiqarishimiz mumkin?"
+      },
+      "explanation": {
+        "ru": "deduce something from something — делать вывод из чего-то, на основании чего-то: deduce from the figures. Источник вывода вводится предлогом from; of и at после deduce не употребляются.",
+        "uz": "deduce something from something — biror narsadan xulosa chiqarmoq: deduce from the figures. Xulosa manbai from predlogi bilan beriladi; deduce fe'lidan keyin of va at ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m09-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "perceive"
+      ],
+      "text": "Many employees perceived the new rules ___ a threat.",
+      "options": [
+        "as",
+        "for",
+        "into"
+      ],
+      "correct": [
+        "as"
+      ],
+      "translation": {
+        "ru": "Многие сотрудники восприняли новые правила как угрозу.",
+        "uz": "Ko'plab xodimlar yangi qoidalarni tahdid sifatida idrok etdi."
+      },
+      "explanation": {
+        "ru": "perceive something as … — воспринимать что-то как …: perceived the rules as a threat. Русское «принять за» подсказывает for, но с perceive так не говорят; into здесь тоже невозможно.",
+        "uz": "perceive something as … — biror narsani … sifatida idrok etmoq: perceived the rules as a threat. Perceive fe'li bilan for ishlatilmaydi; into ham bu yerda mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m09-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "recollect"
+      ],
+      "text": "As ___ as I can recollect, nobody objected to the plan.",
+      "options": [
+        "far",
+        "deep",
+        "high"
+      ],
+      "correct": [
+        "far"
+      ],
+      "translation": {
+        "ru": "Насколько я могу припомнить, никто не возражал против плана.",
+        "uz": "Eslay olishimcha, rejaga hech kim e'tiroz bildirmagan."
+      },
+      "explanation": {
+        "ru": "as far as I can recollect — насколько я могу припомнить. Это устойчивая рамка as far as I can (remember, recall, tell); deep и high в ней не употребляются.",
+        "uz": "as far as I can recollect — eslay olishimcha. Bu turg'un ibora: as far as I can (remember, recall, tell); unda deep va high so'zlari ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m09-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "contemplate"
+      ],
+      "prompt": {
+        "ru": "Она ни разу не допустила мысли о том, чтобы сдаться.",
+        "uz": "U biror marta ham taslim bo'lishni o'ylab ko'rmadi."
+      },
+      "fragments": [
+        "not",
+        "once",
+        "did",
+        "she",
+        "contemplate",
+        "giving",
+        "up"
+      ],
+      "accepted": [
+        [
+          "not",
+          "once",
+          "did",
+          "she",
+          "contemplate",
+          "giving",
+          "up"
+        ],
+        [
+          "she",
+          "did",
+          "not",
+          "once",
+          "contemplate",
+          "giving",
+          "up"
+        ],
+        [
+          "she",
+          "did",
+          "not",
+          "contemplate",
+          "giving",
+          "up",
+          "once"
+        ]
+      ],
+      "display": "Not once did she contemplate giving up.",
+      "explanation": {
+        "ru": "contemplate + -ing — всерьёз обдумывать какую-то возможность: contemplate giving up. После not once в начале предложения идёт инверсия, как в вопросе: did she contemplate. Без инверсии: She did not once contemplate giving up.",
+        "uz": "contemplate + -ing — biror imkoniyatni jiddiy o'ylab ko'rmoq: contemplate giving up. Gap boshida not once kelsa, so'roq gapdagidek inversiya bo'ladi: did she contemplate. Inversiyasiz: She did not once contemplate giving up."
+      }
+    },
+    {
+      "key": "c1-m09-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "envisage"
+      ],
+      "prompt": {
+        "ru": "Мало кто мог бы представить себе такую быструю перемену.",
+        "uz": "Bunday tez o'zgarishni kamdan-kam odam tasavvur qila olgan bo'lardi."
+      },
+      "fragments": [
+        "few",
+        "could have",
+        "envisaged",
+        "such",
+        "a",
+        "rapid",
+        "change"
+      ],
+      "accepted": [
+        [
+          "few",
+          "could have",
+          "envisaged",
+          "such",
+          "a",
+          "rapid",
+          "change"
+        ]
+      ],
+      "display": "Few could have envisaged such a rapid change.",
+      "explanation": {
+        "ru": "could have + третья форма — «мог бы (тогда)», о прошлом: could have envisaged. Few без a — «мало кто», с оттенком отрицания. Порядок: such a + прилагательное + существительное.",
+        "uz": "could have + uchinchi shakl — o'tmishdagi imkoniyat: could have envisaged. A artiklisiz few — «kamdan-kam odam», inkor ma'nosi bor. Tartib: such a + sifat + ot."
+      }
+    },
+    {
+      "key": "c1-m09-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "comprehend"
+      ],
+      "prompt": {
+        "ru": "То, что ей пришлось пережить, трудно постичь.",
+        "uz": "Uning boshidan kechirganlarini anglab yetish qiyin."
+      },
+      "fragments": [
+        "what",
+        "she",
+        "went",
+        "through",
+        "is",
+        "hard",
+        "to",
+        "comprehend"
+      ],
+      "accepted": [
+        [
+          "what",
+          "she",
+          "went",
+          "through",
+          "is",
+          "hard",
+          "to",
+          "comprehend"
+        ]
+      ],
+      "display": "What she went through is hard to comprehend.",
+      "explanation": {
+        "ru": "What she went through — придаточное-подлежащее «то, что она пережила»; глагол после него в единственном числе: is. Hard to comprehend — «трудно постичь». Go through — пережить (трудности).",
+        "uz": "What she went through — ega vazifasidagi ergash gap: «uning boshidan kechirganlari»; undan keyin fe'l birlikda: is. Hard to comprehend — «anglab yetish qiyin». Go through — (qiyinchilikni) boshdan kechirmoq."
+      }
+    },
+    {
+      "key": "c1-m09-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "reckon",
+        "conceive"
+      ],
+      "text": "I reckon she conceived the idea herself",
+      "accepted": [
+        "I reckon she conceived the idea herself"
+      ],
+      "translation": {
+        "ru": "Полагаю, она придумала эту идею сама",
+        "uz": "Menimcha, bu g'oyani u o'zi o'ylab topgan"
+      },
+      "explanation": {
+        "ru": "reckon: в середине ck. В conceive после c пишется ei, как в receive: c-o-n-c-e-i-v-e-d.",
+        "uz": "reckon so'zining o'rtasida ck yoziladi. Conceive so'zida c dan keyin ei keladi (receive so'zidagi kabi): c-o-n-c-e-i-v-e-d."
+      }
+    },
+    {
+      "key": "c1-m09-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "ponder"
+      ],
+      "text": "She paused to ponder her next move",
+      "accepted": [
+        "She paused to ponder her next move"
+      ],
+      "translation": {
+        "ru": "Она остановилась, чтобы обдумать свой следующий шаг",
+        "uz": "U keyingi qadami ustida mulohaza yuritish uchun to'xtadi"
+      }
+    },
+    {
+      "key": "c1-m09-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "discern"
+      ],
+      "text": "It is not easy to discern the truth",
+      "accepted": [
+        "It is not easy to discern the truth",
+        "It isn't easy to discern the truth",
+        "It's not easy to discern the truth"
+      ],
+      "translation": {
+        "ru": "Распознать правду нелегко",
+        "uz": "Haqiqatni ilg'ab olish oson emas"
+      },
+      "explanation": {
+        "ru": "discern: после s пишется c, хотя слышен один звук «с»: d-i-s-c-e-r-n.",
+        "uz": "discern: s dan keyin c yoziladi, garchi bitta «s» tovushi eshitilsa ham: d-i-s-c-e-r-n."
+      }
+    },
+    {
+      "key": "c1-m09-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "urge"
+      ],
+      "text": "She had to ___ the urge to laugh out loud.",
+      "options": [
+        "resist",
+        "keep",
+        "stand"
+      ],
+      "correct": [
+        "resist"
+      ],
+      "translation": {
+        "ru": "Ей пришлось подавить сильное желание громко рассмеяться.",
+        "uz": "U ovoz chiqarib kulib yuborish istagini bosishga majbur bo'ldi."
+      },
+      "explanation": {
+        "ru": "resist the urge to do something — подавить, сдержать сильное желание: resist the urge to laugh. С urge говорят resist или fight; keep и stand с ним не сочетаются.",
+        "uz": "resist the urge to do something — kuchli istakni bosmoq, unga berilmaslik: resist the urge to laugh. Urge so'zi bilan resist yoki fight ishlatiladi; keep va stand bu so'z bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m09-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "impulse"
+      ],
+      "text": "He bought the old sports car ___ impulse.",
+      "options": [
+        "on",
+        "at",
+        "in"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Он купил старую спортивную машину под влиянием порыва.",
+        "uz": "U eski sport mashinasini to'satdan tug'ilgan xohish bilan sotib oldi."
+      },
+      "explanation": {
+        "ru": "on impulse — под влиянием порыва, не подумав: buy something on impulse, act on impulse. Предлог здесь только on; at и in не употребляются. Отсюда и impulse buying — спонтанные покупки.",
+        "uz": "on impulse — o'ylamay, to'satdan tug'ilgan xohish bilan: buy something on impulse, act on impulse. Bu yerda faqat on predlogi keladi; at va in ishlatilmaydi. Impulse buying — o'ylamay qilingan xaridlar."
+      }
+    },
+    {
+      "key": "c1-m09-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "obsession"
+      ],
+      "text": "His obsession ___ detail made him a brilliant editor.",
+      "options": [
+        "with",
+        "to",
+        "on"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Одержимость деталями сделала его блестящим редактором.",
+        "uz": "Mayda tafsilotlarga ruju qo'yishi uni ajoyib muharrirga aylantirdi."
+      },
+      "explanation": {
+        "ru": "an obsession with something — одержимость чем-то: an obsession with detail, with money. После obsession обычно стоит with (реже about); to и on здесь невозможны.",
+        "uz": "an obsession with something — biror narsaga ruju qo'yish: an obsession with detail, with money. Obsession so'zidan keyin odatda with (ba'zan about) keladi; to va on bu yerda mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m09-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "deterrent"
+      ],
+      "prompt": {
+        "ru": "Более высокие цены оказались действенным сдерживающим фактором.",
+        "uz": "Yuqoriroq narxlar samarali tiyib turuvchi omil bo'lib chiqdi."
+      },
+      "fragments": [
+        "higher",
+        "prices",
+        "have",
+        "proved",
+        "an",
+        "effective",
+        "deterrent"
+      ],
+      "accepted": [
+        [
+          "higher",
+          "prices",
+          "have",
+          "proved",
+          "an",
+          "effective",
+          "deterrent"
+        ]
+      ],
+      "display": "Higher prices have proved an effective deterrent.",
+      "explanation": {
+        "ru": "prove + существительное — «оказаться (кем, чем)»: have proved an effective deterrent; to be здесь можно опустить. Deterrent — то, что удерживает людей от действия.",
+        "uz": "prove + ot — «… bo'lib chiqmoq»: have proved an effective deterrent; bu yerda to be tushib qolishi mumkin. Deterrent — odamlarni biror ishdan tiyib turadigan narsa."
+      }
+    },
+    {
+      "key": "c1-m09-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "inhibition"
+      ],
+      "prompt": {
+        "ru": "Музыка помогла ему избавиться от скованности.",
+        "uz": "Musiqa unga tortinishdan xalos bo'lishga yordam berdi."
+      },
+      "fragments": [
+        "music",
+        "helped",
+        "him",
+        "lose",
+        "his",
+        "inhibitions"
+      ],
+      "accepted": [
+        [
+          "music",
+          "helped",
+          "him",
+          "lose",
+          "his",
+          "inhibitions"
+        ]
+      ],
+      "display": "Music helped him lose his inhibitions.",
+      "explanation": {
+        "ru": "lose one's inhibitions — раскрепоститься, избавиться от скованности; inhibitions здесь во множественном числе. Help + кого + глагол без to: helped him lose.",
+        "uz": "lose one's inhibitions — tortinishdan xalos bo'lmoq; bu iborada inhibitions ko'plikda keladi. Help + kimga + to yuklamasisiz fe'l: helped him lose."
+      }
+    },
+    {
+      "key": "c1-m09-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "habitual"
+      ],
+      "prompt": {
+        "ru": "Что меня раздражает, так это его привычные опоздания.",
+        "uz": "G'ashimga tegadigan narsa — uning odatdagi kechikishlari."
+      },
+      "fragments": [
+        "what",
+        "annoys",
+        "me",
+        "is",
+        "his",
+        "habitual",
+        "lateness"
+      ],
+      "accepted": [
+        [
+          "what",
+          "annoys",
+          "me",
+          "is",
+          "his",
+          "habitual",
+          "lateness"
+        ],
+        [
+          "his",
+          "habitual",
+          "lateness",
+          "is",
+          "what",
+          "annoys",
+          "me"
+        ]
+      ],
+      "display": "What annoys me is his habitual lateness.",
+      "explanation": {
+        "ru": "What annoys me is … — выделительная конструкция «что меня раздражает, так это …». Habitual — привычный, постоянный: habitual lateness. Части можно поменять: His habitual lateness is what annoys me.",
+        "uz": "What annoys me is … — ajratib ko'rsatuvchi qurilma: «g'ashimga tegadigan narsa — …». Habitual — odatdagi, doimiy: habitual lateness. Qismlarni almashtirish mumkin: His habitual lateness is what annoys me."
+      }
+    },
+    {
+      "key": "c1-m09-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "disposition"
+      ],
+      "text": "He has a calm and gentle disposition",
+      "accepted": [
+        "He has a calm and gentle disposition"
+      ],
+      "translation": {
+        "ru": "У него спокойный и мягкий нрав",
+        "uz": "Uning fe'l-atvori sokin va muloyim"
+      }
+    },
+    {
+      "key": "c1-m09-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "compulsion"
+      ],
+      "text": "Cleaning became a compulsion for her",
+      "accepted": [
+        "Cleaning became a compulsion for her"
+      ],
+      "translation": {
+        "ru": "Уборка стала для неё навязчивой потребностью",
+        "uz": "Tozalash uning uchun yengib bo'lmas ehtiyojga aylandi"
+      },
+      "explanation": {
+        "ru": "compulsion оканчивается на -sion, а не на -tion: c-o-m-p-u-l-s-i-o-n.",
+        "uz": "compulsion so'zi -tion bilan emas, -sion bilan tugaydi: c-o-m-p-u-l-s-i-o-n."
+      }
+    },
+    {
+      "key": "c1-m09-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "addiction",
+        "craving"
+      ],
+      "text": "Sugar addiction causes strong cravings",
+      "accepted": [
+        "Sugar addiction causes strong cravings"
+      ],
+      "translation": {
+        "ru": "Зависимость от сахара вызывает сильную тягу",
+        "uz": "Shakarga mubtalolik kuchli tusash uyg'otadi"
+      },
+      "explanation": {
+        "ru": "addiction пишется с двумя d: a-d-d-i-c-t-i-o-n. В craving e из crave перед -ing выпадает.",
+        "uz": "addiction ikkita d bilan yoziladi: a-d-d-i-c-t-i-o-n. Craving so'zida crave dagi e harfi -ing oldidan tushib qoladi."
+      }
+    },
+    {
+      "key": "c1-m09-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "paranoia"
+      ],
+      "text": "His fear of being watched was bordering ___ paranoia.",
+      "options": [
+        "on",
+        "with",
+        "to"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Его страх, что за ним следят, граничил с паранойей.",
+        "uz": "Uning kuzatilayotganidan qo'rqishi paranoyyaga yaqin edi."
+      },
+      "explanation": {
+        "ru": "border on something — граничить с чем-то (о чувстве, поведении): bordering on paranoia. Русское «граничить с» подсказывает with, но в этом значении говорят только on; to тоже невозможно.",
+        "uz": "border on something — biror narsaga yaqinlashib qolmoq (his-tuyg'u, xulq haqida): bordering on paranoia. Bu ma'noda faqat on ishlatiladi; with va to mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m09-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "delusion"
+      ],
+      "text": "He is ___ the delusion that everyone admires him.",
+      "options": [
+        "under",
+        "in",
+        "on"
+      ],
+      "correct": [
+        "under"
+      ],
+      "translation": {
+        "ru": "Он пребывает в заблуждении, будто все им восхищаются.",
+        "uz": "U hamma o'ziga qoyil qoladi, degan xomxayolga berilgan."
+      },
+      "explanation": {
+        "ru": "be under the delusion that … — ошибочно, вопреки фактам верить, что …: He is under the delusion that … В этой рамке нужен under; in и on не употребляются.",
+        "uz": "be under the delusion that … — haqiqatga zid narsaga qat'iy ishonmoq: He is under the delusion that … Bu iborada under keladi; in va on ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m09-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "dementia"
+      ],
+      "text": "Her grandmother ___ dementia in her late eighties.",
+      "options": [
+        "developed",
+        "grew",
+        "caught"
+      ],
+      "correct": [
+        "developed"
+      ],
+      "translation": {
+        "ru": "У её бабушки развилась деменция, когда ей было под девяносто.",
+        "uz": "Uning buvisida sakson yoshlarining oxirida demensiya paydo bo'ldi."
+      },
+      "explanation": {
+        "ru": "develop dementia — заболеть деменцией (болезнь развивается постепенно): develop + название болезни. Grow так не употребляется, а catch (подхватить) говорят только о заразных болезнях.",
+        "uz": "develop dementia — demensiyaga chalinmoq (kasallik asta-sekin rivojlanadi): develop + kasallik nomi. Grow fe'li bunday ishlatilmaydi, catch esa faqat yuqumli kasalliklar haqida aytiladi."
+      }
+    },
+    {
+      "key": "c1-m09-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "therapist"
+      ],
+      "prompt": {
+        "ru": "Её психотерапевт посоветовал ей вести дневник.",
+        "uz": "Psixoterapevti unga kundalik yuritishni maslahat berdi."
+      },
+      "fragments": [
+        "her",
+        "therapist",
+        "advised",
+        "her",
+        "to",
+        "keep",
+        "a",
+        "diary"
+      ],
+      "accepted": [
+        [
+          "her",
+          "therapist",
+          "advised",
+          "her",
+          "to",
+          "keep",
+          "a",
+          "diary"
+        ]
+      ],
+      "display": "Her therapist advised her to keep a diary.",
+      "explanation": {
+        "ru": "advise somebody to do something — посоветовать кому-то сделать что-то: advised her to keep. Keep a diary — вести дневник.",
+        "uz": "advise somebody to do something — kimgadir biror ishni qilishni maslahat bermoq: advised her to keep. Keep a diary — kundalik yuritmoq."
+      }
+    },
+    {
+      "key": "c1-m09-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "traumatic"
+      ],
+      "prompt": {
+        "ru": "Редко когда дети забывают такие травмирующие события.",
+        "uz": "Bolalar bunday ruhiy jarohat yetkazuvchi voqealarni kamdan-kam unutadi."
+      },
+      "fragments": [
+        "rarely",
+        "do",
+        "children",
+        "forget",
+        "such",
+        "traumatic",
+        "events"
+      ],
+      "accepted": [
+        [
+          "rarely",
+          "do",
+          "children",
+          "forget",
+          "such",
+          "traumatic",
+          "events"
+        ]
+      ],
+      "display": "Rarely do children forget such traumatic events.",
+      "explanation": {
+        "ru": "Rarely в начале предложения требует инверсии, как в вопросе: Rarely do children forget. Без инверсии было бы Children rarely forget … (без do). Such + прилагательное + существительное во мн. числе — без артикля.",
+        "uz": "Rarely gap boshida kelsa, so'roq gapdagidek inversiya bo'ladi: Rarely do children forget. Inversiyasiz: Children rarely forget … (do kerak emas). Such + sifat + ko'plikdagi ot — artiklsiz."
+      }
+    },
+    {
+      "key": "c1-m09-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "counseling"
+      ],
+      "prompt": {
+        "ru": "Школа предлагает учащимся бесплатное психологическое консультирование.",
+        "uz": "Maktab o'quvchilarga bepul psixologik maslahat taklif qiladi."
+      },
+      "fragments": [
+        "the",
+        "school",
+        "offers",
+        "free",
+        "counseling",
+        "to",
+        "students"
+      ],
+      "accepted": [
+        [
+          "the",
+          "school",
+          "offers",
+          "free",
+          "counseling",
+          "to",
+          "students"
+        ]
+      ],
+      "display": "The school offers free counseling to students.",
+      "explanation": {
+        "ru": "offer something to somebody — предлагать что-то кому-то. Counseling — неисчисляемое существительное: без a и без -s. В британском написании — counselling.",
+        "uz": "offer something to somebody — kimgadir biror narsa taklif qilmoq. Counseling — sanalmaydigan ot: a artiklisiz va -s qo'shimchasisiz. Britaniya imlosida counselling deb yoziladi."
+      }
+    },
+    {
+      "key": "c1-m09-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "hallucination"
+      ],
+      "text": "The fever gave him strange hallucinations",
+      "accepted": [
+        "The fever gave him strange hallucinations"
+      ],
+      "translation": {
+        "ru": "Из-за жара у него начались странные галлюцинации",
+        "uz": "Isitma tufayli unda g'alati gallyutsinatsiyalar boshlandi"
+      },
+      "explanation": {
+        "ru": "hallucination: двойное l и одно c: h-a-l-l-u-c-i-n-a-t-i-o-n.",
+        "uz": "hallucination: ikkita l va bitta c: h-a-l-l-u-c-i-n-a-t-i-o-n."
+      }
+    },
+    {
+      "key": "c1-m09-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "psychiatric"
+      ],
+      "text": "He was treated in a psychiatric clinic",
+      "accepted": [
+        "He was treated in a psychiatric clinic"
+      ],
+      "translation": {
+        "ru": "Он лечился в психиатрической клинике",
+        "uz": "U psixiatrik klinikada davolangan"
+      },
+      "explanation": {
+        "ru": "psychiatric начинается с непроизносимой p: p-s-y-c-h-i-a-t-r-i-c; звук «к» здесь пишется ch.",
+        "uz": "psychiatric so'zi o'qilmaydigan p harfi bilan boshlanadi: p-s-y-c-h-i-a-t-r-i-c; «k» tovushi bu yerda ch bilan yoziladi."
+      }
+    },
+    {
+      "key": "c1-m09-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "hysteria",
+        "breakdown"
+      ],
+      "text": "His hysteria ended in a nervous breakdown",
+      "accepted": [
+        "His hysteria ended in a nervous breakdown"
+      ],
+      "translation": {
+        "ru": "Его истерия закончилась нервным срывом",
+        "uz": "Uning jazavasi asab buzilishi bilan tugadi"
+      },
+      "explanation": {
+        "ru": "hysteria: после h пишется y: h-y-s-t-e-r-i-a. Существительное breakdown пишется одним словом.",
+        "uz": "hysteria: h dan keyin y yoziladi: h-y-s-t-e-r-i-a. Breakdown oti bitta so'z qilib yoziladi."
+      }
+    },
+    {
+      "key": "c1-m09-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "reminiscent"
+      ],
+      "text": "The melody is strongly reminiscent ___ an old folk song.",
+      "options": [
+        "of",
+        "from",
+        "with"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Эта мелодия очень напоминает старую народную песню.",
+        "uz": "Bu kuy eski xalq qo'shig'ini juda eslatadi."
+      },
+      "explanation": {
+        "ru": "reminiscent of something — напоминающий что-то: reminiscent of an old song. После reminiscent в этом значении всегда of; from и with невозможны.",
+        "uz": "reminiscent of something — biror narsani eslatuvchi: reminiscent of an old song. Bu ma'noda reminiscent so'zidan keyin doim of keladi; from va with mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m09-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "illusion"
+      ],
+      "text": "Clever lighting ___ the illusion of open space.",
+      "options": [
+        "creates",
+        "does",
+        "puts"
+      ],
+      "correct": [
+        "creates"
+      ],
+      "translation": {
+        "ru": "Продуманное освещение создаёт иллюзию простора.",
+        "uz": "Puxta o'ylangan yoritish keng makon illyuziyasini yaratadi."
+      },
+      "explanation": {
+        "ru": "create (или give) the illusion of something — создавать иллюзию чего-то. Как и в русском, иллюзию «создают»: does и puts с illusion не сочетаются.",
+        "uz": "create (yoki give) the illusion of something — biror narsa illyuziyasini yaratmoq. O'zbek tilidagi kabi illyuziya «yaratiladi»: does va puts fe'llari illusion so'zi bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m09-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "oblivious"
+      ],
+      "text": "The children played on, oblivious ___ the approaching storm.",
+      "options": [
+        "to",
+        "for",
+        "from"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Дети продолжали играть, не замечая надвигающейся бури.",
+        "uz": "Bolalar yaqinlashib kelayotgan bo'rondan bexabar holda o'ynashda davom etdi."
+      },
+      "explanation": {
+        "ru": "oblivious to (или of) something — не замечающий чего-то: oblivious to the storm. For и from после oblivious не употребляются.",
+        "uz": "oblivious to (yoki of) something — biror narsadan bexabar, uni sezmaydigan: oblivious to the storm. Oblivious so'zidan keyin for va from ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m09-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "vigilant"
+      ],
+      "prompt": {
+        "ru": "Родителям бдительности много не бывает.",
+        "uz": "Ota-onalar qanchalik sergak bo'lsa ham, bu ortiqcha emas."
+      },
+      "fragments": [
+        "parents",
+        "cannot",
+        "be",
+        "too",
+        "vigilant"
+      ],
+      "accepted": [
+        [
+          "parents",
+          "cannot",
+          "be",
+          "too",
+          "vigilant"
+        ]
+      ],
+      "display": "Parents cannot be too vigilant.",
+      "explanation": {
+        "ru": "cannot be too + прилагательное — «чем больше, тем лучше; лишним не будет»: Parents cannot be too vigilant — бдительность родителей никогда не бывает лишней.",
+        "uz": "cannot be too + sifat — «qancha ko'p bo'lsa, shuncha yaxshi; ortiqcha bo'lmaydi»: Parents cannot be too vigilant — ota-onalarning sergakligi hech qachon ortiqcha emas."
+      }
+    },
+    {
+      "key": "c1-m09-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "distraction"
+      ],
+      "prompt": {
+        "ru": "Постоянные уведомления — серьёзный отвлекающий фактор.",
+        "uz": "Doimiy bildirishnomalar — jiddiy chalg'ituvchi omil."
+      },
+      "fragments": [
+        "constant",
+        "notifications",
+        "are",
+        "a",
+        "major",
+        "distraction"
+      ],
+      "accepted": [
+        [
+          "constant",
+          "notifications",
+          "are",
+          "a",
+          "major",
+          "distraction"
+        ]
+      ],
+      "display": "Constant notifications are a major distraction.",
+      "explanation": {
+        "ru": "distraction — то, что отвлекает; исчисляемое существительное: a major distraction. Глагол — distract (отвлекать).",
+        "uz": "distraction — chalg'ituvchi narsa; sanaladigan ot: a major distraction. Fe'li — distract (chalg'itmoq)."
+      }
+    },
+    {
+      "key": "c1-m09-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "subconscious"
+      ],
+      "prompt": {
+        "ru": "Подсознательные страхи определяют многие наши решения.",
+        "uz": "Ongosti qo'rquvlar ko'plab tanlovlarimizni belgilaydi."
+      },
+      "fragments": [
+        "subconscious",
+        "fears",
+        "shape",
+        "many",
+        "of",
+        "our",
+        "choices"
+      ],
+      "accepted": [
+        [
+          "subconscious",
+          "fears",
+          "shape",
+          "many",
+          "of",
+          "our",
+          "choices"
+        ]
+      ],
+      "display": "Subconscious fears shape many of our choices.",
+      "explanation": {
+        "ru": "subconscious — подсознательный; прилагательное стоит перед существительным: subconscious fears. Many of + our + существительное во мн. числе — «многие из наших …».",
+        "uz": "subconscious — ongosti; sifat otdan oldin keladi: subconscious fears. Many of + our + ko'plikdagi ot — «… larimizning ko'pi»."
+      }
+    },
+    {
+      "key": "c1-m09-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "attentive"
+      ],
+      "text": "Thank you for being so attentive",
+      "accepted": [
+        "Thank you for being so attentive"
+      ],
+      "translation": {
+        "ru": "Спасибо, что вы так внимательны",
+        "uz": "Shunchalik diqqatli bo'lganingiz uchun rahmat"
+      },
+      "explanation": {
+        "ru": "attentive пишется с двумя t в начале: a-t-t-e-n-t-i-v-e.",
+        "uz": "attentive so'zi boshida ikkita t bilan yoziladi: a-t-t-e-n-t-i-v-e."
+      }
+    },
+    {
+      "key": "c1-m09-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "sensory",
+        "sensation"
+      ],
+      "text": "Sensory nerves carry every sensation to the brain",
+      "accepted": [
+        "Sensory nerves carry every sensation to the brain"
+      ],
+      "translation": {
+        "ru": "Сенсорные нервы передают в мозг каждое ощущение",
+        "uz": "Sezuvchi nervlar har bir sezgini miyaga yetkazadi"
+      },
+      "explanation": {
+        "ru": "Корень sens- пишется с s: sensory оканчивается на -ory, sensation — на -ation.",
+        "uz": "Ikkala so'zning o'zagi sens- s bilan yoziladi: sensory -ory bilan, sensation esa -ation bilan tugaydi."
+      }
+    },
+    {
+      "key": "c1-m09-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "amnesia"
+      ],
+      "text": "The patient woke up with total amnesia",
+      "accepted": [
+        "The patient woke up with total amnesia"
+      ],
+      "translation": {
+        "ru": "Пациент очнулся с полной потерей памяти",
+        "uz": "Bemor xotirasini butunlay yo'qotgan holda uyg'ondi"
+      }
+    },
+    {
+      "key": "c1-m09-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "esteem"
+      ],
+      "text": "All her former students hold her in ___ esteem.",
+      "options": [
+        "high",
+        "big",
+        "tall"
+      ],
+      "correct": [
+        "high"
+      ],
+      "translation": {
+        "ru": "Все её бывшие ученики относятся к ней с большим уважением.",
+        "uz": "Barcha sobiq o'quvchilari unga katta ehtirom bilan qaraydi."
+      },
+      "explanation": {
+        "ru": "hold somebody in high esteem — глубоко уважать кого-то. По-английски уважение «высокое» (high) или great; big и tall с esteem не употребляются, хотя по-русски говорят «большое уважение».",
+        "uz": "hold somebody in high esteem — kimnidir chuqur hurmat qilmoq. Ingliz tilida ehtirom «baland» (high) yoki great bo'ladi; big va tall so'zlari esteem bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m09-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "inferiority"
+      ],
+      "text": "Growing up poor left him with an inferiority ___.",
+      "options": [
+        "complex",
+        "complexity",
+        "complication"
+      ],
+      "correct": [
+        "complex"
+      ],
+      "translation": {
+        "ru": "Детство в бедности оставило ему комплекс неполноценности.",
+        "uz": "Qashshoqlikda o'tgan bolalik unda o'zini kam sanash kompleksini qoldirdi."
+      },
+      "explanation": {
+        "ru": "inferiority complex — комплекс неполноценности; complex здесь существительное «комплекс». Complexity — «сложность», complication — «осложнение»: в этом выражении они невозможны.",
+        "uz": "inferiority complex — o'zini kam sanash kompleksi; bu yerda complex — «kompleks» degan ot. Complexity — «murakkablik», complication — «asorat»: bu iborada ular ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m09-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "maturity"
+      ],
+      "text": "The boy shows remarkable maturity ___ his age.",
+      "options": [
+        "for",
+        "to",
+        "of"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Мальчик проявляет удивительную для своего возраста зрелость.",
+        "uz": "Bola yoshiga nisbatan ajoyib yetuklik ko'rsatmoqda."
+      },
+      "explanation": {
+        "ru": "maturity for one's age — зрелость не по годам; for здесь значит «для, с учётом»: mature for his age. To и of в этом выражении не употребляются.",
+        "uz": "maturity for one's age — yoshiga nisbatan yetuklik; bu yerda for «… uchun, … ga nisbatan» degani: mature for his age. Bu iborada to va of ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m09-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "upbringing"
+      ],
+      "prompt": {
+        "ru": "Воспитание сделало её настороженной по отношению к незнакомцам.",
+        "uz": "Tarbiyasi uni begonalarga nisbatan ehtiyotkor qilib qo'ydi."
+      },
+      "fragments": [
+        "her",
+        "upbringing",
+        "made",
+        "her",
+        "wary",
+        "of",
+        "strangers"
+      ],
+      "accepted": [
+        [
+          "her",
+          "upbringing",
+          "made",
+          "her",
+          "wary",
+          "of",
+          "strangers"
+        ]
+      ],
+      "display": "Her upbringing made her wary of strangers.",
+      "explanation": {
+        "ru": "make + кого + прилагательное — «сделать каким-то»: made her wary. Wary of — настороженный, осторожный по отношению к кому-то. Upbringing — воспитание (от bring up).",
+        "uz": "make + kimni + sifat — «kimnidir qandaydir qilmoq»: made her wary. Wary of — kimgadir nisbatan ehtiyotkor, hushyor. Upbringing — tarbiya (bring up fe'lidan)."
+      }
+    },
+    {
+      "key": "c1-m09-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "humiliation"
+      ],
+      "prompt": {
+        "ru": "Больнее всего его задело именно унижение.",
+        "uz": "Uni eng ko'p og'ritgani aynan xo'rlik edi."
+      },
+      "fragments": [
+        "it",
+        "was",
+        "the",
+        "humiliation",
+        "that",
+        "hurt",
+        "him",
+        "most"
+      ],
+      "accepted": [
+        [
+          "it",
+          "was",
+          "the",
+          "humiliation",
+          "that",
+          "hurt",
+          "him",
+          "most"
+        ],
+        [
+          "it",
+          "was",
+          "the",
+          "humiliation",
+          "that",
+          "most",
+          "hurt",
+          "him"
+        ]
+      ],
+      "display": "It was the humiliation that hurt him most.",
+      "explanation": {
+        "ru": "It was … that … — выделительная конструкция «именно …»: It was the humiliation that hurt him most. Most может стоять и перед глаголом: that most hurt him.",
+        "uz": "It was … that … — ajratib ko'rsatuvchi qurilma: «aynan …»: It was the humiliation that hurt him most. Most fe'ldan oldin ham kelishi mumkin: that most hurt him."
+      }
+    },
+    {
+      "key": "c1-m09-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "ego"
+      ],
+      "prompt": {
+        "ru": "Его самолюбие не позволило ему извиниться.",
+        "uz": "Nafsoniyati unga kechirim so'rashga yo'l qo'ymadi."
+      },
+      "fragments": [
+        "his",
+        "ego",
+        "would",
+        "not",
+        "let",
+        "him",
+        "apologize"
+      ],
+      "accepted": [
+        [
+          "his",
+          "ego",
+          "would",
+          "not",
+          "let",
+          "him",
+          "apologize"
+        ]
+      ],
+      "display": "His ego would not let him apologize.",
+      "explanation": {
+        "ru": "would not здесь — «никак не давал, не позволял»: his ego would not let him. Let + кого + глагол без to: let him apologize.",
+        "uz": "would not bu yerda — «hech yo'l qo'ymadi»: his ego would not let him. Let + kimni + to yuklamasisiz fe'l: let him apologize."
+      }
+    },
+    {
+      "key": "c1-m09-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "adolescence"
+      ],
+      "text": "Adolescence is often a difficult time",
+      "accepted": [
+        "Adolescence is often a difficult time"
+      ],
+      "translation": {
+        "ru": "Подростковый возраст — часто трудное время",
+        "uz": "O'smirlik ko'pincha qiyin davr bo'ladi"
+      },
+      "explanation": {
+        "ru": "adolescence: в середине sc, на конце -ence: a-d-o-l-e-s-c-e-n-c-e.",
+        "uz": "adolescence: o'rtada sc, oxirida -ence yoziladi: a-d-o-l-e-s-c-e-n-c-e."
+      }
+    },
+    {
+      "key": "c1-m09-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "narcissism"
+      ],
+      "text": "His narcissism drives people away",
+      "accepted": [
+        "His narcissism drives people away"
+      ],
+      "translation": {
+        "ru": "Его самовлюблённость отталкивает людей",
+        "uz": "Uning o'ziga bino qo'yishi odamlarni o'zidan uzoqlashtiradi"
+      },
+      "explanation": {
+        "ru": "narcissism: в середине двойное s, в конце одно: n-a-r-c-i-s-s-i-s-m.",
+        "uz": "narcissism: o'rtada ikkita s, oxirida bitta s: n-a-r-c-i-s-s-i-s-m."
+      }
+    },
+    {
+      "key": "c1-m09-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "mindfulness",
+        "insecurity"
+      ],
+      "text": "Mindfulness can help with insecurity",
+      "accepted": [
+        "Mindfulness can help with insecurity"
+      ],
+      "translation": {
+        "ru": "Осознанность может помочь справиться с неуверенностью в себе",
+        "uz": "Onglilik o'ziga ishonchsizlikni yengishga yordam berishi mumkin"
+      },
+      "explanation": {
+        "ru": "mindfulness: mind + -ful + -ness; суффикс -ful пишется с одним l, -ness — с двумя s.",
+        "uz": "mindfulness: mind + -ful + -ness; -ful qo'shimchasi bitta l bilan, -ness esa ikkita s bilan yoziladi."
+      }
+    },
+    {
+      "key": "c1-m10-l1-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "heatwave"
+      ],
+      "text": "The whole region is ___ the grip of a severe heatwave.",
+      "options": [
+        "in",
+        "on",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Весь регион охвачен сильной волной жары.",
+        "uz": "Butun mintaqa kuchli issiqlik to'lqini changalida qolgan."
+      },
+      "explanation": {
+        "ru": "in the grip of something — во власти чего-то (о жаре, морозе, кризисе): in the grip of a heatwave. В этом выражении нужен in; on и at не употребляются.",
+        "uz": "in the grip of something — biror narsaning changalida (jazirama, sovuq, inqiroz haqida): in the grip of a heatwave. Bu iborada in keladi; on va at ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m10-l1-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "offset"
+      ],
+      "text": "Some of the emissions are offset ___ planting new forests.",
+      "options": [
+        "by",
+        "of",
+        "at"
+      ],
+      "correct": [
+        "by"
+      ],
+      "translation": {
+        "ru": "Часть выбросов компенсируется посадкой новых лесов.",
+        "uz": "Chiqindi gazlarning bir qismi yangi o'rmonlar ekish hisobiga qoplanadi."
+      },
+      "explanation": {
+        "ru": "be offset by something — компенсироваться чем-то: offset by planting forests. В пассиве то, чем компенсируют, вводится через by; of и at здесь невозможны.",
+        "uz": "be offset by something — biror narsa hisobiga qoplanmoq: offset by planting forests. Majhul nisbatda nima hisobiga qoplanishi by bilan beriladi; of va at bu yerda mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m10-l1-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "adaptation"
+      ],
+      "text": "Poorer countries need funding for adaptation ___ rising sea levels.",
+      "options": [
+        "to",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Более бедным странам нужны средства на адаптацию к повышению уровня моря.",
+        "uz": "Kambag'alroq mamlakatlarga dengiz sathining ko'tarilishiga moslashuv uchun mablag' kerak."
+      },
+      "explanation": {
+        "ru": "adaptation to something — приспособление к чему-то: adaptation to rising sea levels, как и глагол adapt to. At и on после adaptation в этом значении не употребляются.",
+        "uz": "adaptation to something — biror narsaga moslashuv: adaptation to rising sea levels (adapt to fe'li kabi). Bu ma'noda adaptation so'zidan keyin at va on ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m10-l1-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "irreversible"
+      ],
+      "prompt": {
+        "ru": "Значительная часть ущерба может оказаться необратимой.",
+        "uz": "Zararning katta qismi qaytarib bo'lmaydigan bo'lib chiqishi mumkin."
+      },
+      "fragments": [
+        "much",
+        "of",
+        "the",
+        "damage",
+        "may",
+        "prove",
+        "irreversible"
+      ],
+      "accepted": [
+        [
+          "much",
+          "of",
+          "the",
+          "damage",
+          "may",
+          "prove",
+          "irreversible"
+        ]
+      ],
+      "display": "Much of the damage may prove irreversible.",
+      "explanation": {
+        "ru": "prove + прилагательное — «оказаться каким-то»: may prove irreversible. Much of + неисчисляемое существительное — «значительная часть»: much of the damage.",
+        "uz": "prove + sifat — «qandaydir bo'lib chiqmoq»: may prove irreversible. Much of + sanalmaydigan ot — «katta qismi»: much of the damage."
+      }
+    },
+    {
+      "key": "c1-m10-l1-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "mitigate"
+      ],
+      "prompt": {
+        "ru": "Для смягчения рисков сделано мало.",
+        "uz": "Xatarlarni yumshatish uchun kam ish qilingan."
+      },
+      "fragments": [
+        "little",
+        "has",
+        "been",
+        "done",
+        "to",
+        "mitigate",
+        "the",
+        "risks"
+      ],
+      "accepted": [
+        [
+          "little",
+          "has",
+          "been",
+          "done",
+          "to",
+          "mitigate",
+          "the",
+          "risks"
+        ]
+      ],
+      "display": "Little has been done to mitigate the risks.",
+      "explanation": {
+        "ru": "Little has been done — «сделано мало»: little без a имеет отрицательный оттенок («мало что»). To mitigate — цель: «чтобы смягчить».",
+        "uz": "Little has been done — «kam ish qilingan»: a artiklisiz little inkor ma'nosiga ega («deyarli hech narsa»). To mitigate — maqsad: «yumshatish uchun»."
+      }
+    },
+    {
+      "key": "c1-m10-l1-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "decarbonize"
+      ],
+      "prompt": {
+        "ru": "Труднее всего будет декарбонизировать тяжёлую промышленность.",
+        "uz": "Og'ir sanoatni ugleroddan xoli qilish eng qiyin bo'ladi."
+      },
+      "fragments": [
+        "heavy",
+        "industry",
+        "will",
+        "be",
+        "the",
+        "hardest",
+        "to",
+        "decarbonize"
+      ],
+      "accepted": [
+        [
+          "heavy",
+          "industry",
+          "will",
+          "be",
+          "the",
+          "hardest",
+          "to",
+          "decarbonize"
+        ],
+        [
+          "the",
+          "hardest",
+          "to",
+          "decarbonize",
+          "will",
+          "be",
+          "heavy",
+          "industry"
+        ]
+      ],
+      "display": "Heavy industry will be the hardest to decarbonize.",
+      "explanation": {
+        "ru": "the hardest to + глагол — «труднее всего (сделать)»: the hardest to decarbonize. Части можно поменять: The hardest to decarbonize will be heavy industry.",
+        "uz": "the hardest to + fe'l — «… qilish eng qiyin»: the hardest to decarbonize. Qismlarni almashtirish mumkin: The hardest to decarbonize will be heavy industry."
+      }
+    },
+    {
+      "key": "c1-m10-l1-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "permafrost",
+        "thaw"
+      ],
+      "text": "The permafrost is starting to thaw",
+      "accepted": [
+        "The permafrost is starting to thaw"
+      ],
+      "translation": {
+        "ru": "Вечная мерзлота начинает оттаивать",
+        "uz": "Abadiy muzloq eriy boshlamoqda"
+      },
+      "explanation": {
+        "ru": "permafrost пишется одним словом: perma + frost. Thaw оканчивается на -aw: t-h-a-w.",
+        "uz": "permafrost bitta so'z qilib yoziladi: perma + frost. Thaw so'zi -aw bilan tugaydi: t-h-a-w."
+      }
+    },
+    {
+      "key": "c1-m10-l1-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "atmospheric"
+      ],
+      "text": "Atmospheric carbon levels keep rising",
+      "accepted": [
+        "Atmospheric carbon levels keep rising"
+      ],
+      "translation": {
+        "ru": "Уровень углерода в атмосфере продолжает расти",
+        "uz": "Atmosferadagi uglerod miqdori oshishda davom etmoqda"
+      },
+      "explanation": {
+        "ru": "atmospheric: atmosphere + -ic, конечная e выпадает; звук «ф» пишется ph.",
+        "uz": "atmospheric: atmosphere + -ic, oxirgi e tushib qoladi; «f» tovushi ph bilan yoziladi."
+      }
+    },
+    {
+      "key": "c1-m10-l1-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "desertification"
+      ],
+      "text": "Desertification is a growing threat to farmers",
+      "accepted": [
+        "Desertification is a growing threat to farmers"
+      ],
+      "translation": {
+        "ru": "Опустынивание — растущая угроза для фермеров",
+        "uz": "Cho'llanish fermerlar uchun tobora kuchayib borayotgan xavf"
+      },
+      "explanation": {
+        "ru": "desertification: desert + -ification; в desert одна s.",
+        "uz": "desertification: desert + -ification; desert so'zida bitta s yoziladi."
+      }
+    },
+    {
+      "key": "c1-m10-l2-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "residue"
+      ],
+      "text": "This new washing liquid ___ no residue on the dishes.",
+      "options": [
+        "leaves",
+        "keeps",
+        "stays"
+      ],
+      "correct": [
+        "leaves"
+      ],
+      "translation": {
+        "ru": "Это новое моющее средство не оставляет налёта на посуде.",
+        "uz": "Bu yangi idish yuvish vositasi idishlarda hech qanday qoldiq qoldirmaydi."
+      },
+      "explanation": {
+        "ru": "leave a residue — оставлять осадок, налёт: leaves no residue. Как и по-русски, остаток «оставляют»; keep и stay так не употребляются.",
+        "uz": "leave a residue — qoldiq qoldirmoq: leaves no residue. O'zbek tilidagi kabi qoldiq «qoldiriladi»; keep va stay fe'llari bunday ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m10-l2-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "debris"
+      ],
+      "text": "After the flood, the streets were littered ___ debris.",
+      "options": [
+        "with",
+        "of",
+        "from"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "После наводнения улицы были усеяны обломками и мусором.",
+        "uz": "Toshqindan keyin ko'chalarni siniq parchalar va axlat qoplab ketdi."
+      },
+      "explanation": {
+        "ru": "be littered with something — быть усеянным чем-то: littered with debris. То, чем усеяно место, вводится через with; of и from невозможны.",
+        "uz": "be littered with something — biror narsa bilan qoplanib qolmoq (hamma yoqda sochilib yotmoq): littered with debris. Joyni nima qoplagani with bilan beriladi; of va from mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m10-l2-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "compost"
+      ],
+      "text": "We ___ our own compost from fallen leaves.",
+      "options": [
+        "make",
+        "put",
+        "set"
+      ],
+      "correct": [
+        "make"
+      ],
+      "translation": {
+        "ru": "Мы сами делаем компост из опавших листьев.",
+        "uz": "Biz to'kilgan barglardan o'zimiz kompost tayyorlaymiz."
+      },
+      "explanation": {
+        "ru": "make compost — делать компост. С compost употребляется make (или produce); put и set здесь невозможны: без указания места (put compost on the beds) они не дают предложения.",
+        "uz": "make compost — kompost tayyorlamoq. Compost so'zi bilan make (yoki produce) ishlatiladi; put va set bu yerda mumkin emas: joy ko'rsatilmasa (put compost on the beds), ular gap hosil qilmaydi."
+      }
+    },
+    {
+      "key": "c1-m10-l2-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "runoff"
+      ],
+      "prompt": {
+        "ru": "Реку загрязняет именно сток с полей.",
+        "uz": "Daryoni aynan dalalardan keladigan yuza suv oqimi ifloslantiradi."
+      },
+      "fragments": [
+        "it",
+        "is",
+        "runoff",
+        "from the fields",
+        "that",
+        "pollutes",
+        "the river"
+      ],
+      "accepted": [
+        [
+          "it",
+          "is",
+          "runoff",
+          "from the fields",
+          "that",
+          "pollutes",
+          "the river"
+        ]
+      ],
+      "display": "It is runoff from the fields that pollutes the river.",
+      "explanation": {
+        "ru": "It is … that … — выделительная конструкция «именно …»: It is runoff from the fields that … Runoff — поверхностный сток, пишется одним словом.",
+        "uz": "It is … that … — ajratib ko'rsatuvchi qurilma: «aynan …»: It is runoff from the fields that … Runoff — yuza suv oqimi, bitta so'z qilib yoziladi."
+      }
+    },
+    {
+      "key": "c1-m10-l2-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "effluent"
+      ],
+      "prompt": {
+        "ru": "Неочищенные сточные воды ни в коем случае не должны попадать в море.",
+        "uz": "Tozalanmagan oqova suv hech qachon dengizga tushmasligi kerak."
+      },
+      "fragments": [
+        "untreated",
+        "effluent",
+        "must",
+        "never",
+        "reach",
+        "the",
+        "sea"
+      ],
+      "accepted": [
+        [
+          "untreated",
+          "effluent",
+          "must",
+          "never",
+          "reach",
+          "the",
+          "sea"
+        ]
+      ],
+      "display": "Untreated effluent must never reach the sea.",
+      "explanation": {
+        "ru": "must never — «ни в коем случае не должен»: never стоит между must и глаголом. Effluent — обычно неисчисляемое существительное (без -s), хотя по-русски «воды».",
+        "uz": "must never — «hech qachon … kerak emas»: never so'zi must bilan fe'l orasida turadi. Effluent odatda sanalmaydigan ot (-s qo'shimchasisiz)."
+      }
+    },
+    {
+      "key": "c1-m10-l2-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "incinerate"
+      ],
+      "prompt": {
+        "ru": "Большая часть наших бытовых отходов сжигается.",
+        "uz": "Maishiy chiqindilarimizning katta qismi yoqib yuboriladi."
+      },
+      "fragments": [
+        "most",
+        "of",
+        "our",
+        "household",
+        "waste",
+        "is",
+        "incinerated"
+      ],
+      "accepted": [
+        [
+          "most",
+          "of",
+          "our",
+          "household",
+          "waste",
+          "is",
+          "incinerated"
+        ]
+      ],
+      "display": "Most of our household waste is incinerated.",
+      "explanation": {
+        "ru": "Пассив: is incinerated — «сжигается». После most of + неисчисляемое waste глагол в единственном числе: is.",
+        "uz": "Majhul nisbat: is incinerated — «yoqib yuboriladi». Most of + sanalmaydigan waste otidan keyin fe'l birlikda keladi: is."
+      }
+    },
+    {
+      "key": "c1-m10-l2-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "leakage",
+        "hazardous"
+      ],
+      "text": "Leakage of hazardous waste is a serious risk",
+      "accepted": [
+        "Leakage of hazardous waste is a serious risk"
+      ],
+      "translation": {
+        "ru": "Утечка опасных отходов — серьёзный риск",
+        "uz": "Xavfli chiqindilarning sizib chiqishi jiddiy xatar"
+      },
+      "explanation": {
+        "ru": "leakage: leak + -age. Hazardous оканчивается на -ous: h-a-z-a-r-d-o-u-s.",
+        "uz": "leakage: leak + -age. Hazardous so'zi -ous bilan tugaydi: h-a-z-a-r-d-o-u-s."
+      }
+    },
+    {
+      "key": "c1-m10-l2-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "toxin"
+      ],
+      "text": "The water contained high levels of toxins",
+      "accepted": [
+        "The water contained high levels of toxins"
+      ],
+      "translation": {
+        "ru": "В воде было высокое содержание токсинов",
+        "uz": "Suvda zaharli moddalar miqdori yuqori edi"
+      }
+    },
+    {
+      "key": "c1-m10-l2-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "biodegradable"
+      ],
+      "text": "These cups are fully biodegradable",
+      "accepted": [
+        "These cups are fully biodegradable"
+      ],
+      "translation": {
+        "ru": "Эти стаканчики полностью биоразлагаемые",
+        "uz": "Bu stakanchalar to'liq biologik parchalanadi"
+      },
+      "explanation": {
+        "ru": "biodegradable: bio + degrade + -able (не -ible); e из degrade перед -able выпадает.",
+        "uz": "biodegradable: bio + degrade + -able (-ible emas); degrade so'zidagi e harfi -able oldidan tushib qoladi."
+      }
+    },
+    {
+      "key": "c1-m10-l3-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "tributary"
+      ],
+      "text": "This narrow stream is a tributary ___ the main river.",
+      "options": [
+        "of",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Этот узкий ручей — приток главной реки.",
+        "uz": "Bu tor soy asosiy daryoning irmog'i."
+      },
+      "explanation": {
+        "ru": "a tributary of a river — приток реки: после tributary обычно стоит of (иногда to); at и on невозможны.",
+        "uz": "a tributary of a river — daryoning irmog'i: tributary so'zidan keyin odatda of (ba'zan to) keladi; at va on mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m10-l3-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "aquatic"
+      ],
+      "text": "The lake supports a rich variety of aquatic ___.",
+      "options": [
+        "life",
+        "living",
+        "lifetime"
+      ],
+      "correct": [
+        "life"
+      ],
+      "translation": {
+        "ru": "В озере обитает богатое разнообразие водных организмов.",
+        "uz": "Ko'l suvda yashovchi turli-tuman jonzotlarga boy."
+      },
+      "explanation": {
+        "ru": "aquatic life — обитатели водоёмов (рыбы, растения и т. д.); life здесь неисчисляемое. Living — «заработок, средства к жизни», lifetime — «срок жизни»: с aquatic в этом смысле они не сочетаются.",
+        "uz": "aquatic life — suvda yashovchi jonzotlar (baliqlar, o'simliklar va h.k.); bu yerda life sanalmaydigan ot. Living — «tirikchilik», lifetime — «umr»: bu ma'noda ular aquatic so'zi bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m10-l3-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "wetland"
+      ],
+      "text": "Farmers ___ the wetlands to create new fields.",
+      "options": [
+        "drained",
+        "emptied",
+        "leaked"
+      ],
+      "correct": [
+        "drained"
+      ],
+      "translation": {
+        "ru": "Фермеры осушили водно-болотные угодья, чтобы создать новые поля.",
+        "uz": "Fermerlar yangi dalalar ochish uchun suv-botqoq hududlarini quritdi."
+      },
+      "explanation": {
+        "ru": "drain a wetland (a marsh) — осушить болото, угодье. Русское «осушить» передаётся глаголом drain; empty — «опорожнить» (сосуд), leak — «протекать»: здесь они невозможны.",
+        "uz": "drain a wetland (a marsh) — botqoqni quritmoq. Bu ma'noda drain fe'li ishlatiladi; empty — «(idishni) bo'shatmoq», leak — «oqib ketmoq»: bu yerda ular mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m10-l3-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "canopy"
+      ],
+      "prompt": {
+        "ru": "Полог леса настолько густой, что сквозь него проходит мало света.",
+        "uz": "O'rmon shox-shabbasi shunchalik qalinki, undan juda kam yorug'lik o'tadi."
+      },
+      "fragments": [
+        "so dense",
+        "is",
+        "the canopy",
+        "that",
+        "little light",
+        "gets through"
+      ],
+      "accepted": [
+        [
+          "so dense",
+          "is",
+          "the canopy",
+          "that",
+          "little light",
+          "gets through"
+        ],
+        [
+          "the canopy",
+          "is",
+          "so dense",
+          "that",
+          "little light",
+          "gets through"
+        ]
+      ],
+      "display": "So dense is the canopy that little light gets through.",
+      "explanation": {
+        "ru": "So + прилагательное + is + подлежащее + that … — инверсия для усиления: So dense is the canopy that … Обычный порядок тоже верен: The canopy is so dense that …",
+        "uz": "So + sifat + is + ega + that … — ta'kid uchun inversiya: So dense is the canopy that … Odatiy tartib ham to'g'ri: The canopy is so dense that …"
+      }
+    },
+    {
+      "key": "c1-m10-l3-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "savanna"
+      ],
+      "prompt": {
+        "ru": "Саванна — дом для многих крупных животных.",
+        "uz": "Savanna ko'plab yirik hayvonlar uchun makon."
+      },
+      "fragments": [
+        "the",
+        "savanna",
+        "is",
+        "home",
+        "to",
+        "many",
+        "large",
+        "animals"
+      ],
+      "accepted": [
+        [
+          "the",
+          "savanna",
+          "is",
+          "home",
+          "to",
+          "many",
+          "large",
+          "animals"
+        ]
+      ],
+      "display": "The savanna is home to many large animals.",
+      "explanation": {
+        "ru": "be home to — «быть домом, местом обитания для …»; перед home артикль не нужен. Savanna пишут и savannah.",
+        "uz": "be home to — «… uchun makon bo'lmoq»; home so'zidan oldin artikl kerak emas. Savanna so'zi savannah deb ham yoziladi."
+      }
+    },
+    {
+      "key": "c1-m10-l3-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "reef"
+      ],
+      "prompt": {
+        "ru": "Если температура моря не перестанет расти, риф погибнет.",
+        "uz": "Dengiz harorati ko'tarilishdan to'xtamasa, rif nobud bo'ladi."
+      },
+      "fragments": [
+        "unless",
+        "sea temperatures",
+        "stop",
+        "rising",
+        "the reef",
+        "will",
+        "die"
+      ],
+      "accepted": [
+        [
+          "unless",
+          "sea temperatures",
+          "stop",
+          "rising",
+          "the reef",
+          "will",
+          "die"
+        ],
+        [
+          "the reef",
+          "will",
+          "die",
+          "unless",
+          "sea temperatures",
+          "stop",
+          "rising"
+        ]
+      ],
+      "display": "Unless sea temperatures stop rising, the reef will die.",
+      "explanation": {
+        "ru": "unless = if … not: unless temperatures stop rising — «если температура не перестанет расти». В придаточном с unless будущее время не ставят: stop, а не will stop. Части можно поменять местами.",
+        "uz": "unless = if … not: unless temperatures stop rising — «harorat ko'tarilishdan to'xtamasa». Unless bilan boshlangan ergash gapda kelasi zamon ishlatilmaydi: will stop emas, stop. Qismlarni almashtirish mumkin."
+      }
+    },
+    {
+      "key": "c1-m10-l3-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "estuary"
+      ],
+      "text": "The river ends in a broad estuary",
+      "accepted": [
+        "The river ends in a broad estuary"
+      ],
+      "translation": {
+        "ru": "Река заканчивается широким устьем",
+        "uz": "Daryo keng mansab bilan tugaydi"
+      },
+      "explanation": {
+        "ru": "estuary оканчивается на -ary: e-s-t-u-a-r-y.",
+        "uz": "estuary so'zi -ary bilan tugaydi: e-s-t-u-a-r-y."
+      }
+    },
+    {
+      "key": "c1-m10-l3-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "tundra"
+      ],
+      "text": "Winter on the tundra lasts for months",
+      "accepted": [
+        "Winter on the tundra lasts for months"
+      ],
+      "translation": {
+        "ru": "Зима в тундре длится месяцами",
+        "uz": "Tundrada qish oylab davom etadi"
+      }
+    },
+    {
+      "key": "c1-m10-l3-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "marsh",
+        "grassland"
+      ],
+      "text": "The marsh gives way to open grassland",
+      "accepted": [
+        "The marsh gives way to open grassland"
+      ],
+      "translation": {
+        "ru": "Болото сменяется открытой травянистой равниной",
+        "uz": "Botqoq o'rnini ochiq o't-o'lanli tekislik egallaydi"
+      },
+      "explanation": {
+        "ru": "grassland пишется одним словом: grass + land. Marsh оканчивается на -sh.",
+        "uz": "grassland bitta so'z qilib yoziladi: grass + land. Marsh so'zi -sh bilan tugaydi."
+      }
+    },
+    {
+      "key": "c1-m10-l4-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "captivity"
+      ],
+      "text": "Animals born ___ captivity rarely survive in the wild.",
+      "options": [
+        "in",
+        "at",
+        "on"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Животные, рождённые в неволе, редко выживают в дикой природе.",
+        "uz": "Tutqunlikda tug'ilgan hayvonlar yovvoyi tabiatda kamdan-kam omon qoladi."
+      },
+      "explanation": {
+        "ru": "in captivity — в неволе (в зоопарке, вольере): born in captivity, kept in captivity. Противоположное — in the wild. At и on здесь невозможны.",
+        "uz": "in captivity — tutqunlikda (hayvonot bog'ida, qafasda): born in captivity, kept in captivity. Aksi — in the wild. At va on bu yerda mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m10-l4-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "forage"
+      ],
+      "text": "In winter, the birds forage ___ seeds under the snow.",
+      "options": [
+        "for",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Зимой птицы ищут семена под снегом.",
+        "uz": "Qishda qushlar qor ostidan urug' izlaydi."
+      },
+      "explanation": {
+        "ru": "forage for something — искать корм, добывать пропитание: forage for seeds, forage for food. Цель поиска вводится через for; to и at невозможны.",
+        "uz": "forage for something — ozuqa izlamoq: forage for seeds, forage for food. Nima izlanayotgani for bilan beriladi; to va at mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m10-l4-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "invasive"
+      ],
+      "text": "This plant has become an invasive ___ in local rivers.",
+      "options": [
+        "species",
+        "kind",
+        "sort"
+      ],
+      "correct": [
+        "species"
+      ],
+      "translation": {
+        "ru": "Это растение стало инвазивным видом в местных реках.",
+        "uz": "Bu o'simlik mahalliy daryolarda kelgindi turga aylandi."
+      },
+      "explanation": {
+        "ru": "invasive species — инвазивный (чужеродный) вид. Species — биологический вид, форма одна для ед. и мн. числа. Kind и sort значат «разновидность, сорт» и не служат названием биологического вида, поэтому здесь невозможны.",
+        "uz": "invasive species — kelgindi tur. Species — biologik tur, birlik va ko'plikda shakli bir xil. Kind va sort «xil, nav» degani, biologik tur nomi sifatida ishlatilmaydi, shuning uchun bu yerda mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m10-l4-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "poach"
+      ],
+      "prompt": {
+        "ru": "Браконьерство почти уничтожило этот вид.",
+        "uz": "Noqonuniy ov bu turni deyarli qirib tashladi."
+      },
+      "fragments": [
+        "poaching",
+        "has",
+        "nearly",
+        "wiped",
+        "out",
+        "the",
+        "species"
+      ],
+      "accepted": [
+        [
+          "poaching",
+          "has",
+          "nearly",
+          "wiped",
+          "out",
+          "the",
+          "species"
+        ],
+        [
+          "poaching",
+          "has",
+          "nearly",
+          "wiped",
+          "the",
+          "species",
+          "out"
+        ]
+      ],
+      "display": "Poaching has nearly wiped out the species.",
+      "explanation": {
+        "ru": "wipe out — уничтожить полностью; фразовый глагол: wiped out the species или wiped the species out. Poaching — браконьерство (от poach).",
+        "uz": "wipe out — butunlay yo'q qilmoq; frazali fe'l: wiped out the species yoki wiped the species out. Poaching — noqonuniy ov (poach fe'lidan)."
+      }
+    },
+    {
+      "key": "c1-m10-l4-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "nocturnal"
+      ],
+      "prompt": {
+        "ru": "У многих ночных животных необычно большие глаза.",
+        "uz": "Ko'plab tungi hayvonlarning ko'zlari g'ayrioddiy katta bo'ladi."
+      },
+      "fragments": [
+        "many",
+        "nocturnal",
+        "animals",
+        "have",
+        "unusually",
+        "large",
+        "eyes"
+      ],
+      "accepted": [
+        [
+          "many",
+          "nocturnal",
+          "animals",
+          "have",
+          "unusually",
+          "large",
+          "eyes"
+        ]
+      ],
+      "display": "Many nocturnal animals have unusually large eyes.",
+      "explanation": {
+        "ru": "«У кого-то есть» по-английски — have: animals have large eyes. Unusually усиливает прилагательное и стоит прямо перед ним: unusually large.",
+        "uz": "«Kimningdir … bor» ingliz tilida have bilan aytiladi: animals have large eyes. Unusually sifatni kuchaytiradi va uning oldida turadi: unusually large."
+      }
+    },
+    {
+      "key": "c1-m10-l4-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "offspring"
+      ],
+      "prompt": {
+        "ru": "Некоторые рыбы поедают собственное потомство.",
+        "uz": "Ba'zi baliqlar o'z naslini yeb qo'yadi."
+      },
+      "fragments": [
+        "some",
+        "fish",
+        "eat",
+        "their",
+        "own",
+        "offspring"
+      ],
+      "accepted": [
+        [
+          "some",
+          "fish",
+          "eat",
+          "their",
+          "own",
+          "offspring"
+        ]
+      ],
+      "display": "Some fish eat their own offspring.",
+      "explanation": {
+        "ru": "offspring — потомство; форма одна для единственного и множественного числа (без -s). Their own — «собственный». Fish во мн. числе тоже без -s.",
+        "uz": "offspring — nasl; birlik va ko'plikda shakli bir xil (-s qo'shimchasisiz). Their own — «o'z». Fish so'zi ham ko'plikda -s olmaydi."
+      }
+    },
+    {
+      "key": "c1-m10-l4-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "hibernate"
+      ],
+      "text": "Many bats hibernate in caves",
+      "accepted": [
+        "Many bats hibernate in caves"
+      ],
+      "translation": {
+        "ru": "Многие летучие мыши впадают в спячку в пещерах",
+        "uz": "Ko'plab ko'rshapalaklar g'orlarda qishki uyquga ketadi"
+      }
+    },
+    {
+      "key": "c1-m10-l4-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "carnivore",
+        "herbivore"
+      ],
+      "text": "Wolves are carnivores and deer are herbivores",
+      "accepted": [
+        "Wolves are carnivores and deer are herbivores"
+      ],
+      "translation": {
+        "ru": "Волки — плотоядные животные, а олени — травоядные",
+        "uz": "Bo'rilar go'shtxo'r, bug'ular esa o'txo'r"
+      },
+      "explanation": {
+        "ru": "Оба слова оканчиваются на -vore (лат. vorare — «пожирать»): carni- — мясо, herbi- — трава. Deer во мн. числе без -s.",
+        "uz": "Ikkala so'z -vore bilan tugaydi (lotincha vorare — «yutmoq»): carni- — go'sht, herbi- — o't. Deer ko'plikda -s olmaydi."
+      }
+    },
+    {
+      "key": "c1-m10-l4-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "camouflage"
+      ],
+      "text": "Camouflage helps the lizard hide from birds",
+      "accepted": [
+        "Camouflage helps the lizard hide from birds"
+      ],
+      "translation": {
+        "ru": "Защитная окраска помогает ящерице прятаться от птиц",
+        "uz": "Himoya rangi kaltakesakka qushlardan yashirinishga yordam beradi"
+      },
+      "explanation": {
+        "ru": "camouflage — слово французского происхождения: в середине ou, на конце -age: c-a-m-o-u-f-l-a-g-e.",
+        "uz": "camouflage — fransuzcha so'z: o'rtada ou, oxirida -age yoziladi: c-a-m-o-u-f-l-a-g-e."
+      }
+    },
+    {
+      "key": "c1-m10-l5-c1",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "irrigation"
+      ],
+      "text": "Only a small part of the land is ___ irrigation.",
+      "options": [
+        "under",
+        "in",
+        "at"
+      ],
+      "correct": [
+        "under"
+      ],
+      "translation": {
+        "ru": "Лишь небольшая часть земель орошается.",
+        "uz": "Yerlarning faqat kichik qismi sug'oriladi."
+      },
+      "explanation": {
+        "ru": "land under irrigation — орошаемые земли. Under здесь значит «охвачен чем-то», как в under cultivation (обрабатываемый); in и at в этом выражении не употребляются.",
+        "uz": "land under irrigation — sug'oriladigan yerlar. Bu yerda under «… qamrovida» degani (under cultivation — ishlov beriladigan kabi); bu iborada in va at ishlatilmaydi."
+      }
+    },
+    {
+      "key": "c1-m10-l5-c2",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "aquifer"
+      ],
+      "text": "Heavy winter rains slowly ___ the aquifer.",
+      "options": [
+        "recharge",
+        "reload",
+        "repay"
+      ],
+      "correct": [
+        "recharge"
+      ],
+      "translation": {
+        "ru": "Сильные зимние дожди постепенно пополняют водоносный горизонт.",
+        "uz": "Qishki kuchli yomg'irlar suvli qatlamni asta-sekin to'ldiradi."
+      },
+      "explanation": {
+        "ru": "recharge an aquifer — пополнять водоносный горизонт (термин гидрологии; так же replenish). Reload — «перезаряжать», repay — «возвращать долг»: с aquifer они не сочетаются.",
+        "uz": "recharge an aquifer — suvli qatlamni to'ldirmoq (gidrologiya atamasi; replenish ham shunday). Reload — «qayta o'qlamoq, qayta yuklamoq», repay — «qarzni qaytarmoq»: ular aquifer so'zi bilan birikmaydi."
+      }
+    },
+    {
+      "key": "c1-m10-l5-c3",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "ore"
+      ],
+      "text": "The hills around the town are rich ___ iron ore.",
+      "options": [
+        "in",
+        "of",
+        "at"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Холмы вокруг города богаты железной рудой.",
+        "uz": "Shahar atrofidagi tepaliklar temir rudasiga boy."
+      },
+      "explanation": {
+        "ru": "rich in something — богатый чем-то (о природных ресурсах, составе): rich in iron ore, rich in vitamins. Здесь нужен in; of и at невозможны.",
+        "uz": "rich in something — biror narsaga boy (tabiiy boyliklar, tarkib haqida): rich in iron ore, rich in vitamins. Bu yerda in keladi; of va at mumkin emas."
+      }
+    },
+    {
+      "key": "c1-m10-l5-s1",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "replenish"
+      ],
+      "prompt": {
+        "ru": "Грунтовые воды расходуются быстрее, чем успевают пополняться.",
+        "uz": "Yer osti suvlari qayta to'ldirilishidan ko'ra tezroq sarflanmoqda."
+      },
+      "fragments": [
+        "groundwater",
+        "is being",
+        "used",
+        "faster",
+        "than",
+        "it",
+        "can be",
+        "replenished"
+      ],
+      "accepted": [
+        [
+          "groundwater",
+          "is being",
+          "used",
+          "faster",
+          "than",
+          "it",
+          "can be",
+          "replenished"
+        ]
+      ],
+      "display": "Groundwater is being used faster than it can be replenished.",
+      "explanation": {
+        "ru": "is being used — пассив в Present Continuous: процесс идёт сейчас. Faster than it can be replenished — «быстрее, чем может пополниться»: после than снова пассив.",
+        "uz": "is being used — Present Continuous zamonidagi majhul nisbat: jarayon hozir davom etmoqda. Faster than it can be replenished — «qayta to'ldirilishidan tezroq»: than dan keyin ham majhul nisbat."
+      }
+    },
+    {
+      "key": "c1-m10-l5-s2",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "logging"
+      ],
+      "prompt": {
+        "ru": "Лес восстановился только после того, как запретили вырубку.",
+        "uz": "O'rmon faqat daraxt kesish taqiqlangandan keyingina tiklandi."
+      },
+      "fragments": [
+        "not until",
+        "logging",
+        "was banned",
+        "did",
+        "the forest",
+        "recover"
+      ],
+      "accepted": [
+        [
+          "not until",
+          "logging",
+          "was banned",
+          "did",
+          "the forest",
+          "recover"
+        ]
+      ],
+      "display": "Not until logging was banned did the forest recover.",
+      "explanation": {
+        "ru": "Not until … — «только после того, как …»; в главной части после такого начала идёт инверсия: did the forest recover. Logging — вырубка леса.",
+        "uz": "Not until … — «faqat … dan keyingina»; bunday boshlangan gapning bosh qismida inversiya bo'ladi: did the forest recover. Logging — o'rmon kesish."
+      }
+    },
+    {
+      "key": "c1-m10-l5-s3",
+      "type": "sentence",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "extraction"
+      ],
+      "prompt": {
+        "ru": "Стоимость добычи выросла более чем вдвое.",
+        "uz": "Qazib olish xarajati ikki baravardan ham ko'proq oshdi."
+      },
+      "fragments": [
+        "the",
+        "cost",
+        "of",
+        "extraction",
+        "has",
+        "more",
+        "than",
+        "doubled"
+      ],
+      "accepted": [
+        [
+          "the",
+          "cost",
+          "of",
+          "extraction",
+          "has",
+          "more",
+          "than",
+          "doubled"
+        ]
+      ],
+      "display": "The cost of extraction has more than doubled.",
+      "explanation": {
+        "ru": "more than doubled — «выросло более чем вдвое»: double здесь глагол «удваиваться». Подлежащее the cost — в единственном числе, поэтому has.",
+        "uz": "more than doubled — «ikki baravardan ko'proq oshdi»: bu yerda double — «ikki baravar oshmoq» fe'li. Ega the cost birlikda, shuning uchun has."
+      }
+    },
+    {
+      "key": "c1-m10-l5-d1",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "refinery"
+      ],
+      "text": "The refinery was built near the port",
+      "accepted": [
+        "The refinery was built near the port"
+      ],
+      "translation": {
+        "ru": "Нефтеперерабатывающий завод построили недалеко от порта",
+        "uz": "Neftni qayta ishlash zavodi port yaqinida qurilgan"
+      },
+      "explanation": {
+        "ru": "refinery: refine + -ry, e из refine сохраняется: r-e-f-i-n-e-r-y.",
+        "uz": "refinery: refine + -ry, refine so'zidagi e saqlanadi: r-e-f-i-n-e-r-y."
+      }
+    },
+    {
+      "key": "c1-m10-l5-d2",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "quarry"
+      ],
+      "text": "The old quarry is now a lake",
+      "accepted": [
+        "The old quarry is now a lake"
+      ],
+      "translation": {
+        "ru": "Старый карьер теперь стал озером",
+        "uz": "Eski karyer endi ko'lga aylangan"
+      },
+      "explanation": {
+        "ru": "quarry: после qu — двойное r, на конце y: q-u-a-r-r-y.",
+        "uz": "quarry: qu dan keyin ikkita r, oxirida y: q-u-a-r-r-y."
+      }
+    },
+    {
+      "key": "c1-m10-l5-d3",
+      "type": "dictation",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "geothermal",
+        "biomass"
+      ],
+      "text": "Geothermal and biomass energy are both renewable",
+      "accepted": [
+        "Geothermal and biomass energy are both renewable"
+      ],
+      "translation": {
+        "ru": "Геотермальная энергия и энергия биомассы — обе возобновляемые",
+        "uz": "Geotermal energiya ham, biomassa energiyasi ham qayta tiklanadi"
+      },
+      "explanation": {
+        "ru": "geothermal: geo + thermal, с th, как в thermometer. Biomass — одно слово, на конце ss.",
+        "uz": "geothermal: geo + thermal, thermometer so'zidagi kabi th bilan. Biomass — bitta so'z, oxirida ss."
+      }
+    }
+  ]
+}

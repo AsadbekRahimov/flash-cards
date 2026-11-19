@@ -4,7 +4,7 @@ import { ApiClientError } from '@/api/client'
 import { newRequestId } from '@/composables/requestId'
 import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
-import { PRACTICE_MODE_ORDER, lessonHeader } from '@/composables/practiceLabels'
+import { isKnownPracticeMode, lessonHeader } from '@/composables/practiceLabels'
 import { limitHitFrom } from '@/composables/practiceLimits'
 import { useBillingStore } from '@/stores/billing'
 import type {
@@ -117,7 +117,7 @@ interface PracticeState {
    * attempt of its own, and has its ids in `pendingPairs`.)
    */
   pendingRequestId: string | null
-  /** What `pendingRequestId` belongs to: the element (one answer per element). */
+  /** What `pendingRequestId` belongs to: the element (one answer per element), or the step of an "Error hunt" (`answerKey`). */
   pendingKey: string | null
   /**
    * What the pending request carries (one answer per element only). A repeat sends THIS, whatever the screen hands over: the
@@ -173,8 +173,6 @@ function isUncertain(err: unknown): boolean {
   return err instanceof ApiClientError && (err.kind === 'network' || err.kind === 'server' || err.kind === 'rate_limited')
 }
 
-const isMode = (value: unknown): value is PracticeMode => PRACTICE_MODE_ORDER.includes(value as PracticeMode)
-
 const isProgress = (value: unknown): value is Progress =>
   typeof value === 'object' && value !== null && typeof (value as Progress).done === 'number' && typeof (value as Progress).total === 'number'
 
@@ -191,7 +189,10 @@ function lessonNamesFrom(value: unknown): PracticeActiveSession['lesson'] {
 
 /** The unfinished session out of `details` of 409 `practice_session_active`; null when the server's fields do not add up. */
 function conflictFrom(details: Record<string, unknown> | null, fallback: PracticeActiveSession | null): PracticeActiveSession | null {
-  if (details === null || typeof details.session_id !== 'number' || !isMode(details.mode)) return fallback
+  // A session of a mode this build does not know cannot be offered by name (the sheet draws its mode): the refusal is told in words instead.
+  if (details === null || typeof details.session_id !== 'number' || !isKnownPracticeMode(details.mode)) {
+    return fallback !== null && isKnownPracticeMode(fallback.mode) ? fallback : null
+  }
   return {
     id: details.session_id,
     mode: details.mode,
@@ -217,6 +218,14 @@ const activeOf = (session: PracticeSession): PracticeActiveSession => ({
 const isVerdict = (value: unknown): value is PracticeVerdict =>
   value === 'correct' || value === 'typo' || value === 'wrong' || value === 'skipped'
 
+/**
+ * The key of the ONE answer an element takes: the element itself; an "Error hunt" takes one answer per STEP (`locate`, then `fix`), so its
+ * key is "element:step" - each step has its own request id, and a repeat after a lost reply carries the id and the answer of that step.
+ */
+export function answerKey(element: PracticeElement): string {
+  return element.kind === 'error_hunt' ? `${element.id}:${element.step}` : element.id
+}
+
 /** "left_id|right_id" of a match of pairs: the key of its request; the whole payload when it is not a match (nothing else is sent for a round). */
 function pairKey(payload: PracticeAnswerPayload): string {
   return 'left_id' in payload ? `${payload.left_id}|${payload.right_id}` : JSON.stringify(payload)
@@ -234,8 +243,9 @@ function pairKey(payload: PracticeAnswerPayload): string {
  *   open a session that comes after its screen was left);
  * - `status` ≠ `ready` ignores a second tap, so a double tap is one request.
  *
- * Pairs go on in the same round after each match (`ready`); the other kinds, and the end of a round, stop at `verdict`
- * until `continueAfterVerdict()`.
+ * Pairs go on in the same round after each match (`ready`), and so does an "Error hunt" after its first step (`element_done: false`: the
+ * next step of the same element is on screen, `outcome` keeps the reply of the step); the other kinds, the end of a round and the end of
+ * an "Error hunt" stop at `verdict` until `continueAfterVerdict()`.
  */
 export const usePracticeStore = defineStore('practice', {
   state: (): PracticeState => ({
@@ -572,8 +582,9 @@ export const usePracticeStore = defineStore('practice', {
       const generation = this.generation
       const single = element.kind !== 'pairs_round'
       const pair = single ? null : pairKey(payload)
-      const sent = single && this.pendingKey === element.id && this.pendingAnswer !== null ? this.pendingAnswer : payload
-      const requestId = pair === null ? this.requestIdFor(element.id) : this.pairRequestId(element.id, pair)
+      const key = answerKey(element)
+      const sent = single && this.pendingKey === key && this.pendingAnswer !== null ? this.pendingAnswer : payload
+      const requestId = pair === null ? this.requestIdFor(key) : this.pairRequestId(element.id, pair)
       if (single) this.pendingAnswer = sent
       const timeSpent = Math.min(MAX_TIME_SPENT_MS, Math.max(0, Date.now() - this.elementShownAt))
       this.status = 'submitting'
@@ -601,7 +612,7 @@ export const usePracticeStore = defineStore('practice', {
       await this.answer({ skip: true })
     },
 
-    /** The id of the request for `key` (the element of a one-answer kind): the one still pending for it (a repeat), else a new one. */
+    /** The id of the request for `key` (the element of a one-answer kind, the step of an "Error hunt"): the one still pending for it (a repeat), else a new one. */
     requestIdFor(key: string): string {
       if (this.pendingRequestId === null || this.pendingKey !== key) {
         this.pendingRequestId = newRequestId()
@@ -655,6 +666,14 @@ export const usePracticeStore = defineStore('practice', {
         this.status = 'ready'
         return
       }
+      // The first step of an "Error hunt": the same element goes on with its next step (the corrections), drawn from the new projection;
+      // `elementSeq` does not grow, so the board keeps what it shows. The reply of the step stays in `outcome` (`reveal.step === 'locate'`).
+      const next = res.session.current
+      if (element.kind === 'error_hunt' && res.element_done === false && res.session.status === 'active' && next !== null && next.id === element.id) {
+        this.elementShownAt = Date.now()
+        this.status = 'ready'
+        return
+      }
       // A match of pairs inside a round: the board goes on (it reads the new `matched` / `mismatches` from the element).
       this.status = element.kind === 'pairs_round' && !outcome.roundDone ? 'ready' : 'verdict'
     },
@@ -684,6 +703,17 @@ export const usePracticeStore = defineStore('practice', {
           if (err.code === 'practice_time_over') this.timeUp = true
           const fresh = await this.reread(generation)
           if (fresh !== null) this.applySession(fresh)
+          return
+        }
+        if (err.code === 'step_not_current') {
+          // An "Error hunt" moved on to another step elsewhere (another tab took the step, a reply was lost for good): the screen follows the
+          // server and says so. Should the server still be at the step this screen sent, the board starts it afresh instead of staying locked.
+          this.actionError = errorMessage(err, 'practice')
+          const fresh = await this.reread(generation)
+          if (fresh === null) return
+          this.applySession(fresh)
+          const now = fresh.current
+          if (now !== null && now.kind === 'error_hunt' && answerKey(now) === answerKey(element)) this.elementSeq += 1
           return
         }
         if (err.code === 'element_not_current' || err.code === 'pair_already_matched') {

@@ -1,0 +1,1627 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c2",
+  "items": [
+    {
+      "key": "c2-m17-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "eternal"
+      ],
+      "text": "The line barely moved, and the hour we spent in it felt like an ___.",
+      "base": "eternal",
+      "accepted": [
+        "eternity"
+      ],
+      "translation": {
+        "ru": "Очередь почти не двигалась, и час, проведённый в ней, показался вечностью.",
+        "uz": "Navbat deyarli siljimadi, unda o'tkazgan bir soatimiz esa butun bir abadiyatdek tuyuldi."
+      },
+      "explanation": {
+        "ru": "После an в конце фразы нужно существительное: eternal (вечный) → eternity (вечность); -al заменяется на -ity. feel like an eternity — тянуться целую вечность.",
+        "uz": "an artiklidan keyin ot kerak: eternal (abadiy) → eternity (abadiyat); -al o'rniga -ity qo'shiladi. feel like an eternity — bir umrdek cho'zilmoq."
+      }
+    },
+    {
+      "key": "c2-m17-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "momentary"
+      ],
+      "text": "The relief was only ___: within an hour the pain was back.",
+      "base": "moment",
+      "accepted": [
+        "momentary"
+      ],
+      "translation": {
+        "ru": "Облегчение было лишь мгновенным: не прошло и часа, как боль вернулась.",
+        "uz": "Yengillik bir lahzalik bo'ldi, xolos: bir soat o'tmay og'riq qaytdi."
+      },
+      "explanation": {
+        "ru": "После was only нужно прилагательное, а смысл (боль скоро вернулась) — «мгновенный»: moment → momentary (-ary). momentous значит «судьбоносный» и сюда не подходит.",
+        "uz": "was only so'zlaridan keyin sifat kerak, ma'no esa (og'riq tez qaytdi) «bir lahzalik»ni talab qiladi: moment → momentary (-ary). momentous «taqdirni belgilovchi» degani, bu yerga to'g'ri kelmaydi."
+      }
+    },
+    {
+      "key": "c2-m17-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "perpetual"
+      ],
+      "text": "Films like this will only ___ the old myth of the lonely genius.",
+      "base": "perpetual",
+      "accepted": [
+        "perpetuate"
+      ],
+      "translation": {
+        "ru": "Такие фильмы лишь увековечат старый миф о гении-одиночке.",
+        "uz": "Bunday filmlar yolg'iz daho haqidagi eski afsonaning umrini uzaytiradi, xolos."
+      },
+      "explanation": {
+        "ru": "После will нужен глагол: perpetual (постоянный) → perpetuate (увековечивать, поддерживать существование); -al заменяется на -ate.",
+        "uz": "will so'zidan keyin fe'l kerak: perpetual (doimiy) → perpetuate (abadiylashtirmoq, umrini uzaytirmoq); -al o'rniga -ate qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m17-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "interminable"
+      ],
+      "text": "The *intermittent* lecture went on for three hours without a single pause.",
+      "options": [
+        "interminable",
+        "sporadic",
+        "momentary"
+      ],
+      "correct": [
+        "interminable"
+      ],
+      "translation": {
+        "ru": "Нескончаемая лекция шла три часа без единого перерыва.",
+        "uz": "Bitmas-tuganmas ma'ruza birorta ham tanaffussiz uch soat cho'zildi."
+      },
+      "explanation": {
+        "ru": "intermittent — «прерывистый, с перерывами», а здесь сказано «без единого перерыва». Нужно interminable — «нескончаемый». sporadic (эпизодический) и momentary (мгновенный) противоречат трём часам.",
+        "uz": "intermittent — «uzilib-uzilib turadigan», bu yerda esa «birorta ham tanaffussiz» deyilgan. interminable — «bitmas-tuganmas» kerak. sporadic va momentary so'zlari uch soatlik davomiylikka zid."
+      }
+    },
+    {
+      "key": "c2-m17-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "protracted"
+      ],
+      "text": "A *protracting* illness kept him away from work for most of the year.",
+      "options": [
+        "protracted",
+        "protraction",
+        "protractor"
+      ],
+      "correct": [
+        "protracted"
+      ],
+      "translation": {
+        "ru": "Затянувшаяся болезнь не давала ему работать бо́льшую часть года.",
+        "uz": "Cho'zilib ketgan kasallik uni yilning ko'p qismida ishdan chetda qoldirdi."
+      },
+      "explanation": {
+        "ru": "protract (затягивать) — переходный глагол: затягивают что-то. Болезнь затянулась, поэтому нужно причастие на -ed: protracted. protraction — существительное, protractor — транспортир.",
+        "uz": "protract (cho'zmoq) — o'timli fe'l: nimanidir cho'zishadi. Kasallik cho'zilib ketgan, shuning uchun -ed sifatdoshi kerak: protracted. protraction — ot, protractor esa transportir."
+      }
+    },
+    {
+      "key": "c2-m17-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "incessant"
+      ],
+      "text": "It rained *incessant* for nine days, and the river finally burst its banks.",
+      "options": [
+        "incessantly",
+        "incessancy",
+        "ceaseless"
+      ],
+      "correct": [
+        "incessantly"
+      ],
+      "translation": {
+        "ru": "Девять дней беспрерывно шёл дождь, и в конце концов река вышла из берегов.",
+        "uz": "To'qqiz kun tinimsiz yomg'ir yog'di va oxiri daryo qirg'oqlaridan toshib chiqdi."
+      },
+      "explanation": {
+        "ru": "rained — глагол, а глагол описывает наречие: incessant → incessantly. Прилагательные incessant и ceaseless после rained невозможны, incessancy — существительное.",
+        "uz": "rained — fe'l, fe'lni esa ravish izohlaydi: incessant → incessantly. incessant va ceaseless sifatlari rained fe'lidan keyin kelmaydi, incessancy esa ot."
+      }
+    },
+    {
+      "key": "c2-m17-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "cessation"
+      ],
+      "text": "The two governments agreed on an immediate ___ of hostilities.",
+      "base": "cease",
+      "accepted": [
+        "cessation",
+        "ceasing"
+      ],
+      "translation": {
+        "ru": "Правительства двух стран договорились о немедленном прекращении военных действий.",
+        "uz": "Ikki davlat hukumati harbiy harakatlarni zudlik bilan to'xtatishga kelishib oldi."
+      },
+      "explanation": {
+        "ru": "После an immediate и перед of нужно существительное: cease (прекращать) → cessation (прекращение); основа меняется: cease → cess-, суффикс -ation. Отглагольное ceasing тоже засчитывается, но cessation of hostilities — устойчивое выражение.",
+        "uz": "an immediate va of orasida ot kerak: cease (to'xtatmoq) → cessation (to'xtash); o'zak o'zgaradi: cease → cess-, -ation qo'shimchasi. ceasing shakli ham qabul qilinadi, lekin cessation of hostilities — turg'un birikma."
+      }
+    },
+    {
+      "key": "c2-m17-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "genesis"
+      ],
+      "text": "The ___ of these two festivals were quite different, though they now look alike.",
+      "base": "genesis",
+      "accepted": [
+        "geneses"
+      ],
+      "translation": {
+        "ru": "Эти два праздника возникли совершенно по-разному, хотя теперь они похожи друг на друга.",
+        "uz": "Bu ikki bayramning vujudga kelish tarixi butunlay boshqacha bo'lgan, garchi hozir ular bir-biriga o'xshasa ham."
+      },
+      "explanation": {
+        "ru": "Глагол were и these two требуют множественного числа. Греческие слова на -is образуют его на -es: genesis → geneses, как crisis → crises, analysis → analyses.",
+        "uz": "were fe'li va these two so'zlari ko'plikni talab qiladi. -is bilan tugaydigan yunoncha so'zlar ko'plikda -es oladi: genesis → geneses, xuddi crisis → crises, analysis → analyses kabi."
+      }
+    },
+    {
+      "key": "c2-m17-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "herald"
+      ],
+      "text": "The prize went to an ___ newcomer whom no critic had ever mentioned.",
+      "base": "herald",
+      "accepted": [
+        "unheralded"
+      ],
+      "translation": {
+        "ru": "Премия досталась никому не известному новичку, о котором прежде не упоминал ни один критик.",
+        "uz": "Mukofot shu paytgacha birorta ham tanqidchi tilga olmagan, hech kimga noma'lum yangi ijodkorga nasib etdi."
+      },
+      "explanation": {
+        "ru": "Перед существительным нужно причастие-прилагательное, а смысл (о нём никто не писал) и an требуют отрицания: herald (возвещать) → heralded → unheralded («никем не возвещённый, безвестный»).",
+        "uz": "Ot oldidan sifatdosh kerak, ma'no (u haqida hech kim yozmagan) va an artikli inkorni talab qiladi: herald (darak bermoq) → heralded → unheralded («hech kim darak bermagan, noma'lum»)."
+      }
+    },
+    {
+      "key": "c2-m17-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "onset"
+      ],
+      "text": "Regular exercise can delay the *outset* of heart disease by many years.",
+      "options": [
+        "onset",
+        "upset",
+        "offset"
+      ],
+      "correct": [
+        "onset"
+      ],
+      "translation": {
+        "ru": "Регулярные физические нагрузки могут на много лет отсрочить начало болезней сердца.",
+        "uz": "Muntazam jismoniy mashqlar yurak kasalliklarining boshlanishini ko'p yillarga kechiktirishi mumkin."
+      },
+      "explanation": {
+        "ru": "outset — начало дела, почти всегда в at / from the outset («с самого начала»). Начало болезни, зимы, чего-то неприятного — onset. upset и offset здесь бессмысленны.",
+        "uz": "outset — biror ishning boshlanishi, deyarli faqat at / from the outset («boshidanoq») birikmasida. Kasallik, qish yoki noxush narsaning boshlanishi — onset. upset va offset so'zlari bu yerda ma'nosiz."
+      }
+    },
+    {
+      "key": "c2-m17-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "advent"
+      ],
+      "text": "The advent of cheap flights *have* transformed how ordinary families spend their summers.",
+      "options": [
+        "has",
+        "are",
+        "were"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "Появление дешёвых авиарейсов изменило то, как обычные семьи проводят лето.",
+        "uz": "Arzon aviareyslarning paydo bo'lishi oddiy oilalarning yozni qanday o'tkazishini o'zgartirib yubordi."
+      },
+      "explanation": {
+        "ru": "Подлежащее — the advent (единственное число), а не flights, поэтому has transformed. of cheap flights — лишь определение и на число глагола не влияет.",
+        "uz": "Ega — the advent (birlikda), flights emas, shuning uchun has transformed. of cheap flights — faqat aniqlovchi, fe'lning soniga ta'sir qilmaydi."
+      }
+    },
+    {
+      "key": "c2-m17-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "precursor"
+      ],
+      "text": "Both the candle and the oil lamp were early *precursor* of the light bulb.",
+      "options": [
+        "precursors",
+        "precursor's",
+        "precursors'"
+      ],
+      "correct": [
+        "precursors"
+      ],
+      "translation": {
+        "ru": "И свеча, и масляная лампа были ранними предшественниками электрической лампочки.",
+        "uz": "Sham ham, moy chiroq ham elektr lampochkasining ilk o'tmishdoshlari edi."
+      },
+      "explanation": {
+        "ru": "Both ... and — два предмета и глагол were, поэтому существительное во множественном числе: precursors. Исчисляемое precursor в единственном числе без артикля невозможно, а формы с апострофом — притяжательные.",
+        "uz": "Both ... and — ikki narsa va were fe'li, shuning uchun ot ko'plikda bo'ladi: precursors. Sanaladigan precursor oti birlikda artiklsiz kelmaydi, apostrofli shakllar esa qaratqich shakllaridir."
+      }
+    },
+    {
+      "key": "c2-m17-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "unprecedented"
+      ],
+      "text": "Never before had the town seen such floods; the damage was truly ___.",
+      "base": "precede",
+      "accepted": [
+        "unprecedented"
+      ],
+      "translation": {
+        "ru": "Никогда прежде город не видел таких наводнений: ущерб был поистине беспрецедентным.",
+        "uz": "Shahar ilgari hech qachon bunday toshqinlarni ko'rmagan edi: zarar chindan ham misli ko'rilmagan edi."
+      },
+      "explanation": {
+        "ru": "Смысл (никогда прежде) требует «не имеющий прецедента»: precede (предшествовать) → precedent (прецедент) → unprecedented; приставка un- и окончание -ed.",
+        "uz": "Ma'no (ilgari hech qachon) «misli ko'rilmagan» so'zini talab qiladi: precede (oldin kelmoq) → precedent (pretsedent) → unprecedented; un- old qo'shimchasi va -ed qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m17-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "anachronism"
+      ],
+      "text": "A soldier checking his watch in a medieval battle scene is glaringly ___.",
+      "base": "anachronism",
+      "accepted": [
+        "anachronistic"
+      ],
+      "translation": {
+        "ru": "Солдат, смотрящий на наручные часы в сцене средневековой битвы, — вопиющий анахронизм.",
+        "uz": "O'rta asrlar jangi sahnasida qo'l soatiga qarayotgan askar ochiqdan-ochiq anaxronizmdir."
+      },
+      "explanation": {
+        "ru": "После is glaringly нужно прилагательное: anachronism (анахронизм) → anachronistic (анахроничный); -ism → -istic, как optimism → optimistic.",
+        "uz": "is glaringly so'zlaridan keyin sifat kerak: anachronism (anaxronizm) → anachronistic (anaxronistik); -ism → -istic, xuddi optimism → optimistic kabi."
+      }
+    },
+    {
+      "key": "c2-m17-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "vestige"
+      ],
+      "text": "Whales still have small ___ hip bones, left over from ancestors that walked on land.",
+      "base": "vestige",
+      "accepted": [
+        "vestigial"
+      ],
+      "translation": {
+        "ru": "У китов до сих пор есть маленькие рудиментарные тазовые кости — наследство предков, ходивших по суше.",
+        "uz": "Kitlarda hamon quruqlikda yurgan ajdodlaridan qolgan kichik rudimentar chanoq suyaklari bor."
+      },
+      "explanation": {
+        "ru": "Перед существительным hip bones нужно прилагательное: vestige (остаток, след) → vestigial («рудиментарный», сохранившийся как остаток); -ge → -gial.",
+        "uz": "hip bones otidan oldin sifat kerak: vestige (qoldiq, iz) → vestigial («rudimentar», qoldiq sifatida saqlangan); -ge → -gial."
+      }
+    },
+    {
+      "key": "c2-m17-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "supersede"
+      ],
+      "text": "In most offices, paper letters have long been *superseding* by email.",
+      "options": [
+        "superseded",
+        "supersede",
+        "supersedes"
+      ],
+      "correct": [
+        "superseded"
+      ],
+      "translation": {
+        "ru": "В большинстве офисов бумажные письма давно вытеснила электронная почта.",
+        "uz": "Ko'pchilik idoralarda qog'oz xatlarning o'rnini allaqachon elektron pochta egallagan."
+      },
+      "explanation": {
+        "ru": "Письма вытеснила почта (by email — кто действует), значит, нужен пассив: have been + superseded. have been superseding — действительный залог, ему нужно дополнение, а не by.",
+        "uz": "Xatlarni elektron pochta siqib chiqargan (by email — harakatni bajaruvchi), demak, majhul nisbat kerak: have been + superseded. have been superseding — aniq nisbat, unga by emas, to'ldiruvchi kerak."
+      }
+    },
+    {
+      "key": "c2-m17-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "antiquated"
+      ],
+      "text": "Critics say the court's *antiquating* procedures waste everyone's time.",
+      "options": [
+        "antiquated",
+        "antiquity",
+        "antiques"
+      ],
+      "correct": [
+        "antiquated"
+      ],
+      "translation": {
+        "ru": "Критики считают, что устаревшие процедуры суда отнимают у всех время.",
+        "uz": "Tanqidchilarning fikricha, sudning eskirgan tartib-qoidalari hammaning vaqtini behuda oladi."
+      },
+      "explanation": {
+        "ru": "Процедуры не делают ничего устаревшим — они сами устарели, поэтому нужно прилагательное на -ed: antiquated. antiquity — «древность», antiques — «антиквариат».",
+        "uz": "Tartib-qoidalar biror narsani eskirtirmaydi — ularning o'zi eskirgan, shuning uchun -ed sifati kerak: antiquated. antiquity — «qadimiylik», antiques — «antiqa buyumlar»."
+      }
+    },
+    {
+      "key": "c2-m17-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "transient"
+      ],
+      "text": "The town has a large *transience* population of students and summer workers.",
+      "options": [
+        "transient",
+        "transiently",
+        "transiency"
+      ],
+      "correct": [
+        "transient"
+      ],
+      "translation": {
+        "ru": "В городе много временных жителей — студентов и сезонных рабочих.",
+        "uz": "Shaharda talabalar va yozgi mavsumiy ishchilardan iborat vaqtinchalik aholi ko'p."
+      },
+      "explanation": {
+        "ru": "Перед существительным population нужно прилагательное: transient («временный»), a transient population — временное население. transience и transiency — существительные («мимолётность»), transiently — наречие.",
+        "uz": "population otidan oldin sifat kerak: transient («vaqtinchalik»), a transient population — vaqtinchalik aholi. transience va transiency — otlar («o'tkinchilik»), transiently — ravish."
+      }
+    },
+    {
+      "key": "c2-m17-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "irrevocable"
+      ],
+      "text": "Once both sides have signed it, the agreement is ___: nobody can cancel it.",
+      "base": "revoke",
+      "accepted": [
+        "irrevocable"
+      ],
+      "translation": {
+        "ru": "Как только обе стороны его подписали, соглашение становится бесповоротным: отменить его не может никто.",
+        "uz": "Ikki tomon imzolagach, kelishuvni ortga qaytarib bo'lmaydi: uni hech kim bekor qila olmaydi."
+      },
+      "explanation": {
+        "ru": "Смысл (никто не может отменить) требует отрицания: revoke (отменять) → revocable → irrevocable. Перед r приставка ir-, а -voke меняется на -vocable (k → c).",
+        "uz": "Ma'no (hech kim bekor qila olmaydi) inkorni talab qiladi: revoke (bekor qilmoq) → revocable → irrevocable. r harfidan oldin ir- old qo'shimchasi keladi, -voke qismi esa -vocable shakliga o'tadi (k → c)."
+      }
+    },
+    {
+      "key": "c2-m17-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "fickle"
+      ],
+      "text": "The ___ of public opinion ended her career almost overnight.",
+      "base": "fickle",
+      "accepted": [
+        "fickleness"
+      ],
+      "translation": {
+        "ru": "Непостоянство общественного мнения почти в одночасье положило конец её карьере.",
+        "uz": "Jamoatchilik fikrining subutsizligi uning faoliyatiga deyarli bir kechada nuqta qo'ydi."
+      },
+      "explanation": {
+        "ru": "После The и перед of нужно существительное: fickle (непостоянный) → fickleness (непостоянство); -ness добавляется, конечная e сохраняется.",
+        "uz": "The va of orasida ot kerak: fickle (subutsiz) → fickleness (subutsizlik); -ness qo'shiladi, oxirdagi e saqlanadi."
+      }
+    },
+    {
+      "key": "c2-m17-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "erratic"
+      ],
+      "text": "The old printer behaves ___, working perfectly one day and not at all the next.",
+      "base": "erratic",
+      "accepted": [
+        "erratically"
+      ],
+      "translation": {
+        "ru": "Старый принтер ведёт себя непредсказуемо: один день работает идеально, а на следующий не работает вовсе.",
+        "uz": "Eski printer o'zini oldindan bilib bo'lmas tarzda tutadi: bir kun a'lo ishlasa, ertasiga umuman ishlamaydi."
+      },
+      "explanation": {
+        "ru": "behaves — обычный глагол (не связка), его описывает наречие: erratic → erratically; у прилагательных на -ic наречие оканчивается на -ically.",
+        "uz": "behaves — oddiy fe'l (bog'lovchi emas), uni ravish izohlaydi: erratic → erratically; -ic bilan tugaydigan sifatlardan ravish -ically bilan yasaladi."
+      }
+    },
+    {
+      "key": "c2-m17-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "volatile"
+      ],
+      "text": "Grain prices were so *versatile* that farmers could not plan a single season ahead.",
+      "options": [
+        "volatile",
+        "voluble",
+        "venerable"
+      ],
+      "correct": [
+        "volatile"
+      ],
+      "translation": {
+        "ru": "Цены на зерно так резко менялись, что фермеры не могли планировать даже на один сезон вперёд.",
+        "uz": "Don narxlari shunchalik beqaror ediki, fermerlar hatto bir mavsum oldindan ham reja tuza olmasdi."
+      },
+      "explanation": {
+        "ru": "versatile — «разносторонний, универсальный» (о человеке, инструменте). Резко меняющиеся цены — volatile. voluble — «словоохотливый», venerable — «почтенный».",
+        "uz": "versatile — «ko'p qirrali, universal» (odam yoki asbob haqida). Keskin o'zgaruvchan narxlar — volatile. voluble — «sergap», venerable — «muhtaram»."
+      }
+    },
+    {
+      "key": "c2-m17-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "inexorable"
+      ],
+      "text": "Along this coast, the sea is rising slowly but *inexorable*, year after year.",
+      "options": [
+        "inexorably",
+        "inexorability",
+        "inexorableness"
+      ],
+      "correct": [
+        "inexorably"
+      ],
+      "translation": {
+        "ru": "У этого побережья море год за годом поднимается медленно, но неумолимо.",
+        "uz": "Bu qirg'oqda dengiz yildan-yilga sekin, ammo muqarrar ravishda ko'tarilmoqda."
+      },
+      "explanation": {
+        "ru": "slowly but ... — два наречия при глаголе rising, поэтому нужно наречие: inexorable → inexorably (-able → -ably). inexorability и inexorableness — существительные.",
+        "uz": "slowly but ... — rising fe'lini izohlovchi ikki ravish, shuning uchun ravish kerak: inexorable → inexorably (-able → -ably). inexorability va inexorableness — otlar."
+      }
+    },
+    {
+      "key": "c2-m17-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "vacillate"
+      ],
+      "text": "The council vacillated *among* repairing the old bridge and building a new one.",
+      "options": [
+        "between",
+        "along",
+        "across"
+      ],
+      "correct": [
+        "between"
+      ],
+      "translation": {
+        "ru": "Городской совет колебался между ремонтом старого моста и строительством нового.",
+        "uz": "Shahar kengashi eski ko'prikni ta'mirlash va yangisini qurish o'rtasida ikkilanib turdi."
+      },
+      "explanation": {
+        "ru": "vacillate between A and B — колебаться между двумя вариантами. Когда названы два варианта (A and B), нужно between; among — «среди» многих; along и across — предлоги места.",
+        "uz": "vacillate between A and B — ikki variant o'rtasida ikkilanmoq. Ikki variant (A and B) aytilganda between kerak; among — ko'p narsalar «orasida»; along va across — joy predloglari."
+      }
+    },
+    {
+      "key": "c2-m17-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "rejuvenate"
+      ],
+      "text": "The town's ___ began when the old factory was turned into an arts center.",
+      "base": "rejuvenate",
+      "accepted": [
+        "rejuvenation"
+      ],
+      "translation": {
+        "ru": "Оживление города началось, когда старую фабрику превратили в центр искусств.",
+        "uz": "Shaharning jonlanishi eski fabrika san'at markaziga aylantirilganda boshlandi."
+      },
+      "explanation": {
+        "ru": "После The town's нужно существительное: rejuvenate (оживлять) → rejuvenation (оживление); -ate → -ation.",
+        "uz": "The town's so'zlaridan keyin ot kerak: rejuvenate (jonlantirmoq) → rejuvenation (jonlanish); -ate → -ation."
+      }
+    },
+    {
+      "key": "c2-m17-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "atrophy"
+      ],
+      "text": "After six weeks in a cast, the muscles of her left leg had ___.",
+      "base": "atrophy",
+      "accepted": [
+        "atrophied"
+      ],
+      "translation": {
+        "ru": "После шести недель в гипсе мышцы её левой ноги атрофировались.",
+        "uz": "Olti hafta gipsda yurgandan so'ng chap oyog'ining mushaklari atrofiyaga uchragan edi."
+      },
+      "explanation": {
+        "ru": "После had нужно причастие прошедшего времени (past perfect): atrophy → atrophied; согласная + y → -ied.",
+        "uz": "had so'zidan keyin o'tgan zamon sifatdoshi kerak (past perfect): atrophy → atrophied; undosh + y → -ied."
+      }
+    },
+    {
+      "key": "c2-m17-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "degenerate"
+      ],
+      "text": "The disease causes a gradual ___ of the nerve cells in the brain.",
+      "base": "degenerate",
+      "accepted": [
+        "degeneration"
+      ],
+      "translation": {
+        "ru": "Эта болезнь вызывает постепенную дегенерацию нервных клеток головного мозга.",
+        "uz": "Bu kasallik bosh miyadagi nerv hujayralarining asta-sekin yemirilishiga olib keladi."
+      },
+      "explanation": {
+        "ru": "После a gradual и перед of нужно существительное: degenerate (вырождаться) → degeneration (дегенерация, перерождение); -ate → -ation.",
+        "uz": "a gradual va of orasida ot kerak: degenerate (aynimoq) → degeneration (yemirilish, degeneratsiya); -ate → -ation."
+      }
+    },
+    {
+      "key": "c2-m17-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "ebb"
+      ],
+      "text": "After months of layoffs, morale at the factory was at a very low *flow*.",
+      "options": [
+        "ebb",
+        "wave",
+        "stream"
+      ],
+      "correct": [
+        "ebb"
+      ],
+      "translation": {
+        "ru": "После нескольких месяцев увольнений моральный дух на заводе был в глубоком упадке.",
+        "uz": "Bir necha oylik ishdan bo'shatishlardan so'ng zavoddagi ishchilarning ruhi juda tushib ketgan edi."
+      },
+      "explanation": {
+        "ru": "Устойчивое выражение at a (very) low ebb — «в упадке, на спаде» (ebb — отлив). flow — «прилив, течение»: в этом выражении не употребляется, как и wave или stream.",
+        "uz": "at a (very) low ebb — turg'un ibora, «tanazzulda, pasaygan holatda» (ebb — suv qaytishi). flow — «oqim, suv ko'tarilishi»: bu iborada ishlatilmaydi, wave va stream so'zlari ham."
+      }
+    },
+    {
+      "key": "c2-m17-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "resurgence"
+      ],
+      "text": "Thanks to the internet, folk music has had a remarkable *resurgent* in recent years.",
+      "options": [
+        "resurgence",
+        "resurgences",
+        "resurging"
+      ],
+      "correct": [
+        "resurgence"
+      ],
+      "translation": {
+        "ru": "Благодаря интернету народная музыка в последние годы пережила настоящее возрождение.",
+        "uz": "Internet tufayli so'nggi yillarda xalq musiqasi ajoyib tarzda qayta jonlandi."
+      },
+      "explanation": {
+        "ru": "После a remarkable нужно существительное в единственном числе: resurgence («возрождение, новый подъём»). resurgent — прилагательное («вновь набирающий силу»).",
+        "uz": "a remarkable so'zlaridan keyin birlikdagi ot kerak: resurgence («qayta jonlanish»). resurgent — sifat («qayta kuchga kirayotgan»)."
+      }
+    },
+    {
+      "key": "c2-m17-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "rekindle"
+      ],
+      "text": "Their old friendship was *rekindling* by a chance meeting at the airport.",
+      "options": [
+        "rekindled",
+        "rekindle",
+        "rekindles"
+      ],
+      "correct": [
+        "rekindled"
+      ],
+      "translation": {
+        "ru": "Их давнюю дружбу вновь пробудила случайная встреча в аэропорту.",
+        "uz": "Ularning eski do'stligini aeroportdagi tasodifiy uchrashuv qayta uyg'otdi."
+      },
+      "explanation": {
+        "ru": "Дружбу пробудила встреча (by a chance meeting — кто действует), значит, пассив: was + rekindled. was rekindling — продолженное время действительного залога, с by так не говорят.",
+        "uz": "Do'stlikni uchrashuv uyg'otgan (by a chance meeting — harakatni bajaruvchi), demak, majhul nisbat: was + rekindled. was rekindling — aniq nisbatning davomli shakli, by bilan bunday aytilmaydi."
+      }
+    },
+    {
+      "key": "c2-m18-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "glut"
+      ],
+      "text": "Every autumn the local market is ___ with cheap apples and pears.",
+      "base": "glut",
+      "accepted": [
+        "glutted"
+      ],
+      "translation": {
+        "ru": "Каждую осень местный рынок заваливают дешёвыми яблоками и грушами.",
+        "uz": "Har kuzda mahalliy bozor arzon olma va nokka to'lib ketadi."
+      },
+      "explanation": {
+        "ru": "После is ... with нужно причастие (рынок перенасыщен): glut → glutted; после краткого ударного гласного конечная t удваивается.",
+        "uz": "is ... with so'zlari orasida sifatdosh kerak (bozor to'lib ketgan): glut → glutted; qisqa urg'uli unlidan keyin oxirgi t ikkilanadi."
+      }
+    },
+    {
+      "key": "c2-m18-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "copious"
+      ],
+      "text": "During the lecture she wrote ___, filling almost an entire notebook.",
+      "base": "copious",
+      "accepted": [
+        "copiously"
+      ],
+      "translation": {
+        "ru": "На лекции она писала много и подробно и исписала почти целую тетрадь.",
+        "uz": "Ma'ruza davomida u juda ko'p yozdi va deyarli butun bir daftarni to'ldirdi."
+      },
+      "explanation": {
+        "ru": "wrote — глагол, его описывает наречие: copious (обильный) → copiously (обильно); -ous → -ously.",
+        "uz": "wrote — fe'l, uni ravish izohlaydi: copious (mo'l) → copiously (mo'l-ko'l); -ous → -ously."
+      }
+    },
+    {
+      "key": "c2-m18-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "inordinate"
+      ],
+      "text": "The repairs took ___ long because nobody could find the right parts.",
+      "base": "inordinate",
+      "accepted": [
+        "inordinately"
+      ],
+      "translation": {
+        "ru": "Ремонт занял непомерно много времени, потому что никто не мог найти нужные детали.",
+        "uz": "Ta'mirlash haddan tashqari uzoq cho'zildi, chunki hech kim kerakli ehtiyot qismlarni topa olmadi."
+      },
+      "explanation": {
+        "ru": "Перед прилагательным long нужно наречие: inordinate (непомерный) → inordinately (непомерно); -ate + -ly.",
+        "uz": "long sifatidan oldin ravish kerak: inordinate (haddan tashqari) → inordinately; -ate + -ly."
+      }
+    },
+    {
+      "key": "c2-m18-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "replete"
+      ],
+      "text": "Her speech was replete *of* jokes that only her colleagues understood.",
+      "options": [
+        "with",
+        "from",
+        "by"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Её речь изобиловала шутками, понятными только её коллегам.",
+        "uz": "Uning nutqi faqat hamkasblari tushunadigan hazillarga to'la edi."
+      },
+      "explanation": {
+        "ru": "replete with — «полный чего-то, изобилующий»: replete сочетается с with. Русское «полный чего» и английское full of подталкивают к of, но с replete так не говорят.",
+        "uz": "replete with — «biror narsaga to'la»: replete so'zi with predlogi bilan keladi. full of iborasi of predlogiga undaydi, lekin replete bilan bunday aytilmaydi."
+      }
+    },
+    {
+      "key": "c2-m18-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "superfluous"
+      ],
+      "text": "Good design avoids *superflous* decoration and keeps only what is useful.",
+      "options": [
+        "superfluous",
+        "superfluity",
+        "superfluously"
+      ],
+      "correct": [
+        "superfluous"
+      ],
+      "translation": {
+        "ru": "Хороший дизайн избегает излишних украшений и оставляет только полезное.",
+        "uz": "Yaxshi dizayn ortiqcha bezaklardan qochadi va faqat foydali narsalarni qoldiradi."
+      },
+      "explanation": {
+        "ru": "Правильно superfluous: после fl пишется u — super-flu-ous (тот же корень, что в fluid, «течь через край»). superfluity — существительное, superfluously — наречие.",
+        "uz": "To'g'risi superfluous: fl harflaridan keyin u yoziladi — super-flu-ous (fluid so'zidagi o'zak, «toshib oqmoq»). superfluity — ot, superfluously — ravish."
+      }
+    },
+    {
+      "key": "c2-m18-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "plethora"
+      ],
+      "text": "The new library offers a plethora of *resource* for students of every age.",
+      "options": [
+        "resources",
+        "resource's",
+        "resourceful"
+      ],
+      "correct": [
+        "resources"
+      ],
+      "translation": {
+        "ru": "Новая библиотека предлагает великое множество ресурсов для учащихся всех возрастов.",
+        "uz": "Yangi kutubxona har yoshdagi o'quvchilar uchun behisob manbalarni taklif etadi."
+      },
+      "explanation": {
+        "ru": "a plethora of — «великое множество»: после него исчисляемое существительное стоит во множественном числе: a plethora of resources. resourceful — прилагательное «находчивый».",
+        "uz": "a plethora of — «behisob miqdor»: undan keyin sanaladigan ot ko'plikda keladi: a plethora of resources. resourceful — «topqir» degan sifat."
+      }
+    },
+    {
+      "key": "c2-m18-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "momentous"
+      ],
+      "text": "Few decisions in the nation's history were as ___ as the abolition of slavery.",
+      "base": "moment",
+      "accepted": [
+        "momentous"
+      ],
+      "translation": {
+        "ru": "Немногие решения в истории страны были столь судьбоносными, как отмена рабства.",
+        "uz": "Mamlakat tarixida qullikni bekor qilish kabi taqdirni belgilovchi qarorlar kam bo'lgan."
+      },
+      "explanation": {
+        "ru": "После as ... as нужно прилагательное, а смысл (историческое решение) — «судьбоносный»: moment → momentous (-ous). momentary — «мгновенный», здесь бессмысленно.",
+        "uz": "as ... as orasida sifat kerak, ma'no (tarixiy qaror) esa «taqdirni belgilovchi»: moment → momentous (-ous). momentary — «bir lahzalik», bu yerda ma'nosiz."
+      }
+    },
+    {
+      "key": "c2-m18-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "inconsequential"
+      ],
+      "text": "Compared with the safety issue, a short delay is ___ and can be ignored.",
+      "base": "consequence",
+      "accepted": [
+        "inconsequential"
+      ],
+      "translation": {
+        "ru": "По сравнению с проблемой безопасности небольшая задержка несущественна, и на неё можно не обращать внимания.",
+        "uz": "Xavfsizlik masalasiga qaraganda qisqa kechikish ahamiyatsiz, unga e'tibor bermasa ham bo'ladi."
+      },
+      "explanation": {
+        "ru": "Смысл (можно не обращать внимания) требует отрицания: consequence (последствие) → consequential (важный) → inconsequential (несущественный); -ence → -ential.",
+        "uz": "Ma'no (e'tibor bermasa ham bo'ladi) inkorni talab qiladi: consequence (oqibat) → consequential (muhim) → inconsequential (ahamiyatsiz); -ence → -ential."
+      }
+    },
+    {
+      "key": "c2-m18-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "indispensable"
+      ],
+      "text": "The old bridge is still ___: without it, the villages would be cut off.",
+      "base": "dispense",
+      "accepted": [
+        "indispensable"
+      ],
+      "translation": {
+        "ru": "Старый мост по-прежнему незаменим: без него сёла оказались бы отрезаны от мира.",
+        "uz": "Eski ko'prik hamon almashtirib bo'lmas: usiz qishloqlar tashqi dunyodan uzilib qolardi."
+      },
+      "explanation": {
+        "ru": "Смысл (без него никак) требует отрицания: dispense (dispense with — обходиться без) → dispensable → indispensable. Приставка in-, суффикс -able, а не -ible.",
+        "uz": "Ma'no (usiz bo'lmaydi) inkorni talab qiladi: dispense (dispense with — usiz ham eplamoq) → dispensable → indispensable. in- old qo'shimchasi, -ible emas, -able qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m18-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "quintessential"
+      ],
+      "text": "With his leather bag and kind smile, he was the *quintessence* country doctor.",
+      "options": [
+        "quintessential",
+        "quintessentially",
+        "quintessences"
+      ],
+      "correct": [
+        "quintessential"
+      ],
+      "translation": {
+        "ru": "Со своим кожаным саквояжем и доброй улыбкой он был образцовым сельским врачом.",
+        "uz": "Charm sumkasi va mehribon tabassumi bilan u namunaviy qishloq shifokori edi."
+      },
+      "explanation": {
+        "ru": "Перед country doctor нужно прилагательное: quintessential («самый типичный, образцовый»). quintessence — существительное, оно требует of: the quintessence of something.",
+        "uz": "country doctor so'zlaridan oldin sifat kerak: quintessential («eng xos, namunaviy»). quintessence — ot, u of predlogini talab qiladi: the quintessence of something."
+      }
+    },
+    {
+      "key": "c2-m18-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "extraneous"
+      ],
+      "text": "The judge ruled that the evidence was extraneous *for* the case and dismissed it.",
+      "options": [
+        "to",
+        "of",
+        "at"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Судья постановил, что эти доказательства не относятся к делу, и отклонил их.",
+        "uz": "Sudya bu dalillarni ishga aloqasiz deb topdi va ularni rad etdi."
+      },
+      "explanation": {
+        "ru": "extraneous to something — «посторонний, не относящийся к чему-то»: после extraneous нужен предлог to. Русское «посторонний для» подталкивает к for.",
+        "uz": "extraneous to something — «biror narsaga aloqasiz»: extraneous so'zidan keyin to predlogi keladi. O'zbekcha «-ga» bu yerda for emas, to."
+      }
+    },
+    {
+      "key": "c2-m18-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "peripheral"
+      ],
+      "text": "The report touches on the budget only *peripheral*, devoting just one line to it.",
+      "options": [
+        "peripherally",
+        "periphery",
+        "peripherals"
+      ],
+      "correct": [
+        "peripherally"
+      ],
+      "translation": {
+        "ru": "В отчёте бюджет затрагивается лишь вскользь: ему посвящена всего одна строка.",
+        "uz": "Hisobotda byudjetga faqat yo'l-yo'lakay to'xtalinadi: unga bor-yo'g'i bitta satr ajratilgan."
+      },
+      "explanation": {
+        "ru": "Глагол touches on описывает наречие: peripheral → peripherally («вскользь, мимоходом»). periphery и peripherals — существительные.",
+        "uz": "touches on fe'lini ravish izohlaydi: peripheral → peripherally («yo'l-yo'lakay»). periphery va peripherals — otlar."
+      }
+    },
+    {
+      "key": "c2-m18-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "perfunctory"
+      ],
+      "text": "The guard glanced ___ at our passports and waved us through.",
+      "base": "perfunctory",
+      "accepted": [
+        "perfunctorily"
+      ],
+      "translation": {
+        "ru": "Охранник для галочки взглянул на наши паспорта и махнул, чтобы мы проходили.",
+        "uz": "Qo'riqchi pasportlarimizga nomigagina ko'z tashladi-da, o'tavering deb qo'l siltadi."
+      },
+      "explanation": {
+        "ru": "glanced — глагол, его описывает наречие: perfunctory → perfunctorily; y после согласной меняется на -ily.",
+        "uz": "glanced — fe'l, uni ravish izohlaydi: perfunctory → perfunctorily; undoshdan keyingi y harfi -ily shakliga o'tadi."
+      }
+    },
+    {
+      "key": "c2-m18-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "stringent"
+      ],
+      "text": "Even the experts were surprised by the ___ of the new safety rules.",
+      "base": "stringent",
+      "accepted": [
+        "stringency"
+      ],
+      "translation": {
+        "ru": "Даже специалистов удивила строгость новых правил безопасности.",
+        "uz": "Yangi xavfsizlik qoidalarining qat'iyligi hatto mutaxassislarni ham hayratda qoldirdi."
+      },
+      "explanation": {
+        "ru": "После the и перед of нужно существительное: stringent (строгий) → stringency (строгость); -ent → -ency, как urgent → urgency.",
+        "uz": "the va of orasida ot kerak: stringent (qat'iy) → stringency (qat'iylik); -ent → -ency, xuddi urgent → urgency kabi."
+      }
+    },
+    {
+      "key": "c2-m18-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "fastidious"
+      ],
+      "text": "Her ___ about grammar made her the best proofreader in the office.",
+      "base": "fastidious",
+      "accepted": [
+        "fastidiousness"
+      ],
+      "translation": {
+        "ru": "Щепетильность в вопросах грамматики сделала её лучшим корректором в редакции.",
+        "uz": "Grammatika masalasidagi nozikta'bligi uni idoradagi eng yaxshi musahhihga aylantirdi."
+      },
+      "explanation": {
+        "ru": "После Her нужно существительное: fastidious (щепетильный) → fastidiousness (щепетильность); -ness добавляется к целому прилагательному.",
+        "uz": "Her so'zidan keyin ot kerak: fastidious (nozikta'b) → fastidiousness (nozikta'blik); -ness butun sifatga qo'shiladi."
+      }
+    },
+    {
+      "key": "c2-m18-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "exhaustive"
+      ],
+      "text": "The topic has been *exhaustive* studied by three generations of scientists.",
+      "options": [
+        "exhaustively",
+        "exhaustion",
+        "exhausted"
+      ],
+      "correct": [
+        "exhaustively"
+      ],
+      "translation": {
+        "ru": "Эту тему исчерпывающе изучили три поколения учёных.",
+        "uz": "Bu mavzu uch avlod olimlari tomonidan har tomonlama to'liq o'rganilgan."
+      },
+      "explanation": {
+        "ru": "Причастие studied описывает наречие: exhaustive → exhaustively («исчерпывающе»). exhaustion — «изнеможение», exhausted — «измученный».",
+        "uz": "studied sifatdoshini ravish izohlaydi: exhaustive → exhaustively («to'liq, mufassal»). exhaustion — «holdan toyish», exhausted — «holdan toygan»."
+      }
+    },
+    {
+      "key": "c2-m18-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "pinpoint"
+      ],
+      "text": "*Pinpointed* the exact cause of the leak, the engineers replaced a single pipe.",
+      "options": [
+        "Having pinpointed",
+        "Being pinpointed",
+        "Having been pinpointed"
+      ],
+      "correct": [
+        "Having pinpointed"
+      ],
+      "translation": {
+        "ru": "Точно определив причину утечки, инженеры заменили всего одну трубу.",
+        "uz": "Sizib chiqish sababini aniq belgilab olgach, muhandislar faqat bitta quvurni almashtirishdi."
+      },
+      "explanation": {
+        "ru": "Инженеры сами определили причину, а потом заменили трубу: нужен активный оборот предшествования Having pinpointed («определив»). Pinpointed, Being pinpointed и Having been pinpointed — пассив, а у оборота есть дополнение the exact cause.",
+        "uz": "Muhandislar avval sababni o'zlari aniqlab, keyin quvurni almashtirgan: oldin bo'lgan harakat uchun aniq nisbatdagi Having pinpointed kerak. Pinpointed, Being pinpointed va Having been pinpointed — majhul shakllar, oborotda esa the exact cause to'ldiruvchisi bor."
+      }
+    },
+    {
+      "key": "c2-m18-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "exacting"
+      ],
+      "text": "Working for such an *exacted* boss taught me to check every word twice.",
+      "options": [
+        "exacting",
+        "exaction",
+        "exactness"
+      ],
+      "correct": [
+        "exacting"
+      ],
+      "translation": {
+        "ru": "Работа у такого требовательного начальника научила меня проверять каждое слово дважды.",
+        "uz": "Shunday talabchan boshliq qo'l ostida ishlash meni har bir so'zni ikki marta tekshirishga o'rgatdi."
+      },
+      "explanation": {
+        "ru": "Начальник сам предъявляет требования, поэтому нужно прилагательное на -ing: exacting («требовательный»). exacted — «взысканный» (о том, что потребовали); exaction и exactness — существительные.",
+        "uz": "Boshliqning o'zi talab qo'yadi, shuning uchun -ing sifati kerak: exacting («talabchan»). exacted — «undirilgan» (talab qilingan narsa haqida); exaction va exactness — otlar."
+      }
+    },
+    {
+      "key": "c2-m18-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "irrefutable"
+      ],
+      "text": "The evidence was so ___ that even the defense lawyer stopped arguing.",
+      "base": "refute",
+      "accepted": [
+        "irrefutable"
+      ],
+      "translation": {
+        "ru": "Улики были настолько неопровержимыми, что даже адвокат защиты перестал спорить.",
+        "uz": "Dalillar shunchalik rad etib bo'lmas ediki, hatto himoyachi ham bahslashishni to'xtatdi."
+      },
+      "explanation": {
+        "ru": "Смысл (даже адвокат перестал спорить) требует отрицания: refute (опровергать) → refutable → irrefutable. Перед r приставка ir-, конечная e уходит перед -able.",
+        "uz": "Ma'no (hatto himoyachi ham bahsni to'xtatdi) inkorni talab qiladi: refute (rad etmoq) → refutable → irrefutable. r harfidan oldin ir-, -able oldidan oxirgi e tushib qoladi."
+      }
+    },
+    {
+      "key": "c2-m18-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "conspicuous"
+      ],
+      "text": "The detective wore a plain gray coat in order to remain ___.",
+      "base": "conspicuous",
+      "accepted": [
+        "inconspicuous"
+      ],
+      "translation": {
+        "ru": "Детектив надел простое серое пальто, чтобы оставаться незаметным.",
+        "uz": "Detektiv ko'zga tashlanmaslik uchun oddiy kulrang palto kiydi."
+      },
+      "explanation": {
+        "ru": "Цель (простое серое пальто) — не привлекать внимания, значит, отрицание: conspicuous (заметный) → inconspicuous (незаметный); приставка in-.",
+        "uz": "Maqsad (oddiy kulrang palto) — e'tiborni tortmaslik, demak, inkor kerak: conspicuous (ko'zga tashlanadigan) → inconspicuous (ko'zga tashlanmaydigan); in- old qo'shimchasi."
+      }
+    },
+    {
+      "key": "c2-m18-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "ostensible"
+      ],
+      "text": "The trip was ___ for business, but he spent most days on the beach.",
+      "base": "ostensible",
+      "accepted": [
+        "ostensibly"
+      ],
+      "translation": {
+        "ru": "Поездка была якобы деловой, но бо́льшую часть дней он провёл на пляже.",
+        "uz": "Safar go'yoki ish yuzasidan edi, lekin u ko'p kunlarini plyajda o'tkazdi."
+      },
+      "explanation": {
+        "ru": "Перед for business нужно наречие: ostensible (мнимый) → ostensibly («якобы, для вида»); -ible → -ibly.",
+        "uz": "for business so'zlaridan oldin ravish kerak: ostensible (zohiriy) → ostensibly («go'yoki, ko'z uchun»); -ible → -ibly."
+      }
+    },
+    {
+      "key": "c2-m18-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "palpable"
+      ],
+      "text": "As the final whistle approached, the excitement in the stadium was almost *palatable*.",
+      "options": [
+        "palpable",
+        "plausible",
+        "passable"
+      ],
+      "correct": [
+        "palpable"
+      ],
+      "translation": {
+        "ru": "Когда приближался финальный свисток, волнение на стадионе было почти осязаемым.",
+        "uz": "Final hushtagi yaqinlashgani sari stadiondagi hayajon deyarli yaqqol sezilib turardi."
+      },
+      "explanation": {
+        "ru": "palatable — «вкусный; приемлемый» (о еде, предложении). Ощутимый, явственный — palpable: слова различаются буквами -lp- и -lat-. plausible — «правдоподобный», passable — «сносный».",
+        "uz": "palatable — «mazali; maqbul» (ovqat yoki taklif haqida). Yaqqol seziladigan — palpable: so'zlar -lp- va -lat- harflari bilan farqlanadi. plausible — «haqiqatga o'xshash», passable — «durustgina»."
+      }
+    },
+    {
+      "key": "c2-m18-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "unequivocal"
+      ],
+      "text": "The minister gave an *unequivocable* answer: there would be no new taxes.",
+      "options": [
+        "unequivocal",
+        "unequivocally",
+        "equivocally"
+      ],
+      "correct": [
+        "unequivocal"
+      ],
+      "translation": {
+        "ru": "Министр дал однозначный ответ: новых налогов не будет.",
+        "uz": "Vazir uzil-kesil javob berdi: yangi soliqlar joriy etilmaydi."
+      },
+      "explanation": {
+        "ru": "Слова unequivocable в стандартном английском нет: это смешение unequivocal и unmistakable. Правильно unequivocal («однозначный»); unequivocally и equivocally — наречия, а перед answer нужно прилагательное.",
+        "uz": "Standart ingliz tilida unequivocable degan so'z yo'q: bu unequivocal va unmistakable so'zlarining qorishmasi. To'g'risi unequivocal («uzil-kesil»); unequivocally va equivocally — ravishlar, answer otidan oldin esa sifat kerak."
+      }
+    },
+    {
+      "key": "c2-m18-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "overt"
+      ],
+      "text": "The two neighbors were never *overt* rude to each other, but they seldom spoke.",
+      "options": [
+        "overtly",
+        "overture",
+        "overtness"
+      ],
+      "correct": [
+        "overtly"
+      ],
+      "translation": {
+        "ru": "Двое соседей никогда открыто не грубили друг другу, но почти не разговаривали.",
+        "uz": "Ikki qo'shni bir-biriga hech qachon oshkora qo'pollik qilmasdi, lekin ular deyarli gaplashmasdi ham."
+      },
+      "explanation": {
+        "ru": "Прилагательное rude описывает наречие: overt → overtly («открыто»). После were два прилагательных подряд без союза (overt rude) невозможны; overture — «увертюра», overtness — существительное.",
+        "uz": "rude sifatini ravish izohlaydi: overt → overtly («oshkora»). were fe'lidan keyin ikki sifat bog'lovchisiz ketma-ket kelmaydi (overt rude); overture — «uvertyura», overtness esa ot."
+      }
+    },
+    {
+      "key": "c2-m18-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "inimitable"
+      ],
+      "text": "Generations of comedians have borrowed his jokes, but his timing remains ___.",
+      "base": "imitate",
+      "accepted": [
+        "inimitable"
+      ],
+      "translation": {
+        "ru": "Поколения комиков заимствовали его шутки, но его умение держать паузу остаётся неподражаемым.",
+        "uz": "Necha-necha avlod qiziqchilari uning hazillarini o'zlashtirgan, lekin hazilni ayni vaqtida aytish mahorati hamon betakror."
+      },
+      "explanation": {
+        "ru": "Смысл (шутки заимствуют, а это — нет) требует отрицания: imitate → imitable → inimitable. Отрицательная приставка здесь in-, а не un-; -ate → -able.",
+        "uz": "Ma'no (hazillarni olishadi, buni esa yo'q) inkorni talab qiladi: imitate → imitable → inimitable. Inkor old qo'shimchasi un- emas, in-; -ate → -able."
+      }
+    },
+    {
+      "key": "c2-m18-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "unparalleled"
+      ],
+      "text": "She retired with an ___ record: in the club's long history, no player has come close.",
+      "base": "parallel",
+      "accepted": [
+        "unparalleled"
+      ],
+      "translation": {
+        "ru": "Она завершила карьеру с непревзойдённым рекордом: за всю долгую историю клуба ни один игрок к нему даже не приблизился.",
+        "uz": "U tengsiz rekord bilan sportni tark etdi: klubning uzoq tarixida hech bir o'yinchi unga yaqinlasha olmagan."
+      },
+      "explanation": {
+        "ru": "После an перед record нужно прилагательное, а смысл (никто не приблизился) требует отрицания: parallel → paralleled → unparalleled. Двойная l только в середине (para-ll-el); перед -ed конечная l не удваивается.",
+        "uz": "an va record orasida sifat kerak, ma'no (hech kim yaqinlasha olmagan) esa inkorni talab qiladi: parallel → paralleled → unparalleled. Qo'sh l faqat o'rtada (para-ll-el); -ed oldidan oxirgi l ikkilanmaydi."
+      }
+    },
+    {
+      "key": "c2-m18-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "idiosyncratic"
+      ],
+      "text": "His colleagues tolerated his many little ___, such as eating cereal with chopsticks.",
+      "base": "idiosyncratic",
+      "accepted": [
+        "idiosyncrasies"
+      ],
+      "translation": {
+        "ru": "Коллеги мирились с его многочисленными мелкими причудами — например, он ел хлопья палочками.",
+        "uz": "Hamkasblari uning ko'plab mayda g'alati odatlariga, masalan, yormani xitoy tayoqchalari bilan yeyishiga toqat qilishardi."
+      },
+      "explanation": {
+        "ru": "После his many little нужно существительное во множественном числе: idiosyncratic → idiosyncrasy (причуда) → idiosyncrasies. Пишется -crasy через s (не -cracy, как democracy); y → ies.",
+        "uz": "his many little so'zlaridan keyin ko'plikdagi ot kerak: idiosyncratic → idiosyncrasy (g'alati odat) → idiosyncrasies. -crasy s bilan yoziladi (democracy so'zidagi kabi -cracy emas); y → ies."
+      }
+    },
+    {
+      "key": "c2-m18-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "rampant"
+      ],
+      "text": "Before the reforms, bribery was *rampart* in almost every government office.",
+      "options": [
+        "rampant",
+        "rampage",
+        "rampancy"
+      ],
+      "correct": [
+        "rampant"
+      ],
+      "translation": {
+        "ru": "До реформ взяточничество процветало почти в каждом государственном учреждении.",
+        "uz": "Islohotlardan oldin deyarli har bir davlat idorasida poraxo'rlik avj olgan edi."
+      },
+      "explanation": {
+        "ru": "rampart — «крепостной вал». Безудержный, повсеместно распространившийся (о зле, болезни) — rampant. rampage — «буйство» (go on a rampage), rampancy — существительное.",
+        "uz": "rampart — «qal'a devori». Avj olgan, hamma yoqqa yoyilgan (yomonlik, kasallik haqida) — rampant. rampage — «quturish» (go on a rampage), rampancy — ot."
+      }
+    },
+    {
+      "key": "c2-m18-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "aberration"
+      ],
+      "text": "Doctors dismissed the strange test result as a random *abberation*.",
+      "options": [
+        "aberration",
+        "aberrant",
+        "abrasion"
+      ],
+      "correct": [
+        "aberration"
+      ],
+      "translation": {
+        "ru": "Врачи сочли странный результат анализа случайным отклонением от нормы.",
+        "uz": "Shifokorlar g'alati tahlil natijasini tasodifiy me'yordan chetlanish deb hisoblashdi."
+      },
+      "explanation": {
+        "ru": "Правильно aberration: одна b и двойная r — ab-err-ation (от того же корня, что err, «ошибаться, блуждать»). aberrant — прилагательное, abrasion — «ссадина».",
+        "uz": "To'g'risi aberration: bitta b va qo'sh r — ab-err-ation (err, «adashmoq» so'zi bilan bir o'zakdan). aberrant — sifat, abrasion — «shilinish»."
+      }
+    },
+    {
+      "key": "c2-m18-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "ubiquitous"
+      ],
+      "text": "The *ubiquity* cameras on our streets record almost everything we do.",
+      "options": [
+        "ubiquitous",
+        "ubiquitously",
+        "ubiquities"
+      ],
+      "correct": [
+        "ubiquitous"
+      ],
+      "translation": {
+        "ru": "Вездесущие камеры на наших улицах записывают почти всё, что мы делаем.",
+        "uz": "Ko'chalarimizdagi hamma yerda uchraydigan kameralar qilayotgan deyarli har bir ishimizni yozib oladi."
+      },
+      "explanation": {
+        "ru": "Перед существительным cameras нужно прилагательное: ubiquitous («вездесущий»). ubiquity — существительное («повсеместность»): the ubiquity of cameras.",
+        "uz": "cameras otidan oldin sifat kerak: ubiquitous («hamma yerda uchraydigan»). ubiquity — ot («hamma yerdalik»): the ubiquity of cameras."
+      }
+    }
+  ]
+}

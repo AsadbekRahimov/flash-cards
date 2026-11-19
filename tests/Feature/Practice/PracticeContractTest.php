@@ -54,7 +54,7 @@ const CONTRACT_PRACTICE_MISTAKE = ['element_id', 'kind', 'label', 'your_answer',
  */
 const CONTRACT_FORBIDDEN_PRACTICE_KEYS = [
     'pairs', 'correct_ids', 'accepted', 'accepted_display', 'expected', 'full_text',
-    'audio_path', 'audio_disk', 'word_id', 'version_id', 'item_id', 'pool', 'seed',
+    'audio_path', 'audio_disk', 'word_id', 'version_id', 'item_id', 'pool', 'seed', 'error_id', 'wrong_text',
 ];
 
 /**
@@ -201,8 +201,8 @@ it('GET /practice/hub keeps its exact JSON shape, for a lesson and for a whole c
         ]);
 
     contractModeRows($response->json('modes'));
-    expect($response->json('modes'))->toHaveCount(5)
-        ->and(array_column($response->json('modes'), 'mode'))->toBe(['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'])
+    expect($response->json('modes'))->toHaveCount(7)
+        ->and(array_column($response->json('modes'), 'mode'))->toBe(['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed', 'word_form', 'error_hunt'])
         ->and($response->json('lesson'))->toBe(['id' => $lesson->id, 'stage' => 1, 'number' => 1, 'title' => 'Еда'])
         ->and($response->json('battle'))->toBe(['enabled' => true, 'active_battle_id' => null, 'incoming_count' => 0]);
 
@@ -547,6 +547,7 @@ it('wraps every error of the practice in the envelope, with `details` exactly wh
         'element_not_current' => [PracticeException::elementNotCurrent('eAAAAAAAAAA'), ['current']],
         'answer_already_accepted' => [PracticeException::answerAlreadyAccepted(Verdict::Wrong), ['verdict']],
         'pair_already_matched' => [PracticeException::pairAlreadyMatched('lAAAAAAAAAA'), ['left_id']],
+        'step_not_current' => [PracticeException::stepNotCurrent(PracticeException::STEP_FIX), ['step']],
         'invalid_answer_shape' => [PracticeException::invalidAnswerShape(PracticeException::EXPECTED_BIJECTION), ['expected']],
         'unknown_element_id' => [PracticeException::unknownElementId(), null],
         'replace_not_allowed' => [PracticeException::replaceNotAllowed(PracticeException::REPLACE_LIMIT), ['reason']],
@@ -895,7 +896,7 @@ it('keeps the statuses of docs/16 §7.6 for the codes of the practice and of the
     $practice = [
         'practice_unavailable' => 403, 'practice_pro_required' => 403, 'practice_limit_reached' => 403, 'practice_mode_disabled' => 409, 'practice_not_enough_material' => 422,
         'practice_session_active' => 409, 'practice_session_not_found' => 404, 'practice_session_closed' => 410, 'element_not_current' => 409,
-        'answer_already_accepted' => 409, 'pair_already_matched' => 409, 'invalid_answer_shape' => 422, 'unknown_element_id' => 422,
+        'answer_already_accepted' => 409, 'pair_already_matched' => 409, 'step_not_current' => 409, 'invalid_answer_shape' => 422, 'unknown_element_id' => 422,
         'replace_not_allowed' => 409, 'retry_not_available' => 409, 'practice_audio_unavailable' => 503, 'lesson_not_in_course' => 422,
         'course_not_found' => 404, 'lesson_not_found' => 404,
     ];
@@ -912,4 +913,89 @@ it('keeps the statuses of docs/16 §7.6 for the codes of the practice and of the
         expect((new BattleException($code, 'm'))->httpStatus())->toBe($status, $code);
     }
     expect(Battle::query()->count())->toBe(0);
+});
+
+// --- "word form" and "find the mistake" (docs/16 §5.6, §5.7, §12) ------------------------------------------------------------------
+
+it('keeps the contract of the word form: the sentence and the base word before the answer, no right form anywhere until it, the review after it', function (): void {
+    [$learner, $course, $lesson] = contractWorld();
+    config(['practice.modes.word_form' => true]);
+    foreach (PracticeKit::words($lesson, 3, $learner) as $i => $word) {
+        PracticeItem::factory()->wordForm()->published()->forLesson($lesson)->targeting($word)->withContent([
+            'text' => "We ___ {$i} now.", 'base' => "secretbase{$i}", 'accepted' => ["secretform{$i}", "secretalt{$i}"],
+            'translation' => ['ru' => "секретный перевод {$i}", 'uz' => "maxfiy tarjima {$i}"], 'explanation' => ['ru' => "секретное пояснение {$i}", 'uz' => "maxfiy izoh {$i}"],
+        ])->create();
+    }
+    $current = ['id', 'kind', 'text', 'base'];
+    $headers = PracticeKit::headers($learner);
+
+    $session = contractOpen($learner, $course->slug, 'word_form', ['lesson_id' => $lesson->id])->assertCreated()
+        ->assertExactJsonStructure(contractOpened($current, lesson: true))->json();
+    $read = $this->withHeaders($headers)->getJson("/api/twa/practice/sessions/{$session['id']}")->assertOk()->assertExactJsonStructure(contractSession($current, lesson: true))->json();
+
+    // Before the answer: no right form (not even the base word of another task), no translation, no explanation - neither a key nor a word.
+    foreach ([$session, $read] as $body) {
+        $json = json_encode($body, JSON_THROW_ON_ERROR);
+        expect($json)->not->toContain('secretform')->not->toContain('secretalt')->not->toContain('секретн')->not->toContain('maxfiy')
+            ->and(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_ELEMENT_KEYS)))->toBe([]);
+    }
+
+    $answer = contractAnswer($learner, $session, ['text' => 'nothing'])->assertOk()
+        ->assertExactJsonStructure(['verdict', 'first_attempt', 'reveal' => ['expected', 'alternatives', 'your_text', 'same_as_base', 'full_text', 'translation', 'explanation'], 'pair', 'session' => contractSession($current, lesson: true)]);
+
+    expect($answer->json())->not->toHaveKey('element_done')
+        ->and($answer->json('reveal.expected'))->toStartWith('secretform')
+        ->and(json_encode($answer->json('session'), JSON_THROW_ON_ERROR))->not->toContain('secretform')->not->toContain('secretalt');
+});
+
+it('keeps the contract of find the mistake: no correction before the step locate - neither the key nor its text -, the step fix with them, element_done on both steps only here', function (): void {
+    [$learner, $course, $lesson] = contractWorld();
+    config(['practice.modes.error_hunt' => true]);
+    foreach (PracticeKit::words($lesson, 3, $learner) as $i => $word) {
+        PracticeItem::factory()->errorHunt()->published()->forLesson($lesson)->targeting($word)->withContent([
+            'text' => "Here we wrongword{$i} the sentence.", 'error_index' => 2, 'error' => "wrongword{$i}",
+            'options' => ["fixright{$i}", "fixbadone{$i}", "fixbadtwo{$i}"], 'correct' => [0],
+            'translation' => ['ru' => "секретный перевод {$i}", 'uz' => "maxfiy tarjima {$i}"], 'explanation' => ['ru' => "секретное пояснение {$i}", 'uz' => "maxfiy izoh {$i}"],
+        ])->create();
+    }
+    $locate = ['id', 'kind', 'step', 'tokens' => ['*' => ['id', 'text']], 'located', 'options'];
+    $fix = ['id', 'kind', 'step', 'tokens' => ['*' => ['id', 'text']], 'located' => ['token_id', 'ok', 'error_token_id'], 'options' => ['*' => ['id', 'text']]];
+    $headers = PracticeKit::headers($learner);
+
+    $session = contractOpen($learner, $course->slug, 'error_hunt', ['lesson_id' => $lesson->id])->assertCreated()
+        ->assertExactJsonStructure(contractOpened($locate, lesson: true))->json();
+    $read = $this->withHeaders($headers)->getJson("/api/twa/practice/sessions/{$session['id']}")->assertOk()->assertExactJsonStructure(contractSession($locate, lesson: true))->json();
+    $hub = $this->withHeaders($headers)->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk()->json();
+    $stored = collect(PracticeSession::query()->findOrFail($session['id'])->snapshot['elements'])->firstWhere('id', $session['current']['id']);
+
+    expect($session['current']['step'])->toBe('locate')
+        ->and($session['current']['located'])->toBeNull()
+        ->and($session['current']['options'])->toBeNull();
+    foreach ([$session, $read, $hub] as $body) {
+        $json = json_encode($body, JSON_THROW_ON_ERROR);
+        // The id of the wrong word is there - as one word among the others; nothing says which.
+        expect($json)->not->toContain('fixright')->not->toContain('fixbad')->not->toContain('секретн')->not->toContain('maxfiy')
+            ->and(substr_count($json, $stored['error_id']))->toBeLessThanOrEqual(1)
+            ->and(array_values(array_intersect(contractKeys($body), CONTRACT_FORBIDDEN_ELEMENT_KEYS)))->toBe([]);
+    }
+
+    // The step locate: not the end of the element; the corrections come with the projection of the step fix, the right one unmarked.
+    $wrongToken = collect($stored['tokens'])->firstWhere('id', '!=', $stored['error_id'])['id'];
+    $step = contractAnswer($learner, $session, ['token_id' => $wrongToken])->assertOk()
+        ->assertExactJsonStructure(['verdict', 'first_attempt', 'reveal' => ['step', 'located_ok', 'your_token_id', 'error_token_id'], 'pair', 'element_done', 'session' => contractSession($fix, lesson: true)]);
+
+    expect($step->json('element_done'))->toBeFalse()
+        ->and($step->json('verdict'))->toBe('wrong')
+        ->and($step->json('session.current.step'))->toBe('fix')
+        ->and($step->json('session.current.located'))->toBe(['token_id' => $wrongToken, 'ok' => false, 'error_token_id' => $stored['error_id']])
+        ->and(json_encode($step->json(), JSON_THROW_ON_ERROR))->not->toContain('секретн')->not->toContain('maxfiy')
+        ->and(array_values(array_intersect(contractKeys($step->json('session')), CONTRACT_FORBIDDEN_ELEMENT_KEYS)))->toBe([]);
+
+    $final = contractAnswer($learner, $step->json('session'), ['option_id' => $stored['correct_ids'][0]])->assertOk()
+        ->assertExactJsonStructure(['verdict', 'first_attempt', 'reveal' => ['step', 'located_ok', 'fixed_ok', 'your_token_id', 'error_token_id', 'your_option_id', 'correct_option_ids', 'wrong_text', 'full_text', 'translation', 'explanation'], 'pair', 'element_done', 'session' => contractSession($locate, lesson: true)]);
+
+    expect($final->json('element_done'))->toBeTrue()
+        ->and($final->json('verdict'))->toBe('wrong')
+        ->and($final->json('session.current.step'))->toBe('locate')
+        ->and(json_encode($final->json('session'), JSON_THROW_ON_ERROR))->not->toContain('fixright')->not->toContain('fixbad');
 });

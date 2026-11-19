@@ -16,6 +16,7 @@ use App\Models\GameRunAttempt;
 use App\Models\GameWallet;
 use App\Models\Learner;
 use App\Models\Lesson;
+use App\Models\PracticeItem;
 use App\Models\ProductEvent;
 use App\Models\Stage;
 use Carbon\CarbonImmutable;
@@ -100,6 +101,21 @@ it('starts a run of a stop with a fixed snapshot of 8 to 10 elements, the flasks
         ->and($view['hint'])->toBe(['price' => 5, 'available' => false])
         ->and($view['summary'])->toBeNull()
         ->and($view['city'])->toBe('Ташкент');
+});
+
+it('leaves the tasks of word_form and error_hunt out of a run: a stop that has only them plays its words and does not fail', function (): void {
+    [$learner, $course, $lesson, $words] = GameKit::stop(8);
+    foreach ([0, 1, 2] as $i) {
+        PracticeItem::factory()->wordForm()->published()->forLesson($lesson)->targeting($words[$i])->create();
+        PracticeItem::factory()->errorHunt()->published()->forLesson($lesson)->targeting($words[$i + 3])->create();
+    }
+
+    $run = runService()->start($learner, $course->slug, $lesson->id);
+
+    $kinds = array_column($run->snapshot['elements'], 'kind');
+    expect($run->isActive())->toBeTrue()
+        ->and($kinds)->not->toContain('word_form')->not->toContain('error_hunt')
+        ->and(array_filter($run->snapshot['elements'], static fn (array $e): bool => isset($e['item_id'])))->toBe([]);
 });
 
 it('refuses a stop the learner has not started in the cards, a lesson of another course and a lesson that does not exist', function (): void {

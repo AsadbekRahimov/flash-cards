@@ -93,11 +93,11 @@ it('says in GET /me what the learner sees: the flags of the modes and of the bat
 
     config(['practice.access' => 'off', 'practice.battle.enabled' => true]); // the battle is off by default
     $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('practice', ['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null]);
+        ->assertJsonPath('practice', ['available' => false, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed', 'word_form', 'error_hunt'], 'battle' => true, 'pro_promise' => 'none', 'limits' => null]);
 
     config(['practice.access' => 'all', 'practice.modes.sentence' => false, 'practice.battle.enabled' => false]);
     $this->withHeaders($headers)->getJson('/api/twa/me')->assertOk()
-        ->assertJsonPath('practice', ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'dictation', 'pairs_timed'], 'battle' => false, 'pro_promise' => 'none', 'limits' => null]);
+        ->assertJsonPath('practice', ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'dictation', 'pairs_timed', 'word_form', 'error_hunt'], 'battle' => false, 'pro_promise' => 'none', 'limits' => null]);
 
     // A Free learner at plan = pro still SEES the entries (with a Pro chip): available + pro_required.
     config(['practice.plan' => 'pro']);
@@ -164,7 +164,7 @@ it('answers the paywall code to a Free learner at plan = pro: 403 practice_pro_r
 
     // The hub itself loads: its entries carry the Pro chip (`state: pro_required`), the tap opens the paywall.
     $hub = $this->withHeaders($headers)->getJson('/api/twa/practice/hub?course=english-a1')->assertOk();
-    expect(array_column($hub->json('modes'), 'state'))->toBe(['pro_required', 'pro_required', 'pro_required', 'pro_required', 'pro_required']);
+    expect(array_column($hub->json('modes'), 'state'))->toBe(array_fill(0, 7, 'pro_required'));
 
     PracticeKit::pro($learner);
     $this->withHeaders($headers)->getJson("/api/twa/practice/sessions/{$session->id}")->assertOk();
@@ -236,7 +236,7 @@ it('describes the state with the entitlement it is given, without asking again',
     $free = app(EntitlementResolver::class)->for($learner);
 
     expect(QueryLog::during(fn () => app(PracticeAccess::class)->describe($learner, $free)))->toBe([])
-        ->and(app(PracticeAccess::class)->describe($learner, $free))->toBe(['available' => true, 'pro_required' => true, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'], 'battle' => true, 'pro_promise' => 'both'])
+        ->and(app(PracticeAccess::class)->describe($learner, $free))->toBe(['available' => true, 'pro_required' => true, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed', 'word_form', 'error_hunt'], 'battle' => true, 'pro_promise' => 'both'])
         ->and(PracticeAccessState::proRequired()->showsEntries())->toBeTrue()
         ->and(PracticeAccessState::off()->showsEntries())->toBeFalse();
 });

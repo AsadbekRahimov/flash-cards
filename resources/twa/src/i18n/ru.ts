@@ -901,6 +901,10 @@ export const ru = {
   'practice.mode.dictation.example': 'слышите — пишете',
   'practice.mode.pairs_timed.title': 'Пары на время',
   'practice.mode.pairs_timed.example': '60 секунд — собери как можно больше пар',
+  'practice.mode.word_form.title': 'Форма слова',
+  'practice.mode.word_form.example': 'decide → decision',
+  'practice.mode.error_hunt.title': 'Найди ошибку',
+  'practice.mode.error_hunt.example': 'interested on → in',
 
   // ---- practice: session ----
   'practice.session.progress': 'Выполнено {done} из {total}',
@@ -1034,6 +1038,32 @@ export const ru = {
   'practice.dictation.diff.right': 'верно',
   'practice.dictation.diff.wrong': 'ошибка',
   'practice.dictation.diff_hint': 'Отмечены слова, в которых ошибка.',
+
+  // ---- practice: word_form ----
+  'practice.word_form.instruction': 'Вставьте слово в нужной форме',
+  'practice.word_form.base_hint': 'Образуйте форму от слова',
+  'practice.word_form.placeholder': 'Ваш ответ',
+  'practice.word_form.same_as_base': 'Нужна другая форма слова',
+
+  // ---- practice: error_hunt ----
+  'practice.error_hunt.instruction_locate': 'Найдите слово с ошибкой',
+  'practice.error_hunt.confirm': 'Это ошибка',
+  'practice.error_hunt.instruction_fix': 'Как исправить?',
+  'practice.error_hunt.located_ok': 'Верно, ошибка здесь',
+  'practice.error_hunt.located_wrong': 'Ошибка в другом слове',
+  'practice.error_hunt.result.found': 'Ошибку нашли',
+  'practice.error_hunt.result.not_found': 'Ошибку не нашли',
+  'practice.error_hunt.result.fixed': 'Исправили верно',
+  'practice.error_hunt.result.not_fixed': 'Исправили неверно',
+  'practice.error_hunt.result.skipped': 'Пропущено',
+  'practice.error_hunt.you_picked': 'Вы выбрали',
+  'practice.error_hunt.your_fix': 'Ваш вариант',
+  'practice.error_hunt.was': 'Было',
+  'practice.error_hunt.became': 'Стало',
+  'practice.error_hunt.words': 'Слова предложения',
+  'practice.error_hunt.token.selected': 'выбрано',
+  'practice.error_hunt.token.yours': 'ваш выбор',
+  'practice.error_hunt.token.error': 'ошибка',
 
   // ---- battle ----
   'battle.title': 'Баттл',
@@ -1503,6 +1533,7 @@ export const ru = {
   'error.code.practice_time_over': 'Время вышло. Смотрим результат.',
   'error.code.practice_not_timed': 'Это не игра на время.',
   'error.code.element_not_current': 'Задание уже сменилось. Экран обновлён.',
+  'error.code.step_not_current': 'Задание уже продвинулось в другой вкладке. Экран обновлён.',
   'error.code.answer_already_accepted': 'Ответ на это задание уже принят.',
   'error.code.pair_already_matched': 'Эта пара уже собрана.',
   'error.code.invalid_answer_shape': 'Не получилось отправить ответ. Попробуйте ещё раз.',

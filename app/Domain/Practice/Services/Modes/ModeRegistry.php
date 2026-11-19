@@ -52,6 +52,8 @@ final class ModeRegistry
             PracticeMode::Sentence => SentenceMode::class,
             PracticeMode::Dictation => DictationMode::class,
             PracticeMode::PairsTimed => PairsTimedMode::class,
+            PracticeMode::WordForm => WordFormMode::class,
+            PracticeMode::ErrorHunt => ErrorHuntMode::class,
         };
     }
 }

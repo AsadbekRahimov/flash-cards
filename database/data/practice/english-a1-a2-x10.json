@@ -1,0 +1,1629 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-a1-a2",
+  "items": [
+    {
+      "key": "a1a2-m19-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "valley"
+      ],
+      "text": "There are two deep ___ between these high mountains.",
+      "base": "valley",
+      "accepted": [
+        "valleys"
+      ],
+      "translation": {
+        "ru": "Между этими высокими горами есть две глубокие долины.",
+        "uz": "Bu baland tog'lar orasida ikkita chuqur vodiy bor."
+      },
+      "explanation": {
+        "ru": "После two нужно множественное число. Перед y стоит гласная e, поэтому просто -s: valley → valleys (не valleies: -ies бывает только после согласной, как city → cities).",
+        "uz": "Two so'zidan keyin ot ko'plikda keladi. y harfidan oldin unli e turibdi, shuning uchun faqat -s qo'shiladi: valley → valleys (valleies emas: -ies faqat undoshdan keyin keladi, city → cities kabi)."
+      }
+    },
+    {
+      "key": "a1a2-m19-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "volcano"
+      ],
+      "text": "There are three active ___ on this small island.",
+      "base": "volcano",
+      "accepted": [
+        "volcanoes",
+        "volcanos"
+      ],
+      "translation": {
+        "ru": "На этом маленьком острове три действующих вулкана.",
+        "uz": "Bu kichik orolda uchta faol vulqon bor."
+      },
+      "explanation": {
+        "ru": "После three нужно множественное число. Многие слова на -o получают -es: volcano → volcanoes (как tomato → tomatoes); вариант volcanos тоже правильный.",
+        "uz": "Three so'zidan keyin ot ko'plikda keladi. -o bilan tugaydigan ko'p so'zlarga -es qo'shiladi: volcano → volcanoes (tomato → tomatoes kabi); volcanos shakli ham to'g'ri."
+      }
+    },
+    {
+      "key": "a1a2-m19-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "cave"
+      ],
+      "text": "This ___ narrow entrance is very hard to find.",
+      "base": "cave",
+      "accepted": [
+        "cave's"
+      ],
+      "translation": {
+        "ru": "Узкий вход в эту пещеру очень трудно найти.",
+        "uz": "Bu g'orning tor kirish joyini topish juda qiyin."
+      },
+      "explanation": {
+        "ru": "Чей узкий вход? — пещеры: между this и narrow entrance нужен владелец с 's: cave → cave's. This указывает на одну пещеру, поэтому не caves'.",
+        "uz": "Kimning tor kirish joyi? — g'orning: this va narrow entrance orasida egalikni bildiruvchi 's kerak: cave → cave's. This bitta g'orni ko'rsatadi, shuning uchun caves' emas."
+      }
+    },
+    {
+      "key": "a1a2-m19-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "desert"
+      ],
+      "text": "Camels can walk across the hot *dessert* for many days.",
+      "options": [
+        "desert",
+        "deserted",
+        "desert's"
+      ],
+      "correct": [
+        "desert"
+      ],
+      "translation": {
+        "ru": "Верблюды могут много дней идти через жаркую пустыню.",
+        "uz": "Tuyalar ko'p kun davomida issiq cho'l bo'ylab yura oladi."
+      },
+      "explanation": {
+        "ru": "Пустыня — desert, с одной s. Dessert (две s) — десерт, сладкое блюдо. Deserted — прилагательное «безлюдный», а после the hot нужно существительное.",
+        "uz": "Cho'l — desert, bitta s bilan. Dessert (ikkita s) — shirinlik, ovqatdan keyingi desert. Deserted — sifat («odamsiz»), the hot so'zlaridan keyin esa ot kerak."
+      }
+    },
+    {
+      "key": "a1a2-m19-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "ocean"
+      ],
+      "text": "How many oceans *is* there on our planet?",
+      "options": [
+        "are",
+        "does",
+        "has"
+      ],
+      "correct": [
+        "are"
+      ],
+      "translation": {
+        "ru": "Сколько океанов на нашей планете?",
+        "uz": "Sayyoramizda nechta okean bor?"
+      },
+      "explanation": {
+        "ru": "Речь о many oceans — это множественное число, поэтому are there, а не is there. Does и has здесь не подходят: вопрос с there строится с be.",
+        "uz": "Gap many oceans haqida — bu ko'plik, shuning uchun is there emas, are there. Does va has bu yerda to'g'ri kelmaydi: there bilan savol be fe'li orqali tuziladi."
+      }
+    },
+    {
+      "key": "a1a2-m19-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "coast"
+      ],
+      "text": "My grandparents have a small house *in* the coast.",
+      "options": [
+        "on",
+        "to",
+        "of"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "У моих бабушки и дедушки есть маленький дом на побережье.",
+        "uz": "Bobom bilan buvimning dengiz qirg'og'ida kichik uyi bor."
+      },
+      "explanation": {
+        "ru": "На побережье — on the coast: побережье — это полоса вдоль моря, а не пространство, внутри которого находятся. In здесь неверно.",
+        "uz": "Qirg'oqda — on the coast: qirg'oq dengiz bo'yidagi chiziq, ichiga kiriladigan joy emas. O'zbekcha «-da» qo'shimchasi bu yerda in bilan berilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m19-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "wolf"
+      ],
+      "text": "Three hungry ___ came close to our village last winter.",
+      "base": "wolf",
+      "accepted": [
+        "wolves"
+      ],
+      "translation": {
+        "ru": "Прошлой зимой три голодных волка подошли близко к нашей деревне.",
+        "uz": "O'tgan qishda uchta och bo'ri qishlog'imizga yaqinlashdi."
+      },
+      "explanation": {
+        "ru": "После three нужно множественное число. У wolf, как у leaf и knife, f меняется на v и добавляется -es: wolf → wolves (не wolfs).",
+        "uz": "Three so'zidan keyin ot ko'plikda keladi. Wolf so'zida, leaf va knife kabi, f harfi v ga almashadi va -es qo'shiladi: wolf → wolves (wolfs emas)."
+      }
+    },
+    {
+      "key": "a1a2-m19-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "butterfly"
+      ],
+      "text": "These beautiful ___ live only in the jungle.",
+      "base": "butterfly",
+      "accepted": [
+        "butterflies"
+      ],
+      "translation": {
+        "ru": "Эти красивые бабочки живут только в джунглях.",
+        "uz": "Bu chiroyli kapalaklar faqat tropik o'rmonda yashaydi."
+      },
+      "explanation": {
+        "ru": "These (эти) требует множественного числа. Перед y стоит согласная l, поэтому y → i + -es: butterfly → butterflies.",
+        "uz": "These (bular) so'zidan keyin ot ko'plikda keladi. y harfidan oldin undosh l turibdi, shuning uchun y → i va -es: butterfly → butterflies."
+      }
+    },
+    {
+      "key": "a1a2-m19-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "whale"
+      ],
+      "text": "Look! You can see that ___ huge tail above the water.",
+      "base": "whale",
+      "accepted": [
+        "whale's"
+      ],
+      "translation": {
+        "ru": "Смотрите! Над водой виден огромный хвост того кита.",
+        "uz": "Qarang! Suv ustida o'sha kitning ulkan dumi ko'rinyapti."
+      },
+      "explanation": {
+        "ru": "Чей хвост? — кита: между that и huge tail нужен владелец с 's: whale → whale's. That — один кит, поэтому не whales'.",
+        "uz": "Kimning dumi? — kitning: that va huge tail orasida egalikni bildiruvchi 's kerak: whale → whale's. That bitta kitni ko'rsatadi, shuning uchun whales' emas."
+      }
+    },
+    {
+      "key": "a1a2-m19-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "deer"
+      ],
+      "text": "How many *deers* did you see in the forest?",
+      "options": [
+        "deer",
+        "dear",
+        "deer's"
+      ],
+      "correct": [
+        "deer"
+      ],
+      "translation": {
+        "ru": "Сколько оленей вы видели в лесу?",
+        "uz": "O'rmonda nechta kiyik ko'rdingiz?"
+      },
+      "explanation": {
+        "ru": "Deer во множественном числе не меняется: one deer, many deer (как sheep). Формы deers нет. Dear — другое слово, «дорогой».",
+        "uz": "Deer so'zi ko'plikda o'zgarmaydi: one deer, many deer (sheep kabi). Deers shakli yo'q. Dear — boshqa so'z, «aziz, qimmat»."
+      }
+    },
+    {
+      "key": "a1a2-m19-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "insect"
+      ],
+      "text": "Every insect in this picture *have* six legs.",
+      "options": [
+        "has",
+        "having",
+        "is"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "У каждого насекомого на этой картинке шесть ног.",
+        "uz": "Bu rasmdagi har bir hasharotning oltita oyog'i bor."
+      },
+      "explanation": {
+        "ru": "После every и существительное, и глагол в единственном числе: every insect has. Every значит «каждый», а не «все», поэтому не have.",
+        "uz": "Every so'zidan keyin ot ham, fe'l ham birlikda keladi: every insect has. Every «har bir» degani, «hamma» emas, shuning uchun have emas."
+      }
+    },
+    {
+      "key": "a1a2-m19-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "snake"
+      ],
+      "text": "A snake *don't* have legs, but it moves very fast.",
+      "options": [
+        "doesn't",
+        "isn't",
+        "aren't"
+      ],
+      "correct": [
+        "doesn't"
+      ],
+      "translation": {
+        "ru": "У змеи нет ног, но она движется очень быстро.",
+        "uz": "Ilonning oyog'i yo'q, lekin u juda tez harakatlanadi."
+      },
+      "explanation": {
+        "ru": "A snake и it — единственное число, третье лицо: отрицание строится с doesn't, а не don't. Isn't и aren't не образуют отрицание с начальной формой have.",
+        "uz": "A snake va it — birlik, uchinchi shaxs: inkor doesn't bilan yasaladi, don't bilan emas. Isn't va aren't have fe'lining boshlang'ich shakli bilan inkor yasamaydi."
+      }
+    },
+    {
+      "key": "a1a2-m19-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "leaf"
+      ],
+      "text": "In autumn, the ___ on our old tree turn yellow.",
+      "base": "leaf",
+      "accepted": [
+        "leaves"
+      ],
+      "translation": {
+        "ru": "Осенью листья на нашем старом дереве желтеют.",
+        "uz": "Kuzda eski daraxtimizdagi barglar sarg'ayadi."
+      },
+      "explanation": {
+        "ru": "Глагол turn без -s показывает, что подлежащее во множественном числе. У leaf f меняется на v + -es: leaf → leaves (не leafs).",
+        "uz": "Turn fe'li -s siz turibdi: demak, ega ko'plikda. Leaf so'zida f harfi v ga almashadi va -es qo'shiladi: leaf → leaves (leafs emas)."
+      }
+    },
+    {
+      "key": "a1a2-m19-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "bush"
+      ],
+      "text": "Our neighbor cut all the ___ in front of his house.",
+      "base": "bush",
+      "accepted": [
+        "bushes"
+      ],
+      "translation": {
+        "ru": "Наш сосед срезал все кусты перед своим домом.",
+        "uz": "Qo'shnimiz uyi oldidagi hamma butalarni kesib tashladi."
+      },
+      "explanation": {
+        "ru": "All the (все) перед исчисляемым существительным требует множественного числа. После sh пишется -es: bush → bushes.",
+        "uz": "Sanaladigan otdan oldin all the (hamma) ko'plikni talab qiladi. sh harflaridan keyin -es yoziladi: bush → bushes."
+      }
+    },
+    {
+      "key": "a1a2-m19-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "plant"
+      ],
+      "text": "Last spring, my father ___ ten apple trees in our garden.",
+      "base": "plant",
+      "accepted": [
+        "planted"
+      ],
+      "translation": {
+        "ru": "Прошлой весной мой отец посадил в нашем саду десять яблонь.",
+        "uz": "O'tgan bahorda otam bog'imizga o'nta olma daraxti ekdi."
+      },
+      "explanation": {
+        "ru": "Last spring — прошлое, нужен past simple. Plant (растение) — это ещё и глагол «сажать»; он правильный: plant → planted.",
+        "uz": "Last spring — o'tgan zamon, past simple kerak. Plant (o'simlik) — ayni paytda «ekmoq» fe'li ham; u to'g'ri fe'l: plant → planted."
+      }
+    },
+    {
+      "key": "a1a2-m19-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "sand"
+      ],
+      "text": "How *many* sand did you bring from the beach?",
+      "options": [
+        "much",
+        "more",
+        "lots"
+      ],
+      "correct": [
+        "much"
+      ],
+      "translation": {
+        "ru": "Сколько песка вы привезли с пляжа?",
+        "uz": "Plyajdan qancha qum olib keldingiz?"
+      },
+      "explanation": {
+        "ru": "Sand (песок) — неисчисляемое существительное, поэтому how much. How many ставят только перед исчисляемыми во множественном числе: how many shells.",
+        "uz": "Sand (qum) — sanalmaydigan ot, shuning uchun how much. How many faqat ko'plikdagi sanaladigan otlar oldidan keladi: how many shells."
+      }
+    },
+    {
+      "key": "a1a2-m19-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "mud"
+      ],
+      "text": "The children brought a lot of *muds* into the house.",
+      "options": [
+        "mud",
+        "muddy",
+        "dirty"
+      ],
+      "correct": [
+        "mud"
+      ],
+      "translation": {
+        "ru": "Дети нанесли в дом много грязи.",
+        "uz": "Bolalar uyga ko'p loy olib kirishdi."
+      },
+      "explanation": {
+        "ru": "Mud (грязь) — неисчисляемое существительное: формы muds нет, даже после a lot of. Muddy и dirty — прилагательные, а после of нужно существительное.",
+        "uz": "Mud (loy) — sanalmaydigan ot: a lot of iborasidan keyin ham muds shakli yo'q. Muddy va dirty — sifatlar, of predlogidan keyin esa ot kerak."
+      }
+    },
+    {
+      "key": "a1a2-m19-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "soil"
+      ],
+      "text": "This soil near the rivers *are* very rich.",
+      "options": [
+        "is",
+        "were",
+        "be"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Эта почва у рек очень плодородная.",
+        "uz": "Daryolar bo'yidagi bu tuproq juda unumdor."
+      },
+      "explanation": {
+        "ru": "Подлежащее — this soil (единственное число: this), а near the rivers только говорит, где она; rivers на глагол не влияет. Поэтому is; were — форма множественного числа.",
+        "uz": "Ega — this soil (birlik: this), near the rivers esa faqat joyini bildiradi; rivers fe'lga ta'sir qilmaydi. Shuning uchun is; were — ko'plik shakli."
+      }
+    },
+    {
+      "key": "a1a2-m19-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "nature"
+      ],
+      "text": "My grandmother makes ___ soap from milk and honey.",
+      "base": "nature",
+      "accepted": [
+        "natural"
+      ],
+      "translation": {
+        "ru": "Моя бабушка делает натуральное мыло из молока и мёда.",
+        "uz": "Buvim sut va asaldan tabiiy sovun tayyorlaydi."
+      },
+      "explanation": {
+        "ru": "Перед существительным soap нужно прилагательное: nature (природа) → natural (натуральный). Конечная e отпадает, добавляется -al.",
+        "uz": "Soap otidan oldin sifat kerak: nature (tabiat) → natural (tabiiy). Oxirgi e tushib qoladi va -al qo'shiladi."
+      }
+    },
+    {
+      "key": "a1a2-m19-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "recycle"
+      ],
+      "text": "This notebook is made from ___ paper, not from new trees.",
+      "base": "recycle",
+      "accepted": [
+        "recycled"
+      ],
+      "translation": {
+        "ru": "Эта тетрадь сделана из переработанной бумаги, а не из новых деревьев.",
+        "uz": "Bu daftar yangi daraxtlardan emas, qayta ishlangan qog'ozdan tayyorlangan."
+      },
+      "explanation": {
+        "ru": "Not from new trees показывает, что бумагу уже использовали и переработали (это сделали с ней): перед существительным форма на -ed: recycle → recycled (к конечной e добавляется только -d).",
+        "uz": "Not from new trees qog'oz avval ishlatilib, qayta ishlanganini ko'rsatadi (u ustida ish bajarilgan): otdan oldin -ed shakli keladi: recycle → recycled (oxirida e bor, faqat -d qo'shiladi)."
+      }
+    },
+    {
+      "key": "a1a2-m19-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "planet"
+      ],
+      "text": "Our ___ future depends on what we do today.",
+      "base": "planet",
+      "accepted": [
+        "planet's"
+      ],
+      "translation": {
+        "ru": "Будущее нашей планеты зависит от того, что мы делаем сегодня.",
+        "uz": "Sayyoramizning kelajagi bugun nima qilayotganimizga bog'liq."
+      },
+      "explanation": {
+        "ru": "Чьё будущее? — планеты: между our и future нужен владелец с 's: planet → planet's. Планета у нас одна, поэтому не planets'.",
+        "uz": "Kimning kelajagi? — sayyoraning: our va future orasida egalikni bildiruvchi 's kerak: planet → planet's. Sayyoramiz bitta, shuning uchun planets' emas."
+      }
+    },
+    {
+      "key": "a1a2-m19-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "damage"
+      ],
+      "text": "Last night's storm didn't *damaged* our house, only the fence.",
+      "options": [
+        "damage",
+        "damages",
+        "damaging"
+      ],
+      "correct": [
+        "damage"
+      ],
+      "translation": {
+        "ru": "Вчерашняя буря не повредила наш дом, только забор.",
+        "uz": "Kechagi bo'ron uyimizga emas, faqat panjaraga zarar yetkazdi."
+      },
+      "explanation": {
+        "ru": "После didn't глагол стоит в начальной форме: прошедшее время уже показано словом did (last night), второй раз его не показывают: didn't damage.",
+        "uz": "Didn't so'zidan keyin fe'l boshlang'ich shaklda keladi: o'tgan zamon did orqali (last night) ko'rsatilgan, ikkinchi marta ko'rsatilmaydi: didn't damage."
+      }
+    },
+    {
+      "key": "a1a2-m19-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "protect"
+      ],
+      "text": "Why do we have to *protecting* our rivers from plastic?",
+      "options": [
+        "protect",
+        "protected",
+        "protects"
+      ],
+      "correct": [
+        "protect"
+      ],
+      "translation": {
+        "ru": "Почему мы должны защищать наши реки от пластика?",
+        "uz": "Nega biz daryolarimizni plastikdan himoya qilishimiz kerak?"
+      },
+      "explanation": {
+        "ru": "Have to (должен, приходится) требует после себя начальной формы глагола: have to protect. Форма на -ing после to здесь неверна.",
+        "uz": "Have to (majbur, kerak) iborasidan keyin fe'l boshlang'ich shaklda keladi: have to protect. Bu yerda to so'zidan keyin -ing shakli noto'g'ri."
+      }
+    },
+    {
+      "key": "a1a2-m19-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "pollution"
+      ],
+      "text": "Cars cause most of the air *pollutions* in our city.",
+      "options": [
+        "pollution",
+        "polluted",
+        "pollute"
+      ],
+      "correct": [
+        "pollution"
+      ],
+      "translation": {
+        "ru": "Машины создают большую часть загрязнения воздуха в нашем городе.",
+        "uz": "Shahrimizdagi havo ifloslanishining katta qismiga mashinalar sabab bo'ladi."
+      },
+      "explanation": {
+        "ru": "Pollution (загрязнение) — неисчисляемое существительное: формы pollutions нет. Polluted и pollute — прилагательное и глагол, а после the air нужно существительное.",
+        "uz": "Pollution (ifloslanish) — sanalmaydigan ot: pollutions shakli yo'q. Polluted va pollute — sifat va fe'l, the air so'zlaridan keyin esa ot kerak."
+      }
+    },
+    {
+      "key": "a1a2-m19-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "freeze"
+      ],
+      "text": "The lake has ___, so the children are skating on it.",
+      "base": "freeze",
+      "accepted": [
+        "frozen"
+      ],
+      "translation": {
+        "ru": "Озеро замёрзло, и дети катаются по нему на коньках.",
+        "uz": "Ko'l muzlab qoldi, shuning uchun bolalar uning ustida konkida uchishyapti."
+      },
+      "explanation": {
+        "ru": "После has нужна третья форма глагола (present perfect). Freeze — неправильный глагол: freeze → froze → frozen (не freezed).",
+        "uz": "Has so'zidan keyin fe'lning uchinchi shakli keladi (present perfect). Freeze — noto'g'ri fe'l: freeze → froze → frozen (freezed emas)."
+      }
+    },
+    {
+      "key": "a1a2-m19-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "melt"
+      ],
+      "text": "Look, the snow on the roof is slowly ___ in the sun!",
+      "base": "melt",
+      "accepted": [
+        "melting"
+      ],
+      "translation": {
+        "ru": "Смотрите, снег на крыше медленно тает на солнце!",
+        "uz": "Qarang, tomdagi qor quyoshda asta-sekin eriyapti!"
+      },
+      "explanation": {
+        "ru": "Look и is показывают, что это происходит сейчас: is + глагол с -ing (present continuous): melt → melting.",
+        "uz": "Look va is bu hozir sodir bo'layotganini ko'rsatadi: is + -ing shaklidagi fe'l (present continuous): melt → melting."
+      }
+    },
+    {
+      "key": "a1a2-m19-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "flood"
+      ],
+      "text": "We could not drive along the ___ road after the heavy rain.",
+      "base": "flood",
+      "accepted": [
+        "flooded"
+      ],
+      "translation": {
+        "ru": "После сильного дождя мы не смогли проехать по затопленной дороге.",
+        "uz": "Kuchli yomg'irdan keyin suv bosgan yo'ldan yurib o'ta olmadik."
+      },
+      "explanation": {
+        "ru": "Между the и road нужно прилагательное: дорогу затопило, поэтому форма на -ed: flood → flooded (затопленный).",
+        "uz": "The va road orasida sifat kerak: yo'lni suv bosgan, shuning uchun -ed shakli keladi: flood → flooded (suv bosgan)."
+      }
+    },
+    {
+      "key": "a1a2-m19-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "shade"
+      ],
+      "text": "Our dog always sleeps *on* the shade of that tree.",
+      "options": [
+        "in",
+        "at",
+        "to"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Наша собака всегда спит в тени того дерева.",
+        "uz": "Itimiz doim o'sha daraxtning soyasida uxlaydi."
+      },
+      "explanation": {
+        "ru": "В тени — in the shade: тень — пространство, в котором находятся, а не поверхность, поэтому не on.",
+        "uz": "Soyada — in the shade: soya ichida bo'linadigan joy, sirt emas, shuning uchun on emas."
+      }
+    },
+    {
+      "key": "a1a2-m19-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "earthquake"
+      ],
+      "text": "There *was* two strong earthquakes in that country last year.",
+      "options": [
+        "were",
+        "are",
+        "is"
+      ],
+      "correct": [
+        "were"
+      ],
+      "translation": {
+        "ru": "В прошлом году в той стране было два сильных землетрясения.",
+        "uz": "O'tgan yili o'sha mamlakatda ikkita kuchli zilzila bo'ldi."
+      },
+      "explanation": {
+        "ru": "Two earthquakes — множественное число, а last year — прошлое, поэтому there were. Are и is — формы настоящего времени.",
+        "uz": "Two earthquakes — ko'plik, last year esa o'tgan zamon, shuning uchun there were. Are va is — hozirgi zamon shakllari."
+      }
+    },
+    {
+      "key": "a1a2-m19-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 19,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "lightning"
+      ],
+      "text": "We saw bright *lightening* over the hills last night.",
+      "options": [
+        "lightning",
+        "lightened",
+        "lightly"
+      ],
+      "correct": [
+        "lightning"
+      ],
+      "translation": {
+        "ru": "Вчера ночью мы видели яркую молнию над холмами.",
+        "uz": "Kecha tunda tepaliklar ustida yorqin chaqmoqni ko'rdik."
+      },
+      "explanation": {
+        "ru": "Молния — lightning, без e: light-ning. Lightening — другое слово, форма глагола lighten («делать светлее»).",
+        "uz": "Chaqmoq — lightning, e harfisiz: light-ning. Lightening — boshqa so'z, lighten («yorug'roq qilmoq») fe'lining shakli."
+      }
+    },
+    {
+      "key": "a1a2-m20-l1-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "law"
+      ],
+      "text": "My aunt works as a ___ in a big company.",
+      "base": "law",
+      "accepted": [
+        "lawyer"
+      ],
+      "translation": {
+        "ru": "Моя тётя работает юристом в большой компании.",
+        "uz": "Xolam katta kompaniyada yurist bo'lib ishlaydi."
+      },
+      "explanation": {
+        "ru": "После works as a нужна профессия, то есть человек: law (закон) → lawyer (юрист). Окончание -yer: lawyer, не lawer.",
+        "uz": "Works as a iborasidan keyin kasb, ya'ni odam kerak: law (qonun) → lawyer (yurist). Oxiri -yer: lawyer, lawer emas."
+      }
+    },
+    {
+      "key": "a1a2-m20-l1-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "president"
+      ],
+      "text": "The ___ wife visited our school yesterday.",
+      "base": "president",
+      "accepted": [
+        "president's"
+      ],
+      "translation": {
+        "ru": "Вчера жена президента посетила нашу школу.",
+        "uz": "Kecha prezidentning rafiqasi maktabimizga tashrif buyurdi."
+      },
+      "explanation": {
+        "ru": "Чья жена? — президента: принадлежность передаёт 's: president → president's. Жена одна и президент один, поэтому не presidents'.",
+        "uz": "Kimning rafiqasi? — prezidentning: egalik 's bilan beriladi: president → president's. Rafiqa ham, prezident ham bitta, shuning uchun presidents' emas."
+      }
+    },
+    {
+      "key": "a1a2-m20-l1-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "vote"
+      ],
+      "text": "Many young ___ stayed at home on election day.",
+      "base": "vote",
+      "accepted": [
+        "voters"
+      ],
+      "translation": {
+        "ru": "Многие молодые избиратели в день выборов остались дома.",
+        "uz": "Ko'plab yosh saylovchilar saylov kuni uyda qolishdi."
+      },
+      "explanation": {
+        "ru": "Many требует множественного числа, а остаться дома может только человек: vote → voter (избиратель) → voters.",
+        "uz": "Many ko'plikni talab qiladi, uyda esa faqat odam qola oladi: vote → voter (saylovchi) → voters."
+      }
+    },
+    {
+      "key": "a1a2-m20-l1-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "police"
+      ],
+      "text": "The police *was* very helpful, and they found our car.",
+      "options": [
+        "were",
+        "is",
+        "been"
+      ],
+      "correct": [
+        "were"
+      ],
+      "translation": {
+        "ru": "Полиция очень нам помогла и нашла нашу машину.",
+        "uz": "Politsiya bizga juda yordam berdi va mashinamizni topib berdi."
+      },
+      "explanation": {
+        "ru": "Police в английском всегда во множественном числе (это видно и по they): the police were. Русское «полиция была» здесь сбивает; is — настоящее время и единственное число.",
+        "uz": "Police so'zi ingliz tilida doim ko'plikda qo'llanadi (they ham shuni ko'rsatadi): the police were. Is — hozirgi zamon va birlik shakli."
+      }
+    },
+    {
+      "key": "a1a2-m20-l1-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "army"
+      ],
+      "text": "My older brother spent a year *at* the army.",
+      "options": [
+        "in",
+        "on",
+        "to"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Мой старший брат провёл год в армии.",
+        "uz": "Akam bir yil armiyada xizmat qildi."
+      },
+      "explanation": {
+        "ru": "Служить или быть в армии — in the army: армия — организация, внутри которой находятся. At, on и to здесь не ставят.",
+        "uz": "Armiyada xizmat qilmoq yoki bo'lmoq — in the army: armiya — ichida bo'linadigan tashkilot. Bu yerda at, on yoki to ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m20-l1-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "citizen"
+      ],
+      "text": "Every *citizens* of our country has the right to vote.",
+      "options": [
+        "citizen",
+        "citizen's",
+        "citizenship"
+      ],
+      "correct": [
+        "citizen"
+      ],
+      "translation": {
+        "ru": "Каждый гражданин нашей страны имеет право голосовать.",
+        "uz": "Mamlakatimizning har bir fuqarosi ovoz berish huquqiga ega."
+      },
+      "explanation": {
+        "ru": "После every существительное стоит в единственном числе, и глагол has это подтверждает: every citizen has. Citizenship — «гражданство», а не человек.",
+        "uz": "Every so'zidan keyin ot birlikda keladi, has fe'li ham buni tasdiqlaydi: every citizen has. Citizenship — «fuqarolik», odam emas."
+      }
+    },
+    {
+      "key": "a1a2-m20-l2-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "painting"
+      ],
+      "text": "A beautiful ___ of the sea hangs in our living room.",
+      "base": "paint",
+      "accepted": [
+        "painting"
+      ],
+      "translation": {
+        "ru": "В нашей гостиной висит красивая картина с морем.",
+        "uz": "Mehmonxonamizda dengiz tasvirlangan chiroyli kartina osig'liq turibdi."
+      },
+      "explanation": {
+        "ru": "После a beautiful нужно существительное «картина»: paint (писать красками) → painting. Painter — это художник, он не «висит».",
+        "uz": "A beautiful so'zlaridan keyin «kartina» degan ot kerak: paint (bo'yoq bilan chizmoq) → painting. Painter — rassom, u devorda osilib turmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m20-l2-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "tradition"
+      ],
+      "text": "On holidays my mother always cooks ___ food from her village.",
+      "base": "tradition",
+      "accepted": [
+        "traditional"
+      ],
+      "translation": {
+        "ru": "По праздникам мама всегда готовит традиционные блюда своей деревни.",
+        "uz": "Bayramlarda onam doim o'z qishlog'ining an'anaviy taomlarini pishiradi."
+      },
+      "explanation": {
+        "ru": "Перед существительным food нужно прилагательное: tradition (традиция) → traditional (традиционный), суффикс -al.",
+        "uz": "Food otidan oldin sifat kerak: tradition (an'ana) → traditional (an'anaviy), -al qo'shimchasi bilan."
+      }
+    },
+    {
+      "key": "a1a2-m20-l2-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "author"
+      ],
+      "text": "The ___ first novel made her famous all over the world.",
+      "base": "author",
+      "accepted": [
+        "author's"
+      ],
+      "translation": {
+        "ru": "Первый роман писательницы прославил её на весь мир.",
+        "uz": "Muallifning birinchi romani uni butun dunyoga mashhur qildi."
+      },
+      "explanation": {
+        "ru": "Чей первый роман? — автора: принадлежность передаёт 's: author → author's. Her показывает, что автор один, поэтому не authors'.",
+        "uz": "Kimning birinchi romani? — muallifning: egalik 's bilan beriladi: author → author's. Her muallif bitta ekanini ko'rsatadi, shuning uchun authors' emas."
+      }
+    },
+    {
+      "key": "a1a2-m20-l2-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "custom"
+      ],
+      "text": "It is our old *costume* to visit neighbors on holidays.",
+      "options": [
+        "custom",
+        "customer",
+        "customs"
+      ],
+      "correct": [
+        "custom"
+      ],
+      "translation": {
+        "ru": "Ходить по праздникам в гости к соседям — наш старый обычай.",
+        "uz": "Bayramlarda qo'shnilarnikiga borish — bizning qadimiy urf-odatimiz."
+      },
+      "explanation": {
+        "ru": "Обычай — custom. Costume — костюм, одежда: слова похожи, но значат разное. Customer — покупатель; customs не подходит: it is ... to visit — это один обычай.",
+        "uz": "Urf-odat — custom. Costume — kostyum, kiyim: so'zlar o'xshash, ma'nosi boshqa. Customer — xaridor; customs to'g'ri kelmaydi: it is ... to visit — bitta odat."
+      }
+    },
+    {
+      "key": "a1a2-m20-l2-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "exhibition"
+      ],
+      "text": "Our teacher took us *on* a photo exhibition.",
+      "options": [
+        "to",
+        "at",
+        "of"
+      ],
+      "correct": [
+        "to"
+      ],
+      "translation": {
+        "ru": "Учитель повёл нас на фотовыставку.",
+        "uz": "O'qituvchimiz bizni fotoko'rgazmaga olib bordi."
+      },
+      "explanation": {
+        "ru": "Движение куда-то — to: take somebody to an exhibition. Русское «на выставку» здесь не on.",
+        "uz": "Biror joyga harakat — to: take somebody to an exhibition. O'zbekcha «-ga» qo'shimchasi bu yerda to bilan beriladi."
+      }
+    },
+    {
+      "key": "a1a2-m20-l2-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "poem"
+      ],
+      "text": "Each poem in this book *have* a small picture.",
+      "options": [
+        "has",
+        "having",
+        "are"
+      ],
+      "correct": [
+        "has"
+      ],
+      "translation": {
+        "ru": "У каждого стихотворения в этой книге есть маленькая картинка.",
+        "uz": "Bu kitobdagi har bir she'rning kichik rasmi bor."
+      },
+      "explanation": {
+        "ru": "Подлежащее — each poem (каждое стихотворение) — единственное число, поэтому has. In this book только уточняет, где стихи.",
+        "uz": "Ega — each poem (har bir she'r) — birlik, shuning uchun has. In this book faqat she'rlar qayerdaligini bildiradi."
+      }
+    },
+    {
+      "key": "a1a2-m20-l3-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "peace"
+      ],
+      "text": "After the long war, people wanted a quiet and ___ life.",
+      "base": "peace",
+      "accepted": [
+        "peaceful"
+      ],
+      "translation": {
+        "ru": "После долгой войны люди хотели тихой и мирной жизни.",
+        "uz": "Uzoq urushdan keyin odamlar osoyishta va tinch hayotni xohlashdi."
+      },
+      "explanation": {
+        "ru": "Quiet and ___ life: между a и life нужно второе прилагательное: peace (мир) → peaceful (мирный), суффикс -ful с одной l.",
+        "uz": "Quiet and ___ life: a va life orasida ikkinchi sifat kerak: peace (tinchlik) → peaceful (tinch), -ful qo'shimchasi bitta l bilan."
+      }
+    },
+    {
+      "key": "a1a2-m20-l3-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "poor"
+      ],
+      "text": "It is the ___ village in the whole region.",
+      "base": "poor",
+      "accepted": [
+        "poorest"
+      ],
+      "translation": {
+        "ru": "Это самая бедная деревня во всём регионе.",
+        "uz": "Bu butun viloyatdagi eng kambag'al qishloq."
+      },
+      "explanation": {
+        "ru": "The ... in the whole region — сравнение со всеми, значит превосходная степень: poor → the poorest.",
+        "uz": "The ... in the whole region — hammasi bilan solishtirish, demak orttirma daraja: poor → the poorest."
+      }
+    },
+    {
+      "key": "a1a2-m20-l3-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "freedom"
+      ],
+      "text": "Teenagers often want a little more ___ from their parents.",
+      "base": "free",
+      "accepted": [
+        "freedom"
+      ],
+      "translation": {
+        "ru": "Подростки часто хотят чуть больше свободы от родителей.",
+        "uz": "O'smirlar ko'pincha ota-onasidan biroz ko'proq erkinlik xohlaydi."
+      },
+      "explanation": {
+        "ru": "A little more ___ — немного больше чего? Нужно неисчисляемое существительное: free (свободный) → freedom (свобода), суффикс -dom.",
+        "uz": "A little more ___ — biroz ko'proq nima? Sanalmaydigan ot kerak: free (erkin) → freedom (erkinlik), -dom qo'shimchasi bilan."
+      }
+    },
+    {
+      "key": "a1a2-m20-l3-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "rich"
+      ],
+      "text": "Their family is now much *richest* than ours.",
+      "options": [
+        "richer",
+        "riches",
+        "richly"
+      ],
+      "correct": [
+        "richer"
+      ],
+      "translation": {
+        "ru": "Их семья теперь намного богаче нашей.",
+        "uz": "Ularning oilasi endi biznikidan ancha boy."
+      },
+      "explanation": {
+        "ru": "Than и much показывают сравнение двух семей — нужна сравнительная степень -er: rich → richer. Richest (-est) — «самый богатый», с than не ставится.",
+        "uz": "Than va much ikki oilani solishtirishni ko'rsatadi — qiyosiy daraja -er kerak: rich → richer. Richest (-est) «eng boy» degani, than bilan ishlatilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m20-l3-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "poverty"
+      ],
+      "text": "Many families in these villages still live in *poverties*.",
+      "options": [
+        "poverty",
+        "poor",
+        "poorly"
+      ],
+      "correct": [
+        "poverty"
+      ],
+      "translation": {
+        "ru": "Многие семьи в этих деревнях всё ещё живут в бедности.",
+        "uz": "Bu qishloqlardagi ko'plab oilalar hali ham qashshoqlikda yashaydi."
+      },
+      "explanation": {
+        "ru": "Poverty (бедность) — неисчисляемое существительное, формы poverties нет: live in poverty. Poor и poorly — прилагательное и наречие, после in нужно существительное.",
+        "uz": "Poverty (qashshoqlik) — sanalmaydigan ot, poverties shakli yo'q: live in poverty. Poor va poorly — sifat va ravish, in predlogidan keyin esa ot kerak."
+      }
+    },
+    {
+      "key": "a1a2-m20-l3-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "war"
+      ],
+      "text": "Both of my grandfathers fought *on* the war.",
+      "options": [
+        "in",
+        "at",
+        "to"
+      ],
+      "correct": [
+        "in"
+      ],
+      "translation": {
+        "ru": "Оба моих деда сражались на войне.",
+        "uz": "Ikkala bobom ham urushda jang qilgan."
+      },
+      "explanation": {
+        "ru": "Воевать на войне — fight in the war: с war ставят in. Русское «на войне» здесь не on.",
+        "uz": "Urushda jang qilmoq — fight in the war: war so'zi bilan in predlogi ishlatiladi. On, at yoki to bu yerda noto'g'ri."
+      }
+    },
+    {
+      "key": "a1a2-m20-l4-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "advertisement"
+      ],
+      "text": "I saw a funny ___ for chocolate on TV last night.",
+      "base": "advertise",
+      "accepted": [
+        "advertisement",
+        "advert",
+        "ad"
+      ],
+      "translation": {
+        "ru": "Вчера вечером я видел по телевизору смешную рекламу шоколада.",
+        "uz": "Kecha kechqurun televizorda shokoladning kulgili reklamasini ko'rdim."
+      },
+      "explanation": {
+        "ru": "После a funny нужно существительное: advertise (рекламировать) → advertisement (реклама), суффикс -ment после e. Короткие формы advert (британская) и ad тоже верны.",
+        "uz": "A funny so'zlaridan keyin ot kerak: advertise (reklama qilmoq) → advertisement (reklama), e dan keyin -ment. Qisqa advert (britancha) va ad shakllari ham to'g'ri."
+      }
+    },
+    {
+      "key": "a1a2-m20-l4-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "celebrity"
+      ],
+      "text": "Many ___ came to our town for the film festival.",
+      "base": "celebrity",
+      "accepted": [
+        "celebrities"
+      ],
+      "translation": {
+        "ru": "На кинофестиваль в наш город приехало много знаменитостей.",
+        "uz": "Kinofestival uchun shahrimizga ko'plab mashhur shaxslar keldi."
+      },
+      "explanation": {
+        "ru": "Many требует множественного числа. Перед y стоит согласная t, поэтому y → i + -es: celebrity → celebrities.",
+        "uz": "Many so'zidan keyin ot ko'plikda keladi. y harfidan oldin undosh t turibdi, shuning uchun y → i va -es: celebrity → celebrities."
+      }
+    },
+    {
+      "key": "a1a2-m20-l4-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "journalist"
+      ],
+      "text": "That ___ questions were very rude, so the singer left.",
+      "base": "journalist",
+      "accepted": [
+        "journalist's"
+      ],
+      "translation": {
+        "ru": "Вопросы того журналиста были очень грубыми, поэтому певец ушёл.",
+        "uz": "O'sha jurnalistning savollari juda qo'pol edi, shuning uchun qo'shiqchi chiqib ketdi."
+      },
+      "explanation": {
+        "ru": "That не может относиться к questions (это множественное число), значит, вопросы одного журналиста: journalist → journalist's.",
+        "uz": "That questions so'ziga tegishli bo'lolmaydi (u ko'plikda), demak, savollar bitta jurnalistniki: journalist → journalist's."
+      }
+    },
+    {
+      "key": "a1a2-m20-l4-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "news"
+      ],
+      "text": "This news *are* very sad for our whole family.",
+      "options": [
+        "is",
+        "were",
+        "be"
+      ],
+      "correct": [
+        "is"
+      ],
+      "translation": {
+        "ru": "Эта новость очень печальна для всей нашей семьи.",
+        "uz": "Bu yangilik butun oilamiz uchun juda qayg'uli."
+      },
+      "explanation": {
+        "ru": "News — неисчисляемое существительное, хотя оканчивается на -s: глагол в единственном числе, the news is. Русское «новости» здесь сбивает; were — тоже множественное число.",
+        "uz": "News -s bilan tugasa ham, sanalmaydigan ot: fe'l birlikda keladi — the news is. Were ham ko'plik shakli."
+      }
+    },
+    {
+      "key": "a1a2-m20-l4-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "channel"
+      ],
+      "text": "What film is *in* the other channel tonight?",
+      "options": [
+        "on",
+        "by",
+        "at"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Какой фильм сегодня вечером идёт по другому каналу?",
+        "uz": "Bugun kechqurun boshqa kanalda qanday film ko'rsatiladi?"
+      },
+      "explanation": {
+        "ru": "По телевизору, по каналу — on: on TV, on the other channel. Русское «по» здесь не by.",
+        "uz": "Televizorda, kanalda — on: on TV, on the other channel. O'zbekcha «-da» qo'shimchasi bu yerda in bilan berilmaydi."
+      }
+    },
+    {
+      "key": "a1a2-m20-l4-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "article"
+      ],
+      "text": "This article *don't* have a single photo.",
+      "options": [
+        "doesn't",
+        "isn't",
+        "aren't"
+      ],
+      "correct": [
+        "doesn't"
+      ],
+      "translation": {
+        "ru": "В этой статье нет ни одной фотографии.",
+        "uz": "Bu maqolada birorta ham surat yo'q."
+      },
+      "explanation": {
+        "ru": "This article — единственное число, третье лицо: отрицание с doesn't, а не don't. Isn't и aren't не образуют отрицание с начальной формой have.",
+        "uz": "This article — birlik, uchinchi shaxs: inkor doesn't bilan, don't bilan emas. Isn't va aren't have fe'lining boshlang'ich shakli bilan inkor yasamaydi."
+      }
+    },
+    {
+      "key": "a1a2-m20-l5-w1",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "congratulate"
+      ],
+      "text": "We sent them our warmest ___ on their wedding day.",
+      "base": "congratulate",
+      "accepted": [
+        "congratulations"
+      ],
+      "translation": {
+        "ru": "Мы отправили им самые тёплые поздравления в день их свадьбы.",
+        "uz": "To'y kunida ularga eng samimiy tabriklarimizni yo'lladik."
+      },
+      "explanation": {
+        "ru": "После our warmest нужно существительное: congratulate → congratulation; в значении «поздравления» оно всегда во множественном числе: congratulations.",
+        "uz": "Our warmest so'zlaridan keyin ot kerak: congratulate → congratulation; «tabriklar» ma'nosida u doim ko'plikda keladi: congratulations."
+      }
+    },
+    {
+      "key": "a1a2-m20-l5-w2",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "celebrate"
+      ],
+      "text": "After the final game, there was a big ___ in the city.",
+      "base": "celebrate",
+      "accepted": [
+        "celebration"
+      ],
+      "translation": {
+        "ru": "После финальной игры в городе был большой праздник.",
+        "uz": "Final o'yinidan keyin shaharda katta bayram bo'ldi."
+      },
+      "explanation": {
+        "ru": "После a big нужно существительное: celebrate (праздновать) → celebration (празднование, праздник); -ate → -ation.",
+        "uz": "A big so'zlaridan keyin ot kerak: celebrate (nishonlamoq) → celebration (bayram, tantana); -ate → -ation."
+      }
+    },
+    {
+      "key": "a1a2-m20-l5-w3",
+      "type": "word_form",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "national"
+      ],
+      "text": "Football is the ___ sport of this country.",
+      "base": "nation",
+      "accepted": [
+        "national"
+      ],
+      "translation": {
+        "ru": "Футбол — национальный вид спорта этой страны.",
+        "uz": "Futbol — bu mamlakatning milliy sport turi."
+      },
+      "explanation": {
+        "ru": "Между the и sport нужно прилагательное: nation (нация) → national (национальный), суффикс -al.",
+        "uz": "The va sport orasida sifat kerak: nation (millat) → national (milliy), -al qo'shimchasi bilan."
+      }
+    },
+    {
+      "key": "a1a2-m20-l5-e1",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "religion"
+      ],
+      "text": "There are some big differences between these two *religion*.",
+      "options": [
+        "religions",
+        "religious",
+        "religion's"
+      ],
+      "correct": [
+        "religions"
+      ],
+      "translation": {
+        "ru": "Между этими двумя религиями есть несколько больших различий.",
+        "uz": "Bu ikki din o'rtasida bir qancha katta farqlar bor."
+      },
+      "explanation": {
+        "ru": "После these two нужно существительное во множественном числе: religion → religions. Religious — прилагательное «религиозный».",
+        "uz": "These two so'zlaridan keyin ot ko'plikda keladi: religion → religions. Religious — sifat («diniy»)."
+      }
+    },
+    {
+      "key": "a1a2-m20-l5-e2",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "pray"
+      ],
+      "text": "Every morning my grandmother *pray* for her whole family.",
+      "options": [
+        "prays",
+        "praying",
+        "prayer"
+      ],
+      "correct": [
+        "prays"
+      ],
+      "translation": {
+        "ru": "Каждое утро моя бабушка молится за всю свою семью.",
+        "uz": "Har kuni ertalab buvim butun oilasi uchun duo qiladi."
+      },
+      "explanation": {
+        "ru": "Подлежащее my grandmother — третье лицо единственного числа (её семья — her), а every morning — привычка: present simple с -s: she prays.",
+        "uz": "Ega my grandmother — birlikdagi uchinchi shaxs (her ham shuni ko'rsatadi), every morning — odat: present simple -s bilan: she prays."
+      }
+    },
+    {
+      "key": "a1a2-m20-l5-e3",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "flag"
+      ],
+      "text": "How *much* flags can you see on that building?",
+      "options": [
+        "many",
+        "more",
+        "lots"
+      ],
+      "correct": [
+        "many"
+      ],
+      "translation": {
+        "ru": "Сколько флагов вы видите на том здании?",
+        "uz": "O'sha binoda nechta bayroqni ko'ryapsiz?"
+      },
+      "explanation": {
+        "ru": "Flags — исчисляемое существительное во множественном числе, поэтому how many. How much ставят перед неисчисляемыми: how much water.",
+        "uz": "Flags — ko'plikdagi sanaladigan ot, shuning uchun how many. How much sanalmaydigan otlar oldidan keladi: how much water."
+      }
+    }
+  ]
+}
