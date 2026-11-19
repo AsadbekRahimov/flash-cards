@@ -71,8 +71,9 @@ onBeforeUnmount(() => exam.clearQuizError())
 
 const level = computed(() => data.value?.course.level_label ?? null)
 const heading = computed(() => {
-  const percent = data.value?.percent ?? 0
-  return level.value ? t('readiness.percent_level', { percent, level: level.value }) : t('readiness.percent_course', { percent })
+  // The same two numbers the percent is floored from (`LevelReadinessService`: 100 × learned / total).
+  const counts = { percent: data.value?.percent ?? 0, learned: data.value?.words.learned ?? 0, total: data.value?.words.total ?? 0 }
+  return level.value ? t('readiness.percent_level', { ...counts, level: level.value }) : t('readiness.percent_course', counts)
 })
 const segments = computed(() => (data.value ? readinessSegments(data.value.words) : null))
 const barLabel = computed(() => {
@@ -81,6 +82,7 @@ const barLabel = computed(() => {
   return t('readiness.progress_label', {
     percent: current.percent,
     learned: current.words.learned,
+    total: current.words.total,
     in_progress: current.words.in_progress,
     not_started: current.words.not_started,
   })
@@ -212,7 +214,7 @@ async function takeQuiz(): Promise<void> {
           <div v-for="item in data.modules" :key="item.number" :data-testid="`readiness-module-${item.number}`">
             <div class="flex items-baseline justify-between gap-2 text-[15px] leading-5">
               <span class="min-w-0 truncate">{{ item.title ?? t('readiness.module', { number: item.number }) }}</span>
-              <span class="shrink-0 text-tg-hint tabular-nums">{{ item.learned }} / {{ item.total }}</span>
+              <span class="shrink-0 text-tg-hint tabular-nums" data-testid="readiness-module-count">{{ tn('readiness.module_words', item.total, { learned: item.learned }) }}</span>
             </div>
             <div
               class="progress mt-1 h-1"

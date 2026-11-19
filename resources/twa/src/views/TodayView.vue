@@ -65,9 +65,12 @@ async function load(): Promise<void> {
     today.errorMessage = errorMessage(err, 'today')
     return
   }
-  // The center's assignments are secondary: they load alongside Today, never blocking or breaking it.
-  void assignments.load()
+  // The center's assignments are secondary, never blocking or breaking Today. A device that knows its learner may have some (the last
+  // `/today` said so) asks them alongside Today; otherwise `/today.assignments_possible` decides first, so a self-study learner asks
+  // no `/assignments` at all (docs/04 A.2a).
+  const started = assignments.loadEarly()
   await today.load()
+  if (today.data !== null) assignments.followToday(today.data.assignments_possible, started)
 
   // Opened from a reminder (`/twa/?from=reminder`, docs/12 §7.5): go straight into the daily
   // review. `from=reminder_quiz` is the button left on the reminder after the answer in the chat; it
@@ -189,9 +192,19 @@ const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target
  */
 const startCandidate = computed(() => data.value !== null && data.value.active_course === null && data.value.open_session_id === null
   && data.value.due_count === 0)
+/**
+ * `/today` says the learner surely has no assignment of a center (`assignments_possible: false`): nothing to wait for. Absent (an older
+ * server) or true: the list may still come.
+ */
+const noAssignments = computed(() => data.value?.assignments_possible === false)
 /** Only the assignments of a group can still turn the start card off, so only then is the screen held back for them (a failed load counts as loaded). */
-const awaitingAssignments = computed(() => startCandidate.value && !assignments.loaded)
-const showStart = computed(() => startCandidate.value && assignments.loaded && assignments.items.length === 0)
+const awaitingAssignments = computed(() => startCandidate.value && !noAssignments.value && !assignments.loaded)
+const showStart = computed(() => startCandidate.value && (noAssignments.value || (assignments.loaded && assignments.items.length === 0)))
+/**
+ * The list of a group member failed (state 5 of the audit's first-open table): a short line with a retry, so a failure does not read as
+ * an empty class; personal training stays as it is. Only for a member (`assignments_possible: true`), never for a self-study learner.
+ */
+const showAssignmentsError = computed(() => assignments.failed && data.value?.assignments_possible === true)
 
 const needsCourseToStart = computed(() => data.value !== null &&
   data.value.active_course === null && data.value.due_count === 0 && data.value.open_session_id === null)
@@ -654,6 +667,20 @@ onBeforeUnmount(() => {
       </section>
 
       <AssignmentsBlock v-if="assignmentItems.length > 0" :items="assignmentItems" :busy="opening" @open="openAssignment" />
+
+      <div v-if="showAssignmentsError" class="flex items-center gap-2 px-1" role="status" data-testid="assignments-error">
+        <AppIcon name="exclamation-circle" :size="18" class="shrink-0 text-warning-ink" />
+        <p class="min-w-0 flex-1 text-[13px] leading-[18px] text-tg-subtitle">{{ t('assignments.load_failed') }}</p>
+        <button
+          type="button"
+          class="btn btn-plain btn-sm shrink-0"
+          :disabled="assignments.loading"
+          data-testid="assignments-retry"
+          @click="assignments.load()"
+        >
+          {{ t('common.retry') }}
+        </button>
+      </div>
 
       <section v-if="!showStart" data-testid="course-card">
         <h2 class="section-label">{{ t('today.course.title') }}</h2>

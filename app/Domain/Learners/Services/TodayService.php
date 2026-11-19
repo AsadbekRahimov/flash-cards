@@ -23,6 +23,7 @@ use App\Domain\Learning\Services\LearnerStatsService;
 use App\Domain\Learning\Services\LevelQuizService;
 use App\Domain\Learning\Services\LevelReadinessService;
 use App\Domain\Operations\Support\ScalarBatch;
+use App\Domain\Organizations\Services\AssignmentService;
 use App\Domain\Practice\Services\PracticeAccess;
 use App\Domain\Twa\Services\TodayProfileCache;
 use App\Models\Course;
@@ -112,7 +113,9 @@ final class TodayService
             $batch->count('served', $this->quota->servedTodayQuery($learner, $now)); // the Free quota; a plan without a limit counts nothing
         }
         if ($snapshot === null) {
-            $batch->exists('groups', $this->activeGroupMemberships($learner)); // the cold snapshot: "in a group" rides here, no statement of its own
+            // The cold snapshot: "in a group" and "may have an assignment" ride here, no statement of their own.
+            $batch->exists('groups', $this->activeGroupMemberships($learner));
+            $batch->exists('assignments', $this->linkedGroupMemberships($learner));
         }
         $countHard = $this->hardRound->enabled() && $this->hardRound->needsCandidates($learner, $now, $hardSessions, $entitlement);
         if ($countHard) {
@@ -129,6 +132,7 @@ final class TodayService
             $snapshot = [
                 'lapsed' => $this->billing->lapsed($learner, $entitlement, $now),
                 'groups' => ScalarBatch::int($scalars, 'groups') > 0,
+                'assignments' => ScalarBatch::int($scalars, 'assignments') > 0,
                 'until' => $entitlement->until?->toIso8601String(),
             ];
             $this->todayProfile->put($learner, $version, $snapshot);
@@ -154,6 +158,8 @@ final class TodayService
             hardRound: $this->hardRound->enabled()
                 ? $this->hardRound->availability($learner, $now, $hardSessions, $entitlement, $countHard ? ScalarBatch::int($scalars, 'hard_candidates') : null)->toArray()
                 : null,
+            // "Definitely none" lets the TWA skip `GET /assignments` on the first open (docs/04 A.2a); from the snapshot, no statement.
+            assignmentsPossible: $snapshot['assignments'],
         );
     }
 
@@ -162,6 +168,21 @@ final class TodayService
     {
         return DB::table('group_members as gm')
             ->join('telegram_groups as tg', fn (JoinClause $join) => $join->on('tg.id', '=', 'gm.telegram_group_id')->where('tg.status', 'active'))
+            ->where('gm.learner_id', $learner->id)
+            ->where('gm.status', 'active');
+    }
+
+    /**
+     * The learner's active memberships of groups linked to a center, whatever the status of the group or of the center: a superset of the
+     * groups whose assignments {@see AssignmentService::forLearner()} returns (active membership, the group still linked to the
+     * assignment's center - `inLinkedGroup`, the center active, the assignment active). Every write that can turn it from "none" to "some"
+     * moves the learner's version: the join ({@see GroupMembershipService::join()}), the group's link to a center or its status
+     * (TelegramGroupObserver). Writes that only narrow `forLearner` (a suspended center, a closed assignment) leave it true: "maybe".
+     */
+    private function linkedGroupMemberships(Learner $learner): QueryBuilder
+    {
+        return DB::table('group_members as gm')
+            ->join('telegram_groups as tg', fn (JoinClause $join) => $join->on('tg.id', '=', 'gm.telegram_group_id')->whereNotNull('tg.organization_id'))
             ->where('gm.learner_id', $learner->id)
             ->where('gm.status', 'active');
     }

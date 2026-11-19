@@ -32,6 +32,14 @@ use stdClass;
  *    the learner's own zone, the way {@see LearnerClock} reads a day); "within 7 days": any of the days 1-7;
  *  - a cell is shown only when day N has ended for EVERY learner of the cohort in their own zone, otherwise it is null
  *    (a dash, never 0 %);
+ *  - activation: share of the cohort with a first accepted learning answer (any `training_reviews` row) earlier than
+ *    {@see ACTIVATION_HOURS} hours after `learners.created_at` (23 h 59 counts, 24 h 00 does not); cut by `interface_locale`
+ *    (ru / uz) and by solo / class, "class" = a `group_members` row with `joined_at` earlier than 24 hours after registration in
+ *    a group that is linked to a center now (`telegram_groups.organization_id` not null; a later leave does not undo it). The
+ *    cell is null until 24 hours have passed since the registration of the cohort's youngest learner;
+ *  - played the game on day N ({@see GAME_DAYS}): a `learner_daily_stats` row of that local day with `game_runs_count > 0`
+ *    (completed and failed runs), shown beside learning D1 / D7 and never added into them; the same maturity rule. The practice
+ *    has no per-day column and is not shown;
  *  - first session: the learner's first personal `training_sessions` row; "finished" = `done_reason = finished`, "abandoned" =
  *    closed any other way or still open past `expires_at`; cards = `training_reviews` rows of that session; time = the sum of
  *    their `time_spent_ms` (the active time, not `ended_at - started_at`, which for an expired session is the moment the
@@ -41,7 +49,8 @@ use stdClass;
  *    a session that began sooner than {@see ROUND_GAP_MINUTES} minutes after the first one, among learners whose first session
  *    began at least that long ago.
  *
- * Queries: a constant number (zones, cohorts, retention, first-session totals, first-session histograms), each one
+ * Queries: a constant number (zones, cohorts with the activation, retention with the game days, first-session totals,
+ * first-session histograms), each one
  * aggregate over the learners of the window - no learner is loaded into memory, so the count does not depend on their number;
  * medians come from a histogram (value => learners), a few hundred rows at most. The result is an array of scalars in the
  * pure cache ({@see WidgetCache}, docs/19 §3); on read every number is cast back ({@see coerce()}) because Redis hands a
@@ -62,6 +71,15 @@ final class RetentionReportService
 
     /** "Came back within N days": any day 1..N. */
     public const WITHIN_DAYS = 7;
+
+    /** The days the game row is shown for, beside the learning D1 / D7 (never added into them). */
+    public const GAME_DAYS = [1, 7];
+
+    /** Activation: the first accepted learning answer within this many hours of registration. */
+    public const ACTIVATION_HOURS = 24;
+
+    /** The cuts of the activation, in the order of the columns: everybody, interface language, solo / class. */
+    public const ACTIVATION_CUTS = ['all', 'ru', 'uz', 'solo', 'class'];
 
     /** The first-session block looks at learners registered in this many last days. */
     public const FIRST_SESSION_DAYS = 30;
@@ -204,8 +222,9 @@ final class RetentionReportService
         [$cte, $cteBindings] = $this->cohortCte($sql, $weeks, $names, $now, $from, $to);
 
         $cohortRows = array_values(DB::select(
-            "WITH c AS ({$cte}) SELECT wk, locale, trial, COUNT(*) AS size, SUM(onboarded) AS onboarded, SUM(started) AS started, "
-            .'MIN('.$sql->daysBetween('today', 'reg').') AS elapsed FROM c GROUP BY wk, locale, trial',
+            "WITH c AS ({$cte}) SELECT wk, locale, trial, cls, COUNT(*) AS size, SUM(onboarded) AS onboarded, SUM(started) AS started, "
+            .'SUM(act) AS activated, SUM(young) AS young, '
+            .'MIN('.$sql->daysBetween('today', 'reg').') AS elapsed FROM c GROUP BY wk, locale, trial, cls',
             $cteBindings,
         ));
 
@@ -215,8 +234,10 @@ final class RetentionReportService
     }
 
     /**
-     * The learners of the window with their week, local registration date, local "today", language, trial flag and
-     * first-answer flag; one row per learner, bindings in the order of the placeholders.
+     * The learners of the window with their week, local registration date, local "today", language, trial flag, first-answer
+     * flag and the activation flags (answered in 24 hours, joined a center's group in 24 hours, registered less than 24 hours
+     * ago); one row per learner, bindings in the order of the placeholders. The `EXISTS` subqueries run on the indexes
+     * `training_reviews (learner_id, created_at)` and `group_members (learner_id, status)`.
      *
      * @param  list<array{CarbonImmutable, CarbonImmutable}>  $weeks
      * @param  list<string>  $names  the zone names that occur
@@ -252,11 +273,17 @@ final class RetentionReportService
 
         $registered = $sql->dateOf($sql->shift('l.created_at', $createdOffset));
         $today = $sql->dateOf($sql->shift($sql->ts(), $nowOffset));
+        $deadline = $sql->shift('l.created_at', $sql->int());
+        $window = self::ACTIVATION_HOURS * 3600;
 
         $query = "SELECT l.id AS id, l.interface_locale AS locale, {$week} AS wk, {$registered} AS reg, {$today} AS today, "
             .'CASE WHEN l.onboarding_completed_at IS NULL THEN 0 ELSE 1 END AS onboarded, '
             ."CASE WHEN EXISTS (SELECT 1 FROM subscriptions su WHERE su.subscriber_type = 'learner' AND su.subscriber_id = l.id AND su.provider = ?) THEN 1 ELSE 0 END AS trial, "
-            .'CASE WHEN EXISTS (SELECT 1 FROM training_reviews r WHERE r.learner_id = l.id) THEN 1 ELSE 0 END AS started '
+            .'CASE WHEN EXISTS (SELECT 1 FROM training_reviews r WHERE r.learner_id = l.id) THEN 1 ELSE 0 END AS started, '
+            .'CASE WHEN EXISTS (SELECT 1 FROM training_reviews ra WHERE ra.learner_id = l.id AND ra.created_at < '.$deadline.') THEN 1 ELSE 0 END AS act, '
+            .'CASE WHEN EXISTS (SELECT 1 FROM group_members gm JOIN telegram_groups tg ON tg.id = gm.telegram_group_id '
+            .'WHERE gm.learner_id = l.id AND tg.organization_id IS NOT NULL AND gm.joined_at < '.$deadline.') THEN 1 ELSE 0 END AS cls, '
+            ."CASE WHEN l.created_at > {$sql->ts()} THEN 1 ELSE 0 END AS young "
             ."FROM learners l WHERE l.deleted_at IS NULL AND l.created_at >= {$sql->ts()} AND l.created_at < {$sql->ts()}";
 
         return [$query, [
@@ -265,6 +292,9 @@ final class RetentionReportService
             self::db($now),
             ...$nowBindings,
             SubscriptionProvider::Trial->value,
+            $window,
+            $window,
+            self::db($now->subSeconds($window)),
             self::db($from),
             self::db($to),
         ]];

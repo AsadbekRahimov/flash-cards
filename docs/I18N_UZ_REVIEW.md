@@ -1218,7 +1218,7 @@
 | `org.assignments.columns.title` | Nomi | Название |
 | `org.assignments.columns.due_at` | Muddat | Срок |
 | `org.assignments.columns.status` | Holati | Статус |
-| `org.assignments.columns.progress` | Bajarganlar | Выполнили |
+| `org.assignments.columns.progress` | O'quvchilar | Ученики |
 | `org.assignments.columns.threshold` | Chegara | Порог |
 | `org.assignments.columns.created_at` | Yaratilgan | Создано |
 | `org.assignments.columns.learner` | O'quvchi | Ученик |
@@ -1233,7 +1233,6 @@
 | `org.assignments.result.in_progress` | Jarayonda | В процессе |
 | `org.assignments.result.not_started` | Boshlanmagan | Не начато |
 | `org.assignments.lesson_option` | :stage-modul, :lesson-dars: :title | Модуль :stage, урок :lesson: :title |
-| `org.assignments.progress_of` | :total dan :done | :done из :total |
 | `org.assignments.actions.create` | Vazifa yaratish | Создать задание |
 | `org.assignments.actions.close` | Yopish | Закрыть |
 | `org.assignments.actions.close_confirm` | Yopilgan vazifani qayta ochib bo'lmaydi. Yakuniy natija hisobotda saqlanadi. | Закрытое задание нельзя открыть снова. Итоговый прогресс сохранится в отчёте. |
@@ -4076,3 +4075,46 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `practice.error_hunt.token.yours` | sizning tanlovingiz | ваш выбор (для экранных дикторов) |
 | `practice.error_hunt.token.error` | xato | ошибка (для экранных дикторов) |
 | `error.code.step_not_current` | Topshiriq boshqa oynada davom etgan. Ekran yangilandi. | Задание уже продвинулось в другой вкладке. Экран обновлён. |
+
+## Первый вход: задания центра не загрузились (19.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`, ключ `assignments.load_failed`)
+
+Короткая строка на «Главной» только у участника группы центра, когда список заданий не загрузился (сбой сети или сервера); рядом кнопка «Qayta urinib ko'rish» (`common.retry`, уже проверена). Личная тренировка при этом доступна. Стиль — как у `common.copy_failed` («…bo'lmadi»). Прошу проверить, естественно ли «yuklab bo'lmadi» для списка заданий.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `assignments.load_failed` | Markaz vazifalarini yuklab bo'lmadi. | Не удалось загрузить задания центра. |
+
+## Готовность к уровню: числа рядом с процентом (19.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`, ключи `readiness.percent_level`, `readiness.percent_course`, `readiness.progress_label`, `readiness.module_words`)
+
+К заголовку готовности (на «Главной» и на экране готовности) добавлены числа, из которых считается процент: освоено слов и всего слов курса. Строки заменяют прежние значения тех же ключей из раздела «Готовность к уровню и тест недели (17.11.2026)». Порядок «{total} tadan {learned} ta» — как в уже проверенном `readiness.quiz.result`. Новый ключ `readiness.module_words` — строка модуля вместо голой дроби «20 / 50». Прошу проверить «{count} ta so'zdan {learned} ta» и не лучше ли «{learned} / {count} ta so'z».
+
+| Ключ | uz | ru |
+|---|---|---|
+| `readiness.percent_level` | {level} darajasi so'zlarining {percent}% o'zlashtirildi: {total} tadan {learned} ta | Освоено {percent}% слов уровня {level}: {learned} из {total} |
+| `readiness.percent_course` | Kurs so'zlarining {percent}% o'zlashtirildi: {total} tadan {learned} ta | Освоено {percent}% слов курса: {learned} из {total} |
+| `readiness.progress_label` | So'zlarning {percent}% o'zlashtirildi: {total} tadan {learned} ta o'zlashtirildi, {in_progress} ta o'rganilmoqda, {not_started} ta hali oldinda | Освоено {percent}% слов: {learned} из {total} освоено, {in_progress} в работе, {not_started} ещё впереди (подпись полосы для экранных дикторов) |
+| `readiness.module_words.one/other` | {count} ta so'zdan {learned} ta | «20 из 50 слов», «5 из 21 слова» (строка модуля) |
+
+## Итог задания и «что повторить» в кабинете (19.11.2026) — на проверку носителю
+
+### Кабинет (`lang/uz/org.php`, ключи `org.assignments.progress_summary`, `org.assignments.summary.*`, `org.assignments.repeat.*`)
+
+Колонка списка заданий и страница задания: сколько учеников не начали, в процессе и выполнили (из числа тех, кто сейчас в группе), подсказка, кто входит в это число, и до трёх трудных слов урока, в которых ошибаются минимум двое учеников группы. Ключ `org.assignments.progress_of` удалён (заменён `progress_summary`), заголовок колонки `org.assignments.columns.progress` стал «O'quvchilar». Стиль «:total tadan :done tasi» — как у `org.hard_words.learners_of`. Прошу проверить «boshlamagan / jarayonda / bajargan» в одной строке и формулировку подсказки.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `org.assignments.progress_summary` | boshlamagan :not_started · jarayonda :in_progress · bajargan: :total tadan :done tasi | не начали :not_started · в процессе :in_progress · выполнили :done из :total |
+| `org.assignments.summary.heading` | Vazifa bo'yicha o'quvchilar | Ученики по заданию |
+| `org.assignments.summary.denominator` | Hozir guruhda bo'lgan o'quvchilar hisoblanadi: vazifa berilgandan keyin qo'shilganlar ham, chiqib ketganlar esa yo'q. Raqamlar har 30 daqiqada va shu sahifa ochilganda qayta hisoblanadi. | Считаются ученики, которые сейчас в группе: вступившие после выдачи задания — тоже, вышедшие — нет. Цифры пересчитываются каждые 30 минут и при открытии этой страницы. |
+| `org.assignments.summary.not_started` | Boshlamagan | Не начали |
+| `org.assignments.summary.in_progress` | Jarayonda | В процессе |
+| `org.assignments.summary.done` | Bajargan | Выполнили |
+| `org.assignments.summary.done_of` | :total tadan :done tasi | :done из :total |
+| `org.assignments.repeat.heading` | Nimani takrorlash kerak | Что повторить |
+| `org.assignments.repeat.description` | Bu darsning guruhdagi kamida ikki o'quvchi qayta-qayta xato qilayotgan so'zlari. Faqat o'quvchilar soni ko'rsatiladi, ismlar ko'rsatilmaydi. | Слова этого урока, в которых минимум двое учеников группы ошибаются снова и снова. Показано только число учеников, без имён. |
+| `org.assignments.repeat.word` | :word — :translation (xato qilayotganlar: :count) | :word — :translation (ошибаются: :count) |
+| `org.assignments.repeat.word_confused` | :word — :translation (xato qilayotganlar: :count; «:confused» bilan chalkashtiriladi) | :word — :translation (ошибаются: :count; путают с «:confused») |

@@ -56,14 +56,17 @@ describe('ReadinessView', () => {
 
     expect(api.readiness.get).toHaveBeenCalledWith('english-a1-a2', 'profile')
     expect(text(wrapper, 'readiness-percent')).toBe('42%')
-    expect(text(wrapper, 'readiness-heading')).toBe('Освоено 42% слов уровня A1–A2')
+    expect(text(wrapper, 'readiness-heading')).toBe('Освоено 42% слов уровня A1–A2: 42 из 100')
+    expect(wrapper.get('[data-testid=readiness-bar]').attributes('aria-label')).toBe(
+      'Освоено 42% слов: 42 из 100 освоено, 18 в работе, 40 ещё впереди',
+    )
     expect(text(wrapper, 'readiness-learned')).toContain('42')
     expect(text(wrapper, 'readiness-in-progress')).toContain('18')
     expect(text(wrapper, 'readiness-not-started')).toContain('40')
     expect(text(wrapper, 'readiness-mastered')).toContain('10')
     expect(text(wrapper, 'readiness-explain')).toContain('с перерывом в 7 дней')
     expect(text(wrapper, 'readiness-explain')).toContain('не результат экзамена')
-    expect(text(wrapper, 'readiness-module-1')).toContain('20 / 50')
+    expect(text(wrapper, 'readiness-module-1')).toContain('20 из 50 слов')
     expect(text(wrapper, 'readiness-module-2')).toContain('Модуль 2')
     expect(wrapper.get('[data-testid=readiness-bar]').attributes('aria-valuenow')).toBe('42')
   })
@@ -74,7 +77,24 @@ describe('ReadinessView', () => {
     const { wrapper } = await render(data, '?source=nonsense')
 
     expect(api.readiness.get).toHaveBeenCalledWith('english-a1-a2', 'today')
-    expect(text(wrapper, 'readiness-heading')).toBe('Освоено 42% слов курса')
+    expect(text(wrapper, 'readiness-heading')).toBe('Освоено 42% слов курса: 42 из 100')
+  })
+
+  it('names the counts the percent is floored from and agrees the module noun with the number', async () => {
+    const data = readiness()
+    data.percent = 33
+    data.words = { total: 1000, learned: 333, mastered: 0, known: 333, in_progress: 0, not_started: 667 }
+    data.modules = [
+      { number: 1, title: 'A', learned: 5, total: 21 },
+      { number: 2, title: 'B', learned: 1, total: 3 },
+      { number: 3, title: 'C', learned: 0, total: 1 },
+    ]
+    const { wrapper } = await render(data)
+
+    expect(text(wrapper, 'readiness-heading')).toBe('Освоено 33% слов уровня A1–A2: 333 из 1000')
+    expect(text(wrapper, 'readiness-module-1')).toContain('5 из 21 слова')
+    expect(text(wrapper, 'readiness-module-2')).toContain('1 из 3 слов')
+    expect(text(wrapper, 'readiness-module-3')).toContain('0 из 1 слова')
   })
 
   it('has an empty chart and the scored-test button when no test was taken', async () => {
@@ -162,7 +182,8 @@ describe('ReadinessView', () => {
     setLocale('uz')
     const { wrapper } = await render(readiness())
 
-    expect(text(wrapper, 'readiness-heading')).toBe("A1–A2 darajasi so'zlarining 42% o'zlashtirildi")
+    expect(text(wrapper, 'readiness-heading')).toBe("A1–A2 darajasi so'zlarining 42% o'zlashtirildi: 100 tadan 42 ta")
+    expect(text(wrapper, 'readiness-module-1')).toContain("50 ta so'zdan 20 ta")
     expect(text(wrapper, 'quiz-btn')).toBe('Hafta testini topshirish')
     expect(text(wrapper, 'readiness-explain')).toContain('imtihon natijasi emas')
   })

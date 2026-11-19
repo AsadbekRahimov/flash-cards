@@ -6,6 +6,7 @@ namespace App\Filament\Org\Resources;
 
 use App\Domain\Organizations\Services\AssignmentService;
 use App\Filament\Org\Resources\AssignmentResource\Pages;
+use App\Filament\Org\Resources\AssignmentResource\Pages\ViewAssignment;
 use App\Filament\Org\Resources\AssignmentResource\RelationManagers\ResultsRelationManager;
 use App\Filament\Resources\Support\AdminTable;
 use App\Models\Assignment;
@@ -15,6 +16,7 @@ use Filament\Forms;
 use Filament\Infolists;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\PageRegistration;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -173,6 +175,10 @@ class AssignmentResource extends OrgResource
                     ->label(__('org.assignments.columns.due_at'))
                     ->dateTime('d.m.Y H:i', $timezone)
                     ->sortable(),
+                // Next to the due date: who has not opened it, who is on the way, who is done (counted by the list query itself).
+                Tables\Columns\TextColumn::make('progress')
+                    ->label(__('org.assignments.columns.progress'))
+                    ->state(fn (Assignment $record): string => __('org.assignments.progress_summary', static::progressSummary($record))),
                 Tables\Columns\TextColumn::make('status')
                     ->label(__('org.assignments.columns.status'))
                     ->badge()
@@ -183,12 +189,6 @@ class AssignmentResource extends OrgResource
                         'overdue' => 'warning',
                         default => 'gray',
                     }),
-                Tables\Columns\TextColumn::make('progress')
-                    ->label(__('org.assignments.columns.progress'))
-                    ->state(fn (Assignment $record): string => __('org.assignments.progress_of', [
-                        'done' => (int) $record->done_count,
-                        'total' => (int) $record->total_count,
-                    ])),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
@@ -235,6 +235,42 @@ class AssignmentResource extends OrgResource
             Infolists\Components\TextEntry::make('due_at')
                 ->label(__('org.assignments.columns.due_at'))
                 ->dateTime('d.m.Y H:i', $timezone),
+            // The three numbers a teacher acts on: remind those who have not started, help those on the way, look at the done.
+            Section::make(__('org.assignments.summary.heading'))
+                ->description(__('org.assignments.summary.denominator'))
+                ->columns(3)
+                ->columnSpanFull()
+                ->schema([
+                    Infolists\Components\TextEntry::make('summary_not_started')
+                        ->label(__('org.assignments.summary.not_started'))
+                        ->state(fn (Assignment $record): int => static::progressSummary($record)['not_started']),
+                    Infolists\Components\TextEntry::make('summary_in_progress')
+                        ->label(__('org.assignments.summary.in_progress'))
+                        ->state(fn (Assignment $record): int => static::progressSummary($record)['in_progress']),
+                    Infolists\Components\TextEntry::make('summary_done')
+                        ->label(__('org.assignments.summary.done'))
+                        ->state(fn (Assignment $record): string => __('org.assignments.summary.done_of', static::progressSummary($record))),
+                ]),
+            // Hard words of the lesson in this group; read once per request by the page, absent when there is nothing to repeat.
+            Section::make(__('org.assignments.repeat.heading'))
+                ->description(__('org.assignments.repeat.description'))
+                ->columnSpanFull()
+                ->visible(fn ($livewire): bool => $livewire instanceof ViewAssignment && $livewire->materialToRepeat() !== [])
+                ->schema([
+                    Infolists\Components\TextEntry::make('repeat_words')
+                        ->hiddenLabel()
+                        ->bulleted()
+                        ->listWithLineBreaks()
+                        ->state(fn ($livewire): array => $livewire instanceof ViewAssignment ? array_map(
+                            static fn (array $row): string => __($row['confused_with'] === null ? 'org.assignments.repeat.word' : 'org.assignments.repeat.word_confused', [
+                                'word' => $row['word'],
+                                'translation' => $row['translation'],
+                                'count' => $row['learners'],
+                                'confused' => $row['confused_with'] ?? '',
+                            ]),
+                            $livewire->materialToRepeat(),
+                        ) : []),
+                ]),
             Infolists\Components\TextEntry::make('status')
                 ->label(__('org.assignments.columns.status'))
                 ->badge()
@@ -243,13 +279,27 @@ class AssignmentResource extends OrgResource
             Infolists\Components\TextEntry::make('completion_threshold')
                 ->label(__('org.assignments.columns.threshold'))
                 ->suffix('%'),
-            Infolists\Components\TextEntry::make('progress')
-                ->label(__('org.assignments.columns.progress'))
-                ->state(fn (Assignment $record): string => __('org.assignments.progress_of', [
-                    'done' => (int) $record->done_count,
-                    'total' => (int) $record->total_count,
-                ])),
         ]);
+    }
+
+    /**
+     * Learners of the assignment by state, from the counts of `withProgressCounts()` (no query): not started, in progress
+     * (some progress, threshold not reached), done (late included), of `total` - the learners active in the group now.
+     *
+     * @return array{not_started: int, in_progress: int, done: int, total: int}
+     */
+    public static function progressSummary(Assignment $assignment): array
+    {
+        $total = (int) $assignment->total_count;
+        $started = min($total, (int) $assignment->started_count);
+        $done = min($started, (int) $assignment->done_count);
+
+        return [
+            'not_started' => $total - $started,
+            'in_progress' => $started - $done,
+            'done' => $done,
+            'total' => $total,
+        ];
     }
 
     /** `active` / `overdue` (active, due date passed) / `closed`. */

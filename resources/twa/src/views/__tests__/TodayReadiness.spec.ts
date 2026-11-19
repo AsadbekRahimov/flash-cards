@@ -77,7 +77,10 @@ describe('TodayView readiness block', () => {
   it('shows the share of the level, the legend and a link to the screen, with no extra request', async () => {
     const { wrapper, router } = await render(today(block()))
 
-    expect(wrapper.get('[data-testid=readiness-title]').text()).toBe('Освоено 42% слов уровня A1–A2')
+    expect(wrapper.get('[data-testid=readiness-title]').text()).toBe('Освоено 42% слов уровня A1–A2: 42 из 100')
+    expect(wrapper.get('[data-testid=readiness-bar]').attributes('aria-label')).toBe(
+      'Освоено 42% слов: 42 из 100 освоено, 18 в работе, 40 ещё впереди',
+    )
     expect(wrapper.get('[data-testid=readiness-legend]').text()).toContain('18 в работе')
     expect(wrapper.get('[data-testid=readiness-bar]').attributes('aria-valuenow')).toBe('42')
     expect(wrapper.get('[data-testid=readiness-seg-learned]').attributes('style')).toContain('width: 42%')
@@ -135,6 +138,6 @@ describe('TodayView readiness block', () => {
     setLocale('uz')
     const { wrapper } = await render(today(block({ level_label: null })))
 
-    expect(wrapper.get('[data-testid=readiness-title]').text()).toBe("Kurs so'zlarining 42% o'zlashtirildi")
+    expect(wrapper.get('[data-testid=readiness-title]').text()).toBe("Kurs so'zlarining 42% o'zlashtirildi: 100 tadan 42 ta")
   })
 })

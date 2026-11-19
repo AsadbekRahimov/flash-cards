@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\Filament\Org\Resources\AssignmentResource\Pages;
 
 use App\Domain\Organizations\Services\AssignmentService;
+use App\Domain\Organizations\Services\OrgHardWordsReport;
 use App\Filament\Org\Resources\AssignmentResource;
 use App\Models\Assignment;
+use App\Models\Organization;
+use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 
@@ -15,7 +19,13 @@ class ViewAssignment extends ViewRecord
 {
     protected static string $resource = AssignmentResource::class;
 
-    /** The report opens with a fresh snapshot: recounted when older than `stale_after_minutes`. */
+    /** @var list<array{word_id: int, word: string, translation: string, learners: int, confused_with: string|null}>|null */
+    private ?array $toRepeat = null;
+
+    /**
+     * The report opens with a fresh snapshot: recounted when older than `stale_after_minutes`. After a recount the record is
+     * read again, so the counts of the summary are those of the new snapshot (one statement, only when it recounted).
+     */
     public function mount(int|string $record): void
     {
         parent::mount($record);
@@ -23,7 +33,32 @@ class ViewAssignment extends ViewRecord
         /** @var Assignment $assignment */
         $assignment = $this->getRecord();
 
-        app(AssignmentService::class)->refreshIfStale($assignment);
+        if (app(AssignmentService::class)->refreshIfStale($assignment)) {
+            $this->record = $this->resolveRecord($record);
+        }
+    }
+
+    /**
+     * "Material to repeat": up to 3 hard words of the assigned lesson that at least 2 learners of the group keep failing
+     * ({@see OrgHardWordsReport::toRepeat()}, scoped to what the user sees). One statement per request, empty = no block.
+     *
+     * @return list<array{word_id: int, word: string, translation: string, learners: int, confused_with: string|null}>
+     */
+    public function materialToRepeat(): array
+    {
+        if ($this->toRepeat !== null) {
+            return $this->toRepeat;
+        }
+
+        $assignment = $this->assignment();
+        $user = Filament::auth()->user();
+        $tenant = Filament::getTenant();
+
+        if (! $user instanceof User || ! $tenant instanceof Organization) {
+            return $this->toRepeat = [];
+        }
+
+        return $this->toRepeat = app(OrgHardWordsReport::class)->toRepeat($user, $tenant, $assignment->group, $assignment->lesson_id);
     }
 
     /** @return array<int, Action> */

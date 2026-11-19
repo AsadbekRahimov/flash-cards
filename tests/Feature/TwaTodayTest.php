@@ -111,6 +111,8 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'practice' => ['available' => true, 'pro_required' => false, 'modes' => ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'], 'battle' => false, 'pro_promise' => 'solo'],
         // The round of hard words (docs/06 §14): a fresh learner has no hard words.
         'hard_round' => ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null],
+        // In no group of a center: `GET /assignments` is surely empty (docs/04 A.2a).
+        'assignments_possible' => false,
     ]);
 });
 

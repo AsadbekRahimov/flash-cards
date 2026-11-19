@@ -9,6 +9,7 @@ import { ICONS } from '@/components/ui/icons'
 import { setLocale } from '@/i18n'
 import { resetSeenSession } from '@/composables/seenFlag'
 import { useTrainingStore } from '@/stores/training'
+import { ASSIGNMENTS_POSSIBLE_KEY } from '@/stores/assignments'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import type { AssignmentItem, MeResponse, TodayResponse } from '@/api/types'
 
@@ -1147,7 +1148,8 @@ describe('TodayView', () => {
       expect(w.find('[data-testid=assignments-card]').exists()).toBe(false)
     })
 
-    it('starts loading the assignments right after sign-in, in parallel with Today', async () => {
+    it('starts loading the assignments right after sign-in, in parallel with Today, when the device knows its learner may have some', async () => {
+      window.localStorage.setItem(ASSIGNMENTS_POSSIBLE_KEY, '1') // the last /today said `assignments_possible: true`
       let answer!: (response: TodayResponse) => void
       vi.mocked(api.today.get).mockReturnValue(new Promise<TodayResponse>((resolve) => (answer = resolve)))
 
@@ -1159,10 +1161,175 @@ describe('TodayView', () => {
       expect(api.assignments.list).toHaveBeenCalledTimes(1)
       expect(w.find('[data-testid=spinner]').exists()).toBe(true)
 
-      answer(today())
+      answer(today({ assignments_possible: true }))
       await flushPromises()
       expect(w.find('[data-testid=spinner]').exists()).toBe(false)
       expect(api.assignments.list).toHaveBeenCalledTimes(1)
+    })
+
+    describe('the first open (`/today.assignments_possible`, the audit of 2026-11-18)', () => {
+      const newcomer = (overrides: Partial<TodayResponse> = {}) => today({ active_course: null, due_count: 0, ...overrides })
+
+      it('asks no assignments of a self-study learner and shows the start card as soon as Today is in', async () => {
+        const w = await render(newcomer({ assignments_possible: false }))
+
+        expect(api.assignments.list).not.toHaveBeenCalled()
+        expect(w.find('[data-testid=spinner]').exists()).toBe(false)
+        expect(w.find('[data-testid=start-choose-course]').exists()).toBe(true)
+        expect(w.find('[data-testid=assignments-error]').exists()).toBe(false)
+        expect(window.localStorage.getItem(ASSIGNMENTS_POSSIBLE_KEY)).toBe('0')
+      })
+
+      it('does not ask the list before Today has answered when nothing is known yet, then asks it for a "maybe" and holds the start card for it', async () => {
+        let answer!: (response: TodayResponse) => void
+        vi.mocked(api.today.get).mockReturnValue(new Promise<TodayResponse>((resolve) => (answer = resolve)))
+        let release: (v: { assignments: AssignmentItem[] }) => void = () => {}
+        vi.mocked(api.assignments.list).mockReturnValue(new Promise((resolve) => { release = resolve }))
+
+        const w = mount(TodayView, { global: { plugins: [makeRouter()] } })
+        await flushPromises()
+        expect(api.assignments.list).not.toHaveBeenCalled()
+
+        answer(newcomer({ assignments_possible: true }))
+        await flushPromises()
+        expect(api.assignments.list).toHaveBeenCalledTimes(1)
+        // A courseless member: the assignment may replace the start card, so the screen waits for it.
+        expect(w.find('[data-testid=spinner]').exists()).toBe(true)
+        expect(w.find('[data-testid=start-card]').exists()).toBe(false)
+
+        release({ assignments: [assignment()] })
+        await flushPromises()
+        expect(w.find('[data-testid=start-card]').exists()).toBe(false)
+        expect(w.get('[data-testid=assignment-title]').text()).toBe('Food')
+        expect(window.localStorage.getItem(ASSIGNMENTS_POSSIBLE_KEY)).toBe('1')
+      })
+
+      it('keeps the old path for an older server (no field): the list is asked, and the next open asks it in parallel', async () => {
+        vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [assignment()] })
+
+        const w = await render(newcomer())
+
+        expect(api.assignments.list).toHaveBeenCalledTimes(1)
+        expect(w.get('[data-testid=assignment-title]').text()).toBe('Food')
+        expect(window.localStorage.getItem(ASSIGNMENTS_POSSIBLE_KEY)).toBe('1')
+      })
+
+      it('lets a learner who left the group go on at once: a list asked in parallel on the old knowledge does not hold the screen', async () => {
+        window.localStorage.setItem(ASSIGNMENTS_POSSIBLE_KEY, '1')
+        vi.mocked(api.assignments.list).mockReturnValue(new Promise(() => {}))
+
+        const w = await render(newcomer({ assignments_possible: false }))
+
+        expect(api.assignments.list).toHaveBeenCalledTimes(1)
+        expect(w.find('[data-testid=spinner]').exists()).toBe(false)
+        expect(w.find('[data-testid=start-card]').exists()).toBe(true)
+        expect(window.localStorage.getItem(ASSIGNMENTS_POSSIBLE_KEY)).toBe('0')
+      })
+
+      it('shows the assignment to a learner who joined a group after the first open, on the return to Home', async () => {
+        const first = await render(newcomer({ assignments_possible: false }))
+        expect(api.assignments.list).not.toHaveBeenCalled()
+        first.unmount()
+
+        let release: (v: { assignments: AssignmentItem[] }) => void = () => {}
+        vi.mocked(api.assignments.list).mockReturnValue(new Promise((resolve) => { release = resolve }))
+        const back = await render(newcomer({ assignments_possible: true }))
+
+        expect(api.assignments.list).toHaveBeenCalledTimes(1)
+        // The list that was "surely empty" is not known any more: the start card waits for it instead of flashing.
+        expect(back.find('[data-testid=start-card]').exists()).toBe(false)
+        release({ assignments: [assignment()] })
+        await flushPromises()
+        expect(back.get('[data-testid=assignment-title]').text()).toBe('Food')
+        expect(back.find('[data-testid=start-card]').exists()).toBe(false)
+      })
+
+      it('tells a group member the list failed, keeps personal training and retries on demand', async () => {
+        vi.mocked(api.assignments.list).mockRejectedValueOnce(new ApiClientError('network', 0, 'network', 'offline'))
+        vi.mocked(api.training.open).mockResolvedValue({ session_id: 57, mode: 'daily_review', lesson: null, total_words: 10 })
+
+        const w = await render(today({ assignments_possible: true }))
+
+        expect(text(w, 'assignments-error')).toContain('Не удалось загрузить задания центра.')
+        expect(text(w, 'assignments-retry')).toBe('Повторить')
+        expect(w.find('[data-testid=assignments-card]').exists()).toBe(false)
+        expect(w.get('[data-testid=review-btn]').attributes('disabled')).toBeUndefined()
+
+        vi.mocked(api.assignments.list).mockResolvedValueOnce({ assignments: [assignment()] })
+        await w.get('[data-testid=assignments-retry]').trigger('click')
+        await flushPromises()
+
+        expect(api.assignments.list).toHaveBeenCalledTimes(2)
+        expect(w.find('[data-testid=assignments-error]').exists()).toBe(false)
+        expect(w.get('[data-testid=assignment-title]').text()).toBe('Food')
+
+        await w.get('[data-testid=review-btn]').trigger('click')
+        await flushPromises()
+        expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+      })
+
+      it('shows the start card, not a wait, to a courseless member whose list failed, with the line under it', async () => {
+        vi.mocked(api.assignments.list).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'boom'))
+
+        const w = await render(newcomer({ assignments_possible: true }))
+
+        expect(w.find('[data-testid=start-card]').exists()).toBe(true)
+        expect(w.find('[data-testid=assignments-error]').exists()).toBe(true)
+      })
+
+      it('says nothing about a failed list to a learner who is not known to be in a group (an older server)', async () => {
+        vi.mocked(api.assignments.list).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'boom'))
+
+        const w = await render()
+
+        expect(w.find('[data-testid=assignments-error]').exists()).toBe(false)
+      })
+
+      it('says the failure in Uzbek', async () => {
+        setLocale('uz')
+        vi.mocked(api.assignments.list).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'boom'))
+
+        const w = await render(today({ assignments_possible: true }))
+
+        expect(text(w, 'assignments-error')).toContain("Markaz vazifalarini yuklab bo'lmadi.")
+        expect(text(w, 'assignments-retry')).toBe("Qayta urinib ko'rish")
+      })
+
+      it('opens the lesson of the announcement for a learner whose Today says no assignment, asking no list (state 3)', async () => {
+        vi.mocked(api.today.get).mockResolvedValue(newcomer({ assignments_possible: false }))
+        vi.mocked(api.training.open).mockResolvedValue({ session_id: 58, mode: 'lesson', lesson: null, total_words: 10 })
+        const router = makeRouter()
+        await router.push('/today?from=assignment&lesson=41')
+        await router.isReady()
+        mount(TodayView, { global: { plugins: [router] } })
+        await flushPromises()
+
+        expect(api.training.open).toHaveBeenCalledTimes(1)
+        expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 41, source: 'assignment' })
+        expect(router.currentRoute.value.name).toBe('training')
+        expect(api.assignments.list).not.toHaveBeenCalled()
+      })
+
+      it('lets a learner with an open personal session continue it and, apart from it, open the pending assignment (state 6)', async () => {
+        vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [assignment()] })
+        vi.mocked(api.training.open).mockResolvedValue({ session_id: 918, mode: 'daily_review', lesson: null, total_words: 10 })
+
+        const w = await render(today({ open_session_id: 918, assignments_possible: true }))
+
+        expect(text(w, 'review-btn')).toBe('Продолжить занятие')
+        expect(w.find('[data-testid=assignments-card]').exists()).toBe(true)
+
+        await w.get('[data-testid=review-btn]').trigger('click')
+        await flushPromises()
+        // The usual "continue": the server hands back the open session (docs/04 A.3), the assignment is not mixed into it.
+        expect(api.training.open).toHaveBeenLastCalledWith({ mode: 'daily_review', source: 'self' })
+        expect(w.router.currentRoute.value.params.sessionId).toBe('918')
+
+        await w.router.push('/today')
+        await w.get('[data-testid=assignment-btn]').trigger('click')
+        await flushPromises()
+        expect(api.training.open).toHaveBeenLastCalledWith({ mode: 'lesson', lesson_id: 41, source: 'assignment' })
+      })
     })
 
     it('opens the lesson right away from the group announcement (?from=assignment&lesson=41) and drops the marker', async () => {

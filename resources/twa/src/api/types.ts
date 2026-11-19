@@ -669,6 +669,11 @@ export interface TodayResponse {
   practice?: PracticeAccessToday
   /** The round of hard words (docs/06 §14); null: the feature is off; absent: an older server. */
   hard_round?: HardRound | null
+  /**
+   * Whether `GET /assignments` can have anything (docs/04 A.2a): `false` - surely not (in no group of a center), the list is not asked
+   * and Home is not held for it; `true` - maybe; absent: an older server (the list is asked as before).
+   */
+  assignments_possible?: boolean
 }
 
 export interface TodayGame {

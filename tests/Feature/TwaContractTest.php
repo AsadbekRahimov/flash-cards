@@ -250,9 +250,12 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'game' => ['available', 'daily_available', 'active_run', 'class_caravan'],
             'practice' => CONTRACT_PRACTICE_TODAY,
             'hard_round' => CONTRACT_HARD_ROUND,
+            'assignments_possible',
         ]);
 
     expect($response->json('due_count'))->toBeInt()
+        // no group of a center: `GET /assignments` is surely empty, the TWA does not ask it
+        ->and($response->json('assignments_possible'))->toBeFalse()
         ->and($response->json('new_words_remaining'))->toBe(20)
         ->and($response->json('open_session_id'))->toBeInt()
         ->and($response->json('onboarding_completed'))->toBeTrue()
@@ -271,6 +274,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
             'active_course', 'open_session_id', 'entitlement' => ['plan', 'source', 'until', 'lapsed'], 'onboarding_completed', 'league', 'timezone', 'game' => ['available', 'daily_available', 'active_run', 'class_caravan'],
             'practice' => CONTRACT_PRACTICE_TODAY,
             'hard_round' => CONTRACT_HARD_ROUND,
+            'assignments_possible',
         ])
         ->assertJsonPath('active_course', null)
         ->assertJsonPath('open_session_id', null)
