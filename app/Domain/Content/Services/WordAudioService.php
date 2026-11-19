@@ -140,9 +140,22 @@ final class WordAudioService
     /** The file is there and not empty (an empty or truncated leftover counts as "not generated"). */
     private function isReady(string $path): bool
     {
-        $disk = $this->disk();
+        return $this->fileState($path) === 'ready';
+    }
 
-        return $disk->exists($path) && $disk->size($path) > 0;
+    /**
+     * What is on the disk at this path: `ready` (a non-empty file), `empty` (a zero-byte leftover) or `missing`.
+     *
+     * @return 'ready'|'empty'|'missing'
+     */
+    public function fileState(string $path): string
+    {
+        $disk = $this->disk();
+        if (! $disk->exists($path)) {
+            return 'missing';
+        }
+
+        return $disk->size($path) > 0 ? 'ready' : 'empty';
     }
 
     /**

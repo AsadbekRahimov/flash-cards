@@ -174,7 +174,8 @@ final class RetentionReportService
     {
         return isset($report['generated_at'], $report['cohorts'], $report['segments'], $report['first_session'])
             && is_string($report['generated_at']) && is_array($report['cohorts']) && is_array($report['segments'])
-            && is_array($report['first_session']) && array_key_exists('round_again', $report['first_session']);
+            && is_array($report['first_session']) && array_key_exists('round_again', $report['first_session'])
+            && isset($report['cohorts'][0]) && is_array($report['cohorts'][0]) && array_key_exists('activation', $report['cohorts'][0]);
     }
 
     // -------------------------------------------------------------------------------------------------------------------
@@ -302,7 +303,9 @@ final class RetentionReportService
 
     /**
      * Per (week, language, trial): how many learners studied exactly on day N after registration, and on any of the days
-     * 1..WITHIN_DAYS. `learner_daily_stats (learner_id, date)` is unique, so a row is one learner on one day.
+     * 1..WITHIN_DAYS; and, apart from them, how many played the game on day N of {@see GAME_DAYS} (`g1`, `g7`). A row of a day
+     * with only a game run is read for the game and never counted as studying. `learner_daily_stats (learner_id, date)` is
+     * unique, so a row is one learner on one day.
      *
      * @param  list<int|string>  $cteBindings
      * @return list<stdClass>
@@ -312,10 +315,14 @@ final class RetentionReportService
         $select = '';
         $bindings = [];
         foreach (self::DAYS as $day) {
-            $select .= ' SUM(CASE WHEN x.d = ? THEN 1 ELSE 0 END) AS d'.$day.',';
+            $select .= ' SUM(CASE WHEN x.st = 1 AND x.d = ? THEN 1 ELSE 0 END) AS d'.$day.',';
             $bindings[] = $day;
         }
-        $select .= ' COUNT(DISTINCT CASE WHEN x.d BETWEEN ? AND ? THEN x.id END) AS within';
+        foreach (self::GAME_DAYS as $day) {
+            $select .= ' SUM(CASE WHEN x.gm = 1 AND x.d = ? THEN 1 ELSE 0 END) AS g'.$day.',';
+            $bindings[] = $day;
+        }
+        $select .= ' COUNT(DISTINCT CASE WHEN x.st = 1 AND x.d BETWEEN ? AND ? THEN x.id END) AS within';
         array_push($bindings, 1, self::WITHIN_DAYS);
 
         // A learner's local date is at most a day before the UTC date of the window start: the lower bound only narrows the scan.
@@ -323,8 +330,9 @@ final class RetentionReportService
 
         return array_values(DB::select(
             "WITH c AS ({$cte}) SELECT x.wk, x.locale, x.trial,{$select} FROM ("
-            .'SELECT c.id AS id, c.wk AS wk, c.locale AS locale, c.trial AS trial, '.$sql->daysBetween($sql->storedDate('s.date'), 'c.reg').' AS d '
-            .'FROM c JOIN learner_daily_stats s ON s.learner_id = c.id WHERE s.reviews_count > 0 AND s.date >= ?'
+            .'SELECT c.id AS id, c.wk AS wk, c.locale AS locale, c.trial AS trial, '.$sql->daysBetween($sql->storedDate('s.date'), 'c.reg').' AS d, '
+            .'CASE WHEN s.reviews_count > 0 THEN 1 ELSE 0 END AS st, CASE WHEN s.game_runs_count > 0 THEN 1 ELSE 0 END AS gm '
+            .'FROM c JOIN learner_daily_stats s ON s.learner_id = c.id WHERE (s.reviews_count > 0 OR s.game_runs_count > 0) AND s.date >= ?'
             .') x WHERE x.d BETWEEN ? AND ? GROUP BY x.wk, x.locale, x.trial',
             [...$cteBindings, ...$bindings, $lowerBound, 1, max(self::DAYS)],
         ));
@@ -340,10 +348,12 @@ final class RetentionReportService
     {
         $keys = array_map(static fn (int $day): string => 'd'.$day, self::DAYS);
         $keys[] = 'within';
+        $gameKeys = array_map(static fn (int $day): string => 'g'.$day, self::GAME_DAYS);
+        $rowKeys = [...$keys, ...$gameKeys];
 
         $perWeek = [];
         foreach (array_keys($weeks) as $index) {
-            $perWeek[$index] = new RetentionWeek($keys);
+            $perWeek[$index] = new RetentionWeek($rowKeys);
         }
 
         foreach ($cohortRows as $row) {
@@ -354,6 +364,9 @@ final class RetentionReportService
                 (int) $row->onboarded,
                 (int) $row->started,
                 $row->elapsed === null ? null : (int) $row->elapsed,
+                (int) $row->cls,
+                (int) $row->activated,
+                (int) $row->young,
             );
         }
 
@@ -361,7 +374,7 @@ final class RetentionReportService
             $perWeek[(int) $row->wk]->addRetention(
                 (string) $row->locale,
                 (int) $row->trial,
-                array_combine($keys, array_map(static fn (string $key): int => (int) $row->{$key}, $keys)),
+                array_combine($rowKeys, array_map(static fn (string $key): int => (int) $row->{$key}, $rowKeys)),
             );
         }
 
@@ -373,6 +386,20 @@ final class RetentionReportService
                 $retention[$key] = self::matured($week->elapsed, $key) ? self::cell($week->hits[$key], $week->size) : null;
             }
 
+            // The game row: the same days, the same base and maturity, a key of its own (never mixed into `retention`).
+            $game = [];
+            foreach (self::GAME_DAYS as $day) {
+                $game['d'.$day] = self::matured($week->elapsed, 'd'.$day) ? self::cell($week->hits['g'.$day], $week->size) : null;
+            }
+
+            // Activation: unknown while a learner of the week is younger than 24 hours.
+            $activation = [];
+            foreach (self::ACTIVATION_CUTS as $cut) {
+                $activation[$cut] = $week->young === 0
+                    ? self::cell($week->activation[$cut]['count'] ?? 0, $week->activation[$cut]['of'] ?? 0)
+                    : null;
+            }
+
             $cohorts[] = [
                 'week_start' => $start->toDateString(),
                 'week_end' => $start->addDays(6)->toDateString(),
@@ -382,6 +409,8 @@ final class RetentionReportService
                 'started' => $week->started,
                 'started_pct' => self::pct($week->started, $week->size),
                 'retention' => $retention,
+                'game' => $game,
+                'activation' => $activation,
             ];
         }
 

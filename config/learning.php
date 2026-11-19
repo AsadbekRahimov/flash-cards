@@ -384,6 +384,21 @@ return [
             'max_idle_days' => max(0, (int) env('REMINDERS_QUIZ_MAX_IDLE_DAYS', 7)),
             'ttl_hours' => max(1, (int) env('REMINDERS_QUIZ_TTL_HOURS', 26)),
             'candidates' => 3,
+
+            /**
+             * The question vs the plain text among quiz-eligible reminders (audit 2026-11-18, «Причина вернуться завтра» /
+             * «Напоминание в Telegram»; the owner's switch). While `enabled`, a learner whose reminder may be a question is put
+             * for good into the `quiz` arm when `crc32("salt:learner_id") % 100 < share`, otherwise into `plain` (no
+             * question is even built); both arms keep the same time and frequency. `starts_at` (UTC date or instant, optional):
+             * the experiment does not split before it, and it is the default `--from` of `analytics:reminder-experiment`.
+             * A new `salt` reshuffles everybody — change it only for a new experiment. Off = exactly the behaviour without it.
+             */
+            'experiment' => [
+                'enabled' => (bool) env('REMINDERS_QUIZ_EXPERIMENT', false),
+                'share' => min(100, max(0, (int) env('REMINDERS_QUIZ_EXPERIMENT_SHARE', 50))),
+                'salt' => (string) env('REMINDERS_QUIZ_EXPERIMENT_SALT', 'reminder-quiz-2026-11'),
+                'starts_at' => env('REMINDERS_QUIZ_EXPERIMENT_STARTS_AT'),
+            ],
         ],
     ],
 ];

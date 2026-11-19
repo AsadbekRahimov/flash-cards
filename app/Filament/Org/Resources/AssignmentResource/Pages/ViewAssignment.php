@@ -23,8 +23,8 @@ class ViewAssignment extends ViewRecord
     private ?array $toRepeat = null;
 
     /**
-     * The report opens with a fresh snapshot: recounted when older than `stale_after_minutes`. After a recount the record is
-     * read again, so the counts of the summary are those of the new snapshot (one statement, only when it recounted).
+     * The report opens with a fresh snapshot: recounted when older than `stale_after_minutes`. After a recount the counts are
+     * read again, so the summary shows the new snapshot, not the one the record was loaded with (one statement, only then).
      */
     public function mount(int|string $record): void
     {
@@ -34,7 +34,12 @@ class ViewAssignment extends ViewRecord
         $assignment = $this->getRecord();
 
         if (app(AssignmentService::class)->refreshIfStale($assignment)) {
-            $this->record = $this->resolveRecord($record);
+            // The schema already holds this instance: its counts are refreshed in place.
+            $counts = Assignment::query()->whereKey($assignment->id)->select('assignments.id')->withProgressCounts()->firstOrFail();
+            foreach (['total_count', 'started_count', 'done_count'] as $count) {
+                $assignment->setAttribute($count, $counts->getAttribute($count));
+            }
+            $assignment->syncOriginalAttributes(['total_count', 'started_count', 'done_count']);
         }
     }
 
