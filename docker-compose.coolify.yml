@@ -24,6 +24,13 @@
 # (env_file below). Hosts: DB_HOST = pgbouncer, DB_DIRECT_HOST = postgres (migrations, pg_dump), REDIS_HOST = redis,
 # REDIS_LRU_HOST = redis-cache; REDIS_PREFIX must start with `lexiflow-` (Redis ACL of the shared instance).
 #
+# PostgreSQL / pgbouncer / Redis installed on the server itself (systemd services, no containers): the application reaches
+# them by `host.docker.internal` (extra_hosts below: the address of the Docker bridge of the host, where they listen).
+# One address, different ports: DB_HOST=host.docker.internal DB_PORT=6432 (pgbouncer), DB_DIRECT_HOST=host.docker.internal
+# DB_DIRECT_PORT=5432 (PostgreSQL: migrations, pg_dump), REDIS_HOST=host.docker.internal REDIS_PORT=6379,
+# REDIS_LRU_HOST=host.docker.internal REDIS_LRU_PORT=6380. The `infra` network is then not used for the database, but stays
+# (LF_INFRA_NETWORK, `coolify` by default) so that the same file serves both layouts.
+#
 # Service names carry the lf- prefix: every resource that joins the shared `coolify` network brings its names along,
 # and the other application has an `app` too. No `ports:` anywhere - the domain is assigned to lf-nginx in Coolify,
 # and Traefik terminates TLS.
@@ -35,6 +42,9 @@ x-app: &app
     dockerfile: Dockerfile
     target: app
   restart: unless-stopped
+  # The host itself (PostgreSQL / pgbouncer / Redis as systemd services); unused while they run in server-infra.
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
   networks:
     - lf-internal
     - infra
