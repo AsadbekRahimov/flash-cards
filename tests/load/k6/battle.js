@@ -13,9 +13,11 @@
 import { fail } from 'k6';
 import { sharedLearners, sharedTokenFileMeta } from './lib.js';
 import { battle, battlePair, rampStages, tokenProblem } from './flows.js';
+import { plannedRunSeconds } from './plan.js';
 
 const TARGET_PAIRS = parseInt(__ENV.TARGET_PAIRS || '100', 10);
 const HOLD = __ENV.HOLD || '10m';
+const STAGES = rampStages(TARGET_PAIRS, HOLD);
 const MODE = __ENV.BATTLE_MODE || 'collocation';
 
 const learners = sharedLearners('learners');
@@ -35,7 +37,7 @@ const thresholds = {
 
 export const options = {
   scenarios: {
-    battle: { executor: 'ramping-vus', startVUs: 0, stages: rampStages(TARGET_PAIRS, HOLD), gracefulRampDown: '120s' },
+    battle: { executor: 'ramping-vus', startVUs: 0, stages: STAGES, gracefulRampDown: '120s' },
   },
   thresholds,
   summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'],
@@ -46,7 +48,7 @@ export function setup() {
     fail('BATTLE_MODE must be pairs, collocation, sentence or dictation.');
   }
   const file = tokenFileMeta[0];
-  const problem = tokenProblem(learners, file, TARGET_PAIRS * 2);
+  const problem = tokenProblem(learners, file, TARGET_PAIRS * 2, plannedRunSeconds(STAGES, '120s'));
   if (problem) {
     fail(problem);
   }

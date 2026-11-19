@@ -369,30 +369,8 @@ export function battle(a, b, course, mode) {
 // Shared by the scenario files
 // ---------------------------------------------------------------------------------------------------------------------
 
-/** The stages of a run: 20 % -> 50 % -> 100 % of `target`, held for `hold`, then down. */
-export function rampStages(target, hold) {
-  return [
-    { duration: '2m', target: Math.max(1, Math.round(target * 0.2)) },
-    { duration: '3m', target: Math.max(1, Math.round(target * 0.5)) },
-    { duration: '3m', target },
-    { duration: hold, target },
-    { duration: '1m', target: 0 },
-  ];
-}
-
-/** The refusals every scenario checks before it starts (fail() in setup() stops the run with the message). */
-export function tokenProblem(learners, file, needed) {
-  if (learners.length < needed) {
-    return `The token file holds ${learners.length} learners, the scenario needs ${needed}: run \`make load-tokens TARGET_VUS=${needed}\`.`;
-  }
-  if (file.expires_at * 1000 < Date.now() + 30 * 60 * 1000) {
-    return 'The tokens expire in less than 30 minutes: issue new ones with `make load-tokens`.';
-  }
-  if (!file.course) {
-    return 'The token file has no course: publish a course, then run `make load-tokens` again.';
-  }
-  return null;
-}
+// rampStages() and tokenProblem() live in plan.js (no k6 import there, so Node can test them); re-exported for the scenario files.
+export { rampStages, tokenProblem } from './plan.js';
 
 /**
  * The pair `index` (0-based) of the battle pool: the learners `start + 2 * index` and `start + 2 * index + 1` of the token file -

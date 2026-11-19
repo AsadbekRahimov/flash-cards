@@ -17,10 +17,20 @@ import { check, fail } from 'k6';
 import { Trend } from 'k6/metrics';
 // `server_errors` and `rate_limited` (lib.js) are counted by get()/post() and checked in the thresholds below.
 import { BASE_URL, get, getBatch, post, ok, think, json, learnerFor, sharedLearners, sharedTokenFileMeta } from './lib.js';
+import { plannedRunSeconds, requiredTokenSeconds } from './plan.js';
 
 const TARGET_VUS = parseInt(__ENV.TARGET_VUS || '1250', 10);
 const HOLD = __ENV.HOLD || '10m';
 const CARDS_PER_SESSION = parseInt(__ENV.CARDS_PER_SESSION || '8', 10);
+const STAGES = [
+  { duration: '2m', target: Math.round(TARGET_VUS * 0.2) },
+  { duration: '3m', target: Math.round(TARGET_VUS * 0.5) },
+  { duration: '3m', target: TARGET_VUS },
+  { duration: HOLD, target: TARGET_VUS },
+  { duration: '1m', target: 0 },
+];
+// The tokens must live through the ramp, the hold, the ramp-down and a margin (plan.js; at least 30 minutes).
+const TOKEN_SECONDS = requiredTokenSeconds(plannedRunSeconds(STAGES, '30s'));
 
 const learners = sharedLearners('learners');
 const tokenFileMeta = sharedTokenFileMeta('token-file-meta');
@@ -48,13 +58,7 @@ export const options = {
     learners: {
       executor: 'ramping-vus',
       startVUs: 0,
-      stages: [
-        { duration: '2m', target: Math.round(TARGET_VUS * 0.2) },
-        { duration: '3m', target: Math.round(TARGET_VUS * 0.5) },
-        { duration: '3m', target: TARGET_VUS },
-        { duration: HOLD, target: TARGET_VUS },
-        { duration: '1m', target: 0 },
-      ],
+      stages: STAGES,
       gracefulRampDown: '30s',
     },
   },
@@ -71,8 +75,11 @@ export function setup() {
   if (!Number.isInteger(CARDS_PER_SESSION) || CARDS_PER_SESSION < 1) {
     fail('CARDS_PER_SESSION must be a positive integer.');
   }
-  if (file.expires_at * 1000 < Date.now() + 30 * 60 * 1000) {
-    fail('The tokens expire in less than 30 minutes: issue new ones with `load:tokens`.');
+  if (!Number.isFinite(TOKEN_SECONDS)) {
+    fail('HOLD is not a k6 duration (e.g. 10m, 1h, 1h30m).');
+  }
+  if (file.expires_at * 1000 < Date.now() + TOKEN_SECONDS * 1000) {
+    fail(`The tokens expire in less than ${Math.ceil(TOKEN_SECONDS / 60)} minutes (ramp, hold, ramp-down and a margin): issue new ones with \`make load-tokens\` (TOKENS_TTL for a long hold).`);
   }
   if (!file.course) {
     fail('The token file has no course: publish a course, then run `load:tokens` again.');

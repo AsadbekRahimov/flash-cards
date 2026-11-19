@@ -12,9 +12,11 @@
 import { fail } from 'k6';
 import { learnerFor, sharedLearners, sharedTokenFileMeta } from './lib.js';
 import { gameRun, rampStages, tokenProblem, unlockedStops } from './flows.js';
+import { plannedRunSeconds } from './plan.js';
 
 const TARGET_VUS = parseInt(__ENV.TARGET_VUS || '300', 10);
 const HOLD = __ENV.HOLD || '10m';
+const STAGES = rampStages(TARGET_VUS, HOLD);
 
 const learners = sharedLearners('learners');
 const tokenFileMeta = sharedTokenFileMeta('token-file-meta');
@@ -35,7 +37,7 @@ const thresholds = {
 
 export const options = {
   scenarios: {
-    caravan: { executor: 'ramping-vus', startVUs: 0, stages: rampStages(TARGET_VUS, HOLD), gracefulRampDown: '30s' },
+    caravan: { executor: 'ramping-vus', startVUs: 0, stages: STAGES, gracefulRampDown: '30s' },
   },
   thresholds,
   summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'],
@@ -43,7 +45,7 @@ export const options = {
 
 export function setup() {
   const file = tokenFileMeta[0];
-  const problem = tokenProblem(learners, file, TARGET_VUS);
+  const problem = tokenProblem(learners, file, TARGET_VUS, plannedRunSeconds(STAGES, '30s'));
   if (problem) {
     fail(problem);
   }
