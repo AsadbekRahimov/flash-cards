@@ -391,7 +391,9 @@ it('splits quiz-eligible learners by the sticky bucket of their id', function ()
         $log = NotificationLog::query()->where('learner_id', $learner->id)->sole();
 
         expect($sent->props['variant'])->toBe($expected)
+            ->and($sent->props['experiment'])->toBe('reminder-quiz-test')
             ->and($log->payload['variant'])->toBe($expected)
+            ->and($log->payload['experiment'])->toBe('reminder-quiz-test')
             ->and($log->payload['quiz'] !== null)->toBe($expected === 'quiz');
         $arms[$expected] = ($arms[$expected] ?? 0) + 1;
     }
@@ -413,8 +415,8 @@ it('never builds a question in the plain arm and sends the old text', function (
         ->and(Cache::has(ReminderQuizStore::key($learner->id)))->toBeFalse()
         ->and(ProductEvent::query()->where('name', ProductEventName::ReminderQuizSent->value)->count())->toBe(0)
         ->and(reminderQuizSorted(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->sole()->props))
-        ->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 5, 'variant' => 'plain']))
-        ->and(NotificationLog::query()->sole()->payload['variant'])->toBe('plain');
+        ->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 5, 'variant' => 'plain', 'experiment' => 'reminder-quiz-test']))
+        ->and(NotificationLog::query()->sole()->payload)->toMatchArray(['variant' => 'plain', 'experiment' => 'reminder-quiz-test']);
 });
 
 it('marks a built question of the quiz arm', function (): void {
@@ -425,8 +427,8 @@ it('marks a built question of the quiz arm', function (): void {
 
     expect($this->tg->sent[0]['markup'])->not->toBeNull()
         ->and(reminderQuizSorted(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->sole()->props))
-        ->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 3, 'quiz' => true, 'variant' => 'quiz', 'quiz_built' => true]))
-        ->and(NotificationLog::query()->sole()->payload['variant'])->toBe('quiz');
+        ->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 3, 'quiz' => true, 'variant' => 'quiz', 'experiment' => 'reminder-quiz-test', 'quiz_built' => true]))
+        ->and(NotificationLog::query()->sole()->payload)->toMatchArray(['variant' => 'quiz', 'experiment' => 'reminder-quiz-test']);
 });
 
 it('keeps a learner whose question could not be built in the quiz arm (intent to treat)', function (): void {
@@ -440,8 +442,8 @@ it('keeps a learner whose question could not be built in the quiz arm (intent to
     expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Sent)
         ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow')
         ->and(reminderQuizSorted(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->sole()->props))
-        ->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 3, 'variant' => 'quiz', 'quiz_built' => false]))
-        ->and(NotificationLog::query()->sole()->payload)->toMatchArray(['quiz' => null, 'variant' => 'quiz']);
+        ->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 3, 'variant' => 'quiz', 'experiment' => 'reminder-quiz-test', 'quiz_built' => false]))
+        ->and(NotificationLog::query()->sole()->payload)->toMatchArray(['quiz' => null, 'variant' => 'quiz', 'experiment' => 'reminder-quiz-test']);
 });
 
 it('keeps the arm of a learner from one send to the next', function (): void {
@@ -476,7 +478,8 @@ it('changes nothing while the experiment is off, not started, or the reminder ca
         ->and(reminderQuizSorted($props[0]))->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 3, 'quiz' => true]))
         ->and(reminderQuizSorted($props[1]))->toBe(reminderQuizSorted(['kind' => 'review', 'due_count' => 3, 'quiz' => true]))
         ->and(array_keys($props[2]))->not->toContain('variant')
-        ->and(NotificationLog::query()->get()->filter(fn (NotificationLog $log): bool => array_key_exists('variant', $log->payload)))->toHaveCount(0)
+        ->and(array_keys($props[2]))->not->toContain('experiment')
+        ->and(NotificationLog::query()->get()->filter(fn (NotificationLog $log): bool => array_key_exists('variant', $log->payload) || array_key_exists('experiment', $log->payload)))->toHaveCount(0)
         ->and($this->tg->sent[0]['markup'])->not->toBeNull()
         ->and($this->tg->sent[1]['markup'])->not->toBeNull();
 });
@@ -499,6 +502,6 @@ it('puts the arm on the failure of a blocked send', function (): void {
     $this->app->instance(TelegramClient::class, $telegram);
 
     expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Forbidden)
-        ->and(ProductEvent::query()->where('name', ProductEventName::ReminderFailed->value)->sole()->props['variant'])->toBe('plain')
+        ->and(ProductEvent::query()->where('name', ProductEventName::ReminderFailed->value)->sole()->props)->toMatchArray(['variant' => 'plain', 'experiment' => 'reminder-quiz-test'])
         ->and(ProductEvent::query()->where('name', ProductEventName::ReminderSent->value)->count())->toBe(0);
 });

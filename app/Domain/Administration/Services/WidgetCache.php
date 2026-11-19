@@ -37,7 +37,7 @@ final class WidgetCache
     public const VERSION = 'v1';
 
     /** A widget whose cached shape changed has its own version (the old keys just expire). */
-    public const WIDGET_VERSIONS = ['game_activity' => 'v2', 'retention' => 'v2'];
+    public const WIDGET_VERSIONS = ['game_activity' => 'v2', 'retention' => 'v2', 'billing_funnel' => 'v2'];
 
     /** The data version of the money widgets, on the non-evicting default store. */
     public const MONEY_VERSION_KEY = 'admin:widget:money:ver';

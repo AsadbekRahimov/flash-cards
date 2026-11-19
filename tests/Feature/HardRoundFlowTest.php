@@ -15,8 +15,10 @@ use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordRepetition;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\CardAnswers;
 use Tests\Support\HotPathFixtures as Fx;
@@ -415,6 +417,31 @@ it('tells on the finish one word failed in an earlier session and answered right
         ->and($finish['hard_round'])->toBe(['total' => 10, 'won' => 10])
         // Idempotent: a repeat of /finish tells the same word.
         ->and($this->withHeaders($h)->postJson($url)->assertOk()->json('corrected.word_id'))->toBe($word->id);
+});
+
+it('still finishes the round when the search for a corrected mistake fails: the summary without it, the failure reported', function (): void {
+    Exceptions::fake();
+    ['learner' => $learner, 'words' => $words, 'headers' => $h] = hardRoundFlowWorld();
+    hardRoundFlowEarlierMistake($learner, (int) $words[3]);
+    $opened = hardRoundFlowOpen($this, $h);
+    hardRoundFlowPlay($this, $h, $opened);
+    // The one statement of CorrectedMistakeFinder (its window column) breaks, after the session is closed and committed.
+    DB::listen(static function (QueryExecuted $query): void {
+        if (str_contains($query->sql, 'session_first_id')) {
+            throw new RuntimeException('corrected mistake lookup failed');
+        }
+    });
+    $url = "/api/twa/training/sessions/{$opened['session_id']}/finish";
+
+    $finish = $this->withHeaders($h)->postJson($url)->assertOk()->json();
+    $retry = $this->withHeaders($h)->postJson($url)->assertOk()->json();
+
+    expect($finish['corrected'])->toBeNull()
+        ->and($finish['hard_round'])->toBe(['total' => 10, 'won' => 10])
+        ->and($retry['corrected'])->toBeNull()
+        ->and($retry['hard_round'])->toBe(['total' => 10, 'won' => 10])
+        ->and(TrainingSession::query()->findOrFail($opened['session_id'])->status)->toBe('closed');
+    Exceptions::assertReported(fn (RuntimeException $e): bool => $e->getMessage() === 'corrected mistake lookup failed');
 });
 
 it('tells nothing when the earlier mistake was a self-grade, or the word failed first in the round', function (string $case): void {

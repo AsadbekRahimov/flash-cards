@@ -192,12 +192,15 @@ describe('FinishedView: the round of hard words', () => {
   })
 
   describe('the corrected mistake', () => {
-    const corrected = (answer: string | null = null) => ({ word_id: 7, word: 'borrow', translation: 'занимать', mistaken_at: '2026-11-13T07:30:00+00:00', answer })
+    const corrected = (answer: string | null = null, translation = 'занимать') => ({ word_id: 7, word: 'borrow', translation, mistaken_at: '2026-11-13T07:30:00+00:00', answer })
 
-    it('tells the word failed before and answered right today, under the note of the round', () => {
+    it('tells the word failed before, with its translation muted after it, and answered right today, under the note of the round', () => {
       const w = render('hard_round_complete', summary({ hard_round: { total: 10, won: 9 }, corrected: corrected() }), 'hard_review')
 
-      expect(w.get('[data-testid=hard-round-corrected]').text()).toBe('Раньше вы ошибались в слове «borrow» — сегодня ответили верно.')
+      expect(w.get('[data-testid=hard-round-corrected]').text()).toBe('Раньше вы ошибались в слове «borrow» (занимать) — сегодня ответили верно.')
+      const translation = w.get('[data-testid=hard-round-corrected-translation]')
+      expect(translation.text()).toBe('(занимать)')
+      expect(translation.classes()).toContain('text-tg-hint')
       expect(w.find('[data-testid=hard-round-corrected-answer]').exists()).toBe(false)
       expect(w.get('header').text()).toContain('Эти слова ещё вернутся — так и задумано')
     })
@@ -214,9 +217,19 @@ describe('FinishedView: the round of hard words', () => {
       setLocale('uz')
       const w = render('hard_round_complete', summary({ hard_round: { total: 10, won: 9 }, corrected: corrected('<b>x</b>') }), 'hard_review')
 
-      expect(w.get('[data-testid=hard-round-corrected]').text()).toContain("Avval «borrow» so'zida xato qilgan edingiz — bugun to'g'ri javob berdingiz.")
+      expect(w.get('[data-testid=hard-round-corrected-line]').text()).toBe("Avval «borrow» (занимать) so'zida xato qilgan edingiz — bugun to'g'ri javob berdingiz.")
       expect(w.get('[data-testid=hard-round-corrected-answer]').text()).toBe("O'shanda: <b>x</b>")
       expect(w.find('[data-testid=hard-round-corrected-answer] b').exists()).toBe(false)
+    })
+
+    it('leaves the translation out when there is none, the sentence unchanged', () => {
+      for (const translation of ['', '   ']) {
+        const w = render('hard_round_complete', summary({ hard_round: { total: 10, won: 9 }, corrected: corrected(null, translation) }), 'hard_review')
+
+        expect(w.get('[data-testid=hard-round-corrected-line]').text()).toBe('Раньше вы ошибались в слове «borrow» — сегодня ответили верно.')
+        expect(w.find('[data-testid=hard-round-corrected-translation]').exists()).toBe(false)
+        w.unmount()
+      }
     })
 
     it('renders nothing without it: null, absent (an older server), or another mode', () => {

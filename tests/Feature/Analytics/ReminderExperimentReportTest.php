@@ -23,7 +23,13 @@ uses(RefreshDatabase::class);
 
 const RX_NOW = '2026-11-30 12:00:00';
 
-beforeEach(fn () => $this->travelTo(CarbonImmutable::parse(RX_NOW, 'UTC')));
+/** The salt of the experiment under report (the configured one); `rx-old` is an earlier experiment. */
+const RX_EXPERIMENT = 'rx-current';
+
+beforeEach(function (): void {
+    $this->travelTo(CarbonImmutable::parse(RX_NOW, 'UTC'));
+    config(['learning.reminders.quiz.experiment.salt' => RX_EXPERIMENT, 'learning.reminders.quiz.experiment.starts_at' => null]);
+});
 
 /** @param array<string, mixed> $props */
 function rx_event(?Learner $learner, ProductEventName $name, string $atUtc, array $props = []): void
@@ -31,12 +37,13 @@ function rx_event(?Learner $learner, ProductEventName $name, string $atUtc, arra
     ProductEvent::query()->create(['name' => $name->value, 'learner_id' => $learner?->id, 'props' => $props, 'occurred_at' => $atUtc]);
 }
 
-function rx_sent(Learner $learner, string $atUtc, string $variant, ?bool $built = null): void
+function rx_sent(Learner $learner, string $atUtc, string $variant, ?bool $built = null, string $experiment = RX_EXPERIMENT): void
 {
     rx_event($learner, ProductEventName::ReminderSent, $atUtc, [
         'kind' => 'review',
         'due_count' => 3,
         'variant' => $variant,
+        'experiment' => $experiment,
         ...($built === true ? ['quiz' => true] : []),
         ...($built === null ? [] : ['quiz_built' => $built]),
     ]);
@@ -74,7 +81,7 @@ function rx_seed(): array
     rx_event($l['q2'], ProductEventName::RemindersDisabled, '2026-11-25 09:00:00', ['via' => 'settings']);
 
     $l['q3']->update(['dm_blocked_at' => '2026-11-21 08:59:59']); // set by the failed send itself: not "blocked after"
-    rx_event($l['q3'], ProductEventName::ReminderFailed, '2026-11-21 09:00:00', ['reason' => 'bot_blocked', 'kind' => 'review', 'variant' => 'quiz']);
+    rx_event($l['q3'], ProductEventName::ReminderFailed, '2026-11-21 09:00:00', ['reason' => 'bot_blocked', 'kind' => 'review', 'variant' => 'quiz', 'experiment' => RX_EXPERIMENT]);
 
     rx_sent($l['q4'], '2026-11-19 23:59:59', 'quiz', true);
     rx_sent($l['q4'], '2026-11-21 10:00:00', 'quiz', true);
@@ -84,7 +91,7 @@ function rx_seed(): array
     rx_sent($l['p1'], '2026-11-20 12:00:00', 'plain');
     rx_event($l['p1'], ProductEventName::TrainingSessionOpened, '2026-11-20 12:30:00', ['source' => 'reminder']);
     rx_review($l['p1'], '2026-11-20 13:00:00');
-    rx_event($l['p1'], ProductEventName::ReminderFailed, '2026-11-24 12:00:00', ['reason' => 'bot_blocked', 'kind' => 'review', 'variant' => 'plain']);
+    rx_event($l['p1'], ProductEventName::ReminderFailed, '2026-11-24 12:00:00', ['reason' => 'bot_blocked', 'kind' => 'review', 'variant' => 'plain', 'experiment' => RX_EXPERIMENT]);
 
     rx_sent($l['p2'], '2026-11-22 08:00:00', 'plain');
     rx_event($l['p2'], ProductEventName::TrainingSessionOpened, '2026-11-22 09:00:00', ['source' => 'self']);
@@ -98,18 +105,19 @@ function rx_seed(): array
     rx_review($l['p4'], '2026-11-23 01:00:00');
 
     // Events nobody is assigned by: no learner, no variant.
-    rx_event(null, ProductEventName::ReminderSent, '2026-11-21 10:00:00', ['variant' => 'quiz']);
+    rx_event(null, ProductEventName::ReminderSent, '2026-11-21 10:00:00', ['variant' => 'quiz', 'experiment' => RX_EXPERIMENT]);
 
     return $l;
 }
 
 /** @return array<string, mixed> */
-function rx_report(string $from = '2026-11-20 00:00:00', string $to = '2026-11-23 00:00:00', string $now = RX_NOW): array
+function rx_report(string $from = '2026-11-20 00:00:00', string $to = '2026-11-23 00:00:00', string $now = RX_NOW, ?string $experiment = null): array
 {
     return app(ReminderExperimentReport::class)->build(
         CarbonImmutable::parse($from, 'UTC'),
         CarbonImmutable::parse($to, 'UTC'),
         CarbonImmutable::parse($now, 'UTC'),
+        $experiment,
     );
 }
 
@@ -126,7 +134,8 @@ it('counts the first exposure of each learner per arm, over all assigned', funct
 
     $report = rx_report();
 
-    expect($report['from'])->toBe('2026-11-20 00:00:00')
+    expect($report['experiment'])->toBe(RX_EXPERIMENT)
+        ->and($report['from'])->toBe('2026-11-20 00:00:00')
         ->and($report['to'])->toBe('2026-11-23 00:00:00')
         ->and($report['immature_24h'])->toBe(0)
         ->and($report['immature_7d'])->toBe(0)
@@ -179,6 +188,97 @@ it('runs a constant number of queries for a chunk of learners', function (): voi
 
     // The cohort, then per chunk: answered, sessions, reviews, reminders off, 403s, dm_blocked_at.
     expect(count($queries))->toBe(7);
+});
+
+it('reads one experiment: an earlier one with another salt is another population, and an exposure without the salt is none', function (): void {
+    $old = Learner::factory()->create();   // only in the earlier experiment, inside the window
+    $both = Learner::factory()->create();  // the earlier experiment in October, this one inside the window
+    $legacy = Learner::factory()->create(); // an arm without the name of the experiment
+
+    rx_sent($old, '2026-11-21 10:00:00', 'quiz', true, 'rx-old');
+    rx_review($old, '2026-11-21 10:30:00');
+    rx_sent($both, '2026-10-05 10:00:00', 'plain', null, 'rx-old');
+    rx_sent($both, '2026-11-21 11:00:00', 'quiz', true);
+    rx_review($both, '2026-11-21 11:30:00');
+    rx_event($legacy, ProductEventName::ReminderSent, '2026-11-21 12:00:00', ['kind' => 'review', 'due_count' => 3, 'variant' => 'plain']);
+
+    $current = rx_report();
+    $earlier = rx_report(experiment: 'rx-old');
+
+    expect($current['experiment'])->toBe(RX_EXPERIMENT)
+        ->and($current['arms']['quiz']['assigned'])->toBe(1)
+        ->and($current['arms']['quiz']['metrics']['reviewed_24h'])->toBe(rx_share(1, 1))
+        ->and($current['arms']['plain']['assigned'])->toBe(0)
+        ->and($earlier['experiment'])->toBe('rx-old')
+        // `$both` was first exposed to the earlier experiment in October: not in its window of November.
+        ->and($earlier['arms']['quiz']['assigned'])->toBe(1)
+        ->and($earlier['arms']['plain']['assigned'])->toBe(0);
+});
+
+it('leaves out a learner first exposed long before the window, however far back', function (): void {
+    $veteran = Learner::factory()->create();
+    rx_sent($veteran, '2026-08-01 10:00:00', 'plain');
+    rx_sent($veteran, '2026-11-21 10:00:00', 'plain');
+    rx_review($veteran, '2026-11-21 10:30:00');
+
+    expect(rx_report()['arms']['plain']['assigned'])->toBe(0)
+        // The window that holds the first exposure has them.
+        ->and(rx_report('2026-08-01 00:00:00', '2026-08-02 00:00:00')['arms']['plain']['assigned'])->toBe(1);
+});
+
+it('looks back for earlier exposures no further than the starts_at of the configured experiment', function (): void {
+    // An exposure before `starts_at` cannot be of this experiment (it did not split yet): only a test writes one.
+    $learner = Learner::factory()->create();
+    rx_sent($learner, '2026-11-10 10:00:00', 'plain');
+    rx_sent($learner, '2026-11-21 10:00:00', 'plain');
+    $other = Learner::factory()->create();
+    rx_sent($other, '2026-11-10 10:00:00', 'plain', null, 'rx-old');
+    rx_sent($other, '2026-11-21 10:00:00', 'plain', null, 'rx-old');
+
+    expect(rx_report()['arms']['plain']['assigned'])->toBe(0);
+
+    config(['learning.reminders.quiz.experiment.starts_at' => '2026-11-15']);
+    $queries = QueryLog::during(fn () => expect(rx_report()['arms']['plain']['assigned'])->toBe(1));
+    // Another experiment than the configured one: its `starts_at` is unknown, the look back is unbounded.
+    expect(rx_report(experiment: 'rx-old')['arms']['plain']['assigned'])->toBe(0)
+        ->and($queries[0])->toContain('not exists');
+});
+
+it('runs one query per measure and chunk of learners, and sqlite takes a whole chunk', function (): void {
+    // 401 learners: two chunks of the OR chains (400 + 1).
+    $learners = Learner::factory()->count(401)->create();
+    $rows = [];
+    foreach ($learners as $i => $learner) {
+        $rows[] = [
+            'name' => ProductEventName::ReminderSent->value, 'learner_id' => $learner->id, 'occurred_at' => '2026-11-21 10:00:00',
+            'props' => json_encode(['kind' => 'review', 'variant' => $i % 2 === 0 ? 'quiz' : 'plain', 'experiment' => RX_EXPERIMENT]),
+        ];
+    }
+    ProductEvent::query()->insert($rows);
+
+    $report = null;
+    $queries = QueryLog::during(function () use (&$report): void {
+        $report = rx_report();
+    });
+
+    expect(count($queries))->toBe(1 + 2 * 6)
+        ->and($report['arms']['quiz']['assigned'] + $report['arms']['plain']['assigned'])->toBe(401);
+});
+
+it('prints the experiment it reads, by default the configured one', function (): void {
+    rx_seed();
+    $old = Learner::factory()->create();
+    rx_sent($old, '2026-11-21 10:00:00', 'plain', null, 'rx-old');
+
+    Artisan::call('analytics:reminder-experiment', ['--from' => '2026-11-20', '--to' => '2026-11-22']);
+    $current = Artisan::output();
+    Artisan::call('analytics:reminder-experiment', ['--from' => '2026-11-20', '--to' => '2026-11-22', '--experiment' => 'rx-old']);
+    $earlier = Artisan::output();
+
+    expect($current)->toContain('Experiment "'.RX_EXPERIMENT.'"')
+        ->and($current)->toMatch('/Assigned \(denominator\)\s*\|\s*3\s*\|\s*3\s*\|/')
+        ->and($earlier)->toContain('Experiment "rx-old"')
+        ->and($earlier)->toMatch('/Assigned \(denominator\)\s*\|\s*0\s*\|\s*1\s*\|/');
 });
 
 it('prints the shares with the interval and warns about windows not over yet', function (): void {

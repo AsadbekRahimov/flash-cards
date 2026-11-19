@@ -25,8 +25,10 @@ use LogicException;
  *    a learner who started with two providers once;
  *  - PAID (P): started learners with `payment.succeeded` of P, `kind = charge` (a renewal is not a decision to buy), in W at or after
  *    their first such start;
- *  - STUDIED: paid learners with `training.session_opened` within 7 days after their first such payment, (paid_at, paid_at + 7 d].
- *    `maturing`: paid learners whose 7 days are not over yet (they may still study): the step is final only for the others;
+ *  - MATURING: paid learners whose 7 days after their first such payment are not over yet (they may still study);
+ *  - STUDIED: MATURED paid learners (paid − maturing) with `training.session_opened` within 7 days after their first such payment,
+ *    (paid_at, paid_at + 7 d]. A maturing learner who studied already is not counted yet: the share studied / (paid − maturing) is
+ *    over learners whose 7 days are all known, so it does not move up as the young payments age;
  *  - OUTSIDE: starts and payments of W with no step before them (no recorded view before the start: the bot, an old client,
  *    a learner who bought before the event existed), per provider and the locale of the event itself;
  *  - PLACEMENTS: views of W by `placement` (learners and events);
@@ -35,7 +37,7 @@ use LogicException;
  *
  * Three statements, whatever the volume; the JSON props are read with fixed keys, every value is a binding. Works on PostgreSQL
  * (production) and sqlite (tests). The result is an array of scalars in the pure cache ({@see WidgetCache}, key
- * `admin:widget:billing_funnel:v1:all:d<days>`, fresh {@see CACHE_TTL} s, then served stale while it is recomputed).
+ * `admin:widget:billing_funnel:v2:all:d<days>`; v2: `studied` counts matured payers only, fresh {@see CACHE_TTL} s, then served stale while it is recomputed).
  *
  * @phpstan-type FunnelRow array{provider: string, locale: string, viewed: int, started: int, paid: int, studied: int, maturing: int}
  * @phpstan-type OutsideRow array{provider: string, locale: string, started: int, paid: int}
@@ -154,7 +156,7 @@ final class BillingFunnelService
                 GROUP BY c.learner_id, c.locale, c.provider
             ), chain_studied AS (
                 SELECT d.learner_id, d.locale, d.provider,
-                    CASE WHEN EXISTS (
+                    CASE WHEN d.paid_at <= ? AND EXISTS (
                         SELECT 1 FROM product_events o
                         WHERE o.name = ? AND o.learner_id = d.learner_id AND o.occurred_at > d.paid_at AND o.occurred_at <= {$studyEnd}
                     ) THEN 1 ELSE 0 END AS studied,
@@ -182,12 +184,15 @@ final class BillingFunnelService
             GROUP BY p.provider, p.locale
             SQL;
 
+        // A payment at or before this moment has its 7 days behind it.
+        $matured = self::db($now->subDays(self::STUDY_DAYS));
         $rows = $connection->select($sql, [
             ProductEventName::BillingOfferViewed->value, $from, $to,
             ProductEventName::CheckoutStarted->value, $from, $to,
             ProductEventName::PaymentSucceeded->value, $from, $to, Payment::KIND_CHARGE,
+            $matured,
             ProductEventName::TrainingSessionOpened->value, $pgsql ? self::STUDY_DAYS : '+'.self::STUDY_DAYS.' days',
-            self::db($now->subDays(self::STUDY_DAYS)),
+            $matured,
         ]);
 
         /** @var array<string, array<string, array{viewed: int, started: int, paid: int, studied: int, maturing: int}>> $cells provider => locale => figures */

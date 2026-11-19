@@ -57,6 +57,9 @@ const { opening, openError } = storeToRefs(training)
 
 useBackButton(null)
 
+/** This screen's own `/today` is on its way: it follows `assignments_possible` itself, the watch below stays out of it. */
+let ownLoad = false
+
 async function load(): Promise<void> {
   try {
     await auth.ensure()
@@ -69,7 +72,12 @@ async function load(): Promise<void> {
   // `/today` said so) asks them alongside Today; otherwise `/today.assignments_possible` decides first, so a self-study learner asks
   // no `/assignments` at all (docs/04 A.2a).
   const started = assignments.loadEarly()
-  await today.load()
+  ownLoad = true
+  try {
+    await today.load()
+  } finally {
+    ownLoad = false
+  }
   if (today.data !== null) assignments.followToday(today.data.assignments_possible, started)
 
   // Opened from a reminder (`/twa/?from=reminder`, docs/12 §7.5): go straight into the daily
@@ -202,9 +210,21 @@ const awaitingAssignments = computed(() => startCandidate.value && !noAssignment
 const showStart = computed(() => startCandidate.value && (noAssignments.value || (assignments.loaded && assignments.items.length === 0)))
 /**
  * The list of a group member failed (state 5 of the audit's first-open table): a short line with a retry, so a failure does not read as
- * an empty class; personal training stays as it is. Only for a member (`assignments_possible: true`), never for a self-study learner.
+ * an empty class; personal training stays as it is. Never for a self-study learner (`assignments_possible: false`, nothing is asked);
+ * for a member and with an older server that does not send the field alike - `failed` is only set by a list request that was made and failed.
  */
-const showAssignmentsError = computed(() => assignments.failed && data.value?.assignments_possible === true)
+const showAssignmentsError = computed(() => data.value !== null && data.value.assignments_possible !== false && assignments.failed)
+
+/**
+ * A `/today` asked elsewhere while this screen stays open (a payment, the paywall, a refused hard round) may change
+ * `assignments_possible` - a learner who has just joined a group, or left it: the list follows the new word. Synchronous, so it runs while
+ * `ownLoad` still tells this screen's own `/today` apart (that one is followed in `load()`); an unchanged value runs nothing, and a list
+ * request already on its way is not repeated.
+ */
+watch(() => data.value?.assignments_possible, (possible) => {
+  if (ownLoad || data.value === null) return
+  assignments.followToday(possible, assignments.loading)
+}, { flush: 'sync' })
 
 const needsCourseToStart = computed(() => data.value !== null &&
   data.value.active_course === null && data.value.due_count === 0 && data.value.open_session_id === null)

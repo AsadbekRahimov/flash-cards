@@ -28,6 +28,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use LogicException;
+use Throwable;
 
 /**
  * Opens and closes training sessions (docs/12 §1.4, §3.3, §7.6).
@@ -257,9 +258,15 @@ final class TrainingSessionService
         $summary = $this->close($session, $reason, $now, $learner);
 
         if ($withCorrected && $learner !== null && $summary->session->mode === TrainingSession::MODE_HARD_REVIEW) {
-            return $summary->withCorrected(
-                $this->corrections->find($summary->session, $this->locales->forTrainingSession($summary->session, $learner)),
-            );
+            // The session is closed and committed already: a failure of this extra line must not turn every retry of `/finish` into a 500.
+            try {
+                $corrected = $this->corrections->find($summary->session, $this->locales->forTrainingSession($summary->session, $learner));
+            } catch (Throwable $e) {
+                report($e);
+                $corrected = null;
+            }
+
+            return $summary->withCorrected($corrected);
         }
 
         return $summary;

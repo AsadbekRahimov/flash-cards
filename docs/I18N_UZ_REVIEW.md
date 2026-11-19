@@ -4121,11 +4121,12 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 
 ## Исправленная ошибка на итоге раунда трудных слов (19.11.2026) — на проверку носителю
 
-### TWA (`resources/twa/src/i18n/uz.ts`, ключи `finished.corrected.line`, `finished.corrected.answer`)
+### TWA (`resources/twa/src/i18n/uz.ts`, ключи `finished.corrected.lead`, `finished.corrected.tail`, `finished.corrected.answer`)
 
-На итоге раунда трудных слов, под строкой «Bu so'zlar yana qaytadi…», — одно слово, в котором ученик ошибся на одном из прошлых занятий и сегодня в раунде сразу ответил верно. Если тогда ученик вводил слово с клавиатуры, второй бледной строкой показан его тогдашний ответ. `{word}` — английское слово. Стиль кавычек «…» — как в `decks.edit.delete.confirm`. Прошу проверить «so'zida xato qilgan edingiz» и не лучше ли «O'shanda» заменить на «Avvalgi javob».
+На итоге раунда трудных слов, под строкой «Bu so'zlar yana qaytadi…», — одно слово, в котором ученик ошибся на одном из прошлых занятий и сегодня в раунде сразу ответил верно. Если тогда ученик вводил слово с клавиатуры, второй бледной строкой показан его тогдашний ответ. `{word}` — английское слово. Предложение собрано из двух ключей: `lead` + бледный перевод слова в скобках (только если он есть) + пробел + `tail`, например «Avval «borrow» (qarz olmoq) so'zida xato qilgan edingiz — bugun to'g'ri javob berdingiz.» / «Раньше вы ошибались в слове «borrow» (занимать) — сегодня ответили верно.» — перевод должен стоять сразу после слова, поэтому в uz `so'zida` ушло во второй ключ. Стиль кавычек «…» — как в `decks.edit.delete.confirm`. Прошу проверить «so'zida xato qilgan edingiz» и не лучше ли «O'shanda» заменить на «Avvalgi javob».
 
 | Ключ | uz | ru |
 |---|---|---|
-| `finished.corrected.line` | Avval «{word}» so'zida xato qilgan edingiz — bugun to'g'ri javob berdingiz. | Раньше вы ошибались в слове «{word}» — сегодня ответили верно. |
+| `finished.corrected.lead` | Avval «{word}» | Раньше вы ошибались в слове «{word}» (начало предложения; дальше — бледный перевод в скобках, если есть, и `tail`) |
+| `finished.corrected.tail` | so'zida xato qilgan edingiz — bugun to'g'ri javob berdingiz. | — сегодня ответили верно. |
 | `finished.corrected.answer` | O'shanda: {answer} | Тогда: {answer} (бледная строка под предыдущей: что ученик ввёл тогда, например «Тогда: borow») |

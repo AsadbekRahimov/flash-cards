@@ -8,6 +8,7 @@ import { ApiClientError } from '@/api/client'
 import { ICONS } from '@/components/ui/icons'
 import { setLocale } from '@/i18n'
 import { resetSeenSession } from '@/composables/seenFlag'
+import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { ASSIGNMENTS_POSSIBLE_KEY } from '@/stores/assignments'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
@@ -954,13 +955,21 @@ describe('TodayView', () => {
     describe('"Pro ended" (2A.6)', () => {
       beforeEach(() => window.localStorage.clear())
 
-      it('uses the Today payload for the lapse banner without a profile request', async () => {
+      it('decides the lapse banner by the Today payload; /me is asked once in the background only to report the offer', async () => {
         const initial = today()
+        let answer: (value: MeResponse) => void = () => {}
+        vi.mocked(api.me.get).mockReturnValue(new Promise<MeResponse>((resolve) => (answer = resolve)))
         const w = await render(today({ entitlement: { ...initial.entitlement, lapsed: lapsedMe(true).entitlement.lapsed } }))
 
+        // Shown before /me has answered: the banner does not wait for it.
         expect(text(w, 'lapsed-title')).toBe('Pro закончился')
-        expect(api.me.get).not.toHaveBeenCalled()
+        expect(api.me.get).toHaveBeenCalledTimes(1)
+        answer(lapsedMe(true))
+        await flushPromises()
+        w.unmount()
 
+        setActivePinia(createPinia())
+        vi.mocked(api.me.get).mockClear()
         await render(today({ entitlement: { ...initial.entitlement, lapsed: null } }))
         expect(api.me.get).not.toHaveBeenCalled()
       })
@@ -1277,12 +1286,64 @@ describe('TodayView', () => {
         expect(w.find('[data-testid=assignments-error]').exists()).toBe(true)
       })
 
-      it('says nothing about a failed list to a learner who is not known to be in a group (an older server)', async () => {
+      it('tells about a failed list with an older server too (no field): the list was asked and failed', async () => {
         vi.mocked(api.assignments.list).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'boom'))
 
         const w = await render()
 
-        expect(w.find('[data-testid=assignments-error]').exists()).toBe(false)
+        expect(api.assignments.list).toHaveBeenCalledTimes(1)
+        expect(text(w, 'assignments-error')).toContain('Не удалось загрузить задания центра.')
+      })
+
+      it('says nothing about a list that was never asked (self-study learner), nor about one that loaded', async () => {
+        vi.mocked(api.assignments.list).mockRejectedValue(new ApiClientError('server', 500, 'server_error', 'boom'))
+        const self = await render(today({ assignments_possible: false }))
+        expect(api.assignments.list).not.toHaveBeenCalled()
+        expect(self.find('[data-testid=assignments-error]').exists()).toBe(false)
+        self.unmount()
+
+        vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [] })
+        const member = await render(today({ assignments_possible: true }))
+        expect(member.find('[data-testid=assignments-error]').exists()).toBe(false)
+      })
+
+      it('follows a /today asked elsewhere while Home stays open: joined a group - the list once; the same word again - nothing', async () => {
+        vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [assignment()] })
+        const w = await render(today({ assignments_possible: false }))
+        expect(api.assignments.list).not.toHaveBeenCalled()
+
+        // e.g. the paywall refreshes Today after a payment; the learner has joined a group meanwhile.
+        vi.mocked(api.today.get).mockResolvedValue(today({ assignments_possible: true }))
+        await useTodayStore().load()
+        await flushPromises()
+
+        expect(api.assignments.list).toHaveBeenCalledTimes(1)
+        expect(w.get('[data-testid=assignment-title]').text()).toBe('Food')
+        expect(window.localStorage.getItem(ASSIGNMENTS_POSSIBLE_KEY)).toBe('1')
+
+        await useTodayStore().load()
+        await flushPromises()
+        expect(api.assignments.list).toHaveBeenCalledTimes(1)
+
+        // Left the group: the list is settled as empty without a request.
+        vi.mocked(api.today.get).mockResolvedValue(today({ assignments_possible: false }))
+        await useTodayStore().load()
+        await flushPromises()
+        expect(api.assignments.list).toHaveBeenCalledTimes(1)
+        expect(w.find('[data-testid=assignments-card]').exists()).toBe(false)
+        expect(window.localStorage.getItem(ASSIGNMENTS_POSSIBLE_KEY)).toBe('0')
+      })
+
+      it('asks the list once on its own open, the watch adding nothing', async () => {
+        const w = await render(today({ assignments_possible: true }))
+
+        expect(api.today.get).toHaveBeenCalledTimes(1)
+        expect(api.assignments.list).toHaveBeenCalledTimes(1)
+        w.unmount()
+
+        // Back to Home: the store still holds the old Today with the same word; this open follows it once more, as before.
+        await render(today({ assignments_possible: true }))
+        expect(api.assignments.list).toHaveBeenCalledTimes(2)
       })
 
       it('says the failure in Uzbek', async () => {

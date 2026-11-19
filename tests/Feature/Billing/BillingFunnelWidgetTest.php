@@ -78,6 +78,37 @@ it('shows each step with its numerator and denominator, the placements and the o
         ->assertDontSeeHtml('wire:poll');
 });
 
+it('shows the share studied over the payers whose 7 days are over, with the maturing ones beside it', function (): void {
+    widgetFunnel(4); // i = 0 paid ten days ago and studied: matured
+    // Paid yesterday and studied already: maturing, not in the share yet.
+    $young = Learner::factory()->create(['interface_locale' => 'ru']);
+    $at = CarbonImmutable::now()->subDay();
+    foreach ([
+        [ProductEventName::BillingOfferViewed, 0, ['placement' => 'paywall_quota', 'locale' => 'ru']],
+        [ProductEventName::CheckoutStarted, 1, ['provider' => 'telegram_stars', 'locale' => 'ru']],
+        [ProductEventName::PaymentSucceeded, 2, ['provider' => 'telegram_stars', 'locale' => 'ru', 'kind' => 'charge']],
+        [ProductEventName::TrainingSessionOpened, 60, ['mode' => 'daily_review']],
+    ] as [$name, $minutes, $props]) {
+        ProductEvent::query()->create(['name' => $name->value, 'learner_id' => $young->id, 'props' => $props, 'occurred_at' => $at->addMinutes($minutes)]);
+    }
+
+    // All providers: viewed 5, started 3, paid 2 (one maturing), studied 1 of the 1 matured; lost before the checkout 2, during 1.
+    Livewire::test(BillingFunnelWidget::class)
+        ->assertOk()
+        ->assertSeeInOrder(['Все провайдеры', 'Все языки', '5', '3 / 5 · 60 %', '2 / 3 · 66,7 %', '1 / 1 · 100 %', 'ещё идут 7 дней: 1', '2', '1'])
+        ->assertDontSee('1 / 2 · 50 %');
+});
+
+it('shows the loss before the checkout on the rows over all providers only', function (): void {
+    widgetFunnel(4);
+
+    $html = Livewire::test(BillingFunnelWidget::class)->assertOk()->html();
+
+    // A provider row: viewed, started, paid, studied, a dash for "lost before", then "lost during".
+    expect($html)->toMatch('/data-row="telegram_stars:all".*?<td class="lm-num">\s*—\s*<\/td>\s*<td class="lm-num">1<\/td>/s')
+        ->and($html)->toMatch('/data-row="all:all".*?<td class="lm-num">2<\/td>\s*<td class="lm-num">1<\/td>/s');
+});
+
 it('says so when there is nothing yet', function (): void {
     Livewire::test(BillingFunnelWidget::class)
         ->assertOk()

@@ -14,13 +14,16 @@ use Throwable;
  * `analytics:reminder-experiment` — the question vs the plain text in the reminder, per arm
  * ({@see ReminderExperimentReport}; docs/ADMIN_GUIDE.md "Эксперимент с напоминанием-вопросом"). Read-only, not scheduled.
  * `--from` defaults to `learning.reminders.quiz.experiment.starts_at`, `--to` to now; a bare date of `--to` includes that day.
+ * `--experiment` (the salt the exposures carry as `experiment`) defaults to `learning.reminders.quiz.experiment.salt`: an earlier
+ * experiment can still be read by its salt.
  */
 final class ReminderExperimentReportCommand extends Command
 {
     /** @var string */
     protected $signature = 'analytics:reminder-experiment
         {--from= : First exposures from this UTC date / instant (default: the experiment\'s starts_at)}
-        {--to= : … until this UTC date (inclusive) / instant (exclusive); default: now}';
+        {--to= : … until this UTC date (inclusive) / instant (exclusive); default: now}
+        {--experiment= : The salt of the experiment to report on (default: learning.reminders.quiz.experiment.salt)}';
 
     /** @var string */
     protected $description = 'Report of the reminder experiment (quiz vs plain): shares with Wilson 95 % intervals per arm.';
@@ -59,9 +62,12 @@ final class ReminderExperimentReportCommand extends Command
             return self::INVALID;
         }
 
-        $result = $report->build($from, $to, $now);
+        $experiment = $this->option('experiment');
+        $experiment = is_string($experiment) && trim($experiment) !== '' ? trim($experiment) : ReminderExperiment::salt();
 
-        $this->line("First exposures in [{$result['from']}, {$result['to']}) UTC; every share is over ALL assigned learners of the arm.");
+        $result = $report->build($from, $to, $now, $experiment);
+
+        $this->line("Experiment \"{$result['experiment']}\": learners whose first exposure of it is in [{$result['from']}, {$result['to']}) UTC; every share is over ALL assigned learners of the arm.");
         $rows = [['Assigned (denominator)', ...array_map(static fn (array $arm): string => (string) $arm['assigned'], $result['arms'])]];
         foreach (ReminderExperimentReport::METRICS as $metric) {
             $cells = [];

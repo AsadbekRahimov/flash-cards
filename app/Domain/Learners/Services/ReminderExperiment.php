@@ -29,7 +29,7 @@ final class ReminderExperiment
             return null;
         }
 
-        return ExperimentBucket::in($this->salt(), $learner->id, $this->share())
+        return ExperimentBucket::in(self::salt(), $learner->id, $this->share())
             ? ReminderVariant::Quiz
             : ReminderVariant::Plain;
     }
@@ -76,7 +76,11 @@ final class ReminderExperiment
         return min(100, max(0, (int) config('learning.reminders.quiz.experiment.share', 50)));
     }
 
-    private function salt(): string
+    /**
+     * The name of the experiment: its `salt`. It goes to the events and the log row next to the arm (`experiment`), so the report
+     * tells this experiment's learners from those of an earlier one (a new salt reshuffles everybody: a new experiment).
+     */
+    public static function salt(): string
     {
         return (string) config('learning.reminders.quiz.experiment.salt', 'reminder-quiz-2026-11');
     }

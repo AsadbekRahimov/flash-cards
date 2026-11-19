@@ -59,7 +59,7 @@
 | `Filament/Widgets/SchedulerComparisonWidget` + `WidgetCache` (F7-1) | `admin:widget:scheduler_comparison:v1:all` | свежий 300 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджета `/admin`; прежний `admin:scheduler-comparison:v1` истекает сам |
 | `Learning/Services/TrainingFlowService` | `paywall_shown:{learner}:{окно}` | окно квоты | **маркер** (событие раз в окно) |
 | `Billing/Services/OfferViewTracker` (docs/13 §5.1) | `billing:offer_viewed:v1:{learner}:{placement}:{Y-m-d}` — локальный день ученика | 48 ч | **маркер** (`billing.offer_viewed` раз в день на место, `Cache::add`) |
-| `Billing/Services/BillingFunnelService` + `WidgetCache` (docs/13 §5.1) | `admin:widget:billing_funnel:v1:all:d30` — массив скаляров воронки Pro | свежий 600 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджета `/admin`; без сброса при записи (аналитика, не деньги): устаревание ≤ 10 мин |
+| `Billing/Services/BillingFunnelService` + `WidgetCache` (docs/13 §5.1) | `admin:widget:billing_funnel:v2:all:d30` — массив скаляров воронки Pro | свежий 600 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджета `/admin`; без сброса при записи (аналитика, не деньги): устаревание ≤ 10 мин |
 | `Learners/Services/ReminderSender`, `Jobs/PostLeaderboardJob` | `Cache::lock(...)` | — | **блокировка** |
 | `Learners/Services/ReminderQuizStore` (вопрос в напоминании бота, docs/12 §7.5) | `reminders:quiz:v1:{ученик}` — состояние последнего вопроса: массив скаляров `{token, word_id, exercise, word, answer, options, correct, kind, due_count, sent_at, expires_at, answered_at, picked}`; верный вариант хранится только здесь, в `callback_data` его нет; блокировка ответа `reminders:quiz:answer:{ученик}` (10 с, block 5) | `REMINDERS_QUIZ_TTL_HOURS` (26 ч) | **состояние / защита**, не кэш: невытесняемое хранилище (`Cache::` по умолчанию); пересоздаётся каждым новым напоминанием, при потере нажатия отвечают «устарело» и ведут в приложение |
 | `Organizations/Services/OrgBillingService` | маркеры запроса счёта | 10 мин, сутки | **защита от злоупотреблений** |
@@ -125,7 +125,7 @@
 | `SchedulerComparisonWidget` — `admin:widget:scheduler_comparison:v1:all` (F7-1) | `lru` |
 | `TrainingFlowService` `paywall_shown:*`, `PracticeAudioService` `practice:audio-missing:*` — маркеры | `redis` |
 | `OfferViewTracker` `billing:offer_viewed:*` — маркеры | `redis` |
-| `BillingFunnelService` — `admin:widget:billing_funnel:v1:*` | `lru` |
+| `BillingFunnelService` — `admin:widget:billing_funnel:v2:*` | `lru` |
 | `ReminderSender`, `PostLeaderboardJob`, `RenewalReminderSender`, `TelegramMessageRateLimiter` — блокировки `Cache::lock` | `redis` (`locks`) |
 | `OrgBillingService`, `RenewalReminderSender`, `QueueRenewalReminder` — маркеры и счётчики | `redis` |
 | `TwoFactorAttemptService` — счётчики попыток (`RateLimiter`) и `2fa:step:*` | `redis` |

@@ -409,7 +409,9 @@ export const ru = {
     many: 'Разобрать {count} трудных слов',
     other: 'Разобрать {count} трудных слова',
   },
-  'finished.corrected.line': 'Раньше вы ошибались в слове «{word}» — сегодня ответили верно.',
+  // One sentence in two keys: the muted translation «(занимать)» goes between them, after the word.
+  'finished.corrected.lead': 'Раньше вы ошибались в слове «{word}»',
+  'finished.corrected.tail': '— сегодня ответили верно.',
   'finished.corrected.answer': 'Тогда: {answer}',
 
   // ---- promo code ----

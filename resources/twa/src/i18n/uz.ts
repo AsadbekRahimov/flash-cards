@@ -373,7 +373,8 @@ export const uz: Translations = {
     one: "{count} ta qiyin so'zni tahlil qilish",
     other: "{count} ta qiyin so'zni tahlil qilish",
   },
-  'finished.corrected.line': "Avval «{word}» so'zida xato qilgan edingiz — bugun to'g'ri javob berdingiz.",
+  'finished.corrected.lead': 'Avval «{word}»',
+  'finished.corrected.tail': "so'zida xato qilgan edingiz — bugun to'g'ri javob berdingiz.",
   'finished.corrected.answer': "O'shanda: {answer}",
 
   // ---- promo code ----

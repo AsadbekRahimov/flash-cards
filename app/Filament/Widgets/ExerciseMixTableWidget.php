@@ -26,7 +26,8 @@ class ExerciseMixTableWidget extends TableWidget
         return self::isActiveAdmin();
     }
 
-    protected static ?int $sort = 9;
+    /** The last of the dashboard: after the money widgets (9-10) and the activation of the centers (11). */
+    protected static ?int $sort = 12;
 
     protected int|string|array $columnSpan = 'full';
 

@@ -682,9 +682,14 @@ Admin only, on the dashboard under the money widgets. Definitions: docs/13 §5.1
   the first view of the period.
 - **Начал оплату** — after that view started a checkout with the provider of the row («Все провайдеры» counts a learner once).
 - **Оплатил** — the first payment after the start (renewals are not counted).
-- **Учился 7 дней** — opened a training session within 7 days after the payment. «ещё идут 7 дней: N» — paid recently, may still study.
-- Every step cell reads «n / of · %»: the learners of the step out of the learners of the step before.
-- **Потеряны до оплаты** (viewed, never started) and **Потеряны при оплате** (started, did not pay): if the losses are before the
+- **Учился 7 дней** — opened a training session within 7 days after the payment, counted only among the payers whose 7 days are
+  already over: the cell reads «studied / (paid − still maturing)». «ещё идут 7 дней: N» — paid less than 7 days ago; they are in
+  neither number of the share yet (even if they studied already) and enter it once their 7 days end.
+- Every step cell reads «n / of · %»: the learners of the step out of the learners of the step before (for «Учился 7 дней» — out
+  of the matured payers, see above).
+- **Потеряны до оплаты** (viewed, never started with any provider) — on the «Все провайдеры» rows only; a provider row shows a dash
+  there, because a learner who started with another provider is not lost. **Потеряны при оплате** (started with the provider of
+  the row, did not pay with it): if the losses are before the
   checkout, look at how the value of Pro is explained (the places table shows where the offer was seen); if they are between the
   start and the payment, look first at the **Заказы учеников** table — expired / canceled / failed orders with their reasons.
 - **Вне воронки** — starts and payments with no offer view before them (the bot, an old app, purchases made before the event existed).
@@ -920,8 +925,11 @@ same for both. Turning it off (`false`) brings back the question for everybody. 
 the salt meanwhile (a new salt reshuffles everybody).
 
 **Read it:** `php artisan analytics:reminder-experiment --from=2026-11-24 --to=2026-12-07` (`--from` defaults to
-`STARTS_AT`; a bare `--to` date includes that day). A learner counts once, at their FIRST reminder of the experiment in the
-window, in their arm. Every share is over **all assigned** learners of the arm (never over those who answered): delivered,
+`STARTS_AT`; a bare `--to` date includes that day; `--experiment=<salt>` reads another experiment, default: the configured
+salt). Every reminder of the experiment carries its salt (`experiment` next to `variant` in the events and the log row). The
+report takes the learners whose **first reminder of this experiment** (sent, or failed with a block) falls in the window — a
+learner first reminded before `--from` is not in it, however often reminded inside it; a learner of an earlier experiment
+(another salt) counts again in the new one. Each counts once, at that first reminder, in their arm. Every share is over **all assigned** learners of the arm (never over those who answered): delivered,
 question built (quiz arm), answered in the chat within 24 h (quiz arm; the plain text has no question), opened a session from
 the reminder within 24 h, **the primary one — at least one review within 24 h after the reminder**, and the guardrail —
 turned reminders off / blocked the bot within 7 days. Each line shows `numerator/denominator percent [Wilson 95 % interval]`;

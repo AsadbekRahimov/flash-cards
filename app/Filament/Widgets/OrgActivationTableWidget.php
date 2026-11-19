@@ -35,7 +35,8 @@ class OrgActivationTableWidget extends TableWidget
         return self::isActiveAdmin();
     }
 
-    protected static ?int $sort = 9;
+    /** After the money widgets (Revenue 9, Webhook errors and the Pro funnel 10), so they stay together; distinct from ExerciseMix (12). */
+    protected static ?int $sort = 11;
 
     protected int|string|array $columnSpan = 'full';
 

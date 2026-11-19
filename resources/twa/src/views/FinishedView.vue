@@ -114,11 +114,13 @@ const hardNote = computed((): string | null => {
   return t(hardWon.value >= hardTotal.value ? 'finished.hard_round.all' : 'finished.hard_round.later')
 })
 /**
- * One mistake of an earlier session corrected in the round (`corrected` of the summary, docs/06 §14): "Earlier you got «X» wrong - today
- * you answered it right", and under it, muted, what was typed then when the server sends it. Nothing at all without it: the summary of the
+ * One mistake of an earlier session corrected in the round (`corrected` of the summary, docs/06 §14): "Earlier you got «X» (its
+ * translation, muted) wrong - today you answered it right", and under it, muted, what was typed then when the server sends it. Nothing at all without it: the summary of the
  * round is in hand before this screen opens (`finalize` at the last card), so the line never pops in.
  */
 const corrected = computed(() => (isHardRound.value ? (summary.value?.corrected ?? null) : null))
+/** The translation of the word in the learner's language, muted after the word; nothing when the server has none. */
+const correctedTranslation = computed(() => (corrected.value?.translation ?? '').trim())
 
 /**
  * The title follows how the session went: by the share of right answers, and a long run of right answers lifts it to the top
@@ -416,7 +418,8 @@ onBeforeUnmount(() => {
         <p v-if="hardNote" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="hard-round-note">{{ hardNote }}</p>
         <p v-else-if="reasonLabel" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="reason">{{ reasonLabel }}</p>
         <div v-if="corrected" class="mt-2" data-testid="hard-round-corrected">
-          <p class="text-[15px] leading-5 break-words">{{ t('finished.corrected.line', { word: corrected.word }) }}</p>
+          <!-- The sentence in two keys around the word, so the translation can follow the word as a muted suffix (Uzbek puts more after it). -->
+          <p class="text-[15px] leading-5 break-words" data-testid="hard-round-corrected-line">{{ t('finished.corrected.lead', { word: corrected.word }) }}<span v-if="correctedTranslation" class="text-tg-hint" data-testid="hard-round-corrected-translation"> ({{ correctedTranslation }})</span> {{ t('finished.corrected.tail') }}</p>
           <p v-if="corrected.answer" class="mt-0.5 text-[13px] leading-[18px] text-tg-hint break-words" data-testid="hard-round-corrected-answer">
             {{ t('finished.corrected.answer', { answer: corrected.answer }) }}
           </p>

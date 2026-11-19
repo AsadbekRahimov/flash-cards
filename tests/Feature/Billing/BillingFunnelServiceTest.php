@@ -115,8 +115,9 @@ it('counts each step among the learners of the step before, by provider and loca
     expect($report['days'])->toBe(30)
         ->and(funnelCells($report))->toBe([
             // Every provider: viewed A, C, F, G, H (ru), B, D (uz), J (unknown); started A, C, F, H / B; paid A, F, H / B.
-            'all:all' => $cell(8, 5, 4, 2, 2),
-            'all:ru' => $cell(5, 4, 3, 2, 2),
+            // Studied among the matured payers only (A, B): A; F studied too, but its 7 days are still running.
+            'all:all' => $cell(8, 5, 4, 1, 2),
+            'all:ru' => $cell(5, 4, 3, 1, 2),
             'all:unknown' => $cell(1, 0, 0, 0, 0),
             'all:uz' => $cell(2, 1, 1, 0, 0),
             // Payme: C and H started, H paid three days ago (maturing, no session).
@@ -124,9 +125,9 @@ it('counts each step among the learners of the step before, by provider and loca
             'payme:ru' => $cell(5, 2, 1, 0, 1),
             'payme:unknown' => $cell(1, 0, 0, 0, 0),
             'payme:uz' => $cell(2, 0, 0, 0, 0),
-            // Stars: A, F, H started (ru), B (uz); A and F paid and studied, F still maturing; B studied on day 8 - not counted.
-            'telegram_stars:all' => $cell(8, 4, 3, 2, 1),
-            'telegram_stars:ru' => $cell(5, 3, 2, 2, 1),
+            // Stars: A, F, H started (ru), B (uz); A and F paid and studied, F still maturing (not counted yet); B studied on day 8 - not counted.
+            'telegram_stars:all' => $cell(8, 4, 3, 1, 1),
+            'telegram_stars:ru' => $cell(5, 3, 2, 1, 1),
             'telegram_stars:unknown' => $cell(1, 0, 0, 0, 0),
             'telegram_stars:uz' => $cell(2, 1, 1, 0, 0),
         ])
@@ -159,6 +160,20 @@ it('counts a session on day 7 after the payment, not one on day 8', function (in
     'exactly 7 days after' => [7 * 1440, 1],
     'a minute past 7 days' => [7 * 1440 + 1, 0],
     'on day 8' => [8 * 1440, 0],
+]);
+
+it('counts as studied only a payer whose 7 days are over: a young payment is maturing, studied or not', function (int $daysAgo, int $studied, int $maturing): void {
+    $paid = $this->now->subDays($daysAgo);
+    funnelLearner('ru', $paid->subHour(), [['telegram_stars', $paid->subMinutes(30), 'ru']], [['telegram_stars', $paid, 'ru', 'charge']], [$paid->addHour()]);
+
+    $cells = funnelCells(app(BillingFunnelService::class)->compute($this->now));
+
+    expect($cells['telegram_stars:ru'])->toMatchArray(['paid' => 1, 'studied' => $studied, 'maturing' => $maturing])
+        ->and($cells['all:all'])->toMatchArray(['paid' => 1, 'studied' => $studied, 'maturing' => $maturing]);
+})->with([
+    'paid 6 days ago' => [6, 0, 1],
+    'paid exactly 7 days ago' => [7, 1, 0],
+    'paid 8 days ago' => [8, 1, 0],
 ]);
 
 it('reads what became of the learner orders of the window, with the reasons', function (): void {
@@ -197,8 +212,9 @@ it('takes the window from its argument: a shorter one leaves the older steps out
 
     $cells = funnelCells(app(BillingFunnelService::class)->compute($this->now, 7));
 
-    // In 7 days: viewed C, F, G, H (ru), D (uz), J; A's views are 10 and 8 days old, B's 20.
-    expect($cells['all:all'])->toBe(['viewed' => 6, 'started' => 3, 'paid' => 2, 'studied' => 1, 'maturing' => 2]);
+    // In 7 days: viewed C, F, G, H (ru), D (uz), J; A's views are 10 and 8 days old, B's 20. Both payers (F, H) are maturing: nobody
+    // is counted as studied yet, though F has.
+    expect($cells['all:all'])->toBe(['viewed' => 6, 'started' => 3, 'paid' => 2, 'studied' => 0, 'maturing' => 2]);
 });
 
 it('answers an empty platform with one row of zeros', function (): void {
@@ -234,7 +250,7 @@ it('keeps the report in the pure cache as an array of scalars, under a versioned
     $key = WidgetCache::key(BillingFunnelService::CACHE_WIDGET, 'all', 'd30');
 
     expect($warm)->toBe([])
-        ->and($key)->toBe('admin:widget:billing_funnel:v1:all:d30')
+        ->and($key)->toBe('admin:widget:billing_funnel:v2:all:d30')
         ->and(PureCache::store()->get($key))->toBe($first);
 
     // A new learner pays: the cached figures stay until the TTL or a forget; then the next read sees it.

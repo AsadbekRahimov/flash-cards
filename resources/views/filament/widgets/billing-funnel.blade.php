@@ -55,12 +55,14 @@
                                 <td class="lm-num lm-nowrap">{{ $step($row['started'], $row['viewed']) }}</td>
                                 <td class="lm-num lm-nowrap">{{ $step($row['paid'], $row['started']) }}</td>
                                 <td class="lm-num lm-nowrap">
-                                    {{ $step($row['studied'], $row['paid']) }}
+                                    {{-- Among the payers whose 7 days are over: the maturing ones are not in the share yet (the note says how many). --}}
+                                    {{ $step($row['studied'], max(0, $row['paid'] - $row['maturing'])) }}
                                     @if ($row['maturing'] > 0)
                                         <div class="lm-muted">{{ __('admin.widgets.billing_funnel.maturing', ['count' => $row['maturing']]) }}</div>
                                     @endif
                                 </td>
-                                <td class="lm-num">{{ max(0, $row['viewed'] - $row['started']) }}</td>
+                                {{-- A provider's row would count those who started with another provider as lost: the loss is over all providers only. --}}
+                                <td class="lm-num">{{ $row['provider'] === $all ? max(0, $row['viewed'] - $row['started']) : '—' }}</td>
                                 <td class="lm-num">{{ max(0, $row['started'] - $row['paid']) }}</td>
                             </tr>
                         @endforeach

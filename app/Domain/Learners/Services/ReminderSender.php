@@ -44,7 +44,8 @@ use Throwable;
  *     While the experiment of {@see ReminderExperiment} runs, a quiz-eligible reminder gets the learner's sticky arm first:
  *     the `plain` arm never builds a question; the `quiz` arm tries as always (intent to treat: a learner whose question
  *     could not be built stays in the quiz arm, with `quiz_built = false`). The arm goes to `reminder.sent` /
- *     `reminder.failed` and to the log row as `variant`; without the experiment none of them changes.
+ *     `reminder.failed` and to the log row as `variant`, next to `experiment` (the configured salt, the name of the
+ *     experiment); without the experiment none of them changes.
  *
  * At most once: the `notifications_log` row is written BEFORE the Telegram call, inside
  * the same lock. A timeout or 5xx may mean "delivered anyway", so on such an error the
@@ -108,8 +109,8 @@ final class ReminderSender
             $locale = $this->locales->forLearner($learner);
             $variant = $this->experiment->variantFor($learner, $content, $now);
             $quiz = $variant === ReminderVariant::Plain ? null : $this->quizFor($learner, $content, $locale, $now);
-            // The arm only while the experiment runs: the props and the payload of the other reminders stay what they were.
-            $arm = $variant === null ? [] : ['variant' => $variant->value];
+            // The arm and the experiment (its salt) only while it runs: the props and the payload of the other reminders stay what they were.
+            $arm = $variant === null ? [] : ['variant' => $variant->value, 'experiment' => ReminderExperiment::salt()];
 
             // Before the call, not after: see the class comment.
             $log = NotificationLog::query()->create([
