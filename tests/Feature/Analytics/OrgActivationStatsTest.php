@@ -41,13 +41,14 @@ function oas_center(string $createdUtc, string $name = 'Center'): Organization
 
 function oas_link(Organization $center, string $atUtc, string $action = OrganizationGroupLinker::ACTION_LINKED): void
 {
-    AuditLog::query()->create([
+    // `created_at` is not fillable on an audit row (it is the moment of writing): set it the way an old row would have it.
+    (new AuditLog)->forceFill([
         'action' => $action,
         'entity_type' => Organization::class,
         'entity_id' => $center->id,
         'meta' => [],
         'created_at' => $atUtc,
-    ]);
+    ])->save();
 }
 
 function oas_assignment(Organization $center, string $createdUtc): Assignment

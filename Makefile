@@ -1,4 +1,4 @@
-.PHONY: help up down build shell test lint lint-fix analyse migrate fresh seed cache-clear pg-check pg-upgrade prod-build prod-build-octane prod-logs-api prod-shell-api prod-up prod-down deploy backup prod-pg-check prod-pg-upgrade load-tokens load-seed load-test load-test-mature load-test-game load-test-practice load-test-battle load-test-mixed load-test-webhook load-plan-test zap-baseline
+.PHONY: help up down build shell test lint lint-fix analyse migrate fresh seed cache-clear pg-check pg-upgrade prod-build prod-build-octane prod-logs-api prod-shell-api prod-up prod-down deploy backup prod-pg-check prod-pg-upgrade load-tokens load-seed load-test load-test-mature load-test-game load-test-practice load-test-battle load-test-mixed load-test-burst load-test-webhook load-plan-test zap-baseline
 
 DC      ?= docker compose
 APP     ?= $(DC) exec app
@@ -106,7 +106,8 @@ K6_RUN        = docker run --rm -i $(if $(K6_NET),--network $(K6_NET)) --user "$
 	-v "$(CURDIR)/$(K6_DIR):/scripts:ro" -v "$(abspath $(K6_OUT)):/out" \
 	$(if $(wildcard $(TOKENS_FILE)),-v "$(abspath $(TOKENS_FILE)):/data/load-tokens.json:ro") \
 	-e BASE_URL="$(BASE_URL)" -e TARGET_VUS="$(TARGET_VUS)" -e HOLD -e THINK_SCALE -e CARDS_PER_SESSION -e WEBHOOK_RPS \
-	-e TARGET_PAIRS -e PRACTICE_MODE -e BATTLE_MODE -e MIX_TRAINING -e MIX_GAME -e MIX_PRACTICE -e MIX_BATTLE \
+	-e TARGET_PAIRS -e PRACTICE_MODE -e BATTLE_MODE -e MIX_TRAINING -e MIX_GAME -e MIX_PRACTICE -e MIX_BATTLE -e MIX_BROWSE \
+	-e BURST_RATE -e BURST_RAMP -e BURST_PREALLOCATED_VUS -e BURST_MAX_VUS -e BURST_MAX_DROPPED -e CLASS_SHARE \
 	-e TELEGRAM_URL_SECRET -e TELEGRAM_HEADER_SECRET -e K6_INSECURE_SKIP_TLS_VERIFY $(K6_IMAGE)
 
 # The heavier scenarios default to a smaller size than the 1250 learners of the hot paths: TARGET_VUS from the command line wins.
@@ -157,7 +158,11 @@ load-test-mixed: ## k6: the mixed profile (shares MIX_*) for TARGET_VUS active l
 	$(call K6_SCENARIO,load-test-mixed)
 	$(K6_RUN) run --summary-export=/out/mixed-profile-$(TARGET_VUS)-summary.json /scripts/mixed-profile.js
 
-load-plan-test: ## Node tests of the arithmetic of the k6 scenarios (tests/load/k6/plan.js: mix, token ranges, token lifetime); no k6 needed
+load-test-burst: ## k6: a burst of Mini App opens (arrival rate 0 -> BURST_RATE/s over BURST_RAMP, HOLD 2m; CLASS_SHARE class opens); dropped_iterations
+	$(call K6_SCENARIO,load-test-burst)
+	$(K6_RUN) run --summary-export=/out/arrival-burst-$(or $(BURST_RATE),20)-summary.json /scripts/arrival-burst.js
+
+load-plan-test: ## Node tests of the arithmetic of the k6 scenarios (tests/load/k6/plan.js: mix, token ranges, token lifetime, burst); no k6 needed
 	node --test $(K6_DIR)/plan.test.js
 
 load-test-webhook: ## k6: Telegram webhook (BASE_URL, env TELEGRAM_URL_SECRET and TELEGRAM_HEADER_SECRET): p95 < 300 ms

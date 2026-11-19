@@ -33,6 +33,11 @@ const thresholds = {
   'http_req_duration{endpoint:battle_answer}': ['p(95)<300'],
   'http_req_duration{endpoint:battle_round}': ['p(95)<300'],
   'http_req_duration{endpoint:battle_invite}': ['p(95)<600'],
+  // No-op thresholds: they make the summary show how the matches ended (flows.js battleEndings) - played to the end or the room closed.
+  'battle_endings{reason:finished}': ['count>=0'],
+  'battle_endings{reason:closed}': ['count>=0'],
+  'battle_endings{reason:abandoned}': ['count>=0'],
+  'battle_endings{reason:poll_failed}': ['count>=0'],
 };
 
 export const options = {

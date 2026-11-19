@@ -14,6 +14,7 @@ use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Support\Components\Attributes\Unexposed;
 
 class ViewAssignment extends ViewRecord
 {
@@ -49,6 +50,7 @@ class ViewAssignment extends ViewRecord
      *
      * @return list<array{word_id: int, word: string, translation: string, learners: int, confused_with: string|null}>
      */
+    #[Unexposed]
     public function materialToRepeat(): array
     {
         if ($this->toRepeat !== null) {

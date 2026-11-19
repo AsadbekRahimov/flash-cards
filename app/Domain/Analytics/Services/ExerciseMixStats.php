@@ -76,15 +76,18 @@ final class ExerciseMixStats
         $order = array_map(static fn (ExerciseType $type): string => $type->value, ExerciseType::cases());
         $exercises = [...array_values(array_intersect($order, array_keys($counts))), ...array_values(array_diff(array_keys($counts), $order))];
 
+        $share = static fn (int $count, int $of): ?array => $of > 0 ? ['count' => $count, 'of' => $of, 'pct' => round($count / $of * 100, 1)] : null;
+
         $rows = [];
         foreach ($exercises as $exercise) {
             $exercise = (string) $exercise;
-            $row = ['id' => $exercise, 'exercise' => $exercise];
-            foreach (['all', 'ru', 'uz'] as $column) {
-                $count = $counts[$exercise][$column] ?? 0;
-                $row[$column] = $totals[$column] > 0 ? ['count' => $count, 'of' => $totals[$column], 'pct' => round($count / $totals[$column] * 100, 1)] : null;
-            }
-            $rows[] = $row;
+            $rows[] = [
+                'id' => $exercise,
+                'exercise' => $exercise,
+                'all' => $share($counts[$exercise]['all'] ?? 0, $totals['all']),
+                'ru' => $share($counts[$exercise]['ru'] ?? 0, $totals['ru']),
+                'uz' => $share($counts[$exercise]['uz'] ?? 0, $totals['uz']),
+            ];
         }
 
         return ['totals' => $totals, 'rows' => $rows];

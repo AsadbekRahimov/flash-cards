@@ -130,10 +130,10 @@ final class ReminderExperimentReport
     {
         $sql = RetentionSql::for(DB::connection());
         $names = [ProductEventName::ReminderSent->value, ProductEventName::ReminderFailed->value];
-        $exposures = static fn (Builder $q): Builder => $q
-            ->whereIn('name', $names)
-            ->whereNotNull('learner_id')
-            ->whereNotNull('props->variant');
+        $exposures = static fn (Builder $q, string $prefix = ''): Builder => $q
+            ->whereIn("{$prefix}name", $names)
+            ->whereNotNull("{$prefix}learner_id")
+            ->whereNotNull("{$prefix}props->variant");
 
         $firsts = $exposures(DB::table('product_events'))
             ->select('learner_id')
@@ -144,7 +144,7 @@ final class ReminderExperimentReport
                 $to->format('Y-m-d H:i:s'),
             ]);
 
-        $rows = $exposures(DB::table('product_events', 'e'))
+        $rows = $exposures(DB::table('product_events', 'e'), 'e.')
             ->joinSub($firsts, 'f', static function ($join): void {
                 $join->on('f.learner_id', '=', 'e.learner_id')->on('f.first_at', '=', 'e.occurred_at');
             })
