@@ -1432,6 +1432,8 @@ chmod 600 .env
 | `REMINDERS_QUIZ_ENABLED` | optional | `true` (the reminder is a question with four answers in the chat, docs/12 §7.5; `false` = the plain text with one button, as before, no redeploy of code needed) |
 | `REMINDERS_QUIZ_MAX_IDLE_DAYS` | optional | `7` (a question goes out up to this many idle days; the rarer sparse days stay text; raise up to 60 to ask there too) |
 | `REMINDERS_QUIZ_TTL_HOURS` | optional | `26` (how long a question can be answered; its state `reminders:quiz:v1:{learner}` lives in the non-evicting Redis, so a Redis restart without persistence only turns old taps into "outdated") |
+| `REMINDERS_QUIZ_EXPERIMENT` | optional | `false` (the owner's switch: quiz-eligible reminders are split into the question and the plain text, sticky per learner; docs/ADMIN_GUIDE.md "Reminder experiment", docs/12 §7.5) |
+| `REMINDERS_QUIZ_EXPERIMENT_SHARE` / `_SALT` / `_STARTS_AT` | optional | `50` (percent in the quiz arm) / `reminder-quiz-2026-11` (a new salt reshuffles every learner — only for a new experiment) / empty (UTC date or instant; no split before it, and the default `--from` of `analytics:reminder-experiment`) |
 | `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` | optional | `25` (bot-wide ceiling of background sends per second — reminders, assignment posts, renewal reminders, DMs of centers/offers, leaderboards; Bot API allows ~30/s per bot, the rest is for replies to updates; `0` = off). A job without a free slot is put back for 1-5 s; keep the Redis cache (the counter `telegram:outbound:global:{sec}` is shared by all workers) |
 | `PRODUCT_EVENTS_RETENTION_DAYS` / `NOTIFICATIONS_LOG_RETENTION_DAYS` | optional | `400` / `400` |
 

@@ -6,6 +6,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Support\InitialAvatarProvider;
 use App\Filament\Widgets\ActivityChartWidget;
+use App\Filament\Widgets\BillingFunnelWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\ExerciseMixTableWidget;
 use App\Filament\Widgets\GameActivityWidget;
@@ -73,6 +74,7 @@ class AdminPanelProvider extends PanelProvider
                 LeagueGroupsTableWidget::class,
                 RevenueLast30DaysWidget::class,
                 WebhookErrorsWidget::class,
+                BillingFunnelWidget::class,
                 GameActivityWidget::class,
                 OrgActivationTableWidget::class,
                 ExerciseMixTableWidget::class,

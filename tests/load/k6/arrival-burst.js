@@ -103,10 +103,12 @@ export function setup() {
   if (refusal) {
     fail(refusal);
   }
-  const perLearner = Math.ceil(OPENS / learners.length);
+  // tokenProblem() has made sure of the gap: learners.length >= POOL, so a reopen comes >= BURST_REOPEN_GAP_SECONDS later.
+  const reuse = OPENS <= learners.length
+    ? 'each learner opens once'
+    : `up to ${Math.ceil(OPENS / learners.length)} opens a learner, again after >= ${Math.floor(learners.length / BURST_RATE)} s (at least ${BURST_REOPEN_GAP_SECONDS})`;
   console.log(`burst: 0 -> ${BURST_RATE} opens/s over ${BURST_RAMP}, held ${HOLD}: ~${OPENS} opens (${Math.round(CLASS_SHARE * 100)} % class) `
-    + `by ${Math.min(OPENS, learners.length)} learners, up to ${perLearner} each, again after >= ${Math.floor(learners.length / BURST_RATE)} s `
-    + `(at least ${BURST_REOPEN_GAP_SECONDS}); VUs ${vus.preAllocatedVUs}..${vus.maxVUs}`);
+    + `by ${Math.min(OPENS, learners.length)} learners, ${reuse}; VUs ${vus.preAllocatedVUs}..${vus.maxVUs}`);
 
   const res = get(`/api/twa/courses/${file.course}`, learners[0].token, 'setup');
   const detail = json(res);

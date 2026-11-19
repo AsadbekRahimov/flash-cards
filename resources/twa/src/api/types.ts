@@ -542,8 +542,22 @@ export interface SessionSummary {
   stages?: SessionStages
   /** The round of hard words (docs/06 §14): how many of its set were won; null / absent in every other mode. */
   hard_round?: { total: number; won: number } | null
+  /** One mistake of an earlier session corrected in the round of hard words (docs/06 §14); null / absent: none, or another mode. */
+  corrected?: CorrectedMistake | null
   /** The invitation to the round of hard words after a daily round / a lesson; null: none (the round itself, the feature is off). */
   hard_round_offer?: HardRound | null
+}
+
+/** A word failed in an earlier session (objective exercise) and answered right at its first grade in the round of hard words. */
+export interface CorrectedMistake {
+  word_id: number
+  word: string
+  /** In the learner's language (the ru fallback when the word has no translation in it). */
+  translation: string
+  /** When the earlier mistake was made (ISO-8601, UTC). */
+  mistaken_at: string
+  /** What the learner typed then (spelling / gap-fill), when it is safe to show; null otherwise. */
+  answer: string | null
 }
 
 export type HardRoundReason = 'not_enough' | 'played_today' | 'no_objective_exercise'

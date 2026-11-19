@@ -17,8 +17,12 @@ declare(strict_types=1);
  *   - look at `achievements` on every new card (once a day, on the first grade).
  */
 
+use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Learner;
+use App\Models\TrainingSession;
+use App\Models\WordRepetition;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\CardAnswers;
@@ -124,12 +128,56 @@ it('keeps every step of the training cycle inside its statement budget', functio
         ->and(count($ahead))->toBeLessThanOrEqual(14);
 
     // finish: learner, session, the lock + UPDATE, the summary in ONE statement, the event, the referral, today: 9; +2 for the
-    // invitation to the round of hard words (docs/06 §14): the hard sessions of the day window and the candidates: 11.
-    $finish = QueryLog::during(function () use ($base, $h): void {
-        trainingCall($this, $h, 'POST', "{$base}/finish");
+    // invitation to the round of hard words (docs/06 §14): the hard sessions of the day window and the candidates: 11. No corrected
+    // mistake is looked for outside the round of hard words: `training_reviews` is read once, by the summary.
+    $finish = null;
+    $finishLog = QueryLog::during(function () use (&$finish, $base, $h): void {
+        $finish = trainingCall($this, $h, 'POST', "{$base}/finish");
     });
-    expect(count($finish))->toBeLessThanOrEqual(11)
-        ->and(QueryLog::matching($finish, '/from ["`]training_reviews["`]/'))->toHaveCount(1);
+    expect(count($finishLog))->toBeLessThanOrEqual(11)
+        ->and(QueryLog::matching($finishLog, '/from ["`]training_reviews["`]/'))->toHaveCount(1)
+        ->and($finish['corrected'])->toBeNull();
+});
+
+it('keeps the finish of a round of hard words inside its budget: the summary and the corrected mistake, one statement each', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-11-16 05:00:00', 'UTC'));
+    config(['learning.hard_round' => ['enabled' => true, 'words' => 10, 'min_words' => 6, 'per_day' => 1, 'lapses_from' => 2, 'due_within_days' => 2]]);
+    ['course' => $course, 'words' => $ids] = Fx::course([1 => [1 => 30]]);
+    $learner = Learner::factory()->onboarded()->create(['timezone' => 'Asia/Tashkent', 'active_course_id' => $course->id]);
+    $h = ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
+    $words = array_slice($ids['1.1']['active'], 0, 10);
+    foreach ($words as $wordId) {
+        WordRepetition::factory()->create([
+            'learner_id' => $learner->id, 'word_id' => $wordId, 'state' => RepetitionState::Review->value, 'repetitions' => 4, 'interval_days' => 10,
+            'easiness_factor' => 2.5, 'lapses' => 2, 'is_hard' => false, 'next_review_at' => now()->addDay(), 'last_reviewed_at' => now()->subDays(3),
+            'last_quality' => 4, 'introduced_mode' => 'daily_review', 'served_ahead_token' => null, 'meta' => [], 'created_at' => now()->subDays(5),
+        ]);
+    }
+    // A wrong typed answer to one of them three days ago: the finish finds it and tells it with its translation.
+    $earlier = TrainingSession::factory()->personal($learner, 'daily_review')->closed()->create(['started_at' => now()->subDays(3)]);
+    DB::table('training_reviews')->insert([
+        'training_session_id' => $earlier->id, 'learner_id' => $learner->id, 'word_id' => $words[0], 'quality' => 1, 'exercise' => 'spelling',
+        'answer_text' => 'wrnog', 'scheduler' => 'sm2', 'interval_before_days' => 4, 'time_spent_ms' => 2000, 'created_at' => now()->subDays(3),
+    ]);
+
+    $opened = trainingCall($this, $h, 'POST', '/api/twa/training/sessions', ['mode' => 'hard_review']);
+    $base = "/api/twa/training/sessions/{$opened['session_id']}";
+    $card = $opened['card'];
+    while ($card !== null) {
+        $card = trainingCall($this, $h, 'POST', "{$base}/review", CardAnswers::body($card, 4, 100))['card'];
+    }
+
+    // The finish of any session without the invitation (the round carries none): 9; +1 for the corrected mistake (CorrectedMistakeFinder:
+    // ONE statement; the translation of the word is warm - its card was served in this round, in the same locale): 10.
+    $finish = null;
+    $finishLog = QueryLog::during(function () use (&$finish, $base, $h): void {
+        $finish = trainingCall($this, $h, 'POST', "{$base}/finish");
+    });
+    expect(count($finishLog))->toBeLessThanOrEqual(10)
+        ->and(QueryLog::matching($finishLog, '/from ["`]training_reviews["`]/'))->toHaveCount(2)
+        ->and(QueryLog::matching($finishLog, '/from ["`]word_translations["`]/'))->toBe([])
+        ->and($finish['corrected']['word_id'] ?? null)->toBe($words[0])
+        ->and($finish['corrected']['answer'] ?? null)->toBe('wrnog');
 });
 
 it('answers the same numbers as before: progress, quota and the summary', function (): void {

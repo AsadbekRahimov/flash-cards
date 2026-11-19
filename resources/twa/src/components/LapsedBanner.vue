@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Lapsed } from '@/api/types'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { formatDate } from '@/composables/format'
+import { reportOfferViewed } from '@/composables/offerViewed'
 import { LAPSED_DISMISSED_KEY } from '@/composables/proReminders'
 import { useBillingStore } from '@/stores/billing'
 import { useI18n } from '@/i18n'
@@ -47,6 +48,11 @@ const visible = computed(() => (props.lapsed !== undefined || ready.value) && la
 
 const isTrial = computed(() => lapsed.value?.provider === 'trial')
 const dateText = computed(() => (lapsed.value ? formatDate(lapsed.value.ended_at, 'dayMonth', locale.value) : ''))
+
+// A banner with its "Renew" button offers Pro (docs/13 §5.1); the helper stays quiet while nothing is for sale or `/me` is not known.
+watch(() => visible.value && props.renewable, (on) => {
+  if (on) reportOfferViewed('lapsed_banner')
+}, { immediate: true })
 
 function dismiss(): void {
   if (!lapsed.value) return

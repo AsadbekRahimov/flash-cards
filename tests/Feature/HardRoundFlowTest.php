@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Domain\Analytics\Enums\ProductEventName;
-use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Content\Services\WordAudioService;
+use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Engagement\Support\LeaguePoints;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Twa\Services\JwtService;

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\DTO;
 
+use App\Domain\Learning\Services\CorrectedMistakeFinder;
 use Carbon\CarbonImmutable;
 
 /**
- * One example of a corrected mistake on the finish of a round of hard words (docs/06 §14, {@see \App\Domain\Learning\Services\CorrectedMistakeFinder}):
+ * One example of a corrected mistake on the finish of a round of hard words (docs/06 §14, {@see CorrectedMistakeFinder}):
  * a word the learner got wrong in an EARLIER session on an objective exercise and answered right, on an objective exercise, at its first
  * grade in this round.
  */

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Analytics\Support;
 
+use App\Domain\Learning\Services\SchedulerResolver;
+
 /**
  * The sticky arm of an A/B experiment without a column: `crc32("salt:id") % 100 < share` (the same idea as the FSRS
- * rollout of {@see \App\Domain\Learning\Services\SchedulerResolver::bucketFor()}, plus a salt). The same id always lands in
+ * rollout of {@see SchedulerResolver::bucketFor()}, plus a salt). The same id always lands in
  * the same bucket for a given salt, raising the share only moves learners INTO the treated arm, and a different salt
  * gives an independent split, so two experiments on the same learners do not overlap by construction. Pure: no I/O.
  */

@@ -47,7 +47,8 @@ import { useI18n } from '@/i18n'
  * The round of hard words (docs/06 §14) has its own finish: the headline is "You won X of N hard words" (by `hard_round` of the summary, or by
  * the progress of the store when the summary did not come), the confetti and the sound only for a win of all or of 80 % and more, no shame
  * for less ("these words will come back - that is the plan"); no "One more round" and no practice. After an ordinary round the server may
- * add an invitation (`hard_round_offer`): one tinted line among the actions, before the practice and the reminders.
+ * add an invitation (`hard_round_offer`): one tinted line among the actions, before the practice and the reminders. Under the note of the
+ * round: one mistake of an earlier session corrected in it (`corrected`), when the server found a trustworthy pair.
  */
 const props = defineProps<{
   reviewed: number
@@ -111,6 +112,12 @@ const hardNote = computed((): string | null => {
   if (!isHardRound.value || hardTotal.value <= 0) return null
   return t(hardWon.value >= hardTotal.value ? 'finished.hard_round.all' : 'finished.hard_round.later')
 })
+/**
+ * One mistake of an earlier session corrected in the round (`corrected` of the summary, docs/06 §14): "Earlier you got «X» wrong - today
+ * you answered it right", and under it, muted, what was typed then when the server sends it. Nothing at all without it: the summary of the
+ * round is in hand before this screen opens (`finalize` at the last card), so the line never pops in.
+ */
+const corrected = computed(() => (isHardRound.value ? (summary.value?.corrected ?? null) : null))
 
 /**
  * The title follows how the session went: by the share of right answers, and a long run of right answers lifts it to the top
@@ -405,6 +412,12 @@ onBeforeUnmount(() => {
         <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight" :data-testid="isHardRound ? 'hard-round-title' : undefined">{{ title }}</h1>
         <p v-if="hardNote" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="hard-round-note">{{ hardNote }}</p>
         <p v-else-if="reasonLabel" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="reason">{{ reasonLabel }}</p>
+        <div v-if="corrected" class="mt-2" data-testid="hard-round-corrected">
+          <p class="text-[15px] leading-5 break-words">{{ t('finished.corrected.line', { word: corrected.word }) }}</p>
+          <p v-if="corrected.answer" class="mt-0.5 text-[13px] leading-[18px] text-tg-hint break-words" data-testid="hard-round-corrected-answer">
+            {{ t('finished.corrected.answer', { answer: corrected.answer }) }}
+          </p>
+        </div>
       </header>
 
       <div v-if="summary && hasNumbers" class="grid grid-cols-3 gap-2" data-testid="stats">

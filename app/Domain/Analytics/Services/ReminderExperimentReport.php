@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Analytics\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
-use App\Domain\Analytics\Support\RetentionSql;
 use App\Domain\Analytics\Support\WilsonInterval;
 use App\Domain\Learners\Enums\ReminderVariant;
 use App\Domain\Learners\Services\ReminderExperiment;
@@ -116,8 +115,8 @@ final class ReminderExperimentReport
             'from' => $from->utc()->format('Y-m-d H:i:s'),
             'to' => $to->utc()->format('Y-m-d H:i:s'),
             'arms' => $arms,
-            'immature_24h' => count(array_filter($cohort, static fn (array $row): bool => $row['t'] + self::DAY > $nowTs)),
-            'immature_7d' => count(array_filter($cohort, static fn (array $row): bool => $row['t'] + self::GUARD_SECONDS > $nowTs)),
+            'immature_24h' => count(array_filter($cohort, static fn (array $row): bool => $nowTs < $row['t'] + self::DAY)),
+            'immature_7d' => count(array_filter($cohort, static fn (array $row): bool => $nowTs < $row['t'] + self::GUARD_SECONDS)),
         ];
     }
 
@@ -128,7 +127,6 @@ final class ReminderExperimentReport
      */
     private function cohort(CarbonImmutable $from, CarbonImmutable $to): array
     {
-        $sql = RetentionSql::for(DB::connection());
         $names = [ProductEventName::ReminderSent->value, ProductEventName::ReminderFailed->value];
         $exposures = static fn (Builder $q, string $prefix = ''): Builder => $q
             ->whereIn("{$prefix}name", $names)
@@ -139,7 +137,8 @@ final class ReminderExperimentReport
             ->select('learner_id')
             ->selectRaw('MIN(occurred_at) AS first_at')
             ->groupBy('learner_id')
-            ->havingRaw("MIN(occurred_at) >= {$sql->ts()} AND MIN(occurred_at) < {$sql->ts()}", [
+            // Untyped parameters next to a timestamp aggregate: PostgreSQL reads them as timestamps, sqlite compares the text.
+            ->havingRaw('MIN(occurred_at) >= ? AND MIN(occurred_at) < ?', [
                 $from->format('Y-m-d H:i:s'),
                 $to->format('Y-m-d H:i:s'),
             ]);

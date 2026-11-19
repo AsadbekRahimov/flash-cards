@@ -840,7 +840,10 @@ computed); **«Обновить»** recomputes them at once. The page is read-on
 - **Studied on a day** — the learner has a daily-stats row of that day with at least one graded card (`reviews_count > 0`). A day that only has a game run does
   not count. The day is the learner's own **local** calendar day, so a learner in another time zone is judged by his own midnight.
 - **D-N** — the share of the cohort that studied exactly on day N after the local day of registration (D1 is the next day). **«За 7 дней»** — studied on any of
-  the days 1-7. The percentage is of the whole cohort; the number of learners is under it.
+  the days 1-7. The percentage is of the whole cohort; under it — **«count / of»** (learners who did it / learners in the base).
+- **Uncertainty of a small base** — when the base of a share is below **200** learners (`WilsonInterval::SMALL_BASE`), a third line shows its **Wilson 95 %
+  interval** («95 %: 23,7–76,3»): with the same learners the share could have come out anywhere in it by chance. Two cohorts whose intervals overlap widely
+  are not different yet. Shown in every table and in the first-session block.
 - **Cohort** — learners registered in one week, Monday-Sunday in Tashkent time; the last 12 weeks, the current one is partial. Deleted learners are not counted.
   «Онбординг» is how many of them finished the onboarding, «Начали занятие» — how many have at least one graded answer.
 - **A dash** means the day has not ended yet for at least one learner of the cohort (in his own zone) — it is **not** 0 %. A cell appears when the whole
@@ -856,6 +859,21 @@ one (among learners whose first session began at least an hour ago); it is an en
 «Finished» is `done_reason = finished`: a round that ended with `sprint_complete` is closed by the Mini App with «finish» and is stored as `finished` (`sprint_complete`
 is only the reason cards stopped coming, it is never a session's closing reason). Games (the Caravan) and the practice are not training sessions and are not here.
 
+**Activation in 24 hours** («Активация за 24 часа», per cohort week; audit 2026-11-18 «Как оценивать успех продукта»):
+- **Activated** — the learner gave the **first accepted learning answer** (any graded card: a `training_reviews` row, personal or group session, any exercise)
+  **earlier than 24 hours** after registration (`learners.created_at`): an answer at 23 h 59 counts, at 24 h 00 it does not. The share is of the whole cohort.
+- **Cuts:** «Все»; «Русский» / «Узбекский» — the learner's interface language (`interface_locale`; another value is only in «Все»); «Самостоятельно» / «Класс» —
+  **class** = the learner joined a Telegram group that is **linked to a learning center now** (`telegram_groups.organization_id` set) earlier than 24 hours after
+  registration, by `group_members.joined_at` (leaving the group later does not change it; a group unlinked from its center since does not count); everybody else is
+  **solo**. Center membership by invitation without a group (`organization_members`) is not "class" here.
+- **A dash** until 24 hours have passed since the registration of the cohort's **youngest** learner (the same rule as the D-N cells), or when the cut has nobody.
+- For the diagnosis of a low activation look at «Онбординг» and «Начали занятие» of the same week and at the first-session block.
+
+**Learning and the game** («Учёба и игра: D1 и D7», per cohort week): two rows per week. «Учился» is the learning D1 / D7 of the cohort table. «Играл» — the share
+of the cohort with a **Caravan run on that local day** (`learner_daily_stats.game_runs_count > 0`: completed and failed runs; abandoned runs are not counted). The
+rows are **never added together**: a learner who played and studied is in both, a learner who only played is only in «Играл» and does not raise D1 / D7. Same
+maturity rule (a dash until the day has ended for the whole cohort). **The practice is not shown**: it has no per-day counter.
+
 **Slice** — D1 and D7 of the last four weeks by interface language (ru / uz) and by «had a trial Pro» (a subscription with provider `trial`, at any time).
 Only the weeks whose day has ended for the whole cohort take part; if none has, a dash.
 
@@ -867,9 +885,37 @@ Only the weeks whose day has ended for the whole cohort take part; if none has, 
 3. Rough orientation, not a promise: for educational apps D1 around 14 % and D30 around 3 % is typical; good is D1 25-30 % and D7 10-15 %. A change that works
    should move D1 and D7 up by several points and the first-session «finished» share and the second session in 24 hours up, without «начали занятие» falling.
 4. Check the slice: if the change helped Russian-speaking learners but not Uzbek ones (or the trial ones but not the others), the cohort average hides it.
+   The same for the activation: compare RU with UZ and solo with class — a class learner is usually brought to the first answer by the teacher.
 5. Learners who registered in different time zones are read in their own days; the week borders are Tashkent time only.
 
 ---
+
+## Reminder experiment (question vs plain text)
+
+The audit of 2026-11-18 («Причина вернуться завтра», row 1) checks whether one familiar question in the reminder brings the
+learner back to the lesson better than the plain "time to review" text. Owner decision: 50/50, each learner keeps their arm.
+
+**Turn it on** (server `.env`, then `php artisan config:cache` and a worker restart): `REMINDERS_QUIZ_EXPERIMENT=true`,
+`REMINDERS_QUIZ_EXPERIMENT_STARTS_AT=<UTC date of the first day, e.g. 2026-11-24>`; keep `REMINDERS_QUIZ_EXPERIMENT_SHARE=50`
+and the salt. Only reminders that may be a question at all take part (review, streak at risk, new words, the first 7 idle
+days; `REMINDERS_QUIZ_ENABLED` must stay `true`): `quiz` gets the question, `plain` the old text. Time and frequency are the
+same for both. Turning it off (`false`) brings back the question for everybody. Run it **2–3 weeks**; do not change the share or
+the salt meanwhile (a new salt reshuffles everybody).
+
+**Read it:** `php artisan analytics:reminder-experiment --from=2026-11-24 --to=2026-12-07` (`--from` defaults to
+`STARTS_AT`; a bare `--to` date includes that day). A learner counts once, at their FIRST reminder of the experiment in the
+window, in their arm. Every share is over **all assigned** learners of the arm (never over those who answered): delivered,
+question built (quiz arm), answered in the chat within 24 h (quiz arm; the plain text has no question), opened a session from
+the reminder within 24 h, **the primary one — at least one review within 24 h after the reminder**, and the guardrail —
+turned reminders off / blocked the bot within 7 days. Each line shows `numerator/denominator percent [Wilson 95 % interval]`;
+intervals of the primary line that do not overlap are a clear difference; overlapping ones do not prove "no difference" on a
+small base — compare the gap with the smallest effect worth having, chosen before the start. Read a
+window that ended at least 7 days ago — the command warns about learners whose 24 h / 7 d have not passed yet.
+
+| Result | Next decision |
+|---|---|
+| Learners answer in the chat and more of them review within 24 h | Keep the question; check the effect after the first week and the share who turned reminders off |
+| They answer in the chat but reviewing within 24 h stays rare | Walk the path from the answer to the first card on a phone; try a wording with the real number of due words |
 
 ## Dashboard Widgets
 
@@ -887,6 +933,8 @@ Only the weeks whose day has ended for the whole cohort take part; if none has, 
 | Revenue, last 30 days (Выручка за 30 дней) | **admin only** | One figure per currency, **UZS and XTR are never added together**. *Revenue* = the charges and renewals of the last 30 days (by payment time) that are still `succeeded`, i.e. gross minus the `refunded` ones; the line below shows the number of payments, the gross and the refunded amount. Failed events and the `refund` bookkeeping rows are not counted; a charge older than 30 days that is refunded today does not change this figure |
 | Payment webhook errors, last 24 h (Ошибки вебхуков оплаты за 24 часа) | **admin only** | *Failed payments* — ledger rows recorded as `failed` in the last 24 hours (by provider); *Canceled provider transactions* — Payme / Click transactions canceled in that time (a customer closing the page also cancels, so only a spike matters). Any failed payment deserves a look: open **Payments → Status: failed**. *Double discounts* — orders paid in the last 24 hours with the red **Double discount** badge (**Payment orders → filter Double discount**); normally 0. *Double Stars subscriptions* — orders paid in the last 24 hours with the red **Double Stars subscription** badge (**Payment orders → filter Double Stars subscription**); normally 0 |
 | Caravan — 7 days (Караван — 7 дней) | **admin only** | Game runs started in the last 7 days (all kinds, abandoned included), distinct learners who played, and their share among the learners active in 7 days (`last_seen_at`), plus runs per player a day, paywall-to-payment conversion and right answers in cards (players vs others). Cached for 5 minutes; see *Caravan game* above |
+| Learning centers — path to the first result (Учебные центры — путь до первого результата) | **admin only** | Per center, the time from its creation (`organizations.created_at`) to **the first group link** (the earliest `organization.linked_group` audit entry — a group linked without an audit entry, e.g. seeded or by SQL, leaves it «ещё нет»), to **the first assignment created** (`assignments.created_at`) and to **the first assignment completed by a learner** (the earliest `assignment_results.completed_at` of the center's assignments). An unlink or a closed assignment does not undo a step. The description shows the **median** of each step over the centers that reached it («N из M») and how many centers have **no completed assignment** yet; those come **first, the oldest on top** (the ones to walk through with the teacher), then the others, the slowest first. Cached for 10 minutes |
+| Exercise formats — 7 days (Форматы заданий — 7 дней) | **admin only** | The share of each exercise format (`training_reviews.exercise`: card, choice of translation, reverse, by ear, spelling, gap, new-word check) among the cards **answered** in the last 7 days — overall and by the learner's interface language, «12,5 % (45 из 360)». A card shown and left without an answer is not stored and not counted. If a format (audio) is much rarer in one language, check the audio coverage (`audio:coverage`) and the learners' sound settings first. Cached for 10 minutes |
 
 The *admin only* widgets show platform-wide data: a teacher never sees them (they are not on the dashboard and
 cannot be opened directly; an inactive admin gets the same). The seat limit is informational in

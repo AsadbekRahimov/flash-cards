@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Learning\DTO\CorrectedMistake;
 use App\Domain\Learning\Services\CorrectedMistakeFinder;
 use App\Models\Learner;
 use App\Models\TrainingSession;
@@ -45,7 +46,7 @@ function cmfGrade(TrainingSession $session, Word $word, int $quality, string $ex
     ]);
 }
 
-function cmfFind(TrainingSession $session, string $locale = 'ru'): ?App\Domain\Learning\DTO\CorrectedMistake
+function cmfFind(TrainingSession $session, string $locale = 'ru'): ?CorrectedMistake
 {
     return app(CorrectedMistakeFinder::class)->find($session, $locale);
 }

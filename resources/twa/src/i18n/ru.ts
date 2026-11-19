@@ -409,6 +409,8 @@ export const ru = {
     many: 'Разобрать {count} трудных слов',
     other: 'Разобрать {count} трудных слова',
   },
+  'finished.corrected.line': 'Раньше вы ошибались в слове «{word}» — сегодня ответили верно.',
+  'finished.corrected.answer': 'Тогда: {answer}',
 
   // ---- promo code ----
   'promo.toggle': 'Есть промокод?',

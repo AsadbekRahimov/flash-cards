@@ -190,4 +190,43 @@ describe('FinishedView: the round of hard words', () => {
       expect(w.find('[data-testid=hard-round-title]').exists()).toBe(false)
     })
   })
+
+  describe('the corrected mistake', () => {
+    const corrected = (answer: string | null = null) => ({ word_id: 7, word: 'borrow', translation: 'занимать', mistaken_at: '2026-11-13T07:30:00+00:00', answer })
+
+    it('tells the word failed before and answered right today, under the note of the round', () => {
+      const w = render('hard_round_complete', summary({ hard_round: { total: 10, won: 9 }, corrected: corrected() }), 'hard_review')
+
+      expect(w.get('[data-testid=hard-round-corrected]').text()).toBe('Раньше вы ошибались в слове «borrow» — сегодня ответили верно.')
+      expect(w.find('[data-testid=hard-round-corrected-answer]').exists()).toBe(false)
+      expect(w.get('header').text()).toContain('Эти слова ещё вернутся — так и задумано')
+    })
+
+    it('adds what was typed then as a muted second line', () => {
+      const w = render('hard_round_complete', summary({ hard_round: { total: 10, won: 10 }, corrected: corrected('borow') }), 'hard_review')
+
+      const answer = w.get('[data-testid=hard-round-corrected-answer]')
+      expect(answer.text()).toBe('Тогда: borow')
+      expect(answer.classes()).toContain('text-tg-hint')
+    })
+
+    it('shows the text as text, in Uzbek too', () => {
+      setLocale('uz')
+      const w = render('hard_round_complete', summary({ hard_round: { total: 10, won: 9 }, corrected: corrected('<b>x</b>') }), 'hard_review')
+
+      expect(w.get('[data-testid=hard-round-corrected]').text()).toContain("Avval «borrow» so'zida xato qilgan edingiz — bugun to'g'ri javob berdingiz.")
+      expect(w.get('[data-testid=hard-round-corrected-answer]').text()).toBe("O'shanda: <b>x</b>")
+      expect(w.find('[data-testid=hard-round-corrected-answer] b').exists()).toBe(false)
+    })
+
+    it('renders nothing without it: null, absent (an older server), or another mode', () => {
+      for (const value of [summary({ hard_round: { total: 10, won: 9 }, corrected: null }), summary({ hard_round: { total: 10, won: 9 } })]) {
+        const w = render('hard_round_complete', value, 'hard_review')
+        expect(w.find('[data-testid=hard-round-corrected]').exists()).toBe(false)
+        w.unmount()
+      }
+      const daily = render('sprint_complete', summary({ corrected: corrected() }))
+      expect(daily.find('[data-testid=hard-round-corrected]').exists()).toBe(false)
+    })
+  })
 })
