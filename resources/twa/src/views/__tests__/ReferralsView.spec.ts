@@ -435,7 +435,7 @@ describe('ReferralsView', () => {
     expect(text(wrapper, 'rule')).toContain("Do'stingizga havolani yuboring")
     expect(text(wrapper, 'rule')).toContain("bir kunda 10 ta kartochkani baholaydi")
     expect(text(wrapper, 'rule')).toContain("Bepul Pro: 3 ta do'st uchun — +7 kun, 6 ta do'st uchun — yana +7 kun")
-    expect(text(wrapper, 'friend-gets')).toBe("Do'st ro'yxatdan o'tganda sinov Pro oladi")
+    expect(text(wrapper, 'friend-gets')).toBe("Do'stingiz ro'yxatdan o'tgach, Pro tarifidan sinov muddati davomida foydalanadi")
     expect(text(wrapper, 'share-btn')).toBe('Ulashish')
     expect(text(wrapper, 'copy-btn')).toBe('Havolani nusxalash')
     expect(text(wrapper, 'friends-link')).toBe("Do'stlar va musobaqalar")

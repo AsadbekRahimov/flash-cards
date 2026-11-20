@@ -857,6 +857,6 @@ describe('BillingView', () => {
 
     expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Sizning imkoniyatlaringiz')
     expect(wrapper.get('[data-testid=plan-provider]').text()).toBe('To\'lov: Telegram Stars.')
-    expect(wrapper.get('[data-testid=cancel-renewal]').text()).toBe("Avtoyangilashni o'chirish")
+    expect(wrapper.get('[data-testid=cancel-renewal]').text()).toBe("Avtomatik uzaytirishni o'chirish")
   })
 })

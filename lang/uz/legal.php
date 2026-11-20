@@ -70,7 +70,7 @@ return [
             [
                 'title' => 'Tariflar, to\'lov va qaytarish tartibi',
                 'text' => <<<'TXT'
-                    Tariflar. Free — bepul tarif: kuniga yangi so'zlar soni va imkoniyatlar to'plami cheklangan. Pro — pullik tarif: kunlik limitsiz yangi so'zlar, kengaytirilgan mashq va qo'shimcha topshiriqlar, seriyani muzlatish, sinov testlari va boshqa imkoniyatlar. Pro'ning joriy tarkibi va narxi to'lovdan oldin botda va saytda ko'rsatiladi.
+                    Tariflar. Free — bepul tarif: kuniga yangi so'zlar soni va imkoniyatlar to'plami cheklangan. Pro — pullik tarif: kunlik cheklovsiz yangi so'zlar, kengaytirilgan mashq va qo'shimcha topshiriqlar, zaxira kun yordamida ketma-ketlikni saqlash, sinov testlari va boshqa imkoniyatlar. Pro'ning joriy tarkibi va narxi to'lovdan oldin botda va saytda ko'rsatiladi.
 
                     To'lov. Boshlanishida Pro Telegram Stars orqali to'lanadi. Bir oylik obuna — 30 kunlik Telegram obunasi: Siz uni o'chirmaguningizcha avtomatik yangilanadi (botdagi /pro buyrug'i yoki Telegram'dagi Stars obunalari sozlamalari). Yillik Pro 365 kunga bir martalik to'lanadi va avtomatik yangilanmaydi. Payme va Click orqali karta bilan to'lov keyinroq ulanishi mumkin; bu haqda botda va saytda xabar beramiz. Ijrochi bank kartalari ma'lumotlarini olmaydi.
 
@@ -80,7 +80,7 @@ return [
 
                     Pulni qaytarish. Pulni qaytarishga avtomatik huquq yo'q. Pul faqat qo'llab-quvvatlash xizmati orqali qaytariladi: bizga yozing ({contact}) yoki botdagi /paysupport buyrug'idan foydalaning, chek yoki to'lov raqamini ilova qiling. Har bir murojaat alohida ko'rib chiqiladi. Qaytarish ma'qullansa, Telegram Stars orqali to'langan to'lov Stars bilan Telegram'dagi hisobingizga qaytariladi; shu to'lov bilan to'langan Pro davri tugatiladi, avtoyangilanish to'xtatiladi. Boshqa usul bilan to'langan to'lovlarni qaytarish muddati va usuli murojaat natijasiga ko'ra belgilanadi.
 
-                    Avtoyangilanishni bekor qilish allaqachon to'langan davr uchun pulni qaytarmaydi — Pro shu davr oxirigacha amal qiladi.
+                    Obunani avtomatik uzaytirishni bekor qilish allaqachon to'langan davr uchun pulni qaytarmaydi — Pro shu davr oxirigacha amal qiladi.
 
                     Telegram Stars shartlari (Stars sotib olish, saqlash va ishlatish) Telegram tomonidan belgilanadi.
                     TXT,

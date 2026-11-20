@@ -485,7 +485,7 @@ describe('TodayView', () => {
       it('speaks Uzbek', async () => {
         setLocale('uz')
 
-        expect(text(await render(allDone()), 'all-done')).toContain("Bugun uchun hammasi tayyor. Yangi so'zlar — ertaga")
+        expect(text(await render(allDone()), 'all-done')).toContain("Bugungi mashg'ulotlar tugadi. Ertaga yangi so'zlar bilan davom etasiz")
         expect(text(await render(allDone()), 'all-done-pro')).toBe("Ko'proq yangi so'zlar — Pro'da")
       })
     })
@@ -944,7 +944,7 @@ describe('TodayView', () => {
         setLocale('uz')
         const w = await render(newcomer())
 
-        expect(text(w, 'intro-title')).toBe("Mashg'ulot — qisqa raund")
+        expect(text(w, 'intro-title')).toBe("Bir mashg'ulot bir necha daqiqa davom etadi")
         expect(text(w, 'intro-next')).toBe('Keyingi')
       })
 
@@ -1740,7 +1740,7 @@ describe('TodayView', () => {
     expect(w.get('[data-testid=eyebrow]').text()).toBe('Chorshanba, 28-oktabr · English A1')
     expect(text(w, 'goal-text')).toBe("20 ta so'zdan")
     expect(text(w, 'review-btn')).toBe("Mashg'ulotni boshlash")
-    expect(text(w, 'session-hint')).toBe("Bir necha daqiqalik qisqa raund: takrorlash va kursingizdagi yangi so'zlar")
+    expect(text(w, 'session-hint')).toBe("Avval o'rgangan so'zlaringizni takrorlang va kursingizdagi yangi so'zlar bilan tanishing")
     expect(text(w, 'streak-current')).toBe('5 kun ketma-ket')
     expect(text(w, 'goal-left')).toBe('12 ta qoldi')
     expect(text(w, 'streak-best')).toBe('rekord — 12 kun')

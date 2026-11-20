@@ -19,7 +19,7 @@ return [
 
     'hero' => [
         'title' => 'Esda qoladigan inglizcha so\'zlar',
-        'subtitle' => 'Ingliz tilini bevosita Telegramda o\'rganing: ovozli va misolli kartochkalar, bot esa so\'zlarni unuta boshlagan paytingizda takrorlashni eslatadi.',
+        'subtitle' => 'Telegramda inglizcha so\'zlarning talaffuzini tinglang va gapda qanday ishlatilishini ko\'ring. Takrorlash vaqti kelganda bot eslatma yuboradi.',
         'cta_bot' => 'Botni ochish',
         'cta_unavailable' => 'Bot tez orada ochiladi',
         'note' => 'Bepul: :free, takrorlash esa cheklovsiz.',
@@ -42,15 +42,15 @@ return [
 
     'how' => [
         'title' => 'Qanday ishlaydi',
-        'lead' => 'So\'z birdan emas, asta-sekin unutiladi. LexiFlow uni unutilishidan oldin qaytaradi — har safar tanaffus uzayib boradi.',
+        'lead' => 'LexiFlow har bir so\'z uchun keyingi mashq vaqtini javobingizga qarab belgilaydi. So\'zni oson eslay boshlaganingiz sari takrorlashlar orasidagi vaqt uzayadi.',
         // The path of one word through its reviews: approximate moments in words, not the exact intervals of the engine.
         'timeline' => [
             'word' => 'breakfast',
             'points' => [
                 ['when' => 'Bugun', 'what' => 'Yangi so\'z'],
                 ['when' => 'Ertaga', 'what' => 'Birinchi takrorlash'],
-                ['when' => 'Bir haftadan so\'ng', 'what' => 'Ikkinchisi'],
-                ['when' => 'Ikki haftadan so\'ng', 'what' => 'Uchinchisi'],
+                ['when' => 'Bir haftadan so\'ng', 'what' => 'Ikkinchi takrorlash'],
+                ['when' => 'Ikki haftadan so\'ng', 'what' => 'Uchinchi takrorlash'],
                 ['when' => 'Bir oydan so\'ng', 'what' => 'So\'z uzoq vaqt esda qoladi'],
             ],
             'note' => 'Eslay olmasangiz — so\'z ertaroq qaytadi. Oson eslasangiz — kechroq.',
@@ -63,7 +63,7 @@ return [
     ],
 
     'features' => [
-        'title' => 'Ichida nimalar bor',
+        'title' => 'LexiFlow imkoniyatlari',
         'items' => [
             ['title' => 'Bot va mini-ilova', 'text' => 'Bot — boshlash va eslatmalar uchun, mini-ilova — mashg\'ulotlar uchun. Hammasi bitta messenjerda.'],
             ['title' => 'Aqlli takrorlash', 'text' => 'Har bir so\'z tobora uzayib boruvchi oraliqlarda qaytadi — shu tarzda u uzoq muddatli xotiraga o\'tadi.'],
@@ -97,7 +97,7 @@ return [
         // `subtitle`, `soon` and `pro.note` are shown while Pro is not for sale (billing.paywall.mode = coming_soon);
         // `subtitle_open`, `pro.price*` and `pro.note_open` once it is (LandingPricing).
         'subtitle' => 'Bepul boshlang. Pullik imkoniyatlar keyinroq paydo bo\'ladi — natijalaringiz saqlanib qoladi.',
-        'subtitle_open' => 'Bepul boshlang. Pro — ko\'proq istaganingizda.',
+        'subtitle_open' => 'Bepul tarifda boshlang. Qo\'shimcha imkoniyatlar kerak bo\'lsa, Pro tarifiga o\'tishingiz mumkin.',
         'soon' => 'Tez orada',
         'free' => [
             'name' => 'Free',
@@ -132,7 +132,7 @@ return [
             'tagline' => 'Qat\'iy to\'lov — oylik yoki yillik',
             'features' => [
                 'Markaz har bir o\'quvchi uchun emas, qat\'iy summa to\'laydi',
-                'Markaz o\'quvchilari markazda ekan, tarifdagi o\'rinlar doirasida Pro oladi',
+                'Tarifdagi har bir o\'rin bir o\'quvchiga markazda o\'qiyotgan vaqtida Pro tarifidan foydalanish imkonini beradi',
                 "Telegramda guruh mashg'ulotlari va imtihonlar",
             ],
             'contact' => 'Markazni ulash:',
@@ -146,7 +146,7 @@ return [
         'steps' => [
             ['title' => 'Ariza qoldiring', 'text' => 'Markaz kabinetini ochib beramiz va botni guruhga qanday qo\'shishni tushuntiramiz.'],
             ['title' => 'Botni sinf guruhiga qo\'shing', 'text' => 'O\'quvchilar mashg\'ulotga bitta tugma bilan kiradi — hech narsa o\'rnatish shart emas.'],
-            ['title' => 'Mashg\'ulot va imtihonlarni boshlang', 'text' => 'Guruhda bitta buyruq bilan. Imtihon natijalarini botning o\'zi e\'lon qiladi.'],
+            ['title' => 'Mashg\'ulot va imtihonlarni boshlang', 'text' => 'Guruhga tegishli buyruqni yuboring. Imtihon tugagach, bot natijalarni shu guruhda e\'lon qiladi.'],
         ],
         'tiers_title' => 'Markazlar uchun tariflar',
         // Uzbek does not inflect nouns after numerals: a single form for any count.

@@ -16,8 +16,8 @@ return [
         'text' => "Do'stlaringizni LexiFlow'ga taklif qiling — Pro'ni bepul oling.\n\n:rule\n\n:progress\n\nSizning havolangiz:\n:link",
         // The friend counts once they have started (the setup and :cards in a day); the inviter gets :reward of Pro at each of
         // the :milestones counted friends ("3 va 6").
-        'rule' => "Do'st sozlashdan o'tib, bir kunda :cards baholagach hisobga olinadi.\n:milestones ta hisobga olingan do'st uchun har safar +:reward Pro olasiz.",
-        'rule_days' => "Do'st sozlashdan o'tib, :days kun davomida kuniga kamida :cards baholagach hisobga olinadi.\n:milestones ta hisobga olingan do'st uchun har safar +:reward Pro olasiz.",
+        'rule' => "Do'stingiz boshlang'ich sozlamalarni tugatib, bir kun ichida :cards baholasa, taklifingiz hisobga olinadi.\nHisobga olingan do'stlaringiz soni :milestones taga yetganida har safar :reward davomida Pro tarifidan bepul foydalanish huquqini olasiz.",
+        'rule_days' => "Do'stingiz boshlang'ich sozlamalarni tugatib, :days kun davomida har kuni kamida :cards baholasa, taklifingiz hisobga olinadi.\nHisobga olingan do'stlaringiz soni :milestones taga yetganida har safar :reward davomida Pro tarifidan bepul foydalanish huquqini olasiz.",
         'cards' => ':count ta kartochkani',
         'cards_min' => ':count ta kartochkani',
         'text_plain' => "Do'stlaringizni LexiFlow'ga taklif qiling.\n\nHozircha takliflar uchun mukofot berilmaydi.\n\nSizning havolangiz:\n:link",

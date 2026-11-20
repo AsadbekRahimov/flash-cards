@@ -5,15 +5,15 @@ declare(strict_types=1);
 return [
 
     // Uzbek does not inflect nouns after numerals: a single form for any count.
-    'review' => "LexiFlow'da :count ta so'zni takrorlash vaqti keldi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings",
+    'review' => "LexiFlow'da :count ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
     // :count = current streak in days.
-    'streak_at_risk' => "Ketma-ket :count kun shug'ullandingiz. Shu natijani saqlash uchun bugungi maqsadni bajaring.\n\nVaqtni o'zgartirish yoki o'chirish: /settings",
+    'streak_at_risk' => "Ketma-ket :count kun shug'ullandingiz. Shu natijani saqlash uchun bugungi maqsadni bajaring.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
     // Break in learning (owner decision 2026-11-16, docs/12 §7.5). :count = local days without lessons, :due = due words.
-    'inactive' => "LexiFlow: :count kundan beri shug'ullanmadingiz. So'zlar takrorlanmasa unutiladi — qaytish uchun 5 daqiqa yetarli.\n\nVaqtni o'zgartirish yoki o'chirish: /settings",
-    'inactive_due' => "LexiFlow: :count kundan beri shug'ullanmadingiz. Takrorlash kerak bo'lgan so'zlar: :due. Qaytish uchun 5 daqiqa yetarli.\n\nVaqtni o'zgartirish yoki o'chirish: /settings",
-    'never_started' => "Siz LexiFlow'da hali shug'ullanishni boshlamadingiz. Birinchi mashg'ulot atigi 5 daqiqa oladi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings",
-    'new_words' => "Bugun LexiFlow'da sizni yangi so'zlar kutmoqda. 5 daqiqa yetarli.\n\nVaqtni o'zgartirish yoki o'chirish: /settings",
-    'choose_course' => "Shug'ullanishni boshlash uchun LexiFlow'da kursni tanlang.\n\nVaqtni o'zgartirish yoki o'chirish: /settings",
+    'inactive' => "LexiFlow: :count kundan beri shug'ullanmadingiz. Bugun 5 daqiqa ajratib, avvalgi so'zlarni yana bir bor mashq qiling.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
+    'inactive_due' => "LexiFlow: :count kundan beri shug'ullanmadingiz. Takrorlash uchun :due ta so'z bor. Bugun 5 daqiqalik mashg'ulotdan boshlang.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
+    'never_started' => "Siz LexiFlow'da hali shug'ullanishni boshlamadingiz. Birinchi mashg'ulot uchun 5 daqiqa ajrating.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
+    'new_words' => "Bugun LexiFlow'da sizni yangi so'zlar kutmoqda. 5 daqiqa yetarli.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
+    'choose_course' => "Shug'ullanishni boshlash uchun LexiFlow'da kursni tanlang.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
     'open_button' => "LexiFlow'ni ochish",
 
     // The reminder as a question with four buttons (owner decision 2026-11-17, docs/12 §7.5). Plain text, no markup.
@@ -28,9 +28,9 @@ return [
             'meaning' => '«:word» nima degani?',
             'reverse' => '«:translation» inglizchada qanday?',
         ],
-        'footer' => "Vaqtni o'zgartirish yoki o'chirish: /settings",
+        'footer' => "Eslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
         'correct' => "✅ To'g'ri! :word — :answer.",
-        'wrong' => '❌ Unday emas. :word — :answer.',
+        'wrong' => '❌ Xato. :word — :answer.',
         'after_due' => "Ilovada sizni :count ta so'z kutmoqda — 5 daqiqa yetarli.",
         'after_none' => "Ilovada davom eting — u yerda yangi so'zlar bor.",
         'open_more' => "LexiFlow'ni ochish",

@@ -215,7 +215,7 @@ it('greets a new person in both languages and counts the steps', function (): vo
     ]]);
 
     $last = end($this->tg->sent);
-    expect($last['text'])->toStartWith('2/3-qadam')->and($last['text'])->not->toContain('Salom!');
+    expect($last['text'])->toStartWith('3 qadamdan 2-qadam')->and($last['text'])->not->toContain('Salom!');
 });
 
 it('names the center or the person who invited a new learner', function (): void {
@@ -256,7 +256,7 @@ it('answers the teacher in the language of Telegram', function (): void {
 
     clarityDm(7002, '/today', 'uz');
 
-    expect($this->tg->sent[0]['text'])->toBe("Bu buyruq — o'quvchilar uchun. O'qituvchi buyruqlaringiz: /help");
+    expect($this->tg->sent[0]['text'])->toBe("Bu buyruq o'quvchilar uchun. O'qituvchi buyruqlarini ko'rish uchun /help yuboring.");
 });
 
 // ---------------------------------------------------------------- 5. exam picker

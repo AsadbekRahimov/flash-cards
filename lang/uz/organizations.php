@@ -15,7 +15,7 @@ return [
 
     // A membership offered by the center's staff from the cabinet (audit 2026-11-10 M2): the learner decides in the bot.
     'invite' => [
-        'text' => "«:organization» o'quv markazi Sizni qo'shilishga taklif qilmoqda. Qo'shilsangiz, markazda bo'sh o'rin bo'lsa, markaz bergan Pro'ni olasiz, markaz esa LexiFlow'dagi faolligingizni ko'radi. Qo'shilasizmi?",
+        'text' => "«:organization» o'quv markazi sizni taklif qildi. Taklifni qabul qilsangiz, markaz LexiFlow'dagi faolligingizni ko'ra oladi. Bo'sh o'rin bo'lsa, Pro tarifidan markaz hisobidan foydalanasiz. Markazga qo'shilasizmi?",
         'accept' => "Qo'shilish",
         'decline' => 'Rad etish',
         'declined' => "Mayli, Siz «:organization» markazining taklifini rad etdingiz. Hech narsa o'zgarmadi.",

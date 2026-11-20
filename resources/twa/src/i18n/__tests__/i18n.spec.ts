@@ -199,8 +199,8 @@ describe('errorMessage', () => {
     expect(errorMessage(refused('played_today'), 'training')).toBe('Раунд трудных слов на сегодня уже пройден. Следующий — завтра.')
     expect(errorMessage(refused(undefined), 'training')).toBe('Раунд трудных слов сейчас недоступен.')
     setLocale('uz')
-    expect(errorMessage(refused('not_enough'), 'training')).toBe("Qiyin so'zlar hozircha kam — ko'paysa, raund ochiladi.")
-    expect(errorMessage(refused('weird'), 'training')).toBe("Qiyin so'zlar raundi hozir mavjud emas.")
+    expect(errorMessage(refused('not_enough'), 'training')).toBe("Mashq uchun qiyin so'zlar yetarli bo'lganda bu bo'lim ochiladi.")
+    expect(errorMessage(refused('weird'), 'training')).toBe("Qiyin so'zlar mashqi hozir mavjud emas.")
   })
 
   it('explains a 401 missing_token (TwaAuth) in both languages', () => {

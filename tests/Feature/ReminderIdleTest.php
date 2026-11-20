@@ -166,7 +166,7 @@ it('writes the break message without the due sentence when nothing is due, in bo
     app(ReminderSender::class)->send($uz->id, CarbonImmutable::now()->subMinutes(5));
 
     expect($this->tg->sent[0]['text'])->toBe("Вы 5 дней не занимались. Слова забываются без повторения — хватит 5 минут, чтобы вернуться.\n\nИзменить время или отключить: /settings")
-        ->and($this->tg->sent[1]['text'])->toBe("LexiFlow: 21 kundan beri shug'ullanmadingiz. So'zlar takrorlanmasa unutiladi — qaytish uchun 5 daqiqa yetarli.\n\nVaqtni o'zgartirish yoki o'chirish: /settings")
+        ->and($this->tg->sent[1]['text'])->toBe("LexiFlow: 21 kundan beri shug'ullanmadingiz. Bugun 5 daqiqa ajratib, avvalgi so'zlarni yana bir bor mashq qiling.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.")
         ->and(NotificationLog::query()->where('learner_id', $ru->id)->first()?->payload)->toMatchArray(['kind' => 'inactive', 'idle_days' => 5]);
 });
 

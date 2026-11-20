@@ -444,7 +444,7 @@ describe('TrainingView — header and states', () => {
     vi.mocked(api.training.start).mockResolvedValue({ ...started(1, 'hard_review'), progress: { done: 2, total: 10 } })
     const { wrapper } = await render(1)
 
-    expect(wrapper.get('[data-testid=hard-round-progress]').text()).toBe('10 tadan 2 tasi yengildi')
+    expect(wrapper.get('[data-testid=hard-round-progress]').text()).toBe("10 ta so'zdan 2 tasiga to'g'ri javob berdingiz")
   })
 
   it('a daily review says «Review» instead of a lesson', async () => {

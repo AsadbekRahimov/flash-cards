@@ -128,7 +128,7 @@ it('shows the right answer when the pick is wrong, in uz too', function (): void
 
     reminderQuizDispatch(reminderQuizTap($state['token'], $wrong));
 
-    expect($this->tg->lastTextEdit()['text'] ?? '')->toBe("❌ Unday emas. {$state['word']} — {$state['answer']}.\n\nIlovada sizni 3 ta so'z kutmoqda — 5 daqiqa yetarli.\n\nVaqtni o'zgartirish yoki o'chirish: /settings")
+    expect($this->tg->lastTextEdit()['text'] ?? '')->toBe("❌ Xato. {$state['word']} — {$state['answer']}.\n\nIlovada sizni 3 ta so'z kutmoqda — 5 daqiqa yetarli.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.")
         ->and($this->tg->lastTextEdit()['markup']['inline_keyboard'][0][0]['text'] ?? '')->toBe("LexiFlow'ni ochish");
 
     $event = ProductEvent::query()->where('name', ProductEventName::ReminderQuizAnswered->value)->sole();

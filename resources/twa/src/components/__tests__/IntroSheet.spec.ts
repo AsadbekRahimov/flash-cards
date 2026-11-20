@@ -81,7 +81,7 @@ describe('IntroSheet', () => {
     const w = await mountIntro()
 
     await toStep(w, 3)
-    expect(w.get('[data-testid=intro-text]').text()).toContain("gapga qo'yasiz")
+    expect(w.get('[data-testid=intro-text]').text()).toContain("gapdagi bo'sh joyga yozasiz")
     w.unmount()
   })
 
@@ -109,7 +109,7 @@ describe('IntroSheet', () => {
 
       expect(vi.mocked(api.me.updateSettings).mock.calls).toEqual([[{ interface_locale: 'uz' }]])
       expect(getLocale()).toBe('uz')
-      expect(w.get('[data-testid=intro-title]').text()).toBe("Mashg'ulot — qisqa raund")
+      expect(w.get('[data-testid=intro-title]').text()).toBe("Bir mashg'ulot bir necha daqiqa davom etadi")
       expect(w.get('[data-testid=intro-next]').text()).toBe('Keyingi')
       expect(w.get('[data-testid=intro-locale-uz]').attributes('aria-checked')).toBe('true')
       expect(useToast().toast.value?.text).toBe('Saqlandi')

@@ -199,7 +199,7 @@ it('translates errors for non-teachers and unknown accounts in a uz group', func
     locDispatch(['chat' => ['id' => -5005, 'type' => 'supergroup'], 'from' => ['id' => 99999], 'text' => '/close_exam']);
 
     expect($this->api->log[0]['text'])->toBe(__('errors.teacher_not_linked', [], 'uz'))
-        ->and($this->api->log[0]['text'])->toStartWith("Bu buyruq — guruh o'qituvchisi uchun.")
+        ->and($this->api->log[0]['text'])->toStartWith("Bu buyruqni guruh o'qituvchisi ishlata oladi.")
         ->and($this->api->log[1]['text'])->toBe(__('errors.teacher_not_linked', [], 'uz'));
 });
 
@@ -344,8 +344,8 @@ it('sends the reminder in the learner interface language with correct number for
     'ru 21' => ['ru', 21, "Пора повторить 21 слово в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
     'ru 22' => ['ru', 22, "Пора повторить 22 слова в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
     'ru 25' => ['ru', 25, "Пора повторить 25 слов в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
-    'uz 5' => ['uz', 5, "LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings", "LexiFlow'ni ochish"],
-    'uz 21' => ['uz', 21, "LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings", "LexiFlow'ni ochish"],
+    'uz 5' => ['uz', 5, "LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.", "LexiFlow'ni ochish"],
+    'uz 21' => ['uz', 21, "LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.", "LexiFlow'ni ochish"],
     'unsupported locale -> default' => ['en', 2, "Пора повторить 2 слова в LexiFlow.\n\nИзменить время или отключить: /settings", 'Открыть LexiFlow'],
 ]);
 
@@ -357,7 +357,7 @@ it('falls back to the Telegram language when the stored interface locale is unsu
 
     locRunReminder($learner, 5);
 
-    expect($this->api->log[0]['text'])->toBe("LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings");
+    expect($this->api->log[0]['text'])->toBe("LexiFlow'da 5 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.");
 });
 
 // --- leaderboard (group language, HTML escaping preserved) -----------------

@@ -130,7 +130,7 @@ describe('FinishedView: the round of hard words', () => {
       setLocale('uz')
       const w = render('hard_round_complete', summary({ hard_round: { total: 10, won: 6 } }), 'hard_review')
 
-      expect(w.get('[data-testid=hard-round-title]').text()).toBe("10 ta qiyin so'zdan 6 tasini yengdingiz")
+      expect(w.get('[data-testid=hard-round-title]').text()).toBe("10 ta qiyin so'zdan 6 tasiga to'g'ri javob berdingiz")
     })
   })
 

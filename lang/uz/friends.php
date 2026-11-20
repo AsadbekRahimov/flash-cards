@@ -21,7 +21,7 @@ return [
         'decline' => 'Rad etish',
     ],
 
-    'request_sent' => "So'rov yuborildi: :name. Qabul qilishsa, xabar beramiz.",
+    'request_sent' => "So'rov yuborildi: :name. Taklifingiz qabul qilinganda xabar beramiz.",
     'already_sent' => "Siz :name'ga allaqachon so'rov yuborgansiz — javob kutilmoqda.",
     'skipped' => "Xo'p, so'rov yuborilmadi.",
     'accepted' => "Tayyor: endi :name bilan do'st bo'ldingiz. Do'stlar ro'yxati LexiFlow ilovasida.",
@@ -36,8 +36,8 @@ return [
         'friend_blocked' => 'Bu havola ishlamaydi.',
         'friendship_not_found' => 'Bu taklif endi amal qilmaydi.',
         'not_recipient' => 'Taklifga faqat taklif qilingan kishi javob bera oladi.',
-        'friend_limit' => "Do'stlaringiz soni chegaraga yetgan.",
-        'friend_limit_other' => "Do'stingizning do'stlari soni chegaraga yetgan.",
+        'friend_limit' => "Do'stlar ro'yxatingiz to'lgan.",
+        'friend_limit_other' => "Bu foydalanuvchining do'stlar ro'yxati to'lgan.",
         'generic' => "Bajarib bo'lmadi. Keyinroq urinib ko'ring.",
     ],
 
@@ -52,7 +52,7 @@ return [
         'challenge_proposed' => ':name sizni musobaqaga chaqiryapti: :days kun ichida kim :metric? Qabul qilsangiz, musobaqa ertaga boshlanadi.',
         'challenge_accepted' => ':name musobaqangizni qabul qildi! Boshlanishi — :starts, tugashi — :ends.',
         'challenge_won' => ":name bilan musobaqa yakunlandi: siz g'olibsiz! Hisob :mine : :theirs.",
-        'challenge_lost' => ":name bilan musobaqa yakunlandi: :name g'alaba qozondi. Hisob :mine : :theirs. Revansh — ilovada!",
+        'challenge_lost' => ":name bilan musobaqa yakunlandi: :name g'alaba qozondi. Hisob :mine : :theirs. Ilovada yana bellashishingiz mumkin!",
         'challenge_draw' => ':name bilan musobaqa durang bilan tugadi: :mine : :theirs.',
         'button' => 'LexiFlow\'ni ochish',
     ],
