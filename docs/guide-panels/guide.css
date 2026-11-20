@@ -1,0 +1,141 @@
+/* Руководство по панелям LexiFlow Pro: печатная вёрстка A4 (Chromium через build.mjs).
+   Шрифты — файлы проекта (resources/fonts/panel, SIL OFL), как в самих панелях. */
+@import url('../../resources/fonts/panel/source-serif-4/index.css');
+@import url('../../resources/fonts/panel/ibm-plex-mono/index.css');
+
+:root {
+  --ink: #1D2130;
+  --muted: #5F6677;
+  --accent: #3F4A7A;
+  --line: #E4E7EC;
+  --paper: #FFFFFF;
+  --soft: #F6F7F9;
+  --note-bg: #F0F1F7;
+  --warn: #8A5510;
+  --warn-bg: #F7EEDD;
+}
+
+/* Поля страницы, номер внизу; название главы сверху задаёт build.mjs (именованные страницы). */
+@page {
+  size: A4;
+  margin: 20mm 17mm 18mm 19mm;
+  @bottom-right {
+    content: counter(page);
+    font: 9pt 'IBM Plex Mono', monospace;
+    color: #5F6677;
+  }
+  @bottom-left {
+    content: 'LexiFlow Pro · Руководство по панелям';
+    font: 8.5pt 'Source Serif 4', serif;
+    color: #9AA1B1;
+  }
+}
+@page cover {
+  margin: 0;
+  @bottom-right { content: none; }
+  @bottom-left { content: none; }
+}
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 10.5pt;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--paper);
+  hyphens: auto;
+  orphans: 3;
+  widows: 3;
+}
+
+/* --- Обложка --------------------------------------------------------------------------------- */
+.cover {
+  page: cover;
+  height: 297mm;
+  box-sizing: border-box;
+  padding: 38mm 24mm 24mm;
+  display: flex;
+  flex-direction: column;
+  background: var(--soft);
+  break-after: page;
+}
+.cover .brand { font-size: 13pt; font-weight: 700; letter-spacing: .02em; color: var(--accent); }
+.cover .title { font-size: 34pt; line-height: 1.12; font-weight: 700; margin: 26mm 0 8mm; }
+.cover .subtitle { font-size: 14pt; color: var(--muted); max-width: 140mm; }
+.cover .roles { margin-top: 14mm; border-top: 1px solid var(--line); padding-top: 6mm; font-size: 11pt; color: var(--ink); }
+.cover .roles li { margin: 1.5mm 0; }
+.cover .meta { margin-top: auto; font: 9.5pt 'IBM Plex Mono', monospace; color: var(--muted); }
+
+/* --- Оглавление ------------------------------------------------------------------------------ */
+.toc { break-after: page; }
+.toc h1 { margin-top: 0; }
+.toc ol { list-style: none; padding: 0; margin: 0; }
+.toc > ol > li { margin: 3.2mm 0 0; break-inside: avoid; }
+.toc a { color: var(--ink); text-decoration: none; display: flex; align-items: baseline; gap: 2mm; }
+.toc a .t { flex: 0 1 auto; }
+.toc a .dots { flex: 1 1 auto; border-bottom: 1px dotted #CDD2DC; transform: translateY(-1mm); min-width: 6mm; }
+.toc a .p { flex: 0 0 auto; font-family: 'IBM Plex Mono', monospace; font-size: 9pt; color: var(--muted); }
+.toc .lvl1 > a { font-weight: 600; font-size: 11pt; }
+.toc .lvl2 { margin: .6mm 0 0 7mm; font-size: 9.5pt; }
+.toc .lvl2 a { color: var(--muted); }
+.toc .part { margin: 7mm 0 1mm; font: 600 8.5pt 'IBM Plex Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+
+/* --- Главы ----------------------------------------------------------------------------------- */
+section.chapter { break-before: page; }
+h1, h2, h3, h4 { font-weight: 700; line-height: 1.22; break-after: avoid; page-break-after: avoid; color: var(--ink); }
+h1 { font-size: 21pt; margin: 0 0 5mm; padding-bottom: 3mm; border-bottom: 1px solid var(--line); }
+h2 { font-size: 14pt; margin: 8mm 0 2.5mm; }
+h3 { font-size: 11.5pt; margin: 5.5mm 0 1.5mm; }
+h4 { font-size: 10.5pt; margin: 4mm 0 1mm; color: var(--accent); }
+/* Заголовок не остаётся внизу страницы: он «держится» за следующий абзац. */
+h2 + *, h3 + *, h4 + * { break-before: avoid; }
+p { margin: 0 0 2.6mm; }
+a { color: var(--accent); }
+code, kbd, .mono { font-family: 'IBM Plex Mono', monospace; font-size: 8.8pt; }
+code { background: var(--soft); border: 1px solid var(--line); border-radius: 3px; padding: 0 1.2mm; white-space: nowrap; }
+pre { font-family: 'IBM Plex Mono', monospace; font-size: 8.2pt; line-height: 1.45; background: var(--soft); border: 1px solid var(--line); border-radius: 4px; padding: 3mm 4mm; white-space: pre-wrap; break-inside: avoid; margin: 0 0 3mm; }
+pre code { background: none; border: 0; padding: 0; white-space: pre-wrap; font-size: inherit; }
+b, strong { font-weight: 700; }
+ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+li { margin: .8mm 0; }
+.lead { font-size: 11.5pt; color: var(--muted); }
+
+/* Пошаговые инструкции */
+ol.steps { counter-reset: step; list-style: none; padding-left: 0; }
+ol.steps > li { counter-increment: step; position: relative; padding-left: 9mm; margin: 1.8mm 0; break-inside: avoid; }
+ol.steps > li::before {
+  content: counter(step);
+  position: absolute; left: 0; top: .2mm;
+  width: 5.6mm; height: 5.6mm; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font: 600 8pt/5.6mm 'IBM Plex Mono', monospace; text-align: center;
+}
+
+/* Врезки */
+.note, .warn { border-radius: 4px; padding: 3mm 4mm; margin: 3mm 0 4mm; break-inside: avoid; }
+.note { background: var(--note-bg); border-left: 3px solid var(--accent); }
+.warn { background: var(--warn-bg); border-left: 3px solid #B4741A; }
+.note > :last-child, .warn > :last-child { margin-bottom: 0; }
+.note::before, .warn::before { display: block; font: 600 8pt 'IBM Plex Mono', monospace; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 1mm; }
+.note::before { content: 'К сведению'; color: var(--accent); }
+.warn::before { content: 'Осторожно'; color: var(--warn); }
+
+/* Рисунки: не разрываются между страницами */
+figure { margin: 4mm 0 5mm; break-inside: avoid; page-break-inside: avoid; text-align: center; }
+figure img { max-width: 100%; max-height: 205mm; border: 1px solid var(--line); border-radius: 4px; display: block; margin: 0 auto; }
+figure.narrow img { max-width: 62%; }
+figure.half img { max-width: 80%; }
+figcaption { font-size: 9pt; color: var(--muted); margin-top: 2mm; text-align: left; line-height: 1.4; }
+figcaption .fig-no { font-weight: 700; color: var(--ink); }
+
+/* Таблицы: шапка повторяется на каждой странице, строки не рвутся */
+table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.3pt; line-height: 1.38; }
+thead { display: table-header-group; }
+tr { break-inside: avoid; page-break-inside: avoid; }
+th, td { border: 1px solid var(--line); padding: 1.6mm 2.2mm; vertical-align: top; text-align: left; }
+th { background: var(--soft); font-weight: 600; }
+td code { white-space: normal; }
+
+/* Служебное для нумерации страниц оглавления (build.mjs, первый проход) */
+.pg-marker { position: absolute; font-size: 1px; color: #fff; }

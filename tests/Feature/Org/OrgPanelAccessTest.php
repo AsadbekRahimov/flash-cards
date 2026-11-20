@@ -186,6 +186,51 @@ it('shows the owner every screen', function (): void {
     $this->get('/org/profile')->assertOk();
 });
 
+/*
+ * `/org/profile` is the one cabinet page outside `/org/<slug>`. A browser opens it in a request of its own, with no center chosen;
+ * the test above reaches it after the center pages in one process, where the tenant stays set — these tests do not.
+ */
+it('opens the own profile as the first request, with no center chosen, for an owner, a teacher and the staff of two centers', function (): void {
+    $organization = Organization::factory()->create(['name' => 'Center One']);
+    $second = Organization::factory()->create(['name' => 'Center Two']);
+    $noTelegram = ['telegram_user_id' => null];
+    $owner = orgStaff($organization, OrganizationRole::Owner, twoFactor: true, attrs: $noTelegram);
+    $teacher = orgStaff($organization, OrganizationRole::Teacher, twoFactor: false, attrs: $noTelegram);
+    $both = orgStaff($organization, OrganizationRole::Teacher, twoFactor: false, attrs: $noTelegram);
+    OrganizationUser::factory()->create(['organization_id' => $second->id, 'user_id' => $both->id, 'role' => OrganizationRole::Teacher->value]);
+
+    foreach ([[$owner, orgPassed($owner)], [$teacher, []], [$both, []]] as [$user, $session]) {
+        expect(Filament::getTenant())->toBeNull();
+
+        $this->actingAs($user, 'org')->withSession($session)
+            ->get('/org/profile')
+            ->assertOk()
+            ->assertSee(__('org.profile.telegram.title'))
+            ->assertSee(__('org.profile.telegram.connect'));
+    }
+});
+
+it('links step 1 of the first-steps checklist to a profile page that opens in a new request', function (): void {
+    $organization = Organization::factory()->create();
+    $owner = orgStaff($organization, OrganizationRole::Owner, twoFactor: true, attrs: ['telegram_user_id' => null]);
+
+    $this->actingAs($owner, 'org')->withSession(orgPassed($owner));
+
+    $dashboard = $this->get('/org/'.$organization->slug)
+        ->assertOk()
+        ->assertSee(__('org.dashboard.checklist.telegram'))
+        ->getContent();
+
+    $profileUrl = Filament::getPanel('org')->getProfileUrl();
+    expect($profileUrl)->toBe(url('/org/profile'))
+        ->and($dashboard)->toContain('href="'.$profileUrl.'"');
+
+    // The click is a request of its own: the center of the dashboard request is not chosen there.
+    Filament::setTenant(null, isQuiet: true);
+
+    $this->get((string) $profileUrl)->assertOk()->assertSee(__('org.profile.telegram.connect'));
+});
+
 it('resolves the tenant-aware policies only while the org panel is current', function (): void {
     expect(Gate::getPolicyFor(TelegramGroup::class))->toBeInstanceOf(TelegramGroupPolicy::class);
     expect(OrgPolicyResolver::inOrgPanel())->toBeFalse();

@@ -131,7 +131,7 @@ class Reports extends Page
         }
 
         try {
-            return DateRange::between((string) ($this->data['from'] ?? ''), (string) ($this->data['to'] ?? ''));
+            return $this->customRange();
         } catch (ReportRangeException) {
             return null;
         }
@@ -144,12 +144,36 @@ class Reports extends Page
         }
 
         try {
-            DateRange::between((string) ($this->data['from'] ?? ''), (string) ($this->data['to'] ?? ''));
+            $this->customRange();
         } catch (ReportRangeException $e) {
             return __('org.reports.errors.'.$e->errorCode, ['days' => DateRange::MAX_DAYS]);
         }
 
         return null;
+    }
+
+    /**
+     * The «own period» of the two date fields.
+     *
+     * @throws ReportRangeException
+     */
+    private function customRange(): DateRange
+    {
+        return DateRange::between(self::pickedDate($this->data['from'] ?? null), self::pickedDate($this->data['to'] ?? null));
+    }
+
+    /**
+     * A date of the period as `Y-m-d`. `$this->data` is the raw Livewire state, and a non-native date picker keeps its date
+     * in its internal format `Y-m-d H:i:s` (`DateTimePicker::getInternalFormat()`): `form->fill()` writes «2026-10-22 00:00:00»
+     * and the browser sends it back the same way; only the field's state cast turns it into the `Y-m-d` of `format()`. Exactly
+     * that midnight form is reduced to its date — anything else goes to {@see DateRange::between()} as it came and is rejected
+     * there (a time of day, an impossible date, junk).
+     */
+    private static function pickedDate(mixed $state): string
+    {
+        $value = is_string($state) ? $state : '';
+
+        return preg_match('/^(\d{4}-\d{2}-\d{2}) 00:00:00$/', $value, $match) === 1 ? $match[1] : $value;
     }
 
     /** @return list<LearnerActivityRow> */

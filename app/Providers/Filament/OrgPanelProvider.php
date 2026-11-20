@@ -60,7 +60,11 @@ class OrgPanelProvider extends PanelProvider
             ->authPasswordBroker('org')
             ->login()
             ->passwordReset(OrgRequestPasswordReset::class)
-            ->profile(OrgProfile::class, isSimple: false)
+            // The own profile lives outside `/org/<slug>` (a user may be staff of several centers), so it is a simple page, as
+            // Filament draws every tenant-less page of a tenancy panel (login, tenant registration): the full layout needs a
+            // tenant — its center menu (`getTenantBillingUrl(Model)`, `getTenantName(Model)`) and every navigation URL
+            // (`/org/{tenant}/…`) — and answered 500 on a fresh `/org/profile`. "Back" returns to the center it came from.
+            ->profile(OrgProfile::class)
             // SPA with hover prefetch (docs/20 §1.14): the 2FA pages are plain Blade outside the panel layout and the
             // printable invoice is a standalone document — both stay full page loads.
             ->spa(hasPrefetching: true)

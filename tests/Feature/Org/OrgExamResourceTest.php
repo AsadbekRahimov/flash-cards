@@ -192,6 +192,11 @@ it('filters the list by group and by period, newest first', function (): void {
         ->removeTableFilter('telegram_group_id')
         ->filterTable('period', ['from' => '2026-11-01', 'until' => '2026-11-06'])
         ->assertCanSeeTableRecords([$this->e1, $this->e2])
+        ->assertCanNotSeeTableRecords([$old])
+        // The same dates as the non-native picker sends them from the browser (its internal format `Y-m-d H:i:s`).
+        ->removeTableFilter('period')
+        ->filterTable('period', ['from' => '2026-11-01 00:00:00', 'until' => '2026-11-06 00:00:00'])
+        ->assertCanSeeTableRecords([$this->e1, $this->e2])
         ->assertCanNotSeeTableRecords([$old]);
 
     // newest first: the exam of 20 days ago comes last
