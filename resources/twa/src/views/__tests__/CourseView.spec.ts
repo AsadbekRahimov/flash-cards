@@ -390,7 +390,7 @@ describe('CourseView', () => {
 
       const first = wrapper.get('[data-testid=stage-1]')
       expect(first.get('[data-testid=stage-of]').text()).toBe('Модуль 1 из 2')
-      expect(first.get('h2').text()).toBe('Basics')
+      expect(first.get('[data-testid=stage-title]').text()).toBe('Basics')
       expect(chips(first)).toEqual([])
       const bar = first.get('[data-testid=progress-bar]')
       expect(bar.attributes('aria-valuenow')).toBe('40')
@@ -400,6 +400,154 @@ describe('CourseView', () => {
       expect(first.find('ol.list').exists()).toBe(true)
       // One module at a time: the next one is behind the arrow.
       expect(wrapper.find('[data-testid=stage-2]').exists()).toBe(false)
+    })
+
+    describe('the list of modules', () => {
+      /** The learner's course: module 1 learned, the current lesson in module 2 (lesson 22), module 3 not begun. */
+      const threeModules = () => detail({
+        is_active: true,
+        stages: [
+          stage(1, [lesson(11, 1, 3, 3)]),
+          stage(2, [lesson(21, 1, 2, 2), lesson(22, 2, 1, 4)]),
+          { ...stage(3, [lesson(31, 1, 0, 5)]), title: null },
+        ],
+      })
+
+      it('opens from the heading of the module, a button that says it opens a dialog', async () => {
+        vi.mocked(api.courses.get).mockResolvedValue(threeModules())
+        const { wrapper } = await render()
+
+        const button = wrapper.get('[data-testid=stage-2] [data-testid=stage-picker-btn]')
+        expect(button.element.tagName).toBe('BUTTON')
+        expect(button.element.parentElement?.tagName).toBe('H2')
+        expect(button.text()).toContain('Модуль 2 из 3')
+        expect(button.text()).toContain('Module 2')
+        expect(button.attributes('aria-haspopup')).toBe('dialog')
+        expect(button.attributes('aria-expanded')).toBe('false')
+        expect(button.classes()).toContain('min-h-11')
+        expect(wrapper.find('[data-testid=stage-sheet]').exists()).toBe(false)
+
+        await button.trigger('click')
+
+        expect(button.attributes('aria-expanded')).toBe('true')
+        const sheet = wrapper.get('[data-testid=stage-sheet]')
+        expect(sheet.attributes('role')).toBe('dialog')
+        expect(sheet.attributes('aria-label')).toBe('Модули курса')
+        wrapper.unmount()
+      })
+
+      it('lists every module: number, name, words or "пройден", "вы здесь" on the current one, the shown one selected', async () => {
+        vi.mocked(api.courses.get).mockResolvedValue(threeModules())
+        const { wrapper } = await render()
+        await wrapper.get('[data-testid=stage-picker-btn]').trigger('click')
+
+        const option = (n: number) => wrapper.get(`[data-testid=stage-option-${n}]`)
+        expect(option(1).text()).toContain('01')
+        expect(option(1).text()).toContain('Module 1')
+        expect(option(1).get('[data-testid=stage-done]').attributes('aria-label')).toBe('Пройден')
+        expect(option(1).find('[data-testid=stage-words]').exists()).toBe(false)
+
+        expect(option(2).get('[data-testid=stage-here]').text()).toBe('вы здесь')
+        expect(option(2).get('[data-testid=stage-words]').text()).toBe('3 из 6 слов')
+        expect(option(2).attributes('aria-current')).toBe('true')
+        expect(option(2).classes()).toContain('bg-accent-soft')
+
+        // A module without a name is "Модуль N" here too.
+        expect(option(3).text()).toContain('Модуль 3')
+        expect(option(3).get('[data-testid=stage-words]').text()).toBe('0 из 5 слов')
+        expect(option(3).attributes('aria-current')).toBeUndefined()
+        expect(option(3).find('[data-testid=stage-here]').exists()).toBe(false)
+        expect(wrapper.findAll('[data-testid=stage-here]')).toHaveLength(1)
+        wrapper.unmount()
+      })
+
+      it('switches the module on a pick, closes, and gives the focus back to the heading', async () => {
+        vi.mocked(api.courses.get).mockResolvedValue(threeModules())
+        const { wrapper } = await render()
+        const button = wrapper.get('[data-testid=stage-picker-btn]')
+        ;(button.element as HTMLElement).focus()
+        await button.trigger('click')
+        await flushPromises()
+
+        await wrapper.get('[data-testid=stage-option-1]').trigger('click')
+        await flushPromises()
+
+        expect(wrapper.find('[data-testid=stage-sheet]').exists()).toBe(false)
+        expect(wrapper.find('[data-testid=stage-2]').exists()).toBe(false)
+        expect(wrapper.get('[data-testid=stage-1] [data-testid=stage-title]').text()).toBe('Module 1')
+        const heading = wrapper.get('[data-testid=stage-picker-btn]')
+        expect(heading.attributes('aria-expanded')).toBe('false')
+        expect(document.activeElement).toBe(heading.element)
+        wrapper.unmount()
+      })
+
+      it('closes on the cross without changing the module', async () => {
+        vi.mocked(api.courses.get).mockResolvedValue(threeModules())
+        const { wrapper } = await render()
+        await wrapper.get('[data-testid=stage-picker-btn]').trigger('click')
+
+        await wrapper.get('[data-testid=sheet-x]').trigger('click')
+
+        expect(wrapper.find('[data-testid=stage-sheet]').exists()).toBe(false)
+        expect(wrapper.find('[data-testid=stage-2]').exists()).toBe(true)
+        wrapper.unmount()
+      })
+
+      it('is not there, nor are the arrows, in a course of one module', async () => {
+        vi.mocked(api.courses.get).mockResolvedValue(detail({ stages: [stage(1, [lesson(11, 1, 0, 3)])] }))
+        const { wrapper } = await render()
+
+        expect(wrapper.find('[data-testid=stage-picker-btn]').exists()).toBe(false)
+        expect(wrapper.get('[data-testid=stage-1] h2').text()).toBe('Module 1')
+        expect(wrapper.find('[data-testid=stage-prev]').exists()).toBe(false)
+        expect(wrapper.find('[data-testid=stage-next]').exists()).toBe(false)
+      })
+    })
+
+    describe('"К текущему уроку"', () => {
+      const twoModules = (active = true) => detail({
+        is_active: active,
+        stages: [stage(1, [lesson(11, 1, 3, 3)]), stage(2, [lesson(21, 1, 1, 4)])],
+      })
+
+      it('is not there on the module of the current lesson', async () => {
+        vi.mocked(api.courses.get).mockResolvedValue(twoModules())
+        const { wrapper } = await render()
+
+        expect(wrapper.find('[data-testid=stage-2]').exists()).toBe(true)
+        expect(wrapper.find('[data-testid=to-current-btn]').exists()).toBe(false)
+      })
+
+      it('shows away from it, leads back to the module of the current lesson and scrolls its row into view', async () => {
+        const scroll = vi.fn()
+        Element.prototype.scrollIntoView = scroll
+        vi.mocked(api.courses.get).mockResolvedValue(twoModules())
+        const { wrapper } = await render()
+
+        await wrapper.get('[data-testid=stage-prev]').trigger('click')
+        const back = wrapper.get('[data-testid=stage-1] [data-testid=to-current-btn]')
+        expect(back.text()).toBe('К текущему уроку')
+        expect(back.classes()).toContain('min-h-11')
+        expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(false)
+
+        await back.trigger('click')
+        await flushPromises()
+
+        expect(wrapper.find('[data-testid=stage-2]').exists()).toBe(true)
+        expect(wrapper.find('[data-testid=to-current-btn]').exists()).toBe(false)
+        expect(wrapper.find('[data-testid=continue-btn]').exists()).toBe(true)
+        expect(scroll).toHaveBeenCalledTimes(1)
+        expect(scroll.mock.contexts[0]).toBe(wrapper.get('[data-testid=lesson-21]').element)
+        Reflect.deleteProperty(Element.prototype, 'scrollIntoView')
+      })
+
+      it('is never there in a course the learner does not take: it has no current lesson', async () => {
+        vi.mocked(api.courses.get).mockResolvedValue(twoModules(false))
+        const { wrapper } = await render()
+
+        await wrapper.get('[data-testid=stage-prev]').trigger('click')
+        expect(wrapper.find('[data-testid=to-current-btn]').exists()).toBe(false)
+      })
     })
 
     it('walks the modules with the arrows under the lessons, a module without lessons has no (empty) list', async () => {
@@ -414,7 +562,7 @@ describe('CourseView', () => {
       await next.trigger('click')
 
       const second = wrapper.get('[data-testid=stage-2]')
-      expect(second.get('h2').text()).toBe('Food')
+      expect(second.get('[data-testid=stage-title]').text()).toBe('Food')
       expect(second.get('[data-testid=stage-of]').text()).toBe('Модуль 2 из 2')
       expect(second.find('.list').exists()).toBe(false)
       expect(wrapper.find('[data-testid=stage-next]').exists()).toBe(false)
@@ -423,7 +571,7 @@ describe('CourseView', () => {
       expect(prev.attributes('aria-label')).toBe('Предыдущий модуль: Basics')
 
       await prev.trigger('click')
-      expect(wrapper.get('[data-testid=stage-1] h2').text()).toBe('Basics')
+      expect(wrapper.get('[data-testid=stage-1] [data-testid=stage-title]').text()).toBe('Basics')
     })
 
     it('names a module without a title by its number: "Модуль N" is the heading, with no line above and a matching bar label', async () => {
@@ -438,7 +586,7 @@ describe('CourseView', () => {
 
       // The first unfinished lesson is in module 2: the screen opens there.
       const bare = wrapper.get('[data-testid=stage-2]')
-      expect(bare.get('h2').text()).toBe('Модуль 2')
+      expect(bare.get('[data-testid=stage-title]').text()).toBe('Модуль 2')
       expect(bare.find('[data-testid=stage-of]').exists()).toBe(false)
       expect(bare.get('[data-testid=progress-bar]').attributes('aria-label')).toBe('Модуль 2')
       expect(bare.get('[data-testid=lesson-21]').text()).toContain('Урок 1')
@@ -447,7 +595,7 @@ describe('CourseView', () => {
 
       await wrapper.get('[data-testid=stage-prev]').trigger('click')
       const named = wrapper.get('[data-testid=stage-1]')
-      expect(named.get('h2').text()).toBe('Образование')
+      expect(named.get('[data-testid=stage-title]').text()).toBe('Образование')
       expect(named.get('[data-testid=progress-bar]').attributes('aria-label')).toBe('Образование')
     })
 
@@ -457,7 +605,7 @@ describe('CourseView', () => {
       const { wrapper } = await render()
 
       const bare = wrapper.get('[data-testid=stage-3]')
-      expect(bare.get('h2').text()).toBe('Модуль 3')
+      expect(bare.get('[data-testid=stage-title]').text()).toBe('Модуль 3')
       expect(bare.find('[data-testid=stage-of]').exists()).toBe(false)
     })
 
@@ -872,7 +1020,7 @@ describe('CourseView', () => {
     const { wrapper } = await render()
 
     const bare = wrapper.get('[data-testid=stage-2]')
-    expect(bare.get('h2').text()).toBe('2-modul')
+    expect(bare.get('[data-testid=stage-title]').text()).toBe('2-modul')
     expect(chips(bare)).toEqual([])
     expect(bare.get('[data-testid=progress-bar]').attributes('aria-label')).toBe('2-modul')
   })
