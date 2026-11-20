@@ -987,6 +987,35 @@ For a release decision compare the real distributions of Android and iOS and of 
 purely technical comparison repeat the scenario on one device with the same network instead. The server p95 of `/today` and
 `/review` (monitoring) tells the cause when `start → button` grows.
 
+## Main panel (Панель, redesign 2026-11)
+
+The home page of `/admin` is **«Панель»**: the title, today's date and, for an active admin, two tabs — **«Учёба»** (learning, the
+default) and **«Деньги»** (money: Pro subscriptions, revenue, payment webhook errors, the Pro funnel, the seats of the centers). The tab
+is in the address (`/admin?tab=money`), so a link opens the same view; only the widgets of the open tab are loaded. A teacher and an
+inactive admin always get «Учёба», with only the widgets they are allowed to see (a teacher — the figures of their own groups).
+
+**«Учёба»** starts with four cards — *Учились сегодня* (learners who answered a card today, Tashkent date, against the same hour a
+week ago), *Активация за 24 часа*, *Возврат на 7-й день* (the latest registration week where the figure is known; see *Retention*
+below) and *Требуют внимания* — then the blocks *Требуют внимания*, *Первый день новичка* (with «Время до первой кнопки», the p75 of
+the open speed, recomputed every 30 minutes in the background — see *Open speed*; right after a deploy it may say that the figure is
+being computed), *Возврат на 7-й день по неделям*, *Центры: до первого задания*, *Путь к Pro · Stars*, *Занятия по неделям*, and
+the older learning widgets listed in *Dashboard Widgets*.
+
+**«Требуют внимания»** lists what someone should look at today; «Всё в порядке» when there is nothing. Urgent lines (red) come
+first, then warnings (amber), then notes:
+
+| Line | Level | What it means | What to do |
+|---|---|---|---|
+| *Вебхуки оплаты* — «Не зачислено платежей за 24 часа: N» | urgent | N payments of the last 24 hours were recorded as `failed` | Open the link (**Payments → Status: failed**) and check each with the provider; see *Payments* above |
+| *Заказы с расхождениями* | urgent | Orders paid in 24 hours with a double discount, a tier mismatch or a double Stars subscription | **Payment orders**, the red badges and their filters |
+| A center's name — «Нет выполненного задания с момента создания», *N дней* | warning | An active center created **7 or more days ago** (`analytics.attention.center_wait_days`) where no learner has completed an assignment yet; the three oldest one by one, the rest as one line *Другие центры* | Call the center: is a group linked, is an assignment created? (*Центры: до первого задания* shows the step it is stuck on) |
+| *<course slug> · озвучка* — «Покрытие X %, порог публикации 95 %» | warning | A published course, or one on review, where fewer than 95 % of the active words have audio recorded (the same count as `audio:coverage <course>`; files are not checked here). Updated within 5 minutes after the audio queue runs | Run the audio pre-generation for the course (*Word audio*), then `audio:coverage --verify` |
+| *Сравнение напоминаний* | note | Shown only while the reminder experiment is switched on: its day, and from **day 14** (`analytics.attention.reminder_read_after_days`) that the report can be read; «деление начнётся позже» before the start date, «Дата начала не читается» when `starts_at` is not a date | From day 14: `php artisan analytics:reminder-experiment` (see *Reminder experiment*) |
+
+The two thresholds are plain settings in `config/analytics.php` (`attention.center_wait_days`, default 7; `attention.reminder_read_after_days`,
+default 14), not environment variables; after a change deploy and run `php artisan config:cache`. The list reads only figures the
+dashboard already caches, so it follows their timers (payments — up to a minute, centers — up to 10 minutes, audio — up to 5 minutes).
+
 ## Dashboard Widgets
 
 | Widget | Who sees it | What it shows |

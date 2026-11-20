@@ -10,6 +10,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useExamStore } from '@/stores/exam'
 import { useBackButton } from '@/composables/useBackButton'
+import { useChromeSurface } from '@/composables/useChromeSurface'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import { useTimer } from '@/composables/useTimer'
@@ -97,6 +98,9 @@ function optionState(index: number): 'idle' | 'selected' | 'correct' | 'incorrec
 
 // "Back" closes the Mini App: an exam is not left halfway for a tab (docs/14 §5.3).
 useBackButton(() => close())
+
+// The screen is white (`bg-surface`): Telegram's header and window background take the same colour (docs/14 §4.1).
+useChromeSurface()
 
 let feedbackTimeout: ReturnType<typeof setTimeout> | null = null
 

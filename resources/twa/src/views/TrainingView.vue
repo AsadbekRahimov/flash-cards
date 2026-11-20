@@ -24,6 +24,7 @@ import { useBillingStore } from '@/stores/billing'
 import { useTodayStore } from '@/stores/today'
 import { COMBO_MIN, COMBO_STEP, useTrainingStore } from '@/stores/training'
 import { useBackButton } from '@/composables/useBackButton'
+import { useChromeSurface } from '@/composables/useChromeSurface'
 import { playSound } from '@/composables/useFeedbackSound'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
@@ -123,6 +124,9 @@ function leave(): void {
 }
 
 useBackButton(leave)
+
+// The screen is white (`bg-surface`): Telegram's header and window background take the same colour (docs/14 §4.1).
+useChromeSurface()
 
 /**
  * Set when the learner leaves the screen. Whatever comes back after that (the login, the reply to the last grade, the

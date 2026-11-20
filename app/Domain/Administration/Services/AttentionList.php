@@ -14,14 +14,15 @@ use Carbon\CarbonImmutable;
  * no query of its own, so a warm open costs nothing:
  *  - payments a webhook could not apply in 24 hours and the anomalies of the orders ({@see AdminDashboardStats::webhookErrors24h()},
  *    read at the data version of the ledger) — urgent;
- *  - active centers with no assignment completed by a learner {@see CENTER_WAIT_DAYS} days or more after their creation
+ *  - active centers with no assignment completed by a learner {@see centerWaitDays()} days or more after their creation
  *    ({@see OrgActivationStats}), the oldest {@see CENTERS_SHOWN} by name, the others as one line;
  *  - courses published or on review whose audio coverage is below the publishing threshold ({@see CourseAudioCoverageStats});
- *  - the reminder experiment ({@see ReminderExperiment}) while it is switched on: its day, and from day {@see READ_AFTER_DAYS} on
+ *  - the reminder experiment ({@see ReminderExperiment}) while it is switched on: its day, and from day {@see readAfterDays()} on
  *    that the report can be read — from the configuration alone (whether the base is large enough takes the full report,
  *    `analytics:reminder-experiment`, which is not run on an open of the dashboard).
  *
- * The items are data (kind, level, numbers, ids); the widget turns them into words and links.
+ * The items are data (kind, level, numbers, ids); the widget turns them into words and links. Both thresholds in days are in
+ * `config/analytics.php` (`attention.*`), the constants below are their defaults.
  *
  * @phpstan-type Item array{kind: string, level: string, id: int|null, name: string|null, state: string|null, count: int, value: float|int|null, total: int|null}
  */
@@ -45,13 +46,16 @@ final class AttentionList
 
     public const KIND_REMINDERS = 'reminder_experiment';
 
-    /** A center waits this many whole days for its first completed assignment before it is on the list. */
+    /** The default of `analytics.attention.center_wait_days`: a center waits this many whole days for its first completed assignment before it is on the list. */
     public const CENTER_WAIT_DAYS = 7;
 
     /** Centers listed one by one; the others are one line. */
     public const CENTERS_SHOWN = 3;
 
-    /** The reminder experiment runs 2-3 weeks (docs/ADMIN_GUIDE.md «Reminder experiment»): from this day of it the report is worth reading. */
+    /**
+     * The default of `analytics.attention.reminder_read_after_days`: the reminder experiment runs 2-3 weeks (docs/ADMIN_GUIDE.md
+     * «Reminder experiment»), from this day of it the report is worth reading.
+     */
     public const READ_AFTER_DAYS = 14;
 
     public function __construct(
@@ -120,9 +124,10 @@ final class AttentionList
     /** @return list<Item> */
     private function waitingCenters(): array
     {
+        $wait = self::centerWaitDays();
         $waiting = array_values(array_filter(
             $this->centers->figures()['rows'],
-            static fn (array $row): bool => $row['status'] === 'active' && $row['completed'] === null && $row['age'] >= self::CENTER_WAIT_DAYS * 86400,
+            static fn (array $row): bool => $row['status'] === 'active' && $row['completed'] === null && $row['age'] >= $wait * 86400,
         ));
         // The oldest first, whatever order the cached list is in.
         usort($waiting, static fn (array $a, array $b): int => [-$a['age'], $a['id']] <=> [-$b['age'], $b['id']]);
@@ -169,14 +174,35 @@ final class AttentionList
         }
 
         $day = intdiv($now->getTimestamp() - $startsAt->getTimestamp(), 86400) + 1;
+        $readAfter = self::readAfterDays();
 
         return [self::item(
             self::KIND_REMINDERS,
             self::LEVEL_INFO,
-            state: $day >= self::READ_AFTER_DAYS ? 'ready' : 'running',
+            state: $day >= $readAfter ? 'ready' : 'running',
             value: $day,
-            total: max(0, self::READ_AFTER_DAYS - $day),
+            total: max(0, $readAfter - $day),
         )];
+    }
+
+    /** Whole days a center waits for its first completed assignment before it is listed (`analytics.attention.center_wait_days`, at least 1). */
+    public static function centerWaitDays(): int
+    {
+        return self::days('analytics.attention.center_wait_days', self::CENTER_WAIT_DAYS);
+    }
+
+    /** The day of the reminder experiment from which its report is worth reading (`analytics.attention.reminder_read_after_days`, at least 1). */
+    public static function readAfterDays(): int
+    {
+        return self::days('analytics.attention.reminder_read_after_days', self::READ_AFTER_DAYS);
+    }
+
+    /** A whole number of days from the configuration; a value that is not a number falls back to the default. */
+    private static function days(string $key, int $default): int
+    {
+        $value = config($key, $default);
+
+        return max(1, is_numeric($value) ? (int) $value : $default);
     }
 
     private static function hasStartsAt(): bool

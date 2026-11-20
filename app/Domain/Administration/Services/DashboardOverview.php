@@ -10,7 +10,9 @@ use App\Domain\Analytics\Services\StudyTodayStats;
 use App\Domain\Analytics\Support\WilsonInterval;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Services\BillingFunnelService;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Organizations\Services\OrgActivationStats;
+use App\Jobs\WarmOpenSpeedJob;
 use Carbon\CarbonImmutable;
 
 /**
@@ -18,8 +20,13 @@ use Carbon\CarbonImmutable;
  * the figures the platform already keeps — the retention report (activation in 24 hours, D7 by week, the first day of a cohort),
  * «Учились сегодня», the activation of the centers, the Pro funnel and the open speed of the Mini App. This class only picks and
  * compares: which cohort is the latest one whose figure is known, the change against the cohort before, the 95 % interval. Every
- * source is cached on its own ({@see WidgetCache}); the open speed is cached here (`admin:widget:client_timing:v1:all:d7`), so a
- * warm open of the dashboard runs no query.
+ * source is cached on its own ({@see WidgetCache}), so a warm open of the dashboard runs no query.
+ *
+ * The open speed is the exception to "computed by the first reader": it reads up to {@see ClientTimingReport::MAX_ROWS} timing marks
+ * and decodes their JSON in PHP (≈ 0.5 s on 100 000 marks, docs/20 §1.13), too slow for the request of a widget. It is computed
+ * off the request — {@see WarmOpenSpeedJob} on the schedule (routes/console.php) — into `admin:widget:client_timing:v1:all:d7`, and
+ * the dashboard only reads that entry; when it is missing the widget says the figure is being computed and queues the job (unique,
+ * so many opens queue one), it never waits for it.
  *
  * @phpstan-type Cell array{count: int, of: int, pct: float}
  * @phpstan-type Measure array{n: int, p50: int|null, p75: int|null, p95: int|null}
@@ -31,8 +38,11 @@ final class DashboardOverview
 
     public const TIMING_WIDGET = 'client_timing';
 
-    /** The scan of the timing marks reads every open of the window: an hour of freshness is plenty for a p75. */
-    public const TIMING_FRESH_SECONDS = 3600;
+    /**
+     * How long the warmed open speed lives (seconds): the schedule rewrites it every 30 minutes, so a missed run or two still
+     * leaves a figure; past it the widget queues a recompute.
+     */
+    public const TIMING_TTL_SECONDS = 3 * 3600;
 
     /** The platforms of the line «время до первой кнопки», in its order. */
     public const TIMING_PLATFORMS = ['android', 'ios'];
@@ -49,7 +59,6 @@ final class DashboardOverview
         private readonly OrgActivationStats $centers,
         private readonly BillingFunnelService $funnel,
         private readonly ClientTimingReport $timing,
-        private readonly WidgetCache $cache,
     ) {}
 
     /** @return array{studied: int, goal_met: int, week_ago: int, change: int|null} */
@@ -177,17 +186,19 @@ final class DashboardOverview
     }
 
     /**
-     * p75 of «the primary button of Сегодня is ready» by platform over the last {@see TIMING_DAYS} days.
+     * p75 of «the primary button of Сегодня is ready» by platform over the last {@see TIMING_DAYS} days, from the warmed entry only
+     * (no query). Null while there is no entry: then the recompute is queued ({@see WarmOpenSpeedJob}) and not waited for.
      *
-     * @return array<string, Measure> by {@see TIMING_PLATFORMS}, a platform without opens left out
+     * @return array<string, Measure>|null by {@see TIMING_PLATFORMS}, a platform without opens left out
      */
-    public function openSpeed(): array
+    public function openSpeed(): ?array
     {
-        $report = $this->cache->remember(self::TIMING_WIDGET, 'all', self::TIMING_FRESH_SECONDS, function (): array {
-            $now = CarbonImmutable::now();
+        $report = PureCache::store()->get(self::timingKey());
+        if (! is_array($report)) {
+            WarmOpenSpeedJob::dispatch();
 
-            return $this->timing->byPlatform($now->subDays(self::TIMING_DAYS), $now);
-        }, 'd'.self::TIMING_DAYS);
+            return null;
+        }
 
         $platforms = is_array($report['platforms'] ?? null) ? $report['platforms'] : [];
         $out = [];
@@ -201,6 +212,20 @@ final class DashboardOverview
         }
 
         return $out;
+    }
+
+    /** Computes the open speed from the timing marks and writes it for {@see openSpeed()}: the job of the schedule, never a request. */
+    public function warmOpenSpeed(?CarbonImmutable $now = null): void
+    {
+        $now ??= CarbonImmutable::now();
+
+        PureCache::store()->put(self::timingKey(), $this->timing->byPlatform($now->subDays(self::TIMING_DAYS), $now), self::TIMING_TTL_SECONDS);
+    }
+
+    /** `admin:widget:client_timing:v1:all:d7`: the array {@see ClientTimingReport::byPlatform()} returns, scalars only. */
+    public static function timingKey(): string
+    {
+        return WidgetCache::key(self::TIMING_WIDGET, 'all', 'd'.self::TIMING_DAYS);
     }
 
     /**

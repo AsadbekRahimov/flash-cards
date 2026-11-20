@@ -644,39 +644,15 @@ body {
     100% { transform: scale(1); }
   }
 
-  /* Confetti of the finish screen: a one-off burst from the top of the screen, ~1.2 s. The pieces take the colours of the theme. */
-  .confetti {
-    @apply pointer-events-none fixed inset-x-0 top-0 z-40 h-0;
-  }
-  .confetti-piece {
-    @apply absolute top-24 left-1/2 h-3 w-1.5 rounded-sm;
-    opacity: 0;
-    animation: confetti-burst 1200ms ease-out forwards;
-    animation-delay: var(--delay, 0ms);
-  }
-  .confetti-0 { background: var(--app-accent); }
-  .confetti-1 { background: var(--app-success); }
-  .confetti-2 { background: var(--app-warning); }
-  .confetti-3 { background: var(--app-danger); }
-  @keyframes confetti-burst {
-    0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
-    70% { opacity: 1; }
-    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .grade-pulse,
-    .combo-pop,
-    .confetti-piece {
+    .combo-pop {
       animation: none;
     }
     .card-swap-enter-active,
     .card-swap-leave-active,
     .combo-enter-active {
       transition: none;
-    }
-    .confetti {
-      display: none;
     }
   }
 

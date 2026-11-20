@@ -244,7 +244,7 @@ final class RetentionReportService
      * The learners of the window with their week, local registration date, local "today", language, trial flag, first-answer
      * flag and the activation flags (answered in 24 hours, joined a center's group in 24 hours, opened a session and finished the
      * onboarding in 24 hours, registered less than 24 hours ago); one row per learner, bindings in the order of the placeholders. The `EXISTS` subqueries run on the indexes
-     * `training_reviews (learner_id, created_at)` and `group_members (learner_id, status)`.
+     * `training_reviews (learner_id, created_at)`, `group_members (learner_id, status)` and `training_sessions (learner_id, status, started_at)`.
      *
      * @param  list<array{CarbonImmutable, CarbonImmutable}>  $weeks
      * @param  list<string>  $names  the zone names that occur

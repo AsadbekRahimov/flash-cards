@@ -74,11 +74,6 @@ export function periodSavingPct(items: readonly CatalogItem[], period: BillingPe
   return null
 }
 
-/** How much cheaper a year is than twelve months (`periodSavingPct` of the year): what the period tab of the year says. */
-export function yearSavingPct(items: readonly CatalogItem[]): number | null {
-  return periodSavingPct(items, 'year')
-}
-
 /**
  * A Stars subscription whose renewal charge failed (`past_due`, docs/13 §0 grace): Telegram retries the charge by
  * itself, Pro still works until the end of the grace period — and the server refuses every new payment meanwhile

@@ -17,6 +17,7 @@ import { progressPercent } from '@/composables/courseLabels'
 import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { lessonHeader, verdictLabel } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
+import { useChromeSurface } from '@/composables/useChromeSurface'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -76,6 +77,10 @@ function leave(): void {
 }
 
 useBackButton(leave)
+
+// White (`bg-surface`) while a task is on it, the page colour for the summary: Telegram's header and window background follow
+// (docs/14 §4.1).
+useChromeSurface(() => status.value !== 'finished')
 
 /**
  * Set when the learner leaves the screen: whatever comes back after that (the login, the session, a new session of

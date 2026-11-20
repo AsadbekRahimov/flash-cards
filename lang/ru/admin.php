@@ -1718,6 +1718,7 @@ return [
             'speed' => 'Время до первой кнопки, p75: :parts',
             'speed_part' => ':platform :seconds с',
             'speed_none' => 'Время до первой кнопки: замеров за 7 дней нет',
+            'speed_pending' => 'Время до первой кнопки: замеров пока нет — расчёт запущен, обновите страницу через минуту',
             'platforms' => [
                 'android' => 'Android',
                 'ios' => 'iOS',

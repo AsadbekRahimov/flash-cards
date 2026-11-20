@@ -3,10 +3,10 @@
     use Carbon\CarbonImmutable;
 
     /** @var array{week_start: string, week_end: string, size: int, answered: int, opened: int, onboarded: int, rest: int}|null $day */
-    /** @var array<string, array{n: int, p50: int|null, p75: int|null, p95: int|null}> $speed */
+    /** @var array<string, array{n: int, p50: int|null, p75: int|null, p95: int|null}>|null $speed null: not computed yet (queued) */
     $steps = ['answered' => 'lx-step-1', 'opened' => 'lx-step-2', 'onboarded' => 'lx-step-3', 'rest' => 'lx-step-4'];
     $speedParts = [];
-    foreach ($speed as $platform => $measure) {
+    foreach ($speed ?? [] as $platform => $measure) {
         if ($measure['p75'] !== null) {
             $speedParts[] = __('admin.dashboard.first_day.speed_part', [
                 'platform' => __('admin.dashboard.first_day.platforms.'.$platform),
@@ -54,7 +54,11 @@
         @endif
 
         <p class="lx-muted lx-small lx-block-foot">
-            {{ $speedParts === [] ? __('admin.dashboard.first_day.speed_none') : __('admin.dashboard.first_day.speed', ['parts' => implode(' · ', $speedParts)]) }}
+            @if ($speed === null)
+                {{ __('admin.dashboard.first_day.speed_pending') }}
+            @else
+                {{ $speedParts === [] ? __('admin.dashboard.first_day.speed_none') : __('admin.dashboard.first_day.speed', ['parts' => implode(' · ', $speedParts)]) }}
+            @endif
         </p>
     </section>
 </x-filament-widgets::widget>

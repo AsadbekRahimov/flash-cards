@@ -23,7 +23,8 @@ try {
 }
 
 // The app's own palette: <html data-theme> from Telegram's colorScheme (outside Telegram: prefers-color-scheme), the header and
-// window background in the page colour; follows `themeChanged` (docs/14 §4.1).
+// window background in the page colour (white lesson screens: `useChromeSurface`); follows `themeChanged` (docs/14 §4.1). The first
+// data-theme was already set before the first paint by the start script (src/boot/theme-boot.js); this takes over from it.
 initTelegramTheme()
 
 // Interface language follows Telegram's language_code (uz* -> uz, otherwise ru).

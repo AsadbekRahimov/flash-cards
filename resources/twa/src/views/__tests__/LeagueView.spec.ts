@@ -179,6 +179,14 @@ describe('LeagueView', () => {
       expect(text(wrapper, 'eyebrow')).toBe('Неделя 19 окт. – 25 окт. · последний день')
     })
 
+    it('says nothing about the days once the close has passed (the week is being summed up)', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-10-25T19:30:00+00:00'))
+      const { wrapper } = await render()
+
+      expect(text(wrapper, 'eyebrow')).toBe('Неделя 19 окт. – 25 окт.')
+    })
+
     it('leaves the days out when the server sends no usable moment', async () => {
       const { wrapper } = await render(response({ week: { starts_on: '2026-10-19', ends_on: '2026-10-25', closes_at: 'not a date' } }))
 

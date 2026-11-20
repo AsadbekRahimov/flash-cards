@@ -14,6 +14,7 @@ use App\Filament\Widgets\FirstDayWidget;
 use App\Filament\Widgets\ProPathWidget;
 use App\Filament\Widgets\RetentionTrendWidget;
 use App\Filament\Widgets\WeeklyActivityWidget;
+use App\Jobs\WarmOpenSpeedJob;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
 use App\Models\Learner;
@@ -24,8 +25,10 @@ use App\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Cache\Repository;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Tests\Support\QueryLog;
 
@@ -203,6 +206,8 @@ it('draws the first day of the same cohort as the activation, with the p75 of th
         ]);
     }
 
+    app(DashboardOverview::class)->warmOpenSpeed();
+
     expect(app(DashboardOverview::class)->firstDay())->toMatchArray(['size' => 308, 'answered' => 188, 'opened' => 43, 'onboarded' => 34, 'rest' => 43])
         ->and(app(DashboardOverview::class)->openSpeed())->toMatchArray(['android' => ['n' => 2, 'p50' => 2900, 'p75' => 2900, 'p95' => 2900]]);
 
@@ -217,8 +222,80 @@ it('draws the first day of the same cohort as the activation, with the p75 of th
 
 it('says when there are no timing marks', function (): void {
     adb_retention();
+    app(DashboardOverview::class)->warmOpenSpeed();
 
     Livewire::test(FirstDayWidget::class)->assertSee('Время до первой кнопки: замеров за 7 дней нет');
+});
+
+/** One `client.timing` open of `$platform` with the button ready after `$ms`, a day ago. */
+function adb_timing(string $platform, int $ms): void
+{
+    ProductEvent::query()->create([
+        'name' => ProductEventName::ClientTiming->value,
+        'learner_id' => Learner::factory()->create()->id,
+        'props' => ['open_id' => fake()->uuid(), 'platform' => $platform, 'button_ready' => $ms],
+        'occurred_at' => now()->subDay(),
+    ]);
+}
+
+it('never scans the timing marks in the request of the widget: with no warmed entry it queues the job and says the figure is coming', function (): void {
+    Queue::fake();
+    adb_timing('android', 2900);
+
+    $queries = QueryLog::during(fn () => Livewire::test(FirstDayWidget::class)
+        ->assertOk()
+        ->assertSee('Время до первой кнопки: замеров пока нет — расчёт запущен, обновите страницу через минуту')
+        ->assertDontSee('замеров за 7 дней нет'));
+
+    expect(array_filter($queries, static fn (string $sql): bool => str_contains($sql, 'product_events')))->toBe([])
+        ->and(app(DashboardOverview::class)->openSpeed())->toBeNull();
+    Queue::assertPushedOn('low', WarmOpenSpeedJob::class);
+});
+
+it('queues one warm-up however many opens find the entry missing', function (): void {
+    Queue::fake();
+
+    app(DashboardOverview::class)->openSpeed();
+    app(DashboardOverview::class)->openSpeed();
+    Livewire::test(FirstDayWidget::class)->assertOk();
+
+    Queue::assertPushed(WarmOpenSpeedJob::class, 1);
+});
+
+it('writes the open speed in the job and the next open reads it without a query', function (): void {
+    adb_timing('android', 2900);
+    adb_timing('ios', 2100);
+
+    app(WarmOpenSpeedJob::class)->handle(app(DashboardOverview::class));
+
+    expect(PureCache::store()->get(DashboardOverview::timingKey()))->toMatchArray(['opens' => 2, 'truncated' => false])
+        ->and(DashboardOverview::timingKey())->toBe('admin:widget:client_timing:v1:all:d7');
+
+    $queries = QueryLog::during(fn () => expect(app(DashboardOverview::class)->openSpeed())->toBe([
+        'android' => ['n' => 1, 'p50' => 2900, 'p75' => 2900, 'p95' => 2900],
+        'ios' => ['n' => 1, 'p50' => 2100, 'p75' => 2100, 'p95' => 2100],
+    ]));
+    expect($queries)->toBe([]);
+
+    // The entry lives three hours: the schedule rewrites it every 30 minutes, a missed run or two leave the figure.
+    $this->travel(DashboardOverview::TIMING_TTL_SECONDS - 60)->seconds();
+    expect(app(DashboardOverview::class)->openSpeed())->not->toBeNull();
+    $this->travel(120)->seconds();
+    Queue::fake();
+    expect(app(DashboardOverview::class)->openSpeed())->toBeNull();
+    Queue::assertPushed(WarmOpenSpeedJob::class);
+});
+
+it('warms the open speed on the schedule every 30 minutes, on the low queue', function (): void {
+    $event = collect(app(Schedule::class)->events())->first(fn ($e): bool => $e->description === 'analytics:warm-open-speed');
+
+    expect($event)->not->toBeNull()
+        ->and($event->expression)->toBe('*/30 * * * *');
+
+    Queue::fake();
+    $event->run(app());
+
+    Queue::assertPushedOn('low', WarmOpenSpeedJob::class);
 });
 
 // --- D7 by week ---------------------------------------------------------------------------------------------------

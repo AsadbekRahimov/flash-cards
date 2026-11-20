@@ -15,14 +15,16 @@ use Illuminate\Support\Facades\DB;
  * threshold of the check before publishing (docs/ADMIN_GUIDE.md, `audio:coverage --min=95`). The files on the disk are not
  * checked here (that is a walk over every word; the command does it).
  *
- * An array of scalars in the pure cache ({@see WidgetCache}, `admin:widget:audio_coverage:v1:all`, fresh {@see FRESH_SECONDS}):
- * the coverage moves when the audio queue runs, a stale figure for half an hour is harmless; numbers are cast back on read.
+ * An array of scalars in the pure cache ({@see WidgetCache}, `admin:widget:audio_coverage:v1:all`, fresh {@see FRESH_SECONDS}, the top
+ * of the K1 window of docs/19 §5): no reset on a write of `words.audio_path` — the voicing queue writes it word by word, a course
+ * changes its status, words are imported and switched off, and the statement is cheap (≈ 30 ms on 100 000 words, docs/20 §1.13), so
+ * the timer alone keeps a voiced course on the list no longer than the other K1 widgets. Numbers are cast back on read.
  */
 final class CourseAudioCoverageStats
 {
     public const WIDGET = 'audio_coverage';
 
-    public const FRESH_SECONDS = 1800;
+    public const FRESH_SECONDS = 300;
 
     /** Percent: below it a course is not ready to publish (docs/ADMIN_GUIDE.md «Check the coverage before publishing»). */
     public const THRESHOLD = 95.0;

@@ -125,17 +125,6 @@ async function readMe(store: MeTarget): Promise<void> {
 }
 
 /**
- * Plan, paywall settings and the purchase flow of the learner (docs/13 §5, docs/04 A.8): `GET /me`
- * (loaded when a paywall is about to be shown, refreshed from the answer of a promo redemption or of
- * cancel / resume), the catalog, and `buy()` — checkout → Telegram invoice / payment page → polling of
- * the order until the webhook has turned it `paid`.
- *
- * `/me` is kept for `ME_FRESH_MS`: `load()` does not ask again while the data is that young, so opening the
- * Profile tab, the Subscription screen and a paywall one after another costs one request. `load({ force: true })`
- * always asks (the Subscription screen on open, a confirmed payment); `invalidate()` makes the next `load()` ask
- * (the learner left a center, so the plan may have changed).
- */
-/**
  * A checkout refused by Laravel's validation (422 without an `error.code`, `{ message, errors: { period: [...] } }`): the period is
  * not sold in that way of paying (the quarter is Stars only). The server words it in the learner's language — its first line about
  * `period` is shown instead of the generic text. Null for anything else (a coded error keeps its own text).
@@ -150,6 +139,17 @@ function periodRefusal(err: unknown): string | null {
   return typeof first === 'string' && first.trim() !== '' ? first : null
 }
 
+/**
+ * Plan, paywall settings and the purchase flow of the learner (docs/13 §5, docs/04 A.8): `GET /me`
+ * (loaded when a paywall is about to be shown, refreshed from the answer of a promo redemption or of
+ * cancel / resume), the catalog, and `buy()` — checkout → Telegram invoice / payment page → polling of
+ * the order until the webhook has turned it `paid`.
+ *
+ * `/me` is kept for `ME_FRESH_MS`: `load()` does not ask again while the data is that young, so opening the
+ * Profile tab, the Subscription screen and a paywall one after another costs one request. `load({ force: true })`
+ * always asks (the Subscription screen on open, a confirmed payment); `invalidate()` makes the next `load()` ask
+ * (the learner left a center, so the plan may have changed).
+ */
 export const useBillingStore = defineStore('billing', {
   state: (): BillingState => ({
     entitlement: null,

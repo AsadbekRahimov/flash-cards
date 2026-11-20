@@ -93,6 +93,8 @@ const leftLine = computed(() => {
   const closes = iso ? Date.parse(iso) : NaN
   if (!Number.isFinite(closes)) return ''
   const days = Math.ceil((closes - Date.now()) / DAY_MS)
+  // The close has passed (the week is being summed up, or the phone's clock runs ahead): no "last day" for a day that is over.
+  if (days <= 0) return ''
   return days <= 1 ? t('league.last_day') : t('league.days_left', { count: days })
 })
 

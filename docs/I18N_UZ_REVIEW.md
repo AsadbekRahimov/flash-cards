@@ -4232,7 +4232,7 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 
 ### TWA (`resources/twa/src/i18n/uz.ts`)
 
-Экран лиги по новому макету (заголовок — название лиги, линия зоны повышения/понижения, «Вся таблица»), пейвол Pro (заголовок — причина показа, выгоды «название — пояснение», карточки тарифов с новым тарифом «3 месяца», цена в главной кнопке, «Не сейчас»). Прошу проверить: «{price} evaziga Pro olish» на кнопке (не лучше ли «Pro'ni {price}ga olish»), падежи в «{rank}-o'ringacha», «ligasiga o'tadi / tushadi», «Zaxira kunlar» как название выгоды.
+Экран лиги по новому макету (заголовок — название лиги, линия зоны повышения/понижения, «Вся таблица»), пейвол Pro (заголовок — причина показа, выгоды «название — пояснение», карточки тарифов с новым тарифом «3 месяца», цена в главной кнопке, «Не сейчас»). Прошу проверить: «{price} evaziga Pro olish» на кнопке (не лучше ли «Pro'ni {price}ga olish»), падежи в «{rank}-o'ringacha», «ligasiga o'tadi / tushadi», «Zaxira kunlar» как название выгоды. Ключи `assignments.title`, `assignments.progress`, `assignments.start`, `assignments.continue`, `paywall.title_purchase`, `billing.pay_method`, `billing.period.year_save`, `league.my_place`, `league.zone.promotion`, `league.zone.safe`, `league.zone.demotion`, `today.goal.left`, `today.streak.best` удалены (после редизайна больше не используются); их строки в разделах выше проверять не нужно.
 
 | Ключ | uz | ru |
 |---|---|---|
@@ -4253,13 +4253,26 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `paywall.heading.practice` | Mashqlar — Pro'da | Практика — в Pro |
 | `paywall.heading.practice_limit` | Pro bilan ko'proq mashq | Больше практики с Pro |
 | `paywall.heading.game` | Karvon cheklovsiz | Караван без ограничений |
-| `benefits.row.new_words / .note / .note_free` | Yangi so'zlar / kunlik limitsiz / kuniga {limit} ta o'rniga cheklovsiz | Новые слова / без дневного лимита / без лимита вместо {limit} в день |
-| `benefits.row.practice / practice_solo / game / no_limit` | Mashqlar va bellashuvlar / Mashqlar / Karvon / kunlik limitsiz | Практика и баттлы / Практика / Караван / без дневного лимита |
-| `benefits.row.exercises / .note` | Yozish mashqlari / so'zni yozish va gaplarni to'ldirish | Упражнения / написание слова и пропуски в примерах |
-| `benefits.row.decks / .note` | O'z to'plamlaringiz / 2000 tagacha so'zdan 20 tagacha to'plam | Свои колоды / до 20 колод по 2000 слов |
-| `benefits.row.freezes / .note` | Zaxira kunlar / bir kun o'tkazib yuborsangiz ham ketma-ketlik saqlanadi | Заморозка серии / пропуск дня не обрывает серию |
-| `benefits.row.mock_exams / .note` | Sinov imtihonlari / IELTS va SAT | Пробные тесты / IELTS и SAT |
-| `league.heading.bronze … diamond` | Bronza liga, Kumush liga, Oltin liga, Platina liga, Olmos liga | Бронзовая … Алмазная лига (заголовок экрана лиги) |
+| `benefits.row.new_words` | Yangi so'zlar | Новые слова (название выгоды) |
+| `benefits.row.new_words.note` | kunlik limitsiz | без дневного лимита (пояснение у Pro) |
+| `benefits.row.new_words.note_free` | kuniga {limit} ta o'rniga cheklovsiz | без лимита вместо {limit} в день (пояснение у Free) |
+| `benefits.row.practice` | Mashqlar va bellashuvlar | Практика и баттлы |
+| `benefits.row.practice_solo` | Mashqlar | Практика (без баттлов) |
+| `benefits.row.game` | Karvon | Караван |
+| `benefits.row.no_limit` | kunlik limitsiz | без дневного лимита (пояснение у практики и каравана) |
+| `benefits.row.exercises` | Yozish mashqlari | Упражнения |
+| `benefits.row.exercises.note` | so'zni yozish va gaplarni to'ldirish | написание слова и пропуски в примерах |
+| `benefits.row.decks` | O'z to'plamlaringiz | Свои колоды |
+| `benefits.row.decks.note` | 2000 tagacha so'zdan 20 tagacha to'plam | до 20 колод по 2000 слов |
+| `benefits.row.freezes` | Zaxira kunlar | Заморозка серии |
+| `benefits.row.freezes.note` | bir kun o'tkazib yuborsangiz ham ketma-ketlik saqlanadi | пропуск дня не обрывает серию |
+| `benefits.row.mock_exams` | Sinov imtihonlari | Пробные тесты |
+| `benefits.row.mock_exams.note` | IELTS va SAT | IELTS и SAT |
+| `league.heading.bronze` | Bronza liga | Бронзовая лига (заголовок экрана лиги) |
+| `league.heading.silver` | Kumush liga | Серебряная лига |
+| `league.heading.gold` | Oltin liga | Золотая лига |
+| `league.heading.platinum` | Platina liga | Платиновая лига |
+| `league.heading.diamond` | Olmos liga | Алмазная лига |
 | `league.days_left` | {count} kun qoldi | осталось {count} дн. |
 | `league.last_day` | oxirgi kun | последний день |
 | `league.my_rank` | Siz {rank}-o'rindasiz | Вы на {rank}-м месте |

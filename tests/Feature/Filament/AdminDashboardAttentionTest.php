@@ -25,6 +25,7 @@ use Carbon\CarbonImmutable;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Cache\Repository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Defer\DeferredCallbackCollection;
 use Livewire\Livewire;
 use Tests\Support\QueryLog;
 
@@ -156,6 +157,57 @@ it('shows three waiting centers one by one and the rest as one line', function (
         ->assertSee('всего 5');
 });
 
+it('takes the waiting days of a center from the configuration, 7 by default', function (): void {
+    Organization::factory()->create(['name' => 'Four Days', 'status' => 'active', 'created_at' => now()->subDays(4)]);
+    Organization::factory()->create(['name' => 'Two Days', 'status' => 'active', 'created_at' => now()->subDays(2)]);
+    foreach (range(1, 3) as $i) {
+        Organization::factory()->create(['name' => "Old {$i}", 'status' => 'active', 'created_at' => now()->subDays(20 + $i)]);
+    }
+
+    expect(config('analytics.attention.center_wait_days'))->toBe(7)
+        ->and(AttentionList::centerWaitDays())->toBe(7)
+        ->and(array_column(app(AttentionList::class)->items(), 'name'))->toBe(['Old 3', 'Old 2', 'Old 1']);
+
+    config(['analytics.attention.center_wait_days' => 3]);
+
+    $items = app(AttentionList::class)->items();
+    expect(array_column($items, 'name'))->toBe(['Old 3', 'Old 2', 'Old 1', null])
+        ->and($items[3])->toMatchArray(['kind' => AttentionList::KIND_CENTERS_MORE, 'count' => 1, 'total' => 4]);
+
+    Livewire::test(AttentionWidget::class)->assertSee('Ещё 1 без выполненного задания дольше 3 дней');
+});
+
+it('falls back to the default thresholds when the configuration holds no usable number', function (mixed $value, int $center, int $reminders): void {
+    config(['analytics.attention.center_wait_days' => $value, 'analytics.attention.reminder_read_after_days' => $value]);
+
+    expect(AttentionList::centerWaitDays())->toBe($center)
+        ->and(AttentionList::readAfterDays())->toBe($reminders);
+})->with([
+    'missing' => [null, 7, 14],
+    'not a number' => ['week', 7, 14],
+    'zero' => [0, 1, 1],
+    'a numeric string' => ['10', 10, 10],
+]);
+
+it('takes the day from which the reminder report can be read from the configuration, 14 by default', function (): void {
+    config([
+        'learning.reminders.quiz.experiment.enabled' => true,
+        'learning.reminders.quiz.experiment.starts_at' => '2026-11-09', // day 12 on 2026-11-20
+    ]);
+
+    expect(config('analytics.attention.reminder_read_after_days'))->toBe(14)
+        ->and(app(AttentionList::class)->items()[0])->toMatchArray(['state' => 'running', 'value' => 12, 'total' => 2]);
+
+    config(['analytics.attention.reminder_read_after_days' => 10]);
+
+    expect(app(AttentionList::class)->items()[0])->toMatchArray(['state' => 'ready', 'value' => 12, 'total' => 0]);
+    Livewire::test(AttentionWidget::class)->assertSee('Идёт 12-й день · можно читать отчёт');
+
+    config(['analytics.attention.reminder_read_after_days' => 20]);
+
+    Livewire::test(AttentionWidget::class)->assertSee('Идёт 12-й день · отчёт можно читать с 20-го')->assertSee('8 дней');
+});
+
 it('lists a published or reviewed course below 95 % of voiced words, with the words still missing, and not a draft', function (): void {
     $short = att_course('published', 20, 18, 'english-c2');   // 90 %
     att_course('review', 20, 19, 'english-b2');               // 95 %: at the threshold, fine
@@ -185,6 +237,25 @@ it('reads the coverage of all the courses with one grouped statement, cached', f
         ->and($cold[0])->toContain('group by')
         ->and($warm)->toBe([])
         ->and(PureCache::store()->has('admin:widget:audio_coverage:v1:all'))->toBeTrue();
+});
+
+it('drops a course from the list within the K1 window after its words are voiced', function (): void {
+    config(['cache.pure_store' => 'array']); // the clock of the test moves the clock of an array store only
+    $course = att_course('published', 10, 5, 'voiced-later');
+    $stats = app(CourseAudioCoverageStats::class);
+
+    expect(array_column($stats->belowThreshold(), 'id'))->toBe([$course->id])
+        ->and(CourseAudioCoverageStats::FRESH_SECONDS)->toBeLessThanOrEqual(300);
+
+    // The audio queue voices the rest: inside the freshness the cached line stands.
+    Word::query()->whereNull('audio_path')->get()->each(fn (Word $word) => $word->update(['audio_path' => "audio/{$word->id}.mp3"]));
+    expect($stats->belowThreshold())->toHaveCount(1);
+
+    // Past it the next open serves the stale line once and recomputes after the response; the open after that has none.
+    $this->travel(CourseAudioCoverageStats::FRESH_SECONDS + 1)->seconds();
+    expect($stats->belowThreshold())->toHaveCount(1);
+    app(DeferredCallbackCollection::class)->invoke();
+    expect($stats->belowThreshold())->toBe([]);
 });
 
 it('shows the reminder experiment while it runs: its day, then that the report can be read', function (string $startsAt, string $state, string $text, string $value): void {

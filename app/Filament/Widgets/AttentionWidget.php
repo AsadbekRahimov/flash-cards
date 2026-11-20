@@ -59,7 +59,7 @@ class AttentionWidget extends DashboardBlockWidget
             ],
             AttentionList::KIND_CENTERS_MORE => [
                 $t('centers_more.title'), false,
-                $t('centers_more.detail', ['count' => $item['count'], 'days' => AttentionList::CENTER_WAIT_DAYS]),
+                $t('centers_more.detail', ['count' => $item['count'], 'days' => AttentionList::centerWaitDays()]),
                 $t('centers_more.value', ['total' => (int) $item['total']]),
                 OrganizationResource::getUrl('index'),
             ],
@@ -76,7 +76,7 @@ class AttentionWidget extends DashboardBlockWidget
                 $t('reminders.title'), false,
                 $t('reminders.'.($item['state'] ?? 'running').(($item['state'] ?? '') === 'running' && $item['value'] === null ? '_undated' : ''), [
                     'day' => (int) $item['value'],
-                    'ready' => AttentionList::READ_AFTER_DAYS,
+                    'ready' => AttentionList::readAfterDays(),
                 ]),
                 match ($item['state']) {
                     'running' => $item['value'] === null ? '' : $days((int) $item['total']),

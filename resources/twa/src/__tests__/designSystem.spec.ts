@@ -524,7 +524,7 @@ describe('the boss of a city', () => {
 describe('motion of the lesson (docs/14 §6.2)', () => {
   const reduced = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{([\s\S]*?\})\s*\}/)?.[1] ?? ''
 
-  it.each(['.grade-pulse', '.combo-pop', '.confetti-piece', '.card-swap-enter-active', '.card-swap-leave-active', '.combo-enter-active', '.confetti'])(
+  it.each(['.grade-pulse', '.combo-pop', '.card-swap-enter-active', '.card-swap-leave-active', '.combo-enter-active'])(
     'switches %s off with prefers-reduced-motion',
     (selector) => {
       expect(reduced).toContain(selector)
@@ -532,8 +532,8 @@ describe('motion of the lesson (docs/14 §6.2)', () => {
   )
 
   it('animates only transform and opacity', () => {
-    const keyframes = [...css.matchAll(/@keyframes (grade-pulse|combo-pop|confetti-burst)\s*\{([\s\S]*?\n {2}\})/g)]
-    expect(keyframes).toHaveLength(3)
+    const keyframes = [...css.matchAll(/@keyframes (grade-pulse|combo-pop)\s*\{([\s\S]*?\n {2}\})/g)]
+    expect(keyframes).toHaveLength(2)
     for (const [, name, body] of keyframes) {
       const properties = [...(body ?? '').matchAll(/([a-z-]+)\s*:/g)].map((m) => m[1])
       expect(properties.every((p) => p === 'transform' || p === 'opacity'), name).toBe(true)

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { setLocale } from '@/i18n'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, orderedItems, periodSavingPct, yearSavingPct } from '../billingFormat'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, orderedItems, periodSavingPct } from '../billingFormat'
 import type { CatalogItem, Prices, SubscriptionSummary } from '@/api/types'
 
 /** Intl groups digits with (narrow) no-break spaces. */
@@ -66,48 +66,48 @@ describe('billingFormat', () => {
     })
   })
 
-  describe('yearSavingPct', () => {
+  describe('periodSavingPct of the year', () => {
     const item = (period: 'month' | 'year', list: Prices, prices: Prices = list): CatalogItem => ({ plan: 'pro', tier: null, period, prices, list_prices: list })
 
     it('is how much cheaper a year is than twelve months, rounded to whole percent', () => {
       // 1 − 1300 / 1800 = 27.8 %
-      expect(yearSavingPct([item('month', { XTR: 150 }), item('year', { XTR: 1300 })])).toBe(28)
+      expect(periodSavingPct([item('month', { XTR: 150 }), item('year', { XTR: 1300 })], 'year')).toBe(28)
       // 1 − 249 000 / 348 000 = 28.4 %
-      expect(yearSavingPct([item('month', { UZS: 2_900_000 }), item('year', { UZS: 24_900_000 })])).toBe(28)
+      expect(periodSavingPct([item('month', { UZS: 2_900_000 }), item('year', { UZS: 24_900_000 })], 'year')).toBe(28)
     })
 
     it('reads sums when both periods have them, even when Stars say something else', () => {
       const month = item('month', { XTR: 150, UZS: 3_900_000 })
       const year = item('year', { XTR: 1500, UZS: 29_900_000 }) // Stars: 17 %, sums: 36 %
 
-      expect(yearSavingPct([month, year])).toBe(36)
+      expect(periodSavingPct([month, year], 'year')).toBe(36)
     })
 
     it('falls back to Stars when a period has no sum price, and never mixes currencies', () => {
-      expect(yearSavingPct([item('month', { XTR: 150, UZS: 2_900_000 }), item('year', { XTR: 1300 })])).toBe(28)
-      expect(yearSavingPct([item('month', { XTR: 150 }), item('year', { UZS: 24_900_000 })])).toBeNull()
+      expect(periodSavingPct([item('month', { XTR: 150, UZS: 2_900_000 }), item('year', { XTR: 1300 })], 'year')).toBe(28)
+      expect(periodSavingPct([item('month', { XTR: 150 }), item('year', { UZS: 24_900_000 })], 'year')).toBeNull()
     })
 
     it('says nothing below 1 %, nor when the year costs more', () => {
-      expect(yearSavingPct([item('month', { XTR: 100 }), item('year', { XTR: 1200 })])).toBeNull()
-      expect(yearSavingPct([item('month', { XTR: 100 }), item('year', { XTR: 1195 })])).toBeNull() // 0.4 %
-      expect(yearSavingPct([item('month', { XTR: 100 }), item('year', { XTR: 1188 })])).toBe(1)
-      expect(yearSavingPct([item('month', { XTR: 100 }), item('year', { XTR: 1500 })])).toBeNull()
+      expect(periodSavingPct([item('month', { XTR: 100 }), item('year', { XTR: 1200 })], 'year')).toBeNull()
+      expect(periodSavingPct([item('month', { XTR: 100 }), item('year', { XTR: 1195 })], 'year')).toBeNull() // 0.4 %
+      expect(periodSavingPct([item('month', { XTR: 100 }), item('year', { XTR: 1188 })], 'year')).toBe(1)
+      expect(periodSavingPct([item('month', { XTR: 100 }), item('year', { XTR: 1500 })], 'year')).toBeNull()
     })
 
     it('needs both a month and a year', () => {
-      expect(yearSavingPct([])).toBeNull()
-      expect(yearSavingPct([item('month', { XTR: 150 })])).toBeNull()
-      expect(yearSavingPct([item('year', { XTR: 1300 })])).toBeNull()
+      expect(periodSavingPct([], 'year')).toBeNull()
+      expect(periodSavingPct([item('month', { XTR: 150 })], 'year')).toBeNull()
+      expect(periodSavingPct([item('year', { XTR: 1300 })], 'year')).toBeNull()
     })
 
     it('compares the list prices: a one-time offer does not make the year look cheaper or dearer', () => {
       // Month discounted by an offer (105 instead of 150), the year is not: the plans still differ by 28 %.
-      expect(yearSavingPct([item('month', { XTR: 150 }, { XTR: 105 }), item('year', { XTR: 1300 })])).toBe(28)
+      expect(periodSavingPct([item('month', { XTR: 150 }, { XTR: 105 }), item('year', { XTR: 1300 })], 'year')).toBe(28)
     })
 
     it('ignores a zero price', () => {
-      expect(yearSavingPct([item('month', { XTR: 0 }), item('year', { XTR: 1300 })])).toBeNull()
+      expect(periodSavingPct([item('month', { XTR: 0 }), item('year', { XTR: 1300 })], 'year')).toBeNull()
     })
   })
 

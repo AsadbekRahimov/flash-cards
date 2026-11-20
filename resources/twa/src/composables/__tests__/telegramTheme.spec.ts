@@ -1,9 +1,11 @@
-import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
   CHROME_COLORS,
   applyTelegramTheme,
+  chromeTone,
+  holdSurfaceChrome,
   initTelegramTheme,
   paintTelegramChrome,
   resolveColorScheme,
@@ -13,7 +15,7 @@ import {
 
 interface StubHost extends ThemeHost {
   isVersionAtLeast: Mock<(version: string) => boolean>
-  setHeaderColor: Mock<(color: 'secondary_bg_color' | `#${string}`) => void>
+  setHeaderColor: Mock<(color: 'bg_color' | 'secondary_bg_color' | `#${string}`) => void>
   setBackgroundColor: Mock<(color: `#${string}`) => void>
   onEvent: Mock<(event: 'themeChanged', handler: () => void) => void>
 }
@@ -23,7 +25,7 @@ function stubHost(overrides: Partial<ThemeHost> = {}): StubHost {
     colorScheme: 'dark',
     platform: 'ios',
     isVersionAtLeast: vi.fn<(version: string) => boolean>(() => true),
-    setHeaderColor: vi.fn<(color: 'secondary_bg_color' | `#${string}`) => void>(),
+    setHeaderColor: vi.fn<(color: 'bg_color' | 'secondary_bg_color' | `#${string}`) => void>(),
     setBackgroundColor: vi.fn<(color: `#${string}`) => void>(),
     onEvent: vi.fn<(event: 'themeChanged', handler: () => void) => void>(),
     ...overrides,
@@ -121,12 +123,104 @@ describe('telegramTheme', () => {
       expect(root.dataset.theme).toBe('dark')
     })
 
-    it('uses the very page colours of style.css, light and dark', () => {
-      const lightPage = /:root\s*\{[^}]*?--app-page:\s*(#[0-9a-f]{6})/i.exec(css)?.[1]
-      const darkPage = /:root\[data-theme='dark'\]\s*\{[^}]*?--app-page:\s*(#[0-9a-f]{6})/i.exec(css)?.[1]
+    it.each(['page', 'surface'] as const)('uses the very %s colours of style.css, light and dark', (tone) => {
+      const light = new RegExp(`:root\\s*\\{[^}]*?--app-${tone}:\\s*(#[0-9a-f]{6})`, 'i').exec(css)?.[1]
+      const dark = new RegExp(`:root\\[data-theme='dark'\\]\\s*\\{[^}]*?--app-${tone}:\\s*(#[0-9a-f]{6})`, 'i').exec(css)?.[1]
 
-      expect(lightPage?.toLowerCase()).toBe(CHROME_COLORS.light.page)
-      expect(darkPage?.toLowerCase()).toBe(CHROME_COLORS.dark.page)
+      expect(light?.toLowerCase()).toBe(CHROME_COLORS.light[tone])
+      expect(dark?.toLowerCase()).toBe(CHROME_COLORS.dark[tone])
+    })
+
+    it('paints the surface tone: hex since 6.9, the keyword of Telegram\'s own card colour on 6.1-6.8', () => {
+      const modern = stubHost()
+      paintTelegramChrome(modern, 'dark', 'surface')
+      expect(modern.setBackgroundColor).toHaveBeenCalledWith('#191d28')
+      expect(modern.setHeaderColor).toHaveBeenCalledWith('#191d28')
+
+      const old = stubHost({ isVersionAtLeast: vi.fn((version: string) => version === '6.1') })
+      paintTelegramChrome(old, 'light', 'surface')
+      expect(old.setBackgroundColor).toHaveBeenCalledWith('#ffffff')
+      expect(old.setHeaderColor).toHaveBeenCalledWith('bg_color')
+    })
+  })
+
+  describe('<meta name="theme-color">', () => {
+    afterEach(() => document.head.querySelector('meta[name="theme-color"]')?.remove())
+
+    it('takes the page colour of the scheme, and follows a change', () => {
+      const meta = document.createElement('meta')
+      meta.name = 'theme-color'
+      meta.content = '#f6f7f9'
+      document.head.append(meta)
+
+      const host = stubHost({ colorScheme: 'dark' })
+      initTelegramTheme(host, root, null)
+      expect(meta.content).toBe(CHROME_COLORS.dark.page)
+
+      host.colorScheme = 'light'
+      ;(host.onEvent.mock.calls[0]?.[1] as () => void)()
+      expect(meta.content).toBe(CHROME_COLORS.light.page)
+    })
+
+    it('is no error when the page has no such tag', () => {
+      expect(() => applyTelegramTheme(stubHost(), root, null)).not.toThrow()
+    })
+  })
+
+  describe('the surface tone of the white screens (holdSurfaceChrome)', () => {
+    it('paints the chrome in the surface colour while held, in the page colour again when given back', () => {
+      const host = stubHost({ colorScheme: 'light' })
+      initTelegramTheme(host, root, null)
+      host.setHeaderColor.mockClear()
+      host.setBackgroundColor.mockClear()
+
+      const release = holdSurfaceChrome()
+      expect(chromeTone()).toBe('surface')
+      expect(host.setHeaderColor).toHaveBeenLastCalledWith(CHROME_COLORS.light.surface)
+      expect(host.setBackgroundColor).toHaveBeenLastCalledWith(CHROME_COLORS.light.surface)
+
+      release()
+      expect(chromeTone()).toBe('page')
+      expect(host.setHeaderColor).toHaveBeenLastCalledWith(CHROME_COLORS.light.page)
+      expect(host.setBackgroundColor).toHaveBeenLastCalledWith(CHROME_COLORS.light.page)
+    })
+
+    it('keeps the surface tone across a theme change: the surface of the new palette', () => {
+      const host = stubHost({ colorScheme: 'light' })
+      initTelegramTheme(host, root, null)
+      const release = holdSurfaceChrome()
+
+      host.colorScheme = 'dark'
+      ;(host.onEvent.mock.calls[0]?.[1] as () => void)()
+      expect(root.dataset.theme).toBe('dark')
+      expect(host.setHeaderColor).toHaveBeenLastCalledWith(CHROME_COLORS.dark.surface)
+
+      release()
+      expect(host.setHeaderColor).toHaveBeenLastCalledWith(CHROME_COLORS.dark.page)
+    })
+
+    it('counts the holds: the order of mount and unmount of two screens does not matter, a second release does nothing', () => {
+      const host = stubHost()
+      initTelegramTheme(host, root, null)
+      host.setHeaderColor.mockClear()
+
+      const first = holdSurfaceChrome()
+      const second = holdSurfaceChrome()
+      expect(host.setHeaderColor).toHaveBeenCalledTimes(1) // painted once, not per hold
+
+      first()
+      first()
+      expect(chromeTone()).toBe('surface')
+      expect(host.setHeaderColor).toHaveBeenCalledTimes(1)
+
+      second()
+      expect(chromeTone()).toBe('page')
+      expect(host.setHeaderColor).toHaveBeenLastCalledWith(CHROME_COLORS.dark.page)
+    })
+
+    it('never throws outside Telegram', () => {
+      initTelegramTheme(stubHost({ isVersionAtLeast: vi.fn(() => { throw new Error('not in Telegram') }) }), root, null)
+      expect(() => holdSurfaceChrome()()).not.toThrow()
     })
   })
 

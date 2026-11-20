@@ -518,6 +518,10 @@ php artisan optimize:clear
 php artisan filament:optimize-clear
 ```
 
+### Panel theme
+
+The theme of `/admin` and `/org` (`app/Filament/Support/PanelTheme.php`) is served as committed copies: `resources/css/filament/panel.css` → `public/css/app/lexiflow-panel.css` and `resources/fonts/panel/<font>/**` → `public/fonts/app/<font>/**`. **After editing the theme CSS or its fonts run `php artisan filament:assets` and commit the copies in `public/`** together with the source (`composer install` runs it too through `filament:upgrade` — so does the image build —, but a checkout serves the committed copies until then, and a stale copy in the repository hides the edit from review). `tests/Unit/PanelThemeAssetsTest.php` fails while a copy differs from its source byte for byte.
+
 ---
 
 ## 8. Configure Nginx

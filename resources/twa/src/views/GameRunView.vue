@@ -19,6 +19,7 @@ import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { gameVerdictLabel, lessonHeader } from '@/composables/practiceLabels'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useBackButton } from '@/composables/useBackButton'
+import { useChromeSurface } from '@/composables/useChromeSurface'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { api } from '@/api'
@@ -188,6 +189,8 @@ watch(
 const busy = computed(() => status.value === 'submitting')
 /** The screen is white while a task, its event or its answer is on it (a lesson screen); the rest stands on the page colour. */
 const white = computed((): boolean => run.value !== null && ['event', 'playing', 'submitting', 'reveal'].includes(status.value))
+// Telegram's header and window background follow the white of the screen (docs/14 §4.1).
+useChromeSurface(white)
 const task = computed(() => (status.value === 'playing' || status.value === 'submitting' ? element.value : null))
 const lastElement = computed(() => run.value?.status === 'finished')
 
