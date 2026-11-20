@@ -297,6 +297,28 @@ describe('BillingView', () => {
       expect(wrapper.get('[data-testid=period-quarter]').attributes('aria-checked')).toBe('true')
     })
 
+    it('lists the quarter in sums when only Payme / Click sell, with the saving of the sums prices, and the sheet offers Payme / Click for it', async () => {
+      const { wrapper } = await render(me(), {
+        ...catalog(),
+        providers: ['payme', 'click'],
+        items: [
+          { plan: 'pro', tier: null, period: 'month', days: 30, prices: { UZS: 2_900_000 }, list_prices: { UZS: 2_900_000 }, saving_pct: 0 },
+          { plan: 'pro', tier: null, period: 'quarter', days: 90, prices: { UZS: 7_500_000 }, list_prices: { UZS: 7_500_000 }, saving_pct: 14 },
+          { plan: 'pro', tier: null, period: 'year', days: 365, prices: { UZS: 24_900_000 }, list_prices: { UZS: 24_900_000 }, saving_pct: 28 },
+        ],
+      })
+
+      expect(wrapper.get('[data-testid=tariff-quarter]').text()).toContain('выгоднее на 14%')
+      expect(wrapper.get('[data-testid=tariff-quarter] [data-testid=tariff-price]').text().replace(/[\s\u00a0\u202f]+/g, ' ')).toBe('75 000 сум')
+
+      await wrapper.get('[data-testid=tariff-quarter]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-testid=period-quarter]').attributes('aria-checked')).toBe('true')
+      expect(wrapper.get('[data-testid=pay-payme]').attributes('data-price')?.replace(/[\s\u00a0\u202f]+/g, ' ')).toBe('75 000 сум')
+      expect(wrapper.find('[data-testid=pay-click]').exists()).toBe(true)
+    })
+
     it('shows the tariffs of an older server (no quarter, no saving field) and none while nothing can be bought', async () => {
       const { wrapper } = await render(me(), catalog())
       expect(wrapper.findAll('[data-testid=tariff-price]')).toHaveLength(1)

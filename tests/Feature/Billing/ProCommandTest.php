@@ -85,11 +85,11 @@ it('/pro offers a button per period and provider with the prices, none of them c
     app(TelegramDispatcher::class)->dispatch(proMessage('/pro'));
 
     expect(callbacks($this->sent[0]['markup']))->toBe([
-        'pro1:buy:month:telegram_stars', 'pro1:buy:month:payme', 'pro1:buy:quarter:telegram_stars', 'pro1:buy:year:telegram_stars', 'pro1:buy:year:payme',
+        'pro1:buy:month:telegram_stars', 'pro1:buy:month:payme', 'pro1:buy:quarter:telegram_stars', 'pro1:buy:quarter:payme', 'pro1:buy:year:telegram_stars', 'pro1:buy:year:payme',
     ])
         ->and($this->sent[0]['text'])->toContain('1 месяц — 150 ⭐ / 29 000 сум')
-        // The quarter is Stars only (docs/13 §5): no button and no price in sums.
-        ->and($this->sent[0]['text'])->toContain("3 месяца — 390 ⭐\n")
+        // The quarter is sold in Stars and in sums like the month and the year (docs/13 §5).
+        ->and($this->sent[0]['text'])->toContain('3 месяца — 390 ⭐ / 75 000 сум')
         ->and($this->sent[0]['text'])->toContain('1 год — 1 300 ⭐ / 249 000 сум')
         ->and($this->sent[0]['markup']['inline_keyboard'][0][0]['text'])->toBe('⭐ Stars · 1 месяц · 150 ⭐')
         ->and(PaymentOrder::query()->count())->toBe(0);
@@ -168,7 +168,10 @@ it('explains a refused purchase by its error code', function (string $data, stri
         fn () => FakeBillingProvider::register(SubscriptionProvider::Payme, enabled: false),
     ],
     'invalid period' => ['pro1:buy:week:payme', 'Такого варианта оплаты нет.', null],
-    'quarter in sums (Stars only)' => ['pro1:buy:quarter:payme', 'Такого варианта оплаты нет.', null],
+    'quarter in sums without a price (BILLING_PRICE_PRO_QUARTER_UZS=0)' => [
+        'pro1:buy:quarter:payme', 'Этот вариант оплаты пока недоступен.',
+        fn () => config()->set('billing.prices.pro.quarter.UZS', 0),
+    ],
     'provider outage' => [
         'pro1:buy:month:telegram_stars', 'Платёжный сервис не отвечает. Попробуйте через несколько минут.',
         fn ($l, $t) => $t->stars->failCheckoutWith = new RuntimeException('down'),

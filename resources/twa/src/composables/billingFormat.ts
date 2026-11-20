@@ -39,7 +39,7 @@ function isKnownPeriod(period: string): period is BillingPeriod {
 /**
  * The rows of the catalog the screens show, month → quarter → year whatever order the server used. A period this build does not
  * know is skipped (the contract of `BillingCatalogResource`), and so is a second row of the same period. An older server sends no
- * quarter, the sums never have one: the list is just shorter then.
+ * quarter: the list is just shorter then.
  */
 export function orderedItems(items: readonly CatalogItem[]): CatalogItem[] {
   return PERIOD_ORDER.flatMap((period) => {

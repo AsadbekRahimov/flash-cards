@@ -362,14 +362,14 @@ describe('billing store: catalog and purchase', () => {
 
     it('shows the first line about the period, in the words of the server', async () => {
       vi.mocked(api.billing.checkout).mockRejectedValue(
-        laravel422({ message: 'x', errors: { period: ['Тариф «3 месяца» оплачивается только в Telegram Stars.', 'second'] } }),
+        laravel422({ message: 'x', errors: { period: ['Срок «3 месяца» сейчас не продаётся.', 'second'] } }),
       )
       const billing = useBillingStore()
 
       await billing.buy('quarter', 'payme')
 
       expect(billing.purchase.status).toBe('failed')
-      expect(billing.purchase.error).toBe('Тариф «3 месяца» оплачивается только в Telegram Stars.')
+      expect(billing.purchase.error).toBe('Срок «3 месяца» сейчас не продаётся.')
     })
 
     it('keeps the generic text when the answer has no line about the period, or carries an error code', async () => {

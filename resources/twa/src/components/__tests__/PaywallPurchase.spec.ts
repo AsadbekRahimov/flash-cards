@@ -380,6 +380,24 @@ describe('PaywallSheet in purchase mode', () => {
     expect(api.billing.order).toHaveBeenCalledTimes(2)
   })
 
+  it('names the way the started payment goes under the button, not the primary one, and the primary one again after a refusal', async () => {
+    vi.useFakeTimers()
+    vi.mocked(api.billing.checkout).mockResolvedValueOnce({
+      order: { id: 1, token: 'tok', status: 'pending', amount: 2_900_000, currency: 'UZS', expires_at: '2026-10-20T00:00:00+00:00' },
+      checkout: { url: 'https://my.click.uz/pay', kind: 'redirect' },
+    })
+    vi.mocked(api.billing.order).mockResolvedValue(order('pending'))
+    const w = await render()
+    expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Telegram Stars.')
+
+    await w.get('[data-testid=pay-click]').trigger('click')
+    await vi.advanceTimersByTimeAsync(0)
+    await flushPromises()
+
+    expect(w.find('[data-testid=purchase-awaiting]').exists()).toBe(true)
+    expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Click.')
+  })
+
   it('stops waiting when the sheet is closed', async () => {
     vi.useFakeTimers()
     vi.mocked(api.billing.checkout).mockResolvedValue({
@@ -929,15 +947,23 @@ describe('PaywallSheet in purchase mode', () => {
     })
   })
 
-  describe('the quarter (3 months, Stars only)', () => {
+  describe('the quarter (3 months, in Stars and in sums)', () => {
     const withQuarter = (overrides: Partial<BillingCatalog> = {}) => catalog({
       items: [
         { plan: 'pro', tier: null, period: 'year', days: 365, prices: { XTR: 1300, UZS: 24_900_000 }, list_prices: { XTR: 1300, UZS: 24_900_000 }, saving_pct: 28 },
         { plan: 'pro', tier: null, period: 'month', days: 30, prices: { XTR: 150, UZS: 2_900_000 }, list_prices: { XTR: 150, UZS: 2_900_000 }, saving_pct: 0 },
-        { plan: 'pro', tier: null, period: 'quarter', days: 90, prices: { XTR: 390 }, list_prices: { XTR: 390 }, saving_pct: 13 },
+        { plan: 'pro', tier: null, period: 'quarter', days: 90, prices: { XTR: 390, UZS: 7_500_000 }, list_prices: { XTR: 390, UZS: 7_500_000 }, saving_pct: 14 },
       ],
       ...overrides,
     })
+    /** The catalog while BILLING_PRICE_PRO_QUARTER_UZS=0: the quarter has no price in sums. */
+    const starsOnlyQuarter = (overrides: Partial<BillingCatalog> = {}) => {
+      const base = withQuarter(overrides)
+      return {
+        ...base,
+        items: base.items.map((i) => (i.period === 'quarter' ? { ...i, prices: { XTR: 390 }, list_prices: { XTR: 390 }, saving_pct: 13 } : i)),
+      }
+    }
 
     it('shows three cards in a row, month → quarter → year, with the saving the server sent', async () => {
       vi.mocked(api.billing.catalog).mockResolvedValue(withQuarter())
@@ -948,13 +974,43 @@ describe('PaywallSheet in purchase mode', () => {
       expect(w.get('[data-testid=period-quarter]').text()).toContain('3 месяца')
       expect(plain(w.get('[data-testid=period-quarter] [data-testid=period-price]').text())).toBe('390 Stars')
       // three cards share the row: the saving is said short
-      expect(w.get('[data-testid=period-quarter] [data-testid=period-saving]').text()).toBe('−13%')
+      expect(w.get('[data-testid=period-quarter] [data-testid=period-saving]').text()).toBe('−14%')
       expect(w.get('[data-testid=period-year] [data-testid=period-saving]').text()).toBe('−28%')
     })
 
-    it('is paid in Stars only: Payme and Click are not offered for it, the price is in the button', async () => {
+    it('is paid in Stars or in sums like the month: Payme and Click are offered with the price in sums', async () => {
       vi.mocked(api.billing.checkout).mockRejectedValue(new Error('stop here'))
       vi.mocked(api.billing.catalog).mockResolvedValue(withQuarter())
+      const w = await render({ reason: 'quota' })
+
+      await w.get('[data-testid=period-quarter]').trigger('click')
+
+      expect(plain(w.get('[data-testid=pay-telegram_stars]').text())).toBe('Оформить Pro за 390 Stars')
+      expect([payName(w, 'payme'), payPrice(w, 'payme')]).toEqual(['Payme', '75 000 сум'])
+      expect([payName(w, 'click'), payPrice(w, 'click')]).toEqual(['Click', '75 000 сум'])
+      expect(w.find('[data-testid=pay-other]').exists()).toBe(true)
+
+      await w.get('[data-testid=pay-payme]').trigger('click')
+      await flushPromises()
+      expect(api.billing.checkout).toHaveBeenCalledWith('quarter', 'payme', 'paywall_quota')
+    })
+
+    it('shows the price in sums on its card when only Payme / Click sell', async () => {
+      vi.mocked(api.billing.catalog).mockResolvedValue(withQuarter({ providers: ['payme', 'click'] }))
+      const w = await render()
+
+      expect(w.findAll('[role=radio]').map((card) => card.attributes('data-testid'))).toEqual(['period-month', 'period-quarter', 'period-year'])
+      expect(plain(w.get('[data-testid=period-quarter] [data-testid=period-price]').text())).toBe('75 000 сум')
+      expect(w.get('[data-testid=period-quarter] [data-testid=period-saving]').text()).toBe('−14%')
+
+      await w.get('[data-testid=period-quarter]').trigger('click')
+      expect(plain(w.get('[data-testid=pay-payme]').text())).toBe('Оформить Pro за 75 000 сум')
+      expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Payme.')
+    })
+
+    it('without a price in sums (BILLING_PRICE_PRO_QUARTER_UZS=0) is paid in Stars only: Payme and Click are not offered for it', async () => {
+      vi.mocked(api.billing.checkout).mockRejectedValue(new Error('stop here'))
+      vi.mocked(api.billing.catalog).mockResolvedValue(starsOnlyQuarter())
       const w = await render({ reason: 'quota' })
 
       await w.get('[data-testid=period-quarter]').trigger('click')
@@ -969,8 +1025,8 @@ describe('PaywallSheet in purchase mode', () => {
       expect(api.billing.checkout).toHaveBeenCalledWith('quarter', 'telegram_stars', 'paywall_quota')
     })
 
-    it('has no card without a Stars price the learner can pay: a catalog in sums only shows month and year', async () => {
-      vi.mocked(api.billing.catalog).mockResolvedValue(withQuarter({ providers: ['payme', 'click'] }))
+    it('has no card without a price the learner can pay: no sums price and only Payme / Click shows month and year', async () => {
+      vi.mocked(api.billing.catalog).mockResolvedValue(starsOnlyQuarter({ providers: ['payme', 'click'] }))
       const w = await render()
 
       expect(w.findAll('[role=radio]').map((card) => card.attributes('data-testid'))).toEqual(['period-month', 'period-year'])
@@ -982,7 +1038,7 @@ describe('PaywallSheet in purchase mode', () => {
       const w = await render()
 
       expect(w.get('[data-testid=period-quarter]').text()).toContain('3 oy')
-      expect(w.get('[data-testid=period-quarter] [data-testid=period-saving]').text()).toBe('−13%')
+      expect(w.get('[data-testid=period-quarter] [data-testid=period-saving]').text()).toBe('−14%')
     })
 
     it('opens on the period it was asked for (a tariff row of the Subscription screen)', async () => {
@@ -1006,17 +1062,17 @@ describe('PaywallSheet in purchase mode', () => {
       expect(unit!.classes()).toContain('block')
     })
 
-    it('shows the words of the server when it refuses the period for this way of paying (422 with errors.period)', async () => {
+    it('shows the words of the server when it refuses the period (422 with errors.period)', async () => {
       vi.mocked(api.billing.catalog).mockResolvedValue(withQuarter())
       vi.mocked(api.billing.checkout).mockRejectedValue(
-        new ApiClientError('validation', 422, 'Unprocessable Content', 'x', { data: { message: 'x', errors: { period: ['Тариф «3 месяца» — только Stars.'] } } }),
+        new ApiClientError('validation', 422, 'Unprocessable Content', 'x', { data: { message: 'x', errors: { period: ['Срок «3 месяца» сейчас не продаётся.'] } } }),
       )
       const w = await render()
 
       await w.get('[data-testid=pay-payme]').trigger('click')
       await flushPromises()
 
-      expect(w.get('[data-testid=purchase-error]').text()).toBe('Тариф «3 месяца» — только Stars.')
+      expect(w.get('[data-testid=purchase-error]').text()).toBe('Срок «3 месяца» сейчас не продаётся.')
       // the refusal sits right over the pay button, in the block that never scrolls away
       expect(w.get('[data-testid=paywall-actions]').find('[data-testid=purchase-error]').exists()).toBe(true)
     })

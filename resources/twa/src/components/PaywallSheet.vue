@@ -31,8 +31,9 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * Mode `purchase` (the server reports it only while something is for sale, see `/me`): the offer chip, the periods as cards in a row
  * (month → quarter → year, only the ones `GET /billing/catalog` sent; each with its price and, when it saves, "N % cheaper"), the
  * primary button with the price in it ("Get Pro for 150 Stars", the first provider that prices the chosen period), "Not now", a small
- * line on how the payment goes, and the other providers below — then the order is polled until the webhook has paid it. The quarter
- * is priced in Stars only, so Payme / Click are not offered for it. Stars opens the
+ * line on how the payment goes (the way of the payment in progress once one was started here, else the primary button's), and the
+ * other providers below — then the order is polled until the webhook has paid it. Every period offers the providers whose currency
+ * the catalog prices it in (the quarter, like the month and the year, in Stars and in sums). Stars opens the
  * Telegram invoice, Payme / Click the payment page. The switch is `billing.canPurchase` (mode `purchase` AND a
  * non-empty catalog): anything else, including a catalog that failed to load, keeps the `coming_soon` copy.
  *
@@ -362,8 +363,21 @@ const primaryLabel = computed((): string => {
   return t(extendUntil.value !== null ? 'billing.pay_cta_renew' : 'billing.pay_cta', { price: option.price })
 })
 
+/** The way the learner started paying from this sheet: the line under the button names it while that payment goes on. */
+const payingWith = ref<BillingProviderKey | null>(null)
+
+/** "Payment via …": the started payment's provider while it is starting / awaited / timed out, otherwise the primary button's. */
+const payMethod = computed((): BillingProviderKey | null => {
+  const status = billing.purchase.status
+  if (payingWith.value !== null && status !== 'idle' && status !== 'failed') return payingWith.value
+  return primaryOption.value?.provider ?? null
+})
+
 function pay(provider: BillingProviderKey): void {
-  if (period.value && !busy.value) void billing.buy(period.value, provider, paywallPlacement(props.reason))
+  if (period.value && !busy.value) {
+    payingWith.value = provider
+    void billing.buy(period.value, provider, paywallPlacement(props.reason))
+  }
 }
 
 function onRedeemed(me: MeResponse): void {
@@ -660,8 +674,8 @@ onBeforeUnmount(() => {
           <button type="button" class="btn btn-plain btn-block" data-testid="paywall-close" @click="emit('close')">
             {{ t('paywall.not_now') }}
           </button>
-          <p class="text-center text-xs leading-4 text-muted" data-testid="pay-method">
-            {{ t('billing.pay_via', { provider: t(`billing.provider.${primaryOption.provider}`) }) }}
+          <p v-if="payMethod" class="text-center text-xs leading-4 text-muted" data-testid="pay-method">
+            {{ t('billing.pay_via', { provider: t(`billing.provider.${payMethod}`) }) }}
           </p>
         </template>
       </div>

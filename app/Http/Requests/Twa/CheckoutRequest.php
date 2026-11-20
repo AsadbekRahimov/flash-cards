@@ -10,13 +10,11 @@ use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Support\BillingPeriods;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Validator;
 
 /**
  * POST /api/twa/billing/checkout — what to buy and how to pay; the amount is never taken from the client.
  *
- * A period that is not sold in the provider's currency by design (the quarter: Stars only, no UZS price row) is a 422 on
- * `period` here; a period that is sold in it but has no price yet stays the checkout's 409 `price_not_configured`.
+ * A known period without a price in the provider's currency (0 or no key) is the checkout's 409 `price_not_configured`.
  */
 final class CheckoutRequest extends FormRequest
 {
@@ -29,28 +27,6 @@ final class CheckoutRequest extends FormRequest
             'provider' => ['required', 'string', Rule::in(array_map(static fn (SubscriptionProvider $p): string => $p->value, SubscriptionProvider::paid()))],
             // Where the purchase sheet was opened from (docs/13 §5.1): analytics only, never changes the order; absent = null.
             'placement' => ['sometimes', 'nullable', 'string', Rule::enum(OfferPlacement::class)],
-        ];
-    }
-
-    /** @return list<callable(Validator): void> */
-    public function after(): array
-    {
-        return [
-            function (Validator $validator): void {
-                if ($validator->errors()->isNotEmpty()) {
-                    return;
-                }
-
-                $period = $this->period();
-                $currency = $this->provider()->currency();
-
-                if ($currency !== null && ! BillingPeriods::listsCurrency($this->plan()->value, $period, $currency)) {
-                    $validator->errors()->add('period', __('billing.pro.errors.period_not_for_provider', [
-                        'period' => __("billing.period.{$period}"),
-                        'provider' => __('billing.provider.'.$this->provider()->value),
-                    ]));
-                }
-            },
         ];
     }
 

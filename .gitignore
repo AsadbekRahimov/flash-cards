@@ -30,3 +30,6 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local Redis dump of a dev stand
+dump.rdb

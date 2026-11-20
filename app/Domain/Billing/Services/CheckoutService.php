@@ -77,7 +77,7 @@ final class CheckoutService
      * @param  Offer|null  $offer  explicit offer; null = the learner's best applicable open offer, if any
      * @param  OfferPlacement|null  $placement  where the TWA's purchase sheet was opened from: a prop of `checkout.started` only (docs/13 §5.1)
      *
-     * @throws CheckoutException price_not_configured | provider_disabled | provider_not_supported | checkout_conflict | tier_change_requires_support | too_many_pending | offer_not_applicable | offer_busy | invalid_period (also a period not sold in the provider's currency) | invalid_tier
+     * @throws CheckoutException price_not_configured | provider_disabled | provider_not_supported | checkout_conflict | tier_change_requires_support | too_many_pending | offer_not_applicable | offer_busy | invalid_period | invalid_tier
      */
     public function create(
         Learner|Organization $subscriber,
@@ -108,11 +108,6 @@ final class CheckoutService
         $currency = $provider->currency();
         if ($currency === null || ! $this->providers->for($provider)->supports($subscriberType, $currency)) {
             throw CheckoutException::providerNotSupported($provider->value, $subscriberType, $currency ?? '-');
-        }
-
-        if ($subscriber instanceof Learner && ! BillingPeriods::listsCurrency($plan->value, $period, $currency)) {
-            // Not sold in this currency by design (the quarter in UZS: Stars only) — not a price that is still missing.
-            throw CheckoutException::periodNotSoldIn($period, $currency);
         }
 
         $tier = $subscriber instanceof Organization ? $tier : null;

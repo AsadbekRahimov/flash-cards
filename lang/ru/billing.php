@@ -42,8 +42,6 @@ return [
             'offer_not_applicable' => 'Скидка к этой покупке не применяется.',
             'offer_busy' => 'Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту.',
             'invalid_period' => 'Такого варианта оплаты нет.',
-            // CheckoutRequest: a period not sold in the provider's currency by design (the quarter is Stars only).
-            'period_not_for_provider' => 'Срок «:period» нельзя оплатить через :provider. Выберите другой способ оплаты или срок.',
             'invalid_tier' => 'Такого варианта оплаты нет.',
             'not_cancelable' => 'Автопродление сейчас нечего отключать.',
             'not_resumable' => 'Автопродление сейчас нельзя включить: оно уже включено или оплаченный период закончился.',
@@ -86,7 +84,7 @@ return [
             // The same with the practice alone, while the battles are switched off (PRACTICE_BATTLE=false): no battles are sold that do not exist.
             'description_month_practice_solo' => 'Подписка LexiFlow Pro: новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro.',
             'description_year_practice_solo' => 'LexiFlow Pro на 1 год (365 дней): новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления.',
-            // The one-off quarter (3 months, Stars only) in the same three variants.
+            // The one-off quarter (3 months) in the same three variants.
             'description_quarter' => 'LexiFlow Pro на 3 месяца (90 дней): новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления.',
             'description_quarter_practice' => 'LexiFlow Pro на 3 месяца (90 дней): новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления.',
             'description_quarter_practice_solo' => 'LexiFlow Pro на 3 месяца (90 дней): новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления.',

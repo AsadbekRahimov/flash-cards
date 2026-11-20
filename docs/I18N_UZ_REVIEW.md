@@ -777,7 +777,6 @@
 | `billing.pro.errors.offer_not_applicable` | Chegirma bu xaridga qo'llanilmaydi. | Скидка к этой покупке не применяется. |
 | `billing.pro.errors.offer_busy` | Chegirmali oldingi to'lov hali qayta ishlanmoqda — bir daqiqadan so'ng urinib ko'ring. | Предыдущая оплата со скидкой ещё обрабатывается — попробуйте через минуту. |
 | `billing.pro.errors.invalid_period` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
-| `billing.pro.errors.period_not_for_provider` | «:period» muddatini :provider orqali to'lab bo'lmaydi. Boshqa to'lov usuli yoki muddatni tanlang. | Срок «:period» нельзя оплатить через :provider. Выберите другой способ оплаты или срок. |
 | `billing.pro.errors.invalid_tier` | Bunday to'lov varianti yo'q. | Такого варианта оплаты нет. |
 | `billing.pro.errors.not_cancelable` | Hozir o'chiriladigan avtoyangilash yo'q. | Автопродление сейчас нечего отключать. |
 | `billing.pro.errors.not_resumable` | Avtoyangilashni hozir yoqib bo'lmaydi: u allaqachon yoqilgan yoki to'langan davr tugagan. | Автопродление сейчас нельзя включить: оно уже включено или оплаченный период закончился. |
@@ -4236,7 +4235,7 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 
 | Ключ | uz | ru |
 |---|---|---|
-| `billing.period.quarter` | 3 oy | 3 месяца (тариф на 3 месяца, только Stars) |
+| `billing.period.quarter` | 3 oy | 3 месяца (тариф на 3 месяца) |
 | `billing.saving` | {pct}% arzonroq | выгоднее на {pct}% (подпись на карточке тарифа: дешевле, чем помесячно) |
 | `billing.pay_cta` | {price} evaziga Pro olish | Оформить Pro за {price} (главная кнопка, {price} — «150 Stars») |
 | `billing.pay_cta_renew` | {price} evaziga Pro'ni uzaytirish | Продлить Pro за {price} |

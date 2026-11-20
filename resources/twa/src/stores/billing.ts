@@ -125,8 +125,8 @@ async function readMe(store: MeTarget): Promise<void> {
 }
 
 /**
- * A checkout refused by Laravel's validation (422 without an `error.code`, `{ message, errors: { period: [...] } }`): the period is
- * not sold in that way of paying (the quarter is Stars only). The server words it in the learner's language — its first line about
+ * A checkout refused by Laravel's validation (422 without an `error.code`, `{ message, errors: { period: [...] } }`): e.g. a period the
+ * server does not sell (any more). The server words it in the learner's language — its first line about
  * `period` is shown instead of the generic text. Null for anything else (a coded error keeps its own text).
  */
 function periodRefusal(err: unknown): string | null {

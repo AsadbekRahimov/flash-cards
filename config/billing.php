@@ -72,8 +72,8 @@ return [
     'prices' => [
         'pro' => [
             'month' => ['XTR' => (int) env('BILLING_PRICE_PRO_MONTH_XTR', 150), 'UZS' => (int) env('BILLING_PRICE_PRO_MONTH_UZS', 2_900_000)],
-            // 3 months, Stars only (owner's decision of 20.11.2026): no UZS key — Payme / Click never sell it (BillingPeriods::listsCurrency).
-            'quarter' => ['XTR' => (int) env('BILLING_PRICE_PRO_QUARTER_XTR', 390)],
+            // 3 months (owner's decisions of 20.11.2026): in Stars (a one-off invoice) and in sums (Payme / Click); 75 000 sums ≈ −14 % vs 3 months.
+            'quarter' => ['XTR' => (int) env('BILLING_PRICE_PRO_QUARTER_XTR', 390), 'UZS' => (int) env('BILLING_PRICE_PRO_QUARTER_UZS', 7_500_000)],
             'year' => ['XTR' => (int) env('BILLING_PRICE_PRO_YEAR_XTR', 1_300), 'UZS' => (int) env('BILLING_PRICE_PRO_YEAR_UZS', 24_900_000)],
         ],
     ],

@@ -395,7 +395,7 @@ export interface Renewal {
 // ---- billing (docs/04 A.8) ----
 
 export type BillingProviderKey = 'telegram_stars' | 'payme' | 'click'
-/** `quarter` (90 days) is sold in Stars only; a period this build does not know is skipped by the screens (`orderedPeriods`). */
+/** `quarter` = 90 days (Stars and sums, learners only); a period this build does not know is skipped by the screens (`orderedPeriods`). */
 export type BillingPeriod = 'month' | 'quarter' | 'year'
 /** Prices are minor units: XTR = whole Stars, UZS = tiyin (÷ 100 to show). */
 export type BillingCurrency = 'XTR' | 'UZS'

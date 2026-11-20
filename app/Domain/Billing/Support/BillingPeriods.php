@@ -7,9 +7,8 @@ namespace App\Domain\Billing\Support;
 /**
  * Billing periods from config (docs/13 §4.4, §5): `billing.periods` (key => days) is the single list of the periods of a
  * learner's Pro (`payment_orders.period`); `billing.org_periods` is the part of it organizations may buy (the quarter is a
- * learner-only, Stars-only period). A period is sold in a currency only while `billing.prices.<plan>.<period>` lists that
- * currency with a price > 0 (CheckoutService); a currency that is not listed at all is "not sold in it by design"
- * ({@see listsCurrency()}).
+ * learner-only period). A period is sold in a currency only while `billing.prices.<plan>.<period>` has a price > 0 in it
+ * (CheckoutService): 0 and a missing key are the same "not for sale in that currency" (409 `price_not_configured`).
  */
 final class BillingPeriods
 {
@@ -57,18 +56,6 @@ final class BillingPeriods
     public static function months(string $period): int
     {
         return max(1, (int) round(self::days($period) / self::MONTH_DAYS));
-    }
-
-    /**
-     * Whether the price row of (plan, period) names the currency at all. A row without the currency means the period is
-     * not sold in it by design (the quarter in UZS); a row that names it with 0 is "not priced yet" (price_not_configured).
-     * True when there is no row (an unknown plan / period): that is for the checkout to refuse.
-     */
-    public static function listsCurrency(string $plan, string $period, string $currency): bool
-    {
-        $row = config("billing.prices.{$plan}.{$period}");
-
-        return ! is_array($row) || array_key_exists($currency, $row);
     }
 
     /**

@@ -53,8 +53,8 @@ it('lists what can be bought with the enabled providers and no subscription', fu
         ->assertExactJsonStructure([
             'items' => [
                 ['plan', 'tier', 'period', 'days', 'prices' => ['XTR', 'UZS'], 'list_prices' => ['XTR', 'UZS'], 'saving_pct'],
-                // The quarter is Stars only (docs/13 §5): no UZS price.
-                ['plan', 'tier', 'period', 'days', 'prices' => ['XTR'], 'list_prices' => ['XTR'], 'saving_pct'],
+                // The quarter is sold in Stars and in sums like the others (docs/13 §5).
+                ['plan', 'tier', 'period', 'days', 'prices' => ['XTR', 'UZS'], 'list_prices' => ['XTR', 'UZS'], 'saving_pct'],
                 ['plan', 'tier', 'period', 'days', 'prices' => ['XTR', 'UZS'], 'list_prices' => ['XTR', 'UZS'], 'saving_pct'],
             ],
             'providers',
@@ -66,6 +66,8 @@ it('lists what can be bought with the enabled providers and no subscription', fu
         ->assertJsonPath('items.0.prices.XTR', 150)
         ->assertJsonPath('items.0.prices.UZS', 2_900_000)
         ->assertJsonPath('items.1.period', 'quarter')
+        ->assertJsonPath('items.1.prices.UZS', 7_500_000)
+        ->assertJsonPath('items.1.saving_pct', 14)
         ->assertJsonPath('items.2.period', 'year')
         ->assertJsonPath('providers', ['telegram_stars', 'payme'])
         ->assertJsonPath('offer', null)

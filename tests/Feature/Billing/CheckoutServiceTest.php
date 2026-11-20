@@ -266,7 +266,7 @@ it('describes the catalog: priced items per enabled provider, the open offer and
         ->and($catalog->providers)->toBe(['telegram_stars', 'payme'])
         ->and($catalog->items)->toBe([
             ['plan' => 'pro', 'tier' => null, 'period' => 'month', 'days' => 30, 'prices' => ['XTR' => 150, 'UZS' => 2_900_000], 'list_prices' => ['XTR' => 150, 'UZS' => 2_900_000], 'saving_pct' => 0],
-            ['plan' => 'pro', 'tier' => null, 'period' => 'quarter', 'days' => 90, 'prices' => ['XTR' => 390], 'list_prices' => ['XTR' => 390], 'saving_pct' => 13],
+            ['plan' => 'pro', 'tier' => null, 'period' => 'quarter', 'days' => 90, 'prices' => ['XTR' => 390, 'UZS' => 7_500_000], 'list_prices' => ['XTR' => 390, 'UZS' => 7_500_000], 'saving_pct' => 14],
             ['plan' => 'pro', 'tier' => null, 'period' => 'year', 'days' => 365, 'prices' => ['XTR' => 1300, 'UZS' => 24_900_000], 'list_prices' => ['XTR' => 1300, 'UZS' => 24_900_000], 'saving_pct' => 28],
         ])
         ->and($catalog->offer)->toBeNull()
@@ -277,10 +277,10 @@ it('describes the catalog: priced items per enabled provider, the open offer and
     $catalog = $service->catalog($learner, $now);
     expect($catalog->items[0]['prices'])->toBe(['XTR' => 105, 'UZS' => 2_030_000])
         ->and($catalog->items[0]['list_prices'])->toBe(['XTR' => 150, 'UZS' => 2_900_000])
-        ->and($catalog->items[1]['prices'])->toBe(['XTR' => 390])
+        ->and($catalog->items[1]['prices'])->toBe(['XTR' => 390, 'UZS' => 7_500_000])
         ->and($catalog->items[2]['prices'])->toBe(['XTR' => 1300, 'UZS' => 24_900_000])
         // The saving is read from the list prices: a discounted month does not move it.
-        ->and(array_column($catalog->items, 'saving_pct'))->toBe([0, 13, 28])
+        ->and(array_column($catalog->items, 'saving_pct'))->toBe([0, 14, 28])
         ->and($catalog->offer)->toBe(['kind' => 'post_org_discount', 'discount_pct' => 30, 'period' => 'month', 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()]);
 
     // A live Stars subscription: auto-renewing, can be canceled; once canceled it can be resumed; ends_at is the liveness end.
