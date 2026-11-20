@@ -43,7 +43,7 @@ return [
             'offer_busy' => "Chegirmali oldingi to'lov hali yakunlanmagan — bir daqiqadan so'ng urinib ko'ring.",
             'invalid_period' => "Bunday to'lov varianti yo'q.",
             'invalid_tier' => "Bunday to'lov varianti yo'q.",
-            'not_cancelable' => "Obunangiz uchun avtomatik uzaytirish yoqilmagan.",
+            'not_cancelable' => 'Obunangiz uchun avtomatik uzaytirish yoqilmagan.',
             'not_resumable' => "Avtomatik uzaytirishni hozir yoqib bo'lmaydi: u allaqachon yoqilgan yoki to'langan davr tugagan.",
             'provider_capability' => "To'lov usulingizda bu amalni bajarib bo'lmaydi.",
             'provider_not_registered' => "To'lov usulingizda bu amalni bajarib bo'lmaydi.",
