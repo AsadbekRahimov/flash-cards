@@ -47,5 +47,10 @@
         <env name="TWA_JWT_SECRET" value="test-jwt-secret-at-least-32-chars-long-abcdef"/>
         <env name="TWA_JWT_TTL" value="900"/>
         <env name="LEARNERS_DEFAULT_DAILY_GOAL" value="10"/>
+        <!-- No speech synthesizer unless a test sets one (docs/26 §5.1): an import or a new word queues its audio, and on the sync
+             queue of the tests a TTS_SERVICE_URL / TTS_DRIVER of a local .env would make it call the service. -->
+        <env name="TTS_DRIVER" value=""/>
+        <env name="TTS_SERVICE_URL" value=""/>
+        <env name="GOOGLE_TTS_CREDENTIALS" value=""/>
     </php>
 </phpunit>
