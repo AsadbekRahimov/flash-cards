@@ -814,12 +814,15 @@ final class BattleService
         }
     }
 
-    /** The source (`phrase` | `word`) of the first element of a dictation whose clip is not on the disk; null when all five play. */
+    /**
+     * The source (`phrase` | `word`) of the first element of a dictation whose clip does not play; null when all five play. A word on
+     * R2 is trusted by its path, a local clip is looked for on its disk ({@see PracticeAudioService::isPlayable()}, docs/26 §9.5).
+     */
     private function missingClip(Snapshot $snapshot): ?string
     {
         foreach ($snapshot->elements as $element) {
             $clip = $this->audio->clipFor($snapshot, $element->id);
-            if ($clip !== null && ! $this->audio->hasFile($clip->disk, $clip->path)) {
+            if ($clip !== null && ! $this->audio->isPlayable($clip->disk, $clip->path)) {
                 $source = $element->get('source');
 
                 return is_string($source) ? $source : 'phrase';

@@ -360,10 +360,10 @@ it('says a version is ready only with the status AND the file', function (): voi
         ->and($service->pathFor(PracticeItemVersion::factory()->collocation()->make()))->toBeNull();
 });
 
-it('is the job of the low queue with five attempts and a backoff', function (): void {
+it('is the job of the tts queue with five attempts and a backoff', function (): void {
     $job = new GeneratePracticeAudioJob(1);
 
-    expect($job->queue)->toBe('low')
+    expect($job->queue)->toBe('tts')
         ->and($job->tries)->toBe(5)
         ->and($job->backoff())->toBe([30, 120, 600, 1800]);
 });

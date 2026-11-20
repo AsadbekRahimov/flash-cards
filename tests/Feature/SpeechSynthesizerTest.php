@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Content\Exceptions\SpeechSynthesisException;
+use App\Domain\Content\Services\Tts\GoogleSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\HttpSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\NullSpeechSynthesizer;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Services\PracticeAudioService;
-use App\Domain\Twa\Services\TtsFallbackService;
 use App\Jobs\GeneratePracticeAudioJob;
 use App\Models\Lesson;
 use App\Models\PracticeItemVersion;
@@ -35,8 +35,6 @@ beforeEach(function (): void {
         'twa.tts.voice' => 'en-US-AriaNeural',
         'twa.tts.audio_version' => 1,
         'twa.tts.timeout' => 8,
-        'twa.tts.live_timeout' => 3,
-        'twa.tts.live_connect_timeout' => 2,
     ]);
     Http::preventStrayRequests();
 });
@@ -46,12 +44,12 @@ function synthFake(): SpeechSynthesizer
 {
     return new class implements SpeechSynthesizer
     {
-        /** @var list<array{string, string, bool}> */
+        /** @var list<array{string, string}> */
         public array $calls = [];
 
-        public function synthesize(string $text, string $voice, bool $live = false): array
+        public function synthesize(string $text, string $voice): array
         {
-            $this->calls[] = [$text, $voice, $live];
+            $this->calls[] = [$text, $voice];
 
             return ['body' => 'fake-mp3', 'content_type' => 'audio/mpeg'];
         }
@@ -63,6 +61,7 @@ it('chooses the driver from twa.tts.driver', function (?string $driver, string $
 
     expect(app(SpeechSynthesizer::class))->toBeInstanceOf($class);
 })->with([
+    'google' => ['google', 'http://tts.test', GoogleSpeechSynthesizer::class],
     'http' => ['http', '', HttpSpeechSynthesizer::class],
     'null, even with a service url' => ['null', 'http://tts.test', NullSpeechSynthesizer::class],
     'unset with a service url: http' => [null, 'http://tts.test', HttpSpeechSynthesizer::class],
@@ -109,19 +108,6 @@ it('http driver: posts the text and the voice with the long timeout and returns 
         && $request->hasHeader('Accept', 'audio/mpeg'));
 });
 
-it('http driver: a live synthesis uses the short timeouts', function (): void {
-    $seen = [];
-    Http::fake(function ($request, array $options) use (&$seen) {
-        $seen = $options;
-
-        return Http::response('mp3-bytes', 200, ['Content-Type' => 'audio/mpeg']);
-    });
-
-    (new HttpSpeechSynthesizer)->synthesize('resilient', 'en-US-AriaNeural', live: true);
-
-    expect($seen['timeout'] ?? null)->toBe(3)->and($seen['connect_timeout'] ?? null)->toBe(2);
-});
-
 it('http driver: a reply without a content type is audio/mpeg; an empty voice is not sent', function (): void {
     Http::fake(['http://tts.test/tts' => Http::response('mp3-bytes', 200)]);
 
@@ -166,7 +152,7 @@ it('the word audio voices through the bound synthesizer', function (): void {
     $word = Word::factory()->for($lesson)->create(['word' => 'Resilient']);
 
     expect(app(WordAudioService::class)->generate($word))->toBeTrue()
-        ->and($fake->calls)->toBe([['resilient', 'en-US-AriaNeural', false]])
+        ->and($fake->calls)->toBe([['resilient', 'en-US-AriaNeural']])
         ->and(Storage::disk('public')->get((string) $word->audio_path))->toBe('fake-mp3');
 });
 
@@ -179,7 +165,7 @@ it('the dictation audio voices through the bound synthesizer', function (): void
 
     app(PracticeAudioService::class)->generate($version->fresh() ?? $version);
 
-    expect($fake->calls)->toBe([['See you tomorrow', 'en-US-AriaNeural', false]])
+    expect($fake->calls)->toBe([['See you tomorrow', 'en-US-AriaNeural']])
         ->and($version->fresh()?->audio_status)->toBe(AudioStatus::Ready);
 });
 
@@ -197,14 +183,4 @@ it('TTS_DRIVER=null fails the dictation job at once with tts_service_not_configu
     $job->handle(app(PracticeAudioService::class));
 
     Http::assertNothingSent();
-});
-
-it('the live fallback of GET /api/twa/tts without a voice asks the synthesizer for the configured one, live', function (): void {
-    $fake = synthFake();
-    app()->instance(SpeechSynthesizer::class, $fake);
-
-    $audio = app(TtsFallbackService::class)->synthesizeLive('resilient');
-
-    expect($audio['body'])->toBe('fake-mp3')
-        ->and($fake->calls)->toBe([['resilient', 'en-US-AriaNeural', true]]);
 });

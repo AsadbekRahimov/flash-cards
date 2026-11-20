@@ -12,23 +12,19 @@ use Illuminate\Support\Facades\Http;
 /**
  * `TTS_DRIVER=http` (docs/26 §5.1): the edge-tts compatible service of `TTS_SERVICE_URL` (`POST {url}/tts`, `{word, voice}`,
  * answers the mp3), kept for local development. An empty URL is `tts_service_not_configured`, as before the driver existed.
+ * The service is free: neither the pace limit nor the monthly character budget of the `google` driver apply (docs/26 §9.3).
  */
 final class HttpSpeechSynthesizer implements SpeechSynthesizer
 {
-    public function synthesize(string $text, string $voice, bool $live = false): array
+    public function synthesize(string $text, string $voice): array
     {
         $baseUrl = rtrim((string) config('twa.tts.service_url'), '/');
         if ($baseUrl === '') {
             throw SpeechSynthesisException::notConfigured();
         }
 
-        $request = $live
-            ? Http::timeout(max(1, (int) config('twa.tts.live_timeout', 3)))
-                ->connectTimeout(max(1, (int) config('twa.tts.live_connect_timeout', 2)))
-            : Http::timeout((int) config('twa.tts.timeout', 8));
-
         try {
-            $response = $request
+            $response = Http::timeout((int) config('twa.tts.timeout', 8))
                 ->accept('audio/mpeg')
                 ->post($baseUrl.'/tts', array_filter([
                     'word' => $text,

@@ -749,7 +749,7 @@ user=www-data
 
 [program:lexiflow-worker-low]
 process_name=%(program_name)s_%(process_num)02d
-command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=low --tries=3 --timeout=120 --sleep=1 --max-time=3600
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=low,tts --tries=3 --timeout=120 --sleep=1 --max-time=3600
 autostart=true
 autorestart=true
 stopasgroup=true
@@ -767,7 +767,7 @@ programs=lexiflow-worker-high,lexiflow-worker-default,lexiflow-worker-low
 
 Три пула: `high` (ответы бота, платежи) не стоит в очереди за bulk-задачами, а `low` (долгая TTS-озвучка) не голодает под непрерывным потоком `default` (воркер с `--queue=default,low` берёт `low` только когда `default` пуст). Группа `lexiflow-worker` сохраняет команды `supervisorctl ... lexiflow-worker:*`.
 
-Pre-generated word audio (`PregenerateWordAudioJob`, see below) runs on the `low` queue, served by its own pool `lexiflow-worker-low` (`--queue=low`; in Docker the `queue-low` service). The job retries 5 times with backoff 30s / 2m / 10m / 30m.
+Pre-generated word audio and dictations (`PregenerateWordAudioJob`, `GeneratePracticeAudioJob`, see below) run on the `tts` queue, served by the pool `lexiflow-worker-low` after `low` (`--queue=low,tts`, strict priority; in Docker the `queue-low` service): a mass run of thousands of syntheses never stands in front of the `low` heartbeat (docs/26 §9.3). `tts` is in neither readiness list (backlog, heartbeat) on purpose. The job retries 5 times with backoff 30s / 2m / 10m / 30m.
 
 For bigger classes, increase `numprocs` before adding app containers. With Redis queue and the current DB indexes, 2-3 workers are enough for roughly 300 active students/day unless Telegram API latency dominates.
 

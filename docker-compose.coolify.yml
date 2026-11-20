@@ -145,7 +145,7 @@ services:
     depends_on:
       lf-migrate:
         condition: service_completed_successfully
-    command: ["php", "artisan", "queue:work", "redis", "--queue=low", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
+    command: ["php", "artisan", "queue:work", "redis", "--queue=low,tts", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
     mem_limit: 320m
 
   lf-scheduler:
@@ -184,6 +184,8 @@ services:
       # the default is the Docker private ranges. Narrow it to the subnet of the proxy network once it is known:
       # `docker network inspect coolify --format '{{(index .IPAM.Config 0).Subnet}}'` (docs/22 §«Coolify: сети»).
       TRUSTED_PROXY_CIDRS: "${LF_PROXY_CIDRS:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}"
+      # The R2 domain of the word audio (docs/26 §5.4) for the CSP of the Mini App; empty = the audio is on this server.
+      AUDIO_PUBLIC_URL: "${AUDIO_PUBLIC_URL:-}"
     volumes:
       - app_audio:/var/www/html/storage/app/public/audio:ro
     mem_limit: 128m

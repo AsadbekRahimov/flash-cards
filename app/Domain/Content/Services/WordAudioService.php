@@ -10,6 +10,7 @@ use App\Models\Word;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use League\Flysystem\UnableToRetrieveMetadata;
 use RuntimeException;
 use Throwable;
 
@@ -21,9 +22,18 @@ use Throwable;
  * TTS endpoint can find it from the text alone. `words.audio_path` is the relative path.
  * The synthesis itself is the configured {@see SpeechSynthesizer} (the same one the live
  * `/api/twa/tts` fallback uses).
+ *
+ * The disk is `twa.tts.audio_disk`: `public` (this server) or `audio` (Cloudflare R2, docs/26 §5.4). A screen of a learner
+ * never asks the disk: a word is voiced when `audio_path` is the path its current text hashes to ({@see urlFor()}).
  */
 final class WordAudioService
 {
+    /** The headers of a word file on an S3 disk (docs/26 §9.5): the name follows the content, nothing can change it. */
+    public const array PUT_OPTIONS = [
+        'CacheControl' => 'public, max-age=31536000, immutable',
+        'ContentType' => 'audio/mpeg',
+    ];
+
     public function __construct(private readonly SpeechSynthesizer $tts) {}
 
     /** Lower-cased, whitespace-collapsed text: "Ice  Cream" and "ice cream" sound the same. */
@@ -58,9 +68,10 @@ final class WordAudioService
         return $path !== null && $this->isReady($path) ? $path : null;
     }
 
-    public function read(string $path): ?string
+    /** @param  string|null  $diskName  another disk than `twa.tts.audio_disk` (the source of `audio:migrate-disk`) */
+    public function read(string $path, ?string $diskName = null): ?string
     {
-        return $this->disk()->get($path);
+        return $this->disk($diskName)->get($path);
     }
 
     /**
@@ -128,8 +139,10 @@ final class WordAudioService
             $called = true;
         }
 
-        if ($word->audio_path !== $path) {
-            Word::query()->whereKey($word->id)->update(['audio_path' => $path]);
+        // Only while the text is still the one voiced (docs/26 §9.6): an edit during the synthesis queued its own job, which
+        // may have finished first - its path must not be overwritten with the path of the old text.
+        if ($word->audio_path !== $path
+            && Word::query()->whereKey($word->id)->where('word', $word->word)->update(['audio_path' => $path]) > 0) {
             $word->audio_path = $path;
             $word->syncOriginalAttribute('audio_path');
         }
@@ -145,26 +158,60 @@ final class WordAudioService
 
     /**
      * What is on the disk at this path: `ready` (a non-empty file), `empty` (a zero-byte leftover) or `missing`.
+     * On R2 these are HEAD requests: only the jobs, `audio:coverage --verify`, `audio:migrate-disk` and `GET /api/twa/tts`
+     * call it, never the screens of a learner (docs/26 §9.5). An error of the bucket other than "not found" is thrown.
      *
+     * @param  string|null  $diskName  another disk than `twa.tts.audio_disk` (the source of `audio:migrate-disk`)
      * @return 'ready'|'empty'|'missing'
      */
-    public function fileState(string $path): string
+    public function fileState(string $path, ?string $diskName = null): string
     {
-        $disk = $this->disk();
-        if (! $disk->exists($path)) {
+        $disk = $this->disk($diskName);
+        if (! $disk->fileExists($path)) {
             return 'missing';
         }
 
-        return $disk->size($path) > 0 ? 'ready' : 'empty';
+        try {
+            return $disk->size($path) > 0 ? 'ready' : 'empty';
+        } catch (UnableToRetrieveMetadata) {
+            return 'missing'; // gone between the two calls
+        }
     }
 
     /**
-     * Atomic write: the body goes to `{dir}/.tmp/{name}.{random}` and is moved onto the final name,
-     * so a reader (nginx, {@see read()}) never sees a half-written mp3.
+     * Writes a word file on a disk the way {@see store()} does (the copy of `audio:migrate-disk` keeps the same headers).
+     *
+     * @throws RuntimeException tts_audio_not_stored
      */
+    public function write(string $diskName, string $path, string $body): void
+    {
+        $disk = $this->disk($diskName);
+
+        if (config("filesystems.disks.{$diskName}.driver") === 's3') {
+            // One PUT is atomic in S3 / R2: no temporary name. The headers go with the object (not the `options` of the disk:
+            // the adapter would add those to HEAD / GET as well); the name follows the content, so it is cached for a year.
+            if (! $disk->put($path, $body, self::PUT_OPTIONS)) {
+                throw new RuntimeException('tts_audio_not_stored');
+            }
+
+            return;
+        }
+
+        $this->writeThroughTemporary($disk, $path, $body);
+    }
+
+    /** Stores the body of a word on the disk of the word audio ({@see write()}). */
     private function store(string $path, string $body): void
     {
-        $disk = $this->disk();
+        $this->write($this->diskName(), $path, $body);
+    }
+
+    /**
+     * Atomic write on a local disk: the body goes to `{dir}/.tmp/{name}.{random}` and is moved onto the final name,
+     * so a reader (nginx, {@see read()}) never sees a half-written mp3.
+     */
+    private function writeThroughTemporary(Filesystem $disk, string $path, string $body): void
+    {
         $tmp = dirname($path).'/.tmp/'.basename($path).'.'.Str::random(12);
 
         if (! $disk->put($tmp, $body)) {
@@ -186,8 +233,14 @@ final class WordAudioService
         }
     }
 
-    private function disk(): Filesystem
+    /** The disk of the word audio: `twa.tts.audio_disk` (`public` - this server, `audio` - R2, docs/26 §5.4). */
+    public function diskName(): string
     {
-        return Storage::disk((string) config('twa.tts.audio_disk', 'public'));
+        return (string) config('twa.tts.audio_disk', 'public');
+    }
+
+    private function disk(?string $name = null): Filesystem
+    {
+        return Storage::disk($name ?? $this->diskName());
     }
 }

@@ -118,6 +118,69 @@ it('writes the proxy list of nginx from TRUSTED_PROXY_CIDRS and refuses a catch-
     }
 });
 
+it('writes the origin of AUDIO_PUBLIC_URL for the CSP of the Mini App, empty when unset, and refuses anything but https://host', function (): void {
+    $dir = sys_get_temp_dir().'/lf-nginx-audio-'.bin2hex(random_bytes(4));
+    mkdir($dir);
+
+    $run = fn (?string $url) => Process::env([
+        'NGINX_ENTRYPOINT_GENERATE_ONLY' => '1',
+        'PROXY_REAL_IP_SNIPPET' => "{$dir}/proxy.conf",
+        'CF_REAL_IP_CONF' => "{$dir}/cf.conf",
+        'CF_ONLY_SNIPPET' => "{$dir}/only.conf",
+        'AUDIO_ORIGIN_CONF' => "{$dir}/audio.conf",
+        ...($url === null ? [] : ['AUDIO_PUBLIC_URL' => $url]),
+    ])->run(['sh', base_path('docker/nginx-entrypoint.sh')]);
+    $origin = function () use ($dir): ?string {
+        preg_match('/^map \$host \$lexiflow_audio_origin \{\n    default "([^"]*)";\n\}$/m', (string) @file_get_contents("{$dir}/audio.conf"), $m);
+
+        return $m[1] ?? null;
+    };
+
+    try {
+        foreach ([
+            'https://audio.example.uz' => 'https://audio.example.uz',
+            'https://audio.example.uz/' => 'https://audio.example.uz',
+            'https://cdn.example.uz:8443/words/v1' => 'https://cdn.example.uz:8443',
+            '' => '',
+        ] as $url => $expected) {
+            expect($run((string) $url)->successful())->toBeTrue()
+                ->and($origin())->toBe($expected);
+        }
+        expect($run(null)->successful())->toBeTrue()->and($origin())->toBe('');
+
+        foreach (['http://audio.example.uz', 'audio.example.uz', 'https://a.uz";add_header X 1', 'https://a.uz x', "https://a.uz\nhttps://b.uz", 'https://-a.uz'] as $bad) {
+            @unlink("{$dir}/audio.conf");
+            $result = $run($bad);
+            expect($result->failed())->toBeTrue()
+                ->and($result->errorOutput())->toContain('AUDIO_PUBLIC_URL')
+                ->and(file_exists("{$dir}/audio.conf"))->toBeFalse();
+        }
+    } finally {
+        array_map('unlink', glob("{$dir}/*") ?: []);
+        rmdir($dir);
+    }
+});
+
+it('lets the audio domain into media-src and connect-src of every CSP of the Mini App in the image configs, and passes it to nginx', function (): void {
+    foreach (['docker/nginx/prod.conf', 'docker/nginx/coolify.conf'] as $file) {
+        preg_match_all('/add_header Content-Security-Policy "([^"]*)"/', infraFile($file), $m);
+
+        expect($m[1])->toHaveCount(3);
+        foreach ($m[1] as $csp) {
+            expect($csp)->toContain("media-src 'self' blob: data: \$lexiflow_audio_origin;")
+                ->and($csp)->toContain("connect-src 'self' \$lexiflow_audio_origin;");
+        }
+    }
+
+    // The development stack mounts default.conf as it is (no entrypoint): its audio is on the same origin.
+    expect(infraFile('docker/nginx/default.conf'))->not->toContain('lexiflow_audio_origin');
+
+    /** @var array{services: array<string, array{environment?: array<string, mixed>}>} $prod */
+    $prod = Yaml::parse(infraFile('docker-compose.prod.yml'));
+    expect($prod['services']['nginx']['environment']['AUDIO_PUBLIC_URL'])->toBe('${AUDIO_PUBLIC_URL:-}')
+        ->and(coolifyCompose()['services']['lf-nginx']['environment']['AUDIO_PUBLIC_URL'])->toBe('${AUDIO_PUBLIC_URL:-}');
+});
+
 it('limits the public paths in both nginx configs and raises worker_connections in the image', function (): void {
     foreach (['docker/nginx/prod.conf', 'docker/nginx/coolify.conf'] as $file) {
         $conf = infraFile($file);

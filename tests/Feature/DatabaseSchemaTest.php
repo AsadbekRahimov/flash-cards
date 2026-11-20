@@ -140,6 +140,8 @@ $expectedTables = [
     'game_runs', 'game_run_attempts', 'game_stop_progress', 'game_city_progress', 'game_word_misses',
     'game_wallets', 'game_coin_ledger', 'game_items', 'game_inventory', 'game_profiles', 'game_ticket_ledger', 'game_booster_uses',
     'class_caravans', 'class_caravan_members',
+    // Google TTS: the monthly character budget (docs/26 §9.3).
+    'tts_usage_months',
 ];
 
 /**

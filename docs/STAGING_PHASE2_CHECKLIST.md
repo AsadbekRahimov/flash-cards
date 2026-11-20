@@ -133,7 +133,7 @@
 ### 1.3 Планировщик и очереди
 
 - [ ] Cron `* * * * * … php artisan schedule:run` (bare-метал, DEVOPS §11) или контейнер `scheduler` (`schedule:work`, docker-compose.prod.yml).
-- [ ] Воркеры слушают три отдельных пула `--queue=high`, `--queue=default`, `--queue=low` (supervisor / сервисы `queue-high`, `queue-default`, `queue-low`; общий `default,low` голодает `low` и роняет `queue` в `/health/ready`); `php artisan queue:work` не падает.
+- [ ] Воркеры слушают три отдельных пула `--queue=high`, `--queue=default`, `--queue=low,tts` (supervisor / сервисы `queue-high`, `queue-default`, `queue-low`; общий `default,low` голодает `low` и роняет `queue` в `/health/ready`); `php artisan queue:work` не падает.
 - [ ] `php artisan schedule:list` показывает все команды из `routes/console.php`:
 
 | Команда | Расписание | Что делает |

@@ -7,9 +7,11 @@
 #     cache store `lru`; volatile-lru, no persistence) - docs/19_REDIS_CACHE_PLAN.md §4. Both require a password.
 #   - nginx serves HTTPS via Let's Encrypt, renewed by certbot sidecar.
 #   - Dedicated queue worker containers (separate from php-fpm), one pool per queue: queue-high (`high`),
-#     queue-default (`default`) and queue-low (`low`). A worker takes queues in strict priority order, so a shared
-#     `default,low` worker starves `low` while `default` is never empty (a reminder broadcast at the Telegram
+#     queue-default (`default`) and queue-low (`low`, then `tts`). A worker takes queues in strict priority order, so a
+#     shared `default,low` worker starves `low` while `default` is never empty (a reminder broadcast at the Telegram
 #     limit of 25/s keeps it busy for minutes): the `low` heartbeat then goes stale and /health/ready fails on `queue`.
+#     The same order is why the audio jobs have the queue `tts` behind `low` (docs/26 §9.3): thousands of syntheses of
+#     `audio:pregenerate` wait behind the `low` heartbeat, never in front of it.
 #   - Two php-fpm containers of the same image (docs/DEVOPS_GUIDE.md §0 «Две поверхности приложения: app и app-api»):
 #     `app` (APP_SURFACE=full: /admin, /org, the public site, the Telegram and payment webhooks, /2fa, /up, /health/ready)
 #     and `app-api` (APP_SURFACE=api: /api/* of the TWA Mini App only - no Filament / Livewire registered, no web routes;
@@ -165,7 +167,7 @@ services:
             - app_audio:/var/www/html/storage/app/public/audio
 
     # Three worker pools: `high` (Telegram replies, payments) is never stuck behind bulk work on default/low,
-    # and `low` (long TTS jobs) is never starved by a steady stream of `default`.
+    # and `low` (with `tts`, the long TTS jobs, behind it) is never starved by a steady stream of `default`.
     queue-high:
         image: lexiflow/app:${IMAGE_TAG:-latest}
         container_name: lexiflow-queue-high
@@ -204,7 +206,7 @@ services:
             - app_audio:/var/www/html/storage/app/public/audio
         command: ["php", "artisan", "queue:work", "redis", "--queue=default", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
 
-    # TTS (PregenerateWordAudioJob, GeneratePracticeAudioJob): long jobs on their own pool.
+    # `low`, then `tts` (PregenerateWordAudioJob, GeneratePracticeAudioJob - long jobs) when `low` is empty: docs/26 §9.3.
     queue-low:
         image: lexiflow/app:${IMAGE_TAG:-latest}
         container_name: lexiflow-queue-low
@@ -222,7 +224,7 @@ services:
         volumes:
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
-        command: ["php", "artisan", "queue:work", "redis", "--queue=low", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
+        command: ["php", "artisan", "queue:work", "redis", "--queue=low,tts", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
 
     scheduler:
         image: lexiflow/app:${IMAGE_TAG:-latest}
@@ -273,6 +275,8 @@ services:
             # Cloudflare's ranges); ONLY - port 443 answers 403 to everyone else. Both false = nothing changes.
             CLOUDFLARE_PROXY: ${CLOUDFLARE_PROXY:-false}
             CLOUDFLARE_ONLY: ${CLOUDFLARE_ONLY:-false}
+            # The R2 domain of the word audio (docs/26 §5.4) for the CSP of the Mini App; empty = the audio is on this server.
+            AUDIO_PUBLIC_URL: ${AUDIO_PUBLIC_URL:-}
         volumes:
             - ./docker/nginx/prod.conf:/etc/nginx/prod.conf.template:ro
             # Included by prod.conf as they are (not rendered): the way to app-api for each APP_SERVER mode.
@@ -284,7 +288,8 @@ services:
             - app_audio:/var/www/html/storage/app/public/audio:ro
             - letsencrypt:/etc/letsencrypt:ro
             - certbot_www:/var/www/certbot:ro
-        # The image entrypoint substitutes only APP_DOMAIN and APP_SERVER, generates the Cloudflare files and periodically reloads renewed certificates.
+        # The image entrypoint substitutes only APP_DOMAIN and APP_SERVER, generates the Cloudflare files and the audio origin of the CSP
+        # (AUDIO_PUBLIC_URL) and periodically reloads renewed certificates.
 
     certbot:
         image: certbot/certbot:latest

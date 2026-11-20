@@ -979,7 +979,7 @@ user=www-data
 
 [program:lexiflow-worker-low]
 process_name=%(program_name)s_%(process_num)02d
-command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=low --tries=3 --timeout=120 --sleep=1 --max-time=3600
+command=/usr/bin/php /var/www/lexiflow/artisan queue:work redis --queue=low,tts --tries=3 --timeout=120 --sleep=1 --max-time=3600
 directory=/var/www/lexiflow
 autostart=true
 autorestart=true

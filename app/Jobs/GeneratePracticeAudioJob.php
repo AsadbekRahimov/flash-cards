@@ -17,8 +17,9 @@ use Throwable;
  * per job, like {@see PregenerateWordAudioJob}: a failing TTS call retries with backoff and never takes others down.
  * Queued by {@see PracticeAudioService::schedule()} after the commit of the version.
  *
- * A TTS service that is NOT CONFIGURED is not a failure to retry but a state of the installation: the job fails at once
- * ({@see handle()}), the version becomes `failed` with the code, and nothing is thrown out of the job.
+ * A synthesis error that is not `retryable` (nothing configured, a refused request, a revoked key, the monthly limit of
+ * docs/26 §9.2) is not a failure to retry but a state: the job fails at once ({@see handle()}), the version becomes `failed`
+ * with the code (`tts_monthly_limit_reached`: "voice again" next month), and nothing is thrown out of the job.
  */
 final class GeneratePracticeAudioJob implements ShouldQueue
 {
@@ -30,7 +31,9 @@ final class GeneratePracticeAudioJob implements ShouldQueue
         public readonly int $versionId,
         public readonly bool $force = false,
     ) {
-        $this->onQueue('low');
+        // docs/26 §9.3: the queue of its own, served by the `low` worker after `low` (`--queue=low,tts`): a mass run never
+        // stands in front of the `low` heartbeat.
+        $this->onQueue('tts');
     }
 
     /** @return list<int> seconds between attempts */

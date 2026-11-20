@@ -2,17 +2,33 @@
 
 declare(strict_types=1);
 
+use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Learner;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
+/*
+ * docs/26 §9.4: GET /api/twa/tts only hands out a pre-generated file (302 to the URL of the audio disk) or 404 - nothing is
+ * synthesized on behalf of a learner, whatever the driver.
+ */
+
 uses(RefreshDatabase::class);
+
+beforeEach(function (): void {
+    Config::set('twa.tts.service_url', 'http://tts.test');
+    Config::set('twa.tts.voice', 'en-US-AriaNeural');
+    Config::set('twa.tts.audio_version', 1);
+    Config::set('twa.tts.audio_disk', 'public');
+    Storage::fake('public');
+    Http::preventStrayRequests();
+    Http::fake();
+});
 
 /** @return array<string, string> */
 function twaTtsHeaders(Learner $learner): array
@@ -36,88 +52,69 @@ function twaTtsRequest(Learner $learner, string $query): Response
     return app(Kernel::class)->handle($request);
 }
 
-it('proxies TTS fallback audio from the configured service', function (): void {
-    Config::set('twa.tts.service_url', 'http://tts.test');
+function twaTtsStoredPath(string $text): string
+{
+    return 'audio/'.sha1(mb_strtolower($text).'|en-US-AriaNeural|1').'.mp3';
+}
 
-    $learner = Learner::factory()->create();
+it('redirects to the stored file of the text on the audio disk, private for an hour', function (): void {
+    $path = twaTtsStoredPath('ice cream');
+    Storage::disk('public')->put($path, 'stored-bytes');
 
-    Http::fake([
-        'http://tts.test/tts' => Http::response('mp3-bytes', 200, ['Content-Type' => 'audio/mpeg']),
-    ]);
+    $response = twaTtsRequest(Learner::factory()->create(), 'word=Ice%20%20Cream');
 
-    $response = twaTtsRequest($learner, 'word=resilient&voice=en-US-AriaNeural');
-
-    expect($response->getStatusCode())->toBe(200);
-    expect($response->headers->get('Content-Type'))->toContain('audio/mpeg');
-    expect($response->getContent())->toBe('mp3-bytes');
-
-    Http::assertSent(fn ($request): bool => $request->url() === 'http://tts.test/tts'
-        && $request['word'] === 'resilient'
-        && $request['voice'] === 'en-US-AriaNeural');
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toBe(Storage::disk('public')->url($path))
+        ->and($response->headers->get('Cache-Control'))->toContain('private')->toContain('max-age=3600')->not->toContain('public')
+        ->and($response->getContent())->not->toContain('stored-bytes');
+    Http::assertNothingSent();
 });
 
-it('returns 503 when TTS fallback service is not configured', function (): void {
-    Config::set('twa.tts.service_url', '');
+it('answers 404 tts_not_found, not cached, for a text without a file - and never synthesizes', function (?string $driver): void {
+    Config::set('twa.tts.driver', $driver);
+    $synth = Mockery::mock(SpeechSynthesizer::class);
+    $synth->shouldNotReceive('synthesize');
+    app()->instance(SpeechSynthesizer::class, $synth);
 
-    $learner = Learner::factory()->create();
-
-    $response = twaTtsRequest($learner, 'word=resilient');
+    $response = twaTtsRequest(Learner::factory()->create(), 'word=resilient');
     $payload = json_decode((string) $response->getContent(), true, flags: JSON_THROW_ON_ERROR);
 
-    expect($response->getStatusCode())->toBe(503);
-    expect($payload['error']['code'])->toBe('tts_unavailable');
+    expect($response->getStatusCode())->toBe(404)
+        ->and($payload['error']['code'])->toBe('tts_not_found')
+        ->and($response->headers->get('Cache-Control'))->toContain('no-store');
+    Http::assertNothingSent();
+})->with(['http' => 'http', 'google' => 'google', 'null' => 'null']);
+
+it('an empty leftover file is not served', function (): void {
+    Storage::disk('public')->put(twaTtsStoredPath('resilient'), '');
+
+    expect(twaTtsRequest(Learner::factory()->create(), 'word=resilient')->getStatusCode())->toBe(404);
+});
+
+it('ignores a voice parameter: only the configured voice has files', function (): void {
+    $path = twaTtsStoredPath('resilient');
+    Storage::disk('public')->put($path, 'stored-bytes');
+
+    $response = twaTtsRequest(Learner::factory()->create(), 'word=resilient&voice=en-GB-RyanNeural');
+
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toBe(Storage::disk('public')->url($path));
 });
 
 it('rejects unsafe TTS word input', function (): void {
-    Config::set('twa.tts.service_url', 'http://tts.test');
-
-    $learner = Learner::factory()->create();
-
-    $response = twaTtsRequest($learner, 'word=%3Cscript%3E');
+    $response = twaTtsRequest(Learner::factory()->create(), 'word=%3Cscript%3E');
     $payload = json_decode((string) $response->getContent(), true, flags: JSON_THROW_ON_ERROR);
 
-    expect($response->getStatusCode())->toBe(422);
-    expect($payload['errors'])->toHaveKey('word');
+    expect($response->getStatusCode())->toBe(422)
+        ->and($payload['errors'])->toHaveKey('word');
 });
 
-it('calls the service with the short live timeouts and marks the audio private', function (): void {
-    Config::set('twa.tts.service_url', 'http://tts.test');
-    Config::set('twa.tts.timeout', 8);
-    Config::set('twa.tts.live_timeout', 3);
-    Config::set('twa.tts.live_connect_timeout', 2);
-    $seen = [];
-    Http::fake(function ($request, array $options) use (&$seen) {
-        $seen = $options;
-
-        return Http::response('mp3-bytes', 200, ['Content-Type' => 'audio/mpeg']);
-    });
-
-    $response = twaTtsRequest(Learner::factory()->create(), 'word=resilient');
-
-    expect($response->getStatusCode())->toBe(200)
-        ->and($response->headers->get('Cache-Control'))->toContain('private')->not->toContain('public')
-        ->and($seen['timeout'] ?? null)->toBe(3)
-        ->and($seen['connect_timeout'] ?? null)->toBe(2);
+it('requires a word', function (): void {
+    expect(twaTtsRequest(Learner::factory()->create(), '')->getStatusCode())->toBe(422);
 });
 
-it('refuses with the 503 of an unavailable service when every live slot is taken, without calling it', function (): void {
-    Config::set('twa.tts.service_url', 'http://tts.test');
-    Config::set('twa.tts.live_concurrency', 2);
-    Http::fake();
-    $held = [Cache::lock('tts:live:slot:0', 30), Cache::lock('tts:live:slot:1', 30)];
-    foreach ($held as $lock) {
-        expect($lock->get())->toBeTrue();
-    }
-
-    $response = twaTtsRequest(Learner::factory()->create(), 'word=resilient');
-    $payload = json_decode((string) $response->getContent(), true, flags: JSON_THROW_ON_ERROR);
-
-    expect($response->getStatusCode())->toBe(503)->and($payload['error']['code'])->toBe('tts_unavailable');
-    Http::assertNothingSent();
-
-    $held[1]->release();
-    Http::fake(['http://tts.test/tts' => Http::response('mp3-bytes', 200, ['Content-Type' => 'audio/mpeg'])]);
-    expect(twaTtsRequest(Learner::factory()->create(), 'word=resilient')->getStatusCode())->toBe(200)
-        // The slot is given back: the next call takes it again.
-        ->and(twaTtsRequest(Learner::factory()->create(), 'word=resilient')->getStatusCode())->toBe(200);
+it('drops the live synthesis settings', function (): void {
+    expect(config('twa.tts'))->not->toHaveKeys(['live_timeout', 'live_connect_timeout', 'live_concurrency'])
+        ->and(file_exists(app_path('Domain/Twa/Services/TtsFallbackService.php')))->toBeFalse()
+        ->and((string) file_get_contents(base_path('.env.example')))->not->toContain('TTS_LIVE_');
 });
