@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import BottomSheet from '@/components/ui/BottomSheet.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -30,7 +31,9 @@ import type { CourseLesson, CourseStage } from '@/api/types'
  * unfinished one) is the highlighted row with the one primary button "Learn the lesson"; any other lesson keeps a quiet "Learn" and,
  * while `/me.practice.available`, a small "Practice" (the hub of that lesson, with the paywall while it is behind Pro). Under the
  * module: the previous / next module and the readiness for the level; under them "Practice" of the course, the Karvon map and the
- * IELTS / SAT mock. The module shown first is the one of the current lesson. "Back" is the system button (-> the catalog).
+ * IELTS / SAT mock. The module shown first is the one of the current lesson; the heading of the module opens the list of all
+ * modules (a sheet), and away from the current lesson "To the current lesson" leads back to it. "Back" is the system button
+ * (-> the catalog).
  */
 
 /** Courses with an IELTS / SAT mock (docs/13 §8.4); the server refuses the others anyway. */
@@ -103,6 +106,32 @@ const nextStage = computed((): CourseStage | null => detail.value?.stages[stageI
 
 function showStage(stage: CourseStage): void {
   pickedStage.value = stage.number
+}
+
+/** The module of the current lesson (the learner's course only); null when there is none. */
+const currentStageNumber = computed((): number | null => (currentLessonId.value !== null ? (nextLesson.value?.stage ?? null) : null))
+/** The screen shows another module than the one of the current lesson: "To the current lesson" leads back. */
+const awayFromCurrent = computed((): boolean => currentStageNumber.value !== null && shownStage.value?.number !== currentStageNumber.value)
+
+function stageDone(stage: CourseStage): boolean {
+  return stage.progress.total > 0 && stage.progress.done >= stage.progress.total
+}
+
+/** The list of modules: open by the heading of the module; a pick shows that module and closes it (focus goes back to the heading). */
+const pickerOpen = ref(false)
+const stageSection = ref<HTMLElement | null>(null)
+
+function pickStage(stage: CourseStage): void {
+  showStage(stage)
+  pickerOpen.value = false
+}
+
+/** Back to the module of the current lesson, and the row of that lesson into view. */
+async function toCurrentLesson(): Promise<void> {
+  pickedStage.value = null
+  await nextTick()
+  const row = stageSection.value?.querySelector(`[data-testid="lesson-${currentLessonId.value}"]`)
+  row?.scrollIntoView?.({ block: 'center', behavior: 'smooth' })
 }
 
 watch(
@@ -251,12 +280,46 @@ onBeforeUnmount(() => {
 
       <EmptyState v-if="detail.stages.length === 0" icon="book-open" :text="t('course.no_lessons')" data-testid="no-lessons" />
 
-      <section v-if="shownStage" class="mt-7" :data-testid="`stage-${shownStage.number}`">
-        <!-- "Module 2 of 20" above the name; a module without a name of its own is just "Module N" (the heading), no second number. -->
-        <p v-if="stageTitle(shownStage) !== null" class="mb-1 text-[13px] leading-[18px] text-muted" data-testid="stage-of">
-          {{ t('course.module_of', { number: shownStage.number, total: detail.stages.length }) }}
-        </p>
-        <h2 class="text-[22px] leading-7 font-semibold break-words">{{ stageHeading(shownStage) }}</h2>
+      <section v-if="shownStage" ref="stageSection" class="mt-7" :data-testid="`stage-${shownStage.number}`">
+        <!--
+          "Module 2 of 20" above the name; a module without a name of its own is just "Module N" (the heading), no second number.
+          With more than one module the whole heading is a button: it opens the list of all modules (the arrows below only step).
+        -->
+        <h2 v-if="detail.stages.length > 1">
+          <button
+            type="button"
+            class="-mx-2 flex min-h-11 w-[calc(100%+1rem)] items-center gap-3 rounded-control px-2 py-1 text-left active:bg-fill"
+            aria-haspopup="dialog"
+            :aria-expanded="pickerOpen ? 'true' : 'false'"
+            data-testid="stage-picker-btn"
+            @click="pickerOpen = true"
+          >
+            <span class="min-w-0 flex-1">
+              <span v-if="stageTitle(shownStage) !== null" class="mb-1 block text-[13px] leading-[18px] font-normal text-muted" data-testid="stage-of">
+                {{ t('course.module_of', { number: shownStage.number, total: detail.stages.length }) }}
+              </span>
+              <span class="block text-[22px] leading-7 font-semibold break-words" data-testid="stage-title">{{ stageHeading(shownStage) }}</span>
+            </span>
+            <AppIcon name="chevron-down" :size="18" class="shrink-0 text-muted" />
+          </button>
+        </h2>
+        <template v-else>
+          <p v-if="stageTitle(shownStage) !== null" class="mb-1 text-[13px] leading-[18px] text-muted" data-testid="stage-of">
+            {{ t('course.module_of', { number: shownStage.number, total: detail.stages.length }) }}
+          </p>
+          <h2 class="text-[22px] leading-7 font-semibold break-words" data-testid="stage-title">{{ stageHeading(shownStage) }}</h2>
+        </template>
+
+        <!-- Away from the module of the current lesson: the way back to the one primary action of the screen. -->
+        <button
+          v-if="awayFromCurrent"
+          type="button"
+          class="-ml-2 flex min-h-11 items-center gap-1 rounded-control px-2 text-[14px] leading-5 text-accent active:opacity-60"
+          data-testid="to-current-btn"
+          @click="toCurrentLesson"
+        >
+          {{ t('course.to_current') }}
+        </button>
         <div class="mt-2.5 flex items-center gap-3">
           <ProgressLine
             :value="progressPercent(shownStage.progress)"
@@ -424,6 +487,39 @@ onBeforeUnmount(() => {
         </button>
       </section>
     </template>
+
+    <!-- All modules of the course: the one on the screen is selected, the learner's current one wears "you are here". -->
+    <BottomSheet v-if="pickerOpen && detail" :label="t('course.modules')" data-testid="stage-sheet" @close="pickerOpen = false">
+      <h2 class="pt-2 pr-10 text-[22px] leading-7 font-semibold">{{ t('course.modules') }}</h2>
+      <ol class="list mb-4">
+        <li v-for="stage in detail.stages" :key="stage.number" class="border-t border-divider first:border-t-0">
+          <button
+            type="button"
+            class="flex min-h-[52px] w-full items-center gap-3.5 px-[18px] py-3 text-left"
+            :class="stage.number === shownStage?.number ? 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]' : 'active:bg-fill'"
+            :aria-current="stage.number === shownStage?.number ? 'true' : undefined"
+            :data-testid="`stage-option-${stage.number}`"
+            @click="pickStage(stage)"
+          >
+            <span class="w-5 shrink-0 font-mono text-[13px] leading-[18px] text-muted">{{ String(stage.number).padStart(2, '0') }}</span>
+            <span class="min-w-0 flex-1 text-[15px] leading-5 font-semibold break-words">{{ stageHeading(stage) }}</span>
+            <span v-if="stage.number === currentStageNumber" class="chip chip-accent shrink-0" data-testid="stage-here">{{ t('course.here') }}</span>
+            <span
+              v-if="stageDone(stage)"
+              role="img"
+              class="shrink-0 text-success"
+              :aria-label="t('course.lesson_done')"
+              data-testid="stage-done"
+            >
+              <AppIcon name="check" :size="18" class="[&_path]:[stroke-width:2.4]" />
+            </span>
+            <span v-else class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="stage-words">
+              {{ tn('course.lesson_words', stage.progress.total, { done: stage.progress.done, total: stage.progress.total }) }}
+            </span>
+          </button>
+        </li>
+      </ol>
+    </BottomSheet>
 
     <PaywallSheet v-if="mockPaywall" reason="exam_simulator" @close="exam.dismissMockPaywall()" @review="reviewFromPaywall" />
     <PaywallSheet v-if="practicePaywall" reason="practice" @close="practicePaywall = false" @review="reviewFromPracticePaywall" />

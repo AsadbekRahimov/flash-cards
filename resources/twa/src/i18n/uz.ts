@@ -563,6 +563,8 @@ export const uz: Translations = {
   'course.here': 'siz shu yerdasiz',
   'course.learn_lesson': "Darsni o'rganish",
   'course.lesson_done': 'Tugallangan',
+  'course.modules': 'Kurs modullari',
+  'course.to_current': 'Joriy darsga',
   'course.all_done': 'Kursning barcha darslari tugallandi',
   'course.choose_hint': "Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi",
   'course.lesson_words': {

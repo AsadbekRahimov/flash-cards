@@ -612,6 +612,8 @@ export const ru = {
   'course.here': 'вы здесь',
   'course.learn_lesson': 'Учить урок',
   'course.lesson_done': 'Пройден',
+  'course.modules': 'Модули курса',
+  'course.to_current': 'К текущему уроку',
   'course.all_done': 'Все уроки курса пройдены',
   'course.choose_hint': 'Новые слова в ежедневном занятии будут из этого курса',
   'course.lesson_words': {
