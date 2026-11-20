@@ -669,7 +669,7 @@ describe('PaywallSheet in purchase mode', () => {
         const w = await render()
 
         expect(w.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
-        expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Оплата добавит срок')
+        expect(w.text()).not.toContain('Оплата добавит срок')
         expect(w.find('[data-testid=pay-method]').exists()).toBe(false)
         expect(w.find('[data-testid=paywall-contact]').exists()).toBe(false)
       }
@@ -684,7 +684,7 @@ describe('PaywallSheet in purchase mode', () => {
       const w = await render()
 
       expect(w.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
-      expect(w.get('[data-testid=paywall-lead]').text()).not.toContain('Оплата добавит срок')
+      expect(w.text()).not.toContain('Оплата добавит срок')
       expect(w.find('[data-testid=paywall-contact]').exists()).toBe(false)
     })
 
@@ -905,6 +905,30 @@ describe('PaywallSheet in purchase mode', () => {
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)
   })
 
+  describe('the actions at the bottom of the sheet', () => {
+    it('keep the pay button and "Not now" outside the content that scrolls, the tariffs and the other ways to pay inside it', async () => {
+      const w = await render({ reason: 'quota' })
+
+      const actions = w.get('[data-testid=paywall-actions]')
+      const scroll = w.get('[data-testid=paywall-scroll]')
+      expect(scroll.element.contains(actions.element)).toBe(false)
+      expect(actions.find('[data-testid=pay-telegram_stars]').exists()).toBe(true)
+      expect(actions.find('[data-testid=paywall-close]').text()).toBe('Не сейчас')
+      expect(actions.find('[data-testid=pay-method]').exists()).toBe(true)
+      expect(scroll.find('[data-testid=periods]').exists()).toBe(true)
+      expect(scroll.find('[data-testid=pay-payme]').exists()).toBe(true)
+      expect(actions.classes()).toEqual(expect.arrayContaining(['border-t', 'bg-surface']))
+    })
+
+    it('are not there while nothing can be paid: the sheet ends with "Понятно"', async () => {
+      vi.mocked(api.me.get).mockResolvedValue(me('coming_soon'))
+      const w = await render()
+
+      expect(w.find('[data-testid=paywall-actions]').exists()).toBe(false)
+      expect(w.get('[data-testid=paywall-close]').text()).toBe('Понятно')
+    })
+  })
+
   describe('the quarter (3 months, Stars only)', () => {
     const withQuarter = (overrides: Partial<BillingCatalog> = {}) => catalog({
       items: [
@@ -968,6 +992,33 @@ describe('PaywallSheet in purchase mode', () => {
 
       expect(w.get('[data-testid=period-quarter]').attributes('aria-checked')).toBe('true')
       expect(payPrice(w as unknown as Wrapper, 'telegram_stars')).toBe('390 Stars')
+    })
+
+    it('writes the number and the currency of a card on two lines, so the number never breaks on a narrow screen', async () => {
+      vi.mocked(api.billing.catalog).mockResolvedValue(withQuarter())
+      const w = await render()
+
+      const price = w.get('[data-testid=period-year] [data-testid=period-price]')
+      const [amount, unit] = price.findAll('span')
+      expect(plain(amount!.text())).toBe('1 300')
+      expect(amount!.classes()).toEqual(expect.arrayContaining(['block', 'whitespace-nowrap']))
+      expect(unit!.text()).toBe('Stars')
+      expect(unit!.classes()).toContain('block')
+    })
+
+    it('shows the words of the server when it refuses the period for this way of paying (422 with errors.period)', async () => {
+      vi.mocked(api.billing.catalog).mockResolvedValue(withQuarter())
+      vi.mocked(api.billing.checkout).mockRejectedValue(
+        new ApiClientError('validation', 422, 'Unprocessable Content', 'x', { data: { message: 'x', errors: { period: ['Тариф «3 месяца» — только Stars.'] } } }),
+      )
+      const w = await render()
+
+      await w.get('[data-testid=pay-payme]').trigger('click')
+      await flushPromises()
+
+      expect(w.get('[data-testid=purchase-error]').text()).toBe('Тариф «3 месяца» — только Stars.')
+      // the refusal sits right over the pay button, in the block that never scrolls away
+      expect(w.get('[data-testid=paywall-actions]').find('[data-testid=purchase-error]').exists()).toBe(true)
     })
 
     it('skips a period this build does not know', async () => {

@@ -60,13 +60,15 @@ describe('PaywallSheet: Pro for free', () => {
   })
   afterEach(() => setLocale('ru'))
 
-  it('has a text link under the pay buttons', async () => {
+  it('has a text link under the tariffs, in the content that scrolls above the pay button', async () => {
     const { wrapper } = await render()
 
     const link = wrapper.get('[data-testid=invite-link]')
     expect(link.text()).toBe('Или получите Pro бесплатно — пригласите друзей')
-    const pay = wrapper.get('[data-testid=pay-telegram_stars]').element
-    expect(Boolean(pay.compareDocumentPosition(link.element) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
+    const periods = wrapper.get('[data-testid=purchase]').element
+    expect(Boolean(periods.compareDocumentPosition(link.element) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
+    expect(wrapper.get('[data-testid=paywall-scroll]').element.contains(link.element)).toBe(true)
+    expect(wrapper.get('[data-testid=paywall-actions]').find('[data-testid=pay-telegram_stars]').exists()).toBe(true)
   })
 
   it('closes the sheet and opens the referrals screen, remembering Today as the way back', async () => {

@@ -452,9 +452,9 @@ onBeforeUnmount(() => {
 
       <div ref="scroller" class="-mx-4 min-h-0 flex-1 overflow-y-auto overscroll-contain px-4" data-testid="paywall-scroll" @scroll.passive="measure">
         <div class="pb-4">
-          <header class="flex flex-col gap-2.5 pt-3 pr-8">
+          <header class="flex flex-col gap-2.5 pt-3 pr-8 short:gap-1.5 short:pt-1">
             <p class="text-[13px] leading-[18px] text-muted" data-testid="paywall-eyebrow">{{ t('billing.plan.pro') }}</p>
-            <h2 class="text-[26px] leading-8 font-semibold tracking-[-0.4px]" data-testid="paywall-title">{{ title }}</h2>
+            <h2 class="text-[26px] leading-8 font-semibold tracking-[-0.4px] short:text-[22px] short:leading-7" data-testid="paywall-title">{{ title }}</h2>
 
             <InlineAlert v-if="paid" tone="success" :message="paidMessage" data-testid="paywall-paid" />
 
@@ -465,9 +465,9 @@ onBeforeUnmount(() => {
             </template>
           </header>
 
-          <ProBenefits v-if="!done" short class="mt-6" />
+          <ProBenefits v-if="!done" short compact class="mt-6 short:mt-4" />
 
-          <section v-if="purchaseMode && !done" class="mt-6 space-y-3" data-testid="purchase">
+          <section v-if="purchaseMode && !done" class="mt-6 space-y-3 short:mt-4" data-testid="purchase">
             <p v-if="offerShown">
               <span class="chip chip-warning h-auto py-1 whitespace-normal" data-testid="purchase-offer">{{ offerText }}</span>
             </p>

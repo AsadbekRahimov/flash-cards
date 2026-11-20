@@ -4244,6 +4244,7 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `billing.pay_other` | Yoki boshqa usulda to'lash | Или оплатить по-другому (над кнопками Payme / Click) |
 | `billing.tariffs` | Tariflar | Тарифы |
 | `paywall.not_now` | Hozir emas | Не сейчас |
+| `paywall.lead_quota_short` | Takrorlash har doim ochiq. Pro yangi so'zlar uchun kunlik limitni olib tashlaydi. | Повторения доступны всегда. Pro снимает дневной лимит на новые слова. (строка под заголовком листа оплаты, когда новые слова на сегодня закончились) |
 | `paywall.heading.quota` | Bugungi yangi so'zlar tugadi | Новые слова на сегодня закончились |
 | `paywall.heading.info` | Cheklovsiz o'rganing | Учитесь без ограничений |
 | `paywall.heading.decks` | Bepul tarifdagi to'plamlar limiti | Лимит колод бесплатного тарифа |
