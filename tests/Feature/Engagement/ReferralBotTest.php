@@ -165,7 +165,7 @@ it('says "on N days" when the friend has to study on several days, and "in a day
 
     expect($this->tg->sent[0]['text'])->toContain('будет заниматься 3 дн., оценивая не менее 10 карточек в день')
         ->and($this->tg->sent[0]['text'])->not->toContain('за день')
-        ->and($this->tg->sent[1]['text'])->toContain('3 kun davomida kuniga kamida 10 ta kartochkani');
+        ->and($this->tg->sent[1]['text'])->toContain('3 kun davomida har kuni kamida 10 ta kartochkani');
 
     config(['referrals.activation.days' => 1]);
     inviteSend(8120);

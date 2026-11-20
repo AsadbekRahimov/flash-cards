@@ -394,7 +394,7 @@ it('raises OrganizationMemberInvited after commit with the ids the listener need
 it('sends the invitation in the learner\'s language and skips a learner who became unreachable before the queued DM ran', function (): void {
     $this->learner->forceFill(['interface_locale' => 'uz'])->save();
     micInvite();
-    expect(end($this->tg->sent)['text'])->toStartWith("«Bright Center» o'quv markazi Sizni qo'shilishga taklif qilmoqda.");
+    expect(end($this->tg->sent)['text'])->toStartWith("«Bright Center» o'quv markazi sizni taklif qildi.");
 
     $other = Learner::factory()->onboarded()->create(['telegram_user_id' => 9004]);
     Event::fake([OrganizationMemberInvited::class]);

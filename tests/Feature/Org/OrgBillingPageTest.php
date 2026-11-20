@@ -99,7 +99,7 @@ it('explains what a seat is and that a payment only renews the current tariff, i
         ->assertDontSee('Запросить счёт');
 
     expect(__('org.billing.choose.description', [], 'uz'))->toContain('«Hisob so\'rash»')
-        ->and(__('org.billing.seat_explainer', [], 'uz'))->toContain('O\'rin');
+        ->and(__('org.billing.seat_explainer', [], 'uz'))->toContain("Har bir o'rin bitta o'quvchiga");
 });
 
 it('hides the pay buttons of a provider that is switched off', function (): void {

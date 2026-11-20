@@ -430,7 +430,7 @@ it('sends each side its own result, once, in its own language', function (): voi
         ->and($this->tg->sent[0]['chat_id'])->toBe(9201)
         ->and($this->tg->sent[0]['text'])->toBe('Вызов с Bek завершён: вы победили! Счёт 40 : 25.')
         ->and($this->tg->sent[1]['chat_id'])->toBe(9202)
-        ->and($this->tg->sent[1]['text'])->toBe("Aziza bilan musobaqa yakunlandi: Aziza g'alaba qozondi. Hisob 25 : 40. Revansh — ilovada!");
+        ->and($this->tg->sent[1]['text'])->toBe("Aziza bilan musobaqa yakunlandi: Aziza g'alaba qozondi. Hisob 25 : 40. Ilovada yana bellashishingiz mumkin!");
 });
 
 it('sends nothing to a learner whose DM is closed or who is blocked', function (): void {

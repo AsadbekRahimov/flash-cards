@@ -143,7 +143,7 @@ it('promises Pro to the students of a center within the seats of the tariff, not
         ->assertDontSee($oldPromise);
 })->with([
     'ru' => ['/ru', 'ru', 'Ученики центра получают Pro в пределах мест тарифа', 'Все студенты центра получают полный Pro'],
-    'uz' => ['/uz', 'uz', "tarifdagi o'rinlar doirasida Pro oladi", "to'liq Pro oladi"],
+    'uz' => ['/uz', 'uz', "Tarifdagi har bir o'rin bir o'quvchiga", "to'liq Pro oladi"],
 ]);
 
 it('says "coming soon" in purchase mode too while nothing can be bought', function (): void {
