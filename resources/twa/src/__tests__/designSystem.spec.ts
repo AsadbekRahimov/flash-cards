@@ -175,17 +175,15 @@ describe('style.css: the toast stands on what covers the bottom edge', () => {
 })
 
 /**
- * Text on a soft background (docs/14 §4.1): the "ink" of a colour over the soft fill of the same colour, on a card and on
- * the bare page, in the built-in Telegram themes. The CSS variables cannot be computed in happy-dom, so the test does the
- * arithmetic of `color-mix(in srgb, ...)` itself from the numbers in `style.css` and the WCAG formula; a change of a share
- * in the stylesheet that drops a pair under 4.5:1 fails here.
+ * The app's own palette (docs/14 §4.1, redesign 2026-11): a light and a dark set of hex values in `style.css`, picked by
+ * <html data-theme>. The test reads both sets and checks every pair of text and background the components use against WCAG:
+ * 4.5:1 for text, 3:1 for what is not text (an icon, a dot, the frame of a selected item). A change of a value in the stylesheet
+ * that drops a pair under the bar fails here. The CSS variables cannot be computed in happy-dom, so the arithmetic is done here.
  */
-describe('style.css: contrast of text on soft backgrounds', () => {
+describe('style.css: the palette, light and dark', () => {
   type Rgb = readonly [number, number, number]
 
   const hex = (value: string): Rgb => [1, 3, 5].map((i) => Number.parseInt(value.slice(i, i + 2), 16)) as unknown as Rgb
-  /** `color-mix(in srgb, a share%, b)`; `share` is the part of `a` (0..1). */
-  const mix = (a: Rgb, b: Rgb, share: number): Rgb => a.map((v, i) => v * share + (b[i] ?? 0) * (1 - share)) as unknown as Rgb
   const luminance = (c: Rgb): number => {
     const [r = 0, g = 0, b = 0] = c.map((v) => {
       const x = v / 255
@@ -193,77 +191,146 @@ describe('style.css: contrast of text on soft backgrounds', () => {
     })
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
   }
-  const contrast = (a: Rgb, b: Rgb): number => {
-    const [la, lb] = [luminance(a), luminance(b)]
+  const contrast = (a: string, b: string): number => {
+    const [la, lb] = [luminance(hex(a)), luminance(hex(b))]
     return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05)
   }
 
-  /** What a theme gives the tokens: `text_color`, `button_color`, `destructive_text_color`, `section_bg_color` (cards), `secondary_bg_color` (the page). */
-  const THEMES = {
-    'ios light': { text: '#000000', button: '#007aff', destructive: '#ff3b30', surface: '#ffffff', page: '#efeff4' },
-    'ios dark': { text: '#ffffff', button: '#3e88f7', destructive: '#eb5545', surface: '#2c2c2e', page: '#1c1c1d' },
-    'android light': { text: '#222222', button: '#50a8eb', destructive: '#cc2929', surface: '#ffffff', page: '#f0f0f0' },
-    'android dark': { text: '#ffffff', button: '#5288c1', destructive: '#ee686f', surface: '#1d2733', page: '#151e27' },
-    'desktop light': { text: '#000000', button: '#40a7e3', destructive: '#d14e4e', surface: '#ffffff', page: '#f1f1f1' },
-    'desktop night blue': { text: '#f5f5f5', button: '#5288c1', destructive: '#ec3942', surface: '#17212b', page: '#232e3c' },
-    'web light': { text: '#000000', button: '#3390ec', destructive: '#e53935', surface: '#ffffff', page: '#f4f4f5' },
-    'web / desktop dark': { text: '#ffffff', button: '#8774e1', destructive: '#ff595a', surface: '#212121', page: '#181818' },
-  } as const
+  /** `--app-<name>: #rrggbb;` of one rule body -> `{ name: '#rrggbb' }`. */
+  function paletteOf(selector: string): Record<string, string> {
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const body = new RegExp(`(?:^|\\n)${escaped}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? ''
+    return Object.fromEntries([...body.matchAll(/--app-([a-z-]+):\s*(#[0-9a-fA-F]{6})\s*;/g)].map((m) => [m[1] ?? '', (m[2] ?? '').toLowerCase()]))
+  }
+
+  const PALETTES = { light: paletteOf(':root'), dark: paletteOf(":root[data-theme='dark']") }
 
   const KINDS = ['accent', 'success', 'warning', 'danger'] as const
+  const BACKGROUNDS = ['page', 'surface', 'fill', 'accent-soft'] as const
 
-  /** The percentage in `--app-<kind>-<part>: color-mix(in srgb, var(--app-<kind>) N%, <rest>)`. */
-  function share(kind: string, part: 'ink' | 'soft'): number {
-    const rest = part === 'ink' ? 'var\\(--tg-text\\)' : 'transparent'
-    const match = new RegExp(`--app-${kind}-${part}:\\s*color-mix\\(in srgb,\\s*var\\(--app-${kind}\\)\\s+(\\d+)%,\\s*${rest}\\)`).exec(css)
-    if (!match) throw new Error(`--app-${kind}-${part} is not a color-mix of the colour in style.css`)
-    return Number(match[1]) / 100
-  }
+  /** [text, background] pairs that must reach 4.5:1. */
+  const TEXT_PAIRS: [string, string][] = [
+    // body and secondary text on every neutral background, and on the selected row
+    ...BACKGROUNDS.flatMap((bg): [string, string][] => [
+      ['text', bg],
+      ['muted', bg],
+    ]),
+    // links and text buttons; danger is a title colour too (a destructive list row)
+    ['accent', 'page'],
+    ['accent', 'surface'],
+    ['danger', 'surface'],
+    ['danger', 'page'],
+    // the main button; on-primary also sits on the accent (the "Listen" circle)
+    ['on-primary', 'primary'],
+    ['on-primary', 'accent'],
+    // the toast is inverted
+    ['surface', 'text'],
+    // every ink: on its soft fill (status box, option, chip on a soft row), on a card and on the page
+    ...KINDS.flatMap((kind): [string, string][] => [
+      [`${kind}-ink`, `${kind}-soft`],
+      [`${kind}-ink`, 'surface'],
+      [`${kind}-ink`, 'page'],
+    ]),
+  ]
 
-  /** The fixed colours of the app (`--app-success: #31b545;`). */
-  function fixed(kind: 'success' | 'warning'): Rgb {
-    const match = new RegExp(`--app-${kind}:\\s*(#[0-9a-fA-F]{6})\\s*;`).exec(css)
-    if (!match?.[1]) throw new Error(`--app-${kind} is not a hex colour in style.css`)
-    return hex(match[1])
-  }
+  /** [mark, background] pairs of what is not text (icons, dots, frames, the active tab line): 3:1. */
+  const MARK_PAIRS: [string, string][] = [
+    ...(['success', 'warning', 'danger'] as const).flatMap((kind): [string, string][] => [
+      [kind, 'surface'],
+      [kind, 'page'],
+      [kind, `${kind}-soft`],
+    ]),
+    ['primary', 'page'],
+    ['primary', 'surface'],
+    ['primary', 'accent-soft'],
+    ['accent', 'track'],
+  ]
 
-  const colourOf = (selector: string): string[] =>
-    rulesOf(selector).flatMap((body) => [...body.matchAll(/(?:^|[\s;])color:\s*([^;]+);/g)].map((match) => (match[1] ?? '').trim()))
+  it('reads the same set of tokens for both palettes, all of them hex', () => {
+    const names = Object.keys(PALETTES.light).sort()
 
-  it('reaches 4.5:1 for the ink of every colour on its soft fill, on a card and on the page, in every theme', () => {
-    const failures: string[] = []
-
-    for (const [name, theme] of Object.entries(THEMES)) {
-      const text = hex(theme.text)
-      const colours: Record<(typeof KINDS)[number], Rgb> = {
-        accent: hex(theme.button),
-        success: fixed('success'),
-        warning: fixed('warning'),
-        danger: hex(theme.destructive),
-      }
-
-      for (const kind of KINDS) {
-        const ink = mix(colours[kind], text, share(kind, 'ink'))
-        for (const place of ['surface', 'page'] as const) {
-          const soft = mix(colours[kind], hex(theme[place]), share(kind, 'soft'))
-          const ratio = contrast(ink, soft)
-          if (ratio < 4.5) failures.push(`${name}: ${kind} ink on ${kind}-soft over the ${place} is ${ratio.toFixed(2)}:1`)
-        }
-      }
+    expect(names.length).toBeGreaterThanOrEqual(26)
+    expect(Object.keys(PALETTES.dark).sort()).toEqual(names)
+    for (const name of ['page', 'surface', 'fill', 'hairline', 'divider', 'track', 'text', 'muted', 'accent', 'primary', 'on-primary']) {
+      expect(names, name).toContain(name)
     }
+    for (const kind of KINDS) for (const part of ['soft', 'ink', 'line']) expect(names).toContain(`${kind}-${part}`)
+  })
+
+  it('takes the light values from the approved mock-ups', () => {
+    expect(PALETTES.light).toMatchObject({
+      page: '#f6f7f9',
+      surface: '#ffffff',
+      hairline: '#e4e7ec',
+      divider: '#eef0f4',
+      text: '#1d2130',
+      muted: '#5f6677',
+      accent: '#3f4a7a',
+      primary: '#2b3252',
+      'accent-soft': '#f3f4f9',
+      success: '#2f7d5b',
+      'success-ink': '#1f5a40',
+      'success-soft': '#eef6f1',
+      'success-line': '#bfdccd',
+      danger: '#b4382c',
+      'danger-ink': '#8c2a21',
+      'danger-soft': '#fbf1ef',
+      warning: '#b4741a',
+      'warning-ink': '#8a5510',
+      'warning-soft': '#f7eedd',
+    })
+  })
+
+  it('keeps the dark page a deep blue-graphite, not black, and lighter cards on it', () => {
+    const { page = '#000000', surface = '#000000' } = PALETTES.dark
+    const [r, g, b] = hex(page)
+
+    expect(page).not.toBe('#000000')
+    expect(b).toBeGreaterThan(r) // a blue cast
+    expect(b).toBeGreaterThan(g)
+    expect(luminance(hex(surface))).toBeGreaterThan(luminance(hex(page)))
+  })
+
+  it.each(Object.keys(PALETTES))('reaches 4.5:1 for every text pair in the %s palette', (name) => {
+    const palette = PALETTES[name as keyof typeof PALETTES]
+    const failures = TEXT_PAIRS.flatMap(([fg, bg]) => {
+      const ratio = contrast(palette[fg] ?? '#000000', palette[bg] ?? '#000000')
+      return ratio < 4.5 ? [`${fg} on ${bg}: ${ratio.toFixed(2)}:1`] : []
+    })
 
     expect(failures).toEqual([])
   })
 
-  it('measures what the ink replaced: the bare button blue of the light Android theme on its own soft fill over the page', () => {
-    const android = THEMES['android light']
-    const soft = mix(hex(android.button), hex(android.page), share('accent', 'soft'))
+  it.each(Object.keys(PALETTES))('reaches 3:1 for icons, dots and frames in the %s palette', (name) => {
+    const palette = PALETTES[name as keyof typeof PALETTES]
+    const failures = MARK_PAIRS.flatMap(([fg, bg]) => {
+      const ratio = contrast(palette[fg] ?? '#000000', palette[bg] ?? '#000000')
+      return ratio < 3 ? [`${fg} on ${bg}: ${ratio.toFixed(2)}:1`] : []
+    })
 
-    expect(contrast(hex(android.button), soft)).toBeLessThan(2.5)
-    expect(contrast(mix(hex(android.button), hex(android.text), share('accent', 'ink')), soft)).toBeGreaterThan(4.5)
+    expect(failures).toEqual([])
   })
 
-  it('puts the ink on the tinted button, the chips and the danger button', () => {
+  it('measures why warning is not a text colour: the bare amber on a card is under 4.5:1 in the light palette, its ink is not', () => {
+    const { warning = '', surface = '', 'warning-ink': ink = '' } = PALETTES.light
+
+    expect(contrast(warning, surface)).toBeLessThan(4.5)
+    expect(contrast(ink, surface)).toBeGreaterThan(4.5)
+  })
+
+  it('lets the Telegram theme paint nothing: every legacy --tg-* colour is an alias of a token of the palette', () => {
+    const legacy = [...css.matchAll(/^\s+(--tg-[a-z-]+):\s*([^;]+);/gm)].map((m) => [m[1] ?? '', (m[2] ?? '').trim()] as const)
+
+    expect(legacy.length).toBe(14)
+    for (const [name, value] of legacy) expect(value, name).toMatch(/^var\(--app-[a-z-]+\)$/)
+    for (const [name] of legacy) expect(css, name).toContain(`--color-${name.slice(2)}: var(${name});`)
+  })
+
+  const colourOf = (selector: string): string[] =>
+    rulesOf(selector).flatMap((body) => [...body.matchAll(/(?:^|[\s;])color:\s*([^;]+);/g)].map((match) => (match[1] ?? '').trim()))
+
+  it('puts the ink on the outlined button, the chips and the danger button, and on-primary on the main button', () => {
+    expect(colourOf('.btn-primary')).toEqual(['var(--app-on-primary)'])
     expect(colourOf('.btn-tinted')).toEqual(['var(--app-accent-ink)'])
     expect(colourOf('.chip-accent')).toEqual(['var(--app-accent-ink)'])
     expect(colourOf('.chip-success')).toEqual(['var(--app-success-ink)'])
@@ -272,8 +339,65 @@ describe('style.css: contrast of text on soft backgrounds', () => {
     expect(colourOf('.btn-danger')).toEqual(['var(--app-danger-ink)'])
   })
 
-  it('has a Tailwind colour for every ink', () => {
-    for (const kind of KINDS) expect(css).toContain(`--color-${kind}-ink: var(--app-${kind}-ink);`)
+  it('has a Tailwind colour for every token of the palette', () => {
+    for (const name of Object.keys(PALETTES.light)) {
+      const tailwind = name === 'text' ? 'body' : name
+      expect(css, name).toContain(`--color-${tailwind}: var(--app-${name});`)
+    }
+  })
+
+  it('is flat: no shadow under a card, a list, a sheet, a toast or the main button', () => {
+    for (const selector of ['.card', '.list', '.sheet', '.toast', '.btn-primary']) {
+      for (const body of rulesOf(selector)) expect(body, selector).not.toMatch(/box-shadow:\s*0\s+-?\d+px\s+\d+px/)
+    }
+    expect(css).not.toMatch(/linear-gradient\(/)
+  })
+})
+
+/**
+ * Fonts (docs/14 §4.2): files of the repository, no CDN; every face swaps (text is never invisible while a font loads).
+ */
+describe('style.css: fonts', () => {
+  const faces = [...css.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1] ?? '')
+
+  it('declares Source Serif 4 (latin, latin-ext, cyrillic, latin italic) and IBM Plex Mono 400 / 500', () => {
+    const families = faces.map((body) => /font-family:\s*'([^']+)'/.exec(body)?.[1])
+
+    expect(families.filter((f) => f === 'Source Serif 4')).toHaveLength(4)
+    expect(families.filter((f) => f === 'IBM Plex Mono')).toHaveLength(2)
+  })
+
+  it('loads every face from assets/fonts, as woff2, with font-display: swap and a unicode-range', () => {
+    for (const body of faces) {
+      expect(body).toMatch(/src:\s*url\('\.\/assets\/fonts\/[a-z0-9-]+\.woff2'\)\s*format\('woff2'\)/)
+      expect(body).toMatch(/font-display:\s*swap/)
+      expect(body).toMatch(/unicode-range:/)
+    }
+    expect(css).not.toMatch(/fonts\.googleapis|fonts\.gstatic|@import\s+url/)
+  })
+
+  it('puts the Uzbek apostrophes ʻ (U+02BB) and ʼ (U+02BC) in the latin face of Source Serif 4', () => {
+    const latin = faces.find((body) => body.includes('source-serif-4-latin-wght-normal')) ?? ''
+
+    expect(latin).toMatch(/U\+02BB-02BC/)
+  })
+
+  it('makes the serif the text of the app and sets numbers in Plex Mono, transcription in the system monospace', () => {
+    expect(css).toMatch(/--font-serif:\s*'Source Serif 4',/)
+    expect(css).toMatch(/--font-mono:\s*'IBM Plex Mono',/)
+    expect(css).toMatch(/--default-font-family:\s*var\(--font-serif\);/)
+    expect(css).toMatch(/--font-ipa:\s*(?!'IBM Plex Mono')/)
+  })
+
+  it('has every font file it names, and its licence next to it', () => {
+    const dir = join(srcRoot, 'assets', 'fonts')
+    const files = readdirSync(dir)
+
+    for (const body of faces) {
+      const file = /url\('\.\/assets\/fonts\/([^']+)'\)/.exec(body)?.[1] ?? ''
+      expect(files, file).toContain(file)
+    }
+    expect(files).toEqual(expect.arrayContaining(['OFL-SourceSerif4.txt', 'OFL-IBMPlexMono.txt']))
   })
 })
 

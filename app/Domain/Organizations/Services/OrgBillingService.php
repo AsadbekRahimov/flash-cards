@@ -12,6 +12,7 @@ use App\Domain\Billing\Exceptions\ProviderUnavailableException;
 use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\CheckoutService;
 use App\Domain\Billing\Services\SubscriptionService;
+use App\Domain\Billing\Support\BillingPeriods;
 use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\PriceFormatter;
 use App\Domain\Billing\Support\SubscriptionLiveness;
@@ -342,10 +343,10 @@ final class OrgBillingService
         ));
     }
 
-    /** @return list<string> */
+    /** @return list<string> the periods sold to organizations (`billing.org_periods`: no quarter) */
     private function periods(): array
     {
-        return array_map(static fn (string|int $k): string => (string) $k, array_keys((array) config('billing.periods', [])));
+        return BillingPeriods::forOrganizations();
     }
 
     /**

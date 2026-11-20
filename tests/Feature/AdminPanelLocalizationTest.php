@@ -41,9 +41,13 @@ use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Filament\Resources\WordResource;
 use App\Filament\Widgets\ActivityChartWidget;
+use App\Filament\Widgets\AttentionWidget;
 use App\Filament\Widgets\BillingFunnelWidget;
+use App\Filament\Widgets\CentersFirstAssignmentWidget;
+use App\Filament\Widgets\DashboardKpiWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\ExerciseMixTableWidget;
+use App\Filament\Widgets\FirstDayWidget;
 use App\Filament\Widgets\GameActivityWidget;
 use App\Filament\Widgets\HardestWordsTableWidget;
 use App\Filament\Widgets\LeagueGroupsTableWidget;
@@ -51,11 +55,14 @@ use App\Filament\Widgets\OnboardingFunnelWidget;
 use App\Filament\Widgets\OrgActivationTableWidget;
 use App\Filament\Widgets\OrganizationSeatsTableWidget;
 use App\Filament\Widgets\PlatformSubscriptionsWidget;
+use App\Filament\Widgets\ProPathWidget;
+use App\Filament\Widgets\RetentionTrendWidget;
 use App\Filament\Widgets\RevenueLast30DaysWidget;
 use App\Filament\Widgets\SchedulerComparisonWidget;
 use App\Filament\Widgets\TopLearnersTableWidget;
 use App\Filament\Widgets\TotalLearnersWidget;
 use App\Filament\Widgets\WebhookErrorsWidget;
+use App\Filament\Widgets\WeeklyActivityWidget;
 use App\Models\ClassCaravan;
 use App\Models\Course;
 use App\Models\ExamSession;
@@ -562,10 +569,17 @@ it('titles every dashboard widget in Russian', function (string $widget, string 
     [OrgActivationTableWidget::class, 'Учебные центры — путь до первого результата', 'first assignment'],
     [ExerciseMixTableWidget::class, 'Форматы заданий — 7 дней', 'Exercise mix'],
     [BillingFunnelWidget::class, 'Воронка Pro — 30 дней', 'Pro funnel'],
+    [DashboardKpiWidget::class, 'Учились сегодня', 'Studied today'],
+    [AttentionWidget::class, 'Требуют внимания', 'Needs attention'],
+    [FirstDayWidget::class, 'Первый день новичка', 'First day'],
+    [RetentionTrendWidget::class, 'Возврат на 7-й день, %', 'Day 7 return'],
+    [CentersFirstAssignmentWidget::class, 'Центры: до первого задания', 'first assignment'],
+    [ProPathWidget::class, 'Путь к Pro · Stars', 'Path to Pro'],
+    [WeeklyActivityWidget::class, 'Занятия по неделям', 'Weekly activity'],
 ]);
 
 it('lists every widget of the panel in the dataset above', function (): void {
-    expect(Filament::getPanel('admin')->getWidgets())->toHaveCount(16);
+    expect(Filament::getPanel('admin')->getWidgets())->toHaveCount(23);
 });
 
 // --- values -----------------------------------------------------------------------------------

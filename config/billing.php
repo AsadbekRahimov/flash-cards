@@ -72,12 +72,17 @@ return [
     'prices' => [
         'pro' => [
             'month' => ['XTR' => (int) env('BILLING_PRICE_PRO_MONTH_XTR', 150), 'UZS' => (int) env('BILLING_PRICE_PRO_MONTH_UZS', 2_900_000)],
+            // 3 months, Stars only (owner's decision of 20.11.2026): no UZS key — Payme / Click never sell it (BillingPeriods::listsCurrency).
+            'quarter' => ['XTR' => (int) env('BILLING_PRICE_PRO_QUARTER_XTR', 390)],
             'year' => ['XTR' => (int) env('BILLING_PRICE_PRO_YEAR_XTR', 1_300), 'UZS' => (int) env('BILLING_PRICE_PRO_YEAR_UZS', 24_900_000)],
         ],
     ],
 
-    /** Billing periods in days (`payment_orders.period`). */
-    'periods' => ['month' => 30, 'year' => 365],
+    /** Billing periods in days (`payment_orders.period`), in the order the catalog lists them (BillingPeriods). */
+    'periods' => ['month' => 30, 'quarter' => 90, 'year' => 365],
+
+    /** The periods organizations may buy (a subset of `periods`): the quarter is for learners only. */
+    'org_periods' => ['month', 'year'],
 
     /**
      * Organization tiers (docs/13 §0, §6, "Реализация 2B.9"): `subscriptions.plan` stays `pro` (what the

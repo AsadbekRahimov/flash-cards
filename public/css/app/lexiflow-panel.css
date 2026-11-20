@@ -1,0 +1,612 @@
+/*
+ * LexiFlow panels /admin and /org — the design of 2026-11 (docs/design/2026-11-redesign/Admin.html).
+ *
+ * Plain CSS, no build step: registered as a Filament asset of both panels (App\Filament\Support\PanelTheme) and copied to
+ * public/css/app/lexiflow-panel.css by `php artisan filament:assets`. The palettes and the fonts are not here: they are
+ * `->colors()` / `->font()` / `->monoFont()` of the panels, so `--gray-200`, `--primary-600`, `--font-family` and
+ * `--mono-font-family` below are Filament's own variables. The dark mode stays Filament's (its `.dark` rules); only the
+ * parts drawn here have a dark variant, with text at 4.5:1 or more.
+ */
+
+/* --- Base --------------------------------------------------------------------------------------------------------- */
+
+.fi {
+    --lx-border: var(--gray-200);
+    --lx-divider: #eef0f4;
+    --lx-text: var(--gray-950);
+    --lx-muted: var(--gray-500);
+    --lx-accent: #3f4a7a;
+    --lx-accent-soft: #8b93bd;
+    --lx-accent-pale: #c9cee2;
+    --lx-card: #ffffff;
+    --lx-good: #1f5a40;
+    --lx-good-bg: #eef6f1;
+    --lx-bad: #8c2a21;
+    --lx-bad-bg: #fbf1ef;
+    --lx-warn: #8a5510;
+    --lx-warn-bg: #f7eedd;
+    --lx-dot-danger: #b4382c;
+    --lx-dot-warning: #b4741a;
+    --lx-dot-info: #3f4a7a;
+    --lx-dot-success: #2f7d5b;
+    --lx-repeat: #4b5587;
+    --lx-new: #1f6fa8;
+}
+
+.fi.dark {
+    --lx-border: color-mix(in oklab, var(--color-white) 10%, transparent);
+    --lx-divider: color-mix(in oklab, var(--color-white) 7%, transparent);
+    --lx-text: #ffffff;
+    --lx-muted: var(--gray-400);
+    --lx-accent: #a6adcf;
+    --lx-accent-soft: #6f78a6;
+    --lx-accent-pale: #4a5277;
+    --lx-card: var(--gray-900);
+    --lx-good: #8fc4a6;
+    --lx-good-bg: color-mix(in oklab, #2f7d5b 22%, transparent);
+    --lx-bad: #e0968b;
+    --lx-bad-bg: color-mix(in oklab, #b4382c 22%, transparent);
+    --lx-warn: #e7c88f;
+    --lx-warn-bg: color-mix(in oklab, #b4741a 22%, transparent);
+    --lx-dot-info: #a6adcf;
+    --lx-repeat: #8b93bd;
+    --lx-new: #538dc2;
+}
+
+/* No shadows anywhere in the panels: the 1 px ring of a card stays (it is the border), the drop shadow under it goes. */
+.fi :where(*) {
+    --tw-shadow: 0 0 #0000 !important;
+}
+
+/* The ring of a card, a table, a stat, a dropdown, a modal: the border colour of the design (light mode). */
+html.fi:not(.dark) :is(
+        .fi-section:not(.fi-section-not-contained),
+        .fi-ta-ctn,
+        .fi-wi-stats-overview-stat,
+        .fi-empty-state:not(.fi-empty-state-not-contained),
+        .fi-dropdown-panel,
+        .fi-modal-window,
+        .fi-sc-tabs.fi-contained,
+        .fi-tabs:not(.fi-contained),
+        .fi-pagination-items,
+        .fi-in-key-value,
+        .fi-no-notification,
+        .fi-simple-main,
+        .fi-global-search-results-ctn
+    ) {
+    --tw-ring-color: var(--gray-200) !important;
+}
+
+.fi-section:not(.fi-section-not-contained):not(.fi-aside),
+.fi-ta-ctn,
+.fi-wi-stats-overview-stat {
+    border-radius: 12px;
+}
+
+/* --- Sidebar and top bar ------------------------------------------------------------------------------------------ */
+
+html.fi:not(.dark) .fi-topbar,
+html.fi:not(.dark) .fi-topbar nav {
+    background-color: #ffffff;
+    --tw-ring-color: var(--gray-200) !important;
+}
+
+@media (min-width: 64rem) {
+    html.fi:not(.dark) .fi-sidebar {
+        background-color: #ffffff;
+        border-inline-end: 1px solid var(--gray-200);
+    }
+
+    html.fi.dark .fi-sidebar {
+        border-inline-end: 1px solid var(--lx-border);
+    }
+}
+
+html.fi:not(.dark) .fi-sidebar-header {
+    background-color: #ffffff;
+    --tw-ring-color: var(--gray-200) !important;
+}
+
+.fi-sidebar-group-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--lx-muted);
+}
+
+.fi-sidebar-item-btn {
+    border-radius: 8px;
+}
+
+.fi-sidebar-item-label {
+    font-size: 15px;
+}
+
+html.fi:not(.dark) .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background-color: var(--primary-50);
+}
+
+html.fi:not(.dark) .fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label {
+    color: var(--gray-950);
+    font-weight: 600;
+}
+
+html.fi:not(.dark) .fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-icon {
+    color: var(--primary-500);
+}
+
+.fi-logo {
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+/* --- Page header -------------------------------------------------------------------------------------------------- */
+
+.fi-header-heading {
+    font-size: 26px;
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+}
+
+.fi-header-subheading {
+    font-size: 14px;
+    color: var(--lx-muted);
+}
+
+/* Links in the text of the panels: the accent, darker on hover. */
+html.fi:not(.dark) .fi-link.fi-color-primary {
+    color: var(--lx-accent);
+}
+
+/* Numbers: the monospace of the design. */
+.fi-wi-stats-overview-stat-value {
+    font-weight: 600;
+    letter-spacing: -0.2px;
+}
+
+.fi-ta-text-item-label.fi-font-mono,
+.fi-pagination-overview {
+    font-family: var(--mono-font-family), ui-monospace, monospace;
+}
+
+/* --- Dashboard of /admin: header with the switch «Учёба / Деньги» ------------------------------------------------- */
+
+.lx-dash-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.lx-dash-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.lx-segmented {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--lx-border);
+    border-radius: 8px;
+    background: var(--lx-card);
+}
+
+.lx-segmented-item {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--lx-text);
+    text-decoration: none;
+}
+
+.lx-segmented-item:hover {
+    background: var(--lx-divider);
+}
+
+.lx-segmented-item:focus-visible {
+    outline: 2px solid var(--lx-accent);
+    outline-offset: 1px;
+}
+
+.lx-segmented-item-active {
+    background: var(--primary-50);
+    font-weight: 600;
+}
+
+.fi.dark .lx-segmented-item-active {
+    background: color-mix(in oklab, var(--color-white) 10%, transparent);
+}
+
+/* --- Dashboard blocks --------------------------------------------------------------------------------------------- */
+
+.lx-card {
+    background: var(--lx-card);
+    border: 1px solid var(--lx-border);
+    border-radius: 12px;
+    color: var(--lx-text);
+}
+
+.lx-muted {
+    color: var(--lx-muted);
+}
+
+.lx-small {
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.lx-mono {
+    font-family: var(--mono-font-family), ui-monospace, monospace;
+}
+
+.lx-grow {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.lx-good {
+    color: var(--lx-good);
+}
+
+.lx-bad {
+    color: var(--lx-bad);
+}
+
+.lx-link {
+    color: var(--lx-accent);
+    text-decoration: none;
+}
+
+.lx-link:hover {
+    text-decoration: underline;
+}
+
+/* KPI cards. */
+.lx-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.lx-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 18px;
+}
+
+.lx-kpi-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.lx-kpi-value {
+    font-size: 30px;
+    line-height: 34px;
+    font-weight: 600;
+}
+
+/* A block: heading row, then rows or a chart. */
+.lx-block {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 18px 18px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.lx-block-list {
+    gap: 0;
+    padding: 0;
+}
+
+.lx-block-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.lx-block-list > .lx-block-head {
+    padding: 16px 18px 12px;
+}
+
+.lx-block-head > :not(.lx-block-title) {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.lx-block-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.lx-block-foot {
+    border-top: 1px solid var(--lx-divider);
+    padding-top: 12px;
+    margin: 0;
+}
+
+.lx-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 18px;
+    border-top: 1px solid var(--lx-divider);
+    margin: 0;
+}
+
+.lx-row-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.lx-row-title,
+.lx-row-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--lx-text);
+    text-decoration: none;
+}
+
+.lx-row-name {
+    font-weight: 400;
+}
+
+a.lx-row-title:hover,
+a.lx-row-name:hover {
+    color: var(--lx-accent);
+    text-decoration: underline;
+}
+
+.lx-row-title.lx-mono {
+    font-size: 13px;
+    font-weight: 400;
+}
+
+.lx-row-value {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.lx-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.lx-dot-danger {
+    background: var(--lx-dot-danger);
+}
+
+.lx-dot-warning {
+    background: var(--lx-dot-warning);
+}
+
+.lx-dot-info {
+    background: var(--lx-dot-info);
+}
+
+.lx-dot-success {
+    background: var(--lx-dot-success);
+}
+
+.lx-text-danger {
+    color: var(--lx-bad);
+}
+
+.lx-text-warning {
+    color: var(--lx-warn);
+}
+
+.lx-text-info {
+    color: var(--lx-muted);
+}
+
+.lx-pill {
+    font-size: 12px;
+    border-radius: 5px;
+    padding: 2px 8px;
+    white-space: nowrap;
+}
+
+.lx-pill-success {
+    color: var(--lx-good);
+    background: var(--lx-good-bg);
+}
+
+.lx-pill-warning {
+    color: var(--lx-warn);
+    background: var(--lx-warn-bg);
+}
+
+.lx-pill-danger {
+    color: var(--lx-bad);
+    background: var(--lx-bad-bg);
+}
+
+/* «Первый день новичка»: the stacked bar and its legend. */
+.lx-stack-bar {
+    display: flex;
+    gap: 2px;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.lx-step-1 {
+    background: var(--lx-accent);
+}
+
+.lx-step-2 {
+    background: var(--lx-accent-soft);
+}
+
+.lx-step-3 {
+    background: var(--lx-accent-pale);
+}
+
+.lx-step-4 {
+    background: var(--lx-border);
+}
+
+.lx-legend-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 18px;
+}
+
+.lx-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.lx-swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.lx-swatch.lx-step-4 {
+    border: 1px solid var(--lx-accent-pale);
+}
+
+.lx-legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.lx-legend-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* «Путь к Pro»: thin bars. */
+.lx-bar-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.lx-bar-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+}
+
+.lx-bar-track {
+    height: 5px;
+    border-radius: 3px;
+    background: var(--lx-border);
+}
+
+.lx-bar-fill {
+    height: 5px;
+    border-radius: 3px;
+}
+
+.lx-bar-accent {
+    background: var(--lx-accent);
+}
+
+.lx-bar-success {
+    background: var(--lx-dot-success);
+}
+
+/* SVG charts: no fills under the lines, the accent for the main series, muted blue-grays for the rest. */
+.lx-chart {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.lx-chart-grid path {
+    stroke: var(--lx-divider);
+    stroke-width: 1;
+    fill: none;
+}
+
+.lx-chart-average {
+    stroke: var(--lx-accent-soft);
+    stroke-width: 1;
+    stroke-dasharray: 3 4;
+    fill: none;
+}
+
+.lx-chart-labels text {
+    font-family: var(--mono-font-family), ui-monospace, monospace;
+    font-size: 11px;
+    fill: var(--lx-muted);
+}
+
+.lx-chart-line {
+    fill: none;
+    stroke: var(--lx-accent);
+    stroke-width: 1.8;
+    stroke-linejoin: round;
+}
+
+.lx-chart-dots circle {
+    fill: var(--lx-accent);
+}
+
+.lx-chart-alert {
+    fill: var(--lx-dot-danger);
+}
+
+.lx-bar-repeat,
+.lx-bar-repeat-swatch {
+    fill: var(--lx-repeat);
+    background: var(--lx-repeat);
+}
+
+.lx-bar-new,
+.lx-bar-new-swatch {
+    fill: var(--lx-new);
+    background: var(--lx-new);
+}
+
+/* The tables of «Рейтинг месяца» and the Pro funnel (league-month-styles): their warning colours in the palette of the design. */
+.fi .lm-table .lm-warn {
+    color: var(--warning-700);
+}
+
+.fi.dark .lm-table .lm-warn {
+    color: var(--warning-300);
+}
+
+.fi .lm-confirm .lm-alert {
+    background: var(--warning-50);
+    color: var(--warning-800);
+}
+
+.fi.dark .lm-confirm .lm-alert {
+    background: color-mix(in oklab, var(--warning-600) 22%, transparent);
+    color: var(--warning-200);
+}
+
+.fi .lm-confirm .lm-danger {
+    color: var(--danger-700);
+}
+
+.fi.dark .lm-confirm .lm-danger {
+    color: var(--danger-300);
+}

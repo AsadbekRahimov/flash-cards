@@ -37,11 +37,13 @@ return [
             'provider_not_supported' => "Bu to'lov usulidan foydalana olmaysiz.",
             'checkout_conflict' => "Sizda Telegram Stars avtoyangilashi yoqilgan. Yangi to'lovdan oldin uni /pro orqali o'chiring.",
             'already_perpetual' => "Sizda LexiFlow Pro muddatsiz faol — hech narsa to'lash shart emas.",
-            'subscribe_too_early' => "Pro allaqachon uzoq muddatga to'langan. Stars obunasini oxirgi kunlarda rasmiylashtirish mumkin; hozircha bir yillik bir martalik to'lovni tanlang.",
+            'subscribe_too_early' => "Pro allaqachon uzoq muddatga to'langan. Stars obunasini oxirgi kunlarda rasmiylashtirish mumkin; hozircha 3 oylik yoki bir yillik bir martalik to'lovni tanlang.",
             'too_many_pending' => "Sizda yakunlanmagan to'lovlar bor. Ulardan birini to'lang yoki kuting — ular o'zi yopiladi.",
             'offer_not_applicable' => "Chegirma bu xaridga qo'llanilmaydi.",
             'offer_busy' => "Chegirmali oldingi to'lov hali yakunlanmagan — bir daqiqadan so'ng urinib ko'ring.",
             'invalid_period' => "Bunday to'lov varianti yo'q.",
+            // CheckoutRequest: a period not sold in the provider's currency by design (the quarter is Stars only).
+            'period_not_for_provider' => "«:period» muddatini :provider orqali to'lab bo'lmaydi. Boshqa to'lov usuli yoki muddatni tanlang.",
             'invalid_tier' => "Bunday to'lov varianti yo'q.",
             'not_cancelable' => "Hozir o'chiriladigan avtoyangilash yo'q.",
             'not_resumable' => "Avtoyangilashni hozir yoqib bo'lmaydi: u allaqachon yoqilgan yoki to'langan davr tugagan.",
@@ -84,6 +86,10 @@ return [
             // The same with the practice alone, while the battles are switched off (PRACTICE_BATTLE=false): no battles are sold that do not exist.
             'description_month_practice_solo' => "LexiFlow Pro: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Har 30 kunda avtomatik uzayadi. /pro orqali o'chiring.",
             'description_year_practice_solo' => "LexiFlow Pro 1 yilga: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
+            // The one-off quarter (3 months, Stars only) in the same three variants.
+            'description_quarter' => "LexiFlow Pro 3 oyga (90 kun): yangi so'zlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
+            'description_quarter_practice' => "LexiFlow Pro 3 oyga: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
+            'description_quarter_practice_solo' => "LexiFlow Pro 3 oyga: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi.",
         ],
         'precheckout' => [
             'order_not_found' => 'To\'lov topilmadi. /pro buyrug\'ini yuborib, yangisini yarating.',
@@ -106,6 +112,7 @@ return [
 
     'period' => [
         'month' => '1 oy',
+        'quarter' => '3 oy',
         'year' => '1 yil',
     ],
 

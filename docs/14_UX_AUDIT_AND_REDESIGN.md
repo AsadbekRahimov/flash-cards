@@ -98,136 +98,126 @@
 ## 3. Принципы
 
 1. **Одно главное действие на экран** — одна `btn-primary`; остальное — tinted/plain.
-2. **Нативно для Telegram:** цвета и параметры темы, сгруппированные списки (как настройки Telegram), системная
-   кнопка «Назад», хаптика; страница — `secondary_bg`, блоки — `section_bg`.
+2. **Своя палитра, нативное поведение Telegram** (редизайн 2026-11, §4.1): цвета — собственные (светлая и парная тёмная),
+   от темы Telegram берётся только `colorScheme`; системная кнопка «Назад», хаптика, шапка окна в цвет страницы — как раньше.
+   Плоско: без теней и градиентов, карточка — белая с рамкой 1 px; одна главная кнопка на экран.
 3. **Большой палец:** действия тренировки и экзамена — внизу экрана; цели нажатия ≥ 44 px. Визуально компактные
    контролы в строках допустимы (малая кнопка 36 px, сегмент, переключатель, значение справа в строке списка), если
    **область нажатия ≥ 44 px**: размер на экране не меняем, область растим (§4.3, `.tap-target`).
 4. **Простые слова, одни и те же термины везде** (§8).
-5. **Тёмная тема равноправна:** ни одного цвета вне токенов.
+5. **Тёмная тема равноправна:** ни одного цвета вне токенов; каждая пара текст/фон ≥ 4,5:1 в обеих палитрах.
 
 ## 4. Дизайн-система TWA
 
 ### 4.1 Токены (`resources/twa/src/style.css`)
 
-Telegram-параметры (заполняются в `main.ts` из `WebApp.themeParams`; при отсутствии параметра — `removeProperty`, чтобы
-сработал фолбэк из CSS; повторно — по событию `themeChanged`):
+**Редизайн 2026-11 (решение владельца).** У приложения своя палитра, не зависящая от цветов темы Telegram: светлая — по
+утверждённым макетам (`docs/design/2026-11-redesign/*.html`), тёмная — парная, в том же духе (глубокий сине-графитовый фон, не
+чёрный). Палитру выбирает `<html data-theme="light|dark">`: в Telegram — по `WebApp.colorScheme` (и снова по `themeChanged`), вне
+Telegram (`platform === 'unknown'`: браузер, Playwright) — по `prefers-color-scheme` с подпиской на его смену
+(`composables/telegramTheme.ts`). `themeParams` больше не копируются в CSS: цвета Telegram интерфейс не красят.
+Шапка и фон окна Telegram — в цвет страницы текущей палитры: `setBackgroundColor('#rrggbb')` (Bot API ≥ 6.1),
+`setHeaderColor('#rrggbb')` (≥ 6.9; на 6.1–6.8 — ключ `secondary_bg_color`). Значения для этих вызовов — `CHROME_COLORS` в
+`telegramTheme.ts`, тест сверяет их с `--app-page` из `style.css`. `setBottomBarColor` не вызываем: нижняя панель Telegram
+(MainButton) в приложении не используется.
 
-| CSS-переменная | themeParams | Фолбэк |
-|---|---|---|
-| `--tg-bg` | `bg_color` | `#ffffff` |
-| `--tg-text` | `text_color` | `#000000` |
-| `--tg-hint` | `hint_color` | `#8e8e93` |
-| `--tg-link` | `link_color` | `#2481cc` |
-| `--tg-button` / `--tg-button-text` | `button_color` / `button_text_color` | `#2481cc` / `#ffffff` |
-| `--tg-secondary-bg` | `secondary_bg_color` | `#efeff4` |
-| `--tg-section-bg` | `section_bg_color` | `var(--tg-bg)` |
-| `--tg-accent` | `accent_text_color` | `var(--tg-link)` |
-| `--tg-destructive` | `destructive_text_color` | `#e53935` |
-| `--tg-subtitle` | `subtitle_text_color` | `var(--tg-hint)` |
-| `--tg-section-header` | `section_header_text_color` | `var(--tg-hint)` |
-| `--tg-separator` | `section_separator_color` | `color-mix(in srgb, var(--tg-hint) 30%, transparent)` |
-| `--tg-bottom-bar-bg` | `bottom_bar_bg_color` | `var(--tg-section-bg)` |
+Семантические токены (`--app-*` в `:root` и `:root[data-theme='dark']`; Tailwind-имя — в скобках):
 
-Семантические токены приложения (только они используются в компонентах):
+| Токен (Tailwind) | Роль | Светлая | Тёмная |
+|---|---|---|---|
+| `--app-page` (`page`) | фон страницы | `#F6F7F9` | `#11141C` |
+| `--app-surface` (`surface`) | карточки, списки, листы, таб-бар | `#FFFFFF` | `#191D28` |
+| `--app-fill` (`fill`) | контролы внутри карточки, нажатая строка | `#F6F7F9` | `#222736` |
+| `--app-hairline` (`hairline`) | рамка 1 px карточки/кнопки/варианта, линия над таб-баром | `#E4E7EC` | `#2B3142` |
+| `--app-divider` (`divider`) | разделители строк внутри карточки | `#EEF0F4` | `#232836` |
+| `--app-track` (`track`) | дорожка прогресса, выключенный переключатель, скелетон | `#E4E7EC` | `#2B3142` |
+| `--app-text` (`body`) | основной текст | `#1D2130` | `#E7E9F0` |
+| `--app-muted` (`muted`) | вторичный текст: подзаголовки, подсказки, значения справа | `#5F6677` | `#A2A8B8` |
+| `--app-accent` (`accent`) | ссылки, текстовые кнопки, заливка прогресса, фокус | `#3F4A7A` | `#A3AEDD` |
+| `--app-primary` (`primary`) | главная кнопка, рамка выбранного, линия активной вкладки | `#2B3252` | `#D5DAF0` |
+| `--app-on-primary` (`on-primary`) | текст на `primary` (и на `accent`) | `#FFFFFF` | `#1A1F33` |
+| `--app-accent-soft` / `-ink` / `-line` | выбранная строка/вариант; текст в цвете акцента; рамка бейджа | `#F3F4F9` / `#2B3252` / `#C9CEE2` | `#232A42` / `#CDD3F0` / `#3A4366` |
+| `--app-success` / `-soft` / `-ink` / `-line` | верно, пройдено | `#2F7D5B` / `#EEF6F1` / `#1F5A40` / `#BFDCCD` | `#5DB78C` / `#16291F` / `#93D3B2` / `#2A4B3A` |
+| `--app-warning` / `-soft` / `-ink` / `-line` | срок, внимание | `#B4741A` / `#F7EEDD` / `#8A5510` / `#E6CFA6` | `#D9A04A` / `#2C2314` / `#E6BE7E` / `#54411F` |
+| `--app-danger` / `-soft` / `-ink` / `-line` | ошибка, неверно | `#B4382C` / `#FBF1EF` / `#8C2A21` / `#EDC7C1` | `#E5786B` / `#311B1A` / `#F1A59B` / `#5A2F2B` |
 
-```css
---app-page: var(--tg-secondary-bg);          /* фон страницы */
---app-surface: var(--tg-section-bg);         /* карточки, списки, листы */
---app-fill: var(--tg-secondary-bg);          /* контролы ВНУТРИ surface: поля, вторичные кнопки, сегменты */
---app-hairline: color-mix(in srgb, var(--tg-text) 7%, transparent);
---app-accent: var(--tg-button);
---app-success: #31b545;  --app-warning: #f59e0b;  --app-danger: var(--tg-destructive);
---app-accent-soft:  color-mix(in srgb, var(--app-accent) 14%, transparent);
---app-success-soft: color-mix(in srgb, var(--app-success) 16%, transparent);
---app-warning-soft: color-mix(in srgb, var(--app-warning) 18%, transparent);
---app-danger-soft:  color-mix(in srgb, var(--app-danger) 14%, transparent);
-/* «Чернила» для текста на мягком фоне: цвет, смешанный с цветом текста темы → контраст и в светлой, и в тёмной теме.
-   Доля цвета — наибольшая, при которой контраст ≥ 4,5:1 на мягком фоне своего цвета во всех встроенных темах (таблица ниже) */
---app-accent-ink:  color-mix(in srgb, var(--app-accent)  50%, var(--tg-text));  /* текст на accent-soft: .btn-tinted, .chip-accent */
---app-success-ink: color-mix(in srgb, var(--app-success) 50%, var(--tg-text));
---app-warning-ink: color-mix(in srgb, var(--app-warning) 45%, var(--tg-text));  /* янтарь — самый светлый цвет */
---app-danger-ink:  color-mix(in srgb, var(--app-danger)  60%, var(--tg-text));
---app-track: color-mix(in srgb, var(--tg-hint) 24%, transparent);   /* дорожки прогресса */
-/* Цвета плиток-иконок (одинаковы в обеих темах, белая иконка) */
---tile-blue:#3b82f6; --tile-orange:#f97316; --tile-green:#22c55e; --tile-purple:#8b5cf6; --tile-red:#ef4444;
---tile-teal:#14b8a6; --tile-yellow:#eab308; --tile-pink:#ec4899; --tile-gray:#8e8e93;
-```
+Правила цвета: «сильный» цвет статуса (`success`, `warning`, `danger`) — для иконок, точек, рамок и заливок; **текст** в цвете
+статуса — его `*-ink` (янтарь `#B4741A` на белом — 3,85:1, ниже порога). `*-soft` — фон, `*-line` — тонкая рамка на нём.
+Выбранное — `bg-accent-soft` + рамка `primary` (1,5 px).
 
-**Контраст текста на мягком фоне (17.14-T).** `.btn-tinted` и `.chip-accent` брали голый акцент на `accent-soft`: на светлых темах это
-3,35 (iOS) и 2,28 (Android) на карточке и ещё ниже на голой странице; `chip-success` и `btn-danger` на iOS — 3,5–4,2. Теперь у каждого
-мягкого цвета есть свои «чернила» (`accent-ink`, `success-ink`, `warning-ink`, `danger-ink`), и они стоят во всех таких парах:
-`.btn-tinted`, `.chip-*`, `.btn-danger`, оценки флеш-карты, варианты ответа, `InlineAlert`. Порог — WCAG 4,5:1 для обычного текста.
-Расчёт сверен замером `getComputedStyle` в браузере для восьми встроенных тем Telegram — iOS светлая и тёмная, Android светлая и тёмная,
-Desktop светлая и «ночная синяя», Web светлая, Web / Desktop тёмная — на мягком фоне поверх карточки (`section_bg_color`) и поверх голой
-страницы (`secondary_bg_color`: она темнее, поэтому хуже). Минимум из двух фонов, было → стало:
+**Контраст.** `designSystem.spec.ts` читает hex-значения обеих палитр из `style.css` и проверяет по WCAG: текст/фон ≥ 4,5:1
+(`body` и `muted` на `page`/`surface`/`fill`/`accent-soft`; `accent` и `danger` на `page`/`surface`; `on-primary` на `primary` и
+`accent`; инвертированный тост; каждый `*-ink` на своём `*-soft`, на карточке и на странице), не-текст (иконки, точки, рамки,
+линия вкладки) ≥ 3:1. Худшие пары текста: светлая — `muted` на `accent-soft` 5,23, `warning-ink` на `warning-soft` 5,38; тёмная — `danger` на
+`surface` 5,79; не-текст — янтарь на `warning-soft` 3,34 (светлая). Набор токенов светлой и тёмной палитры обязан совпадать
+(тот же тест).
 
-| Текст на мягком фоне | Web светлая | Web / Desktop тёмная | iOS светлая | iOS тёмная | Android светлая | Android тёмная | Desktop светлая | Desktop ночная |
-|---|---|---|---|---|---|---|---|---|
-| `btn-tinted`, `chip-accent` | 2,61 → 7,43 | 3,61 → 7,43 | 2,96 → 7,82 | 3,37 → 6,50 | 2,03 → 4,89 | 3,39 → 6,95 | 2,11 → 6,48 | 3,09 → 6,02 |
-| `chip-success`, «Легко» | 3,83 → 6,52 | 6,14 → 7,66 | 3,69 → 6,28 | 5,34 → 6,66 | 3,27 → 4,91 | 5,74 → 7,17 | 3,74 → 6,37 | 5,09 → 6,23 |
-| `btn-danger`, `chip-danger`, «Не помню» | 4,18 → 6,80 | 5,05 → 6,67 | 3,46 → 5,86 | 4,01 → 5,54 | 4,61 → 6,33 | 4,84 → 6,46 | 4,17 → 6,74 | 3,59 → 4,94 |
-| `chip-warning`, `InlineAlert` warning | 5,71 → 6,56 | 7,75 → 8,06 | 5,50 → 6,32 | 6,74 → 7,01 | 4,31 → 4,81 | 7,38 → 7,67 | 5,58 → 6,41 | 6,43 → 6,66 |
+**Старые имена.** `--tg-*` и Tailwind-классы `text-tg-hint`, `bg-tg-button`, `text-tg-text`, `divide-tg-separator` и т. п.
+оставлены псевдонимами новых токенов (`--tg-hint: var(--app-muted)`, `--tg-button: var(--app-primary)`, `--tg-separator:
+var(--app-divider)`…), чтобы ещё не переделанные экраны сразу получили новую палитру и ничего не сломалось. Новый код их не
+использует (§4.5); когда экраны переделаны — псевдонимы можно удалить.
 
-Худшая пара из всех: 2,03 → 4,81. Границу задают самые светлые цвета — синий кнопки в светлой теме Android (`#50a8eb`) и янтарь, поэтому
-в светлых iOS и Web запас больше нужного (7–9): доля цвета одна на все темы, а «чернила» тем темнее, чем светлее цвет. Тёмные темы стали
-лучше, не хуже: «чернила» там светлее (худший минимум 3,09 → 4,94), оттенок цвета сохраняется. Подсказки под оценками флеш-карты
-(«повторим сегодня»…) — 12 px, поэтому без `opacity`: цвет кнопки (теперь её «чернила») пополам с цветом текста темы, ≥ 7,5:1 на фоне каждой
-из трёх кнопок во всех восьми темах. Таблицу воспроизводит `designSystem.spec.ts`: он читает доли из `style.css`, считает по формуле WCAG
-для этих тем и падает, если пара ушла ниже 4,5; новая тема — одна строка в тесте.
-
-**Цвета самой темы Telegram не трогаем.** Белый текст на кнопке (`button_text_color` на `button_color`, это родной цвет MainButton:
-2,58 на Android светлой … 4,02 на iOS светлой), `hint_color` — родной цвет второстепенного текста Telegram (на карточке 2,38 на Android
-светлой … 6,93 на Web тёмной), акцент на голой странице (`btn-plain`, ссылки: 2,26 … 4,92) — всё это выглядит так же и в самом Telegram, и
-подмена разошла бы приложение с ним. Чиним только производные токены приложения: `*-soft` и `*-ink`.
-
-Все токены пробрасываются в Tailwind через `@theme` (`--color-page`, `--color-surface`, `--color-fill`, `--color-accent`,
-`--color-success`, `--color-warning`, `--color-danger`, `--color-*-soft`, `--color-*-ink`, `--color-hairline`, `--color-track`,
-`--color-tg-*`). Глобальный `border-color` по умолчанию — `var(--app-hairline)` (вместо `gray-200`).
-`html/body/#app` — `min-height` вместо `height`; `body { overflow-x: clip }`; фон `body` — `--app-page`.
-`main.ts`: `WebApp.setHeaderColor('secondary_bg_color')`, `setBackgroundColor('secondary_bg_color')` (Bot API ≥ 6.1,
-через `isVersionAtLeast`), `document.documentElement.dataset.theme = WebApp.colorScheme`.
+Радиусы: `--radius-card` 12 (`rounded-card`), `--radius-control` 10 (`rounded-control`), `--radius-badge` 6 (`rounded-badge`).
+Глобальный `border-color` по умолчанию — `var(--app-hairline)`. `html/body/#app` — `min-height` вместо `height`;
+`body { overflow-x: clip }`; фон `body` — `--app-page`.
 
 ### 4.2 Типографика
 
+Шрифты — файлами в репозитории (`resources/twa/src/assets/fonts`, SIL OFL 1.1, лицензии рядом), без CDN и npm-зависимостей:
+
+- **Source Serif 4** (`font-serif`, шрифт всего приложения по умолчанию) — переменный по `wght`, по одному файлу на подмножество:
+  latin (в нём узбекские ʻ U+02BB и ʼ U+02BC), latin-ext, cyrillic; курсив — только latin (английские примеры). Начертания 400/600/700.
+- **IBM Plex Mono** (`font-mono`) 400/500, только latin: числа, счётчики (`9 / 20`), места в рейтинге, очки. Кириллица в
+  `font-mono` уходит в системный моноширинный — подпись к числу пишите обычным шрифтом.
+- **Транскрипция** — `font-ipa` (системный моноширинный: Menlo/Consolas/DejaVu/Noto): ни в Source Serif 4, ни в Plex Mono нет
+  знаков IPA (ɪ ʃ ə ː ˈ), а смесь двух шрифтов в одном слове выглядит хуже.
+- `@font-face` с `unicode-range` и `font-display: swap`: файл качается, только когда на странице есть его символы.
+  `index.html` предзагружает только Source Serif 4 latin + cyrillic (normal) — то, что нужно первому экрану.
+
 | Стиль | Размер / начертание | Где |
 |---|---|---|
-| Large title | 28/34, bold, `tracking-tight` | заголовок вкладки |
-| Title | 22/28, bold | заголовок внутреннего экрана |
-| Headline | 17/22, semibold | заголовок карточки |
+| Large title | 26/30, semibold, `tracking-[-0.2px]` | заголовок вкладки (`PageHeader large`) |
+| Title | 22/28, semibold | заголовок внутреннего экрана |
+| Display | 32–46, semibold | слово в упражнении, итог занятия, большое число цели (по макету экрана) |
+| Headline | 16–17/22, semibold | заголовок карточки |
 | Body | 16/22 | основной текст |
-| Subhead | 15/20 | подписи строк |
-| Footnote | 13/18, `--tg-hint` | пояснения под группами |
-| Section label | 13/18, medium, uppercase, `tracking-wide`, `--tg-section-header` | подписи групп |
-| Caption | 11–12 | вкладки, чипы |
+| Row title | 15/20, semibold | заголовок строки списка |
+| Footnote / eyebrow | 13/18, `text-muted` | подписи над/под заголовком, подзаголовки строк, значения справа |
+| Caption | 12–13 | вкладки (13), бейджи (12) |
 
 ### 4.3 CSS-компоненты (`@layer components`)
 
-- `.page` — `mx-auto w-full max-w-xl px-4 pt-2`; нижний отступ — под таб-бар (`--app-tabbar-h`) и safe-area.
-- `.card` — `--app-surface`, `rounded-2xl` (16), `p-4`, `box-shadow: 0 0 0 1px var(--app-hairline)`.
-- `.section-label` — подпись группы, `px-4 mb-1.5 mt-5`.
-- Кнопки: `.btn` (min-h 48, `rounded-xl`, 16px semibold, `active:scale-[.98]`, `disabled:opacity-50`, `focus-visible` кольцо accent) +
-  варианты: `.btn-primary` (accent / button-text), `.btn-tinted` (accent-soft / accent-ink — **вторичное действие где угодно**),
-  `.btn-secondary` (fill / text — нейтральное внутри surface, напр. «Отмена»), `.btn-plain` (без фона, accent — третичное),
-  `.btn-danger` (danger-soft / danger-ink); размеры `.btn-lg` (min-h 56, 17px), `.btn-sm` (min-h 36, 14px, `rounded-lg`;
+- `.page` — `mx-auto w-full max-w-xl px-5 pt-2` (20 px от краёв, как на макетах); нижний отступ — под таб-бар (`--app-tabbar-h`) и safe-area.
+- `.card` — `--app-surface`, `rounded-card` (12), рамка 1 px `hairline`, `p-[18px]`, без тени.
+- `.section-label` — подпись над группой: 13/18, `muted`, обычный регистр, `px-[18px] mb-2 mt-5`.
+- Кнопки: `.btn` (min-h 48, `rounded-control` 10, 16 px semibold, `active:scale-[.98]`, `disabled:opacity-50`, `focus-visible` кольцо accent) +
+  варианты: `.btn-primary` (`primary` / `on-primary`, плоская — **одна на экран**), `.btn-tinted` (белая с рамкой `hairline`, текст
+  `accent-ink` — вторичное действие где угодно), `.btn-secondary` (fill / text — нейтральное внутри surface, напр. «Отмена»),
+  `.btn-plain` (без фона, `accent`, обычное начертание — текстовая кнопка «Ещё один раунд», «Не сейчас»), `.btn-danger`
+  (danger-soft / рамка danger-line / danger-ink); размеры `.btn-lg` (min-h 52), `.btn-sm` (min-h 36, 14px, `rounded-lg`;
   область нажатия ≥ 44 px — невидимый слой `::after`), `.btn-block`.
 - `.tap-target` — для контролов, которые выглядят меньше пальца (сегмент `SegmentedControl` / `SegmentedNav`, `ToggleSwitch`):
   `position: relative` + `::after` по центру, `width/height: max(100%, 44px)`. Слой — часть самого контрола, на вид и раскладку не
   влияет; он выходит за контрол не больше чем на 4 px сверху и снизу (36 → 44), поэтому между соседними нажимаемыми контролами
   оставляем зазор ≥ 8 px. Тест-страж — `designSystem.spec.ts`.
-- `.field` — поле/`select`/`textarea`: fill-фон, `rounded-xl`, `px-3.5 py-3`, рамка 1px transparent → на фокусе accent +
-  кольцо accent-soft; placeholder `--tg-hint`; `select.field` — `appearance:none` + шеврон. `.field-surface` — поле прямо на странице
-  (фон surface + hairline). `.field-inline` — значение справа в строке списка (без фона, цвет accent, шеврон; высота 44 px и `margin-block: -11px`:
-  область нажатия 44 px, а строка не растёт; на `:focus-visible` — контур accent 2 px, ведь у поля без рамки иначе нет фокуса).
-- `.option` — вариант ответа (на странице, вне карточки): surface + hairline, `rounded-xl`, min-h 56, 16px medium; состояния
-  `data-state`: `selected` (рамка accent 2px, accent-soft), `correct` (success-soft, рамка success, success-ink, иконка ✓),
-  `incorrect` (danger-soft, рамка danger, danger-ink, иконка ✕), `reveal` (рамка success пунктиром, success-ink).
-- `.chip` (`h-6 px-2.5 rounded-full text-xs font-semibold`) + `.chip-accent|success|warning|danger|neutral` (текст — «чернила» своего цвета, §4.1).
-- `.progress` / `.progress-fill` (дорожка `--app-track`, заливка accent; `.progress-success`).
-- `.list` (surface, `rounded-2xl`, hairline, `overflow-hidden`) / `.list-row` (min-h 52, `px-4 py-2.5`, разделитель между
-  строками — `--tg-separator`, с отступом слева 56 px при иконке).
-- `.icon-tile` (30×30, `rounded-[9px]`, белая иконка, фон `--tile-*`).
-- `.skeleton` (fill + `animate-pulse`), `.sheet` (нижний лист: surface, `rounded-t-[20px]`, ручка), `.toast`.
+- `.field` — поле/`select`/`textarea`: белое (`surface`) с рамкой `hairline`, `rounded-control`, `px-3.5 py-3`; на фокусе рамка
+  `primary`; placeholder `muted`; `select.field` — `appearance:none` + шеврон (свой для тёмной палитры). `.field-surface` — теперь то
+  же самое (оставлен для совместимости). `.field-inline` — значение справа в строке списка (без фона, цвет accent, шеврон; высота
+  44 px и `margin-block: -11px`: область нажатия 44 px, а строка не растёт; на `:focus-visible` — контур accent 2 px).
+- `.option` — вариант ответа (макеты Question / Feedback): белый, рамка 1 px `hairline` (inset-тень, чтобы рамка 1,5 px состояния
+  не сдвигала текст), `rounded-control`, min-h 56, 17 px; состояния `data-state`: `selected` (accent-soft, рамка `primary` 1,5 px,
+  semibold), `correct` и `reveal` (success-soft, рамка success 1,5 px, success-ink, semibold), `incorrect` (danger-soft, рамка
+  danger 1,5 px, danger-ink), `dimmed` (прозрачный, рамка `divider`, текст `muted` — остальные варианты после проверки).
+- `.chip` — бейдж: `h-6 px-2 rounded-badge`, 12 px обычный, белый фон, рамка 1 px; `.chip-accent|success|warning|danger|neutral` —
+  рамка `*-line`, текст `*-ink` (нейтральный — `hairline` / `muted`).
+- `.progress` / `.progress-fill` — линия 4 px (дорожка `track`, заливка accent; `.progress-success`, `.progress-primary`;
+  3 px в шапке урока — `h-[3px]`). Vue-обёртка — `ProgressLine` (§4.4).
+- `.list` (surface, `rounded-card`, рамка `hairline`, `overflow-hidden`) / `.list-row` (min-h 52, `px-[18px] py-3`, 15/20;
+  разделитель между строками — `divider` во всю ширину карточки).
+- `.icon-tile` — тихая иконка в начале строки: 30×30, `rounded-lg`, фон `fill`, иконка `muted`; `.tile-*` теперь только цвет
+  иконки (blue/purple/teal → accent, green → success, orange/yellow → warning, red/pink → danger, gray → muted). Ярких плиток нет.
+- `.skeleton` (track + `animate-pulse`), `.sheet` (нижний лист: surface, `rounded-t-2xl`, ручка, без тени), `.toast`
+  (инвертированный: фон `--app-text`, текст `--app-surface`, `rounded-control`, без тени).
 - `.toast` стоит над тем, что закрывает нижний край окна: над таб-баром (`--app-tabbar-h`) или над липким блоком кнопок
   (`StickyActions` публикует свою высоту как `--app-actions-h` на `<html>`, пока он на экране; высота уже содержит
   safe-area, поэтому берётся большее из двух, а не сумма). Тост отказа не должен закрывать главную кнопку экрана.
@@ -240,31 +230,73 @@ Desktop светлая и «ночная синяя», Web светлая, Web /
 
 | Компонент | Назначение |
 |---|---|
-| `AppIcon` | иконка по имени; набор — **Heroicons 2.2 (MIT)**, пути SVG вендорятся в `ui/icons.ts` (не npm-зависимость; лицензия в шапке файла). outline для всего, solid — для активной вкладки и статусов |
-| `PageHeader` | заголовок экрана (`large` для вкладок), подзаголовок, слот справа |
-| `LoadingState` / `ErrorState` / `EmptyState` | состояния (скелетоны; иконка + текст + «Повторить»; пусто + действие); сохраняют `data-testid="spinner"`, `"error"`, `"retry-btn"` |
-| `ListGroup` / `ListRow` | сгруппированный список; строка: плитка-иконка, заголовок, подзаголовок, значение, шеврон; `to` → RouterLink, клик → button |
-| `SegmentedControl` | переключатель значений (язык, цель, период оплаты, формат импорта) |
+| `AppIcon` | иконка по имени; набор — **Heroicons 2.2 (MIT)**, пути SVG вендорятся в `ui/icons.ts` (не npm-зависимость; лицензия в шапке файла). outline для всего, solid — для статусов. Редизайн 2026-11: иконки — только по делу (действие, статус), не украшение |
+| `PageHeader` | заголовок экрана (semibold; `large` 26 px для вкладок, иначе 22), `eyebrow` — строка НАД заголовком (дата · курс), `subtitle` — строка ПОД ним (13 px, `muted`), слот справа |
+| `LoadingState` / `ErrorState` / `EmptyState` | состояния (скелетоны; иконка + текст + «Повторить»; пусто + действие; иконки без кружков-подложек); сохраняют `data-testid="spinner"`, `"error"`, `"retry-btn"` |
+| `ListGroup` / `ListRow` | сгруппированный список (плоская карточка, линии во всю ширину); строка: тихая иконка (необязательна), заголовок 15 px semibold, подзаголовок и значение 13 px `muted`, шеврон; `to` → RouterLink, клик → button |
+| `SegmentedControl` | переключатель значений (язык, цель, период оплаты, формат импорта); белая коробка с рамкой, выбранный сегмент — accent-soft + рамка `primary`, без теней |
 | `SegmentedNav` | переключатель соседних экранов вкладки (Курсы ↔ Мои колоды, Лига ↔ Друзья); `<nav>` с обязательным `ariaLabel` (отличает его от таб-бара) |
-| `ToggleSwitch` | переключатель `role="switch"` (упражнения, лиги) |
-| `TabBar` | нижняя навигация (§5) |
+| `ToggleSwitch` | переключатель `role="switch"` (упражнения, лиги); плоский: вкл — `primary` с ручкой `on-primary`, выкл — `track` с ручкой `muted` |
+| `TabBar` | нижняя навигация (§5): только текст, у активной вкладки линия 2 px `primary` сверху и semibold; фон `surface`, рамка `hairline` сверху |
 | `AppToast` + `useToast()` | короткие уведомления («Сохранено», «Скопировано»); отказ действия на длинном экране — тоже тост (`showErrorToast`, 4 с): `InlineAlert` вверху экрана остаётся для ошибки загрузки и для сообщений рядом со своей кнопкой. Следующая попытка действия (ответ, «Не знаю», «Повторить», «Принять», «Далее») убирает тост отказа сразу (`hideErrorToast()`: только его, «Сохранено» не трогает) — при успехе он не висит над разбором, при новом отказе возвращается со своим текстом |
-| `ProBenefits` | список возможностей Pro (Billing, Paywall) |
-| `InlineAlert` | инлайн-сообщение об ошибке/предупреждении/успехе (`tone`: danger, warning, success, info) — одно на все экраны |
+| `ProBenefits` | список возможностей Pro (Billing, Paywall): строки между линиями, без галочек |
+| `InlineAlert` | инлайн-сообщение об ошибке/предупреждении/успехе (`tone`: danger, warning, success, info) — одно на все экраны; `*-soft` + рамка `*-line` + `*-ink` |
+| `ProgressLine` | тонкая линия прогресса: `value` (0–100, обрезается и округляется), `tone` (`accent` по умолчанию, `primary`, `success`), `label` — с ним `role="progressbar"` и `aria-valuenow`, без него `aria-hidden`; классы (`h-[3px]`, `flex-1`) идут на дорожку |
+| `StickyActions` (`components/`) | липкий нижний блок кнопок погружающих экранов; `surface` — экран белый (`bg-surface`), блок тоже |
 
 Композиции: `useBackButton(target)` (показ/скрытие системной кнопки + переход), `format.ts` (`formatDate(iso, style)`,
 кеш `Intl.DateTimeFormat` по локали и стилю).
+
+### 4.5 Правила нового стиля для экранов (редизайн 2026-11)
+
+Для тех, кто переделывает экраны под макеты `docs/design/2026-11-redesign/`. Точные размеры — в инлайн-стилях макета; здесь —
+чем их набирать. Старые классы ещё работают (псевдонимы, §4.1), но в переделанном экране их быть не должно.
+
+| Было | Теперь |
+|---|---|
+| `text-tg-text` | `text-body` (или ничего: это цвет по умолчанию) |
+| `text-tg-hint`, `text-tg-subtitle`, `text-tg-section-header` | `text-muted` |
+| `text-tg-link`, `text-tg-accent` | `text-accent` |
+| `bg-tg-button`, `bg-accent` у главной кнопки | `btn btn-primary` (фон `bg-primary`, текст `text-on-primary`) |
+| `text-tg-button-text`, `bg-tg-button-text` | `text-on-primary`, `bg-on-primary` |
+| `bg-tg-secondary-bg`, `bg-tg-bg`, `bg-tg-section-bg` | `bg-page` (страница), `bg-surface` (карточка, белый экран урока) |
+| `divide-tg-separator`, `border-tg-separator`, `bg-tg-separator` | `divide-divider` / `border-divider` (линии внутри карточки) |
+| `border-tg-hint`, рамка карточки, `shadow-[0_0_0_1px_var(--app-hairline)]` | `border border-hairline` |
+| `text-success` / `text-warning` / `text-danger` у **текста** | `text-success-ink` / `text-warning-ink` / `text-danger-ink` (сильный цвет — иконкам, точкам, рамкам) |
+| тени (`shadow-*`), градиенты, размытие (`backdrop-blur`) | нет: плоско, рамка `hairline` |
+| `rounded-2xl` / `rounded-xl` у карточки и кнопки | `rounded-card` (12) / `rounded-control` (10); бейдж — `rounded-badge` (6) |
+| `font-bold` у заголовка | `font-semibold` (600); жирный 700 — только для акцента внутри строки |
+| числа, счётчики, места, очки, таймер | `font-mono` (+ `font-medium` для своей строки); подпись к числу — обычным шрифтом |
+| транскрипция `/ˈnɪkneɪm/` | `font-ipa text-muted` |
+| свой `<div class="progress">…<div class="progress-fill">` | `<ProgressLine :value :tone :label />`; в шапке урока `class="h-[3px] flex-1"`, `tone="primary"` |
+| `chip` с заливкой | `chip chip-accent` («вы здесь»), `chip chip-success` («новое») — рамка + текст, без заливки |
+| выбранная строка/карточка (тариф, «вы здесь», своё место в лиге) | `bg-accent-soft` + рамка `primary`: `shadow-[inset_0_0_0_1.5px_var(--app-primary)]` (или `border-[1.5px] border-primary`) |
+| зона перехода в таблице лиги | строка `bg-success-soft text-success-ink border-t border-success-line text-xs` |
+| вариант ответа | `.option` + `data-state`: `selected` / `correct` / `incorrect` / `reveal` / `dimmed` (остальные после проверки) |
+| вторая кнопка экрана (`btn-tinted` рядом с главной) | текстовая `btn btn-plain` («Ещё один раунд», «Не сейчас»); «Не знаю» — `btn btn-plain text-muted` |
+| `icon-tile tile-*` в строке | лучше без иконки (макеты без них); если нужна — она уже тихая |
+| `PageHeader :subtitle` для даты над заголовком | `PageHeader :eyebrow` (над), `:subtitle` (под) |
+| эмодзи как украшение (🔥, 🎉) | нет; число и слово («серия 12 дней») |
+| нижняя кнопка на белом экране урока | `<StickyActions surface>` |
+| поля по 16 px от краёв (`px-4`) | `.page` уже даёт 20 px (`px-5`); карточка — `p-[18px]`, строка — `px-[18px] py-3` |
+| `bg-black/40` под листом | `.scrim` (единственное место чёрного) |
+
+Проверка перед сдачей экрана: светлая и тёмная палитра (`<html data-theme="dark">` в devtools), 320 px ширины, одна
+`btn-primary`, нет `tg-` в шаблоне, нет `shadow-`/`gradient`.
 
 ## 5. Информационная архитектура
 
 ### 5.1 Вкладки
 
-| Вкладка | Иконка | Экраны (meta `tab`) |
-|---|---|---|
-| **Главная** | `home` | `/today` |
-| **Курсы** | `academic-cap` | `/courses` ↔ `/decks` (SegmentedNav), `/courses/:slug`, `/decks/:slug` |
-| **Рейтинг** | `trophy` | `/league` ↔ `/friends` (SegmentedNav) |
-| **Профиль** | `user-circle` | `/profile` (новый), `/achievements`, `/referrals`, `/billing`, `/settings` |
+Редизайн 2026-11: вкладки — только текст, без иконок (ru / uz): **Сегодня** / Bugun, **Курс** / Kurs, **Лига** / Liga,
+**Профиль** / Profil. Ключи i18n прежние (`nav.today`, `nav.courses`, `nav.rating`, `nav.profile`), `meta.tab` — тоже.
+
+| Вкладка | Экраны (meta `tab`) |
+|---|---|
+| **Сегодня** (`today`) | `/today` |
+| **Курс** (`courses`) | `/courses` ↔ `/decks` (SegmentedNav), `/courses/:slug`, `/decks/:slug` |
+| **Лига** (`rating`) | `/league` ↔ `/friends` (SegmentedNav) |
+| **Профиль** (`profile`) | `/profile` (новый), `/achievements`, `/referrals`, `/billing`, `/settings` |
 
 Таб-бар виден на всех экранах с `meta.tab`; скрыт в «погружении»: `/training/*`, `/finished`, `/exam/*`, лендинг.
 

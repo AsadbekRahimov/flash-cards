@@ -628,7 +628,7 @@ it('keeps the static part of the billing catalog out of Redis: it is config read
     // Nothing to sell: no provider, then no price in the currency of the one that is on.
     config(['billing.providers.payme.enabled' => false, 'billing.providers.telegram_stars.enabled' => false]);
     expect($billing->paywall($learner)['mode'])->toBe('coming_soon');
-    config(['billing.providers.telegram_stars.enabled' => true, 'billing.prices.pro.month.XTR' => 0, 'billing.prices.pro.year.XTR' => 0]);
+    config(['billing.providers.telegram_stars.enabled' => true, 'billing.prices.pro.month.XTR' => 0, 'billing.prices.pro.quarter.XTR' => 0, 'billing.prices.pro.year.XTR' => 0]);
     expect($billing->paywall($learner)['mode'])->toBe('coming_soon');
     config(['billing.prices.pro.year.XTR' => 1300]);
     expect($billing->paywall($learner)['mode'])->toBe('purchase');

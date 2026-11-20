@@ -12,7 +12,6 @@
     $pct = fn (float $value): string => AdminNumbers::decimal($value, 0);
     $signed = fn (float|int $value, int $decimals = 0): string => ($value > 0 ? '+' : ($value < 0 ? '−' : '±')).AdminNumbers::decimal(abs($value), $decimals, trimZeros: true);
     $cut = fn (?array $cell): string => $cell === null ? '—' : $pct($cell['pct']).' %';
-    $period = fn (string $from, string $to): string => CarbonImmutable::parse($from)->translatedFormat('j').'–'.CarbonImmutable::parse($to)->translatedFormat('j F');
     $weekday = (int) CarbonImmutable::now(\App\Domain\Analytics\Services\RetentionReportService::REPORT_TIMEZONE)->isoWeekday();
 @endphp
 

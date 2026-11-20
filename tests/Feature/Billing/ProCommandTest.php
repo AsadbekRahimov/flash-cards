@@ -85,9 +85,11 @@ it('/pro offers a button per period and provider with the prices, none of them c
     app(TelegramDispatcher::class)->dispatch(proMessage('/pro'));
 
     expect(callbacks($this->sent[0]['markup']))->toBe([
-        'pro1:buy:month:telegram_stars', 'pro1:buy:month:payme', 'pro1:buy:year:telegram_stars', 'pro1:buy:year:payme',
+        'pro1:buy:month:telegram_stars', 'pro1:buy:month:payme', 'pro1:buy:quarter:telegram_stars', 'pro1:buy:year:telegram_stars', 'pro1:buy:year:payme',
     ])
         ->and($this->sent[0]['text'])->toContain('1 месяц — 150 ⭐ / 29 000 сум')
+        // The quarter is Stars only (docs/13 §5): no button and no price in sums.
+        ->and($this->sent[0]['text'])->toContain("3 месяца — 390 ⭐\n")
         ->and($this->sent[0]['text'])->toContain('1 год — 1 300 ⭐ / 249 000 сум')
         ->and($this->sent[0]['markup']['inline_keyboard'][0][0]['text'])->toBe('⭐ Stars · 1 месяц · 150 ⭐')
         ->and(PaymentOrder::query()->count())->toBe(0);
@@ -99,7 +101,8 @@ it('/pro answers in the learner\'s Uzbek locale', function (): void {
     app(TelegramDispatcher::class)->dispatch(proMessage('/pro', lang: 'uz'));
 
     expect($this->sent[0]['text'])->toContain("Muddat va to'lov usulini tanlang:")
-        ->and($this->sent[0]['text'])->toContain("1 oy — 150 ⭐ / 29 000 so'm");
+        ->and($this->sent[0]['text'])->toContain("1 oy — 150 ⭐ / 29 000 so'm")
+        ->and($this->sent[0]['text'])->toContain('3 oy — 390 ⭐');
 });
 
 it('/pro falls back to "coming soon" when providers are bound but unpriced', function (): void {
@@ -123,6 +126,18 @@ it('a tap on a buy button creates the order for the learner and answers with a p
         ->and($this->sent)->toHaveCount(1)
         ->and($this->sent[0]['text'])->toContain('Счёт создан: 1 месяц, 150 ⭐.')
         ->and($this->sent[0]['markup']['inline_keyboard'][0][0])->toBe(['text' => 'Оплатить', 'url' => "https://pay.test/{$order->token}"]);
+});
+
+it('a tap on the Stars quarter button orders 3 months for 390 Stars', function (): void {
+    Learner::factory()->create(['telegram_user_id' => 555]);
+
+    app(TelegramDispatcher::class)->dispatch(proTap('pro1:buy:quarter:telegram_stars'));
+
+    $order = PaymentOrder::query()->sole();
+    expect($order->period)->toBe('quarter')
+        ->and($order->amount)->toBe(390)
+        ->and($order->currency)->toBe('XTR')
+        ->and($this->sent[0]['text'])->toContain('Счёт создан: 3 месяца, 390 ⭐.');
 });
 
 it('a tap cannot choose the amount or an unknown provider', function (string $data): void {
@@ -153,6 +168,7 @@ it('explains a refused purchase by its error code', function (string $data, stri
         fn () => FakeBillingProvider::register(SubscriptionProvider::Payme, enabled: false),
     ],
     'invalid period' => ['pro1:buy:week:payme', 'Такого варианта оплаты нет.', null],
+    'quarter in sums (Stars only)' => ['pro1:buy:quarter:payme', 'Такого варианта оплаты нет.', null],
     'provider outage' => [
         'pro1:buy:month:telegram_stars', 'Платёжный сервис не отвечает. Попробуйте через несколько минут.',
         fn ($l, $t) => $t->stars->failCheckoutWith = new RuntimeException('down'),

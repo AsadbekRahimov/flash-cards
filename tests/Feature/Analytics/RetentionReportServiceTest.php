@@ -553,3 +553,27 @@ it('dashes the game row of a day that has not ended for the whole cohort', funct
     expect(rt_cohort(rt_report(), '2026-11-16')['game'])->toBe(['d1' => null, 'd7' => null])
         ->and(rt_cohort(rt_report('2026-11-19 10:00:00'), '2026-11-16')['game']['d1'])->toBe(['count' => 1, 'of' => 1, 'pct' => 100.0]);
 });
+
+it('splits the first 24 hours of a cohort by the deepest step each learner reached, the steps adding up to the cohort', function (): void {
+    // Week of Nov 2-8, registered at 06:00 UTC on Nov 3; the 24 hours end at 06:00 on Nov 4.
+    $answered = rt_learner('2026-11-03 06:00:00', ['onboarding_completed_at' => '2026-11-03 06:05:00']);
+    rt_reviews(rt_session($answered, '2026-11-03 06:10:00'), 1000);   // answered (and opened, and onboarded): counted once, as answered
+    $opened = rt_learner('2026-11-03 06:00:00', ['onboarding_completed_at' => '2026-11-03 06:05:00']);
+    rt_session($opened, '2026-11-04 05:59:00');                       // a session at 23 h 59, no answer
+    $lateSession = rt_learner('2026-11-03 06:00:00', ['onboarding_completed_at' => '2026-11-03 07:00:00']);
+    rt_session($lateSession, '2026-11-04 06:00:00');                  // a session at 24 h 00 is not the first day: onboarded
+    rt_learner('2026-11-03 06:00:00', ['onboarding_completed_at' => '2026-11-04 06:30:00']); // the onboarding too late: the rest
+    rt_learner('2026-11-03 06:00:00');                                // only opened the bot
+
+    $cohort = rt_cohort(rt_report(), '2026-11-02');
+
+    expect($cohort['first_day'])->toBe(['size' => 5, 'answered' => 1, 'opened' => 1, 'onboarded' => 1, 'rest' => 2])
+        ->and($cohort['activation']['all']['count'])->toBe($cohort['first_day']['answered']);
+});
+
+it('leaves the first day of a week empty while its youngest learner is younger than 24 hours, and of an empty week', function (): void {
+    rt_learner('2026-11-17 10:30:00');
+
+    expect(rt_cohort(rt_report(), '2026-11-16')['first_day'])->toBeNull()
+        ->and(rt_cohort(rt_report(), '2026-11-09')['first_day'])->toBeNull();
+});

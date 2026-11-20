@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Domain\Analytics\Services\RetentionReportService;
-use App\Models\User;
+use App\Filament\Concerns\RequiresActiveAdmin;
 use App\Filament\Widgets\ActivityChartWidget;
 use App\Filament\Widgets\AttentionWidget;
 use App\Filament\Widgets\BillingFunnelWidget;
@@ -29,6 +29,7 @@ use App\Filament\Widgets\TopLearnersTableWidget;
 use App\Filament\Widgets\TotalLearnersWidget;
 use App\Filament\Widgets\WebhookErrorsWidget;
 use App\Filament\Widgets\WeeklyActivityWidget;
+use App\Models\User;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Widgets\Widget;
 use Illuminate\Contracts\View\View;
@@ -113,7 +114,7 @@ class Dashboard extends BaseDashboard
     }
 
     /**
-     * The same rule as the platform widgets ({@see \App\Filament\Concerns\RequiresActiveAdmin}); the page itself does not use
+     * The same rule as the platform widgets ({@see RequiresActiveAdmin}); the page itself does not use
      * that trait, it would refuse a teacher the whole dashboard.
      */
     private static function isActiveAdmin(): bool

@@ -126,6 +126,8 @@ final class PanelTheme
     public static function apply(Panel $panel): Panel
     {
         return $panel
+            // The narrow sidebar of the design (220 px there): more room for the three columns of the dashboard.
+            ->sidebarWidth('15rem')
             ->colors([
                 'primary' => self::PRIMARY,
                 'gray' => self::GRAY,

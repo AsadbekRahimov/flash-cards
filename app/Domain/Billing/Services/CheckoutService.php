@@ -13,6 +13,7 @@ use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Exceptions\CheckoutException;
 use App\Domain\Billing\Support\AutoRenewal;
+use App\Domain\Billing\Support\BillingPeriods;
 use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\PayerSnapshot;
 use App\Domain\Billing\Support\ProviderTransactionTimeout;
@@ -70,13 +71,13 @@ final class CheckoutService
     ) {}
 
     /**
-     * @param  string  $period  `month` | `year` (config('billing.periods'))
+     * @param  string  $period  `month` | `quarter` | `year` (config('billing.periods')); organizations: `billing.org_periods` only
      * @param  string|null  $tier  organization tariff (required for organizations, ignored for learners)
      * @param  string  $via  `twa` | `bot` | `org_panel` | `admin`
      * @param  Offer|null  $offer  explicit offer; null = the learner's best applicable open offer, if any
      * @param  OfferPlacement|null  $placement  where the TWA's purchase sheet was opened from: a prop of `checkout.started` only (docs/13 §5.1)
      *
-     * @throws CheckoutException price_not_configured | provider_disabled | provider_not_supported | checkout_conflict | tier_change_requires_support | too_many_pending | offer_not_applicable | offer_busy | invalid_period | invalid_tier
+     * @throws CheckoutException price_not_configured | provider_disabled | provider_not_supported | checkout_conflict | tier_change_requires_support | too_many_pending | offer_not_applicable | offer_busy | invalid_period (also a period not sold in the provider's currency) | invalid_tier
      */
     public function create(
         Learner|Organization $subscriber,
@@ -96,7 +97,7 @@ final class CheckoutService
             throw CheckoutException::priceNotConfigured("plan {$plan->value}");
         }
 
-        if (! is_numeric(config("billing.periods.{$period}"))) {
+        if (! BillingPeriods::exists($period) || ($subscriber instanceof Organization && ! in_array($period, BillingPeriods::forOrganizations(), true))) {
             throw CheckoutException::invalidPeriod($period);
         }
 
@@ -107,6 +108,11 @@ final class CheckoutService
         $currency = $provider->currency();
         if ($currency === null || ! $this->providers->for($provider)->supports($subscriberType, $currency)) {
             throw CheckoutException::providerNotSupported($provider->value, $subscriberType, $currency ?? '-');
+        }
+
+        if ($subscriber instanceof Learner && ! BillingPeriods::listsCurrency($plan->value, $period, $currency)) {
+            // Not sold in this currency by design (the quarter in UZS: Stars only) — not a price that is still missing.
+            throw CheckoutException::periodNotSoldIn($period, $currency);
         }
 
         $tier = $subscriber instanceof Organization ? $tier : null;
@@ -291,7 +297,7 @@ final class CheckoutService
         $items = [];
 
         if ($subscriber instanceof Learner) {
-            foreach ($this->periods() as $period) {
+            foreach (BillingPeriods::keys() as $period) {
                 $listPrices = [];
                 $prices = [];
                 $periodOffer = $this->offers->applicableFor($subscriber, Plan::Pro, $period, $now);
@@ -306,13 +312,13 @@ final class CheckoutService
                 }
 
                 if ($prices !== []) {
-                    $items[] = ['plan' => Plan::Pro->value, 'tier' => null, 'period' => $period, 'prices' => $prices, 'list_prices' => $listPrices];
+                    $items[] = ['plan' => Plan::Pro->value, 'tier' => null, 'period' => $period, 'days' => BillingPeriods::days($period), 'prices' => $prices, 'list_prices' => $listPrices, 'saving_pct' => 0];
                     $offer ??= $periodOffer;
                 }
             }
         } else {
             foreach (OrgTiers::keys() as $tier) {
-                foreach ($this->periods() as $period) {
+                foreach (BillingPeriods::forOrganizations() as $period) {
                     $prices = [];
                     foreach (array_keys($currencies) as $currency) {
                         $price = OrgTiers::price($tier, $period, (string) $currency);
@@ -321,7 +327,7 @@ final class CheckoutService
                         }
                     }
                     if ($prices !== []) {
-                        $items[] = ['plan' => Plan::Pro->value, 'tier' => $tier, 'period' => $period, 'prices' => $prices, 'list_prices' => $prices];
+                        $items[] = ['plan' => Plan::Pro->value, 'tier' => $tier, 'period' => $period, 'days' => BillingPeriods::days($period), 'prices' => $prices, 'list_prices' => $prices, 'saving_pct' => 0];
                     }
                 }
             }
@@ -330,7 +336,7 @@ final class CheckoutService
         $live = $this->subscriptions->liveFor($subscriber);
 
         return new BillingCatalog(
-            items: $items,
+            items: self::withSavings($items),
             providers: $providerKeys,
             offer: $offer === null ? null : ['kind' => $offer->kind, 'discount_pct' => $offer->discount_pct, 'period' => $offer->period, 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()],
             subscription: $live === null ? null : self::summarize($live, $now),
@@ -348,7 +354,7 @@ final class CheckoutService
     {
         $currencies = array_keys($this->sellingProviders('learner')['currencies']);
 
-        foreach ($this->periods() as $period) {
+        foreach (BillingPeriods::keys() as $period) {
             foreach ($currencies as $currency) {
                 if ($this->configuredPrice(Plan::Pro, $period, (string) $currency) !== null) {
                     return true;
@@ -478,7 +484,7 @@ final class CheckoutService
      *   - a learner's perpetual grant leaves nothing to buy (`already_perpetual`);
      *   - a Stars subscription (month) on top of a prepaid period that ends later than
      *     `billing.stars.subscribe_window_days` from now is refused (`subscribe_too_early`): Telegram's first charge
-     *     starts its own 30 days at once. Payme / Click and a Stars year extend from the end and stay allowed.
+     *     starts its own 30 days at once. Payme / Click and a one-off Stars quarter / year extend from the end and stay allowed.
      *
      * @throws CheckoutException checkout_conflict | already_perpetual | subscribe_too_early
      */
@@ -519,13 +525,27 @@ final class CheckoutService
             && SubscriptionLiveness::isLive($live, $now);
     }
 
-    /** @return list<string> */
-    private function periods(): array
+    /**
+     * Each item's saving versus the month of the same plan / tier (BillingPeriods::savingPct, from the list prices the catalog
+     * sells in): 0 for the month and for a period without a month to compare with.
+     *
+     * @param  list<array{plan: string, tier: string|null, period: string, days: int, prices: array<string, int>, list_prices: array<string, int>, saving_pct: int}>  $items
+     * @return list<array{plan: string, tier: string|null, period: string, days: int, prices: array<string, int>, list_prices: array<string, int>, saving_pct: int}>
+     */
+    private static function withSavings(array $items): array
     {
-        /** @var array<string, mixed> $periods */
-        $periods = (array) config('billing.periods', []);
+        $months = [];
+        foreach ($items as $item) {
+            if ($item['period'] === BillingPeriods::MONTH) {
+                $months[$item['tier'] ?? ''] = $item['list_prices'];
+            }
+        }
 
-        return array_map(static fn (string|int $k): string => (string) $k, array_keys($periods));
+        foreach ($items as $i => $item) {
+            $items[$i]['saving_pct'] = BillingPeriods::savingPct($item['period'], $item['list_prices'], $months[$item['tier'] ?? ''] ?? []);
+        }
+
+        return $items;
     }
 
     private function lockSubject(Learner|Organization $subscriber): void
