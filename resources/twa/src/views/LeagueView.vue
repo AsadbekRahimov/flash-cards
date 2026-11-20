@@ -209,14 +209,13 @@ onMounted(() => {
 <template>
   <div class="page" data-testid="league-view">
     <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" class="mt-3.5" />
+    <PageHeader :eyebrow="eyebrow || undefined" :title="title" large />
 
-    <LoadingState v-if="!data && !message" class="mt-4" />
+    <LoadingState v-if="!data && !message" />
 
-    <ErrorState v-else-if="!data" :message="message" class="mt-4" @retry="load" />
+    <ErrorState v-else-if="!data" :message="message" @retry="load" />
 
     <template v-else>
-      <PageHeader :eyebrow="eyebrow || undefined" :title="title" large data-testid="week" />
-
       <div class="space-y-3.5">
         <InlineAlert v-if="message" tone="danger" :message="message" data-testid="reload-error" />
 
@@ -255,12 +254,12 @@ onMounted(() => {
                 v-if="line.kind === 'row' && line.row"
                 class="flex items-center gap-3.5 px-[18px] py-3"
                 :class="line.row.is_me ? 'bg-accent-soft' : ''"
-                :data-zone="zoneOf(line.row.rank)"
                 :data-testid="line.row.is_me ? 'row-me' : 'row'"
               >
                 <span
                   class="w-[18px] shrink-0 font-mono text-[13px]"
                   :class="line.row.is_me ? 'text-accent-ink' : 'text-muted'"
+                  :data-zone="zoneOf(line.row.rank)"
                   data-testid="rank"
                 >{{ line.row.rank }}</span>
                 <span class="min-w-0 flex-1 truncate text-[15px] leading-5" :class="{ 'font-semibold': line.row.is_me }">

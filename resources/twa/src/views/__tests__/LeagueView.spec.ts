@@ -83,15 +83,6 @@ type Wrapper = Awaited<ReturnType<typeof render>>['wrapper']
 
 const text = (w: Wrapper, id: string): string => w.get(`[data-testid=${id}]`).text()
 
-/** The colour as the DOM serialises it (`#9ca3af` -> `rgb(156, 163, 175)`). */
-function normalised(colour: string): string {
-  const el = document.createElement('i')
-  el.style.background = colour
-  return el.style.background
-}
-
-const tileBackground = (w: Wrapper): string => (w.get('[data-testid=tier-tile]').element as HTMLElement).style.background
-
 describe('LeagueView', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -100,36 +91,48 @@ describe('LeagueView', () => {
   })
   afterEach(() => setLocale('ru'))
 
-  it('shows the week, my place, points, zone, what is missing, the standings and last week', async () => {
+  it('shows the week, the league, my place with the line, the standings and last week (docs/design League)', async () => {
     const { wrapper } = await render()
 
-    expect(text(wrapper, 'week')).toContain('Неделя 19 окт. – 25 окт.')
-    expect(text(wrapper, 'my-card')).toContain('Серебро')
-    expect(text(wrapper, 'my-place')).toBe('3-е место из 4')
-    expect(text(wrapper, 'my-points')).toBe('41 очко')
-    expect(text(wrapper, 'zone')).toBe('Безопасная зона')
+    expect(text(wrapper, 'eyebrow')).toContain('Неделя 19 окт. – 25 окт.')
+    expect(wrapper.get('h1').text()).toBe('Серебряная лига')
+    expect(text(wrapper, 'my-place')).toBe('Вы на 3-м месте')
+    expect(text(wrapper, 'my-points')).toBe('41')
+    expect(wrapper.get('[data-testid=my-points]').classes()).toContain('font-mono')
+    expect(wrapper.get('[data-testid=my-line]').attributes('aria-valuenow')).toBe('82') // 41 of the 50 of the place above
+    expect(text(wrapper, 'to-next')).toBe('До 2-го места — 10 очков') // 50 − 41 + 1
     expect(text(wrapper, 'to-promote')).toBe('До зоны повышения: 10 очков')
     expect(wrapper.find('[data-testid=to-safety]').exists()).toBe(false)
 
     const rows = wrapper.findAll('[data-testid=row], [data-testid=row-me]')
     expect(rows).toHaveLength(4)
     expect(rows[0]?.text()).toContain('Dilnoza')
-    expect(rows[0]?.text()).toContain('90 очков')
+    expect(rows[0]?.get('[data-testid=points]').text()).toBe('90')
     expect(rows[2]?.attributes('data-testid')).toBe('row-me')
-    expect(rows[2]?.text()).toContain('Aziz')
-    expect(rows[2]?.text()).toContain('вы')
+    expect(rows[2]?.text()).toContain('Aziz · вы')
     expect(rows[3]?.text()).toContain('Ученик')
-    expect(rows[3]?.text()).toContain('2 очка')
 
     expect(text(wrapper, 'last-week')).toContain('Бронза: 2-е место, 120 очков — повышение!')
     expect(wrapper.get('[data-testid=settings-link]').attributes('href')).toBe('/settings')
+  })
+
+  it('has one primary button, "Начать занятие", leading to the Today screen', async () => {
+    const { wrapper, router } = await render()
+
+    const start = wrapper.get('[data-testid=start-btn]')
+    expect(start.text()).toBe('Начать занятие')
+    expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+
+    await start.trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('today')
   })
 
   describe('the header', () => {
     it('is the "Rating" tab with a Лига | Месяц | Друзья switch, League active', async () => {
       const { wrapper, router } = await render()
 
-      expect(wrapper.get('h1').text()).toBe('Рейтинг')
+      expect(wrapper.get('h1').text()).toBe('Серебряная лига')
       expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Лига')
       expect(wrapper.get('[data-testid=seg-league]').attributes('aria-current')).toBe('page')
       expect(wrapper.get('[data-testid=seg-month]').text()).toBe('Месяц')
@@ -156,68 +159,54 @@ describe('LeagueView', () => {
     })
   })
 
-  describe('the closing time of the week', () => {
-    it('is "Итоги недели — <day and time on this device>" with the time written once', async () => {
+  describe('above the title: the week and how long is left', () => {
+    afterEach(() => vi.useRealTimers())
+
+    it('counts the days to the close of the week', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-10-23T12:00:00+00:00'))
+      const { wrapper } = await render()
+
+      expect(text(wrapper, 'eyebrow')).toBe('Неделя 19 окт. – 25 окт. · осталось 3 дн.')
+    })
+
+    it('says "last day" on the last day', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-10-25T10:00:00+00:00'))
+      const { wrapper } = await render()
+
+      expect(text(wrapper, 'eyebrow')).toBe('Неделя 19 окт. – 25 окт. · последний день')
+    })
+
+    it('leaves the days out when the server sends no usable moment', async () => {
+      const { wrapper } = await render(response({ week: { starts_on: '2026-10-19', ends_on: '2026-10-25', closes_at: 'not a date' } }))
+
+      expect(text(wrapper, 'eyebrow')).toBe('Неделя 19 окт. – 25 окт.')
+      expect(wrapper.find('[data-testid=closes]').exists()).toBe(false)
+    })
+
+    it('tells the exact moment in the rules, in the time of this device, written once', async () => {
       const { wrapper } = await render()
 
       const local = new Intl.DateTimeFormat('ru', { weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(CLOSES_AT))
-      const week = text(wrapper, 'week')
-
-      expect(week).toContain(`Итоги недели — ${local}`)
-      // docs/14 C6: «Итоги — в понедельник в 00:00 (пн 00:00)» said the time twice and named the league's zone
-      expect(week).not.toContain('понедельник')
-      expect(week).not.toContain('(')
-      expect(week.match(/\d{2}:\d{2}/g)).toHaveLength(1)
-    })
-
-    it('follows the device, not the league zone: another instant gives another day and time', async () => {
-      const closes = '2026-11-02T08:30:00+00:00'
-      const { wrapper } = await render(response({ week: { starts_on: '2026-10-26', ends_on: '2026-11-01', closes_at: closes } }))
-
-      const local = new Intl.DateTimeFormat('ru', { weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(closes))
-      expect(text(wrapper, 'week')).toContain(`Итоги недели — ${local}`)
-      expect(text(wrapper, 'week')).toContain('Неделя 26 окт. – 1 нояб.')
-    })
-
-    it('is left out when the server sends no usable moment', async () => {
-      const { wrapper } = await render(response({ week: { starts_on: '2026-10-19', ends_on: '2026-10-25', closes_at: 'not a date' } }))
-
-      expect(text(wrapper, 'week')).toBe('Неделя 19 окт. – 25 окт.')
+      expect(text(wrapper, 'closes')).toBe(`Итоги недели — ${local}`)
     })
   })
 
-  describe('the zone', () => {
-    it('promotion: a green chip, nothing is missing', async () => {
-      const { wrapper } = await render(response({ membership: membership({ zone: 'promotion', points_to_promote: null }) }))
+  describe('my card', () => {
+    it('in the demotion zone: what is missing to be safe, in the danger colour', async () => {
+      const { wrapper } = await render(response({ membership: membership({ zone: 'demotion', points_to_safety: 7, points_to_promote: 49 }) }))
 
-      expect(text(wrapper, 'zone')).toBe('Зона повышения')
-      expect(wrapper.get('[data-testid=zone]').classes()).toContain('chip-success')
-      expect(wrapper.find('[data-testid=zone] svg').exists()).toBe(true)
+      expect(text(wrapper, 'to-safety')).toBe('До безопасной зоны: 7 очков')
+      expect(wrapper.get('[data-testid=to-safety]').classes()).toContain('text-danger-ink')
       expect(wrapper.find('[data-testid=to-promote]').exists()).toBe(false)
     })
 
-    it('safe: a neutral chip without an icon', async () => {
-      const { wrapper } = await render()
+    it('at the top of the group: a full line and no place to pass', async () => {
+      const { wrapper } = await render(response({ membership: membership({ rank: 1, points_to_promote: null, zone: 'promotion', standings: group(4, 1) }) }))
 
-      expect(wrapper.get('[data-testid=zone]').classes()).toContain('chip-neutral')
-      expect(wrapper.find('[data-testid=zone] svg').exists()).toBe(false)
-    })
-
-    it('demotion: a red chip and what is missing to be safe, in the danger colour', async () => {
-      const { wrapper } = await render(response({ membership: membership({ zone: 'demotion', points_to_safety: 7, points_to_promote: 49 }) }))
-
-      expect(text(wrapper, 'zone')).toBe('Зона понижения')
-      expect(wrapper.get('[data-testid=zone]').classes()).toContain('chip-danger')
-      expect(wrapper.find('[data-testid=zone] svg').exists()).toBe(true)
-      expect(text(wrapper, 'to-safety')).toBe('До безопасной зоны: 7 очков')
-      expect(wrapper.get('[data-testid=to-safety]').classes()).toContain('text-danger-ink')
-    })
-
-    it('uses no arrow emoji in the zone texts', async () => {
-      for (const zone of ['promotion', 'safe', 'demotion'] as const) {
-        const { wrapper } = await render(response({ membership: membership({ zone }) }))
-        expect(text(wrapper, 'zone'), zone).not.toMatch(/[⬆⬇]/u)
-      }
+      expect(text(wrapper, 'to-next')).toBe('Вы впереди всех в группе')
+      expect(wrapper.get('[data-testid=my-line]').attributes('aria-valuenow')).toBe('100')
     })
 
     it('the top league has no one to catch up: a congratulation instead of "to promotion"', async () => {
@@ -226,25 +215,29 @@ describe('LeagueView', () => {
       expect(text(wrapper, 'top-tier')).toBe('Это высшая лига — так держать!')
       expect(wrapper.find('[data-testid=to-promote]').exists()).toBe(false)
     })
+
+    it('has no coloured tile and no chip', async () => {
+      const { wrapper } = await render()
+
+      expect(wrapper.find('[data-testid=my-card] .icon-tile').exists()).toBe(false)
+      expect(wrapper.find('[data-testid=my-card] .chip').exists()).toBe(false)
+    })
   })
 
   describe('the tier', () => {
     it.each([
-      ['bronze', '#cd7f32', 'Бронза'],
-      ['silver', '#9ca3af', 'Серебро'],
-      ['gold', '#eab308', 'Золото'],
-      ['platinum', '#14b8a6', 'Платина'],
-      ['diamond', '#6366f1', 'Алмаз'],
-    ])('%s: a trophy tile in %s with the name %s', async (key, colour, name) => {
+      ['bronze', 'Бронзовая лига'],
+      ['silver', 'Серебряная лига'],
+      ['gold', 'Золотая лига'],
+      ['platinum', 'Платиновая лига'],
+      ['diamond', 'Алмазная лига'],
+    ])('%s: the title is «%s»', async (key, title) => {
       const { wrapper } = await render(response({ membership: membership({ tier_key: key }) }))
 
-      expect(tileBackground(wrapper)).toBe(normalised(colour))
-      expect(wrapper.get('[data-testid=tier-tile]').classes()).toContain('icon-tile')
-      expect(wrapper.find('[data-testid=tier-tile] svg').exists()).toBe(true)
-      expect(text(wrapper, 'tier-name')).toBe(name)
+      expect(wrapper.get('h1').text()).toBe(title)
     })
 
-    it('a tier this build does not know is shown as bronze, never nameless or colourless', async () => {
+    it('a tier this build does not know is shown as bronze, never nameless', async () => {
       const { wrapper } = await render(
         response({
           membership: membership({ tier_key: 'legend' }),
@@ -252,46 +245,55 @@ describe('LeagueView', () => {
         }),
       )
 
-      expect(tileBackground(wrapper)).toBe(normalised('#cd7f32'))
-      expect(text(wrapper, 'tier-name')).toBe('Бронза')
+      expect(wrapper.get('h1').text()).toBe('Бронзовая лига')
       expect(text(wrapper, 'last-week')).toContain('Бронза: 9-е место, 5 очков — остались в лиге')
+    })
+
+    it('is just "Лига" without a place in a group', async () => {
+      const { wrapper } = await render(response({ membership: null }))
+
+      expect(wrapper.get('h1').text()).toBe('Лига')
     })
   })
 
   describe('the standings', () => {
     const zones = (w: Wrapper): string[] => w.findAll('[data-testid=rank]').map((r) => r.attributes('data-zone') ?? '')
+    const order = (w: Wrapper): string[] =>
+      w.findAll('[data-testid=standings] > *').map((el) => {
+        const id = el.attributes('data-testid') ?? ''
+        return id === 'row' || id === 'row-me' ? (el.get('[data-testid=rank]').text()) : id
+      })
 
-    it('colours the numbers of the promotion zone (top `promote`) and the demotion zone (bottom `demote`)', async () => {
+    it('draws the line of the promotion zone under the last place that goes up and of the demotion zone above the first that goes down', async () => {
       const data = response({
         rules: { capacity: 30, promote: 3, demote: 3, tiers: ['bronze', 'silver', 'gold', 'platinum', 'diamond'] },
-        membership: membership({ tier: 2, tier_key: 'gold', rank: 11, members_count: 12, zone: 'demotion', standings: group(12, 11) }),
+        membership: membership({ tier: 2, tier_key: 'gold', rank: 7, members_count: 8, zone: 'safe', standings: group(8, 7) }),
       })
       const { wrapper } = await render(data)
 
-      expect(zones(wrapper)).toEqual([
-        'promotion', 'promotion', 'promotion',
-        'safe', 'safe', 'safe', 'safe', 'safe', 'safe',
-        'demotion', 'demotion', 'demotion',
-      ])
-      const ranks = wrapper.findAll('[data-testid=rank]')
-      expect(ranks[0]?.classes()).toContain('text-success-ink')
-      expect(ranks[4]?.classes()).toContain('text-tg-hint')
-      expect(ranks[11]?.classes()).toContain('text-danger-ink')
-      expect(ranks[0]?.classes()).toContain('w-7')
+      expect(order(wrapper)).toEqual(['1', '2', '3', 'line-promotion', '4', '5', 'line-demotion', '6', '7', '8'])
+      expect(zones(wrapper)).toEqual(['promotion', 'promotion', 'promotion', 'safe', 'safe', 'demotion', 'demotion', 'demotion'])
+      expect(text(wrapper, 'line-promotion')).toBe('выше этой линии — переход в лигу «Платина»')
+      expect(wrapper.get('[data-testid=line-promotion]').classes()).toEqual(expect.arrayContaining(['bg-success-soft', 'text-success-ink', 'border-success-line']))
+      expect(text(wrapper, 'line-demotion')).toBe('ниже этой линии — переход в лигу «Серебро»')
+      expect(wrapper.get('[data-testid=line-demotion]').classes()).toEqual(expect.arrayContaining(['bg-danger-soft', 'text-danger-ink']))
     })
 
-    it('has no promotion zone in the top league and no demotion zone in the lowest one (as LeagueService)', async () => {
+    it('has no promotion line in the top league and no demotion line in the lowest one (as LeagueService)', async () => {
       const top = await render(
         response({ membership: membership({ tier: 4, tier_key: 'diamond', rank: 6, members_count: 8, standings: group(8, 6) }) }),
       )
       // 8 members, demote 5: ranks 4-8 fall; nobody is promoted from the top league
       expect(zones(top.wrapper)).toEqual(['safe', 'safe', 'safe', 'demotion', 'demotion', 'demotion', 'demotion', 'demotion'])
+      expect(top.wrapper.find('[data-testid=line-promotion]').exists()).toBe(false)
+      expect(top.wrapper.find('[data-testid=line-demotion]').exists()).toBe(true)
 
       const bottom = await render(
         response({ membership: membership({ tier: 0, tier_key: 'bronze', rank: 6, members_count: 8, standings: group(8, 6) }) }),
       )
-      // promote 5: ranks 1-5 rise; nobody is demoted from the lowest league
       expect(zones(bottom.wrapper)).toEqual(['promotion', 'promotion', 'promotion', 'promotion', 'promotion', 'safe', 'safe', 'safe'])
+      expect(bottom.wrapper.find('[data-testid=line-demotion]').exists()).toBe(false)
+      expect(text(bottom.wrapper, 'line-promotion')).toContain('«Серебро»')
     })
 
     it('lets promotion win when a small group overlaps both zones', async () => {
@@ -299,44 +301,74 @@ describe('LeagueView', () => {
         response({ membership: membership({ tier: 2, tier_key: 'gold', rank: 2, members_count: 4, standings: group(4, 2) }) }),
       )
 
-      // promote 5 and demote 5 in a group of 4: everybody is in both zones, the top zone wins
       expect(zones(wrapper)).toEqual(['promotion', 'promotion', 'promotion', 'promotion'])
+      expect(wrapper.find('[data-testid=line-demotion]').exists()).toBe(false)
     })
 
-    it('marks my row: accent background, accent avatar, a "вы" chip', async () => {
+    it('marks my row: accent background, the name with "вы", the points in medium mono', async () => {
       const { wrapper } = await render()
 
       const me = wrapper.get('[data-testid=row-me]')
       expect(me.classes()).toContain('bg-accent-soft')
-      expect(me.get('[data-testid=me-chip]').text()).toBe('вы')
-      expect(me.get('[aria-hidden=true].bg-accent').text()).toBe('A')
+      expect(me.text()).toContain('Aziz · вы')
+      expect(me.get('[data-testid=points]').classes()).toEqual(expect.arrayContaining(['font-mono', 'font-medium']))
 
       const other = wrapper.findAll('[data-testid=row]')[0]!
       expect(other.classes()).not.toContain('bg-accent-soft')
-      expect(other.find('[data-testid=me-chip]').exists()).toBe(false)
+      expect(other.get('[data-testid=rank]').classes()).toEqual(expect.arrayContaining(['font-mono', 'text-muted']))
     })
 
-    it('shows an initial avatar for everybody, "Ученик" for an unnamed member', async () => {
+    it('has no avatars and no podium: the place, the name, the points', async () => {
       const { wrapper } = await render()
 
-      const rows = wrapper.findAll('[data-testid=row], [data-testid=row-me]')
-      expect(rows[0]?.get('[aria-hidden=true]').text()).toBe('D')
-      expect(rows[3]?.get('[aria-hidden=true]').text()).toBe('У')
+      expect(wrapper.find('[data-testid=standings] [aria-hidden=true].rounded-full').exists()).toBe(false)
+      expect(wrapper.text()).not.toMatch(/[🥇🥈🥉]/u)
+    })
+
+    it('folds a long group to the top and my neighbours; "Вся таблица" opens it and folds it back', async () => {
+      const data = response({ membership: membership({ rank: 15, members_count: 20, standings: group(20, 15) }) })
+      const { wrapper } = await render(data)
+
+      expect(order(wrapper)).toEqual(['1', '2', '3', 'gap', '14', '15', '16', 'table-toggle'])
+      const toggle = wrapper.get('[data-testid=table-toggle]')
+      expect(toggle.text()).toBe('Вся таблица · 20 участников')
+      expect(toggle.attributes('aria-expanded')).toBe('false')
+
+      await toggle.trigger('click')
+      expect(wrapper.findAll('[data-testid=row], [data-testid=row-me]')).toHaveLength(20)
+      expect(wrapper.get('[data-testid=table-toggle]').text()).toBe('Свернуть таблицу')
+      expect(wrapper.get('[data-testid=table-toggle]').attributes('aria-expanded')).toBe('true')
+
+      await wrapper.get('[data-testid=table-toggle]').trigger('click')
+      expect(wrapper.findAll('[data-testid=row], [data-testid=row-me]')).toHaveLength(6)
+    })
+
+    it('shows the first seven while I am among them, with the promotion line in place', async () => {
+      const data = response({ membership: membership({ rank: 4, members_count: 12, standings: group(12, 4) }) })
+      const { wrapper } = await render(data)
+
+      expect(order(wrapper)).toEqual(['1', '2', '3', '4', '5', 'line-promotion', '6', '7', 'table-toggle'])
+    })
+
+    it('shows a short group whole, with no toggle', async () => {
+      const { wrapper } = await render()
+
+      expect(wrapper.find('[data-testid=table-toggle]').exists()).toBe(false)
     })
   })
 
   describe('last week', () => {
     it.each([
-      ['promoted', 'Бронза: 2-е место, 120 очков — повышение!', 'tile-green'],
-      ['stayed', 'Бронза: 2-е место, 120 очков — остались в лиге', 'tile-gray'],
-      ['demoted', 'Бронза: 2-е место, 120 очков — понижение', 'tile-red'],
-    ] as const)('%s: the sentence with an icon tile %s', async (result, sentence, tile) => {
+      ['promoted', 'Бронза: 2-е место, 120 очков — повышение!'],
+      ['stayed', 'Бронза: 2-е место, 120 очков — остались в лиге'],
+      ['demoted', 'Бронза: 2-е место, 120 очков — понижение'],
+    ] as const)('%s: the sentence %s, without an icon tile', async (result, sentence) => {
       const { wrapper } = await render(
         response({ last_week: { starts_on: '2026-10-12', tier: 0, tier_key: 'bronze', result, rank: 2, points: 120 } }),
       )
 
       expect(text(wrapper, 'last-week')).toContain(sentence)
-      expect(wrapper.get('[data-testid=last-week] .icon-tile').classes()).toContain(tile)
+      expect(wrapper.find('[data-testid=last-week] .icon-tile').exists()).toBe(false)
     })
 
     it('is absent in a new league', async () => {
@@ -359,20 +391,21 @@ describe('LeagueView', () => {
   })
 
   describe('states without a place in a group', () => {
-    it('explains an empty week with an icon', async () => {
+    it('explains an empty week in a plain card, and keeps "Начать занятие"', async () => {
       const empty = await render(response({ membership: null, last_week: null }))
 
       expect(text(empty.wrapper, 'not-placed')).toBe('На этой неделе вы ещё не в группе: повторите несколько карточек — и вы в лиге.')
-      expect(empty.wrapper.find('[data-testid=not-placed] .icon-tile svg').exists()).toBe(true)
+      expect(empty.wrapper.find('[data-testid=not-placed] .icon-tile').exists()).toBe(false)
+      expect(empty.wrapper.find('[data-testid=start-btn]').exists()).toBe(true)
       expect(empty.wrapper.find('[data-testid=last-week]').exists()).toBe(false)
       expect(empty.wrapper.find('[data-testid=standings]').exists()).toBe(false)
     })
 
-    it('explains an opt-out with an icon and keeps the way to the settings', async () => {
+    it('explains an opt-out and keeps the way to the settings, without a lesson button', async () => {
       const out = await render(response({ membership: null, opted_out: true }))
 
       expect(text(out.wrapper, 'opted-out')).toBe('Вы вышли из лиг. Включить их снова можно в настройках.')
-      expect(out.wrapper.find('[data-testid=opted-out] .icon-tile svg').exists()).toBe(true)
+      expect(out.wrapper.find('[data-testid=start-btn]').exists()).toBe(false)
       expect(out.wrapper.find('[data-testid=not-placed]').exists()).toBe(false)
       expect(out.wrapper.get('[data-testid=settings-link]').text()).toBe('Настройки лиг')
     })
@@ -381,7 +414,7 @@ describe('LeagueView', () => {
       const off = await render(response({ enabled: false, membership: null }))
 
       expect(text(off.wrapper, 'disabled')).toBe('Лиги сейчас выключены.')
-      expect(off.wrapper.find('[data-testid=disabled] .icon-tile svg').exists()).toBe(true)
+      expect(off.wrapper.find('[data-testid=start-btn]').exists()).toBe(false)
       expect(off.wrapper.find('[data-testid=not-placed]').exists()).toBe(false)
       expect(off.wrapper.find('[data-testid=my-card]').exists()).toBe(false)
     })
@@ -405,14 +438,12 @@ describe('LeagueView', () => {
     setLocale('uz')
     const { wrapper } = await render()
 
-    expect(wrapper.get('h1').text()).toBe('Reyting')
+    expect(wrapper.get('h1').text()).toBe('Kumush liga')
     expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Liga')
     expect(wrapper.get('[data-testid=seg-friends]').text()).toBe("Do'stlar")
-    expect(text(wrapper, 'my-place')).toBe("4 ishtirokchi orasida 3-o'rin")
-    expect(text(wrapper, 'my-points')).toBe('41 ochko')
-    expect(text(wrapper, 'my-card')).toContain('Kumush')
-    expect(text(wrapper, 'zone')).toBe('Xavfsiz zona')
-    expect(text(wrapper, 'week')).toContain('Hafta yakuni — ')
+    expect(text(wrapper, 'my-place')).toBe("Siz 3-o'rindasiz")
+    expect(text(wrapper, 'to-next')).toBe("2-o'ringacha — 10 ochko")
+    expect(text(wrapper, 'closes')).toContain('Hafta yakuni — ')
     expect(text(wrapper, 'rules')).toContain('Ligalar qanday ishlaydi')
     expect(text(wrapper, 'settings-link')).toBe('Liga sozlamalari')
     expect(/\p{Script=Cyrillic}/u.test(wrapper.text())).toBe(false)
@@ -427,7 +458,7 @@ describe('LeagueView', () => {
       await flushPromises()
 
       expect(wrapper.find('[data-testid=spinner]').exists()).toBe(true)
-      expect(wrapper.get('h1').text()).toBe('Рейтинг')
+      expect(wrapper.get('h1').text()).toBe('Лига')
       expect(wrapper.find('[data-testid=seg-friends]').exists()).toBe(true)
       expect(wrapper.find('[data-testid=my-card]').exists()).toBe(false)
     })
