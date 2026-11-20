@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\Content\Services;
 
 use App\Domain\Content\Contracts\SpeechSynthesizer;
+use App\Domain\Content\Exceptions\SpeechSynthesisException;
+use App\Domain\Content\Exceptions\WordAudioNotStoredException;
 use App\Jobs\PregenerateWordAudioJob;
 use App\Models\Word;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -18,10 +20,10 @@ use Throwable;
  * Pre-generated word audio (docs/12 task 1.2c).
  *
  * The file name is content-addressed: `audio/{sha1(text|voice|version)}.mp3` on the
- * `public` disk, so the same text in two words (or two courses) is one file, and the
+ * disk of the word audio, so the same text in two words (or two courses) is one file, and the
  * TTS endpoint can find it from the text alone. `words.audio_path` is the relative path.
- * The synthesis itself is the configured {@see SpeechSynthesizer} (the same one the live
- * `/api/twa/tts` fallback uses).
+ * The synthesis itself is the configured {@see SpeechSynthesizer}, called only from the queued
+ * {@see PregenerateWordAudioJob} (no request of a learner synthesizes, docs/26 §9.4).
  *
  * The disk is `twa.tts.audio_disk`: `public` (this server) or `audio` (Cloudflare R2, docs/26 §5.4). A screen of a learner
  * never asks the disk: a word is voiced when `audio_path` is the path its current text hashes to ({@see urlFor()}).
@@ -120,17 +122,24 @@ final class WordAudioService
      *
      * @return bool true when the TTS service was called
      *
-     * @throws RuntimeException when the TTS service fails (the caller retries)
+     * @throws SpeechSynthesisException when the TTS service fails (the caller retries a `retryable` one)
+     * @throws WordAudioNotStoredException the audio was synthesized, but the disk did not take it
      */
     public function generate(Word $word, bool $force = false): bool
     {
         $path = $this->pathFor($word->word);
-        if ($path === null || (! $force && $this->isCurrent($word))) {
+        if ($path === null) {
+            return false;
+        }
+
+        // One look at the disk (on R2 a HEAD and a size), not one for isCurrent() and another for the synthesis.
+        $ready = ! $force && $this->isReady($path);
+        if ($ready && $word->audio_path === $path) {
             return false;
         }
 
         $called = false;
-        if ($force || ! $this->isReady($path)) {
+        if (! $ready) {
             $audio = $this->tts->synthesize($this->normalize($word->word), $this->defaultVoice());
             if ($audio['body'] === '' || ! str_starts_with(strtolower($audio['content_type']), 'audio/')) {
                 throw new RuntimeException('tts_service_bad_audio');
@@ -181,7 +190,7 @@ final class WordAudioService
     /**
      * Writes a word file on a disk the way {@see store()} does (the copy of `audio:migrate-disk` keeps the same headers).
      *
-     * @throws RuntimeException tts_audio_not_stored
+     * @throws WordAudioNotStoredException tts_audio_not_stored (a RuntimeException)
      */
     public function write(string $diskName, string $path, string $body): void
     {
@@ -191,7 +200,7 @@ final class WordAudioService
             // One PUT is atomic in S3 / R2: no temporary name. The headers go with the object (not the `options` of the disk:
             // the adapter would add those to HEAD / GET as well); the name follows the content, so it is cached for a year.
             if (! $disk->put($path, $body, self::PUT_OPTIONS)) {
-                throw new RuntimeException('tts_audio_not_stored');
+                throw new WordAudioNotStoredException;
             }
 
             return;
@@ -200,10 +209,16 @@ final class WordAudioService
         $this->writeThroughTemporary($disk, $path, $body);
     }
 
-    /** Stores the body of a word on the disk of the word audio ({@see write()}). */
+    /** Stores the body of a word on the disk of the word audio ({@see write()}); any error of the disk is "not stored". */
     private function store(string $path, string $body): void
     {
-        $this->write($this->diskName(), $path, $body);
+        try {
+            $this->write($this->diskName(), $path, $body);
+        } catch (WordAudioNotStoredException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            throw new WordAudioNotStoredException($e);
+        }
     }
 
     /**
@@ -215,7 +230,7 @@ final class WordAudioService
         $tmp = dirname($path).'/.tmp/'.basename($path).'.'.Str::random(12);
 
         if (! $disk->put($tmp, $body)) {
-            throw new RuntimeException('tts_audio_not_stored');
+            throw new WordAudioNotStoredException;
         }
 
         try {
@@ -223,13 +238,13 @@ final class WordAudioService
         } catch (Throwable $e) {
             $disk->delete($tmp);
 
-            throw new RuntimeException('tts_audio_not_stored', previous: $e);
+            throw new WordAudioNotStoredException($e);
         }
 
         if (! $moved) {
             $disk->delete($tmp);
 
-            throw new RuntimeException('tts_audio_not_stored');
+            throw new WordAudioNotStoredException;
         }
     }
 

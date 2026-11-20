@@ -84,6 +84,25 @@ describe('useTts', () => {
     expect(utterances).toEqual([])
   })
 
+  it('plays a word on R2 by its public address as it came (docs/26 §9.9)', async () => {
+    await useTts().speak('resilient', 'en-US', 'https://audio.example.uz/audio/abc.mp3')
+    expect(played).toEqual(['https://audio.example.uz/audio/abc.mp3'])
+    expect(speakSpy).not.toHaveBeenCalled()
+  })
+
+  it('stays silent without a file and without Web Speech: no call to the removed /api/twa/tts (docs/26 §9.9)', async () => {
+    vi.stubGlobal('speechSynthesis', undefined)
+    await useTts().speak('resilient', 'en-US', null)
+    expect(played).toEqual([])
+  })
+
+  it('stays silent when the file fails and there is no Web Speech: only the file was tried', async () => {
+    vi.stubGlobal('speechSynthesis', undefined)
+    playImpl = () => Promise.reject(new Error('404'))
+    await useTts().speak('resilient', 'en-US', '/storage/audio/missing.mp3')
+    expect(played).toEqual(['/storage/audio/missing.mp3'])
+  })
+
   it('does not start Web Speech over the audio file', async () => {
     const cancel = vi.fn()
     vi.stubGlobal('speechSynthesis', { getVoices: () => [], addEventListener: () => {}, cancel, speak: speakSpy })

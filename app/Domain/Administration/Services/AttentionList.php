@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Administration\Services;
 
 use App\Domain\Content\Services\CourseAudioCoverageStats;
+use App\Domain\Content\Services\TtsQueueStats;
 use App\Domain\Content\Services\TtsUsageStats;
 use App\Domain\Learners\Services\ReminderExperiment;
 use App\Domain\Organizations\Services\OrgActivationStats;
@@ -20,6 +21,8 @@ use Carbon\CarbonImmutable;
  *  - courses published or on review whose audio coverage is below the publishing threshold ({@see CourseAudioCoverageStats});
  *  - the characters Google TTS may still synthesize this month ({@see TtsUsageStats}, only with `TTS_DRIVER=google`): a warning from
  *    90 % of the monthly limit, an urgent line once it is spent (the voicing stops until the next billing month);
+ *  - Google refused the sign-in (the halt marker of the `google` driver) — urgent; the queue `tts` longer than
+ *    `twa.tts.queue_attention_size` — a warning ({@see TtsQueueStats});
  *  - the reminder experiment ({@see ReminderExperiment}) while it is switched on: its day, and from day {@see readAfterDays()} on
  *    that the report can be read — from the configuration alone (whether the base is large enough takes the full report,
  *    `analytics:reminder-experiment`, which is not run on an open of the dashboard).
@@ -51,6 +54,10 @@ final class AttentionList
 
     public const KIND_TTS_EXHAUSTED = 'tts_exhausted';
 
+    public const KIND_TTS_HALTED = 'tts_halted';
+
+    public const KIND_TTS_QUEUE = 'tts_queue';
+
     public const KIND_REMINDERS = 'reminder_experiment';
 
     /** The default of `analytics.attention.center_wait_days`: a center waits this many whole days for its first completed assignment before it is on the list. */
@@ -70,6 +77,7 @@ final class AttentionList
         private readonly OrgActivationStats $centers,
         private readonly CourseAudioCoverageStats $audio,
         private readonly TtsUsageStats $tts,
+        private readonly TtsQueueStats $ttsQueue,
     ) {}
 
     /** @return list<Item> the urgent first, then the warnings, then the notes */
@@ -98,7 +106,7 @@ final class AttentionList
             $group = match ($item['kind']) {
                 self::KIND_PAYMENTS_FAILED, self::KIND_PAYMENT_ANOMALIES => 'payments',
                 self::KIND_CENTER, self::KIND_CENTERS_MORE => 'centers',
-                self::KIND_AUDIO, self::KIND_TTS_BUDGET, self::KIND_TTS_EXHAUSTED => 'audio',
+                self::KIND_AUDIO, self::KIND_TTS_BUDGET, self::KIND_TTS_EXHAUSTED, self::KIND_TTS_HALTED, self::KIND_TTS_QUEUE => 'audio',
                 default => 'reminders',
             };
             $kinds[$group] = true;
@@ -163,25 +171,40 @@ final class AttentionList
     }
 
     /**
-     * The month's characters of Google TTS: `count` - spent, `total` - the limit, `value` - percent, `name` - the billing month.
+     * The voicing: the halt of the `google` driver, the month's characters of Google TTS (`count` - spent, `total` - the limit,
+     * `value` - percent, `name` - the billing month) and the backlog of the queue `tts` ({@see TtsQueueStats}).
      *
      * @return list<Item>
      */
     private function tts(): array
     {
-        $usage = $this->tts->current();
-        if ($usage === null || (! $usage['exhausted'] && ! $usage['near'])) {
-            return [];
+        $items = [];
+
+        // Google refused the sign-in: every job fails at once until the key is replaced (`state` - the code).
+        $halt = $this->ttsQueue->haltCode();
+        if ($halt !== null) {
+            $items[] = self::item(self::KIND_TTS_HALTED, self::LEVEL_DANGER, state: $halt);
         }
 
-        return [self::item(
-            $usage['exhausted'] ? self::KIND_TTS_EXHAUSTED : self::KIND_TTS_BUDGET,
-            $usage['exhausted'] ? self::LEVEL_DANGER : self::LEVEL_WARNING,
-            name: $usage['month'],
-            count: $usage['characters'],
-            value: $usage['percent'],
-            total: $usage['limit'],
-        )];
+        $usage = $this->tts->current();
+        if ($usage !== null && ($usage['exhausted'] || $usage['near'])) {
+            $items[] = self::item(
+                $usage['exhausted'] ? self::KIND_TTS_EXHAUSTED : self::KIND_TTS_BUDGET,
+                $usage['exhausted'] ? self::LEVEL_DANGER : self::LEVEL_WARNING,
+                name: $usage['month'],
+                count: $usage['characters'],
+                value: $usage['percent'],
+                total: $usage['limit'],
+            );
+        }
+
+        // `count` - the jobs waiting in `tts`, `total` - the threshold.
+        $backlog = $this->ttsQueue->backlog();
+        if ($backlog !== null) {
+            $items[] = self::item(self::KIND_TTS_QUEUE, self::LEVEL_WARNING, count: $backlog['size'], total: $backlog['threshold']);
+        }
+
+        return $items;
     }
 
     /** @return list<Item> */

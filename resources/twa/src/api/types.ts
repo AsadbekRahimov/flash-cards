@@ -788,7 +788,7 @@ export interface Card {
   /** The translation of exactly that example, in the session's language (the ru one when it has none); null when there is none or the example is hidden. */
   example_translation?: string | null
   transcription: string | null
-  /** Pre-generated mp3 (docs/12 task 1.2c); absent/null → Web Speech / `GET /tts` fallback. */
+  /** Pre-generated mp3 (docs/12 task 1.2c); absent/null → Web Speech, else silence (docs/26 §9.9: `GET /tts` is gone). */
   audio_url?: string | null
   card_kind: CardKind
   /**

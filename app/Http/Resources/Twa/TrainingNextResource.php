@@ -57,7 +57,7 @@ final class TrainingNextResource extends TwaResource
                 // sentence or of a reverse card's example would give the answer away), and back in `revealed` for meaning / reverse / audio.
                 'example_translation' => $hidden ? null : $this->resource->exampleTranslation,
                 'transcription' => $hidesWord || $reverse ? null : $word->transcription,
-                // Pre-generated mp3 (task 1.2c); null -> the client falls back to Web Speech / GET /tts.
+                // Pre-generated mp3 (task 1.2c); null -> the client falls back to Web Speech (docs/26 §9.9).
                 'audio_url' => $hidesWord || $reverse ? null : $this->resource->audioUrl,
                 'card_kind' => (string) $this->resource->kind,
                 // Learn-ahead ticket: must be echoed as `serve_token` in POST /review (docs/06 §5.2).

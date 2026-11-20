@@ -161,14 +161,16 @@ it('writes the origin of AUDIO_PUBLIC_URL for the CSP of the Mini App, empty whe
     }
 });
 
-it('lets the audio domain into media-src and connect-src of every CSP of the Mini App in the image configs, and passes it to nginx', function (): void {
+it('lets the audio domain into media-src - and only there, not connect-src (docs/26 §9.9) - of every CSP of the Mini App in the image configs, and passes it to nginx', function (): void {
     foreach (['docker/nginx/prod.conf', 'docker/nginx/coolify.conf'] as $file) {
         preg_match_all('/add_header Content-Security-Policy "([^"]*)"/', infraFile($file), $m);
 
         expect($m[1])->toHaveCount(3);
         foreach ($m[1] as $csp) {
+            // The Mini App plays the words of R2 in an <audio> and never fetches them: no connect-src, no CORS on the bucket.
             expect($csp)->toContain("media-src 'self' blob: data: \$lexiflow_audio_origin;")
-                ->and($csp)->toContain("connect-src 'self' \$lexiflow_audio_origin;");
+                ->and($csp)->toContain("connect-src 'self';")
+                ->and(substr_count($csp, 'lexiflow_audio_origin'))->toBe(1);
         }
     }
 
@@ -179,6 +181,32 @@ it('lets the audio domain into media-src and connect-src of every CSP of the Min
     $prod = Yaml::parse(infraFile('docker-compose.prod.yml'));
     expect($prod['services']['nginx']['environment']['AUDIO_PUBLIC_URL'])->toBe('${AUDIO_PUBLIC_URL:-}')
         ->and(coolifyCompose()['services']['lf-nginx']['environment']['AUDIO_PUBLIC_URL'])->toBe('${AUDIO_PUBLIC_URL:-}');
+});
+
+it('mounts the key file of Google TTS read-only at one path, optionally, only where a synthesis or the key check runs', function (): void {
+    $mount = '${GOOGLE_TTS_KEY_FILE:-/dev/null}:/run/secrets/google-tts.json:ro';
+
+    /** @var array{services: array<string, array{volumes?: list<string>}>} $prod */
+    $prod = Yaml::parse(infraFile('docker-compose.prod.yml'));
+    $coolify = coolifyCompose();
+    /** @var array<string, array{volumes?: list<string>}> $coolifyServices */
+    $coolifyServices = $coolify['services'];
+
+    foreach ([[$prod['services'], ['app', 'queue-low', 'scheduler'], ['app-api', 'queue-high', 'queue-default', 'nginx']],
+        [$coolifyServices, ['lf-app', 'lf-queue-low', 'lf-scheduler'], ['lf-api', 'lf-queue-high', 'lf-queue-default', 'lf-migrate', 'lf-nginx']]] as [$services, $with, $without]) {
+        foreach ($with as $name) {
+            // The volumes of the application stay next to the key (a `volumes:` of a Coolify service replaces the merged one).
+            expect($services[$name]['volumes'] ?? [])->toContain($mount)
+                ->toContain('app_storage:/var/www/html/storage')
+                ->toContain('app_audio:/var/www/html/storage/app/public/audio');
+        }
+        foreach ($without as $name) {
+            expect($services[$name]['volumes'] ?? [])->not->toContain($mount);
+        }
+    }
+
+    // .env.example points the driver at that path in Docker and names the file of the host.
+    expect(infraFile('.env.example'))->toContain('/run/secrets/google-tts.json')->toContain("GOOGLE_TTS_KEY_FILE=\n");
 });
 
 it('limits the public paths in both nginx configs and raises worker_connections in the image', function (): void {

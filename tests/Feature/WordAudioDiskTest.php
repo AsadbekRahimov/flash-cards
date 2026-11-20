@@ -31,7 +31,7 @@ use Tests\Support\Practice\PracticeKit;
 /*
  * The word audio on Cloudflare R2 (docs/26 §5.4, §9.5, stage 4 and 6): the disk `audio`, one PUT with the headers of the object,
  * the public address of the bucket, no look at the bucket on the way of a learner (a card, a dictation, the audio endpoint of the
- * practice answers 302), `audio:coverage --verify` and `audio:migrate-disk`. `Storage::fake('audio')` keeps the config of the disk
+ * practice answers the public address in JSON, docs/26 §9.9), `audio:coverage --verify` and `audio:migrate-disk`. `Storage::fake('audio')` keeps the config of the disk
  * (`driver: s3`), so the code takes the R2 branch while the files land in a local folder.
  */
 
@@ -213,22 +213,40 @@ it('still looks for the file of a word on the local disk, where a look costs not
         ->and($audio->isPlayable('public', ''))->toBeFalse();
 });
 
-it('sends a word on R2 by 302 to its public address and streams the rest', function (): void {
+it('gives the public address of a word on R2 to be played by the client, and streams the rest (docs/26 §9.9)', function (): void {
     $audio = app(PracticeAudioService::class);
-    Storage::set('audio', Storage::build([...config('filesystems.disks.audio'), 'bucket' => 'b', 'key' => 'k', 'secret' => 's', 'url' => 'https://audio.example.uz']));
+    Config::set('filesystems.disks.audio.url', 'https://audio.example.uz');
+    r2UrlOnlyDisk();
 
-    expect($audio->redirectUrl(new AudioClip('audio', 'audio/x.mp3')))->toBe('https://audio.example.uz/audio/x.mp3')
-        ->and($audio->redirectUrl(new AudioClip('practice_audio', 'x.mp3')))->toBeNull();
+    expect($audio->publicUrl(new AudioClip('audio', 'audio/x.mp3')))->toBe('https://audio.example.uz/audio/x.mp3')
+        ->and($audio->publicUrl(new AudioClip('practice_audio', 'x.mp3')))->toBeNull();
 
-    // TTS_AUDIO_DISK=public: the words are on this server and streamed as before.
+    // TTS_AUDIO_DISK=public: the words are on this server and streamed with the token, as before.
     Config::set('twa.tts.audio_disk', 'public');
-    expect($audio->redirectUrl(new AudioClip('public', 'audio/x.mp3')))->toBeNull();
+    expect($audio->publicUrl(new AudioClip('public', 'audio/x.mp3')))->toBeNull();
 });
 
-it('answers 302 to the bucket for a word of a dictation session, private and no-store, and streams its phrases', function (): void {
+it('streams a word on R2 when the bucket has no public address: the address of its API is neither public nor in the CSP', function (?string $publicUrl): void {
+    Config::set('filesystems.disks.audio.url', $publicUrl);
+    Storage::disk('audio')->put('audio/x.mp3', 'mp3');
+
+    expect(app(PracticeAudioService::class)->publicUrl(new AudioClip('audio', 'audio/x.mp3')))->toBeNull();
+})->with(['unset' => null, 'empty' => '']);
+
+it('never hands out an address that is not http(s)', function (string $built): void {
+    Config::set('filesystems.disks.audio.url', 'https://audio.example.uz');
+    $disk = Mockery::mock(FilesystemAdapter::class);
+    $disk->shouldReceive('url')->andReturn($built);
+    Storage::set('audio', $disk);
+
+    expect(app(PracticeAudioService::class)->publicUrl(new AudioClip('audio', 'audio/x.mp3')))->toBeNull();
+})->with(['javascript' => 'javascript:alert(1)//x.mp3', 'relative' => '/storage/audio/x.mp3', 'protocol-relative' => '//audio.example.uz/audio/x.mp3', 'no host' => 'https:///audio/x.mp3', 'blank' => '']);
+
+it('answers the public address of a word of a dictation session in JSON, private and no-store, and streams its phrases', function (): void {
     CarbonImmutable::setTestNow('2026-10-30 10:00:00');
     PracticeKit::openAccess();
     Storage::fake('practice_audio');
+    Config::set('filesystems.disks.audio.url', 'https://audio.example.uz');
     [$learner, $course, $lesson] = DictationKit::world();
     DictationKit::stock($lesson, $learner, 5, 0);
     foreach (['one', 'two', 'three'] as $name) {
@@ -244,13 +262,18 @@ it('answers 302 to the bucket for a word of a dictation session, private and no-
     expect($sources)->toContain('audio')->toContain('practice_audio');
 
     foreach ($elements as $element) {
-        $response = $this->withHeaders(PracticeKit::headers($learner))->get("/api/twa/practice/sessions/{$session['id']}/audio/{$element['id']}");
+        // What the client sends: the token and the Accept of a clip (requestBlob in resources/twa/src/api/client.ts).
+        $response = $this->withHeaders([...PracticeKit::headers($learner), 'Accept' => 'audio/mpeg, application/json;q=0.5'])
+            ->get("/api/twa/practice/sessions/{$session['id']}/audio/{$element['id']}");
         if ($element['audio_disk'] === 'audio') {
-            $response->assertStatus(302)->assertRedirect('https://audio.example.uz/'.$element['audio_path']);
-            expect($response->headers->get('Cache-Control'))->toContain('no-store')->toContain('private');
+            $response->assertOk()->assertExactJson(['url' => 'https://audio.example.uz/'.$element['audio_path']]);
+            expect($response->headers->get('Content-Type'))->toContain('application/json')
+                ->and($response->headers->get('Location'))->toBeNull()
+                ->and($response->headers->get('Cache-Control'))->toContain('no-store')->toContain('private');
         } else {
             $response->assertOk();
-            expect($response->streamedContent())->toBe('mp3:'.$element['display']);
+            expect($response->headers->get('Content-Type'))->toBe('audio/mpeg')
+                ->and($response->streamedContent())->toBe('mp3:'.$element['display']);
         }
     }
 

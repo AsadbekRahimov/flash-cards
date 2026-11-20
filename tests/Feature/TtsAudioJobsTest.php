@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Content\Exceptions\SpeechSynthesisException;
+use App\Domain\Content\Exceptions\WordAudioNotStoredException;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Jobs\GeneratePracticeAudioJob;
@@ -15,6 +16,8 @@ use App\Models\PracticeItemVersion;
 use App\Models\Stage;
 use App\Models\Word;
 use Illuminate\Contracts\Queue\Job as QueueJob;
+use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -161,3 +164,95 @@ it('the word job voices a word of a platform or organization course', function (
     expect($synth->calls)->toBe(1)
         ->and($word->fresh()?->audio_path)->not->toBeNull();
 })->with(['platform', 'organization']);
+
+/** The disk of the word audio refuses every write (R2 down after the synthesis): `put` false, or an exception of the adapter. */
+function ttsJobsBrokenDisk(bool $throws = false): void
+{
+    $disk = Mockery::mock(FilesystemAdapter::class);
+    $disk->shouldReceive('fileExists')->andReturn(false);
+    $disk->shouldReceive('delete')->andReturn(true);
+    $throws
+        ? $disk->shouldReceive('put')->andThrow(new RuntimeException('R2 said: secret-host unreachable'))
+        : $disk->shouldReceive('put')->andReturn(false);
+    Storage::set('public', $disk);
+}
+
+it('the word job retries a disk that refused the file once, then fails: at most two paid syntheses', function (): void {
+    $synth = ttsJobsSynth();
+    ttsJobsBrokenDisk();
+    $word = ttsJobsWord();
+
+    $first = (new PregenerateWordAudioJob($word->id))->withFakeQueueInteractions();
+    expect(fn () => $first->handle(app(WordAudioService::class)))
+        ->toThrow(WordAudioNotStoredException::class, 'tts_audio_not_stored');
+    $first->assertNotFailed();
+
+    $second = (new PregenerateWordAudioJob($word->id))->withFakeQueueInteractions();
+    $second->job->attempts = PregenerateWordAudioJob::STORE_ATTEMPTS;
+    $second->handle(app(WordAudioService::class));
+    $second->assertFailedWith(WordAudioNotStoredException::class);
+
+    expect($synth->calls)->toBe(2)
+        ->and($word->fresh()?->audio_path)->toBeNull();
+});
+
+it('an exception of the disk adapter is tts_audio_not_stored too, without its message', function (): void {
+    ttsJobsSynth();
+    ttsJobsBrokenDisk(throws: true);
+    $word = ttsJobsWord();
+
+    $job = (new PregenerateWordAudioJob($word->id))->withFakeQueueInteractions();
+    $job->job->attempts = PregenerateWordAudioJob::STORE_ATTEMPTS;
+    $job->handle(app(WordAudioService::class));
+
+    $job->assertFailedWith(WordAudioNotStoredException::class);
+    $failedWith = $job->job->failedWith;
+    expect($failedWith->getMessage())->toBe('tts_audio_not_stored')
+        ->and($failedWith->getPrevious())->toBeInstanceOf(RuntimeException::class);
+});
+
+it('a retryable synthesis error keeps the five attempts: only a refused write is cut short', function (): void {
+    ttsJobsSynth(SpeechSynthesisException::failed());
+    $word = ttsJobsWord();
+
+    $job = (new PregenerateWordAudioJob($word->id))->withFakeQueueInteractions();
+    $job->job->attempts = PregenerateWordAudioJob::STORE_ATTEMPTS;
+
+    expect(fn () => $job->handle(app(WordAudioService::class)))->toThrow(SpeechSynthesisException::class);
+    $job->assertNotFailed();
+});
+
+it('the word job is unique by the word and force while it waits', function (): void {
+    $job = new PregenerateWordAudioJob(42);
+
+    expect($job)->toBeInstanceOf(ShouldBeUniqueUntilProcessing::class)
+        ->and($job->uniqueId())->toBe('42')
+        ->and((new PregenerateWordAudioJob(42, force: true))->uniqueId())->toBe('42:force')
+        ->and($job->uniqueFor)->toBeGreaterThanOrEqual(6 * 3600)->toBeLessThanOrEqual(24 * 3600);
+});
+
+it('generate looks at the disk once: one HEAD for a word without a file, one for a word whose file is there', function (): void {
+    $synth = ttsJobsSynth();
+    $word = ttsJobsWord();
+    $path = (string) app(WordAudioService::class)->pathFor('resilient');
+
+    $disk = Mockery::mock(FilesystemAdapter::class);
+    $disk->shouldReceive('fileExists')->with($path)->once()->andReturn(false);
+    $disk->shouldReceive('put')->once()->andReturn(true);
+    $disk->shouldReceive('move')->once()->andReturn(true);
+    Storage::set('public', $disk);
+
+    expect(app(WordAudioService::class)->generate($word))->toBeTrue()
+        ->and($synth->calls)->toBe(1);
+
+    // The file of the same text is there (another word voiced it): reused, the path is set, no second look.
+    $other = ttsJobsWord();
+    $disk = Mockery::mock(FilesystemAdapter::class);
+    $disk->shouldReceive('fileExists')->with($path)->once()->andReturn(true);
+    $disk->shouldReceive('size')->with($path)->once()->andReturn(2048);
+    Storage::set('public', $disk);
+
+    expect(app(WordAudioService::class)->generate($other))->toBeFalse()
+        ->and($other->fresh()?->audio_path)->toBe($path)
+        ->and($synth->calls)->toBe(1);
+});

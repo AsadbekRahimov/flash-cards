@@ -82,6 +82,21 @@ class AttentionWidget extends DashboardBlockWidget
                 $t('tts.value', ['month' => (string) $item['name']]),
                 null,
             ],
+            AttentionList::KIND_TTS_HALTED => [
+                $t('tts_halted.title'), false,
+                $t('tts_halted.detail', ['code' => (string) $item['state']]),
+                $t('tts_halted.value'),
+                null,
+            ],
+            AttentionList::KIND_TTS_QUEUE => [
+                $t('tts_queue.title'), false,
+                $t('tts_queue.detail', [
+                    'count' => AdminNumbers::decimal($item['count'], 0),
+                    'threshold' => AdminNumbers::decimal((int) $item['total'], 0),
+                ]),
+                $t('tts_queue.value'),
+                null,
+            ],
             default => [
                 $t('reminders.title'), false,
                 $t('reminders.'.($item['state'] ?? 'running').(($item['state'] ?? '') === 'running' && $item['value'] === null ? '_undated' : ''), [

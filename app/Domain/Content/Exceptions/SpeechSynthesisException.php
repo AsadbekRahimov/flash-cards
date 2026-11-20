@@ -31,6 +31,12 @@ final class SpeechSynthesisException extends RuntimeException
     /** The service refused the request itself (400, 404, other 4xx; a voice name or a text it would refuse): final. */
     public const REJECTED = 'tts_request_rejected';
 
+    /**
+     * The voice is not one of Google's (`TTS_VOICE=en-US-AriaNeural` of edge-tts with `TTS_DRIVER=google`): every word would be a
+     * 400. Final, refused before Google is called and before the characters are reserved (docs/26 §9.2).
+     */
+    public const VOICE_UNSUPPORTED = 'tts_voice_unsupported';
+
     /** 401 even with a freshly signed token: final, and the driver halts for a while (docs/26 §9.1). */
     public const AUTH_FAILED = 'tts_auth_failed';
 
@@ -71,6 +77,11 @@ final class SpeechSynthesisException extends RuntimeException
     public static function rejected(): self
     {
         return new self(self::REJECTED, false);
+    }
+
+    public static function voiceUnsupported(): self
+    {
+        return new self(self::VOICE_UNSUPPORTED, false);
     }
 
     public static function authFailed(): self

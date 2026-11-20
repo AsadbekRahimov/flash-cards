@@ -574,41 +574,10 @@ interface ExamState {
 
 ## 7. TTS (useTts)
 
-> Порядок (задача 1.2c): `speak(text, lang, audioUrl)` — если у карточки есть `audio_url`, играет предгенерированный mp3; при `null` или ошибке воспроизведения — Web Speech API, затем `GET /api/twa/tts`. Пример ниже — исходная схема без `audioUrl`.
+> Порядок (задача 1.2c, docs/26 §9.9): `speak(text, lang, audioUrl)` — если у карточки есть `audio_url` (свой сервер или публичный домен озвучки R2), играет предгенерированный mp3 в `<audio>`; при `null` или ошибке воспроизведения — Web Speech API; без него — тишина. Серверного запасного пути нет: `GET /api/twa/tts` удалён (`<audio src>` не может передать токен, адрес всегда отвечал 401).
+>
+> Клипы диктанта, баттла и «Каравана» (`usePracticeAudio`) берутся по `audio_url` элемента запросом с токеном (`api.*.audioBlob`) и играют из `blob:`. Слово на R2 эндпоинт отдаёт как `{ "url" }`: клиент загружает этот адрес в `<audio>` (`probeRemoteAudio`, без `fetch`, без токена, без CORS) и играет его; не загрузилось — ошибка `network` с кодом `remote_audio_failed` (комната баттла сообщает её через `audio-failed`).
 
-```ts
-// src/composables/useTts.ts
-export function useTts() {
-  const synth = window.speechSynthesis
-  const supported = !!synth
-  let voice: SpeechSynthesisVoice | null = null
-
-  function pickEnglishVoice() {
-    if (!synth) return null
-    const voices = synth.getVoices()
-    return voices.find(v => v.lang.startsWith('en')) || voices[0] || null
-  }
-
-  async function speak(text: string) {
-    if (!supported) return speakFallback(text)
-    voice ??= pickEnglishVoice()
-    const u = new SpeechSynthesisUtterance(text)
-    u.lang = 'en-US'
-    u.rate = 0.9
-    if (voice) u.voice = voice
-    synth.cancel()
-    synth.speak(u)
-  }
-
-  async function speakFallback(text: string) {
-    const url = `/api/twa/tts?word=${encodeURIComponent(text)}`
-    const audio = new Audio(url)
-    await audio.play()
-  }
-
-  return { supported, speak }
-}
-```
 
 Детали:
 - На iOS Safari `synth.getVoices()` возвращает пустой массив при первом вызове — нужно дождаться события `voiceschanged`.

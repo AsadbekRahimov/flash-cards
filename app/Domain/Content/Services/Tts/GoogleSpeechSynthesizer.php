@@ -38,6 +38,12 @@ final class GoogleSpeechSynthesizer implements SpeechSynthesizer
 
     public const HALT_SECONDS = 600;
 
+    /**
+     * A voice of Google: `{language}-{REGION}-{family}-{name}`, the families of Cloud Text-to-Speech. Anything else (an edge-tts
+     * name like `en-US-AriaNeural`) is refused before the call: Google would answer 400 for every word.
+     */
+    public const VOICE_PATTERN = '/\A([a-z]{2,3}-[A-Z]{2})-(?:Neural2|Chirp3-HD|Chirp-HD|Wavenet|Standard|Studio|News|Polyglot|Casual)-[A-Za-z0-9]+\z/';
+
     public function __construct(
         private readonly GoogleServiceAccount $account,
         private readonly TtsRequestThrottle $throttle,
@@ -48,8 +54,8 @@ final class GoogleSpeechSynthesizer implements SpeechSynthesizer
     {
         $this->throwIfHalted();
 
-        if (preg_match('/\A([a-z]{2,3}-[A-Z]{2})-[A-Za-z0-9-]+\z/', $voice, $m) !== 1) {
-            throw SpeechSynthesisException::rejected();
+        if (preg_match(self::VOICE_PATTERN, $voice, $m) !== 1) {
+            throw SpeechSynthesisException::voiceUnsupported();
         }
         if ($text === '' || strlen($text) > self::MAX_TEXT_BYTES) {
             throw SpeechSynthesisException::rejected();
@@ -133,15 +139,34 @@ final class GoogleSpeechSynthesizer implements SpeechSynthesizer
         return $bytes;
     }
 
-    private function throwIfHalted(): void
+    /** A voice name this driver can send (see {@see VOICE_PATTERN}). */
+    public static function supportsVoice(string $voice): bool
+    {
+        return preg_match(self::VOICE_PATTERN, $voice) === 1;
+    }
+
+    /**
+     * The code Google refused the sign-in with (`tts_auth_failed` | `tts_forbidden`) while the halt marker is set, else null.
+     * One GET on the default cache store: the reconciliation, `audio:sample` and the dashboard ask it.
+     */
+    public static function haltCode(): ?string
     {
         $marker = Cache::get(self::HALT_KEY);
         // docs/19 §3.11: a cached value is checked, not trusted.
-        if (! is_array($marker)) {
-            return;
-        }
+        $code = is_array($marker) ? ($marker['code'] ?? null) : null;
 
-        match ($marker['code'] ?? null) {
+        return in_array($code, [SpeechSynthesisException::AUTH_FAILED, SpeechSynthesisException::FORBIDDEN], true) ? $code : null;
+    }
+
+    /** Drops the halt marker (`audio:sample --clear-halt`, after the key was replaced); true when there was one. */
+    public static function clearHalt(): bool
+    {
+        return Cache::forget(self::HALT_KEY);
+    }
+
+    private function throwIfHalted(): void
+    {
+        match (self::haltCode()) {
             SpeechSynthesisException::AUTH_FAILED => throw SpeechSynthesisException::authFailed(),
             SpeechSynthesisException::FORBIDDEN => throw SpeechSynthesisException::forbidden(),
             default => null,

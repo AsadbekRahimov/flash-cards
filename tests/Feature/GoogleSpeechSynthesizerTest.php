@@ -214,7 +214,41 @@ it('takes the languageCode from the voice name', function (string $voice, string
     'three-letter language' => ['cmn-CN-Chirp3-HD-Aoede', 'cmn-CN'],
 ]);
 
-it('rejects a bad voice name or a too long text without calling Google or touching the budget', function (string $text, string $voice): void {
+it('refuses a voice that is not Google\'s with tts_voice_unsupported, before the key, the pace and the budget', function (string $voice): void {
+    // No key file at all: the voice is refused first.
+    Http::fake();
+
+    $e = googleTtsError('hello', $voice);
+
+    expect($e->getMessage())->toBe(SpeechSynthesisException::VOICE_UNSUPPORTED)
+        ->and($e->retryable)->toBeFalse()
+        ->and(googleTtsUsage())->toBeNull()
+        ->and(RateLimiter::attempts(TtsRequestThrottle::KEY))->toBe(0);
+    Http::assertNothingSent();
+})->with([
+    'edge-tts name' => ['en-US-AriaNeural'],
+    'edge-tts multilingual' => ['en-US-AvaMultilingualNeural'],
+    'no language' => ['Charon'],
+    'lower-case region' => ['en-us-Neural2-A'],
+    'unknown family' => ['en-US-Journey-F'],
+    'family without a name' => ['en-US-Neural2'],
+    'empty voice' => [''],
+    'a path in the voice' => ['en-US-../../x'],
+    'a path after the family' => ['en-US-Neural2-../x'],
+]);
+
+it('accepts the voices of every Google family', function (string $voice): void {
+    googleTtsKeyFile();
+    Http::fake(['*' => Http::response(googleTtsOk(), 200)]);
+
+    expect(googleTts()->synthesize('hello', $voice)['body'])->toBe('ID3-mp3-bytes')
+        ->and(GoogleSpeechSynthesizer::supportsVoice($voice))->toBeTrue();
+})->with([
+    'en-US-Neural2-F', 'en-US-Chirp3-HD-Charon', 'en-US-Chirp-HD-D', 'en-US-Wavenet-D', 'en-US-Standard-C',
+    'en-US-Studio-O', 'en-US-News-K', 'en-US-Polyglot-1', 'en-US-Casual-K', 'cmn-CN-Chirp3-HD-Aoede',
+]);
+
+it('rejects a too long or empty text without calling Google or touching the budget', function (string $text, string $voice): void {
     googleTtsKeyFile();
     Http::fake();
 
@@ -225,10 +259,6 @@ it('rejects a bad voice name or a too long text without calling Google or touchi
         ->and(googleTtsUsage())->toBeNull();
     Http::assertNothingSent();
 })->with([
-    'no language' => ['hello', 'Charon'],
-    'lower-case region' => ['hello', 'en-us-Neural2-A'],
-    'empty voice' => ['hello', ''],
-    'a path in the voice' => ['hello', 'en-US-../../x'],
     '5001 bytes' => [str_repeat('a', 5001), GOOGLE_TTS_VOICE],
     '2501 two-byte characters (5002 bytes)' => [str_repeat('é', 2501), GOOGLE_TTS_VOICE],
     'empty text' => ['', GOOGLE_TTS_VOICE],

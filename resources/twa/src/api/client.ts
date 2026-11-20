@@ -1,5 +1,6 @@
 import { ofetch, type FetchError } from 'ofetch'
 import { getLocale } from '@/i18n'
+import { probeRemoteAudio, REMOTE_AUDIO_FAILED, RemoteAudio, RemoteAudioError, remoteAudioUrl, type ClipBody } from './remoteAudio'
 
 /**
  * Categorizes failures from the TWA API so views can render different
@@ -163,11 +164,16 @@ export function createApiClient(opts: ClientOptions) {
    * an `<audio src>` cannot carry it, and a blob is what iOS needs to play on a tap anyway. Errors (JSON envelope, 401
    * refresh once) are mapped exactly like `request`.
    *
+   * A word on R2 comes as `200 {"url"}` instead of bytes (docs/26 §9.9): the address is loaded by an `<audio>` element
+   * (`probeRemoteAudio`, never by `fetch` and never with the token) and given back as a {@link RemoteAudio}; a clip the device
+   * cannot load from there is a `network` error with the code `remote_audio_failed`. A JSON 200 without a usable address is a
+   * `server` error `bad_audio_location`.
+   *
    * The request is stopped after `BLOB_TIMEOUT_MS`, or when the caller's `signal` fires (the screen was left, a newer
    * clip is wanted): both end as a `network` error - the headers and the body alike are under the same limit - and the
    * caller, which knows it dropped the load, ignores it.
    */
-  async function requestBlob(path: string, signal?: AbortSignal, retried = false): Promise<Blob> {
+  async function requestBlob(path: string, signal?: AbortSignal, retried = false): Promise<ClipBody> {
     const url = baseURL + localPath(path)
     const headers: Record<string, string> = { Accept: 'audio/mpeg, application/json;q=0.5', 'Accept-Language': getLocale() }
     const sentToken = opts.getToken()
@@ -178,13 +184,19 @@ export function createApiClient(opts: ClientOptions) {
     const timer = setTimeout(stop, BLOB_TIMEOUT_MS)
     signal?.addEventListener('abort', stop, { once: true })
 
-    let apiErr: ApiClientError
+    let apiErr: ApiClientError | undefined
+    let remote: string | null = null
     try {
       // A load that was dropped before it started is not sent at all.
       if (signal?.aborted) throw new Error('The request was cancelled')
       const response = await fetch(url, { headers, credentials: 'omit', signal: controller.signal })
-      if (response.ok) return await response.blob()
-      apiErr = await errorOf(response)
+      if (response.ok && !isJson(response)) return await response.blob()
+      if (response.ok) {
+        remote = remoteAudioUrl(await response.json().catch(() => null))
+        if (remote === null) throw new ApiClientError('server', response.status, 'bad_audio_location', 'Not an address of a clip')
+      } else {
+        apiErr = await errorOf(response)
+      }
     } catch (err) {
       apiErr = err instanceof ApiClientError ? err : new ApiClientError('network', 0, 'network', (err as Error)?.message ?? 'Request failed', err)
     } finally {
@@ -192,11 +204,24 @@ export function createApiClient(opts: ClientOptions) {
       signal?.removeEventListener('abort', stop)
     }
 
+    if (remote !== null) return loadRemote(remote, signal)
+    apiErr ??= new ApiClientError('unknown', 0, 'unknown', 'Request failed')
     if (apiErr.kind === 'unauthorized' && !retried) {
       const fresh = await freshToken(sentToken)
       if (fresh) return requestBlob(path, signal, true)
     }
     throw apiErr
+  }
+
+  /** The clip of a word on R2 is loaded by an `<audio>`, without the token and without `fetch` (docs/26 §9.9). */
+  async function loadRemote(url: string, signal?: AbortSignal): Promise<RemoteAudio> {
+    try {
+      await probeRemoteAudio(url, signal)
+    } catch (err) {
+      if (err instanceof RemoteAudioError) throw new ApiClientError('network', 0, REMOTE_AUDIO_FAILED, err.message, err)
+      throw new ApiClientError('network', 0, 'network', (err as Error)?.message ?? 'Request failed', err)
+    }
+    return new RemoteAudio(url)
   }
 
   /**
@@ -236,8 +261,9 @@ export function createApiClient(opts: ClientOptions) {
     postPublic: <T>(path: string, body: Record<string, unknown>) =>
       request<T>(path, { method: 'POST', body, withAuth: false }),
     /**
-     * Authenticated GET of a file (audio): the body as a `Blob`. `path` may carry the `/api/twa` prefix, as `audio_url` does.
-     * Gives up after `BLOB_TIMEOUT_MS`, or when `signal` fires: a `network` error either way.
+     * Authenticated GET of a file (audio): the body as a `Blob`, or a {@link RemoteAudio} for a word on R2 (docs/26 §9.9).
+     * `path` may carry the `/api/twa` prefix, as `audio_url` does. Gives up after `BLOB_TIMEOUT_MS`, or when `signal` fires:
+     * a `network` error either way.
      */
     getBlob: (path: string, signal?: AbortSignal) => requestBlob(path, signal),
     /** Fire-and-forget POST that survives the closing of the page (`keepalive`); no token refresh, no retry. */
@@ -253,6 +279,11 @@ function mapError(err: unknown): ApiClientError {
   const message = data?.error?.message ?? fe?.message ?? 'Request failed'
 
   return errorFromStatus(status, code, message, err, detailsOf(data))
+}
+
+/** The answer is JSON (an error envelope, or the address of a clip on R2), not the bytes of a clip. */
+function isJson(response: Response): boolean {
+  return (response.headers.get('content-type') ?? '').toLowerCase().includes('application/json')
 }
 
 /** The answer of an error status read with plain `fetch` (a blob request): the JSON envelope, when there is one. */

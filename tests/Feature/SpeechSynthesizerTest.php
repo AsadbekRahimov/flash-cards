@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Content\Exceptions\SpeechSynthesisException;
+use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\GoogleSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\HttpSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\NullSpeechSynthesizer;
 use App\Domain\Content\Services\WordAudioService;
+use App\Domain\Operations\DTO\ReadinessReport;
+use App\Domain\Operations\Services\ReadinessProbe;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Services\PracticeAudioService;
 use App\Jobs\GeneratePracticeAudioJob;
+use App\Jobs\PregenerateWordAudioJob;
 use App\Models\Lesson;
 use App\Models\PracticeItemVersion;
 use App\Models\Stage;
@@ -19,6 +23,7 @@ use Illuminate\Contracts\Queue\Job as QueueJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /*
@@ -56,23 +61,77 @@ function synthFake(): SpeechSynthesizer
     };
 }
 
-it('chooses the driver from twa.tts.driver', function (?string $driver, string $url, string $class): void {
+it('chooses the driver from twa.tts.driver at the synthesis, without case and blanks', function (?string $driver, string $url, string $class): void {
     config(['twa.tts.driver' => $driver, 'twa.tts.service_url' => $url]);
 
-    expect(app(SpeechSynthesizer::class))->toBeInstanceOf($class);
+    $tts = app(SpeechSynthesizer::class);
+
+    expect($tts)->toBeInstanceOf(ConfiguredSpeechSynthesizer::class)
+        ->and($tts->resolve())->toBeInstanceOf($class);
 })->with([
     'google' => ['google', 'http://tts.test', GoogleSpeechSynthesizer::class],
+    'Google with blanks' => [' Google ', 'http://tts.test', GoogleSpeechSynthesizer::class],
     'http' => ['http', '', HttpSpeechSynthesizer::class],
+    'HTTP' => ['HTTP', '', HttpSpeechSynthesizer::class],
     'null, even with a service url' => ['null', 'http://tts.test', NullSpeechSynthesizer::class],
+    'NULL with a newline' => ["NULL\n", 'http://tts.test', NullSpeechSynthesizer::class],
     'unset with a service url: http' => [null, 'http://tts.test', HttpSpeechSynthesizer::class],
     'empty with a service url: http' => ['', 'http://tts.test', HttpSpeechSynthesizer::class],
+    'blank with a service url: http' => ['  ', 'http://tts.test', HttpSpeechSynthesizer::class],
     'unset without a service url: null' => [null, '', NullSpeechSynthesizer::class],
 ]);
 
-it('refuses an unknown driver with a clear error when the synthesizer is resolved', function (): void {
-    config(['twa.tts.driver' => 'polly']);
+it('follows a config change after the synthesizer was built', function (): void {
+    config(['twa.tts.driver' => 'null']);
+    $tts = app(SpeechSynthesizer::class);
 
-    expect(fn () => app(SpeechSynthesizer::class))->toThrow(InvalidArgumentException::class, "Unknown TTS driver 'polly'");
+    config(['twa.tts.driver' => 'google']);
+
+    expect($tts->resolve())->toBeInstanceOf(GoogleSpeechSynthesizer::class);
+});
+
+it('an unknown driver breaks no service: the services are built, only the synthesis fails with the final not_configured', function (): void {
+    config(['twa.tts.driver' => 'gogle']);
+    Log::spy();
+
+    // The services of the screens of a learner take the synthesizer in their constructors.
+    $words = app(WordAudioService::class);
+    app(PracticeAudioService::class);
+    expect($words->pathFor('resilient'))->not->toBeNull();
+
+    try {
+        app(SpeechSynthesizer::class)->synthesize('resilient', 'en-US-AriaNeural');
+        $this->fail('No SpeechSynthesisException.');
+    } catch (SpeechSynthesisException $e) {
+        expect($e->getMessage())->toBe(SpeechSynthesisException::NOT_CONFIGURED)
+            ->and($e->retryable)->toBeFalse();
+    }
+
+    Log::shouldHaveReceived('warning')->with('tts.driver_unknown', Mockery::on(fn (array $context): bool => $context['driver'] === 'gogle'));
+    expect(ConfiguredSpeechSynthesizer::known())->toBeFalse();
+    Http::assertNothingSent();
+});
+
+it('the word job of an unknown driver fails at once with tts_service_not_configured', function (): void {
+    config(['twa.tts.driver' => 'polly']);
+    Storage::fake('public');
+    $word = Word::factory()->for(Lesson::factory()->for(Stage::factory()))->create(['word' => 'resilient']);
+    $queueJob = Mockery::mock(QueueJob::class);
+    $queueJob->shouldReceive('fail')->once()->with(Mockery::on(fn ($e): bool => $e instanceof SpeechSynthesisException && $e->getMessage() === SpeechSynthesisException::NOT_CONFIGURED));
+    $job = new PregenerateWordAudioJob($word->id);
+    $job->setJob($queueJob);
+
+    $job->handle(app(WordAudioService::class));
+
+    expect($word->fresh()?->audio_path)->toBeNull();
+});
+
+it('reports an unknown driver as degraded in /health/ready, and nothing while it is known', function (): void {
+    config(['twa.tts.driver' => 'polly']);
+    expect(app(ReadinessProbe::class)->run()->checks)->toHaveKey('tts', ReadinessReport::DEGRADED);
+
+    config(['twa.tts.driver' => 'google']);
+    expect(app(ReadinessProbe::class)->run()->checks)->not->toHaveKey('tts');
 });
 
 it('null driver: the final tts_service_not_configured, nothing is sent', function (): void {

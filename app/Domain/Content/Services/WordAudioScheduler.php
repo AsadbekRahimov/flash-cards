@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Domain\Content\Services;
 
 use App\Domain\Content\Contracts\SpeechSynthesizer;
+use App\Domain\Content\Exceptions\SpeechSynthesisException;
+use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
+use App\Domain\Content\Services\Tts\GoogleServiceAccount;
+use App\Domain\Content\Services\Tts\GoogleSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\NullSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\TtsCharacterBudget;
 use App\Jobs\PregenerateWordAudioJob;
@@ -36,15 +40,38 @@ final class WordAudioScheduler
     /** The default ceiling of jobs one reconciliation queues (`audio:reconcile --limit`). */
     public const int RECONCILE_LIMIT = 2000;
 
+    /** Why {@see reconcile()} queued nothing (`audio:reconcile` prints each). */
+    public const string SKIP_NOT_CONFIGURED = 'not_configured';
+
+    public const string SKIP_DRIVER_UNKNOWN = 'driver_unknown';
+
+    public const string SKIP_HALTED = 'halted';
+
+    public const string SKIP_CREDENTIALS_MISSING = 'credentials_missing';
+
+    public const string SKIP_CREDENTIALS_INVALID = 'credentials_invalid';
+
+    public const string SKIP_VOICE_UNSUPPORTED = 'voice_unsupported';
+
+    public const string SKIP_BUDGET_EXHAUSTED = 'budget_exhausted';
+
     public function __construct(
         private readonly WordAudioService $audio,
         private readonly SpeechSynthesizer $tts,
         private readonly TtsCharacterBudget $budget,
+        private readonly GoogleServiceAccount $account,
     ) {}
 
-    /** False while `TTS_DRIVER` is `null` (or unset without a service URL): there is nobody to voice a word. */
+    /**
+     * False while `TTS_DRIVER` is `null` (or unset without a service URL) or a value nobody knows (a typo): there is nobody to
+     * voice a word.
+     */
     public function enabled(): bool
     {
+        if ($this->tts instanceof ConfiguredSpeechSynthesizer) {
+            return in_array(ConfiguredSpeechSynthesizer::driver(), [ConfiguredSpeechSynthesizer::GOOGLE, ConfiguredSpeechSynthesizer::HTTP], true);
+        }
+
         return ! $this->tts instanceof NullSpeechSynthesizer;
     }
 
@@ -92,18 +119,19 @@ final class WordAudioScheduler
     /**
      * The nightly reconciliation (`audio:reconcile`): queues the active words of the courses (not a learner's deck) whose
      * `audio_path` is empty or not the path of their current text, oldest id first, at most `$limit`. Nothing while the
-     * synthesizer is `null` or the characters of the month are spent (docs/26 §9.3: next month's run picks the words up).
+     * synthesizer is `null` or unknown, the characters of the month are spent (docs/26 §9.3: next month's run picks the words
+     * up), or - with `google` - while every job would fail at once: Google refused the sign-in (the halt marker), the key file is
+     * missing or not a service-account key (read here, nothing is sent), or the voice is not one of Google's. Those runs would
+     * only fill `failed_jobs`; the job of a word is unique while it waits, so a word is not queued twice either.
      * Idempotent: a voiced word has its path and is not queued again.
      *
-     * @return array{queued: int, reason: 'not_configured'|'budget_exhausted'|null}
+     * @return array{queued: int, reason: self::SKIP_*|null}
      */
     public function reconcile(int $limit = self::RECONCILE_LIMIT): array
     {
-        if (! $this->enabled()) {
-            return ['queued' => 0, 'reason' => 'not_configured'];
-        }
-        if ($this->budget->exhausted()) {
-            return ['queued' => 0, 'reason' => 'budget_exhausted'];
+        $skip = $this->reconcileBlocker();
+        if ($skip !== null) {
+            return ['queued' => 0, 'reason' => $skip];
         }
 
         $queued = 0;
@@ -169,6 +197,43 @@ final class WordAudioScheduler
             });
 
         return ['queued' => $queued, 'skipped' => $skipped];
+    }
+
+    /** @return self::SKIP_*|null why the reconciliation queues nothing tonight */
+    private function reconcileBlocker(): ?string
+    {
+        if ($this->tts instanceof ConfiguredSpeechSynthesizer && ! ConfiguredSpeechSynthesizer::known()) {
+            return self::SKIP_DRIVER_UNKNOWN;
+        }
+        if (! $this->enabled()) {
+            return self::SKIP_NOT_CONFIGURED;
+        }
+
+        if ($this->usesGoogle()) {
+            if (GoogleSpeechSynthesizer::haltCode() !== null) {
+                return self::SKIP_HALTED;
+            }
+
+            try {
+                $this->account->check();
+            } catch (SpeechSynthesisException $e) {
+                // A bare code: neither the path nor anything of the file.
+                return $e->getMessage() === SpeechSynthesisException::NOT_CONFIGURED ? self::SKIP_CREDENTIALS_MISSING : self::SKIP_CREDENTIALS_INVALID;
+            }
+
+            if (! GoogleSpeechSynthesizer::supportsVoice($this->audio->defaultVoice())) {
+                return self::SKIP_VOICE_UNSUPPORTED;
+            }
+        }
+
+        return $this->budget->exhausted() ? self::SKIP_BUDGET_EXHAUSTED : null;
+    }
+
+    /** The jobs would go to Google: the bound driver is `google` (or the configured one, read now, is). */
+    private function usesGoogle(): bool
+    {
+        return $this->tts instanceof GoogleSpeechSynthesizer
+            || ($this->tts instanceof ConfiguredSpeechSynthesizer && ConfiguredSpeechSynthesizer::driver() === ConfiguredSpeechSynthesizer::GOOGLE);
     }
 
     /** `audio_path` is the path the current text hashes to (no disk access); a word with nothing to pronounce counts as current. */

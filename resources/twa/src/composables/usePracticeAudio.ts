@@ -1,9 +1,13 @@
 import { computed, getCurrentScope, onScopeDispose, ref, toRaw, type InjectionKey } from 'vue'
 import { api } from '@/api'
+import { RemoteAudio, type ClipBody } from '@/api/remoteAudio'
 import { usePracticeStore, type AudioSlot, type AudioState } from '@/stores/practice'
 
-/** Fetches a clip by the `audio_url` of an element; the signal fires when the load is dropped. */
-export type ClipFetcher = (url: string, signal?: AbortSignal) => Promise<Blob>
+/**
+ * Fetches a clip by the `audio_url` of an element; the signal fires when the load is dropped. The bytes (a `Blob`), or the public
+ * address of a word on R2 that the client has already loaded into the cache of the device (`RemoteAudio`, docs/26 §9.9).
+ */
+export type ClipFetcher = (url: string, signal?: AbortSignal) => Promise<ClipBody>
 
 /**
  * Where the mode component finds the clips of the screen it is drawn on. A battle gives the recordings that the room has already
@@ -55,6 +59,11 @@ function stopPlayer(runtime: SlotRuntime): void {
   }
 }
 
+/** Gives a `blob:` URL back to the browser; the public address of a word on R2 has nothing to give back. */
+export function revokeSource(source: string | null): void {
+  if (source !== null && source.startsWith('blob:')) URL.revokeObjectURL(source)
+}
+
 export interface PracticeAudioOptions {
   /** Where the clip lives; the practice store's `audio` by default. A battle keeps one slot per clip. */
   slot?: AudioSlot
@@ -69,7 +78,9 @@ export interface PracticeAudioOptions {
  * The clip of a dictation (docs/16 §10.2, §11.5).
  *
  * The recording is behind the learner's token, so it is fetched with `fetch` + `Authorization` (`api.practice.audioBlob`)
- * and played from a `blob:` URL; the server never gives a link that works without it. Nothing is read aloud by the
+ * and played from a `blob:` URL; the server never gives a link of THIS server that works without it. A word on R2 is a public
+ * file: the endpoint answers its public address, the client loads it into an `<audio>` (never with `fetch`, never with the
+ * token) and plays that address (docs/26 §9.9); the slot then holds the address instead of a `blob:` URL. Nothing is read aloud by the
  * browser: the text of the task is not on the device, so there is nothing to give a speech synthesizer — Web Speech is
  * not used here and must not be (the dictation would be solved by the machine).
  *
@@ -97,7 +108,7 @@ export function usePracticeAudio(options: PracticeAudioOptions = {}) {
   function release(): void {
     stopPlayer(runtime)
     playing.value = false
-    if (slot.blobUrl !== null) URL.revokeObjectURL(slot.blobUrl)
+    revokeSource(slot.blobUrl)
     slot.blobUrl = null
   }
 
@@ -112,11 +123,15 @@ export function usePracticeAudio(options: PracticeAudioOptions = {}) {
     release()
     slot.state = 'loading'
     try {
-      const blob = await fetchBlob(url, controller.signal)
+      const body = await fetchBlob(url, controller.signal)
       // A newer load (another element, "Retry") or `revoke()` has taken over: this clip is nobody's.
       if (seq !== runtime.seq) return
-      if (blob.size === 0) throw new Error('empty clip')
-      slot.blobUrl = URL.createObjectURL(blob)
+      if (body instanceof RemoteAudio) {
+        slot.blobUrl = body.url
+      } else {
+        if (body.size === 0) throw new Error('empty clip')
+        slot.blobUrl = URL.createObjectURL(body)
+      }
       slot.state = 'ready'
     } catch {
       if (seq !== runtime.seq) return

@@ -20,13 +20,13 @@ use App\Http\Requests\Twa\GameBoosterRequest;
 use App\Http\Requests\Twa\GameHintRequest;
 use App\Http\Requests\Twa\StartGameRunRequest;
 use App\Http\Resources\ApiErrorResource;
+use App\Http\Resources\Twa\AudioLocationResource;
 use App\Http\Resources\Twa\GameAnswerResource;
 use App\Http\Resources\Twa\GameRunResource;
 use App\Http\Resources\Twa\GameRunStartedResource;
 use App\Models\Learner;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -160,10 +160,10 @@ final class GameRunController
             return ApiErrorResource::respond(404, GameException::RUN_NOT_FOUND, 'No such run or element.');
         }
 
-        // A word on R2 (docs/26 §9.5): 302 to its public address, the bytes do not go through PHP.
-        $url = $this->audio->redirectUrl($clip);
+        // A word on R2 (docs/26 §9.9): its public address in JSON, the client plays it in an <audio>; the bytes do not go through PHP.
+        $url = $this->audio->publicUrl($clip);
         if ($url !== null) {
-            return new RedirectResponse($url, 302, ['Cache-Control' => 'private, no-store']);
+            return AudioLocationResource::respond($url);
         }
 
         $stream = $this->audio->open($clip);

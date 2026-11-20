@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Content\Exceptions\SpeechSynthesisException;
+use App\Domain\Content\Services\Tts\GoogleSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\NullSpeechSynthesizer;
 use App\Domain\Content\Services\TtsSampleRecorder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
@@ -168,4 +170,53 @@ it('refuses an answer that is not audio', function (): void {
     $this->artisan('audio:sample', ['--dir' => $this->dir])->expectsOutputToContain('tts_service_bad_audio')->assertFailed();
 
     expect(File::files($this->dir))->toBe([]);
+});
+
+it('warns about a TTS_DRIVER nobody knows and prints the driver it reads, without case and blanks', function (): void {
+    config(['twa.tts.driver' => ' Gogle ']);
+
+    $this->artisan('audio:sample', ['--dir' => $this->dir])
+        ->expectsOutputToContain('driver gogle,')
+        ->expectsOutputToContain('TTS_DRIVER is none of google, http or null')
+        ->expectsOutputToContain(SpeechSynthesisException::NOT_CONFIGURED)
+        ->assertFailed();
+});
+
+it('prints a hint with Google voices when the voice is not one of Google\'s', function (): void {
+    config(['twa.tts.driver' => 'google', 'twa.tts.voice' => 'en-US-AriaNeural']);
+    sampleSynth(['a' => SpeechSynthesisException::voiceUnsupported()]);
+
+    $this->artisan('audio:sample', ['--dir' => $this->dir])
+        ->expectsOutputToContain('This is not a voice of Google (tts_voice_unsupported): set TTS_VOICE (or --voice) to one, e.g. en-US-Neural2-F')
+        ->expectsOutputToContain('Stopped after a final error: tts_voice_unsupported')
+        ->assertFailed();
+});
+
+it('prints the hint after a run that ended with tts_voice_unsupported', function (): void {
+    sampleSynth(['a' => SpeechSynthesisException::voiceUnsupported()]);
+
+    $this->artisan('audio:sample', ['--dir' => $this->dir])
+        ->expectsOutputToContain('This is not a voice of Google (tts_voice_unsupported)')
+        ->assertFailed();
+});
+
+it('warns while the google driver is halted, and --clear-halt drops the marker before the run', function (): void {
+    config(['twa.tts.driver' => 'google']);
+    Cache::put(GoogleSpeechSynthesizer::HALT_KEY, ['code' => SpeechSynthesisException::AUTH_FAILED], 600);
+    sampleSynth();
+
+    $this->artisan('audio:sample', ['--dir' => $this->dir])
+        ->expectsOutputToContain('Google refused the sign-in a short while ago (tts_auth_failed)')
+        ->assertSuccessful();
+    expect(GoogleSpeechSynthesizer::haltCode())->toBe(SpeechSynthesisException::AUTH_FAILED);
+
+    $this->artisan('audio:sample', ['--dir' => $this->dir, '--clear-halt' => true])
+        ->expectsOutputToContain('The halt marker of the google driver is cleared')
+        ->doesntExpectOutputToContain('Google refused the sign-in')
+        ->assertSuccessful();
+    expect(Cache::get(GoogleSpeechSynthesizer::HALT_KEY))->toBeNull();
+
+    $this->artisan('audio:sample', ['--dir' => $this->dir, '--clear-halt' => true])
+        ->expectsOutputToContain('There was no halt marker')
+        ->assertSuccessful();
 });

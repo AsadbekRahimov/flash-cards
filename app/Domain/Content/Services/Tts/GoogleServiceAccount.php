@@ -65,6 +65,17 @@ final class GoogleServiceAccount
         return (string) $this->token;
     }
 
+    /**
+     * Reads and checks the key file without signing or calling anyone (the reconciliation asks it before queueing a night of
+     * jobs that would all fail). Throws the same bare codes as {@see bearerToken()}.
+     *
+     * @throws SpeechSynthesisException tts_service_not_configured (no path) | tts_credentials_invalid
+     */
+    public function check(): void
+    {
+        $this->load();
+    }
+
     /** @return array{client_email: string|null} */
     public function __debugInfo(): array
     {

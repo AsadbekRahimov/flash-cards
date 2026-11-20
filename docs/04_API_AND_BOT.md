@@ -690,12 +690,10 @@ Pro → Free посреди занятия), — 409 `exercise_mismatch`, нич
 События: `exam.mock_started {exam_session_id, course_id, exam_tag, questions}`,
 `exam.mock_finished {exam_session_id, course_id, percent, percentile, answered, reason: finished | expired}` (один раз).
 
-### A.5 TTS fallback
-`GET /api/twa/tts?word=resilient&voice=en-US-AriaNeural`
-Возвращает `audio/mpeg`. Cache-friendly: `Cache-Control: public, max-age=2592000`.
-Если для `word` (+`voice`, по умолчанию `TTS_VOICE`) есть предгенерированный файл (`audio:pregenerate`, задача 1.2c), он отдаётся с диска без обращения к edge-tts; иначе — запрос в сервис.
+### A.5 Озвучка слова на карточке
+`GET /api/twa/tts` **удалён** (docs/26 §9.9): он требовал заголовок `Authorization`, а TWA звала его через `new Audio(url)`, который заголовков не шлёт, — каждый вызов получал 401. Синтеза и поиска файла по тексту по запросу ученика нет.
 
-**`card.audio_url`** (`/training/.../start|next|review`): публичный URL предгенерированного mp3 (`APP_URL/storage/audio/{sha1}.mp3`, раздаёт nginx) или `null`, если у слова нет `audio_path`. TWA при `audio_url` проигрывает файл, при `null`/ошибке — Web Speech, затем `GET /tts`.
+**`card.audio_url`** (`/training/.../start|next|review`): публичный URL предгенерированного mp3 — `APP_URL/storage/audio/{sha1}.mp3` (диск `public`, раздаёт nginx) или `AUDIO_PUBLIC_URL/audio/{sha1}.mp3` (R2) — или `null`, если у слова нет актуального `audio_path`. TWA при `audio_url` проигрывает файл в `<audio>`, при `null`/ошибке — Web Speech, без него — тишина.
 
 ### A.5a Каталог курсов (docs/12 §1.7, §3.2)
 
@@ -1176,6 +1174,7 @@ TWA различает отказ по статусу, а не по коду: `a
 #### `GET /api/twa/practice/sessions/{id}/audio/{element}` — запись диктанта (лимитер `twa-practice-audio`, вне `twa-api`)
 Тело — `audio/mpeg`, заголовки `Cache-Control: private, no-store`, `Content-Length`, `X-Content-Type-Options: nosniff`. Файл читается с диска элемента снимка (`practice_audio` — фразы; `public` — предгенерированные слова, `audio:pregenerate`) по **непрозрачному id элемента**;
 ни пути, ни текста в API нет. TWA грузит клип запросом с `Authorization` в `blob:` и играет по нажатию (Web Speech для диктанта запрещён: нужен текст на клиенте). Доступ — только владельцу; завершённая сессия отдаёт записи до `expires_at` (повторное прослушивание в разборе).
+**Слово на R2** (`TTS_AUDIO_DISK=audio` и задан `AUDIO_PUBLIC_URL`, docs/26 §9.9): вместо тела — **200** `application/json` `{ "url": "https://audio…/audio/{sha1}.mp3" }` с `Cache-Control: private, no-store` (не 302: `fetch` пошёл бы за редиректом на чужой домен с `Authorization` и требовал бы CORS на бакете). TWA играет этот адрес в `<audio>` (CSP `media-src`), без `fetch` и без токена; бакет сервер не опрашивает, поэтому для слова на R2 503 не бывает: «нет звука» видит клиент (docs/26 §9.9).
 Ошибки: **404** `practice_session_not_found` — чужая сессия, неизвестный элемент или элемент без записи (неотличимо), **503** `practice_audio_unavailable` — файла нет (TWA предлагает «Повторить загрузку» и «Заменить задание»; событие `practice.audio_failed` с `reason: file_missing` — не чаще раза в 10 минут на пару «сессия — элемент»).
 
 #### Коды ошибок практики (сводно)
@@ -1500,7 +1499,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 - Ошибки: 409 `battle_wrong_state` (`invited`), `battle_closed` (терминальный; повтор того же `request_id` — 200), 422 `unknown_element_id` (элемент не из этого матча или без записи).
 
 #### `GET /api/twa/practice/battles/{id}/audio/{element}` — клип диктанта (вне `twa-api`)
-Тело — `audio/mpeg`, заголовки `Cache-Control: private, no-store`, `Content-Length`, `X-Content-Type-Options: nosniff`; путь на диске и текст в API не выходят. TWA берёт URL из `audio_preload` или `round.element.audio_url` и грузит клип с `Authorization` в `blob:`.
+Тело — `audio/mpeg`, заголовки `Cache-Control: private, no-store`, `Content-Length`, `X-Content-Type-Options: nosniff`; путь на диске и текст в API не выходят. TWA берёт URL из `audio_preload` или `round.element.audio_url` и грузит клип с `Authorization` в `blob:`. Слово на R2 — **200** `{ "url" }` вместо тела, как у клипа сессии (docs/26 §9.9); список `audio_preload` и `audio_url` раундов остаются путями API. Клип, который устройство не смогло загрузить с R2, TWA сообщает тем же `audio-failed`: сервер сам проверяет файл в бакете (HEAD) и аннулирует матч, если его нет.
 - Клип отдаётся участнику, если раунд этого элемента **уже начался** (номер раунда ≤ `current_round`; матч, который закончился, помнит свой последний раунд — все пять), либо матч в `room` / `countdown` (предзагрузка всех пяти: «Готов» без неё нельзя, а звук текст не раскрывает).
   Клип будущего раунда, чужой матч, неизвестный элемент и элемент без записи — один и тот же **404** `battle_not_found`. Файла нет → **503** `practice_audio_unavailable` и больше ничего (матч не трогается, событие не пишется): отчёт, который аннулирует матч, — `audio-failed`.
 
@@ -1592,7 +1591,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 | `POST /game/runs/{id}/hint` | `twa-game-answer` | `{request_id, element_id}` → `{hint: {options_removed[]} \| {prefix}, coins: {balance}, run}`; 409 `hint_not_available`, `coins_insufficient {balance, price}` |
 | `POST /game/runs/{id}/booster` | `twa-game-answer` | `{request_id (uuid), item_key, element_id?}` → забег (`GameRunResource`, как `GET`). Бустер из инвентаря ученика: `hint` (подсказка текущего элемента в форме вида; `element_id` необязателен, по умолчанию текущий; результат в `current.element` — убранные варианты / `prefix`), `extra_flask` (+1 фляга, `flasks_max` растёт до `game.run.flasks_max_with_booster`), `second_chance` (первая ошибка забега не стоит фляги). Ошибки: 404 `item_not_found` (нет такого предмета или он не бустер); 409 `booster_not_owned` (`qty = 0`), `booster_limit_reached {limit, used, resets_at, upsell}` (`upsell: true` — у ученика нет `game.boosters_plus`, Pro снял бы лимит: только тогда TWA показывает пейвол; Pro на своём лимите — `false`, G2.13), `booster_already_used` (этот вид уже применён к элементу / в забеге), `booster_not_applicable` (`extra_flask` / `second_chance` в забеге без фляг — босс), `hint_not_available` (у вида или у элемента подсказка уже есть), `element_not_current {current}`, `answer_already_accepted {verdict}`, `request_id_reused`; 410 `game_run_closed` |
 | `POST /game/runs/{id}/abandon` | `twa-api` | `{confirm: true}` → забег `finished/abandoned` |
-| `GET /game/runs/{id}/audio/{element}` | `twa-practice-audio` (вне `twa-api`) | поток `audio/mpeg`, `Cache-Control: private, no-store`; элемент дальше текущего, без файла или чужой — **404**; файла нет на диске — **503** `practice_audio_unavailable` |
+| `GET /game/runs/{id}/audio/{element}` | `twa-practice-audio` (вне `twa-api`) | поток `audio/mpeg`, `Cache-Control: private, no-store` (слово на R2 — **200** `{ "url" }`, docs/26 §9.9); элемент дальше текущего, без файла или чужой — **404**; файла нет на диске — **503** `practice_audio_unavailable` |
 
 `answer.*` — как в практике: `option_id` (виды с вариантами), `text` (`spell`, `gap`, `dictation`), `order` (`sentence`), `left_id` + `right_id` (`pairs_round`), `skip: true` (пропуск — не знаю); форму проверяет вид: 422 `invalid_answer_shape`, `unknown_option_id`, `unknown_element_id`.
 

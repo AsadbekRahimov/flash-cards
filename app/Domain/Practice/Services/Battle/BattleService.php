@@ -46,7 +46,9 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use LogicException;
+use Throwable;
 
 /**
  * The actions of a 1-on-1 battle (docs/16 §1.3, §8): invite / accept / decline / cancel / ready / answer / surrender /
@@ -626,7 +628,11 @@ final class BattleService
         $this->access->assertCanPractice($by);
         $requestId = strtolower($requestId);
 
-        return $this->transact(function () use ($by, $battleId, $requestId, $elementId, $now): AudioFailureOutcome|BattleException|PracticeException {
+        // The disk is asked BEFORE the transaction: on R2 it is a HEAD (or two), which must not run while the row of the match
+        // is locked. The snapshot never changes after the invitation, so the clip of the locked row is the one probed here.
+        $probe = $this->probeClip($by, $battleId, $requestId, $elementId);
+
+        return $this->transact(function () use ($by, $battleId, $requestId, $elementId, $now, $probe): AudioFailureOutcome|BattleException|PracticeException {
             $battle = $this->lock($battleId, $by);
             if ($battle === null) {
                 return BattleException::notFound();
@@ -653,7 +659,8 @@ final class BattleService
                 return PracticeException::unknownElementId();
             }
 
-            $verified = ! $this->audio->hasFile($clip->disk, $clip->path);
+            // Missing only when the probe saw this very file missing; no probe or a failed look at the disk is "not confirmed".
+            $verified = $probe !== null && $probe['disk'] === $clip->disk && $probe['path'] === $clip->path && $probe['missing'];
             $reports[$requestId] = $verified;
             $meta['audio_reports'] = array_slice($reports, -20, null, true);
             $battle->meta = $meta;
@@ -673,6 +680,40 @@ final class BattleService
     }
 
     // ------------------------------------------------------------------ the pieces
+
+    /**
+     * The look at the file of a reported clip, without a lock: null when there is nothing to look at (no such match of the
+     * learner, a repeated report, an element without audio - the transaction answers those). An error of the disk (R2 down, a
+     * timeout) counts as "the file is there": the report is then not confirmed and the match goes on, never a 500.
+     *
+     * @return array{disk: string, path: string, missing: bool}|null
+     */
+    private function probeClip(Learner $by, int $battleId, string $requestId, string $elementId): ?array
+    {
+        /** @var Battle|null $battle */
+        $battle = Battle::query()->whereKey($battleId)->first(['id', 'challenger_id', 'opponent_id', 'snapshot', 'meta']);
+        if ($battle === null || ! $battle->involves($by->id)) {
+            return null;
+        }
+        $reports = $battle->meta['audio_reports'] ?? null;
+        if (is_array($reports) && array_key_exists($requestId, $reports)) {
+            return null;
+        }
+
+        $clip = $this->audio->clipFor(Snapshot::fromArray($battle->snapshot), $elementId);
+        if ($clip === null) {
+            return null;
+        }
+
+        try {
+            $missing = ! $this->audio->hasFile($clip->disk, $clip->path);
+        } catch (Throwable $e) {
+            Log::warning('battle.audio_check_failed', ['battle_id' => $battleId, 'disk' => $clip->disk, 'exception' => $e::class]);
+            $missing = false;
+        }
+
+        return ['disk' => $clip->disk, 'path' => $clip->path, 'missing' => $missing];
+    }
 
     /**
      * The row under `FOR UPDATE` with its participants loaded fresh; null when there is no such battle of the learner (a

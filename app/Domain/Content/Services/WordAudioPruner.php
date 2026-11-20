@@ -36,6 +36,14 @@ final class WordAudioPruner
 
     public function __construct(private readonly WordAudioService $audio) {}
 
+    /** @return list<string> the disks never pruned: the default name of the dictations and the disk `practice.audio.disk` names now */
+    private function foreignDisks(): array
+    {
+        $practice = config('practice.audio.disk');
+
+        return is_string($practice) && $practice !== '' ? [...self::FOREIGN_DISKS, $practice] : self::FOREIGN_DISKS;
+    }
+
     /**
      * @param  int  $days  an orphan younger than this stays
      * @param  bool  $delete  false: only count and list (the default of the command)
@@ -51,7 +59,7 @@ final class WordAudioPruner
         if (! is_array(config("filesystems.disks.{$diskName}"))) {
             throw new InvalidArgumentException("Unknown disk: {$diskName}");
         }
-        if (in_array($diskName, self::FOREIGN_DISKS, true)) {
+        if (in_array($diskName, $this->foreignDisks(), true)) {
             throw new InvalidArgumentException("The disk {$diskName} has no word audio.");
         }
         if ($days < 1) {

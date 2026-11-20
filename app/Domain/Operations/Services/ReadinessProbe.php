@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Operations\Services;
 
+use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
 use App\Domain\Operations\DTO\ReadinessReport;
 use App\Domain\Operations\Support\PureCache;
 use Carbon\CarbonImmutable;
@@ -57,6 +58,12 @@ final class ReadinessProbe
         // Production must run with APP_DEBUG=false, have the bot username (Mini App links), the bot token and webhook secrets, and a TWA JWT secret of 32+ bytes.
         if (app()->isProduction()) {
             $checks['config'] = $this->guard('config', $this->checkConfig(...));
+        }
+
+        // A typo in TTS_DRIVER (docs/26 §5.1) breaks only the synthesis, the application serves: `degraded`, shown only then.
+        if (! ConfiguredSpeechSynthesizer::known()) {
+            Log::warning('readiness.tts_driver_unknown');
+            $checks['tts'] = ReadinessReport::DEGRADED;
         }
 
         $checks['scheduler'] = $this->guard('scheduler', $this->checkScheduler(...));

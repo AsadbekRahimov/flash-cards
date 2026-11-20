@@ -158,6 +158,18 @@ it('refuses the disk of the dictations, an unknown disk and a bad --days', funct
     'not a number' => [['--days' => 'many'], 'whole number'],
 ]);
 
+it('refuses the disk practice.audio.disk names, whatever its name', function (): void {
+    config(['practice.audio.disk' => 'local']);
+    Storage::fake('local');
+    prunePut('audio/old.mp3', 90, 'local');
+
+    $this->artisan('audio:prune', ['--disk' => 'local', '--delete' => true])
+        ->expectsOutputToContain('The disk local has no word audio.')
+        ->assertExitCode(2);
+
+    expect(Storage::disk('local')->exists('audio/old.mp3'))->toBeTrue();
+});
+
 it('lists the files that could not be deleted and exits non-zero', function (): void {
     pruneWord('alpha', ['audio_path' => prunePathOf('alpha')]);
     $old = time() - 90 * 86400;

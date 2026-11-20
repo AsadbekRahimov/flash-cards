@@ -70,6 +70,12 @@ return [
         'monthly_char_limit' => (int) env('TTS_MONTHLY_CHAR_LIMIT', 900000),
 
         /**
+         * «Требуют внимания» of the dashboard of `/admin` warns when the queue `tts` holds more jobs than this (docs/26 §9.3):
+         * the `low` worker does not keep up, or it is gone.
+         */
+        'queue_attention_size' => (int) env('TTS_QUEUE_ATTENTION_SIZE', 3000),
+
+        /**
          * Pre-generated word audio (docs/12 task 1.2c): `audio/{sha1(text|voice|version)}.mp3`
          * on the `public` disk. Bump `audio_version` to re-voice the whole library
          * (new hash -> new files; `php artisan audio:pregenerate <course>`).

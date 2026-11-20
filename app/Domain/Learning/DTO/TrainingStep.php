@@ -29,7 +29,7 @@ final readonly class TrainingStep
      * @param  int|null  $newWordsRemaining  new cards the learner may still get today after this step
      *                                       (Free quota, docs/12 §5.3); null = unlimited
      * @param  ExercisePrompt|null  $prompt  the exercise the card is served with (docs/13 §2.5); null exactly when $word is null
-     * @param  string|null  $audioUrl  pre-generated mp3 of the word (task 1.2c); null → the client falls back to /tts
+     * @param  string|null  $audioUrl  pre-generated mp3 of the word (task 1.2c); null → the client falls back to Web Speech (docs/26 §9.9)
      * @param  string|null  $example  the example this serve shows (docs/06 §12.4: the anchor, or a rotated one after graduation)
      * @param  string|null  $exampleTranslation  the translation of exactly that example in the session's language (the fallback one
      *                                           when it has none); null when there is none

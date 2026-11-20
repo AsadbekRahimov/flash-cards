@@ -34,7 +34,8 @@ use Throwable;
  * Two disks only: the one of `practice.audio.disk` (the phrases of the authors: `storage/app/practice-audio`, no URL, no web
  * server maps it) and the disk of the pre-generated audio of the words (`twa.tts.audio_disk`: `public`, or `audio` on R2). A
  * snapshot is written by the server, yet a name of any other disk is not followed. A word on R2 is not streamed: the endpoints
- * answer 302 to its public address ({@see redirectUrl()}).
+ * answer 200 with its public address in JSON ({@see publicUrl()}, docs/26 §9.9) and the client plays that address in an
+ * `<audio>` - no `fetch` to the bucket, no token sent there, no CORS on the bucket.
  */
 final class PracticeAudioService
 {
@@ -95,19 +96,27 @@ final class PracticeAudioService
     }
 
     /**
-     * Where the client is sent for a clip instead of a stream: the public address of a word on a remote disk (R2, docs/26 §9.5).
-     * The words are public files, the token is not needed for them, and the bytes must not go through PHP. Null: stream it
-     * ({@see open()}) - a phrase of an author (private) or a word on a local disk.
+     * The public address of a clip that the client plays itself instead of a stream (docs/26 §9.9): a word on a remote disk (R2)
+     * whose disk has a public base URL (`AUDIO_PUBLIC_URL`). The words are public files, the token is not needed for them, and the
+     * bytes must not go through PHP. The bucket is not asked (the readiness of a word is its `audio_path`, §9.5).
+     *
+     * Null: stream it ({@see open()}) - a phrase of an author (private), a word on a local disk, or a remote disk without a public
+     * URL (S3 would build the address of the API of the bucket, which is not public and not in the CSP: streaming still plays).
      */
-    public function redirectUrl(AudioClip $clip): ?string
+    public function publicUrl(AudioClip $clip): ?string
     {
         if (! $this->isRemoteWordDisk($clip->disk)) {
             return null;
         }
 
+        $base = config("filesystems.disks.{$clip->disk}.url");
+        if (! is_string($base) || $base === '') {
+            return null;
+        }
+
         $url = Storage::disk($clip->disk)->url($clip->path);
 
-        return $url !== '' ? $url : null;
+        return preg_match('#\Ahttps?://[^/\s]+/\S*\z#', $url) === 1 ? $url : null;
     }
 
     /** The audio of a version can be played: `audio_status = ready` AND the file is on the disk (docs/16 §1.3). */

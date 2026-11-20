@@ -5,6 +5,7 @@ import { createMemoryHistory, createRouter, createWebHistory } from 'vue-router'
 import BattleView from '../BattleView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
+import { RemoteAudio, type ClipBody } from '@/api/remoteAudio'
 import { setLocale } from '@/i18n'
 import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { RESULT_CHECKS_MAX } from '@/stores/battle'
@@ -88,7 +89,7 @@ vi.mock('@/components/PaywallSheet.vue', async () => {
 })
 
 /** What the probe finds in the screen: the source of the clips it provides (the component of a dictation asks it for its "Retry"). */
-const probeClip = vi.hoisted(() => ({ last: null as Blob | null, provided: false }))
+const probeClip = vi.hoisted(() => ({ last: null as ClipBody | null, provided: false }))
 
 // The component of a mode is the business of its own task; here a probe that answers when it is told to.
 vi.mock('@/components/practice/modeComponents', async () => {
@@ -2132,6 +2133,20 @@ describe('BattleView — a recording the server does not have (review Ж5)', () 
     expect(text(r, 'result-title')).toBe('Матч не состоялся') // the room: the match did not begin
     expect(text(r, 'result-reason')).toBe('Баттл отменён: запись недоступна. Очки не засчитаны.')
     expect(primaries(r)).toHaveLength(1)
+  })
+
+  it('a word on R2 that the device could not load is reported by the id of its element: the server looks at the bucket (docs/26 §9.9)', async () => {
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) =>
+      url.endsWith('eD2') ? Promise.reject(apiError('network', 0, 'remote_audio_failed')) : Promise.resolve(url.endsWith('eD4') ? new RemoteAudio('https://audio.example.uz/audio/w.mp3') : clip()),
+    )
+    vi.mocked(api.battles.audioFailed).mockResolvedValue({ verified: true, battle: closedBattle('voided', { mode: 'dictation', version: 5 }) })
+
+    const r = await render(roomBattle({ mode: 'dictation', audio_preload: CLIPS }))
+    await flushPromises()
+
+    expect(api.battles.audioFailed).toHaveBeenCalledTimes(1)
+    expect(api.battles.audioFailed).toHaveBeenCalledWith(15, { request_id: expect.any(String), element_id: ELEMENTS[1] })
+    expect(get(r, 'battle-view').attributes('data-status')).toBe('closed')
   })
 
   it('the file is there after all (verified: false): the clip is asked for again, once, and the room opens “Ready”', async () => {

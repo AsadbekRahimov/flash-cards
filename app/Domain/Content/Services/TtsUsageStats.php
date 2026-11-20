@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Content\Services;
 
 use App\Domain\Administration\Services\WidgetCache;
+use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\TtsCharacterBudget;
 
 /**
@@ -37,7 +38,7 @@ final class TtsUsageStats
      */
     public function current(): ?array
     {
-        if ((string) config('twa.tts.driver') !== 'google') {
+        if (ConfiguredSpeechSynthesizer::driver() !== ConfiguredSpeechSynthesizer::GOOGLE) {
             return null;
         }
 

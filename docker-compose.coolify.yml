@@ -92,6 +92,14 @@ services:
       PHP_FPM_MIN_SPARE_SERVERS: "1"
       PHP_FPM_MAX_SPARE_SERVERS: "3"
     mem_limit: 768m
+    volumes:
+      - app_storage:/var/www/html/storage
+      - app_audio:/var/www/html/storage/app/public/audio
+      # The key file of the google TTS driver (docs/26 §9.1), read-only, at the path GOOGLE_TTS_CREDENTIALS names
+      # (/run/secrets/google-tts.json). Optional: GOOGLE_TTS_KEY_FILE is the file on the host; unset, /dev/null is mounted
+      # and the driver answers tts_credentials_invalid. Here for `audio:sample`.
+      # The list repeats the volumes of x-app: a `volumes:` of a service replaces the merged one.
+      - ${GOOGLE_TTS_KEY_FILE:-/dev/null}:/run/secrets/google-tts.json:ro
 
   # Octane (FrankenPHP) for /api/*.
   lf-api:
@@ -147,6 +155,14 @@ services:
         condition: service_completed_successfully
     command: ["php", "artisan", "queue:work", "redis", "--queue=low,tts", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
     mem_limit: 320m
+    volumes:
+      - app_storage:/var/www/html/storage
+      - app_audio:/var/www/html/storage/app/public/audio
+      # The key file of the google TTS driver (docs/26 §9.1), read-only, at the path GOOGLE_TTS_CREDENTIALS names
+      # (/run/secrets/google-tts.json). Optional: GOOGLE_TTS_KEY_FILE is the file on the host; unset, /dev/null is mounted
+      # and the driver answers tts_credentials_invalid. Here: the worker of `tts` synthesizes.
+      # The list repeats the volumes of x-app: a `volumes:` of a service replaces the merged one.
+      - ${GOOGLE_TTS_KEY_FILE:-/dev/null}:/run/secrets/google-tts.json:ro
 
   lf-scheduler:
     <<: *app
@@ -155,6 +171,14 @@ services:
         condition: service_completed_successfully
     command: ["php", "artisan", "schedule:work"]
     mem_limit: 384m
+    volumes:
+      - app_storage:/var/www/html/storage
+      - app_audio:/var/www/html/storage/app/public/audio
+      # The key file of the google TTS driver (docs/26 §9.1), read-only, at the path GOOGLE_TTS_CREDENTIALS names
+      # (/run/secrets/google-tts.json). Optional: GOOGLE_TTS_KEY_FILE is the file on the host; unset, /dev/null is mounted
+      # and the driver answers tts_credentials_invalid. Here: `audio:reconcile` checks the key before it queues a night of jobs.
+      # The list repeats the volumes of x-app: a `volumes:` of a service replaces the merged one.
+      - ${GOOGLE_TTS_KEY_FILE:-/dev/null}:/run/secrets/google-tts.json:ro
 
   # The only public service: its domain is assigned in Coolify -> Domains (port 80 inside). Nothing here depends on
   # the domain (coolify.conf has server_name _), so a test domain now and the real one later need no code change.

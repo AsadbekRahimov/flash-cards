@@ -13,12 +13,12 @@ use App\Domain\Practice\Services\Battle\BattleReader;
 use App\Domain\Practice\Services\PracticeAudioService;
 use App\Domain\Practice\Services\PracticeSessionService;
 use App\Http\Resources\ApiErrorResource;
+use App\Http\Resources\Twa\AudioLocationResource;
 use App\Models\Battle;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -26,7 +26,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * The audio of an element of a session or of a battle (docs/16 §7.2, §7.4, §10.2): the file is read from the disk the element of
  * the snapshot names, by the opaque id of the element, and streamed with `Cache-Control: private, no-store`. Only the owner of a
  * session / a player of a battle gets it; an id of somebody else's session or battle and an id of an element without audio look the
- * same (404); a file that is not there is 503. A word on a remote disk (R2) is not streamed: 302 to its public address (docs/26 §9.5).
+ * same (404); a file that is not there is 503. A word on a remote disk (R2) is not streamed: 200 with its public address in JSON
+ * (`AudioLocationResource`, docs/26 §9.9), the client plays it in an `<audio>`.
  *
  * The audio of a finished session stays available until its `expires_at` (to listen again in the review). In a battle the clip of
  * a round that has not begun is not handed out - 404 like an element that does not exist - except in the room and the countdown of
@@ -59,9 +60,9 @@ final class PracticeAudioController
             return $this->notFound();
         }
 
-        $url = $this->audio->redirectUrl($clip);
+        $url = $this->audio->publicUrl($clip);
         if ($url !== null) {
-            return $this->redirect($url);
+            return AudioLocationResource::respond($url);
         }
 
         $stream = $this->audio->open($clip);
@@ -95,9 +96,9 @@ final class PracticeAudioController
             return ApiErrorResource::respond(404, BattleException::NOT_FOUND, 'No such battle.');
         }
 
-        $url = $this->audio->redirectUrl($clip);
+        $url = $this->audio->publicUrl($clip);
         if ($url !== null) {
-            return $this->redirect($url);
+            return AudioLocationResource::respond($url);
         }
 
         $stream = $this->audio->open($clip);
@@ -121,15 +122,6 @@ final class PracticeAudioController
         $index = $snapshot->indexOf($elementId);
 
         return $index !== null && $index + 1 <= $battle->current_round;
-    }
-
-    /**
-     * A word on R2 (docs/26 §9.5): 302 to its public address, the bytes do not go through PHP. The redirect itself is not cached:
-     * it is the answer to an authorized request.
-     */
-    private function redirect(string $url): RedirectResponse
-    {
-        return new RedirectResponse($url, 302, ['Cache-Control' => 'private, no-store']);
     }
 
     private function stream(AudioStream $stream): StreamedResponse

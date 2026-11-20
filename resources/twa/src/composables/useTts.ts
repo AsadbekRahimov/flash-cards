@@ -1,7 +1,9 @@
 /**
  * Text-to-speech helper — plays the pre-generated mp3 (`audio_url` of the card,
- * docs/12 task 1.2c) when there is one, else uses the browser's Web Speech API,
- * otherwise falls back to the server-side TTS endpoint (backend Sprint 9+).
+ * docs/12 task 1.2c: this server or the public domain of the word audio on R2,
+ * CSP `media-src`) when there is one, else uses the browser's Web Speech API,
+ * otherwise stays silent. There is no server-side fallback: `GET /api/twa/tts`
+ * is gone (docs/26 §9.9) - an `<audio src>` cannot carry the token it needed.
  *
  * iOS Safari quirk: `getVoices()` may return `[]` on first call; we listen
  * to `voiceschanged` to pick a voice asynchronously.
@@ -77,23 +79,8 @@ export function useTts() {
         synth.speak(u)
         return
       } catch {
-        // fall through to server fallback
+        // Silent — TTS is best-effort.
       }
-    }
-    await speakFallback(text, mine)
-  }
-
-  async function speakFallback(text: string, mine: number): Promise<void> {
-    try {
-      const url = `/api/twa/tts?word=${encodeURIComponent(text)}`
-      const audio = new Audio(url)
-      current = audio
-      trackTtsAudio(audio)
-      await audio.play()
-      markTiming('first_audio')
-    } catch {
-      // Silent — TTS is best-effort.
-      if (mine === seq) current = null
     }
   }
 

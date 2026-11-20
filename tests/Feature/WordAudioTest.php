@@ -248,30 +248,6 @@ function audioAuthHeaders(Learner $learner): array
     return ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
 }
 
-it('GET /tts redirects to the stored file without calling the TTS service', function (): void {
-    fakeTts();
-    $path = audioPathOf('resilient');
-    Storage::disk('public')->put($path, 'stored-bytes');
-    $learner = Learner::factory()->create();
-
-    $this->withHeaders(audioAuthHeaders($learner))->get('/api/twa/tts?word=Resilient')
-        ->assertStatus(302)
-        ->assertRedirect(Storage::disk('public')->url($path))
-        ->assertHeader('Cache-Control', 'max-age=3600, private');
-    Http::assertNothingSent();
-});
-
-it('GET /tts answers 404 for an unknown word without calling the TTS service (docs/26 §9.4)', function (): void {
-    fakeTts();
-    Storage::disk('public')->put(audioPathOf('resilient'), 'stored-bytes');
-    $learner = Learner::factory()->create();
-
-    $this->withHeaders(audioAuthHeaders($learner))->getJson('/api/twa/tts?word=different')
-        ->assertNotFound()
-        ->assertJsonPath('error.code', 'tts_not_found');
-    Http::assertNothingSent();
-});
-
 it('exposes audio_url on the training card only when the word has audio', function (): void {
     $group = TelegramGroup::factory()->create(['status' => 'active']);
     $learner = Learner::factory()->memberOf($group)->create();
@@ -310,8 +286,6 @@ it('an empty (partial) file is not ready: it is regenerated and not served', fun
     expect($service->isCurrent($word))->toBeFalse()
         ->and($service->storedPath('resilient'))->toBeNull();
 
-    $learner = Learner::factory()->create();
-    $this->withHeaders(audioAuthHeaders($learner))->getJson('/api/twa/tts?word=resilient')->assertNotFound();
     Http::assertNothingSent();
 
     expect($service->generate($word))->toBeTrue()

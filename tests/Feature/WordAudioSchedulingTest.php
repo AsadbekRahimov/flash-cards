@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use App\Domain\Content\Contracts\SpeechSynthesizer;
+use App\Domain\Content\Exceptions\SpeechSynthesisException;
+use App\Domain\Content\Services\Tts\GoogleServiceAccount;
+use App\Domain\Content\Services\Tts\GoogleSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\NullSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\TtsCharacterBudget;
 use App\Domain\Content\Services\VocabularyImporter;
@@ -20,7 +23,9 @@ use App\Models\Word;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
@@ -39,6 +44,13 @@ beforeEach(function (): void {
     Storage::fake('public');
     Queue::fake();
     schedSynth();
+    $this->schedKeyFile = null;
+});
+
+afterEach(function (): void {
+    if (is_string($this->schedKeyFile)) {
+        @unlink($this->schedKeyFile);
+    }
 });
 
 /** A synthesizer that is configured (not `null`) and counts its calls (only the tests on the real sync queue reach it). */
@@ -65,6 +77,26 @@ function schedSyncQueue(): void
 {
     app()->forgetInstance('queue');
     Queue::clearResolvedInstance('queue');
+}
+
+/** The real binding with `TTS_DRIVER=google`, a valid key file of its own (removed after the test) and a Google voice. */
+function schedGoogle(): void
+{
+    $key = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA]);
+    openssl_pkey_export($key, $pem);
+    $path = (string) tempnam(sys_get_temp_dir(), 'sched-google-');
+    file_put_contents($path, json_encode([
+        'type' => 'service_account',
+        'private_key_id' => 'abc123',
+        'private_key' => $pem,
+        'client_email' => 'tts@lexiflow-test.iam.gserviceaccount.com',
+    ], JSON_THROW_ON_ERROR));
+    test()->schedKeyFile = $path;
+
+    app()->forgetInstance(SpeechSynthesizer::class);
+    app()->forgetInstance(GoogleServiceAccount::class);
+    Http::preventStrayRequests();
+    config(['twa.tts.driver' => 'google', 'twa.tts.google.credentials' => $path, 'twa.tts.voice' => 'en-US-Neural2-F']);
 }
 
 function schedLesson(?Course $course = null): Lesson
@@ -371,6 +403,114 @@ it('queues nothing while TTS is not configured', function (): void {
 
     $this->artisan('audio:reconcile')->expectsOutputToContain('TTS is not configured')->assertSuccessful();
     Queue::assertNothingPushed();
+});
+
+it('queues nothing while TTS_DRIVER is a value nobody knows, and says so', function (): void {
+    schedWord('apple');
+    app()->forgetInstance(SpeechSynthesizer::class);
+    config(['twa.tts.driver' => 'gogle']);
+
+    $this->artisan('audio:reconcile')->expectsOutputToContain('TTS_DRIVER is none of google, http or null')->assertSuccessful();
+    Queue::assertNothingPushed();
+});
+
+it('with google queues nothing while Google refused the sign-in, the key is missing or invalid, or the voice is not Google\'s', function (Closure $break, string $reason, string $message): void {
+    schedWord('apple');
+    schedGoogle();
+    $break();
+
+    expect(app(WordAudioScheduler::class)->reconcile())->toBe(['queued' => 0, 'reason' => $reason]);
+    $this->artisan('audio:reconcile')->expectsOutputToContain($message)->assertSuccessful();
+    Queue::assertNothingPushed();
+})->with([
+    'halted (401)' => [fn () => Cache::put(GoogleSpeechSynthesizer::HALT_KEY, ['code' => 'tts_auth_failed'], 600), WordAudioScheduler::SKIP_HALTED, 'audio:sample --clear-halt'],
+    'halted (403)' => [fn () => Cache::put(GoogleSpeechSynthesizer::HALT_KEY, ['code' => 'tts_forbidden'], 600), WordAudioScheduler::SKIP_HALTED, 'Google refused the sign-in'],
+    'no key path' => [fn () => config(['twa.tts.google.credentials' => '']), WordAudioScheduler::SKIP_CREDENTIALS_MISSING, 'GOOGLE_TTS_CREDENTIALS is empty'],
+    'no file' => [fn () => config(['twa.tts.google.credentials' => '/nonexistent/google-tts.json']), WordAudioScheduler::SKIP_CREDENTIALS_INVALID, 'tts_credentials_invalid'],
+    'an empty file (/dev/null of compose)' => [fn () => config(['twa.tts.google.credentials' => '/dev/null']), WordAudioScheduler::SKIP_CREDENTIALS_INVALID, 'tts_credentials_invalid'],
+    'not a service-account key' => [fn () => file_put_contents((string) config('twa.tts.google.credentials'), '{"type":"authorized_user","secret":"s3cr3t"}'), WordAudioScheduler::SKIP_CREDENTIALS_INVALID, 'tts_credentials_invalid'],
+    'an edge-tts voice' => [fn () => config(['twa.tts.voice' => 'en-US-AriaNeural']), WordAudioScheduler::SKIP_VOICE_UNSUPPORTED, 'TTS_VOICE is not a voice of Google'],
+]);
+
+it('with google and a valid key queues the words, and again once the halt marker is gone', function (): void {
+    $apple = schedWord('apple');
+    schedGoogle();
+    Cache::put(GoogleSpeechSynthesizer::HALT_KEY, ['code' => 'tts_auth_failed'], 600);
+    expect(app(WordAudioScheduler::class)->reconcile()['reason'])->toBe(WordAudioScheduler::SKIP_HALTED);
+
+    GoogleSpeechSynthesizer::clearHalt();
+
+    $this->artisan('audio:reconcile')->expectsOutput('Queued: 1')->assertSuccessful();
+    expect(schedQueued())->toBe([$apple->id]);
+    Http::assertNothingSent();
+});
+
+it('a word waiting in the queue is not queued again by the next night, a forced job is a job of its own', function (): void {
+    $apple = schedWord('apple');
+    $pear = schedWord('pear');
+
+    expect(app(WordAudioScheduler::class)->reconcile())->toMatchArray(['reason' => null]);
+    app(WordAudioScheduler::class)->reconcile();
+    PregenerateWordAudioJob::dispatch($apple->id, true);
+    PregenerateWordAudioJob::dispatch($apple->id, true);
+
+    expect(schedQueued())->toBe([$apple->id, $pear->id, $apple->id])
+        ->and(Queue::pushed(PregenerateWordAudioJob::class)->map(fn (PregenerateWordAudioJob $job): string => $job->uniqueId())->all())
+        ->toBe([(string) $apple->id, (string) $pear->id, $apple->id.':force']);
+});
+
+it('the job is unique only until it is picked up: an edit during a synthesis still voices the new text', function (): void {
+    schedSyncQueue();
+    $word = schedWord('apple');
+    $calls = [];
+    // The admin edits the text while the job of the old text is synthesizing: its own job must not be dropped by the lock.
+    app()->instance(SpeechSynthesizer::class, new class($word->id, $calls) implements SpeechSynthesizer
+    {
+        /** @param  list<string>  $calls */
+        public function __construct(private readonly int $wordId, private array &$calls) {}
+
+        public function synthesize(string $text, string $voice): array
+        {
+            $this->calls[] = $text;
+            if ($text === 'apple') {
+                $word = Word::query()->findOrFail($this->wordId);
+                $word->update(['word' => 'pear']);
+                app(WordAudioService::class)->textChanged($word);
+            }
+
+            return ['body' => 'mp3-of-'.$text, 'content_type' => 'audio/mpeg'];
+        }
+    });
+
+    PregenerateWordAudioJob::dispatch($word->id);
+
+    expect($calls)->toBe(['apple', 'pear'])
+        ->and($word->fresh()?->audio_path)->toBe(schedPath('pear'));
+
+    // Done: the lock is free, the word can be queued again.
+    PregenerateWordAudioJob::dispatch($word->id, true);
+    expect($calls)->toBe(['apple', 'pear', 'pear']);
+});
+
+it('a failed job frees its word for the next night', function (): void {
+    schedSyncQueue();
+    $word = schedWord('apple');
+    app()->instance(SpeechSynthesizer::class, new class implements SpeechSynthesizer
+    {
+        public int $calls = 0;
+
+        public function synthesize(string $text, string $voice): array
+        {
+            $this->calls++;
+
+            throw SpeechSynthesisException::rejected();
+        }
+    });
+
+    PregenerateWordAudioJob::dispatch($word->id);
+    PregenerateWordAudioJob::dispatch($word->id);
+
+    expect(app(SpeechSynthesizer::class)->calls)->toBe(2);
 });
 
 it('refuses a --limit that is not a whole number of 1 or more', function (string $limit): void {
