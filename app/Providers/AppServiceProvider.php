@@ -13,6 +13,9 @@ use App\Domain\Billing\Providers\PaymeProvider;
 use App\Domain\Billing\Providers\TelegramStarsProvider;
 use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\NewWordQuota;
+use App\Domain\Content\Contracts\SpeechSynthesizer;
+use App\Domain\Content\Services\Tts\HttpSpeechSynthesizer;
+use App\Domain\Content\Services\Tts\NullSpeechSynthesizer;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\FsrsParameters;
 use App\Domain\Learning\Support\HardRoundPolicy;
@@ -57,6 +60,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Telegram\Bot\Api;
 
 class AppServiceProvider extends ServiceProvider
@@ -113,6 +117,21 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(InitDataValidator::class, function (): InitDataValidator {
             return new InitDataValidator((string) config('telegram.bot_token'));
+        });
+
+        // The speech synthesizer (docs/26 §5.1), chosen per resolution (not a singleton): a `config()` change in a test applies
+        // at once. No TTS_DRIVER keeps the installations from before the driver: `http` with a TTS_SERVICE_URL, else `null`.
+        $this->app->bind(SpeechSynthesizer::class, static function (Application $app): SpeechSynthesizer {
+            $driver = (string) config('twa.tts.driver');
+            if ($driver === '') {
+                $driver = (string) config('twa.tts.service_url') !== '' ? 'http' : 'null';
+            }
+
+            return match ($driver) {
+                'http' => $app->make(HttpSpeechSynthesizer::class),
+                'null' => $app->make(NullSpeechSynthesizer::class),
+                default => throw new InvalidArgumentException("Unknown TTS driver '{$driver}' (twa.tts.driver, TTS_DRIVER): expected http or null."),
+            };
         });
 
         // New-card budget for CardPicker: the plan's daily limit of new words (Free 20, Pro unlimited; docs/12 §5.3).

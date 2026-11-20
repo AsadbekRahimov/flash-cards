@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Content\Services;
 
-use App\Domain\Twa\Services\TtsFallbackService;
+use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Jobs\PregenerateWordAudioJob;
 use App\Models\Word;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -19,12 +19,12 @@ use Throwable;
  * The file name is content-addressed: `audio/{sha1(text|voice|version)}.mp3` on the
  * `public` disk, so the same text in two words (or two courses) is one file, and the
  * TTS endpoint can find it from the text alone. `words.audio_path` is the relative path.
- * The synthesis itself is {@see TtsFallbackService} (the same edge-tts client the live
+ * The synthesis itself is the configured {@see SpeechSynthesizer} (the same one the live
  * `/api/twa/tts` fallback uses).
  */
 final class WordAudioService
 {
-    public function __construct(private readonly TtsFallbackService $tts) {}
+    public function __construct(private readonly SpeechSynthesizer $tts) {}
 
     /** Lower-cased, whitespace-collapsed text: "Ice  Cream" and "ice cream" sound the same. */
     public function normalize(string $text): string

@@ -42,6 +42,13 @@ return [
     ],
 
     'tts' => [
+        /**
+         * The speech synthesizer (docs/26 §5.1, bound in AppServiceProvider): `http` - the edge-tts compatible service of
+         * `service_url`; `null` - nothing configured, the audio jobs fail with `tts_service_not_configured`. Unset: `http`
+         * when `service_url` is set, else `null` (decided when the synthesizer is resolved, so installations without
+         * TTS_DRIVER keep working as before).
+         */
+        'driver' => env('TTS_DRIVER'),
         'service_url' => env('TTS_SERVICE_URL', ''),
         'timeout' => (int) env('TTS_SERVICE_TIMEOUT', 8),
 

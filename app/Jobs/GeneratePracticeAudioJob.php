@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Domain\Content\Exceptions\SpeechSynthesisException;
 use App\Domain\Practice\Services\PracticeAudioService;
-use App\Domain\Twa\Services\TtsFallbackService;
 use App\Models\PracticeItemVersion;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
-use RuntimeException;
 use Throwable;
 
 /**
@@ -52,11 +51,11 @@ final class GeneratePracticeAudioJob implements ShouldQueue
 
         try {
             $audio->generate($version, $this->force);
-        } catch (RuntimeException $e) {
-            // A TTS service that is not configured stays so: five more attempts over the next hour would end the same way, and
+        } catch (SpeechSynthesisException $e) {
+            // A TTS service that is not configured (a synthesis error that is not `retryable`) stays so: five more attempts over the next hour would end the same way, and
             // a sync queue (a local environment without the service) rethrows whatever a job throws out of dispatch() - which
             // took `db:seed` down. Failing the job turns the version to `failed` with the code (failed() below), once, no retry.
-            if ($e->getMessage() !== TtsFallbackService::NOT_CONFIGURED) {
+            if ($e->retryable) {
                 throw $e;
             }
 

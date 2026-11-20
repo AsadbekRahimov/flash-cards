@@ -6,6 +6,7 @@ namespace App\Domain\Practice\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Practice\DTO\AudioClip;
 use App\Domain\Practice\DTO\AudioStream;
@@ -13,7 +14,6 @@ use App\Domain\Practice\DTO\Snapshot;
 use App\Domain\Practice\DTO\SnapshotElement;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Support\PracticeTextNormalizer;
-use App\Domain\Twa\Services\TtsFallbackService;
 use App\Jobs\GeneratePracticeAudioJob;
 use App\Models\Learner;
 use App\Models\PracticeItemVersion;
@@ -44,7 +44,7 @@ final class PracticeAudioService
 
     public function __construct(
         private readonly ProductEventRecorder $events,
-        private readonly TtsFallbackService $tts,
+        private readonly SpeechSynthesizer $tts,
     ) {}
 
     /** The disk of the phrases of the authors (`practice.audio.disk`): streamed by the audio endpoint only. */
