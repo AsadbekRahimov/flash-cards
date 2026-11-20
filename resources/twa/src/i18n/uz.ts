@@ -423,6 +423,7 @@ export const uz: Translations = {
   // ---- paywall (Free quota, mode coming_soon; docs/12 §5.4) ----
   'paywall.title': "Pro'da nimalar bo'ladi",
   'paywall.lead_quota': "Bugungi yangi so'zlar limiti tugadi — takrorlash cheklovsiz.",
+  'paywall.lead_quota_short': "Takrorlash har doim ochiq. Pro yangi so'zlar uchun kunlik limitni olib tashlaydi.",
   'paywall.soon': "To'lov keyinroq ochiladi — botda xabar beramiz.",
   'paywall.free': {
     one: "Hozir sizda bepul tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
@@ -457,7 +458,6 @@ export const uz: Translations = {
 
   // ---- purchase (paywall mode purchase, subscription screen; docs/13 §5) ----
   'paywall.title_purchase': 'LexiFlow Pro',
-  'paywall.lead_purchase': "Istagancha yangi so'z, yozma mashqlar, shaxsiy to'plamlar, zaxira kunlar va sinov imtihonlari.",
   'billing.title': 'Obuna',
   'billing.period.month': 'Oy',
   'billing.period.year': 'Yil',

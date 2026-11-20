@@ -135,6 +135,21 @@ async function readMe(store: MeTarget): Promise<void> {
  * always asks (the Subscription screen on open, a confirmed payment); `invalidate()` makes the next `load()` ask
  * (the learner left a center, so the plan may have changed).
  */
+/**
+ * A checkout refused by Laravel's validation (422 without an `error.code`, `{ message, errors: { period: [...] } }`): the period is
+ * not sold in that way of paying (the quarter is Stars only). The server words it in the learner's language — its first line about
+ * `period` is shown instead of the generic text. Null for anything else (a coded error keeps its own text).
+ */
+function periodRefusal(err: unknown): string | null {
+  if (!(err instanceof ApiClientError) || err.kind !== 'validation') return null
+  const body = (err.raw as { data?: unknown } | undefined)?.data
+  if (typeof body !== 'object' || body === null || 'error' in body) return null
+  const errors = (body as { errors?: unknown }).errors
+  const period = typeof errors === 'object' && errors !== null ? (errors as Record<string, unknown>).period : undefined
+  const first = Array.isArray(period) ? period[0] : undefined
+  return typeof first === 'string' && first.trim() !== '' ? first : null
+}
+
 export const useBillingStore = defineStore('billing', {
   state: (): BillingState => ({
     entitlement: null,
@@ -435,7 +450,7 @@ export const useBillingStore = defineStore('billing', {
       this.purchase = {
         status: 'failed',
         orderToken: null,
-        error: err === null ? t('billing.payment_failed') : errorMessage(err, 'today'),
+        error: err === null ? t('billing.payment_failed') : (periodRefusal(err) ?? errorMessage(err, 'today')),
         notice: '',
       }
     },

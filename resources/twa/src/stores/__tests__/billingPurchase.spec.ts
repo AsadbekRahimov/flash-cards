@@ -355,4 +355,33 @@ describe('billing store: catalog and purchase', () => {
     expect(billing.entitlement?.renewal?.auto).toBe(true)
     expect(billing.acting).toBe(false)
   })
+
+  describe('a checkout refused by validation (422 without error.code)', () => {
+    /** What `mapError` makes of a Laravel validation answer: the fetch error with its body in `raw.data`. */
+    const laravel422 = (data: unknown) => new ApiClientError('validation', 422, 'Unprocessable Content', 'The given data was invalid.', { data })
+
+    it('shows the first line about the period, in the words of the server', async () => {
+      vi.mocked(api.billing.checkout).mockRejectedValue(
+        laravel422({ message: 'x', errors: { period: ['Тариф «3 месяца» оплачивается только в Telegram Stars.', 'second'] } }),
+      )
+      const billing = useBillingStore()
+
+      await billing.buy('quarter', 'payme')
+
+      expect(billing.purchase.status).toBe('failed')
+      expect(billing.purchase.error).toBe('Тариф «3 месяца» оплачивается только в Telegram Stars.')
+    })
+
+    it('keeps the generic text when the answer has no line about the period, or carries an error code', async () => {
+      const billing = useBillingStore()
+
+      vi.mocked(api.billing.checkout).mockRejectedValueOnce(laravel422({ message: 'x', errors: { provider: ['nope'] } }))
+      await billing.buy('quarter', 'payme')
+      expect(billing.purchase.error).toBe('Что-то пошло не так.')
+
+      vi.mocked(api.billing.checkout).mockRejectedValueOnce(laravel422({ error: { code: 'whatever', message: 'x' }, errors: { period: ['raw'] } }))
+      await billing.buy('quarter', 'payme')
+      expect(billing.purchase.error).not.toBe('raw')
+    })
+  })
 })

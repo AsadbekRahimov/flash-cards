@@ -88,7 +88,7 @@ const stage = (number: number, lessons: CourseLesson[]): CourseStage => ({
   lessons,
 })
 
-async function render(slug = 'english-a1') {
+async function render(slug = 'english-a1', attach = false) {
   const stub = { template: '<div />' }
   const router = createRouter({
     history: createMemoryHistory(),
@@ -99,7 +99,8 @@ async function render(slug = 'english-a1') {
       { path: '/exam/:sessionId(\\d+)', name: 'exam', component: stub },
     ],
   })
-  const wrapper = mount(CourseView, { props: { slug }, global: { plugins: [router] } })
+  // `attach`: in the document, for what needs real focus.
+  const wrapper = mount(CourseView, { props: { slug }, global: { plugins: [router] }, ...(attach ? { attachTo: document.body } : {}) })
   await flushPromises()
   return { wrapper, router }
 }
@@ -463,7 +464,7 @@ describe('CourseView', () => {
 
       it('switches the module on a pick, closes, and gives the focus back to the heading', async () => {
         vi.mocked(api.courses.get).mockResolvedValue(threeModules())
-        const { wrapper } = await render()
+        const { wrapper } = await render('english-a1', true)
         const button = wrapper.get('[data-testid=stage-picker-btn]')
         ;(button.element as HTMLElement).focus()
         await button.trigger('click')

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDialogFocus } from '@/composables/useDialogFocus'
 import PromoRedeem from '@/components/PromoRedeem.vue'
@@ -102,10 +102,15 @@ const dueCount = computed(() => today.data?.due_count ?? 0)
 
 const isPro = computed(() => billing.entitlement?.plan === 'pro')
 
-/** What Free gives; nothing for Pro. The generic line is for a plan that is not known (`/me` has not come). */
+/**
+ * What Free gives; nothing for Pro. While Pro is for sale nothing for Free with a known limit either: the row of the new words already
+ * reads "no limit instead of 20 a day", and the price has to fit the first screen. The generic line is for a plan that is not known
+ * (`/me` has not come).
+ */
 const freeLine = computed((): string => {
   if (isPro.value) return ''
   const limit = billing.entitlement?.new_words_per_day ?? null
+  if (purchaseMode.value && limit !== null && billing.entitlement?.plan === 'free') return ''
   return limit !== null ? tn('paywall.free', limit) : t('paywall.free_generic')
 })
 const contact = computed(() => supportContactLink(billing.paywall?.contact))
@@ -186,9 +191,15 @@ const reasonLead = computed((): string => {
   return key ? t(key) : ''
 })
 
+/**
+ * The line under the title. While Pro is for sale it is one short reason (the title and the rows of benefits say the rest, and the
+ * price has to fit the first screen): for the new words "reviews are always open, Pro lifts the limit" (the Pro mock-up), for the
+ * other reasons their own sentence, for `info` nothing. While Pro is only coming the reason is followed by "payment opens later".
+ */
 const lead = computed(() => {
   if (extendUntil.value !== null) return t('paywall.lead_renew', { date: formatDate(extendUntil.value, 'dayMonthYear', locale.value) })
-  const pitch = purchaseMode.value ? t('paywall.lead_purchase') : t('paywall.soon')
+  if (purchaseMode.value) return props.reason === 'quota' ? t('paywall.lead_quota_short') : reasonLead.value
+  const pitch = t('paywall.soon')
   return reasonLead.value ? `${reasonLead.value} ${pitch}` : pitch
 })
 
@@ -335,6 +346,12 @@ function openInvite(): void {
   void router?.push({ name: 'referrals', query: { from: route?.name === 'billing' || route?.name === 'today' ? route.name : undefined } })
 }
 
+/** "1 300 Stars" → the number and the currency, drawn on two lines in a narrow card (the number never breaks). */
+function splitPrice(price: string): { amount: string; unit: string } {
+  const match = /^(.*\S)\s+(\S+)$/u.exec(price)
+  return match ? { amount: match[1] ?? price, unit: match[2] ?? '' } : { amount: price, unit: '' }
+}
+
 /** The first way to pay is the primary button with the price in it; the others are quieter buttons below. */
 const primaryOption = computed((): PayOption | null => options.value[0] ?? null)
 const otherOptions = computed((): PayOption[] => options.value.slice(1))
@@ -365,6 +382,34 @@ watch(
     purchaseError.value?.$el.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
   },
 )
+
+/**
+ * The actions stay at the bottom of the sheet (the price button has to be on the first screen at 320 × 568): the content scrolls
+ * above them, and a hairline over the actions shows there is more of it below.
+ */
+const scroller = ref<HTMLElement | null>(null)
+const moreBelow = ref(false)
+
+function measure(): void {
+  const el = scroller.value
+  moreBelow.value = el !== null && el.scrollHeight - el.scrollTop - el.clientHeight > 1
+}
+
+let resizeObserver: ResizeObserver | null = null
+
+onMounted(() => {
+  measure()
+  if (typeof ResizeObserver !== 'undefined' && scroller.value) {
+    resizeObserver = new ResizeObserver(measure)
+    resizeObserver.observe(scroller.value)
+    if (scroller.value.firstElementChild) resizeObserver.observe(scroller.value.firstElementChild)
+  }
+})
+onUpdated(measure)
+onBeforeUnmount(() => resizeObserver?.disconnect())
+
+/** The bottom block: the pay button with "Not now", and what the payment is doing (starting, waiting, refused). */
+const showsActions = computed(() => purchaseMode.value && !done.value && (showsPay.value || billing.purchase.status !== 'idle'))
 
 useDialogFocus(sheet, () => emit('close'))
 
@@ -405,97 +450,80 @@ onBeforeUnmount(() => {
         <AppIcon name="x-mark" :size="18" />
       </button>
 
-      <div class="-mx-4 min-h-0 flex-1 overflow-y-auto overscroll-contain px-4">
-        <header class="flex flex-col gap-2.5 pt-3 pr-8">
-          <p class="text-[13px] leading-[18px] text-muted" data-testid="paywall-eyebrow">{{ t('billing.plan.pro') }}</p>
-          <h2 class="text-[26px] leading-8 font-semibold tracking-[-0.4px]" data-testid="paywall-title">{{ title }}</h2>
+      <div ref="scroller" class="-mx-4 min-h-0 flex-1 overflow-y-auto overscroll-contain px-4" data-testid="paywall-scroll" @scroll.passive="measure">
+        <div class="pb-4">
+          <header class="flex flex-col gap-2.5 pt-3 pr-8">
+            <p class="text-[13px] leading-[18px] text-muted" data-testid="paywall-eyebrow">{{ t('billing.plan.pro') }}</p>
+            <h2 class="text-[26px] leading-8 font-semibold tracking-[-0.4px]" data-testid="paywall-title">{{ title }}</h2>
 
-          <InlineAlert v-if="paid" tone="success" :message="paidMessage" data-testid="paywall-paid" />
+            <InlineAlert v-if="paid" tone="success" :message="paidMessage" data-testid="paywall-paid" />
 
-          <template v-if="!done">
-            <p class="text-[15px] leading-[22px] text-muted" data-testid="paywall-lead">{{ lead }}</p>
+            <template v-if="!done">
+              <p v-if="lead" class="text-[15px] leading-[22px] text-muted" data-testid="paywall-lead">{{ lead }}</p>
 
-            <p v-if="freeLine" class="text-[13px] leading-[18px] text-muted" data-testid="paywall-free">{{ freeLine }}</p>
-          </template>
-        </header>
+              <p v-if="freeLine" class="text-[13px] leading-[18px] text-muted" data-testid="paywall-free">{{ freeLine }}</p>
+            </template>
+          </header>
 
-        <ProBenefits v-if="!done" short class="mt-6" />
+          <ProBenefits v-if="!done" short class="mt-6" />
 
-        <section v-if="purchaseMode && !done" class="mt-6 space-y-3" data-testid="purchase">
-          <p v-if="offerShown">
-            <span class="chip chip-warning h-auto py-1 whitespace-normal" data-testid="purchase-offer">{{ offerText }}</span>
-          </p>
-
-          <div
-            v-if="periodCards.length > 1"
-            class="grid gap-2.5"
-            :class="periodCards.length > 2 ? 'grid-cols-3' : 'grid-cols-2'"
-            role="radiogroup"
-            :aria-label="t('billing.period.label')"
-            data-testid="periods"
-          >
-            <button
-              v-for="card in periodCards"
-              :key="card.period"
-              type="button"
-              role="radio"
-              :aria-checked="card.period === period"
-              :disabled="busy"
-              class="flex min-h-11 min-w-0 flex-col gap-1 rounded-card text-left disabled:opacity-50"
-              :class="[
-                periodCards.length > 2 ? 'p-3' : 'p-3.5',
-                card.period === period ? 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]' : 'border border-hairline bg-surface',
-              ]"
-              :data-testid="`period-${card.period}`"
-              @click="choosePeriod(card.period)"
-            >
-              <span class="text-[13px] leading-[18px] text-muted">{{ card.label }}</span>
-              <span
-                class="font-semibold break-words"
-                :class="periodCards.length > 2 ? 'text-[15px] leading-5' : 'text-[22px] leading-[26px]'"
-                data-testid="period-price"
-              >{{ card.price }}</span>
-              <s v-if="card.listPrice" class="text-[13px] leading-[18px] text-muted" data-testid="period-list-price">{{ card.listPrice }}</s>
-              <span
-                class="min-h-[18px] text-[13px] leading-[18px]"
-                :class="card.period === period ? 'text-accent-ink' : 'text-muted'"
-                data-testid="period-saving"
-              >{{ savingText(card.pct) }}</span>
-            </button>
-          </div>
-
-          <p v-if="renewing" class="flex items-start gap-2 text-sm leading-5 text-muted" data-testid="purchase-renewing">
-            <AppIcon name="arrow-path" :size="18" class="mt-px text-accent" />
-            <span>{{ t('billing.auto_renew_running') }}</span>
-          </p>
-
-          <p v-else-if="perpetual" class="flex items-start gap-2 text-sm leading-5 text-muted" data-testid="purchase-perpetual">
-            <AppIcon name="check-circle" solid :size="18" class="mt-px text-success" />
-            <span>{{ t('billing.perpetual') }}</span>
-          </p>
-
-          <InlineAlert v-else-if="grace" tone="warning" :message="graceMessage" data-testid="purchase-grace" />
-
-          <div v-else-if="primaryOption" class="space-y-1.5 pt-2">
-            <button
-              type="button"
-              class="btn btn-primary btn-lg btn-block"
-              :disabled="busy"
-              :data-price="primaryOption.price"
-              :data-testid="`pay-${primaryOption.provider}`"
-              @click="pay(primaryOption.provider)"
-            >
-              <span>{{ primaryLabel }}</span>
-              <s v-if="primaryOption.listPrice" class="ml-2 text-sm font-normal opacity-70" data-testid="list-price">{{ primaryOption.listPrice }}</s>
-            </button>
-            <button type="button" class="btn btn-plain btn-block" data-testid="paywall-close" @click="emit('close')">
-              {{ t('paywall.not_now') }}
-            </button>
-            <p class="text-center text-xs leading-4 text-muted" data-testid="pay-method">
-              {{ t('billing.pay_via', { provider: t(`billing.provider.${primaryOption.provider}`) }) }}
+          <section v-if="purchaseMode && !done" class="mt-6 space-y-3" data-testid="purchase">
+            <p v-if="offerShown">
+              <span class="chip chip-warning h-auto py-1 whitespace-normal" data-testid="purchase-offer">{{ offerText }}</span>
             </p>
 
-            <div v-if="otherOptions.length > 0" class="space-y-2 pt-3" data-testid="pay-other">
+            <div
+              v-if="periodCards.length > 1"
+              class="grid"
+              :class="periodCards.length > 2 ? 'grid-cols-3 gap-2' : 'grid-cols-2 gap-2.5'"
+              role="radiogroup"
+              :aria-label="t('billing.period.label')"
+              data-testid="periods"
+            >
+              <button
+                v-for="card in periodCards"
+                :key="card.period"
+                type="button"
+                role="radio"
+                :aria-checked="card.period === period"
+                :disabled="busy"
+                class="flex min-h-11 min-w-0 flex-col gap-1 rounded-card text-left disabled:opacity-50"
+                :class="[
+                  periodCards.length > 2 ? 'px-2.5 py-3' : 'p-3.5',
+                  card.period === period ? 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]' : 'border border-hairline bg-surface',
+                ]"
+                :data-testid="`period-${card.period}`"
+                @click="choosePeriod(card.period)"
+              >
+                <span class="text-[13px] leading-[18px] text-muted">{{ card.label }}</span>
+                <span data-testid="period-price">
+                  <span
+                    class="block font-semibold whitespace-nowrap"
+                    :class="periodCards.length > 2 ? 'text-[17px] leading-[22px]' : 'text-[22px] leading-[26px]'"
+                  >{{ splitPrice(card.price).amount }}</span> <span class="block text-[13px] leading-[18px] text-muted">{{ splitPrice(card.price).unit }}</span>
+                </span>
+                <s v-if="card.listPrice" class="text-[13px] leading-[18px] text-muted" data-testid="period-list-price">{{ card.listPrice }}</s>
+                <span
+                  class="min-h-[18px] text-[13px] leading-[18px]"
+                  :class="card.period === period ? 'text-accent-ink' : 'text-muted'"
+                  data-testid="period-saving"
+                >{{ savingText(card.pct) }}</span>
+              </button>
+            </div>
+
+            <p v-if="renewing" class="flex items-start gap-2 text-sm leading-5 text-muted" data-testid="purchase-renewing">
+              <AppIcon name="arrow-path" :size="18" class="mt-px text-accent" />
+              <span>{{ t('billing.auto_renew_running') }}</span>
+            </p>
+
+            <p v-else-if="perpetual" class="flex items-start gap-2 text-sm leading-5 text-muted" data-testid="purchase-perpetual">
+              <AppIcon name="check-circle" solid :size="18" class="mt-px text-success" />
+              <span>{{ t('billing.perpetual') }}</span>
+            </p>
+
+            <InlineAlert v-else-if="grace" tone="warning" :message="graceMessage" data-testid="purchase-grace" />
+
+            <div v-else-if="otherOptions.length > 0" class="space-y-2" data-testid="pay-other">
               <p class="text-[13px] leading-[18px] text-muted">{{ t('billing.pay_other') }}</p>
               <button
                 v-for="option in otherOptions"
@@ -515,100 +543,127 @@ onBeforeUnmount(() => {
                 </span>
               </button>
             </div>
-          </div>
+          </section>
 
-          <p
-            v-if="billing.purchase.status === 'awaiting' && billing.purchase.notice"
-            class="flex items-start gap-2 text-sm leading-5 text-muted"
-            role="status"
-            data-testid="purchase-notice"
-          >
-            <AppIcon name="information-circle" :size="18" class="mt-px" />
-            <span>{{ billing.purchase.notice }}</span>
-          </p>
-          <p
-            v-if="billing.purchase.status === 'starting'"
-            class="flex items-start gap-2 text-sm leading-5 text-muted"
-            role="status"
-            data-testid="purchase-starting"
-          >
-            <AppIcon name="arrow-path" :size="18" class="mt-px animate-spin motion-reduce:animate-none" />
-            <span>{{ t('billing.starting') }}</span>
-          </p>
-          <p
-            v-else-if="billing.purchase.status === 'awaiting'"
-            class="flex items-start gap-2 text-sm leading-5 text-muted"
-            role="status"
-            data-testid="purchase-awaiting"
-          >
-            <AppIcon name="clock" :size="18" class="mt-px" />
-            <span>{{ t('billing.awaiting') }}</span>
-          </p>
-          <p
-            v-else-if="billing.purchase.status === 'replaced'"
-            class="flex items-start gap-2 text-sm leading-5 text-muted"
-            role="status"
-            data-testid="purchase-replaced"
-          >
-            <AppIcon name="information-circle" :size="18" class="mt-px" />
-            <span>{{ billing.purchase.notice }}</span>
-          </p>
-          <div v-else-if="billing.purchase.status === 'timeout'" class="space-y-2" data-testid="purchase-timeout">
-            <p class="flex items-start gap-2 text-sm leading-5 text-muted">
-              <AppIcon name="clock" :size="18" class="mt-px text-warning" />
-              <span>{{ t('billing.timeout') }}</span>
+          <div class="mt-4 space-y-3">
+            <button
+              v-if="!done && dueCount > 0"
+              type="button"
+              class="btn btn-block"
+              :class="purchaseMode ? 'btn-tinted' : 'btn-primary'"
+              data-testid="paywall-review"
+              @click="emit('review')"
+            >
+              {{ t('paywall.review') }}
+            </button>
+
+            <p v-if="!done && !isPro" class="text-center text-[15px] leading-5">
+              <button type="button" class="text-accent underline" data-testid="invite-link" @click="openInvite">
+                {{ t('paywall.invite') }}
+              </button>
             </p>
-            <button type="button" class="btn btn-tinted btn-block" data-testid="purchase-check" @click="billing.waitForPayment()">
-              {{ t('billing.check_again') }}
+
+            <PromoRedeem @redeemed="onRedeemed" />
+
+            <p v-if="contact && !done && !isPro" class="text-center text-[13px] leading-[18px] text-muted" data-testid="paywall-contact">
+              {{ t('paywall.contact') }}
+              <a
+                v-if="contact.href"
+                :href="contact.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="break-words text-accent underline"
+                data-testid="paywall-contact-link"
+              >{{ contact.label }}</a>
+              <span v-else class="font-semibold break-words" data-testid="paywall-contact-text">{{ contact.label }}</span>
+            </p>
+
+            <!-- "Not now" sits under the price while something can be paid; otherwise it closes the sheet at the end. -->
+            <button v-if="!showsPay" type="button" class="btn btn-plain btn-block" data-testid="paywall-close" @click="emit('close')">
+              {{ t('paywall.dismiss') }}
             </button>
           </div>
-          <InlineAlert
-            v-else-if="billing.purchase.status === 'failed'"
-            ref="purchaseError"
-            tone="danger"
-            :message="billing.purchase.error"
-            data-testid="purchase-error"
-          />
-        </section>
+        </div>
+      </div>
 
-        <div class="mt-4 space-y-3">
-          <button
-            v-if="!done && dueCount > 0"
-            type="button"
-            class="btn btn-block"
-            :class="purchaseMode ? 'btn-tinted' : 'btn-primary'"
-            data-testid="paywall-review"
-            @click="emit('review')"
-          >
-            {{ t('paywall.review') }}
-          </button>
-
-          <p v-if="!done && !isPro" class="text-center text-[15px] leading-5">
-            <button type="button" class="text-accent underline" data-testid="invite-link" @click="openInvite">
-              {{ t('paywall.invite') }}
-            </button>
+      <!-- The actions: under the content, never scrolled away; a hairline over them while there is more content below. -->
+      <div
+        v-if="showsActions"
+        class="-mx-4 space-y-1.5 border-t bg-surface px-4 pt-3"
+        :class="moreBelow ? 'border-divider' : 'border-transparent'"
+        data-testid="paywall-actions"
+      >
+        <p
+          v-if="billing.purchase.status === 'awaiting' && billing.purchase.notice"
+          class="flex items-start gap-2 text-sm leading-5 text-muted"
+          role="status"
+          data-testid="purchase-notice"
+        >
+          <AppIcon name="information-circle" :size="18" class="mt-px" />
+          <span>{{ billing.purchase.notice }}</span>
+        </p>
+        <p
+          v-if="billing.purchase.status === 'starting'"
+          class="flex items-start gap-2 text-sm leading-5 text-muted"
+          role="status"
+          data-testid="purchase-starting"
+        >
+          <AppIcon name="arrow-path" :size="18" class="mt-px animate-spin motion-reduce:animate-none" />
+          <span>{{ t('billing.starting') }}</span>
+        </p>
+        <p
+          v-else-if="billing.purchase.status === 'awaiting'"
+          class="flex items-start gap-2 text-sm leading-5 text-muted"
+          role="status"
+          data-testid="purchase-awaiting"
+        >
+          <AppIcon name="clock" :size="18" class="mt-px" />
+          <span>{{ t('billing.awaiting') }}</span>
+        </p>
+        <p
+          v-else-if="billing.purchase.status === 'replaced'"
+          class="flex items-start gap-2 text-sm leading-5 text-muted"
+          role="status"
+          data-testid="purchase-replaced"
+        >
+          <AppIcon name="information-circle" :size="18" class="mt-px" />
+          <span>{{ billing.purchase.notice }}</span>
+        </p>
+        <div v-else-if="billing.purchase.status === 'timeout'" class="space-y-2" data-testid="purchase-timeout">
+          <p class="flex items-start gap-2 text-sm leading-5 text-muted">
+            <AppIcon name="clock" :size="18" class="mt-px text-warning" />
+            <span>{{ t('billing.timeout') }}</span>
           </p>
-
-          <PromoRedeem @redeemed="onRedeemed" />
-
-          <p v-if="contact && !done && !isPro" class="text-center text-[13px] leading-[18px] text-muted" data-testid="paywall-contact">
-            {{ t('paywall.contact') }}
-            <a
-              v-if="contact.href"
-              :href="contact.href"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="break-words text-accent underline"
-              data-testid="paywall-contact-link"
-            >{{ contact.label }}</a>
-            <span v-else class="font-semibold break-words" data-testid="paywall-contact-text">{{ contact.label }}</span>
-          </p>
-
-          <!-- "Not now" sits under the price while something can be paid; otherwise it closes the sheet at the end. -->
-          <button v-if="!showsPay" type="button" class="btn btn-plain btn-block" data-testid="paywall-close" @click="emit('close')">
-            {{ t('paywall.dismiss') }}
+          <button type="button" class="btn btn-tinted btn-block" data-testid="purchase-check" @click="billing.waitForPayment()">
+            {{ t('billing.check_again') }}
           </button>
         </div>
+        <InlineAlert
+          v-else-if="billing.purchase.status === 'failed'"
+          ref="purchaseError"
+          tone="danger"
+          :message="billing.purchase.error"
+          data-testid="purchase-error"
+        />
+        <template v-if="showsPay && primaryOption">
+          <button
+            type="button"
+            class="btn btn-primary btn-lg btn-block"
+            :disabled="busy"
+            :data-price="primaryOption.price"
+            :data-testid="`pay-${primaryOption.provider}`"
+            @click="pay(primaryOption.provider)"
+          >
+            <span>{{ primaryLabel }}</span>
+            <s v-if="primaryOption.listPrice" class="ml-2 text-sm font-normal opacity-70" data-testid="list-price">{{ primaryOption.listPrice }}</s>
+          </button>
+          <button type="button" class="btn btn-plain btn-block" data-testid="paywall-close" @click="emit('close')">
+            {{ t('paywall.not_now') }}
+          </button>
+          <p class="text-center text-xs leading-4 text-muted" data-testid="pay-method">
+            {{ t('billing.pay_via', { provider: t(`billing.provider.${primaryOption.provider}`) }) }}
+          </p>
+        </template>
       </div>
     </section>
   </div>

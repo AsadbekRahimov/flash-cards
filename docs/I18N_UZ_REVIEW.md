@@ -4166,6 +4166,8 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `course.here` | siz shu yerdasiz | вы здесь |
 | `course.learn_lesson` | Darsni o'rganish | Учить урок |
 | `course.lesson_done` | Tugallangan | Пройден (урок; читает экранный диктор) |
+| `course.modules` | Kurs modullari | Модули курса (заголовок листа со списком модулей) |
+| `course.to_current` | Joriy darsga | К текущему уроку (кнопка-ссылка, когда открыт другой модуль) |
 | `result.stat.correct` | {total} tadan to'g'ri | верно из {total} (подпись под числом верных ответов) |
 | `result.stat.percent` | natija | результат (подпись под процентом) |
 | `result.stat.unanswered` | javobsiz | без ответа (подпись под числом) |

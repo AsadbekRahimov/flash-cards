@@ -116,9 +116,9 @@ describe('PaywallSheet in purchase mode', () => {
 
     expect(w.get('[data-testid=paywall-eyebrow]').text()).toBe('LexiFlow Pro')
     expect(w.get('[data-testid=paywall-title]').text()).toBe('Учитесь без ограничений')
-    expect(w.get('[data-testid=paywall-lead]').text()).toBe(
-      'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.',
-    )
+    // the title says it all for `info`: no paragraph listing what the rows below say
+    expect(w.find('[data-testid=paywall-lead]').exists()).toBe(false)
+    expect(w.find('[data-testid=paywall-free]').exists()).toBe(false) // «20 a day» is in the row of the new words
     expect([payName(w, 'telegram_stars'), payPrice(w, 'telegram_stars')]).toEqual(['Оформить Pro за 150 Stars', '150 Stars'])
     expect([payName(w, 'payme'), payPrice(w, 'payme')]).toEqual(['Payme', '29 000 сум'])
     expect([payName(w, 'click'), payPrice(w, 'click')]).toEqual(['Click', '29 000 сум'])
@@ -772,12 +772,11 @@ describe('PaywallSheet in purchase mode', () => {
     })
   })
 
-  it('explains the exhausted quota with the purchase lead', async () => {
+  it('explains the exhausted quota in one short line, as on the Pro mock-up', async () => {
     const w = await render({ reason: 'quota' })
 
-    expect(w.get('[data-testid=paywall-lead]').text()).toBe(
-      'Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений. Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.',
-    )
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Новые слова на сегодня закончились')
+    expect(w.get('[data-testid=paywall-lead]').text()).toBe('Повторения доступны всегда. Pro снимает дневной лимит на новые слова.')
   })
 
   it('promises nothing that does not exist: no «statistics» in either language', async () => {

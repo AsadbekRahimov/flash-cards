@@ -466,6 +466,7 @@ export const ru = {
   // ---- paywall (Free quota, mode coming_soon; docs/12 §5.4) ----
   'paywall.title': 'Что будет в Pro',
   'paywall.lead_quota': 'Лимит новых слов на сегодня исчерпан — повторения доступны без ограничений.',
+  'paywall.lead_quota_short': 'Повторения доступны всегда. Pro снимает дневной лимит на новые слова.',
   'paywall.soon': 'Оплата откроется позже — мы сообщим в боте.',
   'paywall.free': {
     one: 'Сейчас у вас бесплатный тариф: {count} новое слово в день, повторения — без лимита.',
@@ -502,7 +503,6 @@ export const ru = {
 
   // ---- purchase (paywall mode purchase, subscription screen; docs/13 §5) ----
   'paywall.title_purchase': 'LexiFlow Pro',
-  'paywall.lead_purchase': 'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.',
   'billing.title': 'Подписка',
   'billing.period.month': 'Месяц',
   'billing.period.year': 'Год',
