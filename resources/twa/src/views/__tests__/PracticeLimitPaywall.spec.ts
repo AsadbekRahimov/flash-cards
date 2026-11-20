@@ -224,7 +224,7 @@ describe('the real paywall behind the free limits (Pro is for sale)', () => {
       'Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro. ' +
         'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.',
     )
-    expect(wrapper.findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Практика и баттлы без дневного лимита')
+    expect(wrapper.findAll('[data-testid=benefit-name]').map((item) => item.text())).toContain('Практика и баттлы')
   })
 
   it('the Friends screen: the same about the battles, in Uzbek', async () => {
@@ -236,7 +236,7 @@ describe('the real paywall behind the free limits (Pro is for sale)', () => {
     await flushPromises()
 
     expect(lead(wrapper)).toContain('Bugungi bepul bellashuvlar tugadi (1 tadan 1 tasi). Yangilari — ertaga soat 00:00 da yoki darhol Pro bilan.')
-    expect(wrapper.findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
+    expect(wrapper.findAll('[data-testid=benefit-name]').map((item) => item.text())).toContain('Mashqlar va bellashuvlar')
   })
 })
 

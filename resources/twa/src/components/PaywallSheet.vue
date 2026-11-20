@@ -264,8 +264,8 @@ interface PeriodCard {
   label: string
   price: string
   listPrice: string | null
-  /** "13% cheaper" (the server's `saving_pct`, else worked out here); '' when it saves nothing. */
-  saving: string
+  /** How much cheaper than month by month (the server's `saving_pct`, else worked out here); null when it saves nothing. */
+  pct: number | null
 }
 
 /** One card per period that has a price the learner can pay with; month → quarter → year. */
@@ -274,9 +274,13 @@ const periodCards = computed<PeriodCard[]>(() =>
     const shown = cardPrice(row)
     if (!shown) return []
     const pct = periodSavingPct(items.value, row.period)
-    return [{ period: row.period, label: t(`billing.period.${row.period}`), ...shown, saving: pct !== null ? t('billing.saving', { pct }) : '' }]
+    return [{ period: row.period, label: t(`billing.period.${row.period}`), ...shown, pct }]
   }),
 )
+
+/** Three cards share a narrow row: the saving is said short there ("−13%"), two cards have room for "13% cheaper". */
+const savingText = (pct: number | null): string =>
+  pct === null ? '' : t(periodCards.value.length > 2 ? 'billing.offer_chip' : 'billing.saving', { pct })
 
 function choosePeriod(value: BillingPeriod): void {
   if (!busy.value) chosenPeriod.value = value
@@ -437,19 +441,18 @@ onBeforeUnmount(() => {
               role="radio"
               :aria-checked="card.period === period"
               :disabled="busy"
-              class="flex min-h-11 min-w-0 flex-col gap-1 rounded-card p-3.5 text-left disabled:opacity-50"
-              :class="
-                card.period === period
-                  ? 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]'
-                  : 'border border-hairline bg-surface'
-              "
+              class="flex min-h-11 min-w-0 flex-col gap-1 rounded-card text-left disabled:opacity-50"
+              :class="[
+                periodCards.length > 2 ? 'p-3' : 'p-3.5',
+                card.period === period ? 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]' : 'border border-hairline bg-surface',
+              ]"
               :data-testid="`period-${card.period}`"
               @click="choosePeriod(card.period)"
             >
               <span class="text-[13px] leading-[18px] text-muted">{{ card.label }}</span>
               <span
                 class="font-semibold break-words"
-                :class="periodCards.length > 2 ? 'text-[17px] leading-[22px]' : 'text-[22px] leading-[26px]'"
+                :class="periodCards.length > 2 ? 'text-base leading-[22px] whitespace-nowrap' : 'text-[22px] leading-[26px]'"
                 data-testid="period-price"
               >{{ card.price }}</span>
               <s v-if="card.listPrice" class="text-[13px] leading-[18px] text-muted" data-testid="period-list-price">{{ card.listPrice }}</s>
@@ -457,7 +460,7 @@ onBeforeUnmount(() => {
                 class="min-h-[18px] text-[13px] leading-[18px]"
                 :class="card.period === period ? 'text-accent-ink' : 'text-muted'"
                 data-testid="period-saving"
-              >{{ card.saving }}</span>
+              >{{ savingText(card.pct) }}</span>
             </button>
           </div>
 

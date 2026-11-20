@@ -355,12 +355,12 @@ onBeforeUnmount(() => {
         </ol>
 
         <!-- Previous module, the readiness for the level (a course with words), next module: one line under the lessons. -->
-        <nav class="mt-3.5 grid grid-cols-[1fr_auto_1fr] items-center gap-2" :aria-label="t('course.module_of', { number: shownStage.number, total: detail.stages.length })">
+        <nav class="mt-3.5 grid grid-cols-[auto_1fr_auto] items-center gap-2" :aria-label="t('course.module_of', { number: shownStage.number, total: detail.stages.length })">
           <div class="flex justify-start">
             <button
               v-if="prevStage"
               type="button"
-              class="-ml-2 flex min-h-11 items-center gap-1 rounded-control px-2 text-[14px] leading-5 text-accent active:opacity-60"
+              class="-ml-2 flex min-h-11 items-center gap-1 rounded-control px-2 text-[14px] leading-5 whitespace-nowrap text-accent active:opacity-60"
               :aria-label="t('course.module_prev', { module: stageHeading(prevStage) })"
               data-testid="stage-prev"
               @click="showStage(prevStage)"
@@ -381,7 +381,7 @@ onBeforeUnmount(() => {
             <button
               v-if="nextStage"
               type="button"
-              class="-mr-2 flex min-h-11 items-center gap-1 rounded-control px-2 text-[14px] leading-5 text-accent active:opacity-60"
+              class="-mr-2 flex min-h-11 items-center gap-1 rounded-control px-2 text-[14px] leading-5 whitespace-nowrap text-accent active:opacity-60"
               :aria-label="t('course.module_next', { module: stageHeading(nextStage) })"
               data-testid="stage-next"
               @click="showStage(nextStage)"

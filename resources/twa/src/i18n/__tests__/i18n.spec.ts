@@ -50,10 +50,10 @@ describe('t', () => {
   it('substitutes {name} params and leaves unknown placeholders intact', () => {
     expect(t('training.lesson_header', { stage: 2, lesson: 5 })).toBe('Модуль 2 · Урок 5')
     expect(t('training.lesson_header', { stage: 2 })).toBe('Модуль 2 · Урок {lesson}')
-    expect(t('result.rank', { rank: 1, total: 7 })).toBe('Место 1 из 7')
+    expect(t('result.stat.place', { total: 7 })).toBe('место из 7')
     setLocale('uz')
     expect(t('training.lesson_header', { stage: 2, lesson: 5 })).toBe('2-modul · 5-dars')
-    expect(t('result.rank', { rank: 1, total: 7 })).toBe("7 ishtirokchi orasida 1-o'rin")
+    expect(t('result.stat.place', { total: 7 })).toBe("7 tadan o'rin")
   })
 })
 

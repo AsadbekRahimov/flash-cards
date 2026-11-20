@@ -240,10 +240,10 @@ onMounted(() => {
             <p v-if="membership.points_to_safety !== null" class="text-[13px] leading-[18px] text-danger-ink" data-testid="to-safety">
               {{ t('league.to_safety', { points: tn('league.points', membership.points_to_safety) }) }}
             </p>
-            <p v-else-if="membership.points_to_promote !== null" class="text-[13px] leading-[18px] text-muted" data-testid="to-promote">
+            <p v-else-if="membership.points_to_promote !== null && membership.points_to_promote !== toNext" class="text-[13px] leading-[18px] text-muted" data-testid="to-promote">
               {{ t('league.to_promote', { points: tn('league.points', membership.points_to_promote) }) }}
             </p>
-            <p v-else-if="isTopTier" class="text-[13px] leading-[18px] text-muted" data-testid="top-tier">
+            <p v-else-if="isTopTier && membership.points_to_promote === null" class="text-[13px] leading-[18px] text-muted" data-testid="top-tier">
               {{ t('league.top_tier') }}
             </p>
           </section>

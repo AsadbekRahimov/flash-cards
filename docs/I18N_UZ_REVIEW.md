@@ -4215,3 +4215,58 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `training.combo` | ketma-ket | подряд (после числа в чипе: «3 ketma-ket») |
 | `finished.done` | Tayyor | Готово (главная кнопка итога) |
 | `finished.eyebrow` | Mashg'ulot yakunlandi | Занятие завершено (надзаголовок итога) |
+
+## Редизайн Mini App: игра «Караван» (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+Итог забега переделан по образцу итога занятия: три числа в одной карточке — «Hisob», звёзды и «Tangalar»; под каждым числом короткая подпись. Для звёзд нужна отдельная короткая подпись (полная фраза «Yulduzlar: 3 tadan {stars}» остаётся для экранного диктора). Прошу проверить, подходит ли «Yulduzlar» как подпись под тремя звёздами.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `gameRun.summary.stars_label` | Yulduzlar | Звёзды (подпись под звёздами в карточке чисел итога забега) |
+
+## Редизайн Mini App: лига, Pro, профиль (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+Экран лиги по новому макету (заголовок — название лиги, линия зоны повышения/понижения, «Вся таблица»), пейвол Pro (заголовок — причина показа, выгоды «название — пояснение», карточки тарифов с новым тарифом «3 месяца», цена в главной кнопке, «Не сейчас»). Прошу проверить: «{price} evaziga Pro olish» на кнопке (не лучше ли «Pro'ni {price}ga olish»), падежи в «{rank}-o'ringacha», «ligasiga o'tadi / tushadi», «Zaxira kunlar» как название выгоды.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.period.quarter` | 3 oy | 3 месяца (тариф на 3 месяца, только Stars) |
+| `billing.saving` | {pct}% arzonroq | выгоднее на {pct}% (подпись на карточке тарифа: дешевле, чем помесячно) |
+| `billing.pay_cta` | {price} evaziga Pro olish | Оформить Pro за {price} (главная кнопка, {price} — «150 Stars») |
+| `billing.pay_cta_renew` | {price} evaziga Pro'ni uzaytirish | Продлить Pro за {price} |
+| `billing.pay_via` | To'lov {provider} orqali. | Оплата через {provider}. |
+| `billing.pay_other` | Yoki boshqa usulda to'lash | Или оплатить по-другому (над кнопками Payme / Click) |
+| `billing.tariffs` | Tariflar | Тарифы |
+| `paywall.not_now` | Hozir emas | Не сейчас |
+| `paywall.heading.quota` | Bugungi yangi so'zlar tugadi | Новые слова на сегодня закончились |
+| `paywall.heading.info` | Cheklovsiz o'rganing | Учитесь без ограничений |
+| `paywall.heading.decks` | Bepul tarifdagi to'plamlar limiti | Лимит колод бесплатного тарифа |
+| `paywall.heading.streak_freeze` | Ketma-ketlikni saqlab qoling | Сохраните серию |
+| `paywall.heading.exam_simulator` | IELTS va SAT sinov imtihonlari | Пробные тесты IELTS и SAT |
+| `paywall.heading.practice` | Mashqlar — Pro'da | Практика — в Pro |
+| `paywall.heading.practice_limit` | Pro bilan ko'proq mashq | Больше практики с Pro |
+| `paywall.heading.game` | Karvon cheklovsiz | Караван без ограничений |
+| `benefits.row.new_words / .note / .note_free` | Yangi so'zlar / kunlik limitsiz / kuniga {limit} ta o'rniga cheklovsiz | Новые слова / без дневного лимита / без лимита вместо {limit} в день |
+| `benefits.row.practice / practice_solo / game / no_limit` | Mashqlar va bellashuvlar / Mashqlar / Karvon / kunlik limitsiz | Практика и баттлы / Практика / Караван / без дневного лимита |
+| `benefits.row.exercises / .note` | Yozish mashqlari / so'zni yozish va gaplarni to'ldirish | Упражнения / написание слова и пропуски в примерах |
+| `benefits.row.decks / .note` | O'z to'plamlaringiz / 2000 tagacha so'zdan 20 tagacha to'plam | Свои колоды / до 20 колод по 2000 слов |
+| `benefits.row.freezes / .note` | Zaxira kunlar / bir kun o'tkazib yuborsangiz ham ketma-ketlik saqlanadi | Заморозка серии / пропуск дня не обрывает серию |
+| `benefits.row.mock_exams / .note` | Sinov imtihonlari / IELTS va SAT | Пробные тесты / IELTS и SAT |
+| `league.heading.bronze … diamond` | Bronza liga, Kumush liga, Oltin liga, Platina liga, Olmos liga | Бронзовая … Алмазная лига (заголовок экрана лиги) |
+| `league.days_left` | {count} kun qoldi | осталось {count} дн. |
+| `league.last_day` | oxirgi kun | последний день |
+| `league.my_rank` | Siz {rank}-o'rindasiz | Вы на {rank}-м месте |
+| `league.to_next` | {rank}-o'ringacha — {points} | До {rank}-го места — {points} ({points} — «25 ochko») |
+| `league.first_place` | Siz guruhda hammadan oldindasiz | Вы впереди всех в группе |
+| `league.next_progress` | Keyingi o'ringacha | До следующего места (подпись линии прогресса для экранного диктора) |
+| `league.line.promotion` | bu chiziqdan yuqoridagilar «{tier}» ligasiga o'tadi | выше этой линии — переход в лигу «{tier}» ({tier} — «Oltin») |
+| `league.line.demotion` | bu chiziqdan pastdagilar «{tier}» ligasiga tushadi | ниже этой линии — переход в лигу «{tier}» |
+| `league.table_all` | Butun jadval · {members} | Вся таблица · {members} |
+| `league.members` | {count} ishtirokchi | {count} участник/участника/участников |
+| `league.table_less` | Jadvalni yig'ish | Свернуть таблицу |
+| `month.title` | Oy reytingi | Рейтинг месяца |
+| `friends.list.streak_words` | ketma-ketlik {streak} · {words} | серия {streak} · {words} (вместо «🔥 {streak}») |

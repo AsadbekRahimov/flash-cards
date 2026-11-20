@@ -924,8 +924,9 @@ describe('PaywallSheet in purchase mode', () => {
       expect(w.get('[data-testid=periods]').classes()).toContain('grid-cols-3')
       expect(w.get('[data-testid=period-quarter]').text()).toContain('3 месяца')
       expect(plain(w.get('[data-testid=period-quarter] [data-testid=period-price]').text())).toBe('390 Stars')
-      expect(w.get('[data-testid=period-quarter] [data-testid=period-saving]').text()).toBe('выгоднее на 13%')
-      expect(w.get('[data-testid=period-year] [data-testid=period-saving]').text()).toBe('выгоднее на 28%')
+      // three cards share the row: the saving is said short
+      expect(w.get('[data-testid=period-quarter] [data-testid=period-saving]').text()).toBe('−13%')
+      expect(w.get('[data-testid=period-year] [data-testid=period-saving]').text()).toBe('−28%')
     })
 
     it('is paid in Stars only: Payme and Click are not offered for it, the price is in the button', async () => {
@@ -958,7 +959,7 @@ describe('PaywallSheet in purchase mode', () => {
       const w = await render()
 
       expect(w.get('[data-testid=period-quarter]').text()).toContain('3 oy')
-      expect(w.get('[data-testid=period-quarter] [data-testid=period-saving]').text()).toBe('13% arzonroq')
+      expect(w.get('[data-testid=period-quarter] [data-testid=period-saving]').text()).toBe('−13%')
     })
 
     it('opens on the period it was asked for (a tariff row of the Subscription screen)', async () => {

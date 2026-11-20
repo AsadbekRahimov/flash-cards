@@ -49,8 +49,8 @@ describe('design system sources', () => {
 
     const found = [...sources].flatMap(([file, code]) => (code.match(palette) ?? []).map((match) => `${file}: ${match}`))
 
-    // The scrim behind the paywall sheet: the theme has no token for it, black dims the light and the dark page alike.
-    expect(found).toEqual(['components/PaywallSheet.vue: bg-black/40'])
+    // The scrim behind the sheets is `.scrim` of style.css (the paywall uses it too since the redesign): no exception left.
+    expect(found).toEqual([])
   })
 
   it('draws every inline message with InlineAlert: only ErrorState (a whole screen) writes role="alert" itself', () => {

@@ -311,7 +311,7 @@ onMounted(() => {
           @click="openPaywall(row.period)"
         >
           <template #trailing>
-            <span class="shrink-0 font-mono text-sm" data-testid="tariff-price">{{ row.price }}</span>
+            <span class="shrink-0 text-[15px] leading-5" data-testid="tariff-price">{{ row.price }}</span>
           </template>
         </ListRow>
       </ListGroup>

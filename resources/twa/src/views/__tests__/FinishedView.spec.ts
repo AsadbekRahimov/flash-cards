@@ -601,7 +601,7 @@ describe('FinishedView', () => {
       // Nothing pops up by itself: the calm card is what the screen shows.
       expect(w.find('[data-testid=paywall]').exists()).toBe(false)
       await w.get('[data-testid=paywall-open]').trigger('click')
-      expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Новые слова на сегодня закончились')
       expect(w.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
       expect(w.get('[data-testid=paywall-contact-link]').attributes('href')).toBe('https://t.me/lexiflow_help')
 

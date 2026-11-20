@@ -101,7 +101,8 @@ describe('LeagueView', () => {
     expect(wrapper.get('[data-testid=my-points]').classes()).toContain('font-mono')
     expect(wrapper.get('[data-testid=my-line]').attributes('aria-valuenow')).toBe('82') // 41 of the 50 of the place above
     expect(text(wrapper, 'to-next')).toBe('До 2-го места — 10 очков') // 50 − 41 + 1
-    expect(text(wrapper, 'to-promote')).toBe('До зоны повышения: 10 очков')
+    // the place above is the last one of the promotion zone: "to promotion" would say the same number again
+    expect(wrapper.find('[data-testid=to-promote]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=to-safety]').exists()).toBe(false)
 
     const rows = wrapper.findAll('[data-testid=row], [data-testid=row-me]')
@@ -200,6 +201,12 @@ describe('LeagueView', () => {
       expect(text(wrapper, 'to-safety')).toBe('До безопасной зоны: 7 очков')
       expect(wrapper.get('[data-testid=to-safety]').classes()).toContain('text-danger-ink')
       expect(wrapper.find('[data-testid=to-promote]').exists()).toBe(false)
+    })
+
+    it('says what is missing to the promotion zone when it is further than the place above', async () => {
+      const { wrapper } = await render(response({ membership: membership({ points_to_promote: 49 }) }))
+
+      expect(text(wrapper, 'to-promote')).toBe('До зоны повышения: 49 очков')
     })
 
     it('at the top of the group: a full line and no place to pass', async () => {
