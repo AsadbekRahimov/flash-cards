@@ -1,5 +1,28 @@
 # Progress Log
 
+## Озвучка: Google Cloud TTS + Cloudflare R2, выпуск 1 (слова и диктанты) ✅ код (2026-11-20)
+
+**Запрос владельца:** перевести озвучку на Google Cloud Text-to-Speech и раздачу файлов из Cloudflare R2, озвучивать новое содержимое автоматически, синтез по запросу ученика убрать (`docs/26_AUDIO_TTS_PLAN_RU.md`, решения — §9, правки после ревью — §9.9–9.10).
+
+**Сделано.**
+- Синтезатор за интерфейсом `SpeechSynthesizer`, драйвер выбирается в момент синтеза (`TTS_DRIVER`: `google` / `http` / `null`); опечатка ломает только синтез, `/health/ready` — `checks.tts = degraded`.
+- Драйвер `google`: ключ сервисного аккаунта только файлом (`GOOGLE_TTS_CREDENTIALS`, в Docker — `/run/secrets/google-tts.json` из `GOOGLE_TTS_KEY_FILE`), самоподписанный JWT без новых пакетов, проверка голоса (`tts_voice_unsupported`), маркер остановки на 10 минут после `tts_auth_failed` / `tts_forbidden`, темп 150 в минуту, предел символов в месяц по тихоокеанскому времени (таблица `tts_usage_months`, миграция с `down()`).
+- Очередь `tts` за `low` (`--queue=low,tts` в обоих compose-файлах); задание слова уникально до начала выполнения; при `tts_audio_not_stored` — 2 попытки.
+- Диск `audio` (R2), `TTS_AUDIO_DISK`, `AUDIO_*`; CSP `media-src` из `AUDIO_PUBLIC_URL` (nginx не стартует с не-https); клипы слов практики, баттла и «Каравана» на R2 — `200 {"url"}` и `<audio>`, без CORS.
+- Автоозвучка: новое слово, импорт урока, правка текста, новая версия диктанта; ночная `audio:reconcile` в 02:30 UTC с причиной пропуска; свои колоды учеников Google не озвучиваются.
+- Команды: `audio:sample`, `audio:pregenerate --all`, `audio:reconcile`, `audio:coverage --verify` для R2, `audio:migrate-disk`, `audio:prune`.
+- «Требуют внимания»: вход в Google отклонён, расход месяца (≥ 90 % / исчерпан), очередь озвучки.
+- Удалены `GET /api/twa/tts`, `TtsController`, `TtsFallbackService`, `TTS_LIVE_*`, ветка `speakFallback` в Mini App, лимитер `twa-tts`, `WordAudioService::storedPath`.
+- Документы: `docs/27` переписан по коду (переменные, порядок включения, команды, коды ошибок), `docs/26` (статус, этапы, §9.10), `DEVOPS_GUIDE` §10.1–10.2, `ADMIN_GUIDE` (озвучка слов, строки «Требуют внимания»), docs/16, 18, 21, 23.
+
+**Проверки.** pint, phpstan level 8 — чисто; полный pest — pint и phpstan level 8 чисто; pest 8285 прошли, 1 упал (`ProductionImageConfigTest`, зависит только от окружения); Mini App: type-check, vitest 4771, сборка.
+
+**Требует действий владельца** — `docs/27_GOOGLE_TTS_SETUP_RU.md`: проект Google Cloud с оплатой, ключ сервисного аккаунта; бакет R2, свой домен, Cache Rule, токен на один бакет; переменные, пересоздание nginx; порядок включения C4 (сначала явно `TTS_DRIVER=null`; пустой драйвер при заданном `TTS_SERVICE_URL` — это `http`).
+
+**Не проверено.** Вход в Google на реальном аккаунте (самоподписанный JWT; запасной путь — §9.1); реальный R2 (запись, заголовки, кэш Cloudflare); звук на телефоне в Telegram iOS и Android (карточка, диктант, баттл-диктант, «Караван»); примет ли Google Cloud карту из Узбекистана.
+
+**Осталось.** Выпуск 2 — озвучка примеров (`docs/26` §5.7, этап 7); `audio:prune` о файлах примеров не знает — учесть там же. Руководство по панелям (`docs/guide-panels`, приложение для техадминистратора) ещё говорит только о ручном `audio:pregenerate`.
+
 ## Руководство по панелям (PDF) и исправления `/org` ✅ (2026-11-20)
 
 - **Руководство** для ролей `/admin` (администратор, учитель) и `/org` (владелец, учитель центра): `docs/guide-panels/LexiFlow_Panels_Guide_RU.pdf` — 39 глав, 178 снимков, 200 страниц. Исходники: `parts/*.html`, `img/**`, сборка `node docs/guide-panels/build.mjs` (Playwright + `pdftotext` для номеров страниц в оглавлении). Снимки — со стендов с вымышленными данными; Telegram-сторона, тёмная тема и узбекский интерфейс не снимались.

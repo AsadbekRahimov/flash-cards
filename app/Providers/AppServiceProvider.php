@@ -383,14 +383,6 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by('twa-friends|'.$key);
         });
 
-        RateLimiter::for('twa-tts', function (Request $request): Limit {
-            /** @var array{learner_id:int}|null $ctx */
-            $ctx = $request->attributes->get('twa');
-            $key = $ctx['learner_id'] ?? $request->ip();
-
-            return Limit::perMinute(30)->by('twa-tts|'.$key);
-        });
-
         // Practice and battle (docs/16 §7.5), all keyed by the learner. `twa-practice-answer` and the creation limiters sit
         // on top of `twa-api`; the audio and the battle poll are OUTSIDE it, with a bucket of their own.
         foreach ([

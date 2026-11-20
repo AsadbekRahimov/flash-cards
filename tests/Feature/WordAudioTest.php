@@ -284,7 +284,7 @@ it('an empty (partial) file is not ready: it is regenerated and not served', fun
     $service = app(WordAudioService::class);
 
     expect($service->isCurrent($word))->toBeFalse()
-        ->and($service->storedPath('resilient'))->toBeNull();
+        ->and($service->fileState($path))->toBe('empty');
 
     Http::assertNothingSent();
 

@@ -20,8 +20,8 @@ use Throwable;
  * Pre-generated word audio (docs/12 task 1.2c).
  *
  * The file name is content-addressed: `audio/{sha1(text|voice|version)}.mp3` on the
- * disk of the word audio, so the same text in two words (or two courses) is one file, and the
- * TTS endpoint can find it from the text alone. `words.audio_path` is the relative path.
+ * disk of the word audio, so the same text in two words (or two courses) is one file.
+ * `words.audio_path` is the relative path.
  * The synthesis itself is the configured {@see SpeechSynthesizer}, called only from the queued
  * {@see PregenerateWordAudioJob} (no request of a learner synthesizes, docs/26 §9.4).
  *
@@ -60,14 +60,6 @@ final class WordAudioService
         $hash = sha1($text.'|'.($voice ?? $this->defaultVoice()).'|'.(int) config('twa.tts.audio_version', 1));
 
         return trim((string) config('twa.tts.audio_dir', 'audio'), '/').'/'.$hash.'.mp3';
-    }
-
-    /** Stored file for this text/voice, or null when it was never generated. */
-    public function storedPath(string $text, ?string $voice = null): ?string
-    {
-        $path = $this->pathFor($text, $voice);
-
-        return $path !== null && $this->isReady($path) ? $path : null;
     }
 
     /** @param  string|null  $diskName  another disk than `twa.tts.audio_disk` (the source of `audio:migrate-disk`) */
@@ -167,7 +159,7 @@ final class WordAudioService
 
     /**
      * What is on the disk at this path: `ready` (a non-empty file), `empty` (a zero-byte leftover) or `missing`.
-     * On R2 these are HEAD requests: only the jobs, `audio:coverage --verify`, `audio:migrate-disk` and `GET /api/twa/tts`
+     * On R2 these are HEAD requests: only the jobs and the `audio:*` commands (`audio:coverage --verify`, `audio:migrate-disk`, ...)
      * call it, never the screens of a learner (docs/26 §9.5). An error of the bucket other than "not found" is thrown.
      *
      * @param  string|null  $diskName  another disk than `twa.tts.audio_disk` (the source of `audio:migrate-disk`)

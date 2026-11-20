@@ -6,6 +6,7 @@ use App\Domain\Twa\Services\JwtService;
 use App\Models\Learner;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,8 +17,9 @@ use Illuminate\Support\Facades\Route;
 
 uses(RefreshDatabase::class);
 
-it('has no TTS endpoint any more: neither the route nor the controller', function (): void {
+it('has no TTS endpoint any more: neither the route, the controller nor its limiter', function (): void {
     expect(Route::has('twa.tts'))->toBeFalse()
+        ->and(RateLimiter::limiter('twa-tts'))->toBeNull()
         ->and(file_exists(app_path('Http/Controllers/Api/Twa/TtsController.php')))->toBeFalse()
         ->and(collect(Route::getRoutes()->getRoutes())->map(fn ($route): string => $route->uri())->all())->not->toContain('api/twa/tts');
 });
