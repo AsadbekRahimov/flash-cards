@@ -104,12 +104,12 @@ export const uz: Translations = {
   'today.game.map': "Karvon xaritasi: shaharlarni so'zlar bilan bosib o'ting",
   'today.streak.best': 'Rekord: {best}',
   'today.streak.freezes': {
-    one: '❄️ {count} ta zaxira kun',
-    other: '❄️ {count} ta zaxira kun',
+    one: '{count} ta zaxira kun',
+    other: '{count} ta zaxira kun',
   },
-  'today.streak.freezes_none': "❄️ Zaxira kun yo'q. Yangisi dushanba kuni beriladi",
+  'today.streak.freezes_none': "Zaxira kun yo'q. Yangisi dushanba kuni beriladi",
   'today.streak.frozen_yesterday': 'Kecha zaxira kun ishlatildi, ketma-ketlik saqlandi',
-  'today.streak.freeze_teaser': "❄️ Zaxira kunlar — Pro'da",
+  'today.streak.freeze_teaser': "Zaxira kunlar — Pro'da",
   'today.streak.freeze_line': "Pro'da zaxira kun ketma-ketlikni saqlab qolgan bo'lardi",
   'today.review.due': {
     one: "Takrorlash uchun {count} ta so'z",
@@ -165,6 +165,21 @@ export const uz: Translations = {
   'today.new.course_done': "Bu kursda yangi so'z qolmadi",
   'today.league.title': 'Liga · {tier}',
   'today.league.subtitle': "{members} ishtirokchi orasida {rank}-o'rin · {points}",
+  'today.list.title': 'Bugun uchun',
+  'today.goal.of': {
+    one: "{count} ta so'zdan",
+    other: "{count} ta so'zdan",
+  },
+  'today.goal.left_short': '{count} ta qoldi',
+  'today.streak.short': {
+    one: '{count} kun ketma-ket',
+    other: '{count} kun ketma-ket',
+  },
+  'today.streak.record': {
+    one: 'rekord — {count} kun ketma-ket',
+    other: 'rekord — {count} kun ketma-ket',
+  },
+  'assignments.progress_short': '{pct}% bajarildi',
 
   // ---- flashcard ----
   'card.kind.new': "Yangi so'z",
@@ -505,7 +520,12 @@ export const uz: Translations = {
   'course.practice_lesson': "{place} bo'yicha mashqlar",
   'course.no_lessons': "Kursda hali darslar yo'q.",
   'catalog.hint': "Har kuni yangi so'zlar — sizning kursingizdan",
-  'course.continue': 'Davom etish: {stage}-modul, {number}-dars',
+  'course.module_of': '{number}-modul, jami {total} ta',
+  'course.module_prev': 'Oldingi modul: {module}',
+  'course.module_next': 'Keyingi modul: {module}',
+  'course.here': 'siz shu yerdasiz',
+  'course.learn_lesson': "Darsni o'rganish",
+  'course.lesson_done': 'Tugallangan',
   'course.all_done': 'Kursning barcha darslari tugallandi',
   'course.choose_hint': "Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi",
   'course.lesson_words': {
@@ -800,7 +820,8 @@ export const uz: Translations = {
 
   // ---- practice: hub ----
   'practice.hub.title': 'Mashqlar',
-  'practice.hub.choose': 'Mashq turini tanlang',
+  'practice.hub.all_modes': 'Barcha mashqlar',
+  'practice.hub.record': 'rekord',
   'practice.hub.continue': 'Davom etish',
   'practice.hub.estimate': '≈ {minutes} daq.',
   'practice.hub.state.disabled': "O'chirilgan",
@@ -824,7 +845,7 @@ export const uz: Translations = {
   'practice.hub.unavailable_text': 'Mashqlar keyinroq ochiladi. Hozircha darslarni davom ettirishingiz mumkin.',
   'practice.hub.to_course': 'Kursga',
   'practice.hub.battle.title': 'Yakkama-yakka bellashuv',
-  'practice.hub.battle.text': "Besh raundda ikkalangizga ham bir xil topshiriqlar beriladi. Kim ko'proq ochko to'plasa, o'sha yutadi.",
+  'practice.hub.battle.text': "Bir xil topshiriqlarda besh raund",
   'practice.hub.battle.play': "Do'st bilan o'ynash",
   'practice.hub.battle.invites': 'Bellashuvga takliflar',
   'practice.hub.battle.invited_by': '{name} sizni bellashuvga chaqiryapti',
@@ -899,7 +920,6 @@ export const uz: Translations = {
   'practice.summary.chip.skipped': "O'tkazib yuborildi",
   'practice.summary.retry': 'Xatolar ustida ishlash',
   'practice.summary.again': 'Yana mashq qilish',
-  'practice.timed.record_line': 'Rekord: {score}',
   'practice.timed.ready_title': 'Tayyormisiz?',
   'practice.timed.ready_text': "{seconds} soniya — iloji boricha ko'proq juft toping. Har bir xato 2 soniya oladi.",
   'practice.timed.go': 'Start',

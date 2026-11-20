@@ -169,7 +169,7 @@ it('lists a published or reviewed course below 95 % of voiced words, with the wo
 
     Livewire::test(AttentionWidget::class)
         ->assertSee('english-c2 · озвучка')
-        ->assertSee('Покрытие 90 %, порог публикации 95 %')
+        ->assertSee('Покрытие 90 %, порог публикации 95 %')
         ->assertSee('2 слова')
         ->assertSeeHtml(e(CourseResource::getUrl('edit', ['record' => $short->id])));
 });

@@ -171,9 +171,9 @@ it('renders the four KPI cards in the words of the design', function (): void {
 
     Livewire::test(DashboardKpiWidget::class)
         ->assertOk()
-        ->assertSeeInOrder(['Учились сегодня', '2', '+100 % к прошлой пятнице', 'из них выполнили цель дня 1'])
-        ->assertSeeInOrder(['Активация за 24 часа', '61%', '188 из 308', 'ru 64 % · uz 58 % · класс —'])
-        ->assertSeeInOrder(['Возврат на 7-й день', '32%', '−2,5 п.п.', 'когорта 2–8 ноября', '95 %:'])
+        ->assertSeeInOrder(['Учились сегодня', '2', '+100 % к прошлой пятнице', 'из них выполнили цель дня 1'])
+        ->assertSeeInOrder(['Активация за 24 часа', '61%', '188 из 308', 'ru 64 % · uz 58 % · класс —'])
+        ->assertSeeInOrder(['Возврат на 7-й день', '32%', '−2,5 п.п.', 'когорта 2–8 ноября', '95 %:'])
         ->assertSeeInOrder(['Требуют внимания', '0', 'срочных нет']);
 });
 
@@ -228,7 +228,7 @@ it('draws D7 by week with the average dashed and the last week red when it fell'
     Livewire::test(RetentionTrendWidget::class)
         ->assertOk()
         ->assertSee('Возврат на 7-й день, %')
-        ->assertSee('- - среднее 33 %')
+        ->assertSee('- - среднее 33 %')
         ->assertSee('● ниже прошлой недели')
         ->assertSeeHtml('class="lx-chart-alert"')
         ->assertSeeHtml('class="lx-chart-average"')
@@ -283,7 +283,7 @@ it('shows the Stars row of the Pro funnel step by step, the studied share over t
 
     Livewire::test(ProPathWidget::class)
         ->assertOk()
-        ->assertSeeInOrder(['Путь к Pro · Stars', 'Увидели предложение', '2 140', 'Начали оплату', '182 · 8,5 %', 'Оплатили', '121 · 66,5 %', 'Занимались за 7 дней', '88 из 96 · 91,7 %'])
+        ->assertSeeInOrder(['Путь к Pro · Stars', 'Увидели предложение', '2 140', 'Начали оплату', '182 · 8,5 %', 'Оплатили', '121 · 66,5 %', 'Занимались за 7 дней', '88 из 96 · 91,7 %'])
         ->assertSeeHtml('tab=money');
 });
 

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { setLocale } from '@/i18n'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, yearSavingPct } from '../billingFormat'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, orderedItems, periodSavingPct, yearSavingPct } from '../billingFormat'
 import type { CatalogItem, Prices, SubscriptionSummary } from '@/api/types'
 
 /** Intl groups digits with (narrow) no-break spaces. */
@@ -9,9 +9,9 @@ const plain = (text: string) => text.replace(/[\s  ]+/g, ' ')
 describe('billingFormat', () => {
   afterEach(() => setLocale('ru'))
 
-  it('shows whole Stars as they are', () => {
-    expect(plain(formatPrice(150, 'XTR', 'ru'))).toBe('150 ⭐')
-    expect(plain(formatPrice(1300, 'XTR', 'ru'))).toBe('1 300 ⭐')
+  it('shows whole Stars as they are, named by the word (no star emoji)', () => {
+    expect(plain(formatPrice(150, 'XTR', 'ru'))).toBe('150 Stars')
+    expect(plain(formatPrice(1300, 'XTR', 'ru'))).toBe('1 300 Stars')
   })
 
   it('divides tiyin by 100 and names the sum in the interface language', () => {
@@ -108,6 +108,40 @@ describe('billingFormat', () => {
 
     it('ignores a zero price', () => {
       expect(yearSavingPct([item('month', { XTR: 0 }), item('year', { XTR: 1300 })])).toBeNull()
+    })
+  })
+
+  describe('the periods of the catalog', () => {
+    const item = (period: string, list: Prices, extra: Partial<CatalogItem> = {}): CatalogItem =>
+      ({ plan: 'pro', tier: null, period, prices: list, list_prices: list, ...extra }) as CatalogItem
+
+    it('are shown month → quarter → year, whatever order the server used', () => {
+      const items = [item('year', { XTR: 1300 }), item('quarter', { XTR: 390 }), item('month', { XTR: 150 })]
+
+      expect(orderedItems(items).map((i) => i.period)).toEqual(['month', 'quarter', 'year'])
+    })
+
+    it('skip a period this build does not know, and work without a quarter (an older server, the sums)', () => {
+      expect(orderedItems([item('week', { XTR: 50 }), item('year', { XTR: 1300 }), item('month', { XTR: 150 })]).map((i) => i.period)).toEqual([
+        'month',
+        'year',
+      ])
+      expect(orderedItems([])).toEqual([])
+    })
+
+    it("take the server's saving when it sends one, and say nothing below 1 % or for the month", () => {
+      const items = [item('month', { XTR: 150 }, { saving_pct: 0 }), item('quarter', { XTR: 390 }, { saving_pct: 13 }), item('year', { XTR: 1300 }, { saving_pct: 0 })]
+
+      expect(periodSavingPct(items, 'quarter')).toBe(13)
+      expect(periodSavingPct(items, 'year')).toBeNull()
+      expect(periodSavingPct(items, 'month')).toBeNull()
+    })
+
+    it('work the saving out of the list prices when the server does not send it: a quarter is three months', () => {
+      // 1 − 390 / 450 = 13.3 %
+      expect(periodSavingPct([item('month', { XTR: 150 }), item('quarter', { XTR: 390 })], 'quarter')).toBe(13)
+      expect(periodSavingPct([item('quarter', { XTR: 390 })], 'quarter')).toBeNull()
+      expect(periodSavingPct([item('month', { XTR: 150 })], 'quarter')).toBeNull()
     })
   })
 })

@@ -359,7 +359,7 @@ it('GET /billing/catalog keeps its exact JSON shape', function (): void {
         ->getJson('/api/twa/billing/catalog')
         ->assertOk()
         ->assertExactJsonStructure([
-            'items' => ['*' => ['plan', 'tier', 'period', 'prices' => ['XTR'], 'list_prices' => ['XTR']]],
+            'items' => ['*' => ['plan', 'tier', 'period', 'days', 'prices' => ['XTR'], 'list_prices' => ['XTR'], 'saving_pct']],
             'providers',
             'offer',
             'subscription',
@@ -375,7 +375,7 @@ it('GET /billing/catalog carries the open offer with its period and the discount
         ->getJson('/api/twa/billing/catalog')
         ->assertOk()
         ->assertExactJsonStructure([
-            'items' => ['*' => ['plan', 'tier', 'period', 'prices' => ['XTR'], 'list_prices' => ['XTR']]],
+            'items' => ['*' => ['plan', 'tier', 'period', 'days', 'prices' => ['XTR'], 'list_prices' => ['XTR'], 'saving_pct']],
             'providers',
             'offer' => ['kind', 'discount_pct', 'period', 'expires_at'],
             'subscription',

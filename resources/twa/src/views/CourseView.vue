@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
-import ListGroup from '@/components/ui/ListGroup.vue'
-import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
 import { courseChips, progressPercent, progressText } from '@/composables/courseLabels'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
@@ -25,11 +24,13 @@ import { useI18n } from '@/i18n'
 import type { CourseLesson, CourseStage } from '@/api/types'
 
 /**
- * One course (docs/14 §6.5): the heading with the progress, the main action ("Continue: module M, lesson N" in the
- * course the learner is on, "Start course" / "Switch to this course" in any other), "Practice" under it (the hub of the course, docs/16 §11.1; shown while
- * `/me.practice.available`, with a Pro chip and the paywall while it is behind Pro), the IELTS / SAT mock for Pro, and
- * the modules with their lessons and statuses; a lesson row has "Learn" and a quiet icon button "Practice of the lesson"
- * that closes the line of its progress (the hub of that lesson, same rules). "Back" is the system button (-> the catalog).
+ * One course (docs/14 §6.5, docs/design/2026-11-redesign/Path.html): the heading with the progress of the course, "Start course" /
+ * "Switch to this course" in any course but the learner's own, then one module at a time - its number of the total, its name,
+ * a thin line of the words learned and the numbered lessons 01, 02... In the learner's course the current lesson (the first
+ * unfinished one) is the highlighted row with the one primary button "Learn the lesson"; any other lesson keeps a quiet "Learn" and,
+ * while `/me.practice.available`, a small "Practice" (the hub of that lesson, with the paywall while it is behind Pro). Under the
+ * module: the previous / next module and the readiness for the level; under them "Practice" of the course, the Karvon map and the
+ * IELTS / SAT mock. The module shown first is the one of the current lesson. "Back" is the system button (-> the catalog).
  */
 
 /** Courses with an IELTS / SAT mock (docs/13 §8.4); the server refuses the others anyway. */
@@ -37,14 +38,8 @@ const MOCK_EXAM_TAGS = ['ielts', 'sat']
 const MOCK_EXAM_WORDS = 40
 const MOCK_EXAM_MINUTES = 20
 
-type LessonState = 'done' | 'started' | 'new'
-
-/** Look of the status mark of a lesson row: a check, a filled circle with the number, a quiet circle with the number. */
-const STATE_CLASS: Record<LessonState, string> = {
-  done: 'text-success',
-  started: 'bg-accent text-tg-button-text',
-  new: 'bg-fill text-tg-subtitle',
-}
+/** done: every word learned; current: where the learner is (their course only); started / new: by the words learned. */
+type LessonState = 'done' | 'current' | 'started' | 'new'
 
 const props = defineProps<{ slug: string }>()
 
@@ -70,11 +65,52 @@ const mockHint = computed((): string =>
   tn('course.mock_exam_hint', Math.min(MOCK_EXAM_WORDS, detail.value?.words_count ?? MOCK_EXAM_WORDS), { minutes: MOCK_EXAM_MINUTES }),
 )
 
+/** The lesson of the one primary button: the first unfinished lesson of the course the learner is on. */
+const currentLessonId = computed((): number | null => (detail.value?.is_active === true ? (nextLesson.value?.id ?? null) : null))
+
 function lessonState(lesson: CourseLesson): LessonState {
   const { done, total } = lesson.progress
   if (total > 0 && done >= total) return 'done'
+  if (lesson.id === currentLessonId.value) return 'current'
   return done > 0 ? 'started' : 'new'
 }
+
+/** "01": the number of a lesson in the left column, two digits as on the layout. */
+function lessonNumber(lesson: CourseLesson): string {
+  return String(lesson.number).padStart(2, '0')
+}
+
+/** "3 of 10 words" once the lesson is begun; "10 words" before (nothing learned to count yet). */
+function lessonWords(lesson: CourseLesson): string {
+  const { done, total } = lesson.progress
+  return done > 0 || total === 0 ? tn('course.lesson_words', total, { done, total }) : tn('catalog.words', total)
+}
+
+/**
+ * The module on the screen: the one the learner picked with the arrows, else the module of the first unfinished lesson, else the
+ * first. One module at a time (the layout): twenty modules of five lessons in a row made a page of 9000 px.
+ */
+const pickedStage = ref<number | null>(null)
+const stageIndex = computed((): number => {
+  const stages = detail.value?.stages ?? []
+  const wanted = pickedStage.value ?? nextLesson.value?.stage ?? null
+  const index = stages.findIndex((stage) => stage.number === wanted)
+  return index === -1 ? 0 : index
+})
+const shownStage = computed((): CourseStage | null => detail.value?.stages[stageIndex.value] ?? null)
+const prevStage = computed((): CourseStage | null => detail.value?.stages[stageIndex.value - 1] ?? null)
+const nextStage = computed((): CourseStage | null => detail.value?.stages[stageIndex.value + 1] ?? null)
+
+function showStage(stage: CourseStage): void {
+  pickedStage.value = stage.number
+}
+
+watch(
+  () => props.slug,
+  () => {
+    pickedStage.value = null
+  },
+)
 
 /** The own name of a module; null for a module without one (`title: null`, or a blank one that an old row may hold). */
 function stageTitle(stage: CourseStage): string | null {
@@ -87,10 +123,10 @@ function stageHeading(stage: CourseStage): string {
   return stageTitle(stage) ?? t('course.module', { number: stage.number })
 }
 
-/** "Lesson 1 · University"; a lesson without a title is just "Lesson 1". */
+/** "University" (the number stands in its own column); a lesson without a title is "Lesson 1". */
 function lessonTitle(lesson: CourseLesson): string {
-  const number = t('course.lesson', { number: lesson.number })
-  return lesson.title ? `${number} · ${lesson.title}` : number
+  const title = lesson.title?.trim()
+  return title ? title : t('course.lesson', { number: lesson.number })
 }
 
 async function load(): Promise<void> {
@@ -175,53 +211,24 @@ onBeforeUnmount(() => {
         <span v-for="chip in courseChips(detail)" :key="chip.key" class="chip" :class="`chip-${chip.tone}`">{{ chip.label }}</span>
       </div>
 
-      <p v-if="detail.description" class="mt-3 text-[15px] leading-5 text-tg-subtitle">{{ detail.description }}</p>
+      <p v-if="detail.description" class="mt-3 text-[15px] leading-5 text-muted">{{ detail.description }}</p>
 
-      <div class="mt-4">
-        <div
-          class="progress"
-          role="progressbar"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          :aria-valuenow="progressPercent(detail.progress)"
-          :aria-label="progressText(detail.progress)"
+      <div class="mt-4 flex items-center gap-3">
+        <ProgressLine
+          :value="progressPercent(detail.progress)"
+          tone="success"
+          :label="progressText(detail.progress)"
+          class="flex-1"
           data-testid="progress-bar"
-        >
-          <div class="progress-fill" :style="{ width: `${progressPercent(detail.progress)}%` }" data-testid="progress-fill" />
-        </div>
-        <div class="mt-1.5 flex items-center justify-between gap-3">
-          <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="progress-text">{{ progressText(detail.progress) }}</p>
-          <span v-if="detail.is_active" class="chip chip-success shrink-0" data-testid="active-badge">
-            <AppIcon name="check" solid :size="14" />
-            {{ t('catalog.active') }}
-          </span>
-        </div>
+        />
+        <span class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="progress-text">{{ progressText(detail.progress) }}</span>
       </div>
+      <span v-if="detail.is_active" class="chip chip-success mt-3" data-testid="active-badge">{{ t('catalog.active') }}</span>
 
       <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="mt-4" data-testid="select-error" />
 
-      <!-- The one primary button of the screen: continue in the main course, make the course main otherwise. -->
-      <template v-if="detail.is_active">
-        <button
-          v-if="nextLesson"
-          type="button"
-          class="btn btn-primary btn-lg btn-block mt-4"
-          :disabled="opening"
-          data-testid="continue-btn"
-          @click="learn(nextLesson.id)"
-        >
-          {{ t('course.continue', { stage: nextLesson.stage, number: nextLesson.number }) }}
-        </button>
-        <p
-          v-else-if="allLessonsDone"
-          class="mt-4 flex items-center justify-center gap-2 text-[15px] leading-5 font-medium text-success-ink"
-          data-testid="all-done"
-        >
-          <AppIcon name="check-circle" solid :size="20" />
-          {{ t('course.all_done') }}
-        </p>
-      </template>
-      <template v-else>
+      <!-- Not the learner's course: making it theirs is the one primary button. In their course it is "Learn the lesson" below. -->
+      <template v-if="!detail.is_active">
         <button
           type="button"
           class="btn btn-primary btn-lg btn-block mt-4"
@@ -231,49 +238,180 @@ onBeforeUnmount(() => {
         >
           {{ chooseLabel }}
         </button>
-        <p class="mt-2 px-4 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="choose-hint">{{ t('course.choose_hint') }}</p>
+        <p class="mt-2 px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="choose-hint">{{ t('course.choose_hint') }}</p>
       </template>
-
-      <!-- Under the main button, a secondary action: the practice of this course. -->
-      <button v-if="practice.available" type="button" class="btn btn-tinted btn-block mt-2" data-testid="practice-btn" @click="openPractice">
-        <AppIcon name="puzzle-piece" :size="20" />
-        {{ t('practice.hub.title') }}
-        <span v-if="practice.pro_required" class="chip chip-accent" data-testid="practice-pro">
-          <AppIcon name="sparkles" solid :size="12" />
-          {{ t('practice.hub.state.pro') }}
-        </span>
-      </button>
-
-      <button
-        v-if="gameOn"
-        type="button"
-        class="btn btn-tinted btn-block mt-2"
-        data-testid="game-btn"
-        @click="router.push({ name: 'game', query: { course: props.slug } })"
+      <p
+        v-else-if="allLessonsDone"
+        class="mt-4 flex items-center gap-2 text-[15px] leading-5 font-semibold text-success-ink"
+        data-testid="all-done"
       >
-        <AppIcon name="flag" :size="20" />
-        {{ t('game.enter') }}
-      </button>
+        <AppIcon name="check" :size="18" class="text-success" />
+        {{ t('course.all_done') }}
+      </p>
 
-      <!-- Readiness for the level and the test of the week (docs/04 A.20): for courses of the platform; a learner's own deck has no "level". -->
-      <ListGroup v-if="offersReadiness" class="mt-2">
-        <ListRow
-          :to="`/courses/${encodeURIComponent(props.slug)}/readiness?source=course`"
-          icon="chart-bar"
-          tile="green"
-          :title="t('course.readiness')"
-          data-testid="readiness-row"
-        />
-      </ListGroup>
+      <EmptyState v-if="detail.stages.length === 0" icon="book-open" :text="t('course.no_lessons')" data-testid="no-lessons" />
 
-      <section v-if="offersMock" class="card mt-4" data-testid="mock-exam">
-        <div class="flex items-start gap-3">
-          <span class="icon-tile tile-purple"><AppIcon name="flag" :size="18" /></span>
-          <div class="min-w-0 flex-1">
-            <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('course.mock_exam') }}</h2>
-            <p class="mt-0.5 text-[15px] leading-5 text-tg-subtitle" data-testid="mock-exam-hint">{{ mockHint }}</p>
-          </div>
+      <section v-if="shownStage" class="mt-7" :data-testid="`stage-${shownStage.number}`">
+        <p class="text-[13px] leading-[18px] text-muted" data-testid="stage-of">
+          {{ t('course.module_of', { number: shownStage.number, total: detail.stages.length }) }}
+        </p>
+        <!-- The number is the eyebrow; a module without a name of its own is "Module N" here too, in the language of the reader. -->
+        <h2 class="mt-1 text-[22px] leading-7 font-semibold break-words">{{ stageHeading(shownStage) }}</h2>
+        <div class="mt-2.5 flex items-center gap-3">
+          <ProgressLine
+            :value="progressPercent(shownStage.progress)"
+            tone="success"
+            :label="stageHeading(shownStage)"
+            class="flex-1"
+            data-testid="progress-bar"
+          />
+          <span class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="stage-progress">{{ progressText(shownStage.progress) }}</span>
         </div>
+
+        <ol v-if="shownStage.lessons.length > 0" class="list mt-[18px]">
+          <li
+            v-for="lesson in shownStage.lessons"
+            :key="lesson.id"
+            class="border-t border-divider first:border-t-0"
+            :class="lessonState(lesson) === 'current' ? 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]' : undefined"
+            :data-state="lessonState(lesson)"
+            :data-testid="`lesson-${lesson.id}`"
+          >
+            <div
+              class="flex items-center gap-3.5 px-[18px]"
+              :class="lessonState(lesson) === 'current' ? 'pt-4' : 'min-h-[60px] py-3'"
+            >
+              <span
+                class="w-5 shrink-0 font-mono text-[13px] leading-[18px]"
+                :class="lessonState(lesson) === 'current' ? 'font-medium text-accent-ink' : 'text-muted'"
+                :data-state="lessonState(lesson)"
+                data-testid="lesson-status"
+              >
+                {{ lessonNumber(lesson) }}
+              </span>
+              <div class="min-w-0 flex-1">
+                <p
+                  class="break-words"
+                  :class="{
+                    'text-[17px] leading-[22px] font-semibold': lessonState(lesson) === 'current',
+                    'text-[15px] leading-5 font-semibold': lessonState(lesson) === 'done' || lessonState(lesson) === 'started',
+                    'text-[15px] leading-5 text-muted': lessonState(lesson) === 'new',
+                  }"
+                  data-testid="lesson-title"
+                >
+                  {{ lessonTitle(lesson) }}
+                </p>
+                <p class="mt-0.5 text-[13px] leading-[18px] text-muted">
+                  <span data-testid="lesson-progress">{{ lessonWords(lesson) }}</span>
+                  <!--
+                    The practice of the lesson: a quiet button that closes the line of the progress ("learned N of M" - practise it), an icon with
+                    a short caption "Practice" (an icon alone was not understood). It is part of the line of the progress and wraps under it when
+                    there is no room: a second button beside "Learn" took 40 px from the title at 320 px. The button is 36 px (-my cancels the
+                    height, the line stays 18 px); its touch area is the 44 px layer of `.btn-sm`.
+                  -->
+                  <button
+                    v-if="practice.available"
+                    type="button"
+                    class="btn btn-plain btn-sm -top-0.5 -my-2.5 ml-1 h-9 gap-1 px-2 align-middle"
+                    :disabled="opening || lesson.progress.total === 0"
+                    :aria-label="practiceLessonLabel(shownStage, lesson)"
+                    data-testid="practice-lesson-btn"
+                    @click="openLessonPractice(lesson.id)"
+                  >
+                    <AppIcon name="puzzle-piece" :size="16" />
+                    <span class="text-[13px] leading-[18px]">{{ t('practice.hub.title') }}</span>
+                  </button>
+                </p>
+              </div>
+              <span v-if="lessonState(lesson) === 'current'" class="chip chip-accent shrink-0" data-testid="lesson-here">{{ t('course.here') }}</span>
+              <template v-else>
+                <span
+                  v-if="lessonState(lesson) === 'done'"
+                  role="img"
+                  class="shrink-0 text-success"
+                  :aria-label="t('course.lesson_done')"
+                  data-testid="lesson-done"
+                >
+                  <AppIcon name="check" :size="18" class="[&_path]:[stroke-width:2.4]" />
+                </span>
+                <button
+                  type="button"
+                  class="btn btn-plain btn-sm shrink-0 px-2"
+                  :disabled="opening || lesson.progress.total === 0"
+                  data-testid="learn-btn"
+                  @click="learn(lesson.id)"
+                >
+                  {{ t('course.learn') }}
+                </button>
+              </template>
+            </div>
+            <!-- The one primary button of the screen in the learner's course: the lesson they are on. -->
+            <div v-if="lessonState(lesson) === 'current'" class="px-[18px] pt-3 pb-[18px]">
+              <button type="button" class="btn btn-primary btn-block" :disabled="opening" data-testid="continue-btn" @click="learn(lesson.id)">
+                {{ t('course.learn_lesson') }}
+              </button>
+            </div>
+          </li>
+        </ol>
+
+        <!-- Previous module, the readiness for the level (a course with words), next module: one line under the lessons. -->
+        <nav class="mt-3.5 grid grid-cols-[1fr_auto_1fr] items-center gap-2" :aria-label="t('course.module_of', { number: shownStage.number, total: detail.stages.length })">
+          <div class="flex justify-start">
+            <button
+              v-if="prevStage"
+              type="button"
+              class="-ml-2 flex min-h-11 items-center gap-1 rounded-control px-2 text-[14px] leading-5 text-accent active:opacity-60"
+              :aria-label="t('course.module_prev', { module: stageHeading(prevStage) })"
+              data-testid="stage-prev"
+              @click="showStage(prevStage)"
+            >
+              <AppIcon name="chevron-left" :size="14" />{{ t('course.module', { number: prevStage.number }) }}
+            </button>
+          </div>
+          <RouterLink
+            v-if="offersReadiness"
+            :to="`/courses/${encodeURIComponent(props.slug)}/readiness?source=course`"
+            class="flex min-h-11 items-center justify-center px-1 text-center text-[14px] leading-5 text-accent active:opacity-60"
+            data-testid="readiness-row"
+          >
+            {{ t('course.readiness') }}
+          </RouterLink>
+          <span v-else />
+          <div class="flex justify-end">
+            <button
+              v-if="nextStage"
+              type="button"
+              class="-mr-2 flex min-h-11 items-center gap-1 rounded-control px-2 text-[14px] leading-5 text-accent active:opacity-60"
+              :aria-label="t('course.module_next', { module: stageHeading(nextStage) })"
+              data-testid="stage-next"
+              @click="showStage(nextStage)"
+            >
+              {{ t('course.module', { number: nextStage.number }) }}<AppIcon name="chevron-right" :size="14" />
+            </button>
+          </div>
+        </nav>
+      </section>
+
+      <!-- Secondary entries of the course: its practice (a Pro chip while it is behind Pro) and the Karvon map. -->
+      <div v-if="practice.available || gameOn" class="mt-5 flex flex-col gap-2">
+        <button v-if="practice.available" type="button" class="btn btn-tinted btn-block" data-testid="practice-btn" @click="openPractice">
+          {{ t('practice.hub.title') }}
+          <span v-if="practice.pro_required" class="chip chip-accent" data-testid="practice-pro">{{ t('practice.hub.state.pro') }}</span>
+        </button>
+        <button
+          v-if="gameOn"
+          type="button"
+          class="btn btn-tinted btn-block"
+          data-testid="game-btn"
+          @click="router.push({ name: 'game', query: { course: props.slug } })"
+        >
+          {{ t('game.enter') }}
+        </button>
+      </div>
+
+      <section v-if="offersMock" class="card mt-5" data-testid="mock-exam">
+        <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('course.mock_exam') }}</h2>
+        <p class="mt-1 text-[13px] leading-[18px] text-muted" data-testid="mock-exam-hint">{{ mockHint }}</p>
         <InlineAlert v-if="mockError" tone="danger" :message="mockError" class="mt-3" data-testid="mock-exam-error" />
         <button
           type="button"
@@ -284,77 +422,6 @@ onBeforeUnmount(() => {
         >
           {{ t('course.mock_exam_start') }}
         </button>
-      </section>
-
-      <EmptyState v-if="detail.stages.length === 0" icon="book-open" :text="t('course.no_lessons')" data-testid="no-lessons" />
-
-      <section v-for="stage in detail.stages" :key="stage.number" class="mt-6" :data-testid="`stage-${stage.number}`">
-        <div class="flex items-center justify-between gap-3">
-          <h2 class="min-w-0 text-[17px] leading-[22px] font-semibold break-words">{{ stageHeading(stage) }}</h2>
-          <!-- The number is the heading itself for a module without a name: no second "Модуль N" next to it. -->
-          <span v-if="stageTitle(stage) !== null" class="chip chip-neutral shrink-0">{{ t('course.module', { number: stage.number }) }}</span>
-        </div>
-        <div
-          class="progress mt-2 h-1"
-          role="progressbar"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          :aria-valuenow="progressPercent(stage.progress)"
-          :aria-label="stageHeading(stage)"
-          data-testid="progress-bar"
-        >
-          <div class="progress-fill" :style="{ width: `${progressPercent(stage.progress)}%` }" data-testid="progress-fill" />
-        </div>
-
-        <ListGroup v-if="stage.lessons.length > 0" class="mt-3">
-          <div v-for="lesson in stage.lessons" :key="lesson.id" class="list-row list-row-icon" :data-testid="`lesson-${lesson.id}`">
-            <span
-              class="flex size-[30px] shrink-0 items-center justify-center rounded-full text-sm font-semibold"
-              :class="STATE_CLASS[lessonState(lesson)]"
-              :data-state="lessonState(lesson)"
-              data-testid="lesson-status"
-            >
-              <AppIcon v-if="lessonState(lesson) === 'done'" name="check-circle" solid :size="30" />
-              <template v-else>{{ lesson.number }}</template>
-            </span>
-            <div class="min-w-0 flex-1">
-              <p class="text-base leading-[22px] break-words">{{ lessonTitle(lesson) }}</p>
-              <p class="text-[13px] leading-[18px] text-tg-hint">
-                <span data-testid="lesson-progress">
-                  {{ tn('course.lesson_words', lesson.progress.total, { done: lesson.progress.done, total: lesson.progress.total }) }}
-                </span>
-                <!--
-                  The practice of the lesson: a quiet button that closes the line of the progress ("learned N of M" - practise it), an icon with
-                  a short caption "Practice" (an icon alone was not understood). It is not a second button beside "Learn": at 320 px that took
-                  40 px from the title (the column fell from 138 to 98 px, in Uzbek to 72) and broke words; here it is part of the line of the
-                  progress and wraps under it when there is no room. The button is 36 px (-my cancels the height, the line stays 18 px); its
-                  touch area is the 44 px layer of `.btn-sm`.
-                -->
-                <button
-                  v-if="practice.available"
-                  type="button"
-                  class="btn btn-plain btn-sm -top-0.5 -my-2.5 ml-1 h-9 gap-1 px-2 align-middle"
-                  :disabled="opening || lesson.progress.total === 0"
-                  :aria-label="practiceLessonLabel(stage, lesson)"
-                  data-testid="practice-lesson-btn"
-                  @click="openLessonPractice(lesson.id)"
-                >
-                  <AppIcon name="puzzle-piece" :size="18" />
-                  <span class="text-[13px] leading-[18px]">{{ t('practice.hub.title') }}</span>
-                </button>
-              </p>
-            </div>
-            <button
-              type="button"
-              class="btn btn-tinted btn-sm shrink-0"
-              :disabled="opening || lesson.progress.total === 0"
-              data-testid="learn-btn"
-              @click="learn(lesson.id)"
-            >
-              {{ t('course.learn') }}
-            </button>
-          </div>
-        </ListGroup>
       </section>
     </template>
 

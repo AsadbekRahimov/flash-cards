@@ -1637,7 +1637,7 @@ return [
         'registrations' => ':count регистрация|:count регистрации|:count регистраций',
         'kpi' => [
             'studied_today' => 'Учились сегодня',
-            'change' => ':value % к :weekday',
+            'change' => ':value % к :weekday',
             'weekdays' => [
                 1 => 'прошлому понедельнику',
                 2 => 'прошлому вторнику',
@@ -1654,9 +1654,9 @@ return [
             'cuts' => 'ru :ru · uz :uz · класс :class',
             'not_yet' => 'нет недели, у которой прошли первые сутки',
             'return_d7' => 'Возврат на 7-й день',
-            'points' => ':value п.п.',
+            'points' => ':value п.п.',
             'cohort' => 'когорта :from–:to',
-            'interval' => '95 %: :low–:high',
+            'interval' => '95 %: :low–:high',
             'attention' => 'Требуют внимания',
             'urgent' => ':count срочное|:count срочных|:count срочных',
             'no_urgent' => 'срочных нет',
@@ -1693,7 +1693,7 @@ return [
             ],
             'audio' => [
                 'title' => ':slug · озвучка',
-                'detail' => 'Покрытие :percent %, порог публикации :threshold %',
+                'detail' => 'Покрытие :percent %, порог публикации :threshold %',
             ],
             'reminders' => [
                 'title' => 'Сравнение напоминаний',
@@ -1727,9 +1727,9 @@ return [
         'retention' => [
             'heading' => 'Возврат на 7-й день, %',
             'meta' => 'по неделям · :count нед.',
-            'chart' => 'Возврат на седьмой день по неделям регистрации: от :min до :max %, последняя неделя :last %',
+            'chart' => 'Возврат на седьмой день по неделям регистрации: от :min до :max %, последняя неделя :last %',
             'fact' => '— факт',
-            'average' => '- - среднее :value %',
+            'average' => '- - среднее :value %',
             'fell' => '● ниже прошлой недели',
             'report' => 'Отчёт',
             'empty' => 'Ни у одной недели седьмой день ещё не прошёл.',
@@ -1749,8 +1749,8 @@ return [
             'started' => 'Начали оплату',
             'paid' => 'Оплатили',
             'studied' => 'Занимались за 7 дней',
-            'share' => ':count · :pct %',
-            'of' => ':count из :of · :pct %',
+            'share' => ':count · :pct %',
+            'of' => ':count из :of · :pct %',
             'meta' => 'за :days дней',
             'empty' => 'За :days дней предложение Pro никто не видел.',
         ],

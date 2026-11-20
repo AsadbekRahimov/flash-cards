@@ -1170,7 +1170,7 @@ describe('PracticeHubView — the Free limit of sessions', () => {
 
     expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 1 из 2')
     const html = wrapper.html()
-    expect(html.indexOf('Выберите режим')).toBeLessThan(html.indexOf('Сегодня бесплатно'))
+    expect(html.indexOf('Все режимы')).toBeLessThan(html.indexOf('Сегодня бесплатно'))
     expect(html.indexOf('Сегодня бесплатно')).toBeLessThan(html.indexOf('data-testid="mode-cards"'))
     wrapper.unmount()
   })
@@ -1180,7 +1180,7 @@ describe('PracticeHubView — the Free limit of sessions', () => {
 
     const quiet = line(wrapper)
     expect(quiet.element.tagName).toBe('P')
-    expect(quiet.classes()).toEqual(expect.arrayContaining(['text-tg-hint', 'text-[13px]']))
+    expect(quiet.classes()).toEqual(expect.arrayContaining(['text-muted', 'text-[13px]']))
     expect(quiet.find('.btn, .chip, [role=alert], svg').exists()).toBe(false)
     wrapper.unmount()
   })
@@ -1805,15 +1805,14 @@ describe('PracticeHubView — the newer modes, and modes this build does not kno
     ...overrides,
   })
 
-  it('draws "Word form" and "Error hunt" with their icons, and opens them', async () => {
+  it('draws "Word form" and "Error hunt" as text rows, and opens them', async () => {
     vi.mocked(api.practice.open).mockResolvedValue(session({ id: 91, mode: 'error_hunt' }))
     const { wrapper, router } = await render({}, hub({ modes: [info('pairs'), info('word_form'), info('error_hunt', { estimate_seconds: 150 })] }))
 
     expect(card(wrapper, 'word_form').get('[data-testid=mode-title]').text()).toBe('Форма слова')
     expect(card(wrapper, 'word_form').get('[data-testid=mode-example]').text()).toBe('decide → decision')
-    expect(card(wrapper, 'word_form').get('.icon-tile').classes()).toContain('tile-green')
+    expect(card(wrapper, 'word_form').find('.icon-tile').exists()).toBe(false)
     expect(card(wrapper, 'error_hunt').get('[data-testid=mode-title]').text()).toBe('Найди ошибку')
-    expect(card(wrapper, 'error_hunt').get('.icon-tile').classes()).toContain('tile-red')
 
     await card(wrapper, 'error_hunt').trigger('click')
     await flushPromises()

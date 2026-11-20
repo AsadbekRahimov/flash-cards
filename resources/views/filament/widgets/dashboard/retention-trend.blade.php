@@ -59,7 +59,7 @@
                         <text x="4" y="{{ $y($line) + 4 }}">{{ AdminNumbers::decimal($line, 0) }}</text>
                     @endforeach
                     @foreach ($months as $month)
-                        <text x="{{ $month['x'] }}" y="162">{{ $month['label'] }}</text>
+                        <text x="{{ $month['x'] }}" y="162" @if ($month['x'] > $right - 20) text-anchor="end" @endif>{{ $month['label'] }}</text>
                     @endforeach
                 </g>
                 <path d="{{ $path }}" class="lx-chart-line" />
