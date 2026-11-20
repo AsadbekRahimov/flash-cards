@@ -452,7 +452,7 @@ onBeforeUnmount(() => {
               <span class="text-[13px] leading-[18px] text-muted">{{ card.label }}</span>
               <span
                 class="font-semibold break-words"
-                :class="periodCards.length > 2 ? 'text-base leading-[22px] whitespace-nowrap' : 'text-[22px] leading-[26px]'"
+                :class="periodCards.length > 2 ? 'text-[15px] leading-5' : 'text-[22px] leading-[26px]'"
                 data-testid="period-price"
               >{{ card.price }}</span>
               <s v-if="card.listPrice" class="text-[13px] leading-[18px] text-muted" data-testid="period-list-price">{{ card.listPrice }}</s>
