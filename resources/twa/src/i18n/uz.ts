@@ -727,6 +727,7 @@ export const uz: Translations = {
     other: '{count} ishtirokchi',
   },
   'month.tab': 'Oy',
+  'month.title': 'Oy reytingi',
   'month.days_left': 'Oy tugashiga {count} kun qoldi',
   'month.last_day': 'Bugun oyning oxirgi kuni',
   'month.closing': 'Oy yakunlari hisoblanmoqda',
@@ -869,6 +870,7 @@ export const uz: Translations = {
   'friends.challenge.result.draw': 'durang',
   'friends.copy': 'Nusxalash',
   'friends.list.subtitle': '🔥 {streak} · {words}',
+  'friends.list.streak_words': 'ketma-ketlik {streak} · {words}',
   'friends.list.words': {
     one: "{count} ta so'z",
     other: "{count} ta so'z",

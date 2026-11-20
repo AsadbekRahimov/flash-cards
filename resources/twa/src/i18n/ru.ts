@@ -786,6 +786,7 @@ export const ru = {
     other: '{count} участника',
   },
   'month.tab': 'Месяц',
+  'month.title': 'Рейтинг месяца',
   'month.days_left': 'До конца месяца — {count} дн.',
   'month.last_day': 'Сегодня последний день месяца',
   'month.closing': 'Итоги месяца подводятся',
@@ -938,6 +939,7 @@ export const ru = {
   'friends.challenge.result.draw': 'ничья',
   'friends.copy': 'Скопировать',
   'friends.list.subtitle': '🔥 {streak} · {words}',
+  'friends.list.streak_words': 'серия {streak} · {words}',
   'friends.list.words': {
     one: '{count} слово',
     few: '{count} слова',

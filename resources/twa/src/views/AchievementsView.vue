@@ -4,6 +4,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
 import { formatDate } from '@/composables/format'
 import { useBackButton } from '@/composables/useBackButton'
 import { useTelegram } from '@/composables/useTelegram'
@@ -86,81 +87,68 @@ onMounted(() => {
 
     <ErrorState v-else-if="!data" :message="message" @retry="load" />
 
-    <div v-else class="space-y-3">
-      <section class="card" data-testid="summary-card">
-        <p class="text-[17px] leading-[22px] font-semibold" data-testid="summary">
+    <div v-else class="space-y-3.5">
+      <section class="card flex flex-col gap-2.5 px-[18px] py-4" data-testid="summary-card">
+        <p class="text-[15px] leading-5 font-semibold" data-testid="summary">
           {{ t('achievements.summary', { unlocked: data.unlocked_count, total: data.total }) }}
         </p>
-        <div
-          class="progress mt-3"
-          role="progressbar"
-          :aria-valuenow="summaryPercent"
-          aria-valuemin="0"
-          aria-valuemax="100"
-        >
-          <div class="progress-fill" :style="{ width: `${summaryPercent}%` }" data-testid="summary-bar" />
-        </div>
-        <p v-if="data.unlocked_count === 0" class="mt-3 text-[15px] leading-5 text-tg-subtitle" data-testid="empty-hint">
+        <ProgressLine :value="summaryPercent" :label="t('achievements.title')" data-testid="summary-bar" />
+        <p v-if="data.unlocked_count === 0" class="text-[13px] leading-[18px] text-muted" data-testid="empty-hint">
           {{ t('achievements.empty_hint') }}
         </p>
       </section>
 
-      <ul class="grid grid-cols-2 gap-3" data-testid="list">
+      <!-- One list, a row per achievement: the received ones first; a quiet status icon on the right (no tiles). -->
+      <ul class="list" data-testid="list">
         <li
           v-for="item in items"
           :key="item.key"
-          class="card flex flex-col p-3.5"
+          class="flex items-start gap-3 border-b border-divider px-[18px] py-3.5 last:border-b-0"
           :data-testid="`item-${item.key}`"
           :data-unlocked="item.unlocked_at !== null"
         >
+          <div class="min-w-0 flex-1">
+            <h2 class="line-clamp-2 text-[15px] leading-5 font-semibold" data-testid="item-title">{{ item.title }}</h2>
+            <p class="mt-0.5 line-clamp-3 text-[13px] leading-[18px] text-muted" data-testid="item-description">{{ item.description }}</p>
+
+            <div class="mt-2">
+              <template v-if="item.unlocked_at !== null">
+                <p class="text-[13px] leading-[18px] text-success-ink" data-testid="unlocked-on">
+                  {{ t('achievements.unlocked_on', { date: unlockedDate(item.unlocked_at) }) }}
+                </p>
+                <button
+                  v-if="data.share_link"
+                  type="button"
+                  class="btn btn-tinted btn-sm mt-2"
+                  data-testid="share-btn"
+                  @click="share(item)"
+                >
+                  {{ t('achievements.share') }}
+                </button>
+                <p v-if="item.shared_at" class="mt-2 flex items-start gap-1 text-xs leading-4 text-muted" data-testid="shared">
+                  <AppIcon name="check" :size="14" class="mt-px" />
+                  <span>{{ t('achievements.shared') }}</span>
+                </p>
+              </template>
+
+              <div v-else-if="item.progress" class="flex items-center gap-3">
+                <ProgressLine :value="percent(item)" :label="item.title" class="flex-1" data-testid="bar" />
+                <span class="shrink-0 font-mono text-xs leading-4 text-muted" data-testid="progress">
+                  {{ t('achievements.progress', { current: item.progress.current, target: item.progress.target }) }}
+                </span>
+              </div>
+
+              <p v-else class="text-[13px] leading-[18px] text-muted" data-testid="locked">{{ t('achievements.locked') }}</p>
+            </div>
+          </div>
+
           <span
-            class="flex size-11 shrink-0 items-center justify-center rounded-xl"
-            :class="item.unlocked_at !== null ? 'bg-warning-soft text-warning-ink' : 'bg-fill text-tg-hint'"
+            class="mt-0.5 shrink-0"
+            :class="item.unlocked_at !== null ? 'text-warning' : 'text-muted'"
             data-testid="item-tile"
           >
-            <AppIcon :name="item.unlocked_at !== null ? 'trophy' : 'lock-closed'" :solid="item.unlocked_at !== null" :size="24" />
+            <AppIcon :name="item.unlocked_at !== null ? 'trophy' : 'lock-closed'" :solid="item.unlocked_at !== null" :size="20" />
           </span>
-
-          <h2 class="mt-3 line-clamp-2 text-[15px] leading-5 font-semibold" data-testid="item-title">{{ item.title }}</h2>
-          <p class="mt-0.5 line-clamp-3 text-[13px] leading-[18px] text-tg-subtitle" data-testid="item-description">{{ item.description }}</p>
-
-          <div class="mt-auto pt-3">
-            <template v-if="item.unlocked_at !== null">
-              <p class="text-xs leading-4 text-tg-hint" data-testid="unlocked-on">
-                {{ t('achievements.unlocked_on', { date: unlockedDate(item.unlocked_at) }) }}
-              </p>
-              <button
-                v-if="data.share_link"
-                type="button"
-                class="btn btn-tinted btn-sm btn-block mt-2"
-                data-testid="share-btn"
-                @click="share(item)"
-              >
-                {{ t('achievements.share') }}
-              </button>
-              <p v-if="item.shared_at" class="mt-2 flex items-start gap-1 text-xs leading-4 text-tg-hint" data-testid="shared">
-                <AppIcon name="check" :size="14" class="mt-px" />
-                <span>{{ t('achievements.shared') }}</span>
-              </p>
-            </template>
-
-            <template v-else-if="item.progress">
-              <div
-                class="progress h-1.5"
-                role="progressbar"
-                :aria-valuenow="percent(item)"
-                aria-valuemin="0"
-                aria-valuemax="100"
-              >
-                <div class="progress-fill" :style="{ width: `${percent(item)}%` }" data-testid="bar" />
-              </div>
-              <p class="mt-1.5 text-xs leading-4 text-tg-hint" data-testid="progress">
-                {{ t('achievements.progress', { current: item.progress.current, target: item.progress.target }) }}
-              </p>
-            </template>
-
-            <p v-else class="text-xs leading-4 text-tg-hint" data-testid="locked">{{ t('achievements.locked') }}</p>
-          </div>
         </li>
       </ul>
     </div>

@@ -103,7 +103,7 @@ describe('GameReveal — a task made of a word', () => {
   const reveal = (o: GameOutcome, last = false) => mount(GameReveal, { props: { outcome: o, last } })
 
   it('a right answer: the verdict in words, the right answer, the word and its translation, the points', () => {
-    const wrapper = reveal(outcome({ reveal: { correct_id: 'o1', correct_text: 'яблоко', word: 'apple', translation: 'яблоко ' } }))
+    const wrapper = reveal(outcome({ element: translateFwd({ prompt: 'an apple' }), reveal: { correct_id: 'o1', correct_text: 'яблоко', word: 'apple', translation: 'яблоко, плод яблони ' } }))
 
     expect(wrapper.get('[data-testid=verdict-label]').text()).toBe('Верно!')
     expect(wrapper.get('[data-testid=verdict-label]').attributes('data-verdict')).toBe('correct')
@@ -138,6 +138,14 @@ describe('GameReveal — a task made of a word', () => {
     expect(states).toEqual(['correct', 'dimmed', 'dimmed', 'dimmed'])
     expect(wrapper.findAll('[data-testid=reveal-options] li').every((option) => option.classes().includes('option'))).toBe(true)
     expect(wrapper.get('[data-testid=reveal-prompt]').text()).toBe('apple')
+  })
+
+  it('does not repeat the question or the right answer under it: the word that is the prompt, the translation that is the answer', () => {
+    const wrapper = reveal(outcome({ reveal: { correct_id: 'o1', correct_text: 'яблоко', word: 'apple', translation: 'яблоко ' } }))
+
+    expect(wrapper.get('[data-testid=right-answer]').text()).toBe('яблоко')
+    expect(wrapper.find('[data-testid=word-block]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=translation-block]').exists()).toBe(false)
   })
 
   it('finds the right option by its text when the server sent no id, and draws no options for a typed task', () => {

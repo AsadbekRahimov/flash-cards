@@ -481,12 +481,15 @@ onBeforeUnmount(() => {
         </section>
 
         <!-- Under the start card the reminder to finish the setup in the bot is a quiet line, not a second card. -->
-        <div v-if="showStart && !data.onboarding_completed" class="flex items-center gap-2 px-1" data-testid="onboarding-hint">
+        <div v-if="showStart && !data.onboarding_completed" class="flex items-start gap-2 px-1" data-testid="onboarding-hint">
           <AppIcon name="information-circle" :size="18" class="shrink-0 text-accent" />
-          <p class="min-w-0 flex-1 text-[13px] leading-[18px] text-muted">{{ t('today.onboarding_hint') }}</p>
-          <button type="button" class="btn btn-plain btn-sm shrink-0" data-testid="onboarding-btn" @click="close()">
-            {{ t('today.onboarding_btn') }}
-          </button>
+          <div class="min-w-0 flex-1">
+            <p class="text-[13px] leading-[18px] text-muted">{{ t('today.onboarding_hint') }}</p>
+            <!-- Under the text, not beside it: on a 320 px screen the two would squeeze each other into a column of words. -->
+            <button type="button" class="btn btn-plain btn-sm -ml-3 mt-1" data-testid="onboarding-btn" @click="close()">
+              {{ t('today.onboarding_btn') }}
+            </button>
+          </div>
         </div>
 
         <div v-else-if="!data.onboarding_completed" class="card flex items-start gap-3" data-testid="onboarding-hint">

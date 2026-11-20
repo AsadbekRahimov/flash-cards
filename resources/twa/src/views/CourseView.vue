@@ -223,7 +223,7 @@ onBeforeUnmount(() => {
         />
         <span class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="progress-text">{{ progressText(detail.progress) }}</span>
       </div>
-      <span v-if="detail.is_active" class="chip chip-success mt-3" data-testid="active-badge">{{ t('catalog.active') }}</span>
+      <span v-if="detail.is_active" class="chip chip-success mt-3 self-start" data-testid="active-badge">{{ t('catalog.active') }}</span>
 
       <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="mt-4" data-testid="select-error" />
 

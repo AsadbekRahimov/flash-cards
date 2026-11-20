@@ -329,7 +329,8 @@ describe('LeagueView', () => {
       const data = response({ membership: membership({ rank: 15, members_count: 20, standings: group(20, 15) }) })
       const { wrapper } = await render(data)
 
-      expect(order(wrapper)).toEqual(['1', '2', '3', 'gap', '14', '15', '16', 'table-toggle'])
+      // promote 5 and demote 5 of 20: both boundaries fall between the shown rows, the lines are drawn across the fold
+      expect(order(wrapper)).toEqual(['1', '2', '3', 'line-promotion', 'gap', '14', '15', 'line-demotion', '16', 'table-toggle'])
       const toggle = wrapper.get('[data-testid=table-toggle]')
       expect(toggle.text()).toBe('Вся таблица · 20 участников')
       expect(toggle.attributes('aria-expanded')).toBe('false')

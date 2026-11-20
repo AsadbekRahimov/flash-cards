@@ -4171,3 +4171,47 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `result.stat.unanswered` | javobsiz | без ответа (подпись под числом) |
 | `result.stat.score` | ball | баллы (подпись под числом баллов) |
 | `result.stat.place` | {total} tadan o'rin | место из {total} (подпись под местом) |
+
+## Редизайн Mini App: хаб практики (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`, ключи `practice.hub.all_modes`, `practice.hub.record`, `practice.hub.battle.text`)
+
+Хаб практики стал одной карточкой «Все режимы»: строка на режим (название, пример, справа — время, рекорд или бейдж состояния) и последней строкой баттл с другом с кнопкой справа. Описание баттла укорочено до одной строки подзаголовка. «rekord» — строчными, перед числом справа в строке («rekord 23»). Ключи `practice.hub.choose` и `practice.timed.record_line` удалены (больше не используются).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.hub.all_modes` | Barcha mashqlar | Все режимы (заголовок карточки со списком режимов) |
+| `practice.hub.record` | rekord | рекорд (перед числом: «рекорд 23») |
+| `practice.hub.battle.text` | Bir xil topshiriqlarda besh raund | Пять раундов на одинаковых заданиях (подзаголовок строки баттла) |
+
+## Редизайн Mini App: экран «Bugun» (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+Главный экран переделан по макету: крупное число цели, рядом «из 20 слов · осталось 13»; список «На сегодня»; в карточке цели — «серия 12 дней», в карточке серии — «рекорд серии — 15 дней». У заморозок убрано украшение-эмодзи ❄️. Прошу проверить, как читается «7 · 20 ta so'zdan · 13 ta qoldi» (крупное число стоит отдельно перед строкой), и «Bugun uchun» как заголовок списка.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `today.list.title` | Bugun uchun | На сегодня |
+| `today.goal.of` | {count} ta so'zdan | из {count} слов (после крупного числа выполненного) |
+| `today.goal.left_short` | {count} ta qoldi | осталось {count} |
+| `today.streak.short` | {count} kun ketma-ket | серия {count} дней |
+| `today.streak.record` | rekord — {count} kun | рекорд серии — {count} дней |
+| `assignments.progress_short` | {pct}% bajarildi | выполнено {pct}% |
+| `today.streak.freezes`, `today.streak.freezes_none`, `today.streak.freeze_teaser` | без ❄️, текст прежний | без ❄️, текст прежний |
+
+## Редизайн Mini App: занятие и итог (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+Экран занятия и итог переделаны по макетам (Question, Feedback, Finish). Варианты ответа после проверки подписаны словами справа в строке варианта («javobingiz» / «to'g'ri javob»), внизу — серая панель с итогом ответа: слово — значение и справа «to'g'ri» / «noto'g'ri» строчными. Чип серии верных ответов без эмодзи 🔥: число и слово («3 ketma-ket»). На итоге надзаголовок над заголовком и главная кнопка «Tayyor» (ведёт на экран «Bugun»; ключ `finished.home` прежний и остаётся у кнопки закрытого занятия). Прошу проверить: естественно ли «3 ketma-ket» для «3 подряд» в маленьком чипе и «Tayyor» для кнопки «Готово» в конце занятия.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `exercise.option.yours` | javobingiz | ваш ответ (подпись справа в варианте, выбранном неверно) |
+| `exercise.option.right` | to'g'ri javob | верный ответ (подпись справа в верном варианте) |
+| `exercise.feedback.right` | to'g'ri | верно (справа от «слово — значение» в панели ответа) |
+| `exercise.feedback.wrong` | noto'g'ri | неверно (там же) |
+| `training.combo` | ketma-ket | подряд (после числа в чипе: «3 ketma-ket») |
+| `finished.done` | Tayyor | Готово (главная кнопка итога) |
+| `finished.eyebrow` | Mashg'ulot yakunlandi | Занятие завершено (надзаголовок итога) |

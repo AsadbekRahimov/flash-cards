@@ -99,7 +99,7 @@ describe('AchievementsView', () => {
     const words = card(wrapper, 'words_100')
     expect(words.attributes('data-unlocked')).toBe('false')
     expect(words.get('[data-testid=progress]').text()).toBe('40 из 100')
-    expect(words.get('[data-testid=bar]').attributes('style')).toContain('width: 40%')
+    expect(words.get('[data-testid=bar] .progress-fill').attributes('style')).toContain('width: 40%')
     expect(words.find('[data-testid=share-btn]').exists()).toBe(false)
 
     expect(card(wrapper, 'league_top1').get('[data-testid=locked]').text()).toBe('Ещё не получено')
@@ -113,16 +113,16 @@ describe('AchievementsView', () => {
       expect(wrapper.get('h1').text()).toBe('Достижения')
       const bar = wrapper.get('[data-testid=summary-bar]')
       // 2 of 4
-      expect(bar.attributes('style')).toContain('width: 50%')
-      expect(bar.element.parentElement?.classList.contains('progress')).toBe(true)
-      expect(bar.element.parentElement?.getAttribute('role')).toBe('progressbar')
-      expect(bar.element.parentElement?.getAttribute('aria-valuenow')).toBe('50')
+      expect(bar.get('.progress-fill').attributes('style')).toContain('width: 50%')
+      expect(bar.classes()).toContain('progress')
+      expect(bar.attributes('role')).toBe('progressbar')
+      expect(bar.attributes('aria-valuenow')).toBe('50')
     })
 
     it('does not divide by zero for an empty catalog', async () => {
       const { wrapper } = await render(response({ unlocked_count: 0, total: 0, items: [] }))
 
-      expect(wrapper.get('[data-testid=summary-bar]').attributes('style')).toContain('width: 0%')
+      expect(wrapper.get('[data-testid=summary-bar] .progress-fill').attributes('style')).toContain('width: 0%')
       expect(text(wrapper, 'summary')).toBe('Получено 0 из 0')
     })
 
@@ -132,28 +132,30 @@ describe('AchievementsView', () => {
       )
 
       expect(text(wrapper, 'empty-hint')).toBe('Занимайтесь каждый день — достижения появятся сами.')
-      expect(wrapper.get('[data-testid=summary-bar]').attributes('style')).toContain('width: 0%')
+      expect(wrapper.get('[data-testid=summary-bar] .progress-fill').attributes('style')).toContain('width: 0%')
     })
   })
 
-  describe('the grid', () => {
-    it('is two columns of cards', async () => {
+  describe('the list', () => {
+    it('is one card of rows with lines between them, not a grid of tiles', async () => {
       const { wrapper } = await render()
 
-      expect(wrapper.get('[data-testid=list]').classes()).toEqual(expect.arrayContaining(['grid', 'grid-cols-2']))
-      expect(wrapper.findAll('[data-testid=list] > li').every((li) => li.classes().includes('card'))).toBe(true)
+      expect(wrapper.get('[data-testid=list]').classes()).toContain('list')
+      expect(wrapper.get('[data-testid=list]').classes()).not.toContain('grid')
+      expect(wrapper.findAll('[data-testid=list] > li').every((li) => li.classes().includes('border-divider'))).toBe(true)
     })
 
-    it('draws a trophy on warning for an unlocked card and a lock on the fill for a locked one', async () => {
+    it('draws a quiet trophy for an unlocked row and a lock for a locked one, with no tile under them', async () => {
       const { wrapper } = await render()
 
       const unlocked = card(wrapper, 'first_session').get('[data-testid=item-tile]')
-      expect(unlocked.classes()).toEqual(expect.arrayContaining(['bg-warning-soft', 'text-warning-ink']))
+      expect(unlocked.classes()).toContain('text-warning')
+      expect(unlocked.classes().some((c) => c.startsWith('bg-'))).toBe(false)
       expect(unlocked.get('svg').attributes('fill')).toBe('currentColor')
 
       const locked = card(wrapper, 'league_top1').get('[data-testid=item-tile]')
-      expect(locked.classes()).toEqual(expect.arrayContaining(['bg-fill', 'text-tg-hint']))
-      expect(locked.classes()).not.toContain('bg-warning-soft')
+      expect(locked.classes()).toContain('text-muted')
+      expect(locked.classes().some((c) => c.startsWith('bg-'))).toBe(false)
       // the lock is an outline icon, the trophy a filled one
       expect(locked.get('svg').attributes('fill')).toBe('none')
       expect(locked.get('svg path').attributes('d')).not.toBe(unlocked.get('svg path').attributes('d'))
@@ -269,8 +271,9 @@ describe('AchievementsView', () => {
       )
 
       const bar = card(wrapper, 'count').get('[data-testid=bar]')
-      expect(bar.attributes('style')).toContain(`width: ${width}%`)
-      expect(bar.element.parentElement?.getAttribute('aria-valuenow')).toBe(String(width))
+      expect(bar.get('.progress-fill').attributes('style')).toContain(`width: ${width}%`)
+      expect(bar.attributes('aria-valuenow')).toBe(String(width))
+      expect(bar.attributes('aria-label')).toBe('Count')
     })
 
     it('shows an empty bar for a target of zero', async () => {
@@ -278,7 +281,7 @@ describe('AchievementsView', () => {
         response({ items: [item({ key: 'zero', title: 'Zero', progress: { current: 0, target: 0 } })], unlocked_count: 0, total: 1 }),
       )
 
-      expect(card(wrapper, 'zero').get('[data-testid=bar]').attributes('style')).toContain('width: 0%')
+      expect(card(wrapper, 'zero').get('[data-testid=bar] .progress-fill').attributes('style')).toContain('width: 0%')
     })
   })
 

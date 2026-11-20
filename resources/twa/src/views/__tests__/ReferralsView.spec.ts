@@ -258,12 +258,11 @@ describe('ReferralsView', () => {
       expect(text(wrapper, 'rule')).toContain('Друг проходит настройку в боте и занимается 5 дн. (от 15 карточек в день) в течение 21 дн. после перехода по ссылке')
     })
 
-    it('has a pink gift tile in the hero', async () => {
+    it('has no coloured tile in the hero: the title alone, semibold', async () => {
       const { wrapper } = await render()
 
-      const tile = wrapper.get('[data-testid=hero] .icon-tile')
-      expect(tile.classes()).toContain('tile-pink')
-      expect(tile.find('svg').exists()).toBe(true)
+      expect(wrapper.find('[data-testid=hero] .icon-tile').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=hero-title]').classes()).toContain('font-semibold')
     })
   })
 
@@ -405,7 +404,7 @@ describe('ReferralsView', () => {
       expect(link.attributes('href')).toBe('/friends')
       expect(link.text()).toBe('Друзья и вызовы')
       expect(link.classes()).toContain('list-row')
-      expect(link.find('.icon-tile.tile-blue').exists()).toBe(true)
+      expect(link.find('.icon-tile').exists()).toBe(false)
       expect(link.classes()).not.toContain('btn')
 
       const after = (other: string) =>

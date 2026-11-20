@@ -160,6 +160,37 @@ describe('MeaningCard', () => {
     expect(w.emitted('pick')).toEqual([['Нежный']])
   })
 
+  it('puts the answer in the grey panel at the bottom (docs/design Feedback): the word and its meaning, the verdict in words', async () => {
+    const before = mount(MeaningCard, { props: { card } })
+    expect(before.find('[data-testid=feedback]').exists()).toBe(false)
+    expect(before.find('[data-testid=actions]').exists()).toBe(false)
+
+    const wrong = mount(MeaningCard, { props: { card } })
+    await wrong.get('[data-testid=option-2]').trigger('click')
+    // While the server is thinking there is no panel yet: nothing is known.
+    expect(wrong.find('[data-testid=feedback]').exists()).toBe(false)
+    await wrong.setProps({ result: answered(false) })
+
+    const panel = wrong.get('[data-testid=actions]')
+    expect(panel.classes()).toEqual(expect.arrayContaining(['bg-page', 'border-t', 'border-hairline']))
+    expect(panel.get('[data-testid=feedback-title]').text()).toBe('Resilient — устойчивый')
+    const status = panel.get('[data-testid=feedback-status]')
+    expect(status.text()).toBe('неверно')
+    expect(status.classes()).toContain('text-danger-ink')
+    expect(panel.get('[data-testid=example]').classes()).toContain('italic')
+    expect(panel.find('[data-testid=continue-btn]').exists()).toBe(true)
+    // The options name the verdict in words too: the pick and the right one.
+    expect(wrong.get('[data-testid=option-caption-2]').text()).toBe('ваш ответ')
+    expect(wrong.get('[data-testid=option-caption-1]').text()).toBe('верный ответ')
+
+    const right = mount(MeaningCard, { props: { card } })
+    await right.get('[data-testid=option-1]').trigger('click')
+    await right.setProps({ result: answered(true) })
+    expect(right.get('[data-testid=feedback-status]').text()).toBe('верно')
+    expect(right.get('[data-testid=feedback-status]').classes()).toContain('text-success-ink')
+    expect(right.find('[data-testid=continue-btn]').exists()).toBe(false)
+  })
+
   it('accepts one pick only and none while disabled', async () => {
     const w = mount(MeaningCard, { props: { card } })
     await w.get('[data-testid=option-2]').trigger('click')

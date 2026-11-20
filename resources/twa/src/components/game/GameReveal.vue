@@ -71,6 +71,11 @@ const prompt = computed((): { text: string; lang: string | undefined } | null =>
   }
 })
 
+/** The word and its translation under the right answer, unless they only repeat it or the question (`apple` → `яблоко`, right answer `яблоко`). */
+const same = (a: string | null | undefined, b: string | null | undefined): boolean => (a ?? '').trim() === (b ?? '').trim()
+const showWord = computed((): boolean => !!word.value?.word && !same(word.value.word, word.value.correct_text) && !same(word.value.word, prompt.value?.text))
+const showTranslation = computed((): boolean => !!word.value?.translation && !same(word.value.translation, word.value.correct_text))
+
 /** The language of the right answer: the learner's own for `translate_fwd` (its options are translations), English for the rest. */
 const answerLang = computed((): string | undefined => (props.outcome.element.kind === 'translate_fwd' ? undefined : 'en'))
 
@@ -166,12 +171,12 @@ function next(): void {
           <p class="text-[16px] leading-[22px] break-words italic" lang="en" data-testid="full-text">{{ word.full_text }}</p>
         </div>
 
-        <div v-if="word && ((word.word && word.word !== word.correct_text) || word.translation)" class="flex flex-col gap-0.5 text-[14px] leading-5">
-          <p v-if="word.word && word.word !== word.correct_text" class="break-words" data-testid="word-block">
-            <span class="text-muted">{{ t('gameRun.reveal.word') }}:</span> <span lang="en" data-testid="word">{{ word.word }}</span>
+        <div v-if="showWord || showTranslation" class="flex flex-col gap-0.5 text-[14px] leading-5">
+          <p v-if="showWord" class="break-words" data-testid="word-block">
+            <span class="text-muted">{{ t('gameRun.reveal.word') }}:</span> <span lang="en" data-testid="word">{{ word?.word }}</span>
           </p>
-          <p v-if="word.translation" class="break-words" data-testid="translation-block">
-            <span class="text-muted">{{ t('gameRun.reveal.translation') }}:</span> <span data-testid="translation">{{ word.translation }}</span>
+          <p v-if="showTranslation" class="break-words" data-testid="translation-block">
+            <span class="text-muted">{{ t('gameRun.reveal.translation') }}:</span> <span data-testid="translation">{{ word?.translation }}</span>
           </p>
         </div>
 

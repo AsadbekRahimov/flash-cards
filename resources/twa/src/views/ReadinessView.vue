@@ -140,19 +140,19 @@ async function takeQuiz(): Promise<void> {
 
         <!-- Three numbers split by thin lines (as at the end of a session), the dot of each is its colour in the line above. -->
         <dl class="-mx-[18px] mt-4 grid grid-cols-3 border-t border-divider">
-          <div class="flex flex-col-reverse gap-1 px-3.5 pt-3.5" data-testid="readiness-learned">
+          <div class="flex flex-col-reverse justify-end gap-1 px-3.5 pt-3.5" data-testid="readiness-learned">
             <dt class="flex items-center gap-1.5 text-[13px] leading-[18px] text-muted">
               <span class="size-2 shrink-0 rounded-full bg-success" aria-hidden="true" />{{ t('readiness.learned') }}
             </dt>
             <dd class="font-mono text-[22px] leading-7 font-medium">{{ data.words.learned }}</dd>
           </div>
-          <div class="flex flex-col-reverse gap-1 border-l border-divider px-3.5 pt-3.5" data-testid="readiness-in-progress">
+          <div class="flex flex-col-reverse justify-end gap-1 border-l border-divider px-3.5 pt-3.5" data-testid="readiness-in-progress">
             <dt class="flex items-center gap-1.5 text-[13px] leading-[18px] text-muted">
               <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />{{ t('readiness.in_progress') }}
             </dt>
             <dd class="font-mono text-[22px] leading-7 font-medium">{{ data.words.in_progress }}</dd>
           </div>
-          <div class="flex flex-col-reverse gap-1 border-l border-divider px-3.5 pt-3.5" data-testid="readiness-not-started">
+          <div class="flex flex-col-reverse justify-end gap-1 border-l border-divider px-3.5 pt-3.5" data-testid="readiness-not-started">
             <dt class="flex items-center gap-1.5 text-[13px] leading-[18px] text-muted">
               <span class="size-2 shrink-0 rounded-full bg-track" aria-hidden="true" />{{ t('readiness.not_started') }}
             </dt>

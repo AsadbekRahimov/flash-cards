@@ -96,6 +96,9 @@ describe('ReverseCard', () => {
     expect(w.get('[data-testid=example]').text()).toBe('She is a resilient girl.')
     expect(w.get('[data-testid=example-translation]').text()).toBe('Она стойкая девочка.')
     expect(w.get('[data-testid=transcription]').text()).toBe('rɪˈzɪl.i.ənt')
+    // The answer panel names the word found and the translation asked, the transcription in the IPA face.
+    expect(w.get('[data-testid=feedback-title]').text()).toBe('Resilient — Устойчивый')
+    expect(w.get('[data-testid=feedback] [data-testid=transcription]').classes()).toContain('font-ipa')
     // A right pick moves on by itself: there is nothing to press.
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
 

@@ -450,31 +450,34 @@ onBeforeUnmount(() => {
           :data-open="cityOpen(city) ? 'true' : 'false'"
           :data-testid="`city-${city.number}`"
         >
-          <div class="flex items-start gap-3 px-[18px] pt-3.5 pb-3">
-            <div class="min-w-0 flex-1">
-              <h2 class="text-[17px] leading-[22px] font-semibold" :class="{ 'text-muted': !cityOpen(city) }" data-testid="city-name">{{ city.city }}</h2>
-              <p class="text-[13px] leading-[18px] text-muted" data-testid="city-title">{{ cityTitle(city) }}</p>
-              <p v-if="friendsAt(city)" class="mt-1 flex items-center gap-1 text-[13px] leading-[18px] text-muted" data-testid="city-friends">
-                <AppIcon name="users" :size="14" class="shrink-0" />
-                <GameItemImage v-for="camel in camelsAt(city)" :key="camel.id" :name="camel.asset" :size="22" data-testid="friend-camel" />
-                <span class="min-w-0 break-words">{{ friendsAt(city) }}</span>
-              </p>
+          <div class="px-[18px] pt-3.5 pb-3">
+            <div class="flex items-start gap-3">
+              <div class="min-w-0 flex-1">
+                <h2 class="text-[17px] leading-[22px] font-semibold" :class="{ 'text-muted': !cityOpen(city) }" data-testid="city-name">{{ city.city }}</h2>
+                <p class="text-[13px] leading-[18px] text-muted" data-testid="city-title">{{ cityTitle(city) }}</p>
+              </div>
+              <template v-for="chip in [bossChip(city.boss)]" :key="city.boss.state">
+                <button
+                  v-if="chip.pro"
+                  type="button"
+                  class="-my-2 flex min-h-11 shrink-0 items-center"
+                  data-testid="boss-pro"
+                  @click="bossPaywall"
+                >
+                  <span class="chip" :class="chip.tone">{{ chip.text }}</span>
+                </button>
+                <!-- The other chips lead to the screen of the boss (docs/05 §5b.8). -->
+                <button v-else type="button" class="-my-2 flex min-h-11 shrink-0 items-center" :data-testid="`boss-open-${city.stage_id}`" @click="openBoss(city)">
+                  <span class="chip" :class="chip.tone" :data-testid="`boss-${city.boss.state}`">{{ chip.text }}</span>
+                </button>
+              </template>
             </div>
-            <template v-for="chip in [bossChip(city.boss)]" :key="city.boss.state">
-              <button
-                v-if="chip.pro"
-                type="button"
-                class="-my-2 flex min-h-11 shrink-0 items-center"
-                data-testid="boss-pro"
-                @click="bossPaywall"
-              >
-                <span class="chip" :class="chip.tone">{{ chip.text }}</span>
-              </button>
-              <!-- The other chips lead to the screen of the boss (docs/05 §5b.8). -->
-              <button v-else type="button" class="-my-2 flex min-h-11 shrink-0 items-center" :data-testid="`boss-open-${city.stage_id}`" @click="openBoss(city)">
-                <span class="chip" :class="chip.tone" :data-testid="`boss-${city.boss.state}`">{{ chip.text }}</span>
-              </button>
-            </template>
+            <!-- Friends in the city: their camels (the pictures they wear) and their names, the whole width of the card. -->
+            <p v-if="friendsAt(city)" class="mt-1.5 flex items-center gap-1 text-[13px] leading-[18px] text-muted" data-testid="city-friends">
+              <AppIcon name="users" :size="14" class="shrink-0" />
+              <GameItemImage v-for="camel in camelsAt(city)" :key="camel.id" :name="camel.asset" :size="22" data-testid="friend-camel" />
+              <span class="min-w-0 break-words">{{ friendsAt(city) }}</span>
+            </p>
           </div>
 
           <ul class="flex flex-col">

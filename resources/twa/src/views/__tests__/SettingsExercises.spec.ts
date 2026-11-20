@@ -95,7 +95,7 @@ describe('SettingsView — exercises', () => {
       'Пропуск в примере',
     ])
     expect(card.get('[data-testid=exercise-hint-meaning]').text()).toBe('Слово → перевод из четырёх вариантов')
-    expect(card.get('[data-testid=exercise-hint-meaning]').classes()).toContain('text-tg-hint')
+    expect(card.get('[data-testid=exercise-hint-meaning]').classes()).toContain('text-muted')
     for (const key of ['reverse', 'audio', 'spelling', 'gap_fill']) {
       expect(card.get(`[data-testid=exercise-row-${key}]`).find('[data-testid^=exercise-hint-]').exists(), key).toBe(false)
     }

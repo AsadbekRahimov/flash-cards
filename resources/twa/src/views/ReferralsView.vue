@@ -136,10 +136,7 @@ onMounted(() => {
 
     <div v-else class="space-y-3">
       <section class="card" data-testid="hero">
-        <div class="flex items-center gap-3">
-          <span class="icon-tile tile-pink size-12 rounded-2xl"><AppIcon name="gift" :size="26" /></span>
-          <h2 class="min-w-0 flex-1 text-xl leading-6 font-bold" data-testid="hero-title">{{ t('referrals.hero') }}</h2>
-        </div>
+        <h2 class="text-xl leading-[26px] font-semibold" data-testid="hero-title">{{ t('referrals.hero') }}</h2>
 
         <div class="mt-4" data-testid="progress">
           <ol
@@ -152,10 +149,10 @@ onMounted(() => {
             <li
               v-for="dot in dots"
               :key="dot.number"
-              class="flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] leading-none font-semibold"
+              class="flex size-8 shrink-0 items-center justify-center rounded-full font-mono text-[13px] leading-none"
               :class="[
-                dot.filled ? 'bg-accent text-tg-button-text' : 'bg-fill text-tg-hint',
-                dot.milestone ? 'ring-2 ring-accent ring-offset-2 ring-offset-tg-section-bg' : '',
+                dot.filled ? 'bg-primary text-on-primary' : 'bg-fill text-muted',
+                dot.milestone ? 'ring-[1.5px] ring-primary ring-offset-2 ring-offset-surface' : '',
               ]"
               :data-filled="dot.filled ? 'true' : 'false'"
               :data-milestone="dot.milestone ? 'true' : 'false'"
@@ -188,13 +185,13 @@ onMounted(() => {
             </li>
           </ul>
 
-          <p class="mt-3 text-[15px] leading-5 text-tg-subtitle" data-testid="next-step">{{ nextText }}</p>
+          <p class="mt-3 text-[15px] leading-5 text-muted" data-testid="next-step">{{ nextText }}</p>
         </div>
 
         <ol class="mt-4 space-y-3" data-testid="rule">
           <li v-for="(step, index) in steps" :key="index" class="flex items-start gap-3">
             <span
-              class="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[13px] leading-none font-semibold text-accent-ink"
+              class="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-[13px] leading-none text-accent-ink"
               aria-hidden="true"
             >
               {{ index + 1 }}
@@ -203,10 +200,10 @@ onMounted(() => {
           </li>
         </ol>
 
-        <p class="mt-3 text-[13px] leading-[18px] text-tg-hint" data-testid="friend-gets">{{ t('referrals.friend_gets') }}</p>
+        <p class="mt-3 text-[13px] leading-[18px] text-muted" data-testid="friend-gets">{{ t('referrals.friend_gets') }}</p>
 
         <template v-if="data.link">
-          <p class="mt-4 text-[13px] leading-[18px] text-tg-hint">{{ t('referrals.link_label') }}</p>
+          <p class="mt-4 text-[13px] leading-[18px] text-muted">{{ t('referrals.link_label') }}</p>
           <!-- Read-only field: the link wraps by characters and is selected with one tap, so it can be copied by hand too. -->
           <div class="field mt-1.5 font-mono text-[13px] leading-[18px] break-all select-all" data-testid="link">{{ data.link }}</div>
           <div class="mt-3 space-y-2">
@@ -219,16 +216,16 @@ onMounted(() => {
           </div>
         </template>
         <template v-else>
-          <p class="mt-4 text-[13px] leading-[18px] text-tg-hint">{{ t('referrals.code_label') }}</p>
+          <p class="mt-4 text-[13px] leading-[18px] text-muted">{{ t('referrals.code_label') }}</p>
           <div class="field mt-1.5 font-mono text-lg select-all" data-testid="code">{{ data.code }}</div>
-          <p class="mt-3 text-[15px] leading-5 text-tg-subtitle" data-testid="no-link">{{ t('referrals.no_link', { code: data.code }) }}</p>
+          <p class="mt-3 text-[15px] leading-5 text-muted" data-testid="no-link">{{ t('referrals.no_link', { code: data.code }) }}</p>
         </template>
       </section>
 
       <div class="grid grid-cols-3 gap-2" data-testid="counts">
         <div v-for="count in COUNTS" :key="count.key" class="card flex flex-col items-center px-1.5 py-3 text-center">
-          <div class="text-2xl leading-8 font-bold tabular-nums" :data-testid="`count-${count.key}`">{{ data.counts[count.key] }}</div>
-          <div class="mt-0.5 text-xs leading-4 break-words text-tg-hint">{{ t(count.label) }}</div>
+          <div class="font-mono text-2xl leading-8 font-medium" :data-testid="`count-${count.key}`">{{ data.counts[count.key] }}</div>
+          <div class="mt-0.5 text-xs leading-4 break-words text-muted">{{ t(count.label) }}</div>
         </div>
       </div>
 
@@ -253,7 +250,7 @@ onMounted(() => {
       </ListGroup>
 
       <ListGroup>
-        <ListRow :to="{ name: 'friends' }" icon="users" tile="blue" :title="t('friends.open')" data-testid="friends-link" />
+        <ListRow :to="{ name: 'friends' }" :title="t('friends.open')" data-testid="friends-link" />
       </ListGroup>
     </div>
   </div>

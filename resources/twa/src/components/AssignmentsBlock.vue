@@ -51,7 +51,7 @@ function dotClass(item: AssignmentItem): string {
         </span>
         <span
           v-if="item.completed"
-          class="max-w-[45%] shrink-0 text-right text-[13px] leading-[18px]"
+          class="max-w-[40%] shrink-0 text-right text-[13px] leading-[18px]"
           :class="item.late ? 'text-warning-ink' : 'text-success-ink'"
           data-testid="assignment-done"
         >
@@ -59,7 +59,7 @@ function dotClass(item: AssignmentItem): string {
         </span>
         <span
           v-else
-          class="max-w-[45%] shrink-0 text-right text-[13px] leading-[18px]"
+          class="max-w-[40%] shrink-0 text-right text-[13px] leading-[18px]"
           :class="item.overdue ? 'text-danger-ink' : 'text-warning-ink'"
           data-testid="assignment-due"
         >

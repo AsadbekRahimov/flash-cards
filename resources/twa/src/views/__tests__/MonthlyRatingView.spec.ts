@@ -98,17 +98,17 @@ describe('MonthlyRatingView', () => {
   })
   afterEach(() => setLocale('ru'))
 
-  it('shows the month title and the days left, prizes with medals, my place and the top', async () => {
+  it('shows the month title and the days left, the prizes, my place and the top', async () => {
     const { wrapper } = await render()
 
     expect(text(wrapper, 'month')).toContain('Ноябрь 2026')
     expect(text(wrapper, 'month')).toContain('До конца месяца — 14 дн.')
     const prizes = wrapper.findAll('[data-testid=prize]').map((p) => p.text())
-    expect(prizes).toEqual(['🥇 1 место — Наушники', '🥈 2 место — Книга', '🥉 3 место — Блокнот'])
+    expect(prizes).toEqual(['1 место — Наушники', '2 место — Книга', '3 место — Блокнот'])
     expect(text(wrapper, 'prizes-note')).toBe('Призы вручаются после проверки результатов')
     expect(text(wrapper, 'my-place')).toBe('Вы на 12 месте · 340 баллов')
     expect(text(wrapper, 'prize-line')).toBe('Вы участвуете в розыгрыше призов')
-    expect(wrapper.get('h1').text()).toBe('Рейтинг')
+    expect(wrapper.get('h1').text()).toBe('Ноябрь 2026')
     expect(wrapper.get('[data-testid=seg-month]').attributes('aria-current')).toBe('page')
     expect(state.showBack).not.toHaveBeenCalled()
   })
@@ -187,18 +187,21 @@ describe('MonthlyRatingView', () => {
   })
 
   describe('the top', () => {
-    it('medals for 1-3, numbers after, "Ученик" for no name, my row highlighted with a chip', async () => {
+    it('the place in mono for everybody (no medals), "Ученик" for no name, my row highlighted with "вы"', async () => {
       const { wrapper } = await render(response({ top: top(5, 5), me: me({ rank: 5 }) }))
 
       const rows = wrapper.findAll('[data-testid=row], [data-testid=row-me]')
       expect(rows).toHaveLength(5)
-      expect(rows[0]?.text()).toContain('🥇')
+      expect(rows[0]?.get('[data-testid=rank]').text()).toBe('1')
+      expect(rows[0]?.get('[data-testid=rank]').classes()).toContain('font-mono')
       expect(rows[0]?.text()).toContain('Member 1')
-      expect(rows[0]?.text()).toContain('1000 баллов')
+      expect(rows[0]?.get('[data-testid=points]').text()).toBe('1000')
+      expect(wrapper.text()).not.toMatch(/[🥇🥈🥉]/u)
       expect(rows[3]?.text()).toContain('Ученик')
       expect(rows[3]?.text()).toContain('4')
       expect(rows[4]?.attributes('data-testid')).toBe('row-me')
       expect(rows[4]?.classes()).toContain('bg-accent-soft')
+      expect(rows[4]?.text()).toContain('· вы')
       expect(has(wrapper, 'row-pinned')).toBe(false)
     })
 
@@ -207,7 +210,7 @@ describe('MonthlyRatingView', () => {
 
       expect(has(wrapper, 'row-me')).toBe(false)
       expect(text(wrapper, 'row-pinned')).toContain('12')
-      expect(text(wrapper, 'row-pinned')).toContain('340 баллов')
+      expect(wrapper.get('[data-testid=row-pinned] [data-testid=points]').text()).toBe('340')
     })
 
     it('has an empty state when nobody has points', async () => {
@@ -234,7 +237,7 @@ describe('MonthlyRatingView', () => {
       const winners = wrapper.findAll('[data-testid=winner]')
       expect(winners).toHaveLength(3)
       expect(winners[0]?.text()).toContain('Dilnoza')
-      expect(winners[0]?.text()).toContain('900 баллов')
+      expect(winners[0]?.text()).toContain('900')
       expect(winners[1]?.text()).toContain('Ученик')
       expect(text(wrapper, 'last-me')).toBe('Ваше место: 9')
     })
@@ -305,7 +308,7 @@ describe('MonthlyRatingView', () => {
     expect(text(wrapper, 'month')).toContain('2026-yil noyabr')
     expect(text(wrapper, 'month')).toContain('Oy tugashiga 14 kun qoldi')
     expect(text(wrapper, 'my-place')).toBe("Siz 12-o'rindasiz · 340 ball")
-    expect(wrapper.findAll('[data-testid=prize]')[0]?.text()).toBe("🥇 1-o'rin — Наушники")
+    expect(wrapper.findAll('[data-testid=prize]')[0]?.text()).toBe("1-o'rin — Наушники")
     expect(wrapper.get('[data-testid=seg-month]').text()).toBe('Oy')
     expect(wrapper.get('[data-testid=last-month]').text()).toContain("G'oliblar: 2026-yil oktabr")
   })
