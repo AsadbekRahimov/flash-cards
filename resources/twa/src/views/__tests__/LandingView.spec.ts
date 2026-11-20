@@ -56,7 +56,7 @@ describe('LandingView', () => {
     const wrapper = await render()
 
     expect(wrapper.router.currentRoute.value.name).toBe('landing')
-    expect(wrapper.text()).toContain('Эта страница работает только внутри Telegram Web App')
+    expect(wrapper.text()).toContain('Эта страница открывается только в Telegram')
     expect(wrapper.get('[data-testid=landing-outside]').classes()).toContain('text-muted')
   })
 
@@ -73,6 +73,6 @@ describe('LandingView', () => {
 
     const text = (await render()).text()
 
-    expect(text).toContain("guruh mashg'uloti havolasini yuborishini")
+    expect(text).toContain("Guruh mashg'uloti uchun o'qituvchi yuborgan tugmani bosing.")
   })
 })

@@ -214,7 +214,7 @@ describe('ProBenefits', () => {
       setLocale('uz')
       knowGame('full')
 
-      expect(rows(mount(ProBenefits))[2]).toBe('Karvon | kunlik limitsiz')
+      expect(rows(mount(ProBenefits))[2]).toBe('Karvon | kunlik cheklovsiz')
     })
   })
 
@@ -225,7 +225,7 @@ describe('ProBenefits', () => {
 
     expect(w.findAll('[data-testid=benefit]')).toHaveLength(6)
     expect(rows(w)[0]).toBe("Yangi so'zlar | kuniga 20 ta o'rniga cheklovsiz")
-    expect(rows(w)[1]).toBe('Mashqlar va bellashuvlar | kunlik limitsiz')
+    expect(rows(w)[1]).toBe('Mashqlar va bellashuvlar | kunlik cheklovsiz')
     expect(rows(w)[5]).toBe('Sinov imtihonlari | IELTS va SAT')
   })
 
@@ -235,7 +235,7 @@ describe('ProBenefits', () => {
     const solo = mount(ProBenefits)
 
     expect(solo.findAll('[data-testid=benefit]')).toHaveLength(6)
-    expect(rows(solo)[1]).toBe('Mashqlar | kunlik limitsiz')
+    expect(rows(solo)[1]).toBe('Mashqlar | kunlik cheklovsiz')
     expect(solo.text()).not.toContain('bellashuv')
 
     know(NONE)

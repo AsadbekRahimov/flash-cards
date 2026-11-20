@@ -302,8 +302,8 @@ describe('FlashCard', () => {
       const w = mount(FlashCard, { props: { card: newCard, showTranslation: false } })
 
       expect(w.get('[data-testid=grade-prompt]').text()).toBe("Yangi so'z. Eslab qolishga harakat qiling")
-      expect(w.get('[data-testid=grade-hard]').text()).toBe('Hali eslamadim')
-      expect(w.get('[data-testid=grade-medium]').text()).toBe('Esladim')
+      expect(w.get('[data-testid=grade-hard]').text()).toBe('Hali eslab qolmadim')
+      expect(w.get('[data-testid=grade-medium]').text()).toBe('Eslab qoldim')
       expect(w.get('[data-testid=grade-easy]').text()).toBe('Avvaldan bilardim')
     })
 
@@ -341,7 +341,7 @@ describe('FlashCard', () => {
     expect(revealed.get('[data-testid=grade-hard]').text()).toContain('Eslay olmadim')
     expect(revealed.get('[data-testid=grade-hard]').text()).toContain('bugun yana chiqadi')
     expect(revealed.get('[data-testid=grade-medium]').text()).toContain('Esladim')
-    expect(revealed.get('[data-testid=grade-medium]').text()).toContain("o'z vaqtida yana chiqadi")
+    expect(revealed.get('[data-testid=grade-medium]').text()).toContain("takrorlash vaqti kelganda yana ko'rasiz")
     expect(revealed.get('[data-testid=grade-easy]').text()).toContain('Oson')
     expect(revealed.get('[data-testid=grade-easy]').text()).toContain('keyinroq yana chiqadi')
   })

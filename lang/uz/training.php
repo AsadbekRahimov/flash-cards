@@ -10,7 +10,7 @@ return [
         'button' => ':stage-modul · :lesson-dars',
     ],
 
-    'started' => "📚 Guruh mashg'uloti: :stage-modul, :lesson-dars. Tugmani bosing — LexiFlow to'g'ridan-to'g'ri Telegramning ichida ochiladi.",
+    'started' => "📚 Guruh mashg'uloti: :stage-modul, :lesson-dars. Mashg'ulotga qo'shilish uchun quyidagi tugmani bosing.",
     'open_button' => "🎯 Guruh mashg'ulotiga qo'shilish",
 
 ];

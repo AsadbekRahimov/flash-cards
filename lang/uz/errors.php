@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 return [
 
-    'teacher_not_linked' => "Bu buyruq — guruh o'qituvchisi uchun. O'qituvchi: markaz kabinetida Profil bo'limini oching va o'z Telegram ID raqamingizni kiriting (uni bot bilan shaxsiy chatda /stats buyrug'i ko'rsatadi).",
-    'teacher_not_linked_ask_admin' => "Bu buyruq — guruh o'qituvchisi uchun. O'qituvchi: markaz kabinetida Profil bo'limini oching va o'z Telegram ID raqamingizni kiriting (uni bot bilan shaxsiy chatda /stats buyrug'i ko'rsatadi).",
+    'teacher_not_linked' => "Bu buyruqni guruh o'qituvchisi ishlata oladi. Markaz kabinetida «Profil» → «Telegramni ulash» tugmasini bosing va botda ulanishni tasdiqlang. Kabinetingiz bo'lmasa, botga shaxsiy chatda /stats yuboring va Telegram ID raqamingizni administratorga bering.",
+    'teacher_not_linked_ask_admin' => "Bu buyruqni guruh o'qituvchisi ishlata oladi. Markaz kabinetida «Profil» → «Telegramni ulash» tugmasini bosing va botda ulanishni tasdiqlang. Kabinetingiz bo'lmasa, botga shaxsiy chatda /stats yuboring va Telegram ID raqamingizni administratorga bering.",
 
     // `:support` — the line with the support contact (BotSupportContact::line), empty without a contact.
     'group_inactive' => "Guruh hali faollashtirilmagan. Qo'llab-quvvatlash xizmatiga yozing — faollashtiramiz.:support",

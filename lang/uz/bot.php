@@ -25,7 +25,7 @@ return [
             ':caravan'.
             "• /stats — 7 kunlik hisobotingiz\n".
             "• /org — markaz kabineti\n".
-            '• /unlink — bu Telegramni kabinetdan uzish',
+            '• /unlink — Telegram akkauntingizni kabinetdan uzish',
         // The last line of `private` for everybody who is not a linked teacher; left out without a support contact.
         'teacher_hint' => "Siz o'qituvchi yoki markaz egasimisiz? Bizga yozing: :contact",
         'group' => "LexiFlow guruh buyruqlari\n\nO'qituvchilar uchun:\n".
@@ -48,7 +48,7 @@ return [
     ],
 
     'teacher' => [
-        'learner_command' => "Bu buyruq — o'quvchilar uchun. O'qituvchi buyruqlaringiz: /help",
+        'learner_command' => "Bu buyruq o'quvchilar uchun. O'qituvchi buyruqlarini ko'rish uchun /help yuboring.",
     ],
 
     'group' => [
@@ -72,7 +72,7 @@ return [
     // center's language; every refusal — one neutral text, the reason is shown in the cabinet).
     'link' => [
         // The question before anything is connected (W2): the account is named by its masked e-mail, the cabinet by its centers.
-        'account_prompt' => "Bu Telegramni :centers markazi kabinetiga ulaysizmi?\n\nAkkaunt: :name (:email).\n\nUlangandan so'ng bot Sizni markaz xodimi deb hisoblaydi: bu chatda u Sizga o'quvchi sifatida javob bermay qo'yadi. Istalgan vaqtda /unlink buyrug'i bilan uzish mumkin.",
+        'account_prompt' => "Telegram akkauntingizni quyidagi markaz kabinetiga ulaysizmi?\n:centers\n\nAkkaunt: :name (:email).\n\nUlangandan so'ng bot Sizni markaz xodimi deb hisoblaydi: bu chatda u Sizga o'quvchi sifatida javob bermay qo'yadi. Istalgan vaqtda /unlink buyrug'i bilan uzish mumkin.",
         'account_prompt_no_center' => 'LexiFlow',
         'account_yes' => 'Ha, ulash',
         'account_no' => "Yo'q",
@@ -89,16 +89,16 @@ return [
         'unlink_yes' => 'Ha, uzish',
         'unlink_no' => "Yo'q",
         'unlink_done' => "Telegram :name akkauntidan uzildi. Bot yana Sizga o'quvchi sifatida javob beradi — /start yuboring.",
-        'unlink_none' => "Bu Telegram hech bir kabinetga ulanmagan. Uzadigan narsa yo'q.",
+        'unlink_none' => "Telegram akkauntingiz hech bir kabinetga ulanmagan.",
         'unlink_cancelled' => 'Mayli, Telegram ulangan holda qoladi.',
         // `/link` outside a group, and from an anonymous administrator.
-        'use_in_group' => "Bu buyruq bog'lanishi kerak bo'lgan guruhda yuboriladi.",
+        'use_in_group' => "Bu buyruqni markazga bog'lamoqchi bo'lgan guruhingizda yuboring.",
         'group_anonymous' => "Buyruqni anonim emas, o'z nomingizdan yuboring: bot kim yuborganini bilishi kerak.",
     ],
 
     'account' => [
         'restored' => "Qaytganingizdan xursandmiz! Akkauntingiz tiklandi — so'zlaringiz va natijalaringiz joyida.",
-        'restored_pro' => "Akkaunt o'chirilganda Pro avtoyangilashi o'chirilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin.",
+        'restored_pro' => "Akkauntingiz o'chirilganda Pro obunasini avtomatik uzaytirish ham to'xtatilgan edi. Uni «Obuna» bo'limida qayta yoqishingiz mumkin.",
     ],
 
     'delete_account' => [

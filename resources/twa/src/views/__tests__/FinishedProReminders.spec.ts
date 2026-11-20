@@ -336,7 +336,7 @@ describe('FinishedView — reminders about Pro', () => {
       markSeen(FINISHED_BEFORE_KEY)
       const w = await finish()
 
-      expect(w.get('[data-testid=pro-tip-text]').text()).toBe("Pro'da yangi so'zlar kunlik limitsiz")
+      expect(w.get('[data-testid=pro-tip-text]').text()).toBe("Pro'da yangi so'zlar kunlik cheklovsiz")
       expect(w.get('[data-testid=pro-tip-invite]').text()).toBe("Do'stlar orqali Pro olish")
       expect(w.get('[data-testid=pro-tip-details]').text()).toBe('Pro haqida batafsil')
     })
@@ -419,7 +419,7 @@ describe('FinishedView — reminders about Pro', () => {
       learner(trial(2))
       const w = await finish()
 
-      expect(w.get('[data-testid=trial-ending]').text()).toContain('Sinov Pro 2 kundan keyin tugaydi.')
+      expect(w.get('[data-testid=trial-ending]').text()).toContain('Pro sinov muddati 2 kundan keyin tugaydi.')
       expect(w.get('[data-testid=trial-ending-invite]').text()).toBe("Do'stlarni taklif qilish")
     })
   })

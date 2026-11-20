@@ -124,7 +124,7 @@ it('shows the progress in Uzbek and takes the days and the milestones from the c
 
     inviteSend(8120);
 
-    expect($this->tg->sent[0]['text'])->toContain("2, 4 va 8 ta hisobga olingan do'st uchun har safar +10 kun Pro olasiz")
+    expect($this->tg->sent[0]['text'])->toContain("Hisobga olingan do'stlaringiz soni 2, 4 va 8 taga yetganida har safar 10 kun davomida Pro tarifidan bepul foydalanish huquqini olasiz")
         ->and($this->tg->sent[0]['text'])->toContain("Hisobga olingan do'stlar: 1 / 2 — +10 kun Pro'gacha yana 1 ta do'st qoldi.");
 });
 

@@ -285,7 +285,7 @@ describe('LapsedBanner', () => {
       setLocale('uz')
       const w = await render(me(trial()))
 
-      expect(w.get('[data-testid=lapsed-title]').text()).toBe('Sinov Pro tugadi')
+      expect(w.get('[data-testid=lapsed-title]').text()).toBe('Pro sinov muddati tugadi')
       expect(w.get('[data-testid=lapsed-invite]').text()).toBe("Do'stlarni taklif qilish")
       expect(w.get('[data-testid=lapsed-renew]').text()).toBe("Pro'ni rasmiylashtirish")
     })

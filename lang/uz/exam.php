@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
 
     // HTML. `:seconds` — time for one question.
-    'started' => "🏁 <b>Imtihon boshlandi!</b> :stage-modul · :lesson-dars · :minutes daq.\nTugmani bosing — LexiFlow to'g'ridan-to'g'ri Telegramning ichida ochiladi. Har bir savolga :seconds soniya beriladi; vaqt tugagach, natijalar shu yerda e'lon qilinadi.",
+    'started' => "🏁 <b>Imtihon boshlandi!</b> :stage-modul · :lesson-dars · :minutes daq.\nQatnashish uchun quyidagi tugmani bosing. Har bir savolga javob berish uchun :seconds soniya bor. Imtihon tugagach, natijalar shu guruhda e'lon qilinadi.",
     // `/start_exam` without arguments: the lesson, then the duration.
     'picker' => [
         'prompt' => 'Imtihon uchun darsni tanlang:',

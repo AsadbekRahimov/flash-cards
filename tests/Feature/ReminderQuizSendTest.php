@@ -103,7 +103,7 @@ it('words the question in the learner language (uz)', function (): void {
 
     $sent = $this->tg->sent[0];
     expect($sent['text'])->toStartWith("LexiFlow'da 2 ta so'zni takrorlash vaqti keldi. Birinchisidan shu yerning o'zida boshlaymiz.\n\n«quizword")
-        ->and($sent['text'])->toContain(" nima degani?\n\nVaqtni o'zgartirish yoki o'chirish: /settings")
+        ->and($sent['text'])->toContain(" nima degani?\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.")
         ->and($sent['markup']['inline_keyboard'][0][0]['text'])->toStartWith('tarjimaquizword')
         ->and($sent['markup']['inline_keyboard'][4][0]['text'])->toBe("LexiFlow'ni ochish");
 });

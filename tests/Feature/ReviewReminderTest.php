@@ -177,13 +177,13 @@ it('speaks the learner\'s interface language', function (): void {
     rmDue($learner, 21);
 
     rmSend($learner);
-    expect($this->tg->sent[0]['text'])->toBe("LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings")
+    expect($this->tg->sent[0]['text'])->toBe("LexiFlow'da 21 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.")
         ->and($this->tg->sent[0]['button'])->toBe("LexiFlow'ni ochish");
 
     $streak = rmLearner(['telegram_user_id' => 777004, 'interface_locale' => 'uz']);
     rmStreakAtRisk($streak, 7);
     rmSend($streak);
-    expect($this->tg->sent[1]['text'])->toBe("Ketma-ket 7 kun shug'ullandingiz. Shu natijani saqlash uchun bugungi maqsadni bajaring.\n\nVaqtni o'zgartirish yoki o'chirish: /settings");
+    expect($this->tg->sent[1]['text'])->toBe("Ketma-ket 7 kun shug'ullandingiz. Shu natijani saqlash uchun bugungi maqsadni bajaring.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.");
 });
 
 it('reminds a learner who never finished the onboarding — the DM decides, not the state', function (): void {

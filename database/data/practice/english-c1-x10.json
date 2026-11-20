@@ -103,8 +103,8 @@
         "uz": "Viloyatdagi har bir munitsipalitet o'z byudjetini har yili internetda e'lon qilishi shart."
       },
       "explanation": {
-        "ru": "municipal — прилагательное «муниципальный», без существительного оно не стоит. Нужно существительное municipality; после Each и its — только единственное число, не municipalities.",
-        "uz": "municipal — «munitsipal» ma'nosidagi sifat, otsiz kelmaydi. municipality oti kerak; Each va its so'zlari tufayli faqat birlik shakli to'g'ri, municipalities emas."
+        "ru": "Municipal — прилагательное «муниципальный». Здесь речь о самом муниципалитете, поэтому нужно существительное municipality. После each оно стоит в единственном числе: each municipality.",
+        "uz": "Municipal «mahalliy boshqaruvga oid» degan sifat. Bu gapda hududiy boshqaruv birligi nazarda tutilgan, shuning uchun municipality oti kerak. Each dan keyin ot birlikda keladi: each municipality."
       }
     },
     {

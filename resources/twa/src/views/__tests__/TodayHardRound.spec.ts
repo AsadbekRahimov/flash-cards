@@ -116,6 +116,6 @@ describe('TodayView: the invitation to the round of hard words', () => {
     setLocale('uz')
     const w = await render(today({ hard_round: hardRound({ words: 5 }) }))
 
-    expect(w.get('[data-testid=hard-round-words]').text()).toBe("5 ta qiyin so'z tahlilni kutmoqda")
+    expect(w.get('[data-testid=hard-round-words]').text()).toBe("Eslashda qiynalgan 5 ta so'zingizni yana mashq qiling")
   })
 })

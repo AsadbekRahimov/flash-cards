@@ -208,7 +208,7 @@ it('picks the correct ru plural form for review reminders', function (int $count
 
 it('does not inflect the noun in uz review reminders', function (int $count): void {
     expect(trans_choice('reminders.review', $count, [], 'uz'))
-        ->toBe("LexiFlow'da {$count} ta so'zni takrorlash vaqti keldi.\n\nVaqtni o'zgartirish yoki o'chirish: /settings");
+        ->toBe("LexiFlow'da {$count} ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.");
 })->with([1, 2, 5, 11, 21, 22, 25]);
 
 it('picks the correct ru plural form for the Today screen in the bot', function (int $count, string $expected): void {
@@ -223,7 +223,7 @@ it('picks the correct ru plural form for the Today screen in the bot', function 
 ]);
 
 it('does not inflect the noun on the Today screen in uz', function (int $count): void {
-    expect(trans_choice('onboarding.today.due', $count, ['count' => $count], 'uz'))->toBe("Bugun takrorlash uchun: {$count} ta so'z.");
+    expect(trans_choice('onboarding.today.due', $count, ['count' => $count], 'uz'))->toBe("Bugun {$count} ta so'zni takrorlash vaqti keldi.");
 })->with([1, 2, 5, 21]);
 
 it('has a caption in ru and uz for every onboarding step, option and settings button', function (): void {

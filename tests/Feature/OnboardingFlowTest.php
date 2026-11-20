@@ -100,12 +100,12 @@ it('walks a new learner through the four steps (goal enabled) with four callback
     $learner = onbLearner(7001);
     expect($learner->onboarding_state)->toBe('locale')
         ->and($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('Salom! Men LexiFlow')->toEndWith("1/4-qadam\nInterfeys tilini tanlang")
+        ->and($this->tg->sent[0]['text'])->toContain('Salom! Men LexiFlow')->toEndWith("4 qadamdan 1-qadam\nInterfeys tilini tanlang")
         ->and($this->tg->lastCallbackData())->toBe(['onb1:locale:ru', 'onb1:locale:uz']);
 
     onbTap(7001, 'onb1:locale:uz', 1);
     expect(onbLearner(7001)->onboarding_state)->toBe('goal')
-        ->and(end($this->tg->sent)['text'])->toBe("2/4-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?")
+        ->and(end($this->tg->sent)['text'])->toBe("4 qadamdan 2-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?")
         ->and($this->tg->lastCallbackData())->toBe(['onb1:goal:general', 'onb1:goal:ielts', 'onb1:goal:sat', 'onb1:goal:school']);
 
     onbTap(7001, 'onb1:goal:ielts', 2);
@@ -299,7 +299,7 @@ it('sends the current question again on a double tap, without changing the answe
     expect(onbLearner(7015)->goal)->toBe('sat')
         ->and(onbLearner(7015)->onboarding_state)->toBe('level')
         ->and($this->tg->sent)->toHaveCount($sentBefore + 1)
-        ->and(end($this->tg->sent)['text'])->toContain('Darajangiz qanday')
+        ->and(end($this->tg->sent)['text'])->toContain('Ingliz tilini qay darajada bilasiz?')
         ->and(ProductEvent::query()->count())->toBe($eventsBefore);
 });
 
@@ -317,7 +317,7 @@ it('sends the next step on the retry of an update whose answer was saved but who
     onbTap(7016, 'onb1:goal:ielts', 2);
 
     expect($this->tg->sent)->toHaveCount(3)
-        ->and(end($this->tg->sent)['text'])->toContain('Darajangiz qanday')
+        ->and(end($this->tg->sent)['text'])->toContain('Ingliz tilini qay darajada bilasiz?')
         ->and($this->tg->lastCallbackData())->toContain('onb1:level:B1')
         ->and(onbLearner(7016)->goal)->toBe('ielts')
         // The answer is counted once.
@@ -351,7 +351,7 @@ it('keeps answering the callback when Telegram refuses the acknowledgement', fun
 
     expect(onbLearner(7018)->onboarding_state)->toBe('goal')
         ->and(onbLearner(7018)->interface_locale)->toBe('uz')
-        ->and(end($this->tg->sent)['text'])->toBe("2/4-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?");
+        ->and(end($this->tg->sent)['text'])->toBe("4 qadamdan 2-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?");
 });
 
 it('does not reopen a finished onboarding when an old button is tapped', function (): void {
@@ -774,7 +774,7 @@ it('answers /today for a learner, in their language, also when nothing is due', 
     onbSend(7043, '/today@LexiFlowBot');
 
     expect($this->tg->sent[0]['text'])->toBe("Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun LexiFlow'ni oching.")
-        ->and($this->tg->sent[1]['text'])->toBe("Bugun takrorlash uchun: 5 ta so'z.")
+        ->and($this->tg->sent[1]['text'])->toBe("Bugun 5 ta so'zni takrorlash vaqti keldi.")
         ->and($this->tg->sent[1]['button'])->toBe("LexiFlow'ni ochish");
 });
 
@@ -1144,7 +1144,7 @@ it('walks through three steps by default: language, level, reminder; the goal is
     $course = onbCourse('general-b1', 'general', 'B1');
 
     onbSend(7301, '/start', ['language_code' => 'uz']);
-    expect($this->tg->sent[0]['text'])->toEndWith("1/3-qadam\nInterfeys tilini tanlang");
+    expect($this->tg->sent[0]['text'])->toEndWith("3 qadamdan 1-qadam\nInterfeys tilini tanlang");
 
     onbTap(7301, 'onb1:locale:ru', 1);
     expect(onbLearner(7301)->onboarding_state)->toBe('level')

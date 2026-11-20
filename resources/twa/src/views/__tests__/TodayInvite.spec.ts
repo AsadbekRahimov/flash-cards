@@ -264,11 +264,11 @@ describe('TodayView: the trial line', () => {
     meWith(trial(3 * DAY))
     const w = await render(today({ entitlement: trialEntitlement(3 * DAY) }))
 
-    expect(w.get('[data-testid=trial-line]').text()).toBe('Sizda sinov Pro — yana 3 kun')
+    expect(w.get('[data-testid=trial-line]').text()).toBe('Pro sinov muddati tugashiga 3 kun qoldi')
 
     setActivePinia(createPinia())
     meWith(trial(0.2 * DAY))
     const last = await render(today({ entitlement: trialEntitlement(0.2 * DAY) }))
-    expect(last.get('[data-testid=trial-line]').text()).toBe('Sinov Pro bugun tugaydi')
+    expect(last.get('[data-testid=trial-line]').text()).toBe('Pro sinov muddati bugun tugaydi')
   })
 })
