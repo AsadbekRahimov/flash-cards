@@ -102,11 +102,12 @@ describe('EventBanner', () => {
 describe('GameReveal — a task made of a word', () => {
   const reveal = (o: GameOutcome, last = false) => mount(GameReveal, { props: { outcome: o, last } })
 
-  it('a right answer: the symbol and the words, the right answer, the word and its translation, the points', () => {
+  it('a right answer: the verdict in words, the right answer, the word and its translation, the points', () => {
     const wrapper = reveal(outcome({ reveal: { correct_id: 'o1', correct_text: 'яблоко', word: 'apple', translation: 'яблоко ' } }))
 
     expect(wrapper.get('[data-testid=verdict-label]').text()).toBe('Верно!')
-    expect(wrapper.get('[data-testid=verdict-circle]').attributes('data-verdict')).toBe('correct')
+    expect(wrapper.get('[data-testid=verdict-label]').attributes('data-verdict')).toBe('correct')
+    expect(wrapper.get('[data-testid=verdict-label]').classes()).toContain('text-success-ink')
     expect(wrapper.get('[data-testid=right-answer]').text()).toBe('яблоко')
     expect(wrapper.get('[data-testid=word]').text()).toBe('apple')
     expect(wrapper.get('[data-testid=word-block]').text()).toContain('Слово')
@@ -116,13 +117,36 @@ describe('GameReveal — a task made of a word', () => {
     expect(wrapper.find('[data-testid=chip-flask]').exists()).toBe(false)
   })
 
-  it('a miss: "Wrong", the flask lost, what the learner picked', () => {
+  it('a miss: "Wrong", the flask lost, what the learner picked - told by its option, as on the screen of an answer', () => {
     const wrapper = reveal(outcome({ verdict: 'wrong', points: 0, flaskLost: true, answer: { option_id: 'o2' } }))
 
     expect(wrapper.get('[data-testid=verdict-label]').text()).toBe('Неверно')
+    expect(wrapper.get('[data-testid=verdict-label]').classes()).toContain('text-danger-ink')
     expect(wrapper.get('[data-testid=chip-flask]').text()).toBe('Фляга потеряна')
     expect(wrapper.find('[data-testid=chip-points]').exists()).toBe(false)
-    expect(wrapper.get('[data-testid=your-answer]').text()).toContain('груша')
+    expect(wrapper.get('[data-testid=reveal-option-incorrect]').text()).toContain('груша')
+    expect(wrapper.get('[data-testid=reveal-option-incorrect]').text()).toContain('ваш ответ')
+    expect(wrapper.get('[data-testid=reveal-option-reveal]').text()).toContain('яблоко')
+    expect(wrapper.get('[data-testid=reveal-option-reveal]').text()).toContain('верный ответ')
+    expect(wrapper.find('[data-testid=your-answer]').exists()).toBe(false)
+  })
+
+  it('draws the options of a choice in their states (docs/design Feedback): the right pick, the rest dimmed; the question again', () => {
+    const wrapper = reveal(outcome())
+    const states = wrapper.findAll('[data-testid=reveal-options] li').map((option) => option.attributes('data-state'))
+
+    expect(states).toEqual(['correct', 'dimmed', 'dimmed', 'dimmed'])
+    expect(wrapper.findAll('[data-testid=reveal-options] li').every((option) => option.classes().includes('option'))).toBe(true)
+    expect(wrapper.get('[data-testid=reveal-prompt]').text()).toBe('apple')
+  })
+
+  it('finds the right option by its text when the server sent no id, and draws no options for a typed task', () => {
+    const byText = reveal(outcome({ verdict: 'wrong', answer: { option_id: 'o2' }, reveal: { correct_text: 'яблоко' } }))
+    expect(byText.get('[data-testid=reveal-option-reveal]').text()).toContain('яблоко')
+
+    const typed = reveal(outcome({ element: spell(), verdict: 'wrong', answer: { text: 'aple' }, reveal: { correct_text: 'apple' } }))
+    expect(typed.find('[data-testid=reveal-options]').exists()).toBe(false)
+    expect(typed.get('[data-testid=your-answer]').text()).toContain('aple')
   })
 
   it('a typed miss shows what was typed; a gap shows the whole example', () => {

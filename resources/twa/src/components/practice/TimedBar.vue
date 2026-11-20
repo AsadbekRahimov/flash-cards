@@ -38,6 +38,13 @@ let expiredFor: number | null = null
 const leftMs = computed((): number => (props.deadline === null ? props.seconds * 1000 : Math.max(0, props.deadline - now.value)))
 const left = computed((): number => Math.ceil(leftMs.value / 1000))
 const warning = computed((): boolean => props.deadline !== null && left.value <= WARNING_SECONDS)
+/** "Pairs: 7" with the number in `font-mono` and the word around it not (the number is cut out of the localized line). */
+const scoreLine = computed(() => {
+  const text = t('practice.timed.score', { score: props.score })
+  const number = String(props.score)
+  const at = text.lastIndexOf(number)
+  return at < 0 ? { before: text, number: '', after: '' } : { before: text.slice(0, at), number, after: text.slice(at + number.length) }
+})
 const fill = computed((): number => Math.min(100, Math.max(0, (leftMs.value / (props.seconds * 1000)) * 100)))
 
 function tick(): void {
@@ -87,25 +94,24 @@ const announce = computed((): string => (props.deadline !== null && ANNOUNCE_AT.
 </script>
 
 <template>
-  <div class="px-4 pt-2" data-testid="timed-bar" :data-warning="warning ? 'true' : 'false'">
+  <div class="px-5 pt-2" data-testid="timed-bar" :data-warning="warning ? 'true' : 'false'">
     <div class="flex items-end justify-between gap-3">
       <div class="relative">
         <span
-          class="block text-[48px] leading-[52px] font-bold tabular-nums"
-          :class="warning ? 'text-danger-ink motion-safe:animate-pulse' : 'text-tg-text'"
+          class="block font-mono text-[40px] leading-[46px] font-medium tabular-nums"
+          :class="warning ? 'text-danger-ink motion-safe:animate-pulse' : 'text-body'"
           aria-hidden="true"
           data-testid="timed-seconds"
         >{{ left }}</span>
         <span class="sr-only" data-testid="timed-seconds-sr">{{ t('practice.timed.seconds_left', { seconds: left }) }}</span>
-        <span
-          v-if="flash"
-          class="absolute top-1 left-full ml-2 rounded-full bg-danger-soft px-2 py-0.5 text-[15px] leading-5 font-semibold whitespace-nowrap text-danger-ink"
-          data-testid="timed-penalty"
-        >{{ penaltyText }}</span>
+        <span v-if="flash" class="chip chip-danger absolute top-1.5 left-full ml-2 font-mono" data-testid="timed-penalty">{{ penaltyText }}</span>
       </div>
-      <p class="pb-1 text-[20px] leading-6 font-semibold tabular-nums" data-testid="timed-score">{{ t('practice.timed.score', { score }) }}</p>
+      <p class="pb-1.5 text-[17px] leading-[22px] font-semibold" data-testid="timed-score">
+        {{ scoreLine.before }}<span class="font-mono font-medium">{{ scoreLine.number }}</span>{{ scoreLine.after }}
+      </p>
     </div>
-    <div class="progress mt-2" aria-hidden="true">
+    <!-- The thin line of the time left (the 3 px line of a lesson header); red for the last seconds, with the red number above. -->
+    <div class="progress mt-2 h-[3px]" :class="warning ? undefined : 'progress-primary'" aria-hidden="true">
       <div class="progress-fill" :style="{ width: `${fill}%`, ...(warning ? { background: 'var(--app-danger)' } : {}) }" data-testid="timed-fill" />
     </div>
     <p class="sr-only" role="status" aria-live="polite" data-testid="timed-live">{{ announce }}</p>

@@ -160,7 +160,7 @@ describe('a session of collocations — the verdict', () => {
     expect(verdict.attributes('data-verdict')).toBe('wrong')
     expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
     expect(wrapper.get('[data-testid=reveal-icon]').findComponent(AppIcon).props('name')).toBe('x-mark')
-    expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain('bg-danger-soft')
+    expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain('text-danger-ink')
 
     // The whole collocation, the word the learner needed marked.
     expect(wrapper.get('[data-testid=expected]').text()).toBe("Let's have a meeting on Monday.")

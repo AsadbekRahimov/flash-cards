@@ -51,15 +51,17 @@ function next(): void {
           @update:model-value="change(String($event))"
         />
       </div>
-      <p class="text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('intro.title') }}</p>
-      <h2 class="text-[22px] leading-7 font-bold" data-testid="intro-title">{{ title }}</h2>
-      <p class="text-[15px] leading-5 text-tg-subtitle" data-testid="intro-text">{{ body }}</p>
-      <div class="flex justify-center gap-1.5" aria-hidden="true" data-testid="intro-dots">
+      <p class="text-[13px] leading-[18px] text-muted">{{ t('intro.title') }}</p>
+      <h2 class="text-[22px] leading-7 font-semibold" data-testid="intro-title">{{ title }}</h2>
+      <p class="text-base leading-[22px] text-muted" data-testid="intro-text">{{ body }}</p>
+      <!-- The steps as a thin line of four parts (not 6 px dots, which were hard to see): done and current in accent, the rest the track. -->
+      <div class="grid grid-cols-4 gap-2 pt-1" aria-hidden="true" data-testid="intro-dots">
         <span
           v-for="(n, i) in STEPS"
           :key="n"
-          class="size-2 rounded-full"
-          :class="i === step ? 'bg-accent' : 'bg-fill'"
+          class="h-1 rounded-full"
+          :class="i <= step ? 'bg-accent' : 'bg-track'"
+          :data-current="i === step ? 'true' : undefined"
         />
       </div>
     </div>

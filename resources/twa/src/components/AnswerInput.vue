@@ -33,7 +33,7 @@ function submit(value: string): void {
 </script>
 
 <template>
-  <StickyActions>
+  <StickyActions surface>
     <form class="flex flex-col gap-2" data-testid="answer-form" @submit.prevent="submit(text)">
       <input
         v-model="text"
@@ -49,15 +49,24 @@ function submit(value: string): void {
         :disabled="disabled || sent"
         data-testid="answer-input"
       />
-      <p v-if="answerLength" class="text-center text-[13px] leading-[18px] text-tg-hint" data-testid="answer-length">
+      <p v-if="answerLength" class="text-center text-[13px] leading-[18px] text-muted" data-testid="answer-length">
         {{ t('exercise.answer_length', { count: answerLength }) }}
       </p>
-      <button type="submit" class="btn btn-primary btn-lg btn-block mt-1" :disabled="disabled || sent" data-testid="check-btn">
-        {{ t('exercise.check') }}
-      </button>
-      <button type="button" class="btn btn-plain btn-block" :disabled="disabled || sent" data-testid="skip-btn" @click="submit('')">
-        {{ t('exercise.skip') }}
-      </button>
+      <!-- docs/design Question: "I don't know" as quiet text on the left, the main button takes the rest of the row. -->
+      <div class="mt-1 flex items-center gap-2">
+        <button
+          type="button"
+          class="btn btn-plain btn-lg w-28 shrink-0 px-2 text-[15px] text-muted"
+          :disabled="disabled || sent"
+          data-testid="skip-btn"
+          @click="submit('')"
+        >
+          {{ t('exercise.skip') }}
+        </button>
+        <button type="submit" class="btn btn-primary btn-lg min-w-0 flex-1" :disabled="disabled || sent" data-testid="check-btn">
+          {{ t('exercise.check') }}
+        </button>
+      </div>
     </form>
   </StickyActions>
 </template>

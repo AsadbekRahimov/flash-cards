@@ -52,7 +52,7 @@ const look = computed(() => (props.state === null ? null : LOOKS[props.state]))
 <template>
   <div class="flex items-center gap-3" data-testid="player-status" :data-state="state">
     <InitialAvatar :name="name" :accent="accent" />
-    <span class="min-w-0 flex-1 truncate text-base leading-[22px] font-medium" data-testid="player-name">{{ name }}</span>
+    <span class="min-w-0 flex-1 truncate text-[15px] leading-5 font-semibold" data-testid="player-name">{{ name }}</span>
     <span v-if="look" class="chip shrink-0" :class="look.chip" role="status" data-testid="player-chip">
       <AppIcon :name="look.icon" :size="14" />
       {{ t(look.label) }}

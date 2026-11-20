@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
 import { useI18n } from '@/i18n'
 import type { HardRound } from '@/api/types'
 
@@ -27,10 +26,9 @@ const words = computed((): number => props.round?.words ?? 0)
 
 <template>
   <section v-if="visible" class="card flex min-h-11 items-center gap-3" data-testid="hard-round-card">
-    <span class="icon-tile size-10 rounded-xl tile-orange"><AppIcon name="flag" :size="20" /></span>
     <div class="min-w-0 flex-1">
       <h2 class="text-[15px] leading-5 font-semibold">{{ t('today.hard_round.title') }}</h2>
-      <p v-if="words > 0" class="text-[13px] leading-[18px] text-tg-subtitle" data-testid="hard-round-words">
+      <p v-if="words > 0" class="text-[13px] leading-[18px] text-muted" data-testid="hard-round-words">
         {{ tn('today.hard_round.subtitle', words) }}
       </p>
     </div>

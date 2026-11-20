@@ -100,33 +100,34 @@ onMounted(play)
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="audio-card">
-    <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-4">
-      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
+    <div class="flex flex-col px-5 pb-4">
+      <!-- The question (docs/design Question): only the sound; the word takes the place of the hint once the answer is in. -->
+      <div class="mt-10 flex flex-col items-center gap-2.5 text-center short:mt-4 short:gap-1.5">
         <span v-if="card.is_leech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
-        <p class="text-[15px] leading-5 font-medium text-tg-subtitle">{{ t('exercise.audio.title') }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('exercise.audio.title') }}</p>
         <button
           type="button"
-          class="flex size-[72px] shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent transition-transform duration-150 active:scale-95"
+          class="flex size-[72px] shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent transition-transform duration-150 active:scale-95 short:size-16"
           :aria-label="t('exercise.audio.play')"
           data-testid="play-btn"
           @click="onPlay"
         >
-          <AppIcon name="speaker-wave" :size="36" />
+          <AppIcon name="speaker-wave" :size="32" />
         </button>
         <!-- The slot keeps its height: the word that replaces the hint after the pick must not push the options down. -->
         <div class="flex min-h-[64px] flex-col items-center justify-center">
           <template v-if="isCorrect !== null">
-            <h2 class="text-3xl leading-9 font-bold break-words" data-testid="word">{{ shown.word }}</h2>
-            <p v-if="shown.transcription" class="mt-0.5 text-[17px] leading-[22px] text-tg-hint" data-testid="transcription">
+            <h2 class="max-w-full text-4xl leading-[42px] font-semibold tracking-[-0.4px] break-words" lang="en" data-testid="word">{{ shown.word }}</h2>
+            <p v-if="shown.transcription" class="font-ipa text-sm leading-5 text-muted" data-testid="transcription">
               {{ shown.transcription }}
             </p>
           </template>
-          <p v-else class="text-[13px] leading-[18px] text-tg-hint" data-testid="replay-hint">{{ t('exercise.audio.replay_hint') }}</p>
-          <p v-if="picked === null && sayAloud" class="mt-1 text-[13px] leading-[18px] text-tg-hint" data-testid="say-aloud">{{ t('card.say_aloud') }}</p>
+          <p v-else class="text-[13px] leading-[18px] text-muted" data-testid="replay-hint">{{ t('exercise.audio.replay_hint') }}</p>
+          <p v-if="picked === null && sayAloud" class="mt-1 text-[13px] leading-[18px] text-muted" data-testid="say-aloud">{{ t('card.say_aloud') }}</p>
         </div>
-      </article>
+      </div>
 
-      <div class="flex flex-col gap-2.5" role="group" :aria-label="t('exercise.audio.title')">
+      <div class="mt-8 flex flex-col gap-2.5 short:mt-3 short:gap-2" role="group" :aria-label="t('exercise.audio.title')">
         <QuizOption
           v-for="(label, index) in options"
           :key="index"
@@ -137,38 +138,51 @@ onMounted(play)
           @pick="onPick"
         />
       </div>
-
-      <p v-if="isCorrect !== null && shown.example" class="px-2 text-center text-base leading-[22px] text-tg-subtitle italic" data-testid="example">
-        {{ shown.example }}
-      </p>
-      <p
-        v-if="isCorrect !== null && shown.example && shown.example_translation"
-        class="-mt-2 px-2 text-center text-[13px] leading-[18px] text-tg-hint"
-        data-testid="example-translation"
-      >
-        {{ shown.example_translation }}
-      </p>
-      <!-- The method (docs/06 §12.3, §12.6): the hooks and the confusable pair once the answer is on screen. -->
-      <CardHooks v-if="isCorrect !== null" :card="shown" class="px-2" />
     </div>
 
-    <StickyActions v-if="awaitingConfirm">
-      <button
-        type="button"
-        class="btn btn-primary btn-lg btn-block"
-        data-testid="continue-btn"
-        :disabled="waiting"
-        :aria-busy="waiting"
-        @click="onContinue"
-      >
-        <span
-          v-if="waiting"
-          class="size-5 animate-spin rounded-full border-2 border-current/30 border-t-current motion-reduce:animate-none"
-          aria-hidden="true"
-          data-testid="continue-waiting"
-        />
-        {{ t('exercise.continue') }}
-      </button>
+    <!--
+      The answer (docs/design Feedback): a grey panel at the bottom with the word and its meaning, the verdict in words, the
+      example and its translation, the hooks (docs/06 §12.3, §12.6) and, after a miss, "Next".
+    -->
+    <StickyActions v-if="isCorrect !== null" class="border-t border-hairline">
+      <div class="flex flex-col gap-3 pt-1.5 short:gap-2" data-testid="feedback">
+        <div class="flex items-baseline justify-between gap-3">
+          <p class="min-w-0 text-lg leading-6 font-semibold break-words" data-testid="feedback-title">
+            <span lang="en">{{ shown.word }}</span> — {{ shown.translation }}
+          </p>
+          <span
+            class="shrink-0 text-[13px] leading-[18px]"
+            :class="isCorrect ? 'text-success-ink' : 'text-danger-ink'"
+            data-testid="feedback-status"
+          >
+            {{ t(isCorrect ? 'exercise.feedback.right' : 'exercise.feedback.wrong') }}
+          </span>
+        </div>
+        <div v-if="shown.example" class="flex flex-col gap-1">
+          <p class="text-base leading-[22px] italic" lang="en" data-testid="example">{{ shown.example }}</p>
+          <p v-if="shown.example_translation" class="text-sm leading-5 text-muted" data-testid="example-translation">
+            {{ shown.example_translation }}
+          </p>
+        </div>
+        <CardHooks :card="shown" />
+        <button
+          v-if="awaitingConfirm"
+          type="button"
+          class="btn btn-primary btn-lg btn-block"
+          data-testid="continue-btn"
+          :disabled="waiting"
+          :aria-busy="waiting"
+          @click="onContinue"
+        >
+          <span
+            v-if="waiting"
+            class="size-5 animate-spin rounded-full border-2 border-current/30 border-t-current motion-reduce:animate-none"
+            aria-hidden="true"
+            data-testid="continue-waiting"
+          />
+          {{ t('exercise.continue') }}
+        </button>
+      </div>
     </StickyActions>
   </div>
 </template>

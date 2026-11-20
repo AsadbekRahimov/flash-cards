@@ -93,8 +93,8 @@ describe('BattleReveal — the verdicts', () => {
   it('the answer of a player who was right is in the normal colour, a wrong one is quieter', () => {
     const w = render()
 
-    expect(side(w, 'me').get('[data-testid=side-answer]').classes()).not.toContain('text-tg-subtitle')
-    expect(side(w, 'opponent').get('[data-testid=side-answer]').classes()).toContain('text-tg-subtitle')
+    expect(side(w, 'me').get('[data-testid=side-answer]').classes()).not.toContain('text-muted')
+    expect(side(w, 'opponent').get('[data-testid=side-answer]').classes()).toContain('text-muted')
   })
 })
 

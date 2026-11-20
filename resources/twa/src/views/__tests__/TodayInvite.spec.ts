@@ -90,12 +90,13 @@ describe('TodayView: the invitation card', () => {
     setLocale('ru')
   })
 
-  it('invites a Free learner: a gift, the text without numbers and "How it works", under the course block', async () => {
+  it('invites a Free learner: a calm card with the text without numbers and "How it works", under the course block', async () => {
     const w = await render(today())
 
     expect(w.get('[data-testid=invite-text]').text()).toBe('Пригласите друзей — получите Pro бесплатно')
     expect(w.get('[data-testid=invite-more]').text()).toBe('Как это работает')
-    expect(w.get('[data-testid=invite-card] .icon-tile').classes()).toContain('tile-pink')
+    expect(w.find('[data-testid=invite-card] .icon-tile').exists()).toBe(false)
+    expect(w.get('[data-testid=invite-card]').classes()).toContain('card')
     const course = w.get('[data-testid=course-card]').element
     expect(Boolean(course.compareDocumentPosition(w.get('[data-testid=invite-card]').element) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true)
   })

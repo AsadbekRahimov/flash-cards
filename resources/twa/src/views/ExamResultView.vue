@@ -3,7 +3,6 @@ import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import StickyActions from '@/components/StickyActions.vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
@@ -15,9 +14,10 @@ import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
 /**
- * The result of an exam (docs/14 §6.4): a flag, the title, the card with the learner's result and — for a group exam —
- * the leaderboard as a grouped list; a personal mock shows the percent and the comparison instead. The buttons are in the
- * sticky block at the bottom.
+ * The result of an exam (docs/14 §6.4), in the calm look of the end of a session (docs/design Finish.html): "Your result"
+ * above the title, the numbers in one card split by thin lines (monospace numbers, a caption under each), the rest as rows of a
+ * second card — the comparison of a mock, whether a test of the week was recorded — and, for a group exam, the leaderboard as a
+ * grouped list. No celebration: no flag, no medals. The buttons are in the sticky block at the bottom.
  */
 const props = defineProps<{ sessionId: number }>()
 
@@ -64,10 +64,6 @@ onMounted(async () => {
   }
 })
 
-/** The podium gets medals (content, not an icon of a control); the rest of the table gets the plain place. */
-function place(rank: number): string {
-  return rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : String(rank)
-}
 </script>
 
 <template>
@@ -76,83 +72,90 @@ function place(rank: number): string {
     style="min-height: var(--tg-viewport-stable-height, 100dvh)"
     data-testid="exam-result-view"
   >
-    <div class="flex flex-1 flex-col items-center gap-4 px-4 pt-8 pb-4 text-center">
-      <span class="flex size-[72px] shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
-        <AppIcon name="flag" solid :size="36" />
-      </span>
-      <h1 class="text-[22px] leading-7 font-bold" data-testid="result-title">
+    <div class="flex flex-1 flex-col px-5 pt-12 pb-4 short:pt-6">
+      <p class="text-[13px] leading-[18px] text-muted" data-testid="result-eyebrow">{{ t('result.your_score') }}</p>
+      <h1 class="mt-2 text-[32px] leading-[38px] font-semibold tracking-[-0.4px]" data-testid="result-title">
         {{ isQuiz ? t('result.quiz_title') : isMock ? t('result.mock_title') : t('result.title') }}
       </h1>
 
-      <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="w-full" data-testid="result-error" />
+      <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" class="mt-5" data-testid="result-error" />
 
-      <section v-if="isQuiz && quizResult" class="card w-full px-5 py-6" data-testid="quiz-result">
-        <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('result.your_score') }}</p>
-        <p class="mt-1 text-5xl leading-[52px] font-bold tabular-nums" data-testid="quiz-score">
-          {{ t('result.quiz_score', { correct: quizResult.correct, total: quizResult.total }) }}
-        </p>
-        <p class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="quiz-percent">{{ t('result.quiz_percent', { percent: quizResult.percent }) }}</p>
-        <p v-if="quizUnanswered > 0" class="mt-1 text-[15px] leading-5 text-warning-ink" data-testid="quiz-unanswered">
-          {{ t('result.quiz_unanswered', { count: quizUnanswered }) }}
-        </p>
-        <hr class="my-4 border-hairline" />
-        <p class="text-[15px] leading-5" :data-testid="quizResult.scored ? 'quiz-scored' : 'quiz-practice'">
-          {{ quizResult.scored ? t('result.quiz_scored', { week: quizWeek }) : t('result.quiz_practice') }}
-        </p>
+      <section v-if="isQuiz && quizResult" class="mt-7" data-testid="quiz-result">
+        <div class="grid grid-cols-3 rounded-card border border-hairline bg-surface">
+          <div class="flex flex-col gap-1 px-3.5 py-4" data-testid="quiz-score">
+            <span class="font-mono text-[26px] leading-[30px] font-medium" data-testid="stat-value">{{ quizResult.correct }}</span>
+            <span class="text-[13px] leading-[18px] text-muted" data-testid="stat-label">{{ t('result.stat.correct', { total: quizResult.total }) }}</span>
+          </div>
+          <div class="flex flex-col gap-1 border-l border-divider px-3.5 py-4" data-testid="quiz-percent">
+            <span class="font-mono text-[26px] leading-[30px] font-medium" data-testid="stat-value">{{ quizResult.percent }}%</span>
+            <span class="text-[13px] leading-[18px] text-muted" data-testid="stat-label">{{ t('result.stat.percent') }}</span>
+          </div>
+          <div class="flex flex-col gap-1 border-l border-divider px-3.5 py-4" data-testid="quiz-unanswered">
+            <span class="font-mono text-[26px] leading-[30px] font-medium" data-testid="stat-value">{{ quizUnanswered }}</span>
+            <span class="text-[13px] leading-[18px] text-muted" data-testid="stat-label">{{ t('result.stat.unanswered') }}</span>
+          </div>
+        </div>
+        <div class="mt-3.5 rounded-card border border-hairline bg-surface px-[18px] py-3.5">
+          <p class="text-[15px] leading-5" :data-testid="quizResult.scored ? 'quiz-scored' : 'quiz-practice'">
+            {{ quizResult.scored ? t('result.quiz_scored', { week: quizWeek }) : t('result.quiz_practice') }}
+          </p>
+        </div>
       </section>
 
-      <section v-else-if="isMock && mockResult" class="card w-full px-5 py-6" data-testid="mock-result">
-        <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('result.your_score') }}</p>
-        <p class="mt-1 text-5xl leading-[52px] font-bold tabular-nums" data-testid="mock-percent">{{ mockResult.percent }}%</p>
-        <p class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="mock-score">
-          {{ t('result.mock_score', { correct: mockResult.correct, total: mockResult.total, percent: mockResult.percent }) }}
-        </p>
-        <p v-if="unanswered > 0" class="mt-1 text-[15px] leading-5 text-warning-ink" data-testid="mock-unanswered">
-          {{ t('result.mock_unanswered', { count: unanswered }) }}
-        </p>
-        <hr class="my-4 border-hairline" />
-        <p class="text-[15px] leading-5" data-testid="mock-percentile">
-          <template v-if="mockResult.percentile !== null && mockResult.attempts > 1">
-            {{ t('result.mock_percentile', { percentile: mockResult.percentile }) }}
-          </template>
-          <template v-else>
-            {{ t('result.mock_first') }}
-          </template>
-        </p>
-        <p v-if="mockResult.attempts > 1" class="mt-1 text-[13px] leading-[18px] text-tg-hint" data-testid="mock-attempts">
-          {{ t('result.mock_attempts', { count: mockResult.attempts }) }}
-        </p>
+      <section v-else-if="isMock && mockResult" class="mt-7" data-testid="mock-result">
+        <div class="grid grid-cols-3 rounded-card border border-hairline bg-surface">
+          <div class="flex flex-col gap-1 px-3.5 py-4" data-testid="mock-percent">
+            <span class="font-mono text-[26px] leading-[30px] font-medium" data-testid="stat-value">{{ mockResult.percent }}%</span>
+            <span class="text-[13px] leading-[18px] text-muted" data-testid="stat-label">{{ t('result.stat.percent') }}</span>
+          </div>
+          <div class="flex flex-col gap-1 border-l border-divider px-3.5 py-4" data-testid="mock-score">
+            <span class="font-mono text-[26px] leading-[30px] font-medium" data-testid="stat-value">{{ mockResult.correct }}</span>
+            <span class="text-[13px] leading-[18px] text-muted" data-testid="stat-label">{{ t('result.stat.correct', { total: mockResult.total }) }}</span>
+          </div>
+          <div class="flex flex-col gap-1 border-l border-divider px-3.5 py-4" data-testid="mock-unanswered">
+            <span class="font-mono text-[26px] leading-[30px] font-medium" data-testid="stat-value">{{ unanswered }}</span>
+            <span class="text-[13px] leading-[18px] text-muted" data-testid="stat-label">{{ t('result.stat.unanswered') }}</span>
+          </div>
+        </div>
+        <div class="mt-3.5 rounded-card border border-hairline bg-surface px-[18px] py-3.5">
+          <p class="text-[15px] leading-5" data-testid="mock-percentile">
+            <template v-if="mockResult.percentile !== null && mockResult.attempts > 1">
+              {{ t('result.mock_percentile', { percentile: mockResult.percentile }) }}
+            </template>
+            <template v-else>
+              {{ t('result.mock_first') }}
+            </template>
+          </p>
+          <p v-if="mockResult.attempts > 1" class="mt-0.5 text-[13px] leading-[18px] text-muted" data-testid="mock-attempts">
+            {{ t('result.mock_attempts', { count: mockResult.attempts }) }}
+          </p>
+        </div>
       </section>
 
-      <section v-else class="card w-full px-5 py-6" data-testid="exam-result">
-        <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('result.your_score') }}</p>
-        <p class="mt-1 flex items-center justify-center gap-2 text-5xl leading-[52px] font-bold tabular-nums">
-          <span data-testid="final-score">{{ formatNumber(finalScore, locale) }}</span>
-          <AppIcon name="star" solid :size="32" class="text-warning" />
-        </p>
-        <span class="chip chip-accent mt-3" data-testid="final-rank">
-          <template v-if="finalRank !== null">
-            {{ t('result.rank', { rank: finalRank, total: totalParticipants }) }}
-          </template>
-          <template v-else>
-            {{ t('result.pending') }}
-          </template>
-        </span>
+      <section v-else class="mt-7" data-testid="exam-result">
+        <div class="grid grid-cols-2 rounded-card border border-hairline bg-surface">
+          <div class="flex flex-col gap-1 px-3.5 py-4">
+            <span class="font-mono text-[26px] leading-[30px] font-medium" data-testid="final-score">{{ formatNumber(finalScore, locale) }}</span>
+            <span class="text-[13px] leading-[18px] text-muted">{{ t('result.stat.score') }}</span>
+          </div>
+          <div class="flex flex-col gap-1 border-l border-divider px-3.5 py-4" data-testid="final-rank">
+            <template v-if="finalRank !== null">
+              <span class="font-mono text-[26px] leading-[30px] font-medium" data-testid="stat-value">{{ finalRank }}</span>
+              <span class="text-[13px] leading-[18px] text-muted" data-testid="stat-label">{{ t('result.stat.place', { total: totalParticipants }) }}</span>
+            </template>
+            <span v-else class="text-[15px] leading-5 text-muted" data-testid="stat-label">{{ t('result.pending') }}</span>
+          </div>
+        </div>
       </section>
 
-      <ListGroup v-if="!isMock && !isQuiz && leaderboard.length > 0" class="w-full text-left" :header="t('result.top')" data-testid="leaderboard">
+      <ListGroup v-if="!isMock && !isQuiz && leaderboard.length > 0" class="mt-2" :header="t('result.top')" data-testid="leaderboard">
         <!-- Equal scores share a place (1, 2, 2, 4), and the API names no learner: a row is told by its position in the list. -->
         <ListRow v-for="(row, index) in leaderboard" :key="index" :title="row.name" :data-testid="`leader-${index + 1}`">
           <template #leading>
-            <span
-              class="w-[30px] shrink-0 text-center"
-              :class="row.rank <= 3 ? 'text-2xl leading-7' : 'text-base leading-[22px] font-medium text-tg-hint tabular-nums'"
-            >
-              {{ place(row.rank) }}
-            </span>
+            <span class="w-6 shrink-0 font-mono text-[13px] leading-[18px] text-muted" data-testid="leader-place">{{ row.rank }}</span>
           </template>
           <template #trailing>
-            <span class="shrink-0 text-base font-semibold tabular-nums">{{ formatNumber(row.score, locale) }}</span>
+            <span class="shrink-0 font-mono text-[15px] leading-5 font-medium">{{ formatNumber(row.score, locale) }}</span>
           </template>
         </ListRow>
       </ListGroup>
@@ -168,17 +171,17 @@ function place(rank: number): string {
       >
         {{ t('result.to_readiness') }}
       </button>
+      <button type="button" class="btn btn-lg btn-block" :class="isQuiz ? 'btn-plain' : 'btn-primary'" data-testid="close-btn" @click="close()">
+        {{ t('common.exit_app') }}
+      </button>
       <button
-        v-else-if="isMock"
+        v-if="isMock"
         type="button"
-        class="btn btn-tinted btn-lg btn-block"
+        class="btn btn-plain btn-block"
         data-testid="mock-courses-btn"
         @click="router.push({ name: 'courses' })"
       >
         {{ t('result.mock_again') }}
-      </button>
-      <button type="button" class="btn btn-lg btn-block" :class="isQuiz ? 'btn-tinted' : 'btn-primary'" data-testid="close-btn" @click="close()">
-        {{ t('common.exit_app') }}
       </button>
     </StickyActions>
   </section>

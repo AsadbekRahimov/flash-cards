@@ -18,11 +18,10 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <section class="card flex flex-col items-center gap-3 px-5 py-5 text-center" data-testid="city-card">
-    <span class="icon-tile size-14 rounded-2xl tile-orange"><AppIcon name="flag" solid :size="30" /></span>
+  <section class="card flex flex-col gap-3" data-testid="city-card">
     <div class="min-w-0">
-      <h3 class="text-[20px] leading-6 font-bold break-words" data-testid="city-card-title">{{ title }}</h3>
-      <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ t('gameRun.summary.card_caption') }}</p>
+      <h3 class="text-[17px] leading-[22px] font-semibold break-words" data-testid="city-card-title">{{ title }}</h3>
+      <p class="mt-0.5 text-[13px] leading-[18px] text-muted">{{ t('gameRun.summary.card_caption') }}</p>
     </div>
     <button type="button" class="btn btn-tinted btn-block" data-testid="share-btn" @click="$emit('share')">
       <AppIcon name="share" :size="18" />{{ t('gameRun.summary.share') }}

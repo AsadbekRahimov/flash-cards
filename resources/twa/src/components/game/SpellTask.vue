@@ -26,11 +26,10 @@ const prefix = computed((): string | null => {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="spell-task">
-    <div class="flex flex-col gap-4 px-4 pt-4 pb-3">
-      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
-        <p class="text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="task-title">{{ t('gameRun.task.spell') }}</p>
-        <h2 class="text-[28px] leading-8 font-bold break-words" data-testid="task-prompt">{{ element.prompt }}</h2>
-      </article>
+    <!-- The question (docs/design Question), without a card: the task in words and the word to write, big. -->
+    <div class="flex flex-col items-center gap-2.5 px-5 pt-10 pb-8 text-center short:gap-1 short:pt-3 short:pb-3">
+      <p class="text-[13px] leading-[18px] text-muted short:hidden" data-testid="task-title">{{ t('gameRun.task.spell') }}</p>
+      <h2 class="max-w-full text-[32px] leading-[38px] font-semibold tracking-[-0.4px] break-words short:text-[24px] short:leading-[30px]" data-testid="task-prompt">{{ element.prompt }}</h2>
     </div>
     <TypedAnswer
       :placeholder="t('gameRun.spell.placeholder')"

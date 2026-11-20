@@ -349,7 +349,7 @@ describe('MyDecksView', () => {
       expect(meta.get('.chip').classes()).toContain('chip-neutral')
       expect(card.get('[data-testid=progress-text]').text()).toBe('Изучено 1 из 3')
       expect(card.get('[data-testid=progress-bar]').attributes('aria-valuenow')).toBe('33')
-      expect(card.get('[data-testid=progress-fill]').attributes('style')).toContain('width: 33%')
+      expect(card.get('[data-testid=progress-bar] .progress-fill').attributes('style')).toContain('width: 33%')
 
       const link = card.get('[data-testid=deck-link]')
       expect(link.element.tagName).toBe('A')
@@ -380,7 +380,8 @@ describe('MyDecksView', () => {
       const badge = active.get('[data-testid=active-badge]')
       expect(badge.text()).toBe('Основная колода')
       expect(badge.classes()).toEqual(expect.arrayContaining(['chip', 'chip-success']))
-      expect(badge.find('svg').exists()).toBe(true)
+      expect(badge.find('svg').exists()).toBe(false)
+      expect(active.classes()).toContain('bg-accent-soft')
       expect(active.find('[data-testid=choose-btn]').exists()).toBe(false)
     })
 
@@ -420,7 +421,7 @@ describe('MyDecksView', () => {
 
       const hint = wrapper.get('[data-testid="deck-empty"] [data-testid=choose-hint]')
       expect(hint.text()).toBe('Добавьте в колоду хотя бы одно слово, чтобы учить её вместо курса.')
-      expect(hint.classes()).toContain('text-tg-hint')
+      expect(hint.classes()).toContain('text-muted')
       expect(wrapper.get('[data-testid="deck-empty"] [data-testid=choose-btn]').attributes('disabled')).toBeDefined()
       expect(wrapper.findAll('[data-testid=choose-hint]')).toHaveLength(1)
       expect(wrapper.find('[data-testid="deck-deck-1-abc"] [data-testid=choose-hint]').exists()).toBe(false)

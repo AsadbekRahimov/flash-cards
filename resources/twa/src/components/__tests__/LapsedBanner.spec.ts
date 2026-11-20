@@ -260,6 +260,8 @@ describe('LapsedBanner', () => {
       expect(w.get('[data-testid=lapsed-text]').text()).toBe('Оформите Pro или пригласите друзей и получите Pro бесплатно.')
       expect(w.get('[data-testid=lapsed-renew]').text()).toBe('Оформить Pro')
       expect(w.get('[data-testid=lapsed-invite]').text()).toBe('Пригласить друзей')
+      // the second action is a text button under the tinted one (docs/14 §4.5)
+      expect(w.get('[data-testid=lapsed-invite]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
     })
 
     it('emits renew and invite from its two buttons', async () => {

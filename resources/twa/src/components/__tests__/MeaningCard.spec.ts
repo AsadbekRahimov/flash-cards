@@ -73,10 +73,10 @@ describe('MeaningCard', () => {
     expect(w.find('[data-testid=example]').exists()).toBe(false)
     expect(w.find('[data-testid=card-hooks]').exists()).toBe(false)
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
-    // The options are outside the question card (docs/14 §6.2); a long translation wraps inside its option, nothing is clipped.
-    expect(w.get('article').find('[data-testid=option-0]').exists()).toBe(false)
+    // No box around the question (docs/design Question); a long translation wraps inside its option, nothing is clipped.
+    expect(w.find('.card').exists()).toBe(false)
     expect(w.get('[data-testid=option-0]').classes()).toContain('option')
-    expect(w.get('[data-testid=option-3] span').classes()).toEqual(expect.arrayContaining(['min-w-0', 'break-words']))
+    expect(w.get('[data-testid=option-3] span.flex-1').classes()).toEqual(expect.arrayContaining(['min-w-0', 'break-words']))
     expect(w.get('[data-testid=word]').classes()).toContain('break-words')
   })
 

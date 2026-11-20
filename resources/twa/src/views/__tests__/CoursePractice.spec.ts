@@ -200,15 +200,19 @@ describe('CourseView — the entry to practice (docs/16 §11.1)', () => {
 })
 
 describe('CourseView — the practice of a lesson, in the row of the lesson (docs/16 §11.1)', () => {
-  /** Module 2 with a lesson that has words, one that has none yet; the rows are lesson-41 and lesson-42. */
+  /**
+   * Module 2 with the current lesson (40, the big "Учить урок"), a lesson that has words and one that has none yet; the rows
+   * under test are lesson-41 and lesson-42.
+   */
   const lessons = (): CourseDetail =>
     detail({
       stages: [
         {
           number: 2,
           title: 'Food',
-          progress: { done: 1, total: 3 },
+          progress: { done: 1, total: 6 },
           lessons: [
+            { id: 40, number: 3, title: 'Кухня', progress: { done: 0, total: 3 } },
             { id: 41, number: 4, title: 'Еда', progress: { done: 1, total: 3 } },
             { id: 42, number: 5, title: null, progress: { done: 0, total: 0 } },
           ],
@@ -245,8 +249,10 @@ describe('CourseView — the practice of a lesson, in the row of the lesson (doc
 
     const line = rowButton(wrapper, 41).element.parentElement
     expect(line?.contains(wrapper.get('[data-testid=lesson-41] [data-testid=lesson-progress]').element)).toBe(true)
-    // the trailing side of the row holds one control only: "Учить"
-    expect(wrapper.get('[data-testid=lesson-41] [data-testid=learn-btn]').element.parentElement?.classList.contains('list-row')).toBe(true)
+    // the trailing side of the row holds one control only: "Учить", the last thing of the row's line, outside the line of the progress
+    const learn = wrapper.get('[data-testid=lesson-41] [data-testid=learn-btn]').element
+    expect(line?.contains(learn)).toBe(false)
+    expect(learn.parentElement?.lastElementChild).toBe(learn)
     wrapper.unmount()
   })
 

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
-import { MODE_LOOK, modeTitle } from '@/composables/practiceLabels'
+import { modeTitle } from '@/composables/practiceLabels'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { BattleModeOption, PracticeShortageReason } from '@/api/types'
 
 /**
- * One format of a battle in the setup (docs/16 §7.3, §11.2): the icon tile of the mode, its name, a line of example, the
- * length of a round ("45 s per round") and what the learner can do with it. The server says for each format whether it
+ * One format of a battle in the setup (docs/16 §7.3, §11.2): a row of the list of formats - the name of the mode, a line of example,
+ * the length of a round ("45 s per round") and what the learner can do with it. The server says for each format whether it
  * can be played with this friend on this material:
- * - `available` — the card is one radio button (`selected` marks the chosen one with a ring and a check);
+ * - `available` — the row is one radio button (`selected` marks the chosen one with the frame of a selected row and a check);
  * - `not_enough` — a plain block with the chip "Not enough material" and WHY in words (`reason`, with the numbers);
  * - `disabled` — a plain block, "Switched off";
  * - `pro_required` — a plain block with the Pro chip.
@@ -26,7 +26,6 @@ const emit = defineEmits<{ select: [mode: BattleModeOption['mode']] }>()
 
 const { t } = useI18n()
 
-const look = computed(() => MODE_LOOK[props.option.mode])
 const title = computed(() => modeTitle(props.option.mode))
 const example = computed(() => t(`practice.mode.${props.option.mode}.example`))
 const seconds = computed(() => t('battle.setup.round_seconds', { seconds: props.option.round_seconds }))
@@ -54,10 +53,10 @@ const label = computed(() => `${title.value}. ${seconds.value}`)
   <component
     :is="playable ? 'button' : 'div'"
     :type="playable ? 'button' : undefined"
-    class="card block w-full text-left"
+    class="block w-full border-t border-divider px-[18px] py-3 text-left first:border-t-0"
     :class="{
-      'transition-transform active:scale-[0.99]': playable,
-      'ring-2 ring-accent': selected,
+      'transition-colors active:bg-fill': playable && !selected,
+      'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]': selected,
       'opacity-60': option.state === 'disabled',
     }"
     :role="playable ? 'radio' : undefined"
@@ -68,34 +67,23 @@ const label = computed(() => `${title.value}. ${seconds.value}`)
     @click="playable ? emit('select', option.mode) : undefined"
   >
     <span class="flex items-center gap-3">
-      <span class="icon-tile size-10 rounded-xl" :class="`tile-${look.tile}`"><AppIcon :name="look.icon" :size="22" /></span>
-
-      <span class="min-w-0 flex-1">
-        <span class="block text-[17px] leading-[22px] font-semibold" data-testid="format-title">{{ title }}</span>
-        <span class="block truncate text-[15px] leading-5 text-tg-subtitle">{{ example }}</span>
-        <span class="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-          <span class="flex items-center gap-1 text-[13px] leading-[18px] text-tg-hint" data-testid="format-seconds">
-            <AppIcon name="clock" :size="14" />
-            {{ seconds }}
-          </span>
-          <span v-if="option.state === 'not_enough'" class="chip chip-warning" data-testid="format-chip">
-            <AppIcon name="exclamation-triangle" :size="12" />
-            {{ t('practice.hub.state.not_enough') }}
-          </span>
-          <span v-else-if="option.state === 'disabled'" class="chip chip-neutral" data-testid="format-chip">{{ t('practice.hub.state.disabled') }}</span>
-          <span v-else-if="option.state === 'pro_required'" class="chip chip-accent" data-testid="format-chip">
-            <AppIcon name="sparkles" solid :size="12" />
-            {{ t('practice.hub.state.pro') }}
-          </span>
-        </span>
+      <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span class="text-[15px] leading-5 font-semibold" data-testid="format-title">{{ title }}</span>
+        <span class="truncate text-[13px] leading-[18px] text-muted">{{ example }}</span>
+        <span class="text-[13px] leading-[18px] text-muted" data-testid="format-seconds">{{ seconds }}</span>
       </span>
 
-      <span v-if="selected" class="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent text-tg-button-text" data-testid="format-check">
-        <AppIcon name="check" :size="16" />
+      <span v-if="option.state === 'not_enough'" class="chip chip-warning shrink-0" data-testid="format-chip">{{ t('practice.hub.state.not_enough') }}</span>
+      <span v-else-if="option.state === 'disabled'" class="chip chip-neutral shrink-0" data-testid="format-chip">{{ t('practice.hub.state.disabled') }}</span>
+      <span v-else-if="option.state === 'pro_required'" class="chip chip-accent shrink-0" data-testid="format-chip">{{ t('practice.hub.state.pro') }}</span>
+
+      <!-- The radio: a check in the dark circle when chosen (not the colour alone), an empty circle otherwise. -->
+      <span v-if="selected" class="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary" data-testid="format-check">
+        <AppIcon name="check" :size="14" />
       </span>
-      <span v-else-if="playable" class="size-6 shrink-0 rounded-full border-2 border-track" aria-hidden="true" />
+      <span v-else-if="playable" class="size-5 shrink-0 rounded-full border-[1.5px] border-muted" aria-hidden="true" />
     </span>
 
-    <span v-if="option.state === 'not_enough'" class="mt-3 block text-[15px] leading-5 text-tg-subtitle" data-testid="format-reason">{{ reason }}</span>
+    <span v-if="option.state === 'not_enough'" class="mt-2 block text-[13px] leading-[18px] text-muted" data-testid="format-reason">{{ reason }}</span>
   </component>
 </template>

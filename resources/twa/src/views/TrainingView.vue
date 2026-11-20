@@ -16,6 +16,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
 import MeaningCard from '@/components/MeaningCard.vue'
 import { PRO_EXERCISES } from '@/composables/proReminders'
 import { useAuthStore } from '@/stores/auth'
@@ -29,9 +30,9 @@ import { useI18n } from '@/i18n'
 import type { Quality } from '@/api/types'
 
 /**
- * The training screen (docs/14 §6.2): an immersive column without the tab bar — the header (close, progress, counter),
- * the card in the body and the actions of the exercise in the sticky block at the bottom (each exercise component
- * draws its own). `prompt.type` of the served card decides which exercise it is.
+ * The training screen (docs/14 §6.2, docs/design Question / Feedback): an immersive white column without the tab bar — the
+ * header (close, a thin line of progress, the counter in mono), the exercise in the body and its actions in the sticky block at
+ * the bottom (each exercise component draws its own). `prompt.type` of the served card decides which exercise it is.
  */
 const props = defineProps<{ sessionId: number }>()
 
@@ -261,7 +262,7 @@ async function onRestart(): Promise<void> {
 
 <template>
   <section
-    class="mx-auto flex w-full max-w-xl flex-1 flex-col"
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-surface"
     style="min-height: var(--tg-viewport-stable-height, 100dvh)"
     data-testid="training-view"
   >
@@ -284,36 +285,33 @@ async function onRestart(): Promise<void> {
     </ClosedState>
 
     <template v-else>
-      <header class="px-4 pt-3">
-        <div class="flex items-center gap-2">
+      <!-- docs/design Question: ✕, a thin line of progress and the counter in mono; under them, quietly, what this session is. -->
+      <header class="px-5 pt-3">
+        <div class="flex items-center gap-3.5">
           <button
             type="button"
-            class="-ml-1 flex size-11 shrink-0 items-center justify-center"
+            class="-ml-3 flex size-11 shrink-0 items-center justify-center rounded-full text-muted active:bg-fill"
             :aria-label="t('common.close')"
             data-testid="close-btn"
             @click="leave"
           >
-            <span class="flex size-9 items-center justify-center rounded-full bg-track text-tg-subtitle">
-              <AppIcon name="x-mark" :size="20" />
-            </span>
+            <AppIcon name="x-mark" :size="18" />
           </button>
-          <div class="progress flex-1" aria-hidden="true" data-testid="progress-bar">
-            <div class="progress-fill" :style="{ width: `${progressPercent}%` }" data-testid="progress-fill" />
-          </div>
+          <ProgressLine :value="progressPercent" tone="primary" class="h-[3px] flex-1" data-testid="progress-bar" />
           <Transition name="combo">
             <span
               v-if="showCombo"
               :key="comboMilestone ? `milestone-${combo}` : 'combo'"
-              class="chip chip-warning shrink-0 tabular-nums"
+              class="chip chip-accent shrink-0"
               :class="{ 'combo-pop': comboMilestone }"
               data-testid="combo"
               :aria-label="t('training.combo_label', { count: combo })"
             >
-              🔥 ×{{ combo }}
+              <span class="font-mono font-medium">{{ combo }}</span> {{ t('training.combo') }}
             </span>
           </Transition>
           <span
-            class="min-w-14 text-right text-[15px] leading-5 font-medium text-tg-subtitle tabular-nums"
+            class="min-w-12 text-right font-mono text-[13px] leading-[18px] text-muted"
             :class="{ invisible: progress.total === 0 }"
             data-testid="progress"
           >
@@ -323,16 +321,16 @@ async function onRestart(): Promise<void> {
         <!-- The round of hard words: its own mark and how many of its words are won (`progress.done`, docs/06 §14). -->
         <p
           v-if="mode === 'hard_review'"
-          class="mt-1 flex items-center justify-center gap-2 text-[15px] leading-5 font-medium text-tg-subtitle"
+          class="mt-1 flex items-center justify-center gap-2 text-[13px] leading-[18px] text-muted"
           data-testid="hard-round-header"
         >
           <span class="chip chip-warning" data-testid="hard-round-chip">{{ t('training.hard_round.chip') }}</span>
-          <span class="tabular-nums" data-testid="hard-round-progress">{{ t('training.hard_round.progress', { done: progress.done, total: progress.total }) }}</span>
+          <span data-testid="hard-round-progress">{{ t('training.hard_round.progress', { done: progress.done, total: progress.total }) }}</span>
         </p>
-        <p v-else-if="lesson" class="mt-1 text-center text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="lesson-header">
+        <p v-else-if="lesson" class="mt-1 text-center text-[13px] leading-[18px] text-muted" data-testid="lesson-header">
           {{ lessonHeader }}
         </p>
-        <p v-else-if="mode === 'daily_review'" class="mt-1 text-center text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="daily-header">
+        <p v-else-if="mode === 'daily_review'" class="mt-1 text-center text-[13px] leading-[18px] text-muted" data-testid="daily-header">
           {{ t('training.daily_header') }}
         </p>
       </header>

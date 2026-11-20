@@ -3,11 +3,11 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import WeeklyQuizChart from '@/components/WeeklyQuizChart.vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
 import { readinessSegments } from '@/composables/readiness'
 import { useBackButton } from '@/composables/useBackButton'
 import { useAuthStore } from '@/stores/auth'
@@ -122,7 +122,7 @@ async function takeQuiz(): Promise<void> {
       <InlineAlert v-if="status === 'error'" tone="danger" :message="loadError" data-testid="reload-error" />
 
       <section class="card" data-testid="readiness-summary">
-        <p class="text-[28px] leading-[34px] font-bold tabular-nums" data-testid="readiness-percent">{{ data.percent }}%</p>
+        <p class="font-mono text-[32px] leading-[38px] font-medium" data-testid="readiness-percent">{{ data.percent }}%</p>
         <p class="mt-0.5 text-[15px] leading-5" data-testid="readiness-heading">{{ heading }}</p>
 
         <div
@@ -138,31 +138,32 @@ async function takeQuiz(): Promise<void> {
           <div class="h-full bg-accent" :style="{ width: `${segments?.inProgress ?? 0}%` }" />
         </div>
 
-        <dl class="mt-3 grid grid-cols-3 gap-2 text-center">
-          <div data-testid="readiness-learned">
-            <dt class="flex items-center justify-center gap-1 text-[13px] leading-[18px] text-tg-hint">
-              <span class="size-2 rounded-full bg-success" aria-hidden="true" />{{ t('readiness.learned') }}
+        <!-- Three numbers split by thin lines (as at the end of a session), the dot of each is its colour in the line above. -->
+        <dl class="-mx-[18px] mt-4 grid grid-cols-3 border-t border-divider">
+          <div class="flex flex-col-reverse gap-1 px-3.5 pt-3.5" data-testid="readiness-learned">
+            <dt class="flex items-center gap-1.5 text-[13px] leading-[18px] text-muted">
+              <span class="size-2 shrink-0 rounded-full bg-success" aria-hidden="true" />{{ t('readiness.learned') }}
             </dt>
-            <dd class="text-[17px] leading-[22px] font-semibold tabular-nums">{{ data.words.learned }}</dd>
+            <dd class="font-mono text-[22px] leading-7 font-medium">{{ data.words.learned }}</dd>
           </div>
-          <div data-testid="readiness-in-progress">
-            <dt class="flex items-center justify-center gap-1 text-[13px] leading-[18px] text-tg-hint">
-              <span class="size-2 rounded-full bg-accent" aria-hidden="true" />{{ t('readiness.in_progress') }}
+          <div class="flex flex-col-reverse gap-1 border-l border-divider px-3.5 pt-3.5" data-testid="readiness-in-progress">
+            <dt class="flex items-center gap-1.5 text-[13px] leading-[18px] text-muted">
+              <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />{{ t('readiness.in_progress') }}
             </dt>
-            <dd class="text-[17px] leading-[22px] font-semibold tabular-nums">{{ data.words.in_progress }}</dd>
+            <dd class="font-mono text-[22px] leading-7 font-medium">{{ data.words.in_progress }}</dd>
           </div>
-          <div data-testid="readiness-not-started">
-            <dt class="flex items-center justify-center gap-1 text-[13px] leading-[18px] text-tg-hint">
-              <span class="size-2 rounded-full bg-track" aria-hidden="true" />{{ t('readiness.not_started') }}
+          <div class="flex flex-col-reverse gap-1 border-l border-divider px-3.5 pt-3.5" data-testid="readiness-not-started">
+            <dt class="flex items-center gap-1.5 text-[13px] leading-[18px] text-muted">
+              <span class="size-2 shrink-0 rounded-full bg-track" aria-hidden="true" />{{ t('readiness.not_started') }}
             </dt>
-            <dd class="text-[17px] leading-[22px] font-semibold tabular-nums">{{ data.words.not_started }}</dd>
+            <dd class="font-mono text-[22px] leading-7 font-medium">{{ data.words.not_started }}</dd>
           </div>
         </dl>
-        <p v-if="data.words.mastered > 0" class="mt-2 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="readiness-mastered">
+        <p v-if="data.words.mastered > 0" class="mt-3 text-[13px] leading-[18px] text-muted" data-testid="readiness-mastered">
           {{ t('readiness.mastered', { count: data.words.mastered }) }}
         </p>
 
-        <p class="mt-3 text-[13px] leading-[18px] text-tg-hint" data-testid="readiness-explain">
+        <p class="mt-3 text-[13px] leading-[18px] text-muted" data-testid="readiness-explain">
           {{ tn('readiness.explain', data.thresholds.known_days) }}
         </p>
       </section>
@@ -175,15 +176,14 @@ async function takeQuiz(): Promise<void> {
         :aria-label="t('readiness.quiz.title')"
         data-testid="readiness-quiz"
       >
-        <div class="flex items-start gap-3">
-          <span class="icon-tile tile-purple"><AppIcon name="flag" :size="18" /></span>
-          <div class="min-w-0 flex-1">
+        <div>
+          <div class="min-w-0">
             <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('readiness.quiz.title') }}</h2>
             <p v-if="quiz.this_week" class="mt-0.5 text-[15px] leading-5" data-testid="quiz-this-week">
               {{ t('readiness.quiz.result', { correct: quiz.this_week.correct, total: quiz.this_week.total }) }}
               · {{ quiz.this_week.percent }}%
             </p>
-            <p v-if="quiz.best_percent !== null" class="mt-0.5 text-[13px] leading-[18px] text-tg-hint" data-testid="quiz-best">
+            <p v-if="quiz.best_percent !== null" class="mt-0.5 text-[13px] leading-[18px] text-muted" data-testid="quiz-best">
               {{ t('readiness.quiz.best', { percent: quiz.best_percent }) }}
             </p>
           </div>
@@ -191,7 +191,7 @@ async function takeQuiz(): Promise<void> {
 
         <WeeklyQuizChart :history="quiz.history" :weeks="HISTORY_WEEKS" :current-week="quiz.week_start" />
 
-        <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="quiz-hint">
+        <p class="text-[13px] leading-[18px] text-muted" data-testid="quiz-hint">
           {{ scoredDone ? t('readiness.quiz.practice_hint') : quizHint }}
         </p>
         <InlineAlert v-if="quizError" tone="danger" :message="quizError" data-testid="quiz-error" />
@@ -210,27 +210,25 @@ async function takeQuiz(): Promise<void> {
 
       <section v-if="data.modules.length > 0" data-testid="readiness-modules">
         <h2 class="section-label">{{ t('readiness.modules') }}</h2>
-        <div class="card space-y-3">
-          <div v-for="item in data.modules" :key="item.number" :data-testid="`readiness-module-${item.number}`">
-            <div class="flex items-baseline justify-between gap-2 text-[15px] leading-5">
+        <ol class="list">
+          <li
+            v-for="item in data.modules"
+            :key="item.number"
+            class="border-t border-divider px-[18px] py-3 first:border-t-0"
+            :data-testid="`readiness-module-${item.number}`"
+          >
+            <div class="flex items-baseline justify-between gap-3 text-[15px] leading-5">
               <span class="min-w-0 truncate">{{ item.title ?? t('readiness.module', { number: item.number }) }}</span>
-              <span class="shrink-0 text-tg-hint tabular-nums" data-testid="readiness-module-count">{{ tn('readiness.module_words', item.total, { learned: item.learned }) }}</span>
+              <span class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="readiness-module-count">{{ tn('readiness.module_words', item.total, { learned: item.learned }) }}</span>
             </div>
-            <div
-              class="progress mt-1 h-1"
-              role="progressbar"
-              aria-valuemin="0"
-              aria-valuemax="100"
-              :aria-valuenow="item.total > 0 ? Math.min(100, Math.floor((item.learned / item.total) * 100)) : 0"
-              :aria-label="item.title ?? t('readiness.module', { number: item.number })"
-            >
-              <div
-                class="progress-fill progress-success"
-                :style="{ width: `${item.total > 0 ? Math.min(100, (item.learned / item.total) * 100) : 0}%` }"
-              />
-            </div>
-          </div>
-        </div>
+            <ProgressLine
+              :value="item.total > 0 ? Math.floor((item.learned / item.total) * 100) : 0"
+              tone="success"
+              :label="item.title ?? t('readiness.module', { number: item.number })"
+              class="mt-2"
+            />
+          </li>
+        </ol>
       </section>
     </div>
   </div>

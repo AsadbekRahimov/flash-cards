@@ -239,7 +239,7 @@ describe('DeckEditView', () => {
       expect(wrapper.get('[data-testid=choose-btn]').attributes('disabled')).toBeDefined()
       const hint = wrapper.get('[data-testid=choose-hint]')
       expect(hint.text()).toBe('Добавьте в колоду хотя бы одно слово, чтобы учить её вместо курса.')
-      expect(hint.classes()).toContain('text-tg-hint')
+      expect(hint.classes()).toContain('text-muted')
     })
 
     it('says nothing under the button of a deck that has words, nor under the chip of the main one', async () => {
@@ -281,7 +281,7 @@ describe('DeckEditView', () => {
       const badge = wrapper.get('[data-testid=active-badge]')
       expect(badge.text()).toBe('Основная колода')
       expect(badge.classes()).toEqual(expect.arrayContaining(['chip', 'chip-success']))
-      expect(badge.find('svg').exists()).toBe(true)
+      expect(badge.find('svg').exists()).toBe(false)
       expect(wrapper.find('[data-testid=choose-btn]').exists()).toBe(false)
       expect(wrapper.find('.btn-primary').exists()).toBe(false)
     })
@@ -377,10 +377,10 @@ describe('DeckEditView', () => {
       await flushPromises()
 
       const report = wrapper.get('[data-testid=report]')
-      expect(report.get('[data-testid=report-summary] svg').classes()).toContain('text-success-ink')
+      expect(report.get('[data-testid=report-summary] svg').classes()).toContain('text-success')
       const lines = report.get('[data-testid=report-rejected]').findAll('li')
       expect(lines).toHaveLength(2)
-      for (const line of lines) expect(line.get('svg').classes()).toContain('text-warning-ink')
+      for (const line of lines) expect(line.get('svg').classes()).toContain('text-warning')
     })
 
     it('leaves out the list of dropped lines when nothing was dropped', async () => {
@@ -405,7 +405,7 @@ describe('DeckEditView', () => {
 
       const icon = wrapper.get('[data-testid=report-summary] svg')
       expect(icon.classes()).not.toContain('text-success-ink')
-      expect(icon.classes()).toContain('text-tg-hint')
+      expect(icon.classes()).toContain('text-muted')
     })
 
     it('counts restored words as added to the deck', async () => {
@@ -416,7 +416,7 @@ describe('DeckEditView', () => {
       await wrapper.get('[data-testid=add-btn]').trigger('click')
       await flushPromises()
 
-      expect(wrapper.get('[data-testid=report-summary] svg').classes()).toContain('text-success-ink')
+      expect(wrapper.get('[data-testid=report-summary] svg').classes()).toContain('text-success')
     })
 
     it('does not send a text over 256 KB and says so in an alert', async () => {

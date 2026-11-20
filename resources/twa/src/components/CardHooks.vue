@@ -27,16 +27,16 @@ const { t } = useI18n()
     class="flex flex-col gap-2 text-left"
     data-testid="card-hooks"
   >
-    <p v-if="card.hook" class="text-[15px] leading-5 text-tg-subtitle" data-testid="hook">
-      <span class="font-medium text-tg-section-header">{{ t('card.hook.title') }}:</span>
+    <p v-if="card.hook" class="text-[15px] leading-5" data-testid="hook">
+      <span class="text-muted">{{ t('card.hook.title') }}:</span>
       {{ card.hook }}
     </p>
-    <p v-if="card.note" class="text-[15px] leading-5 text-tg-subtitle" data-testid="note">
-      <span class="font-medium text-tg-section-header">{{ t('card.note.title') }}:</span>
+    <p v-if="card.note" class="text-[15px] leading-5" data-testid="note">
+      <span class="text-muted">{{ t('card.note.title') }}:</span>
       {{ card.note }}
     </p>
-    <p v-if="card.confused_with" class="text-[15px] leading-5 text-tg-subtitle" data-testid="confused-with">
-      <span class="font-medium text-tg-section-header">{{ t('card.confused_with') }}:</span>{{ ' ' }}
+    <p v-if="card.confused_with" class="text-[15px] leading-5" data-testid="confused-with">
+      <span class="text-muted">{{ t('card.confused_with') }}:</span>{{ ' ' }}
       <span class="font-semibold">{{ card.confused_with.word }}</span>
       <template v-if="card.confused_with.translation"> — {{ card.confused_with.translation }}</template>
     </p>

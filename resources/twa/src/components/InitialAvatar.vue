@@ -10,7 +10,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
  *   when the member has no name). The first letter is a whole code point, so an emoji is not cut in half; a blank
  *   name shows a person icon.
  * - `size` — `md` (40 px, default) or `sm` (32 px, for dense rows such as the league table).
- * - `accent` — filled with the accent colour (the learner themself) instead of the neutral track colour.
+ * - `accent` — filled with the primary colour (the learner themself) instead of the quiet fill colour.
  *
  * Decorative (`aria-hidden`): the name is in the text beside it.
  *
@@ -33,7 +33,7 @@ const initial = computed(() => (Array.from(props.name.trim())[0] ?? '').toUpperC
     class="inline-flex shrink-0 items-center justify-center rounded-full leading-none font-semibold select-none"
     :class="[
       size === 'sm' ? 'size-8 text-sm' : 'size-10 text-base',
-      accent ? 'bg-accent text-tg-button-text' : 'bg-track text-tg-subtitle',
+      accent ? 'bg-primary text-on-primary' : 'bg-fill text-muted',
     ]"
     aria-hidden="true"
   >

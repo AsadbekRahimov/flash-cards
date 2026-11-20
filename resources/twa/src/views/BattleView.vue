@@ -489,7 +489,7 @@ watch(over, (isOver) => {
 
 <template>
   <section
-    class="mx-auto flex w-full max-w-xl flex-1 flex-col"
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-surface"
     style="min-height: var(--tg-viewport-stable-height, 100dvh)"
     :data-status="status"
     data-testid="battle-view"
@@ -508,18 +508,18 @@ watch(over, (isOver) => {
     </ErrorState>
 
     <template v-else-if="data">
-      <header class="px-4 pt-3 short:pt-2">
+      <header class="px-5 pt-3 short:pt-2">
         <div class="flex items-center gap-2">
-          <button type="button" class="-ml-1 flex size-11 shrink-0 items-center justify-center" :aria-label="t('common.close')" data-testid="close-btn" @click="requestLeave">
-            <span class="flex size-9 items-center justify-center rounded-full bg-track text-tg-subtitle"><AppIcon name="x-mark" :size="20" /></span>
+          <button type="button" class="-ml-3 flex size-11 shrink-0 items-center justify-center text-muted" :aria-label="t('common.close')" data-testid="close-btn" @click="requestLeave">
+            <AppIcon name="x-mark" :size="18" />
           </button>
-          <p class="min-w-0 flex-1 truncate text-center text-[17px] leading-[22px] font-semibold" data-testid="headline">{{ headline }}</p>
-          <span class="size-10 shrink-0" aria-hidden="true" />
+          <p class="min-w-0 flex-1 truncate text-center text-base leading-[22px] font-semibold" data-testid="headline">{{ headline }}</p>
+          <span class="size-8 shrink-0" aria-hidden="true" />
         </div>
         <!-- In a short window the round and the result do not need the lesson here (the result says it again under the title): the row is the task's. The room keeps it. -->
         <p
           v-if="caption"
-          class="mt-1 truncate text-center text-[15px] leading-5 font-medium text-tg-subtitle"
+          class="mt-0.5 truncate text-center text-[13px] leading-[18px] text-muted"
           :class="{ 'short:hidden': status === 'playing' || over }"
           data-testid="caption"
         >
@@ -528,7 +528,7 @@ watch(over, (isOver) => {
       </header>
 
       <!-- Trouble that does not end the match. -->
-      <div v-if="offline || showAbsent" class="mt-3 flex flex-col gap-2 px-4" data-testid="strips">
+      <div v-if="offline || showAbsent" class="mt-3 flex flex-col gap-2 px-5" data-testid="strips">
         <InlineAlert v-if="offline" tone="warning" :message="offlineText" data-testid="offline-strip" />
         <AbsentStrip
           v-if="showAbsent"
@@ -559,26 +559,26 @@ watch(over, (isOver) => {
       />
 
       <section v-else-if="status === 'countdown'" class="flex flex-1 flex-col items-center justify-center gap-5 px-6 py-10 text-center" data-testid="battle-countdown">
-        <p class="text-[17px] leading-[22px] font-semibold text-tg-subtitle">{{ t('battle.countdown.title') }}</p>
-        <p class="text-[96px] leading-none font-bold text-accent tabular-nums" aria-hidden="true" data-testid="countdown-number">
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('battle.countdown.title') }}</p>
+        <p class="font-mono text-[88px] leading-none font-medium tabular-nums" aria-hidden="true" data-testid="countdown-number">
           {{ countdownLeft > 0 ? countdownLeft : t('battle.countdown.go') }}
         </p>
-        <ol class="flex items-center gap-3 text-2xl leading-8 font-bold" aria-hidden="true" data-testid="countdown-steps">
+        <ol class="flex items-center gap-3 font-mono text-xl leading-7" aria-hidden="true" data-testid="countdown-steps">
           <li
             v-for="(number, index) in countdownNumbers"
             :key="number"
             class="flex items-center gap-3"
-            :class="number === countdownLeft ? 'text-accent' : number > countdownLeft ? 'text-tg-hint opacity-50' : 'text-tg-subtitle'"
+            :class="number === countdownLeft ? 'font-medium text-body' : number > countdownLeft ? 'text-muted opacity-50' : 'text-muted'"
           >
-            <span v-if="index > 0" class="text-tg-hint">·</span>
+            <span v-if="index > 0" class="text-muted">·</span>
             <span class="tabular-nums">{{ number }}</span>
           </li>
         </ol>
-        <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('battle.round.title', { round: 1, rounds: roundsTotal }) }}</p>
+        <p class="text-[15px] leading-5 text-muted">{{ t('battle.round.title', { round: 1, rounds: roundsTotal }) }}</p>
       </section>
 
       <template v-else-if="status === 'playing'">
-        <div class="px-4 pt-3 short:pt-2">
+        <div class="px-5 pt-3 short:pt-2">
           <!-- The slot is there only while the round runs: the scoreboard lays itself out for the timer when it has one (and for the colon when it has not). -->
           <BattleScoreboard :me="store.scores.me" :opponent="store.scores.opponent" :opponent-name="opponentName">
             <template v-if="phase === 'answering' && state" #default>
@@ -598,32 +598,34 @@ watch(over, (isOver) => {
 
         <template v-else-if="phase === 'answering'">
           <!-- The answer is in: the opponent's turn. -->
-          <section v-if="iAnswered" class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-6" data-testid="battle-waiting">
-            <div class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
-              <span class="flex size-16 items-center justify-center rounded-full bg-success-soft text-success-ink"><AppIcon name="check" solid :size="32" /></span>
-              <h2 class="text-[22px] leading-7 font-bold">{{ t('battle.round.answered') }}</h2>
-              <p class="text-base leading-[22px] text-tg-subtitle">{{ t('battle.round.waiting') }}</p>
-              <div class="w-full pt-2">
+          <section v-if="iAnswered" class="flex flex-1 flex-col gap-4 px-5 pt-8 pb-6" data-testid="battle-waiting">
+            <div class="flex flex-col items-center gap-2 text-center">
+              <h2 class="flex items-center gap-1.5 text-[22px] leading-7 font-semibold text-success-ink">
+                <AppIcon name="check" :size="20" />
+                {{ t('battle.round.answered') }}
+              </h2>
+              <p class="text-[15px] leading-5 text-muted">{{ t('battle.round.waiting') }}</p>
+              <div class="w-full pt-4">
                 <OpponentStatus :name="opponentName" :state="!store.opponentPresent ? 'absent' : state?.opponent_answered ? 'answered' : 'answering'" />
               </div>
             </div>
           </section>
 
           <!-- Not delivered: the answer waits for "Retry"; the clock goes on. -->
-          <section v-else-if="answerState === 'failed'" class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-6" data-testid="battle-send-failed">
+          <section v-else-if="answerState === 'failed'" class="flex flex-1 flex-col gap-4 px-5 pt-4 pb-6" data-testid="battle-send-failed">
             <InlineAlert tone="warning" :message="sendFailedText" />
             <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="retry-answer-btn" @click="store.retryAnswer()">{{ t('common.retry') }}</button>
           </section>
 
           <!-- Going again after a try with no reply: the note stands alone (see `resending`). -->
-          <section v-else-if="resending" class="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-10 text-center" data-testid="battle-resending">
+          <section v-else-if="resending" class="flex flex-1 flex-col items-center justify-center gap-3 px-5 py-10 text-center" data-testid="battle-resending">
             <span class="size-8 animate-spin rounded-full border-[3px] border-track border-t-accent motion-reduce:animate-none" aria-hidden="true" />
             <p class="text-[17px] leading-[22px] font-semibold" role="status" data-testid="resending-note">{{ t('battle.round.sending') }}</p>
           </section>
 
           <template v-else-if="round">
-            <p v-if="answerState === 'sending'" class="px-4 pt-3 text-center text-[15px] leading-5 text-tg-subtitle" data-testid="sending">{{ t('battle.round.sending') }}</p>
-            <div v-if="clipFailed" class="flex flex-col gap-2 px-4 pt-3" data-testid="clip-failed">
+            <p v-if="answerState === 'sending'" class="px-5 pt-3 text-center text-[13px] leading-[18px] text-muted" data-testid="sending">{{ t('battle.round.sending') }}</p>
+            <div v-if="clipFailed" class="flex flex-col gap-2 px-5 pt-3" data-testid="clip-failed">
               <InlineAlert tone="warning" :message="t('battle.audio.round_failed')" />
               <button type="button" class="btn btn-tinted btn-sm self-start" data-testid="clip-retry" @click="retryClip">{{ t('practice.audio.retry') }}</button>
             </div>

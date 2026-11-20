@@ -11,12 +11,12 @@ import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
 /**
- * The flash card (docs/14 §6.2): the card with the word in the middle of the screen, the actions in the sticky
- * block below. Before the reveal there is one button, "Show translation"; after it the learner grades how well he
+ * The flash card (docs/14 §6.2, docs/design Question): the word large on the white screen of the lesson, no box around
+ * it, the actions in the sticky block below. Before the reveal there is one button, "Show translation"; after it the learner grades how well he
  * remembered the word. The grades are 2 / 4 / 5 (Again / Good / Easy, docs/06 §2) under the labels "I don't remember" /
  * "I remember" / "Easy", each with a hint of what happens next. The hint is small (12 px), so it is not faded with
  * `opacity` (that was 2.4-3.5:1 in the light themes): it is the colour of its button mixed half and half with the text
- * colour of the theme, 4.8:1 and better on the soft backgrounds of the light and the dark Telegram themes (docs/14 §4.1).
+ * colour of the palette, 4.5:1 and better on the soft backgrounds of the light and the dark palette (docs/14 §4.1).
  *
  * A `new` word has never been seen, so there is nothing to recall: the translation and the example are open at once
  * ("Learn this word"), the same three grades are sent (2 / 4 / 5) under the labels "Not yet" / "Got it" / "Knew it", and the
@@ -73,17 +73,24 @@ const kind = computed(() => {
   }
 })
 
+/**
+ * "Easy" in the soft success colours, framed like the danger button: a thin line of its colour, inset, so the size does not change. The
+ * frame steps aside once the grade is pressed: `grade-picked` draws its own.
+ */
+const EASY_TONE = 'bg-success-soft text-success-ink'
+const EASY_FRAME = 'shadow-[inset_0_0_0_1px_var(--app-success-line)]'
+
 /** The three grades, left to right; the colours are the soft tokens of the design system. */
 const grades = computed(() => isNew.value
   ? [
       { quality: 2 as const, testid: 'grade-hard', label: t('card.grade_new.hard'), hint: '', tone: 'btn-danger' },
       { quality: 4 as const, testid: 'grade-medium', label: t('card.grade_new.medium'), hint: '', tone: 'btn-tinted' },
-      { quality: 5 as const, testid: 'grade-easy', label: t('card.grade_new.easy'), hint: '', tone: 'bg-success-soft text-success-ink' },
+      { quality: 5 as const, testid: 'grade-easy', label: t('card.grade_new.easy'), hint: '', tone: EASY_TONE },
     ]
   : [
       { quality: 2 as const, testid: 'grade-hard', label: t('card.grade.hard'), hint: t('card.grade.hard_hint'), tone: 'btn-danger' },
       { quality: 4 as const, testid: 'grade-medium', label: t('card.grade.medium'), hint: t('card.grade.medium_hint'), tone: 'btn-tinted' },
-      { quality: 5 as const, testid: 'grade-easy', label: t('card.grade.easy'), hint: t('card.grade.easy_hint'), tone: 'bg-success-soft text-success-ink' },
+      { quality: 5 as const, testid: 'grade-easy', label: t('card.grade.easy'), hint: t('card.grade.easy_hint'), tone: EASY_TONE },
     ])
 
 function onSpeak(): void {
@@ -112,7 +119,7 @@ function onReveal(): void {
 const picked = ref<Quality | null>(null)
 
 function gradeClasses(grade: { quality: Quality; tone: string }): string[] {
-  if (picked.value !== grade.quality) return [grade.tone]
+  if (picked.value !== grade.quality) return grade.quality === 5 ? [grade.tone, EASY_FRAME] : [grade.tone]
   return grade.quality === 2 ? ['btn-tinted', 'grade-picked'] : [grade.tone, 'grade-picked', 'grade-pulse']
 }
 
@@ -126,64 +133,57 @@ function onGrade(q: Quality): void {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="flashcard">
-    <div class="flex flex-1 flex-col justify-center px-4 py-4">
-      <article class="card flex flex-col gap-4 px-5 py-5">
-        <header class="flex items-center justify-between gap-2">
-          <span class="flex min-w-0 flex-wrap items-center gap-1.5">
-            <span class="chip" :class="kind.chip" data-testid="card-kind">{{ kind.label }}</span>
-            <span v-if="isLeech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
-          </span>
-          <button
-            type="button"
-            class="btn btn-tinted size-11 min-h-0 shrink-0 rounded-full p-0"
-            :aria-label="t('card.speak')"
-            data-testid="speak-btn"
-            @click="onSpeak"
-          >
-            <AppIcon name="speaker-wave" :size="22" />
-          </button>
-        </header>
+    <!-- One family with the other exercises (docs/design Question): the word large on the white screen, no box around it. -->
+    <article class="flex flex-col items-center px-5 pt-10 pb-4 text-center short:pt-4">
+      <span class="flex flex-wrap items-center justify-center gap-1.5">
+        <span class="chip" :class="kind.chip" data-testid="card-kind">{{ kind.label }}</span>
+        <span v-if="isLeech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
+      </span>
 
-        <div class="px-1 py-3 text-center">
-          <h2 class="text-4xl leading-10 font-bold break-words" data-testid="word">{{ card.word }}</h2>
-          <p v-if="card.transcription" class="mt-1.5 text-[17px] leading-[22px] text-tg-hint" data-testid="transcription">
-            {{ card.transcription }}
+      <h2
+        class="mt-4 max-w-full text-[46px] leading-[52px] font-semibold tracking-[-0.6px] break-words short:mt-2 short:text-[36px] short:leading-[42px]"
+        lang="en"
+        data-testid="word"
+      >
+        {{ card.word }}
+      </h2>
+      <div class="mt-1.5 flex items-center gap-1">
+        <span v-if="card.transcription" class="font-ipa text-[15px] leading-5 text-muted" data-testid="transcription">{{ card.transcription }}</span>
+        <button
+          type="button"
+          class="flex size-11 shrink-0 items-center justify-center rounded-full text-accent active:bg-fill"
+          :aria-label="t('card.speak')"
+          data-testid="speak-btn"
+          @click="onSpeak"
+        >
+          <AppIcon name="speaker-wave" :size="20" />
+        </button>
+      </div>
+      <p v-if="sayAloud" class="text-[13px] leading-[18px] text-muted" data-testid="say-aloud">{{ t('card.say_aloud') }}</p>
+
+      <template v-if="revealed">
+        <hr class="mt-5 w-full border-divider short:mt-3" />
+        <div class="w-full pt-5 short:pt-3">
+          <p class="text-2xl leading-[30px] font-semibold break-words" data-testid="translation">{{ card.translation }}</p>
+          <p v-if="card.translation_fallback" class="mt-1 text-[13px] leading-[18px] text-muted" data-testid="translation-fallback">
+            {{ t('card.translation_fallback') }}
           </p>
-          <p v-if="sayAloud" class="mt-2 text-[13px] leading-[18px] text-tg-hint" data-testid="say-aloud">{{ t('card.say_aloud') }}</p>
+          <p v-if="card.example" class="mt-3 text-base leading-[22px] italic" lang="en" data-testid="example">
+            {{ card.example }}
+          </p>
+          <p v-if="card.example && card.example_translation" class="mt-1 text-sm leading-5 text-muted" data-testid="example-translation">
+            {{ card.example_translation }}
+          </p>
         </div>
+      </template>
 
-        <template v-if="revealed">
-          <hr class="border-hairline" />
-          <div class="px-1 pb-1 text-center">
-            <p class="text-2xl leading-8 font-semibold break-words" data-testid="translation">{{ card.translation }}</p>
-            <p
-              v-if="card.translation_fallback"
-              class="mt-1 text-[13px] leading-[18px] text-tg-hint"
-              data-testid="translation-fallback"
-            >
-              {{ t('card.translation_fallback') }}
-            </p>
-            <p v-if="card.example" class="mt-3 text-base leading-[22px] text-tg-subtitle italic" data-testid="example">
-              {{ card.example }}
-            </p>
-            <p
-              v-if="card.example && card.example_translation"
-              class="mt-1 text-[13px] leading-[18px] text-tg-hint"
-              data-testid="example-translation"
-            >
-              {{ card.example_translation }}
-            </p>
-          </div>
-        </template>
+      <template v-if="hooksOpen">
+        <hr v-if="!revealed" class="mt-5 w-full border-divider short:mt-3" />
+        <CardHooks :card="card" :editable="revealed" class="mt-4 w-full" @edit-note="emit('edit-note')" />
+      </template>
+    </article>
 
-        <template v-if="hooksOpen">
-          <hr v-if="!revealed" class="border-hairline" />
-          <CardHooks :card="card" :editable="revealed" @edit-note="emit('edit-note')" />
-        </template>
-      </article>
-    </div>
-
-    <StickyActions>
+    <StickyActions surface>
       <button
         v-if="!revealed"
         type="button"
@@ -196,7 +196,7 @@ function onGrade(q: Quality): void {
       </button>
 
       <template v-else>
-        <p class="text-center text-[15px] leading-5 text-tg-subtitle" data-testid="grade-prompt">{{ t(isNew ? 'card.grade_prompt_new' : 'card.grade_prompt') }}</p>
+        <p class="text-center text-[13px] leading-[18px] text-muted" data-testid="grade-prompt">{{ t(isNew ? 'card.grade_prompt_new' : 'card.grade_prompt') }}</p>
         <div class="grid grid-cols-3 gap-2" role="group" :aria-label="t('card.grade_group')">
           <button
             v-for="grade in grades"
@@ -213,7 +213,7 @@ function onGrade(q: Quality): void {
               <AppIcon v-if="picked === grade.quality" :name="grade.quality === 2 ? 'arrow-path' : 'check'" :size="16" data-testid="grade-mark" />
               {{ grade.label }}
             </span>
-            <span v-if="grade.hint" class="text-xs leading-4 font-normal text-[color-mix(in_srgb,currentColor_50%,var(--tg-text))]" data-testid="grade-hint">{{ grade.hint }}</span>
+            <span v-if="grade.hint" class="text-xs leading-4 font-normal text-[color-mix(in_srgb,currentColor_50%,var(--app-text))]" data-testid="grade-hint">{{ grade.hint }}</span>
           </button>
         </div>
       </template>

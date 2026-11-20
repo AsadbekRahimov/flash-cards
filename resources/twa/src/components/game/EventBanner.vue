@@ -18,11 +18,10 @@ const icon = computed((): IconName => ICONS[props.event])
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col items-center justify-center gap-2 px-6 py-10 text-center" role="status" aria-live="polite" :data-event="event" data-testid="event-banner">
-    <span class="mb-1 flex size-16 items-center justify-center rounded-full bg-warning-soft text-warning-ink">
-      <AppIcon :name="icon" :size="32" />
-    </span>
-    <h2 class="text-[22px] leading-7 font-bold" data-testid="event-title">{{ t(`gameRun.event.${event}`) }}</h2>
-    <p class="text-[15px] leading-5 text-tg-hint" data-testid="event-text">{{ t(`gameRun.event.${event}_text`) }}</p>
+  <div class="flex flex-1 flex-col items-center justify-center gap-2 px-6 py-10 text-center short:py-4" role="status" aria-live="polite" :data-event="event" data-testid="event-banner">
+    <!-- A calm note in the middle of the white screen: the sign of the event in the accent, no coloured disc under it. -->
+    <AppIcon :name="icon" :size="32" class="mb-1 text-accent" />
+    <h2 class="text-[26px] leading-[30px] font-semibold tracking-[-0.2px]" data-testid="event-title">{{ t(`gameRun.event.${event}`) }}</h2>
+    <p class="text-[15px] leading-5 text-muted" data-testid="event-text">{{ t(`gameRun.event.${event}_text`) }}</p>
   </div>
 </template>

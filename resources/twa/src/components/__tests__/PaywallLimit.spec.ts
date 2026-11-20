@@ -314,7 +314,7 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
   it('is the same sheet otherwise: the title, what Free gives, the promo code, "Got it"', async () => {
     const w = await render({ limitHit: NO_BATTLES })
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Больше практики с Pro')
     expect(w.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)
     expect(w.get('[data-testid=paywall-close]').text()).toBe('Понятно')
@@ -410,7 +410,7 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
   it('is the same sheet: the title, what Free gives, what Pro gives, the promo code and "Got it"', async () => {
     const w = await render()
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Больше практики с Pro')
     expect(w.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
     expect(w.findAll('[data-testid=benefit]').length).toBeGreaterThan(0)
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)
@@ -421,9 +421,9 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
   it('says among the things Pro gives that practice and battles have no limit of the day', async () => {
     const w = await render()
 
-    expect(w.findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Практика и баттлы без дневного лимита')
+    expect(w.findAll('[data-testid=benefit-name]').map((item) => item.text())).toContain('Практика и баттлы')
     setLocale('uz')
-    expect((await render()).findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
+    expect((await render()).findAll('[data-testid=benefit-name]').map((item) => item.text())).toContain('Mashqlar va bellashuvlar')
   })
 
   it('offers "Repeat words" when cards are due: reviews are never limited, the wall is not a dead end', async () => {
@@ -456,7 +456,7 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
     knowZone('Asia/Tashkent', 3)
     const w = await render({}, me('purchase'))
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Больше практики с Pro')
     expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro. ${SALE_RU}`)
     expect(w.findAll('[data-testid^=pay-]').filter((button) => button.element.tagName === 'BUTTON')).toHaveLength(3)
     expect(w.get('[data-testid=paywall-review]').classes()).toContain('btn-tinted')

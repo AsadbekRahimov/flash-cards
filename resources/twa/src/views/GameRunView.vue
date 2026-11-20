@@ -8,7 +8,9 @@ import BoosterRow from '@/components/game/BoosterRow.vue'
 import EventBanner from '@/components/game/EventBanner.vue'
 import GameReveal from '@/components/game/GameReveal.vue'
 import RunHeader from '@/components/game/RunHeader.vue'
+import NumberText from '@/components/game/NumberText.vue'
 import RunSummary from '@/components/game/RunSummary.vue'
+import { NUMBER_MARK } from '@/components/game/numberMark'
 import { taskComponentFor } from '@/components/game/gameTasks'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -184,6 +186,8 @@ watch(
 // ---- the task ----
 
 const busy = computed(() => status.value === 'submitting')
+/** The screen is white while a task, its event or its answer is on it (a lesson screen); the rest stands on the page colour. */
+const white = computed((): boolean => run.value !== null && ['event', 'playing', 'submitting', 'reveal'].includes(status.value))
 const task = computed(() => (status.value === 'playing' || status.value === 'submitting' ? element.value : null))
 const lastElement = computed(() => run.value?.status === 'finished')
 
@@ -322,10 +326,17 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
 <template>
   <section
     class="mx-auto flex w-full max-w-xl flex-1 flex-col"
+    :class="white ? 'bg-surface' : ''"
     style="min-height: var(--tg-viewport-stable-height, 100dvh)"
     :data-status="status"
     data-testid="game-run-view"
   >
+    <!--
+      The run is a lesson screen (docs/design Question / Feedback): white while a task, its event or its answer is on it; the summary, the
+      closed and the error screens stand on the page colour. The components of the practice (pairs, collocation, sentence, dictation) keep
+      their own sticky block in the page colour: on the white task it takes the white too, and under their answer it gets the hairline of
+      the panel of an answer, as the answer of a word has.
+    -->
     <!-- Always there, so that what is put into it is announced. -->
     <p class="sr-only" role="status" aria-live="polite" data-testid="verdict-live">{{ liveText }}</p>
 
@@ -371,13 +382,19 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
 
       <EventBanner v-if="status === 'event' && run.current?.event" :event="run.current.event" />
 
-      <GameReveal v-else-if="status === 'reveal' && outcome" :outcome="outcome" :last="lastElement" @continue="onContinue" />
+      <GameReveal
+        v-else-if="status === 'reveal' && outcome"
+        class="[&_[data-testid=actions]]:border-t [&_[data-testid=actions]]:border-hairline"
+        :outcome="outcome"
+        :last="lastElement"
+        @continue="onContinue"
+      />
 
       <template v-else-if="task">
         <!-- The boosters of the learner's stock: not drawn while there are none. -->
         <!-- The bazaar: a hint for coins; the balance is shown once the server has told it. Both in one line: in a short window (320 x 568) two
              rows of 60 px would push the last option under the bar. -->
-        <div v-if="run.boosters.available.length > 0 || hintOffer" class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-4 pt-3 short:pt-0.5" data-testid="task-tools">
+        <div v-if="run.boosters.available.length > 0 || hintOffer" class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-5 pt-3 short:pt-0.5" data-testid="task-tools">
           <BoosterRow
             v-if="run.boosters.available.length > 0"
             :boosters="run.boosters"
@@ -390,13 +407,14 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
           />
           <div v-if="hintOffer" class="flex items-center gap-3" data-testid="hint-offer">
             <button type="button" class="btn btn-tinted" :disabled="busy" data-testid="hint-btn" @click="onHint">{{ hintOffer.price === 0 ? t('gameRun.hint.free') : t('gameRun.hint.buy', { price: hintOffer.price }) }}</button>
-            <span v-if="coins !== null" class="text-[15px] leading-5 text-tg-subtitle tabular-nums" data-testid="hint-coins">{{ t('gameRun.hint.coins', { coins }) }}</span>
+            <NumberText v-if="coins !== null" class="text-[15px] leading-5 text-muted" :text="t('gameRun.hint.coins', { coins: NUMBER_MARK })" :value="coins" data-testid="hint-coins" />
           </div>
         </div>
 
         <!-- The component of the kind (gameTasks.ts); the key makes every element a new one, with no pick left over. -->
         <component
           :is="taskComponentFor(task)"
+          class="[&_[data-testid=actions]]:bg-surface"
           :key="`${task.kind}-${elementSeq}`"
           :element="task"
           :disabled="busy"
@@ -411,8 +429,8 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => undefined, { toastError
 
     <BottomSheet v-if="exitOpen" :label="t('gameRun.exit.title')" @close="exitOpen = false">
       <div class="flex flex-col gap-3 px-4 pt-2 pb-4" data-testid="exit-sheet">
-        <h2 class="text-[22px] leading-7 font-bold">{{ t('gameRun.exit.title') }}</h2>
-        <p class="text-[15px] leading-5 text-tg-hint">{{ t('gameRun.exit.text') }}</p>
+        <h2 class="text-[22px] leading-7 font-semibold">{{ t('gameRun.exit.title') }}</h2>
+        <p class="text-[15px] leading-5 text-muted">{{ t('gameRun.exit.text') }}</p>
         <button type="button" class="btn btn-primary btn-block" data-testid="stay-btn" @click="exitOpen = false">{{ t('gameRun.exit.stay') }}</button>
         <button type="button" class="btn btn-danger btn-block" :disabled="game.abandoning" data-testid="leave-btn" @click="confirmLeave">{{ t('gameRun.exit.confirm') }}</button>
       </div>

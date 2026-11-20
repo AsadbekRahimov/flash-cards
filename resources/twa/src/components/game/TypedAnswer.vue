@@ -10,6 +10,8 @@
  */
 import { computed, ref } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
+import NumberText from '@/components/game/NumberText.vue'
+import { NUMBER_MARK } from '@/components/game/numberMark'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { useResend } from '@/composables/useResend'
 import { useI18n } from '@/i18n'
@@ -47,8 +49,8 @@ function skip(): void {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="typed-answer">
-    <div class="flex flex-col gap-3 px-4 pb-4">
-      <p v-if="hintPrefix" class="text-center text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="hint-prefix">
+    <div class="flex flex-col gap-3 px-5 pb-4 short:gap-2">
+      <p v-if="hintPrefix" class="text-center text-[15px] leading-5 text-muted" data-testid="hint-prefix">
         {{ t('gameRun.hint.prefix', { prefix: hintPrefix }) }}
       </p>
 
@@ -56,7 +58,7 @@ function skip(): void {
         v-model="text"
         type="text"
         lang="en"
-        class="field field-surface scroll-mb-28 text-center text-xl"
+        class="field scroll-mb-28 text-center text-xl"
         autocapitalize="off"
         autocorrect="off"
         autocomplete="off"
@@ -69,14 +71,15 @@ function skip(): void {
         data-testid="answer-input"
         @keydown.enter.prevent="check"
       />
-      <p v-if="length" class="text-center text-[13px] leading-[18px] text-tg-hint" data-testid="answer-length">{{ t('gameRun.spell.letters', { count: length }) }}</p>
+      <NumberText v-if="length" class="text-center text-[13px] leading-[18px] text-muted" :text="t('gameRun.spell.letters', { count: NUMBER_MARK })" :value="length" data-testid="answer-length" />
 
       <InlineAlert v-if="retrying" tone="warning" :message="t('practice.session.resend_note')" data-testid="resend-note" />
     </div>
 
-    <StickyActions>
+    <!-- "I don't know" a quiet word on the left, "Check" the main button (docs/design Question). -->
+    <StickyActions surface>
       <div class="flex items-stretch gap-2">
-        <button type="button" class="btn btn-plain shrink-0" :disabled="!canSkip" data-testid="skip-btn" @click="skip">{{ t('exercise.skip') }}</button>
+        <button type="button" class="btn btn-plain shrink-0 basis-28 text-muted" :disabled="!canSkip" data-testid="skip-btn" @click="skip">{{ t('exercise.skip') }}</button>
         <button type="button" class="btn btn-primary btn-lg min-w-0 flex-1" :disabled="!canCheck" data-testid="check-btn" @click="check">{{ t('exercise.check') }}</button>
       </div>
     </StickyActions>

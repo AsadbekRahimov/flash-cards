@@ -103,18 +103,19 @@ describe('the lesson comes alive (docs/14 §6.2)', () => {
       expect(w.find('[data-testid=combo]').exists()).toBe(false)
     })
 
-    it('shows "🔥 ×3" from the third, grows, and goes quietly on "Not yet"', async () => {
+    it('shows "3 подряд" from the third (a number and a word, no emoji), grows, and goes quietly on "Not yet"', async () => {
       const w = await render(flash(1))
       await gradeFlash(w, 'grade-medium', flash(2))
       await gradeFlash(w, 'grade-easy', flash(3))
       await gradeFlash(w, 'grade-medium', flash(4))
 
-      expect(w.get('[data-testid=combo]').text()).toBe('🔥 ×3')
+      expect(w.get('[data-testid=combo]').text()).toBe('3 подряд')
+      expect(w.get('[data-testid=combo] .font-mono').text()).toBe('3')
       expect(w.get('[data-testid=combo]').attributes('aria-label')).toBe('Верных ответов подряд: 3')
       expect(w.get('[data-testid=combo]').classes()).not.toContain('combo-pop')
 
       await gradeFlash(w, 'grade-medium', flash(5))
-      expect(w.get('[data-testid=combo]').text()).toBe('🔥 ×4')
+      expect(w.get('[data-testid=combo]').text()).toBe('4 подряд')
 
       await gradeFlash(w, 'grade-hard', flash(6))
       expect(w.find('[data-testid=combo]').exists()).toBe(false)
@@ -127,7 +128,7 @@ describe('the lesson comes alive (docs/14 §6.2)', () => {
       const w = await render(flash(1))
 
       expect(w.get('[data-testid=progress]').text()).toBe('0 / 30')
-      expect(w.get('[data-testid=progress-fill]').attributes('style')).toContain('width: 0%')
+      expect(w.get('[data-testid=progress-bar] .progress-fill').attributes('style')).toContain('width: 0%')
     })
 
     it('jumps once and gives the success haptic on every fifth answer, and not in between', async () => {

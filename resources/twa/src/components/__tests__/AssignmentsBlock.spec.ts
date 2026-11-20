@@ -25,28 +25,34 @@ const block = (items: AssignmentItem[], busy = false) => mount(AssignmentsBlock,
 describe('AssignmentsBlock', () => {
   afterEach(() => setLocale('ru'))
 
-  it('labels the block and shows the lesson with the module, the group and the due date in a neutral chip', () => {
+  it('draws one row per assignment inside the list of the parent: the lesson, the group, the module and the due date on the right', () => {
     const w = block([item()])
 
-    expect(w.get('.section-label').text()).toBe('Задания центра')
+    // No label and no card of its own: the rows stand in the list "For today" of Home.
+    expect(w.find('.section-label').exists()).toBe(false)
+    expect(w.find('.card').exists()).toBe(false)
     expect(w.get('[data-testid=assignment-title]').text()).toBe('Food')
-    expect(w.get('[data-testid=assignment]').text()).toContain('Group A · Модуль 2, урок 4')
+    expect(w.get('[data-testid=assignment]').text()).toContain('Group A · Модуль 2, урок 4 · выполнено 40%')
     // The time is shown in the device's time zone, so only the shape is fixed.
     const due = w.get('[data-testid=assignment-due]')
     expect(due.text()).toMatch(/^до \d{1,2} окт\., \d{2}:\d{2}$/)
-    expect(due.classes()).toEqual(expect.arrayContaining(['chip', 'chip-neutral']))
+    expect(due.classes()).toContain('text-warning-ink')
+    expect(w.get('[data-testid=assignment-dot]').classes()).toContain('bg-warning')
+    expect(w.get('[data-testid=assignment-dot]').attributes('aria-hidden')).toBe('true')
     expect(w.find('[data-testid=assignment-done]').exists()).toBe(false)
   })
 
-  it('turns the chip red for an open assignment past its due date', () => {
-    const due = block([item({ overdue: true })]).get('[data-testid=assignment-due]')
+  it('turns the dot and the date red for an open assignment past its due date', () => {
+    const w = block([item({ overdue: true })])
+    const due = w.get('[data-testid=assignment-due]')
 
     expect(due.text()).toMatch(/^Срок прошёл: /)
-    expect(due.classes()).toContain('chip-danger')
-    expect(due.classes()).not.toContain('chip-neutral')
+    expect(due.classes()).toContain('text-danger-ink')
+    expect(due.classes()).not.toContain('text-warning-ink')
+    expect(w.get('[data-testid=assignment-dot]').classes()).toContain('bg-danger')
   })
 
-  it('shows a done assignment with a green chip, or an amber one when it was done late, and no button', () => {
+  it('shows a done assignment with a green dot and the state in green, or amber when it was done late, and no button', () => {
     const w = block([
       item({ id: 1, completed: true, progress_pct: 100 }),
       item({ id: 2, completed: true, late: true, progress_pct: 100 }),
@@ -54,36 +60,33 @@ describe('AssignmentsBlock', () => {
     const [inTime, late] = w.findAll('[data-testid=assignment-done]')
 
     expect(inTime?.text()).toBe('Выполнено')
-    expect(inTime?.classes()).toContain('chip-success')
+    expect(inTime?.classes()).toContain('text-success-ink')
     expect(late?.text()).toBe('Выполнено с опозданием')
-    expect(late?.classes()).toContain('chip-warning')
+    expect(late?.classes()).toContain('text-warning-ink')
     // The due date no longer matters once it is done.
     expect(w.find('[data-testid=assignment-due]').exists()).toBe(false)
     expect(w.find('[data-testid=assignment-btn]').exists()).toBe(false)
-    expect(w.findAll('.progress-success')).toHaveLength(2)
+    expect(w.find('button').exists()).toBe(false)
+    for (const dot of w.findAll('[data-testid=assignment-dot]')) expect(dot.classes()).toContain('bg-success')
   })
 
-  it('draws the learner\'s own progress as a bar named for assistive tech, and as a percent', () => {
+  it('says the learner\'s own progress in words', () => {
     const w = block([item({ progress_pct: 40 })])
-    const bar = w.get('[role=progressbar]')
 
-    expect(w.get('[data-testid=assignment-progress]').text()).toBe('40%')
-    expect(bar.attributes('aria-valuenow')).toBe('40')
-    expect(bar.attributes('aria-label')).toBe('Пройдено 40% слов урока')
-    expect(w.get('.progress-fill').attributes('style')).toContain('width: 40%')
-    expect(bar.classes()).not.toContain('progress-success')
+    expect(w.get('[data-testid=assignment-progress]').text()).toBe('выполнено 40%')
   })
 
-  it('offers "Start" before anything is done and "Continue" afterwards, with the lesson id', async () => {
+  it('makes an open assignment a row button of at least 44 px that opens the lesson by its id', async () => {
     const w = block([item({ id: 1, lesson_id: 41, progress_pct: 0 }), item({ id: 2, lesson_id: 42, progress_pct: 40 })])
-    const [start, resume] = w.findAll('[data-testid=assignment-btn]')
+    const [first, second] = w.findAll('[data-testid=assignment-btn]')
 
-    expect(start?.text()).toBe('Начать')
-    expect(resume?.text()).toBe('Продолжить')
-    expect(start?.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+    expect(first?.element.tagName).toBe('BUTTON')
+    expect(first?.attributes('type')).toBe('button')
+    expect(first?.classes()).toContain('min-h-11')
+    expect(first?.text()).toContain('Food')
 
-    await resume?.trigger('click')
-    await start?.trigger('click')
+    await second?.trigger('click')
+    await first?.trigger('click')
     expect(w.emitted('open')).toEqual([[42], [41]])
   })
 
@@ -100,9 +103,7 @@ describe('AssignmentsBlock', () => {
     setLocale('uz')
     const w = block([item({ progress_pct: 0 })])
 
-    expect(w.get('.section-label').text()).toBe('Markaz vazifalari')
-    expect(w.get('[data-testid=assignment]').text()).toContain('Group A · 2-modul, 4-dars')
+    expect(w.get('[data-testid=assignment]').text()).toContain('Group A · 2-modul, 4-dars · 0% bajarildi')
     expect(w.get('[data-testid=assignment-due]').text()).toMatch(/gacha$/)
-    expect(w.get('[data-testid=assignment-btn]').text()).toBe('Boshlash')
   })
 })

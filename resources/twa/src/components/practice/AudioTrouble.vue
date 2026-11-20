@@ -26,15 +26,14 @@ const { t } = useI18n()
 
 <template>
   <BottomSheet :label="t('practice.audio.trouble.title')" data-testid="audio-trouble" @close="emit('close')">
-    <header class="flex flex-col items-center gap-2 pt-1 text-center">
-      <span class="flex size-14 items-center justify-center rounded-full bg-warning-soft text-warning-ink">
-        <AppIcon name="exclamation-triangle" solid :size="28" />
-      </span>
-      <h2 class="text-[22px] leading-7 font-bold" data-testid="trouble-title">{{ t('practice.audio.trouble.title') }}</h2>
+    <header class="flex flex-col gap-1.5 pt-1 pr-10">
+      <h2 class="flex items-center gap-2 text-[22px] leading-7 font-semibold" data-testid="trouble-title">
+        <AppIcon name="exclamation-triangle" :size="20" class="shrink-0 text-warning" />{{ t('practice.audio.trouble.title') }}
+      </h2>
       <p class="text-[15px] leading-5" data-testid="trouble-text">
         {{ replacementsLeft > 0 ? t('practice.audio.trouble.text') : t('practice.audio.trouble.text_no_replace') }}
       </p>
-      <p v-if="replacementsLeft > 0" class="text-[13px] leading-[18px] text-tg-hint" data-testid="replacements-left">
+      <p v-if="replacementsLeft > 0" class="text-[13px] leading-[18px] text-muted" data-testid="replacements-left">
         {{ t('practice.audio.replacements_left', { count: replacementsLeft }) }}
       </p>
     </header>

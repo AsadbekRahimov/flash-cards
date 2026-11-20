@@ -5,12 +5,14 @@ import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import PromoRedeem from '@/components/PromoRedeem.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import ListGroup from '@/components/ui/ListGroup.vue'
+import ListRow from '@/components/ui/ListRow.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import ProBenefits from '@/components/ui/ProBenefits.vue'
-import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace } from '@/composables/billingFormat'
+import { PROVIDER_CURRENCY, PROVIDER_ORDER, formatPrice, graceText, inStarsGrace, orderedItems, periodSavingPct } from '@/composables/billingFormat'
 import { formatDate } from '@/composables/format'
 import { reportOfferViewed } from '@/composables/offerViewed'
 import { supportContactLink } from '@/composables/supportContact'
@@ -22,13 +24,16 @@ import { useBillingStore } from '@/stores/billing'
 import { errorMessage } from '@/i18n/errors'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
-import type { BillingProviderKey, MeResponse } from '@/api/types'
+import type { BillingPeriod, BillingProviderKey, MeResponse } from '@/api/types'
 
 /**
  * "Subscription" (docs/13 §5, docs/14 §6.6): the plan card, what Pro gives, the auto-renewal of a Stars subscription
  * with its cancel / resume buttons, the discount offer, "Buy / Renew" which opens the purchase paywall, the promo
  * code (moved here from the end-of-session screen) and the support contact. The history of payments is task 2A.7.
  * A page of the Profile tab: the system "Back" button leads to the Profile.
+ *
+ * The tariffs (month → quarter → year, as the catalog sends them) are rows with the price and the saving; a tap opens the purchase
+ * sheet on that period. The look follows the Pro mock-up (docs/design Pro): rows between lines, no coloured tiles.
  *
  * "Buy / Renew" is there only when there is something to buy: not while the Stars renewal runs or is in grace (the
  * server refuses a payment then — the grace gets a warning instead), not for a perpetual grant and not for the Pro a
@@ -46,6 +51,13 @@ const failed = ref('')
 /** A load has finished (successfully or not), so an empty store means a failure and not "still loading". */
 const attempted = ref(false)
 const paywallOpen = ref(false)
+/** The period the sheet opens on (a tariff row); null — the first one. */
+const paywallPeriod = ref<BillingPeriod | null>(null)
+
+function openPaywall(period: BillingPeriod | null = null): void {
+  paywallPeriod.value = period
+  paywallOpen.value = true
+}
 
 const status = computed<'loading' | 'error' | 'ready'>(() => {
   if (failed.value !== '') return 'error'
@@ -121,6 +133,27 @@ const offerPrices = computed<OfferPrice[]>(() => {
   return result
 })
 
+interface TariffRow {
+  period: BillingPeriod
+  price: string
+  saving: string
+}
+
+/** One row per period of the catalog, with the price of the first provider that prices it (Stars, then sums) and the saving. */
+const tariffs = computed<TariffRow[]>(() => {
+  const items = orderedItems(billing.catalog?.items ?? [])
+  return items.flatMap((item) => {
+    for (const provider of PROVIDER_ORDER) {
+      const currency = PROVIDER_CURRENCY[provider]
+      const price = item.prices[currency]
+      if (!billing.catalog?.providers.includes(provider) || price === undefined) continue
+      const pct = periodSavingPct(items, item.period)
+      return [{ period: item.period, price: formatPrice(price, currency, locale.value), saving: pct !== null ? t('billing.saving', { pct }) : '' }]
+    }
+    return []
+  })
+})
+
 const PROVIDER_LABELS: Record<string, StringKey> = {
   telegram_stars: 'billing.provider.telegram_stars',
   payme: 'billing.provider.payme',
@@ -137,7 +170,7 @@ const providerText = computed(() => {
 
 /** The banner's "Renew" is the same action as the button below it; the banner has no button where nothing is for sale. */
 function onLapsedRenew(): void {
-  if (billing.canPurchase) paywallOpen.value = true
+  if (billing.canPurchase) openPaywall()
 }
 
 /** "Repeat words" in the paywall sheet: it closes and the daily review starts (a failure is a toast). */
@@ -175,7 +208,7 @@ onMounted(() => {
 
 <template>
   <div class="page" data-testid="billing-view">
-    <PageHeader :title="t('billing.title')" />
+    <PageHeader :eyebrow="t('billing.plan.pro')" :title="t('billing.title')" />
 
     <ErrorState v-if="status === 'error'" :message="errorText" @retry="load" />
 
@@ -190,32 +223,23 @@ onMounted(() => {
         @invite="router.push({ name: 'referrals', query: { from: 'billing' } })"
       />
 
-      <section class="card" data-testid="plan-card">
-        <div class="flex items-start gap-3">
-          <span class="icon-tile tile-purple size-11 rounded-xl"><AppIcon name="sparkles" :size="22" /></span>
-          <div class="min-w-0 flex-1 space-y-0.5">
-            <div class="flex items-center gap-2">
-              <h2 class="min-w-0 truncate text-[17px] leading-[22px] font-semibold" data-testid="plan-name">
-                {{ isPro ? t('billing.plan.pro') : t('billing.plan.free') }}
-              </h2>
-              <span class="chip shrink-0" :class="isPro ? 'chip-accent' : 'chip-neutral'" data-testid="plan-chip">
-                {{ t(isPro ? 'profile.chip.pro' : 'profile.chip.free') }}
-              </span>
-            </div>
-            <template v-if="isPro">
-              <p v-if="sponsored" class="text-[15px] leading-5 text-tg-subtitle" data-testid="plan-sponsored">{{ t('billing.sponsored') }}</p>
-              <p class="text-[15px] leading-5 text-tg-subtitle" data-testid="plan-until">{{ untilText }}</p>
-              <p v-if="providerText" class="text-[15px] leading-5 text-tg-subtitle" data-testid="plan-provider">{{ providerText }}</p>
-            </template>
-            <p
-              v-else-if="entitlement.new_words_per_day !== null"
-              class="text-[15px] leading-5 text-tg-subtitle"
-              data-testid="plan-free"
-            >
-              {{ tn('billing.plan.free_limit', entitlement.new_words_per_day) }}
-            </p>
-          </div>
+      <section class="card space-y-1" data-testid="plan-card">
+        <div class="flex items-center gap-2">
+          <h2 class="min-w-0 truncate text-[17px] leading-[22px] font-semibold" data-testid="plan-name">
+            {{ isPro ? t('billing.plan.pro') : t('billing.plan.free') }}
+          </h2>
+          <span class="chip shrink-0" :class="isPro ? 'chip-accent' : 'chip-neutral'" data-testid="plan-chip">
+            {{ t(isPro ? 'profile.chip.pro' : 'profile.chip.free') }}
+          </span>
         </div>
+        <template v-if="isPro">
+          <p v-if="sponsored" class="text-[15px] leading-5 text-muted" data-testid="plan-sponsored">{{ t('billing.sponsored') }}</p>
+          <p class="text-[15px] leading-5 text-muted" data-testid="plan-until">{{ untilText }}</p>
+          <p v-if="providerText" class="text-[15px] leading-5 text-muted" data-testid="plan-provider">{{ providerText }}</p>
+        </template>
+        <p v-else-if="entitlement.new_words_per_day !== null" class="text-[15px] leading-5 text-muted" data-testid="plan-free">
+          {{ tn('billing.plan.free_limit', entitlement.new_words_per_day) }}
+        </p>
       </section>
 
       <InlineAlert v-if="grace" tone="warning" :message="graceMessage" data-testid="grace-alert" />
@@ -228,9 +252,8 @@ onMounted(() => {
       </section>
 
       <section v-if="subscription && (subscription.can_cancel || subscription.can_resume)" class="card space-y-3" data-testid="renewal-card">
-        <p class="flex items-start gap-3 text-[15px] leading-5" data-testid="renewal-state">
-          <AppIcon name="arrow-path" :size="20" class="mt-px text-accent" />
-          <span>{{ subscription.can_cancel ? t('billing.auto_on') : t('billing.auto_off') }}</span>
+        <p class="text-[15px] leading-5" data-testid="renewal-state">
+          {{ subscription.can_cancel ? t('billing.auto_on') : t('billing.auto_off') }}
         </p>
         <button
           v-if="subscription.can_cancel"
@@ -267,14 +290,31 @@ onMounted(() => {
             class="flex items-baseline justify-between gap-3 text-[15px] leading-5"
             :data-testid="`offer-price-${p.provider}`"
           >
-            <span class="text-tg-subtitle">{{ t(`billing.provider.${p.provider}`) }}</span>
+            <span class="text-muted">{{ t(`billing.provider.${p.provider}`) }}</span>
             <span>
-              <strong>{{ p.price }}</strong>
-              <s class="ml-2 text-sm text-tg-hint" data-testid="offer-list-price">{{ p.listPrice }}</s>
+              <strong class="font-semibold">{{ p.price }}</strong>
+              <s class="ml-2 text-sm text-muted" data-testid="offer-list-price">{{ p.listPrice }}</s>
             </span>
           </p>
         </div>
       </section>
+
+      <!-- The tariffs: a tap opens the purchase sheet on that period. -->
+      <ListGroup v-if="canBuy && tariffs.length > 0" :header="t('billing.tariffs')" data-testid="tariffs">
+        <ListRow
+          v-for="row in tariffs"
+          :key="row.period"
+          :title="t(`billing.period.${row.period}`)"
+          :subtitle="row.saving || undefined"
+          :chevron="true"
+          :data-testid="`tariff-${row.period}`"
+          @click="openPaywall(row.period)"
+        >
+          <template #trailing>
+            <span class="shrink-0 font-mono text-sm" data-testid="tariff-price">{{ row.price }}</span>
+          </template>
+        </ListRow>
+      </ListGroup>
 
       <!-- The one primary button is "Resume" while it is on the screen (a canceled Stars renewal): paying again is the other way. -->
       <button
@@ -283,13 +323,13 @@ onMounted(() => {
         class="btn btn-lg btn-block"
         :class="subscription?.can_resume ? 'btn-tinted' : 'btn-primary'"
         data-testid="buy"
-        @click="paywallOpen = true"
+        @click="openPaywall()"
       >
         {{ isPro || lapsed ? t('billing.renew') : t('billing.buy') }}
       </button>
       <p
         v-else-if="!isPro && !billing.canPurchase"
-        class="flex items-center justify-center gap-2 text-center text-[13px] leading-[18px] text-tg-hint"
+        class="flex items-center justify-center gap-2 text-center text-[13px] leading-[18px] text-muted"
         data-testid="unavailable"
       >
         <AppIcon name="clock" :size="16" />
@@ -298,7 +338,7 @@ onMounted(() => {
 
       <!-- Pro for free: the way to the invite screen sits right under the payment (a trial learner may earn more days too). -->
       <p v-if="!isPro || trialEnd !== null" class="text-center text-[15px] leading-5">
-        <button type="button" class="text-tg-link underline" data-testid="invite-link" @click="router.push({ name: 'referrals', query: { from: 'billing' } })">
+        <button type="button" class="text-accent underline" data-testid="invite-link" @click="router.push({ name: 'referrals', query: { from: 'billing' } })">
           {{ t('paywall.invite') }}
         </button>
       </p>
@@ -308,20 +348,20 @@ onMounted(() => {
         <PromoRedeem @redeemed="onRedeemed" />
       </section>
 
-      <p v-if="support" class="px-4 pt-1 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="billing-support">
+      <p v-if="support" class="px-[18px] pt-1 text-center text-[13px] leading-[18px] text-muted" data-testid="billing-support">
         {{ t('profile.support') }}
         <a
           v-if="support.href"
           :href="support.href"
           target="_blank"
           rel="noopener noreferrer"
-          class="break-words text-tg-link underline"
+          class="break-words text-accent underline"
           data-testid="billing-support-link"
         >{{ support.label }}</a>
         <span v-else class="font-semibold break-words" data-testid="billing-support-text">{{ support.label }}</span>
       </p>
     </div>
 
-    <PaywallSheet v-if="paywallOpen" @close="paywallOpen = false" @review="reviewFromPaywall" />
+    <PaywallSheet v-if="paywallOpen" :period="paywallPeriod" @close="paywallOpen = false" @review="reviewFromPaywall" />
   </div>
 </template>

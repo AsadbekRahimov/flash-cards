@@ -172,33 +172,34 @@ function onRetry(): void {
 </script>
 
 <template>
+  <!-- A white immersive screen, as a question of a lesson (docs/design Question.html): no cards, the word large, the options below. -->
   <section
-    class="mx-auto flex w-full max-w-xl flex-1 flex-col"
+    class="mx-auto flex w-full max-w-xl flex-1 flex-col bg-surface"
     style="min-height: var(--tg-viewport-stable-height, 100dvh)"
     data-testid="exam-view"
   >
     <header
       v-if="totalQuestions > 0 && status !== 'closed'"
-      class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 pt-3"
+      class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-5 pt-3"
     >
       <div class="flex justify-start">
         <span
           v-if="exam.endsAt !== null"
-          class="chip tabular-nums"
+          class="chip font-mono"
           :class="overallLow ? 'chip-danger' : 'chip-neutral'"
           data-testid="overall-timer"
         >
           <AppIcon name="clock" :size="14" />{{ overallLabel }}
         </span>
       </div>
-      <span class="text-[15px] leading-5 font-medium text-tg-subtitle tabular-nums" data-testid="progress">
+      <span class="font-mono text-[13px] leading-[18px] text-muted" data-testid="progress">
         {{ Math.min(currentIndex + 1, totalQuestions) }} / {{ totalQuestions }}
       </span>
       <div class="flex justify-end">
         <span v-if="isQuiz" class="chip chip-accent" data-testid="quiz-header">{{ t('exam.quiz_header') }}</span>
         <span v-else-if="isMock" class="chip chip-accent" data-testid="mock-header">{{ t('exam.mock_header') }}</span>
-        <span v-else class="chip chip-warning tabular-nums" data-testid="score">
-          <AppIcon name="star" solid :size="14" />{{ totalScore }}
+        <span v-else class="chip chip-neutral font-mono" data-testid="score">
+          <AppIcon name="star" solid :size="14" class="text-warning" />{{ totalScore }}
         </span>
       </div>
     </header>
@@ -229,11 +230,11 @@ function onRetry(): void {
 
     <div
       v-else-if="currentQuestion"
-      class="flex flex-1 flex-col gap-4 px-4 pt-3"
+      class="flex flex-1 flex-col px-5 pt-3"
       style="padding-bottom: calc(1.5rem + var(--app-safe-b))"
     >
       <!-- The time left for the question (group exams only: a mock has one timer for the whole test). -->
-      <div v-if="!singleTimer" class="progress" aria-hidden="true">
+      <div v-if="!singleTimer" class="progress h-[3px]" aria-hidden="true">
         <div
           class="progress-fill duration-1000 ease-linear"
           :class="{ 'bg-danger': questionLow }"
@@ -242,11 +243,11 @@ function onRetry(): void {
         ></div>
       </div>
 
-      <article class="card px-5 py-8 text-center">
-        <h2 class="text-4xl leading-10 font-bold break-words" data-testid="word">{{ currentQuestion.word }}</h2>
-      </article>
+      <div class="mt-12 text-center short:mt-8">
+        <h2 class="text-[40px] leading-[46px] font-semibold tracking-[-0.6px] break-words" data-testid="word">{{ currentQuestion.word }}</h2>
+      </div>
 
-      <div class="flex flex-col gap-2.5">
+      <div class="mt-10 flex flex-col gap-2.5 short:mt-6">
         <QuizOption
           v-for="(label, i) in currentQuestion.options"
           :key="i"

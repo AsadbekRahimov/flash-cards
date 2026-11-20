@@ -71,6 +71,22 @@ describe('ReadinessView', () => {
     expect(wrapper.get('[data-testid=readiness-bar]').attributes('aria-valuenow')).toBe('42')
   })
 
+  it('sets the numbers in monospace, the three counts split by thin lines, and the modules as rows with a thin line each', async () => {
+    const { wrapper } = await render(readiness())
+
+    expect(wrapper.get('[data-testid=readiness-percent]').classes()).toContain('font-mono')
+    expect(wrapper.get('[data-testid=readiness-learned] dd').classes()).toContain('font-mono')
+    expect(wrapper.get('[data-testid=readiness-learned]').classes()).not.toContain('border-l')
+    for (const id of ['readiness-in-progress', 'readiness-not-started']) {
+      expect(wrapper.get(`[data-testid=${id}]`).classes()).toEqual(expect.arrayContaining(['border-l', 'border-divider']))
+    }
+    const module = wrapper.get('[data-testid=readiness-module-1]')
+    const bar = module.get('[role=progressbar]')
+    expect(bar.attributes('aria-valuenow')).toBe('40')
+    expect(bar.get('.progress-fill').classes()).toContain('progress-success')
+    expect(wrapper.find('[data-testid=readiness-quiz] .icon-tile').exists()).toBe(false)
+  })
+
   it('falls back to the source "today" for an unknown one and drops the level for a course without it', async () => {
     const data = readiness()
     data.course.level_label = null

@@ -64,8 +64,8 @@ describe('ReverseCard', () => {
     expect(w.find('[data-testid=example]').exists()).toBe(false)
     expect(w.find('[data-testid=transcription]').exists()).toBe(false)
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
-    // The options are outside the question card (docs/14 §6.2).
-    expect(w.get('article').find('[data-testid=option-0]').exists()).toBe(false)
+    // No box around the question (docs/design Question): the options are the only framed things on the white screen.
+    expect(w.find('.card').exists()).toBe(false)
     expect(w.get('[data-testid=option-0]').classes()).toContain('option')
   })
 

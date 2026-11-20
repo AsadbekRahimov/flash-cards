@@ -81,11 +81,12 @@ const options = computed(() => shownOptions(props.element.options, picked.value,
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="collocation-choice" :data-mode="mode">
-    <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-4">
-      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
-        <p class="text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="collocation-instruction">{{ t('practice.collocation.instruction') }}</p>
+    <div class="flex flex-1 flex-col gap-4 px-5 pt-4 pb-4">
+      <!-- The task on the white screen, as the word of docs/design Question: no card around it. -->
+      <article class="flex flex-col items-center gap-3 px-1 pt-4 pb-4 text-center">
+        <p class="text-[13px] leading-[18px] text-muted" data-testid="collocation-instruction">{{ t('practice.collocation.instruction') }}</p>
 
-        <h2 class="font-bold break-words" :class="phraseClass" lang="en" data-testid="collocation-text">
+        <h2 class="font-semibold break-words" :class="phraseClass" lang="en" data-testid="collocation-text">
           <template v-if="parts">
             <span>{{ parts.before }}</span>
             <span
@@ -136,12 +137,12 @@ const options = computed(() => shownOptions(props.element.options, picked.value,
         </button>
       </div>
 
-      <p v-if="picked === null" class="px-2 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="collocation-footnote">
+      <p v-if="picked === null" class="px-2 text-center text-[13px] leading-[18px] text-muted" data-testid="collocation-footnote">
         {{ t(mode === 'battle' ? 'practice.collocation.footnote.battle' : 'practice.collocation.footnote.solo') }}
       </p>
     </div>
 
-    <StickyActions v-if="retrying">
+    <StickyActions v-if="retrying" surface>
       <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="disabled" :aria-busy="disabled ? 'true' : undefined" data-testid="resend-btn" @click="resend">
         {{ t('common.retry') }}
       </button>

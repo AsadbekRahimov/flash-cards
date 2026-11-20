@@ -58,10 +58,10 @@ const bars = computed(() => {
 </script>
 
 <template>
-  <p v-if="history.length === 0" class="py-4 text-center text-[15px] leading-5 text-tg-subtitle" data-testid="quiz-chart-empty">
+  <p v-if="history.length === 0" class="py-4 text-center text-[15px] leading-5 text-muted" data-testid="quiz-chart-empty">
     {{ t('readiness.quiz.chart_empty') }}
   </p>
-  <ul v-else class="flex h-28 items-end gap-1 pt-4" data-testid="quiz-chart">
+  <ul v-else class="flex h-28 items-end gap-2 pt-4" data-testid="quiz-chart">
     <li
       v-for="(bar, index) in bars"
       :key="bar.week"
@@ -73,24 +73,24 @@ const bars = computed(() => {
         <!-- The value sits right above its bar, not at the top of the column: a low bar keeps its number next to it. -->
         <span
           v-if="bar.percent !== null"
-          class="absolute inset-x-0 text-center text-[11px] leading-3 tabular-nums"
-          :class="bar.current ? 'font-semibold text-tg-text' : 'text-tg-subtitle'"
+          class="absolute inset-x-0 text-center font-mono text-[11px] leading-3"
+          :class="bar.current ? 'font-medium text-body' : 'text-muted'"
           :style="{ bottom: `calc(${Math.max(bar.percent, MIN_BAR)}% + 3px)` }"
         >{{ bar.percent }}</span>
         <span
           v-if="bar.percent !== null"
-          class="w-full rounded-t bg-accent"
+          class="w-full rounded-t-[3px] bg-accent"
           :class="bar.current ? '' : 'opacity-60'"
           :style="{ height: `${Math.max(bar.percent, MIN_BAR)}%` }"
           :data-percent="bar.percent"
           :data-current="bar.current ? 'true' : 'false'"
           :data-testid="`quiz-bar-${bar.week}`"
         />
-        <span v-else class="w-full border-b border-dashed border-tg-hint/50" :data-testid="`quiz-gap-${bar.week}`" />
+        <span v-else class="w-full border-b border-dashed border-muted/50" :data-testid="`quiz-gap-${bar.week}`" />
       </span>
       <span
         class="h-3 text-[10px] leading-3"
-        :class="bar.current ? 'font-semibold text-tg-text' : 'text-tg-hint'"
+        :class="bar.current ? 'font-semibold text-body' : 'text-muted'"
         aria-hidden="true"
       >{{ bar.current || (bars.length - 1 - index) % 3 === 0 ? bar.label : '' }}</span>
     </li>

@@ -272,6 +272,21 @@ describe('GameRunView — an answer and its reveal', () => {
     r.wrapper.unmount()
   })
 
+  it('is a white lesson screen while a task or its answer is on it, and stands on the page colour at the summary', async () => {
+    const r = await render(runView({ position: 10 }))
+    vi.mocked(api.gameRuns.answer).mockResolvedValue(answerResponse({ run: finishedRun('completed', {}, { stars: 3, score: 500 }) }))
+
+    expect(r.wrapper.classes()).toContain('bg-surface')
+    await click(r, 'option-0')
+    expect(has(r, 'game-reveal')).toBe(true)
+    expect(r.wrapper.classes()).toContain('bg-surface')
+    await click(r, 'next-btn')
+
+    expect(has(r, 'run-summary')).toBe(true)
+    expect(r.wrapper.classes()).not.toContain('bg-surface')
+    r.wrapper.unmount()
+  })
+
   it('a lost reply: the learner stays on the task with a toast; "Retry" sends the same answer again', async () => {
     const r = await render()
     vi.mocked(api.gameRuns.answer).mockRejectedValueOnce(new ApiClientError('network', 0, 'network', 'down')).mockResolvedValueOnce(answerResponse())

@@ -20,6 +20,7 @@ use Carbon\CarbonImmutable;
 use Database\Seeders\RolePermissionSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Livewire\Livewire;
 use Tests\Support\QueryLog;
 
@@ -51,7 +52,7 @@ function adp_user(string $role, bool $active = true): User
 }
 
 /** GET of the dashboard as `$user`, past the 2FA gate. */
-function adp_get(User $user, string $query = ''): Illuminate\Testing\TestResponse
+function adp_get(User $user, string $query = ''): TestResponse
 {
     return test()->actingAs($user)
         ->withSession(['2fa.web.passed_at' => now()->timestamp, '2fa.web.user_id' => $user->id])

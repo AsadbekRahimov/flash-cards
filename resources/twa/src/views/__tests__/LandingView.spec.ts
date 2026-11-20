@@ -57,6 +57,7 @@ describe('LandingView', () => {
 
     expect(wrapper.router.currentRoute.value.name).toBe('landing')
     expect(wrapper.text()).toContain('Эта страница работает только внутри Telegram Web App')
+    expect(wrapper.get('[data-testid=landing-outside]').classes()).toContain('text-muted')
   })
 
   it('explains in Uzbek too', async () => {

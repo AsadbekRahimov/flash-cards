@@ -46,9 +46,9 @@ describe('OpponentStatus', () => {
     expect(w.get('[data-testid=player-name]').text()).toBe('Dilnoza')
   })
 
-  it('the learner’s own avatar is in the accent colour', () => {
-    expect(render('ready', 'Вы', true).html()).toContain('bg-accent')
-    expect(render('ready', 'Вы', false).html()).not.toContain('bg-accent ')
+  it('the learner’s own avatar is in the primary colour', () => {
+    expect(render('ready', 'Вы', true).html()).toContain('bg-primary')
+    expect(render('ready', 'Вы', false).html()).not.toContain('bg-primary')
   })
 
   it('cuts a long name with an ellipsis instead of pushing the chip out', () => {

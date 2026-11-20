@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
 import { useI18n } from '@/i18n'
 
@@ -33,11 +32,8 @@ const text = computed(() => {
 
 <template>
   <BottomSheet :label="title" data-testid="leave-confirm" :data-variant="variant" @close="emit('stay')">
-    <header class="flex flex-col items-center gap-2 pt-1 text-center">
-      <span class="flex size-14 items-center justify-center rounded-full bg-warning-soft text-warning-ink">
-        <AppIcon :name="variant === 'match' ? 'flag' : 'exclamation-triangle'" solid :size="28" />
-      </span>
-      <h2 class="text-[22px] leading-7 font-bold" data-testid="leave-title">{{ title }}</h2>
+    <header class="flex flex-col gap-1.5 pt-1 pr-10">
+      <h2 class="text-[22px] leading-7 font-semibold" data-testid="leave-title">{{ title }}</h2>
       <p class="text-[15px] leading-5" data-testid="leave-text">{{ text }}</p>
     </header>
 

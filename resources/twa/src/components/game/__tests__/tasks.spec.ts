@@ -50,6 +50,8 @@ describe('ChoiceTask', () => {
 
     expect(wrapper.emitted('answer')).toEqual([[{ option_id: 'o2' }]])
     expect(wrapper.get('[data-testid=option-1]').attributes('data-state')).toBe('selected')
+    // the other options step back (`.option[data-state=dimmed]`), as on the screen of a question once it is answered
+    expect(wrapper.get('[data-testid=option-0]').attributes('data-state')).toBe('dimmed')
     expect(wrapper.get('[data-testid=option-0]').attributes('disabled')).toBeDefined()
   })
 

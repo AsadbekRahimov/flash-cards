@@ -4151,3 +4151,23 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `finished.home` | «Bugun» ekraniga | К экрану «Сегодня» |
 | `error.closed.today`, `error.forbidden.today` | «Bugun» ekranini ochib bo'lmadi. Ilovani yoping va qayta oching. | Не удалось открыть экран «Сегодня». Закройте приложение и откройте снова. |
 | `decks.activate.text` | … Kursni «Kurs» bo'limida qaytarishingiz mumkin. | … Вернуть курс можно во вкладке «Курс». |
+
+## Редизайн Mini App: экран курса и итоги экзамена (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`, ключи `course.module_of`, `course.module_prev`, `course.module_next`, `course.here`, `course.learn_lesson`, `course.lesson_done`, `result.stat.*`)
+
+Экран курса показывает один модуль за раз: над названием модуля — «модуль N из M», под уроками — переход к соседнему модулю. Текущий урок выделен меткой «вы здесь» и кнопкой «Учить урок»; пройденный — галочкой, которую экранный диктор читает как «Пройден». Итоги экзамена и теста недели — три числа в карточке, под каждым короткая подпись строчными буквами («верно из 12», «результат», «без ответа»). Прошу проверить: порядок «{number}-modul, jami {total} ta», «siz shu yerdasiz» (строчными, как бейдж), «{total} tadan to'g'ri» и «{total} tadan o'rin» как подписи под числом. Ключи `course.continue`, `result.quiz_score`, `result.quiz_percent`, `result.quiz_unanswered`, `result.mock_score`, `result.mock_unanswered`, `result.rank` удалены (больше не используются).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `course.module_of` | {number}-modul, jami {total} ta | Модуль {number} из {total} |
+| `course.module_prev` | Oldingi modul: {module} | Предыдущий модуль: {module} (имя кнопки для экранного диктора) |
+| `course.module_next` | Keyingi modul: {module} | Следующий модуль: {module} (имя кнопки для экранного диктора) |
+| `course.here` | siz shu yerdasiz | вы здесь |
+| `course.learn_lesson` | Darsni o'rganish | Учить урок |
+| `course.lesson_done` | Tugallangan | Пройден (урок; читает экранный диктор) |
+| `result.stat.correct` | {total} tadan to'g'ri | верно из {total} (подпись под числом верных ответов) |
+| `result.stat.percent` | natija | результат (подпись под процентом) |
+| `result.stat.unanswered` | javobsiz | без ответа (подпись под числом) |
+| `result.stat.score` | ball | баллы (подпись под числом баллов) |
+| `result.stat.place` | {total} tadan o'rin | место из {total} (подпись под местом) |

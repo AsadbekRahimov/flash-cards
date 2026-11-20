@@ -252,11 +252,11 @@ onBeforeUnmount(() => {
       <EmptyState v-if="detail.stages.length === 0" icon="book-open" :text="t('course.no_lessons')" data-testid="no-lessons" />
 
       <section v-if="shownStage" class="mt-7" :data-testid="`stage-${shownStage.number}`">
-        <p class="text-[13px] leading-[18px] text-muted" data-testid="stage-of">
+        <!-- "Module 2 of 20" above the name; a module without a name of its own is just "Module N" (the heading), no second number. -->
+        <p v-if="stageTitle(shownStage) !== null" class="mb-1 text-[13px] leading-[18px] text-muted" data-testid="stage-of">
           {{ t('course.module_of', { number: shownStage.number, total: detail.stages.length }) }}
         </p>
-        <!-- The number is the eyebrow; a module without a name of its own is "Module N" here too, in the language of the reader. -->
-        <h2 class="mt-1 text-[22px] leading-7 font-semibold break-words">{{ stageHeading(shownStage) }}</h2>
+        <h2 class="text-[22px] leading-7 font-semibold break-words">{{ stageHeading(shownStage) }}</h2>
         <div class="mt-2.5 flex items-center gap-3">
           <ProgressLine
             :value="progressPercent(shownStage.progress)"

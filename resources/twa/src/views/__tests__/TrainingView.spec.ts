@@ -376,16 +376,28 @@ describe('TrainingView — header and states', () => {
     progress: { done: 7, total: 20 },
   })
 
-  it('has a round ✕, the progress bar and the counter "7 / 20"', async () => {
+  it('has a 44 px ✕, a thin line of progress and the counter "7 / 20" in mono (docs/design Question)', async () => {
     vi.mocked(api.training.start).mockResolvedValue(withLesson({ stage: 2, lesson: 4, title: null }))
     const { wrapper } = await render(1)
 
     const close = wrapper.get('[data-testid=close-btn]')
     expect(close.attributes('aria-label')).toBe('Закрыть')
+    expect(close.classes()).toContain('size-11')
     expect(close.findComponent(AppIcon).props('name')).toBe('x-mark')
-    expect(wrapper.get('[data-testid=progress]').text()).toBe('7 / 20')
-    expect(wrapper.get('[data-testid=progress-bar]').classes()).toContain('progress')
-    expect(wrapper.get('[data-testid=progress-fill]').attributes('style')).toContain('width: 35%')
+    const counter = wrapper.get('[data-testid=progress]')
+    expect(counter.text()).toBe('7 / 20')
+    expect(counter.classes()).toEqual(expect.arrayContaining(['font-mono', 'text-muted']))
+    const bar = wrapper.get('[data-testid=progress-bar]')
+    expect(bar.classes()).toEqual(expect.arrayContaining(['progress', 'h-[3px]']))
+    expect(bar.get('.progress-fill').classes()).toContain('progress-primary')
+    expect(bar.get('.progress-fill').attributes('style')).toContain('width: 35%')
+  })
+
+  it('is a white screen: the lesson stands on the card colour, not on the grey page', async () => {
+    vi.mocked(api.training.start).mockResolvedValue(withLesson(null))
+    const { wrapper } = await render(1)
+
+    expect(wrapper.get('[data-testid=training-view]').classes()).toContain('bg-surface')
   })
 
   it('names the lesson: «Module 2 · Lesson 4 · Title»', async () => {

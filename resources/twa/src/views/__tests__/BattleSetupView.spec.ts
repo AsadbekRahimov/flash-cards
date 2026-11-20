@@ -641,7 +641,7 @@ describe('BattleSetupView — the Free limit of battles', () => {
     const r = await render()
 
     expect(line(r).element.tagName).toBe('P')
-    expect(line(r).classes()).toEqual(expect.arrayContaining(['text-tg-hint', 'text-[13px]', 'text-center']))
+    expect(line(r).classes()).toEqual(expect.arrayContaining(['text-muted', 'text-[13px]', 'text-center']))
     expect(line(r).classes()).not.toContain('truncate')
     expect(line(r).classes()).not.toContain('whitespace-nowrap')
     expect(line(r).find('.btn, .chip, [role=alert], svg').exists()).toBe(false)

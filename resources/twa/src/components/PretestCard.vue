@@ -53,27 +53,32 @@ function onSkip(): void {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="pretest-card">
-    <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-4">
-      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
-        <p class="text-[15px] leading-5 font-medium text-tg-subtitle">{{ t('exercise.pretest.title') }}</p>
-        <div class="flex items-center gap-3">
-          <h2 class="text-3xl leading-9 font-bold break-words" data-testid="word">{{ card.word }}</h2>
+    <div class="flex flex-col px-5 pb-4">
+      <!-- The question (docs/design Question): the word large on the white screen, its transcription and the speaker under it. -->
+      <div class="mt-14 flex flex-col items-center gap-2.5 text-center short:mt-5 short:gap-1.5">
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('exercise.pretest.title') }}</p>
+        <h2
+          class="max-w-full text-[46px] leading-[52px] font-semibold tracking-[-0.6px] break-words short:text-[36px] short:leading-[42px]"
+          lang="en"
+          data-testid="word"
+        >
+          {{ card.word }}
+        </h2>
+        <div class="flex items-center gap-1">
+          <span v-if="card.transcription" class="font-ipa text-[15px] leading-5 text-muted" data-testid="transcription">{{ card.transcription }}</span>
           <button
             type="button"
-            class="btn btn-tinted size-11 min-h-0 shrink-0 rounded-full p-0"
+            class="flex size-11 shrink-0 items-center justify-center rounded-full text-accent active:bg-fill"
             :aria-label="t('card.speak')"
             data-testid="speak-btn"
             @click="onSpeak"
           >
-            <AppIcon name="speaker-wave" :size="22" />
+            <AppIcon name="speaker-wave" :size="20" />
           </button>
         </div>
-        <p v-if="card.transcription" class="text-[17px] leading-[22px] text-tg-hint" data-testid="transcription">
-          {{ card.transcription }}
-        </p>
-      </article>
+      </div>
 
-      <div class="flex flex-col gap-2.5" role="group" :aria-label="t('exercise.pretest.title')">
+      <div class="mt-11 flex flex-col gap-2.5 short:mt-4 short:gap-2" role="group" :aria-label="t('exercise.pretest.title')">
         <QuizOption
           v-for="(label, index) in options"
           :key="index"
@@ -86,10 +91,11 @@ function onSkip(): void {
       </div>
     </div>
 
-    <StickyActions>
+    <!-- "I don't know" is a quiet text button (docs/design Question): there is no main button, a pick is the answer. -->
+    <StickyActions surface>
       <button
         type="button"
-        class="btn btn-tinted btn-lg btn-block"
+        class="btn btn-plain btn-lg btn-block text-[15px] text-muted"
         :disabled="disabled || picked !== null"
         data-testid="skip-btn"
         @click="onSkip"

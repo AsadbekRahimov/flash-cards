@@ -200,21 +200,38 @@ describe('PaywallSheet', () => {
   })
 
   describe('the sheet', () => {
-    it('shows the sparkles icon, the title and the reason in a header, and what Pro gives (compact) while Pro is not on sale', async () => {
+    it('shows "LexiFlow Pro" above the title, the reason as the title, the lead, and the three main things Pro gives while Pro is not on sale', async () => {
       const w = await render(me(), { reason: 'quota' })
 
       const header = w.get('[data-testid=paywall] header')
-      expect(header.find('svg').exists()).toBe(true)
-      expect(header.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
+      expect(header.find('svg').exists()).toBe(false)
+      expect(header.get('[data-testid=paywall-eyebrow]').text()).toBe('LexiFlow Pro')
+      expect(header.get('[data-testid=paywall-title]').text()).toBe('Новые слова на сегодня закончились')
       expect(header.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
       expect(header.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
-      expect(w.findAll('[data-testid=benefit]').map((b) => b.text())).toEqual([
-        'Новые слова без дневного лимита',
-        'Написание слова и пропуски в примерах',
-        'До 20 своих колод по 2000 слов',
-        'Заморозки серии: пропуск дня не обрывает серию',
-        'Пробные тесты IELTS и SAT',
+      expect(w.findAll('[data-testid=benefit]').map((b) => `${b.get('[data-testid=benefit-name]').text()} | ${b.get('[data-testid=benefit-note]').text()}`)).toEqual([
+        'Новые слова | без лимита вместо 20 в день',
+        'Заморозка серии | пропуск дня не обрывает серию',
+        'Упражнения | написание слова и пропуски в примерах',
       ])
+    })
+
+    it('titles the sheet by the place it was opened from', async () => {
+      const titles: Record<string, string> = {
+        info: 'Что будет в Pro',
+        decks: 'Лимит колод бесплатного тарифа',
+        streak_freeze: 'Сохраните серию',
+        exam_simulator: 'Пробные тесты IELTS и SAT',
+        practice: 'Практика — в Pro',
+        practice_limit: 'Больше практики с Pro',
+        game: 'Караван без ограничений',
+      }
+      for (const [reason, title] of Object.entries(titles)) {
+        setActivePinia(createPinia())
+        const w = await render(me(), { reason: reason as PaywallReason })
+
+        expect(w.get('[data-testid=paywall-title]').text()).toBe(title)
+      }
     })
 
     // The line about practice and battles is the server's word, `practice.pro_promise` of `/me` (docs/18 §3): `both`, `solo`, or `none` - no line.
@@ -227,13 +244,13 @@ describe('PaywallSheet', () => {
         pro_promise: 'both',
         ...overrides,
       })
-      const benefits = (w: Awaited<ReturnType<typeof render>>) => w.findAll('[data-testid=benefit]').map((b) => b.text())
+      const benefits = (w: Awaited<ReturnType<typeof render>>) => w.findAll('[data-testid=benefit]').map((b) => b.attributes('data-benefit'))
 
-      it('is the second of six when the practice is available to the learner', async () => {
+      it('is the third of the three when the practice is available to the learner', async () => {
         const w = await render(me({ practice: practice() }), { reason: 'quota' })
 
-        expect(benefits(w)).toHaveLength(6)
-        expect(benefits(w)[1]).toBe('Практика и баттлы без дневного лимита')
+        expect(benefits(w)).toEqual(['benefits.new_words', 'benefits.freezes', 'benefits.practice'])
+        expect(w.findAll('[data-testid=benefit-name]')[2]?.text()).toBe('Практика и баттлы')
       })
 
       it('is not offered with PRACTICE_ACCESS=off, to a learner outside the pilot, or by a server that sends no practice block', async () => {
@@ -241,7 +258,7 @@ describe('PaywallSheet', () => {
           setActivePinia(createPinia())
           const w = await render(response, { reason: 'quota' })
 
-          expect(benefits(w)).toHaveLength(5)
+          expect(benefits(w)).toEqual(['benefits.new_words', 'benefits.freezes', 'benefits.exercises'])
           expect(w.text()).not.toContain('Практика и баттлы')
         }
       })
@@ -249,28 +266,27 @@ describe('PaywallSheet', () => {
       it('says the practice alone when the server says `solo`, and nothing when it says `none` although the practice is open', async () => {
         const solo = await render(me({ practice: practice({ battle: false, pro_promise: 'solo' }) }), { reason: 'quota' })
 
-        expect(benefits(solo)).toHaveLength(6)
-        expect(benefits(solo)[1]).toBe('Практика без дневного лимита')
+        expect(benefits(solo)[2]).toBe('benefits.practice_solo')
 
         setActivePinia(createPinia())
         const none = await render(me({ practice: practice({ pro_promise: 'none' }) }), { reason: 'quota' })
 
-        expect(benefits(none)).toHaveLength(5)
+        expect(benefits(none)).not.toContain('benefits.practice')
+        expect(benefits(none)).not.toContain('benefits.practice_solo')
         expect(none.text()).not.toContain('Практика и баттлы')
-        expect(none.text()).not.toContain('Практика без дневного лимита')
       })
 
       it('stays when the practice is behind Pro: it is available, and that is what Pro opens', async () => {
         const w = await render(me({ practice: practice({ pro_required: true }) }), { reason: 'practice' })
 
-        expect(benefits(w)).toContain('Практика и баттлы без дневного лимита')
+        expect(benefits(w)).toContain('benefits.practice')
       })
 
       it('is said in Uzbek too', async () => {
         setLocale('uz')
         const w = await render(me({ practice: practice() }), { reason: 'quota' })
 
-        expect(benefits(w)).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
+        expect(w.findAll('[data-testid=benefit-name]')[2]?.text()).toBe('Mashqlar va bellashuvlar')
       })
     })
 
@@ -461,7 +477,7 @@ describe('PaywallSheet', () => {
     setLocale('uz')
     const w = await render(me({ contact: '@lexiflow_help' }), { reason: 'quota' })
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe("Pro'da nimalar bo'ladi")
+    expect(w.get('[data-testid=paywall-title]').text()).toBe("Bugungi yangi so'zlar tugadi")
     expect(w.get('[data-testid=paywall-free]').text()).toBe("Hozir sizda bepul tarif: kuniga 20 ta yangi so'z, takrorlash cheklovsiz.")
     expect(w.get('[data-testid=paywall-contact]').text()).toContain("Markazda o'qiysizmi?")
     expect(w.get('[data-testid=paywall-close]').text()).toBe('Tushunarli')

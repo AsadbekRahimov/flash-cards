@@ -32,13 +32,14 @@ describe('InitialAvatar', () => {
     expect(render({ name: 'A', size: 'sm' }).classes()).toContain('size-8')
   })
 
-  it('is neutral by default and accent-filled for the learner themself', () => {
+  it('is quiet by default and filled with the primary colour for the learner themself, in tokens of the palette', () => {
     const neutral = render({ name: 'A' })
-    expect(neutral.classes()).toContain('bg-track')
-    expect(neutral.classes()).not.toContain('bg-accent')
+    expect(neutral.classes()).toEqual(expect.arrayContaining(['bg-fill', 'text-muted']))
+    expect(neutral.classes()).not.toContain('bg-primary')
 
     const mine = render({ name: 'A', accent: true })
-    expect(mine.classes()).toContain('bg-accent')
-    expect(mine.classes()).not.toContain('bg-track')
+    expect(mine.classes()).toEqual(expect.arrayContaining(['bg-primary', 'text-on-primary']))
+    expect(mine.classes()).not.toContain('bg-fill')
+    expect(mine.classes().some((c) => c.includes('tg-'))).toBe(false)
   })
 })

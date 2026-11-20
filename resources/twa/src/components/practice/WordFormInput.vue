@@ -97,13 +97,13 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="word-form-input" :data-mode="mode">
-    <div class="flex flex-1 flex-col gap-3 px-4 pt-4 pb-4 [@media(max-height:560px)]:gap-2 [@media(max-height:560px)]:pt-2">
-      <article class="card flex flex-col items-center gap-3 px-5 py-5 text-center [@media(max-height:560px)]:gap-2 [@media(max-height:560px)]:py-3">
-        <p class="text-[15px] leading-5 font-medium text-tg-subtitle [@media(max-height:560px)]:hidden" data-testid="word-form-instruction">
+    <div class="flex flex-1 flex-col gap-3 px-5 pt-4 pb-4 [@media(max-height:560px)]:gap-2 [@media(max-height:560px)]:pt-2">
+      <article class="flex flex-col items-center gap-3 px-5 py-5 text-center [@media(max-height:560px)]:gap-2 [@media(max-height:560px)]:py-3">
+        <p class="text-[13px] leading-[18px] text-muted [@media(max-height:560px)]:hidden" data-testid="word-form-instruction">
           {{ t('practice.word_form.instruction') }}
         </p>
 
-        <h2 class="max-w-full font-bold break-words" :class="sentenceClass" lang="en" data-testid="word-form-text">
+        <h2 class="max-w-full font-semibold break-words" :class="sentenceClass" lang="en" data-testid="word-form-text">
           <template v-if="parts">
             <span>{{ parts.before }}</span>
             <span
@@ -125,9 +125,9 @@ onBeforeUnmount(() => {
 
         <!-- The word to make the form of: a chip with the word as it is (its own case: a small-caps "I" is all but invisible), named for a screen reader. -->
         <p class="flex flex-wrap items-center justify-center gap-2" data-testid="word-form-base-row">
-          <span class="text-[13px] leading-[18px] text-tg-hint">{{ t('practice.word_form.base_hint') }}</span>
+          <span class="text-[13px] leading-[18px] text-muted">{{ t('practice.word_form.base_hint') }}</span>
           <span
-            class="chip chip-accent h-8 px-3 text-[17px] leading-[22px] font-bold"
+            class="chip chip-accent h-8 px-3 text-[17px] leading-[22px] font-semibold"
             lang="en"
             data-testid="word-form-base"
           >{{ element.base }}</span>
@@ -157,9 +157,9 @@ onBeforeUnmount(() => {
       <InlineAlert v-if="retrying" tone="warning" :message="t('practice.session.resend_note')" data-testid="word-form-resend-note" />
     </div>
 
-    <StickyActions>
+    <StickyActions surface>
       <div class="flex items-stretch gap-2">
-        <button type="button" class="btn btn-plain shrink-0" :disabled="!canSkip" data-testid="skip-btn" @click="skip">
+        <button type="button" class="btn btn-plain shrink-0 text-muted" :disabled="!canSkip" data-testid="skip-btn" @click="skip">
           {{ t('exercise.skip') }}
         </button>
         <button

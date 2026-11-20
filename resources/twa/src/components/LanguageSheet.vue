@@ -32,7 +32,7 @@ onMounted(() => {
 <template>
   <BottomSheet :label="LANGUAGE_TITLE" data-testid="language-sheet" @close="emit('close')">
     <div class="space-y-3 pt-2 pr-10">
-      <h2 class="text-[22px] leading-7 font-bold" data-testid="language-title">{{ LANGUAGE_TITLE }}</h2>
+      <h2 class="text-[22px] leading-7 font-semibold" data-testid="language-title">{{ LANGUAGE_TITLE }}</h2>
     </div>
 
     <ListGroup v-if="options.length > 0" role="radiogroup" :aria-label="LANGUAGE_TITLE" data-testid="language-list">
@@ -55,7 +55,7 @@ onMounted(() => {
     <LoadingState v-else-if="status === 'idle' || status === 'loading'" variant="list" />
 
     <div v-else class="space-y-3 pb-2 text-center">
-      <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('error.generic') }}</p>
+      <p class="text-[15px] leading-5 text-muted">{{ t('error.generic') }}</p>
       <button type="button" class="btn btn-tinted btn-block" data-testid="language-retry" @click="ensure">{{ t('common.retry') }}</button>
     </div>
   </BottomSheet>

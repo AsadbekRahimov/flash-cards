@@ -202,10 +202,11 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="root" class="flex flex-1 flex-col" :data-mode="mode" data-testid="sentence-builder">
-    <div class="flex flex-1 flex-col gap-3 px-4 pt-4 pb-4" :class="{ 'short:gap-2 short:pt-2 short:pb-3': tight }">
-      <article class="card flex flex-col items-center gap-2 px-5 py-5 text-center" :class="{ 'short:gap-1 short:px-4 short:py-3': tight }">
-        <p class="text-[15px] leading-5 font-medium text-tg-subtitle">{{ modeTitle('sentence') }}</p>
-        <h2 class="text-2xl leading-8 font-bold break-words" data-testid="sentence-prompt">{{ element.prompt }}</h2>
+    <div class="flex flex-1 flex-col gap-3 px-5 pt-4 pb-4" :class="{ 'short:gap-2 short:pt-2 short:pb-3': tight }">
+      <!-- The task on the white screen, no card around it (docs/design Question); the paddings are the ones of the old card, so the short window keeps its room. -->
+      <article class="flex flex-col items-center gap-2 px-5 py-5 text-center" :class="{ 'short:gap-1 short:px-4 short:py-3': tight }">
+        <p class="text-[13px] leading-[18px] text-muted">{{ modeTitle('sentence') }}</p>
+        <h2 class="text-2xl leading-8 font-semibold break-words" data-testid="sentence-prompt">{{ element.prompt }}</h2>
       </article>
 
       <!-- The line: wraps onto new rows, never scrolls sideways. On a short window (320 x 568) it starts lower: the bank must come up above the sticky block. -->
@@ -228,13 +229,13 @@ onBeforeUnmount(() => {
             </button>
           </li>
         </ul>
-        <p v-if="line.length === 0" class="my-auto text-center text-[15px] leading-5 text-tg-hint" data-testid="sentence-empty">
+        <p v-if="line.length === 0" class="my-auto text-center text-[15px] leading-5 text-muted" data-testid="sentence-empty">
           {{ t('practice.sentence.empty') }}
         </p>
       </div>
 
       <div class="flex items-center justify-between gap-2">
-        <p :id="progressId" class="min-w-0 px-1 text-[15px] leading-5 text-tg-subtitle" role="status" aria-live="polite" data-testid="sentence-progress">
+        <p :id="progressId" class="min-w-0 px-1 text-[13px] leading-[18px] text-muted" role="status" aria-live="polite" data-testid="sentence-progress">
           {{ t('practice.sentence.progress', { done: order.length, total }) }}
         </p>
         <button
@@ -258,7 +259,7 @@ onBeforeUnmount(() => {
         <div
           v-for="fragment in element.fragments"
           :key="fragment.id"
-          class="max-w-full min-w-0 rounded-xl"
+          class="max-w-full min-w-0 rounded-control"
           :class="{ 'bg-track': placed.has(fragment.id) }"
         >
           <button
@@ -279,7 +280,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- On a short window the two buttons are one row (skip first, the check wide), as in the dictation: the block is 80 px, not 136, and the bank stays in view. -->
-    <StickyActions class="[@media(max-height:600px)]:flex-row-reverse">
+    <StickyActions surface class="[@media(max-height:600px)]:flex-row-reverse">
       <button
         ref="checkButton"
         type="button"
@@ -293,7 +294,7 @@ onBeforeUnmount(() => {
       </button>
       <button
         type="button"
-        class="btn btn-plain btn-block [@media(max-height:600px)]:w-auto [@media(max-height:600px)]:shrink-0"
+        class="btn btn-plain btn-block text-muted [@media(max-height:600px)]:w-auto [@media(max-height:600px)]:shrink-0"
         :disabled="!canSkip"
         data-testid="skip-btn"
         @click="skip"

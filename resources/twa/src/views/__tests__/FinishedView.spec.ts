@@ -6,7 +6,6 @@ import FinishedView from '../FinishedView.vue'
 import { api } from '@/api'
 import { setLocale } from '@/i18n'
 import { ApiClientError } from '@/api/client'
-import { ICONS } from '@/components/ui/icons'
 import { useTodayStore } from '@/stores/today'
 import { useAchievementsStore } from '@/stores/achievements'
 import { useTrainingStore } from '@/stores/training'
@@ -162,7 +161,7 @@ describe('FinishedView', () => {
       const btn = w.get('[data-testid=courses-btn]')
       expect(btn.text()).toBe('Выбрать курс')
       expect(btn.attributes('href')).toBe('/courses')
-      expect(btn.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
+      expect(btn.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
       expect(w.find('[data-testid=home-btn]').exists()).toBe(true)
 
       for (const reason of ['new_quota_exhausted', 'lesson_complete', 'session_cap', null]) {
@@ -199,14 +198,23 @@ describe('FinishedView', () => {
   })
 
   describe('look and buttons', () => {
-    it('celebrates with a success icon and a title, and is an immersive screen of its own', () => {
+    it('is calm (docs/design Finish): an eyebrow and a title, no icon of success, and an immersive screen of its own', () => {
       const w = render(5, 1)
 
+      const eyebrow = w.get('[data-testid=eyebrow]')
+      expect(eyebrow.text()).toBe('Занятие завершено')
+      expect(eyebrow.classes()).toContain('text-success-ink')
       expect(w.get('h1').text()).toBe('Отлично!')
-      const icon = w.get('[data-testid=finished-icon]')
-      expect(icon.classes()).toEqual(expect.arrayContaining(['bg-success-soft', 'text-success']))
-      expect(icon.get('path').attributes('d')).toBe(ICONS['check-circle'].solid[0]?.d)
+      expect(w.get('h1').classes()).toEqual(expect.arrayContaining(['text-[32px]', 'font-semibold']))
+      expect(w.find('[data-testid=finished-icon]').exists()).toBe(false)
       expect(w.find('[data-testid=tab-bar]').exists()).toBe(false)
+    })
+
+    it('keeps the eyebrow muted for an empty session, and names the round of hard words in it', () => {
+      expect(render(0, 0, 'nothing_due').get('[data-testid=eyebrow]').classes()).toContain('text-muted')
+
+      useTrainingStore().mode = 'hard_review'
+      expect(render(5, 1).get('[data-testid=eyebrow]').text()).toBe('Раунд трудных слов')
     })
 
     it('buzzes the success haptic when it opens', () => {
@@ -215,11 +223,11 @@ describe('FinishedView', () => {
       expect(telegram.notificationHaptic).toHaveBeenCalledWith('success')
     })
 
-    it('leads home with the one primary button and closes the app with a quiet one', async () => {
+    it('leads home with the one primary button, "Done", and closes the app with a quiet one', async () => {
       const w = render(5, 1)
       const home = w.get('[data-testid=home-btn]')
 
-      expect(home.text()).toBe('К экрану «Сегодня»')
+      expect(home.text()).toBe('Готово')
       expect(home.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
       expect(w.findAll('.btn-primary')).toHaveLength(1)
 
@@ -274,10 +282,11 @@ describe('FinishedView', () => {
 
       const practice = w.get('[data-testid=practice-btn]')
       expect(practice.text()).toBe('Поиграть: закрепить слова')
-      expect(practice.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
+      // A second action is a line of text (docs/design Finish), no icon.
+      expect(practice.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain', 'btn-block']))
       expect(practice.classes()).not.toContain('btn-primary')
       expect(practice.attributes('href')).toBe('/practice/english-a1?lesson=41&from=finished')
-      expect(practice.get('path').attributes('d')).toBe(ICONS['puzzle-piece'].outline[0]?.d)
+      expect(practice.find('svg').exists()).toBe(false)
     })
 
     it('says the same after a daily review, with the hub of the course and no lesson in the address', () => {
@@ -301,13 +310,13 @@ describe('FinishedView', () => {
       expect(route.query).toEqual({ lesson: '41', from: 'finished' })
     })
 
-    it('does not compete with the main action: "На главную" is the only primary button without another round, and comes after the play button', () => {
+    it('does not compete with the main action: "Done" is the only primary button, and the play line comes under it', () => {
       useTrainingStore().summary = summary({ practice_entry: entry(41) })
       const w = render(5, 1)
 
       expect(w.findAll('.btn-primary')).toHaveLength(1)
       const order = w.findAll('[data-testid=home-btn], [data-testid=practice-btn], [data-testid=close-btn]').map((b) => b.attributes('data-testid'))
-      expect(order).toEqual(['practice-btn', 'home-btn', 'close-btn'])
+      expect(order).toEqual(['home-btn', 'practice-btn', 'close-btn'])
       expect(w.get('[data-testid=home-btn]').classes()).toContain('btn-primary')
     })
 
@@ -324,7 +333,7 @@ describe('FinishedView', () => {
       await flushPromises()
 
       const order = w.findAll('[data-testid=quota-card], [data-testid=home-btn], [data-testid=practice-btn], [data-testid=close-btn]').map((b) => b.attributes('data-testid'))
-      expect(order).toEqual(['quota-card', 'practice-btn', 'home-btn', 'close-btn'])
+      expect(order).toEqual(['quota-card', 'home-btn', 'practice-btn', 'close-btn'])
       expect(w.findAll('.btn-primary')).toHaveLength(1)
     })
 
@@ -359,7 +368,7 @@ describe('FinishedView', () => {
       return training
     }
 
-    it('says the round is passed, and makes "Ещё раунд" the main button, above the play button and "На главную"', () => {
+    it('says the round is passed, and offers "Ещё раунд" as the line of text right under "Done" (docs/design Finish), above the play line', () => {
       afterRound()
       useTrainingStore().summary = summary({ practice_entry: { course: 'english-a1', lesson_id: null } })
       const w = render(12, 1, 'sprint_complete')
@@ -367,11 +376,11 @@ describe('FinishedView', () => {
       expect(w.get('[data-testid=reason]').text()).toBe('Раунд пройден')
       const next = w.get('[data-testid=next-round-btn]')
       expect(next.text()).toBe('Ещё раунд')
-      expect(next.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
+      expect(next.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain', 'btn-block']))
       const order = w.findAll('[data-testid=next-round-btn], [data-testid=practice-btn], [data-testid=home-btn], [data-testid=close-btn]').map((b) => b.attributes('data-testid'))
-      expect(order).toEqual(['next-round-btn', 'practice-btn', 'home-btn', 'close-btn'])
+      expect(order).toEqual(['home-btn', 'next-round-btn', 'practice-btn', 'close-btn'])
       expect(w.findAll('.btn-primary')).toHaveLength(1)
-      expect(w.get('[data-testid=home-btn]').classes()).not.toContain('btn-primary')
+      expect(w.get('[data-testid=home-btn]').classes()).toContain('btn-primary')
     })
 
     it('has no such button when the server did not say the learner can go on, or the reason is another one', () => {
@@ -455,13 +464,13 @@ describe('FinishedView', () => {
     })
 
     describe('what grew (stages)', () => {
-      it('lists the new words, the words that moved up and the learned ones, right under the three tiles and above the buttons', () => {
+      it('lists the new words, the words that moved up and the learned ones, right under the three numbers and above the buttons', () => {
         afterRound(true, summary({ stages: { graduated: 6, promoted: 2, mastered: 1 } }))
         const w = render(12, 1, 'sprint_complete')
 
         expect(w.get('[data-testid=stages]').text()).toBe('Новых слов: 6 · Поднялись: 2 · Выучено: 1')
         const order = w.findAll('[data-testid=stats], [data-testid=stages], [data-testid=next-round-btn], [data-testid=home-btn]').map((b) => b.attributes('data-testid'))
-        expect(order).toEqual(['stats', 'stages', 'next-round-btn', 'home-btn'])
+        expect(order).toEqual(['stats', 'stages', 'home-btn', 'next-round-btn'])
       })
 
       it('is not there when only words graduated: the tile of the new words says the same', () => {
@@ -505,12 +514,16 @@ describe('FinishedView', () => {
   })
 
   describe('numbers of the session', () => {
-    it('shows the cards, the share of right answers and the new words as three tiles when the server sent a summary', () => {
+    it('shows the cards, the share of right answers and the new words as three numbers in one card when the server sent a summary', () => {
       useTrainingStore().summary = summary({ reviewed: 20, correct: 17, new_words: 6 })
       const w = render(20, 1)
 
       const stats = w.get('[data-testid=stats]')
-      expect(stats.findAll('.card')).toHaveLength(3)
+      // docs/design Finish: one card, three columns, lines between them.
+      expect(stats.classes()).toEqual(expect.arrayContaining(['grid-cols-3', 'border', 'border-hairline', 'bg-surface']))
+      expect(stats.findAll('.card')).toHaveLength(0)
+      expect(stats.findAll(':scope > div')).toHaveLength(3)
+      expect(stats.findAll(':scope > div.border-l.border-divider')).toHaveLength(2)
       expect(w.get('[data-testid=stat-reviewed]').text()).toBe('20')
       expect(w.get('[data-testid=stat-correct]').text()).toBe('85%')
       expect(w.get('[data-testid=stat-new]').text()).toBe('6')
@@ -663,7 +676,7 @@ describe('FinishedView', () => {
       const bar = w.get('[data-testid=goal] [role=progressbar]')
       expect(bar.attributes('aria-valuenow')).toBe('60')
       expect(bar.get('.progress-fill').attributes('style')).toContain('width: 60%')
-      expect(bar.classes()).not.toContain('progress-success')
+      expect(bar.get('.progress-fill').classes()).not.toContain('progress-success')
     })
 
     it('celebrates a met goal and drops the risk line', () => {
@@ -681,7 +694,7 @@ describe('FinishedView', () => {
       // A met goal is a full green bar, also when the learner did more than the target.
       const bar = w.get('[data-testid=goal] [role=progressbar]')
       expect(bar.attributes('aria-valuenow')).toBe('100')
-      expect(bar.classes()).toContain('progress-success')
+      expect(bar.get('.progress-fill').classes()).toContain('progress-success')
     })
 
     it('says "the streak is held by a run" only when the day was held by a run of Karvon (docs/05 §5b.4)', () => {
@@ -718,23 +731,25 @@ describe('FinishedView', () => {
 
       expect(w.get('[data-testid=goal-text]').text()).toBe('Kunlik maqsad: 20 tadan 12 tasi')
       expect(w.get('[data-testid=streak]').text()).toBe('3 kun ketma-ket')
-      expect(w.get('[data-testid=home-btn]').text()).toBe('«Bugun» ekraniga')
+      expect(w.get('[data-testid=home-btn]').text()).toBe('Tayyor')
     })
   })
 
-  it('shows when the next review comes, with a clock', () => {
+  it('shows when the next review comes, as the last row of the card of rows: the name on the left, when on the right', () => {
     const w = render(5, 3)
 
     expect(w.get('[data-testid=next-label]').text()).toBe('Через 3 дня')
-    const tile = w.get('[data-testid=next-label]').element.closest('section')!.querySelector('.icon-tile path')
-    expect(tile?.getAttribute('d')).toBe(ICONS.clock.outline[0]?.d)
+    expect(w.get('[data-testid=next]').text()).toContain('Следующее повторение')
+    expect(w.get('[data-testid=rows]').element.lastElementChild).toBe(w.get('[data-testid=next]').element)
+    // A row with no icon in front (docs/design Finish).
+    expect(w.get('[data-testid=next]').find('svg').exists()).toBe(false)
   })
 
   it('leads home to the Today screen', async () => {
     const w = render(5, 1)
     const home = w.get('[data-testid=home-btn]')
 
-    expect(home.text()).toBe('К экрану «Сегодня»')
+    expect(home.text()).toBe('Готово')
     expect(home.attributes('href')).toBe('/today')
     await home.trigger('click')
     await flushPromises()
@@ -817,33 +832,22 @@ describe('FinishedView', () => {
       key, title, description: '', unlocked_at: unlockedAt, shared_at: null, progress: null, share_text: null,
     })
 
-    describe('confetti', () => {
-      it('bursts once for a session that reviewed something, and goes away by itself', () => {
+    describe('no confetti (docs/design Finish: calm, no celebration)', () => {
+      it('throws nothing, whatever the session and the motion setting', () => {
         reduceMotion(false)
         vi.useFakeTimers()
         useTrainingStore().summary = summary()
         const w = render(5, 1)
 
-        const confetti = w.get('[data-testid=confetti]')
-        expect(confetti.attributes('aria-hidden')).toBe('true')
-        expect(confetti.findAll('.confetti-piece').length).toBeGreaterThanOrEqual(15)
-        expect(confetti.findAll('.confetti-piece').length).toBeLessThanOrEqual(25)
-
-        vi.advanceTimersByTime(2000)
-        return w.vm.$nextTick().then(() => expect(w.find('[data-testid=confetti]').exists()).toBe(false))
+        expect(w.find('[data-testid=confetti]').exists()).toBe(false)
+        expect(w.find('.confetti-piece').exists()).toBe(false)
       })
 
-      it('is not thrown for an empty session', () => {
-        reduceMotion(false)
-        useTrainingStore().summary = summary({ reviewed: 0, correct: 0, new_words: 0 })
+      it('still buzzes the success haptic (the sound is kept too: FinishedHardRound.spec)', () => {
+        useTrainingStore().summary = summary()
+        render(5, 1)
 
-        expect(render(0, 0, 'nothing_due').find('[data-testid=confetti]').exists()).toBe(false)
-      })
-
-      it('is not thrown with reduced motion', () => {
-        reduceMotion(true)
-
-        expect(render(5, 1).find('[data-testid=confetti]').exists()).toBe(false)
+        expect(telegram.notificationHaptic).toHaveBeenCalledWith('success')
       })
     })
 
@@ -872,42 +876,19 @@ describe('FinishedView', () => {
       })
     })
 
-    describe('the numbers count up', () => {
-      it('count from 0 to the value in about 600 ms, then stay', async () => {
+    describe('the numbers', () => {
+      it('stand still: the final values at once, no counting up', async () => {
         reduceMotion(false)
-        let now = 0
         const frames: Array<() => void> = []
-        vi.spyOn(performance, 'now').mockImplementation(() => now)
         vi.stubGlobal('requestAnimationFrame', (cb: () => void) => frames.push(cb))
-        vi.stubGlobal('cancelAnimationFrame', vi.fn())
         useTrainingStore().summary = summary({ reviewed: 20, correct: 17, new_words: 6 })
         const w = render(20, 1)
         await w.vm.$nextTick()
 
-        expect(w.get('[data-testid=stat-reviewed]').text()).toBe('0')
-        now = 300
-        frames.splice(0).forEach((frame) => frame())
-        await w.vm.$nextTick()
-        const middle = Number(w.get('[data-testid=stat-reviewed]').text())
-        expect(middle).toBeGreaterThan(0)
-        expect(middle).toBeLessThan(20)
-        now = 700
-        frames.splice(0).forEach((frame) => frame())
-        await w.vm.$nextTick()
         expect(w.get('[data-testid=stat-reviewed]').text()).toBe('20')
         expect(w.get('[data-testid=stat-correct]').text()).toBe('85%')
         expect(w.get('[data-testid=stat-new]').text()).toBe('6')
         expect(frames).toHaveLength(0)
-        vi.restoreAllMocks()
-      })
-
-      it('show the final numbers at once with reduced motion', async () => {
-        reduceMotion(true)
-        useTrainingStore().summary = summary({ reviewed: 20, correct: 17, new_words: 6 })
-        const w = render(20, 1)
-        await flushPromises()
-
-        expect(w.get('[data-testid=stat-reviewed]').text()).toBe('20')
       })
     })
 

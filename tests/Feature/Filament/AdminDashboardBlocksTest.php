@@ -17,6 +17,7 @@ use App\Filament\Widgets\WeeklyActivityWidget;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
 use App\Models\Learner;
+use App\Models\LearnerDailyStats;
 use App\Models\Organization;
 use App\Models\ProductEvent;
 use App\Models\User;
@@ -52,7 +53,7 @@ function adb_day(string $date, int $reviews, string $createdUtc, ?string $goalMe
 {
     DB::table('learner_daily_stats')->insert([
         'learner_id' => Learner::factory()->create()->id,
-        'date' => (new App\Models\LearnerDailyStats)->fromDateTime($date),
+        'date' => (new LearnerDailyStats)->fromDateTime($date),
         'reviews_count' => $reviews,
         'new_words_count' => $newWords,
         'goal_met_at' => $goalMetUtc,

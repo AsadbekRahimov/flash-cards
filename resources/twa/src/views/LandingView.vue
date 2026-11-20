@@ -20,10 +20,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="flex-1 flex items-center justify-center p-6">
-    <div class="max-w-sm text-center space-y-4">
-      <h1 class="text-2xl font-bold">LexiFlow</h1>
-      <p v-if="inTelegram === false" class="text-tg-hint">
+  <section class="flex flex-1 items-center justify-center bg-page px-5 py-6">
+    <div class="max-w-sm space-y-3 text-center">
+      <h1 class="text-[26px] leading-[30px] font-semibold tracking-[-0.2px]">LexiFlow</h1>
+      <p v-if="inTelegram === false" class="text-base leading-[22px] text-muted" data-testid="landing-outside">
         {{ t('landing.outside_telegram') }}
       </p>
     </div>

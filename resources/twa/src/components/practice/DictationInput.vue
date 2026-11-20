@@ -152,23 +152,26 @@ function skip(): void {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="dictation-input" :data-mode="mode">
-    <div class="flex flex-1 flex-col gap-3 px-4 pt-3 pb-4 [@media(max-height:560px)]:gap-2 [@media(max-height:560px)]:pt-2">
-      <!-- On a short window (the keyboard is up) the card becomes one row: the circle, then the tiles - the field stays in view. -->
+    <div class="flex flex-1 flex-col gap-3 px-5 pt-3 pb-4 [@media(max-height:560px)]:gap-2 [@media(max-height:560px)]:pt-2">
+      <!-- On a short window (the keyboard is up) the block becomes one row: the circle, then the tiles - the field stays in view. -->
       <article
-        class="card flex flex-col items-center gap-2 px-5 py-4 text-center [@media(max-height:560px)]:flex-row [@media(max-height:560px)]:gap-4 [@media(max-height:560px)]:py-2 [@media(max-height:560px)]:text-left"
+        class="flex flex-col items-center gap-2 px-5 py-4 text-center [@media(max-height:560px)]:flex-row [@media(max-height:560px)]:gap-4 [@media(max-height:560px)]:py-2 [@media(max-height:560px)]:text-left"
         data-testid="dictation-card"
       >
-        <p class="text-[15px] leading-5 font-medium text-tg-subtitle [@media(max-height:560px)]:hidden" data-testid="dictation-title">
+        <p class="text-[13px] leading-[18px] text-muted [@media(max-height:560px)]:hidden" data-testid="dictation-title">
           {{ modeTitle('dictation') }}
         </p>
 
         <button
           type="button"
-          class="flex size-20 shrink-0 items-center justify-center rounded-full transition-[transform,box-shadow] duration-150 active:scale-95 disabled:opacity-60 [@media(max-height:560px)]:size-16"
-          :class="[
-            failed ? 'bg-warning-soft text-warning-ink' : 'bg-accent text-tg-button-text',
-            playing ? 'shadow-[0_0_0_6px_var(--app-accent-soft)]' : '',
-          ]"
+          class="flex size-20 shrink-0 items-center justify-center rounded-full border transition-[transform,background-color,border-color] duration-150 active:scale-95 disabled:opacity-60 [@media(max-height:560px)]:size-16"
+          :class="
+            failed
+              ? 'border-warning-line bg-warning-soft text-warning-ink'
+              : playing
+                ? 'border-primary bg-accent-soft text-accent-ink'
+                : 'border-hairline bg-surface text-accent'
+          "
           :disabled="loading"
           :aria-label="listenLabel"
           :aria-busy="loading ? 'true' : undefined"
@@ -182,14 +185,14 @@ function skip(): void {
             aria-hidden="true"
             data-testid="listen-spinner"
           />
-          <AppIcon v-else :name="failed ? 'arrow-path' : 'speaker-wave'" :size="36" />
+          <AppIcon v-else :name="failed ? 'arrow-path' : 'speaker-wave'" :size="32" />
         </button>
 
         <div class="flex min-w-0 flex-col items-center gap-2 [@media(max-height:560px)]:items-start [@media(max-height:560px)]:gap-1">
           <!-- The tip is not worth a line on a short window; what is going on with the sound (loading, playing, trouble) always is. -->
           <p
             class="text-[13px] leading-[18px]"
-            :class="[failed ? 'font-medium text-warning-ink' : 'text-tg-hint', calm ? '[@media(max-height:560px)]:hidden' : '']"
+            :class="[failed ? 'text-warning-ink' : 'text-muted', calm ? '[@media(max-height:560px)]:hidden' : '']"
             role="status"
             data-testid="audio-state"
             :data-state="state"
@@ -208,13 +211,13 @@ function skip(): void {
               <span
                 v-for="n in total"
                 :key="n"
-                class="h-6 rounded-md border-2"
-                :class="[total > 8 ? 'w-6' : 'w-9', n <= filled ? 'border-accent bg-accent-soft' : 'border-dashed border-tg-hint']"
+                class="h-6 rounded-badge border-[1.5px]"
+                :class="[total > 8 ? 'w-6' : 'w-9', n <= filled ? 'border-accent bg-accent-soft' : 'border-dashed border-muted']"
                 :data-filled="n <= filled ? 'true' : 'false'"
                 data-testid="word-tile"
               />
             </div>
-            <p class="text-[13px] leading-[18px] font-medium text-tg-subtitle" data-testid="word-count">{{ tn('practice.dictation.words', total) }}</p>
+            <p class="text-[13px] leading-[18px] text-muted" data-testid="word-count">{{ tn('practice.dictation.words', total) }}</p>
           </div>
         </div>
       </article>
@@ -238,7 +241,7 @@ function skip(): void {
         @keydown.enter.prevent="check"
       />
 
-      <p v-if="blocked && !retrying" class="px-2 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="blocked-note">
+      <p v-if="blocked && !retrying" class="px-2 text-center text-[13px] leading-[18px] text-muted" data-testid="blocked-note">
         {{ t('practice.dictation.blocked') }}
       </p>
 
@@ -251,9 +254,9 @@ function skip(): void {
       </button>
     </div>
 
-    <StickyActions>
+    <StickyActions surface>
       <div class="flex items-stretch gap-2">
-        <button type="button" class="btn btn-plain shrink-0" :disabled="!canSkip" data-testid="skip-btn" @click="skip">
+        <button type="button" class="btn btn-plain shrink-0 text-muted" :disabled="!canSkip" data-testid="skip-btn" @click="skip">
           {{ t('exercise.skip') }}
         </button>
         <button

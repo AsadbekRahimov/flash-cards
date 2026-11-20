@@ -181,8 +181,8 @@ const blockedKey = computed(() => {
       <section class="card flex items-center gap-3" data-testid="friend-card">
         <InitialAvatar :name="shownName" />
         <span class="min-w-0 flex-1">
-          <span class="block truncate text-base leading-[22px] font-medium" data-testid="friend-name">{{ shownName }}</span>
-          <span class="block text-[13px] leading-[18px] text-tg-hint">{{ t('battle.setup.friend') }}</span>
+          <span class="block truncate text-[15px] leading-5 font-semibold" data-testid="friend-name">{{ shownName }}</span>
+          <span class="block text-[13px] leading-[18px] text-muted">{{ t('battle.setup.friend') }}</span>
         </span>
         <AppIcon v-if="options && !noAccess" name="check-circle" :size="22" class="text-success" />
       </section>
@@ -203,8 +203,8 @@ const blockedKey = computed(() => {
             @click="pickCourse(item.slug)"
           >
             <span class="min-w-0 flex-1">
-              <span class="block text-base leading-[22px]">{{ item.title }}</span>
-              <span v-if="item.level" class="block text-[13px] leading-[18px] text-tg-hint">{{ item.level }}</span>
+              <span class="block text-[15px] leading-5">{{ item.title }}</span>
+              <span v-if="item.level" class="block text-[13px] leading-[18px] text-muted">{{ item.level }}</span>
             </span>
             <AppIcon v-if="item.slug === course" name="check" :size="20" class="text-accent" />
           </button>
@@ -213,7 +213,7 @@ const blockedKey = computed(() => {
 
       <section data-testid="lesson-section">
         <h2 class="section-label mt-0">{{ t('battle.setup.lesson') }}</h2>
-        <div class="card">
+        <div>
           <select
             class="field"
             :value="lessonValue"
@@ -242,7 +242,7 @@ const blockedKey = computed(() => {
           <button type="button" class="btn btn-tinted btn-sm" data-testid="options-retry" @click="setup.loadOptions()">{{ t('common.retry') }}</button>
         </div>
 
-        <div v-else-if="options" class="flex flex-col gap-3" role="radiogroup" :aria-label="t('battle.setup.format')" data-testid="formats">
+        <div v-else-if="options" class="list" role="radiogroup" :aria-label="t('battle.setup.format')" data-testid="formats">
           <BattleFormatCard v-for="option in options.modes" :key="option.mode" :option="option" :selected="option.mode === mode" @select="pickMode" />
         </div>
       </section>
@@ -253,13 +253,13 @@ const blockedKey = computed(() => {
           {{ t('battle.open_current') }}
         </button>
         <!-- Free only: the battles left today. -->
-        <p v-if="battleLimit" class="px-4 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="battle-limit">
+        <p v-if="battleLimit" class="px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="battle-limit">
           {{ t('battle.limit.left', { remaining: Math.max(0, battleLimit.remaining), limit: battleLimit.limit }) }}
         </p>
         <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="!setup.canInvite" data-testid="invite-btn" @click="invite">
           {{ inviting ? t('battle.setup.inviting') : t('battle.setup.invite') }}
         </button>
-        <p class="px-4 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="invite-hint">{{ t('battle.setup.invite_hint') }}</p>
+        <p class="px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="invite-hint">{{ t('battle.setup.invite_hint') }}</p>
       </section>
     </div>
 

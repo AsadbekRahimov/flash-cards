@@ -145,6 +145,16 @@ describe('PracticeHubView — the states', () => {
     wrapper.unmount()
   })
 
+  it('has a link back to the course above the heading, as the system button "Back" has', async () => {
+    const { wrapper } = await render()
+
+    const back = wrapper.get('[data-testid=hub-back]')
+    expect(back.text()).toContain('К курсу')
+    expect(back.attributes('href')).toBe('/courses/english-a1')
+    expect(back.classes()).toContain('min-h-11') // a finger's 44 px
+    wrapper.unmount()
+  })
+
   it('shows the hub: the heading is the name of the lesson, under it "Practice" and where the lesson is', async () => {
     const { wrapper } = await render()
 
@@ -414,10 +424,22 @@ describe('PracticeHubView — the unfinished session', () => {
     wrapper.unmount()
   })
 
-  it('has none when there is no unfinished session', async () => {
+  it('has none when there is no unfinished session, and then no main button at all (a row is the action)', async () => {
     const { wrapper } = await render()
 
     expect(wrapper.find('[data-testid=continue-card]').exists()).toBe(false)
+    expect(wrapper.find('.btn-primary').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('the "Continue" card carries the one main button of the screen, and the line of its progress', async () => {
+    const { wrapper } = await render({}, withActive())
+
+    const link = wrapper.get('[data-testid=continue-card]')
+    expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+    expect(link.find('.btn-primary').text()).toBe('Продолжить')
+    expect(link.find('button').exists()).toBe(false) // the card is the link: no button inside it
+    expect(link.find('.progress-fill').attributes('style')).toContain('width: 33%')
     wrapper.unmount()
   })
 
@@ -1024,6 +1046,17 @@ describe('PracticeHubView — the battle with a friend', () => {
     const battle = wrapper.get('[data-testid=battle-card]')
     expect(battle.text()).toContain('Баттл 1 на 1')
     expect(wrapper.get('[data-testid=battle-play-btn]').text()).toBe('Играть с другом')
+    wrapper.unmount()
+  })
+
+  it('is the last row of "All modes", after the rows of the modes', async () => {
+    const { wrapper } = await render()
+
+    const list = wrapper.get('[data-testid=modes-list]')
+    expect(list.text()).toContain('Все режимы')
+    expect(list.find('[data-testid=battle-card]').exists()).toBe(true)
+    const html = list.html()
+    expect(html.indexOf('data-testid="mode-cards"')).toBeLessThan(html.indexOf('data-testid="battle-card"'))
     wrapper.unmount()
   })
 

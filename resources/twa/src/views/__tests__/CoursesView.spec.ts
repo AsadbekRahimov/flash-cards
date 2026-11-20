@@ -143,7 +143,8 @@ describe('CoursesView', () => {
       ])
       expect(first.get('[data-testid=progress-text]').text()).toBe('Изучено 2 из 5')
       expect(first.get('[data-testid=progress-bar]').attributes('aria-valuenow')).toBe('40')
-      expect(first.get('[data-testid=progress-fill]').attributes('style')).toContain('width: 40%')
+      expect(first.get('[data-testid=progress-bar] .progress-fill').attributes('style')).toContain('width: 40%')
+      expect(first.get('[data-testid=progress-bar] .progress-fill').classes()).toContain('progress-success')
 
       const second = wrapper.get('[data-testid=course-ielts]')
       // No level, no description; the exam goal is the accent chip.
@@ -207,7 +208,10 @@ describe('CoursesView', () => {
       expect(badge.text()).toBe('Вы учите этот курс')
       expect(badge.element.tagName).toBe('SPAN')
       expect(badge.classes()).toEqual(expect.arrayContaining(['chip', 'chip-success']))
-      expect(badge.find('svg').exists()).toBe(true)
+      // A chip of words, no icon; the card itself stands out as the selected one.
+      expect(badge.find('svg').exists()).toBe(false)
+      expect(active.classes()).toEqual(expect.arrayContaining(['bg-accent-soft', 'shadow-[inset_0_0_0_1.5px_var(--app-primary)]']))
+      expect(wrapper.get('[data-testid=course-other]').classes()).not.toContain('bg-accent-soft')
       expect(active.find('[data-testid=choose-btn]').exists()).toBe(false)
 
       const choose = wrapper.get('[data-testid=course-other] [data-testid=choose-btn]')
