@@ -219,7 +219,7 @@ describe('FinishedView', () => {
       const w = render(5, 1)
       const home = w.get('[data-testid=home-btn]')
 
-      expect(home.text()).toBe('На главную')
+      expect(home.text()).toBe('К экрану «Сегодня»')
       expect(home.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
       expect(w.findAll('.btn-primary')).toHaveLength(1)
 
@@ -718,7 +718,7 @@ describe('FinishedView', () => {
 
       expect(w.get('[data-testid=goal-text]').text()).toBe('Kunlik maqsad: 20 tadan 12 tasi')
       expect(w.get('[data-testid=streak]').text()).toBe('3 kun ketma-ket')
-      expect(w.get('[data-testid=home-btn]').text()).toBe('Asosiy sahifaga')
+      expect(w.get('[data-testid=home-btn]').text()).toBe('«Bugun» ekraniga')
     })
   })
 
@@ -734,7 +734,7 @@ describe('FinishedView', () => {
     const w = render(5, 1)
     const home = w.get('[data-testid=home-btn]')
 
-    expect(home.text()).toBe('На главную')
+    expect(home.text()).toBe('К экрану «Сегодня»')
     expect(home.attributes('href')).toBe('/today')
     await home.trigger('click')
     await flushPromises()

@@ -4,8 +4,17 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Dashboard;
 use App\Filament\Support\InitialAvatarProvider;
+use App\Filament\Support\PanelTheme;
 use App\Filament\Widgets\ActivityChartWidget;
+use App\Filament\Widgets\WeeklyActivityWidget;
+use App\Filament\Widgets\RetentionTrendWidget;
+use App\Filament\Widgets\ProPathWidget;
+use App\Filament\Widgets\FirstDayWidget;
+use App\Filament\Widgets\DashboardKpiWidget;
+use App\Filament\Widgets\CentersFirstAssignmentWidget;
+use App\Filament\Widgets\AttentionWidget;
 use App\Filament\Widgets\BillingFunnelWidget;
 use App\Filament\Widgets\ExamsLast30DaysWidget;
 use App\Filament\Widgets\ExerciseMixTableWidget;
@@ -26,10 +35,8 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -41,7 +48,7 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        return PanelTheme::apply($panel)
             ->default()
             ->id('admin')
             ->path('admin')
@@ -52,16 +59,21 @@ class AdminPanelProvider extends PanelProvider
             ->spaUrlExceptions(['*/2fa/*'])
             ->brandName('LexiFlow Pro')
             ->defaultAvatarProvider(InitialAvatarProvider::class)
-            ->colors([
-                'primary' => Color::Amber,
-            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            // Which of them the dashboard shows, in which tab and order, is App\Filament\Pages\Dashboard (the design of 2026-11).
             ->widgets([
+                DashboardKpiWidget::class,
+                AttentionWidget::class,
+                FirstDayWidget::class,
+                RetentionTrendWidget::class,
+                CentersFirstAssignmentWidget::class,
+                ProPathWidget::class,
+                WeeklyActivityWidget::class,
                 TotalLearnersWidget::class,
                 ExamsLast30DaysWidget::class,
                 ActivityChartWidget::class,

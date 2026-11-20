@@ -393,7 +393,7 @@ describe('MyDecksView', () => {
       await wrapper.get('[data-testid="deck-deck-1-abc"] [data-testid=choose-btn]').trigger('click')
       expect(api.courses.select).not.toHaveBeenCalled()
       expect(wrapper.get('[data-testid=activate-text]').text()).toBe(
-        'Новые слова в ежедневном занятии будут из этой колоды, а не из курса. Вернуть курс можно во вкладке «Курсы».',
+        'Новые слова в ежедневном занятии будут из этой колоды, а не из курса. Вернуть курс можно во вкладке «Курс».',
       )
       await wrapper.get('[data-testid=activate-yes]').trigger('click')
       await flushPromises()

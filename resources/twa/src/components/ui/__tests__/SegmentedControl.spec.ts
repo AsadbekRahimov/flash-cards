@@ -86,7 +86,8 @@ describe('SegmentedControl', () => {
     const w = mountControl({ modelValue: 30 })
 
     const [first, , third] = w.findAll('[role=radio]')
-    expect(third?.classes()).toContain('bg-surface')
-    expect(first?.classes()).not.toContain('bg-surface')
+    expect(third?.classes()).toEqual(expect.arrayContaining(['bg-accent-soft', 'font-semibold', 'text-body']))
+    expect(first?.classes()).not.toContain('bg-accent-soft')
+    expect(first?.classes()).toContain('text-muted')
   })
 })

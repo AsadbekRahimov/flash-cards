@@ -1,83 +1,115 @@
 import WebApp from '@twa-dev/sdk'
 
 /**
- * `Telegram.WebApp.themeParams` key → the CSS variable of `style.css` it feeds (docs/14 §4.1).
- * `header_bg_color` is not mapped: the window header is painted by Telegram itself (see `paintTelegramChrome`).
+ * The app has its own palette (docs/14 §4.1, redesign 2026-11): light and dark, both in `style.css`. Telegram only says which
+ * of the two (`colorScheme`); its theme colours (`themeParams`) paint nothing. This module sets `<html data-theme>` and paints the
+ * window chrome Telegram draws itself (the header above the app and the window background) in the colours of the palette.
  */
-export const THEME_VARIABLES = {
-  bg_color: '--tg-bg',
-  text_color: '--tg-text',
-  hint_color: '--tg-hint',
-  link_color: '--tg-link',
-  button_color: '--tg-button',
-  button_text_color: '--tg-button-text',
-  secondary_bg_color: '--tg-secondary-bg',
-  section_bg_color: '--tg-section-bg',
-  accent_text_color: '--tg-accent',
-  destructive_text_color: '--tg-destructive',
-  subtitle_text_color: '--tg-subtitle',
-  section_header_text_color: '--tg-section-header',
-  section_separator_color: '--tg-separator',
-  bottom_bar_bg_color: '--tg-bottom-bar-bg',
-} as const
+export type ColorScheme = 'light' | 'dark'
 
-export type ThemeParamKey = keyof typeof THEME_VARIABLES
+/**
+ * The colours of the Telegram chrome per scheme: the page colour (`--app-page` of `style.css`), so there is no seam under the
+ * header. A copy of the CSS values, because the Telegram methods want a hex string; `telegramTheme.spec.ts` checks that both agree.
+ */
+export const CHROME_COLORS: Readonly<Record<ColorScheme, { page: `#${string}` }>> = {
+  light: { page: '#f6f7f9' },
+  dark: { page: '#11141c' },
+}
 
 /** The part of `Telegram.WebApp` the theme code touches; the SDK object satisfies it, tests pass a stub. */
 export interface ThemeHost {
-  themeParams: Partial<Record<ThemeParamKey, string>>
-  colorScheme: 'light' | 'dark'
+  colorScheme: ColorScheme
+  /** `unknown` outside Telegram (a browser, Playwright). */
+  platform: string
   isVersionAtLeast(version: string): boolean
-  setHeaderColor(color: 'secondary_bg_color'): void
-  setBackgroundColor(color: 'secondary_bg_color'): void
+  setHeaderColor(color: 'secondary_bg_color' | `#${string}`): void
+  setBackgroundColor(color: `#${string}`): void
   onEvent(event: 'themeChanged', handler: () => void): void
 }
 
+/** The part of `MediaQueryList` of `(prefers-color-scheme: dark)` used outside Telegram; `null` where there is no `matchMedia`. */
+export interface SchemeQuery {
+  matches: boolean
+  addEventListener(type: 'change', listener: () => void): void
+}
+
+function insideTelegram(host: ThemeHost): boolean {
+  try {
+    return typeof host.platform === 'string' && host.platform !== '' && host.platform !== 'unknown'
+  } catch {
+    return false
+  }
+}
+
+function systemSchemeQuery(): SchemeQuery | null {
+  try {
+    return typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-color-scheme: dark)') : null
+  } catch {
+    return null
+  }
+}
+
+/** Telegram's `colorScheme` inside Telegram; outside it the system preference (`prefers-color-scheme`), light when unknown. */
+export function resolveColorScheme(host: ThemeHost = WebApp, query: SchemeQuery | null = systemSchemeQuery()): ColorScheme {
+  if (insideTelegram(host)) {
+    try {
+      return host.colorScheme === 'dark' ? 'dark' : 'light'
+    } catch {
+      return 'light'
+    }
+  }
+  return query?.matches === true ? 'dark' : 'light'
+}
+
 /**
- * Header and window background take the page colour (`secondary_bg_color`), so the Mini App has no seam under
- * Telegram's header; both calls exist since Bot API 6.1. Never throws: outside Telegram it is a no-op.
+ * Header and window background take the page colour of the scheme, so the Mini App has no seam under Telegram's header.
+ * The window background takes a hex colour since Bot API 6.1, the header since 6.9; a 6.1-6.8 client gets the keyword of its
+ * own page colour for the header (the closest it can do). Never throws: outside Telegram it is a no-op.
  */
-export function paintTelegramChrome(host: ThemeHost = WebApp): void {
+export function paintTelegramChrome(host: ThemeHost = WebApp, scheme: ColorScheme = resolveColorScheme(host)): void {
   try {
     if (!host.isVersionAtLeast('6.1')) return
-    host.setHeaderColor('secondary_bg_color')
-    host.setBackgroundColor('secondary_bg_color')
+    const { page } = CHROME_COLORS[scheme]
+    host.setBackgroundColor(page)
+    host.setHeaderColor(host.isVersionAtLeast('6.9') ? page : 'secondary_bg_color')
   } catch {
     // outside Telegram — nothing to paint
   }
 }
 
-/**
- * Copies the current Telegram theme into the CSS variables on `<html>` (docs/14 §4.1). A parameter the client did
- * not send is removed again, so the fallback from `style.css` applies instead of a value left by the previous theme.
- * Also sets `<html data-theme="light|dark">` and repaints the Telegram header. Never throws.
- */
-export function applyTelegramTheme(host: ThemeHost = WebApp, root: HTMLElement = document.documentElement): void {
-  let params: Partial<Record<ThemeParamKey, string>> = {}
-  let scheme: 'light' | 'dark' = 'light'
-  try {
-    params = host.themeParams ?? {}
-    scheme = host.colorScheme === 'dark' ? 'dark' : 'light'
-  } catch {
-    // outside Telegram — keep the CSS fallbacks
-  }
-
-  for (const key of Object.keys(THEME_VARIABLES) as ThemeParamKey[]) {
-    const value = params[key]
-    if (typeof value === 'string' && value !== '') root.style.setProperty(THEME_VARIABLES[key], value)
-    else root.style.removeProperty(THEME_VARIABLES[key])
-  }
+/** Sets `<html data-theme="light|dark">` (the palette of `style.css`) and repaints the Telegram chrome. Never throws. */
+export function applyTelegramTheme(
+  host: ThemeHost = WebApp,
+  root: HTMLElement = document.documentElement,
+  query: SchemeQuery | null = systemSchemeQuery(),
+): void {
+  const scheme = resolveColorScheme(host, query)
   root.dataset.theme = scheme
-
-  paintTelegramChrome(host)
+  paintTelegramChrome(host, scheme)
 }
 
-/** Applies the theme now and again on every `themeChanged` (the user switches the Telegram theme while the app is open). */
-export function initTelegramTheme(host: ThemeHost = WebApp, root: HTMLElement = document.documentElement): void {
-  applyTelegramTheme(host, root)
+/**
+ * Applies the scheme now and again when it changes: on `themeChanged` inside Telegram (the user switches the Telegram theme while
+ * the app is open), on a change of `prefers-color-scheme` outside it.
+ */
+export function initTelegramTheme(
+  host: ThemeHost = WebApp,
+  root: HTMLElement = document.documentElement,
+  query: SchemeQuery | null = systemSchemeQuery(),
+): void {
+  const apply = (): void => applyTelegramTheme(host, root, query)
+  apply()
+  if (insideTelegram(host)) {
+    try {
+      host.onEvent('themeChanged', apply)
+    } catch {
+      // no events — keep the scheme of the start
+    }
+    return
+  }
   try {
-    host.onEvent('themeChanged', () => applyTelegramTheme(host, root))
+    query?.addEventListener('change', apply)
   } catch {
-    // outside Telegram — no events
+    // an old WebView without addEventListener on MediaQueryList — keep the scheme of the start
   }
 }

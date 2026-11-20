@@ -11,8 +11,103 @@
  */
 @custom-variant short (@media (max-height: 760px));
 
+/*
+ * Fonts (docs/14 §4.2): files in the repository, no CDN (assets/fonts, SIL OFL 1.1, the licences lie next to the files).
+ * Source Serif 4 is one variable file (wght 200-900) per subset: smaller than the three static weights 400/600/700 together,
+ * in every subset. The browser downloads a subset only when the page has a character of its `unicode-range`: Russian text
+ * takes latin + cyrillic, Uzbek text latin only (ʻ U+02BB and ʼ U+02BC are in the latin file), latin-ext waits for a rare
+ * letter. The italic is latin only: it sets the English example sentences. IBM Plex Mono (400, 500) is latin only: it sets
+ * numbers, counters and places; a Cyrillic letter in `font-mono` falls back to the system monospace. Plex and Source Serif have
+ * no IPA letters (ɪ ʃ ə ...), so a transcription is `font-ipa`, the system monospace, rather than a mix of two fonts in one
+ * word. index.html preloads what the first screen needs: Source Serif 4 latin + cyrillic (normal).
+ */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('./assets/fonts/source-serif-4-latin-wght-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('./assets/fonts/source-serif-4-latin-ext-wght-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('./assets/fonts/source-serif-4-cyrillic-wght-normal.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('./assets/fonts/source-serif-4-latin-wght-italic.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./assets/fonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @theme {
-  /* Telegram theme parameters (docs/14 §4.1); filled in by composables/telegramTheme.ts. */
+  /*
+   * The app's own palette (docs/14 §4.1, redesign 2026-11): `bg-page`, `bg-surface`, `text-body`, `text-muted`, `bg-primary`,
+   * `text-accent`, `border-divider`, `bg-danger-soft`, `text-success-ink`, `border-warning-line`, ... The values live in :root
+   * (light) and :root[data-theme='dark'] below; the colours of the Telegram theme paint nothing any more.
+   */
+  --color-page: var(--app-page);
+  --color-surface: var(--app-surface);
+  --color-fill: var(--app-fill);
+  --color-hairline: var(--app-hairline);
+  --color-divider: var(--app-divider);
+  --color-track: var(--app-track);
+  --color-body: var(--app-text);
+  --color-muted: var(--app-muted);
+  --color-accent: var(--app-accent);
+  --color-primary: var(--app-primary);
+  --color-on-primary: var(--app-on-primary);
+  --color-success: var(--app-success);
+  --color-warning: var(--app-warning);
+  --color-danger: var(--app-danger);
+  --color-accent-soft: var(--app-accent-soft);
+  --color-success-soft: var(--app-success-soft);
+  --color-warning-soft: var(--app-warning-soft);
+  --color-danger-soft: var(--app-danger-soft);
+  --color-accent-ink: var(--app-accent-ink);
+  --color-success-ink: var(--app-success-ink);
+  --color-warning-ink: var(--app-warning-ink);
+  --color-danger-ink: var(--app-danger-ink);
+  --color-accent-line: var(--app-accent-line);
+  --color-success-line: var(--app-success-line);
+  --color-warning-line: var(--app-warning-line);
+  --color-danger-line: var(--app-danger-line);
+
+  /*
+   * Old names, kept so that the screens not yet redrawn keep working (`text-tg-hint`, `bg-tg-button`, `divide-tg-separator`, ...):
+   * each is an alias of a token of the app's palette through the `--tg-*` variable of :root (also read raw, `var(--tg-text)`), so
+   * an old screen already gets the new colours. New code uses the new names (table "Правила нового стиля для экранов", docs/14).
+   */
   --color-tg-bg: var(--tg-bg);
   --color-tg-text: var(--tg-text);
   --color-tg-hint: var(--tg-hint);
@@ -28,30 +123,22 @@
   --color-tg-separator: var(--tg-separator);
   --color-tg-bottom-bar-bg: var(--tg-bottom-bar-bg);
 
-  /* Semantic colours of the app: `bg-page`, `bg-surface`, `bg-fill`, `text-accent`, `bg-danger-soft`, `text-success-ink`, ... */
-  --color-page: var(--app-page);
-  --color-surface: var(--app-surface);
-  --color-fill: var(--app-fill);
-  --color-hairline: var(--app-hairline);
-  --color-track: var(--app-track);
-  --color-accent: var(--app-accent);
-  --color-success: var(--app-success);
-  --color-warning: var(--app-warning);
-  --color-danger: var(--app-danger);
-  --color-accent-soft: var(--app-accent-soft);
-  --color-success-soft: var(--app-success-soft);
-  --color-warning-soft: var(--app-warning-soft);
-  --color-danger-soft: var(--app-danger-soft);
-  --color-accent-ink: var(--app-accent-ink);
-  --color-success-ink: var(--app-success-ink);
-  --color-warning-ink: var(--app-warning-ink);
-  --color-danger-ink: var(--app-danger-ink);
+  /* Radii of the redesign: `rounded-card` (cards, lists, plan cards), `rounded-control` (buttons, answer options, fields), `rounded-badge`. */
+  --radius-card: 12px;
+  --radius-control: 10px;
+  --radius-badge: 6px;
 
+  /* `font-serif` is the text of the whole app (the default of <html>), `font-mono` numbers and counters, `font-ipa` a transcription. */
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace;
+  --font-ipa: Menlo, Consolas, 'DejaVu Sans Mono', 'Noto Sans Mono', ui-monospace, monospace;
+  --default-font-family: var(--font-serif);
+  --default-mono-font-family: var(--font-mono);
 }
 
 @layer base {
-  /* Tailwind 4 defaults border/divide colour to currentColor; the app default is the theme hairline. */
+  /* Tailwind 4 defaults border/divide colour to currentColor; the app default is the hairline of a card. */
   *,
   ::after,
   ::before,
@@ -66,64 +153,58 @@
   }
 }
 
+/*
+ * The palette (docs/14 §4.1). Light — the approved mock-ups (docs/design/2026-11-redesign); dark — the pair in the same spirit,
+ * a deep blue-graphite page instead of black. <html data-theme> picks it: Telegram's `colorScheme`, outside Telegram the
+ * system's `prefers-color-scheme` (composables/telegramTheme.ts). Every text pair reaches 4.5:1 in both, including each ink on
+ * its soft fill (designSystem.spec.ts reads the hex values below and checks them).
+ */
 :root {
-  /*
-   * Telegram theme parameters. Fallbacks for a client that does not send a parameter; main.ts sets the real
-   * values inline on <html> (and removes them again when a parameter is missing).
-   */
-  --tg-bg: #ffffff;
-  --tg-text: #000000;
-  --tg-hint: #8e8e93;
-  --tg-link: #2481cc;
-  --tg-button: #2481cc;
-  --tg-button-text: #ffffff;
-  --tg-secondary-bg: #efeff4;
-  --tg-section-bg: var(--tg-bg);
-  --tg-accent: var(--tg-link);
-  --tg-destructive: #e53935;
-  --tg-subtitle: var(--tg-hint);
-  --tg-section-header: var(--tg-hint);
-  --tg-separator: color-mix(in srgb, var(--tg-hint) 30%, transparent);
-  --tg-bottom-bar-bg: var(--tg-section-bg);
+  --app-page: #f6f7f9; /* page background */
+  --app-surface: #ffffff; /* cards, lists, sheets, the tab bar */
+  --app-fill: #f6f7f9; /* controls INSIDE a surface: fields, secondary buttons, the pressed row */
+  --app-hairline: #e4e7ec; /* the 1 px border of a card, a button, an option; the line above the tab bar */
+  --app-divider: #eef0f4; /* lines between the rows inside a card */
+  --app-track: #e4e7ec; /* progress tracks, the off switch, skeletons */
+  --app-text: #1d2130;
+  --app-muted: #5f6677; /* secondary text: subtitles, hints, values on the right */
+  --app-accent: #3f4a7a; /* links, text buttons, progress fill, focus ring */
+  --app-primary: #2b3252; /* the main button, the frame of a selected item, the line of the active tab */
+  --app-on-primary: #ffffff; /* text on primary (and on accent) */
+  --app-success: #2f7d5b; /* strong colours: icons, dots, frames, fills (warning is not for text: use its ink) */
+  --app-warning: #b4741a;
+  --app-danger: #b4382c;
+  --app-accent-soft: #f3f4f9; /* soft fills: the selected row or option, status boxes */
+  --app-success-soft: #eef6f1;
+  --app-warning-soft: #f7eedd;
+  --app-danger-soft: #fbf1ef;
+  --app-accent-ink: #2b3252; /* "ink": text in the colour, on its soft fill and on a card */
+  --app-success-ink: #1f5a40;
+  --app-warning-ink: #8a5510;
+  --app-danger-ink: #8c2a21;
+  --app-accent-line: #c9cee2; /* soft frames: a badge, a status box, a zone line in a table */
+  --app-success-line: #bfdccd;
+  --app-warning-line: #e6cfa6;
+  --app-danger-line: #edc7c1;
 
-  /* Semantic tokens: the only colours components use. */
-  --app-page: var(--tg-secondary-bg); /* page background */
-  --app-surface: var(--tg-section-bg); /* cards, lists, sheets */
-  --app-fill: var(--tg-secondary-bg); /* controls INSIDE a surface: fields, secondary buttons, segments */
-  --app-hairline: color-mix(in srgb, var(--tg-text) 7%, transparent);
-  --app-accent: var(--tg-button);
-  --app-success: #31b545;
-  --app-warning: #f59e0b;
-  --app-danger: var(--tg-destructive);
-  --app-accent-soft: color-mix(in srgb, var(--app-accent) 14%, transparent);
-  --app-success-soft: color-mix(in srgb, var(--app-success) 16%, transparent);
-  --app-warning-soft: color-mix(in srgb, var(--app-warning) 18%, transparent);
-  --app-danger-soft: color-mix(in srgb, var(--app-danger) 14%, transparent);
-  /*
-   * "Ink" = text on a soft background: the colour mixed with the theme text colour, so it reads in both light and dark.
-   * Each share is the largest one that keeps 4.5:1 on the soft background of its colour, over a card and over the bare
-   * page, in every built-in Telegram theme (iOS, Android, Desktop, Web; light and dark; docs/14 §4.1, guarded by
-   * designSystem.spec.ts). The lightest hues set the bound: the Android light button blue (#50a8eb) and amber.
-   */
-  --app-accent-ink: color-mix(in srgb, var(--app-accent) 50%, var(--tg-text));
-  --app-success-ink: color-mix(in srgb, var(--app-success) 50%, var(--tg-text));
-  --app-warning-ink: color-mix(in srgb, var(--app-warning) 45%, var(--tg-text));
-  --app-danger-ink: color-mix(in srgb, var(--app-danger) 60%, var(--tg-text));
-  --app-track: color-mix(in srgb, var(--tg-hint) 24%, transparent); /* progress tracks, switches */
-
-  /* Icon tiles: the same in both themes, the icon is white. */
-  --tile-blue: #3b82f6;
-  --tile-orange: #f97316;
-  --tile-green: #22c55e;
-  --tile-purple: #8b5cf6;
-  --tile-red: #ef4444;
-  --tile-teal: #14b8a6;
-  --tile-yellow: #eab308;
-  --tile-pink: #ec4899;
-  --tile-gray: #8e8e93;
+  /* Legacy names (see @theme): aliases of the palette, never the colours of the Telegram theme. */
+  --tg-bg: var(--app-surface);
+  --tg-text: var(--app-text);
+  --tg-hint: var(--app-muted);
+  --tg-link: var(--app-accent);
+  --tg-button: var(--app-primary);
+  --tg-button-text: var(--app-on-primary);
+  --tg-secondary-bg: var(--app-page);
+  --tg-section-bg: var(--app-surface);
+  --tg-accent: var(--app-accent);
+  --tg-destructive: var(--app-danger);
+  --tg-subtitle: var(--app-muted);
+  --tg-section-header: var(--app-muted);
+  --tg-separator: var(--app-divider);
+  --tg-bottom-bar-bg: var(--app-surface);
 
   /* Height of the tab bar without the home-indicator inset. */
-  --app-tabbar-h: 56px;
+  --app-tabbar-h: 52px;
   /*
    * --app-actions-h: the height of the sticky block of buttons on screen, with its inset (StickyActions sets it on <html> and takes it
    * back when it goes). Not declared here: absent means there is no such block, and `.toast` falls back to 0.
@@ -134,8 +215,35 @@
   color-scheme: light;
 }
 
-/* <html data-theme> follows Telegram's colorScheme: native controls (select list, scrollbars) pick the dark palette. */
+/* The dark pair: same roles, lighter inks, soft fills are dark tints of the colour. Native controls follow (`color-scheme`). */
 :root[data-theme='dark'] {
+  --app-page: #11141c;
+  --app-surface: #191d28;
+  --app-fill: #222736;
+  --app-hairline: #2b3142;
+  --app-divider: #232836;
+  --app-track: #2b3142;
+  --app-text: #e7e9f0;
+  --app-muted: #a2a8b8;
+  --app-accent: #a3aedd;
+  --app-primary: #d5daf0;
+  --app-on-primary: #1a1f33;
+  --app-success: #5db78c;
+  --app-warning: #d9a04a;
+  --app-danger: #e5786b;
+  --app-accent-soft: #232a42;
+  --app-success-soft: #16291f;
+  --app-warning-soft: #2c2314;
+  --app-danger-soft: #311b1a;
+  --app-accent-ink: #cdd3f0;
+  --app-success-ink: #93d3b2;
+  --app-warning-ink: #e6be7e;
+  --app-danger-ink: #f1a59b;
+  --app-accent-line: #3a4366;
+  --app-success-line: #2a4b3a;
+  --app-warning-line: #54411f;
+  --app-danger-line: #5a2f2b;
+
   color-scheme: dark;
 }
 
@@ -156,7 +264,7 @@ body,
 
 html {
   background: var(--app-page);
-  color: var(--tg-text);
+  color: var(--app-text);
 }
 
 body {
@@ -165,7 +273,8 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   background: var(--app-page);
-  color: var(--tg-text);
+  color: var(--app-text);
+  font-family: var(--font-serif);
   font-size: 16px;
   line-height: 22px;
   -webkit-tap-highlight-color: transparent;
@@ -180,9 +289,9 @@ body {
 @layer components {
   /* ---- layout ---- */
 
-  /* Screen content column; the bottom clearance (tab bar / home indicator) comes from the shell (App.vue). */
+  /* Screen content column, 20 px from the edges; the bottom clearance (tab bar / home indicator) comes from the shell (App.vue). */
   .page {
-    @apply mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pt-2;
+    @apply mx-auto flex w-full max-w-xl flex-1 flex-col px-5 pt-2;
     padding-bottom: calc(1.5rem + var(--app-safe-b));
   }
 
@@ -192,46 +301,53 @@ body {
     padding-bottom: calc(var(--app-tabbar-h) + env(safe-area-inset-bottom, 0px));
   }
 
+  /* A flat card: white, a 1 px hairline, radius 12, no shadow. */
   .card {
-    @apply rounded-2xl p-4;
+    @apply rounded-card p-[18px];
     background: var(--app-surface);
-    box-shadow: 0 0 0 1px var(--app-hairline);
+    border: 1px solid var(--app-hairline);
   }
 
+  /* A small label above a group or inside a card ("Цель дня", "Советуем сегодня"): 13 px, secondary colour, normal case. */
   .section-label {
-    @apply mt-5 mb-1.5 px-4 text-[13px] leading-[18px] font-medium tracking-wide uppercase;
-    color: var(--tg-section-header);
+    @apply mt-5 mb-2 px-[18px] text-[13px] leading-[18px] font-normal;
+    color: var(--app-muted);
   }
 
   /* ---- buttons ---- */
 
   .btn {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-base leading-snug font-semibold transition-[background-color,color,transform,opacity] duration-150 select-none active:scale-[0.98] disabled:opacity-50;
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-control px-4 py-2.5 text-base leading-snug font-semibold transition-[background-color,color,transform,opacity] duration-150 select-none active:scale-[0.98] disabled:opacity-50;
   }
+  /* The one main action of a screen: flat, dark, white text. */
   .btn-primary {
-    background: var(--app-accent);
-    color: var(--tg-button-text);
+    background: var(--app-primary);
+    color: var(--app-on-primary);
   }
-  /* Secondary action anywhere (page or card). The text is the ink, not the bare accent: that was 2.0-3.4:1 on its own soft fill in the light themes. */
+  /* Secondary action anywhere (page or card): an outlined button, the text in the ink of the accent. */
   .btn-tinted {
-    background: var(--app-accent-soft);
+    background: var(--app-surface);
+    box-shadow: inset 0 0 0 1px var(--app-hairline);
     color: var(--app-accent-ink);
   }
   /* Neutral button INSIDE a surface (e.g. "Cancel"); on the bare page it has the page colour — use btn-tinted there. */
   .btn-secondary {
     background: var(--app-fill);
-    color: var(--tg-text);
+    color: var(--app-text);
   }
+  /* A text button ("Ещё один раунд", "Не сейчас"): no box, the accent, regular weight. */
   .btn-plain {
     background: transparent;
     color: var(--app-accent);
+    font-weight: 400;
   }
   .btn-danger {
     background: var(--app-danger-soft);
+    box-shadow: inset 0 0 0 1px var(--app-danger-line);
     color: var(--app-danger-ink);
   }
   .btn-lg {
-    @apply min-h-14 text-[17px] leading-[22px];
+    @apply min-h-[52px];
   }
   .btn-sm {
     @apply min-h-9 rounded-lg px-3 py-1.5 text-sm;
@@ -262,35 +378,38 @@ body {
 
   /* ---- fields ---- */
 
-  /* Input / select / textarea inside a surface (card, list row). */
+  /* Input / select / textarea: a white box with a hairline, like a card; on focus the frame takes the primary colour. */
   .field {
-    @apply block w-full rounded-xl px-3.5 py-3 text-base disabled:opacity-50;
-    background-color: var(--app-fill);
-    color: var(--tg-text);
-    border: 1px solid transparent;
+    @apply block w-full rounded-control px-3.5 py-3 text-base disabled:opacity-50;
+    background-color: var(--app-surface);
+    color: var(--app-text);
+    border: 1px solid var(--app-hairline);
   }
   .field::placeholder {
-    color: var(--tg-hint);
+    color: var(--app-muted);
   }
   .field:focus,
   .field:focus-visible {
     outline: none;
-    border-color: var(--app-accent);
-    box-shadow: 0 0 0 3px var(--app-accent-soft);
+    border-color: var(--app-primary);
+    box-shadow: inset 0 0 0 0.5px var(--app-primary);
   }
   textarea.field {
     @apply min-h-24 resize-y;
   }
-  /* The chevron is a data-URI image, so it cannot follow the theme: iOS system grey reads on light and dark. */
+  /* The chevron is a data-URI image, so it cannot take a CSS variable: one image per theme, in the secondary text colour. */
   select.field {
     appearance: none;
     padding-right: 2.5rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235f6677' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.875rem center;
     background-size: 1rem;
   }
-  /* A field placed straight on the page (not inside a surface). */
+  :root[data-theme='dark'] select.field {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a2a8b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m19.5 8.25-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+  }
+  /* A field placed straight on the page: the same box as .field now (kept for the screens that name it). */
   .field-surface {
     background-color: var(--app-surface);
     border-color: var(--app-hairline);
@@ -326,67 +445,75 @@ body {
 
   /* ---- answer option ---- */
 
-  /* Answer button on the page (outside a card). Icons of the correct/incorrect states are drawn by the component. */
+  /*
+   * Answer button (docs/design Question / Feedback): a white box with a hairline, radius 10, 17 px text. The frame is an inset
+   * shadow, so the 1.5 px frame of a state does not move the text. Icons of the correct/incorrect states are drawn by the component.
+   * `dimmed` — the options that are neither picked nor right once the answer is checked.
+   */
   .option {
-    @apply flex min-h-14 w-full items-center gap-3 rounded-xl px-4 py-2 text-left text-base font-medium transition-colors duration-150 active:scale-[0.99];
+    @apply flex min-h-14 w-full items-center gap-3.5 rounded-control px-4 py-2 text-left text-[17px] leading-[22px] font-normal transition-colors duration-150 active:scale-[0.99];
     background-color: var(--app-surface);
     box-shadow: inset 0 0 0 1px var(--app-hairline);
-    color: var(--tg-text);
+    color: var(--app-text);
   }
   .option[data-state='selected'] {
-    background-image: linear-gradient(var(--app-accent-soft), var(--app-accent-soft));
-    box-shadow: inset 0 0 0 2px var(--app-accent);
+    background-color: var(--app-accent-soft);
+    box-shadow: inset 0 0 0 1.5px var(--app-primary);
+    font-weight: 600;
   }
-  .option[data-state='correct'] {
-    background-image: linear-gradient(var(--app-success-soft), var(--app-success-soft));
-    box-shadow: inset 0 0 0 2px var(--app-success);
+  .option[data-state='correct'],
+  .option[data-state='reveal'] {
+    background-color: var(--app-success-soft);
+    box-shadow: inset 0 0 0 1.5px var(--app-success);
     color: var(--app-success-ink);
+    font-weight: 600;
   }
   .option[data-state='incorrect'] {
-    background-image: linear-gradient(var(--app-danger-soft), var(--app-danger-soft));
-    box-shadow: inset 0 0 0 2px var(--app-danger);
+    background-color: var(--app-danger-soft);
+    box-shadow: inset 0 0 0 1.5px var(--app-danger);
     color: var(--app-danger-ink);
   }
-  /* The right answer shown after a mistake. */
-  .option[data-state='reveal'] {
-    box-shadow: none;
-    outline: 2px dashed var(--app-success);
-    outline-offset: -2px;
-    color: var(--app-success-ink);
+  .option[data-state='dimmed'] {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--app-divider);
+    color: var(--app-muted);
   }
 
   /* ---- chips ---- */
 
+  /* A small badge ("вы здесь", "новое", "Pro"): 12 px text in a thin frame, radius 6, on the card colour. */
   .chip {
-    @apply inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-xs font-semibold whitespace-nowrap;
-    background: var(--app-track);
-    color: color-mix(in srgb, var(--tg-text) 70%, transparent);
+    @apply inline-flex h-6 items-center gap-1 rounded-badge border px-2 text-xs font-normal whitespace-nowrap;
+    background: var(--app-surface);
+    border-color: var(--app-hairline);
+    color: var(--app-muted);
   }
   .chip-neutral {
-    background: var(--app-track);
-    color: color-mix(in srgb, var(--tg-text) 70%, transparent);
+    border-color: var(--app-hairline);
+    color: var(--app-muted);
   }
   .chip-accent {
-    background: var(--app-accent-soft);
+    border-color: var(--app-accent-line);
     color: var(--app-accent-ink);
   }
   .chip-success {
-    background: var(--app-success-soft);
+    border-color: var(--app-success-line);
     color: var(--app-success-ink);
   }
   .chip-warning {
-    background: var(--app-warning-soft);
+    border-color: var(--app-warning-line);
     color: var(--app-warning-ink);
   }
   .chip-danger {
-    background: var(--app-danger-soft);
+    border-color: var(--app-danger-line);
     color: var(--app-danger-ink);
   }
 
   /* ---- progress ---- */
 
+  /* A thin line (4 px; the header of a lesson makes it 3 px with `h-[3px]`): the track and the fill in the accent. See ui/ProgressLine. */
   .progress {
-    @apply h-2 w-full overflow-hidden rounded-full;
+    @apply h-1 w-full overflow-hidden rounded-full;
     background: var(--app-track);
   }
   .progress-fill {
@@ -398,30 +525,31 @@ body {
   .progress-fill.progress-success {
     background: var(--app-success);
   }
+  .progress.progress-primary > .progress-fill,
+  .progress-fill.progress-primary {
+    background: var(--app-primary);
+  }
 
   /* ---- grouped list ---- */
 
   .list {
-    @apply overflow-hidden rounded-2xl;
+    @apply overflow-hidden rounded-card;
     background: var(--app-surface);
-    box-shadow: 0 0 0 1px var(--app-hairline);
+    border: 1px solid var(--app-hairline);
   }
   .list-row {
-    @apply relative flex min-h-[52px] w-full items-center gap-3 px-4 py-2.5 text-left text-base;
-    color: var(--tg-text);
+    @apply relative flex min-h-[52px] w-full items-center gap-3 px-[18px] py-3 text-left text-[15px] leading-5;
+    color: var(--app-text);
   }
-  /* Separator between rows; a row with an icon starts it after the icon (56px). */
+  /* The line between the rows runs from edge to edge of the card. */
   .list-row + .list-row::before {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
-    left: 1rem;
+    left: 0;
     height: 1px;
-    background: var(--tg-separator);
-  }
-  .list-row + .list-row.list-row-icon::before {
-    left: 3.5rem;
+    background: var(--app-divider);
   }
   a.list-row:active,
   button.list-row:active {
@@ -431,36 +559,33 @@ body {
     outline-offset: -2px;
   }
 
+  /*
+   * The icon at the start of a list row: a quiet square in the fill colour, the icon in a colour of the palette (no bright tiles
+   * any more). The `tile-*` names stay for the screens that pass them; they only pick the icon colour.
+   */
   .icon-tile {
-    @apply inline-flex size-[30px] shrink-0 items-center justify-center rounded-[9px] text-white;
-    background: var(--tile-gray);
+    @apply inline-flex size-[30px] shrink-0 items-center justify-center rounded-lg;
+    background: var(--app-fill);
+    color: var(--app-muted);
   }
-  .tile-blue {
-    background: var(--tile-blue);
-  }
-  .tile-orange {
-    background: var(--tile-orange);
+  .tile-blue,
+  .tile-purple,
+  .tile-teal {
+    color: var(--app-accent);
   }
   .tile-green {
-    background: var(--tile-green);
+    color: var(--app-success);
   }
-  .tile-purple {
-    background: var(--tile-purple);
-  }
-  .tile-red {
-    background: var(--tile-red);
-  }
-  .tile-teal {
-    background: var(--tile-teal);
-  }
+  .tile-orange,
   .tile-yellow {
-    background: var(--tile-yellow);
+    color: var(--app-warning);
   }
+  .tile-red,
   .tile-pink {
-    background: var(--tile-pink);
+    color: var(--app-danger);
   }
   .tile-gray {
-    background: var(--tile-gray);
+    color: var(--app-muted);
   }
 
   /* ---- feedback of the lesson (docs/14 §6.2): only transform and opacity, nothing runs all the time ---- */
@@ -568,12 +693,11 @@ body {
     background: rgb(0 0 0 / 0.4);
   }
 
-  /* Bottom sheet: the grabber is the ::before. */
+  /* Bottom sheet: the grabber is the ::before. Flat: the scrim sets it apart from the page, no shadow. */
   .sheet {
-    @apply w-full max-w-xl rounded-t-[20px] px-4 pt-3;
+    @apply w-full max-w-xl rounded-t-2xl px-4 pt-3;
     padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
     background: var(--app-surface);
-    box-shadow: 0 -8px 32px rgb(0 0 0 / 0.18);
   }
   .sheet::before {
     content: '';
@@ -591,11 +715,10 @@ body {
    * home-indicator inset, so the larger of the two is taken, not their sum.
    */
   .toast {
-    @apply pointer-events-none fixed inset-x-0 z-50 mx-auto w-max max-w-[calc(100%-2rem)] rounded-full px-4 py-2.5 text-center text-sm font-medium;
+    @apply pointer-events-none fixed inset-x-0 z-50 mx-auto w-max max-w-[calc(100%-2rem)] rounded-control px-4 py-2.5 text-center text-[15px] leading-5;
     bottom: calc(12px + max(var(--app-actions-h, 0px), env(safe-area-inset-bottom, 0px)));
-    background: color-mix(in srgb, var(--tg-text) 88%, transparent);
-    color: var(--tg-bg);
-    box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+    background: var(--app-text);
+    color: var(--app-surface);
   }
   .with-tabbar .toast {
     bottom: calc(12px + var(--app-tabbar-h) + env(safe-area-inset-bottom, 0px));

@@ -52,12 +52,11 @@ describe('ProBenefits', () => {
   beforeEach(() => setActivePinia(createPinia()))
   afterEach(() => setLocale('ru'))
 
-  it('lists the Pro benefits with a check each: the five that are always there, until /me says there is a line about practice', () => {
+  it('lists the Pro benefits, one line each: the five that are always there, until /me says there is a line about practice', () => {
     const w = mount(ProBenefits)
 
     expect(texts(w)).toEqual(FIVE)
-    expect(w.findAll('svg')).toHaveLength(5)
-    expect(w.findAll('svg').every((svg) => svg.attributes('fill') === 'currentColor')).toBe(true)
+    expect(w.findAll('[data-testid=benefit]')).toHaveLength(5)
   })
 
   describe('the line about practice is the word of the server: practice.pro_promise', () => {
@@ -66,7 +65,7 @@ describe('ProBenefits', () => {
       const w = mount(ProBenefits)
 
       expect(texts(w)).toEqual(SIX)
-      expect(w.findAll('svg')).toHaveLength(6)
+      expect(w.findAll('[data-testid=benefit]')).toHaveLength(6)
     })
 
     it("'solo': the practice alone", () => {
@@ -146,15 +145,20 @@ describe('ProBenefits', () => {
     expect(w.attributes('data-testid')).toBe('pro-benefits')
   })
 
-  it('compact: smaller icons and text, tighter spacing', () => {
+  it('draws plain lines between hairlines, without check marks (docs/design Pro)', () => {
+    const w = mount(ProBenefits)
+
+    expect(w.find('svg').exists()).toBe(false)
+    expect(w.classes()).toEqual(expect.arrayContaining(['border-t', 'border-hairline']))
+    for (const item of w.findAll('[data-testid=benefit]')) expect(item.classes()).toEqual(expect.arrayContaining(['border-b', 'border-divider']))
+  })
+
+  it('compact: smaller text, tighter rows', () => {
     const regular = mount(ProBenefits)
     const compact = mount(ProBenefits, { props: { compact: true } })
 
-    expect(regular.get('svg').attributes('width')).toBe('20')
-    expect(compact.get('svg').attributes('width')).toBe('18')
-    expect(regular.classes()).toContain('space-y-3')
-    expect(compact.classes()).toContain('space-y-2')
-    expect(compact.get('li span').classes()).toContain('text-sm')
+    expect(regular.get('li').classes()).toEqual(expect.arrayContaining(['py-3.5', 'text-[15px]']))
+    expect(compact.get('li').classes()).toEqual(expect.arrayContaining(['py-2.5', 'text-sm']))
   })
 
   describe('the line about the game is the word of the server: game.pro_promise', () => {

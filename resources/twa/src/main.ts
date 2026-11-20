@@ -22,7 +22,8 @@ try {
   // running outside Telegram (dev, Playwright) — ignore
 }
 
-// Theme parameters -> CSS variables, <html data-theme>, header colour; follows `themeChanged` (docs/14 §4.1).
+// The app's own palette: <html data-theme> from Telegram's colorScheme (outside Telegram: prefers-color-scheme), the header and
+// window background in the page colour; follows `themeChanged` (docs/14 §4.1).
 initTelegramTheme()
 
 // Interface language follows Telegram's language_code (uz* -> uz, otherwise ru).

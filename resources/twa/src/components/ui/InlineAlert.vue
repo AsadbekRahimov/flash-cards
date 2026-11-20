@@ -14,8 +14,8 @@ import type { IconName } from './icons'
  * course choice on the Courses one.
  *
  * - `tone` — `danger` (`role="alert"`: announced at once), or `warning` / `success` / `info` (`role="status"`: announced
- *   politely). The tone sets the colours (the soft token of the theme and its ink; `info` is the accent) and the icon
- *   (exclamation circle / exclamation triangle / check circle / information circle).
+ *   politely). The tone sets the colours (the soft fill of the colour, a thin frame in its line colour and its ink; `info` is
+ *   the accent) and the icon (exclamation circle / exclamation triangle / check circle / information circle).
  * - `message` — the text, already localized (e.g. `errorMessage(err, 'catalog')`).
  * - default slot — the text when it needs markup; it replaces `message`.
  *
@@ -37,11 +37,11 @@ interface ToneLook {
 }
 
 const LOOKS: Record<AlertTone, ToneLook> = {
-  danger: { icon: 'exclamation-circle', box: 'bg-danger-soft text-danger-ink' },
-  warning: { icon: 'exclamation-triangle', box: 'bg-warning-soft text-warning-ink' },
-  success: { icon: 'check-circle', box: 'bg-success-soft text-success-ink' },
-  // There is no "ink" for the accent: plain text on the soft accent, the icon carries the colour.
-  info: { icon: 'information-circle', box: 'bg-accent-soft text-tg-text', iconClass: 'text-accent' },
+  danger: { icon: 'exclamation-circle', box: 'border-danger-line bg-danger-soft text-danger-ink' },
+  warning: { icon: 'exclamation-triangle', box: 'border-warning-line bg-warning-soft text-warning-ink' },
+  success: { icon: 'check-circle', box: 'border-success-line bg-success-soft text-success-ink' },
+  // A note is not a status: the text in the body colour on the soft accent, the icon carries the colour.
+  info: { icon: 'information-circle', box: 'border-accent-line bg-accent-soft text-body', iconClass: 'text-accent' },
 }
 
 const look = computed(() => LOOKS[props.tone])
@@ -49,7 +49,7 @@ const look = computed(() => LOOKS[props.tone])
 
 <template>
   <div
-    class="flex items-start gap-2 rounded-xl px-3.5 py-2.5 text-left text-[15px] leading-5"
+    class="flex items-start gap-2 rounded-control border px-3.5 py-2.5 text-left text-[15px] leading-5"
     :class="look.box"
     :role="tone === 'danger' ? 'alert' : 'status'"
   >

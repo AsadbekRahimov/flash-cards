@@ -143,7 +143,7 @@ describe('TrainingView — closed session', () => {
       const { wrapper, router } = await closedWhileLearning(mode)
 
       const home = wrapper.get('[data-testid=home-btn]')
-      expect(home.text()).toBe('На главную')
+      expect(home.text()).toBe('К экрану «Сегодня»')
       expect(wrapper.find('[data-testid=close-btn]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=restart-btn]').exists()).toBe(false)
 
@@ -157,7 +157,7 @@ describe('TrainingView — closed session', () => {
       setLocale('uz')
       const { wrapper } = await closedWhileLearning('lesson')
 
-      expect(wrapper.get('[data-testid=home-btn]').text()).toBe('Asosiy sahifaga')
+      expect(wrapper.get('[data-testid=home-btn]').text()).toBe('«Bugun» ekraniga')
     })
 
     it('a group lesson still closes the Mini App', async () => {

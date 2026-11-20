@@ -37,6 +37,9 @@ use stdClass;
  *    (ru / uz) and by solo / class, "class" = a `group_members` row with `joined_at` earlier than 24 hours after registration in
  *    a group that is linked to a center now (`telegram_groups.organization_id` not null; a later leave does not undo it). The
  *    cell is null until 24 hours have passed since the registration of the cohort's youngest learner;
+ *  - the first day ({@see firstDay()} of a cohort): the deepest step each learner reached within the same 24 hours, one step per
+ *    learner: answered a word (the activation), else opened a training session (`training_sessions.started_at`), else finished the
+ *    onboarding of the bot (`learners.onboarding_completed_at`), else nothing past the open; null while the activation is;
  *  - played the game on day N ({@see GAME_DAYS}): a `learner_daily_stats` row of that local day with `game_runs_count > 0`
  *    (completed and failed runs), shown beside learning D1 / D7 and never added into them; the same maturity rule. The practice
  *    has no per-day column and is not shown;
@@ -175,7 +178,8 @@ final class RetentionReportService
         return isset($report['generated_at'], $report['cohorts'], $report['segments'], $report['first_session'])
             && is_string($report['generated_at']) && is_array($report['cohorts']) && is_array($report['segments'])
             && is_array($report['first_session']) && array_key_exists('round_again', $report['first_session'])
-            && isset($report['cohorts'][0]) && is_array($report['cohorts'][0]) && array_key_exists('activation', $report['cohorts'][0]);
+            && isset($report['cohorts'][0]) && is_array($report['cohorts'][0]) && array_key_exists('activation', $report['cohorts'][0])
+            && array_key_exists('first_day', $report['cohorts'][0]);
     }
 
     // -------------------------------------------------------------------------------------------------------------------
@@ -225,6 +229,8 @@ final class RetentionReportService
         $cohortRows = array_values(DB::select(
             "WITH c AS ({$cte}) SELECT wk, locale, trial, cls, COUNT(*) AS size, SUM(onboarded) AS onboarded, SUM(started) AS started, "
             .'SUM(act) AS activated, SUM(young) AS young, '
+            .'SUM(CASE WHEN act = 0 AND opn = 1 THEN 1 ELSE 0 END) AS opened, '
+            .'SUM(CASE WHEN act = 0 AND opn = 0 AND onb = 1 THEN 1 ELSE 0 END) AS onboarded_day1, '
             .'MIN('.$sql->daysBetween('today', 'reg').') AS elapsed FROM c GROUP BY wk, locale, trial, cls',
             $cteBindings,
         ));
@@ -236,8 +242,8 @@ final class RetentionReportService
 
     /**
      * The learners of the window with their week, local registration date, local "today", language, trial flag, first-answer
-     * flag and the activation flags (answered in 24 hours, joined a center's group in 24 hours, registered less than 24 hours
-     * ago); one row per learner, bindings in the order of the placeholders. The `EXISTS` subqueries run on the indexes
+     * flag and the activation flags (answered in 24 hours, joined a center's group in 24 hours, opened a session and finished the
+     * onboarding in 24 hours, registered less than 24 hours ago); one row per learner, bindings in the order of the placeholders. The `EXISTS` subqueries run on the indexes
      * `training_reviews (learner_id, created_at)` and `group_members (learner_id, status)`.
      *
      * @param  list<array{CarbonImmutable, CarbonImmutable}>  $weeks
@@ -284,6 +290,8 @@ final class RetentionReportService
             .'CASE WHEN EXISTS (SELECT 1 FROM training_reviews ra WHERE ra.learner_id = l.id AND ra.created_at < '.$deadline.') THEN 1 ELSE 0 END AS act, '
             .'CASE WHEN EXISTS (SELECT 1 FROM group_members gm JOIN telegram_groups tg ON tg.id = gm.telegram_group_id '
             .'WHERE gm.learner_id = l.id AND tg.organization_id IS NOT NULL AND gm.joined_at < '.$deadline.') THEN 1 ELSE 0 END AS cls, '
+            .'CASE WHEN EXISTS (SELECT 1 FROM training_sessions ts WHERE ts.learner_id = l.id AND ts.started_at < '.$deadline.') THEN 1 ELSE 0 END AS opn, '
+            .'CASE WHEN l.onboarding_completed_at IS NOT NULL AND l.onboarding_completed_at < '.$deadline.' THEN 1 ELSE 0 END AS onb, '
             ."CASE WHEN l.created_at > {$sql->ts()} THEN 1 ELSE 0 END AS young "
             ."FROM learners l WHERE l.deleted_at IS NULL AND l.created_at >= {$sql->ts()} AND l.created_at < {$sql->ts()}";
 
@@ -293,6 +301,8 @@ final class RetentionReportService
             self::db($now),
             ...$nowBindings,
             SubscriptionProvider::Trial->value,
+            $window,
+            $window,
             $window,
             $window,
             self::db($now->subSeconds($window)),
@@ -367,6 +377,8 @@ final class RetentionReportService
                 (int) $row->cls,
                 (int) $row->activated,
                 (int) $row->young,
+                (int) $row->opened,
+                (int) $row->onboarded_day1,
             );
         }
 
@@ -411,6 +423,7 @@ final class RetentionReportService
                 'retention' => $retention,
                 'game' => $game,
                 'activation' => $activation,
+                'first_day' => $week->young === 0 && $week->size > 0 ? self::firstDay($week) : null,
             ];
         }
 
@@ -463,6 +476,25 @@ final class RetentionReportService
         }
 
         return $out;
+    }
+
+    /**
+     * The first 24 hours of a cohort as exclusive steps (each learner in the deepest step they reached): answered a word, opened
+     * a session without an answer, finished the onboarding without a session, the rest. The steps add up to the cohort.
+     *
+     * @return array{size: int, answered: int, opened: int, onboarded: int, rest: int}
+     */
+    private static function firstDay(RetentionWeek $week): array
+    {
+        $answered = $week->activation['all']['count'] ?? 0;
+
+        return [
+            'size' => $week->size,
+            'answered' => $answered,
+            'opened' => $week->openedDay1,
+            'onboarded' => $week->onboardedDay1,
+            'rest' => max(0, $week->size - $answered - $week->openedDay1 - $week->onboardedDay1),
+        ];
     }
 
     /** Whether day N (`d7`; `within` = the 7th) has ended for the whole cohort: its youngest learner lived through more than N days. */
