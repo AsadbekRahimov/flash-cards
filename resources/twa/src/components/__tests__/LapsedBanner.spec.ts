@@ -60,12 +60,14 @@ describe('LapsedBanner', () => {
     expect(w.get('[data-testid=lapsed-text]').text()).toMatch(/^Obuna 18-oktabr kuni tugadi\./)
   })
 
-  it('is a warning card: a clock tile, a tinted renew button (the screen keeps one primary) and an icon-only dismiss button named "Hide"', async () => {
+  it('is a calm warning card: an amber status dot, a tinted renew button (the screen keeps one primary) and an icon-only dismiss button named "Hide"', async () => {
     const w = await render(me(lapsed()))
 
-    const tile = w.get('.icon-tile')
-    expect(tile.classes()).toContain('bg-warning')
-    expect(tile.get('path').attributes('d')).toBe(ICONS.clock.outline[0]?.d)
+    expect(w.get('[data-testid=lapsed-banner]').classes()).toContain('card')
+    expect(w.find('.icon-tile').exists()).toBe(false)
+    const dot = w.get('[data-testid=lapsed-dot]')
+    expect(dot.classes()).toContain('bg-warning')
+    expect(dot.attributes('aria-hidden')).toBe('true')
 
     const renew = w.get('[data-testid=lapsed-renew]')
     expect(renew.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted', 'btn-block']))
@@ -258,6 +260,8 @@ describe('LapsedBanner', () => {
       expect(w.get('[data-testid=lapsed-text]').text()).toBe('Оформите Pro или пригласите друзей и получите Pro бесплатно.')
       expect(w.get('[data-testid=lapsed-renew]').text()).toBe('Оформить Pro')
       expect(w.get('[data-testid=lapsed-invite]').text()).toBe('Пригласить друзей')
+      // the second action is a text button under the tinted one (docs/14 §4.5)
+      expect(w.get('[data-testid=lapsed-invite]').classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain']))
     })
 
     it('emits renew and invite from its two buttons', async () => {

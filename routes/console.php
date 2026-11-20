@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Operations\Services\SchedulerHeartbeat;
 use App\Jobs\QueueHeartbeatJob;
+use App\Jobs\WarmOpenSpeedJob;
 use App\Models\NotificationLog;
 use App\Models\ProductEvent;
 use App\Models\TelegramLinkToken;
@@ -156,6 +157,12 @@ Schedule::command('reminders:dispatch')
     ->everyFifteenMinutes()
     ->withoutOverlapping(10)
     ->runInBackground();
+
+// The open speed of the Mini App on the dashboard of /admin (docs/20 §1.13): the scan of the timing marks of 7 days runs in a worker
+// of the `low` queue, the widget only reads the result. Unique job, so a slow worker never gets a pile of them.
+Schedule::job(new WarmOpenSpeedJob)
+    ->name('analytics:warm-open-speed')
+    ->everyThirtyMinutes();
 
 // Retention of product_events and notifications_log (operations.*.retention_days), and of the used / expired one-time
 // Telegram link tokens (30 days, TelegramLinkToken::RETENTION_DAYS).

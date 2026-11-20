@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
-import { MODE_LOOK, modeTitle } from '@/composables/practiceLabels'
+import { modeTitle } from '@/composables/practiceLabels'
 import { useI18n } from '@/i18n'
 import type { PracticeActiveSession } from '@/api/types'
 
@@ -26,7 +25,6 @@ const emit = defineEmits<{ continue: []; replace: []; close: [] }>()
 
 const { t } = useI18n()
 
-const look = computed(() => MODE_LOOK[props.session.mode])
 const text = computed(() =>
   t('practice.hub.active.text', {
     mode: modeTitle(props.session.mode),
@@ -38,10 +36,9 @@ const text = computed(() =>
 
 <template>
   <BottomSheet :label="t('practice.hub.active.title')" data-testid="active-session-sheet" @close="emit('close')">
-    <header class="flex flex-col items-center gap-2 pt-1 text-center">
-      <span class="icon-tile size-14 rounded-2xl" :class="`tile-${look.tile}`"><AppIcon :name="look.icon" :size="28" /></span>
-      <h2 class="text-[22px] leading-7 font-bold" data-testid="active-title">{{ t('practice.hub.active.title') }}</h2>
-      <p v-if="place" class="text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="active-place">{{ place }}</p>
+    <header class="flex flex-col gap-1.5 pt-1 pr-10">
+      <h2 class="text-[22px] leading-7 font-semibold" data-testid="active-title">{{ t('practice.hub.active.title') }}</h2>
+      <p v-if="place" class="text-[13px] leading-[18px] text-muted" data-testid="active-place">{{ place }}</p>
       <p class="text-[15px] leading-5" data-testid="active-text">{{ text }}</p>
     </header>
 

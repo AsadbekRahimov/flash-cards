@@ -167,10 +167,10 @@ describe('PracticeSummary — what next', () => {
     expect(wrapper.find('[data-testid=again-btn]').exists()).toBe(true)
   })
 
-  it('"To the course" is tinted, "Close" is plain', async () => {
+  it('"To the course" and "Close" are text buttons under the primary one', async () => {
     const wrapper = render()
 
-    expect(wrapper.get('[data-testid=course-btn]').classes()).toContain('btn-tinted')
+    expect(wrapper.get('[data-testid=course-btn]').classes()).toContain('btn-plain')
     expect(wrapper.get('[data-testid=course-btn]').text()).toBe('В курс')
     expect(wrapper.get('[data-testid=close-btn]').classes()).toContain('btn-plain')
 
@@ -212,12 +212,21 @@ describe('PracticeSummary — timed pairs', () => {
     expect(wrapper.emitted('hub')).toHaveLength(1)
   })
 
-  it('celebrates a new record', () => {
+  it('says a new record in words, without celebration: no confetti, no big icon', () => {
     const wrapper = render({ summary: timedSummary({ is_record: true }) }, 'pairs_timed')
 
     expect(text(wrapper, 'timed-new-record')).toBe('Новый рекорд!')
+    expect(wrapper.get('[data-testid=timed-new-record]').classes()).toContain('text-success-ink')
     expect(wrapper.find('[data-testid=timed-best]').exists()).toBe(false)
-    expect(wrapper.find('[data-testid=confetti]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid=confetti]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid=summary-icon]').exists()).toBe(false)
+  })
+
+  it('sets the numbers of the score and of the record in the mono font, the words around them not', () => {
+    const wrapper = render({ summary: timedSummary({ score: 17, best_score: 23 }) }, 'pairs_timed')
+
+    expect(wrapper.get('[data-testid=timed-summary-score] .font-mono').text()).toBe('17')
+    expect(wrapper.get('[data-testid=timed-best] .font-mono').text()).toBe('23')
   })
 
   it('a game that went through all the rounds says so', () => {

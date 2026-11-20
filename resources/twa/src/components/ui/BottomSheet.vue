@@ -52,7 +52,7 @@ useDialogFocus(dialog, dismiss)
       <button
         v-if="dismissible"
         type="button"
-        class="absolute top-1.5 right-1.5 z-10 flex size-11 items-center justify-center text-tg-hint"
+        class="absolute top-1.5 right-1.5 z-10 flex size-11 items-center justify-center text-muted"
         :aria-label="t('common.close')"
         data-testid="sheet-x"
         @click="emit('close')"

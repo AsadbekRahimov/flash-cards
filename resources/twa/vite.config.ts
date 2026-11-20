@@ -2,12 +2,14 @@ import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
+import { themeBoot } from './scripts/themeBoot'
 
 // Vite config for the LexiFlow Telegram Web App.
 // Output is emitted to ../../public/twa so Nginx can serve it from /twa/
 // with SPA fallback (see docker/nginx/default.conf).
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  // themeBoot: the classic start script of <head> (theme before the first paint, font preload), see scripts/themeBoot.ts.
+  plugins: [vue(), tailwindcss(), themeBoot()],
   base: '/twa/',
   build: {
     outDir: fileURLToPath(new URL('../../public/twa', import.meta.url)),

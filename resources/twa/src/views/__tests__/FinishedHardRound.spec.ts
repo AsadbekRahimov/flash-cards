@@ -69,21 +69,21 @@ describe('FinishedView: the round of hard words', () => {
   })
 
   describe('the final of the round itself', () => {
-    it('says "You won X of N" with confetti and the sound when all are won', () => {
+    it('says "You won X of N" with the sound when all are won, calmly: no confetti (docs/design Finish)', () => {
       const w = render('hard_round_complete', summary({ hard_round: { total: 10, won: 10 }, practice_entry: null }), 'hard_review')
 
       expect(w.get('[data-testid=hard-round-title]').text()).toBe('Вы победили 10 из 10 трудных слов')
       expect(w.get('[data-testid=hard-round-note]').text()).toBe('Все трудные слова побеждены. Так держать!')
-      expect(w.find('[data-testid=confetti]').exists()).toBe(true)
+      expect(w.find('[data-testid=confetti]').exists()).toBe(false)
       expect(sound.playSound).toHaveBeenCalledWith('done')
     })
 
-    it('celebrates 80 % too', () => {
+    it('gives the sound for 80 % too', () => {
       const w = render('hard_round_complete', summary({ hard_round: { total: 10, won: 8 } }), 'hard_review')
 
       expect(w.get('[data-testid=hard-round-title]').text()).toBe('Вы победили 8 из 10 трудных слов')
       expect(w.get('[data-testid=hard-round-note]').text()).toBe('Эти слова ещё вернутся — так и задумано')
-      expect(w.find('[data-testid=confetti]').exists()).toBe(true)
+      expect(w.find('[data-testid=confetti]').exists()).toBe(false)
       expect(sound.playSound).toHaveBeenCalledWith('done')
     })
 
@@ -200,7 +200,7 @@ describe('FinishedView: the round of hard words', () => {
       expect(w.get('[data-testid=hard-round-corrected]').text()).toBe('Раньше вы ошибались в слове «borrow» (занимать) — сегодня ответили верно.')
       const translation = w.get('[data-testid=hard-round-corrected-translation]')
       expect(translation.text()).toBe('(занимать)')
-      expect(translation.classes()).toContain('text-tg-hint')
+      expect(translation.classes()).toContain('text-muted')
       expect(w.find('[data-testid=hard-round-corrected-answer]').exists()).toBe(false)
       expect(w.get('header').text()).toContain('Эти слова ещё вернутся — так и задумано')
     })
@@ -210,7 +210,7 @@ describe('FinishedView: the round of hard words', () => {
 
       const answer = w.get('[data-testid=hard-round-corrected-answer]')
       expect(answer.text()).toBe('Тогда: borow')
-      expect(answer.classes()).toContain('text-tg-hint')
+      expect(answer.classes()).toContain('text-muted')
     })
 
     it('shows the text as text, in Uzbek too', () => {

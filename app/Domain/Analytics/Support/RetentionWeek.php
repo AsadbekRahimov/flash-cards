@@ -8,7 +8,8 @@ namespace App\Domain\Analytics\Support;
  * What the retention report adds up for one registration week while it reads the rows of the two aggregate queries: the
  * totals of the cohort, how many whole days its youngest learner has lived through (`elapsed`, the maturity of a cell), the
  * same sums per segment (`locale:ru`, `trial:yes`, ...) for the language / trial slice, and the activation in 24 hours by its
- * cuts (`all`, `ru`, `uz`, `solo`, `class`) with the number of learners whose 24 hours have not passed yet (`young`).
+ * cuts (`all`, `ru`, `uz`, `solo`, `class`) with the number of learners whose 24 hours have not passed yet (`young`), and the
+ * deepest step of the first 24 hours of those who did not answer (an opened session, the finished onboarding).
  */
 final class RetentionWeek
 {
@@ -33,6 +34,12 @@ final class RetentionWeek
     /** Learners registered less than 24 hours ago: while there is one, the week's activation is not known yet. */
     public int $young = 0;
 
+    /** Learners whose deepest step of the first 24 hours is an opened session (no answer). */
+    public int $openedDay1 = 0;
+
+    /** Learners whose deepest step of the first 24 hours is the finished onboarding (no session, no answer). */
+    public int $onboardedDay1 = 0;
+
     /** @var array<string, array{count: int, of: int}> activated learners and the base, by cut ("all", "ru", "uz", "solo", "class") */
     public array $activation = [];
 
@@ -52,8 +59,12 @@ final class RetentionWeek
         int $class = 0,
         int $activated = 0,
         int $young = 0,
+        int $openedDay1 = 0,
+        int $onboardedDay1 = 0,
     ): void {
         $this->size += $size;
+        $this->openedDay1 += $openedDay1;
+        $this->onboardedDay1 += $onboardedDay1;
         $this->onboarded += $onboarded;
         $this->started += $started;
         $this->young += $young;

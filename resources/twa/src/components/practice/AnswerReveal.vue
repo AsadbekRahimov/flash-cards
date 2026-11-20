@@ -22,8 +22,8 @@ import type {
 } from '@/api/types'
 
 /**
- * What the server said about the answer (docs/16 §5, §11.2): a coloured circle with a symbol and the verdict in words
- * (the colour is never alone), then the explanation in the shape of the task:
+ * What the server said about the answer (docs/16 §5, §11.2; the white screen of docs/design Feedback): the verdict in words with a
+ * small symbol, both in the ink of the verdict (the colour is never alone), then the explanation in the shape of the task:
  * - dictation — the phrase as it should be written with a button to listen to it again, what was typed (word by word: every
  *   word has a symbol and a word besides its colour, the wrong ones are underlined), the translation and the explanation;
  * - sentence — the correct sentence, the other accepted orders, what was assembled;
@@ -60,19 +60,19 @@ const verdict = computed((): PracticeVerdict => props.outcome.verdict)
 
 interface Look {
   icon: IconName
-  /** The circle: the soft colour and its "ink" for the symbol. */
-  circle: string
+  /** The ink of the verdict: the symbol and the words. */
+  tone: string
 }
 
 const LOOKS: Record<PracticeVerdict, Look> = {
-  correct: { icon: 'check', circle: 'bg-success-soft text-success-ink' },
-  typo: { icon: 'exclamation-circle', circle: 'bg-warning-soft text-warning-ink' },
-  wrong: { icon: 'x-mark', circle: 'bg-danger-soft text-danger-ink' },
-  skipped: { icon: 'light-bulb', circle: 'bg-accent-soft text-accent-ink' },
+  correct: { icon: 'check', tone: 'text-success-ink' },
+  typo: { icon: 'exclamation-circle', tone: 'text-warning-ink' },
+  wrong: { icon: 'x-mark', tone: 'text-danger-ink' },
+  skipped: { icon: 'light-bulb', tone: 'text-accent-ink' },
 }
 
 const isRoundEnd = computed(() => props.outcome.element.kind === 'pairs_round')
-const look = computed((): Look => (isRoundEnd.value ? { icon: 'check-circle', circle: LOOKS.correct.circle } : LOOKS[verdict.value]))
+const look = computed((): Look => (isRoundEnd.value ? { icon: 'check-circle', tone: LOOKS.correct.tone } : LOOKS[verdict.value]))
 
 const reveal = computed((): PracticeReveal | null => props.outcome.reveal)
 // The shape of the explanation tells its kind (the reveals of the word form and of the error hunt share field names with older ones).
@@ -128,7 +128,7 @@ interface HuntStep {
 const HUNT_LOOKS: Record<HuntStepState, { icon: IconName; tone: string }> = {
   ok: { icon: 'check', tone: 'text-success-ink' },
   wrong: { icon: 'x-mark', tone: 'text-danger-ink' },
-  skipped: { icon: 'minus', tone: 'text-tg-subtitle' },
+  skipped: { icon: 'minus', tone: 'text-muted' },
 }
 
 /** Error hunt: the two steps in words, and the sentence before and after the correction, each cut around its word. */
@@ -254,49 +254,54 @@ function onContinue(): void {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="answer-reveal" :data-kind="outcome.element.kind" :data-verdict="isRoundEnd ? 'round' : verdict">
-    <div class="flex flex-1 flex-col gap-3 px-4 pt-4 pb-4">
-      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
-        <span class="flex size-16 items-center justify-center rounded-full" :class="look.circle" data-testid="reveal-icon">
-          <AppIcon :name="look.icon" solid :size="32" />
-        </span>
-
+    <div class="flex flex-1 flex-col gap-4 px-5 pt-6 pb-4">
+      <article class="flex flex-col items-center gap-3 text-center">
         <template v-if="round">
-          <h2 class="text-[22px] leading-7 font-bold" data-testid="reveal-text">
+          <h2 class="flex items-center gap-1.5 text-[22px] leading-7 font-semibold" :class="look.tone" data-testid="reveal-text">
+            <span data-testid="reveal-icon" :class="look.tone"><AppIcon :name="look.icon" :size="20" /></span>
             {{ t('practice.session.round_done', { round: round.round, rounds: round.rounds }) }}
           </h2>
-          <p class="text-base leading-[22px] text-tg-subtitle" data-testid="round-mistakes">
+          <p class="text-[15px] leading-5 text-muted" data-testid="round-mistakes">
             {{ round.mistakes === 0 ? t('practice.session.round_clean') : t('practice.session.round_mistakes', { count: round.mistakes }) }}
           </p>
-          <div v-if="round.pairs.length > 0" class="mt-1 w-full" data-testid="round-pairs">
-            <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.pairs.recap') }}</p>
-            <ul class="mt-1.5 flex flex-col gap-1.5 text-left" role="list">
-              <li v-for="pair in round.pairs" :key="pair.id" class="flex items-baseline justify-between gap-3 text-base leading-[22px]" data-testid="round-pair">
-                <span class="min-w-0 font-medium break-words">{{ pair.word }}</span>
-                <span class="min-w-0 text-right text-tg-subtitle break-words">{{ pair.translation }}</span>
+          <div v-if="round.pairs.length > 0" class="mt-2 w-full text-left" data-testid="round-pairs">
+            <p class="text-[13px] leading-[18px] text-muted">{{ t('practice.pairs.recap') }}</p>
+            <ul class="mt-1.5 flex flex-col overflow-hidden rounded-card border border-hairline" role="list">
+              <li
+                v-for="pair in round.pairs"
+                :key="pair.id"
+                class="flex items-baseline justify-between gap-3 border-t border-divider px-4 py-2.5 text-base leading-[22px] first:border-t-0"
+                data-testid="round-pair"
+              >
+                <span class="min-w-0 font-semibold break-words" lang="en">{{ pair.word }}</span>
+                <span class="min-w-0 text-right text-muted break-words">{{ pair.translation }}</span>
               </li>
             </ul>
           </div>
         </template>
 
         <template v-else>
-          <h2 class="text-[22px] leading-7 font-bold" data-testid="reveal-text">{{ verdictLabel(outcome.element.kind, verdict) }}</h2>
-          <p v-if="outcome.earlier" class="text-[15px] leading-5 text-tg-subtitle" data-testid="reveal-earlier">{{ t('practice.reveal.earlier') }}</p>
-          <p v-else-if="verdict === 'typo'" class="text-[15px] leading-5 text-tg-subtitle" data-testid="reveal-note">{{ t('practice.reveal.typo_note') }}</p>
-          <p v-else-if="verdict === 'skipped'" class="text-[15px] leading-5 text-tg-subtitle" data-testid="reveal-note">{{ t('practice.reveal.skipped_note') }}</p>
+          <h2 class="flex items-center gap-1.5 text-[22px] leading-7 font-semibold" :class="look.tone">
+            <span data-testid="reveal-icon" :class="look.tone"><AppIcon :name="look.icon" :size="20" /></span>
+            <span data-testid="reveal-text">{{ verdictLabel(outcome.element.kind, verdict) }}</span>
+          </h2>
+          <p v-if="outcome.earlier" class="text-[15px] leading-5 text-muted" data-testid="reveal-earlier">{{ t('practice.reveal.earlier') }}</p>
+          <p v-else-if="verdict === 'typo'" class="text-[15px] leading-5 text-muted" data-testid="reveal-note">{{ t('practice.reveal.typo_note') }}</p>
+          <p v-else-if="verdict === 'skipped'" class="text-[15px] leading-5 text-muted" data-testid="reveal-note">{{ t('practice.reveal.skipped_note') }}</p>
         </template>
 
         <!-- The right answer, as the task wants it written. -->
         <div v-if="dictation || sentence" class="mt-1 w-full">
-          <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('exercise.verdict.expected') }}</p>
-          <p class="mt-1 text-2xl leading-8 font-bold break-words" data-testid="expected">{{ dictation?.expected ?? sentence?.correct_text }}</p>
+          <p class="text-[13px] leading-[18px] text-muted">{{ t('exercise.verdict.expected') }}</p>
+          <p class="mt-1 text-2xl leading-8 font-semibold break-words" lang="en" data-testid="expected">{{ dictation?.expected ?? sentence?.correct_text }}</p>
         </div>
         <!-- The whole collocation: the phrase with the right option in the blank, the word the learner needed marked. -->
         <div v-if="collocation" class="mt-1 w-full">
-          <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('exercise.verdict.expected') }}</p>
-          <p class="mt-1 font-bold break-words" :class="phraseSize(collocation.full_text)" lang="en" data-testid="expected">
+          <p class="text-[13px] leading-[18px] text-muted">{{ t('exercise.verdict.expected') }}</p>
+          <p class="mt-1 font-semibold break-words" :class="phraseSize(collocation.full_text)" lang="en" data-testid="expected">
             <template v-if="phrase">
               <span>{{ phrase.before }}</span>
-              <span class="rounded-md bg-success-soft px-1 text-success-ink" data-testid="expected-fill">{{ phrase.filled }}</span>
+              <span class="rounded-badge bg-success-soft px-1 text-success-ink" data-testid="expected-fill">{{ phrase.filled }}</span>
               <span>{{ phrase.after }}</span>
             </template>
             <template v-else>{{ collocation.full_text }}</template>
@@ -306,8 +311,8 @@ function onContinue(): void {
         <!-- Word form: the right form, the other accepted ones, the reason when the base word was typed, the whole sentence. -->
         <template v-if="wordForm">
           <div class="mt-1 w-full">
-            <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('exercise.verdict.expected') }}</p>
-            <p class="mt-1 text-2xl leading-8 font-bold break-words" lang="en" data-testid="expected">{{ wordForm.expected }}</p>
+            <p class="text-[13px] leading-[18px] text-muted">{{ t('exercise.verdict.expected') }}</p>
+            <p class="mt-1 text-2xl leading-8 font-semibold break-words" lang="en" data-testid="expected">{{ wordForm.expected }}</p>
           </div>
           <p v-if="wordForm.same_as_base && verdict !== 'correct'" class="flex items-center justify-center gap-1.5 text-[15px] leading-5 font-medium text-warning-ink" data-testid="same-as-base">
             <AppIcon name="exclamation-circle" :size="18" />
@@ -316,7 +321,7 @@ function onContinue(): void {
           <p class="w-full text-lg leading-6 break-words" lang="en" data-testid="word-form-full">
             <template v-if="wordFormSentence">
               <span>{{ wordFormSentence.before }}</span>
-              <span class="rounded-md bg-success-soft px-1 font-semibold text-success-ink" data-testid="word-form-fill">{{ wordFormSentence.filled }}</span>
+              <span class="rounded-badge bg-success-soft px-1 font-semibold text-success-ink" data-testid="word-form-fill">{{ wordFormSentence.filled }}</span>
               <span>{{ wordFormSentence.after }}</span>
             </template>
             <template v-else>{{ wordForm.full_text }}</template>
@@ -338,13 +343,13 @@ function onContinue(): void {
                 <AppIcon :name="HUNT_LOOKS[row.state].icon" :size="18" />
                 <span data-testid="hunt-step-label">{{ row.label }}</span>
               </span>
-              <span v-if="row.yours" class="text-[15px] leading-5 text-tg-subtitle break-words" :data-testid="`hunt-${row.key}-yours`">
-                {{ row.yours.label }}: <span class="font-semibold text-tg-text" lang="en">{{ row.yours.text }}</span>
+              <span v-if="row.yours" class="text-[15px] leading-5 text-muted break-words" :data-testid="`hunt-${row.key}-yours`">
+                {{ row.yours.label }}: <span class="font-semibold text-body" lang="en">{{ row.yours.text }}</span>
               </span>
             </li>
           </ul>
           <div class="w-full text-left" data-testid="hunt-was">
-            <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.error_hunt.was') }}</p>
+            <p class="text-[13px] leading-[18px] text-muted">{{ t('practice.error_hunt.was') }}</p>
             <p class="mt-0.5 text-lg leading-6 break-words" lang="en">
               <template v-if="hunt.was">
                 <span>{{ hunt.was.before }}</span>
@@ -355,11 +360,11 @@ function onContinue(): void {
             </p>
           </div>
           <div class="w-full text-left" data-testid="hunt-became">
-            <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.error_hunt.became') }}</p>
+            <p class="text-[13px] leading-[18px] text-muted">{{ t('practice.error_hunt.became') }}</p>
             <p class="mt-0.5 text-lg leading-6 break-words" lang="en">
               <template v-if="hunt.became">
                 <span>{{ hunt.became.before }}</span>
-                <span class="rounded-md bg-success-soft px-1 font-semibold text-success-ink" data-testid="hunt-fix-word">{{ hunt.became.marked }}</span>
+                <span class="rounded-badge bg-success-soft px-1 font-semibold text-success-ink" data-testid="hunt-fix-word">{{ hunt.became.marked }}</span>
                 <span>{{ hunt.became.after }}</span>
               </template>
               <template v-else>{{ errorHunt.full_text }}</template>
@@ -388,7 +393,7 @@ function onContinue(): void {
         </button>
 
         <div v-if="yourText" class="w-full">
-          <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.reveal.your_answer') }}</p>
+          <p class="text-[13px] leading-[18px] text-muted">{{ t('practice.reveal.your_answer') }}</p>
           <template v-if="diff">
             <!-- Word by word: a symbol AND a word for a screen reader beside the colour, the wrong ones underlined. -->
             <ul class="mt-1.5 flex flex-wrap justify-center gap-x-3 gap-y-1.5" data-testid="diff">
@@ -405,15 +410,15 @@ function onContinue(): void {
                 <span class="sr-only">{{ token.ok ? t('practice.dictation.diff.right') : t('practice.dictation.diff.wrong') }}</span>
               </li>
             </ul>
-            <p v-if="diff.some((token) => !token.ok)" class="mt-1.5 text-[13px] leading-[18px] text-tg-hint" data-testid="diff-hint">
+            <p v-if="diff.some((token) => !token.ok)" class="mt-1.5 text-[13px] leading-[18px] text-muted" data-testid="diff-hint">
               {{ t('practice.dictation.diff_hint') }}
             </p>
           </template>
-          <p v-else class="mt-1 text-base leading-[22px] text-tg-hint line-through break-words" data-testid="your-text">{{ yourText }}</p>
+          <p v-else class="mt-1 text-base leading-[22px] text-muted line-through break-words" data-testid="your-text">{{ yourText }}</p>
         </div>
 
         <div v-if="alternatives.length > 0" class="w-full" data-testid="alternatives">
-          <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.sentence.also_correct') }}</p>
+          <p class="text-[13px] leading-[18px] text-muted">{{ t('practice.sentence.also_correct') }}</p>
           <p v-for="alternative in alternatives" :key="alternative" class="mt-1 text-base leading-[22px] break-words" lang="en" data-testid="alternative">{{ alternative }}</p>
         </div>
       </article>
@@ -436,19 +441,20 @@ function onContinue(): void {
         </div>
       </div>
 
-      <section v-if="translation || explanation" class="card flex flex-col gap-3">
+      <!-- The meaning and the why: the quiet panel of the Feedback mock-up (the page colour on the white screen). -->
+      <section v-if="translation || explanation" class="flex flex-col gap-3 rounded-card border border-hairline bg-page p-[18px]">
         <div v-if="translation" data-testid="translation">
-          <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.reveal.translation') }}</p>
+          <p class="text-[13px] leading-[18px] text-muted">{{ t('practice.reveal.translation') }}</p>
           <p class="mt-0.5 text-base leading-[22px] italic">{{ translation }}</p>
         </div>
         <div v-if="explanation" data-testid="explanation">
-          <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">{{ t('practice.reveal.explanation') }}</p>
+          <p class="text-[13px] leading-[18px] text-muted">{{ t('practice.reveal.explanation') }}</p>
           <p class="mt-0.5 text-base leading-[22px]">{{ explanation }}</p>
         </div>
       </section>
     </div>
 
-    <StickyActions>
+    <StickyActions surface>
       <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="continue-btn" @click="onContinue">
         {{ last ? t('practice.session.to_summary') : t('exercise.continue') }}
       </button>

@@ -173,9 +173,9 @@ describe('FriendsView', () => {
     const rows = wrapper.findAll('[data-testid=friend-row]')
     expect(rows).toHaveLength(2)
     expect(rows[0]?.text()).toContain('Dilnoza')
-    expect(rows[0]?.get('[data-testid=friend-subtitle]').text()).toBe('🔥 5 · 120 слов')
+    expect(rows[0]?.get('[data-testid=friend-subtitle]').text()).toBe('серия 5 · 120 слов')
     expect(rows[1]?.text()).toContain('Друг')
-    expect(rows[1]?.get('[data-testid=friend-subtitle]').text()).toBe('🔥 0 · 3 слова')
+    expect(rows[1]?.get('[data-testid=friend-subtitle]').text()).toBe('серия 0 · 3 слова')
 
     expect(wrapper.get('[data-testid=incoming-row]').text()).toContain('Bek')
     expect(wrapper.get('[data-testid=outgoing-row]').text()).toContain('Sam')
@@ -194,14 +194,14 @@ describe('FriendsView', () => {
       friendsResponse({ friends: [{ id: 11, first_name: 'Dilnoza', streak: 4, words_learned: words, since: null }] }),
     )
 
-    expect(text(wrapper, 'friend-subtitle')).toBe(`🔥 4 · ${expected}`)
+    expect(text(wrapper, 'friend-subtitle')).toBe(`серия 4 · ${expected}`)
   })
 
   describe('the header', () => {
     it('is the "Rating" tab with a Лига | Друзья switch, Friends active', async () => {
       const { wrapper, router } = await render()
 
-      expect(wrapper.get('h1').text()).toBe('Рейтинг')
+      expect(wrapper.get('h1').text()).toBe('Друзья')
       expect(wrapper.get('[data-testid=seg-friends]').attributes('aria-current')).toBe('page')
       expect(wrapper.get('[data-testid=seg-league]').attributes('aria-current')).toBeUndefined()
 
@@ -225,11 +225,11 @@ describe('FriendsView', () => {
   })
 
   describe('the invitation', () => {
-    it('is a card with a blue tile, the link in a read-only field, a primary share and a tinted copy button', async () => {
+    it('is a plain card (no tile), the link in a read-only field, a primary share and a tinted copy button', async () => {
       const { wrapper } = await render()
 
       const invite = wrapper.get('[data-testid=invite]')
-      expect(invite.get('.icon-tile').classes()).toContain('tile-blue')
+      expect(invite.find('.icon-tile').exists()).toBe(false)
       expect(invite.text()).toContain('Пригласить в друзья')
 
       const link = wrapper.get('[data-testid=link]')
@@ -663,13 +663,13 @@ describe('FriendsView', () => {
     setLocale('uz')
     const { wrapper } = await render(friendsResponse(), challengesResponse({ open: [challenge()] }))
 
-    expect(wrapper.get('h1').text()).toBe('Reyting')
+    expect(wrapper.get('h1').text()).toBe("Do'stlar")
     expect(wrapper.get('[data-testid=seg-friends]').text()).toBe("Do'stlar")
     expect(wrapper.get('[data-testid=seg-league]').text()).toBe('Liga')
     expect(wrapper.get('[data-testid=share-btn]').text()).toBe('Havolani ulashish')
     expect(wrapper.get('[data-testid=copy-btn]').text()).toBe('Nusxalash')
     expect(text(wrapper, 'friends-count')).toBe('2 / 100')
-    expect(wrapper.findAll('[data-testid=friend-subtitle]')[0]?.text()).toBe("🔥 5 · 120 ta so'z")
+    expect(wrapper.findAll('[data-testid=friend-subtitle]')[0]?.text()).toBe("ketma-ketlik 5 · 120 ta so'z")
     expect(wrapper.get('[data-testid=challenge-row]').text()).toContain('Dilnoza bilan')
     expect(wrapper.get('[data-testid=challenge-row]').text()).not.toMatch(/\p{Script=Cyrillic}/u)
   })
@@ -684,7 +684,7 @@ describe('FriendsView', () => {
       await flushPromises()
 
       expect(wrapper.find('[data-testid=spinner]').exists()).toBe(true)
-      expect(wrapper.get('h1').text()).toBe('Рейтинг')
+      expect(wrapper.get('h1').text()).toBe('Друзья')
       expect(wrapper.find('[data-testid=seg-league]').exists()).toBe(true)
       expect(wrapper.find('[data-testid=invite]').exists()).toBe(false)
     })
@@ -1166,7 +1166,7 @@ describe('FriendsView', () => {
         const { wrapper } = await renderBattles(withLimits(freeLimits(0, 0)))
 
         expect(line(wrapper).element.tagName).toBe('P')
-        expect(line(wrapper).classes()).toEqual(expect.arrayContaining(['text-tg-hint', 'text-[13px]']))
+        expect(line(wrapper).classes()).toEqual(expect.arrayContaining(['text-muted', 'text-[13px]']))
         expect(line(wrapper).classes()).not.toContain('truncate')
         expect(line(wrapper).classes()).not.toContain('whitespace-nowrap')
         expect(line(wrapper).find('.btn, .chip, [role=alert], svg').exists()).toBe(false)

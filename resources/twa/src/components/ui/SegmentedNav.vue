@@ -29,7 +29,7 @@ defineProps<{ items: SegmentedNavItem[]; ariaLabel: string }>()
 </script>
 
 <template>
-  <nav :aria-label="ariaLabel" class="flex gap-0.5 rounded-[10px] bg-fill p-0.5 shadow-[inset_0_0_0_1px_var(--app-hairline)]">
+  <nav :aria-label="ariaLabel" class="flex gap-0.5 rounded-control border border-hairline bg-surface p-0.5">
     <RouterLink v-for="(item, index) in items" :key="index" v-slot="{ href, navigate, isActive }" :to="item.to" custom>
       <a
         :href="href"
@@ -38,8 +38,8 @@ defineProps<{ items: SegmentedNavItem[]; ariaLabel: string }>()
         class="tap-target flex min-h-9 min-w-0 flex-1 items-center justify-center rounded-lg px-3 text-center text-sm leading-5 transition-colors duration-150"
         :class="
           isActive
-            ? 'bg-surface font-semibold text-tg-text shadow-[0_1px_3px_rgb(0_0_0/0.12),0_0_0_1px_var(--app-hairline)]'
-            : 'font-medium text-tg-subtitle'
+            ? 'bg-accent-soft font-semibold text-body shadow-[inset_0_0_0_1px_var(--app-primary)]'
+            : 'text-muted'
         "
         @click="navigate"
       >

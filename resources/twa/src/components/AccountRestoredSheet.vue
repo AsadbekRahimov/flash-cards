@@ -42,23 +42,21 @@ function openBilling(): void {
 <template>
   <BottomSheet v-if="open" :label="t('restored.title')" data-testid="restored-sheet" @close="open = false">
     <header class="flex flex-col items-center gap-2 pt-1 text-center">
-      <span class="flex size-14 items-center justify-center rounded-full bg-success-soft text-success-ink">
-        <AppIcon name="check-circle" solid :size="28" />
-      </span>
-      <h2 class="text-[22px] leading-7 font-bold" data-testid="restored-title">{{ t('restored.title') }}</h2>
+      <AppIcon name="check-circle" solid :size="28" class="text-success" />
+      <h2 class="text-[22px] leading-7 font-semibold" data-testid="restored-title">{{ t('restored.title') }}</h2>
     </header>
 
-    <div class="space-y-2 text-center text-[15px] leading-5">
+    <div class="space-y-2 text-center text-base leading-[22px]">
       <p data-testid="restored-text">{{ t('restored.text') }}</p>
-      <p v-if="canResume" class="text-tg-subtitle" data-testid="restored-pro">{{ t('restored.pro') }}</p>
+      <p v-if="canResume" class="text-[15px] leading-5 text-muted" data-testid="restored-pro">{{ t('restored.pro') }}</p>
     </div>
 
-    <div class="space-y-2 pb-1">
-      <button v-if="canResume" type="button" class="btn btn-secondary btn-block" data-testid="restored-billing" @click="openBilling()">
-        {{ t('restored.billing') }}
-      </button>
+    <div class="space-y-1 pb-1">
       <button type="button" class="btn btn-primary btn-block" data-testid="restored-ok" @click="open = false">
         {{ t('restored.ok') }}
+      </button>
+      <button v-if="canResume" type="button" class="btn btn-plain btn-block" data-testid="restored-billing" @click="openBilling()">
+        {{ t('restored.billing') }}
       </button>
     </div>
   </BottomSheet>

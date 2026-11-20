@@ -49,26 +49,34 @@ function onContinue(): void {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="answer-verdict" :data-kind="kind">
-    <div class="flex flex-1 flex-col justify-center px-4 py-4">
-      <article class="card flex flex-col items-center gap-3 px-5 py-8 text-center">
-        <span class="flex size-16 items-center justify-center rounded-full" :class="look.circle" data-testid="verdict-icon">
-          <AppIcon :name="look.icon" solid :size="32" />
-        </span>
-        <h2 class="text-[22px] leading-7 font-bold" data-testid="verdict-text">{{ t(`exercise.verdict.${kind}`) }}</h2>
+    <!--
+      The verdict of a typed answer in the language of the four-choice feedback (docs/design Feedback): the learner's answer and the
+      right one as two answer boxes, each named in words ("your answer" / "right answer"), so that the colour is never the only sign.
+    -->
+    <article class="mt-14 flex flex-col items-center gap-3 px-5 pb-4 text-center short:mt-5 short:gap-2">
+      <span class="flex size-12 items-center justify-center rounded-full" :class="look.circle" data-testid="verdict-icon">
+        <AppIcon :name="look.icon" solid :size="24" />
+      </span>
+      <h2 class="text-[22px] leading-7 font-semibold" data-testid="verdict-text">{{ t(`exercise.verdict.${kind}`) }}</h2>
 
-        <template v-if="kind !== 'correct'">
-          <div class="mt-1 w-full">
-            <p class="text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase">
-              {{ t('exercise.verdict.expected') }}
-            </p>
-            <p class="mt-1 text-3xl leading-9 font-bold break-words" data-testid="expected">{{ verdict.expected }}</p>
-          </div>
-          <p v-if="answer" class="text-base leading-[22px] text-tg-hint line-through break-words" data-testid="own-answer">{{ answer }}</p>
-        </template>
-      </article>
-    </div>
+      <div v-if="kind !== 'correct'" class="mt-3 flex w-full flex-col gap-2.5 text-left short:mt-1 short:gap-2">
+        <div
+          v-if="answer"
+          class="option cursor-default active:scale-100 short:min-h-12"
+          :data-state="kind === 'wrong' ? 'incorrect' : 'dimmed'"
+          data-testid="own-answer-box"
+        >
+          <span class="min-w-0 flex-1 break-words line-through" lang="en" data-testid="own-answer">{{ answer }}</span>
+          <span class="shrink-0 text-[13px] leading-[18px] font-normal">{{ t('exercise.option.yours') }}</span>
+        </div>
+        <div class="option cursor-default active:scale-100 short:min-h-12" data-state="reveal" data-testid="expected-box">
+          <span class="min-w-0 flex-1 text-[22px] leading-7 break-words" lang="en" data-testid="expected">{{ verdict.expected }}</span>
+          <span class="shrink-0 text-[13px] leading-[18px] font-normal">{{ t('exercise.option.right') }}</span>
+        </div>
+      </div>
+    </article>
 
-    <StickyActions>
+    <StickyActions surface>
       <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="continue-btn" @click="onContinue">
         {{ t('exercise.continue') }}
       </button>

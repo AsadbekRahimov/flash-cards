@@ -145,6 +145,16 @@ describe('PracticeHubView — the states', () => {
     wrapper.unmount()
   })
 
+  it('has a link back to the course above the heading, as the system button "Back" has', async () => {
+    const { wrapper } = await render()
+
+    const back = wrapper.get('[data-testid=hub-back]')
+    expect(back.text()).toContain('К курсу')
+    expect(back.attributes('href')).toBe('/courses/english-a1')
+    expect(back.classes()).toContain('min-h-11') // a finger's 44 px
+    wrapper.unmount()
+  })
+
   it('shows the hub: the heading is the name of the lesson, under it "Practice" and where the lesson is', async () => {
     const { wrapper } = await render()
 
@@ -414,10 +424,22 @@ describe('PracticeHubView — the unfinished session', () => {
     wrapper.unmount()
   })
 
-  it('has none when there is no unfinished session', async () => {
+  it('has none when there is no unfinished session, and then no main button at all (a row is the action)', async () => {
     const { wrapper } = await render()
 
     expect(wrapper.find('[data-testid=continue-card]').exists()).toBe(false)
+    expect(wrapper.find('.btn-primary').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('the "Continue" card carries the one main button of the screen, and the line of its progress', async () => {
+    const { wrapper } = await render({}, withActive())
+
+    const link = wrapper.get('[data-testid=continue-card]')
+    expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+    expect(link.find('.btn-primary').text()).toBe('Продолжить')
+    expect(link.find('button').exists()).toBe(false) // the card is the link: no button inside it
+    expect(link.find('.progress-fill').attributes('style')).toContain('width: 33%')
     wrapper.unmount()
   })
 
@@ -1027,6 +1049,17 @@ describe('PracticeHubView — the battle with a friend', () => {
     wrapper.unmount()
   })
 
+  it('is the last row of "All modes", after the rows of the modes', async () => {
+    const { wrapper } = await render()
+
+    const list = wrapper.get('[data-testid=modes-list]')
+    expect(list.text()).toContain('Все режимы')
+    expect(list.find('[data-testid=battle-card]').exists()).toBe(true)
+    const html = list.html()
+    expect(html.indexOf('data-testid="mode-cards"')).toBeLessThan(html.indexOf('data-testid="battle-card"'))
+    wrapper.unmount()
+  })
+
   it('has none when battles are off', async () => {
     const { wrapper } = await render({}, hub({ battle: { enabled: false, active_battle_id: null, incoming_count: 0 } }))
 
@@ -1170,7 +1203,7 @@ describe('PracticeHubView — the Free limit of sessions', () => {
 
     expect(line(wrapper).text()).toBe('Сегодня бесплатно: осталось 1 из 2')
     const html = wrapper.html()
-    expect(html.indexOf('Выберите режим')).toBeLessThan(html.indexOf('Сегодня бесплатно'))
+    expect(html.indexOf('Все режимы')).toBeLessThan(html.indexOf('Сегодня бесплатно'))
     expect(html.indexOf('Сегодня бесплатно')).toBeLessThan(html.indexOf('data-testid="mode-cards"'))
     wrapper.unmount()
   })
@@ -1180,7 +1213,7 @@ describe('PracticeHubView — the Free limit of sessions', () => {
 
     const quiet = line(wrapper)
     expect(quiet.element.tagName).toBe('P')
-    expect(quiet.classes()).toEqual(expect.arrayContaining(['text-tg-hint', 'text-[13px]']))
+    expect(quiet.classes()).toEqual(expect.arrayContaining(['text-muted', 'text-[13px]']))
     expect(quiet.find('.btn, .chip, [role=alert], svg').exists()).toBe(false)
     wrapper.unmount()
   })
@@ -1805,15 +1838,14 @@ describe('PracticeHubView — the newer modes, and modes this build does not kno
     ...overrides,
   })
 
-  it('draws "Word form" and "Error hunt" with their icons, and opens them', async () => {
+  it('draws "Word form" and "Error hunt" as text rows, and opens them', async () => {
     vi.mocked(api.practice.open).mockResolvedValue(session({ id: 91, mode: 'error_hunt' }))
     const { wrapper, router } = await render({}, hub({ modes: [info('pairs'), info('word_form'), info('error_hunt', { estimate_seconds: 150 })] }))
 
     expect(card(wrapper, 'word_form').get('[data-testid=mode-title]').text()).toBe('Форма слова')
     expect(card(wrapper, 'word_form').get('[data-testid=mode-example]').text()).toBe('decide → decision')
-    expect(card(wrapper, 'word_form').get('.icon-tile').classes()).toContain('tile-green')
+    expect(card(wrapper, 'word_form').find('.icon-tile').exists()).toBe(false)
     expect(card(wrapper, 'error_hunt').get('[data-testid=mode-title]').text()).toBe('Найди ошибку')
-    expect(card(wrapper, 'error_hunt').get('.icon-tile').classes()).toContain('tile-red')
 
     await card(wrapper, 'error_hunt').trigger('click')
     await flushPromises()

@@ -53,6 +53,10 @@ describe('IntroSheet', () => {
 
     expect(w.get('[data-testid=intro-dots]').findAll('span')).toHaveLength(4)
     await toStep(w, 3)
+    // a thin line of four parts: the steps up to the current one are filled
+    const parts = w.get('[data-testid=intro-dots]').findAll('span')
+    expect(parts.map((part) => part.classes().includes('bg-accent'))).toEqual([true, true, true, false])
+    expect(parts[2]?.attributes('data-current')).toBe('true')
     expect(w.get('[data-testid=intro-title]').text()).toBe('Задания разные с первого дня')
     expect(w.get('[data-testid=intro-text]').text()).toContain('пишете и вставляете в предложение')
     w.unmount()

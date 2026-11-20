@@ -122,7 +122,7 @@ onMounted(() => {
       <PageHeader :title="detail.title" />
 
       <form class="card" data-testid="rename-form" @submit.prevent="rename">
-        <label class="block text-[13px] leading-[18px] font-medium text-tg-hint" for="deck-title">{{ t('decks.edit.rename') }}</label>
+        <label class="block text-[13px] leading-[18px] text-muted" for="deck-title">{{ t('decks.edit.rename') }}</label>
         <div class="mt-2 flex gap-2">
           <input
             id="deck-title"
@@ -146,7 +146,6 @@ onMounted(() => {
 
       <!-- The one primary button of the screen: make the deck the main one (a chip once it is). -->
       <span v-if="detail.is_active" class="chip chip-success mt-4 self-start" data-testid="active-badge">
-        <AppIcon name="check" solid :size="14" />
         {{ t('decks.active') }}
       </span>
       <template v-else>
@@ -160,7 +159,7 @@ onMounted(() => {
           {{ t('decks.choose') }}
         </button>
         <!-- A disabled button says nothing about why: an empty deck has no words to learn. -->
-        <p v-if="detail.words_count === 0" class="mt-2 px-4 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="choose-hint">
+        <p v-if="detail.words_count === 0" class="mt-2 px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="choose-hint">
           {{ t('decks.choose_empty_hint') }}
         </p>
       </template>
@@ -178,7 +177,7 @@ onMounted(() => {
           @update:model-value="setFormat"
         />
 
-        <p class="text-[13px] leading-[18px] text-tg-hint" data-testid="hint">{{ hint }}</p>
+        <p class="text-[13px] leading-[18px] text-muted" data-testid="hint">{{ hint }}</p>
 
         <textarea
           v-model="text"
@@ -202,14 +201,14 @@ onMounted(() => {
           {{ t('decks.edit.add') }}
         </button>
 
-        <div v-if="lastImport" class="space-y-2 rounded-xl bg-fill px-3.5 py-3" data-testid="report">
+        <div v-if="lastImport" class="space-y-2 rounded-control border border-hairline px-3.5 py-3" data-testid="report">
           <p class="flex items-start gap-2 text-[15px] leading-5" data-testid="report-summary">
             <AppIcon
               :name="importedAny ? 'check-circle' : 'information-circle'"
               solid
               :size="20"
               class="mt-px"
-              :class="importedAny ? 'text-success-ink' : 'text-tg-hint'"
+              :class="importedAny ? 'text-success' : 'text-muted'"
             />
             <span>
               {{
@@ -226,9 +225,9 @@ onMounted(() => {
             <li
               v-for="item in lastImport.rejected.slice(0, 20)"
               :key="item.line"
-              class="flex items-start gap-2 text-[13px] leading-[18px] text-tg-hint"
+              class="flex items-start gap-2 text-[13px] leading-[18px] text-muted"
             >
-              <AppIcon name="exclamation-triangle" solid :size="16" class="mt-px text-warning-ink" />
+              <AppIcon name="exclamation-triangle" solid :size="16" class="mt-px text-warning" />
               <span>{{ t('decks.rejected', { line: item.line, reason: t(`decks.reason.${item.reason}`) }) }}</span>
             </li>
           </ul>
@@ -238,12 +237,12 @@ onMounted(() => {
       <ListGroup v-if="detail.words.length > 0" :header="t('decks.words_title', { count: detail.words_count })" data-testid="words">
         <div v-for="word in detail.words" :key="word.id" class="list-row" :data-testid="`word-${word.id}`">
           <div class="min-w-0 flex-1">
-            <p class="text-base leading-[22px] break-words">{{ word.word }}</p>
-            <p class="text-[13px] leading-[18px] text-tg-hint break-words">{{ word.translation }}</p>
+            <p class="text-[15px] leading-5 font-semibold break-words">{{ word.word }}</p>
+            <p class="mt-0.5 text-[13px] leading-[18px] text-muted break-words">{{ word.translation }}</p>
           </div>
           <button
             type="button"
-            class="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-full text-danger active:bg-danger-soft disabled:opacity-50"
+            class="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-control text-muted active:bg-danger-soft active:text-danger disabled:opacity-50"
             :aria-label="t('decks.edit.remove_word', { word: word.word })"
             :disabled="busy"
             data-testid="remove-word"

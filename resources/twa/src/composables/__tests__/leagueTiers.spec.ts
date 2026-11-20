@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { setLocale, t } from '@/i18n'
-import { TIER_COLORS, tierColor, tierLabelKey } from '../leagueTiers'
+import { tierLabelKey } from '../leagueTiers'
 
 afterEach(() => setLocale('ru'))
 
@@ -34,34 +34,5 @@ describe('tierLabelKey', () => {
     setLocale('uz')
     expect(t(tierLabelKey('diamond'))).toBe('Olmos')
     expect(t(tierLabelKey('unknown'))).toBe('Bronza')
-  })
-})
-
-describe('TIER_COLORS and tierColor', () => {
-  it('has the colours of docs/14 §6.7', () => {
-    expect(TIER_COLORS).toEqual({
-      bronze: '#cd7f32',
-      silver: '#9ca3af',
-      gold: '#eab308',
-      platinum: '#14b8a6',
-      diamond: '#6366f1',
-    })
-  })
-
-  it('gives the colour of a tier', () => {
-    expect(tierColor('gold')).toBe('#eab308')
-    expect(tierColor('diamond')).toBe('#6366f1')
-  })
-
-  it('falls back to the bronze colour, never to undefined', () => {
-    for (const key of ['legend', '', 'constructor', '__proto__', 'toString']) {
-      expect(tierColor(key), key).toBe('#cd7f32')
-    }
-  })
-
-  it('every coloured tier has its own name key', () => {
-    for (const key of Object.keys(TIER_COLORS)) {
-      expect(tierLabelKey(key), key).toBe(`league.tier.${key}`)
-    }
   })
 })

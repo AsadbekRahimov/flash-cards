@@ -128,7 +128,7 @@ describe('BattleRoom — the invitation that came', () => {
     expect(primaries(w)).toHaveLength(1)
     expect(w.get('[data-testid=accept-btn]').classes()).toContain('btn-primary')
     expect(w.get('[data-testid=accept-btn]').text()).toBe('Принять')
-    expect(w.get('[data-testid=decline-btn]').classes()).toContain('btn-tinted')
+    expect(w.get('[data-testid=decline-btn]').classes()).toContain('btn-plain')
     expect(w.find('[data-testid=cancel-btn]').exists()).toBe(false)
 
     await w.get('[data-testid=accept-btn]').trigger('click')
@@ -187,7 +187,7 @@ describe('BattleRoom — the room', () => {
     expect(w.get('[data-testid=ready-btn]').text()).toBe('Готов')
     expect(w.get('[data-testid=ready-btn]').attributes('disabled')).toBeUndefined()
     expect(w.get('[data-testid=leave-btn]').text()).toBe('Выйти')
-    expect(w.get('[data-testid=leave-btn]').classes()).toContain('btn-tinted')
+    expect(w.get('[data-testid=leave-btn]').classes()).toContain('btn-plain')
 
     await w.get('[data-testid=ready-btn]').trigger('click')
     await w.get('[data-testid=leave-btn]').trigger('click')

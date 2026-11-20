@@ -221,10 +221,9 @@ describe('the real paywall behind the free limits (Pro is for sale)', () => {
     await flushPromises()
 
     expect(lead(wrapper)).toBe(
-      'Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro. ' +
-        'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.',
+      'Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro.',
     )
-    expect(wrapper.findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Практика и баттлы без дневного лимита')
+    expect(wrapper.findAll('[data-testid=benefit-name]').map((item) => item.text())).toContain('Практика и баттлы')
   })
 
   it('the Friends screen: the same about the battles, in Uzbek', async () => {
@@ -236,7 +235,7 @@ describe('the real paywall behind the free limits (Pro is for sale)', () => {
     await flushPromises()
 
     expect(lead(wrapper)).toContain('Bugungi bepul bellashuvlar tugadi (1 tadan 1 tasi). Yangilari — ertaga soat 00:00 da yoki darhol Pro bilan.')
-    expect(wrapper.findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
+    expect(wrapper.findAll('[data-testid=benefit-name]').map((item) => item.text())).toContain('Mashqlar va bellashuvlar')
   })
 })
 
@@ -246,9 +245,6 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
   const NO_SESSIONS: PracticeLimits = { sessions: counter(0, 0, MIDNIGHT), battles: null }
   const NO_BATTLES: PracticeLimits = { sessions: null, battles: counter(0, 0, MIDNIGHT) }
   const NO_BOTH: PracticeLimits = { sessions: counter(0, 0, MIDNIGHT), battles: counter(0, 0, MIDNIGHT) }
-  const SALE_RU =
-    'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.'
-  const SALE_UZ = "Istagancha yangi so'z, yozma mashqlar, shaxsiy to'plamlar, zaxira kunlar va sinov imtihonlari."
   const COMBINED_RU = 'Практика — игры на закрепление слов и баттлы с друзьями — доступна в Pro.'
   const SOLO_RU = 'Практика — игры на закрепление слов — доступна в Pro.'
   const COMBINED_UZ = "So'zlarni mashqlar bilan mustahkamlash va do'stlar bilan bellashish Pro'da bor."
@@ -358,7 +354,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
       await wrapper.get('[data-testid=battle-btn]').trigger('click')
       await flushPromises()
 
-      expect(lead(wrapper)).toBe(`Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда. ${SALE_RU}`)
+      expect(lead(wrapper)).toBe(`Звать друзей на баттл можно в Pro. Принять приглашение друга можно всегда.`)
       expect(lead(wrapper)).not.toContain('сразу с Pro')
     })
 
@@ -369,7 +365,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
 
       await pressPairs(wrapper)
 
-      expect(lead(wrapper)).toBe(`${SOLO_UZ} ${SALE_UZ}`)
+      expect(lead(wrapper)).toBe(`${SOLO_UZ}`)
     })
 
     it('the hub, sessions and battles both for Pro only: both in the sentence, then what Pro gives', async () => {
@@ -378,7 +374,7 @@ describe('the real paywall behind a kind that is for Pro only (limit 0)', () => 
 
       await pressPairs(wrapper)
 
-      expect(lead(wrapper)).toBe(`${COMBINED_RU} ${SALE_RU}`)
+      expect(lead(wrapper)).toBe(`${COMBINED_RU}`)
     })
   })
 })

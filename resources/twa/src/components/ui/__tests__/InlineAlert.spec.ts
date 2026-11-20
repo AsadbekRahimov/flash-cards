@@ -4,10 +4,10 @@ import InlineAlert, { type AlertTone } from '../InlineAlert.vue'
 import { ICONS, type IconName } from '../icons'
 
 const TONES: { tone: AlertTone; role: 'alert' | 'status'; icon: IconName; classes: string[] }[] = [
-  { tone: 'danger', role: 'alert', icon: 'exclamation-circle', classes: ['bg-danger-soft', 'text-danger-ink'] },
-  { tone: 'warning', role: 'status', icon: 'exclamation-triangle', classes: ['bg-warning-soft', 'text-warning-ink'] },
-  { tone: 'success', role: 'status', icon: 'check-circle', classes: ['bg-success-soft', 'text-success-ink'] },
-  { tone: 'info', role: 'status', icon: 'information-circle', classes: ['bg-accent-soft', 'text-tg-text'] },
+  { tone: 'danger', role: 'alert', icon: 'exclamation-circle', classes: ['bg-danger-soft', 'border-danger-line', 'text-danger-ink'] },
+  { tone: 'warning', role: 'status', icon: 'exclamation-triangle', classes: ['bg-warning-soft', 'border-warning-line', 'text-warning-ink'] },
+  { tone: 'success', role: 'status', icon: 'check-circle', classes: ['bg-success-soft', 'border-success-line', 'text-success-ink'] },
+  { tone: 'info', role: 'status', icon: 'information-circle', classes: ['bg-accent-soft', 'border-accent-line', 'text-body'] },
 ]
 
 describe('InlineAlert', () => {
@@ -32,7 +32,7 @@ describe('InlineAlert', () => {
     const w = mount(InlineAlert, { props: { tone, message: 'm' } })
 
     expect(w.attributes('role')).toBe(role)
-    expect(w.classes()).toEqual(expect.arrayContaining(['flex', 'items-start', 'rounded-xl', ...classes]))
+    expect(w.classes()).toEqual(expect.arrayContaining(['flex', 'items-start', 'rounded-control', 'border', ...classes]))
     expect(w.findAll('svg')).toHaveLength(1)
     expect(w.get('svg').attributes('aria-hidden')).toBe('true')
     expect(w.get('svg').attributes('width')).toBe('20')

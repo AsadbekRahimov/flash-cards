@@ -45,7 +45,7 @@ const thisWeek = computed(() => quiz.value?.this_week ?? null)
 </script>
 
 <template>
-  <div class="space-y-2 border-t pt-3" data-testid="readiness-block">
+  <div class="space-y-2 border-t border-divider pt-3" data-testid="readiness-block">
     <RouterLink
       :to="`/courses/${encodeURIComponent(slug)}/readiness?source=today`"
       class="block"
@@ -53,7 +53,7 @@ const thisWeek = computed(() => quiz.value?.this_week ?? null)
     >
       <span class="flex items-center justify-between gap-2">
         <span class="min-w-0 text-[15px] leading-5 font-semibold" data-testid="readiness-title">{{ title }}</span>
-        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
+        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
       </span>
       <span
         class="progress mt-2 flex"
@@ -67,10 +67,10 @@ const thisWeek = computed(() => quiz.value?.this_week ?? null)
         <span class="h-full bg-success" :style="{ width: `${segments.learned}%` }" data-testid="readiness-seg-learned" />
         <span class="h-full bg-accent" :style="{ width: `${segments.inProgress}%` }" data-testid="readiness-seg-progress" />
       </span>
-      <span class="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[13px] leading-[18px] text-tg-hint" data-testid="readiness-legend">
-        <span class="inline-flex items-center gap-1"><span class="size-2 rounded-full bg-success" aria-hidden="true" />{{ readiness.words.learned }} {{ t('readiness.learned') }}</span>
-        <span class="inline-flex items-center gap-1"><span class="size-2 rounded-full bg-accent" aria-hidden="true" />{{ readiness.words.in_progress }} {{ t('readiness.in_progress') }}</span>
-        <span class="inline-flex items-center gap-1"><span class="size-2 rounded-full bg-track" aria-hidden="true" />{{ readiness.words.not_started }} {{ t('readiness.not_started') }}</span>
+      <span class="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[13px] leading-[18px] text-muted" data-testid="readiness-legend">
+        <span class="inline-flex items-center gap-1"><span class="size-2 rounded-full bg-success" aria-hidden="true" /><span class="font-mono">{{ readiness.words.learned }}</span> {{ t('readiness.learned') }}</span>
+        <span class="inline-flex items-center gap-1"><span class="size-2 rounded-full bg-accent" aria-hidden="true" /><span class="font-mono">{{ readiness.words.in_progress }}</span> {{ t('readiness.in_progress') }}</span>
+        <span class="inline-flex items-center gap-1"><span class="size-2 rounded-full bg-track" aria-hidden="true" /><span class="font-mono">{{ readiness.words.not_started }}</span> {{ t('readiness.not_started') }}</span>
       </span>
     </RouterLink>
 

@@ -133,18 +133,23 @@ describe('ExamView', () => {
 
     const score = wrapper.get('[data-testid=score]')
     expect(score.text()).toBe('0')
-    expect(score.classes()).toEqual(expect.arrayContaining(['chip', 'chip-warning']))
+    expect(score.classes()).toEqual(expect.arrayContaining(['chip', 'chip-neutral', 'font-mono']))
+    expect(timer.classes()).toContain('font-mono')
+    expect(wrapper.get('[data-testid=progress]').classes()).toContain('font-mono')
     expect(score.findComponent(AppIcon).props()).toMatchObject({ name: 'star', solid: true })
     expect(wrapper.find('[data-testid=mock-header]').exists()).toBe(false)
   })
 
-  it('shows the word in a card with the four options below it', async () => {
+  it('shows the word large on the white screen, with no card, and the four options below it', async () => {
     const { wrapper } = await render()
 
-    expect(wrapper.get('[data-testid=word]').text()).toBe('environment')
-    expect(wrapper.get('article').text()).toBe('environment')
+    expect(wrapper.get('[data-testid=exam-view]').classes()).toContain('bg-surface')
+    const word = wrapper.get('[data-testid=word]')
+    expect(word.text()).toBe('environment')
+    expect(word.classes()).toEqual(expect.arrayContaining(['text-[40px]', 'font-semibold']))
+    expect(wrapper.find('.card').exists()).toBe(false)
     expect(wrapper.findAll('button[data-testid^=option-]')).toHaveLength(4)
-    expect(wrapper.get('article').find('[data-testid=option-0]').exists()).toBe(false)
+    expect(word.element.parentElement?.contains(wrapper.get('[data-testid=option-0]').element)).toBe(false)
     expect(wrapper.get('[data-testid=option-0]').classes()).toContain('option')
     expect(wrapper.get('[data-testid=option-0]').attributes('data-state')).toBe('idle')
   })

@@ -145,7 +145,7 @@ describe('FinishedView — reminders about Pro', () => {
       expect(w.find('[data-testid=paywall]').exists()).toBe(true)
     })
 
-    it('stands under the buttons, so that "One more round" stays on the first screen', async () => {
+    it('stands under the buttons, so that "Done" and "One more round" stay on the first screen', async () => {
       learner(FREE)
       markSeen(FINISHED_BEFORE_KEY)
       const training = useTrainingStore()
@@ -157,7 +157,8 @@ describe('FinishedView — reminders about Pro', () => {
       expect(html.indexOf('data-testid="pro-tip"')).toBeGreaterThan(html.indexOf('data-testid="next-round-btn"'))
       expect(html.indexOf('data-testid="pro-tip"')).toBeGreaterThan(html.indexOf('data-testid="close-btn"'))
       // not between the stats and the buttons
-      expect(w.get('.flex-1.flex-col.justify-center').find('[data-testid=pro-tip]').exists()).toBe(false)
+      expect(html.indexOf('data-testid="pro-tip"')).toBeGreaterThan(html.indexOf('data-testid="home-btn"'))
+      expect(w.get('[data-testid=rows]').find('[data-testid=pro-tip]').exists()).toBe(false)
     })
 
     it('goes round the benefits, one on each day, and starts again', async () => {

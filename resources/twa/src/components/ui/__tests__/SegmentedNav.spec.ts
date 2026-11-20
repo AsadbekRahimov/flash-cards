@@ -52,9 +52,9 @@ describe('SegmentedNav', () => {
     const { w } = await mountNav('/decks')
 
     expect(w.get('[data-testid=nav-decks]').attributes('aria-current')).toBe('page')
-    expect(w.get('[data-testid=nav-decks]').classes()).toContain('bg-surface')
+    expect(w.get('[data-testid=nav-decks]').classes()).toContain('bg-accent-soft')
     expect(w.get('[data-testid=nav-courses]').attributes('aria-current')).toBeUndefined()
-    expect(w.get('[data-testid=nav-courses]').classes()).not.toContain('bg-surface')
+    expect(w.get('[data-testid=nav-courses]').classes()).not.toContain('bg-accent-soft')
   })
 
   it('highlights nothing on another route', async () => {

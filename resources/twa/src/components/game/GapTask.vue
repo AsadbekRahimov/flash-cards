@@ -25,12 +25,11 @@ const prefix = computed((): string | null => {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="gap-task">
-    <div class="flex flex-col gap-4 px-4 pt-4 pb-3">
-      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
-        <p class="text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="task-title">{{ t('gameRun.task.gap') }}</p>
-        <h2 class="text-[22px] leading-7 font-bold break-words" lang="en" data-testid="task-prompt">{{ element.masked }}</h2>
-        <p v-if="element.translation" class="text-[15px] leading-5 text-tg-hint" data-testid="task-translation">{{ element.translation }}</p>
-      </article>
+    <!-- The question (docs/design Question), without a card: the task in words, the example with its blank, its translation. -->
+    <div class="flex flex-col items-center gap-2.5 px-5 pt-10 pb-8 text-center short:gap-1 short:pt-3 short:pb-3">
+      <p class="text-[13px] leading-[18px] text-muted short:hidden" data-testid="task-title">{{ t('gameRun.task.gap') }}</p>
+      <h2 class="max-w-full text-[24px] leading-[30px] font-semibold break-words short:text-[20px] short:leading-[26px]" lang="en" data-testid="task-prompt">{{ element.masked }}</h2>
+      <p v-if="element.translation" class="text-[15px] leading-5 text-muted" data-testid="task-translation">{{ element.translation }}</p>
     </div>
     <TypedAnswer :placeholder="t('gameRun.gap.placeholder')" :disabled="disabled" :hint-prefix="prefix" @answer="emit('answer', { text: $event })" @skip="emit('skip')" />
   </div>

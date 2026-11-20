@@ -55,16 +55,17 @@ watch(
     :data-state="over ? 'over' : low ? 'low' : 'ok'"
     data-testid="round-timer"
   >
-    <div class="progress flex-1 short:flex-none" aria-hidden="true">
+    <!-- The thin line of the round (3 px, as the header of a lesson); amber for the last seconds, with the amber digits beside it. -->
+    <div class="progress progress-primary h-[3px] flex-1 short:flex-none" aria-hidden="true">
       <div class="progress-fill" :class="{ 'bg-warning': low || over }" :style="{ width: `${Math.round(share * 100)}%` }" data-testid="timer-fill" />
     </div>
     <span
-      class="flex min-w-[4.5rem] items-center justify-end gap-1 font-bold tabular-nums short:justify-center"
-      :class="[over ? 'text-[17px] leading-[22px]' : 'text-[22px] leading-7', low || over ? 'text-warning-ink' : 'text-tg-text']"
+      class="flex min-w-[4.5rem] items-center justify-end gap-1 tabular-nums short:justify-center"
+      :class="[over ? 'text-[15px] leading-5' : 'font-mono text-xl leading-7 font-medium', low || over ? 'text-warning-ink' : 'text-body']"
       aria-hidden="true"
       data-testid="timer-text"
     >
-      <AppIcon name="clock" :size="18" />
+      <AppIcon name="clock" :size="16" />
       <template v-if="over">{{ t('battle.timer.over') }}</template>
       <template v-else>{{ clockText(seconds) }}</template>
     </span>

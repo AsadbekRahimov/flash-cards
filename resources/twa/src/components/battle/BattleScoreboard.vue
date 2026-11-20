@@ -42,13 +42,13 @@ const digits = computed(() => (props.size === 'lg' ? 'text-[44px] leading-[48px]
     data-testid="scoreboard"
   >
     <div class="col-start-1 row-start-1 min-w-0">
-      <p class="truncate text-[13px] leading-[18px] font-medium text-tg-hint" data-testid="score-me-name">{{ t('battle.you') }}</p>
-      <p class="font-bold tabular-nums" :class="[digits, { 'short:text-[28px] short:leading-8': $slots.default }]" data-testid="score-me">{{ me }}</p>
+      <p class="truncate text-[13px] leading-[18px] text-muted" data-testid="score-me-name">{{ t('battle.you') }}</p>
+      <p class="font-mono font-medium tabular-nums" :class="[digits, { 'short:text-[28px] short:leading-8': $slots.default }]" data-testid="score-me">{{ me }}</p>
     </div>
-    <p class="col-start-2 row-start-1 pb-0.5 font-bold text-tg-hint" :class="[digits, { 'short:hidden': $slots.default }]" aria-hidden="true">:</p>
+    <p class="col-start-2 row-start-1 pb-0.5 font-mono text-muted" :class="[digits, { 'short:hidden': $slots.default }]" aria-hidden="true">:</p>
     <div class="col-start-3 row-start-1 min-w-0 text-right">
-      <p class="truncate text-[13px] leading-[18px] font-medium text-tg-hint" data-testid="score-opponent-name">{{ opponentName }}</p>
-      <p class="font-bold tabular-nums" :class="[digits, { 'short:text-[28px] short:leading-8': $slots.default }]" data-testid="score-opponent">{{ opponent }}</p>
+      <p class="truncate text-[13px] leading-[18px] text-muted" data-testid="score-opponent-name">{{ opponentName }}</p>
+      <p class="font-mono font-medium tabular-nums" :class="[digits, { 'short:text-[28px] short:leading-8': $slots.default }]" data-testid="score-opponent">{{ opponent }}</p>
     </div>
     <div v-if="$slots.default" class="col-span-3 row-start-2 short:col-span-1 short:col-start-2 short:row-start-1 short:min-w-[5.5rem]" data-testid="scoreboard-timer">
       <slot />

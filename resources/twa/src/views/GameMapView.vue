@@ -5,6 +5,8 @@ import { storeToRefs } from 'pinia'
 import ClassCaravanCard from '@/components/game/ClassCaravanCard.vue'
 import GameIntroSheet from '@/components/game/GameIntroSheet.vue'
 import GameItemImage from '@/components/game/GameItemImage.vue'
+import NumberText from '@/components/game/NumberText.vue'
+import { NUMBER_MARK } from '@/components/game/numberMark'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
@@ -12,6 +14,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { useGameLimitLine } from '@/composables/gameLimitLine'
 import { GAME_RUN_RULES } from '@/composables/gameRunRules'
@@ -394,38 +397,42 @@ onBeforeUnmount(() => {
       <button
         v-if="map.active_run"
         type="button"
-        class="card mb-4 flex min-h-11 w-full items-center gap-3 text-left transition-transform active:scale-[0.99]"
+        class="card mb-3 flex min-h-11 w-full flex-col gap-2.5 text-left transition-transform active:scale-[0.99] active:bg-fill"
         data-testid="active-run"
         @click="openRun(map.active_run.id)"
       >
-        <span class="icon-tile size-10 rounded-xl tile-orange"><AppIcon name="play" solid :size="20" /></span>
-        <span class="min-w-0 flex-1">
-          <span class="block text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('game.map.active_run') }}</span>
-          <span class="block text-[15px] leading-5 text-tg-subtitle" data-testid="active-run-progress">
-            {{ t('game.map.active_progress', { answered: map.active_run.progress.answered, total: map.active_run.progress.total }) }}
+        <span class="flex w-full items-baseline justify-between gap-3">
+          <span class="min-w-0">
+            <span class="block text-[15px] leading-5 font-semibold">{{ t('game.map.active_run') }}</span>
+            <NumberText
+              class="block text-[13px] leading-[18px] text-muted"
+              :text="t('game.map.active_progress', { answered: NUMBER_MARK, total: NUMBER_MARK })"
+              :value="[map.active_run.progress.answered, map.active_run.progress.total]"
+              data-testid="active-run-progress"
+            />
           </span>
+          <span class="shrink-0 text-[15px] leading-5 text-accent">{{ t('game.map.continue') }}</span>
         </span>
-        <span class="text-[15px] font-semibold text-accent-ink">{{ t('game.map.continue') }}</span>
+        <ProgressLine :value="map.active_run.progress.total > 0 ? (map.active_run.progress.answered / map.active_run.progress.total) * 100 : 0" class="w-full" />
       </button>
 
       <!-- The caravan of the class that is on (docs/05 §5b.7): from the answer of the map, nothing is read for it. -->
-      <ClassCaravanCard v-if="map.class_caravan" :caravan="map.class_caravan" :timezone="today.data?.timezone" class="mb-4" />
+      <ClassCaravanCard v-if="map.class_caravan" :caravan="map.class_caravan" :timezone="today.data?.timezone" class="mb-3" />
 
       <!-- The caravan of the day (docs/05 §5b.4): what is due today, in one tap. -->
       <button
         v-if="map.daily"
         type="button"
-        class="card mb-4 flex min-h-11 w-full items-center gap-3 text-left transition-transform active:scale-[0.99]"
+        class="card mb-5 flex min-h-11 w-full items-center gap-3 text-left transition-transform active:scale-[0.99] active:bg-fill"
         :data-state="dailyState"
         data-testid="daily-card"
         @click="openDaily"
       >
-        <span class="icon-tile size-10 rounded-xl" :class="dailyState === 'ready' ? 'tile-orange' : 'tile-gray'"><AppIcon name="sparkles" :size="20" /></span>
         <span class="min-w-0 flex-1">
           <span class="block text-[15px] leading-5 font-semibold">{{ t('game.daily.title') }}</span>
-          <span class="block text-[13px] leading-[18px] text-tg-subtitle" data-testid="daily-text">{{ dailyText }}</span>
+          <span class="block text-[13px] leading-[18px]" :class="dailyState === 'ready' ? 'text-accent-ink' : 'text-muted'" data-testid="daily-text">{{ dailyText }}</span>
         </span>
-        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
+        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
       </button>
 
       <EmptyState v-if="view === 'empty'" icon="flag" :text="t('game.map.empty_text')" data-testid="empty">
@@ -434,66 +441,60 @@ onBeforeUnmount(() => {
         </template>
       </EmptyState>
 
+      <!-- The road (docs/design Path): a city is a card, its stops are rows between thin lines, numbered in Plex Mono. -->
       <ol v-else class="flex flex-col gap-3" :aria-label="t('game.map.road')" data-testid="road">
         <li
           v-for="city in map.cities"
           :key="city.stage_id"
-          class="card"
-          :class="{ 'opacity-60': !cityOpen(city) }"
+          class="overflow-hidden rounded-card border border-hairline bg-surface"
+          :data-open="cityOpen(city) ? 'true' : 'false'"
           :data-testid="`city-${city.number}`"
         >
-          <div class="flex items-start gap-3">
-            <span class="icon-tile size-10 rounded-xl" :class="cityOpen(city) ? 'tile-teal' : 'tile-gray'">
-              <AppIcon name="flag" :size="20" />
-            </span>
-            <div class="min-w-0 flex-1">
-              <h2 class="text-[17px] leading-[22px] font-semibold" data-testid="city-name">{{ city.city }}</h2>
-              <p class="text-[15px] leading-5 text-tg-subtitle" data-testid="city-title">{{ cityTitle(city) }}</p>
-              <p v-if="friendsAt(city)" class="mt-0.5 flex items-center gap-1 text-[13px] leading-[18px] text-tg-hint" data-testid="city-friends">
-                <AppIcon name="users" :size="14" />
-                <GameItemImage v-for="camel in camelsAt(city)" :key="camel.id" :name="camel.asset" :size="22" data-testid="friend-camel" />
-                <span class="min-w-0 break-words">{{ friendsAt(city) }}</span>
-              </p>
+          <div class="px-[18px] pt-3.5 pb-3">
+            <div class="flex items-start gap-3">
+              <div class="min-w-0 flex-1">
+                <h2 class="text-[17px] leading-[22px] font-semibold" :class="{ 'text-muted': !cityOpen(city) }" data-testid="city-name">{{ city.city }}</h2>
+                <p class="text-[13px] leading-[18px] text-muted" data-testid="city-title">{{ cityTitle(city) }}</p>
+              </div>
+              <template v-for="chip in [bossChip(city.boss)]" :key="city.boss.state">
+                <button
+                  v-if="chip.pro"
+                  type="button"
+                  class="-my-2 flex min-h-11 shrink-0 items-center"
+                  data-testid="boss-pro"
+                  @click="bossPaywall"
+                >
+                  <span class="chip" :class="chip.tone">{{ chip.text }}</span>
+                </button>
+                <!-- The other chips lead to the screen of the boss (docs/05 §5b.8). -->
+                <button v-else type="button" class="-my-2 flex min-h-11 shrink-0 items-center" :data-testid="`boss-open-${city.stage_id}`" @click="openBoss(city)">
+                  <span class="chip" :class="chip.tone" :data-testid="`boss-${city.boss.state}`">{{ chip.text }}</span>
+                </button>
+              </template>
             </div>
-            <template v-for="chip in [bossChip(city.boss)]" :key="city.boss.state">
-              <button
-                v-if="chip.pro"
-                type="button"
-                class="-my-2 flex min-h-11 shrink-0 items-center"
-                data-testid="boss-pro"
-                @click="bossPaywall"
-              >
-                <span class="chip" :class="chip.tone">
-                  <AppIcon name="sparkles" solid :size="12" />
-                  {{ chip.text }}
-                </span>
-              </button>
-              <!-- The other chips lead to the screen of the boss (docs/05 §5b.8). -->
-              <button v-else type="button" class="-my-2 flex min-h-11 shrink-0 items-center" :data-testid="`boss-open-${city.stage_id}`" @click="openBoss(city)">
-                <span class="chip" :class="chip.tone" :data-testid="`boss-${city.boss.state}`">{{ chip.text }}</span>
-              </button>
-            </template>
+            <!-- Friends in the city: their camels (the pictures they wear) and their names, the whole width of the card. -->
+            <p v-if="friendsAt(city)" class="mt-1.5 flex items-center gap-1 text-[13px] leading-[18px] text-muted" data-testid="city-friends">
+              <AppIcon name="users" :size="14" class="shrink-0" />
+              <GameItemImage v-for="camel in camelsAt(city)" :key="camel.id" :name="camel.asset" :size="22" data-testid="friend-camel" />
+              <span class="min-w-0 break-words">{{ friendsAt(city) }}</span>
+            </p>
           </div>
 
-          <ul class="mt-2 flex flex-col">
-            <li v-for="stop in city.stops" :key="stop.lesson_id">
+          <ul class="flex flex-col">
+            <li v-for="stop in city.stops" :key="stop.lesson_id" class="border-t border-divider">
               <button
                 type="button"
-                class="flex min-h-11 w-full items-center gap-3 rounded-lg py-1 text-left"
-                :class="stop.unlocked ? 'active:bg-fill' : 'cursor-default text-tg-hint'"
+                class="flex min-h-11 w-full items-center gap-3.5 px-[18px] py-2.5 text-left"
+                :class="stop.unlocked ? 'active:bg-fill' : 'cursor-default text-muted'"
                 :aria-disabled="!stop.unlocked"
                 :data-testid="`stop-${stop.lesson_id}`"
                 @click="openStop(stop)"
               >
-                <span
-                  class="flex size-9 shrink-0 items-center justify-center rounded-full text-[15px] font-semibold"
-                  :class="stop.unlocked ? 'bg-accent-soft text-accent-ink' : 'bg-track text-tg-hint'"
-                >
-                  <AppIcon v-if="!stop.unlocked" name="lock-closed" :size="16" />
-                  <template v-else>{{ stop.number }}</template>
-                </span>
+                <span class="w-5 shrink-0 font-mono text-[13px] leading-[18px] text-muted" aria-hidden="true">{{ String(stop.number).padStart(2, '0') }}</span>
                 <span class="min-w-0 flex-1">
-                  <span class="block text-[15px] leading-5 break-words">{{ stopTitle(stop) }}</span>
+                  <span class="block text-[15px] leading-5 break-words" :class="{ 'font-semibold': stop.unlocked }">
+                    <span v-if="stop.title" class="sr-only">{{ t('game.map.stop', { number: stop.number }) }} · </span>{{ stop.title || t('game.map.stop', { number: stop.number }) }}
+                  </span>
                   <span v-if="!stop.unlocked" class="block text-[13px] leading-[18px]" data-testid="stop-locked">{{ t('game.map.stop_locked') }}</span>
                 </span>
                 <span v-if="stop.unlocked" class="flex shrink-0 gap-0.5" role="img" :aria-label="starsLabel(stop)" data-testid="stars">
@@ -503,7 +504,7 @@ onBeforeUnmount(() => {
                     name="star"
                     :solid="n <= stop.stars"
                     :size="12"
-                    :class="n <= stop.stars ? 'text-warning' : 'text-tg-hint'"
+                    :class="n <= stop.stars ? 'text-warning' : 'text-muted'"
                   />
                 </span>
               </button>
@@ -515,15 +516,15 @@ onBeforeUnmount(() => {
 
     <!-- The sheet of a stop. -->
     <BottomSheet v-if="sheetStop && !conflict && !material" :label="stopTitle(sheetStop.stop)" data-testid="stop-sheet" @close="closeSheet">
-      <h2 class="pr-10 text-[22px] leading-7 font-bold">{{ stopTitle(sheetStop.stop) }}</h2>
-      <p class="text-[15px] leading-5 text-tg-subtitle" data-testid="stop-text">{{ t('game.stop.text', stopRules) }}</p>
+      <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ stopTitle(sheetStop.stop) }}</h2>
+      <p class="text-[15px] leading-5 text-muted" data-testid="stop-text">{{ t('game.stop.text', stopRules) }}</p>
       <p v-if="sheetStop.stop.runs > 0" class="flex items-center gap-2 text-[15px] leading-5" data-testid="stop-best">
         <span class="flex gap-0.5" aria-hidden="true">
-          <AppIcon v-for="n in 3" :key="n" name="star" :solid="n <= sheetStop.stop.stars" :size="12" :class="n <= sheetStop.stop.stars ? 'text-warning' : 'text-tg-hint'" />
+          <AppIcon v-for="n in 3" :key="n" name="star" :solid="n <= sheetStop.stop.stars" :size="12" :class="n <= sheetStop.stop.stars ? 'text-warning' : 'text-muted'" />
         </span>
-        {{ t('game.stop.best', { score: sheetStop.stop.best_score }) }}
+        <NumberText :text="t('game.stop.best', { score: NUMBER_MARK })" :value="sheetStop.stop.best_score" />
       </p>
-      <p v-if="limitLine" class="text-[13px] leading-[18px] text-tg-hint" data-testid="stop-limit">{{ limitLine }}</p>
+      <p v-if="limitLine" class="text-[13px] leading-[18px] text-muted" data-testid="stop-limit">{{ limitLine }}</p>
       <button type="button" class="btn btn-primary btn-block" :disabled="starting" data-testid="stop-go" @click="start(false)">
         {{ t('game.stop.go') }}
       </button>
@@ -531,19 +532,19 @@ onBeforeUnmount(() => {
 
     <!-- Another run is on: continue it, or start this one (the old one is not counted). -->
     <BottomSheet v-if="conflict" :label="t('game.conflict.title')" data-testid="conflict-sheet" @close="conflict = null">
-      <h2 class="pr-10 text-[22px] leading-7 font-bold">{{ t('game.conflict.title') }}</h2>
-      <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('game.conflict.text') }}</p>
+      <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ t('game.conflict.title') }}</h2>
+      <p class="text-[15px] leading-5 text-muted">{{ t('game.conflict.text') }}</p>
       <button type="button" class="btn btn-primary btn-block" data-testid="conflict-continue" @click="continueRun">
         {{ t('game.conflict.continue') }}
       </button>
-      <button type="button" class="btn btn-tinted btn-block" :disabled="starting" data-testid="conflict-replace" @click="replaceRun">
+      <button type="button" class="btn btn-plain btn-block" :disabled="starting" data-testid="conflict-replace" @click="replaceRun">
         {{ t('game.conflict.replace') }}
       </button>
     </BottomSheet>
 
     <BottomSheet v-if="material" :label="t('game.material.title')" data-testid="material-sheet" @close="closeMaterial">
-      <h2 class="pr-10 text-[22px] leading-7 font-bold">{{ t('game.material.title') }}</h2>
-      <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('game.material.text') }}</p>
+      <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ t('game.material.title') }}</h2>
+      <p class="text-[15px] leading-5 text-muted">{{ t('game.material.text') }}</p>
       <button type="button" class="btn btn-primary btn-block" data-testid="material-learn" @click="learn">{{ t('game.map.learn') }}</button>
     </BottomSheet>
 

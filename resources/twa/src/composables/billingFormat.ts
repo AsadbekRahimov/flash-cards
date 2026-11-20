@@ -1,6 +1,6 @@
 import { formatDate } from '@/composables/format'
 import { t } from '@/i18n'
-import type { BillingCurrency, BillingProviderKey, CatalogItem, SubscriptionSummary } from '@/api/types'
+import type { BillingCurrency, BillingPeriod, BillingProviderKey, CatalogItem, SubscriptionSummary } from '@/api/types'
 
 /** The currency each provider is paid in (docs/13 §2.1 `SubscriptionProvider::currency`). */
 export const PROVIDER_CURRENCY: Record<BillingProviderKey, BillingCurrency> = {
@@ -14,10 +14,11 @@ export const PROVIDER_ORDER: readonly BillingProviderKey[] = ['telegram_stars', 
 
 /**
  * A price from the catalog / an order. Amounts are minor units: whole Stars for `XTR`, tiyin for
- * `UZS` (100 tiyin = 1 sum) — «150 ⭐», «29 000 so'm».
+ * `UZS` (100 tiyin = 1 sum) — «150 Stars», «29 000 so'm». Stars is the name of the currency in Telegram, the same in every
+ * language (the Pro mock-up, docs/design Pro: no star emoji).
  */
 export function formatPrice(minorUnits: number, currency: BillingCurrency, locale: string): string {
-  if (currency === 'XTR') return `${new Intl.NumberFormat(locale).format(minorUnits)} ⭐`
+  if (currency === 'XTR') return `${new Intl.NumberFormat(locale).format(minorUnits)} Stars`
 
   const sum = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Math.round(minorUnits / 100))
   return `${sum} ${t('billing.sum')}`
@@ -26,23 +27,47 @@ export function formatPrice(minorUnits: number, currency: BillingCurrency, local
 /** The currencies a saving is read in, the first one both periods are priced in wins: sums, then Stars. */
 const SAVING_CURRENCIES: readonly BillingCurrency[] = ['UZS', 'XTR']
 
+/** The periods this build can sell, in the order the screens show them; the months each is worth in the saving arithmetic. */
+export const PERIOD_MONTHS: Readonly<Record<BillingPeriod, number>> = { month: 1, quarter: 3, year: 12 }
+
+const PERIOD_ORDER = Object.keys(PERIOD_MONTHS) as BillingPeriod[]
+
+function isKnownPeriod(period: string): period is BillingPeriod {
+  return (PERIOD_ORDER as string[]).includes(period)
+}
+
 /**
- * How much cheaper a year is than twelve months, in whole percent: `round((1 − year / (12 × month)) × 100)`
- * (docs/14 §6.6). Both prices are taken in one currency (UZS, else XTR) and before the open offer (`list_prices`):
- * the offer discounts a single payment and says nothing about what the periods cost. Null when there is no month or
- * year, no currency both are priced in, or the saving rounds to less than 1 %: then the tab says just «Year».
+ * The rows of the catalog the screens show, month → quarter → year whatever order the server used. A period this build does not
+ * know is skipped (the contract of `BillingCatalogResource`), and so is a second row of the same period. An older server sends no
+ * quarter: the list is just shorter then.
  */
-export function yearSavingPct(items: readonly CatalogItem[]): number | null {
-  const month = items.find((item) => item.period === 'month')
-  const year = items.find((item) => item.period === 'year')
-  if (!month || !year) return null
+export function orderedItems(items: readonly CatalogItem[]): CatalogItem[] {
+  return PERIOD_ORDER.flatMap((period) => {
+    const found = items.find((item) => isKnownPeriod(item.period) && item.period === period)
+    return found ? [found] : []
+  })
+}
+
+/**
+ * How much cheaper `period` is than the same time paid month by month, in whole percent, or null when it saves less than 1 % (and for
+ * the month itself). The server's word first (`saving_pct` of the catalog); an older server does not send it, then the same rule is
+ * applied here: `round((1 − price / (months × month price)) × 100)`, both list prices (before the offer) in one currency, UZS, else XTR.
+ */
+export function periodSavingPct(items: readonly CatalogItem[], period: BillingPeriod): number | null {
+  const item = items.find((i) => i.period === period)
+  if (!item || period === 'month') return null
+  if (item.saving_pct !== undefined) return item.saving_pct >= 1 ? Math.round(item.saving_pct) : null
+
+  const month = items.find((i) => i.period === 'month')
+  if (!month) return null
+  const months = PERIOD_MONTHS[period]
 
   for (const currency of SAVING_CURRENCIES) {
     const monthly = month.list_prices[currency] ?? month.prices[currency]
-    const yearly = year.list_prices[currency] ?? year.prices[currency]
-    if (monthly === undefined || yearly === undefined || monthly <= 0 || yearly <= 0) continue
+    const price = item.list_prices[currency] ?? item.prices[currency]
+    if (monthly === undefined || price === undefined || monthly <= 0 || price <= 0) continue
 
-    const pct = Math.round((1 - yearly / (12 * monthly)) * 100)
+    const pct = Math.round((1 - price / (months * monthly)) * 100)
     return pct >= 1 ? pct : null
   }
 

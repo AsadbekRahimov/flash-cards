@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Organizations\DTO\DateRange;
 use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Filament\Org\Pages\Reports;
 use App\Models\Assignment;
@@ -144,6 +145,84 @@ it('filters by group and by period', function (): void {
 
     $component->set('data.period', '7');
     expect($reviews())->toBe(11);
+});
+
+/*
+ * The browser: a non-native date picker keeps its date as `Y-m-d H:i:s` (its internal format) — `form->fill()` writes it so and
+ * the browser sends it back so. A plain `set('data.from', 'Y-m-d')` above does not show that; these tests use the browser form.
+ */
+it('takes the own period in the form the date picker sends from the browser, and the plain date too', function (string $suffix): void {
+    rpEnter($this->ownerA, $this->a);
+    $from = now('UTC')->subDays(61)->toDateString();
+    $to = now('UTC')->toDateString();
+
+    $component = Livewire::test(Reports::class)
+        ->set('data.period', 'custom')
+        ->set('data.from', $from.$suffix)
+        ->set('data.to', $to.$suffix)
+        ->assertDontSee(__('org.reports.errors.invalid_range'))
+        ->assertSee('MineLearner');
+
+    expect($component->instance()->range())->toEqual(new DateRange($from, $to))
+        ->and($component->instance()->rangeError())->toBeNull()
+        ->and(collect($component->instance()->learnerRows())->firstWhere('name', 'MineLearner')->reviews)->toBe(16);
+})->with([
+    'browser, Y-m-d H:i:s' => ' 00:00:00',
+    'plain Y-m-d' => '',
+]);
+
+it('keeps the dates the page filled in when the own period is chosen', function (): void {
+    rpEnter($this->ownerA, $this->a);
+
+    $component = Livewire::test(Reports::class);
+    // What `form->fill()` left in the state is what the browser shows and sends back.
+    expect($component->get('data.from'))->toMatch('/^\d{4}-\d{2}-\d{2} 00:00:00$/');
+
+    $component->set('data.period', 'custom')->assertDontSee(__('org.reports.errors.invalid_range'));
+    expect($component->instance()->range())->toEqual(DateRange::lastDays(30, $this->a));
+});
+
+it('still rejects a picker value that is not a plain date', function (string $from): void {
+    rpEnter($this->ownerA, $this->a);
+
+    $component = Livewire::test(Reports::class)
+        ->set('data.period', 'custom')
+        ->set('data.from', $from)
+        ->set('data.to', now('UTC')->toDateString().' 00:00:00')
+        ->assertSee(__('org.reports.errors.invalid_range'))
+        ->assertDontSee('MineLearner');
+
+    expect($component->instance()->range())->toBeNull();
+})->with([
+    'a time of day' => '2026-10-01 13:45:00',
+    'an impossible date' => '2026-02-30 00:00:00',
+    'seconds only' => '2026-10-01 00:00:01',
+    'junk' => 'yesterday',
+    'trailing junk' => '2026-10-01 00:00:00x',
+]);
+
+it('exports the CSV of the own period sent by the browser', function (): void {
+    rpEnter($this->ownerA, $this->a);
+    $from = now('UTC')->subDays(61)->toDateString();
+    $to = now('UTC')->toDateString();
+
+    $component = Livewire::test(Reports::class)
+        ->set('data.period', 'custom')
+        ->set('data.from', $from.' 00:00:00')
+        ->set('data.to', $to.' 00:00:00')
+        ->callAction('csvLearners');
+    $csv = rpDownload($component);
+
+    // The period of the file is the chosen one (not the 30-day fallback), and so are the numbers: 11 today + 5 sixty days ago.
+    expect($component->effects['download']['name'])->toBe("activity-center-a-{$from}_{$to}.csv")
+        ->and($csv)->toContain('MineLearner;;16;2;');
+
+    $groups = Livewire::test(Reports::class)
+        ->set('data.period', 'custom')
+        ->set('data.from', $from.' 00:00:00')
+        ->set('data.to', $to.' 00:00:00')
+        ->callAction('csvGroups');
+    expect($groups->effects['download']['name'])->toBe("groups-center-a-{$from}_{$to}.csv");
 });
 
 it('rejects an inverted or longer-than-366-days custom period and downloads nothing', function (): void {

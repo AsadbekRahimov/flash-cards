@@ -25,20 +25,26 @@ describe('ToggleSwitch', () => {
     expect(w.attributes('aria-checked')).toBe('false')
   })
 
-  it('uses the accent colour when on and the neutral track when off', async () => {
+  it('uses the primary colour when on and the neutral track when off', async () => {
     const w = mount(ToggleSwitch, { props: { modelValue: true, label: 'x' } })
-    expect(w.classes()).toContain('bg-accent')
+    expect(w.classes()).toContain('bg-primary')
 
     await w.setProps({ modelValue: false })
     expect(w.classes()).toContain('bg-track')
-    expect(w.classes()).not.toContain('bg-accent')
+    expect(w.classes()).not.toContain('bg-primary')
   })
 
-  it('draws the knob in a theme token, not in a raw white', () => {
+  it('draws the knob in palette tokens, flat: on-primary when on, the secondary text colour when off', async () => {
     const w = mount(ToggleSwitch, { props: { modelValue: true, label: 'x' } })
+    const knob = () => w.get('span').classes()
 
-    expect(w.get('span').classes()).toContain('bg-tg-button-text')
-    expect(w.get('span').classes()).not.toContain('bg-white')
+    expect(knob()).toContain('bg-on-primary')
+    expect(knob()).not.toContain('bg-white')
+    expect(knob().join(' ')).not.toContain('shadow')
+
+    await w.setProps({ modelValue: false })
+    expect(knob()).toContain('bg-muted')
+    expect(knob()).not.toContain('bg-on-primary')
   })
 
   it('emits the opposite value on click', async () => {

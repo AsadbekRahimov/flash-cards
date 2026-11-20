@@ -7,19 +7,14 @@ import { setLocale } from '@/i18n'
 import { useBillingStore } from '@/stores/billing'
 import type { PracticeAccess, ProPromise } from '@/api/types'
 
-const FIVE = [
-  'Новые слова без дневного лимита',
-  'Написание слова и пропуски в примерах',
-  'До 20 своих колод по 2000 слов',
-  'Заморозки серии: пропуск дня не обрывает серию',
-  'Пробные тесты IELTS и SAT',
-]
+/** The rows by their keys (`data-benefit`); what each says is checked below. */
+const FIVE = ['benefits.new_words', 'benefits.exercises', 'benefits.decks', 'benefits.freezes', 'benefits.mock_exams']
 
 /** The sixth line sits second, after the new words: both are a daily limit that Pro lifts. */
-const SIX = [FIVE[0], 'Практика и баттлы без дневного лимита', ...FIVE.slice(1)]
+const SIX = [FIVE[0], 'benefits.practice', ...FIVE.slice(1)]
 
 /** The same, with the practice alone: the battles are switched off, or Free has no limit on them. */
-const SIX_SOLO = [FIVE[0], 'Практика без дневного лимита', ...FIVE.slice(1)]
+const SIX_SOLO = [FIVE[0], 'benefits.practice_solo', ...FIVE.slice(1)]
 
 const MODES: PracticeAccess['modes'] = ['pairs', 'collocation', 'sentence', 'dictation']
 
@@ -46,18 +41,48 @@ function know(practice?: PracticeAccess): void {
   })
 }
 
-const texts = (w: ReturnType<typeof mount>): string[] => w.findAll('[data-testid=benefit]').map((li) => li.text())
+const texts = (w: ReturnType<typeof mount>): (string | undefined)[] => w.findAll('[data-testid=benefit]').map((li) => li.attributes('data-benefit'))
+
+/** "Name | note" of each row. */
+const rows = (w: ReturnType<typeof mount>): string[] =>
+  w.findAll('[data-testid=benefit]').map((li) => `${li.get('[data-testid=benefit-name]').text()} | ${li.get('[data-testid=benefit-note]').text()}`)
 
 describe('ProBenefits', () => {
   beforeEach(() => setActivePinia(createPinia()))
   afterEach(() => setLocale('ru'))
 
-  it('lists the Pro benefits with a check each: the five that are always there, until /me says there is a line about practice', () => {
+  it('lists the Pro benefits, one line each: the five that are always there, until /me says there is a line about practice', () => {
     const w = mount(ProBenefits)
 
     expect(texts(w)).toEqual(FIVE)
-    expect(w.findAll('svg')).toHaveLength(5)
-    expect(w.findAll('svg').every((svg) => svg.attributes('fill') === 'currentColor')).toBe(true)
+    expect(rows(w)).toEqual([
+      'Новые слова | без дневного лимита',
+      'Упражнения | написание слова и пропуски в примерах',
+      'Свои колоды | до 20 колод по 2000 слов',
+      'Заморозка серии | пропуск дня не обрывает серию',
+      'Пробные тесты | IELTS и SAT',
+    ])
+  })
+
+  it('quotes the Free limit in the note on the new words while /me knows it', () => {
+    know(BOTH)
+    const w = mount(ProBenefits)
+
+    expect(rows(w).slice(0, 2)).toEqual(['Новые слова | без лимита вместо 20 в день', 'Практика и баттлы | без дневного лимита'])
+  })
+
+  describe('short: the three rows of the paywall', () => {
+    it('new words, the streak freeze and the practice', () => {
+      know(SOLO)
+
+      expect(texts(mount(ProBenefits, { props: { short: true } }))).toEqual(['benefits.new_words', 'benefits.freezes', 'benefits.practice_solo'])
+    })
+
+    it('the exercises stand in when there is no line about practice', () => {
+      know(NONE)
+
+      expect(texts(mount(ProBenefits, { props: { short: true } }))).toEqual(['benefits.new_words', 'benefits.freezes', 'benefits.exercises'])
+    })
   })
 
   describe('the line about practice is the word of the server: practice.pro_promise', () => {
@@ -66,7 +91,7 @@ describe('ProBenefits', () => {
       const w = mount(ProBenefits)
 
       expect(texts(w)).toEqual(SIX)
-      expect(w.findAll('svg')).toHaveLength(6)
+      expect(w.findAll('[data-testid=benefit]')).toHaveLength(6)
     })
 
     it("'solo': the practice alone", () => {
@@ -146,15 +171,20 @@ describe('ProBenefits', () => {
     expect(w.attributes('data-testid')).toBe('pro-benefits')
   })
 
-  it('compact: smaller icons and text, tighter spacing', () => {
+  it('draws rows between hairlines, the name on the left and the note on the right, without check marks (docs/design Pro)', () => {
+    const w = mount(ProBenefits)
+
+    expect(w.find('svg').exists()).toBe(false)
+    expect(w.classes()).toEqual(expect.arrayContaining(['border-t', 'border-hairline']))
+    for (const item of w.findAll('[data-testid=benefit]')) expect(item.classes()).toEqual(expect.arrayContaining(['border-b', 'border-divider']))
+  })
+
+  it('compact: tighter rows', () => {
     const regular = mount(ProBenefits)
     const compact = mount(ProBenefits, { props: { compact: true } })
 
-    expect(regular.get('svg').attributes('width')).toBe('20')
-    expect(compact.get('svg').attributes('width')).toBe('18')
-    expect(regular.classes()).toContain('space-y-3')
-    expect(compact.classes()).toContain('space-y-2')
-    expect(compact.get('li span').classes()).toContain('text-sm')
+    expect(regular.get('li').classes()).toEqual(expect.arrayContaining(['py-3.5', 'justify-between']))
+    expect(compact.get('li').classes()).toEqual(expect.arrayContaining(['py-2.5']))
   })
 
   describe('the line about the game is the word of the server: game.pro_promise', () => {
@@ -170,7 +200,8 @@ describe('ProBenefits', () => {
     it("'full': the Caravan without a daily limit, right after the practice", () => {
       knowGame('full')
 
-      expect(texts(mount(ProBenefits))).toEqual([FIVE[0], 'Практика и баттлы без дневного лимита', 'Караван без дневного лимита', ...FIVE.slice(1)])
+      expect(texts(mount(ProBenefits))).toEqual([FIVE[0], 'benefits.practice', 'benefits.game', ...FIVE.slice(1)])
+      expect(rows(mount(ProBenefits))[2]).toBe('Караван | без дневного лимита')
     })
 
     it("'none' (or no word of the game): no such line", () => {
@@ -183,7 +214,7 @@ describe('ProBenefits', () => {
       setLocale('uz')
       knowGame('full')
 
-      expect(mount(ProBenefits).text()).toContain('Karvon kunlik limitsiz')
+      expect(rows(mount(ProBenefits))[2]).toBe('Karvon | kunlik limitsiz')
     })
   })
 
@@ -193,9 +224,9 @@ describe('ProBenefits', () => {
     const w = mount(ProBenefits)
 
     expect(w.findAll('[data-testid=benefit]')).toHaveLength(6)
-    expect(w.text()).toContain("Kuniga istagancha yangi so'z")
-    expect(w.text()).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
-    expect(w.text()).toContain('IELTS va SAT sinov imtihonlari')
+    expect(rows(w)[0]).toBe("Yangi so'zlar | kuniga 20 ta o'rniga cheklovsiz")
+    expect(rows(w)[1]).toBe('Mashqlar va bellashuvlar | kunlik limitsiz')
+    expect(rows(w)[5]).toBe('Sinov imtihonlari | IELTS va SAT')
   })
 
   it('speaks Uzbek: the practice alone for solo, and no practice line for none', () => {
@@ -204,7 +235,7 @@ describe('ProBenefits', () => {
     const solo = mount(ProBenefits)
 
     expect(solo.findAll('[data-testid=benefit]')).toHaveLength(6)
-    expect(solo.text()).toContain('Mustahkamlash mashqlari cheklovsiz')
+    expect(rows(solo)[1]).toBe('Mashqlar | kunlik limitsiz')
     expect(solo.text()).not.toContain('bellashuv')
 
     know(NONE)

@@ -518,6 +518,10 @@ php artisan optimize:clear
 php artisan filament:optimize-clear
 ```
 
+### Panel theme
+
+The theme of `/admin` and `/org` (`app/Filament/Support/PanelTheme.php`) is served as committed copies: `resources/css/filament/panel.css` → `public/css/app/lexiflow-panel.css` and `resources/fonts/panel/<font>/**` → `public/fonts/app/<font>/**`. **After editing the theme CSS or its fonts run `php artisan filament:assets` and commit the copies in `public/`** together with the source (`composer install` runs it too through `filament:upgrade` — so does the image build —, but a checkout serves the committed copies until then, and a stale copy in the repository hides the edit from review). `tests/Unit/PanelThemeAssetsTest.php` fails while a copy differs from its source byte for byte.
+
 ---
 
 ## 8. Configure Nginx
@@ -1235,7 +1239,7 @@ you switch a provider on.
 | `CLICK_CHECKOUT_URL` | `https://my.click.uz/services/pay` (the test flow uses the same page with the test service) |
 | `CLICK_IP_ALLOWLIST` | as for Payme; the Click server addresses are published in the Click cabinet / docs |
 | `CLICK_TRANSACTION_TIMEOUT_MS` | 1800000 (30 min). An open Click *Prepare* older than this is treated as dead: it no longer keeps an expired order payable or holds a learner's discount. Prepare → Complete normally takes seconds; raise it only if Click support confirms longer retries. Payme's equivalent is fixed at 12 h (Payme cancels its own transaction after that) |
-| `BILLING_PRICE_*` | prices in minor units (UZS in tiyin = sum x 100; XTR whole Stars); `0` = not for sale in that currency (see `.env.example`) |
+| `BILLING_PRICE_*` | prices in minor units (UZS in tiyin = sum x 100; XTR whole Stars); `0` = not for sale in that currency (see `.env.example`). Pro: `BILLING_PRICE_PRO_{MONTH,QUARTER,YEAR}_{XTR,UZS}` (quarter = 3 months: 390 Stars / `7500000` = 75 000 sums by default) |
 | `BILLING_ORG_YEAR_DISCOUNT_PERCENT` | discount of the centers' annual payment vs 12 months (default `17`; `0` = no discount); explicit `BILLING_PRICE_<TIER>_YEAR_UZS` overrides it |
 | `BILLING_ORDER_TTL_MINUTES` | 1440; Payme / Click refuse an expired order |
 | `BILLING_SUPPORT_CONTACT` | shown in the paywall and by `/paysupport` |

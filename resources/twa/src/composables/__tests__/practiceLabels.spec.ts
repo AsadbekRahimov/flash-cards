@@ -1,16 +1,12 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { setLocale } from '@/i18n'
-import { KNOWN_PRACTICE_MODES, MODE_LOOK, PRACTICE_MODE_ORDER, estimateMinutes, isKnownPracticeMode, formatDuration, lessonHeader, lessonNumber, modeTitle } from '../practiceLabels'
-import { ICONS } from '@/components/ui/icons'
+import { KNOWN_PRACTICE_MODES, PRACTICE_MODE_ORDER, estimateMinutes, isKnownPracticeMode, formatDuration, lessonHeader, lessonNumber, modeTitle } from '../practiceLabels'
 
 afterEach(() => setLocale('ru'))
 
 describe('practiceLabels', () => {
-  it('the modes in the order of the hub, each with an icon that exists and a colour of its own', () => {
+  it('the modes in the order of the hub', () => {
     expect(PRACTICE_MODE_ORDER).toEqual(['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed', 'word_form', 'error_hunt'])
-    const tiles = PRACTICE_MODE_ORDER.map((mode) => MODE_LOOK[mode].tile)
-    expect(new Set(tiles).size).toBe(7)
-    for (const mode of PRACTICE_MODE_ORDER) expect(ICONS[MODE_LOOK[mode].icon], mode).toBeDefined()
   })
 
   it('names a mode in the language of the learner', () => {
@@ -21,7 +17,7 @@ describe('practiceLabels', () => {
 
   it('knows its own modes and nothing else: a mode of a newer server is not one of them', () => {
     for (const mode of PRACTICE_MODE_ORDER) expect(isKnownPracticeMode(mode), mode).toBe(true)
-    for (const value of ['speed_round', '', null, undefined, 3, 'MODE_LOOK']) expect(isKnownPracticeMode(value), String(value)).toBe(false)
+    for (const value of ['speed_round', '', null, undefined, 3, 'toString']) expect(isKnownPracticeMode(value), String(value)).toBe(false)
     expect(KNOWN_PRACTICE_MODES).toEqual(PRACTICE_MODE_ORDER)
   })
 

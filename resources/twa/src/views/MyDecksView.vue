@@ -10,6 +10,7 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { catalogTabs, progressPercent, progressText } from '@/composables/courseLabels'
 import { useBackButton } from '@/composables/useBackButton'
@@ -78,7 +79,7 @@ onMounted(() => {
   <div class="page">
     <PageHeader :title="t('catalog.title')" large />
     <SegmentedNav :items="tabs" :ariaLabel="t('catalog.title')" />
-    <p class="mt-2 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="intro">{{ t('decks.intro') }}</p>
+    <p class="mt-3 text-[13px] leading-[18px] text-muted" data-testid="intro">{{ t('decks.intro') }}</p>
 
     <LoadingState v-if="status === 'idle' || status === 'loading'" class="mt-4" />
 
@@ -101,7 +102,7 @@ onMounted(() => {
             {{ t('decks.new.submit') }}
           </button>
         </form>
-        <p v-if="limits" class="mt-1.5 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="limits">
+        <p v-if="limits" class="mt-2 text-[13px] leading-[18px] text-muted" data-testid="limits">
           {{ t('decks.limit', { used: limits.used_decks, max: limits.decks, words: limits.deck_words }) }}
         </p>
       </div>
@@ -111,7 +112,13 @@ onMounted(() => {
 
       <EmptyState v-if="decks.length === 0" icon="rectangle-stack" :text="t('decks.empty')" />
 
-      <article v-for="deck in decks" :key="deck.slug" class="card" :data-testid="`deck-${deck.slug}`">
+      <article
+        v-for="deck in decks"
+        :key="deck.slug"
+        class="card"
+        :class="{ 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]': deck.is_active }"
+        :data-testid="`deck-${deck.slug}`"
+      >
         <RouterLink
           :to="{ name: 'deck', params: { slug: deck.slug } }"
           class="flex items-start gap-2 active:opacity-60"
@@ -123,27 +130,22 @@ onMounted(() => {
               <span class="chip chip-neutral">{{ tn('catalog.words', deck.words_count) }}</span>
             </div>
           </div>
-          <AppIcon name="chevron-right" :size="16" class="mt-[3px] text-tg-hint" />
+          <AppIcon name="chevron-right" :size="16" class="mt-[3px] text-muted" />
         </RouterLink>
 
-        <div class="mt-3">
-          <div
-            class="progress"
-            role="progressbar"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            :aria-valuenow="progressPercent(deck.progress)"
-            :aria-label="progressText(deck.progress)"
+        <div class="mt-3.5 flex items-center gap-3">
+          <ProgressLine
+            :value="progressPercent(deck.progress)"
+            tone="success"
+            :label="progressText(deck.progress)"
+            class="flex-1"
             data-testid="progress-bar"
-          >
-            <div class="progress-fill" :style="{ width: `${progressPercent(deck.progress)}%` }" data-testid="progress-fill" />
-          </div>
-          <p class="mt-1.5 text-[13px] leading-[18px] text-tg-hint" data-testid="progress-text">{{ progressText(deck.progress) }}</p>
+          />
+          <span class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="progress-text">{{ progressText(deck.progress) }}</span>
         </div>
 
         <div class="mt-3">
           <span v-if="deck.is_active" class="chip chip-success" data-testid="active-badge">
-            <AppIcon name="check" solid :size="14" />
             {{ t('decks.active') }}
           </span>
           <template v-else>
@@ -157,7 +159,7 @@ onMounted(() => {
               {{ t('decks.choose') }}
             </button>
             <!-- A disabled button says nothing about why: an empty deck has no words to learn. -->
-            <p v-if="deck.words_count === 0" class="mt-1.5 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="choose-hint">
+            <p v-if="deck.words_count === 0" class="mt-2 text-center text-[13px] leading-[18px] text-muted" data-testid="choose-hint">
               {{ t('decks.choose_empty_hint') }}
             </p>
           </template>

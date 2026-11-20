@@ -6,7 +6,7 @@ import InlineAlert from '@/components/ui/InlineAlert.vue'
 import OpponentStatus from '@/components/battle/OpponentStatus.vue'
 import type { PlayerState } from '@/components/battle/OpponentStatus.vue'
 import { clockText, remainingMs, secondsLeft } from '@/composables/battleTime'
-import { MODE_LOOK, lessonHeader, modeTitle } from '@/composables/practiceLabels'
+import { lessonHeader, modeTitle } from '@/composables/practiceLabels'
 import { useNow } from '@/composables/useNow'
 import { useI18n } from '@/i18n'
 import type { BattleAction } from '@/stores/battle'
@@ -83,7 +83,6 @@ const expires = computed((): string | null => {
   return phase.value === 'room' ? t('battle.room.expires', { time }) : t('battle.invite.expires', { time })
 })
 
-const look = computed(() => MODE_LOOK[props.battle.mode])
 const topic = computed(() => (props.battle.lesson ? lessonHeader(props.battle.lesson) : props.battle.course.title))
 
 const rules = computed((): string[] => {
@@ -113,12 +112,11 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="battle-room" :data-phase="phase">
-    <div class="flex flex-1 flex-col gap-4 px-4 pt-3 pb-4">
+    <div class="flex flex-1 flex-col gap-4 px-5 pt-3 pb-4">
       <header class="text-center">
-        <h1 class="text-[22px] leading-7 font-bold break-words" data-testid="room-title">{{ title }}</h1>
-        <p class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="room-lead">{{ lead }}</p>
-        <p v-if="expires" class="mt-2 inline-flex items-center gap-1.5 text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="room-expires">
-          <AppIcon name="clock" :size="16" />
+        <h1 class="text-[22px] leading-7 font-semibold break-words" data-testid="room-title">{{ title }}</h1>
+        <p class="mt-1 text-[15px] leading-5 text-muted" data-testid="room-lead">{{ lead }}</p>
+        <p v-if="expires" class="mt-2 text-[13px] leading-[18px] text-muted" data-testid="room-expires">
           {{ expires }}
         </p>
       </header>
@@ -130,17 +128,13 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
 
       <section class="card flex flex-col gap-3" data-testid="room-brief">
         <div class="flex items-center gap-3">
-          <span class="icon-tile size-10 rounded-xl" :class="`tile-${look.tile}`"><AppIcon :name="look.icon" :size="22" /></span>
           <span class="min-w-0 flex-1">
-            <span class="block text-[17px] leading-[22px] font-semibold" data-testid="room-mode">{{ modeTitle(battle.mode) }}</span>
-            <span class="block truncate text-[15px] leading-5 text-tg-subtitle">{{ t(`practice.mode.${battle.mode}.example`) }}</span>
+            <span class="block text-[15px] leading-5 font-semibold" data-testid="room-mode">{{ modeTitle(battle.mode) }}</span>
+            <span class="mt-0.5 block truncate text-[13px] leading-[18px] text-muted">{{ t(`practice.mode.${battle.mode}.example`) }}</span>
           </span>
         </div>
-        <p class="flex items-center gap-2 text-[15px] leading-5" data-testid="room-topic">
-          <AppIcon name="book-open" :size="18" class="text-tg-hint" />
-          <span class="min-w-0 flex-1 break-words">{{ topic }}</span>
-        </p>
-        <p v-if="battle.lesson" class="-mt-1 pl-[26px] text-[13px] leading-[18px] text-tg-hint break-words">{{ battle.course.title }}</p>
+        <p class="border-t border-divider pt-3 text-[15px] leading-5 break-words" data-testid="room-topic">{{ topic }}</p>
+        <p v-if="battle.lesson" class="-mt-2 text-[13px] leading-[18px] text-muted break-words">{{ battle.course.title }}</p>
       </section>
 
       <div v-if="busyBattleId != null" class="space-y-2" data-testid="room-busy">
@@ -152,8 +146,8 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
       <section v-if="phase === 'room' && audio" data-testid="room-audio" :data-state="audio.state">
         <InlineAlert v-if="audio.state === 'failed'" tone="warning" :message="t('battle.audio.failed')" data-testid="audio-failed" />
         <div v-else class="card flex flex-col gap-2">
-          <p class="flex items-center gap-2 text-[15px] leading-5 font-medium" data-testid="audio-progress">
-            <AppIcon :name="audio.state === 'ready' ? 'check-circle' : 'speaker-wave'" :size="18" :class="audio.state === 'ready' ? 'text-success' : 'text-tg-hint'" />
+          <p class="flex items-center gap-2 text-[15px] leading-5" data-testid="audio-progress">
+            <AppIcon :name="audio.state === 'ready' ? 'check' : 'speaker-wave'" :size="18" :class="audio.state === 'ready' ? 'text-success' : 'text-muted'" />
             {{ audio.state === 'ready' ? t('battle.audio.ready') : t('battle.audio.loading', { loaded: audio.loaded, total: audio.total }) }}
           </p>
           <div class="progress" aria-hidden="true">
@@ -167,21 +161,21 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
 
       <section data-testid="room-rules">
         <h2 class="section-label mt-0">{{ t('battle.rules.title') }}</h2>
-        <ul class="card flex flex-col gap-2.5" role="list">
-          <li v-for="rule in rules" :key="rule" class="flex items-start gap-2.5 text-[15px] leading-5" data-testid="rule-row">
-            <AppIcon name="check-circle" :size="18" class="mt-px text-success" />
-            <span class="min-w-0 flex-1 break-words">{{ rule }}</span>
+        <!-- Lines of text between hairlines, no check marks: they are rules, not things done. -->
+        <ul class="list" role="list">
+          <li v-for="rule in rules" :key="rule" class="border-t border-divider px-[18px] py-2.5 text-[15px] leading-5 break-words first:border-t-0" data-testid="rule-row">
+            {{ rule }}
           </li>
         </ul>
       </section>
     </div>
 
-    <StickyActions>
+    <StickyActions surface>
       <template v-if="phase === 'invite_received'">
         <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="busy !== null" data-testid="accept-btn" @click="emit('accept')">
           {{ t('battle.invite.accept') }}
         </button>
-        <button type="button" class="btn btn-tinted btn-block" :disabled="busy !== null" data-testid="decline-btn" @click="emit('decline')">
+        <button type="button" class="btn btn-plain btn-block" :disabled="busy !== null" data-testid="decline-btn" @click="emit('decline')">
           {{ t('battle.invite.decline') }}
         </button>
       </template>
@@ -200,7 +194,7 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
           </template>
           <template v-else>{{ t('battle.room.ready') }}</template>
         </button>
-        <button type="button" class="btn btn-tinted btn-block" :disabled="busy !== null" data-testid="leave-btn" @click="emit('leave')">
+        <button type="button" class="btn btn-plain btn-block" :disabled="busy !== null" data-testid="leave-btn" @click="emit('leave')">
           {{ t('battle.room.leave') }}
         </button>
       </template>

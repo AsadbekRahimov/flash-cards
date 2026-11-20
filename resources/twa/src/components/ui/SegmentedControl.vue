@@ -21,6 +21,8 @@ export interface SegmentOption {
  *
  * Markup: `role="radiogroup"` with one `role="radio"` button per option (`aria-checked`). A segment is 36 px high, its
  * touch area at least 44 px (`.tap-target`, docs/14 §3): the look stays, the area around it is pressable too.
+ * Look (redesign 2026-11): a flat white box with a hairline; the selected segment is the "selected" of the palette — the soft
+ * accent fill with a thin primary frame (as a selected answer option or plan card), no shadow.
  *
  * @example
  * <SegmentedControl v-model="period" :options="[{ value: 'month', label: t('billing.period.month') }, …]" :ariaLabel="t('billing.title')" />
@@ -43,7 +45,7 @@ function select(value: string | number): void {
   <div
     role="radiogroup"
     :aria-label="ariaLabel"
-    class="flex gap-0.5 rounded-[10px] bg-fill p-0.5 shadow-[inset_0_0_0_1px_var(--app-hairline)]"
+    class="flex gap-0.5 rounded-control border border-hairline bg-surface p-0.5"
     :class="{ 'opacity-50': disabled }"
   >
     <button
@@ -57,8 +59,8 @@ function select(value: string | number): void {
       class="tap-target min-h-9 min-w-0 flex-1 rounded-lg px-3 text-sm leading-5 transition-colors duration-150"
       :class="
         option.value === modelValue
-          ? 'bg-surface font-semibold text-tg-text shadow-[0_1px_3px_rgb(0_0_0/0.12),0_0_0_1px_var(--app-hairline)]'
-          : 'font-medium text-tg-subtitle'
+          ? 'bg-accent-soft font-semibold text-body shadow-[inset_0_0_0_1px_var(--app-primary)]'
+          : 'text-muted'
       "
       @click="select(option.value)"
     >

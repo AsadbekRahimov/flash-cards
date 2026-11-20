@@ -141,3 +141,22 @@ it('refuses a window that is not 1..90 days', function (string $days): void {
         ->expectsOutputToContain('--days')
         ->assertExitCode(2);
 })->with(['0', '91', 'week', '-3']);
+
+it('gives one measure per platform over every start and segment, from the same opens as the report', function (): void {
+    seedTimingSet();
+
+    $now = CarbonImmutable::now();
+    $byPlatform = app(ClientTimingReport::class)->byPlatform($now->subDays(7), $now);
+
+    // Android: 100..4000 ms over 40 opens; iOS: five opens of 1000 ms; the open of "other" has its own entry.
+    expect($byPlatform['opens'])->toBe(46)
+        ->and($byPlatform['truncated'])->toBeFalse()
+        ->and(array_keys($byPlatform['platforms']))->toBe(['android', 'ios', 'other'])
+        ->and($byPlatform['platforms']['android'])->toBe(['n' => 40, 'p50' => 2050, 'p75' => 3025, 'p95' => 3805])
+        ->and($byPlatform['platforms']['ios'])->toBe(['n' => 5, 'p50' => 1000, 'p75' => 1000, 'p95' => 1000]);
+
+    // Another measure on request: the first sound only iOS has.
+    $audio = app(ClientTimingReport::class)->byPlatform($now->subDays(7), $now, 'first_audio');
+    expect($audio['platforms']['ios']['p75'])->toBe(4000)
+        ->and($audio['platforms']['android'])->toBe(['n' => 0, 'p50' => null, 'p75' => null, 'p95' => null]);
+});

@@ -13,10 +13,11 @@ describe('EmptyState', () => {
     expect(w.find('button').exists()).toBe(false)
   })
 
-  it('shows the icon in a circle and the title', () => {
+  it('shows the icon, plain in the secondary colour (no circle), and the title', () => {
     const w = mount(EmptyState, { props: { icon: 'rectangle-stack', title: 'Колод нет', text: 'Создайте первую.' } })
 
-    expect(w.find('span svg').exists()).toBe(true)
+    expect(w.get('svg').classes()).toContain('text-muted')
+    expect(w.find('span svg').exists()).toBe(false)
     expect(w.get('h2').text()).toBe('Колод нет')
   })
 

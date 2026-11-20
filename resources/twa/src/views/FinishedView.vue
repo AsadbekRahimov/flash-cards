@@ -3,13 +3,13 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter, type RouteLocationRaw } from 'vue-router'
 import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import { useAchievementsStore } from '@/stores/achievements'
 import { useBillingStore } from '@/stores/billing'
 import { useMonthlyRatingStore } from '@/stores/monthlyRating'
 import { useTodayStore } from '@/stores/today'
 import { COMBO_MIN, useTrainingStore } from '@/stores/training'
-import { prefersReducedMotion } from '@/composables/motion'
 import { reportOfferViewed } from '@/composables/offerViewed'
 import { resolveBenefits } from '@/composables/proBenefits'
 import {
@@ -30,7 +30,6 @@ import {
 import { hasSeen, isSnoozed, markSeen, snooze } from '@/composables/seenFlag'
 import { trialDaysLeft, trialEndsAt } from '@/composables/trial'
 import { playSound } from '@/composables/useFeedbackSound'
-import { useCountUp } from '@/composables/useCountUp'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
@@ -39,16 +38,17 @@ import { useI18n } from '@/i18n'
  * "Session finished" (docs/14 §6.3): an immersive screen (no tab bar) that ends a personal or group session.
  * The numbers of a personal session (cards, share of right answers, new words) and the goal and streak of the day
  * come with the server summary (`training.summary`); a group session has none, so it says only how many cards were
- * reviewed. The buttons at the bottom lead out: "One more round" (the primary one, only when the server says another round would have
- * cards: `can_continue`, docs/06 §13.2), "Play: practise the words" (a tinted secondary action: the server's `practice_entry` says
- * whether there is one and where it leads, docs/16 §11.1), "Home" (primary when there is no other round) and "Close". Under the
+ * reviewed. The look is the calm one of docs/design Finish (redesign 2026-11): no confetti, no count-up, no icon of success.
+ * The buttons at the bottom lead out: "Done" (the one primary button, to Today), then the other ways as lines of text: "One more
+ * round" (only when the server says another round would have cards: `can_continue`, docs/06 §13.2), "Play: practise the words"
+ * (the server's `practice_entry` says whether there is one and where it leads, docs/16 §11.1) and "Close". Under the
  * stats: what grew in the session (`stages`: new words, a stage up, learned), without the zeros - only when words climbed a stage
- * (the tile of the new words already says how many were met).
+ * (the number of the new words already says how many were met).
  *
  * The round of hard words (docs/06 §14) has its own finish: the headline is "You won X of N hard words" (by `hard_round` of the summary, or by
- * the progress of the store when the summary did not come), the confetti and the sound only for a win of all or of 80 % and more, no shame
+ * the progress of the store when the summary did not come), the sound only for a win of all or of 80 % and more, no shame
  * for less ("these words will come back - that is the plan"); no "One more round" and no practice. After an ordinary round the server may
- * add an invitation (`hard_round_offer`): one tinted line among the actions, before the practice and the reminders. Under the note of the
+ * add an invitation (`hard_round_offer`): one line of text among the actions, before the practice and the reminders. Under the note of the
  * round: one mistake of an earlier session corrected in it (`corrected`), when the server found a trustworthy pair.
  */
 const props = defineProps<{
@@ -97,17 +97,12 @@ const correctValue = computed((): number | null => {
   return current !== null && current.reviewed > 0 ? Math.round((current.correct / current.reviewed) * 100) : null
 })
 
-// The numbers of the tiles count up once when the screen opens (not with reduced motion).
-const reviewedShown = useCountUp(() => summary.value?.reviewed ?? 0)
-const correctShown = useCountUp(() => correctValue.value ?? 0)
-const newShown = useCountUp(() => summary.value?.new_words ?? 0)
-
 /** The round of hard words: by the reason of the last answer, the summary, or the mode of the session this run opened. */
 const isHardRound = computed(() => props.reason === 'hard_round_complete' || summary.value?.hard_round != null || training.mode === 'hard_review')
 /** Words of the set and how many of them were won; the progress of the store (`done` = won) when the finish summary did not come. */
 const hardTotal = computed(() => summary.value?.hard_round?.total ?? training.progress.total)
 const hardWon = computed(() => Math.min(summary.value?.hard_round?.won ?? training.progress.done, hardTotal.value))
-/** A win of all the words or of 80 % and more is celebrated; less is told calmly. */
+/** A win of all the words or of 80 % and more gets the sound of the finish; less is told calmly. */
 const hardCelebrate = computed(() => isHardRound.value && hardTotal.value > 0 && hardWon.value >= hardTotal.value * 0.8)
 const hardNote = computed((): string | null => {
   if (!isHardRound.value || hardTotal.value <= 0) return null
@@ -148,7 +143,7 @@ const canContinue = computed(() => props.reason === 'sprint_complete' && trainin
 
 /**
  * What grew in the session, the zeros left out: "New words: 6 · Moved up: 2 · Learned: 1"; null when no word climbed a stage (or an
- * older server): with only `graduated` the line would repeat the tile of the new words.
+ * older server): with only `graduated` the line would repeat the number of the new words.
  */
 const stagesLine = computed((): string | null => {
   const stages = summary.value?.stages
@@ -169,26 +164,6 @@ async function nextRound(): Promise<void> {
 
 /** "Best run: 12": only a run that the chip showed. */
 const bestCombo = computed(() => (training.bestCombo >= COMBO_MIN ? training.bestCombo : 0))
-
-/** Confetti, once, for a session that reviewed something (and not with reduced motion): it removes itself after its ~1.2 s. */
-const CONFETTI_PIECES = 20
-const CONFETTI_MS = 1500
-const confetti = ref(!isEmpty.value && !prefersReducedMotion() && (!isHardRound.value || hardCelebrate.value))
-const confettiPieces = Array.from({ length: CONFETTI_PIECES }, (_, i) => {
-  // Fixed spread (no random: the same burst every time, and a stable test): the pieces fan out and fall.
-  const angle = (i / CONFETTI_PIECES) * Math.PI * 2
-  const reach = 90 + ((i * 37) % 90)
-  return {
-    color: i % 4,
-    style: {
-      '--dx': `${Math.round(Math.cos(angle) * reach)}px`,
-      '--dy': `${Math.round(Math.sin(angle) * reach * 0.6 + 140 + ((i * 53) % 120))}px`,
-      '--rot': `${180 + ((i * 71) % 360)}deg`,
-      '--delay': `${(i % 5) * 40}ms`,
-    },
-  }
-})
-let confettiTimer: ReturnType<typeof setTimeout> | null = null
 
 const goalPercent = computed(() => {
   const current = goal.value
@@ -239,7 +214,6 @@ onMounted(() => {
     void monthly.loadMine()
     void achievements.load()
   }
-  if (confetti.value) confettiTimer = setTimeout(() => (confetti.value = false), CONFETTI_MS)
 })
 
 /**
@@ -390,188 +364,193 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => {
  */
 const showCourses = computed(() => isEmpty.value && props.reason === 'nothing_due' && training.mode !== 'group_lesson')
 
+/** The streak has something to say: a run of days, or the warning that it is about to break. */
+const showStreak = computed(() => streak.value !== null && (streak.value.current > 0 || streak.value.at_risk))
+/** The card of rows under the numbers (docs/design Finish) has at least one row. */
+const hasRows = computed(() => corrected.value !== null || goal.value !== null || showStreak.value || bestCombo.value > 0
+  || newAchievement.value !== null || pointsEarned.value > 0 || monthLine.value !== null || !isEmpty.value)
+
 notificationHaptic('success')
 if (!isEmpty.value && (!isHardRound.value || hardCelebrate.value)) playSound('done')
 if (quotaExhausted.value) void billing.load()
 
 // A failed "Repeat words" is shown here only: Today (where "Home" leads) shows the same `openError` for its own button.
 onBeforeUnmount(() => {
-  if (confettiTimer !== null) clearTimeout(confettiTimer)
   training.clearOpenError()
 })
 </script>
 
 <template>
-  <div class="page" data-testid="finished-view">
-    <div v-if="confetti" class="confetti" aria-hidden="true" data-testid="confetti">
-      <span v-for="(piece, i) in confettiPieces" :key="i" class="confetti-piece" :class="`confetti-${piece.color}`" :style="piece.style" />
+  <!--
+    docs/design Finish: calm, on the grey page — an eyebrow, the title, the three numbers in one card with lines between them, one card of
+    rows (a mistake put right, the goal and the streak, the league, the next review), "Done" and the other actions as text under it.
+  -->
+  <div class="page pt-16 short:pt-6" data-testid="finished-view">
+    <header class="flex flex-col gap-2">
+      <p class="text-[13px] leading-[18px]" :class="isEmpty ? 'text-muted' : 'text-success-ink'" data-testid="eyebrow">
+        {{ isHardRound ? t('training.hard_round.chip') : t('finished.eyebrow') }}
+      </p>
+      <h1
+        class="text-[32px] leading-[38px] font-semibold tracking-[-0.4px] short:text-[26px] short:leading-[30px]"
+        :data-testid="isHardRound ? 'hard-round-title' : undefined"
+      >
+        {{ title }}
+      </h1>
+      <p v-if="hardNote" class="text-[15px] leading-5 text-muted" data-testid="hard-round-note">{{ hardNote }}</p>
+      <p v-else-if="reasonLabel" class="text-[15px] leading-5 text-muted" data-testid="reason">{{ reasonLabel }}</p>
+    </header>
+
+    <div
+      v-if="summary && hasNumbers"
+      class="mt-7 grid grid-cols-3 rounded-card border border-hairline bg-surface short:mt-5"
+      data-testid="stats"
+    >
+      <div class="flex min-w-0 flex-col gap-1 px-3.5 py-4">
+        <p class="text-[26px] leading-[30px] font-semibold" data-testid="stat-reviewed">{{ summary.reviewed }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.cards') }}</p>
+      </div>
+      <div class="flex min-w-0 flex-col gap-1 border-l border-divider px-3.5 py-4">
+        <p class="text-[26px] leading-[30px] font-semibold" data-testid="stat-correct">{{ correctValue === null ? '—' : `${correctValue}%` }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.correct') }}</p>
+      </div>
+      <div class="flex min-w-0 flex-col gap-1 border-l border-divider px-3.5 py-4">
+        <p class="text-[26px] leading-[30px] font-semibold" data-testid="stat-new">{{ summary.new_words }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.new') }}</p>
+      </div>
     </div>
-    <div class="flex flex-1 flex-col justify-center gap-5 py-4">
-      <header class="text-center">
-        <span
-          class="mx-auto flex size-20 items-center justify-center rounded-full bg-success-soft text-success"
-          data-testid="finished-icon"
-        >
-          <AppIcon name="check-circle" solid :size="48" />
-        </span>
-        <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight" :data-testid="isHardRound ? 'hard-round-title' : undefined">{{ title }}</h1>
-        <p v-if="hardNote" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="hard-round-note">{{ hardNote }}</p>
-        <p v-else-if="reasonLabel" class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="reason">{{ reasonLabel }}</p>
-        <div v-if="corrected" class="mt-2" data-testid="hard-round-corrected">
+    <p
+      v-else-if="!summary && hasNumbers"
+      class="card mt-7 text-[17px] leading-[22px] font-semibold short:mt-5"
+      data-testid="reviewed"
+    >
+      {{ tn('finished.reviewed', reviewed) }}
+    </p>
+    <p v-if="stagesLine" class="mt-2 px-1 text-[13px] leading-[18px] text-muted" data-testid="stages">{{ stagesLine }}</p>
+
+    <section
+      v-if="hasRows"
+      class="mt-3.5 flex flex-col divide-y divide-divider overflow-hidden rounded-card border border-hairline bg-surface"
+      data-testid="rows"
+    >
+      <div v-if="corrected" class="flex items-start gap-3 px-[18px] py-3.5" data-testid="hard-round-corrected">
+        <AppIcon name="check" :size="18" class="mt-0.5 shrink-0 text-success" />
+        <div class="min-w-0 flex-1">
           <!-- The sentence in two keys around the word, so the translation can follow the word as a muted suffix (Uzbek puts more after it). -->
-          <p class="text-[15px] leading-5 break-words" data-testid="hard-round-corrected-line">{{ t('finished.corrected.lead', { word: corrected.word }) }}<span v-if="correctedTranslation" class="text-tg-hint" data-testid="hard-round-corrected-translation"> ({{ correctedTranslation }})</span> {{ t('finished.corrected.tail') }}</p>
-          <p v-if="corrected.answer" class="mt-0.5 text-[13px] leading-[18px] text-tg-hint break-words" data-testid="hard-round-corrected-answer">
+          <p class="text-[15px] leading-5 break-words" data-testid="hard-round-corrected-line">{{ t('finished.corrected.lead', { word: corrected.word }) }}<span v-if="correctedTranslation" class="text-muted" data-testid="hard-round-corrected-translation"> ({{ correctedTranslation }})</span> {{ t('finished.corrected.tail') }}</p>
+          <p v-if="corrected.answer" class="mt-0.5 text-[13px] leading-[18px] text-muted break-words" data-testid="hard-round-corrected-answer">
             {{ t('finished.corrected.answer', { answer: corrected.answer }) }}
           </p>
         </div>
-      </header>
-
-      <div v-if="summary && hasNumbers" class="grid grid-cols-3 gap-2" data-testid="stats">
-        <div class="card px-2 py-3 text-center">
-          <p class="text-2xl leading-8 font-bold" data-testid="stat-reviewed">{{ reviewedShown }}</p>
-          <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ t('finished.stats.cards') }}</p>
-        </div>
-        <div class="card px-2 py-3 text-center">
-          <p class="text-2xl leading-8 font-bold" data-testid="stat-correct">{{ correctValue === null ? '—' : `${correctShown}%` }}</p>
-          <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ t('finished.stats.correct') }}</p>
-        </div>
-        <div class="card px-2 py-3 text-center">
-          <p class="text-2xl leading-8 font-bold" data-testid="stat-new">{{ newShown }}</p>
-          <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ t('finished.stats.new') }}</p>
-        </div>
       </div>
-      <p
-        v-else-if="!summary && hasNumbers"
-        class="card text-center text-[17px] leading-[22px] font-semibold"
-        data-testid="reviewed"
-      >
-        {{ tn('finished.reviewed', reviewed) }}
-      </p>
-      <p v-if="stagesLine" class="card text-center text-[15px] leading-5 text-tg-subtitle" data-testid="stages">{{ stagesLine }}</p>
 
-      <p v-if="bestCombo > 0" class="card flex items-center gap-3 text-[17px] leading-[22px] font-semibold" data-testid="best-combo">
-        <span class="icon-tile tile-orange"><AppIcon name="fire" solid :size="18" /></span>
+      <div v-if="goal" class="px-[18px] py-3.5" data-testid="goal">
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-[15px] leading-5 font-semibold" :class="{ 'text-success-ink': goal.met }" data-testid="goal-text">
+            {{ goal.met ? t('finished.goal_met') : t('finished.goal', { done: goal.done, target: goal.target }) }}
+          </p>
+          <AppIcon v-if="goal.met" name="check" :size="18" class="shrink-0 text-success" />
+        </div>
+        <ProgressLine class="mt-2.5" :value="goalPercent" :tone="goal.met ? 'success' : 'accent'" :label="t('today.goal.title')" />
+      </div>
+
+      <div v-if="streak && showStreak" class="px-[18px] py-3.5">
+        <p v-if="streak.current > 0" class="text-[15px] leading-5 font-semibold" data-testid="streak">
+          {{ tn('today.streak.in_row', streak.current) }}
+        </p>
+        <p v-if="streak.current > 0 && streak.met_today && streak.held_by === 'game'" class="mt-0.5 text-[13px] leading-[18px] text-muted" data-testid="streak-held-by-game">
+          {{ t('today.streak.held_by_game') }}
+        </p>
+        <p v-if="streak.at_risk" class="text-[13px] leading-[18px] text-warning-ink" :class="{ 'mt-0.5': streak.current > 0 }" data-testid="streak-at-risk">
+          {{ t('today.streak.at_risk') }}
+        </p>
+      </div>
+
+      <p v-if="bestCombo > 0" class="px-[18px] py-3.5 text-[15px] leading-5 font-semibold" data-testid="best-combo">
         {{ t('finished.best_combo', { count: bestCombo }) }}
       </p>
 
       <RouterLink
         v-if="newAchievement"
         :to="{ name: 'achievements' }"
-        class="card flex items-center gap-3"
+        class="flex min-h-[52px] items-center gap-3 px-[18px] py-3.5 active:bg-fill"
         data-testid="new-achievement"
       >
-        <span class="icon-tile tile-blue"><AppIcon name="trophy" solid :size="18" /></span>
-        <span class="min-w-0 flex-1 text-[17px] leading-[22px] font-semibold break-words">{{ t('finished.new_achievement', { title: newAchievement.title }) }}</span>
-        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
+        <span class="min-w-0 flex-1 text-[15px] leading-5 font-semibold break-words">{{ t('finished.new_achievement', { title: newAchievement.title }) }}</span>
+        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
       </RouterLink>
 
-      <section v-if="showQuotaCard" class="card space-y-3" data-testid="quota-card">
-        <p class="text-[17px] leading-[22px] font-semibold">{{ t('finished.quota.title') }}</p>
-        <div class="flex flex-col gap-2">
-          <button type="button" class="btn btn-tinted btn-block" data-testid="paywall-open" @click="openPaywall('quota')">
-            {{ t('finished.quota.pro') }}
-          </button>
-          <RouterLink :to="{ name: 'referrals' }" class="btn btn-secondary btn-block" data-testid="quota-invite">
-            {{ t('finished.quota.invite') }}
-          </RouterLink>
-        </div>
-      </section>
+      <div v-if="pointsEarned > 0" class="flex items-baseline justify-between gap-3 px-[18px] py-3.5">
+        <p class="text-[15px] leading-5 font-semibold">{{ t('league.title') }}</p>
+        <p class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="points-earned">{{ tn('finished.points_earned', pointsEarned) }}</p>
+      </div>
+      <RouterLink
+        v-if="monthLine"
+        :to="{ name: 'league-month' }"
+        class="flex min-h-[52px] items-center gap-3 px-[18px] py-3.5 active:bg-fill"
+        data-testid="month-line"
+      >
+        <span class="min-w-0 flex-1 text-[15px] leading-5 text-accent">{{ monthLine }}</span>
+        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
+      </RouterLink>
 
-      <section v-if="pointsEarned > 0 || monthLine" class="card space-y-2">
-        <p v-if="pointsEarned > 0" class="flex items-center gap-3 text-[17px] leading-[22px] font-semibold" data-testid="points-earned">
-          <span class="icon-tile tile-blue"><AppIcon name="trophy" solid :size="18" /></span>
-          {{ tn('finished.points_earned', pointsEarned) }}
-        </p>
-        <RouterLink v-if="monthLine" :to="{ name: 'league-month' }" class="block text-[15px] leading-5 text-accent" data-testid="month-line">
-          {{ monthLine }}
+      <div v-if="!isEmpty" class="flex items-baseline justify-between gap-3 px-[18px] py-3.5" data-testid="next">
+        <p class="text-[15px] leading-5 font-semibold">{{ t('finished.next_label') }}</p>
+        <p class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="next-label">{{ nextLabel }}</p>
+      </div>
+    </section>
+
+    <section v-if="showQuotaCard" class="card mt-3.5 space-y-3" data-testid="quota-card">
+      <p class="text-[15px] leading-5 font-semibold">{{ t('finished.quota.title') }}</p>
+      <div class="flex flex-col gap-2">
+        <button type="button" class="btn btn-tinted btn-block" data-testid="paywall-open" @click="openPaywall('quota')">
+          {{ t('finished.quota.pro') }}
+        </button>
+        <RouterLink :to="{ name: 'referrals' }" class="btn btn-secondary btn-block" data-testid="quota-invite">
+          {{ t('finished.quota.invite') }}
         </RouterLink>
-      </section>
+      </div>
+    </section>
 
-      <section v-if="goal" class="card" data-testid="goal">
-        <div class="flex items-center justify-between gap-3">
-          <p
-            class="text-[17px] leading-[22px] font-semibold"
-            :class="{ 'text-success-ink': goal.met }"
-            data-testid="goal-text"
-          >
-            {{ goal.met ? t('finished.goal_met') : t('finished.goal', { done: goal.done, target: goal.target }) }}
-          </p>
-          <AppIcon v-if="goal.met" name="check-circle" solid :size="22" class="shrink-0 text-success" />
-        </div>
-        <div
-          class="progress mt-3"
-          :class="{ 'progress-success': goal.met }"
-          role="progressbar"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          :aria-valuenow="goalPercent"
-          :aria-label="t('today.goal.title')"
-        >
-          <div class="progress-fill" :style="{ width: `${goalPercent}%` }" />
-        </div>
-
-        <div v-if="streak && (streak.current > 0 || streak.at_risk)" class="mt-3 flex items-start gap-3 border-t pt-3">
-          <span class="icon-tile tile-orange"><AppIcon name="fire" solid :size="18" /></span>
-          <div class="min-w-0 flex-1">
-            <p v-if="streak.current > 0" class="text-[15px] leading-[30px] font-semibold" data-testid="streak">
-              {{ tn('today.streak.in_row', streak.current) }}
-            </p>
-            <p v-if="streak.current > 0 && streak.met_today && streak.held_by === 'game'" class="text-[13px] leading-[18px] text-tg-subtitle" data-testid="streak-held-by-game">
-              {{ t('today.streak.held_by_game') }}
-            </p>
-            <p v-if="streak.at_risk" class="text-[15px] leading-5 text-warning-ink" data-testid="streak-at-risk">
-              {{ t('today.streak.at_risk') }}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section v-if="!isEmpty" class="card flex items-center gap-3" data-testid="next">
-        <span class="icon-tile tile-blue"><AppIcon name="clock" :size="18" /></span>
-        <div>
-          <p class="text-[13px] leading-[18px] text-tg-hint">{{ t('finished.next_label') }}</p>
-          <p class="text-[17px] leading-[22px] font-semibold" data-testid="next-label">{{ nextLabel }}</p>
-        </div>
-      </section>
-    </div>
-
-    <div class="space-y-2 pt-4">
+    <!-- "Done" is the one main button; every other way on is a line of text under it (docs/design Finish). -->
+    <div class="mt-auto flex flex-col gap-1.5 pt-6">
       <InlineAlert v-if="training.openError" tone="danger" :message="training.openError" data-testid="open-error" />
 
-      <template v-if="canContinue">
-        <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="training.opening" data-testid="next-round-btn" @click="nextRound">
-          <AppIcon name="play" solid :size="20" />
-          {{ t('finished.next_round') }}
-        </button>
-      </template>
+      <RouterLink :to="{ name: 'today' }" class="btn btn-primary btn-lg btn-block" data-testid="home-btn">
+        {{ t('finished.done') }}
+      </RouterLink>
+      <button
+        v-if="canContinue"
+        type="button"
+        class="btn btn-plain btn-block text-[15px]"
+        :disabled="training.opening"
+        data-testid="next-round-btn"
+        @click="nextRound"
+      >
+        {{ t('finished.next_round') }}
+      </button>
       <!-- The round of hard words, offered by the server after an ordinary round: one line, before the practice and the reminders. -->
       <button
         v-if="showHardOffer && hardOffer"
         type="button"
-        class="btn btn-tinted btn-block"
+        class="btn btn-plain btn-block text-[15px]"
         :disabled="training.opening"
         data-testid="hard-round-offer-btn"
         @click="startHardRound"
       >
-        <AppIcon name="flag" :size="20" />
         {{ tn('finished.hard_round.offer', hardOffer.words) }}
       </button>
-      <!-- A secondary action: playing with what was just learned (docs/15 §4). -->
-      <RouterLink v-if="showPractice && practiceTarget" :to="practiceTarget" class="btn btn-tinted btn-block" data-testid="practice-btn">
-        <AppIcon name="puzzle-piece" :size="20" />
+      <!-- Playing with what was just learned (docs/15 §4). -->
+      <RouterLink v-if="showPractice && practiceTarget" :to="practiceTarget" class="btn btn-plain btn-block text-[15px]" data-testid="practice-btn">
         {{ t('finished.practice') }}
       </RouterLink>
-      <RouterLink :to="{ name: 'today' }" class="btn btn-lg btn-block" :class="canContinue ? 'btn-secondary' : 'btn-primary'" data-testid="home-btn">
-        {{ t('finished.home') }}
-      </RouterLink>
-      <RouterLink v-if="showCourses" :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="courses-btn">
+      <RouterLink v-if="showCourses" :to="{ name: 'courses' }" class="btn btn-plain btn-block text-[15px]" data-testid="courses-btn">
         {{ t('finished.choose_course') }}
       </RouterLink>
-      <button type="button" class="btn btn-plain btn-block" data-testid="close-btn" @click="close()">
+      <button type="button" class="btn btn-plain btn-block text-[15px] text-muted" data-testid="close-btn" @click="close()">
         {{ t('common.exit_app') }}
       </button>
 
-      <!-- Reminders about Pro: under the buttons, so that "One more round" stays on the first screen. One at a time. -->
+      <!-- Reminders about Pro: under the buttons, so that "Done" stays on the first screen. One at a time. -->
       <section v-if="showTrialEnding" class="card mt-3 space-y-3" data-testid="trial-ending">
         <p class="text-[15px] leading-5 font-semibold">{{ trialEndingText }}</p>
         <div class="flex flex-col gap-2" data-testid="trial-ending-actions">
@@ -594,20 +573,19 @@ onBeforeUnmount(() => {
       </section>
       <section v-else-if="showTip" class="card mt-3 space-y-3" data-testid="pro-tip">
         <div class="flex items-start gap-3">
-          <span class="icon-tile tile-blue"><AppIcon name="sparkles" solid :size="18" /></span>
           <div class="min-w-0 flex-1">
-            <p class="text-[13px] leading-[18px] text-tg-hint">{{ t('protip.title') }}</p>
+            <p class="text-[13px] leading-[18px] text-muted">{{ t('protip.title') }}</p>
             <p class="text-[15px] leading-5 font-semibold" data-testid="pro-tip-text">{{ tipText }}</p>
           </div>
           <!-- 44 px target; the negative margins keep the glyph in the corner of the card padding. -->
           <button
             type="button"
-            class="-mt-3 -mr-3 flex size-11 shrink-0 items-center justify-center rounded-full text-tg-hint active:bg-track"
+            class="-mt-3 -mr-3 flex size-11 shrink-0 items-center justify-center rounded-full text-muted active:bg-fill"
             :aria-label="t('today.invite.dismiss')"
             data-testid="pro-tip-close"
             @click="hideTip()"
           >
-            <AppIcon name="x-mark" :size="20" />
+            <AppIcon name="x-mark" :size="18" />
           </button>
         </div>
         <div class="flex flex-col gap-2" data-testid="pro-tip-actions">

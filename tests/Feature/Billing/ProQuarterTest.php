@@ -1,0 +1,572 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Domain\Billing\Enums\Plan;
+use App\Domain\Billing\Enums\SubscriptionProvider;
+use App\Domain\Billing\Exceptions\CheckoutException;
+use App\Domain\Billing\Providers\Click\ClickMerchantService;
+use App\Domain\Billing\Providers\Payme\PaymeRpcException;
+use App\Domain\Billing\Providers\Payme\PaymeRpcService;
+use App\Domain\Billing\Providers\StarsPreCheckoutGuard;
+use App\Domain\Billing\Services\BillingFunnelService;
+use App\Domain\Billing\Services\BillingReportService;
+use App\Domain\Billing\Services\CheckoutService;
+use App\Domain\Billing\Services\PaymentApplier;
+use App\Domain\Billing\Services\SubscriptionService;
+use App\Domain\Billing\Support\BillingPeriods;
+use App\Domain\Organizations\Enums\OrganizationRole;
+use App\Domain\Organizations\Services\OrgBillingService;
+use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Services\ProScreen;
+use App\Domain\Telegram\Services\TelegramDispatcher;
+use App\Domain\Twa\Services\JwtService;
+use App\Filament\Resources\PaymentOrderResource\Pages\ListPaymentOrders;
+use App\Jobs\HandleTelegramUpdate;
+use App\Models\Learner;
+use App\Models\Offer;
+use App\Models\Organization;
+use App\Models\OrganizationUser;
+use App\Models\Payment;
+use App\Models\PaymentOrder;
+use App\Models\ProductEvent;
+use App\Models\ProviderTransaction;
+use App\Models\Subscription;
+use App\Models\User;
+use Carbon\CarbonImmutable;
+use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\Support\ClickFixtures;
+use Tests\Support\FakeBillingProvider;
+use Tests\Support\FakeTelegramClient;
+use Tests\Support\PaymeFixtures;
+
+/*
+ * Pro for 3 months (`quarter`, owner's decisions of 20.11.2026, docs/13 §5): 90 days for 390 Stars (a one-off Stars
+ * invoice) or 75 000 sums (Payme / Click, BILLING_PRICE_PRO_QUARTER_UZS); never to organizations (`billing.org_periods`).
+ * A price of 0 in a currency = not sold in it, like the month and the year (409 price_not_configured). The real
+ * TelegramStarsProvider talks to FakeTelegramClient; Payme and Click are the real adapters and merchant services.
+ */
+
+uses(RefreshDatabase::class);
+
+beforeEach(function (): void {
+    CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-11-20 12:00:00', 'UTC'));
+    config()->set('billing.providers.telegram_stars.enabled', true);
+    config()->set('billing.paywall.mode', 'purchase');
+    $this->telegram = new FakeTelegramClient;
+    $this->app->instance(TelegramClient::class, $this->telegram);
+    config()->set('billing.providers.payme.enabled', true);
+    config()->set('billing.providers.payme.merchant_id', '5e730e8e0b852a417aa49ceb');
+    config()->set('billing.providers.payme.key', 'live-merchant-key-0123456789abcdef');
+    config()->set('billing.providers.payme.fiscal.ikpu', '');
+    config()->set('billing.providers.payme.cancel_after_perform_days', null);
+    ClickFixtures::configure();
+    $this->learner = Learner::factory()->create(['interface_locale' => 'ru', 'timezone' => 'Asia/Tashkent']);
+});
+
+afterEach(function (): void {
+    CarbonImmutable::setTestNow();
+});
+
+/** @return array<string, string> */
+function pqHeaders(Learner $learner): array
+{
+    return ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
+}
+
+function pqOrder(Learner $learner, string $period = 'quarter', SubscriptionProvider $provider = SubscriptionProvider::TelegramStars): PaymentOrder
+{
+    return app(CheckoutService::class)->create($learner, Plan::Pro, $period, $provider, null, CheckoutService::VIA_TWA);
+}
+
+/** @return array<string, mixed> A one-off `successful_payment` (no subscription fields) as Telegram sends it. */
+function pqPaidUpdate(PaymentOrder $order, string $chargeId, int $fromId, ?int $amount = null, int $updateId = 1): array
+{
+    return ['update_id' => $updateId, 'message' => [
+        'message_id' => 700 + $updateId,
+        'date' => CarbonImmutable::now()->getTimestamp(),
+        'chat' => ['id' => $fromId, 'type' => 'private'],
+        'from' => ['id' => $fromId, 'first_name' => 'Alice', 'language_code' => 'ru'],
+        'successful_payment' => [
+            'currency' => 'XTR',
+            'total_amount' => $amount ?? $order->amount,
+            'invoice_payload' => $order->token,
+            'telegram_payment_charge_id' => $chargeId,
+            'provider_payment_charge_id' => 'prov_'.$chargeId,
+        ],
+    ]];
+}
+
+/** @return array<string, mixed> */
+function pqPreCheckout(PaymentOrder $order, int $fromId, ?int $amount = null): array
+{
+    return ['id' => 'pcq-'.$order->id, 'from' => ['id' => $fromId, 'language_code' => 'ru'], 'currency' => 'XTR', 'total_amount' => $amount ?? $order->amount, 'invoice_payload' => $order->token];
+}
+
+// --- config ----------------------------------------------------------------------------------------
+
+it('configures the quarter as 90 days for 390 Stars or 75 000 sums, for learners only', function (): void {
+    expect(config('billing.periods.quarter'))->toBe(90)
+        ->and(config('billing.prices.pro.quarter'))->toBe(['XTR' => 390, 'UZS' => 7_500_000])
+        ->and(BillingPeriods::keys())->toBe(['month', 'quarter', 'year'])
+        ->and(BillingPeriods::forOrganizations())->toBe(['month', 'year'])
+        ->and(BillingPeriods::days('quarter'))->toBe(90)
+        ->and(BillingPeriods::months('quarter'))->toBe(3)
+        ->and(BillingPeriods::months('year'))->toBe(12)
+        ->and(BillingPeriods::months('month'))->toBe(1)
+        ->and(SubscriptionService::periodDays('quarter'))->toBe(90);
+});
+
+it('reads the quarter prices from BILLING_PRICE_PRO_QUARTER_XTR / _UZS, 390 Stars and 7 500 000 tiyin when they are not set', function (): void {
+    $names = ['BILLING_PRICE_PRO_QUARTER_XTR', 'BILLING_PRICE_PRO_QUARTER_UZS'];
+    $set = static function (string $name, ?string $value): void {
+        if ($value === null) {
+            unset($_ENV[$name], $_SERVER[$name]);
+            putenv($name);
+        } else {
+            $_ENV[$name] = $_SERVER[$name] = $value;
+            putenv($name.'='.$value);
+        }
+    };
+    $config = (function (?string $xtr, ?string $uzs) use ($set): array {
+        $set('BILLING_PRICE_PRO_QUARTER_XTR', $xtr);
+        $set('BILLING_PRICE_PRO_QUARTER_UZS', $uzs);
+
+        return require config_path('billing.php');
+    });
+
+    try {
+        expect($config('450', '8000000')['prices']['pro']['quarter'])->toBe(['XTR' => 450, 'UZS' => 8_000_000])
+            ->and($config('0', '0')['prices']['pro']['quarter'])->toBe(['XTR' => 0, 'UZS' => 0])
+            ->and($config(null, '0')['prices']['pro']['quarter'])->toBe(['XTR' => 390, 'UZS' => 0])
+            ->and($config(null, null)['prices']['pro']['quarter'])->toBe(['XTR' => 390, 'UZS' => 7_500_000]);
+    } finally {
+        foreach ($names as $name) {
+            $set($name, null);
+        }
+    }
+});
+
+it('computes the saving versus the month like the Mini App did for the year: UZS first, else Stars, 0 for the month', function (): void {
+    // 75 000 sums vs 3 x 29 000 = 87 000: 13.8 % -> 14 (the sums win over the Stars' 13 %).
+    expect(BillingPeriods::savingPct('quarter', ['XTR' => 390, 'UZS' => 7_500_000], ['XTR' => 150, 'UZS' => 2_900_000]))->toBe(14)
+        ->and(BillingPeriods::savingPct('quarter', ['XTR' => 390], ['XTR' => 150, 'UZS' => 2_900_000]))->toBe(13)
+        ->and(BillingPeriods::savingPct('year', ['XTR' => 1_300, 'UZS' => 24_900_000], ['XTR' => 150, 'UZS' => 2_900_000]))->toBe(28)
+        ->and(BillingPeriods::savingPct('year', ['XTR' => 1_300], ['XTR' => 150]))->toBe(28)
+        ->and(BillingPeriods::savingPct('month', ['XTR' => 150], ['XTR' => 150]))->toBe(0)
+        // No month to compare with, no common currency, a period dearer than its months: 0.
+        ->and(BillingPeriods::savingPct('quarter', ['XTR' => 390], []))->toBe(0)
+        ->and(BillingPeriods::savingPct('quarter', ['XTR' => 390], ['UZS' => 2_900_000]))->toBe(0)
+        ->and(BillingPeriods::savingPct('quarter', ['XTR' => 500], ['XTR' => 150]))->toBe(0);
+});
+
+// --- catalog: API, bot -------------------------------------------------------------------------------
+
+it('lists the quarter in the Mini App catalog in Stars and in sums, with its days and saving, between the month and the year', function (): void {
+    $this->withHeaders(pqHeaders($this->learner))->getJson('/api/twa/billing/catalog')
+        ->assertOk()
+        ->assertJsonPath('providers', ['telegram_stars', 'payme', 'click'])
+        ->assertJsonPath('items.0.period', 'month')
+        ->assertJsonPath('items.0.days', 30)
+        ->assertJsonPath('items.0.saving_pct', 0)
+        ->assertJsonPath('items.1', [
+            'plan' => 'pro', 'tier' => null, 'period' => 'quarter', 'days' => 90,
+            'prices' => ['XTR' => 390, 'UZS' => 7_500_000], 'list_prices' => ['XTR' => 390, 'UZS' => 7_500_000], 'saving_pct' => 14,
+        ])
+        ->assertJsonPath('items.2.period', 'year')
+        ->assertJsonPath('items.2.days', 365)
+        ->assertJsonPath('items.2.saving_pct', 28);
+});
+
+it('drops a currency of the quarter from the catalog while its price is 0, the whole quarter while both are, and the saving follows the configured prices', function (): void {
+    config()->set('billing.prices.pro.quarter.UZS', 0);
+    $quarter = app(CheckoutService::class)->catalog($this->learner)->items[1];
+    expect($quarter['period'])->toBe('quarter')
+        ->and($quarter['prices'])->toBe(['XTR' => 390])
+        ->and($quarter['saving_pct'])->toBe(13);
+
+    config()->set('billing.prices.pro.quarter.XTR', 0);
+    expect(array_column(app(CheckoutService::class)->catalog($this->learner)->items, 'period'))->toBe(['month', 'year']);
+
+    // Sums only (Stars off): the quarter is there with its price in sums.
+    config()->set('billing.prices.pro.quarter.UZS', 6_000_000);
+    config()->set('billing.providers.telegram_stars.enabled', false);
+    $quarter = app(CheckoutService::class)->catalog($this->learner)->items[1];
+    expect($quarter['prices'])->toBe(['UZS' => 6_000_000])->and($quarter['saving_pct'])->toBe(31);
+
+    config()->set('billing.prices.pro.quarter.XTR', 300);
+    config()->set('billing.prices.pro.quarter.UZS', 0);
+    config()->set('billing.providers.telegram_stars.enabled', true);
+    config()->set('billing.providers.payme.enabled', false);
+    config()->set('billing.providers.click.enabled', false);
+    $quarter = app(CheckoutService::class)->catalog($this->learner)->items[1];
+    expect($quarter['period'])->toBe('quarter')->and($quarter['saving_pct'])->toBe(33);
+});
+
+it('applies an open offer for any period (period = null) to the quarter in sums, in the catalog and in the order', function (): void {
+    Offer::factory()->create(['learner_id' => $this->learner->id, 'period' => null, 'discount_pct' => 30]);
+
+    $quarter = app(CheckoutService::class)->catalog($this->learner)->items[1];
+    expect($quarter['prices'])->toBe(['XTR' => 273, 'UZS' => 5_250_000])
+        ->and($quarter['list_prices'])->toBe(['XTR' => 390, 'UZS' => 7_500_000])
+        ->and($quarter['saving_pct'])->toBe(14);
+
+    $order = pqOrder($this->learner, provider: SubscriptionProvider::Payme);
+    expect($order->amount)->toBe(5_250_000)->and($order->list_amount)->toBe(7_500_000)->and($order->offer_id)->not->toBeNull();
+});
+
+it('offers the quarter in Stars and in sums in /pro of the bot, and only in Stars while its sums price is 0', function (): void {
+    $screen = app(ProScreen::class)->build($this->learner);
+    $json = (string) json_encode($screen['markup'], JSON_UNESCAPED_UNICODE);
+
+    expect($screen['text'])->toContain('3 месяца — 390 ⭐ / 75 000 сум')
+        ->and($json)->toContain('pro1:buy:quarter:telegram_stars')
+        ->and($json)->toContain('pro1:buy:quarter:payme')
+        ->and($json)->toContain('pro1:buy:quarter:click')
+        ->and($json)->toContain('Payme · 3 месяца · 75 000 сум');
+
+    config()->set('billing.prices.pro.quarter.UZS', 0);
+    $screen = app(ProScreen::class)->build($this->learner);
+    $json = (string) json_encode($screen['markup'], JSON_UNESCAPED_UNICODE);
+
+    expect($screen['text'])->toContain("3 месяца — 390 ⭐\n")
+        ->and($json)->toContain('pro1:buy:quarter:telegram_stars')
+        ->and($json)->not->toContain('pro1:buy:quarter:payme')
+        ->and($json)->not->toContain('pro1:buy:quarter:click')
+        ->and($json)->toContain('pro1:buy:month:payme');
+});
+
+it('never offers the quarter to an organization: not in its catalog, refused at checkout, not in the /org page', function (): void {
+    $organization = Organization::factory()->create();
+
+    expect(array_unique(array_column(app(CheckoutService::class)->catalog($organization)->items, 'period')))->not->toContain('quarter');
+
+    $e = null;
+    try {
+        app(CheckoutService::class)->create($organization, Plan::Pro, 'quarter', SubscriptionProvider::Payme, 'tutor', CheckoutService::VIA_ORG_PANEL);
+    } catch (CheckoutException $e) {
+    }
+    expect($e?->errorCode)->toBe(CheckoutException::INVALID_PERIOD)
+        ->and(PaymentOrder::query()->count())->toBe(0);
+
+    $owner = User::factory()->create(['is_active' => true]);
+    OrganizationUser::factory()->create(['organization_id' => $organization->id, 'user_id' => $owner->id, 'role' => OrganizationRole::Owner->value]);
+    expect(app(OrgBillingService::class)->page($owner, $organization)->periods)->toBe(['month', 'year']);
+
+    $e = null;
+    try {
+        app(OrgBillingService::class)->checkout($owner, $organization, 'tutor', 'quarter', SubscriptionProvider::Payme);
+    } catch (CheckoutException $e) {
+    }
+    expect($e?->errorCode)->toBe(CheckoutException::INVALID_PERIOD);
+});
+
+// --- not sold in sums while BILLING_PRICE_PRO_QUARTER_UZS=0 --------------------------------------
+
+it('refuses the quarter through Payme / Click while its sums price is 0: 409 price_not_configured like the month, no order', function (string $provider): void {
+    config()->set('billing.prices.pro.quarter.UZS', 0);
+
+    // The Mini App words `price_not_configured` itself ("Этот вариант оплаты пока недоступен.").
+    $this->withHeaders(pqHeaders($this->learner))
+        ->postJson('/api/twa/billing/checkout', ['plan' => 'pro', 'period' => 'quarter', 'provider' => $provider])
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'price_not_configured');
+
+    expect(PaymentOrder::query()->count())->toBe(0);
+})->with(['payme', 'click']);
+
+it('refuses the quarter in sums in the checkout service too while its price is 0 or the key is missing (the bot, a forged callback)', function (?int $price): void {
+    if ($price === null) {
+        config()->set('billing.prices.pro.quarter', ['XTR' => 390]);
+    } else {
+        config()->set('billing.prices.pro.quarter.UZS', $price);
+    }
+
+    $e = null;
+    try {
+        pqOrder($this->learner, provider: SubscriptionProvider::Payme);
+    } catch (CheckoutException $e) {
+    }
+
+    expect($e?->errorCode)->toBe(CheckoutException::PRICE_NOT_CONFIGURED)
+        ->and($e?->httpStatus())->toBe(409)
+        ->and(PaymentOrder::query()->count())->toBe(0)
+        // The Stars quarter is still sold.
+        ->and(pqOrder($this->learner)->amount)->toBe(390);
+})->with(['price 0' => [0], 'no UZS key' => [null]]);
+
+it('keeps a month without a price in sums a 409 price_not_configured, not a validation error', function (): void {
+    config()->set('billing.prices.pro.month.UZS', 0);
+
+    $this->withHeaders(pqHeaders($this->learner))
+        ->postJson('/api/twa/billing/checkout', ['plan' => 'pro', 'period' => 'month', 'provider' => 'payme'])
+        ->assertStatus(409)
+        ->assertJsonPath('error.code', 'price_not_configured');
+});
+
+it('rejects an unknown period with a validation error', function (): void {
+    $this->withHeaders(pqHeaders($this->learner))
+        ->postJson('/api/twa/billing/checkout', ['plan' => 'pro', 'period' => 'week', 'provider' => 'telegram_stars'])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['period']);
+});
+
+// --- the Stars path ---------------------------------------------------------------------------------
+
+it('pays a Stars quarter end to end: order, one-off invoice, pre_checkout, successful_payment, 90 days, once', function (): void {
+    $response = $this->withHeaders(pqHeaders($this->learner))
+        ->postJson('/api/twa/billing/checkout', ['plan' => 'pro', 'period' => 'quarter', 'provider' => 'telegram_stars'])
+        ->assertCreated()
+        ->assertJsonPath('order.amount', 390)
+        ->assertJsonPath('order.currency', 'XTR');
+
+    $order = PaymentOrder::query()->sole();
+    expect($order->period)->toBe('quarter')
+        ->and($order->amount)->toBe(390)
+        ->and($order->list_amount)->toBe(390)
+        ->and($response->json('checkout.url'))->toBe($order->provider_ref)
+        ->and($this->telegram->invoiceLinks)->toHaveCount(1)
+        ->and($this->telegram->invoiceLinks[0]['subscription_period'])->toBeNull()
+        ->and($this->telegram->invoiceLinks[0]['prices'])->toBe([['label' => 'LexiFlow Pro, 3 месяца', 'amount' => 390]])
+        ->and($this->telegram->invoiceLinks[0]['title'])->toBe('LexiFlow Pro — 3 месяца')
+        ->and($this->telegram->invoiceLinks[0]['description'])->toStartWith('LexiFlow Pro на 3 месяца (90 дней)')
+        ->and(ProductEvent::query()->where('name', 'checkout.started')->sole()->props['period'])->toBe('quarter');
+
+    // pre_checkout: the amount of the order (= the configured price) passes, any other is refused.
+    $guard = app(StarsPreCheckoutGuard::class);
+    $me = $this->learner->telegram_user_id;
+    expect($guard->check(pqPreCheckout($order, $me, amount: 389))->reason)->toBe(StarsPreCheckoutGuard::REASON_AMOUNT_MISMATCH)
+        ->and($guard->check(pqPreCheckout($order, $me, amount: 150))->reason)->toBe(StarsPreCheckoutGuard::REASON_AMOUNT_MISMATCH)
+        ->and($guard->check(pqPreCheckout($order, $me))->ok)->toBeTrue();
+
+    $update = pqPaidUpdate($order, 'ch_quarter', $me);
+    $dispatcher = app(TelegramDispatcher::class);
+    $dispatcher->dispatch($update);
+
+    $subscription = Subscription::query()->sole();
+    $ends = CarbonImmutable::now()->addDays(90);
+    expect($order->refresh()->status)->toBe('paid')
+        ->and(Payment::query()->sole()->amount)->toBe(390)
+        ->and($subscription->current_period_ends_at?->toIso8601String())->toBe($ends->toIso8601String())
+        ->and($subscription->meta['stars'])->toBe(['charge_id' => 'ch_quarter', 'recurring' => false])
+        ->and($this->telegram->sent[array_key_last($this->telegram->sent)]['text'])->toContain($ends->setTimezone('Asia/Tashkent')->format('d.m.Y'));
+
+    // Telegram re-delivers the same update (webhook retry, the queued job): nothing changes.
+    $sent = count($this->telegram->sent);
+    $dispatcher->dispatch($update);
+    (new HandleTelegramUpdate($update))->handle($dispatcher);
+
+    expect(Payment::query()->count())->toBe(1)
+        ->and(Subscription::query()->sole()->current_period_ends_at?->toIso8601String())->toBe($ends->toIso8601String())
+        ->and(count(Subscription::query()->sole()->meta['history']))->toBe(1)
+        ->and($this->telegram->sent)->toHaveCount($sent)
+        ->and(ProductEvent::query()->where('name', 'payment.succeeded')->count())->toBe(1);
+
+    // A one-off quarter does not renew: nothing to cancel, and the next purchase is allowed.
+    expect(app(CheckoutService::class)->catalog($this->learner)->subscription['auto_renew'])->toBeFalse();
+});
+
+it('stacks a second quarter on top of a live one: +90 days from the end, not from now', function (): void {
+    $dispatcher = app(TelegramDispatcher::class);
+    $me = $this->learner->telegram_user_id;
+    $dispatcher->dispatch(pqPaidUpdate(pqOrder($this->learner), 'ch_q1', $me));
+
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addDays(10));
+    $dispatcher->dispatch(pqPaidUpdate(pqOrder($this->learner), 'ch_q2', $me, updateId: 2));
+
+    expect(Subscription::query()->sole()->current_period_ends_at?->toIso8601String())
+        ->toBe(CarbonImmutable::parse('2026-11-20 12:00:00', 'UTC')->addDays(180)->toIso8601String())
+        ->and(Payment::query()->count())->toBe(2);
+});
+
+it('does not credit a successful_payment with a wrong amount for a quarter', function (): void {
+    $order = pqOrder($this->learner);
+
+    app(TelegramDispatcher::class)->dispatch(pqPaidUpdate($order, 'ch_short', $this->learner->telegram_user_id, amount: 150));
+
+    expect(Payment::query()->sole()->raw['failure_reason'])->toBe('amount_mismatch')
+        ->and(Subscription::query()->count())->toBe(0)
+        ->and($order->refresh()->status)->toBe('pending');
+});
+
+it('is a one-off purchase over a running Stars month: refused like the year (checkout_conflict)', function (): void {
+    $stars = new FakeBillingProvider(SubscriptionProvider::TelegramStars);
+    $month = pqOrder($this->learner, 'month');
+    app(PaymentApplier::class)->applyCharge($stars->emitCharge($month, periodEndsAt: CarbonImmutable::now()->addDays(30), raw: ['is_recurring' => true]));
+
+    $e = null;
+    try {
+        pqOrder($this->learner);
+    } catch (CheckoutException $e) {
+    }
+
+    expect($e?->errorCode)->toBe(CheckoutException::CONFLICT);
+});
+
+// --- the Payme path -----------------------------------------------------------------------------------
+
+/** @return array<string, mixed> the JSON-RPC response of the real PaymeRpcService */
+function pqPayme(string $method, PaymentOrder $order, array $params = []): array
+{
+    return app(PaymeRpcService::class)->handle(PaymeFixtures::for($method, $order, $params));
+}
+
+it('pays a quarter through Payme end to end: order in sums, link, Check / Create / Perform, 90 days, the receipt line, once', function (string $locale, string $receipt): void {
+    config()->set('billing.providers.payme.fiscal.ikpu', '10318001001000000');
+    $this->learner->update(['interface_locale' => $locale]);
+
+    $this->withHeaders(pqHeaders($this->learner))
+        ->postJson('/api/twa/billing/checkout', ['plan' => 'pro', 'period' => 'quarter', 'provider' => 'payme'])
+        ->assertCreated()
+        ->assertJsonPath('order.amount', 7_500_000)
+        ->assertJsonPath('order.currency', 'UZS')
+        ->assertJsonPath('checkout.kind', 'redirect');
+
+    $order = PaymentOrder::query()->sole();
+    expect($order->period)->toBe('quarter')
+        ->and($order->provider)->toBe('payme')
+        ->and($order->list_amount)->toBe(7_500_000)
+        ->and(base64_decode(str_replace('https://checkout.paycom.uz/', '', (string) $order->provider_ref)))->toContain(';a=7500000;');
+
+    $check = pqPayme('CheckPerformTransaction', $order);
+    expect($check['result']['allow'])->toBeTrue()
+        ->and($check['result']['detail']['items'][0]['title'])->toBe($receipt)
+        ->and($check['result']['detail']['items'][0]['price'])->toBe(7_500_000);
+
+    expect(pqPayme('CreateTransaction', $order))->toHaveKey('result');
+    $performed = pqPayme('PerformTransaction', $order);
+    expect($performed['result']['state'])->toBe(2);
+
+    $subscription = Subscription::query()->sole();
+    $ends = CarbonImmutable::now()->addDays(90);
+    expect($order->refresh()->status)->toBe('paid')
+        ->and($order->subscription_id)->toBe($subscription->id)
+        ->and(Payment::query()->sole()->amount)->toBe(7_500_000)
+        ->and(Payment::query()->sole()->currency)->toBe('UZS')
+        ->and($subscription->provider)->toBe('payme')
+        ->and($subscription->current_period_ends_at?->toIso8601String())->toBe($ends->toIso8601String());
+
+    // Payme repeats PerformTransaction: the stored answer, no second charge, no second 90 days.
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addMinute());
+    expect(pqPayme('PerformTransaction', $order))->toBe($performed)
+        ->and(Payment::query()->count())->toBe(1)
+        ->and(Subscription::query()->sole()->current_period_ends_at?->toIso8601String())->toBe($ends->toIso8601String());
+})->with([
+    'ru' => ['ru', 'LexiFlow Pro — 3 месяца'],
+    'uz' => ['uz', 'LexiFlow Pro — 3 oy'],
+]);
+
+it('refuses a Payme quarter paid with the month amount (-31001) and credits nothing', function (): void {
+    $order = pqOrder($this->learner, provider: SubscriptionProvider::Payme);
+
+    expect(pqPayme('CheckPerformTransaction', $order, ['amount' => 2_900_000])['error']['code'])->toBe(PaymeRpcException::WRONG_AMOUNT)
+        ->and(pqPayme('CreateTransaction', $order, ['amount' => 7_499_900])['error']['code'])->toBe(PaymeRpcException::WRONG_AMOUNT)
+        ->and(ProviderTransaction::query()->count())->toBe(0)
+        ->and(Payment::query()->count())->toBe(0)
+        ->and($order->refresh()->status)->toBe('pending');
+});
+
+it('refunds a Payme quarter (CancelTransaction after perform): refund row, Pro ended now', function (): void {
+    $order = pqOrder($this->learner, provider: SubscriptionProvider::Payme);
+    pqPayme('CreateTransaction', $order);
+    pqPayme('PerformTransaction', $order);
+
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addDays(5));
+    expect(pqPayme('CancelTransaction', $order, ['reason' => 5])['result']['state'])->toBe(-2);
+
+    $refund = Payment::query()->where('kind', 'refund')->sole();
+    expect($refund->amount)->toBe(7_500_000)
+        ->and(Payment::query()->where('kind', 'charge')->sole()->status)->toBe('refunded')
+        ->and(Subscription::query()->sole()->status)->toBe('expired');
+});
+
+// --- the Click path -----------------------------------------------------------------------------------
+
+it('pays a quarter through Click end to end: order in sums, link, Prepare / Complete, 90 days, once', function (): void {
+    $this->withHeaders(pqHeaders($this->learner))
+        ->postJson('/api/twa/billing/checkout', ['plan' => 'pro', 'period' => 'quarter', 'provider' => 'click'])
+        ->assertCreated()
+        ->assertJsonPath('order.amount', 7_500_000)
+        ->assertJsonPath('order.currency', 'UZS');
+
+    $order = PaymentOrder::query()->sole();
+    expect($order->period)->toBe('quarter')
+        ->and((string) $order->provider_ref)->toContain('amount=75000.00');
+
+    $click = app(ClickMerchantService::class);
+    $prepare = $click->prepare(ClickFixtures::prepare($order));
+    expect($prepare['error'])->toBe(0);
+
+    $complete = $click->complete(ClickFixtures::complete($order, (int) $prepare['merchant_prepare_id']));
+    expect($complete['error'])->toBe(0);
+
+    $subscription = Subscription::query()->sole();
+    $ends = CarbonImmutable::now()->addDays(90);
+    expect($order->refresh()->status)->toBe('paid')
+        ->and(Payment::query()->sole()->amount)->toBe(7_500_000)
+        ->and($subscription->provider)->toBe('click')
+        ->and($subscription->current_period_ends_at?->toIso8601String())->toBe($ends->toIso8601String());
+
+    // Click retries Complete: the same body, nothing more in the ledger.
+    CarbonImmutable::setTestNow(CarbonImmutable::now()->addMinutes(5));
+    expect($click->complete(ClickFixtures::complete($order, (int) $prepare['merchant_prepare_id'])))->toBe($complete)
+        ->and(Payment::query()->count())->toBe(1)
+        ->and(Subscription::query()->sole()->current_period_ends_at?->toIso8601String())->toBe($ends->toIso8601String());
+});
+
+it('refuses a Click quarter paid with the month amount (-2) at Prepare and at Complete, crediting nothing', function (): void {
+    $order = pqOrder($this->learner, provider: SubscriptionProvider::Click);
+    $click = app(ClickMerchantService::class);
+
+    expect($click->prepare(ClickFixtures::prepare($order, ['amount' => '29000.00']))['error'])->toBe(-2);
+
+    $prepare = $click->prepare(ClickFixtures::prepare($order));
+    expect($click->complete(ClickFixtures::complete($order, (int) $prepare['merchant_prepare_id'], ['amount' => '29000.00']))['error'])->toBe(-2)
+        ->and(Payment::query()->count())->toBe(0)
+        ->and(Subscription::query()->count())->toBe(0)
+        ->and($order->refresh()->status)->toBe('pending');
+});
+
+it('stacks a Click quarter on top of a Stars quarter: +90 days from the end', function (): void {
+    app(TelegramDispatcher::class)->dispatch(pqPaidUpdate(pqOrder($this->learner), 'ch_q1', $this->learner->telegram_user_id));
+
+    $order = pqOrder($this->learner, provider: SubscriptionProvider::Click);
+    $click = app(ClickMerchantService::class);
+    $prepare = $click->prepare(ClickFixtures::prepare($order));
+    expect($click->complete(ClickFixtures::complete($order, (int) $prepare['merchant_prepare_id']))['error'])->toBe(0);
+
+    expect(Subscription::query()->sole()->current_period_ends_at?->toIso8601String())
+        ->toBe(CarbonImmutable::now()->addDays(180)->toIso8601String());
+});
+
+// --- reports and the admin panel -----------------------------------------------------------------------
+
+it('counts a quarter payment in the revenue report and in the Pro funnel', function (): void {
+    $order = pqOrder($this->learner);
+    app(TelegramDispatcher::class)->dispatch(pqPaidUpdate($order, 'ch_quarter', $this->learner->telegram_user_id));
+
+    $cash = app(BillingReportService::class)->cashFlowLast30Days();
+    expect($cash['XTR']['gross'])->toBe(390)->and($cash['XTR']['charge_count'])->toBe(1);
+
+    $report = app(BillingFunnelService::class)->compute(CarbonImmutable::now()->addMinute());
+    // No offer view was recorded: the start and the payment are "outside" the chain, but counted.
+    $outside = collect($report['outside'])->firstWhere('provider', 'telegram_stars');
+    expect($outside)->not->toBeNull()
+        ->and($outside['started'])->toBe(1)
+        ->and($outside['paid'])->toBe(1)
+        ->and(collect($report['orders'])->firstWhere('status', 'paid')['orders'] ?? null)->toBe(1);
+});
+
+it('shows the quarter as «3 месяца» in the orders list of the admin panel', function (): void {
+    $this->seed(RolePermissionSeeder::class);
+    $admin = User::factory()->create(['is_active' => true]);
+    $admin->assignRole('admin');
+    $this->actingAs($admin);
+    $order = PaymentOrder::factory()->create(['period' => 'quarter', 'provider' => 'telegram_stars', 'currency' => 'XTR', 'amount' => 390]);
+
+    Livewire::test(ListPaymentOrders::class)
+        ->assertCanSeeTableRecords([$order])
+        ->assertTableColumnFormattedStateSet('period', '3 месяца', $order);
+});

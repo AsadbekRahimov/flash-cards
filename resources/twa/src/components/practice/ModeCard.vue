@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
-import { MODE_LOOK, estimateMinutes, modeTitle } from '@/composables/practiceLabels'
+import { estimateMinutes, modeTitle } from '@/composables/practiceLabels'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { PracticeActiveSession, PracticeHubReason, PracticeMode, PracticeModeInfo } from '@/api/types'
 
 /**
- * One of the cards of the practice hub (docs/16 §11.2, docs/14 §6.5): the icon tile of the mode, its name, a line
- * of example, "≈ 2 min", and what the learner can do with it.
+ * One row of "All modes" on the practice hub (docs/16 §11.2, docs/design Practice): the name of the mode, a line of example under
+ * it, and one value on the right - the state of the row (a chip: "Continue", "Pro", "Few materials", "Off"), else the personal best
+ * (timed pairs), else "≈ 2 min". No icon tile: the rows of the redesign are text.
  *
  * - `info` — the card as the server states it (`state`, `available` / `required`, `reason`, `estimate_seconds`).
  * - `resume` — the unfinished session of this mode in this very place: the card says "Continue" and `select` leads back
@@ -19,8 +19,8 @@ import type { PracticeActiveSession, PracticeHubReason, PracticeMode, PracticeMo
  *   tasks for the topic at all (`no_items`; with a few tasks already there it says "few: 2 of 3", and the button stays hidden too). With `items_locked`
  *   the tasks are there and wait for the words of the lesson (of the lessons, on the hub of a course): it is shown.
  *
- * The whole card is one button of 90 px or so when there is something to play (`available`, `pro_required` and a
- * session to continue); a card that cannot be played now (`not_enough`, `disabled`) is a plain block, and its only
+ * The whole row is one button (at least 52 px high) when there is something to play (`available`, `pro_required` and a
+ * session to continue); a row that cannot be played now (`not_enough`, `disabled`) is a plain block, and its only
  * button is "Learn the lesson" (a button inside a button would not be valid). Events: `select` (`mode`) and `learn`.
  */
 const props = defineProps<{
@@ -35,7 +35,6 @@ const emit = defineEmits<{ select: [mode: PracticeMode]; learn: [] }>()
 const { t } = useI18n()
 
 const mode = computed((): PracticeMode => props.info.mode)
-const look = computed(() => MODE_LOOK[mode.value])
 const title = computed(() => modeTitle(mode.value))
 const example = computed(() => t(`practice.mode.${mode.value}.example`))
 const estimate = computed(() => t('practice.hub.estimate', { minutes: estimateMinutes(props.info.estimate_seconds) }))
@@ -91,11 +90,8 @@ function select(): void {
   <component
     :is="playable ? 'button' : 'div'"
     :type="playable ? 'button' : undefined"
-    class="card block w-full text-left"
-    :class="{
-      'transition-transform active:scale-[0.99]': playable,
-      'opacity-60': info.state === 'disabled',
-    }"
+    class="block w-full border-t border-divider px-[18px] py-3 text-left"
+    :class="{ 'transition-colors active:bg-fill': playable, 'opacity-60': info.state === 'disabled' }"
     :aria-label="playable ? label : undefined"
     :aria-busy="busy ? 'true' : undefined"
     :disabled="playable && busy ? true : undefined"
@@ -103,57 +99,37 @@ function select(): void {
     :data-state="resume ? 'resume' : info.state"
     @click="playable ? select() : undefined"
   >
-    <span class="flex items-center gap-3">
-      <span class="icon-tile size-10 rounded-xl" :class="`tile-${look.tile}`"><AppIcon :name="look.icon" :size="22" /></span>
-
-      <span class="min-w-0 flex-1">
-        <span class="block text-[17px] leading-[22px] font-semibold" data-testid="mode-title">{{ title }}</span>
-        <span class="line-clamp-2 text-[15px] leading-5 break-words text-tg-subtitle" data-testid="mode-example">{{ example }}</span>
-        <!-- The length of a round and the state of the card: under the text, so that the title keeps the whole width. -->
-        <span class="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-          <span class="flex items-center gap-1 text-[13px] leading-[18px] text-tg-hint" data-testid="mode-estimate">
-            <AppIcon name="clock" :size="14" />
-            {{ estimate }}
-          </span>
-          <!-- Timed pairs only: the personal best, once there is one. -->
-          <span v-if="info.record" class="flex items-center gap-1 text-[13px] leading-[18px] font-medium text-tg-subtitle" data-testid="mode-record">
-            <AppIcon name="trophy" :size="14" />
-            {{ t('practice.timed.record_line', { score: info.record.score }) }}
-          </span>
-          <span v-if="resume" class="chip chip-accent" data-testid="mode-chip">
-            <AppIcon name="play" solid :size="12" />
-            {{ t('practice.hub.continue') }}
-          </span>
-          <span v-else-if="info.state === 'pro_required'" class="chip chip-accent" data-testid="mode-chip">
-            <AppIcon name="sparkles" solid :size="12" />
-            {{ t('practice.hub.state.pro') }}
-          </span>
-          <span v-else-if="info.state === 'not_enough'" class="chip chip-warning" data-testid="mode-chip">
-            <AppIcon name="exclamation-triangle" :size="12" />
-            {{ t('practice.hub.state.not_enough') }}
-          </span>
-          <span v-else-if="info.state === 'disabled'" class="chip chip-neutral" data-testid="mode-chip">
-            {{ t('practice.hub.state.disabled') }}
-          </span>
-        </span>
+    <span class="flex min-h-7 items-center gap-3">
+      <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span class="text-[15px] leading-5 font-semibold" data-testid="mode-title">{{ title }}</span>
+        <span class="line-clamp-2 text-[13px] leading-[18px] break-words text-muted" data-testid="mode-example">{{ example }}</span>
       </span>
 
+      <!-- One value on the right: the state of the row, else the personal best, else the length of a round. -->
       <span
         v-if="busy"
         class="size-5 shrink-0 animate-spin rounded-full border-2 border-track border-t-accent motion-reduce:animate-none"
         aria-hidden="true"
         data-testid="mode-busy"
       />
-      <AppIcon v-else-if="playable" name="chevron-right" :size="16" class="text-tg-hint" />
+      <span v-else-if="resume" class="chip chip-accent shrink-0" data-testid="mode-chip">{{ t('practice.hub.continue') }}</span>
+      <span v-else-if="info.state === 'pro_required'" class="chip chip-accent shrink-0" data-testid="mode-chip">{{ t('practice.hub.state.pro') }}</span>
+      <span v-else-if="info.state === 'not_enough'" class="chip chip-warning shrink-0" data-testid="mode-chip">{{ t('practice.hub.state.not_enough') }}</span>
+      <span v-else-if="info.state === 'disabled'" class="chip chip-neutral shrink-0" data-testid="mode-chip">{{ t('practice.hub.state.disabled') }}</span>
+      <!-- Timed pairs only: the personal best, once there is one. -->
+      <span v-else-if="info.record" class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="mode-record">
+        {{ t('practice.hub.record') }} <span class="font-mono">{{ info.record.score }}</span>
+      </span>
+      <span v-else class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="mode-estimate">{{ estimate }}</span>
     </span>
 
     <template v-if="!playable">
-      <span v-if="info.state === 'not_enough'" class="mt-3 block text-[15px] leading-5 text-tg-subtitle" data-testid="mode-reason">{{ reason }}</span>
-      <!-- Not a button inside a button: a card that cannot be played now is a plain block, so this one is allowed. -->
+      <span v-if="info.state === 'not_enough'" class="mt-2 block text-[13px] leading-[18px] text-muted" data-testid="mode-reason">{{ reason }}</span>
+      <!-- Not a button inside a button: a row that cannot be played now is a plain block, so this one is allowed. -->
       <button
         v-if="info.state === 'not_enough' && learn && learnHelps"
         type="button"
-        class="btn btn-tinted btn-sm mt-3"
+        class="btn btn-tinted btn-sm mt-2"
         :data-testid="`mode-learn-${mode}`"
         @click="emit('learn')"
       >

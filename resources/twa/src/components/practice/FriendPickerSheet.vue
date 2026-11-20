@@ -33,7 +33,7 @@ const subtitleOf = (friend: FriendItem): string =>
 
 <template>
   <BottomSheet :label="t('practice.hub.friends.title')" data-testid="friend-picker" @close="emit('close')">
-    <h2 class="pt-1 pr-10 text-[22px] leading-7 font-bold">{{ t('practice.hub.friends.title') }}</h2>
+    <h2 class="pt-1 pr-10 text-[22px] leading-7 font-semibold">{{ t('practice.hub.friends.title') }}</h2>
 
     <LoadingState v-if="status === 'loading'" variant="list" />
 
@@ -60,10 +60,10 @@ const subtitleOf = (friend: FriendItem): string =>
       >
         <InitialAvatar :name="nameOf(friend)" />
         <span class="min-w-0 flex-1">
-          <span class="block truncate text-base leading-[22px] font-medium">{{ nameOf(friend) }}</span>
-          <span class="block truncate text-[13px] leading-[18px] text-tg-hint">{{ subtitleOf(friend) }}</span>
+          <span class="block truncate text-[15px] leading-5 font-semibold">{{ nameOf(friend) }}</span>
+          <span class="block truncate text-[13px] leading-[18px] text-muted">{{ subtitleOf(friend) }}</span>
         </span>
-        <AppIcon name="chevron-right" :size="16" class="text-tg-hint" />
+        <AppIcon name="chevron-right" :size="16" class="text-muted" />
       </button>
     </div>
   </BottomSheet>

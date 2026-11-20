@@ -1,0 +1,54 @@
+<section class="chapter" id="tech-appendix">
+<h1>Приложение. Для технического администратора</h1>
+
+<p class="lead">Команды сервера, которые нужны в работе администратора платформы, но запускаются в терминале. Запускайте их в каталоге приложения как <code>php artisan &lt;команда&gt;</code>; в Docker — через контейнер приложения. Основное руководство обходится без терминала: администратор просит технического администратора выполнить нужное.</p>
+
+<h2>Контент и озвучка</h2>
+<table>
+<thead><tr><th>Команда</th><th>Зачем</th></tr></thead>
+<tbody>
+<tr><td><code>content:import-course &lt;каталог&gt; --create</code></td><td>загрузить готовый пакет курса (<code>database/data/courses/english-a1-a2</code> и др.). Курс появляется черновиком</td></tr>
+<tr><td><code>practice:import &lt;файл&gt; [--publish]</code></td><td>импорт заданий практики из файла — то же, что страница «Импорт заданий»; <code>--publish</code> = флажок «Опубликовать сразу»</td></tr>
+<tr><td><code>audio:pregenerate &lt;код-курса&gt; [--force]</code></td><td>поставить в очередь озвучку активных слов курса, у которых её нет; <code>--force</code> переозвучивает всё. Нужен работающий обработчик очереди</td></tr>
+<tr><td><code>audio:coverage &lt;код-курса&gt; [--verify] [--min=95] [--limit=20]</code></td><td>покрытие озвучки по модулям и итог: «620 of 1000 active words voiced (62.0%)». <code>--verify</code> проверяет и файлы на диске и перечисляет битые; <code>--min</code> завершает команду с ошибкой ниже порога (для скриптов публикации). Запускайте после того, как очередь отработала</td></tr>
+<tr><td><code>courses:recount-words</code></td><td>пересчитать число слов курсов, если оно выглядит неверным</td></tr>
+</tbody>
+</table>
+
+<h2>Аналитика</h2>
+<table>
+<thead><tr><th>Команда</th><th>Зачем</th></tr></thead>
+<tbody>
+<tr><td><code>analytics:reminder-experiment [--from=ДАТА] [--to=ДАТА]</code></td><td>отчёт сравнения напоминаний «вопрос / текст»: доли с интервалами Уилсона по вариантам. <code>--from</code> по умолчанию — дата начала сравнения. Читайте окно, закончившееся не меньше 7 дней назад</td></tr>
+<tr><td><code>analytics:client-timing [--days=7]</code></td><td>скорость открытия мини-приложения: p50 / p75 / p95 в миллисекундах по платформам; решения принимать по p75 и p95</td></tr>
+</tbody>
+</table>
+
+<h2>Оплата, подписки, игра, рейтинг</h2>
+<table>
+<thead><tr><th>Команда</th><th>Зачем</th></tr></thead>
+<tbody>
+<tr><td><code>billing:reconcile-stars [--days=2]</code></td><td>сверить транзакции Telegram Stars с журналом платежей и сообщить о расхождениях</td></tr>
+<tr><td><code>billing:expire-orders</code>, <code>subscriptions:expire</code>, <code>subscriptions:remind-expiring</code></td><td>то, что делает планировщик: истечение заказов и подписок, напоминания о продлении. Вручную — только для проверки</td></tr>
+<tr><td><code>game:wallets-verify</code></td><td>сверить кошельки «Каравана» с журналом монет (только отчёт)</td></tr>
+<tr><td><code>leagues:close-month</code>, <code>leagues:close-week</code></td><td>закрыть месяц или неделю лиги, если срок пришёл (обычно делает планировщик)</td></tr>
+<tr><td><code>learners:purge-deleted</code></td><td>окончательно удалить учеников, удалённых больше 30 дней назад (ежедневно по расписанию)</td></tr>
+<tr><td><code>organizations:sync-members</code></td><td>создать членства в центре по текущим участникам привязанных групп</td></tr>
+<tr><td><code>exams:close-expired</code>, <code>game:class-caravans-close</code>, <code>practice:battles-sweep</code></td><td>закрытие просроченных экзаменов, недельных караванов классов и «зависших» баттлов — тоже делает планировщик. «Зависшие» экзамены и баттлы почти всегда значат, что планировщик не работает</td></tr>
+<tr><td><code>telegram:setup-bot</code>, <code>telegram:set-webhook</code></td><td>меню команд и кнопка бота; регистрация вебхука Telegram — один раз после выкладки</td></tr>
+</tbody>
+</table>
+
+<h2>Сброс двухфакторной защиты администратора</h2>
+<p>В панели кнопки сброса нет. Технический администратор очищает в таблице <code>users</code> у нужной учётной записи поля <code>two_factor_secret</code>, <code>two_factor_recovery_codes</code> и <code>two_factor_confirmed_at</code>. При следующем входе человек заново включит защиту. Сбрасывайте только после того, как убедились, что просит владелец учётной записи.</p>
+
+<h2>Настройки, которые меняются на сервере</h2>
+<p>Эти параметры задаются в настройках окружения (<code>.env</code>), после изменения нужен <code>php artisan config:cache</code> и перезапуск обработчиков очереди:</p>
+<ul>
+<li>цены Pro: <code>BILLING_PRICE_PRO_MONTH_XTR</code>, <code>…_QUARTER_XTR</code>, <code>…_QUARTER_UZS</code>, <code>…_YEAR_XTR</code> и др. (0 — срок в этой валюте не продаётся);</li>
+<li>доступ к практике: <code>PRACTICE_ACCESS</code> (<code>off</code> / <code>pilot</code> / <code>all</code>) и выключатели режимов <code>PRACTICE_MODE_*</code>;</li>
+<li>сравнение напоминаний: <code>REMINDERS_QUIZ_EXPERIMENT</code>, <code>REMINDERS_QUIZ_EXPERIMENT_STARTS_AT</code> (не менять долю и «соль» во время сравнения);</li>
+<li>призы рейтинга по умолчанию: <code>LEAGUES_MONTHLY_PRIZE_{1..3}_{RU,UZ}</code>;</li>
+<li>пороги блока «Требуют внимания» — в <code>config/analytics.php</code> (<code>attention.center_wait_days</code> = 7, <code>attention.reminder_read_after_days</code> = 14).</li>
+</ul>
+</section>

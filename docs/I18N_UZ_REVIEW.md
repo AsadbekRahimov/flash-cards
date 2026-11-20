@@ -677,6 +677,7 @@
 | `billing.stars.invoice.label` | LexiFlow Pro, :period | LexiFlow Pro, :period |
 | `billing.stars.invoice.description_month` | LexiFlow Pro obunasi: yangi so'zlar cheklovsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; /pro buyrug'i orqali o'chirish mumkin. | Подписка LexiFlow Pro: новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Продлевается автоматически каждые 30 дней; отключить можно командой /pro. |
 | `billing.stars.invoice.description_year` | LexiFlow Pro 1 yilga (365 kun): yangi so'zlar cheklovsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+| `billing.stars.invoice.description_quarter` | LexiFlow Pro 3 oyga (90 kun): yangi so'zlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi. | LexiFlow Pro на 3 месяца (90 дней): новые слова без лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
 | `billing.stars.precheckout.order_not_found` | Hisob topilmadi. /pro ni oching va yangisini yarating. | Счёт не найден. Откройте /pro и создайте новый. |
 | `billing.stars.precheckout.foreign` | Bu hisob boshqa foydalanuvchiga yozilgan. /pro ni oching va o'zingiznikini yarating. | Этот счёт выставлен другому пользователю. Откройте /pro и создайте свой. |
 | `billing.stars.precheckout.blocked` | Akkauntga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling: /paysupport. | Доступ к аккаунту ограничен. Обратитесь в поддержку: /paysupport. |
@@ -786,6 +787,7 @@
 | `billing.paysupport.with_contact` | LexiFlow to'lovlar bo'yicha yordam.<br><br>To'lov, pulni qaytarish va obunani bekor qilish masalalari: :contact<br>Muammoni yozing va chek yoki to'lov raqamini ilova qiling. Pulni qaytarish qoidalari ofertada: :offer<br>Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin. | Платёжная поддержка LexiFlow.<br><br>Вопросы по оплате, возвраты и отмена подписки: :contact<br>Опишите проблему и приложите чек или номер платежа. Правила возврата — в оферте: :offer<br>Автопродление Stars можно отключить командой /pro. |
 | `billing.paysupport.without_contact` | LexiFlow to'lovlar bo'yicha yordam.<br><br>Yordam kontakti hozircha ko'rsatilmagan. Pulni qaytarish qoidalari ofertada: :offer<br>Stars avtoyangilashini /pro buyrug'i orqali o'chirish mumkin. | Платёжная поддержка LexiFlow.<br><br>Контакт поддержки пока не указан. Правила возврата — в оферте: :offer<br>Автопродление Stars можно отключить командой /pro. |
 | `billing.period.month` | 1 oy | 1 месяц |
+| `billing.period.quarter` | 3 oy | 3 месяца |
 | `billing.period.year` | 1 yil | 1 год |
 | `billing.provider.telegram_stars` | ⭐ Stars | ⭐ Stars |
 | `billing.provider.payme` | Payme | Payme |
@@ -2690,8 +2692,10 @@
 |---|---|---|
 | `billing.stars.invoice.description_month_practice` | LexiFlow Pro: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro. | Подписка LexiFlow Pro: новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro. |
 | `billing.stars.invoice.description_year_practice` | LexiFlow Pro 1 yilga: yangi so'zlar, amaliyot va bellashuvlar kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+| `billing.stars.invoice.description_quarter_practice` | LexiFlow Pro 3 oyga: yangi so'zlar, mustahkamlash mashqlari va bellashuvlar cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi. | LexiFlow Pro на 3 месяца (90 дней): новые слова, практика и баттлы без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
 | `billing.stars.invoice.description_month_practice_solo` | LexiFlow Pro: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Har 30 kunda avtomatik yangilanadi; o'chirish: /pro. | Подписка LexiFlow Pro: новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Автопродление каждые 30 дней; отключить: /pro. |
 | `billing.stars.invoice.description_year_practice_solo` | LexiFlow Pro 1 yilga: yangi so'zlar va amaliyot kunlik limitsiz, so'zni yozish va misoldagi bo'sh joy mashqlari, 20 tagacha to'plam (2000 tadan so'z), seriyani muzlatish, IELTS va SAT testlari. Bir martalik to'lov, avtoyangilashsiz. | LexiFlow Pro на 1 год (365 дней): новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
+| `billing.stars.invoice.description_quarter_practice_solo` | LexiFlow Pro 3 oyga: yangi so'zlar va mustahkamlash mashqlari cheklovsiz. Yozish, gap to'ldirish, 20 tagacha to'plam (har biriga 2000 so'zgacha), zaxira kunlar, IELTS va SAT sinov imtihonlari. Bir martalik to'lov. Obuna avtomatik uzaymaydi. | LexiFlow Pro на 3 месяца (90 дней): новые слова и практика без дневного лимита, упражнения «Написание слова» и «Пропуск в примере», свои колоды до 20 по 2000 слов, заморозки серии, пробные тесты IELTS и SAT. Разовая оплата без автопродления. |
 
 ## Оферта и политика конфиденциальности 2026-11 · R2 — на проверку носителю и юристу
 
@@ -4130,3 +4134,154 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `finished.corrected.lead` | Avval «{word}» | Раньше вы ошибались в слове «{word}» (начало предложения; дальше — бледный перевод в скобках, если есть, и `tail`) |
 | `finished.corrected.tail` | so'zida xato qilgan edingiz — bugun to'g'ri javob berdingiz. | — сегодня ответили верно. |
 | `finished.corrected.answer` | O'shanda: {answer} | Тогда: {answer} (бледная строка под предыдущей: что ученик ввёл тогда, например «Тогда: borow») |
+
+## Редизайн Mini App: названия вкладок (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`, ключи `nav.today`, `nav.courses`, `nav.rating`, `finished.home`, `error.closed.today`, `error.forbidden.today`, `decks.activate.text`)
+
+Нижняя навигация теперь — только слова, без иконок (утверждённые макеты: «Сегодня / Курс / Лига / Профиль»). Ключи прежние, поменялись значения. Тексты, которые называют главный экран или вкладку курсов, переведены на новые имена, чтобы термин был один (docs/14 §3 п. 4). Прошу проверить: «Bugun» как имя экрана (не «Bugungi»), «Kurs» в единственном числе для вкладки, ««Bugun» ekraniga» на кнопке возврата.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `nav.today` | Bugun | Сегодня |
+| `nav.courses` | Kurs | Курс |
+| `nav.rating` | Liga | Лига |
+| `nav.profile` | Profil (без изменений) | Профиль |
+| `finished.home` | «Bugun» ekraniga | К экрану «Сегодня» |
+| `error.closed.today`, `error.forbidden.today` | «Bugun» ekranini ochib bo'lmadi. Ilovani yoping va qayta oching. | Не удалось открыть экран «Сегодня». Закройте приложение и откройте снова. |
+| `decks.activate.text` | … Kursni «Kurs» bo'limida qaytarishingiz mumkin. | … Вернуть курс можно во вкладке «Курс». |
+
+## Редизайн Mini App: экран курса и итоги экзамена (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`, ключи `course.module_of`, `course.module_prev`, `course.module_next`, `course.here`, `course.learn_lesson`, `course.lesson_done`, `result.stat.*`)
+
+Экран курса показывает один модуль за раз: над названием модуля — «модуль N из M», под уроками — переход к соседнему модулю. Текущий урок выделен меткой «вы здесь» и кнопкой «Учить урок»; пройденный — галочкой, которую экранный диктор читает как «Пройден». Итоги экзамена и теста недели — три числа в карточке, под каждым короткая подпись строчными буквами («верно из 12», «результат», «без ответа»). Прошу проверить: порядок «{number}-modul, jami {total} ta», «siz shu yerdasiz» (строчными, как бейдж), «{total} tadan to'g'ri» и «{total} tadan o'rin» как подписи под числом. Ключи `course.continue`, `result.quiz_score`, `result.quiz_percent`, `result.quiz_unanswered`, `result.mock_score`, `result.mock_unanswered`, `result.rank` удалены (больше не используются).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `course.module_of` | {number}-modul, jami {total} ta | Модуль {number} из {total} |
+| `course.module_prev` | Oldingi modul: {module} | Предыдущий модуль: {module} (имя кнопки для экранного диктора) |
+| `course.module_next` | Keyingi modul: {module} | Следующий модуль: {module} (имя кнопки для экранного диктора) |
+| `course.here` | siz shu yerdasiz | вы здесь |
+| `course.learn_lesson` | Darsni o'rganish | Учить урок |
+| `course.lesson_done` | Tugallangan | Пройден (урок; читает экранный диктор) |
+| `course.modules` | Kurs modullari | Модули курса (заголовок листа со списком модулей) |
+| `course.to_current` | Joriy darsga | К текущему уроку (кнопка-ссылка, когда открыт другой модуль) |
+| `result.stat.correct` | {total} tadan to'g'ri | верно из {total} (подпись под числом верных ответов) |
+| `result.stat.percent` | natija | результат (подпись под процентом) |
+| `result.stat.unanswered` | javobsiz | без ответа (подпись под числом) |
+| `result.stat.score` | ball | баллы (подпись под числом баллов) |
+| `result.stat.place` | {total} tadan o'rin | место из {total} (подпись под местом) |
+
+## Редизайн Mini App: хаб практики (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`, ключи `practice.hub.all_modes`, `practice.hub.record`, `practice.hub.battle.text`)
+
+Хаб практики стал одной карточкой «Все режимы»: строка на режим (название, пример, справа — время, рекорд или бейдж состояния) и последней строкой баттл с другом с кнопкой справа. Описание баттла укорочено до одной строки подзаголовка. «rekord» — строчными, перед числом справа в строке («rekord 23»). Ключи `practice.hub.choose` и `practice.timed.record_line` удалены (больше не используются).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `practice.hub.all_modes` | Barcha mashqlar | Все режимы (заголовок карточки со списком режимов) |
+| `practice.hub.record` | rekord | рекорд (перед числом: «рекорд 23») |
+| `practice.hub.battle.text` | Bir xil topshiriqlarda besh raund | Пять раундов на одинаковых заданиях (подзаголовок строки баттла) |
+
+## Редизайн Mini App: экран «Bugun» (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+Главный экран переделан по макету: крупное число цели, рядом «из 20 слов · осталось 13»; список «На сегодня»; в карточке цели — «серия 12 дней», в карточке серии — «рекорд серии — 15 дней». У заморозок убрано украшение-эмодзи ❄️. Прошу проверить, как читается «7 · 20 ta so'zdan · 13 ta qoldi» (крупное число стоит отдельно перед строкой), и «Bugun uchun» как заголовок списка.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `today.list.title` | Bugun uchun | На сегодня |
+| `today.goal.of` | {count} ta so'zdan | из {count} слов (после крупного числа выполненного) |
+| `today.goal.left_short` | {count} ta qoldi | осталось {count} |
+| `today.streak.short` | {count} kun ketma-ket | серия {count} дней |
+| `today.streak.record` | rekord — {count} kun | рекорд серии — {count} дней |
+| `assignments.progress_short` | {pct}% bajarildi | выполнено {pct}% |
+| `today.streak.freezes`, `today.streak.freezes_none`, `today.streak.freeze_teaser` | без ❄️, текст прежний | без ❄️, текст прежний |
+
+## Редизайн Mini App: занятие и итог (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+Экран занятия и итог переделаны по макетам (Question, Feedback, Finish). Варианты ответа после проверки подписаны словами справа в строке варианта («javobingiz» / «to'g'ri javob»), внизу — серая панель с итогом ответа: слово — значение и справа «to'g'ri» / «noto'g'ri» строчными. Чип серии верных ответов без эмодзи 🔥: число и слово («3 ketma-ket»). На итоге надзаголовок над заголовком и главная кнопка «Tayyor» (ведёт на экран «Bugun»; ключ `finished.home` прежний и остаётся у кнопки закрытого занятия). Прошу проверить: естественно ли «3 ketma-ket» для «3 подряд» в маленьком чипе и «Tayyor» для кнопки «Готово» в конце занятия.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `exercise.option.yours` | javobingiz | ваш ответ (подпись справа в варианте, выбранном неверно) |
+| `exercise.option.right` | to'g'ri javob | верный ответ (подпись справа в верном варианте) |
+| `exercise.feedback.right` | to'g'ri | верно (справа от «слово — значение» в панели ответа) |
+| `exercise.feedback.wrong` | noto'g'ri | неверно (там же) |
+| `training.combo` | ketma-ket | подряд (после числа в чипе: «3 ketma-ket») |
+| `finished.done` | Tayyor | Готово (главная кнопка итога) |
+| `finished.eyebrow` | Mashg'ulot yakunlandi | Занятие завершено (надзаголовок итога) |
+
+## Редизайн Mini App: игра «Караван» (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+Итог забега переделан по образцу итога занятия: три числа в одной карточке — «Hisob», звёзды и «Tangalar»; под каждым числом короткая подпись. Для звёзд нужна отдельная короткая подпись (полная фраза «Yulduzlar: 3 tadan {stars}» остаётся для экранного диктора). Прошу проверить, подходит ли «Yulduzlar» как подпись под тремя звёздами.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `gameRun.summary.stars_label` | Yulduzlar | Звёзды (подпись под звёздами в карточке чисел итога забега) |
+
+## Редизайн Mini App: лига, Pro, профиль (20.11.2026) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+Экран лиги по новому макету (заголовок — название лиги, линия зоны повышения/понижения, «Вся таблица»), пейвол Pro (заголовок — причина показа, выгоды «название — пояснение», карточки тарифов с новым тарифом «3 месяца», цена в главной кнопке, «Не сейчас»). Прошу проверить: «{price} evaziga Pro olish» на кнопке (не лучше ли «Pro'ni {price}ga olish»), падежи в «{rank}-o'ringacha», «ligasiga o'tadi / tushadi», «Zaxira kunlar» как название выгоды. Ключи `assignments.title`, `assignments.progress`, `assignments.start`, `assignments.continue`, `paywall.title_purchase`, `billing.pay_method`, `billing.period.year_save`, `league.my_place`, `league.zone.promotion`, `league.zone.safe`, `league.zone.demotion`, `today.goal.left`, `today.streak.best` удалены (после редизайна больше не используются); их строки в разделах выше проверять не нужно.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.period.quarter` | 3 oy | 3 месяца (тариф на 3 месяца) |
+| `billing.saving` | {pct}% arzonroq | выгоднее на {pct}% (подпись на карточке тарифа: дешевле, чем помесячно) |
+| `billing.pay_cta` | {price} evaziga Pro olish | Оформить Pro за {price} (главная кнопка, {price} — «150 Stars») |
+| `billing.pay_cta_renew` | {price} evaziga Pro'ni uzaytirish | Продлить Pro за {price} |
+| `billing.pay_via` | To'lov {provider} orqali. | Оплата через {provider}. |
+| `billing.pay_other` | Yoki boshqa usulda to'lash | Или оплатить по-другому (над кнопками Payme / Click) |
+| `billing.tariffs` | Tariflar | Тарифы |
+| `paywall.not_now` | Hozir emas | Не сейчас |
+| `paywall.lead_quota_short` | Takrorlash har doim ochiq. Pro yangi so'zlar uchun kunlik limitni olib tashlaydi. | Повторения доступны всегда. Pro снимает дневной лимит на новые слова. (строка под заголовком листа оплаты, когда новые слова на сегодня закончились) |
+| `paywall.heading.quota` | Bugungi yangi so'zlar tugadi | Новые слова на сегодня закончились |
+| `paywall.heading.info` | Cheklovsiz o'rganing | Учитесь без ограничений |
+| `paywall.heading.decks` | Bepul tarifdagi to'plamlar limiti | Лимит колод бесплатного тарифа |
+| `paywall.heading.streak_freeze` | Ketma-ketlikni saqlab qoling | Сохраните серию |
+| `paywall.heading.exam_simulator` | IELTS va SAT sinov imtihonlari | Пробные тесты IELTS и SAT |
+| `paywall.heading.practice` | Mashqlar — Pro'da | Практика — в Pro |
+| `paywall.heading.practice_limit` | Pro bilan ko'proq mashq | Больше практики с Pro |
+| `paywall.heading.game` | Karvon cheklovsiz | Караван без ограничений |
+| `benefits.row.new_words` | Yangi so'zlar | Новые слова (название выгоды) |
+| `benefits.row.new_words.note` | kunlik limitsiz | без дневного лимита (пояснение у Pro) |
+| `benefits.row.new_words.note_free` | kuniga {limit} ta o'rniga cheklovsiz | без лимита вместо {limit} в день (пояснение у Free) |
+| `benefits.row.practice` | Mashqlar va bellashuvlar | Практика и баттлы |
+| `benefits.row.practice_solo` | Mashqlar | Практика (без баттлов) |
+| `benefits.row.game` | Karvon | Караван |
+| `benefits.row.no_limit` | kunlik limitsiz | без дневного лимита (пояснение у практики и каравана) |
+| `benefits.row.exercises` | Yozish mashqlari | Упражнения |
+| `benefits.row.exercises.note` | so'zni yozish va gaplarni to'ldirish | написание слова и пропуски в примерах |
+| `benefits.row.decks` | O'z to'plamlaringiz | Свои колоды |
+| `benefits.row.decks.note` | 2000 tagacha so'zdan 20 tagacha to'plam | до 20 колод по 2000 слов |
+| `benefits.row.freezes` | Zaxira kunlar | Заморозка серии |
+| `benefits.row.freezes.note` | bir kun o'tkazib yuborsangiz ham ketma-ketlik saqlanadi | пропуск дня не обрывает серию |
+| `benefits.row.mock_exams` | Sinov imtihonlari | Пробные тесты |
+| `benefits.row.mock_exams.note` | IELTS va SAT | IELTS и SAT |
+| `league.heading.bronze` | Bronza liga | Бронзовая лига (заголовок экрана лиги) |
+| `league.heading.silver` | Kumush liga | Серебряная лига |
+| `league.heading.gold` | Oltin liga | Золотая лига |
+| `league.heading.platinum` | Platina liga | Платиновая лига |
+| `league.heading.diamond` | Olmos liga | Алмазная лига |
+| `league.days_left` | {count} kun qoldi | осталось {count} дн. |
+| `league.last_day` | oxirgi kun | последний день |
+| `league.my_rank` | Siz {rank}-o'rindasiz | Вы на {rank}-м месте |
+| `league.to_next` | {rank}-o'ringacha — {points} | До {rank}-го места — {points} ({points} — «25 ochko») |
+| `league.first_place` | Siz guruhda hammadan oldindasiz | Вы впереди всех в группе |
+| `league.next_progress` | Keyingi o'ringacha | До следующего места (подпись линии прогресса для экранного диктора) |
+| `league.line.promotion` | bu chiziqdan yuqoridagilar «{tier}» ligasiga o'tadi | выше этой линии — переход в лигу «{tier}» ({tier} — «Oltin») |
+| `league.line.demotion` | bu chiziqdan pastdagilar «{tier}» ligasiga tushadi | ниже этой линии — переход в лигу «{tier}» |
+| `league.table_all` | Butun jadval · {members} | Вся таблица · {members} |
+| `league.members` | {count} ishtirokchi | {count} участник/участника/участников |
+| `league.table_less` | Jadvalni yig'ish | Свернуть таблицу |
+| `month.title` | Oy reytingi | Рейтинг месяца |
+| `friends.list.streak_words` | ketma-ketlik {streak} · {words} | серия {streak} · {words} (вместо «🔥 {streak}») |

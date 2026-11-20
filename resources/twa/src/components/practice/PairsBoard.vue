@@ -161,7 +161,7 @@ const status = computed((): { tone: 'hint' | 'success' | 'danger'; text: string 
   return { tone: 'hint', text: solo.value ? t('practice.pairs.hint_solo') : t('practice.pairs.hint_battle') }
 })
 
-const TONE_CLASS = { hint: 'text-tg-subtitle', success: 'text-success-ink', danger: 'text-danger-ink' } as const
+const TONE_CLASS = { hint: 'text-muted', success: 'text-success-ink', danger: 'text-danger-ink' } as const
 
 /** The word a screen reader adds to a card besides its text. */
 function stateWord(card: Card): string {
@@ -369,18 +369,18 @@ onBeforeUnmount(clearTimer)
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="pairs-board" :data-mode="mode" @keydown.esc="cancelPick">
-    <div ref="board" class="flex flex-1 flex-col gap-3 px-4 pt-3 pb-4" :aria-busy="disabled ? 'true' : undefined">
+    <div ref="board" class="flex flex-1 flex-col gap-3 px-5 pt-3 pb-4" :aria-busy="disabled ? 'true' : undefined">
       <h2 class="sr-only">{{ modeTitle('pairs') }}</h2>
 
-      <div class="flex items-baseline justify-between gap-3 px-1 text-[15px] leading-5 text-tg-subtitle">
+      <div class="flex items-baseline justify-between gap-3 text-[13px] leading-[18px] text-muted">
         <!-- A battle says the round in the header of its screen: the board does not say it twice. -->
-        <p v-if="solo && showRound" class="font-medium" data-testid="pairs-round">{{ t('practice.pairs.round', { round: element.round, rounds: element.rounds }) }}</p>
+        <p v-if="solo && showRound" data-testid="pairs-round">{{ t('practice.pairs.round', { round: element.round, rounds: element.rounds }) }}</p>
         <p class="ml-auto tabular-nums" data-testid="pairs-count">{{ counter }}</p>
       </div>
 
       <div class="grid grid-cols-2 gap-2.5">
         <div v-for="column in columns" :key="column.side" class="flex min-w-0 flex-col gap-2.5" role="group" :aria-label="column.label" :data-testid="`pairs-${column.side}`">
-          <p class="px-1 text-[13px] leading-[18px] font-medium tracking-wide text-tg-section-header uppercase" aria-hidden="true">{{ column.label }}</p>
+          <p class="text-[13px] leading-[18px] text-muted" aria-hidden="true">{{ column.label }}</p>
           <button
             v-for="card in column.cards"
             :key="card.id"
@@ -398,10 +398,10 @@ onBeforeUnmount(clearTimer)
             :disabled="card.look === 'gone'"
             @click="tap(column.side, card.id)"
           >
-            <span v-if="card.number !== null" class="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-tg-button-text" aria-hidden="true" data-testid="pair-number">{{ card.number }}</span>
+            <span v-if="card.number !== null" class="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-xs font-medium text-on-primary" aria-hidden="true" data-testid="pair-number">{{ card.number }}</span>
             <AppIcon v-else-if="card.look === 'correct'" name="check" :size="20" />
             <AppIcon v-else-if="card.look === 'incorrect'" name="x-mark" :size="20" />
-            <span v-else-if="card.look === 'selected'" class="size-2.5 shrink-0 rounded-full bg-accent" aria-hidden="true" data-testid="pick-dot" />
+            <span v-else-if="card.look === 'selected'" class="size-2 shrink-0 rounded-full bg-primary" aria-hidden="true" data-testid="pick-dot" />
             <!-- The words are English, in a screen of another language: a reader pronounces and a browser hyphenates them as English. -->
             <span class="min-w-0 break-words hyphens-auto" :lang="column.side === 'left' ? 'en' : undefined" data-testid="card-text">{{ card.text }}</span>
             <span v-if="stateWord(card)" class="sr-only" data-testid="card-state">, {{ stateWord(card) }}</span>
@@ -423,7 +423,7 @@ onBeforeUnmount(clearTimer)
       </p>
     </div>
 
-    <StickyActions v-if="mode === 'battle'">
+    <StickyActions v-if="mode === 'battle'" surface>
       <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="!complete || submitted || disabled" data-testid="pairs-check" @click="check">
         {{ t('exercise.check') }}
       </button>

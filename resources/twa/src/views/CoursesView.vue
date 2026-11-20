@@ -8,6 +8,7 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { catalogTabs, courseChips, progressPercent, progressText } from '@/composables/courseLabels'
 import { useBackButton } from '@/composables/useBackButton'
@@ -50,7 +51,7 @@ onMounted(() => {
   <div class="page">
     <PageHeader :title="t('catalog.title')" large />
     <SegmentedNav :items="tabs" :ariaLabel="t('catalog.title')" />
-    <p class="mt-2 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="hint">{{ t('catalog.hint') }}</p>
+    <p class="mt-3 text-[13px] leading-[18px] text-muted" data-testid="hint">{{ t('catalog.hint') }}</p>
 
     <LoadingState v-if="status === 'idle' || status === 'loading'" class="mt-4" />
 
@@ -61,7 +62,14 @@ onMounted(() => {
     <div v-else class="mt-4 space-y-3">
       <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" data-testid="select-error" />
 
-      <article v-for="course in courses" :key="course.slug" class="card" :data-testid="`course-${course.slug}`">
+      <!-- The course the learner is on stands out as the selected card (accent-soft, primary frame): "you are here". -->
+      <article
+        v-for="course in courses"
+        :key="course.slug"
+        class="card"
+        :class="{ 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]': course.is_active }"
+        :data-testid="`course-${course.slug}`"
+      >
         <RouterLink
           :to="{ name: 'course', params: { slug: course.slug } }"
           class="flex items-start gap-2 active:opacity-60"
@@ -72,29 +80,24 @@ onMounted(() => {
             <div class="mt-2 flex flex-wrap gap-1.5" data-testid="meta">
               <span v-for="chip in courseChips(course)" :key="chip.key" class="chip" :class="`chip-${chip.tone}`">{{ chip.label }}</span>
             </div>
-            <p v-if="course.description" class="mt-2 line-clamp-2 text-[15px] leading-5 text-tg-subtitle">{{ course.description }}</p>
+            <p v-if="course.description" class="mt-2 line-clamp-2 text-[15px] leading-5 text-muted">{{ course.description }}</p>
           </div>
-          <AppIcon name="chevron-right" :size="16" class="mt-[3px] text-tg-hint" />
+          <AppIcon name="chevron-right" :size="16" class="mt-[3px] text-muted" />
         </RouterLink>
 
-        <div class="mt-3">
-          <div
-            class="progress"
-            role="progressbar"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            :aria-valuenow="progressPercent(course.progress)"
-            :aria-label="progressText(course.progress)"
+        <div class="mt-3.5 flex items-center gap-3">
+          <ProgressLine
+            :value="progressPercent(course.progress)"
+            tone="success"
+            :label="progressText(course.progress)"
+            class="flex-1"
             data-testid="progress-bar"
-          >
-            <div class="progress-fill" :style="{ width: `${progressPercent(course.progress)}%` }" data-testid="progress-fill" />
-          </div>
-          <p class="mt-1.5 text-[13px] leading-[18px] text-tg-hint" data-testid="progress-text">{{ progressText(course.progress) }}</p>
+          />
+          <span class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="progress-text">{{ progressText(course.progress) }}</span>
         </div>
 
         <div class="mt-3">
           <span v-if="course.is_active" class="chip chip-success" data-testid="active-badge">
-            <AppIcon name="check" solid :size="14" />
             {{ t('catalog.active') }}
           </span>
           <button

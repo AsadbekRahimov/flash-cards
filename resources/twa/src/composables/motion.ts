@@ -1,6 +1,6 @@
 /**
  * "Reduce motion" of the device (`prefers-reduced-motion: reduce`): the CSS of the animations switches itself off with the
- * media query; this is for the animations that are driven by script (the count-up, the confetti). A browser without
+ * media query; this is for the motion driven by script (the smooth scroll of the error hunt board). A browser without
  * `matchMedia` has no such setting.
  */
 export function prefersReducedMotion(): boolean {

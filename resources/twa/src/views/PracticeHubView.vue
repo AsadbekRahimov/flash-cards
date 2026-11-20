@@ -6,16 +6,16 @@ import PaywallSheet from '@/components/PaywallSheet.vue'
 import ActiveSessionSheet from '@/components/practice/ActiveSessionSheet.vue'
 import FriendPickerSheet from '@/components/practice/FriendPickerSheet.vue'
 import ModeCard from '@/components/practice/ModeCard.vue'
-import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
 import { progressPercent } from '@/composables/courseLabels'
 import { showErrorToast } from '@/composables/errorToast'
-import { MODE_LOOK, isKnownPracticeMode, lessonHeader, lessonNumber, modeTitle } from '@/composables/practiceLabels'
+import { isKnownPracticeMode, lessonHeader, lessonNumber, modeTitle } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -29,9 +29,10 @@ import { useI18n } from '@/i18n'
 import type { BattleIncoming, FriendItem, PracticeActiveSession, PracticeMode, PracticeModeInfo, PracticeSource } from '@/api/types'
 
 /**
- * The practice hub of a course or of one lesson (docs/16 §11.2, docs/14): the heading with the course and the lesson,
- * the "Continue" card of the unfinished session, the four cards of the modes, and the battle with a friend. There is
- * no primary button here: pressing a card is the main action.
+ * The practice hub of a course or of one lesson (docs/16 §11.2, docs/14, docs/design Practice): the link back to the course, the
+ * heading with the course and the lesson, the "Continue" card of the unfinished session (the one main button of the screen), and
+ * one card "All modes": a row per mode and the battle with a friend as the last row. The mock-up's "Advised today" card needs a rule
+ * of choice the hub does not have: its place is taken by the "Continue" card, which is there only with an unfinished session.
  *
  * States: loading, error (Retry), "practice is not available yet" (`practice_unavailable`), the hub. A card is playable
  * (the whole card is the button), short of material ("Learn the lesson"), switched off, or behind Pro (the paywall).
@@ -302,7 +303,16 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="page" data-testid="practice-hub-view">
-    <PageHeader :title="title" :subtitle="subtitle" />
+    <!-- The way back is on the screen too (the system button of Telegram says nothing about where it leads). -->
+    <RouterLink
+      :to="{ name: 'course', params: { slug } }"
+      class="-mb-3.5 flex min-h-11 items-center self-start text-sm text-accent"
+      data-testid="hub-back"
+    >
+      <span aria-hidden="true">←&nbsp;</span>{{ t('practice.hub.to_course') }}
+    </RouterLink>
+
+    <PageHeader :title="title" :subtitle="subtitle" large />
 
     <LoadingState v-if="hubStatus === 'idle' || hubStatus === 'loading'" variant="cards" />
 
@@ -323,73 +333,66 @@ onBeforeUnmount(() => {
     <ErrorState v-else-if="hubStatus === 'error' || hub === null" :message="hubError" @retry="load" />
 
     <template v-else>
-      <ListGroup v-if="invitations.length > 0" :header="t('practice.hub.battle.invites')" class="mb-4" data-testid="battle-invites">
+      <ListGroup v-if="invitations.length > 0" :header="t('practice.hub.battle.invites')" class="-mt-5 mb-3.5" data-testid="battle-invites">
         <ListRow
           v-for="invitation in invitations"
           :key="invitation.id"
           :to="{ name: 'battle', params: { id: invitation.id } }"
-          icon="bolt"
-          tile="orange"
           :title="t('practice.hub.battle.invited_by', { name: invitation.from.first_name || t('friends.list.anonymous') })"
           :subtitle="invitationMeta(invitation)"
           :data-testid="`invitation-${invitation.id}`"
         />
       </ListGroup>
 
-      <!-- The unfinished session: one tap back into it. -->
+      <!-- The unfinished session: one tap back into it. The whole card is the link; the button inside it is its look. -->
       <RouterLink
         v-if="activeSession"
         :to="{ name: 'practice-session', params: { id: activeSession.id } }"
-        class="card mb-4 flex items-center gap-3 transition-transform active:scale-[0.99]"
+        class="card mb-3.5 flex flex-col gap-3"
         :aria-label="continueLabel"
         data-testid="continue-card"
       >
-        <span class="icon-tile size-10 rounded-xl" :class="`tile-${MODE_LOOK[activeSession.mode].tile}`">
-          <AppIcon :name="MODE_LOOK[activeSession.mode].icon" :size="22" />
-        </span>
-        <span class="min-w-0 flex-1">
-          <span class="block text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('practice.hub.continue') }}</span>
-          <span class="block text-[17px] leading-[22px] font-semibold" data-testid="continue-title">{{ modeTitle(activeSession.mode) }}</span>
-          <span v-if="activePlace" class="block text-[15px] leading-5 text-tg-subtitle" data-testid="continue-place">{{ activePlace }}</span>
-          <span class="block text-[13px] leading-[18px] text-tg-hint" data-testid="continue-progress">
+        <span class="text-[13px] leading-[18px] text-muted">{{ t('practice.hub.continue') }}</span>
+        <span class="flex flex-col gap-1">
+          <span class="text-xl leading-6 font-semibold" data-testid="continue-title">{{ modeTitle(activeSession.mode) }}</span>
+          <span v-if="activePlace" class="text-sm leading-5 text-muted" data-testid="continue-place">{{ activePlace }}</span>
+          <span class="text-[13px] leading-[18px] text-muted" data-testid="continue-progress">
             {{ t('practice.session.progress', { done: activeSession.progress.done, total: activeSession.progress.total }) }}
           </span>
-          <span class="progress mt-1.5 block h-1" aria-hidden="true">
-            <span class="progress-fill block" :style="{ width: `${progressPercent(activeSession.progress)}%` }" />
-          </span>
         </span>
-        <AppIcon name="chevron-right" :size="16" class="text-tg-hint" />
+        <ProgressLine :value="progressPercent(activeSession.progress)" />
+        <span class="btn btn-primary btn-block" aria-hidden="true">{{ t('practice.hub.continue') }}</span>
       </RouterLink>
 
-      <h2 class="section-label mt-0">{{ t('practice.hub.choose') }}</h2>
-      <!-- Free only: the sessions left today. Quiet on purpose - the cards below are the screen. -->
-      <p v-if="sessionLimit" class="-mt-0.5 mb-2 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="practice-limit">
-        {{ t('practice.limit.sessions', { remaining: Math.max(0, sessionLimit.remaining), limit: sessionLimit.limit }) }}
-      </p>
-      <div class="flex flex-col gap-3" data-testid="mode-cards">
-        <ModeCard
-          v-for="info in modes"
-          :key="info.mode"
-          :info="info"
-          :resume="resumeFor(info)"
-          :busy="opening === info.mode"
-          :learn="learnKind"
-          @select="select"
-          @learn="learn"
-        />
-      </div>
-
-      <section v-if="battleOn" class="card mt-4" data-testid="battle-card">
-        <div class="flex items-start gap-3">
-          <span class="icon-tile size-10 rounded-xl tile-pink"><AppIcon name="users" :size="22" /></span>
-          <div class="min-w-0 flex-1">
-            <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('practice.hub.battle.title') }}</h2>
-            <p class="mt-0.5 text-[15px] leading-5 text-tg-subtitle">{{ t('practice.hub.battle.text') }}</p>
-          </div>
+      <section class="overflow-hidden rounded-card border border-hairline bg-surface" data-testid="modes-list">
+        <h2 class="px-[18px] pt-3.5 pb-2.5 text-base leading-[22px] font-semibold">{{ t('practice.hub.all_modes') }}</h2>
+        <!-- Free only: the sessions left today. Quiet on purpose - the rows below are the screen. -->
+        <p v-if="sessionLimit" class="-mt-1.5 px-[18px] pb-2.5 text-[13px] leading-[18px] text-muted" data-testid="practice-limit">
+          {{ t('practice.limit.sessions', { remaining: Math.max(0, sessionLimit.remaining), limit: sessionLimit.limit }) }}
+        </p>
+        <div data-testid="mode-cards">
+          <ModeCard
+            v-for="info in modes"
+            :key="info.mode"
+            :info="info"
+            :resume="resumeFor(info)"
+            :busy="opening === info.mode"
+            :learn="learnKind"
+            @select="select"
+            @learn="learn"
+          />
         </div>
-        <button type="button" class="btn btn-tinted btn-block mt-3" data-testid="battle-play-btn" @click="playWithFriend">
-          {{ activeBattleId !== null ? t('practice.hub.battle.resume') : t('practice.hub.battle.play') }}
-        </button>
+
+        <!-- The battle with a friend: the last row, with its own button (a new battle, or back into the one under way). -->
+        <div v-if="battleOn" class="flex items-center gap-3 border-t border-divider px-[18px] py-3" data-testid="battle-card">
+          <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span class="text-[15px] leading-5 font-semibold">{{ t('practice.hub.battle.title') }}</span>
+            <span class="text-[13px] leading-[18px] text-muted">{{ t('practice.hub.battle.text') }}</span>
+          </span>
+          <button type="button" class="btn btn-tinted btn-sm shrink-0" data-testid="battle-play-btn" @click="playWithFriend">
+            {{ activeBattleId !== null ? t('practice.hub.battle.resume') : t('practice.hub.battle.play') }}
+          </button>
+        </div>
       </section>
     </template>
 

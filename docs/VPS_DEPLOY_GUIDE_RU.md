@@ -627,8 +627,10 @@ BILLING_SUPPORT_CONTACT=@lexiflow_support   # @handle, e-mail или https://-с
 
 # --- Цены (утверждены; минимальные единицы: XTR — целые Stars, UZS — тийины = сумы x 100) ---
 BILLING_PRICE_PRO_MONTH_XTR=150
+BILLING_PRICE_PRO_QUARTER_XTR=390            # 3 месяца (90 дней)
 BILLING_PRICE_PRO_YEAR_XTR=1300
 BILLING_PRICE_PRO_MONTH_UZS=2900000
+BILLING_PRICE_PRO_QUARTER_UZS=7500000        # 3 месяца = 75 000 сум; 0 — в сумах не продаётся
 BILLING_PRICE_PRO_YEAR_UZS=24900000
 BILLING_PRICE_TUTOR_MONTH_UZS=12900000
 BILLING_PRICE_CENTER_S_MONTH_UZS=34900000

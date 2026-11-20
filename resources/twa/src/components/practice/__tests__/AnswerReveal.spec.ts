@@ -88,11 +88,11 @@ describe('AnswerReveal — the verdict is a symbol and words, never a colour alo
     ['typo', 'Опечатка', 'warning'],
     ['wrong', 'Неверно', 'danger'],
     ['skipped', 'Пропущено', 'accent'],
-  ] as const)('%s: "%s" in a %s circle with its own symbol', (verdict, text, tone) => {
+  ] as const)('%s: "%s" in the %s ink, with its own symbol', (verdict, text, tone) => {
     const wrapper = render(outcome({ element: dictationElement(), answer: { text: 'x' }, verdict, reveal: dictation() }))
 
     expect(wrapper.get('[data-testid=reveal-text]').text()).toBe(text)
-    expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain(`bg-${tone}-soft`)
+    expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain(`text-${tone}-ink`)
     expect(wrapper.get('[data-testid=reveal-icon]').findComponent(AppIcon).exists()).toBe(true)
     expect(wrapper.get('[data-testid=answer-reveal]').attributes('data-verdict')).toBe(verdict)
   })
@@ -130,7 +130,7 @@ describe('AnswerReveal — the verdict is a symbol and words, never a colour alo
     const wrapper = render(done)
 
     expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
-    expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain('bg-danger-soft')
+    expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain('text-danger-ink')
     expect(wrapper.get('[data-testid=answer-reveal]').attributes('data-verdict')).toBe('wrong')
     setLocale('uz')
     expect(render(done).get('[data-testid=reveal-text]').text()).toBe("Noto'g'ri")
@@ -638,7 +638,7 @@ describe('AnswerReveal — an answer that was counted earlier', () => {
 
     expect(wrapper.get('[data-testid=reveal-text]').text()).toBe('Неверно')
     expect(wrapper.get('[data-testid=reveal-earlier]').text()).toBe('Засчитан ответ, отправленный раньше.')
-    expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain('bg-danger-soft')
+    expect(wrapper.get('[data-testid=reveal-icon]').classes()).toContain('text-danger-ink')
     expect(wrapper.get('[data-testid=answer-reveal]').attributes('data-verdict')).toBe('wrong')
   })
 

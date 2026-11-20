@@ -39,6 +39,15 @@ describe('StickyActions', () => {
     w.unmount()
   })
 
+  it('takes the card colour on a white screen (`surface`), instead of the page colour', () => {
+    const w = mount(StickyActions, { props: { surface: true }, slots: { default: '<button type="button">Check</button>' } })
+
+    const block = w.get('[data-testid=actions]')
+    expect(block.classes()).toContain('bg-surface')
+    expect(block.classes()).not.toContain('bg-page')
+    w.unmount()
+  })
+
   it('tells the toast how high it is while it is on screen, and takes that back when it goes', () => {
     expect(published()).toBe('')
 

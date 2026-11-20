@@ -26,11 +26,9 @@ const { t } = useI18n()
 
 <template>
   <div class="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center" role="alert" data-testid="error">
-    <span class="flex size-14 items-center justify-center rounded-full bg-danger-soft text-danger">
-      <AppIcon name="exclamation-triangle" :size="28" />
-    </span>
+    <AppIcon name="exclamation-triangle" :size="28" class="text-danger" />
     <h2 class="text-[17px] leading-[22px] font-semibold">{{ title ?? t('common.error_title') }}</h2>
-    <p class="text-[15px] leading-5 text-tg-hint">{{ message }}</p>
+    <p class="text-[15px] leading-5 text-muted">{{ message }}</p>
     <div class="mt-2 flex w-full max-w-64 flex-col gap-2">
       <button type="button" class="btn btn-primary btn-block" data-testid="retry-btn" @click="$emit('retry')">
         {{ t('common.retry') }}

@@ -73,11 +73,9 @@ async function render(props: { limitHit?: PracticeLimitHit | null; reason?: 'pra
 
 const lead = (w: Awaited<ReturnType<typeof render>>) => w.get('[data-testid=paywall-lead]').text()
 
-/** What the end of the sale adds after the reason, in each mode: `Pro opens soon`, or what Pro gives. */
+/** What the end of the sale adds after the reason while Pro is only coming; while it is for sale the reason stands alone (the rows say what Pro gives). */
 const SOON_RU = 'Оплата откроется позже — мы сообщим в боте.'
-const SALE_RU = 'Новые слова без дневного лимита, упражнения на написание, свои колоды, заморозки серии и пробные тесты.'
 const SOON_UZ = "To'lov keyinroq ochiladi — botda xabar beramiz."
-const SALE_UZ = "Istagancha yangi so'z, yozma mashqlar, shaxsiy to'plamlar, zaxira kunlar va sinov imtihonlari."
 
 beforeEach(() => {
   setActivePinia(createPinia())
@@ -111,14 +109,14 @@ describe('PaywallSheet — the end of the free practice', () => {
   it('while Pro is for sale: "or right away with Pro", then what Pro gives', async () => {
     const w = await render({}, me('purchase'))
 
-    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro. ${SALE_RU}`)
+    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro.`)
   })
 
   it('while Pro is for sale, in Uzbek', async () => {
     setLocale('uz')
     const w = await render({}, me('purchase'))
 
-    expect(lead(w)).toBe(`Bugungi bepul mashqlar tugadi (2/2). Yana ertaga soat 00:00 da yoki darhol Pro bilan mashq qilishingiz mumkin. ${SALE_UZ}`)
+    expect(lead(w)).toBe(`Bugungi bepul mashqlar tugadi (2/2). Yana ertaga soat 00:00 da yoki darhol Pro bilan mashq qilishingiz mumkin.`)
   })
 
   it('quotes the limit of the refusal twice, never "3 of 2": a limit that was lowered meanwhile is still a limit', async () => {
@@ -152,14 +150,14 @@ describe('PaywallSheet — the end of the free battles', () => {
   it('while Pro is for sale: "or right away with Pro", then what Pro gives', async () => {
     const w = await render({ limitHit: BATTLES }, me('purchase'))
 
-    expect(lead(w)).toBe(`Бесплатные баттлы на сегодня закончились (1 из 1). Новые — завтра в 00:00 или сразу с Pro. ${SALE_RU}`)
+    expect(lead(w)).toBe(`Бесплатные баттлы на сегодня закончились (1 из 1). Новые — завтра в 00:00 или сразу с Pro.`)
   })
 
   it('while Pro is for sale, in Uzbek', async () => {
     setLocale('uz')
     const w = await render({ limitHit: BATTLES }, me('purchase'))
 
-    expect(lead(w)).toBe(`Bugungi bepul bellashuvlar tugadi (1 tadan 1 tasi). Yangilari — ertaga soat 00:00 da yoki darhol Pro bilan. ${SALE_UZ}`)
+    expect(lead(w)).toBe(`Bugungi bepul bellashuvlar tugadi (1 tadan 1 tasi). Yangilari — ertaga soat 00:00 da yoki darhol Pro bilan.`)
   })
 
   it('calls them battles, never "challenges": that word is the weekly challenge of a friend, and the Uzbek one is "bellashuv" everywhere', async () => {
@@ -202,7 +200,7 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
 
     it('the battles are for Pro only too: one sentence for both - practice and battles with friends are in Pro', async () => {
       expect(lead(await sheet(bothProOnly()))).toBe(`${PRACTICE_RU} ${SOON_RU}`)
-      expect(lead(await sheet(bothProOnly(), 'purchase'))).toBe(`${PRACTICE_RU} ${SALE_RU}`)
+      expect(lead(await sheet(bothProOnly(), 'purchase'))).toBe(`${PRACTICE_RU}`)
     })
 
     it.each<[string, PracticeLimits | null]>([
@@ -215,7 +213,7 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
       expect(lead(soon)).toBe(`${SOLO_RU} ${SOON_RU}`)
       expect(lead(soon)).not.toMatch(/баттл/i)
 
-      expect(lead(await sheet(limits, 'purchase'))).toBe(`${SOLO_RU} ${SALE_RU}`)
+      expect(lead(await sheet(limits, 'purchase'))).toBe(`${SOLO_RU}`)
     })
 
     it('the battles are switched off: the practice alone, even when the counter of the battles says 0 - no battles are sold that do not exist', async () => {
@@ -229,12 +227,12 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
       setLocale('uz')
 
       expect(lead(await sheet(bothProOnly()))).toBe(`${PRACTICE_UZ} ${SOON_UZ}`)
-      expect(lead(await sheet(bothProOnly(), 'purchase'))).toBe(`${PRACTICE_UZ} ${SALE_UZ}`)
+      expect(lead(await sheet(bothProOnly(), 'purchase'))).toBe(`${PRACTICE_UZ}`)
 
       const alone = await sheet({ sessions: counter(0, 0, MIDNIGHT), battles: null })
       expect(lead(alone)).toBe(`${SOLO_UZ} ${SOON_UZ}`)
       expect(lead(alone)).not.toMatch(/bellashuv/i)
-      expect(lead(await sheet(null, 'purchase', false))).toBe(`${SOLO_UZ} ${SALE_UZ}`)
+      expect(lead(await sheet(null, 'purchase', false))).toBe(`${SOLO_UZ}`)
     })
 
     it('follows /me when it comes after the sheet is open: the practice alone at first, then both once it is known the battles are for Pro only too', async () => {
@@ -267,7 +265,7 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
     setActivePinia(createPinia())
     knowZone('Asia/Tashkent')
     const sale = await render({ limitHit: NO_BATTLES }, me('purchase'))
-    expect(lead(sale)).toBe(`${BATTLES_RU} ${SALE_RU}`)
+    expect(lead(sale)).toBe(`${BATTLES_RU}`)
   })
 
   it('battles, in Uzbek, in both modes', async () => {
@@ -277,7 +275,7 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
 
     setActivePinia(createPinia())
     knowZone('Asia/Tashkent')
-    expect(lead(await render({ limitHit: NO_BATTLES }, me('purchase')))).toBe(`${BATTLES_UZ} ${SALE_UZ}`)
+    expect(lead(await render({ limitHit: NO_BATTLES }, me('purchase')))).toBe(`${BATTLES_UZ}`)
   })
 
   it.each([
@@ -314,7 +312,7 @@ describe('PaywallSheet — a kind that is for Pro only (limit 0)', () => {
   it('is the same sheet otherwise: the title, what Free gives, the promo code, "Got it"', async () => {
     const w = await render({ limitHit: NO_BATTLES })
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Больше практики с Pro')
     expect(w.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)
     expect(w.get('[data-testid=paywall-close]').text()).toBe('Понятно')
@@ -350,7 +348,7 @@ describe('PaywallSheet — "or right away with Pro" is said only while Pro can b
     arrive(catalog())
     await flushPromises()
 
-    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro. ${SALE_RU}`)
+    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro.`)
   })
 
   it('a catalog that cannot be read keeps the sheet on the words of "coming soon", which promise nothing', async () => {
@@ -410,7 +408,7 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
   it('is the same sheet: the title, what Free gives, what Pro gives, the promo code and "Got it"', async () => {
     const w = await render()
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('Что будет в Pro')
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Больше практики с Pro')
     expect(w.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')
     expect(w.findAll('[data-testid=benefit]').length).toBeGreaterThan(0)
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)
@@ -421,9 +419,9 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
   it('says among the things Pro gives that practice and battles have no limit of the day', async () => {
     const w = await render()
 
-    expect(w.findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Практика и баттлы без дневного лимита')
+    expect(w.findAll('[data-testid=benefit-name]').map((item) => item.text())).toContain('Практика и баттлы')
     setLocale('uz')
-    expect((await render()).findAll('[data-testid=benefit]').map((item) => item.text())).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
+    expect((await render()).findAll('[data-testid=benefit-name]').map((item) => item.text())).toContain('Mashqlar va bellashuvlar')
   })
 
   it('offers "Repeat words" when cards are due: reviews are never limited, the wall is not a dead end', async () => {
@@ -456,8 +454,8 @@ describe('PaywallSheet — the rest of the sheet is the sheet of every reason', 
     knowZone('Asia/Tashkent', 3)
     const w = await render({}, me('purchase'))
 
-    expect(w.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
-    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro. ${SALE_RU}`)
+    expect(w.get('[data-testid=paywall-title]').text()).toBe('Больше практики с Pro')
+    expect(lead(w)).toBe(`Бесплатная практика на сегодня закончилась (2 из 2). Новая — завтра в 00:00 или сразу с Pro.`)
     expect(w.findAll('[data-testid^=pay-]').filter((button) => button.element.tagName === 'BUTTON')).toHaveLength(3)
     expect(w.get('[data-testid=paywall-review]').classes()).toContain('btn-tinted')
     expect(w.find('[data-testid=promo-toggle]').exists()).toBe(true)

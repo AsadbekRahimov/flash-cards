@@ -7,6 +7,9 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
+import NumberText from '@/components/game/NumberText.vue'
+import { NUMBER_MARK } from '@/components/game/numberMark'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
@@ -186,15 +189,18 @@ onBeforeUnmount(() => {
 
     <ErrorState v-else-if="view === 'error'" :message="errorText" @retry="load" />
 
-    <section v-else-if="view === 'running' && activeRun" class="card flex flex-col gap-3" data-testid="running">
-      <div class="flex items-center gap-3">
-        <span class="icon-tile size-10 rounded-xl tile-orange"><AppIcon name="play" solid :size="20" /></span>
-        <div class="min-w-0 flex-1">
-          <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('game.daily.running_title') }}</h2>
-          <p class="text-[15px] leading-5 text-tg-subtitle" data-testid="running-progress">
-            {{ t('game.map.active_progress', { answered: activeRun.progress.answered, total: activeRun.progress.total }) }}
-          </p>
+    <section v-else-if="view === 'running' && activeRun" class="card flex flex-col gap-4" data-testid="running">
+      <div class="flex flex-col gap-2.5">
+        <div class="flex items-baseline justify-between gap-3">
+          <h2 class="min-w-0 text-[17px] leading-[22px] font-semibold">{{ t('game.daily.running_title') }}</h2>
+          <NumberText
+            class="shrink-0 text-[13px] leading-[18px] text-muted"
+            :text="t('game.map.active_progress', { answered: NUMBER_MARK, total: NUMBER_MARK })"
+            :value="[activeRun.progress.answered, activeRun.progress.total]"
+            data-testid="running-progress"
+          />
         </div>
+        <ProgressLine :value="activeRun.progress.total > 0 ? (activeRun.progress.answered / activeRun.progress.total) * 100 : 0" />
       </div>
       <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="continue-btn" @click="openRun(activeRun.id)">
         {{ t('game.map.continue') }}
@@ -202,22 +208,18 @@ onBeforeUnmount(() => {
     </section>
 
     <section v-else-if="view === 'done'" class="card flex flex-col gap-3" data-testid="done" :data-resets-at="(told?.kind === 'done' ? told.resetsAt : daily?.resets_at) ?? ''">
-      <div class="flex items-center gap-3">
-        <span class="icon-tile size-10 rounded-xl tile-teal"><AppIcon name="check-circle" solid :size="22" /></span>
-        <div class="min-w-0 flex-1">
-          <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('game.daily.done_title') }}</h2>
-          <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('game.daily.done_text') }}</p>
-        </div>
+      <div class="min-w-0">
+        <h2 class="flex items-center gap-2 text-[17px] leading-[22px] font-semibold">
+          <AppIcon name="check" :size="18" class="shrink-0 text-success" />{{ t('game.daily.done_title') }}
+        </h2>
+        <p class="mt-1 text-[15px] leading-5 text-muted">{{ t('game.daily.done_text') }}</p>
       </div>
       <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="review-btn" @click="review">{{ t('game.daily.review') }}</button>
       <button type="button" class="btn btn-plain btn-block" data-testid="to-map" @click="toMap">{{ t('game.daily.to_map') }}</button>
     </section>
 
     <section v-else-if="view === 'ready'" class="card flex flex-col gap-3" data-testid="ready">
-      <div class="flex items-center gap-3">
-        <span class="icon-tile size-10 rounded-xl tile-orange"><AppIcon name="flag" :size="22" /></span>
-        <p class="min-w-0 flex-1 text-[15px] leading-5" data-testid="ready-text">{{ tn('game.daily.ready_text', daily?.due_count ?? 0) }}</p>
-      </div>
+      <p class="text-[15px] leading-5" data-testid="ready-text">{{ tn('game.daily.ready_text', daily?.due_count ?? 0) }}</p>
       <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="starting" data-testid="start-btn" @click="start">
         {{ t('game.daily.go') }}
       </button>

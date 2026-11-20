@@ -131,14 +131,18 @@ describe('FlashCard', () => {
     })
   })
 
-  it('has a round speaker button next to the type chip', () => {
+  it('has a quiet 44 px speaker button after the transcription, as on the mock-up of the question', () => {
     const w = mount(FlashCard, { props: { card, showTranslation: false } })
     const speaker = w.get('[data-testid=speak-btn]')
 
     expect(speaker.attributes('aria-label')).toBe('Произнести')
-    expect(speaker.classes()).toEqual(expect.arrayContaining(['btn-tinted', 'rounded-full']))
+    expect(speaker.classes()).toEqual(expect.arrayContaining(['size-11', 'text-accent', 'rounded-full']))
+    expect(speaker.classes()).not.toContain('btn-tinted')
     expect(speaker.findComponent(AppIcon).props('name')).toBe('speaker-wave')
-    expect(w.get('header').find('[data-testid=card-kind]').exists()).toBe(true)
+    expect(speaker.element.previousElementSibling?.getAttribute('data-testid')).toBe('transcription')
+    // The word stands on the white screen of the lesson, with no box of its own.
+    expect(w.find('.card').exists()).toBe(false)
+    expect(w.get('[data-testid=word]').classes()).toEqual(expect.arrayContaining(['font-semibold', 'break-words']))
   })
 
   it('shows the word, transcription and hides translation by default', () => {
@@ -199,7 +203,7 @@ describe('FlashCard', () => {
     expect(w.get('[data-testid=grade-hard]').classes()).toContain('btn-danger')
     expect(w.get('[data-testid=grade-medium]').classes()).toContain('btn-tinted')
     expect(w.get('[data-testid=grade-easy]').classes()).toEqual(
-      expect.arrayContaining(['bg-success-soft', 'text-success-ink']),
+      expect.arrayContaining(['bg-success-soft', 'text-success-ink', 'shadow-[inset_0_0_0_1px_var(--app-success-line)]']),
     )
     for (const id of ['grade-hard', 'grade-medium', 'grade-easy']) {
       expect(w.get(`[data-testid=${id}]`).text()).not.toMatch(/\p{Extended_Pictographic}/u)

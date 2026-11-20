@@ -14,9 +14,9 @@ const { t } = useI18n()
 
 <template>
   <BottomSheet :label="t('decks.activate.title')" data-testid="activate-sheet" @close="emit('close')">
-    <div class="flex flex-col gap-3 px-4 pt-2 pb-4">
-      <h2 class="pr-10 text-[22px] leading-7 font-bold">{{ t('decks.activate.title') }}</h2>
-      <p class="text-[15px] leading-5 text-tg-subtitle" data-testid="activate-text">{{ t('decks.activate.text') }}</p>
+    <div class="flex flex-col gap-3 px-5 pt-2 pb-4">
+      <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ t('decks.activate.title') }}</h2>
+      <p class="text-[15px] leading-5 text-muted" data-testid="activate-text">{{ t('decks.activate.text') }}</p>
       <button type="button" class="btn btn-primary btn-block" :disabled="busy" data-testid="activate-yes" @click="emit('confirm')">
         {{ t('decks.choose') }}
       </button>

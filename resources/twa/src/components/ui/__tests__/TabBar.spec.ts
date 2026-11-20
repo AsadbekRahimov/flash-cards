@@ -42,7 +42,7 @@ describe('TabBar', () => {
     const { w } = await mountBar('/today')
 
     expect(w.attributes('role')).toBe('navigation')
-    expect(w.findAll('a').map((a) => a.text())).toEqual(['Главная', 'Курсы', 'Рейтинг', 'Профиль'])
+    expect(w.findAll('a').map((a) => a.text())).toEqual(['Сегодня', 'Курс', 'Лига', 'Профиль'])
     expect(w.findAll('a').map((a) => a.attributes('href'))).toEqual(['/today', '/courses', '/league', '/profile'])
     expect(w.findAll('a').map((a) => a.attributes('data-testid'))).toEqual(['tab-today', 'tab-courses', 'tab-rating', 'tab-profile'])
   })
@@ -56,19 +56,25 @@ describe('TabBar', () => {
     expect(uz.attributes('aria-label')).toBe("Bo'limlar")
   })
 
-  it('marks the tab of the current route: accent colour, aria-current, solid icon', async () => {
+  it('is words only: no icons (the redesign 2026-11)', async () => {
+    const { w } = await mountBar('/today')
+
+    expect(w.find('svg').exists()).toBe(false)
+  })
+
+  it('marks the tab of the current route: a 2 px primary line on top, bold body text, aria-current', async () => {
     const { w } = await mountBar('/league')
 
     const active = w.get('[data-testid=tab-rating]')
     expect(active.attributes('aria-current')).toBe('page')
-    expect(active.classes()).toContain('text-accent')
-    expect(active.get('svg').attributes('fill')).toBe('currentColor')
+    expect(active.classes()).toEqual(expect.arrayContaining(['border-t-2', 'border-primary', 'font-semibold', 'text-body']))
 
     for (const id of ['today', 'courses', 'profile']) {
       const tab = w.get(`[data-testid=tab-${id}]`)
       expect(tab.attributes('aria-current'), id).toBeUndefined()
-      expect(tab.classes(), id).toContain('text-tg-hint')
-      expect(tab.get('svg').attributes('fill'), id).toBe('none')
+      // the line is there but transparent, so the text of every tab stands at the same height
+      expect(tab.classes(), id).toEqual(expect.arrayContaining(['border-t-2', 'border-transparent', 'text-muted']))
+      expect(tab.classes(), id).not.toContain('font-semibold')
     }
   })
 
@@ -113,10 +119,11 @@ describe('TabBar', () => {
     expect(router.currentRoute.value.name).toBe('courses')
   })
 
-  it('is fixed to the bottom, as high as the tab bar plus the home indicator', async () => {
+  it('is fixed to the bottom, flat, as high as the tab bar plus the home indicator', async () => {
     const { w } = await mountBar('/today')
 
-    expect(w.classes()).toEqual(expect.arrayContaining(['fixed', 'inset-x-0', 'bottom-0', 'backdrop-blur-xl', 'border-t']))
+    expect(w.classes()).toEqual(expect.arrayContaining(['fixed', 'inset-x-0', 'bottom-0', 'bg-surface', 'border-t', 'border-hairline']))
+    expect(w.classes().join(' ')).not.toMatch(/backdrop-blur|shadow/)
     expect(w.classes().join(' ')).toContain('env(safe-area-inset-bottom')
     expect(w.get('ul').classes()).toContain('h-[var(--app-tabbar-h)]')
   })
@@ -125,7 +132,7 @@ describe('TabBar', () => {
     setLocale('uz')
     const { w } = await mountBar('/today')
 
-    expect(w.findAll('a').map((a) => a.text())).toEqual(['Asosiy', 'Kurslar', 'Reyting', 'Profil'])
+    expect(w.findAll('a').map((a) => a.text())).toEqual(['Bugun', 'Kurs', 'Liga', 'Profil'])
   })
 
   it('highlights nothing on a route without a tab', async () => {

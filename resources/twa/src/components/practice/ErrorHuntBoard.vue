@@ -119,11 +119,12 @@ const tokens = computed((): ShownToken[] =>
 )
 
 const TOKEN_CLASSES: Record<TokenLook, string> = {
+  // The frames of `.option` (style.css): an inset line, so that the 1.5 px frame of a state does not move the word.
   idle: 'bg-surface shadow-[inset_0_0_0_1px_var(--app-hairline)]',
-  selected: 'bg-accent-soft text-accent-ink shadow-[inset_0_0_0_2px_var(--app-accent)]',
-  found: 'bg-success-soft text-success-ink shadow-[inset_0_0_0_2px_var(--app-success)]',
-  yours: 'bg-danger-soft text-danger-ink shadow-[inset_0_0_0_2px_var(--app-danger)]',
-  error: 'bg-warning-soft text-warning-ink shadow-[inset_0_0_0_2px_var(--app-warning)]',
+  selected: 'bg-accent-soft text-accent-ink shadow-[inset_0_0_0_1.5px_var(--app-primary)]',
+  found: 'bg-success-soft text-success-ink shadow-[inset_0_0_0_1.5px_var(--app-success)]',
+  yours: 'bg-danger-soft text-danger-ink shadow-[inset_0_0_0_1.5px_var(--app-danger)]',
+  error: 'bg-warning-soft text-warning-ink shadow-[inset_0_0_0_1.5px_var(--app-warning)]',
 }
 
 /** The words a screen reader says besides the colour and the symbol. */
@@ -179,9 +180,9 @@ function skip(): void {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="error-hunt-board" :data-mode="mode" :data-step="step">
-    <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-4 [@media(max-height:560px)]:gap-3 [@media(max-height:560px)]:pt-2">
-      <article class="card flex flex-col gap-3 px-4 py-5 [@media(max-height:560px)]:py-3">
-        <p class="text-center text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="error-hunt-instruction">
+    <div class="flex flex-1 flex-col gap-4 px-5 pt-4 pb-4 [@media(max-height:560px)]:gap-3 [@media(max-height:560px)]:pt-2">
+      <article class="flex flex-col gap-3 px-1 py-5 [@media(max-height:560px)]:py-3">
+        <p class="text-center text-[13px] leading-[18px] text-muted" data-testid="error-hunt-instruction">
           {{ step === 'locate' ? t('practice.error_hunt.instruction_locate') : t('practice.error_hunt.instruction_fix') }}
         </p>
 
@@ -191,7 +192,7 @@ function skip(): void {
             <button
               v-if="step === 'locate'"
               type="button"
-              class="relative inline-flex min-h-11 max-w-full min-w-11 items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-[17px] leading-[22px] font-medium [overflow-wrap:anywhere] transition-colors duration-150 active:scale-[0.97]"
+              class="relative inline-flex min-h-11 max-w-full min-w-11 items-center justify-center gap-1 rounded-control px-3 py-1.5 text-[17px] leading-[22px] [overflow-wrap:anywhere] transition-colors duration-150 active:scale-[0.97]"
               :class="[TOKEN_CLASSES[token.look], { 'opacity-60': !canPick && token.look === 'idle' }]"
               :aria-pressed="token.look === 'selected' ? 'true' : 'false'"
               :disabled="!canPick"
@@ -203,7 +204,7 @@ function skip(): void {
               <!-- The symbol of the selection stands over the corner, out of the flow: selecting a word changes no width. -->
               <span
                 v-show="token.look === 'selected'"
-                class="pointer-events-none absolute -top-1 -right-1 flex size-[18px] items-center justify-center rounded-full bg-accent text-tg-button-text"
+                class="pointer-events-none absolute -top-1 -right-1 flex size-[18px] items-center justify-center rounded-full bg-primary text-on-primary"
                 aria-hidden="true"
                 data-testid="token-mark"
               >
@@ -212,7 +213,7 @@ function skip(): void {
             </button>
             <span
               v-else
-              class="inline-flex min-h-11 max-w-full min-w-11 items-center justify-center gap-1 rounded-xl px-3 py-1.5 text-[17px] leading-[22px] font-medium [overflow-wrap:anywhere]"
+              class="inline-flex min-h-11 max-w-full min-w-11 items-center justify-center gap-1 rounded-control px-3 py-1.5 text-[17px] leading-[22px] [overflow-wrap:anywhere]"
               :class="TOKEN_CLASSES[token.look]"
               :data-look="token.look"
               :data-testid="`token-${token.id}`"
@@ -272,9 +273,9 @@ function skip(): void {
       </div>
     </div>
 
-    <StickyActions>
+    <StickyActions surface>
       <div class="flex items-stretch gap-2">
-        <button type="button" class="btn btn-plain shrink-0" :disabled="!canSkip" data-testid="skip-btn" @click="skip">
+        <button type="button" class="btn btn-plain shrink-0 text-muted" :disabled="!canSkip" data-testid="skip-btn" @click="skip">
           {{ t('exercise.skip') }}
         </button>
         <button

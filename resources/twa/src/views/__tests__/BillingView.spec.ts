@@ -160,12 +160,11 @@ describe('BillingView', () => {
       expect(wrapper.get('[data-testid=plan-card]').text().match(/Bepul tarif/g)).toHaveLength(1)
     })
 
-    it('has a purple tile with the sparkles icon', async () => {
+    it('has no coloured tile (the redesign: plain rows and cards)', async () => {
       const { wrapper } = await render(me(), catalog())
 
-      const tile = wrapper.get('[data-testid=plan-card] .icon-tile')
-      expect(tile.classes()).toContain('tile-purple')
-      expect(tile.find('svg').exists()).toBe(true)
+      expect(wrapper.find('[data-testid=plan-card] .icon-tile').exists()).toBe(false)
+      expect(wrapper.get('[data-testid=eyebrow]').text()).toBe('LexiFlow Pro')
     })
 
     it('shows Pro with its end, the provider and the running auto-renewal with a cancel button only', async () => {
@@ -195,25 +194,25 @@ describe('BillingView', () => {
       const { wrapper } = await render(me(), catalog())
 
       expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Что даёт Pro')
-      expect(wrapper.findAll('[data-testid=benefit]').map((b) => b.text())).toEqual([
-        'Новые слова без дневного лимита',
-        'Написание слова и пропуски в примерах',
-        'До 20 своих колод по 2000 слов',
-        'Заморозки серии: пропуск дня не обрывает серию',
-        'Пробные тесты IELTS и SAT',
+      expect(wrapper.findAll('[data-testid=benefit-name]').map((b) => b.text())).toEqual([
+        'Новые слова',
+        'Упражнения',
+        'Свои колоды',
+        'Заморозка серии',
+        'Пробные тесты',
       ])
     })
 
     it('adds practice and battles without a daily limit, second, when the practice is available to the learner', async () => {
       const { wrapper } = await render(me({ practice: PRACTICE }), catalog())
 
-      expect(wrapper.findAll('[data-testid=benefit]').map((b) => b.text())).toEqual([
-        'Новые слова без дневного лимита',
-        'Практика и баттлы без дневного лимита',
-        'Написание слова и пропуски в примерах',
-        'До 20 своих колод по 2000 слов',
-        'Заморозки серии: пропуск дня не обрывает серию',
-        'Пробные тесты IELTS и SAT',
+      expect(wrapper.findAll('[data-testid=benefit-name]').map((b) => b.text())).toEqual([
+        'Новые слова',
+        'Практика и баттлы',
+        'Упражнения',
+        'Свои колоды',
+        'Заморозка серии',
+        'Пробные тесты',
       ])
     })
 
@@ -229,7 +228,7 @@ describe('BillingView', () => {
 
     it('says the practice alone for `solo` and nothing for `none`, as the server decides', async () => {
       const solo = await render(me({ practice: { ...PRACTICE, battle: false, pro_promise: 'solo' } }), catalog())
-      expect(solo.wrapper.findAll('[data-testid=benefit]').map((b) => b.text())).toContain('Практика без дневного лимита')
+      expect(solo.wrapper.findAll('[data-testid=benefit-name]').map((b) => b.text())).toContain('Практика')
       expect(solo.wrapper.text()).not.toContain('баттл')
 
       setActivePinia(createPinia())
@@ -249,7 +248,7 @@ describe('BillingView', () => {
       setLocale('uz')
       const { wrapper } = await render(me({ practice: PRACTICE }), catalog())
 
-      expect(wrapper.findAll('[data-testid=benefit]').map((b) => b.text())).toContain('Mustahkamlash mashqlari va bellashuvlar cheklovsiz')
+      expect(wrapper.findAll('[data-testid=benefit-name]').map((b) => b.text())).toContain('Mashqlar va bellashuvlar')
     })
 
     it('promises no statistics: there is no such feature', async () => {
@@ -276,6 +275,59 @@ describe('BillingView', () => {
       expect(wrapper.get('[data-testid=unavailable]').text()).toBe('Оплата скоро откроется.')
     })
 
+    it('lists the tariffs month → quarter → year with the price and the saving; a row opens the sheet on its period', async () => {
+      const { wrapper } = await render(me(), {
+        ...catalog(),
+        items: [
+          { plan: 'pro', tier: null, period: 'year', days: 365, prices: { XTR: 1300 }, list_prices: { XTR: 1300 }, saving_pct: 28 },
+          { plan: 'pro', tier: null, period: 'month', days: 30, prices: { XTR: 150 }, list_prices: { XTR: 150 }, saving_pct: 0 },
+          { plan: 'pro', tier: null, period: 'quarter', days: 90, prices: { XTR: 390 }, list_prices: { XTR: 390 }, saving_pct: 13 },
+        ],
+      })
+
+      const rows = wrapper.findAll('[data-testid^=tariff-]').filter((row) => row.attributes('data-testid') !== 'tariff-price')
+      expect(rows.map((row) => row.attributes('data-testid'))).toEqual(['tariff-month', 'tariff-quarter', 'tariff-year'])
+      expect(wrapper.get('[data-testid=tariff-quarter]').text()).toContain('3 месяца')
+      expect(wrapper.get('[data-testid=tariff-quarter]').text()).toContain('выгоднее на 13%')
+      expect(wrapper.get('[data-testid=tariff-quarter] [data-testid=tariff-price]').text()).toBe('390 Stars')
+
+      await wrapper.get('[data-testid=tariff-quarter]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-testid=period-quarter]').attributes('aria-checked')).toBe('true')
+    })
+
+    it('lists the quarter in sums when only Payme / Click sell, with the saving of the sums prices, and the sheet offers Payme / Click for it', async () => {
+      const { wrapper } = await render(me(), {
+        ...catalog(),
+        providers: ['payme', 'click'],
+        items: [
+          { plan: 'pro', tier: null, period: 'month', days: 30, prices: { UZS: 2_900_000 }, list_prices: { UZS: 2_900_000 }, saving_pct: 0 },
+          { plan: 'pro', tier: null, period: 'quarter', days: 90, prices: { UZS: 7_500_000 }, list_prices: { UZS: 7_500_000 }, saving_pct: 14 },
+          { plan: 'pro', tier: null, period: 'year', days: 365, prices: { UZS: 24_900_000 }, list_prices: { UZS: 24_900_000 }, saving_pct: 28 },
+        ],
+      })
+
+      expect(wrapper.get('[data-testid=tariff-quarter]').text()).toContain('выгоднее на 14%')
+      expect(wrapper.get('[data-testid=tariff-quarter] [data-testid=tariff-price]').text().replace(/[\s\u00a0\u202f]+/g, ' ')).toBe('75 000 сум')
+
+      await wrapper.get('[data-testid=tariff-quarter]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-testid=period-quarter]').attributes('aria-checked')).toBe('true')
+      expect(wrapper.get('[data-testid=pay-payme]').attributes('data-price')?.replace(/[\s\u00a0\u202f]+/g, ' ')).toBe('75 000 сум')
+      expect(wrapper.find('[data-testid=pay-click]').exists()).toBe(true)
+    })
+
+    it('shows the tariffs of an older server (no quarter, no saving field) and none while nothing can be bought', async () => {
+      const { wrapper } = await render(me(), catalog())
+      expect(wrapper.findAll('[data-testid=tariff-price]')).toHaveLength(1)
+
+      setActivePinia(createPinia())
+      const none = await render(me(), catalog(null, false))
+      expect(none.wrapper.find('[data-testid=tariffs]').exists()).toBe(false)
+    })
+
     it('opens the purchase paywall from the buy button', async () => {
       const { wrapper } = await render(me(), catalog())
 
@@ -283,7 +335,7 @@ describe('BillingView', () => {
       await flushPromises()
 
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(true)
-      expect(wrapper.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
+      expect(wrapper.get('[data-testid=paywall-title]').text()).toBe('Учитесь без ограничений')
 
       await wrapper.get('[data-testid=paywall-close]').trigger('click')
       expect(wrapper.find('[data-testid=paywall]').exists()).toBe(false)
@@ -595,8 +647,8 @@ describe('BillingView', () => {
       expect(chip.classes()).toEqual(expect.arrayContaining(['chip', 'chip-warning']))
       expect(wrapper.get('[data-testid=offer-text]').text()).toMatch(/^Скидка 30% на первый платёж — до 2 ноября 2026 г\.$/)
       expect(wrapper.get('[data-testid=offer-price-telegram_stars]').text()).toContain('Telegram Stars')
-      expect(wrapper.get('[data-testid=offer-price-telegram_stars]').text()).toContain('105 ⭐')
-      expect(wrapper.get('[data-testid=offer-price-telegram_stars] s').text()).toBe('150 ⭐')
+      expect(wrapper.get('[data-testid=offer-price-telegram_stars]').text()).toContain('105 Stars')
+      expect(wrapper.get('[data-testid=offer-price-telegram_stars] s').text()).toBe('150 Stars')
       expect(wrapper.get('[data-testid=offer-price-payme] s').text()).toContain('29')
       expect(wrapper.get('[data-testid=offer-price-payme] strong').text()).toContain('20')
     })

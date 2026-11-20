@@ -188,7 +188,7 @@ describe('TodayView', () => {
   })
 
   describe('header', () => {
-    it('greets the learner by name with the date under it', async () => {
+    it('greets the learner by name with the date and the course over it', async () => {
       vi.useFakeTimers({ toFake: ['Date'] })
       vi.setSystemTime(new Date('2026-10-28T07:00:00Z')) // noon in Tashkent, the zone of the fixture
       state.learner = { first_name: ' Асадбек ' }
@@ -196,20 +196,31 @@ describe('TodayView', () => {
       const w = await render()
 
       expect(w.get('h1').text()).toBe('Привет, Асадбек!')
-      expect(w.get('header p').text()).toBe('среда, 28 октября')
+      expect(w.get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября · English A1')
+      // the line is over the greeting (mock-up Main), not under it
+      expect(w.find('header [data-testid=subtitle]').exists()).toBe(false)
     })
 
-    describe('the date under the greeting', () => {
+    it('has only the date over the greeting without a course', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-10-28T07:00:00Z'))
+
+      const w = await render(today({ active_course: null, due_count: 3 }))
+
+      expect(w.get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября')
+    })
+
+    describe('the date over the greeting', () => {
       it('is the date in the time zone of the learner that /today names: the day of the goal below is counted there', async () => {
         vi.useFakeTimers({ toFake: ['Date'] })
         // 01:30 on the 29th in Tashkent, 09:30 on the 28th in Pago Pago: whatever the device zone is, one of them differs from it.
         vi.setSystemTime(new Date('2026-10-28T20:30:00Z'))
 
         const tashkent = await render(today({ timezone: 'Asia/Tashkent' }))
-        expect(tashkent.get('header p').text()).toBe('четверг, 29 октября')
+        expect(tashkent.get('[data-testid=eyebrow]').text()).toBe('Четверг, 29 октября · English A1')
 
         const samoa = await render(today({ timezone: 'Pacific/Pago_Pago' }))
-        expect(samoa.get('header p').text()).toBe('среда, 28 октября')
+        expect(samoa.get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября · English A1')
       })
 
       it('is already the next day for a learner in Tashkent at 20:30 UTC, while a device in UTC is still on the 28th', async () => {
@@ -222,7 +233,7 @@ describe('TodayView', () => {
 
           const w = await render(today({ timezone: 'Asia/Tashkent' }))
 
-          expect(w.get('header p').text()).toBe('четверг, 29 октября')
+          expect(w.get('[data-testid=eyebrow]').text()).toBe('Четверг, 29 октября · English A1')
         } finally {
           if (deviceZone === undefined) delete process.env.TZ
           else process.env.TZ = deviceZone
@@ -233,8 +244,8 @@ describe('TodayView', () => {
         vi.useFakeTimers({ toFake: ['Date'] })
         vi.setSystemTime(new Date(2026, 9, 28, 12, 0, 0))
 
-        expect((await render(today({ timezone: 'Mars/Olympus' }))).get('header p').text()).toBe('среда, 28 октября')
-        expect((await render(today({ timezone: undefined as unknown as string }))).get('header p').text()).toBe('среда, 28 октября')
+        expect((await render(today({ timezone: 'Mars/Olympus' }))).get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября · English A1')
+        expect((await render(today({ timezone: undefined as unknown as string }))).get('[data-testid=eyebrow]').text()).toBe('Среда, 28 октября · English A1')
       })
     })
 
@@ -272,18 +283,28 @@ describe('TodayView', () => {
   })
 
   describe('session card', () => {
-    it('shows the goal as a ring with done / target and what is left', async () => {
+    it('shows the goal as a big number, "of N words · M left" and a thin line (mock-up Main), not a ring', async () => {
       const w = await render()
 
       expect(w.find('[data-testid=goal-card]').exists()).toBe(true)
-      expect(text(w, 'goal-text')).toBe('8 из 20 слов')
-      expect(text(w, 'goal-left')).toBe('Осталось 12 слов')
+      expect(w.find('[data-testid=goal-ring]').exists()).toBe(false)
       expect(text(w, 'goal-done')).toBe('8')
-      // 8/20 of the circumference is drawn: the dash offset is 60% of it.
-      const arc = w.get('[data-testid=goal-ring-arc]')
-      const circumference = Number(arc.attributes('stroke-dasharray'))
-      expect(Number(arc.attributes('stroke-dashoffset'))).toBeCloseTo(circumference * 0.6, 3)
+      expect(w.get('[data-testid=goal-done]').classes()).toContain('font-mono')
+      expect(text(w, 'goal-text')).toBe('из 20 слов')
+      expect(text(w, 'goal-left')).toBe('осталось 12')
+      // 8/20 of the line is drawn, and it is named for assistive tech.
+      const line = w.get('[data-testid=goal-line]')
+      expect(line.attributes('role')).toBe('progressbar')
+      expect(line.attributes('aria-valuenow')).toBe('40')
+      expect(line.attributes('aria-label')).toBe('8 из 20 слов')
+      expect(line.get('.progress-fill').attributes('style')).toContain('width: 40%')
       expect(w.find('[data-testid=goal-met]').exists()).toBe(false)
+    })
+
+    it('says "of N words" in the right Russian form', async () => {
+      expect(text(await render(today({ goal: { target: 1, done: 0, met: false } })), 'goal-text')).toBe('из 1 слова')
+      expect(text(await render(today({ goal: { target: 21, done: 0, met: false } })), 'goal-text')).toBe('из 21 слова')
+      expect(text(await render(today({ goal: { target: 10, done: 0, met: false } })), 'goal-text')).toBe('из 10 слов')
     })
 
     it('says the unit of the goal under the ring ("words" - the same as the ring counts) and leads to the settings', async () => {
@@ -298,14 +319,15 @@ describe('TodayView', () => {
       expect(text(await render(), 'goal-setting')).toBe("Maqsad: kuniga 20 ta so'z")
     })
 
-    it('shows a met goal with a full ring even past the target', async () => {
+    it('shows a met goal with a full green line even past the target', async () => {
       const w = await render(today({ goal: { target: 20, done: 25, met: true } }))
 
       expect(text(w, 'goal-met')).toBe('Цель выполнена')
       expect(w.get('[data-testid=goal-met]').classes()).toContain('text-success-ink')
       expect(w.find('[data-testid=goal-left]').exists()).toBe(false)
-      expect(Number(w.get('[data-testid=goal-ring-arc]').attributes('stroke-dashoffset'))).toBeCloseTo(0, 3)
-      expect(w.get('[data-testid=goal-ring]').attributes('data-met')).toBe('true')
+      const line = w.get('[data-testid=goal-line]')
+      expect(line.attributes('aria-valuenow')).toBe('100')
+      expect(line.get('.progress-fill').classes()).toContain('progress-success')
     })
 
     describe('the "Word games" card (docs/16 §11.1)', () => {
@@ -318,7 +340,11 @@ describe('TodayView', () => {
 
         const card = w.get('[data-testid=games-card]')
         expect(card.text()).toContain('Игры со словами')
-        expect(w.get('[data-testid=games-modes]').findAll('.icon-tile')).toHaveLength(3)
+        // the modes by their names (no coloured tiles): three of them
+        expect(text(w, 'games-modes').split(' · ')).toHaveLength(3)
+        expect(w.find('[data-testid=games-card] .icon-tile').exists()).toBe(false)
+        // a row of the list "For today", the whole row is the button
+        expect(w.find('[data-testid=today-list] [data-testid=games-card]').exists()).toBe(true)
         expect(w.get('[data-testid=games-play-btn]').text()).toBe('Играть')
         // under the session card, not above it
         const order = w.html().indexOf('data-testid="review-card"') < w.html().indexOf('data-testid="games-card"')
@@ -485,7 +511,8 @@ describe('TodayView', () => {
       const button = w.get('[data-testid=review-btn]')
       expect(button.text()).toBe('Начать занятие')
       expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-primary', 'btn-lg', 'btn-block']))
-      expect(button.get('path').attributes('d')).toBe(ICONS.play.solid[0]?.d)
+      // the mock-up has no icon in the button
+      expect(button.find('svg').exists()).toBe(false)
       expect(text(w, 'session-hint')).toBe('Короткий раунд на несколько минут: повторение и новые слова из вашего курса')
       expect(w.findAll('.btn-primary')).toHaveLength(1)
       expect(w.find('[data-testid=review-card]').exists()).toBe(true)
@@ -671,60 +698,65 @@ describe('TodayView', () => {
   })
 
   describe('streak', () => {
-    it('shows the streak, the warning when it is at risk and the record', async () => {
+    it('shows the streak in the goal card, the warning when it is at risk and the record in the streak card', async () => {
       const w = await render()
 
-      expect(text(w, 'streak-current')).toBe('5 дней подряд')
+      expect(text(w, 'streak-current')).toBe('серия 5 дней')
+      expect(w.find('[data-testid=goal-card] [data-testid=streak-current]').exists()).toBe(true)
       expect(text(w, 'streak-at-risk')).toBe('Выполните цель до полуночи, чтобы не потерять серию')
       expect(w.get('[data-testid=streak-at-risk]').classes()).toContain('text-warning-ink')
-      expect(text(w, 'streak-best')).toBe('Рекорд: 12')
-      expect(w.get('[data-testid=streak-card] .icon-tile').classes()).toContain('tile-orange')
+      expect(text(w, 'streak-best')).toBe('рекорд серии — 12 дней')
+      expect(w.get('[data-testid=streak-dot]').classes()).toContain('bg-warning')
+      expect(w.find('[data-testid=streak-card] .icon-tile').exists()).toBe(false)
     })
 
     it('counts days in the right Russian form', async () => {
       const streak = (current: number) => ({ current, best: current, met_today: true, at_risk: false, freezes: 0, frozen_yesterday: false })
 
-      expect(text(await render(today({ streak: streak(1) })), 'streak-current')).toBe('1 день подряд')
-      expect(text(await render(today({ streak: streak(3) })), 'streak-current')).toBe('3 дня подряд')
-      expect(text(await render(today({ streak: streak(21) })), 'streak-current')).toBe('21 день подряд')
+      expect(text(await render(today({ streak: streak(1) })), 'streak-current')).toBe('серия 1 день')
+      expect(text(await render(today({ streak: streak(3) })), 'streak-current')).toBe('серия 3 дня')
+      expect(text(await render(today({ streak: streak(21) })), 'streak-current')).toBe('серия 21 день')
+      const record = (best: number) => today({ streak: { current: 0, best, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } })
+      expect(text(await render(record(1)), 'streak-best')).toBe('рекорд серии — 1 день')
+      expect(text(await render(record(3)), 'streak-best')).toBe('рекорд серии — 3 дня')
     })
 
-    it('shows a safe streak after the goal, and an invitation when there is none, on a grey tile', async () => {
+    it('shows a safe streak after the goal, and an invitation when there is none, with a quiet dot', async () => {
       const safe = await render(today({ streak: { current: 6, best: 6, met_today: true, at_risk: false, freezes: 0, frozen_yesterday: false } }))
       expect(text(safe, 'streak-safe')).toBe('На сегодня серия продлена')
       expect(safe.find('[data-testid=streak-at-risk]').exists()).toBe(false)
       expect(safe.find('[data-testid=streak-best]').exists()).toBe(false)
-      expect(safe.get('[data-testid=streak-card] .icon-tile').classes()).toContain('tile-orange')
+      expect(safe.get('[data-testid=streak-dot]').classes()).toContain('bg-accent')
 
       const none = await render(today({ streak: { current: 0, best: 3, met_today: false, at_risk: false, freezes: 0, frozen_yesterday: false } }))
-      expect(text(none, 'streak-current')).toBe('Серия')
+      // no "series 0 days" in the goal card
+      expect(none.find('[data-testid=streak-current]').exists()).toBe(false)
       expect(text(none, 'streak-none')).toBe('Выполните цель дня, чтобы начать серию')
       expect(none.find('[data-testid=streak-at-risk]').exists()).toBe(false)
-      expect(none.get('[data-testid=streak-card] .icon-tile').classes()).toContain('tile-gray')
-      expect(none.get('[data-testid=streak-card] .icon-tile').classes()).not.toContain('tile-orange')
-      expect(text(none, 'streak-best')).toBe('Рекорд: 3')
+      expect(none.get('[data-testid=streak-dot]').classes()).toContain('bg-track')
+      expect(text(none, 'streak-best')).toBe('рекорд серии — 3 дня')
     })
 
     it('shows a Pro learner the streak freezes in stock and that yesterday was frozen', async () => {
       const two = await render(today({ entitlement: PRO, streak: { current: 5, best: 12, met_today: false, at_risk: true, freezes: 2, frozen_yesterday: false } }))
-      expect(text(two, 'streak-freezes')).toBe('❄️ 2 заморозки')
+      expect(text(two, 'streak-freezes')).toBe('2 заморозки')
       expect(two.find('[data-testid=streak-frozen]').exists()).toBe(false)
       expect(two.find('[data-testid=streak-freeze-teaser]').exists()).toBe(false)
 
       const frozen = await render(today({ entitlement: PRO, streak: { current: 5, best: 12, met_today: false, at_risk: true, freezes: 1, frozen_yesterday: true } }))
-      expect(text(frozen, 'streak-freezes')).toBe('❄️ 1 заморозка')
+      expect(text(frozen, 'streak-freezes')).toBe('1 заморозка')
       expect(text(frozen, 'streak-frozen')).toBe('Вчерашний день заморожен — серия сохранена')
       expect(text(frozen, 'streak-at-risk')).toBe('Выполните цель до полуночи, чтобы не потерять серию')
 
       const none = await render(today({ entitlement: PRO, streak: { current: 5, best: 12, met_today: true, at_risk: false, freezes: 0, frozen_yesterday: false } }))
-      expect(text(none, 'streak-freezes')).toBe('❄️ Заморозок нет — новая в понедельник')
+      expect(text(none, 'streak-freezes')).toBe('Заморозок нет — новая в понедельник')
     })
 
     it('offers a Free learner the streak-freeze teaser that opens the paywall with its own lead', async () => {
       const w = await render()
       expect(w.find('[data-testid=streak-freezes]').exists()).toBe(false)
       const teaser = w.get('[data-testid=streak-freeze-teaser]')
-      expect(teaser.text()).toBe('❄️ Заморозки серии — в Pro')
+      expect(teaser.text()).toBe('Заморозки серии — в Pro')
       expect(teaser.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain', 'btn-sm']))
 
       await teaser.trigger('click')
@@ -1032,7 +1064,7 @@ describe('TodayView', () => {
       expect(alert.classes()).toContain('text-danger-ink')
       expect(alert.find('svg').exists()).toBe(true)
       expect(w.find('[data-testid=error]').exists()).toBe(false)
-      expect(w.get('[data-testid=goal-text]').text()).toBe('8 из 20 слов')
+      expect(w.get('[data-testid=goal-text]').text()).toBe('из 20 слов')
     })
   })
 
@@ -1085,7 +1117,7 @@ describe('TodayView', () => {
       expect(w.router.currentRoute.value.name).toBe('today')
       expect(w.router.currentRoute.value.query.from).toBeUndefined()
       expect(text(w, 'open-error')).toBe('Слишком много запросов. Подождите немного и повторите.')
-      expect(text(w, 'goal-text')).toBe('8 из 20 слов')
+      expect(text(w, 'goal-text')).toBe('из 20 слов')
     })
 
     it('does not open anything when the Today data failed to load, nor for other sources', async () => {
@@ -1098,6 +1130,59 @@ describe('TodayView', () => {
       expect(api.training.open).not.toHaveBeenCalled()
       expect(other.router.currentRoute.value.name).toBe('today')
       expect(other.router.currentRoute.value.query.from).toBe('today')
+    })
+  })
+
+  describe('the list "For today" (mock-up Main)', () => {
+    const everything = () => today({
+      ...practiceBlock(),
+      hard_round: { available: true, reason: null, words: 10, open_session_id: null, resets_at: null },
+      game: {
+        available: true,
+        daily_available: true,
+        active_run: null,
+        class_caravan: { id: 5, stars_total: 12, target_stars: 40, ends_at: '2026-10-30T13:00:00+00:00' } as never,
+      },
+    })
+
+    it('has no card when nothing else waits today', async () => {
+      const w = await render()
+
+      expect(w.find('[data-testid=today-list]').exists()).toBe(false)
+    })
+
+    it('puts the assignments first, then the hard words, the caravans and the games, as rows with a status dot, under the goal and over the streak', async () => {
+      vi.mocked(api.assignments.list).mockResolvedValue({ assignments: [assignment()] })
+      const w = await render(everything())
+
+      const list = w.get('[data-testid=today-list]')
+      expect(list.classes()).toContain('list')
+      expect(list.get('h2').text()).toBe('На сегодня')
+      const html = w.html()
+      const at = (id: string): number => html.indexOf(`data-testid="${id}"`)
+      const order = ['review-card', 'today-list', 'assignments-card', 'hard-round-card', 'class-caravan-card', 'game-entry', 'games-card', 'streak-card']
+      for (const id of order) expect(at(id), id).toBeGreaterThan(-1)
+      expect(order.map(at)).toEqual([...order.map(at)].sort((x, y) => x - y))
+      // every row has its dot, and no coloured tile is left on Home
+      for (const id of ['assignments-card', 'hard-round-card', 'class-caravan-card', 'game-entry', 'games-card']) {
+        expect(w.find(`[data-testid=${id}] span.rounded-full[aria-hidden=true]`).exists(), id).toBe(true)
+      }
+      expect(w.find('.icon-tile').exists()).toBe(false)
+      expect(w.findAll('.btn-primary')).toHaveLength(1)
+    })
+
+    it('makes the whole row of the hard words a 44 px button, disabled while a session is being opened', async () => {
+      let release: (v: never) => void = () => {}
+      vi.mocked(api.training.open).mockReturnValue(new Promise((resolve) => { release = resolve }))
+      const w = await render(everything())
+
+      const row = w.get('[data-testid=hard-round-card] button')
+      expect(row.classes()).toContain('min-h-11')
+      expect(row.text()).toContain('Раунд трудных слов')
+      await row.trigger('click')
+      expect(w.get('[data-testid=hard-round-card] button').attributes('disabled')).toBeDefined()
+      release(null as never)
+      await flushPromises()
     })
   })
 
@@ -1118,7 +1203,9 @@ describe('TodayView', () => {
 
       expect(w.findAll('[data-testid=assignment]')).toHaveLength(2)
       expect(w.findAll('[data-testid=assignment-title]')[0]?.text()).toBe('Food')
-      expect(w.findAll('[data-testid=assignment-progress]')[0]?.text()).toBe('40%')
+      expect(w.findAll('[data-testid=assignment-progress]')[0]?.text()).toBe('выполнено 40%')
+      // rows of the list "For today", the first thing in it
+      expect(w.find('[data-testid=today-list] [data-testid=assignments-card]').exists()).toBe(true)
       expect(w.findAll('[data-testid=assignment-done]')[0]?.text()).toBe('Выполнено с опозданием')
       // A completed assignment has no button.
       expect(w.findAll('[data-testid=assignment-btn]')).toHaveLength(1)
@@ -1136,7 +1223,7 @@ describe('TodayView', () => {
       const w = await render()
 
       expect(text(w, 'assignment-due')).toContain('Срок прошёл')
-      expect(w.get('[data-testid=assignment-due]').classes()).toContain('chip-danger')
+      expect(w.get('[data-testid=assignment-due]').classes()).toContain('text-danger-ink')
     })
 
     it('keeps Today working when the assignments cannot be loaded', async () => {
@@ -1145,7 +1232,7 @@ describe('TodayView', () => {
       const w = await render()
 
       expect(w.find('[data-testid=assignments-card]').exists()).toBe(false)
-      expect(text(w, 'goal-text')).toBe('8 из 20 слов')
+      expect(text(w, 'goal-text')).toBe('из 20 слов')
     })
 
     it('does not wait for slow assignments to show Today', async () => {
@@ -1153,7 +1240,7 @@ describe('TodayView', () => {
 
       const w = await render()
 
-      expect(text(w, 'goal-text')).toBe('8 из 20 слов')
+      expect(text(w, 'goal-text')).toBe('из 20 слов')
       expect(w.find('[data-testid=assignments-card]').exists()).toBe(false)
     })
 
@@ -1432,7 +1519,8 @@ describe('TodayView', () => {
       })
       const w = await render()
 
-      expect(w.get('[data-testid=course-card] .section-label').text()).toBe('Мой курс')
+      expect(w.get('[data-testid=course-card] h2').text()).toBe('Мой курс')
+      expect(w.get('[data-testid=course-card]').classes()).toContain('card')
       expect(text(w, 'course-title')).toBe('English A1')
       expect(text(w, 'course-progress')).toBe('Изучено 120 из 900')
       const bar = w.get('[data-testid=course-card] [role=progressbar]')
@@ -1574,8 +1662,8 @@ describe('TodayView', () => {
       expect(row.text()).toContain('Лига · Серебро')
       expect(row.text()).toContain('3-е место из 28 · 41 очко')
       expect(row.attributes('href')).toBe('/league')
-      expect(row.get('.icon-tile').classes()).toContain('tile-yellow')
-      expect(row.get('.icon-tile path').attributes('d')).toBe(ICONS.trophy.outline[0]?.d)
+      // a quiet row like the rest of Home: no coloured tile
+      expect(row.find('.icon-tile').exists()).toBe(false)
     })
 
     it('falls back to the lowest tier for a tier this app does not know', async () => {
@@ -1626,7 +1714,7 @@ describe('TodayView', () => {
       await w.get('[data-testid=retry-btn]').trigger('click')
       await flushPromises()
       expect(w.find('[data-testid=error]').exists()).toBe(false)
-      expect(w.get('[data-testid=goal-text]').text()).toBe('8 из 20 слов')
+      expect(w.get('[data-testid=goal-text]').text()).toBe('из 20 слов')
     })
 
     it('explains a failed authentication without calling the API', async () => {
@@ -1649,12 +1737,13 @@ describe('TodayView', () => {
     const w = await render(today({ new_words_remaining: 12, league: { tier: 1, tier_key: 'silver', rank: 4, points: 312, members_count: 30 } }))
 
     expect(w.get('h1').text()).toBe('Salom, Asadbek!')
-    expect(w.get('header p').text()).toBe('chorshanba, 28-oktabr')
-    expect(text(w, 'goal-text')).toBe("20 ta so'zdan 8 tasi")
+    expect(w.get('[data-testid=eyebrow]').text()).toBe('Chorshanba, 28-oktabr · English A1')
+    expect(text(w, 'goal-text')).toBe("20 ta so'zdan")
     expect(text(w, 'review-btn')).toBe("Mashg'ulotni boshlash")
     expect(text(w, 'session-hint')).toBe("Bir necha daqiqalik qisqa raund: takrorlash va kursingizdagi yangi so'zlar")
     expect(text(w, 'streak-current')).toBe('5 kun ketma-ket')
-    expect(text(w, 'streak-best')).toBe('Rekord: 12')
+    expect(text(w, 'goal-left')).toBe('12 ta qoldi')
+    expect(text(w, 'streak-best')).toBe('rekord — 12 kun')
     expect(text(w, 'due-count')).toBe("Takrorlash uchun 23 ta so'z")
     expect(text(w, 'new-remaining')).toBe("Bugun yana 12 ta yangi so'z o'rganishingiz mumkin")
     expect(w.get('[data-testid=assignment]').text()).toContain('2-modul, 4-dars')

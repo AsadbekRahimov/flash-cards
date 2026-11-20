@@ -72,12 +72,17 @@ return [
     'prices' => [
         'pro' => [
             'month' => ['XTR' => (int) env('BILLING_PRICE_PRO_MONTH_XTR', 150), 'UZS' => (int) env('BILLING_PRICE_PRO_MONTH_UZS', 2_900_000)],
+            // 3 months (owner's decisions of 20.11.2026): in Stars (a one-off invoice) and in sums (Payme / Click); 75 000 sums ≈ −14 % vs 3 months.
+            'quarter' => ['XTR' => (int) env('BILLING_PRICE_PRO_QUARTER_XTR', 390), 'UZS' => (int) env('BILLING_PRICE_PRO_QUARTER_UZS', 7_500_000)],
             'year' => ['XTR' => (int) env('BILLING_PRICE_PRO_YEAR_XTR', 1_300), 'UZS' => (int) env('BILLING_PRICE_PRO_YEAR_UZS', 24_900_000)],
         ],
     ],
 
-    /** Billing periods in days (`payment_orders.period`). */
-    'periods' => ['month' => 30, 'year' => 365],
+    /** Billing periods in days (`payment_orders.period`), in the order the catalog lists them (BillingPeriods). */
+    'periods' => ['month' => 30, 'quarter' => 90, 'year' => 365],
+
+    /** The periods organizations may buy (a subset of `periods`): the quarter is for learners only. */
+    'org_periods' => ['month', 'year'],
 
     /**
      * Organization tiers (docs/13 §0, §6, "Реализация 2B.9"): `subscriptions.plan` stays `pro` (what the

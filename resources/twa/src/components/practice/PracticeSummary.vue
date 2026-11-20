@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed } from 'vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ListGroup from '@/components/ui/ListGroup.vue'
 import type { IconName } from '@/components/ui/icons'
-import { prefersReducedMotion } from '@/composables/motion'
 import { formatDuration } from '@/composables/practiceLabels'
 import { playSound } from '@/composables/useFeedbackSound'
 import { useI18n } from '@/i18n'
@@ -13,16 +12,16 @@ import type { PracticeFinishReason, PracticeMistake, PracticeMode, PracticeSumma
 /**
  * The summary of a finished solo session (docs/16 §6.4, §11.2): the numbers, the list of mistakes and what to do next.
  *
- * - Three tiles: done (rounds for pairs) / right from the first try / hints (wrong matches for pairs). A line below
- *   them adds the typos and the time.
+ * - One card of three numbers (docs/design Finish, in `font-mono`): done (rounds for pairs) / right from the first try / hints
+ *   (wrong matches for pairs). A line below it adds the typos and the time.
  * - The mistakes, one row each: what it was, what the learner wrote (struck through) and the kind of the mistake as a
- *   chip with a symbol; no mistakes — a word of praise.
+ *   chip with a symbol; no mistakes — a quiet line that says so.
  * - At the bottom: "Repeat mistakes" (the one primary button) when the server says they can be repeated, otherwise
- *   "Again"; "To the course"; "Close". Events: `retry`, `again`, `course`, `close`.
+ *   "Again"; "To the course" and "Close" as text buttons. Events: `retry`, `again`, `course`, `close`.
  *
- * A timed game (`pairs_timed`, the summary has `score`) has its own face: "Score: N", "New record!" (confetti and the sound of a done lesson,
- * the confetti not with reduced motion) or "Record: M", the time and the wrong matches under it; the buttons are "Again" and "To the games"
- * (`hub`); no mistakes, no "Repeat mistakes".
+ * A timed game (`pairs_timed`, the summary has `score`) has its own face: "Score: N", "New record!" or "Record: M", the time and the
+ * wrong matches under it, and the sound of a done lesson; the buttons are "Again" and "To the games" (`hub`); no mistakes, no "Repeat
+ * mistakes". No celebration on either face (redesign 2026-11): no big icon, no confetti - the words and the numbers say it.
  *
  * `retryUnavailable` hides the retry after the server has refused it once. `busy`: a new session is being opened.
  */
@@ -54,27 +53,21 @@ const timedFacts = computed((): string =>
   [t('practice.summary.duration', { time: formatDuration(props.summary.duration_ms) }), `${t('practice.summary.stat.mismatches')}: ${props.summary.mismatches ?? 0}`].join(' · '),
 )
 
-/** Confetti for a new record: the same burst as the one of a finished lesson (style.css), fixed so that it is the same every time. */
-const CONFETTI_PIECES = 20
-const CONFETTI_MS = 1500
-const confetti = ref(record.value && !prefersReducedMotion())
-const confettiPieces = Array.from({ length: CONFETTI_PIECES }, (_, i) => {
-  const angle = (i / CONFETTI_PIECES) * Math.PI * 2
-  const reach = 90 + ((i * 37) % 90)
-  return {
-    color: i % 4,
-    style: {
-      '--dx': `${Math.round(Math.cos(angle) * reach)}px`,
-      '--dy': `${Math.round(Math.sin(angle) * reach * 0.6 + 140 + ((i * 53) % 120))}px`,
-      '--rot': `${180 + ((i * 71) % 360)}deg`,
-      '--delay': `${(i % 5) * 40}ms`,
-    },
-  }
-})
-const confettiTimer: ReturnType<typeof setTimeout> | null = confetti.value ? setTimeout(() => (confetti.value = false), CONFETTI_MS) : null
-onBeforeUnmount(() => {
-  if (confettiTimer !== null) clearTimeout(confettiTimer)
-})
+/**
+ * A sentence with its number in `font-mono` (docs/14 §4.5: numbers are mono, the words around them are not): the localized text cut
+ * around the first place the number is written. A text without it (a translation that spells it differently) is one plain part.
+ */
+function withNumber(text: string, value: number | string): { before: string; number: string; after: string } {
+  const number = String(value)
+  const at = text.indexOf(number)
+  return at < 0 ? { before: text, number: '', after: '' } : { before: text.slice(0, at), number, after: text.slice(at + number.length) }
+}
+
+const scoreLine = computed(() => withNumber(t('practice.timed.summary_score', { score: props.summary.score ?? 0 }), props.summary.score ?? 0))
+const bestLine = computed(() =>
+  props.summary.best_score == null ? null : withNumber(t('practice.timed.summary_best', { score: props.summary.best_score }), props.summary.best_score),
+)
+
 if (timed.value) playSound('done')
 
 interface Chip {
@@ -97,70 +90,64 @@ function chipOf(mistake: PracticeMistake): Chip {
 
 <template>
   <div v-if="timed" class="flex flex-1 flex-col" data-testid="practice-summary" data-variant="timed">
-    <div v-if="confetti" class="confetti" aria-hidden="true" data-testid="confetti">
-      <span v-for="(piece, i) in confettiPieces" :key="i" class="confetti-piece" :class="`confetti-${piece.color}`" :style="piece.style" />
-    </div>
-    <div class="flex flex-1 flex-col justify-center gap-4 px-4 pt-4 pb-6">
-      <header class="text-center">
-        <span class="mx-auto flex size-20 items-center justify-center rounded-full bg-success-soft text-success" data-testid="summary-icon">
-          <AppIcon :name="record ? 'trophy' : 'bolt'" solid :size="48" />
-        </span>
-        <h1 class="mt-4 text-[34px] leading-[40px] font-bold tracking-tight tabular-nums" data-testid="timed-summary-score">
-          {{ t('practice.timed.summary_score', { score: summary.score ?? 0 }) }}
-        </h1>
-        <p v-if="record" class="mt-2 text-[20px] leading-6 font-semibold text-success-ink" data-testid="timed-new-record">{{ t('practice.timed.summary_new_record') }}</p>
-        <p v-else-if="summary.best_score != null" class="mt-2 text-[17px] leading-[22px] font-medium text-tg-subtitle" data-testid="timed-best">
-          {{ t('practice.timed.summary_best', { score: summary.best_score }) }}
-        </p>
-        <p class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="summary-reason">
-          {{ summary.finish_reason === 'completed' ? t('practice.timed.summary_completed') : t(reasonKey(summary.finish_reason)) }}
-        </p>
-      </header>
-      <p class="text-center text-[13px] leading-[18px] text-tg-hint" data-testid="summary-facts">{{ timedFacts }}</p>
+    <div class="flex flex-1 flex-col gap-2 px-5 pt-10 pb-6">
+      <p
+        class="text-[13px] leading-[18px]"
+        :class="summary.finish_reason === 'completed' ? 'text-success-ink' : 'text-muted'"
+        data-testid="summary-reason"
+      >
+        {{ summary.finish_reason === 'completed' ? t('practice.timed.summary_completed') : t(reasonKey(summary.finish_reason)) }}
+      </p>
+      <h1 class="text-[32px] leading-[38px] font-semibold tracking-[-0.4px]" data-testid="timed-summary-score">
+        {{ scoreLine.before }}<span class="font-mono font-medium">{{ scoreLine.number }}</span>{{ scoreLine.after }}
+      </h1>
+      <p v-if="record" class="text-[15px] leading-5 text-success-ink" data-testid="timed-new-record">{{ t('practice.timed.summary_new_record') }}</p>
+      <p v-else-if="bestLine" class="text-[15px] leading-5 text-muted" data-testid="timed-best">
+        {{ bestLine.before }}<span class="font-mono">{{ bestLine.number }}</span>{{ bestLine.after }}
+      </p>
+      <p class="text-[13px] leading-[18px] text-muted" data-testid="summary-facts">{{ timedFacts }}</p>
     </div>
 
     <StickyActions>
       <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="busy" data-testid="again-btn" @click="emit('again')">
         {{ t('practice.timed.again') }}
       </button>
-      <button type="button" class="btn btn-tinted btn-block" data-testid="hub-btn" @click="emit('hub')">
+      <button type="button" class="btn btn-plain btn-block" data-testid="hub-btn" @click="emit('hub')">
         {{ t('practice.timed.to_games') }}
       </button>
     </StickyActions>
   </div>
 
   <div v-else class="flex flex-1 flex-col" data-testid="practice-summary">
-    <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-6">
-      <header class="text-center">
-        <span class="mx-auto flex size-20 items-center justify-center rounded-full bg-success-soft text-success" data-testid="summary-icon">
-          <AppIcon name="check-circle" solid :size="48" />
-        </span>
-        <h1 class="mt-4 text-[28px] leading-[34px] font-bold tracking-tight">{{ t('practice.summary.title') }}</h1>
-        <p class="mt-1 text-[15px] leading-5 text-tg-subtitle" data-testid="summary-reason">{{ t(reasonKey(summary.finish_reason)) }}</p>
+    <div class="flex flex-1 flex-col px-5 pt-10 pb-6">
+      <header class="flex flex-col gap-2">
+        <h1 class="text-[32px] leading-[38px] font-semibold tracking-[-0.4px]">{{ t('practice.summary.title') }}</h1>
+        <p class="text-[15px] leading-5 text-muted" data-testid="summary-reason">{{ t(reasonKey(summary.finish_reason)) }}</p>
       </header>
 
-      <div class="grid grid-cols-3 gap-2" data-testid="summary-stats">
-        <div class="card px-2 py-3 text-center">
-          <p class="text-2xl leading-8 font-bold" data-testid="stat-done">{{ summary.answered }} / {{ summary.total }}</p>
-          <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ isPairs ? t('practice.summary.stat.rounds') : t('practice.summary.stat.done') }}</p>
+      <!-- Three numbers in one card, the lines between them (docs/design Finish). -->
+      <div class="mt-7 grid grid-cols-3 rounded-card border border-hairline bg-surface" data-testid="summary-stats">
+        <div class="flex min-w-0 flex-col gap-1 px-3 py-4">
+          <p class="font-mono text-xl leading-7 font-medium break-words" data-testid="stat-done">{{ summary.answered }} / {{ summary.total }}</p>
+          <p class="text-[13px] leading-[18px] text-muted">{{ isPairs ? t('practice.summary.stat.rounds') : t('practice.summary.stat.done') }}</p>
         </div>
-        <div class="card px-2 py-3 text-center">
-          <p class="text-2xl leading-8 font-bold" data-testid="stat-first">{{ summary.correct_first }}</p>
-          <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ t('practice.summary.stat.first') }}</p>
+        <div class="flex min-w-0 flex-col gap-1 border-l border-divider px-3 py-4">
+          <p class="font-mono text-xl leading-7 font-medium break-words" data-testid="stat-first">{{ summary.correct_first }}</p>
+          <p class="text-[13px] leading-[18px] text-muted">{{ t('practice.summary.stat.first') }}</p>
         </div>
-        <div class="card px-2 py-3 text-center">
-          <p class="text-2xl leading-8 font-bold" data-testid="stat-third">{{ isPairs ? (summary.mismatches ?? 0) : summary.hints }}</p>
-          <p class="mt-0.5 text-[13px] leading-[18px] text-tg-hint">{{ isPairs ? t('practice.summary.stat.mismatches') : t('practice.summary.stat.hints') }}</p>
+        <div class="flex min-w-0 flex-col gap-1 border-l border-divider px-3 py-4">
+          <p class="font-mono text-xl leading-7 font-medium break-words" data-testid="stat-third">{{ isPairs ? (summary.mismatches ?? 0) : summary.hints }}</p>
+          <p class="text-[13px] leading-[18px] text-muted">{{ isPairs ? t('practice.summary.stat.mismatches') : t('practice.summary.stat.hints') }}</p>
         </div>
       </div>
-      <p class="-mt-1 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="summary-facts">{{ facts }}</p>
+      <p class="mt-2 px-[18px] text-[13px] leading-[18px] text-muted" data-testid="summary-facts">{{ facts }}</p>
 
       <ListGroup v-if="summary.mistakes.length > 0" :header="t('practice.summary.mistakes')" data-testid="mistakes">
         <!-- Pairs: several words of one round are several rows of the same element, so the index is part of the key. -->
         <div v-for="(mistake, index) in summary.mistakes" :key="`${mistake.element_id}:${index}`" class="list-row" data-testid="mistake-row">
           <div class="min-w-0 flex-1">
-            <p class="text-base leading-[22px] font-medium break-words" data-testid="mistake-label">{{ mistake.label }}</p>
-            <p v-if="mistake.your_answer" class="text-[13px] leading-[18px] text-tg-hint break-words" data-testid="mistake-answer">
+            <p class="text-[15px] leading-5 font-semibold break-words" data-testid="mistake-label">{{ mistake.label }}</p>
+            <p v-if="mistake.your_answer" class="mt-0.5 text-[13px] leading-[18px] text-muted break-words" data-testid="mistake-answer">
               <span class="sr-only">{{ t('practice.reveal.your_answer') }}: </span>
               <span class="line-through">{{ mistake.your_answer }}</span>
             </p>
@@ -171,12 +158,8 @@ function chipOf(mistake: PracticeMistake): Chip {
           </span>
         </div>
       </ListGroup>
-      <p
-        v-else
-        class="flex items-center justify-center gap-2 text-center text-[15px] leading-5 font-medium text-success-ink"
-        data-testid="no-mistakes"
-      >
-        <AppIcon name="check-circle" solid :size="20" />
+      <p v-else class="mt-5 flex items-center gap-2 px-[18px] text-[15px] leading-5 text-success-ink" data-testid="no-mistakes">
+        <AppIcon name="check" :size="18" />
         {{ t('practice.summary.perfect') }}
       </p>
     </div>
@@ -188,10 +171,10 @@ function chipOf(mistake: PracticeMistake): Chip {
       <button v-else type="button" class="btn btn-primary btn-lg btn-block" :disabled="busy" data-testid="again-btn" @click="emit('again')">
         {{ t('practice.summary.again') }}
       </button>
-      <button type="button" class="btn btn-tinted btn-block" data-testid="course-btn" @click="emit('course')">
+      <button type="button" class="btn btn-plain btn-block" data-testid="course-btn" @click="emit('course')">
         {{ t('practice.summary.to_course') }}
       </button>
-      <button type="button" class="btn btn-plain btn-block" data-testid="close-btn" @click="emit('close')">
+      <button type="button" class="btn btn-plain btn-block text-muted" data-testid="close-btn" @click="emit('close')">
         {{ t('common.exit_app') }}
       </button>
     </StickyActions>

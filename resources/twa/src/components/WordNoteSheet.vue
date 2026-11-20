@@ -52,8 +52,8 @@ function onClear(): void {
 
 <template>
   <BottomSheet :label="t('card.note.title')" data-testid="note-sheet" @close="emit('close')">
-    <h2 class="pr-10 text-[22px] leading-7 font-bold">{{ t('card.note.title') }}</h2>
-    <p class="text-base leading-[22px] font-semibold break-words" data-testid="note-word">{{ word }}</p>
+    <h2 class="pr-10 text-[22px] leading-7 font-semibold">{{ t('card.note.title') }}</h2>
+    <p class="text-base leading-[22px] font-semibold break-words" lang="en" data-testid="note-word">{{ word }}</p>
     <textarea
       v-model="text"
       class="field min-h-[96px] w-full resize-none"
@@ -64,9 +64,9 @@ function onClear(): void {
       rows="3"
       data-testid="note-input"
     />
-    <div class="flex items-start justify-between gap-3 text-[13px] leading-[18px] text-tg-hint">
+    <div class="flex items-start justify-between gap-3 text-[13px] leading-[18px] text-muted">
       <p id="note-hint">{{ t('card.note.hint', { max }) }}</p>
-      <span class="shrink-0 tabular-nums" data-testid="note-counter" aria-hidden="true">{{ count }} / {{ max }}</span>
+      <span class="shrink-0 font-mono" data-testid="note-counter" aria-hidden="true">{{ count }} / {{ max }}</span>
     </div>
     <button type="button" class="btn btn-primary btn-block" :disabled="saving" data-testid="note-save" @click="onSave">
       {{ t('card.note.save') }}

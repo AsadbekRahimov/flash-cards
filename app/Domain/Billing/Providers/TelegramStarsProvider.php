@@ -10,6 +10,7 @@ use App\Domain\Billing\DTO\CheckoutLink;
 use App\Domain\Billing\DTO\RefundEvent;
 use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Exceptions\ProviderCapabilityException;
+use App\Domain\Billing\Support\BillingPeriods;
 use App\Domain\Billing\Support\ProPromises;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -28,7 +29,7 @@ use Throwable;
  * `XTR`, amounts are whole Stars.
  *
  *   createCheckout   createInvoiceLink with `payload = order.token`; `period = month` is a Stars
- *                    subscription (`subscription_period` 30 days), `year` a one-off invoice.
+ *                    subscription (`subscription_period` 30 days), `quarter` / `year` a one-off invoice.
  *   parse*           the single place that knows the shape of `successful_payment` /
  *                    `refunded_payment` (field names: docs/13 §15 — verify on the staging bot).
  *   cancel / resume  editUserStarSubscription with the charge id of the subscription's FIRST
@@ -72,11 +73,16 @@ final class TelegramStarsProvider implements BillingProvider
 
         $locale = $this->orderLocale($order);
         $period = __("billing.period.{$order->period}", [], $locale);
-        $isSubscription = $order->period === 'month';
+        $isSubscription = $order->period === BillingPeriods::MONTH;
         // The text that names practice (and battles) among the things Pro gives is for a release where practice is open to everybody
         // and Pro has something to lift there; the choice is made here, from ProPromises (docs/18 G1), not by the lang file.
-        $description = ($isSubscription ? 'billing.stars.invoice.description_month' : 'billing.stars.invoice.description_year')
-            .ProPromises::publicPractice()->invoiceSuffix();
+        // A one-off invoice has a text per period (quarter, year); an unknown period falls back to the year's wording.
+        $text = match (true) {
+            $isSubscription => 'description_month',
+            $order->period === BillingPeriods::QUARTER => 'description_quarter',
+            default => 'description_year',
+        };
+        $description = 'billing.stars.invoice.'.$text.ProPromises::publicPractice()->invoiceSuffix();
 
         $url = $this->telegram->createInvoiceLink(
             title: mb_substr(__('billing.stars.invoice.title', ['period' => $period], $locale), 0, 32),

@@ -58,16 +58,22 @@ describe('ExamResultView', () => {
   })
   afterEach(() => setLocale('ru'))
 
+  /** The number and the caption of one cell of the card of numbers. */
+  function stat(wrapper: Awaited<ReturnType<typeof render>>['wrapper'], testid: string) {
+    const cell = wrapper.get(`[data-testid=${testid}]`)
+    return { value: cell.get('[data-testid=stat-value]').text(), label: cell.get('[data-testid=stat-label]').text() }
+  }
+
   it('shows percent, unanswered questions and the percentile of a mock', async () => {
     const { wrapper, router } = await render({
       mode: 'personal_mock', correct: 30, total: 40, answered: 38, percent: 75, percentile: 82, attempts: 9, course_id: 3,
     })
 
     expect(wrapper.get('[data-testid=result-title]').text()).toBe('Итоги пробного теста')
-    expect(wrapper.get('[data-testid=mock-result]').text()).toContain('Ваш результат')
-    expect(wrapper.get('[data-testid=mock-percent]').text()).toBe('75%')
-    expect(wrapper.get('[data-testid=mock-score]').text()).toBe('30 из 40 · 75%')
-    expect(wrapper.get('[data-testid=mock-unanswered]').text()).toBe('Без ответа: 2')
+    expect(wrapper.get('[data-testid=result-eyebrow]').text()).toBe('Ваш результат')
+    expect(stat(wrapper, 'mock-percent')).toEqual({ value: '75%', label: 'результат' })
+    expect(stat(wrapper, 'mock-score')).toEqual({ value: '30', label: 'верно из 40' })
+    expect(stat(wrapper, 'mock-unanswered')).toEqual({ value: '2', label: 'без ответа' })
     expect(wrapper.get('[data-testid=mock-percentile]').text()).toBe('Лучше или наравне с 82% результатов по этому курсу за 90 дней')
     expect(wrapper.get('[data-testid=mock-attempts]').text()).toBe('Попыток в сравнении: 9')
     expect(wrapper.find('[data-testid=leaderboard]').exists()).toBe(false)
@@ -84,7 +90,8 @@ describe('ExamResultView', () => {
     })
 
     expect(wrapper.get('[data-testid=mock-percentile]').text()).toBe('Первый результат по этому курсу за 90 дней — сравнить пока не с чем')
-    expect(wrapper.find('[data-testid=mock-unanswered]').exists()).toBe(false)
+    // Three numbers always: nothing unanswered is a 0, not a missing cell.
+    expect(stat(wrapper, 'mock-unanswered').value).toBe('0')
     expect(wrapper.find('[data-testid=mock-attempts]').exists()).toBe(false)
   })
 
@@ -92,9 +99,9 @@ describe('ExamResultView', () => {
     const { wrapper } = await render(group())
 
     expect(wrapper.get('[data-testid=result-title]').text()).toBe('Итоги экзамена')
-    expect(wrapper.get('[data-testid=exam-result]').text()).toContain('Ваш результат')
+    expect(wrapper.get('[data-testid=result-eyebrow]').text()).toBe('Ваш результат')
     expect(wrapper.get('[data-testid=final-score]').text()).toBe('42')
-    expect(wrapper.get('[data-testid=final-rank]').text()).toBe('Место 2 из 7')
+    expect(stat(wrapper, 'final-rank')).toEqual({ value: '2', label: 'место из 7' })
     expect(wrapper.get('[data-testid=leader-1]').text()).toContain('Anna')
     expect(wrapper.find('[data-testid=mock-result]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=mock-courses-btn]').exists()).toBe(false)
@@ -107,15 +114,29 @@ describe('ExamResultView', () => {
     expect(wrapper.text()).not.toContain('Твой')
   })
 
-  it('has a flag in a circle, the place as a chip and the score next to a star', async () => {
+  it('does not celebrate: no flag, no star, the numbers monospace in one card split by thin lines', async () => {
     const { wrapper } = await render(group())
 
-    expect(wrapper.findAllComponents(AppIcon).map((icon) => icon.props('name'))).toEqual(['flag', 'star'])
-    expect(wrapper.get('[data-testid=final-rank]').classes()).toEqual(expect.arrayContaining(['chip', 'chip-accent']))
+    expect(wrapper.findAllComponents(AppIcon)).toHaveLength(0)
+    expect(wrapper.get('[data-testid=final-score]').classes()).toContain('font-mono')
+    expect(wrapper.get('[data-testid=final-rank] [data-testid=stat-value]').classes()).toContain('font-mono')
+    expect(wrapper.get('[data-testid=final-rank]').classes()).toEqual(expect.arrayContaining(['border-l', 'border-divider']))
     expect(wrapper.get('[data-testid=exam-result]').text()).not.toContain('★')
   })
 
-  it('lists the top as a grouped list: medals for the podium, the place for the rest, the score on the right', async () => {
+  it('draws the three numbers of a test in one card with lines between them, like the end of a session', async () => {
+    const { wrapper } = await render({
+      mode: 'personal_mock', correct: 30, total: 40, answered: 38, percent: 75, percentile: 82, attempts: 9, course_id: 3,
+    })
+
+    const cells = ['mock-percent', 'mock-score', 'mock-unanswered'].map((id) => wrapper.get(`[data-testid=${id}]`))
+    expect(cells[0]?.element.parentElement?.classList.contains('grid-cols-3')).toBe(true)
+    expect(cells[0]?.classes()).not.toContain('border-l')
+    for (const cell of cells.slice(1)) expect(cell.classes()).toEqual(expect.arrayContaining(['border-l', 'border-divider']))
+    for (const cell of cells) expect(cell.get('[data-testid=stat-value]').classes()).toContain('font-mono')
+  })
+
+  it('lists the top as a grouped list: the place (no medals), the name, the score on the right', async () => {
     const { wrapper } = await render(group({
       learner_score: 1340,
       rank: 3,
@@ -134,11 +155,11 @@ describe('ExamResultView', () => {
     expect(board.findAll('.list-row')).toHaveLength(4)
 
     const row = (rank: number) => wrapper.get(`[data-testid=leader-${rank}]`)
-    expect(row(1).text()).toContain('🥇')
-    expect(row(2).text()).toContain('🥈')
-    expect(row(3).text()).toContain('🥉')
-    expect(row(4).text()).not.toMatch(/[🥇🥈🥉]/u)
-    expect(row(4).text()).toContain('4')
+    expect(board.text()).not.toMatch(/[🥇🥈🥉]/u)
+    for (const rank of [1, 2, 3, 4]) {
+      expect(row(rank).get('[data-testid=leader-place]').text()).toBe(String(rank))
+      expect(row(rank).get('[data-testid=leader-place]').classes()).toContain('font-mono')
+    }
     expect(row(4).text()).toContain('Kamila')
     // Scores are grouped like every number of the app («1 200»: a no-break space inside).
     expect(row(4).text().replace(/\s/g, '')).toContain('Kamila1200')
@@ -164,9 +185,9 @@ describe('ExamResultView', () => {
     expect(ids).toEqual(['leader-1', 'leader-2', 'leader-3', 'leader-4'])
     // Both tied rows are drawn, with the place they share.
     expect(wrapper.get('[data-testid=leader-2]').text()).toContain('Timur')
-    expect(wrapper.get('[data-testid=leader-2]').text()).toContain('🥈')
+    expect(wrapper.get('[data-testid=leader-2] [data-testid=leader-place]').text()).toBe('2')
     expect(wrapper.get('[data-testid=leader-3]').text()).toContain('Dilnoza')
-    expect(wrapper.get('[data-testid=leader-3]').text()).toContain('🥈')
+    expect(wrapper.get('[data-testid=leader-3] [data-testid=leader-place]').text()).toBe('2')
     expect(wrapper.get('[data-testid=leader-4]').text()).toContain('Kamila')
     // A second row with the same key would be a Vue warning (and a glitch on the next update).
     expect(warn.mock.calls.flat().join('\n')).not.toContain('Duplicate keys')
@@ -178,6 +199,7 @@ describe('ExamResultView', () => {
 
     expect(wrapper.find('[data-testid=leaderboard]').exists()).toBe(false)
     expect(wrapper.get('[data-testid=final-rank]').text()).toBe('Результаты ещё считаются…')
+    expect(wrapper.find('[data-testid=final-rank] [data-testid=stat-value]').exists()).toBe(false)
   })
 
   it('has "Close" as the only primary button, at the bottom', async () => {
@@ -193,18 +215,18 @@ describe('ExamResultView', () => {
     expect(state.close).toHaveBeenCalledTimes(1)
   })
 
-  it('offers a mock "To courses" as a tinted button above "Close"', async () => {
+  it('offers a mock "To courses" as a text button under "Close"', async () => {
     const { wrapper } = await render({
       mode: 'personal_mock', correct: 10, total: 40, answered: 40, percent: 25, percentile: 13, attempts: 8, course_id: 3,
     })
 
     const courses = wrapper.get('[data-testid=mock-courses-btn]')
     expect(courses.text()).toBe('К курсам')
-    expect(courses.classes()).toContain('btn-tinted')
+    expect(courses.classes()).toContain('btn-plain')
     expect(courses.classes()).not.toContain('btn-primary')
     expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
     const buttons = wrapper.get('[data-testid=actions]').findAll('button').map((b) => b.attributes('data-testid'))
-    expect(buttons).toEqual(['mock-courses-btn', 'close-btn'])
+    expect(buttons).toEqual(['close-btn', 'mock-courses-btn'])
   })
 
   it('shows a failed load as an alert', async () => {
@@ -231,8 +253,9 @@ describe('ExamResultView', () => {
       const { wrapper } = await render(quiz())
 
       expect(wrapper.get('[data-testid=result-title]').text()).toBe('Итоги теста недели')
-      expect(wrapper.get('[data-testid=quiz-score]').text()).toBe('8 из 12')
-      expect(wrapper.get('[data-testid=quiz-unanswered]').text()).toBe('Без ответа: 1')
+      expect(stat(wrapper, 'quiz-score')).toEqual({ value: '8', label: 'верно из 12' })
+      expect(stat(wrapper, 'quiz-percent')).toEqual({ value: '66%', label: 'результат' })
+      expect(stat(wrapper, 'quiz-unanswered')).toEqual({ value: '1', label: 'без ответа' })
       expect(wrapper.get('[data-testid=quiz-scored]').text()).toContain('Зачётный тест недели')
       expect(wrapper.find('[data-testid=leaderboard]').exists()).toBe(false)
       expect(wrapper.find('[data-testid=mock-result]').exists()).toBe(false)
@@ -242,7 +265,7 @@ describe('ExamResultView', () => {
       const { wrapper } = await render(quiz({ scored: false, answered: 12 }))
 
       expect(wrapper.get('[data-testid=quiz-practice]').text()).toBe('Тренировочная попытка — не идёт в зачёт недели')
-      expect(wrapper.find('[data-testid=quiz-unanswered]').exists()).toBe(false)
+      expect(stat(wrapper, 'quiz-unanswered').value).toBe('0')
     })
 
     it('leads back to the readiness screen of the course and refreshes Home after a scored test', async () => {
@@ -267,11 +290,20 @@ describe('ExamResultView', () => {
       expect(router.currentRoute.value.name).toBe('readiness')
     })
 
+    it('has "К готовности" as the one primary button and "Close" as a text button under it', async () => {
+      const { wrapper } = await render(quiz())
+
+      expect(wrapper.findAll('.btn-primary').map((b) => b.attributes('data-testid'))).toEqual(['quiz-readiness-btn'])
+      expect(wrapper.get('[data-testid=close-btn]').classes()).toContain('btn-plain')
+      const buttons = wrapper.get('[data-testid=actions]').findAll('button').map((b) => b.attributes('data-testid'))
+      expect(buttons).toEqual(['quiz-readiness-btn', 'close-btn'])
+    })
+
     it('renders Uzbek texts', async () => {
       setLocale('uz')
       const { wrapper } = await render(quiz())
 
-      expect(wrapper.get('[data-testid=quiz-score]').text()).toBe('12 tadan 8 ta')
+      expect(stat(wrapper, 'quiz-score')).toEqual({ value: '8', label: "12 tadan to'g'ri" })
       expect(wrapper.get('[data-testid=quiz-readiness-btn]').text()).toBe('Tayyorlikka')
     })
   })
@@ -283,8 +315,9 @@ describe('ExamResultView', () => {
     })
 
     expect(wrapper.get('[data-testid=result-title]').text()).toBe('Sinov imtihoni natijasi')
-    expect(wrapper.get('[data-testid=mock-score]').text()).toBe('40 tadan 10 ta · 25%')
+    expect(stat(wrapper, 'mock-score')).toEqual({ value: '10', label: "40 tadan to'g'ri" })
+    expect(stat(wrapper, 'mock-unanswered').label).toBe('javobsiz')
     expect(wrapper.get('[data-testid=mock-percentile]').text()).toContain('13 foizi')
-    expect(wrapper.get('[data-testid=mock-result]').text()).toContain('Sizning natijangiz')
+    expect(wrapper.get('[data-testid=result-eyebrow]').text()).toBe('Sizning natijangiz')
   })
 })

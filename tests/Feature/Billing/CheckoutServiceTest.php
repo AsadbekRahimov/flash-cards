@@ -265,8 +265,9 @@ it('describes the catalog: priced items per enabled provider, the open offer and
     expect($catalog->isEmpty())->toBeFalse()
         ->and($catalog->providers)->toBe(['telegram_stars', 'payme'])
         ->and($catalog->items)->toBe([
-            ['plan' => 'pro', 'tier' => null, 'period' => 'month', 'prices' => ['XTR' => 150, 'UZS' => 2_900_000], 'list_prices' => ['XTR' => 150, 'UZS' => 2_900_000]],
-            ['plan' => 'pro', 'tier' => null, 'period' => 'year', 'prices' => ['XTR' => 1300, 'UZS' => 24_900_000], 'list_prices' => ['XTR' => 1300, 'UZS' => 24_900_000]],
+            ['plan' => 'pro', 'tier' => null, 'period' => 'month', 'days' => 30, 'prices' => ['XTR' => 150, 'UZS' => 2_900_000], 'list_prices' => ['XTR' => 150, 'UZS' => 2_900_000], 'saving_pct' => 0],
+            ['plan' => 'pro', 'tier' => null, 'period' => 'quarter', 'days' => 90, 'prices' => ['XTR' => 390, 'UZS' => 7_500_000], 'list_prices' => ['XTR' => 390, 'UZS' => 7_500_000], 'saving_pct' => 14],
+            ['plan' => 'pro', 'tier' => null, 'period' => 'year', 'days' => 365, 'prices' => ['XTR' => 1300, 'UZS' => 24_900_000], 'list_prices' => ['XTR' => 1300, 'UZS' => 24_900_000], 'saving_pct' => 28],
         ])
         ->and($catalog->offer)->toBeNull()
         ->and($catalog->subscription)->toBeNull();
@@ -276,7 +277,10 @@ it('describes the catalog: priced items per enabled provider, the open offer and
     $catalog = $service->catalog($learner, $now);
     expect($catalog->items[0]['prices'])->toBe(['XTR' => 105, 'UZS' => 2_030_000])
         ->and($catalog->items[0]['list_prices'])->toBe(['XTR' => 150, 'UZS' => 2_900_000])
-        ->and($catalog->items[1]['prices'])->toBe(['XTR' => 1300, 'UZS' => 24_900_000])
+        ->and($catalog->items[1]['prices'])->toBe(['XTR' => 390, 'UZS' => 7_500_000])
+        ->and($catalog->items[2]['prices'])->toBe(['XTR' => 1300, 'UZS' => 24_900_000])
+        // The saving is read from the list prices: a discounted month does not move it.
+        ->and(array_column($catalog->items, 'saving_pct'))->toBe([0, 14, 28])
         ->and($catalog->offer)->toBe(['kind' => 'post_org_discount', 'discount_pct' => 30, 'period' => 'month', 'expires_at' => CarbonImmutable::instance($offer->expires_at)->toIso8601String()]);
 
     // A live Stars subscription: auto-renewing, can be canceled; once canceled it can be resumed; ends_at is the liveness end.
@@ -293,7 +297,10 @@ it('describes the catalog: priced items per enabled provider, the open offer and
     $catalog = $service->catalog($org, $now);
     expect($catalog->providers)->toBe(['payme'])
         ->and(array_column($catalog->items, 'tier'))->toBe(['tutor', 'tutor', 'center_s', 'center_s', 'center_m', 'center_m'])
-        ->and($catalog->items[0])->toBe(['plan' => 'pro', 'tier' => 'tutor', 'period' => 'month', 'prices' => ['UZS' => 12_900_000], 'list_prices' => ['UZS' => 12_900_000]]);
+        ->and(array_column($catalog->items, 'period'))->not->toContain('quarter')
+        ->and($catalog->items[0])->toBe(['plan' => 'pro', 'tier' => 'tutor', 'period' => 'month', 'days' => 30, 'prices' => ['UZS' => 12_900_000], 'list_prices' => ['UZS' => 12_900_000], 'saving_pct' => 0])
+        // The organization year: month x 12 less 17 % (OrgTiers) -> 17 % saving.
+        ->and($catalog->items[1]['saving_pct'])->toBe(17);
 
     // Nothing enabled -> empty catalog (paywall falls back to coming_soon).
     config()->set('billing.providers.telegram_stars.enabled', false);

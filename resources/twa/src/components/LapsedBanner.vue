@@ -91,19 +91,20 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section v-if="visible" class="card space-y-3" role="status" data-testid="lapsed-banner">
+  <!-- A calm card (docs/14 §4.5): a status dot instead of a bright tile, the ink of the palette, the action under the text. -->
+  <section v-if="visible" class="card flex flex-col gap-3" role="status" data-testid="lapsed-banner">
     <div class="flex items-start gap-3">
-      <span class="icon-tile size-10 rounded-xl bg-warning"><AppIcon name="clock" :size="22" /></span>
+      <span class="mt-[7px] size-2 shrink-0 rounded-full bg-warning" aria-hidden="true" data-testid="lapsed-dot" />
       <div class="min-w-0 flex-1">
-        <p class="text-[17px] leading-[22px] font-semibold" data-testid="lapsed-title">{{ t(isTrial ? 'lapsed.trial.title' : 'lapsed.title') }}</p>
-        <p class="mt-0.5 text-[15px] leading-5 text-tg-subtitle" data-testid="lapsed-text">
+        <p class="text-base leading-[22px] font-semibold" data-testid="lapsed-title">{{ t(isTrial ? 'lapsed.trial.title' : 'lapsed.title') }}</p>
+        <p class="mt-0.5 text-sm leading-5 text-muted" data-testid="lapsed-text">
           {{ isTrial ? t('lapsed.trial.text') : t('lapsed.text', { date: dateText }) }}
         </p>
       </div>
       <!-- 44 px target; the negative margins keep the glyph in the corner of the card padding. -->
       <button
         type="button"
-        class="-mt-3 -mr-3 flex size-11 shrink-0 items-center justify-center rounded-full text-tg-hint active:bg-track"
+        class="-mt-3 -mr-3 flex size-11 shrink-0 items-center justify-center rounded-full text-muted active:bg-fill"
         :aria-label="t('lapsed.dismiss')"
         data-testid="lapsed-dismiss"
         @click="dismiss()"
@@ -115,7 +116,7 @@ onMounted(async () => {
     <button v-if="renewable" type="button" class="btn btn-tinted btn-block" data-testid="lapsed-renew" @click="emit('renew')">
       {{ t(isTrial ? 'lapsed.trial.renew' : 'lapsed.renew') }}
     </button>
-    <button v-if="isTrial" type="button" class="btn btn-tinted btn-block" data-testid="lapsed-invite" @click="emit('invite')">
+    <button v-if="isTrial" type="button" class="btn btn-plain btn-block" data-testid="lapsed-invite" @click="emit('invite')">
       {{ t('lapsed.invite') }}
     </button>
   </section>

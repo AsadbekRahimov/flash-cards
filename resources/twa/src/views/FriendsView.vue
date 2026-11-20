@@ -211,7 +211,7 @@ const withOpenChallenge = computed(
 const personName = (person: FriendItem | FriendRequestItem): string => person.first_name || t('friends.list.anonymous')
 
 const friendSubtitle = (friend: FriendItem): string =>
-  t('friends.list.subtitle', { streak: friend.streak, words: tn('friends.list.words', friend.words_learned) })
+  t('friends.list.streak_words', { streak: friend.streak, words: tn('friends.list.words', friend.words_learned) })
 
 const metricLabel = (metric: ChallengeMetric): string => t(METRIC_LABELS[metric])
 
@@ -286,8 +286,8 @@ onMounted(() => {
 
 <template>
   <div class="page" data-testid="friends-view">
-    <PageHeader :title="t('league.rating_title')" large />
-    <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" class="mb-4" />
+    <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" class="mt-3.5" />
+    <PageHeader :title="t('friends.title')" large />
 
     <LoadingState v-if="!friends && !message" />
 
@@ -298,8 +298,6 @@ onMounted(() => {
       <ListGroup v-if="activeBattle" data-testid="active-battle">
         <ListRow
           :to="{ name: 'battle', params: { id: activeBattle.id } }"
-          icon="bolt"
-          tile="orange"
           :title="t('battle.friends.active')"
           :subtitle="activeMeta"
           :value="activeStatus"
@@ -315,7 +313,7 @@ onMounted(() => {
               <div class="truncate text-base leading-[22px] font-medium">
                 {{ t('practice.hub.battle.invited_by', { name: invitation.from.first_name || t('friends.list.anonymous') }) }}
               </div>
-              <div class="truncate text-[13px] leading-[18px] text-tg-hint" data-testid="battle-invite-meta">{{ invitationMeta(invitation) }}</div>
+              <div class="truncate text-[13px] leading-[18px] text-muted" data-testid="battle-invite-meta">{{ invitationMeta(invitation) }}</div>
             </div>
           </div>
           <div class="flex w-full gap-2">
@@ -342,13 +340,8 @@ onMounted(() => {
       </ListGroup>
 
       <section class="card" data-testid="invite">
-        <div class="flex items-start gap-3">
-          <span class="icon-tile tile-blue size-11 rounded-xl"><AppIcon name="user-plus" :size="22" /></span>
-          <div class="min-w-0 flex-1">
-            <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('friends.invite.title') }}</h2>
-            <p class="mt-0.5 text-[15px] leading-5 text-tg-subtitle">{{ t('friends.invite.hint') }}</p>
-          </div>
-        </div>
+        <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('friends.invite.title') }}</h2>
+        <p class="mt-1 text-[15px] leading-5 text-muted">{{ t('friends.invite.hint') }}</p>
 
         <template v-if="friends.invite_link">
           <!-- Read-only field: the link wraps by characters and is selected with one tap, so it can be copied by hand too. -->
@@ -362,7 +355,7 @@ onMounted(() => {
             </button>
           </div>
         </template>
-        <p v-else class="mt-3 text-[15px] leading-5 text-tg-subtitle" data-testid="no-link">{{ t('friends.invite.no_link') }}</p>
+        <p v-else class="mt-3 text-[15px] leading-5 text-muted" data-testid="no-link">{{ t('friends.invite.no_link') }}</p>
       </section>
 
       <ListGroup v-if="friends.incoming.length > 0" :header="t('friends.incoming.title')" data-testid="incoming">
@@ -417,7 +410,7 @@ onMounted(() => {
             {{ t('friends.list.count', { count: friends.friends.length, limit: friends.limit }) }}
           </span>
         </div>
-        <p v-if="friends.friends.length > 0" class="-mt-1 mb-2 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="friends-hint">
+        <p v-if="friends.friends.length > 0" class="-mt-1 mb-2 px-[18px] text-[13px] leading-[18px] text-muted" data-testid="friends-hint">
           {{ t(battleOn ? 'friends.hint' : 'friends.hint_challenge', { days: challenges?.days ?? 7 }) }}
         </p>
         <div class="list">
@@ -431,7 +424,7 @@ onMounted(() => {
                 <!-- What the friend wears (docs/05 §5b.6): only when the server sent the field, i.e. while the game is open. -->
                 <GameItemImage v-if="friend.camel_asset !== undefined" :name="friend.camel_asset ?? BASE_CAMEL_ASSET" :size="24" data-testid="friend-camel" />
               </div>
-              <div class="truncate text-[13px] leading-[18px] text-tg-hint" data-testid="friend-subtitle">{{ friendSubtitle(friend) }}</div>
+              <div class="truncate text-[13px] leading-[18px] text-muted" data-testid="friend-subtitle">{{ friendSubtitle(friend) }}</div>
               <!-- Two text actions, so the learner need not guess what a lightning icon does; wraps on a narrow screen. -->
               <div v-if="picking !== friend.id && removing !== friend.id" class="mt-2 flex flex-wrap gap-2">
                 <!-- A battle 1 on 1 with this friend: the setup takes the friend from the address. -->
@@ -460,7 +453,7 @@ onMounted(() => {
             </div>
 
             <div v-if="picking === friend.id" class="w-full space-y-2" data-testid="metric-picker">
-              <p class="text-[13px] leading-[18px] text-tg-hint">{{ t('friends.challenge.pick', { days: challenges?.days ?? 7 }) }}</p>
+              <p class="text-[13px] leading-[18px] text-muted">{{ t('friends.challenge.pick', { days: challenges?.days ?? 7 }) }}</p>
               <button
                 v-for="metric in METRICS"
                 :key="metric"
@@ -498,7 +491,7 @@ onMounted(() => {
             <div v-else class="flex shrink-0 items-center gap-1">
               <button
                 type="button"
-                class="btn btn-plain size-11 min-h-11 rounded-full p-0 text-tg-hint"
+                class="btn btn-plain size-11 min-h-11 rounded-full p-0 text-muted"
                 :aria-label="t('friends.list.remove', { name: personName(friend) })"
                 data-testid="remove-btn"
                 @click="removing = friend.id"
@@ -509,7 +502,7 @@ onMounted(() => {
           </div>
         </div>
         <!-- Free only: the battles left today. -->
-        <p v-if="battleLimit && friends.friends.length > 0" class="mt-1.5 px-4 text-[13px] leading-[18px] text-tg-hint" data-testid="battle-limit">
+        <p v-if="battleLimit && friends.friends.length > 0" class="mt-1.5 px-[18px] text-[13px] leading-[18px] text-muted" data-testid="battle-limit">
           {{ t('battle.limit.left', { remaining: Math.max(0, battleLimit.remaining), limit: battleLimit.limit }) }}
         </p>
       </section>
@@ -524,11 +517,11 @@ onMounted(() => {
             <div v-for="c in openChallenges" :key="c.id" class="list-row flex-wrap gap-y-2" data-testid="challenge-row">
               <div class="min-w-0 flex-1">
                 <div class="text-base leading-[22px] font-medium">{{ metricLabel(c.metric) }}</div>
-                <div class="truncate text-[13px] leading-[18px] text-tg-hint">
+                <div class="truncate text-[13px] leading-[18px] text-muted">
                   {{ t('friends.challenge.with', { name: c.friend_name || t('friends.list.anonymous') }) }}
                 </div>
               </div>
-              <span v-if="c.my_score !== null" class="shrink-0 text-[17px] leading-[22px] font-semibold tabular-nums" data-testid="challenge-score">
+              <span v-if="c.my_score !== null" class="shrink-0 text-[17px] leading-[22px] font-mono font-medium" data-testid="challenge-score">
                 {{ score(c) }}
               </span>
               <!-- My share of the points of both; the score beside it says the same in words. -->
@@ -537,7 +530,7 @@ onMounted(() => {
               </div>
               <div class="flex w-full flex-wrap items-center gap-x-2 gap-y-1">
                 <span class="chip" :class="statusChip(c).chip" data-testid="challenge-status">{{ t(statusChip(c).label) }}</span>
-                <span v-if="period(c)" class="text-[13px] leading-[18px] text-tg-hint" data-testid="challenge-period">{{ period(c) }}</span>
+                <span v-if="period(c)" class="text-[13px] leading-[18px] text-muted" data-testid="challenge-period">{{ period(c) }}</span>
               </div>
               <div v-if="c.status === 'pending' && c.role === 'opponent'" class="flex w-full gap-2">
                 <button
@@ -570,7 +563,7 @@ onMounted(() => {
               <div class="min-w-0 flex-1">
                 <div class="text-base leading-[22px] font-medium">{{ metricLabel(c.metric) }}</div>
                 <div class="mt-0.5 flex items-center gap-2">
-                  <span class="min-w-0 truncate text-[13px] leading-[18px] text-tg-hint">
+                  <span class="min-w-0 truncate text-[13px] leading-[18px] text-muted">
                     {{ t('friends.challenge.with', { name: c.friend_name || t('friends.list.anonymous') }) }}
                   </span>
                   <span v-if="c.result" class="chip shrink-0" :class="RESULT_CHIPS[c.result].chip" data-testid="finished-result">
@@ -578,7 +571,7 @@ onMounted(() => {
                   </span>
                 </div>
               </div>
-              <span class="shrink-0 text-[17px] leading-[22px] font-semibold tabular-nums" data-testid="finished-score">{{ score(c) }}</span>
+              <span class="shrink-0 text-[17px] leading-[22px] font-mono font-medium" data-testid="finished-score">{{ score(c) }}</span>
             </div>
           </div>
         </template>

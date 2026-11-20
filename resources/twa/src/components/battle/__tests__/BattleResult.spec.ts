@@ -27,10 +27,10 @@ const primaries = (w: Wrapper) => w.findAll('button.btn-primary')
 
 describe('BattleResult — the outcome', () => {
   it.each([
-    ['won', 'Победа', 'bg-success-soft'],
-    ['lost', 'Поражение', 'bg-track'],
-    ['draw', 'Ничья', 'bg-accent-soft'],
-  ] as const)('%s: “%s” big, with a symbol and a colour of its own', (outcome, title, circle) => {
+    ['won', 'Победа', 'text-success-ink'],
+    ['lost', 'Поражение', 'text-muted'],
+    ['draw', 'Ничья', 'text-accent-ink'],
+  ] as const)('%s: “%s” big, with a small symbol in a colour of its own (no celebration)', (outcome, title, circle) => {
     const w = render(finishedBattle(outcome))
 
     expect(w.get('[data-testid=battle-result]').attributes('data-outcome')).toBe(outcome)
@@ -306,7 +306,7 @@ describe('BattleResult — what to do next', () => {
     expect(w.find('[data-testid=rematch-btn]').exists()).toBe(false)
     expect(primaries(w)).toHaveLength(1)
     expect(w.get('[data-testid=accept-rematch-btn]').classes()).toContain('btn-primary')
-    expect(w.get('[data-testid=decline-rematch-btn]').classes()).toContain('btn-tinted')
+    expect(w.get('[data-testid=decline-rematch-btn]').classes()).toContain('btn-plain')
 
     await w.get('[data-testid=accept-rematch-btn]').trigger('click')
     await w.get('[data-testid=decline-rematch-btn]').trigger('click')

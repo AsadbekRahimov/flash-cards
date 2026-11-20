@@ -12,6 +12,11 @@ class ActivityChartWidget extends ChartWidget
 {
     protected static ?int $sort = 3;
 
+    /** A whole row under the blocks of the design (the dashboard has three columns). */
+    protected int|string|array $columnSpan = 'full';
+
+    protected ?string $maxHeight = '260px';
+
     // No polling (docs/20 §1.11): Filament polls a chart widget every 5 s by default; the figures are cached anyway.
     protected ?string $pollingInterval = null;
 
@@ -36,10 +41,13 @@ class ActivityChartWidget extends ChartWidget
             'datasets' => [[
                 'label' => __('admin.widgets.activity_chart.dataset'),
                 'data' => $values,
-                'borderColor' => '#f59e0b',
-                'backgroundColor' => 'rgba(245, 158, 11, 0.15)',
-                'fill' => true,
-                'tension' => 0.3,
+                // The accent of the design (2026-11): a plain line, no fill under it.
+                'borderColor' => '#3F4A7A',
+                'backgroundColor' => '#3F4A7A',
+                'borderWidth' => 1.8,
+                'pointRadius' => 2,
+                'fill' => false,
+                'tension' => 0.2,
             ]],
             'labels' => $labels,
         ];

@@ -2,10 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter, type RouteLocationRaw } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import ClassCaravanCard from '@/components/game/ClassCaravanCard.vue'
-import HardRoundCard from '@/components/HardRoundCard.vue'
 import AssignmentsBlock from '@/components/AssignmentsBlock.vue'
-import GoalRing from '@/components/GoalRing.vue'
 import IntroSheet from '@/components/IntroSheet.vue'
 import LanguageSheet from '@/components/LanguageSheet.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
@@ -19,9 +16,10 @@ import ListGroup from '@/components/ui/ListGroup.vue'
 import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
+import ProgressLine from '@/components/ui/ProgressLine.vue'
 import { formatDate } from '@/composables/format'
 import { hasLearnerProgress } from '@/composables/learnerProgress'
-import { GAMES_CARD_MODES, MODE_LOOK, PRACTICE_MIN_LEARNED, modeTitle } from '@/composables/practiceLabels'
+import { GAMES_CARD_MODES, PRACTICE_MIN_LEARNED, modeTitle } from '@/composables/practiceLabels'
 import { tierLabelKey } from '@/composables/leagueTiers'
 import { STREAK_LINE_EVERY_MS, STREAK_LINE_KEY } from '@/composables/proReminders'
 import { hasSeen, isSnoozed, markSeen, snooze } from '@/composables/seenFlag'
@@ -40,9 +38,10 @@ import { LANGUAGE_TITLE, useI18n } from '@/i18n'
 import type { OpenSessionRequest, PracticeAccessToday } from '@/api/types'
 
 /**
- * "Home" tab (docs/14 §6.1): a greeting with the date and the plan, the session card (goal ring, what is waiting,
- * the one primary button), the streak, assignments of the center, "My course" and the league line. A tab root,
- * so no system "Back" button. Data: `GET /today` (stores `today`, `assignments`).
+ * "Home" tab (docs/14 §6.1, mock-up `docs/design/2026-11-redesign/Main.html`): the date and the course over the greeting, the card
+ * "Goal of the day" (N of M, a thin line, what is waiting, the one primary button), the list "For today" (assignments of the center,
+ * the round of hard words, the caravans, the word games - rows with a status dot), the streak, "My course" and the league line. A
+ * tab root, so no system "Back" button. Data: `GET /today` (stores `today`, `assignments`).
  */
 const { t, tn, locale } = useI18n()
 const router = useRouter()
@@ -162,9 +161,15 @@ const greeting = computed(() => (name.value !== '' ? t('today.greeting', { name:
  * «среда, 28 октября»: the day the goal and the streak below are counted in, i.e. in the learner's time zone that
  * `/today` names (the zone of the settings). The device's zone is only the fallback, for a zone this browser does not know.
  */
-const dateLine = computed(() =>
-  formatDate(new Date().toISOString(), 'weekdayDayMonth', locale.value, data.value?.timezone),
-)
+const dateLine = computed(() => {
+  const date = formatDate(new Date().toISOString(), 'weekdayDayMonth', locale.value, data.value?.timezone)
+  return date.charAt(0).toLocaleUpperCase(locale.value) + date.slice(1)
+})
+/** The line over the greeting (mock-up Main): «Пятница, 20 ноября · English A1»; without a course only the date. */
+const eyebrow = computed(() => {
+  const course = data.value?.active_course?.title
+  return course ? `${dateLine.value} · ${course}` : dateLine.value
+})
 const isPro = computed(() => data.value?.entitlement.plan === 'pro')
 const NO_PRACTICE: PracticeAccessToday = { available: false, pro_required: false, modes: [], battle: false, pro_promise: 'none' }
 
@@ -203,6 +208,13 @@ const showInvite = computed(() => (!isPro.value || trialEnd.value !== null) && !
   && (data.value?.entitlement.lapsed ?? null) === null)
 
 const goalLeft = computed(() => (data.value ? Math.max(0, data.value.goal.target - data.value.goal.done) : 0))
+/** The share of the goal for its line: a met goal is a full line even when `done` overshoots the target (or the target is odd). */
+const goalPercent = computed(() => {
+  const goal = data.value?.goal
+  if (!goal) return 0
+  if (goal.met) return 100
+  return goal.target > 0 ? (goal.done / goal.target) * 100 : 0
+})
 /**
  * A newcomer who has not picked a course yet (docs/14 §6.1): no active course, no open session, nothing to review and no
  * assignment of a group. Home is then ONE start card with one button instead of an empty goal ring, "nothing to review" and
@@ -269,6 +281,8 @@ const practice = computed(() => data.value?.practice ?? NO_PRACTICE)
 const gamesCandidate = computed(() => !showStart.value
   && (data.value?.active_course?.progress.learned ?? 0) >= PRACTICE_MIN_LEARNED)
 const showGames = computed(() => gamesCandidate.value && practice.value.available)
+/** The names of the modes of the games row («Пары · Сочетания · Предложение»): the row says what is inside in words. */
+const gamesModes = computed(() => GAMES_CARD_MODES.map((mode) => modeTitle(mode)).join(' · '))
 /** Practice of the main course (docs/16 §11.1): the same rule as on the course screen - behind Pro it opens the paywall. */
 function openPractice(): void {
   const slug = data.value?.active_course?.slug
@@ -317,6 +331,41 @@ const gameEntry = computed((): { kind: 'run' | 'daily'; to: RouteLocationRaw; te
   return game.daily_available ? { kind: 'daily', to: { name: 'game-daily' }, text: t('today.game.daily'), progress: '' } : null
 })
 
+/**
+ * The round of hard words (docs/06 §14), a row of the list "For today": only when there is something to do - a round that is open
+ * ("Continue") or one that can be started ("Review"). Played today, or refused for any other reason: no row, the learner is not
+ * teased with what is not there. `hard_round` null (the feature is off) or absent (an older server): none either.
+ */
+const hardRound = computed(() => {
+  const round = data.value?.hard_round
+  if (!hasProgress.value || round == null) return null
+  const resuming = round.open_session_id != null
+  return resuming || round.available ? { resuming, words: round.words } : null
+})
+
+/**
+ * The caravan of the class that is on (docs/05 §5b.7), a row of the list: by `/today.game.class_caravan`, no other request. The teacher
+ * starts it for the whole group, so a newcomer of the center sees it too. The deadline is in the learner's zone (`/today.timezone`).
+ */
+const classCaravan = computed(() => {
+  const caravan = data.value?.game?.class_caravan
+  if (!caravan) return null
+  const until = t('gameClass.until', { when: formatDate(caravan.ends_at, 'weekdayTime', locale.value, data.value?.timezone) })
+  const counts = { stars: caravan.stars_total, target: caravan.target_stars, until }
+  return { to: `/game/class/${caravan.id}`, text: t('gameClass.card.text', counts), aria: t('gameClass.card.aria', counts) }
+})
+
+/** The list "For today" has a row to show (otherwise there is no card at all). */
+const showTodayList = computed(() => assignmentItems.value.length > 0 || hardRound.value !== null || classCaravan.value !== null
+  || (hasProgress.value && (gameEntry.value !== null || showGameMap.value)) || showGames.value)
+
+/** The status dot of the streak: amber while it is at risk, accent while it lives, the track when there is none. */
+const streakDot = computed(() => {
+  const current = streak.value
+  if (!current || current.current === 0) return 'bg-track'
+  return current.at_risk ? 'bg-warning' : 'bg-accent'
+})
+
 const lessonLabel = computed(() => {
   const lesson = data.value?.active_course?.next_lesson
   if (!lesson) return ''
@@ -326,7 +375,7 @@ const lessonLabel = computed(() => {
 
 const coursePercent = computed(() => {
   const progress = data.value?.active_course?.progress
-  return progress && progress.total > 0 ? Math.min(100, Math.round((progress.learned / progress.total) * 100)) : 0
+  return progress && progress.total > 0 ? (progress.learned / progress.total) * 100 : 0
 })
 /**
  * The readiness block (docs/04 A.20) lives in the card of the course and reads `/today` only. A newcomer who has not met a word
@@ -393,8 +442,8 @@ onBeforeUnmount(() => {
 
     <ErrorState v-else-if="!data" :message="loadError" @retry="load" />
 
-    <div v-else class="space-y-4">
-      <PageHeader large :title="greeting" :subtitle="dateLine">
+    <div v-else>
+      <PageHeader large :eyebrow="eyebrow" :title="greeting">
         <template #trailing>
           <!-- A chip is 24 px high: the padding (cancelled by the margin) makes the touch target 44 px. -->
           <div class="flex items-center gap-4">
@@ -413,431 +462,415 @@ onBeforeUnmount(() => {
         </template>
       </PageHeader>
 
-      <LapsedBanner
-        v-if="data.entitlement.plan === 'free'"
-        :lapsed="data.entitlement.lapsed"
-        @renew="router.push({ name: 'billing' })"
-        @invite="router.push({ name: 'referrals', query: { from: 'today' } })"
-      />
+      <div class="flex flex-col gap-3.5">
+        <LapsedBanner
+          v-if="data.entitlement.plan === 'free'"
+          :lapsed="data.entitlement.lapsed"
+          @renew="router.push({ name: 'billing' })"
+          @invite="router.push({ name: 'referrals', query: { from: 'today' } })"
+        />
 
-      <InlineAlert v-if="status === 'error'" tone="danger" :message="loadError" data-testid="reload-error" />
+        <InlineAlert v-if="status === 'error'" tone="danger" :message="loadError" data-testid="reload-error" />
 
-      <section v-if="showStart" class="card flex flex-col items-center gap-3 py-6 text-center" data-testid="start-card">
-        <span class="icon-tile size-16 rounded-2xl tile-blue"><AppIcon name="academic-cap" :size="32" /></span>
-        <h2 class="text-[22px] leading-7 font-bold">{{ t('today.start.title') }}</h2>
-        <p class="text-[15px] leading-5 text-tg-subtitle">{{ t('today.start.text') }}</p>
-        <RouterLink :to="{ name: 'courses' }" class="btn btn-primary btn-lg btn-block mt-1" data-testid="start-choose-course" @click="tapPrimary">
-          <AppIcon name="academic-cap" :size="20" />
-          {{ t('today.course.choose') }}
-        </RouterLink>
-      </section>
+        <section v-if="showStart" class="card flex flex-col items-center gap-3 py-7 text-center" data-testid="start-card">
+          <h2 class="text-[22px] leading-7 font-semibold">{{ t('today.start.title') }}</h2>
+          <p class="text-base leading-[22px] text-muted">{{ t('today.start.text') }}</p>
+          <RouterLink :to="{ name: 'courses' }" class="btn btn-primary btn-lg btn-block mt-1" data-testid="start-choose-course" @click="tapPrimary">
+            {{ t('today.course.choose') }}
+          </RouterLink>
+        </section>
 
-      <!-- Under the start card the reminder to finish the setup in the bot is a quiet line, not a second card. -->
-      <div v-if="showStart && !data.onboarding_completed" class="flex items-center gap-2 px-1" data-testid="onboarding-hint">
-        <AppIcon name="information-circle" :size="18" class="shrink-0 text-accent" />
-        <p class="min-w-0 flex-1 text-[13px] leading-[18px] text-tg-subtitle">{{ t('today.onboarding_hint') }}</p>
-        <button type="button" class="btn btn-plain btn-sm shrink-0" data-testid="onboarding-btn" @click="close()">
-          {{ t('today.onboarding_btn') }}
-        </button>
-      </div>
-
-      <div v-else-if="!data.onboarding_completed" class="card flex items-start gap-3" data-testid="onboarding-hint">
-        <AppIcon name="information-circle" :size="22" class="mt-px text-accent" />
-        <div class="min-w-0 flex-1 space-y-3">
-          <p class="text-[15px] leading-5">{{ t('today.onboarding_hint') }}</p>
-          <button type="button" class="btn btn-tinted btn-block" data-testid="onboarding-btn" @click="close()">
-            {{ t('today.onboarding_btn') }}
-          </button>
-        </div>
-      </div>
-
-      <!-- A line, not a card: it says how long the welcome Pro lasts and leads to the subscription. Under the start card on the first visit. -->
-      <RouterLink
-        v-if="trialEnd !== null"
-        :to="{ name: 'billing' }"
-        class="flex min-h-11 items-center gap-2 px-1 text-[15px] leading-5"
-        data-testid="trial-line"
-      >
-        <AppIcon name="sparkles" :size="18" class="shrink-0 text-accent" />
-        <span class="min-w-0 flex-1">{{ trialText }}</span>
-        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
-      </RouterLink>
-
-      <section v-if="!showStart" class="card" data-testid="review-card">
-        <div class="flex items-center gap-4" data-testid="goal-card">
-          <GoalRing :done="data.goal.done" :target="data.goal.target" :met="data.goal.met" />
+        <!-- Under the start card the reminder to finish the setup in the bot is a quiet line, not a second card. -->
+        <div v-if="showStart && !data.onboarding_completed" class="flex items-start gap-2 px-1" data-testid="onboarding-hint">
+          <AppIcon name="information-circle" :size="18" class="shrink-0 text-accent" />
           <div class="min-w-0 flex-1">
-            <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('today.goal.title') }}</h2>
-            <p class="mt-0.5 text-[15px] leading-5 text-tg-subtitle" data-testid="goal-text">
-              {{ t('today.goal.progress', { done: data.goal.done, target: data.goal.target }) }}
-            </p>
-            <p
-              v-if="data.goal.met"
-              class="mt-1 flex items-center gap-1.5 text-[15px] leading-5 font-semibold text-success-ink"
-              data-testid="goal-met"
-            >
-              <AppIcon name="check-circle" solid :size="18" />
-              <span>{{ t('today.goal.met') }}</span>
-            </p>
-            <p v-else class="mt-1 text-[15px] leading-5" data-testid="goal-left">{{ tn('today.goal.left', goalLeft) }}</p>
+            <p class="text-[13px] leading-[18px] text-muted">{{ t('today.onboarding_hint') }}</p>
+            <!-- Under the text, not beside it: on a 320 px screen the two would squeeze each other into a column of words. -->
+            <button type="button" class="btn btn-plain btn-sm -ml-3 mt-1" data-testid="onboarding-btn" @click="close()">
+              {{ t('today.onboarding_btn') }}
+            </button>
           </div>
         </div>
 
+        <div v-else-if="!data.onboarding_completed" class="card flex items-start gap-3" data-testid="onboarding-hint">
+          <AppIcon name="information-circle" :size="20" class="mt-px shrink-0 text-accent" />
+          <div class="min-w-0 flex-1 space-y-3">
+            <p class="text-[15px] leading-5">{{ t('today.onboarding_hint') }}</p>
+            <button type="button" class="btn btn-tinted btn-block" data-testid="onboarding-btn" @click="close()">
+              {{ t('today.onboarding_btn') }}
+            </button>
+          </div>
+        </div>
+
+        <!-- A line, not a card: it says how long the welcome Pro lasts and leads to the subscription. Under the start card on the first visit. -->
         <RouterLink
-          :to="{ name: 'settings' }"
-          class="mt-3 flex min-h-11 items-center justify-between gap-2 text-[15px] leading-5 text-accent"
-          data-testid="goal-setting"
+          v-if="trialEnd !== null"
+          :to="{ name: 'billing' }"
+          class="flex min-h-11 items-center gap-3 px-1 text-[15px] leading-5"
+          data-testid="trial-line"
         >
-          <span>{{ tn('today.goal.daily', data.goal.target) }}</span>
-          <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
+          <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+          <span class="min-w-0 flex-1">{{ trialText }}</span>
+          <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
         </RouterLink>
 
-        <ul class="border-t pt-2">
-          <li class="flex min-h-11 items-center gap-3">
-            <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
-              <AppIcon name="arrow-path" :size="18" />
-            </span>
-            <span
-              class="text-[15px] leading-5"
-              :class="{ 'text-tg-hint': data.due_count === 0 }"
-              data-testid="due-count"
-            >
+        <!-- "Goal of the day" (mock-up Main): N of M, a thin line, what is waiting and the one primary button of the screen. -->
+        <section v-if="!showStart" class="card flex flex-col gap-3.5" data-testid="review-card">
+          <div class="flex flex-col gap-3.5" data-testid="goal-card">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-[13px] leading-[18px] font-normal text-muted">{{ t('today.goal.title') }}</h2>
+              <span v-if="streak && streak.current > 0" class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="streak-current">
+                {{ tn('today.streak.short', streak.current) }}
+              </span>
+            </div>
+            <p class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+              <span class="font-mono text-[40px] leading-10 font-medium tracking-[-0.5px]" data-testid="goal-done">{{ data.goal.done }}</span>
+              <span class="text-[15px] leading-5 text-muted">
+                <span data-testid="goal-text">{{ tn('today.goal.of', data.goal.target) }}</span>
+                <span> · </span>
+                <span v-if="data.goal.met" class="font-semibold text-success-ink" data-testid="goal-met">{{ t('today.goal.met') }}</span>
+                <span v-else data-testid="goal-left">{{ t('today.goal.left_short', { count: goalLeft }) }}</span>
+              </span>
+            </p>
+            <ProgressLine
+              :value="goalPercent"
+              :tone="data.goal.met ? 'success' : 'accent'"
+              :label="t('today.goal.progress', { done: data.goal.done, target: data.goal.target })"
+              data-testid="goal-line"
+            />
+          </div>
+
+          <div class="flex flex-col">
+            <p class="text-sm leading-5" :class="data.due_count > 0 ? 'text-body' : 'text-muted'" data-testid="due-count">
               {{ data.due_count > 0 ? tn('today.review.due', data.due_count) : t('today.review.none') }}
-            </span>
-          </li>
-          <li v-if="!needsCourseToStart">
+            </p>
+            <template v-if="!needsCourseToStart">
+              <RouterLink
+                v-if="!data.active_course"
+                :to="{ name: 'courses' }"
+                class="-mb-3 flex min-h-11 items-center gap-1 text-sm leading-5 text-accent"
+                data-testid="new-no-course"
+              >
+                <span class="min-w-0 flex-1">{{ t('today.new.no_course') }}</span>
+                <AppIcon name="chevron-right" :size="16" class="shrink-0" />
+              </RouterLink>
+              <RouterLink
+                v-else-if="courseHasNoNewWords"
+                :to="{ name: 'courses' }"
+                class="-mb-3 flex min-h-11 items-center gap-1 text-sm leading-5 text-accent"
+                data-testid="new-course-empty"
+              >
+                <span class="min-w-0 flex-1">{{ noNewWordsText }}</span>
+                <AppIcon name="chevron-right" :size="16" class="shrink-0" />
+              </RouterLink>
+              <p v-else class="mt-0.5 text-sm leading-5 text-muted" data-testid="new-remaining">{{ newWordsText }}</p>
+            </template>
             <RouterLink
-              v-if="!data.active_course"
-              :to="{ name: 'courses' }"
-              class="flex min-h-11 items-center gap-3 text-accent"
-              data-testid="new-no-course"
+              :to="{ name: 'settings' }"
+              class="-mb-2 flex min-h-11 items-center gap-1 text-sm leading-5 text-accent"
+              data-testid="goal-setting"
             >
-              <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft">
-                <AppIcon name="sparkles" :size="18" />
-              </span>
-              <span class="flex-1 text-[15px] leading-5 font-medium">{{ t('today.new.no_course') }}</span>
-              <AppIcon name="chevron-right" :size="16" class="text-tg-hint" />
+              <span class="min-w-0 flex-1">{{ tn('today.goal.daily', data.goal.target) }}</span>
+              <AppIcon name="chevron-right" :size="16" class="shrink-0" />
             </RouterLink>
-            <RouterLink
-              v-else-if="courseHasNoNewWords"
-              :to="{ name: 'courses' }"
-              class="flex min-h-11 items-center gap-3 text-accent"
-              data-testid="new-course-empty"
-            >
-              <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft">
-                <AppIcon name="sparkles" :size="18" />
-              </span>
-              <span class="flex-1 text-[15px] leading-5 font-medium">{{ noNewWordsText }}</span>
-              <AppIcon name="chevron-right" :size="16" class="text-tg-hint" />
-            </RouterLink>
-            <div v-else class="flex min-h-11 items-center gap-3">
-              <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
-                <AppIcon name="sparkles" :size="18" />
-              </span>
-              <span class="text-[15px] leading-5" data-testid="new-remaining">{{ newWordsText }}</span>
-            </div>
-          </li>
-        </ul>
-
-        <RouterLink
-          v-if="needsCourseToStart"
-          :to="{ name: 'courses' }"
-          class="btn btn-primary btn-lg btn-block mt-3"
-          data-testid="start-choose-course"
-          @click="tapPrimary"
-        >
-          <AppIcon name="academic-cap" :size="20" />
-          {{ t('today.course.choose') }}
-        </RouterLink>
-        <RouterLink
-          v-else-if="needsOtherCourse"
-          :to="{ name: 'courses' }"
-          class="btn btn-primary btn-lg btn-block mt-3"
-          data-testid="start-next-course"
-          @click="tapPrimary"
-        >
-          <AppIcon name="academic-cap" :size="20" />
-          {{ t('today.course.choose_other') }}
-        </RouterLink>
-        <div v-else-if="allDone" class="mt-3 space-y-2" data-testid="all-done">
-          <p class="flex items-center justify-center gap-2 text-center text-[17px] leading-[22px] font-semibold">
-            <AppIcon name="check-circle" solid :size="20" class="shrink-0 text-success" />
-            <span>{{ t('today.all_done') }}</span>
-          </p>
-          <!-- The quota of the free plan is what ended the day: one quiet way to Pro. Not for a newcomer, not for Pro. -->
-          <p v-if="!isPro && hasProgress" class="text-center text-[13px] leading-[18px]">
-            <button type="button" class="text-tg-link underline" data-testid="all-done-pro" @click="openPaywall('quota')">
-              {{ t('today.all_done.pro') }}
-            </button>
-          </p>
-        </div>
-        <button
-          v-else
-          type="button"
-          class="btn btn-primary btn-lg btn-block mt-3"
-          :disabled="opening"
-          data-testid="review-btn"
-          @click="review"
-        >
-          <AppIcon name="play" solid :size="20" />
-          {{ data.open_session_id !== null ? t('today.review.continue') : t('today.review.start') }}
-        </button>
-
-        <InlineAlert v-if="openError" ref="openErrorBox" tone="danger" :message="openError" class="mt-3" data-testid="open-error" />
-
-        <p v-if="!allDone" class="mt-3 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="session-hint">
-          {{ t(needsCourseToStart || needsOtherCourse ? 'today.new.no_course' : 'today.session.hint') }}
-        </p>
-
-      </section>
-
-      <!-- The round of hard words (docs/06 §14): compact, under the session card and above the games; nothing while it is not on offer (or was played today). -->
-      <HardRoundCard v-if="hasProgress" :round="data.hard_round" :busy="opening" @start="startHardRound" />
-
-      <!-- Practice of the main course, one entry (docs/16 §11.1): three modes by their icons and one button. -->
-      <section v-if="showGames" class="card flex items-center gap-3" data-testid="games-card">
-        <div class="min-w-0 flex-1">
-          <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('today.games.title') }}</h2>
-          <div class="mt-2 flex gap-2" aria-hidden="true" data-testid="games-modes">
-            <span
-              v-for="mode in GAMES_CARD_MODES"
-              :key="mode"
-              class="icon-tile size-9 rounded-xl"
-              :class="`tile-${MODE_LOOK[mode].tile}`"
-              :title="modeTitle(mode)"
-            >
-              <AppIcon :name="MODE_LOOK[mode].icon" :size="18" />
-            </span>
           </div>
-        </div>
-        <button type="button" class="btn btn-tinted shrink-0" data-testid="games-play-btn" @click="openPractice">
-          {{ t('today.games.play') }}
-        </button>
-      </section>
 
-      <!-- The caravan of the class that is on (docs/05 §5b.7): by `/today.game.class_caravan`, no other request. The teacher starts it for the whole group, so a newcomer of the center is its addressee too. -->
-      <ClassCaravanCard v-if="data.game?.class_caravan" :caravan="data.game.class_caravan" :timezone="data.timezone" />
-
-      <!-- The secondary entry of Karvon (docs/05 §5b.4): only when `/today.game` says there is something to do - a closed game says nothing. -->
-      <RouterLink
-        v-if="hasProgress && gameEntry"
-        :to="gameEntry.to"
-        class="card flex min-h-11 items-center gap-3 transition-transform active:scale-[0.99]"
-        :data-kind="gameEntry.kind"
-        data-testid="game-entry"
-      >
-        <span class="icon-tile size-10 rounded-xl tile-orange"><AppIcon name="sparkles" :size="20" /></span>
-        <span class="min-w-0 flex-1">
-          <span class="block text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('today.game.title') }}</span>
-          <span class="block text-[15px] leading-5 font-medium" data-testid="game-entry-text">{{ gameEntry.text }}</span>
-          <span v-if="gameEntry.progress" class="block text-[13px] leading-[18px] text-tg-subtitle" data-testid="game-entry-progress">{{ gameEntry.progress }}</span>
-        </span>
-        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
-      </RouterLink>
-
-      <!-- The standing entry of the Karvon map (docs/05 §5b.4): while the game is open and there is no caravan of the day to show. -->
-      <RouterLink
-        v-if="hasProgress && showGameMap"
-        :to="{ name: 'game' }"
-        class="card flex min-h-11 items-center gap-3 transition-transform active:scale-[0.99]"
-        data-testid="game-map-entry"
-      >
-        <span class="icon-tile size-10 rounded-xl tile-orange"><AppIcon name="sparkles" :size="20" /></span>
-        <span class="min-w-0 flex-1">
-          <span class="block text-[13px] leading-[18px] font-semibold tracking-wide text-accent-ink uppercase">{{ t('today.game.title') }}</span>
-          <span class="block text-[15px] leading-5 font-medium">{{ t('today.game.map') }}</span>
-        </span>
-        <AppIcon name="chevron-right" :size="16" class="shrink-0 text-tg-hint" />
-      </RouterLink>
-
-      <section v-if="streak && !showStart" class="card" data-testid="streak-card">
-        <div class="flex items-start gap-3">
-          <span class="icon-tile size-10 rounded-xl" :class="streak.current > 0 ? 'tile-orange' : 'tile-gray'">
-            <AppIcon name="fire" solid :size="22" />
-          </span>
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between gap-2">
-              <p class="text-[17px] leading-[22px] font-semibold" data-testid="streak-current">
-                {{ streak.current > 0 ? tn('today.streak.in_row', streak.current) : t('today.streak.title') }}
-              </p>
-              <span v-if="streak.best > streak.current" class="chip chip-neutral shrink-0" data-testid="streak-best">
-                {{ t('today.streak.best', { best: streak.best }) }}
-              </span>
-            </div>
-            <p v-if="streak.at_risk" class="mt-0.5 text-[15px] leading-5 text-warning-ink" data-testid="streak-at-risk">
-              {{ t('today.streak.at_risk') }}
+          <RouterLink
+            v-if="needsCourseToStart"
+            :to="{ name: 'courses' }"
+            class="btn btn-primary btn-lg btn-block"
+            data-testid="start-choose-course"
+            @click="tapPrimary"
+          >
+            {{ t('today.course.choose') }}
+          </RouterLink>
+          <RouterLink
+            v-else-if="needsOtherCourse"
+            :to="{ name: 'courses' }"
+            class="btn btn-primary btn-lg btn-block"
+            data-testid="start-next-course"
+            @click="tapPrimary"
+          >
+            {{ t('today.course.choose_other') }}
+          </RouterLink>
+          <div v-else-if="allDone" class="space-y-1" data-testid="all-done">
+            <p class="flex items-center justify-center gap-2 text-center text-base leading-[22px] font-semibold">
+              <AppIcon name="check-circle" solid :size="20" class="shrink-0 text-success" />
+              <span>{{ t('today.all_done') }}</span>
             </p>
-            <p
-              v-else-if="streak.current > 0 && streak.met_today && streak.held_by === 'game'"
-              class="mt-0.5 text-[15px] leading-5 text-tg-subtitle"
-              data-testid="streak-held-by-game"
-            >
-              {{ t('today.streak.held_by_game') }}
-            </p>
-            <p
-              v-else-if="streak.current > 0 && streak.met_today"
-              class="mt-0.5 text-[15px] leading-5 text-tg-subtitle"
-              data-testid="streak-safe"
-            >
-              {{ t('today.streak.safe') }}
-            </p>
-            <p
-              v-else-if="streak.current === 0"
-              class="mt-0.5 text-[15px] leading-5 text-tg-subtitle"
-              data-testid="streak-none"
-            >
-              {{ t('today.streak.none') }}
+            <!-- The quota of the free plan is what ended the day: one quiet way to Pro. Not for a newcomer, not for Pro. -->
+            <p v-if="!isPro && hasProgress" class="flex justify-center">
+              <button type="button" class="btn btn-plain btn-sm" data-testid="all-done-pro" @click="openPaywall('quota')">
+                {{ t('today.all_done.pro') }}
+              </button>
             </p>
           </div>
-        </div>
-
-        <div v-if="streak.frozen_yesterday || isPro || streak.current > 0" class="mt-3 space-y-1 border-t pt-3">
-          <p v-if="streak.frozen_yesterday" class="text-[15px] leading-5" data-testid="streak-frozen">
-            {{ t('today.streak.frozen_yesterday') }}
-          </p>
-          <p v-if="isPro" class="text-[13px] leading-[18px] text-tg-hint" data-testid="streak-freezes">
-            {{ streak.freezes > 0 ? tn('today.streak.freezes', streak.freezes) : t('today.streak.freezes_none') }}
-          </p>
-          <div v-else-if="streak.current > 0" class="flex justify-center">
-            <button type="button" class="btn btn-plain btn-sm" data-testid="streak-freeze-teaser" @click="openPaywall('streak_freeze')">
-              {{ t('today.streak.freeze_teaser') }}
-            </button>
-          </div>
-        </div>
-
-        <div v-if="showFreezeLine" class="mt-3 flex justify-center border-t pt-3">
-          <button type="button" class="btn btn-plain btn-sm" data-testid="streak-freeze-line" @click="openPaywall('streak_freeze')">
-            {{ t('today.streak.freeze_line') }}
+          <button
+            v-else
+            type="button"
+            class="btn btn-primary btn-lg btn-block"
+            :disabled="opening"
+            data-testid="review-btn"
+            @click="review"
+          >
+            {{ data.open_session_id !== null ? t('today.review.continue') : t('today.review.start') }}
           </button>
-        </div>
-      </section>
 
-      <AssignmentsBlock v-if="assignmentItems.length > 0" :items="assignmentItems" :busy="opening" @open="openAssignment" />
+          <InlineAlert v-if="openError" ref="openErrorBox" tone="danger" :message="openError" data-testid="open-error" />
 
-      <div v-if="showAssignmentsError" class="flex items-center gap-2 px-1" role="status" data-testid="assignments-error">
-        <AppIcon name="exclamation-circle" :size="18" class="shrink-0 text-warning-ink" />
-        <p class="min-w-0 flex-1 text-[13px] leading-[18px] text-tg-subtitle">{{ t('assignments.load_failed') }}</p>
-        <button
-          type="button"
-          class="btn btn-plain btn-sm shrink-0"
-          :disabled="assignments.loading"
-          data-testid="assignments-retry"
-          @click="assignments.load()"
-        >
-          {{ t('common.retry') }}
-        </button>
-      </div>
+          <p v-if="!allDone" class="-mt-1 text-center text-[13px] leading-[18px] text-muted" data-testid="session-hint">
+            {{ t(needsCourseToStart || needsOtherCourse ? 'today.new.no_course' : 'today.session.hint') }}
+          </p>
+        </section>
 
-      <section v-if="!showStart" data-testid="course-card">
-        <h2 class="section-label">{{ t('today.course.title') }}</h2>
+        <!--
+          "For today" (mock-up Main): what else waits today, one row each with a status dot - the assignments of the center first (they
+          have a deadline), then the round of hard words, the caravans and the word games. The order of the old cards is kept otherwise.
+        -->
+        <section v-if="showTodayList" class="list" data-testid="today-list">
+          <h2 class="px-[18px] pt-3.5 pb-2.5 text-base leading-[22px] font-semibold">{{ t('today.list.title') }}</h2>
+          <div class="divide-y divide-divider border-t border-divider">
+            <AssignmentsBlock v-if="assignmentItems.length > 0" :items="assignmentItems" :busy="opening" @open="openAssignment" />
 
-        <div v-if="data.active_course" class="card space-y-3">
-          <div>
-            <h3 class="text-[17px] leading-[22px] font-semibold" data-testid="course-title">{{ data.active_course.title }}</h3>
-            <div
-              v-if="!courseIsEmpty"
-              class="progress mt-2"
-              role="progressbar"
-              aria-valuemin="0"
-              aria-valuemax="100"
-              :aria-valuenow="coursePercent"
-              :aria-label="courseProgressText"
-            >
-              <div class="progress-fill" :style="{ width: `${coursePercent}%` }" />
-            </div>
-            <p v-if="!courseIsEmpty" class="mt-1.5 text-[13px] leading-[18px] text-tg-hint" data-testid="course-progress">{{ courseProgressText }}</p>
-          </div>
-
-          <ReadinessBlock
-            v-if="readiness"
-            :readiness="readiness"
-            :slug="data.active_course.slug"
-          />
-
-          <template v-if="data.active_course.next_lesson">
-            <div class="flex items-center gap-3 border-t pt-3">
-              <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
-                <AppIcon name="book-open" :size="18" />
-              </span>
-              <div class="min-w-0">
-                <p class="text-[13px] leading-[18px] text-tg-hint">{{ t('today.course.next') }}</p>
-                <p class="text-[15px] leading-5 font-semibold" data-testid="next-lesson">{{ lessonLabel }}</p>
-              </div>
-            </div>
-            <!-- With the quota used up and nothing due, the lesson would open the same empty session as "Start session". -->
-            <template v-if="!allDone">
+            <!-- The round of hard words (docs/06 §14): the press opens it, or continues the one that is open. -->
+            <div v-if="hardRound" data-testid="hard-round-card">
               <button
                 type="button"
-                class="btn btn-tinted btn-block"
+                class="flex min-h-11 w-full items-center gap-3 px-[18px] py-3 text-left active:bg-fill disabled:opacity-50"
                 :disabled="opening"
-                data-testid="next-lesson-btn"
-                @click="learnNext(data.active_course.next_lesson.id)"
+                @click="startHardRound"
               >
-                {{ t('today.course.learn') }}
+                <span class="size-2 shrink-0 rounded-full bg-danger" aria-hidden="true" />
+                <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span class="text-[15px] leading-5 font-semibold">{{ t('today.hard_round.title') }}</span>
+                  <span v-if="hardRound.words > 0" class="text-[13px] leading-[18px] text-muted" data-testid="hard-round-words">
+                    {{ tn('today.hard_round.subtitle', hardRound.words) }}
+                  </span>
+                </span>
+                <span class="shrink-0 text-[13px] leading-[18px] text-accent" data-testid="hard-round-btn">
+                  {{ hardRound.resuming ? t('today.hard_round.continue') : t('today.hard_round.start') }}
+                </span>
               </button>
-              <p class="text-center text-[13px] leading-[18px] text-tg-hint" data-testid="next-lesson-hint">{{ t('today.course.learn_hint') }}</p>
-            </template>
-          </template>
-          <template v-else>
-            <p
-              class="flex items-center gap-2 border-t pt-3 text-[15px] leading-5 text-tg-subtitle"
-              data-testid="course-completed"
+            </div>
+
+            <!-- The caravan of the class that is on (docs/05 §5b.7). -->
+            <RouterLink
+              v-if="classCaravan"
+              :to="classCaravan.to"
+              class="flex min-h-11 items-center gap-3 px-[18px] py-3 active:bg-fill"
+              :aria-label="classCaravan.aria"
+              data-testid="class-caravan-card"
             >
-              <AppIcon v-if="!courseIsEmpty" name="check-circle" solid :size="20" class="shrink-0 text-success" />
-              <span>{{ t(courseIsEmpty ? 'today.course.empty' : 'today.course.completed') }}</span>
-            </p>
-            <RouterLink :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="course-choose-other">
-              {{ t('today.course.choose_other') }}
+              <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+              <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span class="text-[15px] leading-5 font-semibold">{{ t('gameClass.title') }}</span>
+                <span class="text-[13px] leading-[18px] break-words text-muted" data-testid="class-caravan-text">{{ classCaravan.text }}</span>
+              </span>
             </RouterLink>
-          </template>
+
+            <!-- The secondary entry of Karvon (docs/05 §5b.4): only when `/today.game` says there is something to do - a closed game says nothing. -->
+            <RouterLink
+              v-if="hasProgress && gameEntry"
+              :to="gameEntry.to"
+              class="flex min-h-11 items-center gap-3 px-[18px] py-3 active:bg-fill"
+              :data-kind="gameEntry.kind"
+              data-testid="game-entry"
+            >
+              <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+              <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span class="text-[15px] leading-5 font-semibold" data-testid="game-entry-text">{{ gameEntry.text }}</span>
+                <span class="text-[13px] leading-[18px] text-muted">{{ t('today.game.title') }}</span>
+              </span>
+              <span v-if="gameEntry.progress" class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="game-entry-progress">{{ gameEntry.progress }}</span>
+            </RouterLink>
+
+            <!-- The standing entry of the Karvon map (docs/05 §5b.4): while the game is open and there is no caravan of the day to show. -->
+            <RouterLink
+              v-if="hasProgress && showGameMap"
+              :to="{ name: 'game' }"
+              class="flex min-h-11 items-center gap-3 px-[18px] py-3 active:bg-fill"
+              data-testid="game-map-entry"
+            >
+              <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+              <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span class="text-[15px] leading-5 font-semibold">{{ t('today.game.title') }}</span>
+                <span class="text-[13px] leading-[18px] text-muted">{{ t('today.game.map') }}</span>
+              </span>
+            </RouterLink>
+
+            <!-- Practice of the main course, one entry (docs/16 §11.1): the modes by their names and "Play". -->
+            <div v-if="showGames" data-testid="games-card">
+              <button
+                type="button"
+                class="flex min-h-11 w-full items-center gap-3 px-[18px] py-3 text-left active:bg-fill"
+                @click="openPractice"
+              >
+                <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span class="text-[15px] leading-5 font-semibold">{{ t('today.games.title') }}</span>
+                  <span class="text-[13px] leading-[18px] text-muted" data-testid="games-modes">{{ gamesModes }}</span>
+                </span>
+                <span class="shrink-0 text-[13px] leading-[18px] text-accent" data-testid="games-play-btn">{{ t('today.games.play') }}</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <div v-if="showAssignmentsError" class="flex items-center gap-2 px-1" role="status" data-testid="assignments-error">
+          <AppIcon name="exclamation-circle" :size="18" class="shrink-0 text-warning" />
+          <p class="min-w-0 flex-1 text-[13px] leading-[18px] text-muted">{{ t('assignments.load_failed') }}</p>
+          <button
+            type="button"
+            class="btn btn-plain btn-sm shrink-0"
+            :disabled="assignments.loading"
+            data-testid="assignments-retry"
+            @click="assignments.load()"
+          >
+            {{ t('common.retry') }}
+          </button>
         </div>
 
-        <div v-else class="card p-0">
-          <EmptyState data-testid="no-course" icon="academic-cap" :text="t('today.course.none')">
+        <!-- The streak (the place of the block "Week" of the mock-up: there is no data by days, so it says the streak and its record). -->
+        <section v-if="streak && !showStart" class="card flex flex-col gap-3 py-3.5" data-testid="streak-card">
+          <div class="flex items-baseline justify-between gap-3">
+            <h2 class="text-base leading-[22px] font-semibold">{{ t('today.streak.title') }}</h2>
+            <span v-if="streak.best > streak.current" class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="streak-best">
+              {{ tn('today.streak.record', streak.best) }}
+            </span>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="mt-1.5 size-2 shrink-0 rounded-full" :class="streakDot" aria-hidden="true" data-testid="streak-dot" />
+            <div class="min-w-0 flex-1 text-[15px] leading-5">
+              <p v-if="streak.at_risk" class="text-warning-ink" data-testid="streak-at-risk">
+                {{ t('today.streak.at_risk') }}
+              </p>
+              <p v-else-if="streak.current > 0 && streak.met_today && streak.held_by === 'game'" data-testid="streak-held-by-game">
+                {{ t('today.streak.held_by_game') }}
+              </p>
+              <p v-else-if="streak.current > 0 && streak.met_today" data-testid="streak-safe">
+                {{ t('today.streak.safe') }}
+              </p>
+              <p v-else-if="streak.current === 0" class="text-muted" data-testid="streak-none">
+                {{ t('today.streak.none') }}
+              </p>
+              <p v-else>{{ tn('today.streak.in_row', streak.current) }}</p>
+            </div>
+          </div>
+
+          <div v-if="streak.frozen_yesterday || isPro || streak.current > 0" class="space-y-1 border-t border-divider pt-3">
+            <p v-if="streak.frozen_yesterday" class="text-[15px] leading-5" data-testid="streak-frozen">
+              {{ t('today.streak.frozen_yesterday') }}
+            </p>
+            <p v-if="isPro" class="text-[13px] leading-[18px] text-muted" data-testid="streak-freezes">
+              {{ streak.freezes > 0 ? tn('today.streak.freezes', streak.freezes) : t('today.streak.freezes_none') }}
+            </p>
+            <div v-else-if="streak.current > 0" class="flex justify-center">
+              <button type="button" class="btn btn-plain btn-sm" data-testid="streak-freeze-teaser" @click="openPaywall('streak_freeze')">
+                {{ t('today.streak.freeze_teaser') }}
+              </button>
+            </div>
+          </div>
+
+          <div v-if="showFreezeLine" class="flex justify-center border-t border-divider pt-3">
+            <button type="button" class="btn btn-plain btn-sm" data-testid="streak-freeze-line" @click="openPaywall('streak_freeze')">
+              {{ t('today.streak.freeze_line') }}
+            </button>
+          </div>
+        </section>
+
+        <section v-if="!showStart" class="card flex flex-col gap-3" data-testid="course-card">
+          <h2 class="text-[13px] leading-[18px] font-normal text-muted">{{ t('today.course.title') }}</h2>
+
+          <template v-if="data.active_course">
+            <div>
+              <h3 class="text-base leading-[22px] font-semibold" data-testid="course-title">{{ data.active_course.title }}</h3>
+              <template v-if="!courseIsEmpty">
+                <ProgressLine :value="coursePercent" :label="courseProgressText" class="mt-2.5" />
+                <p class="mt-1.5 text-[13px] leading-[18px] text-muted" data-testid="course-progress">{{ courseProgressText }}</p>
+              </template>
+            </div>
+
+            <ReadinessBlock
+              v-if="readiness"
+              :readiness="readiness"
+              :slug="data.active_course.slug"
+            />
+
+            <template v-if="data.active_course.next_lesson">
+              <div class="border-t border-divider pt-3">
+                <p class="text-[13px] leading-[18px] text-muted">{{ t('today.course.next') }}</p>
+                <p class="text-[15px] leading-5 font-semibold" data-testid="next-lesson">{{ lessonLabel }}</p>
+              </div>
+              <!-- With the quota used up and nothing due, the lesson would open the same empty session as "Start session". -->
+              <template v-if="!allDone">
+                <button
+                  type="button"
+                  class="btn btn-tinted btn-block"
+                  :disabled="opening"
+                  data-testid="next-lesson-btn"
+                  @click="learnNext(data.active_course.next_lesson.id)"
+                >
+                  {{ t('today.course.learn') }}
+                </button>
+                <p class="-mt-1 text-center text-[13px] leading-[18px] text-muted" data-testid="next-lesson-hint">{{ t('today.course.learn_hint') }}</p>
+              </template>
+            </template>
+            <template v-else>
+              <p
+                class="flex items-center gap-2 border-t border-divider pt-3 text-[15px] leading-5 text-muted"
+                data-testid="course-completed"
+              >
+                <AppIcon v-if="!courseIsEmpty" name="check-circle" solid :size="20" class="shrink-0 text-success" />
+                <span>{{ t(courseIsEmpty ? 'today.course.empty' : 'today.course.completed') }}</span>
+              </p>
+              <RouterLink :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="course-choose-other">
+                {{ t('today.course.choose_other') }}
+              </RouterLink>
+            </template>
+          </template>
+
+          <EmptyState v-else data-testid="no-course" icon="academic-cap" :text="t('today.course.none')">
             <template #action>
               <RouterLink :to="{ name: 'courses' }" class="btn btn-tinted" data-testid="choose-course">
                 {{ t('today.course.choose') }}
               </RouterLink>
             </template>
           </EmptyState>
-        </div>
-      </section>
+        </section>
 
-      <ListGroup v-if="hasProgress && leagueRow">
-        <ListRow
-          :to="{ name: 'league' }"
-          icon="trophy"
-          tile="yellow"
-          :title="leagueRow.title"
-          :subtitle="leagueRow.subtitle"
-          data-testid="league-line"
-        />
-      </ListGroup>
+        <ListGroup v-if="hasProgress && leagueRow">
+          <ListRow
+            :to="{ name: 'league' }"
+            :title="leagueRow.title"
+            :subtitle="leagueRow.subtitle"
+            data-testid="league-line"
+          />
+        </ListGroup>
 
-      <section v-if="showInvite" class="card flex items-start gap-3" data-testid="invite-card">
-        <span class="icon-tile tile-pink size-10 rounded-xl"><AppIcon name="gift" :size="20" /></span>
-        <div class="min-w-0 flex-1">
-          <p class="text-[15px] leading-5 font-semibold" data-testid="invite-text">{{ t('today.invite.text') }}</p>
+        <section v-if="showInvite" class="card flex items-start gap-3" data-testid="invite-card">
+          <div class="min-w-0 flex-1">
+            <p class="text-[15px] leading-5 font-semibold" data-testid="invite-text">{{ t('today.invite.text') }}</p>
+            <button
+              type="button"
+              class="-mb-3 inline-flex min-h-11 items-center text-sm leading-5 text-accent"
+              data-testid="invite-more"
+              @click="router.push({ name: 'referrals', query: { from: 'today' } })"
+            >
+              {{ t('today.invite.more') }}
+            </button>
+          </div>
+          <!-- 44 px target; the negative margins keep the glyph in the corner of the card padding. -->
           <button
             type="button"
-            class="mt-1 inline-flex min-h-11 items-center text-[15px] leading-5 text-tg-link underline"
-            data-testid="invite-more"
-            @click="router.push({ name: 'referrals', query: { from: 'today' } })"
+            class="-mt-3 -mr-3 flex size-11 shrink-0 items-center justify-center rounded-full text-muted active:bg-fill"
+            :aria-label="t('today.invite.dismiss')"
+            data-testid="invite-dismiss"
+            @click="hideInvite()"
           >
-            {{ t('today.invite.more') }}
+            <AppIcon name="x-mark" :size="20" />
           </button>
-        </div>
-        <!-- 44 px target; the negative margins keep the glyph in the corner of the card padding. -->
-        <button
-          type="button"
-          class="-mt-3 -mr-3 flex size-11 shrink-0 items-center justify-center rounded-full text-tg-hint active:bg-track"
-          :aria-label="t('today.invite.dismiss')"
-          data-testid="invite-dismiss"
-          @click="hideInvite()"
-        >
-          <AppIcon name="x-mark" :size="20" />
-        </button>
-      </section>
+        </section>
+      </div>
     </div>
 
     <IntroSheet v-if="introOpen" @close="introOpen = false" />

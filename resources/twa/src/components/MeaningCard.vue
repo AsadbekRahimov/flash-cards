@@ -95,29 +95,34 @@ function onContinue(): void {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="meaning-card">
-    <div class="flex flex-1 flex-col gap-4 px-4 pt-4 pb-4">
-      <article class="card flex flex-col items-center gap-3 px-5 py-6 text-center">
+    <div class="flex flex-col px-5 pb-4">
+      <!-- The question (docs/design Question): the word large on the white screen, its transcription and the speaker under it. -->
+      <div class="mt-14 flex flex-col items-center gap-2.5 text-center short:mt-5 short:gap-1.5">
         <span v-if="card.is_leech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
-        <p class="text-[15px] leading-5 font-medium text-tg-subtitle">{{ t('exercise.meaning.title') }}</p>
-        <div class="flex max-w-full items-center gap-3">
-          <h2 class="min-w-0 text-3xl leading-9 font-bold break-words" data-testid="word">{{ word }}</h2>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('exercise.meaning.title') }}</p>
+        <h2
+          class="max-w-full text-[46px] leading-[52px] font-semibold tracking-[-0.6px] break-words short:text-[36px] short:leading-[42px]"
+          lang="en"
+          data-testid="word"
+        >
+          {{ word }}
+        </h2>
+        <div class="flex items-center gap-1">
+          <span v-if="card.transcription" class="font-ipa text-[15px] leading-5 text-muted" data-testid="transcription">{{ card.transcription }}</span>
           <button
             type="button"
-            class="btn btn-tinted size-11 min-h-0 shrink-0 rounded-full p-0"
+            class="flex size-11 shrink-0 items-center justify-center rounded-full text-accent active:bg-fill"
             :aria-label="t('card.speak')"
             data-testid="speak-btn"
             @click="onSpeak"
           >
-            <AppIcon name="speaker-wave" :size="22" />
+            <AppIcon name="speaker-wave" :size="20" />
           </button>
         </div>
-        <p v-if="card.transcription" class="text-[17px] leading-[22px] text-tg-hint" data-testid="transcription">
-          {{ card.transcription }}
-        </p>
-      </article>
+      </div>
 
       <!-- The translations: long ones wrap inside the option (QuizOption breaks words), nothing is clipped at 320 px. -->
-      <div class="flex flex-col gap-2.5" role="group" :aria-label="t('exercise.meaning.title')">
+      <div class="mt-11 flex flex-col gap-2.5 short:mt-4 short:gap-2" role="group" :aria-label="t('exercise.meaning.title')">
         <QuizOption
           v-for="(label, index) in options"
           :key="index"
@@ -128,38 +133,51 @@ function onContinue(): void {
           @pick="onPick"
         />
       </div>
-
-      <p v-if="isCorrect !== null && shown.example" class="px-2 text-center text-base leading-[22px] text-tg-subtitle italic" data-testid="example">
-        {{ shown.example }}
-      </p>
-      <p
-        v-if="isCorrect !== null && shown.example && shown.example_translation"
-        class="-mt-2 px-2 text-center text-[13px] leading-[18px] text-tg-hint"
-        data-testid="example-translation"
-      >
-        {{ shown.example_translation }}
-      </p>
-      <!-- The method (docs/06 §12.3, §12.6): the hooks and the confusable pair once the answer is on screen. -->
-      <CardHooks v-if="isCorrect !== null" :card="shown" class="px-2" />
     </div>
 
-    <StickyActions v-if="awaitingConfirm">
-      <button
-        type="button"
-        class="btn btn-primary btn-lg btn-block"
-        data-testid="continue-btn"
-        :disabled="waiting"
-        :aria-busy="waiting"
-        @click="onContinue"
-      >
-        <span
-          v-if="waiting"
-          class="size-5 animate-spin rounded-full border-2 border-current/30 border-t-current motion-reduce:animate-none"
-          aria-hidden="true"
-          data-testid="continue-waiting"
-        />
-        {{ t('exercise.continue') }}
-      </button>
+    <!--
+      The answer (docs/design Feedback): a grey panel at the bottom with the word and its meaning, the verdict in words, the
+      example and its translation, the hooks (docs/06 §12.3, §12.6) and, after a miss, "Next".
+    -->
+    <StickyActions v-if="isCorrect !== null" class="border-t border-hairline">
+      <div class="flex flex-col gap-3 pt-1.5 short:gap-2" data-testid="feedback">
+        <div class="flex items-baseline justify-between gap-3">
+          <p class="min-w-0 text-lg leading-6 font-semibold break-words" data-testid="feedback-title">
+            <span lang="en">{{ word }}</span> — {{ shown.translation }}
+          </p>
+          <span
+            class="shrink-0 text-[13px] leading-[18px]"
+            :class="isCorrect ? 'text-success-ink' : 'text-danger-ink'"
+            data-testid="feedback-status"
+          >
+            {{ t(isCorrect ? 'exercise.feedback.right' : 'exercise.feedback.wrong') }}
+          </span>
+        </div>
+        <div v-if="shown.example" class="flex flex-col gap-1">
+          <p class="text-base leading-[22px] italic" lang="en" data-testid="example">{{ shown.example }}</p>
+          <p v-if="shown.example_translation" class="text-sm leading-5 text-muted" data-testid="example-translation">
+            {{ shown.example_translation }}
+          </p>
+        </div>
+        <CardHooks :card="shown" />
+        <button
+          v-if="awaitingConfirm"
+          type="button"
+          class="btn btn-primary btn-lg btn-block"
+          data-testid="continue-btn"
+          :disabled="waiting"
+          :aria-busy="waiting"
+          @click="onContinue"
+        >
+          <span
+            v-if="waiting"
+            class="size-5 animate-spin rounded-full border-2 border-current/30 border-t-current motion-reduce:animate-none"
+            aria-hidden="true"
+            data-testid="continue-waiting"
+          />
+          {{ t('exercise.continue') }}
+        </button>
+      </div>
     </StickyActions>
   </div>
 </template>

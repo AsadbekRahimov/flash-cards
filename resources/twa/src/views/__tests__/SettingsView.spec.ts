@@ -557,7 +557,7 @@ describe('SettingsView', () => {
       expect(w.find('[data-testid=org-17] [data-testid=org-waitlisted-hint]').exists()).toBe(false)
       const hint = w.get('[data-testid=org-18] [data-testid=org-waitlisted-hint]')
       expect(hint.text()).toBe('В центре пока нет свободных мест. Pro от центра включится, когда место освободится.')
-      expect(hint.classes()).toContain('text-tg-hint')
+      expect(hint.classes()).toContain('text-muted')
       expect(w.findAll('[data-testid=org-waitlisted-hint]')).toHaveLength(1)
     })
 

@@ -54,14 +54,19 @@ describe('ModeCard — a card that can be played', () => {
     expect(render({ info: info('pairs', { estimate_seconds: 300 }) }).get('[data-testid=mode-estimate]').text()).toBe('≈ 5 мин')
   })
 
-  it('draws the icon tile of its mode', () => {
-    const tiles: Record<PracticeMode, string> = { pairs: 'tile-blue', collocation: 'tile-purple', sentence: 'tile-orange', dictation: 'tile-teal', pairs_timed: 'tile-pink', word_form: 'tile-green', error_hunt: 'tile-red' }
-
-    for (const mode of Object.keys(tiles) as PracticeMode[]) {
-      const tile = render({ info: info(mode) }).get('.icon-tile')
-      expect(tile.classes(), mode).toContain(tiles[mode])
-      expect(tile.findComponent(AppIcon).exists()).toBe(true)
+  it('is a row of text: no icon tile, no icon at all, one value on the right', () => {
+    for (const mode of ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed', 'word_form', 'error_hunt'] as PracticeMode[]) {
+      const wrapper = render({ info: info(mode) })
+      expect(wrapper.find('.icon-tile').exists(), mode).toBe(false)
+      expect(wrapper.findComponent(AppIcon).exists(), mode).toBe(false)
+      expect(wrapper.get(`[data-testid=mode-card-${mode}]`).classes()).toContain('border-divider')
     }
+  })
+
+  it('shows the state instead of the length when the row is not simply playable', () => {
+    const pro = render({ info: info('dictation', { state: 'pro_required' }) })
+    expect(pro.get('[data-testid=mode-chip]').classes()).toContain('chip-accent')
+    expect(pro.find('[data-testid=mode-estimate]').exists()).toBe(false)
   })
 
   it('has the name of the mode in the language of the learner', () => {
@@ -294,7 +299,9 @@ describe('ModeCard — timed pairs', () => {
 
     expect(wrapper.get('[data-testid=mode-title]').text()).toBe('Пары на время')
     expect(wrapper.get('[data-testid=mode-example]').text()).toBe('60 секунд — собери как можно больше пар')
-    expect(wrapper.get('[data-testid=mode-record]').text()).toBe('Рекорд: 23')
+    expect(wrapper.get('[data-testid=mode-record]').text()).toBe('рекорд 23')
+    expect(wrapper.get('[data-testid=mode-record] .font-mono').text()).toBe('23')
+    expect(wrapper.find('[data-testid=mode-estimate]').exists()).toBe(false) // one value on the right
   })
 
   it('lets a long example wrap to a second line instead of cutting it with an ellipsis', () => {

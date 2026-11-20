@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import GameItemImage from '@/components/game/GameItemImage.vue'
+import NumberText from '@/components/game/NumberText.vue'
+import { NUMBER_MARK } from '@/components/game/numberMark'
 import { useI18n } from '@/i18n'
 import type { GameShopItem } from '@/api/gameShopTypes'
 
@@ -24,11 +26,15 @@ const { t } = useI18n()
         <h3 class="text-[15px] leading-5 font-semibold" data-testid="item-title">{{ item.title }}</h3>
         <span v-if="item.locked_reason === 'pro'" class="chip chip-accent" data-testid="item-pro">{{ t('gameCaravan.item.pro') }}</span>
       </div>
-      <p v-if="item.description" class="text-[13px] leading-[18px] text-tg-subtitle">{{ item.description }}</p>
-      <p v-if="item.kind === 'booster' && item.qty > 0" class="mt-0.5 text-[13px] leading-[18px] font-medium text-accent-ink tabular-nums" data-testid="item-stock">
-        {{ t('gameCaravan.item.stock', { count: item.qty }) }}
-      </p>
-      <p v-if="item.locked_reason === 'achievement'" class="mt-0.5 text-[13px] leading-[18px] font-medium text-tg-subtitle" data-testid="item-achievement">
+      <p v-if="item.description" class="text-[13px] leading-[18px] text-muted">{{ item.description }}</p>
+      <NumberText
+        v-if="item.kind === 'booster' && item.qty > 0"
+        class="mt-0.5 block text-[13px] leading-[18px] text-accent-ink"
+        :text="t('gameCaravan.item.stock', { count: NUMBER_MARK })"
+        :value="item.qty"
+        data-testid="item-stock"
+      />
+      <p v-if="item.locked_reason === 'achievement'" class="mt-0.5 text-[13px] leading-[18px] text-muted" data-testid="item-achievement">
         {{ t('gameCaravan.item.achievement') }}
       </p>
 
@@ -47,8 +53,9 @@ const { t } = useI18n()
             {{ t('gameCaravan.item.equip') }}
           </button>
         </template>
-        <button v-else type="button" class="btn btn-primary btn-sm min-h-11" :disabled="busy" data-testid="item-buy" @click="emit('buy', props.item)">
-          {{ t('gameCaravan.item.buy') }} · {{ item.price }}
+        <!-- Outlined, not the main button: a list of cards with a dark button each would have a dozen main actions. -->
+        <button v-else type="button" class="btn btn-tinted btn-sm min-h-11" :disabled="busy" data-testid="item-buy" @click="emit('buy', props.item)">
+          {{ t('gameCaravan.item.buy') }} · <span class="font-mono">{{ item.price }}</span>
         </button>
       </div>
     </div>

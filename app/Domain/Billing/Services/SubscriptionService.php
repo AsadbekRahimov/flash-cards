@@ -14,6 +14,7 @@ use App\Domain\Billing\Events\SubscriptionRenewalDue;
 use App\Domain\Billing\Exceptions\PromoCodeException;
 use App\Domain\Billing\Exceptions\SubscriptionException;
 use App\Domain\Billing\Support\AutoRenewal;
+use App\Domain\Billing\Support\BillingPeriods;
 use App\Domain\Billing\Support\OrgTiers;
 use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Billing\Support\SubscriptionLiveness;
@@ -984,7 +985,7 @@ final class SubscriptionService
     /** Days of a billing period from config('billing.periods'); unknown period = 30 days. */
     public static function periodDays(string $period): int
     {
-        return max(1, (int) config("billing.periods.{$period}", 30));
+        return BillingPeriods::days($period);
     }
 
     /**

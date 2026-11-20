@@ -144,31 +144,31 @@ onMounted(() => {
       <header class="flex items-center gap-4 pt-2" data-testid="profile-header">
         <span
           v-if="initial"
-          class="flex size-16 shrink-0 items-center justify-center rounded-full bg-accent text-[28px] leading-none font-semibold text-tg-button-text"
+          class="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary text-[28px] leading-none font-semibold text-on-primary"
           aria-hidden="true"
           data-testid="profile-avatar"
         >
           {{ initial }}
         </span>
-        <AppIcon v-else name="user-circle" solid :size="64" class="text-tg-hint" data-testid="profile-avatar" />
+        <AppIcon v-else name="user-circle" solid :size="64" class="text-muted" data-testid="profile-avatar" />
 
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2">
-            <h1 class="min-w-0 truncate text-[22px] leading-7 font-bold" data-testid="profile-name">
+            <h1 class="min-w-0 truncate text-[26px] leading-[30px] font-semibold tracking-[-0.2px]" data-testid="profile-name">
               {{ name || t('profile.anonymous') }}
             </h1>
             <span class="chip shrink-0" :class="isPro ? 'chip-accent' : 'chip-neutral'" data-testid="profile-chip">
               {{ planChip }}
             </span>
           </div>
-          <p class="mt-0.5 text-[15px] leading-5 text-tg-subtitle" data-testid="profile-plan">{{ planLine }}</p>
+          <p class="mt-0.5 text-[15px] leading-5 text-muted" data-testid="profile-plan">{{ planLine }}</p>
         </div>
       </header>
 
       <section v-if="!isPro" class="card space-y-3" data-testid="profile-pro-card">
         <div>
           <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('profile.pro.title') }}</h2>
-          <p class="mt-1 text-[15px] leading-5 text-tg-subtitle">{{ t('profile.pro.text') }}</p>
+          <p class="mt-1 text-[15px] leading-5 text-muted">{{ t('profile.pro.text') }}</p>
         </div>
         <RouterLink :to="{ name: 'billing' }" class="btn btn-primary btn-block" data-testid="profile-pro-cta">
           {{ t('profile.pro.more') }}
@@ -181,14 +181,14 @@ onMounted(() => {
           <!-- The frame goes round the avatar: it is drawn behind a smaller avatar. -->
           <span class="relative flex size-[72px] shrink-0 items-center justify-center" data-testid="caravan-frame">
             <GameItemImage v-if="frame" :name="frame.asset" :size="72" class="absolute inset-0" data-testid="caravan-frame-image" />
-            <span class="relative flex size-11 items-center justify-center rounded-full bg-accent text-[20px] leading-none font-semibold text-tg-button-text" aria-hidden="true">{{ initial }}</span>
+            <span class="relative flex size-11 items-center justify-center rounded-full bg-primary text-[20px] leading-none font-semibold text-on-primary" aria-hidden="true">{{ initial }}</span>
           </span>
           <ul class="grid min-w-0 flex-1 grid-cols-3 gap-2">
             <li v-for="slot in worn" :key="slot.slot" class="flex min-w-0 flex-col items-center gap-1 text-center" :data-testid="`caravan-${slot.slot}`">
               <span class="flex size-12 items-center justify-center rounded-xl bg-fill">
                 <GameItemImage v-if="slot.item" :name="slot.item.asset" :size="40" />
               </span>
-              <span class="w-full truncate text-[12px] leading-4 text-tg-subtitle">{{ slot.label }}</span>
+              <span class="w-full truncate text-[12px] leading-4 text-muted">{{ slot.label }}</span>
               <span v-if="!slot.item" class="sr-only">{{ t('gameCaravan.profile.none') }}</span>
             </li>
           </ul>
@@ -201,31 +201,23 @@ onMounted(() => {
       <ListGroup>
         <ListRow
           :to="{ name: 'achievements' }"
-          icon="trophy"
-          tile="yellow"
           :title="t('achievements.title')"
           data-testid="row-achievements"
         />
         <ListRow
           :to="{ name: 'referrals' }"
-          icon="gift"
-          tile="pink"
           :title="t('referrals.title')"
           :subtitle="t('profile.referrals.hint')"
           data-testid="row-referrals"
         />
         <ListRow
           :to="{ name: 'friends' }"
-          icon="users"
-          tile="blue"
           :title="t('profile.friends')"
           data-testid="row-friends"
         />
         <ListRow
           v-if="activeCourseSlug"
           :to="`/courses/${encodeURIComponent(activeCourseSlug)}/readiness?source=profile`"
-          icon="chart-bar"
-          tile="green"
           :title="t('profile.readiness')"
           :subtitle="t('profile.readiness.hint')"
           data-testid="row-readiness"
@@ -235,15 +227,11 @@ onMounted(() => {
       <ListGroup>
         <ListRow
           :to="{ name: 'billing' }"
-          icon="credit-card"
-          tile="purple"
           :title="t('billing.title')"
           :value="planChip"
           data-testid="row-billing"
         />
         <ListRow
-          icon="globe-alt"
-          tile="green"
           :title="LANGUAGE_TITLE"
           :value="languageLabel || locale.toUpperCase()"
           data-testid="row-language"
@@ -251,28 +239,24 @@ onMounted(() => {
         />
         <ListRow
           :to="{ name: 'settings' }"
-          icon="cog-6-tooth"
-          tile="gray"
           :title="t('settings.title')"
           data-testid="row-settings"
         />
         <ListRow
-          icon="information-circle"
-          tile="teal"
           :title="t('profile.how_it_works')"
           data-testid="row-intro"
           @click="introOpen = true"
         />
       </ListGroup>
 
-      <p v-if="support" class="px-4 pt-2 text-center text-[13px] leading-[18px] text-tg-hint" data-testid="profile-support">
+      <p v-if="support" class="px-[18px] pt-2 text-center text-[13px] leading-[18px] text-muted" data-testid="profile-support">
         {{ t('profile.support') }}
         <a
           v-if="support.href"
           :href="support.href"
           target="_blank"
           rel="noopener noreferrer"
-          class="break-all text-tg-link underline"
+          class="break-all text-accent underline"
           data-testid="profile-support-link"
         >{{ support.label }}</a>
         <span v-else class="font-semibold break-all" data-testid="profile-support-text">{{ support.label }}</span>

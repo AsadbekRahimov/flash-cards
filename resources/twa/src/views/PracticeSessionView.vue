@@ -17,6 +17,7 @@ import { progressPercent } from '@/composables/courseLabels'
 import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { lessonHeader, verdictLabel } from '@/composables/practiceLabels'
 import { useBackButton } from '@/composables/useBackButton'
+import { useChromeSurface } from '@/composables/useChromeSurface'
 import { usePracticeAudio } from '@/composables/usePracticeAudio'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
@@ -76,6 +77,10 @@ function leave(): void {
 }
 
 useBackButton(leave)
+
+// White (`bg-surface`) while a task is on it, the page colour for the summary: Telegram's header and window background follow
+// (docs/14 §4.1).
+useChromeSurface(() => status.value !== 'finished')
 
 /**
  * Set when the learner leaves the screen: whatever comes back after that (the login, the session, a new session of
@@ -288,6 +293,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
 <template>
   <section
     class="mx-auto flex w-full max-w-xl flex-1 flex-col"
+    :class="status === 'finished' ? 'bg-page' : 'bg-surface'"
     style="min-height: var(--tg-viewport-stable-height, 100dvh)"
     data-testid="practice-session-view"
   >
@@ -299,23 +305,21 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
     </ClosedState>
 
     <template v-else>
-      <header class="px-4 pt-3">
-        <div class="flex items-center gap-2">
+      <header class="px-5 pt-3">
+        <div class="flex items-center gap-3.5">
           <button
             type="button"
-            class="-ml-1 flex size-11 shrink-0 items-center justify-center"
+            class="-ml-3 flex size-11 shrink-0 items-center justify-center text-muted"
             :aria-label="t('common.close')"
             data-testid="close-btn"
             @click="leave"
           >
-            <span class="flex size-9 items-center justify-center rounded-full bg-track text-tg-subtitle">
-              <AppIcon name="x-mark" :size="20" />
-            </span>
+            <AppIcon name="x-mark" :size="18" />
           </button>
           <!-- A timed game has no use for the rounds counter: the clock and the score tell how it goes. -->
           <div
             v-if="!isTimed"
-            class="progress flex-1"
+            class="progress progress-primary h-[3px] flex-1"
             role="progressbar"
             aria-valuemin="0"
             aria-valuemax="100"
@@ -327,14 +331,14 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
           </div>
           <span
             v-if="!isTimed"
-            class="min-w-14 text-right text-[15px] leading-5 font-medium text-tg-subtitle tabular-nums"
+            class="min-w-12 text-right font-mono text-[13px] leading-[18px] text-muted tabular-nums"
             :class="{ invisible: progress.total === 0 }"
             data-testid="progress"
           >
             {{ progress.done }} / {{ progress.total }}
           </span>
         </div>
-        <p v-if="caption" class="mt-1 flex items-center justify-center gap-2 text-center text-[15px] leading-5 font-medium text-tg-subtitle" data-testid="caption">
+        <p v-if="caption" class="mt-1 flex items-center justify-center gap-2 text-center text-[13px] leading-[18px] text-muted" data-testid="caption">
           {{ caption }}
           <span v-if="session?.retry_of" class="chip chip-accent" data-testid="retry-chip">{{ t('practice.session.retry_chip') }}</span>
         </p>
@@ -373,11 +377,10 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
       <!-- A timed game before its start: a short "Ready?" - the first tap of the learner must not eat the time. -->
       <div v-else-if="waitingStart && timed" class="flex flex-1 flex-col" data-testid="timed-ready">
         <div class="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-          <span class="flex size-20 items-center justify-center rounded-full bg-accent-soft text-accent"><AppIcon name="bolt" solid :size="44" /></span>
-          <h1 class="text-[28px] leading-[34px] font-bold tracking-tight" data-testid="timed-ready-title">{{ t('practice.timed.ready_title') }}</h1>
-          <p class="text-[17px] leading-[22px] text-tg-subtitle" data-testid="timed-ready-text">{{ t('practice.timed.ready_text', { seconds: timed.seconds }) }}</p>
+          <h1 class="text-[32px] leading-[38px] font-semibold tracking-[-0.4px]" data-testid="timed-ready-title">{{ t('practice.timed.ready_title') }}</h1>
+          <p class="text-base leading-[22px] text-muted" data-testid="timed-ready-text">{{ t('practice.timed.ready_text', { seconds: timed.seconds }) }}</p>
         </div>
-        <StickyActions>
+        <StickyActions surface>
           <button type="button" class="btn btn-primary btn-lg btn-block" :disabled="timedStarting" data-testid="timed-start-btn" @click="onStart">
             {{ timedStarting ? t('practice.timed.starting') : t('practice.timed.go') }}
           </button>
@@ -386,7 +389,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => practice.dismissPaywall
 
       <template v-else-if="element">
         <TimedBar v-if="timed" :deadline="timedDeadline" :seconds="timed.seconds" :score="timed.score" :penalty="penalty" @expired="practice.expire()" />
-        <p v-if="timed && timeUp" class="px-4 pt-2 text-center text-[17px] leading-[22px] font-semibold text-danger-ink" role="status" data-testid="timed-time-up">
+        <p v-if="timed && timeUp" class="px-5 pt-2 text-center text-base leading-[22px] font-semibold text-danger-ink" role="status" data-testid="timed-time-up">
           {{ t('practice.timed.time_up') }}
         </p>
         <!-- The component of the mode (modeComponents.ts); the key makes every element a new one, with no pick left over. -->

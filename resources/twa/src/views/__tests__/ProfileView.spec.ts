@@ -96,7 +96,7 @@ describe('ProfileView', () => {
       expect(row.text()).toContain('Til · Язык')
       expect(row.text()).toContain('🇷🇺 Русский')
       expect(row.element.tagName).toBe('BUTTON')
-      expect(row.find('.icon-tile svg').exists()).toBe(true)
+      expect(row.find('.icon-tile').exists()).toBe(false)
       expect(row.element.nextElementSibling).toBe(w.get('[data-testid=row-settings]').element)
     })
 
@@ -254,7 +254,7 @@ describe('ProfileView', () => {
         const row = w.get(`[data-testid=${id}]`)
         expect(row.element.tagName, id).toBe('A')
         expect(row.attributes('href'), id).toBe(href)
-        expect(row.find('.icon-tile').exists(), id).toBe(true)
+        expect(row.find('.icon-tile').exists(), id).toBe(false)
       }
     })
 
@@ -275,15 +275,10 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=row-referrals]').text()).not.toContain('Вам и другу')
     })
 
-    it('colours the tiles as designed (docs/14 §5.2)', async () => {
+    it('draws plain rows, without icon tiles (the redesign of 2026-11)', async () => {
       const w = await render()
 
-      const tile = (id: string) => w.get(`[data-testid=${id}] .icon-tile`).classes()
-      expect(tile('row-achievements')).toContain('tile-yellow')
-      expect(tile('row-referrals')).toContain('tile-pink')
-      expect(tile('row-friends')).toContain('tile-blue')
-      expect(tile('row-billing')).toContain('tile-purple')
-      expect(tile('row-settings')).toContain('tile-gray')
+      expect(w.find('.icon-tile').exists()).toBe(false)
     })
   })
 

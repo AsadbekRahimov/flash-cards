@@ -73,10 +73,10 @@ describe('MeaningCard', () => {
     expect(w.find('[data-testid=example]').exists()).toBe(false)
     expect(w.find('[data-testid=card-hooks]').exists()).toBe(false)
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
-    // The options are outside the question card (docs/14 §6.2); a long translation wraps inside its option, nothing is clipped.
-    expect(w.get('article').find('[data-testid=option-0]').exists()).toBe(false)
+    // No box around the question (docs/design Question); a long translation wraps inside its option, nothing is clipped.
+    expect(w.find('.card').exists()).toBe(false)
     expect(w.get('[data-testid=option-0]').classes()).toContain('option')
-    expect(w.get('[data-testid=option-3] span').classes()).toEqual(expect.arrayContaining(['min-w-0', 'break-words']))
+    expect(w.get('[data-testid=option-3] span.flex-1').classes()).toEqual(expect.arrayContaining(['min-w-0', 'break-words']))
     expect(w.get('[data-testid=word]').classes()).toContain('break-words')
   })
 
@@ -158,6 +158,37 @@ describe('MeaningCard', () => {
     await next.trigger('click')
     expect(w.emitted('advance')).toHaveLength(1)
     expect(w.emitted('pick')).toEqual([['Нежный']])
+  })
+
+  it('puts the answer in the grey panel at the bottom (docs/design Feedback): the word and its meaning, the verdict in words', async () => {
+    const before = mount(MeaningCard, { props: { card } })
+    expect(before.find('[data-testid=feedback]').exists()).toBe(false)
+    expect(before.find('[data-testid=actions]').exists()).toBe(false)
+
+    const wrong = mount(MeaningCard, { props: { card } })
+    await wrong.get('[data-testid=option-2]').trigger('click')
+    // While the server is thinking there is no panel yet: nothing is known.
+    expect(wrong.find('[data-testid=feedback]').exists()).toBe(false)
+    await wrong.setProps({ result: answered(false) })
+
+    const panel = wrong.get('[data-testid=actions]')
+    expect(panel.classes()).toEqual(expect.arrayContaining(['bg-page', 'border-t', 'border-hairline']))
+    expect(panel.get('[data-testid=feedback-title]').text()).toBe('Resilient — устойчивый')
+    const status = panel.get('[data-testid=feedback-status]')
+    expect(status.text()).toBe('неверно')
+    expect(status.classes()).toContain('text-danger-ink')
+    expect(panel.get('[data-testid=example]').classes()).toContain('italic')
+    expect(panel.find('[data-testid=continue-btn]').exists()).toBe(true)
+    // The options name the verdict in words too: the pick and the right one.
+    expect(wrong.get('[data-testid=option-caption-2]').text()).toBe('ваш ответ')
+    expect(wrong.get('[data-testid=option-caption-1]').text()).toBe('верный ответ')
+
+    const right = mount(MeaningCard, { props: { card } })
+    await right.get('[data-testid=option-1]').trigger('click')
+    await right.setProps({ result: answered(true) })
+    expect(right.get('[data-testid=feedback-status]').text()).toBe('верно')
+    expect(right.get('[data-testid=feedback-status]').classes()).toContain('text-success-ink')
+    expect(right.find('[data-testid=continue-btn]').exists()).toBe(false)
   })
 
   it('accepts one pick only and none while disabled', async () => {

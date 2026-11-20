@@ -6,6 +6,7 @@ namespace App\Domain\Analytics\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use Carbon\CarbonImmutable;
+use Closure;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -55,28 +56,8 @@ final class ClientTimingReport
     {
         /** @var array<string, array{platform: string, start: string, segment: string, opens: int, values: array<string, list<int>>}> $cells */
         $cells = [];
-        $read = 0;
-        $truncated = false;
 
-        $rows = DB::table('product_events')
-            ->select(['id', 'props'])
-            ->where('name', ProductEventName::ClientTiming->value)
-            ->where('occurred_at', '>=', $from)
-            ->where('occurred_at', '<', $to)
-            ->lazyById(self::CHUNK);
-
-        foreach ($rows as $row) {
-            if ($read >= self::MAX_ROWS) {
-                $truncated = true;
-                break;
-            }
-            $read++;
-
-            $props = is_string($row->props) ? json_decode($row->props, true) : null;
-            if (! is_array($props)) {
-                continue;
-            }
-
+        [$read, $truncated] = $this->scan($from, $to, function (array $props) use (&$cells): void {
             $platform = is_string($props['platform'] ?? null) ? $props['platform'] : 'unknown';
             $start = ($props['cold'] ?? null) === true ? 'cold' : 'warm';
             $segment = match ($props['class'] ?? null) {
@@ -94,7 +75,7 @@ final class ClientTimingReport
                     $cells[$key]['values'][$metric][] = $value;
                 }
             }
-        }
+        });
 
         // The total first, then the cells by platform, start and segment.
         uksort($cells, static fn (string $a, string $b): int => [! str_starts_with($a, self::ALL.'|'), $a] <=> [! str_starts_with($b, self::ALL.'|'), $b]);
@@ -122,6 +103,72 @@ final class ClientTimingReport
             'truncated' => $truncated,
             'cells' => $out,
         ];
+    }
+
+    /**
+     * One measure per platform over every start and segment (the line «время до первой кнопки» of the dashboard of `/admin`):
+     * the same opens, the same rules and the same cut at {@see MAX_ROWS} as {@see build()}, platforms by name.
+     *
+     * @return array{from: string, to: string, opens: int, truncated: bool, platforms: array<string, Measure>}
+     */
+    public function byPlatform(CarbonImmutable $from, CarbonImmutable $to, string $metric = 'button_ready'): array
+    {
+        /** @var array<string, list<int>> $values */
+        $values = [];
+
+        [$read, $truncated] = $this->scan($from, $to, function (array $props) use (&$values, $metric): void {
+            $platform = is_string($props['platform'] ?? null) ? $props['platform'] : 'unknown';
+            $values[$platform] ??= [];
+            $value = $this->values($props)[$metric] ?? null;
+            if ($value !== null) {
+                $values[$platform][] = $value;
+            }
+        });
+
+        ksort($values);
+
+        return [
+            'from' => $from->toIso8601String(),
+            'to' => $to->toIso8601String(),
+            'opens' => $read,
+            'truncated' => $truncated,
+            'platforms' => array_map(fn (array $list): array => $this->measure($list), $values),
+        ];
+    }
+
+    /**
+     * Reads the `client.timing` opens of `[from, to)` by id in chunks and hands the decoded props of each to `$each`; at most
+     * {@see MAX_ROWS} opens, the oldest first.
+     *
+     * @param  Closure(array<mixed>): void  $each
+     * @return array{int, bool} the opens read and whether the window was cut
+     */
+    private function scan(CarbonImmutable $from, CarbonImmutable $to, Closure $each): array
+    {
+        $read = 0;
+        $truncated = false;
+
+        $rows = DB::table('product_events')
+            ->select(['id', 'props'])
+            ->where('name', ProductEventName::ClientTiming->value)
+            ->where('occurred_at', '>=', $from)
+            ->where('occurred_at', '<', $to)
+            ->lazyById(self::CHUNK);
+
+        foreach ($rows as $row) {
+            if ($read >= self::MAX_ROWS) {
+                $truncated = true;
+                break;
+            }
+            $read++;
+
+            $props = is_string($row->props) ? json_decode($row->props, true) : null;
+            if (is_array($props)) {
+                $each($props);
+            }
+        }
+
+        return [$read, $truncated];
     }
 
     /**

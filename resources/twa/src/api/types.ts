@@ -395,7 +395,8 @@ export interface Renewal {
 // ---- billing (docs/04 A.8) ----
 
 export type BillingProviderKey = 'telegram_stars' | 'payme' | 'click'
-export type BillingPeriod = 'month' | 'year'
+/** `quarter` = 90 days (Stars and sums, learners only); a period this build does not know is skipped by the screens (`orderedPeriods`). */
+export type BillingPeriod = 'month' | 'quarter' | 'year'
 /** Prices are minor units: XTR = whole Stars, UZS = tiyin (÷ 100 to show). */
 export type BillingCurrency = 'XTR' | 'UZS'
 export type Prices = Partial<Record<BillingCurrency, number>>
@@ -404,10 +405,17 @@ export interface CatalogItem {
   plan: string
   tier: string | null
   period: BillingPeriod
+  /** Length of the period in days; absent on an older server. */
+  days?: number
   /** After the open offer. */
   prices: Prices
   /** Before it. */
   list_prices: Prices
+  /**
+   * Whole percent cheaper than the same time in months at the month's list price (0 for the month); absent on an older server,
+   * then the screens work it out from `list_prices` (`periodSavingPct`).
+   */
+  saving_pct?: number
 }
 
 export interface SubscriptionSummary {

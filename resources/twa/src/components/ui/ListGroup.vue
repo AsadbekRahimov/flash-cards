@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
- * Grouped list in the style of Telegram settings: an optional label above, rounded rows inside, an optional
- * footnote below. Put `ListRow`s (or any `.list-row` elements) in the default slot.
+ * Grouped list: an optional label above, the rows in one flat card (hairline frame, radius 12, full-width lines between the
+ * rows), an optional footnote below. Put `ListRow`s (or any `.list-row` elements) in the default slot.
  *
- * - `header` — the group label (rendered uppercase by `.section-label`).
+ * - `header` — the group label (`.section-label`: 13 px, secondary colour, normal case).
  * - `footer` — a hint under the group.
  *
  * @example
@@ -23,6 +23,6 @@ defineProps<{
     <div class="list">
       <slot />
     </div>
-    <p v-if="footer" class="mt-1.5 px-4 text-[13px] leading-[18px] text-tg-hint">{{ footer }}</p>
+    <p v-if="footer" class="mt-2 px-[18px] text-[13px] leading-[18px] text-muted">{{ footer }}</p>
   </section>
 </template>

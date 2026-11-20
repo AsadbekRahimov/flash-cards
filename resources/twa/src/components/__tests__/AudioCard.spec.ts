@@ -82,8 +82,9 @@ describe('AudioCard', () => {
     const play = w.get('[data-testid=play-btn]')
     expect(play.attributes('aria-label')).toBe('Прослушать ещё раз')
     expect(play.classes()).toEqual(expect.arrayContaining(['rounded-full', 'bg-accent-soft', 'text-accent']))
-    // The options are outside the question card.
-    expect(w.get('article').find('[data-testid=option-0]').exists()).toBe(false)
+    // No box around the question (docs/design Question): the options are the only framed things on the white screen.
+    expect(w.find('article').exists()).toBe(false)
+    expect(w.find('.card').exists()).toBe(false)
     expect(w.get('[data-testid=option-0]').classes()).toContain('option')
     expect(w.find('[data-testid=continue-btn]').exists()).toBe(false)
   })

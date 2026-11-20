@@ -12,6 +12,7 @@ use App\Filament\Org\Widgets\OrgActivityWidget;
 use App\Filament\Org\Widgets\OrgChecklistWidget;
 use App\Filament\Org\Widgets\OrgSeatsWidget;
 use App\Filament\Support\InitialAvatarProvider;
+use App\Filament\Support\PanelTheme;
 use App\Http\Controllers\Org\OrgInvoiceController;
 use App\Http\Middleware\RequireOrgTwoFactor;
 use App\Http\Middleware\SetOrgLocale;
@@ -23,7 +24,6 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -53,23 +53,24 @@ class OrgPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        return PanelTheme::apply($panel)
             ->id(OrgPolicyResolver::PANEL_ID)
             ->path('org')
             ->authGuard('org')
             ->authPasswordBroker('org')
             ->login()
             ->passwordReset(OrgRequestPasswordReset::class)
-            ->profile(OrgProfile::class, isSimple: false)
+            // The own profile lives outside `/org/<slug>` (a user may be staff of several centers), so it is a simple page, as
+            // Filament draws every tenant-less page of a tenancy panel (login, tenant registration): the full layout needs a
+            // tenant — its center menu (`getTenantBillingUrl(Model)`, `getTenantName(Model)`) and every navigation URL
+            // (`/org/{tenant}/…`) — and answered 500 on a fresh `/org/profile`. "Back" returns to the center it came from.
+            ->profile(OrgProfile::class)
             // SPA with hover prefetch (docs/20 §1.14): the 2FA pages are plain Blade outside the panel layout and the
             // printable invoice is a standalone document — both stay full page loads.
             ->spa(hasPrefetching: true)
             ->spaUrlExceptions(['*/2fa/*', '*/org/*/invoice/*'])
             ->brandName('LexiFlow Pro')
             ->defaultAvatarProvider(InitialAvatarProvider::class)
-            ->colors([
-                'primary' => Color::Indigo,
-            ])
             ->tenant(Organization::class, slugAttribute: 'slug', ownershipRelationship: 'organization')
             ->tenantProfile(OrgSettings::class)
             ->authenticatedTenantRoutes(function (): void {

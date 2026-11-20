@@ -9,7 +9,8 @@ use DateTimeInterface;
 /**
  * Why a checkout could not be started (CheckoutService::create, docs/13 §2.1):
  *
- *   price_not_configured    409  no price for (plan/tier, period, currency), or above the provider's cap
+ *   price_not_configured    409  no price for (plan/tier, period, currency) — 0 or no key alike: the period is not sold in that
+ *                                currency (e.g. BILLING_PRICE_PRO_QUARTER_UZS=0) — or above the provider's cap
  *   provider_disabled       409  provider not registered or `billing.providers.<key>.enabled` is false
  *   provider_not_supported  422  provider does not serve this subscriber type / currency (Stars for an organization)
  *   checkout_conflict       409  a live auto-renewing (Stars) subscription still renews: any new order of any provider
@@ -23,7 +24,7 @@ use DateTimeInterface;
  *   offer_not_applicable    409  the offer is redeemed / expired / someone else's / for another plan or period
  *   offer_busy              409  the offer is on a pending order that is being paid right now (open provider
  *                                transaction), or a parallel checkout keeps moving it — retry in a moment
- *   invalid_period          422  period is not one of `billing.periods`
+ *   invalid_period          422  period is not one of `billing.periods` (organizations: `billing.org_periods`)
  *   invalid_tier            422  organization checkout without a sellable tier
  */
 final class CheckoutException extends BillingException

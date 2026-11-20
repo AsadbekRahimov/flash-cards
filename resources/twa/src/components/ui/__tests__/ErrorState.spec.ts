@@ -21,10 +21,11 @@ describe('ErrorState', () => {
     expect(w.get('h2').text()).toBe('Не загрузилось')
   })
 
-  it('draws the warning icon in a soft danger circle', () => {
+  it('draws the warning icon plain, in the danger colour (no circle)', () => {
     const w = mount(ErrorState, { props: { message: 'm' } })
 
-    expect(w.find('span.bg-danger-soft svg').exists()).toBe(true)
+    expect(w.get('svg').classes()).toContain('text-danger')
+    expect(w.find('span svg').exists()).toBe(false)
     expect(w.findAll('path')).toHaveLength(1)
   })
 
