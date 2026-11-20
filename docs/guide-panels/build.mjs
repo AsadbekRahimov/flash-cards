@@ -28,8 +28,8 @@ const OUT = path.join(ROOT, 'LexiFlow_Panels_Guide_RU.pdf');
 
 /** Разделы оглавления по номерам файлов глав. */
 const SECTIONS = [
-  { from: 0, to: 3, title: 'Начало работы' },
-  { from: 4, to: 49, title: 'Панель администратора /admin' },
+  { from: 0, to: 2, title: 'Начало работы' },
+  { from: 3, to: 49, title: 'Панель администратора /admin' },
   { from: 50, to: 89, title: 'Кабинет учебного центра /org' },
   { from: 90, to: 99, title: 'Справочник' },
 ];
@@ -119,7 +119,7 @@ const info = await page.evaluate((SECTIONS) => {
     const title = h1.textContent.replace(/\s+/g, ' ').trim();
     // свой колонтитул у каждой главы
     sec.style.page = `ch${i}`;
-    css.push(`@page ch${i} { @top-left { content: "${esc(title)}"; font: 8.5pt 'Source Serif 4', serif; color: #5F6677; } @top-right { content: "${num >= 50 && num <= 89 ? 'Кабинет /org' : num >= 4 && num <= 49 ? 'Панель /admin' : ''}"; font: 8.5pt 'IBM Plex Mono', monospace; color: #9AA1B1; } }`);
+    css.push(`@page ch${i} { @top-left { content: "${esc(title)}"; font: 8.5pt 'Source Serif 4', serif; color: #5F6677; } @top-right { content: "${num >= 50 && num <= 89 ? 'Кабинет /org' : num >= 3 && num <= 49 ? 'Панель /admin' : ''}"; font: 8.5pt 'IBM Plex Mono', monospace; color: #9AA1B1; } }`);
     // раздел оглавления
     const s = SECTIONS.find((x) => num >= x.from && num <= x.to);
     if (s && s !== lastSection) {

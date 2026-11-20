@@ -123,9 +123,9 @@ ol.steps > li::before {
 
 /* Рисунки: не разрываются между страницами */
 figure { margin: 4mm 0 5mm; break-inside: avoid; page-break-inside: avoid; text-align: center; }
-figure img { max-width: 100%; max-height: 205mm; border: 1px solid var(--line); border-radius: 4px; display: block; margin: 0 auto; }
-figure.narrow img { max-width: 62%; }
-figure.half img { max-width: 80%; }
+figure img { max-width: 100%; max-height: 205mm; width: auto; height: auto; border: 1px solid var(--line); border-radius: 4px; display: block; margin: 0 auto; }
+figure.narrow img { max-width: 62%; max-height: 105mm; }
+figure.half img { max-width: 80%; max-height: 135mm; }
 figcaption { font-size: 9pt; color: var(--muted); margin-top: 2mm; text-align: left; line-height: 1.4; }
 figcaption .fig-no { font-weight: 700; color: var(--ink); }
 
