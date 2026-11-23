@@ -24,6 +24,7 @@ class Word extends Model
         'part_of_speech',
         'transcription',
         'audio_path',
+        'example_audio_path',
         'is_active',
         'meta',
     ];

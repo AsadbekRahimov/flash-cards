@@ -86,6 +86,15 @@ final class AudioCoverage extends Command
             $verify ? ', files checked on the disk "'.$audio->diskName().'"' : ', by the DB (add --verify to check the files)',
         ));
 
+        // The examples (docs/26 §9.11): a line for information, not part of the --min gate.
+        $this->line(sprintf(
+            'Examples: %d of %d voiced (%s%%)%s.',
+            $report->examplesCovered(),
+            $report->examples,
+            $this->percent(AudioCoverageReport::share($report->examplesCovered(), $report->examples)),
+            $verify ? ', files checked' : ', by the DB',
+        ));
+
         if ($min !== null && ! $report->meets((float) $min)) {
             $this->error(sprintf('Coverage %s%% is below --min=%s%%.', $this->percent($report->percent()), $min));
 

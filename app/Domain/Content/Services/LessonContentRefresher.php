@@ -71,7 +71,8 @@ final class LessonContentRefresher
 
     /**
      * A word was edited in the admin panel (call it right after the save, while `wasChanged()` still tells what moved):
-     * a new English text drops the pre-generated audio and voices the new one; a moved `word`, `translation` or `is_active`
+     * a new English text drops the pre-generated audio and voices the new one, a new example does the same for the audio of the
+     * example ({@see WordAudioService::exampleChanged()}, docs/26 §5.7); a moved `word`, `translation` or `is_active`
      * drops the lesson cache (its pool of distractors holds both texts) after the commit, and `is_active` also recounts
      * the course ({@see wordChanged()}).
      */
@@ -79,6 +80,9 @@ final class LessonContentRefresher
     {
         if ($word->wasChanged('word')) {
             $this->audio->textChanged($word);
+        }
+        if ($word->wasChanged('example')) {
+            $this->audio->exampleChanged($word);
         }
 
         if ($word->wasChanged('is_active')) {

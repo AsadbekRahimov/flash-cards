@@ -106,9 +106,10 @@ function schedLesson(?Course $course = null): Lesson
     return Lesson::factory()->for($stage)->create();
 }
 
+/** Without an example unless `$attrs` gives one: the examples have tests of their own (WordExampleAudioTest). */
 function schedWord(string $text, ?Lesson $lesson = null, array $attrs = []): Word
 {
-    return Word::factory()->for($lesson ?? schedLesson())->create(['word' => $text] + $attrs);
+    return Word::factory()->for($lesson ?? schedLesson())->create(['word' => $text] + $attrs + ['example' => null]);
 }
 
 function schedPath(string $text): string
@@ -346,7 +347,7 @@ it('queues at most --limit words per run, in chunks, the lowest ids first', func
     $this->artisan('audio:reconcile', ['--limit' => 5])->expectsOutput('Queued: 5')->assertSuccessful();
 
     expect(schedQueued())->toBe(array_slice($ids, 0, 5))
-        ->and(app(WordAudioScheduler::class)->reconcile(1000))->toBe(['queued' => 7, 'reason' => null]);
+        ->and(app(WordAudioScheduler::class)->reconcile(1000))->toBe(['queued' => 7, 'words' => 7, 'examples' => 0, 'reason' => null]);
 });
 
 it('reads the words in chunks across the limit', function (): void {
@@ -355,7 +356,7 @@ it('reads the words in chunks across the limit', function (): void {
         Word::query()->insert(['lesson_id' => $lesson->id, 'word' => "w{$i}", 'translation' => 't', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()]);
     }
 
-    expect(app(WordAudioScheduler::class)->reconcile(WordAudioScheduler::CHUNK + 1))->toBe(['queued' => WordAudioScheduler::CHUNK + 1, 'reason' => null])
+    expect(app(WordAudioScheduler::class)->reconcile(WordAudioScheduler::CHUNK + 1))->toBe(['queued' => WordAudioScheduler::CHUNK + 1, 'words' => WordAudioScheduler::CHUNK + 1, 'examples' => 0, 'reason' => null])
         ->and(app(WordAudioScheduler::class)->reconcile())->toMatchArray(['queued' => WordAudioScheduler::CHUNK + 3]);
 });
 
@@ -393,7 +394,7 @@ it('queues nothing while the limit is 0', function (): void {
     schedWord('apple');
     config(['twa.tts.monthly_char_limit' => 0]);
 
-    expect(app(WordAudioScheduler::class)->reconcile())->toBe(['queued' => 0, 'reason' => 'budget_exhausted']);
+    expect(app(WordAudioScheduler::class)->reconcile())->toBe(['queued' => 0, 'words' => 0, 'examples' => 0, 'reason' => 'budget_exhausted']);
     Queue::assertNothingPushed();
 });
 
@@ -419,7 +420,7 @@ it('with google queues nothing while Google refused the sign-in, the key is miss
     schedGoogle();
     $break();
 
-    expect(app(WordAudioScheduler::class)->reconcile())->toBe(['queued' => 0, 'reason' => $reason]);
+    expect(app(WordAudioScheduler::class)->reconcile())->toBe(['queued' => 0, 'words' => 0, 'examples' => 0, 'reason' => $reason]);
     $this->artisan('audio:reconcile')->expectsOutputToContain($message)->assertSuccessful();
     Queue::assertNothingPushed();
 })->with([

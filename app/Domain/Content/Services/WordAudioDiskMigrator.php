@@ -7,6 +7,8 @@ namespace App\Domain\Content\Services;
 use App\Domain\Content\DTO\AudioDiskMigrationReport;
 use App\Models\Word;
 use Closure;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use League\Flysystem\FilesystemException;
 use RuntimeException;
@@ -14,7 +16,8 @@ use RuntimeException;
 /**
  * Copies the word audio from one disk to another (docs/26 §6, stage 6: `public` -> `audio` on R2) for `audio:migrate-disk`.
  *
- * The files are the unique `words.audio_path` values, the switched-off words included (a word can be switched on again);
+ * The files are the unique `words.audio_path` and `words.example_audio_path` values (docs/26 §9.11), the switched-off words
+ * included (a word can be switched on again);
  * a file nobody points at stays behind (`audio:prune` is for those). Each file is written the way the jobs write it
  * ({@see WordAudioService::write()}: on R2 one PUT with `Cache-Control` and `Content-Type`). Idempotent: a file that is
  * already on the target and not empty is not copied again, so the command can be repeated after an error. Nothing in the
@@ -49,16 +52,13 @@ final class WordAudioDiskMigrator
         $failures = [];
         $files = 0;
 
-        Word::query()
-            ->toBase()
-            ->select('audio_path')
-            ->whereNotNull('audio_path')
-            ->where('audio_path', '<>', '')
-            ->distinct()
-            ->orderBy('audio_path')
+        DB::query()
+            ->fromSub($this->recordedPaths('audio_path')->union($this->recordedPaths('example_audio_path')), 'paths')
+            ->select('path')
+            ->orderBy('path')
             ->lazy(self::CHUNK)
             ->each(function (object $row) use ($from, $to, $dryRun, $progress, &$counts, &$failures, &$files): void {
-                $path = (string) $row->audio_path;
+                $path = (string) $row->path;
                 $files++;
 
                 $outcome = $this->copy($from, $to, $path, $dryRun);
@@ -80,6 +80,21 @@ final class WordAudioDiskMigrator
             failed: $counts['failed'],
             failures: $failures,
         );
+    }
+
+    /**
+     * The recorded paths of one column as `path` (UNION of the two columns drops the duplicates: a file shared by a word and an
+     * example is copied once).
+     *
+     * @param  'audio_path'|'example_audio_path'  $column
+     */
+    private function recordedPaths(string $column): Builder
+    {
+        return Word::query()
+            ->toBase()
+            ->select("{$column} as path")
+            ->whereNotNull($column)
+            ->where($column, '<>', '');
     }
 
     /** @return 'copied'|'present'|'missing'|'failed' */

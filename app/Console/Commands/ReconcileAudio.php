@@ -8,18 +8,20 @@ use App\Domain\Content\Services\WordAudioScheduler;
 use Illuminate\Console\Command;
 
 /**
- * The nightly reconciliation of the word audio (docs/26 §5.6): the active words of the courses (not the decks of learners)
- * whose `audio_path` is not the path of their current text get a PregenerateWordAudioJob, at most `--limit` per run. Nothing
+ * The nightly reconciliation of the word audio (docs/26 §5.6, §9.11): the active words of the courses (not the decks of learners)
+ * whose `audio_path` is not the path of their current text get a PregenerateWordAudioJob, then the examples whose
+ * `example_audio_path` is not the path of theirs a PregenerateExampleAudioJob - at most `--limit` jobs in all per run, the words
+ * first. Nothing
  * while the synthesizer is `null` or unknown, the characters of the month are spent, or every job would fail with `google` (the
  * halt marker, no valid key file, not a Google voice) - with a line that says why. See {@see WordAudioScheduler::reconcile()}.
  */
 final class ReconcileAudio extends Command
 {
     /** @var string */
-    protected $signature = 'audio:reconcile {--limit= : The most jobs to queue in one run (default '.WordAudioScheduler::RECONCILE_LIMIT.')}';
+    protected $signature = 'audio:reconcile {--limit= : The most jobs (words and examples together) to queue in one run (default '.WordAudioScheduler::RECONCILE_LIMIT.')}';
 
     /** @var string */
-    protected $description = 'Queue the audio of the course words that have no current file (the nightly insurance against lost jobs).';
+    protected $description = 'Queue the audio of the course words and examples that have no current file (the nightly insurance against lost jobs).';
 
     public function handle(WordAudioScheduler $scheduler): int
     {
@@ -42,6 +44,9 @@ final class ReconcileAudio extends Command
             WordAudioScheduler::SKIP_BUDGET_EXHAUSTED => $this->warn('The monthly TTS character limit is spent: nothing queued until next month.'),
             default => $this->info("Queued: {$result['queued']}"),
         };
+        if ($result['reason'] === null) {
+            $this->line("Words: {$result['words']}, examples: {$result['examples']}");
+        }
 
         return self::SUCCESS;
     }

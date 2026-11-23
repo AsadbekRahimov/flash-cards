@@ -7,6 +7,10 @@ namespace App\Domain\Content\Services;
 use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Content\Exceptions\SpeechSynthesisException;
 use App\Domain\Content\Exceptions\WordAudioNotStoredException;
+use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
+use App\Domain\Content\Services\Tts\GoogleSpeechSynthesizer;
+use App\Domain\Content\Services\Tts\NullSpeechSynthesizer;
+use App\Jobs\PregenerateExampleAudioJob;
 use App\Jobs\PregenerateWordAudioJob;
 use App\Models\Word;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -27,6 +31,11 @@ use Throwable;
  *
  * The disk is `twa.tts.audio_disk`: `public` (this server) or `audio` (Cloudflare R2, docs/26 §5.4). A screen of a learner
  * never asks the disk: a word is voiced when `audio_path` is the path its current text hashes to ({@see urlFor()}).
+ *
+ * The anchor example of a word (`words.example`, docs/26 §5.7, §9.11) is voiced the same way into `words.example_audio_path`
+ * ({@see examplePathFor()}, {@see exampleUrlFor()}, {@see generateExample()}, {@see exampleChanged()}): the same directory, the
+ * same disk, the same hash - of the sentence as it goes to the synthesizer (case and punctuation kept), so an example equal to
+ * another one (or to a word sent the same way) shares its file. The additional examples (`word_examples`) are not voiced.
  */
 final class WordAudioService
 {
@@ -53,13 +62,50 @@ final class WordAudioService
     public function pathFor(string $text, ?string $voice = null): ?string
     {
         $text = $this->normalize($text);
-        if ($text === '') {
-            return null;
-        }
 
-        $hash = sha1($text.'|'.($voice ?? $this->defaultVoice()).'|'.(int) config('twa.tts.audio_version', 1));
+        return $text === '' ? null : $this->hashedPath($text, $voice);
+    }
+
+    /**
+     * An example as it is sent to the synthesizer (docs/26 §9.11): the blanks collapsed and trimmed - nothing else. The case and
+     * the punctuation stay: they are the intonation of a sentence. Null when there is nothing to say, or the sentence is longer
+     * than one request of Google takes ({@see GoogleSpeechSynthesizer::MAX_TEXT_BYTES}): such an example is never queued (it would
+     * fail as `tts_request_rejected` every night) and counts as "nothing to voice".
+     */
+    public function exampleText(?string $example): ?string
+    {
+        $text = trim((string) preg_replace('/\s+/u', ' ', (string) $example));
+
+        return $text === '' || strlen($text) > GoogleSpeechSynthesizer::MAX_TEXT_BYTES ? null : $text;
+    }
+
+    /** Relative path of the audio of an example sentence ({@see exampleText()}); null when there is nothing to voice. */
+    public function examplePathFor(?string $example, ?string $voice = null): ?string
+    {
+        $text = $this->exampleText($example);
+
+        return $text === null ? null : $this->hashedPath($text, $voice);
+    }
+
+    /** `audio/{sha1(text|voice|version)}.mp3`: the text is the one the synthesizer gets. */
+    private function hashedPath(string $spoken, ?string $voice): string
+    {
+        $hash = sha1($spoken.'|'.($voice ?? $this->defaultVoice()).'|'.(int) config('twa.tts.audio_version', 1));
 
         return trim((string) config('twa.tts.audio_dir', 'audio'), '/').'/'.$hash.'.mp3';
+    }
+
+    /**
+     * False while nobody can voice anything: `TTS_DRIVER` is `null` (or unset without a service URL) or a value nobody knows.
+     * Nothing is queued then (docs/26 §7 step 2); the nightly reconciliation picks the words and examples up once a driver is set.
+     */
+    public function enabled(): bool
+    {
+        if ($this->tts instanceof ConfiguredSpeechSynthesizer) {
+            return in_array(ConfiguredSpeechSynthesizer::driver(), [ConfiguredSpeechSynthesizer::GOOGLE, ConfiguredSpeechSynthesizer::HTTP], true);
+        }
+
+        return ! $this->tts instanceof NullSpeechSynthesizer;
     }
 
     /** @param  string|null  $diskName  another disk than `twa.tts.audio_disk` (the source of `audio:migrate-disk`) */
@@ -82,6 +128,24 @@ final class WordAudioService
             : null;
     }
 
+    /**
+     * Public URL of the audio of the example a card shows; null when there is none (no disk access). `$shown` is the sentence of
+     * this serve as the card gets it ({@see WordExamples::pickRow()}; null - no example, no URL): only the anchor is voiced, so a
+     * rotated additional example gets a URL only when its text is the anchor's - and an edited anchor whose `example_audio_path`
+     * has not caught up yet gets none, like {@see urlFor()}.
+     */
+    public function exampleUrlFor(Word $word, ?string $shown): ?string
+    {
+        $path = $word->example_audio_path;
+        if ($path === null || $path === '') {
+            return null;
+        }
+
+        return $path === $this->examplePathFor($shown)
+            ? $this->disk()->url($path)
+            : null;
+    }
+
     /** True when the word already points at the file its current text/voice/version hash to, and the file is there. */
     public function isCurrent(Word $word): bool
     {
@@ -92,9 +156,20 @@ final class WordAudioService
             && $this->isReady($expected);
     }
 
+    /** {@see isCurrent()} for the anchor example: the path of its current text, recorded, and the file is there. */
+    public function isExampleCurrent(Word $word): bool
+    {
+        $expected = $this->examplePathFor($word->example);
+
+        return $expected !== null
+            && $word->example_audio_path === $expected
+            && $this->isReady($expected);
+    }
+
     /**
      * The edited word text no longer matches its audio: drops `audio_path` and queues the job
-     * that voices the new text (after the surrounding transaction commits).
+     * that voices the new text (after the surrounding transaction commits). While TTS is switched off ({@see enabled()}) only the
+     * path is dropped: a job would only fail as `tts_service_not_configured`; the nightly reconciliation voices the word later.
      */
     public function textChanged(Word $word): void
     {
@@ -104,7 +179,31 @@ final class WordAudioService
             $word->syncOriginalAttribute('audio_path');
         }
 
-        PregenerateWordAudioJob::dispatch((int) $word->id)->afterCommit();
+        if ($this->enabled()) {
+            PregenerateWordAudioJob::dispatch((int) $word->id)->afterCommit();
+        }
+    }
+
+    /**
+     * The anchor example of the word was edited (call it after the save): an `example_audio_path` that is not the path of the new
+     * sentence is dropped, and the sentence is queued (after the commit) - not while TTS is switched off, not for an example with
+     * nothing to say. An edit that keeps the spoken sentence (blanks only) keeps the path and queues nothing.
+     */
+    public function exampleChanged(Word $word): void
+    {
+        $expected = $this->examplePathFor($word->example);
+        if ($expected !== null && $word->example_audio_path === $expected) {
+            return;
+        }
+
+        // Without looking at the model: a record of a list may have been read without the column.
+        Word::query()->whereKey($word->id)->whereNotNull('example_audio_path')->update(['example_audio_path' => null]);
+        $word->example_audio_path = null;
+        $word->syncOriginalAttribute('example_audio_path');
+
+        if ($expected !== null && $this->enabled()) {
+            PregenerateExampleAudioJob::dispatch((int) $word->id)->afterCommit();
+        }
     }
 
     /**
@@ -119,20 +218,49 @@ final class WordAudioService
      */
     public function generate(Word $word, bool $force = false): bool
     {
-        $path = $this->pathFor($word->word);
-        if ($path === null) {
+        $text = $this->normalize($word->word);
+
+        return $this->voice($word, 'word', 'audio_path', $text === '' ? null : $text, $force);
+    }
+
+    /**
+     * {@see generate()} for the anchor example (`words.example` into `words.example_audio_path`): the same disk check, the same
+     * write, the same guarded update - the path is recorded only while the example is still the sentence that was voiced.
+     *
+     * @return bool true when the TTS service was called
+     *
+     * @throws SpeechSynthesisException when the TTS service fails (the caller retries a `retryable` one)
+     * @throws WordAudioNotStoredException the audio was synthesized, but the disk did not take it
+     */
+    public function generateExample(Word $word, bool $force = false): bool
+    {
+        return $this->voice($word, 'example', 'example_audio_path', $this->exampleText($word->example), $force);
+    }
+
+    /**
+     * Voices `$spoken` (the text of `$sourceColumn` as the synthesizer gets it) into the content-addressed file and records its
+     * path in `$pathColumn`. The columns are the fixed pairs of {@see generate()} and {@see generateExample()}, never input.
+     *
+     * @param  'word'|'example'  $sourceColumn
+     * @param  'audio_path'|'example_audio_path'  $pathColumn
+     */
+    private function voice(Word $word, string $sourceColumn, string $pathColumn, ?string $spoken, bool $force): bool
+    {
+        if ($spoken === null) {
             return false;
         }
+        $path = $this->hashedPath($spoken, null);
+        $recorded = $word->getAttribute($pathColumn);
 
         // One look at the disk (on R2 a HEAD and a size), not one for isCurrent() and another for the synthesis.
         $ready = ! $force && $this->isReady($path);
-        if ($ready && $word->audio_path === $path) {
+        if ($ready && $recorded === $path) {
             return false;
         }
 
         $called = false;
         if (! $ready) {
-            $audio = $this->tts->synthesize($this->normalize($word->word), $this->defaultVoice());
+            $audio = $this->tts->synthesize($spoken, $this->defaultVoice());
             if ($audio['body'] === '' || ! str_starts_with(strtolower($audio['content_type']), 'audio/')) {
                 throw new RuntimeException('tts_service_bad_audio');
             }
@@ -142,10 +270,10 @@ final class WordAudioService
 
         // Only while the text is still the one voiced (docs/26 §9.6): an edit during the synthesis queued its own job, which
         // may have finished first - its path must not be overwritten with the path of the old text.
-        if ($word->audio_path !== $path
-            && Word::query()->whereKey($word->id)->where('word', $word->word)->update(['audio_path' => $path]) > 0) {
-            $word->audio_path = $path;
-            $word->syncOriginalAttribute('audio_path');
+        if ($recorded !== $path
+            && Word::query()->whereKey($word->id)->where($sourceColumn, $word->getAttribute($sourceColumn))->update([$pathColumn => $path]) > 0) {
+            $word->setAttribute($pathColumn, $path);
+            $word->syncOriginalAttribute($pathColumn);
         }
 
         return $called;

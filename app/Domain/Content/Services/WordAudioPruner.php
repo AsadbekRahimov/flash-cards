@@ -15,8 +15,9 @@ use RuntimeException;
 
 /**
  * Removes the word audio nobody needs any more (docs/26 §5.8) for `audio:prune`: an old `.mp3` of the directory of the word
- * audio that no `words.audio_path` points at (the switched-off words too: a word can be switched on again) and that is not
- * the path the current text of a word hashes to (the job writes the file first and the row after it), and a temporary
+ * audio that no `words.audio_path` or `words.example_audio_path` points at (the switched-off words too: a word can be switched
+ * on again) and that is not the path the current text or the current example of a word hashes to (the job writes the file
+ * first and the row after it), and a temporary
  * leftover of a local write (`{dir}/.tmp/`, {@see WordAudioService}) older than a day.
  *
  * Only the files right in the directory (`audio/*.mp3`) and in its `.tmp/` are listed, never another directory, never the
@@ -142,8 +143,8 @@ final class WordAudioPruner
     }
 
     /**
-     * The paths a word points at or would point at, streamed from the words (the switched-off ones too), and how many words
-     * have `audio_path` at all.
+     * The paths a word or its example points at or would point at, streamed from the words (the switched-off ones too), and how
+     * many words have `audio_path` or `example_audio_path` at all.
      *
      * @return array{0: array<string, true>, 1: int}
      */
@@ -154,18 +155,28 @@ final class WordAudioPruner
 
         Word::query()
             ->toBase()
-            ->select(['id', 'word', 'audio_path'])
+            ->select(['id', 'word', 'audio_path', 'example', 'example_audio_path'])
             ->lazyById(self::CHUNK)
             ->each(function (object $row) use (&$linked, &$stored): void {
-                $path = $row->audio_path ?? null;
-                if (is_string($path) && $path !== '') {
-                    $linked[$path] = true;
+                $recorded = false;
+                foreach ([$row->audio_path ?? null, $row->example_audio_path ?? null] as $path) {
+                    if (is_string($path) && $path !== '') {
+                        $linked[$path] = true;
+                        $recorded = true;
+                    }
+                }
+                if ($recorded) {
                     $stored++;
                 }
 
-                $expected = $this->audio->pathFor((string) $row->word);
-                if ($expected !== null) {
-                    $linked[$expected] = true;
+                $expected = [
+                    $this->audio->pathFor((string) $row->word),
+                    $this->audio->examplePathFor(is_string($row->example ?? null) ? $row->example : null),
+                ];
+                foreach ($expected as $path) {
+                    if ($path !== null) {
+                        $linked[$path] = true;
+                    }
                 }
             });
 

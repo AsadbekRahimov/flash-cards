@@ -15,7 +15,8 @@ use Illuminate\Support\Collection;
  * (`audio:coverage`). The count by module is one grouped statement over the active words: how many have `audio_path`
  * recorded. The file check (optional) walks the same words in chunks and reads the disk once per unique path (the files
  * are content-addressed, one text in several words is one file); a word counts as voiced only when
- * {@see WordAudioService::isCurrent()} would say so.
+ * {@see WordAudioService::isCurrent()} would say so. The anchor examples are counted in the same statement and checked in the same
+ * walk ({@see WordAudioService::isExampleCurrent()}), as totals only (docs/26 §9.11): the gate of the publication is the words.
  */
 final class WordAudioCoverageService
 {
@@ -26,22 +27,30 @@ final class WordAudioCoverageService
     /** @param  int  $limit  how many broken words to list (all of them are counted) */
     public function report(Course $course, bool $verify = false, int $limit = 20): AudioCoverageReport
     {
-        $stages = $this->countByStage($course);
+        [$stages, $examples, $examplesWithAudio] = $this->countByStage($course);
 
         $verified = null;
+        $examplesVerified = null;
         $problems = [];
         $problemCount = 0;
         if ($verify) {
             $byStage = [];
             $verified = 0;
+            $examplesVerified = 0;
             /** @var array<string, 'ready'|'empty'|'missing'> $files the disk state per path, read once in this run */
             $files = [];
 
             $this->activeWords($course)
-                ->select(['words.id', 'words.word', 'words.audio_path', 'stages.number as stage_number'])
-                ->chunkById(self::CHUNK, function (Collection $words) use (&$byStage, &$verified, &$problems, &$problemCount, &$files, $limit): void {
+                ->select(['words.id', 'words.word', 'words.audio_path', 'words.example', 'words.example_audio_path', 'stages.number as stage_number'])
+                ->chunkById(self::CHUNK, function (Collection $words) use (&$byStage, &$verified, &$examplesVerified, &$problems, &$problemCount, &$files, $limit): void {
                     /** @var Word $word */
                     foreach ($words as $word) {
+                        $example = $word->example_audio_path;
+                        if ($example !== null && $example === $this->audio->examplePathFor($word->example)
+                            && ($files[$example] ??= $this->audio->fileState($example)) === 'ready') {
+                            $examplesVerified++;
+                        }
+
                         $recorded = $word->audio_path;
                         if ($recorded === null || $recorded === '') {
                             continue;
@@ -80,13 +89,17 @@ final class WordAudioCoverageService
             verified: $verified,
             problems: $problems,
             problemCount: $problemCount,
+            examples: $examples,
+            examplesWithAudio: $examplesWithAudio,
+            examplesVerified: $examplesVerified,
         );
     }
 
     /**
-     * Active words and those with `audio_path` recorded, by module: one statement.
+     * Active words and those with `audio_path` recorded, by module, and the totals of the examples (a non-blank example; of them
+     * with `example_audio_path` recorded): one statement.
      *
-     * @return list<array{number: int, title: string, words: int, with_audio: int, verified: int|null}>
+     * @return array{0: list<array{number: int, title: string, words: int, with_audio: int, verified: int|null}>, 1: int, 2: int}
      */
     private function countByStage(Course $course): array
     {
@@ -95,19 +108,27 @@ final class WordAudioCoverageService
             ->orderBy('stages.number')
             ->selectRaw(
                 'stages.number as stage_number, stages.title as stage_title, COUNT(words.id) as words_total, '
-                .'SUM(CASE WHEN words.audio_path IS NOT NULL AND words.audio_path <> ? THEN 1 ELSE 0 END) as with_audio',
-                [''],
+                .'SUM(CASE WHEN words.audio_path IS NOT NULL AND words.audio_path <> ? THEN 1 ELSE 0 END) as with_audio, '
+                .'SUM(CASE WHEN words.example IS NOT NULL AND TRIM(words.example) <> ? THEN 1 ELSE 0 END) as examples_total, '
+                .'SUM(CASE WHEN words.example IS NOT NULL AND TRIM(words.example) <> ? AND words.example_audio_path IS NOT NULL AND words.example_audio_path <> ? THEN 1 ELSE 0 END) as examples_with_audio',
+                ['', '', '', ''],
             )
             ->toBase()
             ->get();
 
-        return array_values($rows->map(fn (object $row): array => [
+        $stages = array_values($rows->map(fn (object $row): array => [
             'number' => (int) $row->stage_number,
             'title' => (string) $row->stage_title,
             'words' => (int) $row->words_total,
             'with_audio' => (int) $row->with_audio,
             'verified' => null,
         ])->all());
+
+        return [
+            $stages,
+            (int) $rows->sum(fn (object $row): int => (int) $row->examples_total),
+            (int) $rows->sum(fn (object $row): int => (int) $row->examples_with_audio),
+        ];
     }
 
     /** @return Builder<Word> the active words of the course, joined to their lesson and module */

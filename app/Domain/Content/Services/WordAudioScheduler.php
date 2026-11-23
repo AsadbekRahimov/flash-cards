@@ -9,8 +9,8 @@ use App\Domain\Content\Exceptions\SpeechSynthesisException;
 use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\GoogleServiceAccount;
 use App\Domain\Content\Services\Tts\GoogleSpeechSynthesizer;
-use App\Domain\Content\Services\Tts\NullSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\TtsCharacterBudget;
+use App\Jobs\PregenerateExampleAudioJob;
 use App\Jobs\PregenerateWordAudioJob;
 use App\Models\Course;
 use App\Models\Lesson;
@@ -19,13 +19,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 /**
- * When the audio of a word is queued (docs/26 §5.6) - every automatic point but the edit of the text
- * ({@see WordAudioService::textChanged()}):
+ * When the audio of a word and of its anchor example is queued (docs/26 §5.6, §5.7, §9.11) - every automatic point but the edit
+ * of the text or of the example ({@see WordAudioService::textChanged()}, {@see WordAudioService::exampleChanged()}). The word and
+ * its example are two jobs ({@see PregenerateWordAudioJob}, {@see PregenerateExampleAudioJob}); every point below queues both:
  *  - a word added in the admin panel ({@see wordCreated()}), after the save;
  *  - the new and changed words of a lesson import ({@see wordsImported()}), after the commit, one job per word;
- *  - the nightly reconciliation ({@see reconcile()}): the words whose `audio_path` is not the path of their text, in chunks, at
- *    most `$limit` per run - the insurance against a lost job;
- *  - `audio:pregenerate` for one course or for all of them ({@see queueCourse()}).
+ *  - the nightly reconciliation ({@see reconcile()}): the words whose `audio_path` is not the path of their text, then the examples
+ *    whose `example_audio_path` is not the path of theirs, in chunks, at most `$limit` jobs in all per run (the words first) - the
+ *    insurance against a lost job;
+ *  - `audio:pregenerate` for one course or for all of them ({@see queueCourse()}), the words, the examples or both.
  *
  * Only the active words of the courses that are not a learner's own deck (docs/26 §9.4: the decks keep the phone voice; the job
  * checks it again). The automatic points queue nothing while the synthesizer is `null` (docs/26 §7 step 2: the code ships with
@@ -62,22 +64,15 @@ final class WordAudioScheduler
         private readonly GoogleServiceAccount $account,
     ) {}
 
-    /**
-     * False while `TTS_DRIVER` is `null` (or unset without a service URL) or a value nobody knows (a typo): there is nobody to
-     * voice a word.
-     */
+    /** {@see WordAudioService::enabled()}: false while there is nobody to voice a word (`TTS_DRIVER` `null` or unknown). */
     public function enabled(): bool
     {
-        if ($this->tts instanceof ConfiguredSpeechSynthesizer) {
-            return in_array(ConfiguredSpeechSynthesizer::driver(), [ConfiguredSpeechSynthesizer::GOOGLE, ConfiguredSpeechSynthesizer::HTTP], true);
-        }
-
-        return ! $this->tts instanceof NullSpeechSynthesizer;
+        return $this->audio->enabled();
     }
 
     /**
-     * A word was added in the admin panel (call it after the save): its audio is queued after the commit, unless the word is
-     * switched off or belongs to a learner's own deck. One query.
+     * A word was added in the admin panel (call it after the save): its audio and the audio of its example are queued after the
+     * commit, unless the word is switched off or belongs to a learner's own deck. One query.
      */
     public function wordCreated(Word $word): void
     {
@@ -86,14 +81,22 @@ final class WordAudioScheduler
         }
 
         $voiced = $this->voicedWords()->whereKey($word->id)->exists();
-        if ($voiced) {
+        if (! $voiced) {
+            return;
+        }
+
+        if (! $this->hasCurrentPath($word)) {
             PregenerateWordAudioJob::dispatch((int) $word->id)->afterCommit();
+        }
+        if (! $this->hasCurrentExamplePath($word)) {
+            PregenerateExampleAudioJob::dispatch((int) $word->id)->afterCommit();
         }
     }
 
     /**
      * The words a lesson import added or changed (call it inside the import's transaction): one job per word whose audio is not
-     * the path of its text, after the commit - a rolled-back import queues nothing. Ids repeated in `$words` are queued once.
+     * the path of its text and one per word whose example's audio is not the path of the example, after the commit - a
+     * rolled-back import queues nothing. Ids repeated in `$words` are queued once.
      *
      * @param  iterable<Word>  $words
      */
@@ -103,100 +106,150 @@ final class WordAudioScheduler
             return;
         }
 
-        /** @var array<int, true> $queued */
-        $queued = [];
+        /** @var array<int, true> $seen */
+        $seen = [];
         foreach ($words as $word) {
             $id = (int) $word->id;
-            if (isset($queued[$id]) || $word->is_active === false || $this->hasCurrentPath($word)) {
+            if (isset($seen[$id]) || $word->is_active === false) {
                 continue;
             }
+            $seen[$id] = true;
 
-            $queued[$id] = true;
-            PregenerateWordAudioJob::dispatch($id)->afterCommit();
+            if (! $this->hasCurrentPath($word)) {
+                PregenerateWordAudioJob::dispatch($id)->afterCommit();
+            }
+            if (! $this->hasCurrentExamplePath($word)) {
+                PregenerateExampleAudioJob::dispatch($id)->afterCommit();
+            }
         }
     }
 
     /**
      * The nightly reconciliation (`audio:reconcile`): queues the active words of the courses (not a learner's deck) whose
-     * `audio_path` is empty or not the path of their current text, oldest id first, at most `$limit`. Nothing while the
+     * `audio_path` is empty or not the path of their current text, oldest id first, then - with what is left of `$limit` - the
+     * examples of those words whose `example_audio_path` is not the path of the current example: at most `$limit` jobs in all,
+     * the words first (a word without its sound is worse than an example without its). Nothing while the
      * synthesizer is `null` or unknown, the characters of the month are spent (docs/26 §9.3: next month's run picks the words
      * up), or - with `google` - while every job would fail at once: Google refused the sign-in (the halt marker), the key file is
      * missing or not a service-account key (read here, nothing is sent), or the voice is not one of Google's. Those runs would
      * only fill `failed_jobs`; the job of a word is unique while it waits, so a word is not queued twice either.
      * Idempotent: a voiced word has its path and is not queued again.
      *
-     * @return array{queued: int, reason: self::SKIP_*|null}
+     * @return array{queued: int, words: int, examples: int, reason: self::SKIP_*|null} `queued` = `words` + `examples`
      */
     public function reconcile(int $limit = self::RECONCILE_LIMIT): array
     {
         $skip = $this->reconcileBlocker();
         if ($skip !== null) {
-            return ['queued' => 0, 'reason' => $skip];
+            return ['queued' => 0, 'words' => 0, 'examples' => 0, 'reason' => $skip];
         }
 
-        $queued = 0;
-        if ($limit <= 0) {
-            return ['queued' => $queued, 'reason' => null];
+        $words = 0;
+        if ($limit > 0) {
+            $this->voicedWords()
+                ->select(['words.id', 'words.word', 'words.audio_path'])
+                ->chunkById(self::CHUNK, function (Collection $chunk) use (&$words, $limit): bool {
+                    /** @var Word $word */
+                    foreach ($chunk as $word) {
+                        if ($this->hasCurrentPath($word)) {
+                            continue;
+                        }
+
+                        PregenerateWordAudioJob::dispatch((int) $word->id);
+                        if (++$words >= $limit) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }, 'words.id', 'id');
         }
 
-        $this->voicedWords()
-            ->select(['words.id', 'words.word', 'words.audio_path'])
-            ->chunkById(self::CHUNK, function (Collection $words) use (&$queued, $limit): bool {
-                /** @var Word $word */
-                foreach ($words as $word) {
-                    if ($this->hasCurrentPath($word)) {
-                        continue;
+        $examples = 0;
+        $left = $limit - $words;
+        if ($left > 0) {
+            $this->voicedWords()
+                ->whereNotNull('words.example')
+                ->select(['words.id', 'words.example', 'words.example_audio_path'])
+                ->chunkById(self::CHUNK, function (Collection $chunk) use (&$examples, $left): bool {
+                    /** @var Word $word */
+                    foreach ($chunk as $word) {
+                        if ($this->hasCurrentExamplePath($word)) {
+                            continue;
+                        }
+
+                        PregenerateExampleAudioJob::dispatch((int) $word->id);
+                        if (++$examples >= $left) {
+                            return false;
+                        }
                     }
 
-                    PregenerateWordAudioJob::dispatch((int) $word->id);
-                    if (++$queued >= $limit) {
-                        return false;
-                    }
-                }
+                    return true;
+                }, 'words.id', 'id');
+        }
 
-                return true;
-            }, 'words.id', 'id');
-
-        return ['queued' => $queued, 'reason' => null];
+        return ['queued' => $words + $examples, 'words' => $words, 'examples' => $examples, 'reason' => null];
     }
 
     /**
-     * `audio:pregenerate`: queues the active words of one course whose audio is not current (the file is checked). With `$force`
-     * only the first word of each text re-synthesizes; `$forced` carries the texts already forced across several courses
-     * (`--all`), so one text is one call.
+     * `audio:pregenerate`: queues the active words of one course whose audio is not current (the file is checked) and - with
+     * `$examples` - the anchor examples whose audio is not current. With `$force` only the first job of each text re-synthesizes;
+     * `$forced` carries the paths already forced across several courses (`--all`) and across words and examples (an example
+     * that is sent like a word is the same file), so one text is one call. An example with nothing to voice is neither queued
+     * nor counted.
      *
      * @param  array<string, true>  $forced  paths already queued for re-synthesis in this run
-     * @return array{queued: int, skipped: int}
+     * @return array{queued: int, skipped: int, examples_queued: int, examples_skipped: int}
      */
-    public function queueCourse(Course $course, bool $force, array &$forced): array
+    public function queueCourse(Course $course, bool $force, array &$forced, bool $words = true, bool $examples = true): array
     {
-        $queued = 0;
-        $skipped = 0;
+        $counts = ['queued' => 0, 'skipped' => 0, 'examples_queued' => 0, 'examples_skipped' => 0];
 
         Word::query()
             ->where('is_active', true)
             ->whereHas('lesson.stage', fn (Builder $q) => $q->where('course_id', $course->id))
-            ->chunkById(self::CHUNK, function (Collection $words) use ($force, &$queued, &$skipped, &$forced): void {
+            ->chunkById(self::CHUNK, function (Collection $chunk) use ($force, $words, $examples, &$counts, &$forced): void {
                 /** @var Word $word */
-                foreach ($words as $word) {
-                    if (! $force && $this->audio->isCurrent($word)) {
-                        $skipped++;
+                foreach ($chunk as $word) {
+                    if ($words) {
+                        $path = $this->audio->pathFor($word->word);
+                        if (! $force && $this->audio->isCurrent($word)) {
+                            $counts['skipped']++;
+                        } else {
+                            PregenerateWordAudioJob::dispatch((int) $word->id, self::forceFirst($force, $path, $forced));
+                            $counts['queued']++;
+                        }
+                    }
 
+                    $examplePath = $examples ? $this->audio->examplePathFor($word->example) : null;
+                    if ($examplePath === null) {
                         continue;
                     }
-
-                    $path = $this->audio->pathFor($word->word);
-                    $first = $force && $path !== null && ! isset($forced[$path]);
-                    if ($first) {
-                        $forced[$path] = true;
+                    if (! $force && $this->audio->isExampleCurrent($word)) {
+                        $counts['examples_skipped']++;
+                    } else {
+                        PregenerateExampleAudioJob::dispatch((int) $word->id, self::forceFirst($force, $examplePath, $forced));
+                        $counts['examples_queued']++;
                     }
-
-                    PregenerateWordAudioJob::dispatch((int) $word->id, $first);
-                    $queued++;
                 }
             });
 
-        return ['queued' => $queued, 'skipped' => $skipped];
+        return $counts;
+    }
+
+    /**
+     * With `--force`, true for the first job of a path in this run (it re-synthesizes), false for the rest (they point at it).
+     *
+     * @param  array<string, true>  $forced
+     */
+    private static function forceFirst(bool $force, ?string $path, array &$forced): bool
+    {
+        if (! $force || $path === null || isset($forced[$path])) {
+            return false;
+        }
+        $forced[$path] = true;
+
+        return true;
     }
 
     /** @return self::SKIP_*|null why the reconciliation queues nothing tonight */
@@ -242,6 +295,14 @@ final class WordAudioScheduler
         $expected = $this->audio->pathFor($word->word);
 
         return $expected === null || $word->audio_path === $expected;
+    }
+
+    /** `example_audio_path` is the path the current example hashes to; an example with nothing to voice counts as current. */
+    private function hasCurrentExamplePath(Word $word): bool
+    {
+        $expected = $this->audio->examplePathFor($word->example);
+
+        return $expected === null || $word->example_audio_path === $expected;
     }
 
     /** @return Builder<Word> the active words of the courses that are not a learner's own deck */
