@@ -29,6 +29,10 @@ function stopCurrent(): void {
   try {
     current.pause()
     current.currentTime = 0
+    // A stopped file is not downloaded to the end (a sentence on a slow network): without a source the element lets the
+    // connection go. `load()` with no `src` fires no `error` - only `abort` / `emptied`, and the element is not current any more.
+    current.removeAttribute?.('src')
+    current.load?.()
   } catch {
     // best-effort
   }

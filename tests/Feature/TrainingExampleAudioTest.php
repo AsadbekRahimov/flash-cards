@@ -11,6 +11,7 @@ use App\Models\Course;
 use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\Stage;
+use App\Models\Subscription;
 use App\Models\TrainingSession;
 use App\Models\Word;
 use App\Models\WordExample;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Storage;
  * docs/26 §9.11 - `example_audio_url` next to `example`: `card.example_audio_url` of the training card (hidden with the example)
  * and `revealed.example_audio_url` after a meaning / reverse / audio pick. Only the anchor example is voiced: the URL is there when
  * `words.example_audio_path` is the file of exactly the sentence shown, null for a rotated example, a stale path, a hidden example
- * and a learner's own deck. The bucket is never asked.
+ * (meaning / reverse / audio, spelling / gap-fill, pretest) and a learner's own deck. The bucket is never asked.
  */
 
 uses(RefreshDatabase::class);
@@ -78,7 +79,8 @@ function eaScenario(?Course $course = null, ?Learner $learner = null, int $repet
 function eaOnly(array $s, string $type): void
 {
     $s['learner']->forceFill(['meta' => ['exercises' => [
-        'meaning' => $type === 'meaning', 'reverse' => $type === 'reverse', 'audio' => $type === 'audio', 'spelling' => false, 'gap_fill' => false,
+        'meaning' => $type === 'meaning', 'reverse' => $type === 'reverse', 'audio' => $type === 'audio',
+        'spelling' => $type === 'spelling', 'gap_fill' => $type === 'gap_fill',
     ]]])->save();
 }
 
@@ -171,6 +173,38 @@ it('hides the URL with the example on a card that hides it, and returns it in `r
         ->and($response->json('revealed.example_audio_url'))->toBe($url)
         ->and($response->json('graded.correct'))->toBeTrue();
 })->with(['meaning', 'reverse', 'audio']);
+
+it('hides the URL with the example on a typed card, the masked sentence of a gap-fill carrying none', function (string $type): void {
+    // The typed rung of the ladder (`interval_days` >= 21): gap-fill when the example carries the word, else spelling.
+    $s = eaScenario(repetitions: 4, intervalDays: 30);
+    Subscription::factory()->create(['subscriber_id' => $s['learner']->id, 'provider' => 'promo']); // the typed exercises are Pro
+    eaOnly($s, $type);
+    eaVoice($s['word']);
+
+    $card = eaCard($s);
+    expect($card['prompt']['type'])->toBe($type)
+        ->and($card['example'])->toBeNull()
+        ->and($card['example_audio_url'])->toBeNull()
+        ->and($card['prompt'])->not->toHaveKey('example_audio_url');
+    if ($type === 'gap_fill') {
+        expect($card['prompt']['masked_example'])->toBeString()->not->toContain('word0');
+    }
+})->with(['spelling', 'gap_fill']);
+
+it('hides the URL with the example on a pretest card', function (): void {
+    config(['learning.pretest.enabled' => true]);
+    $s = eaScenario();
+    WordRepetition::query()->where('learner_id', $s['learner']->id)->where('word_id', $s['word']->id)->update([
+        'state' => RepetitionState::New->value, 'repetitions' => 0, 'interval_days' => 0, 'next_review_at' => now()->subMinute(),
+    ]);
+    eaOnly($s, 'flash');
+    eaVoice($s['word']);
+
+    $card = eaCard($s);
+    expect($card['prompt']['type'])->toBe('pretest')
+        ->and($card['example'])->toBeNull()
+        ->and($card['example_audio_url'])->toBeNull();
+});
 
 it('returns no URL in `revealed` for a rotated example', function (): void {
     $s = eaScenario();

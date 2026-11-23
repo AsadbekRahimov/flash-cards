@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Content\Services;
 
 use App\Domain\Content\DTO\AudioCoverageReport;
+use App\Domain\Content\Services\Tts\GoogleSpeechSynthesizer;
 use App\Models\Course;
 use App\Models\Word;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,6 +22,10 @@ use Illuminate\Support\Collection;
 final class WordAudioCoverageService
 {
     private const int CHUNK = 500;
+
+    /** What `\s` of PCRE with `/u` matches ({@see WordAudioService::exampleText()}): the blanks trimmed off an example in SQL. */
+    private const string BLANKS = " \t\n\v\f\r\u{85}\u{A0}\u{1680}\u{180E}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}"
+        ."\u{2006}\u{2007}\u{2008}\u{2009}\u{200A}\u{2028}\u{2029}\u{202F}\u{205F}\u{3000}";
 
     public function __construct(private readonly WordAudioService $audio) {}
 
@@ -96,22 +101,32 @@ final class WordAudioCoverageService
     }
 
     /**
-     * Active words and those with `audio_path` recorded, by module, and the totals of the examples (a non-blank example; of them
-     * with `example_audio_path` recorded): one statement.
+     * Active words and those with `audio_path` recorded, by module, and the totals of the examples (an example that is voiced at all;
+     * of them with `example_audio_path` recorded): one statement.
      *
      * @return array{0: list<array{number: int, title: string, words: int, with_audio: int, verified: int|null}>, 1: int, 2: int}
      */
     private function countByStage(Course $course): array
     {
+        // Only the examples that are voiced at all ({@see WordAudioService::exampleText()}): not blanks alone, and not longer than
+        // one request of Google. The length is of the trimmed text: the inner runs of blanks, collapsed for the synthesizer, are
+        // not collapsed here, so a sentence over 5 000 bytes only by its inner blanks would be left out (the longest example is
+        // 74 bytes). The SQL fragments are fixed text; the blanks and the limit are bindings.
+        $pgsql = Word::query()->getModel()->getConnection()->getDriverName() === 'pgsql';
+        $trimmed = $pgsql ? 'BTRIM(words.example, ?)' : 'TRIM(words.example, ?)';
+        $bytes = $pgsql ? "OCTET_LENGTH({$trimmed})" : "LENGTH(CAST({$trimmed} AS BLOB))";
+        $voiced = "words.example IS NOT NULL AND {$trimmed} <> ? AND {$bytes} <= ?";
+        $voicedBindings = [self::BLANKS, '', self::BLANKS, GoogleSpeechSynthesizer::MAX_TEXT_BYTES];
+
         $rows = $this->activeWords($course)
             ->groupBy('stages.id', 'stages.number', 'stages.title')
             ->orderBy('stages.number')
             ->selectRaw(
                 'stages.number as stage_number, stages.title as stage_title, COUNT(words.id) as words_total, '
                 .'SUM(CASE WHEN words.audio_path IS NOT NULL AND words.audio_path <> ? THEN 1 ELSE 0 END) as with_audio, '
-                .'SUM(CASE WHEN words.example IS NOT NULL AND TRIM(words.example) <> ? THEN 1 ELSE 0 END) as examples_total, '
-                .'SUM(CASE WHEN words.example IS NOT NULL AND TRIM(words.example) <> ? AND words.example_audio_path IS NOT NULL AND words.example_audio_path <> ? THEN 1 ELSE 0 END) as examples_with_audio',
-                ['', '', '', ''],
+                ."SUM(CASE WHEN {$voiced} THEN 1 ELSE 0 END) as examples_total, "
+                ."SUM(CASE WHEN {$voiced} AND words.example_audio_path IS NOT NULL AND words.example_audio_path <> ? THEN 1 ELSE 0 END) as examples_with_audio",
+                ['', ...$voicedBindings, ...$voicedBindings, ''],
             )
             ->toBase()
             ->get();

@@ -485,8 +485,8 @@ it('an import queues the examples of new words and of words whose example change
     expect(exQueued())->toEqualCanonicalizing([$words['apple']->id, $words['pear']->id]);
     Queue::assertPushed(PregenerateExampleAudioJob::class, fn (PregenerateExampleAudioJob $job): bool => $job->afterCommit === true);
 
-    $words['apple']->update(['example_audio_path' => exPath('I ate an apple.'), 'audio_path' => app(WordAudioService::class)->pathFor('apple')]);
-    $words['pear']->update(['example_audio_path' => exPath('A ripe pear.'), 'audio_path' => app(WordAudioService::class)->pathFor('pear')]);
+    $words['apple']->forceFill(['example_audio_path' => exPath('I ate an apple.'), 'audio_path' => app(WordAudioService::class)->pathFor('apple')])->save();
+    $words['pear']->forceFill(['example_audio_path' => exPath('A ripe pear.'), 'audio_path' => app(WordAudioService::class)->pathFor('pear')])->save();
     Queue::fake();
 
     exImport($course, [
@@ -726,4 +726,25 @@ it('audio:coverage reports the examples on a line of their own, outside the --mi
     $this->artisan('audio:coverage', ['course' => 'a1', '--verify' => true, '--min' => 100])
         ->expectsOutputToContain('Examples: 1 of 3 voiced (33.3%), files checked.')
         ->assertExitCode(0);
+});
+
+it('audio:coverage counts only the examples that are voiced: no blanks alone, none over one request of Google', function (): void {
+    $course = Course::factory()->create(['slug' => 'a1']);
+    $lesson = exLesson($course);
+    $long = str_repeat('я', 2_501); // 5 002 bytes: never queued
+    $edge = str_repeat('a', 5_000); // exactly the limit: voiced
+    exaWord('apple', "\t I ate an apple. \n", $lesson, ['example_audio_path' => exPath('I ate an apple.')]);
+    exaWord('pear', $edge, $lesson);
+    exaWord('plum', "\u{A0}\t\n\u{3000} ", $lesson);          // blanks alone, the Unicode ones too
+    exaWord('fig', '  '.$long.'  ', $lesson, ['example_audio_path' => 'audio/stale.mp3']);
+    exaWord('kiwi', null, $lesson);
+
+    $audio = app(WordAudioService::class);
+    expect($audio->exampleText($long))->toBeNull()
+        ->and($audio->exampleText("\u{A0}\t\n\u{3000} "))->toBeNull()
+        ->and($audio->exampleText($edge))->toBe($edge);
+
+    $report = app(WordAudioCoverageService::class)->report($course);
+    expect($report->examples)->toBe(2)
+        ->and($report->examplesWithAudio)->toBe(1);
 });
