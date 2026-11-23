@@ -69,7 +69,7 @@ describe('api client — getBlob (the clip of a dictation)', () => {
     const blob = await client().getBlob('/practice/sessions/7/audio/eD4abcdefg')
 
     expect(blob).toBeInstanceOf(Blob)
-    expect(await blob.text()).toBe('mp3-bytes')
+    expect(await (blob as Blob).text()).toBe('mp3-bytes')
     expect(calledUrl()).toBe('/api/twa/practice/sessions/7/audio/eD4abcdefg')
     expect(calledHeaders().Authorization).toBe('Bearer old')
     expect(calledHeaders()['Accept-Language']).toBe('ru')
@@ -150,7 +150,7 @@ describe('api client — getBlob (the clip of a dictation)', () => {
 
     const blob = await client(onUnauthorized).getBlob('/practice/sessions/7/audio/e')
 
-    expect(await blob.text()).toBe('mp3-bytes')
+    expect(await (blob as Blob).text()).toBe('mp3-bytes')
     expect(onUnauthorized).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
@@ -231,7 +231,7 @@ describe('api client — getBlob: the time limit and the stop', () => {
     const result = client().getBlob(PATH)
     await vi.advanceTimersByTimeAsync(BLOB_TIMEOUT_MS - 1000)
 
-    expect(await (await result).text()).toBe('mp3-bytes')
+    expect(await ((await result) as Blob).text()).toBe('mp3-bytes')
     expect(sent().signal.aborted).toBe(false)
     expect(vi.getTimerCount()).toBe(0)
   })

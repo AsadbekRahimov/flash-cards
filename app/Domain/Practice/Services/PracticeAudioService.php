@@ -6,6 +6,7 @@ namespace App\Domain\Practice\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Practice\DTO\AudioClip;
 use App\Domain\Practice\DTO\AudioStream;
@@ -13,7 +14,6 @@ use App\Domain\Practice\DTO\Snapshot;
 use App\Domain\Practice\DTO\SnapshotElement;
 use App\Domain\Practice\Enums\AudioStatus;
 use App\Domain\Practice\Support\PracticeTextNormalizer;
-use App\Domain\Twa\Services\TtsFallbackService;
 use App\Jobs\GeneratePracticeAudioJob;
 use App\Models\Learner;
 use App\Models\PracticeItemVersion;
@@ -32,8 +32,10 @@ use Throwable;
  * version, {@see generate()} is the body of the job that voices it (18.5, docs/16 §10.1).
  *
  * Two disks only: the one of `practice.audio.disk` (the phrases of the authors: `storage/app/practice-audio`, no URL, no web
- * server maps it) and the disk of the pre-generated audio of the words (`twa.tts.audio_disk`, `public`). A snapshot is written
- * by the server, yet a name of any other disk is not followed.
+ * server maps it) and the disk of the pre-generated audio of the words (`twa.tts.audio_disk`: `public`, or `audio` on R2). A
+ * snapshot is written by the server, yet a name of any other disk is not followed. A word on R2 is not streamed: the endpoints
+ * answer 200 with its public address in JSON ({@see publicUrl()}, docs/26 §9.9) and the client plays that address in an
+ * `<audio>` - no `fetch` to the bucket, no token sent there, no CORS on the bucket.
  */
 final class PracticeAudioService
 {
@@ -44,7 +46,7 @@ final class PracticeAudioService
 
     public function __construct(
         private readonly ProductEventRecorder $events,
-        private readonly TtsFallbackService $tts,
+        private readonly SpeechSynthesizer $tts,
     ) {}
 
     /** The disk of the phrases of the authors (`practice.audio.disk`): streamed by the audio endpoint only. */
@@ -77,6 +79,44 @@ final class PracticeAudioService
         $filesystem = Storage::disk($disk);
 
         return $filesystem->exists($path) && $filesystem->size($path) > 0;
+    }
+
+    /**
+     * The clip can be put into a snapshot (a session, a battle, a run): the file is looked at on a local disk (a stat costs
+     * nothing). A word on a remote disk (R2) is trusted by its path (docs/26 §9.5): the caller has already checked that
+     * `audio_path` is the one the current text hashes to, and every look would be a HEAD request per candidate while a learner waits.
+     */
+    public function isPlayable(string $disk, string $path): bool
+    {
+        if ($path === '') {
+            return false;
+        }
+
+        return $this->isRemoteWordDisk($disk) || $this->hasFile($disk, $path);
+    }
+
+    /**
+     * The public address of a clip that the client plays itself instead of a stream (docs/26 §9.9): a word on a remote disk (R2)
+     * whose disk has a public base URL (`AUDIO_PUBLIC_URL`). The words are public files, the token is not needed for them, and the
+     * bytes must not go through PHP. The bucket is not asked (the readiness of a word is its `audio_path`, §9.5).
+     *
+     * Null: stream it ({@see open()}) - a phrase of an author (private), a word on a local disk, or a remote disk without a public
+     * URL (S3 would build the address of the API of the bucket, which is not public and not in the CSP: streaming still plays).
+     */
+    public function publicUrl(AudioClip $clip): ?string
+    {
+        if (! $this->isRemoteWordDisk($clip->disk)) {
+            return null;
+        }
+
+        $base = config("filesystems.disks.{$clip->disk}.url");
+        if (! is_string($base) || $base === '') {
+            return null;
+        }
+
+        $url = Storage::disk($clip->disk)->url($clip->path);
+
+        return preg_match('#\Ahttps?://[^/\s]+/\S*\z#', $url) === 1 ? $url : null;
     }
 
     /** The audio of a version can be played: `audio_status = ready` AND the file is on the disk (docs/16 §1.3). */
@@ -224,6 +264,14 @@ final class PracticeAudioService
             ->whereKey($versionId)
             ->where('audio_status', AudioStatus::Pending->value)
             ->update(['audio_status' => AudioStatus::Failed->value, 'audio_error' => $this->reasonCode($reason)]);
+    }
+
+    /** The disk of the words, and it is not on this server (`audio` on R2): never asked on the way of a learner. */
+    private function isRemoteWordDisk(string $disk): bool
+    {
+        return $disk === $this->wordDiskName()
+            && $disk !== $this->diskName()
+            && config("filesystems.disks.{$disk}.driver") !== 'local';
     }
 
     /** @return list<string> */

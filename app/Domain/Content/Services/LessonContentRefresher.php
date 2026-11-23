@@ -25,7 +25,19 @@ final class LessonContentRefresher
         private readonly CoursePublisher $publisher,
         private readonly WordAudioService $audio,
         private readonly CourseCatalogService $catalog,
+        private readonly WordAudioScheduler $scheduler,
     ) {}
+
+    /**
+     * A word was added in the admin panel (call it after the save): the lesson cache and the course counter follow
+     * ({@see wordChanged()}), and the audio of the word is queued after the commit - not for a word that is switched off or
+     * belongs to a learner's own deck ({@see WordAudioScheduler::wordCreated()}, docs/26 §5.6).
+     */
+    public function wordCreated(Word $word): void
+    {
+        $this->wordChanged($word);
+        $this->scheduler->wordCreated($word);
+    }
 
     /**
      * Call it AFTER the edit has been written (the panel runs the word's own UPDATE as a single statement, outside
@@ -59,7 +71,8 @@ final class LessonContentRefresher
 
     /**
      * A word was edited in the admin panel (call it right after the save, while `wasChanged()` still tells what moved):
-     * a new English text drops the pre-generated audio and voices the new one; a moved `word`, `translation` or `is_active`
+     * a new English text drops the pre-generated audio and voices the new one, a new example does the same for the audio of the
+     * example ({@see WordAudioService::exampleChanged()}, docs/26 §5.7); a moved `word`, `translation` or `is_active`
      * drops the lesson cache (its pool of distractors holds both texts) after the commit, and `is_active` also recounts
      * the course ({@see wordChanged()}).
      */
@@ -67,6 +80,9 @@ final class LessonContentRefresher
     {
         if ($word->wasChanged('word')) {
             $this->audio->textChanged($word);
+        }
+        if ($word->wasChanged('example')) {
+            $this->audio->exampleChanged($word);
         }
 
         if ($word->wasChanged('is_active')) {

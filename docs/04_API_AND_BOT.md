@@ -347,7 +347,7 @@ Learner присоединяется к открытой тренировке. �
   "started_at": "2026-11-17T05:00:00+00:00",   // серверное время начала сессии, ISO-8601 UTC (с 17.11.2026); то же в итоге /finish
   "lesson": { "stage": 4, "lesson": 8, "title": "Resilience" } | null,   // null для daily_review
   "total_words": 25,         // lesson/group_lesson: активные слова урока; daily_review: размер раунда (= progress.total, docs/06 §13.2; без спринта — learners.daily_goal)
-  "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "translation_fallback": false, "example": null, "example_translation": null, "transcription": null, "audio_url": null, "card_kind": "new", "serve_token": null, "prompt": { "type": "flash", "front": "Resilient", "masked_example": null, "options": null, "answer_length": null } } | null,
+  "card": { "word_id": 1001, "word": "Resilient", "translation": "Устойчивый", "translation_fallback": false, "example": null, "example_translation": null, "example_audio_url": null, "transcription": null, "audio_url": null, "card_kind": "new", "serve_token": null, "prompt": { "type": "flash", "front": "Resilient", "masked_example": null, "options": null, "answer_length": null } } | null,
   "progress": { "done": 0, "total": 25 },
   "done_reason": null,       // см. ниже; не null ровно когда card = null
   "can_continue": false,     // true только с done_reason = sprint_complete: «Ещё раунд» (docs/06 §13.2)
@@ -355,9 +355,9 @@ Learner присоединяется к открытой тренировке. �
 }
 ```
 
-Для `prompt.type` = `meaning` / `reverse` / `audio` карточка не содержит того, что выдаёт правильный вариант: `reverse` — `word` = `""`, `example`, `example_translation`, `transcription`, `audio_url` = `null`; `meaning` и `audio` — `translation` = `""`, `example` = `null`, `example_translation` = `null` (у `meaning` слово, транскрипция и `audio_url` на месте — это вопрос); у всех `hook`, `note`, `confused_with` = `null`. Всё это приходит в `revealed` ответа `/review` (ниже).
+Для `prompt.type` = `meaning` / `reverse` / `audio` карточка не содержит того, что выдаёт правильный вариант: `reverse` — `word` = `""`, `example`, `example_translation`, `example_audio_url`, `transcription`, `audio_url` = `null`; `meaning` и `audio` — `translation` = `""`, `example`, `example_translation`, `example_audio_url` = `null` (у `meaning` слово, транскрипция и `audio_url` на месте — это вопрос); у всех `hook`, `note`, `confused_with` = `null`. Всё это приходит в `revealed` ответа `/review` (ниже).
 
-Для `prompt.type` = `spelling` / `gap_fill` карточка не содержит ответа: `word` = `""`, `example`, `example_translation`, `transcription`, `audio_url` = `null` (перевод предложения с пропуском тоже выдал бы ответ; правильный ответ — в `graded.expected` ответа `/review`).
+Для `prompt.type` = `spelling` / `gap_fill` карточка не содержит ответа: `word` = `""`, `example`, `example_translation`, `example_audio_url`, `transcription`, `audio_url` = `null` (перевод предложения с пропуском тоже выдал бы ответ; правильный ответ — в `graded.expected` ответа `/review`).
 
 `card` / `progress` / `done_reason` / `quota` — первая карточка, прогресс, причина «карточек нет» и квота в том же формате, что у `/next`.
 Если у урока сессии нет (удалён) — 404 `lesson_not_found`.
@@ -377,6 +377,7 @@ Learner присоединяется к открытой тренировке. �
     "translation_fallback": false, // true — перевод на русском, потому что на язык сессии его ещё нет (клиент показывает пометку)
     "example": "She is a resilient girl.",
     "example_translation": "Она стойкая девочка.", // перевод ИМЕННО этого примера (якорь — word_translations.example_translation; ротируемый — word_examples.translations[locale]) на язык сессии, при его отсутствии — на ru (как перевод слова); null, если перевода нет или пример скрыт
+    "example_audio_url": "https://…/audio/9c….mp3", // mp3 ИМЕННО этого примера (docs/26 §9.11): озвучен только якорь (words.example_audio_path); null — пример ротируемый, файл не актуален, своя колода или пример скрыт. Без Web Speech: null → кнопки нет
     "transcription": "rɪˈzɪl.i.ənt",
     "audio_url": "https://…/storage/audio/3f….mp3", // предсгенерированный mp3 слова (1.2c / 2R.4) или null → клиент идёт в Web Speech / GET /tts
     "card_kind": "due",     // due | new | learning (минутные learning steps, см. docs/06 §4)
@@ -492,7 +493,7 @@ Pro → Free посреди занятия), — 409 `exercise_mismatch`, нич
   "new_interval_days": 3,    // 0, пока карточка в минутных learning steps
   "easiness_factor": 2.45,
   "graded": { "quality": 4, "correct": true, "expected": "resilient" } | null, // вердикт сервера по answer; null при quality
-  "revealed": { "word", "translation", "correct", "example", "example_translation", "transcription", "audio_url", "hook", "note", "confused_with" } | null, // экран meaning/reverse/audio после ответа (`correct` — правильный вариант как в options); иначе null
+  "revealed": { "word", "translation", "correct", "example", "example_translation", "example_audio_url", "transcription", "audio_url", "hook", "note", "confused_with" } | null, // экран meaning/reverse/audio после ответа (`correct` — правильный вариант как в options); иначе null
   "card": { ... } | null,    // следующая карточка (как в /next)
   "progress": { "done": 7, "total": 25 },
   "done_reason": null,
@@ -517,7 +518,7 @@ Pro → Free посреди занятия), — 409 `exercise_mismatch`, нич
 `transcription`, `audio_url` на месте; ответ — `answer` (вариант), верно → `quality 4`, иначе `2`, `quality` от клиента → 422
 `quality_not_accepted` всегда; после ответа — `revealed` как у `audio`. Неизвестный клиенту `prompt.type` TWA показывает как экран
 «Обновите приложение» (ответ в карточке скрыт, как `flash` показать нельзя). Новый тип
-`prompt.type = pretest` (за флагом): `front` — слово, `options` — 4 перевода, `translation`/`example`/`example_translation` в карточке пустые; `answer` — вариант
+`prompt.type = pretest` (за флагом): `front` — слово, `options` — 4 перевода, `translation`/`example`/`example_translation`/`example_audio_url` в карточке пустые; `answer` — вариант
 или `''` («не знаю»); верно → `quality 5`, иначе `2`. В `card` добавлены: `is_leech` (трудное слово, `lapses ≥ 4`), `is_hard`, `hook`
 (авторский крючок на языке карточки; есть только у новых/проваленных/трудных), `note` («моя подсказка» ученика), `confused_with`
 (`{word, translation|null}` или `null`); у `spelling`/`gap_fill`/`pretest` эти три — `null`. `example` — пример этой выдачи (после выпуска
@@ -690,12 +691,12 @@ Pro → Free посреди занятия), — 409 `exercise_mismatch`, нич
 События: `exam.mock_started {exam_session_id, course_id, exam_tag, questions}`,
 `exam.mock_finished {exam_session_id, course_id, percent, percentile, answered, reason: finished | expired}` (один раз).
 
-### A.5 TTS fallback
-`GET /api/twa/tts?word=resilient&voice=en-US-AriaNeural`
-Возвращает `audio/mpeg`. Cache-friendly: `Cache-Control: public, max-age=2592000`.
-Если для `word` (+`voice`, по умолчанию `TTS_VOICE`) есть предгенерированный файл (`audio:pregenerate`, задача 1.2c), он отдаётся с диска без обращения к edge-tts; иначе — запрос в сервис.
+### A.5 Озвучка слова на карточке
+`GET /api/twa/tts` **удалён** (docs/26 §9.9): он требовал заголовок `Authorization`, а TWA звала его через `new Audio(url)`, который заголовков не шлёт, — каждый вызов получал 401. Синтеза и поиска файла по тексту по запросу ученика нет.
 
-**`card.audio_url`** (`/training/.../start|next|review`): публичный URL предгенерированного mp3 (`APP_URL/storage/audio/{sha1}.mp3`, раздаёт nginx) или `null`, если у слова нет `audio_path`. TWA при `audio_url` проигрывает файл, при `null`/ошибке — Web Speech, затем `GET /tts`.
+**`card.audio_url`** (`/training/.../start|next|review`): публичный URL предгенерированного mp3 — `APP_URL/storage/audio/{sha1}.mp3` (диск `public`, раздаёт nginx) или `AUDIO_PUBLIC_URL/audio/{sha1}.mp3` (R2) — или `null`, если у слова нет актуального `audio_path`. TWA при `audio_url` проигрывает файл в `<audio>`, при `null`/ошибке — Web Speech, без него — тишина.
+
+**`card.example_audio_url`, `revealed.example_audio_url`** (docs/26 §9.11): такой же публичный URL mp3 примера, который показан в `example` рядом. Озвучивается только якорный пример (`words.example`): адрес есть, если `words.example_audio_path` — файл ровно этого текста (без запроса к бакету); `null` для ротируемого примера, примера, который правили и задание ещё не отработало, пути другого голоса/версии, своей колоды ученика, а также когда пример скрыт (вместе с `example`). TWA показывает кнопку озвучки примера только при непустом адресе и играет его `new Audio(url)` по нажатию, без автопроигрывания; Web Speech для примера не используется.
 
 ### A.5a Каталог курсов (docs/12 §1.7, §3.2)
 
@@ -1176,6 +1177,7 @@ TWA различает отказ по статусу, а не по коду: `a
 #### `GET /api/twa/practice/sessions/{id}/audio/{element}` — запись диктанта (лимитер `twa-practice-audio`, вне `twa-api`)
 Тело — `audio/mpeg`, заголовки `Cache-Control: private, no-store`, `Content-Length`, `X-Content-Type-Options: nosniff`. Файл читается с диска элемента снимка (`practice_audio` — фразы; `public` — предгенерированные слова, `audio:pregenerate`) по **непрозрачному id элемента**;
 ни пути, ни текста в API нет. TWA грузит клип запросом с `Authorization` в `blob:` и играет по нажатию (Web Speech для диктанта запрещён: нужен текст на клиенте). Доступ — только владельцу; завершённая сессия отдаёт записи до `expires_at` (повторное прослушивание в разборе).
+**Слово на R2** (`TTS_AUDIO_DISK=audio` и задан `AUDIO_PUBLIC_URL`, docs/26 §9.9): вместо тела — **200** `application/json` `{ "url": "https://audio…/audio/{sha1}.mp3" }` с `Cache-Control: private, no-store` (не 302: `fetch` пошёл бы за редиректом на чужой домен с `Authorization` и требовал бы CORS на бакете). TWA играет этот адрес в `<audio>` (CSP `media-src`), без `fetch` и без токена; бакет сервер не опрашивает, поэтому для слова на R2 503 не бывает: «нет звука» видит клиент (docs/26 §9.9).
 Ошибки: **404** `practice_session_not_found` — чужая сессия, неизвестный элемент или элемент без записи (неотличимо), **503** `practice_audio_unavailable` — файла нет (TWA предлагает «Повторить загрузку» и «Заменить задание»; событие `practice.audio_failed` с `reason: file_missing` — не чаще раза в 10 минут на пару «сессия — элемент»).
 
 #### Коды ошибок практики (сводно)
@@ -1500,7 +1502,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 - Ошибки: 409 `battle_wrong_state` (`invited`), `battle_closed` (терминальный; повтор того же `request_id` — 200), 422 `unknown_element_id` (элемент не из этого матча или без записи).
 
 #### `GET /api/twa/practice/battles/{id}/audio/{element}` — клип диктанта (вне `twa-api`)
-Тело — `audio/mpeg`, заголовки `Cache-Control: private, no-store`, `Content-Length`, `X-Content-Type-Options: nosniff`; путь на диске и текст в API не выходят. TWA берёт URL из `audio_preload` или `round.element.audio_url` и грузит клип с `Authorization` в `blob:`.
+Тело — `audio/mpeg`, заголовки `Cache-Control: private, no-store`, `Content-Length`, `X-Content-Type-Options: nosniff`; путь на диске и текст в API не выходят. TWA берёт URL из `audio_preload` или `round.element.audio_url` и грузит клип с `Authorization` в `blob:`. Слово на R2 — **200** `{ "url" }` вместо тела, как у клипа сессии (docs/26 §9.9); список `audio_preload` и `audio_url` раундов остаются путями API. Клип, который устройство не смогло загрузить с R2, TWA сообщает тем же `audio-failed`: сервер сам проверяет файл в бакете (HEAD) и аннулирует матч, если его нет.
 - Клип отдаётся участнику, если раунд этого элемента **уже начался** (номер раунда ≤ `current_round`; матч, который закончился, помнит свой последний раунд — все пять), либо матч в `room` / `countdown` (предзагрузка всех пяти: «Готов» без неё нельзя, а звук текст не раскрывает).
   Клип будущего раунда, чужой матч, неизвестный элемент и элемент без записи — один и тот же **404** `battle_not_found`. Файла нет → **503** `practice_audio_unavailable` и больше ничего (матч не трогается, событие не пишется): отчёт, который аннулирует матч, — `audio-failed`.
 
@@ -1592,7 +1594,7 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 | `POST /game/runs/{id}/hint` | `twa-game-answer` | `{request_id, element_id}` → `{hint: {options_removed[]} \| {prefix}, coins: {balance}, run}`; 409 `hint_not_available`, `coins_insufficient {balance, price}` |
 | `POST /game/runs/{id}/booster` | `twa-game-answer` | `{request_id (uuid), item_key, element_id?}` → забег (`GameRunResource`, как `GET`). Бустер из инвентаря ученика: `hint` (подсказка текущего элемента в форме вида; `element_id` необязателен, по умолчанию текущий; результат в `current.element` — убранные варианты / `prefix`), `extra_flask` (+1 фляга, `flasks_max` растёт до `game.run.flasks_max_with_booster`), `second_chance` (первая ошибка забега не стоит фляги). Ошибки: 404 `item_not_found` (нет такого предмета или он не бустер); 409 `booster_not_owned` (`qty = 0`), `booster_limit_reached {limit, used, resets_at, upsell}` (`upsell: true` — у ученика нет `game.boosters_plus`, Pro снял бы лимит: только тогда TWA показывает пейвол; Pro на своём лимите — `false`, G2.13), `booster_already_used` (этот вид уже применён к элементу / в забеге), `booster_not_applicable` (`extra_flask` / `second_chance` в забеге без фляг — босс), `hint_not_available` (у вида или у элемента подсказка уже есть), `element_not_current {current}`, `answer_already_accepted {verdict}`, `request_id_reused`; 410 `game_run_closed` |
 | `POST /game/runs/{id}/abandon` | `twa-api` | `{confirm: true}` → забег `finished/abandoned` |
-| `GET /game/runs/{id}/audio/{element}` | `twa-practice-audio` (вне `twa-api`) | поток `audio/mpeg`, `Cache-Control: private, no-store`; элемент дальше текущего, без файла или чужой — **404**; файла нет на диске — **503** `practice_audio_unavailable` |
+| `GET /game/runs/{id}/audio/{element}` | `twa-practice-audio` (вне `twa-api`) | поток `audio/mpeg`, `Cache-Control: private, no-store` (слово на R2 — **200** `{ "url" }`, docs/26 §9.9); элемент дальше текущего, без файла или чужой — **404**; файла нет на диске — **503** `practice_audio_unavailable` |
 
 `answer.*` — как в практике: `option_id` (виды с вариантами), `text` (`spell`, `gap`, `dictation`), `order` (`sentence`), `left_id` + `right_id` (`pairs_round`), `skip: true` (пропуск — не знаю); форму проверяет вид: 422 `invalid_answer_shape`, `unknown_option_id`, `unknown_element_id`.
 

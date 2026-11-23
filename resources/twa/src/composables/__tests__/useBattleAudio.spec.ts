@@ -3,6 +3,7 @@ import { flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
+import { REMOTE_AUDIO_FAILED, RemoteAudio } from '@/api/remoteAudio'
 import { useBattleAudio } from '../useBattleAudio'
 
 vi.mock('@/api', () => ({ api: { battles: { audioBlob: vi.fn() }, practice: { audioBlob: vi.fn() } } }))
@@ -256,5 +257,40 @@ describe('useBattleAudio — a clip the server has no file for (503)', () => {
     await flushPromises()
 
     expect(audio.missing.value).toEqual([])
+  })
+})
+
+describe('useBattleAudio — words on R2 (docs/26 §9.9)', () => {
+  const R2 = (n: number) => `https://audio.example.uz/audio/w${n}.mp3`
+
+  it('counts a word the device loaded from R2 as in, and gives the round its address, not a blob', async () => {
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) =>
+      Promise.resolve(url === URLS[0] ? new RemoteAudio(R2(1)) : clip()),
+    )
+    const audio = useBattleAudio()
+
+    audio.preload(URLS)
+    await flushPromises()
+
+    expect(audio.state.value).toBe('ready')
+    expect(audio.blobFor(URLS[0]!)).toEqual(new RemoteAudio(R2(1)))
+    expect(audio.blobFor(URLS[1]!)).toBeInstanceOf(Blob)
+
+    audio.release()
+    expect(revoked).toHaveBeenCalledTimes(4)   // the four blobs, never the address
+    expect(revoked).not.toHaveBeenCalledWith(R2(1))
+  })
+
+  it('lists a word the device could not load from R2: only the server can look at the bucket (audio-failed)', async () => {
+    vi.mocked(api.battles.audioBlob).mockImplementation((url) =>
+      url === URLS[3] ? Promise.reject(new ApiClientError('network', 0, REMOTE_AUDIO_FAILED, 'x')) : Promise.resolve(clip()),
+    )
+    const audio = useBattleAudio()
+
+    audio.preload(URLS)
+    await flushPromises()
+
+    expect(audio.missing.value).toEqual([URLS[3]])
+    expect(audio.state.value).toBe('failed')
   })
 })

@@ -41,7 +41,10 @@ export type AudioState = 'idle' | 'loading' | 'ready' | 'failed'
 
 export interface AudioSlot {
   state: AudioState
-  /** `blob:` URL of the loaded clip; revoked when the clip is replaced or the screen leaves. */
+  /**
+   * What plays: the `blob:` URL of the loaded clip (revoked when the clip is replaced or the screen leaves), or the public address
+   * of a word on R2 (docs/26 §9.9: played by an `<audio>`, nothing to revoke).
+   */
   blobUrl: string | null
 }
 
@@ -955,7 +958,7 @@ export const usePracticeStore = defineStore('practice', {
 
     /** The `blob:` URL of the clip is given back to the browser, the slot is empty again. */
     releaseAudio(): void {
-      if (this.audio.blobUrl !== null) URL.revokeObjectURL(this.audio.blobUrl)
+      if (this.audio.blobUrl !== null && this.audio.blobUrl.startsWith('blob:')) URL.revokeObjectURL(this.audio.blobUrl)
       this.audio.blobUrl = null
       this.audio.state = 'idle'
     },

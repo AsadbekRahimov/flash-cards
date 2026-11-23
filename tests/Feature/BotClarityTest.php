@@ -440,6 +440,6 @@ it('announces a training and the reminders with the new wording, in both languag
     expect(__('training.started', ['stage' => 2, 'lesson' => 3], 'ru'))->toBe('📚 Тренировка: модуль 2, урок 3. Нажмите кнопку — LexiFlow откроется прямо в Telegram.')
         ->and(trans_choice('reminders.review', 5, ['count' => 5], 'ru'))->toEndWith('Изменить время или отключить: /settings')
         ->and(trans_choice('reminders.streak_at_risk', 1, ['count' => 1], 'ru'))->toEndWith('/settings')
-        ->and(trans_choice('reminders.review', 5, ['count' => 5], 'uz'))->toEndWith('/settings')
+        ->and(trans_choice('reminders.review', 5, ['count' => 5], 'uz'))->toEndWith("/settings buyrug'ini yuboring.")
         ->and(__('onboarding.done.button', [], 'ru'))->toContain('первое занятие');
 });

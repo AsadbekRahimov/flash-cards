@@ -13,6 +13,7 @@ use App\Domain\Practice\Services\Battle\BattleReader;
 use App\Domain\Practice\Services\PracticeAudioService;
 use App\Domain\Practice\Services\PracticeSessionService;
 use App\Http\Resources\ApiErrorResource;
+use App\Http\Resources\Twa\AudioLocationResource;
 use App\Models\Battle;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
@@ -25,7 +26,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * The audio of an element of a session or of a battle (docs/16 §7.2, §7.4, §10.2): the file is read from the disk the element of
  * the snapshot names, by the opaque id of the element, and streamed with `Cache-Control: private, no-store`. Only the owner of a
  * session / a player of a battle gets it; an id of somebody else's session or battle and an id of an element without audio look the
- * same (404); a file that is not there is 503.
+ * same (404); a file that is not there is 503. A word on a remote disk (R2) is not streamed: 200 with its public address in JSON
+ * (`AudioLocationResource`, docs/26 §9.9), the client plays it in an `<audio>`.
  *
  * The audio of a finished session stays available until its `expires_at` (to listen again in the review). In a battle the clip of
  * a round that has not begun is not handed out - 404 like an element that does not exist - except in the room and the countdown of
@@ -58,6 +60,11 @@ final class PracticeAudioController
             return $this->notFound();
         }
 
+        $url = $this->audio->publicUrl($clip);
+        if ($url !== null) {
+            return AudioLocationResource::respond($url);
+        }
+
         $stream = $this->audio->open($clip);
         if ($stream === null) {
             $this->audio->recordMissing($learner, $found->id, $snapshot, $element);
@@ -87,6 +94,11 @@ final class PracticeAudioController
         $clip = $this->heard($found, $snapshot, $element) ? $this->audio->clipFor($snapshot, $element) : null;
         if ($clip === null) {
             return ApiErrorResource::respond(404, BattleException::NOT_FOUND, 'No such battle.');
+        }
+
+        $url = $this->audio->publicUrl($clip);
+        if ($url !== null) {
+            return AudioLocationResource::respond($url);
         }
 
         $stream = $this->audio->open($clip);

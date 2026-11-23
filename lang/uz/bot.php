@@ -89,7 +89,7 @@ return [
         'unlink_yes' => 'Ha, uzish',
         'unlink_no' => "Yo'q",
         'unlink_done' => "Telegram :name akkauntidan uzildi. Bot yana Sizga o'quvchi sifatida javob beradi — /start yuboring.",
-        'unlink_none' => "Telegram akkauntingiz hech bir kabinetga ulanmagan.",
+        'unlink_none' => 'Telegram akkauntingiz hech bir kabinetga ulanmagan.',
         'unlink_cancelled' => 'Mayli, Telegram ulangan holda qoladi.',
         // `/link` outside a group, and from an anonymous administrator.
         'use_in_group' => "Bu buyruqni markazga bog'lamoqchi bo'lgan guruhingizda yuboring.",

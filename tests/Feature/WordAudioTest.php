@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Twa\Services\JwtService;
 use App\Filament\Resources\LessonResource\Pages\EditLesson;
@@ -18,7 +19,6 @@ use App\Models\User;
 use App\Models\Word;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -68,8 +68,8 @@ it('job synthesizes the word, stores audio/{sha1}.mp3 and sets audio_path', func
     Http::assertSent(fn ($request): bool => $request['word'] === 'resilient' && $request['voice'] === 'en-US-AriaNeural');
 });
 
-it('job runs on the low queue', function (): void {
-    expect((new PregenerateWordAudioJob(1))->queue)->toBe('low');
+it('job runs on the tts queue (docs/26 §9.3)', function (): void {
+    expect((new PregenerateWordAudioJob(1))->queue)->toBe('tts');
 });
 
 it('is a no-op when audio_path is set and the file exists', function (): void {
@@ -192,7 +192,7 @@ it('audio:pregenerate queues jobs only for active words of the course', function
         ->assertSuccessful();
 
     Queue::assertPushed(PregenerateWordAudioJob::class, 2);
-    Queue::assertPushed(PregenerateWordAudioJob::class, fn (PregenerateWordAudioJob $job): bool => in_array($job->wordId, [$a->id, $b->id], true) && ! $job->force && $job->queue === 'low');
+    Queue::assertPushed(PregenerateWordAudioJob::class, fn (PregenerateWordAudioJob $job): bool => in_array($job->wordId, [$a->id, $b->id], true) && ! $job->force && $job->queue === 'tts');
 });
 
 it('audio:pregenerate skips words whose audio is current unless --force', function (): void {
@@ -248,45 +248,6 @@ function audioAuthHeaders(Learner $learner): array
     return ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
 }
 
-it('GET /tts serves the stored file without calling the TTS service', function (): void {
-    fakeTts();
-    Storage::disk('public')->put(audioPathOf('resilient'), 'stored-bytes');
-    $learner = Learner::factory()->create();
-
-    $response = $this->withHeaders(audioAuthHeaders($learner))->get('/api/twa/tts?word=Resilient');
-
-    $response->assertOk()
-        ->assertHeader('Content-Type', 'audio/mpeg')
-        ->assertHeader('Cache-Control', 'max-age=2592000, private');
-    expect($response->getContent())->toBe('stored-bytes');
-    Http::assertNothingSent();
-});
-
-it('GET /tts serves the stored file when the default voice is passed explicitly', function (): void {
-    fakeTts();
-    Storage::disk('public')->put(audioPathOf('resilient'), 'stored-bytes');
-    $learner = Learner::factory()->create();
-
-    $this->withHeaders(audioAuthHeaders($learner))->get('/api/twa/tts?word=resilient&voice=en-US-AriaNeural')
-        ->assertOk();
-
-    Http::assertNothingSent();
-});
-
-it('GET /tts falls back to the service for another voice or an unknown word', function (): void {
-    fakeTts();
-    Storage::disk('public')->put(audioPathOf('resilient'), 'stored-bytes');
-    $learner = Learner::factory()->create();
-
-    $other = $this->withHeaders(audioAuthHeaders($learner))->get('/api/twa/tts?word=resilient&voice=en-GB-RyanNeural');
-    expect($other->getContent())->toBe('mp3-bytes');
-
-    $unknown = $this->withHeaders(audioAuthHeaders($learner))->get('/api/twa/tts?word=different');
-    expect($unknown->getContent())->toBe('mp3-bytes');
-
-    Http::assertSentCount(2);
-});
-
 it('exposes audio_url on the training card only when the word has audio', function (): void {
     $group = TelegramGroup::factory()->create(['status' => 'active']);
     $learner = Learner::factory()->memberOf($group)->create();
@@ -323,12 +284,9 @@ it('an empty (partial) file is not ready: it is regenerated and not served', fun
     $service = app(WordAudioService::class);
 
     expect($service->isCurrent($word))->toBeFalse()
-        ->and($service->storedPath('resilient'))->toBeNull();
+        ->and($service->fileState($path))->toBe('empty');
 
-    $learner = Learner::factory()->create();
-    $served = $this->withHeaders(audioAuthHeaders($learner))->get('/api/twa/tts?word=resilient');
-    expect($served->getContent())->toBe('mp3-bytes');
-    Http::assertSentCount(1);
+    Http::assertNothingSent();
 
     expect($service->generate($word))->toBeTrue()
         ->and(Storage::disk('public')->get($path))->toBe('mp3-bytes')
@@ -421,7 +379,7 @@ it('editing the word text on the word screen resets audio_path and queues regene
         ->assertHasNoFormErrors();
 
     expect($word->fresh()?->audio_path)->toBeNull();
-    Queue::assertPushed(PregenerateWordAudioJob::class, fn (PregenerateWordAudioJob $job): bool => $job->wordId === $word->id && $job->queue === 'low');
+    Queue::assertPushed(PregenerateWordAudioJob::class, fn (PregenerateWordAudioJob $job): bool => $job->wordId === $word->id && $job->queue === 'tts');
 });
 
 it('saving the word screen without a text change keeps audio_path and queues nothing', function (): void {
@@ -468,11 +426,35 @@ it('editing only the translation on the lesson screen does not touch the audio',
     Queue::assertNothingPushed();
 });
 
-it('GET /tts answers 503 tts_unavailable when the TTS service is unreachable', function (): void {
-    Http::fake(['http://tts.test/tts' => fn () => throw new ConnectionException('cURL error 7: connection refused')]);
-    $learner = Learner::factory()->create();
+it('generate does not overwrite audio_path when the text changed during the synthesis (docs/26 §9.6)', function (): void {
+    $word = audioWord('resilient');
+    $newPath = audioPathOf('robust');
+    // The admin edits the text while Google is synthesizing; the job of the new text finishes first.
+    app()->instance(SpeechSynthesizer::class, new class($word->id, $newPath) implements SpeechSynthesizer
+    {
+        public function __construct(private readonly int $wordId, private readonly string $newPath) {}
 
-    $this->withHeaders(audioAuthHeaders($learner))->getJson('/api/twa/tts?word=different')
-        ->assertStatus(503)
-        ->assertJsonPath('error.code', 'tts_unavailable');
+        public function synthesize(string $text, string $voice): array
+        {
+            Word::query()->whereKey($this->wordId)->update(['word' => 'robust', 'audio_path' => $this->newPath]);
+
+            return ['body' => 'mp3-of-'.$text, 'content_type' => 'audio/mpeg'];
+        }
+    });
+
+    expect(app(WordAudioService::class)->generate($word))->toBeTrue();
+
+    expect($word->fresh()?->audio_path)->toBe($newPath)
+        ->and($word->audio_path)->toBeNull()
+        ->and(Storage::disk('public')->get(audioPathOf('resilient')))->toBe('mp3-of-resilient');
+});
+
+it('generate sets audio_path while the text is unchanged', function (): void {
+    fakeTts();
+    $word = audioWord('resilient');
+
+    app(WordAudioService::class)->generate($word);
+
+    expect($word->audio_path)->toBe(audioPathOf('resilient'))
+        ->and($word->fresh()?->audio_path)->toBe(audioPathOf('resilient'));
 });

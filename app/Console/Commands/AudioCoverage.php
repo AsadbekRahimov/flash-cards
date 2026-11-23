@@ -6,8 +6,10 @@ namespace App\Console\Commands;
 
 use App\Domain\Content\DTO\AudioCoverageReport;
 use App\Domain\Content\Services\WordAudioCoverageService;
+use App\Domain\Content\Services\WordAudioService;
 use App\Models\Course;
 use Illuminate\Console\Command;
+use League\Flysystem\FilesystemException;
 
 /**
  * Coverage of the pre-generated word audio of a course, the check before publishing (docs/12 task 1.2c): active words
@@ -20,14 +22,14 @@ final class AudioCoverage extends Command
     /** @var string */
     protected $signature = 'audio:coverage
         {course : Course slug}
-        {--verify : Also check the files on the disk (slower: one stat per unique file)}
+        {--verify : Also check the files on the disk (slower: one stat - on R2 a HEAD request - per unique file)}
         {--min= : Fail (exit code 1) when the coverage is below this percent, 0-100}
         {--limit=20 : How many broken words to list with --verify}';
 
     /** @var string */
     protected $description = 'Report how many active words of a course have pre-generated audio (before publishing).';
 
-    public function handle(WordAudioCoverageService $coverage): int
+    public function handle(WordAudioCoverageService $coverage, WordAudioService $audio): int
     {
         $slug = (string) $this->argument('course');
 
@@ -52,7 +54,14 @@ final class AudioCoverage extends Command
         }
 
         $verify = (bool) $this->option('verify');
-        $report = $coverage->report($course, $verify, (int) $limit);
+        try {
+            $report = $coverage->report($course, $verify, (int) $limit);
+        } catch (FilesystemException $e) {
+            // R2 did not answer a HEAD (not a "not found"): the coverage would be a guess.
+            $this->error(sprintf('The audio disk "%s" cannot be read (%s); nothing is reported.', $audio->diskName(), class_basename($e)));
+
+            return self::FAILURE;
+        }
 
         $this->table(
             $verify ? ['Module', 'Title', 'Active words', 'Audio in DB', '%', 'File OK', '%'] : ['Module', 'Title', 'Active words', 'Audio in DB', '%'],
@@ -74,7 +83,16 @@ final class AudioCoverage extends Command
             $report->covered(),
             $report->words,
             $this->percent($report->percent()),
-            $verify ? ', files checked' : ', by the DB (add --verify to check the files)',
+            $verify ? ', files checked on the disk "'.$audio->diskName().'"' : ', by the DB (add --verify to check the files)',
+        ));
+
+        // The examples (docs/26 §9.11): a line for information, not part of the --min gate.
+        $this->line(sprintf(
+            'Examples: %d of %d voiced (%s%%)%s.',
+            $report->examplesCovered(),
+            $report->examples,
+            $this->percent(AudioCoverageReport::share($report->examplesCovered(), $report->examples)),
+            $verify ? ', files checked' : ', by the DB',
         ));
 
         if ($min !== null && ! $report->meets((float) $min)) {

@@ -6,15 +6,27 @@ let playImpl: () => Promise<void>
 
 const paused: string[] = []
 
+const unloaded: string[] = []
+
 class FakeAudio {
   currentTime = 0
-  constructor(public src: string) {}
+  private source: string | null
+  constructor(public src: string) {
+    this.source = src
+  }
   play(): Promise<void> {
     played.push(this.src)
     return playImpl()
   }
   pause(): void {
     paused.push(this.src)
+  }
+  removeAttribute(name: string): void {
+    if (name === 'src') this.source = null
+  }
+  load(): void {
+    // The download is let go only when the element reloads without a source.
+    if (this.source === null) unloaded.push(this.src)
   }
 }
 
@@ -25,6 +37,7 @@ describe('useTts', () => {
   beforeEach(() => {
     played.length = 0
     paused.length = 0
+    unloaded.length = 0
     utterances.length = 0
     speakSpy.mockClear()
     playImpl = () => Promise.resolve()
@@ -72,6 +85,23 @@ describe('useTts', () => {
     expect(paused).toEqual(['/storage/audio/one.mp3'])
   })
 
+  it('lets the download of a stopped file go: no source, reloaded (docs/26 §9.11)', async () => {
+    const tts = useTts()
+    tts.stop() // the sound a previous test left current (the module keeps one for all instances)
+    paused.length = 0
+    unloaded.length = 0
+    await tts.play('/storage/audio/example.mp3')
+    expect(unloaded).toEqual([])
+
+    await tts.speak('word', 'en-US', '/storage/audio/word.mp3') // the word stops the example
+    expect(paused).toEqual(['/storage/audio/example.mp3'])
+    expect(unloaded).toEqual(['/storage/audio/example.mp3'])
+
+    tts.stop()
+    expect(unloaded).toEqual(['/storage/audio/example.mp3', '/storage/audio/word.mp3'])
+    expect(tts.playingUrl.value).toBeNull()
+  })
+
   it('a superseded call does not fall back to Web Speech on top of the newer sound', async () => {
     let rejectFirst: (e: Error) => void = () => {}
     let n = 0
@@ -82,6 +112,25 @@ describe('useTts', () => {
     rejectFirst(new Error('aborted by pause'))
     await Promise.all([first, second])
     expect(utterances).toEqual([])
+  })
+
+  it('plays a word on R2 by its public address as it came (docs/26 §9.9)', async () => {
+    await useTts().speak('resilient', 'en-US', 'https://audio.example.uz/audio/abc.mp3')
+    expect(played).toEqual(['https://audio.example.uz/audio/abc.mp3'])
+    expect(speakSpy).not.toHaveBeenCalled()
+  })
+
+  it('stays silent without a file and without Web Speech: no call to the removed /api/twa/tts (docs/26 §9.9)', async () => {
+    vi.stubGlobal('speechSynthesis', undefined)
+    await useTts().speak('resilient', 'en-US', null)
+    expect(played).toEqual([])
+  })
+
+  it('stays silent when the file fails and there is no Web Speech: only the file was tried', async () => {
+    vi.stubGlobal('speechSynthesis', undefined)
+    playImpl = () => Promise.reject(new Error('404'))
+    await useTts().speak('resilient', 'en-US', '/storage/audio/missing.mp3')
+    expect(played).toEqual(['/storage/audio/missing.mp3'])
   })
 
   it('does not start Web Speech over the audio file', async () => {

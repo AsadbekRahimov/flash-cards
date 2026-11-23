@@ -217,6 +217,7 @@ export const ru = {
   'card.kind.learning': 'Учим',
   'card.kind.due': 'Повторение',
   'card.speak': 'Произнести',
+  'card.speak_example': 'Прослушать пример',
   'card.reveal': 'Показать перевод',
   'card.translation_fallback': 'Перевода на язык занятия пока нет',
   'card.grade_group': 'Оценка',

@@ -223,7 +223,7 @@ it('answers in the sender\'s Telegram language', function (): void {
     $link = $this->service->issueLink($this->staff);
 
     talStart(777007, 'link_'.$link->code, ['language_code' => 'uz']);
-    expect(talLastText($this->tg))->toStartWith('Bu Telegramni «Bright Center» markazi kabinetiga ulaysizmi?');
+    expect(talLastText($this->tg))->toStartWith("Telegram akkauntingizni quyidagi markaz kabinetiga ulaysizmi?\n«Bright Center»\n");
 
     talTap(777007, 'lnk1:yes:'.$link->code, from: ['language_code' => 'uz']);
     expect(talLastText($this->tg))->toStartWith('✅ Telegram Nodira K. akkauntiga ulandi.');

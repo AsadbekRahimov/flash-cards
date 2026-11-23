@@ -42,16 +42,38 @@ return [
     ],
 
     'tts' => [
+        /**
+         * The speech synthesizer (docs/26 §5.1, bound in AppServiceProvider): `google` - Google Cloud Text-to-Speech
+         * (`google` below); `http` - the edge-tts compatible service of `service_url`; `null` - nothing configured, the
+         * audio jobs fail with `tts_service_not_configured`. Unset: `http` when `service_url` is set, else `null` (decided
+         * when the synthesizer is resolved, so installations without TTS_DRIVER keep working as before).
+         */
+        'driver' => env('TTS_DRIVER'),
         'service_url' => env('TTS_SERVICE_URL', ''),
         'timeout' => (int) env('TTS_SERVICE_TIMEOUT', 8),
 
         /**
-         * `GET /api/twa/tts` synthesizes inside an API worker: short timeouts and a cap on simultaneous syntheses
-         * (a refusal is the same 503 as an unavailable service). The long `timeout` above stays for pre-generation jobs.
+         * The `google` driver (docs/26 §9.1). `credentials` is the PATH of the service-account key file
+         * (e.g. /run/secrets/google-tts.json), never its JSON: `config:cache` would write the private key into
+         * bootstrap/cache. `timeout` - seconds for the answer (the connect timeout is a constant of 5 s).
          */
-        'live_timeout' => (int) env('TTS_LIVE_TIMEOUT', 3),
-        'live_connect_timeout' => (int) env('TTS_LIVE_CONNECT_TIMEOUT', 2),
-        'live_concurrency' => (int) env('TTS_LIVE_CONCURRENCY', 2),
+        'google' => [
+            'credentials' => (string) env('GOOGLE_TTS_CREDENTIALS', ''),
+            'timeout' => (int) env('GOOGLE_TTS_TIMEOUT', 20),
+        ],
+
+        /**
+         * The `google` driver only (docs/26 §9.3): its pace across all workers (a job waits, up to 30 s) and the characters
+         * it may send in one billing month (Pacific time; the free tier is 1 000 000; `0` forbids synthesis).
+         */
+        'rate_per_minute' => (int) env('TTS_RATE_PER_MINUTE', 150),
+        'monthly_char_limit' => (int) env('TTS_MONTHLY_CHAR_LIMIT', 900000),
+
+        /**
+         * «Требуют внимания» of the dashboard of `/admin` warns when the queue `tts` holds more jobs than this (docs/26 §9.3):
+         * the `low` worker does not keep up, or it is gone.
+         */
+        'queue_attention_size' => (int) env('TTS_QUEUE_ATTENTION_SIZE', 3000),
 
         /**
          * Pre-generated word audio (docs/12 task 1.2c): `audio/{sha1(text|voice|version)}.mp3`
@@ -60,7 +82,11 @@ return [
          */
         'voice' => env('TTS_VOICE', 'en-US-AriaNeural'),
         'audio_version' => (int) env('TTS_AUDIO_VERSION', 1),
-        'audio_disk' => 'public',
+        /**
+         * The disk of the word audio (docs/26 §5.4): `public` - this server, `/storage/audio/` (the default: local and
+         * the tests); `audio` - Cloudflare R2 (config/filesystems.php, AUDIO_*). Switched without a code change.
+         */
+        'audio_disk' => env('TTS_AUDIO_DISK', 'public'),
         'audio_dir' => 'audio',
     ],
 

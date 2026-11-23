@@ -3,15 +3,27 @@
 
 <p class="lead">Команды сервера, которые нужны в работе администратора платформы, но запускаются в терминале. Запускайте их в каталоге приложения как <code>php artisan &lt;команда&gt;</code>; в Docker — через контейнер приложения. Основное руководство обходится без терминала: администратор просит технического администратора выполнить нужное.</p>
 
-<h2>Контент и озвучка</h2>
+<h2>Контент</h2>
 <table>
 <thead><tr><th>Команда</th><th>Зачем</th></tr></thead>
 <tbody>
 <tr><td><code>content:import-course &lt;каталог&gt; --create</code></td><td>загрузить готовый пакет курса (<code>database/data/courses/english-a1-a2</code> и др.). Курс появляется черновиком</td></tr>
 <tr><td><code>practice:import &lt;файл&gt; [--publish]</code></td><td>импорт заданий практики из файла — то же, что страница «Импорт заданий»; <code>--publish</code> = флажок «Опубликовать сразу»</td></tr>
-<tr><td><code>audio:pregenerate &lt;код-курса&gt; [--force]</code></td><td>поставить в очередь озвучку активных слов курса, у которых её нет; <code>--force</code> переозвучивает всё. Нужен работающий обработчик очереди</td></tr>
-<tr><td><code>audio:coverage &lt;код-курса&gt; [--verify] [--min=95] [--limit=20]</code></td><td>покрытие озвучки по модулям и итог: «620 of 1000 active words voiced (62.0%)». <code>--verify</code> проверяет и файлы на диске и перечисляет битые; <code>--min</code> завершает команду с ошибкой ниже порога (для скриптов публикации). Запускайте после того, как очередь отработала</td></tr>
 <tr><td><code>courses:recount-words</code></td><td>пересчитать число слов курсов, если оно выглядит неверным</td></tr>
+</tbody>
+</table>
+
+<h2>Озвучка</h2>
+<p>Новые слова (создание в уроке, импорт урока), правка текста слова или его основного примера и новые версии диктантов озвучиваются сами (у слова — и основной пример; дополнительные примеры не озвучиваются): задания идут в очередь <code>tts</code>, их выполняет обработчик <code>queue-low</code> (<code>--queue=low,tts</code>). Каждую ночь в 02:30 UTC расписание запускает <code>audio:reconcile</code> и подбирает пропущенное. Слова собственных колод учеников не озвучиваются (голос телефона). При <code>TTS_DRIVER=null</code> слова в очередь не ставятся, ученики слышат голос телефона. Команды ниже нужны для проверки, массового прогона и обслуживания; настройка Google Cloud TTS и Cloudflare R2, коды ошибок и порядок включения — <code>docs/27_GOOGLE_TTS_SETUP_RU.md</code> (справочник команд — раздел C6).</p>
+<table>
+<thead><tr><th>Команда</th><th>Зачем</th></tr></thead>
+<tbody>
+<tr><td><code>audio:sample [--voice=] [--dir=] [--clear-halt]</code></td><td>сразу, без очереди, озвучить контрольный набор ≈ 30 слов и фраз в <code>storage/app/audio-samples/&lt;голос&gt;/</code> — проверка входа в Google и выбор голоса; <code>--clear-halt</code> снимает остановку после «вход отклонён». Символы считаются в месячный предел</td></tr>
+<tr><td><code>audio:pregenerate &lt;код-курса&gt;</code> | <code>--all</code> <code>[--only=words|examples]</code> <code>[--force]</code></td><td>поставить в очередь озвучку активных слов курса (или всех курсов, кроме колод учеников) и их основных примеров, у которых нет актуального файла на диске; <code>--only=words</code> — только слова, <code>--only=examples</code> — только примеры (например, сразу после выката озвучки примеров); <code>--force</code> переозвучивает и готовые. Нужен после смены голоса или если что-то потерялось</td></tr>
+<tr><td><code>audio:reconcile [--limit=2000]</code></td><td>ночная сверка вручную: сначала слова, затем примеры без актуальной озвучки получают задание (не больше <code>--limit</code> на всё вместе; печатает «Words: W, examples: E»); если ничего не поставлено, пишет причину одной строкой</td></tr>
+<tr><td><code>audio:coverage &lt;код-курса&gt; [--verify] [--min=95] [--limit=20]</code></td><td>покрытие озвучки по модулям и итог: «620 of 1000 active words voiced (62.0%)», затем отдельная строка «Examples: …» по примерам (в порог <code>--min</code> не входит). <code>--verify</code> проверяет и сами файлы и перечисляет битые; <code>--min</code> завершает команду с ошибкой ниже порога (для скриптов публикации). Запускайте после того, как очередь отработала</td></tr>
+<tr><td><code>audio:migrate-disk [--from=public] [--to=] [--dry-run]</code></td><td>скопировать файлы слов и примеров с одного диска на другой (например, с сервера в R2); повторять безопасно, база не меняется</td></tr>
+<tr><td><code>audio:prune [--days=30] [--delete] [--disk=] [--force]</code></td><td>найти старые файлы слов и примеров, на которые не ссылается ни одно слово; без <code>--delete</code> только показывает список. Файлы диктантов не трогает</td></tr>
 </tbody>
 </table>
 
@@ -49,6 +61,7 @@
 <li>доступ к практике: <code>PRACTICE_ACCESS</code> (<code>off</code> / <code>pilot</code> / <code>all</code>) и выключатели режимов <code>PRACTICE_MODE_*</code>;</li>
 <li>сравнение напоминаний: <code>REMINDERS_QUIZ_EXPERIMENT</code>, <code>REMINDERS_QUIZ_EXPERIMENT_STARTS_AT</code> (не менять долю и «соль» во время сравнения);</li>
 <li>призы рейтинга по умолчанию: <code>LEAGUES_MONTHLY_PRIZE_{1..3}_{RU,UZ}</code>;</li>
+<li>озвучка: <code>TTS_DRIVER</code> (<code>google</code> / <code>http</code> / <code>null</code>), <code>TTS_VOICE</code>, месячный предел <code>TTS_MONTHLY_CHAR_LIMIT</code> (900 000 символов) и порог строки «Очередь озвучки» <code>TTS_QUEUE_ATTENTION_SIZE</code> (3 000) — полный список в <code>docs/27_GOOGLE_TTS_SETUP_RU.md</code>, раздел C2;</li>
 <li>пороги блока «Требуют внимания» — в <code>config/analytics.php</code> (<code>attention.center_wait_days</code> = 7, <code>attention.reminder_read_after_days</code> = 14).</li>
 </ul>
 </section>

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Card, Quality } from '@/api/types'
 import CardHooks from '@/components/CardHooks.vue'
+import ExampleAudioButton from '@/components/ExampleAudioButton.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useAutoSpeak } from '@/composables/useAutoSpeak'
@@ -168,9 +169,13 @@ function onGrade(q: Quality): void {
           <p v-if="card.translation_fallback" class="mt-1 text-[13px] leading-[18px] text-muted" data-testid="translation-fallback">
             {{ t('card.translation_fallback') }}
           </p>
-          <p v-if="card.example" class="mt-3 text-base leading-[22px] italic" lang="en" data-testid="example">
-            {{ card.example }}
-          </p>
+          <!-- The speaker of the example (docs/26 §9.11) on its first line; the sentence wraps beside it. -->
+          <div v-if="card.example" class="mt-3 flex items-start justify-center gap-1">
+            <p class="min-w-0 text-base leading-[22px] break-words italic" lang="en" data-testid="example">
+              {{ card.example }}
+            </p>
+            <ExampleAudioButton v-if="card.example_audio_url" :url="card.example_audio_url" class="-mt-[11px]" />
+          </div>
           <p v-if="card.example && card.example_translation" class="mt-1 text-sm leading-5 text-muted" data-testid="example-translation">
             {{ card.example_translation }}
           </p>

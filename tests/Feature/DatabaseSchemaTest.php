@@ -140,6 +140,8 @@ $expectedTables = [
     'game_runs', 'game_run_attempts', 'game_stop_progress', 'game_city_progress', 'game_word_misses',
     'game_wallets', 'game_coin_ledger', 'game_items', 'game_inventory', 'game_profiles', 'game_ticket_ledger', 'game_booster_uses',
     'class_caravans', 'class_caravan_members',
+    // Google TTS: the monthly character budget (docs/26 §9.3).
+    'tts_usage_months',
 ];
 
 /**
@@ -984,9 +986,10 @@ it('nulls subscriptions.granted_by_user_id, promo_codes.created_by_user_id and p
 it('adds audio_path and is_active to words', function (): void {
     $word = Word::factory()->create();
 
-    expect(Schema::hasColumns('words', ['audio_path', 'is_active']))->toBeTrue()
+    expect(Schema::hasColumns('words', ['audio_path', 'example_audio_path', 'is_active']))->toBeTrue()
         ->and($word->fresh()?->is_active)->toBeTrue()
-        ->and($word->fresh()?->audio_path)->toBeNull();
+        ->and($word->fresh()?->audio_path)->toBeNull()
+        ->and($word->fresh()?->example_audio_path)->toBeNull();
 });
 
 it('has partial index learners_next_reminder_at_idx on learners', function (): void {
@@ -1149,7 +1152,7 @@ it('rolls back and re-applies the learner-first migrations (1.1a + 1.1b)', funct
     }
     expect(Schema::hasColumns('telegram_groups', ['organization_id', 'course_id']))->toBeTrue()
         ->and(Schema::hasColumn('stages', 'course_id'))->toBeTrue()
-        ->and(Schema::hasColumns('words', ['audio_path', 'is_active']))->toBeTrue();
+        ->and(Schema::hasColumns('words', ['audio_path', 'example_audio_path', 'is_active']))->toBeTrue();
 
     // 1.1b: the schema comes back in its learner-first shape, not the student one.
     expect(Schema::hasTable('students'))->toBeFalse()

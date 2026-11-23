@@ -13,8 +13,10 @@ use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\ProductEvent;
 use Carbon\CarbonImmutable;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -425,6 +427,39 @@ it('answers 503 when the file of the clip is not on the disk', function (): void
     Storage::disk($listen['audio_disk'])->delete($listen['audio_path']);
 
     apiError(apiAudio($learner, $run->id, $listen['id']), 503, 'practice_audio_unavailable');
+});
+
+it('answers the public address of a word on R2 in JSON, not a redirect and not its bytes (docs/26 §9.9)', function (): void {
+    Config::set('twa.tts.audio_disk', 'audio');
+    Config::set('filesystems.disks.audio.url', 'https://audio.example.uz');
+    [$learner, $course, $lesson] = GameKit::richStop();
+    $run = apiRunWith('listen', $learner, $course->slug, $lesson->id) ?? throw new RuntimeException('No listen task in 30 runs.');
+    $elements = $run->snapshot['elements'];
+    $at = array_search('listen', array_column($elements, 'kind'), true);
+    for ($i = 0; $i < $at; $i++) {
+        foreach (GameKit::rightAnswers($elements[$i]) as $answer) {
+            apiAnswer($learner, $run->id, $elements[$i]['id'], $answer)->assertOk();
+        }
+        apiNewMinute($learner);
+    }
+    $listen = $elements[$at];
+    expect($listen['audio_disk'])->toBe('audio');
+
+    // The bucket is never asked: any call but url() fails the test.
+    $disk = Mockery::mock(FilesystemAdapter::class);
+    $disk->shouldReceive('url')->andReturnUsing(fn (string $path): string => 'https://audio.example.uz/'.$path);
+    Storage::set('audio', $disk);
+
+    $clip = apiAudio($learner, $run->id, $listen['id'])->assertOk();
+
+    expect($clip->headers->get('Content-Type'))->toContain('application/json')
+        ->and($clip->headers->get('Cache-Control'))->toContain('no-store')->toContain('private')
+        ->and($clip->json())->toBe(['url' => 'https://audio.example.uz/'.$listen['audio_path']]);
+    // The clip of a later word is still not handed out, not even its address.
+    $later = array_values(array_filter(array_slice($elements, $at + 1), static fn (array $e): bool => isset($e['audio_path'])));
+    if ($later !== []) {
+        apiError(apiAudio($learner, $run->id, $later[0]['id']), 404, 'game_run_not_found');
+    }
 });
 
 it('streams the clip of a dictation from the disk of the phrases, by the same route', function (): void {

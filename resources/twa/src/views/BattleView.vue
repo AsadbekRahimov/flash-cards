@@ -35,6 +35,7 @@ import { useWakeAt } from '@/composables/useWakeAt'
 import { useAuthStore } from '@/stores/auth'
 import { useBattleStore } from '@/stores/battle'
 import { useI18n } from '@/i18n'
+import type { ClipBody } from '@/api/remoteAudio'
 import type { BattleResult, PracticeAnswerPayload } from '@/api/types'
 
 /**
@@ -283,7 +284,7 @@ function onRetryAudio(): void {
 }
 
 /** The clip of the round on screen: from what the room loaded, else from the server. */
-async function clipOf(url: string): Promise<Blob> {
+async function clipOf(url: string): Promise<ClipBody> {
   return preload.blobFor(url) ?? (await api.battles.audioBlob(url))
 }
 const roundAudio = usePracticeAudio({ fetchBlob: clipOf })

@@ -262,6 +262,8 @@ final class TrainingFlowService
             audioUrl: $audioUrl,
             example: $example,
             exampleTranslation: $exampleTranslation,
+            // The file of exactly the sentence shown (docs/26 §9.11): the anchor only, from the word in hand - no query, no disk.
+            exampleAudioUrl: $this->audio->exampleUrlFor($pick->word, $example),
             isLeech: $isLeech,
             isHard: $isHard,
             hook: $showsHook ? $this->hooks->for($pick->word, $translation->locale) : null,
@@ -428,6 +430,7 @@ final class TrainingFlowService
             hook: $accepted->showedHook ? $this->hooks->for($word, $translation->locale) : null,
             note: $this->ladder->hooksEnabled ? self::text($accepted->repetition->note) : null,
             confusedWith: $accepted->wasLeech ? $this->leeches->confusedWith($accepted->repetition, $word) : null,
+            exampleAudioUrl: $this->audio->exampleUrlFor($word, $accepted->example),
         );
     }
 }

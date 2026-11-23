@@ -181,6 +181,13 @@ Schedule::command('game:wallets-verify')
     ->dailyAt('04:10')
     ->withoutOverlapping(30);
 
+// The nightly reconciliation of the word audio (docs/26 §5.6): words of the courses without a current file get their job (at most
+// the default `--limit` per night), the insurance against a lost one. Not at the hours of the backups, the prune and the purge. Queues
+// nothing while TTS is not configured or the characters of the month are spent; a repeated run only queues words still unvoiced.
+Schedule::command('audio:reconcile')
+    ->dailyAt('02:30')
+    ->withoutOverlapping(60);
+
 // DB backups via spatie/laravel-backup: hourly, database only (RPO <= 1 h; the code is in the image and nothing in storage
 // needs a backup: audio is regenerable TTS). --isolated so a deploy's pre-migration backup and the schedule never run
 // together (the lock lives in the default cache store). :20, away from the top-of-hour peak; the lock is shorter than the

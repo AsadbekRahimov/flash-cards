@@ -85,6 +85,27 @@ return [
             'report' => false,
         ],
 
+        /*
+         * The word audio on Cloudflare R2 (docs/26 §5.4, §9.5), picked by TTS_AUDIO_DISK=audio. A bucket and keys of their own,
+         * not those of the backups. `url` is the public domain of the bucket (AUDIO_PUBLIC_URL): `url()` only glues it to the
+         * path, the bucket is never asked. `visibility: private` because the S3 adapter always sends an ACL and R2 accepts
+         * `private` only; the files are public by the setting of the bucket (its own domain), not by an ACL.
+         * throw: false like the other disks (the readers expect false); report: errors of R2 reach Sentry.
+         */
+        'audio' => [
+            'driver' => 's3',
+            'key' => env('AUDIO_ACCESS_KEY_ID'),
+            'secret' => env('AUDIO_SECRET_ACCESS_KEY'),
+            'region' => env('AUDIO_DEFAULT_REGION') ?: 'auto',
+            'bucket' => env('AUDIO_BUCKET'),
+            'endpoint' => env('AUDIO_ENDPOINT'),
+            'url' => env('AUDIO_PUBLIC_URL'),
+            'use_path_style_endpoint' => (bool) env('AUDIO_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'private',
+            'throw' => false,
+            'report' => true,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

@@ -61,7 +61,8 @@ describe('FlashCard', () => {
       const w = mount(FlashCard, { props: { card: translated, showTranslation: true } })
       const note = w.get('[data-testid=example-translation]')
       expect(note.text()).toBe('Она стойкая девочка.')
-      expect(w.get('[data-testid=example]').element.nextElementSibling).toBe(note.element)
+      // The example sits on one row with its speaker (docs/26 §9.11); the translation is right under that row.
+      expect(w.get('[data-testid=example]').element.parentElement?.nextElementSibling).toBe(note.element)
     })
 
     it('is open at once on a new word', () => {

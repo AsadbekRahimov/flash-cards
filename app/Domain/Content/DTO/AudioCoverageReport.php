@@ -9,6 +9,9 @@ namespace App\Domain\Content\DTO;
  * how many of them have `words.audio_path` recorded and, after a file check (`--verify`), how many are really voiced
  * (the path is the one the current text hashes to and the file is there and not empty, as WordAudioService::isCurrent).
  * `problems` lists the first words whose recorded audio is broken; `problemCount` is how many there are in all.
+ * The anchor examples (docs/26 §9.11) are a line of their own, for information: `examples` active words with an example to voice,
+ * `examplesWithAudio` of them with `example_audio_path` recorded, `examplesVerified` with the file checked (null without
+ * `--verify`). The gate of the publication ({@see meets()}) stays on the words.
  */
 final readonly class AudioCoverageReport
 {
@@ -24,7 +27,16 @@ final readonly class AudioCoverageReport
         public ?int $verified,
         public array $problems,
         public int $problemCount,
+        public int $examples = 0,
+        public int $examplesWithAudio = 0,
+        public ?int $examplesVerified = null,
     ) {}
+
+    /** The voiced examples: checked on the disk when verified, else recorded in the DB. */
+    public function examplesCovered(): int
+    {
+        return $this->examplesVerified ?? $this->examplesWithAudio;
+    }
 
     /** The voiced words the coverage is read from: checked on the disk when verified, else recorded in the DB. */
     public function covered(): int

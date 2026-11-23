@@ -6,7 +6,9 @@ use App\Domain\Practice\Enums\PracticeMode;
 use App\Models\Learner;
 use App\Models\ProductEvent;
 use Carbon\CarbonImmutable;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\Practice\BattleHttp;
@@ -174,6 +176,56 @@ it('says 503 practice_audio_unavailable for a file that is not there or is empty
     BattleHttp::audioFailed($friend, $id, $element['id'])->assertOk()->assertJsonPath('verified', true)->assertJsonPath('battle.end_reason', 'voided');
     expect(ProductEvent::query()->where('name', 'practice.audio_failed')->count())->toBe(1);
 });
+
+/** Puts the clip of round `$round` on R2 (the disk `audio`, words of a dictation): what a snapshot taken with TTS_AUDIO_DISK=audio names. */
+function battleClipOnR2(int $id, int $round, string $path): string
+{
+    Config::set('twa.tts.audio_disk', 'audio');
+    Config::set('filesystems.disks.audio.url', 'https://audio.example.uz');
+    $battle = BattleKit::fresh($id);
+    $snapshot = $battle->snapshot;
+    $snapshot['elements'][$round - 1]['audio_disk'] = 'audio';
+    $snapshot['elements'][$round - 1]['audio_path'] = $path;
+    $battle->forceFill(['snapshot' => $snapshot])->save();
+
+    return $snapshot['elements'][$round - 1]['id'];
+}
+
+it('answers the public address of a word on R2 in JSON - not a 302 the fetch of the client would follow with the token, and without asking the bucket (docs/26 §9.9)', function (): void {
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $id = BattleHttp::room($me, $friend, $friendship, PracticeMode::Dictation, $course, $lesson);
+    $elementId = battleClipOnR2($id, 1, 'audio/'.sha1('word').'.mp3');
+    $disk = Mockery::mock(FilesystemAdapter::class);
+    $disk->shouldReceive('url')->andReturnUsing(fn (string $path): string => 'https://audio.example.uz/'.$path);
+    Storage::set('audio', $disk);
+
+    $urls = battleClipUrls($id, $me);
+    expect($urls[0])->toBe("/api/twa/practice/battles/{$id}/audio/{$elementId}");   // the list of the room keeps the paths of the API
+
+    foreach ([$me, $friend] as $player) {
+        $response = BattleHttp::audio($player, $urls[0])->assertOk()->assertExactJson(['url' => 'https://audio.example.uz/audio/'.sha1('word').'.mp3']);
+        expect($response->headers->get('Location'))->toBeNull()
+            ->and($response->headers->get('Cache-Control'))->toContain('no-store')->toContain('private');
+    }
+    // The phrases of the other rounds are streamed as before.
+    expect(BattleHttp::audio($me, $urls[1])->assertOk()->headers->get('Content-Type'))->toBe('audio/mpeg');
+    // A stranger gets nothing, not even the address.
+    BattleHttp::audio(Learner::factory()->create(), $urls[0])->assertNotFound();
+});
+
+it('looks at the bucket itself when a player reports a word on R2 that did not play: missing voids the match, present does not', function (bool $present, bool $verified): void {
+    Storage::fake('audio');
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $id = BattleHttp::room($me, $friend, $friendship, PracticeMode::Dictation, $course, $lesson);
+    $path = 'audio/'.sha1('word').'.mp3';
+    $elementId = battleClipOnR2($id, 1, $path);
+    if ($present) {
+        Storage::disk('audio')->put($path, 'mp3');
+    }
+
+    BattleHttp::audioFailed($me, $id, $elementId)->assertOk()->assertJsonPath('verified', $verified);
+    expect(BattleKit::fresh($id)->end_reason?->value)->toBe($verified ? 'voided' : null);
+})->with(['missing on R2' => [false, true], 'there' => [true, false]]);
 
 /** Time goes on (both players poll all along, as their screens do). */
 function battleAudioWait(int $id, Learner $a, Learner $b, float $seconds): void

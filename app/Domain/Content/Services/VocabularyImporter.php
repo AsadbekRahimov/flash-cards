@@ -38,6 +38,7 @@ final class VocabularyImporter
         private readonly CourseCatalogService $catalog,
         private readonly CoursePublisher $publisher,
         private readonly LocaleResolver $locales,
+        private readonly WordAudioScheduler $audio,
     ) {}
 
     /**
@@ -178,6 +179,8 @@ final class VocabularyImporter
                 ->map(fn (Collection $rows): Collection => $rows->keyBy('locale'));
 
             $examplesChanged = [];
+            /** @var list<Word> $touched the new and changed words: their audio is queued after the commit (docs/26 §5.6) */
+            $touched = [];
 
             foreach ($words as $w) {
                 $existing = $existingWords->get($w['word']);
@@ -196,6 +199,7 @@ final class VocabularyImporter
                         $examplesChanged[] = (int) $word->id;
                     }
                     $report->added++;
+                    $touched[] = $word;
 
                     continue;
                 }
@@ -224,6 +228,7 @@ final class VocabularyImporter
 
                 if ($changed || $translationsChanged || $rowsChanged) {
                     $report->updated++;
+                    $touched[] = $existing;
                 } else {
                     $report->skipped++;
                 }
@@ -235,6 +240,9 @@ final class VocabularyImporter
             }
 
             $this->publisher->recount($course);
+
+            // One job per word whose audio is not current, queued after the commit (also the OUTER one): a rolled-back import queues nothing.
+            $this->audio->wordsImported($course, $touched);
 
             AuditLog::create([
                 'user_id' => $by?->id,

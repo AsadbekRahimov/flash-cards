@@ -215,7 +215,7 @@ it('sends a meaning / reverse / audio card without anything that gives the right
 
     $i = (int) mb_substr($correct, -1);
     $revealed = $response->json('revealed');
-    expect(array_keys($revealed))->toBe(['word', 'translation', 'correct', 'example', 'example_translation', 'transcription', 'audio_url', 'hook', 'note', 'confused_with'])
+    expect(array_keys($revealed))->toBe(['word', 'translation', 'correct', 'example', 'example_translation', 'example_audio_url', 'transcription', 'audio_url', 'hook', 'note', 'confused_with'])
         ->and($revealed['correct'])->toBe($correct)
         ->and($revealed['word'])->toBe("word{$i}")
         ->and($revealed['example'])->toBe("I like {$revealed['word']} a lot.")

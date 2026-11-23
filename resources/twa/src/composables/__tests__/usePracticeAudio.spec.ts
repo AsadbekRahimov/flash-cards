@@ -5,6 +5,7 @@ import { effectScope, reactive } from 'vue'
 import { createPinia, setActivePinia } from 'pinia'
 import { api } from '@/api'
 import { usePracticeStore, type AudioSlot } from '@/stores/practice'
+import { RemoteAudio } from '@/api/remoteAudio'
 import { usePracticeAudio } from '../usePracticeAudio'
 
 vi.mock('@/api', () => ({ api: { practice: { audioBlob: vi.fn() } } }))
@@ -459,5 +460,63 @@ describe('usePracticeAudio — a load that nobody waits for any more', () => {
     reply.resolve(clip())
     await loading
     expect(slot.state).toBe('ready')
+  })
+})
+
+describe('usePracticeAudio — a word on R2 (docs/26 §9.9)', () => {
+  const R2 = 'https://audio.example.uz/audio/abc.mp3'
+
+  it('keeps the public address the fetcher gave and plays it in an <audio>: no blob: URL, nothing to revoke', async () => {
+    vi.mocked(api.practice.audioBlob).mockResolvedValue(new RemoteAudio(R2))
+    const slot = slotOf()
+    const audio = usePracticeAudio({ slot })
+
+    await audio.load('/api/twa/practice/sessions/7/audio/eD4')
+
+    expect(slot).toEqual({ state: 'ready', blobUrl: R2 })
+    expect(created).not.toHaveBeenCalled()
+
+    expect(await audio.play()).toBe(true)
+    expect(FakeAudio.instances.map((a) => a.src)).toEqual([R2])
+
+    audio.revoke()
+    expect(revoked).not.toHaveBeenCalled()
+    expect(slot).toEqual({ state: 'idle', blobUrl: null })
+  })
+
+  it('a player error of the address marks the clip failed, as for a blob', async () => {
+    vi.mocked(api.practice.audioBlob).mockResolvedValue(new RemoteAudio(R2))
+    const audio = usePracticeAudio({ slot: slotOf() })
+    await audio.load('/a')
+    void audio.play()
+
+    FakeAudio.instances[0]!.emit('error')
+
+    expect(audio.state.value).toBe('failed')
+  })
+
+  it('the practice store gives the address back without revoking it', async () => {
+    vi.mocked(api.practice.audioBlob).mockResolvedValue(new RemoteAudio(R2))
+    const store = usePracticeStore()
+    await usePracticeAudio().load('/a')
+    expect(store.audio.blobUrl).toBe(R2)
+
+    store.releaseAudio()
+
+    expect(revoked).not.toHaveBeenCalled()
+    expect(store.audio).toEqual({ state: 'idle', blobUrl: null })
+  })
+
+  it('a blob that replaces an address is revoked later, the address never', async () => {
+    vi.mocked(api.practice.audioBlob).mockResolvedValueOnce(new RemoteAudio(R2)).mockResolvedValueOnce(clip())
+    const audio = usePracticeAudio({ slot: slotOf() })
+    await audio.load('/word')
+    await audio.load('/phrase')
+    expect(revoked).not.toHaveBeenCalled()
+
+    audio.revoke()
+
+    expect(revoked).toHaveBeenCalledWith('blob:clip-1')
+    expect(revoked).toHaveBeenCalledTimes(1)
   })
 })

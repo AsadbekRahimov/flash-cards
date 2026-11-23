@@ -12,6 +12,7 @@ final readonly class RevealedCard
 {
     /**
      * @param  string  $correct  the right option exactly as it stands among the options (reverse: the word; meaning / audio: the translation)
+     * @param  string|null  $exampleAudioUrl  pre-generated mp3 of exactly `$example` (docs/26 §9.11); null when there is none
      * @param  array{word: string, translation: string|null}|null  $confusedWith
      */
     public function __construct(
@@ -25,5 +26,6 @@ final readonly class RevealedCard
         public ?string $hook,
         public ?string $note,
         public ?array $confusedWith,
+        public ?string $exampleAudioUrl = null,
     ) {}
 }

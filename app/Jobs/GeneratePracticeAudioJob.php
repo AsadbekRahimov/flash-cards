@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Domain\Content\Exceptions\SpeechSynthesisException;
 use App\Domain\Practice\Services\PracticeAudioService;
-use App\Domain\Twa\Services\TtsFallbackService;
 use App\Models\PracticeItemVersion;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
-use RuntimeException;
 use Throwable;
 
 /**
@@ -18,8 +17,9 @@ use Throwable;
  * per job, like {@see PregenerateWordAudioJob}: a failing TTS call retries with backoff and never takes others down.
  * Queued by {@see PracticeAudioService::schedule()} after the commit of the version.
  *
- * A TTS service that is NOT CONFIGURED is not a failure to retry but a state of the installation: the job fails at once
- * ({@see handle()}), the version becomes `failed` with the code, and nothing is thrown out of the job.
+ * A synthesis error that is not `retryable` (nothing configured, a refused request, a revoked key, the monthly limit of
+ * docs/26 §9.2) is not a failure to retry but a state: the job fails at once ({@see handle()}), the version becomes `failed`
+ * with the code (`tts_monthly_limit_reached`: "voice again" next month), and nothing is thrown out of the job.
  */
 final class GeneratePracticeAudioJob implements ShouldQueue
 {
@@ -31,7 +31,9 @@ final class GeneratePracticeAudioJob implements ShouldQueue
         public readonly int $versionId,
         public readonly bool $force = false,
     ) {
-        $this->onQueue('low');
+        // docs/26 §9.3: the queue of its own, served by the `low` worker after `low` (`--queue=low,tts`): a mass run never
+        // stands in front of the `low` heartbeat.
+        $this->onQueue('tts');
     }
 
     /** @return list<int> seconds between attempts */
@@ -52,11 +54,11 @@ final class GeneratePracticeAudioJob implements ShouldQueue
 
         try {
             $audio->generate($version, $this->force);
-        } catch (RuntimeException $e) {
-            // A TTS service that is not configured stays so: five more attempts over the next hour would end the same way, and
+        } catch (SpeechSynthesisException $e) {
+            // A TTS service that is not configured (a synthesis error that is not `retryable`) stays so: five more attempts over the next hour would end the same way, and
             // a sync queue (a local environment without the service) rethrows whatever a job throws out of dispatch() - which
             // took `db:seed` down. Failing the job turns the version to `failed` with the code (failed() below), once, no retry.
-            if ($e->getMessage() !== TtsFallbackService::NOT_CONFIGURED) {
+            if ($e->retryable) {
                 throw $e;
             }
 

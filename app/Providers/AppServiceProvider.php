@@ -13,6 +13,9 @@ use App\Domain\Billing\Providers\PaymeProvider;
 use App\Domain\Billing\Providers\TelegramStarsProvider;
 use App\Domain\Billing\Services\BillingProviderRegistry;
 use App\Domain\Billing\Services\NewWordQuota;
+use App\Domain\Content\Contracts\SpeechSynthesizer;
+use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
+use App\Domain\Content\Services\Tts\GoogleServiceAccount;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\FsrsParameters;
 use App\Domain\Learning\Support\HardRoundPolicy;
@@ -114,6 +117,13 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(InitDataValidator::class, function (): InitDataValidator {
             return new InitDataValidator((string) config('telegram.bot_token'));
         });
+
+        // The speech synthesizer (docs/26 §5.1): ConfiguredSpeechSynthesizer picks the driver of TTS_DRIVER at each synthesis, not
+        // here - a typo in TTS_DRIVER must not break the services that take a synthesizer in their constructors (the word audio
+        // and the practice audio of the screens of a learner); only the synthesis fails (tts_service_not_configured).
+        // The Google service account IS a singleton (docs/26 §9.1): the parsed key and the signed JWT live in it only.
+        $this->app->singleton(GoogleServiceAccount::class);
+        $this->app->bind(SpeechSynthesizer::class, ConfiguredSpeechSynthesizer::class);
 
         // New-card budget for CardPicker: the plan's daily limit of new words (Free 20, Pro unlimited; docs/12 §5.3).
         $this->app->bind(NewCardBudgetResolver::class, NewWordQuota::class);
@@ -371,14 +381,6 @@ class AppServiceProvider extends ServiceProvider
             $key = $ctx['learner_id'] ?? $request->ip();
 
             return Limit::perMinute(30)->by('twa-friends|'.$key);
-        });
-
-        RateLimiter::for('twa-tts', function (Request $request): Limit {
-            /** @var array{learner_id:int}|null $ctx */
-            $ctx = $request->attributes->get('twa');
-            $key = $ctx['learner_id'] ?? $request->ip();
-
-            return Limit::perMinute(30)->by('twa-tts|'.$key);
         });
 
         // Practice and battle (docs/16 §7.5), all keyed by the learner. `twa-practice-answer` and the creation limiters sit

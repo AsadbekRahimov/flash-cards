@@ -559,7 +559,8 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
     }
 
     /**
-     * The first `$limit` candidates whose clip is on the disk, taken off the front of the list (a missing one is dropped).
+     * The first `$limit` candidates whose clip plays, taken off the front of the list (a missing one is dropped). A phrase is
+     * looked for on its disk; a word on R2 is trusted by its path ({@see PracticeAudioService::isPlayable()}, docs/26 §9.5).
      *
      * @param  list<array<string, mixed>>  $candidates
      * @return list<array<string, mixed>>
@@ -593,6 +594,6 @@ final class DictationMode implements PracticeModeHandler, ReplaceableElements
         $disk = $candidate['audio_disk'] ?? null;
         $path = $candidate['audio_path'] ?? null;
 
-        return is_string($disk) && is_string($path) && $path !== '' && $this->audio->hasFile($disk, $path);
+        return is_string($disk) && is_string($path) && $this->audio->isPlayable($disk, $path);
     }
 }
