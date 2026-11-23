@@ -33,6 +33,8 @@ final readonly class TrainingStep
      * @param  string|null  $example  the example this serve shows (docs/06 §12.4: the anchor, or a rotated one after graduation)
      * @param  string|null  $exampleTranslation  the translation of exactly that example in the session's language (the fallback one
      *                                           when it has none); null when there is none
+     * @param  string|null  $exampleAudioUrl  pre-generated mp3 of exactly `$example` (docs/26 §9.11): only the anchor is voiced, so
+     *                                       null for a rotated example, a stale file, an own deck; no Web Speech fallback
      * @param  bool  $isLeech  a "hard word" — `lapses >= learning.leech.threshold` (docs/06 §12.6)
      * @param  bool  $isHard  `word_repetitions.is_hard`: failed and not yet passed a day-based review (docs/06 §3.5)
      * @param  string|null  $hook  the authored memory hook in the card's language, when this serve shows one (docs/06 §12.3)
@@ -57,6 +59,7 @@ final readonly class TrainingStep
         public ?array $confusedWith = null,
         public bool $canContinue = false,
         public ?string $exampleTranslation = null,
+        public ?string $exampleAudioUrl = null,
     ) {}
 
     /**

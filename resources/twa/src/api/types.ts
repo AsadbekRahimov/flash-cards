@@ -787,6 +787,11 @@ export interface Card {
   example: string | null
   /** The translation of exactly that example, in the session's language (the ru one when it has none); null when there is none or the example is hidden. */
   example_translation?: string | null
+  /**
+   * The pre-generated mp3 of exactly that example (docs/26 §9.11): only the anchor example is voiced, so null for a rotated
+   * one, a stale file, an own deck or a hidden example. No Web Speech for it: null → no button. Absent on an older server.
+   */
+  example_audio_url?: string | null
   transcription: string | null
   /** Pre-generated mp3 (docs/12 task 1.2c); absent/null → Web Speech, else silence (docs/26 §9.9: `GET /tts` is gone). */
   audio_url?: string | null
@@ -850,6 +855,8 @@ export interface Revealed {
   correct: string
   example: string | null
   example_translation?: string | null
+  /** The mp3 of exactly `example` (docs/26 §9.11); null → no button. Absent on an older server. */
+  example_audio_url?: string | null
   transcription: string | null
   audio_url: string | null
   hook: string | null
