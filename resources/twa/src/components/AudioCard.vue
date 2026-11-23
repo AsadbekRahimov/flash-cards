@@ -2,6 +2,7 @@
 import { computed, onMounted, watch } from 'vue'
 import type { Card, ChoiceResult } from '@/api/types'
 import CardHooks from '@/components/CardHooks.vue'
+import ExampleAudioButton from '@/components/ExampleAudioButton.vue'
 import QuizOption from '@/components/QuizOption.vue'
 import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
@@ -58,6 +59,7 @@ const shown = computed((): Card => {
     translation: r.translation,
     example: r.example,
     example_translation: r.example_translation ?? null,
+    example_audio_url: r.example_audio_url ?? null,
     transcription: r.transcription,
     audio_url: r.audio_url ?? props.card.audio_url,
     hook: r.hook,
@@ -159,7 +161,11 @@ onMounted(play)
           </span>
         </div>
         <div v-if="shown.example" class="flex flex-col gap-1">
-          <p class="text-base leading-[22px] italic" lang="en" data-testid="example">{{ shown.example }}</p>
+          <!-- The speaker of the example (docs/26 §9.11) on its first line; the sentence wraps beside it. -->
+          <div class="flex items-start gap-1">
+            <p class="min-w-0 flex-1 text-base leading-[22px] break-words italic" lang="en" data-testid="example">{{ shown.example }}</p>
+            <ExampleAudioButton v-if="shown.example_audio_url" :url="shown.example_audio_url" class="-mt-[11px]" />
+          </div>
           <p v-if="shown.example_translation" class="text-sm leading-5 text-muted" data-testid="example-translation">
             {{ shown.example_translation }}
           </p>

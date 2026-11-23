@@ -5,10 +5,15 @@
  * otherwise stays silent. There is no server-side fallback: `GET /api/twa/tts`
  * is gone (docs/26 §9.9) - an `<audio src>` cannot carry the token it needed.
  *
+ * `play(url)` sounds a file and nothing else (the example of a card, docs/26 §9.11: no Web Speech for a sentence). It
+ * shares the one-sound-at-a-time rule with `speak()`: the word stops the example and the example stops the word.
+ * `playingUrl` is the address `play()` is sounding right now (null otherwise), for the "playing" look of its button.
+ *
  * iOS Safari quirk: `getVoices()` may return `[]` on first call; we listen
  * to `voiceschanged` to pick a voice asynchronously.
  */
 
+import { readonly, ref } from 'vue'
 import { trackTtsAudio, trackTtsUtterance } from '@/composables/ttsActivity'
 import { markTiming } from '@/composables/useTimingMarks'
 
@@ -16,8 +21,10 @@ import { markTiming } from '@/composables/useTimingMarks'
 // instead of layering on top of it. `seq` lets a stale (superseded) speak() drop out quietly.
 let current: HTMLAudioElement | null = null
 let seq = 0
+const playingUrl = ref<string | null>(null)
 
 function stopCurrent(): void {
+  playingUrl.value = null
   if (!current) return
   try {
     current.pause()
@@ -84,5 +91,40 @@ export function useTts() {
     }
   }
 
-  return { supported, speak }
+  /**
+   * Sounds the file at `url` (the public address of the example's mp3), from the tap handler: the `<audio>` is created and
+   * started in the same turn. Resolves false when it could not play (missing file, blocked) - silently, no fallback.
+   */
+  function play(url: string): Promise<boolean> {
+    ++seq // a word whose file is still failing must not fall back to Web Speech over this one
+    stopCurrent()
+    synth?.cancel()
+    const audio = new Audio(url)
+    current = audio
+    trackTtsAudio(audio)
+    playingUrl.value = url
+    const finished = (): void => {
+      if (current !== audio) return
+      current = null
+      playingUrl.value = null
+    }
+    audio.addEventListener?.('ended', finished)
+    audio.addEventListener?.('error', finished)
+    return Promise.resolve(audio.play()).then(
+      () => true,
+      () => {
+        finished()
+        return false
+      },
+    )
+  }
+
+  /** Stops whatever is sounding (a file of `speak()` or `play()`, and the speech synthesis). */
+  function stop(): void {
+    ++seq
+    stopCurrent()
+    synth?.cancel()
+  }
+
+  return { supported, speak, play, stop, playingUrl: readonly(playingUrl) }
 }

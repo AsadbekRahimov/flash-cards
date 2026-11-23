@@ -192,6 +192,7 @@ export const uz: Translations = {
   'card.kind.learning': "O'rganamiz",
   'card.kind.due': 'Takrorlash',
   'card.speak': 'Talaffuzni tinglash',
+  'card.speak_example': 'Misolni tinglash',
   'card.reveal': "Tarjimani ko'rsatish",
   'card.translation_fallback': "Bu so'z hali mashg'ulot tiliga tarjima qilinmagan",
   'card.grade_group': 'Eslash darajasi',

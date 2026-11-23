@@ -163,6 +163,7 @@
 | `card.kind.learning` | Mustahkamlash | Закрепление |
 | `card.kind.due` | Takrorlash | Повторение |
 | `card.speak` | Talaffuz qilish | Произнести |
+| `card.speak_example` | Misolni tinglash | Прослушать пример (кнопка озвучки примера на карточке, docs/26 §9.11) |
 | `card.reveal` | Tarjimani ko'rsatish | Показать перевод |
 | `card.translation_fallback` | Mashg'ulot tilida tarjima hali yo'q | Перевода на язык занятия пока нет |
 | `card.grade_group` | Baho | Оценка |

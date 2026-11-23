@@ -90,7 +90,7 @@ function exLesson(?Course $course = null): Lesson
     return Lesson::factory()->for(Stage::factory()->create(['course_id' => ($course ?? Course::factory()->create())->id]))->create();
 }
 
-function exWord(string $text, ?string $example, ?Lesson $lesson = null, array $attrs = []): Word
+function exaWord(string $text, ?string $example, ?Lesson $lesson = null, array $attrs = []): Word
 {
     return Word::factory()->for($lesson ?? exLesson())->create(['word' => $text, 'example' => $example] + $attrs);
 }
@@ -138,7 +138,7 @@ function exImport(Course $course, array $words): void
 // --- the schema -------------------------------------------------------------------------------------
 
 it('has a nullable words.example_audio_path', function (): void {
-    $word = exWord('apple', 'An apple a day.');
+    $word = exaWord('apple', 'An apple a day.');
 
     expect(Schema::hasColumn('words', 'example_audio_path'))->toBeTrue()
         ->and($word->fresh()?->example_audio_path)->toBeNull();
@@ -174,7 +174,7 @@ it('takes a sentence of exactly 5 000 bytes', function (): void {
 });
 
 it('gives the URL of the example shown only when the path is the one of that sentence, without the disk', function (): void {
-    $word = exWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
+    $word = exaWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
     $audio = app(WordAudioService::class);
     $disk = Mockery::mock(FilesystemAdapter::class);
     $disk->shouldReceive('url')->andReturnUsing(fn (string $path): string => 'https://audio.example.uz/'.$path);
@@ -204,7 +204,7 @@ it('gives the URL of the example shown only when the path is the one of that sen
 
 it('voices the example as it is written and records its path', function (): void {
     $synth = exSynth();
-    $word = exWord('apple', "I ate  an apple.\n");
+    $word = exaWord('apple', "I ate  an apple.\n");
 
     expect(app(WordAudioService::class)->generateExample($word))->toBeTrue();
 
@@ -226,8 +226,8 @@ it('voices the example as it is written and records its path', function (): void
 
 it('shares one file between two words with the same example: one call', function (): void {
     $synth = exSynth();
-    $first = exWord('apple', 'Fruit is good.');
-    $second = exWord('pear', 'Fruit is good.');
+    $first = exaWord('apple', 'Fruit is good.');
+    $second = exaWord('pear', 'Fruit is good.');
 
     app(WordAudioService::class)->generateExample($first);
     expect(app(WordAudioService::class)->generateExample($second))->toBeFalse();
@@ -238,14 +238,14 @@ it('shares one file between two words with the same example: one call', function
 
 it('does nothing for a word without an example', function (): void {
     $synth = exSynth();
-    $word = exWord('apple', null);
+    $word = exaWord('apple', null);
 
     expect(app(WordAudioService::class)->generateExample($word))->toBeFalse()
         ->and($synth->texts)->toBe([]);
 });
 
 it('does not record the path when the example changed during the synthesis (docs/26 §9.6)', function (): void {
-    $word = exWord('apple', 'I ate an apple.');
+    $word = exaWord('apple', 'I ate an apple.');
     $newPath = exPath('She ate an apple.');
     app()->instance(SpeechSynthesizer::class, new class($word->id, $newPath) implements SpeechSynthesizer
     {
@@ -282,7 +282,7 @@ it('the example job shares the rules of the word job: tts queue, unique until pr
 });
 
 it('the word and its example wait in the queue side by side: the locks are per class', function (): void {
-    $word = exWord('apple', 'I ate an apple.');
+    $word = exaWord('apple', 'I ate an apple.');
 
     PregenerateWordAudioJob::dispatch($word->id);
     PregenerateExampleAudioJob::dispatch($word->id);
@@ -295,7 +295,7 @@ it('the word and its example wait in the queue side by side: the locks are per c
 it('the example job voices the example and not the word', function (): void {
     exSyncQueue();
     $synth = exSynth();
-    $word = exWord('apple', 'I ate an apple.');
+    $word = exaWord('apple', 'I ate an apple.');
 
     PregenerateExampleAudioJob::dispatch($word->id);
 
@@ -306,8 +306,8 @@ it('the example job voices the example and not the word', function (): void {
 
 it('the example job skips a learner\'s deck, a switched-off and a deleted word', function (): void {
     $synth = exSynth();
-    $deck = exWord('apple', 'I ate an apple.', exLesson(Course::factory()->create(['owner_type' => 'learner'])));
-    $off = exWord('pear', 'A pear.', attrs: ['is_active' => false]);
+    $deck = exaWord('apple', 'I ate an apple.', exLesson(Course::factory()->create(['owner_type' => 'learner'])));
+    $off = exaWord('pear', 'A pear.', attrs: ['is_active' => false]);
     $audio = app(WordAudioService::class);
 
     (new PregenerateExampleAudioJob($deck->id))->handle($audio);
@@ -319,7 +319,7 @@ it('the example job skips a learner\'s deck, a switched-off and a deleted word',
 });
 
 it('the example job ends quietly at the monthly limit and fails at once on a final error', function (): void {
-    $word = exWord('apple', 'I ate an apple.');
+    $word = exaWord('apple', 'I ate an apple.');
     Log::spy();
 
     exSynth(SpeechSynthesisException::monthlyLimitReached());
@@ -341,7 +341,7 @@ it('the example job ends quietly at the monthly limit and fails at once on a fin
 });
 
 it('the example job throws a retryable error for the retry', function (): void {
-    $word = exWord('apple', 'I ate an apple.');
+    $word = exaWord('apple', 'I ate an apple.');
     exSynth(SpeechSynthesisException::rateLimited());
 
     (new PregenerateExampleAudioJob($word->id))->handle(app(WordAudioService::class));
@@ -368,10 +368,10 @@ it('queues the word and its example when a word with an example is added on the 
 });
 
 it('queues no example of a new word of a learner\'s deck, a switched-off word or while TTS is not configured', function (): void {
-    app(WordAudioScheduler::class)->wordCreated(exWord('apple', 'An apple.', exLesson(Course::factory()->create(['owner_type' => 'learner']))));
-    app(WordAudioScheduler::class)->wordCreated(exWord('pear', 'A pear.', attrs: ['is_active' => false]));
+    app(WordAudioScheduler::class)->wordCreated(exaWord('apple', 'An apple.', exLesson(Course::factory()->create(['owner_type' => 'learner']))));
+    app(WordAudioScheduler::class)->wordCreated(exaWord('pear', 'A pear.', attrs: ['is_active' => false]));
     app()->instance(SpeechSynthesizer::class, new NullSpeechSynthesizer);
-    app(WordAudioScheduler::class)->wordCreated(exWord('plum', 'A plum.'));
+    app(WordAudioScheduler::class)->wordCreated(exaWord('plum', 'A plum.'));
 
     Queue::assertNothingPushed();
 });
@@ -380,7 +380,7 @@ it('queues no example of a new word of a learner\'s deck, a switched-off word or
 
 it('an edit of the example on the word screen drops its path and queues it, not the word', function (): void {
     $this->actingAs(exAdmin());
-    $word = exWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
+    $word = exaWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
 
     livewire(EditWord::class, ['record' => $word->getRouteKey()])
         ->fillForm(['example' => 'She ate an apple.'])
@@ -394,7 +394,7 @@ it('an edit of the example on the word screen drops its path and queues it, not 
 
 it('an edit of the example on the lesson screen drops its path and queues it', function (): void {
     $this->actingAs(exAdmin());
-    $word = exWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
+    $word = exaWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
 
     livewire(WordsRelationManager::class, ['ownerRecord' => Lesson::query()->findOrFail($word->lesson_id), 'pageClass' => EditLesson::class])
         ->callTableAction('edit', $word, data: ['word' => 'apple', 'translation' => $word->translation, 'example' => 'She ate an apple.'])
@@ -406,7 +406,7 @@ it('an edit of the example on the lesson screen drops its path and queues it', f
 
 it('an edit of the blanks of the example keeps its path and queues nothing; a cleared example drops it', function (): void {
     $path = exPath('I ate an apple.');
-    $word = exWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => $path]);
+    $word = exaWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => $path]);
 
     $word->update(['example' => 'I ate  an apple. ']);
     app(WordAudioService::class)->exampleChanged($word);
@@ -420,7 +420,7 @@ it('an edit of the blanks of the example keeps its path and queues nothing; a cl
 });
 
 it('drops the path of the example also when the model was read without the column', function (): void {
-    $word = exWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
+    $word = exaWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
     $listed = Word::query()->select(['id', 'word', 'example'])->findOrFail($word->id);
     $listed->example = 'She ate an apple.';
 
@@ -432,7 +432,7 @@ it('drops the path of the example also when the model was read without the colum
 
 it('the additional examples (word_examples) are not voiced: adding one queues nothing', function (): void {
     $this->actingAs(exAdmin());
-    $word = exWord('apple', 'I ate an apple.');
+    $word = exaWord('apple', 'I ate an apple.');
 
     livewire(WordExamplesRelationManager::class, ['ownerRecord' => $word, 'pageClass' => EditWord::class])
         ->callTableAction('create', data: ['text' => 'Apples are red.', 'translations' => ['ru' => 'Яблоки красные.']])
@@ -445,7 +445,7 @@ it('the additional examples (word_examples) are not voiced: adding one queues no
 
 it('with TTS switched off an edit of the text or of the example drops the path and queues nothing', function (): void {
     app()->instance(SpeechSynthesizer::class, new NullSpeechSynthesizer);
-    $word = exWord('apple', 'I ate an apple.', attrs: ['audio_path' => exPath('apple'), 'example_audio_path' => exPath('I ate an apple.')]);
+    $word = exaWord('apple', 'I ate an apple.', attrs: ['audio_path' => exPath('apple'), 'example_audio_path' => exPath('I ate an apple.')]);
 
     $word->update(['word' => 'pear', 'example' => 'I ate a pear.']);
     app(WordAudioService::class)->textChanged($word);
@@ -461,7 +461,7 @@ it('with TTS_DRIVER=null on the real binding the edit of the word screen leaves 
     app()->forgetInstance(SpeechSynthesizer::class);
     config(['twa.tts.driver' => 'null', 'twa.tts.service_url' => '']);
     $this->actingAs(exAdmin());
-    $word = exWord('apple', 'I ate an apple.', attrs: ['audio_path' => exPath('apple')]);
+    $word = exaWord('apple', 'I ate an apple.', attrs: ['audio_path' => exPath('apple')]);
 
     livewire(EditWord::class, ['record' => $word->getRouteKey()])
         ->fillForm(['word' => 'pear', 'example' => 'I ate a pear.'])
@@ -530,13 +530,13 @@ it('an import into a learner\'s deck queues no example', function (): void {
 
 it('the reconciliation queues the words first, then the examples, within one limit', function (): void {
     $lesson = exLesson();
-    $apple = exWord('apple', 'I ate an apple.', $lesson);
-    $pear = exWord('pear', 'A ripe pear.', $lesson, ['audio_path' => app(WordAudioService::class)->pathFor('pear')]);
-    $plum = exWord('plum', 'A plum.', $lesson, ['audio_path' => app(WordAudioService::class)->pathFor('plum'), 'example_audio_path' => exPath('A plum.')]);
-    $fig = exWord('fig', 'A fig.', $lesson, ['audio_path' => app(WordAudioService::class)->pathFor('fig'), 'example_audio_path' => 'audio/stale.mp3']);
-    exWord('kiwi', 'A kiwi.', $lesson, ['is_active' => false]);
-    exWord('lime', 'A lime.', exLesson(Course::factory()->create(['owner_type' => 'learner'])));
-    exWord('date', null, $lesson, ['audio_path' => app(WordAudioService::class)->pathFor('date')]);
+    $apple = exaWord('apple', 'I ate an apple.', $lesson);
+    $pear = exaWord('pear', 'A ripe pear.', $lesson, ['audio_path' => app(WordAudioService::class)->pathFor('pear')]);
+    $plum = exaWord('plum', 'A plum.', $lesson, ['audio_path' => app(WordAudioService::class)->pathFor('plum'), 'example_audio_path' => exPath('A plum.')]);
+    $fig = exaWord('fig', 'A fig.', $lesson, ['audio_path' => app(WordAudioService::class)->pathFor('fig'), 'example_audio_path' => 'audio/stale.mp3']);
+    exaWord('kiwi', 'A kiwi.', $lesson, ['is_active' => false]);
+    exaWord('lime', 'A lime.', exLesson(Course::factory()->create(['owner_type' => 'learner'])));
+    exaWord('date', null, $lesson, ['audio_path' => app(WordAudioService::class)->pathFor('date')]);
 
     $this->artisan('audio:reconcile', ['--limit' => 3])
         ->expectsOutput('Queued: 3')
@@ -570,7 +570,7 @@ it('the reconciliation reads the examples in chunks past the limit', function ()
 });
 
 it('the reconciliation queues no example while TTS is not configured or the month is spent', function (): void {
-    exWord('apple', 'I ate an apple.', attrs: ['audio_path' => app(WordAudioService::class)->pathFor('apple')]);
+    exaWord('apple', 'I ate an apple.', attrs: ['audio_path' => app(WordAudioService::class)->pathFor('apple')]);
 
     config(['twa.tts.monthly_char_limit' => 0]);
     expect(app(WordAudioScheduler::class)->reconcile()['reason'])->toBe(WordAudioScheduler::SKIP_BUDGET_EXHAUSTED);
@@ -587,10 +587,10 @@ it('the reconciliation queues no example while TTS is not configured or the mont
 it('audio:pregenerate queues the words and the examples by default, one of the two with --only', function (): void {
     $course = Course::factory()->create(['slug' => 'a1']);
     $lesson = exLesson($course);
-    $apple = exWord('apple', 'I ate an apple.', $lesson);
-    $pear = exWord('pear', null, $lesson);
+    $apple = exaWord('apple', 'I ate an apple.', $lesson);
+    $pear = exaWord('pear', null, $lesson);
     Storage::disk('public')->put(exPath('A plum.'), 'mp3');
-    $plum = exWord('plum', 'A plum.', $lesson, ['example_audio_path' => exPath('A plum.')]);
+    $plum = exaWord('plum', 'A plum.', $lesson, ['example_audio_path' => exPath('A plum.')]);
 
     $this->artisan('audio:pregenerate', ['course' => 'a1'])
         ->expectsOutput('Queued: 3, already up to date: 0')
@@ -615,8 +615,8 @@ it('audio:pregenerate queues the words and the examples by default, one of the t
 });
 
 it('audio:pregenerate --all prints a line of examples per course and skips the decks of learners', function (): void {
-    exWord('apple', 'I ate an apple.', exLesson(Course::factory()->create(['slug' => 'a1'])));
-    exWord('pear', 'A pear.', exLesson(Course::factory()->create(['owner_type' => 'learner'])));
+    exaWord('apple', 'I ate an apple.', exLesson(Course::factory()->create(['slug' => 'a1'])));
+    exaWord('pear', 'A pear.', exLesson(Course::factory()->create(['owner_type' => 'learner'])));
 
     $this->artisan('audio:pregenerate', ['--all' => true])
         ->expectsOutput('a1: queued 1, already up to date 0')
@@ -626,9 +626,9 @@ it('audio:pregenerate --all prints a line of examples per course and skips the d
 });
 
 it('audio:pregenerate --force re-synthesizes one sentence once, across words, examples and courses', function (): void {
-    $a = exWord('apple', 'Fruit is good.', exLesson(Course::factory()->create()));
-    $b = exWord('pear', 'Fruit is good.', exLesson(Course::factory()->create()));
-    $c = exWord('fruit', 'fruit');  // the example is sent like the word "fruit": the same file
+    $a = exaWord('apple', 'Fruit is good.', exLesson(Course::factory()->create()));
+    $b = exaWord('pear', 'Fruit is good.', exLesson(Course::factory()->create()));
+    $c = exaWord('fruit', 'fruit');  // the example is sent like the word "fruit": the same file
 
     $this->artisan('audio:pregenerate', ['--all' => true, '--force' => true])->assertSuccessful();
 
@@ -661,9 +661,9 @@ it('audio:prune keeps the files of the examples: recorded, of the current senten
         Storage::disk('public')->put($path, 'mp3');
         touch(Storage::disk('public')->path($path), $old);
     }
-    exWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
-    exWord('pear', 'A ripe pear.');
-    exWord('plum', 'A plum.', attrs: ['example_audio_path' => exPath('A plum.'), 'is_active' => false]);
+    exaWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
+    exaWord('pear', 'A ripe pear.');
+    exaWord('plum', 'A plum.', attrs: ['example_audio_path' => exPath('A plum.'), 'is_active' => false]);
 
     $report = app(WordAudioPruner::class)->prune(delete: true);
 
@@ -676,7 +676,7 @@ it('audio:prune keeps the files of the examples: recorded, of the current senten
 
 it('audio:prune takes a database whose only recorded paths are of examples for a real one', function (): void {
     Storage::disk('public')->put(exPath('I ate an apple.'), 'mp3');
-    exWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
+    exaWord('apple', 'I ate an apple.', attrs: ['example_audio_path' => exPath('I ate an apple.')]);
 
     expect(app(WordAudioPruner::class)->prune()->linked)->toBe(1);
 });
@@ -685,8 +685,8 @@ it('audio:migrate-disk copies the files of the examples too, a shared one once',
     Storage::fake('audio');
     Storage::disk('public')->put(exPath('apple'), 'mp3-apple');
     Storage::disk('public')->put(exPath('I ate an apple.'), 'mp3-example');
-    exWord('apple', 'I ate an apple.', attrs: ['audio_path' => exPath('apple'), 'example_audio_path' => exPath('I ate an apple.')]);
-    exWord('fruit', 'apple', attrs: ['example_audio_path' => exPath('apple')]); // the example is the file of the word "apple"
+    exaWord('apple', 'I ate an apple.', attrs: ['audio_path' => exPath('apple'), 'example_audio_path' => exPath('I ate an apple.')]);
+    exaWord('fruit', 'apple', attrs: ['example_audio_path' => exPath('apple')]); // the example is the file of the word "apple"
 
     $report = app(WordAudioDiskMigrator::class)->migrate('public', 'audio');
 
@@ -704,11 +704,11 @@ it('audio:coverage reports the examples on a line of their own, outside the --mi
         Storage::disk('public')->put((string) $audio->pathFor($text), 'mp3');
     }
     Storage::disk('public')->put(exPath('I ate an apple.'), 'mp3');
-    exWord('apple', 'I ate an apple.', $lesson, ['audio_path' => $audio->pathFor('apple'), 'example_audio_path' => exPath('I ate an apple.')]);
-    exWord('pear', 'A ripe pear.', $lesson, ['audio_path' => $audio->pathFor('pear'), 'example_audio_path' => exPath('A ripe pear.')]); // file gone
-    exWord('plum', 'A plum.', $lesson, ['audio_path' => $audio->pathFor('plum')]);
-    exWord('fig', '  ', $lesson, ['audio_path' => $audio->pathFor('fig')]); // nothing to voice
-    exWord('kiwi', 'A kiwi.', $lesson, ['is_active' => false, 'example_audio_path' => exPath('A kiwi.')]);
+    exaWord('apple', 'I ate an apple.', $lesson, ['audio_path' => $audio->pathFor('apple'), 'example_audio_path' => exPath('I ate an apple.')]);
+    exaWord('pear', 'A ripe pear.', $lesson, ['audio_path' => $audio->pathFor('pear'), 'example_audio_path' => exPath('A ripe pear.')]); // file gone
+    exaWord('plum', 'A plum.', $lesson, ['audio_path' => $audio->pathFor('plum')]);
+    exaWord('fig', '  ', $lesson, ['audio_path' => $audio->pathFor('fig')]); // nothing to voice
+    exaWord('kiwi', 'A kiwi.', $lesson, ['is_active' => false, 'example_audio_path' => exPath('A kiwi.')]);
 
     $report = app(WordAudioCoverageService::class)->report($course);
     expect($report->examples)->toBe(3)
