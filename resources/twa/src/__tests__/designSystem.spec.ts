@@ -257,7 +257,7 @@ describe('style.css: the palette, light and dark', () => {
     for (const kind of KINDS) for (const part of ['soft', 'ink', 'line']) expect(names).toContain(`${kind}-${part}`)
   })
 
-  it('takes the light values from the approved mock-ups', () => {
+  it('uses the learner interface light palette', () => {
     expect(PALETTES.light).toMatchObject({
       page: '#f6f7f9',
       surface: '#ffffff',
@@ -265,9 +265,9 @@ describe('style.css: the palette, light and dark', () => {
       divider: '#eef0f4',
       text: '#1d2130',
       muted: '#5f6677',
-      accent: '#3f4a7a',
-      primary: '#2b3252',
-      'accent-soft': '#f3f4f9',
+      accent: '#2854a8',
+      primary: '#234fb1',
+      'accent-soft': '#edf3ff',
       success: '#2f7d5b',
       'success-ink': '#1f5a40',
       'success-soft': '#eef6f1',
@@ -385,7 +385,7 @@ describe('style.css: fonts', () => {
   it('makes the serif the text of the app and sets numbers in Plex Mono, transcription in the system monospace', () => {
     expect(css).toMatch(/--font-serif:\s*'Source Serif 4',/)
     expect(css).toMatch(/--font-mono:\s*'IBM Plex Mono',/)
-    expect(css).toMatch(/--default-font-family:\s*var\(--font-serif\);/)
+    expect(css).toMatch(/--default-font-family:\s*var\(--font-sans\);/)
     expect(css).toMatch(/--font-ipa:\s*(?!'IBM Plex Mono')/)
   })
 

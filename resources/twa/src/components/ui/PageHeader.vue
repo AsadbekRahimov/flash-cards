@@ -26,7 +26,7 @@ defineProps<{
     <div class="min-w-0">
       <p v-if="eyebrow" class="mb-1 text-[13px] leading-[18px] text-muted" data-testid="eyebrow">{{ eyebrow }}</p>
       <h1
-        class="font-semibold"
+        class="font-serif font-semibold"
         :class="large ? 'text-[26px] leading-[30px] tracking-[-0.2px]' : 'text-[22px] leading-7'"
       >
         {{ title }}

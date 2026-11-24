@@ -136,7 +136,7 @@ onMounted(() => {
         <section v-else-if="me === null" class="card" data-testid="not-started">
           <p class="text-[15px] leading-[22px] font-semibold">{{ t('month.start_prompt') }}</p>
           <RouterLink :to="{ name: 'today' }" class="btn btn-primary btn-block mt-3" data-testid="start-btn">
-            {{ t('today.review.start') }}
+            {{ t('league.daily_plan') }}
           </RouterLink>
         </section>
 

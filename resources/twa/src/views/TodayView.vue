@@ -259,6 +259,14 @@ const courseHasNoNewWords = computed(() => data.value !== null && data.value.act
 const courseIsEmpty = computed(() => courseHasNoNewWords.value && data.value?.active_course?.progress.total === 0)
 /** No new words in the course and nothing to review: "Start session" would only open an empty session, so the card leads to the catalog. */
 const needsOtherCourse = computed(() => courseHasNoNewWords.value && data.value !== null && data.value.due_count === 0 && data.value.open_session_id === null)
+const sessionHint = computed(() => {
+  if (needsCourseToStart.value || needsOtherCourse.value) return t('today.new.no_course')
+  const current = data.value
+  if (current?.active_course && current.due_count > 0 && current.new_words_remaining !== 0 && !courseHasNoNewWords.value) {
+    return t('today.session.hint')
+  }
+  return ''
+})
 const noNewWordsText = computed(() => t(courseIsEmpty.value ? 'today.course.empty' : 'today.new.course_done'))
 
 /**
@@ -473,6 +481,7 @@ onBeforeUnmount(() => {
         <InlineAlert v-if="status === 'error'" tone="danger" :message="loadError" data-testid="reload-error" />
 
         <section v-if="showStart" class="card flex flex-col items-center gap-3 py-7 text-center" data-testid="start-card">
+          <span class="inline-flex size-12 items-center justify-center rounded-card bg-accent-soft text-accent"><AppIcon name="book-open" :size="26" /></span>
           <h2 class="text-[22px] leading-7 font-semibold">{{ t('today.start.title') }}</h2>
           <p class="text-base leading-[22px] text-muted">{{ t('today.start.text') }}</p>
           <RouterLink :to="{ name: 'courses' }" class="btn btn-primary btn-lg btn-block mt-1" data-testid="start-choose-course" @click="tapPrimary">
@@ -515,12 +524,18 @@ onBeforeUnmount(() => {
         </RouterLink>
 
         <!-- "Goal of the day" (mock-up Main): N of M, a thin line, what is waiting and the one primary button of the screen. -->
-        <section v-if="!showStart" class="card flex flex-col gap-3.5" data-testid="review-card">
-          <div class="flex flex-col gap-3.5" data-testid="goal-card">
+        <section v-if="!showStart" class="card flex flex-col gap-3.5 bg-linear-to-br from-accent-soft to-surface" data-testid="review-card">
+          <div class="flex flex-col gap-2" data-testid="goal-card">
             <div class="flex items-baseline justify-between gap-3">
-              <h2 class="text-[13px] leading-[18px] font-normal text-muted">{{ t('today.goal.title') }}</h2>
-              <span v-if="streak && streak.current > 0" class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="streak-current">
-                {{ tn('today.streak.short', streak.current) }}
+              <h2 class="min-w-0">
+                <RouterLink :to="{ name: 'settings' }" class="inline-flex min-h-11 items-center gap-2 text-base font-semibold text-accent-ink" data-testid="goal-setting">
+                  <span>{{ t('today.goal.title') }}</span>
+                  <AppIcon name="pencil-square" :size="16" />
+                  <span class="sr-only">{{ t('today.goal.edit') }}</span>
+                </RouterLink>
+              </h2>
+              <span v-if="streak && streak.current > 0" class="chip chip-warning" data-testid="streak-current">
+                <AppIcon name="fire" :size="15" /> {{ tn('today.streak.short', streak.current) }}
               </span>
             </div>
             <p class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
@@ -548,7 +563,7 @@ onBeforeUnmount(() => {
               <RouterLink
                 v-if="!data.active_course"
                 :to="{ name: 'courses' }"
-                class="-mb-3 flex min-h-11 items-center gap-1 text-sm leading-5 text-accent"
+                class="flex min-h-11 items-center gap-1 text-sm leading-5 text-accent"
                 data-testid="new-no-course"
               >
                 <span class="min-w-0 flex-1">{{ t('today.new.no_course') }}</span>
@@ -557,7 +572,7 @@ onBeforeUnmount(() => {
               <RouterLink
                 v-else-if="courseHasNoNewWords"
                 :to="{ name: 'courses' }"
-                class="-mb-3 flex min-h-11 items-center gap-1 text-sm leading-5 text-accent"
+                class="flex min-h-11 items-center gap-1 text-sm leading-5 text-accent"
                 data-testid="new-course-empty"
               >
                 <span class="min-w-0 flex-1">{{ noNewWordsText }}</span>
@@ -565,14 +580,6 @@ onBeforeUnmount(() => {
               </RouterLink>
               <p v-else class="mt-0.5 text-sm leading-5 text-muted" data-testid="new-remaining">{{ newWordsText }}</p>
             </template>
-            <RouterLink
-              :to="{ name: 'settings' }"
-              class="-mb-2 flex min-h-11 items-center gap-1 text-sm leading-5 text-accent"
-              data-testid="goal-setting"
-            >
-              <span class="min-w-0 flex-1">{{ tn('today.goal.daily', data.goal.target) }}</span>
-              <AppIcon name="chevron-right" :size="16" class="shrink-0" />
-            </RouterLink>
           </div>
 
           <RouterLink
@@ -618,8 +625,8 @@ onBeforeUnmount(() => {
 
           <InlineAlert v-if="openError" ref="openErrorBox" tone="danger" :message="openError" data-testid="open-error" />
 
-          <p v-if="!allDone" class="-mt-1 text-center text-[13px] leading-[18px] text-muted" data-testid="session-hint">
-            {{ t(needsCourseToStart || needsOtherCourse ? 'today.new.no_course' : 'today.session.hint') }}
+          <p v-if="sessionHint" class="-mt-1 text-center text-[13px] leading-[18px] text-muted" data-testid="session-hint">
+            {{ sessionHint }}
           </p>
         </section>
 
@@ -705,7 +712,7 @@ onBeforeUnmount(() => {
                 class="flex min-h-11 w-full items-center gap-3 px-[18px] py-3 text-left active:bg-fill"
                 @click="openPractice"
               >
-                <span class="size-2 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                <span class="icon-tile tile-blue"><AppIcon name="puzzle-piece" :size="19" /></span>
                 <span class="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span class="text-[15px] leading-5 font-semibold">{{ t('today.games.title') }}</span>
                   <span class="text-[13px] leading-[18px] text-muted" data-testid="games-modes">{{ gamesModes }}</span>
@@ -729,6 +736,66 @@ onBeforeUnmount(() => {
             {{ t('common.retry') }}
           </button>
         </div>
+
+        <section v-if="!showStart" class="card flex flex-col gap-3" data-testid="course-card">
+          <h2 class="text-[13px] leading-[18px] font-normal text-muted">{{ t('today.course.title') }}</h2>
+
+          <template v-if="data.active_course">
+            <div>
+              <h3 class="text-base leading-[22px] font-semibold" data-testid="course-title">{{ data.active_course.title }}</h3>
+              <template v-if="!courseIsEmpty">
+                <ProgressLine :value="coursePercent" :label="courseProgressText" class="mt-2.5" />
+                <p class="mt-1.5 text-[13px] leading-[18px] text-muted" data-testid="course-progress">{{ courseProgressText }}</p>
+              </template>
+            </div>
+
+            <template v-if="data.active_course.next_lesson">
+              <div class="border-t border-divider pt-3">
+                <p class="text-[13px] leading-[18px] text-muted">{{ t('today.course.next') }}</p>
+                <p class="text-[15px] leading-5 font-semibold" data-testid="next-lesson">{{ lessonLabel }}</p>
+              </div>
+              <!-- With the quota used up and nothing due, the lesson would open the same empty session as "Start session". -->
+              <template v-if="!allDone">
+                <button
+                  type="button"
+                  class="btn btn-tinted btn-block"
+                  :disabled="opening"
+                  data-testid="next-lesson-btn"
+                  @click="learnNext(data.active_course.next_lesson.id)"
+                >
+                  {{ t('today.course.learn') }}
+                </button>
+                <p class="-mt-1 text-center text-[13px] leading-[18px] text-muted" data-testid="next-lesson-hint">{{ t('today.course.learn_hint') }}</p>
+              </template>
+            </template>
+            <template v-else>
+              <p
+                class="flex items-center gap-2 border-t border-divider pt-3 text-[15px] leading-5 text-muted"
+                data-testid="course-completed"
+              >
+                <AppIcon v-if="!courseIsEmpty" name="check-circle" solid :size="20" class="shrink-0 text-success" />
+                <span>{{ t(courseIsEmpty ? 'today.course.empty' : 'today.course.completed') }}</span>
+              </p>
+              <RouterLink :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="course-choose-other">
+                {{ t('today.course.choose_other') }}
+              </RouterLink>
+            </template>
+
+            <ReadinessBlock
+              v-if="readiness"
+              :readiness="readiness"
+              :slug="data.active_course.slug"
+            />
+          </template>
+
+          <EmptyState v-else data-testid="no-course" icon="academic-cap" :text="t('today.course.none')">
+            <template #action>
+              <RouterLink :to="{ name: 'courses' }" class="btn btn-tinted" data-testid="choose-course">
+                {{ t('today.course.choose') }}
+              </RouterLink>
+            </template>
+          </EmptyState>
+        </section>
 
         <!-- The streak (the place of the block "Week" of the mock-up: there is no data by days, so it says the streak and its record). -->
         <section v-if="streak && !showStart" class="card flex flex-col gap-3 py-3.5" data-testid="streak-card">
@@ -776,66 +843,6 @@ onBeforeUnmount(() => {
               {{ t('today.streak.freeze_line') }}
             </button>
           </div>
-        </section>
-
-        <section v-if="!showStart" class="card flex flex-col gap-3" data-testid="course-card">
-          <h2 class="text-[13px] leading-[18px] font-normal text-muted">{{ t('today.course.title') }}</h2>
-
-          <template v-if="data.active_course">
-            <div>
-              <h3 class="text-base leading-[22px] font-semibold" data-testid="course-title">{{ data.active_course.title }}</h3>
-              <template v-if="!courseIsEmpty">
-                <ProgressLine :value="coursePercent" :label="courseProgressText" class="mt-2.5" />
-                <p class="mt-1.5 text-[13px] leading-[18px] text-muted" data-testid="course-progress">{{ courseProgressText }}</p>
-              </template>
-            </div>
-
-            <ReadinessBlock
-              v-if="readiness"
-              :readiness="readiness"
-              :slug="data.active_course.slug"
-            />
-
-            <template v-if="data.active_course.next_lesson">
-              <div class="border-t border-divider pt-3">
-                <p class="text-[13px] leading-[18px] text-muted">{{ t('today.course.next') }}</p>
-                <p class="text-[15px] leading-5 font-semibold" data-testid="next-lesson">{{ lessonLabel }}</p>
-              </div>
-              <!-- With the quota used up and nothing due, the lesson would open the same empty session as "Start session". -->
-              <template v-if="!allDone">
-                <button
-                  type="button"
-                  class="btn btn-tinted btn-block"
-                  :disabled="opening"
-                  data-testid="next-lesson-btn"
-                  @click="learnNext(data.active_course.next_lesson.id)"
-                >
-                  {{ t('today.course.learn') }}
-                </button>
-                <p class="-mt-1 text-center text-[13px] leading-[18px] text-muted" data-testid="next-lesson-hint">{{ t('today.course.learn_hint') }}</p>
-              </template>
-            </template>
-            <template v-else>
-              <p
-                class="flex items-center gap-2 border-t border-divider pt-3 text-[15px] leading-5 text-muted"
-                data-testid="course-completed"
-              >
-                <AppIcon v-if="!courseIsEmpty" name="check-circle" solid :size="20" class="shrink-0 text-success" />
-                <span>{{ t(courseIsEmpty ? 'today.course.empty' : 'today.course.completed') }}</span>
-              </p>
-              <RouterLink :to="{ name: 'courses' }" class="btn btn-tinted btn-block" data-testid="course-choose-other">
-                {{ t('today.course.choose_other') }}
-              </RouterLink>
-            </template>
-          </template>
-
-          <EmptyState v-else data-testid="no-course" icon="academic-cap" :text="t('today.course.none')">
-            <template #action>
-              <RouterLink :to="{ name: 'courses' }" class="btn btn-tinted" data-testid="choose-course">
-                {{ t('today.course.choose') }}
-              </RouterLink>
-            </template>
-          </EmptyState>
         </section>
 
         <ListGroup v-if="hasProgress && leagueRow">

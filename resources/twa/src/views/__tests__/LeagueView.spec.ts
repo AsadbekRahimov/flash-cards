@@ -96,8 +96,9 @@ describe('LeagueView', () => {
 
     expect(text(wrapper, 'eyebrow')).toContain('Неделя 19 окт. – 25 окт.')
     expect(wrapper.get('h1').text()).toBe('Серебряная лига')
+    expect(wrapper.get('[data-testid=standings] h2').text()).toBe('Таблица группы')
     expect(text(wrapper, 'my-place')).toBe('Вы на 3-м месте')
-    expect(text(wrapper, 'my-points')).toBe('41')
+    expect(text(wrapper, 'my-points')).toBe('41 очко')
     expect(wrapper.get('[data-testid=my-points]').classes()).toContain('font-mono')
     expect(wrapper.get('[data-testid=my-line]').attributes('aria-valuenow')).toBe('82') // 41 of the 50 of the place above
     expect(text(wrapper, 'to-next')).toBe('До 2-го места — 10 очков') // 50 − 41 + 1
@@ -117,11 +118,11 @@ describe('LeagueView', () => {
     expect(wrapper.get('[data-testid=settings-link]').attributes('href')).toBe('/settings')
   })
 
-  it('has one primary button, "Начать занятие", leading to the Today screen', async () => {
+  it('has one primary button, "К плану на сегодня", leading to the Today screen', async () => {
     const { wrapper, router } = await render()
 
     const start = wrapper.get('[data-testid=start-btn]')
-    expect(start.text()).toBe('Начать занятие')
+    expect(start.text()).toBe('К плану на сегодня')
     expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
 
     await start.trigger('click')
@@ -274,7 +275,7 @@ describe('LeagueView', () => {
   describe('the standings', () => {
     const zones = (w: Wrapper): string[] => w.findAll('[data-testid=rank]').map((r) => r.attributes('data-zone') ?? '')
     const order = (w: Wrapper): string[] =>
-      w.findAll('[data-testid=standings] > *').map((el) => {
+      w.findAll('[data-testid=standings] > [data-testid]').map((el) => {
         const id = el.attributes('data-testid') ?? ''
         return id === 'row' || id === 'row-me' ? (el.get('[data-testid=rank]').text()) : id
       })
@@ -407,7 +408,7 @@ describe('LeagueView', () => {
   })
 
   describe('states without a place in a group', () => {
-    it('explains an empty week in a plain card, and keeps "Начать занятие"', async () => {
+    it('explains an empty week in a plain card, and keeps "К плану на сегодня"', async () => {
       const empty = await render(response({ membership: null, last_week: null }))
 
       expect(text(empty.wrapper, 'not-placed')).toBe('На этой неделе вы ещё не в группе: повторите несколько карточек — и вы в лиге.')

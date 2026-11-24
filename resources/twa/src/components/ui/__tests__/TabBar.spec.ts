@@ -56,10 +56,13 @@ describe('TabBar', () => {
     expect(uz.attributes('aria-label')).toBe("Bo'limlar")
   })
 
-  it('is words only: no icons (the redesign 2026-11)', async () => {
+  it('pairs every label with a decorative icon', async () => {
     const { w } = await mountBar('/today')
 
-    expect(w.find('svg').exists()).toBe(false)
+    for (const link of w.findAll('a')) {
+      expect(link.get('svg').attributes('aria-hidden')).toBe('true')
+      expect(link.text()).not.toBe('')
+    }
   })
 
   it('marks the tab of the current route: a 2 px primary line on top, bold body text, aria-current', async () => {

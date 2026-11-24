@@ -100,6 +100,7 @@ export const uz: Translations = {
   'today.goal.title': 'Kunlik maqsad',
   'today.goal.progress': "{target} ta so'zdan {done} tasi",
   'today.goal.met': 'Maqsad bajarildi',
+  'today.goal.edit': "Maqsadni o'zgartirish",
   'today.goal.daily': {
     one: "Maqsad: kuniga {count} ta so'z",
     other: "Maqsad: kuniga {count} ta so'z",
@@ -525,6 +526,9 @@ export const uz: Translations = {
   'paywall.lead_renew': "To'lovdan so'ng joriy Pro muddati ({date} gacha) uzayadi.",
 
   // ---- course catalog ----
+  'catalog.open_lessons': 'Darslarni ochish',
+  'profile.learning': "O'qish natijalarim",
+  'profile.account': 'Hisobim',
   'catalog.title': 'Kurslar',
   'catalog.empty': "Hozircha kurslar yo'q. Keyinroq qaytib ko'ring.",
   'catalog.choose': "Shu kursga o'tish",
@@ -684,6 +688,7 @@ export const uz: Translations = {
   'league.to_promote': "Ko'tarilish zonasigacha: {points}",
   'league.to_safety': 'Xavfsiz zonagacha: {points}',
   'league.top_tier': "Bu eng yuqori liga — shunday davom eting!",
+  'league.daily_plan': "Bugungi rejaga o'tish",
   'league.standings': 'Guruh jadvali',
   'league.anonymous': "O'quvchi",
   'league.you': 'siz',

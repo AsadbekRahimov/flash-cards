@@ -96,7 +96,7 @@ describe('ProfileView', () => {
       expect(row.text()).toContain('Til · Язык')
       expect(row.text()).toContain('🇷🇺 Русский')
       expect(row.element.tagName).toBe('BUTTON')
-      expect(row.find('.icon-tile').exists()).toBe(false)
+      expect(row.get('.icon-tile svg').attributes('aria-hidden')).toBe('true')
       expect(row.element.nextElementSibling).toBe(w.get('[data-testid=row-settings]').element)
     })
 
@@ -254,7 +254,7 @@ describe('ProfileView', () => {
         const row = w.get(`[data-testid=${id}]`)
         expect(row.element.tagName, id).toBe('A')
         expect(row.attributes('href'), id).toBe(href)
-        expect(row.find('.icon-tile').exists(), id).toBe(false)
+        expect(row.get('.icon-tile svg').attributes('aria-hidden'), id).toBe('true')
       }
     })
 
@@ -275,10 +275,10 @@ describe('ProfileView', () => {
       expect(w.get('[data-testid=row-referrals]').text()).not.toContain('Вам и другу')
     })
 
-    it('draws plain rows, without icon tiles (the redesign of 2026-11)', async () => {
+    it('groups learning and account links before the Pro offer', async () => {
       const w = await render()
 
-      expect(w.find('.icon-tile').exists()).toBe(false)
+      expect(w.findAll('h2').map(heading => heading.text())).toEqual(['Моё обучение', 'Аккаунт', 'Учитесь без дневного лимита'])
     })
   })
 

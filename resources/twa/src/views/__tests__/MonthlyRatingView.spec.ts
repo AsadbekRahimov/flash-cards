@@ -154,7 +154,7 @@ describe('MonthlyRatingView', () => {
       const { wrapper } = await render(response({ me: null, top: [] }))
 
       expect(text(wrapper, 'not-started')).toContain('Начните заниматься — и попадёте в рейтинг месяца')
-      expect(wrapper.get('[data-testid=start-btn]').text()).toBe('Начать занятие')
+      expect(wrapper.get('[data-testid=start-btn]').text()).toBe('К плану на сегодня')
       expect(wrapper.get('[data-testid=start-btn]').attributes('href')).toBe('/today')
       expect(has(wrapper, 'my-place')).toBe(false)
     })

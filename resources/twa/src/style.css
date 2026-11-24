@@ -124,16 +124,16 @@
   --color-tg-bottom-bar-bg: var(--tg-bottom-bar-bg);
 
   /* Radii of the redesign: `rounded-card` (cards, lists, plan cards), `rounded-control` (buttons, answer options, fields), `rounded-badge`. */
-  --radius-card: 12px;
-  --radius-control: 10px;
+  --radius-card: 16px;
+  --radius-control: 12px;
   --radius-badge: 6px;
 
-  /* `font-serif` is the text of the whole app (the default of <html>), `font-mono` numbers and counters, `font-ipa` a transcription. */
+  /* System sans for controls and body copy, serif for page titles, `font-mono` numbers and counters, `font-ipa` a transcription. */
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, 'Roboto Mono', monospace;
   --font-ipa: Menlo, Consolas, 'DejaVu Sans Mono', 'Noto Sans Mono', ui-monospace, monospace;
-  --default-font-family: var(--font-serif);
+  --default-font-family: var(--font-sans);
   --default-mono-font-family: var(--font-mono);
 }
 
@@ -168,21 +168,21 @@
   --app-track: #e4e7ec; /* progress tracks, the off switch, skeletons */
   --app-text: #1d2130;
   --app-muted: #5f6677; /* secondary text: subtitles, hints, values on the right */
-  --app-accent: #3f4a7a; /* links, text buttons, progress fill, focus ring */
-  --app-primary: #2b3252; /* the main button, the frame of a selected item, the line of the active tab */
+  --app-accent: #2854a8; /* links, text buttons, progress fill, focus ring */
+  --app-primary: #234fb1; /* the main button, the frame of a selected item, the line of the active tab */
   --app-on-primary: #ffffff; /* text on primary (and on accent) */
   --app-success: #2f7d5b; /* strong colours: icons, dots, frames, fills (warning is not for text: use its ink) */
   --app-warning: #b4741a;
   --app-danger: #b4382c;
-  --app-accent-soft: #f3f4f9; /* soft fills: the selected row or option, status boxes */
+  --app-accent-soft: #edf3ff; /* soft fills: the selected row or option, status boxes */
   --app-success-soft: #eef6f1;
   --app-warning-soft: #f7eedd;
   --app-danger-soft: #fbf1ef;
-  --app-accent-ink: #2b3252; /* "ink": text in the colour, on its soft fill and on a card */
+  --app-accent-ink: #234fb1; /* "ink": text in the colour, on its soft fill and on a card */
   --app-success-ink: #1f5a40;
   --app-warning-ink: #8a5510;
   --app-danger-ink: #8c2a21;
-  --app-accent-line: #c9cee2; /* soft frames: a badge, a status box, a zone line in a table */
+  --app-accent-line: #b9ccef; /* soft frames: a badge, a status box, a zone line in a table */
   --app-success-line: #bfdccd;
   --app-warning-line: #e6cfa6;
   --app-danger-line: #edc7c1;
@@ -204,7 +204,7 @@
   --tg-bottom-bar-bg: var(--app-surface);
 
   /* Height of the tab bar without the home-indicator inset. */
-  --app-tabbar-h: 52px;
+  --app-tabbar-h: 62px;
   /*
    * --app-actions-h: the height of the sticky block of buttons on screen, with its inset (StickyActions sets it on <html> and takes it
    * back when it goes). Not declared here: absent means there is no such block, and `.toast` falls back to 0.
@@ -225,21 +225,21 @@
   --app-track: #2b3142;
   --app-text: #e7e9f0;
   --app-muted: #a2a8b8;
-  --app-accent: #a3aedd;
-  --app-primary: #d5daf0;
-  --app-on-primary: #1a1f33;
+  --app-accent: #a1c4ff;
+  --app-primary: #94baff;
+  --app-on-primary: #102444;
   --app-success: #5db78c;
   --app-warning: #d9a04a;
   --app-danger: #e5786b;
-  --app-accent-soft: #232a42;
+  --app-accent-soft: #202f49;
   --app-success-soft: #16291f;
   --app-warning-soft: #2c2314;
   --app-danger-soft: #311b1a;
-  --app-accent-ink: #cdd3f0;
+  --app-accent-ink: #c5dcff;
   --app-success-ink: #93d3b2;
   --app-warning-ink: #e6be7e;
   --app-danger-ink: #f1a59b;
-  --app-accent-line: #3a4366;
+  --app-accent-line: #415b83;
   --app-success-line: #2a4b3a;
   --app-warning-line: #54411f;
   --app-danger-line: #5a2f2b;
@@ -274,7 +274,7 @@ body {
   min-height: 100dvh;
   background: var(--app-page);
   color: var(--app-text);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 16px;
   line-height: 22px;
   -webkit-tap-highlight-color: transparent;

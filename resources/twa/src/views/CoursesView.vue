@@ -70,6 +70,9 @@ onMounted(() => {
         :class="{ 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]': course.is_active }"
         :data-testid="`course-${course.slug}`"
       >
+        <span v-if="course.is_active" class="chip chip-success mb-2" data-testid="active-badge">
+          {{ t('catalog.active') }}
+        </span>
         <RouterLink
           :to="{ name: 'course', params: { slug: course.slug } }"
           class="flex items-start gap-2 active:opacity-60"
@@ -85,21 +88,22 @@ onMounted(() => {
           <AppIcon name="chevron-right" :size="16" class="mt-[3px] text-muted" />
         </RouterLink>
 
-        <div class="mt-3.5 flex items-center gap-3">
+        <div class="mt-3.5 flex flex-col-reverse gap-1.5">
           <ProgressLine
             :value="progressPercent(course.progress)"
             tone="success"
             :label="progressText(course.progress)"
-            class="flex-1"
+            class="w-full"
             data-testid="progress-bar"
           />
           <span class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="progress-text">{{ progressText(course.progress) }}</span>
         </div>
 
         <div class="mt-3">
-          <span v-if="course.is_active" class="chip chip-success" data-testid="active-badge">
-            {{ t('catalog.active') }}
-          </span>
+          <RouterLink v-if="course.is_active" :to="{ name: 'course', params: { slug: course.slug } }" class="btn btn-primary btn-block">
+            {{ t('catalog.open_lessons') }}
+            <AppIcon name="arrow-right" :size="17" />
+          </RouterLink>
           <button
             v-else
             type="button"

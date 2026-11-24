@@ -165,16 +165,6 @@ onMounted(() => {
         </div>
       </header>
 
-      <section v-if="!isPro" class="card space-y-3" data-testid="profile-pro-card">
-        <div>
-          <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('profile.pro.title') }}</h2>
-          <p class="mt-1 text-[15px] leading-5 text-muted">{{ t('profile.pro.text') }}</p>
-        </div>
-        <RouterLink :to="{ name: 'billing' }" class="btn btn-primary btn-block" data-testid="profile-pro-cta">
-          {{ t('profile.pro.more') }}
-        </RouterLink>
-      </section>
-
       <section v-if="showCaravan" class="card space-y-3" :aria-label="t('profile.caravan.title')" data-testid="profile-caravan">
         <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('profile.caravan.title') }}</h2>
         <div class="flex items-center gap-3">
@@ -198,21 +188,24 @@ onMounted(() => {
         </RouterLink>
       </section>
 
-      <ListGroup>
+      <ListGroup :header="t('profile.learning')">
         <ListRow
           :to="{ name: 'achievements' }"
           :title="t('achievements.title')"
+          icon="trophy" tile="yellow"
           data-testid="row-achievements"
         />
         <ListRow
           :to="{ name: 'referrals' }"
           :title="t('referrals.title')"
           :subtitle="t('profile.referrals.hint')"
+          icon="gift"
           data-testid="row-referrals"
         />
         <ListRow
           :to="{ name: 'friends' }"
           :title="t('profile.friends')"
+          icon="users" tile="blue"
           data-testid="row-friends"
         />
         <ListRow
@@ -220,34 +213,49 @@ onMounted(() => {
           :to="`/courses/${encodeURIComponent(activeCourseSlug)}/readiness?source=profile`"
           :title="t('profile.readiness')"
           :subtitle="t('profile.readiness.hint')"
+          icon="chart-bar" tile="green"
           data-testid="row-readiness"
         />
       </ListGroup>
 
-      <ListGroup>
+      <ListGroup :header="t('profile.account')">
         <ListRow
           :to="{ name: 'billing' }"
           :title="t('billing.title')"
           :value="planChip"
+          icon="credit-card"
           data-testid="row-billing"
         />
         <ListRow
           :title="LANGUAGE_TITLE"
           :value="languageLabel || locale.toUpperCase()"
+          icon="globe-alt"
           data-testid="row-language"
           @click="languageOpen = true"
         />
         <ListRow
           :to="{ name: 'settings' }"
           :title="t('settings.title')"
+          icon="cog-6-tooth"
           data-testid="row-settings"
         />
         <ListRow
           :title="t('profile.how_it_works')"
+          icon="information-circle"
           data-testid="row-intro"
           @click="introOpen = true"
         />
       </ListGroup>
+
+      <section v-if="!isPro" class="card space-y-3" data-testid="profile-pro-card">
+        <div>
+          <h2 class="text-[17px] leading-[22px] font-semibold">{{ t('profile.pro.title') }}</h2>
+          <p class="mt-1 text-[15px] leading-5 text-muted">{{ t('profile.pro.text') }}</p>
+        </div>
+        <RouterLink :to="{ name: 'billing' }" class="btn btn-primary btn-block" data-testid="profile-pro-cta">
+          {{ t('profile.pro.more') }}
+        </RouterLink>
+      </section>
 
       <p v-if="support" class="px-[18px] pt-2 text-center text-[13px] leading-[18px] text-muted" data-testid="profile-support">
         {{ t('profile.support') }}

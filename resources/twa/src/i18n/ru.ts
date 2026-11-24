@@ -109,6 +109,7 @@ export const ru = {
   'today.goal.title': 'Цель дня',
   'today.goal.progress': '{done} из {target} слов',
   'today.goal.met': 'Цель выполнена',
+  'today.goal.edit': "Изменить цель",
   'today.goal.daily': {
     one: 'Цель: {count} слово в день',
     few: 'Цель: {count} слова в день',
@@ -570,6 +571,9 @@ export const ru = {
   'paywall.lead_renew': 'Оплата добавит срок к текущему Pro (до {date}).',
 
   // ---- course catalog ----
+  'catalog.open_lessons': 'Открыть уроки',
+  'profile.learning': 'Моё обучение',
+  'profile.account': 'Аккаунт',
   'catalog.title': 'Курсы',
   'catalog.empty': 'Курсов пока нет. Загляните позже.',
   'catalog.choose': 'Перейти на этот курс',
@@ -739,6 +743,7 @@ export const ru = {
   'league.to_promote': 'До зоны повышения: {points}',
   'league.to_safety': 'До безопасной зоны: {points}',
   'league.top_tier': 'Это высшая лига — так держать!',
+  'league.daily_plan': 'К плану на сегодня',
   'league.standings': 'Таблица группы',
   'league.anonymous': 'Ученик',
   'league.you': 'вы',

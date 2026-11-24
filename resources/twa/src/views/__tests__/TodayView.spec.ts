@@ -307,16 +307,13 @@ describe('TodayView', () => {
       expect(text(await render(today({ goal: { target: 10, done: 0, met: false } })), 'goal-text')).toBe('из 10 слов')
     })
 
-    it('says the unit of the goal under the ring ("words" - the same as the ring counts) and leads to the settings', async () => {
-      const w = await render()
-
-      const link = w.get('[data-testid=goal-setting]')
-      expect(link.text()).toBe('Цель: 20 слов в день')
+    it('opens goal settings from the daily goal heading in either language', async () => {
+      const link = (await render()).get('[data-testid=goal-setting]')
+      expect(link.text()).toContain('Цель дня')
+      expect(link.get('.sr-only').text()).toBe('Изменить цель')
       expect(link.attributes('href')).toBe('/settings')
-      expect(text(await render(today({ goal: { target: 1, done: 0, met: false } })), 'goal-setting')).toBe('Цель: 1 слово в день')
-      expect(text(await render(today({ goal: { target: 5, done: 0, met: false } })), 'goal-setting')).toBe('Цель: 5 слов в день')
       setLocale('uz')
-      expect(text(await render(), 'goal-setting')).toBe("Maqsad: kuniga 20 ta so'z")
+      expect((await render()).get('[data-testid=goal-setting] .sr-only').text()).toBe("Maqsadni o'zgartirish")
     })
 
     it('shows a met goal with a full green line even past the target', async () => {
@@ -342,7 +339,7 @@ describe('TodayView', () => {
         expect(card.text()).toContain('Игры со словами')
         // the modes by their names (no coloured tiles): three of them
         expect(text(w, 'games-modes').split(' · ')).toHaveLength(3)
-        expect(w.find('[data-testid=games-card] .icon-tile').exists()).toBe(false)
+        expect(card.get('.icon-tile svg').attributes('aria-hidden')).toBe('true')
         // a row of the list "For today", the whole row is the button
         expect(w.find('[data-testid=today-list] [data-testid=games-card]').exists()).toBe(true)
         expect(w.get('[data-testid=games-play-btn]').text()).toBe('Играть')
@@ -1163,11 +1160,11 @@ describe('TodayView', () => {
       const order = ['review-card', 'today-list', 'assignments-card', 'hard-round-card', 'class-caravan-card', 'game-entry', 'games-card', 'streak-card']
       for (const id of order) expect(at(id), id).toBeGreaterThan(-1)
       expect(order.map(at)).toEqual([...order.map(at)].sort((x, y) => x - y))
-      // every row has its dot, and no coloured tile is left on Home
-      for (const id of ['assignments-card', 'hard-round-card', 'class-caravan-card', 'game-entry', 'games-card']) {
+      // Timed activities keep their status dot. Word games have their own pictogram.
+      for (const id of ['assignments-card', 'hard-round-card', 'class-caravan-card', 'game-entry']) {
         expect(w.find(`[data-testid=${id}] span.rounded-full[aria-hidden=true]`).exists(), id).toBe(true)
       }
-      expect(w.find('.icon-tile').exists()).toBe(false)
+      expect(list.get('[data-testid=games-card] .icon-tile svg').attributes('aria-hidden')).toBe('true')
       expect(w.findAll('.btn-primary')).toHaveLength(1)
     })
 

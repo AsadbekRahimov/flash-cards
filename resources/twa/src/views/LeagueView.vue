@@ -229,7 +229,7 @@ onMounted(() => {
           <section class="card flex flex-col gap-2.5 px-[18px] py-4" data-testid="my-card">
             <div class="flex items-baseline justify-between gap-3">
               <span class="text-[15px] leading-5 font-semibold" data-testid="my-place">{{ t('league.my_rank', { rank: membership.rank }) }}</span>
-              <span class="font-mono text-sm" data-testid="my-points">{{ membership.points }}</span>
+              <span class="font-mono text-sm" data-testid="my-points">{{ tn('league.points', membership.points) }}</span>
             </div>
             <ProgressLine :value="nextPercent" :label="t('league.next_progress')" data-testid="my-line" />
             <p class="text-[13px] leading-[18px] text-muted" data-testid="to-next">
@@ -251,6 +251,7 @@ onMounted(() => {
           </section>
 
           <section class="list" :aria-label="t('league.standings')" data-testid="standings">
+            <h2 class="border-b border-divider px-[18px] py-3 text-base font-semibold">{{ t('league.standings') }}</h2>
             <template v-for="line in tableLines" :key="line.key">
               <div
                 v-if="line.kind === 'row' && line.row"
@@ -307,7 +308,7 @@ onMounted(() => {
         </section>
 
         <RouterLink v-if="data.enabled && !data.opted_out" :to="{ name: 'today' }" class="btn btn-primary btn-block" data-testid="start-btn">
-          {{ t('today.review.start') }}
+          {{ t('league.daily_plan') }}
         </RouterLink>
 
         <ListGroup v-if="data.last_week" :header="t('league.last_week')" data-testid="last-week">
