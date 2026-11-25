@@ -30,10 +30,13 @@ final class BotBlockedCounter
             return ['total' => (int) $cached['total'], 'week' => (int) $cached['week']];
         }
 
-        $counts = [
-            'total' => Learner::query()->whereNotNull('dm_blocked_at')->count(),
-            'week' => Learner::query()->where('dm_blocked_at', '>=', now()->subDays(7))->count(),
-        ];
+        // One pass over the partial index `learners_dm_blocked_at_idx` for both numbers (two counts before, docs/38 §3.4).
+        $row = Learner::query()
+            ->whereNotNull('dm_blocked_at')
+            ->toBase()
+            ->selectRaw('count(*) as total, coalesce(sum(case when dm_blocked_at >= ? then 1 else 0 end), 0) as week', [now()->subDays(7)])
+            ->first();
+        $counts = ['total' => (int) ($row->total ?? 0), 'week' => (int) ($row->week ?? 0)];
         PureCache::store()->put(self::KEY, $counts, self::TTL_SECONDS);
 
         return $counts;

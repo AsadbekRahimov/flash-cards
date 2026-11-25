@@ -23,9 +23,11 @@ use Illuminate\Support\Facades\DB;
  *   page        the keyset read after a cursor (`points <= P` as the range, `limit + 1` rows, names by the learners' primary key),
  *               and on a page other than the first two counts for the place and the position of its first row; the places of the
  *               other rows follow in PHP;
- *   neighbours  two keyset reads (the `n` rows before - the index read backwards - and the `n` after) and at most three counts;
+ *   neighbours  two keyset reads (the `n` rows before - the index read backwards - and the `n` after) and at most three counts (two
+ *               when the caller passes the place of the row it has counted already);
  *   gap         one read of the nearest strictly better row: overtaking it takes `P' − P + 1` points (points are the first key,
- *               docs/32 §5.3 "Отрыв").
+ *               docs/32 §5.3 "Отрыв"). A caller that holds the rows above reads it off them ({@see gapFromAbove()}) and asks only
+ *               when all of them share the row's place.
  * No caching here: the callers cache what they show (the top) under their keys.
  */
 final class ScoreBoard
@@ -71,12 +73,14 @@ final class ScoreBoard
      * The `$n` participants right above and right below the given row, with their places (docs/32 §5.3 "Соседи"). The row itself is
      * not in either list.
      *
+     * `$rank` is the place of the row when the caller has it already (its own count, a cached one): the count is not run again.
+     *
      * @return array{above: list<BoardRow>, below: list<BoardRow>, rank: int}
      */
-    public function neighbours(BoardScope $scope, BoardCursor $me, int $n = 2): array
+    public function neighbours(BoardScope $scope, BoardCursor $me, int $n = 2, ?int $rank = null): array
     {
         $n = max(1, min(10, $n));
-        $myRank = $this->rank($scope, $me->points, $me->longWords, $me->activeDays);
+        $myRank = $rank ?? $this->rank($scope, $me->points, $me->longWords, $me->activeDays);
         $myPosition = $this->position($scope, $me);
 
         $above = $this->before($this->named($scope), $me)
@@ -104,6 +108,27 @@ final class ScoreBoard
             ->value('sc.points');
 
         return $next === null ? null : (int) $next - $points + 1;
+    }
+
+    /**
+     * {@see gapToNext()} read off the rows right above (as {@see neighbours()} returns them, nearest last), without a statement:
+     * the nearest row above with a strictly better tuple is the nearest strictly better participant of the whole table (the rows are
+     * in the order of the table). `false` = cannot tell: every row given shares the place and there may be more above (`$complete` is
+     * false) - ask {@see gapToNext()}; with `$complete` (fewer rows above than asked for: these are all of them) nobody is strictly
+     * better and the answer is null.
+     *
+     * @param  list<BoardRow>  $above
+     */
+    public function gapFromAbove(array $above, int $points, int $longWords, int $activeDays, bool $complete): int|false|null
+    {
+        for ($i = count($above) - 1; $i >= 0; $i--) {
+            $row = $above[$i];
+            if ($row->points > $points || ($row->points === $points && ($row->longWords > $longWords || ($row->longWords === $longWords && $row->activeDays > $activeDays)))) {
+                return $row->points - $points + 1;
+            }
+        }
+
+        return $complete ? null : false;
     }
 
     /** The participants of the scope (one category of one period). */

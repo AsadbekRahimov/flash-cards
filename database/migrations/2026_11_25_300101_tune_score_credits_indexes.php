@@ -47,7 +47,7 @@ return new class extends Migration
 
         DB::statement('DROP INDEX IF EXISTS score_credits_voided_by_idx');
         DB::statement('ALTER TABLE score_credits DROP CONSTRAINT IF EXISTS score_credits_lexeme_id_foreign');
-        DB::statement('ALTER TABLE score_credits ADD CONSTRAINT score_credits_lexeme_id_foreign FOREIGN KEY (lexeme_id) REFERENCES lexemes (id)');
+        DB::statement('ALTER TABLE score_credits ADD CONSTRAINT score_credits_lexeme_id_foreign FOREIGN KEY (lexeme_id) REFERENCES lexemes (id) ON DELETE RESTRICT');
         DB::statement('DROP INDEX IF EXISTS score_credits_rating_day_brin');
         DB::statement('CREATE INDEX IF NOT EXISTS score_credits_rating_day_index ON score_credits (rating_day)');
     }

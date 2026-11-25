@@ -119,14 +119,29 @@ final class ScoreRules
     }
 
     /**
+     * The parsed versions of the configuration they were parsed from. One answer asks for the versions six to eight times (the version
+     * of the week and of the month, the rules of the count, "today"), and each parse walks the array and builds dates. The memory is
+     * kept with the raw configuration and used only while `config('leagues.scoring.versions')` is still that very array, so a changed
+     * configuration (a test, another deploy under Octane - the class keeps no other state) is parsed again; the DTOs are read-only.
+     *
+     * @var array{raw: mixed, versions: array<int, ScoreRuleVersion>}|null
+     */
+    private static ?array $parsed = null;
+
+    /**
      * Every well-formed configured version >= 2, by number (a malformed one is left out).
      *
      * @return array<int, ScoreRuleVersion>
      */
     public function versions(): array
     {
+        $configured = config('leagues.scoring.versions', []);
+        if (self::$parsed !== null && self::$parsed['raw'] === $configured) {
+            return self::$parsed['versions'];
+        }
+
         $out = [];
-        foreach ((array) config('leagues.scoring.versions', []) as $number => $raw) {
+        foreach ((array) $configured as $number => $raw) {
             if (! is_int($number) || $number < 2 || ! is_array($raw)) {
                 continue;
             }
@@ -137,6 +152,7 @@ final class ScoreRules
             }
         }
         ksort($out);
+        self::$parsed = ['raw' => $configured, 'versions' => $out];
 
         return $out;
     }

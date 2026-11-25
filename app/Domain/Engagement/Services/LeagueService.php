@@ -499,6 +499,8 @@ final class LeagueService
 
         $membership = $member === null || $group === null ? null : $this->membershipView($member, $group, $now);
         $emoji = $membership === null ? [] : $this->groupEmoji($group, $membership->standings, $now);
+        // The week of the rules (docs/32 §6.1): the row's, or - before anybody was placed - what the row will get.
+        $rulesVersion = $week !== null ? (int) $week->rules_version : $this->scoreRules->versionFor($monday);
 
         return new LeagueOverview(
             enabled: $enabled,
@@ -513,9 +515,10 @@ final class LeagueService
             optedOut: $this->isOptedOut($learner),
             membership: $membership,
             lastResult: $enabled ? $this->lastResult($learner) : null,
-            // The week of the rules (docs/32 §6.1): the row's, or - before anybody was placed - what the row will get.
-            rulesVersion: $week !== null ? (int) $week->rules_version : $this->scoreRules->versionFor($monday),
+            rulesVersion: $rulesVersion,
             proEmoji: $emoji,
+            // The best days that count in a v2 week - the configuration of its version, no statement (the Mini App held a constant).
+            bestDays: $rulesVersion >= 2 ? $this->scoreRules->version($rulesVersion)?->bestDays : null,
         );
     }
 

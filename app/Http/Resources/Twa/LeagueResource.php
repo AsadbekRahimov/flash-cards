@@ -14,7 +14,8 @@ use Illuminate\Http\Request;
  * GET /api/twa/league (docs/04 A.13). Of other members only a first name (may be null), the points and the emoji of Pro
  * (`pro_emoji`, docs/31 §5а: only while their Pro is live, else null) leave the server — no ids, usernames or Telegram data.
  *
- * A week of the word points v2 (docs/32 §8.3, S12) adds `rules_version: 2`, the table of the group (`membership.category`),
+ * A week of the word points v2 (docs/32 §8.3, S12) adds `rules_version: 2`, `best_days` (how many best days of the week count, from
+ * the rules of that version), the table of the group (`membership.category`),
  * `membership.rules_version`, `membership.next_gap` (the points that overtake the nearest better place for sure; null for a leader)
  * and the tie-break facts of the rows (`long_words`, `active_days`); the ranks are then competition ranks (1, 2, 2, 4). A v1 week
  * keeps the shape of before: those keys are absent.
@@ -31,6 +32,7 @@ final class LeagueResource extends TwaResource
      *   rules: array{capacity: int, promote: int, demote: int, tiers: list<string>},
      *   membership: array<string, mixed>|null,
      *   rules_version?: int,
+     *   best_days?: int,
      *   last_week: array{starts_on: string, tier: int, tier_key: string, result: string, rank: int, points: int}|null
      * }
      */
@@ -69,7 +71,16 @@ final class LeagueResource extends TwaResource
             ],
         ];
 
-        return $v2 ? [...$payload, 'rules_version' => $overview->rulesVersion] : $payload;
+        if (! $v2) {
+            return $payload;
+        }
+
+        // Next to `rules_version`, a v2 week only: how many best days of the week count (docs/32 §3.5), from the rules of its version.
+        return [
+            ...$payload,
+            'rules_version' => $overview->rulesVersion,
+            ...($overview->bestDays === null ? [] : ['best_days' => $overview->bestDays]),
+        ];
     }
 
     /**

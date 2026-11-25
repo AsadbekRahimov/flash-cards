@@ -108,7 +108,7 @@ it('seats at the first credit of a rating day after the commit: the read of the 
     expect(QueryLog::matching($other, '/league_|from ["`]learners["`]/'))->toBe([]);
 });
 
-it('reads a v2 month in a constant number of statements: top 2 (with the emoji of Pro), rank 1 then 0 from the cache, a page 1 or 3, the neighbours and the gap 6, a refresh 2', function (): void {
+it('reads a v2 month in a constant number of statements: top 2 (with the emoji of Pro), rank 1 then 0 from the cache, a page 1 or 3, the neighbours and the gap 5 (4 with the place known), a refresh 2', function (): void {
     $months = app(MonthlyRatingService::class);
     $month = $months->currentMonth(lbNow());
     foreach (Learner::factory()->count(12)->create() as $i => $learner) {
@@ -128,7 +128,10 @@ it('reads a v2 month in a constant number of statements: top 2 (with the emoji o
         ->and(QueryLog::during(fn () => $months->rankOf($month, $score)))->toBe([])
         ->and(QueryLog::during(fn () => $months->board($month, ScoreCategory::Free, null, 5)))->toHaveCount(1)
         ->and(QueryLog::during(fn () => $months->board($month, ScoreCategory::Free, new BoardCursor(15, 0, 1, 1), 5)))->toHaveCount(3)
-        ->and(QueryLog::during(fn () => $months->neighbours($month, $score)))->toHaveCount(6)
+        // two keyset reads, the position, the place of the first row above and the own place; the gap is read off the rows above
+        // (docs/38 §3.2) - and without the own place when the caller has counted it
+        ->and(QueryLog::during(fn () => $months->neighbours($month, $score)))->toHaveCount(5)
+        ->and(QueryLog::during(fn () => $months->neighbours($month, $score, 2, $months->rankOf($month, $score))))->toHaveCount(4)
         ->and(QueryLog::during(fn () => $months->refreshLearner($month, $learner, lbNow())))->toHaveCount(2);
 });
 

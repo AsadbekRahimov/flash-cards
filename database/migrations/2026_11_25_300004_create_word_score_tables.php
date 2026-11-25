@@ -31,7 +31,10 @@ return new class extends Migration
     {
         Schema::create('learner_lexemes', function (Blueprint $table): void {
             $table->foreignId('learner_id')->constrained('learners')->cascadeOnDelete();
-            $table->foreignId('lexeme_id')->constrained('lexemes');
+            // RESTRICT, said out loud: a lexeme is never deleted or changed (LexemeCatalog), and one that learners have met must not go.
+            // No index on this side on purpose (docs/38 §4): only a delete of a lexeme would use it, there is none, and the table takes
+            // a write on every answer - the primary key `(learner_id, lexeme_id)` serves every read.
+            $table->foreignId('lexeme_id')->constrained('lexemes')->restrictOnDelete();
             // The rating day of the first confirmation of the new word (NULL = not confirmed yet) and where it came from.
             $table->date('confirmed_on')->nullable();
             $table->string('confirmed_source', 8)->nullable();
@@ -102,7 +105,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('learner_id')->constrained('learners')->cascadeOnDelete();
             $table->date('rating_day');
-            $table->foreignId('lexeme_id')->constrained('lexemes');
+            // RESTRICT as in `learner_lexemes`; PostgreSQL drops this key in 2026_11_25_300101 (a lock per insert), sqlite keeps it.
+            $table->foreignId('lexeme_id')->constrained('lexemes')->restrictOnDelete();
             // The card that earned it; no FK: the journal outlives a word.
             $table->unsignedBigInteger('word_id');
             $table->string('source', 12);

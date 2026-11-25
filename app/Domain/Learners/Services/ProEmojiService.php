@@ -97,12 +97,18 @@ final class ProEmojiService
         $now ??= CarbonImmutable::now();
         $set = $this->set();
 
+        $ids = array_values(array_unique($learnerIds));
+
+        // Both "who is Pro" subqueries are narrowed to the ids of the page: unnarrowed, PostgreSQL hashes EVERY live subscription of the
+        // platform for one league group (docs/38 §3.1: 12 thousand rows and 300 buffers per call on the stand, growing with the payers);
+        // narrowed, it is one index lookup per learner (`subscriptions (subscriber_type, subscriber_id, status)`,
+        // `organization_members (learner_id, …)`). The result is the same set.
         $rows = Learner::query()
-            ->whereIn('learners.id', array_values(array_unique($learnerIds)))
+            ->whereIn('learners.id', $ids)
             ->whereIn('learners.pro_emoji', array_keys($set))
             ->where(fn (Builder $pro): Builder => $pro
-                ->whereIn('learners.id', PaidSubscriptionQuery::personalLearnerIds($now))
-                ->orWhereIn('learners.id', PaidSubscriptionQuery::sponsoredLearnerIds($now)))
+                ->whereIn('learners.id', PaidSubscriptionQuery::personalLearnerIds($now)->whereIn('subscriptions.subscriber_id', $ids))
+                ->orWhereIn('learners.id', PaidSubscriptionQuery::sponsoredLearnerIds($now)->whereIn('om.learner_id', $ids)))
             ->toBase()
             ->get(['learners.id', 'learners.pro_emoji']);
 

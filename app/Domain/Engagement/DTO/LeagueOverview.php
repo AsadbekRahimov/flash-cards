@@ -19,6 +19,7 @@ final readonly class LeagueOverview
      * @param  LeagueMember|null  $lastResult  the learner's most recent closed membership (result known)
      * @param  int  $rulesVersion  the rules version of the current week (docs/32 §6.1): 1 - the v1 points, 2 - the word points
      * @param  array<int, string>  $proEmoji  learner id => the emoji of Pro of the members of the group (docs/31 §5а); absent - none
+     * @param  int|null  $bestDays  a v2 week: how many best days of the week count, from the rules of its version (docs/32 §3.5); null - a v1 week
      */
     public function __construct(
         public bool $enabled,
@@ -35,5 +36,6 @@ final readonly class LeagueOverview
         public ?LeagueMember $lastResult,
         public int $rulesVersion = 1,
         public array $proEmoji = [],
+        public ?int $bestDays = null,
     ) {}
 }

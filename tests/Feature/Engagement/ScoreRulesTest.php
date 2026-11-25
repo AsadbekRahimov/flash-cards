@@ -109,3 +109,30 @@ it('ships with the crediting off and the game switch and retention from the conf
         ->and($rules->gameEnabled())->toBeFalse()
         ->and($rules->creditsRetentionDays())->toBe(1);
 });
+
+it('parses the configured versions once and again only when the configuration changes', function (): void {
+    $rules = app(ScoreRules::class);
+
+    $first = $rules->versions();
+    // The same objects, not equal copies: nothing was parsed again - also for another instance of the class (the memory is the
+    // class's: a request builds several).
+    expect($rules->versions()[2])->toBe($first[2])
+        ->and(app(ScoreRules::class)->version(2))->toBe($first[2])
+        ->and($rules->versionFor('2027-02-01'))->toBe(2);
+
+    // A changed configuration (a test, a new deploy under Octane) is read at once.
+    config()->set('leagues.scoring.versions.2.starts_on', '2027-03-01');
+    expect($rules->version(2)?->startsOn)->toBe('2027-03-01')
+        ->and($rules->version(2))->not->toBe($first[2])
+        ->and($rules->versionFor('2027-02-01'))->toBe(1)
+        ->and($rules->versionFor('2027-03-01'))->toBe(2);
+
+    config()->set('leagues.scoring.versions.2.limits.free.day_cap', 80);
+    expect($rules->version(2)?->limitsFor(ScoreCategory::Free)->dayCap)->toBe(80);
+
+    // A malformed version leaves the list, a well-formed one comes back.
+    config()->set('leagues.scoring.versions.2.best_days', 'many');
+    expect($rules->versions())->toBe([]);
+    config()->set('leagues.scoring.versions.2.best_days', 4);
+    expect($rules->version(2)?->bestDays)->toBe(4);
+});

@@ -126,7 +126,7 @@ final class MonthlyRatingReviewService
             $this->audit(self::ACTION_CONFIRMED, $locked, $by, $ip, ['winners' => $winners, ...($acceptTieOverflow ? ['tie_overflow_accepted' => true] : [])]);
         });
 
-        PureCache::forgetMany([MonthlyRatingService::topKey($month->id)]);
+        PureCache::forgetMany(MonthlyRatingService::topKeys($month->id));
         PendingLeagueMonthsBadge::forget();
         $this->events->record(ProductEventName::LeagueMonthConfirmed, [
             'month_id' => $month->id,

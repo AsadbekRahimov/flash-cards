@@ -36,6 +36,7 @@ use App\Models\Learner;
 use Carbon\CarbonImmutable;
 use DateTimeZone;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -98,6 +99,17 @@ final class MonthlyRatingService
      * the TTL.
      */
     public const NEAR_PREFIX = 'league:month:near:v1:';
+
+    /**
+     * `league:month:count:v1:{month}:{category|all}` - the number of participants of a table of the month (an int; `all` = the one table
+     * of a v1 month), shown next to the top and deciding whether the list goes on after it. Lives and dies with the top of the same
+     * table: the same TTL (`monthly.top_cache_seconds`) and the same drops ({@see topKeys()}), so the two never disagree for longer
+     * than they do today. Without it every `GET /league/month` counted the whole table (docs/38 §3.2).
+     */
+    public const COUNT_PREFIX = 'league:month:count:v1:';
+
+    /** What a rating day without `updated_at` reads as in {@see freshScore()}: later than any write, so the row is recomputed. */
+    private const NEVER_STAMPED = '9999-12-31 00:00:00';
 
     public function __construct(
         private readonly ProductEventRecorder $events,
@@ -272,6 +284,84 @@ final class MonthlyRatingService
     }
 
     /**
+     * The viewer's row of the month for the Mini App, fresh: what {@see refreshLearner()} followed by {@see scoreOf()} gives, without
+     * the recompute when it cannot change anything (docs/38 §3.2).
+     *
+     * A v1 month and a month that is not open: as before - the recompute (it does nothing to a closed month), then the read.
+     *
+     * An open v2 month: ONE statement reads the row together with the number of the learner's rating days in the month and the moment
+     * the last of them changed (`learner_score_days.updated_at`: every credit and every correction stamps it). The recompute - the
+     * `FOR SHARE` of the month, the upsert from three sources and its transaction - runs only when it has something to write:
+     *
+     *   no rating day in the month            nothing to compute (a v2 row exists only from rating days): the row as it is, usually none;
+     *   the row is newer than every day       it already holds them: the row as it is;
+     *   otherwise (no row yet, or a day has changed in the same second as the row or later)   recompute, read again.
+     *
+     * Strictly newer: a credit stamped in the same second as the row's last write may not be in it. What this check cannot see - a
+     * credit whose transaction took its timestamp before a recompute that changed the row and committed after it, or the clocks of
+     * two application servers apart - leaves the viewer's own line behind until their next credit or the scheduled refresh of the
+     * recently active (`leagues:refresh-month`, every 10 minutes); the top and the places of the others lag by their caches anyway.
+     * The admin's signals of the row (reviews, time: `learner_daily_stats`) are not shown in the Mini App and follow the same refresh.
+     * A change of the right to the rating recomputes the row itself ({@see participationChanged()}).
+     */
+    public function freshScore(LeagueMonth $month, Learner $learner, CarbonImmutable $now): ?LeagueMonthScore
+    {
+        if (! $this->enabled()) {
+            return $this->scoreOf($month, $learner->id);
+        }
+
+        if (! self::isV2($month) || ! $month->isOpen()) {
+            $this->refreshLearner($month, $learner, $now);
+
+            return $this->scoreOf($month, $learner->id);
+        }
+
+        // The last change of the learner's rating days of the month; a day without a stamp (never written by the application) reads as
+        // "changed after everything", so it always recomputes. NULL = no rating day in the month.
+        $changed = DB::table('learner_score_days as d')
+            ->where('d.learner_id', $learner->id)
+            ->where('d.rating_day', '>=', StoredDate::of($month->starts_on->toDateString()))
+            ->where('d.rating_day', '<=', StoredDate::of($month->ends_on->toDateString()))
+            ->selectRaw('max(coalesce(d.updated_at, ?))', [self::NEVER_STAMPED]);
+
+        // From the learner's own row (it exists: the request is theirs), so there is a result with or without a row of the month.
+        $row = DB::table('learners as l')
+            ->leftJoin('league_month_scores as s', static function (JoinClause $join) use ($month): void {
+                $join->on('s.learner_id', '=', 'l.id')->where('s.league_month_id', '=', $month->id);
+            })
+            ->where('l.id', $learner->id)
+            ->select('s.*')
+            ->selectSub($changed, 'rating_days_changed_at')
+            ->first();
+
+        if ($row === null) {
+            return null;
+        }
+
+        $attributes = get_object_vars($row);
+        $changedAt = $attributes['rating_days_changed_at'] ?? null;
+        unset($attributes['rating_days_changed_at']);
+
+        $score = ($attributes['id'] ?? null) === null ? null : (new LeagueMonthScore)->newFromBuilder($attributes);
+
+        if ($changedAt === null) {
+            return $score;
+        }
+
+        // Both stamps are stored the same way (the application's `now`), so they are compared as stored.
+        $writtenAt = $attributes['updated_at'] ?? null;
+        $fresh = $score !== null && is_string($writtenAt) && is_string($changedAt)
+            && CarbonImmutable::parse($writtenAt, 'UTC')->greaterThan(CarbonImmutable::parse($changedAt, 'UTC'));
+        if ($fresh) {
+            return $score;
+        }
+
+        $this->refreshLearner($month, $learner, $now);
+
+        return $this->scoreOf($month, $learner->id);
+    }
+
+    /**
      * The learner's right to the rating changed (blocked / unblocked, deleted / restored, opted out of / back into the
      * leagues): recomputes their row of the CURRENT open month at once and drops the cached top, so the list does not keep
      * a blocked leader until the month's close. After the commit of the caller's transaction (at once outside one); a failure
@@ -343,14 +433,11 @@ final class MonthlyRatingService
         $enabled = $this->enabled();
         $month = $enabled ? $this->currentMonth($now) : null;
 
-        if ($month !== null) {
-            $this->refreshLearner($month, $learner, $now);
-        }
-        $score = $month === null ? null : $this->scoreOf($month, $learner->id);
+        $score = $month === null ? null : $this->freshScore($month, $learner, $now);
         $v2 = $month !== null && self::isV2($month);
         $myCategory = $v2 ? $this->categoryOf($learner, $score, $now) : null;
         $category = $v2 ? ($requested ?? $myCategory) : null;
-        $participants = $month === null ? 0 : $this->participantsCount($month, $category);
+        $participants = $month === null ? 0 : $this->cachedParticipantsCount($month, $category);
         $top = $month === null ? [] : $this->top($month, $category);
         $last = $top === [] ? null : $top[count($top) - 1];
 
@@ -411,16 +498,12 @@ final class MonthlyRatingService
         $enabled = $this->enabled();
         $month = $enabled ? $this->currentMonth($now) : null;
 
-        if ($month !== null) {
-            $this->refreshLearner($month, $learner, $now);
-        }
-
         return new MonthlyMeView(
             enabled: $enabled,
             startsOn: $first->toDateString(),
             endsOn: $first->endOfMonth()->toDateString(),
             daysLeft: $month === null ? 0 : $this->daysLeft($month, $now),
-            me: $month === null ? null : $this->myLine($month, $learner),
+            me: $month === null ? null : $this->lineOf($month, $learner, $this->freshScore($month, $learner, $now)),
         );
     }
 
@@ -449,7 +532,8 @@ final class MonthlyRatingService
         }
 
         $compute = function () use ($month, $score): ?array {
-            $around = $this->neighbours($month, $score);
+            // The place the line of the viewer shows (its own cache of the tuple, {@see rankOf()}): one count for both.
+            $around = $this->neighbours($month, $score, 2, $this->rankOf($month, $score));
             if ($around === null) {
                 return null;
             }
@@ -618,18 +702,27 @@ final class MonthlyRatingService
      * The participants right above and below the learner's row in its category of a v2 month, the learner's place and the points that
      * overtake the next place (null for a leader, and for a row out of the table: not a participant, or a v1 month).
      *
+     * `$rank` - the place of the row when the caller has counted it already ({@see rankOf()}): it is not counted again.
+     *
      * @return array{above: list<BoardRow>, below: list<BoardRow>, rank: int, next_gap: int|null}|null
      */
-    public function neighbours(LeagueMonth $month, LeagueMonthScore $score, int $n = 2): ?array
+    public function neighbours(LeagueMonth $month, LeagueMonthScore $score, int $n = 2, ?int $rank = null): ?array
     {
         if (! self::isV2($month) || ! $score->participant || $score->category === null) {
             return null;
         }
 
+        $n = max(1, min(10, $n));
         $scope = BoardScope::month($month->id, ScoreCategory::from($score->category));
-        $around = $this->board->neighbours($scope, new BoardCursor($score->points, $score->long_words, $score->active_days, $score->learner_id), $n);
+        $around = $this->board->neighbours($scope, new BoardCursor($score->points, $score->long_words, $score->active_days, $score->learner_id), $n, $rank);
 
-        return [...$around, 'next_gap' => $this->board->gapToNext($scope, $score->points, $score->long_words, $score->active_days)];
+        // The gap is read off the rows above; a statement only when all of them share the viewer's place and the list is full.
+        $gap = $this->board->gapFromAbove($around['above'], $score->points, $score->long_words, $score->active_days, count($around['above']) < $n);
+        if ($gap === false) {
+            $gap = $this->board->gapToNext($scope, $score->points, $score->long_words, $score->active_days);
+        }
+
+        return [...$around, 'next_gap' => $gap];
     }
 
     public function scoreOf(LeagueMonth $month, int $learnerId): ?LeagueMonthScore
@@ -1007,13 +1100,23 @@ final class MonthlyRatingService
     }
 
     /**
-     * Every key of the tops of a month (v1 and both categories of v2): what a write to the month drops.
+     * Every key of the tops of a month (v1 and both categories of v2) and of their numbers of participants: what a write to the month
+     * drops.
      *
      * @return list<string>
      */
     public static function topKeys(int $monthId): array
     {
-        return [self::topKey($monthId), self::topKey($monthId, ScoreCategory::Free), self::topKey($monthId, ScoreCategory::Pro)];
+        return [
+            self::topKey($monthId), self::topKey($monthId, ScoreCategory::Free), self::topKey($monthId, ScoreCategory::Pro),
+            self::countKey($monthId), self::countKey($monthId, ScoreCategory::Free), self::countKey($monthId, ScoreCategory::Pro),
+        ];
+    }
+
+    /** The key of the cached number of participants of a table of the month ({@see COUNT_PREFIX}). */
+    public static function countKey(int $monthId, ?ScoreCategory $category = null): string
+    {
+        return self::COUNT_PREFIX.$monthId.':'.($category === null ? 'all' : $category->value);
     }
 
     public function dailyCap(): int
@@ -1307,6 +1410,21 @@ final class MonthlyRatingService
             ->where('status', LeagueMonthStatus::Open->value)
             ->update(['participants_count' => $count, 'refreshed_at' => $now, 'updated_at' => $now]);
         $month->participants_count = $count;
+    }
+
+    /**
+     * {@see participantsCount()} for the screens, cached with the top of the same table ({@see COUNT_PREFIX}). Redis returns a
+     * top-level number as a string (docs/19 §3 п. 11) - hence the cast.
+     */
+    public function cachedParticipantsCount(LeagueMonth $month, ?ScoreCategory $category = null): int
+    {
+        $category = self::isV2($month) ? $category : null;
+
+        return (int) PureCache::store()->remember(
+            self::countKey($month->id, $category),
+            max(1, (int) config('leagues.monthly.top_cache_seconds', 120)),
+            fn (): int => $this->participantsCount($month, $category),
+        );
     }
 
     /** The participants of the month (both tables of a v2 month), or of one category of a v2 month. */

@@ -167,6 +167,26 @@ it('shows the emoji of a live Pro in the week, none of an expired one, and a new
     lavGet($this, $me, '/api/twa/league')->assertOk()->assertJsonPath('membership.standings.1.pro_emoji', '👑');
 });
 
+it('tells a v2 week how many best days count, from the rules of its version, without a statement; a v1 week has no such key', function (): void {
+    $me = lavLearner();
+    $get = fn () => lavGet($this, $me, '/api/twa/league')->assertOk();
+
+    // Next to `rules_version`, at the top of the answer; also before anybody was placed this week.
+    expect($get()->json('best_days'))->toBe(5)
+        ->and($get()->json('rules_version'))->toBe(2);
+
+    config()->set('leagues.scoring.versions.2.best_days', 4);
+    $withRule = QueryLog::during(fn () => expect($get()->json('best_days'))->toBe(4));
+
+    config()->set('leagues.scoring.mode', 'off');
+    app(LeagueService::class)->currentWeek(CarbonImmutable::now()->addWeek()); // nothing of this week exists yet: a v1 answer
+    $this->travelTo(lavNow('2027-02-10 12:00'));
+    $v1 = QueryLog::during(fn () => $get()->assertJsonMissingPath('best_days')->assertJsonMissingPath('rules_version'));
+
+    // The number is the configuration's: the v2 answer runs no statement more than the v1 one.
+    expect(count($withRule))->toBeLessThanOrEqual(count($v1));
+});
+
 // --- the month ---------------------------------------------------------------------------------------------------
 
 it('shows the viewer\'s table of a v2 month: the top with ties, the neighbours, the gap, the prizes and participants of the table', function (): void {
@@ -274,11 +294,13 @@ it('reads the month in a pinned number of statements: the top and the neighbours
     $hit = QueryLog::during(fn () => lavGet($this, $me, '/api/twa/league/month')->assertOk()
         ->assertJsonPath('top.2.pro_emoji', '🔥')->assertJsonPath('neighbours.above.0.pro_emoji', '🔥'));
 
-    // A miss reads the emoji twice (the top, the neighbours); the cache: none, and nothing of the board (the top, the place, the
-    // neighbours and the gap: 1 + 1 + 6 statements, plus the two of the emoji).
+    // A miss reads the emoji twice (the top, the neighbours); the cache: none, and nothing of the board (the top, its number of
+    // participants, the place, the neighbours with the gap read off them: 1 + 1 + 1 + 4 statements, plus the two of the emoji;
+    // docs/38 §3.2 - was 1 + 1 + 6 + 2 with the count of the participants on every request).
     expect(QueryLog::matching($miss, '/pro_emoji/'))->toHaveCount(2)
         ->and(QueryLog::matching($hit, '/pro_emoji/'))->toBe([])
-        ->and(count($miss) - count($hit))->toBe(10);
+        ->and(QueryLog::matching($hit, '/count\(\*\)/'))->toBe([])
+        ->and(count($miss) - count($hit))->toBe(9);
 
     $cursor = (string) lavGet($this, $me, '/api/twa/league/month')->json('next_cursor');
     $page = QueryLog::during(fn () => lavGet($this, $me, '/api/twa/league/month?after='.urlencode($cursor))->assertOk());
