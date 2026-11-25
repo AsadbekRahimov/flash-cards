@@ -1258,13 +1258,14 @@ final class MonthlyRatingService
         DB::afterCommit(function () use ($learner, $now): void {
             try {
                 $region = $learner->region_code;
-                if (! $this->enabled() || $region === null) {
+                // Only a month of the word points v2 has tables of a region; with the points off there is none to fill.
+                if (! $this->enabled() || ! $this->totals->enabled() || $region === null) {
                     return;
                 }
 
                 $now ??= CarbonImmutable::now();
                 /** @var Collection<int, LeagueMonth> $open */
-                $open = LeagueMonth::query()->where('status', LeagueMonthStatus::Open->value)->get();
+                $open = LeagueMonth::query()->where('status', LeagueMonthStatus::Open->value)->where('rules_version', '>=', 2)->get();
                 if ($open->isEmpty()) {
                     return;
                 }
@@ -1280,7 +1281,7 @@ final class MonthlyRatingService
                 }
 
                 foreach ($open as $month) {
-                    if (self::isV2($month) && $this->refreshLearner($month, $learner, $now)) {
+                    if ($this->refreshLearner($month, $learner, $now)) {
                         PureCache::forgetMany(self::topKeys($month->id));
                     }
                 }

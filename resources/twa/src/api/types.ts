@@ -277,15 +277,45 @@ export interface BoardRow {
   pro_emoji: string | null
 }
 
-/** GET /league/month?category=&after=… : the page of a v2 table after a cursor; 422 `invalid_cursor` for a cursor of another table. */
+/**
+ * A table of a region (docs/35 §2.4, R7): any region may be opened. Shown from `min_participants` (5) participants; below that
+ * `shown` is false and the table has no rows ("в вашей области пока 3 участника").
+ */
+export interface BoardRegion {
+  /** `UZ-TK`, … or `other` (docs/35 §2.2). */
+  code: string
+  /** The name in the interface language. */
+  name: string
+  participants: number
+  shown: boolean
+  min_participants: number
+}
+
+/** The learner's place in their region (`me.region`): `rank` null while the table is hidden or the learner has no place. */
+export interface BoardMyRegion extends BoardRegion {
+  rank: number | null
+}
+
+/** `scope` of a table: the whole category, or a region (`?scope=region[&region=<code>]`). */
+export type BoardScopeName = 'all' | 'region'
+
+/**
+ * GET /league/month?category=&after=… and GET /league/all-time?category=&after=… : the page of a v2 table after a cursor; 422
+ * `invalid_cursor` for a cursor of another table (another month, period, category or region).
+ */
 export interface LeagueBoardPage {
   rules_version: number
   category: ScoreCategory
-  /** The other table (Free ↔ Pro): shown, the learner has no place in it. */
+  /** The learner has no place in this table (the other category, another region): shown, read-only. */
   read_only: boolean
   rows: BoardRow[]
   /** `after` of the next page; null on the last one. */
   next_cursor: string | null
+  /** "All time" (docs/32 §12.11); absent on a page of a month. */
+  period?: 'all_time'
+  /** "All time" and a table of a region: the scope and the region shown (null: the whole category). Absent on a page of a whole month. */
+  scope?: BoardScopeName
+  region?: BoardRegion | null
 }
 
 export interface MonthlyMe {
@@ -303,6 +333,8 @@ export interface MonthlyMe {
   category?: ScoreCategory | null
   long_words?: number
   next_gap?: number | null
+  /** A v2 month: the place in the region of the learner's month (docs/35 §2.4); null without a region; absent on an older server. */
+  region?: BoardMyRegion | null
 }
 
 export interface MonthlyWinner {
@@ -354,6 +386,55 @@ export interface MonthlyRatingResponse {
   next_cursor?: string | null
   /** Two rows above and below the learner in their own table; null: not shown (other table, no place). */
   neighbours?: { above: BoardRow[]; below: BoardRow[] } | null
+  /** A v2 month (docs/35 §2.4): `region` - the table of a region shown (`?scope=region`), null for the whole category; no prizes there. */
+  scope?: BoardScopeName
+  region?: BoardRegion | null
+}
+
+/** GET /league/all-time (docs/04 A.19a, docs/32 §8.3, §12.11): the learner's row of the category shown. */
+export interface AllTimeMe {
+  category: ScoreCategory
+  /** null while not a participant (opted out, blocked). */
+  rank: number | null
+  points: number
+  long_words: number
+  active_days: number
+  participant: boolean
+  not_counted_reason: 'opted_out' | 'blocked' | null
+  first_day: string
+  last_day: string
+  /** Points to the next place of the table shown; null: leader, or no place in it. */
+  next_gap: number | null
+  /** The place in the learner's current region; null without a region. */
+  region: BoardMyRegion | null
+}
+
+/**
+ * GET /league/all-time?category=&scope=&region= . `enabled: false` (the word points not live): no other key. 422 `region_not_set`
+ * for `scope=region` without `region` from a learner without one, `invalid_cursor` for a cursor of another table.
+ */
+export interface AllTimeResponse {
+  enabled: boolean
+  period: 'all_time'
+  rules_version?: number
+  /** `Y-m-d`: the points are counted from this day ("Учёт с …"). */
+  counted_since?: string | null
+  category?: ScoreCategory
+  /** The learner's table now: the category of their current month, else of their plan. */
+  my_category?: ScoreCategory
+  /** The learner has no place in the table shown. */
+  read_only?: boolean
+  opted_out?: boolean
+  scope?: BoardScopeName
+  region?: BoardRegion | null
+  participants?: number
+  top?: BoardRow[]
+  next_cursor?: string | null
+  neighbours?: { above: BoardRow[]; below: BoardRow[] } | null
+  /** null: no points in the category shown. */
+  me?: AllTimeMe | null
+  /** The learner's own sum over both tables (the opt-out does not hide it from them); a category without points - null. */
+  my_total?: { points: number; free: number | null; pro: number | null }
 }
 
 /** GET /league/month/me: the light variant for the finish screen. */

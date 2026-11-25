@@ -1397,6 +1397,8 @@ CHECK не создаются — инвариант дублируют серв
 
 **Индексы:** unique `(league_month_id, learner_id)`; `league_month_scores_standings_idx (league_month_id, participant, points desc, active_days desc, learner_id)` — топ-N и «участников впереди меня».
 
+*(R6, docs/35 §2.4)* `region_code` string(8) nullable — область месяца ученика (из `learner_score_periods.region_code` месяца, пишет обновление месяца v2; у месяца v1 — `NULL`). Индекс *(миграция `2026_11_27_200002`, CONCURRENTLY)* partial `league_month_scores_region_standings_idx (league_month_id, category, region_code, points desc, long_words desc, active_days desc, learner_id) WHERE participant AND region_code IS NOT NULL` — таблица области месяца; цена записи — docs/32 §12.11.
+
 **Правила:** пишет только `MonthlyRatingService::upsertScores` — ОДИН `INSERT … SELECT … ON CONFLICT (league_month_id, learner_id) DO UPDATE … WHERE <любая колонка изменилась>` по строкам `learner_daily_stats` месяца для множества учеников (все / недавно активные / один), **никогда** в транзакции оценки (docs/13 §3 правило 5): планировщик каждые 10 минут, строка зрителя при показе рейтинга. Пока месяц `open`, строки других учеников отстают не больше чем на 10 минут; закрытие пересчитывает всех.
 
 ### 2.64 `league_month_candidates` — кандидаты на приз, снимок закрытия
@@ -1482,8 +1484,9 @@ CHECK не создаются — инвариант дублируют серв
 | category | string(4) | `free` / `pro` — тариф (`EntitlementResolver`: пробный Pro и место в организации — Pro) в момент первого начисления периода |
 | rules_version | smallint | `ScoreRules::versionFor(starts_on)` на момент фиксации |
 | fixed_at | timestamp | |
+| region_code | string(8) nullable | *(R6, docs/35 §2.4; миграция `2026_11_27_200001`)* область ученика (`learners.region_code`) в момент первого начисления периода — тем же оператором `INSERT … SELECT`, скалярным подзапросом по PK `learners`; `NULL` — области не было |
 
-**Правила:** пишет только `ScorePeriodService::fix/fixDay` — `INSERT … ON CONFLICT DO NOTHING` + чтение: побеждает первый, строка не меняется до конца периода (смена тарифа действует со следующего периода). Неделя и месяц фиксируются независимо.
+**Правила:** пишет только `ScorePeriodService::fix/fixDay` — `INSERT … ON CONFLICT DO NOTHING` + чтение: побеждает первый, строка не меняется до конца периода (смена тарифа действует со следующего периода). Неделя и месяц фиксируются независимо. Область месяца не меняется сменой области (новая действует со следующего месяца, очки остаются там, где набраны); **исключение** — пустая область открытого месяца v2 заполняется один раз первой выбранной областью (`MonthlyRatingService::regionChanged` после commit смены, затем пересчёт строки месяца). Сброс области («не указывать») зафиксированную область месяца не трогает.
 
 ### 2.69 `learner_score_days` — итоги рейтингового дня *(S2, docs/32 §2.4)*
 | Колонка | Тип | Описание |
@@ -1528,9 +1531,12 @@ CHECK не создаются — инвариант дублируют серв
 | points, long_words, active_days | int default 0 | сумма месячного зачёта по категории месяца, лексемы с длинным повтором, дни с очками |
 | first_day, last_day | date | |
 | participant | boolean default true | как в месяце: не удалён, не заблокирован, без opt-out |
-| updated_at | timestamp nullable | |
+| updated_at | timestamp nullable | момент пересчёта (сравнивается с `learner_score_days.updated_at` для свежести своей строки; более старый пересчёт строку не перезаписывает) |
+| region_code | string(8) nullable | *(R6)* **текущая** область ученика (`learners.region_code`): «За всё время» — «люди области» (docs/35 §2.4) |
 
-**Индексы:** PK; `learner_score_totals_standings_idx (category, participant, points desc, long_words desc, active_days desc, learner_id)`. Пересчитывается целиком из `learner_score_days` (S10).
+**Индексы:** PK; `learner_score_totals_standings_idx (category, participant, points desc, long_words desc, active_days desc, learner_id)`; *(R6, миграция `2026_11_27_200003`, CONCURRENTLY)* partial `learner_score_totals_region_standings_idx (category, region_code, points desc, long_words desc, active_days desc, learner_id) WHERE participant AND region_code IS NOT NULL` — таблица области в порядке таблицы (топ, страница, место, соседи; редкая область — диапазон индекса, а не фильтр всей категории); ученики без области и не-участники в него не пишут.
+
+**Запись (S10, `Scoring\ScoreTotalsService`, docs/32 §12.11):** никогда в ответе; один `INSERT … SELECT … ORDER BY learner_id, category ON CONFLICT DO UPDATE … WHERE learner_score_totals.updated_at <= excluded.updated_at` из `learner_score_days` (`month_version >= 2`, сумма `month_points` по `month_category`, дни с очками, первый/последний день), `learner_lexemes` (`COUNT(long_free_on)` / `COUNT(long_pro_on)` по partial `learner_lexemes_first_long_idx`) и `learners` (участие, область). Наборы: один ученик (хуки: исправление дня, смена участия, смена области, своя строка устарела); «недавние» — ученики, чьи дни записаны с начала прошлого запуска минус `leagues.all_time.refresh_margin_seconds` (маркер `league:alltime:refreshed:v1` на невытесняемом хранилище; `leagues:refresh-month`, раз в 10 минут); все — пачками по `leagues.all_time.reconcile_batch` (5 000) id после закрытия месяца и `--full`.
 
 `learner_score_legacy` (docs/32 §2.6) **не создаётся**: по решению владельца (docs/31 §5, В1) старые очки не переносятся.
 
@@ -1754,6 +1760,9 @@ FK `poll_option_id` **без своего индекса**: вариант уд�
 90. `2026_11_26_100001_reindex_league_groups_seat_lookup` — `league_groups`: `(league_week_id, category, tier)` вместо `(league_week_id, tier, members_count)` и `(league_week_id, category, tier, members_count)`; `down()` возвращает оба *(§2.35, S8)*
 91. `2026_11_26_100002_add_long_credits_index_to_score_credits` — partial `score_credits_long_idx` (CONCURRENTLY на PostgreSQL) *(§2.70, S9)*
 92. `2026_11_26_100003_replace_score_credits_rating_day_brin` — только PostgreSQL: BRIN `score_credits (rating_day)` → B-tree (CONCURRENTLY); `down()` возвращает BRIN *(§2.70, S16)*
+92a. `2026_11_27_200001_add_region_code_to_score_tables` — `region_code` в `learner_score_periods`, `league_month_scores`, `learner_score_totals` (nullable, без перезаписи таблиц) *(§2.63, §2.68, §2.71; docs/35 R6)*
+92b. `2026_11_27_200002_add_region_standings_index_to_league_month_scores` — partial `league_month_scores_region_standings_idx` (CONCURRENTLY на PostgreSQL) *(§2.63)*
+92c. `2026_11_27_200003_add_region_standings_index_to_learner_score_totals` — partial `learner_score_totals_region_standings_idx` (CONCURRENTLY на PostgreSQL) *(§2.71)*
 
 Опросы в боте (docs/35 O2; откат и повтор — `PollSchemaTest`):
 

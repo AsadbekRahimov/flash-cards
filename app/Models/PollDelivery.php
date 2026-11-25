@@ -30,6 +30,7 @@ use Illuminate\Support\Carbon;
  * @property list<int>|null $draft ticked, not yet submitted poll_options ids (multiple answers)
  * @property Carbon|null $answered_at
  * @property int $changed_count
+ * @property Carbon|null $claimed_at leased by a worker (`pending`) / the step to `sending` (docs/03 §2.74)
  */
 class PollDelivery extends Model
 {
@@ -41,7 +42,7 @@ class PollDelivery extends Model
     /** @var list<string> */
     protected $fillable = [
         'poll_id', 'learner_id', 'telegram_user_id', 'is_test', 'token', 'locale', 'status', 'message_id', 'sent_at', 'error_code',
-        'draft', 'answered_at', 'changed_count',
+        'draft', 'answered_at', 'changed_count', 'claimed_at',
     ];
 
     /** @var array<string, mixed> */
@@ -65,6 +66,7 @@ class PollDelivery extends Model
             'draft' => 'array',
             'answered_at' => 'datetime',
             'changed_count' => 'integer',
+            'claimed_at' => 'datetime',
         ];
     }
 

@@ -16,6 +16,14 @@ final class TelegramMessageRateLimiter
     /** Longest pause one 429 can set, seconds: a bigger `retry_after` is honoured by the released job itself, not by the whole bot. */
     public const MAX_PAUSE_SECONDS = 60;
 
+    /**
+     * Set for {@see self::CONTENDED_SECONDS} whenever {@see self::reserveGlobal()} refuses a slot: the normal senders want more than
+     * the second has, and the bulk ones ({@see self::reserveGlobalBelow()}) wait until the mark expires (docs/35 O3).
+     */
+    public const CONTENDED_KEY = 'telegram:outbound:contended';
+
+    public const CONTENDED_SECONDS = 2;
+
     public function __construct(
         private readonly int $maxMessages = 20,
         private readonly int $windowSeconds = 60,
@@ -42,7 +50,85 @@ final class TelegramMessageRateLimiter
             return true;
         }
 
-        return $this->incrementWithTtl($this->globalKey(), 2) <= $this->globalPerSecond;
+        if ($this->incrementWithTtl($this->globalKey(), 2) <= $this->globalPerSecond) {
+            return true;
+        }
+
+        // A sender that matters was refused: the bulk senders step aside for a moment (reserveGlobalBelow).
+        Cache::put(self::CONTENDED_KEY, 1, self::CONTENDED_SECONDS);
+
+        return false;
+    }
+
+    /**
+     * A slot for a BULK send that must yield to everything else (a poll broadcast, docs/35 O3): given only while
+     *  - there is no pause after a 429;
+     *  - no {@see self::reserveGlobal()} caller was refused within the last {@see self::CONTENDED_SECONDS} s (reminders, offers, …
+     *    want the budget: the bulk sender stops entirely until they are served);
+     *  - the counter of the current second - every background send AND every counted reply ({@see self::consumeGlobal()}) - is
+     *    below `$ceiling` (capped by the bot-wide limit). The check and the INCR are one atomic step, so parallel bulk workers
+     *    never push the second over the ceiling together.
+     * So a broadcast uses the idle part of the budget up to `$ceiling`, the rest (at least `globalPerSecond - $ceiling`) is always
+     * free for the others, and under their pressure the broadcast gives back all of it. `$ceiling <= 0` = no ceiling of its own
+     * (the bot-wide limit, or nothing when that is off too); pause and contention still apply. Never sets the contention mark.
+     */
+    public function reserveGlobalBelow(int $ceiling): bool
+    {
+        if ($this->globalPerSecond > 0) {
+            $ceiling = $ceiling > 0 ? min($ceiling, $this->globalPerSecond) : $this->globalPerSecond;
+        }
+
+        $store = Cache::getStore();
+
+        if ($store instanceof RedisStore) {
+            // One round trip: the pause, the contention mark, then the conditional INCR of the second.
+            $script = "if tonumber(redis.call('GET', KEYS[2]) or '0') > tonumber(ARGV[1]) then return 0 end "
+                ."if redis.call('EXISTS', KEYS[3]) == 1 then return 0 end "
+                .'local cap = tonumber(ARGV[2]) '
+                ."if cap > 0 and tonumber(redis.call('GET', KEYS[1]) or '0') >= cap then return 0 end "
+                ."local n = redis.call('INCR', KEYS[1]) if n == 1 then redis.call('EXPIRE', KEYS[1], 2) end return 1";
+            $prefix = $store->getPrefix();
+            $args = [$prefix.$this->globalKey(), $prefix.self::PAUSE_KEY, $prefix.self::CONTENDED_KEY, now()->getTimestamp(), max(0, $ceiling)];
+            $connection = $store->connection();
+            $granted = $connection instanceof PhpRedisConnection
+                ? $connection->eval($script, 3, ...$args)
+                : $connection->command('eval', [$script, 3, ...$args]);
+
+            return (int) $granted === 1;
+        }
+
+        if ($this->globalPauseRemaining() > 0 || Cache::has(self::CONTENDED_KEY)) {
+            return false;
+        }
+
+        if ($ceiling <= 0) {
+            return true;
+        }
+
+        $current = Cache::get($this->globalKey());
+        if (is_numeric($current) && (int) $current >= $ceiling) {
+            return false;
+        }
+
+        $this->incrementWithTtl($this->globalKey(), 2);
+
+        return true;
+    }
+
+    /** Waits for a {@see self::reserveGlobalBelow()} slot, at most `$maxWaitMs`; false = none came, postpone the work. */
+    public function awaitGlobalBelow(int $ceiling, int $maxWaitMs = 2000): bool
+    {
+        $deadline = hrtime(true) + $maxWaitMs * 1_000_000;
+
+        while (! $this->reserveGlobalBelow($ceiling)) {
+            if (hrtime(true) >= $deadline) {
+                return false;
+            }
+
+            usleep(50_000);
+        }
+
+        return true;
     }
 
     /**

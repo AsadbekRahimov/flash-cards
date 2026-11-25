@@ -1749,6 +1749,14 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 
 Стоимость (`LeagueApiV2Test`, `LeagueV2BudgetTest`): из кэша — как v1 (своё место `league:month:rank:v1:*` и соседи с отрывом `league:month:near:v1:*` кэшируются на 60 с по своему кортежу — своё начисление видно сразу); промах — топ 1 + эмодзи 1, место 1, соседи и отрыв 6 + эмодзи 1; страница — доска 3 + эмодзи 1.
 
+**Таблица области (с 27.11.2026, docs/35 §2.4, R6–R7; решение владельца docs/31 §5г — открыть можно любую область).** Только у месяца v2: `?scope=all|region` (по умолчанию `all`) и `&region=<код>` (только вместе с `scope=region`; код из `config/regions.php`, иначе 422 валидации). `scope=region` без `region` — своя область: область, в которой зафиксирован месяц ученика (первое начисление месяца; пустая заполняется первой выбранной областью), без строки месяца — текущая область. Ответ месяца v2 получает:
+- `scope: "all" | "region"`; `region: {code, name, participants, shown, min_participants} | null` — показанная таблица области (`null` при `scope=all`). Таблица видна от `min_participants` (`LEAGUES_REGIONS_MIN_PARTICIPANTS`, 5): при 4 — `shown: false`, `top: []`, `next_cursor: null`, `neighbours: null` (экран: «В вашей области пока 4 участника»), при 5 — видна;
+- в таблице области: `top` и `month.participants` — этой области, `prizes: []` (призов в таблицах области нет), `read_only` — не своя категория или не своя область (тогда `neighbours: null`), соседи — внутри области;
+- `me.region: {code, name, participants, shown, min_participants, rank} | null` — **при любом `scope`**: место в области своего месяца (`rank: null`, пока таблица скрыта или ученик не участник; `null` — у месяца нет области);
+- `?after=` страницы области — курсор `m{месяц}{f|p}~{код}.{…}`; курсор другой области / всей категории / другого месяца → 422 `invalid_cursor`; страница области несёт `scope: "region"`, `region`.
+
+Ошибки: 422 `region_not_set` — `scope=region` без `region` у ученика без области; 422 `region_scope_unavailable` — область у месяца v1 (режим `off`) или при выключенном рейтинге. Чужая область области ученика не раскрывает: регион другого ученика нигде не выводится. Скрытые (`leagues_opt_out`), заблокированные и удалённые не попадают ни в таблицы, ни в соседей (`participant = false`). Стоимость (`AllTimeRatingBudgetTest`): `GET /league/month` с `me.region` — 15 / 4 операторов (холодный / тёплый; +2 к S12 на промахе — число участников и место в области, оба в кэше), `?scope=region` — 14 / 4.
+
 **`GET /api/twa/league/month/me`** — лёгкий запрос экрана итога занятия (после `POST /finish`): пересчитывает только строку ученика и отвечает
 ```json
 { "enabled": true, "month": { "starts_on": "2026-11-01", "ends_on": "2026-11-30", "days_left": 15 }, "me": { "rank": 12, "points": 855, "active_days": 9, "participant": true, "eligible": false, "missing": { "active_days": 1, "account_days": 0 }, "not_counted_reason": null } }
@@ -1758,6 +1766,36 @@ TWA: каждый код — в `KNOWN_ERROR_CODES` и `error.code.<код>` (ru
 **`POST /training/sessions/{id}/finish`** += `league_points: int` — баллы занятия по той же формуле (`reviewed×1 + correct×1 + new_words×2`, плюс бонус цели дня 10, если `goal_met_at` попал в интервал этой сессии); без дополнительных запросов. В месячную сумму день входит с потолком, поэтому «+N» может быть больше прироста места.
 
 **События** (`product_events`): `league.month_closed {month_id, starts_on, participants, candidates}` · `league.month_confirmed {month_id, starts_on, winners}` (user) · `league.month_candidate_disqualified / _reinstated {month_id, candidate_id, rank}` (user, learner) · `league.month_prize_delivered {month_id, candidate_id, place}` (user, learner). Событие Laravel `App\Domain\Engagement\Events\LeagueMonthConfirmed {monthId, startsOn, winners[{learner_id, place, points}]}` — после commit подтверждения; ЛС победителям вешает бот (слушатель; тексты `leagues.month.*`). Массовой рассылки итогов нет — итоги в `last_month`.
+
+### A.19a «За всё время» (docs/32 §5, §8.3, §12.11, S10; таблицы области — docs/35 §2.4)
+`Scoring\AllTimeRatingService`, `AllTimeRatingResource` (форма `LeagueBoardResource`), лимит `twa-api`. Только чтение. Считается **только из очков v2** (решение владельца В1): сумма месячного зачёта рейтинговых дней по категории месяца — 800 + 600 в месяцах Free и 950 в месяце Pro дают 1 400 в таблице Free, 950 в Pro и личную сумму 2 350.
+
+**`GET /api/twa/league/all-time?category=free|pro&scope=all|region&region=<код>&after=…`**
+```json
+{
+  "enabled": true, "period": "all_time", "rules_version": 2, "counted_since": "2027-02-01",
+  "category": "free", "my_category": "free", "read_only": false, "opted_out": false,
+  "scope": "all", "region": null, "participants": 38623,
+  "top": [ { "rank": 1, "name": "Dilnoza", "points": 7420, "long_words": 210, "active_days": 61, "is_me": false, "pro_emoji": null } ],
+  "next_cursor": "af.eyJwIjo…",
+  "neighbours": { "above": [BoardRow, BoardRow], "below": [BoardRow, BoardRow] },
+  "me": { "category": "free", "rank": 340, "points": 1400, "long_words": 12, "active_days": 31, "participant": true, "not_counted_reason": null,
+          "first_day": "2027-02-03", "last_day": "2027-03-06", "next_gap": 8,
+          "region": { "code": "UZ-TK", "name": "город Ташкент", "participants": 13502, "shown": true, "min_participants": 5, "rank": 112 } },
+  "my_total": { "points": 2350, "free": 1400, "pro": 950 }
+}
+```
+- `enabled: false` (режим очков не `live`: `off`, `shadow`; лиги выключены) — ответ только `{"enabled": false, "period": "all_time"}`; ничего не пишется и не читается.
+- `category` — показанная таблица (`?category=` или своя); `my_category` — своя: категория текущего месяца ученика, без неё — текущего тарифа. `read_only` — у ученика нет места в показанной таблице (нет очков в этой категории, не участник, другая область); тогда `neighbours: null`.
+- `me` — строка ученика **показанной** категории (`null` — очков в ней нет); `rank` — конкурентное место в категории (`null` у не-участника, `not_counted_reason`: `opted_out` | `blocked`); `next_gap` — очки до ближайшего строго лучшего места **показанной таблицы** (`null` у лидера и без места в ней); `region` — место в **текущей** области ученика (`null` без области; `rank: null`, пока таблица скрыта).
+- `my_total` — личная сумма по обеим категориям (видна владельцу и при отказе от лиг); `free` / `pro` — `null`, если в категории очков нет.
+- `scope=region` — таблица области (своя — **текущая** область ученика, «люди области»; `region=<код>` — любая, только чтение): `region: {code, name, participants, shown, min_participants}`, порог 5 как у месяца (при 4 — `top: []`, `next_cursor: null`, `neighbours: null`).
+- `?after=<next_cursor>` — только страница (`LeagueBoardResource` + `period: "all_time"`, `scope`, `region`); курсор `a{f|p}[~{код}].{…}` привязан к категории и области: курсор месяца, другой категории или области, битый → 422 `invalid_cursor`.
+- Ошибки: 422 `region_not_set` (своя область не выбрана), 422 валидации (`category`, `scope`, `region` вне списка, `region` без `scope=region`).
+
+**Свежесть.** Таблица — последний пересчёт `learner_score_totals` (плановый раз в 10 минут + сброс топа; другие отстают ≤ 10 мин и TTL топа 120 с). **Своя строка свежая всегда**: один оператор читает свои строки вместе с моментом последнего изменения своих дней (сегодня и вчера); день новее строки — пересчёт ученика (1 оператор) и повторное чтение. Исправление дня, отказ от лиг, блокировка, удаление и смена области пересчитывают строку сами.
+
+**Стоимость** (`AllTimeRatingBudgetTest`, таблица на 11 и 61 участника — не растёт): `GET /league/all-time` — 13 холодный / 2 тёплый (auth + свои строки), `?scope=region` — 12 / 2, `?after=` — 7. Планы — docs/32 §12.11.
 
 ### A.20 Готовность к уровню и тест недели (docs/13 §8.5; 18.11.2026)
 Блок `active_course.readiness` на «Сегодня» — A.2a. Здесь — полный экран и тест. Включатели: `READINESS_ENABLED` (всё), `READINESS_QUIZ_ENABLED` (только тест); `config/readiness.php`. Доступно всем тарифам. Для личной колоды (`owner_type = learner`) экран не имеет смысла — клиент не показывает вход.

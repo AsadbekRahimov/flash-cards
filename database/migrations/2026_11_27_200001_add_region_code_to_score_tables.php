@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -29,6 +30,15 @@ return new class extends Migration
                 $table->string('region_code', 8)->nullable();
             });
         }
+
+        // The months still open were started before the column existed: their periods take the learner's region now - what the first
+        // choice would have filled anyway (MonthlyRatingService::regionChanged). Closed months stay without a region (no tables of a
+        // region for them). At most one row per learner and open month; `leagues:refresh-month --full` then carries it to the rows of
+        // the month and to "all time".
+        DB::update(
+            'update learner_score_periods set region_code = (select l.region_code from learners l where l.id = learner_score_periods.learner_id) '
+            ."where region_code is null and period = 'month' and starts_on in (select m.starts_on from league_months m where m.status = 'open')",
+        );
     }
 
     public function down(): void

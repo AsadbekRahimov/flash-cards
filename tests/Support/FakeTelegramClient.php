@@ -63,6 +63,12 @@ final class FakeTelegramClient implements TelegramClient
     /** When set, a failing send is a 403 / chat not found with this reason (`TelegramForbiddenException`; wins over the two above). */
     public ?string $failSendsForbidden = null;
 
+    /**
+     * Runs at the start of every send (before the `failSends` logic) with the chat id: a test acts "while the message is on its way"
+     * (a poll stopped mid-broadcast, a crash between the claim and the answer) or slows the sends down.
+     */
+    public ?Closure $beforeSend = null;
+
     /** @var list<array{chat_id:int|string, text:string, parse_mode:string|null, markup:array<string, mixed>|null, thread_id:int|null, silent:bool, message_id:int}> sendGroupMessage calls */
     public array $groupMessages = [];
 
@@ -218,7 +224,7 @@ final class FakeTelegramClient implements TelegramClient
 
     public function sendPhotoMessage(int|string $chatId, PhotoSource $photo, ?string $caption = null, ?array $replyMarkup = null): SentMessage
     {
-        $this->failNextSend('sendPhoto');
+        $this->failNextSend('sendPhoto', $chatId);
         $messageId = $this->nextMessageId++;
         $fileId = $photo->kind === PhotoSource::KIND_FILE_ID ? $photo->value : 'fake-photo-'.$messageId;
         $this->photoMessages[] = [
@@ -236,7 +242,7 @@ final class FakeTelegramClient implements TelegramClient
 
     public function sendTextMessage(int|string $chatId, string $text, ?array $replyMarkup = null): SentMessage
     {
-        $this->failNextSend();
+        $this->failNextSend('sendMessage', $chatId);
         $messageId = $this->nextMessageId++;
         $this->textMessages[] = ['chat_id' => $chatId, 'text' => $text, 'markup' => $replyMarkup, 'message_id' => $messageId];
 
@@ -441,8 +447,12 @@ final class FakeTelegramClient implements TelegramClient
         }
     }
 
-    private function failNextSend(string $method = 'sendMessage'): void
+    private function failNextSend(string $method = 'sendMessage', int|string|null $chatId = null): void
     {
+        if ($this->beforeSend !== null) {
+            ($this->beforeSend)($chatId, $method);
+        }
+
         if ($this->failSends > 0) {
             $this->failSends--;
 

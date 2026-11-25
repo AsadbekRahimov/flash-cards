@@ -33,6 +33,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $created_by_user_id
  * @property int|null $launched_by_user_id
  * @property array<string, mixed>|null $results_snapshot the totals at closing
+ * @property int|null $recipient_count inserted at launch; NULL on a launched poll = the insert has not finished (docs/03 §2.72)
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -45,6 +46,7 @@ class Poll extends Model
     protected $fillable = [
         'title', 'question', 'image_path', 'image_file_id', 'allows_multiple', 'max_choices', 'allow_change', 'audience', 'status',
         'closes_at', 'launched_at', 'closed_at', 'created_by_user_id', 'launched_by_user_id', 'results_snapshot',
+        'recipient_count',
     ];
 
     /** @var array<string, mixed> */
@@ -70,6 +72,7 @@ class Poll extends Model
             'created_by_user_id' => 'integer',
             'launched_by_user_id' => 'integer',
             'results_snapshot' => 'array',
+            'recipient_count' => 'integer',
         ];
     }
 
