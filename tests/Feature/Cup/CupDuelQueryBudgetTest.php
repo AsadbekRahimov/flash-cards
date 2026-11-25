@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Cup\Services\CupDuelService;
 use App\Domain\Operations\Support\PureCache;
+use App\Domain\Practice\Enums\PracticeMode;
 use App\Jobs\PostCupMessageJob;
 use App\Jobs\ScoreCupDuelJob;
 use App\Models\Cup;
@@ -13,8 +14,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
 use Tests\Support\Cup\CupDuelKit;
-use Tests\Support\Practice\PracticeKit;
 use Tests\Support\QueryLog;
 
 /*
@@ -51,12 +52,12 @@ it('challenges in 8 statements privately and 9 publicly (the budget of the chat 
     $service = app(CupDuelService::class);
     $loaded = preparedCup($cup);
 
-    $private = duelBudget(fn () => $service->challenge($a, $loaded, $pb->id, false, App\Domain\Practice\Enums\PracticeMode::Pairs, (string) Illuminate\Support\Str::uuid(), $now));
-    $public = duelBudget(fn () => $service->challenge($c, $loaded, null, true, App\Domain\Practice\Enums\PracticeMode::Pairs, (string) Illuminate\Support\Str::uuid(), $now));
+    $private = duelBudget(fn () => $service->challenge($a, $loaded, $pb->id, false, PracticeMode::Pairs, (string) Str::uuid(), $now));
+    $public = duelBudget(fn () => $service->challenge($c, $loaded, null, true, PracticeMode::Pairs, (string) Str::uuid(), $now));
     $repeat = duelBudget(function () use ($service, $a, $loaded, $now): void {
         $duel = CupDuel::query()->where('challenger_participant_id', CupDuel::query()->min('challenger_participant_id'))->firstOrFail();
         DB::flushQueryLog();
-        $service->challenge($a, $loaded, null, false, App\Domain\Practice\Enums\PracticeMode::Pairs, $duel->request_id, $now);
+        $service->challenge($a, $loaded, null, false, PracticeMode::Pairs, $duel->request_id, $now);
     });
 
     // participant, request_id, target, friendship, limits + slots + my open challenge (one statement), the check of Telegram written, INSERT, event

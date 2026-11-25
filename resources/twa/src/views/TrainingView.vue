@@ -146,8 +146,14 @@ const subtitle = computed((): { text: string; testid: string } | null => {
  */
 const missNote = computed((): string => {
   const continues = deferred.value !== null && deferred.value.card !== null
-  if (continues && (mode.value === 'lesson' || mode.value === 'group_lesson')) return t('exercise.miss.returns_lesson')
-  if (continues && (mode.value === 'daily_review' || mode.value === 'hard_review')) return t('exercise.miss.returns_round')
+  // A phrase card (docs/35 §3.3) says «Фраза вернётся…».
+  const isPhrase = card.value?.phrase != null
+  if (continues && (mode.value === 'lesson' || mode.value === 'group_lesson')) {
+    return t(isPhrase ? 'exercise.miss.returns_lesson_phrase' : 'exercise.miss.returns_lesson')
+  }
+  if (continues && (mode.value === 'daily_review' || mode.value === 'hard_review')) {
+    return t(isPhrase ? 'exercise.miss.returns_round_phrase' : 'exercise.miss.returns_round')
+  }
   return t('exercise.miss.neutral')
 })
 

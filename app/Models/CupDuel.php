@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Domain\Cup\Enums\CupDuelEndReason;
 use App\Domain\Cup\Enums\CupDuelStatus;
+use App\Domain\Cup\Services\CupDuelService;
 use App\Domain\Practice\Enums\PracticeMode;
 use Carbon\CarbonInterface;
 use Database\Factories\CupDuelFactory;
@@ -17,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * A duel of a cup (docs/33 §2.9, §5.7): a challenge of a participant (to one participant or open to the first who accepts) and, once
  * accepted, its live battle (`battle_id`). `rated_offered` is what both saw before the acceptance, `rated` what the acceptance made of it.
  * The points of a rated duel go into `cup_day_scores.duel_points` of the day of the acceptance (`accepted_day`). Written only by
- * {@see \App\Domain\Cup\Services\CupDuelService}, always under `FOR UPDATE` of the row.
+ * {@see CupDuelService}, always under `FOR UPDATE` of the row.
  *
  * @property int $id
  * @property int $cup_id

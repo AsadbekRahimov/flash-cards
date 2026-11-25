@@ -10,7 +10,7 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import ProgressLine from '@/components/ui/ProgressLine.vue'
-import { goalLabel, progressPercent, progressText } from '@/composables/courseLabels'
+import { goalLabel, isPhraseCourse, progressPercent, progressText } from '@/composables/courseLabels'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
 import { useCourseSelect } from '@/composables/useCourseSelect'
@@ -33,7 +33,7 @@ import type { CourseLesson, CourseStage } from '@/api/types'
  * the one right after it "after lesson N"; a whole row opens its lesson. While `/me.practice.available` every lesson has a small
  * "Practice" (the hub of that lesson, the paywall while it is behind Pro). Under the lessons: "Practice" of the course, the Karvon map
  * and the IELTS / SAT mock. The screen opens scrolled to the current lesson (a course has many lessons). "Back" is the system button
- * (-> the catalog).
+ * (-> the catalog). A course of phrases (`section = phrases`, docs/35 §3.2) is the same screen with «фраз» instead of «слов» in its lines.
  */
 
 /** Courses with an IELTS / SAT mock (docs/13 §8.4); the server refuses the others anyway. */
@@ -60,6 +60,9 @@ const { opening, openError } = storeToRefs(training)
 const { openingMock, mockPaywall, mockError } = storeToRefs(exam)
 
 useBackButton({ name: 'courses' })
+
+/** A course of phrases: the lines count phrases, not words. */
+const phrases = computed(() => isPhraseCourse(detail.value))
 
 /** Readiness for the level has something to count only in a course with words. */
 const offersReadiness = computed(() => (detail.value?.words_count ?? 0) > 0)
@@ -106,14 +109,15 @@ function lessonHint(lesson: CourseLesson): string {
   const { done, total } = lesson.progress
   const state = lessonState(lesson)
   if (state === 'done') return t('course.repeat')
-  if (state === 'started') return tn('course.lesson_words', total, { done, total })
+  if (state === 'started') return tn(phrases.value ? 'course.lesson_phrases' : 'course.lesson_words', total, { done, total })
   if (afterCurrent.value?.id === lesson.id) return t('course.after_lesson', { number: afterCurrent.value.number })
-  return tn('catalog.words', total)
+  return tn(phrases.value ? 'catalog.phrases' : 'catalog.words', total)
 }
 
 /** The line of the current lesson: "5 new words" before it is begun, "3 of 10 words" after. */
 function currentWords(lesson: CourseLesson): string {
   const { done, total } = lesson.progress
+  if (phrases.value) return done > 0 ? tn('course.lesson_phrases', total, { done, total }) : tn('course.new_phrases', total)
   return done > 0 ? tn('course.lesson_words', total, { done, total }) : tn('course.new_words', total)
 }
 
@@ -250,7 +254,7 @@ onBeforeUnmount(() => {
         <p v-if="courseLine" class="text-base leading-[22px] font-bold break-words" data-testid="course-line">{{ courseLine }}</p>
         <p class="text-lg leading-6" :class="{ 'mt-2': courseLine }" data-testid="progress-text">
           <span class="font-extrabold">{{ detail.progress.done }}</span>
-          {{ tn('course.words_of', detail.progress.total, { total: detail.progress.total }) }}
+          {{ tn(phrases ? 'course.phrases_of' : 'course.words_of', detail.progress.total, { total: detail.progress.total }) }}
         </p>
         <div class="mt-2 flex items-center gap-2.5">
           <ProgressLine
@@ -290,7 +294,7 @@ onBeforeUnmount(() => {
         >
           {{ chooseLabel }}
         </button>
-        <p class="mt-2 px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="choose-hint">{{ t('course.choose_hint') }}</p>
+        <p class="mt-2 px-4 text-center text-[13px] leading-[18px] text-muted" data-testid="choose-hint">{{ t(phrases ? 'course.choose_hint_phrases' : 'course.choose_hint') }}</p>
       </template>
       <p
         v-else-if="allLessonsDone"

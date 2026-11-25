@@ -21,12 +21,19 @@ import { useI18n } from '@/i18n'
  * focusable, so a screen reader still reads the verdict ("right answer") after the check. The arrow keys move the focus to
  * the previous / next option of the group (Tab still walks them one by one); Enter and Space pick, as on any button.
  * The box is at least 58 px high (48 px in a low window): the touch area is well over 44 px.
+ *
+ * `long` - the options of a phrase card (docs/35 §3.3 d): whole phrases or their translations. The text is a size smaller and wraps over
+ * as many lines as it needs (the box grows with it, nothing is clipped), the caption of the verdict goes under the text instead of
+ * beside it, and the round indicator stays on the right, in the middle of the box. `lang` - the language of the label (`en` for English
+ * phrases), for the screen reader.
  */
 const props = defineProps<{
   label: string
   index: number
   state: OptionState
   disabled?: boolean
+  long?: boolean
+  lang?: string
 }>()
 
 const emit = defineEmits<{
@@ -90,8 +97,10 @@ function onArrow(event: KeyboardEvent, step: 1 | -1): void {
   <button
     type="button"
     role="radio"
-    class="option min-h-[58px] justify-between text-[18px] leading-6 short:min-h-12"
+    class="option min-h-[58px] justify-between"
     :class="{
+      'text-[18px] leading-6 short:min-h-12': !long,
+      'py-3 text-base leading-[22px] short:min-h-12 short:py-2.5': long,
       'bg-transparent text-muted shadow-[inset_0_0_0_1px_var(--app-divider)]': dimmed,
       'cursor-default active:scale-100': disabled,
     }"
@@ -100,15 +109,25 @@ function onArrow(event: KeyboardEvent, step: 1 | -1): void {
     :data-testid="`option-${index}`"
     :data-state="state"
     :data-dimmed="dimmed ? 'true' : undefined"
+    :data-long="long ? 'true' : undefined"
     @click="onClick"
     @keydown.down="onArrow($event, 1)"
     @keydown.right="onArrow($event, 1)"
     @keydown.up="onArrow($event, -1)"
     @keydown.left="onArrow($event, -1)"
   >
-    <span class="min-w-0 flex-1 break-words">{{ label }}</span>
+    <span v-if="long" class="min-w-0 flex-1 break-words">
+      <span class="block" :lang="lang" data-testid="option-label">{{ label }}</span>
+      <span
+        v-if="caption"
+        class="mt-0.5 block text-[13px] leading-[18px]"
+        :class="state === 'incorrect' ? 'font-normal' : 'font-medium'"
+        :data-testid="`option-caption-${index}`"
+      >{{ caption }}</span>
+    </span>
+    <span v-else class="min-w-0 flex-1 break-words" :lang="lang">{{ label }}</span>
     <span
-      v-if="caption"
+      v-if="caption && !long"
       class="shrink-0 text-[13px] leading-[18px]"
       :class="state === 'incorrect' ? 'font-normal' : 'font-medium'"
       :data-testid="`option-caption-${index}`"

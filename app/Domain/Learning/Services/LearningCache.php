@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learning\Services;
 
+use App\Domain\Content\Services\PlatformDistractorPool;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
@@ -218,9 +219,15 @@ final class LearningCache
         $this->forgetLessonId((int) $lesson->id);
     }
 
+    /**
+     * The words of the lesson changed (an import, an edit, `is_active`): its word count and its pool of distractors go, and - with
+     * the same command - the pool of the platform ({@see PlatformDistractorPool}), which may hold words of this lesson. The lesson
+     * of a learner's deck is not in that pool, yet asking whose lesson it is would cost a statement on every write; dropping an
+     * entry that is refilled by one bounded statement costs less.
+     */
     public function forgetLessonId(int $lessonId): void
     {
-        PureCache::forgetMany(["lesson:{$lessonId}:word_count", self::distractorsKey($lessonId)]);
+        PureCache::forgetMany(["lesson:{$lessonId}:word_count", self::distractorsKey($lessonId), ...PlatformDistractorPool::keys()]);
     }
 
     private static function distractorsKey(int $lessonId): string

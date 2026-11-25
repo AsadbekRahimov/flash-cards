@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Cup\Services;
 
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Cup\Exceptions\CupException;
 use App\Domain\Cup\Support\CupSeeds;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Practice\Support\SeededShuffle;
-use App\Domain\Content\Support\Phrase;
 use App\Models\Course;
 use App\Models\Cup;
 use Illuminate\Database\Query\Builder;

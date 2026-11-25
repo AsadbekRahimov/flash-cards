@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Observers;
 
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Content\Services\PlatformDistractorPool;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Stage;
@@ -63,8 +64,11 @@ final class CourseTreeObserver
 
     public function deleted(Stage|Lesson|Course $model): void
     {
-        // A deleted course has no readers left; its entries expire by their TTL.
+        // A deleted course has no readers left; its entries expire by their TTL. Its words may still stand in the shared pool of
+        // distractors of the platform, which every other course reads: that one is dropped.
         if ($model instanceof Course) {
+            DB::afterCommit(static fn () => PlatformDistractorPool::forget());
+
             return;
         }
 

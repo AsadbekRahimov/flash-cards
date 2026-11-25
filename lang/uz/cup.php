@@ -54,7 +54,7 @@ return [
 
     // A duel of the cup published in the chat (docs/33 §6.1, §5.7): one message, edited with the outcome - never a new one.
     'duel' => [
-        'open_any' => "⚔️ :challenger kubokning istalgan ishtirokchisini duelga chaqiradi",
+        'open_any' => '⚔️ :challenger kubokning istalgan ishtirokchisini duelga chaqiradi',
         'open_to' => '⚔️ :challenger duelga chaqiradi: :opponent',
         'rated' => "Hisobli duel: har kimga o'z to'g'ri javobi uchun kubok bali, :max tagacha.",
         'friendly' => "O'rtoqlik o'yini: kubok ballarisiz.",

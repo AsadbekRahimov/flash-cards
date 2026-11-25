@@ -21,6 +21,7 @@ import ListRow from '@/components/ui/ListRow.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import ProgressLine from '@/components/ui/ProgressLine.vue'
+import { isPhraseCourse } from '@/composables/courseLabels'
 import { dayPlanSteps, gameStepExpected, type DayPlanStepKey } from '@/composables/dayPlan'
 import { formatDate } from '@/composables/format'
 import { hasLearnerProgress } from '@/composables/learnerProgress'
@@ -38,6 +39,7 @@ import { markTiming } from '@/composables/useTimingMarks'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
+import { useCoursesStore } from '@/stores/courses'
 import { useCupsStore } from '@/stores/cups'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
@@ -64,6 +66,7 @@ const training = useTrainingStore()
 const assignments = useAssignmentsStore()
 const billing = useBillingStore()
 const cups = useCupsStore()
+const catalog = useCoursesStore()
 const { close } = useTelegram()
 const { data, status, errorMessage: loadError } = storeToRefs(today)
 const { opening, openError } = storeToRefs(training)
@@ -502,13 +505,35 @@ const planNotes = computed((): Partial<Record<DayPlanStepKey, string>> => {
   const current = plan.value
   if (current === null) return {}
   const words = current.lesson.done ? (current.training?.words ?? null) : current.lesson.words_left
-  return words !== null && words > 0 ? { lesson: tn('today.hero.new_words', words) } : {}
+  return words !== null && words > 0 ? { lesson: tn(planPhrases.value ? 'today.hero.new_phrases' : 'today.hero.new_words', words) } : {}
 })
 
 /** «Урок «Напитки» пройден» over the steps 2 and 3; a lesson out of the active course has no title (docs/04 A.2a). */
 const lessonDoneLine = computed(() => {
   const title = plan.value?.training?.title ?? null
   return title !== null && title !== '' ? t('today.hero.lesson_done_named', { title }) : t('today.hero.lesson_done')
+})
+
+/**
+ * The active course is a course of phrases (docs/35 §3.2): the lesson card and the plan say «фразы» instead of «слова». `/today` does not
+ * name the section of its course, and no request is made for it: the catalog this run has already read (the list, or the open course)
+ * says it; without one the card says «слова», as before.
+ */
+const activePhrases = computed((): boolean => {
+  const slug = data.value?.active_course?.slug
+  if (!slug) return false
+  const row = catalog.courses.find((course) => course.slug === slug) ?? (catalog.detail?.slug === slug ? catalog.detail : null)
+  return isPhraseCourse(row)
+})
+/**
+ * The lesson of the day is of that course of phrases: step 1 is always the next lesson of the active course; after it, the lesson is surely
+ * of the active course only when the server names it (`plan.training.title` is given only for such a lesson, docs/04 A.2a).
+ */
+const planPhrases = computed((): boolean => {
+  if (!activePhrases.value) return false
+  const current = plan.value
+  if (current === null || !current.lesson.done) return true
+  return typeof current.training?.title === 'string'
 })
 
 /** The Free quota left for today (`null`: no limit): the lesson card quotes it, and with nothing left it leads to Pro instead of the lesson. */
@@ -524,17 +549,24 @@ const hero = computed((): { eyebrow: string; title: string; text: string; note: 
     const level = data.value?.active_course?.readiness?.level_label ?? null
     const number = t('course.lesson', { number: lesson.lesson })
     const wordsLeft = current.lesson.words_left ?? lesson.words_left ?? null
+    const phrases = activePhrases.value
+    const eyebrow = phrases
+      ? (level ? t('today.hero.lesson_eyebrow_phrases', { level, number: lesson.lesson }) : t('today.hero.lesson_eyebrow_phrases_plain', { number: lesson.lesson }))
+      : (level ? t('today.hero.lesson_eyebrow', { level, number: lesson.lesson }) : t('today.hero.lesson_eyebrow_plain', { number: lesson.lesson }))
     return {
-      eyebrow: level ? t('today.hero.lesson_eyebrow', { level, number: lesson.lesson }) : t('today.hero.lesson_eyebrow_plain', { number: lesson.lesson }),
+      eyebrow,
       title: lesson.title ?? number,
-      text: wordsLeft !== null && wordsLeft > 0 ? tn('today.hero.new_words', wordsLeft) : '',
+      text: wordsLeft !== null && wordsLeft > 0 ? tn(phrases ? 'today.hero.new_phrases' : 'today.hero.new_words', wordsLeft) : '',
       note: quotaLeft.value === null ? '' : quotaLeft.value > 0 ? t('today.new.remaining', { count: quotaLeft.value }) : t('today.new.exhausted'),
     }
   }
   if (step === 2 && current.training) {
-    return { eyebrow: lessonDoneLine.value, title: t('today.hero.training_title'), text: tn('today.hero.training_text', current.training.words), note: '' }
+    const text = tn(planPhrases.value ? 'today.hero.training_text_phrases' : 'today.hero.training_text', current.training.words)
+    return { eyebrow: lessonDoneLine.value, title: t('today.hero.training_title'), text, note: '' }
   }
-  if (step === 3) return { eyebrow: lessonDoneLine.value, title: t('today.hero.game_title'), text: t('today.hero.game_text'), note: '' }
+  if (step === 3) {
+    return { eyebrow: lessonDoneLine.value, title: t('today.hero.game_title'), text: t(planPhrases.value ? 'today.hero.game_text_phrases' : 'today.hero.game_text'), note: '' }
+  }
   // "New lesson - tomorrow" only when it is so: the Free quota of new words is used up; else a lesson may still be taken today.
   return { eyebrow: '', title: t('today.hero.done_title'), text: t(quotaLeft.value === 0 ? 'today.hero.done_text' : 'today.hero.done_text_open'), note: '' }
 })

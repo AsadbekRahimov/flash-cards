@@ -2,9 +2,11 @@
 import { computed, onMounted, watch } from 'vue'
 import type { Card, ChoiceResult } from '@/api/types'
 import ChoiceFeedback from '@/components/ChoiceFeedback.vue'
+import PhraseLabels from '@/components/PhraseLabels.vue'
 import QuizOption from '@/components/QuizOption.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useChoice } from '@/composables/useChoice'
+import { phraseHeadingClass } from '@/composables/phraseText'
 import { useSayAloudHint } from '@/composables/useSayAloudHint'
 import { useTelegram } from '@/composables/useTelegram'
 import { useTts } from '@/composables/useTts'
@@ -17,6 +19,9 @@ import { useI18n } from '@/i18n'
  * with the rest of the screen (`result.revealed`); the word is shown from then on. `advance` says when the next card may
  * appear: a right pick moves on by itself after a short pause; a wrong one stays on screen (the right option, the word and
  * the example are shown) until "Next" (docs/14 N6).
+ *
+ * A phrase card (`card.phrase`, docs/35 §3.3 d): the labels are under the speaker, the options (translations of phrases) are long, the
+ * phrase shown after the answer takes a size by its length, and the answer panel adds «Буквально: …» from `result.revealed.phrase`.
  */
 const props = defineProps<{
   card: Card
@@ -39,6 +44,7 @@ const { t } = useI18n()
 const { show: sayAloud } = useSayAloudHint()
 
 const options = computed((): string[] => props.card.prompt?.options ?? [])
+const phrase = computed(() => props.card.phrase ?? null)
 
 const { picked, stateOf, isCorrect, awaitingConfirm, confirmed, pick, confirm } = useChoice(
   options,
@@ -65,6 +71,7 @@ const shown = computed((): Card => {
     hook: r.hook,
     note: r.note,
     confused_with: r.confused_with,
+    phrase: r.phrase ?? props.card.phrase ?? null,
   }
 })
 
@@ -125,12 +132,20 @@ onMounted(play)
         <!-- The slot keeps its height: the word that replaces the hint after the pick must not push the options down. -->
         <div class="flex min-h-[64px] flex-col items-center justify-center">
           <template v-if="isCorrect !== null">
-            <h2 class="max-w-full text-[32px] leading-[38px] font-extrabold tracking-[-0.6px] break-words" lang="en" data-testid="word">{{ shown.word }}</h2>
+            <h2
+              v-if="phrase"
+              class="max-w-full font-extrabold text-balance break-words"
+              :class="phraseHeadingClass(shown.word, true)"
+              lang="en"
+              data-testid="word"
+            >{{ shown.word }}</h2>
+            <h2 v-else class="max-w-full text-[32px] leading-[38px] font-extrabold tracking-[-0.6px] break-words" lang="en" data-testid="word">{{ shown.word }}</h2>
             <p v-if="shown.transcription" class="font-ipa text-[15px] leading-5 text-muted" data-testid="transcription">
               {{ shown.transcription }}
             </p>
           </template>
           <p v-else class="text-[13px] leading-[18px] text-muted" data-testid="replay-hint">{{ t('exercise.audio.replay_hint') }}</p>
+          <PhraseLabels v-if="phrase" :phrase="phrase" class="mt-1.5" />
           <p v-if="picked === null && sayAloud" class="mt-1 text-[13px] leading-[18px] text-muted" data-testid="say-aloud">{{ t('card.say_aloud') }}</p>
         </div>
       </div>
@@ -148,6 +163,7 @@ onMounted(play)
           :index="index"
           :state="stateOf(index)"
           :disabled="disabled || picked !== null"
+          :long="phrase !== null"
           @pick="onPick"
         />
       </div>

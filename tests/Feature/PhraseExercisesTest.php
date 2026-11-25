@@ -9,6 +9,7 @@ declare(strict_types=1);
  * the answer away; and a phrase costs no statement more than a word on `/next`, `/review` and on the third layer of options.
  */
 
+use App\Domain\Content\Services\PlatformDistractorPool;
 use App\Domain\Content\Services\VocabularyImporter;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Learning\Enums\ExerciseType;
@@ -267,7 +268,7 @@ it('costs a phrase no statement more than a word on every step of the training c
         ->and($phrase['ahead'])->toBeLessThanOrEqual(14);
 })->with(['phrases first' => [true], 'words first' => [false]]);
 
-it('reads the third layer of options of a phrase in one statement, as for a word', function (): void {
+it('reads the third layer of options of a phrase from its own entry of the platform pool, as for a word: one statement on a miss, none on a hit', function (): void {
     PhraseKit::import();
     Fx::course([1 => [1 => 30]], ['slug' => 'words-public']);
     phxPhraseCourse('phrases-small', [['break a leg', 'leg'], ['spill the beans', 'beans']]);
@@ -282,11 +283,21 @@ it('reads the third layer of options of a phrase in one statement, as for a word
     $builder->build(ExerciseType::Reverse, $phrase, $phraseTranslation, 'ru', null, 1);
     $builder->build(ExerciseType::Reverse, $word, $wordTranslation, 'ru', null, 1);
 
+    // The pool of the platform is cached (docs/38, «Дополнение: варианты ответа»): the course layer is the only statement on `words`.
     $forPhrase = QueryLog::during(fn () => $builder->build(ExerciseType::Reverse, $phrase, $phraseTranslation, 'ru', null, 1));
     $forWord = QueryLog::during(fn () => $builder->build(ExerciseType::Reverse, $word, $wordTranslation, 'ru', null, 1));
 
-    expect(count($forPhrase))->toBe(count($forWord))
-        ->and(QueryLog::matching($forPhrase, '/from ["`]words["`]/'))->toHaveCount(2) // the course layer, the platform layer
-        ->and(QueryLog::matching($forPhrase, '/["`]exam_tag["`] = \?/'))->toHaveCount(1)
-        ->and(QueryLog::matching($forWord, '/["`]exam_tag["`] is null or ["`]courses["`]\.["`]exam_tag["`] <> \?/'))->toHaveCount(1);
+    expect(count($forPhrase))->toBe(count($forWord))->toBe(3) // the course of the card (two key lookups), the course layer
+        ->and(QueryLog::matching($forPhrase, '/from ["`]words["`]/'))->toHaveCount(1)
+        ->and(QueryLog::matching($forPhrase, '/["`]courses["`]/'))->toBe([])
+        ->and(QueryLog::matching($forWord, '/["`]courses["`]/'))->toBe([]);
+
+    // On a miss each kind fills its own entry with one statement, by its own filter of the courses.
+    PlatformDistractorPool::forget();
+    $coldPhrase = QueryLog::during(fn () => $builder->build(ExerciseType::Reverse, $phrase, $phraseTranslation, 'ru', null, 1));
+    $coldWord = QueryLog::during(fn () => $builder->build(ExerciseType::Reverse, $word, $wordTranslation, 'ru', null, 1));
+
+    expect(count($coldPhrase))->toBe(count($coldWord))->toBe(4)
+        ->and(QueryLog::matching($coldPhrase, '/["`]exam_tag["`] = \?/'))->toHaveCount(1)
+        ->and(QueryLog::matching($coldWord, '/["`]exam_tag["`] is null or ["`]courses["`]\.["`]exam_tag["`] <> \?/'))->toHaveCount(1);
 });

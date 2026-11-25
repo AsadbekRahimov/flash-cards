@@ -11,6 +11,7 @@ use App\Domain\Cup\Services\CupLifecycleService;
 use App\Domain\Cup\Services\CupMembershipGate;
 use App\Domain\Cup\Services\CupParticipationService;
 use App\Domain\Cup\Services\CupScheduler;
+use App\Domain\Cup\Services\CupWordPlanner;
 use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Operations\Support\PureCache;
 use App\Domain\Practice\Enums\BattleEndReason;
@@ -22,17 +23,21 @@ use App\Domain\Practice\Services\PracticeLimits;
 use App\Jobs\PostCupMessageJob;
 use App\Jobs\ScoreCupDuelJob;
 use App\Models\Battle;
+use App\Models\Course;
 use App\Models\CupDuel;
 use App\Models\CupParticipant;
 use App\Models\Learner;
 use App\Models\ProductEvent;
 use App\Models\TelegramGroup;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Tests\Support\Cup\CupDuelKit;
 use Tests\Support\Cup\CupKit;
 use Tests\Support\Practice\BattleKit;
@@ -250,7 +255,7 @@ it('refuses to accept your own challenge, somebody else\'s addressed one, a clos
         ->and(duelRefusal(fn () => CupDuelKit::accept($c, $duel))[0])->toBe('cup_duel_not_found')
         ->and(duelRefusal(fn () => CupDuelKit::accept($stranger, $duel))[0])->toBe('cup_duel_not_found')
         ->and(duelRefusal(fn () => CupDuelKit::accept($b, 999_999))[0])->toBe('cup_duel_not_found')
-        ->and(duelRefusal(fn () => CupDuelKit::accept($b, $duel, true, $now->addMinutes(10)))) ->toBe(['cup_duel_closed', ['status' => 'expired', 'reason' => 'expired']])
+        ->and(duelRefusal(fn () => CupDuelKit::accept($b, $duel, true, $now->addMinutes(10))))->toBe(['cup_duel_closed', ['status' => 'expired', 'reason' => 'expired']])
         ->and(CupDuelKit::fresh($duel)->status)->toBe(CupDuelStatus::Expired)
         ->and(Battle::query()->count())->toBe(0);
 });
@@ -594,7 +599,7 @@ it('voids a duel whose battle is gone', function (): void {
 
 it('leaves an ordinary battle alone: its end queues no scoring', function (): void {
     Queue::fake([ScoreCupDuelJob::class]);
-    Illuminate\Support\Facades\Storage::fake('practice_audio');
+    Storage::fake('practice_audio');
     [$me, $friend, $course, , $friendship] = BattleKit::world();
     $battle = BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course);
     BattleKit::service()->decline($friend, $battle->id);
@@ -608,33 +613,33 @@ it('keeps the shape of a duel on PostgreSQL: one open challenge per participant,
     ['cup' => $cup, 'learners' => [$a], 'participants' => [$pa, $pb]] = CupDuelKit::running();
     $duel = CupDuelKit::challenge($a, $cup, $pb)->duel;
 
-    expect(fn () => DB::transaction(fn () => CupDuel::factory()->create(['cup_id' => $cup->id, 'challenger_participant_id' => $pa->id])))->toThrow(Illuminate\Database\QueryException::class)
-        ->and(fn () => DB::transaction(fn () => DB::table('cup_duels')->where('id', $duel->id)->update(['status' => 'done'])))->toThrow(Illuminate\Database\QueryException::class)
-        ->and(fn () => DB::transaction(fn () => DB::table('cup_duels')->where('id', $duel->id)->update(['challenger_points' => 6])))->toThrow(Illuminate\Database\QueryException::class);
+    expect(fn () => DB::transaction(fn () => CupDuel::factory()->create(['cup_id' => $cup->id, 'challenger_participant_id' => $pa->id])))->toThrow(QueryException::class)
+        ->and(fn () => DB::transaction(fn () => DB::table('cup_duels')->where('id', $duel->id)->update(['status' => 'done'])))->toThrow(QueryException::class)
+        ->and(fn () => DB::transaction(fn () => DB::table('cup_duels')->where('id', $duel->id)->update(['challenger_points' => 6])))->toThrow(QueryException::class);
 
     DB::table('cup_duel_slots')->insert(['cup_id' => $cup->id, 'participant_id' => $pa->id, 'day' => 1, 'cup_duel_id' => $duel->id]);
     expect(fn () => DB::transaction(fn () => DB::table('cup_duel_slots')->insert(['cup_id' => $cup->id, 'participant_id' => $pa->id, 'day' => 1, 'cup_duel_id' => $duel->id])))
-        ->toThrow(Illuminate\Database\QueryException::class);
+        ->toThrow(QueryException::class);
 })->skip(fn (): bool => DB::getDriverName() !== 'pgsql', 'The CHECK constraints are PostgreSQL only.');
 
 it('rolls the tables of the duel back and forth with the link of the battles', function (): void {
     $path = 'database/migrations/2026_11_29_100001_create_cup_duels_tables.php';
     $this->artisan('migrate:rollback', ['--path' => $path])->assertSuccessful();
-    expect(Illuminate\Support\Facades\Schema::hasTable('cup_duels'))->toBeFalse()
-        ->and(Illuminate\Support\Facades\Schema::hasColumn('battles', 'cup_duel_id'))->toBeFalse()
-        ->and(Illuminate\Support\Facades\Schema::hasColumn('battles', 'limit_exempt'))->toBeFalse();
+    expect(Schema::hasTable('cup_duels'))->toBeFalse()
+        ->and(Schema::hasColumn('battles', 'cup_duel_id'))->toBeFalse()
+        ->and(Schema::hasColumn('battles', 'limit_exempt'))->toBeFalse();
 
     $this->artisan('migrate', ['--path' => $path])->assertSuccessful();
-    expect(Illuminate\Support\Facades\Schema::hasTable('cup_duel_slots'))->toBeTrue()
-        ->and(Illuminate\Support\Facades\Schema::hasIndex('cup_duels', 'cup_duels_open_expiry_idx'))->toBeTrue()
-        ->and(Illuminate\Support\Facades\Schema::hasIndex('battles', 'battles_cup_duel_id_unique'))->toBeTrue();
+    expect(Schema::hasTable('cup_duel_slots'))->toBeTrue()
+        ->and(Schema::hasIndex('cup_duels', 'cup_duels_open_expiry_idx'))->toBeTrue()
+        ->and(Schema::hasIndex('battles', 'battles_cup_duel_id_unique'))->toBeTrue();
 });
 
 it('never plays a cup (and so a duel) on a course of phrases, even one placed first or named in the config (docs/35 §3.3 c)', function (): void {
     CupKit::open();
     $words = CupKit::course();
-    $phrases = App\Models\Course::factory()->published()->create(['slug' => 'phrases-a2', 'level' => 'A2', 'position' => 0, 'exam_tag' => 'phrases']);
-    $planner = app(App\Domain\Cup\Services\CupWordPlanner::class);
+    $phrases = Course::factory()->published()->create(['slug' => 'phrases-a2', 'level' => 'A2', 'position' => 0, 'exam_tag' => 'phrases']);
+    $planner = app(CupWordPlanner::class);
 
     expect($planner->courseForLevel('A2')?->id)->toBe($words->id);
     config(['cup.level_courses.A2' => $phrases->slug]);

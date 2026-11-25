@@ -196,6 +196,18 @@ export const uz: Translations = {
     one: "{count} ta yangi so'z",
     other: "{count} ta yangi so'z",
   },
+  // The active course is a course of phrases (docs/35 §3.2): the same card says «iboralar».
+  'today.hero.lesson_eyebrow_phrases': '{level} · iboralar {number}-darsi',
+  'today.hero.lesson_eyebrow_phrases_plain': 'Iboralar {number}-darsi',
+  'today.hero.new_phrases': {
+    one: '{count} ta yangi ibora',
+    other: '{count} ta yangi ibora',
+  },
+  'today.hero.training_text_phrases': {
+    one: '{count} ta iborani mustahkamlang',
+    other: '{count} ta iborani mustahkamlang',
+  },
+  'today.hero.game_text_phrases': "Shu dars iboralari bilan o'yin",
   'today.hero.lesson_start': 'Darsni boshlash',
   'today.hero.lesson_done': "Dars o'tildi",
   'today.hero.lesson_done_named': "«{title}» darsi o'tildi",
@@ -336,6 +348,30 @@ export const uz: Translations = {
   'exercise.pretest.skip': 'Bilmayman',
   'exercise.pretest.known': "Siz bu so'zni allaqachon bilasiz — uni kamroq ko'rsatamiz.",
   'exercise.pretest.learn': "Yangi so'z. Uni eslab qoling",
+
+  // ---- phrase cards (docs/35 §3.3 d, docs/06 §16) ----
+  'exercise.meaning.title_phrase': 'Iboraning tarjimasini tanlang',
+  'exercise.reverse.title_phrase': 'Inglizcha iborani tanlang',
+  'exercise.gap_fill.title_phrase': "Iboradagi tushib qolgan so'zni yozing",
+  'exercise.pretest.title_phrase': 'Iborani bilsangiz, tarjimasini tanlang',
+  'exercise.pretest.known_phrase': "Siz bu iborani allaqachon bilasiz — uni kamroq ko'rsatamiz.",
+  'exercise.pretest.learn_phrase': 'Yangi ibora. Uni eslab qoling',
+  'exercise.miss.returns_lesson_phrase': 'Ibora shu darsda yana qaytadi.',
+  'exercise.miss.returns_round_phrase': 'Ibora shu raundda yana qaytadi.',
+  'phrase.labels': 'Ibora belgilari',
+  'phrase.literal': "So'zma-so'z",
+  'phrase.register.neutral': 'neytral',
+  'phrase.register.informal': "so'zlashuv",
+  'phrase.register.formal': 'rasmiy',
+  'phrase.register.slang': 'sleng',
+  'phrase.register.rude': "qo'pol",
+  'phrase.variant.uk': 'UK',
+  'phrase.variant.us': 'US',
+  'phrase.kind.formula': "so'zlashuv iborasi",
+  'phrase.kind.fixed': "turg'un ibora",
+  'phrase.kind.idiom': 'idioma',
+  'phrase.kind.phrasal_verb': "frazali fe'l",
+  'phrase.kind.proverb': 'maqol',
 
   // ---- exam ----
   'exam.closed_title': "O'qituvchi imtihonni yakunladi",
@@ -650,6 +686,13 @@ export const uz: Translations = {
     one: "{count} ta so'z",
     other: "{count} ta so'z",
   },
+  'catalog.phrases': {
+    one: '{count} ta ibora',
+    other: '{count} ta ibora',
+  },
+  'catalog.phrases_title': 'Iboralar',
+  'catalog.phrases_hint': "Jonli iboralar: idiomalar, frazali fe'llar, so'zlashuv iboralari. Iboralar darsini asosiy kursni o'zgartirmasdan o'tish mumkin.",
+  'catalog.goal.phrases': "So'zlashuv iboralari",
   'catalog.progress': "{total} tadan {done} tasi o'rganildi",
   'catalog.goal.general': 'Umumiy ingliz tili',
   'catalog.goal.school': 'Maktab',
@@ -687,6 +730,20 @@ export const uz: Translations = {
     one: "{total} ta so'zdan {done} tasi",
     other: "{total} ta so'zdan {done} tasi",
   },
+  // A course of phrases (`section = phrases`, docs/35 §3.3 a): the same lines with «ibora» instead of «so'z».
+  'course.phrases_of': {
+    one: '/ {total} ta ibora',
+    other: '/ {total} ta ibora',
+  },
+  'course.new_phrases': {
+    one: '{count} ta yangi ibora',
+    other: '{count} ta yangi ibora',
+  },
+  'course.lesson_phrases': {
+    one: '{total} ta iboradan {done} tasi',
+    other: '{total} ta iboradan {done} tasi',
+  },
+  'course.choose_hint_phrases': "Kunlik mashg'ulotdagi yangi iboralar shu kursdan bo'ladi",
 
   // ---- learner decks ----
   'decks.title': "Mening to'plamlarim",

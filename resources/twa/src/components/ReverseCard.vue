@@ -2,9 +2,11 @@
 import { computed, watch } from 'vue'
 import type { Card, ChoiceResult } from '@/api/types'
 import ChoiceFeedback from '@/components/ChoiceFeedback.vue'
+import PhraseLabels from '@/components/PhraseLabels.vue'
 import QuizOption from '@/components/QuizOption.vue'
 import { useChoice } from '@/composables/useChoice'
 import { useAutoSpeak } from '@/composables/useAutoSpeak'
+import { phraseHeadingClass } from '@/composables/phraseText'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 
@@ -14,6 +16,10 @@ import { useI18n } from '@/i18n'
  * (`pick`) and saved at once, the SERVER grades it, and `result` brings the verdict with the word and the rest of the
  * screen (`result.revealed`). `advance` says when the next card may appear: a right pick moves on by itself after a short
  * pause; a wrong one stays on screen (the right option and the example are shown) until "Next" (docs/14 N6).
+ *
+ * A phrase card (`card.phrase`, docs/35 §3.3 d): the translation of the phrase takes a size by its length, the labels (register, UK / US,
+ * kind - none of them gives the phrase away) are under it, the options are whole English phrases on several lines, and the answer panel
+ * adds «Буквально: …» from `result.revealed.phrase`.
  */
 const props = defineProps<{
   card: Card
@@ -36,6 +42,8 @@ const { t } = useI18n()
 
 const options = computed((): string[] => props.card.prompt?.options ?? [])
 const front = computed((): string => props.card.prompt?.front || props.card.translation)
+const phrase = computed(() => props.card.phrase ?? null)
+const title = computed((): string => t(phrase.value ? 'exercise.reverse.title_phrase' : 'exercise.reverse.title'))
 
 const { picked, stateOf, isCorrect, awaitingConfirm, confirmed, pick, confirm } = useChoice(
   options,
@@ -61,6 +69,7 @@ const shown = computed((): Card => {
     hook: r.hook,
     note: r.note,
     confused_with: r.confused_with,
+    phrase: r.phrase ?? props.card.phrase ?? null,
   }
 })
 
@@ -99,14 +108,24 @@ function onContinue(): void {
         :class="answered ? 'mt-[22px] gap-1.5 short:mt-3 short:gap-1' : 'mt-[30px] gap-2 short:mt-4 short:gap-1.5'"
       >
         <span v-if="card.is_leech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
-        <p class="text-base leading-[22px] text-muted" data-testid="exercise-title">{{ t('exercise.reverse.title') }}</p>
+        <p class="text-base leading-[22px] text-muted" data-testid="exercise-title">{{ title }}</p>
         <h2
+          v-if="phrase"
+          class="max-w-full font-extrabold text-balance break-words"
+          :class="phraseHeadingClass(front, answered)"
+          data-testid="front"
+        >
+          {{ front }}
+        </h2>
+        <h2
+          v-else
           class="max-w-full font-extrabold break-words"
           :class="answered ? 'text-[32px] leading-[38px] tracking-[-0.6px] short:text-[28px] short:leading-[34px]' : 'text-[40px] leading-[46px] tracking-[-0.8px] short:text-[32px] short:leading-[38px]'"
           data-testid="front"
         >
           {{ front }}
         </h2>
+        <PhraseLabels v-if="phrase" :phrase="phrase" />
         <p v-if="card.translation_fallback" class="text-[13px] leading-[18px] text-muted" data-testid="translation-fallback">
           {{ t('card.translation_fallback') }}
         </p>
@@ -116,7 +135,7 @@ function onContinue(): void {
         class="flex flex-col gap-2.5 short:gap-2"
         :class="answered ? 'mt-[22px] short:mt-3' : 'mt-[34px] short:mt-4'"
         role="radiogroup"
-        :aria-label="t('exercise.reverse.title')"
+        :aria-label="title"
       >
         <QuizOption
           v-for="(label, index) in options"
@@ -125,6 +144,8 @@ function onContinue(): void {
           :index="index"
           :state="stateOf(index)"
           :disabled="disabled || picked !== null"
+          :long="phrase !== null"
+          :lang="phrase ? 'en' : undefined"
           @pick="onPick"
         />
       </div>

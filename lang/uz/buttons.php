@@ -33,5 +33,5 @@ return [
     'cup_rules' => '📖 Qoidalar',
     'cup_final_table' => '🏆 Yakuniy jadval',
     'cup_open' => '🏆 Kubokni ochish',
-    'cup_duel_accept' => "⚔️ Chaqiruvni qabul qilish",
+    'cup_duel_accept' => '⚔️ Chaqiruvni qabul qilish',
 ];

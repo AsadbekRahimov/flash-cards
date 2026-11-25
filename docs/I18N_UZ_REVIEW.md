@@ -5073,3 +5073,48 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `today.cup.day` | {days} kundan {day}-kun | День {day} из {days} |
 | `today.cup.go_continue` | Davom ettirish | Продолжить |
 | `today.cup.open` | Ochish | Открыть |
+
+## Выпуск 7 · разговорные фразы в Mini App: карточка, метки, каталог, «Сегодня» (docs/35 F3, 25.11.2026) — на проверку носителю
+
+Фраза по-узбекски — «ibora» (мн. «iboralar»): раздел каталога «Iboralar», счёт «300 ta ibora». Носителю проверить: подходит ли «ibora» для
+английского устойчивого выражения в целом (идиома, формула, фразовый глагол); метки регистра («so'zlashuv» — разговорное, «rasmiy» — официальное,
+«qo'pol» — грубоватое); «so'zma-so'z» как «буквально»; «so'zlashuv iborasi» для разговорной формулы (*How's it going?*), «turg'un ibora» для
+устойчивого выражения; порядок слов в «iboralar 3-darsi» (рус. «урок фраз 3»). «UK» / «US» не переводятся.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `exercise.meaning.title_phrase` | Iboraning tarjimasini tanlang | Выберите перевод фразы |
+| `exercise.reverse.title_phrase` | Inglizcha iborani tanlang | Выберите английскую фразу |
+| `exercise.gap_fill.title_phrase` | Iboradagi tushib qolgan so'zni yozing | Вставьте пропущенное слово во фразу |
+| `exercise.pretest.title_phrase` | Iborani bilsangiz, tarjimasini tanlang | Выберите перевод, если знаете фразу |
+| `exercise.pretest.known_phrase` | Siz bu iborani allaqachon bilasiz — uni kamroq ko'rsatamiz. | Вы уже знаете эту фразу — покажем её реже. |
+| `exercise.pretest.learn_phrase` | Yangi ibora. Uni eslab qoling | Новая фраза. Запомните её |
+| `exercise.miss.returns_lesson_phrase` | Ibora shu darsda yana qaytadi. | Фраза вернётся ещё раз в этом уроке. |
+| `exercise.miss.returns_round_phrase` | Ibora shu raundda yana qaytadi. | Фраза вернётся ещё раз в этом раунде. |
+| `phrase.labels` | Ibora belgilari | Метки фразы |
+| `phrase.literal` | So'zma-so'z | Буквально |
+| `phrase.register.neutral` | neytral | нейтральное |
+| `phrase.register.informal` | so'zlashuv | разговорное |
+| `phrase.register.formal` | rasmiy | официальное |
+| `phrase.register.slang` | sleng | сленг |
+| `phrase.register.rude` | qo'pol | грубоватое |
+| `phrase.variant.uk` | UK | UK |
+| `phrase.variant.us` | US | US |
+| `phrase.kind.formula` | so'zlashuv iborasi | разговорная формула |
+| `phrase.kind.fixed` | turg'un ibora | устойчивое выражение |
+| `phrase.kind.idiom` | idioma | идиома |
+| `phrase.kind.phrasal_verb` | frazali fe'l | фразовый глагол |
+| `phrase.kind.proverb` | maqol | пословица |
+| `catalog.phrases.one/other` | {count} ta ibora | {count} фраза / фразы / фраз |
+| `catalog.phrases_title` | Iboralar | Фразы |
+| `catalog.phrases_hint` | Jonli iboralar: idiomalar, frazali fe'llar, so'zlashuv iboralari. Iboralar darsini asosiy kursni o'zgartirmasdan o'tish mumkin. | Живые выражения: идиомы, фразовые глаголы, разговорные формулы. Урок фраз можно пройти, не меняя основной курс. |
+| `catalog.goal.phrases` | So'zlashuv iboralari | Разговорные фразы |
+| `course.phrases_of.one/other` | / {total} ta ibora | / {total} фразы / фраз |
+| `course.new_phrases.one/other` | {count} ta yangi ibora | {count} новая фраза / новые фразы / новых фраз |
+| `course.lesson_phrases.one/other` | {total} ta iboradan {done} tasi | {done} из {total} фразы / фраз |
+| `course.choose_hint_phrases` | Kunlik mashg'ulotdagi yangi iboralar shu kursdan bo'ladi | Новые фразы в ежедневном занятии будут из этого курса |
+| `today.hero.lesson_eyebrow_phrases` | {level} · iboralar {number}-darsi | {level} · урок фраз {number} |
+| `today.hero.lesson_eyebrow_phrases_plain` | Iboralar {number}-darsi | Урок фраз {number} |
+| `today.hero.new_phrases.one/other` | {count} ta yangi ibora | {count} новая фраза / новые фразы / новых фраз |
+| `today.hero.training_text_phrases.one/other` | {count} ta iborani mustahkamlang | Закрепите {count} фразу / фразы / фраз |
+| `today.hero.game_text_phrases` | Shu dars iboralari bilan o'yin | Игра на фразах этого урока |

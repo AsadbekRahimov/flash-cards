@@ -10,6 +10,9 @@ import { useI18n } from '@/i18n'
  * the bottom of the white screen (`page`, rounded top, a hairline over it) with "word — meaning" and the verdict in words, the
  * example with its speaker and its translation, the hooks (docs/06 §12.3, §12.6) and, after a miss, the line about the word
  * coming back (`missNote`, the screen decides it) and "Next". A right pick has no button: the card moves on by itself.
+ *
+ * A phrase card (`card.phrase`, docs/35 §3.3 d): the phrase and its meaning are two lines (both are long), and «Буквально: …» follows
+ * them when the server sent the literal translation (it comes only with the answer, `revealed.phrase`).
  */
 defineProps<{
   /** The English word (the right one, after the answer). */
@@ -41,7 +44,11 @@ const { t } = useI18n()
     <div class="flex flex-col gap-3 pt-1.5 short:gap-2" data-testid="feedback">
       <div class="flex flex-col gap-0.5">
         <div class="flex items-baseline justify-between gap-3">
-          <p class="min-w-0 text-xl leading-[26px] font-extrabold break-words" data-testid="feedback-title">
+          <p v-if="card.phrase" class="flex min-w-0 flex-col gap-0.5 break-words" data-testid="feedback-title">
+            <span class="text-lg leading-6 font-extrabold" lang="en" data-testid="feedback-phrase">{{ word }}</span>
+            <span class="text-base leading-[22px] font-semibold" data-testid="feedback-meaning">{{ meaning }}</span>
+          </p>
+          <p v-else class="min-w-0 text-xl leading-[26px] font-extrabold break-words" data-testid="feedback-title">
             <span lang="en">{{ word }}</span> — {{ meaning }}
           </p>
           <span
@@ -54,6 +61,10 @@ const { t } = useI18n()
         </div>
         <p v-if="transcription" class="font-ipa text-sm leading-5 text-muted" data-testid="transcription">{{ transcription }}</p>
       </div>
+      <p v-if="card.phrase?.literal" class="text-[15px] leading-5 break-words" data-testid="phrase-literal">
+        <span class="text-muted">{{ t('phrase.literal') }}:</span>
+        {{ card.phrase.literal }}
+      </p>
       <!-- The example and its speaker side by side (docs/26 §9.11): the sentence and its translation wrap beside the button. -->
       <div v-if="card.example" class="flex items-start gap-2.5">
         <div class="flex min-w-0 flex-1 flex-col gap-1">

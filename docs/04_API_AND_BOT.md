@@ -2029,6 +2029,27 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
 (с событием) / 2; вступление — 6; `PATCH /me` — 6 (+ запись свежей проверки членства); старт раунда — 11 (ядро 9), возобновление — 6; `GET /cup-rounds/{id}` — 2;
 `GET …/rounds/today` — 4; ответ неверный / верный — 5 / 10; `GET /cups` — 2 при любом числе кубков (с `me.today`).
 
+#### A.23d Дуэли кубка — черновик для D2 (ядро D1 ✅ 26.11.2026, маршруты — D2; контракт и коды — docs/33 §11.9)
+
+Все маршруты — за `TwaAuth` и `EnsureCupAccess`, выключатель `CUP_DUELS` (иначе 409 `cup_duel_disabled`), ответы — Resource-классы,
+дверь по id кубка — как у остальных маршрутов кубка (`CupMiniApp`, `opaque: true`); дуэль по чужому кубку / чужая адресная — 404
+`cup_duel_not_found`. Лимитеры: `twa-cup-duel` 20/мин (вызов, принятие, отказ, отмена), чтения — `twa-cup-read`.
+
+| Метод и путь | Ядро | Ответ / ошибки |
+|---|---|---|
+| `POST /cups/{id}/duels {opponent_participant_id?, public, mode = pairs, request_id}` | `CupDuelService::challenge()` | 201 / 200 (повтор `request_id`) `CupDuelResource`; 403 `cup_not_member`, `cup_duel_unavailable`, `practice_limit_reached`; 409 `cup_duel_already_open {duel_id}`, `cup_duel_limit {scope, limit}`, `cup_paused`, `cup_not_started`, `cup_round_unavailable`, `cup_duel_disabled`, `practice_mode_disabled`; 410 `cup_closed`; 422 `cup_duel_self`, `cup_duel_mode_invalid`; 503 / 429 — проверка членства |
+| `POST /cups/{id}/duels/{duel}/accept {expect_rated}` | `accept()` | 201 / 200 (повтор) `CupDuelResource` с `battle_id` → экран `/battles/{battle_id}`; 409 `cup_duel_rating_changed {rated}` (показать новый статус и принять ещё раз), `cup_duel_closed {status, reason}`, `cup_duel_own`, `battle_busy {battle_id}`, `cup_duel_opponent_busy`; 403 `cup_duel_unavailable`; 422 `battle_material_unavailable` |
+| `POST /cups/{id}/duels/{duel}/decline` · `/cancel` | `decline()` · `cancel()` | 200 `CupDuelResource`; 403 `cup_duel_not_recipient`; 404; 409 `cup_duel_closed` |
+| `GET /cups/{id}/duels` · `GET /cups/{id}/duels/{duel}` | чтение D2 (docs/33 §11.9) | открытые вызовы мне и открытые всем, мой открытый вызов, мои дуэли сегодня; `rated_offered` / `rated`, `expires_at`, `server_now` |
+
+`CupDuelResource`: `id, status, end_reason, rated_offered, rated, public, mode, day, accepted_day, expires_at, battle_id, challenger
+{participant_id, display_name}, opponent {participant_id, display_name} | null, points {challenger, opponent} | null,
+winner_participant_id`. Без `learner_id`, Telegram id и `request_id` других участников.
+
+Бот (B.16): публичный вызов — строка outbox `duel:{id}` (новое сообщение, url-кнопка «Принять вызов» → `TwaScreen::CupDuel`
+`/cups/c/{code}/duels/{duel}`), исход — строка `duel:{id}:end` — **правка** того же сообщения (`editMessageText`, без кнопок), никогда не новое;
+текст — `CupDuelRenderer::message()` по состоянию дуэли на момент отправки. ЛС адресату / вызвавшему — job D2.
+
 ## Часть B — Telegram Bot
 
 ### B.1 Webhook
