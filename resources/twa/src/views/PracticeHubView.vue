@@ -273,8 +273,11 @@ function playLessonGame(): void {
  * `?play=pairs_timed`: the address loses `play` first (`replace`: "Back" from the game then lands on the hub, not on a new game), then the
  * game opens. Without a lesson, or on a hub that is closed to the learner, nothing is started.
  */
+let autoplayed = false
 async function autoplay(): Promise<void> {
-  if (props.play === null) return
+  // Once per visit: the hub is read again (another plan, another lesson) without the learner asking for the game again.
+  if (props.play === null || autoplayed) return
+  autoplayed = true
   const { play: _play, ...query } = route.query
   await router.replace({ query })
   if (left || props.lessonId === null || hubStatus.value === 'unavailable') return

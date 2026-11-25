@@ -24,22 +24,29 @@ describe('router: practice and battle (docs/16 §11.1)', () => {
   it('the hub: /practice/:slug with the lesson in the query', () => {
     expect(router.resolve({ name: 'practice-hub', params: { slug: 'english-a1' }, query: { lesson: '41' } }).fullPath).toBe('/practice/english-a1?lesson=41')
     expect(router.resolve('/practice/english-a1?lesson=41').name).toBe('practice-hub')
-    expect(propsOf('/practice/english-a1?lesson=41')).toEqual({ slug: 'english-a1', lessonId: 41, from: null })
+    expect(propsOf('/practice/english-a1?lesson=41')).toEqual({ slug: 'english-a1', lessonId: 41, from: null, play: null })
   })
 
   it('the hub of a whole course has no lesson; a lesson that is not a number is none', () => {
-    expect(propsOf('/practice/english-a1')).toEqual({ slug: 'english-a1', lessonId: null, from: null })
-    expect(propsOf('/practice/english-a1?lesson=abc')).toEqual({ slug: 'english-a1', lessonId: null, from: null })
-    expect(propsOf('/practice/english-a1?lesson=0')).toEqual({ slug: 'english-a1', lessonId: null, from: null })
-    expect(propsOf('/practice/english-a1?lesson=-3')).toEqual({ slug: 'english-a1', lessonId: null, from: null })
-    expect(propsOf('/practice/english-a1?lesson=4.5')).toEqual({ slug: 'english-a1', lessonId: null, from: null })
+    expect(propsOf('/practice/english-a1')).toEqual({ slug: 'english-a1', lessonId: null, from: null, play: null })
+    expect(propsOf('/practice/english-a1?lesson=abc')).toEqual({ slug: 'english-a1', lessonId: null, from: null, play: null })
+    expect(propsOf('/practice/english-a1?lesson=0')).toEqual({ slug: 'english-a1', lessonId: null, from: null, play: null })
+    expect(propsOf('/practice/english-a1?lesson=-3')).toEqual({ slug: 'english-a1', lessonId: null, from: null, play: null })
+    expect(propsOf('/practice/english-a1?lesson=4.5')).toEqual({ slug: 'english-a1', lessonId: null, from: null, play: null })
+  })
+
+  it('the hub starts the game of the lesson by ?play=pairs_timed; any other value is none', () => {
+    expect(propsOf('/practice/english-a1?lesson=41&play=pairs_timed')).toEqual({ slug: 'english-a1', lessonId: 41, from: null, play: 'pairs_timed' })
+    expect(propsOf('/practice/english-a1?lesson=41&play=pairs_timed&from=finished')).toEqual({ slug: 'english-a1', lessonId: 41, from: 'finished', play: 'pairs_timed' })
+    expect(propsOf('/practice/english-a1?lesson=41&play=boss')).toEqual({ slug: 'english-a1', lessonId: 41, from: null, play: null })
+    expect(propsOf('/practice/english-a1?lesson=41&play=')).toEqual({ slug: 'english-a1', lessonId: 41, from: null, play: null })
   })
 
   it('the hub knows it was opened from the finish screen: ?from=finished, nothing else counts', () => {
-    expect(propsOf('/practice/english-a1?lesson=41&from=finished')).toEqual({ slug: 'english-a1', lessonId: 41, from: 'finished' })
-    expect(propsOf('/practice/english-a1?from=finished')).toEqual({ slug: 'english-a1', lessonId: null, from: 'finished' })
-    expect(propsOf('/practice/english-a1?lesson=41&from=somewhere')).toEqual({ slug: 'english-a1', lessonId: 41, from: null })
-    expect(propsOf('/practice/english-a1?from=')).toEqual({ slug: 'english-a1', lessonId: null, from: null })
+    expect(propsOf('/practice/english-a1?lesson=41&from=finished')).toEqual({ slug: 'english-a1', lessonId: 41, from: 'finished', play: null })
+    expect(propsOf('/practice/english-a1?from=finished')).toEqual({ slug: 'english-a1', lessonId: null, from: 'finished', play: null })
+    expect(propsOf('/practice/english-a1?lesson=41&from=somewhere')).toEqual({ slug: 'english-a1', lessonId: 41, from: null, play: null })
+    expect(propsOf('/practice/english-a1?from=')).toEqual({ slug: 'english-a1', lessonId: null, from: null, play: null })
   })
 
   it('a session: /practice/sessions/:id, a number only', () => {

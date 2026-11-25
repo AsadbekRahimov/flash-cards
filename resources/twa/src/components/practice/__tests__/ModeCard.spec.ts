@@ -54,12 +54,17 @@ describe('ModeCard — a card that can be played', () => {
     expect(render({ info: info('pairs', { estimate_seconds: 300 }) }).get('[data-testid=mode-estimate]').text()).toBe('≈ 5 мин')
   })
 
-  it('is a row of text: no icon tile, no icon at all, one value on the right', () => {
+  it('is a row with a quiet tile of its mode (docs/design 2026-11-25 Practice): accent icon on the soft accent, one value on the right', () => {
     for (const mode of ['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed', 'word_form', 'error_hunt'] as PracticeMode[]) {
       const wrapper = render({ info: info(mode) })
+      const tile = wrapper.get('[data-testid=mode-icon]')
+      expect(tile.classes(), mode).toEqual(expect.arrayContaining(['size-10', 'rounded-control', 'bg-accent-soft', 'text-accent']))
+      expect(tile.attributes('aria-hidden')).toBe('true')
+      expect(tile.findComponent(AppIcon).exists(), mode).toBe(true)
       expect(wrapper.find('.icon-tile').exists(), mode).toBe(false)
-      expect(wrapper.findComponent(AppIcon).exists(), mode).toBe(false)
-      expect(wrapper.get(`[data-testid=mode-card-${mode}]`).classes()).toContain('border-divider')
+      // The lines between the rows are drawn by the list (`divide-y`), not by the row.
+      expect(wrapper.get(`[data-testid=mode-card-${mode}]`).classes()).not.toContain('border-t')
+      expect(wrapper.get('[data-testid=mode-title]').classes()).toContain('font-bold')
     }
   })
 

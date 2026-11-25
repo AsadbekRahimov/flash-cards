@@ -73,6 +73,8 @@ function routerOf() {
     history: createMemoryHistory(),
     routes: [
       { path: '/courses/:slug', name: 'course', component: stub },
+      { path: '/today', name: 'today', component: stub },
+      { path: '/game/daily', name: 'game-daily', component: stub },
       { path: '/practice/:slug', name: 'practice-hub', component: stub },
       { path: '/practice/sessions/:id(\\d+)', name: 'practice-session', component: stub },
       { path: '/battles/new', name: 'battle-new', component: stub },

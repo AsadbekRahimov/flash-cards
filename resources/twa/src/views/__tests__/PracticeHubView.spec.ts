@@ -9,6 +9,7 @@ import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBillingStore } from '@/stores/billing'
 import { usePracticeStore } from '@/stores/practice'
+import { useTodayStore } from '@/stores/today'
 import { activeSession, freeLimits, hub, inHours, limitDetails, session } from '@/api/__tests__/practiceFixtures'
 import type { BattleListResponse, FriendsResponse, PracticeHubResponse, PracticeMode, PracticeModeInfo } from '@/api/types'
 
@@ -19,6 +20,7 @@ vi.mock('@/api', () => ({
     friends: { get: vi.fn() },
     challenges: { list: vi.fn() },
     training: { open: vi.fn() },
+    me: { get: vi.fn() },
   },
 }))
 
@@ -84,7 +86,11 @@ const incoming = (id: number, name: string): BattleListResponse['incoming'][numb
 })
 
 /** `response`: the hub, a hub that never comes (a pending promise), or the error the server answers with. */
-async function render(props: { slug?: string; lessonId?: number | null; from?: 'finished' | null } = {}, response: PracticeHubResponse | Promise<PracticeHubResponse> | Error = hub()) {
+async function render(
+  props: { slug?: string; lessonId?: number | null; from?: 'finished' | null; play?: 'pairs_timed' | null } = {},
+  response: PracticeHubResponse | Promise<PracticeHubResponse> | Error = hub(),
+  query: Record<string, string> = {},
+) {
   if (response instanceof Error) vi.mocked(api.practice.hub).mockRejectedValue(response)
   else vi.mocked(api.practice.hub).mockReturnValue(Promise.resolve(response))
   const stub = { template: '<div />' }
@@ -92,6 +98,8 @@ async function render(props: { slug?: string; lessonId?: number | null; from?: '
     history: createMemoryHistory(),
     routes: [
       { path: '/courses', name: 'courses', component: stub },
+      { path: '/today', name: 'today', component: stub },
+      { path: '/game/daily', name: 'game-daily', component: stub },
       { path: '/courses/:slug', name: 'course', component: stub },
       { path: '/practice/:slug', name: 'practice-hub', component: stub },
       { path: '/practice/sessions/:id(\\d+)', name: 'practice-session', component: stub },
@@ -101,7 +109,7 @@ async function render(props: { slug?: string; lessonId?: number | null; from?: '
       { path: '/training/:sessionId(\\d+)', name: 'training', component: stub },
     ],
   })
-  await router.push({ name: 'practice-hub', params: { slug: props.slug ?? 'english-a1' } })
+  await router.push({ name: 'practice-hub', params: { slug: props.slug ?? 'english-a1' }, query })
   const wrapper = mount(PracticeHubView, {
     props: { slug: 'english-a1', lessonId: 41, ...props },
     global: { plugins: [router] },
@@ -117,6 +125,8 @@ beforeEach(() => {
   setActivePinia(createPinia())
   vi.resetAllMocks()
   authEnsure.mockResolvedValue(undefined)
+  // `/me` (asked by the hub for the caravan, best effort): offline unless a test says otherwise.
+  vi.mocked(api.me.get).mockRejectedValue(offline())
   vi.mocked(api.battles.list).mockResolvedValue({ active: null, incoming: [], finished: [] })
   vi.mocked(api.friends.get).mockResolvedValue(friendsResponse())
   vi.mocked(api.challenges.list).mockResolvedValue({ days: 7, open: [], finished: [] })
@@ -145,21 +155,22 @@ describe('PracticeHubView — the states', () => {
     wrapper.unmount()
   })
 
-  it('has a link back to the course above the heading, as the system button "Back" has', async () => {
+  it('has a link back to Today above the heading, as the system button "Back" has (docs/design 2026-11-25 Practice)', async () => {
     const { wrapper } = await render()
 
     const back = wrapper.get('[data-testid=hub-back]')
-    expect(back.text()).toContain('К курсу')
-    expect(back.attributes('href')).toBe('/courses/english-a1')
+    expect(back.text()).toBe('Сегодня')
+    expect(back.attributes('href')).toBe('/today')
     expect(back.classes()).toContain('min-h-11') // a finger's 44 px
     wrapper.unmount()
   })
 
-  it('shows the hub: the heading is the name of the lesson, under it "Practice" and where the lesson is', async () => {
+  it('shows the hub: "Word games", the place of the lesson above the heading, and the rows of the modes', async () => {
     const { wrapper } = await render()
 
-    expect(wrapper.get('h1').text()).toBe('Еда')
-    expect(wrapper.text()).toContain('Практика · Модуль 2 · Урок 4')
+    expect(wrapper.get('h1').text()).toBe('Игры со словами')
+    expect(wrapper.get('[data-testid=eyebrow]').text()).toBe('Модуль 2 · Урок 4 · Еда')
+    expect(wrapper.text()).toContain('Все игры')
     expect(wrapper.findAll('[data-testid^=mode-card-]').map((c) => c.attributes('data-testid'))).toEqual([
       'mode-card-pairs',
       'mode-card-collocation',
@@ -169,42 +180,55 @@ describe('PracticeHubView — the states', () => {
     wrapper.unmount()
   })
 
-  it('a lesson without a name is headed by its place, and the course goes under it', async () => {
+  it('says how many words are learned in the course when Today knows it, and without the number when it does not', async () => {
+    const plain = await render()
+    expect(plain.wrapper.get('[data-testid=subtitle]').text()).toBe('Играйте на словах, которые уже учили')
+    plain.wrapper.unmount()
+
+    useTodayStore().data = { active_course: { id: 1, slug: 'english-a1', title: 'Английский A1', progress: { learned: 120, total: 900 }, next_lesson: null } } as never
+    const counted = await render()
+    expect(counted.wrapper.get('[data-testid=subtitle]').text()).toBe('Играйте на 120 выученных словах')
+    counted.wrapper.unmount()
+
+    // Another course of Today says nothing about this one.
+    const other = await render({ slug: 'ielts-core' })
+    expect(other.wrapper.get('[data-testid=subtitle]').text()).toBe('Играйте на словах, которые уже учили')
+    other.wrapper.unmount()
+  })
+
+  it('a lesson without a name is placed by its module and number', async () => {
     const { wrapper } = await render({}, hub({ lesson: { id: 41, stage: 2, number: 4, title: null } }))
 
-    expect(wrapper.get('h1').text()).toBe('Модуль 2 · Урок 4')
-    expect(wrapper.text()).toContain('Практика · Английский A1')
+    expect(wrapper.get('[data-testid=eyebrow]').text()).toBe('Модуль 2 · Урок 4')
     wrapper.unmount()
   })
 
-  it('a lesson outside a module is headed "Lesson 4", never "Module null"', async () => {
+  it('a lesson outside a module is "Lesson 4", never "Module null"', async () => {
     const { wrapper } = await render({}, hub({ lesson: { id: 41, stage: null, number: 4, title: null } }))
 
-    expect(wrapper.get('h1').text()).toBe('Урок 4')
-    expect(wrapper.text()).toContain('Практика · Английский A1')
+    expect(wrapper.get('[data-testid=eyebrow]').text()).toBe('Урок 4')
     expect(wrapper.text()).not.toContain('null')
     wrapper.unmount()
   })
 
-  it('a lesson the server knows no number of is headed by its name, and without one by its course', async () => {
+  it('a lesson the server knows no number of is placed by its name, and without one by its course', async () => {
     const named = await render({}, hub({ lesson: { id: 41, stage: null, number: null, title: 'Еда' } }))
-    expect(named.wrapper.get('h1').text()).toBe('Еда')
-    expect(named.wrapper.text()).toContain('Практика · Английский A1')
+    expect(named.wrapper.get('[data-testid=eyebrow]').text()).toBe('Еда')
     expect(named.wrapper.text()).not.toContain('null')
     named.wrapper.unmount()
 
     const bare = await render({}, hub({ lesson: { id: 41, stage: null, number: null, title: null } }))
-    expect(bare.wrapper.get('h1').text()).toBe('Английский A1')
+    expect(bare.wrapper.get('[data-testid=eyebrow]').text()).toBe('Английский A1')
     expect(bare.wrapper.text()).not.toContain('null')
     bare.wrapper.unmount()
   })
 
-  it('the hub of a whole course is headed by the course', async () => {
+  it('the hub of a whole course is placed by the course', async () => {
     const { wrapper } = await render({ lessonId: null }, hub({ lesson: null }))
 
     expect(api.practice.hub).toHaveBeenCalledWith('english-a1', null)
-    expect(wrapper.get('h1').text()).toBe('Английский A1')
-    expect(wrapper.text()).toContain('Практика')
+    expect(wrapper.get('h1').text()).toBe('Игры со словами')
+    expect(wrapper.get('[data-testid=eyebrow]').text()).toBe('Английский A1')
     wrapper.unmount()
   })
 
@@ -259,11 +283,14 @@ describe('PracticeHubView — the states', () => {
     wrapper.unmount()
   })
 
-  it('has no primary button: pressing a card is the main action; the battle is a tinted button', async () => {
+  it('has no primary button without step 3 or an unfinished session: pressing a row is the main action, the battle is a row too', async () => {
     const { wrapper } = await render()
 
     expect(wrapper.findAll('.btn-primary')).toHaveLength(0)
-    expect(wrapper.get('[data-testid=battle-play-btn]').classes()).toContain('btn-tinted')
+    const battle = wrapper.get('[data-testid=battle-play-btn]')
+    expect(battle.element.tagName).toBe('BUTTON')
+    expect(battle.classes()).not.toContain('btn-tinted')
+    expect(battle.classes()).toContain('min-h-[60px]')
     wrapper.unmount()
   })
 
@@ -304,7 +331,11 @@ describe('PracticeHubView — the states', () => {
     setLocale('uz')
     const { wrapper } = await render()
 
-    expect(wrapper.get('[data-testid=battle-card]').text()).toContain("Do'st bilan o'ynash")
+    expect(wrapper.get('h1').text()).toBe("So'z o'yinlari")
+    expect(wrapper.get('[data-testid=hub-back]').text()).toBe('Bugun')
+    expect(wrapper.get('[data-testid=subtitle]').text()).toBe("Allaqachon o'rgangan so'zlaringizda o'ynang")
+    expect(wrapper.get('[data-testid=battle-card]').text()).toContain("Do'st bilan bellashuv")
+    expect(wrapper.text()).toContain("Barcha o'yinlar")
     expect(card(wrapper, 'pairs').text()).toContain('Juftlarni toping')
     wrapper.unmount()
   })
@@ -1040,20 +1071,24 @@ describe('PracticeHubView — short of material', () => {
 })
 
 describe('PracticeHubView — the battle with a friend', () => {
-  it('has a card with "Play with a friend"', async () => {
+  it('is a row "Battle with a friend": the whole row is the button, and it says nothing of a friend being online (no data)', async () => {
     const { wrapper } = await render()
 
     const battle = wrapper.get('[data-testid=battle-card]')
-    expect(battle.text()).toContain('Баттл 1 на 1')
-    expect(wrapper.get('[data-testid=battle-play-btn]').text()).toBe('Играть с другом')
+    expect(battle.text()).toContain('Баттл с другом')
+    expect(battle.text()).toContain('Пять раундов на одинаковых заданиях')
+    expect(battle.text()).not.toContain('в сети')
+    const button = wrapper.get('[data-testid=battle-play-btn]')
+    expect(button.attributes('aria-label')).toBe('Баттл с другом. Пять раундов на одинаковых заданиях')
+    expect(wrapper.find('[data-testid=battle-resume]').exists()).toBe(false)
     wrapper.unmount()
   })
 
-  it('is the last row of "All modes", after the rows of the modes', async () => {
+  it('is the last row of "All games", after the rows of the modes', async () => {
     const { wrapper } = await render()
 
     const list = wrapper.get('[data-testid=modes-list]')
-    expect(list.text()).toContain('Все режимы')
+    expect(list.text()).toContain('Все игры')
     expect(list.find('[data-testid=battle-card]').exists()).toBe(true)
     const html = list.html()
     expect(html.indexOf('data-testid="mode-cards"')).toBeLessThan(html.indexOf('data-testid="battle-card"'))
@@ -1120,7 +1155,8 @@ describe('PracticeHubView — the battle with a friend', () => {
   it('when a battle is on, the button leads back into it', async () => {
     const { wrapper, router } = await render({}, hub({ battle: { enabled: true, active_battle_id: 15, incoming_count: 0 } }))
 
-    expect(wrapper.get('[data-testid=battle-play-btn]').text()).toBe('Вернуться в баттл')
+    expect(wrapper.get('[data-testid=battle-resume]').text()).toBe('Вернуться в баттл')
+    expect(wrapper.get('[data-testid=battle-play-btn]').attributes('aria-label')).toBe('Вернуться в баттл')
     await wrapper.get('[data-testid=battle-play-btn]').trigger('click')
     await flushPromises()
 
@@ -1179,15 +1215,14 @@ describe('PracticeHubView — the battle with a friend', () => {
 })
 
 describe('PracticeHubView — Back', () => {
-  it('the system "Back" leads to the course', async () => {
+  it('the system "Back" leads to Today, as the link on the screen', async () => {
     const { wrapper, router } = await render()
     expect(tg.backHandler).not.toBeNull()
 
     tg.backHandler?.()
     await flushPromises()
 
-    expect(router.currentRoute.value.name).toBe('course')
-    expect(router.currentRoute.value.params.slug).toBe('english-a1')
+    expect(router.currentRoute.value.name).toBe('today')
     wrapper.unmount()
   })
 })
@@ -1893,6 +1928,272 @@ describe('PracticeHubView — the newer modes, and modes this build does not kno
 
     expect(card(wrapper, 'word_form').get('[data-testid=mode-title]').text()).toBe("So'z shakli")
     expect(card(wrapper, 'error_hunt').get('[data-testid=mode-title]').text()).toBe('Xatoni toping')
+    wrapper.unmount()
+  })
+})
+
+// Step 3 of the day plan (docs/31 §5б, docs/design 2026-11-25 Practice): the timed pairs on the words of the lesson.
+describe('PracticeHubView — step 3: the game on the words of the lesson', () => {
+  const withTimed = (info: Partial<PracticeModeInfo> = {}, rest: Parameters<typeof hub>[0] = {}) =>
+    hub({
+      ...rest,
+      modes: [
+        { mode: 'pairs', state: 'available', available: 14, required: 3, reason: null, estimate_seconds: 120 },
+        { mode: 'pairs_timed', state: 'available', available: 9, required: 8, reason: null, estimate_seconds: 90, record: null, ...info },
+      ],
+    })
+  const timedSession = () => session({ id: 90, mode: 'pairs_timed' })
+
+  it('is a big card on the hub of a lesson: step 3 of 3, the timed pairs on the words of the lesson, and "Play" as the main button', async () => {
+    const { wrapper } = await render({}, withTimed())
+
+    const step = wrapper.get('[data-testid=lesson-game-card]')
+    expect(step.classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
+    expect(step.text()).toContain('Шаг 3 из 3 · советуем сейчас')
+    expect(step.text()).toContain('Пары на время')
+    expect(wrapper.get('[data-testid=lesson-game-text]').text()).toBe('Соедините слово и перевод быстрее рекорда. Слова из урока «Еда», около 2 мин.')
+    const play = wrapper.get('[data-testid=lesson-game-play]')
+    expect(play.text()).toBe('Играть')
+    expect(play.classes()).toContain('btn-primary')
+    expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+    wrapper.unmount()
+  })
+
+  it('opens the game on the words of the lesson ("deeplink") and goes into it', async () => {
+    vi.mocked(api.practice.open).mockResolvedValue(timedSession())
+    const { wrapper, router } = await render({}, withTimed())
+
+    await wrapper.get('[data-testid=lesson-game-play]').trigger('click')
+    await flushPromises()
+
+    expect(api.practice.open).toHaveBeenCalledWith({ mode: 'pairs_timed', course: 'english-a1', lesson_id: 41, source: 'deeplink', replace_active: false })
+    expect(router.currentRoute.value.name).toBe('practice-session')
+    expect(router.currentRoute.value.params.id).toBe('90')
+    wrapper.unmount()
+  })
+
+  it('does not trust "few words" of a short lesson: the server tops it up, so the card is there and asks the server', async () => {
+    vi.mocked(api.practice.open).mockResolvedValue(timedSession())
+    const { wrapper } = await render({}, withTimed({ state: 'not_enough', available: 5, reason: 'no_words' }))
+
+    expect(card(wrapper, 'pairs_timed').attributes('data-state')).toBe('not_enough')
+    await wrapper.get('[data-testid=lesson-game-play]').trigger('click')
+    await flushPromises()
+
+    expect(api.practice.open).toHaveBeenCalledWith(expect.objectContaining({ mode: 'pairs_timed', lesson_id: 41, source: 'deeplink' }))
+    wrapper.unmount()
+  })
+
+  it('a lesson without a name is told without it', async () => {
+    const { wrapper } = await render({}, withTimed({}, { lesson: { id: 41, stage: 2, number: 4, title: null } }))
+
+    expect(wrapper.get('[data-testid=lesson-game-text]').text()).toBe('Соедините слово и перевод быстрее рекорда. Слова этого урока, около 2 мин.')
+    wrapper.unmount()
+  })
+
+  it('is not there on the hub of a course, when the game is switched off, or when the server has no such mode', async () => {
+    const course = await render({ lessonId: null }, withTimed({}, { lesson: null }))
+    expect(course.wrapper.find('[data-testid=lesson-game-card]').exists()).toBe(false)
+    course.wrapper.unmount()
+
+    const off = await render({}, withTimed({ state: 'disabled' }))
+    expect(off.wrapper.find('[data-testid=lesson-game-card]').exists()).toBe(false)
+    off.wrapper.unmount()
+
+    const none = await render()
+    expect(none.wrapper.find('[data-testid=lesson-game-card]').exists()).toBe(false)
+    none.wrapper.unmount()
+  })
+
+  it('behind Pro it opens the paywall of practice, without asking the server', async () => {
+    const { wrapper } = await render({}, withTimed({ state: 'pro_required' }))
+
+    await wrapper.get('[data-testid=lesson-game-play]').trigger('click')
+    await flushPromises()
+
+    expect(api.practice.open).not.toHaveBeenCalled()
+    expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice')
+    wrapper.unmount()
+  })
+
+  it('gives the main button to "Continue" when a session is unfinished, and goes back into an unfinished game of this lesson', async () => {
+    const active = activeSession({ id: 66, mode: 'pairs_timed', lesson_id: 41 })
+    const { wrapper, router } = await render({}, withTimed({}, { active_session: active }))
+
+    expect(wrapper.findAll('.btn-primary')).toHaveLength(1)
+    expect(wrapper.get('[data-testid=lesson-game-play]').classes()).toContain('btn-tinted')
+    await wrapper.get('[data-testid=lesson-game-play]').trigger('click')
+    await flushPromises()
+
+    expect(api.practice.open).not.toHaveBeenCalled()
+    expect(router.currentRoute.value.params.id).toBe('66')
+    wrapper.unmount()
+  })
+
+  it('speaks Uzbek', async () => {
+    setLocale('uz')
+    const { wrapper } = await render({}, withTimed())
+
+    expect(wrapper.get('[data-testid=lesson-game-card]').text()).toContain('3-qadam (3 tadan)')
+    expect(wrapper.get('[data-testid=lesson-game-text]').text()).toBe("So'z va tarjimasini rekorddan tezroq juftlang. «Еда» darsi so'zlari, taxminan 2 daqiqa.")
+    expect(wrapper.get('[data-testid=lesson-game-play]').text()).toBe("O'ynash")
+    wrapper.unmount()
+  })
+
+  describe('the start by the address (?lesson=41&play=pairs_timed)', () => {
+    const address = { lesson: '41', play: 'pairs_timed' }
+
+    it('opens the game at once and goes into it; "Back" from it lands on the hub without "play"', async () => {
+      vi.mocked(api.practice.open).mockResolvedValue(timedSession())
+      const { wrapper, router } = await render({ play: 'pairs_timed' }, withTimed({ state: 'not_enough', available: 5, reason: 'no_words' }), address)
+
+      expect(api.practice.open).toHaveBeenCalledTimes(1)
+      expect(api.practice.open).toHaveBeenCalledWith({ mode: 'pairs_timed', course: 'english-a1', lesson_id: 41, source: 'deeplink', replace_active: false })
+      expect(router.currentRoute.value.name).toBe('practice-session')
+      expect(router.currentRoute.value.params.id).toBe('90')
+
+      router.back()
+      await flushPromises()
+      expect(router.currentRoute.value.name).toBe('practice-hub')
+      expect(router.currentRoute.value.query).toEqual({ lesson: '41' })
+      wrapper.unmount()
+    })
+
+    it('starts once: a hub read again does not start the game again', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(apiError('validation', 422, 'practice_not_enough_material'))
+      const { wrapper } = await render({ play: 'pairs_timed' }, withTimed(), address)
+      await wrapper.setProps({ lessonId: 42 })
+      await flushPromises()
+
+      expect(api.practice.hub).toHaveBeenCalledTimes(2)
+      expect(api.practice.open).toHaveBeenCalledTimes(1)
+      wrapper.unmount()
+    })
+
+    it('422 no material: stays on the hub, says why, and the address has no "play" any more', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(apiError('validation', 422, 'practice_not_enough_material'))
+      const { wrapper, router } = await render({ play: 'pairs_timed' }, withTimed(), address)
+
+      expect(router.currentRoute.value.name).toBe('practice-hub')
+      expect(router.currentRoute.value.query).toEqual({ lesson: '41' })
+      expect(showErrorToast).toHaveBeenCalledWith('Для этого режима пока мало материала. Выучите ещё несколько слов.')
+      expect(wrapper.find('[data-testid=lesson-game-card]').exists()).toBe(true)
+      wrapper.unmount()
+    })
+
+    it('403 the free limit of the day: stays on the hub with the paywall of the limit', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(apiError('forbidden', 403, 'practice_limit_reached', limitDetails('sessions')))
+      const { wrapper, router } = await render({ play: 'pairs_timed' }, withTimed({}, { limits: freeLimits(1, 0) }), address)
+
+      expect(router.currentRoute.value.name).toBe('practice-hub')
+      expect(router.currentRoute.value.query).toEqual({ lesson: '41' })
+      const sheet = wrapper.get('[data-testid=paywall]')
+      expect(sheet.attributes('data-reason')).toBe('practice_limit')
+      expect(sheet.attributes('data-kind')).toBe('sessions')
+      expect(showErrorToast).not.toHaveBeenCalled()
+      wrapper.unmount()
+    })
+
+    it('a counter already spent: the paywall of the limit at once, without a request', async () => {
+      const { wrapper, router } = await render({ play: 'pairs_timed' }, withTimed({}, { limits: freeLimits(2, 0) }), address)
+
+      expect(api.practice.open).not.toHaveBeenCalled()
+      expect(router.currentRoute.value.name).toBe('practice-hub')
+      expect(wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice_limit')
+      wrapper.unmount()
+    })
+
+    it('Pro only: the card behind Pro opens the paywall without a request, and a 403 of the server does the same', async () => {
+      const pro = await render({ play: 'pairs_timed' }, withTimed({ state: 'pro_required' }), address)
+      expect(api.practice.open).not.toHaveBeenCalled()
+      expect(pro.router.currentRoute.value.query).toEqual({ lesson: '41' })
+      expect(pro.wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice')
+      pro.wrapper.unmount()
+
+      vi.mocked(api.practice.open).mockRejectedValue(apiError('forbidden', 403, 'practice_pro_required'))
+      const refused = await render({ play: 'pairs_timed' }, withTimed(), address)
+      expect(refused.router.currentRoute.value.name).toBe('practice-hub')
+      expect(refused.wrapper.get('[data-testid=paywall]').attributes('data-reason')).toBe('practice')
+      refused.wrapper.unmount()
+    })
+
+    it('an unfinished session elsewhere: asks what to do, on the hub', async () => {
+      vi.mocked(api.practice.open).mockRejectedValue(apiError('conflict', 409, 'practice_session_active', { session_id: 70, mode: 'sentence', course: 'english-a1', lesson_id: 12, progress: { done: 1, total: 3 } }))
+      const { wrapper, router } = await render({ play: 'pairs_timed' }, withTimed(), address)
+
+      expect(router.currentRoute.value.name).toBe('practice-hub')
+      expect(wrapper.find('[data-testid=active-session-sheet]').exists()).toBe(true)
+      wrapper.unmount()
+    })
+
+    it('a hub closed to the learner (practice_unavailable) starts nothing', async () => {
+      const { wrapper, router } = await render({ play: 'pairs_timed' }, apiError('forbidden', 403, 'practice_unavailable'), address)
+
+      expect(api.practice.open).not.toHaveBeenCalled()
+      expect(router.currentRoute.value.query).toEqual({ lesson: '41' })
+      expect(wrapper.find('[data-testid=unavailable]').exists()).toBe(true)
+      wrapper.unmount()
+    })
+
+    it('without a lesson nothing is started (and "play" goes)', async () => {
+      const { router } = await render({ lessonId: null, play: 'pairs_timed' }, withTimed({}, { lesson: null }), { play: 'pairs_timed' })
+
+      expect(api.practice.open).not.toHaveBeenCalled()
+      expect(router.currentRoute.value.query).toEqual({})
+    })
+
+    it('an unknown game in the address is ignored', async () => {
+      const { router } = await render({ play: null }, withTimed(), { lesson: '41', play: 'boss' })
+
+      expect(api.practice.open).not.toHaveBeenCalled()
+      expect(router.currentRoute.value.name).toBe('practice-hub')
+    })
+  })
+})
+
+describe('PracticeHubView — the caravan of the day', () => {
+  const me = (available: boolean) => ({
+    learner: { id: 1, first_name: 'A', username: null, locale: 'ru', onboarding_completed: true },
+    groups: [],
+    stats: { words_learned: 0, words_due_today: 0 },
+    entitlement: { plan: 'pro', source: 'subscription', until: null, new_words_per_day: null },
+    paywall: { mode: 'coming_soon', contact: null },
+    game: { available, pro_promise: 'none', coins: 0, tickets: 0, limits: null },
+  })
+
+  it('is a row of "All games" that leads to the caravan of the day of this course, when the game is open to the learner', async () => {
+    vi.mocked(api.me.get).mockResolvedValue(me(true) as never)
+    const { wrapper } = await render()
+    await flushPromises()
+
+    const row = wrapper.get('[data-testid=caravan-row]')
+    expect(row.text()).toContain('Караван дня')
+    expect(row.text()).toContain('Путешествие по словам курса')
+    expect(row.attributes('href')).toBe('/game/daily?course=english-a1')
+    const html = wrapper.get('[data-testid=modes-list]').html()
+    expect(html.indexOf('data-testid="caravan-row"')).toBeLessThan(html.indexOf('data-testid="battle-card"'))
+    wrapper.unmount()
+  })
+
+  it('is not there when the game is closed, or while /me is not known', async () => {
+    vi.mocked(api.me.get).mockResolvedValue(me(false) as never)
+    const closed = await render()
+    expect(closed.wrapper.find('[data-testid=caravan-row]').exists()).toBe(false)
+    closed.wrapper.unmount()
+
+    setActivePinia(createPinia())
+    vi.mocked(api.me.get).mockRejectedValue(offline())
+    const unknown = await render()
+    expect(unknown.wrapper.find('[data-testid=caravan-row]').exists()).toBe(false)
+    unknown.wrapper.unmount()
+  })
+
+  it('speaks Uzbek', async () => {
+    setLocale('uz')
+    vi.mocked(api.me.get).mockResolvedValue(me(true) as never)
+    const { wrapper } = await render()
+
+    expect(wrapper.get('[data-testid=caravan-row]').text()).toContain('Kunlik karvon')
     wrapper.unmount()
   })
 })

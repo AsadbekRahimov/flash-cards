@@ -4554,3 +4554,53 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `buttons.lesson_game` | 🎮 O'yinda mustahkamlash | 🎮 Закрепить в игре |
 
 Подвал «Eslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.» — тот же, что у остальных напоминаний.
+
+## Выпуск 1 · «Урок пройден: что дальше» и «Игры со словами» по макету 25.11 (docs/31 §5б, T6) — на проверку носителю
+
+### Mini App (`resources/twa/src/i18n/uz.ts`)
+
+Цепочка дня «урок → тренировка → игра»: после урока — «Начать тренировку» (закрепление слов урока) и «Или сыграйте: пары на время»,
+после тренировки — «Играть». Тренировка-закрепление не даёт баллов лиги и не двигает цель дня — текст об этом честный. Прошу
+проверить: «2-qadam (3 tadan)» для «Шаг 2 из 3», «mustahkamlash» для «закрепление», «Vaqtga juftlar» в строке игры.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `finished.lesson.title` | Dars tugadi! | Урок пройден! |
+| `finished.lesson.new_words.one` | {count} ta yangi so'z | {count} новое слово |
+| `finished.lesson.new_words.other` | {count} ta yangi so'z | {count} новых слова (5 новых слов) |
+| `finished.stats.of` | {total} tadan {done} ta | {done} из {total} (число на плитке итога: «7 из 8») |
+| `finished.stats.correct_answers` | to'g'ri javob | верных ответов (подпись под «7 из 8») |
+| `finished.stats.new_words` | yangi so'z | новых слов (подпись под «+5») |
+| `finished.stats.league_points` | liga bali | баллов лиги (подпись под «+56») |
+| `finished.goal_line` | Kunlik maqsad · {done} / {target} | Цель дня · {done} / {target} |
+| `finished.goal_left` | yana {count} ta | ещё {count} (сколько осталось до цели) |
+| `finished.next.title` | Keyingi qadam | Что дальше |
+| `finished.next.step2` | 2-qadam (3 tadan) · hozir tavsiya qilamiz | Шаг 2 из 3 · советуем сейчас |
+| `finished.next.step3` | 3-qadam (3 tadan) · hozir tavsiya qilamiz | Шаг 3 из 3 · советуем сейчас |
+| `finished.next.training_title` | So'zlarni mashqda mustahkamlang | Закрепите слова в тренировке |
+| `finished.next.training_text` | So'zlarni darhol takrorlasangiz, ular yaxshiroq esda qoladi. | Слова запоминаются лучше, если повторить их сразу. (дальше — «5 ta yangi so'z.») |
+| `finished.next.training_start` | Mashqni boshlash | Начать тренировку |
+| `finished.next.game_text` | So'z va tarjimasini rekorddan tezroq juftlang — shu dars so'zlarida. | Соедините слово и перевод быстрее рекорда — на словах этого урока. |
+| `finished.next.play` | O'ynash | Играть |
+| `finished.next.game_line` | Yoki o'ynang: vaqtga juftlar | Или сыграйте: пары на время |
+| `finished.next.game_sub` | Dars so'zlari | Слова урока |
+| `finished.lesson_review.title` | So'zlar mustahkamlandi | Слова закреплены (итог тренировки-закрепления) |
+| `finished.lesson_review.won` | so'z mustahkamlandi | слов закреплено (подпись под «5 из 6») |
+| `finished.lesson_review.first_try` | birinchi urinishda | с первой попытки |
+| `finished.lesson_review.note` | Bu mustahkamlash: takrorlash jadvali, kunlik maqsad va liga ballari o'zgarmaydi. | Это закрепление: расписание повторений, цель дня и баллы лиги не меняются. |
+| `error.code.lesson_review_unavailable` | Dars so'zlari bo'yicha mashq hozir mavjud emas. | Тренировка по словам урока сейчас недоступна. |
+| `error.lesson_review.disabled` | Dars so'zlari bo'yicha mashq hozir mavjud emas. | Тренировка по словам урока сейчас недоступна. |
+| `error.lesson_review.no_new_words` | Bugun bu darsda yangi so'zlar bo'lmadi — mustahkamlash uchun hozircha hech narsa yo'q. | Новых слов этого урока сегодня не было — закреплять пока нечего. |
+| `error.lesson_review.no_objective_exercise` | Bu dars so'zlari uchun hozircha mos topshiriqlar yo'q. | Для слов этого урока пока нет подходящих заданий. |
+| `practice.hub.games_title` | So'z o'yinlari | Игры со словами |
+| `practice.hub.learned.one` | {count} ta o'rganilgan so'zda o'ynang | Играйте на {count} выученном слове |
+| `practice.hub.learned.other` | {count} ta o'rganilgan so'zda o'ynang | Играйте на {count} выученных словах |
+| `practice.hub.learned_unknown` | Allaqachon o'rgangan so'zlaringizda o'ynang | Играйте на словах, которые уже учили |
+| `practice.hub.step.eyebrow` | 3-qadam (3 tadan) · hozir tavsiya qilamiz | Шаг 3 из 3 · советуем сейчас |
+| `practice.hub.step.text` | So'z va tarjimasini rekorddan tezroq juftlang. «{lesson}» darsi so'zlari, taxminan {minutes} daqiqa. | Соедините слово и перевод быстрее рекорда. Слова из урока «{lesson}», около {minutes} мин. |
+| `practice.hub.step.text_plain` | So'z va tarjimasini rekorddan tezroq juftlang. Shu dars so'zlari, taxminan {minutes} daqiqa. | Соедините слово и перевод быстрее рекорда. Слова этого урока, около {minutes} мин. |
+| `practice.hub.step.play` | O'ynash | Играть |
+| `practice.hub.caravan.title` | Kunlik karvon | Караван дня |
+| `practice.hub.caravan.text` | Kurs so'zlari bo'ylab sayohat | Путешествие по словам курса |
+| `practice.hub.all_modes` | Barcha o'yinlar | Все игры (было «Barcha mashqlar» / «Все режимы») |
+| `practice.hub.battle.title` | Do'st bilan bellashuv | Баттл с другом (было «Yakkama-yakka bellashuv» / «Баттл 1 на 1») |

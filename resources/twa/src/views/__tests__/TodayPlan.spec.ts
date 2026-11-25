@@ -7,7 +7,7 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { resetSeenSession } from '@/composables/seenFlag'
-import type { DayPlan, TodayResponse, TrainingStartResponse } from '@/api/types'
+import type { DayPlan, PracticeAccessToday, TodayResponse, TrainingStartResponse } from '@/api/types'
 
 /*
  * "Today" by the mock-ups of 2026-11-25 (Main / MainNext): the big card of the step of the plan of the day (lesson -> review of the
@@ -26,7 +26,7 @@ vi.mock('@/api', () => ({
 vi.mock('@/stores/auth', () => ({ useAuthStore: () => ({ ensure: vi.fn().mockResolvedValue(undefined), learner: { first_name: 'Азиз' } }) }))
 vi.mock('@/composables/useBackButton', () => ({ useBackButton: vi.fn() }))
 
-const PRACTICE = { available: true, pro_required: false, modes: ['pairs', 'pairs_timed', 'collocation'], battle: false, pro_promise: 'none' } as const
+const PRACTICE: PracticeAccessToday = { available: true, pro_required: false, modes: ['pairs', 'pairs_timed', 'collocation'], battle: false, pro_promise: 'none' }
 
 const lessonStep = (overrides: Partial<DayPlan> = {}): DayPlan => ({
   step: 1,
