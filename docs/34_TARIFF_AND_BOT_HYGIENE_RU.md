@@ -385,7 +385,7 @@ Mini App: при первом открытии после `T`, если в `/me.
 
 **2. Обработка 429 без потери сообщений:**
 
-- Клиент при 429 ставит паузу `telegram:outbound:pause_until` (Redis, TTL = `min(retry_after, 60)` с) и паузу этого чата `telegram:outbound:pause:{sha256(chat)}`.
+- Клиент при 429 ставит паузу этого чата `telegram:outbound:pause:{sha256(chat)}` (Redis, TTL = `min(retry_after, 60)` с) и общую паузу `telegram:outbound:pause_until` — общую только при 429 в личный чат (`chatId > 0`) или в запросе без чата. 429 в группу (`chatId < 0`) ставит лишь паузу этой группы: у группы свой лимит (20/мин), и одна занятая группа не должна останавливать личные сообщения всего бота (ревью выпуска B, 25.11.2026).
 - `reserveGlobal()` возвращает false, пока действует общая пауза, `reserve($chatId)` — пока действует пауза чата. Тогда все фоновые отправки сами ждут, и задания откладываются через существующий `release()`.
 - `ThrottleTelegramOutbound` ловит `TelegramRateLimitedException` от обработчика и делает `$job->release(retryAfter + random_int(0, 3))`, то есть исключение не съедает `maxExceptions`.
 - `LeagueResultSender::sendBatch`: при 429 удалить маркер текущего ученика, вернуть его и остальных в `remaining` и остановить пачку; задание поставит остаток с задержкой `retryAfter`.

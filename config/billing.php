@@ -32,6 +32,26 @@ return [
         'days' => (int) env('BILLING_TRIAL_DAYS', 14),
         // Key of the HMAC in the `pro_trials` book; empty = `app.key`. Set once and never change it.
         'hash_key' => env('BILLING_TRIAL_HASH_KEY'),
+        // Days before its end the trial is reminded (docs/34 §2б.4, owner's decision docs/31 §5г: only 3, no "tomorrow"); the paid
+        // subscriptions keep `checkout.renewal_reminder_days`. Empty = no reminder for the trial.
+        'remind_days' => [3],
+    ],
+
+    /**
+     * The offers after the welcome trial (docs/34 §2д, TrialOfferSender, `billing:trial-offers` hourly): one bot message on the day the
+     * trial ended and N days after it. `after_days` from BILLING_TRIAL_OFFERS_AFTER_DAYS ("0,3,10"; empty = off). Sent only between
+     * `window_from_hour` and `window_to_hour` of the learner's clock ([11:00, 19:00)), step 0 not earlier than `min_delay_minutes` after
+     * the end, and a step older than `max_age_hours` is dropped, not sent late.
+     */
+    'trial_offers' => [
+        'after_days' => array_values(array_filter(
+            array_map('trim', explode(',', (string) env('BILLING_TRIAL_OFFERS_AFTER_DAYS', '0,3,10'))),
+            static fn (string $day): bool => $day !== '',
+        )),
+        'window_from_hour' => 11,
+        'window_to_hour' => 19,
+        'min_delay_minutes' => 60,
+        'max_age_hours' => 24,
     ],
 
     /**

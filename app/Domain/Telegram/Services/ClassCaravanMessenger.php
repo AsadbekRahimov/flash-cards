@@ -55,6 +55,7 @@ final class ClassCaravanMessenger
             cancel: function () use ($caravan, $by): void {
                 $this->caravans->cancel($caravan, $by, reason: ClassCaravanService::CANCELED_NOT_DELIVERED);
             },
+            telegramGroupId: $group->id,
         );
     }
 

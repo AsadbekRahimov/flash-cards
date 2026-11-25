@@ -84,6 +84,10 @@ enum ProductEventName: string
     case TrialGranted = 'trial.granted';
     /** A learner eligible by the row was refused the trial (props: reason — already_used: this Telegram account had one before). */
     case TrialRefused = 'trial.refused';
+    /** An offer after the welcome trial went out in the bot (props: step — 0 / 3 / 10 days after its end, subscription_id, priced — with prices or "Pro is coming"; docs/34 §2д). */
+    case TrialOfferSent = 'trial_offer.sent';
+    /** The learner tapped "Do not send offers" under an offer (no props; only on the change false -> true; docs/34 §2д). */
+    case TrialOfferOptedOut = 'trial_offer.opted_out';
     case DailyGoalMet = 'daily_goal.met';
     /** The daily goal was lowered to the limit of the plan - Pro ended (props: from, to, via — today / settings / training / command; docs/34 §2б.2). */
     case DailyGoalLimited = 'daily_goal.limited';

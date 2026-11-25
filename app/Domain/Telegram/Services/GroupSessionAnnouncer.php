@@ -37,6 +37,7 @@ final class GroupSessionAnnouncer
 
     /**
      * @param  Closure(): void  $cancel  withdraws the session that was just opened (not called if it pre-existed)
+     * @param  int|null  $telegramGroupId  the internal `telegram_groups.id`, for the log lines (the raw chat id is not logged)
      * @return bool true when the button was sent (or may have been)
      */
     public function announce(
@@ -47,6 +48,7 @@ final class GroupSessionAnnouncer
         string $failureText,
         Closure $cancel,
         ?string $parseMode = null,
+        ?int $telegramGroupId = null,
     ): bool {
         $send = fn () => $this->telegram->sendWebAppButton(
             chatId: $chatId,
@@ -74,7 +76,7 @@ final class GroupSessionAnnouncer
         } catch (TelegramRateLimitedException $e) {
             // Too long to wait in a command, or a 429 again: nobody sees the session. The text about the failure would get a 429
             // as well, so the chat is not written to; the teacher simply repeats the command.
-            Log::warning('telegram.group_session_announce_rate_limited', ['chat_id' => $chatId, 'retry_after' => $e->retryAfter]);
+            Log::warning('telegram.group_session_announce_rate_limited', ['telegram_group_id' => $telegramGroupId, 'retry_after' => $e->retryAfter]);
             $cancel();
 
             return false;
@@ -87,12 +89,12 @@ final class GroupSessionAnnouncer
             return false;
         } catch (TelegramApiException $e) {
             if (! $e->isApiResponse()) {
-                Log::warning('telegram.group_session_announce_uncertain', ['chat_id' => $chatId, 'error' => $e->getMessage()]);
+                Log::warning('telegram.group_session_announce_uncertain', ['telegram_group_id' => $telegramGroupId, 'error' => $e->getMessage()]);
 
                 return true;
             }
 
-            Log::warning('telegram.group_session_announce_failed', ['chat_id' => $chatId, 'error' => $e->getMessage()]);
+            Log::warning('telegram.group_session_announce_failed', ['telegram_group_id' => $telegramGroupId, 'error' => $e->getMessage()]);
             $cancel();
 
             try {

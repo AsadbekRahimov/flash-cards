@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Services;
 
 use App\Domain\Telegram\Handlers\AccountLinkCallbackHandler;
+use App\Domain\Telegram\Handlers\BillingOffersCallbackHandler;
 use App\Domain\Telegram\Handlers\CancelCaravanHandler;
 use App\Domain\Telegram\Handlers\ChatMemberHandler;
 use App\Domain\Telegram\Handlers\ChatMigrationHandler;
@@ -87,6 +88,7 @@ final class TelegramDispatcher
         LearnerDmHandler $learnerDm,
         OnboardingCallbackHandler $onboardingCallback,
         ProCallbackHandler $proCallback,
+        BillingOffersCallbackHandler $billingOffersCallback,
         OrganizationCallbackHandler $organizationCallback,
         FriendsCallbackHandler $friendsCallback,
         DeleteAccountCallbackHandler $deleteAccountCallback,
@@ -134,6 +136,7 @@ final class TelegramDispatcher
             $startExamCallback,
             $onboardingCallback,
             $proCallback,
+            $billingOffersCallback,
             $organizationCallback,
             $friendsCallback,
             $deleteAccountCallback,

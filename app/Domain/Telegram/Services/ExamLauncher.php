@@ -82,6 +82,7 @@ final class ExamLauncher
             failureText: __('errors.exam.not_delivered', [], $locale),
             cancel: fn () => $this->exams->cancelUndelivered($session),
             parseMode: 'HTML',
+            telegramGroupId: $session->telegram_group_id,
         );
     }
 }

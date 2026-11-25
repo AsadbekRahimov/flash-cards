@@ -249,3 +249,31 @@ it('sends nothing when a paid subscription replaced the trial before the notice'
     expect(implode("\n", twTexts($this->tg)))->not->toContain('Вам открыт Pro')
         ->and($learner->fresh()?->meta)->not->toHaveKey(ProTrialService::META_NOTICE);
 });
+
+it('names the length of the trial that was granted, not the current setting: a 7-day trial stays "7 days" after the setting became 14', function (): void {
+    config(['billing.trial.days' => 7]);
+    $this->travelTo(CarbonImmutable::parse('2026-11-25 10:00:00', 'UTC'));
+    twStart(940_014);
+
+    // The owner raises the trial to 14 days before this learner finishes the onboarding.
+    config(['billing.trial.days' => 14]);
+    $this->travel(2)->hours();
+    twOnboard(940_014);
+
+    $gift = collect($this->tg->sent)->first(static fn (array $m): bool => str_contains($m['text'], 'Вам открыт Pro'));
+    expect($gift['text'])->toStartWith('🎁 Вам открыт Pro на 7 дней — бесплатно, до 02.12.2026.');
+});
+
+it('rounds the length of the trial to whole days', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-11-25 10:00:00', 'UTC'));
+    $learner = Learner::factory()->create(['telegram_user_id' => 940_015]);
+    $trial = Subscription::factory()->create([
+        'subscriber_id' => $learner->id,
+        'provider' => 'trial',
+        'starts_at' => CarbonImmutable::parse('2026-11-25 10:00:00', 'UTC'),
+        'current_period_ends_at' => CarbonImmutable::parse('2026-12-09 09:59:30', 'UTC'),
+    ]);
+
+    expect(ProTrialService::noticeDays($trial, CarbonImmutable::parse('2026-12-09 09:59:30', 'UTC')))->toBe(14)
+        ->and(ProTrialService::noticeDays($trial, CarbonImmutable::parse('2026-11-25 10:30:00', 'UTC')))->toBe(1);
+});

@@ -60,21 +60,39 @@ final class TelegramMessageRateLimiter
     }
 
     /**
-     * Telegram answered 429 with `retry_after` (docs/34 §4в п. 2): background sends of the whole bot stop for
-     * min(retry_after, {@see self::MAX_PAUSE_SECONDS}) seconds, and so do sends to `$chatId` (when the refused call had a chat),
-     * shared by every worker through the cache store (Redis). A pause is only ever extended, never shortened by a later, smaller
-     * `retry_after`.
+     * Telegram answered 429 with `retry_after` (docs/34 §4в п. 2): sends to `$chatId` (when the refused call had a chat) stop
+     * for min(retry_after, {@see self::MAX_PAUSE_SECONDS}) seconds, shared by every worker through the cache store (Redis).
+     * Background sends of the whole bot stop too, unless the refused chat is a group: a group has its own limit
+     * (20 messages a minute), and its 429 says nothing about the bot-wide budget, so one busy group must not hold every
+     * learner's DM. A 429 in a private chat or on a call without a chat pauses the whole bot. A pause is only ever extended,
+     * never shortened by a later, smaller `retry_after`.
      */
     public function pause(int $retryAfter, int|string|null $chatId = null): void
     {
         $seconds = max(1, min($retryAfter, self::MAX_PAUSE_SECONDS));
         $until = now()->getTimestamp() + $seconds;
+        $chat = $chatId !== null && (string) $chatId !== '' ? $chatId : null;
 
-        $this->extendPause(self::PAUSE_KEY, $until, $seconds);
-
-        if ($chatId !== null && (string) $chatId !== '') {
-            $this->extendPause($this->chatPauseKey($chatId), $until, $seconds);
+        if ($chat === null || ! self::isGroupChat($chat)) {
+            $this->extendPause(self::PAUSE_KEY, $until, $seconds);
         }
+
+        if ($chat !== null) {
+            $this->extendPause($this->chatPauseKey($chat), $until, $seconds);
+        }
+    }
+
+    /**
+     * Group, supergroup or channel: a negative id, or a `@username` (the Bot API accepts a username only for a channel or
+     * a supergroup). Private chats have positive ids.
+     */
+    public static function isGroupChat(int|string $chatId): bool
+    {
+        if (is_int($chatId)) {
+            return $chatId < 0;
+        }
+
+        return str_starts_with($chatId, '@') || (is_numeric($chatId) && (int) $chatId < 0);
     }
 
     /** Seconds left of the bot-wide pause after a 429, 0 = none. */

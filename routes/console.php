@@ -96,6 +96,12 @@ Schedule::command('subscriptions:remind-expiring')
     ->dailyAt('06:00')
     ->withoutOverlapping();
 
+// The offers of Pro after the welcome trial (docs/34 §2д): on the day it ended and 3 / 10 days after, between 11:00 and 19:00 of the
+// learner's clock - hence hourly. A repeated run queues the same jobs again, harmless: the marker of each step is the sender's.
+Schedule::command('billing:trial-offers')
+    ->hourly()
+    ->withoutOverlapping();
+
 // The daily goal above the limit of the plan (Pro ended) comes down for the learners who do not open the Mini App (docs/34 §2б.2): one
 // row lock per learner, re-checked under it, so a repeated or parallel run changes nothing. Lowering only; the return is lazy.
 Schedule::command('learners:enforce-goal-limits')

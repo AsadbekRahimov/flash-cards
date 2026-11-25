@@ -18,4 +18,6 @@ return [
     'month_rating' => '🏆 Oy reytingi',
     'invite_more' => '👥 Yana taklif qilish',
     'share' => '📤 Ulashish',
+    'invite' => "👥 Do'stlarni taklif qilish",
+    'offers_off' => '🔕 Takliflar kerak emas',
 ];

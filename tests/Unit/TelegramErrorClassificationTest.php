@@ -165,16 +165,37 @@ it('falls back to a short retry when a 429 carries no retry_after', function ():
         ->and($e->retryAfter)->toBe(TelegramRateLimitedException::DEFAULT_RETRY_AFTER);
 });
 
-it('pauses the whole bot and the chat on a 429: reserveGlobal and reserve refuse until retry_after', function (): void {
+it('pauses the whole bot and the chat on a 429 in a private chat: reserveGlobal and reserve refuse until retry_after', function (): void {
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 25);
+    $client = classifyingClient(scriptedSdk([tgAnswer(429, ['ok' => false, 'error_code' => 429, 'description' => 'Too Many Requests: retry after 9', 'parameters' => ['retry_after' => 9]])]), $limiter);
+
+    caught(fn () => $client->sendImmediately(700700, 'hi'));
+
+    expect($limiter->reserveGlobal())->toBeFalse()
+        ->and($limiter->reserve(700700))->toBe(9)
+        // Another chat is not paused for replies (only background sends wait for the bot-wide pause).
+        ->and($limiter->reserve(700701))->toBe(0);
+});
+
+it('pauses only the group on a 429 in a group: background sends of the bot go on', function (): void {
     $limiter = new TelegramMessageRateLimiter(globalPerSecond: 25);
     $client = classifyingClient(scriptedSdk([tgAnswer(429, ['ok' => false, 'error_code' => 429, 'description' => 'Too Many Requests: retry after 9', 'parameters' => ['retry_after' => 9]])]), $limiter);
 
     caught(fn () => $client->sendImmediately(-100700, 'hi'));
 
-    expect($limiter->reserveGlobal())->toBeFalse()
+    expect($limiter->reserveGlobal())->toBeTrue()
         ->and($limiter->reserve(-100700))->toBe(9)
-        // Another chat is not paused for replies (only background sends wait for the bot-wide pause).
         ->and($limiter->reserve(-100701))->toBe(0);
+});
+
+it('pauses the whole bot on a 429 of a call without a chat', function (): void {
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 25);
+    $client = classifyingClient(scriptedSdk([tgAnswer(429, ['ok' => false, 'error_code' => 429, 'description' => 'Too Many Requests', 'parameters' => ['retry_after' => 4]], 'answerCallbackQuery')]), $limiter);
+
+    caught(fn () => $client->answerCallbackQuery('q1', 'ok'));
+
+    expect($limiter->globalPauseRemaining())->toBe(4)
+        ->and($limiter->reserveGlobal())->toBeFalse();
 });
 
 it('turns a 403 of a send into TelegramForbiddenException, as before', function (): void {

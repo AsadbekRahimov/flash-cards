@@ -78,35 +78,61 @@ function redisLimiterOrSkip(): void
 
 // --- the pause ---------------------------------------------------------------------------------
 
-it('blocks reserveGlobal and reserve(chat) for retry_after and lets them go after it', function (): void {
+it('blocks reserveGlobal and reserve(chat) for retry_after after a 429 in a private chat, and lets them go after it', function (): void {
     $limiter = new TelegramMessageRateLimiter(maxMessages: 20, windowSeconds: 60, globalPerSecond: 25);
 
-    $limiter->pause(5, -100900);
+    $limiter->pause(5, 700900);
 
     expect($limiter->reserveGlobal())->toBeFalse()
-        ->and($limiter->reserve(-100900))->toBe(5)
+        ->and($limiter->reserve(700900))->toBe(5)
         ->and($limiter->reserve(555))->toBe(0); // another chat: only the bot-wide budget of background sends waits
 
     $this->travel(5)->seconds();
 
     expect($limiter->reserveGlobal())->toBeTrue()
-        ->and($limiter->reserve(-100900))->toBe(0);
+        ->and($limiter->reserve(700900))->toBe(0);
 });
+
+it('pauses only the group itself after a 429 in a group: reserveGlobal and other chats go on', function (int|string $group): void {
+    $limiter = new TelegramMessageRateLimiter(maxMessages: 20, windowSeconds: 60, globalPerSecond: 25);
+
+    $limiter->pause(9, $group);
+
+    expect($limiter->globalPauseRemaining())->toBe(0)
+        ->and($limiter->reserveGlobal())->toBeTrue()
+        ->and($limiter->reserve($group))->toBe(9)
+        ->and($limiter->reserve(-100999))->toBe(0)
+        ->and($limiter->reserve(555))->toBe(0);
+})->with([
+    'supergroup' => [-1001234567890],
+    'basic group' => [-4242],
+    'id as string' => ['-1001234567890'],
+    'channel username' => ['@some_channel'],
+]);
+
+it('pauses the whole bot after a 429 in a private chat and after one without a chat', function (?int $chat): void {
+    $limiter = new TelegramMessageRateLimiter(globalPerSecond: 25);
+
+    $limiter->pause(6, $chat);
+
+    expect($limiter->globalPauseRemaining())->toBe(6)
+        ->and($limiter->reserveGlobal())->toBeFalse();
+})->with(['private chat' => [700901], 'no chat' => [null]]);
 
 it('takes no slot and records nothing in the chat window while paused', function (): void {
     $limiter = new TelegramMessageRateLimiter(maxMessages: 1, windowSeconds: 60, globalPerSecond: 1);
-    $limiter->pause(2, -100901);
+    $limiter->pause(2, 700901);
 
     foreach (range(1, 5) as $ignored) {
         $limiter->reserveGlobal();
-        $limiter->reserve(-100901);
+        $limiter->reserve(700901);
     }
 
     $this->travel(2)->seconds();
 
     // The one slot of the second and the one message of the window are still free.
     expect($limiter->reserveGlobal())->toBeTrue()
-        ->and($limiter->reserve(-100901))->toBe(0);
+        ->and($limiter->reserve(700901))->toBe(0);
 });
 
 it('pauses even when the per-second limit is switched off', function (): void {
@@ -119,13 +145,13 @@ it('pauses even when the per-second limit is switched off', function (): void {
 it('caps the pause at 60 s and never shortens a longer one', function (): void {
     $limiter = new TelegramMessageRateLimiter;
 
-    $limiter->pause(600, -100902);
+    $limiter->pause(600, 700902);
     expect($limiter->globalPauseRemaining())->toBe(60)
-        ->and($limiter->chatPauseRemaining(-100902))->toBe(60);
+        ->and($limiter->chatPauseRemaining(700902))->toBe(60);
 
-    $limiter->pause(2, -100902);
+    $limiter->pause(2, 700902);
     expect($limiter->globalPauseRemaining())->toBe(60)
-        ->and($limiter->chatPauseRemaining(-100902))->toBe(60);
+        ->and($limiter->chatPauseRemaining(700902))->toBe(60);
 
     $this->travel(59)->seconds();
     $limiter->pause(10);
@@ -149,10 +175,10 @@ it('shows one pause to two workers on Redis', function (): void {
     $workerA = new TelegramMessageRateLimiter(globalPerSecond: 25);
     $workerB = new TelegramMessageRateLimiter(globalPerSecond: 25);
 
-    $workerA->pause(8, -100903);
+    $workerA->pause(8, 700903);
 
     expect($workerB->reserveGlobal())->toBeFalse()
-        ->and($workerB->reserve(-100903))->toBe(8)
+        ->and($workerB->reserve(700903))->toBe(8)
         ->and($workerB->globalPauseRemaining())->toBe(8);
 
     // A smaller retry_after seen by the other worker does not shorten it (Lua compare-and-set).
@@ -168,7 +194,23 @@ it('shows one pause to two workers on Redis', function (): void {
     expect($workerB->reserveGlobal())->toBeTrue();
 
     Cache::store('redis')->forget(TelegramMessageRateLimiter::PAUSE_KEY);
-    Cache::store('redis')->forget('telegram:outbound:pause:'.hash('sha256', '-100903'));
+    Cache::store('redis')->forget('telegram:outbound:pause:'.hash('sha256', '700903'));
+});
+
+it('keeps a 429 of a group out of the bot-wide pause on Redis too', function (): void {
+    redisLimiterOrSkip();
+    $this->travelTo(CarbonImmutable::parse('2031-05-06 07:08:09'));
+    Cache::store('redis')->forget(TelegramMessageRateLimiter::PAUSE_KEY);
+
+    $workerA = new TelegramMessageRateLimiter(globalPerSecond: 25);
+    $workerB = new TelegramMessageRateLimiter(globalPerSecond: 25);
+
+    $workerA->pause(8, -100904);
+
+    expect($workerB->reserveGlobal())->toBeTrue()
+        ->and($workerB->reserve(-100904))->toBe(8);
+
+    Cache::store('redis')->forget('telegram:outbound:pause:'.hash('sha256', '-100904'));
 });
 
 // --- the job middleware ------------------------------------------------------------------------

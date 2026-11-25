@@ -59,6 +59,26 @@ return [
         'welcome_plain' => "🎁 Sizga :days Pro bepul ochildi — :date gacha.\n\nPro nima beradi:\n:benefits",
     ],
 
+    // The offers after the welcome trial (docs/34 §2д, TrialOfferSender) and the reminder 3 days before its end (RenewalReminderSender).
+    'trial_offer' => [
+        'ended' => 'Pro sinov muddati tugadi. Endi sizda Free — kuniga: :limits.',
+        'ended_generic' => 'Pro sinov muddati tugadi. Endi sizda Free.',
+        'limit_words' => ":count ta yangi so'z",
+        'limit_goal' => 'maqsad :count tagacha kartochka',
+        'limit_games' => ":count ta so'z o'yini",
+        'ended_on' => 'Pro sinov muddati tugadi (:date).',
+        'learned' => "Sinov davrida :words o'rgandingiz.",
+        'words' => ":count ta yangi so'z",
+        'best_streak' => 'Eng uzun ketma-ketlik — :streak.',
+        'back' => "Pro'ni qaytaring — kunlik limitlarsiz o'rganishda davom eting.",
+        'last' => "Pro haqida oxirgi eslatma: sinov muddati tugadi (:date). Bu haqda boshqa yozmaymiz — Pro'ni istalgan vaqtda /pro orqali qaytarishingiz mumkin.",
+        'benefits' => "Pro nima beradi:\n:benefits",
+        'from_month' => 'Muhrla Pro — oyiga :price dan.',
+        'savings' => 'Uzoq muddatga foydaliroq: :items.',
+        'saving_item' => ':period −:pct %',
+        'opted_out' => "Yaxshi, Pro takliflari endi kelmaydi. To'lov xabarlari va mashg'ulot eslatmalari qoladi.",
+    ],
+
     // What Pro gives, short lines of the bot (ProPromises::top(), docs/36 §4б).
     'pro_promises' => [
         'new_words' => "Yangi so'zlar — kunlik limitsiz",

@@ -108,13 +108,34 @@ final class ProTrialService
      */
     public function noticeIsCurrent(Learner $learner, CarbonImmutable $endsAt, ?CarbonImmutable $now = null): bool
     {
+        return $this->noticeTrial($learner, $endsAt, $now) !== null;
+    }
+
+    /**
+     * The live trial subscription a notice that ends at `$endsAt` is about, or null when the notice no longer tells the
+     * truth ({@see self::noticeIsCurrent()}). Reads one subscription.
+     */
+    public function noticeTrial(Learner $learner, CarbonImmutable $endsAt, ?CarbonImmutable $now = null): ?Subscription
+    {
         if ($endsAt->lessThanOrEqualTo($now ?? CarbonImmutable::now())) {
-            return false;
+            return null;
         }
 
         $live = $this->subscriptions->liveFor($learner);
 
-        return $live !== null && $live->provider === SubscriptionProvider::Trial->value;
+        return $live !== null && $live->provider === SubscriptionProvider::Trial->value ? $live : null;
+    }
+
+    /**
+     * How long the trial behind a notice is, in whole days: from the grant (`starts_at` of the trial row) to the end the
+     * notice names, rounded. Not `billing.trial.days`: a trial granted for 7 days before the setting became 14 is still a
+     * 7-day trial. At least 1.
+     */
+    public static function noticeDays(Subscription $trial, CarbonImmutable $endsAt): int
+    {
+        $seconds = $endsAt->getTimestamp() - $trial->starts_at->getTimestamp();
+
+        return max(1, (int) round($seconds / 86_400));
     }
 
     /**

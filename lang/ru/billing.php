@@ -60,6 +60,28 @@ return [
         'welcome_plain' => "🎁 Вам открыт Pro на :days — бесплатно, до :date.\n\nЧто даёт Pro:\n:benefits",
     ],
 
+    // The offers after the welcome trial (docs/34 §2д, TrialOfferSender) and the reminder 3 days before its end (RenewalReminderSender):
+    // `:limits` is the `limit_*` lines of Free joined by ", " (numbers from the plan / config), `:benefits` the "• …" lines of
+    // ProPromises::top(), the prices come from the catalog at the moment of sending (`from_month`, `savings`). No discount.
+    'trial_offer' => [
+        'ended' => 'Пробный Pro закончился. Теперь у вас Free — в день: :limits.',
+        'ended_generic' => 'Пробный Pro закончился. Теперь у вас Free.',
+        'limit_words' => ':count новое слово|:count новых слова|:count новых слов',
+        'limit_goal' => 'цель до :count карточки|цель до :count карточек|цель до :count карточек',
+        'limit_games' => ':count игра со словами|:count игры со словами|:count игр со словами',
+        'ended_on' => 'Пробный Pro закончился :date.',
+        'learned' => 'За пробный период вы выучили :words.',
+        'words' => ':count новое слово|:count новых слова|:count новых слов',
+        'best_streak' => 'Лучшая серия — :streak.',
+        'back' => 'Верните Pro — и учитесь дальше без дневных лимитов.',
+        'last' => 'Последнее напоминание о Pro: пробный период закончился :date. Больше писать об этом не будем — Pro можно вернуть в любой момент в /pro.',
+        'benefits' => "Что даёт Pro:\n:benefits",
+        'from_month' => 'Muhrla Pro — от :price в месяц.',
+        'savings' => 'Выгоднее на срок: :items.',
+        'saving_item' => ':period −:pct %',
+        'opted_out' => 'Хорошо, предложений Pro больше не будет. Сообщения об оплате и напоминания о занятиях останутся.',
+    ],
+
     // What Pro gives, short lines of the bot (ProPromises::top(), docs/36 §4б): the same list as the Mini App's "what Pro gives". The
     // lines about practice and the game are there only while those are open to the reader.
     'pro_promises' => [

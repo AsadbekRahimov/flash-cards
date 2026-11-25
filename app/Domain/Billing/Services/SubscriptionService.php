@@ -715,8 +715,11 @@ final class SubscriptionService
     {
         $now ??= CarbonImmutable::now();
         $days = $this->reminderDays();
+        // The welcome trial has its own days (docs/34 §2б.4: 3, no "tomorrow"); the paid subscriptions keep theirs.
+        $trialDays = $this->reminderDays('billing.trial.remind_days');
 
-        if ($days === []) {
+        $all = [...$days, ...$trialDays];
+        if ($all === []) {
             return 0;
         }
 
@@ -736,7 +739,7 @@ final class SubscriptionService
             ->whereNotIn('provider', $grants)
             ->whereNotNull('current_period_ends_at')
             ->where('current_period_ends_at', '>', $now)
-            ->where('current_period_ends_at', '<=', $now->addDays(max($days)))
+            ->where('current_period_ends_at', '<=', $now->addDays(max($all)))
             // A running Telegram subscription (not canceled, `meta.stars.recurring = true`) renews by itself: no lock for it.
             // A one-off year (`false`) and a legacy row without the flag stay: RenewalReminderSender::stillDue decides.
             ->where(fn (Builder $q) => $q
@@ -750,7 +753,7 @@ final class SubscriptionService
         $raised = 0;
 
         foreach ($ids as $id) {
-            if ($this->remindOne((int) $id, $days, $now)) {
+            if ($this->remindOne((int) $id, $days, $trialDays, $now)) {
                 $raised++;
             }
         }
@@ -1160,12 +1163,14 @@ final class SubscriptionService
      * One reminder candidate in its own transaction (subject -> subscription): re-checks the
      * row, writes the marker and raises the event after commit.
      *
-     * @param  non-empty-list<int>  $days  reminder thresholds, descending
+     * @param  list<int>  $paidDays  reminder thresholds of the paid subscriptions, descending
+     * @param  list<int>  $trialDays  reminder thresholds of the welcome trial, descending (`billing.trial.remind_days`)
      */
-    private function remindOne(int $id, array $days, CarbonImmutable $now): bool
+    private function remindOne(int $id, array $paidDays, array $trialDays, CarbonImmutable $now): bool
     {
-        return DB::transaction(function () use ($id, $days, $now): bool {
+        return DB::transaction(function () use ($id, $paidDays, $trialDays, $now): bool {
             $s = $this->lockForTransition($id);
+            $days = $s?->provider === SubscriptionProvider::Trial->value ? $trialDays : $paidDays;
 
             if ($s === null || $s->current_period_ends_at === null || ! SubscriptionLiveness::isLive($s, $now)) {
                 return false;
@@ -1214,10 +1219,10 @@ final class SubscriptionService
     }
 
     /** @return list<int> distinct positive thresholds, descending */
-    private function reminderDays(): array
+    private function reminderDays(string $key = 'billing.checkout.renewal_reminder_days'): array
     {
         /** @var array<int, mixed> $configured */
-        $configured = (array) config('billing.checkout.renewal_reminder_days', [3, 1]);
+        $configured = (array) config($key, $key === 'billing.checkout.renewal_reminder_days' ? [3, 1] : [3]);
         $days = array_values(array_unique(array_filter(array_map('intval', $configured), static fn (int $d): bool => $d > 0)));
         rsort($days);
 

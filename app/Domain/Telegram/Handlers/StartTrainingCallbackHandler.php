@@ -159,6 +159,7 @@ final class StartTrainingCallbackHandler implements GroupUpdateHandler
                     $this->trainingService->cancelUndelivered($session);
                 }
             },
+            telegramGroupId: $session->telegram_group_id,
         );
     }
 }

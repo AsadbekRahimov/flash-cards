@@ -453,8 +453,8 @@ class IrazasyedTelegramClient implements TelegramClient
      * {@see TelegramApiException}).
      *
      * Classification (docs/34 §4в п. 1), checked in this order:
-     *  - 429 on ANY method → {@see TelegramRateLimitedException} (`parameters.retry_after`); the outbound budget of the bot and of
-     *    `$chatId` is paused first ({@see TelegramMessageRateLimiter::pause()});
+     *  - 429 on ANY method → {@see TelegramRateLimitedException} (`parameters.retry_after`); `$chatId` is paused first, and the
+     *    whole bot too unless `$chatId` is a group ({@see TelegramMessageRateLimiter::pause()});
      *  - 400 with `parameters.migrate_to_chat_id` → {@see TelegramChatMigratedException};
      *  - with `$mapForbidden` (sends): 403, or 400 "chat not found" → {@see TelegramForbiddenException};
      *  - anything else → {@see TelegramApiException} (`isApiResponse()` = Telegram answered 4xx).
