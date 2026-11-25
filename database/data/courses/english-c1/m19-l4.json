@@ -160,6 +160,51 @@
         "ru": "Мы ездим на работу вместе на одной машине, чтобы экономить на топливе.",
         "uz": "Yoqilg'ini tejash uchun ishga bir mashinada birga qatnaymiz."
       }
+    },
+    {
+      "word": "multimodal",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌmʌltiˈmoʊdəl/",
+      "translation": "мультимодальный",
+      "translations": {
+        "ru": "мультимодальный",
+        "uz": "bir necha transport turini birlashtirgan"
+      },
+      "example": "The multimodal station connects buses, trains, and ferries.",
+      "example_translations": {
+        "ru": "Мультимодальная станция соединяет автобусные, железнодорожные и паромные маршруты.",
+        "uz": "Bir necha transport turini birlashtirgan bekat avtobus, poyezd va parom yo'nalishlarini tutashtiradi."
+      }
+    },
+    {
+      "word": "ridership",
+      "part_of_speech": "noun",
+      "transcription": "/ˈraɪdərˌʃɪp/",
+      "translation": "пассажиропоток",
+      "translations": {
+        "ru": "пассажиропоток",
+        "uz": "yo'lovchilar oqimi"
+      },
+      "example": "Weekend ridership rose after the subway extended service.",
+      "example_translations": {
+        "ru": "После расширения работы метро пассажиропоток по выходным вырос.",
+        "uz": "Metro xizmatini kengaytirgach, dam olish kunlari yo'lovchilar oqimi ko'paydi."
+      }
+    },
+    {
+      "word": "wayfinding",
+      "part_of_speech": "noun",
+      "transcription": "/ˈweɪˌfaɪndɪŋ/",
+      "translation": "навигация по указателям",
+      "translations": {
+        "ru": "навигация по указателям",
+        "uz": "yo'l ko'rsatkichlari orqali yo'nalish topish"
+      },
+      "example": "Clear wayfinding helps passengers reach the correct platform.",
+      "example_translations": {
+        "ru": "Понятная навигация по указателям помогает пассажирам попасть на нужную платформу.",
+        "uz": "Tushunarli yo'l ko'rsatkichlari yo'lovchilarga kerakli platformani topishga yordam beradi."
+      }
     }
   ]
 }

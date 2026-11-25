@@ -160,6 +160,66 @@
         "ru": "После трудного дня я предпочитаю комедию.",
         "uz": "Qiyin kundan keyin men komediyani afzal ko'raman."
       }
+    },
+    {
+      "word": "reporting",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈpɔrtɪŋ/",
+      "translation": "освещение событий",
+      "translations": {
+        "ru": "освещение событий",
+        "uz": "voqealarni yoritish"
+      },
+      "example": "Her reporting helped people understand the problem.",
+      "example_translations": {
+        "ru": "Её освещение событий помогло людям понять проблему.",
+        "uz": "Uning voqealarni yoritishi odamlarga muammoni tushunishga yordam berdi."
+      }
+    },
+    {
+      "word": "column",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑləm/",
+      "translation": "газетная колонка",
+      "translations": {
+        "ru": "газетная колонка",
+        "uz": "rukn"
+      },
+      "example": "She writes a weekly column about food.",
+      "example_translations": {
+        "ru": "Она пишет еженедельную газетную колонку о еде.",
+        "uz": "U ovqat haqida haftalik rukn yozadi."
+      }
+    },
+    {
+      "word": "publishing",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpʌblɪʃɪŋ/",
+      "translation": "издательское дело",
+      "translations": {
+        "ru": "издательское дело",
+        "uz": "nashr etish"
+      },
+      "example": "He works in publishing at a local newspaper.",
+      "example_translations": {
+        "ru": "Он занимается издательской работой в местной газете.",
+        "uz": "U mahalliy gazetada nashr etish ishlari bilan shug'ullanadi."
+      }
+    },
+    {
+      "word": "advertising",
+      "part_of_speech": "noun",
+      "transcription": "/ˈædvərˌtaɪzɪŋ/",
+      "translation": "рекламная деятельность",
+      "translations": {
+        "ru": "рекламная деятельность",
+        "uz": "reklama faoliyati"
+      },
+      "example": "Our newspaper makes money from advertising.",
+      "example_translations": {
+        "ru": "Наша газета зарабатывает на рекламе.",
+        "uz": "Gazetamiz reklama orqali daromad oladi."
+      }
     }
   ]
 }

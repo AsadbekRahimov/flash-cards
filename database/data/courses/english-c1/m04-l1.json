@@ -160,6 +160,36 @@
         "ru": "Наша местная аффилированная компания продаёт здесь продукцию группы.",
         "uz": "Mahalliy affillangan kompaniyamiz guruh mahsulotlarini shu yerda sotadi."
       }
+    },
+    {
+      "word": "reposition",
+      "part_of_speech": "verb",
+      "transcription": "/ˌripəˈzɪʃən/",
+      "translation": "менять позиционирование",
+      "translations": {
+        "ru": "менять позиционирование",
+        "uz": "bozordagi mavqeini o'zgartirmoq"
+      },
+      "example": "We plan to reposition our brand as affordable.",
+      "example_translations": {
+        "ru": "Мы планируем изменить позиционирование бренда, представив его как доступный.",
+        "uz": "Brendimizning bozordagi mavqeini o'zgartirib, uni hamyonbop brend sifatida tanitmoqchimiz."
+      }
+    },
+    {
+      "word": "realign",
+      "part_of_speech": "verb",
+      "transcription": "/ˌriəˈlaɪn/",
+      "translation": "приводить в соответствие",
+      "translations": {
+        "ru": "приводить в соответствие",
+        "uz": "moslashtirmoq"
+      },
+      "example": "New priorities forced us to realign our strategy.",
+      "example_translations": {
+        "ru": "Новые приоритеты заставили нас привести стратегию в соответствие с ними.",
+        "uz": "Yangi ustuvor yo'nalishlar strategiyamizni ularga moslashtirishga majbur qildi."
+      }
     }
   ]
 }

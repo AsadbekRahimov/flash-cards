@@ -160,6 +160,81 @@
         "ru": "Они наняли консультанта, чтобы увеличить продажи.",
         "uz": "Ular savdoni oshirish uchun maslahatchi yollashdi."
       }
+    },
+    {
+      "word": "locksmith",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɑkˌsmɪθ/",
+      "translation": "мастер по замкам",
+      "translations": {
+        "ru": "мастер по замкам",
+        "uz": "qulf ustasi"
+      },
+      "example": "A locksmith came to open our front door.",
+      "example_translations": {
+        "ru": "Мастер по замкам приехал открыть нам входную дверь.",
+        "uz": "Qulf ustasi kirish eshigimizni ochish uchun keldi."
+      }
+    },
+    {
+      "word": "electrician",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˌlɛkˈtrɪʃən/",
+      "translation": "электрик",
+      "translations": {
+        "ru": "электрик",
+        "uz": "elektrik"
+      },
+      "example": "An electrician installed a new ceiling light.",
+      "example_translations": {
+        "ru": "Электрик установил новый потолочный светильник.",
+        "uz": "Elektrik shiftga yangi chiroq o'rnatdi."
+      }
+    },
+    {
+      "word": "interpreter",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈtɜrprətər/",
+      "translation": "устный переводчик",
+      "translations": {
+        "ru": "устный переводчик",
+        "uz": "og'zaki tarjimon"
+      },
+      "example": "We hired an interpreter for the business meeting.",
+      "example_translations": {
+        "ru": "Мы наняли устного переводчика для деловой встречи.",
+        "uz": "Ish uchrashuvi uchun og'zaki tarjimon yolladik."
+      }
+    },
+    {
+      "word": "florist",
+      "part_of_speech": "noun",
+      "transcription": "/ˈflɔrɪst/",
+      "translation": "флорист",
+      "translations": {
+        "ru": "флорист",
+        "uz": "gulchi"
+      },
+      "example": "The florist made a bouquet of white roses.",
+      "example_translations": {
+        "ru": "Флорист составил букет из белых роз.",
+        "uz": "Gulchi oq atirgullardan guldasta yasadi."
+      }
+    },
+    {
+      "word": "lifeguard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlaɪfˌgɑrd/",
+      "translation": "спасатель на воде",
+      "translations": {
+        "ru": "спасатель на воде",
+        "uz": "suvdagi qutqaruvchi"
+      },
+      "example": "A lifeguard watches swimmers at the pool.",
+      "example_translations": {
+        "ru": "Спасатель следит за пловцами в бассейне.",
+        "uz": "Basseynda qutqaruvchi suzuvchilarni kuzatib turadi."
+      }
     }
   ]
 }

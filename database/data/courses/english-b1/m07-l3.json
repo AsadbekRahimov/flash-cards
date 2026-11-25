@@ -160,6 +160,51 @@
         "ru": "Новая система эффективна и экономит время.",
         "uz": "Yangi tizim samarali va vaqtni tejaydi."
       }
+    },
+    {
+      "word": "coworker",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkoʊˌwɜrkər/",
+      "translation": "коллега",
+      "translations": {
+        "ru": "коллега",
+        "uz": "hamkasb"
+      },
+      "example": "A coworker showed me how to use the printer.",
+      "example_translations": {
+        "ru": "Коллега показал мне, как пользоваться принтером.",
+        "uz": "Hamkasbim menga printerdan qanday foydalanishni ko'rsatdi."
+      }
+    },
+    {
+      "word": "paperwork",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpeɪpərˌwɜrk/",
+      "translation": "оформление документов",
+      "translations": {
+        "ru": "оформление документов",
+        "uz": "hujjatlarni rasmiylashtirish"
+      },
+      "example": "We finished the paperwork before closing the office.",
+      "example_translations": {
+        "ru": "Мы закончили оформление документов, прежде чем закрыть офис.",
+        "uz": "Idorani yopishdan oldin hujjatlarni rasmiylashtirib bo'ldik."
+      }
+    },
+    {
+      "word": "timesheet",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtaɪmˌʃit/",
+      "translation": "табель рабочего времени",
+      "translations": {
+        "ru": "табель рабочего времени",
+        "uz": "ish vaqti jadvali"
+      },
+      "example": "Enter your hours on the timesheet each Friday.",
+      "example_translations": {
+        "ru": "Каждую пятницу вносите отработанные часы в табель.",
+        "uz": "Har juma ishlagan soatlaringizni ish vaqti jadvaliga yozing."
+      }
     }
   ]
 }

@@ -160,6 +160,51 @@
         "ru": "План провалился, потому что его логика была ошибочной.",
         "uz": "Reja barbod bo'ldi, chunki uning mantig'i nuqsonli edi."
       }
+    },
+    {
+      "word": "deductive",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈdʌktɪv/",
+      "translation": "дедуктивный",
+      "translations": {
+        "ru": "дедуктивный",
+        "uz": "deduktiv"
+      },
+      "example": "A deductive argument applies a rule to particular cases.",
+      "example_translations": {
+        "ru": "Дедуктивное рассуждение применяет правило к отдельным случаям.",
+        "uz": "Deduktiv mulohazada qoida alohida hollarga tatbiq etiladi."
+      }
+    },
+    {
+      "word": "inductive",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdʌktɪv/",
+      "translation": "индуктивный",
+      "translations": {
+        "ru": "индуктивный",
+        "uz": "induktiv"
+      },
+      "example": "Inductive reasoning draws general conclusions from several observations.",
+      "example_translations": {
+        "ru": "Индуктивное рассуждение выводит общие заключения из нескольких наблюдений.",
+        "uz": "Induktiv fikrlashda bir nechta kuzatuvdan umumiy xulosa chiqariladi."
+      }
+    },
+    {
+      "word": "entailment",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈteɪlmənt/",
+      "translation": "логическое следование",
+      "translations": {
+        "ru": "логическое следование",
+        "uz": "mantiqiy kelib chiqish"
+      },
+      "example": "This entailment follows from the definition of a square.",
+      "example_translations": {
+        "ru": "Это логическое следование вытекает из определения квадрата.",
+        "uz": "Bu xulosa kvadrat ta'rifidan mantiqan kelib chiqadi."
+      }
     }
   ]
 }

@@ -160,6 +160,36 @@
         "ru": "Изучение языка требует времени и упорства.",
         "uz": "Til o'rganish vaqt va qat'iyat talab qiladi."
       }
+    },
+    {
+      "word": "adroitness",
+      "part_of_speech": "noun",
+      "transcription": "/əˈdrɔɪtnəs/",
+      "translation": "сноровка",
+      "translations": {
+        "ru": "сноровка",
+        "uz": "epchillik"
+      },
+      "example": "Repairing delicate watches requires patience and adroitness.",
+      "example_translations": {
+        "ru": "Ремонт хрупких часов требует терпения и сноровки.",
+        "uz": "Nozik soatlarni ta'mirlash sabr va epchillik talab qiladi."
+      }
+    },
+    {
+      "word": "multitalented",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌmʌltiˈtæləntəd/",
+      "translation": "разносторонне одарённый",
+      "translations": {
+        "ru": "разносторонне одарённый",
+        "uz": "ko'p qirrali iste'dodli"
+      },
+      "example": "Our multitalented neighbor sings, paints, and makes furniture.",
+      "example_translations": {
+        "ru": "Наш разносторонне одарённый сосед поёт, рисует и делает мебель.",
+        "uz": "Ko'p qirrali iste'dodga ega qo'shnimiz qo'shiq aytadi, rasm chizadi va mebel yasaydi."
+      }
     }
   ]
 }

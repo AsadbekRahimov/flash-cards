@@ -160,6 +160,36 @@
         "ru": "Он до сих пор таит обиду на бывшего начальника.",
         "uz": "U hanuz sobiq boshlig'iga kek saqlaydi."
       }
+    },
+    {
+      "word": "confidante",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑnfəˌdænt/",
+      "translation": "женщина, которой доверяют тайны",
+      "translations": {
+        "ru": "женщина, которой доверяют тайны",
+        "uz": "sirdosh ayol"
+      },
+      "example": "My aunt became my confidante during those years.",
+      "example_translations": {
+        "ru": "В те годы я стал доверять тёте свои тайны.",
+        "uz": "O'sha yillarda xolam sirdoshimga aylandi."
+      }
+    },
+    {
+      "word": "inseparable",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈsɛpərəbəl/",
+      "translation": "неразлучный",
+      "translations": {
+        "ru": "неразлучный",
+        "uz": "doim birga yuradigan"
+      },
+      "example": "We had been inseparable since our first rehearsal.",
+      "example_translations": {
+        "ru": "Мы были неразлучны с первой репетиции.",
+        "uz": "Birinchi mashg'ulotimizdan beri doim birga yurardik."
+      }
     }
   ]
 }

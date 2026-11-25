@@ -160,6 +160,36 @@
         "ru": "Медсёстры устроили внезапную забастовку из-за низкой оплаты.",
         "uz": "Hamshiralar past maosh tufayli to'satdan ish tashlash uyushtirdi."
       }
+    },
+    {
+      "word": "retrenchment",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈtrɛntʃmənt/",
+      "translation": "сокращение штата",
+      "translations": {
+        "ru": "сокращение штата",
+        "uz": "xodimlar sonini qisqartirish"
+      },
+      "example": "Union representatives opposed retrenchment at the regional office.",
+      "example_translations": {
+        "ru": "Представители профсоюза выступили против сокращения штата в региональном офисе.",
+        "uz": "Kasaba uyushmasi vakillari hududiy idorada xodimlar sonini qisqartirishga qarshi chiqdi."
+      }
+    },
+    {
+      "word": "lockout",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɑkˌaʊt/",
+      "translation": "локаут",
+      "translations": {
+        "ru": "локаут",
+        "uz": "xodimlarni ishga qo'ymaslik"
+      },
+      "example": "During the lockout, factory employees could not work.",
+      "example_translations": {
+        "ru": "Во время локаута работники завода не могли работать.",
+        "uz": "Xodimlar ishga qo'yilmagani uchun zavodda ishlay olmadilar."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Водород — самый лёгкий газ во Вселенной.",
         "uz": "Vodorod — koinotdagi eng yengil gaz."
       }
+    },
+    {
+      "word": "geology",
+      "part_of_speech": "noun",
+      "transcription": "/dʒiˈɑlədʒi/",
+      "translation": "геология",
+      "translations": {
+        "ru": "геология",
+        "uz": "geologiya"
+      },
+      "example": "We study local rocks in our geology class.",
+      "example_translations": {
+        "ru": "На занятии по геологии мы изучаем местные горные породы.",
+        "uz": "Geologiya darsida mahalliy tog' jinslarini o'rganamiz."
+      }
+    },
+    {
+      "word": "zoology",
+      "part_of_speech": "noun",
+      "transcription": "/zoʊˈɑlədʒi/",
+      "translation": "зоология",
+      "translations": {
+        "ru": "зоология",
+        "uz": "zoologiya"
+      },
+      "example": "In zoology, we learn how animals develop.",
+      "example_translations": {
+        "ru": "На зоологии мы изучаем, как развиваются животные.",
+        "uz": "Zoologiya darsida hayvonlar qanday rivojlanishini o'rganamiz."
+      }
+    },
+    {
+      "word": "botany",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɑtəni/",
+      "translation": "ботаника",
+      "translations": {
+        "ru": "ботаника",
+        "uz": "botanika"
+      },
+      "example": "Our botany class compared leaves from different trees.",
+      "example_translations": {
+        "ru": "На занятии по ботанике мы сравнили листья разных деревьев.",
+        "uz": "Botanika darsida turli daraxtlarning barglarini solishtirdik."
+      }
+    },
+    {
+      "word": "optics",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑptɪks/",
+      "translation": "оптика",
+      "translations": {
+        "ru": "оптика",
+        "uz": "optika"
+      },
+      "example": "Optics explains how lenses bend and focus light.",
+      "example_translations": {
+        "ru": "Оптика объясняет, как линзы преломляют и фокусируют свет.",
+        "uz": "Optika linzalar yorug'likni qanday sindirishi va bir nuqtaga jamlashini tushuntiradi."
+      }
+    },
+    {
+      "word": "microbiology",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmaɪkroʊbaɪˈɑlədʒi/",
+      "translation": "микробиология",
+      "translations": {
+        "ru": "микробиология",
+        "uz": "mikrobiologiya"
+      },
+      "example": "Our microbiology class examined bacteria under a microscope.",
+      "example_translations": {
+        "ru": "На микробиологии мы рассматривали бактерии под микроскопом.",
+        "uz": "Mikrobiologiya darsida bakteriyalarni mikroskop ostida ko'rib chiqdik."
+      }
     }
   ]
 }

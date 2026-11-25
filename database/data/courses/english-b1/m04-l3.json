@@ -160,6 +160,81 @@
         "ru": "Осторожно, кухонная плита ещё горячая.",
         "uz": "Ehtiyot bo'ling, plita hali issiq."
       }
+    },
+    {
+      "word": "spatula",
+      "part_of_speech": "noun",
+      "transcription": "/ˈspætʃələ/",
+      "translation": "кухонная лопатка",
+      "translations": {
+        "ru": "кухонная лопатка",
+        "uz": "oshxona kurakchasi"
+      },
+      "example": "Flip the pancake with a spatula.",
+      "example_translations": {
+        "ru": "Блинчик переверните лопаткой.",
+        "uz": "Quymoqni oshxona kurakchasi bilan ag'daring."
+      }
+    },
+    {
+      "word": "whisk",
+      "part_of_speech": "noun",
+      "transcription": "/wɪsk/",
+      "translation": "венчик",
+      "translations": {
+        "ru": "венчик",
+        "uz": "qo'l ko'pirtirgichi"
+      },
+      "example": "Beat the eggs with a whisk.",
+      "example_translations": {
+        "ru": "Взбейте яйца венчиком.",
+        "uz": "Tuxumni qo'l ko'pirtirgichi bilan ko'pirtiring."
+      }
+    },
+    {
+      "word": "ladle",
+      "part_of_speech": "noun",
+      "transcription": "/ˈleɪdəl/",
+      "translation": "половник",
+      "translations": {
+        "ru": "половник",
+        "uz": "cho'mich"
+      },
+      "example": "Use a ladle to serve the soup.",
+      "example_translations": {
+        "ru": "Разлейте суп половником.",
+        "uz": "Sho'rvani cho'mich bilan suzing."
+      }
+    },
+    {
+      "word": "colander",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkʌləndər/",
+      "translation": "дуршлаг",
+      "translations": {
+        "ru": "дуршлаг",
+        "uz": "suzgich"
+      },
+      "example": "Drain the cooked pasta in a colander.",
+      "example_translations": {
+        "ru": "Откиньте сваренную пасту на дуршлаг.",
+        "uz": "Pishgan makaronni suzgichga solib, suvini oqizing."
+      }
+    },
+    {
+      "word": "grater",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgreɪtər/",
+      "translation": "тёрка",
+      "translations": {
+        "ru": "тёрка",
+        "uz": "qirg'ich"
+      },
+      "example": "Use a grater to shred the cheese.",
+      "example_translations": {
+        "ru": "Натрите сыр на тёрке.",
+        "uz": "Pishloqni qirg'ichdan o'tkazing."
+      }
     }
   ]
 }

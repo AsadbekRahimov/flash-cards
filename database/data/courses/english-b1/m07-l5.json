@@ -160,6 +160,66 @@
         "ru": "Врачи часто работают под сильным давлением.",
         "uz": "Shifokorlar ko'pincha kuchli bosim ostida ishlaydi."
       }
+    },
+    {
+      "word": "piecework",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpisˌwɜrk/",
+      "translation": "сдельная работа",
+      "translations": {
+        "ru": "сдельная работа",
+        "uz": "bajarilgan ish hajmiga qarab haq to'lanadigan ish"
+      },
+      "example": "She earned more doing piecework than working hourly.",
+      "example_translations": {
+        "ru": "На сдельной работе она зарабатывала больше, чем при почасовой оплате.",
+        "uz": "U soatbay ishlagandan ko'ra bajarilgan ish hajmiga qarab haq olganda ko'proq pul topardi."
+      }
+    },
+    {
+      "word": "overpaid",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌoʊvərˈpeɪd/",
+      "translation": "получающий слишком много",
+      "translations": {
+        "ru": "получающий слишком много",
+        "uz": "ortiqcha haq oladigan"
+      },
+      "example": "Some people think professional athletes are overpaid.",
+      "example_translations": {
+        "ru": "Некоторые считают, что профессиональные спортсмены получают слишком много.",
+        "uz": "Ayrimlar professional sportchilar ortiqcha haq oladi deb o'ylaydi."
+      }
+    },
+    {
+      "word": "paystub",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpeɪˌstʌb/",
+      "translation": "расчётный листок",
+      "translations": {
+        "ru": "расчётный листок",
+        "uz": "ish haqi hisob varaqasi"
+      },
+      "example": "My paystub shows how much tax I paid.",
+      "example_translations": {
+        "ru": "В моём расчётном листке указано, сколько налога я заплатил.",
+        "uz": "Ish haqi hisob varaqamda qancha soliq to'laganim ko'rsatilgan."
+      }
+    },
+    {
+      "word": "salaried",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsælərid/",
+      "translation": "с фиксированным окладом",
+      "translations": {
+        "ru": "с фиксированным окладом",
+        "uz": "belgilangan oylik maoshli"
+      },
+      "example": "She took a salaried job at the library.",
+      "example_translations": {
+        "ru": "Она устроилась в библиотеку на работу с фиксированным окладом.",
+        "uz": "U kutubxonaga belgilangan oylik maosh bilan ishga kirdi."
+      }
     }
   ]
 }

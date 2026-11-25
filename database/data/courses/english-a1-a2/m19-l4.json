@@ -160,6 +160,66 @@
         "ru": "Машины вредят воздуху в городах.",
         "uz": "Mashinalar shaharlardagi havoga zarar yetkazadi."
       }
+    },
+    {
+      "word": "recycling",
+      "part_of_speech": "noun",
+      "transcription": "/riˈsaɪklɪŋ/",
+      "translation": "переработка отходов",
+      "translations": {
+        "ru": "переработка отходов",
+        "uz": "chiqindini qayta ishlash"
+      },
+      "example": "We collect old paper for recycling at school.",
+      "example_translations": {
+        "ru": "В школе мы собираем макулатуру на переработку.",
+        "uz": "Maktabda eski qog'ozlarni qayta ishlash uchun yig'amiz."
+      }
+    },
+    {
+      "word": "reuse",
+      "part_of_speech": "verb",
+      "transcription": "/riˈjuz/",
+      "translation": "использовать повторно",
+      "translations": {
+        "ru": "использовать повторно",
+        "uz": "qayta foydalanmoq"
+      },
+      "example": "You can reuse this bag many times.",
+      "example_translations": {
+        "ru": "Этим пакетом можно пользоваться много раз.",
+        "uz": "Bu paketdan ko'p marta qayta foydalanishingiz mumkin."
+      }
+    },
+    {
+      "word": "bin",
+      "part_of_speech": "noun",
+      "transcription": "/bɪn/",
+      "translation": "мусорный бак",
+      "translations": {
+        "ru": "мусорный бак",
+        "uz": "chiqindi qutisi"
+      },
+      "example": "Put the empty bottle in the recycling bin.",
+      "example_translations": {
+        "ru": "Положите пустую бутылку в бак для переработки отходов.",
+        "uz": "Bo'sh shishani qayta ishlanadigan chiqindilar qutisiga tashlang."
+      }
+    },
+    {
+      "word": "ecological",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌikəˈlɑdʒɪkəl/",
+      "translation": "экологический",
+      "translations": {
+        "ru": "экологический",
+        "uz": "ekologik"
+      },
+      "example": "The oil spill caused serious ecological damage.",
+      "example_translations": {
+        "ru": "Разлив нефти нанёс серьёзный экологический ущерб.",
+        "uz": "Neft to'kilishi jiddiy ekologik zarar yetkazdi."
+      }
     }
   ]
 }

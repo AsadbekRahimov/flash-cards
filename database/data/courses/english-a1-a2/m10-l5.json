@@ -160,6 +160,81 @@
         "ru": "Медведь живёт в лесу.",
         "uz": "Ayiq o'rmonda yashaydi."
       }
+    },
+    {
+      "word": "duck",
+      "part_of_speech": "noun",
+      "transcription": "/dʌk/",
+      "translation": "утка",
+      "translations": {
+        "ru": "утка",
+        "uz": "o'rdak"
+      },
+      "example": "A duck is swimming in the lake.",
+      "example_translations": {
+        "ru": "В озере плавает утка.",
+        "uz": "Ko'lda o'rdak suzib yuribdi."
+      }
+    },
+    {
+      "word": "lion",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlaɪən/",
+      "translation": "лев",
+      "translations": {
+        "ru": "лев",
+        "uz": "sher"
+      },
+      "example": "The lion is sleeping under a tree.",
+      "example_translations": {
+        "ru": "Лев спит под деревом.",
+        "uz": "Sher daraxt tagida uxlayapti."
+      }
+    },
+    {
+      "word": "monkey",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmʌŋki/",
+      "translation": "обезьяна",
+      "translations": {
+        "ru": "обезьяна",
+        "uz": "maymun"
+      },
+      "example": "Can you see the monkey in that tree?",
+      "example_translations": {
+        "ru": "Видите обезьяну на том дереве?",
+        "uz": "Anavi daraxtdagi maymunni ko'ryapsizmi?"
+      }
+    },
+    {
+      "word": "rabbit",
+      "part_of_speech": "noun",
+      "transcription": "/ˈræbɪt/",
+      "translation": "кролик",
+      "translations": {
+        "ru": "кролик",
+        "uz": "quyon"
+      },
+      "example": "My rabbit likes to eat carrots.",
+      "example_translations": {
+        "ru": "Мой кролик любит есть морковь.",
+        "uz": "Quyonim sabzi yeyishni yaxshi ko'radi."
+      }
+    },
+    {
+      "word": "pig",
+      "part_of_speech": "noun",
+      "transcription": "/pɪg/",
+      "translation": "свинья",
+      "translations": {
+        "ru": "свинья",
+        "uz": "cho'chqa"
+      },
+      "example": "A pink pig is sleeping in the sun.",
+      "example_translations": {
+        "ru": "Розовая свинья спит на солнце.",
+        "uz": "Pushti cho'chqa quyoshda uxlayapti."
+      }
     }
   ]
 }

@@ -160,6 +160,21 @@
         "ru": "Эта книга оказала на меня глубокое влияние.",
         "uz": "Bu kitob menga chuqur ta'sir ko'rsatdi."
       }
+    },
+    {
+      "word": "infinitesimal",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪnfɪnəˈtɛsəməl/",
+      "translation": "бесконечно малый",
+      "translations": {
+        "ru": "бесконечно малый",
+        "uz": "cheksiz kichik"
+      },
+      "example": "Even an infinitesimal change can affect this sensitive instrument.",
+      "example_translations": {
+        "ru": "Даже бесконечно малое изменение может повлиять на этот чувствительный прибор.",
+        "uz": "Hatto cheksiz kichik o'zgarish ham bu sezgir asbobga ta'sir qilishi mumkin."
+      }
     }
   ]
 }

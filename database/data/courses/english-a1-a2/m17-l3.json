@@ -160,6 +160,66 @@
         "ru": "Супермаркет сегодня закрывается в десять.",
         "uz": "Supermarket bugun kechqurun o'nda yopiladi."
       }
+    },
+    {
+      "word": "kiosk",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkiɑsk/",
+      "translation": "киоск",
+      "translations": {
+        "ru": "киоск",
+        "uz": "do'koncha"
+      },
+      "example": "I bought some water at the kiosk.",
+      "example_translations": {
+        "ru": "Я купил воду в киоске.",
+        "uz": "Do'konchadan suv sotib oldim."
+      }
+    },
+    {
+      "word": "boutique",
+      "part_of_speech": "noun",
+      "transcription": "/buˈtik/",
+      "translation": "бутик",
+      "translations": {
+        "ru": "бутик",
+        "uz": "butik"
+      },
+      "example": "This boutique sells clothes from local designers.",
+      "example_translations": {
+        "ru": "В этом бутике продают одежду местных дизайнеров.",
+        "uz": "Bu butikda mahalliy dizaynerlarning kiyimlari sotiladi."
+      }
+    },
+    {
+      "word": "catalog",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkætəlɔg/",
+      "translation": "каталог",
+      "translations": {
+        "ru": "каталог",
+        "uz": "katalog"
+      },
+      "example": "Let's look at the store catalog first.",
+      "example_translations": {
+        "ru": "Давайте сначала посмотрим каталог магазина.",
+        "uz": "Keling, avval do'kon katalogini ko'raylik."
+      }
+    },
+    {
+      "word": "fitting",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɪtɪŋ/",
+      "translation": "примерка",
+      "translations": {
+        "ru": "примерка",
+        "uz": "kiyib ko'rish"
+      },
+      "example": "I need a fitting for my new suit.",
+      "example_translations": {
+        "ru": "Мне нужно прийти на примерку нового костюма.",
+        "uz": "Yangi kostyumimni kiyib ko'rishim kerak."
+      }
     }
   ]
 }

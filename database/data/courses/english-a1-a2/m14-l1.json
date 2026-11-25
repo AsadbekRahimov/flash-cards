@@ -160,6 +160,66 @@
         "ru": "Весной они нанимают новых рабочих.",
         "uz": "Ular bahorda yangi ishchilarni ishga oladi."
       }
+    },
+    {
+      "word": "hiring",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhaɪrɪŋ/",
+      "translation": "наём сотрудников",
+      "translations": {
+        "ru": "наём сотрудников",
+        "uz": "xodimlarni ishga olish"
+      },
+      "example": "The restaurant will start hiring next week.",
+      "example_translations": {
+        "ru": "Ресторан начнёт наём сотрудников на следующей неделе.",
+        "uz": "Restoran kelasi hafta xodimlarni ishga ola boshlaydi."
+      }
+    },
+    {
+      "word": "application",
+      "part_of_speech": "noun",
+      "transcription": "/ˌæpləˈkeɪʃən/",
+      "translation": "заявление о приёме",
+      "translations": {
+        "ru": "заявление о приёме",
+        "uz": "ishga kirish arizasi"
+      },
+      "example": "He sent his application to the manager.",
+      "example_translations": {
+        "ru": "Он отправил менеджеру заявление о приёме на работу.",
+        "uz": "U ishga kirish arizasini menejerga yubordi."
+      }
+    },
+    {
+      "word": "resume",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɛzəˌmeɪ/",
+      "translation": "резюме",
+      "translations": {
+        "ru": "резюме",
+        "uz": "rezyume"
+      },
+      "example": "Please send your resume to our office.",
+      "example_translations": {
+        "ru": "Пожалуйста, пришлите резюме в наш офис.",
+        "uz": "Iltimos, rezyumengizni ofisimizga yuboring."
+      }
+    },
+    {
+      "word": "recruiter",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈkrutər/",
+      "translation": "специалист по подбору кадров",
+      "translations": {
+        "ru": "специалист по подбору кадров",
+        "uz": "xodim tanlash mutaxassisi"
+      },
+      "example": "The recruiter called me about a job.",
+      "example_translations": {
+        "ru": "Специалист по подбору кадров позвонил мне насчёт работы.",
+        "uz": "Xodim tanlash mutaxassisi menga ish bo'yicha qo'ng'iroq qildi."
+      }
     }
   ]
 }

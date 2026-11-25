@@ -160,6 +160,81 @@
         "ru": "Не выносите суждение, пока не выслушаете обе стороны.",
         "uz": "Ikkala tomonni eshitmaguncha hukm chiqarmang."
       }
+    },
+    {
+      "word": "insightful",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɪnˌsaɪtfəl/",
+      "translation": "показывающий глубокое понимание",
+      "translations": {
+        "ru": "показывающий глубокое понимание",
+        "uz": "teran fikrli"
+      },
+      "example": "Her insightful question changed how we understood the problem.",
+      "example_translations": {
+        "ru": "Её глубокий вопрос изменил наше понимание проблемы.",
+        "uz": "Uning teran savoli muammo haqidagi tushunchamizni o'zgartirdi."
+      }
+    },
+    {
+      "word": "reflective",
+      "part_of_speech": "adjective",
+      "transcription": "/rɪˈflɛktɪv/",
+      "translation": "склонный к размышлению",
+      "translations": {
+        "ru": "склонный к размышлению",
+        "uz": "mulohaza yuritishga moyil"
+      },
+      "example": "A reflective learner thinks about mistakes after class.",
+      "example_translations": {
+        "ru": "Склонный к размышлению ученик обдумывает ошибки после занятия.",
+        "uz": "Mulohaza yuritishga moyil o'quvchi darsdan keyin xatolari haqida o'ylaydi."
+      }
+    },
+    {
+      "word": "methodical",
+      "part_of_speech": "adjective",
+      "transcription": "/məˈθɑdɪkəl/",
+      "translation": "методичный",
+      "translations": {
+        "ru": "методичный",
+        "uz": "tartibli va izchil"
+      },
+      "example": "A methodical approach helps us compare all the options.",
+      "example_translations": {
+        "ru": "Методичный подход помогает нам сравнить все варианты.",
+        "uz": "Tartibli va izchil yondashuv barcha variantlarni solishtirishga yordam beradi."
+      }
+    },
+    {
+      "word": "intuitive",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈtuətɪv/",
+      "translation": "интуитивный",
+      "translations": {
+        "ru": "интуитивный",
+        "uz": "sezgiga asoslangan"
+      },
+      "example": "Her intuitive answer was right, though she couldn't explain.",
+      "example_translations": {
+        "ru": "Её интуитивный ответ оказался правильным, хотя она не смогла его объяснить.",
+        "uz": "Uning sezgiga asoslangan javobi to'g'ri chiqdi, lekin u javobini tushuntira olmadi."
+      }
+    },
+    {
+      "word": "rationalize",
+      "part_of_speech": "verb",
+      "transcription": "/ˈræʃənəˌlaɪz/",
+      "translation": "оправдывать надуманными доводами",
+      "translations": {
+        "ru": "оправдывать надуманными доводами",
+        "uz": "bahona bilan oqlamoq"
+      },
+      "example": "Don't rationalize every mistake as a deliberate choice.",
+      "example_translations": {
+        "ru": "Не оправдывайте каждую ошибку тем, что это был сознательный выбор.",
+        "uz": "Har bir xatoni «ataylab shunday qildim» degan bahona bilan oqlamang."
+      }
     }
   ]
 }

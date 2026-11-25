@@ -160,6 +160,81 @@
         "ru": "Буря была ужасной катастрофой.",
         "uz": "Bo'ron dahshatli ofat bo'ldi."
       }
+    },
+    {
+      "word": "typhoon",
+      "part_of_speech": "noun",
+      "transcription": "/taɪˈfun/",
+      "translation": "тайфун",
+      "translations": {
+        "ru": "тайфун",
+        "uz": "tayfun"
+      },
+      "example": "The typhoon brought heavy rain and strong winds.",
+      "example_translations": {
+        "ru": "Тайфун принёс сильный дождь и порывистый ветер.",
+        "uz": "Tayfun kuchli yomg'ir va qattiq shamol olib keldi."
+      }
+    },
+    {
+      "word": "blizzard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈblɪzərd/",
+      "translation": "снежная буря",
+      "translations": {
+        "ru": "снежная буря",
+        "uz": "qor bo'roni"
+      },
+      "example": "We stayed inside until the blizzard ended.",
+      "example_translations": {
+        "ru": "Мы оставались дома, пока снежная буря не закончилась.",
+        "uz": "Qor bo'roni tugaguncha uyda qoldik."
+      }
+    },
+    {
+      "word": "sandstorm",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsændˌstɔrm/",
+      "translation": "песчаная буря",
+      "translations": {
+        "ru": "песчаная буря",
+        "uz": "qum bo'roni"
+      },
+      "example": "A sandstorm made it hard to see the road.",
+      "example_translations": {
+        "ru": "Из-за песчаной бури дорогу было плохо видно.",
+        "uz": "Qum bo'roni tufayli yo'lni ko'rish qiyin bo'ldi."
+      }
+    },
+    {
+      "word": "lava",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɑvə/",
+      "translation": "лава",
+      "translations": {
+        "ru": "лава",
+        "uz": "lava"
+      },
+      "example": "Hot lava flowed down the mountain.",
+      "example_translations": {
+        "ru": "Горячая лава стекала с горы.",
+        "uz": "Qizigan lava tog'dan pastga oqdi."
+      }
+    },
+    {
+      "word": "hailstorm",
+      "part_of_speech": "noun",
+      "transcription": "/ˈheɪlˌstɔrm/",
+      "translation": "сильный град",
+      "translations": {
+        "ru": "сильный град",
+        "uz": "kuchli do'l"
+      },
+      "example": "The hailstorm damaged cars in our street.",
+      "example_translations": {
+        "ru": "Сильный град повредил машины на нашей улице.",
+        "uz": "Kuchli do'l ko'chamizdagi mashinalarga zarar yetkazdi."
+      }
     }
   ]
 }

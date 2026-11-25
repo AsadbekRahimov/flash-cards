@@ -160,6 +160,81 @@
         "ru": "Преданный делу учитель уделяет дополнительное время слабым ученикам.",
         "uz": "Fidoyi o'qituvchi bo'sh o'zlashtiruvchi o'quvchilarga qo'shimcha vaqt ajratadi."
       }
+    },
+    {
+      "word": "selfless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɛlfləs/",
+      "translation": "бескорыстный",
+      "translations": {
+        "ru": "бескорыстный",
+        "uz": "beg'araz"
+      },
+      "example": "Her selfless work helped families find a place to live.",
+      "example_translations": {
+        "ru": "Её бескорыстный труд помог семьям найти жильё.",
+        "uz": "Uning beg'araz mehnati oilalarga turar joy topishda yordam berdi."
+      }
+    },
+    {
+      "word": "diplomatic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌdɪpləˈmætɪk/",
+      "translation": "тактичный",
+      "translations": {
+        "ru": "тактичный",
+        "uz": "andishali"
+      },
+      "example": "She gave a diplomatic answer to avoid offending anyone.",
+      "example_translations": {
+        "ru": "Она ответила тактично, чтобы никого не обидеть.",
+        "uz": "Hech kimni ranjitmaslik uchun u andisha bilan javob berdi."
+      }
+    },
+    {
+      "word": "perceptive",
+      "part_of_speech": "adjective",
+      "transcription": "/pərˈsɛptɪv/",
+      "translation": "проницательный",
+      "translations": {
+        "ru": "проницательный",
+        "uz": "ziyrak"
+      },
+      "example": "Her perceptive comments revealed a problem we had missed.",
+      "example_translations": {
+        "ru": "Её проницательные замечания выявили проблему, которую мы упустили.",
+        "uz": "U ziyraklik bilan biz payqamagan muammoni ko'rsatib berdi."
+      }
+    },
+    {
+      "word": "discreet",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈskrit/",
+      "translation": "умеющий хранить тайну",
+      "translations": {
+        "ru": "умеющий хранить тайну",
+        "uz": "sir saqlay oladigan"
+      },
+      "example": "Please be discreet about what I told you.",
+      "example_translations": {
+        "ru": "Пожалуйста, сохраните в тайне то, что я вам рассказал.",
+        "uz": "Iltimos, sizga aytgan gapim oramizda qolsin."
+      }
+    },
+    {
+      "word": "receptive",
+      "part_of_speech": "adjective",
+      "transcription": "/rɪˈsɛptɪv/",
+      "translation": "открытый к новому",
+      "translations": {
+        "ru": "открытый к новому",
+        "uz": "yangilikka ochiq"
+      },
+      "example": "Our manager is receptive to suggestions from new employees.",
+      "example_translations": {
+        "ru": "Руководитель охотно прислушивается к предложениям новых сотрудников.",
+        "uz": "Rahbarimiz yangi xodimlarning takliflarini bajonidil tinglaydi."
+      }
     }
   ]
 }

@@ -160,6 +160,111 @@
         "ru": "Узбекская еда очень вкусная.",
         "uz": "O'zbek taomlari mazali."
       }
+    },
+    {
+      "word": "pancake",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpænˌkeɪk/",
+      "translation": "блинчик",
+      "translations": {
+        "ru": "блинчик",
+        "uz": "quymoq"
+      },
+      "example": "Would you like a pancake with jam?",
+      "example_translations": {
+        "ru": "Хотите блинчик с вареньем?",
+        "uz": "Murabbo bilan quymoq yeysizmi?"
+      }
+    },
+    {
+      "word": "pizza",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpitsə/",
+      "translation": "пицца",
+      "translations": {
+        "ru": "пицца",
+        "uz": "pitsa"
+      },
+      "example": "We make pizza at home on Fridays.",
+      "example_translations": {
+        "ru": "По пятницам мы готовим пиццу дома.",
+        "uz": "Juma kunlari uyda pitsa tayyorlaymiz."
+      }
+    },
+    {
+      "word": "sausage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɔsɪdʒ/",
+      "translation": "сосиска",
+      "translations": {
+        "ru": "сосиска",
+        "uz": "sosiska"
+      },
+      "example": "There is a sausage on his plate.",
+      "example_translations": {
+        "ru": "У него на тарелке лежит сосиска.",
+        "uz": "Uning likopchasida bitta sosiska bor."
+      }
+    },
+    {
+      "word": "yogurt",
+      "part_of_speech": "noun",
+      "transcription": "/ˈjoʊgərt/",
+      "translation": "йогурт",
+      "translations": {
+        "ru": "йогурт",
+        "uz": "yogurt"
+      },
+      "example": "I eat yogurt with fruit for breakfast.",
+      "example_translations": {
+        "ru": "На завтрак я ем йогурт с фруктами.",
+        "uz": "Nonushtada meva bilan yogurt yeyman."
+      }
+    },
+    {
+      "word": "sandwich",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsænwɪtʃ/",
+      "translation": "бутерброд",
+      "translations": {
+        "ru": "бутерброд",
+        "uz": "sendvich"
+      },
+      "example": "I made a cheese sandwich for lunch.",
+      "example_translations": {
+        "ru": "Я сделал на обед бутерброд с сыром.",
+        "uz": "Tushlikka pishloqli sendvich tayyorladim."
+      }
+    },
+    {
+      "word": "cake",
+      "part_of_speech": "noun",
+      "transcription": "/keɪk/",
+      "translation": "торт",
+      "translations": {
+        "ru": "торт",
+        "uz": "tort"
+      },
+      "example": "We made a cake for Dad's birthday.",
+      "example_translations": {
+        "ru": "Мы приготовили торт на папин день рождения.",
+        "uz": "Dadamning tug'ilgan kuniga tort tayyorladik."
+      }
+    },
+    {
+      "word": "chocolate",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtʃɑklət/",
+      "translation": "шоколад",
+      "translations": {
+        "ru": "шоколад",
+        "uz": "shokolad"
+      },
+      "example": "You can have a piece of chocolate.",
+      "example_translations": {
+        "ru": "Можете взять кусочек шоколада.",
+        "uz": "Bir bo'lak shokolad olishingiz mumkin."
+      }
     }
   ]
 }

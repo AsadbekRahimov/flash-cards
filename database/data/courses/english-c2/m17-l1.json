@@ -160,6 +160,66 @@
         "ru": "После затянувшихся на месяцы переговоров они наконец договорились.",
         "uz": "Oylab cho'zilib ketgan muzokaralardan so'ng ular nihoyat kelishdi."
       }
+    },
+    {
+      "word": "evanescence",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɛvəˈnɛsəns/",
+      "translation": "быстротечность",
+      "translations": {
+        "ru": "быстротечность",
+        "uz": "tez o'tib ketish"
+      },
+      "example": "The poem dwells on the evanescence of spring blossoms.",
+      "example_translations": {
+        "ru": "В стихотворении говорится о быстротечности весеннего цветения.",
+        "uz": "She'rda bahorgi gullashning tez o'tib ketishi haqida so'z boradi."
+      }
+    },
+    {
+      "word": "perpetuity",
+      "part_of_speech": "noun",
+      "transcription": "/ˌpɜrpəˈtuəti/",
+      "translation": "вечность, неограниченный срок",
+      "translations": {
+        "ru": "вечность, неограниченный срок",
+        "uz": "cheklanmagan muddat"
+      },
+      "example": "The land will remain protected in perpetuity.",
+      "example_translations": {
+        "ru": "Земля будет охраняться бессрочно.",
+        "uz": "Yer cheklanmagan muddat davomida muhofaza qilinadi."
+      }
+    },
+    {
+      "word": "transience",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtrænziəns/",
+      "translation": "преходящий характер",
+      "translations": {
+        "ru": "преходящий характер",
+        "uz": "o'tkinchilik"
+      },
+      "example": "Her paintings capture the transience of outdoor light.",
+      "example_translations": {
+        "ru": "Её картины передают преходящий характер естественного света на открытом воздухе.",
+        "uz": "Uning rasmlarida ochiq havodagi tabiiy yorug'likning o'tkinchiligi aks etadi."
+      }
+    },
+    {
+      "word": "eon",
+      "part_of_speech": "noun",
+      "transcription": "/ˈiən/",
+      "translation": "эон, огромный промежуток времени",
+      "translations": {
+        "ru": "эон, огромный промежуток времени",
+        "uz": "eon, nihoyatda uzoq davr"
+      },
+      "example": "The fossil formed during an eon of profound change.",
+      "example_translations": {
+        "ru": "Окаменелость образовалась в эон глубоких перемен.",
+        "uz": "Toshqotgan qoldiq katta o'zgarishlar yuz bergan nihoyatda uzoq davrda hosil bo'lgan."
+      }
     }
   ]
 }

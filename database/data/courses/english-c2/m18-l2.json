@@ -160,6 +160,66 @@
         "ru": "Уберите посторонние детали, не связанные с основным доводом.",
         "uz": "Asosiy dalilga bog'liq bo'lmagan, mavzuga aloqasiz tafsilotlarni olib tashlang."
       }
+    },
+    {
+      "word": "salience",
+      "part_of_speech": "noun",
+      "transcription": "/ˈseɪliəns/",
+      "translation": "значимость",
+      "translations": {
+        "ru": "значимость",
+        "uz": "alohida ahamiyat"
+      },
+      "example": "The survey measured the salience of safety among commuters.",
+      "example_translations": {
+        "ru": "Опрос выявлял, насколько важна безопасность для тех, кто ездит на работу.",
+        "uz": "So'rovda ishga qatnaydiganlar xavfsizlikni qay darajada muhim deb bilishi o'rganildi."
+      }
+    },
+    {
+      "word": "linchpin",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɪntʃˌpɪn/",
+      "translation": "ключевое звено",
+      "translations": {
+        "ru": "ключевое звено",
+        "uz": "asosiy bo'g'in"
+      },
+      "example": "Reliable childcare is the linchpin of her work schedule.",
+      "example_translations": {
+        "ru": "Её рабочий график держится на том, что за ребёнком есть кому присмотреть.",
+        "uz": "Bolaga ishonchli qarovchi topish uning ish jadvalini yo'lga qo'yishda asosiy bo'g'indir."
+      }
+    },
+    {
+      "word": "germane",
+      "part_of_speech": "adjective",
+      "transcription": "/dʒɜrˈmeɪn/",
+      "translation": "относящийся к делу",
+      "translations": {
+        "ru": "относящийся к делу",
+        "uz": "mavzuga aloqador"
+      },
+      "example": "Her question was germane to the committee's current inquiry.",
+      "example_translations": {
+        "ru": "Её вопрос относился к делу, которое сейчас изучал комитет.",
+        "uz": "Uning savoli qo'mita hozir o'rganayotgan mavzuga aloqador edi."
+      }
+    },
+    {
+      "word": "ancillary",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈænsəˌlɛri/",
+      "translation": "вспомогательный",
+      "translations": {
+        "ru": "вспомогательный",
+        "uz": "yordamchi"
+      },
+      "example": "The main grant also covers several ancillary services.",
+      "example_translations": {
+        "ru": "Основной грант также покрывает несколько вспомогательных услуг.",
+        "uz": "Asosiy grant bir nechta yordamchi xizmat xarajatlarini ham qoplaydi."
+      }
     }
   ]
 }

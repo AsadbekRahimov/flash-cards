@@ -160,6 +160,81 @@
         "ru": "Мне нужно десять минут.",
         "uz": "Menga o'n daqiqa kerak."
       }
+    },
+    {
+      "word": "zero",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈzɪroʊ/",
+      "translation": "ноль",
+      "translations": {
+        "ru": "ноль",
+        "uz": "nol"
+      },
+      "example": "My team got zero points today.",
+      "example_translations": {
+        "ru": "Моя команда сегодня набрала ноль очков.",
+        "uz": "Jamoam bugun nol ochko oldi."
+      }
+    },
+    {
+      "word": "twice",
+      "part_of_speech": "adverb",
+      "transcription": "/twaɪs/",
+      "translation": "дважды",
+      "translations": {
+        "ru": "дважды",
+        "uz": "ikki marta"
+      },
+      "example": "I read this book twice last year.",
+      "example_translations": {
+        "ru": "Я дважды прочитал эту книгу в прошлом году.",
+        "uz": "O'tgan yili bu kitobni ikki marta o'qidim."
+      }
+    },
+    {
+      "word": "once",
+      "part_of_speech": "adverb",
+      "transcription": "/wʌns/",
+      "translation": "один раз",
+      "translations": {
+        "ru": "один раз",
+        "uz": "bir marta"
+      },
+      "example": "I see my aunt once a week.",
+      "example_translations": {
+        "ru": "Я вижу тётю раз в неделю.",
+        "uz": "Xolamni haftada bir marta ko'raman."
+      }
+    },
+    {
+      "word": "pair",
+      "part_of_speech": "noun",
+      "transcription": "/pɛr/",
+      "translation": "пара",
+      "translations": {
+        "ru": "пара",
+        "uz": "juft"
+      },
+      "example": "She bought a pair of white socks.",
+      "example_translations": {
+        "ru": "Она купила пару белых носков.",
+        "uz": "U bir juft oq paypoq sotib oldi."
+      }
+    },
+    {
+      "word": "quarter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkwɔrtər/",
+      "translation": "четверть",
+      "translations": {
+        "ru": "четверть",
+        "uz": "chorak"
+      },
+      "example": "A quarter of an hour is fifteen minutes.",
+      "example_translations": {
+        "ru": "Четверть часа — пятнадцать минут.",
+        "uz": "Chorak soat o'n besh daqiqa bo'ladi."
+      }
     }
   ]
 }

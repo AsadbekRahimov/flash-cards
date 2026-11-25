@@ -160,6 +160,81 @@
         "ru": "Это подарок для моей мамы.",
         "uz": "Bu onam uchun sovg'a."
       }
+    },
+    {
+      "word": "handbag",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhændbæg/",
+      "translation": "дамская сумка",
+      "translations": {
+        "ru": "дамская сумка",
+        "uz": "ayollar sumkasi"
+      },
+      "example": "She keeps her keys in her handbag.",
+      "example_translations": {
+        "ru": "Она хранит ключи в дамской сумке.",
+        "uz": "U kalitlarini ayollar sumkasida saqlaydi."
+      }
+    },
+    {
+      "word": "tag",
+      "part_of_speech": "noun",
+      "transcription": "/tæg/",
+      "translation": "ценник",
+      "translations": {
+        "ru": "ценник",
+        "uz": "narx yorlig'i"
+      },
+      "example": "The price is on the tag.",
+      "example_translations": {
+        "ru": "Цена указана на ценнике.",
+        "uz": "Narx yorlig'ida bahosi ko'rsatilgan."
+      }
+    },
+    {
+      "word": "change",
+      "part_of_speech": "noun",
+      "transcription": "/tʃeɪndʒ/",
+      "translation": "сдача",
+      "translations": {
+        "ru": "сдача",
+        "uz": "qaytim"
+      },
+      "example": "Here is your change and your bag.",
+      "example_translations": {
+        "ru": "Вот ваша сдача и пакет.",
+        "uz": "Mana qaytimingiz va paketingiz."
+      }
+    },
+    {
+      "word": "dollar",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɑlər/",
+      "translation": "доллар",
+      "translations": {
+        "ru": "доллар",
+        "uz": "dollar"
+      },
+      "example": "This bottle of water costs one dollar.",
+      "example_translations": {
+        "ru": "Эта бутылка воды стоит один доллар.",
+        "uz": "Bu bir shisha suv bir dollar turadi."
+      }
+    },
+    {
+      "word": "penny",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɛni/",
+      "translation": "монета в один цент",
+      "translations": {
+        "ru": "монета в один цент",
+        "uz": "bir sentlik tanga"
+      },
+      "example": "I found a penny under the table.",
+      "example_translations": {
+        "ru": "Я нашёл монету в один цент под столом.",
+        "uz": "Stol tagidan bir sentlik tanga topdim."
+      }
     }
   ]
 }

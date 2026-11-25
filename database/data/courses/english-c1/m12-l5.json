@@ -160,6 +160,51 @@
         "ru": "Свобода мысли — неотъемлемое право человека.",
         "uz": "Fikr erkinligi — insonning ajralmas huquqi."
       }
+    },
+    {
+      "word": "unlawfulness",
+      "part_of_speech": "noun",
+      "transcription": "/ʌnˈlɔfəlnəs/",
+      "translation": "противозаконность",
+      "translations": {
+        "ru": "противозаконность",
+        "uz": "qonunga xiloflik"
+      },
+      "example": "The court considered the unlawfulness of the eviction.",
+      "example_translations": {
+        "ru": "Суд рассмотрел вопрос о противозаконности выселения.",
+        "uz": "Sud uyidan chiqarish qonunga xilof yoki xilof emasligini ko'rib chiqdi."
+      }
+    },
+    {
+      "word": "impermissible",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪmpərˈmɪsəbəl/",
+      "translation": "недопустимый",
+      "translations": {
+        "ru": "недопустимый",
+        "uz": "yo'l qo'yib bo'lmaydigan"
+      },
+      "example": "Under these rules, unequal treatment is impermissible.",
+      "example_translations": {
+        "ru": "Согласно этим правилам, неравное обращение недопустимо.",
+        "uz": "Bu qoidalarga ko'ra, odamlarga tengsiz munosabatda bo'lishga yo'l qo'yib bo'lmaydi."
+      }
+    },
+    {
+      "word": "constitutionality",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑnstəˌtuʃəˈnæləti/",
+      "translation": "конституционность",
+      "translations": {
+        "ru": "конституционность",
+        "uz": "konstitutsiyaga muvofiqlik"
+      },
+      "example": "Judges reviewed the constitutionality of the new restrictions.",
+      "example_translations": {
+        "ru": "Судьи проверили конституционность новых ограничений.",
+        "uz": "Sudyalar yangi cheklovlarning konstitutsiyaga muvofiqligini tekshirdi."
+      }
     }
   ]
 }

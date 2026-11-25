@@ -160,6 +160,36 @@
         "ru": "После операции избегайте напряжённых нагрузок, таких как подъём тяжестей.",
         "uz": "Operatsiyadan keyin og'ir yuk ko'tarish kabi zo'riqtiruvchi mashqlardan saqlaning."
       }
+    },
+    {
+      "word": "overexertion",
+      "part_of_speech": "noun",
+      "transcription": "/ˌoʊvərɪgˈzɜrʃən/",
+      "translation": "перенапряжение",
+      "translations": {
+        "ru": "перенапряжение",
+        "uz": "ortiqcha zo'riqish"
+      },
+      "example": "She took regular breaks to avoid overexertion.",
+      "example_translations": {
+        "ru": "Чтобы избежать перенапряжения, она регулярно делала перерывы.",
+        "uz": "Ortiqcha zo'riqmaslik uchun u muntazam tanaffus qilib turdi."
+      }
+    },
+    {
+      "word": "hydration",
+      "part_of_speech": "noun",
+      "transcription": "/haɪˈdreɪʃən/",
+      "translation": "поддержание водного баланса",
+      "translations": {
+        "ru": "поддержание водного баланса",
+        "uz": "suv muvozanatini saqlash"
+      },
+      "example": "Good hydration matters during long walks in summer.",
+      "example_translations": {
+        "ru": "Во время долгих летних прогулок важно поддерживать водный баланс.",
+        "uz": "Yozda uzoq piyoda yurganda tanadagi suv muvozanatini saqlash muhim."
+      }
     }
   ]
 }

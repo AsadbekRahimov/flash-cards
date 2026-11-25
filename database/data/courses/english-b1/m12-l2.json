@@ -160,6 +160,81 @@
         "ru": "Какой был счёт в конце игры?",
         "uz": "O'yin oxirida hisob qanday bo'ldi?"
       }
+    },
+    {
+      "word": "finalist",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfaɪnəlɪst/",
+      "translation": "финалист",
+      "translations": {
+        "ru": "финалист",
+        "uz": "finalga chiqqan ishtirokchi"
+      },
+      "example": "Each finalist will swim again tomorrow evening.",
+      "example_translations": {
+        "ru": "Каждый финалист снова поплывёт завтра вечером.",
+        "uz": "Finalga chiqqan har bir ishtirokchi ertaga kechqurun yana suzadi."
+      }
+    },
+    {
+      "word": "lap",
+      "part_of_speech": "noun",
+      "transcription": "/læp/",
+      "translation": "круг дистанции",
+      "translations": {
+        "ru": "круг дистанции",
+        "uz": "aylana"
+      },
+      "example": "He passed two runners on the last lap.",
+      "example_translations": {
+        "ru": "На последнем круге он обогнал двух бегунов.",
+        "uz": "U so'nggi aylanada ikki yuguruvchidan o'zib ketdi."
+      }
+    },
+    {
+      "word": "rematch",
+      "part_of_speech": "noun",
+      "transcription": "/ˈriˌmætʃ/",
+      "translation": "повторный матч",
+      "translations": {
+        "ru": "повторный матч",
+        "uz": "takroriy o'yin"
+      },
+      "example": "The two teams agreed to play a rematch.",
+      "example_translations": {
+        "ru": "Обе команды согласились сыграть повторный матч.",
+        "uz": "Ikki jamoa takroriy o'yin o'tkazishga kelishib oldi."
+      }
+    },
+    {
+      "word": "tiebreaker",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtaɪˌbreɪkər/",
+      "translation": "решающий раунд при ничьей",
+      "translations": {
+        "ru": "решающий раунд при ничьей",
+        "uz": "g'olibni aniqlovchi qo'shimcha raund"
+      },
+      "example": "We needed a tiebreaker to decide the winner.",
+      "example_translations": {
+        "ru": "Чтобы определить победителя при ничьей, понадобился решающий раунд.",
+        "uz": "G'olibni aniqlash uchun qo'shimcha raund kerak bo'ldi."
+      }
+    },
+    {
+      "word": "medalist",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɛdəlɪst/",
+      "translation": "призёр",
+      "translations": {
+        "ru": "призёр",
+        "uz": "medal sohibi"
+      },
+      "example": "A gold medalist spoke to our swimming team.",
+      "example_translations": {
+        "ru": "Золотой призёр выступил перед нашей командой по плаванию.",
+        "uz": "Oltin medal sohibi suzish jamoamiz oldida so'zga chiqdi."
+      }
     }
   ]
 }

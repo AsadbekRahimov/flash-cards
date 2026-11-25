@@ -160,6 +160,36 @@
         "ru": "Протекционизм защищает местных производителей от иностранной конкуренции.",
         "uz": "Proteksionizm mahalliy ishlab chiqaruvchilarni xorijiy raqobatdan himoya qiladi."
       }
+    },
+    {
+      "word": "disinflation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdɪsɪnˈfleɪʃən/",
+      "translation": "замедление инфляции",
+      "translations": {
+        "ru": "замедление инфляции",
+        "uz": "inflyatsiyaning sekinlashishi"
+      },
+      "example": "During disinflation, prices generally keep rising more slowly.",
+      "example_translations": {
+        "ru": "При замедлении инфляции цены обычно продолжают расти более медленно.",
+        "uz": "Inflyatsiya sekinlashganda, narxlar odatda oshishda davom etadi, faqat sekinroq."
+      }
+    },
+    {
+      "word": "protectionist",
+      "part_of_speech": "adjective",
+      "transcription": "/prəˈtɛkʃənɪst/",
+      "translation": "протекционистский",
+      "translations": {
+        "ru": "протекционистский",
+        "uz": "mahalliy ishlab chiqaruvchilarni himoyalovchi"
+      },
+      "example": "New protectionist tariffs raised the price of imports.",
+      "example_translations": {
+        "ru": "Новые протекционистские пошлины повысили цену импортных товаров.",
+        "uz": "Mahalliy ishlab chiqaruvchilarni himoyalovchi yangi bojlar import mollari narxini oshirdi."
+      }
     }
   ]
 }

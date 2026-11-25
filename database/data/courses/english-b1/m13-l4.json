@@ -160,6 +160,81 @@
         "ru": "Растениям для роста нужны вода и солнечный свет.",
         "uz": "O'simliklarga o'sish uchun suv va quyosh nuri kerak."
       }
+    },
+    {
+      "word": "snowfall",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsnoʊˌfɔl/",
+      "translation": "снегопад",
+      "translations": {
+        "ru": "снегопад",
+        "uz": "qor yog'ishi"
+      },
+      "example": "Heavy snowfall closed several roads in the mountains.",
+      "example_translations": {
+        "ru": "Из-за сильного снегопада в горах закрыли несколько дорог.",
+        "uz": "Kuchli qor yog'ishi tufayli tog'lardagi bir nechta yo'l yopildi."
+      }
+    },
+    {
+      "word": "snowstorm",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsnoʊˌstɔrm/",
+      "translation": "снежная буря",
+      "translations": {
+        "ru": "снежная буря",
+        "uz": "qor bo'roni"
+      },
+      "example": "The snowstorm closed every road to town.",
+      "example_translations": {
+        "ru": "Из-за снежной бури перекрыли все дороги в город.",
+        "uz": "Qor bo'roni sabab shaharga boradigan barcha yo'llar yopildi."
+      }
+    },
+    {
+      "word": "drizzle",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdrɪzəl/",
+      "translation": "морось",
+      "translations": {
+        "ru": "морось",
+        "uz": "mayda yomg'ir"
+      },
+      "example": "A light drizzle fell all morning.",
+      "example_translations": {
+        "ru": "Всё утро шла лёгкая морось.",
+        "uz": "Ertalabdan beri mayda yomg'ir yog'di."
+      }
+    },
+    {
+      "word": "downpour",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdaʊnˌpɔr/",
+      "translation": "ливень",
+      "translations": {
+        "ru": "ливень",
+        "uz": "jala"
+      },
+      "example": "A sudden downpour soaked everyone at the picnic.",
+      "example_translations": {
+        "ru": "Внезапный ливень промочил всех на пикнике.",
+        "uz": "To'satdan yoqqan jala sayldagilarning hammasini ivitib yubordi."
+      }
+    },
+    {
+      "word": "hazy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈheɪzi/",
+      "translation": "затянутый дымкой",
+      "translations": {
+        "ru": "затянутый дымкой",
+        "uz": "xira ko'rinadigan"
+      },
+      "example": "The hills looked hazy through the dusty air.",
+      "example_translations": {
+        "ru": "Сквозь пыльную дымку холмы выглядели размытыми.",
+        "uz": "Havo chang bo'lgani uchun tepaliklar xira ko'rinardi."
+      }
     }
   ]
 }

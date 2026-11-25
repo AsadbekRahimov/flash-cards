@@ -160,6 +160,51 @@
         "ru": "Я заканчиваю работу в шесть.",
         "uz": "Men ishni soat oltida tugataman."
       }
+    },
+    {
+      "word": "type",
+      "part_of_speech": "verb",
+      "transcription": "/taɪp/",
+      "translation": "печатать на клавиатуре",
+      "translations": {
+        "ru": "печатать на клавиатуре",
+        "uz": "klaviaturada yozmoq"
+      },
+      "example": "Please type your name in this box.",
+      "example_translations": {
+        "ru": "Пожалуйста, напечатайте своё имя в этом поле.",
+        "uz": "Iltimos, shu katakka ismingizni klaviaturada yozing."
+      }
+    },
+    {
+      "word": "print",
+      "part_of_speech": "verb",
+      "transcription": "/prɪnt/",
+      "translation": "распечатывать",
+      "translations": {
+        "ru": "распечатывать",
+        "uz": "chop etmoq"
+      },
+      "example": "Can you print this page for me?",
+      "example_translations": {
+        "ru": "Можете распечатать эту страницу для меня?",
+        "uz": "Bu sahifani menga chop etib bera olasizmi?"
+      }
+    },
+    {
+      "word": "sign",
+      "part_of_speech": "verb",
+      "transcription": "/saɪn/",
+      "translation": "подписывать",
+      "translations": {
+        "ru": "подписывать",
+        "uz": "imzo qo'ymoq"
+      },
+      "example": "Please sign your name at the bottom.",
+      "example_translations": {
+        "ru": "Пожалуйста, поставьте внизу свою подпись.",
+        "uz": "Iltimos, pastiga imzo qo'ying."
+      }
     }
   ]
 }

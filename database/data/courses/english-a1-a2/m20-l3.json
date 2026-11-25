@@ -160,6 +160,66 @@
         "ru": "Она жертвует деньги на благотворительность.",
         "uz": "U xayriyaga pul beradi."
       }
+    },
+    {
+      "word": "newcomer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnuˌkʌmər/",
+      "translation": "вновь прибывший",
+      "translations": {
+        "ru": "вновь прибывший",
+        "uz": "yangi kelgan odam"
+      },
+      "example": "Each newcomer gets a map of the town.",
+      "example_translations": {
+        "ru": "Каждому вновь прибывшему дают карту города.",
+        "uz": "Har bir yangi kelgan odamga shahar xaritasi beriladi."
+      }
+    },
+    {
+      "word": "educate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɛdʒəˌkeɪt/",
+      "translation": "просвещать",
+      "translations": {
+        "ru": "просвещать",
+        "uz": "tushuncha bermoq"
+      },
+      "example": "The program helps educate people about healthy food.",
+      "example_translations": {
+        "ru": "Программа просвещает людей в вопросах здорового питания.",
+        "uz": "Dastur odamlarga sog'lom ovqatlanish haqida tushuncha berishga yordam beradi."
+      }
+    },
+    {
+      "word": "donating",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdoʊneɪtɪŋ/",
+      "translation": "пожертвование",
+      "translations": {
+        "ru": "пожертвование",
+        "uz": "ehson qilish"
+      },
+      "example": "Donating clothes can help families in need.",
+      "example_translations": {
+        "ru": "Пожертвование одежды может помочь нуждающимся семьям.",
+        "uz": "Kiyim-kechak ehson qilish muhtoj oilalarga yordam berishi mumkin."
+      }
+    },
+    {
+      "word": "belonging",
+      "part_of_speech": "noun",
+      "transcription": "/bɪˈlɔŋɪŋ/",
+      "translation": "чувство принадлежности",
+      "translations": {
+        "ru": "чувство принадлежности",
+        "uz": "o'zini jamoaning bir qismi deb his qilish"
+      },
+      "example": "Working together gives us a sense of belonging.",
+      "example_translations": {
+        "ru": "Совместная работа даёт нам чувство принадлежности.",
+        "uz": "Birga ishlash orqali o'zimizni jamoaning bir qismi deb his qilamiz."
+      }
     }
   ]
 }

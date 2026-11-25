@@ -160,6 +160,81 @@
         "ru": "Трогательность финальной сцены глубоко нас взволновала.",
         "uz": "So'nggi sahnaning hazin ta'sirchanligi bizni chuqur to'lqinlantirdi."
       }
+    },
+    {
+      "word": "anaphora",
+      "part_of_speech": "noun",
+      "transcription": "/əˈnæfərə/",
+      "translation": "анафора",
+      "translations": {
+        "ru": "анафора",
+        "uz": "anafora"
+      },
+      "example": "Anaphora gives those lines the same opening phrase.",
+      "example_translations": {
+        "ru": "Анафора делает начало этих строк одинаковым.",
+        "uz": "Anafora tufayli bu misralar bir xil ibora bilan boshlanadi."
+      }
+    },
+    {
+      "word": "zeugma",
+      "part_of_speech": "noun",
+      "transcription": "/ˈzugmə/",
+      "translation": "зевгма",
+      "translations": {
+        "ru": "зевгма",
+        "uz": "zevgma"
+      },
+      "example": "The phrase \"lost his keys and patience\" illustrates zeugma.",
+      "example_translations": {
+        "ru": "Фраза «потерял ключи и терпение» иллюстрирует зевгму.",
+        "uz": "Kalitlarini va sabrini yo'qotdi degan iborada zevgma bor."
+      }
+    },
+    {
+      "word": "litotes",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlaɪtətiz/",
+      "translation": "литота",
+      "translations": {
+        "ru": "литота",
+        "uz": "litota"
+      },
+      "example": "Calling a brilliant performance \"not bad\" is litotes.",
+      "example_translations": {
+        "ru": "Назвать блестящее выступление «неплохим» — это литота.",
+        "uz": "Ajoyib chiqishni «yomon emas» deb baholash litotaga misol."
+      }
+    },
+    {
+      "word": "metonymy",
+      "part_of_speech": "noun",
+      "transcription": "/mɛˈtɑnəmi/",
+      "translation": "метонимия",
+      "translations": {
+        "ru": "метонимия",
+        "uz": "metonimiya"
+      },
+      "example": "Using \"the crown\" for royal authority illustrates metonymy.",
+      "example_translations": {
+        "ru": "Употребление слова «корона» в значении королевской власти — пример метонимии.",
+        "uz": "Qirol hokimiyatini «toj» deb atash metonimiyaga misol bo'ladi."
+      }
+    },
+    {
+      "word": "enjambment",
+      "part_of_speech": "noun",
+      "transcription": "/ɛnˈdʒæmbmənt/",
+      "translation": "стихотворный перенос",
+      "translations": {
+        "ru": "стихотворный перенос",
+        "uz": "misralararo ko'chirish"
+      },
+      "example": "Through enjambment, the sentence continues onto the next line.",
+      "example_translations": {
+        "ru": "Благодаря стихотворному переносу предложение продолжается на следующей строке.",
+        "uz": "Misralararo ko'chirishda gap keyingi misrada davom etadi."
+      }
     }
   ]
 }

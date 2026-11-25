@@ -160,6 +160,81 @@
         "ru": "Я не люблю острую еду.",
         "uz": "Men achchiq ovqatni yoqtirmayman."
       }
+    },
+    {
+      "word": "waitress",
+      "part_of_speech": "noun",
+      "transcription": "/ˈweɪtrəs/",
+      "translation": "официантка",
+      "translations": {
+        "ru": "официантка",
+        "uz": "ofitsiant qiz"
+      },
+      "example": "The waitress brought us two cups of tea.",
+      "example_translations": {
+        "ru": "Официантка принесла нам две чашки чая.",
+        "uz": "Ofitsiant qiz bizga ikki piyola choy olib keldi."
+      }
+    },
+    {
+      "word": "ketchup",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɛtʃəp/",
+      "translation": "кетчуп",
+      "translations": {
+        "ru": "кетчуп",
+        "uz": "ketchup"
+      },
+      "example": "Do you want ketchup on your fries?",
+      "example_translations": {
+        "ru": "Хотите картошку фри с кетчупом?",
+        "uz": "Fri kartoshkangizga ketchup qo'shaymi?"
+      }
+    },
+    {
+      "word": "fries",
+      "part_of_speech": "noun",
+      "transcription": "/fraɪz/",
+      "translation": "картофель фри",
+      "translations": {
+        "ru": "картофель фри",
+        "uz": "fri kartoshka"
+      },
+      "example": "Can I have some fries, please?",
+      "example_translations": {
+        "ru": "Можно мне немного картофеля фри?",
+        "uz": "Menga ozgina fri kartoshka bersangiz."
+      }
+    },
+    {
+      "word": "burger",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbərgər/",
+      "translation": "бургер",
+      "translations": {
+        "ru": "бургер",
+        "uz": "burger"
+      },
+      "example": "Can I have a burger without cheese?",
+      "example_translations": {
+        "ru": "Можно мне бургер без сыра?",
+        "uz": "Menga pishloqsiz burger bersangiz."
+      }
+    },
+    {
+      "word": "dessert",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈzərt/",
+      "translation": "десерт",
+      "translations": {
+        "ru": "десерт",
+        "uz": "shirinlik"
+      },
+      "example": "Would you like ice cream for dessert?",
+      "example_translations": {
+        "ru": "На десерт хотите мороженое?",
+        "uz": "Shirinlikka muzqaymoq xohlaysizmi?"
+      }
     }
   ]
 }

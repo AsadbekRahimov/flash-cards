@@ -160,6 +160,36 @@
         "ru": "Многие пользователи считают таргетированную рекламу навязчивой и раздражающей.",
         "uz": "Ko'p foydalanuvchilar maqsadli reklamani shilqim va asabga teguvchi deb hisoblaydi."
       }
+    },
+    {
+      "word": "telework",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɛləˌwɜrk/",
+      "translation": "удалённая работа",
+      "translations": {
+        "ru": "удалённая работа",
+        "uz": "masofaviy ish"
+      },
+      "example": "After the move, telework became our only option.",
+      "example_translations": {
+        "ru": "После переезда удалённая работа стала нашим единственным вариантом.",
+        "uz": "Ko'chganimizdan keyin masofaviy ish yagona yo'limiz bo'lib qoldi."
+      }
+    },
+    {
+      "word": "digitization",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdɪdʒətəˈzeɪʃən/",
+      "translation": "оцифровка",
+      "translations": {
+        "ru": "оцифровка",
+        "uz": "raqamlashtirish"
+      },
+      "example": "Library digitization made rare books accessible from home.",
+      "example_translations": {
+        "ru": "Оцифровка библиотечного фонда позволила читать редкие книги дома.",
+        "uz": "Kutubxona fondini raqamlashtirish nodir kitoblarni uydan turib o'qish imkonini berdi."
+      }
     }
   ]
 }

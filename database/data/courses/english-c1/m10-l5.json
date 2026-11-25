@@ -160,6 +160,36 @@
         "ru": "Обильные весенние дожди пополняют озёра и реки.",
         "uz": "Kuchli bahorgi yomg'irlar ko'l va daryolarni qayta to'ldiradi."
       }
+    },
+    {
+      "word": "biofuel",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbaɪoʊˌfjuəl/",
+      "translation": "биотопливо",
+      "translations": {
+        "ru": "биотопливо",
+        "uz": "bioyoqilg'i"
+      },
+      "example": "The plant makes biofuel from agricultural waste.",
+      "example_translations": {
+        "ru": "Завод производит биотопливо из сельскохозяйственных отходов.",
+        "uz": "Zavod qishloq xo'jaligi chiqindilaridan bioyoqilg'i ishlab chiqaradi."
+      }
+    },
+    {
+      "word": "hydroelectric",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌhaɪdroʊɪˈlɛktrɪk/",
+      "translation": "гидроэнергетический",
+      "translations": {
+        "ru": "гидроэнергетический",
+        "uz": "suv kuchidan elektr oladigan"
+      },
+      "example": "The hydroelectric plant supplies power to nearby towns.",
+      "example_translations": {
+        "ru": "Гидроэлектростанция снабжает энергией близлежащие города.",
+        "uz": "Gidroelektr stansiya yaqin shaharlarga elektr energiyasi yetkazadi."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Живя за границей, Азиз тосковал по маминой стряпне.",
         "uz": "Chet elda yashar ekan, Aziz onasining taomlarini orziqib sog'inardi."
       }
+    },
+    {
+      "word": "doleful",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdoʊlfəl/",
+      "translation": "скорбный",
+      "translations": {
+        "ru": "скорбный",
+        "uz": "g'amgin"
+      },
+      "example": "He gave me a doleful look and turned away.",
+      "example_translations": {
+        "ru": "Он скорбно посмотрел на меня и отвернулся.",
+        "uz": "U menga g'amgin boqdi-da, yuzini burdi."
+      }
+    },
+    {
+      "word": "crestfallen",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkrɛstˌfɔlən/",
+      "translation": "удручённый",
+      "translations": {
+        "ru": "удручённый",
+        "uz": "ruhi tushib ketgan"
+      },
+      "example": "The runner looked crestfallen after narrowly missing the final.",
+      "example_translations": {
+        "ru": "Бегун выглядел удручённым, когда чуть-чуть не дотянул до финала.",
+        "uz": "Finalga chiqishiga ozgina qolganda imkoniyatni boy bergan yuguruvchining ruhi tushib ketdi."
+      }
+    },
+    {
+      "word": "disconsolate",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪsˈkɑnsələt/",
+      "translation": "безутешный",
+      "translations": {
+        "ru": "безутешный",
+        "uz": "tasalli topolmayotgan"
+      },
+      "example": "She was disconsolate for weeks after her dog died.",
+      "example_translations": {
+        "ru": "После смерти собаки она неделями не могла найти утешения.",
+        "uz": "Iti o'lganidan keyin u haftalab tasalli topolmadi."
+      }
+    },
+    {
+      "word": "bereft",
+      "part_of_speech": "adjective",
+      "transcription": "/bɪˈrɛft/",
+      "translation": "осиротевший, лишившийся близкого",
+      "translations": {
+        "ru": "осиротевший, лишившийся близкого",
+        "uz": "yaqinidan ayrilgan"
+      },
+      "example": "He felt bereft after the loss of his brother.",
+      "example_translations": {
+        "ru": "Потеряв брата, он чувствовал себя осиротевшим.",
+        "uz": "Akasidan ayrilgach, u o'zini yetim qolgandek his qildi."
+      }
+    },
+    {
+      "word": "lugubrious",
+      "part_of_speech": "adjective",
+      "transcription": "/ləˈgubriəs/",
+      "translation": "унылый, траурный",
+      "translations": {
+        "ru": "унылый, траурный",
+        "uz": "motamsaro"
+      },
+      "example": "The organist played a lugubrious tune at the funeral.",
+      "example_translations": {
+        "ru": "На похоронах органист сыграл траурную мелодию.",
+        "uz": "Dafn marosimida organchi motamsaro kuy chaldi."
+      }
     }
   ]
 }

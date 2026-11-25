@@ -160,6 +160,66 @@
         "ru": "Сохраните документ в формате, который смогут открыть все.",
         "uz": "Hujjatni hamma ocha oladigan formatda saqlang."
       }
+    },
+    {
+      "word": "binary",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈbaɪnəri/",
+      "translation": "двоичный",
+      "translations": {
+        "ru": "двоичный",
+        "uz": "ikkilik"
+      },
+      "example": "This program stores numbers in binary form.",
+      "example_translations": {
+        "ru": "Эта программа хранит числа в двоичной форме.",
+        "uz": "Bu dastur sonlarni ikkilik shaklda saqlaydi."
+      }
+    },
+    {
+      "word": "metadata",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɛtəˌdeɪtə/",
+      "translation": "метаданные",
+      "translations": {
+        "ru": "метаданные",
+        "uz": "metama'lumotlar"
+      },
+      "example": "The photo's metadata includes the date and location.",
+      "example_translations": {
+        "ru": "В метаданных фотографии указаны дата и место съёмки.",
+        "uz": "Suratning metama'lumotlarida olingan sana va joy ko'rsatilgan."
+      }
+    },
+    {
+      "word": "freeware",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfriˌwɛr/",
+      "translation": "бесплатное программное обеспечение",
+      "translations": {
+        "ru": "бесплатное программное обеспечение",
+        "uz": "bepul dasturiy ta'minot"
+      },
+      "example": "They used freeware to edit their photos.",
+      "example_translations": {
+        "ru": "Они отредактировали фотографии с помощью бесплатного программного обеспечения.",
+        "uz": "Ular suratlarini bepul dasturiy ta'minot yordamida tahrirlashdi."
+      }
+    },
+    {
+      "word": "compression",
+      "part_of_speech": "noun",
+      "transcription": "/kəmˈprɛʃən/",
+      "translation": "сжатие",
+      "translations": {
+        "ru": "сжатие",
+        "uz": "siqish"
+      },
+      "example": "Use compression to reduce the file size.",
+      "example_translations": {
+        "ru": "Чтобы уменьшить размер файла, воспользуйтесь сжатием.",
+        "uz": "Fayl hajmini kamaytirish uchun siqish usulidan foydalaning."
+      }
     }
   ]
 }

@@ -160,6 +160,66 @@
         "ru": "Зрители смеялись на протяжении всего абсурдного фарса.",
         "uz": "Tomoshabinlar bema'ni fars davomida tinmay kulishdi."
       }
+    },
+    {
+      "word": "limerick",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɪmərɪk/",
+      "translation": "лимерик",
+      "translations": {
+        "ru": "лимерик",
+        "uz": "kulgili besh misrali she'r"
+      },
+      "example": "We wrote a limerick about a forgetful bus driver.",
+      "example_translations": {
+        "ru": "Мы сочинили лимерик о забывчивом водителе автобуса.",
+        "uz": "Unutuvchan avtobus haydovchisi haqida kulgili besh misrali she'r yozdik."
+      }
+    },
+    {
+      "word": "villanelle",
+      "part_of_speech": "noun",
+      "transcription": "/ˌvɪləˈnɛl/",
+      "translation": "вилланель",
+      "translations": {
+        "ru": "вилланель",
+        "uz": "villanella"
+      },
+      "example": "A villanelle repeats two lines in a fixed pattern.",
+      "example_translations": {
+        "ru": "В вилланели две строки повторяются по заданной схеме.",
+        "uz": "Villanellada ikki misra belgilangan tartibda takrorlanadi."
+      }
+    },
+    {
+      "word": "apothegm",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæpəˌθɛm/",
+      "translation": "краткое меткое изречение",
+      "translations": {
+        "ru": "краткое меткое изречение",
+        "uz": "qisqa va lo'nda hikmat"
+      },
+      "example": "That ancient apothegm captures a familiar truth about friendship.",
+      "example_translations": {
+        "ru": "Это древнее меткое изречение выражает знакомую истину о дружбе.",
+        "uz": "O'sha qadimiy, qisqa va lo'nda hikmat do'stlik haqidagi tanish haqiqatni ifodalaydi."
+      }
+    },
+    {
+      "word": "epitaph",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛpəˌtæf/",
+      "translation": "эпитафия",
+      "translations": {
+        "ru": "эпитафия",
+        "uz": "qabr toshidagi bitik"
+      },
+      "example": "A brief epitaph praised the teacher's patience and kindness.",
+      "example_translations": {
+        "ru": "Краткая эпитафия восхваляла терпение и доброту учителя.",
+        "uz": "Qabr toshidagi qisqa bitik muallimning sabri va mehribonligini ulug'lardi."
+      }
     }
   ]
 }

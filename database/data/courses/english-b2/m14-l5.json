@@ -160,6 +160,66 @@
         "ru": "Жители гор говорят на другом диалекте.",
         "uz": "Tog'da yashovchilar boshqa shevada so'zlashadi."
       }
+    },
+    {
+      "word": "unforgettable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌnfərˈgɛtəbəl/",
+      "translation": "незабываемый",
+      "translations": {
+        "ru": "незабываемый",
+        "uz": "unutilmas"
+      },
+      "example": "Sunrise over the mountains was an unforgettable sight.",
+      "example_translations": {
+        "ru": "Восход солнца над горами был незабываемым зрелищем.",
+        "uz": "Tog'lar ortidan quyosh chiqishi unutilmas manzara bo'ldi."
+      }
+    },
+    {
+      "word": "unspoiled",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌnˈspɔɪld/",
+      "translation": "нетронутый",
+      "translations": {
+        "ru": "нетронутый",
+        "uz": "buzilmagan"
+      },
+      "example": "We explored an unspoiled valley with no roads.",
+      "example_translations": {
+        "ru": "Мы исследовали нетронутую долину, где нет дорог.",
+        "uz": "Yo'llar qurilmagan, tabiati buzilmagan vodiyni aylanib ko'rdik."
+      }
+    },
+    {
+      "word": "panoramic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌpænəˈræmɪk/",
+      "translation": "панорамный",
+      "translations": {
+        "ru": "панорамный",
+        "uz": "panoramali"
+      },
+      "example": "Our room had a panoramic view of the coast.",
+      "example_translations": {
+        "ru": "Из нашего номера открывался панорамный вид на побережье.",
+        "uz": "Xonamizdan sohilning panoramali manzarasi ko'rinib turardi."
+      }
+    },
+    {
+      "word": "overwhelming",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌoʊvərˈwɛlmɪŋ/",
+      "translation": "ошеломляющий",
+      "translations": {
+        "ru": "ошеломляющий",
+        "uz": "dovdiratib qo'yadigan"
+      },
+      "example": "I found the city's size overwhelming at first.",
+      "example_translations": {
+        "ru": "Сначала размеры города меня ошеломили.",
+        "uz": "Shaharning kattaligi avvaliga meni dovdiratib qo'ydi."
+      }
     }
   ]
 }

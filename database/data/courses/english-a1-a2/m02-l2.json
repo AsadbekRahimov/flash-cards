@@ -160,6 +160,81 @@
         "ru": "Сегодня я дома.",
         "uz": "Bugun men uydaman."
       }
+    },
+    {
+      "word": "grandson",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgrændsʌn/",
+      "translation": "внук",
+      "translations": {
+        "ru": "внук",
+        "uz": "o'g'il nabira"
+      },
+      "example": "She reads to her grandson every night.",
+      "example_translations": {
+        "ru": "Она каждый вечер читает внуку.",
+        "uz": "U har oqshom o'g'il nabirasiga kitob o'qib beradi."
+      }
+    },
+    {
+      "word": "granddaughter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgrændˌdɔtər/",
+      "translation": "внучка",
+      "translations": {
+        "ru": "внучка",
+        "uz": "qiz nabira"
+      },
+      "example": "His granddaughter is five years old.",
+      "example_translations": {
+        "ru": "Его внучке пять лет.",
+        "uz": "Uning qiz nabirasi besh yoshda."
+      }
+    },
+    {
+      "word": "stepdaughter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɛpˌdɔtər/",
+      "translation": "падчерица",
+      "translations": {
+        "ru": "падчерица",
+        "uz": "o'gay qiz"
+      },
+      "example": "His stepdaughter comes home after school.",
+      "example_translations": {
+        "ru": "Его падчерица приходит домой после школы.",
+        "uz": "Uning o'gay qizi maktabdan keyin uyga keladi."
+      }
+    },
+    {
+      "word": "stepson",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɛpˌsʌn/",
+      "translation": "пасынок",
+      "translations": {
+        "ru": "пасынок",
+        "uz": "o'gay o'g'il"
+      },
+      "example": "Her stepson is in my class.",
+      "example_translations": {
+        "ru": "Её пасынок учится в моём классе.",
+        "uz": "Uning o'gay o'g'li mening sinfimda o'qiydi."
+      }
+    },
+    {
+      "word": "grandchild",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgrændˌtʃaɪld/",
+      "translation": "внук или внучка",
+      "translations": {
+        "ru": "внук или внучка",
+        "uz": "nabira"
+      },
+      "example": "This is a photo of my first grandchild.",
+      "example_translations": {
+        "ru": "Это фотография моего первого внука.",
+        "uz": "Bu birinchi nabiramning surati."
+      }
     }
   ]
 }

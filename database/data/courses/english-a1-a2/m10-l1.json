@@ -160,6 +160,51 @@
         "ru": "Посмотри на небо!",
         "uz": "Osmonga qara!"
       }
+    },
+    {
+      "word": "puddle",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpʌdəl/",
+      "translation": "лужа",
+      "translations": {
+        "ru": "лужа",
+        "uz": "ko'lmak"
+      },
+      "example": "The dog jumped into a puddle.",
+      "example_translations": {
+        "ru": "Собака прыгнула в лужу.",
+        "uz": "It ko'lmakka sakradi."
+      }
+    },
+    {
+      "word": "snowflake",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsnoʊfleɪk/",
+      "translation": "снежинка",
+      "translations": {
+        "ru": "снежинка",
+        "uz": "qor parchasi"
+      },
+      "example": "A snowflake landed on my hand.",
+      "example_translations": {
+        "ru": "Снежинка упала мне на руку.",
+        "uz": "Qo'limga bir qor parchasi tushdi."
+      }
+    },
+    {
+      "word": "raindrop",
+      "part_of_speech": "noun",
+      "transcription": "/ˈreɪnˌdrɑp/",
+      "translation": "дождевая капля",
+      "translations": {
+        "ru": "дождевая капля",
+        "uz": "yomg'ir tomchisi"
+      },
+      "example": "A raindrop landed on my nose.",
+      "example_translations": {
+        "ru": "Дождевая капля упала мне на нос.",
+        "uz": "Burnimga yomg'ir tomchisi tushdi."
+      }
     }
   ]
 }

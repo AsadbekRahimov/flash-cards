@@ -160,6 +160,36 @@
         "ru": "Семьи, сильно обременённые долгами, с трудом оплачивают счета.",
         "uz": "Qarzga chuqur botgan oilalar hisoblarni to'lashga qiynaladi."
       }
+    },
+    {
+      "word": "foreclose",
+      "part_of_speech": "verb",
+      "transcription": "/fɔrˈkloʊz/",
+      "translation": "обращать взыскание на залог",
+      "translations": {
+        "ru": "обращать взыскание на залог",
+        "uz": "garovdagi mulkni undirib olmoq"
+      },
+      "example": "Lenders may foreclose after several missed mortgage payments.",
+      "example_translations": {
+        "ru": "После нескольких пропущенных платежей по ипотеке кредиторы могут обратить взыскание на залог.",
+        "uz": "Ipoteka bo'yicha bir nechta to'lov o'tkazib yuborilsa, kreditorlar garovdagi mulkni undirib olishi mumkin."
+      }
+    },
+    {
+      "word": "indebtedness",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈdɛtədnəs/",
+      "translation": "задолженность",
+      "translations": {
+        "ru": "задолженность",
+        "uz": "qarzdorlik"
+      },
+      "example": "The report tracks household indebtedness over ten years.",
+      "example_translations": {
+        "ru": "Отчёт прослеживает задолженность домохозяйств в течение десяти лет.",
+        "uz": "Hisobotda xonadonlarning o'n yil davomidagi qarzdorligi kuzatiladi."
+      }
     }
   ]
 }

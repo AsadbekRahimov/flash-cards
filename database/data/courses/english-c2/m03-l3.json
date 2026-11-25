@@ -160,6 +160,81 @@
         "ru": "Он разразился гневной тирадой против ленивых коллег.",
         "uz": "U dangasa hamkasblariga qarshi g'azabli nutq boshlab yubordi."
       }
+    },
+    {
+      "word": "approbation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌæprəˈbeɪʃən/",
+      "translation": "одобрение",
+      "translations": {
+        "ru": "одобрение",
+        "uz": "ma'qullash"
+      },
+      "example": "Her bold proposal met with the committee's approbation.",
+      "example_translations": {
+        "ru": "Её смелое предложение встретило одобрение комитета.",
+        "uz": "Qo'mita uning dadil taklifini ma'qulladi."
+      }
+    },
+    {
+      "word": "laudatory",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈlɔdəˌtɔri/",
+      "translation": "хвалебный",
+      "translations": {
+        "ru": "хвалебный",
+        "uz": "maqtovga to'la"
+      },
+      "example": "The journal published a laudatory review of her novel.",
+      "example_translations": {
+        "ru": "Журнал опубликовал хвалебную рецензию на её роман.",
+        "uz": "Jurnal uning romani haqida maqtovga to'la taqriz chop etdi."
+      }
+    },
+    {
+      "word": "reprove",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈpruv/",
+      "translation": "делать выговор",
+      "translations": {
+        "ru": "делать выговор",
+        "uz": "tanbeh bermoq"
+      },
+      "example": "Teachers sometimes reprove students for interrupting their classmates.",
+      "example_translations": {
+        "ru": "Учителя иногда делают выговор ученикам за то, что они перебивают одноклассников.",
+        "uz": "O'qituvchilar ba'zan sinfdoshining gapini bo'lgan o'quvchiga tanbeh beradi."
+      }
+    },
+    {
+      "word": "decry",
+      "part_of_speech": "verb",
+      "transcription": "/dɪˈkraɪ/",
+      "translation": "публично осуждать",
+      "translations": {
+        "ru": "публично осуждать",
+        "uz": "oshkora qoralamoq"
+      },
+      "example": "Several columnists decry the closure of local libraries.",
+      "example_translations": {
+        "ru": "Несколько обозревателей публично осуждают закрытие местных библиотек.",
+        "uz": "Bir nechta sharhlovchi mahalliy kutubxonalarning yopilishini oshkora qoralaydi."
+      }
+    },
+    {
+      "word": "animadversion",
+      "part_of_speech": "noun",
+      "transcription": "/ˌænəməˈdvɜrʒən/",
+      "translation": "резкое критическое замечание",
+      "translations": {
+        "ru": "резкое критическое замечание",
+        "uz": "keskin tanqidiy fikr"
+      },
+      "example": "The editor's animadversion targeted the report's unsupported claims.",
+      "example_translations": {
+        "ru": "Резкое критическое замечание редактора касалось голословных утверждений в докладе.",
+        "uz": "Muharrirning keskin tanqidiy fikri hisobotdagi dalilsiz da'volarga qaratildi."
+      }
     }
   ]
 }

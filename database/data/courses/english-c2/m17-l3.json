@@ -160,6 +160,66 @@
         "ru": "Бурно растущий технологический сектор ежегодно создаёт тысячи рабочих мест.",
         "uz": "Jadal o'sayotgan texnologiya sohasi har yili minglab ish o'rni yaratadi."
       }
+    },
+    {
+      "word": "antediluvian",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌæntidəˈluviən/",
+      "translation": "допотопный",
+      "translations": {
+        "ru": "допотопный",
+        "uz": "o'ta eskirgan"
+      },
+      "example": "Our antediluvian printer still needs a special cable.",
+      "example_translations": {
+        "ru": "Нашему допотопному принтеру всё ещё нужен специальный кабель.",
+        "uz": "O'ta eskirgan printerimizga hali ham maxsus kabel kerak."
+      }
+    },
+    {
+      "word": "obsolescent",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɑbsəˈlɛsənt/",
+      "translation": "выходящий из употребления",
+      "translations": {
+        "ru": "выходящий из употребления",
+        "uz": "iste'moldan chiqayotgan"
+      },
+      "example": "The museum collects obsolescent devices before they disappear.",
+      "example_translations": {
+        "ru": "Музей собирает выходящие из употребления устройства, пока они не исчезли.",
+        "uz": "Muzey iste'moldan chiqayotgan qurilmalarni yo'qolib ketishidan oldin yig'ib oladi."
+      }
+    },
+    {
+      "word": "anachronistic",
+      "part_of_speech": "adjective",
+      "transcription": "/əˌnækrəˈnɪstɪk/",
+      "translation": "не соответствующий эпохе",
+      "translations": {
+        "ru": "не соответствующий эпохе",
+        "uz": "davriga mos kelmaydigan"
+      },
+      "example": "An anachronistic wristwatch spoiled the film's medieval atmosphere.",
+      "example_translations": {
+        "ru": "Наручные часы, не соответствующие эпохе, испортили средневековую атмосферу фильма.",
+        "uz": "Davriga mos kelmaydigan qo'lsoat filmning o'rta asr muhitini buzdi."
+      }
+    },
+    {
+      "word": "atavistic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌætəˈvɪstɪk/",
+      "translation": "атавистический",
+      "translations": {
+        "ru": "атавистический",
+        "uz": "ajdodlardan qolgan"
+      },
+      "example": "She describes our atavistic fear of unfamiliar woodland noises.",
+      "example_translations": {
+        "ru": "Она описывает наш атавистический страх перед незнакомыми звуками леса.",
+        "uz": "U o'rmondagi notanish tovushlardan qo'rqish bizga ajdodlardan qolganini tasvirlaydi."
+      }
     }
   ]
 }

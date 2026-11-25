@@ -160,6 +160,81 @@
         "ru": "Это мой друг.",
         "uz": "Bu mening do'stim."
       }
+    },
+    {
+      "word": "mine",
+      "part_of_speech": "pronoun",
+      "transcription": "/maɪn/",
+      "translation": "мой",
+      "translations": {
+        "ru": "мой",
+        "uz": "meniki"
+      },
+      "example": "That blue bag on the chair is mine.",
+      "example_translations": {
+        "ru": "Та синяя сумка на стуле моя.",
+        "uz": "Stuldagi anavi ko'k sumka meniki."
+      }
+    },
+    {
+      "word": "yours",
+      "part_of_speech": "pronoun",
+      "transcription": "/jɔrz/",
+      "translation": "ваш",
+      "translations": {
+        "ru": "ваш",
+        "uz": "sizniki"
+      },
+      "example": "Is the book on the table yours?",
+      "example_translations": {
+        "ru": "Книга на столе ваша?",
+        "uz": "Stoldagi kitob siznikimi?"
+      }
+    },
+    {
+      "word": "hers",
+      "part_of_speech": "pronoun",
+      "transcription": "/hərz/",
+      "translation": "её",
+      "translations": {
+        "ru": "её",
+        "uz": "uniki"
+      },
+      "example": "This red shirt is hers, not mine.",
+      "example_translations": {
+        "ru": "Эта красная рубашка её, а не моя.",
+        "uz": "Bu qizil ko'ylak meniki emas, uniki."
+      }
+    },
+    {
+      "word": "ours",
+      "part_of_speech": "pronoun",
+      "transcription": "/aʊərz/",
+      "translation": "наш",
+      "translations": {
+        "ru": "наш",
+        "uz": "bizniki"
+      },
+      "example": "That small white house is ours.",
+      "example_translations": {
+        "ru": "Вон тот маленький белый дом наш.",
+        "uz": "Anavi kichkina oq uy bizniki."
+      }
+    },
+    {
+      "word": "theirs",
+      "part_of_speech": "pronoun",
+      "transcription": "/ðɛrz/",
+      "translation": "их",
+      "translations": {
+        "ru": "их",
+        "uz": "ularniki"
+      },
+      "example": "Our car is blue and theirs is red.",
+      "example_translations": {
+        "ru": "Наша машина синяя, а их — красная.",
+        "uz": "Mashinamiz ko'k, ularniki esa qizil."
+      }
     }
   ]
 }

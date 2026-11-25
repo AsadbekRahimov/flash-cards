@@ -160,6 +160,81 @@
         "ru": "Судно перевозит груз свежих фруктов.",
         "uz": "Kema yangi meva yukini tashiydi."
       }
+    },
+    {
+      "word": "railcar",
+      "part_of_speech": "noun",
+      "transcription": "/ˈreɪlˌkɑr/",
+      "translation": "железнодорожный вагон",
+      "translations": {
+        "ru": "железнодорожный вагон",
+        "uz": "temiryo'l vagoni"
+      },
+      "example": "Our railcar had wide windows and comfortable seats.",
+      "example_translations": {
+        "ru": "В нашем вагоне были широкие окна и удобные сиденья.",
+        "uz": "Temiryo'l vagonimizda keng derazalar va qulay o'rindiqlar bor edi."
+      }
+    },
+    {
+      "word": "carpooling",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑrˌpulɪŋ/",
+      "translation": "совместные поездки на машине",
+      "translations": {
+        "ru": "совместные поездки на машине",
+        "uz": "bir mashinada birga qatnash"
+      },
+      "example": "Our office encourages carpooling to reduce morning traffic.",
+      "example_translations": {
+        "ru": "У нас в офисе поощряют совместные поездки на машине, чтобы уменьшить утренние пробки.",
+        "uz": "Idoramizda ertalabki tirbandlikni kamaytirish uchun ishga bir mashinada birga qatnash tavsiya etiladi."
+      }
+    },
+    {
+      "word": "monorail",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɑnoʊˌreɪl/",
+      "translation": "монорельс",
+      "translations": {
+        "ru": "монорельс",
+        "uz": "bir relsli yo'l"
+      },
+      "example": "The monorail carries passengers between the airport terminals.",
+      "example_translations": {
+        "ru": "Монорельс перевозит пассажиров между терминалами аэропорта.",
+        "uz": "Bir relsli yo'l orqali yo'lovchilar aeroport terminallari orasida qatnaydi."
+      }
+    },
+    {
+      "word": "tramway",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtræmˌweɪ/",
+      "translation": "трамвайная линия",
+      "translations": {
+        "ru": "трамвайная линия",
+        "uz": "tramvay yo'li"
+      },
+      "example": "The new tramway connects the station to downtown.",
+      "example_translations": {
+        "ru": "Новая трамвайная линия соединяет вокзал с центром города.",
+        "uz": "Yangi tramvay yo'li vokzalni shahar markazi bilan bog'laydi."
+      }
+    },
+    {
+      "word": "tollway",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtoʊlˌweɪ/",
+      "translation": "платная дорога",
+      "translations": {
+        "ru": "платная дорога",
+        "uz": "pulli yo'l"
+      },
+      "example": "We took the tollway to avoid local traffic.",
+      "example_translations": {
+        "ru": "Мы поехали по платной дороге, чтобы избежать пробок на местных дорогах.",
+        "uz": "Mahalliy yo'llardagi tirbandlikka qolmaslik uchun pulli yo'ldan bordik."
+      }
     }
   ]
 }

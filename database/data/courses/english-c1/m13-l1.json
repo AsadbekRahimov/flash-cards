@@ -160,6 +160,51 @@
         "ru": "Старение населения — серьёзное демографическое изменение.",
         "uz": "Aholining qarishi — jiddiy demografik o'zgarish."
       }
+    },
+    {
+      "word": "disenfranchised",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌdɪsɪnˈfræntʃaɪzd/",
+      "translation": "лишённый избирательного права",
+      "translations": {
+        "ru": "лишённый избирательного права",
+        "uz": "saylov huquqidan mahrum"
+      },
+      "example": "Disenfranchised groups demanded a voice in local elections.",
+      "example_translations": {
+        "ru": "Лишённые избирательного права группы потребовали права голоса на местных выборах.",
+        "uz": "Saylov huquqidan mahrum guruhlar mahalliy saylovlarda ovoz berishni talab qildi."
+      }
+    },
+    {
+      "word": "bourgeois",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈbʊrʒwɑ/",
+      "translation": "буржуазный",
+      "translations": {
+        "ru": "буржуазный",
+        "uz": "burjuaziyaga xos"
+      },
+      "example": "The novel mocks the bourgeois values of wealthy merchants.",
+      "example_translations": {
+        "ru": "Роман высмеивает буржуазные ценности состоятельных купцов.",
+        "uz": "Roman boy savdogarlarning burjuaziyaga xos qadriyatlari ustidan kuladi."
+      }
+    },
+    {
+      "word": "precariat",
+      "part_of_speech": "noun",
+      "transcription": "/prɪˈkɛriət/",
+      "translation": "прекариат",
+      "translations": {
+        "ru": "прекариат",
+        "uz": "beqaror bandlikdagi qatlam"
+      },
+      "example": "The precariat often depends on short contracts.",
+      "example_translations": {
+        "ru": "Прекариат часто зависит от краткосрочных трудовых договоров.",
+        "uz": "Beqaror bandlikdagi qatlam ko'pincha qisqa muddatli mehnat shartnomalariga tayanadi."
+      }
     }
   ]
 }

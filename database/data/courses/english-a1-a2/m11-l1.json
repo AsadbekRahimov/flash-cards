@@ -160,6 +160,66 @@
         "ru": "Мне нужно собрать сумку сегодня вечером.",
         "uz": "Bugun kechqurun narsalarimni sumkaga joylashim kerak."
       }
+    },
+    {
+      "word": "traveler",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtrævələr/",
+      "translation": "путешественник",
+      "translations": {
+        "ru": "путешественник",
+        "uz": "sayohatchi"
+      },
+      "example": "The traveler put a map in his bag.",
+      "example_translations": {
+        "ru": "Путешественник положил карту в сумку.",
+        "uz": "Sayohatchi xaritani sumkasiga soldi."
+      }
+    },
+    {
+      "word": "packing",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpækɪŋ/",
+      "translation": "сбор вещей",
+      "translations": {
+        "ru": "сбор вещей",
+        "uz": "narsalarni joylash"
+      },
+      "example": "Let's finish packing before we have dinner.",
+      "example_translations": {
+        "ru": "Давайте закончим сбор вещей до ужина.",
+        "uz": "Keling, kechki ovqatgacha narsalarni joylab bo'laylik."
+      }
+    },
+    {
+      "word": "guidebook",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgaɪdˌbʊk/",
+      "translation": "путеводитель",
+      "translations": {
+        "ru": "путеводитель",
+        "uz": "sayohat qo'llanmasi"
+      },
+      "example": "This guidebook shows the best places to visit.",
+      "example_translations": {
+        "ru": "В этом путеводителе показаны лучшие места для посещения.",
+        "uz": "Bu sayohat qo'llanmasida borishga arziydigan eng yaxshi joylar ko'rsatilgan."
+      }
+    },
+    {
+      "word": "getaway",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgɛtəˌweɪ/",
+      "translation": "короткая поездка для отдыха",
+      "translations": {
+        "ru": "короткая поездка для отдыха",
+        "uz": "qisqa dam olish safari"
+      },
+      "example": "We planned a weekend getaway by the sea.",
+      "example_translations": {
+        "ru": "Мы запланировали короткую поездку к морю на выходные.",
+        "uz": "Dam olish kunlari dengiz bo'yiga qisqa safar rejaladik."
+      }
     }
   ]
 }

@@ -160,6 +160,36 @@
         "ru": "Законодательный орган принял новый бюджет вчера вечером.",
         "uz": "Qonun chiqaruvchi organ kecha kechqurun yangi budjetni qabul qildi."
       }
+    },
+    {
+      "word": "bicameral",
+      "part_of_speech": "adjective",
+      "transcription": "/baɪˈkæmərəl/",
+      "translation": "двухпалатный",
+      "translations": {
+        "ru": "двухпалатный",
+        "uz": "ikki palatali"
+      },
+      "example": "A bicameral legislature divides lawmakers between two chambers.",
+      "example_translations": {
+        "ru": "В двухпалатном законодательном органе депутаты распределены между двумя палатами.",
+        "uz": "Ikki palatali qonun chiqaruvchi organda deputatlar ikki palataga bo'linadi."
+      }
+    },
+    {
+      "word": "devolve",
+      "part_of_speech": "verb",
+      "transcription": "/dɪˈvɑlv/",
+      "translation": "передавать полномочия",
+      "translations": {
+        "ru": "передавать полномочия",
+        "uz": "vakolatlarni o'tkazmoq"
+      },
+      "example": "The proposal would devolve authority to regional councils.",
+      "example_translations": {
+        "ru": "Предложение предусматривает передачу полномочий региональным советам.",
+        "uz": "Taklif vakolatlarni hududiy kengashlarga o'tkazishni nazarda tutadi."
+      }
     }
   ]
 }

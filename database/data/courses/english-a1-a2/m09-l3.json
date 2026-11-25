@@ -160,6 +160,51 @@
         "ru": "У меня сильный кашель.",
         "uz": "Menda qattiq yo'tal bor."
       }
+    },
+    {
+      "word": "toothache",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtuθˌeɪk/",
+      "translation": "зубная боль",
+      "translations": {
+        "ru": "зубная боль",
+        "uz": "tish og'rig'i"
+      },
+      "example": "My toothache kept me awake last night.",
+      "example_translations": {
+        "ru": "Прошлой ночью зубная боль не давала мне спать.",
+        "uz": "Kecha tunda tish og'rig'idan uxlay olmadim."
+      }
+    },
+    {
+      "word": "carsick",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkɑrˌsɪk/",
+      "translation": "укачанный в машине",
+      "translations": {
+        "ru": "укачанный в машине",
+        "uz": "mashinada ko'ngli aynigan"
+      },
+      "example": "I feel carsick in the back seat.",
+      "example_translations": {
+        "ru": "Меня укачивает на заднем сиденье машины.",
+        "uz": "Mashinaning orqa o'rindig'ida ko'nglim ayniydi."
+      }
+    },
+    {
+      "word": "hiccup",
+      "part_of_speech": "verb",
+      "transcription": "/ˈhɪkʌp/",
+      "translation": "икать",
+      "translations": {
+        "ru": "икать",
+        "uz": "hiqichoq tutmoq"
+      },
+      "example": "I always hiccup after drinking cold water.",
+      "example_translations": {
+        "ru": "Я всегда икаю после холодной воды.",
+        "uz": "Sovuq suv ichsam, doim hiqichog'im tutadi."
+      }
     }
   ]
 }

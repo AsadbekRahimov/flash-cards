@@ -160,6 +160,81 @@
         "ru": "На шведском столе вы сами выбираете еду.",
         "uz": "Shved stolida taomni o'zingiz tanlaysiz."
       }
+    },
+    {
+      "word": "platter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈplætər/",
+      "translation": "большое сервировочное блюдо",
+      "translations": {
+        "ru": "большое сервировочное блюдо",
+        "uz": "katta lagan"
+      },
+      "example": "The waiter brought a platter of grilled vegetables.",
+      "example_translations": {
+        "ru": "Официант принёс большое блюдо с овощами на гриле.",
+        "uz": "Ofitsiant grilda pishirilgan sabzavotlarni katta laganda olib keldi."
+      }
+    },
+    {
+      "word": "garnish",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgɑrnɪʃ/",
+      "translation": "украшение блюда",
+      "translations": {
+        "ru": "украшение блюда",
+        "uz": "taom bezagi"
+      },
+      "example": "The chef used fresh herbs as a garnish.",
+      "example_translations": {
+        "ru": "Повар украсил блюдо свежей зеленью.",
+        "uz": "Oshpaz taomni yangi ko'katlar bilan bezadi."
+      }
+    },
+    {
+      "word": "entree",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑntreɪ/",
+      "translation": "основное блюдо",
+      "translations": {
+        "ru": "основное блюдо",
+        "uz": "asosiy taom"
+      },
+      "example": "I ordered grilled fish as my entree.",
+      "example_translations": {
+        "ru": "Я заказал рыбу на гриле в качестве основного блюда.",
+        "uz": "Asosiy taomga grilda pishirilgan baliq buyurtma qildim."
+      }
+    },
+    {
+      "word": "takeout",
+      "part_of_speech": "noun",
+      "transcription": "/ˈteɪkˌaʊt/",
+      "translation": "еда навынос",
+      "translations": {
+        "ru": "еда навынос",
+        "uz": "olib ketiladigan ovqat"
+      },
+      "example": "We ordered takeout from our favorite restaurant.",
+      "example_translations": {
+        "ru": "Мы заказали еду навынос в любимом ресторане.",
+        "uz": "Sevimli restoranimizdan olib ketishga ovqat buyurtma qildik."
+      }
+    },
+    {
+      "word": "refill",
+      "part_of_speech": "noun",
+      "transcription": "/ˈriˌfɪl/",
+      "translation": "добавка напитка",
+      "translations": {
+        "ru": "добавка напитка",
+        "uz": "ichimlikni qayta quyish"
+      },
+      "example": "Can I get a refill of my coffee?",
+      "example_translations": {
+        "ru": "Можно мне долить кофе?",
+        "uz": "Qahvamdan yana quyib bera olasizmi?"
+      }
     }
   ]
 }

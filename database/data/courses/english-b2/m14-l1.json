@@ -160,6 +160,66 @@
         "ru": "Мы ориентировались в старом городе по бумажной карте.",
         "uz": "Eski shaharda qog'oz xarita yordamida yo'l topdik."
       }
+    },
+    {
+      "word": "reroute",
+      "part_of_speech": "verb",
+      "transcription": "/riˈrut/",
+      "translation": "направлять другим маршрутом",
+      "translations": {
+        "ru": "направлять другим маршрутом",
+        "uz": "boshqa yo'nalishga burmoq"
+      },
+      "example": "They had to reroute buses around the closed bridge.",
+      "example_translations": {
+        "ru": "Автобусы пришлось направить другим маршрутом в объезд закрытого моста.",
+        "uz": "Ko'prik yopilgani uchun avtobuslarni boshqa yo'nalishga burishga to'g'ri keldi."
+      }
+    },
+    {
+      "word": "outbound",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈaʊtˌbaʊnd/",
+      "translation": "отправляющийся",
+      "translations": {
+        "ru": "отправляющийся",
+        "uz": "jo'nab ketayotgan"
+      },
+      "example": "Our outbound flight leaves at six tomorrow morning.",
+      "example_translations": {
+        "ru": "Наш рейс туда отправляется завтра в шесть утра.",
+        "uz": "Jo'nab ketadigan reysimiz ertaga ertalab soat oltida uchadi."
+      }
+    },
+    {
+      "word": "inbound",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɪnˌbaʊnd/",
+      "translation": "прибывающий",
+      "translations": {
+        "ru": "прибывающий",
+        "uz": "yetib kelayotgan"
+      },
+      "example": "The inbound train will arrive ten minutes late.",
+      "example_translations": {
+        "ru": "Прибывающий поезд опоздает на десять минут.",
+        "uz": "Yetib kelayotgan poyezd o'n daqiqa kechikadi."
+      }
+    },
+    {
+      "word": "eastbound",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈistˌbaʊnd/",
+      "translation": "следующий на восток",
+      "translations": {
+        "ru": "следующий на восток",
+        "uz": "sharqqa ketayotgan"
+      },
+      "example": "The eastbound bus stops across from the library.",
+      "example_translations": {
+        "ru": "Автобус, следующий на восток, останавливается напротив библиотеки.",
+        "uz": "Sharqqa ketayotgan avtobus kutubxona ro'parasida to'xtaydi."
+      }
     }
   ]
 }

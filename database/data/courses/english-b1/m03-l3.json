@@ -160,6 +160,81 @@
         "ru": "По этой трубе течёт горячая вода.",
         "uz": "Bu quvur orqali issiq suv oqadi."
       }
+    },
+    {
+      "word": "repaint",
+      "part_of_speech": "verb",
+      "transcription": "/riˈpeɪnt/",
+      "translation": "перекрашивать",
+      "translations": {
+        "ru": "перекрашивать",
+        "uz": "qayta bo'yamoq"
+      },
+      "example": "We plan to repaint the walls this weekend.",
+      "example_translations": {
+        "ru": "Мы собираемся перекрасить стены в эти выходные.",
+        "uz": "Dam olish kunlari devorlarni qayta bo'yamoqchimiz."
+      }
+    },
+    {
+      "word": "mover",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmuvər/",
+      "translation": "грузчик при переезде",
+      "translations": {
+        "ru": "грузчик при переезде",
+        "uz": "yuk tashuvchi"
+      },
+      "example": "A mover carried our sofa down the stairs.",
+      "example_translations": {
+        "ru": "Грузчик спустил наш диван по лестнице.",
+        "uz": "Yuk tashuvchi divanimizni zinadan olib tushdi."
+      }
+    },
+    {
+      "word": "wallpaper",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwɔlˌpeɪpər/",
+      "translation": "обои",
+      "translations": {
+        "ru": "обои",
+        "uz": "gulqog'oz"
+      },
+      "example": "We chose wallpaper with small green leaves.",
+      "example_translations": {
+        "ru": "Мы выбрали обои с мелкими зелёными листьями.",
+        "uz": "Mayda yashil barglar tasvirlangan gulqog'ozni tanladik."
+      }
+    },
+    {
+      "word": "toolkit",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtulˌkɪt/",
+      "translation": "набор инструментов",
+      "translations": {
+        "ru": "набор инструментов",
+        "uz": "asboblar to'plami"
+      },
+      "example": "My toolkit has everything to fix the shelf.",
+      "example_translations": {
+        "ru": "В моём наборе инструментов есть всё для починки полки.",
+        "uz": "Asboblar to'plamimda javonni tuzatish uchun hamma narsa bor."
+      }
+    },
+    {
+      "word": "furnish",
+      "part_of_speech": "verb",
+      "transcription": "/ˈfɜrnɪʃ/",
+      "translation": "обставлять мебелью",
+      "translations": {
+        "ru": "обставлять мебелью",
+        "uz": "mebel bilan jihozlamoq"
+      },
+      "example": "How much will it cost to furnish the apartment?",
+      "example_translations": {
+        "ru": "Сколько будет стоить обставить квартиру мебелью?",
+        "uz": "Xonadonni mebel bilan jihozlash qancha turadi?"
+      }
     }
   ]
 }

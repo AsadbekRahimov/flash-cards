@@ -160,6 +160,51 @@
         "ru": "Власти могут депортировать иностранцев, просрочивших визу.",
         "uz": "Hukumat idoralari viza muddatini o'tkazib yuborgan chet elliklarni deportatsiya qilishi mumkin."
       }
+    },
+    {
+      "word": "leniency",
+      "part_of_speech": "noun",
+      "transcription": "/ˈliniənsi/",
+      "translation": "снисхождение",
+      "translations": {
+        "ru": "снисхождение",
+        "uz": "yengillik berish"
+      },
+      "example": "The defendant asked for leniency before sentencing.",
+      "example_translations": {
+        "ru": "Обвиняемый попросил о снисхождении перед вынесением приговора.",
+        "uz": "Ayblanuvchi hukm chiqarilishidan oldin yengillik berishlarini so'radi."
+      }
+    },
+    {
+      "word": "custodial",
+      "part_of_speech": "adjective",
+      "transcription": "/kʌˈstoʊdiəl/",
+      "translation": "с лишением свободы",
+      "translations": {
+        "ru": "с лишением свободы",
+        "uz": "ozodlikdan mahrum qiladigan"
+      },
+      "example": "The judge considered a fine instead of custodial punishment.",
+      "example_translations": {
+        "ru": "Судья рассматривал штраф вместо наказания с лишением свободы.",
+        "uz": "Sudya ozodlikdan mahrum qiladigan jazo o'rniga jarima belgilashni ko'rib chiqdi."
+      }
+    },
+    {
+      "word": "recidivism",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈsɪdəˌvɪzəm/",
+      "translation": "рецидив преступлений",
+      "translations": {
+        "ru": "рецидив преступлений",
+        "uz": "takroriy jinoyatchilik"
+      },
+      "example": "Job training may reduce recidivism among released prisoners.",
+      "example_translations": {
+        "ru": "Профессиональное обучение может снизить рецидив преступлений среди освобождённых заключённых.",
+        "uz": "Kasbga o'qitish ozodlikka chiqqan mahbuslar orasida takroriy jinoyatchilikni kamaytirishi mumkin."
+      }
     }
   ]
 }

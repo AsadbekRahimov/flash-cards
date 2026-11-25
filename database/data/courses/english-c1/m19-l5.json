@@ -160,6 +160,51 @@
         "ru": "Лагуну за рифом заполняет тёплая мелкая вода.",
         "uz": "Rif ortidagi lagunani iliq sayoz suv to'ldirib turadi."
       }
+    },
+    {
+      "word": "undulating",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈʌndʒəˌleɪtɪŋ/",
+      "translation": "волнистый",
+      "translations": {
+        "ru": "волнистый",
+        "uz": "baland-past"
+      },
+      "example": "The cycling route crosses miles of undulating countryside.",
+      "example_translations": {
+        "ru": "Велосипедный маршрут проходит по многим милям волнистой сельской местности.",
+        "uz": "Velosiped yo'nalishi baland-past qishloq hududi bo'ylab ko'p milga cho'zilgan."
+      }
+    },
+    {
+      "word": "escarpment",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˈskɑrpmənt/",
+      "translation": "крутой уступ",
+      "translations": {
+        "ru": "крутой уступ",
+        "uz": "tik qiyalik"
+      },
+      "example": "An escarpment separates the plateau from the fields below.",
+      "example_translations": {
+        "ru": "Крутой уступ отделяет плато от полей внизу.",
+        "uz": "Tik qiyalik yassitog'likni pastdagi dalalardan ajratib turadi."
+      }
+    },
+    {
+      "word": "ravine",
+      "part_of_speech": "noun",
+      "transcription": "/rəˈvin/",
+      "translation": "глубокий овраг",
+      "translations": {
+        "ru": "глубокий овраг",
+        "uz": "chuqur jarlik"
+      },
+      "example": "A wooden footbridge crosses the ravine near camp.",
+      "example_translations": {
+        "ru": "Рядом с лагерем через глубокий овраг перекинут деревянный мостик.",
+        "uz": "Oromgoh yaqinida chuqur jarlik ustidan yog'och piyodalar ko'prigi o'tgan."
+      }
     }
   ]
 }

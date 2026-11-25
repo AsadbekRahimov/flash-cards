@@ -160,6 +160,66 @@
         "ru": "Есть ли свободный номер на сегодня?",
         "uz": "Bugun kechqurun bo'sh xona bormi?"
       }
+    },
+    {
+      "word": "receptionist",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈsɛpʃənɪst/",
+      "translation": "администратор",
+      "translations": {
+        "ru": "администратор",
+        "uz": "qabulxona xodimi"
+      },
+      "example": "The receptionist gave us our room key.",
+      "example_translations": {
+        "ru": "Администратор дал нам ключ от номера.",
+        "uz": "Qabulxona xodimi bizga xonamiz kalitini berdi."
+      }
+    },
+    {
+      "word": "guesthouse",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgɛstˌhaʊs/",
+      "translation": "гостевой дом",
+      "translations": {
+        "ru": "гостевой дом",
+        "uz": "mehmon uyi"
+      },
+      "example": "We stayed at a guesthouse near the lake.",
+      "example_translations": {
+        "ru": "Мы остановились в гостевом доме у озера.",
+        "uz": "Ko'l yaqinidagi mehmon uyida qoldik."
+      }
+    },
+    {
+      "word": "keycard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkiˌkɑrd/",
+      "translation": "ключ-карта",
+      "translations": {
+        "ru": "ключ-карта",
+        "uz": "kalit karta"
+      },
+      "example": "You'll need your keycard to open the door.",
+      "example_translations": {
+        "ru": "Чтобы открыть дверь, вам понадобится ключ-карта.",
+        "uz": "Eshikni ochish uchun kalit kartangiz kerak bo'ladi."
+      }
+    },
+    {
+      "word": "porter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɔrtər/",
+      "translation": "носильщик",
+      "translations": {
+        "ru": "носильщик",
+        "uz": "yuk tashuvchi"
+      },
+      "example": "The porter carried my bags to the room.",
+      "example_translations": {
+        "ru": "Носильщик отнёс мои сумки в номер.",
+        "uz": "Yuk tashuvchi sumkalarimni xonamga olib bordi."
+      }
     }
   ]
 }

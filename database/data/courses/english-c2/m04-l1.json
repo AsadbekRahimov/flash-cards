@@ -160,6 +160,81 @@
         "ru": "Председатель созвал экстренное заседание в пятницу.",
         "uz": "Rais juma kuni favqulodda majlis chaqirdi."
       }
+    },
+    {
+      "word": "abrogate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈæbrəˌgeɪt/",
+      "translation": "официально отменять",
+      "translations": {
+        "ru": "официально отменять",
+        "uz": "rasman bekor qilmoq"
+      },
+      "example": "The board voted to abrogate the previous agreement.",
+      "example_translations": {
+        "ru": "Совет проголосовал за официальную отмену прежнего соглашения.",
+        "uz": "Kengash avvalgi kelishuvni rasman bekor qilish uchun ovoz berdi."
+      }
+    },
+    {
+      "word": "revoke",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈvoʊk/",
+      "translation": "аннулировать",
+      "translations": {
+        "ru": "аннулировать",
+        "uz": "bekor qilmoq"
+      },
+      "example": "They may revoke the permit for repeated violations.",
+      "example_translations": {
+        "ru": "Разрешение могут аннулировать за неоднократные нарушения.",
+        "uz": "Takroriy qoidabuzarliklar uchun ruxsatnomani bekor qilishlari mumkin."
+      }
+    },
+    {
+      "word": "certify",
+      "part_of_speech": "verb",
+      "transcription": "/ˈsɜrtəˌfaɪ/",
+      "translation": "заверять",
+      "translations": {
+        "ru": "заверять",
+        "uz": "rasman tasdiqlamoq"
+      },
+      "example": "An authorized officer must certify these copies as accurate.",
+      "example_translations": {
+        "ru": "Уполномоченный сотрудник должен заверить соответствие этих копий оригиналу.",
+        "uz": "Vakolatli xodim bu nusxalarning aslga mosligini rasman tasdiqlashi kerak."
+      }
+    },
+    {
+      "word": "effectuate",
+      "part_of_speech": "verb",
+      "transcription": "/ɪˈfɛktʃuˌeɪt/",
+      "translation": "осуществлять",
+      "translations": {
+        "ru": "осуществлять",
+        "uz": "amalga oshirmoq"
+      },
+      "example": "Both signatures are required to effectuate the transfer.",
+      "example_translations": {
+        "ru": "Для осуществления передачи необходимы обе подписи.",
+        "uz": "O'tkazishni amalga oshirish uchun har ikki imzo kerak."
+      }
+    },
+    {
+      "word": "memorialize",
+      "part_of_speech": "verb",
+      "transcription": "/məˈmɔriəˌlaɪz/",
+      "translation": "фиксировать письменно",
+      "translations": {
+        "ru": "фиксировать письменно",
+        "uz": "yozma ravishda qayd etmoq"
+      },
+      "example": "Our legal team will memorialize the agreement in writing.",
+      "example_translations": {
+        "ru": "Наши юристы зафиксируют соглашение в письменном виде.",
+        "uz": "Huquqshunoslarimiz kelishuvni yozma ravishda qayd etadi."
+      }
     }
   ]
 }

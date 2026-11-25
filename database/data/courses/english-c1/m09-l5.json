@@ -160,6 +160,36 @@
         "ru": "Практика осознанности помогает мне сохранять спокойствие в напряжённых ситуациях.",
         "uz": "Onglilikni mashq qilish menga bosim ostida xotirjam bo'lishga yordam beradi."
       }
+    },
+    {
+      "word": "maturation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmætʃəˈreɪʃən/",
+      "translation": "созревание",
+      "translations": {
+        "ru": "созревание",
+        "uz": "yetilish"
+      },
+      "example": "Emotional maturation continues well beyond the teenage years.",
+      "example_translations": {
+        "ru": "Эмоциональное созревание продолжается и после подросткового возраста.",
+        "uz": "Hissiy yetilish o'smirlik davridan keyin ham davom etadi."
+      }
+    },
+    {
+      "word": "assertiveness",
+      "part_of_speech": "noun",
+      "transcription": "/əˈsɜrtɪvnəs/",
+      "translation": "умение уверенно отстаивать себя",
+      "translations": {
+        "ru": "умение уверенно отстаивать себя",
+        "uz": "o'z fikrini dadil bildirish"
+      },
+      "example": "With practice, her assertiveness during disagreements improved.",
+      "example_translations": {
+        "ru": "Практика помогла ей увереннее отстаивать себя при разногласиях.",
+        "uz": "Mashq qilib, u kelishmovchilik paytida o'z fikrini dadilroq bildirishni o'rgandi."
+      }
     }
   ]
 }

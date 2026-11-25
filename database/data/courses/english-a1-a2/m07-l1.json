@@ -160,6 +160,51 @@
         "ru": "Этот проект очень большой.",
         "uz": "Bu loyiha juda katta."
       }
+    },
+    {
+      "word": "break",
+      "part_of_speech": "noun",
+      "transcription": "/breɪk/",
+      "translation": "перерыв",
+      "translations": {
+        "ru": "перерыв",
+        "uz": "tanaffus"
+      },
+      "example": "We have a short break at ten.",
+      "example_translations": {
+        "ru": "В десять у нас короткий перерыв.",
+        "uz": "Soat o'nda qisqa tanaffusimiz bor."
+      }
+    },
+    {
+      "word": "workplace",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwərkˌpleɪs/",
+      "translation": "место работы",
+      "translations": {
+        "ru": "место работы",
+        "uz": "ish joyi"
+      },
+      "example": "Her workplace is near the train station.",
+      "example_translations": {
+        "ru": "Её место работы рядом с вокзалом.",
+        "uz": "Uning ish joyi vokzalga yaqin."
+      }
+    },
+    {
+      "word": "payday",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpeɪdeɪ/",
+      "translation": "день выплаты зарплаты",
+      "translations": {
+        "ru": "день выплаты зарплаты",
+        "uz": "oylik beriladigan kun"
+      },
+      "example": "I buy fruit and vegetables on payday.",
+      "example_translations": {
+        "ru": "В день выплаты зарплаты я покупаю фрукты и овощи.",
+        "uz": "Oylik beriladigan kuni meva va sabzavot sotib olaman."
+      }
     }
   ]
 }

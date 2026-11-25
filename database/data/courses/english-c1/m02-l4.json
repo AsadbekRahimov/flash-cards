@@ -160,6 +160,36 @@
         "ru": "Когда она оскорбила его, он ответил тем же — резкими словами.",
         "uz": "Ayol uni haqorat qilganida, u keskin so'zlar bilan javob qaytardi."
       }
+    },
+    {
+      "word": "recrimination",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˌkrɪməˈneɪʃən/",
+      "translation": "встречное обвинение",
+      "translations": {
+        "ru": "встречное обвинение",
+        "uz": "javoban ayblash"
+      },
+      "example": "His apology ended the cycle of recrimination.",
+      "example_translations": {
+        "ru": "Его извинение положило конец череде встречных обвинений.",
+        "uz": "Uning uzri bir-birini ayblashga chek qo'ydi."
+      }
+    },
+    {
+      "word": "embittered",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪmˈbɪtərd/",
+      "translation": "озлобленный",
+      "translations": {
+        "ru": "озлобленный",
+        "uz": "alamzada"
+      },
+      "example": "He grew embittered after years of unfair criticism.",
+      "example_translations": {
+        "ru": "После многих лет несправедливой критики он озлобился.",
+        "uz": "Ko'p yil nohaq tanqid eshitib, u alamzada bo'lib qoldi."
+      }
     }
   ]
 }

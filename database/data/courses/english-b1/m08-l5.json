@@ -160,6 +160,36 @@
         "ru": "На этом рынке большое разнообразие фруктов.",
         "uz": "Bu bozorda mevalarning xilma-xilligi juda katta."
       }
+    },
+    {
+      "word": "faulty",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈfɔlti/",
+      "translation": "неисправный",
+      "translations": {
+        "ru": "неисправный",
+        "uz": "nosoz"
+      },
+      "example": "The store replaced my faulty headphones for free.",
+      "example_translations": {
+        "ru": "В магазине мне бесплатно заменили неисправные наушники.",
+        "uz": "Do'kon nosoz quloqchinlarimni bepul almashtirdi."
+      }
+    },
+    {
+      "word": "voucher",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvaʊtʃər/",
+      "translation": "подарочный сертификат",
+      "translations": {
+        "ru": "подарочный сертификат",
+        "uz": "xarid sertifikati"
+      },
+      "example": "The store offered a voucher instead of cash.",
+      "example_translations": {
+        "ru": "Магазин предложил подарочный сертификат вместо наличных.",
+        "uz": "Do'kon naqd pul o'rniga xarid sertifikatini taklif qildi."
+      }
     }
   ]
 }

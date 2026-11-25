@@ -160,6 +160,36 @@
         "ru": "Он оставался непоколебимым, несмотря на всё давление.",
         "uz": "Barcha bosimlarga qaramay, u sobitqadam bo'lib qoldi."
       }
+    },
+    {
+      "word": "levelheaded",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌlɛvəlˈhɛdəd/",
+      "translation": "рассудительный",
+      "translations": {
+        "ru": "рассудительный",
+        "uz": "mulohazali"
+      },
+      "example": "Our levelheaded captain stayed calm throughout the delay.",
+      "example_translations": {
+        "ru": "Наш рассудительный капитан сохранял спокойствие на протяжении всей задержки.",
+        "uz": "Mulohazali sardorimiz kechikish davomida xotirjamligini saqladi."
+      }
+    },
+    {
+      "word": "evenhanded",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌivənˈhændəd/",
+      "translation": "беспристрастный",
+      "translations": {
+        "ru": "беспристрастный",
+        "uz": "xolis"
+      },
+      "example": "An evenhanded coach listens to every player's complaint.",
+      "example_translations": {
+        "ru": "Беспристрастный тренер выслушивает жалобу каждого игрока.",
+        "uz": "Xolis murabbiy har bir o'yinchining shikoyatini tinglaydi."
+      }
     }
   ]
 }

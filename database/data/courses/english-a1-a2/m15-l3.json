@@ -160,6 +160,66 @@
         "ru": "Я снова делаю ту же ошибку.",
         "uz": "Men yana o'sha xatoni qilaman."
       }
+    },
+    {
+      "word": "reread",
+      "part_of_speech": "verb",
+      "transcription": "/riˈrid/",
+      "translation": "перечитывать",
+      "translations": {
+        "ru": "перечитывать",
+        "uz": "qayta o'qimoq"
+      },
+      "example": "Please reread the question before you answer.",
+      "example_translations": {
+        "ru": "Пожалуйста, перечитайте вопрос, прежде чем ответить.",
+        "uz": "Iltimos, javob berishdan oldin savolni qayta o'qing."
+      }
+    },
+    {
+      "word": "recite",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈsaɪt/",
+      "translation": "рассказывать наизусть",
+      "translations": {
+        "ru": "рассказывать наизусть",
+        "uz": "yoddan aytmoq"
+      },
+      "example": "Can you recite this poem from memory?",
+      "example_translations": {
+        "ru": "Можете рассказать это стихотворение наизусть?",
+        "uz": "Bu she'rni yoddan aytib bera olasizmi?"
+      }
+    },
+    {
+      "word": "rehearse",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈhərs/",
+      "translation": "репетировать",
+      "translations": {
+        "ru": "репетировать",
+        "uz": "chiqishga tayyorlanib mashq qilmoq"
+      },
+      "example": "We rehearse the school play every Thursday.",
+      "example_translations": {
+        "ru": "Мы репетируем школьный спектакль каждый четверг.",
+        "uz": "Har payshanba maktab spektaklini mashq qilamiz."
+      }
+    },
+    {
+      "word": "revise",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈvaɪz/",
+      "translation": "дорабатывать",
+      "translations": {
+        "ru": "дорабатывать",
+        "uz": "qayta ishlab chiqmoq"
+      },
+      "example": "Please revise your essay before you submit it.",
+      "example_translations": {
+        "ru": "Пожалуйста, доработайте сочинение перед сдачей.",
+        "uz": "Iltimos, inshoni topshirishdan oldin qayta ishlab chiqing."
+      }
     }
   ]
 }

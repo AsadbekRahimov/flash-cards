@@ -160,6 +160,66 @@
         "ru": "Хороший учитель всегда терпелив.",
         "uz": "Yaxshi o'qituvchi doim sabrli bo'ladi."
       }
+    },
+    {
+      "word": "thoughtful",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈθɔtfəl/",
+      "translation": "внимательный к другим",
+      "translations": {
+        "ru": "внимательный к другим",
+        "uz": "e'tiborli"
+      },
+      "example": "It was thoughtful of you to bring flowers.",
+      "example_translations": {
+        "ru": "Вы были так внимательны и принесли цветы.",
+        "uz": "Gul olib kelib, qanday e'tiborli ekaningizni ko'rsatdingiz."
+      }
+    },
+    {
+      "word": "impatient",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪmˈpeɪʃənt/",
+      "translation": "нетерпеливый",
+      "translations": {
+        "ru": "нетерпеливый",
+        "uz": "sabrsiz"
+      },
+      "example": "Dad gets impatient when he has to wait.",
+      "example_translations": {
+        "ru": "Когда папе приходится ждать, он теряет терпение.",
+        "uz": "Dadam kutishi kerak bo'lsa, sabrsiz bo'lib qoladi."
+      }
+    },
+    {
+      "word": "outgoing",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈaʊtˌgoʊɪŋ/",
+      "translation": "общительный",
+      "translations": {
+        "ru": "общительный",
+        "uz": "kirishimli"
+      },
+      "example": "My brother is outgoing and makes friends easily.",
+      "example_translations": {
+        "ru": "Мой брат общительный и легко заводит друзей.",
+        "uz": "Ukam kirishimli, shuning uchun oson do'st orttiradi."
+      }
+    },
+    {
+      "word": "nosy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈnoʊzi/",
+      "translation": "сующий нос в чужие дела",
+      "translations": {
+        "ru": "сующий нос в чужие дела",
+        "uz": "birovning ishiga aralashadigan"
+      },
+      "example": "My nosy neighbor always asks about my plans.",
+      "example_translations": {
+        "ru": "Мой сосед суёт нос в чужие дела и всегда расспрашивает о моих планах.",
+        "uz": "Birovning ishiga aralashadigan qo'shnim doim rejalarimni surishtiradi."
+      }
     }
   ]
 }

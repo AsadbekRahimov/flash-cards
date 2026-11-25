@@ -160,6 +160,81 @@
         "ru": "После бега у меня болит нога.",
         "uz": "Yugurgandan keyin oyog'im og'riydi."
       }
+    },
+    {
+      "word": "cheek",
+      "part_of_speech": "noun",
+      "transcription": "/tʃik/",
+      "translation": "щека",
+      "translations": {
+        "ru": "щека",
+        "uz": "yonoq"
+      },
+      "example": "The doctor saw a spot on my cheek.",
+      "example_translations": {
+        "ru": "Врач увидел пятно у меня на щеке.",
+        "uz": "Shifokor yonog'imdagi dog'ni ko'rdi."
+      }
+    },
+    {
+      "word": "chin",
+      "part_of_speech": "noun",
+      "transcription": "/tʃɪn/",
+      "translation": "подбородок",
+      "translations": {
+        "ru": "подбородок",
+        "uz": "iyak"
+      },
+      "example": "Dad has a small cut on his chin.",
+      "example_translations": {
+        "ru": "У папы небольшой порез на подбородке.",
+        "uz": "Dadamning iyagi ozgina kesilgan."
+      }
+    },
+    {
+      "word": "thumb",
+      "part_of_speech": "noun",
+      "transcription": "/θʌm/",
+      "translation": "большой палец руки",
+      "translations": {
+        "ru": "большой палец руки",
+        "uz": "qo'lning bosh barmog'i"
+      },
+      "example": "I hold the pen with my thumb and fingers.",
+      "example_translations": {
+        "ru": "Я держу ручку большим и другими пальцами.",
+        "uz": "Ruchkani bosh barmog'im va boshqa barmoqlarim bilan ushlayman."
+      }
+    },
+    {
+      "word": "eyebrow",
+      "part_of_speech": "noun",
+      "transcription": "/ˈaɪˌbraʊ/",
+      "translation": "бровь",
+      "translations": {
+        "ru": "бровь",
+        "uz": "qosh"
+      },
+      "example": "She has a mark above her eyebrow.",
+      "example_translations": {
+        "ru": "У неё над бровью отметина.",
+        "uz": "Uning qoshi ustida iz bor."
+      }
+    },
+    {
+      "word": "forehead",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɔrˌhɛd/",
+      "translation": "лоб",
+      "translations": {
+        "ru": "лоб",
+        "uz": "peshona"
+      },
+      "example": "The baby has a warm forehead.",
+      "example_translations": {
+        "ru": "У малыша тёплый лоб.",
+        "uz": "Chaqaloqning peshonasi iliq."
+      }
     }
   ]
 }

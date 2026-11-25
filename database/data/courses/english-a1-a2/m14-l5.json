@@ -160,6 +160,66 @@
         "ru": "Она хочет достичь своих целей.",
         "uz": "U maqsadlariga erishmoqchi."
       }
+    },
+    {
+      "word": "scan",
+      "part_of_speech": "verb",
+      "transcription": "/skæn/",
+      "translation": "сканировать",
+      "translations": {
+        "ru": "сканировать",
+        "uz": "skanerlamoq"
+      },
+      "example": "Please scan this form and send it back.",
+      "example_translations": {
+        "ru": "Отсканируйте этот бланк и отправьте его обратно, пожалуйста.",
+        "uz": "Iltimos, bu blankani skanerlab, qaytarib yuboring."
+      }
+    },
+    {
+      "word": "edit",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɛdɪt/",
+      "translation": "редактировать",
+      "translations": {
+        "ru": "редактировать",
+        "uz": "tahrir qilmoq"
+      },
+      "example": "I need to edit the report before lunch.",
+      "example_translations": {
+        "ru": "Мне нужно отредактировать отчёт до обеда.",
+        "uz": "Hisobotni tushlikdan oldin tahrir qilishim kerak."
+      }
+    },
+    {
+      "word": "forward",
+      "part_of_speech": "verb",
+      "transcription": "/ˈfɔrwərd/",
+      "translation": "пересылать",
+      "translations": {
+        "ru": "пересылать",
+        "uz": "yo'naltirmoq"
+      },
+      "example": "Could you forward that email to me?",
+      "example_translations": {
+        "ru": "Можете переслать мне то письмо?",
+        "uz": "O'sha elektron xatni menga yo'naltirib yubora olasizmi?"
+      }
+    },
+    {
+      "word": "reschedule",
+      "part_of_speech": "verb",
+      "transcription": "/riˈskɛdʒul/",
+      "translation": "переносить на другое время",
+      "translations": {
+        "ru": "переносить на другое время",
+        "uz": "boshqa vaqtga ko'chirmoq"
+      },
+      "example": "Can we reschedule the meeting for next week?",
+      "example_translations": {
+        "ru": "Можно перенести встречу на следующую неделю?",
+        "uz": "Uchrashuvni kelasi haftaga ko'chirsak bo'ladimi?"
+      }
     }
   ]
 }

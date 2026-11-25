@@ -160,6 +160,81 @@
         "ru": "В городе до сих пор сохранились средневековые стены и ворота.",
         "uz": "Shaharda o'rta asrlarga oid devor va darvozalar hanuz saqlanib qolgan."
       }
+    },
+    {
+      "word": "preservation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌprɛzərˈveɪʃən/",
+      "translation": "сохранение",
+      "translations": {
+        "ru": "сохранение",
+        "uz": "asrab-avaylash"
+      },
+      "example": "Ticket sales fund preservation of the ancient murals.",
+      "example_translations": {
+        "ru": "Продажа билетов помогает финансировать сохранение древних настенных росписей.",
+        "uz": "Chipta savdosidan tushgan pul qadimiy devoriy rasmlarni asrab-avaylashga sarflanadi."
+      }
+    },
+    {
+      "word": "excavation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɛkskəˈveɪʃən/",
+      "translation": "раскопки",
+      "translations": {
+        "ru": "раскопки",
+        "uz": "qazishma"
+      },
+      "example": "The excavation uncovered the floor of an ancient house.",
+      "example_translations": {
+        "ru": "Во время раскопок нашли пол древнего дома.",
+        "uz": "Qazishmada qadimiy uyning poli topildi."
+      }
+    },
+    {
+      "word": "archaeological",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɑrkiəˈlɑdʒɪkəl/",
+      "translation": "археологический",
+      "translations": {
+        "ru": "археологический",
+        "uz": "arxeologik"
+      },
+      "example": "The archaeological site now has a small museum.",
+      "example_translations": {
+        "ru": "На археологическом объекте теперь есть небольшой музей.",
+        "uz": "Arxeologik yodgorlik hududida endi kichik muzey bor."
+      }
+    },
+    {
+      "word": "archaeologist",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɑrkiˈɑlədʒɪst/",
+      "translation": "археолог",
+      "translations": {
+        "ru": "археолог",
+        "uz": "arxeolog"
+      },
+      "example": "An archaeologist carefully cleaned the ancient clay pot.",
+      "example_translations": {
+        "ru": "Археолог осторожно очистил древний глиняный горшок.",
+        "uz": "Arxeolog qadimiy sopol ko'zani ehtiyotkorlik bilan tozaladi."
+      }
+    },
+    {
+      "word": "restoration",
+      "part_of_speech": "noun",
+      "transcription": "/ˌrɛstəˈreɪʃən/",
+      "translation": "реставрация",
+      "translations": {
+        "ru": "реставрация",
+        "uz": "asl holiga keltirish"
+      },
+      "example": "Restoration returned the old theater to its original appearance.",
+      "example_translations": {
+        "ru": "Реставрация вернула старому театру первоначальный облик.",
+        "uz": "Eski teatr restavratsiya qilinib, asl holiga keltirildi."
+      }
     }
   ]
 }

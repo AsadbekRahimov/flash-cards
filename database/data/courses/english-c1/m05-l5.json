@@ -160,6 +160,36 @@
         "ru": "Ценовая доступность жилья снижается, так как аренда растёт быстрее зарплат.",
         "uz": "Ijara haqi maoshdan tezroq o'sgani sari uy-joyning hamyonbopligi pasaymoqda."
       }
+    },
+    {
+      "word": "underprivileged",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌndərˈprɪvəlɪdʒd/",
+      "translation": "социально обездоленный",
+      "translations": {
+        "ru": "социально обездоленный",
+        "uz": "imkoniyatlari cheklangan"
+      },
+      "example": "The fund provides scholarships for underprivileged students.",
+      "example_translations": {
+        "ru": "Фонд предоставляет стипендии социально обездоленным учащимся.",
+        "uz": "Jamg'arma ijtimoiy imkoniyatlari cheklangan o'quvchilarga stipendiya beradi."
+      }
+    },
+    {
+      "word": "impoverishment",
+      "part_of_speech": "noun",
+      "transcription": "/ɪmˈpɑvərɪʃmənt/",
+      "translation": "обнищание",
+      "translations": {
+        "ru": "обнищание",
+        "uz": "qashshoqlashuv"
+      },
+      "example": "Long periods without work can lead to impoverishment.",
+      "example_translations": {
+        "ru": "Длительное отсутствие работы может привести к обнищанию.",
+        "uz": "Uzoq vaqt ishsiz qolish qashshoqlashuvga olib kelishi mumkin."
+      }
     }
   ]
 }

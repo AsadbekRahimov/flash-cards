@@ -160,6 +160,36 @@
         "ru": "Победный гол привёл толпу в эйфорию.",
         "uz": "G'alaba goli olomonni eyforiyaga soldi."
       }
+    },
+    {
+      "word": "elation",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˈleɪʃən/",
+      "translation": "ликование",
+      "translations": {
+        "ru": "ликование",
+        "uz": "cheksiz quvonch"
+      },
+      "example": "A sense of elation swept through the crowd.",
+      "example_translations": {
+        "ru": "Толпу охватило ликование.",
+        "uz": "Olomonni cheksiz quvonch qamrab oldi."
+      }
+    },
+    {
+      "word": "mortified",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmɔrtəfaɪd/",
+      "translation": "сгорающий от стыда",
+      "translations": {
+        "ru": "сгорающий от стыда",
+        "uz": "xijolatdan yerga kirgudek"
+      },
+      "example": "I felt mortified after forgetting my own lines.",
+      "example_translations": {
+        "ru": "Я сгорал от стыда, когда забыл свои реплики.",
+        "uz": "Rolimdagi gaplarni unutib, xijolatdan yerga kirgudek bo'ldim."
+      }
     }
   ]
 }

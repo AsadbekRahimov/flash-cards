@@ -160,6 +160,81 @@
         "ru": "Сегодня у нас гость.",
         "uz": "Bugun bizda mehmon bor."
       }
+    },
+    {
+      "word": "schoolmate",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskulmeɪt/",
+      "translation": "школьный товарищ",
+      "translations": {
+        "ru": "школьный товарищ",
+        "uz": "maktabdosh"
+      },
+      "example": "I walk to school with my schoolmate.",
+      "example_translations": {
+        "ru": "Я иду в школу со школьным товарищем.",
+        "uz": "Men maktabdoshim bilan maktabga boraman."
+      }
+    },
+    {
+      "word": "playmate",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpleɪmeɪt/",
+      "translation": "товарищ по играм",
+      "translations": {
+        "ru": "товарищ по играм",
+        "uz": "o'yin o'rtog'i"
+      },
+      "example": "My little brother wants a playmate today.",
+      "example_translations": {
+        "ru": "Моему младшему брату сегодня нужен товарищ по играм.",
+        "uz": "Bugun ukamga o'yin o'rtog'i kerak."
+      }
+    },
+    {
+      "word": "teen",
+      "part_of_speech": "noun",
+      "transcription": "/tin/",
+      "translation": "подросток",
+      "translations": {
+        "ru": "подросток",
+        "uz": "o'smir"
+      },
+      "example": "I was a teen when we moved.",
+      "example_translations": {
+        "ru": "Когда мы переехали, я был подростком.",
+        "uz": "Biz ko'chganimizda men o'smir edim."
+      }
+    },
+    {
+      "word": "teammate",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtimmeɪt/",
+      "translation": "товарищ по команде",
+      "translations": {
+        "ru": "товарищ по команде",
+        "uz": "jamoadosh"
+      },
+      "example": "My teammate helped me win the match.",
+      "example_translations": {
+        "ru": "Товарищ по команде помог мне выиграть матч.",
+        "uz": "Jamoadoshim o'yinda g'alaba qozonishimga yordam berdi."
+      }
+    },
+    {
+      "word": "everybody",
+      "part_of_speech": "pronoun",
+      "transcription": "/ˈɛvriˌbɑdi/",
+      "translation": "все",
+      "translations": {
+        "ru": "все",
+        "uz": "hamma"
+      },
+      "example": "I know everybody in this room.",
+      "example_translations": {
+        "ru": "Я знаю всех в этой комнате.",
+        "uz": "Bu xonadagi hammani taniyman."
+      }
     }
   ]
 }

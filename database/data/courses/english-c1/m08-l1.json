@@ -160,6 +160,36 @@
         "ru": "Острая боль в груди заставила его вызвать врача.",
         "uz": "Ko'krakdagi o'tkir og'riq uni shifokor chaqirishga majbur qildi."
       }
+    },
+    {
+      "word": "wheezing",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwizɪŋ/",
+      "translation": "свистящее дыхание",
+      "translations": {
+        "ru": "свистящее дыхание",
+        "uz": "xirillab nafas olish"
+      },
+      "example": "I heard wheezing whenever he tried to breathe deeply.",
+      "example_translations": {
+        "ru": "Каждый раз, когда он пытался глубоко вдохнуть, я слышал свистящее дыхание.",
+        "uz": "U har gal chuqur nafas olmoqchi bo'lganida, xirillab nafas olayotganini eshitardim."
+      }
+    },
+    {
+      "word": "recurrent",
+      "part_of_speech": "adjective",
+      "transcription": "/rɪˈkɜrənt/",
+      "translation": "повторяющийся",
+      "translations": {
+        "ru": "повторяющийся",
+        "uz": "qaytalanuvchi"
+      },
+      "example": "Recurrent headaches made it difficult for me to concentrate.",
+      "example_translations": {
+        "ru": "Повторяющиеся головные боли мешали мне сосредоточиться.",
+        "uz": "Qaytalanuvchi bosh og'rig'i diqqatimni jamlashga xalaqit berdi."
+      }
     }
   ]
 }

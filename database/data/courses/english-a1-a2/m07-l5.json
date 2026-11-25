@@ -160,6 +160,81 @@
         "ru": "Я не понимаю это слово.",
         "uz": "Men bu so'zni tushunmayman."
       }
+    },
+    {
+      "word": "erase",
+      "part_of_speech": "verb",
+      "transcription": "/ɪˈreɪs/",
+      "translation": "стирать",
+      "translations": {
+        "ru": "стирать",
+        "uz": "yozuvni o'chirmoq"
+      },
+      "example": "Please erase your answer and try again.",
+      "example_translations": {
+        "ru": "Пожалуйста, сотрите свой ответ и попробуйте снова.",
+        "uz": "Iltimos, javobingizni o'chirib, yana urinib ko'ring."
+      }
+    },
+    {
+      "word": "count",
+      "part_of_speech": "verb",
+      "transcription": "/kaʊnt/",
+      "translation": "считать",
+      "translations": {
+        "ru": "считать",
+        "uz": "sanamoq"
+      },
+      "example": "Can you count from one to ten?",
+      "example_translations": {
+        "ru": "Вы умеете считать от одного до десяти?",
+        "uz": "Birdan o'ngacha sanay olasizmi?"
+      }
+    },
+    {
+      "word": "copy",
+      "part_of_speech": "verb",
+      "transcription": "/ˈkɑpi/",
+      "translation": "переписывать",
+      "translations": {
+        "ru": "переписывать",
+        "uz": "ko'chirib yozmoq"
+      },
+      "example": "Please copy this sentence into your book.",
+      "example_translations": {
+        "ru": "Пожалуйста, перепишите это предложение в тетрадь.",
+        "uz": "Iltimos, shu gapni daftaringizga ko'chirib yozing."
+      }
+    },
+    {
+      "word": "trace",
+      "part_of_speech": "verb",
+      "transcription": "/treɪs/",
+      "translation": "обводить",
+      "translations": {
+        "ru": "обводить",
+        "uz": "ustidan yurgizmoq"
+      },
+      "example": "Trace each letter slowly with a pencil.",
+      "example_translations": {
+        "ru": "Медленно обведите каждую букву карандашом.",
+        "uz": "Qalamni har bir harfning ustidan sekin yurgizing."
+      }
+    },
+    {
+      "word": "check",
+      "part_of_speech": "verb",
+      "transcription": "/tʃɛk/",
+      "translation": "проверять",
+      "translations": {
+        "ru": "проверять",
+        "uz": "tekshirmoq"
+      },
+      "example": "Please check your answers before you leave.",
+      "example_translations": {
+        "ru": "Перед уходом проверьте свои ответы, пожалуйста.",
+        "uz": "Iltimos, ketishdan oldin javoblaringizni tekshiring."
+      }
     }
   ]
 }

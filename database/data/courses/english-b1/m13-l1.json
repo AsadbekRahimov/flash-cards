@@ -160,6 +160,81 @@
         "ru": "Почему у лисы такой длинный хвост?",
         "uz": "Nega tulkining dumi bunchalik uzun?"
       }
+    },
+    {
+      "word": "tame",
+      "part_of_speech": "adjective",
+      "transcription": "/teɪm/",
+      "translation": "ручной",
+      "translations": {
+        "ru": "ручной",
+        "uz": "qo'lga o'rgatilgan"
+      },
+      "example": "The tame rabbit eats from my hand.",
+      "example_translations": {
+        "ru": "Ручной кролик ест у меня с руки.",
+        "uz": "Qo'lga o'rgatilgan quyon kaftimdan ovqat yeydi."
+      }
+    },
+    {
+      "word": "domestic",
+      "part_of_speech": "adjective",
+      "transcription": "/dəˈmɛstɪk/",
+      "translation": "одомашненный",
+      "translations": {
+        "ru": "одомашненный",
+        "uz": "xonaki"
+      },
+      "example": "A domestic cat still enjoys chasing things.",
+      "example_translations": {
+        "ru": "Даже одомашненная кошка любит гоняться за предметами.",
+        "uz": "Xonaki mushuk ham narsalar ortidan quvishni yaxshi ko'radi."
+      }
+    },
+    {
+      "word": "rodent",
+      "part_of_speech": "noun",
+      "transcription": "/ˈroʊdənt/",
+      "translation": "грызун",
+      "translations": {
+        "ru": "грызун",
+        "uz": "kemiruvchi"
+      },
+      "example": "A rabbit is often mistaken for a rodent.",
+      "example_translations": {
+        "ru": "Кролика часто принимают за грызуна.",
+        "uz": "Quyonni ko'pincha kemiruvchi deb o'ylashadi."
+      }
+    },
+    {
+      "word": "herd",
+      "part_of_speech": "noun",
+      "transcription": "/hɜrd/",
+      "translation": "стадо",
+      "translations": {
+        "ru": "стадо",
+        "uz": "poda"
+      },
+      "example": "A herd of deer crossed the road.",
+      "example_translations": {
+        "ru": "Стадо оленей пересекло дорогу.",
+        "uz": "Bug'ular podasi yo'lni kesib o'tdi."
+      }
+    },
+    {
+      "word": "colony",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑləni/",
+      "translation": "колония",
+      "translations": {
+        "ru": "колония",
+        "uz": "koloniya"
+      },
+      "example": "A colony of ants lives under this rock.",
+      "example_translations": {
+        "ru": "Под этим камнем живёт колония муравьёв.",
+        "uz": "Bu toshning tagida chumolilar koloniyasi yashaydi."
+      }
     }
   ]
 }

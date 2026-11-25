@@ -160,6 +160,66 @@
         "ru": "Культурное разнообразие делает этот город интересным.",
         "uz": "Madaniy xilma-xillik bu shaharni qiziqarli qiladi."
       }
+    },
+    {
+      "word": "emigration",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɛmɪˈgreɪʃən/",
+      "translation": "эмиграция",
+      "translations": {
+        "ru": "эмиграция",
+        "uz": "chet elga ko'chib ketish"
+      },
+      "example": "Emigration rose as more people sought jobs abroad.",
+      "example_translations": {
+        "ru": "Эмиграция выросла, поскольку всё больше людей искали работу за рубежом.",
+        "uz": "Chet elda ish qidirayotganlar ko'paygani sari chet elga ko'chib ketish ham kuchaydi."
+      }
+    },
+    {
+      "word": "immigration",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪmɪˈgreɪʃən/",
+      "translation": "иммиграция",
+      "translations": {
+        "ru": "иммиграция",
+        "uz": "chet eldan ko'chib kelish"
+      },
+      "example": "Immigration has brought new languages to the city.",
+      "example_translations": {
+        "ru": "Иммиграция принесла в город новые языки.",
+        "uz": "Chet eldan odamlar ko'chib kelishi bilan shaharda yangi tillar paydo bo'ldi."
+      }
+    },
+    {
+      "word": "migrant",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmaɪgrənt/",
+      "translation": "мигрант",
+      "translations": {
+        "ru": "мигрант",
+        "uz": "muhojir"
+      },
+      "example": "A migrant from another region joined our community.",
+      "example_translations": {
+        "ru": "К нашему сообществу присоединился мигрант из другого региона.",
+        "uz": "Jamoamizga boshqa hududdan kelgan muhojir qo'shildi."
+      }
+    },
+    {
+      "word": "resettlement",
+      "part_of_speech": "noun",
+      "transcription": "/riˈsɛtəlmənt/",
+      "translation": "переселение",
+      "translations": {
+        "ru": "переселение",
+        "uz": "qayta joylashtirish"
+      },
+      "example": "The program supports resettlement after severe floods.",
+      "example_translations": {
+        "ru": "Программа помогает с переселением после сильных наводнений.",
+        "uz": "Dastur kuchli toshqinlardan keyin odamlarni qayta joylashtirishga ko'maklashadi."
+      }
     }
   ]
 }

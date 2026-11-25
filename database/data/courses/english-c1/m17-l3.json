@@ -160,6 +160,51 @@
         "ru": "По сообщениям, музей вновь откроется в начале июня.",
         "uz": "Xabar berilishicha, muzey iyun boshida qayta ochiladi."
       }
+    },
+    {
+      "word": "purportedly",
+      "part_of_speech": "adverb",
+      "transcription": "/pərˈpɔrtədli/",
+      "translation": "якобы",
+      "translations": {
+        "ru": "якобы",
+        "uz": "da'vo qilinishicha"
+      },
+      "example": "The device purportedly runs for days without recharging.",
+      "example_translations": {
+        "ru": "Устройство якобы работает несколько дней без подзарядки.",
+        "uz": "Da'vo qilinishicha, qurilma qayta quvvatlamasdan bir necha kun ishlaydi."
+      }
+    },
+    {
+      "word": "indisputably",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌɪndɪˈspjutəbli/",
+      "translation": "бесспорно",
+      "translations": {
+        "ru": "бесспорно",
+        "uz": "shubhasiz"
+      },
+      "example": "This was indisputably the fastest train on the route.",
+      "example_translations": {
+        "ru": "Это был бесспорно самый быстрый поезд на маршруте.",
+        "uz": "Bu, shubhasiz, yo'nalishdagi eng tez poyezd edi."
+      }
+    },
+    {
+      "word": "tentatively",
+      "part_of_speech": "adverb",
+      "transcription": "/ˈtɛntətɪvli/",
+      "translation": "предварительно",
+      "translations": {
+        "ru": "предварительно",
+        "uz": "dastlabki xulosa sifatida"
+      },
+      "example": "Scientists tentatively identified the object as a comet.",
+      "example_translations": {
+        "ru": "Учёные предварительно определили, что этот объект — комета.",
+        "uz": "Olimlar dastlabki xulosa sifatida bu jismni kometa deb baholadi."
+      }
     }
   ]
 }

@@ -160,6 +160,51 @@
         "ru": "Благотворительная организация открыла школу для обездоленных детей.",
         "uz": "Xayriya tashkiloti muhtoj bolalar uchun maktab ochdi."
       }
+    },
+    {
+      "word": "inequitable",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈɛkwətəbəl/",
+      "translation": "несправедливый",
+      "translations": {
+        "ru": "несправедливый",
+        "uz": "adolatsiz"
+      },
+      "example": "The report found inequitable access to rural healthcare.",
+      "example_translations": {
+        "ru": "В отчёте выявили неравный доступ к медицинской помощи в сельских районах.",
+        "uz": "Hisobotda qishloq joylarda tibbiy yordam olish imkoniyati adolatsiz taqsimlangani aniqlandi."
+      }
+    },
+    {
+      "word": "marginalized",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmɑrdʒənəˌlaɪzd/",
+      "translation": "вытесненный на обочину общества",
+      "translations": {
+        "ru": "вытесненный на обочину общества",
+        "uz": "jamiyatdan chetlatilgan"
+      },
+      "example": "The project amplifies the voices of marginalized residents.",
+      "example_translations": {
+        "ru": "Проект помогает жителям, вытесненным на обочину общества, быть услышанными.",
+        "uz": "Loyiha jamiyatdan chetlatilgan odamlarning fikrini boshqalarga yetkazishga yordam beradi."
+      }
+    },
+    {
+      "word": "elitism",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˈlitɪzəm/",
+      "translation": "элитизм",
+      "translations": {
+        "ru": "элитизм",
+        "uz": "elitalarga ustunlik berish"
+      },
+      "example": "Critics saw the high fees as evidence of elitism.",
+      "example_translations": {
+        "ru": "Критики сочли высокую плату признаком элитизма.",
+        "uz": "Tanqidchilar yuqori to'lovlarni elitalarga ustunlik berish belgisi deb hisoblashdi."
+      }
     }
   ]
 }

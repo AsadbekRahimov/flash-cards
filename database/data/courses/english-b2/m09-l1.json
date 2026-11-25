@@ -160,6 +160,66 @@
         "ru": "Суд рассмотрит его апелляцию в следующем месяце.",
         "uz": "Sud uning apellyatsiyasini kelasi oy ko'rib chiqadi."
       }
+    },
+    {
+      "word": "inadmissible",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪnədˈmɪsəbəl/",
+      "translation": "недопустимый",
+      "translations": {
+        "ru": "недопустимый",
+        "uz": "qabul qilib bo'lmaydigan"
+      },
+      "example": "The judge ruled that the recording was inadmissible.",
+      "example_translations": {
+        "ru": "Судья признал запись недопустимым доказательством.",
+        "uz": "Sudya yozuvni dalil sifatida qabul qilib bo'lmaydi deb topdi."
+      }
+    },
+    {
+      "word": "magistrate",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmædʒəˌstreɪt/",
+      "translation": "судья низшей инстанции",
+      "translations": {
+        "ru": "судья низшей инстанции",
+        "uz": "quyi sud sudyasi"
+      },
+      "example": "The magistrate heard several minor cases that morning.",
+      "example_translations": {
+        "ru": "Тем утром судья низшей инстанции рассмотрел несколько мелких дел.",
+        "uz": "O'sha kuni ertalab quyi sud sudyasi bir nechta mayda ishni ko'rib chiqdi."
+      }
+    },
+    {
+      "word": "juror",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʒʊrər/",
+      "translation": "присяжный заседатель",
+      "translations": {
+        "ru": "присяжный заседатель",
+        "uz": "hakamlar hay'ati a'zosi"
+      },
+      "example": "Each juror listened carefully to the witness.",
+      "example_translations": {
+        "ru": "Каждый присяжный внимательно слушал свидетеля.",
+        "uz": "Hakamlar hay'atining har bir a'zosi guvohni diqqat bilan tingladi."
+      }
+    },
+    {
+      "word": "appellate",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈpɛlət/",
+      "translation": "апелляционный",
+      "translations": {
+        "ru": "апелляционный",
+        "uz": "apellyatsiyaga oid"
+      },
+      "example": "The appellate court reviewed the original decision.",
+      "example_translations": {
+        "ru": "Апелляционный суд пересмотрел первоначальное решение.",
+        "uz": "Apellyatsiya sudi dastlabki qarorni qayta ko'rib chiqdi."
+      }
     }
   ]
 }

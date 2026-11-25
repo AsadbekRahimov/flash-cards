@@ -160,6 +160,81 @@
         "ru": "К счастью, в аварии никто не пострадал.",
         "uz": "Yaxshiyamki, avariyada hech kim jabrlanmadi."
       }
+    },
+    {
+      "word": "seatbelt",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsitˌbɛlt/",
+      "translation": "ремень безопасности",
+      "translations": {
+        "ru": "ремень безопасности",
+        "uz": "xavfsizlik kamari"
+      },
+      "example": "Fasten your seatbelt before we start driving.",
+      "example_translations": {
+        "ru": "Пристегните ремень безопасности перед тем, как мы поедем.",
+        "uz": "Yo'lga chiqishimizdan oldin xavfsizlik kamaringizni taqing."
+      }
+    },
+    {
+      "word": "windshield",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwɪndˌʃild/",
+      "translation": "лобовое стекло",
+      "translations": {
+        "ru": "лобовое стекло",
+        "uz": "old oyna"
+      },
+      "example": "Ice covered the windshield this morning.",
+      "example_translations": {
+        "ru": "Сегодня утром лобовое стекло покрылось льдом.",
+        "uz": "Bugun ertalab old oynani muz qoplagan edi."
+      }
+    },
+    {
+      "word": "dashboard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdæʃˌbɔrd/",
+      "translation": "приборная панель",
+      "translations": {
+        "ru": "приборная панель",
+        "uz": "avtomobilning asboblar paneli"
+      },
+      "example": "A red light appeared on the dashboard.",
+      "example_translations": {
+        "ru": "На приборной панели загорелся красный индикатор.",
+        "uz": "Avtomobilning asboblar panelida qizil chiroq yondi."
+      }
+    },
+    {
+      "word": "pedal",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɛdəl/",
+      "translation": "педаль",
+      "translations": {
+        "ru": "педаль",
+        "uz": "tepki"
+      },
+      "example": "Press the brake pedal to slow down.",
+      "example_translations": {
+        "ru": "Чтобы сбавить скорость, нажмите на педаль тормоза.",
+        "uz": "Tezlikni pasaytirish uchun tormoz tepkisini bosing."
+      }
+    },
+    {
+      "word": "headlight",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɛdˌlaɪt/",
+      "translation": "фара",
+      "translations": {
+        "ru": "фара",
+        "uz": "fara"
+      },
+      "example": "The left headlight stopped working last night.",
+      "example_translations": {
+        "ru": "Левая фара перестала работать вчера вечером.",
+        "uz": "Kecha kechqurun chap fara ishlamay qoldi."
+      }
     }
   ]
 }

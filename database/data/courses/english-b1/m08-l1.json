@@ -160,6 +160,51 @@
         "ru": "Стоимость нашего дома сильно выросла.",
         "uz": "Uyimizning qiymati ancha oshdi."
       }
+    },
+    {
+      "word": "savings",
+      "part_of_speech": "noun",
+      "transcription": "/ˈseɪvɪŋz/",
+      "translation": "сбережения",
+      "translations": {
+        "ru": "сбережения",
+        "uz": "jamg'arma"
+      },
+      "example": "We used our savings to fix the roof.",
+      "example_translations": {
+        "ru": "Мы потратили сбережения на ремонт крыши.",
+        "uz": "Tomni tuzatish uchun jamg'armamizni ishlatdik."
+      }
+    },
+    {
+      "word": "spending",
+      "part_of_speech": "noun",
+      "transcription": "/ˈspɛndɪŋ/",
+      "translation": "траты",
+      "translations": {
+        "ru": "траты",
+        "uz": "xarajatlar"
+      },
+      "example": "I track my spending with a free app.",
+      "example_translations": {
+        "ru": "Я отслеживаю свои траты в бесплатном приложении.",
+        "uz": "Xarajatlarimni bepul ilova orqali kuzatib boraman."
+      }
+    },
+    {
+      "word": "overspend",
+      "part_of_speech": "verb",
+      "transcription": "/ˌoʊvərˈspɛnd/",
+      "translation": "тратить лишнее",
+      "translations": {
+        "ru": "тратить лишнее",
+        "uz": "ortiqcha pul sarflamoq"
+      },
+      "example": "Make a shopping list so you don't overspend.",
+      "example_translations": {
+        "ru": "Составьте список покупок, чтобы не потратить лишнего.",
+        "uz": "Ortiqcha pul sarflamaslik uchun xarid ro'yxatini tuzing."
+      }
     }
   ]
 }

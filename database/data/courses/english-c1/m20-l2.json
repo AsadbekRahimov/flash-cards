@@ -160,6 +160,36 @@
         "ru": "Постоянная критика подрывала её уверенность в себе на работе.",
         "uz": "Doimiy tanqid uning ishdagi o'ziga ishonchiga putur yetkazdi."
       }
+    },
+    {
+      "word": "byproduct",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbaɪˌprɑdəkt/",
+      "translation": "побочный результат",
+      "translations": {
+        "ru": "побочный результат",
+        "uz": "yon natija"
+      },
+      "example": "New friendships were an unexpected byproduct of the course.",
+      "example_translations": {
+        "ru": "Новые дружеские связи стали неожиданным побочным результатом курса.",
+        "uz": "Yangi do'stliklar kursning kutilmagan yon natijasi bo'ldi."
+      }
+    },
+    {
+      "word": "attributable",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈtrɪbjətəbəl/",
+      "translation": "обусловленный",
+      "translations": {
+        "ru": "обусловленный",
+        "uz": "sababiga bog'liq"
+      },
+      "example": "The delay was attributable to a power outage.",
+      "example_translations": {
+        "ru": "Задержка была обусловлена отключением электроэнергии.",
+        "uz": "Kechikishning sababi elektr ta'minotidagi uzilish bo'ldi."
+      }
     }
   ]
 }

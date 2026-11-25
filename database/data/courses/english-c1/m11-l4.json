@@ -160,6 +160,36 @@
         "ru": "Писатель провёл двадцать лет в изгнании за границей.",
         "uz": "Yozuvchi yigirma yilni xorijda surgunda o'tkazdi."
       }
+    },
+    {
+      "word": "repressive",
+      "part_of_speech": "adjective",
+      "transcription": "/rɪˈprɛsɪv/",
+      "translation": "репрессивный",
+      "translations": {
+        "ru": "репрессивный",
+        "uz": "erkinliklarni bostiruvchi"
+      },
+      "example": "The repressive government banned all public meetings.",
+      "example_translations": {
+        "ru": "Репрессивное правительство запретило все публичные собрания.",
+        "uz": "Erkinliklarni bostiruvchi hukumat barcha ommaviy yig'ilishlarni taqiqladi."
+      }
+    },
+    {
+      "word": "curfew",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɜrfju/",
+      "translation": "комендантский час",
+      "translations": {
+        "ru": "комендантский час",
+        "uz": "komendantlik soati"
+      },
+      "example": "A strict curfew kept residents indoors after sunset.",
+      "example_translations": {
+        "ru": "Из-за строгого комендантского часа жители оставались дома после заката.",
+        "uz": "Qat'iy komendantlik soati sababli aholi quyosh botgach uyda qoldi."
+      }
     }
   ]
 }

@@ -160,6 +160,66 @@
         "ru": "Малыш плачет по ночам.",
         "uz": "Chaqaloq tunda yig'laydi."
       }
+    },
+    {
+      "word": "sleepy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈslipi/",
+      "translation": "сонный",
+      "translations": {
+        "ru": "сонный",
+        "uz": "uyqusi kelgan"
+      },
+      "example": "I always feel sleepy at ten.",
+      "example_translations": {
+        "ru": "В десять мне всегда хочется спать.",
+        "uz": "Soat o'nda doim uyqum keladi."
+      }
+    },
+    {
+      "word": "bored",
+      "part_of_speech": "adjective",
+      "transcription": "/bɔrd/",
+      "translation": "скучающий",
+      "translations": {
+        "ru": "скучающий",
+        "uz": "zerikkan"
+      },
+      "example": "My sister is bored on long trips.",
+      "example_translations": {
+        "ru": "В долгих поездках моя сестра скучает.",
+        "uz": "Uzoq safarlarda singlim zerikadi."
+      }
+    },
+    {
+      "word": "glad",
+      "part_of_speech": "adjective",
+      "transcription": "/glæd/",
+      "translation": "рад",
+      "translations": {
+        "ru": "рад",
+        "uz": "xursand"
+      },
+      "example": "I am glad to see you again.",
+      "example_translations": {
+        "ru": "Я рад снова вас видеть.",
+        "uz": "Sizni yana ko'rganimdan xursandman."
+      }
+    },
+    {
+      "word": "unhappy",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈhæpi/",
+      "translation": "несчастливый",
+      "translations": {
+        "ru": "несчастливый",
+        "uz": "ko'ngli g'ash"
+      },
+      "example": "He looks unhappy in this photo.",
+      "example_translations": {
+        "ru": "На этой фотографии он выглядит несчастным.",
+        "uz": "Bu suratda uning ko'ngli g'ashga o'xshaydi."
+      }
     }
   ]
 }

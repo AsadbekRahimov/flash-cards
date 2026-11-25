@@ -160,6 +160,81 @@
         "ru": "Неуверенные в себе ученики редко поднимают руку на уроке.",
         "uz": "Tortinchoq o'quvchilar darsda kamdan-kam qo'l ko'taradi."
       }
+    },
+    {
+      "word": "irascibility",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˌræsəˈbɪləti/",
+      "translation": "вспыльчивость",
+      "translations": {
+        "ru": "вспыльчивость",
+        "uz": "tez jahli chiqish"
+      },
+      "example": "His irascibility made even routine conversations difficult.",
+      "example_translations": {
+        "ru": "Из-за его вспыльчивости даже обычные разговоры давались с трудом.",
+        "uz": "Jahli tez chiqqanidan u bilan oddiy suhbatlashish ham qiyin edi."
+      }
+    },
+    {
+      "word": "phlegmatic",
+      "part_of_speech": "adjective",
+      "transcription": "/flɛgˈmætɪk/",
+      "translation": "флегматичный",
+      "translations": {
+        "ru": "флегматичный",
+        "uz": "hissiyotini kam namoyon qiladigan"
+      },
+      "example": "Her phlegmatic brother barely reacted to the unexpected news.",
+      "example_translations": {
+        "ru": "Её флегматичный брат почти не отреагировал на неожиданную новость.",
+        "uz": "Uning vazmin ukasi kutilmagan xabarga deyarli munosabat bildirmadi."
+      }
+    },
+    {
+      "word": "imperturbable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪmpərˈtɜrbəbəl/",
+      "translation": "невозмутимый",
+      "translations": {
+        "ru": "невозмутимый",
+        "uz": "xotirjamligini yo'qotmaydigan"
+      },
+      "example": "The imperturbable host calmly addressed each interruption.",
+      "example_translations": {
+        "ru": "Невозмутимый ведущий спокойно отвечал всякий раз, когда его перебивали.",
+        "uz": "Boshlovchi gapini har gal bo'lishganida xotirjamlik bilan javob berdi."
+      }
+    },
+    {
+      "word": "choleric",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkɑlərɪk/",
+      "translation": "холерический, вспыльчивый",
+      "translations": {
+        "ru": "холерический, вспыльчивый",
+        "uz": "jizzaki"
+      },
+      "example": "Our choleric neighbor shouted whenever anyone blocked his driveway.",
+      "example_translations": {
+        "ru": "Наш вспыльчивый сосед кричал всякий раз, когда кто-нибудь загораживал ему въезд.",
+        "uz": "Jizzaki qo'shnimiz har gal kimdir hovlisiga kirish yo'lini to'ssa, baqirardi."
+      }
+    },
+    {
+      "word": "restive",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈrɛstɪv/",
+      "translation": "нетерпеливо-беспокойный",
+      "translations": {
+        "ru": "нетерпеливо-беспокойный",
+        "uz": "sabrsizlanib bezovta bo'lgan"
+      },
+      "example": "The normally calm young pianist grows restive while waiting.",
+      "example_translations": {
+        "ru": "Обычно спокойный молодой пианист, пока ждёт, начинает беспокойно ёрзать от нетерпения.",
+        "uz": "Odatda bosiq yosh pianinochi kutib turganda sabrsizlanib, bezovta bo'la boshlaydi."
+      }
     }
   ]
 }

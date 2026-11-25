@@ -160,6 +160,81 @@
         "ru": "Она налила холодный сок в два стакана.",
         "uz": "U ikkita stakanga sovuq sharbat quydi."
       }
+    },
+    {
+      "word": "grate",
+      "part_of_speech": "verb",
+      "transcription": "/greɪt/",
+      "translation": "натирать на тёрке",
+      "translations": {
+        "ru": "натирать на тёрке",
+        "uz": "qirg'ichdan o'tkazmoq"
+      },
+      "example": "Can you grate some cheese for the pizza?",
+      "example_translations": {
+        "ru": "Можете натереть немного сыра для пиццы?",
+        "uz": "Pitsa uchun bir oz pishloqni qirg'ichdan o'tkaza olasizmi?"
+      }
+    },
+    {
+      "word": "simmer",
+      "part_of_speech": "verb",
+      "transcription": "/ˈsɪmər/",
+      "translation": "варить на слабом огне",
+      "translations": {
+        "ru": "варить на слабом огне",
+        "uz": "past olovda qaynatmoq"
+      },
+      "example": "Let the soup simmer for twenty minutes.",
+      "example_translations": {
+        "ru": "Варите суп на слабом огне двадцать минут.",
+        "uz": "Sho'rvani yigirma daqiqa past olovda qaynating."
+      }
+    },
+    {
+      "word": "mash",
+      "part_of_speech": "verb",
+      "transcription": "/mæʃ/",
+      "translation": "разминать",
+      "translations": {
+        "ru": "разминать",
+        "uz": "ezmoq"
+      },
+      "example": "Use a fork to mash the cooked potatoes.",
+      "example_translations": {
+        "ru": "Разомните варёный картофель вилкой.",
+        "uz": "Pishgan kartoshkani sanchqi bilan ezing."
+      }
+    },
+    {
+      "word": "knead",
+      "part_of_speech": "verb",
+      "transcription": "/nid/",
+      "translation": "месить",
+      "translations": {
+        "ru": "месить",
+        "uz": "qormoq"
+      },
+      "example": "How long should I knead the bread dough?",
+      "example_translations": {
+        "ru": "Как долго мне месить тесто для хлеба?",
+        "uz": "Non xamirini qancha vaqt qorishim kerak?"
+      }
+    },
+    {
+      "word": "sprinkle",
+      "part_of_speech": "verb",
+      "transcription": "/ˈsprɪŋkəl/",
+      "translation": "посыпать",
+      "translations": {
+        "ru": "посыпать",
+        "uz": "sepmoq"
+      },
+      "example": "Please sprinkle some sugar over the cake.",
+      "example_translations": {
+        "ru": "Пожалуйста, посыпьте торт сахаром.",
+        "uz": "Iltimos, tort ustiga ozgina shakar seping."
+      }
     }
   ]
 }

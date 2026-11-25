@@ -160,6 +160,81 @@
         "ru": "Как вы можете быть равнодушным к проблемам других людей?",
         "uz": "Qanday qilib boshqalarning muammolariga befarq bo'lishingiz mumkin?"
       }
+    },
+    {
+      "word": "courteous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkɜrtiəs/",
+      "translation": "учтивый",
+      "translations": {
+        "ru": "учтивый",
+        "uz": "xushmuomala"
+      },
+      "example": "The receptionist remained courteous even with rude visitors.",
+      "example_translations": {
+        "ru": "Администратор была учтива даже с грубыми посетителями.",
+        "uz": "Qabulxona xodimi qo'pol tashrifchilarga ham xushmuomala bo'ldi."
+      }
+    },
+    {
+      "word": "affectionate",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈfɛkʃənət/",
+      "translation": "ласковый",
+      "translations": {
+        "ru": "ласковый",
+        "uz": "mehribon"
+      },
+      "example": "My affectionate uncle always greets us with hugs.",
+      "example_translations": {
+        "ru": "Мой ласковый дядя всегда обнимает нас при встрече.",
+        "uz": "Mehribon amakim bizni har doim quchoqlab kutib oladi."
+      }
+    },
+    {
+      "word": "hospitable",
+      "part_of_speech": "adjective",
+      "transcription": "/hɑˈspɪtəbəl/",
+      "translation": "гостеприимный",
+      "translations": {
+        "ru": "гостеприимный",
+        "uz": "mehmondo'st"
+      },
+      "example": "Our hospitable neighbors invited us in for dinner.",
+      "example_translations": {
+        "ru": "Наши гостеприимные соседи пригласили нас к себе на ужин.",
+        "uz": "Mehmondo'st qo'shnilarimiz bizni kechki ovqatga taklif qilishdi."
+      }
+    },
+    {
+      "word": "supportive",
+      "part_of_speech": "adjective",
+      "transcription": "/səˈpɔrtɪv/",
+      "translation": "готовый поддержать",
+      "translations": {
+        "ru": "готовый поддержать",
+        "uz": "qo'llab-quvvatlaydigan"
+      },
+      "example": "My supportive friends encouraged me after the interview.",
+      "example_translations": {
+        "ru": "Мои друзья, всегда готовые поддержать, подбодрили меня после собеседования.",
+        "uz": "Meni qo'llab-quvvatlaydigan do'stlarim suhbatdan keyin dalda berishdi."
+      }
+    },
+    {
+      "word": "approachable",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈproʊtʃəbəl/",
+      "translation": "открытый к общению",
+      "translations": {
+        "ru": "открытый к общению",
+        "uz": "bemalol gaplashsa bo'ladigan"
+      },
+      "example": "Our approachable teacher welcomes questions after class.",
+      "example_translations": {
+        "ru": "С нашей учительницей легко общаться, и она охотно отвечает на вопросы после урока.",
+        "uz": "O'qituvchimiz bilan bemalol gaplashsa bo'ladi, u darsdan keyingi savollarimizni mamnuniyat bilan tinglaydi."
+      }
     }
   ]
 }

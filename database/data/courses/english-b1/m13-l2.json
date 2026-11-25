@@ -160,6 +160,81 @@
         "ru": "Закройте окно, иначе залетят комары.",
         "uz": "Derazani yoping, bo'lmasa chivinlar kirib keladi."
       }
+    },
+    {
+      "word": "dragonfly",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdrægənˌflaɪ/",
+      "translation": "стрекоза",
+      "translations": {
+        "ru": "стрекоза",
+        "uz": "ninachi"
+      },
+      "example": "A blue dragonfly hovered above the water.",
+      "example_translations": {
+        "ru": "Синяя стрекоза зависла над водой.",
+        "uz": "Ko'k ninachi suv ustida muallaq uchib turdi."
+      }
+    },
+    {
+      "word": "caterpillar",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkætərˌpɪlər/",
+      "translation": "гусеница",
+      "translations": {
+        "ru": "гусеница",
+        "uz": "kapalak qurti"
+      },
+      "example": "A caterpillar ate holes in the cabbage leaves.",
+      "example_translations": {
+        "ru": "Гусеница прогрызла дырки в капустных листьях.",
+        "uz": "Kapalak qurti karam barglarini yeb, teshib qo'ydi."
+      }
+    },
+    {
+      "word": "hedgehog",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɛdʒˌhɑg/",
+      "translation": "ёж",
+      "translations": {
+        "ru": "ёж",
+        "uz": "tipratikan"
+      },
+      "example": "The hedgehog rolled into a ball when frightened.",
+      "example_translations": {
+        "ru": "Испугавшись, ёж свернулся клубком.",
+        "uz": "Tipratikan qo'rqib, g'ujanak bo'lib oldi."
+      }
+    },
+    {
+      "word": "raccoon",
+      "part_of_speech": "noun",
+      "transcription": "/ræˈkun/",
+      "translation": "енот",
+      "translations": {
+        "ru": "енот",
+        "uz": "yenot"
+      },
+      "example": "A raccoon opened our trash can last night.",
+      "example_translations": {
+        "ru": "Прошлой ночью енот открыл наш мусорный бак.",
+        "uz": "Kecha tunda yenot chiqindi qutimizni ochib ketdi."
+      }
+    },
+    {
+      "word": "woodpecker",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwʊdˌpɛkər/",
+      "translation": "дятел",
+      "translations": {
+        "ru": "дятел",
+        "uz": "qizilishton"
+      },
+      "example": "We heard a woodpecker tapping on the tree.",
+      "example_translations": {
+        "ru": "Мы услышали, как дятел стучит по дереву.",
+        "uz": "Qizilishton daraxtni tumshug'i bilan taqillatayotganini eshitdik."
+      }
     }
   ]
 }

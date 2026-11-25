@@ -160,6 +160,81 @@
         "ru": "Какое сегодня число?",
         "uz": "Bugun oyning nechanchisi?"
       }
+    },
+    {
+      "word": "eleven",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈlɛvən/",
+      "translation": "одиннадцать",
+      "translations": {
+        "ru": "одиннадцать",
+        "uz": "o'n bir"
+      },
+      "example": "There are eleven eggs in the box.",
+      "example_translations": {
+        "ru": "В коробке одиннадцать яиц.",
+        "uz": "Qutida o'n bitta tuxum bor."
+      }
+    },
+    {
+      "word": "twelve",
+      "part_of_speech": "adjective",
+      "transcription": "/twɛlv/",
+      "translation": "двенадцать",
+      "translations": {
+        "ru": "двенадцать",
+        "uz": "o'n ikki"
+      },
+      "example": "A year has twelve months in it.",
+      "example_translations": {
+        "ru": "В году двенадцать месяцев.",
+        "uz": "Bir yilda o'n ikki oy bor."
+      }
+    },
+    {
+      "word": "thirteen",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌθərˈtin/",
+      "translation": "тринадцать",
+      "translations": {
+        "ru": "тринадцать",
+        "uz": "o'n uch"
+      },
+      "example": "My brother is thirteen years old.",
+      "example_translations": {
+        "ru": "Моему брату тринадцать лет.",
+        "uz": "Ukam o'n uch yoshda."
+      }
+    },
+    {
+      "word": "fourteen",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌfɔrˈtin/",
+      "translation": "четырнадцать",
+      "translations": {
+        "ru": "четырнадцать",
+        "uz": "o'n to'rt"
+      },
+      "example": "We have fourteen chairs in our room.",
+      "example_translations": {
+        "ru": "В нашей комнате четырнадцать стульев.",
+        "uz": "Xonamizda o'n to'rtta stul bor."
+      }
+    },
+    {
+      "word": "fifteen",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌfɪfˈtin/",
+      "translation": "пятнадцать",
+      "translations": {
+        "ru": "пятнадцать",
+        "uz": "o'n besh"
+      },
+      "example": "There are fifteen pages in this book.",
+      "example_translations": {
+        "ru": "В этой книге пятнадцать страниц.",
+        "uz": "Bu kitobda o'n besh sahifa bor."
+      }
     }
   ]
 }

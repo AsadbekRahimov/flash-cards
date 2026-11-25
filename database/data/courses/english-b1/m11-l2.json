@@ -160,6 +160,81 @@
         "ru": "Я смотрю фильмы на английском с субтитрами.",
         "uz": "Men ingliz tilidagi filmlarni subtitrlar bilan ko'raman."
       }
+    },
+    {
+      "word": "filmmaker",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɪlmˌmeɪkər/",
+      "translation": "кинематографист",
+      "translations": {
+        "ru": "кинематографист",
+        "uz": "kino ijodkori"
+      },
+      "example": "The filmmaker shot the movie near her hometown.",
+      "example_translations": {
+        "ru": "Кинематографистка сняла фильм недалеко от своего родного города.",
+        "uz": "Kino ijodkori filmni o'z tug'ilgan shahri yaqinida suratga oldi."
+      }
+    },
+    {
+      "word": "animator",
+      "part_of_speech": "noun",
+      "transcription": "/ˈænəˌmeɪtər/",
+      "translation": "художник-мультипликатор",
+      "translations": {
+        "ru": "художник-мультипликатор",
+        "uz": "multfilm rassomi"
+      },
+      "example": "The animator drew hundreds of pictures for one scene.",
+      "example_translations": {
+        "ru": "Художник-мультипликатор нарисовал сотни рисунков для одной сцены.",
+        "uz": "Multfilm rassomi bitta sahna uchun yuzlab rasm chizdi."
+      }
+    },
+    {
+      "word": "sitcom",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪtˌkɑm/",
+      "translation": "комедийный сериал",
+      "translations": {
+        "ru": "комедийный сериал",
+        "uz": "komediya seriali"
+      },
+      "example": "We watched a sitcom about two roommates.",
+      "example_translations": {
+        "ru": "Мы посмотрели комедийный сериал про двух соседей по комнате.",
+        "uz": "Ikki xonadosh haqidagi komediya serialini ko'rdik."
+      }
+    },
+    {
+      "word": "prequel",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpriˌkwəl/",
+      "translation": "приквел",
+      "translations": {
+        "ru": "приквел",
+        "uz": "oldingi voqealar haqidagi asar"
+      },
+      "example": "The prequel shows the hero as a child.",
+      "example_translations": {
+        "ru": "В приквеле показано детство героя.",
+        "uz": "Oldingi voqealar haqidagi filmda qahramonning bolaligi ko'rsatilgan."
+      }
+    },
+    {
+      "word": "remake",
+      "part_of_speech": "noun",
+      "transcription": "/ˈriˌmeɪk/",
+      "translation": "ремейк",
+      "translations": {
+        "ru": "ремейк",
+        "uz": "qayta ishlangan film"
+      },
+      "example": "The remake follows the same story as the original.",
+      "example_translations": {
+        "ru": "Ремейк повторяет сюжет оригинала.",
+        "uz": "Qayta ishlangan film asl film syujetini takrorlaydi."
+      }
     }
   ]
 }

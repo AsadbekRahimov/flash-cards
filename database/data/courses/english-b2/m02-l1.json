@@ -160,6 +160,81 @@
         "ru": "В списке отобранных кандидатов на эту должность три человека.",
         "uz": "Bu ish o'rniga saralangan nomzodlar ro'yxatida uch kishi bor."
       }
+    },
+    {
+      "word": "headhunt",
+      "part_of_speech": "verb",
+      "transcription": "/ˈhɛdˌhʌnt/",
+      "translation": "переманивать специалистов",
+      "translations": {
+        "ru": "переманивать специалистов",
+        "uz": "mutaxassislarni o'ziga og'dirmoq"
+      },
+      "example": "They headhunt experienced engineers from rival companies.",
+      "example_translations": {
+        "ru": "Они переманивают опытных инженеров из конкурирующих компаний.",
+        "uz": "Ular raqobatchi kompaniyalardagi tajribali muhandislarni o'ziga og'diradi."
+      }
+    },
+    {
+      "word": "outplacement",
+      "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌpleɪsmənt/",
+      "translation": "помощь с трудоустройством после увольнения",
+      "translations": {
+        "ru": "помощь с трудоустройством после увольнения",
+        "uz": "yangi ish topishga ko'mak"
+      },
+      "example": "The company offers outplacement to dismissed staff.",
+      "example_translations": {
+        "ru": "Компания помогает уволенным сотрудникам найти новую работу.",
+        "uz": "Kompaniya ishdan bo'shatilgan xodimlariga yangi ish topishda ko'mak beradi."
+      }
+    },
+    {
+      "word": "staffing",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstæfɪŋ/",
+      "translation": "комплектование штата",
+      "translations": {
+        "ru": "комплектование штата",
+        "uz": "xodimlarni ishga jalb qilish"
+      },
+      "example": "Staffing can be difficult during the tourist season.",
+      "example_translations": {
+        "ru": "В туристический сезон бывает трудно укомплектовать штат.",
+        "uz": "Sayyohlik mavsumida yetarli xodim topish qiyin bo'lishi mumkin."
+      }
+    },
+    {
+      "word": "headhunter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɛdˌhʌntər/",
+      "translation": "специалист по подбору квалифицированных кадров",
+      "translations": {
+        "ru": "специалист по подбору квалифицированных кадров",
+        "uz": "malakali kadrlarni izlab topuvchi mutaxassis"
+      },
+      "example": "A headhunter approached her about a senior role.",
+      "example_translations": {
+        "ru": "Специалист по подбору кадров предложил ей рассмотреть руководящую должность.",
+        "uz": "Malakali kadrlarni izlab topuvchi mutaxassis unga rahbarlik lavozimini taklif qildi."
+      }
+    },
+    {
+      "word": "onboarding",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑnˌbɔrdɪŋ/",
+      "translation": "адаптация новых сотрудников",
+      "translations": {
+        "ru": "адаптация новых сотрудников",
+        "uz": "yangi xodimlarni ishga moslashtirish"
+      },
+      "example": "Our onboarding includes introductions to every team.",
+      "example_translations": {
+        "ru": "Адаптация новых сотрудников у нас включает знакомство со всеми командами.",
+        "uz": "Yangi xodimlarni ishga moslashtirish jarayonida ularni barcha jamoalar bilan tanishtiramiz."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Мы храним замороженные овощи на зиму.",
         "uz": "Biz qish uchun muzlatilgan sabzavotlarni saqlaymiz."
       }
+    },
+    {
+      "word": "chewy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtʃui/",
+      "translation": "тягучий",
+      "translations": {
+        "ru": "тягучий",
+        "uz": "chaynalishi qiyin"
+      },
+      "example": "The candy was chewy and stuck to my teeth.",
+      "example_translations": {
+        "ru": "Конфета была тягучей и прилипала к зубам.",
+        "uz": "Konfetni chaynash qiyin edi va u tishlarimga yopishib qoldi."
+      }
+    },
+    {
+      "word": "crunchy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkrʌntʃi/",
+      "translation": "твёрдый и хрустящий",
+      "translations": {
+        "ru": "твёрдый и хрустящий",
+        "uz": "qattiq va qarsildoq"
+      },
+      "example": "These crunchy apples came from our garden.",
+      "example_translations": {
+        "ru": "Эти твёрдые хрустящие яблоки из нашего сада.",
+        "uz": "Bu qattiq, qarsildoq olmalar o'z bog'imizdan."
+      }
+    },
+    {
+      "word": "sugary",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈʃʊgəri/",
+      "translation": "слишком сладкий",
+      "translations": {
+        "ru": "слишком сладкий",
+        "uz": "o'ta shirin"
+      },
+      "example": "I prefer water to sugary soft drinks.",
+      "example_translations": {
+        "ru": "Я предпочитаю воду слишком сладкой газировке.",
+        "uz": "O'ta shirin gazli ichimliklardan ko'ra suvni afzal ko'raman."
+      }
+    },
+    {
+      "word": "oily",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɔɪli/",
+      "translation": "жирный на ощупь",
+      "translations": {
+        "ru": "жирный на ощупь",
+        "uz": "yog'li"
+      },
+      "example": "These oily fries left grease on my fingers.",
+      "example_translations": {
+        "ru": "Этот жирный картофель фри оставил у меня на пальцах следы масла.",
+        "uz": "Bu yog'li fri kartoshkasi barmoqlarimda yog' qoldirdi."
+      }
+    },
+    {
+      "word": "tasteless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈteɪstləs/",
+      "translation": "безвкусный",
+      "translations": {
+        "ru": "безвкусный",
+        "uz": "bemaza"
+      },
+      "example": "This soup is tasteless without some salt.",
+      "example_translations": {
+        "ru": "Этот суп совсем безвкусный без соли.",
+        "uz": "Bu sho'rva tuzsiz bemaza."
+      }
     }
   ]
 }

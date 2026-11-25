@@ -160,6 +160,81 @@
         "ru": "Страна установила квоту на импорт сахара.",
         "uz": "Mamlakat shakar importiga kvota belgiladi."
       }
+    },
+    {
+      "word": "taxable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtæksəbəl/",
+      "translation": "облагаемый налогом",
+      "translations": {
+        "ru": "облагаемый налогом",
+        "uz": "soliqqa tortiladigan"
+      },
+      "example": "Rental income is taxable in many countries.",
+      "example_translations": {
+        "ru": "Во многих странах доход от аренды облагается налогом.",
+        "uz": "Ko'p mamlakatlarda ijaradan tushadigan daromad soliqqa tortiladi."
+      }
+    },
+    {
+      "word": "exporter",
+      "part_of_speech": "noun",
+      "transcription": "/ɪkˈspɔrtər/",
+      "translation": "экспортёр",
+      "translations": {
+        "ru": "экспортёр",
+        "uz": "eksportchi"
+      },
+      "example": "This exporter sells local apples in foreign markets.",
+      "example_translations": {
+        "ru": "Этот экспортёр продаёт местные яблоки на зарубежных рынках.",
+        "uz": "Bu eksportchi mahalliy olmalarni chet el bozorlarida sotadi."
+      }
+    },
+    {
+      "word": "importer",
+      "part_of_speech": "noun",
+      "transcription": "/ɪmˈpɔrtər/",
+      "translation": "импортёр",
+      "translations": {
+        "ru": "импортёр",
+        "uz": "importchi"
+      },
+      "example": "The importer buys coffee beans from overseas farms.",
+      "example_translations": {
+        "ru": "Импортёр покупает кофейные зёрна у зарубежных хозяйств.",
+        "uz": "Importchi qahva donlarini xorijdagi fermer xo'jaliklaridan sotib oladi."
+      }
+    },
+    {
+      "word": "importation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪmpɔrˈteɪʃən/",
+      "translation": "ввоз",
+      "translations": {
+        "ru": "ввоз",
+        "uz": "olib kirish"
+      },
+      "example": "The rules limit the importation of certain plants.",
+      "example_translations": {
+        "ru": "Правила ограничивают ввоз некоторых растений.",
+        "uz": "Qoidalar ayrim o'simliklarni mamlakatga olib kirishni cheklaydi."
+      }
+    },
+    {
+      "word": "exportation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɛkspɔrˈteɪʃən/",
+      "translation": "вывоз",
+      "translations": {
+        "ru": "вывоз",
+        "uz": "olib chiqish"
+      },
+      "example": "Exportation requires a license for these goods.",
+      "example_translations": {
+        "ru": "Для вывоза этих товаров нужна лицензия.",
+        "uz": "Bu tovarlarni mamlakatdan olib chiqish uchun litsenziya kerak."
+      }
     }
   ]
 }

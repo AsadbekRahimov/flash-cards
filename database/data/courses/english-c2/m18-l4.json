@@ -160,6 +160,66 @@
         "ru": "Утверждение опиралось на ложные данные, выдуманные автором.",
         "uz": "Da'vo muallif to'qib chiqargan soxta ma'lumotlarga asoslangan edi."
       }
+    },
+    {
+      "word": "indubitable",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdubətəbəl/",
+      "translation": "несомненный",
+      "translations": {
+        "ru": "несомненный",
+        "uz": "shubhasiz"
+      },
+      "example": "Her signature on the receipt was indubitable proof.",
+      "example_translations": {
+        "ru": "Её подпись на квитанции была несомненным доказательством.",
+        "uz": "Kvitansiyadagi imzosi shubhasiz dalil edi."
+      }
+    },
+    {
+      "word": "incontrovertible",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪnkɑntrəˈvɜrtəbəl/",
+      "translation": "не допускающий возражений",
+      "translations": {
+        "ru": "не допускающий возражений",
+        "uz": "inkor etib bo'lmaydigan"
+      },
+      "example": "The recording provided incontrovertible evidence of the exact time.",
+      "example_translations": {
+        "ru": "Запись предоставила не допускающее возражений доказательство точного времени.",
+        "uz": "Yozuv aniq vaqtni ko'rsatuvchi inkor etib bo'lmaydigan dalil bo'ldi."
+      }
+    },
+    {
+      "word": "equivocal",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈkwɪvəkəl/",
+      "translation": "двусмысленный",
+      "translations": {
+        "ru": "двусмысленный",
+        "uz": "ikki xil talqin qilinadigan"
+      },
+      "example": "His equivocal answer left everyone unsure of his plans.",
+      "example_translations": {
+        "ru": "Его двусмысленный ответ оставил всех в неведении относительно его планов.",
+        "uz": "Ikki xil talqin qilinadigan javobidan hech kim uning rejalarini aniq tushunmadi."
+      }
+    },
+    {
+      "word": "specious",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈspiʃəs/",
+      "translation": "обманчиво убедительный",
+      "translations": {
+        "ru": "обманчиво убедительный",
+        "uz": "sirtdan ishonarli, aslida asossiz"
+      },
+      "example": "The specious argument ignored several important pieces of evidence.",
+      "example_translations": {
+        "ru": "В обманчиво убедительном аргументе не учитывалось несколько важных фактов.",
+        "uz": "Sirtdan ishonarli, aslida asossiz bu fikr bir nechta muhim dalilni hisobga olmadi."
+      }
     }
   ]
 }

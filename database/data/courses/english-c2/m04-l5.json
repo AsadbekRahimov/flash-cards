@@ -160,6 +160,81 @@
         "ru": "Все члены должны придерживаться правил клуба.",
         "uz": "Barcha a'zolar klub qoidalariga rioya qilishi shart."
       }
+    },
+    {
+      "word": "licit",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈlɪsɪt/",
+      "translation": "законный",
+      "translations": {
+        "ru": "законный",
+        "uz": "qonuniy"
+      },
+      "example": "The association funds only activities deemed licit.",
+      "example_translations": {
+        "ru": "Ассоциация финансирует только деятельность, признанную законной.",
+        "uz": "Uyushma faqat qonuniy deb topilgan faoliyatni moliyalashtiradi."
+      }
+    },
+    {
+      "word": "proscription",
+      "part_of_speech": "noun",
+      "transcription": "/proʊˈskrɪpʃən/",
+      "translation": "официальный запрет",
+      "translations": {
+        "ru": "официальный запрет",
+        "uz": "rasmiy taqiq"
+      },
+      "example": "The new proscription covers outdoor sales after midnight.",
+      "example_translations": {
+        "ru": "Новый официальный запрет касается уличной торговли после полуночи.",
+        "uz": "Yangi rasmiy taqiq yarim tundan keyingi ko'cha savdosiga tatbiq etiladi."
+      }
+    },
+    {
+      "word": "sanctionable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsæŋkʃənəbəl/",
+      "translation": "влекущий санкции",
+      "translations": {
+        "ru": "влекущий санкции",
+        "uz": "chora qo'llashga sabab bo'ladigan"
+      },
+      "example": "Falsifying an attendance record is sanctionable under school rules.",
+      "example_translations": {
+        "ru": "По школьным правилам подделка журнала посещаемости влечёт санкции.",
+        "uz": "Maktab qoidalariga ko'ra, davomat daftarini soxtalashtirish chora qo'llashga sabab bo'ladi."
+      }
+    },
+    {
+      "word": "enjoin",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈdʒɔɪn/",
+      "translation": "запрещать судебным предписанием",
+      "translations": {
+        "ru": "запрещать судебным предписанием",
+        "uz": "sud qarori bilan taqiqlamoq"
+      },
+      "example": "The court may enjoin the company from dumping waste.",
+      "example_translations": {
+        "ru": "Суд может предписанием запретить компании сбрасывать отходы.",
+        "uz": "Sud kompaniyaga chiqindi tashlashni o'z qarori bilan taqiqlashi mumkin."
+      }
+    },
+    {
+      "word": "interdiction",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪntərˈdɪkʃən/",
+      "translation": "официальное запрещение",
+      "translations": {
+        "ru": "официальное запрещение",
+        "uz": "rasman taqiqlash"
+      },
+      "example": "The council announced an interdiction on overnight parking downtown.",
+      "example_translations": {
+        "ru": "Совет официально запретил ночную стоянку в центре города.",
+        "uz": "Kengash shahar markazida tunda mashina qoldirishni rasman taqiqlaganini e'lon qildi."
+      }
     }
   ]
 }

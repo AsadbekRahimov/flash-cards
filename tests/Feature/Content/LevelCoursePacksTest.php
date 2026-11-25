@@ -21,16 +21,21 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 /*
- * The level packs `english-b1`, `english-b2`, `english-c1` and `english-c2` (database/data/courses/*): 20 modules x 5 lessons x 10 words each,
+ * The level packs `english-b1`, `english-b2`, `english-c1` and `english-c2` (database/data/courses/*): 20 modules of 5 lessons each,
  * the same format as `english-a1-a2` (CoursePackImportTest). The importer itself is covered there; here the
  * files of each pack are checked, then an import / idempotence / publication pass per pack, and all five
- * packs together (5 000 different words in one database).
+ * packs together (6 320 different words in one database).
  */
 
 const LCP_A1_A2 = 'english-a1-a2';
 
 /** The five level packs, in the order of their positions. */
 const LCP_ALL = [LCP_A1_A2, 'english-b1', 'english-b2', 'english-c1', 'english-c2'];
+
+function lcp_expected_word_count(string $slug): int
+{
+    return $slug === LCP_A1_A2 ? 1440 : 1220;
+}
 
 /** @return list<string> */
 function lcp_lesson_files(string $slug): array
@@ -89,7 +94,7 @@ dataset('lcp_manifests', [
     'c2' => ['english-c2', 'C2', 50],
 ]);
 
-it('has five lessons of ten words in every one of 20 modules, numbered without gaps', function (string $slug): void {
+it('has five lessons of 10 to 15 words in every one of 20 modules, numbered without gaps', function (string $slug): void {
     $files = lcp_lesson_files($slug);
     expect($files)->toHaveCount(100);
 
@@ -98,7 +103,7 @@ it('has five lessons of ten words in every one of 20 modules, numbered without g
     foreach ($files as $file) {
         $data = lcp_read($file);
         $n = $data['stage']['number'];
-        expect($data['words'])->toHaveCount(10)
+        expect(count($data['words']))->toBeBetween(10, 15)
             ->and(basename($file))->toBe(sprintf('m%02d-l%d.json', $n, $data['lesson']['number']))
             ->and($data['course'])->toBe($slug)
             ->and(trim($data['stage']['title']))->not->toBe('', basename($file))
@@ -118,12 +123,12 @@ it('has five lessons of ten words in every one of 20 modules, numbered without g
     }
 })->with('lcp_packs');
 
-it('keeps USED_WORDS.txt in step with the lesson files: sorted, 1000 lines, exactly the words of the course', function (string $slug): void {
+it('keeps USED_WORDS.txt in step with the lesson files: sorted, with exactly the words of the course', function (string $slug): void {
     $words = lcp_words($slug);
     $used = array_values(array_filter(array_map('trim', file(base_path("database/data/courses/{$slug}/USED_WORDS.txt")) ?: [])));
     sort($words, SORT_STRING);
 
-    expect($used)->toHaveCount(1000)
+    expect($used)->toHaveCount(lcp_expected_word_count($slug))
         ->and($used)->toBe($words)
         ->and($used)->toBe(array_values(array_unique($used)));
 })->with('lcp_packs');
@@ -172,10 +177,10 @@ it('gives every word of the five packs an IPA transcription in slashes, of the s
             $count++;
         }
     }
-    expect($count)->toBe(1000);
+    expect($count)->toBe(lcp_expected_word_count($slug));
 })->with(['a1-a2' => [LCP_A1_A2], 'b1' => ['english-b1'], 'b2' => ['english-b2'], 'c1' => ['english-c1'], 'c2' => ['english-c2']]);
 
-it('shares no word between the five packs: 5 000 different words', function (): void {
+it('shares no word between the five packs: 6 320 different words', function (): void {
     $all = [];
     foreach (LCP_ALL as $slug) {
         foreach (lcp_words($slug) as $word) {
@@ -184,7 +189,7 @@ it('shares no word between the five packs: 5 000 different words', function (): 
         }
     }
 
-    expect($all)->toHaveCount(5000);
+    expect($all)->toHaveCount(6320);
 });
 
 it('has every word of the five packs in the lexicon of the dictation, so that writing one of them for another is a mistake', function (): void {
@@ -204,6 +209,7 @@ it('has every word of the five packs in the lexicon of the dictation, so that wr
 
 it('imports the whole pack as a draft, and a second run adds nothing', function (string $slug, string $level, int $position): void {
     $manifest = lcp_manifest($slug);
+    $expectedWords = lcp_expected_word_count($slug);
     expect($manifest['level'])->toBe($level)
         ->and($manifest['position'])->toBe($position)
         ->and($manifest['exam_tag'])->toBe('general')
@@ -222,12 +228,12 @@ it('imports the whole pack as a draft, and a second run adds nothing', function 
         ->and($course->is_featured)->toBe($manifest['is_featured'])
         ->and(Stage::query()->where('course_id', $course->id)->count())->toBe(20)
         ->and(Lesson::query()->whereHas('stage', fn ($q) => $q->where('course_id', $course->id))->count())->toBe(100)
-        ->and(Word::query()->whereHas('lesson.stage', fn ($q) => $q->where('course_id', $course->id))->count())->toBe(1000)
-        ->and($course->words_count)->toBe(1000);
+        ->and(Word::query()->whereHas('lesson.stage', fn ($q) => $q->where('course_id', $course->id))->count())->toBe($expectedWords)
+        ->and($course->words_count)->toBe($expectedWords);
 
     $wordIds = Word::query()->whereHas('lesson.stage', fn ($q) => $q->where('course_id', $course->id))->pluck('id');
-    expect(WordTranslation::query()->whereIn('word_id', $wordIds)->where('locale', 'ru')->count())->toBe(1000)
-        ->and(WordTranslation::query()->whereIn('word_id', $wordIds)->where('locale', 'uz')->count())->toBe(1000)
+    expect(WordTranslation::query()->whereIn('word_id', $wordIds)->where('locale', 'ru')->count())->toBe($expectedWords)
+        ->and(WordTranslation::query()->whereIn('word_id', $wordIds)->where('locale', 'uz')->count())->toBe($expectedWords)
         ->and(WordTranslation::query()->whereIn('word_id', $wordIds)->whereNull('example_translation')->count())->toBe(0)
         ->and(Word::query()->whereIn('id', $wordIds)->whereNull('example')->count())->toBe(0)
         ->and(Word::query()->whereIn('id', $wordIds)->whereNull('part_of_speech')->count())->toBe(0);
@@ -235,7 +241,7 @@ it('imports the whole pack as a draft, and a second run adds nothing', function 
     $second = app(CoursePackImporter::class)->import(base_path("database/data/courses/{$slug}"), create: true);
     expect($second->ok())->toBeTrue()
         ->and($second->courseCreated)->toBeFalse()
-        ->and($second->totals())->toBe(['added' => 0, 'updated' => 0, 'skipped' => 1000])
+        ->and($second->totals())->toBe(['added' => 0, 'updated' => 0, 'skipped' => $expectedWords])
         ->and(Course::query()->where('slug', $slug)->count())->toBe(1);
 })->with('lcp_manifests');
 
@@ -257,19 +263,20 @@ it('passes the publication check: full translation coverage, and the course can 
     expect($course->refresh()->status)->toBe(CoursePublisher::PUBLISHED);
 })->with('lcp_packs');
 
-it('imports all five level packs into one database: 5 courses, 1 000 words each, 5 000 in total', function (): void {
+it('imports all five level packs into one database: 5 courses, 6 320 words in total', function (): void {
     $slugs = LCP_ALL;
     foreach ($slugs as $slug) {
         lcp_import($slug);
     }
 
     expect(Course::query()->count())->toBe(5)
-        ->and(Word::query()->count())->toBe(5000);
+        ->and(Word::query()->count())->toBe(6320);
 
     foreach ($slugs as $slug) {
         $course = Course::query()->where('slug', $slug)->firstOrFail();
-        expect($course->words_count)->toBe(1000, $slug)
-            ->and(Word::query()->whereHas('lesson.stage', fn ($q) => $q->where('course_id', $course->id))->count())->toBe(1000, $slug);
+        $expectedWords = lcp_expected_word_count($slug);
+        expect($course->words_count)->toBe($expectedWords, $slug)
+            ->and(Word::query()->whereHas('lesson.stage', fn ($q) => $q->where('course_id', $course->id))->count())->toBe($expectedWords, $slug);
     }
 });
 
@@ -284,7 +291,7 @@ it('recommends the level course for a general goal from the real manifests of th
             'visibility' => $m['visibility'],
             'position' => $m['position'],
             'is_featured' => $m['is_featured'],
-            'words_count' => 1000,
+            'words_count' => lcp_expected_word_count($slug),
         ]);
     }
 

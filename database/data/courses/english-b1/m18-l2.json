@@ -160,6 +160,81 @@
         "ru": "Она чистила ложки, пока они не стали блестящими.",
         "uz": "U qoshiqlarni yaltiroq bo'lguncha tozaladi."
       }
+    },
+    {
+      "word": "denim",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɛnəm/",
+      "translation": "джинсовая ткань",
+      "translations": {
+        "ru": "джинсовая ткань",
+        "uz": "jinsi mato"
+      },
+      "example": "This jacket is made of thick denim.",
+      "example_translations": {
+        "ru": "Эта куртка сшита из плотной джинсовой ткани.",
+        "uz": "Bu kurtka qalin jinsi matodan tikilgan."
+      }
+    },
+    {
+      "word": "velvet",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvɛlvət/",
+      "translation": "бархат",
+      "translations": {
+        "ru": "бархат",
+        "uz": "baxmal"
+      },
+      "example": "The seats were covered in red velvet.",
+      "example_translations": {
+        "ru": "Сиденья были обиты красным бархатом.",
+        "uz": "O'rindiqlar qizil baxmal bilan qoplangan edi."
+      }
+    },
+    {
+      "word": "linen",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɪnən/",
+      "translation": "льняная ткань",
+      "translations": {
+        "ru": "льняная ткань",
+        "uz": "zig'ir mato"
+      },
+      "example": "I prefer shirts made of linen in summer.",
+      "example_translations": {
+        "ru": "Летом я предпочитаю рубашки из льна.",
+        "uz": "Yozda zig'ir matodan tikilgan ko'ylaklarni afzal ko'raman."
+      }
+    },
+    {
+      "word": "cardboard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑrdˌbɔrd/",
+      "translation": "картон",
+      "translations": {
+        "ru": "картон",
+        "uz": "karton"
+      },
+      "example": "We made a toy house out of cardboard.",
+      "example_translations": {
+        "ru": "Мы сделали игрушечный домик из картона.",
+        "uz": "Kartondan o'yinchoq uycha yasadik."
+      }
+    },
+    {
+      "word": "plywood",
+      "part_of_speech": "noun",
+      "transcription": "/ˈplaɪˌwʊd/",
+      "translation": "фанера",
+      "translations": {
+        "ru": "фанера",
+        "uz": "fanera"
+      },
+      "example": "He cut a sheet of plywood for the shelf.",
+      "example_translations": {
+        "ru": "Он вырезал полку из листа фанеры.",
+        "uz": "U tokcha yasash uchun fanera taxtasini kesdi."
+      }
     }
   ]
 }

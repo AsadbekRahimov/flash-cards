@@ -160,6 +160,81 @@
         "ru": "Мой отец хранит инструменты в гараже.",
         "uz": "Dadam asboblarini garajda saqlaydi."
       }
+    },
+    {
+      "word": "wrench",
+      "part_of_speech": "noun",
+      "transcription": "/rɛntʃ/",
+      "translation": "гаечный ключ",
+      "translations": {
+        "ru": "гаечный ключ",
+        "uz": "gayka kaliti"
+      },
+      "example": "Use a wrench to loosen the nut.",
+      "example_translations": {
+        "ru": "Ослабьте гайку гаечным ключом.",
+        "uz": "Gaykani gayka kaliti bilan bo'shating."
+      }
+    },
+    {
+      "word": "screwdriver",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskruˌdraɪvər/",
+      "translation": "отвёртка",
+      "translations": {
+        "ru": "отвёртка",
+        "uz": "otvyortka"
+      },
+      "example": "I need a screwdriver to open this cover.",
+      "example_translations": {
+        "ru": "Мне нужна отвёртка, чтобы снять эту крышку.",
+        "uz": "Bu qopqoqni ochish uchun menga otvyortka kerak."
+      }
+    },
+    {
+      "word": "tape",
+      "part_of_speech": "noun",
+      "transcription": "/teɪp/",
+      "translation": "клейкая лента",
+      "translations": {
+        "ru": "клейкая лента",
+        "uz": "yopishqoq lenta"
+      },
+      "example": "Close the box with a piece of tape.",
+      "example_translations": {
+        "ru": "Заклейте коробку полоской клейкой ленты.",
+        "uz": "Qutini bir bo'lak yopishqoq lenta bilan mahkamlang."
+      }
+    },
+    {
+      "word": "glue",
+      "part_of_speech": "noun",
+      "transcription": "/glu/",
+      "translation": "клей",
+      "translations": {
+        "ru": "клей",
+        "uz": "yelim"
+      },
+      "example": "The handle came off and I need glue.",
+      "example_translations": {
+        "ru": "Ручка отвалилась, и мне нужен клей.",
+        "uz": "Tutqich chiqib ketdi, endi menga yelim kerak."
+      }
+    },
+    {
+      "word": "needle",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnidəl/",
+      "translation": "игла",
+      "translations": {
+        "ru": "игла",
+        "uz": "igna"
+      },
+      "example": "She used a needle to sew a button.",
+      "example_translations": {
+        "ru": "Она пришила пуговицу иглой.",
+        "uz": "U igna bilan tugma qadadi."
+      }
     }
   ]
 }

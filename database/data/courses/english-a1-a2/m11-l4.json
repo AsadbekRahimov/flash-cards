@@ -160,6 +160,66 @@
         "ru": "Я отправляю открытку другу.",
         "uz": "Do'stimga otkritka jo'nataman."
       }
+    },
+    {
+      "word": "church",
+      "part_of_speech": "noun",
+      "transcription": "/tʃərtʃ/",
+      "translation": "церковь",
+      "translations": {
+        "ru": "церковь",
+        "uz": "cherkov"
+      },
+      "example": "The old church has a tall tower.",
+      "example_translations": {
+        "ru": "У старой церкви высокая башня.",
+        "uz": "Eski cherkovning minorasi baland."
+      }
+    },
+    {
+      "word": "aquarium",
+      "part_of_speech": "noun",
+      "transcription": "/əˈkwɛriəm/",
+      "translation": "аквариум",
+      "translations": {
+        "ru": "аквариум",
+        "uz": "akvarium"
+      },
+      "example": "We saw a shark at the aquarium.",
+      "example_translations": {
+        "ru": "Мы увидели акулу в аквариуме.",
+        "uz": "Akvariumda akula ko'rdik."
+      }
+    },
+    {
+      "word": "ruins",
+      "part_of_speech": "noun",
+      "transcription": "/ˈruɪnz/",
+      "translation": "руины",
+      "translations": {
+        "ru": "руины",
+        "uz": "xarobalar"
+      },
+      "example": "We walked around the ruins of a castle.",
+      "example_translations": {
+        "ru": "Мы обошли руины замка.",
+        "uz": "Qasr xarobalarini aylanib chiqdik."
+      }
+    },
+    {
+      "word": "tourism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtʊrɪzəm/",
+      "translation": "туризм",
+      "translations": {
+        "ru": "туризм",
+        "uz": "turizm"
+      },
+      "example": "Tourism helps our town during the summer.",
+      "example_translations": {
+        "ru": "Туризм помогает нашему городу летом.",
+        "uz": "Turizm yozda shahrimizga foyda keltiradi."
+      }
     }
   ]
 }

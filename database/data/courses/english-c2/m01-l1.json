@@ -160,6 +160,81 @@
         "ru": "Рассудительный руководитель взвешивает все варианты, прежде чем принять решение.",
         "uz": "Mulohazali rahbar qaror qilishdan oldin har bir variantni chamalab ko'radi."
       }
+    },
+    {
+      "word": "unstinting",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈstɪntɪŋ/",
+      "translation": "не скупящийся",
+      "translations": {
+        "ru": "не скупящийся",
+        "uz": "ayamaydigan"
+      },
+      "example": "Her unstinting support helped me finish my degree.",
+      "example_translations": {
+        "ru": "Благодаря её неизменной щедрой поддержке я смог окончить учёбу.",
+        "uz": "U yordamini ayamagani uchun o'qishimni tamomlay oldim."
+      }
+    },
+    {
+      "word": "munificence",
+      "part_of_speech": "noun",
+      "transcription": "/mjuˈnɪfəsəns/",
+      "translation": "чрезвычайная щедрость",
+      "translations": {
+        "ru": "чрезвычайная щедрость",
+        "uz": "beqiyos saxovat"
+      },
+      "example": "The donor's munificence paid for two school libraries.",
+      "example_translations": {
+        "ru": "Благодаря чрезвычайной щедрости дарителя удалось оплатить создание двух школьных библиотек.",
+        "uz": "Homiy beqiyos saxovat ko'rsatib, ikkita maktab kutubxonasi xarajatlarini qopladi."
+      }
+    },
+    {
+      "word": "uprightness",
+      "part_of_speech": "noun",
+      "transcription": "/ˈʌpˌraɪtnəs/",
+      "translation": "порядочность",
+      "translations": {
+        "ru": "порядочность",
+        "uz": "halollik"
+      },
+      "example": "Everyone trusted her uprightness in handling shared funds.",
+      "example_translations": {
+        "ru": "Все доверяли её порядочности в распоряжении общими средствами.",
+        "uz": "Hamma uning umumiy mablag'larni boshqarishdagi halolligiga ishonardi."
+      }
+    },
+    {
+      "word": "selflessness",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɛlfləsnəs/",
+      "translation": "бескорыстие",
+      "translations": {
+        "ru": "бескорыстие",
+        "uz": "o'z manfaatini ko'zlamaslik"
+      },
+      "example": "His selflessness inspired others to volunteer on weekends.",
+      "example_translations": {
+        "ru": "Его бескорыстие вдохновило других заниматься волонтёрством по выходным.",
+        "uz": "Uning beg'arazligi boshqalarni ham dam olish kunlari ko'ngilli bo'lib ishlashga undadi."
+      }
+    },
+    {
+      "word": "largess",
+      "part_of_speech": "noun",
+      "transcription": "/lɑrˈʒɛs/",
+      "translation": "щедрый дар",
+      "translations": {
+        "ru": "щедрый дар",
+        "uz": "saxovatli hadya"
+      },
+      "example": "The patron's largess kept our theater open.",
+      "example_translations": {
+        "ru": "Щедрый дар мецената позволил нашему театру продолжить работу.",
+        "uz": "Homiy bergan saxovatli hadya teatrimiz ishini davom ettirishga imkon berdi."
+      }
     }
   ]
 }

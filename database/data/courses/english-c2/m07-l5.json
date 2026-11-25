@@ -160,6 +160,66 @@
         "ru": "На официанте была безупречно чистая белая рубашка.",
         "uz": "Ofitsiant top-toza, benuqson oq ko'ylak kiygan edi."
       }
+    },
+    {
+      "word": "aquiline",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈækwəˌlaɪn/",
+      "translation": "орлиный, с горбинкой",
+      "translations": {
+        "ru": "орлиный, с горбинкой",
+        "uz": "burgut tumshug'idek qayrilgan"
+      },
+      "example": "The portrait emphasizes his sharp aquiline nose.",
+      "example_translations": {
+        "ru": "Портрет подчёркивает его острый орлиный нос.",
+        "uz": "Portretda uning burgut tumshug'idek qayrilgan o'tkir burni alohida ko'zga tashlanadi."
+      }
+    },
+    {
+      "word": "hirsute",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈhɜrsut/",
+      "translation": "волосатый",
+      "translations": {
+        "ru": "волосатый",
+        "uz": "jun bosgan"
+      },
+      "example": "The sculptor gave the figure broad shoulders and hirsute arms.",
+      "example_translations": {
+        "ru": "Скульптор изобразил фигуру с широкими плечами и волосатыми руками.",
+        "uz": "Haykaltarosh keng yelkali va qo'llarini jun bosgan odam gavdasini yasadi."
+      }
+    },
+    {
+      "word": "sallow",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsæloʊ/",
+      "translation": "болезненно-жёлтый",
+      "translations": {
+        "ru": "болезненно-жёлтый",
+        "uz": "kasalmand sarg'ish"
+      },
+      "example": "The harsh light made his cheeks look sallow.",
+      "example_translations": {
+        "ru": "Резкий свет придавал его щекам болезненно-жёлтый оттенок.",
+        "uz": "O'tkir nur uning yonoqlarini kasalmand sarg'ish qilib ko'rsatdi."
+      }
+    },
+    {
+      "word": "wiry",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈwaɪri/",
+      "translation": "жилистый",
+      "translations": {
+        "ru": "жилистый",
+        "uz": "ozg'in va baquvvat"
+      },
+      "example": "The wiry climber carried both bags up the slope.",
+      "example_translations": {
+        "ru": "Жилистый альпинист поднял оба рюкзака вверх по склону.",
+        "uz": "Ozg'in va baquvvat alpinist ikkala sumkani ham qiyalikdan tepaga olib chiqdi."
+      }
     }
   ]
 }

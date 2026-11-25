@@ -160,6 +160,66 @@
         "ru": "Каждая басня преподаёт простой урок о жизни.",
         "uz": "Har bir masal hayot haqida oddiy saboq beradi."
       }
+    },
+    {
+      "word": "dystopian",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪsˈtoʊpiən/",
+      "translation": "антиутопический",
+      "translations": {
+        "ru": "антиутопический",
+        "uz": "antiutopik"
+      },
+      "example": "This dystopian novel imagines a world without books.",
+      "example_translations": {
+        "ru": "Этот антиутопический роман описывает воображаемый мир без книг.",
+        "uz": "Bu antiutopik romanda kitoblarsiz dunyo tasvirlangan."
+      }
+    },
+    {
+      "word": "autobiography",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɔtoʊbaɪˈɑgrəfi/",
+      "translation": "автобиография",
+      "translations": {
+        "ru": "автобиография",
+        "uz": "avtobiografiya"
+      },
+      "example": "Her autobiography describes her childhood and early career.",
+      "example_translations": {
+        "ru": "В автобиографии она описывает своё детство и начало профессионального пути.",
+        "uz": "U avtobiografiyasida bolaligi va ish faoliyatining boshlanishini tasvirlaydi."
+      }
+    },
+    {
+      "word": "folktale",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfoʊkˌteɪl/",
+      "translation": "народная сказка",
+      "translations": {
+        "ru": "народная сказка",
+        "uz": "xalq ertagi"
+      },
+      "example": "Grandma told us a folktale about a clever fox.",
+      "example_translations": {
+        "ru": "Бабушка рассказала нам народную сказку про хитрую лису.",
+        "uz": "Buvim bizga ayyor tulki haqida xalq ertagini aytib berdi."
+      }
+    },
+    {
+      "word": "fictional",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈfɪkʃənəl/",
+      "translation": "вымышленный",
+      "translations": {
+        "ru": "вымышленный",
+        "uz": "to'qima"
+      },
+      "example": "The novel takes place in a fictional village.",
+      "example_translations": {
+        "ru": "Действие романа происходит в вымышленной деревне.",
+        "uz": "Roman voqealari to'qima qishloqda bo'lib o'tadi."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Открытые окна обеспечивают естественную вентиляцию летом.",
         "uz": "Ochiq derazalar yozda tabiiy ventilyatsiyani ta'minlaydi."
       }
+    },
+    {
+      "word": "waterworks",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwɔtərˌwɜrks/",
+      "translation": "система водоснабжения",
+      "translations": {
+        "ru": "система водоснабжения",
+        "uz": "suv ta'minoti tizimi"
+      },
+      "example": "The city upgraded its waterworks to reduce leaks.",
+      "example_translations": {
+        "ru": "Город модернизировал систему водоснабжения, чтобы уменьшить утечки.",
+        "uz": "Suv sizib chiqishini kamaytirish uchun shahar suv ta'minoti tizimini yangiladi."
+      }
+    },
+    {
+      "word": "sewer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsuər/",
+      "translation": "канализационная труба",
+      "translations": {
+        "ru": "канализационная труба",
+        "uz": "oqova suv quvuri"
+      },
+      "example": "The workers replaced a damaged sewer under the street.",
+      "example_translations": {
+        "ru": "Рабочие заменили повреждённую канализационную трубу под улицей.",
+        "uz": "Ishchilar ko'cha ostidagi shikastlangan oqova suv quvurini almashtirdi."
+      }
+    },
+    {
+      "word": "piping",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpaɪpɪŋ/",
+      "translation": "система труб",
+      "translations": {
+        "ru": "система труб",
+        "uz": "quvurlar tizimi"
+      },
+      "example": "New piping brought hot water to every apartment.",
+      "example_translations": {
+        "ru": "Благодаря новой системе труб горячая вода появилась во всех квартирах.",
+        "uz": "Yangi quvurlar tizimi orqali har bir xonadonga issiq suv yetib bordi."
+      }
+    },
+    {
+      "word": "substation",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsʌbˌsteɪʃən/",
+      "translation": "электрическая подстанция",
+      "translations": {
+        "ru": "электрическая подстанция",
+        "uz": "elektr podstansiyasi"
+      },
+      "example": "The substation supplies electricity to three nearby neighborhoods.",
+      "example_translations": {
+        "ru": "Подстанция снабжает электричеством три соседних района.",
+        "uz": "Elektr podstansiyasi yaqin atrofdagi uchta mahallani elektr bilan ta'minlaydi."
+      }
+    },
+    {
+      "word": "broadband",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbrɔdˌbænd/",
+      "translation": "широкополосный интернет",
+      "translations": {
+        "ru": "широкополосный интернет",
+        "uz": "keng polosali internet"
+      },
+      "example": "The village finally has broadband fast enough for video.",
+      "example_translations": {
+        "ru": "Наконец в деревне есть широкополосный интернет, скорости которого хватает для видео.",
+        "uz": "Nihoyat, qishloqda video ko'rish uchun tezligi yetarli keng polosali internet bor."
+      }
     }
   ]
 }

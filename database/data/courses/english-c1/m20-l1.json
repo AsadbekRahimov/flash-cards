@@ -160,6 +160,36 @@
         "ru": "Мы ждали в помещении, пока буря не утихла.",
         "uz": "Bo'ron bosilguncha biz ichkarida kutib turdik."
       }
+    },
+    {
+      "word": "upswing",
+      "part_of_speech": "noun",
+      "transcription": "/ˈʌpˌswɪŋ/",
+      "translation": "подъём",
+      "translations": {
+        "ru": "подъём",
+        "uz": "yuksalish"
+      },
+      "example": "After a quiet spring, sales showed a clear upswing.",
+      "example_translations": {
+        "ru": "После спокойной весны продажи продемонстрировали явный подъём.",
+        "uz": "Sokin bahordan so'ng savdoda yaqqol yuksalish kuzatildi."
+      }
+    },
+    {
+      "word": "deceleration",
+      "part_of_speech": "noun",
+      "transcription": "/diˌsɛləˈreɪʃən/",
+      "translation": "замедление",
+      "translations": {
+        "ru": "замедление",
+        "uz": "sekinlashuv"
+      },
+      "example": "The chart reveals a deceleration in population growth.",
+      "example_translations": {
+        "ru": "На графике видно замедление роста населения.",
+        "uz": "Grafikda aholi o'sishining sekinlashuvi ko'rinadi."
+      }
     }
   ]
 }

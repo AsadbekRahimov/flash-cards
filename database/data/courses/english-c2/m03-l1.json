@@ -160,6 +160,81 @@
         "ru": "Её резкая, бесцеремонная манера обидела вежливых посетителей.",
         "uz": "Uning qo'pol, cho'rtkesar muomalasi odobli mehmonlarni xafa qildi."
       }
+    },
+    {
+      "word": "laconic",
+      "part_of_speech": "adjective",
+      "transcription": "/ləˈkɑnɪk/",
+      "translation": "немногословный",
+      "translations": {
+        "ru": "немногословный",
+        "uz": "kamgap"
+      },
+      "example": "Our normally laconic guide spoke only when necessary.",
+      "example_translations": {
+        "ru": "Наш обычно немногословный гид говорил только по необходимости.",
+        "uz": "Odatda kamgap yo'lboshchimiz faqat zarur paytda gapirardi."
+      }
+    },
+    {
+      "word": "loquacious",
+      "part_of_speech": "adjective",
+      "transcription": "/loʊˈkweɪʃəs/",
+      "translation": "разговорчивый",
+      "translations": {
+        "ru": "разговорчивый",
+        "uz": "gapga o'ch"
+      },
+      "example": "My loquacious seatmate chatted throughout the train ride.",
+      "example_translations": {
+        "ru": "Мой разговорчивый сосед по поезду болтал всю дорогу.",
+        "uz": "Yonimdagi gapga o'ch yo'lovchi poyezdda yo'l bo'yi gapirib bordi."
+      }
+    },
+    {
+      "word": "prolix",
+      "part_of_speech": "adjective",
+      "transcription": "/proʊˈlɪks/",
+      "translation": "излишне многословный",
+      "translations": {
+        "ru": "излишне многословный",
+        "uz": "gapni cho'zib yuboradigan"
+      },
+      "example": "His prolix explanation buried the point under needless detail.",
+      "example_translations": {
+        "ru": "В его многословном объяснении суть затерялась среди ненужных подробностей.",
+        "uz": "U izohini shunchalik cho'zib yubordiki, asosiy fikr ortiqcha tafsilotlar orasida yo'qoldi."
+      }
+    },
+    {
+      "word": "grandiloquent",
+      "part_of_speech": "adjective",
+      "transcription": "/grænˈdɪləkwənt/",
+      "translation": "напыщенный",
+      "translations": {
+        "ru": "напыщенный",
+        "uz": "ortiqcha dabdabali"
+      },
+      "example": "His grandiloquent speech made a routine opening sound historic.",
+      "example_translations": {
+        "ru": "Из-за его напыщенной речи обычное открытие казалось историческим событием.",
+        "uz": "Uning ortiqcha dabdabali nutqi oddiy ochilish marosimini tarixiy voqeadek ko'rsatdi."
+      }
+    },
+    {
+      "word": "voluble",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈvɑljəbəl/",
+      "translation": "бойкий на язык",
+      "translations": {
+        "ru": "бойкий на язык",
+        "uz": "biyron"
+      },
+      "example": "The voluble host barely paused to let guests answer.",
+      "example_translations": {
+        "ru": "Бойкий на язык ведущий почти не давал гостям ответить.",
+        "uz": "Biyron boshlovchi mehmonlarga javob berishga deyarli imkon bermadi."
+      }
     }
   ]
 }

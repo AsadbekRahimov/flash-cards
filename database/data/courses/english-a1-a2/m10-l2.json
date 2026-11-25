@@ -160,6 +160,51 @@
         "ru": "Сегодня ветрено.",
         "uz": "Bugun shamolli."
       }
+    },
+    {
+      "word": "snowy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsnoʊi/",
+      "translation": "снежный",
+      "translations": {
+        "ru": "снежный",
+        "uz": "qorli"
+      },
+      "example": "We stayed home on that snowy day.",
+      "example_translations": {
+        "ru": "В тот снежный день мы остались дома.",
+        "uz": "O'sha qorli kuni uyda qoldik."
+      }
+    },
+    {
+      "word": "foggy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈfɑgi/",
+      "translation": "туманный",
+      "translations": {
+        "ru": "туманный",
+        "uz": "tumanli"
+      },
+      "example": "It was foggy by the river this morning.",
+      "example_translations": {
+        "ru": "Сегодня утром у реки было туманно.",
+        "uz": "Bugun ertalab daryo bo'yida tuman bor edi."
+      }
+    },
+    {
+      "word": "icy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈaɪsi/",
+      "translation": "обледенелый",
+      "translations": {
+        "ru": "обледенелый",
+        "uz": "muzlagan"
+      },
+      "example": "Be careful on the icy road.",
+      "example_translations": {
+        "ru": "Будьте осторожны на обледенелой дороге.",
+        "uz": "Muzlagan yo'lda ehtiyot bo'ling."
+      }
     }
   ]
 }

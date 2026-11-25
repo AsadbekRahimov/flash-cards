@@ -160,6 +160,81 @@
         "ru": "Этот регион богат ценными полезными ископаемыми.",
         "uz": "Bu hudud qimmatbaho foydali qazilmalarga boy."
       }
+    },
+    {
+      "word": "rechargeable",
+      "part_of_speech": "adjective",
+      "transcription": "/riˈtʃɑrdʒəbəl/",
+      "translation": "перезаряжаемый",
+      "translations": {
+        "ru": "перезаряжаемый",
+        "uz": "qayta quvvatlanadigan"
+      },
+      "example": "Rechargeable batteries can power this lamp for hours.",
+      "example_translations": {
+        "ru": "Перезаряжаемые батарейки могут питать эту лампу часами.",
+        "uz": "Qayta quvvatlanadigan batareyalar bu chiroqni soatlab ishlata oladi."
+      }
+    },
+    {
+      "word": "photovoltaic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌfoʊtoʊvɑlˈteɪɪk/",
+      "translation": "фотоэлектрический",
+      "translations": {
+        "ru": "фотоэлектрический",
+        "uz": "fotoelektrik"
+      },
+      "example": "Photovoltaic panels turn sunlight into electricity.",
+      "example_translations": {
+        "ru": "Фотоэлектрические панели преобразуют солнечный свет в электричество.",
+        "uz": "Fotoelektrik panellar quyosh nurini elektr energiyasiga aylantiradi."
+      }
+    },
+    {
+      "word": "tidal",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtaɪdəl/",
+      "translation": "приливный",
+      "translations": {
+        "ru": "приливный",
+        "uz": "dengiz suvining ko'tarilishi va qaytishiga oid"
+      },
+      "example": "Tidal turbines use moving seawater to generate electricity.",
+      "example_translations": {
+        "ru": "Приливные турбины вырабатывают электричество за счёт движения морской воды.",
+        "uz": "Dengiz suvi ko'tarilib qaytganda hosil bo'ladigan oqim turbinalarni aylantirib, elektr energiyasi ishlab chiqaradi."
+      }
+    },
+    {
+      "word": "renewables",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈnuəbəlz/",
+      "translation": "возобновляемые источники энергии",
+      "translations": {
+        "ru": "возобновляемые источники энергии",
+        "uz": "qayta tiklanuvchi energiya manbalari"
+      },
+      "example": "Solar and wind are the fastest-growing renewables here.",
+      "example_translations": {
+        "ru": "Солнечная и ветровая энергетика — самые быстрорастущие возобновляемые источники энергии здесь.",
+        "uz": "Bu yerda eng tez rivojlanayotgan qayta tiklanuvchi energiya manbalari quyosh va shamoldir."
+      }
+    },
+    {
+      "word": "biodiesel",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbaɪoʊˌdizəl/",
+      "translation": "биодизель",
+      "translations": {
+        "ru": "биодизель",
+        "uz": "biodizel"
+      },
+      "example": "Some buses run on biodiesel made from cooking oil.",
+      "example_translations": {
+        "ru": "Некоторые автобусы ездят на биодизеле, полученном из кулинарного масла.",
+        "uz": "Ayrim avtobuslar ovqat pishirishda ishlatiladigan yog'dan olingan biodizelda yuradi."
+      }
     }
   ]
 }

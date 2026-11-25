@@ -160,6 +160,66 @@
         "ru": "Ритмичный бой барабанов погрузил танцоров в транс.",
         "uz": "Bir maromdagi nog'ora sadosi raqqoslarni trans holatiga tushirdi."
       }
+    },
+    {
+      "word": "sentience",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɛnʃəns/",
+      "translation": "способность чувствовать",
+      "translations": {
+        "ru": "способность чувствовать",
+        "uz": "his qilish qobiliyati"
+      },
+      "example": "The debate concerns sentience in animals without backbones.",
+      "example_translations": {
+        "ru": "Спор касается способности чувствовать у беспозвоночных животных.",
+        "uz": "Bahs umurtqasiz hayvonlarning his qilish qobiliyati haqida bormoqda."
+      }
+    },
+    {
+      "word": "introspection",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪntrəˈspɛkʃən/",
+      "translation": "самонаблюдение",
+      "translations": {
+        "ru": "самонаблюдение",
+        "uz": "o'z kechinmalarini kuzatish"
+      },
+      "example": "Through introspection, she noticed when her attention began wandering.",
+      "example_translations": {
+        "ru": "Самонаблюдение помогло ей заметить, когда её внимание начинало рассеиваться.",
+        "uz": "O'z kechinmalarini kuzatib, u diqqati qachon chalg'iy boshlashini payqadi."
+      }
+    },
+    {
+      "word": "proprioception",
+      "part_of_speech": "noun",
+      "transcription": "/ˌproʊpriəˈsɛpʃən/",
+      "translation": "ощущение положения тела",
+      "translations": {
+        "ru": "ощущение положения тела",
+        "uz": "tana holatini sezish"
+      },
+      "example": "Thanks to proprioception, dancers sense limb positions without looking.",
+      "example_translations": {
+        "ru": "Благодаря ощущению положения тела танцоры чувствуют, как расположены их конечности, даже не глядя на них.",
+        "uz": "Tana holatini sezish tufayli raqqoslar qo'l-oyoqlari qay holatda ekanini qaramasdan ham biladi."
+      }
+    },
+    {
+      "word": "wakefulness",
+      "part_of_speech": "noun",
+      "transcription": "/ˈweɪkfʊlnəs/",
+      "translation": "бодрствование",
+      "translations": {
+        "ru": "бодрствование",
+        "uz": "uyg'oqlik"
+      },
+      "example": "Researchers tracked patterns of sleep and wakefulness in volunteers.",
+      "example_translations": {
+        "ru": "Исследователи отслеживали режим сна и бодрствования у добровольцев.",
+        "uz": "Tadqiqotchilar ko'ngillilarning uyqu va uyg'oqlik tartibini kuzatdi."
+      }
     }
   ]
 }

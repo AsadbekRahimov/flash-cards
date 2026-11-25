@@ -160,6 +160,81 @@
         "ru": "Учёные повторяют эксперименты, чтобы проверить свои результаты.",
         "uz": "Olimlar o'z natijalarini tekshirish uchun tajribalarni takrorlaydi."
       }
+    },
+    {
+      "word": "measurable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmɛʒərəbəl/",
+      "translation": "измеримый",
+      "translations": {
+        "ru": "измеримый",
+        "uz": "o'lchash mumkin bo'lgan"
+      },
+      "example": "The experiment showed a measurable increase in temperature.",
+      "example_translations": {
+        "ru": "Опыт показал измеримое повышение температуры.",
+        "uz": "Tajriba harorat o'lchash mumkin bo'lgan darajada ko'tarilganini ko'rsatdi."
+      }
+    },
+    {
+      "word": "observable",
+      "part_of_speech": "adjective",
+      "transcription": "/əbˈzɜrvəbəl/",
+      "translation": "наблюдаемый",
+      "translations": {
+        "ru": "наблюдаемый",
+        "uz": "kuzatish mumkin bo'lgan"
+      },
+      "example": "The first observable change was a darker color.",
+      "example_translations": {
+        "ru": "Первым наблюдаемым изменением стало потемнение цвета.",
+        "uz": "Kuzatish mumkin bo'lgan birinchi o'zgarish rangning to'qlashishi edi."
+      }
+    },
+    {
+      "word": "repeatable",
+      "part_of_speech": "adjective",
+      "transcription": "/rɪˈpitəbəl/",
+      "translation": "повторяемый",
+      "translations": {
+        "ru": "повторяемый",
+        "uz": "takrorlash mumkin bo'lgan"
+      },
+      "example": "Our method is simple and repeatable in class.",
+      "example_translations": {
+        "ru": "Наш метод прост, и его можно повторить на уроке.",
+        "uz": "Usulimiz oddiy, uni darsda takrorlash mumkin."
+      }
+    },
+    {
+      "word": "sampling",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsæmplɪŋ/",
+      "translation": "отбор проб",
+      "translations": {
+        "ru": "отбор проб",
+        "uz": "namuna olish"
+      },
+      "example": "Water sampling began at three sites upstream.",
+      "example_translations": {
+        "ru": "Отбор проб воды начался в трёх точках выше по течению.",
+        "uz": "Oqimning yuqori qismida uch joydan suv namunalarini olish boshlandi."
+      }
+    },
+    {
+      "word": "baseline",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbeɪsˌlaɪn/",
+      "translation": "исходный показатель",
+      "translations": {
+        "ru": "исходный показатель",
+        "uz": "boshlang'ich ko'rsatkich"
+      },
+      "example": "We used last year's data as a baseline.",
+      "example_translations": {
+        "ru": "Мы использовали данные прошлого года как исходный показатель.",
+        "uz": "O'tgan yilgi ma'lumotlardan boshlang'ich ko'rsatkich sifatida foydalandik."
+      }
     }
   ]
 }

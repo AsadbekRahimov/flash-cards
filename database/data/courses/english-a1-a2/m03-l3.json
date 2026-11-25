@@ -160,6 +160,81 @@
         "ru": "Дай мне стакан молока.",
         "uz": "Menga bir stakan sut ber."
       }
+    },
+    {
+      "word": "cocoa",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkoʊkoʊ/",
+      "translation": "какао",
+      "translations": {
+        "ru": "какао",
+        "uz": "kakao"
+      },
+      "example": "We drink hot cocoa before bed.",
+      "example_translations": {
+        "ru": "Перед сном мы пьём горячее какао.",
+        "uz": "Uxlashdan oldin issiq kakao ichamiz."
+      }
+    },
+    {
+      "word": "lemonade",
+      "part_of_speech": "noun",
+      "transcription": "/ˌlɛməˈneɪd/",
+      "translation": "лимонад",
+      "translations": {
+        "ru": "лимонад",
+        "uz": "limonad"
+      },
+      "example": "Would you like a glass of lemonade?",
+      "example_translations": {
+        "ru": "Хотите стакан лимонада?",
+        "uz": "Bir stakan limonad ichasizmi?"
+      }
+    },
+    {
+      "word": "soda",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsoʊdə/",
+      "translation": "газировка",
+      "translations": {
+        "ru": "газировка",
+        "uz": "gazli ichimlik"
+      },
+      "example": "I drink soda with my pizza.",
+      "example_translations": {
+        "ru": "Я запиваю пиццу газировкой.",
+        "uz": "Pitsa bilan gazli ichimlik ichaman."
+      }
+    },
+    {
+      "word": "milkshake",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɪlkʃeɪk/",
+      "translation": "молочный коктейль",
+      "translations": {
+        "ru": "молочный коктейль",
+        "uz": "sutli kokteyl"
+      },
+      "example": "Her milkshake tastes like chocolate and bananas.",
+      "example_translations": {
+        "ru": "В её молочном коктейле чувствуется вкус шоколада и бананов.",
+        "uz": "Uning sutli kokteylida shokolad va banan ta'mi bor."
+      }
+    },
+    {
+      "word": "iced",
+      "part_of_speech": "adjective",
+      "transcription": "/aɪst/",
+      "translation": "со льдом",
+      "translations": {
+        "ru": "со льдом",
+        "uz": "muz solingan"
+      },
+      "example": "I would like a glass of iced tea.",
+      "example_translations": {
+        "ru": "Я хочу стакан чая со льдом.",
+        "uz": "Bir stakan muz solingan choy ichmoqchiman."
+      }
     }
   ]
 }

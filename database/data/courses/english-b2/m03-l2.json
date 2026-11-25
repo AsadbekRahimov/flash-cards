@@ -160,6 +160,66 @@
         "ru": "Овердрафт позволяет потратить больше, чем у вас есть.",
         "uz": "Overdraft o'zingizda bor puldan ko'proq sarflash imkonini beradi."
       }
+    },
+    {
+      "word": "borrowing",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɑroʊɪŋ/",
+      "translation": "заимствование",
+      "translations": {
+        "ru": "заимствование",
+        "uz": "qarz olish"
+      },
+      "example": "The company limited borrowing to reduce its debt.",
+      "example_translations": {
+        "ru": "Компания ограничила заимствование, чтобы уменьшить долг.",
+        "uz": "Kompaniya qarzini kamaytirish uchun qarz olishni chekladi."
+      }
+    },
+    {
+      "word": "creditworthiness",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkrɛdɪtˌwɜrðinəs/",
+      "translation": "кредитоспособность",
+      "translations": {
+        "ru": "кредитоспособность",
+        "uz": "qarzni qaytara olish layoqati"
+      },
+      "example": "Banks check creditworthiness before approving large loans.",
+      "example_translations": {
+        "ru": "Банки проверяют кредитоспособность, прежде чем одобрить крупные кредиты.",
+        "uz": "Banklar yirik kredit berishdan oldin mijoz qarzni qaytara olishini tekshiradi."
+      }
+    },
+    {
+      "word": "refinance",
+      "part_of_speech": "verb",
+      "transcription": "/ˌrifaɪˈnæns/",
+      "translation": "рефинансировать",
+      "translations": {
+        "ru": "рефинансировать",
+        "uz": "yangi kredit bilan qoplamoq"
+      },
+      "example": "They decided to refinance their loan at lower rates.",
+      "example_translations": {
+        "ru": "Они решили рефинансировать кредит по более низкой ставке.",
+        "uz": "Ular qarzini foizi pastroq yangi kredit bilan qoplashga qaror qilishdi."
+      }
+    },
+    {
+      "word": "insolvent",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈsɑlvənt/",
+      "translation": "неплатёжеспособный",
+      "translations": {
+        "ru": "неплатёжеспособный",
+        "uz": "qarzini to'lay olmaydigan"
+      },
+      "example": "An insolvent business cannot pay its debts.",
+      "example_translations": {
+        "ru": "Неплатёжеспособная компания не может выплатить свои долги.",
+        "uz": "To'lovga layoqatsiz korxona qarzlarini uzolmaydi."
+      }
     }
   ]
 }

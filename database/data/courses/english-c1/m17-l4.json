@@ -160,6 +160,51 @@
         "ru": "Их ответом было категоричное «нет».",
         "uz": "Ularning javobi qat'iy «yo'q» bo'ldi."
       }
+    },
+    {
+      "word": "rhetorically",
+      "part_of_speech": "adverb",
+      "transcription": "/rɪˈtɔrɪkli/",
+      "translation": "риторически",
+      "translations": {
+        "ru": "риторически",
+        "uz": "javob kutmasdan"
+      },
+      "example": "She asked rhetorically whether anyone enjoyed waiting in line.",
+      "example_translations": {
+        "ru": "Она риторически спросила, кому вообще нравится стоять в очереди.",
+        "uz": "U navbatda turish kimga ham yoqishini javob kutmasdan so'radi."
+      }
+    },
+    {
+      "word": "orator",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɔrətər/",
+      "translation": "оратор",
+      "translations": {
+        "ru": "оратор",
+        "uz": "notiq"
+      },
+      "example": "An experienced orator can hold a restless audience's attention.",
+      "example_translations": {
+        "ru": "Опытный оратор способен удержать внимание беспокойных слушателей.",
+        "uz": "Tajribali notiq tinib-tinchimas tinglovchilarning diqqatini ham ushlab tura oladi."
+      }
+    },
+    {
+      "word": "polemical",
+      "part_of_speech": "adjective",
+      "transcription": "/pəˈlɛmɪkəl/",
+      "translation": "полемический",
+      "translations": {
+        "ru": "полемический",
+        "uz": "bahsga chorlaydigan"
+      },
+      "example": "Her polemical essay challenged the city's popular redevelopment plan.",
+      "example_translations": {
+        "ru": "Её полемическое эссе оспаривало популярный план реконструкции города.",
+        "uz": "Uning bahsga chorlaydigan inshosi shaharning ko'pchilik ma'qullagan qayta qurish rejasini tanqid ostiga oldi."
+      }
     }
   ]
 }

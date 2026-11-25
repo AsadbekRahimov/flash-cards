@@ -160,6 +160,66 @@
         "ru": "Малыш ещё слабый.",
         "uz": "Chaqaloq hali zaif."
       }
+    },
+    {
+      "word": "hate",
+      "part_of_speech": "verb",
+      "transcription": "/heɪt/",
+      "translation": "терпеть не мочь",
+      "translations": {
+        "ru": "терпеть не мочь",
+        "uz": "yomon ko'rmoq"
+      },
+      "example": "I hate this song on the radio.",
+      "example_translations": {
+        "ru": "Терпеть не могу эту песню по радио.",
+        "uz": "Radiodagi bu qo'shiqni yomon ko'raman."
+      }
+    },
+    {
+      "word": "exciting",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪkˈsaɪtɪŋ/",
+      "translation": "захватывающий",
+      "translations": {
+        "ru": "захватывающий",
+        "uz": "hayajonli"
+      },
+      "example": "That baseball game was very exciting.",
+      "example_translations": {
+        "ru": "Тот бейсбольный матч был очень захватывающим.",
+        "uz": "O'sha beysbol o'yini juda hayajonli o'tdi."
+      }
+    },
+    {
+      "word": "best",
+      "part_of_speech": "adjective",
+      "transcription": "/bɛst/",
+      "translation": "лучший",
+      "translations": {
+        "ru": "лучший",
+        "uz": "eng yaxshi"
+      },
+      "example": "This is the best cake in town.",
+      "example_translations": {
+        "ru": "Это лучший торт в городе.",
+        "uz": "Bu shahardagi eng yaxshi tort."
+      }
+    },
+    {
+      "word": "worst",
+      "part_of_speech": "adjective",
+      "transcription": "/wərst/",
+      "translation": "худший",
+      "translations": {
+        "ru": "худший",
+        "uz": "eng yomon"
+      },
+      "example": "That was the worst movie this year.",
+      "example_translations": {
+        "ru": "Это был худший фильм в этом году.",
+        "uz": "Bu yilgi eng yomon film shu bo'ldi."
+      }
     }
   ]
 }

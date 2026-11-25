@@ -160,6 +160,81 @@
         "ru": "Часы висят на стене.",
         "uz": "Soat devorda osilib turibdi."
       }
+    },
+    {
+      "word": "stool",
+      "part_of_speech": "noun",
+      "transcription": "/stul/",
+      "translation": "табурет",
+      "translations": {
+        "ru": "табурет",
+        "uz": "taburetka"
+      },
+      "example": "She sat on a small wooden stool.",
+      "example_translations": {
+        "ru": "Она села на маленький деревянный табурет.",
+        "uz": "U kichkina yog'och taburetkaga o'tirdi."
+      }
+    },
+    {
+      "word": "armchair",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑrmˌtʃɛr/",
+      "translation": "кресло",
+      "translations": {
+        "ru": "кресло",
+        "uz": "kreslo"
+      },
+      "example": "Grandma reads in her armchair every night.",
+      "example_translations": {
+        "ru": "Бабушка каждый вечер читает в своём кресле.",
+        "uz": "Buvim har oqshom kreslosida kitob o'qiydi."
+      }
+    },
+    {
+      "word": "bookcase",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbʊkˌkeɪs/",
+      "translation": "книжный шкаф",
+      "translations": {
+        "ru": "книжный шкаф",
+        "uz": "kitob javoni"
+      },
+      "example": "My books are in the white bookcase.",
+      "example_translations": {
+        "ru": "Мои книги в белом книжном шкафу.",
+        "uz": "Kitoblarim oq kitob javonida."
+      }
+    },
+    {
+      "word": "blinds",
+      "part_of_speech": "noun",
+      "transcription": "/blaɪndz/",
+      "translation": "жалюзи",
+      "translations": {
+        "ru": "жалюзи",
+        "uz": "jalyuzi"
+      },
+      "example": "Please close the blinds before you leave.",
+      "example_translations": {
+        "ru": "Пожалуйста, закройте жалюзи перед уходом.",
+        "uz": "Iltimos, ketishdan oldin jalyuzini yoping."
+      }
+    },
+    {
+      "word": "dresser",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdrɛsər/",
+      "translation": "комод",
+      "translations": {
+        "ru": "комод",
+        "uz": "komod"
+      },
+      "example": "My socks are in the dresser.",
+      "example_translations": {
+        "ru": "Мои носки лежат в комоде.",
+        "uz": "Paypoqlarim komodda."
+      }
     }
   ]
 }

@@ -160,6 +160,66 @@
         "ru": "Оркестр играет в театре сегодня вечером.",
         "uz": "Orkestr bugun kechqurun teatrda chaladi."
       }
+    },
+    {
+      "word": "concert",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑnsərt/",
+      "translation": "концерт",
+      "translations": {
+        "ru": "концерт",
+        "uz": "konsert"
+      },
+      "example": "We went to a concert in the park.",
+      "example_translations": {
+        "ru": "Мы сходили на концерт в парке.",
+        "uz": "Bog'dagi konsertga bordik."
+      }
+    },
+    {
+      "word": "ballet",
+      "part_of_speech": "noun",
+      "transcription": "/bæˈleɪ/",
+      "translation": "балет",
+      "translations": {
+        "ru": "балет",
+        "uz": "balet"
+      },
+      "example": "We saw a ballet at the theater.",
+      "example_translations": {
+        "ru": "Мы посмотрели балет в театре.",
+        "uz": "Teatrda balet tomosha qildik."
+      }
+    },
+    {
+      "word": "opera",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑpərə/",
+      "translation": "опера",
+      "translations": {
+        "ru": "опера",
+        "uz": "opera"
+      },
+      "example": "My first opera was in Italian.",
+      "example_translations": {
+        "ru": "Моя первая опера была на итальянском языке.",
+        "uz": "Men tomosha qilgan birinchi opera italyan tilida edi."
+      }
+    },
+    {
+      "word": "choir",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkwaɪər/",
+      "translation": "хор",
+      "translations": {
+        "ru": "хор",
+        "uz": "xor"
+      },
+      "example": "My cousin sings in the school choir.",
+      "example_translations": {
+        "ru": "Моя двоюродная сестра поёт в школьном хоре.",
+        "uz": "Xolavachcham maktab xorida kuylaydi."
+      }
     }
   ]
 }

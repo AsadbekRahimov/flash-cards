@@ -160,6 +160,36 @@
         "ru": "Массовое воздержание от голосования показало, что избиратели потеряли интерес.",
         "uz": "Ko'pchilikning ovoz berishdan tiyilishi saylovchilar qiziqishni yo'qotganini ko'rsatdi."
       }
+    },
+    {
+      "word": "enfranchisement",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈfræntʃɪzmənt/",
+      "translation": "наделение избирательным правом",
+      "translations": {
+        "ru": "наделение избирательным правом",
+        "uz": "saylov huquqini berish"
+      },
+      "example": "The proposal calls for the enfranchisement of citizens abroad.",
+      "example_translations": {
+        "ru": "Предложение предусматривает наделение избирательным правом граждан, живущих за рубежом.",
+        "uz": "Taklif xorijda yashovchi fuqarolarga saylov huquqini berishni nazarda tutadi."
+      }
+    },
+    {
+      "word": "canvasser",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkænvəsər/",
+      "translation": "предвыборный агитатор",
+      "translations": {
+        "ru": "предвыборный агитатор",
+        "uz": "saylov targ'ibotchisi"
+      },
+      "example": "A canvasser knocked and asked about our voting plans.",
+      "example_translations": {
+        "ru": "Предвыборный агитатор постучал и спросил о наших планах на голосование.",
+        "uz": "Saylov targ'ibotchisi eshikni taqillatib, ovoz berish rejalarimiz haqida so'radi."
+      }
     }
   ]
 }

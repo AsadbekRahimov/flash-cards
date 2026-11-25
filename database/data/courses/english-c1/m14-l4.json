@@ -160,6 +160,51 @@
         "ru": "Зрительская аудитория шоу сократилась, когда его перенесли на полночь.",
         "uz": "Ko'rsatuv yarim tunga ko'chirilgach, uning tomoshabinlar auditoriyasi kamaydi."
       }
+    },
+    {
+      "word": "virality",
+      "part_of_speech": "noun",
+      "transcription": "/vaɪˈræləti/",
+      "translation": "вирусное распространение",
+      "translations": {
+        "ru": "вирусное распространение",
+        "uz": "internetda tez tarqalish"
+      },
+      "example": "Unexpected virality brought new readers to her blog.",
+      "example_translations": {
+        "ru": "Неожиданное вирусное распространение её публикации привлекло новых читателей в блог.",
+        "uz": "Yozuvi internetda kutilmaganda tez tarqalib, blogiga yangi o'quvchilarni jalb qildi."
+      }
+    },
+    {
+      "word": "aggregator",
+      "part_of_speech": "noun",
+      "transcription": "/ˈægrəˌgeɪtər/",
+      "translation": "агрегатор",
+      "translations": {
+        "ru": "агрегатор",
+        "uz": "ma'lumotlarni jamlovchi xizmat"
+      },
+      "example": "I scan headlines through a news aggregator every morning.",
+      "example_translations": {
+        "ru": "Каждое утро я просматриваю заголовки через агрегатор новостей.",
+        "uz": "Har kuni ertalab yangiliklarni jamlovchi xizmat orqali sarlavhalarni ko'zdan kechiraman."
+      }
+    },
+    {
+      "word": "curation",
+      "part_of_speech": "noun",
+      "transcription": "/kjʊˈreɪʃən/",
+      "translation": "отбор материалов",
+      "translations": {
+        "ru": "отбор материалов",
+        "uz": "materiallarni saralash"
+      },
+      "example": "Careful curation keeps the podcast feed useful.",
+      "example_translations": {
+        "ru": "Тщательный отбор материалов помогает поддерживать полезность ленты подкастов.",
+        "uz": "Materiallarni puxta saralash podkastlar tasmasining foydali bo'lib qolishiga yordam beradi."
+      }
     }
   ]
 }

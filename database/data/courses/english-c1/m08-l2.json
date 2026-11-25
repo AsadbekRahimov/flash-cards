@@ -160,6 +160,36 @@
         "ru": "Как амбулаторный больной, он уходит домой после каждой процедуры.",
         "uz": "Ambulator bemor sifatida u har bir muolajadan keyin uyiga ketadi."
       }
+    },
+    {
+      "word": "convalescence",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑnvəˈlɛsəns/",
+      "translation": "восстановление после болезни",
+      "translations": {
+        "ru": "восстановление после болезни",
+        "uz": "kasallikdan keyin tiklanish"
+      },
+      "example": "During convalescence, he gradually regained his strength.",
+      "example_translations": {
+        "ru": "В период восстановления после болезни к нему постепенно вернулись силы.",
+        "uz": "Kasallikdan keyin tiklanish davrida u asta-sekin kuchga to'ldi."
+      }
+    },
+    {
+      "word": "intravenous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪntrəˈvinəs/",
+      "translation": "внутривенный",
+      "translations": {
+        "ru": "внутривенный",
+        "uz": "vena ichiga yuboriladigan"
+      },
+      "example": "The nurse gave him fluids through an intravenous line.",
+      "example_translations": {
+        "ru": "Медсестра ввела ему жидкости через внутривенный катетер.",
+        "uz": "Hamshira unga suyuqlikni vena ichiga o'rnatilgan kateter orqali yubordi."
+      }
     }
   ]
 }

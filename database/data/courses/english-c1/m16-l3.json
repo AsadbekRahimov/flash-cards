@@ -160,6 +160,51 @@
         "ru": "Двуязычные дети легко переключаются с одного языка на другой.",
         "uz": "Ikki tilli bolalar bir tildan ikkinchisiga osongina o'tadi."
       }
+    },
+    {
+      "word": "summative",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsʌmətɪv/",
+      "translation": "итоговый",
+      "translations": {
+        "ru": "итоговый",
+        "uz": "yakuniy"
+      },
+      "example": "A summative assessment measures learning after the course ends.",
+      "example_translations": {
+        "ru": "Итоговое оценивание показывает, чему учащиеся научились к концу курса.",
+        "uz": "Yakuniy baholash o'quvchilar kurs oxirigacha nimalarni o'rganganini ko'rsatadi."
+      }
+    },
+    {
+      "word": "experiential",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪkˌspɪriˈɛnʃəl/",
+      "translation": "основанный на личном опыте",
+      "translations": {
+        "ru": "основанный на личном опыте",
+        "uz": "amaliy tajribaga asoslangan"
+      },
+      "example": "Experiential learning lets students test ideas through practice.",
+      "example_translations": {
+        "ru": "Обучение на личном опыте позволяет учащимся проверять идеи на практике.",
+        "uz": "Amaliy tajribaga asoslangan ta'lim o'quvchilarga g'oyalarni amalda sinab ko'rish imkonini beradi."
+      }
+    },
+    {
+      "word": "remediation",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˌmidiˈeɪʃən/",
+      "translation": "восполнение пробелов в знаниях",
+      "translations": {
+        "ru": "восполнение пробелов в знаниях",
+        "uz": "bilimdagi bo'shliqlarni to'ldirish"
+      },
+      "example": "The reading program offers remediation for struggling students.",
+      "example_translations": {
+        "ru": "Программа чтения помогает отстающим учащимся восполнить пробелы в знаниях.",
+        "uz": "O'qish dasturi qiynalayotgan o'quvchilarga bilimdagi bo'shliqlarni to'ldirishda yordam beradi."
+      }
     }
   ]
 }

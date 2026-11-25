@@ -160,6 +160,36 @@
         "ru": "Вы умеете делать несколько дел одновременно, когда в офисе много работы?",
         "uz": "Ofisda ish ko'payganda, bir vaqtda bir necha ish qila olasizmi?"
       }
+    },
+    {
+      "word": "understaffed",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌndərˈstæft/",
+      "translation": "с нехваткой персонала",
+      "translations": {
+        "ru": "с нехваткой персонала",
+        "uz": "xodim yetishmaydigan"
+      },
+      "example": "An understaffed office cannot process applications quickly.",
+      "example_translations": {
+        "ru": "Офис с нехваткой персонала не может быстро обрабатывать заявки.",
+        "uz": "Xodim yetishmaydigan idora arizalarni tez ko'rib chiqa olmaydi."
+      }
+    },
+    {
+      "word": "redeploy",
+      "part_of_speech": "verb",
+      "transcription": "/ˌridɪˈplɔɪ/",
+      "translation": "перераспределять",
+      "translations": {
+        "ru": "перераспределять",
+        "uz": "qayta taqsimlamoq"
+      },
+      "example": "Managers can redeploy staff when call volumes drop.",
+      "example_translations": {
+        "ru": "Когда число звонков падает, руководители могут перераспределить персонал.",
+        "uz": "Qo'ng'iroqlar soni kamayganda, rahbarlar xodimlarni qayta taqsimlashi mumkin."
+      }
     }
   ]
 }

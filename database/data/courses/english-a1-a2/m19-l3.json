@@ -160,6 +160,81 @@
         "ru": "На этом маленьком кусте растут ягоды.",
         "uz": "Bu kichik butada rezavorlar o'sadi."
       }
+    },
+    {
+      "word": "petal",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɛtəl/",
+      "translation": "лепесток",
+      "translations": {
+        "ru": "лепесток",
+        "uz": "gulbarg"
+      },
+      "example": "A red petal fell from the rose.",
+      "example_translations": {
+        "ru": "С розы упал красный лепесток.",
+        "uz": "Atirguldan bitta qizil gulbarg tushdi."
+      }
+    },
+    {
+      "word": "twig",
+      "part_of_speech": "noun",
+      "transcription": "/twɪg/",
+      "translation": "тонкая веточка",
+      "translations": {
+        "ru": "тонкая веточка",
+        "uz": "ingichka novda"
+      },
+      "example": "The bird picked up a dry twig.",
+      "example_translations": {
+        "ru": "Птица подобрала сухую веточку.",
+        "uz": "Qush quruq novdani tumshug'iga oldi."
+      }
+    },
+    {
+      "word": "fern",
+      "part_of_speech": "noun",
+      "transcription": "/fɜrn/",
+      "translation": "папоротник",
+      "translations": {
+        "ru": "папоротник",
+        "uz": "qirqquloq"
+      },
+      "example": "A fern grows in this shady corner.",
+      "example_translations": {
+        "ru": "В этом тенистом углу растёт папоротник.",
+        "uz": "Shu salqin burchakda qirqquloq o'sadi."
+      }
+    },
+    {
+      "word": "moss",
+      "part_of_speech": "noun",
+      "transcription": "/mɔs/",
+      "translation": "мох",
+      "translations": {
+        "ru": "мох",
+        "uz": "yo'sin"
+      },
+      "example": "Green moss covers the damp stone.",
+      "example_translations": {
+        "ru": "Зелёный мох покрывает влажный камень.",
+        "uz": "Nam toshni yashil yo'sin qoplagan."
+      }
+    },
+    {
+      "word": "thorn",
+      "part_of_speech": "noun",
+      "transcription": "/θɔrn/",
+      "translation": "шип",
+      "translations": {
+        "ru": "шип",
+        "uz": "tikan"
+      },
+      "example": "A thorn tore a hole in my sleeve.",
+      "example_translations": {
+        "ru": "Шип прорвал дырку в моём рукаве.",
+        "uz": "Tikan yengimni teshib qo'ydi."
+      }
     }
   ]
 }

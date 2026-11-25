@@ -160,6 +160,36 @@
         "ru": "Измените один параметр — и модель поведёт себя иначе.",
         "uz": "Bitta parametrni o'zgartirsangiz, model boshqacha ishlaydi."
       }
+    },
+    {
+      "word": "percentile",
+      "part_of_speech": "noun",
+      "transcription": "/pərˈsɛnˌtaɪl/",
+      "translation": "процентиль",
+      "translations": {
+        "ru": "процентиль",
+        "uz": "percentil"
+      },
+      "example": "Her score fell in the ninetieth percentile.",
+      "example_translations": {
+        "ru": "Её результат соответствовал девяностому процентилю.",
+        "uz": "Uning natijasi to'qsoninchi percentilga to'g'ri keldi."
+      }
+    },
+    {
+      "word": "histogram",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɪstəˌgræm/",
+      "translation": "гистограмма",
+      "translations": {
+        "ru": "гистограмма",
+        "uz": "gistogramma"
+      },
+      "example": "This histogram shows how test scores are distributed.",
+      "example_translations": {
+        "ru": "Эта гистограмма показывает распределение результатов теста.",
+        "uz": "Bu gistogramma test natijalari qanday taqsimlanganini ko'rsatadi."
+      }
     }
   ]
 }

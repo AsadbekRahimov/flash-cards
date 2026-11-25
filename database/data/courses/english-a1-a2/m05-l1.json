@@ -160,6 +160,81 @@
         "ru": "Мост старый.",
         "uz": "Ko'prik eski."
       }
+    },
+    {
+      "word": "square",
+      "part_of_speech": "noun",
+      "transcription": "/skwɛr/",
+      "translation": "городская площадь",
+      "translations": {
+        "ru": "городская площадь",
+        "uz": "shahar maydoni"
+      },
+      "example": "Let's meet in the main square.",
+      "example_translations": {
+        "ru": "Давайте встретимся на главной площади.",
+        "uz": "Keling, shaharning bosh maydonida uchrashaylik."
+      }
+    },
+    {
+      "word": "courtyard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɔrtjɑrd/",
+      "translation": "внутренний двор",
+      "translations": {
+        "ru": "внутренний двор",
+        "uz": "ichki hovli"
+      },
+      "example": "There is a tree in the courtyard.",
+      "example_translations": {
+        "ru": "Во внутреннем дворе растёт дерево.",
+        "uz": "Ichki hovlida bir daraxt bor."
+      }
+    },
+    {
+      "word": "center",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɛntər/",
+      "translation": "центр",
+      "translations": {
+        "ru": "центр",
+        "uz": "markaz"
+      },
+      "example": "We live near the center of town.",
+      "example_translations": {
+        "ru": "Мы живём рядом с центром города.",
+        "uz": "Shahar markaziga yaqin joyda yashaymiz."
+      }
+    },
+    {
+      "word": "tower",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtaʊər/",
+      "translation": "башня",
+      "translations": {
+        "ru": "башня",
+        "uz": "minora"
+      },
+      "example": "You can see the tower from here.",
+      "example_translations": {
+        "ru": "Башню видно отсюда.",
+        "uz": "Minora bu yerdan ko'rinadi."
+      }
+    },
+    {
+      "word": "crossroads",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkrɔsroʊdz/",
+      "translation": "перекрёсток",
+      "translations": {
+        "ru": "перекрёсток",
+        "uz": "chorraha"
+      },
+      "example": "Turn left at the first crossroads.",
+      "example_translations": {
+        "ru": "На первом перекрёстке поверните налево.",
+        "uz": "Birinchi chorrahadan chapga buriling."
+      }
     }
   ]
 }

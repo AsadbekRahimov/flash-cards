@@ -160,6 +160,51 @@
         "ru": "На стене замка висел огромный тканый гобелен.",
         "uz": "Qasr devorida ulkan to'qima gobelen osilib turardi."
       }
+    },
+    {
+      "word": "chiaroscuro",
+      "part_of_speech": "noun",
+      "transcription": "/kiˌɑrəˈskʊroʊ/",
+      "translation": "светотень",
+      "translations": {
+        "ru": "светотень",
+        "uz": "yorug'lik va soya uyg'unligi"
+      },
+      "example": "The painter used chiaroscuro to give the face depth.",
+      "example_translations": {
+        "ru": "Художник использовал светотень, чтобы придать лицу объём.",
+        "uz": "Rassom yuzga hajm berish uchun yorug'lik va soya uyg'unligidan foydalandi."
+      }
+    },
+    {
+      "word": "triptych",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtrɪptɪk/",
+      "translation": "триптих",
+      "translations": {
+        "ru": "триптих",
+        "uz": "uch qismli tasviriy asar"
+      },
+      "example": "Each panel of the triptych depicts a different season.",
+      "example_translations": {
+        "ru": "Каждая часть триптиха изображает разное время года.",
+        "uz": "Uch qismli asarning har bir bo'lagida alohida fasl tasvirlangan."
+      }
+    },
+    {
+      "word": "monochrome",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmɑnəˌkroʊm/",
+      "translation": "монохромный",
+      "translations": {
+        "ru": "монохромный",
+        "uz": "bir rang tuslaridagi"
+      },
+      "example": "Her monochrome drawing uses only shades of blue.",
+      "example_translations": {
+        "ru": "В её монохромном рисунке есть только оттенки синего.",
+        "uz": "Uning bir rang tuslaridagi chizmasida faqat ko'k rangning turli tuslari bor."
+      }
     }
   ]
 }

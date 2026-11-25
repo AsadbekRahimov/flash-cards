@@ -160,6 +160,36 @@
         "ru": "Публикация всех зарплат повысила прозрачность внутри фирмы.",
         "uz": "Barcha maoshlarni e'lon qilish firma ichidagi shaffoflikni oshirdi."
       }
+    },
+    {
+      "word": "micromanage",
+      "part_of_speech": "verb",
+      "transcription": "/ˈmaɪkroʊˌmænɪdʒ/",
+      "translation": "контролировать каждую мелочь",
+      "translations": {
+        "ru": "контролировать каждую мелочь",
+        "uz": "har bir mayda ishni nazorat qilmoq"
+      },
+      "example": "Good managers trust staff and rarely micromanage them.",
+      "example_translations": {
+        "ru": "Хорошие руководители доверяют сотрудникам и редко контролируют каждую мелочь.",
+        "uz": "Yaxshi rahbarlar xodimlariga ishonadi va ularning har bir mayda ishini hadeb nazorat qilavermaydi."
+      }
+    },
+    {
+      "word": "decentralize",
+      "part_of_speech": "verb",
+      "transcription": "/diˈsɛntrəˌlaɪz/",
+      "translation": "децентрализовать",
+      "translations": {
+        "ru": "децентрализовать",
+        "uz": "markazdan hududlarga o'tkazmoq"
+      },
+      "example": "The group will decentralize purchasing across its branches.",
+      "example_translations": {
+        "ru": "Группа децентрализует закупки, передав их своим филиалам.",
+        "uz": "Guruh xarid qilish vakolatini markazdan filiallariga o'tkazadi."
+      }
     }
   ]
 }

@@ -160,6 +160,66 @@
         "ru": "Этот памятник увековечивает память учёных, основавших наш университет.",
         "uz": "Bu yodgorlik universitetimizga asos solgan olimlar xotirasini abadiylashtiradi."
       }
+    },
+    {
+      "word": "reminiscence",
+      "part_of_speech": "noun",
+      "transcription": "/ˌrɛməˈnɪsəns/",
+      "translation": "воспоминание о прошлом",
+      "translations": {
+        "ru": "воспоминание о прошлом",
+        "uz": "o'tmish xotirasi"
+      },
+      "example": "Her reminiscence brought our childhood kitchen vividly to mind.",
+      "example_translations": {
+        "ru": "Её воспоминание живо напомнило мне кухню нашего детства.",
+        "uz": "Uning o'tmish haqidagi xotirasi bolaligimizdagi oshxonani ko'z oldimga yaqqol keltirdi."
+      }
+    },
+    {
+      "word": "reminisce",
+      "part_of_speech": "verb",
+      "transcription": "/ˌrɛməˈnɪs/",
+      "translation": "предаваться воспоминаниям",
+      "translations": {
+        "ru": "предаваться воспоминаниям",
+        "uz": "eski kunlarni eslamoq"
+      },
+      "example": "We often reminisce about summers spent at the lake.",
+      "example_translations": {
+        "ru": "Мы часто предаёмся воспоминаниям о лете, проведённом у озера.",
+        "uz": "Ko'l bo'yida o'tkazgan yozgi kunlarimizni tez-tez eslaymiz."
+      }
+    },
+    {
+      "word": "eidetic",
+      "part_of_speech": "adjective",
+      "transcription": "/aɪˈdɛtɪk/",
+      "translation": "сохраняющий чёткий мысленный образ",
+      "translations": {
+        "ru": "сохраняющий чёткий мысленный образ",
+        "uz": "tasvirni aniq saqlaydigan"
+      },
+      "example": "Her eidetic memory preserved the pattern after one glance.",
+      "example_translations": {
+        "ru": "Её эйдетическая память сохранила узор после одного взгляда.",
+        "uz": "Tasvirni aniq saqlaydigan xotirasi tufayli u bir qarashdayoq naqshni eslab qoldi."
+      }
+    },
+    {
+      "word": "fantasize",
+      "part_of_speech": "verb",
+      "transcription": "/ˈfæntəˌsaɪz/",
+      "translation": "фантазировать",
+      "translations": {
+        "ru": "фантазировать",
+        "uz": "xayol surmoq"
+      },
+      "example": "I sometimes fantasize about living in a mountain cabin.",
+      "example_translations": {
+        "ru": "Иногда я фантазирую о жизни в горной хижине.",
+        "uz": "Ba'zan tog'dagi kulbada yashash haqida xayol suraman."
+      }
     }
   ]
 }

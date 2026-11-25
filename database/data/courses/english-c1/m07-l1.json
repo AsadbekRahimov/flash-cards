@@ -160,6 +160,36 @@
         "ru": "Потоковое видео высокого качества требует большой пропускной способности.",
         "uz": "Yuqori sifatli video oqimi katta o'tkazuvchanlik qobiliyatini talab qiladi."
       }
+    },
+    {
+      "word": "modularity",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɑdʒəˈlɛrəti/",
+      "translation": "модульность",
+      "translations": {
+        "ru": "модульность",
+        "uz": "modulli tuzilish"
+      },
+      "example": "Because of its modularity, individual components are easily replaced.",
+      "example_translations": {
+        "ru": "Благодаря модульной конструкции отдельные компоненты легко заменить.",
+        "uz": "Modulli tuzilishi tufayli qurilmaning alohida qismlarini osongina almashtirish mumkin."
+      }
+    },
+    {
+      "word": "interoperability",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪntərˌɑpərəˈbɪləti/",
+      "translation": "совместимость систем",
+      "translations": {
+        "ru": "совместимость систем",
+        "uz": "tizimlarning o'zaro mosligi"
+      },
+      "example": "Shared standards improve interoperability between hospital systems.",
+      "example_translations": {
+        "ru": "Общие стандарты улучшают совместимость больничных систем.",
+        "uz": "Umumiy standartlar shifoxona tizimlarining o'zaro mosligini yaxshilaydi."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Моя тренировка длится около часа.",
         "uz": "Mashg'ulotim bir soatcha davom etadi."
       }
+    },
+    {
+      "word": "jogging",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʒɑgɪŋ/",
+      "translation": "бег трусцой",
+      "translations": {
+        "ru": "бег трусцой",
+        "uz": "yengil yugurish"
+      },
+      "example": "I go jogging every morning before work.",
+      "example_translations": {
+        "ru": "Я каждое утро бегаю трусцой перед работой.",
+        "uz": "Har kuni ertalab ishdan oldin yengil yuguraman."
+      }
+    },
+    {
+      "word": "stretching",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstrɛtʃɪŋ/",
+      "translation": "растяжка",
+      "translations": {
+        "ru": "растяжка",
+        "uz": "cho'zilish mashqlari"
+      },
+      "example": "We do stretching before we play basketball.",
+      "example_translations": {
+        "ru": "Перед баскетболом мы делаем растяжку.",
+        "uz": "Basketbol o'ynashdan oldin cho'zilish mashqlarini bajaramiz."
+      }
+    },
+    {
+      "word": "aerobics",
+      "part_of_speech": "noun",
+      "transcription": "/ɛˈroʊbɪks/",
+      "translation": "аэробика",
+      "translations": {
+        "ru": "аэробика",
+        "uz": "aerobika"
+      },
+      "example": "We have aerobics classes on Tuesday mornings.",
+      "example_translations": {
+        "ru": "По вторникам утром у нас занятия аэробикой.",
+        "uz": "Seshanba kunlari ertalab aerobika mashg'ulotimiz bor."
+      }
+    },
+    {
+      "word": "pilates",
+      "part_of_speech": "noun",
+      "transcription": "/pɪˈlɑtiz/",
+      "translation": "пилатес",
+      "translations": {
+        "ru": "пилатес",
+        "uz": "pilates"
+      },
+      "example": "My sister does Pilates twice a week.",
+      "example_translations": {
+        "ru": "Моя сестра занимается пилатесом два раза в неделю.",
+        "uz": "Singlim haftada ikki marta pilates bilan shug'ullanadi."
+      }
+    },
+    {
+      "word": "warmup",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwɔrmˌʌp/",
+      "translation": "разминка",
+      "translations": {
+        "ru": "разминка",
+        "uz": "badan qizdirish mashqi"
+      },
+      "example": "We do a warmup before every game.",
+      "example_translations": {
+        "ru": "Перед каждой игрой мы делаем разминку.",
+        "uz": "Har o'yindan oldin badan qizdirish mashqini bajaramiz."
+      }
     }
   ]
 }

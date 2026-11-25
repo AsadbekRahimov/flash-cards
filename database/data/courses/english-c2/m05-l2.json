@@ -160,6 +160,81 @@
         "ru": "Идеи, в отличие от камней, — не осязаемые вещи.",
         "uz": "G'oyalar toshlardan farqli o'laroq, ushlab ko'rsa bo'ladigan narsalar emas."
       }
+    },
+    {
+      "word": "ontology",
+      "part_of_speech": "noun",
+      "transcription": "/ɑnˈtɑlədʒi/",
+      "translation": "онтология",
+      "translations": {
+        "ru": "онтология",
+        "uz": "borliq haqidagi ta'limot"
+      },
+      "example": "In ontology, philosophers ask what kinds of things exist.",
+      "example_translations": {
+        "ru": "В онтологии философы спрашивают, какие виды вещей существуют.",
+        "uz": "Borliq haqidagi ta'limotda faylasuflar qanday turdagi narsalar mavjudligini so'raydi."
+      }
+    },
+    {
+      "word": "dualism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈduəˌlɪzəm/",
+      "translation": "дуализм",
+      "translations": {
+        "ru": "дуализм",
+        "uz": "dualizm"
+      },
+      "example": "Mind-body dualism treats thought and matter as fundamentally distinct.",
+      "example_translations": {
+        "ru": "Дуализм души и тела считает мышление и материю принципиально различными.",
+        "uz": "Ruh va tana dualizmi fikrlash bilan moddani tubdan farqli deb biladi."
+      }
+    },
+    {
+      "word": "monism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɑˌnɪzəm/",
+      "translation": "монизм",
+      "translations": {
+        "ru": "монизм",
+        "uz": "monizm"
+      },
+      "example": "Her defense of monism assumes reality is fundamentally unified.",
+      "example_translations": {
+        "ru": "Её защита монизма исходит из того, что реальность в основе своей едина.",
+        "uz": "U monizmni himoya qilib, voqelik tubdan yagona degan fikrga tayanadi."
+      }
+    },
+    {
+      "word": "reification",
+      "part_of_speech": "noun",
+      "transcription": "/ˌriəfəˈkeɪʃən/",
+      "translation": "овеществление",
+      "translations": {
+        "ru": "овеществление",
+        "uz": "mavhum tushunchani narsaga aylantirish"
+      },
+      "example": "The philosopher warned against the reification of abstract concepts.",
+      "example_translations": {
+        "ru": "Философ предостерегал от овеществления абстрактных понятий.",
+        "uz": "Faylasuf mavhum tushunchalarni narsaga aylantirib talqin qilishdan ogohlantirdi."
+      }
+    },
+    {
+      "word": "solipsism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɑlɪpˌsɪzəm/",
+      "translation": "солипсизм",
+      "translations": {
+        "ru": "солипсизм",
+        "uz": "solipsizm"
+      },
+      "example": "In solipsism, only one's own mind is certainly real.",
+      "example_translations": {
+        "ru": "В солипсизме несомненно реально лишь собственное сознание.",
+        "uz": "Solipsizmda faqat insonning o'z ongi shubhasiz mavjud deb hisoblanadi."
+      }
     }
   ]
 }

@@ -160,6 +160,36 @@
         "ru": "Я полагаю, что мы закончим к пятнице.",
         "uz": "Juma kunigacha tugatamiz, deb hisoblayman."
       }
+    },
+    {
+      "word": "metacognition",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɛtəkɑgˈnɪʃən/",
+      "translation": "осмысление собственного мышления",
+      "translations": {
+        "ru": "осмысление собственного мышления",
+        "uz": "o'z fikrlashini anglash"
+      },
+      "example": "Through metacognition, learners notice which strategies help them.",
+      "example_translations": {
+        "ru": "Осмысливая собственное мышление, учащиеся замечают, какие стратегии им помогают.",
+        "uz": "O'quvchilar o'z fikrlashini anglab, qaysi usullar ularga yordam berishini payqaydi."
+      }
+    },
+    {
+      "word": "reframe",
+      "part_of_speech": "verb",
+      "transcription": "/ˌriˈfreɪm/",
+      "translation": "переосмысливать",
+      "translations": {
+        "ru": "переосмысливать",
+        "uz": "boshqacha talqin qilmoq"
+      },
+      "example": "Try to reframe your setback as an opportunity.",
+      "example_translations": {
+        "ru": "Попробуйте переосмыслить свою неудачу и увидеть в ней возможность.",
+        "uz": "Omadsizlikni imkoniyat sifatida boshqacha talqin qilib ko'ring."
+      }
     }
   ]
 }

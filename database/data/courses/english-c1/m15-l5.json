@@ -160,6 +160,81 @@
         "ru": "Этот культовый плакат узнают во всём мире.",
         "uz": "O'sha timsolga aylangan plakatni butun dunyoda tanishadi."
       }
+    },
+    {
+      "word": "haunting",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈhɔntɪŋ/",
+      "translation": "не выходящий из головы",
+      "translations": {
+        "ru": "не выходящий из головы",
+        "uz": "xayoldan ketmaydigan"
+      },
+      "example": "A haunting melody returns in the final scene.",
+      "example_translations": {
+        "ru": "В финальной сцене снова звучит мелодия, которая долго не выходит из головы.",
+        "uz": "So'nggi sahnada xayoldan ketmaydigan kuy yana yangraydi."
+      }
+    },
+    {
+      "word": "nuanced",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈnuɑnst/",
+      "translation": "передающий тонкие оттенки",
+      "translations": {
+        "ru": "передающий тонкие оттенки",
+        "uz": "nozik jihatlarni aks ettiradigan"
+      },
+      "example": "The film offers a nuanced portrayal of grief.",
+      "example_translations": {
+        "ru": "Фильм передаёт тонкие оттенки переживания утраты.",
+        "uz": "Film yaqin insonidan ayrilgan odamning kechinmalarini nozik jihatlarigacha aks ettiradi."
+      }
+    },
+    {
+      "word": "refined",
+      "part_of_speech": "adjective",
+      "transcription": "/rɪˈfaɪnd/",
+      "translation": "утончённый",
+      "translations": {
+        "ru": "утончённый",
+        "uz": "yuksak did bilan ishlangan"
+      },
+      "example": "The porcelain bowl has a simple yet refined design.",
+      "example_translations": {
+        "ru": "У фарфоровой чаши простая, но утончённая форма.",
+        "uz": "Chinni kosaning shakli sodda, lekin u yuksak did bilan ishlangan."
+      }
+    },
+    {
+      "word": "virtuosity",
+      "part_of_speech": "noun",
+      "transcription": "/ˌvɜrtʃuˈɑsəti/",
+      "translation": "виртуозность",
+      "translations": {
+        "ru": "виртуозность",
+        "uz": "yuksak ijro mahorati"
+      },
+      "example": "The pianist impressed the audience with her virtuosity.",
+      "example_translations": {
+        "ru": "Пианистка поразила публику своей виртуозностью.",
+        "uz": "Pianinochi yuksak ijro mahorati bilan tinglovchilarni hayratda qoldirdi."
+      }
+    },
+    {
+      "word": "arresting",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈrɛstɪŋ/",
+      "translation": "притягивающий взгляд",
+      "translations": {
+        "ru": "притягивающий взгляд",
+        "uz": "nigohni tortadigan"
+      },
+      "example": "An arresting photograph of a storm greets visitors.",
+      "example_translations": {
+        "ru": "Посетителей встречает притягивающая взгляд фотография бури.",
+        "uz": "Tashrif buyuruvchilarni nigohni tortadigan bo'ron surati qarshi oladi."
+      }
     }
   ]
 }

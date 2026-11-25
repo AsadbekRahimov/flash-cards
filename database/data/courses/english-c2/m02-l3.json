@@ -160,6 +160,81 @@
         "ru": "Он вспоминал своё увольнение с явной горечью.",
         "uz": "U ishdan bo'shatilganini yaqqol alam bilan eslardi."
       }
+    },
+    {
+      "word": "vexation",
+      "part_of_speech": "noun",
+      "transcription": "/vɛkˈseɪʃən/",
+      "translation": "досада",
+      "translations": {
+        "ru": "досада",
+        "uz": "achchiqlanish"
+      },
+      "example": "To my vexation, the printer jammed again.",
+      "example_translations": {
+        "ru": "К моей досаде, в принтере опять застряла бумага.",
+        "uz": "Qog'oz printerga yana tiqilib qoldi, bundan rosa achchig'im chiqdi."
+      }
+    },
+    {
+      "word": "crotchety",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkrɑtʃəti/",
+      "translation": "сварливый",
+      "translations": {
+        "ru": "сварливый",
+        "uz": "serzarda"
+      },
+      "example": "Our crotchety neighbor complained about chairs scraping the floor.",
+      "example_translations": {
+        "ru": "Наш сварливый сосед пожаловался, что стулья скребут по полу.",
+        "uz": "Serzarda qo'shnimiz stullar polga ishqalanib ovoz chiqarayotganidan shikoyat qildi."
+      }
+    },
+    {
+      "word": "piqued",
+      "part_of_speech": "adjective",
+      "transcription": "/pikt/",
+      "translation": "задетый, уязвлённый",
+      "translations": {
+        "ru": "задетый, уязвлённый",
+        "uz": "nafsoniyatiga tekkan"
+      },
+      "example": "She seemed piqued by the judge's lukewarm praise.",
+      "example_translations": {
+        "ru": "Казалось, сдержанная похвала судьи её задела.",
+        "uz": "Hakamning sovuqqina maqtovi uning nafsoniyatiga tekkandek bo'ldi."
+      }
+    },
+    {
+      "word": "snappish",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsnæpɪʃ/",
+      "translation": "говорящий раздражённо",
+      "translations": {
+        "ru": "говорящий раздражённо",
+        "uz": "zarda bilan gapiradigan"
+      },
+      "example": "He becomes snappish when repeatedly asked the same question.",
+      "example_translations": {
+        "ru": "Когда ему несколько раз задают один вопрос, он начинает отвечать раздражённо.",
+        "uz": "Undan bir savolni qayta-qayta so'rashsa, u zarda bilan javob bera boshlaydi."
+      }
+    },
+    {
+      "word": "splenetic",
+      "part_of_speech": "adjective",
+      "transcription": "/splɪˈnɛtɪk/",
+      "translation": "раздражённо-злобный",
+      "translations": {
+        "ru": "раздражённо-злобный",
+        "uz": "zarda bilan achchiqlangan"
+      },
+      "example": "His splenetic reply made a small disagreement much worse.",
+      "example_translations": {
+        "ru": "Его злобный и раздражённый ответ усугубил мелкое разногласие.",
+        "uz": "Uning zarda aralash achchiq javobi arzimas kelishmovchilikni ancha kuchaytirdi."
+      }
     }
   ]
 }

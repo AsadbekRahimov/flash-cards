@@ -160,6 +160,81 @@
         "ru": "Каждое новое лекарство проходит строгую проверку перед одобрением.",
         "uz": "Har bir yangi dori ma'qullanishidan oldin qat'iy sinovdan o'tadi."
       }
+    },
+    {
+      "word": "corroboration",
+      "part_of_speech": "noun",
+      "transcription": "/kəˌrɑbəˈreɪʃən/",
+      "translation": "подтверждение независимыми данными",
+      "translations": {
+        "ru": "подтверждение независимыми данными",
+        "uz": "mustaqil dalillar bilan tasdiqlash"
+      },
+      "example": "The claim needs corroboration from an independent study.",
+      "example_translations": {
+        "ru": "Утверждение требует подтверждения независимым исследованием.",
+        "uz": "Bu fikrni mustaqil tadqiqot natijalari bilan tasdiqlash kerak."
+      }
+    },
+    {
+      "word": "replication",
+      "part_of_speech": "noun",
+      "transcription": "/ˌrɛpləˈkeɪʃən/",
+      "translation": "воспроизведение исследования",
+      "translations": {
+        "ru": "воспроизведение исследования",
+        "uz": "tadqiqotni takrorlash"
+      },
+      "example": "An independent replication produced the same results.",
+      "example_translations": {
+        "ru": "Независимое воспроизведение исследования дало те же результаты.",
+        "uz": "Tadqiqot mustaqil ravishda takrorlanganda ham xuddi shu natijalar olindi."
+      }
+    },
+    {
+      "word": "definitive",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈfɪnətɪv/",
+      "translation": "окончательный",
+      "translations": {
+        "ru": "окончательный",
+        "uz": "yakuniy"
+      },
+      "example": "The researchers offered no definitive answer to the question.",
+      "example_translations": {
+        "ru": "Исследователи так и не дали окончательного ответа на вопрос.",
+        "uz": "Tadqiqotchilar savolga yakuniy javob berishmadi."
+      }
+    },
+    {
+      "word": "causality",
+      "part_of_speech": "noun",
+      "transcription": "/kɔˈzæləti/",
+      "translation": "причинная связь",
+      "translations": {
+        "ru": "причинная связь",
+        "uz": "sababiy bog'lanish"
+      },
+      "example": "A strong correlation does not demonstrate causality.",
+      "example_translations": {
+        "ru": "Сильная корреляция не доказывает причинной связи.",
+        "uz": "Kuchli korrelyatsiya sababiy bog'lanishni isbotlamaydi."
+      }
+    },
+    {
+      "word": "unsubstantiated",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌnsəbˈstænʃiˌeɪtəd/",
+      "translation": "не подкреплённый доказательствами",
+      "translations": {
+        "ru": "не подкреплённый доказательствами",
+        "uz": "dalillar bilan asoslanmagan"
+      },
+      "example": "The hypothesis rests on several unsubstantiated assumptions.",
+      "example_translations": {
+        "ru": "Гипотеза опирается на несколько предположений, не подкреплённых доказательствами.",
+        "uz": "Gipoteza dalillar bilan asoslanmagan bir nechta taxminga tayanadi."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Не стой рядом с утёсом.",
         "uz": "Qoya yonida turma."
       }
+    },
+    {
+      "word": "hillside",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɪlˌsaɪd/",
+      "translation": "склон холма",
+      "translations": {
+        "ru": "склон холма",
+        "uz": "tepalik yonbag'ri"
+      },
+      "example": "There are sheep on the hillside.",
+      "example_translations": {
+        "ru": "На склоне холма пасутся овцы.",
+        "uz": "Tepalik yonbag'rida qo'ylar o'tlab yuribdi."
+      }
+    },
+    {
+      "word": "swamp",
+      "part_of_speech": "noun",
+      "transcription": "/swɑmp/",
+      "translation": "болото",
+      "translations": {
+        "ru": "болото",
+        "uz": "botqoqlik"
+      },
+      "example": "The narrow path ends at a swamp.",
+      "example_translations": {
+        "ru": "Узкая тропинка заканчивается у болота.",
+        "uz": "Tor so'qmoq botqoqlik yonida tugaydi."
+      }
+    },
+    {
+      "word": "woodland",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwʊdˌlænd/",
+      "translation": "лесистая местность",
+      "translations": {
+        "ru": "лесистая местность",
+        "uz": "o'rmonzor"
+      },
+      "example": "We walked through woodland behind the village.",
+      "example_translations": {
+        "ru": "Мы прошли через лес за деревней.",
+        "uz": "Qishloq ortidagi o'rmonzordan o'tdik."
+      }
+    },
+    {
+      "word": "grove",
+      "part_of_speech": "noun",
+      "transcription": "/groʊv/",
+      "translation": "роща",
+      "translations": {
+        "ru": "роща",
+        "uz": "daraxtzor"
+      },
+      "example": "We stopped to rest in a grove.",
+      "example_translations": {
+        "ru": "Мы остановились отдохнуть в роще.",
+        "uz": "Biz daraxtzorda dam olish uchun to'xtadik."
+      }
+    },
+    {
+      "word": "foothill",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfʊtˌhɪl/",
+      "translation": "предгорный холм",
+      "translations": {
+        "ru": "предгорный холм",
+        "uz": "tog' etagidagi tepalik"
+      },
+      "example": "They built a small house on a foothill.",
+      "example_translations": {
+        "ru": "Они построили небольшой дом на предгорном холме.",
+        "uz": "Ular tog' etagidagi tepalikda kichkina uy qurishdi."
+      }
     }
   ]
 }

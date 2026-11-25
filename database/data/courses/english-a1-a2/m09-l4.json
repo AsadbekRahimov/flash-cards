@@ -160,6 +160,81 @@
         "ru": "Дыши медленно и расслабься.",
         "uz": "Sekin nafas ol va tinchlan."
       }
+    },
+    {
+      "word": "toothbrush",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtuθbrʌʃ/",
+      "translation": "зубная щётка",
+      "translations": {
+        "ru": "зубная щётка",
+        "uz": "tish cho'tkasi"
+      },
+      "example": "I use a blue toothbrush every morning.",
+      "example_translations": {
+        "ru": "Каждое утро я чищу зубы синей щёткой.",
+        "uz": "Har kuni ertalab ko'k tish cho'tkasidan foydalanaman."
+      }
+    },
+    {
+      "word": "toothpaste",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtuθpeɪst/",
+      "translation": "зубная паста",
+      "translations": {
+        "ru": "зубная паста",
+        "uz": "tish pastasi"
+      },
+      "example": "Put some toothpaste on your brush.",
+      "example_translations": {
+        "ru": "Нанесите немного зубной пасты на щётку.",
+        "uz": "Cho'tkangizga ozgina tish pastasi surting."
+      }
+    },
+    {
+      "word": "shampoo",
+      "part_of_speech": "noun",
+      "transcription": "/ʃæmˈpu/",
+      "translation": "шампунь",
+      "translations": {
+        "ru": "шампунь",
+        "uz": "shampun"
+      },
+      "example": "I wash my hair with this shampoo.",
+      "example_translations": {
+        "ru": "Я мою голову этим шампунем.",
+        "uz": "Sochimni shu shampun bilan yuvaman."
+      }
+    },
+    {
+      "word": "comb",
+      "part_of_speech": "noun",
+      "transcription": "/koʊm/",
+      "translation": "расчёска",
+      "translations": {
+        "ru": "расчёска",
+        "uz": "taroq"
+      },
+      "example": "I use a comb after my shower.",
+      "example_translations": {
+        "ru": "После душа я пользуюсь расчёской.",
+        "uz": "Dushdan keyin taroqdan foydalanaman."
+      }
+    },
+    {
+      "word": "slippers",
+      "part_of_speech": "noun",
+      "transcription": "/ˈslɪpərz/",
+      "translation": "домашние тапочки",
+      "translations": {
+        "ru": "домашние тапочки",
+        "uz": "uy shippagi"
+      },
+      "example": "I put on my slippers after dinner.",
+      "example_translations": {
+        "ru": "После ужина я надел домашние тапочки.",
+        "uz": "Kechki ovqatdan keyin uy shippagimni kiydim."
+      }
     }
   ]
 }

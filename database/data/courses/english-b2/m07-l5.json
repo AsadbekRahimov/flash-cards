@@ -160,6 +160,81 @@
         "ru": "Стало ли наводнение катастрофой для местных фермеров?",
         "uz": "Suv toshqini mahalliy fermerlar uchun falokat bo'ldimi?"
       }
+    },
+    {
+      "word": "aftershock",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæftərˌʃɑk/",
+      "translation": "повторный подземный толчок",
+      "translations": {
+        "ru": "повторный подземный толчок",
+        "uz": "takroriy yer silkinishi"
+      },
+      "example": "An aftershock shook the town two hours later.",
+      "example_translations": {
+        "ru": "Два часа спустя город сотряс повторный подземный толчок.",
+        "uz": "Ikki soat o'tgach, shahar takroriy yer silkinishidan larzaga keldi."
+      }
+    },
+    {
+      "word": "mudslide",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmʌdˌslaɪd/",
+      "translation": "грязевой оползень",
+      "translations": {
+        "ru": "грязевой оползень",
+        "uz": "loy ko'chkisi"
+      },
+      "example": "A mudslide blocked the road after heavy rainfall.",
+      "example_translations": {
+        "ru": "После сильного дождя грязевой оползень перекрыл дорогу.",
+        "uz": "Kuchli yomg'irdan so'ng loy ko'chkisi yo'lni to'sib qo'ydi."
+      }
+    },
+    {
+      "word": "rockslide",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɑkˌslaɪd/",
+      "translation": "каменный обвал",
+      "translations": {
+        "ru": "каменный обвал",
+        "uz": "tosh ko'chkisi"
+      },
+      "example": "A rockslide sent large stones onto the highway.",
+      "example_translations": {
+        "ru": "Из-за каменного обвала на шоссе упали крупные камни.",
+        "uz": "Tosh ko'chkisi oqibatida katta toshlar avtomobil yo'liga qulab tushdi."
+      }
+    },
+    {
+      "word": "floodwater",
+      "part_of_speech": "noun",
+      "transcription": "/ˈflʌdˌwɔtər/",
+      "translation": "вода при наводнении",
+      "translations": {
+        "ru": "вода при наводнении",
+        "uz": "toshqin suvi"
+      },
+      "example": "The floodwater reached the top of the steps.",
+      "example_translations": {
+        "ru": "Вода при наводнении поднялась до верхней ступеньки.",
+        "uz": "Toshqin suvi eng yuqori zinapoyagacha ko'tarildi."
+      }
+    },
+    {
+      "word": "snowmelt",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsnoʊˌmɛlt/",
+      "translation": "таяние снега",
+      "translations": {
+        "ru": "таяние снега",
+        "uz": "qor erishi"
+      },
+      "example": "Rapid snowmelt caused the river to overflow.",
+      "example_translations": {
+        "ru": "Из-за быстрого таяния снега река вышла из берегов.",
+        "uz": "Qor tez erigani uchun daryo o'zanidan toshib ketdi."
+      }
     }
   ]
 }

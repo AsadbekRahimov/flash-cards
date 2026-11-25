@@ -160,6 +160,81 @@
         "ru": "Ветер дует с севера.",
         "uz": "Shamol shimoldan esadi."
       }
+    },
+    {
+      "word": "south",
+      "part_of_speech": "adverb",
+      "transcription": "/saʊθ/",
+      "translation": "на юг",
+      "translations": {
+        "ru": "на юг",
+        "uz": "janubga"
+      },
+      "example": "We drove south to the sea.",
+      "example_translations": {
+        "ru": "Мы поехали на юг, к морю.",
+        "uz": "Biz janubga, dengiz tomonga yo'l oldik."
+      }
+    },
+    {
+      "word": "east",
+      "part_of_speech": "adverb",
+      "transcription": "/ist/",
+      "translation": "на восток",
+      "translations": {
+        "ru": "на восток",
+        "uz": "sharqqa"
+      },
+      "example": "From the school, walk east for ten minutes.",
+      "example_translations": {
+        "ru": "От школы идите десять минут на восток.",
+        "uz": "Maktabdan sharqqa qarab o'n daqiqa piyoda yuring."
+      }
+    },
+    {
+      "word": "west",
+      "part_of_speech": "adverb",
+      "transcription": "/wɛst/",
+      "translation": "на запад",
+      "translations": {
+        "ru": "на запад",
+        "uz": "g'arbga"
+      },
+      "example": "Go west until you see the park.",
+      "example_translations": {
+        "ru": "Идите на запад, пока не увидите парк.",
+        "uz": "Bog' ko'ringuncha g'arbga qarab yuring."
+      }
+    },
+    {
+      "word": "across",
+      "part_of_speech": "preposition",
+      "transcription": "/əˈkrɔs/",
+      "translation": "через",
+      "translations": {
+        "ru": "через",
+        "uz": "orqali"
+      },
+      "example": "Walk across the bridge to the park.",
+      "example_translations": {
+        "ru": "Пройдите через мост к парку.",
+        "uz": "Ko'prik orqali bog'ga piyoda boring."
+      }
+    },
+    {
+      "word": "along",
+      "part_of_speech": "preposition",
+      "transcription": "/əˈlɔŋ/",
+      "translation": "вдоль",
+      "translations": {
+        "ru": "вдоль",
+        "uz": "bo'ylab"
+      },
+      "example": "Walk along this street to the school.",
+      "example_translations": {
+        "ru": "Идите вдоль этой улицы до школы.",
+        "uz": "Shu ko'cha bo'ylab maktabgacha piyoda boring."
+      }
     }
   ]
 }

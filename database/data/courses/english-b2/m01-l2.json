@@ -160,6 +160,81 @@
         "ru": "Её новая машина вызвала у соседей зависть.",
         "uz": "Uning yangi mashinasi qo'shnilarda hasad uyg'otdi."
       }
+    },
+    {
+      "word": "tactless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtæktləs/",
+      "translation": "бестактный",
+      "translations": {
+        "ru": "бестактный",
+        "uz": "odobsiz"
+      },
+      "example": "His tactless remark embarrassed our new colleague.",
+      "example_translations": {
+        "ru": "Его бестактное замечание смутило нашего нового коллегу.",
+        "uz": "Uning odobsiz gapi yangi hamkasbimizni xijolatga qo'ydi."
+      }
+    },
+    {
+      "word": "snobbish",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsnɑbɪʃ/",
+      "translation": "снобистский",
+      "translations": {
+        "ru": "снобистский",
+        "uz": "kibrli"
+      },
+      "example": "Her snobbish friends mock anyone without expensive clothes.",
+      "example_translations": {
+        "ru": "Её друзья-снобы смеются над всеми, у кого нет дорогой одежды.",
+        "uz": "Uning kibrli do'stlari qimmatbaho kiyimi yo'q har qanday odamni masxara qiladi."
+      }
+    },
+    {
+      "word": "possessive",
+      "part_of_speech": "adjective",
+      "transcription": "/pəˈzɛsɪv/",
+      "translation": "собственнический",
+      "translations": {
+        "ru": "собственнический",
+        "uz": "o'ziniki qilib olmoqchi bo'ladigan"
+      },
+      "example": "Her possessive brother gets jealous of her friends.",
+      "example_translations": {
+        "ru": "Её брат ведёт себя как собственник и ревнует её к друзьям.",
+        "uz": "Akasi uni o'ziniki qilib olgisi keladi va do'stlaridan qizg'anadi."
+      }
+    },
+    {
+      "word": "unreliable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌnrɪˈlaɪəbəl/",
+      "translation": "ненадёжный",
+      "translations": {
+        "ru": "ненадёжный",
+        "uz": "ishonchsiz"
+      },
+      "example": "Our unreliable neighbor often forgets his promises.",
+      "example_translations": {
+        "ru": "Наш ненадёжный сосед часто забывает свои обещания.",
+        "uz": "Ishonchsiz qo'shnimiz va'dalarini tez-tez unutadi."
+      }
+    },
+    {
+      "word": "inconsiderate",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪnkənˈsɪdərət/",
+      "translation": "невнимательный к окружающим",
+      "translations": {
+        "ru": "невнимательный к окружающим",
+        "uz": "boshqalarni o'ylamaydigan"
+      },
+      "example": "An inconsiderate guest played loud music all night.",
+      "example_translations": {
+        "ru": "Гость, который не думал об окружающих, всю ночь громко слушал музыку.",
+        "uz": "Boshqalarni o'ylamaydigan mehmon tun bo'yi musiqani baland qo'ydi."
+      }
     }
   ]
 }

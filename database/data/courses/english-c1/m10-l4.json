@@ -160,6 +160,36 @@
         "ru": "Инвазивные растения быстро вытесняют местные виды.",
         "uz": "Kelgindi o'simliklar mahalliy turlarni tezda siqib chiqaradi."
       }
+    },
+    {
+      "word": "herbivorous",
+      "part_of_speech": "adjective",
+      "transcription": "/hɜrˈbɪvərəs/",
+      "translation": "травоядный",
+      "translations": {
+        "ru": "травоядный",
+        "uz": "o'simlikxo'r"
+      },
+      "example": "Herbivorous animals feed on leaves, grass, or seeds.",
+      "example_translations": {
+        "ru": "Травоядные животные питаются листьями, травой или семенами.",
+        "uz": "O'simlikxo'r hayvonlar barg, o't yoki urug' bilan oziqlanadi."
+      }
+    },
+    {
+      "word": "roost",
+      "part_of_speech": "verb",
+      "transcription": "/rust/",
+      "translation": "устраиваться на ночлег",
+      "translations": {
+        "ru": "устраиваться на ночлег",
+        "uz": "tunashga qo'nmoq"
+      },
+      "example": "Pigeons often roost beneath the old railway bridge.",
+      "example_translations": {
+        "ru": "Голуби часто устраиваются на ночлег под старым железнодорожным мостом.",
+        "uz": "Kabutarlar ko'pincha eski temiryo'l ko'prigi tagiga tunashga qo'nadi."
+      }
     }
   ]
 }

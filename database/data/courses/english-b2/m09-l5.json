@@ -160,6 +160,66 @@
         "ru": "Предотвращение пожаров — часть нашего обучения технике безопасности.",
         "uz": "Yong'inning oldini olish xavfsizlik bo'yicha mashg'ulotlarimizning bir qismidir."
       }
+    },
+    {
+      "word": "safeguarding",
+      "part_of_speech": "noun",
+      "transcription": "/ˈseɪfˌgɑrdɪŋ/",
+      "translation": "защита от причинения вреда",
+      "translations": {
+        "ru": "защита от причинения вреда",
+        "uz": "zarardan himoya qilish"
+      },
+      "example": "All staff receive training in child safeguarding.",
+      "example_translations": {
+        "ru": "Все сотрудники проходят обучение по защите детей от причинения вреда.",
+        "uz": "Barcha xodimlarga bolalarni zarardan himoya qilish o'rgatiladi."
+      }
+    },
+    {
+      "word": "lifesaving",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈlaɪfˌseɪvɪŋ/",
+      "translation": "спасающий жизнь",
+      "translations": {
+        "ru": "спасающий жизнь",
+        "uz": "hayotni saqlab qoladigan"
+      },
+      "example": "Paramedics carry lifesaving equipment in every ambulance.",
+      "example_translations": {
+        "ru": "В каждой машине скорой помощи у фельдшеров есть оборудование для спасения жизни.",
+        "uz": "Har bir tez yordam mashinasida feldsherlar hayotni saqlab qoladigan uskunalarni olib yurishadi."
+      }
+    },
+    {
+      "word": "evacuation",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˌvækjuˈeɪʃən/",
+      "translation": "эвакуация",
+      "translations": {
+        "ru": "эвакуация",
+        "uz": "xavfsiz joyga ko'chirish"
+      },
+      "example": "The evacuation began as the floodwaters rose.",
+      "example_translations": {
+        "ru": "Вода прибывала, и началась эвакуация.",
+        "uz": "Toshqin suvi ko'tarilgach, odamlarni xavfsiz joyga ko'chirish boshlandi."
+      }
+    },
+    {
+      "word": "siren",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsaɪrən/",
+      "translation": "сирена",
+      "translations": {
+        "ru": "сирена",
+        "uz": "sirena"
+      },
+      "example": "The siren warns residents of possible flooding.",
+      "example_translations": {
+        "ru": "Сирена предупреждает жителей о возможном наводнении.",
+        "uz": "Sirena aholini suv toshqini xavfidan ogohlantiradi."
+      }
     }
   ]
 }

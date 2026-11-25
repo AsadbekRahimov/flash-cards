@@ -160,6 +160,81 @@
         "ru": "Мы были удручены, увидев уничтоженный парк.",
         "uz": "Vayron qilingan bog'ni ko'rib, ko'nglimiz cho'kdi."
       }
+    },
+    {
+      "word": "dejection",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈdʒɛkʃən/",
+      "translation": "уныние",
+      "translations": {
+        "ru": "уныние",
+        "uz": "tushkunlik"
+      },
+      "example": "Her dejection deepened with each rejected application.",
+      "example_translations": {
+        "ru": "С каждым отказом её уныние усиливалось.",
+        "uz": "Har bir rad javobidan keyin u yanada tushkunlikka tushdi."
+      }
+    },
+    {
+      "word": "misgiving",
+      "part_of_speech": "noun",
+      "transcription": "/mɪsˈgɪvɪŋ/",
+      "translation": "сомнение, опасение",
+      "translations": {
+        "ru": "сомнение, опасение",
+        "uz": "ko'ngildagi shubha"
+      },
+      "example": "My only misgiving was about the cost of repairs.",
+      "example_translations": {
+        "ru": "Меня беспокоила только стоимость ремонта.",
+        "uz": "Ko'nglimdagi yagona shubha ta'mirlash xarajatlari bilan bog'liq edi."
+      }
+    },
+    {
+      "word": "disheartened",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪsˈhɑrtənd/",
+      "translation": "павший духом",
+      "translations": {
+        "ru": "павший духом",
+        "uz": "ruhi tushgan"
+      },
+      "example": "He felt disheartened after months without any progress.",
+      "example_translations": {
+        "ru": "Он пал духом после нескольких месяцев без всякого прогресса.",
+        "uz": "Bir necha oy hech qanday siljish bo'lmagach, uning ruhi tushdi."
+      }
+    },
+    {
+      "word": "pensive",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpɛnsɪv/",
+      "translation": "задумчивый",
+      "translations": {
+        "ru": "задумчивый",
+        "uz": "o'ychan"
+      },
+      "example": "She looked pensive as she reread the old letter.",
+      "example_translations": {
+        "ru": "Перечитывая старое письмо, она выглядела задумчивой.",
+        "uz": "Eski xatni qayta o'qiyotganida u o'ychan ko'rindi."
+      }
+    },
+    {
+      "word": "unnerved",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈnɜrvd/",
+      "translation": "выбитый из колеи",
+      "translations": {
+        "ru": "выбитый из колеи",
+        "uz": "o'zini yo'qotib qo'ygan"
+      },
+      "example": "He seemed unnerved by the sudden announcement.",
+      "example_translations": {
+        "ru": "Внезапное объявление, похоже, выбило его из колеи.",
+        "uz": "Kutilmagan e'londan u o'zini yo'qotib qo'ygandek edi."
+      }
     }
   ]
 }

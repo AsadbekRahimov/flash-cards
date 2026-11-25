@@ -160,6 +160,81 @@
         "ru": "Правило действует в той мере, в какой это допускает закон.",
         "uz": "Qoida qonun yo'l qo'ygan darajada amal qiladi."
       }
+    },
+    {
+      "word": "thereto",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌðɛrˈtu/",
+      "translation": "к нему",
+      "translations": {
+        "ru": "к нему",
+        "uz": "unga"
+      },
+      "example": "Please review the contract and the annexes thereto.",
+      "example_translations": {
+        "ru": "Пожалуйста, ознакомьтесь с договором и приложениями к нему.",
+        "uz": "Iltimos, shartnoma va unga ilovalarni ko'rib chiqing."
+      }
+    },
+    {
+      "word": "thereunder",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌðɛrˈʌndər/",
+      "translation": "согласно этому документу",
+      "translations": {
+        "ru": "согласно этому документу",
+        "uz": "shu hujjatga muvofiq"
+      },
+      "example": "The policy lists responsibilities arising thereunder.",
+      "example_translations": {
+        "ru": "В полисе перечислены обязанности, возникающие согласно этому документу.",
+        "uz": "Sug'urta polisida shu hujjatga muvofiq yuzaga keladigan majburiyatlar sanalgan."
+      }
+    },
+    {
+      "word": "herewith",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌhɪrˈwɪθ/",
+      "translation": "при сём",
+      "translations": {
+        "ru": "при сём",
+        "uz": "shu xat bilan birga"
+      },
+      "example": "I enclose herewith the requested signed copies.",
+      "example_translations": {
+        "ru": "При сём прилагаю запрошенные подписанные копии.",
+        "uz": "So'ralgan imzoli nusxalarni shu xat bilan birga yuboryapman."
+      }
+    },
+    {
+      "word": "therein",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌðɛrˈɪn/",
+      "translation": "в нём",
+      "translations": {
+        "ru": "в нём",
+        "uz": "uning ichida"
+      },
+      "example": "Please read the manual and follow the instructions therein.",
+      "example_translations": {
+        "ru": "Прочтите руководство и следуйте приведённым в нём инструкциям.",
+        "uz": "Qo'llanmani o'qib, undagi ko'rsatmalarga amal qiling."
+      }
+    },
+    {
+      "word": "countersign",
+      "part_of_speech": "verb",
+      "transcription": "/ˈkaʊntərˌsaɪn/",
+      "translation": "скреплять второй подписью",
+      "translations": {
+        "ru": "скреплять второй подписью",
+        "uz": "ikkinchi imzo bilan tasdiqlamoq"
+      },
+      "example": "The clerk must countersign the form before submission.",
+      "example_translations": {
+        "ru": "Перед подачей бланка служащий должен скрепить его второй подписью.",
+        "uz": "Xodim blankni topshirishdan oldin uni ikkinchi imzo bilan tasdiqlashi kerak."
+      }
     }
   ]
 }

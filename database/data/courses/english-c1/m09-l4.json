@@ -160,6 +160,36 @@
         "ru": "Водители должны оставаться бдительными на обледенелых горных дорогах.",
         "uz": "Haydovchilar muzlagan tog' yo'llarida sergak bo'lishi kerak."
       }
+    },
+    {
+      "word": "misremember",
+      "part_of_speech": "verb",
+      "transcription": "/ˌmɪsrɪˈmɛmbər/",
+      "translation": "помнить неверно",
+      "translations": {
+        "ru": "помнить неверно",
+        "uz": "noto'g'ri eslamoq"
+      },
+      "example": "People often misremember the exact words of conversations.",
+      "example_translations": {
+        "ru": "Люди часто неверно помнят точные слова из разговоров.",
+        "uz": "Odamlar ko'pincha suhbatdagi aynan qaysi so'zlar aytilganini noto'g'ri eslaydi."
+      }
+    },
+    {
+      "word": "perceptual",
+      "part_of_speech": "adjective",
+      "transcription": "/pərˈsɛptʃuəl/",
+      "translation": "относящийся к восприятию",
+      "translations": {
+        "ru": "относящийся к восприятию",
+        "uz": "idrokka oid"
+      },
+      "example": "This perceptual illusion makes equal lines seem unequal.",
+      "example_translations": {
+        "ru": "Из-за этой иллюзии восприятия равные линии кажутся разными по длине.",
+        "uz": "Idrokdagi bu illyuziya tufayli teng chiziqlar har xil uzunlikda ko'rinadi."
+      }
     }
   ]
 }

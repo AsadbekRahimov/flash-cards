@@ -160,6 +160,81 @@
         "ru": "В этой компании двести работников.",
         "uz": "Bu kompaniyada ikki yuz ishchi bor."
       }
+    },
+    {
+      "word": "stapler",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsteɪplər/",
+      "translation": "степлер",
+      "translations": {
+        "ru": "степлер",
+        "uz": "stepler"
+      },
+      "example": "I need a stapler for these papers.",
+      "example_translations": {
+        "ru": "Мне нужен степлер для этих бумаг.",
+        "uz": "Bu qog'ozlarni biriktirish uchun stepler kerak."
+      }
+    },
+    {
+      "word": "cubicle",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkjubɪkəl/",
+      "translation": "огороженное рабочее место",
+      "translations": {
+        "ru": "огороженное рабочее место",
+        "uz": "to'siq bilan ajratilgan joy"
+      },
+      "example": "Her desk is in the next cubicle.",
+      "example_translations": {
+        "ru": "Её стол на соседнем огороженном рабочем месте.",
+        "uz": "Uning stoli to'siq bilan ajratilgan qo'shni joyda."
+      }
+    },
+    {
+      "word": "memo",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɛmoʊ/",
+      "translation": "служебная записка",
+      "translations": {
+        "ru": "служебная записка",
+        "uz": "xizmat xati"
+      },
+      "example": "I sent a memo about the meeting.",
+      "example_translations": {
+        "ru": "Я отправил служебную записку о собрании.",
+        "uz": "Yig'ilish haqida xizmat xati yubordim."
+      }
+    },
+    {
+      "word": "stationery",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsteɪʃəˌnɛri/",
+      "translation": "канцелярские принадлежности",
+      "translations": {
+        "ru": "канцелярские принадлежности",
+        "uz": "yozuv anjomlari"
+      },
+      "example": "We keep pens and other stationery here.",
+      "example_translations": {
+        "ru": "Мы держим здесь ручки и прочие канцелярские принадлежности.",
+        "uz": "Ruchkalar va boshqa yozuv anjomlarini shu yerda saqlaymiz."
+      }
+    },
+    {
+      "word": "assistant",
+      "part_of_speech": "noun",
+      "transcription": "/əˈsɪstənt/",
+      "translation": "помощник",
+      "translations": {
+        "ru": "помощник",
+        "uz": "yordamchi"
+      },
+      "example": "My assistant sent the letter this morning.",
+      "example_translations": {
+        "ru": "Мой помощник отправил письмо сегодня утром.",
+        "uz": "Yordamchim xatni bugun ertalab yubordi."
+      }
     }
   ]
 }

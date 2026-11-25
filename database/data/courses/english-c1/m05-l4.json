@@ -160,6 +160,36 @@
         "ru": "Бюджетные ограничения вынудили министерство отменить проекты.",
         "uz": "Budjetga oid cheklovlar vazirlikni loyihalarni bekor qilishga majbur qildi."
       }
+    },
+    {
+      "word": "earmark",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɪrˌmɑrk/",
+      "translation": "предназначать средства",
+      "translations": {
+        "ru": "предназначать средства",
+        "uz": "mablag' ajratmoq"
+      },
+      "example": "The council will earmark funds for playground repairs.",
+      "example_translations": {
+        "ru": "Совет выделит средства на ремонт детских площадок.",
+        "uz": "Kengash bolalar maydonchalarini ta'mirlash uchun mablag' ajratadi."
+      }
+    },
+    {
+      "word": "appropriation",
+      "part_of_speech": "noun",
+      "transcription": "/əˌproʊpriˈeɪʃən/",
+      "translation": "бюджетное ассигнование",
+      "translations": {
+        "ru": "бюджетное ассигнование",
+        "uz": "budjetdan ajratilgan mablag'"
+      },
+      "example": "A special appropriation will fund repairs to schools.",
+      "example_translations": {
+        "ru": "За счёт специального бюджетного ассигнования отремонтируют школы.",
+        "uz": "Maktablar budjetdan maxsus ajratilgan mablag' hisobidan ta'mirlanadi."
+      }
     }
   ]
 }

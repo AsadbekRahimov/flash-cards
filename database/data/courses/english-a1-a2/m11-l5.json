@@ -160,6 +160,66 @@
         "ru": "Какая валюта в Японии?",
         "uz": "Yaponiyada valyuta nima?"
       }
+    },
+    {
+      "word": "shortcut",
+      "part_of_speech": "noun",
+      "transcription": "/ˈʃɔrtˌkʌt/",
+      "translation": "короткий путь",
+      "translations": {
+        "ru": "короткий путь",
+        "uz": "qisqa yo'l"
+      },
+      "example": "This shortcut saves us ten minutes.",
+      "example_translations": {
+        "ru": "Этот короткий путь экономит нам десять минут.",
+        "uz": "Bu qisqa yo'l o'n daqiqamizni tejaydi."
+      }
+    },
+    {
+      "word": "underpass",
+      "part_of_speech": "noun",
+      "transcription": "/ˈʌndərˌpæs/",
+      "translation": "подземный переход",
+      "translations": {
+        "ru": "подземный переход",
+        "uz": "yerosti o'tish yo'li"
+      },
+      "example": "Take the underpass to cross the road.",
+      "example_translations": {
+        "ru": "Перейдите дорогу через подземный переход.",
+        "uz": "Yo'ldan yerosti o'tish yo'li orqali o'ting."
+      }
+    },
+    {
+      "word": "northward",
+      "part_of_speech": "adverb",
+      "transcription": "/ˈnɔrθwərd/",
+      "translation": "в направлении севера",
+      "translations": {
+        "ru": "в направлении севера",
+        "uz": "shimol tomon"
+      },
+      "example": "The trail runs northward from the village.",
+      "example_translations": {
+        "ru": "Тропа идёт от деревни в направлении севера.",
+        "uz": "So'qmoq qishloqdan shimol tomonga ketadi."
+      }
+    },
+    {
+      "word": "turnoff",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtərnˌɔf/",
+      "translation": "съезд с дороги",
+      "translations": {
+        "ru": "съезд с дороги",
+        "uz": "burilish yo'li"
+      },
+      "example": "Take the next turnoff to the airport.",
+      "example_translations": {
+        "ru": "Сверните на следующем съезде к аэропорту.",
+        "uz": "Keyingi burilishdan aeroport tomon yo'l oling."
+      }
     }
   ]
 }

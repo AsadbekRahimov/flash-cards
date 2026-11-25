@@ -160,6 +160,36 @@
         "ru": "Дельфины — водные млекопитающие, которые дышат воздухом.",
         "uz": "Delfinlar havodan nafas oladigan suvda yashovchi sutemizuvchilardir."
       }
+    },
+    {
+      "word": "mangrove",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmæŋˌgroʊv/",
+      "translation": "мангровое дерево",
+      "translations": {
+        "ru": "мангровое дерево",
+        "uz": "mangra daraxti"
+      },
+      "example": "A mangrove can grow in salty coastal water.",
+      "example_translations": {
+        "ru": "Мангровое дерево может расти в солёной прибрежной воде.",
+        "uz": "Mangra daraxti sohilning sho'r suvida o'sa oladi."
+      }
+    },
+    {
+      "word": "peatland",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpitˌlænd/",
+      "translation": "торфяник",
+      "translations": {
+        "ru": "торфяник",
+        "uz": "torfli yer"
+      },
+      "example": "This peatland stores carbon in layers of soil.",
+      "example_translations": {
+        "ru": "Этот торфяник накапливает углерод в слоях почвы.",
+        "uz": "Bu torfli yerda uglerod tuproq qatlamlarida to'planadi."
+      }
     }
   ]
 }

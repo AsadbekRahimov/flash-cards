@@ -160,6 +160,66 @@
         "ru": "Кабель слишком короткий.",
         "uz": "Kabel juda qisqa."
       }
+    },
+    {
+      "word": "font",
+      "part_of_speech": "noun",
+      "transcription": "/fɑnt/",
+      "translation": "шрифт",
+      "translations": {
+        "ru": "шрифт",
+        "uz": "shrift"
+      },
+      "example": "Use a larger font for the title.",
+      "example_translations": {
+        "ru": "Для заголовка используйте более крупный шрифт.",
+        "uz": "Sarlavha uchun kattaroq shrift ishlating."
+      }
+    },
+    {
+      "word": "screenshot",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskrinˌʃɑt/",
+      "translation": "снимок экрана",
+      "translations": {
+        "ru": "снимок экрана",
+        "uz": "ekran tasviri"
+      },
+      "example": "Please send me a screenshot of the error.",
+      "example_translations": {
+        "ru": "Пришлите мне снимок экрана с ошибкой, пожалуйста.",
+        "uz": "Iltimos, xato ko'ringan ekran tasvirini menga yuboring."
+      }
+    },
+    {
+      "word": "cursor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkərsər/",
+      "translation": "курсор",
+      "translations": {
+        "ru": "курсор",
+        "uz": "kursor"
+      },
+      "example": "Move the cursor to the first line.",
+      "example_translations": {
+        "ru": "Переместите курсор на первую строку.",
+        "uz": "Kursorni birinchi qatorga olib boring."
+      }
+    },
+    {
+      "word": "mousepad",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmaʊsˌpæd/",
+      "translation": "коврик для мыши",
+      "translations": {
+        "ru": "коврик для мыши",
+        "uz": "sichqoncha tagligi"
+      },
+      "example": "I need a new mousepad for my desk.",
+      "example_translations": {
+        "ru": "Мне нужен новый коврик для мыши на рабочий стол.",
+        "uz": "Ish stolim uchun yangi sichqoncha tagligi kerak."
+      }
     }
   ]
 }

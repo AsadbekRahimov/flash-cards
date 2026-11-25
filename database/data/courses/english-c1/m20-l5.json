@@ -160,6 +160,21 @@
         "ru": "Это старое зарядное устройство несовместимо с новыми телефонами.",
         "uz": "Bu eski quvvatlagich yangi telefonlarga mos kelmaydi."
       }
+    },
+    {
+      "word": "asymmetry",
+      "part_of_speech": "noun",
+      "transcription": "/eɪˈsɪmətri/",
+      "translation": "асимметрия",
+      "translations": {
+        "ru": "асимметрия",
+        "uz": "asimmetriya"
+      },
+      "example": "The doorway's asymmetry gives the building an unusual appearance.",
+      "example_translations": {
+        "ru": "Асимметрия дверного проёма придаёт зданию необычный вид.",
+        "uz": "Eshik o'rnidagi asimmetriya binoga noodatiy ko'rinish beradi."
+      }
     }
   ]
 }

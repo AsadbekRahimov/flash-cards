@@ -160,6 +160,36 @@
         "ru": "Регулярная ходьба улучшает кровообращение в ногах.",
         "uz": "Muntazam piyoda yurish oyoqlaringizda qon aylanishini yaxshilaydi."
       }
+    },
+    {
+      "word": "thoracic",
+      "part_of_speech": "adjective",
+      "transcription": "/θəˈræsɪk/",
+      "translation": "грудной",
+      "translations": {
+        "ru": "грудной",
+        "uz": "ko'krak qafasiga oid"
+      },
+      "example": "The thoracic cavity contains the heart and lungs.",
+      "example_translations": {
+        "ru": "В грудной полости находятся сердце и лёгкие.",
+        "uz": "Ko'krak qafasi bo'shlig'ida yurak va o'pka joylashgan."
+      }
+    },
+    {
+      "word": "cartilage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑrtəlɪdʒ/",
+      "translation": "хрящ",
+      "translations": {
+        "ru": "хрящ",
+        "uz": "tog'ay"
+      },
+      "example": "Healthy cartilage helps the knee move smoothly.",
+      "example_translations": {
+        "ru": "Здоровый хрящ помогает колену двигаться плавно.",
+        "uz": "Sog'lom tog'ay tizzaning ravon harakatlanishiga yordam beradi."
+      }
     }
   ]
 }

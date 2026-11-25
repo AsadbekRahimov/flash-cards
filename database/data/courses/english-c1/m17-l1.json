@@ -160,6 +160,81 @@
         "ru": "Эти письма свидетельствуют о честности автора.",
         "uz": "Bu xatlar muallifning halolligidan dalolat beradi."
       }
+    },
+    {
+      "word": "qualify",
+      "part_of_speech": "verb",
+      "transcription": "/ˈkwɑləˌfaɪ/",
+      "translation": "уточнять с оговоркой",
+      "translations": {
+        "ru": "уточнять с оговоркой",
+        "uz": "shartini ko'rsatib aniqlashtirmoq"
+      },
+      "example": "She had to qualify her promise of immediate refunds.",
+      "example_translations": {
+        "ru": "Ей пришлось уточнить, при каких условиях деньги вернут сразу.",
+        "uz": "U pulni darhol qaytarish haqidagi va'dasi qaysi shartlarda amal qilishini aniqlashtirdi."
+      }
+    },
+    {
+      "word": "contention",
+      "part_of_speech": "noun",
+      "transcription": "/kənˈtɛnʃən/",
+      "translation": "отстаиваемое утверждение",
+      "translations": {
+        "ru": "отстаиваемое утверждение",
+        "uz": "ilgari surilgan fikr"
+      },
+      "example": "His contention is that higher fees discourage new applicants.",
+      "example_translations": {
+        "ru": "Он отстаивает мнение, что более высокие взносы отпугивают новых кандидатов.",
+        "uz": "Uning fikricha, to'lovlar oshsa, yangi nomzodlar ariza berishga ikkilanadi."
+      }
+    },
+    {
+      "word": "misrepresent",
+      "part_of_speech": "verb",
+      "transcription": "/ˌmɪsˌrɛprɪˈzɛnt/",
+      "translation": "представлять в искажённом виде",
+      "translations": {
+        "ru": "представлять в искажённом виде",
+        "uz": "buzib talqin qilmoq"
+      },
+      "example": "Please do not misrepresent my position on immigration.",
+      "example_translations": {
+        "ru": "Пожалуйста, не искажайте мою позицию по вопросу иммиграции.",
+        "uz": "Iltimos, immigratsiya borasidagi fikrimni buzib talqin qilmang."
+      }
+    },
+    {
+      "word": "discredit",
+      "part_of_speech": "verb",
+      "transcription": "/dɪsˈkrɛdət/",
+      "translation": "подрывать доверие",
+      "translations": {
+        "ru": "подрывать доверие",
+        "uz": "ishonchni susaytirmoq"
+      },
+      "example": "The lawyer tried to discredit the witness's testimony.",
+      "example_translations": {
+        "ru": "Адвокат попытался подорвать доверие к показаниям свидетеля.",
+        "uz": "Advokat guvohning ko'rsatmalariga bo'lgan ishonchni susaytirishga urindi."
+      }
+    },
+    {
+      "word": "misconstrue",
+      "part_of_speech": "verb",
+      "transcription": "/ˌmɪskənˈstru/",
+      "translation": "неверно истолковывать",
+      "translations": {
+        "ru": "неверно истолковывать",
+        "uz": "noto'g'ri talqin qilmoq"
+      },
+      "example": "Do not misconstrue my silence as agreement.",
+      "example_translations": {
+        "ru": "Не истолковывайте моё молчание как знак согласия.",
+        "uz": "Sukut saqlaganimni rozilik deb noto'g'ri talqin qilmang."
+      }
     }
   ]
 }

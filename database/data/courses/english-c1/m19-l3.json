@@ -160,6 +160,51 @@
         "ru": "Содержание большого дома стоит целое состояние.",
         "uz": "Katta uyning qarovi juda qimmatga tushadi."
       }
+    },
+    {
+      "word": "sublease",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsʌbˌlis/",
+      "translation": "субаренда",
+      "translations": {
+        "ru": "субаренда",
+        "uz": "ikkilamchi ijara"
+      },
+      "example": "Our landlord approved a short sublease for the summer.",
+      "example_translations": {
+        "ru": "Наш арендодатель одобрил краткосрочную субаренду на лето.",
+        "uz": "Uy egamiz yozga qisqa muddatli ikkilamchi ijaraga ruxsat berdi."
+      }
+    },
+    {
+      "word": "freehold",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfriˌhoʊld/",
+      "translation": "бессрочное право собственности",
+      "translations": {
+        "ru": "бессрочное право собственности",
+        "uz": "muddatsiz mulk huquqi"
+      },
+      "example": "They bought the freehold after years of paying rent.",
+      "example_translations": {
+        "ru": "После нескольких лет аренды они выкупили бессрочное право собственности.",
+        "uz": "Ko'p yil ijara haqini to'lagach, ular muddatsiz mulk huquqini sotib oldi."
+      }
+    },
+    {
+      "word": "leasehold",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlisˌhoʊld/",
+      "translation": "право срочной аренды",
+      "translations": {
+        "ru": "право срочной аренды",
+        "uz": "muddatli ijara huquqi"
+      },
+      "example": "The leasehold expires in thirty years under the agreement.",
+      "example_translations": {
+        "ru": "По договору право срочной аренды истекает через тридцать лет.",
+        "uz": "Shartnomaga ko'ra muddatli ijara huquqi o'ttiz yildan keyin tugaydi."
+      }
     }
   ]
 }

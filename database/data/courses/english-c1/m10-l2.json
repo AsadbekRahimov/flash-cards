@@ -160,6 +160,36 @@
         "ru": "Опасные химикаты нужно хранить в герметичных контейнерах.",
         "uz": "Xavfli kimyoviy moddalar germetik idishlarda saqlanishi kerak."
       }
+    },
+    {
+      "word": "incinerator",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈsɪnəˌreɪtər/",
+      "translation": "мусоросжигательная печь",
+      "translations": {
+        "ru": "мусоросжигательная печь",
+        "uz": "chiqindi yoqish pechi"
+      },
+      "example": "An incinerator burns waste at very high temperatures.",
+      "example_translations": {
+        "ru": "Мусоросжигательная печь сжигает отходы при очень высокой температуре.",
+        "uz": "Chiqindi yoqish pechida chiqindilar juda yuqori haroratda yoqiladi."
+      }
+    },
+    {
+      "word": "compostable",
+      "part_of_speech": "adjective",
+      "transcription": "/kəmˈpoʊstəbəl/",
+      "translation": "пригодный для компостирования",
+      "translations": {
+        "ru": "пригодный для компостирования",
+        "uz": "kompost qilish mumkin bo'lgan"
+      },
+      "example": "The café serves meals in compostable containers.",
+      "example_translations": {
+        "ru": "В кафе подают еду в контейнерах, пригодных для компостирования.",
+        "uz": "Kafeda ovqat kompost qilish mumkin bo'lgan idishlarda tortiladi."
+      }
     }
   ]
 }

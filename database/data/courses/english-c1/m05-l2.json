@@ -160,6 +160,36 @@
         "ru": "Два банка согласились гарантировать размещение выпуска акций.",
         "uz": "Ikki bank chiqarilgan aksiyalarni joylashtirishni kafolatlashga rozi bo'ldi."
       }
+    },
+    {
+      "word": "indexation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪndɛkˈseɪʃən/",
+      "translation": "индексация",
+      "translations": {
+        "ru": "индексация",
+        "uz": "indekslash"
+      },
+      "example": "The bond includes indexation to protect against inflation.",
+      "example_translations": {
+        "ru": "Чтобы защитить вложения от инфляции, условия облигации предусматривают индексацию.",
+        "uz": "Sarmoyani inflyatsiyadan himoya qilish uchun obligatsiya shartlarida indekslash ko'zda tutilgan."
+      }
+    },
+    {
+      "word": "undervalued",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌndərˈvæljud/",
+      "translation": "недооценённый",
+      "translations": {
+        "ru": "недооценённый",
+        "uz": "haqiqiy qiymatidan past baholangan"
+      },
+      "example": "We look for undervalued stocks with strong earnings.",
+      "example_translations": {
+        "ru": "Мы ищем недооценённые акции компаний с высокой прибылью.",
+        "uz": "Biz foydasi yuqori kompaniyalarning haqiqiy qiymatidan past baholangan aksiyalarini izlaymiz."
+      }
     }
   ]
 }

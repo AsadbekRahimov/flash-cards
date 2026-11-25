@@ -160,6 +160,66 @@
         "ru": "По понедельникам я хожу в спортзал.",
         "uz": "Men dushanba kunlari sport zaliga boraman."
       }
+    },
+    {
+      "word": "basketball",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbæskətˌbɔl/",
+      "translation": "баскетбол",
+      "translations": {
+        "ru": "баскетбол",
+        "uz": "basketbol"
+      },
+      "example": "We play basketball after school on Fridays.",
+      "example_translations": {
+        "ru": "По пятницам после школы мы играем в баскетбол.",
+        "uz": "Juma kunlari maktabdan keyin basketbol o'ynaymiz."
+      }
+    },
+    {
+      "word": "baseball",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbeɪsˌbɔl/",
+      "translation": "бейсбол",
+      "translations": {
+        "ru": "бейсбол",
+        "uz": "beysbol"
+      },
+      "example": "Would you like to play baseball today?",
+      "example_translations": {
+        "ru": "Хотите сегодня поиграть в бейсбол?",
+        "uz": "Bugun beysbol o'ynashni xohlaysizmi?"
+      }
+    },
+    {
+      "word": "hockey",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɑki/",
+      "translation": "хоккей",
+      "translations": {
+        "ru": "хоккей",
+        "uz": "xokkey"
+      },
+      "example": "My friends play hockey in the winter.",
+      "example_translations": {
+        "ru": "Мои друзья играют в хоккей зимой.",
+        "uz": "Do'stlarim qishda xokkey o'ynaydi."
+      }
+    },
+    {
+      "word": "ski",
+      "part_of_speech": "verb",
+      "transcription": "/ski/",
+      "translation": "кататься на лыжах",
+      "translations": {
+        "ru": "кататься на лыжах",
+        "uz": "chang'i uchmoq"
+      },
+      "example": "We like to ski in the mountains.",
+      "example_translations": {
+        "ru": "Мы любим кататься на лыжах в горах.",
+        "uz": "Tog'da chang'i uchishni yoqtiramiz."
+      }
     }
   ]
 }

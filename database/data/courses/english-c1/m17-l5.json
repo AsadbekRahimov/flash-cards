@@ -160,6 +160,51 @@
         "ru": "С юридической точки зрения договор полностью действителен.",
         "uz": "Huquqiy nuqtai nazardan shartnoma to'liq haqiqiydir."
       }
+    },
+    {
+      "word": "unanimity",
+      "part_of_speech": "noun",
+      "transcription": "/ˌjunəˈnɪməti/",
+      "translation": "единогласие",
+      "translations": {
+        "ru": "единогласие",
+        "uz": "yakdillik"
+      },
+      "example": "The decision required unanimity among all committee members.",
+      "example_translations": {
+        "ru": "Решение требовало единогласия всех членов комитета.",
+        "uz": "Qaror uchun qo'mita a'zolarining yakdilligi talab qilindi."
+      }
+    },
+    {
+      "word": "conciliate",
+      "part_of_speech": "verb",
+      "transcription": "/kənˈsɪliˌeɪt/",
+      "translation": "умиротворять",
+      "translations": {
+        "ru": "умиротворять",
+        "uz": "ko'nglini olmoq"
+      },
+      "example": "The chair tried to conciliate members who felt ignored.",
+      "example_translations": {
+        "ru": "Председатель попытался умиротворить членов комитета, считавших, что их игнорируют.",
+        "uz": "Rais fikriga quloq solinmagan deb o'ylagan a'zolarning ko'nglini olishga urindi."
+      }
+    },
+    {
+      "word": "deadlocked",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdɛdˌlɑkt/",
+      "translation": "зашедший в тупик",
+      "translations": {
+        "ru": "зашедший в тупик",
+        "uz": "boshi berk ko'chaga kirib qolgan"
+      },
+      "example": "Talks remained deadlocked over changes to the schedule.",
+      "example_translations": {
+        "ru": "Переговоры так и остались в тупике из-за изменений в расписании.",
+        "uz": "Jadval o'zgarishlari bo'yicha muzokaralar boshi berk ko'chada qolaverdi."
+      }
     }
   ]
 }

@@ -160,6 +160,36 @@
         "ru": "Налог — самое большое удержание из моей зарплаты.",
         "uz": "Soliq — maoshimdan eng katta ushlanma."
       }
+    },
+    {
+      "word": "underpaid",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌndərˈpeɪd/",
+      "translation": "низкооплачиваемый",
+      "translations": {
+        "ru": "низкооплачиваемый",
+        "uz": "kam haq oladigan"
+      },
+      "example": "Several underpaid employees asked for a raise.",
+      "example_translations": {
+        "ru": "Несколько низкооплачиваемых сотрудников попросили повысить зарплату.",
+        "uz": "Kam haq oladigan bir nechta xodim maoshini oshirishni so'radi."
+      }
+    },
+    {
+      "word": "remunerate",
+      "part_of_speech": "verb",
+      "transcription": "/rɪˈmjunəˌreɪt/",
+      "translation": "оплачивать труд",
+      "translations": {
+        "ru": "оплачивать труд",
+        "uz": "mehnatiga haq to'lamoq"
+      },
+      "example": "We remunerate all consultants for the hours worked.",
+      "example_translations": {
+        "ru": "Мы оплачиваем труд всех консультантов по отработанным часам.",
+        "uz": "Barcha maslahatchilarga ishlagan soatlariga qarab haq to'laymiz."
+      }
     }
   ]
 }

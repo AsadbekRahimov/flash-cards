@@ -160,6 +160,81 @@
         "ru": "Дочь моего брата — моя племянница.",
         "uz": "Akamning qizi mening jiyanim bo'ladi."
       }
+    },
+    {
+      "word": "stepsister",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɛpˌsɪstər/",
+      "translation": "сводная сестра",
+      "translations": {
+        "ru": "сводная сестра",
+        "uz": "o'gay opa yoki singil"
+      },
+      "example": "My stepsister is my stepfather's daughter.",
+      "example_translations": {
+        "ru": "Моя сводная сестра — дочь моего отчима.",
+        "uz": "O'gay opam o'gay otamning qizi."
+      }
+    },
+    {
+      "word": "stepbrother",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɛpˌbrʌðər/",
+      "translation": "сводный брат",
+      "translations": {
+        "ru": "сводный брат",
+        "uz": "o'gay aka yoki uka"
+      },
+      "example": "My stepbrother is my stepmother's son.",
+      "example_translations": {
+        "ru": "Мой сводный брат — сын моей мачехи.",
+        "uz": "O'gay akam o'gay onamning o'g'li."
+      }
+    },
+    {
+      "word": "stepfather",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɛpˌfɑðər/",
+      "translation": "отчим",
+      "translations": {
+        "ru": "отчим",
+        "uz": "o'gay ota"
+      },
+      "example": "My stepfather and my mother married last spring.",
+      "example_translations": {
+        "ru": "Мой отчим и моя мама поженились прошлой весной.",
+        "uz": "O'gay otam bilan onam o'tgan bahorda turmush qurishdi."
+      }
+    },
+    {
+      "word": "stepmother",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɛpˌmʌðər/",
+      "translation": "мачеха",
+      "translations": {
+        "ru": "мачеха",
+        "uz": "o'gay ona"
+      },
+      "example": "My stepmother and my father work together.",
+      "example_translations": {
+        "ru": "Моя мачеха и мой отец работают вместе.",
+        "uz": "O'gay onam bilan otam birga ishlaydi."
+      }
+    },
+    {
+      "word": "grandparent",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgrænˌpɛrənt/",
+      "translation": "дедушка или бабушка",
+      "translations": {
+        "ru": "дедушка или бабушка",
+        "uz": "bobo yoki buvi"
+      },
+      "example": "One grandparent came to the school concert.",
+      "example_translations": {
+        "ru": "На школьный концерт пришла чья-то бабушка или дедушка.",
+        "uz": "Maktab konsertiga o'quvchilardan birining buvisi yoki bobosi keldi."
+      }
     }
   ]
 }

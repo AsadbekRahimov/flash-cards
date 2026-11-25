@@ -160,6 +160,81 @@
         "ru": "В банке длинная очередь.",
         "uz": "Bankda uzun navbat bor."
       }
+    },
+    {
+      "word": "postage",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpoʊstɪdʒ/",
+      "translation": "плата за пересылку",
+      "translations": {
+        "ru": "плата за пересылку",
+        "uz": "pochta jo'natmasi haqi"
+      },
+      "example": "Does that price include postage to Canada?",
+      "example_translations": {
+        "ru": "В эту цену входит плата за пересылку в Канаду?",
+        "uz": "Bu narxga Kanadaga pochta jo'natmasi haqi kiradimi?"
+      }
+    },
+    {
+      "word": "airmail",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛrˌmeɪl/",
+      "translation": "авиапочта",
+      "translations": {
+        "ru": "авиапочта",
+        "uz": "aviapochta"
+      },
+      "example": "I would like to send this by airmail.",
+      "example_translations": {
+        "ru": "Я бы хотел отправить это авиапочтой.",
+        "uz": "Buni aviapochta orqali yubormoqchiman."
+      }
+    },
+    {
+      "word": "courier",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkʊriər/",
+      "translation": "курьер",
+      "translations": {
+        "ru": "курьер",
+        "uz": "kuryer"
+      },
+      "example": "A courier brought the package this morning.",
+      "example_translations": {
+        "ru": "Сегодня утром курьер принёс посылку.",
+        "uz": "Bugun ertalab kuryer jo'natmani olib keldi."
+      }
+    },
+    {
+      "word": "sender",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɛndər/",
+      "translation": "отправитель",
+      "translations": {
+        "ru": "отправитель",
+        "uz": "jo'natuvchi"
+      },
+      "example": "Please write the name of the sender.",
+      "example_translations": {
+        "ru": "Пожалуйста, укажите имя отправителя.",
+        "uz": "Iltimos, jo'natuvchining ismini yozing."
+      }
+    },
+    {
+      "word": "tracking",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtrækɪŋ/",
+      "translation": "отслеживание",
+      "translations": {
+        "ru": "отслеживание",
+        "uz": "kuzatib borish"
+      },
+      "example": "We offer free tracking for every package.",
+      "example_translations": {
+        "ru": "Мы предлагаем бесплатное отслеживание каждой посылки.",
+        "uz": "Har bir jo'natmani bepul kuzatib borish mumkin."
+      }
     }
   ]
 }

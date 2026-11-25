@@ -160,6 +160,66 @@
         "ru": "Нам вместе весело.",
         "uz": "Birga vaqtimiz chog' o'tadi."
       }
+    },
+    {
+      "word": "fireworks",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfaɪərˌwərks/",
+      "translation": "фейерверк",
+      "translations": {
+        "ru": "фейерверк",
+        "uz": "mushakbozlik"
+      },
+      "example": "We watched the fireworks on New Year's Eve.",
+      "example_translations": {
+        "ru": "Мы смотрели фейерверк в канун Нового года.",
+        "uz": "Yangi yil arafasida mushakbozlikni tomosha qildik."
+      }
+    },
+    {
+      "word": "balloon",
+      "part_of_speech": "noun",
+      "transcription": "/bəˈlun/",
+      "translation": "воздушный шарик",
+      "translations": {
+        "ru": "воздушный шарик",
+        "uz": "pufak"
+      },
+      "example": "My little brother wants a blue balloon.",
+      "example_translations": {
+        "ru": "Мой младший брат хочет синий воздушный шарик.",
+        "uz": "Ukam ko'k pufak xohlayapti."
+      }
+    },
+    {
+      "word": "ribbon",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɪbən/",
+      "translation": "лента",
+      "translations": {
+        "ru": "лента",
+        "uz": "tasma"
+      },
+      "example": "The birthday gift has a red ribbon.",
+      "example_translations": {
+        "ru": "На подарке ко дню рождения красная лента.",
+        "uz": "Tug'ilgan kun sovg'asiga qizil tasma bog'langan."
+      }
+    },
+    {
+      "word": "lantern",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlæntərn/",
+      "translation": "фонарь",
+      "translations": {
+        "ru": "фонарь",
+        "uz": "ko'chma chiroq"
+      },
+      "example": "We put a lantern outside our tent.",
+      "example_translations": {
+        "ru": "Мы поставили фонарь возле палатки.",
+        "uz": "Chodirimiz yoniga ko'chma chiroq qo'ydik."
+      }
     }
   ]
 }

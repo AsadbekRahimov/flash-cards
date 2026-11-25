@@ -160,6 +160,51 @@
         "ru": "Зрители стоя устроили певице овацию.",
         "uz": "Tomoshabinlar xonandani tik turib, gulduros qarsaklar bilan olqishladi."
       }
+    },
+    {
+      "word": "improvisation",
+      "part_of_speech": "noun",
+      "transcription": "/ɪmˌprɑvəˈzeɪʃən/",
+      "translation": "импровизация",
+      "translations": {
+        "ru": "импровизация",
+        "uz": "badiha"
+      },
+      "example": "Her improvisation surprised even the other jazz musicians.",
+      "example_translations": {
+        "ru": "Её импровизация удивила даже остальных джазовых музыкантов.",
+        "uz": "Uning badihasi hatto boshqa jaz musiqachilarini ham hayratga soldi."
+      }
+    },
+    {
+      "word": "soundcheck",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsaʊndˌtʃɛk/",
+      "translation": "проверка звука",
+      "translations": {
+        "ru": "проверка звука",
+        "uz": "ovozni tekshirish"
+      },
+      "example": "During the soundcheck, the singer adjusted her microphone.",
+      "example_translations": {
+        "ru": "Во время проверки звука певица отрегулировала свой микрофон.",
+        "uz": "Ovozni tekshirish paytida xonanda mikrofonini sozladi."
+      }
+    },
+    {
+      "word": "unaccompanied",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌnəˈkʌmpənid/",
+      "translation": "без музыкального сопровождения",
+      "translations": {
+        "ru": "без музыкального сопровождения",
+        "uz": "jo'rsiz"
+      },
+      "example": "Her unaccompanied solo opened the evening concert.",
+      "example_translations": {
+        "ru": "Её сольное выступление без музыкального сопровождения открыло вечерний концерт.",
+        "uz": "Uning jo'rsiz yakkaxon ijrosi kechki konsertni boshlab berdi."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Климат здесь сухой.",
         "uz": "Bu yerda iqlim quruq."
       }
+    },
+    {
+      "word": "january",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʒænjuˌɛri/",
+      "translation": "январь",
+      "translations": {
+        "ru": "январь",
+        "uz": "yanvar"
+      },
+      "example": "My birthday is in January every year.",
+      "example_translations": {
+        "ru": "Мой день рождения каждый год в январе.",
+        "uz": "Tug'ilgan kunim har yili yanvar oyida."
+      }
+    },
+    {
+      "word": "february",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɛbruˌɛri/",
+      "translation": "февраль",
+      "translations": {
+        "ru": "февраль",
+        "uz": "fevral"
+      },
+      "example": "It often snows here in February.",
+      "example_translations": {
+        "ru": "В феврале здесь часто идёт снег.",
+        "uz": "Bu yerda fevralda tez-tez qor yog'adi."
+      }
+    },
+    {
+      "word": "march",
+      "part_of_speech": "noun",
+      "transcription": "/mɑrtʃ/",
+      "translation": "март",
+      "translations": {
+        "ru": "март",
+        "uz": "mart"
+      },
+      "example": "The flowers come out in March.",
+      "example_translations": {
+        "ru": "В марте распускаются цветы.",
+        "uz": "Martda gullar ochiladi."
+      }
+    },
+    {
+      "word": "april",
+      "part_of_speech": "noun",
+      "transcription": "/ˈeɪprəl/",
+      "translation": "апрель",
+      "translations": {
+        "ru": "апрель",
+        "uz": "aprel"
+      },
+      "example": "We have a school trip in April.",
+      "example_translations": {
+        "ru": "В апреле у нас школьная экскурсия.",
+        "uz": "Aprelda maktab ekskursiyamiz bo'ladi."
+      }
+    },
+    {
+      "word": "may",
+      "part_of_speech": "noun",
+      "transcription": "/meɪ/",
+      "translation": "май",
+      "translations": {
+        "ru": "май",
+        "uz": "may"
+      },
+      "example": "The weather is usually warm in May.",
+      "example_translations": {
+        "ru": "В мае обычно тепло.",
+        "uz": "May oyida odatda havo iliq bo'ladi."
+      }
     }
   ]
 }

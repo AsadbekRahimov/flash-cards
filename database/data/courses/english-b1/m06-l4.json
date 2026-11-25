@@ -160,6 +160,81 @@
         "ru": "Они отправились в круиз вокруг островов.",
         "uz": "Ular orollar atrofida kruizga chiqdi."
       }
+    },
+    {
+      "word": "campground",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkæmpˌgraʊnd/",
+      "translation": "место для кемпинга",
+      "translations": {
+        "ru": "место для кемпинга",
+        "uz": "chodir tikish joyi"
+      },
+      "example": "We found a quiet campground by the lake.",
+      "example_translations": {
+        "ru": "Мы нашли тихое место для кемпинга у озера.",
+        "uz": "Ko'l bo'yida chodir tikish uchun tinch joy topdik."
+      }
+    },
+    {
+      "word": "minibar",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɪniˌbɑr/",
+      "translation": "мини-бар",
+      "translations": {
+        "ru": "мини-бар",
+        "uz": "minibar"
+      },
+      "example": "There was cold juice in the minibar.",
+      "example_translations": {
+        "ru": "В мини-баре был холодный сок.",
+        "uz": "Minibarda sovuq sharbat bor edi."
+      }
+    },
+    {
+      "word": "motel",
+      "part_of_speech": "noun",
+      "transcription": "/moʊˈtɛl/",
+      "translation": "придорожная гостиница",
+      "translations": {
+        "ru": "придорожная гостиница",
+        "uz": "yo'l bo'yidagi mehmonxona"
+      },
+      "example": "We spent the night at a roadside motel.",
+      "example_translations": {
+        "ru": "Мы переночевали в придорожной гостинице.",
+        "uz": "Yo'l bo'yidagi mehmonxonada tunadik."
+      }
+    },
+    {
+      "word": "bungalow",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbʌŋgəˌloʊ/",
+      "translation": "одноэтажный домик",
+      "translations": {
+        "ru": "одноэтажный домик",
+        "uz": "bir qavatli uycha"
+      },
+      "example": "We rented a small bungalow by the beach.",
+      "example_translations": {
+        "ru": "Мы сняли небольшой одноэтажный домик у пляжа.",
+        "uz": "Sohil yonida kichkina bir qavatli uy ijaraga oldik."
+      }
+    },
+    {
+      "word": "lodging",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɑdʒɪŋ/",
+      "translation": "временное жильё",
+      "translations": {
+        "ru": "временное жильё",
+        "uz": "vaqtincha turar joy"
+      },
+      "example": "Is lodging included in the tour price?",
+      "example_translations": {
+        "ru": "Включено ли временное жильё в стоимость тура?",
+        "uz": "Vaqtincha turar joy sayohat narxiga kiradimi?"
+      }
     }
   ]
 }

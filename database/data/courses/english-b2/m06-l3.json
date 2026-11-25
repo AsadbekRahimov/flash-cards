@@ -160,6 +160,51 @@
         "ru": "В отчаянии он позвонил самому давнему другу за советом.",
         "uz": "Umidsizlikka tushib, u eng eski do'stiga maslahat so'rab qo'ng'iroq qildi."
       }
+    },
+    {
+      "word": "resentful",
+      "part_of_speech": "adjective",
+      "transcription": "/rɪˈzɛntfəl/",
+      "translation": "испытывающий обиду",
+      "translations": {
+        "ru": "испытывающий обиду",
+        "uz": "gina saqlaydigan"
+      },
+      "example": "He felt resentful after being blamed unfairly.",
+      "example_translations": {
+        "ru": "Он затаил обиду после того, как его несправедливо обвинили.",
+        "uz": "Nohaq ayblangach, u ichida gina saqladi."
+      }
+    },
+    {
+      "word": "heartbroken",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈhɑrtˌbroʊkən/",
+      "translation": "убитый горем",
+      "translations": {
+        "ru": "убитый горем",
+        "uz": "dili vayron"
+      },
+      "example": "She was heartbroken when her longtime pet died.",
+      "example_translations": {
+        "ru": "Она была убита горем, когда умер её давний питомец.",
+        "uz": "Ko'p yillik uy jonivori nobud bo'lganida uning dili vayron bo'ldi."
+      }
+    },
+    {
+      "word": "distressed",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈstrɛst/",
+      "translation": "сильно обеспокоенный",
+      "translations": {
+        "ru": "сильно обеспокоенный",
+        "uz": "qattiq tashvishga tushgan"
+      },
+      "example": "She was distressed when her son went missing.",
+      "example_translations": {
+        "ru": "Она сильно обеспокоилась, когда её сын пропал.",
+        "uz": "O'g'li yo'qolib qolganda u qattiq tashvishga tushdi."
+      }
     }
   ]
 }

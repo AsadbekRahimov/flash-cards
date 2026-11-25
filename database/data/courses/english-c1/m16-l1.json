@@ -160,6 +160,51 @@
         "ru": "Базовая статистика — предварительное требование для этого курса.",
         "uz": "Boshlang'ich statistika — bu kurs uchun dastlabki talab."
       }
+    },
+    {
+      "word": "registrar",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɛdʒəˌstrɑr/",
+      "translation": "сотрудник учебного отдела",
+      "translations": {
+        "ru": "сотрудник учебного отдела",
+        "uz": "talabalar hisobini yurituvchi xodim"
+      },
+      "example": "Ask the registrar to correct your official transcript.",
+      "example_translations": {
+        "ru": "Попросите сотрудника учебного отдела исправить вашу официальную выписку оценок.",
+        "uz": "Talabalar hisobini yurituvchi xodimdan baholaringiz haqidagi rasmiy ma'lumotnomani tuzatishni so'rang."
+      }
+    },
+    {
+      "word": "professorship",
+      "part_of_speech": "noun",
+      "transcription": "/prəˈfɛsərˌʃɪp/",
+      "translation": "должность профессора",
+      "translations": {
+        "ru": "должность профессора",
+        "uz": "professor lavozimi"
+      },
+      "example": "After years of research, she earned a professorship.",
+      "example_translations": {
+        "ru": "После многих лет исследований она получила должность профессора.",
+        "uz": "Ko'p yillik tadqiqotlardan so'ng u professor lavozimiga erishdi."
+      }
+    },
+    {
+      "word": "matriculation",
+      "part_of_speech": "noun",
+      "transcription": "/məˌtrɪkjəˈleɪʃən/",
+      "translation": "зачисление в вуз",
+      "translations": {
+        "ru": "зачисление в вуз",
+        "uz": "oliygohga qabul qilinish"
+      },
+      "example": "New students receive their identification cards after matriculation.",
+      "example_translations": {
+        "ru": "Новые студенты получают студенческие билеты после зачисления в вуз.",
+        "uz": "Yangi talabalar oliygohga qabul qilingach, talabalik guvohnomasini oladi."
+      }
     }
   ]
 }

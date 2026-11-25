@@ -160,6 +160,66 @@
         "ru": "Прекращение дождя позволило возобновить матч.",
         "uz": "Yomg'irning to'xtashi o'yinni davom ettirishga imkon berdi."
       }
+    },
+    {
+      "word": "culmination",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkʌlməˈneɪʃən/",
+      "translation": "кульминация",
+      "translations": {
+        "ru": "кульминация",
+        "uz": "eng yuqori nuqta"
+      },
+      "example": "The exhibition was the culmination of years of work.",
+      "example_translations": {
+        "ru": "Выставка стала кульминацией многолетней работы.",
+        "uz": "Ko'rgazma ko'p yillik mehnatning eng yuqori nuqtasi bo'ldi."
+      }
+    },
+    {
+      "word": "outset",
+      "part_of_speech": "noun",
+      "transcription": "/ˈaʊtˌsɛt/",
+      "translation": "самое начало",
+      "translations": {
+        "ru": "самое начало",
+        "uz": "ilk bosqich"
+      },
+      "example": "We agreed on a clear deadline at the outset.",
+      "example_translations": {
+        "ru": "Мы договорились о точном сроке в самом начале.",
+        "uz": "Biz ilk bosqichdayoq aniq muddatga kelishib oldik."
+      }
+    },
+    {
+      "word": "incipient",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈsɪpiənt/",
+      "translation": "начинающий проявляться",
+      "translations": {
+        "ru": "начинающий проявляться",
+        "uz": "endigina paydo bo'layotgan"
+      },
+      "example": "New evidence strengthened an incipient movement for reform.",
+      "example_translations": {
+        "ru": "Новые данные укрепили только начинавшее проявляться движение за реформы.",
+        "uz": "Yangi dalillar endigina paydo bo'layotgan islohot harakatini kuchaytirdi."
+      }
+    },
+    {
+      "word": "finitude",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɪnəˌtud/",
+      "translation": "конечность",
+      "translations": {
+        "ru": "конечность",
+        "uz": "cheklanganlik"
+      },
+      "example": "The novel explores the finitude of an individual life.",
+      "example_translations": {
+        "ru": "Роман исследует конечность жизни отдельного человека.",
+        "uz": "Romanda bir inson umrining cheklanganligi o'rganiladi."
+      }
     }
   ]
 }

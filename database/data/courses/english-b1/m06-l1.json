@@ -160,6 +160,81 @@
         "ru": "Новая железная дорога соединяет два города.",
         "uz": "Yangi temir yo'l ikki shaharni bog'laydi."
       }
+    },
+    {
+      "word": "cab",
+      "part_of_speech": "noun",
+      "transcription": "/kæb/",
+      "translation": "такси",
+      "translations": {
+        "ru": "такси",
+        "uz": "taksi"
+      },
+      "example": "We took a cab to the station.",
+      "example_translations": {
+        "ru": "Мы поехали на вокзал на такси.",
+        "uz": "Vokzalga taksida bordik."
+      }
+    },
+    {
+      "word": "moped",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmoʊˌpɛd/",
+      "translation": "мопед",
+      "translations": {
+        "ru": "мопед",
+        "uz": "moped"
+      },
+      "example": "He rides a moped to work every morning.",
+      "example_translations": {
+        "ru": "Каждое утро он ездит на работу на мопеде.",
+        "uz": "U har kuni ertalab ishga mopedda boradi."
+      }
+    },
+    {
+      "word": "sailboat",
+      "part_of_speech": "noun",
+      "transcription": "/ˈseɪlˌboʊt/",
+      "translation": "парусная лодка",
+      "translations": {
+        "ru": "парусная лодка",
+        "uz": "yelkanli qayiq"
+      },
+      "example": "A small sailboat crossed the lake.",
+      "example_translations": {
+        "ru": "Небольшая парусная лодка пересекла озеро.",
+        "uz": "Kichik yelkanli qayiq ko'lni kesib o'tdi."
+      }
+    },
+    {
+      "word": "yacht",
+      "part_of_speech": "noun",
+      "transcription": "/jɑt/",
+      "translation": "яхта",
+      "translations": {
+        "ru": "яхта",
+        "uz": "yaxta"
+      },
+      "example": "They spent the weekend on a yacht.",
+      "example_translations": {
+        "ru": "Они провели выходные на яхте.",
+        "uz": "Ular dam olish kunlarini yaxtada o'tkazishdi."
+      }
+    },
+    {
+      "word": "seaplane",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsiˌpleɪn/",
+      "translation": "гидросамолёт",
+      "translations": {
+        "ru": "гидросамолёт",
+        "uz": "gidrosamolyot"
+      },
+      "example": "Our seaplane landed on a quiet lake.",
+      "example_translations": {
+        "ru": "Наш гидросамолёт сел на спокойное озеро.",
+        "uz": "Gidrosamolyotimiz suvi tinch ko'lga qo'ndi."
+      }
     }
   ]
 }

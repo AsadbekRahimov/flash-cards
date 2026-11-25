@@ -160,6 +160,51 @@
         "ru": "Она очень хорошо поёт.",
         "uz": "U juda yaxshi kuylaydi."
       }
+    },
+    {
+      "word": "cartoon",
+      "part_of_speech": "noun",
+      "transcription": "/kɑrˈtun/",
+      "translation": "мультфильм",
+      "translations": {
+        "ru": "мультфильм",
+        "uz": "multfilm"
+      },
+      "example": "The children are watching a funny cartoon.",
+      "example_translations": {
+        "ru": "Дети смотрят смешной мультфильм.",
+        "uz": "Bolalar kulgili multfilm tomosha qilyapti."
+      }
+    },
+    {
+      "word": "comic",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑmɪk/",
+      "translation": "комикс",
+      "translations": {
+        "ru": "комикс",
+        "uz": "komiks"
+      },
+      "example": "I read a comic on the bus.",
+      "example_translations": {
+        "ru": "Я читаю комикс в автобусе.",
+        "uz": "Avtobusda komiks o'qiyapman."
+      }
+    },
+    {
+      "word": "selfie",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɛlfi/",
+      "translation": "селфи",
+      "translations": {
+        "ru": "селфи",
+        "uz": "selfi"
+      },
+      "example": "We took a selfie at the beach.",
+      "example_translations": {
+        "ru": "Мы сделали селфи на пляже.",
+        "uz": "Sohilda selfiga tushdik."
+      }
     }
   ]
 }

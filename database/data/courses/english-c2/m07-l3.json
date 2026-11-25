@@ -160,6 +160,66 @@
         "ru": "Лебеди скользили по безмятежному вечернему озеру.",
         "uz": "Oqqushlar oqshomgi osuda ko'l yuzida sirpanib suzardi."
       }
+    },
+    {
+      "word": "bucolic",
+      "part_of_speech": "adjective",
+      "transcription": "/bjuˈkɑlɪk/",
+      "translation": "идиллически сельский",
+      "translations": {
+        "ru": "идиллически сельский",
+        "uz": "osoyishta qishloqqa xos"
+      },
+      "example": "The bucolic valley was dotted with cottages and orchards.",
+      "example_translations": {
+        "ru": "Идиллическая сельская долина была усеяна домиками и садами.",
+        "uz": "Osoyishta qishloq vodiysida uylar va bog'lar sochilib yotardi."
+      }
+    },
+    {
+      "word": "sylvan",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɪlvən/",
+      "translation": "лесной",
+      "translations": {
+        "ru": "лесной",
+        "uz": "o'rmonga oid"
+      },
+      "example": "We followed a narrow path into the sylvan valley.",
+      "example_translations": {
+        "ru": "Мы пошли по узкой тропе в лесную долину.",
+        "uz": "Tor so'qmoq bo'ylab o'rmonli vodiyga kirdik."
+      }
+    },
+    {
+      "word": "copse",
+      "part_of_speech": "noun",
+      "transcription": "/kɑps/",
+      "translation": "небольшая роща",
+      "translations": {
+        "ru": "небольшая роща",
+        "uz": "kichik daraxtzor"
+      },
+      "example": "A small copse sheltered the farmhouse from north winds.",
+      "example_translations": {
+        "ru": "Небольшая роща защищала фермерский дом от северных ветров.",
+        "uz": "Kichik daraxtzor fermer uyini shimol shamollaridan himoya qilardi."
+      }
+    },
+    {
+      "word": "sward",
+      "part_of_speech": "noun",
+      "transcription": "/swɔrd/",
+      "translation": "травяной покров",
+      "translations": {
+        "ru": "травяной покров",
+        "uz": "maysazor"
+      },
+      "example": "A soft sward surrounded the ruins of the tower.",
+      "example_translations": {
+        "ru": "Развалины башни окружал мягкий травяной покров.",
+        "uz": "Minora xarobalari atrofini yumshoq maysazor o'rab turardi."
+      }
     }
   ]
 }

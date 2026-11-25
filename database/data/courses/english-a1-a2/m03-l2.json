@@ -160,6 +160,96 @@
         "ru": "Ешь больше овощей, сынок.",
         "uz": "Ko'proq sabzavot ye, o'g'lim."
       }
+    },
+    {
+      "word": "peach",
+      "part_of_speech": "noun",
+      "transcription": "/pitʃ/",
+      "translation": "персик",
+      "translations": {
+        "ru": "персик",
+        "uz": "shaftoli"
+      },
+      "example": "I cut a peach in half.",
+      "example_translations": {
+        "ru": "Я разрезал персик пополам.",
+        "uz": "Men shaftolini ikkiga bo'ldim."
+      }
+    },
+    {
+      "word": "pear",
+      "part_of_speech": "noun",
+      "transcription": "/pɛr/",
+      "translation": "груша",
+      "translations": {
+        "ru": "груша",
+        "uz": "nok"
+      },
+      "example": "There is a pear in my bag.",
+      "example_translations": {
+        "ru": "У меня в сумке лежит груша.",
+        "uz": "Sumkamda bitta nok bor."
+      }
+    },
+    {
+      "word": "pineapple",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpaɪnˌæpəl/",
+      "translation": "ананас",
+      "translations": {
+        "ru": "ананас",
+        "uz": "ananas"
+      },
+      "example": "We need a pineapple for the fruit salad.",
+      "example_translations": {
+        "ru": "Нам нужен ананас для фруктового салата.",
+        "uz": "Mevali salat uchun bizga ananas kerak."
+      }
+    },
+    {
+      "word": "watermelon",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwɔtərˌmɛlən/",
+      "translation": "арбуз",
+      "translations": {
+        "ru": "арбуз",
+        "uz": "tarvuz"
+      },
+      "example": "This watermelon is big and sweet.",
+      "example_translations": {
+        "ru": "Этот арбуз большой и сладкий.",
+        "uz": "Bu tarvuz katta va shirin."
+      }
+    },
+    {
+      "word": "strawberry",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstrɔˌbɛri/",
+      "translation": "клубника",
+      "translations": {
+        "ru": "клубника",
+        "uz": "qulupnay"
+      },
+      "example": "She puts a strawberry on each cupcake.",
+      "example_translations": {
+        "ru": "Она кладёт по клубнике на каждый кекс.",
+        "uz": "U har bir keks ustiga bittadan qulupnay qo'yadi."
+      }
+    },
+    {
+      "word": "banana",
+      "part_of_speech": "noun",
+      "transcription": "/bəˈnænə/",
+      "translation": "банан",
+      "translations": {
+        "ru": "банан",
+        "uz": "banan"
+      },
+      "example": "I eat a banana with my breakfast.",
+      "example_translations": {
+        "ru": "За завтраком я съедаю банан.",
+        "uz": "Nonushtada banan yeyman."
+      }
     }
   ]
 }

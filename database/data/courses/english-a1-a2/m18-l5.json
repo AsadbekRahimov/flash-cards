@@ -160,6 +160,66 @@
         "ru": "Моя бабушка всё ещё очень активна.",
         "uz": "Buvim hali ham juda faol."
       }
+    },
+    {
+      "word": "floss",
+      "part_of_speech": "verb",
+      "transcription": "/flɔs/",
+      "translation": "чистить зубной нитью",
+      "translations": {
+        "ru": "чистить зубной нитью",
+        "uz": "tish ipi bilan tozalamoq"
+      },
+      "example": "I floss my teeth every night.",
+      "example_translations": {
+        "ru": "Я каждый вечер чищу зубы зубной нитью.",
+        "uz": "Har oqshom tishlarimni tish ipi bilan tozalayman."
+      }
+    },
+    {
+      "word": "oversleep",
+      "part_of_speech": "verb",
+      "transcription": "/ˌoʊvərˈslip/",
+      "translation": "просыпать",
+      "translations": {
+        "ru": "просыпать",
+        "uz": "uxlab qolib kechikmoq"
+      },
+      "example": "I often oversleep and miss the bus.",
+      "example_translations": {
+        "ru": "Я часто просыпаю и опаздываю на автобус.",
+        "uz": "Ko'pincha uxlab qolib, avtobusga kechikaman."
+      }
+    },
+    {
+      "word": "overeat",
+      "part_of_speech": "verb",
+      "transcription": "/ˌoʊvərˈit/",
+      "translation": "переедать",
+      "translations": {
+        "ru": "переедать",
+        "uz": "ortiqcha ovqatlanmoq"
+      },
+      "example": "I tend to overeat when I skip lunch.",
+      "example_translations": {
+        "ru": "Я часто переедаю, когда пропускаю обед.",
+        "uz": "Tushlik qilmasam, ko'pincha ortiqcha ovqatlanaman."
+      }
+    },
+    {
+      "word": "meditate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈmɛdəˌteɪt/",
+      "translation": "медитировать",
+      "translations": {
+        "ru": "медитировать",
+        "uz": "meditatsiya qilmoq"
+      },
+      "example": "She likes to meditate before going to bed.",
+      "example_translations": {
+        "ru": "Она любит медитировать перед сном.",
+        "uz": "U uxlashdan oldin meditatsiya qilishni yoqtiradi."
+      }
     }
   ]
 }

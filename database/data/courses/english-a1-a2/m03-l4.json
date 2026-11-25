@@ -160,6 +160,81 @@
         "ru": "Можно посмотреть меню?",
         "uz": "Menyuni ko'rsam bo'ladimi?"
       }
+    },
+    {
+      "word": "mug",
+      "part_of_speech": "noun",
+      "transcription": "/mʌg/",
+      "translation": "кружка",
+      "translations": {
+        "ru": "кружка",
+        "uz": "krujka"
+      },
+      "example": "Dad has a big blue mug.",
+      "example_translations": {
+        "ru": "У папы большая синяя кружка.",
+        "uz": "Dadamning katta ko'k krujkasi bor."
+      }
+    },
+    {
+      "word": "saucer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɔsər/",
+      "translation": "блюдце",
+      "translations": {
+        "ru": "блюдце",
+        "uz": "piyola tagligi"
+      },
+      "example": "Put the cup on its saucer, please.",
+      "example_translations": {
+        "ru": "Поставьте чашку на блюдце, пожалуйста.",
+        "uz": "Iltimos, piyolani tagligiga qo'ying."
+      }
+    },
+    {
+      "word": "teaspoon",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtispun/",
+      "translation": "чайная ложка",
+      "translations": {
+        "ru": "чайная ложка",
+        "uz": "choy qoshiq"
+      },
+      "example": "I stir my tea with a teaspoon.",
+      "example_translations": {
+        "ru": "Я размешиваю чай чайной ложкой.",
+        "uz": "Choyimni choy qoshiq bilan aralashtiraman."
+      }
+    },
+    {
+      "word": "chopstick",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtʃɑpstɪk/",
+      "translation": "палочка для еды",
+      "translations": {
+        "ru": "палочка для еды",
+        "uz": "ovqat yeyish cho'pi"
+      },
+      "example": "One chopstick fell under the table.",
+      "example_translations": {
+        "ru": "Одна палочка для еды упала под стол.",
+        "uz": "Bitta ovqat yeyish cho'pi stol tagiga tushdi."
+      }
+    },
+    {
+      "word": "pan",
+      "part_of_speech": "noun",
+      "transcription": "/pæn/",
+      "translation": "сковорода",
+      "translations": {
+        "ru": "сковорода",
+        "uz": "tova"
+      },
+      "example": "The eggs are in the frying pan.",
+      "example_translations": {
+        "ru": "Яйца на сковороде.",
+        "uz": "Tuxumlar tovada."
+      }
     }
   ]
 }

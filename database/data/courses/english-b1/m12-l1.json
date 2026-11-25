@@ -160,6 +160,81 @@
         "ru": "Она пробежала свой первый марафон за четыре часа.",
         "uz": "U birinchi marafonini to'rt soatda yugurib o'tdi."
       }
+    },
+    {
+      "word": "badminton",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbædˌmɪntən/",
+      "translation": "бадминтон",
+      "translations": {
+        "ru": "бадминтон",
+        "uz": "badminton"
+      },
+      "example": "We played badminton in the park after lunch.",
+      "example_translations": {
+        "ru": "После обеда мы играли в бадминтон в парке.",
+        "uz": "Tushlikdan keyin parkda badminton o'ynadik."
+      }
+    },
+    {
+      "word": "archery",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑrtʃəri/",
+      "translation": "стрельба из лука",
+      "translations": {
+        "ru": "стрельба из лука",
+        "uz": "kamondan o'q otish"
+      },
+      "example": "She learned archery at summer camp.",
+      "example_translations": {
+        "ru": "Она научилась стрелять из лука в летнем лагере.",
+        "uz": "U yozgi oromgohda kamondan o'q otishni o'rgandi."
+      }
+    },
+    {
+      "word": "fencing",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfɛnsɪŋ/",
+      "translation": "фехтование",
+      "translations": {
+        "ru": "фехтование",
+        "uz": "qilichbozlik"
+      },
+      "example": "You need a mask and gloves for fencing.",
+      "example_translations": {
+        "ru": "Для фехтования нужны маска и перчатки.",
+        "uz": "Qilichbozlik uchun niqob va qo'lqop kerak."
+      }
+    },
+    {
+      "word": "skiing",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskiɪŋ/",
+      "translation": "катание на лыжах",
+      "translations": {
+        "ru": "катание на лыжах",
+        "uz": "chang'i uchish"
+      },
+      "example": "We go skiing in the mountains every winter.",
+      "example_translations": {
+        "ru": "Каждую зиму мы катаемся на лыжах в горах.",
+        "uz": "Har qish tog'da chang'i uchamiz."
+      }
+    },
+    {
+      "word": "volleyball",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvɑliˌbɔl/",
+      "translation": "волейбол",
+      "translations": {
+        "ru": "волейбол",
+        "uz": "voleybol"
+      },
+      "example": "They play volleyball on the beach.",
+      "example_translations": {
+        "ru": "Они играют в волейбол на пляже.",
+        "uz": "Ular sohilda voleybol o'ynashadi."
+      }
     }
   ]
 }

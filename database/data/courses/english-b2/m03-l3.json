@@ -160,6 +160,81 @@
         "ru": "Некоторые инвесторы спекулируют на росте цен на жильё.",
         "uz": "Ba'zi investorlar uy-joy narxlarining o'sishidan foydalanib spekulyatsiya qiladi."
       }
+    },
+    {
+      "word": "investor",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈvɛstər/",
+      "translation": "инвестор",
+      "translations": {
+        "ru": "инвестор",
+        "uz": "sarmoyador"
+      },
+      "example": "An investor offered money to grow the business.",
+      "example_translations": {
+        "ru": "Инвестор предложил деньги на развитие компании.",
+        "uz": "Sarmoyador korxonani rivojlantirish uchun pul taklif qildi."
+      }
+    },
+    {
+      "word": "reinvest",
+      "part_of_speech": "verb",
+      "transcription": "/ˌriɪnˈvɛst/",
+      "translation": "вкладывать повторно",
+      "translations": {
+        "ru": "вкладывать повторно",
+        "uz": "qayta sarmoya kiritmoq"
+      },
+      "example": "They reinvest their profits in new equipment.",
+      "example_translations": {
+        "ru": "Они снова вкладывают прибыль, приобретая новое оборудование.",
+        "uz": "Ular foydasini yangi uskunalarga qayta sarmoya sifatida kiritadi."
+      }
+    },
+    {
+      "word": "underperform",
+      "part_of_speech": "verb",
+      "transcription": "/ˌʌndərpərˈfɔrm/",
+      "translation": "показывать результат ниже ожидаемого",
+      "translations": {
+        "ru": "показывать результат ниже ожидаемого",
+        "uz": "kutilganidan past natija ko'rsatmoq"
+      },
+      "example": "Some stocks underperform when interest rates rise.",
+      "example_translations": {
+        "ru": "Когда процентные ставки растут, некоторые акции показывают результат ниже ожидаемого.",
+        "uz": "Foiz stavkalari oshganda ayrim aksiyalar kutilganidan past natija ko'rsatadi."
+      }
+    },
+    {
+      "word": "outperform",
+      "part_of_speech": "verb",
+      "transcription": "/ˌaʊtpərˈfɔrm/",
+      "translation": "показывать результат лучше",
+      "translations": {
+        "ru": "показывать результат лучше",
+        "uz": "yaxshiroq natija ko'rsatmoq"
+      },
+      "example": "These bonds may outperform other investments this year.",
+      "example_translations": {
+        "ru": "В этом году эти облигации могут показать результат лучше других вложений.",
+        "uz": "Bu yil ushbu obligatsiyalar boshqa sarmoyalardan yaxshiroq natija ko'rsatishi mumkin."
+      }
+    },
+    {
+      "word": "stockbroker",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɑkˌbroʊkər/",
+      "translation": "биржевой брокер",
+      "translations": {
+        "ru": "биржевой брокер",
+        "uz": "birja vositachisi"
+      },
+      "example": "A stockbroker bought the shares for her.",
+      "example_translations": {
+        "ru": "Биржевой брокер купил для неё акции.",
+        "uz": "Birja vositachisi unga aksiyalarni sotib oldi."
+      }
     }
   ]
 }

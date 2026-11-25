@@ -160,6 +160,66 @@
         "ru": "Моя бабушка живёт на небольшую пенсию.",
         "uz": "Buvim ozgina pensiyasiga kun ko'radi."
       }
+    },
+    {
+      "word": "unpaid",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈpeɪd/",
+      "translation": "неоплачиваемый",
+      "translations": {
+        "ru": "неоплачиваемый",
+        "uz": "haq to'lanmaydigan"
+      },
+      "example": "She took two weeks of unpaid leave.",
+      "example_translations": {
+        "ru": "Она взяла две недели неоплачиваемого отпуска.",
+        "uz": "U ikki hafta haq to'lanmaydigan ta'til oldi."
+      }
+    },
+    {
+      "word": "hourly",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈaʊərli/",
+      "translation": "почасовой",
+      "translations": {
+        "ru": "почасовой",
+        "uz": "soatbay"
+      },
+      "example": "What is the hourly rate for this job?",
+      "example_translations": {
+        "ru": "Какая почасовая ставка на этой работе?",
+        "uz": "Bu ishga soatbay qancha haq to'lanadi?"
+      }
+    },
+    {
+      "word": "remotely",
+      "part_of_speech": "adverb",
+      "transcription": "/rɪˈmoʊtli/",
+      "translation": "удалённо",
+      "translations": {
+        "ru": "удалённо",
+        "uz": "masofadan"
+      },
+      "example": "My wife works remotely three days a week.",
+      "example_translations": {
+        "ru": "Моя жена работает удалённо три дня в неделю.",
+        "uz": "Xotinim haftasiga uch kun masofadan ishlaydi."
+      }
+    },
+    {
+      "word": "wages",
+      "part_of_speech": "noun",
+      "transcription": "/ˈweɪdʒɪz/",
+      "translation": "заработная плата",
+      "translations": {
+        "ru": "заработная плата",
+        "uz": "ish haqi"
+      },
+      "example": "The company pays our wages every Friday.",
+      "example_translations": {
+        "ru": "Компания выплачивает нам зарплату каждую пятницу.",
+        "uz": "Kompaniya har juma ish haqimizni to'laydi."
+      }
     }
   ]
 }

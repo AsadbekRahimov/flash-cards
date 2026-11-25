@@ -160,6 +160,51 @@
         "ru": "Пятьсот долларов — большая сумма для меня.",
         "uz": "Besh yuz dollar men uchun katta summa."
       }
+    },
+    {
+      "word": "checkbook",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtʃɛkˌbʊk/",
+      "translation": "чековая книжка",
+      "translations": {
+        "ru": "чековая книжка",
+        "uz": "chek daftarchasi"
+      },
+      "example": "My checkbook is in the desk drawer.",
+      "example_translations": {
+        "ru": "Моя чековая книжка лежит в ящике стола.",
+        "uz": "Chek daftarcham stol tortmasida turibdi."
+      }
+    },
+    {
+      "word": "banker",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbæŋkər/",
+      "translation": "банковский работник",
+      "translations": {
+        "ru": "банковский работник",
+        "uz": "bank xodimi"
+      },
+      "example": "A banker helped us open a joint account.",
+      "example_translations": {
+        "ru": "Банковский работник помог нам открыть совместный счёт.",
+        "uz": "Bank xodimi bizga umumiy hisob ochishga yordam berdi."
+      }
+    },
+    {
+      "word": "passbook",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpæsˌbʊk/",
+      "translation": "сберегательная книжка",
+      "translations": {
+        "ru": "сберегательная книжка",
+        "uz": "jamg'arma daftarchasi"
+      },
+      "example": "Grandma used a passbook to track her savings.",
+      "example_translations": {
+        "ru": "Бабушка следила за сбережениями по сберегательной книжке.",
+        "uz": "Buvim jamg'armasini jamg'arma daftarchasidan kuzatib borardi."
+      }
     }
   ]
 }

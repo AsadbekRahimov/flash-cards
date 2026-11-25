@@ -160,6 +160,66 @@
         "ru": "Все устройства в нашем доме новые.",
         "uz": "Uyimizdagi har bir qurilma yangi."
       }
+    },
+    {
+      "word": "smartphone",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsmɑrtˌfoʊn/",
+      "translation": "смартфон",
+      "translations": {
+        "ru": "смартфон",
+        "uz": "smartfon"
+      },
+      "example": "I use my smartphone to read the news.",
+      "example_translations": {
+        "ru": "Я читаю новости на смартфоне.",
+        "uz": "Yangiliklarni smartfonimda o'qiyman."
+      }
+    },
+    {
+      "word": "earbuds",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪrˌbʌdz/",
+      "translation": "вставные наушники",
+      "translations": {
+        "ru": "вставные наушники",
+        "uz": "quloq ichiga taqiladigan quloqchin"
+      },
+      "example": "I lost my earbuds on the bus.",
+      "example_translations": {
+        "ru": "Я потерял вставные наушники в автобусе.",
+        "uz": "Quloq ichiga taqiladigan quloqchinimni avtobusda yo'qotdim."
+      }
+    },
+    {
+      "word": "adapter",
+      "part_of_speech": "noun",
+      "transcription": "/əˈdæptər/",
+      "translation": "переходник",
+      "translations": {
+        "ru": "переходник",
+        "uz": "adapter"
+      },
+      "example": "I need an adapter for this plug.",
+      "example_translations": {
+        "ru": "Мне нужен переходник для этой вилки.",
+        "uz": "Bu vilka uchun adapter kerak."
+      }
+    },
+    {
+      "word": "webcam",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwɛbˌkæm/",
+      "translation": "веб-камера",
+      "translations": {
+        "ru": "веб-камера",
+        "uz": "veb-kamera"
+      },
+      "example": "Can you turn on your webcam now?",
+      "example_translations": {
+        "ru": "Можете сейчас включить веб-камеру?",
+        "uz": "Hozir veb-kamerangizni yoqa olasizmi?"
+      }
     }
   ]
 }

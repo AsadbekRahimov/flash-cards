@@ -160,6 +160,66 @@
         "ru": "Простое недоразумение стало причиной всего спора.",
         "uz": "Oddiy tushunmovchilik butun bahsga sabab bo'ldi."
       }
+    },
+    {
+      "word": "aloud",
+      "part_of_speech": "adverb",
+      "transcription": "/əˈlaʊd/",
+      "translation": "вслух",
+      "translations": {
+        "ru": "вслух",
+        "uz": "ovoz chiqarib"
+      },
+      "example": "Please read your opening paragraph aloud.",
+      "example_translations": {
+        "ru": "Пожалуйста, прочитайте первый абзац вслух.",
+        "uz": "Iltimos, kirish xatboshisini ovoz chiqarib o'qing."
+      }
+    },
+    {
+      "word": "murmur",
+      "part_of_speech": "verb",
+      "transcription": "/ˈmɜrmər/",
+      "translation": "говорить тихо",
+      "translations": {
+        "ru": "говорить тихо",
+        "uz": "past ovozda gapirmoq"
+      },
+      "example": "Don't murmur when you speak to the audience.",
+      "example_translations": {
+        "ru": "Обращаясь к публике, не говорите слишком тихо.",
+        "uz": "Tinglovchilarga murojaat qilganingizda juda past ovozda gapirmang."
+      }
+    },
+    {
+      "word": "stammer",
+      "part_of_speech": "verb",
+      "transcription": "/ˈstæmər/",
+      "translation": "запинаться",
+      "translations": {
+        "ru": "запинаться",
+        "uz": "tutilib gapirmoq"
+      },
+      "example": "I sometimes stammer when speaking to large audiences.",
+      "example_translations": {
+        "ru": "Я иногда запинаюсь, когда выступаю перед большой аудиторией.",
+        "uz": "Katta auditoriya oldida gapirganimda ba'zan tutilib qolaman."
+      }
+    },
+    {
+      "word": "enunciation",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˌnʌnsiˈeɪʃən/",
+      "translation": "чёткость произношения",
+      "translations": {
+        "ru": "чёткость произношения",
+        "uz": "talaffuz ravshanligi"
+      },
+      "example": "The coach praised her enunciation during the speech.",
+      "example_translations": {
+        "ru": "Наставник похвалил её чёткое произношение во время выступления.",
+        "uz": "Murabbiy nutq paytida uning ravshan talaffuzini maqtadi."
+      }
     }
   ]
 }

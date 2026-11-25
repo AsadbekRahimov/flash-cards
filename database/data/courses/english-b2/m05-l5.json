@@ -160,6 +160,81 @@
         "ru": "Эта компактная камера помещается у меня в кармане.",
         "uz": "Bu ixcham kamera cho'ntagimga sig'adi."
       }
+    },
+    {
+      "word": "circuitry",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɜrkətri/",
+      "translation": "электронные схемы",
+      "translations": {
+        "ru": "электронные схемы",
+        "uz": "elektron sxemalar"
+      },
+      "example": "Water can damage the circuitry inside the device.",
+      "example_translations": {
+        "ru": "Вода может повредить электронные схемы внутри устройства.",
+        "uz": "Suv qurilma ichidagi elektron sxemalarga zarar yetkazishi mumkin."
+      }
+    },
+    {
+      "word": "motherboard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmʌðərˌbɔrd/",
+      "translation": "материнская плата",
+      "translations": {
+        "ru": "материнская плата",
+        "uz": "ona plata"
+      },
+      "example": "The technician installed new memory on the motherboard.",
+      "example_translations": {
+        "ru": "Техник установил новую память на материнскую плату.",
+        "uz": "Texnik ona plataga yangi xotira o'rnatdi."
+      }
+    },
+    {
+      "word": "microchip",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmaɪkroʊˌtʃɪp/",
+      "translation": "микрочип",
+      "translations": {
+        "ru": "микрочип",
+        "uz": "mikrochip"
+      },
+      "example": "A tiny microchip controls the washing machine.",
+      "example_translations": {
+        "ru": "Крошечный микрочип управляет стиральной машиной.",
+        "uz": "Kir yuvish mashinasini mitti mikrochip boshqaradi."
+      }
+    },
+    {
+      "word": "transistor",
+      "part_of_speech": "noun",
+      "transcription": "/trænˈzɪstər/",
+      "translation": "транзистор",
+      "translations": {
+        "ru": "транзистор",
+        "uz": "tranzistor"
+      },
+      "example": "The transistor switches the small motor on.",
+      "example_translations": {
+        "ru": "Транзистор включает маленький мотор.",
+        "uz": "Tranzistor kichik motorni ishga tushiradi."
+      }
+    },
+    {
+      "word": "receiver",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈsivər/",
+      "translation": "приёмник",
+      "translations": {
+        "ru": "приёмник",
+        "uz": "qabul qilgich"
+      },
+      "example": "Connect the receiver to the antenna first.",
+      "example_translations": {
+        "ru": "Сначала подключите приёмник к антенне.",
+        "uz": "Avval qabul qilgichni antennaga ulang."
+      }
     }
   ]
 }

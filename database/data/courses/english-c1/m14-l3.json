@@ -160,6 +160,51 @@
         "ru": "Реклама — это искусство мягкого убеждения.",
         "uz": "Reklama — muloyim ishontirish san'ati."
       }
+    },
+    {
+      "word": "advertorial",
+      "part_of_speech": "noun",
+      "transcription": "/ˌædvərˈtɔriəl/",
+      "translation": "рекламная статья",
+      "translations": {
+        "ru": "рекламная статья",
+        "uz": "reklama maqolasi"
+      },
+      "example": "The magazine marked the skincare article as an advertorial.",
+      "example_translations": {
+        "ru": "Журнал пометил материал об уходе за кожей как рекламную статью.",
+        "uz": "Jurnal teri parvarishiga oid materialni reklama maqolasi deb belgiladi."
+      }
+    },
+    {
+      "word": "rebranding",
+      "part_of_speech": "noun",
+      "transcription": "/ˌriˈbrændɪŋ/",
+      "translation": "обновление бренда",
+      "translations": {
+        "ru": "обновление бренда",
+        "uz": "brendni yangilash"
+      },
+      "example": "The rebranding introduced brighter packaging and a shorter name.",
+      "example_translations": {
+        "ru": "Обновление бренда принесло более яркую упаковку и более короткое название.",
+        "uz": "Brend yangilangach, qadoq yorqinroq, nom esa qisqaroq bo'ldi."
+      }
+    },
+    {
+      "word": "merchandising",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɜrtʃənˌdaɪzɪŋ/",
+      "translation": "оформление выкладки товаров",
+      "translations": {
+        "ru": "оформление выкладки товаров",
+        "uz": "tovarlarni jozibali joylashtirish"
+      },
+      "example": "Better merchandising made popular products easier to spot.",
+      "example_translations": {
+        "ru": "Более удачное оформление выкладки сделало ходовые товары заметнее.",
+        "uz": "Tovarlar jozibaliroq joylashtirilgach, xaridorgir mahsulotlarni ko'rish osonlashdi."
+      }
     }
   ]
 }

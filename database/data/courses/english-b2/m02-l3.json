@@ -160,6 +160,51 @@
         "ru": "Сотрудников, проявляющих инициативу, часто повышают первыми.",
         "uz": "Tashabbus ko'rsatadigan xodimlar ko'pincha birinchi bo'lib lavozimga ko'tariladi."
       }
+    },
+    {
+      "word": "workflow",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwɜrkˌfloʊ/",
+      "translation": "рабочий процесс",
+      "translations": {
+        "ru": "рабочий процесс",
+        "uz": "ish jarayoni"
+      },
+      "example": "Our new workflow cuts the number of approvals.",
+      "example_translations": {
+        "ru": "Новый рабочий процесс сокращает число согласований.",
+        "uz": "Yangi ish jarayonimiz kelishuvlar sonini kamaytiradi."
+      }
+    },
+    {
+      "word": "throughput",
+      "part_of_speech": "noun",
+      "transcription": "/ˈθruˌpʊt/",
+      "translation": "пропускная способность",
+      "translations": {
+        "ru": "пропускная способность",
+        "uz": "o'tkazish quvvati"
+      },
+      "example": "The second conveyor increased our packaging line's throughput.",
+      "example_translations": {
+        "ru": "Второй конвейер увеличил пропускную способность нашей упаковочной линии.",
+        "uz": "Ikkinchi konveyer qadoqlash liniyamizning o'tkazish quvvatini oshirdi."
+      }
+    },
+    {
+      "word": "turnaround",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɜrnəˌraʊnd/",
+      "translation": "срок выполнения",
+      "translations": {
+        "ru": "срок выполнения",
+        "uz": "bajarish muddati"
+      },
+      "example": "Customers expect a fast turnaround on small orders.",
+      "example_translations": {
+        "ru": "Клиенты рассчитывают на короткий срок выполнения небольших заказов.",
+        "uz": "Mijozlar kichik buyurtmalar qisqa muddatda bajarilishini kutadi."
+      }
     }
   ]
 }

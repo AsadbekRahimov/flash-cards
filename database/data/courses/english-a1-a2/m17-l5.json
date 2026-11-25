@@ -160,6 +160,81 @@
         "ru": "Эта куртка — настоящая выгодная покупка.",
         "uz": "Bu kurtka yaxshi ekan, narxi ham juda arzon."
       }
+    },
+    {
+      "word": "broken",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈbroʊkən/",
+      "translation": "сломанный",
+      "translations": {
+        "ru": "сломанный",
+        "uz": "singan"
+      },
+      "example": "Can I return this broken lamp?",
+      "example_translations": {
+        "ru": "Можно вернуть эту сломанную лампу?",
+        "uz": "Bu singan chiroqni qaytarsam bo'ladimi?"
+      }
+    },
+    {
+      "word": "sturdy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈstərdi/",
+      "translation": "прочный",
+      "translations": {
+        "ru": "прочный",
+        "uz": "mustahkam"
+      },
+      "example": "We need a sturdy table for the kitchen.",
+      "example_translations": {
+        "ru": "На кухню нам нужен прочный стол.",
+        "uz": "Oshxonaga mustahkam stol kerak."
+      }
+    },
+    {
+      "word": "washable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈwɑʃəbəl/",
+      "translation": "пригодный для стирки",
+      "translations": {
+        "ru": "пригодный для стирки",
+        "uz": "yuvsa bo'ladigan"
+      },
+      "example": "Is the cushion cover washable at home?",
+      "example_translations": {
+        "ru": "Этот чехол для подушки можно стирать дома?",
+        "uz": "Bu yostiq jildini uyda yuvsa bo'ladimi?"
+      }
+    },
+    {
+      "word": "pricey",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpraɪsi/",
+      "translation": "дороговатый",
+      "translations": {
+        "ru": "дороговатый",
+        "uz": "ancha qimmat"
+      },
+      "example": "This jacket is a little pricey for me.",
+      "example_translations": {
+        "ru": "Эта куртка для меня дороговата.",
+        "uz": "Bu kurtka menga sal qimmatlik qiladi."
+      }
+    },
+    {
+      "word": "refundable",
+      "part_of_speech": "adjective",
+      "transcription": "/rɪˈfʌndəbəl/",
+      "translation": "с возвратом денег",
+      "translations": {
+        "ru": "с возвратом денег",
+        "uz": "puli qaytariladigan"
+      },
+      "example": "Ask whether your ticket is refundable.",
+      "example_translations": {
+        "ru": "Уточните, можно ли вернуть деньги за билет.",
+        "uz": "Chiptangizning puli qaytarilishini so'rang."
+      }
     }
   ]
 }

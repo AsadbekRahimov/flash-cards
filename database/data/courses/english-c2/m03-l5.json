@@ -160,6 +160,81 @@
         "ru": "«Отличная работа», — сказал он с язвительной усмешкой.",
         "uz": "«Zo'r ish», — dedi u zaharxanda tabassum bilan."
       }
+    },
+    {
+      "word": "mordant",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmɔrdənt/",
+      "translation": "едкий",
+      "translations": {
+        "ru": "едкий",
+        "uz": "achchiq kinoyali"
+      },
+      "example": "Her mordant wit made readers laugh at solemn speeches.",
+      "example_translations": {
+        "ru": "Её едкое остроумие заставляло читателей смеяться над торжественными речами.",
+        "uz": "Uning achchiq kinoyali hazillari o'quvchilarni tantanali nutqlar ustidan kuldirdi."
+      }
+    },
+    {
+      "word": "asperity",
+      "part_of_speech": "noun",
+      "transcription": "/æˈspɛrəti/",
+      "translation": "резкость тона",
+      "translations": {
+        "ru": "резкость тона",
+        "uz": "gapdagi keskinlik"
+      },
+      "example": "She replied with asperity after the third interruption.",
+      "example_translations": {
+        "ru": "Её перебили в третий раз, и она ответила с резкостью.",
+        "uz": "Uning gapini uchinchi marta bo'lishgach, u keskin ohangda javob berdi."
+      }
+    },
+    {
+      "word": "gnomic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈnoʊmɪk/",
+      "translation": "загадочно-афористичный",
+      "translations": {
+        "ru": "загадочно-афористичный",
+        "uz": "hikmatday qisqa va sirli"
+      },
+      "example": "His gnomic reply left us pondering its meaning.",
+      "example_translations": {
+        "ru": "Его загадочно-афористичный ответ оставил нас размышлять о его смысле.",
+        "uz": "Uning hikmatday qisqa va sirli javobi bizni ma'nosi haqida o'ylantirib qo'ydi."
+      }
+    },
+    {
+      "word": "gruff",
+      "part_of_speech": "adjective",
+      "transcription": "/grʌf/",
+      "translation": "грубоватый",
+      "translations": {
+        "ru": "грубоватый",
+        "uz": "dag'al ohangli"
+      },
+      "example": "His gruff tone concealed real concern for us.",
+      "example_translations": {
+        "ru": "За его грубоватым тоном скрывалась искренняя тревога за нас.",
+        "uz": "Dag'al ohangi ortida biz uchun chin dildan qayg'urayotgani yashirin edi."
+      }
+    },
+    {
+      "word": "wryly",
+      "part_of_speech": "adverb",
+      "transcription": "/ˈraɪli/",
+      "translation": "с сухой иронией",
+      "translations": {
+        "ru": "с сухой иронией",
+        "uz": "istehzo bilan"
+      },
+      "example": "She wryly called the crowded room a private retreat.",
+      "example_translations": {
+        "ru": "Она с сухой иронией назвала переполненную комнату местом для уединения.",
+        "uz": "U odamga to'la xonani istehzo bilan yolg'iz qoladigan joy deb atadi."
+      }
     }
   ]
 }

@@ -160,6 +160,66 @@
         "ru": "Тебе повезло, что у тебя есть работа.",
         "uz": "Sen ishing borligi bilan omadlisan."
       }
+    },
+    {
+      "word": "gloomy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈglumi/",
+      "translation": "унылый",
+      "translations": {
+        "ru": "унылый",
+        "uz": "tushkun"
+      },
+      "example": "You look gloomy after that phone call.",
+      "example_translations": {
+        "ru": "После того звонка вы выглядите уныло.",
+        "uz": "O'sha qo'ng'iroqdan keyin tushkun ko'rinyapsiz."
+      }
+    },
+    {
+      "word": "carefree",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkɛrˌfri/",
+      "translation": "беззаботный",
+      "translations": {
+        "ru": "беззаботный",
+        "uz": "beg'am"
+      },
+      "example": "We spent a carefree afternoon in the park.",
+      "example_translations": {
+        "ru": "Мы беззаботно провели вторую половину дня в парке.",
+        "uz": "Tushdan keyin bog'da beg'am vaqt o'tkazdik."
+      }
+    },
+    {
+      "word": "grumpy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈgrʌmpi/",
+      "translation": "ворчливый",
+      "translations": {
+        "ru": "ворчливый",
+        "uz": "badqovoq"
+      },
+      "example": "Dad gets grumpy when we make noise.",
+      "example_translations": {
+        "ru": "Папа начинает ворчать, когда мы шумим.",
+        "uz": "Biz shovqin qilsak, dadam badqovoq bo'lib qoladi."
+      }
+    },
+    {
+      "word": "cranky",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkræŋki/",
+      "translation": "раздражительный",
+      "translations": {
+        "ru": "раздражительный",
+        "uz": "jizzaki"
+      },
+      "example": "The baby gets cranky before her nap.",
+      "example_translations": {
+        "ru": "Перед дневным сном малышка становится раздражительной.",
+        "uz": "Kichkina qizaloq kunduzgi uyqu oldidan jizzaki bo'lib qoladi."
+      }
     }
   ]
 }

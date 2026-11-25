@@ -160,6 +160,81 @@
         "ru": "Вся нация смотрит матч.",
         "uz": "Butun mamlakat o'yinni tomosha qiladi."
       }
+    },
+    {
+      "word": "banquet",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbæŋkwət/",
+      "translation": "торжественный ужин",
+      "translations": {
+        "ru": "торжественный ужин",
+        "uz": "tantanali ziyofat"
+      },
+      "example": "We held a banquet for our guests.",
+      "example_translations": {
+        "ru": "Мы устроили торжественный ужин для гостей.",
+        "uz": "Mehmonlarimiz uchun tantanali ziyofat uyushtirdik."
+      }
+    },
+    {
+      "word": "celebration",
+      "part_of_speech": "noun",
+      "transcription": "/ˌsɛləˈbreɪʃən/",
+      "translation": "празднование",
+      "translations": {
+        "ru": "празднование",
+        "uz": "bayram tadbiri"
+      },
+      "example": "The celebration lasted until late that night.",
+      "example_translations": {
+        "ru": "Празднование продолжалось до поздней ночи.",
+        "uz": "Bayram tadbiri kechgacha davom etdi."
+      }
+    },
+    {
+      "word": "costume",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑstum/",
+      "translation": "праздничный костюм",
+      "translations": {
+        "ru": "праздничный костюм",
+        "uz": "bayram libosi"
+      },
+      "example": "She wore a colorful costume for the festival.",
+      "example_translations": {
+        "ru": "На фестивале она была в ярком праздничном костюме.",
+        "uz": "U festivalda rang-barang bayram libosi kiydi."
+      }
+    },
+    {
+      "word": "invitation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪnvəˈteɪʃən/",
+      "translation": "приглашение",
+      "translations": {
+        "ru": "приглашение",
+        "uz": "taklifnoma"
+      },
+      "example": "We sent an invitation to every guest.",
+      "example_translations": {
+        "ru": "Мы отправили приглашение каждому гостю.",
+        "uz": "Har bir mehmonga taklifnoma yubordik."
+      }
+    },
+    {
+      "word": "confetti",
+      "part_of_speech": "noun",
+      "transcription": "/kənˈfɛti/",
+      "translation": "конфетти",
+      "translations": {
+        "ru": "конфетти",
+        "uz": "konfetti"
+      },
+      "example": "People threw confetti at the end of the parade.",
+      "example_translations": {
+        "ru": "В конце парада люди бросали конфетти.",
+        "uz": "Parad oxirida odamlar konfetti sochishdi."
+      }
     }
   ]
 }

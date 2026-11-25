@@ -160,6 +160,81 @@
         "ru": "Куратор отобрал для выставки пятьдесят картин.",
         "uz": "Kurator ko'rgazma uchun ellikta rasm tanladi."
       }
+    },
+    {
+      "word": "exhibit",
+      "part_of_speech": "noun",
+      "transcription": "/ɪgˈzɪbət/",
+      "translation": "экспонат",
+      "translations": {
+        "ru": "экспонат",
+        "uz": "eksponat"
+      },
+      "example": "The exhibit was a sculpture made from recycled glass.",
+      "example_translations": {
+        "ru": "Экспонатом была скульптура из переработанного стекла.",
+        "uz": "Eksponat qayta ishlangan shishadan yasalgan haykal edi."
+      }
+    },
+    {
+      "word": "enamel",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˈnæməl/",
+      "translation": "эмаль",
+      "translations": {
+        "ru": "эмаль",
+        "uz": "emal"
+      },
+      "example": "The artist filled the metal shapes with blue enamel.",
+      "example_translations": {
+        "ru": "Художник заполнил металлические формы синей эмалью.",
+        "uz": "Rassom metall shakllarni ko'k emal bilan to'ldirdi."
+      }
+    },
+    {
+      "word": "charcoal",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtʃɑrˌkoʊl/",
+      "translation": "уголь для рисования",
+      "translations": {
+        "ru": "уголь для рисования",
+        "uz": "rasm chizish ko'miri"
+      },
+      "example": "She drew the portrait in charcoal on rough paper.",
+      "example_translations": {
+        "ru": "Она нарисовала портрет углём на шероховатой бумаге.",
+        "uz": "U g'adir-budur qog'ozga ko'mir bilan portret chizdi."
+      }
+    },
+    {
+      "word": "printmaking",
+      "part_of_speech": "noun",
+      "transcription": "/ˈprɪntˌmeɪkɪŋ/",
+      "translation": "печатная графика",
+      "translations": {
+        "ru": "печатная графика",
+        "uz": "bosma grafika"
+      },
+      "example": "In printmaking, one carved block can produce many images.",
+      "example_translations": {
+        "ru": "В печатной графике с одной резной формы можно сделать много оттисков.",
+        "uz": "Bosma grafikada bitta o'yma qolipdan ko'p nusxa olish mumkin."
+      }
+    },
+    {
+      "word": "sketchbook",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskɛtʃˌbʊk/",
+      "translation": "альбом для набросков",
+      "translations": {
+        "ru": "альбом для набросков",
+        "uz": "xomaki rasmlar daftari"
+      },
+      "example": "She drew the passing boats in her sketchbook.",
+      "example_translations": {
+        "ru": "Она зарисовывала проплывающие лодки в своём альбоме для набросков.",
+        "uz": "U yonidan suzib o'tayotgan qayiqlarni xomaki rasmlar daftariga chizdi."
+      }
     }
   ]
 }

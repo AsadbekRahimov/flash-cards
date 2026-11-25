@@ -160,6 +160,81 @@
         "ru": "Каждое лето пожары уничтожают большие участки леса.",
         "uz": "Har yozda yong'inlar o'rmonning katta maydonlarini yo'q qiladi."
       }
+    },
+    {
+      "word": "reusable",
+      "part_of_speech": "adjective",
+      "transcription": "/riˈuzəbəl/",
+      "translation": "многоразовый",
+      "translations": {
+        "ru": "многоразовый",
+        "uz": "ko'p marta ishlatiladigan"
+      },
+      "example": "I bring a reusable bag to the market.",
+      "example_translations": {
+        "ru": "Я беру на рынок многоразовую сумку.",
+        "uz": "Bozorga ko'p marta ishlatiladigan sumka olib boraman."
+      }
+    },
+    {
+      "word": "refillable",
+      "part_of_speech": "adjective",
+      "transcription": "/riˈfɪləbəl/",
+      "translation": "пополняемый",
+      "translations": {
+        "ru": "пополняемый",
+        "uz": "qayta to'ldiriladigan"
+      },
+      "example": "A refillable pen can last for years.",
+      "example_translations": {
+        "ru": "Ручка с пополняемым запасом чернил может служить годами.",
+        "uz": "Siyohi qayta to'ldiriladigan ruchka yillar davomida xizmat qilishi mumkin."
+      }
+    },
+    {
+      "word": "recyclable",
+      "part_of_speech": "adjective",
+      "transcription": "/riˈsaɪkləbəl/",
+      "translation": "пригодный для переработки",
+      "translations": {
+        "ru": "пригодный для переработки",
+        "uz": "qayta ishlash mumkin bo'lgan"
+      },
+      "example": "Put recyclable paper in the blue bin.",
+      "example_translations": {
+        "ru": "Бумагу, пригодную для переработки, кладите в синий контейнер.",
+        "uz": "Qayta ishlash mumkin bo'lgan qog'ozni ko'k qutiga soling."
+      }
+    },
+    {
+      "word": "greenery",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgrinəri/",
+      "translation": "зелень",
+      "translations": {
+        "ru": "зелень",
+        "uz": "yashil o'simliklar"
+      },
+      "example": "Greenery along the road provides shade in summer.",
+      "example_translations": {
+        "ru": "Зелень вдоль дороги летом даёт тень.",
+        "uz": "Yo'l bo'yidagi yashil o'simliklar yozda soya beradi."
+      }
+    },
+    {
+      "word": "littering",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɪtərɪŋ/",
+      "translation": "выбрасывание мусора в неположенных местах",
+      "translations": {
+        "ru": "выбрасывание мусора в неположенных местах",
+        "uz": "duch kelgan joyga axlat tashlash"
+      },
+      "example": "The park put up signs to discourage littering.",
+      "example_translations": {
+        "ru": "В парке установили таблички, чтобы люди не бросали мусор где попало.",
+        "uz": "Bog'da odamlar duch kelgan joyga axlat tashlamasligi uchun belgilar o'rnatildi."
+      }
     }
   ]
 }

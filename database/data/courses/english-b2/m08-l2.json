@@ -160,6 +160,66 @@
         "ru": "После выборов три партии сформировали коалицию.",
         "uz": "Saylovdan keyin uchta partiya koalitsiya tuzdi."
       }
+    },
+    {
+      "word": "electioneering",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˌlɛkʃəˈnɪrɪŋ/",
+      "translation": "предвыборная агитация",
+      "translations": {
+        "ru": "предвыборная агитация",
+        "uz": "saylovoldi tashviqoti"
+      },
+      "example": "Electioneering is forbidden inside the polling station.",
+      "example_translations": {
+        "ru": "На избирательном участке запрещена предвыборная агитация.",
+        "uz": "Saylov uchastkasida saylovoldi tashviqoti taqiqlanadi."
+      }
+    },
+    {
+      "word": "voter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvoʊtər/",
+      "translation": "избиратель",
+      "translations": {
+        "ru": "избиратель",
+        "uz": "saylovchi"
+      },
+      "example": "Each voter received a paper ballot.",
+      "example_translations": {
+        "ru": "Каждый избиратель получил бумажный бюллетень.",
+        "uz": "Har bir saylovchiga qog'oz byulleten berildi."
+      }
+    },
+    {
+      "word": "reelection",
+      "part_of_speech": "noun",
+      "transcription": "/ˌriɪˈlɛkʃən/",
+      "translation": "переизбрание",
+      "translations": {
+        "ru": "переизбрание",
+        "uz": "qayta saylanish"
+      },
+      "example": "The mayor announced she would seek reelection.",
+      "example_translations": {
+        "ru": "Мэр объявила, что будет добиваться переизбрания.",
+        "uz": "Shahar hokimi qayta saylanish uchun nomzodini qo'yishini e'lon qildi."
+      }
+    },
+    {
+      "word": "polling",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpoʊlɪŋ/",
+      "translation": "опрос общественного мнения",
+      "translations": {
+        "ru": "опрос общественного мнения",
+        "uz": "jamoatchilik fikrini o'rganish"
+      },
+      "example": "Recent polling suggests voters care most about housing.",
+      "example_translations": {
+        "ru": "По данным недавних опросов, избирателей больше всего волнует жильё.",
+        "uz": "Jamoatchilik fikrini o'rganish uchun o'tkazilgan so'nggi so'rovlar saylovchilarni eng ko'p uy-joy masalasi tashvishlantirishini ko'rsatmoqda."
+      }
     }
   ]
 }

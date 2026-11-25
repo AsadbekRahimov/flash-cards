@@ -160,6 +160,66 @@
         "ru": "Мы смотрим футбол на стадионе.",
         "uz": "Biz futbolni stadionda tomosha qilamiz."
       }
+    },
+    {
+      "word": "bookstore",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbʊkstɔr/",
+      "translation": "книжный магазин",
+      "translations": {
+        "ru": "книжный магазин",
+        "uz": "kitob do'koni"
+      },
+      "example": "We buy books at this bookstore.",
+      "example_translations": {
+        "ru": "Мы покупаем книги в этом книжном магазине.",
+        "uz": "Biz kitobni shu kitob do'konidan olamiz."
+      }
+    },
+    {
+      "word": "barbershop",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɑrbərʃɑp/",
+      "translation": "мужская парикмахерская",
+      "translations": {
+        "ru": "мужская парикмахерская",
+        "uz": "erkaklar sartaroshxonasi"
+      },
+      "example": "My dad gets his hair cut at that barbershop.",
+      "example_translations": {
+        "ru": "Папа стрижётся в той мужской парикмахерской.",
+        "uz": "Dadam o'sha erkaklar sartaroshxonasida soch oldiradi."
+      }
+    },
+    {
+      "word": "zoo",
+      "part_of_speech": "noun",
+      "transcription": "/zu/",
+      "translation": "зоопарк",
+      "translations": {
+        "ru": "зоопарк",
+        "uz": "hayvonot bog'i"
+      },
+      "example": "I saw a lion at the zoo.",
+      "example_translations": {
+        "ru": "Я увидел льва в зоопарке.",
+        "uz": "Hayvonot bog'ida sher ko'rdim."
+      }
+    },
+    {
+      "word": "salon",
+      "part_of_speech": "noun",
+      "transcription": "/səˈlɑn/",
+      "translation": "салон красоты",
+      "translations": {
+        "ru": "салон красоты",
+        "uz": "go'zallik saloni"
+      },
+      "example": "She got her hair cut at the salon.",
+      "example_translations": {
+        "ru": "Она подстриглась в салоне красоты.",
+        "uz": "U go'zallik salonida soch oldirdi."
+      }
     }
   ]
 }

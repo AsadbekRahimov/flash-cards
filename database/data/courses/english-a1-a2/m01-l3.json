@@ -160,6 +160,21 @@
         "ru": "Рад познакомиться!",
         "uz": "Tanishganimdan xursandman!"
       }
+    },
+    {
+      "word": "hometown",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhoʊmtaʊn/",
+      "translation": "родной город",
+      "translations": {
+        "ru": "родной город",
+        "uz": "ona shahar"
+      },
+      "example": "My hometown is by the sea.",
+      "example_translations": {
+        "ru": "Мой родной город у моря.",
+        "uz": "Ona shahrim dengiz bo'yida."
+      }
     }
   ]
 }

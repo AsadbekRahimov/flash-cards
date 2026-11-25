@@ -160,6 +160,66 @@
         "ru": "Поездка вновь пробудила в ней детскую любовь к живописи.",
         "uz": "Sayohat unda bolalikdagi rasm chizishga muhabbatni qayta uyg'otdi."
       }
+    },
+    {
+      "word": "recrudescence",
+      "part_of_speech": "noun",
+      "transcription": "/ˌrikruˈdɛsəns/",
+      "translation": "новая вспышка",
+      "translations": {
+        "ru": "новая вспышка",
+        "uz": "qayta kuchayish"
+      },
+      "example": "The report documents a recrudescence of tensions after negotiations.",
+      "example_translations": {
+        "ru": "В отчёте зафиксирована новая вспышка напряжённости после переговоров.",
+        "uz": "Hisobotda muzokaralardan keyin taranglik qayta kuchaygani qayd etilgan."
+      }
+    },
+    {
+      "word": "renascence",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈnæsəns/",
+      "translation": "возрождение",
+      "translations": {
+        "ru": "возрождение",
+        "uz": "yangidan ravnaq topish"
+      },
+      "example": "Affordable studios helped spark the neighborhood's artistic renascence.",
+      "example_translations": {
+        "ru": "Недорогие мастерские дали толчок художественному возрождению района.",
+        "uz": "Arzon ustaxonalar mahallada san'atning yangidan ravnaq topishiga turtki berdi."
+      }
+    },
+    {
+      "word": "ossification",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɑsəfəˈkeɪʃən/",
+      "translation": "закостенение",
+      "translations": {
+        "ru": "закостенение",
+        "uz": "qotib qolish"
+      },
+      "example": "Repeated use of old procedures led to bureaucratic ossification.",
+      "example_translations": {
+        "ru": "Постоянное использование старых процедур привело к бюрократическому закостенению.",
+        "uz": "Eski tartiblarni qayta-qayta qo'llash idoraviy tizimning qotib qolishiga olib keldi."
+      }
+    },
+    {
+      "word": "languish",
+      "part_of_speech": "verb",
+      "transcription": "/ˈlæŋgwɪʃ/",
+      "translation": "приходить в упадок",
+      "translations": {
+        "ru": "приходить в упадок",
+        "uz": "tanazzulga yuz tutmoq"
+      },
+      "example": "Without maintenance, public gardens can languish for years.",
+      "example_translations": {
+        "ru": "Без ухода общественные сады могут годами приходить в упадок.",
+        "uz": "Parvarish bo'lmasa, jamoat bog'lari yillar davomida tanazzulga yuz tutishi mumkin."
+      }
     }
   ]
 }

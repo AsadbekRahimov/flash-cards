@@ -160,6 +160,66 @@
         "ru": "Моя семья поддерживает моё решение.",
         "uz": "Oilam mening qarorimni qo'llab-quvvatlaydi."
       }
+    },
+    {
+      "word": "boyfriend",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɔɪˌfrɛnd/",
+      "translation": "парень",
+      "translations": {
+        "ru": "парень",
+        "uz": "sevgilisi"
+      },
+      "example": "Malika went to the movies with her boyfriend.",
+      "example_translations": {
+        "ru": "Малика пошла в кино со своим парнем.",
+        "uz": "Malika sevgilisi bilan kinoga bordi."
+      }
+    },
+    {
+      "word": "girlfriend",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgərlˌfrɛnd/",
+      "translation": "девушка",
+      "translations": {
+        "ru": "девушка",
+        "uz": "sevgan qizi"
+      },
+      "example": "Aziz bought flowers for his girlfriend.",
+      "example_translations": {
+        "ru": "Азиз купил цветы своей девушке.",
+        "uz": "Aziz sevgan qiziga gul sotib oldi."
+      }
+    },
+    {
+      "word": "reunion",
+      "part_of_speech": "noun",
+      "transcription": "/riˈjunjən/",
+      "translation": "встреча после разлуки",
+      "translations": {
+        "ru": "встреча после разлуки",
+        "uz": "ayriliqdan keyingi uchrashuv"
+      },
+      "example": "It was our first reunion after ten years.",
+      "example_translations": {
+        "ru": "Это была наша первая встреча после десяти лет разлуки.",
+        "uz": "Bu o'n yillik ayriliqdan keyingi birinchi uchrashuvimiz edi."
+      }
+    },
+    {
+      "word": "greeting",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgritɪŋ/",
+      "translation": "приветствие",
+      "translations": {
+        "ru": "приветствие",
+        "uz": "salomlashish"
+      },
+      "example": "She gave us a friendly greeting at the door.",
+      "example_translations": {
+        "ru": "Она дружелюбно поприветствовала нас у двери.",
+        "uz": "U eshik oldida biz bilan samimiy salomlashdi."
+      }
     }
   ]
 }

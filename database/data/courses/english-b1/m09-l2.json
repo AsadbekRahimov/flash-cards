@@ -160,6 +160,66 @@
         "ru": "Напишите один абзац о своём любимом учителе.",
         "uz": "Sevimli o'qituvchingiz haqida bitta xatboshi yozing."
       }
+    },
+    {
+      "word": "whiteboard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwaɪtˌbɔrd/",
+      "translation": "маркерная доска",
+      "translations": {
+        "ru": "маркерная доска",
+        "uz": "marker doskasi"
+      },
+      "example": "The teacher drew a map on the whiteboard.",
+      "example_translations": {
+        "ru": "Учитель нарисовал карту на маркерной доске.",
+        "uz": "O'qituvchi marker doskasiga xarita chizdi."
+      }
+    },
+    {
+      "word": "blackboard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈblækˌbɔrd/",
+      "translation": "меловая доска",
+      "translations": {
+        "ru": "меловая доска",
+        "uz": "bo'r bilan yoziladigan doska"
+      },
+      "example": "She wrote today's date on the blackboard.",
+      "example_translations": {
+        "ru": "Она написала сегодняшнюю дату мелом на доске.",
+        "uz": "U bo'r bilan doskaga bugungi sanani yozdi."
+      }
+    },
+    {
+      "word": "handout",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhændˌaʊt/",
+      "translation": "раздаточный материал",
+      "translations": {
+        "ru": "раздаточный материал",
+        "uz": "tarqatma material"
+      },
+      "example": "The teacher gave each student a handout.",
+      "example_translations": {
+        "ru": "Учитель выдал каждому ученику раздаточный материал.",
+        "uz": "O'qituvchi har bir o'quvchiga tarqatma material berdi."
+      }
+    },
+    {
+      "word": "worksheet",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwɜrkˌʃit/",
+      "translation": "лист с заданиями",
+      "translations": {
+        "ru": "лист с заданиями",
+        "uz": "topshiriqlar varag'i"
+      },
+      "example": "This worksheet has ten short math problems.",
+      "example_translations": {
+        "ru": "На этом листе с заданиями десять коротких примеров по математике.",
+        "uz": "Bu topshiriqlar varag'ida o'nta qisqa matematik masala bor."
+      }
     }
   ]
 }

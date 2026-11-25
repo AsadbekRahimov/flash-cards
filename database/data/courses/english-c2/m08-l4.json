@@ -160,6 +160,66 @@
         "ru": "После долгого отступления от темы рассказчик возвращается к истории.",
         "uz": "Mavzudan uzoq chekinishdan so'ng hikoyachi voqeaga qaytadi."
       }
+    },
+    {
+      "word": "antihero",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæntiˌhɪroʊ/",
+      "translation": "антигерой",
+      "translations": {
+        "ru": "антигерой",
+        "uz": "qahramonlik fazilatlaridan yiroq bosh qahramon"
+      },
+      "example": "The antihero lies whenever telling the truth seems inconvenient.",
+      "example_translations": {
+        "ru": "Антигерой лжёт всякий раз, когда говорить правду ему неудобно.",
+        "uz": "Qahramonlik fazilatlaridan yiroq bosh qahramon rostini aytish noqulay bo'lganda doim yolg'on gapiradi."
+      }
+    },
+    {
+      "word": "foil",
+      "part_of_speech": "noun",
+      "transcription": "/fɔɪl/",
+      "translation": "контрастный персонаж",
+      "translations": {
+        "ru": "контрастный персонаж",
+        "uz": "asosiy qahramonga qarama-qarshi obraz"
+      },
+      "example": "The impulsive brother serves as a foil to her.",
+      "example_translations": {
+        "ru": "Импульсивный брат служит контрастным персонажем по отношению к ней.",
+        "uz": "Shoshqaloq akasi qizga qarama-qarshi obraz bo'lib xizmat qiladi."
+      }
+    },
+    {
+      "word": "denouement",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdeɪnuˈmɑn/",
+      "translation": "развязка сюжета",
+      "translations": {
+        "ru": "развязка сюжета",
+        "uz": "syujet yechimi"
+      },
+      "example": "The denouement reveals why the letters were never sent.",
+      "example_translations": {
+        "ru": "В развязке становится ясно, почему письма так и не отправили.",
+        "uz": "Syujet yechimida xatlar nega umuman jo'natilmagani oshkor bo'ladi."
+      }
+    },
+    {
+      "word": "episodic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɛpəˈsɑdɪk/",
+      "translation": "состоящий из отдельных эпизодов",
+      "translations": {
+        "ru": "состоящий из отдельных эпизодов",
+        "uz": "alohida epizodlardan iborat"
+      },
+      "example": "The episodic novel follows a different character each chapter.",
+      "example_translations": {
+        "ru": "В романе из отдельных эпизодов в каждой главе появляется другой главный персонаж.",
+        "uz": "Alohida epizodlardan iborat romanning har bir bobi boshqa qahramon haqida hikoya qiladi."
+      }
     }
   ]
 }

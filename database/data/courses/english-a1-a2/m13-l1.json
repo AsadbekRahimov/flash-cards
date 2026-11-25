@@ -160,6 +160,66 @@
         "ru": "Она расстроена, потому что потеряла ключ.",
         "uz": "U kalitini yo'qotgani uchun xafa."
       }
+    },
+    {
+      "word": "thankful",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈθæŋkfəl/",
+      "translation": "благодарный",
+      "translations": {
+        "ru": "благодарный",
+        "uz": "minnatdor"
+      },
+      "example": "I am thankful for all your help.",
+      "example_translations": {
+        "ru": "Я благодарен за всю вашу помощь.",
+        "uz": "Barcha yordamingiz uchun minnatdorman."
+      }
+    },
+    {
+      "word": "pleased",
+      "part_of_speech": "adjective",
+      "transcription": "/plizd/",
+      "translation": "довольный",
+      "translations": {
+        "ru": "довольный",
+        "uz": "mamnun"
+      },
+      "example": "My teacher was pleased with my work.",
+      "example_translations": {
+        "ru": "Моя учительница была довольна моей работой.",
+        "uz": "O'qituvchim ishimdan mamnun bo'ldi."
+      }
+    },
+    {
+      "word": "shocked",
+      "part_of_speech": "adjective",
+      "transcription": "/ʃɑkt/",
+      "translation": "потрясённый",
+      "translations": {
+        "ru": "потрясённый",
+        "uz": "qattiq hayratda qolgan"
+      },
+      "example": "We were shocked by the sudden news.",
+      "example_translations": {
+        "ru": "Мы были потрясены неожиданной новостью.",
+        "uz": "Kutilmagan xabardan qattiq hayratda qoldik."
+      }
+    },
+    {
+      "word": "eager",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈigər/",
+      "translation": "горящий желанием",
+      "translations": {
+        "ru": "горящий желанием",
+        "uz": "ishtiyoqmand"
+      },
+      "example": "The children are eager to learn to swim.",
+      "example_translations": {
+        "ru": "Дети горят желанием научиться плавать.",
+        "uz": "Bolalar suzishni o'rganishga ishtiyoqmand."
+      }
     }
   ]
 }

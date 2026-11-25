@@ -160,6 +160,66 @@
         "ru": "Будет ли продолжение у этого приключенческого фильма?",
         "uz": "Bu sarguzasht filmining davomi bo'ladimi?"
       }
+    },
+    {
+      "word": "choreographer",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɔriˈɑgrəfər/",
+      "translation": "хореограф",
+      "translations": {
+        "ru": "хореограф",
+        "uz": "xoreograf"
+      },
+      "example": "The choreographer taught the dancers a new routine.",
+      "example_translations": {
+        "ru": "Хореограф разучил с танцорами новый номер.",
+        "uz": "Xoreograf raqqoslarga yangi raqsni o'rgatdi."
+      }
+    },
+    {
+      "word": "stunt",
+      "part_of_speech": "noun",
+      "transcription": "/stʌnt/",
+      "translation": "трюк",
+      "translations": {
+        "ru": "трюк",
+        "uz": "tryuk"
+      },
+      "example": "A trained performer did the stunt on camera.",
+      "example_translations": {
+        "ru": "Подготовленный артист выполнил трюк перед камерой.",
+        "uz": "Maxsus tayyorgarlik ko'rgan ijrochi kamera qarshisida tryuk bajardi."
+      }
+    },
+    {
+      "word": "stagehand",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsteɪdʒˌhænd/",
+      "translation": "рабочий сцены",
+      "translations": {
+        "ru": "рабочий сцены",
+        "uz": "sahna ishchisi"
+      },
+      "example": "The stagehand moved the sofa before the next scene.",
+      "example_translations": {
+        "ru": "Рабочий сцены переставил диван перед следующей сценой.",
+        "uz": "Sahna ishchisi keyingi sahnadan oldin divanning joyini o'zgartirdi."
+      }
+    },
+    {
+      "word": "choreograph",
+      "part_of_speech": "verb",
+      "transcription": "/ˈkɔriəˌgræf/",
+      "translation": "ставить танец",
+      "translations": {
+        "ru": "ставить танец",
+        "uz": "raqs sahnalashtirmoq"
+      },
+      "example": "They hired a dancer to choreograph the final scene.",
+      "example_translations": {
+        "ru": "Они наняли танцора, чтобы поставить танец для финальной сцены.",
+        "uz": "Yakuniy sahna uchun raqs sahnalashtirishga raqqos yollashdi."
+      }
     }
   ]
 }

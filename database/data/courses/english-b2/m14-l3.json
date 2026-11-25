@@ -160,6 +160,66 @@
         "ru": "Мои предки пришли в эту долину земледельцами.",
         "uz": "Ajdodlarim bu vodiyga dehqon bo'lib kelgan."
       }
+    },
+    {
+      "word": "customary",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkʌstəˌmɛri/",
+      "translation": "принятый по обычаю",
+      "translations": {
+        "ru": "принятый по обычаю",
+        "uz": "odat tusiga kirgan"
+      },
+      "example": "It's customary to bring flowers when visiting here.",
+      "example_translations": {
+        "ru": "Здесь принято приносить цветы, когда идёшь в гости.",
+        "uz": "Bu yerda mehmonga borganda gul olib borish odat tusiga kirgan."
+      }
+    },
+    {
+      "word": "respectful",
+      "part_of_speech": "adjective",
+      "transcription": "/rɪˈspɛktfəl/",
+      "translation": "уважительный",
+      "translations": {
+        "ru": "уважительный",
+        "uz": "hurmat bilan munosabatda bo'ladigan"
+      },
+      "example": "Please be respectful when visiting a place of worship.",
+      "example_translations": {
+        "ru": "Пожалуйста, ведите себя уважительно при посещении места поклонения.",
+        "uz": "Ibodat joyiga borganingizda u yerga hurmat bilan munosabatda bo'ling."
+      }
+    },
+    {
+      "word": "handshake",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhændˌʃeɪk/",
+      "translation": "рукопожатие",
+      "translations": {
+        "ru": "рукопожатие",
+        "uz": "qo'l siqib ko'rishish"
+      },
+      "example": "They greeted each other with a firm handshake.",
+      "example_translations": {
+        "ru": "Они поприветствовали друг друга крепким рукопожатием.",
+        "uz": "Ular bir-birining qo'lini mahkam siqib ko'rishishdi."
+      }
+    },
+    {
+      "word": "ceremonious",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌsɛrəˈmoʊniəs/",
+      "translation": "церемонный",
+      "translations": {
+        "ru": "церемонный",
+        "uz": "rasm-rusumga boy"
+      },
+      "example": "The town gave its guests a ceremonious welcome.",
+      "example_translations": {
+        "ru": "Город устроил гостям церемонный приём.",
+        "uz": "Shahar mehmonlarini rasm-rusumlarga boy marosim bilan kutib oldi."
+      }
     }
   ]
 }

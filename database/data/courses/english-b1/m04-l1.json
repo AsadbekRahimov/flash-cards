@@ -160,6 +160,81 @@
         "ru": "Орехи и сухофрукты — полезный перекус.",
         "uz": "Yong'oq va quritilgan mevalar foydali yengil yegulik hisoblanadi."
       }
+    },
+    {
+      "word": "oatmeal",
+      "part_of_speech": "noun",
+      "transcription": "/ˈoʊtˌmil/",
+      "translation": "овсяная каша",
+      "translations": {
+        "ru": "овсяная каша",
+        "uz": "suli bo'tqasi"
+      },
+      "example": "We eat oatmeal with fruit for breakfast.",
+      "example_translations": {
+        "ru": "На завтрак мы едим овсяную кашу с фруктами.",
+        "uz": "Nonushtaga mevali suli bo'tqasi yeymiz."
+      }
+    },
+    {
+      "word": "cinnamon",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪnəmən/",
+      "translation": "корица",
+      "translations": {
+        "ru": "корица",
+        "uz": "dolchin"
+      },
+      "example": "Add a little cinnamon to the apple pie.",
+      "example_translations": {
+        "ru": "Добавьте в яблочный пирог немного корицы.",
+        "uz": "Olmali pirogga ozgina dolchin qo'shing."
+      }
+    },
+    {
+      "word": "ginger",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʒɪndʒər/",
+      "translation": "имбирь",
+      "translations": {
+        "ru": "имбирь",
+        "uz": "zanjabil"
+      },
+      "example": "Fresh ginger gives this soup a strong flavor.",
+      "example_translations": {
+        "ru": "Свежий имбирь придаёт этому супу насыщенный вкус.",
+        "uz": "Yangi zanjabil bu sho'rvaga o'tkir ta'm beradi."
+      }
+    },
+    {
+      "word": "lentil",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɛntəl/",
+      "translation": "чечевица",
+      "translations": {
+        "ru": "чечевица",
+        "uz": "yasmiq"
+      },
+      "example": "Let's make lentil soup for dinner.",
+      "example_translations": {
+        "ru": "Давайте приготовим чечевичный суп на ужин.",
+        "uz": "Keling, kechki ovqatga yasmiq sho'rva tayyorlaylik."
+      }
+    },
+    {
+      "word": "chickpea",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtʃɪkˌpi/",
+      "translation": "нут",
+      "translations": {
+        "ru": "нут",
+        "uz": "no'xat"
+      },
+      "example": "I made a chickpea salad for lunch.",
+      "example_translations": {
+        "ru": "Я приготовил салат с нутом на обед.",
+        "uz": "Tushlikka no'xatli salat tayyorladim."
+      }
     }
   ]
 }

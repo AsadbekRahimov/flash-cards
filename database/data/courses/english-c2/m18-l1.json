@@ -160,6 +160,66 @@
         "ru": "Заполнение анкет заняло непомерное количество времени.",
         "uz": "Anketalarni to'ldirish haddan tashqari ko'p vaqt oldi."
       }
+    },
+    {
+      "word": "paucity",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɔsəti/",
+      "translation": "скудость, нехватка",
+      "translations": {
+        "ru": "скудость, нехватка",
+        "uz": "tanqislik"
+      },
+      "example": "The researchers noted a paucity of reliable long-term data.",
+      "example_translations": {
+        "ru": "Исследователи отметили нехватку надёжных долгосрочных данных.",
+        "uz": "Tadqiqotchilar ishonchli uzoq muddatli ma'lumotlar tanqisligini qayd etdi."
+      }
+    },
+    {
+      "word": "profusion",
+      "part_of_speech": "noun",
+      "transcription": "/prəˈfjuʒən/",
+      "translation": "изобилие",
+      "translations": {
+        "ru": "изобилие",
+        "uz": "mo'llik"
+      },
+      "example": "A profusion of wildflowers covered the hillside in May.",
+      "example_translations": {
+        "ru": "В мае склон покрылся изобилием полевых цветов.",
+        "uz": "May oyida tepalik yonbag'rida dala gullari mo'l-ko'l ochildi."
+      }
+    },
+    {
+      "word": "surfeit",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɜrfət/",
+      "translation": "переизбыток",
+      "translations": {
+        "ru": "переизбыток",
+        "uz": "haddan tashqari ko'plik"
+      },
+      "example": "A surfeit of options made choosing a course difficult.",
+      "example_translations": {
+        "ru": "Переизбыток вариантов затруднил выбор курса.",
+        "uz": "Variantlarning haddan tashqari ko'pligi kurs tanlashni qiyinlashtirdi."
+      }
+    },
+    {
+      "word": "modicum",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɑdɪkəm/",
+      "translation": "малая доля",
+      "translations": {
+        "ru": "малая доля",
+        "uz": "ozgina miqdor"
+      },
+      "example": "A modicum of patience would have prevented this misunderstanding.",
+      "example_translations": {
+        "ru": "Малая доля терпения предотвратила бы это недоразумение.",
+        "uz": "Ozgina sabr bu tushunmovchilikning oldini olgan bo'lardi."
+      }
     }
   ]
 }

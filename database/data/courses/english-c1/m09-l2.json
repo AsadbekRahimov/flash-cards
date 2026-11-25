@@ -160,6 +160,36 @@
         "ru": "У нашего соседа весёлый, дружелюбный нрав.",
         "uz": "Qo'shnimizning fe'l-atvori quvnoq va do'stona."
       }
+    },
+    {
+      "word": "gratification",
+      "part_of_speech": "noun",
+      "transcription": "/ˌgrætəfəˈkeɪʃən/",
+      "translation": "удовлетворение",
+      "translations": {
+        "ru": "удовлетворение",
+        "uz": "qoniqish"
+      },
+      "example": "Planting a garden requires patience and delays gratification.",
+      "example_translations": {
+        "ru": "Работа в саду требует терпения, и удовлетворение приходит не сразу.",
+        "uz": "Bog' yaratish sabr talab qiladi va qoniqish darhol kelmaydi."
+      }
+    },
+    {
+      "word": "reinforcement",
+      "part_of_speech": "noun",
+      "transcription": "/ˌriɪnˈfɔrsmənt/",
+      "translation": "подкрепление",
+      "translations": {
+        "ru": "подкрепление",
+        "uz": "xatti-harakatni mustahkamlash"
+      },
+      "example": "Praise can provide reinforcement for a new habit.",
+      "example_translations": {
+        "ru": "Похвала может служить подкреплением новой привычки.",
+        "uz": "Maqtov yangi odatni mustahkamlashga yordam berishi mumkin."
+      }
     }
   ]
 }

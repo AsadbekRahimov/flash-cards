@@ -160,6 +160,36 @@
         "ru": "Прогнозирование погоды требует огромной вычислительной мощности.",
         "uz": "Ob-havoni bashorat qilish ulkan hisoblash quvvatini talab qiladi."
       }
+    },
+    {
+      "word": "classifier",
+      "part_of_speech": "noun",
+      "transcription": "/ˈklæsəˌfaɪər/",
+      "translation": "классификатор",
+      "translations": {
+        "ru": "классификатор",
+        "uz": "tasniflagich"
+      },
+      "example": "A classifier sorts incoming messages into three categories.",
+      "example_translations": {
+        "ru": "Классификатор распределяет входящие сообщения по трём категориям.",
+        "uz": "Tasniflagich kelgan xabarlarni uch toifaga ajratadi."
+      }
+    },
+    {
+      "word": "probabilistic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌprɑbəbəˈlɪstɪk/",
+      "translation": "вероятностный",
+      "translations": {
+        "ru": "вероятностный",
+        "uz": "ehtimollikka asoslangan"
+      },
+      "example": "Our probabilistic model estimates the chances of rain.",
+      "example_translations": {
+        "ru": "Наша вероятностная модель оценивает вероятность дождя.",
+        "uz": "Ehtimollikka asoslangan modelimiz yomg'ir yog'ish ehtimolini baholaydi."
+      }
     }
   ]
 }

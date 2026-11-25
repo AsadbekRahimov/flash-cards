@@ -160,6 +160,66 @@
         "ru": "На ней была диковинная шляпа, покрытая пластиковыми фруктами.",
         "uz": "U plastik mevalar bilan qoplangan g'aroyib shlyapa kiygan edi."
       }
+    },
+    {
+      "word": "quotidian",
+      "part_of_speech": "adjective",
+      "transcription": "/kwoʊˈtɪdiən/",
+      "translation": "будничный",
+      "translations": {
+        "ru": "будничный",
+        "uz": "kundalik"
+      },
+      "example": "The poet found beauty in the city's quotidian routines.",
+      "example_translations": {
+        "ru": "Поэт находил красоту в будничном укладе городской жизни.",
+        "uz": "Shoir shaharning kundalik hayotida go'zallik ko'rardi."
+      }
+    },
+    {
+      "word": "prodigious",
+      "part_of_speech": "adjective",
+      "transcription": "/prəˈdɪdʒəs/",
+      "translation": "поразительно большой",
+      "translations": {
+        "ru": "поразительно большой",
+        "uz": "hayratlanarli darajada katta"
+      },
+      "example": "The archive contains a prodigious amount of correspondence.",
+      "example_translations": {
+        "ru": "В архиве хранится поразительно большое количество писем.",
+        "uz": "Arxivda hayratlanarli darajada ko'p maktub saqlanadi."
+      }
+    },
+    {
+      "word": "anomalous",
+      "part_of_speech": "adjective",
+      "transcription": "/əˈnɑmələs/",
+      "translation": "отклоняющийся от нормы",
+      "translations": {
+        "ru": "отклоняющийся от нормы",
+        "uz": "me'yordan chetga chiqqan"
+      },
+      "example": "The team set aside one anomalous reading for review.",
+      "example_translations": {
+        "ru": "Команда отложила одно отклоняющееся от нормы показание для проверки.",
+        "uz": "Jamoa me'yordan chetga chiqqan bitta ko'rsatkichni tekshirish uchun ajratib qo'ydi."
+      }
+    },
+    {
+      "word": "peerless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpɪrləs/",
+      "translation": "непревзойдённый",
+      "translations": {
+        "ru": "непревзойдённый",
+        "uz": "tengi yo'q"
+      },
+      "example": "She remains peerless among interpreters of these piano works.",
+      "example_translations": {
+        "ru": "Она остаётся непревзойдённой исполнительницей этих фортепианных произведений.",
+        "uz": "Bu fortepiano asarlarini ijro etishda hanuz uning tengi yo'q."
+      }
     }
   ]
 }

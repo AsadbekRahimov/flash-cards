@@ -160,6 +160,36 @@
         "ru": "Что ты делаешь в выходные?",
         "uz": "Dam olish kunlari nima qilasan?"
       }
+    },
+    {
+      "word": "weekdays",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwikdeɪz/",
+      "translation": "будни",
+      "translations": {
+        "ru": "будни",
+        "uz": "ish kunlari"
+      },
+      "example": "We get up early on weekdays.",
+      "example_translations": {
+        "ru": "По будням мы встаём рано.",
+        "uz": "Ish kunlari erta turamiz."
+      }
+    },
+    {
+      "word": "workday",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwərkdeɪ/",
+      "translation": "рабочий день",
+      "translations": {
+        "ru": "рабочий день",
+        "uz": "ish kuni"
+      },
+      "example": "My workday starts at eight every morning.",
+      "example_translations": {
+        "ru": "Мой рабочий день начинается в восемь утра.",
+        "uz": "Ish kunim har kuni ertalab soat sakkizda boshlanadi."
+      }
     }
   ]
 }

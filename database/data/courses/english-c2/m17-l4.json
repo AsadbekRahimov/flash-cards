@@ -160,6 +160,66 @@
         "ru": "После многих лет застоя экономика наконец начала расти.",
         "uz": "Ko'p yillik turg'unlikdan so'ng iqtisodiyot nihoyat o'sa boshladi."
       }
+    },
+    {
+      "word": "mutable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmjutəbəl/",
+      "translation": "изменчивый",
+      "translations": {
+        "ru": "изменчивый",
+        "uz": "o'zgaruvchan"
+      },
+      "example": "In the novel, identities are mutable and often deliberately reinvented.",
+      "example_translations": {
+        "ru": "В романе личности изменчивы, и их часто сознательно переосмысливают.",
+        "uz": "Romanda shaxsiyat o'zgaruvchan, qahramonlar ko'pincha o'zlarini ataylab yangicha namoyon qiladi."
+      }
+    },
+    {
+      "word": "transitory",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtrænzəˌtɔri/",
+      "translation": "преходящий",
+      "translations": {
+        "ru": "преходящий",
+        "uz": "o'tkinchi"
+      },
+      "example": "The sudden surge in demand proved transitory.",
+      "example_translations": {
+        "ru": "Резкий скачок спроса оказался преходящим.",
+        "uz": "Talabning keskin oshishi o'tkinchi bo'lib chiqdi."
+      }
+    },
+    {
+      "word": "inexorably",
+      "part_of_speech": "adverb",
+      "transcription": "/ɪnˈɛksərəbli/",
+      "translation": "неумолимо",
+      "translations": {
+        "ru": "неумолимо",
+        "uz": "to'xtovsiz"
+      },
+      "example": "The tide rose inexorably around the isolated rock.",
+      "example_translations": {
+        "ru": "Вода во время прилива неумолимо поднималась вокруг одинокой скалы.",
+        "uz": "Dengiz suvi yolg'iz qoya atrofida to'xtovsiz ko'tarilaverdi."
+      }
+    },
+    {
+      "word": "ineluctable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪnɪˈlʌktəbəl/",
+      "translation": "неотвратимый",
+      "translations": {
+        "ru": "неотвратимый",
+        "uz": "muqarrar"
+      },
+      "example": "The play follows the family toward its ineluctable separation.",
+      "example_translations": {
+        "ru": "Пьеса показывает, как семья приближается к неотвратимому расставанию.",
+        "uz": "Pyesa oilaning muqarrar ayriliqqa qanday yaqinlashib borishini ko'rsatadi."
+      }
     }
   ]
 }

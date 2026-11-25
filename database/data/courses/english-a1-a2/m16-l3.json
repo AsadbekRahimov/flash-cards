@@ -160,6 +160,81 @@
         "ru": "Готовка — моя любимая домашняя обязанность.",
         "uz": "Uy yumushlaridan ovqat pishirishni eng yaxshi ko'raman."
       }
+    },
+    {
+      "word": "dustpan",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʌstˌpæn/",
+      "translation": "совок для мусора",
+      "translations": {
+        "ru": "совок для мусора",
+        "uz": "chiqindi kuragi"
+      },
+      "example": "Sweep the crumbs into the dustpan.",
+      "example_translations": {
+        "ru": "Сметите крошки в совок для мусора.",
+        "uz": "Uvoqlarni chiqindi kuragiga supuring."
+      }
+    },
+    {
+      "word": "hang",
+      "part_of_speech": "verb",
+      "transcription": "/hæŋ/",
+      "translation": "вешать",
+      "translations": {
+        "ru": "вешать",
+        "uz": "ilmoq"
+      },
+      "example": "Please hang the wet towels outside.",
+      "example_translations": {
+        "ru": "Пожалуйста, повесьте мокрые полотенца на улице.",
+        "uz": "Iltimos, ho'l sochiqlarni tashqariga iling."
+      }
+    },
+    {
+      "word": "ironing",
+      "part_of_speech": "noun",
+      "transcription": "/ˈaɪərnɪŋ/",
+      "translation": "глажка",
+      "translations": {
+        "ru": "глажка",
+        "uz": "dazmollash"
+      },
+      "example": "I do the ironing on Sunday evenings.",
+      "example_translations": {
+        "ru": "Я занимаюсь глажкой по воскресеньям вечером.",
+        "uz": "Yakshanba oqshomlari kiyimlarni dazmollayman."
+      }
+    },
+    {
+      "word": "housework",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhaʊsˌwərk/",
+      "translation": "работа по дому",
+      "translations": {
+        "ru": "работа по дому",
+        "uz": "uy yumushlari"
+      },
+      "example": "We share the housework at the weekend.",
+      "example_translations": {
+        "ru": "По выходным мы делим работу по дому.",
+        "uz": "Dam olish kunlari uy yumushlarini bo'lib olamiz."
+      }
+    },
+    {
+      "word": "detergent",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈtərdʒənt/",
+      "translation": "моющее средство",
+      "translations": {
+        "ru": "моющее средство",
+        "uz": "yuvish vositasi"
+      },
+      "example": "Use less detergent when you wash clothes.",
+      "example_translations": {
+        "ru": "Когда стираете одежду, используйте меньше моющего средства.",
+        "uz": "Kiyim yuvganda kamroq yuvish vositasi ishlating."
+      }
     }
   ]
 }

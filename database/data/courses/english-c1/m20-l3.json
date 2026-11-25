@@ -160,6 +160,21 @@
         "ru": "Перспектива повышения побудила её остаться.",
         "uz": "Lavozimga ko'tarilish istiqboli uni qolishga undadi."
       }
+    },
+    {
+      "word": "workaround",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwɜrkəˌraʊnd/",
+      "translation": "обходное решение",
+      "translations": {
+        "ru": "обходное решение",
+        "uz": "muammoni chetlab o'tish yo'li"
+      },
+      "example": "We found a workaround until the printer was repaired.",
+      "example_translations": {
+        "ru": "Прежде чем принтер починили, мы нашли обходное решение.",
+        "uz": "Printer tuzatilguncha muammoni chetlab o'tish yo'lini topdik."
+      }
     }
   ]
 }

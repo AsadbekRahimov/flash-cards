@@ -160,6 +160,36 @@
         "ru": "Тот несносный пассажир весь полёт кричал на персонал.",
         "uz": "O'sha o'ta yoqimsiz yo'lovchi butun parvoz davomida xodimlarga baqirdi."
       }
+    },
+    {
+      "word": "overbearing",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌoʊvərˈbɛrɪŋ/",
+      "translation": "властный",
+      "translations": {
+        "ru": "властный",
+        "uz": "hukmini o'tkazadigan"
+      },
+      "example": "My overbearing colleague insists on making every decision.",
+      "example_translations": {
+        "ru": "Мой властный коллега настаивает, чтобы все решения принимал он сам.",
+        "uz": "Hukmini o'tkazadigan hamkasbim har bir qarorni o'zi qabul qilishni talab qiladi."
+      }
+    },
+    {
+      "word": "domineering",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌdɑməˈnɪrɪŋ/",
+      "translation": "склонный командовать",
+      "translations": {
+        "ru": "склонный командовать",
+        "uz": "buyruq beraveradigan"
+      },
+      "example": "Her domineering roommate dictates when guests may visit.",
+      "example_translations": {
+        "ru": "Её соседка по комнате любит командовать и решает, когда можно принимать гостей.",
+        "uz": "Buyruq beraveradigan xonadoshi mehmonlar qachon kelishi mumkinligini o'zi belgilaydi."
+      }
     }
   ]
 }

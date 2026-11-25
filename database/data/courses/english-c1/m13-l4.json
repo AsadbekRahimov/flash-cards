@@ -160,6 +160,36 @@
         "ru": "Бедность часто ведёт к социальной изоляции и одиночеству.",
         "uz": "Qashshoqlik ko'pincha ijtimoiy yakkalanish va yolg'izlikka olib keladi."
       }
+    },
+    {
+      "word": "marginalization",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɑrdʒənələˈzeɪʃən/",
+      "translation": "вытеснение на обочину общества",
+      "translations": {
+        "ru": "вытеснение на обочину общества",
+        "uz": "jamiyatdan chetlatish"
+      },
+      "example": "Unemployment can deepen the marginalization of minority groups.",
+      "example_translations": {
+        "ru": "Безработица может усугубить вытеснение меньшинств на обочину общества.",
+        "uz": "Ishsizlik ozchilik guruhlarining jamiyatdan yanada chetlatilishiga olib kelishi mumkin."
+      }
+    },
+    {
+      "word": "inequity",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈɛkwəti/",
+      "translation": "несправедливое неравенство",
+      "translations": {
+        "ru": "несправедливое неравенство",
+        "uz": "adolatsiz tengsizlik"
+      },
+      "example": "The survey exposed inequity in access to childcare.",
+      "example_translations": {
+        "ru": "Опрос выявил несправедливое неравенство в доступе к услугам присмотра за детьми.",
+        "uz": "So'rov bolalarni parvarishlash xizmatlaridan foydalanishdagi adolatsiz tengsizlikni ko'rsatdi."
+      }
     }
   ]
 }

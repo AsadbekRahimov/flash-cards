@@ -160,6 +160,81 @@
         "ru": "Их вероучение запрещает лгать при любых обстоятельствах.",
         "uz": "Ularning aqidasi har qanday vaziyatda yolg'on gapirishni taqiqlaydi."
       }
+    },
+    {
+      "word": "ecclesiastical",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˌkliziˈæstɪkəl/",
+      "translation": "церковный",
+      "translations": {
+        "ru": "церковный",
+        "uz": "cherkovga oid"
+      },
+      "example": "Ecclesiastical records mention a chapel on this site.",
+      "example_translations": {
+        "ru": "В церковных записях упоминается часовня на этом месте.",
+        "uz": "Cherkovga oid yozuvlarda shu joyda ibodatxona bo'lgani aytiladi."
+      }
+    },
+    {
+      "word": "apostasy",
+      "part_of_speech": "noun",
+      "transcription": "/əˈpɑstəsi/",
+      "translation": "вероотступничество",
+      "translations": {
+        "ru": "вероотступничество",
+        "uz": "dindan qaytish"
+      },
+      "example": "The historian examines attitudes toward apostasy in that era.",
+      "example_translations": {
+        "ru": "Историк изучает отношение к вероотступничеству в ту эпоху.",
+        "uz": "Tarixchi o'sha davrda dindan qaytishga qanday munosabatda bo'linganini o'rganadi."
+      }
+    },
+    {
+      "word": "votive",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈvoʊtɪv/",
+      "translation": "приносимый в исполнение обета",
+      "translations": {
+        "ru": "приносимый в исполнение обета",
+        "uz": "nazr sifatida keltiriladigan"
+      },
+      "example": "Visitors left votive offerings beside the stone shrine.",
+      "example_translations": {
+        "ru": "Посетители оставили у каменной святыни дары во исполнение обета.",
+        "uz": "Ziyoratchilar tosh ziyoratgoh yoniga nazr sifatida hadyalar qoldirdi."
+      }
+    },
+    {
+      "word": "laity",
+      "part_of_speech": "noun",
+      "transcription": "/ˈleɪəti/",
+      "translation": "миряне",
+      "translations": {
+        "ru": "миряне",
+        "uz": "ruhoniy bo'lmagan dindorlar"
+      },
+      "example": "The council invited members of the laity to speak.",
+      "example_translations": {
+        "ru": "Совет предложил мирянам выступить.",
+        "uz": "Kengash ruhoniy bo'lmagan dindorlarga so'zga chiqishni taklif qildi."
+      }
+    },
+    {
+      "word": "pious",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpaɪəs/",
+      "translation": "благочестивый",
+      "translations": {
+        "ru": "благочестивый",
+        "uz": "taqvodor"
+      },
+      "example": "Her pious grandfather began each day with prayer.",
+      "example_translations": {
+        "ru": "Её благочестивый дедушка начинал каждый день с молитвы.",
+        "uz": "Uning taqvodor bobosi har kunini ibodat bilan boshlardi."
+      }
     }
   ]
 }

@@ -160,6 +160,66 @@
         "ru": "Во время затишья в буре запели птицы.",
         "uz": "Bo'rondagi vaqtinchalik sokinlik chog'ida qushlar sayradi."
       }
+    },
+    {
+      "word": "susurration",
+      "part_of_speech": "noun",
+      "transcription": "/ˌsusəˈreɪʃən/",
+      "translation": "тихий шелест",
+      "translations": {
+        "ru": "тихий шелест",
+        "uz": "mayin shitirlash"
+      },
+      "example": "The susurration of reeds carried across the pond.",
+      "example_translations": {
+        "ru": "Тихий шелест камышей разносился над прудом.",
+        "uz": "Qamishlarning mayin shitirlashi hovuz bo'ylab taraldi."
+      }
+    },
+    {
+      "word": "sibilance",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪbələns/",
+      "translation": "свистящее звучание",
+      "translations": {
+        "ru": "свистящее звучание",
+        "uz": "sirg'aluvchi tovushlar ohangi"
+      },
+      "example": "The poem's sibilance recalled wind slipping through dry grass.",
+      "example_translations": {
+        "ru": "Свистящее звучание стихотворения напоминало ветер в сухой траве.",
+        "uz": "She'rdagi sirg'aluvchi tovushlar ohangi quruq o'tlar orasidan esgan shamolni eslatdi."
+      }
+    },
+    {
+      "word": "clangor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈklæŋər/",
+      "translation": "громкий металлический лязг",
+      "translations": {
+        "ru": "громкий металлический лязг",
+        "uz": "qattiq metall jarangi"
+      },
+      "example": "The gate shut with a startling metallic clangor.",
+      "example_translations": {
+        "ru": "Ворота закрылись с неожиданно громким металлическим лязгом.",
+        "uz": "Darvoza kutilmaganda qattiq metall jarangi bilan yopildi."
+      }
+    },
+    {
+      "word": "thrum",
+      "part_of_speech": "verb",
+      "transcription": "/θrʌm/",
+      "translation": "мерно гудеть",
+      "translations": {
+        "ru": "мерно гудеть",
+        "uz": "bir maromda g'uvillamoq"
+      },
+      "example": "Workshop fans thrum steadily behind the closed door.",
+      "example_translations": {
+        "ru": "За закрытой дверью мерно гудят вентиляторы мастерской.",
+        "uz": "Yopiq eshik ortida ustaxona ventilyatorlari bir maromda g'uvillaydi."
+      }
     }
   ]
 }

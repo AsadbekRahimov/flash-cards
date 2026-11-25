@@ -160,6 +160,36 @@
         "ru": "Дедушка каждый год приукрашивает свои рыбацкие истории.",
         "uz": "Bobom har yili baliq ovi haqidagi hikoyalarini qo'shib-chatib aytadi."
       }
+    },
+    {
+      "word": "prevaricate",
+      "part_of_speech": "verb",
+      "transcription": "/prɪˈværəˌkeɪt/",
+      "translation": "увиливать от ответа",
+      "translations": {
+        "ru": "увиливать от ответа",
+        "uz": "javobdan qochmoq"
+      },
+      "example": "The spokesperson continued to prevaricate when asked about costs.",
+      "example_translations": {
+        "ru": "На вопросы о расходах пресс-секретарь продолжал увиливать от ответа.",
+        "uz": "Xarajatlar haqida so'ralganda, matbuot kotibi hamon javobdan qochdi."
+      }
+    },
+    {
+      "word": "dissemble",
+      "part_of_speech": "verb",
+      "transcription": "/dɪˈsɛmbəl/",
+      "translation": "притворяться",
+      "translations": {
+        "ru": "притворяться",
+        "uz": "o'zini boshqacha ko'rsatmoq"
+      },
+      "example": "She could dissemble so well that nobody noticed her irritation.",
+      "example_translations": {
+        "ru": "Она так умело притворялась, что никто не заметил её раздражения.",
+        "uz": "U o'zini shunday ustalik bilan boshqacha tutardiki, hech kim uning jahli chiqqanini sezmadi."
+      }
     }
   ]
 }

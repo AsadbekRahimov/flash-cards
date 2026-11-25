@@ -160,6 +160,81 @@
         "ru": "Завтра перед концертом у нас репетиция.",
         "uz": "Ertaga konsert oldidan repetitsiyamiz bor."
       }
+    },
+    {
+      "word": "songwriter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɔŋˌraɪtər/",
+      "translation": "автор песен",
+      "translations": {
+        "ru": "автор песен",
+        "uz": "qo'shiq muallifi"
+      },
+      "example": "The songwriter wrote this song for her sister.",
+      "example_translations": {
+        "ru": "Автор написала эту песню для своей сестры.",
+        "uz": "Qo'shiq muallifi bu qo'shiqni opasi uchun yozgan."
+      }
+    },
+    {
+      "word": "bassist",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbeɪsɪst/",
+      "translation": "бас-гитарист",
+      "translations": {
+        "ru": "бас-гитарист",
+        "uz": "bas gitarachi"
+      },
+      "example": "Our bassist plays the lowest notes in the band.",
+      "example_translations": {
+        "ru": "Наш бас-гитарист играет самые низкие ноты в группе.",
+        "uz": "Guruhimizda eng past notalarni bas gitarachimiz ijro etadi."
+      }
+    },
+    {
+      "word": "guitarist",
+      "part_of_speech": "noun",
+      "transcription": "/gɪˈtɑrɪst/",
+      "translation": "гитарист",
+      "translations": {
+        "ru": "гитарист",
+        "uz": "gitarachi"
+      },
+      "example": "The guitarist played a short solo during the concert.",
+      "example_translations": {
+        "ru": "На концерте гитарист сыграл короткое соло.",
+        "uz": "Konsertda gitarachi qisqa yakkaxon kuy ijro etdi."
+      }
+    },
+    {
+      "word": "drummer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdrʌmər/",
+      "translation": "барабанщик",
+      "translations": {
+        "ru": "барабанщик",
+        "uz": "barabanchi"
+      },
+      "example": "Our drummer kept a steady beat throughout the song.",
+      "example_translations": {
+        "ru": "Наш барабанщик держал ровный ритм на протяжении всей песни.",
+        "uz": "Barabanchimiz butun qo'shiq davomida bir maromni saqlab turdi."
+      }
+    },
+    {
+      "word": "pianist",
+      "part_of_speech": "noun",
+      "transcription": "/piˈænɪst/",
+      "translation": "пианист",
+      "translations": {
+        "ru": "пианист",
+        "uz": "pianinochi"
+      },
+      "example": "The pianist played quietly while the guests ate.",
+      "example_translations": {
+        "ru": "Гости ели, а пианист тихо играл.",
+        "uz": "Mehmonlar ovqatlanayotganida pianinochi ohista kuy chaldi."
+      }
     }
   ]
 }

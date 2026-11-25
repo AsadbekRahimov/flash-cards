@@ -160,6 +160,81 @@
         "ru": "У меня сегодня нет времени.",
         "uz": "Bugun vaqtim yo'q."
       }
+    },
+    {
+      "word": "midday",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɪdˈdeɪ/",
+      "translation": "полдень",
+      "translations": {
+        "ru": "полдень",
+        "uz": "tush payti"
+      },
+      "example": "Let's meet at midday for lunch.",
+      "example_translations": {
+        "ru": "Давайте встретимся в полдень и пообедаем.",
+        "uz": "Keling, tush payti uchrashib, tushlik qilaylik."
+      }
+    },
+    {
+      "word": "sunrise",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsʌnˌraɪz/",
+      "translation": "восход",
+      "translations": {
+        "ru": "восход",
+        "uz": "quyosh chiqishi"
+      },
+      "example": "We watched the sunrise from our window.",
+      "example_translations": {
+        "ru": "Мы наблюдали восход из окна.",
+        "uz": "Derazamizdan quyosh chiqishini tomosha qildik."
+      }
+    },
+    {
+      "word": "daytime",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdeɪtaɪm/",
+      "translation": "дневное время",
+      "translations": {
+        "ru": "дневное время",
+        "uz": "kunduz"
+      },
+      "example": "Many cats sleep in the daytime.",
+      "example_translations": {
+        "ru": "Многие кошки спят днём.",
+        "uz": "Ko'p mushuklar kunduzi uxlaydi."
+      }
+    },
+    {
+      "word": "nighttime",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnaɪttaɪm/",
+      "translation": "ночное время",
+      "translations": {
+        "ru": "ночное время",
+        "uz": "tun payti"
+      },
+      "example": "The baby often cries at nighttime.",
+      "example_translations": {
+        "ru": "Малыш часто плачет ночью.",
+        "uz": "Chaqaloq tunda tez-tez yig'laydi."
+      }
+    },
+    {
+      "word": "bedtime",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɛdtaɪm/",
+      "translation": "время ложиться спать",
+      "translations": {
+        "ru": "время ложиться спать",
+        "uz": "uyqu vaqti"
+      },
+      "example": "My bedtime is nine o'clock.",
+      "example_translations": {
+        "ru": "Я ложусь спать в девять часов.",
+        "uz": "Uyqu vaqtim soat to'qqizda."
+      }
     }
   ]
 }

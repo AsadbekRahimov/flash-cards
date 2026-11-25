@@ -160,6 +160,81 @@
         "ru": "Что служит основанием для вашего вывода?",
         "uz": "Xulosangizning asosi nima?"
       }
+    },
+    {
+      "word": "contradiction",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑntrəˈdɪkʃən/",
+      "translation": "противоречие",
+      "translations": {
+        "ru": "противоречие",
+        "uz": "ziddiyat"
+      },
+      "example": "There is a clear contradiction between your two statements.",
+      "example_translations": {
+        "ru": "Между вашими двумя утверждениями есть явное противоречие.",
+        "uz": "Ikki fikringiz o'rtasida yaqqol ziddiyat bor."
+      }
+    },
+    {
+      "word": "plausibility",
+      "part_of_speech": "noun",
+      "transcription": "/ˌplɔzəˈbɪləti/",
+      "translation": "правдоподобие",
+      "translations": {
+        "ru": "правдоподобие",
+        "uz": "haqiqatga yaqinlik"
+      },
+      "example": "The new evidence increased the plausibility of her explanation.",
+      "example_translations": {
+        "ru": "Новые данные сделали её объяснение более правдоподобным.",
+        "uz": "Yangi dalillardan keyin uning izohi haqiqatga yaqinroq tuyuldi."
+      }
+    },
+    {
+      "word": "implausible",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪmˈplɔzəbəl/",
+      "translation": "неправдоподобный",
+      "translations": {
+        "ru": "неправдоподобный",
+        "uz": "haqiqatdan yiroq"
+      },
+      "example": "His explanation sounds implausible given the available evidence.",
+      "example_translations": {
+        "ru": "С учётом имеющихся доказательств его объяснение звучит неправдоподобно.",
+        "uz": "Mavjud dalillarga qaraganda, uning izohi haqiqatdan yiroq."
+      }
+    },
+    {
+      "word": "inconclusive",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪnkənˈklusɪv/",
+      "translation": "не дающий однозначного ответа",
+      "translations": {
+        "ru": "не дающий однозначного ответа",
+        "uz": "aniq xulosa bermaydigan"
+      },
+      "example": "The evidence was inconclusive, so the debate continued.",
+      "example_translations": {
+        "ru": "Доказательства не давали однозначного ответа, и спор продолжился.",
+        "uz": "Dalillar asosida aniq xulosa chiqarib bo'lmadi, shuning uchun bahs davom etdi."
+      }
+    },
+    {
+      "word": "inconsistent",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪnkənˈsɪstənt/",
+      "translation": "противоречащий",
+      "translations": {
+        "ru": "противоречащий",
+        "uz": "bir-biriga zid"
+      },
+      "example": "The two accounts are inconsistent on one important point.",
+      "example_translations": {
+        "ru": "В одном важном пункте две версии противоречат друг другу.",
+        "uz": "Ikki tomonning gaplari bir muhim masalada bir-biriga zid."
+      }
     }
   ]
 }

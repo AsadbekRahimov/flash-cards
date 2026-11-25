@@ -160,6 +160,66 @@
         "ru": "Группа сыграла попурри из любимых старых песен.",
         "uz": "Guruh sevimli eski qo'shiqlardan popurri ijro etdi."
       }
+    },
+    {
+      "word": "arpeggio",
+      "part_of_speech": "noun",
+      "transcription": "/ɑrˈpɛdʒioʊ/",
+      "translation": "арпеджио",
+      "translations": {
+        "ru": "арпеджио",
+        "uz": "arpejio"
+      },
+      "example": "Begin the arpeggio slowly, playing each chord note separately.",
+      "example_translations": {
+        "ru": "Начните арпеджио медленно, играя каждую ноту аккорда по отдельности.",
+        "uz": "Arpejioni sekin boshlab, akkordning har bir notasini alohida chaling."
+      }
+    },
+    {
+      "word": "pizzicato",
+      "part_of_speech": "noun",
+      "transcription": "/ˌpɪtsəˈkɑtoʊ/",
+      "translation": "пиццикато",
+      "translations": {
+        "ru": "пиццикато",
+        "uz": "torni barmoq bilan chertish"
+      },
+      "example": "The violinist uses pizzicato to imitate raindrops.",
+      "example_translations": {
+        "ru": "Скрипач использует пиццикато, чтобы изобразить звук дождевых капель.",
+        "uz": "Skripkachi yomg'ir tomchilari tovushiga taqlid qilish uchun torlarni barmog'i bilan chertadi."
+      }
+    },
+    {
+      "word": "rubato",
+      "part_of_speech": "noun",
+      "transcription": "/ruˈbɑtoʊ/",
+      "translation": "рубато",
+      "translations": {
+        "ru": "рубато",
+        "uz": "sur'atni erkin o'zgartirish"
+      },
+      "example": "Her subtle rubato gently stretches the ends of phrases.",
+      "example_translations": {
+        "ru": "Её тонкое рубато мягко растягивает окончания фраз.",
+        "uz": "U ijro sur'atini erkin o'zgartirib, musiqiy iboralar oxirini sezilar-sezilmas cho'zadi."
+      }
+    },
+    {
+      "word": "ostinato",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɑstəˈnɑtoʊ/",
+      "translation": "остинато",
+      "translations": {
+        "ru": "остинато",
+        "uz": "takrorlanadigan musiqiy shakl"
+      },
+      "example": "A short ostinato repeats beneath the shifting melody.",
+      "example_translations": {
+        "ru": "На фоне меняющейся мелодии повторяется короткое остинато.",
+        "uz": "O'zgarib borayotgan kuyga jo'r bo'lib, qisqa musiqiy shakl qayta-qayta yangraydi."
+      }
     }
   ]
 }

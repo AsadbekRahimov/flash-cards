@@ -160,6 +160,36 @@
         "ru": "Её добрые слова воодушевили всех после поражения.",
         "uz": "Mag'lubiyatdan so'ng uning iliq so'zlari hammaning ruhini ko'tardi."
       }
+    },
+    {
+      "word": "reassurance",
+      "part_of_speech": "noun",
+      "transcription": "/ˌriəˈʃʊrəns/",
+      "translation": "ободрение",
+      "translations": {
+        "ru": "ободрение",
+        "uz": "dalda"
+      },
+      "example": "Before the audition, I needed a little reassurance.",
+      "example_translations": {
+        "ru": "Перед прослушиванием мне нужно было немного ободрения.",
+        "uz": "Saralov sinovidan oldin menga biroz dalda kerak edi."
+      }
+    },
+    {
+      "word": "commiseration",
+      "part_of_speech": "noun",
+      "transcription": "/kəˌmɪzəˈreɪʃən/",
+      "translation": "сочувствие",
+      "translations": {
+        "ru": "сочувствие",
+        "uz": "hamdardlik"
+      },
+      "example": "After the rejection, she wanted advice and commiseration.",
+      "example_translations": {
+        "ru": "После отказа ей хотелось совета и сочувствия.",
+        "uz": "Rad javobidan keyin u maslahat va hamdardlik istadi."
+      }
     }
   ]
 }

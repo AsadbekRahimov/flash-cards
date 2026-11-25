@@ -160,6 +160,66 @@
         "ru": "Объявили, что наш рейс задерживается.",
         "uz": "Reysimiz kechikayotgani e'lon qilindi."
       }
+    },
+    {
+      "word": "layover",
+      "part_of_speech": "noun",
+      "transcription": "/ˈleɪˌoʊvər/",
+      "translation": "остановка при пересадке",
+      "translations": {
+        "ru": "остановка при пересадке",
+        "uz": "parvozlar orasidagi kutish"
+      },
+      "example": "We have a long layover between flights.",
+      "example_translations": {
+        "ru": "У нас долгая остановка между рейсами.",
+        "uz": "Parvozlar orasida uzoq kutishimiz kerak."
+      }
+    },
+    {
+      "word": "airliner",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛrˌlaɪnər/",
+      "translation": "пассажирский авиалайнер",
+      "translations": {
+        "ru": "пассажирский авиалайнер",
+        "uz": "yo'lovchi tashuvchi samolyot"
+      },
+      "example": "A large airliner landed shortly before noon.",
+      "example_translations": {
+        "ru": "Большой пассажирский авиалайнер приземлился незадолго до полудня.",
+        "uz": "Yirik yo'lovchi samolyoti tushdan sal oldin qo'ndi."
+      }
+    },
+    {
+      "word": "rebook",
+      "part_of_speech": "verb",
+      "transcription": "/ˌriˈbʊk/",
+      "translation": "перебронировать",
+      "translations": {
+        "ru": "перебронировать",
+        "uz": "qayta band qilmoq"
+      },
+      "example": "Can we rebook our flight for tomorrow morning?",
+      "example_translations": {
+        "ru": "Можем ли мы перебронировать рейс на завтра утром?",
+        "uz": "Reysni ertaga ertalabga qayta band qila olamizmi?"
+      }
+    },
+    {
+      "word": "airfare",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛrˌfɛr/",
+      "translation": "стоимость авиабилета",
+      "translations": {
+        "ru": "стоимость авиабилета",
+        "uz": "aviachipta narxi"
+      },
+      "example": "Our airfare was lower in the spring.",
+      "example_translations": {
+        "ru": "Весной стоимость наших авиабилетов была ниже.",
+        "uz": "Bahorda aviachiptalarimizning narxi arzonroq edi."
+      }
     }
   ]
 }

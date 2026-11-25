@@ -160,6 +160,66 @@
         "ru": "Представь дом на пляже.",
         "uz": "Plyajdagi uyni tasavvur qil."
       }
+    },
+    {
+      "word": "guess",
+      "part_of_speech": "verb",
+      "transcription": "/gɛs/",
+      "translation": "полагать",
+      "translations": {
+        "ru": "полагать",
+        "uz": "deb o'ylamoq"
+      },
+      "example": "I guess she wants to go home.",
+      "example_translations": {
+        "ru": "Полагаю, она хочет домой.",
+        "uz": "Menimcha, u uyga ketmoqchi."
+      }
+    },
+    {
+      "word": "know",
+      "part_of_speech": "verb",
+      "transcription": "/noʊ/",
+      "translation": "знать",
+      "translations": {
+        "ru": "знать",
+        "uz": "bilmoq"
+      },
+      "example": "Do you know the answer to this question?",
+      "example_translations": {
+        "ru": "Вы знаете ответ на этот вопрос?",
+        "uz": "Bu savolning javobini bilasizmi?"
+      }
+    },
+    {
+      "word": "probably",
+      "part_of_speech": "adverb",
+      "transcription": "/ˈprɑbəbli/",
+      "translation": "вероятно",
+      "translations": {
+        "ru": "вероятно",
+        "uz": "ehtimol"
+      },
+      "example": "She will probably be here by six.",
+      "example_translations": {
+        "ru": "Она, вероятно, будет здесь к шести.",
+        "uz": "Ehtimol, u soat oltigacha shu yerga yetib keladi."
+      }
+    },
+    {
+      "word": "perhaps",
+      "part_of_speech": "adverb",
+      "transcription": "/pərˈhæps/",
+      "translation": "возможно",
+      "translations": {
+        "ru": "возможно",
+        "uz": "balki"
+      },
+      "example": "Perhaps we can try again tomorrow morning.",
+      "example_translations": {
+        "ru": "Возможно, мы сможем попробовать снова завтра утром.",
+        "uz": "Balki ertaga ertalab yana urinib ko'rarmiz."
+      }
     }
   ]
 }

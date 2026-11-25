@@ -160,6 +160,66 @@
         "ru": "Чувство безопасности оказалось иллюзорным, когда пришла буря.",
         "uz": "Bo'ron kelganda xavfsizlik hissi aldamchi bo'lib chiqdi."
       }
+    },
+    {
+      "word": "confabulation",
+      "part_of_speech": "noun",
+      "transcription": "/kənˌfæbjəˈleɪʃən/",
+      "translation": "конфабуляция",
+      "translations": {
+        "ru": "конфабуляция",
+        "uz": "soxta xotiralar bilan bilmasdan to'ldirish"
+      },
+      "example": "The doctor distinguished confabulation from deliberate invention.",
+      "example_translations": {
+        "ru": "Врач отличил конфабуляцию от преднамеренного вымысла.",
+        "uz": "Shifokor xotiradagi bo'shliqlarni bilmasdan soxta xotiralar bilan to'ldirishni ataylab to'qib chiqarishdan farqladi."
+      }
+    },
+    {
+      "word": "pareidolia",
+      "part_of_speech": "noun",
+      "transcription": "/ˌpærəˈdoʊliə/",
+      "translation": "парейдолия",
+      "translations": {
+        "ru": "парейдолия",
+        "uz": "tasodifiy shaklda tanish obrazni ko'rish"
+      },
+      "example": "Seeing faces in clouds is an example of pareidolia.",
+      "example_translations": {
+        "ru": "Видеть лица в облаках — пример парейдолии.",
+        "uz": "Bulutlarda yuzlarni ko'rish tasodifiy shaklda tanish obrazni ko'rishning bir misolidir."
+      }
+    },
+    {
+      "word": "misattribution",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɪsˌætrəˈbjuʃən/",
+      "translation": "ошибочное приписывание",
+      "translations": {
+        "ru": "ошибочное приписывание",
+        "uz": "noto'g'ri nisbat berish"
+      },
+      "example": "The catalog corrects a longstanding misattribution of the painting.",
+      "example_translations": {
+        "ru": "Каталог исправляет давнее ошибочное приписывание картины другому художнику.",
+        "uz": "Katalog kartinani anchadan beri boshqa rassomga noto'g'ri nisbat berib kelinganini tuzatadi."
+      }
+    },
+    {
+      "word": "delude",
+      "part_of_speech": "verb",
+      "transcription": "/dɪˈlud/",
+      "translation": "вводить в заблуждение",
+      "translations": {
+        "ru": "вводить в заблуждение",
+        "uz": "yanglishtirmoq"
+      },
+      "example": "Flattering reviews can delude us about our abilities.",
+      "example_translations": {
+        "ru": "Лестные отзывы могут вводить нас в заблуждение относительно наших способностей.",
+        "uz": "Xushomadli baholar qobiliyatlarimiz borasida bizni yanglishtirishi mumkin."
+      }
     }
   ]
 }

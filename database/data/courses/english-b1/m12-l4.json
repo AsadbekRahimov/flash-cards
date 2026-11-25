@@ -160,6 +160,81 @@
         "ru": "Приносите свой коврик на занятие йогой.",
         "uz": "Yoga mashg'ulotiga o'z gilamchangizni olib keling."
       }
+    },
+    {
+      "word": "sneaker",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsnikər/",
+      "translation": "кроссовок",
+      "translations": {
+        "ru": "кроссовок",
+        "uz": "krossovka"
+      },
+      "example": "My left sneaker slipped off during the race.",
+      "example_translations": {
+        "ru": "Во время забега у меня слетел левый кроссовок.",
+        "uz": "Yugurish musobaqasida chap krossovkam chiqib ketdi."
+      }
+    },
+    {
+      "word": "swimsuit",
+      "part_of_speech": "noun",
+      "transcription": "/ˈswɪmˌsut/",
+      "translation": "купальный костюм",
+      "translations": {
+        "ru": "купальный костюм",
+        "uz": "cho'milish kiyimi"
+      },
+      "example": "She packed a swimsuit for her swimming lesson.",
+      "example_translations": {
+        "ru": "Она положила в сумку купальный костюм для занятия по плаванию.",
+        "uz": "U suzish mashg'uloti uchun cho'milish kiyimini sumkaga soldi."
+      }
+    },
+    {
+      "word": "skateboard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskeɪtˌbɔrd/",
+      "translation": "скейтборд",
+      "translations": {
+        "ru": "скейтборд",
+        "uz": "skeytbord"
+      },
+      "example": "He rides his skateboard around the park.",
+      "example_translations": {
+        "ru": "Он катается на скейтборде по парку.",
+        "uz": "U bog'da skeytbord uchadi."
+      }
+    },
+    {
+      "word": "surfboard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɜrfˌbɔrd/",
+      "translation": "доска для сёрфинга",
+      "translations": {
+        "ru": "доска для сёрфинга",
+        "uz": "syorfing taxtasi"
+      },
+      "example": "Her surfboard floated beside her in the water.",
+      "example_translations": {
+        "ru": "Доска для сёрфинга держалась на воде рядом с ней.",
+        "uz": "Syorfing taxtasi uning yonida suv yuzida suzib turdi."
+      }
+    },
+    {
+      "word": "snowboard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsnoʊˌbɔrd/",
+      "translation": "сноуборд",
+      "translations": {
+        "ru": "сноуборд",
+        "uz": "snoubord"
+      },
+      "example": "I rented a snowboard at the mountain resort.",
+      "example_translations": {
+        "ru": "Я взял сноуборд напрокат на горном курорте.",
+        "uz": "Tog' kurortida snoubordni ijaraga oldim."
+      }
     }
   ]
 }

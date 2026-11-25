@@ -160,6 +160,66 @@
         "ru": "Инженеры не смогли точно определить причину сбоя.",
         "uz": "Muhandislar nosozlikning sababini aniq belgilay olmadi."
       }
+    },
+    {
+      "word": "slapdash",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈslæpˌdæʃ/",
+      "translation": "небрежный, сделанный наспех",
+      "translations": {
+        "ru": "небрежный, сделанный наспех",
+        "uz": "pala-partish"
+      },
+      "example": "A slapdash repair left the cupboard door hanging crooked.",
+      "example_translations": {
+        "ru": "После небрежного ремонта дверца шкафа так и висела криво.",
+        "uz": "Pala-partish ta'mirdan keyin javon eshigi qiyshiq osilib qoldi."
+      }
+    },
+    {
+      "word": "perfunctorily",
+      "part_of_speech": "adverb",
+      "transcription": "/pərˈfʌŋktərəli/",
+      "translation": "формально и без старания",
+      "translations": {
+        "ru": "формально и без старания",
+        "uz": "hafsalasiz, nomigagina"
+      },
+      "example": "He reviewed the figures perfunctorily and missed an obvious error.",
+      "example_translations": {
+        "ru": "Он проверил цифры формально, без старания, и пропустил очевидную ошибку.",
+        "uz": "U raqamlarni nomigagina tekshirib, ko'zga tashlanadigan xatoni o'tkazib yubordi."
+      }
+    },
+    {
+      "word": "fastidiousness",
+      "part_of_speech": "noun",
+      "transcription": "/fæˈstɪdiəsnəs/",
+      "translation": "крайняя требовательность к деталям",
+      "translations": {
+        "ru": "крайняя требовательность к деталям",
+        "uz": "mayda tafsilotlarga o'ta talabchanlik"
+      },
+      "example": "Her fastidiousness shows in the placement of every stitch.",
+      "example_translations": {
+        "ru": "Её крайняя требовательность к деталям видна по расположению каждого стежка.",
+        "uz": "Mayda tafsilotlarga o'ta talabchanligi har bir chokning o'rnidan bilinadi."
+      }
+    },
+    {
+      "word": "slovenly",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈslʌvənli/",
+      "translation": "неряшливый",
+      "translations": {
+        "ru": "неряшливый",
+        "uz": "pala-partish"
+      },
+      "example": "The reviewer objected to the manuscript's slovenly formatting.",
+      "example_translations": {
+        "ru": "Рецензент возразил против неряшливого оформления рукописи.",
+        "uz": "Taqrizchi qo'lyozmaning pala-partish rasmiylashtirilganiga e'tiroz bildirdi."
+      }
     }
   ]
 }

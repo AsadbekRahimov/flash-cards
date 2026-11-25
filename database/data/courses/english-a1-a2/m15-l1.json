@@ -160,6 +160,66 @@
         "ru": "Английская грамматика не так уж сложна.",
         "uz": "Ingliz tili grammatikasi unchalik qiyin emas."
       }
+    },
+    {
+      "word": "algebra",
+      "part_of_speech": "noun",
+      "transcription": "/ˈældʒəbrə/",
+      "translation": "алгебра",
+      "translations": {
+        "ru": "алгебра",
+        "uz": "algebra"
+      },
+      "example": "Our algebra class starts at nine.",
+      "example_translations": {
+        "ru": "Наш урок алгебры начинается в девять.",
+        "uz": "Algebra darsimiz soat to'qqizda boshlanadi."
+      }
+    },
+    {
+      "word": "geometry",
+      "part_of_speech": "noun",
+      "transcription": "/dʒiˈɑmətri/",
+      "translation": "геометрия",
+      "translations": {
+        "ru": "геометрия",
+        "uz": "geometriya"
+      },
+      "example": "We learn about shapes in geometry.",
+      "example_translations": {
+        "ru": "На геометрии мы изучаем фигуры.",
+        "uz": "Geometriya darsida shakllarni o'rganamiz."
+      }
+    },
+    {
+      "word": "astronomy",
+      "part_of_speech": "noun",
+      "transcription": "/əˈstrɑnəmi/",
+      "translation": "астрономия",
+      "translations": {
+        "ru": "астрономия",
+        "uz": "astronomiya"
+      },
+      "example": "In astronomy we learn about stars.",
+      "example_translations": {
+        "ru": "На астрономии мы изучаем звёзды.",
+        "uz": "Astronomiya darsida yulduzlarni o'rganamiz."
+      }
+    },
+    {
+      "word": "handwriting",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhændˌraɪtɪŋ/",
+      "translation": "почерк",
+      "translations": {
+        "ru": "почерк",
+        "uz": "dastxat"
+      },
+      "example": "Your handwriting is much easier to read now.",
+      "example_translations": {
+        "ru": "Теперь ваш почерк гораздо легче читать.",
+        "uz": "Endi dastxatingizni o'qish ancha oson."
+      }
     }
   ]
 }

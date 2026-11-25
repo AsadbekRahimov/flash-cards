@@ -160,6 +160,81 @@
         "ru": "Можно взять твою ручку?",
         "uz": "Ruchkangdan foydalansam bo'ladimi?"
       }
+    },
+    {
+      "word": "eraser",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˈreɪsər/",
+      "translation": "ластик",
+      "translations": {
+        "ru": "ластик",
+        "uz": "o'chirg'ich"
+      },
+      "example": "Use an eraser to fix this line.",
+      "example_translations": {
+        "ru": "Исправьте эту линию с помощью ластика.",
+        "uz": "Bu chiziqni o'chirg'ich bilan to'g'rilang."
+      }
+    },
+    {
+      "word": "pencil",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɛnsəl/",
+      "translation": "карандаш",
+      "translations": {
+        "ru": "карандаш",
+        "uz": "qalam"
+      },
+      "example": "I wrote my name with a pencil.",
+      "example_translations": {
+        "ru": "Я написал своё имя карандашом.",
+        "uz": "Ismimni qalam bilan yozdim."
+      }
+    },
+    {
+      "word": "chalk",
+      "part_of_speech": "noun",
+      "transcription": "/tʃɔk/",
+      "translation": "мел",
+      "translations": {
+        "ru": "мел",
+        "uz": "bo'r"
+      },
+      "example": "She writes on the board with chalk.",
+      "example_translations": {
+        "ru": "Она пишет на доске мелом.",
+        "uz": "U doskaga bo'r bilan yozadi."
+      }
+    },
+    {
+      "word": "schoolbag",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskulbæg/",
+      "translation": "школьная сумка",
+      "translations": {
+        "ru": "школьная сумка",
+        "uz": "maktab sumkasi"
+      },
+      "example": "My books are in my schoolbag.",
+      "example_translations": {
+        "ru": "Мои книги лежат в школьной сумке.",
+        "uz": "Kitoblarim maktab sumkamda."
+      }
+    },
+    {
+      "word": "scissors",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪzərz/",
+      "translation": "ножницы",
+      "translations": {
+        "ru": "ножницы",
+        "uz": "qaychi"
+      },
+      "example": "I cut the paper with my scissors.",
+      "example_translations": {
+        "ru": "Я разрезаю бумагу ножницами.",
+        "uz": "Qog'ozni qaychim bilan kesaman."
+      }
     }
   ]
 }

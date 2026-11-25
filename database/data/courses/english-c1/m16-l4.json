@@ -160,6 +160,21 @@
         "ru": "Чтобы выяснить причину, необходимы дополнительные испытания.",
         "uz": "Sababni aniqlash uchun qo'shimcha sinovlar zarur."
       }
+    },
+    {
+      "word": "explicate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈɛkspləˌkeɪt/",
+      "translation": "подробно разъяснять",
+      "translations": {
+        "ru": "подробно разъяснять",
+        "uz": "batafsil tushuntirmoq"
+      },
+      "example": "This chapter will explicate the model's basic assumptions.",
+      "example_translations": {
+        "ru": "В этой главе подробно разъясняются основные допущения модели.",
+        "uz": "Bu bobda modelning asosiy farazlari batafsil tushuntiriladi."
+      }
     }
   ]
 }

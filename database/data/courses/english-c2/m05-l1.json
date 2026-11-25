@@ -160,6 +160,81 @@
         "ru": "Солгать казалось выгодным, хотя вряд ли это было правильно.",
         "uz": "Yolg'on gapirish manfaatli tuyulardi, ammo bu to'g'ri ish emasdi."
       }
+    },
+    {
+      "word": "malevolence",
+      "part_of_speech": "noun",
+      "transcription": "/məˈlɛvələns/",
+      "translation": "злонамеренность",
+      "translations": {
+        "ru": "злонамеренность",
+        "uz": "yomon niyat"
+      },
+      "example": "She detected malevolence beneath his outwardly friendly advice.",
+      "example_translations": {
+        "ru": "За внешне дружелюбным советом она почувствовала злонамеренность.",
+        "uz": "U sirtdan do'stona tuyulgan maslahat ortida yomon niyatni sezdi."
+      }
+    },
+    {
+      "word": "peccadillo",
+      "part_of_speech": "noun",
+      "transcription": "/ˌpɛkəˈdɪloʊ/",
+      "translation": "небольшой проступок",
+      "translations": {
+        "ru": "небольшой проступок",
+        "uz": "kichik ayb"
+      },
+      "example": "An overdue library book is a forgivable peccadillo.",
+      "example_translations": {
+        "ru": "Задержка с возвратом библиотечной книги — простительный небольшой проступок.",
+        "uz": "Kutubxona kitobini vaqtida qaytarmaslik kechirsa bo'ladigan kichik ayb."
+      }
+    },
+    {
+      "word": "iniquitous",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈnɪkwətəs/",
+      "translation": "в высшей степени несправедливый",
+      "translations": {
+        "ru": "в высшей степени несправедливый",
+        "uz": "o'ta adolatsiz"
+      },
+      "example": "The philosopher condemned the iniquitous distribution of scarce resources.",
+      "example_translations": {
+        "ru": "Философ осудил в высшей степени несправедливое распределение ограниченных ресурсов.",
+        "uz": "Faylasuf tanqis resurslarning o'ta adolatsiz taqsimlanishini qoraladi."
+      }
+    },
+    {
+      "word": "deontology",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdiɑnˈtɑlədʒi/",
+      "translation": "этика долга",
+      "translations": {
+        "ru": "этика долга",
+        "uz": "burch axloqi"
+      },
+      "example": "In deontology, certain duties outweigh the pursuit of benefits.",
+      "example_translations": {
+        "ru": "В этике долга некоторые обязанности важнее стремления к выгоде.",
+        "uz": "Burch axloqida ayrim vazifalar foyda ketidan quvishdan ustun turadi."
+      }
+    },
+    {
+      "word": "transgression",
+      "part_of_speech": "noun",
+      "transcription": "/trænzˈgrɛʃən/",
+      "translation": "нарушение нормы",
+      "translations": {
+        "ru": "нарушение нормы",
+        "uz": "me'yorni buzish"
+      },
+      "example": "The villagers considered the broken promise a serious transgression.",
+      "example_translations": {
+        "ru": "Жители деревни сочли невыполненное обещание серьёзным нарушением нормы.",
+        "uz": "Qishloq ahli va'dani bajarmaslikni me'yorning jiddiy buzilishi deb hisobladi."
+      }
     }
   ]
 }

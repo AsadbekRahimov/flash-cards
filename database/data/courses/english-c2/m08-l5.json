@@ -160,6 +160,66 @@
         "ru": "Секретарь записал его речь дословно.",
         "uz": "Kotib uning nutqini so'zma-so'z yozib oldi."
       }
+    },
+    {
+      "word": "idiolect",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪdiəˌlɛkt/",
+      "translation": "индивидуальная манера речи",
+      "translations": {
+        "ru": "индивидуальная манера речи",
+        "uz": "shaxsga xos nutq uslubi"
+      },
+      "example": "His unusual greetings are part of his personal idiolect.",
+      "example_translations": {
+        "ru": "Его необычные приветствия — часть его индивидуальной манеры речи.",
+        "uz": "G'ayrioddiy salomlashuv iboralari uning o'ziga xos nutq uslubining bir qismidir."
+      }
+    },
+    {
+      "word": "calque",
+      "part_of_speech": "noun",
+      "transcription": "/kælk/",
+      "translation": "калька",
+      "translations": {
+        "ru": "калька",
+        "uz": "so'zma-so'z o'zlashtirma"
+      },
+      "example": "The linguist identified this expression as a French calque.",
+      "example_translations": {
+        "ru": "Лингвист определил, что это выражение — калька с французского.",
+        "uz": "Tilshunos bu ibora fransuzchadan so'zma-so'z o'zlashtirilganini aniqladi."
+      }
+    },
+    {
+      "word": "morpheme",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɔrˌfim/",
+      "translation": "морфема",
+      "translations": {
+        "ru": "морфема",
+        "uz": "morfema"
+      },
+      "example": "The prefix is a morpheme with its own meaning.",
+      "example_translations": {
+        "ru": "Приставка — морфема, у которой есть собственное значение.",
+        "uz": "Old qo'shimcha o'z ma'nosiga ega morfemadir."
+      }
+    },
+    {
+      "word": "polysemy",
+      "part_of_speech": "noun",
+      "transcription": "/pəˈlɪsəmi/",
+      "translation": "многозначность",
+      "translations": {
+        "ru": "многозначность",
+        "uz": "ko'p ma'nolilik"
+      },
+      "example": "Dictionary users encounter polysemy when one word has related senses.",
+      "example_translations": {
+        "ru": "Когда у слова несколько связанных значений, пользователи словаря сталкиваются с многозначностью.",
+        "uz": "Bir so'zning o'zaro bog'liq ma'nolari bo'lsa, lug'atdan foydalanuvchilar ko'p ma'nolilikka duch keladi."
+      }
     }
   ]
 }

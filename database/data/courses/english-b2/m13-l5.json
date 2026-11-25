@@ -160,6 +160,66 @@
         "ru": "Граждане хотят большей подотчётности от должностных лиц.",
         "uz": "Fuqarolar mansabdor shaxslardan ko'proq hisobdorlik istaydi."
       }
+    },
+    {
+      "word": "ethical",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɛθɪkəl/",
+      "translation": "этичный",
+      "translations": {
+        "ru": "этичный",
+        "uz": "axloq me'yorlariga mos"
+      },
+      "example": "We discussed the ethical choice of protecting customer privacy.",
+      "example_translations": {
+        "ru": "Мы обсудили этичный выбор в пользу защиты личных данных клиентов.",
+        "uz": "Mijozlarning shaxsiy ma'lumotlarini himoya qilishdek axloq me'yorlariga mos tanlovni muhokama qildik."
+      }
+    },
+    {
+      "word": "unethical",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈɛθɪkəl/",
+      "translation": "неэтичный",
+      "translations": {
+        "ru": "неэтичный",
+        "uz": "axloqqa zid"
+      },
+      "example": "It's unethical to share private messages without permission.",
+      "example_translations": {
+        "ru": "Публиковать личные сообщения без разрешения неэтично.",
+        "uz": "Shaxsiy xabarlarni ruxsatsiz tarqatish axloqqa zid."
+      }
+    },
+    {
+      "word": "morally",
+      "part_of_speech": "adverb",
+      "transcription": "/ˈmɔrəli/",
+      "translation": "с моральной точки зрения",
+      "translations": {
+        "ru": "с моральной точки зрения",
+        "uz": "axloqiy jihatdan"
+      },
+      "example": "Is it morally acceptable to keep this secret?",
+      "example_translations": {
+        "ru": "Допустимо ли хранить эту тайну с моральной точки зрения?",
+        "uz": "Bu sirni saqlash axloqiy jihatdan maqbulmi?"
+      }
+    },
+    {
+      "word": "principled",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈprɪnsəpəld/",
+      "translation": "принципиальный",
+      "translations": {
+        "ru": "принципиальный",
+        "uz": "o'z prinsiplariga sodiq"
+      },
+      "example": "A principled leader applies the same rules to everyone.",
+      "example_translations": {
+        "ru": "Принципиальный руководитель применяет одни и те же правила ко всем.",
+        "uz": "O'z prinsiplariga sodiq rahbar hammaga bir xil qoidalarni qo'llaydi."
+      }
     }
   ]
 }

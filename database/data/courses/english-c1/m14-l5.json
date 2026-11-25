@@ -160,6 +160,51 @@
         "ru": "Писатель на долгие годы попал в чёрный список.",
         "uz": "Yozuvchi uzoq yillar qora ro'yxatga kiritilgan edi."
       }
+    },
+    {
+      "word": "suppression",
+      "part_of_speech": "noun",
+      "transcription": "/səˈprɛʃən/",
+      "translation": "подавление",
+      "translations": {
+        "ru": "подавление",
+        "uz": "bostirish"
+      },
+      "example": "The editor protested against the suppression of independent reporting.",
+      "example_translations": {
+        "ru": "Редактор выступил против подавления независимой журналистики.",
+        "uz": "Muharrir mustaqil jurnalistikani bostirishga qarshi chiqdi."
+      }
+    },
+    {
+      "word": "redaction",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈdækʃən/",
+      "translation": "изъятие сведений из текста",
+      "translations": {
+        "ru": "изъятие сведений из текста",
+        "uz": "matndagi ma'lumotni yashirish"
+      },
+      "example": "The redaction concealed the source's name and address.",
+      "example_translations": {
+        "ru": "Изъятие сведений из текста позволило скрыть имя и адрес источника.",
+        "uz": "Matnda manbaning ismi va manzili yashirildi."
+      }
+    },
+    {
+      "word": "unpublish",
+      "part_of_speech": "verb",
+      "transcription": "/ʌnˈpʌblɪʃ/",
+      "translation": "снимать с публикации",
+      "translations": {
+        "ru": "снимать с публикации",
+        "uz": "e'londan olib tashlamoq"
+      },
+      "example": "Editors refused to unpublish the interview without explanation.",
+      "example_translations": {
+        "ru": "Редакторы отказались снимать интервью с публикации без объяснения причин.",
+        "uz": "Muharrirlar sabab ko'rsatilmasa, intervyuni e'londan olib tashlashdan bosh tortdi."
+      }
     }
   ]
 }

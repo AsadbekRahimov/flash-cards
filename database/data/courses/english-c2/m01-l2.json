@@ -160,6 +160,81 @@
         "ru": "Избавьте меня от ваших ханжеских нотаций о честности!",
         "uz": "Meni halollik haqidagi riyokor nasihatlaringizdan xalos qiling!"
       }
+    },
+    {
+      "word": "sanctimony",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsæŋktəˌmoʊni/",
+      "translation": "ханжество",
+      "translations": {
+        "ru": "ханжество",
+        "uz": "soxta taqvodorlik"
+      },
+      "example": "His sanctimony irritated colleagues who knew his private habits.",
+      "example_translations": {
+        "ru": "Его ханжество раздражало коллег, знавших его привычки в частной жизни.",
+        "uz": "Uning soxta taqvodorligi shaxsiy odatlarini bilgan hamkasblarining g'ashiga tegardi."
+      }
+    },
+    {
+      "word": "priggish",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈprɪgɪʃ/",
+      "translation": "самодовольно-нравоучительный",
+      "translations": {
+        "ru": "самодовольно-нравоучительный",
+        "uz": "o'zini odobda boshqalardan ustun ko'rsatadigan"
+      },
+      "example": "His priggish remarks spoiled an otherwise relaxed dinner.",
+      "example_translations": {
+        "ru": "Его самодовольные нравоучения испортили непринуждённый ужин.",
+        "uz": "Uning o'zini boshqalardan odobliroq qilib ko'rsatgan gaplari kechki ovqatning fayzini buzdi."
+      }
+    },
+    {
+      "word": "unctuous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈʌŋktʃuəs/",
+      "translation": "елейный",
+      "translations": {
+        "ru": "елейный",
+        "uz": "tilyog'lama"
+      },
+      "example": "I distrusted his unctuous compliments about my work.",
+      "example_translations": {
+        "ru": "Я не поверил его елейным комплиментам о моей работе.",
+        "uz": "Ishimni maqtagan tilyog'lama gaplariga ishonmadim."
+      }
+    },
+    {
+      "word": "condescension",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɑndɪˈsɛnʃən/",
+      "translation": "снисходительное высокомерие",
+      "translations": {
+        "ru": "снисходительное высокомерие",
+        "uz": "mensimasdan muomala qilish"
+      },
+      "example": "Her condescension offended the experienced technicians she was addressing.",
+      "example_translations": {
+        "ru": "Её снисходительное высокомерие задело опытных специалистов, к которым она обращалась.",
+        "uz": "Uning mensimasdan muomala qilishi gapini tinglayotgan tajribali texniklarning ko'ngliga tegdi."
+      }
+    },
+    {
+      "word": "imposture",
+      "part_of_speech": "noun",
+      "transcription": "/ɪmˈpɑstʃər/",
+      "translation": "самозванство",
+      "translations": {
+        "ru": "самозванство",
+        "uz": "o'zini boshqa odam qilib ko'rsatish"
+      },
+      "example": "His imposture ended when the real inspector arrived.",
+      "example_translations": {
+        "ru": "Настоящий инспектор прибыл, и самозванство раскрылось.",
+        "uz": "Haqiqiy inspektor kelgach, uning o'zini boshqa odam qilib ko'rsatgani fosh bo'ldi."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Моя разговорчивая тётя может говорить часами.",
         "uz": "Sergap xolam soatlab gapira oladi."
       }
+    },
+    {
+      "word": "easygoing",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌiziˈgoʊɪŋ/",
+      "translation": "покладистый",
+      "translations": {
+        "ru": "покладистый",
+        "uz": "xotirjam tabiatli"
+      },
+      "example": "My easygoing roommate rarely gets upset.",
+      "example_translations": {
+        "ru": "Мой покладистый сосед по комнате редко расстраивается.",
+        "uz": "Xotirjam tabiatli xonadoshim kamdan-kam xafa bo'ladi."
+      }
+    },
+    {
+      "word": "bossy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈbɔsi/",
+      "translation": "любящий командовать",
+      "translations": {
+        "ru": "любящий командовать",
+        "uz": "buyruq berishni yaxshi ko'radigan"
+      },
+      "example": "My bossy cousin tells everyone what to do.",
+      "example_translations": {
+        "ru": "Мой двоюродный брат любит командовать и всем говорит, что делать.",
+        "uz": "Buyruq berishni yaxshi ko'radigan amakivachcham hammaga nima qilish kerakligini aytadi."
+      }
+    },
+    {
+      "word": "picky",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpɪki/",
+      "translation": "привередливый",
+      "translations": {
+        "ru": "привередливый",
+        "uz": "injiq"
+      },
+      "example": "Our picky cat only eats one kind of food.",
+      "example_translations": {
+        "ru": "Наша привередливая кошка ест только один вид корма.",
+        "uz": "Injiq mushugimiz faqat bir xil yem yeydi."
+      }
+    },
+    {
+      "word": "careless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkɛrləs/",
+      "translation": "невнимательный",
+      "translations": {
+        "ru": "невнимательный",
+        "uz": "e'tiborsiz"
+      },
+      "example": "A careless driver can miss a stop sign.",
+      "example_translations": {
+        "ru": "Невнимательный водитель может не заметить знак «Стоп».",
+        "uz": "E'tiborsiz haydovchi «To'xtash» belgisini ko'rmay qolishi mumkin."
+      }
+    },
+    {
+      "word": "moody",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmudi/",
+      "translation": "с переменчивым настроением",
+      "translations": {
+        "ru": "с переменчивым настроением",
+        "uz": "kayfiyati tez o'zgaradigan"
+      },
+      "example": "Our moody teenager feels differently every hour.",
+      "example_translations": {
+        "ru": "У нашего подростка с переменчивым настроением каждый час новые эмоции.",
+        "uz": "Kayfiyati tez o'zgaradigan o'smir farzandimizning hissiyotlari har soatda almashadi."
+      }
     }
   ]
 }

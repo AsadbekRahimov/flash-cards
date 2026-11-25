@@ -160,6 +160,36 @@
         "ru": "Город объявил тендер на поставку новых автобусов.",
         "uz": "Shahar yangi avtobuslar yetkazib berish uchun tender e'lon qildi."
       }
+    },
+    {
+      "word": "sweetener",
+      "part_of_speech": "noun",
+      "transcription": "/ˈswitənər/",
+      "translation": "дополнительный стимул",
+      "translations": {
+        "ru": "дополнительный стимул",
+        "uz": "qo'shimcha rag'bat"
+      },
+      "example": "We offered free delivery as a sweetener.",
+      "example_translations": {
+        "ru": "В качестве дополнительного стимула мы предложили бесплатную доставку.",
+        "uz": "Qo'shimcha rag'bat sifatida bepul yetkazib berishni taklif qildik."
+      }
+    },
+    {
+      "word": "counteroffer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkaʊntərˌɔfər/",
+      "translation": "встречное предложение",
+      "translations": {
+        "ru": "встречное предложение",
+        "uz": "qarshi taklif"
+      },
+      "example": "Their counteroffer included a shorter delivery window.",
+      "example_translations": {
+        "ru": "Их встречное предложение предусматривало более короткий срок доставки.",
+        "uz": "Ularning qarshi taklifida yetkazib berish muddati qisqaroq edi."
+      }
     }
   ]
 }

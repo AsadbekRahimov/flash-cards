@@ -160,6 +160,51 @@
         "ru": "Они переехали из города в сельскую местность.",
         "uz": "Ular shahardan qishloq joyiga ko'chib o'tishdi."
       }
+    },
+    {
+      "word": "creek",
+      "part_of_speech": "noun",
+      "transcription": "/krik/",
+      "translation": "небольшой ручей",
+      "translations": {
+        "ru": "небольшой ручей",
+        "uz": "kichik jilg'a"
+      },
+      "example": "A small creek flows behind our house.",
+      "example_translations": {
+        "ru": "За нашим домом течёт небольшой ручей.",
+        "uz": "Uyimiz orqasidan kichik jilg'a oqadi."
+      }
+    },
+    {
+      "word": "coastline",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkoʊstˌlaɪn/",
+      "translation": "береговая линия",
+      "translations": {
+        "ru": "береговая линия",
+        "uz": "qirg'oq chizig'i"
+      },
+      "example": "The map shows the island's rocky coastline.",
+      "example_translations": {
+        "ru": "На карте показана скалистая береговая линия острова.",
+        "uz": "Xaritada orolning qoyali qirg'oq chizig'i ko'rsatilgan."
+      }
+    },
+    {
+      "word": "hilltop",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɪlˌtɑp/",
+      "translation": "вершина холма",
+      "translations": {
+        "ru": "вершина холма",
+        "uz": "tepalik cho'qqisi"
+      },
+      "example": "The hilltop offers a view of the whole village.",
+      "example_translations": {
+        "ru": "С вершины холма видно всю деревню.",
+        "uz": "Tepalik cho'qqisidan butun qishloq ko'rinadi."
+      }
     }
   ]
 }

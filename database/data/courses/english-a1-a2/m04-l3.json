@@ -160,6 +160,81 @@
         "ru": "Иногда я хожу на работу пешком.",
         "uz": "Ba'zan ishga piyoda boraman."
       }
+    },
+    {
+      "word": "daily",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdeɪli/",
+      "translation": "ежедневный",
+      "translations": {
+        "ru": "ежедневный",
+        "uz": "kundalik"
+      },
+      "example": "Our daily walk is after lunch.",
+      "example_translations": {
+        "ru": "Мы гуляем каждый день после обеда.",
+        "uz": "Kundalik sayrimiz tushlikdan keyin bo'ladi."
+      }
+    },
+    {
+      "word": "weekly",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈwikli/",
+      "translation": "еженедельный",
+      "translations": {
+        "ru": "еженедельный",
+        "uz": "haftalik"
+      },
+      "example": "We have a weekly class on Fridays.",
+      "example_translations": {
+        "ru": "Наше еженедельное занятие проходит по пятницам.",
+        "uz": "Haftalik darsimiz juma kunlari bo'ladi."
+      }
+    },
+    {
+      "word": "monthly",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈmʌnθli/",
+      "translation": "ежемесячный",
+      "translations": {
+        "ru": "ежемесячный",
+        "uz": "har oylik"
+      },
+      "example": "Our monthly meeting is this Monday.",
+      "example_translations": {
+        "ru": "Наша ежемесячная встреча в этот понедельник.",
+        "uz": "Har oylik uchrashuvimiz shu dushanba kuni."
+      }
+    },
+    {
+      "word": "calendar",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkæləndər/",
+      "translation": "календарь",
+      "translations": {
+        "ru": "календарь",
+        "uz": "taqvim"
+      },
+      "example": "Put a mark on your calendar.",
+      "example_translations": {
+        "ru": "Сделайте отметку в своём календаре.",
+        "uz": "Taqvimingizga belgi qo'ying."
+      }
+    },
+    {
+      "word": "usually",
+      "part_of_speech": "adverb",
+      "transcription": "/ˈjuʒuəli/",
+      "translation": "обычно",
+      "translations": {
+        "ru": "обычно",
+        "uz": "odatda"
+      },
+      "example": "We usually have dinner at seven.",
+      "example_translations": {
+        "ru": "Обычно мы ужинаем в семь.",
+        "uz": "Odatda soat yettida kechki ovqat yeymiz."
+      }
     }
   ]
 }

@@ -160,6 +160,66 @@
         "ru": "Вода полезна для тела.",
         "uz": "Suv tana uchun foydali."
       }
+    },
+    {
+      "word": "waist",
+      "part_of_speech": "noun",
+      "transcription": "/weɪst/",
+      "translation": "талия",
+      "translations": {
+        "ru": "талия",
+        "uz": "bel"
+      },
+      "example": "She tied her jacket around her waist.",
+      "example_translations": {
+        "ru": "Она повязала куртку вокруг талии.",
+        "uz": "U kurtkasini beliga bog'ladi."
+      }
+    },
+    {
+      "word": "palm",
+      "part_of_speech": "noun",
+      "transcription": "/pɑm/",
+      "translation": "ладонь",
+      "translations": {
+        "ru": "ладонь",
+        "uz": "kaft"
+      },
+      "example": "A small bird sat on my palm.",
+      "example_translations": {
+        "ru": "Маленькая птица села мне на ладонь.",
+        "uz": "Kichkina qush kaftimga qo'ndi."
+      }
+    },
+    {
+      "word": "heel",
+      "part_of_speech": "noun",
+      "transcription": "/hil/",
+      "translation": "пятка",
+      "translations": {
+        "ru": "пятка",
+        "uz": "tovon"
+      },
+      "example": "My shoe hurts my heel when I walk.",
+      "example_translations": {
+        "ru": "При ходьбе ботинок натирает мне пятку.",
+        "uz": "Yurganimda tuflim tovonimni ishqalaydi."
+      }
+    },
+    {
+      "word": "toe",
+      "part_of_speech": "noun",
+      "transcription": "/toʊ/",
+      "translation": "палец на ноге",
+      "translations": {
+        "ru": "палец на ноге",
+        "uz": "oyoq barmog'i"
+      },
+      "example": "My left shoe hurts my big toe.",
+      "example_translations": {
+        "ru": "Левый ботинок давит на большой палец ноги.",
+        "uz": "Chap tuflim oyog'imning bosh barmog'ini qisadi."
+      }
     }
   ]
 }

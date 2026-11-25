@@ -160,6 +160,66 @@
         "ru": "Первое правило — приходить вовремя.",
         "uz": "Birinchi qoida — o'z vaqtida kelish."
       }
+    },
+    {
+      "word": "voting",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvoʊtɪŋ/",
+      "translation": "голосование",
+      "translations": {
+        "ru": "голосование",
+        "uz": "ovoz berish"
+      },
+      "example": "Voting starts at seven on election day.",
+      "example_translations": {
+        "ru": "В день выборов голосование начинается в семь.",
+        "uz": "Saylov kuni ovoz berish soat yettida boshlanadi."
+      }
+    },
+    {
+      "word": "kingdom",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɪŋdəm/",
+      "translation": "королевство",
+      "translations": {
+        "ru": "королевство",
+        "uz": "qirollik"
+      },
+      "example": "The kingdom was small but very rich.",
+      "example_translations": {
+        "ru": "Королевство было маленьким, но очень богатым.",
+        "uz": "Qirollik kichik, lekin juda boy edi."
+      }
+    },
+    {
+      "word": "king",
+      "part_of_speech": "noun",
+      "transcription": "/kɪŋ/",
+      "translation": "король",
+      "translations": {
+        "ru": "король",
+        "uz": "qirol"
+      },
+      "example": "The king lived in that old palace.",
+      "example_translations": {
+        "ru": "Король жил в том старом дворце.",
+        "uz": "Qirol o'sha eski saroyda yashagan."
+      }
+    },
+    {
+      "word": "queen",
+      "part_of_speech": "noun",
+      "transcription": "/kwin/",
+      "translation": "королева",
+      "translations": {
+        "ru": "королева",
+        "uz": "qirolicha"
+      },
+      "example": "The queen ruled the country for many years.",
+      "example_translations": {
+        "ru": "Королева правила страной много лет.",
+        "uz": "Qirolicha mamlakatni ko'p yil boshqargan."
+      }
     }
   ]
 }

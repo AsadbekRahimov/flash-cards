@@ -160,6 +160,81 @@
         "ru": "Эти две рубашки разные.",
         "uz": "Bu ikki ko'ylak har xil."
       }
+    },
+    {
+      "word": "round",
+      "part_of_speech": "adjective",
+      "transcription": "/raʊnd/",
+      "translation": "круглый",
+      "translations": {
+        "ru": "круглый",
+        "uz": "dumaloq"
+      },
+      "example": "The cake is on a round plate.",
+      "example_translations": {
+        "ru": "Торт лежит на круглой тарелке.",
+        "uz": "Tort dumaloq likopchada turibdi."
+      }
+    },
+    {
+      "word": "soft",
+      "part_of_speech": "adjective",
+      "transcription": "/sɔft/",
+      "translation": "мягкий",
+      "translations": {
+        "ru": "мягкий",
+        "uz": "yumshoq"
+      },
+      "example": "This chair has a very soft seat.",
+      "example_translations": {
+        "ru": "У этого стула очень мягкое сиденье.",
+        "uz": "Bu stulning o'rindig'i juda yumshoq."
+      }
+    },
+    {
+      "word": "hard",
+      "part_of_speech": "adjective",
+      "transcription": "/hɑrd/",
+      "translation": "твёрдый",
+      "translations": {
+        "ru": "твёрдый",
+        "uz": "qattiq"
+      },
+      "example": "The seat of this chair is hard.",
+      "example_translations": {
+        "ru": "У этого стула твёрдое сиденье.",
+        "uz": "Bu stulning o'rindig'i qattiq."
+      }
+    },
+    {
+      "word": "wide",
+      "part_of_speech": "adjective",
+      "transcription": "/waɪd/",
+      "translation": "широкий",
+      "translations": {
+        "ru": "широкий",
+        "uz": "keng"
+      },
+      "example": "We need a wide table for dinner.",
+      "example_translations": {
+        "ru": "Нам нужен широкий стол для ужина.",
+        "uz": "Kechki ovqat uchun keng stol kerak."
+      }
+    },
+    {
+      "word": "oval",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈoʊvəl/",
+      "translation": "овальный",
+      "translations": {
+        "ru": "овальный",
+        "uz": "tuxumsimon"
+      },
+      "example": "There is an oval mirror in the hall.",
+      "example_translations": {
+        "ru": "В коридоре висит овальное зеркало.",
+        "uz": "Yo'lakda tuxumsimon ko'zgu bor."
+      }
     }
   ]
 }

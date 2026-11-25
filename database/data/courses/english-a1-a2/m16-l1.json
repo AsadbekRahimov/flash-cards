@@ -160,6 +160,81 @@
         "ru": "Лифт сегодня снова сломан.",
         "uz": "Lift bugun yana buzilgan."
       }
+    },
+    {
+      "word": "railing",
+      "part_of_speech": "noun",
+      "transcription": "/ˈreɪlɪŋ/",
+      "translation": "перила",
+      "translations": {
+        "ru": "перила",
+        "uz": "panjara"
+      },
+      "example": "Hold the railing as you go down.",
+      "example_translations": {
+        "ru": "Спускаясь, держитесь за перила.",
+        "uz": "Tushayotganda panjarani ushlab tushing."
+      }
+    },
+    {
+      "word": "chimney",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtʃɪmni/",
+      "translation": "дымоход",
+      "translations": {
+        "ru": "дымоход",
+        "uz": "mo'ri"
+      },
+      "example": "Smoke was coming from the chimney.",
+      "example_translations": {
+        "ru": "Из дымохода шёл дым.",
+        "uz": "Mo'ridan tutun chiqayotgan edi."
+      }
+    },
+    {
+      "word": "porch",
+      "part_of_speech": "noun",
+      "transcription": "/pɔrtʃ/",
+      "translation": "крыльцо",
+      "translations": {
+        "ru": "крыльцо",
+        "uz": "uy oldidagi ayvon"
+      },
+      "example": "There are two chairs on the porch.",
+      "example_translations": {
+        "ru": "На крыльце стоят два стула.",
+        "uz": "Uy oldidagi ayvonda ikkita stul bor."
+      }
+    },
+    {
+      "word": "closet",
+      "part_of_speech": "noun",
+      "transcription": "/ˈklɑzət/",
+      "translation": "стенной шкаф",
+      "translations": {
+        "ru": "стенной шкаф",
+        "uz": "devor ichidagi javon"
+      },
+      "example": "We keep our coats in the hall closet.",
+      "example_translations": {
+        "ru": "Мы храним пальто в стенном шкафу в прихожей.",
+        "uz": "Paltolarimizni dahlizdagi devor ichidagi javonda saqlaymiz."
+      }
+    },
+    {
+      "word": "loft",
+      "part_of_speech": "noun",
+      "transcription": "/lɔft/",
+      "translation": "чердак",
+      "translations": {
+        "ru": "чердак",
+        "uz": "chordoq"
+      },
+      "example": "We keep old boxes in the loft.",
+      "example_translations": {
+        "ru": "Мы храним старые коробки на чердаке.",
+        "uz": "Eski qutilarni chordoqda saqlaymiz."
+      }
     }
   ]
 }

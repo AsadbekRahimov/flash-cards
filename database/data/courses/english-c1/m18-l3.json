@@ -160,6 +160,51 @@
         "ru": "В феодальные времена крестьяне обрабатывали землю своего господина.",
         "uz": "Feodal davrda dehqonlar o'z xo'jayinining yerida ishlagan."
       }
+    },
+    {
+      "word": "archival",
+      "part_of_speech": "adjective",
+      "transcription": "/ɑrˈkaɪvəl/",
+      "translation": "архивный",
+      "translations": {
+        "ru": "архивный",
+        "uz": "arxivga oid"
+      },
+      "example": "An archival photograph revealed the bridge's original design.",
+      "example_translations": {
+        "ru": "Архивная фотография показала первоначальный облик моста.",
+        "uz": "Arxivdagi fotosurat ko'prikning dastlabki ko'rinishini ko'rsatdi."
+      }
+    },
+    {
+      "word": "historiography",
+      "part_of_speech": "noun",
+      "transcription": "/hɪˌstɔriˈɑgrəfi/",
+      "translation": "историография",
+      "translations": {
+        "ru": "историография",
+        "uz": "tarixnavislik"
+      },
+      "example": "The course examines the historiography of early trade routes.",
+      "example_translations": {
+        "ru": "Курс рассматривает историографию ранних торговых путей.",
+        "uz": "Kursda ilk savdo yo'llariga oid tarixnavislik o'rganiladi."
+      }
+    },
+    {
+      "word": "contemporaneous",
+      "part_of_speech": "adjective",
+      "transcription": "/kənˌtɛmpəˈreɪniəs/",
+      "translation": "относящийся к тому же времени",
+      "translations": {
+        "ru": "относящийся к тому же времени",
+        "uz": "ayni davrga oid"
+      },
+      "example": "Contemporaneous letters offer firsthand accounts of the festival.",
+      "example_translations": {
+        "ru": "Письма, относящиеся к тому же времени, рассказывают о празднике из первых рук.",
+        "uz": "O'sha davrga oid xatlarda bayram guvohlarining hikoyalari keltirilgan."
+      }
     }
   ]
 }

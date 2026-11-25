@@ -160,6 +160,36 @@
         "ru": "На сайте показали кадры шторма.",
         "uz": "Saytda bo'ron kadrlari ko'rsatildi."
       }
+    },
+    {
+      "word": "livestreaming",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlaɪvˌstrimɪŋ/",
+      "translation": "прямая трансляция",
+      "translations": {
+        "ru": "прямая трансляция",
+        "uz": "jonli efir"
+      },
+      "example": "Livestreaming lets fans watch the concert from home.",
+      "example_translations": {
+        "ru": "Благодаря прямой трансляции поклонники могут посмотреть концерт из дома.",
+        "uz": "Jonli efir tufayli muxlislar konsertni uyidan turib tomosha qila oladi."
+      }
+    },
+    {
+      "word": "repost",
+      "part_of_speech": "verb",
+      "transcription": "/riˈpoʊst/",
+      "translation": "публиковать повторно",
+      "translations": {
+        "ru": "публиковать повторно",
+        "uz": "qayta e'lon qilmoq"
+      },
+      "example": "Please repost the notice on your community page.",
+      "example_translations": {
+        "ru": "Пожалуйста, опубликуйте объявление ещё раз на странице вашего сообщества.",
+        "uz": "Iltimos, e'lonni hamjamiyatingiz sahifasida qayta chiqaring."
+      }
     }
   ]
 }

@@ -160,6 +160,51 @@
         "ru": "Город дооснастит старые школы солнечными панелями.",
         "uz": "Shahar eski maktablarni quyosh panellari bilan qayta jihozlaydi."
       }
+    },
+    {
+      "word": "cantilever",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkæntəˌlivər/",
+      "translation": "консольная балка",
+      "translations": {
+        "ru": "консольная балка",
+        "uz": "bir uchi mahkamlangan to'sin"
+      },
+      "example": "A cantilever supports the balcony without columns beneath it.",
+      "example_translations": {
+        "ru": "Консольная балка удерживает балкон без колонн под ним.",
+        "uz": "Bir uchi mahkamlangan to'sin ayvonni pastida ustun bo'lmasa ham ko'tarib turadi."
+      }
+    },
+    {
+      "word": "cladding",
+      "part_of_speech": "noun",
+      "transcription": "/ˈklædɪŋ/",
+      "translation": "облицовка",
+      "translations": {
+        "ru": "облицовка",
+        "uz": "tashqi qoplama"
+      },
+      "example": "Wooden cladding gives the building a warmer appearance.",
+      "example_translations": {
+        "ru": "Деревянная облицовка придаёт зданию более тёплый вид.",
+        "uz": "Yog'och tashqi qoplama binoning ko'rinishini iliqroq qiladi."
+      }
+    },
+    {
+      "word": "lintel",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɪntəl/",
+      "translation": "перемычка",
+      "translations": {
+        "ru": "перемычка",
+        "uz": "eshik usti to'sini"
+      },
+      "example": "A stone lintel supports the bricks above the doorway.",
+      "example_translations": {
+        "ru": "Каменная перемычка удерживает кирпичи над дверным проёмом.",
+        "uz": "Eshik ustidagi tosh to'sin tepadagi g'ishtlarni ko'tarib turadi."
+      }
     }
   ]
 }

@@ -160,6 +160,36 @@
         "ru": "Она проводила полевые исследования в отдалённых рыбацких деревнях.",
         "uz": "U dala tadqiqotlarini olis baliqchilar qishloqlarida o'tkazdi."
       }
+    },
+    {
+      "word": "pretest",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpriˌtɛst/",
+      "translation": "предварительный тест",
+      "translations": {
+        "ru": "предварительный тест",
+        "uz": "dastlabki sinov"
+      },
+      "example": "Every participant took a pretest before the experiment.",
+      "example_translations": {
+        "ru": "Перед экспериментом каждый участник прошёл предварительный тест.",
+        "uz": "Tajribadan oldin har bir ishtirokchi dastlabki sinovdan o'tdi."
+      }
+    },
+    {
+      "word": "stratify",
+      "part_of_speech": "verb",
+      "transcription": "/ˈstrætəˌfaɪ/",
+      "translation": "разбивать на группы",
+      "translations": {
+        "ru": "разбивать на группы",
+        "uz": "guruhlarga ajratmoq"
+      },
+      "example": "We will stratify the sample by age.",
+      "example_translations": {
+        "ru": "Мы разобьём выборку на возрастные группы.",
+        "uz": "Tanlamani yoshiga qarab guruhlarga ajratamiz."
+      }
     }
   ]
 }

@@ -160,6 +160,66 @@
         "ru": "Наш учитель математики строгий, но очень справедливый.",
         "uz": "Matematika o'qituvchimiz qattiqqo'l, lekin juda adolatli."
       }
+    },
+    {
+      "word": "examiner",
+      "part_of_speech": "noun",
+      "transcription": "/ɪgˈzæmənər/",
+      "translation": "экзаменатор",
+      "translations": {
+        "ru": "экзаменатор",
+        "uz": "imtihon oluvchi"
+      },
+      "example": "The examiner asked me to describe a picture.",
+      "example_translations": {
+        "ru": "Экзаменатор попросил меня описать картинку.",
+        "uz": "Imtihon oluvchi mendan rasmni tasvirlashimni so'radi."
+      }
+    },
+    {
+      "word": "retake",
+      "part_of_speech": "verb",
+      "transcription": "/riˈteɪk/",
+      "translation": "пересдавать",
+      "translations": {
+        "ru": "пересдавать",
+        "uz": "qayta topshirmoq"
+      },
+      "example": "You may retake the exam next month.",
+      "example_translations": {
+        "ru": "Вы можете пересдать экзамен в следующем месяце.",
+        "uz": "Kelasi oy imtihonni qayta topshirishingiz mumkin."
+      }
+    },
+    {
+      "word": "redo",
+      "part_of_speech": "verb",
+      "transcription": "/riˈdu/",
+      "translation": "переделывать",
+      "translations": {
+        "ru": "переделывать",
+        "uz": "qayta bajarmoq"
+      },
+      "example": "Please redo the last question on your test.",
+      "example_translations": {
+        "ru": "Пожалуйста, переделайте последнее задание в тесте.",
+        "uz": "Iltimos, testdagi oxirgi topshiriqni qayta bajaring."
+      }
+    },
+    {
+      "word": "misspell",
+      "part_of_speech": "verb",
+      "transcription": "/ˌmɪsˈspɛl/",
+      "translation": "писать с ошибкой",
+      "translations": {
+        "ru": "писать с ошибкой",
+        "uz": "imlo xatosi bilan yozmoq"
+      },
+      "example": "Students often misspell this word in exams.",
+      "example_translations": {
+        "ru": "Ученики часто пишут это слово с ошибкой на экзаменах.",
+        "uz": "O'quvchilar imtihonlarda bu so'zni ko'pincha imlo xatosi bilan yozishadi."
+      }
     }
   ]
 }

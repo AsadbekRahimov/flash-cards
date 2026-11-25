@@ -160,6 +160,81 @@
         "ru": "Дети очень быстро овладевают языковыми навыками.",
         "uz": "Bolalar til ko'nikmalarini juda tez egallaydi."
       }
+    },
+    {
+      "word": "memorization",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɛmərəˈzeɪʃən/",
+      "translation": "запоминание",
+      "translations": {
+        "ru": "запоминание",
+        "uz": "yodlab olish"
+      },
+      "example": "Repetition helps with the memorization of new words.",
+      "example_translations": {
+        "ru": "Повторение помогает запоминать новые слова.",
+        "uz": "Takrorlash yangi so'zlarni yodlab olishga yordam beradi."
+      }
+    },
+    {
+      "word": "transliterate",
+      "part_of_speech": "verb",
+      "transcription": "/trænzˈlɪtəˌreɪt/",
+      "translation": "транслитерировать",
+      "translations": {
+        "ru": "транслитерировать",
+        "uz": "boshqa alifbo harflari bilan yozmoq"
+      },
+      "example": "Learn to transliterate names from Cyrillic into Latin script.",
+      "example_translations": {
+        "ru": "Научитесь транслитерировать имена с кириллицы на латиницу.",
+        "uz": "Ismlarni kirill yozuvidan lotin alifbosiga o'girishni o'rganing."
+      }
+    },
+    {
+      "word": "fluency",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfluənsi/",
+      "translation": "беглость речи",
+      "translations": {
+        "ru": "беглость речи",
+        "uz": "nutq ravonligi"
+      },
+      "example": "Speaking regularly can improve your fluency in English.",
+      "example_translations": {
+        "ru": "Регулярная устная практика может повысить беглость вашей английской речи.",
+        "uz": "Muntazam gapirish mashqi inglizcha nutqingizni ravonroq qiladi."
+      }
+    },
+    {
+      "word": "annotation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌænəˈteɪʃən/",
+      "translation": "пояснительная заметка",
+      "translations": {
+        "ru": "пояснительная заметка",
+        "uz": "izohli qayd"
+      },
+      "example": "I added an annotation beside the difficult paragraph.",
+      "example_translations": {
+        "ru": "Рядом со сложным абзацем я добавил пояснительную заметку.",
+        "uz": "Murakkab xatboshi yoniga izohli qayd yozdim."
+      }
+    },
+    {
+      "word": "skimming",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskɪmɪŋ/",
+      "translation": "беглое чтение",
+      "translations": {
+        "ru": "беглое чтение",
+        "uz": "ko'z yugurtirib o'qish"
+      },
+      "example": "Skimming helps you find the main idea quickly.",
+      "example_translations": {
+        "ru": "Беглое чтение помогает быстро найти главную мысль.",
+        "uz": "Ko'z yugurtirib o'qish asosiy fikrni tez topishga yordam beradi."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "В кампусе есть библиотека и спортзал.",
         "uz": "Talabalar shaharchasida kutubxona va sport zali bor."
       }
+    },
+    {
+      "word": "freshman",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfrɛʃmən/",
+      "translation": "первокурсник",
+      "translations": {
+        "ru": "первокурсник",
+        "uz": "birinchi kurs talabasi"
+      },
+      "example": "I met her when I was a freshman.",
+      "example_translations": {
+        "ru": "Я познакомился с ней, когда был первокурсником.",
+        "uz": "U bilan birinchi kurs talabasi bo'lganimda tanishganman."
+      }
+    },
+    {
+      "word": "graduation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌgrædʒuˈeɪʃən/",
+      "translation": "выпускная церемония",
+      "translations": {
+        "ru": "выпускная церемония",
+        "uz": "bitiruv marosimi"
+      },
+      "example": "My family came to my graduation.",
+      "example_translations": {
+        "ru": "Моя семья пришла на мою выпускную церемонию.",
+        "uz": "Oilam bitiruv marosimimga keldi."
+      }
+    },
+    {
+      "word": "bachelor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbætʃələr/",
+      "translation": "бакалавр",
+      "translations": {
+        "ru": "бакалавр",
+        "uz": "bakalavr"
+      },
+      "example": "He has a bachelor of science degree.",
+      "example_translations": {
+        "ru": "У него степень бакалавра естественных наук.",
+        "uz": "Uning tabiiy fanlar bo'yicha bakalavr darajasi bor."
+      }
+    },
+    {
+      "word": "term",
+      "part_of_speech": "noun",
+      "transcription": "/tərm/",
+      "translation": "учебный период",
+      "translations": {
+        "ru": "учебный период",
+        "uz": "o'quv davri"
+      },
+      "example": "Our first term ends in December.",
+      "example_translations": {
+        "ru": "Наш первый учебный период заканчивается в декабре.",
+        "uz": "Birinchi o'quv davrimiz dekabrda tugaydi."
+      }
+    },
+    {
+      "word": "junior",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʒunjər/",
+      "translation": "студент третьего курса",
+      "translations": {
+        "ru": "студент третьего курса",
+        "uz": "uchinchi kurs talabasi"
+      },
+      "example": "I met my roommate as a junior.",
+      "example_translations": {
+        "ru": "Я познакомился с соседом по комнате на третьем курсе.",
+        "uz": "Xonadoshim bilan uchinchi kursda tanishdim."
+      }
     }
   ]
 }

@@ -160,6 +160,36 @@
         "ru": "Чрезмерный выпас скота ускоряет опустынивание в засушливых регионах.",
         "uz": "Chorvani haddan ortiq boqish qurg'oqchil hududlarda cho'llanishni tezlashtiradi."
       }
+    },
+    {
+      "word": "anthropogenic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌænθrəpəˈdʒɛnɪk/",
+      "translation": "антропогенный",
+      "translations": {
+        "ru": "антропогенный",
+        "uz": "inson faoliyati tufayli yuzaga kelgan"
+      },
+      "example": "Anthropogenic emissions are driving the rise in temperatures.",
+      "example_translations": {
+        "ru": "Антропогенные выбросы приводят к повышению температур.",
+        "uz": "Inson faoliyati tufayli atmosferaga chiqayotgan gazlar harorat ko'tarilishiga sabab bo'lmoqda."
+      }
+    },
+    {
+      "word": "decarbonization",
+      "part_of_speech": "noun",
+      "transcription": "/diˌkɑrbənəˈzeɪʃən/",
+      "translation": "декарбонизация",
+      "translations": {
+        "ru": "декарбонизация",
+        "uz": "uglerod chiqindilarini kamaytirish"
+      },
+      "example": "Decarbonization requires cleaner electricity and more efficient transport.",
+      "example_translations": {
+        "ru": "Для декарбонизации нужны более чистая электроэнергия и более эффективный транспорт.",
+        "uz": "Uglerod chiqindilarini kamaytirish uchun tozaroq elektr energiyasi va samaraliroq transport kerak."
+      }
     }
   ]
 }

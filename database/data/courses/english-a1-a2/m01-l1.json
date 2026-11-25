@@ -160,6 +160,36 @@
         "ru": "Извините, где здесь банк?",
         "uz": "Kechirasiz, bank qayerda?"
       }
+    },
+    {
+      "word": "goodnight",
+      "part_of_speech": "interjection",
+      "transcription": "/ˌgʊdˈnaɪt/",
+      "translation": "спокойной ночи",
+      "translations": {
+        "ru": "спокойной ночи",
+        "uz": "xayrli tun"
+      },
+      "example": "Say goodnight to Dad before bed.",
+      "example_translations": {
+        "ru": "Перед сном пожелай папе спокойной ночи.",
+        "uz": "Uxlashdan oldin dadangga «xayrli tun» de."
+      }
+    },
+    {
+      "word": "greetings",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgritɪŋz/",
+      "translation": "приветствия",
+      "translations": {
+        "ru": "приветствия",
+        "uz": "salomlashuv iboralari"
+      },
+      "example": "Today we are learning greetings in English.",
+      "example_translations": {
+        "ru": "Сегодня мы учим приветствия на английском.",
+        "uz": "Bugun inglizcha salomlashuv iboralarini o'rganyapmiz."
+      }
     }
   ]
 }

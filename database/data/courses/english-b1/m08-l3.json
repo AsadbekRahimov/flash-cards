@@ -160,6 +160,51 @@
         "ru": "Попросите у мясника два килограмма говядины.",
         "uz": "Qassobdan ikki kilo mol go'shti so'rang."
       }
+    },
+    {
+      "word": "storefront",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɔrˌfrʌnt/",
+      "translation": "фасад магазина",
+      "translations": {
+        "ru": "фасад магазина",
+        "uz": "do'konning old tomoni"
+      },
+      "example": "The bright blue storefront is easy to spot.",
+      "example_translations": {
+        "ru": "Ярко-синий фасад магазина легко заметить.",
+        "uz": "Do'konning yorqin ko'k rangli old tomonini payqash oson."
+      }
+    },
+    {
+      "word": "stockroom",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɑkˌrum/",
+      "translation": "склад магазина",
+      "translations": {
+        "ru": "склад магазина",
+        "uz": "do'kon ombori"
+      },
+      "example": "The clerk checked the stockroom for my size.",
+      "example_translations": {
+        "ru": "Продавец сходил на склад проверить, есть ли мой размер.",
+        "uz": "Sotuvchi mening o'lchamim bor-yo'qligini do'kon omboridan tekshirdi."
+      }
+    },
+    {
+      "word": "shopkeeper",
+      "part_of_speech": "noun",
+      "transcription": "/ˈʃɑpˌkipər/",
+      "translation": "хозяин магазина",
+      "translations": {
+        "ru": "хозяин магазина",
+        "uz": "do'kon egasi"
+      },
+      "example": "The shopkeeper opened the store before sunrise.",
+      "example_translations": {
+        "ru": "Хозяин магазина открыл его до восхода солнца.",
+        "uz": "Do'kon egasi do'konni quyosh chiqmasidan oldin ochdi."
+      }
     }
   ]
 }

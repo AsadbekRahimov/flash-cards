@@ -160,6 +160,66 @@
         "ru": "Мы живём в тихом жилом районе.",
         "uz": "Biz sokin turar joy hududida yashaymiz."
       }
+    },
+    {
+      "word": "rezoning",
+      "part_of_speech": "noun",
+      "transcription": "/riˈzoʊnɪŋ/",
+      "translation": "изменение зонирования",
+      "translations": {
+        "ru": "изменение зонирования",
+        "uz": "hududdan foydalanish tartibini o'zgartirish"
+      },
+      "example": "Rezoning allowed apartments to replace the old warehouses.",
+      "example_translations": {
+        "ru": "Изменение зонирования позволило построить жилые дома на месте старых складов.",
+        "uz": "Hududdan foydalanish tartibi o'zgargach, eski omborlar o'rnida uy-joy qurish mumkin bo'ldi."
+      }
+    },
+    {
+      "word": "pedestrianization",
+      "part_of_speech": "noun",
+      "transcription": "/pəˌdɛstriənəˈzeɪʃən/",
+      "translation": "превращение в пешеходную зону",
+      "translations": {
+        "ru": "превращение в пешеходную зону",
+        "uz": "piyodalar hududiga aylantirish"
+      },
+      "example": "Pedestrianization made the shopping street quieter and safer.",
+      "example_translations": {
+        "ru": "Превращение торговой улицы в пешеходную зону сделало её тише и безопаснее.",
+        "uz": "Savdo ko'chasi piyodalar hududiga aylantirilgach, tinchroq va xavfsizroq bo'ldi."
+      }
+    },
+    {
+      "word": "cityscape",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪtiˌskeɪp/",
+      "translation": "городской пейзаж",
+      "translations": {
+        "ru": "городской пейзаж",
+        "uz": "shahar manzarasi"
+      },
+      "example": "The towers changed the cityscape in just five years.",
+      "example_translations": {
+        "ru": "Высотные здания всего за пять лет изменили городской пейзаж.",
+        "uz": "Baland binolar atigi besh yilda shahar manzarasini o'zgartirdi."
+      }
+    },
+    {
+      "word": "uptown",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌʌpˈtaʊn/",
+      "translation": "в верхнюю часть города",
+      "translations": {
+        "ru": "в верхнюю часть города",
+        "uz": "shaharning yuqori qismiga"
+      },
+      "example": "We took the subway uptown to visit friends.",
+      "example_translations": {
+        "ru": "Мы поехали на метро в верхнюю часть города навестить друзей.",
+        "uz": "Do'stlarimizni ko'rgani metroda shaharning yuqori qismiga bordik."
+      }
     }
   ]
 }

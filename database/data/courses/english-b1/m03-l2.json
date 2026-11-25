@@ -160,6 +160,81 @@
         "ru": "Моя комната находится в конце коридора.",
         "uz": "Mening xonam yo'lakning oxirida joylashgan."
       }
+    },
+    {
+      "word": "doormat",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɔrˌmæt/",
+      "translation": "придверный коврик",
+      "translations": {
+        "ru": "придверный коврик",
+        "uz": "eshik oldi gilamchasi"
+      },
+      "example": "Please wipe your shoes on the doormat.",
+      "example_translations": {
+        "ru": "Пожалуйста, вытрите обувь о придверный коврик.",
+        "uz": "Iltimos, oyoq kiyimingizni eshik oldidagi gilamchaga arting."
+      }
+    },
+    {
+      "word": "lampshade",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlæmpˌʃeɪd/",
+      "translation": "абажур",
+      "translations": {
+        "ru": "абажур",
+        "uz": "chiroq qalpog'i"
+      },
+      "example": "A blue lampshade covers the light bulb.",
+      "example_translations": {
+        "ru": "Синий абажур закрывает лампочку.",
+        "uz": "Ko'k chiroq qalpog'i lampochkani yopib turibdi."
+      }
+    },
+    {
+      "word": "pillowcase",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɪloʊˌkeɪs/",
+      "translation": "наволочка",
+      "translations": {
+        "ru": "наволочка",
+        "uz": "yostiq jildi"
+      },
+      "example": "Could you put a clean pillowcase on this pillow?",
+      "example_translations": {
+        "ru": "Не могли бы вы надеть на эту подушку чистую наволочку?",
+        "uz": "Shu yostiqqa toza yostiq jildi kiydira olasizmi?"
+      }
+    },
+    {
+      "word": "bookshelf",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbʊkˌʃɛlf/",
+      "translation": "книжная полка",
+      "translations": {
+        "ru": "книжная полка",
+        "uz": "kitob javoni"
+      },
+      "example": "All my favorite books sit on this bookshelf.",
+      "example_translations": {
+        "ru": "Все мои любимые книги стоят на этой книжной полке.",
+        "uz": "Sevimli kitoblarimning barchasi shu kitob javonida turibdi."
+      }
+    },
+    {
+      "word": "hanger",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhæŋər/",
+      "translation": "вешалка для одежды",
+      "translations": {
+        "ru": "вешалка для одежды",
+        "uz": "kiyim ilgichi"
+      },
+      "example": "Please put your jacket on a hanger.",
+      "example_translations": {
+        "ru": "Пожалуйста, повесьте куртку на вешалку.",
+        "uz": "Iltimos, kurtkangizni kiyim ilgichiga iling."
+      }
     }
   ]
 }

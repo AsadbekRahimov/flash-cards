@@ -160,6 +160,81 @@
         "ru": "Догматичные мыслители отвергают факты, противоречащие их убеждениям.",
         "uz": "Dogmatik mutafakkirlar o'z qarashlariga zid dalillarni rad etadi."
       }
+    },
+    {
+      "word": "acuity",
+      "part_of_speech": "noun",
+      "transcription": "/əˈkjuəti/",
+      "translation": "острота ума",
+      "translations": {
+        "ru": "острота ума",
+        "uz": "zehn o'tkirligi"
+      },
+      "example": "Her mental acuity impressed even the skeptical judges.",
+      "example_translations": {
+        "ru": "Острота её ума впечатлила даже скептически настроенных судей.",
+        "uz": "Uning zehni o'tkirligi hatto shubha bilan qaragan hakamlarni ham lol qoldirdi."
+      }
+    },
+    {
+      "word": "sagacity",
+      "part_of_speech": "noun",
+      "transcription": "/səˈgæsəti/",
+      "translation": "мудрая проницательность",
+      "translations": {
+        "ru": "мудрая проницательность",
+        "uz": "donolik va ziyraklik"
+      },
+      "example": "The mediator's sagacity helped both sides find common ground.",
+      "example_translations": {
+        "ru": "Мудрая проницательность посредника помогла сторонам найти общий язык.",
+        "uz": "Vositachining donoligi va ziyrakligi ikki tomonning til topishishiga yordam berdi."
+      }
+    },
+    {
+      "word": "witless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈwɪtləs/",
+      "translation": "безмозглый",
+      "translations": {
+        "ru": "безмозглый",
+        "uz": "aqlsiz"
+      },
+      "example": "He dismissed the proposal as a witless publicity stunt.",
+      "example_translations": {
+        "ru": "Он отмахнулся от предложения, назвав его безмозглым рекламным трюком.",
+        "uz": "U taklifni aqlsizlarcha o'ylab topilgan reklama nayrangi deb rad etdi."
+      }
+    },
+    {
+      "word": "purblind",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpɜrˌblaɪnd/",
+      "translation": "неспособный понять очевидное",
+      "translations": {
+        "ru": "неспособный понять очевидное",
+        "uz": "ayon narsani anglamaydigan"
+      },
+      "example": "The purblind manager ignored every warning from her staff.",
+      "example_translations": {
+        "ru": "Руководительница, неспособная понять очевидное, проигнорировала все предупреждения сотрудников.",
+        "uz": "Ayon narsani anglamaydigan rahbar xodimlarining barcha ogohlantirishlariga e'tibor bermadi."
+      }
+    },
+    {
+      "word": "percipient",
+      "part_of_speech": "adjective",
+      "transcription": "/pərˈsɪpiənt/",
+      "translation": "тонко подмечающий",
+      "translations": {
+        "ru": "тонко подмечающий",
+        "uz": "nozik jihatlarni ilg'aydigan"
+      },
+      "example": "One percipient student noticed the flaw in my reasoning.",
+      "example_translations": {
+        "ru": "Один проницательный ученик заметил изъян в моём рассуждении.",
+        "uz": "Nozik jihatlarni ilg'aydigan bir o'quvchi mulohazamdagi nuqsonni payqadi."
+      }
     }
   ]
 }

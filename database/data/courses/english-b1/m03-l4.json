@@ -160,6 +160,81 @@
         "ru": "На площади стоит статуя знаменитого поэта.",
         "uz": "Maydonda mashhur shoirning haykali turibdi."
       }
+    },
+    {
+      "word": "driveway",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdraɪvˌweɪ/",
+      "translation": "подъезд к дому",
+      "translations": {
+        "ru": "подъезд к дому",
+        "uz": "uyga kirish yo'li"
+      },
+      "example": "Their car is parked in the driveway.",
+      "example_translations": {
+        "ru": "Их машина стоит на подъезде к дому.",
+        "uz": "Ularning mashinasi uyga kirish yo'lida turibdi."
+      }
+    },
+    {
+      "word": "curb",
+      "part_of_speech": "noun",
+      "transcription": "/kɜrb/",
+      "translation": "бордюр",
+      "translations": {
+        "ru": "бордюр",
+        "uz": "bordyur"
+      },
+      "example": "A taxi stopped beside the curb.",
+      "example_translations": {
+        "ru": "Такси остановилось рядом с бордюром.",
+        "uz": "Taksi bordyur yonida to'xtadi."
+      }
+    },
+    {
+      "word": "roundabout",
+      "part_of_speech": "noun",
+      "transcription": "/ˈraʊndəˌbaʊt/",
+      "translation": "круговой перекрёсток",
+      "translations": {
+        "ru": "круговой перекрёсток",
+        "uz": "aylanma chorraha"
+      },
+      "example": "Take the second exit at the roundabout.",
+      "example_translations": {
+        "ru": "На круговом перекрёстке сверните на втором съезде.",
+        "uz": "Aylanma chorrahadan ikkinchi chiqish yo'liga buriling."
+      }
+    },
+    {
+      "word": "pothole",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɑtˌhoʊl/",
+      "translation": "выбоина",
+      "translations": {
+        "ru": "выбоина",
+        "uz": "yo'ldagi chuqur"
+      },
+      "example": "The bus hit a pothole near my house.",
+      "example_translations": {
+        "ru": "Автобус угодил в выбоину рядом с моим домом.",
+        "uz": "Avtobus uyim yaqinidagi yo'lda bir chuqurga tushib ketdi."
+      }
+    },
+    {
+      "word": "alley",
+      "part_of_speech": "noun",
+      "transcription": "/ˈæli/",
+      "translation": "переулок",
+      "translations": {
+        "ru": "переулок",
+        "uz": "tor ko'cha"
+      },
+      "example": "A narrow alley runs behind the shops.",
+      "example_translations": {
+        "ru": "За магазинами проходит узкий переулок.",
+        "uz": "Do'konlarning orqasidan tor ko'cha o'tadi."
+      }
     }
   ]
 }

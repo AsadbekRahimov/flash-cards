@@ -160,6 +160,51 @@
         "ru": "Писательница отправила свою рукопись трём издательствам.",
         "uz": "Yozuvchi o'z qo'lyozmasini uchta nashriyotga yubordi."
       }
+    },
+    {
+      "word": "subplot",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsʌbˌplɑt/",
+      "translation": "побочная сюжетная линия",
+      "translations": {
+        "ru": "побочная сюжетная линия",
+        "uz": "yordamchi syujet chizig'i"
+      },
+      "example": "One subplot follows the younger sister's search for work.",
+      "example_translations": {
+        "ru": "Одна побочная сюжетная линия рассказывает о поисках работы младшей сестрой.",
+        "uz": "Yordamchi syujet chiziqlaridan biri singilning ish qidirishi haqida hikoya qiladi."
+      }
+    },
+    {
+      "word": "epilogue",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɛpəˌlɔg/",
+      "translation": "эпилог",
+      "translations": {
+        "ru": "эпилог",
+        "uz": "xotima"
+      },
+      "example": "The epilogue describes their lives a decade later.",
+      "example_translations": {
+        "ru": "В эпилоге описывается их жизнь десять лет спустя.",
+        "uz": "Xotimada ularning o'n yildan keyingi hayoti tasvirlanadi."
+      }
+    },
+    {
+      "word": "prologue",
+      "part_of_speech": "noun",
+      "transcription": "/ˈproʊˌlɔg/",
+      "translation": "пролог",
+      "translations": {
+        "ru": "пролог",
+        "uz": "muqaddima"
+      },
+      "example": "A brief prologue introduces the city and its history.",
+      "example_translations": {
+        "ru": "Краткий пролог знакомит читателя с городом и его историей.",
+        "uz": "Qisqa muqaddima o'quvchini shahar va uning tarixi bilan tanishtiradi."
+      }
     }
   ]
 }

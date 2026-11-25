@@ -160,6 +160,66 @@
         "ru": "Звук в этом видео плохой.",
         "uz": "Bu videodagi tovush yomon."
       }
+    },
+    {
+      "word": "dial",
+      "part_of_speech": "verb",
+      "transcription": "/daɪəl/",
+      "translation": "набирать номер",
+      "translations": {
+        "ru": "набирать номер",
+        "uz": "raqam termoq"
+      },
+      "example": "Please dial this number after lunch.",
+      "example_translations": {
+        "ru": "Пожалуйста, наберите этот номер после обеда.",
+        "uz": "Iltimos, tushlikdan keyin shu raqamni tering."
+      }
+    },
+    {
+      "word": "ringtone",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɪŋˌtoʊn/",
+      "translation": "мелодия звонка",
+      "translations": {
+        "ru": "мелодия звонка",
+        "uz": "qo'ng'iroq ohangi"
+      },
+      "example": "I changed the ringtone on my phone.",
+      "example_translations": {
+        "ru": "Я сменил мелодию звонка на телефоне.",
+        "uz": "Telefonimning qo'ng'iroq ohangini almashtirdim."
+      }
+    },
+    {
+      "word": "voicemail",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvɔɪsˌmeɪl/",
+      "translation": "голосовая почта",
+      "translations": {
+        "ru": "голосовая почта",
+        "uz": "ovozli pochta"
+      },
+      "example": "Please leave a message on my voicemail.",
+      "example_translations": {
+        "ru": "Пожалуйста, оставьте сообщение на моей голосовой почте.",
+        "uz": "Iltimos, ovozli pochtamga xabar qoldiring."
+      }
+    },
+    {
+      "word": "emoji",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˈmoʊdʒi/",
+      "translation": "эмодзи",
+      "translations": {
+        "ru": "эмодзи",
+        "uz": "emoji"
+      },
+      "example": "She sent me a heart emoji.",
+      "example_translations": {
+        "ru": "Она прислала мне эмодзи в виде сердца.",
+        "uz": "U menga yurak shaklidagi emoji yubordi."
+      }
     }
   ]
 }

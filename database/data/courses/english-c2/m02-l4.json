@@ -160,6 +160,81 @@
         "ru": "Крутой подъём не устрашил туристов.",
         "uz": "Tik ko'tarilish sayyohlarni cho'chitmadi."
       }
+    },
+    {
+      "word": "timorous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtɪmərəs/",
+      "translation": "робкий",
+      "translations": {
+        "ru": "робкий",
+        "uz": "jur'atsiz"
+      },
+      "example": "The timorous child peeked through the half-open door.",
+      "example_translations": {
+        "ru": "Робкий ребёнок заглянул через полуоткрытую дверь.",
+        "uz": "Jur'atsiz bola qiya ochiq eshikdan mo'raladi."
+      }
+    },
+    {
+      "word": "quail",
+      "part_of_speech": "verb",
+      "transcription": "/kweɪl/",
+      "translation": "робеть",
+      "translations": {
+        "ru": "робеть",
+        "uz": "cho'chimoq"
+      },
+      "example": "Even seasoned performers can quail before a hostile audience.",
+      "example_translations": {
+        "ru": "Перед недоброжелательной публикой могут робеть даже опытные артисты.",
+        "uz": "Hatto tajribali ijrochilar ham o'zlariga dushmanona munosabatdagi tomoshabinlar oldida cho'chishi mumkin."
+      }
+    },
+    {
+      "word": "disquietude",
+      "part_of_speech": "noun",
+      "transcription": "/dɪsˈkwaɪəˌtud/",
+      "translation": "беспокойство",
+      "translations": {
+        "ru": "беспокойство",
+        "uz": "bezovtalik"
+      },
+      "example": "The long silence filled everyone with mounting disquietude.",
+      "example_translations": {
+        "ru": "Затянувшееся молчание вызывало у всех всё большее беспокойство.",
+        "uz": "Uzoq sukut hammada tobora kuchayib borayotgan bezovtalik uyg'otdi."
+      }
+    },
+    {
+      "word": "apprehensiveness",
+      "part_of_speech": "noun",
+      "transcription": "/ˌæprɪˈhɛnsɪvnəs/",
+      "translation": "тревожное ожидание",
+      "translations": {
+        "ru": "тревожное ожидание",
+        "uz": "xavotirga tushish"
+      },
+      "example": "Her apprehensiveness before the interview was hard to hide.",
+      "example_translations": {
+        "ru": "Перед собеседованием ей было трудно скрыть тревожное ожидание.",
+        "uz": "Suhbatdan oldin u xavotirga tushganini yashira olmadi."
+      }
+    },
+    {
+      "word": "skittishness",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskɪtɪʃnəs/",
+      "translation": "пугливость",
+      "translations": {
+        "ru": "пугливость",
+        "uz": "cho'chiyverish"
+      },
+      "example": "The rescue puppy's skittishness gradually faded with patient care.",
+      "example_translations": {
+        "ru": "Благодаря терпеливому уходу пугливость спасённого щенка постепенно прошла.",
+        "uz": "Sabr bilan parvarish qilingach, qutqarilgan kuchukchaning cho'chiyverishi asta-sekin kamaydi."
+      }
     }
   ]
 }

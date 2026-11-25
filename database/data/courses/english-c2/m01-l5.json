@@ -160,6 +160,81 @@
         "ru": "Податливый и готовый всем угождать, он соглашался на всё.",
         "uz": "Ko'nuvchan va hammaga yoqishga intiladigan u har narsaga rozi bo'lardi."
       }
+    },
+    {
+      "word": "irresolute",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪˈrɛzəˌlut/",
+      "translation": "нерешительный",
+      "translations": {
+        "ru": "нерешительный",
+        "uz": "qarorga kelolmaydigan"
+      },
+      "example": "The irresolute captain delayed choosing a route for hours.",
+      "example_translations": {
+        "ru": "Нерешительный капитан несколько часов откладывал выбор маршрута.",
+        "uz": "Qarorga kelolmaydigan sardor yo'nalish tanlashni soatlab cho'zdi."
+      }
+    },
+    {
+      "word": "steadfastness",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɛdˌfæstnəs/",
+      "translation": "стойкость",
+      "translations": {
+        "ru": "стойкость",
+        "uz": "sobitlik"
+      },
+      "example": "Her steadfastness sustained the team through months of setbacks.",
+      "example_translations": {
+        "ru": "Её стойкость поддерживала команду на протяжении нескольких месяцев неудач.",
+        "uz": "Uning sobitligi bir necha oylik omadsizliklar davomida jamoaga kuch berdi."
+      }
+    },
+    {
+      "word": "doggedness",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɔgɪdnəs/",
+      "translation": "упорство",
+      "translations": {
+        "ru": "упорство",
+        "uz": "tirishqoqlik"
+      },
+      "example": "She showed remarkable doggedness in mastering the difficult passage.",
+      "example_translations": {
+        "ru": "Она проявила поразительное упорство, разучивая сложный отрывок.",
+        "uz": "U murakkab parchani o'rganishda hayratlanarli tirishqoqlik ko'rsatdi."
+      }
+    },
+    {
+      "word": "unfaltering",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈfɔltərɪŋ/",
+      "translation": "неослабевающий",
+      "translations": {
+        "ru": "неослабевающий",
+        "uz": "susaymaydigan"
+      },
+      "example": "His unfaltering determination carried him through months of training.",
+      "example_translations": {
+        "ru": "Неослабевающая решимость помогла ему пройти многомесячную подготовку.",
+        "uz": "Qat'iyati susaymagani uchun u bir necha oylik mashg'ulotni oxirigacha davom ettira oldi."
+      }
+    },
+    {
+      "word": "indomitable",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈdɑmətəbəl/",
+      "translation": "неукротимый",
+      "translations": {
+        "ru": "неукротимый",
+        "uz": "bukilmas"
+      },
+      "example": "Her indomitable spirit lifted everyone's mood after each setback.",
+      "example_translations": {
+        "ru": "Её неукротимый дух поднимал всем настроение после каждой неудачи.",
+        "uz": "Uning bukilmas irodasi har bir omadsizlikdan keyin hammaning ruhini ko'tarardi."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Беспристрастный репортаж показывает обе стороны истории.",
         "uz": "Xolis reportaj voqeaning ikkala tomonini ko'rsatadi."
       }
+    },
+    {
+      "word": "reputable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈrɛpjətəbəl/",
+      "translation": "авторитетный",
+      "translations": {
+        "ru": "авторитетный",
+        "uz": "obro'li"
+      },
+      "example": "Check whether the article comes from a reputable source.",
+      "example_translations": {
+        "ru": "Проверьте, из авторитетного ли источника взята статья.",
+        "uz": "Maqola obro'li manbadan olinganmi, tekshirib ko'ring."
+      }
+    },
+    {
+      "word": "unbiased",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈbaɪəst/",
+      "translation": "непредвзятый",
+      "translations": {
+        "ru": "непредвзятый",
+        "uz": "tarafkashlikdan xoli"
+      },
+      "example": "We need an unbiased account of what happened.",
+      "example_translations": {
+        "ru": "Нам нужно непредвзятое описание того, что произошло.",
+        "uz": "Bizga voqeaning tarafkashlikdan xoli bayoni kerak."
+      }
+    },
+    {
+      "word": "authenticity",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɔθənˈtɪsəti/",
+      "translation": "подлинность",
+      "translations": {
+        "ru": "подлинность",
+        "uz": "haqiqiylik"
+      },
+      "example": "Experts questioned the authenticity of the published letter.",
+      "example_translations": {
+        "ru": "Эксперты усомнились в подлинности опубликованного письма.",
+        "uz": "Mutaxassislar e'lon qilingan xatning haqiqiyligiga shubha bildirishdi."
+      }
+    },
+    {
+      "word": "distortion",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈstɔrʃən/",
+      "translation": "искажение",
+      "translations": {
+        "ru": "искажение",
+        "uz": "buzib ko'rsatish"
+      },
+      "example": "The report was a distortion of the facts.",
+      "example_translations": {
+        "ru": "В докладе факты были искажены.",
+        "uz": "Hisobotda faktlar buzib ko'rsatilgan edi."
+      }
+    },
+    {
+      "word": "misquote",
+      "part_of_speech": "verb",
+      "transcription": "/mɪsˈkwoʊt/",
+      "translation": "неточно цитировать",
+      "translations": {
+        "ru": "неточно цитировать",
+        "uz": "noto'g'ri iqtibos keltirmoq"
+      },
+      "example": "Please check the recording before you misquote me again.",
+      "example_translations": {
+        "ru": "Пожалуйста, сверьтесь с записью, чтобы снова не процитировать меня неверно.",
+        "uz": "Iltimos, gapimdan yana noto'g'ri iqtibos keltirmaslik uchun yozuvni tekshirib ko'ring."
+      }
     }
   ]
 }

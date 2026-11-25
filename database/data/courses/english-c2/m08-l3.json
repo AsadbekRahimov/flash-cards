@@ -160,6 +160,66 @@
         "ru": "Этот сентиментальный роман слишком легко доводит читателей до слёз.",
         "uz": "Bu o'ta hissiyotli roman o'quvchilarni juda oson yig'latadi."
       }
+    },
+    {
+      "word": "turgid",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtɜrdʒəd/",
+      "translation": "тяжеловесно-напыщенный",
+      "translations": {
+        "ru": "тяжеловесно-напыщенный",
+        "uz": "og'ir va dabdabali"
+      },
+      "example": "The turgid introduction buried a simple idea beneath jargon.",
+      "example_translations": {
+        "ru": "Тяжеловесно-напыщенное введение скрыло простую идею за нагромождением жаргона.",
+        "uz": "Og'ir va dabdabali kirishda oddiy fikr jargon orasida qolib ketdi."
+      }
+    },
+    {
+      "word": "pleonastic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌpliəˈnæstɪk/",
+      "translation": "плеонастический",
+      "translations": {
+        "ru": "плеонастический",
+        "uz": "ortiqcha so'z ishlatilgan"
+      },
+      "example": "The editor deleted a pleonastic phrase that repeated itself.",
+      "example_translations": {
+        "ru": "Редактор удалил плеонастическую фразу, в которой повторялся один и тот же смысл.",
+        "uz": "Muharrir bir ma'no takrorlangan ortiqcha so'zli iborani olib tashladi."
+      }
+    },
+    {
+      "word": "magniloquent",
+      "part_of_speech": "adjective",
+      "transcription": "/mægˈnɪləkwənt/",
+      "translation": "высокопарный",
+      "translations": {
+        "ru": "высокопарный",
+        "uz": "balandparvoz"
+      },
+      "example": "His magniloquent preface made a modest project sound monumental.",
+      "example_translations": {
+        "ru": "Его высокопарное предисловие представило скромный проект как нечто грандиозное.",
+        "uz": "Muallif balandparvoz so'zboshisi bilan kamtarona loyihani ulkan ishdek ko'rsatdi."
+      }
+    },
+    {
+      "word": "lapidary",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈlæpəˌdɛri/",
+      "translation": "отточенно-лаконичный",
+      "translations": {
+        "ru": "отточенно-лаконичный",
+        "uz": "lo'nda va sayqal berilgan"
+      },
+      "example": "Her lapidary prose turns complex ideas into memorable sentences.",
+      "example_translations": {
+        "ru": "Её отточенно-лаконичная проза превращает сложные мысли в запоминающиеся фразы.",
+        "uz": "Uning lo'nda va sayqal berilgan nasri murakkab fikrlarni esda qoladigan jumlalarga aylantiradi."
+      }
     }
   ]
 }

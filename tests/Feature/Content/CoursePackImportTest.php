@@ -21,11 +21,13 @@ uses(RefreshDatabase::class);
 /*
  * The course pack `english-a1-a2` (database/data/courses/english-a1-a2, docs/CONTENT_A1_A2.md) and its importer
  * `content:import-course`. The invariants are checked on the files that are actually there; the full course is
- * pinned at 20 modules / 100 lessons / 1 000 words, each half (A1: modules 1-10, A2: modules 11-20) at exactly 500.
+ * pinned at 20 modules / 100 lessons / 1 440 words, each half (A1: modules 1-10, A2: modules 11-20) at exactly 720.
  * Its practice packs (database/data/practice/english-a1-a2*.json) are PracticePackTest.
  */
 
 const CPI_DIR = 'database/data/courses/english-a1-a2';
+
+const CPI_WORDS_PER_LEVEL = 720;
 
 /** @return list<string> */
 function cpi_lesson_files(): array
@@ -48,11 +50,11 @@ function cpi_import(): void
     expect($report->errors)->toBe([])->and($report->ok())->toBeTrue();
 }
 
-it('has five lessons of ten words in every module, numbered without gaps', function (): void {
+it('has five lessons of 10 to 17 words in every module, numbered without gaps', function (): void {
     $modules = [];
     foreach (cpi_lesson_files() as $file) {
         $data = cpi_read($file);
-        expect($data['words'])->toHaveCount(10)
+        expect(count($data['words']))->toBeBetween(10, 17)
             ->and(basename($file))->toBe(sprintf('m%02d-l%d.json', $data['stage']['number'], $data['lesson']['number']))
             ->and($data['course'])->toBe('english-a1-a2')
             ->and(trim($data['stage']['title']))->not->toBe('')
@@ -61,14 +63,14 @@ it('has five lessons of ten words in every module, numbered without gaps', funct
     }
 
     ksort($modules);
-    expect(array_keys($modules))->toBe(range(1, count($modules)));
+    expect(array_keys($modules))->toBe(range(1, 20));
     foreach ($modules as $lessons) {
         sort($lessons);
         expect($lessons)->toBe([1, 2, 3, 4, 5]);
     }
 });
 
-it('has exactly 500 words in the A1 part (modules 1-10) and 500 in the A2 part (modules 11-20)', function (): void {
+it('has exactly 720 words in the A1 part (modules 1-10) and 720 in the A2 part (modules 11-20)', function (): void {
     $a1 = 0;
     $a2 = 0;
     foreach (cpi_lesson_files() as $file) {
@@ -80,7 +82,7 @@ it('has exactly 500 words in the A1 part (modules 1-10) and 500 in the A2 part (
         }
     }
 
-    expect($a1)->toBe(500)->and($a2)->toBe(500);
+    expect($a1)->toBe(CPI_WORDS_PER_LEVEL)->and($a2)->toBe(CPI_WORDS_PER_LEVEL);
 });
 
 it('keeps USED_WORDS.txt in step with the lesson files: sorted, no repeats, exactly the words of the course', function (): void {
@@ -93,7 +95,7 @@ it('keeps USED_WORDS.txt in step with the lesson files: sorted, no repeats, exac
     $used = array_values(array_filter(array_map('trim', file(base_path(CPI_DIR).'/USED_WORDS.txt') ?: [])));
     sort($words, SORT_STRING);
 
-    expect($used)->toHaveCount(1000)->and($used)->toBe($words);
+    expect($used)->toHaveCount(2 * CPI_WORDS_PER_LEVEL)->and($used)->toBe($words);
 });
 
 it('gives every word a ru and uz translation, an example with both translations and a known part of speech; no word repeats in the course', function (): void {
@@ -128,14 +130,14 @@ it('imports the whole pack: modules, lessons, words and both translations of eve
     $course = Course::query()->where('slug', 'english-a1-a2')->firstOrFail();
     $expectedWords = array_sum(array_map(fn (string $f): int => count(cpi_read($f)['words']), $files));
 
-    expect($files)->toHaveCount(100)->and($expectedWords)->toBe(1000);
+    expect($files)->toHaveCount(100)->and($expectedWords)->toBe(2 * CPI_WORDS_PER_LEVEL);
 
     expect($course->status)->toBe(CoursePublisher::DRAFT)
         ->and($course->published_at)->toBeNull()
         ->and($course->level)->toBe('A1')
         ->and($course->exam_tag)->toBe('general')
         ->and($course->title)->toBe(['ru' => 'Английский A1–A2: базовые слова', 'uz' => "Ingliz tili A1–A2: asosiy so'zlar"])
-        ->and(Stage::query()->where('course_id', $course->id)->count())->toBe((int) ($expectedWords / 50))
+        ->and(Stage::query()->where('course_id', $course->id)->count())->toBe(20)
         ->and(Lesson::query()->whereHas('stage', fn ($q) => $q->where('course_id', $course->id))->count())->toBe(count($files))
         ->and(Word::query()->whereHas('lesson.stage', fn ($q) => $q->where('course_id', $course->id))->count())->toBe($expectedWords)
         ->and($course->words_count)->toBe($expectedWords);

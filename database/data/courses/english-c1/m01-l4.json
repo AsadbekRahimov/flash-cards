@@ -160,6 +160,36 @@
         "ru": "У него хватило порядочности извиниться лично.",
         "uz": "Uning shaxsan kechirim so'rashga odamgarchiligi yetdi."
       }
+    },
+    {
+      "word": "misdeed",
+      "part_of_speech": "noun",
+      "transcription": "/mɪsˈdid/",
+      "translation": "проступок",
+      "translations": {
+        "ru": "проступок",
+        "uz": "nojo'ya qilmish"
+      },
+      "example": "Admitting a misdeed can help restore trust.",
+      "example_translations": {
+        "ru": "Признание в проступке может помочь восстановить доверие.",
+        "uz": "Nojo'ya qilmishni tan olish ishonchni tiklashga yordam berishi mumkin."
+      }
+    },
+    {
+      "word": "complicity",
+      "part_of_speech": "noun",
+      "transcription": "/kəmˈplɪsəti/",
+      "translation": "соучастие",
+      "translations": {
+        "ru": "соучастие",
+        "uz": "sheriklik"
+      },
+      "example": "Staying silent can amount to complicity in wrongdoing.",
+      "example_translations": {
+        "ru": "Молчание может быть равносильно соучастию в дурном поступке.",
+        "uz": "Sukut saqlash nojo'ya ishga sheriklik bilan barobar bo'lishi mumkin."
+      }
     }
   ]
 }

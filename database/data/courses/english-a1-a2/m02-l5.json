@@ -160,6 +160,81 @@
         "ru": "Я делю комнату с братом.",
         "uz": "Akam bilan bir xonada turamiz."
       }
+    },
+    {
+      "word": "scrub",
+      "part_of_speech": "verb",
+      "transcription": "/skrʌb/",
+      "translation": "оттирать",
+      "translations": {
+        "ru": "оттирать",
+        "uz": "ishqalab tozalamoq"
+      },
+      "example": "I scrub the floor with a brush.",
+      "example_translations": {
+        "ru": "Я оттираю пол щёткой.",
+        "uz": "Polni cho'tka bilan ishqalab tozalayman."
+      }
+    },
+    {
+      "word": "rinse",
+      "part_of_speech": "verb",
+      "transcription": "/rɪns/",
+      "translation": "ополаскивать",
+      "translations": {
+        "ru": "ополаскивать",
+        "uz": "chaymoq"
+      },
+      "example": "Please rinse the cups with cold water.",
+      "example_translations": {
+        "ru": "Пожалуйста, ополосните чашки холодной водой.",
+        "uz": "Iltimos, piyolalarni sovuq suv bilan chaying."
+      }
+    },
+    {
+      "word": "broom",
+      "part_of_speech": "noun",
+      "transcription": "/brum/",
+      "translation": "метла",
+      "translations": {
+        "ru": "метла",
+        "uz": "supurgi"
+      },
+      "example": "Use the broom to clean the floor.",
+      "example_translations": {
+        "ru": "Подметите пол метлой.",
+        "uz": "Polni supurgi bilan supuring."
+      }
+    },
+    {
+      "word": "sponge",
+      "part_of_speech": "noun",
+      "transcription": "/spʌndʒ/",
+      "translation": "губка",
+      "translations": {
+        "ru": "губка",
+        "uz": "gubka"
+      },
+      "example": "I wash the cups with a sponge.",
+      "example_translations": {
+        "ru": "Я мою чашки губкой.",
+        "uz": "Piyolalarni gubka bilan yuvaman."
+      }
+    },
+    {
+      "word": "sew",
+      "part_of_speech": "verb",
+      "transcription": "/soʊ/",
+      "translation": "шить",
+      "translations": {
+        "ru": "шить",
+        "uz": "tikmoq"
+      },
+      "example": "I can sew a dress for you.",
+      "example_translations": {
+        "ru": "Я могу сшить вам платье.",
+        "uz": "Sizga ko'ylak tikib bera olaman."
+      }
     }
   ]
 }

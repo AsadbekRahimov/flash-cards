@@ -160,6 +160,66 @@
         "ru": "Каким браузером вы пользуетесь на телефоне?",
         "uz": "Telefoningizda qaysi brauzerdan foydalanasiz?"
       }
+    },
+    {
+      "word": "reboot",
+      "part_of_speech": "verb",
+      "transcription": "/riˈbut/",
+      "translation": "перезагружать",
+      "translations": {
+        "ru": "перезагружать",
+        "uz": "qayta yuklamoq"
+      },
+      "example": "Please reboot your computer after installing the update.",
+      "example_translations": {
+        "ru": "Пожалуйста, перезагрузите компьютер после установки обновления.",
+        "uz": "Yangilanishni o'rnatgach, kompyuterni qayta yuklang."
+      }
+    },
+    {
+      "word": "clipboard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈklɪpˌbɔrd/",
+      "translation": "буфер обмена",
+      "translations": {
+        "ru": "буфер обмена",
+        "uz": "almashuv buferi"
+      },
+      "example": "The screenshot is now on your clipboard.",
+      "example_translations": {
+        "ru": "Снимок экрана теперь в буфере обмена.",
+        "uz": "Ekran tasviri endi almashuv buferida."
+      }
+    },
+    {
+      "word": "toolbar",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtulˌbɑr/",
+      "translation": "панель инструментов",
+      "translations": {
+        "ru": "панель инструментов",
+        "uz": "asboblar paneli"
+      },
+      "example": "Click the print icon on the toolbar.",
+      "example_translations": {
+        "ru": "Нажмите значок печати на панели инструментов.",
+        "uz": "Asboblar panelidagi chop etish belgisini bosing."
+      }
+    },
+    {
+      "word": "sidebar",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsaɪdˌbɑr/",
+      "translation": "боковая панель",
+      "translations": {
+        "ru": "боковая панель",
+        "uz": "yon panel"
+      },
+      "example": "Open the sidebar to see your recent files.",
+      "example_translations": {
+        "ru": "Откройте боковую панель, чтобы увидеть недавние файлы.",
+        "uz": "Yaqinda ishlatgan fayllaringizni ko'rish uchun yon panelni oching."
+      }
     }
   ]
 }

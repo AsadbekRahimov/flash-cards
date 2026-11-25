@@ -160,6 +160,66 @@
         "ru": "Самолёт приземляется через десять минут.",
         "uz": "Samolyot o'n daqiqadan keyin qo'nadi."
       }
+    },
+    {
+      "word": "runway",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrʌnˌweɪ/",
+      "translation": "взлётно-посадочная полоса",
+      "translations": {
+        "ru": "взлётно-посадочная полоса",
+        "uz": "uchish-qo'nish yo'lagi"
+      },
+      "example": "Our plane stopped at the end of the runway.",
+      "example_translations": {
+        "ru": "Наш самолёт остановился в конце взлётно-посадочной полосы.",
+        "uz": "Samolyotimiz uchish-qo'nish yo'lagining oxirida to'xtadi."
+      }
+    },
+    {
+      "word": "boarding",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɔrdɪŋ/",
+      "translation": "посадка на самолёт",
+      "translations": {
+        "ru": "посадка на самолёт",
+        "uz": "samolyotga chiqish"
+      },
+      "example": "Boarding for our flight starts in ten minutes.",
+      "example_translations": {
+        "ru": "Посадка на наш рейс начнётся через десять минут.",
+        "uz": "Reysimizga chiqish o'n daqiqadan keyin boshlanadi."
+      }
+    },
+    {
+      "word": "nonstop",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌnɑnˈstɑp/",
+      "translation": "беспосадочный",
+      "translations": {
+        "ru": "беспосадочный",
+        "uz": "qo'nishsiz"
+      },
+      "example": "I booked a nonstop flight to Tashkent.",
+      "example_translations": {
+        "ru": "Я забронировал беспосадочный рейс в Ташкент.",
+        "uz": "Toshkentga oraliq qo'nishsiz reysga chipta band qildim."
+      }
+    },
+    {
+      "word": "cockpit",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑkˌpɪt/",
+      "translation": "кабина пилота",
+      "translations": {
+        "ru": "кабина пилота",
+        "uz": "uchuvchi kabinasi"
+      },
+      "example": "The pilot was already in the cockpit.",
+      "example_translations": {
+        "ru": "Пилот уже был в кабине.",
+        "uz": "Uchuvchi allaqachon uchuvchi kabinasida edi."
+      }
     }
   ]
 }

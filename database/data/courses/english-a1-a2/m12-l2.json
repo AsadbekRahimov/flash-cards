@@ -160,6 +160,66 @@
         "ru": "Откройте двадцатую страницу в книге.",
         "uz": "Kitobingizning yigirmanchi sahifasini oching."
       }
+    },
+    {
+      "word": "login",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɔgˌɪn/",
+      "translation": "вход в аккаунт",
+      "translations": {
+        "ru": "вход в аккаунт",
+        "uz": "hisobga kirish"
+      },
+      "example": "The website asks for a login first.",
+      "example_translations": {
+        "ru": "Сайт сначала просит войти в аккаунт.",
+        "uz": "Sayt avval hisobga kirishni so'raydi."
+      }
+    },
+    {
+      "word": "hotspot",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɑtˌspɑt/",
+      "translation": "точка доступа",
+      "translations": {
+        "ru": "точка доступа",
+        "uz": "internetga ulanish nuqtasi"
+      },
+      "example": "Can we use your phone as a hotspot?",
+      "example_translations": {
+        "ru": "Можно использовать ваш телефон как точку доступа?",
+        "uz": "Telefoningizni internetga ulanish nuqtasi sifatida ishlatsak bo'ladimi?"
+      }
+    },
+    {
+      "word": "bookmark",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbʊkˌmɑrk/",
+      "translation": "закладка",
+      "translations": {
+        "ru": "закладка",
+        "uz": "xatcho'p"
+      },
+      "example": "I saved a bookmark for the school website.",
+      "example_translations": {
+        "ru": "Я сохранил закладку для сайта школы.",
+        "uz": "Maktab saytini xatcho'plarga saqladim."
+      }
+    },
+    {
+      "word": "hyperlink",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhaɪpərˌlɪŋk/",
+      "translation": "гиперссылка",
+      "translations": {
+        "ru": "гиперссылка",
+        "uz": "giperhavola"
+      },
+      "example": "Click the hyperlink to open the next page.",
+      "example_translations": {
+        "ru": "Откройте следующую страницу, нажав на гиперссылку.",
+        "uz": "Keyingi sahifani ochish uchun giperhavolani bosing."
+      }
     }
   ]
 }

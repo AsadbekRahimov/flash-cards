@@ -160,6 +160,81 @@
         "ru": "Каждый пользователь должен выбрать надёжный пароль.",
         "uz": "Har bir foydalanuvchi ishonchli parol tanlashi kerak."
       }
+    },
+    {
+      "word": "emoticon",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˈmoʊtɪˌkɑn/",
+      "translation": "смайлик из символов",
+      "translations": {
+        "ru": "смайлик из символов",
+        "uz": "belgilardan tuzilgan yuzcha"
+      },
+      "example": "He added an emoticon to show he was joking.",
+      "example_translations": {
+        "ru": "Он добавил смайлик из символов, чтобы показать, что шутит.",
+        "uz": "U hazillashayotganini bildirish uchun xabariga belgilardan tuzilgan yuzcha qo'shdi."
+      }
+    },
+    {
+      "word": "commenter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑmɛntər/",
+      "translation": "автор комментария",
+      "translations": {
+        "ru": "автор комментария",
+        "uz": "izoh yozgan kishi"
+      },
+      "example": "One commenter asked where the photo was taken.",
+      "example_translations": {
+        "ru": "Один автор комментария спросил, где сделана фотография.",
+        "uz": "Izoh yozganlardan biri surat qayerda olinganini so'radi."
+      }
+    },
+    {
+      "word": "unfollow",
+      "part_of_speech": "verb",
+      "transcription": "/ʌnˈfɑloʊ/",
+      "translation": "отписываться от аккаунта",
+      "translations": {
+        "ru": "отписываться от аккаунта",
+        "uz": "kuzatishni to'xtatmoq"
+      },
+      "example": "You can unfollow accounts you no longer enjoy.",
+      "example_translations": {
+        "ru": "Вы можете отписаться от аккаунтов, которые больше не интересны.",
+        "uz": "Sizga endi qiziq bo'lmagan akkauntlarni kuzatishni to'xtatishingiz mumkin."
+      }
+    },
+    {
+      "word": "unsubscribe",
+      "part_of_speech": "verb",
+      "transcription": "/ˌʌnsəbˈskraɪb/",
+      "translation": "отписываться от рассылки",
+      "translations": {
+        "ru": "отписываться от рассылки",
+        "uz": "obunani bekor qilmoq"
+      },
+      "example": "How can I unsubscribe from these emails?",
+      "example_translations": {
+        "ru": "Как мне отписаться от этой рассылки?",
+        "uz": "Bu elektron xatlar obunasini qanday bekor qilsam bo'ladi?"
+      }
+    },
+    {
+      "word": "thumbnail",
+      "part_of_speech": "noun",
+      "transcription": "/ˈθʌmˌneɪl/",
+      "translation": "миниатюра",
+      "translations": {
+        "ru": "миниатюра",
+        "uz": "kichik tasvir"
+      },
+      "example": "Click the thumbnail to watch the full video.",
+      "example_translations": {
+        "ru": "Чтобы посмотреть видео целиком, нажмите на миниатюру.",
+        "uz": "Videoni to'liq ko'rish uchun kichik tasvirni bosing."
+      }
     }
   ]
 }

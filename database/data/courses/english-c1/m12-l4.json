@@ -160,6 +160,51 @@
         "ru": "Иностранные компании не подпадают под юрисдикцию этого суда.",
         "uz": "Xorijiy kompaniyalar bu sudning yurisdiksiyasiga kirmaydi."
       }
+    },
+    {
+      "word": "actionable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈækʃənəbəl/",
+      "translation": "дающий основание для иска",
+      "translations": {
+        "ru": "дающий основание для иска",
+        "uz": "da'vo qilishga asos bo'ladigan"
+      },
+      "example": "Was the breach of contract actionable in court?",
+      "example_translations": {
+        "ru": "Давало ли нарушение договора основание для судебного иска?",
+        "uz": "Shartnomaning buzilishi sudga da'vo qilishga asos bo'ldimi?"
+      }
+    },
+    {
+      "word": "enforceable",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈfɔrsəbəl/",
+      "translation": "подлежащий принудительному исполнению",
+      "translations": {
+        "ru": "подлежащий принудительному исполнению",
+        "uz": "majburan ijro ettirish mumkin bo'lgan"
+      },
+      "example": "Is this agreement enforceable without both parties' signatures?",
+      "example_translations": {
+        "ru": "Подлежит ли это соглашение принудительному исполнению без подписей обеих сторон?",
+        "uz": "Har ikki tomonning imzosisiz bu kelishuvni majburan ijro ettirish mumkinmi?"
+      }
+    },
+    {
+      "word": "easement",
+      "part_of_speech": "noun",
+      "transcription": "/ˈizmənt/",
+      "translation": "сервитут",
+      "translations": {
+        "ru": "сервитут",
+        "uz": "o'zganing yeridan foydalanish huquqi"
+      },
+      "example": "An easement lets neighbors cross our driveway.",
+      "example_translations": {
+        "ru": "Сервитут позволяет соседям проходить по нашему подъездному пути.",
+        "uz": "Qo'shnilar o'zganing yeridan foydalanish huquqi asosida hovlimizga kirish yo'lidan o'ta oladi."
+      }
     }
   ]
 }

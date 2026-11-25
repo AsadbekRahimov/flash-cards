@@ -160,6 +160,36 @@
         "ru": "Модульная конструкция позволяет заменять каждую деталь по отдельности.",
         "uz": "Modulli konstruksiya har bir qismni alohida almashtirish imkonini beradi."
       }
+    },
+    {
+      "word": "flywheel",
+      "part_of_speech": "noun",
+      "transcription": "/ˈflaɪˌwil/",
+      "translation": "маховик",
+      "translations": {
+        "ru": "маховик",
+        "uz": "maxovik"
+      },
+      "example": "A heavy flywheel keeps the machine turning smoothly.",
+      "example_translations": {
+        "ru": "Тяжёлый маховик обеспечивает равномерное вращение механизма.",
+        "uz": "Og'ir maxovik mexanizmning bir maromda aylanishini ta'minlaydi."
+      }
+    },
+    {
+      "word": "retractable",
+      "part_of_speech": "adjective",
+      "transcription": "/rɪˈtræktəbəl/",
+      "translation": "сдвижной",
+      "translations": {
+        "ru": "сдвижной",
+        "uz": "surib ochiladigan"
+      },
+      "example": "A retractable roof shelters spectators when it rains.",
+      "example_translations": {
+        "ru": "В дождь сдвижная крыша укрывает зрителей.",
+        "uz": "Surib ochiladigan tom yomg'ir yog'ganda tomoshabinlarga pana bo'ladi."
+      }
     }
   ]
 }

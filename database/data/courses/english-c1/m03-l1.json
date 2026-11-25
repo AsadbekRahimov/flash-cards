@@ -160,6 +160,36 @@
         "ru": "Пятидесяти рабочим грозит сокращение штата после закрытия завода.",
         "uz": "Zavod yopilgach, ellik ishchiga shtat qisqartirilishi xavf solmoqda."
       }
+    },
+    {
+      "word": "secondment",
+      "part_of_speech": "noun",
+      "transcription": "/sɪˈkɑndmənt/",
+      "translation": "временное прикомандирование",
+      "translations": {
+        "ru": "временное прикомандирование",
+        "uz": "vaqtincha boshqa ishga yuborish"
+      },
+      "example": "Her secondment to the regional office starts Monday.",
+      "example_translations": {
+        "ru": "Её временное прикомандирование к региональному офису начинается в понедельник.",
+        "uz": "U dushanbadan boshlab vaqtincha hududiy idoraga ishga yuboriladi."
+      }
+    },
+    {
+      "word": "probationary",
+      "part_of_speech": "adjective",
+      "transcription": "/proʊˈbeɪʃəˌnɛri/",
+      "translation": "испытательный",
+      "translations": {
+        "ru": "испытательный",
+        "uz": "sinovga oid"
+      },
+      "example": "A probationary period typically precedes a permanent appointment.",
+      "example_translations": {
+        "ru": "Назначению на постоянную должность обычно предшествует испытательный срок.",
+        "uz": "Doimiy lavozimga tayinlashdan oldin odatda sinov muddati belgilanadi."
+      }
     }
   ]
 }

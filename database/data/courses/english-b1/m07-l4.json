@@ -160,6 +160,81 @@
         "ru": "Многие страны импортируют кофе, потому что не могут его выращивать.",
         "uz": "Ko'p mamlakatlar qahvani import qiladi, chunki uni yetishtira olmaydi."
       }
+    },
+    {
+      "word": "businesswoman",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɪznəsˌwʊmən/",
+      "translation": "предпринимательница",
+      "translations": {
+        "ru": "предпринимательница",
+        "uz": "tadbirkor ayol"
+      },
+      "example": "The businesswoman opened two stores last year.",
+      "example_translations": {
+        "ru": "В прошлом году предпринимательница открыла два магазина.",
+        "uz": "Tadbirkor ayol o'tgan yili ikkita do'kon ochdi."
+      }
+    },
+    {
+      "word": "businessman",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɪznəsˌmæn/",
+      "translation": "предприниматель",
+      "translations": {
+        "ru": "предприниматель",
+        "uz": "tadbirkor erkak"
+      },
+      "example": "A local businessman bought the old factory.",
+      "example_translations": {
+        "ru": "Местный предприниматель купил старую фабрику.",
+        "uz": "Mahalliy tadbirkor eski fabrikani sotib oldi."
+      }
+    },
+    {
+      "word": "headquarters",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɛdˌkwɔrtərz/",
+      "translation": "главный офис",
+      "translations": {
+        "ru": "главный офис",
+        "uz": "bosh idora"
+      },
+      "example": "The company moved its headquarters to Dallas.",
+      "example_translations": {
+        "ru": "Компания перенесла главный офис в Даллас.",
+        "uz": "Kompaniya bosh idorasini Dallasga ko'chirdi."
+      }
+    },
+    {
+      "word": "reseller",
+      "part_of_speech": "noun",
+      "transcription": "/ˌriˈsɛlər/",
+      "translation": "перепродавец",
+      "translations": {
+        "ru": "перепродавец",
+        "uz": "qayta sotuvchi"
+      },
+      "example": "The reseller bought used phones and sold them online.",
+      "example_translations": {
+        "ru": "Перепродавец купил подержанные телефоны и продал их через интернет.",
+        "uz": "Qayta sotuvchi ishlatilgan telefonlarni sotib olib, internetda sotdi."
+      }
+    },
+    {
+      "word": "dealership",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdilərˌʃɪp/",
+      "translation": "автосалон",
+      "translations": {
+        "ru": "автосалон",
+        "uz": "avtosalon"
+      },
+      "example": "Our dealership sells both new and used cars.",
+      "example_translations": {
+        "ru": "В нашем автосалоне продаются новые автомобили и машины с пробегом.",
+        "uz": "Avtosalonimizda yangi va ishlatilgan mashinalar sotiladi."
+      }
     }
   ]
 }

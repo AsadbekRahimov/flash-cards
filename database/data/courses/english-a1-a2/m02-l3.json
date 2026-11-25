@@ -160,6 +160,81 @@
         "ru": "У нас за домом есть сад.",
         "uz": "Uyimiz orqasida bog' bor."
       }
+    },
+    {
+      "word": "downstairs",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌdaʊnˈstɛrz/",
+      "translation": "внизу",
+      "translations": {
+        "ru": "внизу",
+        "uz": "pastki qavatda"
+      },
+      "example": "Our kitchen is downstairs by the stairs.",
+      "example_translations": {
+        "ru": "Наша кухня внизу, рядом с лестницей.",
+        "uz": "Oshxonamiz pastki qavatda, zina yonida."
+      }
+    },
+    {
+      "word": "upstairs",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌʌpˈstɛrz/",
+      "translation": "наверху",
+      "translations": {
+        "ru": "наверху",
+        "uz": "yuqori qavatda"
+      },
+      "example": "The children are upstairs in their room.",
+      "example_translations": {
+        "ru": "Дети наверху, в своей комнате.",
+        "uz": "Bolalar yuqori qavatda, o'z xonasida."
+      }
+    },
+    {
+      "word": "doorway",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɔrweɪ/",
+      "translation": "дверной проём",
+      "translations": {
+        "ru": "дверной проём",
+        "uz": "eshik o'rni"
+      },
+      "example": "Dad stood in the doorway and smiled.",
+      "example_translations": {
+        "ru": "Папа стоял в дверях и улыбался.",
+        "uz": "Dadam eshik oldida turib jilmaydi."
+      }
+    },
+    {
+      "word": "hallway",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɔlweɪ/",
+      "translation": "коридор",
+      "translations": {
+        "ru": "коридор",
+        "uz": "yo'lak"
+      },
+      "example": "We leave our shoes in the hallway.",
+      "example_translations": {
+        "ru": "Мы оставляем обувь в коридоре.",
+        "uz": "Oyoq kiyimlarimizni yo'lakda qoldiramiz."
+      }
+    },
+    {
+      "word": "backyard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbækˌjɑrd/",
+      "translation": "задний двор",
+      "translations": {
+        "ru": "задний двор",
+        "uz": "orqa hovli"
+      },
+      "example": "Our dog plays in the backyard.",
+      "example_translations": {
+        "ru": "Наша собака играет на заднем дворе.",
+        "uz": "Itimiz orqa hovlida o'ynaydi."
+      }
     }
   ]
 }

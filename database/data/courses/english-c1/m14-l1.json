@@ -160,6 +160,51 @@
         "ru": "Читательская аудитория журнала выросла вдвое после смены дизайна.",
         "uz": "Dizayn yangilangach, jurnalning o'quvchilar auditoriyasi ikki baravar ko'paydi."
       }
+    },
+    {
+      "word": "photojournalist",
+      "part_of_speech": "noun",
+      "transcription": "/ˌfoʊtoʊˈdʒɜrnələst/",
+      "translation": "фотожурналист",
+      "translations": {
+        "ru": "фотожурналист",
+        "uz": "fotomuxbir"
+      },
+      "example": "A photojournalist documented the city's recovery after the flood.",
+      "example_translations": {
+        "ru": "Фотожурналист запечатлел, как город восстанавливался после наводнения.",
+        "uz": "Fotomuxbir toshqindan keyin shaharning tiklanishini suratga oldi."
+      }
+    },
+    {
+      "word": "broadsheet",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbrɔdˌʃit/",
+      "translation": "газета большого формата",
+      "translations": {
+        "ru": "газета большого формата",
+        "uz": "katta bichimli gazeta"
+      },
+      "example": "The broadsheet devoted an entire page to the report.",
+      "example_translations": {
+        "ru": "Газета большого формата посвятила этому репортажу целую страницу.",
+        "uz": "Katta bichimli gazeta reportaj uchun butun bir sahifa ajratdi."
+      }
+    },
+    {
+      "word": "stringer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstrɪŋər/",
+      "translation": "внештатный корреспондент",
+      "translations": {
+        "ru": "внештатный корреспондент",
+        "uz": "shtatdan tashqari muxbir"
+      },
+      "example": "A local stringer supplied photographs of the flooding.",
+      "example_translations": {
+        "ru": "Местный внештатный корреспондент предоставил фотографии наводнения.",
+        "uz": "Shtatdan tashqari mahalliy muxbir suv toshqini suratlarini taqdim etdi."
+      }
     }
   ]
 }

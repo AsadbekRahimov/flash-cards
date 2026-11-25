@@ -160,6 +160,66 @@
         "ru": "Она носит тонкий серебряный браслет.",
         "uz": "U ingichka kumush bilaguzuk taqadi."
       }
+    },
+    {
+      "word": "wristwatch",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɪstˌwɑtʃ/",
+      "translation": "наручные часы",
+      "translations": {
+        "ru": "наручные часы",
+        "uz": "qo'l soati"
+      },
+      "example": "She got a silver wristwatch for her birthday.",
+      "example_translations": {
+        "ru": "Ей подарили серебряные наручные часы на день рождения.",
+        "uz": "Unga tug'ilgan kunida kumush qo'l soati sovg'a qilishdi."
+      }
+    },
+    {
+      "word": "earrings",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪrˌrɪŋz/",
+      "translation": "серьги",
+      "translations": {
+        "ru": "серьги",
+        "uz": "zirak"
+      },
+      "example": "She wore gold earrings with her blue dress.",
+      "example_translations": {
+        "ru": "Она надела золотые серьги к синему платью.",
+        "uz": "U ko'k ko'ylagi bilan oltin zirak taqdi."
+      }
+    },
+    {
+      "word": "brooch",
+      "part_of_speech": "noun",
+      "transcription": "/broʊtʃ/",
+      "translation": "брошь",
+      "translations": {
+        "ru": "брошь",
+        "uz": "bezak to'g'nag'ichi"
+      },
+      "example": "She wore a small brooch on her coat.",
+      "example_translations": {
+        "ru": "На пальто у неё была маленькая брошь.",
+        "uz": "U paltosiga kichkina bezak to'g'nag'ichi taqib olgan."
+      }
+    },
+    {
+      "word": "briefcase",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbrifˌkeɪs/",
+      "translation": "портфель",
+      "translations": {
+        "ru": "портфель",
+        "uz": "portfel"
+      },
+      "example": "He keeps his papers in a black briefcase.",
+      "example_translations": {
+        "ru": "Он держит бумаги в чёрном портфеле.",
+        "uz": "U hujjatlarini qora portfelida saqlaydi."
+      }
     }
   ]
 }

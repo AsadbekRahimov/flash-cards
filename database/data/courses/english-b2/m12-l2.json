@@ -160,6 +160,66 @@
         "ru": "Вашему эссе нужна ещё одна доработка до пятницы.",
         "uz": "Inshongizni juma kunigacha yana bir marta qayta ishlash kerak."
       }
+    },
+    {
+      "word": "grading",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgreɪdɪŋ/",
+      "translation": "выставление оценок",
+      "translations": {
+        "ru": "выставление оценок",
+        "uz": "baho qo'yish"
+      },
+      "example": "This guide makes grading essays more consistent.",
+      "example_translations": {
+        "ru": "Это руководство помогает последовательнее выставлять оценки за сочинения.",
+        "uz": "Bu qo'llanma insholarga baho qo'yishda bir xil mezonlarga rioya qilishga yordam beradi."
+      }
+    },
+    {
+      "word": "grader",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgreɪdər/",
+      "translation": "проверяющий работы",
+      "translations": {
+        "ru": "проверяющий работы",
+        "uz": "ishni baholovchi"
+      },
+      "example": "Another grader checked the essay independently.",
+      "example_translations": {
+        "ru": "Другой проверяющий оценил сочинение независимо.",
+        "uz": "Boshqa baholovchi inshoni mustaqil tekshirdi."
+      }
+    },
+    {
+      "word": "rubric",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrubrɪk/",
+      "translation": "таблица критериев оценки",
+      "translations": {
+        "ru": "таблица критериев оценки",
+        "uz": "baholash mezonlari jadvali"
+      },
+      "example": "The rubric explains how each project earns points.",
+      "example_translations": {
+        "ru": "В таблице критериев оценки объясняется, за что проект получает баллы.",
+        "uz": "Baholash mezonlari jadvalida har bir loyiha nimaga ball olishi tushuntirilgan."
+      }
+    },
+    {
+      "word": "assessor",
+      "part_of_speech": "noun",
+      "transcription": "/əˈsɛsər/",
+      "translation": "эксперт по оценке",
+      "translations": {
+        "ru": "эксперт по оценке",
+        "uz": "baholovchi mutaxassis"
+      },
+      "example": "An external assessor watched each student's presentation.",
+      "example_translations": {
+        "ru": "Внешний эксперт посмотрел презентацию каждого студента.",
+        "uz": "Tashqaridan kelgan baholovchi mutaxassis har bir talabaning taqdimotini kuzatdi."
+      }
     }
   ]
 }

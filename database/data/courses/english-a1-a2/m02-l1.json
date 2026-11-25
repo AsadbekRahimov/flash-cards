@@ -160,6 +160,51 @@
         "ru": "У меня большая семья.",
         "uz": "Katta oilam bor."
       }
+    },
+    {
+      "word": "dad",
+      "part_of_speech": "noun",
+      "transcription": "/dæd/",
+      "translation": "папа",
+      "translations": {
+        "ru": "папа",
+        "uz": "dada"
+      },
+      "example": "My dad works at a school.",
+      "example_translations": {
+        "ru": "Мой папа работает в школе.",
+        "uz": "Dadam maktabda ishlaydi."
+      }
+    },
+    {
+      "word": "mom",
+      "part_of_speech": "noun",
+      "transcription": "/mɑm/",
+      "translation": "мама",
+      "translations": {
+        "ru": "мама",
+        "uz": "oyi"
+      },
+      "example": "My mom makes tea every morning.",
+      "example_translations": {
+        "ru": "Моя мама готовит чай каждое утро.",
+        "uz": "Oyim har kuni ertalab choy damlaydi."
+      }
+    },
+    {
+      "word": "twins",
+      "part_of_speech": "noun",
+      "transcription": "/twɪnz/",
+      "translation": "близнецы",
+      "translations": {
+        "ru": "близнецы",
+        "uz": "egizaklar"
+      },
+      "example": "My sisters are twins and look alike.",
+      "example_translations": {
+        "ru": "Мои сёстры близнецы и похожи друг на друга.",
+        "uz": "Opa-singillarim egizak va bir-biriga o'xshaydi."
+      }
     }
   ]
 }

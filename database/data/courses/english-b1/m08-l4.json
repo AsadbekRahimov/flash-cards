@@ -160,6 +160,66 @@
         "ru": "Я всегда сравниваю цены, прежде чем что-то купить.",
         "uz": "Biror narsa sotib olishdan oldin doim narxlarni solishtiraman."
       }
+    },
+    {
+      "word": "overpriced",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌoʊvərˈpraɪst/",
+      "translation": "неоправданно дорогой",
+      "translations": {
+        "ru": "неоправданно дорогой",
+        "uz": "narxi asossiz qimmat"
+      },
+      "example": "That coat is overpriced for such thin material.",
+      "example_translations": {
+        "ru": "Это пальто неоправданно дорогое для такой тонкой ткани.",
+        "uz": "Matoni shunchalik yupqaligiga qaraganda, u paltoning narxi asossiz qimmat."
+      }
+    },
+    {
+      "word": "inexpensive",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪnɪkˈspɛnsɪv/",
+      "translation": "недорогой",
+      "translations": {
+        "ru": "недорогой",
+        "uz": "narxi arzon"
+      },
+      "example": "We found an inexpensive lamp for the bedroom.",
+      "example_translations": {
+        "ru": "Мы нашли недорогую лампу для спальни.",
+        "uz": "Yotoqxona uchun narxi arzon chiroq topdik."
+      }
+    },
+    {
+      "word": "markdown",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɑrkˌdaʊn/",
+      "translation": "уценка",
+      "translations": {
+        "ru": "уценка",
+        "uz": "narxni tushirish"
+      },
+      "example": "A markdown made the sweater half its original price.",
+      "example_translations": {
+        "ru": "После уценки свитер стоил вдвое дешевле.",
+        "uz": "Narxi tushirilgach, sviter dastlabki narxining yarmiga sotila boshladi."
+      }
+    },
+    {
+      "word": "clearance",
+      "part_of_speech": "noun",
+      "transcription": "/ˈklɪrəns/",
+      "translation": "распродажа остатков",
+      "translations": {
+        "ru": "распродажа остатков",
+        "uz": "qoldiq tovarlar sotuvi"
+      },
+      "example": "I bought these boots at a clearance sale.",
+      "example_translations": {
+        "ru": "Я купил эти сапоги на распродаже остатков.",
+        "uz": "Bu etiklarni qoldiq tovarlar sotuvida sotib oldim."
+      }
     }
   ]
 }

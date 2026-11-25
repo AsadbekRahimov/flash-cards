@@ -160,6 +160,81 @@
         "ru": "Пожалуйста, не кладите локти на стол.",
         "uz": "Iltimos, tirsaklaringizni stolga qo'ymang."
       }
+    },
+    {
+      "word": "nostril",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnɑstrəl/",
+      "translation": "ноздря",
+      "translations": {
+        "ru": "ноздря",
+        "uz": "burun teshigi"
+      },
+      "example": "One nostril gets blocked when I have a cold.",
+      "example_translations": {
+        "ru": "Когда я простужаюсь, у меня закладывает одну ноздрю.",
+        "uz": "Shamollaganimda burnimning bir teshigi bitib qoladi."
+      }
+    },
+    {
+      "word": "eyelid",
+      "part_of_speech": "noun",
+      "transcription": "/ˈaɪˌlɪd/",
+      "translation": "веко",
+      "translations": {
+        "ru": "веко",
+        "uz": "qovoq"
+      },
+      "example": "There is a tiny spot on my eyelid.",
+      "example_translations": {
+        "ru": "У меня на веке есть крошечное пятнышко.",
+        "uz": "Qovog'imda kichkina dog' bor."
+      }
+    },
+    {
+      "word": "rib",
+      "part_of_speech": "noun",
+      "transcription": "/rɪb/",
+      "translation": "ребро",
+      "translations": {
+        "ru": "ребро",
+        "uz": "qovurg'a"
+      },
+      "example": "A broken rib can make breathing painful.",
+      "example_translations": {
+        "ru": "Из-за сломанного ребра может быть больно дышать.",
+        "uz": "Singan qovurg'a nafas olganda og'riq berishi mumkin."
+      }
+    },
+    {
+      "word": "kneecap",
+      "part_of_speech": "noun",
+      "transcription": "/ˈniˌkæp/",
+      "translation": "коленная чашечка",
+      "translations": {
+        "ru": "коленная чашечка",
+        "uz": "tizza qopqog'i"
+      },
+      "example": "His kneecap hurt after he fell.",
+      "example_translations": {
+        "ru": "После падения у него болела коленная чашечка.",
+        "uz": "Yiqilgandan keyin uning tizza qopqog'i og'ridi."
+      }
+    },
+    {
+      "word": "knuckle",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnʌkəl/",
+      "translation": "сустав пальца руки",
+      "translations": {
+        "ru": "сустав пальца руки",
+        "uz": "qo'l barmog'ining bo'g'imi"
+      },
+      "example": "One knuckle still hurts when I make a fist.",
+      "example_translations": {
+        "ru": "Когда я сжимаю руку в кулак, один сустав пальца всё ещё болит.",
+        "uz": "Musht tugganimda barmog'imdagi bir bo'g'im hali ham og'riydi."
+      }
     }
   ]
 }

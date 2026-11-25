@@ -160,6 +160,81 @@
         "ru": "Когда задач так много, нужно научиться расставлять приоритеты.",
         "uz": "Vazifalar shunchalik ko'p bo'lganda, ustuvorliklarni belgilashni o'rganish kerak."
       }
+    },
+    {
+      "word": "checklist",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtʃɛkˌlɪst/",
+      "translation": "контрольный список",
+      "translations": {
+        "ru": "контрольный список",
+        "uz": "tekshiruv ro'yxati"
+      },
+      "example": "Use the checklist before sending your report.",
+      "example_translations": {
+        "ru": "Перед отправкой отчёта воспользуйтесь контрольным списком.",
+        "uz": "Hisobotni yuborishdan oldin tekshiruv ro'yxatidan foydalaning."
+      }
+    },
+    {
+      "word": "deliverable",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈlɪvərəbəl/",
+      "translation": "результат для сдачи",
+      "translations": {
+        "ru": "результат для сдачи",
+        "uz": "topshiriladigan natija"
+      },
+      "example": "Our first deliverable is a working prototype.",
+      "example_translations": {
+        "ru": "Первый результат, который нужно сдать, — работающий прототип.",
+        "uz": "Biz topshiradigan birinchi natija ishlaydigan prototipdir."
+      }
+    },
+    {
+      "word": "walkthrough",
+      "part_of_speech": "noun",
+      "transcription": "/ˈwɔkˌθru/",
+      "translation": "пошаговый разбор",
+      "translations": {
+        "ru": "пошаговый разбор",
+        "uz": "bosqichma-bosqich tushuntirish"
+      },
+      "example": "The trainer gave us a walkthrough of the process.",
+      "example_translations": {
+        "ru": "Инструктор пошагово разобрал с нами этот процесс.",
+        "uz": "Yo'riqchi bizga jarayonni bosqichma-bosqich tushuntirdi."
+      }
+    },
+    {
+      "word": "handoff",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhændˌɔf/",
+      "translation": "передача работы",
+      "translations": {
+        "ru": "передача работы",
+        "uz": "ishni topshirish"
+      },
+      "example": "The handoff happens when the evening team arrives.",
+      "example_translations": {
+        "ru": "Передача работы происходит, когда приходит вечерняя смена.",
+        "uz": "Kechki navbatchilar kelganda ish ularga topshiriladi."
+      }
+    },
+    {
+      "word": "debrief",
+      "part_of_speech": "verb",
+      "transcription": "/diˈbrif/",
+      "translation": "обсуждать итоги",
+      "translations": {
+        "ru": "обсуждать итоги",
+        "uz": "yakunlarni muhokama qilmoq"
+      },
+      "example": "Let's debrief the team after the client presentation.",
+      "example_translations": {
+        "ru": "Давайте обсудим итоги с командой после презентации для клиента.",
+        "uz": "Keling, mijozga taqdimotdan keyin jamoa bilan yakunlarni muhokama qilaylik."
+      }
     }
   ]
 }

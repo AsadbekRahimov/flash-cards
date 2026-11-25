@@ -160,6 +160,81 @@
         "ru": "После его вопроса наступило долгое молчание.",
         "uz": "Uning savolidan keyin oraga uzoq sukut cho'kdi."
       }
+    },
+    {
+      "word": "pronounce",
+      "part_of_speech": "verb",
+      "transcription": "/prəˈnaʊns/",
+      "translation": "произносить",
+      "translations": {
+        "ru": "произносить",
+        "uz": "talaffuz qilmoq"
+      },
+      "example": "How do you pronounce this French name?",
+      "example_translations": {
+        "ru": "Как вы произносите это французское имя?",
+        "uz": "Bu fransuzcha ismni qanday talaffuz qilasiz?"
+      }
+    },
+    {
+      "word": "mispronounce",
+      "part_of_speech": "verb",
+      "transcription": "/ˌmɪsprəˈnaʊns/",
+      "translation": "произносить неправильно",
+      "translations": {
+        "ru": "произносить неправильно",
+        "uz": "noto'g'ri talaffuz qilmoq"
+      },
+      "example": "People often mispronounce my last name.",
+      "example_translations": {
+        "ru": "Люди часто неправильно произносят мою фамилию.",
+        "uz": "Odamlar familiyamni ko'pincha noto'g'ri talaffuz qilishadi."
+      }
+    },
+    {
+      "word": "listener",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɪsənər/",
+      "translation": "слушатель",
+      "translations": {
+        "ru": "слушатель",
+        "uz": "tinglovchi"
+      },
+      "example": "A good listener lets others finish speaking.",
+      "example_translations": {
+        "ru": "Хороший слушатель даёт другим договорить.",
+        "uz": "Yaxshi tinglovchi boshqalarga gapini tugatishga imkon beradi."
+      }
+    },
+    {
+      "word": "overhear",
+      "part_of_speech": "verb",
+      "transcription": "/ˌoʊvərˈhɪr/",
+      "translation": "случайно услышать",
+      "translations": {
+        "ru": "случайно услышать",
+        "uz": "bexosdan eshitib qolmoq"
+      },
+      "example": "Did you overhear them talking about our trip?",
+      "example_translations": {
+        "ru": "Вы случайно не слышали, как они обсуждали нашу поездку?",
+        "uz": "Ular safarimiz haqida gaplashganini bexosdan eshitib qolmadingizmi?"
+      }
+    },
+    {
+      "word": "mishear",
+      "part_of_speech": "verb",
+      "transcription": "/ˌmɪsˈhɪr/",
+      "translation": "ослышаться",
+      "translations": {
+        "ru": "ослышаться",
+        "uz": "noto'g'ri eshitmoq"
+      },
+      "example": "Did I mishear you, or did you say Friday?",
+      "example_translations": {
+        "ru": "Я ослышался или вы сказали «в пятницу»?",
+        "uz": "Men noto'g'ri eshitdimmi yoki juma kuni dedingizmi?"
+      }
     }
   ]
 }

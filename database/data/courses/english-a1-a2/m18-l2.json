@@ -160,6 +160,81 @@
         "ru": "Клиника открыта до восьми.",
         "uz": "Klinika soat sakkizgacha ochiq."
       }
+    },
+    {
+      "word": "ointment",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɔɪntmənt/",
+      "translation": "мазь",
+      "translations": {
+        "ru": "мазь",
+        "uz": "surtma"
+      },
+      "example": "The doctor put ointment on the rash.",
+      "example_translations": {
+        "ru": "Врач нанёс мазь на сыпь.",
+        "uz": "Shifokor toshma chiqqan joyga surtma surtdi."
+      }
+    },
+    {
+      "word": "stethoscope",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɛθəˌskoʊp/",
+      "translation": "стетоскоп",
+      "translations": {
+        "ru": "стетоскоп",
+        "uz": "stetoskop"
+      },
+      "example": "The doctor listened to my heart with a stethoscope.",
+      "example_translations": {
+        "ru": "Врач послушал моё сердце стетоскопом.",
+        "uz": "Shifokor yuragimni stetoskop bilan tingladi."
+      }
+    },
+    {
+      "word": "gauze",
+      "part_of_speech": "noun",
+      "transcription": "/gɔz/",
+      "translation": "медицинская марля",
+      "translations": {
+        "ru": "медицинская марля",
+        "uz": "doka"
+      },
+      "example": "The nurse covered the cut with gauze.",
+      "example_translations": {
+        "ru": "Медсестра закрыла порез марлей.",
+        "uz": "Hamshira kesilgan joyni doka bilan yopdi."
+      }
+    },
+    {
+      "word": "capsule",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkæpsəl/",
+      "translation": "капсула",
+      "translations": {
+        "ru": "капсула",
+        "uz": "kapsula"
+      },
+      "example": "Take one capsule after breakfast every day.",
+      "example_translations": {
+        "ru": "Каждый день принимайте по одной капсуле после завтрака.",
+        "uz": "Har kuni nonushtadan keyin bitta kapsula iching."
+      }
+    },
+    {
+      "word": "sterile",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈstɛrəl/",
+      "translation": "стерильный",
+      "translations": {
+        "ru": "стерильный",
+        "uz": "steril"
+      },
+      "example": "The nurse opened a pack of sterile gloves.",
+      "example_translations": {
+        "ru": "Медсестра открыла упаковку стерильных перчаток.",
+        "uz": "Hamshira steril qo'lqoplar o'ramini ochdi."
+      }
     }
   ]
 }

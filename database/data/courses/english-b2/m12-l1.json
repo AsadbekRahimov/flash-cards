@@ -160,6 +160,51 @@
         "ru": "Приём в этот университет зависит от результатов ваших экзаменов.",
         "uz": "Bu universitetga qabul imtihon natijalaringizga bog'liq."
       }
+    },
+    {
+      "word": "bursary",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɜrsəri/",
+      "translation": "материальная помощь студенту",
+      "translations": {
+        "ru": "материальная помощь студенту",
+        "uz": "talabaga moddiy yordam"
+      },
+      "example": "The university gave her a bursary for housing.",
+      "example_translations": {
+        "ru": "Университет выделил ей материальную помощь на жильё.",
+        "uz": "Universitet unga turar joy uchun moddiy yordam ajratdi."
+      }
+    },
+    {
+      "word": "matriculate",
+      "part_of_speech": "verb",
+      "transcription": "/məˈtrɪkjəˌleɪt/",
+      "translation": "официально зачисляться",
+      "translations": {
+        "ru": "официально зачисляться",
+        "uz": "rasman o'qishga qabul qilinmoq"
+      },
+      "example": "New students matriculate before they can attend lectures.",
+      "example_translations": {
+        "ru": "Новые студенты официально зачисляются, прежде чем смогут посещать лекции.",
+        "uz": "Yangi talabalar ma'ruzalarga qatnashishdan oldin rasman o'qishga qabul qilinadi."
+      }
+    },
+    {
+      "word": "lectern",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɛktərn/",
+      "translation": "кафедра для выступлений",
+      "translations": {
+        "ru": "кафедра для выступлений",
+        "uz": "minbar"
+      },
+      "example": "The professor left her notes on the lectern.",
+      "example_translations": {
+        "ru": "Профессор оставила записи на кафедре для выступлений.",
+        "uz": "Professor yozuvlarini minbarda qoldirdi."
+      }
     }
   ]
 }

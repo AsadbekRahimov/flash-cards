@@ -160,6 +160,36 @@
         "ru": "Ложная тревога вызвала истерию в толпе.",
         "uz": "Soxta xavf signali olomon orasida jazava qo'zg'atdi."
       }
+    },
+    {
+      "word": "rumination",
+      "part_of_speech": "noun",
+      "transcription": "/ˌruməˈneɪʃən/",
+      "translation": "навязчивое обдумывание",
+      "translations": {
+        "ru": "навязчивое обдумывание",
+        "uz": "bir fikrni qayta-qayta o'ylash"
+      },
+      "example": "Nightly rumination about past mistakes kept him awake.",
+      "example_translations": {
+        "ru": "По ночам навязчивое обдумывание прошлых ошибок не давало ему уснуть.",
+        "uz": "Kechalari o'tmishdagi xatolarini qayta-qayta o'ylab, uxlay olmasdi."
+      }
+    },
+    {
+      "word": "compulsive",
+      "part_of_speech": "adjective",
+      "transcription": "/kəmˈpʌlsɪv/",
+      "translation": "навязчивый",
+      "translations": {
+        "ru": "навязчивый",
+        "uz": "o'zini to'xtata olmaydigan"
+      },
+      "example": "His compulsive checking made him late for work.",
+      "example_translations": {
+        "ru": "Из-за навязчивой привычки всё перепроверять он опоздал на работу.",
+        "uz": "Qayta-qayta tekshirishdan o'zini to'xtata olmay, u ishga kech qoldi."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Замок на двери сломан.",
         "uz": "Eshikdagi qulf buzilgan."
       }
+    },
+    {
+      "word": "housemate",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhaʊsˌmeɪt/",
+      "translation": "сосед по дому",
+      "translations": {
+        "ru": "сосед по дому",
+        "uz": "uydosh"
+      },
+      "example": "My housemate and I split the rent.",
+      "example_translations": {
+        "ru": "Мы с соседом по дому делим арендную плату пополам.",
+        "uz": "Uydoshim bilan ijara haqini teng bo'lib to'laymiz."
+      }
+    },
+    {
+      "word": "landlady",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlændˌleɪdi/",
+      "translation": "хозяйка съёмного жилья",
+      "translations": {
+        "ru": "хозяйка съёмного жилья",
+        "uz": "ijaraga beruvchi uy bekasi"
+      },
+      "example": "The landlady fixed the lock yesterday.",
+      "example_translations": {
+        "ru": "Хозяйка съёмного жилья вчера починила замок.",
+        "uz": "Uyni ijaraga beruvchi uy bekasi kecha qulfni tuzatdi."
+      }
+    },
+    {
+      "word": "utilities",
+      "part_of_speech": "noun",
+      "transcription": "/juˈtɪlətiz/",
+      "translation": "коммунальные услуги",
+      "translations": {
+        "ru": "коммунальные услуги",
+        "uz": "kommunal xizmatlar"
+      },
+      "example": "Are utilities included in the monthly rent?",
+      "example_translations": {
+        "ru": "Коммунальные услуги входят в ежемесячную плату за жильё?",
+        "uz": "Kommunal xizmatlar oylik ijara haqiga kiradimi?"
+      }
+    },
+    {
+      "word": "meter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmitər/",
+      "translation": "счётчик",
+      "translations": {
+        "ru": "счётчик",
+        "uz": "hisoblagich"
+      },
+      "example": "Please read the water meter this evening.",
+      "example_translations": {
+        "ru": "Пожалуйста, снимите показания счётчика воды сегодня вечером.",
+        "uz": "Iltimos, bugun kechqurun suv hisoblagichi ko'rsatkichini yozib oling."
+      }
+    },
+    {
+      "word": "rented",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈrɛntɪd/",
+      "translation": "арендованный",
+      "translations": {
+        "ru": "арендованный",
+        "uz": "ijaraga olingan"
+      },
+      "example": "We live in a rented apartment.",
+      "example_translations": {
+        "ru": "Мы живём в арендованной квартире.",
+        "uz": "Ijaraga olingan kvartirada yashaymiz."
+      }
     }
   ]
 }

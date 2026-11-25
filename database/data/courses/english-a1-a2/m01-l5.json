@@ -160,6 +160,96 @@
         "ru": "Какая красивая девочка!",
         "uz": "Qanday go'zal qiz!"
       }
+    },
+    {
+      "word": "silly",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɪli/",
+      "translation": "глупый",
+      "translations": {
+        "ru": "глупый",
+        "uz": "ahmoqona"
+      },
+      "example": "It was a silly thing to say.",
+      "example_translations": {
+        "ru": "Это было глупо сказать.",
+        "uz": "Bunday deyish ahmoqona edi."
+      }
+    },
+    {
+      "word": "gentle",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdʒɛntl/",
+      "translation": "ласковый",
+      "translations": {
+        "ru": "ласковый",
+        "uz": "muloyim"
+      },
+      "example": "Our teacher has a gentle voice.",
+      "example_translations": {
+        "ru": "У нашей учительницы ласковый голос.",
+        "uz": "O'qituvchimizning ovozi muloyim."
+      }
+    },
+    {
+      "word": "cute",
+      "part_of_speech": "adjective",
+      "transcription": "/kjut/",
+      "translation": "милый",
+      "translations": {
+        "ru": "милый",
+        "uz": "yoqimtoy"
+      },
+      "example": "Your little sister is very cute.",
+      "example_translations": {
+        "ru": "У тебя очень милая сестрёнка.",
+        "uz": "Singling juda yoqimtoy."
+      }
+    },
+    {
+      "word": "loud",
+      "part_of_speech": "adjective",
+      "transcription": "/laʊd/",
+      "translation": "громкий",
+      "translations": {
+        "ru": "громкий",
+        "uz": "baland"
+      },
+      "example": "That boy has a very loud voice.",
+      "example_translations": {
+        "ru": "У того мальчика очень громкий голос.",
+        "uz": "Anavi bolaning ovozi juda baland."
+      }
+    },
+    {
+      "word": "helpful",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈhɛlpfəl/",
+      "translation": "отзывчивый",
+      "translations": {
+        "ru": "отзывчивый",
+        "uz": "yordamga tayyor"
+      },
+      "example": "Our new neighbor is very helpful.",
+      "example_translations": {
+        "ru": "Наш новый сосед очень отзывчивый.",
+        "uz": "Yangi qo'shnimiz doim yordamga tayyor."
+      }
+    },
+    {
+      "word": "blond",
+      "part_of_speech": "adjective",
+      "transcription": "/blɑnd/",
+      "translation": "светловолосый",
+      "translations": {
+        "ru": "светловолосый",
+        "uz": "sariq sochli"
+      },
+      "example": "My little brother has blond hair.",
+      "example_translations": {
+        "ru": "У моего младшего брата светлые волосы.",
+        "uz": "Ukamning sochi sariq."
+      }
     }
   ]
 }

@@ -160,6 +160,66 @@
         "ru": "Стресс и кофе по вечерам могут вызвать бессонницу.",
         "uz": "Stress va kechki qahva uyqusizlikka sabab bo'lishi mumkin."
       }
+    },
+    {
+      "word": "symptomatic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌsɪmptəˈmætɪk/",
+      "translation": "с симптомами",
+      "translations": {
+        "ru": "с симптомами",
+        "uz": "alomatlari bor"
+      },
+      "example": "The doctor examined each symptomatic child after lunch.",
+      "example_translations": {
+        "ru": "После обеда врач осмотрел каждого ребёнка с симптомами.",
+        "uz": "Tushlikdan keyin shifokor alomatlari bor har bir bolani ko'rikdan o'tkazdi."
+      }
+    },
+    {
+      "word": "noninfectious",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌnɑnɪnˈfɛkʃəs/",
+      "translation": "незаразный",
+      "translations": {
+        "ru": "незаразный",
+        "uz": "yuqumli bo'lmagan"
+      },
+      "example": "The doctor confirmed that the rash was noninfectious.",
+      "example_translations": {
+        "ru": "Врач подтвердил, что сыпь незаразная.",
+        "uz": "Shifokor toshma yuqumli emasligini tasdiqladi."
+      }
+    },
+    {
+      "word": "airborne",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɛrˌbɔrn/",
+      "translation": "передающийся по воздуху",
+      "translations": {
+        "ru": "передающийся по воздуху",
+        "uz": "havo orqali yuqadigan"
+      },
+      "example": "Opening windows can reduce exposure to airborne infections.",
+      "example_translations": {
+        "ru": "Открытые окна могут снизить риск заражения инфекциями, передающимися по воздуху.",
+        "uz": "Derazalarni ochish havo orqali yuqadigan infeksiyalar xavfini kamaytirishi mumkin."
+      }
+    },
+    {
+      "word": "asymptomatic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌeɪsɪmptəˈmætɪk/",
+      "translation": "бессимптомный",
+      "translations": {
+        "ru": "бессимптомный",
+        "uz": "alomatsiz"
+      },
+      "example": "Some patients remain asymptomatic throughout the illness.",
+      "example_translations": {
+        "ru": "У некоторых пациентов болезнь всё время протекает бессимптомно.",
+        "uz": "Ayrim bemorlarda kasallik boshidan oxirigacha alomatsiz kechadi."
+      }
     }
   ]
 }

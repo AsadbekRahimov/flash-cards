@@ -160,6 +160,81 @@
         "ru": "Несмотря на оскорбления, она оставалась спокойной и полной достоинства.",
         "uz": "Haqoratlarga qaramay, u xotirjam va viqorli bo'lib qoldi."
       }
+    },
+    {
+      "word": "punctilious",
+      "part_of_speech": "adjective",
+      "transcription": "/pʌŋkˈtɪliəs/",
+      "translation": "педантично соблюдающий формальности",
+      "translations": {
+        "ru": "педантично соблюдающий формальности",
+        "uz": "rasmiy qoidalarga sinchiklab rioya qiladigan"
+      },
+      "example": "Our host was punctilious about seating guests by rank.",
+      "example_translations": {
+        "ru": "Наш хозяин педантично соблюдал формальности, рассаживая гостей по рангу.",
+        "uz": "Mezbon mehmonlarni martabasiga qarab o'tqazishda rasmiy qoidalarga sinchiklab rioya qildi."
+      }
+    },
+    {
+      "word": "deferential",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌdɛfəˈrɛnʃəl/",
+      "translation": "почтительный",
+      "translations": {
+        "ru": "почтительный",
+        "uz": "ehtiromli"
+      },
+      "example": "She adopted a deferential tone when addressing her elders.",
+      "example_translations": {
+        "ru": "Обращаясь к старшим, она говорила почтительным тоном.",
+        "uz": "U kattalarga ehtiromli ohangda murojaat qildi."
+      }
+    },
+    {
+      "word": "obeisance",
+      "part_of_speech": "noun",
+      "transcription": "/oʊˈbeɪsəns/",
+      "translation": "почтительный поклон",
+      "translations": {
+        "ru": "почтительный поклон",
+        "uz": "ta'zim"
+      },
+      "example": "Each visitor made a brief obeisance before the throne.",
+      "example_translations": {
+        "ru": "Каждый посетитель сделал короткий почтительный поклон перед троном.",
+        "uz": "Har bir tashrifchi taxt oldida qisqagina ta'zim qildi."
+      }
+    },
+    {
+      "word": "curtsy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɜrtsi/",
+      "translation": "реверанс",
+      "translations": {
+        "ru": "реверанс",
+        "uz": "tizzani bukib ta'zim qilish"
+      },
+      "example": "The ballerina gave a curtsy at the curtain call.",
+      "example_translations": {
+        "ru": "Балерина сделала реверанс во время выхода на поклон.",
+        "uz": "Balerina tomoshabinlar olqishiga javoban tizzasini bukib ta'zim qildi."
+      }
+    },
+    {
+      "word": "salutation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌsæljəˈteɪʃən/",
+      "translation": "формула приветствия",
+      "translations": {
+        "ru": "формула приветствия",
+        "uz": "salomlashish iborasi"
+      },
+      "example": "Choose a formal salutation when addressing the committee chair.",
+      "example_translations": {
+        "ru": "Обращаясь к председателю комитета, выберите официальную формулу приветствия.",
+        "uz": "Qo'mita raisiga yozganda rasmiy salomlashish iborasini tanlang."
+      }
     }
   ]
 }

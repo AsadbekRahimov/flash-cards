@@ -160,6 +160,81 @@
         "ru": "Космический корабль благополучно вернулся на Землю.",
         "uz": "Kosmik kema Yerga eson-omon qaytdi."
       }
+    },
+    {
+      "word": "spacecraft",
+      "part_of_speech": "noun",
+      "transcription": "/ˈspeɪsˌkræft/",
+      "translation": "космический аппарат",
+      "translations": {
+        "ru": "космический аппарат",
+        "uz": "kosmik apparat"
+      },
+      "example": "The spacecraft sent pictures back to Earth.",
+      "example_translations": {
+        "ru": "Космический аппарат передал снимки на Землю.",
+        "uz": "Kosmik apparat Yerga suratlar yubordi."
+      }
+    },
+    {
+      "word": "comet",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑmət/",
+      "translation": "комета",
+      "translations": {
+        "ru": "комета",
+        "uz": "kometa"
+      },
+      "example": "A comet with a long tail appeared tonight.",
+      "example_translations": {
+        "ru": "Сегодня ночью появилась комета с длинным хвостом.",
+        "uz": "Bugun tunda uzun dumli kometa paydo bo'ldi."
+      }
+    },
+    {
+      "word": "meteor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmitiər/",
+      "translation": "метеор",
+      "translations": {
+        "ru": "метеор",
+        "uz": "meteor"
+      },
+      "example": "A bright meteor flashed across the night sky.",
+      "example_translations": {
+        "ru": "По ночному небу пронёсся яркий метеор.",
+        "uz": "Tungi osmon bo'ylab yorqin meteor chaqnab o'tdi."
+      }
+    },
+    {
+      "word": "moonlight",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmunˌlaɪt/",
+      "translation": "лунный свет",
+      "translations": {
+        "ru": "лунный свет",
+        "uz": "oy nuri"
+      },
+      "example": "The snow looked silver in the moonlight.",
+      "example_translations": {
+        "ru": "В лунном свете снег казался серебристым.",
+        "uz": "Oy nurida qor kumushdek tovlanardi."
+      }
+    },
+    {
+      "word": "sunlight",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsʌnˌlaɪt/",
+      "translation": "свет солнца",
+      "translations": {
+        "ru": "свет солнца",
+        "uz": "quyosh yorug'ligi"
+      },
+      "example": "The Moon shines because its surface reflects sunlight.",
+      "example_translations": {
+        "ru": "Луна светится, потому что её поверхность отражает солнечный свет.",
+        "uz": "Oy sirti quyosh yorug'ligini qaytargani uchun yorishib ko'rinadi."
+      }
     }
   ]
 }

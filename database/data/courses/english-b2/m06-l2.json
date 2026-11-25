@@ -160,6 +160,66 @@
         "ru": "Антибиотик помог вам от ушной инфекции?",
         "uz": "Antibiotik quloq infeksiyangizni davolashga yordam berdimi?"
       }
+    },
+    {
+      "word": "postoperative",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌpoʊstˈɑpərətɪv/",
+      "translation": "послеоперационный",
+      "translations": {
+        "ru": "послеоперационный",
+        "uz": "operatsiyadan keyingi"
+      },
+      "example": "The nurse explained the postoperative care plan.",
+      "example_translations": {
+        "ru": "Медсестра объяснила план послеоперационного ухода.",
+        "uz": "Hamshira operatsiyadan keyingi parvarish rejasini tushuntirdi."
+      }
+    },
+    {
+      "word": "anesthetic",
+      "part_of_speech": "noun",
+      "transcription": "/ˌænəsˈθɛtɪk/",
+      "translation": "обезболивающее средство",
+      "translations": {
+        "ru": "обезболивающее средство",
+        "uz": "og'riqsizlantiruvchi vosita"
+      },
+      "example": "The dentist used a local anesthetic before treatment.",
+      "example_translations": {
+        "ru": "Стоматолог перед лечением применил местное обезболивающее средство.",
+        "uz": "Tish shifokori muolajadan oldin mahalliy og'riqsizlantiruvchi vositadan foydalandi."
+      }
+    },
+    {
+      "word": "sedative",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɛdətɪv/",
+      "translation": "успокоительное средство",
+      "translations": {
+        "ru": "успокоительное средство",
+        "uz": "tinchlantiruvchi vosita"
+      },
+      "example": "The doctor prescribed a mild sedative before surgery.",
+      "example_translations": {
+        "ru": "Врач назначил лёгкое успокоительное средство перед операцией.",
+        "uz": "Shifokor operatsiyadan oldin ta'siri yengil tinchlantiruvchi vosita buyurdi."
+      }
+    },
+    {
+      "word": "vaccination",
+      "part_of_speech": "noun",
+      "transcription": "/ˌvæksəˈneɪʃən/",
+      "translation": "вакцинация",
+      "translations": {
+        "ru": "вакцинация",
+        "uz": "emlash"
+      },
+      "example": "The clinic offers free vaccination every Friday.",
+      "example_translations": {
+        "ru": "Клиника проводит бесплатную вакцинацию по пятницам.",
+        "uz": "Klinika har juma kuni bepul emlash xizmatini ko'rsatadi."
+      }
     }
   ]
 }

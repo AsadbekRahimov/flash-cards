@@ -160,6 +160,81 @@
         "ru": "Нажмите эту кнопку, чтобы включить проектор.",
         "uz": "Proyektorni yoqish uchun shu tugmani bosing."
       }
+    },
+    {
+      "word": "stylus",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstaɪləs/",
+      "translation": "стилус",
+      "translations": {
+        "ru": "стилус",
+        "uz": "elektron qalam"
+      },
+      "example": "She uses a stylus to draw on her tablet.",
+      "example_translations": {
+        "ru": "Она рисует на планшете стилусом.",
+        "uz": "U planshetda elektron qalam bilan rasm chizadi."
+      }
+    },
+    {
+      "word": "modem",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmoʊdɛm/",
+      "translation": "модем",
+      "translations": {
+        "ru": "модем",
+        "uz": "modem"
+      },
+      "example": "Try restarting the modem if the internet stops working.",
+      "example_translations": {
+        "ru": "Если интернет перестанет работать, попробуйте перезапустить модем.",
+        "uz": "Internet ishlamay qolsa, modemni o'chirib qayta yoqib ko'ring."
+      }
+    },
+    {
+      "word": "earbud",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪrˌbʌd/",
+      "translation": "вставной наушник",
+      "translations": {
+        "ru": "вставной наушник",
+        "uz": "quloq ichiga taqiladigan quloqchin"
+      },
+      "example": "One earbud stopped playing sound during my run.",
+      "example_translations": {
+        "ru": "Во время пробежки один наушник перестал воспроизводить звук.",
+        "uz": "Yugurayotganimda quloqchinimning bittasidan ovoz chiqmay qoldi."
+      }
+    },
+    {
+      "word": "keypad",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkiˌpæd/",
+      "translation": "панель с кнопками",
+      "translations": {
+        "ru": "панель с кнопками",
+        "uz": "tugmalar paneli"
+      },
+      "example": "Enter your code on the keypad by the door.",
+      "example_translations": {
+        "ru": "Введите свой код на кнопочной панели у двери.",
+        "uz": "Kodingizni eshik yonidagi tugmalar panelida tering."
+      }
+    },
+    {
+      "word": "joystick",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʒɔɪˌstɪk/",
+      "translation": "джойстик",
+      "translations": {
+        "ru": "джойстик",
+        "uz": "joystik"
+      },
+      "example": "Move the joystick to steer the car left.",
+      "example_translations": {
+        "ru": "Отклоните джойстик, чтобы повернуть машину влево.",
+        "uz": "Mashinani chapga burish uchun joystikni siljiting."
+      }
     }
   ]
 }

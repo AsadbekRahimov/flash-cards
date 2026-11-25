@@ -160,6 +160,81 @@
         "ru": "Пожилые люди платят за билеты в этом музее меньше.",
         "uz": "Keksa kishilar bu muzeyda chiptaga kamroq to'laydi."
       }
+    },
+    {
+      "word": "toddler",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɑdlər/",
+      "translation": "малыш",
+      "translations": {
+        "ru": "малыш",
+        "uz": "endigina yura boshlagan bola"
+      },
+      "example": "Their toddler walks around the room alone.",
+      "example_translations": {
+        "ru": "Их малыш сам ходит по комнате.",
+        "uz": "Ularning endigina yura boshlagan bolasi xona ichida o'zi yuradi."
+      }
+    },
+    {
+      "word": "preschooler",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpriˌskulər/",
+      "translation": "дошкольник",
+      "translations": {
+        "ru": "дошкольник",
+        "uz": "maktabgacha yoshdagi bola"
+      },
+      "example": "My preschooler can count to twenty.",
+      "example_translations": {
+        "ru": "Мой дошкольник умеет считать до двадцати.",
+        "uz": "Maktabgacha yoshdagi bolam yigirmagacha sanay oladi."
+      }
+    },
+    {
+      "word": "newborn",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnubɔrn/",
+      "translation": "новорождённый",
+      "translations": {
+        "ru": "новорождённый",
+        "uz": "yangi tug'ilgan chaqaloq"
+      },
+      "example": "The newborn sleeps in a small bed.",
+      "example_translations": {
+        "ru": "Новорождённый спит в маленькой кроватке.",
+        "uz": "Yangi tug'ilgan chaqaloq kichkina karavotda uxlayapti."
+      }
+    },
+    {
+      "word": "retiree",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˌtaɪˈri/",
+      "translation": "пенсионер",
+      "translations": {
+        "ru": "пенсионер",
+        "uz": "nafaqaxo'r"
+      },
+      "example": "My neighbor is a retiree who loves gardening.",
+      "example_translations": {
+        "ru": "Мой сосед — пенсионер, который любит садоводство.",
+        "uz": "Qo'shnim bog'dorchilikni yaxshi ko'radigan nafaqaxo'r."
+      }
+    },
+    {
+      "word": "adulthood",
+      "part_of_speech": "noun",
+      "transcription": "/əˈdʌlthʊd/",
+      "translation": "взрослая жизнь",
+      "translations": {
+        "ru": "взрослая жизнь",
+        "uz": "voyaga yetgan davr"
+      },
+      "example": "Many people change careers during adulthood.",
+      "example_translations": {
+        "ru": "Многие люди меняют профессию во взрослой жизни.",
+        "uz": "Ko'p odamlar voyaga yetgan davrida kasbini o'zgartiradi."
+      }
     }
   ]
 }

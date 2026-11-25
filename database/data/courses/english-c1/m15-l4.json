@@ -160,6 +160,51 @@
         "ru": "Во время пятнадцатиминутного антракта мы купили мороженое.",
         "uz": "O'n besh daqiqalik antrakt paytida muzqaymoq sotib oldik."
       }
+    },
+    {
+      "word": "understudy",
+      "part_of_speech": "noun",
+      "transcription": "/ˈʌndərˌstʌdi/",
+      "translation": "дублёр",
+      "translations": {
+        "ru": "дублёр",
+        "uz": "o'rinbosar aktyor"
+      },
+      "example": "An understudy played the lead after the actor's injury.",
+      "example_translations": {
+        "ru": "После травмы актёра главную роль сыграл дублёр.",
+        "uz": "Aktyor jarohat olgach, bosh rolni o'rinbosar aktyor ijro etdi."
+      }
+    },
+    {
+      "word": "cinematographer",
+      "part_of_speech": "noun",
+      "transcription": "/ˌsɪnəməˈtɑgrəfər/",
+      "translation": "кинооператор",
+      "translations": {
+        "ru": "кинооператор",
+        "uz": "kinooperator"
+      },
+      "example": "The cinematographer filmed the entire scene through a window.",
+      "example_translations": {
+        "ru": "Кинооператор снял всю сцену через окно.",
+        "uz": "Kinooperator butun sahnani deraza orqali suratga oldi."
+      }
+    },
+    {
+      "word": "storyboarding",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstɔriˌbɔrdɪŋ/",
+      "translation": "раскадровка",
+      "translations": {
+        "ru": "раскадровка",
+        "uz": "kadrlarni oldindan chizib chiqish"
+      },
+      "example": "Storyboarding helped the director plan each camera angle.",
+      "example_translations": {
+        "ru": "Раскадровка помогла режиссёру спланировать каждый ракурс съёмки.",
+        "uz": "Kadrlarni oldindan chizib chiqish rejissyorga har bir tasvirga olish burchagini rejalashda yordam berdi."
+      }
     }
   ]
 }

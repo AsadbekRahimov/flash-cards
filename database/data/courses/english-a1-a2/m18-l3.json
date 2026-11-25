@@ -160,6 +160,81 @@
         "ru": "Хорошее питание важно для детей.",
         "uz": "Bolalarning to'g'ri ovqatlanishi muhim."
       }
+    },
+    {
+      "word": "grain",
+      "part_of_speech": "noun",
+      "transcription": "/greɪn/",
+      "translation": "зерно",
+      "translations": {
+        "ru": "зерно",
+        "uz": "don"
+      },
+      "example": "This bread is made with whole grain.",
+      "example_translations": {
+        "ru": "Этот хлеб приготовлен из цельного зерна.",
+        "uz": "Bu non butun dondan tayyorlangan."
+      }
+    },
+    {
+      "word": "cereal",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪriəl/",
+      "translation": "хлопья для завтрака",
+      "translations": {
+        "ru": "хлопья для завтрака",
+        "uz": "nonushta yormasi"
+      },
+      "example": "She had cereal with milk for breakfast.",
+      "example_translations": {
+        "ru": "На завтрак она ела хлопья с молоком.",
+        "uz": "U nonushtaga sutli yorma yedi."
+      }
+    },
+    {
+      "word": "broccoli",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbrɑkəli/",
+      "translation": "брокколи",
+      "translations": {
+        "ru": "брокколи",
+        "uz": "brokkoli"
+      },
+      "example": "There is broccoli and rice for dinner.",
+      "example_translations": {
+        "ru": "На ужин — брокколи и рис.",
+        "uz": "Kechki ovqatga brokkoli bilan guruch bor."
+      }
+    },
+    {
+      "word": "serving",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsərvɪŋ/",
+      "translation": "порция",
+      "translations": {
+        "ru": "порция",
+        "uz": "porsiya"
+      },
+      "example": "One serving of this soup will be enough.",
+      "example_translations": {
+        "ru": "Одной порции этого супа будет достаточно.",
+        "uz": "Bu sho'rvaning bir porsiyasi yetadi."
+      }
+    },
+    {
+      "word": "unripe",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈraɪp/",
+      "translation": "неспелый",
+      "translations": {
+        "ru": "неспелый",
+        "uz": "pishmagan"
+      },
+      "example": "These bananas are still green and unripe.",
+      "example_translations": {
+        "ru": "Эти бананы ещё зелёные и неспелые.",
+        "uz": "Bu bananlar hali yashil, pishmagan."
+      }
     }
   ]
 }

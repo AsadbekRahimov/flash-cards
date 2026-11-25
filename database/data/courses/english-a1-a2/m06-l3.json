@@ -160,6 +160,81 @@
         "ru": "Какого цвета твоя машина?",
         "uz": "Mashinangning rangi qanday?"
       }
+    },
+    {
+      "word": "beige",
+      "part_of_speech": "adjective",
+      "transcription": "/beɪʒ/",
+      "translation": "бежевый",
+      "translations": {
+        "ru": "бежевый",
+        "uz": "bej"
+      },
+      "example": "My sister has a beige coat.",
+      "example_translations": {
+        "ru": "У моей сестры бежевое пальто.",
+        "uz": "Opamning bej paltosi bor."
+      }
+    },
+    {
+      "word": "navy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈneɪvi/",
+      "translation": "тёмно-синий",
+      "translations": {
+        "ru": "тёмно-синий",
+        "uz": "to'q ko'k"
+      },
+      "example": "He wore a navy jacket to school.",
+      "example_translations": {
+        "ru": "Он надел в школу тёмно-синюю куртку.",
+        "uz": "U maktabga to'q ko'k kurtka kiyib bordi."
+      }
+    },
+    {
+      "word": "silver",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈsɪlvər/",
+      "translation": "серебристый",
+      "translations": {
+        "ru": "серебристый",
+        "uz": "kumushrang"
+      },
+      "example": "Their new car is silver and black.",
+      "example_translations": {
+        "ru": "Их новая машина серебристо-чёрная.",
+        "uz": "Ularning yangi mashinasi kumushrang va qora."
+      }
+    },
+    {
+      "word": "purple",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpərpəl/",
+      "translation": "фиолетовый",
+      "translations": {
+        "ru": "фиолетовый",
+        "uz": "binafsharang"
+      },
+      "example": "She wants a purple dress for the party.",
+      "example_translations": {
+        "ru": "Она хочет фиолетовое платье на праздник.",
+        "uz": "U bayramga binafsharang ko'ylak xohlaydi."
+      }
+    },
+    {
+      "word": "tan",
+      "part_of_speech": "adjective",
+      "transcription": "/tæn/",
+      "translation": "светло-коричневый",
+      "translations": {
+        "ru": "светло-коричневый",
+        "uz": "och jigarrang"
+      },
+      "example": "I wore my tan shoes to work.",
+      "example_translations": {
+        "ru": "На работу я надел светло-коричневые туфли.",
+        "uz": "Ishga och jigarrang tuflimni kiyib bordim."
+      }
     }
   ]
 }

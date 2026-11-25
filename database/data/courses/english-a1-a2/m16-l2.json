@@ -160,6 +160,81 @@
         "ru": "Пылесос стоит в кладовке.",
         "uz": "Changyutgich omborxonada turibdi."
       }
+    },
+    {
+      "word": "dishwasher",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɪʃˌwɑʃər/",
+      "translation": "посудомоечная машина",
+      "translations": {
+        "ru": "посудомоечная машина",
+        "uz": "idish yuvish mashinasi"
+      },
+      "example": "Put the dirty plates in the dishwasher.",
+      "example_translations": {
+        "ru": "Поставьте грязные тарелки в посудомоечную машину.",
+        "uz": "Kir likopchalarni idish yuvish mashinasiga qo'ying."
+      }
+    },
+    {
+      "word": "toaster",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtoʊstər/",
+      "translation": "тостер",
+      "translations": {
+        "ru": "тостер",
+        "uz": "toster"
+      },
+      "example": "I put two slices in the toaster.",
+      "example_translations": {
+        "ru": "Я положил два ломтика хлеба в тостер.",
+        "uz": "Tosterga ikki bo'lak non soldim."
+      }
+    },
+    {
+      "word": "hairdryer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɛrˌdraɪər/",
+      "translation": "фен",
+      "translations": {
+        "ru": "фен",
+        "uz": "fen"
+      },
+      "example": "She uses a hairdryer after every shower.",
+      "example_translations": {
+        "ru": "Она пользуется феном после каждого душа.",
+        "uz": "U har safar dushdan keyin fen ishlatadi."
+      }
+    },
+    {
+      "word": "mattress",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmætrəs/",
+      "translation": "матрас",
+      "translations": {
+        "ru": "матрас",
+        "uz": "to'shak"
+      },
+      "example": "This mattress is too hard for me.",
+      "example_translations": {
+        "ru": "Этот матрас для меня слишком жёсткий.",
+        "uz": "Bu to'shak menga juda qattiqlik qiladi."
+      }
+    },
+    {
+      "word": "radiator",
+      "part_of_speech": "noun",
+      "transcription": "/ˈreɪdiˌeɪtər/",
+      "translation": "радиатор отопления",
+      "translations": {
+        "ru": "радиатор отопления",
+        "uz": "isitish radiatori"
+      },
+      "example": "The radiator in my room is cold.",
+      "example_translations": {
+        "ru": "Радиатор отопления в моей комнате холодный.",
+        "uz": "Xonamdagi isitish radiatori sovuq."
+      }
     }
   ]
 }

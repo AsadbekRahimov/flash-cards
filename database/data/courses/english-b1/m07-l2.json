@@ -160,6 +160,81 @@
         "ru": "Мы ищем подходящего человека для этой работы.",
         "uz": "Biz bu ishga munosib odam qidiryapmiz."
       }
+    },
+    {
+      "word": "interviewee",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɪntərvjuˈi/",
+      "translation": "участник собеседования",
+      "translations": {
+        "ru": "участник собеседования",
+        "uz": "suhbatdan o'tuvchi nomzod"
+      },
+      "example": "Each interviewee answered the same three questions.",
+      "example_translations": {
+        "ru": "Каждый участник собеседования ответил на одни и те же три вопроса.",
+        "uz": "Suhbatdan o'tgan har bir nomzod bir xil uchta savolga javob berdi."
+      }
+    },
+    {
+      "word": "interviewer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪntərˌvjuər/",
+      "translation": "проводящий собеседование",
+      "translations": {
+        "ru": "проводящий собеседование",
+        "uz": "suhbat o'tkazuvchi"
+      },
+      "example": "The interviewer asked why I wanted the job.",
+      "example_translations": {
+        "ru": "Человек, проводивший собеседование, спросил, почему я хочу получить эту работу.",
+        "uz": "Suhbat o'tkazgan odam nega bu ishni xohlayotganimni so'radi."
+      }
+    },
+    {
+      "word": "reference",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrɛfərəns/",
+      "translation": "письменная рекомендация",
+      "translations": {
+        "ru": "письменная рекомендация",
+        "uz": "tavsiyanoma"
+      },
+      "example": "Please attach a reference from your previous employer.",
+      "example_translations": {
+        "ru": "Пожалуйста, приложите рекомендацию от предыдущего работодателя.",
+        "uz": "Iltimos, avvalgi ish beruvchingizning tavsiyanomasini ilova qiling."
+      }
+    },
+    {
+      "word": "jobless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈdʒɑbləs/",
+      "translation": "не имеющий работы",
+      "translations": {
+        "ru": "не имеющий работы",
+        "uz": "ish topolmagan"
+      },
+      "example": "He was jobless for six months after college.",
+      "example_translations": {
+        "ru": "После колледжа он полгода не мог найти работу.",
+        "uz": "U kollejdan keyin olti oy ish topolmadi."
+      }
+    },
+    {
+      "word": "questionnaire",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkwɛstʃəˈnɛr/",
+      "translation": "анкета",
+      "translations": {
+        "ru": "анкета",
+        "uz": "so'rovnoma"
+      },
+      "example": "Each applicant must complete a short questionnaire.",
+      "example_translations": {
+        "ru": "Каждый кандидат должен заполнить короткую анкету.",
+        "uz": "Har bir nomzod qisqa so'rovnomani to'ldirishi kerak."
+      }
     }
   ]
 }

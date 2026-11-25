@@ -160,6 +160,66 @@
         "ru": "Он вздрогнул, когда стоматолог коснулся его зуба.",
         "uz": "Stomatolog tishiga tekkanda, u seskanib ketdi."
       }
+    },
+    {
+      "word": "amble",
+      "part_of_speech": "verb",
+      "transcription": "/ˈæmbəl/",
+      "translation": "идти неспешно",
+      "translations": {
+        "ru": "идти неспешно",
+        "uz": "osoyishta yurmoq"
+      },
+      "example": "We amble past the bakery on our way home.",
+      "example_translations": {
+        "ru": "По дороге домой мы неспешно проходим мимо пекарни.",
+        "uz": "Uyga qaytayotib, novvoyxona yonidan osoyishta o'tamiz."
+      }
+    },
+    {
+      "word": "trundle",
+      "part_of_speech": "verb",
+      "transcription": "/ˈtrʌndəl/",
+      "translation": "медленно катиться",
+      "translations": {
+        "ru": "медленно катиться",
+        "uz": "asta g'ildirab bormoq"
+      },
+      "example": "Market carts trundle over the cobblestones before dawn.",
+      "example_translations": {
+        "ru": "Перед рассветом рыночные тележки медленно катятся по булыжной мостовой.",
+        "uz": "Tong otmasidan oldin bozor aravalari tosh yo'lda asta g'ildirab boradi."
+      }
+    },
+    {
+      "word": "gambol",
+      "part_of_speech": "verb",
+      "transcription": "/ˈgæmbəl/",
+      "translation": "резвиться",
+      "translations": {
+        "ru": "резвиться",
+        "uz": "sakrab o'ynamoq"
+      },
+      "example": "Lambs gambol across the field in the morning light.",
+      "example_translations": {
+        "ru": "Ягнята резвятся в поле в утреннем свете.",
+        "uz": "Qo'zichoqlar tong yorug'ida dala bo'ylab sakrab o'ynaydi."
+      }
+    },
+    {
+      "word": "sidle",
+      "part_of_speech": "verb",
+      "transcription": "/ˈsaɪdəl/",
+      "translation": "подбираться боком",
+      "translations": {
+        "ru": "подбираться боком",
+        "uz": "yonlama yaqinlashmoq"
+      },
+      "example": "Watch the crab sidle toward the edge of the pool.",
+      "example_translations": {
+        "ru": "Посмотрите, как краб боком подбирается к краю заводи.",
+        "uz": "Qisqichbaqaning ko'lmak chetiga yonlama yaqinlashayotganini kuzating."
+      }
     }
   ]
 }

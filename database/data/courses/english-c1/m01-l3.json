@@ -160,6 +160,36 @@
         "ru": "Его причудливый юмор делает весёлыми даже серьёзные совещания.",
         "uz": "Uning g'aroyib hazillari hatto jiddiy yig'ilishlarni ham quvnoq qiladi."
       }
+    },
+    {
+      "word": "demure",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪˈmjʊr/",
+      "translation": "скромный и сдержанный",
+      "translations": {
+        "ru": "скромный и сдержанный",
+        "uz": "kamtar va vazmin"
+      },
+      "example": "She looked demure with her hands neatly folded.",
+      "example_translations": {
+        "ru": "Она выглядела скромной и сдержанной, аккуратно сложив руки.",
+        "uz": "U qo'llarini qovushtirib, kamtar va vazmin ko'rinardi."
+      }
+    },
+    {
+      "word": "affectation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌæfɛkˈteɪʃən/",
+      "translation": "нарочитая манера",
+      "translations": {
+        "ru": "нарочитая манера",
+        "uz": "ataylab o'zlashtirilgan soxta odat"
+      },
+      "example": "His grand accent struck me as an affectation.",
+      "example_translations": {
+        "ru": "Его напыщенный выговор показался мне нарочитой манерой.",
+        "uz": "Uning dabdabali talaffuzi menga ataylab o'zlashtirilgan soxta odatdek tuyuldi."
+      }
     }
   ]
 }

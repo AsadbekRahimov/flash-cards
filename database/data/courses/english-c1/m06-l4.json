@@ -160,6 +160,36 @@
         "ru": "У каждого изотопа углерода разное число нейтронов.",
         "uz": "Uglerodning har bir izotopida neytronlar soni har xil."
       }
+    },
+    {
+      "word": "solubility",
+      "part_of_speech": "noun",
+      "transcription": "/ˌsɑljəˈbɪləti/",
+      "translation": "растворимость",
+      "translations": {
+        "ru": "растворимость",
+        "uz": "eruvchanlik"
+      },
+      "example": "Heating the water increases the solubility of sugar.",
+      "example_translations": {
+        "ru": "Нагревание воды повышает растворимость сахара.",
+        "uz": "Suvni isitish shakarning eruvchanligini oshiradi."
+      }
+    },
+    {
+      "word": "vaporize",
+      "part_of_speech": "verb",
+      "transcription": "/ˈveɪpəˌraɪz/",
+      "translation": "испаряться",
+      "translations": {
+        "ru": "испаряться",
+        "uz": "bug'lanmoq"
+      },
+      "example": "Droplets vaporize quickly on the heated surface.",
+      "example_translations": {
+        "ru": "На нагретой поверхности капли быстро испаряются.",
+        "uz": "Qizigan sirtda tomchilar tez bug'lanadi."
+      }
     }
   ]
 }

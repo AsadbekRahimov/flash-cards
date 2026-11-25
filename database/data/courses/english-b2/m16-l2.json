@@ -160,6 +160,51 @@
         "ru": "Никто другой не может использовать наш зарегистрированный товарный знак.",
         "uz": "Ro'yxatdan o'tgan tovar belgimizdan boshqa hech kim foydalana olmaydi."
       }
+    },
+    {
+      "word": "rebrand",
+      "part_of_speech": "verb",
+      "transcription": "/riˈbrænd/",
+      "translation": "менять образ бренда",
+      "translations": {
+        "ru": "менять образ бренда",
+        "uz": "brend qiyofasini yangilamoq"
+      },
+      "example": "The bakery will rebrand to attract younger customers.",
+      "example_translations": {
+        "ru": "Пекарня изменит образ бренда, чтобы привлечь более молодых покупателей.",
+        "uz": "Nonvoyxona yoshroq xaridorlarni jalb qilish uchun brend qiyofasini yangilaydi."
+      }
+    },
+    {
+      "word": "endorsement",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈdɔrsmənt/",
+      "translation": "публичная рекомендация",
+      "translations": {
+        "ru": "публичная рекомендация",
+        "uz": "ommaviy tavsiya"
+      },
+      "example": "The athlete's endorsement helped boost sales of the shoes.",
+      "example_translations": {
+        "ru": "Публичная рекомендация спортсмена помогла увеличить продажи обуви.",
+        "uz": "Sportchining ommaviy tavsiyasi oyoq kiyim savdosini oshirishga yordam berdi."
+      }
+    },
+    {
+      "word": "marketability",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmɑrkətəˈbɪləti/",
+      "translation": "рыночная привлекательность",
+      "translations": {
+        "ru": "рыночная привлекательность",
+        "uz": "bozorda sotilish salohiyati"
+      },
+      "example": "Better packaging improved the marketability of the product.",
+      "example_translations": {
+        "ru": "Улучшенная упаковка повысила рыночную привлекательность товара.",
+        "uz": "Yaxshiroq qadoq mahsulotning bozorda sotilish salohiyatini oshirdi."
+      }
     }
   ]
 }

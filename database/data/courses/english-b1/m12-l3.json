@@ -160,6 +160,36 @@
         "ru": "Мяч дважды отскочил и укатился.",
         "uz": "To'p ikki marta sapchib, dumalab ketdi."
       }
+    },
+    {
+      "word": "treadmill",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtrɛdˌmɪl/",
+      "translation": "тренажёр для бега",
+      "translations": {
+        "ru": "тренажёр для бега",
+        "uz": "yugurish trenajyori"
+      },
+      "example": "She runs on the treadmill when it rains.",
+      "example_translations": {
+        "ru": "В дождь она бегает на беговом тренажёре.",
+        "uz": "Yomg'ir yog'ganda u yugurish trenajyorida mashq qiladi."
+      }
+    },
+    {
+      "word": "dumbbell",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʌmˌbɛl/",
+      "translation": "гантель",
+      "translations": {
+        "ru": "гантель",
+        "uz": "gantel"
+      },
+      "example": "Lift the dumbbell slowly with your left hand.",
+      "example_translations": {
+        "ru": "Медленно поднимите гантель левой рукой.",
+        "uz": "Gantelni chap qo'lingiz bilan sekin ko'taring."
+      }
     }
   ]
 }

@@ -160,6 +160,51 @@
         "ru": "Образование расширяет возможности молодёжи в сельской местности.",
         "uz": "Ta'lim qishloq joylardagi yoshlarning imkoniyatlarini kengaytiradi."
       }
+    },
+    {
+      "word": "volunteering",
+      "part_of_speech": "noun",
+      "transcription": "/ˌvɑlənˈtɪrɪŋ/",
+      "translation": "волонтёрство",
+      "translations": {
+        "ru": "волонтёрство",
+        "uz": "ko'ngilli faoliyat"
+      },
+      "example": "Volunteering at the shelter introduced me to my neighbors.",
+      "example_translations": {
+        "ru": "Приютское волонтёрство помогло мне познакомиться с соседями.",
+        "uz": "Boshpanadagi ko'ngilli faoliyatim tufayli qo'shnilarim bilan tanishdim."
+      }
+    },
+    {
+      "word": "fundraiser",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfʌndˌreɪzər/",
+      "translation": "мероприятие по сбору средств",
+      "translations": {
+        "ru": "мероприятие по сбору средств",
+        "uz": "mablag' yig'ish tadbiri"
+      },
+      "example": "Our fundraiser paid for new shelves at the library.",
+      "example_translations": {
+        "ru": "Сбор средств помог оплатить новые полки для библиотеки.",
+        "uz": "Mablag' yig'ish tadbirimiz kutubxonaga yangi javon olish xarajatini qopladi."
+      }
+    },
+    {
+      "word": "philanthropist",
+      "part_of_speech": "noun",
+      "transcription": "/fɪˈlænθrəpɪst/",
+      "translation": "благотворитель",
+      "translations": {
+        "ru": "благотворитель",
+        "uz": "xayriyachi"
+      },
+      "example": "A philanthropist donated money to expand the library.",
+      "example_translations": {
+        "ru": "Благотворитель пожертвовал деньги на расширение библиотеки.",
+        "uz": "Xayriyachi kutubxonani kengaytirish uchun pul berdi."
+      }
     }
   ]
 }

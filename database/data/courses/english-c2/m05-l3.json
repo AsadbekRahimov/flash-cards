@@ -160,6 +160,81 @@
         "ru": "Без доказательств его утверждение остаётся лишь догадкой.",
         "uz": "Isbotsiz uning da'vosi shunchaki taxmin bo'lib qoladi."
       }
+    },
+    {
+      "word": "epistemic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɛpəˈstimɪk/",
+      "translation": "относящийся к познанию",
+      "translations": {
+        "ru": "относящийся к познанию",
+        "uz": "bilishga oid"
+      },
+      "example": "The essay distinguishes epistemic uncertainty from moral doubt.",
+      "example_translations": {
+        "ru": "Эссе различает неопределённость в познании и нравственное сомнение.",
+        "uz": "Insho bilishga oid noaniqlikni axloqiy shubhadan farqlaydi."
+      }
+    },
+    {
+      "word": "veridical",
+      "part_of_speech": "adjective",
+      "transcription": "/vəˈrɪdɪkəl/",
+      "translation": "соответствующий реальности",
+      "translations": {
+        "ru": "соответствующий реальности",
+        "uz": "voqelikka mos"
+      },
+      "example": "The experiment distinguished veridical perception from visual illusion.",
+      "example_translations": {
+        "ru": "В эксперименте отличили восприятие, соответствующее реальности, от зрительной иллюзии.",
+        "uz": "Tajribada voqelikka mos idrok ko'rish illyuziyasidan ajratildi."
+      }
+    },
+    {
+      "word": "fallibilism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfæləbəˌlɪzəm/",
+      "translation": "фаллибилизм",
+      "translations": {
+        "ru": "фаллибилизм",
+        "uz": "bilim xatodan xoli emasligi haqidagi qarash"
+      },
+      "example": "Under fallibilism, even well-supported beliefs may prove mistaken.",
+      "example_translations": {
+        "ru": "Согласно фаллибилизму, даже хорошо обоснованные убеждения могут оказаться ошибочными.",
+        "uz": "Bilim xatodan xoli emas degan qarashga ko'ra, hatto yaxshi asoslangan e'tiqodlar ham xato bo'lib chiqishi mumkin."
+      }
+    },
+    {
+      "word": "falsifiability",
+      "part_of_speech": "noun",
+      "transcription": "/ˌfɔlsəˌfaɪəˈbɪləti/",
+      "translation": "принципиальная опровержимость",
+      "translations": {
+        "ru": "принципиальная опровержимость",
+        "uz": "rad etish mumkinligi"
+      },
+      "example": "Her essay examines falsifiability as a criterion of science.",
+      "example_translations": {
+        "ru": "Её эссе рассматривает принципиальную опровержимость как критерий научности.",
+        "uz": "Uning inshosida rad etish mumkinligi ilmiylik mezoni sifatida ko'rib chiqiladi."
+      }
+    },
+    {
+      "word": "dogmatism",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɔgməˌtɪzəm/",
+      "translation": "догматизм",
+      "translations": {
+        "ru": "догматизм",
+        "uz": "aqidaparastlik"
+      },
+      "example": "The lecturer's dogmatism left little room for questioning assumptions.",
+      "example_translations": {
+        "ru": "Догматизм лектора почти не позволял ставить под сомнение исходные положения.",
+        "uz": "Ma'ruzachining aqidaparastligi dastlabki fikrlarni shubha ostiga olishga deyarli yo'l qo'ymadi."
+      }
     }
   ]
 }

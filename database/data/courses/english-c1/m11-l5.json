@@ -160,6 +160,36 @@
         "ru": "Обязателен ли ремень безопасности в вашей стране?",
         "uz": "Mamlakatingizda xavfsizlik kamarini taqish majburiymi?"
       }
+    },
+    {
+      "word": "enactment",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˈnæktmənt/",
+      "translation": "принятие закона",
+      "translations": {
+        "ru": "принятие закона",
+        "uz": "qonun qabul qilinishi"
+      },
+      "example": "Enactment of the new law took several months.",
+      "example_translations": {
+        "ru": "Принятие нового закона заняло несколько месяцев.",
+        "uz": "Yangi qonun qabul qilinishi uchun bir necha oy kerak bo'ldi."
+      }
+    },
+    {
+      "word": "ratification",
+      "part_of_speech": "noun",
+      "transcription": "/ˌrætəfəˈkeɪʃən/",
+      "translation": "ратификация",
+      "translations": {
+        "ru": "ратификация",
+        "uz": "ratifikatsiya"
+      },
+      "example": "The treaty still awaits ratification by both legislatures.",
+      "example_translations": {
+        "ru": "Договор всё ещё ждёт ратификации парламентами обеих сторон.",
+        "uz": "Shartnoma hali ham har ikki tomon parlamenti tomonidan ratifikatsiya qilinishini kutmoqda."
+      }
     }
   ]
 }

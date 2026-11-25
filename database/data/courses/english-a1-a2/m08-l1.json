@@ -160,6 +160,81 @@
         "ru": "Моя дочь любит рисовать.",
         "uz": "Qizim rasm chizishni yaxshi ko'radi."
       }
+    },
+    {
+      "word": "piano",
+      "part_of_speech": "noun",
+      "transcription": "/piˈænoʊ/",
+      "translation": "пианино",
+      "translations": {
+        "ru": "пианино",
+        "uz": "pianino"
+      },
+      "example": "My sister plays the piano after school.",
+      "example_translations": {
+        "ru": "Моя сестра играет на пианино после школы.",
+        "uz": "Singlim maktabdan keyin pianino chaladi."
+      }
+    },
+    {
+      "word": "flute",
+      "part_of_speech": "noun",
+      "transcription": "/flut/",
+      "translation": "флейта",
+      "translations": {
+        "ru": "флейта",
+        "uz": "fleyta"
+      },
+      "example": "I play the flute with my friends.",
+      "example_translations": {
+        "ru": "Я играю на флейте вместе с друзьями.",
+        "uz": "Do'stlarim bilan birga fleyta chalaman."
+      }
+    },
+    {
+      "word": "kite",
+      "part_of_speech": "noun",
+      "transcription": "/kaɪt/",
+      "translation": "воздушный змей",
+      "translations": {
+        "ru": "воздушный змей",
+        "uz": "varrak"
+      },
+      "example": "We fly a kite in the park.",
+      "example_translations": {
+        "ru": "Мы запускаем воздушного змея в парке.",
+        "uz": "Bog'da varrak uchiramiz."
+      }
+    },
+    {
+      "word": "violin",
+      "part_of_speech": "noun",
+      "transcription": "/ˌvaɪəˈlɪn/",
+      "translation": "скрипка",
+      "translations": {
+        "ru": "скрипка",
+        "uz": "skripka"
+      },
+      "example": "My cousin plays the violin very well.",
+      "example_translations": {
+        "ru": "Моя двоюродная сестра очень хорошо играет на скрипке.",
+        "uz": "Amakivachcham skripkani juda yaxshi chaladi."
+      }
+    },
+    {
+      "word": "jigsaw",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʒɪgˌsɔ/",
+      "translation": "пазл",
+      "translations": {
+        "ru": "пазл",
+        "uz": "pazl"
+      },
+      "example": "We did a jigsaw on Sunday.",
+      "example_translations": {
+        "ru": "В воскресенье мы собирали пазл.",
+        "uz": "Yakshanba kuni pazl yig'dik."
+      }
     }
   ]
 }

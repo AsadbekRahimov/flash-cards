@@ -160,6 +160,51 @@
         "ru": "Страх перед новым часто происходит от невежества.",
         "uz": "Yangilikdan qo'rqish ko'pincha bilimsizlikdan kelib chiqadi."
       }
+    },
+    {
+      "word": "knowledgeable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈnɑlɪdʒəbəl/",
+      "translation": "хорошо осведомлённый",
+      "translations": {
+        "ru": "хорошо осведомлённый",
+        "uz": "yaxshi biladigan"
+      },
+      "example": "She's knowledgeable about birds found in this region.",
+      "example_translations": {
+        "ru": "Она хорошо разбирается в птицах, обитающих в этом регионе.",
+        "uz": "U bu hududda uchraydigan qushlarni yaxshi biladi."
+      }
+    },
+    {
+      "word": "unknowable",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈnoʊəbəl/",
+      "translation": "непознаваемый",
+      "translations": {
+        "ru": "непознаваемый",
+        "uz": "bilib bo'lmaydigan"
+      },
+      "example": "The distant future remains unknowable even to experts.",
+      "example_translations": {
+        "ru": "Далёкое будущее остаётся непознаваемым даже для специалистов.",
+        "uz": "Uzoq kelajakni hatto mutaxassislar ham bilolmaydi."
+      }
+    },
+    {
+      "word": "oversimplify",
+      "part_of_speech": "verb",
+      "transcription": "/ˌoʊvərˈsɪmpləˌfaɪ/",
+      "translation": "чрезмерно упрощать",
+      "translations": {
+        "ru": "чрезмерно упрощать",
+        "uz": "haddan tashqari soddalashtirmoq"
+      },
+      "example": "Don't oversimplify the problem by ignoring these exceptions.",
+      "example_translations": {
+        "ru": "Не упрощайте проблему чрезмерно, игнорируя эти исключения.",
+        "uz": "Bu istisnolarni chetlab o'tib, muammoni haddan tashqari soddalashtirmang."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Неожиданный визит нарушил однообразие его недели.",
         "uz": "Kutilmagan tashrif uning haftasidagi bir xillikni buzdi."
       }
+    },
+    {
+      "word": "ennui",
+      "part_of_speech": "noun",
+      "transcription": "/ɑnˈwi/",
+      "translation": "томительная скука",
+      "translations": {
+        "ru": "томительная скука",
+        "uz": "ichni ezadigan zerikish"
+      },
+      "example": "Weeks of repetitive work filled him with ennui.",
+      "example_translations": {
+        "ru": "После нескольких недель однообразной работы его охватила томительная скука.",
+        "uz": "U bir xil ishni haftalab qilaverib, zerikishdan ezilib ketdi."
+      }
+    },
+    {
+      "word": "torpor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɔrpər/",
+      "translation": "вялая бездеятельность",
+      "translations": {
+        "ru": "вялая бездеятельность",
+        "uz": "sust va harakatsiz holat"
+      },
+      "example": "The afternoon heat settled everyone into a comfortable torpor.",
+      "example_translations": {
+        "ru": "Дневная жара погрузила всех в приятную вялую бездеятельность.",
+        "uz": "Kunduzgi issiqda hamma yoqimli bir sustlikka berilib, harakatsiz qoldi."
+      }
+    },
+    {
+      "word": "jadedness",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdʒeɪdədnəs/",
+      "translation": "пресыщенность",
+      "translations": {
+        "ru": "пресыщенность",
+        "uz": "ko'raverib bezish"
+      },
+      "example": "His jadedness made even excellent exhibitions seem ordinary.",
+      "example_translations": {
+        "ru": "Из-за пресыщенности даже отличные выставки казались ему заурядными.",
+        "uz": "Ko'rgazmalarni ko'raverib bezganidan, hatto ajoyib ko'rgazmalar ham unga oddiy tuyulardi."
+      }
+    },
+    {
+      "word": "insouciance",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈsusiəns/",
+      "translation": "беспечность",
+      "translations": {
+        "ru": "беспечность",
+        "uz": "beparvolik"
+      },
+      "example": "Her insouciance about the approaching deadline astonished us.",
+      "example_translations": {
+        "ru": "Её беспечность перед приближающимся сроком нас поразила.",
+        "uz": "Muddat yaqinlashayotgan bo'lsa ham, uning parvo qilmagani bizni hayratga soldi."
+      }
+    },
+    {
+      "word": "dispassionate",
+      "part_of_speech": "adjective",
+      "transcription": "/dɪsˈpæʃənət/",
+      "translation": "бесстрастный",
+      "translations": {
+        "ru": "бесстрастный",
+        "uz": "hisga berilmaydigan"
+      },
+      "example": "He remained dispassionate while everyone else argued heatedly.",
+      "example_translations": {
+        "ru": "Он оставался бесстрастным, пока все остальные горячо спорили.",
+        "uz": "Qolganlar qizg'in bahslashayotganida ham u hisga berilmadi."
+      }
     }
   ]
 }

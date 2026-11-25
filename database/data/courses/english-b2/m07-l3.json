@@ -160,6 +160,66 @@
         "ru": "Некоторые заводы сбрасывают отходы в реку.",
         "uz": "Ba'zi zavodlar chiqindilarni daryoga tashlaydi."
       }
+    },
+    {
+      "word": "wastewater",
+      "part_of_speech": "noun",
+      "transcription": "/ˈweɪstˌwɔtər/",
+      "translation": "использованная вода",
+      "translations": {
+        "ru": "использованная вода",
+        "uz": "ishlatilgan suv"
+      },
+      "example": "The plant treats wastewater before it reaches rivers.",
+      "example_translations": {
+        "ru": "Станция очищает использованную воду, прежде чем она попадёт в реки.",
+        "uz": "Inshoot ishlatilgan suvni daryolarga tushishidan oldin tozalaydi."
+      }
+    },
+    {
+      "word": "nonbiodegradable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌnɑnbaɪoʊdɪˈgreɪdəbəl/",
+      "translation": "биологически неразлагаемый",
+      "translations": {
+        "ru": "биологически неразлагаемый",
+        "uz": "biologik parchalanmaydigan"
+      },
+      "example": "These nonbiodegradable bags remain in landfills for years.",
+      "example_translations": {
+        "ru": "Эти биологически неразлагаемые пакеты годами лежат на свалках.",
+        "uz": "Bu biologik parchalanmaydigan paketlar chiqindi poligonlarida yillab qoladi."
+      }
+    },
+    {
+      "word": "composting",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑmˌpoʊstɪŋ/",
+      "translation": "компостирование",
+      "translations": {
+        "ru": "компостирование",
+        "uz": "kompost tayyorlash"
+      },
+      "example": "Home composting turns food scraps into garden fertilizer.",
+      "example_translations": {
+        "ru": "Домашнее компостирование превращает пищевые отходы в удобрение для сада.",
+        "uz": "Uyda kompost tayyorlash orqali ovqat qoldiqlari bog' uchun o'g'itga aylanadi."
+      }
+    },
+    {
+      "word": "microplastics",
+      "part_of_speech": "noun",
+      "transcription": "/ˌmaɪkroʊˈplæstɪks/",
+      "translation": "микропластик",
+      "translations": {
+        "ru": "микропластик",
+        "uz": "mikroplastik zarralar"
+      },
+      "example": "Researchers found microplastics in samples of river water.",
+      "example_translations": {
+        "ru": "Исследователи обнаружили микропластик в пробах речной воды.",
+        "uz": "Tadqiqotchilar daryo suvidan olingan namunalarda mikroplastik zarralarni topishdi."
+      }
     }
   ]
 }

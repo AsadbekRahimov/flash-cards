@@ -160,6 +160,51 @@
         "ru": "Моя сумка очень тяжёлая.",
         "uz": "Sumkam juda og'ir."
       }
+    },
+    {
+      "word": "free",
+      "part_of_speech": "adjective",
+      "transcription": "/fri/",
+      "translation": "бесплатный",
+      "translations": {
+        "ru": "бесплатный",
+        "uz": "bepul"
+      },
+      "example": "You get a free bag with this shirt.",
+      "example_translations": {
+        "ru": "К этой рубашке вы получите бесплатную сумку.",
+        "uz": "Bu ko'ylak bilan bepul sumka ham olasiz."
+      }
+    },
+    {
+      "word": "spend",
+      "part_of_speech": "verb",
+      "transcription": "/spɛnd/",
+      "translation": "тратить",
+      "translations": {
+        "ru": "тратить",
+        "uz": "sarflamoq"
+      },
+      "example": "You don't need to spend much money.",
+      "example_translations": {
+        "ru": "Вам не нужно тратить много денег.",
+        "uz": "Ko'p pul sarflashingiz shart emas."
+      }
+    },
+    {
+      "word": "paying",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈpeɪɪŋ/",
+      "translation": "платящий",
+      "translations": {
+        "ru": "платящий",
+        "uz": "pul to'laydigan"
+      },
+      "example": "Only paying customers can use this bathroom.",
+      "example_translations": {
+        "ru": "Этим туалетом могут пользоваться только покупатели, которые заплатили за покупку.",
+        "uz": "Bu hojatxonadan faqat xaridi uchun pul to'laydigan mijozlar foydalanishi mumkin."
+      }
     }
   ]
 }

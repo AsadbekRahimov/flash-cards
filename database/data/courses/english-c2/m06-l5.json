@@ -160,6 +160,66 @@
         "ru": "Учёные наконец расшифровали древнюю надпись на камне.",
         "uz": "Olimlar nihoyat toshdagi qadimiy bitikning shifrini yechdilar."
       }
+    },
+    {
+      "word": "recondite",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈrɛkənˌdaɪt/",
+      "translation": "труднодоступный для понимания",
+      "translations": {
+        "ru": "труднодоступный для понимания",
+        "uz": "tushunish mushkul"
+      },
+      "example": "Her lecture made a recondite subject accessible to beginners.",
+      "example_translations": {
+        "ru": "Её лекция сделала труднодоступную для понимания тему понятной новичкам.",
+        "uz": "Uning ma'ruzasi tushunish mushkul mavzuni yangi o'rganuvchilarga tushunarli qildi."
+      }
+    },
+    {
+      "word": "perspicuous",
+      "part_of_speech": "adjective",
+      "transcription": "/pərˈspɪkjuəs/",
+      "translation": "ясно изложенный",
+      "translations": {
+        "ru": "ясно изложенный",
+        "uz": "ravshan bayon etilgan"
+      },
+      "example": "His perspicuous explanation resolved the audience's confusion almost immediately.",
+      "example_translations": {
+        "ru": "Его ясное объяснение почти сразу избавило слушателей от путаницы.",
+        "uz": "Ravshan bayon etilgan izohi tinglovchilarning chalkashligini deyarli darhol bartaraf qildi."
+      }
+    },
+    {
+      "word": "obfuscation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌɑbfəˈskeɪʃən/",
+      "translation": "намеренное запутывание",
+      "translations": {
+        "ru": "намеренное запутывание",
+        "uz": "ataylab chalkashtirish"
+      },
+      "example": "The panel saw the jargon as deliberate obfuscation.",
+      "example_translations": {
+        "ru": "Комиссия сочла жаргон намеренной попыткой всё запутать.",
+        "uz": "Hay'at soha jargonini ataylab chalkashtirish deb bildi."
+      }
+    },
+    {
+      "word": "inexplicable",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪnɪkˈsplɪkəbəl/",
+      "translation": "необъяснимый",
+      "translations": {
+        "ru": "необъяснимый",
+        "uz": "izohlab bo'lmaydigan"
+      },
+      "example": "Even experienced staff found the sudden silence inexplicable.",
+      "example_translations": {
+        "ru": "Даже опытные сотрудники не могли объяснить внезапную тишину.",
+        "uz": "Hatto tajribali xodimlar ham to'satdan cho'kkan jimlikni izohlay olmadi."
+      }
     }
   ]
 }

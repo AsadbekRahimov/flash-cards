@@ -160,6 +160,66 @@
         "ru": "На большой высоте воздух разрежённый и холодный.",
         "uz": "Katta balandlikda havo siyrak va sovuq bo'ladi."
       }
+    },
+    {
+      "word": "equatorial",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌikwəˈtɔriəl/",
+      "translation": "экваториальный",
+      "translations": {
+        "ru": "экваториальный",
+        "uz": "ekvatorga oid"
+      },
+      "example": "Many equatorial regions receive heavy rain throughout the year.",
+      "example_translations": {
+        "ru": "Во многих экваториальных районах круглый год идут сильные дожди.",
+        "uz": "Ekvator atrofidagi ko'p hududlarda yil bo'yi kuchli yomg'ir yog'adi."
+      }
+    },
+    {
+      "word": "meridian",
+      "part_of_speech": "noun",
+      "transcription": "/məˈrɪdiən/",
+      "translation": "меридиан",
+      "translations": {
+        "ru": "меридиан",
+        "uz": "meridian"
+      },
+      "example": "This meridian runs through both poles on the map.",
+      "example_translations": {
+        "ru": "На карте этот меридиан проходит через оба полюса.",
+        "uz": "Xaritada bu meridian har ikki qutbdan o'tadi."
+      }
+    },
+    {
+      "word": "mainland",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmeɪnˌlænd/",
+      "translation": "материк",
+      "translations": {
+        "ru": "материк",
+        "uz": "materik"
+      },
+      "example": "A ferry links the island to the mainland.",
+      "example_translations": {
+        "ru": "Паром связывает остров с материком.",
+        "uz": "Parom orolni materik bilan bog'laydi."
+      }
+    },
+    {
+      "word": "isthmus",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪsməs/",
+      "translation": "перешеек",
+      "translations": {
+        "ru": "перешеек",
+        "uz": "quruqlik bo'yni"
+      },
+      "example": "A narrow isthmus connects these two larger land areas.",
+      "example_translations": {
+        "ru": "Узкий перешеек соединяет эти два более крупных участка суши.",
+        "uz": "Tor quruqlik bo'yni bu ikkita kattaroq quruqlik qismini bog'lab turadi."
+      }
     }
   ]
 }

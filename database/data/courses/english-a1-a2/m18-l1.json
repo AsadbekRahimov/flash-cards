@@ -160,6 +160,81 @@
         "ru": "Она быстро выздоравливает после гриппа.",
         "uz": "U gripp bilan og'riganidan keyin tez tuzaladi."
       }
+    },
+    {
+      "word": "blister",
+      "part_of_speech": "noun",
+      "transcription": "/ˈblɪstər/",
+      "translation": "волдырь",
+      "translations": {
+        "ru": "волдырь",
+        "uz": "suvli pufakcha"
+      },
+      "example": "My new shoes gave me a blister.",
+      "example_translations": {
+        "ru": "Из-за новых туфель у меня на ноге появился волдырь.",
+        "uz": "Yangi tuflim oyog'imni ishqalagani uchun suvli pufakcha paydo bo'ldi."
+      }
+    },
+    {
+      "word": "cramp",
+      "part_of_speech": "noun",
+      "transcription": "/kræmp/",
+      "translation": "судорога",
+      "translations": {
+        "ru": "судорога",
+        "uz": "mushak tortishishi"
+      },
+      "example": "I got a cramp in my leg.",
+      "example_translations": {
+        "ru": "У меня свело ногу.",
+        "uz": "Oyog'imning mushagi tortishib qoldi."
+      }
+    },
+    {
+      "word": "rash",
+      "part_of_speech": "noun",
+      "transcription": "/ræʃ/",
+      "translation": "сыпь",
+      "translations": {
+        "ru": "сыпь",
+        "uz": "toshma"
+      },
+      "example": "A red rash appeared on her arm.",
+      "example_translations": {
+        "ru": "У неё на руке появилась красная сыпь.",
+        "uz": "Uning qo'lida qizil toshma paydo bo'ldi."
+      }
+    },
+    {
+      "word": "itchy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɪtʃi/",
+      "translation": "зудящий",
+      "translations": {
+        "ru": "зудящий",
+        "uz": "qichishadigan"
+      },
+      "example": "The skin around the bite feels itchy.",
+      "example_translations": {
+        "ru": "Кожа вокруг укуса зудит.",
+        "uz": "Chaqilgan joyning atrofi qichishyapti."
+      }
+    },
+    {
+      "word": "swollen",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈswoʊlən/",
+      "translation": "опухший",
+      "translations": {
+        "ru": "опухший",
+        "uz": "shishgan"
+      },
+      "example": "His ankle is still swollen this morning.",
+      "example_translations": {
+        "ru": "Сегодня утром у него всё ещё опухла щиколотка.",
+        "uz": "Bugun ertalab ham uning to'pig'i shishgan."
+      }
     }
   ]
 }

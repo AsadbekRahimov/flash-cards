@@ -160,6 +160,51 @@
         "ru": "Философ написал объёмный трактат о человеческой свободе.",
         "uz": "Faylasuf inson erkinligi haqida katta hajmli risola yozdi."
       }
+    },
+    {
+      "word": "preprint",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpriˌprɪnt/",
+      "translation": "научная статья до рецензирования",
+      "translations": {
+        "ru": "научная статья до рецензирования",
+        "uz": "taqrizdan o'tmagan ilmiy maqola"
+      },
+      "example": "The team posted a preprint before journal review.",
+      "example_translations": {
+        "ru": "До рецензирования статьи журналом команда выложила её предварительную версию.",
+        "uz": "Jurnal taqrizidan oldin jamoa ilmiy maqolaning dastlabki nusxasini e'lon qildi."
+      }
+    },
+    {
+      "word": "bibliographic",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌbɪbliəˈgræfɪk/",
+      "translation": "библиографический",
+      "translations": {
+        "ru": "библиографический",
+        "uz": "bibliografik"
+      },
+      "example": "Please check the bibliographic details before submitting your paper.",
+      "example_translations": {
+        "ru": "Проверьте библиографические данные перед подачей статьи.",
+        "uz": "Maqolangizni topshirishdan oldin bibliografik ma'lumotlarni tekshiring."
+      }
+    },
+    {
+      "word": "authorship",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɔθərˌʃɪp/",
+      "translation": "авторство",
+      "translations": {
+        "ru": "авторство",
+        "uz": "mualliflik"
+      },
+      "example": "The researchers shared authorship of the published paper.",
+      "example_translations": {
+        "ru": "Исследователи разделили авторство опубликованной статьи.",
+        "uz": "Chop etilgan maqolada tadqiqotchilar hammuallif bo'ldi."
+      }
     }
   ]
 }

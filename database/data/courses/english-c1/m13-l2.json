@@ -160,6 +160,51 @@
         "ru": "Правительство вернуло на родину своих граждан, застрявших за границей.",
         "uz": "Hukumat chet elda qolib ketgan fuqarolarini vataniga qaytardi."
       }
+    },
+    {
+      "word": "bicultural",
+      "part_of_speech": "adjective",
+      "transcription": "/baɪˈkʌltʃərəl/",
+      "translation": "принадлежащий к двум культурам",
+      "translations": {
+        "ru": "принадлежащий к двум культурам",
+        "uz": "ikki madaniyatga mansub"
+      },
+      "example": "Her bicultural upbringing shaped how she understood holidays.",
+      "example_translations": {
+        "ru": "Воспитание в двух культурах повлияло на то, как она воспринимала праздники.",
+        "uz": "Ikki madaniyatda ulg'aygani uning bayramlarni qanday tushunishiga ta'sir qildi."
+      }
+    },
+    {
+      "word": "acculturation",
+      "part_of_speech": "noun",
+      "transcription": "/əˌkʌltʃəˈreɪʃən/",
+      "translation": "усвоение другой культуры",
+      "translations": {
+        "ru": "усвоение другой культуры",
+        "uz": "boshqa madaniyatga moslashish"
+      },
+      "example": "Language classes supported acculturation among newly arrived families.",
+      "example_translations": {
+        "ru": "Языковые занятия помогли недавно прибывшим семьям освоить другую культуру.",
+        "uz": "Til darslari yaqinda kelgan oilalarga boshqa madaniyatga moslashishda yordam berdi."
+      }
+    },
+    {
+      "word": "transnational",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌtrænzˈnæʃənəl/",
+      "translation": "транснациональный",
+      "translations": {
+        "ru": "транснациональный",
+        "uz": "bir necha mamlakatni qamrab olgan"
+      },
+      "example": "A transnational network connects migrants with their hometowns.",
+      "example_translations": {
+        "ru": "Транснациональная сеть связывает мигрантов с их родными городами.",
+        "uz": "Bir necha mamlakatni qamrab olgan tarmoq migrantlarni o'z ona shaharlari bilan bog'laydi."
+      }
     }
   ]
 }

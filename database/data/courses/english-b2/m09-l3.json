@@ -160,6 +160,66 @@
         "ru": "Все водители должны соблюдать новые правила.",
         "uz": "Barcha haydovchilar yangi qoidalarga rioya qilishi shart."
       }
+    },
+    {
+      "word": "legally",
+      "part_of_speech": "adverb",
+      "transcription": "/ˈligəli/",
+      "translation": "по закону",
+      "translations": {
+        "ru": "по закону",
+        "uz": "qonunga ko'ra"
+      },
+      "example": "Are we legally allowed to share this information?",
+      "example_translations": {
+        "ru": "По закону мы можем поделиться этой информацией?",
+        "uz": "Qonunga ko'ra bu ma'lumotni boshqalarga berishimiz mumkinmi?"
+      }
+    },
+    {
+      "word": "infringement",
+      "part_of_speech": "noun",
+      "transcription": "/ɪnˈfrɪndʒmənt/",
+      "translation": "нарушение права",
+      "translations": {
+        "ru": "нарушение права",
+        "uz": "huquqni buzish"
+      },
+      "example": "The photographer filed a complaint about copyright infringement.",
+      "example_translations": {
+        "ru": "Фотограф подал жалобу на нарушение авторских прав.",
+        "uz": "Suratkash mualliflik huquqi buzilgani yuzasidan shikoyat qildi."
+      }
+    },
+    {
+      "word": "unambiguous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌnæmˈbɪgjuəs/",
+      "translation": "однозначный",
+      "translations": {
+        "ru": "однозначный",
+        "uz": "bir ma'noli"
+      },
+      "example": "The rental agreement states the deadline in unambiguous terms.",
+      "example_translations": {
+        "ru": "В договоре аренды срок указан однозначно.",
+        "uz": "Ijara shartnomasida muddat faqat bir xil talqin qilinadigan tarzda ko'rsatilgan."
+      }
+    },
+    {
+      "word": "legislator",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɛdʒɪsˌleɪtər/",
+      "translation": "законодатель",
+      "translations": {
+        "ru": "законодатель",
+        "uz": "qonun chiqaruvchi"
+      },
+      "example": "A legislator proposed a bill to protect tenants.",
+      "example_translations": {
+        "ru": "Законодатель предложил законопроект о защите арендаторов.",
+        "uz": "Qonun chiqaruvchi ijarachilarni himoya qilish to'g'risidagi qonun loyihasini taklif qildi."
+      }
     }
   ]
 }

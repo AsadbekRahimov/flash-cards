@@ -160,6 +160,81 @@
         "ru": "Кит больше автобуса.",
         "uz": "Kit avtobusdan ham katta."
       }
+    },
+    {
+      "word": "otter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɑtər/",
+      "translation": "выдра",
+      "translations": {
+        "ru": "выдра",
+        "uz": "daryo qunduzi"
+      },
+      "example": "An otter was swimming near the riverbank.",
+      "example_translations": {
+        "ru": "У берега реки плавала выдра.",
+        "uz": "Daryo qunduzi qirg'oq yaqinida suzayotgan edi."
+      }
+    },
+    {
+      "word": "reindeer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈreɪnˌdɪr/",
+      "translation": "северный олень",
+      "translations": {
+        "ru": "северный олень",
+        "uz": "shimol bug'usi"
+      },
+      "example": "We saw a reindeer walking across the snow.",
+      "example_translations": {
+        "ru": "Мы увидели северного оленя, который шёл по снегу.",
+        "uz": "Qorda ketayotgan shimol bug'usini ko'rdik."
+      }
+    },
+    {
+      "word": "bison",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbaɪsən/",
+      "translation": "бизон",
+      "translations": {
+        "ru": "бизон",
+        "uz": "bizon"
+      },
+      "example": "A bison was eating grass by the road.",
+      "example_translations": {
+        "ru": "У дороги бизон ел траву.",
+        "uz": "Yo'l yoqasida bizon o't yeyayotgan edi."
+      }
+    },
+    {
+      "word": "lizard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈlɪzərd/",
+      "translation": "ящерица",
+      "translations": {
+        "ru": "ящерица",
+        "uz": "kaltakesak"
+      },
+      "example": "A green lizard sat on the warm rock.",
+      "example_translations": {
+        "ru": "На тёплом камне сидела зелёная ящерица.",
+        "uz": "Iliq tosh ustida yashil kaltakesak o'tirardi."
+      }
+    },
+    {
+      "word": "ant",
+      "part_of_speech": "noun",
+      "transcription": "/ænt/",
+      "translation": "муравей",
+      "translations": {
+        "ru": "муравей",
+        "uz": "chumoli"
+      },
+      "example": "An ant carried a piece of bread away.",
+      "example_translations": {
+        "ru": "Муравей унёс кусочек хлеба.",
+        "uz": "Chumoli bir burda nonni olib ketdi."
+      }
     }
   ]
 }

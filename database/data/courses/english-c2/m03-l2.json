@@ -160,6 +160,51 @@
         "ru": "Врач отказался разглашать какие-либо сведения о пациентах.",
         "uz": "Shifokor bemorlar haqidagi biror ma'lumotni oshkor qilishdan bosh tortdi."
       }
+    },
+    {
+      "word": "fulminate",
+      "part_of_speech": "verb",
+      "transcription": "/ˈfʊlməˌneɪt/",
+      "translation": "гневно обличать",
+      "translations": {
+        "ru": "гневно обличать",
+        "uz": "g'azab bilan qoralamoq"
+      },
+      "example": "The columnist began to fulminate against the fee increase.",
+      "example_translations": {
+        "ru": "Обозреватель принялся гневно обличать повышение платы.",
+        "uz": "Sharhlovchi to'lov oshirilganini g'azab bilan qoralay boshladi."
+      }
+    },
+    {
+      "word": "declaim",
+      "part_of_speech": "verb",
+      "transcription": "/dɪˈkleɪm/",
+      "translation": "декламировать",
+      "translations": {
+        "ru": "декламировать",
+        "uz": "ifodali o'qimoq"
+      },
+      "example": "She began to declaim the poem in theatrical tones.",
+      "example_translations": {
+        "ru": "Она начала декламировать стихотворение с театральной интонацией.",
+        "uz": "U she'rni sahnadagidek ifodali o'qiy boshladi."
+      }
+    },
+    {
+      "word": "expatiate",
+      "part_of_speech": "verb",
+      "transcription": "/ɛkˈspeɪʃieɪt/",
+      "translation": "долго вдаваться в подробности",
+      "translations": {
+        "ru": "долго вдаваться в подробности",
+        "uz": "batafsil gapirib ketmoq"
+      },
+      "example": "He likes to expatiate on minor changes to recipes.",
+      "example_translations": {
+        "ru": "Он любит подолгу рассказывать о мелких изменениях в рецептах.",
+        "uz": "U retseptlardagi arzimas o'zgarishlar haqida ham batafsil gapirib ketishni yaxshi ko'radi."
+      }
     }
   ]
 }

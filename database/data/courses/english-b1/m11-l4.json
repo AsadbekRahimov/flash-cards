@@ -160,6 +160,81 @@
         "ru": "Ткать ковры вручную — старинное ремесло.",
         "uz": "Qo'lda gilam to'qish — qadimiy hunar."
       }
+    },
+    {
+      "word": "edition",
+      "part_of_speech": "noun",
+      "transcription": "/ɪˈdɪʃən/",
+      "translation": "издание",
+      "translations": {
+        "ru": "издание",
+        "uz": "nashr"
+      },
+      "example": "She bought the illustrated edition of her favorite novel.",
+      "example_translations": {
+        "ru": "Она купила иллюстрированное издание своего любимого романа.",
+        "uz": "U sevimli romanining rasmli nashrini sotib oldi."
+      }
+    },
+    {
+      "word": "paperback",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpeɪpərˌbæk/",
+      "translation": "книга в мягком переплёте",
+      "translations": {
+        "ru": "книга в мягком переплёте",
+        "uz": "yumshoq muqovali kitob"
+      },
+      "example": "I carried a paperback in my coat pocket.",
+      "example_translations": {
+        "ru": "Я носил книгу в мягком переплёте в кармане пальто.",
+        "uz": "Palto cho'ntagimda yumshoq muqovali kitob olib yurdim."
+      }
+    },
+    {
+      "word": "hardcover",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɑrdˌkʌvər/",
+      "translation": "книга в твёрдом переплёте",
+      "translations": {
+        "ru": "книга в твёрдом переплёте",
+        "uz": "qattiq muqovali kitob"
+      },
+      "example": "The hardcover costs more than the paperback.",
+      "example_translations": {
+        "ru": "Книга в твёрдом переплёте стоит дороже книги в мягком.",
+        "uz": "Qattiq muqovali kitob yumshoq muqovalisidan qimmatroq."
+      }
+    },
+    {
+      "word": "illustrator",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪləˌstreɪtər/",
+      "translation": "иллюстратор",
+      "translations": {
+        "ru": "иллюстратор",
+        "uz": "kitobga rasm chizuvchi"
+      },
+      "example": "An illustrator drew every picture in this book.",
+      "example_translations": {
+        "ru": "Все рисунки в этой книге сделал иллюстратор.",
+        "uz": "Bu kitobdagi barcha rasmlarni kitob uchun rasm chizadigan rassom tayyorlagan."
+      }
+    },
+    {
+      "word": "paintbrush",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpeɪntˌbrʌʃ/",
+      "translation": "кисть для рисования",
+      "translations": {
+        "ru": "кисть для рисования",
+        "uz": "mo'yqalam"
+      },
+      "example": "Use a thin paintbrush for the smallest details.",
+      "example_translations": {
+        "ru": "Для самых мелких деталей возьмите тонкую кисть.",
+        "uz": "Eng mayda detallar uchun ingichka mo'yqalam ishlating."
+      }
     }
   ]
 }

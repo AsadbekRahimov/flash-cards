@@ -160,6 +160,81 @@
         "ru": "Я катаюсь на велосипеде в парке.",
         "uz": "Parkda velosiped minaman."
       }
+    },
+    {
+      "word": "jump",
+      "part_of_speech": "verb",
+      "transcription": "/dʒʌmp/",
+      "translation": "прыгать",
+      "translations": {
+        "ru": "прыгать",
+        "uz": "sakramoq"
+      },
+      "example": "Can you jump over this puddle?",
+      "example_translations": {
+        "ru": "Умеете перепрыгивать через такую лужу?",
+        "uz": "Bu ko'lmakdan sakrab o'ta olasizmi?"
+      }
+    },
+    {
+      "word": "climb",
+      "part_of_speech": "verb",
+      "transcription": "/klaɪm/",
+      "translation": "взбираться",
+      "translations": {
+        "ru": "взбираться",
+        "uz": "tirmashib chiqmoq"
+      },
+      "example": "I can climb that tree very fast.",
+      "example_translations": {
+        "ru": "Я могу быстро взобраться на то дерево.",
+        "uz": "Anavi daraxtga juda tez tirmashib chiqa olaman."
+      }
+    },
+    {
+      "word": "slide",
+      "part_of_speech": "verb",
+      "transcription": "/slaɪd/",
+      "translation": "скользить",
+      "translations": {
+        "ru": "скользить",
+        "uz": "sirpanmoq"
+      },
+      "example": "My shoes slide on the ice.",
+      "example_translations": {
+        "ru": "Мои ботинки скользят по льду.",
+        "uz": "Oyoq kiyimim muzda sirpanadi."
+      }
+    },
+    {
+      "word": "skate",
+      "part_of_speech": "verb",
+      "transcription": "/skeɪt/",
+      "translation": "кататься на коньках",
+      "translations": {
+        "ru": "кататься на коньках",
+        "uz": "konki uchmoq"
+      },
+      "example": "We skate on the lake in winter.",
+      "example_translations": {
+        "ru": "Зимой мы катаемся на коньках на озере.",
+        "uz": "Qishda ko'lda konki uchamiz."
+      }
+    },
+    {
+      "word": "step",
+      "part_of_speech": "verb",
+      "transcription": "/stɛp/",
+      "translation": "ступать",
+      "translations": {
+        "ru": "ступать",
+        "uz": "qadam bosmoq"
+      },
+      "example": "Please step onto the bus slowly.",
+      "example_translations": {
+        "ru": "Пожалуйста, входите в автобус медленно.",
+        "uz": "Iltimos, avtobusga sekin qadam bosib chiqing."
+      }
     }
   ]
 }

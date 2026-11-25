@@ -160,6 +160,81 @@
         "ru": "Фишинг — это уловка, чтобы узнать ваш пароль.",
         "uz": "Fishing — parolingizni bilib olish uchun qilinadigan hiyla."
       }
+    },
+    {
+      "word": "cyberattack",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsaɪbərəˌtæk/",
+      "translation": "кибератака",
+      "translations": {
+        "ru": "кибератака",
+        "uz": "kiberhujum"
+      },
+      "example": "A cyberattack forced the website to close temporarily.",
+      "example_translations": {
+        "ru": "Из-за кибератаки сайт пришлось временно закрыть.",
+        "uz": "Kiberhujum tufayli saytni vaqtincha yopishga to'g'ri keldi."
+      }
+    },
+    {
+      "word": "encrypted",
+      "part_of_speech": "adjective",
+      "transcription": "/ɪnˈkrɪptɪd/",
+      "translation": "зашифрованный",
+      "translations": {
+        "ru": "зашифрованный",
+        "uz": "shifrlangan"
+      },
+      "example": "Only authorized employees can open this encrypted file.",
+      "example_translations": {
+        "ru": "Только сотрудники с разрешением могут открыть этот зашифрованный файл.",
+        "uz": "Bu shifrlangan faylni faqat ruxsat olgan xodimlar ocha oladi."
+      }
+    },
+    {
+      "word": "antivirus",
+      "part_of_speech": "noun",
+      "transcription": "/ˌæntiˈvaɪrəs/",
+      "translation": "антивирус",
+      "translations": {
+        "ru": "антивирус",
+        "uz": "antivirus dasturi"
+      },
+      "example": "Our antivirus scanned the files for harmful programs.",
+      "example_translations": {
+        "ru": "Наш антивирус проверил файлы на наличие вредоносных программ.",
+        "uz": "Antivirus dasturimiz fayllarda zararli dastur bor-yo'qligini tekshirdi."
+      }
+    },
+    {
+      "word": "impersonation",
+      "part_of_speech": "noun",
+      "transcription": "/ɪmˌpɜrsəˈneɪʃən/",
+      "translation": "выдача себя за другого",
+      "translations": {
+        "ru": "выдача себя за другого",
+        "uz": "o'zini boshqa odam qilib ko'rsatish"
+      },
+      "example": "Report online impersonation if someone uses your identity.",
+      "example_translations": {
+        "ru": "Сообщите о подмене личности, если кто-то выдаёт себя за вас в интернете.",
+        "uz": "Kimdir internetda o'zini siz deb tanishtirsa, bu haqda xabar bering."
+      }
+    },
+    {
+      "word": "cyberbullying",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsaɪbərˌbʊliɪŋ/",
+      "translation": "травля в интернете",
+      "translations": {
+        "ru": "травля в интернете",
+        "uz": "internetda tazyiq o'tkazish"
+      },
+      "example": "The school teaches students how to report cyberbullying.",
+      "example_translations": {
+        "ru": "Школа учит детей сообщать о травле в интернете.",
+        "uz": "Maktab o'quvchilarga internetdagi tazyiq haqida xabar berishni o'rgatadi."
+      }
     }
   ]
 }

@@ -160,6 +160,51 @@
         "ru": "В пустыне очень мало растительности.",
         "uz": "Cho'lda o'simlik qoplami juda siyrak."
       }
+    },
+    {
+      "word": "floodplain",
+      "part_of_speech": "noun",
+      "transcription": "/ˈflʌdˌpleɪn/",
+      "translation": "пойма реки",
+      "translations": {
+        "ru": "пойма реки",
+        "uz": "daryo qayiri"
+      },
+      "example": "The floodplain provides a habitat for many waterbirds.",
+      "example_translations": {
+        "ru": "Пойма реки служит средой обитания для многих водоплавающих птиц.",
+        "uz": "Daryo qayiri ko'plab suv qushlari uchun yashash joyidir."
+      }
+    },
+    {
+      "word": "pollination",
+      "part_of_speech": "noun",
+      "transcription": "/ˌpɑləˈneɪʃən/",
+      "translation": "опыление",
+      "translations": {
+        "ru": "опыление",
+        "uz": "changlanish"
+      },
+      "example": "Bees help with the pollination of fruit trees.",
+      "example_translations": {
+        "ru": "Пчёлы помогают в опылении плодовых деревьев.",
+        "uz": "Asalarilar mevali daraxtlarning changlanishiga yordam beradi."
+      }
+    },
+    {
+      "word": "reforestation",
+      "part_of_speech": "noun",
+      "transcription": "/riˌfɔrəˈsteɪʃən/",
+      "translation": "восстановление лесов",
+      "translations": {
+        "ru": "восстановление лесов",
+        "uz": "o'rmonlarni tiklash"
+      },
+      "example": "Reforestation brought native birds back to the area.",
+      "example_translations": {
+        "ru": "Восстановление лесов помогло местным птицам вернуться в этот район.",
+        "uz": "O'rmonlarning tiklanishi natijasida mahalliy qushlar bu hududga qaytdi."
+      }
     }
   ]
 }

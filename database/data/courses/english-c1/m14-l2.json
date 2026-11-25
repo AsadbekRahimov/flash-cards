@@ -160,6 +160,51 @@
         "ru": "Газета напечатала опровержение и извинилась за ошибку.",
         "uz": "Gazeta raddiya chop etib, xato uchun uzr so'radi."
       }
+    },
+    {
+      "word": "deepfake",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdipˌfeɪk/",
+      "translation": "дипфейк",
+      "translations": {
+        "ru": "дипфейк",
+        "uz": "sun'iy intellekt yaratgan soxta video"
+      },
+      "example": "The alleged interview turned out to be a deepfake.",
+      "example_translations": {
+        "ru": "То, что выдавали за интервью, оказалось дипфейком.",
+        "uz": "Intervyu deb ko'rsatilgan lavha sun'iy intellekt yaratgan soxta video bo'lib chiqdi."
+      }
+    },
+    {
+      "word": "debunk",
+      "part_of_speech": "verb",
+      "transcription": "/diˈbʌŋk/",
+      "translation": "разоблачать",
+      "translations": {
+        "ru": "разоблачать",
+        "uz": "asossizligini fosh qilmoq"
+      },
+      "example": "Journalists used public records to debunk the rumor.",
+      "example_translations": {
+        "ru": "Журналисты использовали открытые документы, чтобы разоблачить слух.",
+        "uz": "Jurnalistlar mish-mishning asossizligini fosh qilish uchun ochiq hujjatlardan foydalandi."
+      }
+    },
+    {
+      "word": "unverified",
+      "part_of_speech": "adjective",
+      "transcription": "/ʌnˈvɛrəˌfaɪd/",
+      "translation": "непроверенный",
+      "translations": {
+        "ru": "непроверенный",
+        "uz": "tekshirilmagan"
+      },
+      "example": "Please label any unverified claims in the report.",
+      "example_translations": {
+        "ru": "Пожалуйста, отметьте все непроверенные утверждения в докладе.",
+        "uz": "Iltimos, hisobotdagi barcha tekshirilmagan da'volarni belgilang."
+      }
     }
   ]
 }

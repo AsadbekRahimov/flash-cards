@@ -160,6 +160,81 @@
         "ru": "Председатель открыл собрание в девять часов.",
         "uz": "Rais yig'ilishni soat to'qqizda ochdi."
       }
+    },
+    {
+      "word": "managerial",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌmænəˈdʒɪriəl/",
+      "translation": "управленческий",
+      "translations": {
+        "ru": "управленческий",
+        "uz": "boshqaruvga oid"
+      },
+      "example": "Her managerial duties include training new team leaders.",
+      "example_translations": {
+        "ru": "В её управленческие обязанности входит обучение новых руководителей команд.",
+        "uz": "Uning boshqaruvga oid vazifalariga yangi jamoa rahbarlarini o'qitish kiradi."
+      }
+    },
+    {
+      "word": "empowerment",
+      "part_of_speech": "noun",
+      "transcription": "/ɪmˈpaʊərmənt/",
+      "translation": "наделение полномочиями",
+      "translations": {
+        "ru": "наделение полномочиями",
+        "uz": "vakolat berish"
+      },
+      "example": "Employee empowerment lets staff resolve complaints without approval.",
+      "example_translations": {
+        "ru": "Наделение сотрудников полномочиями позволяет им разбирать жалобы без согласования.",
+        "uz": "Xodimlarga vakolat berilsa, ular ruxsat so'ramasdan shikoyatlarni hal qila oladi."
+      }
+    },
+    {
+      "word": "cofounder",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkoʊˈfaʊndər/",
+      "translation": "соучредитель",
+      "translations": {
+        "ru": "соучредитель",
+        "uz": "hammuassis"
+      },
+      "example": "As cofounder, she helps set company goals.",
+      "example_translations": {
+        "ru": "Как соучредитель она помогает определять цели компании.",
+        "uz": "U hammuassis sifatida kompaniya maqsadlarini belgilashga yordam beradi."
+      }
+    },
+    {
+      "word": "directorship",
+      "part_of_speech": "noun",
+      "transcription": "/dəˈrɛktərˌʃɪp/",
+      "translation": "должность директора",
+      "translations": {
+        "ru": "должность директора",
+        "uz": "direktor lavozimi"
+      },
+      "example": "She accepted the directorship after leading two departments.",
+      "example_translations": {
+        "ru": "Она приняла должность директора после работы руководителем двух отделов.",
+        "uz": "Ikki bo'limga rahbarlik qilgach, u direktor lavozimini qabul qildi."
+      }
+    },
+    {
+      "word": "supervisor",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsupərˌvaɪzər/",
+      "translation": "непосредственный руководитель",
+      "translations": {
+        "ru": "непосредственный руководитель",
+        "uz": "bevosita rahbar"
+      },
+      "example": "Ask your supervisor to approve the schedule.",
+      "example_translations": {
+        "ru": "Попросите своего непосредственного руководителя утвердить график.",
+        "uz": "Bevosita rahbaringizdan jadvalni tasdiqlashini so'rang."
+      }
     }
   ]
 }

@@ -160,6 +160,81 @@
         "ru": "Постановление городских властей запрещает громкую музыку после полуночи.",
         "uz": "Shahar hokimligi qarori yarim tundan keyin baland musiqani taqiqlaydi."
       }
+    },
+    {
+      "word": "quorate",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkwɔreɪt/",
+      "translation": "имеющий кворум",
+      "translations": {
+        "ru": "имеющий кворум",
+        "uz": "kvorum yig'ilgan"
+      },
+      "example": "The meeting was quorate with six members present.",
+      "example_translations": {
+        "ru": "На заседании присутствовали шесть членов, и кворум был достигнут.",
+        "uz": "Majlisda olti a'zo qatnashdi va kvorum yig'ildi."
+      }
+    },
+    {
+      "word": "adjournment",
+      "part_of_speech": "noun",
+      "transcription": "/əˈdʒɜrnmənt/",
+      "translation": "отложение заседания",
+      "translations": {
+        "ru": "отложение заседания",
+        "uz": "majlisni keyinga qoldirish"
+      },
+      "example": "Storm warnings led to an adjournment until Thursday.",
+      "example_translations": {
+        "ru": "Из-за предупреждений о буре заседание отложили до четверга.",
+        "uz": "Bo'ron haqida ogohlantirishlar tufayli majlis payshanbagacha qoldirildi."
+      }
+    },
+    {
+      "word": "rapporteur",
+      "part_of_speech": "noun",
+      "transcription": "/ˌræpɔrˈtɜr/",
+      "translation": "докладчик",
+      "translations": {
+        "ru": "докладчик",
+        "uz": "ma'ruzachi"
+      },
+      "example": "The rapporteur presented her findings to the full committee.",
+      "example_translations": {
+        "ru": "Докладчица представила свои выводы полному составу комитета.",
+        "uz": "Ma'ruzachi xulosalarini qo'mitaning to'liq tarkibiga taqdim etdi."
+      }
+    },
+    {
+      "word": "plenary",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈplɛnəri/",
+      "translation": "пленарный",
+      "translations": {
+        "ru": "пленарный",
+        "uz": "barcha a'zolar qatnashadigan"
+      },
+      "example": "The delegates approved the resolution at a plenary session.",
+      "example_translations": {
+        "ru": "Делегаты одобрили резолюцию на пленарном заседании.",
+        "uz": "Delegatlar barcha a'zolar qatnashadigan majlisda rezolyutsiyani ma'qulladi."
+      }
+    },
+    {
+      "word": "corrigendum",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkɔrəˈdʒɛndəm/",
+      "translation": "официальное исправление",
+      "translations": {
+        "ru": "официальное исправление",
+        "uz": "e'lon qilingan tuzatish"
+      },
+      "example": "The publisher issued a corrigendum correcting the date.",
+      "example_translations": {
+        "ru": "Издатель выпустил официальное исправление с верной датой.",
+        "uz": "Nashriyot sana to'g'ri ko'rsatilgan tuzatish e'lon qildi."
+      }
     }
   ]
 }

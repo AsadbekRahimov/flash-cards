@@ -160,6 +160,81 @@
         "ru": "Она в продвинутой группе.",
         "uz": "U yuqori darajadagi guruhda o'qiydi."
       }
+    },
+    {
+      "word": "vowel",
+      "part_of_speech": "noun",
+      "transcription": "/ˈvaʊəl/",
+      "translation": "гласная",
+      "translations": {
+        "ru": "гласная",
+        "uz": "unli harf"
+      },
+      "example": "Each word on this list starts with a vowel.",
+      "example_translations": {
+        "ru": "В этом списке каждое слово начинается с гласной.",
+        "uz": "Bu ro'yxatdagi har bir so'z unli harf bilan boshlanadi."
+      }
+    },
+    {
+      "word": "consonant",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkɑnsənənt/",
+      "translation": "согласная",
+      "translations": {
+        "ru": "согласная",
+        "uz": "undosh harf"
+      },
+      "example": "This word ends with a consonant.",
+      "example_translations": {
+        "ru": "Это слово оканчивается на согласную.",
+        "uz": "Bu so'z undosh harf bilan tugaydi."
+      }
+    },
+    {
+      "word": "alphabet",
+      "part_of_speech": "noun",
+      "transcription": "/ˈælfəˌbɛt/",
+      "translation": "алфавит",
+      "translations": {
+        "ru": "алфавит",
+        "uz": "alifbo"
+      },
+      "example": "How many letters are in the English alphabet?",
+      "example_translations": {
+        "ru": "Сколько букв в английском алфавите?",
+        "uz": "Ingliz alifbosida nechta harf bor?"
+      }
+    },
+    {
+      "word": "syllable",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪləbəl/",
+      "translation": "слог",
+      "translations": {
+        "ru": "слог",
+        "uz": "bo'g'in"
+      },
+      "example": "Say each syllable of the word slowly.",
+      "example_translations": {
+        "ru": "Медленно произнесите каждый слог слова.",
+        "uz": "So'zning har bir bo'g'inini sekin talaffuz qiling."
+      }
+    },
+    {
+      "word": "punctuation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌpʌŋktʃuˈeɪʃən/",
+      "translation": "пунктуация",
+      "translations": {
+        "ru": "пунктуация",
+        "uz": "tinish belgilari"
+      },
+      "example": "Please check the punctuation in this sentence.",
+      "example_translations": {
+        "ru": "Пожалуйста, проверьте пунктуацию в этом предложении.",
+        "uz": "Iltimos, bu gapdagi tinish belgilarini tekshiring."
+      }
     }
   ]
 }

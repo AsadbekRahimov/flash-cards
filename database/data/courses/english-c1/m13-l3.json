@@ -160,6 +160,51 @@
         "ru": "Сиделка помогает моему дедушке умываться и одеваться.",
         "uz": "Parvarish qiluvchi bobomga yuvinish va kiyinishda yordam beradi."
       }
+    },
+    {
+      "word": "cohabitation",
+      "part_of_speech": "noun",
+      "transcription": "/koʊˌhæbəˈteɪʃən/",
+      "translation": "совместная жизнь без брака",
+      "translations": {
+        "ru": "совместная жизнь без брака",
+        "uz": "nikohsiz birga yashash"
+      },
+      "example": "The couple chose cohabitation before deciding about marriage.",
+      "example_translations": {
+        "ru": "Пара решила пожить вместе без брака, прежде чем решать вопрос о свадьбе.",
+        "uz": "Juftlik turmush qurish haqida qaror qilishdan oldin nikohsiz birga yashashni tanladi."
+      }
+    },
+    {
+      "word": "guardianship",
+      "part_of_speech": "noun",
+      "transcription": "/ˈgɑrdiənˌʃɪp/",
+      "translation": "опека",
+      "translations": {
+        "ru": "опека",
+        "uz": "vasiylik"
+      },
+      "example": "The aunt assumed guardianship of her young nephew.",
+      "example_translations": {
+        "ru": "Тётя взяла под опеку своего маленького племянника.",
+        "uz": "Xolasi yosh jiyanini vasiylikka oldi."
+      }
+    },
+    {
+      "word": "matriarch",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmeɪtriˌɑrk/",
+      "translation": "глава семьи из старших женщин",
+      "translations": {
+        "ru": "глава семьи из старших женщин",
+        "uz": "oilaning boshidagi keksa ayol"
+      },
+      "example": "Our grandmother was the matriarch everyone turned to.",
+      "example_translations": {
+        "ru": "Бабушка была главой семьи, к которой все обращались за советом.",
+        "uz": "Buvimiz oilaning boshida turar, hamma unga murojaat qilardi."
+      }
     }
   ]
 }

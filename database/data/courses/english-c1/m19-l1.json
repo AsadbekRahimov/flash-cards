@@ -160,6 +160,51 @@
         "ru": "По этой магистрали идёт основной поток транспорта через город.",
         "uz": "Shahardan o'tadigan transportning ko'p qismi shu magistral ko'chadan yuradi."
       }
+    },
+    {
+      "word": "infill",
+      "part_of_speech": "noun",
+      "transcription": "/ˈɪnˌfɪl/",
+      "translation": "застройка пустующих участков",
+      "translations": {
+        "ru": "застройка пустующих участков",
+        "uz": "bo'sh uchastkalarga bino qurish"
+      },
+      "example": "Urban infill adds housing without extending city boundaries.",
+      "example_translations": {
+        "ru": "Застройка пустующих участков добавляет жильё без расширения границ города.",
+        "uz": "Shahardagi bo'sh uchastkalarga uy qurish shahar chegarasini kengaytirmasdan turar joyni ko'paytiradi."
+      }
+    },
+    {
+      "word": "streetscape",
+      "part_of_speech": "noun",
+      "transcription": "/ˈstritˌskeɪp/",
+      "translation": "облик улицы",
+      "translations": {
+        "ru": "облик улицы",
+        "uz": "ko'cha qiyofasi"
+      },
+      "example": "New trees and benches transformed the downtown streetscape.",
+      "example_translations": {
+        "ru": "Новые деревья и скамейки изменили облик улиц в центре города.",
+        "uz": "Yangi daraxtlar va o'rindiqlar shahar markazidagi ko'chalar qiyofasini o'zgartirdi."
+      }
+    },
+    {
+      "word": "pedestrianize",
+      "part_of_speech": "verb",
+      "transcription": "/pəˈdɛstriəˌnaɪz/",
+      "translation": "превращать в пешеходную зону",
+      "translations": {
+        "ru": "превращать в пешеходную зону",
+        "uz": "piyodalar hududiga aylantirmoq"
+      },
+      "example": "The council plans to pedestrianize the main shopping street.",
+      "example_translations": {
+        "ru": "Городской совет планирует превратить главную торговую улицу в пешеходную зону.",
+        "uz": "Shahar kengashi asosiy savdo ko'chasini piyodalar hududiga aylantirmoqchi."
+      }
     }
   ]
 }

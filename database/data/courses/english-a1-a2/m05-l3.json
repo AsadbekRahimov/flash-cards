@@ -160,6 +160,81 @@
         "ru": "Большой грузовик на дороге.",
         "uz": "Yo'lda katta yuk mashinasi bor."
       }
+    },
+    {
+      "word": "van",
+      "part_of_speech": "noun",
+      "transcription": "/væn/",
+      "translation": "фургон",
+      "translations": {
+        "ru": "фургон",
+        "uz": "furgon"
+      },
+      "example": "We can put the boxes in the van.",
+      "example_translations": {
+        "ru": "Коробки можно положить в фургон.",
+        "uz": "Qutilarni furgonga solishimiz mumkin."
+      }
+    },
+    {
+      "word": "trolley",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtrɑli/",
+      "translation": "трамвай",
+      "translations": {
+        "ru": "трамвай",
+        "uz": "tramvay"
+      },
+      "example": "We took the trolley to the park.",
+      "example_translations": {
+        "ru": "Мы доехали до парка на трамвае.",
+        "uz": "Biz bog'ga tramvayda bordik."
+      }
+    },
+    {
+      "word": "motorbike",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmoʊtərbaɪk/",
+      "translation": "мотоцикл",
+      "translations": {
+        "ru": "мотоцикл",
+        "uz": "mototsikl"
+      },
+      "example": "He goes to work on his motorbike.",
+      "example_translations": {
+        "ru": "Он ездит на работу на мотоцикле.",
+        "uz": "U ishga mototsiklida boradi."
+      }
+    },
+    {
+      "word": "minivan",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɪniˌvæn/",
+      "translation": "минивэн",
+      "translations": {
+        "ru": "минивэн",
+        "uz": "miniven"
+      },
+      "example": "Our family went to the beach by minivan.",
+      "example_translations": {
+        "ru": "Наша семья поехала на пляж на минивэне.",
+        "uz": "Oilamiz sohilga minivenda bordi."
+      }
+    },
+    {
+      "word": "boat",
+      "part_of_speech": "noun",
+      "transcription": "/boʊt/",
+      "translation": "лодка",
+      "translations": {
+        "ru": "лодка",
+        "uz": "qayiq"
+      },
+      "example": "We took a boat across the river.",
+      "example_translations": {
+        "ru": "Мы переправились через реку на лодке.",
+        "uz": "Daryoning narigi tomoniga qayiqda o'tdik."
+      }
     }
   ]
 }

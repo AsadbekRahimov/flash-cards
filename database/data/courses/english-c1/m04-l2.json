@@ -160,6 +160,36 @@
         "ru": "Соперничество между двумя пекарнями удерживает цены низкими.",
         "uz": "Ikki novvoyxona o'rtasidagi raqiblik narxlarni past ushlab turadi."
       }
+    },
+    {
+      "word": "oversupply",
+      "part_of_speech": "noun",
+      "transcription": "/ˈoʊvərsəˌplaɪ/",
+      "translation": "избыток предложения",
+      "translations": {
+        "ru": "избыток предложения",
+        "uz": "taklifning ortib ketishi"
+      },
+      "example": "An oversupply of wheat pushed prices down.",
+      "example_translations": {
+        "ru": "Избыток предложения пшеницы привёл к снижению цен.",
+        "uz": "Bug'doy taklifi ortib ketib, narxlar tushdi."
+      }
+    },
+    {
+      "word": "outbid",
+      "part_of_speech": "verb",
+      "transcription": "/ˌaʊtˈbɪd/",
+      "translation": "перебивать ставку",
+      "translations": {
+        "ru": "перебивать ставку",
+        "uz": "yuqoriroq narx taklif qilmoq"
+      },
+      "example": "Local dealers rarely outbid national chains at auctions.",
+      "example_translations": {
+        "ru": "На аукционах местные продавцы редко перебивают ставки общенациональных сетей.",
+        "uz": "Mahalliy sotuvchilar kimoshdi savdosida yirik savdo tarmoqlaridan kamdan-kam yuqoriroq narx taklif qilishadi."
+      }
     }
   ]
 }

@@ -160,6 +160,51 @@
         "ru": "Я получил от них хорошее предложение.",
         "uz": "Men ulardan yaxshi taklif oldim."
       }
+    },
+    {
+      "word": "retailer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈriˌteɪlər/",
+      "translation": "розничный продавец",
+      "translations": {
+        "ru": "розничный продавец",
+        "uz": "chakana sotuvchi"
+      },
+      "example": "A local retailer sells our bags online.",
+      "example_translations": {
+        "ru": "Местный розничный продавец продаёт наши сумки через интернет.",
+        "uz": "Mahalliy chakana sotuvchi sumkalarimizni internet orqali sotadi."
+      }
+    },
+    {
+      "word": "trader",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtreɪdər/",
+      "translation": "торговец",
+      "translations": {
+        "ru": "торговец",
+        "uz": "savdogar"
+      },
+      "example": "A local trader sells fruit at the market.",
+      "example_translations": {
+        "ru": "Местный торговец продаёт фрукты на рынке.",
+        "uz": "Mahalliy savdogar bozorda meva sotadi."
+      }
+    },
+    {
+      "word": "successful",
+      "part_of_speech": "adjective",
+      "transcription": "/səkˈsɛsfəl/",
+      "translation": "успешный",
+      "translations": {
+        "ru": "успешный",
+        "uz": "muvaffaqiyatli"
+      },
+      "example": "They built a successful business selling clothes.",
+      "example_translations": {
+        "ru": "Они создали успешный бизнес по продаже одежды.",
+        "uz": "Ular kiyim sotish bo'yicha muvaffaqiyatli biznes qurdilar."
+      }
     }
   ]
 }

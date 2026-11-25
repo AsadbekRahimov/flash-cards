@@ -160,6 +160,81 @@
         "ru": "Мы с братом одного роста.",
         "uz": "Akam bilan bo'yimiz bir xil."
       }
+    },
+    {
+      "word": "freckle",
+      "part_of_speech": "noun",
+      "transcription": "/ˈfrɛkəl/",
+      "translation": "веснушка",
+      "translations": {
+        "ru": "веснушка",
+        "uz": "sepkil"
+      },
+      "example": "She has a tiny freckle on her nose.",
+      "example_translations": {
+        "ru": "У неё на носу крошечная веснушка.",
+        "uz": "Uning burnida kichkina sepkil bor."
+      }
+    },
+    {
+      "word": "ponytail",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpoʊniˌteɪl/",
+      "translation": "конский хвост",
+      "translations": {
+        "ru": "конский хвост",
+        "uz": "ot dumi shaklidagi soch turmagi"
+      },
+      "example": "She wears a ponytail during dance class.",
+      "example_translations": {
+        "ru": "На занятиях танцами она собирает волосы в конский хвост.",
+        "uz": "U raqs mashg'ulotlarida sochini ot dumi shaklida yig'ib oladi."
+      }
+    },
+    {
+      "word": "dimple",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɪmpəl/",
+      "translation": "ямочка на щеке",
+      "translations": {
+        "ru": "ямочка на щеке",
+        "uz": "yonoqdagi chuqurcha"
+      },
+      "example": "A dimple appears on his cheek when he smiles.",
+      "example_translations": {
+        "ru": "Когда он улыбается, у него на щеке появляется ямочка.",
+        "uz": "U jilmayganda yonog'ida chuqurcha paydo bo'ladi."
+      }
+    },
+    {
+      "word": "mustache",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmʌstæʃ/",
+      "translation": "усы",
+      "translations": {
+        "ru": "усы",
+        "uz": "mo'ylov"
+      },
+      "example": "Dad grew a mustache over the summer.",
+      "example_translations": {
+        "ru": "За лето папа отрастил усы.",
+        "uz": "Dadam yoz davomida mo'ylov qo'ydi."
+      }
+    },
+    {
+      "word": "baldness",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɔldnəs/",
+      "translation": "облысение",
+      "translations": {
+        "ru": "облысение",
+        "uz": "kallik"
+      },
+      "example": "Early baldness runs in his family.",
+      "example_translations": {
+        "ru": "В его семье часто встречается раннее облысение.",
+        "uz": "Uning oilasida sochning erta to'kilib, kal bo'lib qolishi ko'p uchraydi."
+      }
     }
   ]
 }

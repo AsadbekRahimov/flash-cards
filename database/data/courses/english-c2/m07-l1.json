@@ -160,6 +160,66 @@
         "ru": "Осенние листья пылали всеми оттенками красного.",
         "uz": "Kuzgi barglar qizil rangning barcha tuslarida yonardi."
       }
+    },
+    {
+      "word": "opalescent",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌoʊpəˈlɛsənt/",
+      "translation": "опалово-переливчатый",
+      "translations": {
+        "ru": "опалово-переливчатый",
+        "uz": "opal kabi tovlanadigan"
+      },
+      "example": "An opalescent haze lay over the water at dawn.",
+      "example_translations": {
+        "ru": "На рассвете над водой стояла опалово-переливчатая дымка.",
+        "uz": "Tongda suv yuzini opal kabi tovlanadigan tuman qopladi."
+      }
+    },
+    {
+      "word": "lambent",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈlæmbənt/",
+      "translation": "мягко мерцающий",
+      "translations": {
+        "ru": "мягко мерцающий",
+        "uz": "mayin miltillovchi"
+      },
+      "example": "Lambent candlelight moved across the dark ceiling.",
+      "example_translations": {
+        "ru": "Мягко мерцающий свет свечей скользил по тёмному потолку.",
+        "uz": "Shamlarning mayin miltillovchi nuri qorong'i shift bo'ylab siljirdi."
+      }
+    },
+    {
+      "word": "penumbra",
+      "part_of_speech": "noun",
+      "transcription": "/pɪˈnʌmbrə/",
+      "translation": "полутень",
+      "translations": {
+        "ru": "полутень",
+        "uz": "yarim soya"
+      },
+      "example": "The hallway slowly faded into penumbra at dusk.",
+      "example_translations": {
+        "ru": "В сумерках коридор постепенно погрузился в полутень.",
+        "uz": "G'ira-shirada yo'lak asta-sekin yarim soyaga burkandi."
+      }
+    },
+    {
+      "word": "tenebrous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈtɛnəbrəs/",
+      "translation": "мрачный, тёмный",
+      "translations": {
+        "ru": "мрачный, тёмный",
+        "uz": "zimiston"
+      },
+      "example": "They entered a tenebrous passage beneath the stone stairs.",
+      "example_translations": {
+        "ru": "Они вошли в мрачный тёмный проход под каменной лестницей.",
+        "uz": "Ular tosh zinapoya ostidagi zimiston yo'lakka kirdilar."
+      }
     }
   ]
 }

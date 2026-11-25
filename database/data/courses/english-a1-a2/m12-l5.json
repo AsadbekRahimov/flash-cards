@@ -160,6 +160,66 @@
         "ru": "Этот аппарат готовит горячий кофе.",
         "uz": "Bu apparat issiq qahva tayyorlaydi."
       }
+    },
+    {
+      "word": "smartwatch",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsmɑrtˌwɑtʃ/",
+      "translation": "умные часы",
+      "translations": {
+        "ru": "умные часы",
+        "uz": "aqlli soat"
+      },
+      "example": "My smartwatch tells me how far I walk.",
+      "example_translations": {
+        "ru": "Умные часы показывают, сколько я прошёл.",
+        "uz": "Aqlli soatim qancha masofa yurganimni ko'rsatadi."
+      }
+    },
+    {
+      "word": "touchscreen",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtʌtʃˌskrin/",
+      "translation": "сенсорный экран",
+      "translations": {
+        "ru": "сенсорный экран",
+        "uz": "sensorli ekran"
+      },
+      "example": "This new car has a large touchscreen.",
+      "example_translations": {
+        "ru": "У этой новой машины большой сенсорный экран.",
+        "uz": "Bu yangi mashinada katta sensorli ekran bor."
+      }
+    },
+    {
+      "word": "headset",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɛdˌsɛt/",
+      "translation": "гарнитура",
+      "translations": {
+        "ru": "гарнитура",
+        "uz": "mikrofonli quloqchin"
+      },
+      "example": "She uses a headset for video calls.",
+      "example_translations": {
+        "ru": "Для видеозвонков она пользуется гарнитурой.",
+        "uz": "U videoqo'ng'iroqlar uchun mikrofonli quloqchin ishlatadi."
+      }
+    },
+    {
+      "word": "hologram",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhɑləˌgræm/",
+      "translation": "голограмма",
+      "translations": {
+        "ru": "голограмма",
+        "uz": "gologramma"
+      },
+      "example": "We saw a hologram of the moon.",
+      "example_translations": {
+        "ru": "Мы увидели голограмму Луны.",
+        "uz": "Oyning gologrammasini ko'rdik."
+      }
     }
   ]
 }

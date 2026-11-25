@@ -160,6 +160,51 @@
         "ru": "Заявление подсудимого о невиновности удивило весь зал суда.",
         "uz": "Sudlanuvchining aybsizlik haqidagi bayonoti butun sud zalini hayratga soldi."
       }
+    },
+    {
+      "word": "procedural",
+      "part_of_speech": "adjective",
+      "transcription": "/prəˈsidʒərəl/",
+      "translation": "процессуальный",
+      "translations": {
+        "ru": "процессуальный",
+        "uz": "sud tartibiga oid"
+      },
+      "example": "A procedural error forced the judge to reschedule.",
+      "example_translations": {
+        "ru": "Из-за процессуальной ошибки судье пришлось перенести заседание.",
+        "uz": "Sud tartibiga oid xato tufayli sudya majlisni boshqa kunga ko'chirishga majbur bo'ldi."
+      }
+    },
+    {
+      "word": "admissibility",
+      "part_of_speech": "noun",
+      "transcription": "/ədˌmɪsəˈbɪləti/",
+      "translation": "допустимость",
+      "translations": {
+        "ru": "допустимость",
+        "uz": "qabul qilish mumkinligi"
+      },
+      "example": "Lawyers questioned the admissibility of the audio recording.",
+      "example_translations": {
+        "ru": "Юристы усомнились в допустимости аудиозаписи как доказательства.",
+        "uz": "Huquqshunoslar ovoz yozuvini dalil sifatida qabul qilish mumkinligiga shubha bildirdi."
+      }
+    },
+    {
+      "word": "mistrial",
+      "part_of_speech": "noun",
+      "transcription": "/ˈmɪsˌtraɪəl/",
+      "translation": "несостоявшийся судебный процесс",
+      "translations": {
+        "ru": "несостоявшийся судебный процесс",
+        "uz": "natijasiz tugagan sud jarayoni"
+      },
+      "example": "A hung jury led to a mistrial.",
+      "example_translations": {
+        "ru": "Присяжные не смогли договориться, и судебный процесс признали несостоявшимся.",
+        "uz": "Hakamlar hay'ati bir qarorga kela olmadi va sud jarayoni natijasiz tugadi."
+      }
     }
   ]
 }

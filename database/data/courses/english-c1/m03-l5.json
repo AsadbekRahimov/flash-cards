@@ -160,6 +160,36 @@
         "ru": "Кассирам нужна базовая математическая грамотность, чтобы правильно давать сдачу.",
         "uz": "Kassirlarga qaytimni to'g'ri berish uchun oddiy matematik savodxonlik kerak."
       }
+    },
+    {
+      "word": "conscientiously",
+      "part_of_speech": "adverb",
+      "transcription": "/ˌkɑnʃiˈɛnʃəsli/",
+      "translation": "добросовестно",
+      "translations": {
+        "ru": "добросовестно",
+        "uz": "vijdonan"
+      },
+      "example": "Our trainee conscientiously checks every figure before submission.",
+      "example_translations": {
+        "ru": "Наш стажёр добросовестно проверяет каждую цифру перед сдачей работы.",
+        "uz": "Amaliyotchimiz ishni topshirishdan oldin har bir raqamni vijdonan tekshiradi."
+      }
+    },
+    {
+      "word": "enterprising",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈɛntərˌpraɪzɪŋ/",
+      "translation": "предприимчивый",
+      "translations": {
+        "ru": "предприимчивый",
+        "uz": "tashabbuskor"
+      },
+      "example": "An enterprising clerk found new buyers for surplus stock.",
+      "example_translations": {
+        "ru": "Предприимчивый сотрудник нашёл новых покупателей на излишки товара.",
+        "uz": "Tashabbuskor xodim ortib qolgan tovarga yangi xaridorlar topdi."
+      }
     }
   ]
 }

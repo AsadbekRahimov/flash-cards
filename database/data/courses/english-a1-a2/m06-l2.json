@@ -160,6 +160,81 @@
         "ru": "Его брюки чёрные.",
         "uz": "Uning shimi qora."
       }
+    },
+    {
+      "word": "cap",
+      "part_of_speech": "noun",
+      "transcription": "/kæp/",
+      "translation": "кепка",
+      "translations": {
+        "ru": "кепка",
+        "uz": "kepka"
+      },
+      "example": "He wears a blue cap to school.",
+      "example_translations": {
+        "ru": "Он ходит в школу в синей кепке.",
+        "uz": "U maktabga ko'k kepka kiyib boradi."
+      }
+    },
+    {
+      "word": "sweater",
+      "part_of_speech": "noun",
+      "transcription": "/ˈswɛtər/",
+      "translation": "свитер",
+      "translations": {
+        "ru": "свитер",
+        "uz": "sviter"
+      },
+      "example": "This sweater is warm and soft.",
+      "example_translations": {
+        "ru": "Этот свитер тёплый и мягкий.",
+        "uz": "Bu sviter issiq va yumshoq."
+      }
+    },
+    {
+      "word": "shorts",
+      "part_of_speech": "noun",
+      "transcription": "/ʃɔrts/",
+      "translation": "шорты",
+      "translations": {
+        "ru": "шорты",
+        "uz": "kalta shim"
+      },
+      "example": "I wear shorts when it is hot.",
+      "example_translations": {
+        "ru": "Когда жарко, я ношу шорты.",
+        "uz": "Havo issiq bo'lsa, kalta shim kiyaman."
+      }
+    },
+    {
+      "word": "pajamas",
+      "part_of_speech": "noun",
+      "transcription": "/pəˈdʒɑməz/",
+      "translation": "пижама",
+      "translations": {
+        "ru": "пижама",
+        "uz": "pijama"
+      },
+      "example": "Where are my green pajamas?",
+      "example_translations": {
+        "ru": "Где моя зелёная пижама?",
+        "uz": "Yashil pijamam qayerda?"
+      }
+    },
+    {
+      "word": "hoodie",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhʊdi/",
+      "translation": "толстовка с капюшоном",
+      "translations": {
+        "ru": "толстовка с капюшоном",
+        "uz": "kapyushonli sviter"
+      },
+      "example": "She wears a gray hoodie at home.",
+      "example_translations": {
+        "ru": "Дома она носит серую толстовку с капюшоном.",
+        "uz": "U uyda kulrang kapyushonli sviter kiyadi."
+      }
     }
   ]
 }

@@ -160,6 +160,66 @@
         "ru": "Посредством диалектики противоположные взгляды рождают более глубокую истину.",
         "uz": "Dialektika orqali qarama-qarshi qarashlar chuqurroq haqiqatni yuzaga chiqaradi."
       }
+    },
+    {
+      "word": "abduction",
+      "part_of_speech": "noun",
+      "transcription": "/æbˈdʌkʃən/",
+      "translation": "умозаключение к лучшему объяснению",
+      "translations": {
+        "ru": "умозаключение к лучшему объяснению",
+        "uz": "eng yaxshi izohga tayangan xulosa"
+      },
+      "example": "Through abduction, we choose the likeliest explanation for observations.",
+      "example_translations": {
+        "ru": "При умозаключении к лучшему объяснению мы выбираем наиболее вероятное объяснение наблюдений.",
+        "uz": "Eng yaxshi izohga tayangan xulosada kuzatuvlar uchun eng ehtimolli izoh tanlanadi."
+      }
+    },
+    {
+      "word": "inferential",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌɪnfəˈrɛnʃəl/",
+      "translation": "основанный на умозаключении",
+      "translations": {
+        "ru": "основанный на умозаключении",
+        "uz": "xulosa chiqarishga asoslangan"
+      },
+      "example": "Her inferential reasoning connected the footprints to recent visitors.",
+      "example_translations": {
+        "ru": "С помощью умозаключения она связала следы с недавними посетителями.",
+        "uz": "U fikr yuritib, oyoq izlarini yaqinda kelgan odamlarga bog'lab xulosa chiqardi."
+      }
+    },
+    {
+      "word": "presuppose",
+      "part_of_speech": "verb",
+      "transcription": "/ˌprisəˈpoʊz/",
+      "translation": "предполагать заранее",
+      "translations": {
+        "ru": "предполагать заранее",
+        "uz": "oldindan faraz qilmoq"
+      },
+      "example": "Both arguments presuppose that the measurements are accurate.",
+      "example_translations": {
+        "ru": "Оба аргумента заранее предполагают, что измерения точны.",
+        "uz": "Har ikki dalil o'lchovlar aniq deb oldindan faraz qiladi."
+      }
+    },
+    {
+      "word": "discernment",
+      "part_of_speech": "noun",
+      "transcription": "/dɪˈsɜrnmənt/",
+      "translation": "проницательность",
+      "translations": {
+        "ru": "проницательность",
+        "uz": "farosat"
+      },
+      "example": "We need discernment to distinguish coincidence from genuine patterns.",
+      "example_translations": {
+        "ru": "Нужна проницательность, чтобы отличить совпадение от настоящей закономерности.",
+        "uz": "Tasodifni haqiqiy qonuniyatdan ajratish uchun farosat kerak."
+      }
     }
   ]
 }

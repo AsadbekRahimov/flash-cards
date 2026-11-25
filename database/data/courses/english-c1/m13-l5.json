@@ -160,6 +160,51 @@
         "ru": "Соседи вместе выращивают овощи в общем саду.",
         "uz": "Qo'shnilar umumiy bog'da birgalikda sabzavot yetishtiradi."
       }
+    },
+    {
+      "word": "bequest",
+      "part_of_speech": "noun",
+      "transcription": "/bɪˈkwɛst/",
+      "translation": "завещанный дар",
+      "translations": {
+        "ru": "завещанный дар",
+        "uz": "vasiyat qilingan hadya"
+      },
+      "example": "A generous bequest allowed the charity to expand.",
+      "example_translations": {
+        "ru": "Щедрый завещанный дар позволил благотворительной организации расширить деятельность.",
+        "uz": "Vasiyat qilingan saxiy hadya xayriya tashkilotiga faoliyatini kengaytirish imkonini berdi."
+      }
+    },
+    {
+      "word": "endow",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈdaʊ/",
+      "translation": "финансировать через целевой фонд",
+      "translations": {
+        "ru": "финансировать через целевой фонд",
+        "uz": "maqsadli jamg'arma bilan ta'minlamoq"
+      },
+      "example": "Several alumni agreed to endow a new scholarship.",
+      "example_translations": {
+        "ru": "Несколько выпускников согласились финансировать новую стипендию через целевой фонд.",
+        "uz": "Bir nechta bitiruvchi yangi stipendiyani maqsadli jamg'arma orqali moliyalashtirishga rozi bo'ldi."
+      }
+    },
+    {
+      "word": "crowdfunding",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkraʊdˌfʌndɪŋ/",
+      "translation": "коллективный сбор средств",
+      "translations": {
+        "ru": "коллективный сбор средств",
+        "uz": "ko'pchilikdan mablag' yig'ish"
+      },
+      "example": "Through crowdfunding, volunteers financed the new community garden.",
+      "example_translations": {
+        "ru": "Благодаря коллективному сбору средств волонтёры профинансировали создание нового общественного сада.",
+        "uz": "Ko'pchilikdan mablag' yig'ib, ko'ngillilar yangi jamoat bog'i xarajatlarini qopladi."
+      }
     }
   ]
 }

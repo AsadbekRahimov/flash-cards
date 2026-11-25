@@ -160,6 +160,81 @@
         "ru": "Несмотря на дождь, у всех было жизнерадостное настроение.",
         "uz": "Yomg'irga qaramay, hamma xushchaqchaq kayfiyatda edi."
       }
+    },
+    {
+      "word": "jubilation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdʒubəˈleɪʃən/",
+      "translation": "ликование",
+      "translations": {
+        "ru": "ликование",
+        "uz": "jo'shqin shodlik"
+      },
+      "example": "The final result sparked jubilation among the waiting crowd.",
+      "example_translations": {
+        "ru": "Окончательный результат вызвал ликование в толпе, которая его ждала.",
+        "uz": "Yakuniy natija e'lon qilingach, kutib turgan olomon quvonchdan jo'shib ketdi."
+      }
+    },
+    {
+      "word": "rapturous",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈræptʃərəs/",
+      "translation": "восторженный",
+      "translations": {
+        "ru": "восторженный",
+        "uz": "jo'shqin va zavqqa to'la"
+      },
+      "example": "The young violinist received rapturous applause after her solo.",
+      "example_translations": {
+        "ru": "После сольного выступления юной скрипачке восторженно аплодировали.",
+        "uz": "Yosh skripkachining yakkaxon ijrosidan so'ng zal gulduros qarsaklarga to'ldi."
+      }
+    },
+    {
+      "word": "enrapture",
+      "part_of_speech": "verb",
+      "transcription": "/ɪnˈræptʃər/",
+      "translation": "приводить в восторг",
+      "translations": {
+        "ru": "приводить в восторг",
+        "uz": "maftun qilmoq"
+      },
+      "example": "A truly gifted storyteller can enrapture an entire room.",
+      "example_translations": {
+        "ru": "По-настоящему одарённый рассказчик может привести в восторг весь зал.",
+        "uz": "Chinakam iste'dodli hikoyachi butun zalni maftun qila oladi."
+      }
+    },
+    {
+      "word": "delectation",
+      "part_of_speech": "noun",
+      "transcription": "/ˌdilɛkˈteɪʃən/",
+      "translation": "наслаждение",
+      "translations": {
+        "ru": "наслаждение",
+        "uz": "huzur-halovat"
+      },
+      "example": "We prepared these delicate pastries for our guests' delectation.",
+      "example_translations": {
+        "ru": "Мы приготовили эту изысканную выпечку, чтобы гости ею насладились.",
+        "uz": "Mehmonlar huzur qilib tanovul qilsin deb, bu nafis pishiriqlarni tayyorladik."
+      }
+    },
+    {
+      "word": "gleeful",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈglifəl/",
+      "translation": "радостно возбуждённый",
+      "translations": {
+        "ru": "радостно возбуждённый",
+        "uz": "quvonchga to'lgan"
+      },
+      "example": "The children gave a gleeful shout at the surprise.",
+      "example_translations": {
+        "ru": "Увидев сюрприз, дети радостно закричали.",
+        "uz": "Bolalar kutilmagan sovg'ani ko'rib, quvonchdan qichqirib yubordi."
+      }
     }
   ]
 }

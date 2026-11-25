@@ -160,6 +160,81 @@
         "ru": "Наша школьная форма тёмно-синяя.",
         "uz": "Maktab formamiz to'q ko'k."
       }
+    },
+    {
+      "word": "preschool",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpriˌskul/",
+      "translation": "дошкольное учреждение",
+      "translations": {
+        "ru": "дошкольное учреждение",
+        "uz": "maktabgacha ta'lim muassasasi"
+      },
+      "example": "My little sister goes to preschool.",
+      "example_translations": {
+        "ru": "Моя младшая сестра ходит в дошкольное учреждение.",
+        "uz": "Kichik singlim maktabgacha ta'lim muassasasiga qatnaydi."
+      }
+    },
+    {
+      "word": "recess",
+      "part_of_speech": "noun",
+      "transcription": "/ˈrisɛs/",
+      "translation": "школьная перемена",
+      "translations": {
+        "ru": "школьная перемена",
+        "uz": "maktabdagi tanaffus"
+      },
+      "example": "We play outside at recess every day.",
+      "example_translations": {
+        "ru": "Мы каждый день играем на улице во время перемены.",
+        "uz": "Har kuni maktabdagi tanaffusda tashqarida o'ynaymiz."
+      }
+    },
+    {
+      "word": "schoolyard",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskulˌjɑrd/",
+      "translation": "школьный двор",
+      "translations": {
+        "ru": "школьный двор",
+        "uz": "maktab hovlisi"
+      },
+      "example": "Our class meets in the schoolyard before lunch.",
+      "example_translations": {
+        "ru": "Наш класс собирается в школьном дворе перед обедом.",
+        "uz": "Sinfimiz tushlikdan oldin maktab hovlisida yig'iladi."
+      }
+    },
+    {
+      "word": "schoolwork",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskulˌwərk/",
+      "translation": "школьные задания",
+      "translations": {
+        "ru": "школьные задания",
+        "uz": "maktab topshiriqlari"
+      },
+      "example": "Finish your schoolwork before you play outside.",
+      "example_translations": {
+        "ru": "На улицу играть пойдёшь, когда закончишь школьные задания.",
+        "uz": "Tashqarida o'ynashdan oldin maktab topshiriqlaringni tugat."
+      }
+    },
+    {
+      "word": "cafeteria",
+      "part_of_speech": "noun",
+      "transcription": "/ˌkæfəˈtɪriə/",
+      "translation": "столовая",
+      "translations": {
+        "ru": "столовая",
+        "uz": "maktab oshxonasi"
+      },
+      "example": "We have lunch in the school cafeteria.",
+      "example_translations": {
+        "ru": "Мы обедаем в школьной столовой.",
+        "uz": "Maktab oshxonasida tushlik qilamiz."
+      }
     }
   ]
 }

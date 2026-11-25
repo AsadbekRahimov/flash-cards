@@ -160,6 +160,81 @@
         "ru": "Мы платим налог с дохода.",
         "uz": "Biz daromadimizdan soliq to'laymiz."
       }
+    },
+    {
+      "word": "teller",
+      "part_of_speech": "noun",
+      "transcription": "/ˈtɛlər/",
+      "translation": "кассир в банке",
+      "translations": {
+        "ru": "кассир в банке",
+        "uz": "bank kassiri"
+      },
+      "example": "I gave the check to the teller.",
+      "example_translations": {
+        "ru": "Я передал чек кассиру в банке.",
+        "uz": "Chekni bank kassiriga berdim."
+      }
+    },
+    {
+      "word": "atm",
+      "part_of_speech": "noun",
+      "transcription": "/ˌeɪtiˈɛm/",
+      "translation": "банкомат",
+      "translations": {
+        "ru": "банкомат",
+        "uz": "bankomat"
+      },
+      "example": "Is there an ATM near this hotel?",
+      "example_translations": {
+        "ru": "Рядом с этой гостиницей есть банкомат?",
+        "uz": "Bu mehmonxona yaqinida bankomat bormi?"
+      }
+    },
+    {
+      "word": "funds",
+      "part_of_speech": "noun",
+      "transcription": "/fʌndz/",
+      "translation": "денежные средства",
+      "translations": {
+        "ru": "денежные средства",
+        "uz": "mablag'"
+      },
+      "example": "We need more funds to open the store.",
+      "example_translations": {
+        "ru": "Нам нужно больше денежных средств, чтобы открыть магазин.",
+        "uz": "Do'kon ochish uchun ko'proq mablag' kerak."
+      }
+    },
+    {
+      "word": "cashless",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈkæʃləs/",
+      "translation": "безналичный",
+      "translations": {
+        "ru": "безналичный",
+        "uz": "naqdsiz"
+      },
+      "example": "This store only takes cashless payments.",
+      "example_translations": {
+        "ru": "В этом магазине принимают только безналичную оплату.",
+        "uz": "Bu do'kon faqat naqdsiz to'lovlarni qabul qiladi."
+      }
+    },
+    {
+      "word": "debit",
+      "part_of_speech": "noun",
+      "transcription": "/ˈdɛbɪt/",
+      "translation": "списание со счёта",
+      "translations": {
+        "ru": "списание со счёта",
+        "uz": "hisobdan yechilgan mablag'"
+      },
+      "example": "I found an unexpected debit on my account.",
+      "example_translations": {
+        "ru": "Я обнаружил неожиданное списание со своего счёта.",
+        "uz": "Hisobimdan kutilmaganda mablag' yechilganini bildim."
+      }
     }
   ]
 }

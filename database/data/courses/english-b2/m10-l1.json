@@ -160,6 +160,66 @@
         "ru": "Какой издатель напечатал вашу первую книгу?",
         "uz": "Birinchi kitobingizni qaysi noshir chop etgan?"
       }
+    },
+    {
+      "word": "byline",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbaɪˌlaɪn/",
+      "translation": "подпись автора",
+      "translations": {
+        "ru": "подпись автора",
+        "uz": "muallif imzosi"
+      },
+      "example": "Her name appeared in the byline of the article.",
+      "example_translations": {
+        "ru": "Её имя было указано в подписи автора статьи.",
+        "uz": "Uning ismi maqolaning muallif imzosida ko'rsatilgan edi."
+      }
+    },
+    {
+      "word": "newsworthy",
+      "part_of_speech": "adjective",
+      "transcription": "/ˈnuzˌwɜrði/",
+      "translation": "достойный освещения в СМИ",
+      "translations": {
+        "ru": "достойный освещения в СМИ",
+        "uz": "xabarlarda yoritishga arzigulik"
+      },
+      "example": "The editor found the discovery newsworthy.",
+      "example_translations": {
+        "ru": "Редактор счёл открытие достойным освещения в СМИ.",
+        "uz": "Muharrir kashfiyotni xabarlarda yoritishga arzigulik deb topdi."
+      }
+    },
+    {
+      "word": "broadcaster",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbrɔdˌkæstər/",
+      "translation": "телерадиокомпания",
+      "translations": {
+        "ru": "телерадиокомпания",
+        "uz": "teleradiokompaniya"
+      },
+      "example": "The local broadcaster aired a report about flooding.",
+      "example_translations": {
+        "ru": "Местная телерадиокомпания выпустила репортаж о наводнении.",
+        "uz": "Mahalliy teleradiokompaniya suv toshqini haqidagi reportajni efirga uzatdi."
+      }
+    },
+    {
+      "word": "newsstand",
+      "part_of_speech": "noun",
+      "transcription": "/ˈnuzˌstænd/",
+      "translation": "газетный киоск",
+      "translations": {
+        "ru": "газетный киоск",
+        "uz": "gazeta do'koni"
+      },
+      "example": "The reporter bought a paper at the newsstand.",
+      "example_translations": {
+        "ru": "Репортёр купил газету в газетном киоске.",
+        "uz": "Muxbir gazeta do'konidan gazeta sotib oldi."
+      }
     }
   ]
 }

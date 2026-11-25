@@ -160,6 +160,66 @@
         "ru": "В частных школах классы обычно меньше.",
         "uz": "Xususiy maktablarda sinflar odatda kichikroq bo'ladi."
       }
+    },
+    {
+      "word": "homeschooling",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhoʊmˌskulɪŋ/",
+      "translation": "домашнее обучение",
+      "translations": {
+        "ru": "домашнее обучение",
+        "uz": "uyda ta'lim olish"
+      },
+      "example": "Some families choose homeschooling instead of formal schooling.",
+      "example_translations": {
+        "ru": "Некоторые семьи выбирают домашнее обучение вместо школы.",
+        "uz": "Ayrim oilalar maktabga borish o'rniga uyda ta'lim olishni tanlaydi."
+      }
+    },
+    {
+      "word": "schooling",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskulɪŋ/",
+      "translation": "школьное образование",
+      "translations": {
+        "ru": "школьное образование",
+        "uz": "maktab ta'limi"
+      },
+      "example": "She received most of her schooling at home.",
+      "example_translations": {
+        "ru": "Бо́льшую часть школьного образования она получила дома.",
+        "uz": "U maktab ta'limining ko'p qismini uyda oldi."
+      }
+    },
+    {
+      "word": "sophomore",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɑfəmɔr/",
+      "translation": "студент второго курса",
+      "translations": {
+        "ru": "студент второго курса",
+        "uz": "ikkinchi kurs talabasi"
+      },
+      "example": "As a sophomore, she joined the university debate team.",
+      "example_translations": {
+        "ru": "На втором курсе она вступила в университетскую команду по дебатам.",
+        "uz": "Ikkinchi kursda u universitetning munozara jamoasiga qo'shildi."
+      }
+    },
+    {
+      "word": "schoolhouse",
+      "part_of_speech": "noun",
+      "transcription": "/ˈskulˌhaʊs/",
+      "translation": "здание школы",
+      "translations": {
+        "ru": "здание школы",
+        "uz": "maktab binosi"
+      },
+      "example": "Their village has an old wooden schoolhouse.",
+      "example_translations": {
+        "ru": "В их деревне есть старое деревянное здание школы.",
+        "uz": "Ularning qishlog'ida eski yog'och maktab binosi bor."
+      }
     }
   ]
 }

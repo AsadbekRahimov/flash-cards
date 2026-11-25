@@ -160,6 +160,81 @@
         "ru": "В понедельник я иду к стоматологу.",
         "uz": "Men dushanba kuni tish shifokoriga boraman."
       }
+    },
+    {
+      "word": "baker",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbeɪkər/",
+      "translation": "пекарь",
+      "translations": {
+        "ru": "пекарь",
+        "uz": "novvoy"
+      },
+      "example": "The baker makes bread every morning.",
+      "example_translations": {
+        "ru": "Пекарь печёт хлеб каждое утро.",
+        "uz": "Novvoy har kuni ertalab non yopadi."
+      }
+    },
+    {
+      "word": "barber",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbɑrbər/",
+      "translation": "мужской парикмахер",
+      "translations": {
+        "ru": "мужской парикмахер",
+        "uz": "erkaklar sartaroshi"
+      },
+      "example": "I asked the barber for a haircut.",
+      "example_translations": {
+        "ru": "Я попросил мужского парикмахера меня подстричь.",
+        "uz": "Erkaklar sartaroshidan sochimni olishni so'radim."
+      }
+    },
+    {
+      "word": "librarian",
+      "part_of_speech": "noun",
+      "transcription": "/laɪˈbrɛriən/",
+      "translation": "библиотекарь",
+      "translations": {
+        "ru": "библиотекарь",
+        "uz": "kutubxonachi"
+      },
+      "example": "The librarian helped me find a book.",
+      "example_translations": {
+        "ru": "Библиотекарь помог мне найти книгу.",
+        "uz": "Kutubxonachi kitob topishimga yordam berdi."
+      }
+    },
+    {
+      "word": "singer",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsɪŋər/",
+      "translation": "певец",
+      "translations": {
+        "ru": "певец",
+        "uz": "xonanda"
+      },
+      "example": "The singer has a beautiful voice.",
+      "example_translations": {
+        "ru": "У певца красивый голос.",
+        "uz": "Xonandaning ovozi chiroyli."
+      }
+    },
+    {
+      "word": "babysitter",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbeɪbiˌsɪtər/",
+      "translation": "няня на вечер",
+      "translations": {
+        "ru": "няня на вечер",
+        "uz": "enaga"
+      },
+      "example": "The babysitter will come after dinner today.",
+      "example_translations": {
+        "ru": "Няня придёт сегодня после ужина.",
+        "uz": "Enaga bugun kechki ovqatdan keyin keladi."
+      }
     }
   ]
 }

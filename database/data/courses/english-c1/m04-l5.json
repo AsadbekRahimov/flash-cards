@@ -160,6 +160,36 @@
         "ru": "Покупатели вернули бракованные стулья, чтобы получить деньги назад.",
         "uz": "Xaridorlar pulini qaytarib olish uchun nuqsonli stullarni qaytarishdi."
       }
+    },
+    {
+      "word": "replenishment",
+      "part_of_speech": "noun",
+      "transcription": "/rɪˈplɛnɪʃmənt/",
+      "translation": "пополнение запасов",
+      "translations": {
+        "ru": "пополнение запасов",
+        "uz": "zaxirani to'ldirish"
+      },
+      "example": "Automatic replenishment keeps popular products on the shelves.",
+      "example_translations": {
+        "ru": "Автоматическое пополнение запасов помогает держать ходовые товары на полках.",
+        "uz": "Zaxirani avtomatik to'ldirish xaridorgir tovarlarning tokchalarda doim bo'lishini ta'minlaydi."
+      }
+    },
+    {
+      "word": "backorder",
+      "part_of_speech": "noun",
+      "transcription": "/ˈbækˌɔrdər/",
+      "translation": "заказ на товар, которого нет в наличии",
+      "translations": {
+        "ru": "заказ на товар, которого нет в наличии",
+        "uz": "zaxira to'ldirilishini kutayotgan buyurtma"
+      },
+      "example": "We finally filled the backorder after supplies arrived.",
+      "example_translations": {
+        "ru": "Когда пришла поставка, мы наконец выполнили отложенный заказ.",
+        "uz": "Tovar omborga kelgach, kutib turgan buyurtmani nihoyat bajardik."
+      }
     }
   ]
 }

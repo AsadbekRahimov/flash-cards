@@ -160,6 +160,51 @@
         "ru": "В реке лежит большой камень.",
         "uz": "Daryoda katta tosh bor."
       }
+    },
+    {
+      "word": "pebble",
+      "part_of_speech": "noun",
+      "transcription": "/ˈpɛbəl/",
+      "translation": "камешек",
+      "translations": {
+        "ru": "камешек",
+        "uz": "mayda tosh"
+      },
+      "example": "I picked up a white pebble.",
+      "example_translations": {
+        "ru": "Я подобрал белый камешек.",
+        "uz": "Men oq mayda toshni yerdan oldim."
+      }
+    },
+    {
+      "word": "path",
+      "part_of_speech": "noun",
+      "transcription": "/pæθ/",
+      "translation": "тропинка",
+      "translations": {
+        "ru": "тропинка",
+        "uz": "so'qmoq"
+      },
+      "example": "Follow the path through the trees.",
+      "example_translations": {
+        "ru": "Идите по тропинке между деревьями.",
+        "uz": "Daraxtlar orasidagi so'qmoqdan yuring."
+      }
+    },
+    {
+      "word": "sunflower",
+      "part_of_speech": "noun",
+      "transcription": "/ˈsʌnˌflaʊər/",
+      "translation": "подсолнечник",
+      "translations": {
+        "ru": "подсолнечник",
+        "uz": "kungaboqar"
+      },
+      "example": "A yellow sunflower grows by our window.",
+      "example_translations": {
+        "ru": "У нашего окна растёт жёлтый подсолнечник.",
+        "uz": "Derazamiz yonida sariq kungaboqar o'sadi."
+      }
     }
   ]
 }

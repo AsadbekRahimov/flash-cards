@@ -160,6 +160,36 @@
         "ru": "Малярия остаётся эндемичной во многих тёплых и влажных регионах.",
         "uz": "Bezgak ko'plab issiq va nam hududlarda endemik bo'lib qolmoqda."
       }
+    },
+    {
+      "word": "morbidity",
+      "part_of_speech": "noun",
+      "transcription": "/mɔrˈbɪdəti/",
+      "translation": "общий уровень заболеваемости",
+      "translations": {
+        "ru": "общий уровень заболеваемости",
+        "uz": "aholi orasidagi umumiy kasallanish darajasi"
+      },
+      "example": "Better sanitation helped reduce morbidity across the district.",
+      "example_translations": {
+        "ru": "Улучшение санитарных условий помогло снизить заболеваемость во всём районе.",
+        "uz": "Sanitariya sharoitining yaxshilanishi butun tuman aholisi orasida kasallanish darajasini pasaytirishga yordam berdi."
+      }
+    },
+    {
+      "word": "underdiagnosed",
+      "part_of_speech": "adjective",
+      "transcription": "/ˌʌndərˈdaɪəgˌnoʊzd/",
+      "translation": "недостаточно выявляемый",
+      "translations": {
+        "ru": "недостаточно выявляемый",
+        "uz": "ko'pincha aniqlanmay qoladigan"
+      },
+      "example": "Limited testing leaves the condition underdiagnosed in children.",
+      "example_translations": {
+        "ru": "Из-за недостатка обследований это заболевание у детей часто не выявляют.",
+        "uz": "Tekshiruvlar kamligi sababli bu kasallik bolalarda ko'pincha aniqlanmay qoladi."
+      }
     }
   ]
 }

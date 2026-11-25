@@ -160,6 +160,51 @@
         "ru": "В воскресенье они устроили барбекю в саду.",
         "uz": "Yakshanba kuni ular bog'da barbekyu uyushtirishdi."
       }
+    },
+    {
+      "word": "flashlight",
+      "part_of_speech": "noun",
+      "transcription": "/ˈflæʃˌlaɪt/",
+      "translation": "фонарик",
+      "translations": {
+        "ru": "фонарик",
+        "uz": "fonarcha"
+      },
+      "example": "Take a flashlight when you leave the tent.",
+      "example_translations": {
+        "ru": "Выходя из палатки, возьмите фонарик.",
+        "uz": "Chodirdan chiqayotganda fonarcha oling."
+      }
+    },
+    {
+      "word": "campfire",
+      "part_of_speech": "noun",
+      "transcription": "/ˈkæmpˌfaɪr/",
+      "translation": "походный костёр",
+      "translations": {
+        "ru": "походный костёр",
+        "uz": "sayrdagi gulxan"
+      },
+      "example": "We sat around the campfire and told stories.",
+      "example_translations": {
+        "ru": "Мы сидели вокруг походного костра и рассказывали истории.",
+        "uz": "Sayrda gulxan atrofida o'tirib, hikoyalar aytdik."
+      }
+    },
+    {
+      "word": "hammock",
+      "part_of_speech": "noun",
+      "transcription": "/ˈhæmək/",
+      "translation": "гамак",
+      "translations": {
+        "ru": "гамак",
+        "uz": "osma to'r karavot"
+      },
+      "example": "We hung a hammock between two trees.",
+      "example_translations": {
+        "ru": "Мы повесили гамак между двумя деревьями.",
+        "uz": "Ikki daraxt orasiga osma to'r karavot o'rnatdik."
+      }
     }
   ]
 }
