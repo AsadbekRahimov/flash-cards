@@ -86,7 +86,7 @@ const { currentLabel: languageLabel } = useLocaleSwitch()
 
 const isPro = computed(() => entitlement.value?.plan === 'pro')
 
-/** «Pro до 1 декабря 2026 г.» / «Пробный Pro до 1 декабря 2026 г.» / «Pro без срока» / «Pro от центра» / «Бесплатный тариф: 20 новых слов в день». */
+/** «Pro до 1 декабря 2026 г.» / «Пробный Pro до 1 декабря 2026 г.» / «Pro без срока» / «Pro от центра» / «20 новых слов в день» (Free). */
 const planLine = computed(() => {
   const current = entitlement.value
   if (current === null) return ''
