@@ -75,6 +75,7 @@ import type {
   GameRunView,
 } from './gameRunTypes'
 import type { GameClass, GameClassList } from './gameClassTypes'
+import type { ShareEventRequest, ShareKind, SharePrepared } from './shareTypes'
 import type { OfferPlacement } from '@/composables/offerViewed'
 import type { ClientTimingPayload } from '@/composables/useTimingMarks'
 import type { GameBoosterRequest, GameBuyRequest, GameEquipRequest, GameProfile, GameShop, GameWallet } from './gameShopTypes'
@@ -161,6 +162,13 @@ export const api = {
     list: () => client().get<AchievementsResponse>('/achievements'),
     /** The learner opened the share dialog of an unlocked key; answers with the refreshed list. */
     shared: (key: string) => client().post<AchievementsResponse>(`/achievements/${encodeURIComponent(key)}/shared`),
+  },
+  share: {
+    /** A message "through the bot" with the card and the button (docs/04 A.22); 403/404/422/429/503 -> the plain share dialog. */
+    prepare: (kind: ShareKind, subject: string | null) =>
+      client().post<SharePrepared>('/share/prepare', subject === null ? { kind } : { kind, subject }),
+    /** The client's analytics of a share (204); sent without waiting, a failure is swallowed by the caller. */
+    event: (body: ShareEventRequest) => client().post<void>('/share/events', { ...body }),
   },
   friends: {
     get: () => client().get<FriendsResponse>('/friends'),
