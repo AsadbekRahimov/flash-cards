@@ -616,7 +616,7 @@ it('takes an answer over HTTP in at most 8 statements, the second one that resol
         ->and(count($list))->toBeLessThanOrEqual(BUDGET_BATTLE_LIST, implode("\n", $list));
 });
 
-it('sends an invitation over HTTP in at most 14 statements - pairs (words and two languages of translations), a task mode, and a rematch - and hands out a clip in at most 3', function (): void {
+it('sends an invitation over HTTP in at most 15 statements (the view reads the emoji of Pro of the opponent, docs/31 §5а) - pairs (words and two languages of translations), a task mode, and a rematch - and hands out a clip in at most 3', function (): void {
     Storage::fake('practice_audio');
     Queue::fake(); // the DM of the invitation is a job of the queue worker, not of the request
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
@@ -633,12 +633,12 @@ it('sends an invitation over HTTP in at most 14 statements - pairs (words and tw
     BattleHttp::surrender($friend, $source->id)->assertOk();
     $rematch = budgetHttp(fn (): TestResponse => BattleHttp::rematch($me, $source->id, ['mode' => 'pairs', 'course' => 'ignored'])->assertCreated());
 
-    expect(count($pairs))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE, implode("\n", $pairs))
+    expect(count($pairs))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE + 1, implode("\n", $pairs))
         ->and(budgetReads($pairs, 'words'))->toBe(1)
         ->and(budgetReads($pairs, 'word_translations'))->toBe(2) // ru and uz
-        ->and(count($tasks))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE, implode("\n", $tasks))
+        ->and(count($tasks))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE + 1, implode("\n", $tasks))
         ->and(budgetReads($tasks, 'practice_items'))->toBe(1)
         ->and(budgetReads($tasks, 'practice_item_versions'))->toBe(1)
-        ->and(count($rematch))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE, implode("\n", $rematch))
+        ->and(count($rematch))->toBeLessThanOrEqual(BUDGET_BATTLE_INVITE + 1, implode("\n", $rematch))
         ->and(count($clip))->toBeLessThanOrEqual(BUDGET_BATTLE_AUDIO, implode("\n", $clip));
 });
