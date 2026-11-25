@@ -391,9 +391,9 @@ final class TrainingFlowService
         $now = CarbonImmutable::now();
         $entitlement = $this->entitlements->for($learner, $now);
 
-        $repetition = $this->reviews->submit($session, $learner, $wordId, $quality, $timeSpentMs, $serveToken, $now, $entitlement, $declared);
+        $accepted = $this->reviews->submitQuality($session, $learner, $wordId, $quality, $timeSpentMs, $serveToken, $now, $entitlement, $declared);
 
-        return new ReviewOutcome($repetition, $this->nextStep($session, $learner, null, $entitlement));
+        return new ReviewOutcome($accepted->repetition, $this->nextStep($session, $learner, null, $entitlement), score: $accepted->score);
     }
 
     /**
@@ -425,6 +425,7 @@ final class TrainingFlowService
             $this->nextStep($session, $learner, null, $entitlement),
             $accepted->verdict,
             $this->revealed($accepted),
+            $accepted->score,
         );
     }
 
