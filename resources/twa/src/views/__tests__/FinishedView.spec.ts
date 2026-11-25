@@ -198,15 +198,17 @@ describe('FinishedView', () => {
   })
 
   describe('look and buttons', () => {
-    it('is calm (docs/design Finish): an eyebrow and a title, no icon of success, and an immersive screen of its own', () => {
+    it('is calm (docs/design Finish): an eyebrow and an extra-bold title, no icon of success, and an immersive screen of its own', () => {
       const w = render(5, 1)
 
       const eyebrow = w.get('[data-testid=eyebrow]')
       expect(eyebrow.text()).toBe('Занятие завершено')
       expect(eyebrow.classes()).toContain('text-success-ink')
       expect(w.get('h1').text()).toBe('Отлично!')
-      expect(w.get('h1').classes()).toEqual(expect.arrayContaining(['text-[32px]', 'font-semibold']))
+      // Redesign 2026-11-25: headings are 700-800 (docs/14 §4.5).
+      expect(w.get('h1').classes()).toEqual(expect.arrayContaining(['text-[30px]', 'font-extrabold']))
       expect(w.find('[data-testid=finished-icon]').exists()).toBe(false)
+      expect(w.find('[data-testid=plan-header]').exists()).toBe(false)
       expect(w.find('[data-testid=tab-bar]').exists()).toBe(false)
     })
 
@@ -276,8 +278,18 @@ describe('FinishedView', () => {
   describe('the entry to the practice (docs/16 §11.1)', () => {
     const entry = (lessonId: number | null) => ({ course: 'english-a1', lesson_id: lessonId })
 
-    it('offers "Поиграть: закрепить слова" after a lesson, as a tinted secondary action that leads to the hub of that lesson', () => {
+    it('is not this line after a lesson: the lesson offers the game of the day plan instead (see "the day plan" below)', () => {
       useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      const w = render(5, 1)
+
+      expect(w.find('[data-testid=practice-btn]').exists()).toBe(false)
+      expect(w.find('[data-testid=game-line]').exists()).toBe(true)
+    })
+
+    it('offers "Поиграть: закрепить слова" after a daily review, as a line of text that leads to the hub of the course', () => {
+      const training = useTrainingStore()
+      training.mode = 'daily_review'
+      training.summary = summary({ practice_entry: entry(null) })
       const w = render(5, 1)
 
       const practice = w.get('[data-testid=practice-btn]')
@@ -285,8 +297,9 @@ describe('FinishedView', () => {
       // A second action is a line of text (docs/design Finish), no icon.
       expect(practice.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain', 'btn-block']))
       expect(practice.classes()).not.toContain('btn-primary')
-      expect(practice.attributes('href')).toBe('/practice/english-a1?lesson=41&from=finished')
+      expect(practice.attributes('href')).toBe('/practice/english-a1?from=finished')
       expect(practice.find('svg').exists()).toBe(false)
+      expect(w.find('[data-testid=what-next]').exists()).toBe(false)
     })
 
     it('says the same after a daily review, with the hub of the course and no lesson in the address', () => {
@@ -297,8 +310,8 @@ describe('FinishedView', () => {
       expect(w.get('[data-testid=practice-btn]').attributes('href')).toBe('/practice/english-a1?from=finished')
     })
 
-    it('opens the hub with the course, the lesson and the mark of the finish screen', async () => {
-      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+    it('opens the hub with the course and the mark of the finish screen', async () => {
+      useTrainingStore().summary = summary({ practice_entry: entry(null) })
       const w = render(5, 1)
 
       await w.get('[data-testid=practice-btn]').trigger('click')
@@ -307,11 +320,11 @@ describe('FinishedView', () => {
       const route = router.currentRoute.value
       expect(route.name).toBe('practice-hub')
       expect(route.params.slug).toBe('english-a1')
-      expect(route.query).toEqual({ lesson: '41', from: 'finished' })
+      expect(route.query).toEqual({ from: 'finished' })
     })
 
     it('does not compete with the main action: "Done" is the only primary button, and the play line comes under it', () => {
-      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      useTrainingStore().summary = summary({ practice_entry: entry(null) })
       const w = render(5, 1)
 
       expect(w.findAll('.btn-primary')).toHaveLength(1)
@@ -328,7 +341,7 @@ describe('FinishedView', () => {
 
     it('keeps the buttons of the screen in order when the new words ran out: the card about it is above them, the learner can still practise today', async () => {
       mockPlan('free')
-      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      useTrainingStore().summary = summary({ practice_entry: entry(null) })
       const w = render(3, 1, 'new_quota_exhausted')
       await flushPromises()
 
@@ -352,7 +365,7 @@ describe('FinishedView', () => {
 
     it('speaks Uzbek', () => {
       setLocale('uz')
-      useTrainingStore().summary = summary({ practice_entry: entry(41) })
+      useTrainingStore().summary = summary({ practice_entry: entry(null) })
       expect(render(5, 1).get('[data-testid=practice-btn]').text()).toBe("O'ynab mustahkamlash")
     })
   })
@@ -668,14 +681,27 @@ describe('FinishedView', () => {
       useTrainingStore().summary = summary()
       const w = render(5, 1)
 
-      expect(w.get('[data-testid=goal-text]').text()).toBe('Цель дня: 12 из 20')
+      expect(w.get('[data-testid=goal-text]').text()).toBe('Цель дня · 12 / 20')
+      expect(w.get('[data-testid=goal-left]').text()).toBe('ещё 8')
       expect(w.get('[data-testid=streak]').text()).toContain('3 дня')
       expect(w.get('[data-testid=streak-at-risk]').text()).toBe('Выполните цель до полуночи, чтобы не потерять серию')
       expect(w.get('[data-testid=streak-at-risk]').classes()).toContain('text-warning-ink')
 
+      // One segment per word of the goal (docs/design 2026-11-25 Finish): 12 done of 20.
+      const segments = w.findAll('[data-testid=goal-segments] > span')
+      expect(segments).toHaveLength(20)
+      expect(segments.filter((segment) => segment.classes().includes('bg-success'))).toHaveLength(12)
+      expect(segments.filter((segment) => segment.classes().includes('bg-track'))).toHaveLength(8)
+      expect(w.find('[data-testid=goal] [role=progressbar]').exists()).toBe(false)
+    })
+
+    it('draws a long goal as one line instead of segments', () => {
+      useTrainingStore().summary = summary({ goal: { target: 40, done: 10, met: false } })
+      const w = render(5, 1)
+
+      expect(w.find('[data-testid=goal-segments]').exists()).toBe(false)
       const bar = w.get('[data-testid=goal] [role=progressbar]')
-      expect(bar.attributes('aria-valuenow')).toBe('60')
-      expect(bar.get('.progress-fill').attributes('style')).toContain('width: 60%')
+      expect(bar.attributes('aria-valuenow')).toBe('25')
       expect(bar.get('.progress-fill').classes()).not.toContain('progress-success')
     })
 
@@ -691,10 +717,11 @@ describe('FinishedView', () => {
       expect(w.get('[data-testid=streak]').text()).toContain('1 день')
       expect(w.find('[data-testid=streak-at-risk]').exists()).toBe(false)
 
-      // A met goal is a full green bar, also when the learner did more than the target.
-      const bar = w.get('[data-testid=goal] [role=progressbar]')
-      expect(bar.attributes('aria-valuenow')).toBe('100')
-      expect(bar.get('.progress-fill').classes()).toContain('progress-success')
+      // A met goal is all green, also when the learner did more than the target; nothing is "left".
+      const segments = w.findAll('[data-testid=goal-segments] > span')
+      expect(segments).toHaveLength(20)
+      expect(segments.every((segment) => segment.classes().includes('bg-success'))).toBe(true)
+      expect(w.find('[data-testid=goal-left]').exists()).toBe(false)
     })
 
     it('says "the streak is held by a run" only when the day was held by a run of Karvon (docs/05 §5b.4)', () => {
@@ -729,7 +756,8 @@ describe('FinishedView', () => {
       useTrainingStore().summary = summary()
       const w = render(5, 1)
 
-      expect(w.get('[data-testid=goal-text]').text()).toBe('Kunlik maqsad: 20 tadan 12 tasi')
+      expect(w.get('[data-testid=goal-text]').text()).toBe('Kunlik maqsad · 12 / 20')
+      expect(w.get('[data-testid=goal-left]').text()).toBe('yana 8 ta')
       expect(w.get('[data-testid=streak]').text()).toBe('3 kun ketma-ket')
       expect(w.get('[data-testid=home-btn]').text()).toBe('Tayyor')
     })

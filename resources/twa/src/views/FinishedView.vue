@@ -443,7 +443,7 @@ const showCourses = computed(() => isEmpty.value && props.reason === 'nothing_du
 const showStreak = computed(() => streak.value !== null && (streak.value.current > 0 || streak.value.at_risk))
 /** The card of rows under the numbers (docs/design Finish) has at least one row. */
 const hasRows = computed(() => corrected.value !== null || showGoal.value || showStreak.value || bestCombo.value > 0
-  || newAchievement.value !== null || monthLine.value !== null || showNext.value)
+  || newAchievement.value !== null || (pointsEarned.value > 0 && !isLessonFinish.value) || monthLine.value !== null || showNext.value)
 /** "Next review": the review of a lesson moves no schedule, so it has none. */
 const showNext = computed(() => !isEmpty.value && !isLessonReview.value)
 
@@ -503,9 +503,9 @@ onBeforeUnmount(() => {
         <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.lesson_review.first_try') }}</p>
       </div>
     </div>
-    <!-- Any other personal session: right answers of all, the new words, and the points of the league when there are some. -->
+    <!-- A lesson (docs/design 2026-11-25 Finish): right answers of all, the new words, and the points of the league when there are some. -->
     <div
-      v-else-if="summary && hasNumbers"
+      v-else-if="summary && hasNumbers && isLessonFinish"
       class="mt-[18px] grid rounded-card border border-hairline bg-surface"
       :class="pointsEarned > 0 ? 'grid-cols-3' : 'grid-cols-2'"
       data-testid="stats"
@@ -521,6 +521,25 @@ onBeforeUnmount(() => {
       <div v-if="pointsEarned > 0" class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
         <p class="text-2xl leading-7 font-extrabold" data-testid="points-earned">+{{ pointsEarned }}</p>
         <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.league_points') }}</p>
+      </div>
+    </div>
+    <!-- Any other personal session: the cards, the share of right answers and the new words; the points are a row below. -->
+    <div
+      v-else-if="summary && hasNumbers"
+      class="mt-[18px] grid grid-cols-3 rounded-card border border-hairline bg-surface"
+      data-testid="stats"
+    >
+      <div class="flex min-w-0 flex-col gap-0.5 px-3 py-3.5">
+        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-reviewed">{{ summary.reviewed }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.cards') }}</p>
+      </div>
+      <div class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
+        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-correct">{{ correctValue === null ? '—' : `${correctValue}%` }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.correct') }}</p>
+      </div>
+      <div class="flex min-w-0 flex-col gap-0.5 border-l border-divider px-3 py-3.5">
+        <p class="text-2xl leading-7 font-extrabold" data-testid="stat-new">{{ summary.new_words }}</p>
+        <p class="text-[13px] leading-[18px] text-muted">{{ t('finished.stats.new') }}</p>
       </div>
     </div>
     <p
@@ -596,6 +615,10 @@ onBeforeUnmount(() => {
         <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
       </RouterLink>
 
+      <div v-if="pointsEarned > 0 && !isLessonFinish" class="flex items-baseline justify-between gap-3 px-[18px] py-3.5">
+        <p class="text-[15px] leading-5 font-semibold">{{ t('league.title') }}</p>
+        <p class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="points-earned">{{ tn('finished.points_earned', pointsEarned) }}</p>
+      </div>
       <RouterLink
         v-if="monthLine"
         :to="{ name: 'league-month' }"
