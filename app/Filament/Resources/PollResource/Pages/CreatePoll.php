@@ -10,8 +10,8 @@ use App\Filament\Resources\PollResource;
 use App\Filament\Resources\Support\AdminErrors;
 use App\Models\User;
 use Filament\Notifications\Notification;
-use Filament\Support\Exceptions\Halt;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
 
 class CreatePoll extends CreateRecord

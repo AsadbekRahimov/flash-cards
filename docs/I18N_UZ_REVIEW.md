@@ -4766,15 +4766,25 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `month.neighbours` | Sizga yaqinlar | Рядом с вами (подпись группы соседей) |
 | `month.rules_points_v2` | Ballar haftalik ligadagi kabi: yangi so'zlar va takrorlashlar uchun. Free va Pro alohida jadvallarda bellashadi, har birining o'z sovrinlari bor. | Баллы те же, что в недельной лиге: за новые слова и повторения. Free и Pro соревнуются в отдельных таблицах, у каждой свои призы. |
 
-## Выпуск 4 · опросы в боте: кнопка первого сообщения (docs/35 O3) — на проверку носителю
+## Выпуск 4 · опросы в боте: кнопки и ответы на нажатие (docs/35 O3, O5) — на проверку носителю
 
 ### Бот (`lang/uz/polls.php`)
 
-Кнопка под опросом с несколькими ответами: отмеченные варианты уходят после неё. Остальные тексты опроса («Спасибо», «Опрос завершён», …) добавит O5.
+Кнопка под опросом с несколькими ответами (отмеченные варианты уходят после неё) и тексты после нажатия. После ответа ученик видит
+только «Rahmat» — без своего ответа. `thanks` заменяет подпись под вопросом; `closed` и `unavailable` — всплывающие окна (alert);
+`empty`, `limit`, `locked` — короткие уведомления вверху чата. `:max` — число («2»). Прошу проверить «so'rovnoma» (опрос) и
+«yakunlandi» (завершён).
 
 | Ключ | uz | ru |
 |---|---|---|
 | `polls.submit` | ✅ Yuborish | ✅ Отправить |
+| `polls.change` | ✏️ Javobni o'zgartirish | ✏️ Изменить ответ |
+| `polls.thanks` | ✅ Rahmat! Javobingiz qabul qilindi. | ✅ Спасибо! Ответ принят. |
+| `polls.closed` | So'rovnoma yakunlandi. | Опрос завершён. |
+| `polls.unavailable` | So'rovnoma mavjud emas. | Опрос недоступен. |
+| `polls.empty` | Kamida bitta variantni tanlang. | Выберите хотя бы один вариант. |
+| `polls.limit` | Ko'pi bilan :max ta variant tanlash mumkin. | Можно выбрать не больше :max. |
+| `polls.locked` | Javob allaqachon qabul qilingan, uni o'zgartirib bo'lmaydi. | Ответ уже принят, изменить его нельзя. |
 
 ## Выпуск 2 · картинка победителя месяца (docs/36 A5) и напоминание следующего дня про баллы (docs/31 §5б) — на проверку носителю
 

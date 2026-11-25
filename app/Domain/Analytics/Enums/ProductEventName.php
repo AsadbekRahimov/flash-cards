@@ -230,4 +230,20 @@ enum ProductEventName: string
      * administrator's test send. No actor: the tap is matched by the delivery's token and Telegram id, the learner is the delivery's.
      */
     case PollAnswered = 'poll.answered';
+    /** A cup of a group was proposed as a draft (docs/33 §8; props: cup_id); actor - the group. */
+    case CupProposed = 'cup.proposed';
+    /** An administrator of the chat published a cup (props: cup_id, level, days); actor - the group. */
+    case CupPublished = 'cup.published';
+    /** A cup started at the midnight of its day 1 (props: cup_id, participants); actor - the group. */
+    case CupStarted = 'cup.started';
+    /** A learner joined a cup (props: cup_id, participant_id, first_day). */
+    case CupJoined = 'cup.joined';
+    /** A participant started the round of a day (props: cup_id, attempt_id, day). */
+    case CupRoundStarted = 'cup.round_started';
+    /** The round of a day ended, once (props: cup_id, attempt_id, day, points, reason - completed / expired). */
+    case CupRoundFinished = 'cup.round_finished';
+    /** A cup finished (props: cup_id, participants); actor - the group. */
+    case CupFinished = 'cup.finished';
+    /** A cup was canceled (props: cup_id, reason - draft_expired / chat_admin / platform_admin / no_players); actor - the group. */
+    case CupCanceled = 'cup.canceled';
 }

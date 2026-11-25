@@ -9,7 +9,7 @@
     $summary = $this->summary();
     $breakdowns = $this->breakdowns();
     $statuses = $summary['statuses'];
-    $sent = ($statuses['sent'] ?? 0) + ($statuses['unknown'] ?? 0);
+    $sent = $statuses['sent'] ?? 0;
     $share = fn (int $part, int $whole): string => $whole > 0 ? AdminNumbers::decimal($part * 100 / $whole, 1, true).' %' : '—';
     $groupLabel = function (string $dimension, array $group): string {
         return match ($dimension) {
@@ -54,6 +54,7 @@
             <div><dt>{{ __('admin.polls.results.skipped') }}</dt><dd>{{ $statuses['skipped'] ?? 0 }}</dd></div>
             <div><dt>{{ __('admin.polls.results.forbidden') }}</dt><dd>{{ $statuses['forbidden'] ?? 0 }}</dd></div>
             <div><dt>{{ __('admin.polls.results.failed') }}</dt><dd>{{ $statuses['failed'] ?? 0 }}</dd></div>
+            <div><dt>{{ __('admin.polls.results.unknown') }}</dt><dd>{{ $statuses['unknown'] ?? 0 }}</dd></div>
             <div><dt>{{ __('admin.polls.results.answered') }}</dt><dd>{{ $summary['answered'] }} <small>({{ $share($summary['answered'], $sent) }})</small></dd></div>
         </dl>
         <p class="pl-note">

@@ -46,6 +46,8 @@ final class GroupChatMigrator
         'class_caravans',
         'assignments',
         'organization_invites',
+        // docs/33 K4: a chat with a cup (any status) has its own tournament history; the cup follows its group row, not the chat id.
+        'cups',
     ];
 
     public function __construct(

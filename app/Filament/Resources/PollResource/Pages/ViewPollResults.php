@@ -34,7 +34,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * Active admin only, on every request ({@see RequiresActiveAdmin}) and by `PollPolicy::results`. Statements do not grow with the
  * rows: the head and the breakdowns are a constant number of grouped statements (cached for a closed poll), the table pages simply
  * (no `COUNT(*)` over tens of thousands of answers) and loads the learners and the votes of the page in one statement each; the
- * labels of the options are read once per request.
+ * labels of the options come from the head.
  */
 class ViewPollResults extends Page implements HasTable
 {
@@ -46,7 +46,7 @@ class ViewPollResults extends Page implements HasTable
 
     protected string $view = 'filament.pages.poll-results';
 
-    /** @var array<int, string>|null option id => label (ru), once per request */
+    /** @var array<int, string>|null option id => label (ru), from the options of the head (no read of its own) */
     private ?array $labels = null;
 
     /** @var array<string, mixed>|null */
@@ -167,9 +167,7 @@ class ViewPollResults extends Page implements HasTable
 
     private function answerOf(PollDelivery $delivery): string
     {
-        $this->labels ??= $this->poll()->options()->pluck('label', 'id')
-            ->map(fn (mixed $label): string => is_array($label) ? (string) ($label['ru'] ?? '') : '')
-            ->all();
+        $this->labels ??= array_column($this->summary()['options'], 'label', 'id');
 
         $chosen = [];
         foreach ($delivery->votes as $vote) {

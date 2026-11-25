@@ -17,6 +17,8 @@ use App\Domain\Content\Exceptions\CoursePublishException;
 use App\Domain\Content\Services\VocabularyImporter;
 use App\Domain\Organizations\Exceptions\OrganizationMembershipException;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
+use App\Domain\Polls\Exceptions\PollEditException;
+use App\Domain\Polls\Exceptions\PollLaunchException;
 use App\Filament\Pages\ImportLesson;
 use App\Filament\Resources\CourseResource\Pages\ListCourses;
 use App\Filament\Resources\LearnerResource\Pages\ViewLearner;
@@ -483,6 +485,8 @@ dataset('admin error codes', [
     'membership' => [OrganizationMembershipException::class, 'organizations.members', []],
     'group linking' => [OrganizationGroupLinkException::class, 'organizations.groups', []],
     'lesson import' => [ImportIssue::class, 'pages.import_lesson', []],
+    'poll launch' => [PollLaunchException::class, 'polls', []],
+    'poll form' => [PollEditException::class, 'polls', []],
 ]);
 
 it('has a Russian text for every code of the domain error classes the panel catches', function (string $class, string $scope, array $extra): void {
@@ -550,7 +554,8 @@ it('has an errors block in lang/ru/admin.php for every screen that words a domai
 
     // Guards the guard: the scan found the ten screens (the import pages word their issues through importIssue() / practiceImportIssue()), not nothing.
     // `learners.score_days` - the corrections of a rating day (S15, ScoreCorrectionActions).
-    expect(array_keys($scopes))->toEqualCanonicalizing(['courses', 'subscriptions', 'payments', 'learners.offers', 'learners.score_days', 'organizations.members', 'organizations.groups', 'organizations.staff', 'practice_items', 'league_month']);
+    // `polls` - the form, the test send and the launch of a poll in the bot (docs/35 O6, PollResource).
+    expect(array_keys($scopes))->toEqualCanonicalizing(['courses', 'subscriptions', 'payments', 'learners.offers', 'learners.score_days', 'organizations.members', 'organizations.groups', 'organizations.staff', 'practice_items', 'league_month', 'polls']);
 
     foreach ($scopes as $scope => $file) {
         expect(Lang::has("admin.{$scope}.errors", 'ru', false))->toBeTrue("{$file} words errors of admin.{$scope}.errors");

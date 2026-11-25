@@ -11,6 +11,7 @@ use App\Models\Course;
 use App\Models\Poll;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 /**
  * The results page of a poll in `/admin` (docs/35 §1.5 "Результаты", O7), test deliveries left out everywhere.
@@ -22,8 +23,8 @@ use Illuminate\Support\Facades\DB;
  * {@see breakdowns()} - the same by language of the delivery, Free / Pro (the learner's plan NOW, as the audience filter reads it),
  * active course and region (the learner's current ones). Two grouped statements over all four dimensions at once - the answered
  * deliveries and the votes, each joined with `learners` and grouped by (language, region, course, Pro[, option]) - then folded in
- * PHP: a few hundred groups, never a row per learner. The Pro test is the two uncorrelated "who is Pro" subqueries of
- * {@see PaidSubscriptionQuery}, hashed once. A closed poll does not change any more: its breakdowns are kept in the pure cache
+ * PHP: a few hundred groups, never a row per learner. The Pro test is a left join with the distinct union of the two uncorrelated
+ * "who is Pro" sets of {@see PaidSubscriptionQuery} (the ids of the live paid subscriptions, a hash on the small side). A closed poll does not change any more: its breakdowns are kept in the pure cache
  * ({@see WidgetCache}, `admin:widget:poll_breakdowns:v1:all:<poll id>`, fresh for a day); an open one is counted on every view.
  */
 final class PollReport
@@ -107,33 +108,37 @@ final class PollReport
     /** @return array<string, list<array{key: string, label: string, answered: int, votes: array<int, int>}>> */
     private function compute(int $pollId, CarbonImmutable $now): array
     {
-        $personal = PaidSubscriptionQuery::personalLearnerIds($now);
-        $sponsored = PaidSubscriptionQuery::sponsoredLearnerIds($now);
-        $pro = 'CASE WHEN d.learner_id IN ('.$personal->toSql().') OR d.learner_id IN ('.$sponsored->toSql().') THEN 1 ELSE 0 END';
-        $proBindings = [...$personal->getBindings(), ...$sponsored->getBindings()];
+        // Who is Pro now: the two uncorrelated "who is Pro" sets of the audience filter, as one distinct list joined by hash.
+        $pro = PaidSubscriptionQuery::personalLearnerIds($now)->toBase()->union(PaidSubscriptionQuery::sponsoredLearnerIds($now));
 
         $answered = DB::table('poll_deliveries as d')
             ->join('learners as l', 'l.id', '=', 'd.learner_id')
+            ->leftJoinSub($pro, 'pro', 'pro.subscriber_id', '=', 'd.learner_id')
             ->where('d.poll_id', $pollId)
             ->whereNotNull('d.learner_id')
             ->whereNotNull('d.answered_at')
-            ->selectRaw("d.locale AS locale, l.region_code AS region, l.active_course_id AS course, {$pro} AS pro, count(*) AS n", $proBindings)
-            // By position: the Pro expression carries bindings, and PostgreSQL would not match a repeated one to the select.
+            ->selectRaw('d.locale AS locale, l.region_code AS region, l.active_course_id AS course, '
+                .'CASE WHEN pro.subscriber_id IS NULL THEN 0 ELSE 1 END AS pro, count(*) AS n')
             ->groupByRaw('1, 2, 3, 4')
             ->get();
 
         $votes = DB::table('poll_votes as v')
             ->join('poll_deliveries as d', 'd.id', '=', 'v.poll_delivery_id')
             ->join('learners as l', 'l.id', '=', 'd.learner_id')
+            ->leftJoinSub($pro, 'pro', 'pro.subscriber_id', '=', 'd.learner_id')
             ->where('v.poll_id', $pollId)
+            // The same poll on both sides (a vote's delivery is of its poll): the deliveries are read along
+            // `(poll_id, learner_id)` instead of the whole table of every poll.
+            ->where('d.poll_id', $pollId)
             ->whereNotNull('d.learner_id')
-            ->selectRaw("d.locale AS locale, l.region_code AS region, l.active_course_id AS course, {$pro} AS pro, v.poll_option_id AS option_id, count(*) AS n", $proBindings)
+            ->selectRaw('d.locale AS locale, l.region_code AS region, l.active_course_id AS course, '
+                .'CASE WHEN pro.subscriber_id IS NULL THEN 0 ELSE 1 END AS pro, v.poll_option_id AS option_id, count(*) AS n')
             ->groupByRaw('1, 2, 3, 4, 5')
             ->get();
 
         /** @var array<string, array<string, array{answered: int, votes: array<int, int>}>> $groups */
         $groups = array_fill_keys(self::DIMENSIONS, []);
-        $keys = static fn (object $row): array => [
+        $keys = static fn (stdClass $row): array => [
             'locale' => (string) $row->locale,
             'plan' => (int) $row->pro === 1 ? 'pro' : 'free',
             'course' => $row->course === null ? 'none' : (string) (int) $row->course,

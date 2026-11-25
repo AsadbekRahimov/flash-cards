@@ -1030,6 +1030,47 @@ The two thresholds are plain settings in `config/analytics.php` (`attention.cent
 default 14), not environment variables; after a change deploy and run `php artisan config:cache`. The list reads only figures the
 dashboard already caches, so it follows their timers (payments — up to a minute, centers — up to 10 minutes, audio — up to 5 minutes).
 
+## Polls in the bot (Опросы в боте, docs/35)
+
+A poll is a message of the bot (a picture with a caption, or a text) with one button per answer. Every learner gets their own
+message; the answers are counted by Muhrla, not by Telegram. After answering, a learner sees only «Спасибо» — never the results.
+Only an active admin sees the polls (Администрирование → Опросы в боте); teachers and centers do not.
+
+**How to run a poll**
+
+1. **Create** («Новый опрос»): an internal title (learners do not see it), the question in Russian and Uzbek (up to 700 characters
+   each), 2–10 options in both languages (up to 40 characters each), an optional picture (a photo or an image, up to
+   `POLLS_IMAGE_MAX_KB`, 5 MB by default). Choose: one or several answers (and how many at most), whether the answer may be changed,
+   the deadline (Tashkent time; empty = until you close it by hand). If an option is longer than 24 characters, the options go as a
+   numbered list into the text and the buttons show numbers.
+2. **Audience** («Кому отправить»): plan (all / Free / Pro), interface language, course, region (14 regions and «Другая страна» —
+   learners outside Uzbekistan; empty = everybody, including those who did not give a region), and whether only learners who
+   finished the introduction get it. Press **«Посчитать получателей»** to see how many learners match right now. Blocked, deleted,
+   banned learners and those who blocked the bot never get a poll. The audience is fixed at the launch.
+3. **Save**, then check the **preview** (the caption and the buttons a learner will see, in both languages).
+4. **«Отправить себе»**: the saved poll goes to your own Telegram (link it in your profile first; then open the bot and press Start).
+   Vote, change the answer — test answers never count. **A poll cannot be launched without at least one test send that arrived.**
+   If you change the poll afterwards, send it to yourself again.
+5. **«Запустить»**: the dialog shows how many learners will get it. After the launch the question, the options, the picture, the
+   answer rules and the audience are locked (the server refuses changes); only the title and the deadline can change. The broadcast
+   goes out gradually (at most 15 messages a second, and it yields to the other messages of the bot); 10 000 learners take about
+   11 minutes. Do not launch between 19:00 and 21:00 (reminder time).
+6. **«Остановить рассылку»** stops sending to those who have not got it yet; **«Закрыть сейчас»** ends the poll: no more answers,
+   the totals are fixed. A poll with a deadline closes by itself within 5 minutes after it (`polls:close-due`); answers after the
+   deadline are refused at once.
+
+**Results** («Результаты» on the poll): recipients, sent, skipped, blocked the bot, errors, answered (share of the sent); votes per
+option with the share of those who answered (with several answers the shares add up to more than 100 %); breakdowns by message
+language, Free / Pro, course and region (the learner's current plan, course and region, not at the moment of the answer); the answers
+by person (learner, option, time). Two CSV files (Excel opens them, `;`-separated): **«Скачать итоги»** and **«Скачать ответы»**
+(delivery, learner id, language, plan, region, options, time — no names). Every download is written to the audit log.
+
+**Retention.** The answers of a poll are deleted 365 days after it was closed or stopped (`polls:prune`, nightly,
+`POLLS_RETENTION_DAYS`); the totals stay on the results page.
+
+**If something goes wrong.** «Telegram не доставил сообщение» on the test send — open the bot and press Start. «Текст не помещается» —
+shorten the question or the options (a caption with a picture holds 1 024 characters together with the list of options).
+
 ## Dashboard Widgets
 
 | Widget | Who sees it | What it shows |

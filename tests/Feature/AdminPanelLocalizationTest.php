@@ -25,6 +25,7 @@ use App\Filament\Resources\PaymentOrderResource;
 use App\Filament\Resources\PaymentOrderResource\Pages\ListPaymentOrders;
 use App\Filament\Resources\PaymentResource;
 use App\Filament\Resources\PaymentResource\Pages\ListPayments;
+use App\Filament\Resources\PollResource;
 use App\Filament\Resources\PracticeItemResource;
 use App\Filament\Resources\PromoCodeResource;
 use App\Filament\Resources\PromoCodeResource\Pages\EditPromoCode;
@@ -74,6 +75,7 @@ use App\Models\Lesson;
 use App\Models\Organization;
 use App\Models\Payment;
 use App\Models\PaymentOrder;
+use App\Models\Poll;
 use App\Models\PracticeItem;
 use App\Models\PromoCode;
 use App\Models\ProviderTransaction;
@@ -197,6 +199,7 @@ function loc_records(User $admin): array
         GameItemResource::class => GameItem::factory()->create(),
         GameRunResource::class => GameRun::factory()->create(),
         ClassCaravanResource::class => ClassCaravan::factory()->create(),
+        PollResource::class => Poll::factory()->sending()->withOptions(2)->create(),
     ];
 }
 
@@ -410,7 +413,8 @@ it('has an explicit Russian caption on every column, filter, action, field, entr
 
         foreach ($resource::getPages() as $name => $registration) {
             $page = $registration->getPage();
-            $params = in_array($name, ['edit', 'view'], true) ? ['record' => $record->getKey()] : [];
+            // `results` - the results page of a poll (docs/35 O7), a page of one record like edit and view.
+            $params = in_array($name, ['edit', 'view', 'results'], true) ? ['record' => $record->getKey()] : [];
             $captions += loc_component_captions(Livewire::test($page, $params)->instance(), "{$resource}/{$name}");
 
             if (in_array($name, ['edit', 'view'], true)) {
@@ -500,7 +504,7 @@ it('puts no resource label in the nominative with a capital letter into the head
 
         foreach ($resource::getPages() as $name => $registration) {
             $page = $registration->getPage();
-            $components["{$resource}/{$name}"] = Livewire::test($page, in_array($name, ['edit', 'view'], true) ? ['record' => $record->getKey()] : [])->instance();
+            $components["{$resource}/{$name}"] = Livewire::test($page, in_array($name, ['edit', 'view', 'results'], true) ? ['record' => $record->getKey()] : [])->instance();
 
             if (in_array($name, ['edit', 'view'], true)) {
                 $ownerPage = $page;

@@ -191,7 +191,8 @@ final class PollEditor
     private function assertUnchanged(Poll $poll, array $data): void
     {
         foreach (self::LOCKED as $field) {
-            if (! array_key_exists($field, $data)) {
+            // Absent, or the empty container of disabled nested fields the form leaves behind (`question: []`, `audience: []`).
+            if (! array_key_exists($field, $data) || $data[$field] === []) {
                 continue;
             }
 

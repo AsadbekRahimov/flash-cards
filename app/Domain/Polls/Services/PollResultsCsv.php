@@ -129,16 +129,14 @@ final class PollResultsCsv
      */
     private function learners(array $ids, CarbonImmutable $now): array
     {
-        $personal = PaidSubscriptionQuery::personalLearnerIds($now)->whereIn('subscriptions.subscriber_id', $ids);
-        $sponsored = PaidSubscriptionQuery::sponsoredLearnerIds($now)->whereIn('om.learner_id', $ids);
+        $pro = PaidSubscriptionQuery::personalLearnerIds($now)->toBase()->whereIn('subscriptions.subscriber_id', $ids)
+            ->union(PaidSubscriptionQuery::sponsoredLearnerIds($now)->whereIn('om.learner_id', $ids));
 
-        $rows = DB::table('learners')
-            ->whereIn('id', $ids)
-            ->select(['id', 'region_code'])
-            ->selectRaw(
-                'CASE WHEN id IN ('.$personal->toSql().') OR id IN ('.$sponsored->toSql().') THEN 1 ELSE 0 END AS pro',
-                [...$personal->getBindings(), ...$sponsored->getBindings()],
-            )
+        $rows = DB::table('learners as l')
+            ->leftJoinSub($pro, 'pro', 'pro.subscriber_id', '=', 'l.id')
+            ->whereIn('l.id', $ids)
+            ->select(['l.id', 'l.region_code'])
+            ->selectRaw('CASE WHEN pro.subscriber_id IS NULL THEN 0 ELSE 1 END AS pro')
             ->get();
 
         $out = [];

@@ -64,6 +64,13 @@ Schedule::command('game:class-caravans-close')
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 
+// The friends' cups of the groups (docs/33 §3.2): drafts expire, cups start at their midnight (or wait a day for a second player),
+// tomorrow's snapshots are built, abandoned attempts close, cups finish 30 minutes after their last day - each step under the lock of
+// its cup, so a repeated or parallel run changes nothing twice.
+Schedule::command('cups:advance')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
 // Battles (docs/16 §8.6): expired invitations are closed, the matches that are on move by the clock (absence, deadlines,
 // the end) - one row lock per match, the same `BattleClock::advance` the polls run, so a repeated or parallel run changes nothing.
 Schedule::command('practice:battles-sweep')

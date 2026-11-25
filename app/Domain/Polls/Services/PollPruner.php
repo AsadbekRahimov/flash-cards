@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\DB;
  * or stopped, then its votes and deliveries are deleted. The poll stays with its totals (`results_snapshot`, written at closing), so
  * the results page still shows them.
  *
- * In chunks of `polls.prune_chunk` rows: each `DELETE … WHERE id IN (SELECT id … WHERE poll_id = ? LIMIT n)` is its own statement
- * and its own short transaction (no long transaction, no lock on the whole poll's rows, no huge WAL burst), along
- * `poll_votes (poll_id, poll_option_id)` and `poll_deliveries (poll_id, learner_id)`. The votes go first, so the cascade of the
+ * In chunks of `polls.prune_chunk` rows: the ids of a chunk along `poll_votes (poll_id, poll_option_id)` /
+ * `poll_deliveries (poll_id, learner_id)`, then one DELETE by the primary key - each statement its own short transaction (no long
+ * transaction, no lock on the whole poll's rows, no huge WAL burst). The votes go first, so the cascade of the
  * deliveries finds nothing to do. The cached breakdowns of a pruned poll are forgotten. A poll already pruned costs two empty reads; a repeated or parallel run changes nothing twice.
  */
 final class PollPruner
@@ -55,18 +55,25 @@ final class PollPruner
         return $out;
     }
 
-    /** @param 'poll_votes'|'poll_deliveries' $table */
+    /**
+     * A chunk = the ids of the poll's next rows (along the index that starts with `poll_id`) and one DELETE of them by the primary
+     * key: two short statements. Not `DELETE … WHERE id IN (SELECT … LIMIT n)`: PostgreSQL plans that as a hash semi join over a
+     * sequential scan of the whole table (of every poll) for each chunk.
+     *
+     * @param  'poll_votes'|'poll_deliveries'  $table
+     */
     private function deleteInChunks(string $table, int $pollId, int $chunk): int
     {
         $total = 0;
 
         do {
-            $deleted = DB::delete(
-                "DELETE FROM {$table} WHERE id IN (SELECT id FROM {$table} WHERE poll_id = ? LIMIT ?)",
-                [$pollId, $chunk],
-            );
-            $total += $deleted;
-        } while ($deleted === $chunk);
+            $ids = DB::table($table)->where('poll_id', $pollId)->limit($chunk)->pluck('id')->all();
+            if ($ids === []) {
+                break;
+            }
+
+            $total += DB::table($table)->whereIn('id', $ids)->delete();
+        } while (count($ids) === $chunk);
 
         return $total;
     }

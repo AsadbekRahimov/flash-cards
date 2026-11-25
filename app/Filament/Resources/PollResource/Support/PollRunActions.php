@@ -58,7 +58,7 @@ final class PollRunActions
             ->authorize('run')
             ->visible(fn (Poll $record): bool => ! PollResource::finished($record))
             ->disabled(fn (): bool => self::admin()?->telegram_user_id === null)
-            ->tooltip(fn (): ?string => self::admin()?->telegram_user_id === null ? __('admin.polls.actions.test_no_telegram') : null)
+            ->tooltip(fn (): ?string => self::admin()?->telegram_user_id === null ? (string) __('admin.polls.actions.test_no_telegram') : null)
             ->modalHeading(__('admin.polls.actions.test_heading'))
             ->modalDescription(__('admin.polls.actions.test_help'))
             ->modalSubmitActionLabel(__('admin.polls.actions.test_submit'))

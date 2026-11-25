@@ -9,6 +9,7 @@ use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordTranslationResolver;
 use App\Domain\Game\DTO\AuthoredCandidate;
+use App\Domain\Game\DTO\RunComposition;
 use App\Domain\Game\DTO\RunLimits;
 use App\Domain\Game\DTO\RunPool;
 use App\Domain\Game\DTO\RunPoolWord;
@@ -189,6 +190,37 @@ final class RunSnapshotBuilder
         $snapshot->assertFits();
 
         return $snapshot;
+    }
+
+    /**
+     * The tasks of a day of a group cup (docs/33 §5.1, K5): built ONCE per day and shared by every participant - the same words, kinds,
+     * options and right answers; only the order of the tasks and of the options differs per participant (the cup's projection). Like
+     * {@see forClassBoss()}: the kinds in a circle, no pairs, no authored tasks, no events, no flasks - and exactly `$tasks` elements
+     * ({@see RunLimits::forCup()}). `$wordIds` are the planned words of the day, spares included: a word the composer cannot turn into a
+     * task (no three distractors that do not clash) is replaced by the next one of the seeded order. A `listen` needs the recording of
+     * the word's current text; without one the circle takes another kind - decided here, so it is the same for everybody.
+     *
+     * `$locales` are ALL the supported locales: every participant reads the texts of the same snapshot in his own. The opaque ids are
+     * random, so a second build of the same day is a different snapshot - the caller builds a day once, under the lock of its row.
+     *
+     * @param  list<int>  $wordIds
+     *
+     * @throws GameException game_not_enough_material
+     */
+    public function forCupDay(Course $course, array $wordIds, LocaleSet $locales, string $seed, int $tasks): RunComposition
+    {
+        $limits = RunLimits::forCup($tasks);
+
+        $words = $this->wordsByIds($wordIds, $locales);
+        $poolWords = array_map(fn (MaterialWord $word): RunPoolWord => $this->poolWord($word, $locales, RunPoolWord::TIER_POOL), $words);
+        $pool = new RunPool($locales, $poolWords, [], $this->distractors($course, $words, $locales));
+
+        $composition = RunComposer::compose($pool, $seed, $limits);
+        if ($composition->count() < $limits->minElements) {
+            throw GameException::notEnoughMaterial($composition->count(), $limits->minElements, 'no_words');
+        }
+
+        return $composition;
     }
 
     /**

@@ -98,6 +98,14 @@ final class FakeTelegramClient implements TelegramClient
     /** What getChatMember answers; null = `$chatMemberStatus` as a member of the chat (`is_member` from the status). */
     public ?ChatMemberInfo $chatMember = null;
 
+    /**
+     * getChatMember per Telegram user id (docs/33 cup tests): a ChatMemberInfo, or a Throwable to throw; a user not listed falls
+     * through to `$chatMember` / `$chatMemberStatus`. Every call is recorded in `$chatMemberLookups`.
+     *
+     * @var array<int, ChatMemberInfo|\Throwable>
+     */
+    public array $chatMembersByUser = [];
+
     /** What getChatMemberStatus answers (the bot's own status in the group for the admin check). */
     public string $chatMemberStatus = 'administrator';
 
@@ -314,6 +322,16 @@ final class FakeTelegramClient implements TelegramClient
 
     public function getChatMember(int|string $chatId, int $userId): ChatMemberInfo
     {
+        if (array_key_exists($userId, $this->chatMembersByUser)) {
+            $this->chatMemberLookups[] = ['chat_id' => $chatId, 'user_id' => $userId];
+            $answer = $this->chatMembersByUser[$userId];
+            if ($answer instanceof \Throwable) {
+                throw $answer;
+            }
+
+            return $answer;
+        }
+
         if ($this->chatMember !== null) {
             $this->chatMemberLookups[] = ['chat_id' => $chatId, 'user_id' => $userId];
 

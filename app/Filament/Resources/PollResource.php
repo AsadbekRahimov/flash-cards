@@ -16,6 +16,7 @@ use App\Filament\Resources\Support\AdminNumbers;
 use App\Filament\Resources\Support\AdminTable;
 use App\Models\Course;
 use App\Models\Poll;
+use App\Policies\PollPolicy;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms;
@@ -33,7 +34,7 @@ use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 /**
- * Polls in the bot (docs/35 §1.5, O6-O8). Active platform admin only ({@see \App\Policies\PollPolicy}); not in `/org`.
+ * Polls in the bot (docs/35 §1.5, O6-O8). Active platform admin only ({@see PollPolicy}); not in `/org`.
  *
  * The form is a draft until the launch: the question (ru, uz), 2-10 options, the picture, one or several answers, the change of an
  * answer, the deadline and the audience (plan, language, course, region - «Другая страна» is the region `other`). Its fields go to
@@ -92,7 +93,7 @@ class PollResource extends Resource
 
         return $schema->components([
             Section::make(__('admin.polls.sections.question'))
-                ->description(fn (?Poll $record): ?string => self::launched($record) ? __('admin.polls.sections.locked') : null)
+                ->description(fn (?Poll $record): ?string => self::launched($record) ? (string) __('admin.polls.sections.locked') : null)
                 ->columns(2)
                 ->schema([
                     Forms\Components\TextInput::make('title')
@@ -167,6 +168,7 @@ class PollResource extends Resource
                         ->disabled(fn (?Poll $record): bool => self::finished($record)),
                 ]),
             Section::make(__('admin.polls.sections.audience'))
+                ->key('audienceSection')
                 ->description(__('admin.polls.sections.audience_help'))
                 ->columns(2)
                 ->headerActions([
@@ -286,7 +288,7 @@ class PollResource extends Resource
     {
         $options = [];
         foreach (Course::query()->orderBy('id')->get(['id', 'title']) as $course) {
-            $title = is_array($course->title) ? ($course->title['ru'] ?? $course->title['en'] ?? reset($course->title)) : null;
+            $title = $course->title['ru'] ?? $course->title['en'] ?? reset($course->title);
             $options[(int) $course->id] = is_string($title) && $title !== '' ? $title : '#'.$course->id;
         }
 
