@@ -53,9 +53,11 @@ import type {
   PracticeSession,
   Quality,
   ReferralsResponse,
+  LeagueBoardPage,
   LeagueResponse,
   MonthlyRatingResponse,
   MonthlyRatingMeResponse,
+  ScoreCategory,
   FriendsResponse,
   ChallengesResponse,
   ChallengeItem,
@@ -155,7 +157,13 @@ export const api = {
   },
   league: {
     get: () => client().get<LeagueResponse>('/league'),
-    month: () => client().get<MonthlyRatingResponse>('/league/month'),
+    /** `category`: the table to show (docs/04 A.19, v2); left out - the learner's own (and the v1 month knows no tables). */
+    month: (category?: ScoreCategory) =>
+      category === undefined
+        ? client().get<MonthlyRatingResponse>('/league/month')
+        : client().get<MonthlyRatingResponse>('/league/month', { category }),
+    /** The page of a v2 table after `next_cursor`; 422 `invalid_cursor` for a cursor that is not of this table any more. */
+    monthPage: (category: ScoreCategory, after: string) => client().get<LeagueBoardPage>('/league/month', { category, after }),
     monthMe: () => client().get<MonthlyRatingMeResponse>('/league/month/me'),
   },
   achievements: {
