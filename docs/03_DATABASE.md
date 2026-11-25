@@ -1509,7 +1509,7 @@ CHECK не создаются — инвариант дублируют серв
 | id | bigint PK | |
 | learner_id | bigint FK → learners, CASCADE | |
 | rating_day | date | |
-| lexeme_id | bigint FK → lexemes | |
+| lexeme_id | bigint (на PostgreSQL без FK с 300101) | лексема; лексемы не удаляются и не меняются, а проверка FK на каждой вставке брала `FOR KEY SHARE` на общую строку популярного слова |
 | word_id | bigint (без FK) | карточка, давшая начисление; журнал переживает слово |
 | source | string(12) | `training` / `group_lesson` / `game` |
 | source_id | bigint (без FK) | `training_sessions.id` или `game_runs.id` |
@@ -1518,7 +1518,7 @@ CHECK не создаются — инвариант дублируют серв
 | voided_at, voided_by_user_id, void_reason | timestamp, FK → users SET NULL, string(255) | аннулирование (`ScoreCorrectionService`, S11) |
 | created_at | timestamp nullable | |
 
-**Индексы:** unique `(learner_id, rating_day, lexeme_id)` — одно начисление лексемы в день; `(rating_day)`. Хранение — `leagues.scoring.credits_retention_days` (180), очистка только дней закрытых месяцев (S16).
+**Индексы:** unique `(learner_id, rating_day, lexeme_id)` — одно начисление лексемы в день (вторая линия обороны за блокировкой `learner_lexemes`; ядро пишет `INSERT … ON CONFLICT DO NOTHING`) и все чтения по ученику (месяц, финиш занятия и забега); PostgreSQL (миграция `2026_11_25_300101`): **BRIN** `score_credits_rating_day_brin (rating_day)` вместо B-tree — его читает только очистка (`DELETE … WHERE rating_day < ?`, S16), строки приходят в порядке дня, BRIN занимает десятки КБ и не обновляется на каждой вставке; partial `score_credits_voided_by_idx (voided_by_user_id) WHERE voided_by_user_id IS NOT NULL` — для `ON DELETE SET NULL` при удалении администратора (вставка его не касается). На sqlite (тесты) — B-tree `(rating_day)` и FK, как в 300004. Хранение — `leagues.scoring.credits_retention_days` (180), очистка только дней закрытых месяцев (S16).
 
 ### 2.71 `learner_score_totals` — «За всё время» *(S2, docs/32 §2.6)*
 | Колонка | Тип | Описание |
@@ -1662,6 +1662,7 @@ CHECK не создаются — инвариант дублируют серв
 86. `2026_11_25_300004_create_word_score_tables` — `learner_lexemes`, `learner_score_periods`, `learner_score_days`, `score_credits`, `learner_score_totals`, fillfactor и CHECK (PostgreSQL) *(§2.67–2.71)*
 87. `2026_11_25_300005_add_scoring_columns_to_league_tables` — версии правил, категории и признаки ничьих в таблицах лиг *(§2.71, «Изменения таблиц лиг»)*
 88. `2026_11_25_300006_add_category_standings_index_to_league_month_scores` — индекс таблицы месяца по категории (CONCURRENTLY на PostgreSQL) *(§2.63)*
+89. `2026_11_25_300101_tune_score_credits_indexes` — только PostgreSQL: B-tree `score_credits (rating_day)` → BRIN, снят FK `score_credits.lexeme_id`, partial-индекс `voided_by_user_id`; `down()` возвращает форму 300004 *(§2.70, S4)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

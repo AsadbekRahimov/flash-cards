@@ -2,7 +2,7 @@
 
 Документ architect'а · 24 ноября 2026 года. Основа: [28 — очки за знание слов](28_LEAGUE_SCORING_PROPOSAL_RU.md) и [30 — лучшие за всё время](30_ALL_TIME_RATING_PROPOSAL_RU.md) (предложения владельца). Обе ссылаются на «план реализации 31_COMPETITION_PLAN_RU.md». Такого файла нет. Его роль выполняет этот документ. Кубок Telegram-группы ([29](29_GROUP_CUP_PROPOSAL_RU.md)) проектируется отдельно. Здесь о нём важно одно: **кубок не даёт очков лиги** и не пишет ни в одну таблицу ниже.
 
-Статус: **фундамент сделан (25.11.2026): S1–S3** — каталог лексем (`lexemes`, `words.lexeme_id`, `LexemeKey`, `LexemeCatalog`, `lexemes:backfill`), таблицы §2.2–§2.6 (docs/03 §2.66–§2.71), `ScoreRules` и `ScorePeriodService`. Начисление (S4 и дальше) не подключено, `leagues.scoring.mode = off`: лиги, тренировка и игра работают по v1. Решения, которые меняют действующие правила, переносятся в docs/13 §7.3 и §7.6, docs/03, docs/04, docs/06 и docs/19 **до кода** (задача S0, §9).
+Статус: **фундамент сделан (25.11.2026): S1–S3** — каталог лексем (`lexemes`, `words.lexeme_id`, `LexemeKey`, `LexemeCatalog`, `lexemes:backfill`), таблицы §2.2–§2.6 (docs/03 §2.66–§2.71), `ScoreRules` и `ScorePeriodService`. **Ядро начисления и подключения сделаны (25.11.2026): S4–S6** — `WordScoreService` за контрактом `AnswerScoreRecorder`, тренировка, игра (§12 — принятые решения и контракт для S7–S16). По умолчанию `leagues.scoring.mode = off`: лиги, тренировка и игра работают по v1, начисление не выполняет ни одного оператора. Таблицы недели/месяца v2, API, экраны, призы и «За всё время» (S7–S16) не сделаны. Решения, которые меняют действующие правила, переносятся в docs/13 §7.3 и §7.6, docs/03, docs/04, docs/06 и docs/19 **до кода** (задача S0, §9).
 
 **Решения владельца 25.11.2026 (docs/31 §5) меняют этот проект** — где они расходятся с текстом ниже, верны они:
 - В1: старт **сразу, без теневого месяца**. Дата 01.02.2027 (§6.2) и порядок выката §9 не действуют: `starts_on` версии 2 — переменная `LEAGUES_SCORING_V2_STARTS_ON` (пусто — не назначена), открытые неделя и месяц перед включением закрываются по старым правилам; `shadow` остаётся только как режим «только запись» на случай отката;
@@ -239,7 +239,7 @@
 | Игра: `collocation`, `sentence`, `dictation`; практика (solo) и баттлы | **нет** | проверяется словосочетание или предложение, а не слово. Баттл — PvP |
 | Экзамен, тест уровня, квиз-напоминание бота | **нет** | измерение, расписание не трогается |
 
-**Конфликт с лестницей (В3).** На ступени 2 ранней лестницы список формы `reverse,audio,flash` чередуется. Без аудиофайлов каждое второе повторение зрелого слова приходит как `flash`, а это 0 очков и закрытая попытка. В итоге 5 очков за «длинный» повтор (интервал ≥ 7 — это как раз ступень 2+) Free получал бы примерно в половине случаев не по своей вине. Сервер выбирает упражнение детерминированно, ученик на это не влияет. Рекомендация: при `leagues.scoring.mode = live` заменить в `learning.ladder.early.form` `flash` на `meaning`, то есть `reverse,audio,meaning`. Это изменение метода docs/06 §12.1 и docs/25. Нужно решение владельца.
+**Конфликт с лестницей (В3) — решено владельцем «да» (25.11.2026), сделано в S5:** пока `leagues.scoring.mode` ≠ `off`, `flash` в списке `form` заменяется на `meaning` (`LadderPolicy::scoringForm`, docs/06 §13.1). На ступени 2 ранней лестницы список формы `reverse,audio,flash` чередуется. Без аудиофайлов каждое второе повторение зрелого слова приходит как `flash`, а это 0 очков и закрытая попытка. В итоге 5 очков за «длинный» повтор (интервал ≥ 7 — это как раз ступень 2+) Free получал бы примерно в половине случаев не по своей вине. Сервер выбирает упражнение детерминированно, ученик на это не влияет. Рекомендация: при `leagues.scoring.mode = live` заменить в `learning.ladder.early.form` `flash` на `meaning`, то есть `reverse,audio,meaning`. Это изменение метода docs/06 §12.1 и docs/25. Нужно решение владельца.
 
 ### 3.3. «В срок», «длинный интервал», «новое слово»
 
@@ -513,9 +513,9 @@ return ScoreOutcome
 | S1 ✅ | Каталог лексем: миграции `lexemes`, `words.lexeme_id`; `LexemeKey`, `LexemeCatalog::ensureFor/matchFor`; подключение к импортёрам, наблюдателю, колодам; `lexemes:backfill` | C | — | нормализация (таблица случаев); платформа и организация создают, колода только совпадает; правка слова меняет лексему; backfill идемпотентен |
 | S2 ✅ | Миграции §2.2–2.6 с `down()` и индексами | C (ревью A) | S1 | migrate/rollback на PG и sqlite |
 | S3 ✅ | `ScoreRules` (версии из конфига, версия периода), `ScorePeriodService::fix()` | C | S2 | версия по дате; категория фиксируется один раз (параллельный тест); смена тарифа посреди недели не меняет категорию |
-| S4 | **Ядро `WordScoreService`** + DTO + контракт `AnswerScoreRecorder` | **A** | S3 | матрица §3.2–3.4: new один раз за историю (две копии, два дня); review/long по назначенному сроку; подтянутая карточка = early; цикл после игры = same_cycle; ошибка или раскрытие закрывают день; лимит штук; остаток 98 → +2; разные категории недели и месяца; полночь; гонки двух соединений на PG (две копии одной лексемы, игра + тренировка) |
-| S5 | Тренировка: снимок состояния «до», `lexeme_id` в `RepetitionWithWord`, вызов до `recordReview`, `AcceptedReview.score`, `ReviewResultResource.score` | A (C — ресурс) | S4 | бюджет `/review` 19, повтор → 409 без начисления, порядок блокировок (тест deadlock на PG), legacy `quality` → 0, flash новой карточки не закрывает |
-| S6 | Игра: `lexeme_id` в снимке, начисление в `RunService::accept`, подсказка/skip/wrong, v2-`RunFinisher` без `game_points` | **A** | S4 | повтор `request_id` не начисляет; подсказка до ответа → 0 и закрыто; pairs/authored → 0; гонка игра + тренировка |
+| S4 ✅ | **Ядро `WordScoreService`** + DTO + контракт `AnswerScoreRecorder` | **A** | S3 | матрица §3.2–3.4: new один раз за историю (две копии, два дня); review/long по назначенному сроку; подтянутая карточка = early; цикл после игры = same_cycle; ошибка или раскрытие закрывают день; лимит штук; остаток 98 → +2; разные категории недели и месяца; полночь; гонки двух соединений на PG (две копии одной лексемы, игра + тренировка) |
+| S5 ✅ (без ресурса) | Тренировка: снимок состояния «до», `lexeme_id` в `RepetitionWithWord`, вызов до `recordReview`, `AcceptedReview.score`, `ReviewResultResource.score` | A (C — ресурс) | S4 | бюджет `/review` 19, повтор → 409 без начисления, порядок блокировок (тест deadlock на PG), legacy `quality` → 0, flash новой карточки не закрывает |
+| S6 ✅ | Игра: `lexeme_id` в снимке, начисление в `RunService::accept`, подсказка/skip/wrong, v2-`RunFinisher` без `game_points` | **A** | S4 | повтор `request_id` не начисляет; подсказка до ответа → 0 и закрыто; pairs/authored → 0; гонка игра + тренировка |
 | S7 | `learner_lexemes:backfill` (подтверждённые по `word_repetitions.state ≠ new`, `confirmed_source = legacy`), режим `shadow` | C | S5, S6 | запускается **после** включения `shadow`; `ON CONFLICT DO NOTHING`; повтор безопасен |
 | S8 | Неделя v2: категории групп, размещение при первом начислении, `computeStandings` top-5, ничьи и зоны, закрытие | **A** | S5 | top-5 с заменой слабого дня (пример 260 → 300); ничья на границе повышения повышает всех; удалённый выпадает; кэш `v3` |
 | S9 | Месяц v2: источник по версии, категории, `RANK()`, кандидаты с ничьими, подтверждение по категориям | **A** | S5 | закрытие идемпотентно; кандидаты включают ничью на границе; v1-месяц не сломан |
@@ -564,3 +564,55 @@ return ScoreOutcome
 8. **Мало Pro.** Pro-группы недели будут маленькими, а Pro-таблица месяца — короткой. Пересмотреть число призов после пилота.
 9. **Рост журнала.** `score_credits` до ~12 ГБ в год при 50 тыс. учеников. Срок хранения 180 дней обязателен с первого дня. Мониторинг размера — в DEVOPS_GUIDE.
 10. **Групповые уроки.** Учитель может назвать ответ вслух. Если в пилоте доля начислений из `group_lesson` у лидеров аномальна, исключить их флагом (`source` в журнале это позволяет).
+
+---
+
+## 12. S4–S6: что сделано и контракт для S7–S16 (architect, 25.11.2026)
+
+### 12.1. Принятые решения (отличия от текста выше)
+
+- **DTO и контракт — в домене Learning**: `Learning\Contracts\AnswerScoreRecorder` (`records()`, `recordsGame()`, `record(ScoredAnswer): WordScoreOutcome`), `Learning\DTO\ScoredAnswer`, `CardStateBefore`, `WordScoreOutcome`, `ScoreDayCount`, `Learning\Enums\AnswerVerdict`, `WordScoreReason`. Имя `ScoreOutcome` занято игрой (`Game\DTO\ScoreOutcome`), поэтому `WordScoreOutcome`. Причины §3.1 дополнены `introductory` и `capped` (начисление записано, но лимиты дали 0 во всех v2-зачётах).
+- **Ленивые входы.** `ScoredAnswer` принимает состояние карточки и тариф как значение или замыкание: игра читает `word_repetitions` (без блокировки) только когда решению нужен срок, тариф (`EntitlementResolver`, кэш) — только на первом начислении рейтингового дня.
+- **Первая встреча с лексемой** — одна вставка строки `learner_lexemes` с итоговыми значениями (`INSERT … ON CONFLICT DO NOTHING`); проиграл гонку — обычный путь под `FOR UPDATE`. Строка дня, созданная этим вызовом, назад не читается. Журнал — `INSERT … ON CONFLICT DO NOTHING`: 0 строк = «уже сегодня», день не трогается.
+- **Обновление `learner_lexemes` — одно на ответ**, в конце (попытка, подтверждение, оплаченный срок и признаки длинного повтора вместе).
+- **`first_long_on`** ставится, когда длинный повтор добавил очки хотя бы в один зачёт (§2.2 «в любой категории»); `long_<категория месяца>_on` — только когда добавил в месячный. В `shadow` (версия 1) признаки не ставятся.
+- **Вид и сырые очки** (`raw_points`, `long_interval_days`) берутся по старшей версии зачётов дня, а если оба зачёта на версии 1 (`shadow`, `live` до `starts_on`) — по последней настроенной версии: записанные факты соответствуют будущим правилам.
+- **`learner_score_totals` в ответе не обновляется** — по §5.2 он пересчитывается целиком из источника (S10, расписание). Запись на каждый ответ меняла бы индексированные `points` (не-HOT UPDATE горячей строки) ради значения, которое и так пересчитывается.
+- **Видимость**: `visible` = `live` и хотя бы один зачёт дня на v2; `toApi()` = `null` при `off`, `shadow` и `live` до старта (контракт §8.1 для старых клиентов не меняется).
+- **Игра** (`RunService::accept`): начисление после оценки, до `RunFinisher`; в теле попытки (`game_run_attempts.result`) блок `score` пишется **только в `live`** — повтор `request_id` отдаёт тот же блок, при `off`/`shadow` тело прежнее. `game_runs.league_points` в неделе v2 копится из `weekAdded` ответов (без запроса на финише); `RunFinisher` в неделе v2 не размещает в лигу и не перезаписывает `league_points`, `game_points` дня не пишет, только когда **и** неделя, **и** месяц на v2 (иначе v1-зачёт месяца потерял бы игру). Версия недели/месяца на финише пока берётся из конфигурации (`ScoreRules::versionFor`) — S8/S9 переводят на `league_weeks/league_months.rules_version`.
+- **Практика («Игры со словами»), баттлы, экзамены, тест уровня, квиз бота, `lesson_review`** — очков не дают и `record()` не вызывают (§3.2, docs/06 §15).
+- **Групповой урок** — источник `group_lesson`. Групповые уроки идут по классической лестнице (`flash` на ступени 0): `flash` невыученной карточки после знакомства — раскрытие, попытка дня закрывается; слово подтверждается в личной тренировке на следующий день.
+- **Индексы** (EXPLAIN на PostgreSQL, миграция `2026_11_25_300101`, docs/03 §2.70): все запросы ядра идут по PK/unique (`learner_lexemes_pkey`, `learner_score_days_learner_id_rating_day_unique`, `learner_score_periods_pkey`, `word_repetitions_learner_id_word_id_unique`); UPDATE `learner_score_days` — HOT, `learner_lexemes` — HOT, кроме записи `first_long_on` (предикат partial-индекса). В `score_credits` B-tree `(rating_day)` заменён на BRIN, снят FK `lexeme_id` (KEY SHARE на общую строку лексемы на каждой вставке), добавлен partial-индекс `voided_by_user_id IS NOT NULL`. Новых индексов на горячих таблицах нет.
+
+### 12.2. Бюджет (закреплён `WordScoreQueryBudgetTest`)
+
+| Путь ответа | Операторов добавляет начисление |
+|---|---|
+| `off`, слово без лексемы, знакомство (`flash` новой карточки) | 0 |
+| попытка дня уже потрачена | 1 |
+| закрыто / рано / тот же цикл / в шагах | 2 |
+| начисление, строка дня есть | 5 |
+| первое начисление рейтингового дня (неделя и месяц уже зафиксированы) | 7 |
+| первое начисление недели (месяц зафиксирован) | 9 |
+| первое начисление недели и месяца | 10 |
+| игра, повторение | +1 (карточка без блокировки) |
+
+`POST /review` (ежедневное повторение, следующее начисление дня): **14 → 19** операторов (`off` — без изменений). `TrainingCycleQueryBudgetTest` (режим `off`) не менялся.
+
+### 12.3. Контракт для S7–S16
+
+- **S7 `learner_lexemes:backfill`** — пачками по `learner_id`, каждая пачка в своей транзакции: `INSERT INTO learner_lexemes (learner_id, lexeme_id, confirmed_on, confirmed_source) SELECT wr.learner_id, w.lexeme_id, <рейтинговый день запуска>, 'legacy' FROM word_repetitions wr JOIN words w ON w.id = wr.word_id WHERE wr.state <> 'new' AND w.lexeme_id IS NOT NULL GROUP BY 1, 2 ON CONFLICT (learner_id, lexeme_id) DO UPDATE SET confirmed_on = COALESCE(learner_lexemes.confirmed_on, EXCLUDED.confirmed_on), confirmed_source = COALESCE(learner_lexemes.confirmed_source, EXCLUDED.confirmed_source)` — строки, созданные ядром до backfill (попытка закрыта, слово не подтверждено), тоже получают подтверждение. Блокирует только `learner_lexemes`; с ответом (одна строка лексемы, затем день) цикла не образует. Запускать до `live`.
+- **S8 неделя v2** — размещение: хук после commit по `WordScoreOutcome::firstCreditOfWeek` (добавить `DB::afterCommit` в `WordScoreService::credit` рядом с `firstOfWeek` — одно место для тренировки и игры). Источник таблицы: `learner_score_days` (`learner_id`, `week_starts_on`, `week_points`, `week_long`, `rating_day`) по unique `(learner_id, rating_day)`. `RunFinisher::v2Periods` перевести на `league_weeks.rules_version`.
+- **S9 месяц v2** — `SUM(month_points)`, `COUNT(month_points > 0)`, `COUNT(month_capped_at)` по `learner_score_days`; `long_words` = `COUNT(DISTINCT lexeme_id) FROM score_credits WHERE learner_id = ? AND rating_day BETWEEN ? AND ? AND kind = 'long' AND month_points > 0 AND voided_at IS NULL` (индекс unique, план проверен); категория — `month_category`.
+- **S10 «За всё время»** — пересчёт из `learner_score_days` по `month_category` + `COUNT(long_<cat>_on IS NOT NULL)` из `learner_lexemes`; ответ не пишет `learner_score_totals`.
+- **S11 исправления** — **порядок блокировок тот же, что у ответа**: сначала строки `learner_lexemes` затронутых лексем (`ORDER BY lexeme_id`, `FOR UPDATE`), потом строка дня, иначе взаимная блокировка с ответом (ответ: лексема → день). Пересчёт дня — повтор лимитов §3.4 по неаннулированным начислениям в порядке `id`; вынести расчёт зачёта из `WordScoreService::credit` в чистую функцию и использовать в обоих местах.
+- **S12 API** — `ReviewResultResource.score` = `ReviewOutcome::$score?->toApi()`; в игре блок `score` уже в теле ответа (`live`). `TodayResource.score_today` — строка `learner_score_days` по unique `(learner_id, rating_day)`; `day_ends_at` — `ScoreRules::ratingDay(now)->addDay()`. Финиш занятия: `SUM(week_points) FROM score_credits WHERE learner_id = ? AND rating_day IN (дни сессии) AND source IN ('training','group_lesson') AND source_id = ?` (индекс unique).
+- **S14 `long_recall_25`** — хук после commit по `WordScoreOutcome::newLongLexeme`, счёт — partial-индекс `learner_lexemes_first_long_idx`.
+- **S16 очистка** — `DELETE FROM score_credits WHERE rating_day < ? AND id IN (SELECT id … LIMIT 5000)` пачками; BRIN `(rating_day)` обслуживает диапазон (план проверен).
+
+### 12.4. Порядок включения на сервере
+
+1. Выкатить код (`mode = off`), `php artisan migrate` (300101 — мгновенно: таблица пуста), `php artisan lexemes:backfill` (и `--decks`).
+2. Выключить `LEARNING_OBJECTIVE_GRADING_ACCEPT_LEGACY_QUALITY` (иначе `reverse`/`audio` старых клиентов — 0 очков).
+3. S7 backfill `learner_lexemes` (иначе каждое изученное слово один раз даст +2).
+4. Закрыть открытые неделю и месяц по v1, `LEAGUES_SCORING_V2_STARTS_ON=<понедельник/1-е>`, затем `LEAGUES_SCORING_MODE=live` (до S8–S12 таблицы и экраны v2 не готовы — включать вместе с ними; `shadow` — только запись для отката).

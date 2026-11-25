@@ -295,7 +295,7 @@ review-карточку** (то есть после того, как слово 
 2. Строка `word_repetitions` существует — иначе 409 `card_not_started`.
 3. Слово в scope сессии (`TrainingScope::contains`: урок сессии для `group_lesson`/`lesson`, любое уже виденное слово для `daily_review`; неактивное слово — всегда вне scope) — иначе 422 `out_of_scope`.
 4. Карточку **можно оценить** (§5.2) — иначе 409 `card_not_due`.
-5. `SpacedRepetitionEngine::applyReview`, запись в `training_reviews`, затем `DailyStatsService::recordReview(learner, quality, timeSpentMs, isNewCard, now)` — **в той же транзакции** (`isNewCard` = карточка была в `new` до этой оценки; агрегат за день наполняет задача 1.3b, в 1.3a это хук-заглушка). Ошибка в любом шаге откатывает всё, включая оценку.
+5. `SpacedRepetitionEngine::applyReview`, запись в `training_reviews`, затем очки за слова (`AnswerScoreRecorder::record`, docs/32 §3, §5.3 ниже) и `DailyStatsService::recordReview(learner, quality, timeSpentMs, isNewCard, now)` — **в той же транзакции** (`isNewCard` = карточка была в `new` до этой оценки; агрегат за день наполняет задача 1.3b, в 1.3a это хук-заглушка). Ошибка в любом шаге откатывает всё, включая оценку.
 
 Операторы транзакции (R12g, порядок блокировок §4.2 прежний): строка сессии `FOR UPDATE` — читаются только `status` и `expires_at`
 (режим и урок сессии не меняются после создания, они берутся из уже прочитанной модели; `course_id` сессии `daily_review` может смениться при `openPersonal()`, но ни scope, ни выбор упражнения его не читают); строка `word_repetitions` **вместе со
@@ -330,6 +330,20 @@ review-карточку** (то есть после того, как слово 
 Лимит `twa.training.max_cards_per_session` считает **оценки** (`training_reviews`), а не слова;
 с шагами 1/10 мин урок из 25 слов стоит ~75 оценок плюс провалы, поэтому значение по умолчанию
 поднято до 200.
+
+### 5.3 Очки за слова в ответе (docs/32 S5, 25.11.2026)
+
+Между `training_reviews` и `learner_daily_stats` ответ передаёт оценку ядру очков через контракт `Learning\Contracts\AnswerScoreRecorder`
+(привязка — `Engagement\Services\Scoring\WordScoreService`). Порядок блокировок транзакции:
+`training_sessions → word_repetitions → learner_lexemes → (learner_score_periods) → learner_score_days → learner_daily_stats`.
+Лексема приходит вместе со словом (`RepetitionWithWord` читает `words.lexeme_id`), состояние карточки «до» (`state`, `interval_days`,
+`last_reviewed_at`) снимается до планировщика, план — тот, что уже в руках. Вердикт: ответ, который проверил сервер (`answer`: выбор
+варианта, ввод), — `Passed` при quality ≥ 3 (опечатка ввода — успех, docs/31 §5 В8) или `Failed`; `flash` новой карточки — знакомство
+(попытка дня не тратится); `flash` любой другой — раскрытие (попытка закрыта, 0); устаревший `quality` у `reverse` / `audio` — не проверено
+(попытка закрыта, 0). Источник — `group_lesson` для группового урока, иначе `training`. Повтор запроса получает 409 до начисления (§5.2).
+`lesson_review` (§15) сюда не попадает: его ответы обслуживает `LessonReviewService`, очков нет. При `leagues.scoring.mode = off` — ни
+одного оператора. Итог (`WordScoreOutcome`) возвращается в `AcceptedReview::$score` / `ReviewOutcome::$score`; блок `score` ответа API —
+`$score->toApi()` (docs/32 §8.1, задача S12).
 
 ## 5a. Игра и расписание («Караван», docs/18 §5, §12.4) — G2.2a
 
@@ -789,7 +803,12 @@ translations json)` (docs/03 §2.21a), импорт — ключ `examples: [{te
   Так работают оба шага обучения (1 и 10 мин) в той же сессии, переучивание после провала и дневные повторения.
 - **Списки-циклы.** У каждой стадии свой список предпочтений (env, через запятую): `recognition` — карточки в минутных шагах
   (`learning` / `relearning`) и `review`-карточки ступеней 0–1 (по умолчанию `meaning,reverse,audio`); `form` — ступень 2
-  (`reverse,audio,flash`); ступень 3 — `gap_fill,spelling` (не настраивается). Выдаётся **следующий после последнего
+  (`reverse,audio,flash`); ступень 3 — `gap_fill,spelling` (не настраивается). **Пока очки за слова записываются**
+  (`leagues.scoring.mode` ≠ `off`, решение владельца В3, docs/31 §5, docs/32 §3.2) `flash` в списке `form` заменяется проверяемым
+  выбором перевода `meaning`: `reverse,audio,flash` → `reverse,audio,meaning` (`LadderPolicy::scoringForm`; уже стоящий в списке `meaning`
+  просто остаётся). Самооценка на зрелом слове дала бы 0 очков и закрыла бы попытку дня — без аудиофайлов это каждое второе повторение
+  ступени 2. Без аудио ступень 2 чередует `reverse` / `meaning`. `flash` остаётся только знакомством с новым словом и запасным вариантом
+  для ученика, выключившего все объективные упражнения. Выдаётся **следующий после последнего
   упражнения слова** (`word_repetitions.meta.last_exercise`, §12.1) элемент списка по кругу, пропуская недоступные (план,
   настройки ученика `exercises.*`, `meaning_enabled`, нет аудио, в примере нет формы слова); последнее упражнение не из
   списка — с начала списка. Поэтому одно слово никогда не приходит дважды подряд в одном формате, а все форматы списка
