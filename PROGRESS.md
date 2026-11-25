@@ -18,6 +18,15 @@
 
 **На сервере (владелец):** `MAIL_FROM_NAME` → Muhrla, если задан через `APP_NAME`; пересоздать nginx; `telegram:setup-bot`; имя и описания у BotFather.
 
+## Озвучка: драйвер Deepgram Aura-2 — основной ✅ код (2026-11-25)
+
+Решение владельца: Deepgram вместо Google (200 $ кредита без карты). Инструкция — `docs/37_DEEPGRAM_TTS_SETUP_RU.md`, решение — `docs/26` §10.
+
+- `DeepgramSpeechSynthesizer` (`TTS_DRIVER=deepgram`, `DEEPGRAM_API_KEY`), голос по умолчанию `aura-2-thalia-en`; драйвер `google` оставлен.
+- Бюджет — общий на весь кредит (строка `dgtotal` в `tts_usage_months`, `DEEPGRAM_TTS_CHAR_LIMIT` = 6 000 000), свой лимитер темпа, свой маркер остановки при 401 / 402 / 403; ключ не попадает в исключения и логи (тест).
+- `audio:sample --voices=a,b,c` — пробы несколькими голосами; строки Deepgram в «Требуют внимания» `/admin`.
+- Проверки: pint, phpstan чисто; pest 8696 passed, 1 failed (`ProductionImageConfigTest`, окружение). **На настоящем Deepgram не проверено** (ключа нет).
+
 ## План соревнований (docs/31), выпуск C — после пробного Pro ✅ код (2026-11-25)
 
 Проект — `docs/34` §2 (реализация — §2б.5, §2д, §2д.1), Mini App — `docs/05` §8c-1.
