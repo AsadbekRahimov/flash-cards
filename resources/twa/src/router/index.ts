@@ -258,6 +258,49 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/FriendsView.vue'),
     meta: { tab: 'rating' },
   },
+  // The friends' cup of a Telegram group (docs/33 §7.1, docs/05 §5d). The bot's buttons lead to `/cups/c/:code` (`TwaScreen::CupInvite`),
+  // `/cups/c/:code/play` (`CupPlay`) and `/cups/setup/:code` (`CupSetup`); the code is a hint which cup to open, the server decides access.
+  {
+    path: '/cups',
+    name: 'cups',
+    component: () => import('@/views/CupsView.vue'),
+    meta: { tab: 'rating' },
+  },
+  {
+    path: '/cups/c/:code',
+    name: 'cup-invite',
+    component: () => import('@/views/CupInviteView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ code: String(route.params.code), play: false, rules: route.query.view === 'rules' }),
+  },
+  {
+    path: '/cups/c/:code/play',
+    name: 'cup-play',
+    component: () => import('@/views/CupInviteView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ code: String(route.params.code), play: true, rules: false }),
+  },
+  {
+    path: '/cups/setup/:code',
+    name: 'cup-setup',
+    component: () => import('@/views/CupSetupView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ code: String(route.params.code) }),
+  },
+  {
+    path: '/cups/:id(\\d+)',
+    name: 'cup',
+    component: () => import('@/views/CupView.vue'),
+    meta: { tab: 'rating' },
+    props: (route) => ({ id: Number(route.params.id) }),
+  },
+  {
+    // The round of the day: immersive, no tab.
+    path: '/cups/:id(\\d+)/round',
+    name: 'cup-round',
+    component: () => import('@/views/CupRoundView.vue'),
+    props: (route) => ({ id: Number(route.params.id) }),
+  },
   // Catch-all -> landing. Telegram sometimes appends junk query params.
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
