@@ -6,7 +6,7 @@ import TodayView from '../TodayView.vue'
 import { api } from '@/api'
 import { setLocale } from '@/i18n'
 import { resetSeenSession } from '@/composables/seenFlag'
-import type { ScoreToday, TodayResponse } from '@/api/types'
+import type { ScoreToday, ScoreTodayCount, TodayResponse } from '@/api/types'
 
 /*
  * "Today N of 100" of the word points v2 (docs/32 §8.2, docs/04 A.2a `score_today`): a card in the style of the goal of the day, the
@@ -128,6 +128,49 @@ describe('TodayView — "Today N of 100" (docs/32 §8.2)', () => {
     expect(w.get('[data-testid=score-today-aside]').classes()).toContain('text-success-ink')
     expect(w.get('[data-testid=score-today-capped]').text()).toBe('На сегодня баллов больше не будет — слова всё равно учатся. Новые баллы — с 00:00')
     expect(w.get('[data-testid=score-today-bar] .progress-fill').attributes('style')).toContain('width: 100%')
+  })
+
+  describe('a full week with a month of its own (a Free week, a Pro month)', () => {
+    const month = (overrides: Partial<ScoreTodayCount> = {}): ScoreTodayCount => ({
+      points: 100, cap: 150, category: 'pro', new: [20, null], review: [20, null], remaining: 50, ...overrides,
+    })
+
+    it('the month still takes points: not "no more points today", but the maximum to the week and what the month has left', async () => {
+      const w = await render(today({ score_today: score({ points: 100, remaining: 0, month: month() }) }))
+
+      expect(w.get('[data-testid=score-today-aside]').text()).toBe('Максимум на сегодня')
+      expect(w.find('[data-testid=score-today-capped]').exists()).toBe(false)
+      expect(w.get('[data-testid=score-today-week-capped]').text()).toBe('В недельный рейтинг на сегодня максимум, в рейтинг месяца ещё 50 баллов')
+      expect(w.get('[data-testid=score-today-month]').text()).toBe('В рейтинг месяца: 100 баллов')
+    })
+
+    it('a month without a cap of its own (the old rules) still takes points: said without a number', async () => {
+      const w = await render(today({ score_today: score({ points: 100, remaining: 0, month: month({ cap: null, remaining: null }) }) }))
+
+      expect(w.find('[data-testid=score-today-capped]').exists()).toBe(false)
+      expect(w.get('[data-testid=score-today-week-capped]').text()).toBe('В недельный рейтинг на сегодня максимум, в рейтинг месяца баллы ещё идут')
+    })
+
+    it('both counts full: the day is over', async () => {
+      const w = await render(today({ score_today: score({ points: 100, remaining: 0, month: month({ points: 150, remaining: 0 }) }) }))
+
+      expect(w.find('[data-testid=score-today-week-capped]').exists()).toBe(false)
+      expect(w.get('[data-testid=score-today-capped]').text()).toBe('На сегодня баллов больше не будет — слова всё равно учатся. Новые баллы — с 00:00')
+    })
+
+    it('the week not full yet: nothing of the cap, whatever the month', async () => {
+      const w = await render(today({ score_today: score({ month: month({ points: 150, remaining: 0 }) }) }))
+
+      expect(w.find('[data-testid=score-today-week-capped]').exists()).toBe(false)
+      expect(w.find('[data-testid=score-today-capped]').exists()).toBe(false)
+    })
+
+    it('in Uzbek', async () => {
+      setLocale('uz')
+      const w = await render(today({ score_today: score({ points: 100, remaining: 0, month: month() }) }))
+
+      expect(w.get('[data-testid=score-today-week-capped]').text()).toBe('Haftalik reytingga bugun maksimum, oylik reytingga yana 50 ball')
+    })
   })
 
   it('says the monthly count only when it differs from the weekly one', async () => {

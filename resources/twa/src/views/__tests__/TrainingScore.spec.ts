@@ -144,6 +144,18 @@ describe('TrainingView — the chip of the word points (docs/32 §8.1)', () => {
     expect(w.find('[data-testid=score-capped]').exists()).toBe(false)
   })
 
+  it('a full week while the month of its own still takes points: no "no more points today"; said once both are full', async () => {
+    const w = await render()
+    const monthDay = (points: number) => ({ points, cap: 150, category: 'pro' as const, new: [2, null] as [number, null], review: [10, null] as [number, null] })
+    await grade(w, reply(flash(2), credited(0, 100, 100, { reason: 'capped', month: 3, today_month: monthDay(120) })))
+
+    expect(w.get('[data-testid=score-chip]').text()).toBe('+3')
+    expect(w.find('[data-testid=score-capped]').exists()).toBe(false)
+
+    await grade(w, reply(flash(3), credited(0, 100, 100, { reason: 'capped', month: 3, today_month: monthDay(150) })))
+    expect(w.get('[data-testid=score-capped]').text()).toBe('На сегодня баллов больше не будет — слова всё равно учатся')
+  })
+
   it('takes the monthly points when only the month counts on the v2 rules', async () => {
     const w = await render()
     await grade(w, reply(flash(2), credited(0, 0, null, { month: 3 })))

@@ -456,6 +456,19 @@ describe('LeagueView', () => {
       expect(wrapper.find('[data-testid=last-week] .icon-tile').exists()).toBe(false)
     })
 
+    it.each([0, null])('a learner out of the ranks of that week (rank %s): "not counted", never a "0th place"', async (rank) => {
+      const { wrapper } = await render(
+        response({ last_week: { starts_on: '2026-10-12', tier: 0, tier_key: 'bronze', result: 'stayed', rank, points: 120 } }),
+      )
+
+      expect(text(wrapper, 'last-week')).toContain('Бронза: вне зачёта, 120 баллов')
+      expect(text(wrapper, 'last-week')).not.toMatch(/\d+-е место/)
+
+      setLocale('uz')
+      await flushPromises()
+      expect(text(wrapper, 'last-week')).toContain('Bronza: hisobdan tashqari, 120 ball')
+    })
+
     it('is absent in a new league', async () => {
       const { wrapper } = await render(response({ last_week: null }))
 
@@ -640,6 +653,34 @@ describe('LeagueView', () => {
       expect(wrapper.find('[data-testid=gap]').exists()).toBe(false)
     })
 
+    it('a tie on points: the place is the nearest better rank, whatever its points (`next_gap` counts the tie-break facts)', async () => {
+      // places 1 / 2 / 4, points 150 / 100 / 100: the 2nd wins on the long repetitions, the server says 1 point to pass it
+      const standings: LeagueStandingItem[] = [
+        { rank: 1, name: 'Dilnoza', points: 150, is_me: false, long_words: 4, active_days: 5 },
+        { rank: 2, name: 'Bek', points: 100, is_me: false, long_words: 3, active_days: 5 },
+        { rank: 2, name: 'Malika', points: 100, is_me: false, long_words: 3, active_days: 5 },
+        { rank: 4, name: 'Aziz', points: 100, is_me: true, long_words: 1, active_days: 5 },
+      ]
+      const { wrapper } = await render(v2({ rank: 4, points: 100, next_gap: 1, standings }))
+      expect(text(wrapper, 'to-next')).toBe('до 2-го места1 балл')
+
+      // everyone above has as many points: still the 2nd, never a made-up 3rd place
+      const even = standings.map((row) => ({ ...row, points: 100 }))
+      even[0] = { ...even[0]!, rank: 1 }
+      const all = await render(v2({ rank: 4, points: 100, next_gap: 1, standings: even }))
+      expect(text(all.wrapper, 'to-next')).toBe('до 2-го места1 балл')
+    })
+
+    it('the row above is not among the rows sent: "to the place above", no number', async () => {
+      const standings: LeagueStandingItem[] = [{ rank: 4, name: 'Aziz', points: 100, is_me: true, long_words: 1, active_days: 5 }]
+      const { wrapper } = await render(v2({ rank: 4, points: 100, next_gap: 3, standings }))
+      expect(text(wrapper, 'to-next')).toBe('до места выше3 балла')
+
+      setLocale('uz')
+      await flushPromises()
+      expect(text(wrapper, 'to-next')).toBe("yuqoridagi o'ringacha3 ball")
+    })
+
     it('a leader has no "to the next place"; a shared first place is said as shared', async () => {
       const leader = v2Standings('none')
       leader[0] = { ...leader[0]!, is_me: true }
@@ -686,6 +727,17 @@ describe('LeagueView', () => {
       useBillingStore().game = { available: true, pro_promise: 'none', coins: 0, tickets: 0 }
       await flushPromises()
       expect(text(wrapper, 'rules-points')).toContain('Баллы дают уроки, повторения и «Караван»')
+    })
+
+    it('the number of best days is the server\'s (`best_days`); an older server, or a broken value, gives the 5 of the build', async () => {
+      const seven = await render({ ...v2(), best_days: 7 })
+      expect(text(seven.wrapper, 'rules-best-days')).toContain('В зачёт недели идут 7 лучших дней')
+
+      const old = await render(v2())
+      expect(text(old.wrapper, 'rules-best-days')).toContain('В зачёт недели идут 5 лучших дней')
+
+      const broken = await render({ ...v2(), best_days: 0 })
+      expect(text(broken.wrapper, 'rules-best-days')).toContain('В зачёт недели идут 5 лучших дней')
     })
 
     it('in Uzbek', async () => {

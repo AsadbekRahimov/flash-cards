@@ -12,7 +12,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { formatDate } from '@/composables/format'
-import { WEEK_BEST_DAYS, tierLabelKey } from '@/composables/leagueTiers'
+import { tierLabelKey, weekBestDays } from '@/composables/leagueTiers'
 import { useRatingTabs } from '@/composables/ratingTabs'
 import { useBackButton } from '@/composables/useBackButton'
 import { useAuthStore } from '@/stores/auth'
@@ -132,8 +132,9 @@ function zoneOf(rank: number): LeagueZone {
 const rowName = (row: LeagueStandingItem): string => row.name || t('league.anonymous')
 
 /**
- * The row right above mine: what it takes to pass it ("to 3rd place — 25 points"). In a v2 week the places are shared (1, 2, 2, 4):
- * the nearest row that is strictly better.
+ * The row right above mine: what it takes to pass it ("to 3rd place — 25 points"). In a v2 week the places are shared (1, 2, 2, 4) and
+ * `next_gap` is counted by the server to the nearest member above me in the table - who may have as many points as I and win on the
+ * long repetitions or the days: the nearest row with a better place, whatever its points. Not among the rows sent - no place is named.
  */
 const above = computed((): LeagueStandingItem | null => {
   const m = membership.value
@@ -141,13 +142,17 @@ const above = computed((): LeagueStandingItem | null => {
   if (m.next_gap === undefined) return m.standings.find((row) => row.rank === m.rank - 1) ?? null
   let nearest: LeagueStandingItem | null = null
   for (const row of m.standings) {
-    if (row.rank < m.rank && row.points > m.points && (nearest === null || row.rank > nearest.rank)) nearest = row
+    if (row.rank < m.rank && (nearest === null || row.rank > nearest.rank)) nearest = row
   }
   return nearest
 })
 
-/** The place "to" is about: the nearest better one. */
-const aboveRank = computed(() => above.value?.rank ?? (membership.value?.rank ?? 2) - 1)
+/** The place "to" is about: the nearest better one; null - not known (a v2 week without that row): "to the place above". */
+const aboveRank = computed((): number | null => {
+  if (above.value) return above.value.rank
+  const m = membership.value
+  return m && m.next_gap === undefined ? m.rank - 1 : null
+})
 
 /**
  * Points to pass the row above: one more than the difference (an equal score does not pass it). A v2 week says it itself (`next_gap`,
@@ -186,6 +191,22 @@ const climbTitle = computed(() => {
   if (!m) return t('league.climb.title_join')
   return m.rank <= 1 ? t('league.climb.title_first') : t('league.climb.title')
 })
+/**
+ * Last week's result: "Bronze: 2nd place, 120 points — promoted!". A learner out of the ranks of that week (opted out or blocked: the
+ * server sends `rank` 0 or null) has no place: "Bronze: not counted, 120 points".
+ */
+const lastWeekLine = computed(() => {
+  const last = data.value?.last_week
+  if (!last) return ''
+  const tier = tierName(last.tier_key)
+  const points = tn('league.score', last.points)
+  if (last.rank === null || last.rank < 1) return t('league.last.unranked', { tier, points })
+  return t(LAST_WEEK[last.result], { tier, rank: last.rank, points })
+})
+
+/** How many best days count in the week: the server's word (`best_days`), the build's constant for an older server. */
+const bestDays = computed(() => weekBestDays(data.value?.best_days))
+
 const climbText = computed(() => t(billing.gameAccess.available ? 'league.climb.points_caravan' : 'league.climb.points'))
 /** The rules of a v2 week: what gives points (the Caravan only while the game is open to the learner). */
 const rulesPoints = computed(() => t(billing.gameAccess.available ? 'league.rules_v2.points_caravan' : 'league.rules_v2.points'))
@@ -341,7 +362,7 @@ onMounted(() => {
             <span class="h-[30px] w-px shrink-0 bg-accent-line" aria-hidden="true" />
             <p class="min-w-0 text-[13px] leading-[17px]" data-testid="to-next">
               <template v-if="toNext !== null">
-                {{ t('league.to_next_short', { rank: aboveRank }) }}<br />{{ tn('league.score', toNext) }}
+                {{ aboveRank !== null ? t('league.to_next_short', { rank: aboveRank }) : t('league.to_next_above') }}<br />{{ tn('league.score', toNext) }}
               </template>
               <template v-else-if="sharedFirst">{{ t('league.shared_first') }}</template>
               <template v-else>{{ t('league.first_place') }}</template>
@@ -443,15 +464,7 @@ onMounted(() => {
         </RouterLink>
 
         <ListGroup v-if="data.last_week" :header="t('league.last_week')" data-testid="last-week">
-          <ListRow
-            :title="
-              t(LAST_WEEK[data.last_week.result], {
-                tier: tierName(data.last_week.tier_key),
-                rank: data.last_week.rank,
-                points: tn('league.score', data.last_week.points),
-              })
-            "
-          />
+          <ListRow :title="lastWeekLine" />
         </ListGroup>
 
         <details class="list group" data-testid="rules">
@@ -464,7 +477,7 @@ onMounted(() => {
             <template v-if="v2">
               <p data-testid="rules-groups">{{ t('league.rules_v2', { capacity: data.rules.capacity, promote: data.rules.promote, demote: data.rules.demote }) }}</p>
               <p data-testid="rules-points">{{ rulesPoints }}</p>
-              <p data-testid="rules-best-days">{{ t('league.rules_v2.best_days', { days: WEEK_BEST_DAYS }) }}</p>
+              <p data-testid="rules-best-days">{{ t('league.rules_v2.best_days', { days: bestDays }) }}</p>
             </template>
             <p v-else>{{ t('league.rules', { capacity: data.rules.capacity, promote: data.rules.promote, demote: data.rules.demote }) }}</p>
           </div>

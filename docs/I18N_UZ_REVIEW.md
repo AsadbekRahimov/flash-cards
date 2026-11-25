@@ -4726,7 +4726,7 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 
 ## Выпуск 2 · очки за слова v2 в Mini App: «Сегодня N из 100», чип ответа, финиш, неделя и месяц Free / Pro (docs/32 §8, S13, 26.11.2026) — на проверку носителю
 
-Термин один во всём приложении — «ball» (ru «балл»), как у баллов лиги (`league.score`). Числа (баллы, потолок дня, места) приходят с сервера; «5» лучших дней — пока константа приложения (`WEEK_BEST_DAYS`). «Free» и «Pro» — названия таблиц, не переводятся. Носителю проверить: естественно ли «Bugungi maksimum», «uzoq: {count}» (сокращение «долгих повторений» в строке таблицы), «ball olgan kunlari» и «bellashyapsiz».
+Термин один во всём приложении — «ball» (ru «балл»), как у баллов лиги (`league.score`). Числа (баллы, потолок дня, места) приходят с сервера; «5» лучших дней — число сервера (`best_days` в `GET /league`), у старого сервера — константа приложения (`WEEK_BEST_DAYS`). «Free» и «Pro» — названия таблиц, не переводятся. Носителю проверить: естественно ли «Bugungi maksimum», «uzoq: {count}» (сокращение «долгих повторений» в строке таблицы), «ball olgan kunlari» и «bellashyapsiz».
 
 | Ключ | uz | ru |
 |---|---|---|
@@ -4737,16 +4737,20 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `score.today.capped` | Bugun boshqa ball berilmaydi — so'zlar baribir o'rganiladi | На сегодня баллов больше не будет — слова всё равно учатся (карточка и занятие) |
 | `score.today.day_ends` | Yangi ballar soat {time} dan boshlab | Новые баллы — с {time} (начало следующего рейтингового дня) |
 | `score.today.month` | Oylik reytingga: {points} | В рейтинг месяца: {points} |
+| `score.today.week_capped` | Haftalik reytingga bugun maksimum, oylik reytingga yana {points} | В недельный рейтинг на сегодня максимум, в рейтинг месяца ещё {points} (у месяца свой остаток дня) |
+| `score.today.week_capped_month_open` | Haftalik reytingga bugun maksimum, oylik reytingga ballar hali qo'shiladi | В недельный рейтинг на сегодня максимум, в рейтинг месяца баллы ещё идут (месяц без потолка дня) |
 | `score.category.free` | Free | Free (таблица) |
 | `score.category.pro` | Pro | Pro (таблица) |
 | `score.chip_label` | Berildi: {points} | Начислено: {points} (подпись чипа «+3» для экранного диктора) |
 | `finished.score.week` | haftalik reytingga +{count} | в недельный рейтинг +{count} |
 | `finished.score.month` | oylik reytingga +{count} | в месяц +{count} |
 | `finished.score.both` | haftalik va oylik reytingga +{count} | в неделю и месяц +{count} |
-| `finished.score.capped` | {count} ball kunlik chegaradan oshgani uchun hisoblanmadi | {count} баллов сверх дневного потолка не засчитаны |
+| `finished.score.capped` | {count} ball kunlik limitlardan oshgani uchun hisoblanmadi | {count} баллов сверх дневных лимитов не засчитаны (потолок дня и лимиты штук: новых слов, повторений) |
 | `finished.score.today` | Bugun: {count} | Сегодня: {count} |
 | `league.category` | {category} guruhi | Группа {category} |
 | `league.shared_first` | Siz birinchi o'rinni boshqalar bilan bo'lishyapsiz | Вы делите первое место |
+| `league.to_next_above` | yuqoridagi o'ringacha | до места выше (над строкой «N баллов», когда места выше нет среди строк) |
+| `league.last.unranked` | {tier}: hisobdan tashqari, {points} | {tier}: вне зачёта, {points} (прошлая неделя ученика вне рангов: отказ от лиг, блокировка) |
 | `league.row.days` | {count} kun | {count} дн. (дни с баллами в строке таблицы) |
 | `league.row.long` | uzoq: {count} | долгих: {count} (долгие повторения в строке таблицы) |
 | `league.rules_v2` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. |
@@ -4756,7 +4760,7 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `month.category_switch` | Oylik jadval | Таблица месяца (подпись переключателя Free / Pro) |
 | `month.read_only` | Bu {category} jadvali. Siz {mine} jadvalida bellashyapsiz. | Это таблица {category}. Вы соревнуетесь в таблице {mine}. |
 | `month.prizes_category` | Sovrinlar · {category} | Призы · {category} |
-| `month.next_gap_plain` | Keyingi o'ringacha — {points} | До следующего места — {points} |
+| `month.next_gap_plain` | Yuqoridagi o'ringacha — {points} | До места выше — {points} (участника выше нет среди показанных строк) |
 | `month.long_words` | Uzoq takrorlashlar: {count} | Долгих повторений: {count} |
 | `month.more` | Yana ko'rsatish | Показать ещё |
 | `month.neighbours` | Sizga yaqinlar | Рядом с вами (подпись группы соседей) |

@@ -226,9 +226,12 @@ export interface LeagueResponse {
   week: { starts_on: string; ends_on: string; closes_at: string }
   rules: { capacity: number; promote: number; demote: number; tiers: LeagueTierKey[] }
   membership: LeagueMembership | null
-  last_week: { starts_on: string; tier: number; tier_key: LeagueTierKey; result: LeagueResult; rank: number; points: number } | null
+  /** `rank`: 0 or null - the learner was out of the ranks of that week (opted out, blocked). */
+  last_week: { starts_on: string; tier: number; tier_key: LeagueTierKey; result: LeagueResult; rank: number | null; points: number } | null
   /** 2: the week counts by the word points (docs/32); absent: the v1 points. */
   rules_version?: number
+  /** A v2 week: how many best days of the week count (docs/32 §3.5); absent on an older server. */
+  best_days?: number
 }
 
 /** GET /league/month (docs/04 A.19, docs/13 §7.6): the monthly rating over the same league points. */

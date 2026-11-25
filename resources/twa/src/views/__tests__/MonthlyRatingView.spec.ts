@@ -426,6 +426,61 @@ describe('MonthlyRatingView', () => {
       expect(text(wrapper, 'rules-points')).toContain('Free и Pro соревнуются в отдельных таблицах')
     })
 
+    it('a tie on points: the place is the nearest better rank, whatever its points (`next_gap` counts the tie-break facts)', async () => {
+      // places 10 / 11 / 12 (me): the 11th has as many points as I and more long repetitions - the server says 1 point to pass it
+      const tie = v2({
+        me: me({ category: 'free', long_words: 1, next_gap: 1 }),
+        neighbours: { above: [boardRow(10, { points: 910 }), boardRow(11, { points: 340, long_words: 4 })], below: [] },
+      })
+      const { wrapper } = await render(tie)
+      expect(text(wrapper, 'next-gap')).toBe('До 11-го места — 1 балл')
+
+      // everyone shown above has as many points: still the nearest better rank, never a made-up one
+      const even = v2({
+        top: top(10, null).map((row) => ({ ...row, points: 340, long_words: 5 })),
+        me: me({ category: 'free', long_words: 1, next_gap: 1 }),
+        neighbours: { above: [boardRow(10, { points: 340 }), boardRow(10, { points: 340, name: 'Tie' })], below: [] },
+      })
+      const second = await render(even)
+      expect(text(second.wrapper, 'next-gap')).toBe('До 10-го места — 1 балл')
+    })
+
+    it('no better row among the rows shown: "to the place above", no number', async () => {
+      const { wrapper } = await render(v2({ top: [], neighbours: { above: [], below: [] }, me: me({ category: 'free', next_gap: 4 }) }))
+      expect(text(wrapper, 'next-gap')).toBe('До места выше — 4 балла')
+
+      setLocale('uz')
+      const uz = await render(v2({ top: [], neighbours: { above: [], below: [] }, me: me({ category: 'free', next_gap: 4 }) }))
+      expect(text(uz.wrapper, 'next-gap')).toBe("Yuqoridagi o'ringacha — 4 ball")
+    })
+
+    it('a page on its way while the table fails to reload: "Show more" is not left disabled', async () => {
+      byCategory({ own: v2() })
+      const router = makeRouter()
+      await router.push('/league/month')
+      await router.isReady()
+      const wrapper = mount(MonthlyRatingView, { global: { plugins: [router] } })
+      await flushPromises()
+      vi.mocked(api.league.monthPage).mockReturnValueOnce(new Promise(() => {}))
+
+      await wrapper.get('[data-testid=more]').trigger('click')
+      expect(useMonthlyRatingStore().loadingMore).toBe(true)
+      vi.mocked(api.league.month).mockRejectedValueOnce(new ApiClientError('network', 0, 'network', 'x'))
+      await wrapper.get('[data-testid=category-pro]').trigger('click')
+      await flushPromises()
+
+      const store = useMonthlyRatingStore()
+      expect(store.status).toBe('error')
+      expect(store.loadingMore).toBe(false)
+      expect(wrapper.get('[data-testid=more]').attributes('disabled')).toBeUndefined()
+
+      // the next page is asked again on a tap
+      vi.mocked(api.league.monthPage).mockResolvedValueOnce(page([boardRow(11)], null))
+      await wrapper.get('[data-testid=more]').trigger('click')
+      await flushPromises()
+      expect(api.league.monthPage).toHaveBeenCalledTimes(2)
+    })
+
     it('switches to the other table: one request of the month, nothing else; the table is read only, no neighbours, my card stays', async () => {
       byCategory({ own: v2(), pro: proTable() })
       const router = makeRouter()

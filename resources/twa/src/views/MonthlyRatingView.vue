@@ -150,14 +150,18 @@ const pinnedMe = computed(() => {
   return mine !== null && mine.participant && mine.rank !== null && !shownRows.value.some((row) => row.is_me) ? mine : null
 })
 
-/** "To 4th place — 8 points" (v2, my own table): the nearest better place among the rows on screen; without one - "to the next place". */
+/**
+ * "To 4th place — 8 points" (v2, my own table). The server counts `next_gap` to the nearest member above me in the table, who may have
+ * as many points as I and win on the long repetitions or the days: the place is the nearest better rank among the rows on screen,
+ * whatever their points; without one - "to the place above".
+ */
 const nextGapLine = computed(() => {
   const mine = me.value
   const gap = mine?.next_gap
   if (!v2.value || readOnly.value || mine === null || mine.rank === null || gap === null || gap === undefined) return ''
   let rank: number | null = null
   for (const row of [...shownRows.value, ...(data.value?.neighbours?.above ?? [])]) {
-    if (row.points > mine.points && row.rank < mine.rank && (rank === null || row.rank > rank)) rank = row.rank
+    if (row.rank < mine.rank && (rank === null || row.rank > rank)) rank = row.rank
   }
   const points = tn('month.points', gap)
   return rank === null ? t('month.next_gap_plain', { points }) : t('league.to_next', { rank, points })

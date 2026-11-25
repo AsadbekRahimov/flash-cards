@@ -20,6 +20,7 @@ import {
   type TrainingMode,
   type TrainingStartResponse,
   type WordScore,
+  type WordScoreDay,
 } from '@/api/types'
 
 type Progress = { done: number; total: number }
@@ -468,7 +469,7 @@ export const useTrainingStore = defineStore('training', {
      */
     /**
      * The chip of the word points of an answer (docs/32 §8.1): the points the weekly count got (`score.week`; the monthly one when only
-     * it counts on the v2 rules); the cap of the day - the one reason of "no points" worth a word - once a session. Every other reason
+     * it counts on the v2 rules); the cap of the day (of both counts) - the one reason of "no points" worth a word - once a session. Every other reason
      * (already today, early, the introduction of a word...) says nothing. The answer itself is not touched.
      */
     noteScore(score: WordScore | null): void {
@@ -478,7 +479,10 @@ export const useTrainingStore = defineStore('training', {
       }
       const points = score.week > 0 ? score.week : Math.max(0, score.month)
       const day = score.today
-      const atCap = day !== null && day.cap !== null && day.points >= day.cap
+      // The day is at its cap only when the monthly count (`today_month`, sent when it differs from the weekly one) is full too: a
+      // Free week at its cap with a Pro month that still grows gets points.
+      const full = (count: WordScoreDay | null): boolean => count !== null && count.cap !== null && count.points >= count.cap
+      const atCap = full(day) && (score.today_month === null || full(score.today_month))
       const capped = atCap && !this.scoreCapNoted
       if (capped) this.scoreCapNoted = true
       this.wordScore = points > 0 || capped ? { seq: (scoreSeq += 1), points, capped } : null

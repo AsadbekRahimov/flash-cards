@@ -60,12 +60,15 @@ export const useMonthlyRatingStore = defineStore('monthlyRating', {
         this.more = []
         this.cursor = data.next_cursor ?? null
         this.moreError = ''
-        this.loadingMore = false
         this.status = 'ready'
       } catch (err) {
         if (mine !== generation) return
         this.status = 'error'
         this.errorMessage = errorMessage(err, 'settings')
+      } finally {
+        // A page asked before this load is dropped (its generation is gone, it never resets the flag itself): the flag is reset with the
+        // load, whether it succeeded or failed.
+        if (mine === generation) this.loadingMore = false
       }
     },
 

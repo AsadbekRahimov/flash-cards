@@ -91,7 +91,7 @@ describe('FinishedView — the word points of the session (docs/32 §8.2)', () =
     expect(w.findAll('[data-testid=points-earned]')).toHaveLength(1)
     expect(w.get('[data-testid=points-earned]').text()).toBe('+70 баллов')
     expect(w.get('[data-testid=score-split]').text()).toBe('в недельный рейтинг +40 · в месяц +65')
-    expect(w.get('[data-testid=score-capped-off]').text()).toBe('5 баллов сверх дневного потолка не засчитаны')
+    expect(w.get('[data-testid=score-capped-off]').text()).toBe('5 баллов сверх дневных лимитов не засчитаны')
     expect(w.get('[data-testid=score-today-line]').text()).toBe('Сегодня: 100 / 100 баллов')
     // `league_points` (65 = week_added) is not a number of its own on the screen
     expect(block.text()).not.toContain('+65 баллов')
@@ -132,7 +132,7 @@ describe('FinishedView — the word points of the session (docs/32 §8.2)', () =
 
     expect(w.get('[data-testid=points-earned]').text()).toBe('+70 ball')
     expect(w.get('[data-testid=score-split]').text()).toBe('haftalik reytingga +40 · oylik reytingga +65')
-    expect(w.get('[data-testid=score-capped-off]').text()).toBe('5 ball kunlik chegaradan oshgani uchun hisoblanmadi')
+    expect(w.get('[data-testid=score-capped-off]').text()).toBe('5 ball kunlik limitlardan oshgani uchun hisoblanmadi')
     expect(w.get('[data-testid=score-today-line]').text()).toBe('Bugun: 100 / 100 ball')
   })
 })
