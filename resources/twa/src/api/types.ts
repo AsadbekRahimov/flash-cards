@@ -183,12 +183,21 @@ export type LeagueTierKey = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond
 export type LeagueResult = 'promoted' | 'stayed' | 'demoted'
 export type LeagueZone = 'promotion' | 'safe' | 'demotion'
 
+/** The table of the word points v2 a learner competes in (docs/32 §2.3): fixed by the first credit of the week / month. */
+export type ScoreCategory = 'free' | 'pro'
+
 export interface LeagueStandingItem {
+  /** A v2 week: the competition rank - a shared place reads 1, 2, 2, 4. */
   rank: number
   /** First name of the member; null = no name to show. Nothing else of other people is sent. */
   name: string | null
   points: number
   is_me: boolean
+  /** The emoji of Pro next to the name (docs/31 §5а): only while the member's Pro is live; absent on an older server. */
+  pro_emoji?: string | null
+  /** A v2 week (docs/32 §5.1): the tie-break facts of the best days - long repetitions, days with points. Absent in a v1 week. */
+  long_words?: number
+  active_days?: number
 }
 
 export interface LeagueMembership {
@@ -203,6 +212,11 @@ export interface LeagueMembership {
   /** Points missing to leave the demotion zone; null when not in it or the tier cannot demote. */
   points_to_safety: number | null
   standings: LeagueStandingItem[]
+  /** A v2 week (docs/32 §8.3): the table of the group; absent in a v1 week. */
+  category?: ScoreCategory
+  rules_version?: number
+  /** Points that overtake the nearest better place for sure; null for a leader. Absent in a v1 week. */
+  next_gap?: number | null
 }
 
 export interface LeagueResponse {
@@ -213,6 +227,8 @@ export interface LeagueResponse {
   rules: { capacity: number; promote: number; demote: number; tiers: LeagueTierKey[] }
   membership: LeagueMembership | null
   last_week: { starts_on: string; tier: number; tier_key: LeagueTierKey; result: LeagueResult; rank: number; points: number } | null
+  /** 2: the week counts by the word points (docs/32); absent: the v1 points. */
+  rules_version?: number
 }
 
 /** GET /league/month (docs/04 A.19, docs/13 §7.6): the monthly rating over the same league points. */
@@ -240,6 +256,33 @@ export interface MonthlyTopRow {
   points: number
   active_days: number
   is_me: boolean
+  /** The emoji of Pro next to the name (docs/31 §5а), only while that Pro is live; absent on an older server. */
+  pro_emoji?: string | null
+  /** A v2 month: the tie-break fact (distinct long repetitions); absent in a v1 month. */
+  long_words?: number
+}
+
+/** A row of a v2 table outside the top (neighbours, pages after a cursor, docs/32 §5.3). */
+export interface BoardRow {
+  /** The competition rank: a shared place reads 7, 7, 9. */
+  rank: number
+  name: string | null
+  points: number
+  long_words: number
+  active_days: number
+  is_me: boolean
+  pro_emoji: string | null
+}
+
+/** GET /league/month?category=&after=… : the page of a v2 table after a cursor; 422 `invalid_cursor` for a cursor of another table. */
+export interface LeagueBoardPage {
+  rules_version: number
+  category: ScoreCategory
+  /** The other table (Free ↔ Pro): shown, the learner has no place in it. */
+  read_only: boolean
+  rows: BoardRow[]
+  /** `after` of the next page; null on the last one. */
+  next_cursor: string | null
 }
 
 export interface MonthlyMe {
@@ -253,14 +296,27 @@ export interface MonthlyMe {
   missing: { active_days: number; account_days: number }
   /** Why the learner has no place (docs/34 §3): `opted_out`, `blocked`; null for a participant. */
   not_counted_reason: 'opted_out' | 'blocked' | null
+  /** A v2 month (docs/32 §8.3): the learner's table, the tie-break fact, the points to the next place (null: leader / no place). */
+  category?: ScoreCategory | null
+  long_words?: number
+  next_gap?: number | null
+}
+
+export interface MonthlyWinner {
+  place: number
+  name: string | null
+  points: number
 }
 
 export interface MonthlyLastMonth {
   starts_on: string
   ends_on: string
   status: MonthlyRatingStatus
-  winners: { place: number; name: string | null; points: number }[]
-  me: { rank: number; points: number } | null
+  /** A v2 month: the winners of the table shown now (`category` of the answer). */
+  winners: MonthlyWinner[]
+  me: { rank: number; points: number; category?: ScoreCategory | null } | null
+  /** A v2 month: every table under its category; absent in a v1 month. */
+  winners_by_category?: { free: MonthlyWinner[]; pro: MonthlyWinner[] }
 }
 
 export interface MonthlyRatingResponse {
@@ -282,6 +338,19 @@ export interface MonthlyRatingResponse {
   /** null: the learner has not studied this month yet. */
   me: MonthlyMe | null
   last_month: MonthlyLastMonth | null
+  /**
+   * A month of the word points v2 (docs/32 §8.3); every key below is absent in a v1 month. `month.participants`, `prizes` and `top`
+   * are those of the table shown (`category`: `?category=` or the learner's own).
+   */
+  rules_version?: number
+  category?: ScoreCategory
+  my_category?: ScoreCategory
+  /** The other table: no place of the learner in it, no neighbours. */
+  read_only?: boolean
+  /** `?after=` of the page after the top; null: the top is the whole table. */
+  next_cursor?: string | null
+  /** Two rows above and below the learner in their own table; null: not shown (other table, no place). */
+  neighbours?: { above: BoardRow[]; below: BoardRow[] } | null
 }
 
 /** GET /league/month/me: the light variant for the finish screen. */
@@ -319,6 +388,8 @@ export interface AchievementsResponse {
 export interface FriendItem {
   id: number
   first_name: string | null
+  /** The friend's emoji of Pro (docs/31 §5а) while his Pro is live; absent on an older server. */
+  pro_emoji?: string | null
   streak: number
   words_learned: number
   since: string | null
@@ -619,6 +690,40 @@ export interface SessionSummary {
   hard_round_offer?: HardRound | null
   /** The review of a lesson (docs/06 §15): words of its set answered right / on the first serve; null / absent in every other mode. */
   lesson_review?: { total: number; won: number; first_try: number } | null
+  /** The word points of the session (docs/32 §8.2); absent outside the v2 rules (then `league_points` is the v1 formula). */
+  score_session?: SessionScore
+}
+
+/** "Today N of 100" (docs/32 §8.2): the rating day as it stands; `month` only when the monthly count differs. */
+export interface ScoreTodayCount {
+  points: number
+  /** null: the count is on the old rules. */
+  cap: number | null
+  category: ScoreCategory
+  new: [number, number | null]
+  review: [number, number | null]
+  /** What is left of the cap today; null without a cap. */
+  remaining: number | null
+}
+
+export interface ScoreToday extends ScoreTodayCount {
+  /** Midnight of the rating day (Tashkent), ISO 8601 UTC: "the rating day ends at 22:00". */
+  day_ends_at: string
+  month: ScoreTodayCount | null
+}
+
+/** What a training session brought in word points (docs/32 §8.2). */
+export interface SessionScore {
+  /** By the rules, before the limits ("+70 for the session"). */
+  earned: number
+  week_added: number
+  month_added: number
+  /** How much the week's sum of the best days grew ("+40 to the weekly rating"). */
+  week_rating_delta: number
+  /** What the limits of the day cut off. */
+  capped_off: number
+  /** The rating day after the session; null: no credit today. */
+  today: ScoreToday | null
 }
 
 /** A word failed in an earlier session (objective exercise) and answered right at its first grade in the round of hard words. */
@@ -810,6 +915,8 @@ export interface TodayResponse {
   assignments_possible?: boolean
   /** The plan of the day (docs/31 §5б); absent on an older server. */
   plan?: DayPlan | null
+  /** "Today N of 100" of the word points (docs/32 §8.2); absent outside the v2 rules. */
+  score_today?: ScoreToday
 }
 
 export interface TodayGame {
@@ -1764,6 +1871,8 @@ export type BattleVerdict = PracticeVerdict | 'timeout'
 
 export interface BattleOpponent {
   first_name: string | null
+  /** The emoji of Pro next to the name (docs/31 §5а) while that Pro is live; absent on an older server. */
+  pro_emoji?: string | null
 }
 
 /** One format of GET /practice/battles/options (docs/16 §7.3). */

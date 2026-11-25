@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\Twa;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Engagement\Services\Scoring\SessionScoreService;
 use App\Domain\Learners\Services\TodayService;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Exceptions\HardRoundException;
@@ -44,6 +45,7 @@ final class TrainingController
         private readonly CourseCatalogService $catalog,
         private readonly HardRoundService $hardRound,
         private readonly LessonReviewService $lessonReview,
+        private readonly SessionScoreService $sessionScores,
     ) {}
 
     /**
@@ -162,6 +164,8 @@ final class TrainingController
             'hard_round_offer' => in_array($summary->session->mode, [TrainingSession::MODE_HARD_REVIEW, TrainingSession::MODE_LESSON_REVIEW], true) || ! $this->hardRound->enabled()
                 ? null
                 : $this->hardRound->availability($learner)->toArray(),
+            // The word points of the session and the rating day after it (docs/32 §8.2): two reads in `live`, none otherwise.
+            'score' => $this->sessionScores->forSession($summary->session, $summary->reviewed, CarbonImmutable::now()),
         ]))->response();
     }
 

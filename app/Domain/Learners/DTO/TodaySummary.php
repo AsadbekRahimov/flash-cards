@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learners\DTO;
 
 use App\Domain\Billing\DTO\Entitlement;
+use App\Domain\Engagement\DTO\ScoreToday;
 use App\Domain\Engagement\DTO\TodayLeague;
 
 /**
@@ -24,6 +25,7 @@ final readonly class TodaySummary
      * @param  array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null  $hardRound  the round of hard words (docs/06 §14); null while it is switched off
      * @param  bool  $assignmentsPossible  false: the learner is in no group linked to a center, so `GET /assignments` is surely empty; true: maybe
      * @param  DayPlan|null  $plan  the plan of the day: lesson -> review -> game (docs/31 §5б)
+     * @param  ScoreToday|null  $scoreToday  "Today N of 100" of the word points (docs/32 §8.2); null outside `live` and while the day is on v1
      */
     public function __construct(
         public int $dueCount,
@@ -41,5 +43,6 @@ final readonly class TodaySummary
         public ?array $hardRound = null,
         public bool $assignmentsPossible = true,
         public ?DayPlan $plan = null,
+        public ?ScoreToday $scoreToday = null,
     ) {}
 }

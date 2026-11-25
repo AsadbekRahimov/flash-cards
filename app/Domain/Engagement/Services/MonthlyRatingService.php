@@ -7,10 +7,13 @@ namespace App\Domain\Engagement\Services;
 use App\Domain\Administration\Services\PendingLeagueMonthsBadge;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Engagement\DTO\BoardCursor;
+use App\Domain\Engagement\DTO\BoardPageCursor;
 use App\Domain\Engagement\DTO\BoardRow;
 use App\Domain\Engagement\DTO\BoardScope;
 use App\Domain\Engagement\DTO\LastMonthView;
+use App\Domain\Engagement\DTO\MonthlyBoardPage;
 use App\Domain\Engagement\DTO\MonthlyMeView;
 use App\Domain\Engagement\DTO\MonthlyMyLine;
 use App\Domain\Engagement\DTO\MonthlyPrize;
@@ -19,9 +22,11 @@ use App\Domain\Engagement\DTO\MonthlyStanding;
 use App\Domain\Engagement\Enums\LeagueMonthCandidateStatus;
 use App\Domain\Engagement\Enums\LeagueMonthStatus;
 use App\Domain\Engagement\Enums\ScoreCategory;
+use App\Domain\Engagement\Exceptions\InvalidBoardCursor;
 use App\Domain\Engagement\Services\Scoring\ScoreBoard;
 use App\Domain\Engagement\Services\Scoring\ScoreRules;
 use App\Domain\Engagement\Support\LeaguePoints;
+use App\Domain\Learners\Services\ProEmojiService;
 use App\Domain\Learners\Support\StoredDate;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\LeagueMonth;
@@ -64,6 +69,7 @@ use Throwable;
  * neither `learners` nor anything of the weekly leagues is ever locked here.
  *
  * @phpstan-import-type MonthlyStandingArray from MonthlyStanding
+ * @phpstan-import-type BoardRowArray from BoardRow
  */
 final class MonthlyRatingService
 {
@@ -76,11 +82,30 @@ final class MonthlyRatingService
      */
     public const TOP_PREFIX_V2 = 'league:month:top:v2:';
 
+    /**
+     * `league:month:rank:v1:{month}:{category}:{points}:{long_words}:{active_days}` - the competition place of a tuple in a table of an
+     * open v2 month (an int; docs/32 §5.3 "кэш своего места", docs/19 §3). The place depends only on the tuple and on the others, so the
+     * key holds the tuple: the viewer's own credit (a new tuple after the refresh of their row) reads a new key at once - no
+     * invalidation needed - and only the moves of the others lag behind by up to `monthly.rank_cache_seconds` (60 s). Learners with the
+     * same tuple share the entry. The worst case without it is one count of ~10 ms (docs/32 §12.6).
+     */
+    public const RANK_PREFIX = 'league:month:rank:v1:';
+
+    /**
+     * `league:month:near:v1:{month}:{category}:{learner}:{points}:{long_words}:{active_days}` - the viewer's neighbours in an open v2
+     * month (`{above, below, rank, next_gap}`, the rows as {@see BoardRow::toArray()} with the emoji of Pro): six statements and the emoji
+     * once a minute at most; the same rule of the key as {@see RANK_PREFIX}. An emoji of a neighbour whose Pro has run out shows at most
+     * the TTL.
+     */
+    public const NEAR_PREFIX = 'league:month:near:v1:';
+
     public function __construct(
         private readonly ProductEventRecorder $events,
         private readonly LeagueService $leagues,
         private readonly ScoreRules $scoreRules,
         private readonly ScoreBoard $board,
+        private readonly ProEmojiService $proEmoji,
+        private readonly EntitlementResolver $entitlements,
     ) {}
 
     /** Whether the month counts by the word points v2 (`league_months.rules_version`, written at creation, never changed). */
@@ -307,8 +332,12 @@ final class MonthlyRatingService
 
     // --- reading -----------------------------------------------------------------------------
 
-    /** What `GET /api/twa/league/month` shows. */
-    public function overview(Learner $learner, CarbonImmutable $now): MonthlyRatingOverview
+    /**
+     * What `GET /api/twa/league/month` shows. A v2 month has two tables (docs/32 §8.3): the viewer's own - the category of their row of
+     * the month, else of their plan (a learner without a credit yet) - and the other one, which `$category` may open read-only: its top,
+     * prizes and participants, while `me` stays the viewer's own line and the neighbours are only shown in their own table.
+     */
+    public function overview(Learner $learner, CarbonImmutable $now, ?ScoreCategory $requested = null): MonthlyRatingOverview
     {
         $first = $this->monthStart($now);
         $enabled = $this->enabled();
@@ -317,9 +346,13 @@ final class MonthlyRatingService
         if ($month !== null) {
             $this->refreshLearner($month, $learner, $now);
         }
-        // A v2 month has two tables: the viewer's (the category of their month), Free until they have a credit (S12 decides by the plan).
-        $category = $month !== null && self::isV2($month) ? ($this->scoreOf($month, $learner->id)->category ?? ScoreCategory::Free->value) : null;
-        $category = $category === null ? null : ScoreCategory::from($category);
+        $score = $month === null ? null : $this->scoreOf($month, $learner->id);
+        $v2 = $month !== null && self::isV2($month);
+        $myCategory = $v2 ? $this->categoryOf($learner, $score, $now) : null;
+        $category = $v2 ? ($requested ?? $myCategory) : null;
+        $participants = $month === null ? 0 : $this->participantsCount($month, $category);
+        $top = $month === null ? [] : $this->top($month, $category);
+        $last = $top === [] ? null : $top[count($top) - 1];
 
         return new MonthlyRatingOverview(
             enabled: $enabled,
@@ -328,14 +361,47 @@ final class MonthlyRatingService
             endsOn: $first->endOfMonth()->toDateString(),
             closesAt: $first->addMonth()->utc()->toIso8601String(),
             daysLeft: $month === null ? 0 : $this->daysLeft($month, $now),
-            participantsCount: $month === null ? 0 : $this->participantsCount($month, $category),
+            participantsCount: $participants,
             rules: $this->rules(),
             prizes: $month === null ? [] : $this->prizes($month, $category),
-            top: $month === null ? [] : $this->top($month, $category),
-            me: $month === null ? null : $this->myLine($month, $learner),
+            top: $top,
+            me: $month === null ? null : $this->lineOf($month, $learner, $score),
             optedOut: $this->leagues->isOptedOut($learner),
             lastMonth: $enabled ? $this->lastMonth($learner, $now) : null,
+            rulesVersion: $month === null ? $this->scoreRules->versionFor($first) : (int) $month->rules_version,
+            category: $category,
+            myCategory: $myCategory,
+            neighbours: $v2 && $score !== null && $category === $myCategory ? $this->cachedNeighbours($month, $score) : null,
+            // The top is the first page; more participants than it shows - the list goes on after its last row (no statement: the count is above).
+            nextCursor: $v2 && $last !== null && $participants > count($top)
+                ? new BoardCursor($last->points, $last->longWords, $last->activeDays, $last->learnerId)
+                : null,
         );
+    }
+
+    /**
+     * A page of a table of the current v2 month after `?after=` (`GET /league/month?category=&after=`, docs/32 §5.3): the read of the
+     * board (one statement, three after a cursor) and the emoji of the page (one). The table is `$requested`, else the viewer's own.
+     *
+     * @throws InvalidBoardCursor the cursor is not one of this table (broken, another month or category), or the month is not v2
+     */
+    public function boardPage(Learner $learner, CarbonImmutable $now, ?ScoreCategory $requested, string $after, int $limit = 50): MonthlyBoardPage
+    {
+        $month = $this->enabled() ? $this->findMonth($now) : null;
+        if ($month === null || ! self::isV2($month)) {
+            throw new InvalidBoardCursor('This month has no pages.');
+        }
+
+        $myCategory = $this->categoryOf($learner, $this->scoreOf($month, $learner->id), $now);
+        $category = $requested ?? $myCategory;
+        $cursor = BoardPageCursor::decode($after, $month->id, $category);
+        if ($cursor === null) {
+            throw new InvalidBoardCursor('The cursor is not one of this table.');
+        }
+
+        $page = $this->board($month, $category, $cursor, $limit);
+
+        return new MonthlyBoardPage($month->id, $category, $category !== $myCategory, $this->withEmoji($page['rows']), $page['next']);
     }
 
     /** What `GET /api/twa/league/month/me` shows (the finish screen): the viewer's fresh line, nothing of the others. */
@@ -359,6 +425,103 @@ final class MonthlyRatingService
     }
 
     /**
+     * The viewer's table of a v2 month (docs/32 §12.7): the category of their row, else of their plan now - the table their first credit
+     * of the month will fix (a trial Pro and a seat of a center are Pro, В4). The plan is resolved only without a row (the resolver's cache).
+     */
+    public function categoryOf(Learner $learner, ?LeagueMonthScore $score, CarbonImmutable $now): ScoreCategory
+    {
+        if ($score?->category !== null) {
+            return ScoreCategory::from($score->category);
+        }
+
+        return ScoreCategory::fromPlan($this->entitlements->for($learner, $now)->plan);
+    }
+
+    /**
+     * {@see neighbours()} of the viewer's row with the emoji of the rows, cached {@see NEAR_PREFIX} while the month is open.
+     *
+     * @return array{above: list<BoardRow>, below: list<BoardRow>, rank: int, next_gap: int|null}|null
+     */
+    public function cachedNeighbours(LeagueMonth $month, LeagueMonthScore $score): ?array
+    {
+        if (! self::isV2($month) || ! $score->participant || $score->category === null) {
+            return null;
+        }
+
+        $compute = function () use ($month, $score): ?array {
+            $around = $this->neighbours($month, $score);
+            if ($around === null) {
+                return null;
+            }
+
+            // One statement of the emoji for both lists.
+            $rows = array_map(static fn (BoardRow $row): array => $row->toArray(), $this->withEmoji([...$around['above'], ...$around['below']]));
+
+            return [
+                'above' => array_slice($rows, 0, count($around['above'])),
+                'below' => array_slice($rows, count($around['above'])),
+                'rank' => $around['rank'],
+                'next_gap' => $around['next_gap'],
+            ];
+        };
+
+        /** @var array{above: list<BoardRowArray>, below: list<BoardRowArray>, rank: int, next_gap: int|null}|null $data */
+        $data = $month->isOpen()
+            ? PureCache::store()->remember(
+                self::NEAR_PREFIX.implode(':', [$month->id, $score->category, $score->learner_id, $score->points, $score->long_words, $score->active_days]),
+                $this->rankTtl(),
+                $compute,
+            )
+            : $compute();
+
+        if ($data === null) {
+            return null;
+        }
+
+        return [
+            'above' => array_map(BoardRow::fromArray(...), $data['above']),
+            'below' => array_map(BoardRow::fromArray(...), $data['below']),
+            'rank' => $data['rank'],
+            'next_gap' => $data['next_gap'],
+        ];
+    }
+
+    /**
+     * The rows with the emoji of Pro of their learners: ONE statement for the whole list ({@see ProEmojiService::visibleForMany()}), none
+     * for an empty one.
+     *
+     * @param  list<BoardRow>  $rows
+     * @return list<BoardRow>
+     */
+    private function withEmoji(array $rows): array
+    {
+        $emoji = $this->proEmoji->visibleForMany(array_map(static fn (BoardRow $row): int => $row->learnerId, $rows));
+
+        return array_map(static fn (BoardRow $row): BoardRow => $row->withEmoji($emoji[$row->learnerId] ?? null), $rows);
+    }
+
+    /**
+     * The learner chose another emoji of Pro or took it back (docs/31 §5а): the cached tops of the current month (both tables) are dropped,
+     * so the new emoji shows at once there; the neighbours of other viewers catch up within {@see rankTtl()}.
+     */
+    public function proEmojiChanged(CarbonImmutable $now): void
+    {
+        if (! $this->enabled()) {
+            return;
+        }
+
+        $month = $this->findMonth($now);
+        if ($month !== null) {
+            PureCache::forgetMany(self::topKeys($month->id));
+        }
+    }
+
+    private function rankTtl(): int
+    {
+        return max(1, (int) config('leagues.monthly.rank_cache_seconds', 60));
+    }
+
+    /**
      * The best `leagues.monthly.top` participants of the month, in the order of the rating, with first names. Cached as arrays of
      * scalars; the refresh and the close drop the keys.
      *
@@ -373,17 +536,24 @@ final class MonthlyRatingService
         $ttl = max(1, (int) config('leagues.monthly.top_cache_seconds', 120));
         $category = self::isV2($month) ? ($category ?? ScoreCategory::Free) : null;
 
+        // The emoji of Pro (docs/31 §5а) ride in the cached rows: one statement on a miss, none from the cache. An emoji of a Pro that
+        // has run out shows at most the TTL; a change of the choice drops the keys ({@see proEmojiChanged()}).
         /** @var list<MonthlyStandingArray> $rows */
         $rows = PureCache::store()->remember(
             self::topKey($month->id, $category),
             $ttl,
-            fn (): array => array_map(
-                static fn (MonthlyStanding $row): array => $row->toArray(),
-                $category === null ? $this->computeTop($month) : array_map(
+            function () use ($month, $category): array {
+                $top = $category === null ? $this->computeTop($month) : array_map(
                     static fn (BoardRow $row): MonthlyStanding => new MonthlyStanding($row->learnerId, $row->name, $row->points, $row->activeDays, $row->rank, $row->longWords),
                     $this->board->page(BoardScope::month($month->id, $category), null, $this->topSize())['rows'],
-                ),
-            ),
+                );
+                $emoji = $this->proEmoji->visibleForMany(array_map(static fn (MonthlyStanding $row): int => $row->learnerId, $top));
+
+                return array_map(
+                    static fn (MonthlyStanding $row): array => [...$row->toArray(), 'pro_emoji' => $emoji[$row->learnerId] ?? null],
+                    $top,
+                );
+            },
         );
 
         return array_map(MonthlyStanding::fromArray(...), $rows);
@@ -392,7 +562,12 @@ final class MonthlyRatingService
     /** The learner's own line of the month, or null when they have no row (no activity in the month). */
     public function myLine(LeagueMonth $month, Learner $learner): ?MonthlyMyLine
     {
-        $score = $this->scoreOf($month, $learner->id);
+        return $this->lineOf($month, $learner, $this->scoreOf($month, $learner->id));
+    }
+
+    /** {@see myLine()} of a row already read. */
+    private function lineOf(LeagueMonth $month, Learner $learner, ?LeagueMonthScore $score): ?MonthlyMyLine
+    {
         if ($score === null) {
             return null;
         }
@@ -476,7 +651,16 @@ final class MonthlyRatingService
         }
 
         if (self::isV2($month)) {
-            return $this->board->rank(BoardScope::month($month->id, ScoreCategory::from((string) $score->category)), $score->points, $score->long_words, $score->active_days);
+            $category = ScoreCategory::from((string) $score->category);
+            $count = fn (): int => $this->board->rank(BoardScope::month($month->id, $category), $score->points, $score->long_words, $score->active_days);
+            if (! $month->isOpen()) {
+                return $count();
+            }
+
+            // The place of the tuple, cached a minute (the key holds the tuple: a credit of the viewer reads a new key at once).
+            $key = self::RANK_PREFIX.implode(':', [$month->id, $category->value, $score->points, $score->long_words, $score->active_days]);
+
+            return (int) PureCache::store()->remember($key, $this->rankTtl(), $count);
         }
 
         $ahead = LeagueMonthScore::query()
@@ -583,22 +767,24 @@ final class MonthlyRatingService
                 ->where('c.league_month_id', $month->id)
                 ->where('c.status', LeagueMonthCandidateStatus::Winner->value)
                 ->orderBy('c.place')
-                ->get(['c.place', 'c.points', 'l.first_name', 'l.deleted_at']);
+                ->get(['c.place', 'c.points', 'c.category', 'l.first_name', 'l.deleted_at']);
             foreach ($rows as $row) {
                 $winners[] = [
                     'place' => (int) $row->place,
                     'name' => $this->displayName($row->first_name ?? null, $row->deleted_at ?? null),
                     'points' => (int) $row->points,
+                    // A v2 month: the two tables share the list, every winner with the table of their place (docs/32 §7).
+                    ...(self::isV2($month) ? ['category' => is_string($row->category ?? null) ? $row->category : null] : []),
                 ];
             }
         }
 
         $score = $this->scoreOf($month, $learner->id);
         $me = $score !== null && $score->participant && $score->final_rank !== null
-            ? ['rank' => $score->final_rank, 'points' => $score->points]
+            ? ['rank' => $score->final_rank, 'points' => $score->points, ...(self::isV2($month) ? ['category' => $score->category] : [])]
             : null;
 
-        return new LastMonthView($month->starts_on->toDateString(), $month->ends_on->toDateString(), $month->status, $winners, $me);
+        return new LastMonthView($month->starts_on->toDateString(), $month->ends_on->toDateString(), $month->status, $winners, $me, (int) $month->rules_version);
     }
 
     /** @return array{daily_cap: int, min_active_days: int, min_account_days: int, places: int, top: int} */

@@ -115,6 +115,13 @@ return [
         'top_cache_seconds' => (int) env('LEAGUES_MONTHLY_TOP_CACHE_SECONDS', 120),
 
         /**
+         * How long the viewer's own place, the neighbours and the gap of a v2 month stay cached (`league:month:rank:v1:…`,
+         * `league:month:near:v1:…`, docs/32 §5.3, docs/19 §3). The key holds the viewer's own tuple, so their own credit reads a new key
+         * at once; only the moves of the others lag behind by up to this long.
+         */
+        'rank_cache_seconds' => 60,
+
+        /**
          * The prizes of a month that has none of its own (`league_months.prizes` IS NULL), by place, ru / uz. An empty title for a
          * place = no prize for it; no prizes at all = the prize block is hidden and the rating still runs.
          * Empty by default: a prize is a promise to everybody who sees it, so none is made until the owner sets one (here, or per month in /admin).

@@ -108,7 +108,7 @@ it('seats at the first credit of a rating day after the commit: the read of the 
     expect(QueryLog::matching($other, '/league_|from ["`]learners["`]/'))->toBe([]);
 });
 
-it('reads a v2 month in a constant number of statements: top 1, rank 1, a page 1 or 3, the neighbours and the gap 6, a refresh 2', function (): void {
+it('reads a v2 month in a constant number of statements: top 2 (with the emoji of Pro), rank 1 then 0 from the cache, a page 1 or 3, the neighbours and the gap 6, a refresh 2', function (): void {
     $months = app(MonthlyRatingService::class);
     $month = $months->currentMonth(lbNow());
     foreach (Learner::factory()->count(12)->create() as $i => $learner) {
@@ -120,9 +120,12 @@ it('reads a v2 month in a constant number of statements: top 1, rank 1, a page 1
     expect($score)->not->toBeNull();
     $learner = $score->learner;
 
-    expect(QueryLog::during(fn () => $months->top($month, ScoreCategory::Free)))->toHaveCount(1)
+    // the top and the emoji of Pro of its rows (docs/31 §5а) - both cached together
+    expect(QueryLog::during(fn () => $months->top($month, ScoreCategory::Free)))->toHaveCount(2)
         ->and(QueryLog::during(fn () => $months->top($month, ScoreCategory::Free)))->toBe([])
         ->and(QueryLog::during(fn () => $months->rankOf($month, $score)))->toHaveCount(1)
+        // the own place is cached a minute by the tuple (S12)
+        ->and(QueryLog::during(fn () => $months->rankOf($month, $score)))->toBe([])
         ->and(QueryLog::during(fn () => $months->board($month, ScoreCategory::Free, null, 5)))->toHaveCount(1)
         ->and(QueryLog::during(fn () => $months->board($month, ScoreCategory::Free, new BoardCursor(15, 0, 1, 1), 5)))->toHaveCount(3)
         ->and(QueryLog::during(fn () => $months->neighbours($month, $score)))->toHaveCount(6)

@@ -86,7 +86,7 @@ it('GET /league/month keeps its exact JSON shape and shows of others a first nam
             'month' => ['starts_on', 'ends_on', 'closes_at', 'days_left', 'status', 'participants'],
             'rules' => ['daily_cap', 'min_active_days', 'min_account_days', 'places', 'top'],
             'prizes' => ['*' => ['place', 'title']],
-            'top' => ['*' => ['rank', 'name', 'points', 'active_days', 'is_me']],
+            'top' => ['*' => ['rank', 'name', 'points', 'active_days', 'is_me', 'pro_emoji']],
             'me' => MONTH_ME,
             'last_month',
         ]);
@@ -97,9 +97,9 @@ it('GET /league/month keeps its exact JSON shape and shows of others a first nam
         ->and($response->json('rules'))->toBe(['daily_cap' => 300, 'min_active_days' => 3, 'min_account_days' => 7, 'places' => 3, 'top' => 50])
         ->and($response->json('prizes.0'))->toBe(['place' => 1, 'title' => 'Telegram Premium на 3 месяца'])
         ->and($response->json('top'))->toBe([
-            ['rank' => 1, 'name' => 'Rival', 'points' => 100, 'active_days' => 1, 'is_me' => false],
-            ['rank' => 2, 'name' => 'Me', 'points' => 60, 'active_days' => 3, 'is_me' => true],
-            ['rank' => 3, 'name' => null, 'points' => 10, 'active_days' => 1, 'is_me' => false],
+            ['rank' => 1, 'name' => 'Rival', 'points' => 100, 'active_days' => 1, 'is_me' => false, 'pro_emoji' => null],
+            ['rank' => 2, 'name' => 'Me', 'points' => 60, 'active_days' => 3, 'is_me' => true, 'pro_emoji' => null],
+            ['rank' => 3, 'name' => null, 'points' => 10, 'active_days' => 1, 'is_me' => false, 'pro_emoji' => null],
         ])
         ->and($response->json('me'))->toBe(['rank' => 2, 'points' => 60, 'active_days' => 3, 'participant' => true, 'eligible' => true, 'missing' => ['active_days' => 0, 'account_days' => 0], 'not_counted_reason' => null])
         ->and($response->json('last_month'))->toBeNull()

@@ -117,6 +117,12 @@ enum ProductEventName: string
      * (props: count — week / month, rating_day, category, cap). Recorded after the commit of the answer, only on the v2 rules.
      */
     case ScoreDayCapped = 'score.day_capped';
+    /**
+     * Word points v2 (docs/32 S16, the architect's decision): ONE summary of a rating day, written by the nightly
+     * `leagues:report-score-day` for yesterday - no learner (props: rating_day, learners, credits, {free|pro}_learners,
+     * {free|pro}_credits, {week|month}_{free|pro}_{p50|p90|capped_share}). At most one per rating day (`INSERT … WHERE NOT EXISTS`).
+     */
+    case ScoreCredited = 'score.credited';
     /** A friend request was created (props: friendship_id — docs/13 §7.5); actor = the requester. */
     case FriendRequested = 'friend.requested';
     /** A friend request was accepted (props: friendship_id); actor = the acceptor. */

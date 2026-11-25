@@ -75,4 +75,10 @@ class ScoreCredit extends Model
     {
         return $this->belongsTo(Lexeme::class);
     }
+
+    /** @return BelongsTo<User, $this> the administrator who voided the credit (ScoreCorrectionService) */
+    public function voidedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'voided_by_user_id');
+    }
 }

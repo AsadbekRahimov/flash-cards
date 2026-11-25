@@ -1039,13 +1039,13 @@ it('GET /league keeps its exact JSON shape (docs/04 A.13)', function (): void {
             'rules' => ['capacity', 'promote', 'demote', 'tiers'],
             'membership' => [
                 'tier', 'tier_key', 'rank', 'points', 'members_count', 'zone', 'points_to_promote', 'points_to_safety',
-                'standings' => ['*' => ['rank', 'name', 'points', 'is_me']],
+                'standings' => ['*' => ['rank', 'name', 'points', 'is_me', 'pro_emoji']],
             ],
             'last_week' => ['starts_on', 'tier', 'tier_key', 'result', 'rank', 'points'],
         ]);
 
     expect($response->json('membership.points'))->toBe(7)
-        ->and($response->json('membership.standings.0'))->toBe(['rank' => 1, 'name' => 'Me', 'points' => 7, 'is_me' => true])
+        ->and($response->json('membership.standings.0'))->toBe(['rank' => 1, 'name' => 'Me', 'points' => 7, 'is_me' => true, 'pro_emoji' => null])
         ->and($response->json('last_week.result'))->toBe('promoted');
 
     $bare = Learner::factory()->create();
@@ -1071,7 +1071,7 @@ it('GET /friends keeps its exact JSON shape (docs/04 A.13)', function (): void {
         ->assertOk()
         ->assertExactJsonStructure([
             'invite_link', 'limit',
-            'friends' => [['id', 'first_name', 'streak', 'words_learned', 'since']],
+            'friends' => [['id', 'first_name', 'pro_emoji', 'streak', 'words_learned', 'since']],
             'incoming' => [['id', 'first_name', 'requested_at']],
             'outgoing' => [['id', 'first_name', 'requested_at']],
         ])
@@ -1088,7 +1088,7 @@ it('GET /friends adds only camel_asset to every friend while the game is open (d
         ->assertOk()
         ->assertExactJsonStructure([
             'invite_link', 'limit',
-            'friends' => [['id', 'first_name', 'streak', 'words_learned', 'since', 'camel_asset']],
+            'friends' => [['id', 'first_name', 'pro_emoji', 'streak', 'words_learned', 'since', 'camel_asset']],
             'incoming', 'outgoing',
         ])
         ->assertJsonPath('friends.0.camel_asset', null);

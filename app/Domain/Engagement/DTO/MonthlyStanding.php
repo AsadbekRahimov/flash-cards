@@ -6,10 +6,10 @@ namespace App\Domain\Engagement\DTO;
 
 /**
  * One row of the public top list of a month (docs/13 §7.6): the rating points (capped per day), the active days and the
- * learner's first name — nothing else of other people leaves the server. Cached as arrays ({@see toArray()}): a cache
+ * learner's first name and the emoji of Pro (docs/31 §5а, only while their Pro is live) — nothing else of other people leaves the server. Cached as arrays ({@see toArray()}): a cache
  * holds scalars only (docs/19 §3).
  *
- * @phpstan-type MonthlyStandingArray array{learner_id: int, name: string|null, points: int, active_days: int, rank: int, long_words?: int}
+ * @phpstan-type MonthlyStandingArray array{learner_id: int, name: string|null, points: int, active_days: int, rank: int, long_words?: int, pro_emoji?: string|null}
  */
 final readonly class MonthlyStanding
 {
@@ -20,6 +20,7 @@ final readonly class MonthlyStanding
         public int $activeDays,
         public int $rank,
         public int $longWords = 0,
+        public ?string $proEmoji = null,
     ) {}
 
     /** @return MonthlyStandingArray */
@@ -32,12 +33,13 @@ final readonly class MonthlyStanding
             'active_days' => $this->activeDays,
             'rank' => $this->rank,
             'long_words' => $this->longWords,
+            'pro_emoji' => $this->proEmoji,
         ];
     }
 
     /** @param  MonthlyStandingArray  $data */
     public static function fromArray(array $data): self
     {
-        return new self((int) $data['learner_id'], $data['name'], (int) $data['points'], (int) $data['active_days'], (int) $data['rank'], (int) ($data['long_words'] ?? 0));
+        return new self((int) $data['learner_id'], $data['name'], (int) $data['points'], (int) $data['active_days'], (int) $data['rank'], (int) ($data['long_words'] ?? 0), $data['pro_emoji'] ?? null);
     }
 }

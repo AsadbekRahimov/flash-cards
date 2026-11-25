@@ -51,7 +51,7 @@ it('lists friends with streak and words, the incoming and outgoing requests, and
         ->and($response->json('friends.0.first_name'))->toBe('Dilnoza')
         ->and($response->json('friends.0.streak'))->toBe(4)
         ->and($response->json('friends.0.words_learned'))->toBe(0)
-        ->and(array_keys($response->json('friends.0')))->toBe(['id', 'first_name', 'streak', 'words_learned', 'since'])
+        ->and(array_keys($response->json('friends.0')))->toBe(['id', 'first_name', 'pro_emoji', 'streak', 'words_learned', 'since'])
         ->and($response->json('incoming'))->toHaveCount(1)
         ->and($response->json('incoming.0.id'))->toBe($incoming->id)
         ->and($response->json('incoming.0.first_name'))->toBe('Bek')

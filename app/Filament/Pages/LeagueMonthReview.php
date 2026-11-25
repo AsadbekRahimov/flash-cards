@@ -5,17 +5,21 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Domain\Engagement\DTO\MonthCandidateReview;
+use App\Domain\Engagement\DTO\MonthlyPrize;
 use App\Domain\Engagement\DTO\MonthReview;
+use App\Domain\Engagement\Enums\ScoreCategory;
 use App\Domain\Engagement\Exceptions\LeagueMonthException;
 use App\Domain\Engagement\Services\MonthlyRatingReviewService;
 use App\Domain\Engagement\Services\MonthlyRatingService;
 use App\Filament\Resources\Support\AdminErrors;
+use App\Filament\Resources\Support\AdminLabels;
 use App\Filament\Resources\Support\LeagueMonthDisplay;
 use App\Models\LeagueMonth;
 use App\Models\User;
 use App\Policies\LeagueMonthPolicy;
 use Closure;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -24,6 +28,7 @@ use Filament\Panel;
 use Filament\Schemas\Components\Fieldset;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Lang;
+use Livewire\Attributes\Url;
 
 /**
  * «Рейтинг: <месяц>» (docs/13 §7.6): the review of one month — its prizes and the candidates with the anti-abuse signals —
@@ -32,6 +37,12 @@ use Illuminate\Support\Facades\Lang;
  * row); this page only asks, with `Gate::authorize` before each one ({@see LeagueMonthPolicy}), and words a refusal
  * ({@see LeagueMonthException}) as a notification. The candidates come from one `review()` per request with their learners
  * loaded, and the signals are read from the stored `signals` — a row costs no query.
+ *
+ * A month on the word points v2 (docs/32 §7, S15) has two tables: the candidates of the category picked by the tabs (`?category=`),
+ * their competition places (a tie shares a place and its prize), the prizes of each category (3 + 3, owner's decision В5: the Pro
+ * ones read with {@see MonthlyRatingService::prizes()}, `MonthReview::$prizes` is the Free list), the points by rating day, and the
+ * confirmation that refuses a tie beyond the reserve ({@see LeagueMonthException::TIE_BEYOND_RESERVE}) until the administrator
+ * confirms again with an explicit «accept» ({@see confirmTieOverflowAction()}). A v1 month keeps the one table as before.
  */
 class LeagueMonthReview extends Page
 {
@@ -40,6 +51,10 @@ class LeagueMonthReview extends Page
     protected string $view = 'filament.pages.league-month-review';
 
     public LeagueMonth $month;
+
+    /** The table of a v2 month on the screen (`free` / `pro`); ignored by a v1 month. */
+    #[Url]
+    public string $category = 'free';
 
     /** What the page shows, read once per request (and again after a decision). Not a Livewire property: never serialised. */
     private ?MonthReview $review = null;
@@ -96,6 +111,99 @@ class LeagueMonthReview extends Page
         return $this->review ??= app(MonthlyRatingReviewService::class)->review($this->month);
     }
 
+    public function isV2(): bool
+    {
+        return MonthlyRatingService::isV2($this->month);
+    }
+
+    /** The category on the screen of a v2 month (an unknown value from the address is Free); null for a v1 month. */
+    public function category(): ?ScoreCategory
+    {
+        return $this->isV2() ? (ScoreCategory::tryFrom($this->category) ?? ScoreCategory::Free) : null;
+    }
+
+    /**
+     * The candidates on the screen: all of a v1 month, those of the picked category of a v2 month (by rank).
+     *
+     * @return list<MonthCandidateReview>
+     */
+    public function rows(): array
+    {
+        $category = $this->category();
+
+        return $category === null
+            ? $this->review()->candidates
+            : array_values(array_filter($this->review()->candidates, static fn (MonthCandidateReview $row): bool => $row->candidate->category === $category->value));
+    }
+
+    /**
+     * The candidates of each category of a v2 month (the counters of the tabs).
+     *
+     * @return array<string, int>
+     */
+    public function categoryCounts(): array
+    {
+        $counts = ['free' => 0, 'pro' => 0];
+        foreach ($this->review()->candidates as $row) {
+            if (isset($counts[(string) $row->candidate->category])) {
+                $counts[(string) $row->candidate->category]++;
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
+     * The prizes of a table: the one list of a v1 month, the list of the category of a v2 month (read from the month row, no query).
+     *
+     * @return list<MonthlyPrize>
+     */
+    public function prizesOf(?ScoreCategory $category): array
+    {
+        return $category === null ? $this->review()->prizes : app(MonthlyRatingService::class)->prizes($this->month, $category);
+    }
+
+    /** The prize places of a table: `monthly.places` of a v1 month, `monthly.categories.{cat}.places` of a v2 one. */
+    public function placesOf(?ScoreCategory $category): int
+    {
+        return app(MonthlyRatingService::class)->places($category);
+    }
+
+    public function tieReserveOf(ScoreCategory $category): int
+    {
+        return app(MonthlyRatingService::class)->tieReserve($category);
+    }
+
+    /**
+     * The categories of a pending v2 month whose shared prize places give more winners than `places + tie_reserve` if it were
+     * confirmed now — what {@see MonthlyRatingReviewService::confirm()} refuses without `acceptTieOverflow` (from the review, no query).
+     *
+     * @return array<string, array{winners: int, places: int, allowed: int}>
+     */
+    public function tieOverflow(): array
+    {
+        if (! $this->isV2() || $this->month->status !== 'pending_review') {
+            return [];
+        }
+
+        $winners = ['free' => 0, 'pro' => 0];
+        foreach ($this->review()->candidates as $row) {
+            if ($row->provisionalPlace !== null && isset($winners[(string) $row->candidate->category])) {
+                $winners[(string) $row->candidate->category]++;
+            }
+        }
+
+        $overflow = [];
+        foreach (ScoreCategory::cases() as $category) {
+            $allowed = $this->placesOf($category) + $this->tieReserveOf($category);
+            if ($winners[$category->value] > $allowed) {
+                $overflow[$category->value] = ['winners' => $winners[$category->value], 'places' => $this->placesOf($category), 'allowed' => $allowed];
+            }
+        }
+
+        return $overflow;
+    }
+
     // --- actions -----------------------------------------------------------------------------
 
     /** @return array<int, Action> */
@@ -103,6 +211,7 @@ class LeagueMonthReview extends Page
     {
         return [
             $this->confirmAction(),
+            $this->confirmTieOverflowAction(),
             $this->resendAction(),
             $this->editPrizesAction(),
             $this->clearPrizesAction(),
@@ -118,10 +227,36 @@ class LeagueMonthReview extends Page
             ->color('success')
             ->visible(fn (): bool => $this->month->status === 'pending_review')
             ->modalHeading(__('admin.league_month.actions.confirm_heading'))
-            ->modalContent(fn () => view('filament.pages.league-month-confirm', ['winners' => $this->finalPlaces()]))
+            ->modalContent(fn () => view('filament.pages.league-month-confirm', ['winners' => $this->finalPlaces(), 'overflow' => $this->tieOverflowText()]))
             ->modalSubmitActionLabel(__('admin.league_month.actions.confirm'))
             ->action(fn () => $this->decide(
                 fn (User $by) => app(MonthlyRatingReviewService::class)->confirm($this->month, $by, request()->ip()),
+                'confirmed',
+            ));
+    }
+
+    /**
+     * The confirmation of a v2 month whose tie on a prize place goes beyond the published reserve (docs/32 §7): offered only then,
+     * apart from the ordinary one, with an explicit «accept» the form requires; the audit row says `tie_overflow_accepted`.
+     */
+    public function confirmTieOverflowAction(): Action
+    {
+        return Action::make('confirmTieOverflow')
+            ->label(__('admin.league_month.actions.confirm_overflow'))
+            ->icon('heroicon-o-exclamation-triangle')
+            ->color('warning')
+            ->visible(fn (): bool => $this->tieOverflow() !== [])
+            ->modalHeading(__('admin.league_month.actions.confirm_overflow_heading'))
+            ->modalContent(fn () => view('filament.pages.league-month-confirm', ['winners' => $this->finalPlaces(), 'overflow' => $this->tieOverflowText()]))
+            ->schema([
+                Checkbox::make('accept')
+                    ->label(__('admin.league_month.actions.confirm_overflow_accept'))
+                    ->accepted()
+                    ->required(),
+            ])
+            ->modalSubmitActionLabel(__('admin.league_month.actions.confirm_overflow'))
+            ->action(fn (array $data) => $this->decide(
+                fn (User $by) => app(MonthlyRatingReviewService::class)->confirm($this->month, $by, request()->ip(), acceptTieOverflow: (bool) ($data['accept'] ?? false)),
                 'confirmed',
             ));
     }
@@ -143,37 +278,55 @@ class LeagueMonthReview extends Page
 
     public function editPrizesAction(): Action
     {
-        $places = app(MonthlyRatingService::class)->places();
+        // The tables of the month and their prize places: one table of a v1 month (field `ru_1`), Free and Pro of a v2 one (`free_ru_1`).
+        $tables = $this->isV2()
+            ? array_map(fn (ScoreCategory $category): array => [$category, $category->value.'_', $this->placesOf($category)], ScoreCategory::cases())
+            : [[null, '', $this->placesOf(null)]];
+
+        $fieldsets = [];
+        foreach ($tables as [$category, $prefix, $places]) {
+            foreach (range(1, max(1, $places)) as $place) {
+                $caption = $category === null
+                    ? __('admin.league_month.prizes.place', ['place' => $place])
+                    : __('admin.league_month.prizes.category_place', ['category' => AdminLabels::value('learners.score_days.category', $category->value), 'place' => $place]);
+                $fieldsets[] = Fieldset::make($caption)
+                    ->schema([
+                        TextInput::make("{$prefix}ru_{$place}")->label(__('admin.league_month.actions.edit_prizes_ru', ['place' => $place]))->maxLength(MonthlyRatingReviewService::MAX_PRIZE_LENGTH),
+                        TextInput::make("{$prefix}uz_{$place}")->label(__('admin.league_month.actions.edit_prizes_uz', ['place' => $place]))->maxLength(MonthlyRatingReviewService::MAX_PRIZE_LENGTH),
+                    ])
+                    ->columns(2);
+            }
+        }
 
         return Action::make('editPrizes')
             ->label(__('admin.league_month.actions.edit_prizes'))
             ->icon('heroicon-o-gift')
             ->visible(fn (): bool => $this->month->status !== 'confirmed')
-            ->schema(array_map(
-                static fn (int $place): Fieldset => Fieldset::make(__('admin.league_month.prizes.place', ['place' => $place]))
-                    ->schema([
-                        TextInput::make("ru_{$place}")->label(__('admin.league_month.actions.edit_prizes_ru', ['place' => $place]))->maxLength(MonthlyRatingReviewService::MAX_PRIZE_LENGTH),
-                        TextInput::make("uz_{$place}")->label(__('admin.league_month.actions.edit_prizes_uz', ['place' => $place]))->maxLength(MonthlyRatingReviewService::MAX_PRIZE_LENGTH),
-                    ])
-                    ->columns(2),
-                range(1, max(1, $places)),
-            ))
-            ->fillForm(function (): array {
+            ->schema($fieldsets)
+            ->fillForm(function () use ($tables): array {
                 $data = [];
-                foreach ($this->review()->prizes as $prize) {
-                    $data["ru_{$prize->place}"] = $prize->ru;
-                    $data["uz_{$prize->place}"] = $prize->uz;
+                foreach ($tables as [$category, $prefix]) {
+                    foreach ($this->prizesOf($category) as $prize) {
+                        $data["{$prefix}ru_{$prize->place}"] = $prize->ru;
+                        $data["{$prefix}uz_{$prize->place}"] = $prize->uz;
+                    }
                 }
 
                 return $data;
             })
-            ->action(function (array $data) use ($places): void {
-                $items = [];
-                foreach (range(1, max(1, $places)) as $place) {
-                    $items[] = ['place' => $place, 'ru' => (string) ($data["ru_{$place}"] ?? ''), 'uz' => (string) ($data["uz_{$place}"] ?? '')];
+            ->action(function (array $data) use ($tables): void {
+                $lists = [];
+                foreach ($tables as [$category, $prefix, $places]) {
+                    $items = [];
+                    foreach (range(1, max(1, $places)) as $place) {
+                        $items[] = ['place' => $place, 'ru' => (string) ($data["{$prefix}ru_{$place}"] ?? ''), 'uz' => (string) ($data["{$prefix}uz_{$place}"] ?? '')];
+                    }
+                    $lists[$category === null ? '' : $category->value] = $items;
                 }
+                // A v1 month: the list; a v2 month: `{free: [...], pro: [...]}` (MonthlyRatingReviewService::setPrizes).
+                $prizes = array_key_exists('', $lists) ? $lists[''] : $lists;
 
-                $this->decide(fn (User $by) => app(MonthlyRatingReviewService::class)->setPrizes($this->month, $items, $by, request()->ip()), 'prizes_saved');
+                $this->decide(fn (User $by) => app(MonthlyRatingReviewService::class)->setPrizes($this->month, $prizes, $by, request()->ip()), 'prizes_saved');
             });
     }
 
@@ -271,6 +424,14 @@ class LeagueMonthReview extends Page
                 // Only the learners of this page's candidates: the id comes from the browser.
                 abort_unless(collect($this->review()->candidates)->contains(fn (MonthCandidateReview $row): bool => $row->candidate->learner_id === $learnerId), 404);
 
+                // A v2 month counts by rating day (`learner_score_days`): its monthly count, with the way to the journal of the day.
+                if ($this->isV2()) {
+                    return view('filament.pages.league-month-score-days', [
+                        'days' => app(MonthlyRatingService::class)->scoreDays($this->month, $learnerId),
+                        'learnerId' => $learnerId,
+                    ]);
+                }
+
                 return view('filament.pages.league-month-days', [
                     'days' => app(MonthlyRatingReviewService::class)->dailyBreakdown($this->month, $learnerId),
                     'cap' => (int) config('leagues.monthly.daily_cap', 300),
@@ -300,9 +461,10 @@ class LeagueMonthReview extends Page
             Notification::make()->success()->title(__("admin.league_month.notifications.{$done}"))->send();
         } catch (LeagueMonthException $e) {
             Notification::make()->danger()->title(AdminErrors::text('league_month', $e->errorCode, [
-                'places' => app(MonthlyRatingService::class)->places(),
+                'places' => app(MonthlyRatingService::class)->places($this->category()),
                 'max_prize' => MonthlyRatingReviewService::MAX_PRIZE_LENGTH,
                 'max_reason' => MonthlyRatingReviewService::MAX_REASON_LENGTH,
+                'tie' => $this->tieOverflowText(),
             ]))->send();
         }
 
@@ -311,16 +473,38 @@ class LeagueMonthReview extends Page
     }
 
     /**
-     * Who gets which place if the month is confirmed now, with the prize of the place (for the confirmation modal).
+     * «Free: 5 победителей при 3 местах (резерв — до 4)» for every category whose tie goes beyond the reserve; '' when none.
+     */
+    private function tieOverflowText(): string
+    {
+        $lines = [];
+        foreach ($this->tieOverflow() as $category => $tie) {
+            $lines[] = __('admin.league_month.confirm.overflow_line', [
+                'category' => AdminLabels::value('learners.score_days.category', $category),
+                'winners' => $tie['winners'],
+                'places' => $tie['places'],
+                'allowed' => $tie['allowed'],
+            ]);
+        }
+
+        return implode('; ', $lines);
+    }
+
+    /**
+     * Who gets which place if the month is confirmed now, with the prize of the place (for the confirmation modal): by category
+     * (a v2 month, Free first) and place; a shared place lists every candidate on it.
      *
-     * @return list<array{place: int, name: string, points: int, prize: string, unreachable: 'blocked'|'deleted'|null}>
+     * @return list<array{category: string|null, place: int, name: string, points: int, prize: string, unreachable: 'blocked'|'deleted'|null}>
      */
     private function finalPlaces(): array
     {
         $review = $this->review();
         $prizes = [];
-        foreach ($review->prizes as $prize) {
-            $prizes[$prize->place] = $prize->ru !== '' && $prize->uz !== '' && $prize->ru !== $prize->uz ? "{$prize->ru} / {$prize->uz}" : $prize->title('ru');
+        foreach ($this->isV2() ? ScoreCategory::cases() : [null] as $category) {
+            $table = $category === null ? '' : $category->value;
+            foreach ($this->prizesOf($category) as $prize) {
+                $prizes[$table.':'.$prize->place] = $prize->ru !== '' && $prize->uz !== '' && $prize->ru !== $prize->uz ? "{$prize->ru} / {$prize->uz}" : $prize->title('ru');
+            }
         }
 
         $places = [];
@@ -328,18 +512,22 @@ class LeagueMonthReview extends Page
             if ($row->provisionalPlace === null) {
                 continue;
             }
+            $category = $this->isV2() ? $row->candidate->category : null;
             $first = $row->learner?->first_name;
             $unreachable = LeagueMonthDisplay::unreachable($row->learner);
-            $places[$row->provisionalPlace] = [
+            $places[] = [
+                'category' => $category,
                 'place' => $row->provisionalPlace,
                 'name' => $unreachable !== 'deleted' && is_string($first) && $first !== '' ? $first : Lang::string('admin.league_month.candidates.deleted'),
                 'unreachable' => $unreachable,
                 'points' => $row->candidate->points,
-                'prize' => $prizes[$row->provisionalPlace] ?? '',
+                'prize' => $prizes[($category ?? '').':'.$row->provisionalPlace] ?? '',
             ];
         }
-        ksort($places);
+        // The candidates come by rank (and a v2 rank is per category): a stable sort by category, then place, keeps that order inside a place.
+        $order = ['free' => 0, 'pro' => 1];
+        usort($places, static fn (array $a, array $b): int => [$order[$a['category'] ?? ''] ?? 0, $a['place']] <=> [$order[$b['category'] ?? ''] ?? 0, $b['place']]);
 
-        return array_values($places);
+        return $places;
     }
 }

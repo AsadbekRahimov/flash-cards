@@ -8,6 +8,7 @@ use App\Domain\Engagement\DTO\FriendEntry;
 use App\Domain\Engagement\Exceptions\FriendshipException;
 use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Game\Services\FriendCosmetics;
+use App\Domain\Learners\Services\ProEmojiService;
 use App\Http\Requests\Twa\FriendshipActionRequest;
 use App\Http\Resources\ApiErrorResource;
 use App\Http\Resources\Twa\FriendsResource;
@@ -25,6 +26,7 @@ final class FriendController
     public function __construct(
         private readonly FriendshipService $friendships,
         private readonly FriendCosmetics $cosmetics,
+        private readonly ProEmojiService $proEmoji,
     ) {}
 
     /** GET /api/twa/friends */
@@ -79,9 +81,12 @@ final class FriendController
     {
         $overview = $this->friendships->overview($learner);
         // What the friends wear (G2.6): one statement while the game is open to this learner, none while it is closed.
-        $camels = $this->cosmetics->camelsForViewer($learner, array_map(static fn (FriendEntry $entry): int => $entry->learnerId, $overview->friends));
+        $ids = array_map(static fn (FriendEntry $entry): int => $entry->learnerId, $overview->friends);
+        $camels = $this->cosmetics->camelsForViewer($learner, $ids);
+        // The emoji of Pro next to the names (docs/31 §5а): one statement for the whole list, none without friends.
+        $emoji = $this->proEmoji->visibleForMany($ids);
 
-        return (new FriendsResource($overview, $camels))->response();
+        return (new FriendsResource($overview, $camels, $emoji))->response();
     }
 
     private function learner(Request $request): Learner

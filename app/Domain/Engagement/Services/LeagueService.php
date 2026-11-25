@@ -18,6 +18,7 @@ use App\Domain\Engagement\Exceptions\LeagueWeekNotOpen;
 use App\Domain\Engagement\Services\Scoring\ScoreRules;
 use App\Domain\Engagement\Services\Scoring\WordScoreService;
 use App\Domain\Engagement\Support\LeaguePoints;
+use App\Domain\Learners\Services\ProEmojiService;
 use App\Domain\Learners\Support\StoredDate;
 use App\Domain\Operations\Support\PureCache;
 use App\Jobs\SendLeagueResultsJob;
@@ -98,10 +99,20 @@ final class LeagueService
      */
     public const CACHE_PREFIX_V2 = 'league:standings:v3:';
 
+    /**
+     * `league:emoji:v1:group:{group}` - the emoji of Pro of the members of an open group (docs/31 §5а, docs/19 §3): `{learner_id: emoji}`
+     * of the members with a live Pro and a choice, `[]` when nobody has one. A key of its own beside the standings (not inside them): the
+     * Today line reads the standings and never pays for the emoji. The same TTL as the standings (`standings_cache_seconds`), so an
+     * emoji of a Pro that has run out shows at most that long; a change of the learner's own choice drops the key at once
+     * ({@see proEmojiChanged()}).
+     */
+    public const EMOJI_PREFIX = 'league:emoji:v1:group:';
+
     public function __construct(
         private readonly ProductEventRecorder $events,
         private readonly AchievementService $achievements,
         private readonly ScoreRules $scoreRules,
+        private readonly ProEmojiService $proEmoji,
     ) {}
 
     public function enabled(): bool
@@ -486,6 +497,9 @@ final class LeagueService
             $group->setRelation('week', $week); // the week is in hand: standings() would read it again
         }
 
+        $membership = $member === null || $group === null ? null : $this->membershipView($member, $group, $now);
+        $emoji = $membership === null ? [] : $this->groupEmoji($group, $membership->standings, $now);
+
         return new LeagueOverview(
             enabled: $enabled,
             week: $week,
@@ -497,9 +511,58 @@ final class LeagueService
             demote: $this->demoteCount(),
             tiers: $this->tiers(),
             optedOut: $this->isOptedOut($learner),
-            membership: $member === null || $group === null ? null : $this->membershipView($member, $group, $now),
+            membership: $membership,
             lastResult: $enabled ? $this->lastResult($learner) : null,
+            // The week of the rules (docs/32 §6.1): the row's, or - before anybody was placed - what the row will get.
+            rulesVersion: $week !== null ? (int) $week->rules_version : $this->scoreRules->versionFor($monday),
+            proEmoji: $emoji,
         );
+    }
+
+    /**
+     * The emoji of Pro of the members of a group (docs/31 §5а): ONE statement ({@see ProEmojiService::visibleForMany()}) on a miss,
+     * none while the open group's key is warm ({@see EMOJI_PREFIX}); a finalised group is not cached (its week is over, nobody reads it
+     * twice).
+     *
+     * @param  list<LeagueStanding>  $standings
+     * @return array<int, string> learner id => emoji
+     */
+    public function groupEmoji(LeagueGroup $group, array $standings, CarbonImmutable $now): array
+    {
+        $ids = array_map(static fn (LeagueStanding $s): int => $s->learnerId, $standings);
+        if ($ids === []) {
+            return [];
+        }
+        if ($group->isClosed() || $group->week === null || $group->week->isClosed()) {
+            return $this->proEmoji->visibleForMany($ids, $now);
+        }
+
+        $ttl = max(1, (int) config('leagues.standings_cache_seconds', 60));
+        /** @var array<int|string, string> $emoji */
+        $emoji = PureCache::store()->remember(self::EMOJI_PREFIX.$group->id, $ttl, fn (): array => $this->proEmoji->visibleForMany($ids, $now));
+
+        $out = [];
+        foreach ($emoji as $id => $value) {
+            $out[(int) $id] = (string) $value;
+        }
+
+        return $out;
+    }
+
+    /**
+     * The learner chose another emoji of Pro or took it back (docs/31 §5а): the emoji of their group of the current week is dropped, so
+     * the table shows the new one at once. The placement facts come from the cache (or two reads); not placed - nothing to drop.
+     */
+    public function proEmojiChanged(Learner $learner, CarbonImmutable $now): void
+    {
+        if (! $this->enabled()) {
+            return;
+        }
+
+        [$facts] = $this->memberFacts($learner, $now);
+        if ($facts !== null) {
+            PureCache::forgetMany([self::EMOJI_PREFIX.$facts['group_id']]);
+        }
     }
 
     /**

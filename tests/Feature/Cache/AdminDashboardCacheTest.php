@@ -170,8 +170,9 @@ it('keeps each aggregate under a versioned key of its own, with the viewer in it
         "admin:widget:activity_chart:v1:all:{$today}",
         'admin:widget:top_learners:v1:all',
         'admin:widget:hardest_words:v1:all',
-        'admin:widget:league_week:v1:all',
-        "admin:widget:league_groups:v1:all:w{$week->id}:p1:n10",
+        // v2 (S15, docs/32 §8.5): the week carries its rules version and the totals by category, a group its category.
+        'admin:widget:league_week:v2:all',
+        "admin:widget:league_groups:v2:all:w{$week->id}:p1:n10",
         'admin:widget:organization_seats:v1:all:p1:n10',
         "admin:widget:revenue_30d:v1:{$money}",
         "admin:widget:webhook_errors:v1:{$money}",

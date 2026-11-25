@@ -156,6 +156,13 @@ Schedule::command('leagues:prune-score-credits')
     ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
     ->withoutOverlapping(60);
 
+// The product event `score.credited` (docs/32 S16): one summary of yesterday's rating day, 00:30 in the league zone (after the week's
+// close at 00:00, before the month's at 03:00); a repeated run writes nothing.
+Schedule::command('leagues:report-score-day')
+    ->dailyAt('00:30')
+    ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
+    ->withoutOverlapping(30);
+
 // Referral rewards (docs/13 §7.1): re-queues the job of a referral left `activated` (not counted), or of a
 // milestone reached and not granted, after a lost / failed job. Idempotent by the data.
 Schedule::command('referrals:recover')

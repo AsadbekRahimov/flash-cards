@@ -224,6 +224,12 @@ class Learner extends Model
         return $this->hasMany(LearnerDailyStats::class);
     }
 
+    /** @return HasMany<LearnerScoreDay, $this> the word points by rating day (docs/32 §2.4); the "Очки по дням" tab of /admin */
+    public function scoreDays(): HasMany
+    {
+        return $this->hasMany(LearnerScoreDay::class);
+    }
+
     /** @return HasMany<GameCoinLedgerEntry, $this> */
     public function gameCoinLedger(): HasMany
     {

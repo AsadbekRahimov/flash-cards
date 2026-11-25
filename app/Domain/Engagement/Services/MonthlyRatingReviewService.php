@@ -304,7 +304,7 @@ final class MonthlyRatingReviewService
      * titles up to 200 characters; a place with empty titles is dropped). An empty list = no prizes this month; `null`
      * = back to the configured defaults.
      *
-     * @param  array<int, mixed>|null  $prizes  what the form sends: `{place, ru, uz}` items
+     * @param  array<array-key, mixed>|null  $prizes  what the form sends: a list of `{place, ru, uz}` items, or for a v2 month `{free: […], pro: […]}`
      */
     public function setPrizes(LeagueMonth $month, ?array $prizes, User $by, ?string $ip = null): LeagueMonth
     {

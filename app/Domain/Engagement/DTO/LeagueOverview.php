@@ -17,6 +17,8 @@ final readonly class LeagueOverview
      * @param  string  $closesAt  ISO 8601 UTC instant of the next Monday 00:00 in the league zone
      * @param  list<string>  $tiers  tier keys, index = tier
      * @param  LeagueMember|null  $lastResult  the learner's most recent closed membership (result known)
+     * @param  int  $rulesVersion  the rules version of the current week (docs/32 §6.1): 1 - the v1 points, 2 - the word points
+     * @param  array<int, string>  $proEmoji  learner id => the emoji of Pro of the members of the group (docs/31 §5а); absent - none
      */
     public function __construct(
         public bool $enabled,
@@ -31,5 +33,7 @@ final readonly class LeagueOverview
         public bool $optedOut,
         public ?LeagueMembershipView $membership,
         public ?LeagueMember $lastResult,
+        public int $rulesVersion = 1,
+        public array $proEmoji = [],
     ) {}
 }

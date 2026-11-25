@@ -44,7 +44,8 @@ final class TodayResource extends TwaResource
      *     lesson: array{done: bool, lesson_id: int|null, next_lesson_id: int|null, words_left: int|null},
      *     training: array{lesson_id: int, course: string|null, title: string|null, words: int, done: bool, open_session_id: int|null}|null,
      *     game: array{lesson_id: int, course: string|null, mode: string, played: bool}|null
-     *   }|null
+     *   }|null,
+     *   score_today?: array<string, mixed>
      * }
      */
     public function toArray(Request $request): array
@@ -53,7 +54,7 @@ final class TodayResource extends TwaResource
         $course = $summary->activeCourse;
         $lesson = $course?->nextLesson;
 
-        return [
+        $payload = [
             'due_count' => $summary->dueCount,
             'new_words_remaining' => $summary->newWordsRemaining,
             'goal' => $summary->progress->goal->toArray(),
@@ -97,5 +98,9 @@ final class TodayResource extends TwaResource
             // The plan of the day: lesson -> review of the lesson -> game on its words (docs/04 A.2a, docs/31 §5б).
             'plan' => $summary->plan?->toArray(),
         ];
+
+        // "Today N of 100" of the word points (docs/32 §8.2): only while the rating day counts by v2 - outside `live` (and before the
+        // start) the key is absent, the screen keeps its shape of before.
+        return $summary->scoreToday === null ? $payload : [...$payload, 'score_today' => $summary->scoreToday->toArray()];
     }
 }

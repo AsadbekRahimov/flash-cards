@@ -157,6 +157,7 @@ final class LearnerSettingsService
         private readonly DailyGoalLimiter $goals,
         private readonly LearnerRegionService $regions,
         private readonly ProEmojiService $emoji,
+        private readonly LeagueService $leagues,
     ) {}
 
     /**
@@ -275,6 +276,16 @@ final class LearnerSettingsService
 
         if (in_array('leagues_opt_out', $changed, true)) {
             $this->monthly->participationChanged($learner);
+        }
+        if (in_array('pro_emoji', $changed, true)) {
+            // The cached tables that show the emoji next to the name (the group of the week, the tops of the month) drop it at once,
+            // docs/31 §5а; committed already - a failure of the cache is only reported.
+            try {
+                $this->leagues->proEmojiChanged($learner, CarbonImmutable::now());
+                $this->monthly->proEmojiChanged(CarbonImmutable::now());
+            } catch (Throwable $e) {
+                report($e);
+            }
         }
 
         if ($changed !== []) {

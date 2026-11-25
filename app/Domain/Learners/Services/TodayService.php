@@ -11,6 +11,7 @@ use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\DTO\CourseToday;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Engagement\Services\LeagueService;
+use App\Domain\Engagement\Services\Scoring\ScoreTodayService;
 use App\Domain\Engagement\Services\StreakFreezeService;
 use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Learners\DTO\DailyGoal;
@@ -72,6 +73,7 @@ final class TodayService
         private readonly TodayProfileCache $todayProfile,
         private readonly DailyGoalLimiter $goals,
         private readonly DayPlanService $plan,
+        private readonly ScoreTodayService $scoreToday,
     ) {}
 
     /**
@@ -143,6 +145,8 @@ final class TodayService
         foreach ($quizScalars as $alias => $scalar) {
             $batch->value($alias, $scalar);
         }
+        // "Today N of 100" of the word points (docs/32 §8.2): the rating day rides in the same statement; nothing outside `live`.
+        $this->scoreToday->addScalars($batch, (int) $learner->id, $now);
         $scalars = $batch->run();
         $dueCount = ScalarBatch::int($scalars, 'due');
 
@@ -193,6 +197,7 @@ final class TodayService
                 DayPlanService::gameAvailableFrom($practice),
                 $now,
             ),
+            scoreToday: $this->scoreToday->fromScalars($scalars, $entitlement->plan, $now),
         );
     }
 

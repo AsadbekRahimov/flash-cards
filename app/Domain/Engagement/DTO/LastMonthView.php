@@ -12,8 +12,13 @@ final readonly class LastMonthView
 {
     /**
      * @param  string  $status  `league_months.status`
-     * @param  list<array{place: int, name: string|null, points: int}>  $winners  by place; empty unless `confirmed`
-     * @param  array{rank: int, points: int}|null  $me
+     * @param  list<array{place: int, name: string|null, points: int, category?: string|null}>  $winners  by place; empty unless
+     *                                                                                                    `confirmed`; a v2 month
+     *                                                                                                    has both tables in one
+     *                                                                                                    list, each winner with
+     *                                                                                                    its `category`
+     * @param  array{rank: int, points: int, category?: string|null}|null  $me
+     * @param  int  $rulesVersion  of that month (docs/32 §6.1): 2 - two tables (Free, Pro)
      */
     public function __construct(
         public string $startsOn,
@@ -21,5 +26,6 @@ final readonly class LastMonthView
         public string $status,
         public array $winners,
         public ?array $me,
+        public int $rulesVersion = 1,
     ) {}
 }

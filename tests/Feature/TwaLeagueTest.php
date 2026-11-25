@@ -77,9 +77,9 @@ it('shows my group: place, points, zone, the standings with first names only, an
         ->and($response->json('membership.members_count'))->toBe(3)
         ->and($response->json('membership.zone'))->toBe('promotion')
         ->and($response->json('membership.standings'))->toBe([
-            ['rank' => 1, 'name' => 'Rival', 'points' => 55, 'is_me' => false],
-            ['rank' => 2, 'name' => 'Me', 'points' => 23, 'is_me' => true],
-            ['rank' => 3, 'name' => null, 'points' => 0, 'is_me' => false],
+            ['rank' => 1, 'name' => 'Rival', 'points' => 55, 'is_me' => false, 'pro_emoji' => null],
+            ['rank' => 2, 'name' => 'Me', 'points' => 23, 'is_me' => true, 'pro_emoji' => null],
+            ['rank' => 3, 'name' => null, 'points' => 0, 'is_me' => false, 'pro_emoji' => null],
         ]);
 
     $raw = $response->getContent();
