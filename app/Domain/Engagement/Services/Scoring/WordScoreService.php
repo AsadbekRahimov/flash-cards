@@ -11,7 +11,6 @@ use App\Domain\Engagement\Enums\ScoreKind;
 use App\Domain\Engagement\Enums\ScorePeriod;
 use App\Domain\Engagement\Enums\ScoreSource;
 use App\Domain\Engagement\Enums\ScoringMode;
-use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Support\ScoreCount;
 use App\Domain\Learners\Support\StoredDate;
 use App\Domain\Learning\Contracts\AnswerScoreRecorder;
@@ -21,15 +20,12 @@ use App\Domain\Learning\DTO\ScoreDayCount;
 use App\Domain\Learning\DTO\WordScoreOutcome;
 use App\Domain\Learning\Enums\AnswerVerdict;
 use App\Domain\Learning\Enums\WordScoreReason;
-use App\Models\Learner;
 use App\Models\LearnerLexeme;
 use App\Models\LearnerScoreDay;
 use App\Models\ScoreCredit;
 use Carbon\CarbonImmutable;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\DB;
 use LogicException;
-use Throwable;
 
 /**
  * The word points of one answer (docs/28, docs/32 §3; task S4): the one point where the training and the game credit a word.
@@ -50,8 +46,8 @@ use Throwable;
  *      two counts updated from the locked values - the slot of the kind is spent while the category's limit is not reached, the points
  *      are what is left under the day cap, a count still on version 1 gets nothing - then the lexeme row once. The rule of one count is
  *      the pure {@see ScoreCount::add()}, shared with the correction of a day (ScoreCorrectionService);
- *   5. the first credit of a rating day of a v2 week seats the learner in a group of the week's category AFTER the commit
- *      ({@see LeagueService::place()}, S8) - nothing of the league inside the answer's transaction.
+ *   5. nothing of the league inside the answer's transaction: the outcome says `firstCreditOfDay`, and WordScoreHooks seats the
+ *      learner after the commit (S8).
  *
  * Locks, always in this order: `learner_lexemes` → `learner_score_periods` → `learner_score_days`; the callers hold their own rows
  * before (`training_sessions → word_repetitions`, `game_runs`) and touch `learner_daily_stats` only after. ONE lexeme per answer, so two
@@ -77,7 +73,6 @@ final class WordScoreService implements AnswerScoreRecorder
     public function __construct(
         private readonly ScoreRules $rules,
         private readonly ScorePeriodService $periods,
-        private readonly Container $container,
     ) {}
 
     public function records(): bool
@@ -333,13 +328,6 @@ final class WordScoreService implements AnswerScoreRecorder
             $this->updateLexeme($answer, $lexemeChanges);
         }
 
-        // The weekly placement of v2 (docs/32 §5.1, S8): at the first credit of a rating day of a week that counts by v2 - into a group of
-        // the week's category. The first credit of the week is one of those; the later days repeat it as a no-op (one read of the week and
-        // one of the membership), so a learner opted back in, unblocked, or whose hook failed is seated the next day, as in v1.
-        if ($firstOfDay && $weekVersion >= 2) {
-            $this->placeAfterCommit($answer->learnerId, $counts['week']->category, $now);
-        }
-
         $cut = $anyV2 && $added['week'] === 0 && $added['month'] === 0;
 
         return new WordScoreOutcome(
@@ -353,6 +341,7 @@ final class WordScoreService implements AnswerScoreRecorder
             visible: $anyV2 && $this->rules->mode() === ScoringMode::Live,
             firstCreditOfWeek: $firstOfWeek,
             newLongLexeme: $newLong,
+            firstCreditOfDay: $firstOfDay,
         );
     }
 
@@ -397,30 +386,6 @@ final class WordScoreService implements AnswerScoreRecorder
             ?? throw new LogicException("learner_score_days: no row of learner {$answer->learnerId} on {$day} after the insert.");
 
         return [$row, $fixed['week']->created, false];
-    }
-
-    /**
-     * Seats the learner in a group of the week's category after the commit of the answer ({@see LeagueService::place()}: idempotent,
-     * leagues off / opt-out / block / a week being closed are its own checks). A failure is reported, never a failed answer. The
-     * league service is resolved only here: the answer path does not build it.
-     */
-    private function placeAfterCommit(int $learnerId, ScoreCategory $category, CarbonImmutable $now): void
-    {
-        DB::afterCommit(function () use ($learnerId, $category, $now): void {
-            try {
-                $leagues = $this->container->make(LeagueService::class);
-                if (! $leagues->enabled()) {
-                    return;
-                }
-                /** @var Learner|null $learner */
-                $learner = Learner::query()->find($learnerId);
-                if ($learner !== null) {
-                    $leagues->place($learner, $now, $category);
-                }
-            } catch (Throwable $e) {
-                report($e);
-            }
-        });
     }
 
     private static function category(mixed $value): ScoreCategory

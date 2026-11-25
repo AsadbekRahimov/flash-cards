@@ -230,3 +230,35 @@ it('adds 6 statements to a counted answer of the game (5 and the card read witho
 
     CarbonImmutable::setTestNow();
 });
+
+it('prices the whole first /review of a week with the hooks after the commit: v2 = v1 + 10 (the points) + 2 (the seat)', function (): void {
+    // The weekly placement on: v1 seats at the first grade of a local day, v2 at the first credit of a rating day (WordScoreHooks).
+    // Both seat the same way (week, membership, last membership, week FOR SHARE, group, member, counter, event); v2 adds the read
+    // of the learner (the hook has only the id) and the read of the week by the v1 hook of the grade, which returns at once in a v2
+    // week - 2 statements, once per learner and day. The achievement hook stays out (fixtures: not a first long repetition).
+    config()->set('leagues.enabled', true);
+    ['words' => $words] = Fx::course([1 => [1 => 6]]);
+    foreach ($words['1.1']['active'] as $wordId) {
+        DB::table('words')->where('id', $wordId)->update(['lexeme_id' => Lexeme::factory()->create()->id]);
+    }
+    $pair = array_slice($words['1.1']['active'], 0, 2);
+
+    // A v1 week (off): its row is created with version 1 by a learner of its own, then the measured learner.
+    config()->set('leagues.scoring.mode', 'off');
+    $this->travelTo(CarbonImmutable::parse('2026-11-25 05:00:00', 'UTC'));
+    wsbTwoAnswers($this, wsbDailyReview($this, $pair));
+    [$offFirst] = wsbTwoAnswers($this, wsbDailyReview($this, $pair));
+
+    // The next week on v2 (live; its row is created with version 2).
+    config()->set('leagues.scoring.mode', 'live');
+    $this->travelTo(CarbonImmutable::parse('2026-12-02 05:00:00', 'UTC'));
+    wsbTwoAnswers($this, wsbDailyReview($this, $pair));
+    [$liveFirst, $liveSecond] = wsbTwoAnswers($this, wsbDailyReview($this, $pair));
+
+    $seat = fn (array $log): int => count(array_filter($log, fn (string $sql): bool => preg_match('/league_(members|groups)/', $sql) === 1 && ! str_contains($sql, 'learner_score_periods')));
+    expect(QueryLog::matching($liveFirst, WSB_SCORE_TABLES))->toHaveCount(10)
+        ->and($seat($liveFirst))->toBe($seat($offFirst))
+        ->and(count($liveFirst))->toBe(count($offFirst) + 12)
+        // the next answer of the day: no statement of the league
+        ->and(QueryLog::matching($liveSecond, '/league_/'))->toBe([]);
+});

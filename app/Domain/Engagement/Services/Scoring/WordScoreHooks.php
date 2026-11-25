@@ -7,6 +7,7 @@ namespace App\Domain\Engagement\Services\Scoring;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Engagement\Services\AchievementService;
+use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Learning\Contracts\AnswerScoreRecorder;
 use App\Domain\Learning\DTO\ScoredAnswer;
 use App\Domain\Learning\DTO\ScoreDayCount;
@@ -20,6 +21,9 @@ use Throwable;
  * decides and writes inside the transaction of the answer; this wrapper only reads its outcome and hooks the follow-ups after the
  * commit - one place for both callers, no statement of its own inside the answer's transaction:
  *
+ *   - `firstCreditOfDay` of a week on v2 → the learner is seated in a group of the week's category ({@see LeagueService::place()},
+ *     S8, docs/32 §5.1): every first credit of a rating day, so a learner whose hook failed, who opted back in or was unblocked is
+ *     seated the next day, as in v1; once seated it costs the read of the learner, of the week and of the membership;
  *   - `newLongLexeme` → the achievement `long_recall_25` is looked at (§8.4, task S14; {@see AchievementService::onLongRecall});
  *   - a count of the rating day reached its cap with this answer → the product event `score.day_capped` (task S16), once per
  *     learner, day and count: the cap is crossed by exactly one answer (the counts only grow within a day).
@@ -33,6 +37,7 @@ final class WordScoreHooks implements AnswerScoreRecorder
         private readonly ScoreRules $rules,
         private readonly AchievementService $achievements,
         private readonly ProductEventRecorder $events,
+        private readonly LeagueService $leagues,
     ) {}
 
     public function records(): bool
@@ -48,6 +53,21 @@ final class WordScoreHooks implements AnswerScoreRecorder
     public function record(ScoredAnswer $answer): WordScoreOutcome
     {
         $outcome = $this->scores->record($answer);
+
+        if ($outcome->firstCreditOfDay && $outcome->week !== null && $outcome->week->version >= 2 && $this->leagues->enabled()) {
+            $category = $outcome->week->category;
+            DB::afterCommit(function () use ($answer, $category): void {
+                try {
+                    /** @var Learner|null $learner */
+                    $learner = Learner::query()->find($answer->learnerId);
+                    if ($learner !== null) {
+                        $this->leagues->place($learner, $answer->now, $category);
+                    }
+                } catch (Throwable $e) {
+                    report($e);
+                }
+            });
+        }
 
         if ($outcome->newLongLexeme) {
             DB::afterCommit(function () use ($answer): void {

@@ -16,7 +16,9 @@ use App\Domain\Learning\Enums\WordScoreReason;
  *   week / month       — the counts of the rating day AFTER this answer; null when the answer wrote no credit (the day row is not read
  *                        then: the client keeps what it showed);
  *   visible            — the answer may be shown to the learner (`live` and a count of the day on v2); `off` / `shadow` - never;
- *   firstCreditOfWeek  — this answer fixed the learner's week (`learner_score_periods`): the moment of the weekly placement of v2 (S8);
+ *   firstCreditOfWeek  — this answer fixed the learner's week (`learner_score_periods`);
+ *   firstCreditOfDay   — this answer created the learner's rating day (`learner_score_days`): the moment of the weekly placement of v2
+ *                        after the commit (S8, WordScoreHooks) - the first credit of the week is always one of these;
  *   newLongLexeme      — this answer gave the lexeme its first long repetition (`learner_lexemes.first_long_on`): the achievement
  *                        `long_recall_25` (S14) is looked at after the commit.
  */
@@ -33,6 +35,7 @@ final readonly class WordScoreOutcome
         public bool $visible = false,
         public bool $firstCreditOfWeek = false,
         public bool $newLongLexeme = false,
+        public bool $firstCreditOfDay = false,
     ) {}
 
     /** An answer that wrote no credit. */
