@@ -12,13 +12,24 @@ import { paywallPlacement, reportOfferViewed } from '@/composables/offerViewed'
 import { resetWhen } from '@/composables/practiceLimits'
 import { supportContactLink } from '@/composables/supportContact'
 import { useBillingStore } from '@/stores/billing'
+import { useSettingsStore } from '@/stores/settings'
 import { useTodayStore } from '@/stores/today'
 import { useI18n } from '@/i18n'
 import type { StringKey } from '@/i18n/ru'
 import type { GameBoosterLimitHit } from '@/api/gameShopTypes'
 import type { BillingPeriod, BillingProviderKey, CatalogItem, DeckLimits, MeResponse, PracticeLimitHit, PracticeLimitKind } from '@/api/types'
 
-export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam_simulator' | 'practice' | 'practice_limit' | 'game'
+export type PaywallReason =
+  | 'quota'
+  | 'info'
+  | 'decks'
+  | 'streak_freeze'
+  | 'exam_simulator'
+  | 'practice'
+  | 'practice_limit'
+  | 'game'
+  | 'daily_goal'
+  | 'trial_ended'
 
 /**
  * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6, the Pro mock-up of docs/design): a white bottom sheet with a grabber and a close
@@ -44,7 +55,9 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
  * `practiceLead`); `'practice_limit'` is the end of the free sessions of practice or of the free battles of today (docs/18 §3; `limitHit`
  * holds the numbers the lead quotes, and the time the counter is full again is told in the learner's zone, the one of the Today screen; a
  * limit of 0 is "only Pro": the lead says so, with no day to wait for - sessions: the practice, and the battles with it only when they are
- * for Pro only too); `'game'` is a run of the Karvon map or a boss behind the Free allowance (docs/18 §3; the lead names no numbers: they are on the stop sheet); `'info'` is
+ * for Pro only too); `'daily_goal'` is a daily goal above the Free limit (a locked value of the Settings, or 403 `daily_goal_pro_required`;
+ * the title and the lead quote `options.daily_goal_max` of the settings, docs/05 §8c-1); `'trial_ended'` is the one-off sheet at the first
+ * opening after the welcome trial ended (Today, `composables/trialEnded.ts`; the lead says the goal is the Free maximum now); `'game'` is a run of the Karvon map or a boss behind the Free allowance (docs/18 §3; the lead names no numbers: they are on the stop sheet); `'info'` is
  * the learner opening it from the Today screen or from "Renew Pro". A promo code that works or a confirmed payment
  * refreshes `/me` (billing store) and `/today`.
  *
@@ -94,6 +107,10 @@ const router = useRouter()
 const route = useRoute()
 const billing = useBillingStore()
 const today = useTodayStore()
+const settings = useSettingsStore()
+
+/** The highest daily goal of Free (`options.daily_goal_max` of the settings that `/me` carries); null = not known or no limit. */
+const goalMax = computed((): number | null => settings.data?.options.daily_goal_max ?? null)
 
 const redeemed = ref(false)
 const sheet = ref<HTMLElement | null>(null)
@@ -179,6 +196,10 @@ const boosterLead = computed((): string => {
 })
 
 const reasonLead = computed((): string => {
+  if (props.reason === 'daily_goal') return goalMax.value !== null ? t('paywall.lead_daily_goal', { max: goalMax.value }) : ''
+  if (props.reason === 'trial_ended') {
+    return goalMax.value !== null ? t('paywall.lead_trial_ended', { max: goalMax.value }) : t('paywall.lead_trial_ended_generic')
+  }
   if (props.reason === 'game') return boosterLead.value
   if (props.reason === 'practice_limit') return limitLead.value
   if (props.reason === 'practice') return practiceLead.value
@@ -214,6 +235,8 @@ const HEADINGS: Record<PaywallReason, StringKey> = {
   practice: 'paywall.heading.practice',
   practice_limit: 'paywall.heading.practice_limit',
   game: 'paywall.heading.game',
+  daily_goal: 'paywall.heading.daily_goal',
+  trial_ended: 'paywall.heading.trial_ended',
 }
 
 /**
@@ -226,6 +249,8 @@ const title = computed(() => {
   if (props.reason === 'info' && !purchaseMode.value) return t('paywall.title')
   // A Pro learner with nothing to extend (the renewal runs, a perpetual grant, Pro from a center) is not sold anything: the plan's name.
   if (props.reason === 'info' && isPro.value) return t('billing.plan.pro')
+  // "A goal above 10 is in Pro": the number is the Free limit; without it the general title.
+  if (props.reason === 'daily_goal') return goalMax.value !== null ? t(HEADINGS.daily_goal, { max: goalMax.value }) : t('paywall.heading.info')
   return t(HEADINGS[props.reason])
 })
 

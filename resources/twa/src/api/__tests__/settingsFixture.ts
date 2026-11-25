@@ -21,6 +21,7 @@ export function settingsFixture(overrides: Partial<LearnerSettings> = {}): Learn
       ],
       reminder_times: ['08:00', '13:00', '19:00', '21:00'],
       daily_goals: [10, 20, 40],
+      daily_goal_max: null,
     },
     ...overrides,
   }

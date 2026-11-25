@@ -60,7 +60,7 @@
 | `Learning/Services/TrainingFlowService` | `paywall_shown:{learner}:{окно}` | окно квоты | **маркер** (событие раз в окно) |
 | `Billing/Services/OfferViewTracker` (docs/13 §5.1) | `billing:offer_viewed:v1:{learner}:{placement}:{Y-m-d}` — локальный день ученика | 48 ч | **маркер** (`billing.offer_viewed` раз в день на место, `Cache::add`) |
 | `Analytics/Services/ClientTimingRecorder` (docs/04 A.21) | `analytics:client_timing:v1:{open_id}` — uuid открытия Mini App | 24 ч | **маркер** (`client.timing` раз на открытие, `Cache::add`); там же читаются без записи `entitlement:ver:{id}` и снимок `twa:today:v2:*` (поле `class`) |
-| `Billing/Services/BillingFunnelService` + `WidgetCache` (docs/13 §5.1) | `admin:widget:billing_funnel:v2:all:d30` — массив скаляров воронки Pro | свежий 600 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджета `/admin`; без сброса при записи (аналитика, не деньги): устаревание ≤ 10 мин |
+| `Billing/Services/BillingFunnelService` + `WidgetCache` (docs/13 §5.1) | `admin:widget:billing_funnel:v3:all:d30` — массив скаляров воронки Pro | свежий 600 с, ещё ×4 отдаётся устаревшим (`flexible`) | кэш виджета `/admin`; без сброса при записи (аналитика, не деньги): устаревание ≤ 10 мин |
 | `Analytics/Services/RetentionReportService` + `WidgetCache` (16.11.2026; v3 — 20.11.2026, редизайн панели) | `admin:widget:retention:v3:all` — отчёт «Удержание» массивом скаляров (когорты с активацией и строкой игры, сегменты, первая сессия; v3: `first_day` когорты — самый глубокий шаг первых суток); запись другой формы под ключом не читается, а считается заново | свежий 600 с, ещё ×4 устаревшим (`flexible`) | кэш виджета `/admin` и страницы «Удержание»; без сброса при записи; кнопка «Обновить» — `forget`; ключи v2 никто не читает, истекают сами |
 | `Analytics/Services/StudyTodayStats` + `WidgetCache` (редизайн 2026-11) | `admin:widget:study_today:v1:all:{дата Ташкента}` — `{date, studied, goal_met, week_ago}`: учились сегодня, выполнили цель, учились неделю назад к этому часу | свежий 120 с, ещё ×4 устаревшим | кэш карточки «Учились сегодня»; без сброса при записи (оценки идут непрерывно); новый день — новый ключ |
 | `Analytics/Services/WeeklyActivityStats` + `WidgetCache` (редизайн 2026-11) | `admin:widget:weekly_activity:v1:all:{понедельник}` — 12 недель `{week_start, reviews, new_words}` | свежий 900 с, ещё ×4 устаревшим | кэш блока «Занятия по неделям»; без сброса при записи; новая неделя — новый ключ |
@@ -133,7 +133,7 @@
 | `TrainingFlowService` `paywall_shown:*`, `PracticeAudioService` `practice:audio-missing:*` — маркеры | `redis` |
 | `OfferViewTracker` `billing:offer_viewed:*` — маркеры | `redis` |
 | `ClientTimingRecorder` `analytics:client_timing:*` — маркеры | `redis` |
-| `BillingFunnelService` — `admin:widget:billing_funnel:v2:*` | `lru` |
+| `BillingFunnelService` — `admin:widget:billing_funnel:v3:*` | `lru` |
 | `RetentionReportService`, `StudyTodayStats`, `WeeklyActivityStats`, `CourseAudioCoverageStats`, `DashboardOverview`, `OrgActivationStats`, `ExerciseMixStats` — `admin:widget:{retention:v3 \| study_today \| weekly_activity \| audio_coverage \| client_timing \| org_activation \| exercise_mix:v1}:*` | `lru` |
 | `WarmOpenSpeedJob` — блокировка уникальности job | `redis` (невытесняемое, по умолчанию) |
 | `ReminderSender`, `PostLeaderboardJob`, `RenewalReminderSender`, `TelegramMessageRateLimiter` — блокировки `Cache::lock` | `redis` (`locks`) |

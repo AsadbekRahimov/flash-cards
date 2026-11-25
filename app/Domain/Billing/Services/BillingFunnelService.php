@@ -33,17 +33,23 @@ use LogicException;
  *    a learner who bought before the event existed), per provider and the locale of the event itself;
  *  - PLACEMENTS: views of W by `placement` (learners and events);
  *  - ORDERS: learner orders created in W by provider, `meta.learner_locale`, status and reason (`canceled`: `meta.canceled_reason`,
- *    `failed`: `checkout_error` when the provider did not give a link) - the "lost between start and success" part.
+ *    `failed`: `checkout_error` when the provider did not give a link) - the "lost between start and success" part;
+ *  - TRIAL OFFERS (docs/34 §2д, P8): per step of the chain after the welcome trial (0 / 3 / 10), the learners who got it in W
+ *    (`trial_offer.sent`) and the learners whose first payment (`payment.succeeded`, `kind = charge`) in W came after an offer, credited
+ *    to the LAST step they got before paying (so a learner is paid in one step only); `opted_out`: learners with `trial_offer.opted_out`
+ *    in W.
  *
- * Three statements, whatever the volume; the JSON props are read with fixed keys, every value is a binding. Works on PostgreSQL
+ * Five statements, whatever the volume; the JSON props are read with fixed keys, every value is a binding. Works on PostgreSQL
  * (production) and sqlite (tests). The result is an array of scalars in the pure cache ({@see WidgetCache}, key
- * `admin:widget:billing_funnel:v2:all:d<days>`; v2: `studied` counts matured payers only, fresh {@see CACHE_TTL} s, then served stale while it is recomputed).
+ * `admin:widget:billing_funnel:v3:all:d<days>`; v2: `studied` counts matured payers only, v3: `trial_offers`, fresh {@see CACHE_TTL} s, then served stale while it is recomputed).
  *
  * @phpstan-type FunnelRow array{provider: string, locale: string, viewed: int, started: int, paid: int, studied: int, maturing: int}
  * @phpstan-type OutsideRow array{provider: string, locale: string, started: int, paid: int}
  * @phpstan-type PlacementRow array{placement: string, learners: int, views: int}
  * @phpstan-type OrderRow array{provider: string, locale: string, status: string, reason: string|null, orders: int, learners: int}
- * @phpstan-type FunnelReport array{generated_at: string, days: int, funnel: list<FunnelRow>, outside: list<OutsideRow>, placements: list<PlacementRow>, orders: list<OrderRow>}
+ * @phpstan-type TrialOfferRow array{step: int, sent: int, paid: int}
+ * @phpstan-type TrialOffers array{steps: list<TrialOfferRow>, opted_out: int}
+ * @phpstan-type FunnelReport array{generated_at: string, days: int, funnel: list<FunnelRow>, outside: list<OutsideRow>, placements: list<PlacementRow>, orders: list<OrderRow>, trial_offers: TrialOffers}
  */
 final class BillingFunnelService
 {
@@ -111,6 +117,7 @@ final class BillingFunnelService
             'outside' => $outside,
             'placements' => $this->placements($connection, $pgsql, $from, $to),
             'orders' => $this->orders($connection, $pgsql, $from, $to),
+            'trial_offers' => $this->trialOffers($connection, $pgsql, $from, $to),
         ];
     }
 
@@ -340,6 +347,69 @@ final class BillingFunnelService
         }, $rows));
     }
 
+    /**
+     * Statements 4 and 5: the chain of offers after the welcome trial - learners per step, the payments credited to the last step
+     * before them, and the opt-outs.
+     *
+     * @return TrialOffers
+     */
+    private function trialOffers(Connection $connection, bool $pgsql, string $from, string $to): array
+    {
+        $step = self::json($pgsql, 'e.props', 'step');
+        $kind = self::json($pgsql, 'e.props', 'kind');
+        $window = 'e.occurred_at >= ? AND e.occurred_at < ? AND e.learner_id IS NOT NULL';
+
+        $sql = <<<SQL
+            WITH sends AS (
+                SELECT e.id, e.learner_id, e.occurred_at, {$step} AS step
+                FROM product_events e WHERE e.name = ? AND {$window}
+            ), pays AS (
+                SELECT e.learner_id, MIN(e.occurred_at) AS paid_at
+                FROM product_events e
+                WHERE e.name = ? AND {$window} AND {$kind} = ?
+                    AND EXISTS (SELECT 1 FROM sends s WHERE s.learner_id = e.learner_id AND s.occurred_at <= e.occurred_at)
+                GROUP BY e.learner_id
+            ), credited AS (
+                SELECT p.learner_id, (
+                    SELECT s.step FROM sends s
+                    WHERE s.learner_id = p.learner_id AND s.occurred_at <= p.paid_at
+                    ORDER BY s.occurred_at DESC, s.id DESC
+                    LIMIT 1
+                ) AS step
+                FROM pays p
+            )
+            SELECT 'sent' AS kind, step, COUNT(DISTINCT learner_id) AS learners FROM sends GROUP BY step
+            UNION ALL
+            SELECT 'paid', step, COUNT(*) FROM credited GROUP BY step
+            SQL;
+
+        $rows = $connection->select($sql, [
+            ProductEventName::TrialOfferSent->value, $from, $to,
+            ProductEventName::PaymentSucceeded->value, $from, $to, Payment::KIND_CHARGE,
+        ]);
+
+        /** @var array<int, array{step: int, sent: int, paid: int}> $steps */
+        $steps = [];
+        foreach ($rows as $row) {
+            $row = (array) $row;
+            if (! is_numeric($row['step'])) {
+                continue;
+            }
+
+            $key = (int) $row['step'];
+            $steps[$key] ??= ['step' => $key, 'sent' => 0, 'paid' => 0];
+            $steps[$key][(string) $row['kind'] === 'sent' ? 'sent' : 'paid'] += (int) $row['learners'];
+        }
+        ksort($steps);
+
+        $optedOut = $connection->selectOne(
+            'SELECT COUNT(DISTINCT e.learner_id) AS learners FROM product_events e WHERE e.name = ? AND '.$window,
+            [ProductEventName::TrialOfferOptedOut->value, $from, $to],
+        );
+
+        return ['steps' => array_values($steps), 'opted_out' => (int) (((array) $optedOut)['learners'] ?? 0)];
+    }
+
     /** The text of a top-level key of a JSON column; `$key` is a constant of this class, never input. */
     private static function json(bool $pgsql, string $column, string $key): string
     {
@@ -372,9 +442,9 @@ final class BillingFunnelService
     /** @param  array<array-key, mixed>  $report */
     private static function isReport(array $report): bool
     {
-        return isset($report['generated_at'], $report['days'], $report['funnel'], $report['outside'], $report['placements'], $report['orders'])
+        return isset($report['generated_at'], $report['days'], $report['funnel'], $report['outside'], $report['placements'], $report['orders'], $report['trial_offers'])
             && is_string($report['generated_at']) && is_array($report['funnel']) && is_array($report['outside'])
-            && is_array($report['placements']) && is_array($report['orders']);
+            && is_array($report['placements']) && is_array($report['orders']) && is_array($report['trial_offers']);
     }
 
     /**
@@ -388,6 +458,7 @@ final class BillingFunnelService
         $int = static fn (mixed $v): int => is_numeric($v) ? (int) $v : 0;
         $str = static fn (mixed $v): string => is_scalar($v) ? (string) $v : '';
         $list = static fn (mixed $v): array => is_array($v) ? array_values(array_filter($v, 'is_array')) : [];
+        $offers = is_array($report['trial_offers'] ?? null) ? $report['trial_offers'] : [];
 
         return [
             'generated_at' => $str($report['generated_at']),
@@ -409,6 +480,12 @@ final class BillingFunnelService
                 'reason' => isset($r['reason']) && is_scalar($r['reason']) ? (string) $r['reason'] : null,
                 'orders' => $int($r['orders'] ?? 0), 'learners' => $int($r['learners'] ?? 0),
             ], $list($report['orders'])),
+            'trial_offers' => [
+                'steps' => array_map(static fn (array $r): array => [
+                    'step' => $int($r['step'] ?? 0), 'sent' => $int($r['sent'] ?? 0), 'paid' => $int($r['paid'] ?? 0),
+                ], $list($offers['steps'] ?? [])),
+                'opted_out' => $int($offers['opted_out'] ?? 0),
+            ],
         ];
     }
 

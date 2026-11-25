@@ -3,6 +3,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import DeleteAccountSheet from '@/components/DeleteAccountSheet.vue'
+import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -13,6 +14,7 @@ import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedC
 import ToggleSwitch from '@/components/ui/ToggleSwitch.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
+import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { isSoundEnabled, setSoundEnabled } from '@/composables/useFeedbackSound'
 import { isAutoSpeakEnabled, setAutoSpeakEnabled } from '@/composables/useAutoSpeak'
 import { isSayAloudEnabled, setSayAloudEnabled } from '@/composables/useSayAloudHint'
@@ -76,9 +78,22 @@ watch(message, (text) => {
   settings.clearError()
 })
 
+/** The highest goal the plan allows; null = no limit. */
+const goalMax = computed((): number | null => data.value?.options.daily_goal_max ?? null)
+const goalLocked = (goal: number): boolean => goalMax.value !== null && goal > goalMax.value
+
 const goalOptions = computed<SegmentOption[]>(() =>
-  (data.value?.options.daily_goals ?? []).map((goal) => ({ value: goal, label: String(goal), testid: `goal-${goal}` })),
+  (data.value?.options.daily_goals ?? []).map((goal) => ({ value: goal, label: String(goal), testid: `goal-${goal}`, locked: goalLocked(goal) })),
 )
+/** The select has no room for an icon: a locked goal says "40 — in Pro" in its text. */
+const goalSelectLabel = (option: SegmentOption): string =>
+  option.locked ? t('settings.daily_goal.locked', { value: option.label }) : option.label
+
+/** The paywall of a goal behind Pro (docs/05 §8c-1). */
+const goalPaywallOpen = ref(false)
+const { reviewFromPaywall: onGoalPaywallReview } = useReviewFromPaywall(() => {
+  goalPaywallOpen.value = false
+}, { toastErrors: true })
 
 const goalAsSegments = computed(() => goalOptions.value.length <= MAX_SEGMENTS)
 
@@ -165,7 +180,17 @@ async function deleteAccount(): Promise<void> {
 }
 
 const onLocale = (value: string | number) => save({ interface_locale: String(value) })
-const onGoal = (value: string | number) => save({ daily_goal: Number(value) })
+/** A locked goal opens the paywall and sends nothing; a 403 `daily_goal_pro_required` of a free-looking one does the same. */
+async function onGoal(value: string | number): Promise<void> {
+  const goal = Number(value)
+  if (goalLocked(goal)) {
+    syncDraft()
+    goalPaywallOpen.value = true
+    return
+  }
+  await save({ daily_goal: goal })
+  if (settings.goalProRequired) goalPaywallOpen.value = true
+}
 const onReminder = () => save({ reminder_time: draft.reminder || null })
 const onLeagues = (participates: boolean) => save({ leagues_opt_out: !participates })
 const onRetention = (value: string | number) => save({ retention_mode: String(value) as LearnerSettings['retention_mode'] })
@@ -213,7 +238,7 @@ onMounted(() => {
               @update:model-value="onGoal"
             />
             <select v-else v-model="draft.goal" class="field" :disabled="saving" :aria-label="t('settings.daily_goal')" @change="onGoal(draft.goal)">
-              <option v-for="option in goalOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+              <option v-for="option in goalOptions" :key="option.value" :value="option.value" :data-locked="option.locked ? 'true' : undefined">{{ goalSelectLabel(option) }}</option>
             </select>
           </div>
         </div>
@@ -358,6 +383,8 @@ onMounted(() => {
         </button>
       </ListGroup>
     </div>
+
+    <PaywallSheet v-if="goalPaywallOpen" reason="daily_goal" @close="goalPaywallOpen = false" @review="onGoalPaywallReview" />
 
     <DeleteAccountSheet
       v-if="deleteOpen"

@@ -17,7 +17,7 @@
     $step = fn (int $count, int $of): string => $of > 0
         ? $count.' / '.$of.' · '.AdminNumbers::decimal($count / $of * 100, 1, trimZeros: true).' %'
         : ($count > 0 ? (string) $count : '—');
-    $isEmpty = $report['funnel'] === [] || (array_sum(array_column($report['funnel'], 'viewed')) === 0 && $report['outside'] === [] && $report['orders'] === []);
+    $isEmpty = $report['funnel'] === [] || (array_sum(array_column($report['funnel'], 'viewed')) === 0 && $report['outside'] === [] && $report['orders'] === [] && $report['trial_offers']['steps'] === []);
 @endphp
 
 <x-filament-widgets::widget>
@@ -144,6 +144,31 @@
                                     <td>{{ $row['reason'] === null ? '—' : $label('reasons', $row['reason']) }}</td>
                                     <td class="lm-num">{{ $row['orders'] }}</td>
                                     <td class="lm-num">{{ $row['learners'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+
+            @if ($report['trial_offers']['steps'] !== [])
+                <h3 class="lm-text" style="margin-top: 1.25rem; font-weight: 600;">{{ __('admin.widgets.billing_funnel.trial_offers.heading') }}</h3>
+                <p class="lm-muted">{{ __('admin.widgets.billing_funnel.trial_offers.help', ['count' => $report['trial_offers']['opted_out']]) }}</p>
+                <div class="lm-scroll">
+                    <table class="lm-table" data-testid="billing-funnel-trial-offers">
+                        <thead>
+                            <tr>
+                                <th>{{ __('admin.widgets.billing_funnel.trial_offers.step') }}</th>
+                                <th class="lm-num">{{ __('admin.widgets.billing_funnel.trial_offers.sent') }}</th>
+                                <th class="lm-num">{{ __('admin.widgets.billing_funnel.trial_offers.paid') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($report['trial_offers']['steps'] as $row)
+                                <tr wire:key="bft-{{ $row['step'] }}">
+                                    <td class="lm-nowrap">{{ trans_choice('admin.widgets.billing_funnel.trial_offers.step_label', $row['step'], ['count' => $row['step']]) }}</td>
+                                    <td class="lm-num">{{ $row['sent'] }}</td>
+                                    <td class="lm-num">{{ $step($row['paid'], $row['sent']) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

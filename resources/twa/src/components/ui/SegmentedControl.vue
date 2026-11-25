@@ -5,10 +5,17 @@ export interface SegmentOption {
   label: string
   /** `data-testid` of the segment button. */
   testid?: string
+  /**
+   * Behind Pro (a daily goal above the Free limit): a lock beside the label and `aria-disabled`, but the segment stays pressable - the tap
+   * is the parent's to answer (the paywall), so it is still emitted.
+   */
+  locked?: boolean
 }
 </script>
 
 <script setup lang="ts">
+import AppIcon from '@/components/ui/AppIcon.vue'
+
 /**
  * Switch between a few values shown side by side (language, daily goal, billing period, import format).
  * Use it for up to four short options; more belong in a `select.field`.
@@ -54,6 +61,7 @@ function select(value: string | number): void {
       type="button"
       role="radio"
       :aria-checked="option.value === modelValue"
+      :aria-disabled="option.locked ? 'true' : undefined"
       :disabled="disabled"
       :data-testid="option.testid"
       class="tap-target min-h-9 min-w-0 flex-1 rounded-lg px-3 text-sm leading-5 transition-colors duration-150"
@@ -64,7 +72,10 @@ function select(value: string | number): void {
       "
       @click="select(option.value)"
     >
-      <span class="block truncate">{{ option.label }}</span>
+      <span class="flex items-center justify-center gap-1 truncate">
+        <AppIcon v-if="option.locked" name="lock-closed" :size="14" data-testid="segment-lock" />
+        <span class="truncate">{{ option.label }}</span>
+      </span>
     </button>
   </div>
 </template>

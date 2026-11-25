@@ -23,6 +23,7 @@ import { GAMES_CARD_MODES, PRACTICE_MIN_LEARNED, modeTitle } from '@/composables
 import { tierLabelKey } from '@/composables/leagueTiers'
 import { STREAK_LINE_EVERY_MS, STREAK_LINE_KEY } from '@/composables/proReminders'
 import { hasSeen, isSnoozed, markSeen, snooze } from '@/composables/seenFlag'
+import { takeTrialEnded } from '@/composables/trialEnded'
 import { trialDaysLeft, trialEndsAt } from '@/composables/trial'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
@@ -149,6 +150,15 @@ function openPaywall(reason: PaywallReason): void {
   paywallReason.value = reason
   paywallOpen.value = true
 }
+
+/**
+ * The welcome trial is over (docs/05 §8c-1, P7): the first `/today` of a Free learner after its end opens the sheet `trial_ended` by
+ * itself, once per end (`composables/trialEnded.ts`). Not on top of the first-run intro or of a sheet already open.
+ */
+watch(data, (current) => {
+  if (current === null || current.entitlement.plan !== 'free' || introOpen.value || paywallOpen.value) return
+  if (takeTrialEnded(current.entitlement.lapsed)) openPaywall('trial_ended')
+}, { immediate: true })
 
 /** "Repeat words" in the paywall: close the sheet (a failure shows on this screen) and start the review. */
 const { reviewFromPaywall: onPaywallReview } = useReviewFromPaywall(() => {

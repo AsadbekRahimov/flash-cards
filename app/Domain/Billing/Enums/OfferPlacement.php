@@ -29,6 +29,10 @@ enum OfferPlacement: string
     case PaywallPractice = 'paywall_practice';
     case PaywallPracticeLimit = 'paywall_practice_limit';
     case PaywallGame = 'paywall_game';
+    /** The sheet opened by a locked daily goal above the Free limit, or by `403 daily_goal_pro_required` (docs/05 §8c-1). */
+    case PaywallDailyGoal = 'paywall_daily_goal';
+    /** The one-off sheet "the trial is over" at the first opening after the end of the welcome trial (docs/05 §8c-1, P7). */
+    case PaywallTrialEnded = 'paywall_trial_ended';
     case BillingView = 'billing_view';
     case LapsedBanner = 'lapsed_banner';
     case FinishedProTip = 'finished_pro_tip';

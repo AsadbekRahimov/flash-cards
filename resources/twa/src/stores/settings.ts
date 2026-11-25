@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
+import { ApiClientError } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 import { errorMessage } from '@/i18n/errors'
 import { setLocale, SUPPORTED_LOCALES, type Locale } from '@/i18n'
@@ -15,6 +16,11 @@ interface SettingsState {
   /** "Delete account" is in flight */
   deleting: boolean
   errorMessage: string
+  /**
+   * The last change was refused with 403 `daily_goal_pro_required` (docs/05 §8c-1: the plan ended between `/me` and the tap): the screen
+   * opens the paywall instead of a toast. Reset by every `update`.
+   */
+  goalProRequired: boolean
 }
 
 function isLocale(value: string): value is Locale {
@@ -28,6 +34,7 @@ export const useSettingsStore = defineStore('settings', {
     saving: false,
     deleting: false,
     errorMessage: '',
+    goalProRequired: false,
   }),
 
   actions: {
@@ -61,10 +68,18 @@ export const useSettingsStore = defineStore('settings', {
 
       this.saving = true
       this.errorMessage = ''
+      this.goalProRequired = false
       try {
         this.apply((await api.me.updateSettings(patch)).settings)
         return true
       } catch (err) {
+        if (err instanceof ApiClientError && err.code === 'daily_goal_pro_required') {
+          // Not an error to tell: the goal is behind Pro. The limit of the answer locks the goals above it from now on.
+          this.goalProRequired = true
+          const max = err.details?.max
+          if (this.data && typeof max === 'number') this.data.options.daily_goal_max = max
+          return false
+        }
         this.errorMessage = errorMessage(err, 'settings')
         return false
       } finally {

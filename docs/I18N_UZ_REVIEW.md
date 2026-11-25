@@ -4380,3 +4380,41 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `billing.pro_promises.mock_exams` | IELTS va SAT sinov imtihonlari | Пробные тесты IELTS и SAT |
 
 Приветствие целиком (uz, 14 дней, практика закрыта): «🎁 Sizga 14 kun Pro bepul ochildi — 10.12.2026 gacha. / Pro nima beradi: / • Yangi so'zlar — kunlik limitsiz / • O'z so'z to'plamlaringiz / • Zaxira kunlar: … / • Yozish va gap to'ldirish mashqlari / 3 ta do'stni taklif qiling — yana 7 kun Pro olasiz: /invite».
+
+## Цель дня после пробного Pro и предложения после него (docs/34 §2в P4–P7, 25 ноября 2026 года)
+
+### Бот (`lang/uz/billing.php`, блок `trial_offer`; `lang/uz/buttons.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.trial_offer.ended` | Pro sinov muddati tugadi. Endi sizda Free — kuniga: :limits. | Пробный Pro закончился. Теперь у вас Free — в день: :limits. |
+| `billing.trial_offer.ended_generic` | Pro sinov muddati tugadi. Endi sizda Free. | Пробный Pro закончился. Теперь у вас Free. |
+| `billing.trial_offer.limit_words` | :count ta yangi so'z | :count новое слово / новых слова / новых слов |
+| `billing.trial_offer.limit_goal` | maqsad :count tagacha kartochka | цель до :count карточки / карточек |
+| `billing.trial_offer.limit_games` | :count ta so'z o'yini | :count игра / игры / игр со словами |
+| `billing.trial_offer.ended_on` | Pro sinov muddati tugadi (:date). | Пробный Pro закончился :date. |
+| `billing.trial_offer.learned` | Sinov davrida :words o'rgandingiz. | За пробный период вы выучили :words. |
+| `billing.trial_offer.words` | :count ta yangi so'z | :count новое слово / новых слова / новых слов |
+| `billing.trial_offer.best_streak` | Eng uzun ketma-ketlik — :streak. | Лучшая серия — :streak. |
+| `billing.trial_offer.back` | Pro'ni qaytaring — kunlik limitlarsiz o'rganishda davom eting. | Верните Pro — и учитесь дальше без дневных лимитов. |
+| `billing.trial_offer.last` | Pro haqida oxirgi eslatma: sinov muddati tugadi (:date). Bu haqda boshqa yozmaymiz — Pro'ni istalgan vaqtda /pro orqali qaytarishingiz mumkin. | Последнее напоминание о Pro: пробный период закончился :date. Больше писать об этом не будем — Pro можно вернуть в любой момент в /pro. |
+| `billing.trial_offer.benefits` | Pro nima beradi: … | Что даёт Pro: … |
+| `billing.trial_offer.from_month` | Muhrla Pro narxi — oyiga :price. | Muhrla Pro — от :price в месяц. |
+| `billing.trial_offer.savings` | Uzoq muddatga foydaliroq: :items. | Выгоднее на срок: :items. |
+| `billing.trial_offer.opted_out` | Yaxshi, Pro takliflari endi kelmaydi. To'lov xabarlari va mashg'ulot eslatmalari qoladi. | Хорошо, предложений Pro больше не будет. Сообщения об оплате и напоминания о занятиях останутся. |
+| `buttons.invite` | 👥 Do'stlarni taklif qilish | 👥 Пригласить друзей |
+| `buttons.offers_off` | 🔕 Takliflar kerak emas | 🔕 Не присылать предложения |
+
+Носителю проверить: `from_month` — «от» (нижняя цена) передан без слова «-dan» (`:price` оканчивается на «so'm» / «⭐», аффикс к ним не приклеить); `limit_goal` внутри перечисления «kuniga: 10 ta yangi so'z, maqsad 10 tagacha kartochka, 3 ta so'z o'yini».
+
+### Mini App (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `settings.daily_goal.unit` | kuniga nechta kartochka | карточек в день |
+| `settings.daily_goal.locked` | {value} — Pro'da | {value} — в Pro |
+| `paywall.heading.daily_goal` | {max} dan katta maqsad — Pro'da | Цель больше {max} — в Pro |
+| `paywall.heading.trial_ended` | Pro sinov muddati tugadi | Пробный Pro закончился |
+| `paywall.lead_daily_goal` | Bepul tarifda kunlik maqsad — {max} tagacha kartochka. Pro'da — istalgancha. | На бесплатном тарифе цель дня — до {max} карточек. В Pro — любая. |
+| `paywall.lead_trial_ended` | Kunlik maqsad endi {max} ta kartochka — bu Free tarifidagi eng yuqori maqsad. | Цель дня теперь {max} карточек — это максимум на Free. |
+| `paywall.lead_trial_ended_generic` | Endi sizda bepul tarif. Cheklovsiz o'rganish uchun Pro'ni rasmiylashtiring. | Теперь у вас бесплатный тариф. Оформите Pro, чтобы учиться без ограничений. |

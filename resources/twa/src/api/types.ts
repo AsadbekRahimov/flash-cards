@@ -87,6 +87,11 @@ export interface LearnerSettings {
     locales: SettingsChoice[]
     reminder_times: string[]
     daily_goals: number[]
+    /**
+     * The highest daily goal the plan allows (docs/04 A.2, docs/05 §8c-1): the goals above it are shown with a lock and open the
+     * paywall instead of saving; null = no limit (Pro).
+     */
+    daily_goal_max: number | null
     retention_modes?: RetentionMode[]
   }
 }

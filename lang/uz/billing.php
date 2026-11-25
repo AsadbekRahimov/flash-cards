@@ -73,7 +73,7 @@ return [
         'back' => "Pro'ni qaytaring — kunlik limitlarsiz o'rganishda davom eting.",
         'last' => "Pro haqida oxirgi eslatma: sinov muddati tugadi (:date). Bu haqda boshqa yozmaymiz — Pro'ni istalgan vaqtda /pro orqali qaytarishingiz mumkin.",
         'benefits' => "Pro nima beradi:\n:benefits",
-        'from_month' => 'Muhrla Pro — oyiga :price dan.',
+        'from_month' => 'Muhrla Pro narxi — oyiga :price.',
         'savings' => 'Uzoq muddatga foydaliroq: :items.',
         'saving_item' => ':period −:pct %',
         'opted_out' => "Yaxshi, Pro takliflari endi kelmaydi. To'lov xabarlari va mashg'ulot eslatmalari qoladi.",
