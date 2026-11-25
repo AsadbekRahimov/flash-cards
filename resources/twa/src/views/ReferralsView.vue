@@ -12,6 +12,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import { formatDate } from '@/composables/format'
 import { useBackButton } from '@/composables/useBackButton'
 import { useCopyToClipboard } from '@/composables/useCopyToClipboard'
+import { useShare } from '@/composables/useShare'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
 import { useReferralsStore } from '@/stores/referrals'
@@ -23,12 +24,15 @@ import type { ReferralStatus } from '@/api/types'
 /**
  * "Invite a friend" (docs/13 §7.1, docs/14 §6.7, docs/04 A.12): the hero "invite friends - get Pro", the progress to the
  * milestones (friends counted, 3 -> +7 days, 6 -> +7 days: all the numbers are the server's), the three steps of the
- * rule, the learner's invite link with Telegram's share dialog, the counts and the invited learners (first names only).
+ * rule, the learner's invite link with "Share", the counts and the invited learners (first names only). The hero is the tinted card of
+ * the screen (docs/14 §4.5, 25.11.2026). "Share" sends the invitation through the bot with the button "Start learning" (`useShare`,
+ * docs/36 §1в); an older client or a refusal opens Telegram's share dialog with the link and the prefilled text, as before.
  * Back -> Profile (or Today / Billing, where `?from=` says the learner came from); the way to the friends and challenges is the row at the bottom.
  */
 const auth = useAuthStore()
 const referrals = useReferralsStore()
-const { shareUrl, haptic } = useTelegram()
+const { haptic } = useTelegram()
+const { pending: sharing, share: shareThroughBot } = useShare()
 const { copy } = useCopyToClipboard()
 const { t, tn, locale } = useI18n()
 
@@ -99,10 +103,10 @@ const COUNTS: { key: 'invited' | 'activated' | 'counted'; label: StringKey }[] =
   { key: 'counted', label: 'referrals.counts.counted' },
 ]
 
-function share(): void {
-  if (!data.value?.link) return
+async function share(): Promise<void> {
+  if (!data.value?.link || sharing.value) return
   haptic('light')
-  shareUrl(data.value.link, t('referrals.share_text'))
+  await shareThroughBot('invite', null, { link: data.value.link, text: t('referrals.share_text') })
 }
 
 async function copyLink(): Promise<void> {
@@ -135,8 +139,9 @@ onMounted(() => {
     <ErrorState v-else-if="!data" :message="message" @retry="load" />
 
     <div v-else class="space-y-3">
-      <section class="card" data-testid="hero">
-        <h2 class="text-xl leading-[26px] font-semibold" data-testid="hero-title">{{ t('referrals.hero') }}</h2>
+      <!-- The tinted card of the screen (docs/14 §4.1 `highlight`): the offer, the progress, the rule and the link to send. -->
+      <section class="rounded-hero bg-highlight px-4 pt-[18px] pb-4" data-testid="hero">
+        <h2 class="text-[22px] leading-7 font-bold" data-testid="hero-title">{{ t('referrals.hero') }}</h2>
 
         <div class="mt-4" data-testid="progress">
           <ol
@@ -151,8 +156,8 @@ onMounted(() => {
               :key="dot.number"
               class="flex size-8 shrink-0 items-center justify-center rounded-full font-mono text-[13px] leading-none"
               :class="[
-                dot.filled ? 'bg-primary text-on-primary' : 'bg-fill text-muted',
-                dot.milestone ? 'ring-[1.5px] ring-primary ring-offset-2 ring-offset-surface' : '',
+                dot.filled ? 'bg-primary text-on-primary' : 'bg-surface text-muted',
+                dot.milestone ? 'ring-[1.5px] ring-primary ring-offset-2 ring-offset-highlight' : '',
               ]"
               :data-filled="dot.filled ? 'true' : 'false'"
               :data-milestone="dot.milestone ? 'true' : 'false'"
@@ -170,7 +175,7 @@ onMounted(() => {
               class="flex items-center justify-between gap-2 text-[15px] leading-5"
               :data-testid="`milestone-${m.friends}`"
             >
-              <span class="min-w-0 font-semibold">
+              <span class="min-w-0 font-bold">
                 {{ t('referrals.milestone.caption', { friends: tn('referrals.friends', m.friends), days: m.days }) }}
               </span>
               <span
@@ -191,7 +196,7 @@ onMounted(() => {
         <ol class="mt-4 space-y-3" data-testid="rule">
           <li v-for="(step, index) in steps" :key="index" class="flex items-start gap-3">
             <span
-              class="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-soft font-mono text-[13px] leading-none text-accent-ink"
+              class="flex size-6 shrink-0 items-center justify-center rounded-full bg-surface font-mono text-[13px] leading-none text-accent-ink"
               aria-hidden="true"
             >
               {{ index + 1 }}
@@ -207,8 +212,21 @@ onMounted(() => {
           <!-- Read-only field: the link wraps by characters and is selected with one tap, so it can be copied by hand too. -->
           <div class="field mt-1.5 font-mono text-[13px] leading-[18px] break-all select-all" data-testid="link">{{ data.link }}</div>
           <div class="mt-3 space-y-2">
-            <button type="button" class="btn btn-primary btn-block" data-testid="share-btn" @click="share">
-              {{ t('referrals.share') }}
+            <button
+              type="button"
+              class="btn btn-primary btn-block"
+              :disabled="sharing"
+              :aria-busy="sharing ? 'true' : undefined"
+              data-testid="share-btn"
+              @click="share"
+            >
+              <span
+                v-if="sharing"
+                class="size-5 shrink-0 animate-spin rounded-full border-2 border-on-primary/40 border-t-on-primary motion-reduce:animate-none"
+                aria-hidden="true"
+                data-testid="share-busy"
+              />
+              <span>{{ t('referrals.share') }}</span>
             </button>
             <button type="button" class="btn btn-tinted btn-block" data-testid="copy-btn" @click="copyLink">
               {{ t('referrals.copy') }}
@@ -223,7 +241,7 @@ onMounted(() => {
       </section>
 
       <div class="grid grid-cols-3 gap-2" data-testid="counts">
-        <div v-for="count in COUNTS" :key="count.key" class="card flex flex-col items-center px-1.5 py-3 text-center">
+        <div v-for="count in COUNTS" :key="count.key" class="card flex flex-col items-center rounded-option px-1.5 py-3 text-center">
           <div class="font-mono text-2xl leading-8 font-medium" :data-testid="`count-${count.key}`">{{ data.counts[count.key] }}</div>
           <div class="mt-0.5 text-xs leading-4 break-words text-muted">{{ t(count.label) }}</div>
         </div>

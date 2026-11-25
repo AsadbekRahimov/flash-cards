@@ -21,6 +21,7 @@ import { useRatingTabs } from '@/composables/ratingTabs'
 import { useBackButton } from '@/composables/useBackButton'
 import { useCopyToClipboard } from '@/composables/useCopyToClipboard'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
+import { useShare } from '@/composables/useShare'
 import { useTelegram } from '@/composables/useTelegram'
 import { useAuthStore } from '@/stores/auth'
 import { useBattleStore } from '@/stores/battle'
@@ -56,7 +57,8 @@ const battles = useBattleStore()
 const billing = useBillingStore()
 const router = useRouter()
 const route = useRoute()
-const { shareUrl, haptic } = useTelegram()
+const { haptic } = useTelegram()
+const { pending: sharing, share: shareThroughBot } = useShare()
 const { copy } = useCopyToClipboard()
 const { t, tn, locale } = useI18n()
 
@@ -249,10 +251,11 @@ function myShare(c: ChallengeItem): number | null {
   return total <= 0 ? 50 : Math.round((c.my_score / total) * 100)
 }
 
-function share(): void {
-  if (!friends.value?.invite_link) return
+/** "Let's be friends" through the bot with the button "Add as a friend" (`useShare`, docs/36 §1в); else the share dialog with the f_ link. */
+async function share(): Promise<void> {
+  if (!friends.value?.invite_link || sharing.value) return
   haptic('light')
-  shareUrl(friends.value.invite_link, t('friends.invite.share_text'))
+  await shareThroughBot('friend_invite', null, { link: friends.value.invite_link, text: t('friends.invite.share_text') })
 }
 
 async function copyLink(): Promise<void> {
@@ -401,8 +404,21 @@ onMounted(() => {
           <!-- Read-only field: the link wraps by characters and is selected with one tap, so it can be copied by hand too. -->
           <div class="field mt-4 font-mono text-[13px] leading-[18px] break-all select-all" data-testid="link">{{ friends.invite_link }}</div>
           <div class="mt-3 space-y-2">
-            <button type="button" class="btn btn-primary btn-block" data-testid="share-btn" @click="share">
-              {{ t('friends.invite.share') }}
+            <button
+              type="button"
+              class="btn btn-primary btn-block"
+              :disabled="sharing"
+              :aria-busy="sharing ? 'true' : undefined"
+              data-testid="share-btn"
+              @click="share"
+            >
+              <span
+                v-if="sharing"
+                class="size-5 shrink-0 animate-spin rounded-full border-2 border-on-primary/40 border-t-on-primary motion-reduce:animate-none"
+                aria-hidden="true"
+                data-testid="share-busy"
+              />
+              <span>{{ t('friends.invite.share') }}</span>
             </button>
             <button type="button" class="btn btn-tinted btn-block" data-testid="copy-btn" @click="copyLink">
               {{ t('friends.copy') }}
