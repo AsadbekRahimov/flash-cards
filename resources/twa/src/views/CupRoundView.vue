@@ -11,7 +11,7 @@ import BottomSheet from '@/components/ui/BottomSheet.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
-import { revealText } from '@/composables/cupInfo'
+import { nextDayStart, nextRound, revealText, type NextRound } from '@/composables/cupInfo'
 import { hideErrorToast, showErrorToast } from '@/composables/errorToast'
 import { formatDate } from '@/composables/format'
 import { gameVerdictLabel } from '@/composables/practiceLabels'
@@ -54,7 +54,7 @@ const now = useNow(500)
 const { haptic, notificationHaptic } = useTelegram()
 const { t, tn, locale } = useI18n()
 
-const { status, round, board, outcome, actionError, elementSeq, notice } = storeToRefs(store)
+const { status, round, board, outcome, actionError, elementSeq, notice, failureKind } = storeToRefs(store)
 
 let left = false
 
@@ -216,6 +216,45 @@ const inkOf = (verdict: string | null): string => (verdict !== null && verdict i
 const verdictOf = (verdict: string | null): string =>
   verdict === 'correct' || verdict === 'typo' || verdict === 'wrong' || verdict === 'skipped' ? gameVerdictLabel(verdict) : t('cup.round.no_answer')
 
+/**
+ * When the round of the next day opens (`next_day_at` of the attempt - the end of its day; shown in the learner's zone): "tomorrow at
+ * HH:MM", "the last day", or - an attempt of an earlier day - "the round of the new day is available". An older server without the field:
+ * the client's count of the cup's next midnight, only for an attempt of the cup's current day.
+ */
+const next = computed((): NextRound | null => {
+  const r = round.value
+  if (r === null) return null
+  const c = cup.value
+  return nextRound(r.next_day_at, r.server_now, () => (c !== null && c.day === r.day ? nextDayStart(c) : null))
+})
+
+const nextText = computed((): string => {
+  const n = next.value
+  if (n === null) return ''
+  if (n.kind === 'last') return t('cup.round.next_last')
+  if (n.kind === 'open') return t('cup.round.next_open')
+  return t('cup.round.next_at', { time: formatDate(n.at, 'time', locale.value, today.data?.timezone || undefined) })
+})
+
+/** The title of a refusal: 403 `cup_not_member` (a stranger, one who left the chat) - "The cup is not available", as on the cup screen. */
+const failureTitle = computed((): string | undefined => {
+  switch (failureKind.value) {
+    case 'unavailable':
+      return t('cup.invite.unavailable_title')
+    case 'off':
+      return t('cup.off_title')
+    case 'telegram':
+    case 'busy':
+      return t('cup.invite.check_title')
+    case 'bot_not_admin':
+      return t('cup.invite.bot_title')
+    case 'paused':
+      return t('cup.invite.paused_title')
+    default:
+      return undefined
+  }
+})
+
 const expiresAtText = computed((): string => (round.value ? formatDate(round.value.expires_at, 'time', locale.value, today.data?.timezone || undefined) : ''))
 </script>
 
@@ -231,7 +270,7 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
 
     <LoadingState v-if="status === 'idle' || status === 'loading' || status === 'not_found'" variant="center" />
 
-    <ErrorState v-else-if="status === 'error'" :message="notice" @retry="begin">
+    <ErrorState v-else-if="status === 'error'" :title="failureTitle" :message="notice" @retry="begin">
       <button type="button" class="btn btn-plain btn-block" data-testid="to-cup" @click="toCup">{{ t('cup.round.to_cup') }}</button>
     </ErrorState>
 
@@ -240,7 +279,13 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
     </ClosedState>
 
     <div v-else-if="status === 'unavailable'" class="page flex flex-1 flex-col">
-      <EmptyState icon="calendar-days" :title="t('cup.round.unavailable_title')" :text="notice" data-testid="unavailable">
+      <EmptyState
+        :icon="failureKind === 'unavailable' || failureKind === 'off' ? 'lock-closed' : 'calendar-days'"
+        :title="failureTitle ?? t('cup.round.unavailable_title')"
+        :text="notice"
+        :data-kind="failureKind ?? undefined"
+        data-testid="unavailable"
+      >
         <template #action>
           <button type="button" class="btn btn-tinted" data-testid="to-cup" @click="toCup">{{ t('cup.round.to_cup') }}</button>
         </template>
@@ -286,6 +331,7 @@ const expiresAtText = computed((): string => (round.value ? formatDate(round.val
           <p class="text-[15px] leading-5" data-testid="summary-correct">{{ t('cup.round.correct', { correct: round.correct, total: round.total }) }}</p>
           <p v-if="myRank !== null" class="text-[15px] leading-5 font-semibold" data-testid="summary-place">{{ t('cup.my_place', { rank: myRank }) }}</p>
           <p v-if="expired" class="text-[13px] leading-[18px] text-muted" data-testid="summary-expired">{{ t('cup.round.expired_text') }}</p>
+          <p v-if="nextText" class="text-[15px] leading-5" :data-next="next?.kind" data-testid="summary-next">{{ nextText }}</p>
         </section>
 
         <section v-if="round.review && round.review.length > 0" class="list" :aria-label="t('cup.round.review_title')" data-testid="review">

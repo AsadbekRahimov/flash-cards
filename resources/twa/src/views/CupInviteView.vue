@@ -8,7 +8,7 @@ import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { BRAND } from '@/brand'
-import { cupFailure, cupPeriod, cupStatusLine, type CupFailure } from '@/composables/cupInfo'
+import { NAME_MAX_GRAPHEMES, cupFailure, cupPeriod, cupStatusLine, graphemeCount, type CupFailure } from '@/composables/cupInfo'
 import { useBackButton } from '@/composables/useBackButton'
 import { useTelegram } from '@/composables/useTelegram'
 import { api } from '@/api'
@@ -40,7 +40,8 @@ const props = defineProps<{
 
 /**
  * A bound of the field only: the server counts the name in what a person sees as characters (32, an emoji sequence is one) and says
- * why it refuses one (422 `cup_display_name_invalid {reason}`).
+ * why it refuses one (422 `cup_display_name_invalid {reason}`). Never below the server's bound: 64 code points are at most 128 UTF-16
+ * units, so the field does not cut a name the server would take.
  */
 const NAME_FIELD_MAX = 128
 
@@ -95,6 +96,8 @@ const open = computed((): boolean => invite.value !== null && (invite.value.stat
 const period = computed((): string => (invite.value ? cupPeriod(invite.value, locale.value) : ''))
 const statusLine = computed((): string => (invite.value ? cupStatusLine(invite.value, locale.value) : ''))
 const trimmed = computed((): string => name.value.trim())
+/** The length of the name as the server counts it (graphemes): the counter of the field. */
+const nameLength = computed((): number => graphemeCount(trimmed.value))
 const canJoin = computed((): boolean => open.value && !joining.value && trimmed.value !== '')
 
 /** "Join": with the name of the field (the server checks it before the membership). A second tap while it is on its way does nothing. */
@@ -190,7 +193,15 @@ onBeforeUnmount(() => {
             :disabled="joining"
             data-testid="name-input"
           />
-          <span id="cup-name-hint" class="text-[13px] leading-[18px] text-muted" data-testid="name-hint">{{ t('cup.invite.name_hint') }}</span>
+          <span class="flex gap-3 text-[13px] leading-[18px] text-muted">
+            <span id="cup-name-hint" class="min-w-0 flex-1" data-testid="name-hint">{{ t('cup.invite.name_hint') }}</span>
+            <span
+              class="shrink-0 tabular-nums"
+              :class="nameLength > NAME_MAX_GRAPHEMES ? 'text-danger-ink' : ''"
+              aria-hidden="true"
+              data-testid="name-count"
+            >{{ nameLength }}/{{ NAME_MAX_GRAPHEMES }}</span>
+          </span>
         </label>
         <InlineAlert v-if="nameError" id="cup-name-error" tone="danger" :message="nameError" data-testid="name-error" />
         <InlineAlert v-if="joinError" tone="danger" :message="joinError" data-testid="join-error" />

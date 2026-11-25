@@ -38,7 +38,10 @@ export const useCupBoardStore = defineStore('cupBoard', {
   },
 
   actions: {
-    /** Reads the table of `id`; the one of another cup is dropped first, the same cup stays on screen while it is read again. */
+    /**
+     * Reads the table of `id`; the one of another cup is dropped first, the same cup stays on screen while it is read again. A refused
+     * read drops it too: one who left the chat (403) must not keep the names and the points, and a failed check is a state with "Retry".
+     */
     async load(id: number): Promise<CupBoardResponse | null> {
       const seq = ++this.seq
       if (this.cupId !== id) {
@@ -57,6 +60,8 @@ export const useCupBoardStore = defineStore('cupBoard', {
         return board
       } catch (err) {
         if (seq !== this.seq) return null
+        this.board = null
+        this.loadedAt = null
         this.failure = cupFailure(err)
         this.status = 'failed'
         return null

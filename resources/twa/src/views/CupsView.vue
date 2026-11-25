@@ -44,9 +44,26 @@ async function load(): Promise<void> {
 const open = computed((): CupListItem[] => (list.value ?? []).filter((cup) => cup.status === 'scheduled' || cup.status === 'running'))
 const over = computed((): CupListItem[] => (list.value ?? []).filter((cup) => cup.status === 'finished' || cup.status === 'canceled'))
 
-/** "Day 3 of 7 · 14 points · 2nd place". */
+/** Today's round of a cup that runs, as the server has it (`me.today.state`): to play, to continue, played; nothing - no round today. */
+function todayPart(cup: CupListItem): string | null {
+  if (cup.status !== 'running' || cup.paused !== null || cup.me === null || cup.me.status !== 'active') return null
+  switch (cup.me.today?.state) {
+    case 'not_started':
+      return t('cup.list.today_play')
+    case 'active':
+      return t('cup.list.today_continue')
+    case 'done':
+      return t('cup.list.today_done')
+    default:
+      return null
+  }
+}
+
+/** "Day 3 of 7 · play the round of the day · 14 points", "The cup is over · 60 points · Final place: 1". */
 function subtitle(cup: CupListItem): string {
   const parts = [cupStatusLine(cup, locale.value)]
+  const today = todayPart(cup)
+  if (today !== null) parts.push(today)
   if (cup.me) {
     parts.push(tn('cup.points', cup.me.total))
     if (cup.me.final_rank !== null) parts.push(t('cup.final_place', { rank: cup.me.final_rank }))

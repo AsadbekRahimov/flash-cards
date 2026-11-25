@@ -15,8 +15,6 @@ interface CupsState {
    * "Profile" ask nothing more, and no card or row is shown.
    */
   unavailable: boolean
-  /** The days whose round this device has seen to its end, by cup id: the card on "Today" says "played" for them. */
-  played: Record<number, number>
 }
 
 /** How long a read of "my cups" (or its failure) is trusted by "Today" and "Profile". */
@@ -28,13 +26,13 @@ let inFlight: Promise<void> | null = null
  * "My cups" (docs/04 A.23 `GET /cups`, docs/33 §7.1): the entries of the cup on "Today" (one card) and in "Profile" (a row), and the
  * list `/cups`. One light request with a short freshness: "Today" opened again within `CUPS_FRESH_MS` asks nothing; a switched off cup
  * (`cup_unavailable`) is never asked again in this session. A failure is silent (the entries are secondary) and is trusted as long.
+ * The state of today's round of each cup is the server's (`me.today`); a round played here makes the next reader ask again.
  */
 export const useCupsStore = defineStore('cups', {
   state: (): CupsState => ({
     cups: null,
     checkedAt: null,
     unavailable: false,
-    played: {},
   }),
 
   getters: {
@@ -73,12 +71,6 @@ export const useCupsStore = defineStore('cups', {
     /** Something the list shows has changed (joined, played): the next reader asks again. */
     invalidate(): void {
       this.checkedAt = null
-    },
-
-    /** The round of `day` of the cup is over on this device. */
-    markPlayed(cupId: number, day: number): void {
-      this.played = { ...this.played, [cupId]: day }
-      this.invalidate()
     },
   },
 })

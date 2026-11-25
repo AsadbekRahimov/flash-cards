@@ -11,11 +11,12 @@ import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { BRAND } from '@/brand'
-import { cupFailure, cupStatusLine, nextDayStart } from '@/composables/cupInfo'
+import { NAME_MAX_GRAPHEMES, cupFailure, cupStatusLine, graphemeCount, nextDayStart, nextRound } from '@/composables/cupInfo'
 import { formatDate } from '@/composables/format'
 import { useBackButton } from '@/composables/useBackButton'
 import { useTelegram } from '@/composables/useTelegram'
 import { api } from '@/api'
+import { ApiClientError } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 import { useCupBoardStore } from '@/stores/cupBoard'
 import { useCupsStore } from '@/stores/cups'
@@ -29,12 +30,17 @@ import type { CupDayResult } from '@/api/types'
  * next one tomorrow at HH:MM" (the times are the server's, shown in the learner's zone) - the table (`CupStandings`: shared places, "left",
  * the emoji of Pro, my row), my days 1…7 with the ones that count, the name in the tournament (changed at most 3 times), the rules.
  * `can_manage` (a hint, the server asks Telegram on the action) shows "Cancel the cup"; a refusal says that only an administrator of the
- * group can. A member of the chat who has not joined sees "Join". A refusal of the read is a state: `unavailable` (the same for a
- * stranger and a missing cup), `off`, the rest with "Retry".
+ * group can. A member of the chat who has not joined sees "Join": by the numeric id the server answers a non-participant 403 on ANY
+ * refusal (not a member, a pause, a failed check), so the screen says only "join by the invitation link of the group". A refusal of the
+ * read is a state: `unavailable` (403 - a stranger, a missing cup, a participant who left the chat: one state, nothing of the group),
+ * `off`, the rest (a failed check of a participant: 409 / 503 / 429) - its words and "Retry" by hand, never a loop.
  */
 const props = defineProps<{ id: number }>()
 
-/** A bound of the field only: the server counts the name (32 characters as a person sees them) and refuses it with the reason. */
+/**
+ * A bound of the field only, never below the server's (64 code points are at most 128 UTF-16 units): the server counts the name (32
+ * characters as a person sees them) and refuses it with the reason.
+ */
 const NAME_FIELD_MAX = 128
 
 const router = useRouter()
@@ -74,12 +80,28 @@ const view = computed((): ViewState => {
   if (data.value !== null) return 'ready'
   if (status.value === 'failed' && failure.value !== null) {
     if (failure.value.kind === 'unavailable' || failure.value.kind === 'off') return failure.value.kind
-    return failure.value.retry ? 'error' : 'unavailable'
+    return 'error'
   }
   return 'loading'
 })
 
 const errorText = computed((): string => authError.value || failure.value?.message || t('error.generic'))
+
+/** The title of a refused read with "Retry": a failed check of the participant says what failed. */
+const errorTitle = computed((): string | undefined => {
+  if (authError.value !== '') return undefined
+  switch (failure.value?.kind) {
+    case 'telegram':
+    case 'busy':
+      return t('cup.invite.check_title')
+    case 'bot_not_admin':
+      return t('cup.invite.bot_title')
+    case 'paused':
+      return t('cup.invite.paused_title')
+    default:
+      return undefined
+  }
+})
 
 /** The learner's zone when `/today` is known, else the device's. */
 const zone = computed((): string | undefined => today.data?.timezone || undefined)
@@ -112,13 +134,24 @@ const activeUntil = computed((): string => {
   return at ? t('cup.today.active_until', { time: timeOf(at) }) : ''
 })
 
-/** "Played: 14 points · the next round tomorrow at 00:00", or "that was the last day". */
-const doneLine = computed((): string => {
+/**
+ * When the next round opens, by the server's `next_day_at` (an older server without it - the client's count of the cup's midnight).
+ * Passed already (the screen was read before midnight): the round of the new day is there, "Refresh" reads the cup again.
+ */
+const next = computed(() => {
   const c = cup.value
-  if (c === null) return ''
+  const d = data.value
+  return c === null || d === null ? null : nextRound(c.next_day_at, d.server_now, () => nextDayStart(c))
+})
+
+/** "Played: 14 points · the next round tomorrow at 00:00", "that was the last day", or "the round of the new day is available". */
+const doneLine = computed((): string => {
+  const n = next.value
+  if (n === null) return ''
   const points = tn('cup.points', me.value?.today.points ?? 0)
-  const next = nextDayStart(c)
-  return next === null ? t('cup.today.done_last', { points }) : t('cup.today.done', { points, time: timeOf(next) })
+  if (n.kind === 'last') return t('cup.today.done_last', { points })
+  if (n.kind === 'open') return t('cup.today.done_open', { points })
+  return t('cup.today.done', { points, time: timeOf(n.at) })
 })
 
 function play(): void {
@@ -140,7 +173,8 @@ async function join(): Promise<void> {
     cups.invalidate()
     if (!left) await boards.load(props.id)
   } catch (err) {
-    if (!left) joinError.value = cupFailure(err).message
+    // 403 by the id is any refusal to a non-participant (a pause and a failed check too): the link of the group tells the reason.
+    if (!left) joinError.value = err instanceof ApiClientError && err.code === 'cup_not_member' ? t('cup.failure.join_by_link') : cupFailure(err).message
   } finally {
     if (!left) joining.value = false
   }
@@ -168,6 +202,9 @@ function openRename(): void {
   renameOpen.value = true
 }
 
+/** The length of the name as the server counts it (graphemes): the counter of the field; the server decides. */
+const newNameLength = computed((): number => graphemeCount(newName.value.trim()))
+
 const canRename = computed((): boolean => {
   const value = newName.value.trim()
   return !renaming.value && value !== '' && value !== me.value?.display_name
@@ -183,7 +220,16 @@ async function rename(): Promise<void> {
     renameOpen.value = false
     await boards.load(props.id)
   } catch (err) {
-    if (!left) renameError.value = cupFailure(err).message
+    if (left) return
+    if (err instanceof ApiClientError && err.code === 'cup_not_member') {
+      // He is not a participant any more (left the chat): the sheet closes, the screen is read again and says what the server says.
+      renameOpen.value = false
+      cups.invalidate()
+      await boards.load(props.id)
+      return
+    }
+    // A failed check (409 / 503 / 429), the limit, a refused name: the sheet stays with the typed name, the words say why.
+    renameError.value = cupFailure(err).message
   } finally {
     if (!left) renaming.value = false
   }
@@ -238,7 +284,7 @@ onBeforeUnmount(() => {
 
     <EmptyState v-else-if="view === 'off'" icon="lock-closed" :title="t('cup.off_title')" :text="t('cup.failure.off')" data-testid="off" />
 
-    <ErrorState v-else-if="view === 'error'" :message="errorText" @retry="load" />
+    <ErrorState v-else-if="view === 'error'" :title="errorTitle" :message="errorText" :data-kind="failure?.kind" @retry="load" />
 
     <div v-else-if="data && cup" class="space-y-3">
       <!-- The big card: the state, my place and points, my round of the day. -->
@@ -264,7 +310,10 @@ onBeforeUnmount(() => {
           <p v-if="activeUntil" class="text-[15px] leading-5" data-testid="active-until">{{ activeUntil }}</p>
           <button type="button" class="btn btn-primary btn-lg btn-block" data-testid="continue-btn" @click="play">{{ t('cup.today.continue') }}</button>
         </template>
-        <p v-else-if="roundState === 'done'" class="text-[15px] leading-5" role="status" data-testid="round-done">{{ doneLine }}</p>
+        <template v-else-if="roundState === 'done'">
+          <p class="text-[15px] leading-5" role="status" :data-next="next?.kind" data-testid="round-done">{{ doneLine }}</p>
+          <button v-if="next?.kind === 'open'" type="button" class="btn btn-tinted btn-block" data-testid="refresh-btn" @click="load">{{ t('cup.today.refresh') }}</button>
+        </template>
         <p v-else-if="roundState === 'left'" class="text-[15px] leading-5 text-muted" data-testid="me-left">{{ t('cup.me.left') }}</p>
 
         <template v-if="me === null && open">
@@ -355,7 +404,15 @@ onBeforeUnmount(() => {
           :disabled="renaming"
           data-testid="rename-input"
         />
-        <p class="text-[13px] leading-[18px] text-muted" data-testid="rename-hint">{{ tn('cup.name.left', me?.renames_left ?? 0) }}</p>
+        <p class="flex gap-3 text-[13px] leading-[18px] text-muted">
+          <span class="min-w-0 flex-1" data-testid="rename-hint">{{ tn('cup.name.left', me?.renames_left ?? 0) }}</span>
+          <span
+            class="shrink-0 tabular-nums"
+            :class="newNameLength > NAME_MAX_GRAPHEMES ? 'text-danger-ink' : ''"
+            aria-hidden="true"
+            data-testid="rename-count"
+          >{{ newNameLength }}/{{ NAME_MAX_GRAPHEMES }}</span>
+        </p>
         <InlineAlert v-if="renameError" tone="danger" :message="renameError" data-testid="rename-error" />
         <button
           type="button"

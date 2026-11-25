@@ -385,8 +385,9 @@ describe('CupRoundView: the summary', () => {
     expect(r.router.currentRoute.value.fullPath).toBe('/cups/5')
   })
 
-  it('the last answer finishes the round: "To the summary", then the summary; Today learns the day is played', async () => {
+  it('the last answer finishes the round: "To the summary", then the summary; "my cups" is read again', async () => {
     const r = await started()
+    useCupsStore().checkedAt = Date.now()
     vi.mocked(api.cups.answer).mockResolvedValue(answered({ finished: true, round: finishedRound() }))
 
     await click(r, 'option-0')
@@ -394,7 +395,7 @@ describe('CupRoundView: the summary', () => {
     await click(r, 'next-btn')
 
     expect(status(r)).toBe('summary')
-    expect(useCupsStore().played[5]).toBe(3)
+    expect(useCupsStore().checkedAt).toBeNull()
   })
 })
 

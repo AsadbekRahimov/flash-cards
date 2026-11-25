@@ -7,6 +7,7 @@ import IntroSheet from '@/components/IntroSheet.vue'
 import LapsedBanner from '@/components/LapsedBanner.vue'
 import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import ReadinessBlock from '@/components/ReadinessBlock.vue'
+import CupTodayRow, { type CupTodayCard } from '@/components/today/CupTodayRow.vue'
 import DayPlan from '@/components/today/DayPlan.vue'
 import LessonHero from '@/components/today/LessonHero.vue'
 import ScoreTodayCard from '@/components/today/ScoreTodayCard.vue'
@@ -404,19 +405,28 @@ const classCaravan = computed(() => {
 })
 
 /**
- * The friends' cup that runs (docs/33 §7.1), a row of the list: "Cup «Group» · Day 3 of 7" and the call to play, from `GET /cups` (one
- * light request, `stores/cups`). That list does not say whether today's round is played: the row says "played" only for a round this
- * device has seen to its end; the cup screen it opens tells the truth. A switched off cup shows nothing.
+ * The friends' cup that runs (docs/33 §7.1), a row of the list: "Cup «Group» · Day 3 of 7" and the state of today's round as the server
+ * has it (`GET /cups` → `me.today.state`, one light request, `stores/cups`): not started - "play the round of the day" with "Play"; on -
+ * "continue the round"; played - "round played", no call, and the row goes to the end of the list (`late`); no round for him today -
+ * the day only, no call. An older server without `me.today` - the day and "Open". A switched off cup shows nothing.
  */
-const cupCard = computed(() => {
+const cupCard = computed((): (CupTodayCard & { late: boolean }) | null => {
   const cup = cups.running
   if (cup === null || cup.day === null) return null
-  const played = cups.played[cup.id] === cup.day
-  return {
-    to: { name: 'cup', params: { id: cup.id } },
-    title: t('today.cup.title', { group: cup.group_title }),
-    text: played ? t('today.cup.played', { day: cup.day, days: cup.days }) : t('today.cup.play', { day: cup.day, days: cup.days }),
-    played,
+  const counts = { day: cup.day, days: cup.days }
+  const base = { to: { name: 'cup', params: { id: cup.id } }, title: t('today.cup.title', { group: cup.group_title }) }
+  const state = cup.me?.today?.state
+  switch (state) {
+    case 'not_started':
+      return { ...base, state, text: t('today.cup.play', counts), action: t('today.cup.go'), dot: 'bg-warning', late: false }
+    case 'active':
+      return { ...base, state, text: t('today.cup.continue', counts), action: t('today.cup.go_continue'), dot: 'bg-warning', late: false }
+    case 'done':
+      return { ...base, state, text: t('today.cup.played', counts), action: null, dot: 'bg-success', late: true }
+    case 'not_available':
+      return { ...base, state, text: t('today.cup.day', counts), action: null, dot: 'bg-track', late: true }
+    default:
+      return { ...base, state: 'unknown', text: t('today.cup.day', counts), action: t('today.cup.open'), dot: 'bg-accent', late: false }
   }
 })
 
@@ -982,21 +992,8 @@ onBeforeUnmount(() => {
               </button>
             </div>
 
-            <!-- The friends' cup that runs (docs/33 §7.1): opens the cup, where the round of the day is played. -->
-            <RouterLink
-              v-if="cupCard"
-              :to="cupCard.to"
-              class="flex min-h-11 items-center gap-3 px-[18px] py-3 active:bg-fill"
-              :data-played="cupCard.played ? 'true' : undefined"
-              data-testid="cup-card"
-            >
-              <span class="size-2 shrink-0 rounded-full" :class="cupCard.played ? 'bg-success' : 'bg-warning'" aria-hidden="true" />
-              <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span class="truncate text-[15px] leading-5 font-semibold" data-testid="cup-card-title">{{ cupCard.title }}</span>
-                <span class="text-[13px] leading-[18px] text-muted" data-testid="cup-card-text">{{ cupCard.text }}</span>
-              </span>
-              <span v-if="!cupCard.played" class="shrink-0 text-[13px] leading-[18px] text-accent" data-testid="cup-card-btn">{{ t('today.cup.go') }}</span>
-            </RouterLink>
+            <!-- The friends' cup that runs (docs/33 §7.1): opens the cup, where the round of the day is played. Played - at the end. -->
+            <CupTodayRow v-if="cupCard && !cupCard.late" :card="cupCard" />
 
             <!-- The caravan of the class that is on (docs/05 §5b.7). -->
             <RouterLink
@@ -1058,6 +1055,9 @@ onBeforeUnmount(() => {
                 <span class="shrink-0 text-[13px] leading-[18px] text-accent" data-testid="games-play-btn">{{ t('today.games.play') }}</span>
               </button>
             </div>
+
+            <!-- The cup with nothing to do today (the round played, or no round for him): the last row, without a call. -->
+            <CupTodayRow v-if="cupCard && cupCard.late" :card="cupCard" />
           </div>
         </section>
 

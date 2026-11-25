@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
-import { cupFailure, cupTaskElement } from '@/composables/cupInfo'
+import { cupFailure, cupTaskElement, type CupFailureKind } from '@/composables/cupInfo'
 import { newRequestId } from '@/composables/requestId'
 import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
@@ -38,6 +38,11 @@ interface CupRoundState {
   status: CupRoundStatus
   /** Why there is no round (`unavailable`) or what went wrong (`error`, `closed`); localized. */
   notice: string
+  /**
+   * The kind of the refusal behind `unavailable` / `error` (`cupFailure`): `unavailable` (403 `cup_not_member` - a stranger, or one who
+   * left the chat) is the screen "The cup is not available", without the group; null - no refusal of the server (not a participant…).
+   */
+  failureKind: CupFailureKind | null
   /** A refusal that leaves the learner where he is (localized): shown as a toast. */
   actionError: string
   outcome: GameOutcome | null
@@ -79,6 +84,7 @@ export const useCupRoundStore = defineStore('cupRound', {
     round: null,
     status: 'idle',
     notice: '',
+    failureKind: null,
     actionError: '',
     outcome: null,
     pendingRequestId: null,
@@ -104,6 +110,7 @@ export const useCupRoundStore = defineStore('cupRound', {
       this.round = null
       this.status = 'idle'
       this.notice = ''
+      this.failureKind = null
       this.actionError = ''
       this.outcome = null
       this.expiryChecked = null
@@ -124,6 +131,7 @@ export const useCupRoundStore = defineStore('cupRound', {
       if (board === null) {
         const failure = boards.failure
         this.notice = failure?.message ?? t('error.generic')
+        this.failureKind = failure?.kind ?? null
         this.status = failure !== null && !failure.retry ? 'unavailable' : 'error'
         return
       }
@@ -196,6 +204,7 @@ export const useCupRoundStore = defineStore('cupRound', {
           return
         }
         this.notice = failure.message
+        this.failureKind = failure.kind
         this.status = 'unavailable'
       }
     },
@@ -206,18 +215,18 @@ export const useCupRoundStore = defineStore('cupRound', {
       this.round = round
       this.outcome = null
       if (round.status === 'finished' || round.current === null) {
-        this.finish(round)
+        this.finish()
         return
       }
       if (round.current.id !== previous) this.elementSeq += 1
       this.status = 'playing'
     },
 
-    /** The attempt is over: the summary; the table and "my cups" are read again for the place. */
-    finish(round: CupRound): void {
+    /** The attempt is over: the summary; the table and "my cups" (`me.today` of "Today") are read again. */
+    finish(): void {
       this.status = 'summary'
       this.clearPending()
-      useCupsStore().markPlayed(round.cup_id, round.day)
+      useCupsStore().invalidate()
       useCupBoardStore().invalidate()
     },
 
@@ -361,7 +370,7 @@ export const useCupRoundStore = defineStore('cupRound', {
       this.outcome = null
       const round = this.round
       if (round === null || round.status === 'finished' || round.current === null) {
-        if (round !== null) this.finish(round)
+        if (round !== null) this.finish()
         else this.status = 'summary'
         return
       }
@@ -394,6 +403,7 @@ export const useCupRoundStore = defineStore('cupRound', {
       }
       const failure = cupFailure(err)
       this.notice = failure.message
+      this.failureKind = failure.kind
       this.status = failure.retry ? 'error' : 'unavailable'
     },
   },

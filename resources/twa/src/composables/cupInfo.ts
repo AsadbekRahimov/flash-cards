@@ -7,7 +7,7 @@ import type { GameWordElement } from '@/api/gameRunTypes'
 
 /**
  * The friends' cup of a group (docs/33 §7, docs/04 A.23): what the screens of the cup share - the refusals of the server in the
- * learner's words, the start of the next day of a cup and the task of a round as the components of the game draw it.
+ * learner's words, the next round of a cup, the length of a name and the task of a round as the components of the game draw it.
  */
 
 /**
@@ -34,23 +34,48 @@ export interface CupFailure {
 const failure = (kind: CupFailureKind, message: string, retry: boolean): CupFailure => ({ kind, message, retry })
 
 /**
- * Why a name in the tournament was refused (`details.reason` of 422 `cup_display_name_invalid`): the chat would make a link, a mention,
- * a command or a tag of it, too many marks over a letter; the length or nothing printable (and an older server without a reason) - the
- * general words.
+ * Why a name in the tournament was refused (`details.reason` of 422 `cup_display_name_invalid`, docs/04 A.23): nothing printable, too
+ * long, too many marks over a letter, or something the chat would make a link, a mention, a command or a tag of. An older server without
+ * a reason (or a reason this screen does not know yet) - the general words.
  */
 function nameRefusal(reason: unknown): string {
   switch (reason) {
+    case 'empty':
+      return t('cup.failure.name_empty')
+    case 'too_long':
+      return t('cup.failure.name_too_long', { max: NAME_MAX_GRAPHEMES })
+    case 'marks':
+      return t('cup.failure.name_marks')
     case 'link':
       return t('cup.failure.name_link')
     case 'mention':
+      return t('cup.failure.name_mention')
     case 'command':
+      return t('cup.failure.name_command')
     case 'tag':
-      return t('cup.failure.name_symbol')
-    case 'marks':
-      return t('cup.failure.name_marks')
+      return t('cup.failure.name_tag')
     default:
       return t('cup.failure.name_invalid')
   }
+}
+
+/** The longest name in the tournament, in what a person sees as characters (the server also caps it at 64 code points). */
+export const NAME_MAX_GRAPHEMES = 32
+
+interface GraphemeSegmenter {
+  segment(text: string): Iterable<unknown>
+}
+
+type SegmenterConstructor = new (locale?: string, options?: { granularity: 'grapheme' }) => GraphemeSegmenter
+
+/**
+ * The length of a name as the server counts it: in graphemes (an emoji family, a letter with its marks - one), by `Intl.Segmenter`;
+ * a browser without it counts code points (never UTF-16 units). Only the counter of the field: the server decides.
+ */
+export function graphemeCount(text: string): number {
+  const Segmenter = (Intl as unknown as { Segmenter?: SegmenterConstructor }).Segmenter
+  if (typeof Segmenter === 'function') return Array.from(new Segmenter(undefined, { granularity: 'grapheme' }).segment(text)).length
+  return Array.from(text).length
 }
 
 /** The refusal of any route of the cup in the learner's words. */
@@ -119,9 +144,9 @@ function hourIn(at: number, timeZone: string): number | null {
 }
 
 /**
- * The moment the next day of a running cup begins (ISO), or null: not running, the last day, no start. The days of a cup are the local
- * midnights of its zone (docs/33 §3.1): the start of day 1 (`starts_at`, from the server) moved by whole days, set back on midnight when a
- * change of the clock of that zone falls in between. Nothing is decided by it: it only says when the round of tomorrow opens.
+ * The moment the next day of a running cup begins (ISO), or null: not running, the last day, no start - the FALLBACK for an older server
+ * without `next_day_at` only. The days of a cup are the local midnights of its zone (docs/33 §3.1): the start of day 1 (`starts_at`, from
+ * the server) moved by whole days, set back on midnight when a change of the clock of that zone falls in between.
  */
 export function nextDayStart(cup: Pick<CupFields, 'status' | 'starts_at' | 'timezone' | 'day' | 'days'>): string | null {
   if (cup.status !== 'running' || cup.day === null || cup.day >= cup.days || cup.starts_at === null) return null
@@ -132,6 +157,27 @@ export function nextDayStart(cup: Pick<CupFields, 'status' | 'starts_at' | 'time
   if (hour === 23) at += HOUR_MS
   else if (hour === 1) at -= HOUR_MS
   return new Date(at).toISOString()
+}
+
+/**
+ * When the round of the next day opens, as a screen says it:
+ * - `at` - "the next round tomorrow at HH:MM" (`at` is ISO; the screen shows it in the learner's zone);
+ * - `last` - there is none: the last day (`next_day_at: null`);
+ * - `open` - the moment has passed already (an attempt of an earlier day): the round of the day is available.
+ */
+export type NextRound = { kind: 'at'; at: string } | { kind: 'last' } | { kind: 'open' }
+
+/**
+ * The next round by the server's `next_day_at` (of the cup or of the attempt), compared with `now` (the `server_now` of the same answer).
+ * Without the field (an older server) - `fallback()`, the client's own count of the next midnight.
+ */
+export function nextRound(nextDayAt: string | null | undefined, now: string, fallback: () => string | null): NextRound {
+  const at = nextDayAt === undefined ? fallback() : nextDayAt
+  if (at === null) return { kind: 'last' }
+  const atMs = Date.parse(at)
+  const nowMs = Date.parse(now)
+  if (Number.isFinite(atMs) && Number.isFinite(nowMs) && atMs <= nowMs) return { kind: 'open' }
+  return { kind: 'at', at }
 }
 
 /**
