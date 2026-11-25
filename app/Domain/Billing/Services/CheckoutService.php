@@ -477,9 +477,12 @@ final class CheckoutService
      *     included: Payme / Click on top would leave Telegram charging with no way to stop it, a second Stars
      *     month would open a second Telegram subscription (`checkout_conflict`);
      *   - a learner's perpetual grant leaves nothing to buy (`already_perpetual`);
-     *   - a Stars subscription (month) on top of a prepaid period that ends later than
+     *   - a Stars subscription (month) on top of a PAID period that ends later than
      *     `billing.stars.subscribe_window_days` from now is refused (`subscribe_too_early`): Telegram's first charge
      *     starts its own 30 days at once. Payme / Click and a one-off Stars quarter / year extend from the end and stay allowed.
+     *     On top of a period nobody paid for - the welcome trial, a promo code, a reward, a manual grant with an end - a Stars
+     *     month is allowed from the first day (owner's decision docs/31 §5г): SubscriptionService::applyCharge carries the rest
+     *     of the gift past every period of that Telegram subscription (`meta.stars.grant_carry_seconds`), nothing is lost.
      *
      * @throws CheckoutException checkout_conflict | already_perpetual | subscribe_too_early
      */
@@ -500,7 +503,10 @@ final class CheckoutService
         $ends = CarbonImmutable::instance($live->current_period_ends_at);
         $window = max(0, (int) config('billing.stars.subscribe_window_days', 7));
 
-        if ($provider === SubscriptionProvider::TelegramStars && $period === 'month' && $ends->greaterThan($now->addDays($window))) {
+        // A gift period (not paid: trial / promo / reward / manual) is carried past the paid one, so there is nothing to protect.
+        $paidPeriod = SubscriptionProvider::tryFrom($live->provider)?->isPaid() ?? true;
+
+        if ($paidPeriod && $provider === SubscriptionProvider::TelegramStars && $period === 'month' && $ends->greaterThan($now->addDays($window))) {
             throw CheckoutException::subscribeTooEarly($ends, $window);
         }
     }

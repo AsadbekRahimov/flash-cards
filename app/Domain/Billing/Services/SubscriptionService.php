@@ -85,6 +85,9 @@ final class SubscriptionService
     public const ACTION_TIER_MISMATCH = 'subscription.tier_mismatch';
 
     /** `meta.renewal_reminders`: list of "<daysLeft>@<period end ISO>" markers already raised. */
+    /** `meta.stars` key: seconds of a gift period a Stars subscription bought over it carries past Telegram's dates ({@see starsGrantCarry()}). */
+    public const STARS_GRANT_CARRY = 'grant_carry_seconds';
+
     public const META_RENEWAL_REMINDERS = 'renewal_reminders';
 
     public function __construct(
@@ -213,7 +216,8 @@ final class SubscriptionService
      *
      *   no live row : `active`, provider = event provider, period from the order (or the
      *                 provider's `periodEndsAt`), tier / seats from the order (organizations);
-     *   live row    : the period end becomes max(current end, periodEndsAt ?? max(end, now) + period) —
+     *   live row    : the period end becomes max(current end, (periodEndsAt + gift carry) ?? max(end, now) + period) —
+     *                 the carry is the rest of a gift period a Stars month was bought over ({@see starsGrantCarry()});
      *                 a payment never shortens Pro; status -> active (back from past_due /
      *                 canceled when Stars renews); provider = the provider of the last payment.
      *                 A perpetual grant keeps its NULL end (nothing to extend; the ledger still
@@ -271,6 +275,7 @@ final class SubscriptionService
             $subscription = Subscription::query()->create($attributes);
         } else {
             $ends = null;
+            $carry = 0;
 
             if ($live->current_period_ends_at === null) {
                 Log::warning('billing.charge_on_perpetual_subscription', [
@@ -281,7 +286,10 @@ final class SubscriptionService
             } else {
                 $currentEnd = CarbonImmutable::instance($live->current_period_ends_at);
                 $from = $currentEnd->greaterThan($now) ? $currentEnd : $now;
-                $proposed = $e->periodEndsAt ?? $from->addDays($days);
+                // A Stars subscription bought over a gift period carries the gift's rest past Telegram's date (docs/13 §7.1
+                // "После пробного Pro"): on the first charge and on every renewal of that same Telegram subscription.
+                $carry = $this->starsGrantCarry($live, $order, $e, $now);
+                $proposed = $e->periodEndsAt?->addSeconds($carry) ?? $from->addDays($days);
                 $ends = $proposed->greaterThan($currentEnd) ? $proposed : $currentEnd;
             }
 
@@ -321,6 +329,9 @@ final class SubscriptionService
                     'charge_id' => $newCharge,
                     'recurring' => $this->isRecurringStars($order, $e),
                     ...(is_string($previous) && $previous !== '' && $previous !== $newCharge ? ['previous_charge_id' => $previous] : []),
+                    // The rest of the gift period this Telegram subscription carries (first charge over a trial / promo / reward /
+                    // manual grant); a new Telegram subscription starts without it - by then the gift was used up in the timeline.
+                    ...(! $e->isRenewal && $carry > 0 ? [self::STARS_GRANT_CARRY => $carry] : []),
                 ];
             }
 
@@ -903,6 +914,46 @@ final class SubscriptionService
             'ip' => null,
             'meta' => [...$context, 'at' => $now->toIso8601String()],
         ]);
+    }
+
+    /**
+     * Seconds of a gift period that a Stars subscription (month) carries past Telegram's `subscription_expiration_date` (owner's decision
+     * docs/31 §5г: the purchase is allowed from the first day of the trial and the paid time is added after it):
+     *
+     *  - the FIRST charge of a Telegram subscription over a live row nobody paid for (`trial`, `promo`, `reward`, `manual` with an end):
+     *    the rest of that row, `current_period_ends_at - min(payment time, now)` - so the new end is the gift's end + 30 days;
+     *  - a RENEWAL of the same Telegram subscription (its first charge is the row's `meta.stars.charge_id`): the carry remembered by the
+     *    first charge - without it the first renewal would pull the end back to Telegram's date and eat the gift;
+     *  - anything else (Payme / Click / one-off Stars, which extend from the end anyway; a paid row; another Telegram subscription): 0.
+     *
+     * Not a field of Telegram: Telegram charges on its own dates, our period runs `carry` longer. A refund of the first charge takes
+     * exactly its 30 days back (its period starts at the gift's end, PaymentApplier::periodStartFor), the gift stays.
+     */
+    private function starsGrantCarry(Subscription $live, PaymentOrder $order, ChargeEvent $e, CarbonImmutable $now): int
+    {
+        if ($e->provider !== SubscriptionProvider::TelegramStars || $e->periodEndsAt === null || $live->current_period_ends_at === null) {
+            return 0;
+        }
+
+        $stars = is_array($live->meta['stars'] ?? null) ? $live->meta['stars'] : [];
+
+        if ($e->isRenewal) {
+            $carry = $stars[self::STARS_GRANT_CARRY] ?? null;
+            if (! is_int($carry) || $carry <= 0 || ! is_string($stars['charge_id'] ?? null)) {
+                return 0;
+            }
+
+            return $this->firstStarsChargeId($order) === $stars['charge_id'] ? $carry : 0;
+        }
+
+        $provider = SubscriptionProvider::tryFrom($live->provider);
+        if ($provider === null || $provider->isPaid() || ! SubscriptionLiveness::isLive($live, $now)) {
+            return 0;
+        }
+
+        $paidAt = $e->occurredAt->lessThan($now) ? $e->occurredAt : $now;
+
+        return max(0, CarbonImmutable::instance($live->current_period_ends_at)->getTimestamp() - $paidAt->getTimestamp());
     }
 
     /**

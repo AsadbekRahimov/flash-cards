@@ -96,6 +96,12 @@ Schedule::command('subscriptions:remind-expiring')
     ->dailyAt('06:00')
     ->withoutOverlapping();
 
+// The daily goal above the limit of the plan (Pro ended) comes down for the learners who do not open the Mini App (docs/34 §2б.2): one
+// row lock per learner, re-checked under it, so a repeated or parallel run changes nothing. Lowering only; the return is lazy.
+Schedule::command('learners:enforce-goal-limits')
+    ->dailyAt('03:00')
+    ->withoutOverlapping();
+
 // Repair path of the group -> organization membership hook (docs/13 §2.3): any learner in a
 // group of an organization without a membership row gets one (joined_via = group). Idempotent.
 Schedule::command('organizations:sync-members')

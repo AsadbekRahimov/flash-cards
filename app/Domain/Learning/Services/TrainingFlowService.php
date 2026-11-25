@@ -14,6 +14,7 @@ use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordExamples;
 use App\Domain\Content\Services\WordHookResolver;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Learners\Services\DailyGoalLimiter;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\DTO\AcceptedReview;
@@ -94,6 +95,7 @@ final class TrainingFlowService
         private readonly SprintPolicy $sprint,
         private readonly LearningPolicy $learning,
         private readonly TrainingSessionService $sessions,
+        private readonly DailyGoalLimiter $goals,
     ) {}
 
     /**
@@ -104,8 +106,11 @@ final class TrainingFlowService
     public function start(TrainingSession $session, Learner $learner, ?Lesson $lesson = null): ?TrainingStart
     {
         if ($session->mode === TrainingSession::MODE_DAILY_REVIEW) {
+            // The round's size is the goal in line with the plan (docs/34 §2б.2): resolved once, handed to the first step.
+            $entitlement = $this->entitlements->for($learner, CarbonImmutable::now());
+            $this->goals->enforce($learner, $entitlement, DailyGoalLimiter::VIA_TRAINING);
             $goal = $this->dailyGoal($learner);
-            $step = $this->nextStep($session, $learner, $goal);
+            $step = $this->nextStep($session, $learner, $goal, $entitlement);
 
             // `total_words` of a daily session: the round's size with a sprint, the daily goal without one.
             return new TrainingStart($session, null, $this->sprint->enabled ? $step->progress['total'] : $goal, $step);

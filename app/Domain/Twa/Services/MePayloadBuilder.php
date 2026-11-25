@@ -81,7 +81,7 @@ final class MePayloadBuilder
             'renewal' => $snapshot['renewal'],
             'lapsed' => $snapshot['lapsed'],
             'paywall' => $this->billing->paywall($learner, $now),
-            'settings' => $this->settings->describe($learner, activeCourse: $snapshot['active_course']),
+            'settings' => $this->settings->describe($learner, activeCourse: $snapshot['active_course'], entitlement: $entitlement),
             'practice' => [
                 ...$this->practice->describe($learner, $entitlement),
                 // The Free limits of the day (docs/18 G1): one statement, and only while the practice is open to the learner.

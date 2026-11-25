@@ -28,6 +28,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $level
  * @property int|null $active_course_id
  * @property int $daily_goal
+ * @property int|null $daily_goal_before_limit the goal chosen before DailyGoalLimiter lowered it to the Free limit (docs/34 §2б.2)
  * @property string|null $reminder_time
  * @property Carbon|null $next_reminder_at
  * @property Carbon|null $dm_blocked_at
@@ -98,6 +99,7 @@ class Learner extends Model
             'telegram_user_id' => 'integer',
             'active_course_id' => 'integer',
             'daily_goal' => 'integer',
+            'daily_goal_before_limit' => 'integer',
             'next_reminder_at' => 'datetime',
             'dm_blocked_at' => 'datetime',
             'onboarding_completed_at' => 'datetime',

@@ -85,6 +85,10 @@ enum ProductEventName: string
     /** A learner eligible by the row was refused the trial (props: reason — already_used: this Telegram account had one before). */
     case TrialRefused = 'trial.refused';
     case DailyGoalMet = 'daily_goal.met';
+    /** The daily goal was lowered to the limit of the plan - Pro ended (props: from, to, via — today / settings / training / command; docs/34 §2б.2). */
+    case DailyGoalLimited = 'daily_goal.limited';
+    /** The goal lowered by the limit came back - Pro is back (props: from, to, via). */
+    case DailyGoalRestored = 'daily_goal.restored';
     case StreakExtended = 'streak.extended';
     /** A missed local day was held by a streak freeze (props: date, freezes_left — docs/13 §7.2). */
     case StreakFrozen = 'streak.frozen';

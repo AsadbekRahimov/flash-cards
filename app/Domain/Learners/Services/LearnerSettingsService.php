@@ -6,9 +6,12 @@ namespace App\Domain\Learners\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Billing\DTO\Entitlement;
+use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\MonthlyRatingService;
+use App\Domain\Learners\Exceptions\DailyGoalLimitException;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
@@ -39,7 +42,10 @@ use Throwable;
  *                        (owner's decision of 16.11.2026: new learners get `learners.default_timezone`); the rule
  *                        and the machinery below stay for the code that still calls it (undo, operations);
  *  - `reminder_time`     `HH:MM` on a {@see REMINDER_STEP_MINUTES}-minute step, or `null` = reminders off;
- *  - `daily_goal`        one of `config('learners.daily_goal_options')` (10 / 20 / 40);
+ *  - `daily_goal`        one of `config('learners.daily_goal_options')` (10 / 20 / 40), and not above the limit of the plan
+ *                        (docs/34 §2б.3; Free: 10) - else {@see DailyGoalLimitException} (403 `daily_goal_pro_required`) and nothing
+ *                        of the update is applied. Any accepted value (even the current one) clears `daily_goal_before_limit`: a goal
+ *                        chosen by hand is not replaced by the one remembered before the automatic lowering ({@see DailyGoalLimiter});
  *  - `goal`, `level`     the onboarding whitelists (`goal`: the goals enabled in `learners.goals`);
  *  - `leagues_opt_out`   bool, kept in `learners.meta` (docs/13 §7.3): `true` = not placed in league groups any more.
  *  - `exercises`         `{meaning, reverse, audio, spelling, gap_fill}` booleans (a partial object: only the keys
@@ -93,6 +99,7 @@ use Throwable;
  *     locales: list<array{id: string, label: string}>,
  *     reminder_times: list<string>,
  *     daily_goals: list<int>,
+ *     daily_goal_max: int|null,
  *     retention_modes: list<string>
  *   }
  * }
@@ -130,6 +137,8 @@ final class LearnerSettingsService
         private readonly ProductEventRecorder $events,
         private readonly SchedulerResolver $schedulers,
         private readonly MonthlyRatingService $monthly,
+        private readonly EntitlementResolver $entitlements,
+        private readonly DailyGoalLimiter $goals,
     ) {}
 
     /**
@@ -137,12 +146,19 @@ final class LearnerSettingsService
      *
      * @throws InvalidSettingException for an unknown field or a value the field does not accept
      * @throws TimezoneChangeTooSoonException when `timezone` differs from the current one but the last change is too recent
+     * @throws DailyGoalLimitException when `daily_goal` is above the limit of the learner's plan (Free: 10)
      */
     public function update(Learner $learner, array $changes): Learner
     {
         $values = $this->normalize($changes);
         if ($values === []) {
             return $learner;
+        }
+
+        // The plan is resolved before the transaction and only when the goal is part of the change (docs/34 §2б.3). A plan that
+        // ends between this check and the write leaves a goal above the limit - the next enforce() lowers it.
+        if (is_int($values['daily_goal'] ?? null)) {
+            $this->goals->assertAllowed($values['daily_goal'], $this->entitlements->for($learner));
         }
 
         $changed = [];
@@ -203,6 +219,10 @@ final class LearnerSettingsService
             if (array_key_exists('interface_locale', $values)) {
                 $fresh->meta = [...$fresh->meta, self::LOCALE_CHOSEN => true];
             }
+            if (array_key_exists('daily_goal', $values)) {
+                // A goal chosen by hand: the one remembered before the automatic lowering does not come back with Pro.
+                $fresh->daily_goal_before_limit = null;
+            }
             if (array_key_exists('timezone', $values) || array_key_exists('reminder_time', $values)) {
                 $this->scheduleReminder($fresh);
             }
@@ -245,11 +265,18 @@ final class LearnerSettingsService
      * `$activeCourse` - the `active_course` block when the caller already has it (the `/me` snapshot, docs/19 K9): the
      * course is not read then. Pass `null` only through the snapshot; without the argument the course is read here.
      *
+     * `$entitlement` - the learner's plan when the caller has it (the `/me` snapshot); resolved here otherwise. With it the goal is
+     * brought in line with the plan first ({@see DailyGoalLimiter::enforce()}: no statement when nothing is to change), and
+     * `options.daily_goal_max` tells the screen which goals to lock (null = none).
+     *
      * @param  array{slug: string, title: string}|null  $activeCourse
      * @return SettingsPayload
      */
-    public function describe(Learner $learner, array|null|false $activeCourse = false): array
+    public function describe(Learner $learner, array|null|false $activeCourse = false, ?Entitlement $entitlement = null): array
     {
+        $entitlement ??= $this->entitlements->for($learner);
+        $this->goals->enforce($learner, $entitlement, DailyGoalLimiter::VIA_SETTINGS);
+
         $locale = $this->locales->forLearner($learner);
         $reminder = $this->shortTime($learner->reminder_time);
 
@@ -281,6 +308,7 @@ final class LearnerSettingsService
                 ),
                 'reminder_times' => $times,
                 'daily_goals' => $this->dailyGoals(),
+                'daily_goal_max' => $this->goals->cap($entitlement),
                 'retention_modes' => LadderPolicy::RETENTION_MODES,
             ],
         ];

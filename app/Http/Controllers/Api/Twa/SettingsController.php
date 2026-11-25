@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\Twa;
 
+use App\Domain\Learners\Exceptions\DailyGoalLimitException;
 use App\Domain\Learners\Exceptions\TimezoneChangeTooSoonException;
 use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
 use App\Domain\Learners\Services\LearnerDeletionService;
@@ -28,7 +29,8 @@ final class SettingsController
 
     /**
      * PATCH /api/twa/me/settings — answers with the refreshed profile, like `GET /me`;
-     * 422 `timezone_change_too_soon` when the zone was changed less than 24 h ago (nothing is applied).
+     * 422 `timezone_change_too_soon` when the zone was changed less than 24 h ago (nothing is applied); 403 `daily_goal_pro_required`
+     * `{max}` for a daily goal above the limit of the plan (docs/34 §2б.3; nothing is applied, the Mini App opens the paywall).
      */
     public function update(UpdateSettingsRequest $request): JsonResponse
     {
@@ -39,6 +41,8 @@ final class SettingsController
             $this->settings->update($learner, $request->validated());
         } catch (TimezoneChangeTooSoonException $e) {
             return ApiErrorResource::respond(422, $e->errorCode, $e->getMessage());
+        } catch (DailyGoalLimitException $e) {
+            return ApiErrorResource::respond($e->httpStatus(), $e->errorCode, $e->getMessage(), $e->details);
         }
 
         return (new MeResource($this->payload->build($learner)))->response();

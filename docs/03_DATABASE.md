@@ -511,6 +511,7 @@ Append-only журнал для продуктовой аналитики (не 
 | level | string(2) nullable | `A1`..`C2` |
 | active_course_id | bigint nullable FK → courses, ON DELETE SET NULL | курс для новых слов экрана «Сегодня» |
 | daily_goal | smallint default 20 (колонка; новым ученикам — 10 из config) | карточек (оценок) в день |
+| daily_goal_before_limit | smallint nullable (25.11.2026, docs/34 §2б.2) | цель, которую ученик выбрал до автоснижения к лимиту Free (`DailyGoalLimiter`); возвращается при покупке Pro; стирается ручной сменой цели. `NULL` — снижения не было |
 | reminder_time | time nullable default '19:00' | локальное время напоминания; `NULL` = выключено |
 | next_reminder_at | timestamp nullable | ближайшее напоминание, UTC |
 | dm_blocked_at | timestamp nullable | с какого момента бот не может писать в ЛС (403 / `chat not found` на отправку или `my_chat_member` `kicked`); при повторном отказе дата не сдвигается. Пишет **только** `DmReachability` (тест-страж `DmReachabilityGuardTest`) |

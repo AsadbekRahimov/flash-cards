@@ -68,6 +68,7 @@ final class TodayService
         private readonly LevelQuizService $quizzes,
         private readonly HardRoundService $hardRound,
         private readonly TodayProfileCache $todayProfile,
+        private readonly DailyGoalLimiter $goals,
     ) {}
 
     /**
@@ -93,6 +94,13 @@ final class TodayService
         $version = EntitlementResolver::version((int) $learner->id);
         // The plan is resolved once for the whole screen (the entitlement block, the quota, the freezes) - docs/19 K9.
         $entitlement = $this->entitlements->for($learner, $now);
+
+        // The goal in line with the plan (docs/34 §2б.2): no statement unless Pro has just ended or come back. A lowering that completed
+        // today's goal makes the rows read above stale - read again (rare: once per end of Pro).
+        if ($this->goals->enforce($learner, $entitlement, DailyGoalLimiter::VIA_TODAY, $now)?->goalMet === true) {
+            $rows = $this->dailyStats->forDates($learner, [$todayDate, $today->subDay()->toDateString()]);
+            $stats = $rows[$todayDate] ?? null;
+        }
 
         // A settle may freeze yesterday: the goal / streak block then reads yesterday again rather than the rows above.
         $settled = $this->handOutWeeklyFreeze($learner, $today, $stats, $now, $entitlement, $rows);

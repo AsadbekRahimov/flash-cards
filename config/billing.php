@@ -47,16 +47,18 @@ return [
      * a learner's effective plan is the highest-ranked one among Free, their own
      * live subscription and the live subscription of a sponsoring organization.
      * `limits.new_words_per_day`: null = unlimited.
+     * `limits.daily_goal_max` (docs/34 §2б.1): the largest daily goal (graded cards a day) the plan allows; null = no limit. Must be one
+     * of `learners.daily_goal_options`, and `learners.default_daily_goal` must not exceed the Free one (DailyGoalConfigTest).
      */
     'plans' => [
         'free' => [
             'rank' => 0,
-            'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 10)],
+            'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 10), 'daily_goal_max' => (int) env('BILLING_FREE_DAILY_GOAL_MAX', 10)],
             'features' => ['courses.public', 'training.daily', 'training.lesson'],
         ],
         'pro' => [
             'rank' => 1,
-            'limits' => ['new_words_per_day' => null],
+            'limits' => ['new_words_per_day' => null, 'daily_goal_max' => null],
             // `practice.unlimited`: no daily limit of practice sessions and battle calls (docs/18 §3; the Free limits are `practice.free_limits`).
             // `game.*` (docs/18 §12.7): `unlimited_runs` - no limit of map runs, no tickets; `all_bosses` - the bosses of every city and the purchase
             // of `exclusive` / `seasonal` cosmetics; `boosters_plus` - the weekly limit of boosters of `game.pro_limits`.

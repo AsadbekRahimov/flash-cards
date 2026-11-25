@@ -624,6 +624,17 @@ interface ExamState {
 - **Где ещё сказано про «Pro за приглашения»:** строка рефералов в «Профиле»; `invite-card` внизу «Сегодня» (крестик — на 14 дней, ключ `lexiflow:invite-card-hidden` в `localStorage`, `composables/seenFlag.ts` `snooze`/`isSnoozed`; не на `showStart`, не при `lapsed`, не для платного Pro); `invite-link` в `PaywallSheet` (только Free) и в «Подписке» (Free и пробный).
 - **Пробный виден:** `trial-line` на «Сегодня» (тап → «Подписка»), «Пробный Pro до …» в «Профиле», «Пробный период до …» в «Подписке» без текста про оплату и автопродление, `LapsedBanner` с `lapsed.provider === 'trial'`: «Оформить Pro» + «Пригласить друзей» (событие `invite`).
 
+### 8c-1. Цель дня после пробного Pro (25.11.2026, docs/34 §2б.3, задачи P4 / P7)
+
+Решение владельца (docs/31 §5г): у Free цель дня не выше 10. Сервер готов (P1–P3): `settings.options.daily_goal_max` в `/me`, `403 daily_goal_pro_required {max}` на `PATCH /me/settings`, автоснижение и возврат цели (docs/04 A.2, A.2b).
+
+- **`SettingsView`, выбор цели.** Список — `options.daily_goals` целиком. Значение `> daily_goal_max` (когда тот не `null`) показывается с замком (иконка + `aria-disabled`, не `disabled`: нажатие должно работать). Нажатие на него **не** шлёт `PATCH`, а открывает `PaywallSheet` с причиной `daily_goal` (заголовок «Цель больше 10 — в Pro», число из `daily_goal_max`); `select` возвращается к текущему значению. Ответ `403 daily_goal_pro_required` (старый `/me` в сторе, тариф кончился между загрузкой и нажатием) — то же: пейвол, без тоста об ошибке.
+- **Подпись** `settings.daily_goal.unit` — «карточек в день» (ru) / «kuniga nechta kartochka» (uz, по образцу нынешнего «kuniga nechta so'z»): считаются все оценки, а не новые слова.
+- **Место показа** `OfferPlacement::PaywallDailyGoal = 'paywall_daily_goal'` и зеркало в `composables/offerViewed.ts`.
+- **Разовый пейвол `trial_ended` (P7):** при первом открытии после конца пробного (`/me.entitlement.lapsed.provider === 'trial'`) один раз сам открывается `PaywallSheet` с причиной `trial_ended`; «уже показан» — `localStorage` `trial_ended_seen:<ended_at>`, место показа `paywall_trial_ended`. Строка «Цель дня теперь 10 карточек — это максимум на Free».
+- **Покупка во время пробного.** Сервер принимает любой период и любого провайдера с первого дня пробного (docs/13 §7.1 «После пробного Pro»), поэтому пейвол и «Подписка» у пробного не прячут Stars-месяц. Оплаченный срок прибавляется к концу пробного.
+- vitest: замок у 20 и 40 при `daily_goal_max = 10`, нажатие открывает пейвол и `PATCH` не уходит; 403 тоже открывает пейвол; при `daily_goal_max = null` замков нет.
+
 ## 8b. Живое занятие и итог (2026-11-17)
 
 Только фронтенд, детали — `docs/14` §11.

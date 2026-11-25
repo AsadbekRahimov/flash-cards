@@ -219,6 +219,16 @@ review-карточку** (то есть после того, как слово 
    одиночный `UPDATE learners`, и его (а с ним `TodayService::summary/progress`) нельзя вызывать внутри транзакции,
    которая держит `training_sessions` / `word_repetitions` / `learner_daily_stats` (в частности из
    `SendLearnerReminderJob` 1.5b — только вне транзакции).
+   **Смена цели дня** (`LearnerSettingsService::update`, с 25.11.2026 и `DailyGoalLimiter::enforce`, docs/34 §2б.2) идёт
+   в две транзакции, никогда не вложенные друг в друга: (1) `learners` `FOR NO KEY UPDATE` (sqlite — `FOR UPDATE`) →
+   запись `daily_goal` и `daily_goal_before_limit` → commit; (2) `DailyStatsService::reconcileGoal` — только строка
+   «сегодня» в `learner_daily_stats` `FOR UPDATE`: если сделано уже не меньше новой цели и `goal_met_at` пуст, он
+   ставится, а серия засчитывается после commit (`StreakService::onGoalMet`). Транзакция оценки читает цель скалярным
+   подзапросом (без блокировки `learners`) под тем же замком строки дня, поэтому «оценка + снижение» в любой
+   последовательности засчитывают день ровно один раз: `goal_met_at` ставит тот, кто первым увидит `reviews_count ≥ цели`.
+   `enforce()` сначала сравнивает цель с лимитом тарифа в памяти и без расхождения не делает ни одного запроса;
+   под замком строки сравнение повторяется на свежих данных (два параллельных вызова — второй ничего не меняет).
+   Проверка — `tests/Feature/Learners/DailyGoalLimiterConcurrencyTest.php` (fork, PG).
 3. **Learn-ahead**: если due и new нет — ближайшая `learning`/`relearning` карточка scope с
    `next_review_at <= now + learn_ahead_minutes`. Она выдаётся **досрочно**, и в строке
    ставится билет: `served_ahead_at = now`, `served_ahead_token = random(32 hex)`. Токен уходит

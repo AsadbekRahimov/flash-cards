@@ -27,6 +27,7 @@ final readonly class Entitlement
      * @param  list<string>  $features
      * @param  int|null  $newWordsPerDay  null = unlimited
      * @param  int|null  $subscriptionId  the subscription the plan comes from (null for Free)
+     * @param  int|null  $dailyGoalMax  the largest daily goal the plan allows (docs/34 §2б.1); null = no limit
      */
     public function __construct(
         public Plan $plan,
@@ -35,6 +36,7 @@ final readonly class Entitlement
         public array $features,
         public ?int $newWordsPerDay,
         public ?int $subscriptionId = null,
+        public ?int $dailyGoalMax = null,
     ) {}
 
     public static function free(): self
@@ -51,6 +53,7 @@ final readonly class Entitlement
             features: $plan->features(),
             newWordsPerDay: $plan->newWordsPerDay(),
             subscriptionId: $subscriptionId,
+            dailyGoalMax: $plan->dailyGoalMax(),
         );
     }
 
@@ -104,7 +107,7 @@ final readonly class Entitlement
     }
 
     /**
-     * The entitlement from its cache form: the features and the limit come from the plan's config of NOW, not from the
+     * The entitlement from its cache form: the features and the limits (new words, the daily goal) come from the plan's config of NOW, not from the
      * snapshot (a `features` / `new_words_per_day` key of an older snapshot is ignored).
      *
      * @param  array<string, mixed>  $data
@@ -120,6 +123,7 @@ final readonly class Entitlement
             features: $plan->features(),
             newWordsPerDay: $plan->newWordsPerDay(),
             subscriptionId: isset($data['subscription_id']) ? (int) $data['subscription_id'] : null,
+            dailyGoalMax: $plan->dailyGoalMax(),
         );
     }
 }
