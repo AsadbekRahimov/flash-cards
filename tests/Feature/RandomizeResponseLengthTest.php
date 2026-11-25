@@ -98,7 +98,7 @@ it('covers both Filament panels, the Livewire update endpoint and the 2FA pages,
         ->and(RandomizeResponseLength::appliesTo(ltrim(parse_url(route('2fa.challenge'), PHP_URL_PATH) ?: '', '/')))->toBeTrue()
         ->and(RandomizeResponseLength::appliesTo('livewire-555f5e94/livewire.min.js'))->toBeTrue();
 
-    foreach (['/', '', 'ru', 'offer', 'api/twa/auth', 'api/admin', 'administration', 'organization/x', '2fa-x', 'telegram/webhook/x', 'billing/return', 'up', 'storage/audio/a.mp3', 'css/filament/filament/app.css'] as $path) {
+    foreach (['/', '', 'ru', 'offer', 'api/twa/auth', 'api/admin', 'administration', 'organization/x', '2fa-x', 'telegram/webhook/x', 'billing/return', 'up', 'storage/audio/a.mp3', 'audio/a.mp3', 'css/filament/filament/app.css'] as $path) {
         expect(RandomizeResponseLength::appliesTo($path))->toBeFalse("'{$path}' must not be padded");
     }
 });

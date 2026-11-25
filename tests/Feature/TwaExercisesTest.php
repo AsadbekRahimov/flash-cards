@@ -258,7 +258,7 @@ it('returns audio_url when the word has its current pre-generated audio, null ot
 
     $word->update(['audio_path' => app(WordAudioService::class)->pathFor($word->word)]);
     $response = $this->withHeaders(exHeaders($s['learner']))->getJson("/api/twa/training/sessions/{$s['session']->id}/next")->assertOk();
-    expect($response->json('card.audio_url'))->toBe(Storage::disk('public')->url((string) $word->fresh()?->audio_path))
+    expect($response->json('card.audio_url'))->toBe(config('twa.tts.public_disk_audio_url').'/'.$word->fresh()?->audio_path)
         ->and($response->json('card.prompt.type'))->toBe('flash');
 });
 

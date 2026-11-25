@@ -10,7 +10,13 @@
 - Проверки: pint, phpstan level 8 чисто; pest 8352 passed, 1 failed (`ProductionImageConfigTest`, только окружение); vitest 4792.
 - **На сервере (владелец):** три переменные в `.env`, `config:cache`, перезапуск воркеров, затем `php artisan leagues:refresh-month --full`.
 
-Осталось в выпуске A: переименование в Muhrla (docs/36 M1–M3), адрес озвучки `домен/audio/…` (docs/31 §5д).
+**Переименование в Muhrla ✅ код** (docs/36 §5, M1–M3). Бренд — `app.brand` / `app.brand_pro` / `app.brand_logo` (`APP_BRAND*`), в Mini App — `VITE_BRAND` и `brand.ts`. Из конфига читают кнопка меню бота, панели, сайт, `billing/return`, 2FA, письма (шаблоны Laravel скопированы в `resources/views/vendor/`). Тексты `lang/` и TWA i18n заменены напрямую, тест-страж в Pest и vitest; 29 узбекских форм с аффиксом вычитаны (`I18N_UZ_REVIEW.md`). `APP_NAME`, префиксы Redis, `TWA_JWT_ISS`, username бота, домен — не менялись.
+
+**Адрес озвучки `/audio/` для диска `public` ✅ код** (docs/31 §5д, U2). nginx: `location ^~ /audio/` (только GET/HEAD и `<имя>.mp3`), старый `/storage/audio/` оставлен; `twa.tts.public_disk_audio_url` (`TTS_PUBLIC_DISK_AUDIO_URL`, по умолчанию `APP_URL`). Раздача из R2 с основного домена (U1) — ждёт ответа владельца про Cloudflare.
+
+Проверки: pint, phpstan чисто; pest 8383 passed, 1 failed (`ProductionImageConfigTest`, окружение); vitest 4799.
+
+**На сервере (владелец):** `MAIL_FROM_NAME` → Muhrla, если задан через `APP_NAME`; пересоздать nginx; `telegram:setup-bot`; имя и описания у BotFather.
 
 ## Озвучка примеров (выпуск 2) ✅ код (2026-11-23)
 

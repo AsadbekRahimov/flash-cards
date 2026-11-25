@@ -124,7 +124,7 @@ final class WordAudioService
         $path = $word->audio_path;
 
         return $path !== null && $path !== '' && $path === $this->pathFor($word->word)
-            ? $this->disk()->url($path)
+            ? $this->publicUrl($path)
             : null;
     }
 
@@ -142,7 +142,7 @@ final class WordAudioService
         }
 
         return $path === $this->examplePathFor($shown)
-            ? $this->disk()->url($path)
+            ? $this->publicUrl($path)
             : null;
     }
 
@@ -366,6 +366,20 @@ final class WordAudioService
 
             throw new WordAudioNotStoredException;
         }
+    }
+
+    /**
+     * The address a learner plays (no disk access). On the `public` disk: `twa.tts.public_disk_audio_url` + the path, i.e.
+     * `https://<main domain>/audio/<hash>.mp3` (docs/31 §5д) instead of the `/storage` of the disk; an empty base falls back to
+     * the disk. Any other disk (R2) builds it itself: AUDIO_PUBLIC_URL + the path.
+     */
+    private function publicUrl(string $path): string
+    {
+        $base = (string) config('twa.tts.public_disk_audio_url', '');
+
+        return $this->diskName() === 'public' && $base !== ''
+            ? $base.'/'.ltrim($path, '/')
+            : $this->disk()->url($path);
     }
 
     /** The disk of the word audio: `twa.tts.audio_disk` (`public` - this server, `audio` - R2, docs/26 §5.4). */

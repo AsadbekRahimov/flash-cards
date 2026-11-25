@@ -22,6 +22,7 @@
 /public/build
 /public/hot
 /public/storage
+/public/audio
 /public/twa
 /storage/*.key
 /storage/pail

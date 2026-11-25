@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { BRAND } from '@/brand'
 import { ru } from '@/i18n/ru'
@@ -24,7 +24,7 @@ describe('brand', () => {
   })
 
   it('puts the brand into the <title> of index.html, not a fixed word', () => {
-    const html = readFileSync(fileURLToPath(new URL('../../index.html', import.meta.url)), 'utf8')
+    const html = readFileSync(join(process.cwd(), 'index.html'), 'utf8')
 
     expect(html).toContain('<title>%VITE_BRAND%</title>')
     expect(html).not.toMatch(OLD_BRAND)
@@ -40,7 +40,7 @@ describe('brand', () => {
   })
 
   it.each(['ru.ts', 'uz.ts'])('has no old brand name anywhere in the source of %s', (file) => {
-    const source = readFileSync(fileURLToPath(new URL(`../i18n/${file}`, import.meta.url)), 'utf8')
+    const source = readFileSync(join(process.cwd(), 'src/i18n', file), 'utf8')
 
     expect(source).not.toMatch(OLD_BRAND)
   })

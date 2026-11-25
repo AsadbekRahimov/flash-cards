@@ -1,4 +1,4 @@
-# Security contact for LexiFlow (RFC 9116).
+# Security contact for Muhrla (RFC 9116).
 # TODO(owner): replace the placeholder Contact below with a real, monitored
 # address before the public launch, and renew Expires at least once a year.
 # See docs/DEVOPS_GUIDE.md ("Public site").

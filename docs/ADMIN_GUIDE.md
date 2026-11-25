@@ -1,6 +1,6 @@
-# LexiFlow Pro — Administrator Guide
+# Muhrla — Administrator Guide
 
-This guide covers everything the administrator needs to set up and maintain LexiFlow Pro.
+This guide covers everything the administrator needs to set up and maintain Muhrla (formerly LexiFlow Pro).
 
 ---
 
@@ -564,7 +564,7 @@ Filters: status, provider, plan, subject, and *Live status* (live = trialing / a
   is stored in the audit log (`subscription.granted`). If the subject already has a live subscription it is
   extended / replaced in place (no second subscription is created).
   If the learner has a **Stars subscription with auto-renewal**, the form warns that Telegram keeps charging them and
-  that a manual grant replaces the row (the renewal can no longer be canceled from LexiFlow): ask the learner to turn
+  that a manual grant replaces the row (the renewal can no longer be canceled from Muhrla): ask the learner to turn
   the renewal off in /pro first, then tick **I understand: grant anyway** (Понимаю, всё равно выдать). If the date is earlier than the end of a
   period the learner has already paid for, the **Pro until** hint says it will shorten the paid period.
   For an *Organization* you can also pick the **Tier** (Tutor 30 seats, Center S 100, Center M 300, Center L
@@ -744,7 +744,7 @@ Changes apply within seconds.
 staff adds a learner by @username or Telegram ID as an *invitation* (`organization_member_invitations`, not a member row): the
 learner gets a message in the bot and becomes a member — a row here — only when they press **Join**. An invited learner holds no
 seat, has no sponsored Pro and is not counted anywhere; the center's cabinet sees only what its staff typed and "waiting / expired",
-never whether the learner exists or declined (the cabinet must not be an oracle of who uses LexiFlow). Invitations are not shown
+never whether the learner exists or declined (the cabinet must not be an oracle of who uses Muhrla). Invitations are not shown
 in `/admin`; the audit log keeps `organization.member_invited` / `organization.member_invite_revoked` with the handle.
 
 ---
@@ -1083,17 +1083,47 @@ Teachers see only exams from their assigned groups; administrators see all group
 php artisan telegram:set-webhook
 ```
 
-### Command menu and the «LexiFlow» button (once after deploy)
+### Command menu and the «Muhrla» button (once after deploy)
 ```bash
 php artisan telegram:setup-bot
 ```
 Sets the list of bot commands that Telegram shows after «/» (in private chats: `/today`, `/settings`, `/language` — «Язык / Til» —, `/invite`, `/pro`, `/promo`, `/delete_account`, `/help`; Russian and Uzbek; private chats and group chats have
 their own lists; in a group the teacher's commands `/start_training`, `/start_exam`, `/close_exam` are shown to the group
 administrators only, every other member sees `/help`; a teacher who is not an administrator of the group types the
-command by hand) and the permanent **«LexiFlow»** menu button that opens the Mini App at `{TWA_BASE_URL}/twa/`.
+command by hand) and the permanent menu button captioned with `APP_BRAND` (**«Muhrla»** by default) that opens the Mini App at `{TWA_BASE_URL}/twa/`.
 Telegram accepts the button only for an https address: with any other address the command warns and skips the button
 (the command list is still set). It is safe to repeat — run it again after a deploy that changes the bot's commands.
 Without it the «/» menu stays empty. See `docs/VPS_DEPLOY_GUIDE_RU.md` for the BotFather side (Main Mini App).
+
+### Product name (brand)
+
+What people see is called **Muhrla**, the paid plan **Muhrla Pro** (renamed from LexiFlow on 25.11.2026, docs/36 §5).
+The name lives in its own keys, not in `APP_NAME`:
+
+| Key | Default | Where it shows |
+|---|---|---|
+| `APP_BRAND` | `Muhrla` | the bot menu button (`telegram:setup-bot`), the public site (header, `<title>` of the legal pages, `og:site_name`), `/billing/return`, the 2FA pages, the letters (header, footer, signature) and the default sender name (`MAIL_FROM_NAME`) |
+| `APP_BRAND_PRO` | `Muhrla Pro` | the name of both panels (`/admin`, `/org`) |
+| `APP_BRAND_LOGO` | empty | a path to a PNG logo for the share cards (docs/36 A2); empty = the text name |
+| `VITE_BRAND` | `Muhrla` | the Mini App: `<title>` and the screen opened outside Telegram; read at **build** time of `resources/twa` |
+
+The texts of the bot, the reminders, the site and the Mini App (`lang/{ru,uz}`, `resources/twa/src/i18n/{ru,uz}.ts`)
+carry the word itself. A new name is one replace there plus these env values; the guard tests
+(`tests/Feature/BrandTest.php`, `resources/twa/src/__tests__/brand.spec.ts`) fail while the old word is left in a text.
+After changing a key: `php artisan config:cache`, `php artisan telegram:setup-bot` (menu button), rebuild the Mini App
+for `VITE_BRAND`, and in BotFather the bot's display name, description, short description and the Mini App name.
+
+**Do not rename** with the brand (they are technical and changing them breaks things):
+
+- `APP_NAME` — it derives `REDIS_PREFIX` (queues, locks, cache) and the backup folder `storage/app/private/<APP_NAME>`;
+  changing it on a live server loses queued jobs and locks.
+- `REDIS_PREFIX`, `CACHE_PREFIX`, `SESSION_COOKIE` — new values drop the cache and log everybody out of the panels.
+- `TWA_JWT_ISS` — every Mini App token in flight becomes invalid.
+- The bot username (`@…lexiflow_bot`): old `t.me/<bot>?start=ref_…` links would stop working; a new username is a new bot.
+- The domain, the nginx / docker / database names, the PHP namespaces and packages, the `localStorage` keys of the Mini
+  App (`lexiflow:*` — learners would lose their settings), the practice file format `lexiflow-practice/1`, the panel CSS
+  id `lexiflow-panel`.
+- The 2FA issuer of the authenticator apps stays `APP_NAME`: already enrolled admins keep their entry; signing in is not affected.
 
 ### Remove the webhook
 ```bash

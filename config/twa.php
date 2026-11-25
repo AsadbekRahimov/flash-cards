@@ -83,10 +83,18 @@ return [
         'voice' => env('TTS_VOICE', 'en-US-AriaNeural'),
         'audio_version' => (int) env('TTS_AUDIO_VERSION', 1),
         /**
-         * The disk of the word audio (docs/26 §5.4): `public` - this server, `/storage/audio/` (the default: local and
-         * the tests); `audio` - Cloudflare R2 (config/filesystems.php, AUDIO_*). Switched without a code change.
+         * The disk of the word audio (docs/26 §5.4): `public` - this server, `/audio/` (the default: local and the tests);
+         * `audio` - Cloudflare R2 (config/filesystems.php, AUDIO_*). Switched without a code change.
          */
         'audio_disk' => env('TTS_AUDIO_DISK', 'public'),
+        /**
+         * The base of the address of a word file on the `public` disk (docs/31 §5д): `{base}/audio/<hash>.mp3`, served by nginx
+         * (`location ^~ /audio/`) on the main domain. The other files of the `public` disk keep `/storage` (its `url`).
+         * `${APP_URL}/storage` gives the old `/storage/audio/` addresses back (nginx still serves both). Without nginx
+         * (`php artisan serve`) `php artisan storage:link` also links `public/audio` (config/filesystems.php `links`).
+         * The `audio` disk (R2) does not read it: its address is AUDIO_PUBLIC_URL + `/audio/<hash>.mp3`.
+         */
+        'public_disk_audio_url' => rtrim((string) env('TTS_PUBLIC_DISK_AUDIO_URL', env('APP_URL', 'http://localhost')), '/'),
         'audio_dir' => 'audio',
     ],
 

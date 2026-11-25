@@ -262,8 +262,59 @@ it('keeps gzip on for the panel location, text/html included, and off for the mp
         expect($conf)->toContain("\n    gzip on;\n")
             ->and($conf)->toContain('application/json')
             ->and($conf)->toContain('application/javascript')
-            ->and(substr_count($conf, 'gzip off;'))->toBe(1)
-            ->and($conf)->toMatch('/location \^~ \/storage\/audio\/ \{\n(?:.*\n)*?\s+gzip off;/');
+            ->and(substr_count($conf, 'gzip off;'))->toBe(2)
+            ->and($conf)->toMatch('/location \^~ \/storage\/audio\/ \{\n(?:.*\n)*?\s+gzip off;/')
+            ->and($conf)->toMatch('/location \^~ \/audio\/ \{\n(?:.*\n)*?\s+gzip off;/');
+    }
+});
+
+// --- The word audio on the main domain (docs/31 §5д): `/audio/<hash>.mp3` next to the old `/storage/audio/`.
+
+/** The body of a top-level `location ^~ {prefix} {` block of an nginx config, or null when the file has none. */
+function prefixLocation(string $conf, string $prefix): ?string
+{
+    $quoted = preg_quote($prefix, '/');
+
+    return preg_match('/^    location \^~ '.$quoted.' \{\n(?<body>.*?)^    \}/ms', $conf, $m) === 1 ? $m['body'] : null;
+}
+
+it('serves the word audio at /audio/ from the folder of /storage/audio/, GET/HEAD and plain mp3 names only, with the same headers', function (): void {
+    foreach (NGINX_CONFIGS as $file) {
+        $conf = infraFile($file);
+        $audio = prefixLocation($conf, '/audio/');
+        $old = prefixLocation($conf, '/storage/audio/');
+
+        expect($audio)->not->toBeNull("{$file}: no /audio/ location")
+            // The old addresses stay: the open sessions of the Mini App hold them.
+            ->and($old)->not->toBeNull("{$file}: /storage/audio/ must stay for the old addresses");
+
+        expect($audio)->toContain('alias /var/www/html/storage/app/public/audio/;')
+            ->and($audio)->toContain("limit_except GET {\n            deny all;\n        }")
+            ->and($audio)->toContain('if ($uri !~ "^/audio/[A-Za-z0-9_-]+\.mp3$") {'."\n            return 404;\n        }")
+            ->and($audio)->toContain('gzip off;')
+            ->and($audio)->toContain('add_header Cache-Control "public, max-age=2592000, immutable";')
+            ->and($audio)->toContain('add_header X-Content-Type-Options "nosniff" always;')
+            // The rest of the old location's headers (HSTS in the images) is repeated: add_header drops the server-level ones.
+            ->and(substr_count((string) $old, 'add_header'))->toBe(substr_count((string) $audio, 'add_header') - ($file === 'docker/nginx/default.conf' ? 1 : 0));
+
+        if ($file !== 'docker/nginx/default.conf') {
+            expect($audio)->toContain('add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;');
+        }
+
+        // The same folder as the old address, which the volume `app_audio` mounts in the images.
+        expect($old)->toContain('alias /var/www/html/storage/app/public/audio/;');
+    }
+});
+
+it('lets only a plain <name>.mp3 through the /audio/ pattern: no dotfile, no subdirectory, no other type', function (): void {
+    preg_match('/if \(\$uri !~ "(?<pattern>[^"]+)"\)/', (string) prefixLocation(infraFile('docker/nginx/prod.conf'), '/audio/'), $m);
+    $pattern = '#'.$m['pattern'].'#';
+
+    foreach (['/audio/0a1b2c3d4e5f60718293a4b5c6d7e8f901234567.mp3', '/audio/abc-def_1.mp3'] as $ok) {
+        expect(preg_match($pattern, $ok))->toBe(1, $ok);
+    }
+    foreach (['/audio/.tmp/x.mp3', '/audio/.x.mp3', '/audio/sub/x.mp3', '/audio/x.txt', '/audio/x.mp3.php', '/audio/', '/audio/x.mp3/', '/audio/../x.mp3', '/audio/x.MP3x'] as $bad) {
+        expect(preg_match($pattern, $bad))->toBe(0, $bad);
     }
 });
 

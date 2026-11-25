@@ -2,6 +2,8 @@
 
 > **Будет изменено.** Владелец решил (25.11.2026): озвучка отдаётся с основного домена — `https://основной-домен/audio/…`, без отдельного `audio.ваш-домен`. План — [31_COMPETITION_PLAN_RU.md](31_COMPETITION_PLAN_RU.md) §5д. До выполнения задач U0–U4 инструкция ниже описывает текущее поведение.
 
+> **Уже сделано (U2, диск `public`):** файлы на вашем сервере открываются по адресу `https://основной-домен/audio/<хеш>.mp3` (переменная `TTS_PUBLIC_DISK_AUDIO_URL` в C2). Старый адрес `/storage/audio/<хеш>.mp3` продолжает работать. Раздача файлов R2 с основного домена — ещё не сделана.
+
 Пошаговое руководство для владельца. Как устроен код — `docs/26_AUDIO_TTS_PLAN_RU.md`. Имена переменных и команд ниже сверены с кодом (`config/twa.php`, `config/filesystems.php`, `.env.example`, `docker-compose.prod.yml`, `docker-compose.coolify.yml`, команды `audio:*`).
 
 > Названия пунктов меню в консолях Google и Cloudflare меняются; если пункт называется иначе, ищите по смыслу. Цены и квоты проверены по официальным страницам 20.11.2026.
@@ -99,7 +101,7 @@ curl -s -X POST "https://texttospeech.googleapis.com/v1/text:synthesize" \
 
 ## Часть B. Cloudflare R2
 
-Сайт должен быть подключён к Cloudflare (`docs/23_CLOUDFLARE_RU.md`). R2 не обязателен: без него файлы лежат и раздаются с вашего сервера (`TTS_AUDIO_DISK=public`, по умолчанию). R2 разгружает сервер и даёт кэш Cloudflare.
+Сайт должен быть подключён к Cloudflare (`docs/23_CLOUDFLARE_RU.md`). R2 не обязателен: без него файлы лежат и раздаются с вашего сервера по адресу `https://ваш-домен/audio/<хеш>.mp3` (`TTS_AUDIO_DISK=public`, по умолчанию). R2 разгружает сервер и даёт кэш Cloudflare.
 
 ### B1. Бакет
 
@@ -186,7 +188,8 @@ sudo install -m 0440 -o root -g 1000 lexiflow-tts-XXXX.json /etc/lexiflow/google
 | `TTS_SERVICE_TIMEOUT` | `8` | только для `http`, секунд |
 | `TTS_VOICE` | `en-US-AriaNeural` | голос; для `google` — обязательно голос Google (A5) |
 | `TTS_AUDIO_VERSION` | `1` | входит в имя файла; поднять = переозвучить всё (C9) |
-| `TTS_AUDIO_DISK` | `public` | где лежат файлы слов: `public` — этот сервер (`/storage/audio/`), `audio` — R2 |
+| `TTS_AUDIO_DISK` | `public` | где лежат файлы слов: `public` — этот сервер (адрес `/audio/<хеш>.mp3` основного домена), `audio` — R2 |
+| `TTS_PUBLIC_DISK_AUDIO_URL` | `APP_URL` | только для `public`: начало адреса файла, адрес = это значение + `/audio/<хеш>.mp3`. Файл отдаёт nginx (`location /audio/`); старый адрес `/storage/audio/` nginx тоже отдаёт. `${APP_URL}/storage` (или пустая строка) возвращает старые адреса. Без nginx (`php artisan serve`) — `php artisan storage:link` |
 | `GOOGLE_TTS_CREDENTIALS` | пусто | путь к файлу ключа **внутри контейнера**: в Docker всегда `/run/secrets/google-tts.json`. Пусто — `tts_service_not_configured` |
 | `GOOGLE_TTS_KEY_FILE` | пусто | только Docker: путь к файлу ключа **на хосте** (C1) |
 | `GOOGLE_TTS_TIMEOUT` | `20` | секунд ждать ответа Google (соединение — 5 с, не настраивается) |
@@ -234,7 +237,7 @@ AUDIO_PUBLIC_URL=https://audio.ваш-домен
 1. **Выкатить код с выключенной озвучкой.** В `.env` явно `TTS_DRIVER=null`. Внимание: пустой `TTS_DRIVER` при заданном `TTS_SERVICE_URL` (в `.env.example` он задан: `http://tts:8000`) означает драйвер `http`, а контейнера `tts` в продакшене нет — задания будут падать с `tts_service_failed`. С `null` новые слова и ночная сверка заданий не ставят.
 2. **Настроить Google и R2** по частям A и B, положить ключ (C1).
 3. **Задать переменные R2** (`AUDIO_*`, включая `AUDIO_PUBLIC_URL`) и **пересоздать nginx** (C2).
-4. **Если на сервере уже есть файлы озвучки** (`TTS_AUDIO_DISK=public`, папка `/storage/audio/` не пуста) — перенести их в R2, пока сайт ещё раздаёт их с сервера:
+4. **Если на сервере уже есть файлы озвучки** (`TTS_AUDIO_DISK=public`, папка `storage/app/public/audio/` не пуста — адреса `/audio/…`, раньше `/storage/audio/…`) — перенести их в R2, пока сайт ещё раздаёт их с сервера:
 
    ```bash
    php artisan audio:migrate-disk --to=audio --dry-run   # только посчитать
