@@ -16,8 +16,10 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\BotButtons;
 use App\Domain\Telegram\Services\DmReachability;
 use App\Domain\Telegram\Services\ReminderQuizMessenger;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Jobs\SendLearnerReminderJob;
 use App\Models\Learner;
@@ -71,7 +73,8 @@ use Throwable;
  */
 final class ReminderSender
 {
-    public const TWA_PATH = '/twa/?from=reminder';
+    /** `from=` of the button of a reminder (the Mini App opens the daily review on it, `TodayView`). */
+    public const FROM = 'reminder';
 
     public function __construct(
         private readonly TelegramClient $telegram,
@@ -84,6 +87,7 @@ final class ReminderSender
         private readonly ReminderQuizMessenger $quizMessenger,
         private readonly ReminderExperiment $experiment,
         private readonly DmReachability $reachability,
+        private readonly BotButtons $buttons,
     ) {}
 
     public function send(int $learnerId, CarbonImmutable $scheduledFor, ?CarbonImmutable $now = null): ReminderOutcome
@@ -143,11 +147,12 @@ final class ReminderSender
                     $view = $this->quizMessenger->question($content, $quiz, $locale);
                     $this->telegram->sendMessage($learner->telegram_user_id, $view['text'], null, $view['reply_markup']);
                 } else {
+                    [$button, $screen] = $this->button($content->kind);
                     $this->telegram->sendWebAppButton(
                         chatId: $learner->telegram_user_id,
                         text: $this->text($content, $locale),
-                        buttonText: __('reminders.open_button', [], $locale),
-                        url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH,
+                        buttonText: __($button, [], $locale),
+                        url: $this->buttons->twaUrl($screen, query: ['from' => self::FROM]),
                     );
                 }
             } catch (TelegramForbiddenException $e) {
@@ -236,6 +241,21 @@ final class ReminderSender
             // The key expires on its own; the 403 handling must go on.
             report($e);
         }
+    }
+
+    /**
+     * The one button of a plain reminder says what to do (docs/36 §3а, N5): a lesson for the kinds that call to learn, the first lesson
+     * for one who has never started, the catalogue for one without a course.
+     *
+     * @return array{0: string, 1: TwaScreen}
+     */
+    private function button(ReminderKind $kind): array
+    {
+        return match ($kind) {
+            ReminderKind::NeverStarted => ['buttons.first_lesson', TwaScreen::Today],
+            ReminderKind::ChooseCourse => ['buttons.choose_course', TwaScreen::Courses],
+            ReminderKind::Review, ReminderKind::StreakAtRisk, ReminderKind::Inactive, ReminderKind::NewWords => ['buttons.start_lesson', TwaScreen::Today],
+        };
     }
 
     private function text(ReminderContent $content, string $locale): string

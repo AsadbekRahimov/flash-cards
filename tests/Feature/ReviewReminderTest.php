@@ -102,7 +102,7 @@ it('sends "N words to review" with the TWA button to the Today screen and logs i
         ->and($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['chat_id'])->toBe(777001)
         ->and($this->tg->sent[0]['text'])->toBe("Пора повторить 5 слов в Muhrla.\n\nИзменить время или отключить: /settings")
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть Muhrla')
+        ->and($this->tg->sent[0]['button'])->toBe('▶️ Начать занятие')
         ->and($this->tg->sent[0]['url'])->toBe('https://twa.test/twa/?from=reminder');
 
     $log = NotificationLog::query()->where('learner_id', $learner->id)->sole();
@@ -179,7 +179,7 @@ it('speaks the learner\'s interface language', function (): void {
 
     rmSend($learner);
     expect($this->tg->sent[0]['text'])->toBe("Muhrla'da 21 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.")
-        ->and($this->tg->sent[0]['button'])->toBe("Muhrla'ni ochish");
+        ->and($this->tg->sent[0]['button'])->toBe("▶️ Mashg'ulotni boshlash");
 
     $streak = rmLearner(['telegram_user_id' => 777004, 'interface_locale' => 'uz']);
     rmStreakAtRisk($streak, 7);

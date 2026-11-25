@@ -9,8 +9,10 @@ use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Services\BotButtons;
 use App\Domain\Telegram\Services\OnboardingMessenger;
 use App\Domain\Telegram\Support\DmLearnerResolver;
+use App\Domain\Telegram\Support\TwaScreen;
 
 /**
  * Catch-all for any other message a non-teacher writes to the bot in a DM (docs/12 §3.6): the
@@ -25,6 +27,7 @@ final class LearnerDmHandler implements UpdateHandler
         private readonly LocaleResolver $locales,
         private readonly DmLearnerResolver $learners,
         private readonly OnboardingMessenger $messenger,
+        private readonly BotButtons $buttons,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -76,7 +79,7 @@ final class LearnerDmHandler implements UpdateHandler
             chatId: $chatId,
             text: __('onboarding.menu.text', [], $locale),
             buttonText: __('onboarding.today.button', [], $locale),
-            url: rtrim((string) config('twa.base_url'), '/').'/twa/?from=menu',
+            url: $this->buttons->twaUrl(TwaScreen::Today, query: ['from' => 'menu']),
         );
     }
 }

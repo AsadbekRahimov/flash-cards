@@ -52,11 +52,25 @@ return [
         ],
     ],
 
-    // The welcome trial (docs/13 §7.1 "2C.9"), DM once after the onboarding (TrialWelcomeMessenger): `:days` is
-    // "14 дней" (billing.trial.days), `:reward` is "7 дней" (referrals.milestone_days), `:friends` is "3 друзей" (lang/ru/referrals.php).
+    // The welcome trial (docs/13 §7.1 "2C.9", docs/36 §4б), DM once after the onboarding (TrialWelcomeMessenger): `:days` is
+    // "14 дней" (billing.trial.days), `:reward` is "7 дней" (referrals.milestone_days), `:friends` is "3 друзей" (lang/ru/referrals.php),
+    // `:benefits` is the lines of `pro_promises` below, each as "• …" on a line of its own (ProPromises::top()).
     'trial' => [
-        'welcome' => '🎁 Вам открыт Pro на :days — бесплатно, до :date. Пригласите :friends — получите ещё :reward: /invite',
-        'welcome_plain' => '🎁 Вам открыт Pro на :days — бесплатно, до :date.',
+        'welcome' => "🎁 Вам открыт Pro на :days — бесплатно, до :date.\n\nЧто даёт Pro:\n:benefits\n\nПригласите :friends — получите ещё :reward Pro: /invite",
+        'welcome_plain' => "🎁 Вам открыт Pro на :days — бесплатно, до :date.\n\nЧто даёт Pro:\n:benefits",
+    ],
+
+    // What Pro gives, short lines of the bot (ProPromises::top(), docs/36 §4б): the same list as the Mini App's "what Pro gives". The
+    // lines about practice and the game are there only while those are open to the reader.
+    'pro_promises' => [
+        'new_words' => 'Новые слова без дневного лимита',
+        'practice' => 'Практика и баттлы без дневного лимита',
+        'practice_solo' => 'Практика без дневного лимита',
+        'decks' => 'Свои колоды слов',
+        'freezes' => 'Заморозка серии: пропуск дня не обрывает серию',
+        'game' => 'Караван без дневного лимита',
+        'exercises' => 'Упражнения «Написание слова» и «Пропуск в примере»',
+        'mock_exams' => 'Пробные тесты IELTS и SAT',
     ],
 
     'paysupport' => [
@@ -103,7 +117,6 @@ return [
         'paid' => 'Оплата получена! Muhrla Pro активен до :date.',
         'renewed' => 'Подписка продлена: Muhrla Pro активен до :date.',
         'paid_forever' => 'Оплата получена! У вас Muhrla Pro без ограничения по сроку.',
-        'open_button' => 'Открыть Muhrla',
         'paid_unresolved' => 'Оплата получена, но автоматически зачесть её не удалось. Мы разберёмся и включим Pro или вернём Stars. Чтобы ускорить — напишите в поддержку: /paysupport.',
         'refunded' => 'Возврат :amount выполнен. Если этим платежом был оплачен текущий период Pro, он завершён.',
     ],

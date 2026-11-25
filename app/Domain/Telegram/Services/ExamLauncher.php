@@ -9,6 +9,7 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Learning\Exceptions\ExamSessionException;
 use App\Domain\Learning\Services\ExamSessionService;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\ExamSession;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -26,6 +27,7 @@ final class ExamLauncher
         private readonly ProductEventRecorder $events,
         private readonly GroupSessionAnnouncer $announcer,
         private readonly BotSupportContact $support,
+        private readonly BotButtons $buttons,
     ) {}
 
     public function launch(int $chatId, TelegramGroup $group, User $teacher, int $stage, int $lesson, int $minutes, string $locale): void
@@ -70,14 +72,13 @@ final class ExamLauncher
 
     private function postWebAppButton(int $chatId, ExamSession $session, int $stage, int $lesson, int $minutes, string $locale): void
     {
-        $base = rtrim((string) config('twa.base_url'), '/');
         $seconds = (int) ($session->config['seconds_per_question'] ?? ExamSessionService::DEFAULT_SECONDS_PER_QUESTION);
 
         $this->announcer->announce(
             chatId: $chatId,
             text: __('exam.started', ['stage' => $stage, 'lesson' => $lesson, 'minutes' => $minutes, 'seconds' => $seconds], $locale),
             buttonText: __('exam.open_button', [], $locale),
-            url: "{$base}/twa/exam/{$session->id}",
+            url: $this->buttons->twaUrl(TwaScreen::Exam, ['id' => $session->id]),
             failureText: __('errors.exam.not_delivered', [], $locale),
             cancel: fn () => $this->exams->cancelUndelivered($session),
             parseMode: 'HTML',

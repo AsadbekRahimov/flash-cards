@@ -124,11 +124,11 @@ const meWith = (practice?: PracticeAccess): MeResponse => ({
 
 const BATTLES_ON: PracticeAccess = { available: true, pro_required: false, modes: ['pairs', 'collocation', 'sentence', 'dictation'], battle: true, pro_promise: 'both' }
 
-async function render(friends: FriendsResponse = friendsResponse(), challenges: ChallengesResponse = challengesResponse()) {
+async function render(friends: FriendsResponse = friendsResponse(), challenges: ChallengesResponse = challengesResponse(), path = '/friends') {
   vi.mocked(api.friends.get).mockResolvedValue(friends)
   vi.mocked(api.challenges.list).mockResolvedValue(challenges)
   const router = makeRouter()
-  await router.push('/friends')
+  await router.push(path)
   await router.isReady()
   const wrapper = mount(FriendsView, { global: { plugins: [router] } })
   await flushPromises()
@@ -1589,6 +1589,97 @@ describe('FriendsView', () => {
       const { wrapper } = await render()
 
       expect(wrapper.find('[data-testid=friend-camel]').exists()).toBe(false)
+    })
+  })
+
+  describe('the address of a button of the bot (docs/36 §3а)', () => {
+    let scrolled: Element[]
+    beforeEach(() => {
+      scrolled = []
+      Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+        configurable: true,
+        writable: true,
+        value: function (this: Element) {
+          scrolled.push(this)
+        },
+      })
+    })
+    afterEach(() => {
+      delete (HTMLElement.prototype as Partial<HTMLElement>).scrollIntoView
+    })
+
+    const highlightedIds = (w: Wrapper): string[] => w.findAll('[data-highlighted=true]').map((row) => row.attributes('data-challenge-id') ?? '')
+
+    it('?challenge= scrolls to the card of that challenge and highlights it', async () => {
+      const { wrapper } = await render(
+        friendsResponse(),
+        challengesResponse({ open: [challenge({ id: 5 }), challenge({ id: 6, friendship_id: 12, friend_name: null })] }),
+        '/friends?challenge=6&from=challenge_accepted',
+      )
+      await flushPromises()
+
+      expect(highlightedIds(wrapper)).toEqual(['6'])
+      expect(wrapper.get('[data-challenge-id="6"]').classes()).toContain('bg-accent-soft')
+      expect(wrapper.get('[data-challenge-id="5"]').classes()).not.toContain('bg-accent-soft')
+      expect(scrolled).toHaveLength(1)
+      expect(scrolled[0]?.getAttribute('data-challenge-id')).toBe('6')
+      expect(wrapper.find('[data-testid=metric-picker]').exists()).toBe(false)
+    })
+
+    it('?challenge= finds a finished challenge too', async () => {
+      const { wrapper } = await render(
+        friendsResponse(),
+        challengesResponse({ finished: [challenge({ id: 9, status: 'finished', result: 'won' })] }),
+        '/friends?challenge=9',
+      )
+      await flushPromises()
+
+      expect(highlightedIds(wrapper)).toEqual(['9'])
+      expect(wrapper.get('[data-challenge-id="9"]').attributes('data-testid')).toBe('finished-row')
+    })
+
+    it.each([
+      ['an unknown id', '/friends?challenge=999'],
+      ['not a number', '/friends?challenge=abc'],
+      ['zero', '/friends?challenge=0'],
+      ['an unknown friend', '/friends?friend=77'],
+      ['a pending request, not a friend', '/friends?friend=21'],
+    ])('does nothing for %s: the screen opens as always', async (_case, path) => {
+      const { wrapper } = await render(friendsResponse(), challengesResponse({ open: [challenge({ id: 5 })] }), path)
+      await flushPromises()
+
+      expect(highlightedIds(wrapper)).toEqual([])
+      expect(wrapper.find('[data-testid=metric-picker]').exists()).toBe(false)
+      expect(scrolled).toHaveLength(0)
+      expect(wrapper.findAll('[data-testid=friend-row]')).toHaveLength(2)
+    })
+
+    it('?friend= opens the picker of a new challenge to that friend and scrolls to them', async () => {
+      const { wrapper } = await render(friendsResponse(), challengesResponse(), '/friends?friend=12&from=challenge_finished')
+      await flushPromises()
+
+      const rows = wrapper.findAll('[data-testid=friend-row]')
+      expect(rows[1]?.find('[data-testid=metric-picker]').exists()).toBe(true)
+      expect(rows[0]?.find('[data-testid=metric-picker]').exists()).toBe(false)
+      expect(scrolled[0]?.getAttribute('data-friend-id')).toBe('12')
+
+      vi.mocked(api.challenges.propose).mockResolvedValue(pending({ id: 30, friendship_id: 12 }))
+      await rows[1]?.get('[data-testid=metric-new_words]').trigger('click')
+      await flushPromises()
+      expect(api.challenges.propose).toHaveBeenCalledWith(12, 'new_words')
+    })
+
+    it('?friend= of a friend who has a challenge open already shows that challenge instead of the picker', async () => {
+      const { wrapper } = await render(
+        friendsResponse(),
+        challengesResponse({ open: [pending({ id: 7, friendship_id: 11, role: 'opponent' })] }),
+        '/friends?friend=11',
+      )
+      await flushPromises()
+
+      expect(wrapper.find('[data-testid=metric-picker]').exists()).toBe(false)
+      expect(highlightedIds(wrapper)).toEqual(['7'])
+      expect(scrolled[0]?.getAttribute('data-challenge-id')).toBe('7')
     })
   })
 

@@ -8,7 +8,9 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Services\BotButtons;
 use App\Domain\Telegram\Services\DmReachability;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Listeners\Engagement\SendReferralMilestoneMessage;
 use App\Models\Learner;
 use App\Models\NotificationLog;
@@ -36,6 +38,7 @@ final class ReferralMilestoneSender
         private readonly LocaleResolver $locales,
         private readonly ReferralService $referrals,
         private readonly DmReachability $reachability,
+        private readonly BotButtons $buttons,
     ) {}
 
     /** @return 'sent'|'forbidden'|'skipped' */
@@ -69,6 +72,12 @@ final class ReferralMilestoneSender
             }
 
             $text = $this->text($learner, $milestone, $days, $subscription);
+            // One button (docs/36 §3а, W4): "Invite more" -> the Referrals screen. The benefits of Pro are not repeated: the learner is on Pro.
+            $keyboard = $this->buttons->single($learner->telegram_user_id, $this->buttons->open(
+                __('buttons.invite_more', [], $this->locales->forLearner($learner)),
+                TwaScreen::Referrals,
+                query: ['from' => 'milestone'],
+            ));
 
             $log = NotificationLog::query()->create([
                 'learner_id' => $learner->id,
@@ -78,7 +87,7 @@ final class ReferralMilestoneSender
             ]);
 
             try {
-                $this->telegram->sendMessage($learner->telegram_user_id, $text);
+                $this->telegram->sendMessage($learner->telegram_user_id, $text, replyMarkup: $keyboard);
             } catch (TelegramForbiddenException $e) {
                 $log->delete();
                 $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);

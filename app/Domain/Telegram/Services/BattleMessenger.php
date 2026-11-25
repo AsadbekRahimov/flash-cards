@@ -13,6 +13,7 @@ use App\Domain\Practice\Services\PracticeAccess;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Jobs\SendBattleDmJob;
 use App\Models\Battle;
 use App\Models\Learner;
@@ -39,6 +40,7 @@ final class BattleMessenger
         private readonly DmReachability $reachability,
         private readonly BattleSettings $settings,
         private readonly PracticeAccess $access,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -71,7 +73,7 @@ final class BattleMessenger
             $recipient->telegram_user_id,
             $this->invitedText($battle, $challenger, $locale),
             __('battle.dm.open', [], $locale),
-            rtrim((string) config('twa.base_url'), '/').'/twa/battles/'.$battle->id,
+            $this->buttons->twaUrl(TwaScreen::Battle, ['id' => $battle->id]),
         ));
     }
 

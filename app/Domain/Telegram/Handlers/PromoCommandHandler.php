@@ -10,6 +10,8 @@ use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
+use App\Domain\Telegram\Services\BotButtons;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\TelegramGroup;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -28,6 +30,7 @@ final class PromoCommandHandler implements GroupUpdateHandler
         private readonly LocaleResolver $locales,
         private readonly LearnerRegistrar $registrar,
         private readonly PromoCodeService $promos,
+        private readonly BotButtons $buttons,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -99,8 +102,10 @@ final class PromoCommandHandler implements GroupUpdateHandler
         }
 
         $until = $subscription->current_period_ends_at;
+        // One button (docs/36 §3а, N4): Pro is on - straight into a lesson.
         $this->telegram->sendMessage($chatId, $until === null
             ? __('bot.promo.success_forever', [], $locale)
-            : __('bot.promo.success_until', ['date' => $until->setTimezone($learner->timezone)->format('d.m.Y')], $locale));
+            : __('bot.promo.success_until', ['date' => $until->setTimezone($learner->timezone)->format('d.m.Y')], $locale),
+            replyMarkup: $this->buttons->single($chatId, $this->buttons->open(__('buttons.start_lesson', [], $locale), TwaScreen::Today, query: ['from' => 'promo'])));
     }
 }

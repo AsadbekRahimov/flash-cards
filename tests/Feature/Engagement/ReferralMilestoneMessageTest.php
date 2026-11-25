@@ -150,3 +150,17 @@ it('is picked up by the event system without a manual registration', function ()
     Event::fake();
     Event::assertListening(ReferralMilestoneReached::class, SendReferralMilestoneMessage::class);
 });
+
+it('puts "Invite more" under the reward, to the Referrals screen (docs/36 §3а, W4)', function (): void {
+    config(['twa.base_url' => 'https://twa.test']);
+    [$inviter, $subscription] = msInviter();
+    [$uz, $uzSubscription] = msInviter(['interface_locale' => 'uz']);
+
+    msRaise($inviter, 3, $subscription->id);
+    msRaise($uz, 3, $uzSubscription->id);
+
+    expect($this->tg->sent[0]['markup'])->toBe(['inline_keyboard' => [[
+        ['text' => '👥 Пригласить ещё', 'web_app' => ['url' => 'https://twa.test/twa/referrals?from=milestone']],
+    ]]])
+        ->and($this->tg->sent[1]['markup']['inline_keyboard'][0][0]['text'])->toBe('👥 Yana taklif qilish');
+});

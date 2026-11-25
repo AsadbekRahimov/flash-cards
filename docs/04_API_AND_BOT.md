@@ -1876,6 +1876,45 @@ $telegram->sendWebAppButton(
 
 URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамена — `/twa/exam/{id}`).
 
+### B.4b Кнопки под сообщениями бота (docs/36 §3, 25.11.2026)
+
+**Правило.** У каждого сообщения ученику, после которого логично действие, есть **ровно одна главная кнопка**; вторая — только если это выбор (Принять / Отклонить) или отказ от рассылки (docs/34 «Не присылать предложения»). Служебные сообщения (возврат Stars, удаление аккаунта, ошибки, «запрос отправлен») — без кнопки.
+
+**Как строится.** Экран Mini App — только из enum `App\Domain\Telegram\Support\TwaScreen` (`/`, `/courses`, `/courses/{slug}`, `/league`, `/league/month`, `/friends`, `/battles/{id}`, `/training/{id}`, `/exam/{id}`, `/game/class/{id}`, `/referrals`, `/billing`, `/achievements`). Адрес и клавиатуру строит `App\Domain\Telegram\Services\BotButtons`:
+- `twaUrl(TwaScreen, params, query)` — единственное место, где читается `twa.base_url` (кроме `MiniAppLinks`, `telegram:setup-bot`, `BotMenuBuilder`); тест-страж `tests/Unit/TwaBaseUrlGuardTest.php`;
+- `open(text, screen, params, query)` — кнопка `web_app`; `callback(text, data)` — `callback_data` ≤ 64 байт (длиннее — `InvalidArgumentException`); `url(text, url)`;
+- `keyboard(chatId, rows)` / `single(chatId, button)` — `reply_markup`; вне личного чата `web_app` превращается в URL `t.me/<bot>?startapp=<base64 пути>`, без имени бота — в обычный адрес (как `sendWebAppButton`).
+- `from=<вид сообщения>` передаётся в `query` — аналитика видит, какое сообщение привело в приложение.
+
+Тексты кнопок — `lang/{ru,uz}/buttons.php` (одна формулировка — одно место). Старые ключи кнопок (`reminders.open_button`, `leagues.open_button` и др.) переводятся на `buttons.*` постепенно, когда трогается их отправитель.
+
+| Сообщение (ключ lang) | Отправитель | Кнопка | Куда |
+|---|---|---|---|
+| Напоминания `reminders.review / streak_at_risk / inactive / inactive_due / new_words` | `ReminderSender` | `buttons.start_lesson` «▶️ Начать занятие» | `/?from=reminder` |
+| `reminders.never_started` | `ReminderSender` | `buttons.first_lesson` «▶️ Первое занятие» | `/?from=reminder` |
+| `reminders.choose_course` | `ReminderSender` | `buttons.choose_course` «📚 Выбрать курс» | `/courses?from=reminder` |
+| Напоминание-вопрос `reminders.quiz.*` | `ReminderQuizMessenger` | cb варианты ответа + «Открыть Muhrla» | `/?from=reminder` (после ответа `reminder_quiz`) |
+| Итог недели `leagues.result.*` | `LeagueResultSender` | `leagues.open_button` | `/league` |
+| Победа в месяце `leagues.month.won / won_plain` | `MonthWinnerSender` | `buttons.month_rating` «🏆 Рейтинг месяца» | `/league/month?from=month_won` |
+| Награда за друзей `referrals.milestone.reached + next` | `ReferralMilestoneSender` | `buttons.invite_more` «👥 Пригласить ещё» | `/referrals?from=milestone` |
+| Запрос в друзья `friends.incoming.text` | `FriendsMessenger` | cb Принять / Отклонить | — |
+| Друг принял запрос `friends.dm.friend_accepted` | `FriendsMessenger` | `buttons.challenge_friend` «⚔️ Бросить вызов» | `/friends?friend=<friendship_id>&from=friend_accepted` |
+| «Вы теперь друзья» `friends.accepted` (ответ на «Принять» / встречный запрос) | `FriendsMessenger` | `buttons.friends` «👥 Друзья» | `/friends?from=friends` |
+| Вызов предложен `friends.dm.challenge_proposed` | `FriendsMessenger` | cb Принять / Отклонить | — |
+| Вызов принят `friends.dm.challenge_accepted` и ответ принявшему `friends.challenge.accepted` | `FriendsMessenger` | `buttons.open_challenge` «🎯 Открыть вызов» | `/friends?challenge=<id>&from=challenge_accepted` |
+| Вызов завершён `friends.dm.challenge_won / draw` | `FriendsMessenger` | `buttons.new_challenge` «🎯 Новый вызов» | `/friends?friend=<friendship_id>&from=challenge_finished` (дружбы больше нет — без кнопки) |
+| Вызов проигран `friends.dm.challenge_lost` | `FriendsMessenger` | `buttons.rematch` «🔁 Реванш» | то же |
+| Приглашение в баттл `battle.dm.invited` | `BattleMessenger` | «Открыть баттл» | `/battles/{id}` |
+| Пробный Pro `billing.trial.welcome` | `TrialWelcomeMessenger` | в онбординге — нет (следом финал с кнопкой); на `/start` — `buttons.start_lesson` | `/?from=trial_welcome` |
+| Продление / конец пробного `billing.renewal.*` | `RenewalReminderSender` | «Продлить» | `/billing?from=renewal` |
+| Личная скидка `billing.offer_dm.*` | `OfferMessenger` | cb покупки | — |
+| Оплата прошла `billing.stars.paid*` | `SuccessfulPaymentHandler` | `buttons.start_lesson` | `/?from=paid` |
+| Возврат Stars `billing.stars.refunded` | `RefundedPaymentHandler` | нет (служебное) | — |
+| Промокод применён `bot.promo.success_*` | `PromoCommandHandler` | `buttons.start_lesson` | `/?from=promo` |
+| Аккаунт восстановлен `bot.account.restored*` | `StartCommandHandler` | `buttons.open_app` «▶️ Открыть приложение» | `/?from=restored` |
+| Онбординг: конец `onboarding.done.*`, `/today`, центр, предложение дружбы по ссылке | `OnboardingMessenger`, `TodayScreen`, `OrganizationMessenger`, `FriendsMessenger::offer` | без изменений | — |
+| Групповые (урок, экзамен, «Караван», итоги, задания) | `GroupSessionAnnouncer`, `ExamLauncher`, `ClassCaravanMessenger`, `PostLeaderboardJob`, `AssignmentService` | url `startapp` | без изменений |
+
 ### B.4a Язык сообщений бота (i18n)
 
 Все тексты бота, напоминаний и лидерборда лежат в `lang/{ru,uz}/*.php` (`bot`, `commands`, `errors`, `training`, `exam`, `reminders`, `stats`, `twofactor`, `onboarding`) и выводятся через `__()` / `trans_choice()` с **явным** параметром `$locale` — глобальная локаль процесса не меняется (воркеры очередей долгоживущие). Поддерживаемые языки и дефолт — `config/localization.php` (`ru`, `uz`; дефолт и fallback `ru`). Выбор языка — `App\Domain\Localization\Services\LocaleResolver`:

@@ -11,8 +11,10 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\BotButtons;
 use App\Domain\Telegram\Services\DmReachability;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Jobs\SendLeagueResultsJob;
 use App\Models\LeagueMember;
 use App\Models\NotificationLog;
@@ -35,14 +37,13 @@ final class LeagueResultSender
 {
     public const NOTIFICATION_TYPE = 'league_result';
 
-    public const TWA_PATH = '/twa/league';
-
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
         private readonly LeagueService $leagues,
         private readonly TelegramMessageRateLimiter $outbound,
         private readonly DmReachability $reachability,
+        private readonly BotButtons $buttons,
     ) {}
 
     /** @return 'sent'|'forbidden'|'skipped' */
@@ -163,7 +164,7 @@ final class LeagueResultSender
                 chatId: $learner->telegram_user_id,
                 text: $this->text($message->member, $message->group->tier, $message->result, $locale),
                 buttonText: __('leagues.open_button', [], $locale),
-                url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH,
+                url: $this->buttons->twaUrl(TwaScreen::League),
             );
         } catch (TelegramForbiddenException $e) {
             $log->delete();

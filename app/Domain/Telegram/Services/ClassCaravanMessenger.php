@@ -10,6 +10,7 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\ClassCaravan;
 use App\Models\TelegramGroup;
 use App\Models\User;
@@ -33,6 +34,7 @@ final class ClassCaravanMessenger
         private readonly GroupSessionAnnouncer $announcer,
         private readonly ClassCaravanService $caravans,
         private readonly GroupBotRemoval $groups,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -43,13 +45,12 @@ final class ClassCaravanMessenger
     public function announceStarted(ClassCaravan $caravan, TelegramGroup $group, User $by): bool
     {
         $locale = $this->locales->forGroup($group);
-        $base = rtrim((string) config('twa.base_url'), '/');
 
         return $this->announcer->announce(
             chatId: $group->chat_id,
             text: __('game.class.started', ['target' => $caravan->target_stars, 'until' => $this->until($caravan->ends_at)], $locale),
             buttonText: __('game.class.open_button', [], $locale),
-            url: "{$base}/twa/game/class/{$caravan->id}",
+            url: $this->buttons->twaUrl(TwaScreen::GameClass, ['id' => $caravan->id]),
             failureText: __('game.class.not_delivered', [], $locale),
             cancel: function () use ($caravan, $by): void {
                 $this->caravans->cancel($caravan, $by, reason: ClassCaravanService::CANCELED_NOT_DELIVERED);

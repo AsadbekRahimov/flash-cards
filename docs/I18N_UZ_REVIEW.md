@@ -10,7 +10,6 @@
 |---|---|---|
 | `achievements.items.first_friend.description` | Muhrla'da | Muhrla'da birinchi do'st paydo bo'ldi |
 | `achievements.share_text` | Muhrla'da | Men Muhrla'da «:title» yutug'ini oldim! Telegramda ingliz tilini… |
-| `billing.stars.open_button` | Muhrla'ni | Muhrla'ni ochish |
 | `billing.return.open_bot` | Muhrla'ga | Muhrla'ga qaytish |
 | `friends.incoming.text` | Muhrla'da | :name sizni Muhrla'da do'st sifatida qo'shmoqchi. |
 | `friends.dm.button` | Muhrla'ni | Muhrla'ni ochish |
@@ -743,7 +742,6 @@
 | `billing.stars.paid` | To'lov qabul qilindi! Muhrla Pro :date gacha faol. | Оплата получена! Muhrla Pro активен до :date. |
 | `billing.stars.renewed` | Obuna yangilandi: Muhrla Pro :date gacha faol. | Подписка продлена: Muhrla Pro активен до :date. |
 | `billing.stars.paid_forever` | To'lov qabul qilindi! Sizda Muhrla Pro muddatsiz. | Оплата получена! У вас Muhrla Pro без ограничения по сроку. |
-| `billing.stars.open_button` | Muhrla ni ochish | Открыть Muhrla |
 | `billing.stars.paid_unresolved` | To'lov qabul qilindi, lekin uni avtomatik hisobga olib bo'lmadi. Biz aniqlab, Pro ni yoqamiz yoki Stars ni qaytaramiz. Tezlashtirish uchun qo'llab-quvvatlash xizmatiga yozing: /paysupport. | Оплата получена, но автоматически зачесть её не удалось. Мы разберёмся и включим Pro или вернём Stars. Чтобы ускорить — напишите в поддержку: /paysupport. |
 | `billing.stars.refunded` | :amount qaytarildi. Agar bu to'lov bilan joriy Pro davri to'langan bo'lsa, u yakunlandi. | Возврат :amount выполнен. Если этим платежом был оплачен текущий период Pro, он завершён. |
 | `billing.renewal.dm` | {1} Muhrla Pro ertaga tugaydi (:date).\|[2,*] Muhrla Pro :count kundan keyin tugaydi (:date). | {1} Muhrla Pro заканчивается завтра (:date).\|[2,*] Muhrla Pro заканчивается через :count дн. (:date). |
@@ -3834,8 +3832,8 @@
 | `referrals.hint` | Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite | Пригласите друзей — получите Pro бесплатно: /invite |
 | `referrals.milestone.reached` | 🎉 :count ta do'stingiz o'rganishni boshladi — sizga +:days Pro (:date gacha). | 🎉 :count ваших друга/друзей начали заниматься — вам +:days Pro (до :date). |
 | `referrals.milestone.next` | Keyingi mukofotgacha yana :count ta do'st qoldi. | До следующей награды: ещё :count друга/друзей. |
-| `billing.trial.welcome` | 🎁 Sizga :days Pro bepul ochildi — :date gacha. :friends taklif qiling — yana :reward Pro olasiz: /invite | 🎁 Вам открыт Pro на :days — бесплатно, до :date. Пригласите :friends — получите ещё :reward: /invite |
-| `billing.trial.welcome_plain` | 🎁 Sizga :days Pro bepul ochildi — :date gacha. | 🎁 Вам открыт Pro на :days — бесплатно, до :date. |
+| `billing.trial.welcome` | 🎁 Sizga :days Pro bepul ochildi — :date gacha.\n\nPro nima beradi:\n:benefits\n\n:friends taklif qiling — yana :reward Pro olasiz: /invite | 🎁 Вам открыт Pro на :days — бесплатно, до :date.\n\nЧто даёт Pro:\n:benefits\n\nПригласите :friends — получите ещё :reward Pro: /invite (текст обновлён 25.11.2026, см. раздел «Кнопки бота») |
+| `billing.trial.welcome_plain` | 🎁 Sizga :days Pro bepul ochildi — :date gacha.\n\nPro nima beradi:\n:benefits | 🎁 Вам открыт Pro на :days — бесплатно, до :date.\n\nЧто даёт Pro:\n:benefits |
 | `billing.renewal.hint_trial` | Pro'ni yo'qotmaslik uchun obunani rasmiylashtiring (/pro) yoki do'stlaringizni taklif qiling (/invite). | Чтобы не потерять Pro: оформите подписку (/pro) или пригласите друзей (/invite). |
 | `onboarding.settings.language_title` | Tilni tanlang | Выберите язык |
 | `commands.private.language` | Til | Язык / Til |
@@ -4345,3 +4343,40 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `league.daily_plan` | Bugungi rejaga o'tish | К плану на сегодня |
 | `month.title` | Oy reytingi | Рейтинг месяца |
 | `friends.list.streak_words` | ketma-ketlik {streak} · {words} | серия {streak} · {words} (вместо «🔥 {streak}») |
+
+## Кнопки бота и приветствие пробного Pro (25.11.2026) — на проверку носителю
+
+docs/36 §3б и §4б: у каждого сообщения бота, после которого логично действие, одна главная кнопка; тексты кнопок — общий файл `lang/uz/buttons.php`. Кнопки короткие (Telegram обрезает длинную подпись на узком экране), глагол — в форме существительного действия, как у прочих кнопок бота («…ni ochish»). «Musobaqa» — вызов другу на несколько дней (не «bellashuv» — живой баттл). Приветствие пробного Pro теперь перечисляет 4 пункта «что даёт Pro» (`billing.pro_promises.*`, по `ProPromises::top()`); строки о практике и «Караване» есть, только пока они открыты ученику. Носителю проверить: естественно ли «Revansh» (или лучше «Qayta bellashish»), и не длинна ли строка `billing.pro_promises.freezes` в списке.
+
+### Кнопки (`lang/uz/buttons.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `buttons.start_lesson` | ▶️ Mashg'ulotni boshlash | ▶️ Начать занятие |
+| `buttons.first_lesson` | ▶️ Birinchi mashg'ulot | ▶️ Первое занятие |
+| `buttons.choose_course` | 📚 Kursni tanlash | 📚 Выбрать курс |
+| `buttons.open_app` | ▶️ Ilovani ochish | ▶️ Открыть приложение |
+| `buttons.open_challenge` | 🎯 Musobaqani ochish | 🎯 Открыть вызов |
+| `buttons.new_challenge` | 🎯 Yangi musobaqa | 🎯 Новый вызов |
+| `buttons.rematch` | 🔁 Revansh | 🔁 Реванш |
+| `buttons.challenge_friend` | ⚔️ Musobaqaga chaqirish | ⚔️ Бросить вызов |
+| `buttons.friends` | 👥 Do'stlar | 👥 Друзья |
+| `buttons.open_league` | 🏅 Ligani ochish | 🏅 Открыть лигу |
+| `buttons.month_rating` | 🏆 Oy reytingi | 🏆 Рейтинг месяца |
+| `buttons.invite_more` | 👥 Yana taklif qilish | 👥 Пригласить ещё |
+| `buttons.share` | 📤 Ulashish | 📤 Поделиться |
+
+### Что даёт Pro — строки бота (`lang/uz/billing.php`, блок `pro_promises`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `billing.pro_promises.new_words` | Yangi so'zlar — kunlik limitsiz | Новые слова без дневного лимита |
+| `billing.pro_promises.practice` | Mustahkamlash mashqlari va bellashuvlar — kunlik limitsiz | Практика и баттлы без дневного лимита |
+| `billing.pro_promises.practice_solo` | Mustahkamlash mashqlari — kunlik limitsiz | Практика без дневного лимита |
+| `billing.pro_promises.decks` | O'z so'z to'plamlaringiz | Свои колоды слов |
+| `billing.pro_promises.freezes` | Zaxira kunlar: bir kun o'tkazib yuborsangiz ham ketma-ketlik saqlanadi | Заморозка серии: пропуск дня не обрывает серию |
+| `billing.pro_promises.game` | Karvon — kunlik limitsiz | Караван без дневного лимита |
+| `billing.pro_promises.exercises` | Yozish va gap to'ldirish mashqlari | Упражнения «Написание слова» и «Пропуск в примере» |
+| `billing.pro_promises.mock_exams` | IELTS va SAT sinov imtihonlari | Пробные тесты IELTS и SAT |
+
+Приветствие целиком (uz, 14 дней, практика закрыта): «🎁 Sizga 14 kun Pro bepul ochildi — 10.12.2026 gacha. / Pro nima beradi: / • Yangi so'zlar — kunlik limitsiz / • O'z so'z to'plamlaringiz / • Zaxira kunlar: … / • Yozish va gap to'ldirish mashqlari / 3 ta do'stni taklif qiling — yana 7 kun Pro olasiz: /invite».

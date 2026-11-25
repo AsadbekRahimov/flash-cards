@@ -130,8 +130,8 @@ it('credits the first payment of a subscription: Pro until subscription_expirati
     expect($this->telegram->sent)->toHaveCount(1)
         ->and($this->telegram->sent[0]['chat_id'])->toBe($this->learner->telegram_user_id)
         ->and($this->telegram->sent[0]['text'])->toBe('Оплата получена! Muhrla Pro активен до '.$expiration->setTimezone('Asia/Tashkent')->format('d.m.Y').'.')
-        ->and($this->telegram->sent[0]['button'])->toBe('Открыть Muhrla')
-        ->and($this->telegram->sent[0]['url'])->toBe('https://lexiflow.test/twa/?from=payment');
+        ->and($this->telegram->sent[0]['button'])->toBe('▶️ Начать занятие')
+        ->and($this->telegram->sent[0]['url'])->toBe('https://lexiflow.test/twa/?from=paid');
 });
 
 it('applies a re-delivered successful_payment once: one payment, one subscription period, no second message', function (): void {

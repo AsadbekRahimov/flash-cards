@@ -14,7 +14,9 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\BotButtons;
 use App\Domain\Telegram\Services\DmReachability;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Jobs\RenewalReminderJob;
 use App\Mail\SubscriptionRenewalDueMail;
 use App\Models\Learner;
@@ -54,7 +56,8 @@ final class RenewalReminderSender
 {
     public const NOTIFICATION_TYPE = 'renewal_reminder';
 
-    public const TWA_PATH = '/twa/billing?from=renewal';
+    /** `from=` of the button "Renew": the Billing screen. */
+    public const FROM = 'renewal';
 
     private const MARKER_TTL_DAYS = 45;
 
@@ -62,6 +65,7 @@ final class RenewalReminderSender
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
         private readonly DmReachability $reachability,
+        private readonly BotButtons $buttons,
     ) {}
 
     /** @return int how many messages (DM + e-mail) went out */
@@ -273,7 +277,7 @@ final class RenewalReminderSender
                         chatId: $chatId,
                         text: $text,
                         buttonText: $button,
-                        url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH,
+                        url: $this->buttons->twaUrl(TwaScreen::Billing, query: ['from' => self::FROM]),
                     );
                 } else {
                     $this->telegram->sendMessage($chatId, $text, replyMarkup: ['inline_keyboard' => [[['text' => $button, 'url' => $panelUrl]]]]);

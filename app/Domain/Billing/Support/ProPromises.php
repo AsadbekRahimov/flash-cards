@@ -87,6 +87,50 @@ final class ProPromises
         return ProGamePromise::None;
     }
 
+    /**
+     * The order of the short list of the bot (`billing.pro_promises.*`): the four that matter most first (docs/36 §4б - new words,
+     * practice and battles, own decks, the streak freeze), then the rest. `practice` stands for the line {@see practice()} picks
+     * (or leaves out), `game` for the one of {@see game()}.
+     */
+    private const TOP_ORDER = ['new_words', 'practice', 'decks', 'freezes', 'game', 'exercises', 'mock_exams'];
+
+    /**
+     * The first `$n` things Pro gives, as short lines of the bot in `$locale` (docs/36 §4б, W1): the welcome of the trial, and the
+     * offers after it (docs/34 P5) - one list, so the bot never promises what the Mini App does not show. A line about practice or the
+     * game is there only while it is true for the reader (the same rule as {@see practice()} / {@see game()}); without a reader the
+     * public reading is taken (practice and the game open only when they are open to everybody). The order is stable.
+     *
+     * @param  bool|null  $practiceOpen  whether practice is open to the reader (null: open to everybody, `practice.access = all`)
+     * @param  bool|null  $gameOpen  whether the game is open to the reader (null: open to everybody, `game.access = all`)
+     * @return list<string>
+     */
+    public static function top(int $n, string $locale, ?bool $practiceOpen = null, ?bool $gameOpen = null): array
+    {
+        $practice = $practiceOpen === null ? self::publicPractice() : self::practice($practiceOpen);
+        $game = self::game($gameOpen ?? self::normalized(config('game.access', 'off')) === 'all');
+
+        $keys = [];
+        foreach (self::TOP_ORDER as $slot) {
+            $key = match ($slot) {
+                'practice' => match ($practice) {
+                    ProPracticePromise::Both => 'practice',
+                    ProPracticePromise::Solo => 'practice_solo',
+                    ProPracticePromise::None => null,
+                },
+                'game' => $game === ProGamePromise::Full ? 'game' : null,
+                default => $slot,
+            };
+            if ($key !== null) {
+                $keys[] = $key;
+            }
+        }
+
+        return array_map(
+            static fn (string $key): string => (string) __('billing.pro_promises.'.$key, [], $locale),
+            array_slice($keys, 0, max(0, $n)),
+        );
+    }
+
     /** A Free limit exists unless the value is empty (`null`, '' or false): `0` is a limit (only Pro may). */
     private static function freeIsLimited(string $kind): bool
     {

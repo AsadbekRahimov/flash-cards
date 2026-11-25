@@ -14,6 +14,7 @@ use App\Domain\Organizations\Services\LearnerOrganizationsService;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\Learner;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
@@ -53,6 +54,7 @@ final class OrganizationMessenger
         private readonly OrganizationMembershipService $memberships,
         private readonly LearnerOrganizationsService $organizations,
         private readonly DmReachability $reachability,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -429,6 +431,6 @@ final class OrganizationMessenger
 
     private function twaUrl(): string
     {
-        return rtrim((string) config('twa.base_url'), '/').'/twa/?from=organization';
+        return $this->buttons->twaUrl(TwaScreen::Today, query: ['from' => 'organization']);
     }
 }

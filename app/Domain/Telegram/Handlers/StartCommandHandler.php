@@ -14,6 +14,7 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Enums\AccountLinkResult;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Services\BotButtons;
 use App\Domain\Telegram\Services\FriendsMessenger;
 use App\Domain\Telegram\Services\OnboardingMessenger;
 use App\Domain\Telegram\Services\OrganizationMessenger;
@@ -21,6 +22,7 @@ use App\Domain\Telegram\Services\TelegramAccountLinkService;
 use App\Domain\Telegram\Services\TodayScreen;
 use App\Domain\Telegram\Services\TrialWelcomeMessenger;
 use App\Domain\Telegram\Support\DmLearnerResolver;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\Learner;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -55,6 +57,7 @@ final class StartCommandHandler implements UpdateHandler
         private readonly AccountRestoreNotice $restoreNotice,
         private readonly TelegramAccountLinkService $accountLinks,
         private readonly TrialWelcomeMessenger $trialWelcome,
+        private readonly BotButtons $buttons,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -179,7 +182,8 @@ final class StartCommandHandler implements UpdateHandler
     private function announceTrial(Learner $learner, int $chatId): void
     {
         try {
-            $this->trialWelcome->announce($learner, $chatId);
+            // Past the onboarding: no closing message follows, so the notice carries its own button (docs/36 §4б).
+            $this->trialWelcome->announce($learner, $chatId, withButton: true);
         } catch (Throwable $e) {
             report($e);
         }
@@ -207,7 +211,12 @@ final class StartCommandHandler implements UpdateHandler
             $text .= "\n\n".__('bot.account.restored_pro', [], $locale);
         }
 
-        $this->telegram->sendMessage($chatId, $text);
+        // One button (docs/36 §3а, N4): the account is back - into the app.
+        $this->telegram->sendMessage($chatId, $text, replyMarkup: $this->buttons->single($chatId, $this->buttons->open(
+            __('buttons.open_app', [], $locale),
+            TwaScreen::Today,
+            query: ['from' => 'restored'],
+        )));
     }
 
     /**

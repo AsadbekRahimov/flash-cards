@@ -432,3 +432,65 @@ it('says nothing of Pro features on the /pro screen at any access: it lists none
         expect(proNames(app(ProScreen::class)->build($learner)['text'], $locale))->toBe([false, false], "{$locale} /pro at {$access}");
     }
 })->with(['all', 'pilot', 'off']);
+
+/*
+ * The short list of the bot (docs/36 §4б, W1): `ProPromises::top()` - the welcome of the trial reads its first four lines. A hidden
+ * feature (practice that is closed, a game that is closed) never gets a line; the order is stable; both languages have every line.
+ */
+
+it('gives the first lines of what Pro gives in a stable order, without a hidden feature', function (string $locale): void {
+    proPracticeConfig('off');
+    config(['game.access' => 'off']);
+
+    $top = ProPromises::top(4, $locale);
+
+    expect($top)->toBe([
+        __('billing.pro_promises.new_words', [], $locale),
+        __('billing.pro_promises.decks', [], $locale),
+        __('billing.pro_promises.freezes', [], $locale),
+        __('billing.pro_promises.exercises', [], $locale),
+    ])
+        ->and(proNames(implode("\n", $top), $locale))->toBe([false, false])
+        ->and(ProPromises::top(4, $locale))->toBe($top)
+        ->and(ProPromises::top(2, $locale))->toBe(array_slice($top, 0, 2))
+        ->and(ProPromises::top(0, $locale))->toBe([])
+        ->and(ProPromises::top(100, $locale))->toHaveCount(5);
+})->with(['ru', 'uz']);
+
+it('names practice (with the battles while they are sold) and the game only while they are open to the reader', function (string $locale): void {
+    proPracticeConfig('all');
+    config(['game.access' => 'all', 'game.free_limits.runs_per_day' => 3]);
+
+    $public = ProPromises::top(100, $locale);
+    expect($public[1])->toBe(__('billing.pro_promises.practice', [], $locale))
+        ->and($public)->toContain(__('billing.pro_promises.game', [], $locale))
+        ->and(ProPromises::top(4, $locale))->toBe([
+            __('billing.pro_promises.new_words', [], $locale),
+            __('billing.pro_promises.practice', [], $locale),
+            __('billing.pro_promises.decks', [], $locale),
+            __('billing.pro_promises.freezes', [], $locale),
+        ]);
+
+    // A reader to whom practice and the game are closed (the pilot, say) hears of neither, whatever the public switch says.
+    $closed = ProPromises::top(100, $locale, practiceOpen: false, gameOpen: false);
+    expect(proNames(implode("\n", $closed), $locale))->toBe([false, false])
+        ->and($closed)->not->toContain(__('billing.pro_promises.game', [], $locale));
+
+    // Battles switched off: practice alone.
+    proPracticeConfig('all', battleOn: false);
+    expect(ProPromises::top(2, $locale)[1])->toBe(__('billing.pro_promises.practice_solo', [], $locale));
+
+    // At the pilot the public reading is "closed"; the reader inside it is told.
+    proPracticeConfig('pilot');
+    expect(ProPromises::top(2, $locale)[1])->toBe(__('billing.pro_promises.decks', [], $locale))
+        ->and(ProPromises::top(2, $locale, practiceOpen: true)[1])->toBe(__('billing.pro_promises.practice', [], $locale));
+})->with(['ru', 'uz']);
+
+it('has every line of the short list in both languages', function (): void {
+    $ru = __('billing.pro_promises', [], 'ru');
+    $uz = __('billing.pro_promises', [], 'uz');
+
+    expect($ru)->toBeArray()->and($uz)->toBeArray()
+        ->and(array_keys($uz))->toBe(array_keys($ru))
+        ->and(array_keys($ru))->toEqualCanonicalizing(['new_words', 'practice', 'practice_solo', 'decks', 'freezes', 'game', 'exercises', 'mock_exams']);
+});

@@ -52,11 +52,23 @@ return [
         ],
     ],
 
-    // The welcome trial (docs/13 §7.1 "2C.9"), DM once after the onboarding; `:days` is "14 kun" (billing.trial.days),
-    // `:reward` is "7 kun" (referrals.milestone_days), `:friends` is "3 ta do'stni".
+    // The welcome trial (docs/13 §7.1 "2C.9", docs/36 §4б), DM once after the onboarding; `:days` is "14 kun" (billing.trial.days),
+    // `:reward` is "7 kun" (referrals.milestone_days), `:friends` is "3 ta do'stni", `:benefits` is the lines of `pro_promises` ("• …").
     'trial' => [
-        'welcome' => '🎁 Sizga :days Pro bepul ochildi — :date gacha. :friends taklif qiling — yana :reward Pro olasiz: /invite',
-        'welcome_plain' => '🎁 Sizga :days Pro bepul ochildi — :date gacha.',
+        'welcome' => "🎁 Sizga :days Pro bepul ochildi — :date gacha.\n\nPro nima beradi:\n:benefits\n\n:friends taklif qiling — yana :reward Pro olasiz: /invite",
+        'welcome_plain' => "🎁 Sizga :days Pro bepul ochildi — :date gacha.\n\nPro nima beradi:\n:benefits",
+    ],
+
+    // What Pro gives, short lines of the bot (ProPromises::top(), docs/36 §4б).
+    'pro_promises' => [
+        'new_words' => "Yangi so'zlar — kunlik limitsiz",
+        'practice' => 'Mustahkamlash mashqlari va bellashuvlar — kunlik limitsiz',
+        'practice_solo' => 'Mustahkamlash mashqlari — kunlik limitsiz',
+        'decks' => "O'z so'z to'plamlaringiz",
+        'freezes' => "Zaxira kunlar: bir kun o'tkazib yuborsangiz ham ketma-ketlik saqlanadi",
+        'game' => 'Karvon — kunlik limitsiz',
+        'exercises' => "Yozish va gap to'ldirish mashqlari",
+        'mock_exams' => 'IELTS va SAT sinov imtihonlari',
     ],
 
     'paysupport' => [
@@ -104,7 +116,6 @@ return [
         'paid' => "To'lov qabul qilindi! Muhrla Pro :date gacha faol.",
         'renewed' => 'Obuna uzaytirildi: Muhrla Pro :date gacha faol.',
         'paid_forever' => "To'lov qabul qilindi! Sizda Muhrla Pro muddatsiz.",
-        'open_button' => 'Muhrla\'ni ochish',
         'paid_unresolved' => "To'lov qabul qilindi, lekin uni avtomatik hisobga olib bo'lmadi. Tekshirib, Pro'ni yoqamiz yoki Stars'ni qaytaramiz. Tezroq hal bo'lishi uchun qo'llab-quvvatlash xizmatiga yozing: /paysupport.",
         'refunded' => ":amount qaytarildi. Agar bu to'lov bilan joriy Pro davri to'langan bo'lsa, u yakunlandi.",
     ],

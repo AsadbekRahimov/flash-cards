@@ -16,6 +16,7 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\Challenge;
 use App\Models\Friendship;
 use App\Models\Learner;
@@ -36,6 +37,11 @@ use Illuminate\Support\Facades\Log;
  *   fr1:acc:<id> / fr1:dec:<id>    — a friend request (`<id>` = friendships.id): accept / decline;
  *   fr1:cacc:<id> / fr1:cdec:<id>  — challenge (`<id>` = challenges.id): accept / decline.
  * Nothing in it is trusted: the services look the id up among the sender's OWN rows only.
+ *
+ * Buttons (docs/36 §3а, N2): one main button under each message after which there is something to do in the app — a challenge
+ * accepted -> "Open the challenge" (`/friends?challenge=<id>`: the Mini App scrolls to its card), a challenge finished -> "New challenge" /
+ * "Rematch" (`/friends?friend=<friendship_id>`: the picker of a new challenge to that friend), a friend accepted -> "Challenge" (the same),
+ * "you are friends now" in answer to a tap -> "Friends". Choice questions keep their two callback buttons.
  *
  * A link opened BEFORE the onboarding is remembered (`learners.meta.pending_friend_invite`) and offered the same
  * way, with an "Add to friends" button, right after the last step ({@see offerPending()}).
@@ -58,6 +64,7 @@ final class FriendsMessenger
         private readonly OnboardingMessenger $onboardingMessenger,
         private readonly DmReachability $reachability,
         private readonly OnboardingService $onboarding,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -140,12 +147,16 @@ final class FriendsMessenger
         }
 
         $name = $this->nameOf($inviter, $locale);
-        $text = match (true) {
-            $friendship->status === FriendshipStatus::Accepted->value => __('friends.accepted', ['name' => $name], $locale),
-            $friendship->status === FriendshipStatus::Pending->value && $friendship->requested_by_learner_id === $learner->id => __('friends.request_sent', ['name' => $name], $locale),
-            default => $this->errorText(FriendshipException::UNAVAILABLE, $locale),
-        };
-        $this->telegram->sendMessage($chatId, $text);
+        if ($friendship->status === FriendshipStatus::Accepted->value) {
+            // The inviter had asked this learner already: the request closed the pair at once.
+            $this->telegram->sendMessage($chatId, __('friends.accepted', ['name' => $name], $locale), replyMarkup: $this->friendsKeyboard($chatId, $locale));
+
+            return;
+        }
+
+        $this->telegram->sendMessage($chatId, $friendship->status === FriendshipStatus::Pending->value && $friendship->requested_by_learner_id === $learner->id
+            ? __('friends.request_sent', ['name' => $name], $locale)
+            : $this->errorText(FriendshipException::UNAVAILABLE, $locale));
     }
 
     public function skipRequest(Learner $learner, int|string $chatId, int $messageId): void
@@ -168,7 +179,11 @@ final class FriendsMessenger
         }
 
         $other = Learner::query()->find($friendship->otherId($learner->id));
-        $this->telegram->sendMessage($chatId, __('friends.accepted', ['name' => $other instanceof Learner ? $this->nameOf($other, $locale) : __('friends.anonymous', [], $locale)], $locale));
+        $this->telegram->sendMessage(
+            $chatId,
+            __('friends.accepted', ['name' => $other instanceof Learner ? $this->nameOf($other, $locale) : __('friends.anonymous', [], $locale)], $locale),
+            replyMarkup: $this->friendsKeyboard($chatId, $locale),
+        );
     }
 
     public function declineFriend(Learner $learner, int|string $chatId, int $messageId, int $friendshipId): void
@@ -203,7 +218,7 @@ final class FriendsMessenger
         $this->telegram->sendMessage($chatId, __('friends.challenge.accepted', [
             'starts' => $challenge->starts_on?->format('d.m') ?? '',
             'ends' => $challenge->ends_on?->format('d.m') ?? '',
-        ], $locale));
+        ], $locale), replyMarkup: $this->challengeKeyboard($chatId, $challenge->id, 'challenge_accepted', $locale));
     }
 
     public function declineChallenge(Learner $learner, int|string $chatId, int $messageId, int $challengeId): void
@@ -278,6 +293,11 @@ final class FriendsMessenger
         $this->deliver($recipient, FriendDmKind::FriendAccepted, $friendship->id, null, fn () => $this->telegram->sendMessage(
             $recipient->telegram_user_id,
             __('friends.dm.friend_accepted', ['name' => $this->nameOf($accepter, $locale)], $locale),
+            replyMarkup: $this->buttons->single($recipient->telegram_user_id, $this->buttons->open(
+                __('buttons.challenge_friend', [], $locale),
+                TwaScreen::Friends,
+                query: ['friend' => $friendship->id, 'from' => 'friend_accepted'],
+            )),
         ));
     }
 
@@ -322,6 +342,7 @@ final class FriendsMessenger
                 'starts' => $challenge->starts_on?->format('d.m') ?? '',
                 'ends' => $challenge->ends_on?->format('d.m') ?? '',
             ], $locale),
+            replyMarkup: $this->challengeKeyboard($recipient->telegram_user_id, $challenge->id, 'challenge_accepted', $locale),
         ));
     }
 
@@ -351,6 +372,15 @@ final class FriendsMessenger
         };
 
         $locale = $this->locales->forLearner($recipient);
+        // "New challenge" / "Rematch" lead to the picker of a challenge to the same friend - while they are still friends; without the
+        // friendship there is nothing to start, and no button.
+        $friendship = $this->friendships->between($recipient, $other);
+        $button = $friendship === null || $friendship->status !== FriendshipStatus::Accepted->value ? null : $this->buttons->open(
+            __($key === 'challenge_lost' ? 'buttons.rematch' : 'buttons.new_challenge', [], $locale),
+            TwaScreen::Friends,
+            query: ['friend' => $friendship->id, 'from' => 'challenge_finished'],
+        );
+
         $this->deliver($recipient, FriendDmKind::ChallengeFinished, $challenge->id, $side, fn () => $this->telegram->sendMessage(
             $recipient->telegram_user_id,
             __('friends.dm.'.$key, [
@@ -358,6 +388,7 @@ final class FriendsMessenger
                 'mine' => $isChallenger ? $challengerScore : $opponentScore,
                 'theirs' => $isChallenger ? $opponentScore : $challengerScore,
             ], $locale),
+            replyMarkup: $button === null ? null : $this->buttons->single($recipient->telegram_user_id, $button),
         ));
     }
 
@@ -421,6 +452,26 @@ final class FriendsMessenger
             // ThrottleTelegramOutbound for `retry_after` (docs/34 §4в п. 8).
             throw $e;
         }
+    }
+
+    /**
+     * "Open the challenge": the Friends screen scrolled to the card of this challenge.
+     *
+     * @return array{inline_keyboard: list<list<array<string, mixed>>>}
+     */
+    private function challengeKeyboard(int|string $chatId, int $challengeId, string $from, string $locale): array
+    {
+        return $this->buttons->single($chatId, $this->buttons->open(
+            __('buttons.open_challenge', [], $locale),
+            TwaScreen::Friends,
+            query: ['challenge' => $challengeId, 'from' => $from],
+        ));
+    }
+
+    /** @return array{inline_keyboard: list<list<array<string, mixed>>>} */
+    private function friendsKeyboard(int|string $chatId, string $locale): array
+    {
+        return $this->buttons->single($chatId, $this->buttons->open(__('buttons.friends', [], $locale), TwaScreen::Friends, query: ['from' => 'friends']));
     }
 
     /** @return array{inline_keyboard: list<list<array{text: string, callback_data: string}>>} */

@@ -1,6 +1,6 @@
 # Сообщения бота: «поделиться» с кнопкой, карточка достижения, кнопки, пробный Pro, название Muhrla
 
-Статус: **проект, код не написан** (25.11.2026). Автор — architect, по запросу владельца от 25.11.2026.
+Статус: **проект** (25.11.2026); темы 3 (N0–N6) и 4 (W0–W2, W4) — сделаны 25.11.2026, см. «Сделано» в §3 и §4. Автор — architect, по запросу владельца от 25.11.2026.
 Продукт в бета-режиме, боевых учеников нет. Документ встраивается в выпуски [docs/31](31_COMPETITION_PLAN_RU.md) §2 (см. §6) и опирается на [docs/34](34_TARIFF_AND_BOT_HYGIENE_RU.md): пробный Pro — `BILLING_TRIAL_DAYS` (станет 14), награда за друзей — `REFERRALS_MILESTONE_DAYS` (7 дней за 3-го и 6-го засчитанного друга), цепочка предложений после пробного периода — задачи P0–P8 docs/34; блокировки бота и 429 — задачи B0–B9 docs/34. Здесь их не повторяем.
 
 | № | Тема | Главное по коду | Что делаем |
@@ -324,13 +324,15 @@ public function keyboard(int|string $chatId, array $rows): array;         // rep
 
 | № | Задача | Кто | Зависит от | Definition of Done и ключевые тесты |
 |---|---|---|---|---|
-| N0 | Docs: docs/04 (правило одной кнопки, таблица §3а, `TwaScreen`), docs/05 (`/friends?challenge=`, `?friend=`), I18N_UZ_REVIEW (кнопки) | координатор | — | docs согласованы |
-| N1 | `TwaScreen`, `BotButton`, `BotButtons`, `lang/{ru,uz}/buttons.php` | coder | N0 | Unit: адреса с параметрами и `from`; web_app в личке, url `startapp` в группе; `callback_data` > 64 байт → исключение; без имени бота группа получает обычный адрес (как сейчас) |
-| N2 | **Вызовы и друзья**: кнопки в `notifyChallengeAccepted`, `acceptChallenge`, `notifyChallengeFinished` (won/draw/lost), `notifyFriendAccepted`, `acceptFriend` / `sendRequest` | coder | N1 | `FriendsMessengerTest`: у каждого вида — своя кнопка и адрес с id; маркер и 403 как сейчас |
-| N3 | Mini App: `FriendsView` — `?challenge=<id>` (прокрутка и подсветка карточки, чужой/неизвестный id — ничего), `?friend=<id>` (открыть выбор вызова, если вызов возможен) | coder | N0 | vitest: подсветка, неизвестный id, вызов уже открыт → показать его |
-| N4 | `MonthWinnerSender`, `ReferralMilestoneSender`, `PromoCommandHandler` (успех), `StartCommandHandler` (восстановление), `SuccessfulPaymentHandler` — кнопки из §3а | coder | N1 | Тест на каждого отправителя: кнопка и адрес; для `MonthWinnerSender` — вместе с A5, если A5 готов |
-| N5 | `ReminderSender`: текст кнопки по виду напоминания, `choose_course` → `/courses` | coder | N1 | `ReminderSenderTest` по трём видам |
-| N6 | Перевод остальных мест с ручного `config('twa.base_url')` на `BotButtons::twaUrl()` + тест-страж | coder | N1 | Страж зелёный; все тесты бота зелёные без правки ожиданий адресов |
+| N0 | Docs: docs/04 (правило одной кнопки, таблица §3а, `TwaScreen`), docs/05 (`/friends?challenge=`, `?friend=`), I18N_UZ_REVIEW (кнопки) **Сделано 25.11.2026 (coder).** | координатор | — | docs согласованы |
+| N1 | `TwaScreen`, `BotButton`, `BotButtons`, `lang/{ru,uz}/buttons.php` **Сделано 25.11.2026 (coder).** | coder | N0 | Unit: адреса с параметрами и `from`; web_app в личке, url `startapp` в группе; `callback_data` > 64 байт → исключение; без имени бота группа получает обычный адрес (как сейчас) |
+| N2 | **Вызовы и друзья**: кнопки в `notifyChallengeAccepted`, `acceptChallenge`, `notifyChallengeFinished` (won/draw/lost), `notifyFriendAccepted`, `acceptFriend` / `sendRequest` **Сделано 25.11.2026 (coder).** | coder | N1 | `FriendsMessengerTest`: у каждого вида — своя кнопка и адрес с id; маркер и 403 как сейчас |
+| N3 | Mini App: `FriendsView` — `?challenge=<id>` (прокрутка и подсветка карточки, чужой/неизвестный id — ничего), `?friend=<id>` (открыть выбор вызова, если вызов возможен) **Сделано 25.11.2026 (coder) в текущем дизайне `FriendsView`; при редизайне выпуска 1 — перенести.** | coder | N0 | vitest: подсветка, неизвестный id, вызов уже открыт → показать его |
+| N4 | `MonthWinnerSender`, `ReferralMilestoneSender`, `PromoCommandHandler` (успех), `StartCommandHandler` (восстановление), `SuccessfulPaymentHandler` — кнопки из §3а **Сделано 25.11.2026 (coder).** | coder | N1 | Тест на каждого отправителя: кнопка и адрес; для `MonthWinnerSender` — вместе с A5, если A5 готов |
+| N5 | `ReminderSender`: текст кнопки по виду напоминания, `choose_course` → `/courses` **Сделано 25.11.2026 (coder).** | coder | N1 | `ReminderSenderTest` по трём видам |
+| N6 | Перевод остальных мест с ручного `config('twa.base_url')` на `BotButtons::twaUrl()` + тест-страж **Сделано 25.11.2026 (coder).** | coder | N1 | Страж зелёный; все тесты бота зелёные без правки ожиданий адресов |
+
+**Сделано (coder, 25.11.2026).** `TwaScreen` (+ `Course`, `Training`, `Exam`, `GameClass` для групповых и онбординга), `BotButton`, `BotButtons` (`twaUrl`, `open`, `callback`, `url`, `keyboard`, `single`; `shareInline` — вместе с H5), `lang/{ru,uz}/buttons.php`; правило и перечень — docs/04 B.4b; `/friends?challenge=` / `?friend=` — docs/05 §3. Отправители, которые уже слали одну кнопку через `sendWebAppButton` (напоминания, оплата, лига, продление, групповые), так и шлют — адрес теперь из `twaUrl()`; новые кнопки — `sendMessage` + `BotButtons::single()`. Отличия от таблицы §3а: у итогов лиги `from=league_result` **не** добавлен (DoD N6 — «без правки ожиданий адресов»); `bot.account.restored` ведёт на `/?from=restored`; итог вызова без дружбы — без кнопки; `billing.stars.open_button` удалён (не используется). Тесты: `BotButtonsTest`, `TwaBaseUrlGuardTest`, `FriendsMessengerTest`, `ReminderSenderTest`, кнопки в `MonthWinnerMessageTest`, `ReferralMilestoneMessageTest`, `PromoCommandTest`, `AccountRestoreNoticeTest`, `StarsPaymentFlowTest`; vitest `FriendsView.spec.ts` («the address of a button of the bot»).
 
 ### 3г. Вопросы владельцу
 
@@ -392,11 +394,13 @@ Pro nima beradi:
 
 | № | Задача | Кто | Зависит от | Definition of Done и ключевые тесты |
 |---|---|---|---|---|
-| W0 | Docs: docs/13 §7.1 «2C.9» (новый текст, плюсы, кнопка, лист в Mini App) | координатор | docs/34 T1 | docs согласованы |
-| W1 | `ProPromises::top()` — короткий список плюсов для бота, общий с docs/34 P5 | coder | W0 | Unit: скрытая фича не попадает; ru/uz; порядок стабилен |
-| W2 | `TrialWelcomeMessenger`: новый текст с плюсами, `withButton` на пути `/start` | coder | W1, N1 | `TrialWelcomeBotTest`: 14 дней из конфига, дата в поясе ученика, 4 пункта, в онбординге без кнопки и перед финалом, на `/start` с кнопкой; второй `/start` — тишина; устаревшая метка — тишина |
+| W0 | Docs: docs/13 §7.1 «2C.9» (новый текст, плюсы, кнопка, лист в Mini App) **Сделано 25.11.2026 (coder).** | координатор | docs/34 T1 | docs согласованы |
+| W1 | `ProPromises::top()` — короткий список плюсов для бота, общий с docs/34 P5 **Сделано 25.11.2026 (coder).** | coder | W0 | Unit: скрытая фича не попадает; ru/uz; порядок стабилен |
+| W2 | `TrialWelcomeMessenger`: новый текст с плюсами, `withButton` на пути `/start` **Сделано 25.11.2026 (coder).** | coder | W1, N1 | `TrialWelcomeBotTest`: 14 дней из конфига, дата в поясе ученика, 4 пункта, в онбординге без кнопки и перед финалом, на `/start` с кнопкой; второй `/start` — тишина; устаревшая метка — тишина |
 | W3 | Mini App: разовый лист пробного Pro (`localStorage` по `ends_at`) | coder | выпуск 1 (макет), W1 | vitest: показ один раз на `ends_at`; не показывается платному Pro и Pro от центра |
-| W4 | `ReferralMilestoneSender`: кнопка «Пригласить ещё» (входит в N4) | coder | N1 | Тест кнопки |
+| W4 | `ReferralMilestoneSender`: кнопка «Пригласить ещё» (входит в N4) **Сделано 25.11.2026 (coder).** | coder | N1 | Тест кнопки |
+
+**Сделано (coder, 25.11.2026).** `ProPromises::top(n, locale, ?practiceOpen, ?gameOpen)` — строки `billing.pro_promises.*`, порядок: новые слова, практика (и баттлы), свои колоды, заморозка серии, «Караван», упражнения, пробные тесты; практика и игра — только если открыты читающему (без читающего — публичное чтение: `practice.access = all`, `game.access = all`). `TrialWelcomeMessenger::announce(…, withButton)` берёт открытость у `PracticeAccess` / `GameAccess` ученика. Тексты — §4б; W0 — docs/13 §7.1 «2C.9». W3 — выпуск 1.
 
 ### 4г. Вопросы владельцу
 

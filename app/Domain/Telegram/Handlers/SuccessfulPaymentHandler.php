@@ -11,6 +11,8 @@ use App\Domain\Billing\Services\PaymentApplier;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Services\BotButtons;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\Learner;
 use App\Models\Payment;
 use App\Models\Subscription;
@@ -43,6 +45,7 @@ final class SuccessfulPaymentHandler implements UpdateHandler
         private readonly TelegramStarsProvider $stars,
         private readonly PaymentApplier $applier,
         private readonly LocaleResolver $locales,
+        private readonly BotButtons $buttons,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -145,8 +148,8 @@ final class SuccessfulPaymentHandler implements UpdateHandler
         $this->telegram->sendWebAppButton(
             chatId: $chatId,
             text: $text,
-            buttonText: __('billing.stars.open_button', [], $locale),
-            url: rtrim((string) config('twa.base_url'), '/').'/twa/?from=payment',
+            buttonText: __('buttons.start_lesson', [], $locale),
+            url: $this->buttons->twaUrl(TwaScreen::Today, query: ['from' => 'paid']),
         );
     }
 

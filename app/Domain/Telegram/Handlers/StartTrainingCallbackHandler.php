@@ -11,9 +11,11 @@ use App\Domain\Learning\Services\TrainingSessionService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
+use App\Domain\Telegram\Services\BotButtons;
 use App\Domain\Telegram\Services\BotSupportContact;
 use App\Domain\Telegram\Services\GroupSessionAnnouncer;
 use App\Domain\Telegram\Support\CallbackAcknowledger;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\TelegramGroup;
 use App\Models\TrainingSession;
 use App\Models\User;
@@ -34,6 +36,7 @@ final class StartTrainingCallbackHandler implements GroupUpdateHandler
         private readonly GroupSessionAnnouncer $announcer,
         private readonly CallbackAcknowledger $acknowledger,
         private readonly BotSupportContact $support,
+        private readonly BotButtons $buttons,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -143,13 +146,12 @@ final class StartTrainingCallbackHandler implements GroupUpdateHandler
 
     private function postWebAppButton(int $chatId, TrainingSession $session, int $stage, int $lesson, string $locale): void
     {
-        $base = rtrim((string) config('twa.base_url'), '/');
 
         $this->announcer->announce(
             chatId: $chatId,
             text: __('training.started', ['stage' => $stage, 'lesson' => $lesson], $locale),
             buttonText: __('training.open_button', [], $locale),
-            url: "{$base}/twa/training/{$session->id}",
+            url: $this->buttons->twaUrl(TwaScreen::Training, ['id' => $session->id]),
             failureText: __('errors.training.not_delivered', [], $locale),
             // A reused session was already announced earlier: only a freshly created one is withdrawn.
             cancel: function () use ($session): void {

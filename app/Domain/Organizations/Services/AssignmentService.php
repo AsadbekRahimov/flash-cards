@@ -16,8 +16,10 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\BotButtons;
 use App\Domain\Telegram\Services\GroupBotRemoval;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Jobs\AnnounceAssignmentJob;
 use App\Models\Assignment;
 use App\Models\AssignmentResult;
@@ -57,8 +59,6 @@ use Throwable;
  */
 final class AssignmentService
 {
-    public const TWA_PATH = '/twa/?from=assignment&lesson=';
-
     private const CHUNK = 500;
 
     /** True once a post found no global Telegram slot in this run: the rest waits for the next `assignments:refresh`. */
@@ -71,6 +71,7 @@ final class AssignmentService
         private readonly TelegramMessageRateLimiter $outbound,
         private readonly CourseCatalogService $catalog,
         private readonly GroupBotRemoval $groups,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -815,7 +816,7 @@ final class AssignmentService
                 chatId: $fresh->group->chat_id,
                 text: $text,
                 buttonText: __('assignments.open_button', [], $locale),
-                url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH.$fresh->lesson_id,
+                url: $this->buttons->twaUrl(TwaScreen::Today, query: ['from' => 'assignment', 'lesson' => $fresh->lesson_id]),
             );
         } catch (TelegramRateLimitedException $e) {
             // Flood control (docs/34 §4в п. 2): certainly not delivered, and not the chat's fault - the claim goes WITHOUT a failure,

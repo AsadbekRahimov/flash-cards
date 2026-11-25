@@ -16,6 +16,7 @@ use App\Domain\Organizations\Services\LearnerOrganizationsService;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\Course;
 use App\Models\Learner;
 
@@ -46,6 +47,7 @@ final class OnboardingMessenger
         private readonly LearnerOrganizationsService $organizations,
         private readonly OrganizationMembershipService $memberships,
         private readonly FriendshipService $friendships,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -73,7 +75,7 @@ final class OnboardingMessenger
                     ? __('onboarding.done.text_plain', [], $locale)
                     : __('onboarding.done.text', ['course' => $this->courseTitle($course, $locale)], $locale),
                 buttonText: __('onboarding.done.button', [], $locale),
-                url: rtrim((string) config('twa.base_url'), '/').'/twa/?from=onboarding',
+                url: $this->buttons->twaUrl(TwaScreen::Today, query: ['from' => 'onboarding']),
             );
 
             return;
@@ -150,7 +152,7 @@ final class OnboardingMessenger
             chatId: $chatId,
             text: __('onboarding.course_link.text', ['course' => $this->courseTitle($course, $locale)], $locale),
             buttonText: __('onboarding.course_link.button', [], $locale),
-            url: rtrim((string) config('twa.base_url'), '/').'/twa/courses/'.rawurlencode($course->slug),
+            url: $this->buttons->twaUrl(TwaScreen::Course, ['slug' => $course->slug]),
         );
     }
 

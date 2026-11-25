@@ -18,6 +18,18 @@
 
 **На сервере (владелец):** `MAIL_FROM_NAME` → Muhrla, если задан через `APP_NAME`; пересоздать nginx; `telegram:setup-bot`; имя и описания у BotFather.
 
+## План соревнований (docs/31), выпуск B — бот: надёжность и кнопки ✅ код, ревью идёт (2026-11-25)
+
+Проекты — `docs/34` §4, `docs/33` §4.6, `docs/36` §3–4.
+
+- **429 от Telegram:** `TelegramRateLimitedException` с `retry_after`, общая пауза и пауза чата в `TelegramMessageRateLimiter`, `ThrottleTelegramOutbound` откладывает задание без расхода `maxExceptions`; ответы на обновления учитываются в счётчике секунды (`CountTelegramReplies`). Все отправители при определённом отказе удаляют маркер и повторяют.
+- **Недоступный ученик:** `learners.dm_blocked_reason`, единственный писатель — `DmReachability`, события `bot.dm_closed` / `bot.dm_reopened`, тест-страж. `/admin`: плитка «Заблокировали бота», колонка и фильтр в учениках.
+- **Группы:** переход в супергруппу (`GroupChatMigrator`, `ChatMigrationHandler`), 403 → `disabled` без `failed_jobs` (`GroupBotRemoval`), `telegram_groups.bot_status`, `getChatMember()` / `sendGroupMessage()`.
+- **Кнопки:** `TwaScreen`, `BotButton`, `BotButtons`, `lang/*/buttons.php`; главная кнопка у сообщений о вызовах, друзьях, победителе месяца, вехе реферала, промокоде, оплате, восстановлении, напоминаниях; Mini App `FriendsView` — `?challenge=` и `?friend=`; тест-страж на ручную сборку адреса.
+- **Приветствие пробного Pro:** срок из конфига, дата окончания в поясе ученика, 4 плюса (`ProPromises::top()`), кнопка на пути `/start`.
+- Проверки: pint, phpstan чисто; pest 8549 passed, 2 failed (`ProductionImageConfigTest` — окружение; `OrgAssignmentResourceTest` — нестабильный, отдельно зелёный); vitest 4808; тесты бота на PostgreSQL + Redis — 118/118.
+- **На сервере:** `php artisan migrate --force`. Не проверено на живом боте (B9).
+
 ## Озвучка примеров (выпуск 2) ✅ код (2026-11-23)
 
 **Запрос владельца:** второй выпуск озвучки — примеры к словам (`docs/26_AUDIO_TTS_PLAN_RU.md` §5.7, решения — §9.11).

@@ -56,6 +56,8 @@ final class SitePageCache
         'practice.free_limits',
         // ProPromises::game() reads it for the Mini App; the pages do not draw it, but the file is one of PHP_SOURCES and the scan wants every key listed.
         'game.free_limits',
+        // ProPromises::top() reads it for the bot (the public reading of the game, docs/36 §4б); the pages do not draw it either.
+        'game.access',
         'localization.supported',
         'localization.default',
         'localization.fallback',

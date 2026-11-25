@@ -10,7 +10,9 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\BotButtons;
 use App\Domain\Telegram\Services\DmReachability;
+use App\Domain\Telegram\Support\TwaScreen;
 use App\Listeners\Engagement\SendMonthWinnerMessages;
 use App\Models\LeagueMonth;
 use App\Models\Learner;
@@ -30,6 +32,8 @@ use Illuminate\Support\Facades\Log;
  * refusal by the Bot API deletes it too, so a retry may deliver. Nothing is sent to a deleted or blocked learner or one whose
  * DM is closed. A failure of one winner does not stop the others: it is rethrown after the last one (the retry skips
  * those already messaged). A 429 is the exception: it stops the loop at once - the others would get it too.
+ *
+ * One button (docs/36 §3а, N4): "🏆 Rating of the month" -> `/league/month?from=month_won`.
  */
 final class MonthWinnerSender
 {
@@ -40,6 +44,7 @@ final class MonthWinnerSender
         private readonly LocaleResolver $locales,
         private readonly MonthlyRatingService $rating,
         private readonly DmReachability $reachability,
+        private readonly BotButtons $buttons,
     ) {}
 
     /**
@@ -97,7 +102,13 @@ final class MonthWinnerSender
                 return 'skipped';
             }
 
+            $locale = $this->locales->forLearner($learner);
             $text = $this->text($learner, $month, $place, $points);
+            $keyboard = $this->buttons->single($learner->telegram_user_id, $this->buttons->open(
+                __('buttons.month_rating', [], $locale),
+                TwaScreen::LeagueMonth,
+                query: ['from' => 'month_won'],
+            ));
 
             $log = NotificationLog::query()->create([
                 'learner_id' => $learner->id,
@@ -107,7 +118,7 @@ final class MonthWinnerSender
             ]);
 
             try {
-                $this->telegram->sendMessage($learner->telegram_user_id, $text);
+                $this->telegram->sendMessage($learner->telegram_user_id, $text, replyMarkup: $keyboard);
             } catch (TelegramForbiddenException $e) {
                 $log->delete();
                 $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);

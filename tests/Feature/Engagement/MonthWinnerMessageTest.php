@@ -175,3 +175,17 @@ it('is picked up by the event system without a manual registration', function ()
     Event::fake();
     Event::assertListening(LeagueMonthConfirmed::class, SendMonthWinnerMessages::class);
 });
+
+it('puts one button under the congratulation: the rating of the month (docs/36 §3а, N4)', function (): void {
+    config(['twa.base_url' => 'https://twa.test']);
+    $month = mwMonth();
+    $ru = mwWinner();
+    $uz = mwWinner(['interface_locale' => 'uz']);
+
+    mwRaise($month, [['learner_id' => $ru->id, 'place' => 1, 'points' => 10], ['learner_id' => $uz->id, 'place' => 2, 'points' => 5]]);
+
+    expect($this->tg->sent[0]['markup'])->toBe(['inline_keyboard' => [[
+        ['text' => '🏆 Рейтинг месяца', 'web_app' => ['url' => 'https://twa.test/twa/league/month?from=month_won']],
+    ]]])
+        ->and($this->tg->sent[1]['markup']['inline_keyboard'][0][0]['text'])->toBe('🏆 Oy reytingi');
+});

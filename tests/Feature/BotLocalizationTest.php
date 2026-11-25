@@ -348,16 +348,16 @@ it('sends the reminder in the learner interface language with correct number for
         ->and($this->api->log[0]['text'])->toBe($expected)
         ->and($this->api->log[0]['button'])->toBe($button);
 })->with([
-    'ru 1' => ['ru', 1, "Пора повторить 1 слово в Muhrla.\n\nИзменить время или отключить: /settings", 'Открыть Muhrla'],
-    'ru 2' => ['ru', 2, "Пора повторить 2 слова в Muhrla.\n\nИзменить время или отключить: /settings", 'Открыть Muhrla'],
-    'ru 5' => ['ru', 5, "Пора повторить 5 слов в Muhrla.\n\nИзменить время или отключить: /settings", 'Открыть Muhrla'],
-    'ru 11' => ['ru', 11, "Пора повторить 11 слов в Muhrla.\n\nИзменить время или отключить: /settings", 'Открыть Muhrla'],
-    'ru 21' => ['ru', 21, "Пора повторить 21 слово в Muhrla.\n\nИзменить время или отключить: /settings", 'Открыть Muhrla'],
-    'ru 22' => ['ru', 22, "Пора повторить 22 слова в Muhrla.\n\nИзменить время или отключить: /settings", 'Открыть Muhrla'],
-    'ru 25' => ['ru', 25, "Пора повторить 25 слов в Muhrla.\n\nИзменить время или отключить: /settings", 'Открыть Muhrla'],
-    'uz 5' => ['uz', 5, "Muhrla'da 5 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.", "Muhrla'ni ochish"],
-    'uz 21' => ['uz', 21, "Muhrla'da 21 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.", "Muhrla'ni ochish"],
-    'unsupported locale -> default' => ['en', 2, "Пора повторить 2 слова в Muhrla.\n\nИзменить время или отключить: /settings", 'Открыть Muhrla'],
+    'ru 1' => ['ru', 1, "Пора повторить 1 слово в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 2' => ['ru', 2, "Пора повторить 2 слова в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 5' => ['ru', 5, "Пора повторить 5 слов в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 11' => ['ru', 11, "Пора повторить 11 слов в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 21' => ['ru', 21, "Пора повторить 21 слово в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 22' => ['ru', 22, "Пора повторить 22 слова в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'ru 25' => ['ru', 25, "Пора повторить 25 слов в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
+    'uz 5' => ['uz', 5, "Muhrla'da 5 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.", "▶️ Mashg'ulotni boshlash"],
+    'uz 21' => ['uz', 21, "Muhrla'da 21 ta so'zni takrorlash vaqti keldi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.", "▶️ Mashg'ulotni boshlash"],
+    'unsupported locale -> default' => ['en', 2, "Пора повторить 2 слова в Muhrla.\n\nИзменить время или отключить: /settings", '▶️ Начать занятие'],
 ]);
 
 it('falls back to the Telegram language when the stored interface locale is unsupported', function (): void {
