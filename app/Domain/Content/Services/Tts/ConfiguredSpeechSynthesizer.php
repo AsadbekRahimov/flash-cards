@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Log;
  */
 final class ConfiguredSpeechSynthesizer implements SpeechSynthesizer
 {
+    public const DEEPGRAM = 'deepgram';
+
     public const GOOGLE = 'google';
 
     public const HTTP = 'http';
@@ -29,11 +31,11 @@ final class ConfiguredSpeechSynthesizer implements SpeechSynthesizer
     public const NONE = 'null';
 
     /** @var list<string> */
-    public const KNOWN = [self::GOOGLE, self::HTTP, self::NONE];
+    public const KNOWN = [self::DEEPGRAM, self::GOOGLE, self::HTTP, self::NONE];
 
     public function __construct(private readonly Container $app) {}
 
-    /** The driver in effect: `google`, `http`, `null` - or the unknown value as it was written, lower-cased and trimmed. */
+    /** The driver in effect: `deepgram`, `google`, `http`, `null` - or the unknown value as it was written, lower-cased and trimmed. */
     public static function driver(): string
     {
         $driver = strtolower(trim((string) config('twa.tts.driver')));
@@ -44,7 +46,7 @@ final class ConfiguredSpeechSynthesizer implements SpeechSynthesizer
         return $driver;
     }
 
-    /** False for a `TTS_DRIVER` that is none of google, http or null (a typo). */
+    /** False for a `TTS_DRIVER` that is none of deepgram, google, http or null (a typo). */
     public static function known(): bool
     {
         return in_array(self::driver(), self::KNOWN, true);
@@ -58,11 +60,43 @@ final class ConfiguredSpeechSynthesizer implements SpeechSynthesizer
     public function resolve(): SpeechSynthesizer
     {
         return match (self::driver()) {
+            self::DEEPGRAM => $this->app->make(DeepgramSpeechSynthesizer::class),
             self::GOOGLE => $this->app->make(GoogleSpeechSynthesizer::class),
             self::HTTP => $this->app->make(HttpSpeechSynthesizer::class),
             self::NONE => $this->app->make(NullSpeechSynthesizer::class),
             default => throw $this->unknownDriver(),
         };
+    }
+
+    /**
+     * The longest text the driver in effect takes in one request, in characters: `DEEPGRAM_TTS_MAX_CHARS` for `deepgram`, else
+     * the 5 000 of Google (in bytes there, and a character is at least one byte). An example over it is never queued.
+     */
+    public static function maxTextChars(): int
+    {
+        return self::driver() === self::DEEPGRAM ? DeepgramSpeechSynthesizer::maxChars() : GoogleSpeechSynthesizer::MAX_TEXT_BYTES;
+    }
+
+    /**
+     * The code of the halt marker of the driver in effect (`google` or `deepgram`): the service refused the key or the payment a
+     * short while ago and every synthesis fails at once. Null for another driver or without a marker.
+     */
+    public static function haltCode(): ?string
+    {
+        return match (self::driver()) {
+            self::GOOGLE => GoogleSpeechSynthesizer::haltCode(),
+            self::DEEPGRAM => DeepgramSpeechSynthesizer::haltCode(),
+            default => null,
+        };
+    }
+
+    /**
+     * Something the driver needs is missing that no call can fix: an unknown driver, or `deepgram` without `DEEPGRAM_API_KEY`.
+     * `/health/ready` reports `tts: degraded` then. (The key file of `google` is checked by the reconciliation, not here.)
+     */
+    public static function misconfigured(): bool
+    {
+        return ! self::known() || (self::driver() === self::DEEPGRAM && ! DeepgramSpeechSynthesizer::hasKey());
     }
 
     public function synthesize(string $text, string $voice): array

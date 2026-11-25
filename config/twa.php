@@ -43,8 +43,9 @@ return [
 
     'tts' => [
         /**
-         * The speech synthesizer (docs/26 §5.1, bound in AppServiceProvider): `google` - Google Cloud Text-to-Speech
-         * (`google` below); `http` - the edge-tts compatible service of `service_url`; `null` - nothing configured, the
+         * The speech synthesizer (docs/26 §5.1, §10, bound in AppServiceProvider): `deepgram` - Deepgram Aura-2 (`deepgram` below,
+         * the main one); `google` - Google Cloud Text-to-Speech (`google` below, the alternative); `http` - the edge-tts compatible
+         * service of `service_url`; `null` - nothing configured, the
          * audio jobs fail with `tts_service_not_configured`. Unset: `http` when `service_url` is set, else `null` (decided
          * when the synthesizer is resolved, so installations without TTS_DRIVER keep working as before).
          */
@@ -60,6 +61,22 @@ return [
         'google' => [
             'credentials' => (string) env('GOOGLE_TTS_CREDENTIALS', ''),
             'timeout' => (int) env('GOOGLE_TTS_TIMEOUT', 20),
+        ],
+
+        /**
+         * The `deepgram` driver (docs/26 §10): `api_key` - the API key of Deepgram (empty: `tts_service_not_configured`);
+         * `timeout` - seconds for the answer (the connect timeout is a constant of 5 s); `bit_rate` - of the mp3, 32000 or 48000
+         * (a change changes the audio: bump TTS_AUDIO_VERSION); `max_chars` - the longest text of one request (Deepgram: 2000);
+         * `rate_per_minute` - its own pace across all workers (a job waits, up to 30 s); `char_limit` - the characters it may
+         * send IN ALL, not per month: the one-off credit of Deepgram (6 000 000 ≈ $180 at $0.03 per 1000; `0` forbids synthesis).
+         */
+        'deepgram' => [
+            'api_key' => (string) env('DEEPGRAM_API_KEY', ''),
+            'timeout' => (int) env('DEEPGRAM_TTS_TIMEOUT', 20),
+            'bit_rate' => (int) env('DEEPGRAM_TTS_BIT_RATE', 48000),
+            'max_chars' => (int) env('DEEPGRAM_TTS_MAX_CHARS', 2000),
+            'rate_per_minute' => (int) env('DEEPGRAM_TTS_RATE_PER_MINUTE', 150),
+            'char_limit' => (int) env('DEEPGRAM_TTS_CHAR_LIMIT', 6000000),
         ],
 
         /**
@@ -79,8 +96,11 @@ return [
          * Pre-generated word audio (docs/12 task 1.2c): `audio/{sha1(text|voice|version)}.mp3`
          * on the `public` disk. Bump `audio_version` to re-voice the whole library
          * (new hash -> new files; `php artisan audio:pregenerate <course>`).
+         * Unset or empty TTS_VOICE: `aura-2-thalia-en` with TTS_DRIVER=deepgram (docs/26 §10), else `en-US-AriaNeural` (edge-tts).
          */
-        'voice' => env('TTS_VOICE', 'en-US-AriaNeural'),
+        'voice' => trim((string) env('TTS_VOICE', '')) !== ''
+            ? trim((string) env('TTS_VOICE'))
+            : (strtolower(trim((string) env('TTS_DRIVER', ''))) === 'deepgram' ? 'aura-2-thalia-en' : 'en-US-AriaNeural'),
         'audio_version' => (int) env('TTS_AUDIO_VERSION', 1),
         /**
          * The disk of the word audio (docs/26 §5.4): `public` - this server, `/audio/` (the default: local and the tests);

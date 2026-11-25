@@ -6,6 +6,7 @@ namespace App\Filament\Widgets;
 
 use App\Domain\Administration\Services\AttentionList;
 use App\Domain\Content\Services\CourseAudioCoverageStats;
+use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
 use App\Filament\Resources\CourseResource;
 use App\Filament\Resources\OrganizationResource;
 use App\Filament\Resources\PaymentOrderResource;
@@ -72,20 +73,21 @@ class AttentionWidget extends DashboardBlockWidget
                 trans_choice('admin.dashboard.words', $item['count'], ['count' => $item['count']]),
                 CourseResource::getUrl('edit', ['record' => $item['id']]),
             ],
+            // The texts of Deepgram (docs/26 §10) are their own keys: its limit is the whole credit, not a month.
             AttentionList::KIND_TTS_BUDGET, AttentionList::KIND_TTS_EXHAUSTED => [
-                $t('tts.title'), false,
-                $t($item['kind'] === AttentionList::KIND_TTS_EXHAUSTED ? 'tts.exhausted' : 'tts.near', [
+                $t(self::ttsGroup($item['state'], 'tts').'.title'), false,
+                $t(self::ttsGroup($item['state'], 'tts').($item['kind'] === AttentionList::KIND_TTS_EXHAUSTED ? '.exhausted' : '.near'), [
                     'percent' => AdminNumbers::decimal((float) $item['value'], 1, trimZeros: true),
                     'used' => AdminNumbers::decimal($item['count'], 0),
                     'limit' => AdminNumbers::decimal((int) $item['total'], 0),
                 ]),
-                $t('tts.value', ['month' => (string) $item['name']]),
+                $t(self::ttsGroup($item['state'], 'tts').'.value', ['month' => (string) $item['name']]),
                 null,
             ],
             AttentionList::KIND_TTS_HALTED => [
-                $t('tts_halted.title'), false,
-                $t('tts_halted.detail', ['code' => (string) $item['state']]),
-                $t('tts_halted.value'),
+                $t(self::ttsGroup($item['name'], 'tts_halted').'.title'), false,
+                $t(self::ttsGroup($item['name'], 'tts_halted').'.detail', ['code' => (string) $item['state']]),
+                $t(self::ttsGroup($item['name'], 'tts_halted').'.value'),
                 null,
             ],
             AttentionList::KIND_TTS_QUEUE => [
@@ -114,5 +116,11 @@ class AttentionWidget extends DashboardBlockWidget
         };
 
         return ['level' => $item['level'], 'title' => $title, 'mono' => $mono, 'detail' => $detail, 'value' => $value, 'url' => $url];
+    }
+
+    /** The group of texts of a TTS line: `{group}_deepgram` for the `deepgram` driver, else the one of Google. */
+    private static function ttsGroup(?string $driver, string $group): string
+    {
+        return $driver === ConfiguredSpeechSynthesizer::DEEPGRAM ? $group.'_deepgram' : $group;
     }
 }

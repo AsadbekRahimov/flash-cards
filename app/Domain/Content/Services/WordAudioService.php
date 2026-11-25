@@ -69,14 +69,17 @@ final class WordAudioService
     /**
      * An example as it is sent to the synthesizer (docs/26 §9.11): the blanks collapsed and trimmed - nothing else. The case and
      * the punctuation stay: they are the intonation of a sentence. Null when there is nothing to say, or the sentence is longer
-     * than one request of Google takes ({@see GoogleSpeechSynthesizer::MAX_TEXT_BYTES}): such an example is never queued (it would
-     * fail as `tts_request_rejected` every night) and counts as "nothing to voice".
+     * than one request of Google takes ({@see GoogleSpeechSynthesizer::MAX_TEXT_BYTES}) or, with `deepgram`, longer than
+     * {@see ConfiguredSpeechSynthesizer::maxTextChars()} characters: such an example is never queued (it would fail as
+     * `tts_request_rejected` / `tts_text_too_long` every night) and counts as "nothing to voice".
      */
     public function exampleText(?string $example): ?string
     {
         $text = trim((string) preg_replace('/\s+/u', ' ', (string) $example));
 
-        return $text === '' || strlen($text) > GoogleSpeechSynthesizer::MAX_TEXT_BYTES ? null : $text;
+        return $text === '' || strlen($text) > GoogleSpeechSynthesizer::MAX_TEXT_BYTES || mb_strlen($text) > ConfiguredSpeechSynthesizer::maxTextChars()
+            ? null
+            : $text;
     }
 
     /** Relative path of the audio of an example sentence ({@see exampleText()}); null when there is nothing to voice. */
@@ -102,7 +105,7 @@ final class WordAudioService
     public function enabled(): bool
     {
         if ($this->tts instanceof ConfiguredSpeechSynthesizer) {
-            return in_array(ConfiguredSpeechSynthesizer::driver(), [ConfiguredSpeechSynthesizer::GOOGLE, ConfiguredSpeechSynthesizer::HTTP], true);
+            return in_array(ConfiguredSpeechSynthesizer::driver(), [ConfiguredSpeechSynthesizer::DEEPGRAM, ConfiguredSpeechSynthesizer::GOOGLE, ConfiguredSpeechSynthesizer::HTTP], true);
         }
 
         return ! $this->tts instanceof NullSpeechSynthesizer;

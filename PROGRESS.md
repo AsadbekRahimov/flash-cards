@@ -18,6 +18,17 @@
 
 **На сервере (владелец):** `MAIL_FROM_NAME` → Muhrla, если задан через `APP_NAME`; пересоздать nginx; `telegram:setup-bot`; имя и описания у BotFather.
 
+## План соревнований (docs/31), выпуск C — после пробного Pro ✅ код (2026-11-25)
+
+Проект — `docs/34` §2 (реализация — §2б.5, §2д, §2д.1), Mini App — `docs/05` §8c-1.
+
+- **Цель дня у Free ≤ 10:** `billing.plans.free.limits.daily_goal_max`, `DailyGoalLimiter` (ленивое снижение на `/today`, `/me`, старте раунда; ночная `learners:enforce-goal-limits`), `learners.daily_goal_before_limit` — возврат прежней цели при покупке, 403 `daily_goal_pro_required`. Mini App: замки на 20 и 40, пейвол `daily_goal`, разовый пейвол `trial_ended`.
+- **Покупка с первого дня пробного:** окно `subscribe_too_early` только поверх оплаченного периода; остаток бесплатного периода переносится (`meta.stars.grant_carry_seconds`) и сохраняется при продлениях.
+- **Цепочка предложений:** `TrialOfferSender`, `SendTrialOfferJob`, `billing:trial-offers` (раз в час), шаги −3 (в напоминании о продлении), 0, +3, +10; окно 11–19 по поясу ученика, одно сообщение о Pro в сутки, кнопка «Не присылать предложения»; события `trial_offer.sent` / `trial_offer.opted_out`, блок в воронке биллинга.
+- **По ревью A и B:** 429 из группы ставит паузу только этой группе; число дней в приветствии Pro — из самого периода; `OrgAssignmentResourceTest` без случайных слов; `telegram_group_id` в логах объявлений.
+- Проверки: pint, phpstan чисто; pest 8696 passed, 1 failed (`ProductionImageConfigTest`, окружение); PG + Redis — затронутые файлы 200/200, гонки 37/37; vitest 4818.
+- **На сервере:** `php artisan migrate --force`; цены в сообщениях — только при `BILLING_PAYWALL_MODE=purchase` и включённом провайдере.
+
 ## План соревнований (docs/31), выпуск B — бот: надёжность и кнопки ✅ код, ревью идёт (2026-11-25)
 
 Проекты — `docs/34` §4, `docs/33` §4.6, `docs/36` §3–4.

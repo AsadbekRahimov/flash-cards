@@ -442,9 +442,11 @@ final class BillingFunnelService
     /** @param  array<array-key, mixed>  $report */
     private static function isReport(array $report): bool
     {
-        return isset($report['generated_at'], $report['days'], $report['funnel'], $report['outside'], $report['placements'], $report['orders'], $report['trial_offers'])
+        // `trial_offers` (v3) may be absent: it reads as "no offers", the rest of the report stands.
+        return isset($report['generated_at'], $report['days'], $report['funnel'], $report['outside'], $report['placements'], $report['orders'])
             && is_string($report['generated_at']) && is_array($report['funnel']) && is_array($report['outside'])
-            && is_array($report['placements']) && is_array($report['orders']) && is_array($report['trial_offers']);
+            && is_array($report['placements']) && is_array($report['orders'])
+            && (! isset($report['trial_offers']) || is_array($report['trial_offers']));
     }
 
     /**

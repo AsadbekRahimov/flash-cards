@@ -4401,6 +4401,7 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `billing.trial_offer.benefits` | Pro nima beradi: … | Что даёт Pro: … |
 | `billing.trial_offer.from_month` | Muhrla Pro narxi — oyiga :price. | Muhrla Pro — от :price в месяц. |
 | `billing.trial_offer.savings` | Uzoq muddatga foydaliroq: :items. | Выгоднее на срок: :items. |
+| `billing.trial_offer.saving_item` | :period −:pct % | :period −:pct % |
 | `billing.trial_offer.opted_out` | Yaxshi, Pro takliflari endi kelmaydi. To'lov xabarlari va mashg'ulot eslatmalari qoladi. | Хорошо, предложений Pro больше не будет. Сообщения об оплате и напоминания о занятиях останутся. |
 | `buttons.invite` | 👥 Do'stlarni taklif qilish | 👥 Пригласить друзей |
 | `buttons.offers_off` | 🔕 Takliflar kerak emas | 🔕 Не присылать предложения |

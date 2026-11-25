@@ -16,7 +16,10 @@ use Throwable;
  */
 final class SpeechSynthesisException extends RuntimeException
 {
-    /** No synthesizer is configured (`TTS_DRIVER=null`, the `http` driver without `TTS_SERVICE_URL`, `google` without a key path): nothing to retry. */
+    /**
+     * No synthesizer is configured (`TTS_DRIVER=null`, the `http` driver without `TTS_SERVICE_URL`, `google` without a key path,
+     * `deepgram` without `DEEPGRAM_API_KEY`): nothing to retry.
+     */
     public const NOT_CONFIGURED = 'tts_service_not_configured';
 
     /** The service failed (5xx) or could not be reached: the queue retries with the backoff of the job. */
@@ -32,15 +35,16 @@ final class SpeechSynthesisException extends RuntimeException
     public const REJECTED = 'tts_request_rejected';
 
     /**
-     * The voice is not one of Google's (`TTS_VOICE=en-US-AriaNeural` of edge-tts with `TTS_DRIVER=google`): every word would be a
-     * 400. Final, refused before Google is called and before the characters are reserved (docs/26 §9.2).
+     * The voice is not one of the driver (`TTS_VOICE=en-US-AriaNeural` of edge-tts with `TTS_DRIVER=google`, a voice of Google with
+     * `TTS_DRIVER=deepgram`): every word would be a 400. Final, refused before the service is called and before the characters are
+     * reserved (docs/26 §9.2).
      */
     public const VOICE_UNSUPPORTED = 'tts_voice_unsupported';
 
-    /** 401 even with a freshly signed token: final, and the driver halts for a while (docs/26 §9.1). */
+    /** 401 even with a freshly signed token (`deepgram`: 401 - a wrong or deleted key): final, and the driver halts for a while (docs/26 §9.1). */
     public const AUTH_FAILED = 'tts_auth_failed';
 
-    /** 403 (API disabled, no permission, billing): final, and the driver halts for a while. */
+    /** 403 (API disabled, no permission, billing; `deepgram`: the key may not synthesize): final, and the driver halts for a while. */
     public const FORBIDDEN = 'tts_forbidden';
 
     /** The key file of the service account is missing, unreadable or not a service-account RSA key: final. */
@@ -48,6 +52,18 @@ final class SpeechSynthesisException extends RuntimeException
 
     /** The character budget of the month is spent (docs/26 §9.3): final for this month. */
     public const MONTHLY_LIMIT_REACHED = 'tts_monthly_limit_reached';
+
+    /**
+     * The `deepgram` driver: the characters of `DEEPGRAM_TTS_CHAR_LIMIT` are spent - a limit on the whole one-off credit, not on a
+     * month (docs/26 §10): final until the owner raises the limit.
+     */
+    public const CREDIT_LIMIT_REACHED = 'tts_credit_limit_reached';
+
+    /** The `deepgram` driver: 402, the account has no money or credit left. Final, and the driver halts for a while (docs/26 §10). */
+    public const PAYMENT_REQUIRED = 'tts_payment_required';
+
+    /** The text is longer than one request of the service takes (`deepgram`: `DEEPGRAM_TTS_MAX_CHARS`): final, nothing is sent. */
+    public const TEXT_TOO_LONG = 'tts_text_too_long';
 
     private function __construct(string $code, public readonly bool $retryable, ?Throwable $previous = null)
     {
@@ -103,5 +119,26 @@ final class SpeechSynthesisException extends RuntimeException
     public static function monthlyLimitReached(): self
     {
         return new self(self::MONTHLY_LIMIT_REACHED, false);
+    }
+
+    public static function creditLimitReached(): self
+    {
+        return new self(self::CREDIT_LIMIT_REACHED, false);
+    }
+
+    public static function paymentRequired(): self
+    {
+        return new self(self::PAYMENT_REQUIRED, false);
+    }
+
+    public static function textTooLong(): self
+    {
+        return new self(self::TEXT_TOO_LONG, false);
+    }
+
+    /** A spent character budget of the driver (the month of `google`, the credit of `deepgram`): the word job ends quietly. */
+    public function isBudgetSpent(): bool
+    {
+        return in_array($this->getMessage(), [self::MONTHLY_LIMIT_REACHED, self::CREDIT_LIMIT_REACHED], true);
     }
 }

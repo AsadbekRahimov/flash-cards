@@ -65,7 +65,7 @@ final class GoogleSpeechSynthesizer implements SpeechSynthesizer
         $this->throttle->acquire();
 
         $chars = mb_strlen($text);
-        $month = $this->budget->reserve($chars);
+        $month = $this->budget->reserve($chars, ConfiguredSpeechSynthesizer::GOOGLE);
 
         $body = [
             'input' => ['text' => $text],
