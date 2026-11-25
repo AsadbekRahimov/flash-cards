@@ -37,6 +37,7 @@ import { markTiming } from '@/composables/useTimingMarks'
 import { useAssignmentsStore } from '@/stores/assignments'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
+import { useCupsStore } from '@/stores/cups'
 import { useTodayStore } from '@/stores/today'
 import { useTrainingStore } from '@/stores/training'
 import { errorMessage } from '@/i18n/errors'
@@ -61,6 +62,7 @@ const today = useTodayStore()
 const training = useTrainingStore()
 const assignments = useAssignmentsStore()
 const billing = useBillingStore()
+const cups = useCupsStore()
 const { close } = useTelegram()
 const { data, status, errorMessage: loadError } = storeToRefs(today)
 const { opening, openError } = storeToRefs(training)
@@ -82,6 +84,9 @@ async function load(): Promise<void> {
   // `/today` said so) asks them alongside Today; otherwise `/today.assignments_possible` decides first, so a self-study learner asks
   // no `/assignments` at all (docs/04 A.2a).
   const started = assignments.loadEarly()
+  // The friends' cup (docs/33 §7.1): "my cups", best effort - a read younger than a minute is not repeated, a switched off cup is not
+  // asked again in this session.
+  void cups.load()
   ownLoad = true
   try {
     await today.load()
@@ -398,8 +403,25 @@ const classCaravan = computed(() => {
   return { to: `/game/class/${caravan.id}`, text: t('gameClass.card.text', counts), aria: t('gameClass.card.aria', counts) }
 })
 
+/**
+ * The friends' cup that runs (docs/33 §7.1), a row of the list: "Cup «Group» · Day 3 of 7" and the call to play, from `GET /cups` (one
+ * light request, `stores/cups`). That list does not say whether today's round is played: the row says "played" only for a round this
+ * device has seen to its end; the cup screen it opens tells the truth. A switched off cup shows nothing.
+ */
+const cupCard = computed(() => {
+  const cup = cups.running
+  if (cup === null || cup.day === null) return null
+  const played = cups.played[cup.id] === cup.day
+  return {
+    to: { name: 'cup', params: { id: cup.id } },
+    title: t('today.cup.title', { group: cup.group_title }),
+    text: played ? t('today.cup.played', { day: cup.day, days: cup.days }) : t('today.cup.play', { day: cup.day, days: cup.days }),
+    played,
+  }
+})
+
 /** The list "For today" has a row to show (otherwise there is no card at all). */
-const showTodayList = computed(() => assignmentItems.value.length > 0 || hardRound.value !== null || classCaravan.value !== null
+const showTodayList = computed(() => assignmentItems.value.length > 0 || hardRound.value !== null || classCaravan.value !== null || cupCard.value !== null
   || (hasProgress.value && (gameEntry.value !== null || showGameMap.value)) || showGamesRow.value)
 
 /** The status dot of the streak: amber while it is at risk, accent while it lives, the track when there is none. */
@@ -959,6 +981,22 @@ onBeforeUnmount(() => {
                 </span>
               </button>
             </div>
+
+            <!-- The friends' cup that runs (docs/33 §7.1): opens the cup, where the round of the day is played. -->
+            <RouterLink
+              v-if="cupCard"
+              :to="cupCard.to"
+              class="flex min-h-11 items-center gap-3 px-[18px] py-3 active:bg-fill"
+              :data-played="cupCard.played ? 'true' : undefined"
+              data-testid="cup-card"
+            >
+              <span class="size-2 shrink-0 rounded-full" :class="cupCard.played ? 'bg-success' : 'bg-warning'" aria-hidden="true" />
+              <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span class="truncate text-[15px] leading-5 font-semibold" data-testid="cup-card-title">{{ cupCard.title }}</span>
+                <span class="text-[13px] leading-[18px] text-muted" data-testid="cup-card-text">{{ cupCard.text }}</span>
+              </span>
+              <span v-if="!cupCard.played" class="shrink-0 text-[13px] leading-[18px] text-accent" data-testid="cup-card-btn">{{ t('today.cup.go') }}</span>
+            </RouterLink>
 
             <!-- The caravan of the class that is on (docs/05 §5b.7). -->
             <RouterLink

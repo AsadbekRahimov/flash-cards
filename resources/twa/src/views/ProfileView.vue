@@ -20,6 +20,7 @@ import { useLocaleSwitch } from '@/composables/useLocaleSwitch'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useAuthStore } from '@/stores/auth'
 import { useBillingStore } from '@/stores/billing'
+import { useCupsStore } from '@/stores/cups'
 import { useGameShopStore } from '@/stores/gameShop'
 import { useSettingsStore } from '@/stores/settings'
 import { errorMessage } from '@/i18n/errors'
@@ -42,6 +43,7 @@ const auth = useAuthStore()
 const billing = useBillingStore()
 const shop = useGameShopStore()
 const settings = useSettingsStore()
+const cups = useCupsStore()
 const { entitlement, paywall } = storeToRefs(billing)
 
 useBackButton(null)
@@ -69,6 +71,9 @@ async function load(): Promise<void> {
     failed.value = errorMessage(err, 'settings')
     return
   }
+  // "Friends' cups" (docs/33 §7.1): the row shows once the learner has a cup; best effort, a young read is not repeated, a switched
+  // off cup is not asked again in this session.
+  void cups.load()
   await billing.load()
   attempted.value = true
 }
@@ -246,6 +251,13 @@ onMounted(() => {
           :title="t('profile.friends')"
           icon="users" tile="blue"
           data-testid="row-friends"
+        />
+        <ListRow
+          v-if="cups.hasAny"
+          :to="{ name: 'cups' }"
+          :title="t('profile.cups')"
+          icon="trophy" tile="blue"
+          data-testid="row-cups"
         />
       </ListGroup>
 

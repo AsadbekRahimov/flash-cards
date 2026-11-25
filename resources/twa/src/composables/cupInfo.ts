@@ -1,6 +1,7 @@
 import { ApiClientError } from '@/api/client'
 import { t } from '@/i18n'
 import { errorMessage } from '@/i18n/errors'
+import { formatDate } from '@/composables/format'
 import type { CupFields, CupTask } from '@/api/types'
 import type { GameWordElement } from '@/api/gameRunTypes'
 
@@ -137,4 +138,35 @@ export function cupTaskElement(task: CupTask): GameWordElement {
 export function revealText(reveal: Record<string, unknown> | null | undefined): string {
   const text = reveal?.correct_text
   return typeof text === 'string' ? text : ''
+}
+
+/**
+ * The state of a cup in one line (docs/33 §3.1): "Waiting for the start: 1 Dec", "Day 3 of 7", "The cup is over", "The cup is
+ * canceled", "Not published yet"; a pause says so first. Dates are the days of the cup: on the calendar of its zone.
+ */
+export function cupStatusLine(cup: CupFields, locale: string): string {
+  if (cup.paused !== null && (cup.status === 'scheduled' || cup.status === 'running')) {
+    return cup.paused === 'bot_removed' ? t('cup.status.paused_bot_removed') : t('cup.status.paused')
+  }
+  switch (cup.status) {
+    case 'draft':
+      return t('cup.status.draft')
+    case 'scheduled':
+      return cup.starts_at ? t('cup.status.scheduled', { date: formatDate(cup.starts_at, 'dayMonth', locale, cup.timezone) }) : t('cup.status.scheduled_soon')
+    case 'running':
+      return cup.day !== null ? t('cup.status.running', { day: cup.day, days: cup.days }) : t('cup.status.running_closing')
+    case 'finished':
+      return t('cup.status.finished')
+    case 'canceled':
+      return t('cup.status.canceled')
+  }
+}
+
+/** "1 Dec – 7 Dec" of a published cup, on the calendar of its zone (the last day is the one before `ends_at`); '' before the publication. */
+export function cupPeriod(cup: CupFields, locale: string): string {
+  if (!cup.starts_at || !cup.ends_at) return ''
+  const end = Date.parse(cup.ends_at)
+  if (!Number.isFinite(end)) return ''
+  const lastDay = new Date(end - 1).toISOString()
+  return t('cup.period', { from: formatDate(cup.starts_at, 'dayMonthShort', locale, cup.timezone), to: formatDate(lastDay, 'dayMonthShort', locale, cup.timezone) })
 }
