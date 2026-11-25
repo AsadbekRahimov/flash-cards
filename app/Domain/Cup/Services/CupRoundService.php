@@ -33,6 +33,7 @@ use App\Models\CupParticipant;
 use App\Models\CupRoundAttempt;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 use JsonException;
 use LogicException;
@@ -186,7 +187,7 @@ final class CupRoundService
         $this->standings->forgetAfterCommit($cup->id);
         $this->events->record(ProductEventName::CupRoundStarted, ['cup_id' => $cup->id, 'attempt_id' => $attempt->id, 'day' => $day->day], learner: $learner);
 
-        return new CupRoundStart($this->buildView($attempt, $day->day, $snapshot, $daySeed, $now), true);
+        return new CupRoundStart($this->buildView($attempt, $day->day, $snapshot, $daySeed, $now, self::nextDayAt($day->day, $cup->days, $day->ends_at)), true);
     }
 
     /**
@@ -205,7 +206,7 @@ final class CupRoundService
             $attempt = CupRoundAttempt::query()->findOrFail($attempt->id);
         }
 
-        return $this->buildView($attempt, $context['day'], $context['snapshot'], $context['day_seed'], $now);
+        return $this->buildView($attempt, $context['day'], $context['snapshot'], $context['day_seed'], $now, $context['next_day_at']);
     }
 
     /**
@@ -262,7 +263,7 @@ final class CupRoundService
             $this->recordFinished($attempt, $context['day'], $learner);
         }
 
-        return new CupAnswerOutcome($body, $this->buildView($attempt, $context['day'], $context['snapshot'], $context['day_seed'], $now), $replayed);
+        return new CupAnswerOutcome($body, $this->buildView($attempt, $context['day'], $context['snapshot'], $context['day_seed'], $now, $context['next_day_at']), $replayed);
     }
 
     /**
@@ -604,6 +605,8 @@ final class CupRoundService
                 'cups.status as ctx_cup_status',
                 'cups.seed_secret as ctx_secret',
                 'cups.counted_days as ctx_counted_days',
+                'cups.days as ctx_days',
+                'cup_days.ends_at as ctx_day_ends_at',
             ]);
         if ($lock) {
             $query->lock(DB::getDriverName() === 'pgsql' ? 'for update of cup_round_attempts' : true);
@@ -622,6 +625,7 @@ final class CupRoundService
             'day_seed' => CupSeeds::day((string) $attributes['ctx_secret'], $day),
             'cup_status' => (string) $attributes['ctx_cup_status'],
             'counted_days' => (int) $attributes['ctx_counted_days'],
+            'next_day_at' => self::nextDayAt($day, (int) $attributes['ctx_days'], CarbonImmutable::parse((string) $attributes['ctx_day_ends_at'], 'UTC')),
         ];
         foreach (array_keys($attributes) as $key) {
             if (str_starts_with((string) $key, 'ctx_')) {
@@ -643,10 +647,19 @@ final class CupRoundService
             throw CupException::roundDone($attempt->points);
         }
 
-        return $this->buildView($attempt, $day->day, $this->ensureDaySnapshot($day, $cup), CupSeeds::day($cup->seed_secret, $day->day), $now);
+        return $this->buildView($attempt, $day->day, $this->ensureDaySnapshot($day, $cup), CupSeeds::day($cup->seed_secret, $day->day), $now, self::nextDayAt($day->day, $cup->days, $day->ends_at));
     }
 
-    private function buildView(CupRoundAttempt $attempt, int $day, CupDaySnapshot $snapshot, string $daySeed, CarbonImmutable $now): CupRoundView
+    /**
+     * When the round of the next day opens (docs/04 A.23 `next_day_at`): the end of the attempt's day - the local midnight of the cup,
+     * kept in UTC by the row of the day, so a change of the clocks is the server's business - or null on the last day.
+     */
+    private static function nextDayAt(int $day, int $days, ?CarbonInterface $dayEndsAt): ?string
+    {
+        return $day < $days && $dayEndsAt !== null ? IsoTime::format($dayEndsAt) : null;
+    }
+
+    private function buildView(CupRoundAttempt $attempt, int $day, CupDaySnapshot $snapshot, string $daySeed, CarbonImmutable $now, ?string $nextDayAt): CupRoundView
     {
         $state = RunState::fromArray($attempt->state);
         $order = $attempt->order;
@@ -701,6 +714,7 @@ final class CupRoundService
             current: $current,
             answers: $answers,
             review: $review,
+            nextDayAt: $nextDayAt,
         );
     }
 

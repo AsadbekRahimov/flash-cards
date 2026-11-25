@@ -10,6 +10,7 @@ use App\Domain\Cup\DTO\CupBoard;
 use App\Domain\Cup\DTO\CupContext;
 use App\Domain\Cup\DTO\CupJoinOutcome;
 use App\Domain\Cup\DTO\CupRoundStart;
+use App\Domain\Cup\Enums\CupParticipantStatus;
 use App\Domain\Cup\Enums\CupStatus;
 use App\Domain\Cup\Exceptions\CupException;
 use App\Domain\Cup\Support\CupAccess;
@@ -24,10 +25,13 @@ use Throwable;
  * The requests of the Mini App to a cup (docs/33 §7.2, docs/04 A.23, K7): where each one finds its cup and in which order the doors
  * are checked, so that the answer never tells a stranger more than "no". The rules themselves are the core's.
  *
- * - **By the numeric id** (`/cups/{id}…`, ids are sequential): a missing cup, a cup of a chat the learner is not in, a failed or busy
- *   check of Telegram - ONE answer, 403 `cup_not_member` (`assertCanView(…, opaque: true)`). Only who got through learns more: the
- *   cup is not available in this chat (pilot), its status, its pause. An action that needs a participant (the name, the round) refuses
- *   a non-participant with that same 403 before the core looks at the status of the cup.
+ * - **By the numeric id** (`/cups/{id}…`, ids are sequential): a missing cup, a cup of a chat the learner is not in, a paused cup, a
+ *   failed or busy check of Telegram - ONE answer to a stranger, 403 `cup_not_member` (`assertCanView(…, opaque: true)`); only a
+ *   definite "member" of Telegram opens the cup to him. The reasons (409 / 503 / 429) are told to who the server already knows
+ *   without Telegram: a participant (any status, by the database). An `active` participant passes without a call; one who left or
+ *   was removed passes only a fresh check (docs/33 §11.2 п. 7). Who got through learns more: the cup is not available in this chat
+ *   (pilot), its status, its pause. An action that needs a participant (the name, the round) refuses a non-participant with that
+ *   same 403 before the core looks at the status of the cup.
  * - **By the code of the link** (128 random bits, seen by the whole chat): the code is a hint which cup to open, never a pass - Telegram
  *   is asked about THIS learner; a member who is not a participant sees the invitation, the others 403 (`opaque: false`: the member is
  *   told when the bot cannot check or Telegram is out, the core's reasons).
@@ -76,7 +80,7 @@ final class CupMiniApp
      */
     public function visible(int $cupId, Learner $learner): CupContext
     {
-        return $this->door($cupId, $learner, opaque: true);
+        return $this->door($cupId, $learner);
     }
 
     /**
@@ -133,17 +137,18 @@ final class CupMiniApp
     }
 
     /**
-     * Joining (`POST /cups/{id}/join`): the door of the id first - a stranger and a missing cup get the same 403 and learn nothing of
-     * the cup (not even that it is over) - then the core, which asks Telegram again inside the join (the answer of the door is reused
-     * for its 10 s, the core's throttle). Unlike the reads, the door of the join says WHY Telegram could not answer (docs/33 §4.4:
-     * 503 / 409 `cup_unverifiable`, 409 `cup_paused`, 429 `cup_check_busy`): a member must know to retry or to call the admin.
+     * Joining (`POST /cups/{id}/join`): the door of the id first - a stranger, a missing cup and a check that could not be made get
+     * the same 403 and learn nothing of the cup (not even that it is over or paused); a participant (one who left comes back here) is
+     * told the reasons - then the core, which asks Telegram again inside the join (the answer of the door is reused for its 10 s, the
+     * core's throttle) and says WHY it could not (docs/33 §4.4: 503 / 409 `cup_unverifiable`, 409 `cup_paused`, 429 `cup_check_busy`)
+     * to who the door has just found a member.
      *
      * @throws CupException cup_not_member | cup_unavailable | cup_not_open | cup_closed | cup_display_name_invalid | cup_paused
      *                      | cup_unverifiable | cup_check_busy
      */
     public function join(int $cupId, Learner $learner, ?string $displayName, ?CarbonImmutable $now = null): CupJoinOutcome
     {
-        $context = $this->door($cupId, $learner, opaque: false);
+        $context = $this->door($cupId, $learner);
         $outcome = $this->participation->join($context->cup, $learner, $displayName, $now);
         if ($outcome->created) {
             $this->emoji->forget($context->cup->id);
@@ -153,15 +158,22 @@ final class CupMiniApp
     }
 
     /**
-     * The name in the tournament (`PATCH /cups/{id}/me`): a participant only.
+     * The name in the tournament (`PATCH /cups/{id}/me`): an `active` participant who is a member of the chat now (the core asks
+     * Telegram); a stranger, a missing cup and a participant who left or was removed get the same 403.
      *
-     * @throws CupException cup_not_member | cup_unavailable | cup_display_name_invalid | cup_rename_limit | cup_closed
+     * @throws CupException cup_not_member | cup_unavailable | cup_display_name_invalid | cup_rename_limit | cup_closed | cup_paused
+     *                      | cup_unverifiable | cup_check_busy
      */
-    public function rename(int $cupId, Learner $learner, string $displayName): CupParticipant
+    public function rename(int $cupId, Learner $learner, string $displayName, ?CarbonImmutable $now = null): CupParticipant
     {
-        $participant = $this->participantOf($cupId, $learner);
+        $context = $this->reader->locate($cupId, $learner);
+        $participant = $context?->participant;
+        if ($context === null || $participant === null || $participant->status !== CupParticipantStatus::Active) {
+            throw CupException::notMember();
+        }
+        $this->assertAvailable($context->cup);
 
-        return $this->participation->rename($participant, $displayName);
+        return $this->participation->rename($context->cup, $participant, $learner, $displayName, $now);
     }
 
     /**
@@ -258,30 +270,18 @@ final class CupMiniApp
     }
 
     /**
-     * A cup by its id behind the door of membership: a missing cup is the refusal of a stranger; `$opaque` turns every refusal of the
-     * gate into it too.
+     * A cup by its id behind the door of membership: a missing cup is the refusal of a stranger, and so is every refusal of the gate
+     * to a non-participant (`opaque`); a participant is told the reasons.
      *
      * @throws CupException cup_not_member | cup_unavailable | cup_paused | cup_unverifiable | cup_check_busy
      */
-    private function door(int $cupId, Learner $learner, bool $opaque): CupContext
+    private function door(int $cupId, Learner $learner): CupContext
     {
         $context = $this->reader->locate($cupId, $learner) ?? throw CupException::notMember();
-        $this->gate->assertCanView($context->cup, $learner, $context->participant, $opaque);
+        $this->gate->assertCanView($context->cup, $learner, $context->participant, opaque: true);
         $this->assertAvailable($context->cup);
 
         return $context;
-    }
-
-    /** @throws CupException cup_not_member | cup_unavailable */
-    private function participantOf(int $cupId, Learner $learner): CupParticipant
-    {
-        $context = $this->reader->locate($cupId, $learner);
-        if ($context === null || $context->participant === null) {
-            throw CupException::notMember();
-        }
-        $this->assertAvailable($context->cup);
-
-        return $context->participant;
     }
 
     /** The feature is open for the chat of the cup (`CUP_ACCESS`, the pilot flag of the group). Asked only of who got through the door. */

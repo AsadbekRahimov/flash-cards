@@ -58,6 +58,49 @@ final class CupProEmoji
         return $map;
     }
 
+    /**
+     * The emoji of many cups (`cups:refresh-cards`): the cached maps in one round trip, the missing ones in ONE statement.
+     *
+     * @param  list<int>  $cupIds
+     * @return array<int, array<int, string>> cup id => (participant id => emoji)
+     */
+    public function forCups(array $cupIds, ?CarbonImmutable $now = null): array
+    {
+        $cupIds = array_values(array_unique($cupIds));
+        if ($cupIds === []) {
+            return [];
+        }
+        $maps = [];
+        try {
+            $cached = PureCache::store()->many(array_map(static fn (int $id): string => self::key($id), $cupIds));
+            foreach ($cupIds as $id) {
+                $hit = $cached[self::key($id)] ?? null;
+                if (is_array($hit)) {
+                    $maps[$id] = self::cast($hit);
+                }
+            }
+        } catch (Throwable $e) {
+            report($e);
+        }
+
+        $missing = array_values(array_diff($cupIds, array_keys($maps)));
+        if ($missing === []) {
+            return $maps;
+        }
+        $fresh = $this->readMany($missing, $now ?? CarbonImmutable::now());
+        $put = [];
+        foreach ($fresh as $id => $map) {
+            $maps[$id] = $put[self::key($id)] = $map;
+        }
+        try {
+            PureCache::store()->putMany($put, max(1, (int) config('cup.standings_ttl', 120)));
+        } catch (Throwable $e) {
+            report($e);
+        }
+
+        return $maps;
+    }
+
     /** Drops the emoji of a cup (a participant joined). Never throws (docs/19 §3 rule 5). */
     public function forget(int $cupId): void
     {
@@ -89,15 +132,25 @@ final class CupProEmoji
     /** @return array<int, string> */
     private function read(int $cupId, CarbonImmutable $now): array
     {
+        return $this->readMany([$cupId], $now)[$cupId];
+    }
+
+    /**
+     * @param  list<int>  $cupIds
+     * @return array<int, array<int, string>> every asked cup id => its map
+     */
+    private function readMany(array $cupIds, CarbonImmutable $now): array
+    {
+        $maps = array_fill_keys($cupIds, []);
         $set = $this->emoji->set();
         if ($set === []) {
-            return [];
+            return $maps;
         }
-        $learners = fn (): Builder => DB::table('cup_participants as cpl')->where('cpl.cup_id', $cupId)->select('cpl.learner_id');
+        $learners = fn (): Builder => DB::table('cup_participants as cpl')->whereIn('cpl.cup_id', $cupIds)->select('cpl.learner_id');
 
         $rows = DB::table('cup_participants as cp')
             ->join('learners', 'learners.id', '=', 'cp.learner_id')
-            ->where('cp.cup_id', $cupId)
+            ->whereIn('cp.cup_id', $cupIds)
             ->whereIn('learners.pro_emoji', array_keys($set))
             // On `cp.learner_id`, not `learners.id`: so PostgreSQL walks the participants of the cup and reads each learner by its key
             // (0.5 ms, 200 buffers on the stand) instead of filtering every learner of the platform by the hashed subqueries (a
@@ -105,14 +158,13 @@ final class CupProEmoji
             ->where(fn (Builder $pro): Builder => $pro
                 ->whereIn('cp.learner_id', PaidSubscriptionQuery::personalLearnerIds($now)->whereIn('subscriptions.subscriber_id', $learners()))
                 ->orWhereIn('cp.learner_id', PaidSubscriptionQuery::sponsoredLearnerIds($now)->whereIn('om.learner_id', $learners())))
-            ->get(['cp.id', 'learners.pro_emoji']);
+            ->get(['cp.cup_id', 'cp.id', 'learners.pro_emoji']);
 
-        $map = [];
         foreach ($rows as $row) {
-            $map[(int) $row->id] = $set[(string) $row->pro_emoji];
+            $maps[(int) $row->cup_id][(int) $row->id] = $set[(string) $row->pro_emoji];
         }
 
-        return $map;
+        return $maps;
     }
 
     /**

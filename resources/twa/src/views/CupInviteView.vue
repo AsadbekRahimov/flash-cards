@@ -38,8 +38,11 @@ const props = defineProps<{
   rules?: boolean
 }>()
 
-/** The longest name in the tournament (docs/33 §4.7). */
-const NAME_MAX = 32
+/**
+ * A bound of the field only: the server counts the name in what a person sees as characters (32, an emoji sequence is one) and says
+ * why it refuses one (422 `cup_display_name_invalid {reason}`).
+ */
+const NAME_FIELD_MAX = 128
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -92,7 +95,7 @@ const open = computed((): boolean => invite.value !== null && (invite.value.stat
 const period = computed((): string => (invite.value ? cupPeriod(invite.value, locale.value) : ''))
 const statusLine = computed((): string => (invite.value ? cupStatusLine(invite.value, locale.value) : ''))
 const trimmed = computed((): string => name.value.trim())
-const canJoin = computed((): boolean => open.value && !joining.value && trimmed.value !== '' && Array.from(trimmed.value).length <= NAME_MAX)
+const canJoin = computed((): boolean => open.value && !joining.value && trimmed.value !== '')
 
 /** "Join": with the name of the field (the server checks it before the membership). A second tap while it is on its way does nothing. */
 async function join(): Promise<void> {
@@ -180,7 +183,7 @@ onBeforeUnmount(() => {
             v-model="name"
             type="text"
             class="field"
-            :maxlength="NAME_MAX"
+            :maxlength="NAME_FIELD_MAX"
             autocomplete="nickname"
             :aria-invalid="nameError ? 'true' : undefined"
             :aria-describedby="nameError ? 'cup-name-error' : 'cup-name-hint'"

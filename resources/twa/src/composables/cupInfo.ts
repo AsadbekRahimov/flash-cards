@@ -33,6 +33,26 @@ export interface CupFailure {
 
 const failure = (kind: CupFailureKind, message: string, retry: boolean): CupFailure => ({ kind, message, retry })
 
+/**
+ * Why a name in the tournament was refused (`details.reason` of 422 `cup_display_name_invalid`): the chat would make a link, a mention,
+ * a command or a tag of it, too many marks over a letter; the length or nothing printable (and an older server without a reason) - the
+ * general words.
+ */
+function nameRefusal(reason: unknown): string {
+  switch (reason) {
+    case 'link':
+      return t('cup.failure.name_link')
+    case 'mention':
+    case 'command':
+    case 'tag':
+      return t('cup.failure.name_symbol')
+    case 'marks':
+      return t('cup.failure.name_marks')
+    default:
+      return t('cup.failure.name_invalid')
+  }
+}
+
 /** The refusal of any route of the cup in the learner's words. */
 export function cupFailure(err: unknown): CupFailure {
   if (!(err instanceof ApiClientError)) return failure('other', errorMessage(err, 'game'), true)
@@ -65,7 +85,7 @@ export function cupFailure(err: unknown): CupFailure {
     case 'cup_round_done':
       return failure('refused', t('cup.failure.round_done'), false)
     case 'cup_display_name_invalid':
-      return failure('refused', t('cup.failure.name_invalid'), false)
+      return failure('refused', nameRefusal(reason), false)
     case 'cup_rename_limit':
       return failure('refused', t('cup.failure.rename_limit'), false)
     case 'cup_material_unavailable':

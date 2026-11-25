@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * POST /api/twa/cups/{id}/join (docs/04 A.23): `display_name` is optional (the Telegram first name otherwise). Only the size is checked
- * here; what is a valid name in a tournament (1-32 characters, no control or format characters) is the core's - 422
+ * here; what is a valid name in a tournament (1-32 graphemes, nothing Telegram would make a link of) is the core's - 422
  * `cup_display_name_invalid`.
  */
 final class CupJoinRequest extends FormRequest
@@ -17,7 +17,7 @@ final class CupJoinRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'display_name' => ['nullable', 'string', 'max:64'],
+            'display_name' => ['nullable', 'string', 'max:256'],
         ];
     }
 

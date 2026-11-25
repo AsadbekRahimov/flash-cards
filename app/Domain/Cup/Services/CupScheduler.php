@@ -17,7 +17,8 @@ use Throwable;
  * 2. scheduled cups at their midnight → running (two players), or the start moves a day, or canceled (`no_players`);
  * 3. the snapshots of the days that begin within the hour;
  * 4. attempts left open past their deadline → `expired`;
- * 5. running cups `settle_minutes` after their end → finished.
+ * 5. running cups `settle_minutes` after their end → finished, and the row `final` the finish wrote is queued for the bot at once
+ *    ({@see CupOutbox::queue()}; the finish itself knows nothing of the bot, `cups:send-outbox` stays the safety net).
  *
  * Each cup is its own transaction under the lock of its row ({@see CupLifecycleService}); the candidates are read through the partial
  * indexes of the open rows only, so the cost does not grow with the history. A failure of one cup is reported and the batch goes on.
@@ -28,6 +29,7 @@ final class CupScheduler
     public function __construct(
         private readonly CupLifecycleService $lifecycle,
         private readonly CupRoundService $rounds,
+        private readonly CupOutbox $outbox,
     ) {}
 
     /** @return array{drafts_expired: int, started: int, shifted: int, canceled: int, snapshots: int, attempts_expired: int, finished: int, failed: int} */
@@ -69,7 +71,10 @@ final class CupScheduler
         $finishBefore = $now->subMinutes(max(0, (int) config('cup.settle_minutes', 30)));
         foreach ($this->ids(CupStatus::Running, 'ends_at', $finishBefore, $batch) as $id) {
             $this->guard($report, $id, function () use ($id, $now, &$report): void {
-                $report['finished'] += (int) $this->lifecycle->finish($id, $now);
+                if ($this->lifecycle->finish($id, $now)) {
+                    $report['finished']++;
+                    $this->outbox->queue($id, CupOutbox::FINAL_KEY);
+                }
             });
         }
 

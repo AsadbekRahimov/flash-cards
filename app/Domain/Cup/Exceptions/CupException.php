@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Cup\Exceptions;
 
+use App\Domain\Cup\Support\DisplayName;
 use App\Domain\Game\Exceptions\GameException;
 use RuntimeException;
 
@@ -20,7 +21,7 @@ use RuntimeException;
  *        · cup_round_done {points} · cup_round_expired {points} · element_not_current {current} · answer_already_accepted {verdict}
  *        · cup_rename_limit
  *   410  cup_closed (finished or canceled)
- *   422  cup_material_unavailable · cup_display_name_invalid · cup_level_invalid · invalid_answer_shape · unknown_element_id · unknown_option_id
+ *   422  cup_material_unavailable · cup_display_name_invalid {reason} · cup_level_invalid · invalid_answer_shape · unknown_element_id · unknown_option_id
  *   429  cup_check_busy (another request of the same learner is checking the membership right now)
  *   503  cup_unverifiable {reason: telegram_unavailable}
  */
@@ -189,9 +190,17 @@ final class CupException extends RuntimeException
         return new self(self::MATERIAL_UNAVAILABLE, 'There are not enough words of this level for a cup.');
     }
 
-    public static function displayNameInvalid(): self
+    /**
+     * `reason` ({@see DisplayName}): `empty` | `too_long` | `marks` | `link` | `mention` | `command` | `tag` - Telegram would turn the
+     * last four into a link in the chat.
+     */
+    public static function displayNameInvalid(string $reason = DisplayName::REASON_EMPTY): self
     {
-        return new self(self::DISPLAY_NAME_INVALID, 'The name must be 1 to 32 characters.');
+        return new self(self::DISPLAY_NAME_INVALID, match ($reason) {
+            DisplayName::REASON_EMPTY, DisplayName::REASON_TOO_LONG => 'The name must be 1 to 32 characters.',
+            DisplayName::REASON_MARKS => 'The name has too many combining marks.',
+            default => 'The name must not look like a link, a @mention, a /command or a #tag.',
+        }, ['reason' => $reason]);
     }
 
     public static function levelInvalid(): self

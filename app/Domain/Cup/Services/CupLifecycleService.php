@@ -111,8 +111,8 @@ final class CupLifecycleService
     }
 
     /**
-     * Publishing a draft (docs/33 §3.1, §3.3): only an administrator of the chat (fresh `getChatMember`), only when the bot is an
-     * administrator too (В1/К1), only with enough words of the level. The start is the nearest local midnight at least
+     * Publishing a draft (docs/33 §3.1, §3.3): only an administrator of the chat (fresh `getChatMember`, asked right after the
+     * switch and the pause - before the level and the words are read), only when the bot is an administrator too (В1/К1), only with enough words of the level. The start is the nearest local midnight at least
      * `start_min_lead_hours` away; the sizes of the config are frozen in the row. A published cup is returned as it is (a second
      * press of "Опубликовать" is not an error).
      *
@@ -136,12 +136,13 @@ final class CupLifecycleService
         if ($pause !== null) {
             throw CupException::paused($pause->value);
         }
+        // Who pressed, before anything about the cup: a non-administrator learns nothing of the level or the words and costs no read.
+        $this->admins->assertChatAdmin($group, $telegramUserId);
 
         $level ??= $cup->level;
         $course = $this->courseWithMaterial($level);
         $locale = $locale !== null && $this->locales->isSupported($locale) ? $locale : $cup->locale;
 
-        $this->admins->assertChatAdmin($group, $telegramUserId);
         $botIsAdmin = $this->botAccess->botIsAdmin($group);
         if ($botIsAdmin === false) {
             throw CupException::botNotAdmin();

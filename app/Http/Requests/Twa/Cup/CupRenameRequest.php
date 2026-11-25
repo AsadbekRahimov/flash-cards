@@ -13,7 +13,7 @@ final class CupRenameRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'display_name' => ['required', 'string', 'max:64'],
+            'display_name' => ['required', 'string', 'max:256'],
         ];
     }
 

@@ -4870,11 +4870,13 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `cup.card.bot_not_admin` | ⚠️ Bot chat administratori emas — ishtirokni tekshirib bo'lmaydi. Botni administrator qiling. | ⚠️ Бот не администратор чата — участие проверить нельзя. Сделайте бота администратором. |
 | `cup.summary.title` | 📊 Do'stlar kubogi · :days kundan :day-kun yakunlari | 📊 Кубок друзей · итоги дня :day из :days |
 | `cup.summary.footer` | Yakun :end, 00:00. Yangi kun raundi yarim tunda ochiladi. | Финиш :end, 00:00. Раунд нового дня откроется в полночь. |
+| `cup.summary.footer_last` | Bu oxirgi kun: raundni yarim tungacha o'ynash mumkin. Yakun :end, 00:00 — undan keyin kubok natijalari. | Это последний день: раунд можно сыграть до полуночи. Финиш :end, 00:00 — после него итоги кубка. |
 | `cup.final.title` | 🏆 Do'stlar kubogi yakunlandi! | 🏆 Кубок друзей завершён! |
 | `cup.final.group` | «:group» · :level daraja | «:group» · уровень :level |
 | `cup.final.winner` | Tabriklaymiz: :names! | Поздравляем: :names! |
 | `cup.final.empty` | Hech kim ball to'plamadi. | Никто не набрал очков. |
 | `cup.command.exists` | Chatda allaqachon «:group» kubogi bor. Jadval va qatnashish — quyidagi tugma orqali. | В чате уже есть кубок «:group». Таблица и участие — по кнопке ниже. |
+| `cup.command.draft` | Chatda «:group» kubogining qoralamasi bor. Chat administratori uni quyidagi tugma orqali sozlab, e'lon qilishi mumkin. | В чате уже есть черновик кубка «:group». Администратор чата может настроить и опубликовать его по кнопке ниже. |
 | `cup.command.material` | Hozir kubok mavjud emas: bu daraja uchun so'zlar yetarli emas. | Сейчас кубок недоступен: для уровня не хватает слов. |
 | `cup.welcome.line` | 🏆 Do'stlar bilan bellashmoqchimisiz? Do'stlar kubogini yarating: shu chatning o'zida bir hafta qisqa raundlar. | 🏆 Хотите соревноваться с друзьями? Создайте кубок друзей: неделя коротких раундов прямо в этом чате. |
 | `cup.toast.not_admin` | Buni faqat chat administratori qila oladi. | Это может сделать только администратор чата. |
@@ -4898,3 +4900,139 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `buttons.cup_rules` | 📖 Qoidalar | 📖 Правила |
 | `buttons.cup_final_table` | 🏆 Yakuniy jadval | 🏆 Итоговая таблица |
 | `buttons.cup_open` | 🏆 Kubokni ochish | 🏆 Открыть кубок |
+
+## Выпуск 5 · кубок друзей в группе: экраны Mini App (docs/33 K8, 25.11.2026) — на проверку носителю
+
+Экраны приглашения, кубка, раунда дня, настройки и «Мои кубки», карточка на «Bugun» и строка в профиле. Термины те же, что у бота (K6): «kubok», «Do'stlar kubogi», «raund», «ball», «ishtirokchi», «jadval», «daraja»; «{brand}» — название продукта (Muhrla). Числа, даты и время — с сервера. Носителю проверить: «O'ynayapman: {group}» (рус. «Играю за: …»), «chiqib ketgan» как пометку в таблице (рус. «вышел(а)»), «xato yozilgan javob» (рус. «ответ с опечаткой»), «{total} tadan {correct}» (рус. «Верно: 7 из 10»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `cup.title` | Do'stlar kubogi | Кубок друзей |
+| `cup.brand_title` | {brand} do'stlar kubogi | Кубок друзей {brand} |
+| `cup.level` | {level} daraja | Уровень {level} |
+| `cup.period` | {from} – {to} | {from} – {to} |
+| `cup.off_title` | Kuboklar mavjud emas | Кубки недоступны |
+| `cup.points.one/other` | {count} ball | {count} очко / {count} очка / {count} очков |
+| `cup.my_place` | Sizning o'rningiz: {rank} | Ваше место: {rank} |
+| `cup.final_place` | Yakuniy o'rin: {rank} | Итоговое место: {rank} |
+| `cup.status.draft` | Kubok hali e'lon qilinmagan | Кубок ещё не опубликован |
+| `cup.status.scheduled` | Boshlanish: {date}, 00:00 | Ждём старта: {date}, 00:00 |
+| `cup.status.scheduled_soon` | Boshlanishini kutyapmiz | Ждём старта |
+| `cup.status.running` | {days} kundan {day}-kun | День {day} из {days} |
+| `cup.status.running_closing` | Yakunlar chiqarilmoqda | Подводим итоги |
+| `cup.status.finished` | Kubok yakunlandi | Кубок завершён |
+| `cup.status.canceled` | Kubok bekor qilindi | Кубок отменён |
+| `cup.status.paused` | Kubok to'xtatilgan | Кубок на паузе |
+| `cup.status.paused_bot_removed` | Kubok to'xtatilgan: bot guruhdan o'chirildi | Кубок на паузе: бота удалили из группы |
+| `cup.failure.unavailable` | Kubok guruh chatidagi havola orqali va faqat uning a'zolari uchun ochiladi. | Кубок открывается по ссылке из чата группы и только для её участников. |
+| `cup.failure.off` | Do'stlar kuboklari hozircha mavjud emas. | Кубки друзей сейчас недоступны. |
+| `cup.failure.telegram` | Telegram hozir javob bermayapti, guruhdagi a'zolikni tekshira olmayapmiz. Keyinroq urinib ko'ring. | Telegram сейчас не отвечает, и мы не можем проверить участие в группе. Попробуйте позже. |
+| `cup.failure.busy` | Guruhdagi a'zolikni tekshiryapmiz. Bir necha soniya kuting va «Qayta urinib ko'rish»ni bosing. | Проверяем участие в группе. Подождите несколько секунд и нажмите «Повторить». |
+| `cup.failure.bot_not_admin` | Bot ishtirokchilarni tekshira olmaydi: u guruh administratori emas. Guruh adminidan botni administrator qilishni so'rang. | Бот не может проверить участников: он не администратор группы. Попросите админа группы сделать бота администратором. |
+| `cup.failure.bot_not_admin_publish` | Botni guruh administratori qiling (maxsus huquqlar kerak emas) va kubokni qayta e'lon qiling. | Сделайте бота администратором группы (особые права не нужны) и опубликуйте кубок снова. |
+| `cup.failure.paused` | Bu guruhda kuboklar hozircha mavjud emas. | Кубки в этой группе сейчас недоступны. |
+| `cup.failure.paused_bot_removed` | Kubok to'xtatilgan: bot guruhdan o'chirildi. Guruh adminidan botni qaytarishni so'rang. | Кубок на паузе: бота удалили из группы. Попросите админа группы вернуть бота. |
+| `cup.failure.not_admin` | Buni faqat guruh administratori qila oladi. | Это может сделать только администратор группы. |
+| `cup.failure.closed` | Kubok allaqachon yakunlangan. | Кубок уже завершён. |
+| `cup.failure.not_open` | Kubok hali e'lon qilinmagan. E'lon qilingandan keyin qatnashish mumkin. | Кубок ещё не опубликован. Участвовать можно после публикации. |
+| `cup.failure.not_started` | Kubok hali boshlanmagan. | Кубок ещё не начался. |
+| `cup.failure.round_unavailable` | Bugun raund yo'q. | Сегодня раунда нет. |
+| `cup.failure.round_done` | Bugungi raund allaqachon o'ynalgan. | Раунд сегодня уже сыгран. |
+| `cup.failure.name_invalid` | Ism 1 dan 32 tagacha belgidan iborat bo'lsin, xizmat belgilarisiz. | Имя — от 1 до 32 символов, без служебных знаков. |
+| `cup.failure.name_link` | Ism havola yoki sayt manziliga o'xshamasligi kerak. | Имя не должно быть похоже на ссылку или адрес сайта. |
+| `cup.failure.name_symbol` | Ism @, / yoki # bilan boshlanmasin — chatda bu havolaga aylanadi. | Имя не может начинаться с @, / или # — в чате это станет ссылкой. |
+| `cup.failure.name_marks` | Ismda harflar ustidagi belgilar juda ko'p. | В имени слишком много значков над буквами. |
+| `cup.failure.rename_limit` | Ismni bir kubokda ko'pi bilan 3 marta o'zgartirish mumkin. | Имя можно сменить не больше 3 раз за кубок. |
+| `cup.failure.material` | Bu daraja uchun hozircha so'zlar yetarli emas. Boshqasini tanlang. | Для этого уровня пока не хватает слов. Выберите другой. |
+| `cup.failure.level_invalid` | Darajani ro'yxatdan tanlang. | Выберите уровень из списка. |
+| `cup.failure.already_published` | E'lon qilingandan keyin daraja va til o'zgarmaydi. | Уровень и язык после публикации не меняются. |
+| `cup.failure.already_active` | Guruhda allaqachon kubok ketmoqda. | В группе уже идёт кубок. |
+| `cup.rules.title` | Qoidalar | Правила |
+| `cup.rules.round` | Har kuni {tasks} ta so'zdan iborat raund, unga {minutes} daqiqa. Kuniga bitta urinish. | Каждый день — раунд из {tasks} слов, на него {minutes} минут. Одна попытка в день. |
+| `cup.rules.points` | To'g'ri javob uchun — {points}, xato yozilgan javob uchun — {typo}. | За верный ответ — {points}, ответ с опечаткой — {typo}. |
+| `cup.rules.best.one/other` | {days} kundan {count} ta eng yaxshi kun hisobga olinadi. | В зачёт идёт {count} лучший день из {days}. / В зачёт идут {count} лучших дня из {days}. / В зачёт идут {count} лучших дней из {days}. |
+| `cup.rules.max` | Ko'pi bilan kuniga {day} va kubokda {total}. | Максимум — {day} за день и {total} за кубок. |
+| `cup.rules.day_tashkent` | Kubok kuni — Toshkent vaqti bilan 00:00 dan 24:00 gacha. | День кубка — с 00:00 до 24:00 по Ташкенту. |
+| `cup.rules.day_zone` | Kubok kuni — {zone} vaqt mintaqasi bo'yicha 00:00 dan 24:00 gacha. | День кубка — с 00:00 до 24:00 по часовому поясу {zone}. |
+| `cup.rules.summary` | Kun yakunlarini bot guruhda {time} da e'lon qiladi. | Итоги дня бот публикует в группе в {time}. |
+| `cup.invite.join` | Qatnashish | Участвовать |
+| `cup.invite.rejoin` | Kubokka qaytish | Вернуться в кубок |
+| `cup.invite.name_label` | Turnirdagi ism | Имя в турнире |
+| `cup.invite.name_hint` | Bu ismni guruh chatida ko'rishadi. | Это имя увидят в чате группы. |
+| `cup.invite.draft` | Kubok hali e'lon qilinmagan. Guruh admini uni e'lon qilganda qatnashish mumkin. | Кубок ещё не опубликован. Участвовать можно, когда админ группы его опубликует. |
+| `cup.invite.closed` | Kubok allaqachon tugagan, unga qo'shilib bo'lmaydi. | Кубок уже закончился, вступить в него нельзя. |
+| `cup.invite.unavailable_title` | Kubok mavjud emas | Кубок недоступен |
+| `cup.invite.check_title` | A'zolikni tekshirib bo'lmadi | Не удалось проверить участие |
+| `cup.invite.bot_title` | Guruh admini kerak | Нужен админ группы |
+| `cup.invite.paused_title` | Kubok to'xtatilgan | Кубок на паузе |
+| `cup.table.title` | Jadval | Таблица |
+| `cup.table.empty` | Hozircha hech kim qo'shilmagan. | Пока никто не вступил. |
+| `cup.table.left` | chiqib ketgan | вышел(а) |
+| `cup.table.place` | {rank}-o'rin | {rank} место |
+| `cup.table.place_shared` | {rank}-o'rin (umumiy) | {rank} место (общее) |
+| `cup.today.play` | Kun raundini o'ynash | Играть раунд дня |
+| `cup.today.continue` | Raundni davom ettirish | Продолжить раунд |
+| `cup.today.active_until` | Raund {time} gacha davom etadi | Раунд идёт до {time} |
+| `cup.today.done` | Raund o'ynaldi: {points}. Keyingisi — ertaga {time} da. | Раунд сыгран: {points}. Следующий — завтра в {time}. |
+| `cup.today.done_last` | Raund o'ynaldi: {points}. Bu kubokning oxirgi kuni edi. | Раунд сыгран: {points}. Это был последний день кубка. |
+| `cup.me.left` | Siz guruhdan chiqdingiz: yangi raundlar mavjud emas, ballar jadvalda qoladi. | Вы вышли из группы: новые раунды недоступны, очки остаются в таблице. |
+| `cup.me.not_joined` | Siz hali bu kubokda qatnashmayapsiz. | Вы ещё не участвуете в этом кубке. |
+| `cup.days.title` | Mening kunlarim | Мои дни |
+| `cup.days.hint.one/other` | Ramka bilan hisobga olinadigan kunlar belgilangan: {count} ta eng yaxshi. | Рамкой отмечен день, который идёт в зачёт: {count} лучший. / Рамкой отмечены дни, которые идут в зачёт: {count} лучших. / Рамкой отмечены дни, которые идут в зачёт: {count} лучших. |
+| `cup.days.counted` | {day}-kun: {points}, hisobga olinadi | День {day}: {points}, в зачёте |
+| `cup.days.played` | {day}-kun: {points} | День {day}: {points} |
+| `cup.days.not_played` | {day}-kun: o'ynalmagan | День {day}: не сыгран |
+| `cup.days.unavailable` | {day}-kun: qo'shilishdan oldin | День {day}: до вступления |
+| `cup.name.change` | O'zgartirish | Изменить |
+| `cup.name.title` | Turnirdagi ism | Имя в турнире |
+| `cup.name.save` | Saqlash | Сохранить |
+| `cup.name.left.one/other` | Ismni yana {count} marta o'zgartirish mumkin. | Сменить имя можно ещё {count} раз. / Сменить имя можно ещё {count} раза. / Сменить имя можно ещё {count} раз. |
+| `cup.cancel.open` | Kubokni bekor qilish | Отменить кубок |
+| `cup.cancel.title` | Kubok bekor qilinsinmi? | Отменить кубок? |
+| `cup.cancel.text` | Kubok barcha ishtirokchilar uchun to'xtaydi, yakunlar e'lon qilinmaydi. Uni qaytarib bo'lmaydi. | Кубок остановится для всех участников, итоги не будут опубликованы. Вернуть его нельзя. |
+| `cup.cancel.keep` | Bekor qilmaslik | Не отменять |
+| `cup.cancel.confirm` | Kubokni bekor qilish | Отменить кубок |
+| `cup.list.title` | Do'stlar kuboklari | Кубки друзей |
+| `cup.list.open` | Davom etmoqda | Идут |
+| `cup.list.over` | Yakunlangan | Завершённые |
+| `cup.list.empty` | Siz hozircha kuboklarda qatnashmayapsiz. Kubok bot bor Telegram guruhida yaratiladi. | Вы пока не участвуете в кубках. Кубок создают в группе Telegram, где есть бот. |
+| `cup.round.playing_for` | O'ynayapman: {group} | Играю за: {group} |
+| `cup.round.playing_for_day` | O'ynayapman: {group} · {day}-kun | Играю за: {group} · День {day} |
+| `cup.round.confirm_title` | Kun raundi | Раунд дня |
+| `cup.round.confirm_text` | Bitta urinish: {tasks} ta topshiriq, {minutes} daqiqa. Vaqt darhol boshlanadi va to'xtamaydi. | Одна попытка: {tasks} заданий, {minutes} минут. Время пойдёт сразу и не остановится. |
+| `cup.round.confirm_points` | To'g'ri javob uchun — 2 ball, xato yozilgan javob uchun — 0. | За верный ответ — 2 очка, ответ с опечаткой — 0. |
+| `cup.round.start` | Raundni boshlash | Начать раунд |
+| `cup.round.later` | Hozir emas | Не сейчас |
+| `cup.round.time_left` | Qoldi: {time} | Осталось {time} |
+| `cup.round.exit_title` | Raunddan chiqasizmi? | Выйти из раунда? |
+| `cup.round.exit_text` | Vaqt to'xtamaydi. {time} gacha qaytib, oxirigacha o'ynash mumkin. | Время не остановится. Вернуться и доиграть можно до {time}. |
+| `cup.round.exit_stay` | Raundni davom ettirish | Продолжить раунд |
+| `cup.round.exit_leave` | Chiqish | Выйти |
+| `cup.round.done_title` | Raund o'ynaldi | Раунд сыгран |
+| `cup.round.expired_title` | Vaqt tugadi | Время вышло |
+| `cup.round.expired_text` | Berilgan javoblar uchun ballar saqlandi. | Очки за данные ответы сохранены. |
+| `cup.round.correct` | To'g'ri: {total} tadan {correct} | Верно: {correct} из {total} |
+| `cup.round.review_title` | Tahlil | Разбор |
+| `cup.round.no_answer` | Javobsiz | Без ответа |
+| `cup.round.to_table` | Kubok jadvaliga | К таблице кубка |
+| `cup.round.to_cup` | Kubokka | К кубку |
+| `cup.round.unavailable_title` | Hozir raund yo'q | Раунда сейчас нет |
+| `cup.round.not_participant` | Faqat kubok ishtirokchilari o'ynay oladi. | Играть могут только участники кубка. |
+| `cup.round.not_available` | Hozir raund yo'q: kubok hali boshlanmagan, allaqachon tugagan yoki siz guruhdan chiqqansiz. | Сейчас раунда нет: кубок ещё не начался, уже закончился или вы вышли из группы. |
+| `cup.setup.title` | Kubok sozlamalari | Настройка кубка |
+| `cup.setup.not_admin_title` | Faqat guruh admini uchun | Только для админа группы |
+| `cup.setup.level` | So'zlar darajasi | Уровень слов |
+| `cup.setup.locale` | Guruhdagi xabarlar tili | Язык сообщений в группе |
+| `cup.setup.locale_ru` | Rus tili | Русский |
+| `cup.setup.locale_uz` | O'zbek tili | Узбекский |
+| `cup.setup.publish_hint` | E'lon qilingandan keyin daraja va til o'zgarmaydi. Boshlanish — kamida 6 soat qolgan eng yaqin yarim tunda. | После публикации уровень и язык не меняются. Старт — в ближайшую полночь, до которой не меньше 6 часов. |
+| `cup.setup.publish` | Kubokni e'lon qilish | Опубликовать кубок |
+| `cup.setup.summaries` | Guruhda kun yakunlari | Итоги дня в группе |
+| `cup.setup.summary_time` | Yakunlar vaqti | Время итогов |
+| `cup.setup.save` | Saqlash | Сохранить |
+| `cup.setup.to_cup` | Kubokni ochish | Открыть кубок |
+| `today.cup.title` | «{group}» kubogi | Кубок «{group}» |
+| `today.cup.play` | {days} kundan {day}-kun · kun raundini o'ynang | День {day} из {days} · сыграйте раунд дня |
+| `today.cup.played` | {days} kundan {day}-kun · raund o'ynaldi | День {day} из {days} · раунд сыгран |
+| `today.cup.go` | O'ynash | Играть |
+| `profile.cups` | Do'stlar kuboklari | Кубки друзей |

@@ -42,6 +42,7 @@ return [
     'summary' => [
         'title' => "📊 Do'stlar kubogi · :days kundan :day-kun yakunlari",
         'footer' => 'Yakun :end, 00:00. Yangi kun raundi yarim tunda ochiladi.',
+        'footer_last' => "Bu oxirgi kun: raundni yarim tungacha o'ynash mumkin. Yakun :end, 00:00 — undan keyin kubok natijalari.",
     ],
 
     'final' => [
@@ -53,6 +54,7 @@ return [
 
     'command' => [
         'exists' => 'Chatda allaqachon «:group» kubogi bor. Jadval va qatnashish — quyidagi tugma orqali.',
+        'draft' => "Chatda «:group» kubogining qoralamasi bor. Chat administratori uni quyidagi tugma orqali sozlab, e'lon qilishi mumkin.",
         'material' => "Hozir kubok mavjud emas: bu daraja uchun so'zlar yetarli emas.",
     ],
 

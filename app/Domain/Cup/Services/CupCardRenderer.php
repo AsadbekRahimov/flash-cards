@@ -8,6 +8,7 @@ use App\Domain\Cup\DTO\CupCardContent;
 use App\Domain\Cup\Enums\CupCancelReason;
 use App\Domain\Cup\Enums\CupStatus;
 use App\Domain\Cup\Support\CupClock;
+use App\Domain\Cup\Support\DisplayName;
 use App\Domain\Engagement\DTO\CardSpec;
 use App\Domain\Engagement\Services\AchievementCardRenderer;
 use App\Domain\Learners\Services\ProEmojiService;
@@ -15,6 +16,7 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Services\BotButtons;
 use App\Domain\Telegram\Support\BotButton;
 use App\Domain\Telegram\Support\CupCallback;
+use App\Domain\Telegram\Support\TelegramText;
 use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\Cup;
 use App\Models\TelegramGroup;
@@ -54,55 +56,57 @@ final class CupCardRenderer
         private readonly LocaleResolver $locales,
     ) {}
 
-    /** The card as the cup is now: the proposal of a draft, else the card of its status. */
-    public function card(Cup $cup, TelegramGroup $group, CarbonImmutable $now): CupCardContent
+    /**
+     * The card as the cup is now: the proposal of a draft, else the card of its status. `$table` / `$emoji` - already read for a
+     * batch of cards (`cups:refresh-cards` reads them for all cards at once); null - read here (cached).
+     *
+     * @param  list<array{participant_id: int, rank: int, display_name: string, total: int, round_points: int, days_played: int, left: bool}>|null  $table
+     * @param  array<int, string>|null  $emoji
+     */
+    public function card(Cup $cup, TelegramGroup $group, CarbonImmutable $now, ?array $table = null, ?array $emoji = null): CupCardContent
     {
         if ($cup->status === CupStatus::Draft) {
             return $this->proposal($cup, $group);
         }
 
         $locale = $this->locale($cup);
-        $lines = [$this->title($cup, $group, $locale)];
+        $head = [$this->title($cup, $group, $locale)];
 
         if ($cup->status === CupStatus::Canceled) {
-            $lines[] = __(match ($cup->cancel_reason) {
+            $head[] = __(match ($cup->cancel_reason) {
                 CupCancelReason::DraftExpired => 'cup.card.expired',
                 CupCancelReason::NoPlayers => 'cup.card.no_players',
                 default => 'cup.card.canceled',
             }, [], $locale);
 
-            return new CupCardContent(implode("\n", $lines), null);
+            return new CupCardContent(implode("\n", $head), null);
         }
 
-        $table = $this->standings->table($cup);
+        $table ??= $this->standings->table($cup);
         if ($cup->status === CupStatus::Scheduled) {
-            $lines[] = __('cup.card.scheduled', ['start' => $this->date($cup->starts_at, $cup), 'end' => $this->date($cup->ends_at, $cup)], $locale);
+            $head[] = __('cup.card.scheduled', ['start' => $this->date($cup->starts_at, $cup), 'end' => $this->date($cup->ends_at, $cup)], $locale);
         } elseif ($cup->status === CupStatus::Running) {
             $day = $cup->starts_at === null ? 1 : max(1, min($cup->days, CupClock::dayNumber($cup->starts_at, $cup->timezone, $now)));
-            $lines[] = __('cup.card.running', ['day' => $day, 'days' => $cup->days, 'end' => $this->date($cup->ends_at, $cup)], $locale);
+            $head[] = __('cup.card.running', ['day' => $day, 'days' => $cup->days, 'end' => $this->date($cup->ends_at, $cup)], $locale);
         } else {
-            $lines[] = __('cup.card.finished', [], $locale);
+            $head[] = __('cup.card.finished', [], $locale);
         }
         if ($group->bot_status === 'member' && $cup->status !== CupStatus::Finished) {
             // The bot was demoted (docs/33 §4.4): membership cannot be checked until it is an administrator again.
-            $lines[] = __('cup.card.bot_not_admin', [], $locale);
+            $head[] = __('cup.card.bot_not_admin', [], $locale);
         }
 
-        $lines[] = '';
-        if ($cup->status === CupStatus::Scheduled && $table === []) {
-            $lines[] = __('cup.card.join_hint', [], $locale);
-        } else {
-            array_push($lines, ...$this->rows($cup, $table, $locale, false));
-        }
+        $head[] = '';
+        [$rows, $total] = $cup->status === CupStatus::Scheduled && $table === []
+            ? [[__('cup.card.join_hint', [], $locale)], 0]
+            : $this->rows($cup, $table, $locale, false, $emoji);
 
         $footer = __('cup.card.participants', ['count' => count($table)], $locale);
         if ($cup->status !== CupStatus::Finished && $cup->summaries_enabled) {
             $footer .= ' · '.__('cup.card.summary_at', ['time' => $this->minute($cup->summary_minute)], $locale);
         }
-        $lines[] = '';
-        $lines[] = $footer;
 
-        return new CupCardContent(implode("\n", $lines), $this->cardKeyboard($cup, $group, $locale));
+        return $this->assemble($head, $rows, $total, ['', $footer], $locale, $this->cardKeyboard($cup, $group, $locale));
     }
 
     /** The proposal of a draft (docs/33 §6.1): what the cup is, «Опубликовать» / «Настроить» / «Отменить». */
@@ -133,14 +137,15 @@ final class CupCardRenderer
     public function summary(Cup $cup, TelegramGroup $group, int $day): CupCardContent
     {
         $locale = $this->locale($cup);
-        $lines = [__('cup.summary.title', ['day' => $day, 'days' => $cup->days], $locale), ''];
-        array_push($lines, ...$this->rows($cup, $this->standings->table($cup), $locale, false));
-        $lines[] = '';
-        $lines[] = __('cup.summary.footer', ['end' => $this->date($cup->ends_at, $cup)], $locale);
+        [$rows, $total] = $this->rows($cup, $this->standings->table($cup), $locale, false);
+        // The last day has no "new day at midnight": the cup ends then and the final follows.
+        $footer = $day >= $cup->days
+            ? __('cup.summary.footer_last', ['end' => $this->date($cup->ends_at, $cup)], $locale)
+            : __('cup.summary.footer', ['end' => $this->date($cup->ends_at, $cup)], $locale);
 
         $keyboard = $this->buttons->single($group->chat_id, $this->tableButton($cup, $locale, 'buttons.cup_table', 'cup_summary'));
 
-        return new CupCardContent(implode("\n", $lines), $keyboard);
+        return $this->assemble([__('cup.summary.title', ['day' => $day, 'days' => $cup->days], $locale), ''], $rows, $total, ['', $footer], $locale, $keyboard);
     }
 
     /** The final (docs/33 §6.1, §5.5): medals for the first three places, ties share the place (1, 1, 3) and the congratulation. */
@@ -148,22 +153,23 @@ final class CupCardRenderer
     {
         $locale = $this->locale($cup);
         $table = $this->standings->table($cup);
-        $lines = [
+        $head = [
             __('cup.final.title', [], $locale),
             __('cup.final.group', ['group' => $group->title, 'level' => $cup->level], $locale),
             '',
         ];
-        array_push($lines, ...$this->rows($cup, $table, $locale, true));
+        [$rows, $total] = $this->rows($cup, $table, $locale, true);
 
+        $tail = [];
         $winners = array_values(array_filter($table, static fn (array $row): bool => $row['rank'] === 1 && $row['total'] > 0));
         if ($winners !== []) {
-            $lines[] = '';
-            $lines[] = __('cup.final.winner', ['names' => implode(', ', array_column($winners, 'display_name'))], $locale);
+            $names = array_map(static fn (array $row): string => DisplayName::forChat($row['display_name']), $winners);
+            $tail = ['', __('cup.final.winner', ['names' => implode(', ', $names)], $locale)];
         }
 
         $keyboard = $this->buttons->single($group->chat_id, $this->tableButton($cup, $locale, 'buttons.cup_final_table', 'cup_final'));
 
-        return new CupCardContent(implode("\n", $lines), $keyboard);
+        return $this->assemble($head, $rows, $total, $tail, $locale, $keyboard);
     }
 
     /**
@@ -206,24 +212,26 @@ final class CupCardRenderer
     }
 
     /**
-     * The lines of the table: `place. name [emoji] [(left)] — points`, at most {@see SHOWN_ROWS}; medals for the final.
+     * The lines of the table: `place. name [emoji] [(left)] — points`, at most {@see SHOWN_ROWS}; medals for the final. The name is
+     * printed as the bot may print it ({@see DisplayName::forChat()}: nothing Telegram would make a link of). Returns the lines and the
+     * number of rows of the whole table (0 when the lines are the "nobody has points" line).
      *
      * @param  list<array{participant_id: int, rank: int, display_name: string, total: int, round_points: int, days_played: int, left: bool}>  $table
-     * @return list<string>
+     * @param  array<int, string>|null  $emoji
+     * @return array{0: list<string>, 1: int}
      */
-    private function rows(Cup $cup, array $table, string $locale, bool $medals): array
+    private function rows(Cup $cup, array $table, string $locale, bool $medals, ?array $emoji = null): array
     {
         $empty = array_filter($table, static fn (array $row): bool => $row['total'] > 0) === [];
         if ($empty) {
-            return [__($medals ? 'cup.final.empty' : 'cup.card.empty', [], $locale)];
+            return [[__($medals ? 'cup.final.empty' : 'cup.card.empty', [], $locale)], 0];
         }
 
-        $shown = array_slice($table, 0, self::SHOWN_ROWS);
-        $emoji = $this->emoji->forCup($cup);
+        $emoji ??= $this->emoji->forCup($cup);
 
         $lines = [];
-        foreach ($shown as $row) {
-            $name = $row['display_name'];
+        foreach (array_slice($table, 0, self::SHOWN_ROWS) as $row) {
+            $name = DisplayName::forChat($row['display_name']);
             if (isset($emoji[$row['participant_id']])) {
                 $name .= ' '.$emoji[$row['participant_id']];
             }
@@ -234,11 +242,44 @@ final class CupCardRenderer
                 ? self::MEDALS[$row['rank']]." {$name} — {$row['total']}"
                 : __('cup.card.row', ['place' => $row['rank'], 'name' => $name, 'points' => $row['total']], $locale);
         }
-        if (count($table) > count($shown)) {
-            $lines[] = __('cup.card.more', ['count' => count($table) - count($shown)], $locale);
+
+        return [$lines, count($table)];
+    }
+
+    /**
+     * The message from its head, the rows of the table (`$total` rows in the whole table: the rest is "…and N more") and its tail.
+     * The text keeps every row it was given; when it is longer than a caption (1024 UTF-16 units - names of emoji are long), the
+     * caption drops rows from the end (the "…and N more" grows) until it fits - the place of a participant is never cut in half.
+     *
+     * @param  list<string>  $head
+     * @param  list<string>  $rows
+     * @param  list<string>  $tail
+     * @param  array{inline_keyboard: list<list<array<string, mixed>>>}|null  $keyboard
+     */
+    private function assemble(array $head, array $rows, int $total, array $tail, string $locale, ?array $keyboard): CupCardContent
+    {
+        $build = static function (int $shown) use ($head, $rows, $total, $tail, $locale): string {
+            $lines = [...$head, ...array_slice($rows, 0, $shown)];
+            if ($total > $shown) {
+                $lines[] = __('cup.card.more', ['count' => $total - $shown], $locale);
+            }
+
+            return implode("\n", [...$lines, ...$tail]);
+        };
+
+        $text = $build(count($rows));
+        $caption = null;
+        if (! TelegramText::fits($text, CupCardContent::CAPTION_LIMIT)) {
+            $least = $total > 0 ? min(1, count($rows)) : count($rows);
+            for ($shown = count($rows) - 1; $shown >= $least; $shown--) {
+                $caption = $build($shown);
+                if (TelegramText::fits($caption, CupCardContent::CAPTION_LIMIT)) {
+                    break;
+                }
+            }
         }
 
-        return $lines;
+        return new CupCardContent($text, $keyboard, $caption);
     }
 
     /**

@@ -47,6 +47,8 @@ final class CupCards
         private readonly CupCardRenderer $renderer,
         private readonly CupOutbox $outbox,
         private readonly GroupBotRemoval $removal,
+        private readonly CupStandings $standings,
+        private readonly CupProEmoji $emoji,
     ) {}
 
     /**
@@ -55,55 +57,19 @@ final class CupCards
      */
     public function refresh(Cup $cup, CarbonImmutable $now): string
     {
-        $group = $cup->telegramGroup;
-        if ($cup->card_message_id === null) {
-            return 'none';
-        }
-        if (! CupAccess::allowsGroup($group) || CupAccess::pauseReason($group) !== null) {
-            // Nobody can be told now; the bot coming back posts the card anew.
-            $this->rendered($cup, null, $now);
+        $marks = [];
+        $outcome = $this->refreshOne($cup, $now, null, null, $marks);
+        $this->writeRendered($marks, $now);
 
-            return 'paused';
-        }
-        if ($cup->card_chat_id !== null && $cup->card_chat_id !== $group->chat_id) {
-            // The chat became a supergroup: the old message is in a chat that is gone (docs/33 §4.6).
-            return $this->republish($cup, $now);
-        }
-
-        $content = $this->renderer->card($cup, $group, $now);
-        $hash = $content->hash();
-        if ($hash === $cup->card_text_hash) {
-            $this->rendered($cup, null, $now);
-
-            return 'same';
-        }
-
-        if ($this->limiter->reserve($group->chat_id) > 0) {
-            return 'deferred';
-        }
-
-        $photo = ($cup->meta['card_kind'] ?? self::KIND_TEXT) === self::KIND_PHOTO;
-        try {
-            $photo
-                ? $this->telegram->editMessageCaption($group->chat_id, $cup->card_message_id, $content->textFor(true), $content->keyboard)
-                : $this->telegram->editMessageText($group->chat_id, $cup->card_message_id, $content->textFor(false), null, $content->keyboard);
-        } catch (TelegramChatMigratedException) {
-            // The client has moved the group already; the card is posted in the new chat.
-            return $this->republish($cup, $now);
-        } catch (TelegramRateLimitedException) {
-            // The client paused this chat (only it, docs/34 §4в п. 2); the next run tries again.
-            return 'deferred';
-        } catch (TelegramApiException $e) {
-            return $this->refused($cup, $group, $e, $hash, $now);
-        }
-
-        $this->rendered($cup, $hash, $now);
-
-        return 'edited';
+        return $outcome;
     }
 
     /**
-     * `cups:refresh-cards`: the cards with news, at most `$batch`, each refreshed. Constant statements per card (see the command).
+     * `cups:refresh-cards`: the cards with news, at most `$batch`, each refreshed. Statements do NOT grow with the cards: the choice,
+     * the cups, their groups, the tables of all of them (one statement for the ones not cached), the emoji of the tables with points
+     * (one statement), the edits (Telegram, one by one), and one `UPDATE … CASE` of `card_rendered_at` / `card_text_hash` for all.
+     * The marks are written after the edits (also when one throws): an edit repeated after a crash between the two is "message is
+     * not modified" - the same.
      *
      * @return array{checked: int, edited: int, same: int, deferred: int, republished: int, failed: int}
      */
@@ -115,21 +81,41 @@ final class CupCards
             return $report;
         }
 
-        foreach (Cup::query()->with('telegramGroup')->whereIn('id', $ids)->orderBy('id')->get() as $cup) {
-            $report['checked']++;
-            try {
-                $outcome = $this->refresh($cup, $now);
-            } catch (\Throwable $e) {
-                report($e);
-                $outcome = 'failed';
+        $cups = Cup::query()->with('telegramGroup')->whereIn('id', $ids)->orderBy('id')->get()->all();
+        $withTable = array_values(array_filter($cups, static fn (Cup $cup): bool => $cup->card_message_id !== null
+            && in_array($cup->status, [CupStatus::Scheduled, CupStatus::Running, CupStatus::Finished], true)));
+        $tables = $this->standings->tables($withTable);
+        $scored = [];
+        foreach ($tables as $cupId => $table) {
+            foreach ($table as $row) {
+                if ($row['total'] > 0) {
+                    $scored[] = $cupId;
+                    break;
+                }
             }
-            match ($outcome) {
-                'edited' => $report['edited']++,
-                'same', 'paused', 'none' => $report['same']++,
-                'deferred' => $report['deferred']++,
-                'republish' => $report['republished']++,
-                default => $report['failed']++,
-            };
+        }
+        $emoji = $this->emoji->forCups($scored, $now);
+
+        $marks = [];
+        try {
+            foreach ($cups as $cup) {
+                $report['checked']++;
+                try {
+                    $outcome = $this->refreshOne($cup, $now, $tables[$cup->id] ?? null, $emoji[$cup->id] ?? [], $marks);
+                } catch (\Throwable $e) {
+                    report($e);
+                    $outcome = 'failed';
+                }
+                match ($outcome) {
+                    'edited' => $report['edited']++,
+                    'same', 'paused', 'none' => $report['same']++,
+                    'deferred' => $report['deferred']++,
+                    'republish' => $report['republished']++,
+                    default => $report['failed']++,
+                };
+            }
+        } finally {
+            $this->writeRendered($marks, $now);
         }
 
         return $report;
@@ -177,6 +163,60 @@ final class CupCards
     }
 
     /**
+     * @param  list<array{participant_id: int, rank: int, display_name: string, total: int, round_points: int, days_played: int, left: bool}>|null  $table
+     * @param  array<int, string>|null  $emoji
+     * @param  array<int, string|null>  $marks  cup id => the new hash (null: only `card_rendered_at`) - written by the caller
+     */
+    private function refreshOne(Cup $cup, CarbonImmutable $now, ?array $table, ?array $emoji, array &$marks): string
+    {
+        $group = $cup->telegramGroup;
+        if ($cup->card_message_id === null) {
+            return 'none';
+        }
+        if (! CupAccess::allowsGroup($group) || CupAccess::pauseReason($group) !== null) {
+            // Nobody can be told now; the bot coming back posts the card anew.
+            $marks[$cup->id] = null;
+
+            return 'paused';
+        }
+        if ($cup->card_chat_id !== null && $cup->card_chat_id !== $group->chat_id) {
+            // The chat became a supergroup: the old message is in a chat that is gone (docs/33 §4.6).
+            return $this->republish($cup, $now, $marks);
+        }
+
+        $content = $this->renderer->card($cup, $group, $now, $table, $emoji);
+        $hash = $content->hash();
+        if ($hash === $cup->card_text_hash) {
+            $marks[$cup->id] = null;
+
+            return 'same';
+        }
+
+        if ($this->limiter->reserve($group->chat_id) > 0) {
+            return 'deferred';
+        }
+
+        $photo = ($cup->meta['card_kind'] ?? self::KIND_TEXT) === self::KIND_PHOTO;
+        try {
+            $photo
+                ? $this->telegram->editMessageCaption($group->chat_id, $cup->card_message_id, $content->textFor(true), $content->keyboard)
+                : $this->telegram->editMessageText($group->chat_id, $cup->card_message_id, $content->textFor(false), null, $content->keyboard);
+        } catch (TelegramChatMigratedException) {
+            // The client has moved the group already; the card is posted in the new chat.
+            return $this->republish($cup, $now, $marks);
+        } catch (TelegramRateLimitedException) {
+            // The client paused this chat (only it, docs/34 §4в п. 2); the next run tries again.
+            return 'deferred';
+        } catch (TelegramApiException $e) {
+            return $this->refused($cup, $group, $e, $hash, $now, $marks);
+        }
+
+        $marks[$cup->id] = $hash;
+
+        return 'edited';
+    }
+
+    /**
      * The bot was added back to the chat (docs/33 §4.5): the open cup of the group gets its card posted anew - the old one may be
      * gone with the bot. No second cup, the dates stay.
      */
@@ -191,10 +231,11 @@ final class CupCards
     }
 
     /** A refused edit (not a 429, not a migration). */
-    private function refused(Cup $cup, TelegramGroup $group, TelegramApiException $e, string $hash, CarbonImmutable $now): string
+    /** @param array<int, string|null> $marks */
+    private function refused(Cup $cup, TelegramGroup $group, TelegramApiException $e, string $hash, CarbonImmutable $now, array &$marks): string
     {
         if ($e->isMessageNotModified()) {
-            $this->rendered($cup, $hash, $now);
+            $marks[$cup->id] = $hash;
 
             return 'same';
         }
@@ -206,7 +247,7 @@ final class CupCards
         }
         if ($e->getCode() === 403) {
             $this->removal->disable($group, new TelegramForbiddenException(TelegramForbiddenException::REASON_FORBIDDEN), 'cup_card');
-            $this->rendered($cup, null, $now);
+            $marks[$cup->id] = null;
 
             return 'failed';
         }
@@ -216,36 +257,63 @@ final class CupCards
             // Deleted by an administrator: posted anew, at most once a day (until then the card stays gone).
             $sentAt = DB::table('cup_messages')->where('cup_id', $cup->id)->where('dedupe_key', CupOutbox::CARD_KEY)->value('sent_at');
             if ($sentAt === null || CarbonImmutable::parse((string) $sentAt)->lte($now->subHours(self::REPUBLISH_HOURS))) {
-                return $this->republish($cup, $now);
+                return $this->republish($cup, $now, $marks);
             }
         }
 
         Log::warning('cup.card_edit_refused', ['cup_id' => $cup->id, 'code' => $e->getCode()]);
-        $this->rendered($cup, null, $now);
+        $marks[$cup->id] = null;
 
         return 'failed';
     }
 
-    private function republish(Cup $cup, CarbonImmutable $now): string
+    /** @param array<int, string|null> $marks */
+    private function republish(Cup $cup, CarbonImmutable $now, array &$marks): string
     {
         if ($cup->status->isOpen()) {
             $this->outbox->republishCard($cup->id, $now);
         }
-        $this->rendered($cup, null, $now);
+        $marks[$cup->id] = null;
 
         return 'republish';
     }
 
     /**
-     * The card was looked at now (with the new hash when it was edited). Not `updated_at`: that one says when the cup changed.
+     * The cards were looked at now (with the new hash where it was edited) - ONE statement for all: `card_rendered_at = now`, the
+     * hash by `CASE id` (bindings only). Not `updated_at`: that one says when the cup changed.
+     *
+     * @param  array<int, string|null>  $marks
      */
-    private function rendered(Cup $cup, ?string $hash, CarbonImmutable $now): void
+    private function writeRendered(array $marks, CarbonImmutable $now): void
     {
-        $values = ['card_rendered_at' => $now];
-        if ($hash !== null) {
-            $values['card_text_hash'] = $hash;
+        if ($marks === []) {
+            return;
         }
-        DB::table('cups')->where('id', $cup->id)->update($values);
-        $cup->forceFill($values);
+        $hashes = array_filter($marks, static fn (?string $hash): bool => $hash !== null);
+        DB::update(
+            'UPDATE cups SET card_rendered_at = ?'.($hashes === [] ? '' : ', card_text_hash = '.self::caseOf($hashes)).' WHERE id IN ('.implode(', ', array_fill(0, count($marks), '?')).')',
+            [$now->format('Y-m-d H:i:s'), ...self::caseBindings($hashes), ...array_keys($marks)],
+        );
+    }
+
+    /** @param array<int, string> $hashes */
+    private static function caseOf(array $hashes): string
+    {
+        return 'CASE id'.str_repeat(' WHEN ? THEN ?', count($hashes)).' ELSE card_text_hash END';
+    }
+
+    /**
+     * @param  array<int, string>  $hashes
+     * @return list<int|string>
+     */
+    private static function caseBindings(array $hashes): array
+    {
+        $bindings = [];
+        foreach ($hashes as $id => $hash) {
+            $bindings[] = $id;
+            $bindings[] = $hash;
+        }
+
+        return $bindings;
     }
 }

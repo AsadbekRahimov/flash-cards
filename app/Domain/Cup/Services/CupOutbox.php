@@ -101,34 +101,43 @@ final class CupOutbox
     }
 
     /**
+     * Queues the job of a `pending` row written by someone who does not know the bot (the finish writes `final`, docs/33 §5.6): one
+     * read by the unique `(cup_id, dedupe_key)`, the job after the commit. Without it the row would wait for the sweep (2-3 minutes).
+     */
+    public function queue(int $cupId, string $dedupeKey): bool
+    {
+        $id = DB::table('cup_messages')->where('cup_id', $cupId)->where('dedupe_key', $dedupeKey)->where('status', CupMessageStatus::Pending->value)->value('id');
+        if ($id === null) {
+            return false;
+        }
+        PostCupMessageJob::dispatch((int) $id)->afterCommit();
+
+        return true;
+    }
+
+    /**
      * The card is posted anew (docs/33 §4.5, §6.3): the bot came back to the chat, the chat became a supergroup, an administrator
-     * deleted the card. Its row goes back to `pending` (or is made) and is queued; a row being sent right now is left alone. The old
-     * `cups.card_*` stay until the new message is there.
+     * deleted the card. Its row goes back to `pending` (or is made) and is queued. A row `pending` already has its job. A row being
+     * SENT right now (its send may be going into the chat the bot has just left) is marked - `cups.meta.card_repost` - and the end of
+     * that send ({@see settled()}) puts it back to `pending` unless it was posted; the second try of the reset closes the gap of a
+     * send that ended between the two statements. The old `cups.card_*` stay until the new message is there.
      */
     public function republishCard(int $cupId, CarbonImmutable $now): bool
     {
-        $reset = DB::table('cup_messages')
-            ->where('cup_id', $cupId)
-            ->where('dedupe_key', self::CARD_KEY)
-            ->whereNotIn('status', [CupMessageStatus::Pending->value, CupMessageStatus::Sending->value])
-            ->update([
-                'status' => CupMessageStatus::Pending->value,
-                'attempts' => 0,
-                'message_id' => null,
-                'claimed_at' => null,
-                'sent_at' => null,
-                'error' => null,
-                'updated_at' => $now,
-            ]);
-
-        if ($reset > 0) {
-            $id = (int) DB::table('cup_messages')->where('cup_id', $cupId)->where('dedupe_key', self::CARD_KEY)->value('id');
-            PostCupMessageJob::dispatch($id)->afterCommit();
-
+        if ($this->resetCard($cupId, $now) || $this->enqueue($cupId, self::CARD_KEY, CupMessageKind::Card, $now)) {
             return true;
         }
 
-        return $this->enqueue($cupId, self::CARD_KEY, CupMessageKind::Card, $now);
+        $marked = DB::table('cups')
+            ->where('id', $cupId)
+            ->whereExists(fn ($q) => $q->selectRaw('1')->from('cup_messages as m')->whereColumn('m.cup_id', 'cups.id')
+                ->where('m.dedupe_key', self::CARD_KEY)->where('m.status', CupMessageStatus::Sending->value))
+            ->update(['meta->card_repost' => true]) > 0;
+        if ($marked && $this->resetCard($cupId, $now)) {
+            DB::table('cups')->where('id', $cupId)->update(['meta->card_repost' => false]);
+        }
+
+        return $marked;
     }
 
     /**
@@ -162,6 +171,7 @@ final class CupOutbox
         $skip = $this->skipReason($message, $cup, $group);
         if ($skip !== null) {
             $this->finish($message, CupMessageStatus::Skipped, $now, $skip);
+            $this->settled($message, false, $now);
 
             return 0;
         }
@@ -184,6 +194,7 @@ final class CupOutbox
             // The bot is not in the chat (docs/34 §4в п. 3): nothing was posted and nothing will be.
             $this->finish($message, CupMessageStatus::Skipped, $now, 'forbidden:'.$e->reason);
             $this->removal->disable($group, $e, 'cup_message');
+            $this->settled($message, false, $now);
 
             return 0;
         } catch (TelegramRateLimitedException $e) {
@@ -194,12 +205,14 @@ final class CupOutbox
             if (! $e->isApiResponse()) {
                 // A timeout / 5xx: it may be in the chat. Never again (docs/33 §6.4 step 5).
                 $this->finish($message, CupMessageStatus::Unknown, $now, $this->error($e));
+                $this->settled($message, false, $now);
 
                 return 0;
             }
             if ($message->attempts >= self::MAX_ATTEMPTS) {
                 $this->finish($message, CupMessageStatus::Failed, $now, $this->error($e));
                 Log::warning('cup.message_failed', ['cup_message_id' => $message->id, 'kind' => $message->kind->value, 'code' => $e->getCode()]);
+                $this->settled($message, false, $now);
 
                 return 0;
             }
@@ -209,6 +222,7 @@ final class CupOutbox
         }
 
         $this->sent($message, $cup, $group, $content, $photo !== null, $messageId, $threadId, $now);
+        $this->settled($message, true, $now);
 
         return 0;
     }
@@ -238,6 +252,46 @@ final class CupOutbox
         }
 
         return ['stale' => $stale, 'queued' => count($ids)];
+    }
+
+    /** A card row that is done (sent, skipped, unknown, failed) back to `pending`, and its job; false when it is pending or sending. */
+    private function resetCard(int $cupId, CarbonImmutable $now): bool
+    {
+        $reset = DB::table('cup_messages')
+            ->where('cup_id', $cupId)
+            ->where('dedupe_key', self::CARD_KEY)
+            ->whereNotIn('status', [CupMessageStatus::Pending->value, CupMessageStatus::Sending->value])
+            ->update([
+                'status' => CupMessageStatus::Pending->value,
+                'attempts' => 0,
+                'message_id' => null,
+                'claimed_at' => null,
+                'sent_at' => null,
+                'error' => null,
+                'updated_at' => $now,
+            ]);
+        if ($reset === 0) {
+            return false;
+        }
+        $id = (int) DB::table('cup_messages')->where('cup_id', $cupId)->where('dedupe_key', self::CARD_KEY)->value('id');
+        PostCupMessageJob::dispatch($id)->afterCommit();
+
+        return true;
+    }
+
+    /**
+     * A send of the card ended (posted or not, {@see republishCard()}): a repost asked for while it was in flight is taken - one
+     * conditional UPDATE that clears the mark - and, unless this send posted the card, the row goes back to `pending`.
+     */
+    private function settled(CupMessage $message, bool $posted, CarbonImmutable $now): void
+    {
+        if ($message->kind !== CupMessageKind::Card) {
+            return;
+        }
+        $asked = DB::table('cups')->where('id', $message->cup_id)->where('meta->card_repost', true)->update(['meta->card_repost' => false]) > 0;
+        if ($asked && ! $posted) {
+            $this->resetCard($message->cup_id, $now);
+        }
     }
 
     /** Why the row is not sent at all, or null. */
@@ -293,12 +347,13 @@ final class CupOutbox
 
             if ($message->kind === CupMessageKind::Card) {
                 // Not `updated_at`: it says when the CUP changed, and the refresh of the cards compares it with `card_rendered_at`.
+                // `meta->card_kind` sets that one key in the row as it is (jsonb_set / json_set), never the `meta` read without a lock.
                 DB::table('cups')->where('id', $cup->id)->update([
                     'card_chat_id' => $group->chat_id,
                     'card_message_id' => $messageId,
                     'card_text_hash' => $content->hash(),
                     'card_rendered_at' => $now,
-                    'meta' => json_encode([...$cup->meta, 'card_kind' => $photo ? CupCards::KIND_PHOTO : CupCards::KIND_TEXT], JSON_THROW_ON_ERROR),
+                    'meta->card_kind' => $photo ? CupCards::KIND_PHOTO : CupCards::KIND_TEXT,
                 ]);
             }
         });

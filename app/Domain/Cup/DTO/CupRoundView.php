@@ -36,6 +36,7 @@ final readonly class CupRoundView
         public ?array $current,
         public array $answers,
         public ?array $review,
+        public ?string $nextDayAt = null,
     ) {}
 
     /** @return array<string, mixed> */
@@ -60,6 +61,7 @@ final readonly class CupRoundView
             'current' => $this->current,
             'answers' => $this->answers,
             'review' => $this->review,
+            'next_day_at' => $this->nextDayAt,
         ];
     }
 }

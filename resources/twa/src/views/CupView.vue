@@ -34,7 +34,8 @@ import type { CupDayResult } from '@/api/types'
  */
 const props = defineProps<{ id: number }>()
 
-const NAME_MAX = 32
+/** A bound of the field only: the server counts the name (32 characters as a person sees them) and refuses it with the reason. */
+const NAME_FIELD_MAX = 128
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -169,7 +170,7 @@ function openRename(): void {
 
 const canRename = computed((): boolean => {
   const value = newName.value.trim()
-  return !renaming.value && value !== '' && Array.from(value).length <= NAME_MAX && value !== me.value?.display_name
+  return !renaming.value && value !== '' && value !== me.value?.display_name
 })
 
 async function rename(): Promise<void> {
@@ -349,7 +350,7 @@ onBeforeUnmount(() => {
           v-model="newName"
           type="text"
           class="field"
-          :maxlength="NAME_MAX"
+          :maxlength="NAME_FIELD_MAX"
           :aria-label="t('cup.invite.name_label')"
           :disabled="renaming"
           data-testid="rename-input"

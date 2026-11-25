@@ -40,6 +40,9 @@ final class CupPlatformAdmin
 
     public const REASON_MAX = 500;
 
+    /** The keys of `telegram_groups.meta` only the actions here write (the edit form of the group keeps them as they are). */
+    public const GROUP_FLAGS = ['cups_blocked', 'cup_pilot'];
+
     public function __construct(
         private readonly CupLifecycleService $lifecycle,
         private readonly CupParticipationService $participation,
