@@ -1127,6 +1127,16 @@ export interface Card {
   note?: string | null
   /** The word a hard word is mixed up with (docs/06 §12.6). */
   confused_with?: { word: string; translation: string | null } | null
+  /** A phrase card (docs/35 §3.3 d, docs/06 §16); null for a word, absent on an older server. */
+  phrase?: PhraseInfo | null
+}
+
+/** The labels of a phrase card: kind, register, UK / US and «Буквально: …» (null while the card hides its answer). */
+export interface PhraseInfo {
+  kind: 'formula' | 'fixed' | 'idiom' | 'phrasal_verb' | 'proverb' | null
+  register: 'neutral' | 'informal' | 'formal' | 'slang' | 'rude' | null
+  variant: 'both' | 'uk' | 'us'
+  literal: string | null
 }
 
 export interface NextCardResponse {
@@ -1175,6 +1185,8 @@ export interface Revealed {
   hook: string | null
   note: string | null
   confused_with: { word: string; translation: string | null } | null
+  /** The phrase labels with the literal translation; null for a word, absent on an older server. */
+  phrase?: PhraseInfo | null
 }
 
 /** What the server said about a pick of a meaning / reverse / audio card: the screen colours the options by it. */
@@ -1350,6 +1362,8 @@ export interface Progress {
   total: number
 }
 
+export type CourseSection = 'courses' | 'phrases'
+
 /** Row of GET /courses and the answer of POST /me/course. Texts are localized by the server. */
 export interface Course {
   slug: string
@@ -1357,6 +1371,8 @@ export interface Course {
   description: string | null
   level: string | null
   exam_tag: string | null
+  /** The section of the catalog (docs/35 §3.3 a): `phrases` - a course of phrases, `courses` - every other. */
+  section?: CourseSection
   words_count: number
   is_featured: boolean
   is_active: boolean
@@ -1388,6 +1404,7 @@ export interface CourseDetail {
   description: string | null
   level: string | null
   exam_tag: string | null
+  section?: CourseSection
   words_count: number
   is_active: boolean
   progress: Progress

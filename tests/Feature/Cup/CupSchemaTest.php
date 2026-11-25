@@ -20,11 +20,12 @@ use Illuminate\Support\Facades\Schema;
 uses(RefreshDatabase::class);
 
 const CUP_MIGRATIONS = [
+    'database/migrations/2026_11_29_100001_create_cup_duels_tables.php',
     'database/migrations/2026_11_28_100002_create_cup_rounds_tables.php',
     'database/migrations/2026_11_28_100001_create_cups_tables.php',
 ];
 
-const CUP_TABLES = ['cups', 'cup_participants', 'cup_days', 'cup_day_scores', 'cup_messages', 'cup_round_attempts', 'cup_round_answers'];
+const CUP_TABLES = ['cups', 'cup_participants', 'cup_days', 'cup_day_scores', 'cup_messages', 'cup_round_attempts', 'cup_round_answers', 'cup_duels', 'cup_duel_slots'];
 
 it('rolls the tables of the cup back and forth', function (): void {
     foreach (CUP_TABLES as $table) {

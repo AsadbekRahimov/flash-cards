@@ -30,7 +30,8 @@ use App\Domain\Practice\Support\TranslationVariants;
  *    skipping what the word cannot do (`listen` without a recording, `gap` without the word in its example, a task with options
  *    without three distractors that do not clash with the word) - a word with no kind at all is skipped; the circle keeps two kinds
  *    from standing side by side whenever there is a choice. The distractors come from the nearest tier first (the words of the run,
- *    then the course, then the public courses), in the order of a hash of the seed and the word;
+ *    then the course, then the public courses), in the order of a hash of the seed and the word. A phrase (docs/35 §3.3 e) has no `spell`
+ *    (its `gap` is its key word in itself), and the distractors keep to the kind of the word: phrases for a phrase, words for a word;
  * 5. the order of play: a seeded shuffle; the first element is always a task made of a word (the warm-up), never an authored one;
  * 6. one event at most (`events.chance`): a sandstorm (a task to translate, on a word with a recording, becomes `listen`), an oasis or
  *    a bazaar on an element in the middle. Fixed here, in the snapshot.
@@ -169,7 +170,7 @@ final class RunComposer
     {
         switch ($kind) {
             case TaskKind::Spell:
-                return $word->pairs === null ? null : WordTaskHandler::buildSpell($word, $pool->locales, $taken);
+                return $word->pairs === null || $word->word->phrase ? null : WordTaskHandler::buildSpell($word, $pool->locales, $taken);
             case TaskKind::Gap:
                 return $word->gap === null ? null : WordTaskHandler::buildGap($word, $pool->locales, $taken);
             case TaskKind::Listen:
@@ -186,7 +187,7 @@ final class RunComposer
 
     /**
      * Three words that do not clash with the word in any locale: the nearest tier first, within a tier by a hash of the seed and the
-     * candidate (docs/18 §12.3.1). Null when there are not three.
+     * candidate (docs/18 §12.3.1); of the word's own kind - a phrase takes phrases, a word words (docs/35 §3.3 c). Null when there are not three.
      *
      * @return list<RunPoolWord>|null
      */
@@ -210,7 +211,7 @@ final class RunComposer
         $keys = $word->clashKeys();
         $seen = [$word->id() => true];
         foreach ($candidates as $candidate) {
-            if ($candidate->pairs === null || isset($seen[$candidate->id()]) || TranslationVariants::clash($keys, $candidate->clashKeys())) {
+            if ($candidate->pairs === null || $candidate->word->phrase !== $word->word->phrase || isset($seen[$candidate->id()]) || TranslationVariants::clash($keys, $candidate->clashKeys())) {
                 continue;
             }
             $seen[$candidate->id()] = true;

@@ -51,7 +51,27 @@ final class CupScoreBook
         return $this->recount($participantId, $countedDays, $now);
     }
 
-    /** Reads the days of the participant (≤ the days of the cup) and writes his best result. Under the lock of the participant. */
+    /**
+     * The points of the rated duel of a day (docs/33 §5.7): ASSIGNED, not added - the slot `(participant_id, day)` allows one rated duel
+     * a day, so a repeated scoring writes the same number; clamped to the cap of the duel. One upsert (the day row is made when the
+     * participant had not played the day yet: a day with only a duel is a day played - {@see recount()} writes `days_played`). Under the
+     * lock of the participant.
+     */
+    public function setDuelPoints(int $cupId, int $participantId, int $day, int $points, int $countedDays, CarbonImmutable $now): BestResult
+    {
+        DB::statement(
+            'INSERT INTO cup_day_scores (cup_id, participant_id, day, round_points, duel_points, updated_at) VALUES (?, ?, ?, 0, ?, ?)
+             ON CONFLICT (participant_id, day) DO UPDATE SET duel_points = excluded.duel_points, updated_at = excluded.updated_at',
+            [$cupId, $participantId, $day, max(0, min(CupScoring::DUEL_CAP, $points)), $now->format('Y-m-d H:i:s')],
+        );
+
+        return $this->recount($participantId, $countedDays, $now);
+    }
+
+    /**
+     * Reads the days of the participant (≤ the days of the cup) and writes his best result and `days_played` (= his day rows: a day is
+     * opened by a round's start or by a rated duel - the same number {@see openDay()} keeps). Under the lock of the participant.
+     */
     public function recount(int $participantId, int $countedDays, CarbonImmutable $now): BestResult
     {
         $days = [];
@@ -63,6 +83,7 @@ final class CupScoreBook
         DB::table('cup_participants')->where('id', $participantId)->update([
             'best_total' => $best->total,
             'best_round_points' => $best->roundPoints,
+            'days_played' => count($days),
             'updated_at' => $now,
         ]);
 

@@ -33,4 +33,5 @@ return [
     'cup_rules' => '📖 Правила',
     'cup_final_table' => '🏆 Итоговая таблица',
     'cup_open' => '🏆 Открыть кубок',
+    'cup_duel_accept' => '⚔️ Принять вызов',
 ];

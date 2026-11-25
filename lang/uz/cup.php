@@ -52,6 +52,22 @@ return [
         'empty' => "Hech kim ball to'plamadi.",
     ],
 
+    // A duel of the cup published in the chat (docs/33 §6.1, §5.7): one message, edited with the outcome - never a new one.
+    'duel' => [
+        'open_any' => "⚔️ :challenger kubokning istalgan ishtirokchisini duelga chaqiradi",
+        'open_to' => '⚔️ :challenger duelga chaqiradi: :opponent',
+        'rated' => "Hisobli duel: har kimga o'z to'g'ri javobi uchun kubok bali, :max tagacha.",
+        'friendly' => "O'rtoqlik o'yini: kubok ballarisiz.",
+        'until' => 'Chaqiruv :time gacha amal qiladi.',
+        'playing' => '⚔️ Duel davom etmoqda: :challenger — :opponent',
+        'result' => '⚔️ Duel: :challenger :challenger_points : :opponent_points :opponent',
+        'winner' => "G'alaba: :name",
+        'draw' => 'Durang',
+        'not_counted' => 'Natija kubok yakunlangandan keyin keldi va hisobga olinmadi.',
+        'friendly_done' => "O'rtoqlik o'yini, kubok ballarisiz.",
+        'fell_through' => "Chaqiruv bo'lib o'tmadi.",
+    ],
+
     'command' => [
         'exists' => 'Chatda allaqachon «:group» kubogi bor. Jadval va qatnashish — quyidagi tugma orqali.',
         'draft' => "Chatda «:group» kubogining qoralamasi bor. Chat administratori uni quyidagi tugma orqali sozlab, e'lon qilishi mumkin.",

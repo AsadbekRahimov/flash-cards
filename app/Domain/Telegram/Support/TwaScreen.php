@@ -34,4 +34,6 @@ enum TwaScreen: string
     case CupPlay = '/cups/c/{code}/play';
     /** The setup of a draft by an administrator of the chat. */
     case CupSetup = '/cups/setup/{code}';
+    /** A challenge to a duel of the cup from its public message (docs/33 §6.1, §11.9): the code and the duel are hints, the server decides. Route of the TWA - D2. */
+    case CupDuel = '/cups/c/{code}/duels/{duel}';
 }

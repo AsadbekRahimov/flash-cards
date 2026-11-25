@@ -52,6 +52,22 @@ return [
         'empty' => 'Никто не набрал очков.',
     ],
 
+    // A duel of the cup published in the chat (docs/33 §6.1, §5.7): one message, edited with the outcome - never a new one.
+    'duel' => [
+        'open_any' => '⚔️ :challenger вызывает на дуэль любого участника кубка',
+        'open_to' => '⚔️ :challenger вызывает на дуэль: :opponent',
+        'rated' => 'Зачётная дуэль: каждому — очко кубка за свой верный ответ, до :max.',
+        'friendly' => 'Товарищеский матч: без очков кубка.',
+        'until' => 'Вызов действует до :time.',
+        'playing' => '⚔️ Дуэль идёт: :challenger — :opponent',
+        'result' => '⚔️ Дуэль: :challenger :challenger_points : :opponent_points :opponent',
+        'winner' => 'Победа: :name',
+        'draw' => 'Ничья',
+        'not_counted' => 'Результат пришёл после финиша кубка и в зачёт не вошёл.',
+        'friendly_done' => 'Товарищеский матч, без очков кубка.',
+        'fell_through' => 'Вызов не состоялся.',
+    ],
+
     'command' => [
         'exists' => 'В чате уже есть кубок «:group». Таблица и участие — по кнопке ниже.',
         'draft' => 'В чате уже есть черновик кубка «:group». Администратор чата может настроить и опубликовать его по кнопке ниже.',

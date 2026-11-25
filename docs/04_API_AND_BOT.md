@@ -408,6 +408,13 @@ Learner присоединяется к открытой тренировке. �
 
 Для `prompt.type` = `spelling` / `gap_fill` карточка не содержит ответа: `word` = `""`, `example`, `example_translation`, `example_audio_url`, `transcription`, `audio_url` = `null` (перевод предложения с пропуском тоже выдал бы ответ; правильный ответ — в `graded.expected` ответа `/review`).
 
+**Фраза** (docs/35 §3.3, docs/06 §16; выпуск 7): `card.phrase` = `{ "kind": "idiom", "register": "informal", "variant": "both", "literal": "кусок торта" | null }`
+у карточки с `part_of_speech = phrase`, `null` у слова. `kind` — `formula`/`fixed`/`idiom`/`phrasal_verb`/`proverb`, `register` —
+`neutral`/`informal`/`formal`/`slang`/`rude`, `variant` — `both`/`uk`/`us`; `literal` («Буквально: …») — на языке карточки (иначе ru) и `null`, пока
+карточка прячет ответ (meaning / reverse / audio / pretest / gap_fill) — тогда он приходит в `revealed.phrase`. `gap_fill` фразы: `prompt.front` —
+перевод (смысловой эквивалент), `prompt.masked_example` — сама фраза с пропуском ключевого слова (`"Easy come, easy ____"`), `answer_length` —
+длина этого слова; `spelling` фразе не выдаётся.
+
 `card` / `progress` / `done_reason` / `quota` — первая карточка, прогресс, причина «карточек нет» и квота в том же формате, что у `/next`.
 Если у урока сессии нет (удалён) — 404 `lesson_not_found`.
 
@@ -543,7 +550,7 @@ Pro → Free посреди занятия), — 409 `exercise_mismatch`, нич
   "new_interval_days": 3,    // 0, пока карточка в минутных learning steps
   "easiness_factor": 2.45,
   "graded": { "quality": 4, "correct": true, "expected": "resilient" } | null, // вердикт сервера по answer; null при quality
-  "revealed": { "word", "translation", "correct", "example", "example_translation", "example_audio_url", "transcription", "audio_url", "hook", "note", "confused_with" } | null, // экран meaning/reverse/audio после ответа (`correct` — правильный вариант как в options); иначе null
+  "revealed": { "word", "translation", "correct", "example", "example_translation", "example_audio_url", "transcription", "audio_url", "hook", "note", "confused_with", "phrase" } | null, // экран meaning/reverse/audio после ответа (`correct` — правильный вариант как в options); иначе null
   "card": { ... } | null,    // следующая карточка (как в /next)
   "progress": { "done": 7, "total": 25 },
   "done_reason": null,
@@ -776,14 +783,15 @@ Pro → Free посреди занятия), — 409 `exercise_mismatch`, нич
 {
   "courses": [
     {
-      "slug": "english-a1", "title": "Английский A1", "description": "Первые 500 слов", "level": "A1", "exam_tag": "general",
+      "slug": "english-a1", "title": "Английский A1", "description": "Первые 500 слов", "level": "A1", "exam_tag": "general", "section": "courses",
       "words_count": 500, "is_featured": true, "is_active": true,
       "progress": { "done": 120, "total": 500 }
     }
   ]
 }
 ```
-Порядок — `position`, затем `id`. `is_active` — это `learners.active_course_id`. Активный курс learner'а остаётся в списке,
+Порядок — `position`, затем `id`. `is_active` — это `learners.active_course_id`. `section` (и в списке, и в `GET /courses/{slug}`) —
+раздел каталога: `phrases` у курса фраз (`exam_tag = phrases`, docs/35 §3.3 a), `courses` у остальных; курс фраз онбординг не рекомендует. Активный курс learner'а остаётся в списке,
 даже если он `unlisted` (выбран по ссылке), пока курс доступен. Список курсов без прогресса кэшируется на 10 минут
 (по локали) и сбрасывается при публикации/архивации/правке курса и `CoursePublisher::recount`.
 

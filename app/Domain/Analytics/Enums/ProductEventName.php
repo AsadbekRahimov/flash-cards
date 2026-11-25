@@ -253,4 +253,12 @@ enum ProductEventName: string
     case CupCanceled = 'cup.canceled';
     /** The summary of a day of a cup was posted in its chat (docs/33 §6.1, K6; props: cup_id, day); actor - the group. */
     case CupSummaryPosted = 'cup.summary_posted';
+    /** A participant challenged to a duel (docs/33 §5.7, D1; props: cup_id, duel_id, public, addressed, rated_offered, mode). */
+    case CupDuelChallenged = 'cup.duel_challenged';
+    /** A challenge was accepted - the match is on (props: cup_id, duel_id, battle_id, rated). */
+    case CupDuelAccepted = 'cup.duel_accepted';
+    /** The result of a duel was taken (props: cup_id, duel_id, rated, credited, challenger_points, opponent_points). */
+    case CupDuelScored = 'cup.duel_scored';
+    /** An accepted duel was void - nobody answered before the match closed; the slots are free again (props: cup_id, duel_id, reason). */
+    case CupDuelVoid = 'cup.duel_void';
 }

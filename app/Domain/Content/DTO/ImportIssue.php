@@ -20,6 +20,8 @@ namespace App\Domain\Content\DTO;
  *   translation_conflict        `translation` and `translations.ru` differ
  *   ru_required                 a word without its ru translation
  *   example_translation_orphan  an example translation in a language the word has no translation in
+ *   invalid_phrase              the block `phrase` of a phrase card is wrong (docs/35 §3.4; `word`, `position`, `cause` - one of the
+ *                               CAUSE_PHRASE_* causes below; `field`, `gap` when they apply)
  */
 final readonly class ImportIssue
 {
@@ -44,6 +46,41 @@ final readonly class ImportIssue
     public const RU_REQUIRED = 'ru_required';
 
     public const EXAMPLE_TRANSLATION_ORPHAN = 'example_translation_orphan';
+
+    public const INVALID_PHRASE = 'invalid_phrase';
+
+    /** `invalid_phrase`: `part_of_speech` is `phrase` and the entry has no block `phrase`. */
+    public const CAUSE_PHRASE_MISSING = 'missing';
+
+    /** `invalid_phrase`: a block `phrase` on an entry whose `part_of_speech` is not `phrase`. */
+    public const CAUSE_PHRASE_NOT_PHRASE = 'not_phrase';
+
+    /** `invalid_phrase`: a phrase in a course whose `exam_tag` is not `phrases`. */
+    public const CAUSE_PHRASE_NOT_PHRASE_COURSE = 'not_phrase_course';
+
+    /** `invalid_phrase`: a word that is not a phrase in a course of phrases. */
+    public const CAUSE_PHRASE_COURSE_WORD = 'phrase_course_word';
+
+    /** `invalid_phrase`: a key of the block the format does not know (`field`). */
+    public const CAUSE_PHRASE_UNKNOWN_FIELD = 'unknown_field';
+
+    /** `invalid_phrase`: a field has a value outside its list or range (`field`). */
+    public const CAUSE_PHRASE_FIELD = 'field';
+
+    /** `invalid_phrase`: `gap` is absent or blank. */
+    public const CAUSE_PHRASE_GAP_EMPTY = 'gap_empty';
+
+    /** `invalid_phrase`: `gap` is not one word of Latin letters. */
+    public const CAUSE_PHRASE_GAP_NOT_WORD = 'gap_not_word';
+
+    /** `invalid_phrase`: `gap` does not stand in the phrase as a whole word. */
+    public const CAUSE_PHRASE_GAP_MISSING = 'gap_missing';
+
+    /** `invalid_phrase`: `gap` stands in the phrase more than once. */
+    public const CAUSE_PHRASE_GAP_REPEATED = 'gap_repeated';
+
+    /** `invalid_phrase`: `gap` is the whole phrase. */
+    public const CAUSE_PHRASE_GAP_WHOLE = 'gap_whole';
 
     /** `invalid_json`: a comma, quote or bracket is wrong. */
     public const CAUSE_SYNTAX = 'syntax';

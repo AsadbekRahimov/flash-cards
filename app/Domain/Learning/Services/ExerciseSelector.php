@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Learning\Services;
 
 use App\Domain\Billing\DTO\Entitlement;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Learning\DTO\LearnerExerciseSettings;
 use App\Domain\Learning\Enums\ExerciseType;
 use App\Domain\Learning\Enums\RepetitionState;
@@ -47,6 +48,9 @@ use App\Models\WordRepetition;
  *   A lapse of a `review` card leaves `meta.ladder_floor` = the rung below the one it failed at
  *   ({@see ReviewSubmissionService}); the card is served at max(maturity, floor) until its interval catches up.
  *   Group lessons always follow these rules (one screen for the whole class, docs/06 §13.1).
+ *
+ * A phrase (docs/35 §3.3 b, docs/06 §16) is never served `spelling` - by no ladder, in no mode: its typed rung is the gap-fill of its
+ * key word in the phrase itself (`GapFillBuilder::forCard`), and a phrase without a valid key word has no typed rung at all.
  *
  * With the ladder off the previous rules apply: flash below two passes, the Pro typed exercise on every third pass,
  * else crc32("{repetitions}:{word_id}") over flash / reverse / audio — the meaning exercise takes no part in them.
@@ -249,7 +253,10 @@ final class ExerciseSelector
         return $repeat;
     }
 
-    /** Available to the learner and possible for this serve: audio needs a file (when required), gap-fill the word in the example. */
+    /**
+     * Available to the learner and possible for this serve: audio needs a file (when required), gap-fill the word in the example (a
+     * phrase: its key word in itself), spelling a card that is not a phrase.
+     */
     private function servable(ExerciseType $type, Word $word, Entitlement $entitlement, LearnerExerciseSettings $settings, ?string $example, bool $hasAudio): bool
     {
         if (! $this->available($type, $entitlement, $settings)) {
@@ -258,7 +265,8 @@ final class ExerciseSelector
 
         return match ($type) {
             ExerciseType::Audio => $hasAudio || ! $this->policy->earlyAudioRequiresFile,
-            ExerciseType::GapFill => $this->gapFill->fromText($word->word, $example ?? $word->example) !== null,
+            ExerciseType::GapFill => $this->gapFill->forCard($word, $example) !== null,
+            ExerciseType::Spelling => ! Phrase::isPhraseWord($word),
             ExerciseType::Pretest => false,
             default => true,
         };
@@ -267,8 +275,8 @@ final class ExerciseSelector
     private function typed(Word $word, Entitlement $entitlement, LearnerExerciseSettings $settings, int $parity, ?string $example): ?ExerciseType
     {
         $gapFill = $this->available(ExerciseType::GapFill, $entitlement, $settings)
-            && $this->gapFill->fromText($word->word, $example ?? $word->example) !== null;
-        $spelling = $this->available(ExerciseType::Spelling, $entitlement, $settings);
+            && $this->gapFill->forCard($word, $example) !== null;
+        $spelling = ! Phrase::isPhraseWord($word) && $this->available(ExerciseType::Spelling, $entitlement, $settings);
 
         if ($gapFill && $spelling) {
             return $parity === 0 ? ExerciseType::GapFill : ExerciseType::Spelling;
@@ -310,10 +318,10 @@ final class ExerciseSelector
         }
 
         if ($repetitions >= self::SERVER_GRADED_FROM && $repetitions % self::SERVER_GRADED_EVERY === 0) {
-            if ($this->available(ExerciseType::GapFill, $entitlement, $settings) && $this->gapFill->fromText($word->word, $example ?? $word->example) !== null) {
+            if ($this->available(ExerciseType::GapFill, $entitlement, $settings) && $this->gapFill->forCard($word, $example) !== null) {
                 return ExerciseType::GapFill;
             }
-            if ($this->available(ExerciseType::Spelling, $entitlement, $settings)) {
+            if (! Phrase::isPhraseWord($word) && $this->available(ExerciseType::Spelling, $entitlement, $settings)) {
                 return ExerciseType::Spelling;
             }
         }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\Twa;
 
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Learning\DTO\ExercisePrompt;
 use App\Domain\Learning\DTO\TrainingStep;
 use App\Domain\Learning\Enums\ExerciseType;
@@ -19,7 +20,7 @@ final class TrainingNextResource extends TwaResource
 {
     /**
      * @return array{
-     *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, example_translation: string|null, example_audio_url: string|null, transcription: string|null, audio_url: string|null, card_kind: string, serve_token: string|null, prompt: array{type: string, front: string, masked_example: string|null, options: list<string>|null, answer_length: int|null}|null, is_leech: bool, is_hard: bool, hook: string|null, note: string|null, confused_with: array{word: string, translation: string|null}|null}|null,
+     *   card: array{word_id: int, word: string, translation: string, translation_fallback: bool, example: string|null, example_translation: string|null, example_audio_url: string|null, transcription: string|null, audio_url: string|null, card_kind: string, serve_token: string|null, prompt: array{type: string, front: string, masked_example: string|null, options: list<string>|null, answer_length: int|null}|null, is_leech: bool, is_hard: bool, hook: string|null, note: string|null, confused_with: array{word: string, translation: string|null}|null, phrase: array{kind: string|null, register: string|null, variant: string, literal: string|null}|null}|null,
      *   progress: array{done: int, total: int},
      *   done_reason: string|null,
      *   can_continue: bool,
@@ -79,6 +80,9 @@ final class TrainingNextResource extends TwaResource
                 'hook' => $hidden ? null : $this->resource->hook,
                 'note' => $hidden ? null : $this->resource->note,
                 'confused_with' => $hidden ? null : $this->resource->confusedWith,
+                // A phrase card (docs/35 §3.3 d, docs/06 §16): kind, register, UK / US always; the literal translation is hidden with
+                // the example (it would give the answer of a choice or typed card away) and comes back in `revealed.phrase`. Null for a word.
+                'phrase' => Phrase::forCard($word, $translation->locale ?? 'ru', ! $hidden),
             ] : null,
             'progress' => [
                 'done' => $this->resource->progress['done'],

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources;
 
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Filament\Resources\CourseResource\Pages;
@@ -94,7 +95,7 @@ class CourseResource extends Resource
                 ->placeholder('—'),
             Forms\Components\Select::make('exam_tag')
                 ->label(__('admin.courses.fields.exam_tag'))
-                ->options(AdminLabels::options('courses.exam_tag', ['general', 'school', 'ielts', 'sat']))
+                ->options(AdminLabels::options('courses.exam_tag', ['general', 'school', 'ielts', 'sat', Phrase::EXAM_TAG]))
                 ->placeholder('—'),
             Forms\Components\Select::make('visibility')
                 ->label(__('admin.courses.fields.visibility'))

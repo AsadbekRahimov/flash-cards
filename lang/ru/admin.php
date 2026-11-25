@@ -117,6 +117,7 @@ return [
             'school' => 'Школа',
             'ielts' => 'IELTS',
             'sat' => 'SAT',
+            'phrases' => 'Разговорные фразы',
         ],
         'actions' => [
             'create' => 'Создать курс',
@@ -2829,6 +2830,19 @@ return [
                 'translation_conflict' => 'Слово «:word» (№:position): значения "translation" и "translations.ru" не совпадают.',
                 'ru_required' => 'Слово «:word» (№:position): не указан русский перевод — заполните "translation" или "translations.ru".',
                 'example_translation_orphan' => 'Слово «:word» (№:position): есть перевод примера на язык «:locale», но нет перевода самого слова ("translations.:locale").',
+                // Фразы (docs/35 §3.4, docs/content-authoring/README «Курс фраз»): `cause` выбирает фразу.
+                'invalid_phrase' => 'Фраза «:word» (№:position): ошибка в блоке "phrase".',
+                'invalid_phrase_missing' => 'Фраза «:word» (№:position): у записи "part_of_speech": "phrase" нет блока "phrase".',
+                'invalid_phrase_not_phrase' => 'Слово «:word» (№:position): блок "phrase" есть, а "part_of_speech" — не "phrase".',
+                'invalid_phrase_not_phrase_course' => 'Фраза «:word» (№:position): фразы импортируются только в курс фраз ("exam_tag": "phrases"), а курс «:slug» — не такой.',
+                'invalid_phrase_phrase_course_word' => 'Слово «:word» (№:position): курс «:slug» — курс фраз, в нём у каждой записи "part_of_speech": "phrase".',
+                'invalid_phrase_unknown_field' => 'Фраза «:word» (№:position): неизвестное поле ":field".',
+                'invalid_phrase_field' => 'Фраза «:word» (№:position): неверное значение поля ":field".',
+                'invalid_phrase_gap_empty' => 'Фраза «:word» (№:position): не указано ключевое слово пропуска "phrase.gap".',
+                'invalid_phrase_gap_not_word' => 'Фраза «:word» (№:position): "phrase.gap" «:gap» — должно быть одно слово из латинских букв, без апострофа, пробела и дефиса.',
+                'invalid_phrase_gap_missing' => 'Фраза «:word» (№:position): ключевого слова «:gap» нет во фразе как отдельного слова.',
+                'invalid_phrase_gap_repeated' => 'Фраза «:word» (№:position): ключевое слово «:gap» встречается во фразе больше одного раза — пропуск должен быть однозначным.',
+                'invalid_phrase_gap_whole' => 'Фраза «:word» (№:position): ключевое слово «:gap» — это вся фраза; пропуск должен оставлять часть фразы.',
             ],
         ],
 

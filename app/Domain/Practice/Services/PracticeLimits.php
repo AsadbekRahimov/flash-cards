@@ -277,6 +277,7 @@ final class PracticeLimits
             ->where('challenger_id', $learnerId)
             ->where('created_at', '>=', $window->startUtc)
             ->where('created_at', '<', $window->endUtc)
+            ->where('limit_exempt', false) // a rated duel of a cup is the cup's own quota (docs/33 В5)
             ->where(function (Builder $spent): void {
                 $spent->whereNull('end_reason')->orWhereNotIn('end_reason', self::UNSPENT_END_REASONS);
             })
@@ -308,7 +309,7 @@ final class PracticeLimits
         $row = DB::selectOne(
             'select'
             .' (select count(*) from practice_sessions where learner_id = ? and started_at >= ? and started_at < ? and not '.self::FREE_RETRY_SQL.') as sessions,'
-            .' (select count(*) from battles where challenger_id = ? and created_at >= ? and created_at < ?'
+            .' (select count(*) from battles where challenger_id = ? and created_at >= ? and created_at < ? and not limit_exempt'
             ." and (end_reason is null or end_reason not in ({$unspent})) and not (status = ? and invite_expires_at <= ?)) as battles",
             [
                 $learnerId, $start, $end, $start, $end,

@@ -7,6 +7,7 @@ namespace App\Domain\Content\Services;
 use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Content\DTO\ImportReport;
 use App\Domain\Content\Support\LexemeKey;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Learning\Services\LearningCache;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\AuditLog;
@@ -30,7 +31,13 @@ final class VocabularyImporter
     public const ALLOWED_POS = [
         'noun', 'verb', 'adjective', 'adverb',
         'pronoun', 'preposition', 'conjunction', 'interjection',
+        Phrase::PART_OF_SPEECH,
     ];
+
+    /** The keys of the block `phrase` (docs/35 §3.4): anything else is a typo the import refuses. */
+    private const PHRASE_FIELDS = ['kind', 'register', 'variant', 'gap', 'literal', 'cefr', 'frequency', 'synonyms'];
+
+    private const PHRASE_TEXT_MAX = 500;
 
     public const MAX_EXAMPLES = 10;
 
@@ -57,6 +64,9 @@ final class VocabularyImporter
      *       - `examples`: [{"text": "...", "translations": {"ru": "...", "uz": "..."}}, ...] — ADDITIONAL examples
      *         (`word_examples`, positions 1..; `example` stays the anchor). The list replaces the word's rows;
      *       - `confusable_with`: ["father", ...] — words of the same course this one is mixed up with (`words.meta`).
+     *   A phrase (docs/35 §3.4): `part_of_speech: "phrase"` and the block `phrase` {kind, register, variant?, gap, literal?, cefr?,
+     *   frequency?, synonyms?} → `words.meta.phrase`; phrases live in a course with `exam_tag = phrases` only, and such a course has
+     *   nothing else ({@see normalizePhrase()}, {@see assertCourseKind()}). Checked in PHP, no statement per entry.
      *
      * The ru text is always written to `words.translation` AND to `word_translations`. Re-importing a
      * file is idempotent: unchanged rows are skipped; a changed translation is overwritten and loses its
@@ -134,6 +144,9 @@ final class VocabularyImporter
         $this->assertUniqueWords($data['words'], $report);
         $words = $this->normalizeWords($data['words'], $report);
         $course = $this->resolveCourse($data['course'] ?? null, $report);
+        if ($course !== null) {
+            $this->assertCourseKind($course, $words, $report);
+        }
 
         if ($report->aborted || $course === null) {
             $report->aborted = true;
@@ -349,7 +362,7 @@ final class VocabularyImporter
      * and `translations.ru` must agree, only supported locales are allowed.
      *
      * @param  list<array<string, mixed>>  $words
-     * @return list<array{word:string, example:?string, part_of_speech:?string, transcription:?string, translations:array<string,string>, example_translations:array<string,string>, hooks:array<string,string>, has_hooks:bool, examples:list<array{text:string, translations:array<string,string>}>, has_examples:bool, confusable_with:list<string>, has_confusable_with:bool}>
+     * @return list<array{word:string, example:?string, part_of_speech:?string, transcription:?string, translations:array<string,string>, example_translations:array<string,string>, hooks:array<string,string>, has_hooks:bool, examples:list<array{text:string, translations:array<string,string>}>, has_examples:bool, confusable_with:list<string>, has_confusable_with:bool, phrase:array<string,mixed>|null}>
      */
     private function normalizeWords(array $words, ImportReport $report): array
     {
@@ -460,6 +473,7 @@ final class VocabularyImporter
                 'has_examples' => array_key_exists('examples', $w),
                 'confusable_with' => array_keys($confusable),
                 'has_confusable_with' => array_key_exists('confusable_with', $w),
+                'phrase' => $this->normalizePhrase($w, $i, $label, $supported, $report),
             ];
         }
 
@@ -467,15 +481,22 @@ final class VocabularyImporter
     }
 
     /**
-     * `words.meta` after this file: `confusable_with` replaced when the key is present (an empty list removes the mark),
+     * `words.meta` after this file: `confusable_with` replaced when the key is present (an empty list removes the mark), `phrase`
+     * written for a phrase and removed from anything else (the block is required for a phrase, so the file always says which),
      * every other key of the meta left alone.
      *
      * @param  array<mixed>  $meta
-     * @param  array{confusable_with: list<string>, has_confusable_with: bool}  $w
+     * @param  array{confusable_with: list<string>, has_confusable_with: bool, phrase: array<string, mixed>|null}  $w
      * @return array<mixed>
      */
     private function metaWith(array $meta, array $w): array
     {
+        if ($w['phrase'] !== null) {
+            $meta[Phrase::META] = $w['phrase'];
+        } else {
+            unset($meta[Phrase::META]);
+        }
+
         if (! $w['has_confusable_with']) {
             return $meta;
         }
@@ -489,6 +510,152 @@ final class VocabularyImporter
         $meta['confusable_with'] = $w['confusable_with'];
 
         return $meta;
+    }
+
+    /**
+     * The block `phrase` of one entry (docs/35 §3.4), checked and normalised: null for an entry that is not a phrase. Every mistake is
+     * an `invalid_phrase` issue with the entry's position and a `cause` (ImportIssue::CAUSE_PHRASE_*); the gap rules are those of
+     * {@see Phrase}: one word a-z, exactly once in the phrase as a whole word, not the whole phrase.
+     *
+     * @param  array<string, mixed>  $w
+     * @param  list<string>  $supported
+     * @return array<string, mixed>|null
+     */
+    private function normalizePhrase(array $w, int $i, string $label, array $supported, ImportReport $report): ?array
+    {
+        $word = (string) $w['word'];
+        $isPhrase = Phrase::isPhrase(isset($w['part_of_speech']) ? (string) $w['part_of_speech'] : null);
+        $block = $w['phrase'] ?? null;
+        $fail = function (string $cause, string $message, array $context = []) use ($word, $i, $label, $report): null {
+            $report->abort(ImportIssue::INVALID_PHRASE, "{$label}: {$message}", ['word' => $word, 'position' => $i + 1, 'cause' => $cause] + $context);
+
+            return null;
+        };
+
+        if (! $isPhrase) {
+            return $block === null ? null : $fail(ImportIssue::CAUSE_PHRASE_NOT_PHRASE, "a 'phrase' block needs part_of_speech 'phrase'.");
+        }
+        if (! is_array($block)) {
+            return $fail(ImportIssue::CAUSE_PHRASE_MISSING, "part_of_speech 'phrase' needs the 'phrase' block.");
+        }
+
+        foreach (array_keys($block) as $key) {
+            if (! in_array((string) $key, self::PHRASE_FIELDS, true)) {
+                return $fail(ImportIssue::CAUSE_PHRASE_UNKNOWN_FIELD, "unknown field 'phrase.{$key}'.", ['field' => 'phrase.'.$key]);
+            }
+        }
+
+        $out = [];
+        foreach (['kind' => Phrase::KINDS, 'register' => Phrase::REGISTERS, 'variant' => Phrase::VARIANTS] as $field => $allowed) {
+            $value = $block[$field] ?? ($field === 'variant' ? Phrase::DEFAULT_VARIANT : null);
+            if (! is_string($value) || ! in_array($value, $allowed, true)) {
+                return $fail(ImportIssue::CAUSE_PHRASE_FIELD, "'phrase.{$field}' must be one of: ".implode(', ', $allowed).'.', ['field' => 'phrase.'.$field, 'allowed' => $allowed]);
+            }
+            $out[$field] = $value;
+        }
+
+        $gap = is_string($block['gap'] ?? null) ? trim($block['gap']) : '';
+        if ($gap === '') {
+            return $fail(ImportIssue::CAUSE_PHRASE_GAP_EMPTY, "'phrase.gap' is required: the key word of the gap.");
+        }
+        $context = ['gap' => $gap];
+        if (! Phrase::isGapWord($gap)) {
+            return $fail(ImportIssue::CAUSE_PHRASE_GAP_NOT_WORD, "'phrase.gap' '{$gap}' must be one word of Latin letters.", $context);
+        }
+        $occurrences = Phrase::occurrences($word, $gap);
+        if ($occurrences === 0) {
+            return $fail(ImportIssue::CAUSE_PHRASE_GAP_MISSING, "'phrase.gap' '{$gap}' is not a word of the phrase.", $context);
+        }
+        if ($occurrences > 1) {
+            return $fail(ImportIssue::CAUSE_PHRASE_GAP_REPEATED, "'phrase.gap' '{$gap}' stands in the phrase {$occurrences} times: it must be once.", $context);
+        }
+        if (Phrase::isWholePhrase($word, $gap)) {
+            return $fail(ImportIssue::CAUSE_PHRASE_GAP_WHOLE, "'phrase.gap' '{$gap}' is the whole phrase.", $context);
+        }
+        $out['gap'] = $gap;
+
+        if (array_key_exists('literal', $block) && $block['literal'] !== null) {
+            if (! is_array($block['literal'])) {
+                return $fail(ImportIssue::CAUSE_PHRASE_FIELD, "'phrase.literal' must be an object {\"ru\": ..., \"uz\": ...}.", ['field' => 'phrase.literal']);
+            }
+            foreach ($block['literal'] as $locale => $text) {
+                if (! in_array((string) $locale, $supported, true)) {
+                    $report->abort(
+                        ImportIssue::UNSUPPORTED_LOCALE,
+                        "{$label}: unsupported locale '{$locale}' in phrase.literal (supported: ".implode(', ', $supported).').',
+                        ['word' => $word, 'position' => $i + 1, 'locale' => (string) $locale, 'field' => 'phrase.literal', 'supported' => $supported],
+                    );
+
+                    return null;
+                }
+                if ($text !== null && (! is_string($text) || mb_strlen($text) > self::PHRASE_TEXT_MAX)) {
+                    return $fail(ImportIssue::CAUSE_PHRASE_FIELD, "'phrase.literal.{$locale}' must be a text of up to ".self::PHRASE_TEXT_MAX.' characters.', ['field' => 'phrase.literal.'.$locale]);
+                }
+            }
+            $literal = $this->stringMap($block['literal']);
+            if ($literal !== []) {
+                ksort($literal);
+                $out['literal'] = $literal;
+            }
+        }
+
+        $cefr = $block['cefr'] ?? null;
+        if ($cefr !== null) {
+            if (! is_string($cefr) || ! in_array($cefr, Phrase::CEFR, true)) {
+                return $fail(ImportIssue::CAUSE_PHRASE_FIELD, "'phrase.cefr' must be one of: ".implode(', ', Phrase::CEFR).'.', ['field' => 'phrase.cefr', 'allowed' => Phrase::CEFR]);
+            }
+            $out['cefr'] = $cefr;
+        }
+
+        $frequency = $block['frequency'] ?? null;
+        if ($frequency !== null) {
+            if (! is_int($frequency) || ! in_array($frequency, Phrase::FREQUENCIES, true)) {
+                return $fail(ImportIssue::CAUSE_PHRASE_FIELD, "'phrase.frequency' must be 1, 2 or 3.", ['field' => 'phrase.frequency', 'allowed' => ['1', '2', '3']]);
+            }
+            $out['frequency'] = $frequency;
+        }
+
+        $synonyms = $block['synonyms'] ?? null;
+        if ($synonyms !== null) {
+            if (! is_array($synonyms) || ! array_is_list($synonyms) || count($synonyms) > Phrase::MAX_SYNONYMS) {
+                return $fail(ImportIssue::CAUSE_PHRASE_FIELD, "'phrase.synonyms' must be a list of up to ".Phrase::MAX_SYNONYMS.' phrases.', ['field' => 'phrase.synonyms']);
+            }
+            $list = [];
+            foreach ($synonyms as $synonym) {
+                if (! is_string($synonym) || trim($synonym) === '' || mb_strlen($synonym) > 100) {
+                    return $fail(ImportIssue::CAUSE_PHRASE_FIELD, "'phrase.synonyms' must hold non-empty texts of up to 100 characters.", ['field' => 'phrase.synonyms']);
+                }
+                $list[] = trim($synonym);
+            }
+            if ($list !== []) {
+                $out['synonyms'] = $list;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * A phrase course (`exam_tag = phrases`) holds phrases only and a phrase lives in such a course only (docs/35 §3.3 a, c): the
+     * distractors of a phrase are the phrases of the phrase courses, and a word never meets a phrase among its options.
+     *
+     * @param  list<array{word: string, part_of_speech: ?string}>  $words
+     */
+    private function assertCourseKind(Course $course, array $words, ImportReport $report): void
+    {
+        $phraseCourse = Phrase::isPhraseCourse($course->exam_tag);
+        foreach ($words as $i => $w) {
+            if (Phrase::isPhrase($w['part_of_speech']) === $phraseCourse) {
+                continue;
+            }
+            $report->abort(
+                ImportIssue::INVALID_PHRASE,
+                $phraseCourse
+                    ? "Word '{$w['word']}' (index {$i}): the course '{$course->slug}' is a course of phrases: every entry needs part_of_speech 'phrase'."
+                    : "Word '{$w['word']}' (index {$i}): a phrase belongs to a course with exam_tag 'phrases', and '{$course->slug}' is not one.",
+                ['word' => $w['word'], 'position' => $i + 1, 'cause' => $phraseCourse ? ImportIssue::CAUSE_PHRASE_COURSE_WORD : ImportIssue::CAUSE_PHRASE_NOT_PHRASE_COURSE, 'slug' => $course->slug],
+            );
+        }
     }
 
     /**
@@ -679,6 +846,8 @@ final class VocabularyImporter
             'words.*.confusable_with.*' => ['required', 'string', 'max:100'],
             'words.*.part_of_speech' => ['sometimes', 'nullable', 'string', 'in:'.implode(',', self::ALLOWED_POS)],
             'words.*.transcription' => ['sometimes', 'nullable', 'string', 'max:100'],
+            // A phrase (docs/35 §3.4): the block is checked field by field in normalizePhrase(), with the entry's position.
+            'words.*.phrase' => ['sometimes', 'nullable', 'array'],
         ];
     }
 

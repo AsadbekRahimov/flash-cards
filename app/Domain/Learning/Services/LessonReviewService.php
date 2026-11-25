@@ -13,6 +13,7 @@ use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordExamples;
 use App\Domain\Content\Services\WordHookResolver;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Learners\DTO\DayBounds;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learners\Support\LearnerRowLock;
@@ -443,6 +444,7 @@ final class LessonReviewService
                 note: null,
                 confusedWith: null,
                 exampleAudioUrl: $this->audio->exampleUrlFor($word, $example),
+                phrase: Phrase::forCard($word, $translation->locale, true),
             ) : null;
 
             return [$repetition, $verdict, $revealed];

@@ -14,6 +14,7 @@ use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordExamples;
 use App\Domain\Content\Services\WordHookResolver;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Learners\Services\DailyGoalLimiter;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
@@ -456,6 +457,7 @@ final class TrainingFlowService
             note: $this->ladder->hooksEnabled ? self::text($accepted->repetition->note) : null,
             confusedWith: $accepted->wasLeech ? $this->leeches->confusedWith($accepted->repetition, $word) : null,
             exampleAudioUrl: $this->audio->exampleUrlFor($word, $accepted->example),
+            phrase: Phrase::forCard($word, $translation->locale, true),
         );
     }
 }

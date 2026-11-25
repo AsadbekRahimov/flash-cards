@@ -43,6 +43,8 @@ use LogicException;
  * @property CarbonImmutable|null $finished_at
  * @property int|null $winner_learner_id
  * @property int|null $rematch_of_id
+ * @property int|null $cup_duel_id the duel of a cup this match plays (docs/33 §5.7): its end is scored by the cup; NULL for an ordinary battle
+ * @property bool $limit_exempt a rated duel of a cup: not counted in the Free limit of battles (docs/33 В5)
  * @property int $state_version
  * @property array<string, mixed> $meta
  * @property CarbonImmutable|null $created_at
@@ -76,6 +78,8 @@ class Battle extends Model
         'finished_at',
         'winner_learner_id',
         'rematch_of_id',
+        'cup_duel_id',
+        'limit_exempt',
         'state_version',
         'meta',
     ];
@@ -104,6 +108,8 @@ class Battle extends Model
             'finished_at' => 'immutable_datetime',
             'winner_learner_id' => 'integer',
             'rematch_of_id' => 'integer',
+            'cup_duel_id' => 'integer',
+            'limit_exempt' => 'boolean',
             'state_version' => 'integer',
             'meta' => 'array',
         ];

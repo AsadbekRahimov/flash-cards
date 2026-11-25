@@ -264,7 +264,8 @@ final class ExamQuestionBuilder
 
     /**
      * Candidates from the foreign courses a distractor may come from ({@see Course::scopePublicPlatform()}),
-     * `$exceptCourseId` itself excluded.
+     * `$exceptCourseId` itself excluded, and the phrase courses too: a mock asks words, a phrase is no option among them
+     * (docs/35 §3.3 c).
      *
      * Two steps instead of `ORDER BY random()` over every word of the platform (105 ms at 92k words):
      * `$needed` random lessons of those courses that have an active word (thousands of rows, ~7 ms), then
@@ -278,7 +279,7 @@ final class ExamQuestionBuilder
         $lessonIds = Lesson::query()
             ->whereIn('lessons.stage_id', Stage::query()->select('stages.id')->whereIn(
                 'stages.course_id',
-                Course::query()->select('courses.id')->where('courses.id', '!=', $exceptCourseId)->publicPlatform(),
+                Course::query()->select('courses.id')->where('courses.id', '!=', $exceptCourseId)->publicPlatform()->ofCardKind(false),
             ))
             ->whereExists(Word::query()
                 ->selectRaw('1')

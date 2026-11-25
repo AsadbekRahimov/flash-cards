@@ -14,6 +14,8 @@ final readonly class RevealedCard
      * @param  string  $correct  the right option exactly as it stands among the options (reverse: the word; meaning / audio: the translation)
      * @param  string|null  $exampleAudioUrl  pre-generated mp3 of exactly `$example` (docs/26 §9.11); null when there is none
      * @param  array{word: string, translation: string|null}|null  $confusedWith
+     * @param  array{kind: string|null, register: string|null, variant: string, literal: string|null}|null  $phrase  the labels of a phrase
+     *                                                                                                               card with its literal translation (docs/35 §3.3 d); null for a word
      */
     public function __construct(
         public string $word,
@@ -27,5 +29,6 @@ final readonly class RevealedCard
         public ?string $note,
         public ?array $confusedWith,
         public ?string $exampleAudioUrl = null,
+        public ?array $phrase = null,
     ) {}
 }

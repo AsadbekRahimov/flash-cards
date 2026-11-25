@@ -79,6 +79,52 @@ final class CupOutbox
         return 'summary:'.$day;
     }
 
+    /** The public challenge of a duel in the chat (docs/33 §6.1): a new message, rendered from the duel as it is when it goes. */
+    public static function duelKey(int $duelId): string
+    {
+        return 'duel:'.$duelId;
+    }
+
+    /**
+     * The outcome of a public challenge (docs/33 §6.1, §5.7): an EDIT of the message of {@see duelKey()} - never a new message; written
+     * once, when the duel ends (declined, expired, canceled, void, done). Delivery of both kinds is D2 (docs/33 §11.9).
+     */
+    public static function duelEndKey(int $duelId): string
+    {
+        return 'duel:'.$duelId.':end';
+    }
+
+    /**
+     * Rows of several messages in ONE statement (`INSERT … ON CONFLICT DO NOTHING RETURNING id`) and the jobs of the rows it made, after
+     * the commit. A key that has its row already makes nothing. Returns how many rows were made.
+     *
+     * @param  list<array{cup_id: int, dedupe_key: string}>  $rows
+     */
+    public function enqueueMany(array $rows, CupMessageKind $kind, CarbonImmutable $now): int
+    {
+        if ($rows === []) {
+            return 0;
+        }
+        $at = $now->format('Y-m-d H:i:s');
+        $values = [];
+        $bindings = [];
+        foreach ($rows as $row) {
+            $values[] = '(?, ?, ?, ?, 0, ?, ?)';
+            array_push($bindings, $row['cup_id'], $row['dedupe_key'], $kind->value, CupMessageStatus::Pending->value, $at, $at);
+        }
+
+        $made = DB::select(
+            'INSERT INTO cup_messages (cup_id, dedupe_key, kind, status, attempts, created_at, updated_at) VALUES '.implode(', ', $values)
+            .' ON CONFLICT (cup_id, dedupe_key) DO NOTHING RETURNING id',
+            $bindings,
+        );
+        foreach ($made as $row) {
+            PostCupMessageJob::dispatch((int) $row->id)->afterCommit();
+        }
+
+        return count($made);
+    }
+
     /**
      * The row of a message (`INSERT … ON CONFLICT DO NOTHING`) and its job after the commit. A second call with the same key does
      * nothing: the row is already there (sent or on its way).

@@ -86,6 +86,12 @@ Schedule::command('cups:send-outbox')
     ->everyMinute()
     ->withoutOverlapping();
 
+// The duels of the cups (docs/33 §5.7, D1): open challenges past their 10 minutes expire (one statement per batch), duels whose battle
+// is over and that no job has scored are scored - each under the lock of its duel, so a repeated or parallel run scores nothing twice.
+Schedule::command('cups:sweep-duels')
+    ->everyMinute()
+    ->withoutOverlapping();
+
 // Battles (docs/16 §8.6): expired invitations are closed, the matches that are on move by the clock (absence, deadlines,
 // the end) - one row lock per match, the same `BattleClock::advance` the polls run, so a repeated or parallel run changes nothing.
 Schedule::command('practice:battles-sweep')

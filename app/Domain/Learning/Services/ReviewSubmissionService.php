@@ -447,7 +447,7 @@ final class ReviewSubmissionService
 
         $expected = $word->word;
         if ($exercise === ExerciseType::GapFill) {
-            $gap = $this->gapFill->fromText($word->word, $example ?? $word->example);
+            $gap = $this->gapFill->forCard($word, $example);
             if ($gap !== null) {
                 $expected = $gap->expected;
             }

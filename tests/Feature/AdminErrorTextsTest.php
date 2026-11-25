@@ -515,6 +515,9 @@ it('has a Russian sentence for every cause that narrows a refusal down', functio
         'payments' => ['not_refundable' => [PaymentRefundException::CAUSE_STATE, PaymentRefundException::CAUSE_NO_CHARGE_ID]],
         'pages.import_lesson' => [
             'invalid_json' => [ImportIssue::CAUSE_SYNTAX, ImportIssue::CAUSE_ENCODING, ImportIssue::CAUSE_DEPTH],
+            // The phrases (docs/35 §3.4): every rule of the block `phrase` and of the key word.
+            'invalid_phrase' => collect((new ReflectionClass(ImportIssue::class))->getConstants())
+                ->filter(fn (mixed $value, string $name): bool => str_starts_with($name, 'CAUSE_PHRASE_'))->values()->all(),
         ],
     ];
 

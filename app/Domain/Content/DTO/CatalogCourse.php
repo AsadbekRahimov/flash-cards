@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Content\DTO;
 
+use App\Domain\Content\Support\Phrase;
+
 /**
  * A course as the catalog shows it, localized for one interface locale
  * (no per-learner data, so it is safe to cache). `title` / `description`
@@ -23,6 +25,12 @@ final readonly class CatalogCourse
         public int $wordsCount,
         public bool $isFeatured,
     ) {}
+
+    /** The section of the catalog the course is listed in: `phrases` for a phrase course (docs/35 §3.3 a), else `courses`. */
+    public function section(): string
+    {
+        return Phrase::sectionOf($this->examTag);
+    }
 
     /** @return CatalogCourseArray */
     public function toArray(): array

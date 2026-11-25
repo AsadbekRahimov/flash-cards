@@ -1,0 +1,11 @@
+{
+  "slug": "english-phrases-test",
+  "title": {"ru": "Фразы (тестовый пакет)", "uz": "Iboralar (test to'plami)"},
+  "description": {"ru": "Маленький пакет фраз для тестов импорта и упражнений. Не настоящий контент.", "uz": "Import va mashqlar testlari uchun kichik to'plam. Haqiqiy kontent emas."},
+  "level": "B1",
+  "level_label": "A2–B1",
+  "exam_tag": "phrases",
+  "visibility": "public",
+  "position": 900,
+  "is_featured": false
+}

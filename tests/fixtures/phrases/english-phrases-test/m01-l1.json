@@ -1,0 +1,330 @@
+{
+  "course": "english-phrases-test",
+  "stage": {
+    "number": 1,
+    "title": "Тестовый модуль",
+    "title_uz": "Test moduli"
+  },
+  "lesson": {
+    "number": 1,
+    "title": "Тестовые фразы",
+    "title_uz": "Test iboralari"
+  },
+  "words": [
+    {
+      "word": "easy come, easy go",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "легко досталось — легко потерялось",
+        "uz": "oson kelgan oson ketadi"
+      },
+      "example": "I lost the money I won. — Oh well, easy come, easy go.",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "go",
+        "literal": {
+          "ru": "легко пришло, легко ушло"
+        },
+        "cefr": "B1",
+        "frequency": 2,
+        "synonyms": [
+          "win some, lose some"
+        ]
+      }
+    },
+    {
+      "word": "a piece of cake",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "проще простого",
+        "uz": "juda oson"
+      },
+      "example": "The test? — It was a piece of cake.",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cake",
+        "literal": {
+          "ru": "кусок торта"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "How's it going?",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "как дела?",
+        "uz": "ishlar qalay?"
+      },
+      "example": "Hi, Tom! How's it going? — Not bad, thanks.",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "going",
+        "literal": {
+          "ru": "как это идёт"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "no worries",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не беспокойся",
+        "uz": "tashvishlanmang"
+      },
+      "example": "Sorry I'm late. — No worries.",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "worries",
+        "literal": {
+          "ru": "никаких беспокойств"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "fair enough",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "справедливо",
+        "uz": "adolatli"
+      },
+      "example": "I can't come today. — Fair enough, next week then.",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "fair",
+        "literal": {
+          "ru": "достаточно справедливо"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "by the way",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "кстати",
+        "uz": "aytgancha"
+      },
+      "example": "By the way, did you call your mum?",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "way",
+        "literal": {
+          "ru": "по пути"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "take it easy",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не напрягайся",
+        "uz": "bosiq bo'l"
+      },
+      "example": "Take it easy, we still have time.",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "informal",
+        "variant": "both",
+        "gap": "easy",
+        "literal": {
+          "ru": "бери это легко"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "break the ice",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "разрядить обстановку",
+        "uz": "muzni eritmoq"
+      },
+      "example": "He told a joke to break the ice.",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "idiom",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "ice",
+        "literal": {
+          "ru": "сломать лёд"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "figure out",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "разобраться",
+        "uz": "tushunib olmoq"
+      },
+      "example": "I can't figure out this map.",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "figure",
+        "literal": {
+          "ru": "вычислить"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "give up",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "сдаться",
+        "uz": "taslim bo'lmoq"
+      },
+      "example": "Don't give up, you're almost there.",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "phrasal_verb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "give",
+        "literal": {
+          "ru": "отдать вверх"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "better late than never",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "лучше поздно, чем никогда",
+        "uz": "kech bo'lsa ham, hech qachondan yaxshi"
+      },
+      "example": "You finally called! — Better late than never.",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "late",
+        "literal": {
+          "ru": "лучше поздно, чем никогда"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "see you later",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "до встречи",
+        "uz": "ko'rishguncha"
+      },
+      "example": "I have to go. — OK, see you later.",
+      "example_translations": {
+        "ru": "(тестовый перевод примера)"
+      },
+      "hooks": {
+        "ru": "Тестовая подсказка: когда так говорят."
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "uk",
+        "gap": "later",
+        "literal": {
+          "ru": "увидимся позже"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    }
+  ]
+}

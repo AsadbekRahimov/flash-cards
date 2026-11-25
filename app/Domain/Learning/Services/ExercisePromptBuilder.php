@@ -6,6 +6,7 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Content\DTO\ResolvedTranslation;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Content\Support\TranslationParts;
 use App\Domain\Learning\DTO\ExercisePrompt;
 use App\Domain\Learning\Enums\ExerciseType;
@@ -22,6 +23,9 @@ use Illuminate\Database\Eloquent\Builder;
  * of the same lesson, then of the same course, then of published public platform courses
  * ({@see Course::scopePublicPlatform()}, the same whitelist as the exam builder; private courses
  * of centers and learners never leak in).
+ * The platform layer keeps to the kind of the card (docs/35 §3.3 c, docs/06 §16): a phrase takes the phrase courses (`exam_tag = phrases`)
+ * only, a word every other course - a phrase never stands among single words. The lesson and the course are of one kind already (the import
+ * keeps phrases to phrase courses).
  * Distractors and their order are chosen by a hash of (seed, candidate), so two `/next` calls for
  * the same serve show the same screen. When there are not enough distractors the card falls back
  * to a flash prompt — the type in the prompt is what the client must follow.
@@ -64,7 +68,7 @@ final class ExercisePromptBuilder
                 $locale,
                 $seed,
             )) < self::OPTIONS - 1 ? ExerciseType::Flash : $type,
-            ExerciseType::GapFill => $this->gapFill->fromText($word->word, $example ?? $word->example) === null ? ExerciseType::Flash : $type,
+            ExerciseType::GapFill => $this->gapFill->forCard($word, $example) === null ? ExerciseType::Flash : $type,
             default => $type,
         };
     }
@@ -158,7 +162,7 @@ final class ExercisePromptBuilder
 
     private function gapFillPrompt(Word $word, ResolvedTranslation $translation, ?string $audioUrl, ?string $example): ExercisePrompt
     {
-        $gap = $this->gapFill->fromText($word->word, $example ?? $word->example);
+        $gap = $this->gapFill->forCard($word, $example);
         if ($gap === null) {
             // The selector only picks gap_fill when the example carries the word; a stale example is a flash card.
             return ExercisePrompt::flash($word->word, $audioUrl);
@@ -316,7 +320,7 @@ final class ExercisePromptBuilder
         yield $this->pool($word)
             ->whereIn('lesson_id', Lesson::query()->select('id')
                 ->whereIn('stage_id', Stage::query()->select('id')
-                    ->whereIn('course_id', Course::query()->select('id')->publicPlatform())));
+                    ->whereIn('course_id', Course::query()->select('id')->publicPlatform()->ofCardKind(Phrase::isPhraseWord($word)))));
     }
 
     /** The course of the word's lesson (two key lookups), null when the lesson or its stage is gone. */

@@ -191,11 +191,11 @@ ru-дерево никогда не достаётся uz-ученику), «С�
 | word | string(100) | английское слово |
 | translation | string(500) | русский перевод по умолчанию (NOT NULL); читать переводы в коде — только через `WordTranslationResolver` (см. 2.21) |
 | example | text nullable | пример предложения |
-| part_of_speech | string(30) nullable | noun/verb/... |
+| part_of_speech | string(30) nullable | noun/verb/... (белый список `VocabularyImporter::ALLOWED_POS`); `phrase` — карточка-фраза курса фраз (docs/35 §3.3 a, выпуск 7) |
 | transcription | string(100) nullable | IPA |
 | audio_path | string(255) nullable | предгенерированное аудио (задача 1.2c) |
 | is_active | boolean default true | слово не удаляем, а деактивируем; учитывается в `courses.words_count` и в проверке публикации курса |
-| meta | jsonb default '{}' | |
+| meta | jsonb default '{}' | `confusable_with` (список слов курса, docs/06 §12.5); `phrase` — только у `part_of_speech = phrase` (docs/35 §3.4): `{kind, register, variant, gap, literal?, cefr?, frequency?, synonyms?}` — `kind` `formula`/`fixed`/`idiom`/`phrasal_verb`/`proverb`, `register` `neutral`/`informal`/`formal`/`slang`/`rude`, `variant` `both`/`uk`/`us` (по умолчанию `both`), `gap` — ключевое слово пропуска (одно слово a–z, входит во фразу ровно один раз, не вся фраза), `literal` `{ru, uz}` — дословный перевод, `cefr` `A1`..`C2`, `frequency` 1–3, `synonyms` — до 10 английских синонимов. Пишет только импорт (`VocabularyImporter`), проверка — там же; читает `App\Domain\Content\Support\Phrase` |
 | lexeme_id | bigint nullable FK → lexemes, ON DELETE SET NULL | лексема написания (§2.66, docs/32 §2.1): единица учёта очков за слова. Курсы платформы и организаций создают лексему, колода ученика только сопоставляется (нет совпадения — `NULL`: слово учится, но очков не даёт). Пишет `LexemeCatalog` (импорт, правка в `/admin`, колоды, `lexemes:backfill`) через query builder — `updated_at` слова не двигается |
 
 **Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (точное совпадение); `words_lexeme_id_idx (lexeme_id)` (CONCURRENTLY на PostgreSQL); `(id) WHERE is_active = false` — partial
@@ -592,7 +592,7 @@ Append-only журнал для продуктовой аналитики (не 
 | description | jsonb default '{}' | по локалям |
 | target_language | string(5) default 'en' | |
 | level | string(2) nullable | `A1`..`C2` |
-| exam_tag | string(16) nullable | `ielts` / `sat` / `school` / `general` |
+| exam_tag | string(16) nullable | `ielts` / `sat` / `school` / `general` / `phrases` (курс фраз, docs/35 §3: раздел «Фразы» каталога, онбордингом не рекомендуется, в нём только карточки `part_of_speech = phrase`) |
 | source | string(12) default 'platform' | происхождение для фильтров: `platform` / `organization` / `learner` |
 | visibility | string(10) default 'public' | `public` / `unlisted` / `private` |
 | status | string(10) default 'draft' | `draft` → `review` → `published` (→ `archived`) |

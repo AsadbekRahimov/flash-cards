@@ -24,6 +24,14 @@ use RuntimeException;
  *   422  cup_material_unavailable · cup_display_name_invalid {reason} · cup_level_invalid · invalid_answer_shape · unknown_element_id · unknown_option_id
  *   429  cup_check_busy (another request of the same learner is checking the membership right now)
  *   503  cup_unverifiable {reason: telegram_unavailable}
+ *
+ * Duels (docs/33 §5.7, §11.9):
+ *   403  cup_duel_unavailable (the participant cannot be challenged / this challenge cannot be accepted by you - no reason, a block
+ *        looks the same) · cup_duel_not_recipient (declining a challenge that is not addressed to you)
+ *   404  cup_duel_not_found (no duel, a duel of another cup or a stranger's, a challenge addressed to somebody else)
+ *   409  cup_duel_disabled · cup_duel_closed {status, reason} · cup_duel_own · cup_duel_already_open {duel_id}
+ *        · cup_duel_rating_changed {rated} · cup_duel_limit {scope, limit} · cup_duel_opponent_busy
+ *   422  cup_duel_self · cup_duel_mode_invalid
  */
 final class CupException extends RuntimeException
 {
@@ -76,6 +84,39 @@ final class CupException extends RuntimeException
     public const UNKNOWN_OPTION_ID = 'unknown_option_id';
 
     public const CHECK_BUSY = 'cup_check_busy';
+
+    public const DUEL_DISABLED = 'cup_duel_disabled';
+
+    public const DUEL_UNAVAILABLE = 'cup_duel_unavailable';
+
+    public const DUEL_NOT_RECIPIENT = 'cup_duel_not_recipient';
+
+    public const DUEL_NOT_FOUND = 'cup_duel_not_found';
+
+    public const DUEL_CLOSED = 'cup_duel_closed';
+
+    public const DUEL_OWN = 'cup_duel_own';
+
+    public const DUEL_ALREADY_OPEN = 'cup_duel_already_open';
+
+    public const DUEL_RATING_CHANGED = 'cup_duel_rating_changed';
+
+    public const DUEL_LIMIT = 'cup_duel_limit';
+
+    public const DUEL_OPPONENT_BUSY = 'cup_duel_opponent_busy';
+
+    public const DUEL_SELF = 'cup_duel_self';
+
+    public const DUEL_MODE_INVALID = 'cup_duel_mode_invalid';
+
+    /** `cup_duel_limit.scope`: challenges of a participant a day / to the same participant a day / public ones of a participant / of a chat. */
+    public const LIMIT_DAILY = 'daily';
+
+    public const LIMIT_PAIR = 'pair';
+
+    public const LIMIT_PUBLIC_PARTICIPANT = 'public_participant';
+
+    public const LIMIT_PUBLIC_CHAT = 'public_chat';
 
     public const REASON_BOT_NOT_ADMIN = 'bot_not_admin';
 
@@ -228,13 +269,73 @@ final class CupException extends RuntimeException
         return new self(self::CHECK_BUSY, 'The membership is being checked; try again in a few seconds.');
     }
 
+    public static function duelDisabled(): self
+    {
+        return new self(self::DUEL_DISABLED, 'Duels are not available now.');
+    }
+
+    public static function duelUnavailable(): self
+    {
+        return new self(self::DUEL_UNAVAILABLE, 'This duel is not available.');
+    }
+
+    public static function duelNotRecipient(): self
+    {
+        return new self(self::DUEL_NOT_RECIPIENT, 'The challenge is not addressed to you.');
+    }
+
+    public static function duelNotFound(): self
+    {
+        return new self(self::DUEL_NOT_FOUND, 'The duel was not found.');
+    }
+
+    public static function duelClosed(string $status, ?string $reason = null): self
+    {
+        return new self(self::DUEL_CLOSED, 'The challenge is no longer open.', ['status' => $status, 'reason' => $reason]);
+    }
+
+    public static function duelOwn(): self
+    {
+        return new self(self::DUEL_OWN, 'You cannot accept your own challenge.');
+    }
+
+    public static function duelAlreadyOpen(int $duelId): self
+    {
+        return new self(self::DUEL_ALREADY_OPEN, 'You already have an open challenge.', ['duel_id' => $duelId]);
+    }
+
+    public static function duelRatingChanged(bool $rated): self
+    {
+        return new self(self::DUEL_RATING_CHANGED, $rated ? 'The duel is rated now.' : 'The duel is a friendly match now.', ['rated' => $rated]);
+    }
+
+    public static function duelLimit(string $scope, int $limit): self
+    {
+        return new self(self::DUEL_LIMIT, 'Too many challenges for today.', ['scope' => $scope, 'limit' => $limit]);
+    }
+
+    public static function duelOpponentBusy(): self
+    {
+        return new self(self::DUEL_OPPONENT_BUSY, 'The challenger is playing another match right now.');
+    }
+
+    public static function duelSelf(): self
+    {
+        return new self(self::DUEL_SELF, 'You cannot challenge yourself.');
+    }
+
+    public static function duelModeInvalid(): self
+    {
+        return new self(self::DUEL_MODE_INVALID, 'This mode is not played in a duel.');
+    }
+
     public function httpStatus(): int
     {
         return match (true) {
-            in_array($this->errorCode, [self::UNAVAILABLE, self::NOT_MEMBER, self::NOT_CHAT_ADMIN], true) => 403,
-            $this->errorCode === self::ROUND_NOT_FOUND => 404,
+            in_array($this->errorCode, [self::UNAVAILABLE, self::NOT_MEMBER, self::NOT_CHAT_ADMIN, self::DUEL_UNAVAILABLE, self::DUEL_NOT_RECIPIENT], true) => 403,
+            in_array($this->errorCode, [self::ROUND_NOT_FOUND, self::DUEL_NOT_FOUND], true) => 404,
             $this->errorCode === self::CLOSED => 410,
-            in_array($this->errorCode, [self::MATERIAL_UNAVAILABLE, self::DISPLAY_NAME_INVALID, self::LEVEL_INVALID, self::INVALID_ANSWER_SHAPE, self::UNKNOWN_ELEMENT_ID, self::UNKNOWN_OPTION_ID], true) => 422,
+            in_array($this->errorCode, [self::MATERIAL_UNAVAILABLE, self::DISPLAY_NAME_INVALID, self::LEVEL_INVALID, self::INVALID_ANSWER_SHAPE, self::UNKNOWN_ELEMENT_ID, self::UNKNOWN_OPTION_ID, self::DUEL_SELF, self::DUEL_MODE_INVALID], true) => 422,
             $this->errorCode === self::CHECK_BUSY => 429,
             $this->errorCode === self::UNVERIFIABLE && ($this->details['reason'] ?? null) === self::REASON_TELEGRAM_UNAVAILABLE => 503,
             default => 409,

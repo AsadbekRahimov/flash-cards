@@ -27,6 +27,7 @@ use InvalidArgumentException;
  *   listen          the recording -> 4 words            {word_id, audio_disk, audio_path, options: [{id, text}], correct_option_id, word, translation[, event]}
  *   spell           the translation -> type the word    {word_id, prompt: {ru, uz}, expected: "apple", answer_length, word}
  *   gap             the example with a blank -> type    {word_id, masked: "I ____ tea.", expected: [forms], correct_text, full_text, translation, word}
+ *                   (a phrase, docs/35 §3.3 e: the phrase itself with its key word blank - "Easy come, easy ____" - and that word alone expected)
  *
  * The elements are BUILT here by pure functions of the pool and the seed (`RunComposer` calls them), and graded here: an option by
  * its opaque id; `spell` by `SpellingGrader` (5 = correct, 4 = typo, else wrong); `gap` by the normalized text against the forms of
@@ -134,7 +135,8 @@ final class WordTaskHandler implements TaskHandler
         $taken[] = $id;
 
         $forms = [$gap->expected];
-        foreach ((new GapFillBuilder)->forms(self::text($word)) as $form) {
+        // A phrase expects its key word as it stands, no inflections: the forms are those of a single word in its example.
+        foreach ($word->word->phrase ? [] : (new GapFillBuilder)->forms(self::text($word)) as $form) {
             if (! in_array($form, $forms, true)) {
                 $forms[] = $form;
             }

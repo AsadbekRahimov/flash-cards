@@ -8,6 +8,7 @@ use App\Domain\Content\Services\CourseCatalogService;
 use App\Domain\Content\Services\DeckTitles;
 use App\Domain\Content\Services\WordAudioService;
 use App\Domain\Content\Services\WordTranslationResolver;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Game\DTO\AuthoredCandidate;
 use App\Domain\Game\DTO\RunComposition;
 use App\Domain\Game\DTO\RunLimits;
@@ -287,7 +288,7 @@ final class RunSnapshotBuilder
 
         /** @var array<int, Word> $rows */
         $rows = Word::query()
-            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example', 'words.lexeme_id')
+            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example', 'words.lexeme_id', 'words.part_of_speech', 'words.meta')
             ->whereIn('words.id', $ids)
             ->where('words.is_active', true)
             ->get()
@@ -312,7 +313,8 @@ final class RunSnapshotBuilder
             foreach ($byLocale as $locale => $texts) {
                 $translations[$locale] = $texts[$row->id] ?? $row->translation;
             }
-            $words[] = new MaterialWord($row->id, $row->lesson_id, $row->word, $row->translation, $row->audio_path, $translations, $row->example, $row->lexeme_id === null ? null : (int) $row->lexeme_id);
+            $phrase = Phrase::isPhraseWord($row);
+            $words[] = new MaterialWord($row->id, $row->lesson_id, $row->word, $row->translation, $row->audio_path, $translations, $row->example, $row->lexeme_id === null ? null : (int) $row->lexeme_id, $phrase, $phrase ? Phrase::gapOf($row->getAttribute('meta')) : null);
         }
 
         return $words;
@@ -432,7 +434,8 @@ final class RunSnapshotBuilder
                 ->orderBy('words.id');
         }
         $public = $this->distractorQuery()
-            ->whereIn('stages.course_id', Course::query()->publicPlatform()->where('courses.id', '<>', $course->id)->select('courses.id'))
+            // The kind of the run's course (docs/35 §3.3 c): a course of phrases borrows phrases, any other course words.
+            ->whereIn('stages.course_id', Course::query()->publicPlatform()->ofCardKind(Phrase::isPhraseCourse($course->exam_tag))->where('courses.id', '<>', $course->id)->select('courses.id'))
             ->limit($limit);
 
         /** @var list<Word> $rows */
@@ -449,7 +452,7 @@ final class RunSnapshotBuilder
             foreach ($byLocale as $locale => $texts) {
                 $translations[$locale] = $texts[$row->id] ?? $row->translation;
             }
-            $word = new MaterialWord($row->id, $row->lesson_id, $row->word, $row->translation, $row->audio_path, $translations, $row->example);
+            $word = new MaterialWord($row->id, $row->lesson_id, $row->word, $row->translation, $row->audio_path, $translations, $row->example, phrase: Phrase::isPhraseWord($row));
             $tier = (int) $row->getAttribute('course_id') === $course->id ? RunPoolWord::TIER_COURSE : RunPoolWord::TIER_PUBLIC;
             $distractors[] = $this->poolWord($word, $locales, $tier);
         }
@@ -461,7 +464,7 @@ final class RunSnapshotBuilder
     private function distractorQuery(): Builder
     {
         return Word::query()
-            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example', 'stages.course_id')
+            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example', 'words.part_of_speech', 'stages.course_id')
             ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
             ->where('words.is_active', true)
@@ -475,6 +478,9 @@ final class RunSnapshotBuilder
         $path = $this->wordAudio->pathFor($word->word);
         $audio = $path !== null && $word->audioPath === $path ? $path : null;
 
-        return new RunPoolWord($word, $audio, $this->gaps->fromText($word->word, $word->example), PairsMode::candidate($word, $locales), $tier);
+        // A phrase is masked in itself, by its key word (docs/35 §3.3 b, e); a word in its example.
+        $gap = $word->phrase ? $this->gaps->inPhrase($word->word, $word->phraseGap) : $this->gaps->fromText($word->word, $word->example);
+
+        return new RunPoolWord($word, $audio, $gap, PairsMode::candidate($word, $locales), $tier);
     }
 }

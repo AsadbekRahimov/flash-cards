@@ -41,7 +41,32 @@ it('normalises a spelling into the catalog key', function (string $word, ?string
     'cyrillic lower-cased' => ['Привет', 'привет'],
     'blank' => ['   ', null],
     'empty' => ['', null],
+    // Phrases (docs/35 §3.3 f): the same rules, no case of their own.
+    'phrase: comma inside kept' => ['easy come, easy go', 'easy come, easy go'],
+    'phrase: final question mark dropped' => ["How's it going?", "how's it going"],
+    'phrase: final exclamation dropped' => ['Break a leg!', 'break a leg'],
+    'phrase: final ellipsis dropped' => ['Well...', 'well'],
+    'phrase: typographic apostrophe' => ['How’s it going?', "how's it going"],
+    'phrase: case' => ['By The Way', 'by the way'],
+    'phrase: leading article dropped' => ['A piece of cake', 'piece of cake'],
+    'phrase: article inside kept' => ['break the ice', 'break the ice'],
+    'phrase: leading to kept' => ['to break the ice', 'to break the ice'],
+    'phrase: inner question mark kept' => ['Really? No way!', 'really? no way'],
+    'phrase: UK spelling' => ['in my humble opinion, colour me surprised', 'in my humble opinion, colour me surprised'],
+    'phrase: dash between replies' => ['easy come — easy go', 'easy come - easy go'],
 ]);
+
+it('folds the copies of one phrase together and never glues a phrase to a single word', function (): void {
+    expect(LexemeKey::of('A piece of cake'))->toBe(LexemeKey::of('piece of cake'))
+        ->and(LexemeKey::of('How’s it going?'))->toBe(LexemeKey::of("how's it going"))
+        ->and(LexemeKey::of('to give up'))->not->toBe(LexemeKey::of('give up'))
+        // UK / US spellings are two keys: no spelling table, the error towards "different" (docs/32 §2.1).
+        ->and(LexemeKey::of('a change of colour'))->not->toBe(LexemeKey::of('a change of color'))
+        // A phrase and the words it is made of: never one key (the gap rule of the import keeps a phrase at two words at least).
+        ->and(LexemeKey::of('piece of cake'))->not->toBe(LexemeKey::of('cake'))
+        ->and(LexemeKey::of('break the ice'))->not->toBe(LexemeKey::of('ice'))
+        ->and(LexemeKey::of('give up'))->not->toBe(LexemeKey::of('give'));
+});
 
 it('keeps "to be" and "be" apart and folds the copies of one spelling together', function (): void {
     expect(LexemeKey::of('to be'))->not->toBe(LexemeKey::of('be'))

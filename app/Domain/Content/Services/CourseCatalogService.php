@@ -12,6 +12,7 @@ use App\Domain\Content\DTO\LearnerProgress;
 use App\Domain\Content\DTO\LearnerWordStages;
 use App\Domain\Content\DTO\LessonProgress;
 use App\Domain\Content\DTO\NextLesson;
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Enums\WordStage;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -296,8 +297,9 @@ final class CourseCatalogService
     /**
      * The course onboarding suggests for a goal and a self-assessed level (docs/12 §3.2): among
      * public published courses with `exam_tag = goal`, the one of the same level first, then
-     * featured ones, then catalog order. A course without words is never suggested. Null when no
-     * course fits the goal — the caller falls back to the general catalog, then to the default course.
+     * featured ones, then catalog order. A course without words is never suggested, nor a course of phrases (docs/35 §3.3 a:
+     * a section of its own, never the main course - whatever goal names it). Null when no course fits the goal — the caller
+     * falls back to the general catalog, then to the default course.
      */
     public function recommend(?string $goal, ?string $level): ?Course
     {
@@ -307,7 +309,7 @@ final class CourseCatalogService
 
         $matching = array_values(array_filter(
             $this->published($this->locales->default()),
-            fn (CatalogCourse $c): bool => $c->examTag === $goal && $c->wordsCount > 0,
+            fn (CatalogCourse $c): bool => $c->examTag === $goal && $c->wordsCount > 0 && $c->section() !== Phrase::SECTION_PHRASES,
         ));
 
         // usort is stable: equal candidates stay in catalog order (position, id).

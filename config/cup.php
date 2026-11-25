@@ -17,7 +17,8 @@ $level = static fn (string $key): ?string => is_string($slug = env($key)) && $sl
 return [
     'access' => env('CUP_ACCESS', 'off'),
 
-    // Stage 2 (docs/33 D1-D3): duels on top of the battles. Not built yet; stays false.
+    // Stage 2 (docs/33 §5.7, D1-D3): duels on top of the battles. Needs PRACTICE_BATTLE=true and PRACTICE_ACCESS other than off too
+    // (the sweeper of the battles voids every match when the practice is off). Off by default until D2 (API, screens, the bot) is done.
     'duels' => (bool) env('CUP_DUELS', false),
 
     // One timezone for the whole cup: every participant shares the borders of the days.
@@ -48,7 +49,18 @@ return [
     ],
 
     'duel' => [
+        // The rounds of the battle of a duel (practice.battle.rounds) - frozen in `cups.duel_tasks`; a duel gives 1 point per own right answer.
         'tasks' => 5,
+        // An open challenge waits this long for an answer.
+        'challenge_minutes' => 10,
+        // Challenges a participant may send in a day of the cup (any kind) and to the same participant (docs/33 §11.9: anti-spam).
+        'daily_challenges' => 20,
+        'pair_daily_challenges' => 3,
+        // Challenges published in the chat a day (docs/33 §6.3): per participant and per chat; beyond that a challenge is private only.
+        'public_per_participant' => 3,
+        'public_per_chat' => 10,
+        // cups:sweep-duels: rows per step and run.
+        'sweep_batch' => 200,
     ],
 
     // The finish waits this long after the end of the last day (an attempt of 10 minutes started at 23:59, a duel).

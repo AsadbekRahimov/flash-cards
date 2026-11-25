@@ -12,6 +12,7 @@ use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Practice\DTO\AudioFailureOutcome;
 use App\Domain\Practice\DTO\BattleAnswerOutcome;
+use App\Domain\Practice\DTO\CupBattlePlan;
 use App\Domain\Practice\DTO\ElementState;
 use App\Domain\Practice\DTO\LocaleSet;
 use App\Domain\Practice\DTO\MaterialScope;
@@ -677,6 +678,111 @@ final class BattleService
 
             return new AudioFailureOutcome($verified, $battle);
         });
+    }
+
+    // ------------------------------------------------------------------ the duel of a cup (docs/33 §5.7, D1)
+
+    /**
+     * The match of a duel of a cup, made ready BEFORE the transaction of the acceptance: no friendship, no Free limit, no access to the
+     * practice of the players (the cup decides who may play - its participants; the rated duel is the same for Free and Pro, docs/29);
+     * only the switches of the battle and of the mode, and the snapshot of exactly `practice.battle.rounds` rounds of the WHOLE course of
+     * the cup in the languages of both players. Nothing is written.
+     *
+     * @throws BattleException battle_disabled | battle_material_unavailable
+     * @throws PracticeException practice_mode_disabled
+     */
+    public function prepareForCup(Learner $challenger, Learner $opponent, PracticeMode $mode, Course $course): CupBattlePlan
+    {
+        if (! $mode->battleable()) {
+            throw new LogicException("The mode {$mode->value} is not played in a battle.");
+        }
+        $this->access->assertBattleEnabled();
+        $this->access->assertModeEnabled($mode);
+
+        $challengerLocale = $this->locales->forLearner($challenger);
+        $opponentLocale = $this->locales->forLearner($opponent);
+        $seed = SeededShuffle::newSeed();
+        $snapshot = $this->snapshot($challenger, $mode, MaterialScope::forPlay($course, null, null, $seed), new LocaleSet([$challengerLocale, $opponentLocale]), $seed);
+
+        return new CupBattlePlan($challenger, $opponent, $mode, $course, $snapshot, $challengerLocale, $opponentLocale);
+    }
+
+    /**
+     * Opens the match of a duel of a cup INSIDE the caller's transaction (the acceptance of the duel, docs/33 §5.7 step 4): the row goes
+     * straight to `room` - the acceptance has happened - with BOTH players busy (`active_learner_id`) and the pair's `open_pair`; the room
+     * lives `room_ttl_seconds`, and the presence counts from now for both (the challenger must come, docs/33 §5.7). The battle knows its
+     * duel (`cup_duel_id`): its end is scored by the cup ({@see BattleClock}). `$limitExempt` - a rated duel, not counted in the Free
+     * limit (the caller claims the limit itself for a friendly one, under the challenger's row, before this).
+     *
+     * A player busy with another match, or a pair with a battle that is not over, is a violation of a unique index: the exception
+     * leaves with the caller's transaction (rolled back, the slots of the duel with it) and the caller asks {@see busyBattleOf()} /
+     * {@see openBattleOfPairOf()} what keeps them busy.
+     *
+     * @throws UniqueConstraintViolationException active_learner_id | open_pair
+     */
+    public function openForCup(CupBattlePlan $plan, int $cupDuelId, bool $limitExempt, CarbonImmutable $now): Battle
+    {
+        $challenger = $plan->challenger;
+        $opponent = $plan->opponent;
+
+        $battle = new Battle([
+            'challenger_id' => $challenger->id,
+            'opponent_id' => $opponent->id,
+            'friendship_id' => null,
+            'open_pair' => Battle::pairKey($challenger->id, $opponent->id),
+            'course_id' => $plan->course->id,
+            'lesson_id' => null,
+            'mode' => $plan->mode,
+            'status' => BattleStatus::Room,
+            'end_reason' => null,
+            'snapshot' => $plan->snapshot->toArray(),
+            'current_round' => 0,
+            'phase' => null,
+            'invite_expires_at' => $now,
+            'accepted_at' => $now,
+            'room_expires_at' => $now->addSeconds($this->settings->roomTtlSeconds()),
+            'rematch_of_id' => null,
+            'cup_duel_id' => $cupDuelId,
+            'limit_exempt' => $limitExempt,
+            'state_version' => 1,
+            'meta' => [],
+        ]);
+        $battle->setCreatedAt($now)->setUpdatedAt($now)->save();
+
+        $rows = [];
+        foreach ([[$challenger, BattleRole::Challenger, $plan->challengerLocale, null], [$opponent, BattleRole::Opponent, $plan->opponentLocale, $now]] as [$learner, $role, $locale, $seen]) {
+            $rows[] = BattleParticipant::query()->create([
+                'battle_id' => $battle->id,
+                'learner_id' => $learner->id,
+                'role' => $role,
+                'active_learner_id' => $learner->id,
+                'ready_at' => null,
+                'last_seen_at' => $seen,
+                'surrendered_at' => null,
+                'score' => 0,
+                'locale' => $locale,
+            ]);
+        }
+        $battle->setRelation('participants', new EloquentCollection($rows));
+
+        DB::afterCommit(fn () => $this->events->record(ProductEventName::BattleAccepted, ['battle_id' => $battle->id, 'cup_duel_id' => $cupDuelId], learner: $challenger));
+
+        return $battle;
+    }
+
+    /**
+     * The match the learner is busy with, after the clock has had its say (a due one is moved in a short transaction of its own); null
+     * when nothing keeps them busy. For a caller whose insert hit `active_learner_id` (the duel of a cup), outside its transaction.
+     */
+    public function busyBattleOf(Learner $learner, ?CarbonImmutable $now = null): ?int
+    {
+        return $this->busyWith($learner, $now ?? CarbonImmutable::now());
+    }
+
+    /** The battle of the pair that is not over (`open_pair`), after the clock - the same for a caller whose insert hit `open_pair`. */
+    public function openBattleOfPairOf(Learner $a, Learner $b, ?CarbonImmutable $now = null): ?int
+    {
+        return $this->openBattleOfPair($a, $b, $now ?? CarbonImmutable::now());
     }
 
     // ------------------------------------------------------------------ the pieces

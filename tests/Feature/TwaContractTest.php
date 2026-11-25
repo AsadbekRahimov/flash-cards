@@ -66,7 +66,7 @@ const CONTRACT_HARD_ROUND = ['available', 'reason', 'words', 'open_session_id', 
 const CONTRACT_PRACTICE_TODAY = ['available', 'pro_required', 'modes', 'battle', 'pro_promise'];
 const CONTRACT_PROMPT = ['type', 'front', 'masked_example', 'options', 'answer_length'];
 // The method (docs/06 §12): `is_leech`, `is_hard`, `hook`, `note`, `confused_with` were added to the card (fields only ever added).
-const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'example_translation', 'example_audio_url', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT, 'is_leech', 'is_hard', 'hook', 'note', 'confused_with'];
+const CONTRACT_CARD = ['word_id', 'word', 'translation', 'translation_fallback', 'example', 'example_translation', 'example_audio_url', 'transcription', 'audio_url', 'card_kind', 'serve_token', 'prompt' => CONTRACT_PROMPT, 'is_leech', 'is_hard', 'hook', 'note', 'confused_with', 'phrase'];
 const CONTRACT_EXAM_QUESTION = ['question_index', 'word_id', 'word', 'options', 'seconds_left'];
 const CONTRACT_FORBIDDEN_EXAM_KEYS = ['correct_index', 'correct_translation', 'canonical_index'];
 // The block `practice` of GET /me and of every answer with the refreshed profile (docs/16 §3.3).
@@ -468,7 +468,7 @@ it('billing errors use the ApiErrorResource envelope', function (): void {
 
 const CONTRACT_QUOTA = ['new_words_remaining'];
 
-const CONTRACT_COURSE = ['slug', 'title', 'description', 'level', 'exam_tag', 'words_count', 'is_featured', 'is_active', 'progress' => CONTRACT_PROGRESS];
+const CONTRACT_COURSE = ['slug', 'title', 'description', 'level', 'exam_tag', 'section', 'words_count', 'is_featured', 'is_active', 'progress' => CONTRACT_PROGRESS];
 
 /** @return array{learner: Learner, course: Course} */
 function contractCourse(): array
@@ -495,6 +495,7 @@ it('GET /courses keeps its exact JSON shape', function (): void {
         'description' => 'Описание',
         'level' => 'A2',
         'exam_tag' => null,
+        'section' => 'courses',
         'is_active' => false,
         'progress' => ['done' => 0, 'total' => 2],
     ]);
@@ -507,7 +508,7 @@ it('GET /courses/{slug} keeps its exact JSON shape', function (): void {
         ->getJson('/api/twa/courses/contract-course')
         ->assertOk()
         ->assertExactJsonStructure([
-            'slug', 'title', 'description', 'level', 'exam_tag', 'words_count', 'is_active',
+            'slug', 'title', 'description', 'level', 'exam_tag', 'section', 'words_count', 'is_active',
             'progress' => CONTRACT_PROGRESS,
             'stages' => [[
                 'number', 'title', 'progress' => CONTRACT_PROGRESS,
@@ -524,7 +525,7 @@ it('GET /courses/{slug} keeps the shape for a module without a name: `title` is 
         ->getJson('/api/twa/courses/contract-course')
         ->assertOk()
         ->assertExactJsonStructure([
-            'slug', 'title', 'description', 'level', 'exam_tag', 'words_count', 'is_active',
+            'slug', 'title', 'description', 'level', 'exam_tag', 'section', 'words_count', 'is_active',
             'progress' => CONTRACT_PROGRESS,
             'stages' => [[
                 'number', 'title', 'progress' => CONTRACT_PROGRESS,

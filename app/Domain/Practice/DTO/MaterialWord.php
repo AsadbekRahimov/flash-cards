@@ -16,6 +16,9 @@ final readonly class MaterialWord
      * @param  string|null  $example  `words.example` - the game's `gap` task masks the word in it (docs/18 §12.3.1)
      * @param  int|null  $lexemeId  `words.lexeme_id` - the game puts it into the word tasks of a run's snapshot (the word points, docs/32 §3.6);
      *                              null for a word the catalog does not know and where the reader did not select it (distractors)
+     * @param  bool  $phrase  a phrase card (`part_of_speech = phrase`, docs/35 §3.3): the game gives it no `spell`, its `gap` is the key word
+     *                        in the phrase itself, and its distractors are phrases
+     * @param  string|null  $phraseGap  the key word of a phrase (`meta.phrase.gap`); null for a word, and where the reader did not select it
      */
     public function __construct(
         public int $id,
@@ -26,6 +29,8 @@ final readonly class MaterialWord
         public array $translations,
         public ?string $example = null,
         public ?int $lexemeId = null,
+        public bool $phrase = false,
+        public ?string $phraseGap = null,
     ) {}
 
     public function translationFor(string $locale): string
