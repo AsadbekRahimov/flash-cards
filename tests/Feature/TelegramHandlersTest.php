@@ -7,6 +7,7 @@ use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Operations\Support\PureCache;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\DTO\ChatMemberInfo;
+use App\Domain\Telegram\DTO\PreparedInlineMessage;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\GroupMember;
 use App\Models\Learner;
@@ -593,6 +594,13 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         {
             return true;
         }
+
+        public function savePreparedInlineMessage(int $userId, array $result, bool $allowUserChats = false, bool $allowBotChats = false, bool $allowGroupChats = false, bool $allowChannelChats = false): PreparedInlineMessage
+        {
+            return new PreparedInlineMessage('prepared', 2_000_000_000);
+        }
+
+        public function answerInlineQuery(string $inlineQueryId, array $results, int $cacheTime = 300, bool $isPersonal = false): void {}
     };
 
     app()->instance(TelegramClient::class, $api);

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Contracts;
 
 use App\Domain\Telegram\DTO\ChatMemberInfo;
+use App\Domain\Telegram\DTO\PreparedInlineMessage;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use InvalidArgumentException;
 
 interface TelegramClient
 {
@@ -177,4 +179,37 @@ interface TelegramClient
      * @throws TelegramApiException
      */
     public function setChatMenuButton(array $menuButton): bool;
+
+    /**
+     * Stores a message the user `$userId` can send from the Mini App with `WebApp.shareMessage` (`savePreparedInlineMessage`,
+     * Bot API 8.0; docs/36 §1в). `$result` is ONE InlineQueryResult (`InlineQueryResultPhoto` with a JPEG `photo_url` or
+     * `InlineQueryResultArticle`), sent as JSON; the `allow*` flags say into which chats it may go (at least one should be true).
+     * The prepared message expires - when, Telegram says in the answer.
+     *
+     * @param  array<string, mixed>  $result  an InlineQueryResult object
+     *
+     * @throws TelegramRateLimitedException on a 429
+     * @throws TelegramApiException on any other failed Bot API call, or an answer without an id / expiration date
+     */
+    public function savePreparedInlineMessage(
+        int $userId,
+        array $result,
+        bool $allowUserChats = false,
+        bool $allowBotChats = false,
+        bool $allowGroupChats = false,
+        bool $allowChannelChats = false,
+    ): PreparedInlineMessage;
+
+    /**
+     * Answers an inline query (`answerInlineQuery`; docs/36 §1в п. 3) with at most 50 InlineQueryResult objects, sent as JSON.
+     * An empty list is a valid "nothing" answer. `$cacheTime` is how long Telegram may serve the same results again (seconds,
+     * Telegram's default 300), `$isPersonal` keeps that cache per user.
+     *
+     * @param  list<array<string, mixed>>  $results
+     *
+     * @throws InvalidArgumentException more than 50 results
+     * @throws TelegramRateLimitedException on a 429
+     * @throws TelegramApiException on any other failed Bot API call (the query is too old, a result is invalid)
+     */
+    public function answerInlineQuery(string $inlineQueryId, array $results, int $cacheTime = 300, bool $isPersonal = false): void;
 }

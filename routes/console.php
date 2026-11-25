@@ -200,6 +200,12 @@ Schedule::command('audio:reconcile')
     ->dailyAt('02:30')
     ->withoutOverlapping(60);
 
+// The share cards (docs/36 §2б): cards unused for a month, the PNG cards of template 1 and leftovers of a killed render. Weekly,
+// Monday 04:50 - away from the purge, the wallets check and the reconciliation of Stars. A removed card is drawn again on demand.
+Schedule::command('achievements:prune-cards')
+    ->weeklyOn(1, '04:50')
+    ->withoutOverlapping(30);
+
 // DB backups via spatie/laravel-backup: hourly, database only (RPO <= 1 h; the code is in the image and nothing in storage
 // needs a backup: audio is regenerable TTS). --isolated so a deploy's pre-migration backup and the schedule never run
 // together (the lock lives in the default cache store). :20, away from the top-of-hour peak; the lock is shorter than the

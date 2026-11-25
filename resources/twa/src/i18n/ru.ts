@@ -242,7 +242,6 @@ export const ru = {
     many: 'Повторить {count} слов',
     other: 'Повторить {count} слова',
   },
-  'today.hero.review_unavailable': 'Тренировка сейчас недоступна — план на сегодня обновлён',
   'today.steps.title': 'План на сегодня',
   'today.steps.counter': 'шаг {step} из {total}',
   'today.steps.all_done': 'всё сделано',

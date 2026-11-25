@@ -19,7 +19,7 @@ use Throwable;
 /**
  * Sends the card of a new achievement in a DM (docs/13 §7.4) — the body of {@see SendAchievementJob}.
  *
- * The message is the PNG ({@see AchievementCardRenderer}) with a caption and, when the bot's username is
+ * The message is the JPEG card ({@see AchievementCardRenderer}) with a caption and, when the bot's username is
  * known, a "Share" button that opens Telegram's share dialog with the learner's invite link (a plain URL
  * button: no inline mode is needed). Without a link the caption asks to forward the message.
  *

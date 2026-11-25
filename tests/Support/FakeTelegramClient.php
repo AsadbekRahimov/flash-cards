@@ -6,10 +6,12 @@ namespace Tests\Support;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\DTO\ChatMemberInfo;
+use App\Domain\Telegram\DTO\PreparedInlineMessage;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use Closure;
+use InvalidArgumentException;
 
 /**
  * Recording TelegramClient for tests: every outgoing call is kept in `$sent`,
@@ -122,6 +124,24 @@ final class FakeTelegramClient implements TelegramClient
 
     /** When true, setChatMenuButton throws like a Bot API refusal. */
     public bool $failMenuButton = false;
+
+    /** @var list<array{user_id:int, result:array<string, mixed>, allow_user_chats:bool, allow_bot_chats:bool, allow_group_chats:bool, allow_channel_chats:bool, id:string}> savePreparedInlineMessage calls */
+    public array $preparedMessages = [];
+
+    /** The `expiration_date` the next prepared message answers with; null = one day from now. */
+    public ?int $preparedExpirationDate = null;
+
+    /** @var list<array{inline_query_id:string, results:list<array<string, mixed>>, cache_time:int, is_personal:bool}> answerInlineQuery calls */
+    public array $inlineAnswers = [];
+
+    /** The next N savePreparedInlineMessage / answerInlineQuery calls throw like a Bot API refusal (400). */
+    public int $failInline = 0;
+
+    /** When true, a failing inline call looks like a network error (no Bot API answer) instead of a 4xx refusal. */
+    public bool $failInlineAsTransport = false;
+
+    /** When set, a failing inline call is a Telegram 429 with this `retry_after` (wins over `failInlineAsTransport`). */
+    public ?int $failInlineRetryAfter = null;
 
     public function sendMessage(int|string $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void
     {
@@ -297,6 +317,47 @@ final class FakeTelegramClient implements TelegramClient
         $this->menuButtons[] = $menuButton;
 
         return true;
+    }
+
+    public function savePreparedInlineMessage(int $userId, array $result, bool $allowUserChats = false, bool $allowBotChats = false, bool $allowGroupChats = false, bool $allowChannelChats = false): PreparedInlineMessage
+    {
+        $this->failNextInline('savePreparedInlineMessage');
+
+        $id = 'prepared-'.(count($this->preparedMessages) + 1);
+        $this->preparedMessages[] = [
+            'user_id' => $userId,
+            'result' => $result,
+            'allow_user_chats' => $allowUserChats,
+            'allow_bot_chats' => $allowBotChats,
+            'allow_group_chats' => $allowGroupChats,
+            'allow_channel_chats' => $allowChannelChats,
+            'id' => $id,
+        ];
+
+        return new PreparedInlineMessage($id, $this->preparedExpirationDate ?? now()->addDay()->getTimestamp());
+    }
+
+    public function answerInlineQuery(string $inlineQueryId, array $results, int $cacheTime = 300, bool $isPersonal = false): void
+    {
+        if (count($results) > 50) {
+            throw new InvalidArgumentException('answerInlineQuery takes at most 50 results.');
+        }
+
+        $this->failNextInline('answerInlineQuery');
+        $this->inlineAnswers[] = ['inline_query_id' => $inlineQueryId, 'results' => $results, 'cache_time' => $cacheTime, 'is_personal' => $isPersonal];
+    }
+
+    private function failNextInline(string $method): void
+    {
+        if ($this->failInline > 0) {
+            $this->failInline--;
+
+            throw match (true) {
+                $this->failInlineRetryAfter !== null => new TelegramRateLimitedException($this->failInlineRetryAfter, $method),
+                $this->failInlineAsTransport => new TelegramApiException('cURL error 28: Operation timed out'),
+                default => TelegramApiException::apiError('Bad Request: query is too old and response timeout expired or query ID is invalid', 400),
+            };
+        }
     }
 
     private function starsCall(string $method): void

@@ -706,7 +706,7 @@ describe('FinishedView', () => {
         const w = render(8, 1)
 
         expect(w.find('[data-testid=game-line]').exists()).toBe(false)
-        expect(w.get('[data-testid=lesson-review-btn]').exists()).toBe(true)
+        expect(w.find('[data-testid=lesson-review-btn]').exists()).toBe(true)
       })
     })
 
@@ -790,7 +790,7 @@ describe('FinishedView', () => {
         expect(w.find('[data-testid=what-next]').exists()).toBe(false)
         expect(w.get('[data-testid=home-btn]').text()).toBe('Готово')
         expect(w.get('[data-testid=next-round-btn]').text()).toBe('Ещё раунд')
-        expect(w.get('[data-testid=practice-btn]').exists()).toBe(true)
+        expect(w.find('[data-testid=practice-btn]').exists()).toBe(true)
         expect(w.get('[data-testid=stat-reviewed]').text()).toBe('5')
       })
 

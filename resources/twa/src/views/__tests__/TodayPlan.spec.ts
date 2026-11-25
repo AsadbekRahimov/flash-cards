@@ -233,7 +233,7 @@ describe('TodayView: the plan of the day', () => {
       expect(w.router.currentRoute.value.fullPath).toBe('/training/77')
     })
 
-    it('on a refusal (409 lesson_review_unavailable) stays, says so and shows the plan the server reads now', async () => {
+    it('on a refusal (409 lesson_review_unavailable) stays, says why and shows the plan the server reads now', async () => {
       vi.mocked(api.training.open).mockRejectedValue(
         new ApiClientError('conflict', 409, 'lesson_review_unavailable', 'No new words.', undefined, { reason: 'no_new_words' }),
       )
@@ -245,21 +245,22 @@ describe('TodayView: the plan of the day', () => {
 
       expect(w.router.currentRoute.value.fullPath).toBe('/today')
       expect(api.today.get).toHaveBeenCalledTimes(2)
-      expect(text(w, 'open-error')).toBe('Тренировка сейчас недоступна — план на сегодня обновлён')
+      expect(text(w, 'open-error')).toBe('Новых слов этого урока сегодня не было — закреплять пока нечего.')
       expect(w.get('[data-testid=lesson-hero]').attributes('data-step')).toBe('3')
       expect(steps(w)).toEqual([['lesson', 'done'], ['game', 'current']])
       expect(text(w, 'plan-counter')).toBe('шаг 2 из 2')
     })
 
-    it('keeps the general message for any other failure', async () => {
+    it('shows any other failure under the card and keeps the plan', async () => {
       vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'network', 'offline'))
       const w = await render(today({ plan: afterLesson() }))
 
       await w.get('[data-testid=hero-btn]').trigger('click')
       await flushPromises()
 
-      expect(text(w, 'open-error')).not.toBe('Тренировка сейчас недоступна — план на сегодня обновлён')
       expect(text(w, 'open-error')).not.toBe('')
+      expect(api.today.get).toHaveBeenCalledTimes(1)
+      expect(w.get('[data-testid=lesson-hero]').attributes('data-step')).toBe('2')
     })
   })
 

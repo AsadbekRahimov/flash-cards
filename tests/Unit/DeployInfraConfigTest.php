@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Engagement\Services\AchievementCardRenderer;
 use App\Http\Middleware\RandomizeResponseLength;
 use Illuminate\Support\Facades\Process;
 use Symfony\Component\Yaml\Yaml;
@@ -427,4 +428,89 @@ it('gives the app-api pool of docker-compose.prod.yml a static pm and the pool f
 
     expect($prod['services']['app-api']['environment']['PHP_FPM_PM'])->toBe('${PHP_FPM_API_PM:-static}')
         ->and($prod['services']['app']['environment'] ?? [])->not->toHaveKey('PHP_FPM_PM');
+});
+
+// --- The share cards (docs/36 §2б): `/storage/share-cards/<key>-<ru|uz>-<hash>.jpg` for Telegram to download, nothing else of storage.
+
+it('serves the share cards at /storage/share-cards/: GET/HEAD and the names of the renderer only, cached for a year', function (): void {
+    foreach (NGINX_CONFIGS as $file) {
+        $conf = infraFile($file);
+        $cards = prefixLocation($conf, '/storage/share-cards/');
+
+        expect($cards)->not->toBeNull("{$file}: no /storage/share-cards/ location");
+        expect($cards)->toContain('alias /var/www/html/storage/app/public/share-cards/;')
+            ->and($cards)->toContain("limit_except GET {\n            deny all;\n        }")
+            ->and($cards)->toContain('if ($uri !~ "^/storage/share-cards/[a-z0-9_]{1,40}-(ru|uz)-[0-9a-f]{20}\.jpg$") {'."\n            return 404;\n        }")
+            ->and($cards)->toContain('add_header Cache-Control "public, max-age=31536000, immutable";')
+            ->and($cards)->toContain('add_header X-Content-Type-Options "nosniff" always;')
+            ->and($cards)->not->toContain('fastcgi_pass');
+
+        if ($file !== 'docker/nginx/default.conf') {
+            expect($cards)->toContain('add_header Strict-Transport-Security "max-age=15552000; includeSubDomains" always;');
+        }
+
+        // Nothing else of the public disk: the old PNG cards (/storage/achievements/) and the rest of /storage/ fall to `location /`
+        // (no `storage:link` in the images) - 404.
+        expect(prefixLocation($conf, '/storage/achievements/'))->toBeNull()
+            ->and(prefixLocation($conf, '/storage/'))->toBeNull()
+            ->and($conf)->not->toMatch('/location [^{]*\/storage\/(?!audio\/|share-cards\/)/');
+    }
+});
+
+it('lets through the /storage/share-cards/ pattern exactly the names the renderer writes', function (): void {
+    preg_match('/if \(\$uri !~ "(?<pattern>[^"]+)"\)/', (string) prefixLocation(infraFile('docker/nginx/prod.conf'), '/storage/share-cards/'), $m);
+    $pattern = '#'.$m['pattern'].'#';
+
+    foreach (['streak_7-ru-0123456789abcdef0123.jpg', 'boss_24-uz-ffffffffffffffffffff.jpg', 'invite-ru-0a1b2c3d4e5f60718293.jpg'] as $name) {
+        expect(preg_match($pattern, "/storage/share-cards/{$name}"))->toBe(1, $name)
+            ->and(preg_match(AchievementCardRenderer::FILE_PATTERN, $name))->toBe(1, $name);
+    }
+    foreach ([
+        '/storage/share-cards/streak_7-ru-0123456789abcdef0123.jpg.a1b2c3.tmp', // a render in progress
+        '/storage/share-cards/.streak_7-ru-0123456789abcdef0123.jpg',
+        '/storage/share-cards/sub/streak_7-ru-0123456789abcdef0123.jpg',
+        '/storage/share-cards/streak_7-en-0123456789abcdef0123.jpg',
+        '/storage/share-cards/streak_7-ru-0123456789abcdef012.jpg',
+        '/storage/share-cards/streak_7-ru-0123456789ABCDEF0123.jpg',
+        '/storage/share-cards/streak_7-ru-0123456789abcdef0123.png',
+        '/storage/share-cards/streak_7-ru-0123456789abcdef0123.jpg.php',
+        '/storage/share-cards/../share-cards/streak_7-ru-0123456789abcdef0123.jpg',
+        '/storage/share-cards/',
+    ] as $bad) {
+        expect(preg_match($pattern, $bad))->toBe(0, $bad);
+    }
+});
+
+it('gives the share cards their own volume, shared read-only with nginx, wherever the word audio is mounted', function (): void {
+    /** @var array{services: array<string, array{volumes?: list<string>}>, volumes: array<string, mixed>} $prod */
+    $prod = Yaml::parse(infraFile('docker-compose.prod.yml'));
+    $coolify = coolifyCompose();
+    /** @var array<string, array{volumes?: list<string>}> $coolifyServices */
+    $coolifyServices = $coolify['services'];
+
+    foreach ([[$prod['services'], $prod['volumes'], 'nginx'], [$coolifyServices, (array) $coolify['volumes'], 'lf-nginx']] as [$services, $volumes, $nginx]) {
+        expect($volumes)->toHaveKey('app_share_cards');
+        foreach ($services as $name => $service) {
+            $mounts = $service['volumes'] ?? [];
+            if ($name === $nginx) {
+                expect($mounts)->toContain('app_share_cards:/var/www/html/storage/app/public/share-cards:ro')
+                    ->not->toContain('app_storage:/var/www/html/storage');
+            } elseif (in_array('app_audio:/var/www/html/storage/app/public/audio', $mounts, true)) {
+                expect(in_array('app_share_cards:/var/www/html/storage/app/public/share-cards', $mounts, true))->toBeTrue("{$name}: no share cards volume");
+            }
+        }
+    }
+
+    // The image owns the mount point, so the fresh named volume is writable by the application user.
+    expect(infraFile('Dockerfile'))->toContain("        storage/app/public/share-cards \\\n");
+});
+
+it('builds GD with JPEG and FreeType in every image: the share cards are JPEG', function (): void {
+    foreach (['Dockerfile', 'Dockerfile.dev'] as $file) {
+        $docker = infraFile($file);
+
+        expect(substr_count($docker, 'docker-php-ext-configure gd'))->toBe(substr_count($docker, 'docker-php-ext-configure gd --with-freetype --with-jpeg'), $file)
+            ->and(substr_count($docker, 'libjpeg-turbo-dev'))->toBe(substr_count($docker, 'docker-php-ext-configure gd'), $file);
+    }
+    expect(substr_count(infraFile('Dockerfile'), 'gd_info()["JPEG Support"]'))->toBe(2);
 });

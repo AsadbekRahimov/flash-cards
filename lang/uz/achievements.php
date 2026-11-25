@@ -18,10 +18,18 @@ return [
         'game_first_boss' => ['title' => 'Qo\'riqchi yengildi', 'description' => "«Karvon» o'yinida shahar qo'riqchisi ustidan birinchi g'alaba"],
     ],
 
-    // Text on the card under the description.
+    // Texts of the share card (docs/36 §2б): the small capitals over the title and the tagline in the footer. The brand is
+    // config('app.brand'), not a line here.
     'card' => [
-        'brand' => 'Muhrla',
+        'label' => 'Yutuq',
         'tagline' => "Telegramda ingliz tilini o'rganamiz",
+        // The card of the brand: the photo of a shared invitation (docs/36 §2б, A4); :trial is the length of the welcome trial.
+        'invite' => [
+            'label' => 'Taklif',
+            'title' => "Telegramda ingliz tilini o'rganamiz",
+            'description' => 'Birinchi :trial Pro bepul',
+            'description_plain' => "Har kuni so'zlar, darslar va o'yin",
+        ],
     ],
 
     // DM with the card; :title / :description from `items`.

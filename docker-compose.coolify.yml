@@ -55,6 +55,7 @@ x-app: &app
   volumes:
     - app_storage:/var/www/html/storage
     - app_audio:/var/www/html/storage/app/public/audio
+    - app_share_cards:/var/www/html/storage/app/public/share-cards
 
 services:
   # One-shot: first a restore point (backup:run --only-db to BACKUP_DISKS; a failed backup only warns, docs/DEVOPS_GUIDE.md
@@ -95,6 +96,7 @@ services:
     volumes:
       - app_storage:/var/www/html/storage
       - app_audio:/var/www/html/storage/app/public/audio
+      - app_share_cards:/var/www/html/storage/app/public/share-cards
       # The key file of the google TTS driver (docs/26 §9.1), read-only, at the path GOOGLE_TTS_CREDENTIALS names
       # (/run/secrets/google-tts.json). Optional: GOOGLE_TTS_KEY_FILE is the file on the host; unset, /dev/null is mounted
       # and the driver answers tts_credentials_invalid. Here for `audio:sample`.
@@ -158,6 +160,7 @@ services:
     volumes:
       - app_storage:/var/www/html/storage
       - app_audio:/var/www/html/storage/app/public/audio
+      - app_share_cards:/var/www/html/storage/app/public/share-cards
       # The key file of the google TTS driver (docs/26 §9.1), read-only, at the path GOOGLE_TTS_CREDENTIALS names
       # (/run/secrets/google-tts.json). Optional: GOOGLE_TTS_KEY_FILE is the file on the host; unset, /dev/null is mounted
       # and the driver answers tts_credentials_invalid. Here: the worker of `tts` synthesizes.
@@ -174,6 +177,7 @@ services:
     volumes:
       - app_storage:/var/www/html/storage
       - app_audio:/var/www/html/storage/app/public/audio
+      - app_share_cards:/var/www/html/storage/app/public/share-cards
       # The key file of the google TTS driver (docs/26 §9.1), read-only, at the path GOOGLE_TTS_CREDENTIALS names
       # (/run/secrets/google-tts.json). Optional: GOOGLE_TTS_KEY_FILE is the file on the host; unset, /dev/null is mounted
       # and the driver answers tts_credentials_invalid. Here: `audio:reconcile` checks the key before it queues a night of jobs.
@@ -212,11 +216,13 @@ services:
       AUDIO_PUBLIC_URL: "${AUDIO_PUBLIC_URL:-}"
     volumes:
       - app_audio:/var/www/html/storage/app/public/audio:ro
+      - app_share_cards:/var/www/html/storage/app/public/share-cards:ro
     mem_limit: 128m
 
 volumes:
   app_storage:
   app_audio:
+  app_share_cards:
 
 networks:
   # The private network of the stack (see the header). The subnet is fixed so that TRUSTED_PROXIES of lf-api can name it;

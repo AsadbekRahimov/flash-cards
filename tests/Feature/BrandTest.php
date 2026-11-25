@@ -45,7 +45,9 @@ it('has no old brand name in the Mini App dictionaries', function (string $file)
 })->with(['ru.ts', 'uz.ts']);
 
 it('names the product in the lang files exactly as config does', function (string $locale): void {
-    expect(__('achievements.card.brand', [], $locale))->toBe(config('app.brand'))
+    // The share card takes the brand from config itself (docs/36 §2б): no brand line of its own in lang.
+    expect(trans()->has('achievements.card.brand', $locale, false))->toBeFalse()
+        ->and(__('achievements.items.first_friend.description', [], $locale))->toContain((string) config('app.brand'))
         ->and(__('billing.payme.receipt_item', ['period' => 'x'], $locale))->toStartWith(config('app.brand_pro').' — ');
 })->with(['ru', 'uz']);
 

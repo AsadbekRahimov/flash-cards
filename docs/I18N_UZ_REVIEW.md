@@ -4604,3 +4604,53 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `practice.hub.caravan.text` | Kurs so'zlari bo'ylab sayohat | Путешествие по словам курса |
 | `practice.hub.all_modes` | Barcha o'yinlar | Все игры (было «Barcha mashqlar» / «Все режимы») |
 | `practice.hub.battle.title` | Do'st bilan bellashuv | Баттл с другом (было «Yakkama-yakka bellashuv» / «Баттл 1 на 1») |
+
+## Экран «Bugun» по макету 25.11.2026 и лист пробного Pro (W3) — на проверку носителю
+
+### TWA (`resources/twa/src/i18n/uz.ts`)
+
+Большая карточка шага плана дня (урок → mashq (закрепление урока) → игра «Vaqtga juftliklar»), карточка «Bugungi reja» с тремя шагами, цель дня, плитки «Takrorlash» / «So'z o'yinlari». Закрепление не даёт баллов лиги — в тексте только «mustahkamlang». Разовый лист пробного Pro: дни и дата — из API, бренд подставляется (`{brand}`). Прошу проверить: «Mashq» для «Тренировка» (шаг 2) и «{total} qadamdan {step}-qadam» для «шаг N из M».
+
+| Ключ | uz | ru |
+|---|---|---|
+| `today.hero.lesson_eyebrow` | {level} · {number}-dars | {level} · урок {number} |
+| `today.hero.lesson_eyebrow_plain` | {number}-dars | Урок {number} |
+| `today.hero.new_words` | {count} ta yangi so'z | {count} новых слов |
+| `today.hero.lesson_start` | Darsni boshlash | Начать урок |
+| `today.hero.lesson_done` | Dars o'tildi | Урок пройден |
+| `today.hero.lesson_done_named` | «{title}» darsi o'tildi | Урок «{title}» пройден |
+| `today.hero.training_title` | Mashq | Тренировка |
+| `today.hero.training_text` | {count} ta so'zni mustahkamlang | Закрепите {count} слов |
+| `today.hero.training_start` | Mashqni boshlash | Начать тренировку |
+| `today.hero.continue` | Davom ettirish | Продолжить |
+| `today.hero.game_title` | Vaqtga juftliklar | Пары на время |
+| `today.hero.game_text` | Shu dars so'zlari bilan o'yin | Игра на словах этого урока |
+| `today.hero.play` | O'ynash | Играть |
+| `today.hero.done_title` | Bugungi reja bajarildi | План на сегодня выполнен |
+| `today.hero.done_text` | Yangi dars — ertaga. Takrorlash va o'yinlar doim ochiq | Новый урок — завтра. Повторение и игры доступны всегда |
+| `today.hero.review` | {count} ta so'zni takrorlash | Повторить {count} слов |
+| `today.steps.title` | Bugungi reja | План на сегодня |
+| `today.steps.counter` | {total} qadamdan {step}-qadam | шаг {step} из {total} |
+| `today.steps.all_done` | hammasi bajarildi | всё сделано |
+| `today.steps.lesson` | Dars | Урок |
+| `today.steps.training` | Mashq | Тренировка |
+| `today.steps.training_note` | mustahkamlash | закрепить |
+| `today.steps.game` | O'yin | Игра |
+| `today.steps.game_note` | vaqtga juftliklar | пары на время |
+| `today.steps.state.done` | bajarildi | сделано (для экранного диктора) |
+| `today.steps.state.current` | hozir | сейчас (для экранного диктора) |
+| `today.steps.state.upcoming` | navbatda | впереди (для экранного диктора) |
+| `today.goal.count` | {done} / {count} ta so'z | {done} / {count} слов |
+| `today.goal.more` | yana {count} ta so'z | ещё {count} слов |
+| `today.tiles.review` | Takrorlash | Повторение |
+| `today.tiles.review_ready` | {count} ta so'z tayyor | {count} слов готовы |
+| `today.tiles.review_none` | Hozircha yo'q | Пока нечего |
+| `today.tiles.review_continue` | Davom ettirish | Продолжить |
+| `today.tiles.games_note` | Juftliklarni toping | Найдите пары |
+| `today.tiles.games_step` | Bugungi {step}-qadam | Шаг {step} на сегодня |
+| `trialSheet.label` | Pro sinov muddati | Пробный Pro (название листа для экранного диктора) |
+| `trialSheet.badge` | {brand} Pro | {brand} Pro |
+| `trialSheet.title` | {count} kunlik Pro — {date} gacha | Pro на {count} дней — до {date} |
+| `trialSheet.text` | Sinov muddati boshlandi: Pro'ning barcha imkoniyatlari ochiq. Hech narsa to'lash shart emas. | Пробный период уже идёт: всё, что даёт Pro, открыто. Платить ничего не нужно. |
+| `trialSheet.ok` | Tushunarli | Понятно |
+| `trialSheet.more` | Pro haqida batafsil | Подробнее о Pro |

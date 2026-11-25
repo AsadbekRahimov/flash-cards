@@ -93,6 +93,8 @@ services:
             - app_storage:/var/www/html/storage
             # Pre-generated word audio (docs/12 task 1.2c): its own volume, shared read-only with nginx.
             - app_audio:/var/www/html/storage/app/public/audio
+            # The share cards (docs/36 §2б): the same, for /storage/share-cards/.
+            - app_share_cards:/var/www/html/storage/app/public/share-cards
             # The key file of the google TTS driver (docs/26 §9.1), read-only, at the path GOOGLE_TTS_CREDENTIALS names
             # (/run/secrets/google-tts.json). Optional: GOOGLE_TTS_KEY_FILE in .env is the file on the host (0440, readable
             # by the UID of the image); unset, /dev/null is mounted and the driver answers tts_credentials_invalid.
@@ -170,6 +172,7 @@ services:
             # surface compiles only the framework's error pages, on first use - identical sources give identical files).
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
+            - app_share_cards:/var/www/html/storage/app/public/share-cards
 
     # Three worker pools: `high` (Telegram replies, payments) is never stuck behind bulk work on default/low,
     # and `low` (with `tts`, the long TTS jobs, behind it) is never starved by a steady stream of `default`.
@@ -190,6 +193,7 @@ services:
         volumes:
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
+            - app_share_cards:/var/www/html/storage/app/public/share-cards
         command: ["php", "artisan", "queue:work", "redis", "--queue=high", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
 
     queue-default:
@@ -209,6 +213,7 @@ services:
         volumes:
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
+            - app_share_cards:/var/www/html/storage/app/public/share-cards
         command: ["php", "artisan", "queue:work", "redis", "--queue=default", "--sleep=1", "--tries=3", "--timeout=120", "--max-time=3600"]
 
     # `low`, then `tts` (PregenerateWordAudioJob, GeneratePracticeAudioJob - long jobs) when `low` is empty: docs/26 §9.3.
@@ -229,6 +234,7 @@ services:
         volumes:
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
+            - app_share_cards:/var/www/html/storage/app/public/share-cards
             # The key file of the google TTS driver (docs/26 §9.1), read-only, at the path GOOGLE_TTS_CREDENTIALS names
             # (/run/secrets/google-tts.json). Optional: GOOGLE_TTS_KEY_FILE in .env is the file on the host (0440, readable
             # by the UID of the image); unset, /dev/null is mounted and the driver answers tts_credentials_invalid.
@@ -253,6 +259,7 @@ services:
         volumes:
             - app_storage:/var/www/html/storage
             - app_audio:/var/www/html/storage/app/public/audio
+            - app_share_cards:/var/www/html/storage/app/public/share-cards
             # The key file of the google TTS driver (docs/26 §9.1), read-only, at the path GOOGLE_TTS_CREDENTIALS names
             # (/run/secrets/google-tts.json). Optional: GOOGLE_TTS_KEY_FILE in .env is the file on the host (0440, readable
             # by the UID of the image); unset, /dev/null is mounted and the driver answers tts_credentials_invalid.
@@ -298,9 +305,11 @@ services:
             - ./docker/nginx/snippets:/etc/nginx/snippets:ro
             # Fallback list of Cloudflare ranges, used when the entrypoint cannot download the live ones.
             - ./docker/nginx/cloudflare-ips.txt:/etc/nginx/cloudflare-ips.txt:ro
-            # Pre-generated audio (/storage/audio/, docs/12 task 1.2c) is served straight from its own volume;
+            # Pre-generated audio (/storage/audio/, docs/12 task 1.2c) and the share cards (/storage/share-cards/, docs/36 §2б:
+            # Telegram downloads the photo of a shared message) are served straight from their own volumes;
             # the rest of storage (logs, sessions, private files) is deliberately NOT visible to nginx.
             - app_audio:/var/www/html/storage/app/public/audio:ro
+            - app_share_cards:/var/www/html/storage/app/public/share-cards:ro
             - letsencrypt:/etc/letsencrypt:ro
             - certbot_www:/var/www/certbot:ro
         # The image entrypoint substitutes only APP_DOMAIN and APP_SERVER, generates the Cloudflare files and the audio origin of the CSP
@@ -522,5 +531,6 @@ volumes:
     redisdata:
     app_storage:
     app_audio:
+    app_share_cards:
     letsencrypt:
     certbot_www:

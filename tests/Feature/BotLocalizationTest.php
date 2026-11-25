@@ -8,6 +8,7 @@ use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\DTO\ChatMemberInfo;
+use App\Domain\Telegram\DTO\PreparedInlineMessage;
 use App\Domain\Telegram\Services\TeacherStatsReporter;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Filament\Resources\TelegramGroupResource\Pages\EditTelegramGroup;
@@ -108,6 +109,13 @@ beforeEach(function (): void {
         {
             return true;
         }
+
+        public function savePreparedInlineMessage(int $userId, array $result, bool $allowUserChats = false, bool $allowBotChats = false, bool $allowGroupChats = false, bool $allowChannelChats = false): PreparedInlineMessage
+        {
+            return new PreparedInlineMessage('prepared', 2_000_000_000);
+        }
+
+        public function answerInlineQuery(string $inlineQueryId, array $results, int $cacheTime = 300, bool $isPersonal = false): void {}
     };
 
     $this->app->instance(TelegramClient::class, $this->api);

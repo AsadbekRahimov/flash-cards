@@ -6,6 +6,7 @@ namespace App\Domain\Telegram\Services;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\DTO\ChatMemberInfo;
+use App\Domain\Telegram\DTO\PreparedInlineMessage;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramChatMigratedException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
@@ -14,6 +15,7 @@ use App\Jobs\SendTelegramMessageJob;
 use Closure;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramResponseException;
 use Telegram\Bot\FileUpload\InputFile;
@@ -390,6 +392,63 @@ class IrazasyedTelegramClient implements TelegramClient
         return (bool) $this->call(fn (): mixed => $this->api->post('setChatMenuButton', [
             'menu_button' => json_encode($menuButton, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
         ])->getResult());
+    }
+
+    /**
+     * @param  array<string, mixed>  $result
+     */
+    public function savePreparedInlineMessage(
+        int $userId,
+        array $result,
+        bool $allowUserChats = false,
+        bool $allowBotChats = false,
+        bool $allowGroupChats = false,
+        bool $allowChannelChats = false,
+    ): PreparedInlineMessage {
+        // Not wrapped by the SDK (3.x). `post()` sends a form: the result object travels as a JSON string; a flag only when true
+        // (Telegram's default for every `allow_*` is false).
+        $params = [
+            'user_id' => $userId,
+            'result' => json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+        ];
+        foreach ([
+            'allow_user_chats' => $allowUserChats,
+            'allow_bot_chats' => $allowBotChats,
+            'allow_group_chats' => $allowGroupChats,
+            'allow_channel_chats' => $allowChannelChats,
+        ] as $flag => $allowed) {
+            if ($allowed) {
+                $params[$flag] = true;
+            }
+        }
+
+        $answer = $this->call(fn (): mixed => $this->api->post('savePreparedInlineMessage', $params)->getResult(), method: 'savePreparedInlineMessage');
+
+        /** @var array<string, mixed> $message */
+        $message = is_array($answer) ? $answer : [];
+
+        return PreparedInlineMessage::fromArray($message);
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $results
+     */
+    public function answerInlineQuery(string $inlineQueryId, array $results, int $cacheTime = 300, bool $isPersonal = false): void
+    {
+        if (count($results) > 50) {
+            throw new InvalidArgumentException('answerInlineQuery takes at most 50 results.');
+        }
+
+        $params = [
+            'inline_query_id' => $inlineQueryId,
+            'results' => json_encode($results, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+            'cache_time' => max(0, $cacheTime),
+        ];
+        if ($isPersonal) {
+            $params['is_personal'] = true;
+        }
+
+        $this->call(fn (): mixed => $this->api->post('answerInlineQuery', $params)->getResult(), method: 'answerInlineQuery');
     }
 
     /**

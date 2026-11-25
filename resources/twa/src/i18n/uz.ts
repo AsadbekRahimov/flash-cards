@@ -211,7 +211,6 @@ export const uz: Translations = {
     one: "{count} ta so'zni takrorlash",
     other: "{count} ta so'zni takrorlash",
   },
-  'today.hero.review_unavailable': 'Mashq hozir mavjud emas — bugungi reja yangilandi',
   'today.steps.title': 'Bugungi reja',
   'today.steps.counter': '{total} qadamdan {step}-qadam',
   'today.steps.all_done': 'hammasi bajarildi',

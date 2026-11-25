@@ -1887,6 +1887,23 @@ public function __invoke(Request $request, string $secret)
 Команда идемпотентна: запускается после `telegram:set-webhook` при первичной настройке и повторяется после деплоя, который меняет
 набор команд или их описания (README «Первичный setup на сервере», docs/VPS_DEPLOY_GUIDE_RU.md §15, docs/DEVOPS_GUIDE.md §12).
 
+**Сообщения «через бота»: `savePreparedInlineMessage` и `answerInlineQuery`** (docs/36 §1в, задача H2; формат сверен с
+core.telegram.org/bots/api 25.11.2026). Методы контракта `TelegramClient`, вызов — сырой `post()` SDK (как `setChatMenuButton`):
+
+- `savePreparedInlineMessage(userId, result, allowUserChats, allowBotChats, allowGroupChats, allowChannelChats): PreparedInlineMessage`
+  — сообщение для `WebApp.shareMessage` (Bot API 8.0). `result` — **один** `InlineQueryResult` (`InlineQueryResultPhoto` с JPEG
+  `photo_url` и `thumbnail_url` до 5 МБ, подпись до 1024 знаков, `reply_markup`; или `InlineQueryResultArticle` с
+  `input_message_content`), уходит JSON-строкой; флаги `allow_*_chats` отправляются только со значением `true` (по умолчанию у
+  Telegram — `false`). Ответ — DTO `PreparedInlineMessage {id, expirationDate}` (Unix-время из `expiration_date`; срок жизни берётся
+  из ответа, не из конфига). Ответ «ok» без `id`/`expiration_date` — `TelegramApiException` как сбой транспорта (`isApiResponse() = false`).
+- `answerInlineQuery(inlineQueryId, results, cacheTime = 300, isPersonal = false)` — ответ на `inline_query`: до 50 результатов
+  (больше — `InvalidArgumentException` до вызова Telegram), пустой список — допустимый ответ «ничего»; `results` — JSON-массив,
+  `is_personal` — только при `true`.
+- Ошибки — как у всех методов (`IrazasyedTelegramClient::call()`): 429 → `TelegramRateLimitedException` (`retry_after`, пауза общего
+  исходящего бюджета), прочие отказы и сбои — `TelegramApiException` без токена. `FakeTelegramClient`: `$preparedMessages`,
+  `$inlineAnswers`, `$preparedExpirationDate`, отказы `$failInline` (+ `$failInlineRetryAfter`, `$failInlineAsTransport`).
+- `inline_query` в `ALLOWED_UPDATES` пока **не** добавлен — это задача H5 (вместе с `InlineQueryHandler` и флагом `share.inline_enabled`).
+
 #### Онбординг и `/settings`: шаги и `callback_data`
 
 Шаги по порядку: `locale` (🇷🇺/🇺🇿, каждый язык своим названием) → `goal` (`general`/`ielts`/`sat`/`school`) → `level` (`A1`/`A2`/`B1`/`B2`/`C1`/`C2`/`unknown`→`A1`) → `timezone` (список из `config('learners.timezone_options')`, по умолчанию Ташкент и соседи; значение — IANA-id, ещё раз проверяется по `DateTimeZone::listIdentifiers`) → `reminder` (`0800`/`1300`/`1900`/`2100`/`off` → `reminder_time` или `NULL`). `learners.onboarding_state` — текущий шаг (`new` → `locale` … `reminder` → `done`). Дефолты тем, кто их не меняет: цель 20 карточек в день (`daily_goal`), напоминание 19:00, `Asia/Tashkent`.

@@ -17,10 +17,10 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 # поэтому собираем только недостающее. Клиента PostgreSQL (pg_dump) здесь нет намеренно: backup:run в деве
 # не запускается (он идёт по расписанию в проде, где клиент 18-й версии стоит в Dockerfile).
 RUN apk add --no-cache \
-        bash git curl icu-dev libzip-dev libpng-dev freetype-dev \
+        bash git curl icu-dev libzip-dev libpng-dev freetype-dev libjpeg-turbo-dev \
         postgresql-dev linux-headers autoconf g++ make \
         nodejs npm shadow su-exec less vim \
-    && docker-php-ext-configure gd --with-freetype \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
         pdo_pgsql bcmath intl pcntl zip gd \
     # PECL occasionally answers "No releases available": retry before failing the build.

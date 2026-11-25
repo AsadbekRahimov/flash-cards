@@ -821,6 +821,34 @@ php artisan audio:prune [--days=30] [--delete] [--disk=] [--force]  # list (or w
   ```
 
   (`<project>` is the compose project name, see `docker volume ls`.) The old copy inside `app_storage` can be deleted afterwards (optional). An `app_audio` created by Docker from a fresh image is already owned by `app` (the image creates `storage/app/public/audio`); only a manually created volume needs the `chown`.
+### 10.1a Share cards (`/storage/share-cards/`, docs/36 §2б)
+
+The picture of an achievement, of a city of the "Caravan" and of the brand (the invitation) is a 1080×1080 **JPEG** drawn by
+`AchievementCardRenderer` (GD + FreeType + JPEG, Noto Sans) into `storage/app/public/share-cards/<key>-<ru|uz>-<hash>.jpg` (disk
+`public`, `config/achievements.php`). The bot sends it as a photo, and for a message shared "through the bot" (docs/36 §1в) Telegram
+**downloads it by its address** — `AchievementCardRenderer::publicUrl()` = `APP_URL` + `/storage/share-cards/<file>`, given only when
+`APP_URL` is https. The name holds a keyed hash of what the card shows (no learner id, no personal data on the card; changing
+`APP_KEY` only renames future cards).
+
+- **nginx** (`docker/nginx/{prod,coolify,default}.conf`): `location ^~ /storage/share-cards/` aliases the directory, only `GET`/`HEAD`
+  (anything else 403), only names matching `^/storage/share-cards/[a-z0-9_]{1,40}-(ru|uz)-[0-9a-f]{20}\.jpg$` (no `.tmp` of a render
+  in progress, no dotfile, no subdirectory — 404), `Cache-Control: public, max-age=31536000, immutable`, nosniff (+ HSTS in the images).
+  Nothing else of the public disk is served: the old PNG cards (`/storage/achievements/`) answer 404.
+- **Volume**: `app_share_cards`, mounted at `/var/www/html/storage/app/public/share-cards` read-write wherever `app_audio` is (`app`,
+  `app-api`, the queue workers, `scheduler`; in Coolify the `x-app` services) and read-only in `nginx` — as the word audio. The image
+  creates the directory owned by `app`, so a volume Docker creates is writable; nothing to copy (cards are drawn again on demand).
+- **`storage:link`** is **not** needed in the images (nginx aliases the directory). Without nginx (`php artisan serve`, local dev)
+  `php artisan storage:link` makes `public/storage` → `storage/app/public`, which serves the cards too.
+- **GD with JPEG**: `Dockerfile` / `Dockerfile.dev` build GD `--with-freetype --with-jpeg` (`libjpeg-turbo-dev`); the image build
+  fails when GD lacks JPEG or FreeType. A host install needs `php-gd` with JPEG support (`php -r 'var_dump(gd_info());'`).
+- **Cloudflare**: `/storage/share-cards/` must be reachable by Telegram's servers without a challenge (docs/23).
+- **Cleaning**: `achievements:prune-cards [--days=30]`, scheduled weekly (Monday 04:50): removes cards nobody used for 30 days (a card
+  served again moves its time once a day; a removed one is drawn again on demand), the PNG cards of template 1 in
+  `storage/app/public/achievements/` and leftovers of a killed render. Exit code 1 when a file could not be deleted.
+- **Illustrations** (designer's engravings, docs/36 A1): `<family>.png` in `ACHIEVEMENT_CARD_ART_PATH` (default
+  `resources/images/cards/`; `streak`, `words`, `league`, `friend`, `session`, `game`, `invite`, `month`). A missing file is not an
+  error — the card shows the medal; a new file renames the cards of its family, so they are drawn anew.
+
 ### 10.2 Audio of the practice dictations (task 18.5)
 
 The phrases of the practice mode "Listen and write" (docs/16 §10) are voiced by `GeneratePracticeAudioJob` (queue `tts`, 5 attempts, backoff 30 s / 2 m / 10 m / 30 m) into **`storage/app/practice-audio/{sha1}.mp3`** — the disk `practice_audio` of `config/filesystems.php` (a file is written to `.tmp/` first and moved, so a reader never sees half of an mp3). Unlike `storage/app/public/audio` this directory is **private: nginx does NOT serve it** (no `location`, no `storage:link` entry, the disk has no `url`); the files leave the server only through the JWT-guarded endpoints `GET /api/twa/practice/sessions/{id}/audio/{element}` and, for a battle, `GET /api/twa/practice/battles/{id}/audio/{element}` (the five clips of a dictation are loaded when the room is entered; a missing file voids the match — `docs/ADMIN_GUIDE.md`, *Battle 1-on-1*).
@@ -847,6 +875,7 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `exams:close-expired` — every minute (closes timed-out exam sessions).
 - `reminders:dispatch` — every 15 minutes (personal reminders by the learner's local time; a learner is claimed by a conditional UPDATE, so overlapping runs are safe; `withoutOverlapping(10)` — the mutex expires after 10 minutes — and `runInBackground`). Its jobs go to the `default` queue, spread at `REMINDERS_SEND_RATE_PER_SECOND` (25/s) over at most 14 minutes. A run queues at most rate x 840 jobs (`capped` -> a warning line; the rest stays due for the next run). Every background Telegram send also takes a slot of `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` (queued jobs release themselves when none is free; `assignments:refresh` waits up to 2 s per post and postpones the rest to the next run).
 - `model:prune` — daily at 03:00 (`product_events` and `notifications_log`, 400 days by default).
+- `achievements:prune-cards` — weekly, Monday 04:50 (`withoutOverlapping(30)`): share cards unused for 30 days, the PNG cards of template 1, leftovers of a killed render (§10.1a).
 - `learners:purge-deleted` — daily at 03:30 (`withoutOverlapping`): learners soft-deleted more than `LEARNERS_PURGE_AFTER_DAYS` (30) days ago are deleted for good — personal and learning data go by FK cascade, payment records (`payment_orders`, `payments`, `provider_transactions`, `subscriptions`) stay whole with the payer snapshot (`payer_*`), see docs/03 §8 rule 2 and docs/07 §10. At most `LEARNERS_PURGE_MAX_PER_RUN` (500) learners per run, in batches of `LEARNERS_PURGE_BATCH` (50), one transaction per learner under a `Cache::lock`; a repeated or parallel run changes nothing. Prints `Learners purged: N` and logs `learners.purge_finished {purged, skipped, duration_ms}`; every deleted learner leaves an `audit_logs` row `learner.purged` (old id, `deleted_at`, no personal data). The Stars auto-renewal of a live subscription is canceled best-effort first (needs the bot token); a failure is logged (`learners.purge.stars_cancel_failed`) and does not stop the run.
 - `training:close-expired` — every 15 minutes (expired personal / stale group training sessions).
 - `practice:close-expired` — every 15 minutes (solo practice sessions past their `expires_at`, 24 h after the start, become `finished / expired` and release the learner's «one active session»; the event `practice.session_finished` is written once; a conditional UPDATE per session, so repeated or parallel runs are harmless; `withoutOverlapping`). A session that nobody closed is also closed by the learner's next request, so a late run costs nothing.

@@ -18,10 +18,18 @@ return [
         'game_first_boss' => ['title' => 'Хранитель побеждён', 'description' => 'Первая победа над боссом города в игре «Караван»'],
     ],
 
-    // Text on the card under the description.
+    // Texts of the share card (docs/36 §2б): the small capitals over the title and the tagline in the footer. The brand is
+    // config('app.brand'), not a line here.
     'card' => [
-        'brand' => 'Muhrla',
+        'label' => 'Достижение',
         'tagline' => 'Учим английский в Telegram',
+        // The card of the brand: the photo of a shared invitation (docs/36 §2б, A4); :trial is the length of the welcome trial.
+        'invite' => [
+            'label' => 'Приглашение',
+            'title' => 'Учим английский в Telegram',
+            'description' => 'Первые :trial Pro бесплатно',
+            'description_plain' => 'Слова, уроки и игра каждый день',
+        ],
     ],
 
     // DM with the card; :title / :description from `items`.

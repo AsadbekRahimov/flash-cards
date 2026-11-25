@@ -31,9 +31,9 @@ ENV COMPOSER_ALLOW_SUPERUSER=1 \
 # postgresql18-client: pg_dump of spatie/laravel-backup must not be older than the PostgreSQL 18 server.
 RUN apk add --no-cache \
         bash curl icu-dev libzip-dev postgresql-dev postgresql18-client \
-        freetype-dev libpng-dev \
+        freetype-dev libpng-dev libjpeg-turbo-dev \
         linux-headers autoconf g++ make \
-    && docker-php-ext-configure gd --with-freetype \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
         pdo_pgsql bcmath intl pcntl zip gd \
     # PECL occasionally answers "No releases available": retry before failing the build.
@@ -46,7 +46,9 @@ RUN apk add --no-cache \
 RUN set -eu; \
     for ext in pdo_pgsql bcmath intl mbstring pcntl zip gd redis 'Zend OPcache'; do \
         php -m | grep -qix "$ext" || { echo "missing PHP extension: $ext" >&2; exit 1; }; \
-    done
+    done; \
+    # The share cards are JPEG drawn with FreeType (docs/36 §2б): GD without either must break the build.
+    php -r 'exit(gd_info()["JPEG Support"] && gd_info()["FreeType Support"] ? 0 : 1);' || { echo "GD lacks JPEG or FreeType" >&2; exit 1; }
 RUN pg_dump --version | grep -q ' 18\.' || { echo "pg_dump must be 18.x, got: $(pg_dump --version)" >&2; exit 1; }
 # pdo_pgsql must be built against libpq >= 17: it then closes a named prepared statement with the protocol Close message
 # (PQclosePrepared) that pgbouncer understands, instead of an SQL `DEALLOCATE` that pgbouncer forwards to a server
@@ -102,6 +104,7 @@ COPY --from=frontend --chown=app:app /build/public/twa ./public/twa
 RUN mkdir -p \
         bootstrap/cache \
         storage/app/public/audio \
+        storage/app/public/share-cards \
         storage/framework/cache \
         storage/framework/sessions \
         storage/framework/views \
@@ -141,9 +144,9 @@ ARG GID=1000
 
 RUN apk add --no-cache \
         bash curl icu-dev libzip-dev postgresql-dev postgresql18-client \
-        freetype-dev libpng-dev \
+        freetype-dev libpng-dev libjpeg-turbo-dev \
         linux-headers autoconf g++ make \
-    && docker-php-ext-configure gd --with-freetype \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
         pdo_pgsql bcmath intl pcntl zip gd \
     # PECL occasionally answers "No releases available": retry before failing the build.
@@ -156,6 +159,7 @@ RUN set -eu; \
     for ext in pdo_pgsql bcmath intl mbstring pcntl zip gd redis 'Zend OPcache'; do \
         php -m | grep -qix "$ext" || { echo "missing PHP extension: $ext" >&2; exit 1; }; \
     done; \
+    php -r 'exit(gd_info()["JPEG Support"] && gd_info()["FreeType Support"] ? 0 : 1);' || { echo "GD lacks JPEG or FreeType" >&2; exit 1; }; \
     test -x "$(command -v frankenphp)" || { echo "frankenphp binary not found" >&2; exit 1; }
 RUN pg_dump --version | grep -q ' 18\.' || { echo "pg_dump must be 18.x, got: $(pg_dump --version)" >&2; exit 1; }
 RUN set -eu; \
