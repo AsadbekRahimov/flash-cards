@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Services;
 
 use App\Domain\Telegram\Support\PollCallback;
+use App\Domain\Telegram\Support\TelegramText;
 use App\Models\Poll;
 use App\Models\PollOption;
 
@@ -26,9 +27,10 @@ final class PollMessenger
     /** Longer option labels make the buttons numbers and the options a list in the text. */
     public const LONG_LABEL = 24;
 
-    public const CAPTION_LIMIT = 1024;
+    /** Telegram's limits, in UTF-16 code units ({@see TelegramText}: an emoji is 2). */
+    public const CAPTION_LIMIT = TelegramText::CAPTION_LIMIT;
 
-    public const TEXT_LIMIT = 4096;
+    public const TEXT_LIMIT = TelegramText::MESSAGE_LIMIT;
 
     public const UNCHECKED = '☐';
 
@@ -97,21 +99,17 @@ final class PollMessenger
     }
 
     /**
-     * The text after an answer: the question (without the list of options) and "Спасибо", within `$limit` characters (the caption
-     * of a photo, the text of a message) - the question is cut when it would not fit.
+     * The text after an answer: the question (without the list of options) and "Спасибо", within `$limit` UTF-16 units (the caption
+     * of a photo, the text of a message) - the question is cut between graphemes when it would not fit.
      */
     public function answered(Poll $poll, string $locale, int $limit = self::CAPTION_LIMIT): string
     {
         $locale = self::locale($locale);
         $thanks = "\n\n".$this->notice('thanks', $locale);
         $question = trim((string) ($poll->question[$locale] ?? $poll->question['ru'] ?? ''));
-        $room = max(0, $limit - mb_strlen($thanks));
+        $room = max(0, $limit - TelegramText::length($thanks));
 
-        if (mb_strlen($question) > $room) {
-            $question = rtrim(mb_substr($question, 0, max(0, $room - 1))).'…';
-        }
-
-        return $question.$thanks;
+        return TelegramText::cut($question, $room).$thanks;
     }
 
     /**
@@ -151,7 +149,7 @@ final class PollMessenger
 
         foreach (['ru', 'uz'] as $locale) {
             $text = $this->text($poll, $options, $locale);
-            if ($text === '' || mb_strlen($text) > $limit) {
+            if ($text === '' || ! TelegramText::fits($text, $limit)) {
                 return false;
             }
         }

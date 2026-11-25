@@ -14,9 +14,14 @@ use App\Models\CupParticipant;
  */
 final readonly class CupContext
 {
+    /**
+     * @param  array{state: 'not_started'|'active'|'done'|'not_available', day: int|null}|null  $today  the round of today of the
+     *                                                                                                  participant ("my cups" only)
+     */
     public function __construct(
         public Cup $cup,
         public ?CupParticipant $participant,
         public ?int $participantsCount = null,
+        public ?array $today = null,
     ) {}
 }

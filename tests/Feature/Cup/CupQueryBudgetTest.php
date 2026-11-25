@@ -7,11 +7,13 @@ use App\Domain\Cup\Services\CupParticipationService;
 use App\Domain\Cup\Services\CupRoundService;
 use App\Domain\Cup\Services\CupScheduler;
 use App\Domain\Cup\Services\CupStandings;
+use App\Jobs\PostCupMessageJob;
 use App\Models\Cup;
 use App\Models\CupRoundAttempt;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -145,7 +147,9 @@ it('advances N cups with a constant number of statements per cup: starting and f
     DB::table('cup_days')->whereNull('built_at')->update(['built_at' => now()]);
 
     // the finish of each cup: FOR UPDATE the cup and its participants, the ranks, UPDATE the cup, the final message, close the days,
-    // the group, the event - 8, whatever the number of cups
+    // the group, the event - 8 in the core; + the id of the row `final` for its job (CupScheduler, docs/33 §11.8 п. 9) - 9 per cup
+    Bus::fake([PostCupMessageJob::class]);
     $finish = QueryLog::during(fn () => app(CupScheduler::class)->advance($end));
-    expect(count($finish))->toBe(5 + 8 * $cups);
+    expect(count($finish))->toBe(5 + 9 * $cups);
+    Bus::assertDispatchedTimes(PostCupMessageJob::class, $cups);
 })->with([2, 5]);

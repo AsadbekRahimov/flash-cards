@@ -137,7 +137,7 @@ final class CupStandings
     }
 
     /**
-     * @param  array<int, object>  $rows
+     * @param  array<int, \stdClass>  $rows
      * @return list<array{participant_id: int, rank: int, display_name: string, total: int, round_points: int, days_played: int, left: bool}>
      */
     private function build(Cup $cup, array $rows): array

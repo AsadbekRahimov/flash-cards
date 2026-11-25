@@ -406,7 +406,8 @@ it('edits 3 + 3 prizes of a v2 month: the form starts from both tables and saves
         ->callAction('editPrizes', ['free_ru_1' => 'Сертификат', 'free_uz_1' => 'Sertifikat', 'free_ru_2' => '', 'free_uz_2' => '', 'pro_ru_1' => 'Наушники', 'pro_ru_3' => 'Книга'])
         ->assertNotified('Призы сохранены');
 
-    expect($month->fresh()?->prizes)->toBe([
+    // toEqual: jsonb on PostgreSQL orders the keys of an object its own way (pro before free, ru/uz before place) - the same value.
+    expect($month->fresh()?->prizes)->toEqual([
         'free' => [['place' => 1, 'ru' => 'Сертификат', 'uz' => 'Sertifikat']],
         'pro' => [['place' => 1, 'ru' => 'Наушники', 'uz' => ''], ['place' => 3, 'ru' => 'Книга', 'uz' => '']],
     ]);

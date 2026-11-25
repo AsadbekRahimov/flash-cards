@@ -124,6 +124,9 @@ final class FakeTelegramClient implements TelegramClient
     /** Called on every getChatMemberStatus before the answer: a test hooks it to act "meanwhile" (a parallel write between the read and the lock). */
     public ?Closure $onChatMemberLookup = null;
 
+    /** Called by getChatMember for a user of `chatMembersByUser` before the answer: a test acts while Telegram is being asked. */
+    public ?Closure $beforeChatMemberAnswer = null;
+
     /** @var list<array{title:string, description:string, payload:string, currency:string, prices:list<array{label:string, amount:int}>, subscription_period:int|null}> */
     public array $invoiceLinks = [];
 
@@ -327,6 +330,9 @@ final class FakeTelegramClient implements TelegramClient
     {
         if (array_key_exists($userId, $this->chatMembersByUser)) {
             $this->chatMemberLookups[] = ['chat_id' => $chatId, 'user_id' => $userId];
+            if ($this->beforeChatMemberAnswer !== null) {
+                ($this->beforeChatMemberAnswer)($chatId, $userId);
+            }
             $answer = $this->chatMembersByUser[$userId];
             if ($answer instanceof \Throwable) {
                 throw $answer;

@@ -60,4 +60,18 @@ final class CupClock
     {
         return self::dayStart($startsAt, $timezone, 2);
     }
+
+    /**
+     * When the next round opens after `$now`: day 1 before the start, the next local midnight while the cup runs, null on (and after)
+     * the last day.
+     */
+    public static function nextRoundAt(CarbonInterface $startsAt, string $timezone, int $days, CarbonInterface $now): ?CarbonImmutable
+    {
+        $day = self::dayNumber($startsAt, $timezone, $now);
+        if ($day < 1) {
+            return self::dayStart($startsAt, $timezone, 1);
+        }
+
+        return $day >= $days ? null : self::dayStart($startsAt, $timezone, $day + 1);
+    }
 }

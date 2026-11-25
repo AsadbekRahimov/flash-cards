@@ -19,7 +19,7 @@ use Carbon\CarbonImmutable;
 final class CupFields
 {
     /**
-     * @return array{id: int, status: string, group_title: string, level: string, days: int, counted_days: int, round_tasks: int, round_minutes: int, timezone: string, starts_at: string|null, ends_at: string|null, day: int|null, summaries_enabled: bool, summary_time: string, paused: string|null}
+     * @return array{id: int, status: string, group_title: string, level: string, days: int, counted_days: int, round_tasks: int, round_minutes: int, timezone: string, starts_at: string|null, ends_at: string|null, day: int|null, summaries_enabled: bool, summary_time: string, paused: string|null, next_day_at: string|null}
      */
     public static function of(Cup $cup, ?CarbonImmutable $now = null): array
     {
@@ -46,6 +46,7 @@ final class CupFields
             'summaries_enabled' => $cup->summaries_enabled,
             'summary_time' => self::clock($cup->summary_minute),
             'paused' => CupAccess::pauseReason($cup->telegramGroup)?->value,
+            'next_day_at' => self::nextDayAt($cup, $now),
         ];
     }
 
@@ -67,6 +68,21 @@ final class CupFields
             'days' => $cup->days,
             'max_total' => $day * $cup->counted_days,
         ];
+    }
+
+    /**
+     * When the next round opens (the screen counts down to it; the server decides the moment - the local midnight of the cup's
+     * timezone, a change of the clocks included): day 1 before the start, the next day while it runs, null on the last day and for
+     * a draft or a closed cup. No statement: `starts_at`, `days` and `timezone` of the row.
+     */
+    public static function nextDayAt(Cup $cup, CarbonImmutable $now): ?string
+    {
+        if ($cup->starts_at === null || ($cup->status !== CupStatus::Scheduled && $cup->status !== CupStatus::Running)) {
+            return null;
+        }
+        $next = CupClock::nextRoundAt($cup->starts_at, $cup->timezone, $cup->days, $now);
+
+        return $next === null ? null : IsoTime::format($next);
     }
 
     public static function clock(int $minute): string

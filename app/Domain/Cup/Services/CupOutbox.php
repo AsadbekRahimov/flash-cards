@@ -63,6 +63,9 @@ final class CupOutbox
 
     public const FINAL_KEY = 'final';
 
+    /** `cups.meta` key: post the card again when its send in flight ends without posting it ({@see republishCard()}). */
+    public const REPOST_KEY = 'card_repost';
+
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly TelegramMessageRateLimiter $limiter,
@@ -128,13 +131,13 @@ final class CupOutbox
             return true;
         }
 
-        $marked = DB::table('cups')
-            ->where('id', $cupId)
-            ->whereExists(fn ($q) => $q->selectRaw('1')->from('cup_messages as m')->whereColumn('m.cup_id', 'cups.id')
-                ->where('m.dedupe_key', self::CARD_KEY)->where('m.status', CupMessageStatus::Sending->value))
-            ->update(['meta->card_repost' => true]) > 0;
+        [$set, $bindings] = self::metaSet(self::REPOST_KEY, true);
+        $marked = DB::update(
+            "UPDATE cups SET meta = {$set} WHERE id = ? AND EXISTS (SELECT 1 FROM cup_messages m WHERE m.cup_id = cups.id AND m.dedupe_key = ? AND m.status = ?)",
+            [...$bindings, $cupId, self::CARD_KEY, CupMessageStatus::Sending->value],
+        ) > 0;
         if ($marked && $this->resetCard($cupId, $now)) {
-            DB::table('cups')->where('id', $cupId)->update(['meta->card_repost' => false]);
+            $this->takeRepost($cupId);
         }
 
         return $marked;
@@ -254,7 +257,12 @@ final class CupOutbox
         return ['stale' => $stale, 'queued' => count($ids)];
     }
 
-    /** A card row that is done (sent, skipped, unknown, failed) back to `pending`, and its job; false when it is pending or sending. */
+    /**
+     * A card row that is done (sent, skipped, unknown, failed) back to `pending`, and its job; false when it is pending or sending.
+     * Impure: the row changes between two calls (a send in flight ends).
+     *
+     * @phpstan-impure
+     */
     private function resetCard(int $cupId, CarbonImmutable $now): bool
     {
         $reset = DB::table('cup_messages')
@@ -288,10 +296,36 @@ final class CupOutbox
         if ($message->kind !== CupMessageKind::Card) {
             return;
         }
-        $asked = DB::table('cups')->where('id', $message->cup_id)->where('meta->card_repost', true)->update(['meta->card_repost' => false]) > 0;
-        if ($asked && ! $posted) {
+        if ($this->takeRepost($message->cup_id) && ! $posted) {
             $this->resetCard($message->cup_id, $now);
         }
+    }
+
+    /** Clears the mark of a repost in ONE conditional statement; true when it was set (this call took it). */
+    private function takeRepost(int $cupId): bool
+    {
+        [$set, $bindings] = self::metaSet(self::REPOST_KEY, false);
+        $isSet = DB::getDriverName() === 'pgsql'
+            ? "meta @> '{\"".self::REPOST_KEY."\": true}'::jsonb"
+            : "json_type(meta) = 'object' AND json_extract(meta, '$.".self::REPOST_KEY."') = 1";
+
+        return DB::update("UPDATE cups SET meta = {$set} WHERE id = ? AND {$isSet}", [...$bindings, $cupId]) > 0;
+    }
+
+    /**
+     * The SQL that sets ONE key of `cups.meta` in the row as it is (PostgreSQL `jsonb ||`, SQLite `json_set`), and its bindings. A
+     * `meta` that is not an object (an empty PHP array is stored as `[]`) becomes `{}` first - `jsonb_set` refuses a text path in an
+     * array.
+     *
+     * @return array{0: string, 1: list<string>}
+     */
+    private static function metaSet(string $key, string|bool $value): array
+    {
+        $json = json_encode($value, JSON_THROW_ON_ERROR);
+
+        return DB::getDriverName() === 'pgsql'
+            ? ["(CASE WHEN jsonb_typeof(meta) = 'object' THEN meta ELSE '{}'::jsonb END) || jsonb_build_object(?::text, ?::jsonb)", [$key, $json]]
+            : ["json_set(CASE WHEN json_type(meta) = 'object' THEN meta ELSE '{}' END, ?, json(?))", ['$.'.$key, $json]];
     }
 
     /** Why the row is not sent at all, or null. */
@@ -347,14 +381,12 @@ final class CupOutbox
 
             if ($message->kind === CupMessageKind::Card) {
                 // Not `updated_at`: it says when the CUP changed, and the refresh of the cards compares it with `card_rendered_at`.
-                // `meta->card_kind` sets that one key in the row as it is (jsonb_set / json_set), never the `meta` read without a lock.
-                DB::table('cups')->where('id', $cup->id)->update([
-                    'card_chat_id' => $group->chat_id,
-                    'card_message_id' => $messageId,
-                    'card_text_hash' => $content->hash(),
-                    'card_rendered_at' => $now,
-                    'meta->card_kind' => $photo ? CupCards::KIND_PHOTO : CupCards::KIND_TEXT,
-                ]);
+                // `card_kind` is set as ONE key of the row as it is now, never the `meta` of the model read without a lock.
+                [$meta, $metaBindings] = self::metaSet('card_kind', $photo ? CupCards::KIND_PHOTO : CupCards::KIND_TEXT);
+                DB::update(
+                    "UPDATE cups SET card_chat_id = ?, card_message_id = ?, card_text_hash = ?, card_rendered_at = ?, meta = {$meta} WHERE id = ?",
+                    [$group->chat_id, $messageId, $content->hash(), $now->format('Y-m-d H:i:s'), ...$metaBindings, $cup->id],
+                );
             }
         });
 

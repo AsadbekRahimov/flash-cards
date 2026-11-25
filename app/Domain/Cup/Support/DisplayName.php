@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Cup\Support;
 
 use App\Domain\Cup\Exceptions\CupException;
+use App\Domain\Telegram\Support\TelegramText;
 use Normalizer;
 
 /**
@@ -122,7 +123,7 @@ final class DisplayName
 
     public static function graphemeCount(string $text): int
     {
-        return $text === '' ? 0 : (int) preg_match_all('/\X/u', $text);
+        return count(TelegramText::graphemes($text));
     }
 
     /** NFC, the invisible characters dropped, white space folded and trimmed; '' for nothing or broken UTF-8. */
@@ -170,8 +171,7 @@ final class DisplayName
         }
         $out = '';
         $count = 0;
-        preg_match_all('/\X/u', $name, $matches);
-        foreach ($matches[0] as $grapheme) {
+        foreach (TelegramText::graphemes($name) as $grapheme) {
             if ($count + 1 > self::MAX || mb_strlen($out.$grapheme) > self::MAX_CODE_POINTS) {
                 break;
             }

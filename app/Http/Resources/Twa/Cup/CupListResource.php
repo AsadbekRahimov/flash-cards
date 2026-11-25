@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 /**
  * `GET /cups` (docs/04 A.23): "my cups" - the open ones first, then the last ten finished or canceled; each with the learner's own
- * result (his total and, after the finish, his place).
+ * result (his total and, after the finish, his place) and the state of his round of today (`me.today`, docs/04 A.23).
  *
  * @property list<CupContext> $resource
  */
@@ -31,6 +31,7 @@ final class CupListResource extends TwaResource
                     'total' => $mine->best_total,
                     'days_played' => $mine->days_played,
                     'final_rank' => $mine->final_rank,
+                    'today' => $context->today ?? ['state' => 'not_available', 'day' => null],
                 ],
             ];
         }

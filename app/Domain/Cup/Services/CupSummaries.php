@@ -88,10 +88,11 @@ final class CupSummaries
 
         $queued = DB::transaction(function () use ($due, $post, $now): int {
             $dayIds = $due->pluck('day_id')->map(static fn (mixed $id): int => (int) $id)->all();
-            $taken = array_map(static fn (object $row): int => (int) $row->id, DB::select(
+            $taken = array_map('intval', array_column(DB::select(
                 'UPDATE cup_days SET summary_posted_at = ?, updated_at = ? WHERE id IN ('.self::marks(count($dayIds)).') AND summary_posted_at IS NULL RETURNING id',
                 [$now->format('Y-m-d H:i:s'), $now->format('Y-m-d H:i:s'), ...$dayIds],
-            ));
+                false, // a write: never a read replica
+            ), 'id'));
             $mine = array_intersect_key($post, array_flip($taken));
             if ($mine === []) {
                 return 0;
@@ -114,6 +115,7 @@ final class CupSummaries
                 .implode(', ', array_fill(0, count($mine), '(?, ?, ?, ?, 0, ?, ?)'))
                 .' ON CONFLICT (cup_id, dedupe_key) DO NOTHING RETURNING id',
                 $values,
+                false,
             );
             foreach ($rows as $row) {
                 PostCupMessageJob::dispatch((int) $row->id)->afterCommit();

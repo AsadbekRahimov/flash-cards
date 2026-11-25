@@ -6,12 +6,14 @@ namespace App\Domain\Cup\Services;
 
 use App\Domain\Cup\DTO\CupContext;
 use App\Domain\Cup\DTO\DayScore;
+use App\Domain\Cup\Enums\CupAttemptStatus;
 use App\Domain\Cup\Enums\CupStatus;
 use App\Domain\Cup\Support\CupScoring;
 use App\Models\Cup;
 use App\Models\CupParticipant;
 use App\Models\Learner;
 use App\Models\TelegramGroup;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
@@ -54,12 +56,21 @@ final class CupReader
 
     /**
      * "My cups" (`GET /cups`): every participation of the learner (index `learner_id`, a few rows) with its cup and group in one
-     * statement; the open cups first, then the last `$closedLimit` finished or canceled ones, newest first.
+     * statement; the open cups first, then the last `$closedLimit` finished or canceled ones, newest first. With each, the state of
+     * the round of today ({@see todayOf()}) - two scalar subqueries in the SAME statement: today's day of the cup (unique
+     * `(cup_id, day)`) and the participant's attempt of that day (unique `(cup_day_id, participant_id)`).
      *
      * @return list<CupContext>
      */
-    public function mine(Learner $learner, int $closedLimit = 10): array
+    public function mine(Learner $learner, int $closedLimit = 10, ?CarbonImmutable $now = null): array
     {
+        $now ??= CarbonImmutable::now();
+        $at = $now->format('Y-m-d H:i:s');
+        $today = fn (string $column) => DB::table('cup_days as td')->select("td.{$column}")
+            ->whereColumn('td.cup_id', 'cups.id')->where('td.starts_at', '<=', $at)->where('td.ends_at', '>', $at)->limit(1);
+        $attempt = fn (string $column) => DB::table('cup_round_attempts as ta')->select("ta.{$column}")
+            ->whereColumn('ta.participant_id', 'cp.id')->where('ta.cup_day_id', '=', $today('id'))->limit(1);
+
         $rows = DB::table('cup_participants as cp')
             ->join('cups', 'cups.id', '=', 'cp.cup_id')
             ->join('telegram_groups as tg', 'tg.id', '=', 'cups.telegram_group_id')
@@ -68,12 +79,15 @@ final class CupReader
             ->orderByDesc('cups.id')
             ->limit(100)
             ->select([...self::cupColumns(), ...self::prefixed('tg', 'tg__', self::GROUP_COLUMNS), ...self::prefixed('cp', 'cp__', self::PARTICIPANT_COLUMNS)])
+            ->selectSub($today('day'), 'ctx_today_day')
+            ->selectSub($attempt('status'), 'ctx_today_status')
+            ->selectSub($attempt('expires_at'), 'ctx_today_expires_at')
             ->get();
 
         $open = [];
         $closed = [];
         foreach ($rows as $row) {
-            $context = $this->hydrate((array) $row);
+            $context = $this->hydrate((array) $row, $now);
             if ($context->cup->status->isOpen()) {
                 $open[] = $context;
             } elseif (count($closed) < $closedLimit) {
@@ -131,17 +145,19 @@ final class CupReader
     }
 
     /** @param array<string, mixed> $row */
-    private function hydrate(array $row): CupContext
+    private function hydrate(array $row, ?CarbonImmutable $now = null): CupContext
     {
         $cup = [];
         $group = [];
         $participant = [];
         $count = null;
+        $ctx = [];
         foreach ($row as $key => $value) {
             match (true) {
                 str_starts_with($key, 'tg__') => $group[substr($key, 4)] = $value,
                 str_starts_with($key, 'cp__') => $participant[substr($key, 4)] = $value,
                 $key === 'ctx_participants_count' => $count = (int) $value,
+                str_starts_with($key, 'ctx_') => $ctx[$key] = $value,
                 default => $cup[$key] = $value,
             };
         }
@@ -158,7 +174,34 @@ final class CupReader
             $mine = (new CupParticipant)->newFromBuilder($participant);
         }
 
-        return new CupContext($model, $mine, $count);
+        $today = $now !== null && array_key_exists('ctx_today_day', $ctx) && $mine !== null ? self::todayOf($model, $mine, $ctx, $now) : null;
+
+        return new CupContext($model, $mine, $count, $today);
+    }
+
+    /**
+     * The state of the round of today as {@see CupRoundService::today()} decides it (same rules, from the columns of {@see mine()}):
+     * `not_available` - the cup does not run, no day now, or the participant joined later; `not_started`; `active` - an attempt open
+     * and within its deadline (+ the grace of an answer); `done`.
+     *
+     * @param  array<string, mixed>  $ctx
+     * @return array{state: 'not_started'|'active'|'done'|'not_available', day: int|null}
+     */
+    private static function todayOf(Cup $cup, CupParticipant $participant, array $ctx, CarbonImmutable $now): array
+    {
+        $day = $ctx['ctx_today_day'] === null ? null : (int) $ctx['ctx_today_day'];
+        if ($cup->status !== CupStatus::Running || $day === null || $day < $participant->first_day) {
+            return ['state' => 'not_available', 'day' => null];
+        }
+        $status = $ctx['ctx_today_status'] ?? null;
+        if ($status === null) {
+            return ['state' => 'not_started', 'day' => $day];
+        }
+        $grace = max(0, (int) config('cup.round.grace_ms', 1500));
+        $active = $status === CupAttemptStatus::Active->value
+            && $now->lte(CarbonImmutable::parse((string) $ctx['ctx_today_expires_at'], 'UTC')->addMilliseconds($grace));
+
+        return ['state' => $active ? 'active' : 'done', 'day' => $day];
     }
 
     /** @return list<string> */

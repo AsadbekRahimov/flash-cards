@@ -2209,7 +2209,8 @@ export type CupTodayState = 'not_started' | 'active' | 'done' | 'not_available'
  * The codes of `error.code` of the routes of the cup. 403 `cup_not_member` is also "no such cup" (one answer); 404
  * `cup_round_not_found` is also "a stranger's attempt"; 403 `cup_unavailable` - the cup is switched off or not open for the chat.
  * `details`: `cup_paused {reason}`, `cup_unverifiable {reason: bot_not_admin | telegram_unavailable}`, `cup_round_done {points}`,
- * `cup_round_expired {points}`, `element_not_current {current}`, `answer_already_accepted {verdict}`.
+ * `cup_round_expired {points}`, `element_not_current {current}`, `answer_already_accepted {verdict}`,
+ * `cup_display_name_invalid {reason: CupDisplayNameReason}`.
  */
 export type CupErrorCode =
   | 'cup_unavailable'
@@ -2237,6 +2238,14 @@ export type CupErrorCode =
   | 'unknown_element_id'
   | 'unknown_option_id'
   | 'cup_check_busy'
+
+/**
+ * Why a name in the cup was refused (422 `cup_display_name_invalid`, `error.details.reason`): `empty`, `too_long` (over 32 graphemes
+ * or 64 code points), `marks` (more than 2 combining marks in a row), `link` (`://`, `www.`, a dot between a letter or digit and a
+ * letter - `site.com`, `t.me/x`, `J.R`), `mention` (`@` at the start of a word), `command` (`/` at the start of a word), `tag` (`#word`,
+ * `$ABC`). The last four Telegram would make a link of in the chat.
+ */
+export type CupDisplayNameReason = 'empty' | 'too_long' | 'marks' | 'link' | 'mention' | 'command' | 'tag'
 
 /** The rules of a cup: 2 points for a clean right answer (a typo is 0), the best `counted_days` days count. */
 export interface CupRules {
@@ -2267,6 +2276,11 @@ export interface CupFields {
   /** `HH:MM` in `timezone`. */
   summary_time: string
   paused: CupPause | null
+  /**
+   * When the next round opens (ISO 8601 UTC, decided by the server - the local midnight of `timezone`, a change of the clocks
+   * included): day 1 before the start, the next day while the cup runs; null on the last day, in a draft and in a closed cup.
+   */
+  next_day_at?: string | null
 }
 
 /** GET /cups/by-code/{code}: the invitation of the link of the chat. */
@@ -2304,6 +2318,8 @@ export interface CupListResponse {
         total: number
         days_played: number
         final_rank: number | null
+        /** The round of today (`not_available`: the cup does not run, or he joined later). */
+        today?: { state: CupTodayState; day: number | null }
       } | null
     }
   >
@@ -2418,6 +2434,8 @@ export interface CupRound {
   answers: Array<{ element_id: string; verdict: string; points: number }>
   /** Only once the attempt is over: the right answer of every task. */
   review: CupReviewEntry[] | null
+  /** When the round of the next day opens (the end of this attempt's day); null on the last day. */
+  next_day_at?: string | null
 }
 
 /** Body of POST /cup-rounds/{attempt}/answer: `{option_id}`, `{text}` or `{skip: true}`. */

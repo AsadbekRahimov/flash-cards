@@ -222,7 +222,7 @@ final class CupRoundService
         $now ??= CarbonImmutable::now();
         $requestId = strtolower($requestId);
 
-        /** @var array{0: array<string, mixed>, 1: bool, 2: array{attempt: CupRoundAttempt, day: int, snapshot: CupDaySnapshot, day_seed: string, cup_status: string, counted_days: int}, 3: bool}|CupException $outcome */
+        /** @var array{0: array<string, mixed>, 1: bool, 2: array{attempt: CupRoundAttempt, day: int, snapshot: CupDaySnapshot, day_seed: string, cup_status: string, counted_days: int, next_day_at: string|null}, 3: bool}|CupException $outcome */
         $outcome = DB::transaction(function () use ($learner, $attemptId, $requestId, $elementId, $answer, $now): array|CupException {
             $context = $this->context($learner, $attemptId, true);
             if ($context === null) {
@@ -441,7 +441,7 @@ final class CupRoundService
     // ------------------------------------------------------------------ under the lock of the attempt
 
     /**
-     * @param  array{attempt: CupRoundAttempt, day: int, snapshot: CupDaySnapshot, day_seed: string, cup_status: string, counted_days: int}  $context
+     * @param  array{attempt: CupRoundAttempt, day: int, snapshot: CupDaySnapshot, day_seed: string, cup_status: string, counted_days: int, next_day_at: string|null}  $context
      * @param  array<string, mixed>  $answer
      * @return array{0: array<string, mixed>, 1: bool} the stored body, whether the attempt is finished
      */
@@ -589,7 +589,7 @@ final class CupRoundService
      * The attempt of the learner with its day, its snapshot and the status of its cup, in ONE statement; with `$lock`, `FOR UPDATE OF`
      * the attempt alone (never the day or the cup). Null for a stranger's or a missing attempt.
      *
-     * @return array{attempt: CupRoundAttempt, day: int, snapshot: CupDaySnapshot, day_seed: string, cup_status: string, counted_days: int}|null
+     * @return array{attempt: CupRoundAttempt, day: int, snapshot: CupDaySnapshot, day_seed: string, cup_status: string, counted_days: int, next_day_at: string|null}|null
      */
     private function context(Learner $learner, int $attemptId, bool $lock): ?array
     {

@@ -355,7 +355,9 @@ it('edits the prizes of a month: its own list, none at all, and back to the defa
     lmpReview($month)
         ->callAction('editPrizes', ['ru_1' => 'Книга', 'uz_1' => 'Kitob', 'ru_2' => '', 'uz_2' => '', 'ru_3' => 'Сертификат', 'uz_3' => ''])
         ->assertNotified('Призы сохранены');
-    expect($month->fresh()?->prizes)->toBe([['place' => 1, 'ru' => 'Книга', 'uz' => 'Kitob'], ['place' => 3, 'ru' => 'Сертификат', 'uz' => '']]);
+    // toEqual: `prizes` is jsonb on PostgreSQL, which keeps the keys of an object in its own order (shorter first: ru, uz, place) -
+    // the same value, a different PHP array order; the order of the LIST (the places) is still compared.
+    expect($month->fresh()?->prizes)->toEqual([['place' => 1, 'ru' => 'Книга', 'uz' => 'Kitob'], ['place' => 3, 'ru' => 'Сертификат', 'uz' => '']]);
 
     lmpReview($month)->callAction('clearPrizes')->assertNotified('Призы сохранены')->assertSee('Призы не заданы');
     expect($month->fresh()?->prizes)->toBe([]);

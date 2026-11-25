@@ -268,8 +268,9 @@ it('tells a member opening the link why the check failed: the bot is no administ
     CupKit::memberFails($member, new TelegramApiException('cURL error 28: timeout'));
     expect(cupHttp($member, 'GET', "/cups/by-code/{$cup->public_code}")->assertStatus(503)->json('error'))
         ->toMatchArray(['code' => 'cup_unverifiable', 'details' => ['reason' => 'telegram_unavailable']]);
-    // ... and the join of a member at the same moment says the same (it asks Telegram itself) - while a read by the id stays opaque.
-    expect(cupHttp($member, 'POST', "/cups/{$cup->id}/join")->assertStatus(503)->json('error.details.reason'))->toBe('telegram_unavailable')
+    // ... while by the numeric id a non-participant gets the 403 of a missing cup for it, the join included (docs/33 §11.7 п. 2:
+    // only a definite "member" opens a cup by its id; the reasons are for the link and for participants).
+    expect(cupHttp($member, 'POST', "/cups/{$cup->id}/join")->assertForbidden()->json('error.code'))->toBe('cup_not_member')
         ->and(cupHttp($member, 'GET', "/cups/{$cup->id}")->assertForbidden()->json('error.code'))->toBe('cup_not_member');
 
     // The wait of a busy check runs on the real clock (a frozen one would never time out).

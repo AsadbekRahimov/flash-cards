@@ -9,7 +9,7 @@ namespace App\Domain\Telegram\Support;
  * outside the BMP is 2 units, a family emoji with joiners is ~11). `mb_strlen()` counts code points and lets a caption full of emoji
  * through that Telegram then refuses (400 "message caption is too long").
  *
- * {@see cut()} shortens by whole graphemes (`\X`): a flag, an emoji with its skin tone or a letter with its accents is never split.
+ * {@see cut()} shortens by whole graphemes ({@see graphemes()}): a flag, an emoji with its skin tone or a letter with its accents is never split.
  */
 final class TelegramText
 {
@@ -63,14 +63,24 @@ final class TelegramText
         return rtrim($out).$ellipsis;
     }
 
-    /** @return list<string> */
+    /**
+     * The graphemes of a text by ICU (`grapheme_str_split`, intl): NOT the `\X` of PCRE - PCRE2 before 10.43 joins consecutive
+     * emoji into one "grapheme" (three foxes would be one character). Code points when intl is missing.
+     *
+     * @return list<string>
+     */
     public static function graphemes(string $text): array
     {
         if ($text === '') {
             return [];
         }
-        $parts = preg_split('/(\X)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+        if (function_exists('grapheme_str_split')) {
+            $parts = grapheme_str_split($text);
+            if (is_array($parts)) {
+                return array_values($parts);
+            }
+        }
 
-        return $parts === false ? mb_str_split($text) : array_values($parts);
+        return mb_str_split($text);
     }
 }

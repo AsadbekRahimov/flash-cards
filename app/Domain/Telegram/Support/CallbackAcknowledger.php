@@ -27,7 +27,7 @@ final class CallbackAcknowledger
         $this->answer((string) ($update['callback_query']['id'] ?? ''), $alert);
     }
 
-    /** @param string|null $alert shown to the tapper only, as an alert; cut at the 200 characters Telegram allows */
+    /** @param string|null $alert shown to the tapper only, as an alert; cut at the 200 UTF-16 units Telegram allows (between graphemes) */
     public function answer(string $callbackQueryId, ?string $alert = null): void
     {
         if ($callbackQueryId === '') {
@@ -38,7 +38,7 @@ final class CallbackAcknowledger
             if ($alert === null) {
                 $this->telegram->answerCallbackQuery($callbackQueryId);
             } else {
-                $this->telegram->answerCallbackQuery($callbackQueryId, mb_substr($alert, 0, 200), true);
+                $this->telegram->answerCallbackQuery($callbackQueryId, TelegramText::cut($alert, 200, ''), true);
             }
         } catch (TelegramApiException $e) {
             Log::warning('telegram.callback_ack_failed', ['code' => $e->getCode()]);

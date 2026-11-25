@@ -29,11 +29,11 @@ const CUP_FORBIDDEN_KEYS = [
     'accepted', 'seed', 'seed_secret', 'word_plan', 'learner_id', 'telegram_user_id', 'public_code', 'snapshot', 'order', 'state',
 ];
 
-const CUP_FIELDS = ['id', 'status', 'group_title', 'level', 'days', 'counted_days', 'round_tasks', 'round_minutes', 'timezone', 'starts_at', 'ends_at', 'day', 'summaries_enabled', 'summary_time', 'paused'];
+const CUP_FIELDS = ['id', 'status', 'group_title', 'level', 'days', 'counted_days', 'round_tasks', 'round_minutes', 'timezone', 'starts_at', 'ends_at', 'day', 'summaries_enabled', 'summary_time', 'paused', 'next_day_at'];
 
 const CUP_RULES = ['points_per_answer', 'typo_points', 'max_day_points', 'counted_days', 'days', 'max_total'];
 
-const CUP_ROUND = ['attempt_id', 'cup_id', 'participant_id', 'day', 'status', 'finish_reason', 'total', 'answered', 'correct', 'points', 'max_points', 'position', 'started_at', 'expires_at', 'server_now', 'current', 'answers', 'review'];
+const CUP_ROUND = ['attempt_id', 'cup_id', 'participant_id', 'day', 'status', 'finish_reason', 'total', 'answered', 'correct', 'points', 'max_points', 'position', 'started_at', 'expires_at', 'server_now', 'current', 'answers', 'review', 'next_day_at'];
 
 beforeEach(function (): void {
     CupKit::open();
@@ -109,7 +109,8 @@ it('shapes the invitation, my cups, the table and the state of today exactly', f
     $list = cupContract($a, 'GET', '/cups')->assertOk()->json();
     expect(array_keys($list))->toBe(['cups'])
         ->and(array_keys($list['cups'][0]))->toBe([...CUP_FIELDS, 'me'])
-        ->and(array_keys($list['cups'][0]['me']))->toBe(['participant_id', 'display_name', 'status', 'total', 'days_played', 'final_rank']);
+        ->and(array_keys($list['cups'][0]['me']))->toBe(['participant_id', 'display_name', 'status', 'total', 'days_played', 'final_rank', 'today'])
+        ->and(array_keys($list['cups'][0]['me']['today']))->toBe(['state', 'day']);
 
     $board = cupContract($a, 'GET', "/cups/{$cup->id}")->assertOk()->json();
     expect(array_keys($board))->toBe(['cup', 'standings', 'me', 'can_manage', 'server_now'])

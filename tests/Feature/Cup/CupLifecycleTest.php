@@ -282,13 +282,13 @@ it('validates the name in the tournament and limits the renames', function (): v
     expect(app(CupParticipationService::class)->join($cup, $learner)->created)->toBeFalse();
 
     foreach (['', '   ', str_repeat('x', 33), "\u{0007}"] as $bad) {
-        expect(fn () => app(CupParticipationService::class)->rename($joined->participant, $bad))->toThrow(fn (CupException $e) => expect($e->errorCode)->toBe('cup_display_name_invalid'));
+        expect(fn () => app(CupParticipationService::class)->rename($cup, $joined->participant, $learner, $bad))->toThrow(fn (CupException $e) => expect($e->errorCode)->toBe('cup_display_name_invalid'));
     }
     $participant = $joined->participant;
     foreach (['One', 'Two', 'Three'] as $name) {
-        $participant = app(CupParticipationService::class)->rename($participant, $name);
+        $participant = app(CupParticipationService::class)->rename($cup, $participant, $learner, $name);
     }
-    expect(fn () => app(CupParticipationService::class)->rename($participant, 'Four'))->toThrow(fn (CupException $e) => expect($e->errorCode)->toBe('cup_rename_limit'));
+    expect(fn () => app(CupParticipationService::class)->rename($cup, $participant, $learner, 'Four'))->toThrow(fn (CupException $e) => expect($e->errorCode)->toBe('cup_rename_limit'));
     expect($participant->fresh()?->display_name)->toBe('Three');
 });
 

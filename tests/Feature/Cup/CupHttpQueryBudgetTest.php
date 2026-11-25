@@ -150,7 +150,9 @@ it('lists my cups in 2 statements whatever their number, and renames in 6', func
     expect($list->assertOk()->json('cups'))->toHaveCount($cups)
         ->and($listQueries)->toHaveCount(2)
         ->and($rename->assertOk()->json('display_name'))->toBe('New name')
-        ->and($renameQueries)->toHaveCount(5); // learner, the cup + my row, my row FOR UPDATE, the status of the cup, UPDATE
+        // learner, the cup + my row, the fresh check written (`membership_checked_at`, docs/33 §11.8 п. 1), my row FOR UPDATE, the
+        // status of the cup, UPDATE
+        ->and($renameQueries)->toHaveCount(6);
 })->with([1, 4]);
 
 it('keeps the one statement of the emoji in step with ProEmojiService::visibleForMany', function (): void {

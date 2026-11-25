@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Cup\Enums\CupMessageStatus;
 use App\Domain\Cup\Enums\CupParticipantStatus;
 use App\Domain\Cup\Enums\CupStatus;
+use App\Domain\Cup\Services\CupLifecycleService;
 use App\Domain\Telegram\Support\CupCallback;
 use App\Models\Cup;
 use App\Models\CupMessage;
@@ -221,9 +222,20 @@ it('proposes a cup on /cup and on /start cup, then answers /cup with one line an
     RateLimiter::clear('cup-chat:'.$group->chat_id);
     CupBotKit::dispatch(CupBotKit::say($group, '/cup@muhrla_test_bot', 777_000_444));
 
+    // A draft is not open to join: the button is its setup (the proposal may never have reached the chat - a timeout leaves it
+    // `unknown`, never sent again).
     $reply = CupKit::telegram()->groupMessages[0];
     expect(Cup::query()->count())->toBe(1)
-        ->and($reply['text'])->toBe('В чате уже есть кубок «English Friends». Таблица и участие — по кнопке ниже.')
+        ->and($reply['text'])->toBe('В чате уже есть черновик кубка «English Friends». Администратор чата может настроить и опубликовать его по кнопке ниже.')
+        ->and(array_keys(CupBotKit::buttons($reply['markup'])))->toBe(['⚙️ Настроить']);
+
+    $cup = Cup::query()->with('telegramGroup')->firstOrFail();
+    app(CupLifecycleService::class)->publish($cup, CupKit::admin());
+    RateLimiter::clear('cup-chat:'.$group->chat_id);
+    CupBotKit::dispatch(CupBotKit::say($group, '/cup', 777_000_444));
+
+    $reply = CupKit::telegram()->groupMessages[1];
+    expect($reply['text'])->toBe('В чате уже есть кубок «English Friends». Таблица и участие — по кнопке ниже.')
         ->and(array_keys(CupBotKit::buttons($reply['markup'])))->toBe(['🏆 Открыть кубок']);
 });
 

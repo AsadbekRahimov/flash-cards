@@ -9,6 +9,7 @@ use App\Filament\Resources\CupResource\Pages\ListCups;
 use App\Filament\Resources\CupResource\Pages\ViewCup;
 use App\Filament\Resources\CupResource\RelationManagers\AttemptsRelationManager;
 use App\Filament\Resources\CupResource\RelationManagers\ParticipantsRelationManager;
+use App\Filament\Resources\TelegramGroupResource\Pages\EditTelegramGroup;
 use App\Filament\Resources\TelegramGroupResource\Pages\ListTelegramGroups;
 use App\Models\AuditLog;
 use App\Models\Course;
@@ -290,4 +291,27 @@ it('reads the participants and the attempts of a day within a budget that does n
             }
         }
     }, ceiling: 5, parameters: ['ownerRecord' => $cup, 'pageClass' => ViewCup::class]); // the page (simple: no count) and the names twice, the owner once
+});
+
+it('keeps the flags of the cups when the form of the group is saved after an action set one, and never takes them from the form', function (): void {
+    $cup = cupAdminRunning();
+    $group = TelegramGroup::query()->findOrFail($cup->telegram_group_id);
+    $group->forceFill(['meta' => ['locale' => 'uz', 'cup_pilot' => true, 'type' => 'supergroup']])->save();
+
+    // The form is opened: the flags are not in its key/value editor (they would come back as strings).
+    $form = livewire(EditTelegramGroup::class, ['record' => $group->getKey()]);
+    expect(array_values($form->get('data.meta')))->toBe([['key' => 'type', 'value' => 'supergroup']]);
+
+    // Meanwhile another administrator presses «Запретить кубки» (audited, under FOR UPDATE of the row).
+    app(CupPlatformAdmin::class)->setCupsBlocked(TelegramGroup::query()->findOrFail($group->id), true, $this->admin);
+
+    // The form is saved with a key typed by hand that tries to switch the pilot off as a string.
+    $form->fillForm(['title' => 'Renamed', 'meta' => ['type' => 'supergroup', 'cup_pilot' => '0', 'cups_blocked' => '0']])->call('save')->assertHasNoFormErrors();
+
+    $meta = TelegramGroup::query()->findOrFail($group->id)->meta;
+    expect($meta['cups_blocked'] ?? null)->toBeTrue()   // the action is not undone, and it is a bool
+        ->and($meta['cup_pilot'] ?? null)->toBeTrue()    // the hand-typed key changed nothing
+        ->and($meta['locale'] ?? null)->toBe('uz')
+        ->and($meta['type'] ?? null)->toBe('supergroup')
+        ->and(TelegramGroup::query()->findOrFail($group->id)->title)->toBe('Renamed');
 });

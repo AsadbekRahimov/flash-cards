@@ -248,7 +248,7 @@ it('reads a stored answer of the throttle written as a string by Redis', functio
 it('drops the reused answer when Telegram reports the learner left, so the next check really asks', function (): void {
     ['cup' => $cup, 'learners' => [$a]] = CupKit::running(2);
     gate()->check($cup, $a);
-    expect(Cache::get(CupMembershipGate::key($cup->id, $a->id)))->toBe('member');
+    expect(Cache::get(CupMembershipGate::key($cup->id, $a->id)))->toStartWith('member@');
 
     app(CupParticipationService::class)->onLeftChat($a, $cup->telegramGroup);
 
@@ -270,14 +270,15 @@ it('refuses the join while another check of the same learner holds the lock too 
     }
 });
 
-it('accepts a view from a participant whatever his status, and only of his own cup', function (): void {
+it('accepts a view from an active participant without a call, and only of his own cup', function (): void {
     ['cup' => $cup, 'learners' => [$a]] = CupKit::running(2);
     $other = CupKit::scheduled(CupKit::group(), CarbonImmutable::now());
     $participant = CupParticipant::query()->where('learner_id', $a->id)->firstOrFail();
-    $participant->forceFill(['status' => 'left'])->save();
     Cache::flush();
     CupKit::member($a, 'left', false);
+    CupKit::telegram()->chatMemberLookups = [];
 
     gate()->assertCanView($cup, $a, $participant, true);
+    expect(CupKit::telegram()->chatMemberLookups)->toBe([]);
     expect(fn () => gate()->assertCanView(Cup::query()->with('telegramGroup')->findOrFail($other->id), $a, $participant, true))->toThrow(CupException::class);
 });

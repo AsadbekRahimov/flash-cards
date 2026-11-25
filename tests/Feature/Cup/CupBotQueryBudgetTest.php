@@ -8,6 +8,7 @@ use App\Domain\Cup\Services\CupLifecycleService;
 use App\Domain\Cup\Services\CupOutbox;
 use App\Domain\Cup\Services\CupStandings;
 use App\Domain\Cup\Services\CupSummaries;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Telegram\Support\CupCallback;
 use App\Jobs\PostCupMessageJob;
 use App\Models\Cup;
@@ -62,6 +63,17 @@ function budgetCups(int $cups, int $players = 3): array
     return ['ids' => $ids, 'start' => $start ?? throw new LogicException('no cups')];
 }
 
+/**
+ * Both stores cold: the default one (the throttle of the membership) AND the pure one - the table (`cup:standings`) and the emoji
+ * (`cup:emoji`) live in {@see PureCache}, which on PostgreSQL + Redis is its own store: `Cache::flush()` alone left them warm there and
+ * the counts differed from SQLite.
+ */
+function cupBotColdCaches(): void
+{
+    Cache::flush();
+    PureCache::store()->flush();
+}
+
 it('answers a tap of a member who is not an administrator without a write and a publication in a fixed number', function (): void {
     CarbonImmutable::setTestNow('2026-12-01 06:00:00');
     $group = CupKit::group();
@@ -74,9 +86,9 @@ it('answers a tap of a member who is not an administrator without a write and a 
     $refused = QueryLog::during(fn () => CupBotKit::dispatch(CupBotKit::tap($group, CupCallback::publish($cup->id), $member, $messageId)));
     $published = QueryLog::during(fn () => CupBotKit::dispatch(CupBotKit::tap($group, CupCallback::publish($cup->id), $admin, $messageId)));
 
-    // the group by chat id, the cup of the group; the core reads the course of the level and counts its words before it asks
-    // Telegram who tapped (CupLifecycleService::publish) - nothing is written
-    expect($refused)->toHaveCount(4)
+    // the group by chat id, the cup of the group - the core asks Telegram who tapped BEFORE it reads the course and counts its words
+    // (CupLifecycleService::publish; it was 4 with those two reads) - nothing is written
+    expect($refused)->toHaveCount(2)
         ->and(QueryLog::matching($refused, '/^(insert|update|delete)/i'))->toBe([])
         // + FOR UPDATE and UPDATE of the cup, the event (the core); the table of the card (no participants: no emoji), the hash
         ->and($published)->toHaveCount(9);
@@ -85,7 +97,7 @@ it('answers a tap of a member who is not an administrator without a write and a 
 it('sends a message of the outbox in a fixed number of statements', function (): void {
     ['ids' => [$id]] = budgetCups(1, 6);
     $row = CupMessage::query()->create(['cup_id' => $id, 'dedupe_key' => 'summary:1', 'kind' => 'summary', 'status' => 'pending', 'attempts' => 0]);
-    Cache::flush();
+    cupBotColdCaches();
 
     $sent = QueryLog::during(fn () => app(CupOutbox::class)->deliver($row->id, CarbonImmutable::now()));
     $again = QueryLog::during(fn () => app(CupOutbox::class)->deliver($row->id, CarbonImmutable::now()));
@@ -98,27 +110,29 @@ it('sends a message of the outbox in a fixed number of statements', function ():
 it('chooses the cards to refresh in ONE statement and refreshes each in a constant number', function (int $cups): void {
     ['ids' => $ids, 'start' => $start] = budgetCups($cups);
     $idle = QueryLog::during(fn () => app(CupCards::class)->refreshDue($start->addMinutes(2), 200)); // nothing older than 5 minutes
-    Cache::flush();
+    cupBotColdCaches();
 
     $run = QueryLog::during(fn () => app(CupCards::class)->refreshDue($start->addMinutes(6), 200));
 
     expect($idle)->toHaveCount(1)
-        // the choice, the cups, their groups; per card: the table, the emoji, the hash
-        ->and(count($run))->toBe(3 + 3 * $cups)
+        // the choice, the cups, their groups, the tables of all cards, the emoji of all cards, ONE `UPDATE … CASE` of the hashes -
+        // whatever the number of cards (it was 3 + 3·N: the table, the emoji and the hash per card)
+        ->and(count($run))->toBe(6)
         ->and(count(CupKit::telegram()->captionEdits))->toBe($cups);
 })->with([2, 5]);
 
 it('decides the summaries of N cups with one statement for the choice and a constant per cup', function (int $cups): void {
     ['start' => $start] = budgetCups($cups);
     Bus::fake([PostCupMessageJob::class]);
-    Cache::flush();
+    cupBotColdCaches();
 
     $early = QueryLog::during(fn () => app(CupSummaries::class)->enqueueDue($start->addHours(10), 500));
     $run = QueryLog::during(fn () => app(CupSummaries::class)->enqueueDue($start->addHours(20), 500));
 
     expect($early)->toHaveCount(1)
-        // the choice; per cup: the table, the day decided, the hash of the cup, the row, its id
-        ->and(count($run))->toBe(1 + 5 * $cups);
+        // the choice (the time of the summary in the SQL), the tables of all due cups, the days decided (UPDATE … RETURNING), the
+        // hashes (UPDATE … CASE), the rows (INSERT … RETURNING) - whatever the number of cups (it was 1 + 5·N)
+        ->and(count($run))->toBe(5);
     Bus::assertDispatchedTimes(PostCupMessageJob::class, $cups);
 })->with([2, 5]);
 
