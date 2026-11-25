@@ -4538,3 +4538,19 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `exercise.meaning.title` | So'zning tarjimasini tanlang | Выберите перевод слова (было «Bu so'z nimani anglatadi?» / «Что значит это слово?») |
 | `exercise.audio.title` | Tinglang va tarjimasini tanlang | Послушайте и выберите перевод (было «Nimani eshitdingiz?» / «Что вы услышали?») |
 | `exercise.pretest.title` | So'zni bilsangiz, tarjimasini tanlang | Выберите перевод, если знаете слово (было «Bu so'zni bilasizmi?» / «Знаете это слово?») |
+
+## Выпуск 1 · напоминание бота после урока (docs/31 §5б) — на проверку носителю
+
+### Бот (`lang/uz/reminders.php`, `lang/uz/buttons.php`)
+
+Через 45 минут после урока с новыми словами, если ученик не сыграл: предложение закрепить слова в игре «Пары на время» (название
+игры — как в Mini App, `practice.mode.pairs_timed.title`). Об очках текст не говорит. Прошу проверить: «mustahkamlang» (закрепите) и
+«esda qoladi» (запомнится).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `reminders.lesson_nudge.text` | «:lesson» darsi tugadi: :count ta yangi so'z. Ularni «Vaqtga juftlar» o'yinida mustahkamlang — bir daqiqa, va so'zlar yaxshiroq esda qoladi. | Урок «:lesson» пройден: :count новое слово. Закрепите его в игре «Пары на время» — одна минута, и слово запомнится лучше.\|… :count новых слова. Закрепите их …\|… :count новых слов. Закрепите их … |
+| `reminders.lesson_nudge.text_untitled` | Dars tugadi: :count ta yangi so'z. Ularni «Vaqtga juftlar» o'yinida mustahkamlang — bir daqiqa, va so'zlar yaxshiroq esda qoladi. | Урок пройден: :count новое слово. … (то же без названия урока) |
+| `buttons.lesson_game` | 🎮 O'yinda mustahkamlash | 🎮 Закрепить в игре |
+
+Подвал «Eslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.» — тот же, что у остальных напоминаний.

@@ -139,15 +139,17 @@ describe('TodayView', () => {
       settings: settingsFixture({ interface_locale: locale }),
     })
 
-    it('is a chip with a globe and the code of the current language next to the plan badge, with a 44 px area and a bilingual name', async () => {
+    it('is the pill of the brand row of the header (mock-up 2026-11-25), the only language button of the screen', async () => {
       const w = await render()
 
+      expect(w.findAll('[data-testid=lang-btn]')).toHaveLength(1)
       const btn = w.get('[data-testid=lang-btn]')
       expect(btn.text()).toBe('RU')
       expect(btn.attributes('aria-label')).toBe('Til · Язык')
-      expect(btn.find('svg').exists()).toBe(true)
-      expect(btn.classes()).toEqual(expect.arrayContaining(['p-2.5', '-m-2.5']))
-      expect(btn.element.parentElement).toBe(w.get('[data-testid=plan-badge]').element.parentElement)
+      expect(btn.classes()).toContain('tap-target')
+      expect(w.get('[data-testid=brand-row]').element.contains(btn.element)).toBe(true)
+      // the plan badge stays next to the greeting
+      expect(w.get('[data-testid=brand-row]').element.contains(w.get('[data-testid=plan-badge]').element)).toBe(false)
     })
 
     it('shows UZ in Uzbek', async () => {

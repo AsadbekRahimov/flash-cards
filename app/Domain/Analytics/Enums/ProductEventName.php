@@ -28,6 +28,8 @@ enum ProductEventName: string
     case ReminderFailed = 'reminder.failed';
     /** The reminder was a question (props: kind, word_id, exercise, due_count); sent together with `reminder.sent`. */
     case ReminderQuizSent = 'reminder.quiz_sent';
+    /** The reminder after a lesson went out in the bot: "fix the words in a game" (props: lesson_id, words — docs/31 §5б). */
+    case LessonNudgeSent = 'lesson_nudge.sent';
     /** The learner tapped an answer, once per question (props: kind, word_id, exercise, correct, picked, latency_s, due_count). */
     case ReminderQuizAnswered = 'reminder.quiz_answered';
     /** A tap on a question that is no longer there (props: reason — missing / token_mismatch / no_message). */

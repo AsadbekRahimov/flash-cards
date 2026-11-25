@@ -12,6 +12,7 @@ use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Learning\DTO\SessionSummary;
 use App\Domain\Learning\Enums\RepetitionState;
 use App\Domain\Learning\Enums\WordStage;
+use App\Domain\Learning\Events\LessonWithNewWordsFinished;
 use App\Domain\Learning\Exceptions\TrainingSessionException;
 use App\Domain\Learning\Support\LessonReviewState;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -229,8 +230,9 @@ final class TrainingSessionService
     /**
      * Closes a personal session (idempotent) and summarises what the learner did in it.
      *
-     * The side effects of a session the learner finished — the event `training.session_finished` with the summary's numbers
-     * and the evaluation of a pending referral (docs/13 §7.1) — happen here, once, after the commit, and only when THIS call
+     * The side effects of a session the learner finished — the event `training.session_finished` with the summary's numbers,
+     * the evaluation of a pending referral (docs/13 §7.1) and, for a lesson with new words, {@see LessonWithNewWordsFinished}
+     * (the bot's reminder after a lesson, docs/31 §5б) — happen here, once, after the commit, and only when THIS call
      * closed the session with `finished`: `/finish` and the re-open of a completed round share them, a repeat of `/finish`
      * and a close as `expired` have none.
      *
@@ -347,6 +349,11 @@ final class TrainingSessionService
 
         // A pending referral of this learner (docs/13 §7.1): activated once they have studied enough.
         $this->referrals->evaluate($learner, $now);
+
+        // A lesson with new words: the bot may remind of the game on its words later (docs/31 §5б).
+        if ($session->mode === TrainingSession::MODE_LESSON && $session->lesson_id !== null && $summary->newWords > 0) {
+            LessonWithNewWordsFinished::dispatch($learner, (int) $session->id, (int) $session->lesson_id, $summary->newWords);
+        }
     }
 
     /**

@@ -16,6 +16,8 @@ enum TwaScreen: string
     case Today = '/';
     case Courses = '/courses';
     case Course = '/courses/{slug}';
+    /** The practice hub of a course; `?lesson=<id>` narrows it to a lesson, `&play=<mode>` starts that game at once (docs/31 §5б). */
+    case PracticeHub = '/practice/{slug}';
     case League = '/league';
     case LeagueMonth = '/league/month';
     case Friends = '/friends';

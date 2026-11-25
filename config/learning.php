@@ -414,5 +414,20 @@ return [
                 'starts_at' => env('REMINDERS_QUIZ_EXPERIMENT_STARTS_AT'),
             ],
         ],
+
+        /**
+         * The reminder after a lesson (docs/31 §5б, LessonNudgeScheduler / LessonNudgeSender): `delay_minutes` after the `/finish` of
+         * a lesson with new words, one message "fix the words in a game" with the game of the lesson - if by then no game on its
+         * words was played. Once a local day, inside the common limit of one message about studies a day, not to those who switched
+         * the reminders off. Not at night: at a local hour from `quiet_from_hour` to `quiet_to_hour` (exclusive, may wrap midnight)
+         * it is dropped, not moved to the morning. `queue`: the queue of the job.
+         */
+        'lesson_nudge' => [
+            'enabled' => (bool) env('REMINDERS_LESSON_NUDGE_ENABLED', true),
+            'delay_minutes' => max(1, (int) env('REMINDERS_LESSON_NUDGE_DELAY_MINUTES', 45)),
+            'queue' => (string) env('REMINDERS_LESSON_NUDGE_QUEUE', 'default'),
+            'quiet_from_hour' => 22,
+            'quiet_to_hour' => 8,
+        ],
     ],
 ];

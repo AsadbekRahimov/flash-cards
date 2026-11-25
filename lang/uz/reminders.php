@@ -16,6 +16,13 @@ return [
     'choose_course' => "Shug'ullanishni boshlash uchun Muhrla'da kursni tanlang.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
     'open_button' => "Muhrla'ni ochish",
 
+    // The reminder after a lesson (docs/31 §5б): :count = the new words of the lesson met today, :lesson = its title. About fixing
+    // the words, never about points.
+    'lesson_nudge' => [
+        'text' => "«:lesson» darsi tugadi: :count ta yangi so'z. Ularni «Vaqtga juftlar» o'yinida mustahkamlang — bir daqiqa, va so'zlar yaxshiroq esda qoladi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
+        'text_untitled' => "Dars tugadi: :count ta yangi so'z. Ularni «Vaqtga juftlar» o'yinida mustahkamlang — bir daqiqa, va so'zlar yaxshiroq esda qoladi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
+    ],
+
     // The reminder as a question with four buttons (owner decision 2026-11-17, docs/12 §7.5). Plain text, no markup.
     'quiz' => [
         'lead' => [

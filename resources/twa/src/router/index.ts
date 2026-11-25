@@ -108,7 +108,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/PracticeHubView.vue'),
     meta: { tab: 'courses' },
     // `?from=finished`: the learner came from the finish screen of a training session, so the sessions it opens are "after training".
-    props: (route) => ({ slug: String(route.params.slug), lessonId: queryId(route.query.lesson), from: route.query.from === 'finished' ? 'finished' : null }),
+    // `?play=pairs_timed` (with `?lesson=`): open the game on the words of the lesson at once (step 3 of the day plan); any other value is ignored.
+    props: (route) => ({
+      slug: String(route.params.slug),
+      lessonId: queryId(route.query.lesson),
+      from: route.query.from === 'finished' ? 'finished' : null,
+      play: route.query.play === 'pairs_timed' ? 'pairs_timed' : null,
+    }),
   },
   {
     path: '/practice/sessions/:id(\\d+)',

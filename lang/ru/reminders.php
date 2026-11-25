@@ -18,6 +18,13 @@ return [
     'choose_course' => "Выберите курс в Muhrla, чтобы начать заниматься.\n\nИзменить время или отключить: /settings",
     'open_button' => 'Открыть Muhrla',
 
+    // The reminder after a lesson (docs/31 §5б): :count = the new words of the lesson met today (1 слово | 2–4 слова | 5+ слов),
+    // :lesson = its title. About fixing the words, never about points: the words learned today give no points in a game today.
+    'lesson_nudge' => [
+        'text' => "Урок «:lesson» пройден: :count новое слово. Закрепите его в игре «Пары на время» — одна минута, и слово запомнится лучше.\n\nИзменить время или отключить: /settings|Урок «:lesson» пройден: :count новых слова. Закрепите их в игре «Пары на время» — одна минута, и слова запомнятся лучше.\n\nИзменить время или отключить: /settings|Урок «:lesson» пройден: :count новых слов. Закрепите их в игре «Пары на время» — одна минута, и слова запомнятся лучше.\n\nИзменить время или отключить: /settings",
+        'text_untitled' => "Урок пройден: :count новое слово. Закрепите его в игре «Пары на время» — одна минута, и слово запомнится лучше.\n\nИзменить время или отключить: /settings|Урок пройден: :count новых слова. Закрепите их в игре «Пары на время» — одна минута, и слова запомнятся лучше.\n\nИзменить время или отключить: /settings|Урок пройден: :count новых слов. Закрепите их в игре «Пары на время» — одна минута, и слова запомнятся лучше.\n\nИзменить время или отключить: /settings",
+    ],
+
     // The reminder as a question with four buttons (owner decision 2026-11-17, docs/12 §7.5). Plain text, no markup.
     'quiz' => [
         // Plural forms (ru) follow :count — the due words, the streak days, the idle days.

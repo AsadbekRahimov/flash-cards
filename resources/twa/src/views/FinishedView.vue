@@ -50,6 +50,14 @@ import { useI18n } from '@/i18n'
  * for less ("these words will come back - that is the plan"); no "One more round" and no practice. After an ordinary round the server may
  * add an invitation (`hard_round_offer`): one line of text among the actions, before the practice and the reminders. Under the note of the
  * round: one mistake of an earlier session corrected in it (`corrected`), when the server found a trustworthy pair.
+ *
+ * The day plan "lesson -> training -> game" (docs/31 §5б, docs/design/2026-11-25-redesign Finish). The finish of a LESSON says "Lesson done!"
+ * with the lesson and its new words under it, and a block "What next": step 2 - "Start the training" (the review of the words of this lesson,
+ * `lesson_review`, the one main button; only when the lesson gave new words), then a line "Or play: timed pairs" that opens the hub of the
+ * lesson with the game started at once (`?play=pairs_timed`), and the way home as text. A refused review (409 `lesson_review_unavailable`) is
+ * told above the buttons and the screen falls back to the ordinary ones. The finish of the REVIEW itself (`summary.lesson_review`) says
+ * "Words reinforced" with its numbers and no points (it brings none, nor goal), and offers step 3 - "Play". Every other session (a daily review,
+ * the round of hard words, a group lesson, an empty or early end) keeps its own actions.
  */
 const props = defineProps<{
   reviewed: number
@@ -85,6 +93,8 @@ const reasonLabel = computed(() => {
   const reason = REASONS.find((r) => r === props.reason)
   // The quota card says the same, and says what to do next.
   if (reason === 'new_quota_exhausted' && showQuotaCard.value) return null
+  // "Lesson done!" says it already.
+  if (reason === 'lesson_complete' && isLessonFinish.value) return null
   return reason ? t(`finished.reason.${reason}`) : null
 })
 
@@ -128,6 +138,8 @@ const title = computed((): string => {
       : t('finished.hard_round.title_none')
   }
   if (isEmpty.value) return t('finished.title_empty')
+  if (isLessonReview.value) return t('finished.lesson_review.title')
+  if (isLessonFinish.value) return t('finished.lesson.title')
   const percent = correctValue.value
   if (percent === null || percent >= 80 || training.bestCombo >= 10) return t('finished.title')
   if (percent >= 60) return t('finished.title_good')
@@ -162,6 +174,40 @@ async function nextRound(): Promise<void> {
   if (sessionId !== null) await router.replace({ name: 'training', params: { sessionId } })
 }
 
+/** The review of a lesson studied today (docs/06 §15): by the reason of the last answer, the summary, or the mode this run opened. */
+const isLessonReview = computed(() => !isHardRound.value
+  && (props.reason === 'lesson_review_complete' || summary.value?.lesson_review != null || training.mode === 'lesson_review'))
+const lessonReview = computed(() => summary.value?.lesson_review ?? null)
+
+/** The lesson of the session: where the practice entry leads, else what this run opened (a learner without practice has no entry). */
+const lessonId = computed((): number | null => summary.value?.practice_entry?.lesson_id ?? training.restartRequest?.lesson_id ?? null)
+/** The finish of a lesson (not of a daily review, a group lesson, a round of hard words or the review of a lesson). */
+const isLessonFinish = computed(() => summary.value !== null && !isHardRound.value && !isLessonReview.value && lessonId.value !== null
+  && (training.mode === 'lesson' || training.mode === null))
+/** The name of the lesson ("Drinks"), when the session knows it. */
+const lessonTitle = computed(() => (training.lesson?.title ?? '').trim())
+const newWords = computed(() => summary.value?.new_words ?? 0)
+
+/** The header with the green mark (docs/design 2026-11-25 Finish): the lesson and its review, when something was done in them. */
+const planHeader = computed(() => (isLessonFinish.value || isLessonReview.value) && !isEmpty.value)
+const planSubtitle = computed((): string => {
+  if (isLessonReview.value) return lessonTitle.value
+  const parts = [lessonTitle.value, newWords.value > 0 ? tn('finished.lesson.new_words', newWords.value) : '']
+  return parts.filter((part) => part !== '').join(' · ')
+})
+
+/** "Start the training" was refused (409 `lesson_review_unavailable`): the reason is told above the buttons, the ordinary ones come back. */
+const reviewRefused = ref(false)
+/** Step 2: the lesson gave new words today, and this run knows the lesson. */
+const showTraining = computed(() => isLessonFinish.value && !isEmpty.value && newWords.value > 0 && lessonId.value !== null && !reviewRefused.value)
+async function startLessonReview(): Promise<void> {
+  const id = lessonId.value
+  if (id === null) return
+  const sessionId = await training.openLessonReview(id, 'finish')
+  if (sessionId === null) reviewRefused.value = true
+  else await router.replace({ name: 'training', params: { sessionId } })
+}
+
 /** "Best run: 12": only a run that the chip showed. */
 const bestCombo = computed(() => (training.bestCombo >= COMBO_MIN ? training.bestCombo : 0))
 
@@ -171,6 +217,18 @@ const goalPercent = computed(() => {
   if (current.met) return 100
   return current.target > 0 ? Math.min(100, Math.round((current.done / current.target) * 100)) : 0
 })
+
+/** The segments of the goal (one per word, as in the mock-up) when there are not too many of them for a phone; else one line. */
+const GOAL_SEGMENTS_MAX = 30
+const goalSegments = computed((): boolean[] | null => {
+  const current = goal.value
+  if (current === null || current.target <= 0 || current.target > GOAL_SEGMENTS_MAX) return null
+  const filled = current.met ? current.target : Math.min(current.done, current.target)
+  return Array.from({ length: current.target }, (_, i) => i < filled)
+})
+const goalLeft = computed(() => (goal.value === null || goal.value.met ? 0 : Math.max(0, goal.value.target - goal.value.done)))
+/** The review of a lesson moves no goal: its finish does not show one. */
+const showGoal = computed(() => goal.value !== null && !isLessonReview.value)
 
 /** League points of this session (docs/13 §7.6): shown only when the server counted some. */
 const pointsEarned = computed(() => summary.value?.league_points ?? 0)
@@ -235,14 +293,30 @@ async function startHardRound(): Promise<void> {
   else await router.replace({ name: 'training', params: { sessionId } })
 }
 
+/**
+ * Step 3: the hub of the lesson that opens the timed pairs on its words at once (`?play=pairs_timed`); only where the server gives an entry to
+ * the practice of a lesson (a short lesson is topped up by the server, the hub tells a refusal).
+ */
+const gameTarget = computed((): RouteLocationRaw | null => {
+  const entry = practiceEntry.value
+  if (entry === null || entry.lesson_id === null) return null
+  return { name: 'practice-hub', params: { slug: entry.course }, query: { lesson: String(entry.lesson_id), play: 'pairs_timed', from: 'finished' } }
+})
+/** "Or play: timed pairs" under the training of a lesson; "Play" as the main button after the review. */
+const showGameLine = computed(() => isLessonFinish.value && !isEmpty.value && gameTarget.value !== null)
+const showPlayHero = computed(() => isLessonReview.value && !isEmpty.value && gameTarget.value !== null)
+/** The block "What next" has something in it; then the way home is a line of text and "Done" is gone. */
+const showWhatNext = computed(() => showTraining.value || showGameLine.value || showPlayHero.value)
+const heroMain = computed(() => showTraining.value || showPlayHero.value)
+
 const practiceTarget = computed((): RouteLocationRaw | null => {
   const entry = practiceEntry.value
   if (entry === null) return null
   const lesson = entry.lesson_id === null ? {} : { lesson: String(entry.lesson_id) }
   return { name: 'practice-hub', params: { slug: entry.course }, query: { ...lesson, from: 'finished' } }
 })
-/** Only after a round that did something: an empty one has nothing to practise. */
-const showPractice = computed(() => practiceTarget.value !== null && !isEmpty.value)
+/** Only after a round that did something: an empty one has nothing to practise. A lesson and its review offer the game instead. */
+const showPractice = computed(() => practiceTarget.value !== null && !isEmpty.value && !isLessonFinish.value && !isLessonReview.value)
 
 /**
  * The end of today's new words (docs/12 §5.4): on Free a calm card says so and offers the two ways on — what Pro gives (the
@@ -367,8 +441,10 @@ const showCourses = computed(() => isEmpty.value && props.reason === 'nothing_du
 /** The streak has something to say: a run of days, or the warning that it is about to break. */
 const showStreak = computed(() => streak.value !== null && (streak.value.current > 0 || streak.value.at_risk))
 /** The card of rows under the numbers (docs/design Finish) has at least one row. */
-const hasRows = computed(() => corrected.value !== null || goal.value !== null || showStreak.value || bestCombo.value > 0
-  || newAchievement.value !== null || pointsEarned.value > 0 || monthLine.value !== null || !isEmpty.value)
+const hasRows = computed(() => corrected.value !== null || showGoal.value || showStreak.value || bestCombo.value > 0
+  || newAchievement.value !== null || monthLine.value !== null || showNext.value)
+/** "Next review": the review of a lesson moves no schedule, so it has none. */
+const showNext = computed(() => !isEmpty.value && !isLessonReview.value)
 
 notificationHaptic('success')
 if (!isEmpty.value && (!isHardRound.value || hardCelebrate.value)) playSound('done')

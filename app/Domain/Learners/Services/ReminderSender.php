@@ -25,7 +25,6 @@ use App\Jobs\SendLearnerReminderJob;
 use App\Models\Learner;
 use App\Models\NotificationLog;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -37,9 +36,9 @@ use Throwable;
  *  1. the learner still exists, is not banned, DM not blocked, reminders still on
  *     (a `/settings` change between claim and send wins);
  *  2. the claim is fresh (`max_delay_minutes`): a reminder hours late is spam;
- *  3. under a per-learner cache lock, `notifications_log` says no reminder of any kind
- *     went out on the learner's local day, nor within the last `min_interval_hours`
- *     (a floor that also covers midnight and a changed reminder time) — this is what
+ *  3. under a per-learner cache lock, `notifications_log` says no message about studies (a reminder of any kind or the
+ *     reminder after a lesson, {@see StudyMessageLimit}) went out on the learner's local day, nor within the last
+ *     `min_interval_hours` (a floor that also covers midnight and a changed reminder time) — this is what
  *     makes a retried or duplicated job harmless (the dispatcher's claim is the first
  *     level);
  *  4. {@see ReminderContentResolver} picks the kind of reminder (or nothing);
@@ -81,13 +80,13 @@ final class ReminderSender
         private readonly ReminderContentResolver $contents,
         private readonly LocaleResolver $locales,
         private readonly ProductEventRecorder $events,
-        private readonly LearnerClock $clock,
         private readonly ReminderQuizBuilder $quizzes,
         private readonly ReminderQuizStore $quizStore,
         private readonly ReminderQuizMessenger $quizMessenger,
         private readonly ReminderExperiment $experiment,
         private readonly DmReachability $reachability,
         private readonly BotButtons $buttons,
+        private readonly StudyMessageLimit $limit,
     ) {}
 
     public function send(int $learnerId, CarbonImmutable $scheduledFor, ?CarbonImmutable $now = null): ReminderOutcome
@@ -110,8 +109,8 @@ final class ReminderSender
             return ReminderOutcome::SkippedStale;
         }
 
-        return Cache::lock("reminders:send:{$learner->id}", 120)->block(10, function () use ($learner, $scheduledFor, $now): ReminderOutcome {
-            if ($this->recentlyReminded($learner, $now)) {
+        return $this->limit->lock($learner->id)->block(10, function () use ($learner, $scheduledFor, $now): ReminderOutcome {
+            if ($this->limit->reached($learner, $now)) {
                 return ReminderOutcome::SkippedRecent;
             }
 
@@ -276,28 +275,8 @@ final class ReminderSender
         };
     }
 
-    private function recentlyReminded(Learner $learner, CarbonImmutable $now): bool
-    {
-        // Either one is enough: a reminder already today (the learner's local calendar day,
-        // not the quota window), or one inside the floor — i.e. since the earlier of the two.
-        $dayStart = $this->clock->dayBoundsUtc($learner, $now)->startUtc;
-        $floor = $now->subHours($this->minIntervalHours());
-        $since = $dayStart->isBefore($floor) ? $dayStart : $floor;
-
-        return NotificationLog::query()
-            ->where('learner_id', $learner->id)
-            ->whereIn('type', ReminderKind::notificationTypes())
-            ->where('sent_at', '>=', $since)
-            ->exists();
-    }
-
     private function maxDelayMinutes(): int
     {
         return max(15, (int) config('learning.reminders.max_delay_minutes', 120));
-    }
-
-    private function minIntervalHours(): int
-    {
-        return max(1, (int) config('learning.reminders.min_interval_hours', 2));
     }
 }

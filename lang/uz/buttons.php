@@ -20,4 +20,5 @@ return [
     'share' => '📤 Ulashish',
     'invite' => "👥 Do'stlarni taklif qilish",
     'offers_off' => '🔕 Takliflar kerak emas',
+    'lesson_game' => "🎮 O'yinda mustahkamlash",
 ];

@@ -49,6 +49,9 @@
         <env name="LEARNERS_DEFAULT_DAILY_GOAL" value="10"/>
         <!-- No speech synthesizer unless a test sets one (docs/26 §5.1): an import or a new word queues its audio, and on the sync
              queue of the tests a TTS_SERVICE_URL / TTS_DRIVER of a local .env would make it call the service. -->
+        <!-- The reminder after a lesson (docs/31 §5б) is a DELAYED job: on the sync queue it would run at the `/finish` of every lesson
+             a test plays and send a message there. Its own tests (LessonNudgeTest) switch it on. -->
+        <env name="REMINDERS_LESSON_NUDGE_ENABLED" value="false"/>
         <env name="TTS_DRIVER" value=""/>
         <env name="TTS_SERVICE_URL" value=""/>
         <env name="GOOGLE_TTS_CREDENTIALS" value=""/>
