@@ -9,6 +9,7 @@ import PaywallSheet, { type PaywallReason } from '@/components/PaywallSheet.vue'
 import ReadinessBlock from '@/components/ReadinessBlock.vue'
 import DayPlan from '@/components/today/DayPlan.vue'
 import LessonHero from '@/components/today/LessonHero.vue'
+import ScoreTodayCard from '@/components/today/ScoreTodayCard.vue'
 import TrialWelcomeSheet from '@/components/today/TrialWelcomeSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -47,7 +48,8 @@ import type { OpenSessionRequest, PracticeAccessToday } from '@/api/types'
  * over the greeting; then, while `/today.plan` has a step to offer (or says the day is done), the big card of that step (`LessonHero`: the
  * lesson, the review of the lesson, the timed pairs), the card "Plan for today", the goal of the day with the streak and the tiles
  * "Review" / "Word games". Without such a plan (no course, the course is finished, an older server) the previous card "Goal of the day"
- * with the session button stays. Under it all - the list "For today" (assignments of the center, the round of hard words, the caravans),
+ * with the session button stays. Then "Today N of 100" of the word points (`score_today`, docs/32 §8.2; only with the v2 rules on).
+ * Under it all - the list "For today" (assignments of the center, the round of hard words, the caravans),
  * "My course", the streak, the league line and the invitation. A tab root, so no system "Back" button. Data: `GET /today` (stores
  * `today`, `assignments`).
  */
@@ -924,6 +926,9 @@ onBeforeUnmount(() => {
             {{ sessionHint }}
           </p>
         </section>
+
+        <!-- "Today N of 100" of the word points v2 (docs/32 §8.2): only when the server sends `score_today` (v2 rules on). -->
+        <ScoreTodayCard v-if="data.score_today && !showStart" :score="data.score_today" :timezone="data.timezone" />
 
         <!--
           "For today" (mock-up Main): what else waits today, one row each with a status dot - the assignments of the center first (they

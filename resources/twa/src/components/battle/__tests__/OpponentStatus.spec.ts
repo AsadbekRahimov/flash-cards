@@ -54,7 +54,8 @@ describe('OpponentStatus', () => {
   it('cuts a long name with an ellipsis instead of pushing the chip out', () => {
     const w = render('ready', 'A very long name that does not fit in the row at all')
 
-    expect(w.get('[data-testid=player-name]').classes()).toEqual(expect.arrayContaining(['truncate', 'min-w-0']))
+    expect(w.get('[data-testid=player-name]').classes()).toEqual(expect.arrayContaining(['flex-1', 'min-w-0']))
+    expect(w.get('[data-testid=player-name] [data-testid=player-name-text]').classes()).toEqual(expect.arrayContaining(['truncate', 'min-w-0']))
     expect(w.get('[data-testid=player-chip]').classes()).toContain('shrink-0')
   })
 

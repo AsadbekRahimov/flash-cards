@@ -192,6 +192,22 @@ describe('FriendsView', () => {
     expect(text(wrapper, 'challenges-empty')).toBe('Вызовов пока нет.')
   })
 
+  it('shows a friend\'s emoji of Pro after the name only when there is one (docs/31 §5а)', async () => {
+    const { wrapper } = await render(
+      friendsResponse({
+        friends: [
+          { id: 11, first_name: 'Dilnoza', pro_emoji: '🦁', streak: 5, words_learned: 120, since: null },
+          { id: 12, first_name: 'Aziz', pro_emoji: null, streak: 0, words_learned: 3, since: null },
+        ],
+      }),
+    )
+
+    const rows = wrapper.findAll('[data-testid=friend-row]')
+    expect(rows[0]?.get('[data-testid=friend-name]').text()).toBe('Dilnoza🦁')
+    expect(rows[0]?.get('[data-testid=pro-emoji]').attributes('aria-hidden')).toBe('true')
+    expect(rows[1]?.find('[data-testid=pro-emoji]').exists()).toBe(false)
+  })
+
   it.each([
     [1, '1 слово'],
     [2, '2 слова'],

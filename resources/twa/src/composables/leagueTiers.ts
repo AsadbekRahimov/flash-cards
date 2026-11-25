@@ -25,3 +25,9 @@ export function tierLabelKey(key: string): StringKey {
   return own(LABEL_KEYS, key) ?? 'league.tier.bronze'
 }
 
+
+/**
+ * How many best days of a week count in a week of the word points v2 (docs/32 §3.5, `leagues.scoring.versions.2.best_days`): only for
+ * the line of the rules. The API does not send it yet (`GET /league` has no such key); when it does, the screen takes it from there.
+ */
+export const WEEK_BEST_DAYS = 5

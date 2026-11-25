@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import GameItemImage from '@/components/game/GameItemImage.vue'
 import InitialAvatar from '@/components/InitialAvatar.vue'
+import PlayerName from '@/components/PlayerName.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -490,7 +491,7 @@ onMounted(() => {
             <InitialAvatar :name="personName(friend)" />
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5">
-                <span class="truncate text-base leading-[22px] font-medium">{{ personName(friend) }}</span>
+                <PlayerName :name="personName(friend)" :emoji="friend.pro_emoji" class="text-base leading-[22px] font-medium" data-testid="friend-name" />
                 <!-- What the friend wears (docs/05 §5b.6): only when the server sent the field, i.e. while the game is open. -->
                 <GameItemImage v-if="friend.camel_asset !== undefined" :name="friend.camel_asset ?? BASE_CAMEL_ASSET" :size="24" data-testid="friend-camel" />
               </div>

@@ -4723,3 +4723,41 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 |---|---|---|
 | `achievements.items.long_recall_25.title` | Uzoq xotira | Долгая память |
 | `achievements.items.long_recall_25.description` | 25 ta so'z bir hafta va undan ko'p tanaffusdan keyin esga olindi | 25 слов вспомнено после перерыва в неделю и больше |
+
+## Выпуск 2 · очки за слова v2 в Mini App: «Сегодня N из 100», чип ответа, финиш, неделя и месяц Free / Pro (docs/32 §8, S13, 26.11.2026) — на проверку носителю
+
+Термин один во всём приложении — «ball» (ru «балл»), как у баллов лиги (`league.score`). Числа (баллы, потолок дня, места) приходят с сервера; «5» лучших дней — пока константа приложения (`WEEK_BEST_DAYS`). «Free» и «Pro» — названия таблиц, не переводятся. Носителю проверить: естественно ли «Bugungi maksimum», «uzoq: {count}» (сокращение «долгих повторений» в строке таблицы), «ball olgan kunlari» и «bellashyapsiz».
+
+| Ключ | uz | ru |
+|---|---|---|
+| `score.today.title` | Bugungi ballar | Баллы сегодня (заголовок карточки «Сегодня N из 100») |
+| `score.today.count` | {points} / {count} ball | {points} / {count} баллов (`count` — потолок дня из API) |
+| `score.today.more` | yana {count} ball | ещё {count} баллов (сколько осталось до потолка) |
+| `score.today.max` | Bugungi maksimum | Максимум на сегодня |
+| `score.today.capped` | Bugun boshqa ball berilmaydi — so'zlar baribir o'rganiladi | На сегодня баллов больше не будет — слова всё равно учатся (карточка и занятие) |
+| `score.today.day_ends` | Yangi ballar soat {time} dan boshlab | Новые баллы — с {time} (начало следующего рейтингового дня) |
+| `score.today.month` | Oylik reytingga: {points} | В рейтинг месяца: {points} |
+| `score.category.free` | Free | Free (таблица) |
+| `score.category.pro` | Pro | Pro (таблица) |
+| `score.chip_label` | Berildi: {points} | Начислено: {points} (подпись чипа «+3» для экранного диктора) |
+| `finished.score.week` | haftalik reytingga +{count} | в недельный рейтинг +{count} |
+| `finished.score.month` | oylik reytingga +{count} | в месяц +{count} |
+| `finished.score.both` | haftalik va oylik reytingga +{count} | в неделю и месяц +{count} |
+| `finished.score.capped` | {count} ball kunlik chegaradan oshgani uchun hisoblanmadi | {count} баллов сверх дневного потолка не засчитаны |
+| `finished.score.today` | Bugun: {count} | Сегодня: {count} |
+| `league.category` | {category} guruhi | Группа {category} |
+| `league.shared_first` | Siz birinchi o'rinni boshqalar bilan bo'lishyapsiz | Вы делите первое место |
+| `league.row.days` | {count} kun | {count} дн. (дни с баллами в строке таблицы) |
+| `league.row.long` | uzoq: {count} | долгих: {count} (долгие повторения в строке таблицы) |
+| `league.rules_v2` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. |
+| `league.rules_v2.points` | Ballarni darslar va takrorlashlar beradi: yangi so'z, o'z vaqtidagi takrorlash va uzoq takrorlash (bir hafta va undan ko'proq tanaffusdan keyin). Bitta so'z uchun kuniga bir martadan ko'p emas, kunning chegarasi bor. | Баллы дают уроки и повторения: новое слово, повторение в срок и долгое повторение (через неделю и больше). За одно слово — не чаще раза в день, у дня есть потолок. |
+| `league.rules_v2.points_caravan` | Ballarni darslar, takrorlashlar va «Karvon» beradi: … (как выше) | Баллы дают уроки, повторения и «Караван»: … (то же, когда игра открыта) |
+| `league.rules_v2.best_days` | Hafta hisobiga eng yaxshi {days} kun kiradi. Ballar teng bo'lsa, uzoq takrorlashlari ko'proq, so'ng ball olgan kunlari ko'proq bo'lgan yuqorida turadi. | В зачёт недели идут {days} лучших дней. При равных баллах выше тот, у кого больше долгих повторений, затем — дней с баллами. |
+| `month.category_switch` | Oylik jadval | Таблица месяца (подпись переключателя Free / Pro) |
+| `month.read_only` | Bu {category} jadvali. Siz {mine} jadvalida bellashyapsiz. | Это таблица {category}. Вы соревнуетесь в таблице {mine}. |
+| `month.prizes_category` | Sovrinlar · {category} | Призы · {category} |
+| `month.next_gap_plain` | Keyingi o'ringacha — {points} | До следующего места — {points} |
+| `month.long_words` | Uzoq takrorlashlar: {count} | Долгих повторений: {count} |
+| `month.more` | Yana ko'rsatish | Показать ещё |
+| `month.neighbours` | Sizga yaqinlar | Рядом с вами (подпись группы соседей) |
+| `month.rules_points_v2` | Ballar haftalik ligadagi kabi: yangi so'zlar va takrorlashlar uchun. Free va Pro alohida jadvallarda bellashadi, har birining o'z sovrinlari bor. | Баллы те же, что в недельной лиге: за новые слова и повторения. Free и Pro соревнуются в отдельных таблицах, у каждой свои призы. |

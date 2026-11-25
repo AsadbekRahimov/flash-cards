@@ -277,8 +277,35 @@ const goalLeft = computed(() => (goal.value === null || goal.value.met ? 0 : Mat
 /** The review of a lesson moves no goal: its finish does not show one. */
 const showGoal = computed(() => goal.value !== null && !isLessonReview.value)
 
-/** League points of this session (docs/13 §7.6): shown only when the server counted some. */
-const pointsEarned = computed(() => summary.value?.league_points ?? 0)
+/**
+ * The word points of the session (docs/32 §8.2, `score_session`); null outside the v2 rules (an older server, the rules off): then the
+ * league points of the v1 formula alone, as before.
+ */
+const scoreSession = computed(() => summary.value?.score_session ?? null)
+
+/**
+ * League points of this session (docs/13 §7.6): shown only when the server counted some. On the v2 rules - what the session earned by the
+ * rules (`earned`, before the limits of the day); `league_points` is then the weekly part (`week_added`), said in the split below, not twice.
+ */
+const pointsEarned = computed(() => scoreSession.value?.earned ?? summary.value?.league_points ?? 0)
+
+/** Where the points went: "to the weekly rating +40 · to the month +45" (one part when both are the same). */
+const scoreSplit = computed(() => {
+  const score = scoreSession.value
+  if (score === null) return ''
+  const week = score.week_rating_delta
+  const month = score.month_added
+  if (week === month) return t('finished.score.both', { count: week })
+  return [t('finished.score.week', { count: week }), t('finished.score.month', { count: month })].join(' · ')
+})
+
+/** The rating day after the session: "Today: 60 / 100 points" (the cap is the server's). */
+const scoreTodayLine = computed(() => {
+  const today = scoreSession.value?.today ?? null
+  if (today === null) return ''
+  const count = today.cap === null ? tn('league.score', today.points) : tn('score.today.count', today.cap, { points: today.points })
+  return t('finished.score.today', { count })
+})
 
 /**
  * "In the month's rating: 12th place · 340 points": a light request after the screen is shown (it never blocks it; a failure
@@ -490,7 +517,8 @@ const showCourses = computed(() => isEmpty.value && props.reason === 'nothing_du
 const showStreak = computed(() => streak.value !== null && (streak.value.current > 0 || streak.value.at_risk))
 /** The card of rows under the numbers (docs/design Finish) has at least one row. */
 const hasRows = computed(() => corrected.value !== null || showGoal.value || showStreak.value || bestCombo.value > 0
-  || newAchievement.value !== null || (pointsEarned.value > 0 && !isLessonFinish.value) || monthLine.value !== null || showNext.value)
+  || newAchievement.value !== null || (pointsEarned.value > 0 && (!isLessonFinish.value || scoreSession.value !== null))
+  || monthLine.value !== null || showNext.value)
 /** "Next review": the review of a lesson moves no schedule, so it has none. */
 const showNext = computed(() => !isEmpty.value && !isLessonReview.value)
 
@@ -662,7 +690,19 @@ onBeforeUnmount(() => {
         <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
       </RouterLink>
 
-      <div v-if="pointsEarned > 0 && !isLessonFinish" class="flex items-baseline justify-between gap-3 px-[18px] py-3.5">
+      <!-- The word points v2 (docs/32 §8.2): the session's points (on a lesson they are the tile above), where they went, what the cap cut off. -->
+      <div v-if="scoreSession && pointsEarned > 0" class="flex flex-col gap-0.5 px-[18px] py-3.5" data-testid="score-session">
+        <div class="flex items-baseline justify-between gap-3">
+          <p class="text-[15px] leading-5 font-semibold">{{ t('league.title') }}</p>
+          <p v-if="!isLessonFinish" class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="points-earned">{{ tn('finished.points_earned', pointsEarned) }}</p>
+        </div>
+        <p class="text-[13px] leading-[18px] text-muted" data-testid="score-split">{{ scoreSplit }}</p>
+        <p v-if="scoreSession.capped_off > 0" class="text-[13px] leading-[18px] text-muted" data-testid="score-capped-off">
+          {{ tn('finished.score.capped', scoreSession.capped_off) }}
+        </p>
+        <p v-if="scoreTodayLine" class="text-[13px] leading-[18px] text-muted" data-testid="score-today-line">{{ scoreTodayLine }}</p>
+      </div>
+      <div v-else-if="pointsEarned > 0 && !isLessonFinish" class="flex items-baseline justify-between gap-3 px-[18px] py-3.5">
         <p class="text-[15px] leading-5 font-semibold">{{ t('league.title') }}</p>
         <p class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="points-earned">{{ tn('finished.points_earned', pointsEarned) }}</p>
       </div>

@@ -42,7 +42,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const training = useTrainingStore()
 const { close, notificationHaptic } = useTelegram()
-const { t } = useI18n()
+const { t, tn } = useI18n()
 
 const {
   status,
@@ -65,6 +65,7 @@ const {
   combo,
   outcome,
   deferred,
+  wordScore,
 } = storeToRefs(training)
 
 /**
@@ -375,6 +376,15 @@ async function onRestart(): Promise<void> {
               <span class="font-mono font-medium">{{ combo }}</span> {{ t('training.combo') }}
             </span>
           </Transition>
+          <!-- The word points of the last answer (docs/32 §8.1): a quiet «+3», only when the answer brought some. -->
+          <span
+            v-if="wordScore && wordScore.points > 0"
+            :key="`score-${wordScore.seq}`"
+            class="chip chip-success shrink-0 font-mono font-medium"
+            role="status"
+            :aria-label="t('score.chip_label', { points: tn('league.score', wordScore.points) })"
+            data-testid="score-chip"
+          >+{{ wordScore.points }}</span>
           <span
             class="shrink-0 text-right text-sm leading-5 font-semibold text-muted tabular-nums"
             :class="{ invisible: progress.total === 0 }"
@@ -394,6 +404,8 @@ async function onRestart(): Promise<void> {
         <p v-else-if="subtitle" class="mt-4 flex" :data-testid="subtitle.testid">
           <span class="block h-7 max-w-full min-w-0 truncate rounded-full bg-accent-soft px-3 text-[13px] leading-7 font-bold text-accent-ink">{{ subtitle.text }}</span>
         </p>
+        <!-- The cap of the rating day, said once a session (docs/32 §3.4): the words go on being learned, the points wait for tomorrow. -->
+        <p v-if="wordScore?.capped" class="mt-2 text-[13px] leading-[18px] text-muted" data-testid="score-capped">{{ t('score.today.capped') }}</p>
       </header>
 
       <div class="card-stage">

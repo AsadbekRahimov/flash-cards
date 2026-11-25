@@ -178,6 +178,18 @@ describe('BattleSetupView — the screen', () => {
     expect(api.battles.options).toHaveBeenCalledWith(11, 'english-a1', null)
   })
 
+  it('shows the friend\'s emoji of Pro after the name only when the options carry one (docs/31 §5а)', async () => {
+    serve({ options: options({ friend: { first_name: 'Dilnoza', pro_emoji: '🦁' } }) })
+    const r = await render()
+
+    expect(text(r, 'friend-name')).toBe('Dilnoza🦁')
+    expect(get(r, 'friend-name').get('[data-testid=pro-emoji]').attributes('aria-hidden')).toBe('true')
+
+    serve({ options: options({ friend: { first_name: 'Dilnoza', pro_emoji: null } }) })
+    const plain = await render()
+    expect(plain.wrapper.findAll('[data-testid=friend-name]').at(-1)?.find('[data-testid=pro-emoji]').exists()).toBe(false)
+  })
+
   it('has the steps in order: the friend, the course, the lesson, the format, then “Invite”', async () => {
     const r = await render()
 

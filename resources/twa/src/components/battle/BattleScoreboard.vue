@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import PlayerName from '@/components/PlayerName.vue'
 import { useI18n } from '@/i18n'
 
 /**
@@ -7,7 +8,7 @@ import { useI18n } from '@/i18n'
  * the right; the names are small above the numbers and cut off with an ellipsis when they are long.
  *
  * - `me` / `opponent` — the points of each (a sum of the rounds that are over: 0..500).
- * - `opponentName` — already localized.
+ * - `opponentName` — already localized; `opponentEmoji` — the opponent's emoji of Pro (docs/31 §5а) after it, none for null / absent.
  * - `size` — `md` (in a round, with the timer in the default slot under the score) or `lg` (the result).
  *
  * In a short window (`short:`, 320 x 568) the timer of a round does not take a row of its own: it stands where the colon was, between
@@ -21,9 +22,10 @@ const props = withDefaults(
     me: number
     opponent: number
     opponentName: string
+    opponentEmoji?: string | null
     size?: 'md' | 'lg'
   }>(),
-  { size: 'md' },
+  { size: 'md', opponentEmoji: null },
 )
 
 const { t } = useI18n()
@@ -47,7 +49,7 @@ const digits = computed(() => (props.size === 'lg' ? 'text-[44px] leading-[48px]
     </div>
     <p class="col-start-2 row-start-1 pb-0.5 font-mono text-muted" :class="[digits, { 'short:hidden': $slots.default }]" aria-hidden="true">:</p>
     <div class="col-start-3 row-start-1 min-w-0 text-right">
-      <p class="truncate text-[13px] leading-[18px] text-muted" data-testid="score-opponent-name">{{ opponentName }}</p>
+      <PlayerName :name="opponentName" :emoji="opponentEmoji" class="justify-end text-[13px] leading-[18px] text-muted" data-testid="score-opponent-name" />
       <p class="font-mono font-medium tabular-nums" :class="[digits, { 'short:text-[28px] short:leading-8': $slots.default }]" data-testid="score-opponent">{{ opponent }}</p>
     </div>
     <div v-if="$slots.default" class="col-span-3 row-start-2 short:col-span-1 short:col-start-2 short:row-start-1 short:min-w-[5.5rem]" data-testid="scoreboard-timer">

@@ -123,7 +123,7 @@ const canReady = computed(() => !props.ready.me && !waitingForAudio.value && pro
 
       <section class="card flex flex-col gap-3" data-testid="room-players">
         <OpponentStatus v-if="phase === 'room'" :name="t('battle.you')" :state="ready.me ? 'ready' : 'not_ready'" accent />
-        <OpponentStatus :name="opponentName" :state="phase === 'invite_received' ? null : opponentState" />
+        <OpponentStatus :name="opponentName" :emoji="battle.opponent.pro_emoji" :state="phase === 'invite_received' ? null : opponentState" />
       </section>
 
       <section class="card flex flex-col gap-3" data-testid="room-brief">

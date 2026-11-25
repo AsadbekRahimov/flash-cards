@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import PlayerName from '@/components/PlayerName.vue'
 import RegionPromptCard from '@/components/RegionPromptCard.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
@@ -11,7 +12,7 @@ import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedNav from '@/components/ui/SegmentedNav.vue'
 import { formatDate } from '@/composables/format'
-import { tierLabelKey } from '@/composables/leagueTiers'
+import { WEEK_BEST_DAYS, tierLabelKey } from '@/composables/leagueTiers'
 import { useRatingTabs } from '@/composables/ratingTabs'
 import { useBackButton } from '@/composables/useBackButton'
 import { useAuthStore } from '@/stores/auth'
@@ -31,6 +32,10 @@ import type { LeagueResult, LeagueStandingItem, LeagueZone } from '@/api/types'
  * climb higher" with the way to the plan of the day, last week's result, the rules and the league settings.
  * What gives points is said as it is: lessons and reviews, and the Caravan only while the game is open to the learner (`/me.game`);
  * practice games and the lesson review give none, so "games" are never named.
+ * A week of the word points v2 (`rules_version: 2`, docs/32 §8.3, §12.9) adds the table of the group (Free / Pro) to the big card, takes
+ * "to the place above" from `next_gap` (shared places 1, 2, 2, 4: the nearest place that is strictly better), writes the tie-break facts
+ * of the best days under each name (days with points, long repetitions) and says in the rules what counts. Without `rules_version` the
+ * screen is the v1 one.
  * A tab root (the other panes are Month and Friends): no system "Back" button.
  */
 const auth = useAuthStore()
@@ -46,6 +51,8 @@ const expanded = ref(false)
 const data = computed(() => league.data)
 const message = computed(() => failed.value || league.errorMessage)
 const membership = computed(() => data.value?.membership ?? null)
+/** The week counts by the word points v2 (docs/32): the keys of v2 are there. */
+const v2 = computed(() => (data.value?.rules_version ?? 0) >= 2)
 
 const ratingTabs = useRatingTabs()
 
@@ -124,19 +131,54 @@ function zoneOf(rank: number): LeagueZone {
 
 const rowName = (row: LeagueStandingItem): string => row.name || t('league.anonymous')
 
-/** The row right above mine: what it takes to pass it ("to 3rd place — 25 points"). */
+/**
+ * The row right above mine: what it takes to pass it ("to 3rd place — 25 points"). In a v2 week the places are shared (1, 2, 2, 4):
+ * the nearest row that is strictly better.
+ */
 const above = computed((): LeagueStandingItem | null => {
   const m = membership.value
   if (!m || m.rank <= 1) return null
-  return m.standings.find((row) => row.rank === m.rank - 1) ?? null
+  if (m.next_gap === undefined) return m.standings.find((row) => row.rank === m.rank - 1) ?? null
+  let nearest: LeagueStandingItem | null = null
+  for (const row of m.standings) {
+    if (row.rank < m.rank && row.points > m.points && (nearest === null || row.rank > nearest.rank)) nearest = row
+  }
+  return nearest
 })
 
-/** Points to pass the row above: one more than the difference (an equal score does not pass it). */
+/** The place "to" is about: the nearest better one. */
+const aboveRank = computed(() => above.value?.rank ?? (membership.value?.rank ?? 2) - 1)
+
+/**
+ * Points to pass the row above: one more than the difference (an equal score does not pass it). A v2 week says it itself (`next_gap`,
+ * null for a leader, a shared first place too).
+ */
 const toNext = computed((): number | null => {
   const m = membership.value
+  if (m && m.next_gap !== undefined) return m.next_gap
   const row = above.value
   return m && row ? Math.max(1, row.points - m.points + 1) : null
 })
+
+/** A v2 week: the first place is shared with someone - "ahead of everyone" would not be true. */
+const sharedFirst = computed(() => {
+  const m = membership.value
+  return m !== null && m.rank === 1 && m.standings.some((row) => !row.is_me && row.rank === 1)
+})
+
+/** The table of the group (v2): "Group Pro". */
+const categoryLabel = computed(() => {
+  const category = membership.value?.category
+  if (category === undefined) return ''
+  return t('league.category', { category: t(category === 'pro' ? 'score.category.pro' : 'score.category.free') })
+})
+
+/** The tie-break facts of a row of a v2 week, compact: "5 дн. · долгих: 3" (no long repetitions - the days alone). */
+function rowFacts(row: LeagueStandingItem): string {
+  if (row.active_days === undefined) return ''
+  const days = t('league.row.days', { count: row.active_days })
+  return (row.long_words ?? 0) > 0 ? `${days} · ${t('league.row.long', { count: row.long_words ?? 0 })}` : days
+}
 
 /** "How to climb higher": the title by where the learner stands, the line by what gives points to this learner. */
 const climbTitle = computed(() => {
@@ -145,6 +187,8 @@ const climbTitle = computed(() => {
   return m.rank <= 1 ? t('league.climb.title_first') : t('league.climb.title')
 })
 const climbText = computed(() => t(billing.gameAccess.available ? 'league.climb.points_caravan' : 'league.climb.points'))
+/** The rules of a v2 week: what gives points (the Caravan only while the game is open to the learner). */
+const rulesPoints = computed(() => t(billing.gameAccess.available ? 'league.rules_v2.points_caravan' : 'league.rules_v2.points'))
 
 /** A group longer than this is folded: the top and my neighbours, until "All the table". */
 const FOLDED_ROWS = 7
@@ -154,16 +198,19 @@ interface TableLine {
   key: string
   row?: LeagueStandingItem
   text?: string
+  /** The place of the row in the whole table (0-based): the fold is told by it, as shared places repeat a rank. */
+  index?: number
 }
 
 const folds = computed(() => (membership.value?.standings.length ?? 0) > FOLDED_ROWS + 1)
 
-const visibleRows = computed((): LeagueStandingItem[] => {
+const visibleRows = computed((): Array<{ row: LeagueStandingItem; index: number }> => {
   const m = membership.value
   if (!m) return []
-  if (!folds.value || expanded.value) return m.standings
-  if (m.rank <= FOLDED_ROWS - 1) return m.standings.filter((row) => row.rank <= FOLDED_ROWS)
-  return m.standings.filter((row) => row.rank <= 3 || Math.abs(row.rank - m.rank) <= 1)
+  const all = m.standings.map((row, index) => ({ row, index }))
+  if (!folds.value || expanded.value) return all
+  if (m.rank <= FOLDED_ROWS - 1) return all.filter(({ row }) => row.rank <= FOLDED_ROWS)
+  return all.filter(({ row }) => row.rank <= 3 || Math.abs(row.rank - m.rank) <= 1)
 })
 
 /**
@@ -181,18 +228,20 @@ const tableLines = computed((): TableLine[] => {
 
   const lines: TableLine[] = []
   let previous: number | null = null
-  for (const row of visibleRows.value) {
+  let previousIndex = -1
+  for (const { row, index } of visibleRows.value) {
     if (previous !== null) {
       if (promoteAfter !== null && upTier !== undefined && previous <= promoteAfter && row.rank > promoteAfter) {
         lines.push({ kind: 'promotion', key: 'promotion', text: t('league.line.promotion', { tier: tierName(upTier) }) })
       }
-      if (row.rank > previous + 1) lines.push({ kind: 'gap', key: `gap-${row.rank}` })
+      if (index > previousIndex + 1) lines.push({ kind: 'gap', key: `gap-${index}` })
       if (demoteFrom !== null && downTier !== undefined && previous < demoteFrom && row.rank >= demoteFrom) {
         lines.push({ kind: 'demotion', key: 'demotion', text: t('league.line.demotion', { tier: tierName(downTier) }) })
       }
     }
-    lines.push({ kind: 'row', key: `row-${row.rank}`, row })
+    lines.push({ kind: 'row', key: `row-${index}`, row, index })
     previous = row.rank
+    previousIndex = index
   }
   return lines
 })
@@ -269,6 +318,11 @@ onMounted(() => {
 
           <div class="relative flex max-w-[210px] flex-col gap-1">
             <p v-if="eyebrow" class="text-sm leading-[18px] font-semibold" data-testid="eyebrow">{{ eyebrow }}</p>
+            <span
+              v-if="categoryLabel"
+              class="self-start rounded-full bg-surface px-2.5 text-xs leading-6 font-bold text-accent"
+              data-testid="category"
+            >{{ categoryLabel }}</span>
             <h2 class="text-[26px] leading-8 font-extrabold tracking-[-0.5px] break-words" data-testid="tier">{{ heading }}</h2>
             <svg aria-hidden="true" width="150" height="10" viewBox="0 0 150 10" fill="none" class="max-w-full stroke-primary/60">
               <path d="M3 7c40-5 90-6 144-3" stroke-width="4" stroke-linecap="round" />
@@ -287,8 +341,9 @@ onMounted(() => {
             <span class="h-[30px] w-px shrink-0 bg-accent-line" aria-hidden="true" />
             <p class="min-w-0 text-[13px] leading-[17px]" data-testid="to-next">
               <template v-if="toNext !== null">
-                {{ t('league.to_next_short', { rank: membership.rank - 1 }) }}<br />{{ tn('league.score', toNext) }}
+                {{ t('league.to_next_short', { rank: aboveRank }) }}<br />{{ tn('league.score', toNext) }}
               </template>
+              <template v-else-if="sharedFirst">{{ t('league.shared_first') }}</template>
               <template v-else>{{ t('league.first_place') }}</template>
             </p>
           </div>
@@ -330,8 +385,14 @@ onMounted(() => {
                 :data-zone="zoneOf(line.row.rank)"
                 data-testid="rank"
               >{{ line.row.rank }}</span>
-              <span class="min-w-0 flex-1 truncate text-base leading-[22px] font-bold">
-                {{ line.row.is_me ? `${rowName(line.row)} · ${t('league.you')}` : rowName(line.row) }}
+              <span class="flex min-w-0 flex-1 flex-col">
+                <PlayerName
+                  :name="rowName(line.row)"
+                  :emoji="line.row.pro_emoji"
+                  :suffix="line.row.is_me ? `· ${t('league.you')}` : undefined"
+                  class="text-base leading-[22px] font-bold"
+                />
+                <span v-if="v2 && rowFacts(line.row)" class="truncate text-xs leading-4 text-muted" data-testid="row-facts">{{ rowFacts(line.row) }}</span>
               </span>
               <span class="shrink-0 text-base leading-[22px] font-bold tabular-nums" data-testid="points">{{ line.row.points }}</span>
             </div>
@@ -400,7 +461,12 @@ onMounted(() => {
           </summary>
           <div class="space-y-2 px-3.5 pt-1 pb-4 text-[15px] leading-[22px] text-muted">
             <p v-if="closesLine" data-testid="closes">{{ closesLine }}</p>
-            <p>{{ t('league.rules', { capacity: data.rules.capacity, promote: data.rules.promote, demote: data.rules.demote }) }}</p>
+            <template v-if="v2">
+              <p data-testid="rules-groups">{{ t('league.rules_v2', { capacity: data.rules.capacity, promote: data.rules.promote, demote: data.rules.demote }) }}</p>
+              <p data-testid="rules-points">{{ rulesPoints }}</p>
+              <p data-testid="rules-best-days">{{ t('league.rules_v2.best_days', { days: WEEK_BEST_DAYS }) }}</p>
+            </template>
+            <p v-else>{{ t('league.rules', { capacity: data.rules.capacity, promote: data.rules.promote, demote: data.rules.demote }) }}</p>
           </div>
         </details>
 

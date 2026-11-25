@@ -101,6 +101,13 @@ export const useBattleSetupStore = defineStore('battleSetup', {
       return friend?.first_name || null
     },
 
+    /** The friend's emoji of Pro (docs/31 §5а), from the same places as the name; null - none (no Pro, an older server). */
+    friendEmoji(state): string | null {
+      if (state.options) return state.options.friend.pro_emoji ?? null
+      const friend = useFriendsStore().friends?.friends.find((item) => item.id === state.friendshipId)
+      return friend?.pro_emoji ?? null
+    },
+
     selectedMode(state): BattleModeOption | null {
       return state.options?.modes.find((option) => option.mode === state.mode) ?? null
     },

@@ -6,11 +6,12 @@ import MonthlyRatingView from '../MonthlyRatingView.vue'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
-import type { MonthlyLastMonth, MonthlyMe, MonthlyRatingResponse } from '@/api/types'
+import { useMonthlyRatingStore } from '@/stores/monthlyRating'
+import type { BoardRow, LeagueBoardPage, MonthlyLastMonth, MonthlyMe, MonthlyRatingResponse, ScoreCategory } from '@/api/types'
 
 const state = vi.hoisted(() => ({ ensure: vi.fn(), showBack: vi.fn(), hideBack: vi.fn() }))
 
-vi.mock('@/api', () => ({ api: { league: { month: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { league: { month: vi.fn(), monthPage: vi.fn() }, me: { get: vi.fn() }, today: { get: vi.fn() } } }))
 vi.mock('@/stores/auth', () => ({ useAuthStore: () => ({ ensure: state.ensure }) }))
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({ showBackButton: state.showBack, webApp: { BackButton: { hide: state.hideBack } } }),
@@ -345,5 +346,244 @@ describe('MonthlyRatingView', () => {
     expect(wrapper.findAll('[data-testid=prize]')[0]?.text()).toBe("1-o'rin — Наушники")
     expect(wrapper.get('[data-testid=seg-month]').text()).toBe('Oy')
     expect(wrapper.get('[data-testid=last-month]').text()).toContain("G'oliblar: 2026-yil oktabr")
+  })
+  describe('a month of the word points v2 (docs/32 §8.3, §12.9)', () => {
+    const boardRow = (rank: number, overrides: Partial<BoardRow> = {}): BoardRow => ({
+      rank, name: `Member ${rank}`, points: 1000 - rank * 10, long_words: 1, active_days: 5, is_me: false, pro_emoji: null, ...overrides,
+    })
+
+    /** The learner's own table is Free: 12th place, the top of 10, two neighbours above and below, more pages after the top. */
+    const v2 = (overrides: Partial<MonthlyRatingResponse> = {}): MonthlyRatingResponse =>
+      response({
+        rules_version: 2,
+        category: 'free',
+        my_category: 'free',
+        read_only: false,
+        top: top(10, null).map((row, i) => ({ ...row, long_words: 2, pro_emoji: i === 0 ? '🦁' : null })),
+        me: me({ category: 'free', long_words: 3, next_gap: 11 }),
+        neighbours: { above: [boardRow(10, { points: 910, long_words: 2, active_days: 10 }), boardRow(11, { points: 350 })], below: [boardRow(13, { points: 300 }), boardRow(14, { points: 290 })] },
+        next_cursor: 'm2026-11f.page2',
+        ...overrides,
+      })
+
+    /** The other table (Pro), as the server answers `?category=pro` for a Free learner. */
+    const proTable = (): MonthlyRatingResponse =>
+      v2({
+        category: 'pro',
+        read_only: true,
+        month: { ...response().month, participants: 7 },
+        prizes: [{ place: 1, title: 'Планшет' }, { place: 2, title: 'Колонка' }, { place: 3, title: 'Книга' }],
+        top: [{ rank: 1, name: 'Pro One', points: 500, active_days: 9, is_me: false, pro_emoji: '🚀', long_words: 4 }],
+        me: me({ category: 'free', long_words: 3, next_gap: null }),
+        neighbours: null,
+        next_cursor: null,
+      })
+
+    function byCategory(tables: Partial<Record<ScoreCategory | 'own', MonthlyRatingResponse>>) {
+      vi.mocked(api.league.month).mockImplementation(async (category?: ScoreCategory) => tables[category ?? 'own'] ?? v2())
+    }
+
+    beforeEach(() => {
+      // `/me` (the region card asks it best effort): never answers here
+      vi.mocked(api.me.get).mockReturnValue(new Promise(() => {}))
+    })
+
+    const page = (rows: BoardRow[], next: string | null = null): LeagueBoardPage => ({ rules_version: 2, category: 'free', read_only: false, rows, next_cursor: next })
+
+    it('a v1 month: no switch, no "show more", no neighbours, the pinned row as before', async () => {
+      const { wrapper } = await render()
+
+      expect(has(wrapper, 'category-switch')).toBe(false)
+      expect(has(wrapper, 'more')).toBe(false)
+      expect(has(wrapper, 'neighbours')).toBe(false)
+      expect(has(wrapper, 'next-gap')).toBe(false)
+      expect(has(wrapper, 'participants')).toBe(false)
+      expect(has(wrapper, 'row-pinned')).toBe(true)
+      expect(wrapper.get('[data-testid=prizes] h2').text()).toBe('Призы')
+    })
+
+    it('my own table: the switch on Free, its prizes and participants, my place with the way to the next one, neighbours around me', async () => {
+      const { wrapper } = await render(v2())
+
+      expect(wrapper.get('[data-testid=category-free]').attributes('aria-checked')).toBe('true')
+      expect(wrapper.get('[data-testid=category-pro]').attributes('aria-checked')).toBe('false')
+      expect(has(wrapper, 'read-only')).toBe(false)
+      expect(wrapper.get('[data-testid=prizes] h2').text()).toBe('Призы · Free')
+      expect(wrapper.findAll('[data-testid=prize]')).toHaveLength(3)
+      expect(text(wrapper, 'participants')).toBe('40 участников')
+      expect(text(wrapper, 'my-place')).toBe('Вы на 12 месте · 340 баллов')
+      // the nearest better row on screen is the neighbour on the 11th place
+      expect(text(wrapper, 'next-gap')).toBe('До 11-го места — 11 баллов')
+      expect(text(wrapper, 'long-words')).toBe('Долгих повторений: 3')
+
+      // the neighbour on the 10th place is in the top already: not repeated
+      const near = wrapper.findAll('[data-testid=row-near]').map((row) => row.get('[data-testid=rank]').text())
+      expect(near).toEqual(['11', '13', '14'])
+      expect(wrapper.get('[data-testid=row-near-me] [data-testid=rank]').text()).toBe('12')
+      expect(has(wrapper, 'row-pinned')).toBe(false)
+      expect(wrapper.findAll('[data-testid=row]')[0]?.get('[data-testid=pro-emoji]').text()).toBe('🦁')
+      expect(wrapper.findAll('[data-testid=row]')[1]?.find('[data-testid=pro-emoji]').exists()).toBe(false)
+      expect(text(wrapper, 'rules-points')).toContain('Free и Pro соревнуются в отдельных таблицах')
+    })
+
+    it('switches to the other table: one request of the month, nothing else; the table is read only, no neighbours, my card stays', async () => {
+      byCategory({ own: v2(), pro: proTable() })
+      const router = makeRouter()
+      await router.push('/league/month')
+      await router.isReady()
+      const wrapper = mount(MonthlyRatingView, { global: { plugins: [router] } })
+      await flushPromises()
+      const meCalls = vi.mocked(api.me.get).mock.calls.length
+
+      await wrapper.get('[data-testid=category-pro]').trigger('click')
+      await flushPromises()
+
+      expect(vi.mocked(api.league.month).mock.calls).toEqual([[undefined], ['pro']])
+      expect(api.me.get).toHaveBeenCalledTimes(meCalls)
+      expect(api.today.get).not.toHaveBeenCalled()
+      expect(wrapper.get('[data-testid=category-pro]').attributes('aria-checked')).toBe('true')
+      expect(text(wrapper, 'read-only')).toBe('Это таблица Pro. Вы соревнуетесь в таблице Free.')
+      expect(wrapper.get('[data-testid=prizes] h2').text()).toBe('Призы · Pro')
+      expect(wrapper.findAll('[data-testid=prize]')[0]?.text()).toBe('1 место — Планшет')
+      expect(text(wrapper, 'participants')).toBe('7 участников')
+      expect(text(wrapper, 'my-place')).toBe('Вы на 12 месте · 340 баллов')
+      expect(has(wrapper, 'neighbours')).toBe(false)
+      expect(has(wrapper, 'row-pinned')).toBe(false)
+      expect(has(wrapper, 'next-gap')).toBe(false)
+      expect(has(wrapper, 'more')).toBe(false)
+      expect(wrapper.get('[data-testid=row] [data-testid=pro-emoji]').text()).toBe('🚀')
+
+      // back to my own table, asked by name
+      await wrapper.get('[data-testid=category-free]').trigger('click')
+      await flushPromises()
+      expect(vi.mocked(api.league.month).mock.calls.at(-1)).toEqual(['free'])
+      expect(has(wrapper, 'read-only')).toBe(false)
+    })
+
+    it('a tap on the table shown asks nothing', async () => {
+      const { wrapper } = await render(v2())
+      await wrapper.get('[data-testid=category-free]').trigger('click')
+      await flushPromises()
+
+      expect(api.league.month).toHaveBeenCalledTimes(1)
+    })
+
+    it('"Show more" loads the page after the cursor and appends its rows as they are; the last page hides the button', async () => {
+      const { wrapper } = await render(v2())
+      vi.mocked(api.league.monthPage).mockResolvedValueOnce(page([boardRow(11, { pro_emoji: '⭐' }), boardRow(11, { name: 'Tie' })], 'm2026-11f.page3'))
+
+      await wrapper.get('[data-testid=more]').trigger('click')
+      await flushPromises()
+
+      expect(api.league.monthPage).toHaveBeenCalledWith('free', 'm2026-11f.page2')
+      const ranks = wrapper.findAll('[data-testid=row]').map((row) => row.get('[data-testid=rank]').text())
+      expect(ranks.slice(-2)).toEqual(['11', '11'])
+      expect(wrapper.findAll('[data-testid=row]').at(-2)?.get('[data-testid=pro-emoji]').text()).toBe('⭐')
+
+      vi.mocked(api.league.monthPage).mockResolvedValueOnce(page([boardRow(12, { is_me: true, points: 340 }), boardRow(13)], null))
+      await wrapper.get('[data-testid=more]').trigger('click')
+      await flushPromises()
+
+      expect(api.league.monthPage).toHaveBeenLastCalledWith('free', 'm2026-11f.page3')
+      expect(has(wrapper, 'more')).toBe(false)
+      // my row is in the list now: no neighbours block, no pinned row
+      expect(has(wrapper, 'row-me')).toBe(true)
+      expect(has(wrapper, 'neighbours')).toBe(false)
+      expect(has(wrapper, 'row-pinned')).toBe(false)
+      expect(api.league.month).toHaveBeenCalledTimes(1)
+    })
+
+    it('a double tap on "Show more" sends one request', async () => {
+      const { wrapper } = await render(v2())
+      let answer: (value: LeagueBoardPage) => void = () => {}
+      vi.mocked(api.league.monthPage).mockReturnValueOnce(new Promise((resolve) => (answer = resolve)))
+
+      await wrapper.get('[data-testid=more]').trigger('click')
+      expect(wrapper.get('[data-testid=more]').attributes('disabled')).toBeDefined()
+      await useMonthlyRatingStore().loadMore()
+      answer(page([boardRow(11)], null))
+      await flushPromises()
+
+      expect(api.league.monthPage).toHaveBeenCalledTimes(1)
+      expect(wrapper.findAll('[data-testid=row]')).toHaveLength(11)
+    })
+
+    it('a stale cursor (422 invalid_cursor) reloads the table from its start', async () => {
+      const { wrapper } = await render(v2())
+      vi.mocked(api.league.monthPage).mockRejectedValueOnce(new ApiClientError('validation', 422, 'invalid_cursor', 'x'))
+      vi.mocked(api.league.month).mockResolvedValueOnce(v2({ next_cursor: 'm2026-12f.fresh' }))
+
+      await wrapper.get('[data-testid=more]').trigger('click')
+      await flushPromises()
+
+      expect(api.league.month).toHaveBeenCalledTimes(2)
+      expect(useMonthlyRatingStore().cursor).toBe('m2026-12f.fresh')
+      expect(has(wrapper, 'more-error')).toBe(false)
+      expect(wrapper.findAll('[data-testid=row]')).toHaveLength(10)
+    })
+
+    it('another failure of a page keeps the list and the button to try again', async () => {
+      const { wrapper } = await render(v2())
+      vi.mocked(api.league.monthPage).mockRejectedValueOnce(new ApiClientError('network', 0, 'network', 'x'))
+
+      await wrapper.get('[data-testid=more]').trigger('click')
+      await flushPromises()
+
+      expect(has(wrapper, 'more-error')).toBe(true)
+      expect(wrapper.get('[data-testid=more]').attributes('disabled')).toBeUndefined()
+      expect(api.league.month).toHaveBeenCalledTimes(1)
+    })
+
+    it('a page that comes back after the table was switched is dropped', async () => {
+      byCategory({ own: v2(), pro: proTable() })
+      const router = makeRouter()
+      await router.push('/league/month')
+      await router.isReady()
+      const wrapper = mount(MonthlyRatingView, { global: { plugins: [router] } })
+      await flushPromises()
+      let answer: (value: LeagueBoardPage) => void = () => {}
+      vi.mocked(api.league.monthPage).mockReturnValueOnce(new Promise((resolve) => (answer = resolve)))
+
+      await wrapper.get('[data-testid=more]').trigger('click')
+      await wrapper.get('[data-testid=category-pro]').trigger('click')
+      await flushPromises()
+      answer(page([boardRow(11)], 'late'))
+      await flushPromises()
+
+      expect(useMonthlyRatingStore().more).toEqual([])
+      expect(wrapper.findAll('[data-testid=row]')).toHaveLength(1)
+    })
+
+    it('last month: the winners of each table under its name, a table without winners left out', async () => {
+      const winners = last().winners
+      const { wrapper } = await render(v2({
+        last_month: last({ winners, winners_by_category: { free: winners, pro: [{ place: 1, name: 'Pro One', points: 700 }] }, me: { rank: 4, points: 500, category: 'free' } }),
+      }))
+
+      expect(wrapper.findAll('[data-testid=winners-category]').map((el) => el.text())).toEqual(['Free', 'Pro'])
+      expect(wrapper.findAll('[data-testid=winner]')).toHaveLength(4)
+      expect(wrapper.findAll('[data-testid=winner]')[3]?.text()).toContain('Pro One')
+      expect(text(wrapper, 'last-me')).toBe('Ваше место: 4')
+
+      const onlyFree = await render(v2({ last_month: last({ winners_by_category: { free: winners, pro: [] } }) }))
+      expect(onlyFree.wrapper.findAll('[data-testid=winners-category]').map((el) => el.text())).toEqual(['Free'])
+    })
+
+    it('in Uzbek', async () => {
+      setLocale('uz')
+      byCategory({ own: v2(), pro: proTable() })
+      const router = makeRouter()
+      await router.push('/league/month')
+      await router.isReady()
+      const wrapper = mount(MonthlyRatingView, { global: { plugins: [router] } })
+      await flushPromises()
+
+      expect(text(wrapper, 'next-gap')).toBe("11-o'ringacha — 11 ball")
+      expect(wrapper.get('[data-testid=more]').text()).toBe("Yana ko'rsatish")
+      await wrapper.get('[data-testid=category-pro]').trigger('click')
+      await flushPromises()
+      expect(text(wrapper, 'read-only')).toBe('Bu Pro jadvali. Siz Free jadvalida bellashyapsiz.')
+      expect(wrapper.get('[data-testid=prizes] h2').text()).toBe('Sovrinlar · Pro')
+    })
   })
 })

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InitialAvatar from '@/components/InitialAvatar.vue'
+import PlayerName from '@/components/PlayerName.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import BottomSheet from '@/components/ui/BottomSheet.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -60,7 +61,7 @@ const subtitleOf = (friend: FriendItem): string =>
       >
         <InitialAvatar :name="nameOf(friend)" />
         <span class="min-w-0 flex-1">
-          <span class="block truncate text-[15px] leading-5 font-semibold">{{ nameOf(friend) }}</span>
+          <PlayerName :name="nameOf(friend)" :emoji="friend.pro_emoji" class="text-[15px] leading-5 font-semibold" />
           <span class="block truncate text-[13px] leading-[18px] text-muted">{{ subtitleOf(friend) }}</span>
         </span>
         <AppIcon name="chevron-right" :size="16" class="text-muted" />
