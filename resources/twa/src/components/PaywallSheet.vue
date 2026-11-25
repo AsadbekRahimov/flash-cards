@@ -11,6 +11,7 @@ import { formatDate } from '@/composables/format'
 import { paywallPlacement, reportOfferViewed } from '@/composables/offerViewed'
 import { resetWhen } from '@/composables/practiceLimits'
 import { supportContactLink } from '@/composables/supportContact'
+import { BRAND_PRO } from '@/brand'
 import { useBillingStore } from '@/stores/billing'
 import { useSettingsStore } from '@/stores/settings'
 import { useTodayStore } from '@/stores/today'
@@ -32,17 +33,19 @@ export type PaywallReason =
   | 'trial_ended'
 
 /**
- * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6, the Pro mock-up of docs/design): a white bottom sheet with a grabber and a close
- * button; "Muhrla Pro" above the title, the title is the reason the sheet is open (`HEADINGS`, by the placement), the lead, what Free
- * gives and the three main things Pro gives (`ProBenefits short`: the name on the left, the note on the right).
+ * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6, docs/design/2026-11-25-redesign Pro): a white bottom sheet with a grabber and a close
+ * button; the chip "Muhrla Pro" (a crown, `BRAND_PRO`) above the title, the title is the reason the sheet is open (`HEADINGS`, by the
+ * placement), the lead, what Free gives and the three main things Pro gives (`ProBenefits short`: a tick, the name, the note under it).
  *
  * Mode `coming_soon` (Phase 1): "Pro is coming", what Free gives, a promo code field and — only when
  * the owner configured one — the support contact for centers.
  *
  * Mode `purchase` (the server reports it only while something is for sale, see `/me`): the offer chip, the periods as cards in a row
- * (month → quarter → year, only the ones `GET /billing/catalog` sent; each with its price and, when it saves, "N % cheaper"), the
- * primary button with the price in it ("Get Pro for 150 Stars", the first provider that prices the chosen period), "Not now", a small
- * line on how the payment goes (the way of the payment in progress once one was started here, else the primary button's), and the
+ * (month → quarter → year, only the ones `GET /billing/catalog` sent; each with its price and, when it saves, "N % cheaper" — the
+ * catalog's number, never one of the mock-up; a chosen card that saves nothing says "chosen"), the primary button with the price in it
+ * ("Get Pro for 150 Stars", the first provider that prices the chosen period), "Not now", a small line on how the payment goes (the way
+ * of the payment in progress once one was started here, else the primary button's; "without auto-renewal" only where it is so: a Stars
+ * month is a Telegram subscription that renews itself every 30 days, the line says that instead), and the
  * other providers below — then the order is polled until the webhook has paid it. Every period offers the providers whose currency
  * the catalog prices it in (the quarter, like the month and the year, in Stars and in sums). Stars opens the
  * Telegram invoice, Payme / Click the payment page. The switch is `billing.canPurchase` (mode `purchase` AND a
@@ -388,6 +391,12 @@ const primaryLabel = computed((): string => {
   return t(extendUntil.value !== null ? 'billing.pay_cta_renew' : 'billing.pay_cta', { price: option.price })
 })
 
+/**
+ * Whether a payment renews by itself: only a Stars month is a Telegram subscription (`subscription_period` 30 days); a Stars quarter or
+ * year and every payment by Payme / Click pay one period (docs/13 §0).
+ */
+const renewsItself = (provider: BillingProviderKey, of: BillingPeriod | null): boolean => provider === 'telegram_stars' && of === 'month'
+
 /** The way the learner started paying from this sheet: the line under the button names it while that payment goes on. */
 const payingWith = ref<BillingProviderKey | null>(null)
 
@@ -492,13 +501,21 @@ onBeforeUnmount(() => {
       <div ref="scroller" class="-mx-4 min-h-0 flex-1 overflow-y-auto overscroll-contain px-4" data-testid="paywall-scroll" @scroll.passive="measure">
         <div class="pb-4">
           <header class="flex flex-col gap-2.5 pt-3 pr-8 short:gap-1.5 short:pt-1">
-            <p class="text-[13px] leading-[18px] text-muted" data-testid="paywall-eyebrow">{{ t('billing.plan.pro') }}</p>
-            <h2 class="text-[26px] leading-8 font-semibold tracking-[-0.4px] short:text-[22px] short:leading-7" data-testid="paywall-title">{{ title }}</h2>
+            <p class="flex">
+              <span class="inline-flex h-7 items-center gap-1.5 rounded-full bg-accent-soft px-3 text-[13px] leading-none font-bold text-accent" data-testid="paywall-eyebrow">
+                <!-- The crown of the mock-up. -->
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 18h16l1-10-5 4-4-7-4 7-5-4z" />
+                </svg>
+                {{ BRAND_PRO }}
+              </span>
+            </p>
+            <h2 class="text-[28px] leading-[34px] font-extrabold tracking-[-0.5px] short:text-[22px] short:leading-7" data-testid="paywall-title">{{ title }}</h2>
 
             <InlineAlert v-if="paid" tone="success" :message="paidMessage" data-testid="paywall-paid" />
 
             <template v-if="!done">
-              <p v-if="lead" class="text-[15px] leading-[22px] text-muted" data-testid="paywall-lead">{{ lead }}</p>
+              <p v-if="lead" class="text-[15px] leading-[21px] text-muted" data-testid="paywall-lead">{{ lead }}</p>
 
               <p v-if="freeLine" class="text-[13px] leading-[18px] text-muted" data-testid="paywall-free">{{ freeLine }}</p>
             </template>
@@ -529,24 +546,29 @@ onBeforeUnmount(() => {
                 class="flex min-h-11 min-w-0 flex-col gap-1 rounded-card text-left disabled:opacity-50"
                 :class="[
                   periodCards.length > 2 ? 'px-2.5 py-3' : 'p-3.5',
-                  card.period === period ? 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]' : 'border border-hairline bg-surface',
+                  card.period === period ? 'border-2 border-primary bg-accent-soft' : 'border border-hairline bg-surface',
                 ]"
                 :data-testid="`period-${card.period}`"
                 @click="choosePeriod(card.period)"
               >
-                <span class="text-[13px] leading-[18px] text-muted">{{ card.label }}</span>
+                <span class="text-sm leading-[18px] text-muted">{{ card.label }}</span>
                 <span data-testid="period-price">
                   <span
-                    class="block font-semibold whitespace-nowrap"
+                    class="block font-extrabold whitespace-nowrap"
                     :class="periodCards.length > 2 ? 'text-[17px] leading-[22px]' : 'text-[22px] leading-[26px]'"
                   >{{ splitPrice(card.price).amount }}</span> <span class="block text-[13px] leading-[18px] text-muted">{{ splitPrice(card.price).unit }}</span>
                 </span>
                 <s v-if="card.listPrice" class="text-[13px] leading-[18px] text-muted" data-testid="period-list-price">{{ card.listPrice }}</s>
                 <span
-                  class="min-h-[18px] text-[13px] leading-[18px]"
-                  :class="card.period === period ? 'text-accent-ink' : 'text-muted'"
+                  v-if="card.pct !== null"
+                  class="min-h-[18px] text-[13px] leading-[18px] font-bold text-success-ink"
                   data-testid="period-saving"
                 >{{ savingText(card.pct) }}</span>
+                <span
+                  v-else
+                  class="min-h-[18px] text-[13px] leading-[18px] font-bold text-accent-ink"
+                  data-testid="period-saving"
+                >{{ card.period === period ? t('billing.period.chosen') : '' }}</span>
               </button>
             </div>
 
@@ -699,8 +721,12 @@ onBeforeUnmount(() => {
           <button type="button" class="btn btn-plain btn-block" data-testid="paywall-close" @click="emit('close')">
             {{ t('paywall.not_now') }}
           </button>
-          <p v-if="payMethod" class="text-center text-xs leading-4 text-muted" data-testid="pay-method">
-            {{ t('billing.pay_via', { provider: t(`billing.provider.${payMethod}`) }) }}
+          <p v-if="payMethod" class="text-center text-xs leading-[17px] text-muted" data-testid="pay-method">
+            {{
+              t(renewsItself(payMethod, period) ? 'billing.pay_via_renews' : 'billing.pay_via_once', {
+                provider: t(`billing.provider.${payMethod}`),
+              })
+            }}
           </p>
         </template>
       </div>

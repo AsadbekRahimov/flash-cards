@@ -12,17 +12,25 @@ const state = vi.hoisted(() => ({
   ensure: vi.fn(),
   back: undefined as undefined | (() => void),
   hideBack: vi.fn(),
-  shareUrl: vi.fn(),
   haptic: vi.fn(),
+  /** `useShare().share`: by default the message went out (the mark runs); a test may hold it or end it otherwise. */
+  share: vi.fn(),
+  pending: { value: false },
 }))
 
 vi.mock('@/api', () => ({ api: { achievements: { list: vi.fn(), shared: vi.fn() } } }))
 
 vi.mock('@/stores/auth', () => ({ useAuthStore: () => ({ ensure: state.ensure }) }))
 
+vi.mock('@/composables/useShare', async () => {
+  const { ref } = await import('vue')
+  const pending = ref(false)
+  state.pending = pending
+  return { useShare: () => ({ pending, share: state.share }) }
+})
+
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
-    shareUrl: state.shareUrl,
     haptic: state.haptic,
     showBackButton: (handler: () => void) => {
       state.back = handler
@@ -83,6 +91,11 @@ describe('AchievementsView', () => {
     vi.clearAllMocks()
     state.back = undefined
     state.ensure.mockResolvedValue(undefined)
+    state.pending.value = false
+    state.share.mockImplementation(async (_kind: string, _subject: string | null, _fallback: unknown, onShared?: () => void) => {
+      onShared?.()
+      return 'sent'
+    })
   })
   afterEach(() => setLocale('ru'))
 
@@ -117,6 +130,9 @@ describe('AchievementsView', () => {
       expect(bar.classes()).toContain('progress')
       expect(bar.attributes('role')).toBe('progressbar')
       expect(bar.attributes('aria-valuenow')).toBe('50')
+      // the tinted card of the screen (docs/14 §4.5, 25.11.2026)
+      expect(wrapper.get('[data-testid=summary-card]').classes()).toEqual(expect.arrayContaining(['rounded-hero', 'bg-highlight']))
+      expect(wrapper.get('[data-testid=summary]').classes()).toContain('font-bold')
     })
 
     it('does not divide by zero for an empty catalog', async () => {
@@ -204,7 +220,7 @@ describe('AchievementsView', () => {
       expect(card(wrapper, 'league_top1').find('[data-testid=share-btn]').exists()).toBe(false)
     })
 
-    it('opens the Telegram share dialog with the link and the prefilled text, then marks the key as shared', async () => {
+    it('shares the achievement through the bot (the key as the subject, the link and the text as the fallback), then marks it', async () => {
       const refreshed = response({
         items: response().items.map((i) => (i.key === 'first_session' ? { ...i, shared_at: '2026-10-21T10:00:00+00:00' } : i)),
       })
@@ -215,7 +231,12 @@ describe('AchievementsView', () => {
       await card(wrapper, 'first_session').get('[data-testid=share-btn]').trigger('click')
       await flushPromises()
 
-      expect(state.shareUrl).toHaveBeenCalledWith('https://t.me/LexiFlowBot?start=ref_ABCD2345', 'Я получил(а) «Первый шаг»')
+      expect(state.share).toHaveBeenCalledWith(
+        'achievement',
+        'first_session',
+        { link: 'https://t.me/LexiFlowBot?start=ref_ABCD2345', text: 'Я получил(а) «Первый шаг»' },
+        expect.any(Function),
+      )
       expect(state.haptic).toHaveBeenCalled()
       expect(api.achievements.shared).toHaveBeenCalledWith('first_session')
       expect(card(wrapper, 'first_session').get('[data-testid=shared]').text()).toContain('Вы уже поделились')
@@ -229,15 +250,57 @@ describe('AchievementsView', () => {
       expect(shared.find('svg').exists()).toBe(true)
     })
 
-    it('still opened the dialog when marking as shared fails', async () => {
+    it('stays quiet when marking as shared fails', async () => {
       vi.mocked(api.achievements.shared).mockRejectedValue(new ApiClientError('network', 0, 'network', 'x'))
       const { wrapper } = await render()
 
       await card(wrapper, 'first_session').get('[data-testid=share-btn]').trigger('click')
       await flushPromises()
 
-      expect(state.shareUrl).toHaveBeenCalledTimes(1)
+      expect(state.share).toHaveBeenCalledTimes(1)
       expect(wrapper.find('[data-testid=error]').exists()).toBe(false)
+    })
+
+    it('puts no mark when the learner closed the chat picker', async () => {
+      state.share.mockResolvedValue('cancelled')
+      const { wrapper } = await render()
+
+      await card(wrapper, 'first_session').get('[data-testid=share-btn]').trigger('click')
+      await flushPromises()
+
+      expect(api.achievements.shared).not.toHaveBeenCalled()
+      expect(card(wrapper, 'first_session').find('[data-testid=shared]').exists()).toBe(false)
+    })
+
+    it('spins the button of the card being shared and holds every share button meanwhile', async () => {
+      let finish: (outcome: string) => void = () => undefined
+      state.share.mockImplementation(() => {
+        state.pending.value = true
+        return new Promise((resolve) => {
+          finish = (outcome) => {
+            state.pending.value = false
+            resolve(outcome)
+          }
+        })
+      })
+      const { wrapper } = await render()
+
+      await card(wrapper, 'first_session').get('[data-testid=share-btn]').trigger('click')
+      const busy = card(wrapper, 'first_session').get('[data-testid=share-btn]')
+      expect(busy.attributes('disabled')).toBeDefined()
+      expect(busy.attributes('aria-busy')).toBe('true')
+      expect(busy.find('[data-testid=share-busy]').exists()).toBe(true)
+      const other = card(wrapper, 'streak_7').get('[data-testid=share-btn]')
+      expect(other.attributes('disabled')).toBeDefined()
+      expect(other.find('[data-testid=share-busy]').exists()).toBe(false)
+
+      await other.trigger('click')
+      expect(state.share).toHaveBeenCalledTimes(1)
+
+      finish('cancelled')
+      await flushPromises()
+      expect(card(wrapper, 'first_session').get('[data-testid=share-btn]').attributes('disabled')).toBeUndefined()
+      expect(wrapper.find('[data-testid=share-busy]').exists()).toBe(false)
     })
 
     it('hides the share buttons while there is no invite link', async () => {
@@ -254,7 +317,7 @@ describe('AchievementsView', () => {
 
       await card(wrapper, 'odd').get('[data-testid=share-btn]').trigger('click')
 
-      expect(state.shareUrl).not.toHaveBeenCalled()
+      expect(state.share).not.toHaveBeenCalled()
       expect(api.achievements.shared).not.toHaveBeenCalled()
     })
   })

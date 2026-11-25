@@ -37,6 +37,15 @@ vi.mock('@/composables/useTelegram', () => ({
 
 vi.mock('@/composables/errorToast', () => ({ showErrorToast: vi.fn(), hideErrorToast: vi.fn() }))
 
+/** `useShare` of the screen: by default the plain dialog was taken (the mark runs as before); `pending` is the busy state of the button. */
+const sharing = vi.hoisted(() => ({ share: vi.fn(), pending: { value: false } }))
+vi.mock('@/composables/useShare', async () => {
+  const { ref } = await import('vue')
+  const pending = ref(false)
+  sharing.pending = pending
+  return { useShare: () => ({ pending, share: sharing.share }) }
+})
+
 const review = vi.hoisted(() => vi.fn())
 vi.mock('@/composables/useReviewFromPaywall', () => ({ useReviewFromPaywall: () => ({ reviewFromPaywall: review }) }))
 
@@ -481,7 +490,15 @@ describe('GameRunView — the fight with a boss (docs/05 §5b.8)', () => {
   const wonBoss = (extra: Partial<RunView> = {}) =>
     finishedRun('completed', { kind: 'boss', lesson_id: null, ...extra }, { stars: 3, boss: { accuracy: 92, won: true, first: true, share } })
 
-  it('a first win shows the card; "Поделиться" opens the dialog of Telegram with the pair of the server and puts the mark of the city once', async () => {
+  beforeEach(() => {
+    sharing.pending.value = false
+    sharing.share.mockImplementation(async (_kind: string, _subject: string | null, _fallback: unknown, onShared?: () => void) => {
+      onShared?.()
+      return 'fallback'
+    })
+  })
+
+  it('a first win shows the card; "Поделиться" shares the city through the bot with the pair of the server as the fallback, the mark once', async () => {
     vi.mocked(api.game.cityShared).mockResolvedValue({ stage_id: 3, shared_at: '2026-11-05T10:00:00.000Z' })
     const r = await render(wonBoss(), { course: 'english-a1', boss: 3 })
 
@@ -489,10 +506,37 @@ describe('GameRunView — the fight with a boss (docs/05 §5b.8)', () => {
     await click(r, 'share-btn')
     await click(r, 'share-btn')
 
-    expect(tg.shareUrl).toHaveBeenCalledWith(share.link, share.text)
-    expect(tg.shareUrl).toHaveBeenCalledTimes(2) // the dialog may be opened again
+    expect(sharing.share).toHaveBeenCalledWith('game_city', '3', { link: share.link, text: share.text }, expect.any(Function))
+    expect(sharing.share).toHaveBeenCalledTimes(2) // it may be shared again
     expect(api.game.cityShared).toHaveBeenCalledTimes(1) // the mark is once
     expect(api.game.cityShared).toHaveBeenCalledWith(3)
+    expect(tg.shareUrl).not.toHaveBeenCalled()
+    r.wrapper.unmount()
+  })
+
+  it('puts no mark when the learner closed the chat picker', async () => {
+    sharing.share.mockResolvedValue('cancelled')
+    const r = await render(wonBoss(), { course: 'english-a1', boss: 3 })
+
+    await click(r, 'share-btn')
+
+    expect(api.game.cityShared).not.toHaveBeenCalled()
+    r.wrapper.unmount()
+  })
+
+  it('holds the share button of the card with a spinner while the share is on its way', async () => {
+    const r = await render(wonBoss(), { course: 'english-a1', boss: 3 })
+
+    sharing.pending.value = true
+    await flushPromises()
+    expect(tid(r, 'share-btn').attributes('disabled')).toBeDefined()
+    expect(tid(r, 'share-btn').attributes('aria-busy')).toBe('true')
+    expect(has(r, 'share-busy')).toBe(true)
+
+    sharing.pending.value = false
+    await flushPromises()
+    expect(tid(r, 'share-btn').attributes('disabled')).toBeUndefined()
+    expect(has(r, 'share-busy')).toBe(false)
     r.wrapper.unmount()
   })
 
@@ -502,6 +546,7 @@ describe('GameRunView — the fight with a boss (docs/05 §5b.8)', () => {
 
     await click(r, 'share-btn')
 
+    expect(sharing.share).toHaveBeenCalledWith('game_city', '7', { link: share.link, text: share.text }, expect.any(Function))
     expect(api.game.cityShared).toHaveBeenCalledWith(7)
     r.wrapper.unmount()
   })
@@ -536,22 +581,24 @@ describe('GameRunView — the fight with a boss (docs/05 §5b.8)', () => {
     r.wrapper.unmount()
   })
 
-  it('a refused mark is silent: no toast, the dialog was opened', async () => {
+  it('a refused mark is silent: no toast, the share went its way', async () => {
     vi.mocked(api.game.cityShared).mockRejectedValue(apiError('not_found', 404, 'stage_not_found'))
     const r = await render(wonBoss(), { course: 'english-a1', boss: 3 })
 
     await click(r, 'share-btn')
 
-    expect(tg.shareUrl).toHaveBeenCalledTimes(1)
+    expect(sharing.share).toHaveBeenCalledTimes(1)
     expect(showErrorToast).not.toHaveBeenCalled()
     r.wrapper.unmount()
   })
 
-  it('without the stage of the boss in the address (a link, an old tab) the dialog opens and no mark is put', async () => {
+  it('without the stage of the boss in the address (a link, an old tab) there is nothing to prepare: the dialog opens and no mark is put', async () => {
     const r = await render(wonBoss())
 
     await click(r, 'share-btn')
 
+    expect(sharing.share).not.toHaveBeenCalled()
+    expect(tg.shareUrl).toHaveBeenCalledWith(share.link, share.text)
     expect(tg.shareUrl).toHaveBeenCalledTimes(1)
     expect(api.game.cityShared).not.toHaveBeenCalled()
     r.wrapper.unmount()

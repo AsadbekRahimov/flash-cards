@@ -19,8 +19,9 @@ const state = vi.hoisted(() => ({
   ensure: vi.fn(),
   showBack: vi.fn(),
   hideBack: vi.fn(),
-  shareUrl: vi.fn(),
   haptic: vi.fn(),
+  share: vi.fn(),
+  pending: { value: false },
 }))
 
 vi.mock('@/api', () => ({
@@ -49,9 +50,15 @@ vi.mock('@/components/PaywallSheet.vue', async () => {
   }
 })
 
+vi.mock('@/composables/useShare', async () => {
+  const { ref } = await import('vue')
+  const pending = ref(false)
+  state.pending = pending
+  return { useShare: () => ({ pending, share: state.share }) }
+})
+
 vi.mock('@/composables/useTelegram', () => ({
   useTelegram: () => ({
-    shareUrl: state.shareUrl,
     haptic: state.haptic,
     showBackButton: state.showBack,
     webApp: { BackButton: { hide: state.hideBack } },
@@ -153,6 +160,8 @@ describe('FriendsView', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     state.ensure.mockResolvedValue(undefined)
+    state.pending.value = false
+    state.share.mockResolvedValue('sent')
     // A learner who has no practice: the screen is the Friends screen of before the battles.
     vi.mocked(api.me.get).mockResolvedValue(meWith())
     vi.mocked(api.battles.list).mockResolvedValue(battleList())
@@ -244,13 +253,26 @@ describe('FriendsView', () => {
       expect(copy.classes()).toEqual(expect.arrayContaining(['btn', 'btn-tinted']))
     })
 
-    it('opens the Telegram share dialog with the f_ link', async () => {
+    it('shares the friend invitation through the bot, with the f_ link and the text as the fallback', async () => {
       const { wrapper } = await render()
 
       await wrapper.get('[data-testid=share-btn]').trigger('click')
 
-      expect(state.shareUrl).toHaveBeenCalledWith(LINK, 'Давай дружить в Muhrla: сравним серии и устроим вызов!')
+      expect(state.share).toHaveBeenCalledWith('friend_invite', null, { link: LINK, text: 'Давай дружить в Muhrla: сравним серии и устроим вызов!' })
       expect(state.haptic).toHaveBeenCalled()
+    })
+
+    it('holds the share button with a spinner while the share is on its way', async () => {
+      const { wrapper } = await render()
+
+      state.pending.value = true
+      await flushPromises()
+      const share = wrapper.get('[data-testid=share-btn]')
+      expect(share.attributes('disabled')).toBeDefined()
+      expect(share.find('[data-testid=share-busy]').exists()).toBe(true)
+      expect(share.text()).toBe('Поделиться ссылкой')
+      await share.trigger('click')
+      expect(state.share).not.toHaveBeenCalled()
     })
 
     it('copies the link and says "Скопировано" in a toast instead of changing the button', async () => {

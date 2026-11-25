@@ -29,7 +29,9 @@ const props = withDefaults(defineProps<{
   kind?: string
   /** The class caravan of a class-boss run: "To the class" leads there instead of "To the map". */
   classCaravanId?: number | null
-}>(), { canAgain: true, kind: 'stop', classCaravanId: null })
+  /** The share of the city card is on its way: its button is busy (`useShare` of the screen). */
+  sharing?: boolean
+}>(), { canAgain: true, kind: 'stop', classCaravanId: null, sharing: false })
 
 defineEmits<{ review: []; again: []; map: []; share: []; class: [] }>()
 
@@ -113,7 +115,7 @@ const streakHeld = computed((): boolean => !props.failed && props.summary.streak
         </div>
       </dl>
 
-      <CityCard v-if="card" :title="card.title" @share="$emit('share')" />
+      <CityCard v-if="card" :title="card.title" :busy="sharing" @share="$emit('share')" />
 
       <section v-if="rewards.length > 0 || streakHeld || summary.boss" class="list" data-testid="rewards">
         <p v-for="row in rewards" :key="row.key" class="list-row justify-between" :data-testid="`reward-${row.key}`">

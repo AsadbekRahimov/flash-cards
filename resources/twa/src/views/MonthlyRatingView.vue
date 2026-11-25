@@ -21,8 +21,9 @@ import { useI18n } from '@/i18n'
 /**
  * "Rating" tab, the Month pane (docs/13 §7.6, docs/14 §6.7, docs/04 A.19): the month's prizes, my place, the top (first names and
  * points only), how the points work and last month's winners. The points are the league's. A tab root: no system "Back" button.
- * Drawn in the language of the League screen (docs/design League): the days left above the title, the table as plain rows — the place
- * in mono, the first name, the points in mono, my row highlighted — no medals and no avatars.
+ * Drawn in the language of the League screen (docs/design/2026-11-25-redesign League): the brand row, the days left above the title, my
+ * place in the big tinted card, the top as rows of the group table — the place in a soft badge, the first name, the points, my row
+ * tinted — no medals and no avatars.
  */
 const auth = useAuthStore()
 const store = useMonthlyRatingStore()
@@ -102,14 +103,14 @@ onMounted(() => {
 
 <template>
   <div class="page" data-testid="month-view">
-    <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" class="mt-3.5" />
-    <PageHeader :eyebrow="data?.enabled ? daysLine || undefined : undefined" :title="title" large data-testid="month" />
+    <PageHeader brand :eyebrow="data?.enabled ? daysLine || undefined : undefined" :title="title" large data-testid="month" />
+    <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" class="mb-3.5" />
 
     <LoadingState v-if="!data && !message" />
 
     <ErrorState v-else-if="!data" :message="message" @retry="load" />
 
-    <div v-else class="space-y-3.5">
+    <div v-else class="space-y-3">
       <InlineAlert v-if="message" tone="danger" :message="message" data-testid="reload-error" />
 
       <section v-if="!data.enabled" class="card text-[15px] leading-[22px] text-muted" data-testid="disabled">
@@ -121,18 +122,18 @@ onMounted(() => {
         <RegionPromptCard />
 
         <section v-if="hasPrizes" class="list" data-testid="prizes">
-          <h2 class="px-[18px] pt-3.5 pb-1 text-[15px] leading-5 font-semibold">{{ t('month.prizes') }}</h2>
+          <h2 class="px-3.5 pt-3.5 pb-1 text-[19px] leading-6 font-extrabold">{{ t('month.prizes') }}</h2>
           <ul>
             <li
               v-for="prize in data.prizes"
               :key="prize.place"
-              class="border-b border-divider px-[18px] py-2.5 text-[15px] leading-5"
+              class="border-b border-divider px-3.5 py-2.5 text-[15px] leading-5"
               data-testid="prize"
             >
               {{ t('month.prize_place', { place: prize.place, title: prize.title }) }}
             </li>
           </ul>
-          <p class="px-[18px] py-3 text-[13px] leading-[18px] text-muted" data-testid="prizes-note">{{ t('month.prizes_note') }}</p>
+          <p class="px-3.5 py-3 text-[13px] leading-[18px] text-muted" data-testid="prizes-note">{{ t('month.prizes_note') }}</p>
         </section>
 
         <section v-if="optedOut" class="card" data-testid="opted-out">
@@ -142,15 +143,15 @@ onMounted(() => {
           </RouterLink>
         </section>
 
-        <section v-else-if="me === null" class="card" data-testid="not-started">
-          <p class="text-[15px] leading-[22px] font-semibold">{{ t('month.start_prompt') }}</p>
+        <section v-else-if="me === null" class="rounded-hero bg-highlight p-4" data-testid="not-started">
+          <p class="text-base leading-[22px] font-bold">{{ t('month.start_prompt') }}</p>
           <RouterLink :to="{ name: 'today' }" class="btn btn-primary btn-block mt-3" data-testid="start-btn">
             {{ t('league.daily_plan') }}
           </RouterLink>
         </section>
 
-        <section v-else class="card flex flex-col gap-1.5 px-[18px] py-4" data-testid="my-card">
-          <p class="text-[15px] leading-5 font-semibold" data-testid="my-place">
+        <section v-else class="flex flex-col gap-1.5 rounded-hero bg-highlight p-4" data-testid="my-card">
+          <p class="text-lg leading-6 font-extrabold tracking-[-0.2px]" data-testid="my-place">
             {{
               me.rank !== null
                 ? t('month.my_place', { rank: me.rank, points: tn('month.points', me.points) })
@@ -165,37 +166,41 @@ onMounted(() => {
           </p>
         </section>
 
-        <ListGroup v-if="data.top.length > 0" :header="t('month.top')" data-testid="top">
+        <!-- The top as the group table of the League mock-up: rows with a soft badge of the place, my row tinted. -->
+        <section v-if="data.top.length > 0" class="card px-2.5 pt-3.5 pb-2.5" :aria-label="t('month.top')" data-testid="top">
+          <h2 class="px-2.5 pb-1.5 text-[19px] leading-6 font-extrabold">{{ t('month.top') }}</h2>
           <div
             v-for="row in data.top"
             :key="row.rank"
-            class="flex items-center gap-3.5 px-[18px] py-3"
-            :class="{ 'bg-accent-soft': row.is_me }"
+            class="flex items-center gap-3.5 px-2.5 py-[9px]"
+            :class="row.is_me ? 'my-1 rounded-control bg-nav-active' : 'border-b border-divider'"
             :data-testid="row.is_me ? 'row-me' : 'row'"
           >
-            <span class="w-[18px] shrink-0 font-mono text-[13px]" :class="row.is_me ? 'text-accent-ink' : 'text-muted'" data-testid="rank">
-              {{ row.rank }}
-            </span>
-            <span class="min-w-0 flex-1 truncate text-[15px] leading-5" :class="{ 'font-semibold': row.is_me }">
+            <span
+              class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg text-[15px] font-bold text-accent tabular-nums"
+              :class="row.is_me ? 'bg-surface' : 'bg-accent-soft'"
+              data-testid="rank"
+            >{{ row.rank }}</span>
+            <span class="min-w-0 flex-1 truncate text-base leading-[22px] font-bold">
               {{ row.is_me ? `${rowName(row.name)} · ${t('league.you')}` : rowName(row.name) }}
             </span>
-            <span class="shrink-0 font-mono text-sm" :class="{ 'font-medium': row.is_me }" data-testid="points">{{ row.points }}</span>
+            <span class="shrink-0 text-base leading-[22px] font-bold tabular-nums" data-testid="points">{{ row.points }}</span>
           </div>
-          <div v-if="pinnedMe" class="flex items-center gap-3.5 bg-accent-soft px-[18px] py-3" data-testid="row-pinned">
-            <span class="w-[18px] shrink-0 font-mono text-[13px] text-accent-ink" data-testid="rank">{{ pinnedMe.rank }}</span>
-            <span class="min-w-0 flex-1 truncate text-[15px] leading-5 font-semibold">{{ t('league.you') }}</span>
-            <span class="shrink-0 font-mono text-sm font-medium" data-testid="points">{{ pinnedMe.points }}</span>
+          <div v-if="pinnedMe" class="mt-1 flex items-center gap-3.5 rounded-control bg-nav-active px-2.5 py-[9px]" data-testid="row-pinned">
+            <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg bg-surface text-[15px] font-bold text-accent tabular-nums" data-testid="rank">{{ pinnedMe.rank }}</span>
+            <span class="min-w-0 flex-1 truncate text-base leading-[22px] font-bold">{{ t('league.you') }}</span>
+            <span class="shrink-0 text-base leading-[22px] font-bold tabular-nums" data-testid="points">{{ pinnedMe.points }}</span>
           </div>
-        </ListGroup>
+        </section>
         <section v-else class="card text-[15px] leading-[22px] text-muted" data-testid="empty">
           {{ t('month.empty') }}
         </section>
 
         <ListGroup v-if="lastMonth && lastMonth.status === 'confirmed'" :header="t('month.last_winners', { month: lastTitle })" data-testid="last-month">
-          <div v-for="winner in lastMonth.winners" :key="winner.place" class="flex items-center gap-3.5 px-[18px] py-3" data-testid="winner">
-            <span class="w-[18px] shrink-0 font-mono text-[13px] text-muted">{{ winner.place }}</span>
-            <span class="min-w-0 flex-1 truncate text-[15px] leading-5">{{ rowName(winner.name) }}</span>
-            <span class="shrink-0 font-mono text-sm">{{ winner.points }}</span>
+          <div v-for="winner in lastMonth.winners" :key="winner.place" class="list-row" data-testid="winner">
+            <span class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg bg-accent-soft text-[15px] font-bold text-accent tabular-nums">{{ winner.place }}</span>
+            <span class="min-w-0 flex-1 truncate text-base leading-[22px] font-bold">{{ rowName(winner.name) }}</span>
+            <span class="shrink-0 text-base leading-[22px] font-bold tabular-nums">{{ winner.points }}</span>
           </div>
           <ListRow v-if="lastMonth.me" :title="t('month.last_me', { rank: lastMonth.me.rank })" data-testid="last-me" />
         </ListGroup>
@@ -205,10 +210,10 @@ onMounted(() => {
 
         <details class="list group" data-testid="rules">
           <summary class="list-row cursor-pointer list-none select-none active:bg-fill [&::-webkit-details-marker]:hidden">
-            <span class="min-w-0 flex-1 text-[15px] leading-5 font-semibold">{{ t('month.rules_title') }}</span>
+            <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('month.rules_title') }}</span>
             <AppIcon name="chevron-down" :size="16" class="text-muted transition-transform duration-150 group-open:rotate-180" />
           </summary>
-          <div class="space-y-2 px-[18px] pt-1 pb-4 text-[15px] leading-[22px] text-muted">
+          <div class="space-y-2 px-3.5 pt-1 pb-4 text-[15px] leading-[22px] text-muted">
             <p data-testid="rules-points">{{ t('month.rules_points', { cap: data.rules.daily_cap }) }}</p>
             <p v-if="hasPrizes" data-testid="rules-prize">
               {{ t('month.rules_prize', { places: data.rules.places, days: data.rules.min_active_days, account: data.rules.min_account_days }) }}
