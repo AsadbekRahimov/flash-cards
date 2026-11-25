@@ -1,0 +1,1201 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-a1-a2",
+  "items": [
+    {
+      "key": "bonus-a1-c-goodnight",
+      "type": "collocation",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "goodnight"
+      ],
+      "text": "Do not forget to ___ goodnight to your sister.",
+      "options": [
+        "say",
+        "speak",
+        "talk"
+      ],
+      "correct": [
+        "say"
+      ],
+      "translation": {
+        "ru": "Не забудьте пожелать сестре спокойной ночи.",
+        "uz": "Singlingizga xayrli tun tilashni unutmang."
+      },
+      "explanation": {
+        "ru": "Say goodnight to someone — пожелать кому-то спокойной ночи.",
+        "uz": "Say goodnight to someone — birovga xayrli tun tilamoq."
+      }
+    },
+    {
+      "key": "bonus-a1-w-helpful",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "helpful"
+      ],
+      "text": "Your advice was so ___ that I finished early.",
+      "base": "help",
+      "accepted": [
+        "helpful"
+      ],
+      "translation": {
+        "ru": "Ваш совет был таким полезным, что я закончила раньше срока.",
+        "uz": "Maslahatingiz shunchalik foydali bo'ldiki, ishimni ertaroq tugatdim."
+      },
+      "explanation": {
+        "ru": "So перед прилагательным усиливает его. Helpful значит «полезный».",
+        "uz": "So sifatning ma'nosini kuchaytiradi. Helpful «foydali» degani."
+      }
+    },
+    {
+      "key": "bonus-a1-w-twins",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "twins"
+      ],
+      "text": "Those two boys are ___ who look exactly alike.",
+      "base": "twin",
+      "accepted": [
+        "twins"
+      ],
+      "translation": {
+        "ru": "Те два мальчика — близнецы, очень похожие друг на друга.",
+        "uz": "Anavi ikki bola bir-biriga juda o'xshash egizaklar."
+      },
+      "explanation": {
+        "ru": "Речь о двух людях. Нужна форма множественного числа twins.",
+        "uz": "Gap ikki kishi haqida. Twin otining ko'plik shakli twins bo'ladi."
+      }
+    },
+    {
+      "key": "bonus-a1-e-downstairs",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "downstairs"
+      ],
+      "text": "I *goed* downstairs to get a glass of water.",
+      "options": [
+        "went",
+        "goes",
+        "going"
+      ],
+      "correct": [
+        "went"
+      ],
+      "translation": {
+        "ru": "Я спустился вниз за стаканом воды.",
+        "uz": "Bir stakan suv olish uchun pastga tushdim."
+      },
+      "explanation": {
+        "ru": "Go — неправильный глагол. Его форма прошедшего времени — went.",
+        "uz": "Go noto'g'ri fe'l. Uning o'tgan zamon shakli went."
+      }
+    },
+    {
+      "key": "bonus-a1-s-backyard",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "backyard"
+      ],
+      "prompt": {
+        "ru": "На заднем дворе играет маленькая собака.",
+        "uz": "Orqa hovlida kichkina it o'ynayapti."
+      },
+      "fragments": [
+        "a small dog",
+        "is playing",
+        "in the backyard"
+      ],
+      "accepted": [
+        [
+          "a small dog",
+          "is playing",
+          "in the backyard"
+        ],
+        [
+          "in the backyard",
+          "a small dog",
+          "is playing"
+        ]
+      ],
+      "display": "A small dog is playing in the backyard.",
+      "explanation": {
+        "ru": "Is playing описывает действие, которое происходит сейчас.",
+        "uz": "Is playing hozir davom etayotgan harakatni bildiradi."
+      }
+    },
+    {
+      "key": "bonus-a1-s-armchair",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "armchair"
+      ],
+      "prompt": {
+        "ru": "Мой кот спит в том кресле.",
+        "uz": "Mushugim anavi kresloda uxlaydi."
+      },
+      "fragments": [
+        "my cat",
+        "sleeps",
+        "in that armchair"
+      ],
+      "accepted": [
+        [
+          "my cat",
+          "sleeps",
+          "in that armchair"
+        ],
+        [
+          "in that armchair",
+          "my cat",
+          "sleeps"
+        ]
+      ],
+      "display": "My cat sleeps in that armchair.",
+      "explanation": {
+        "ru": "Обычно на первом месте my cat. Группу in that armchair можно вынести в начало, чтобы подчеркнуть место.",
+        "uz": "Odatda gap my cat bilan boshlanadi. Joyni ta'kidlash uchun in that armchair gap boshida ham kelishi mumkin."
+      }
+    },
+    {
+      "key": "bonus-a1-w-sew",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "sew"
+      ],
+      "text": "Last night, she ___ a button onto her coat.",
+      "base": "sew",
+      "accepted": [
+        "sewed"
+      ],
+      "translation": {
+        "ru": "Вчера вечером она пришила пуговицу к пальто.",
+        "uz": "Kecha kechqurun u paltosiga tugma qadadi."
+      },
+      "explanation": {
+        "ru": "Last night указывает на прошедшее время. Форма Past Simple от sew — sewed.",
+        "uz": "Last night o'tgan vaqtni bildiradi. Sew fe'lining Past Simple shakli sewed."
+      }
+    },
+    {
+      "key": "bonus-a1-s-banana",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "banana"
+      ],
+      "prompt": {
+        "ru": "После обеда она ест банан.",
+        "uz": "U tushlikdan keyin banan yeydi."
+      },
+      "fragments": [
+        "she",
+        "eats",
+        "a banana",
+        "after lunch"
+      ],
+      "accepted": [
+        [
+          "she",
+          "eats",
+          "a banana",
+          "after lunch"
+        ],
+        [
+          "after lunch",
+          "she",
+          "eats",
+          "a banana"
+        ]
+      ],
+      "display": "She eats a banana after lunch.",
+      "explanation": {
+        "ru": "A banana — один банан. Обстоятельство after lunch можно вынести в начало.",
+        "uz": "A banana — bitta banan. After lunch birikmasi gap boshida ham kelishi mumkin."
+      }
+    },
+    {
+      "key": "bonus-a1-s-burger",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "burger"
+      ],
+      "prompt": {
+        "ru": "Я хотел бы бургер с сыром.",
+        "uz": "Pishloqli burger olmoqchiman."
+      },
+      "fragments": [
+        "I",
+        "would like",
+        "a burger",
+        "with cheese"
+      ],
+      "accepted": [
+        [
+          "I",
+          "would like",
+          "a burger",
+          "with cheese"
+        ]
+      ],
+      "display": "I would like a burger with cheese.",
+      "explanation": {
+        "ru": "I would like — вежливый способ сделать заказ.",
+        "uz": "I would like buyurtma berishning muloyim usuli."
+      }
+    },
+    {
+      "key": "bonus-a1-e-calendar",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "calendar"
+      ],
+      "text": "I need to *looked* at the calendar.",
+      "options": [
+        "look",
+        "looks",
+        "looking"
+      ],
+      "correct": [
+        "look"
+      ],
+      "translation": {
+        "ru": "Мне нужно посмотреть в календарь.",
+        "uz": "Taqvimga qarashim kerak."
+      },
+      "explanation": {
+        "ru": "После need to ставим глагол в начальной форме: need to look.",
+        "uz": "Need to dan keyin fe'lning boshlang'ich shakli keladi: need to look."
+      }
+    },
+    {
+      "key": "bonus-a1-c-shorts",
+      "type": "collocation",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "shorts"
+      ],
+      "text": "I usually ___ shorts when it is hot.",
+      "options": [
+        "wear",
+        "dress",
+        "clothe"
+      ],
+      "correct": [
+        "wear"
+      ],
+      "translation": {
+        "ru": "Когда жарко, я обычно хожу в шортах.",
+        "uz": "Havo issiq bo'lsa, odatda kalta shim kiyaman."
+      },
+      "explanation": {
+        "ru": "Wear shorts — носить шорты. Здесь речь об одежде, которая на человеке.",
+        "uz": "Wear shorts — kalta shim kiymoq. Bu yerda kalta shim odamning ustida bo'ladi."
+      }
+    },
+    {
+      "key": "bonus-a1-e-pajamas",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "pajamas"
+      ],
+      "text": "I *weared* warm pajamas last night.",
+      "options": [
+        "wore",
+        "wear",
+        "wearing"
+      ],
+      "correct": [
+        "wore"
+      ],
+      "translation": {
+        "ru": "Вчера ночью я был в тёплой пижаме.",
+        "uz": "Kecha tunda issiq pijama kiygan edim."
+      },
+      "explanation": {
+        "ru": "Last night указывает на прошлое. Прошедшая форма wear — wore.",
+        "uz": "Last night o'tgan vaqtni bildiradi. Wear fe'lining o'tgan zamon shakli wore."
+      }
+    },
+    {
+      "key": "bonus-a1-e-sweater",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "A1",
+      "target_words": [
+        "sweater"
+      ],
+      "text": "I *buyed* this sweater last week.",
+      "options": [
+        "bought",
+        "buy",
+        "buys"
+      ],
+      "correct": [
+        "bought"
+      ],
+      "translation": {
+        "ru": "Я купил этот свитер на прошлой неделе.",
+        "uz": "Bu sviterni o'tgan hafta sotib oldim."
+      },
+      "explanation": {
+        "ru": "Прошедшая форма неправильного глагола buy — bought.",
+        "uz": "Buy noto'g'ri fe'l. Uning o'tgan zamon shakli bought."
+      }
+    },
+    {
+      "key": "bonus-a1-w-librarian",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "librarian"
+      ],
+      "text": "A ___ showed me where to find the books.",
+      "base": "library",
+      "accepted": [
+        "librarian"
+      ],
+      "translation": {
+        "ru": "Библиотекарь показал мне, где найти книги.",
+        "uz": "Kutubxonachi menga kitoblarni qayerdan topishni ko'rsatdi."
+      },
+      "explanation": {
+        "ru": "Library — библиотека. Librarian — человек, который работает в библиотеке.",
+        "uz": "Library — kutubxona. Librarian — kutubxonada ishlaydigan odam."
+      }
+    },
+    {
+      "key": "bonus-a1-c-pencil",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "pencil"
+      ],
+      "text": "Please draw a circle ___ your pencil.",
+      "options": [
+        "with",
+        "onto",
+        "from"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, нарисуйте круг карандашом.",
+        "uz": "Iltimos, qalamingiz bilan doira chizing."
+      },
+      "explanation": {
+        "ru": "With a pencil — карандашом. With указывает, чем рисуют.",
+        "uz": "With a pencil — qalam bilan. With rasm chizishda ishlatilgan vositani bildiradi."
+      }
+    },
+    {
+      "key": "bonus-a1-c-kite",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "kite"
+      ],
+      "text": "The children ___ a kite in the park.",
+      "options": [
+        "fly",
+        "ride",
+        "drive"
+      ],
+      "correct": [
+        "fly"
+      ],
+      "translation": {
+        "ru": "Дети запускают воздушного змея в парке.",
+        "uz": "Bolalar bog'da varrak uchirishadi."
+      },
+      "explanation": {
+        "ru": "Fly a kite — запускать воздушного змея.",
+        "uz": "Fly a kite — varrak uchirmoq."
+      }
+    },
+    {
+      "key": "bonus-a1-s-balloon",
+      "type": "sentence",
+      "lesson": {
+        "stage": 8,
+        "number": 3
+      },
+      "level": "A1",
+      "target_words": [
+        "balloon"
+      ],
+      "prompt": {
+        "ru": "Синий воздушный шарик лежит на полу.",
+        "uz": "Ko'k pufak polda turibdi."
+      },
+      "fragments": [
+        "the blue balloon",
+        "is",
+        "on the floor"
+      ],
+      "accepted": [
+        [
+          "the blue balloon",
+          "is",
+          "on the floor"
+        ],
+        [
+          "on the floor",
+          "is",
+          "the blue balloon"
+        ]
+      ],
+      "display": "The blue balloon is on the floor.",
+      "explanation": {
+        "ru": "On the floor отвечает на вопрос «где?».",
+        "uz": "On the floor «qayerda?» savoliga javob beradi."
+      }
+    },
+    {
+      "key": "bonus-a1-c-toothbrush",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 4
+      },
+      "level": "A1",
+      "target_words": [
+        "toothbrush"
+      ],
+      "text": "Use your toothbrush to ___ your teeth before bed.",
+      "options": [
+        "brush",
+        "count",
+        "fold"
+      ],
+      "correct": [
+        "brush"
+      ],
+      "translation": {
+        "ru": "Перед сном почистите зубы зубной щёткой.",
+        "uz": "Uxlashdan oldin tishlaringizni tish cho'tkasi bilan tozalang."
+      },
+      "explanation": {
+        "ru": "Brush your teeth — чистить зубы.",
+        "uz": "Brush your teeth — tishlarni tozalamoq."
+      }
+    },
+    {
+      "key": "bonus-a1-e-puddle",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 1
+      },
+      "level": "A1",
+      "target_words": [
+        "puddle"
+      ],
+      "text": "Please do not *jumps* over that puddle.",
+      "options": [
+        "jump",
+        "jumped",
+        "jumping"
+      ],
+      "correct": [
+        "jump"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, не перепрыгивайте через ту лужу.",
+        "uz": "Iltimos, anavi ko'lmakdan sakrab o'tmang."
+      },
+      "explanation": {
+        "ru": "После do not нужна начальная форма глагола jump.",
+        "uz": "Do not dan keyin fe'lning boshlang'ich shakli jump keladi."
+      }
+    },
+    {
+      "key": "bonus-a1-w-rabbit",
+      "type": "word_form",
+      "lesson": {
+        "stage": 10,
+        "number": 5
+      },
+      "level": "A1",
+      "target_words": [
+        "rabbit"
+      ],
+      "text": "We saw four ___ with long ears yesterday.",
+      "base": "rabbit",
+      "accepted": [
+        "rabbits"
+      ],
+      "translation": {
+        "ru": "Вчера мы увидели четырёх кроликов с длинными ушами.",
+        "uz": "Kecha quloqlari uzun to'rtta quyonni ko'rdik."
+      },
+      "explanation": {
+        "ru": "После four исчисляемое существительное ставим во множественное число: rabbit → rabbits.",
+        "uz": "Four dan keyin ingliz tilida sanaladigan ot ko'plikda keladi: rabbit → rabbits."
+      }
+    },
+    {
+      "key": "bonus-a2-s-runway",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "runway"
+      ],
+      "prompt": {
+        "ru": "Мы смотрели, как самолёт приземлился на взлётно-посадочную полосу.",
+        "uz": "Samolyotning uchish-qo'nish yo'lagiga qo'nganini tomosha qildik."
+      },
+      "fragments": [
+        "we watched",
+        "the plane",
+        "land",
+        "on the runway"
+      ],
+      "accepted": [
+        [
+          "we watched",
+          "the plane",
+          "land",
+          "on the runway"
+        ]
+      ],
+      "display": "We watched the plane land on the runway.",
+      "explanation": {
+        "ru": "После watched the plane глагол land без to показывает действие целиком.",
+        "uz": "Watched the plane dan keyin land fe'li to siz kelib, butun harakatni bildiradi."
+      }
+    },
+    {
+      "key": "bonus-a2-e-keycard",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "keycard"
+      ],
+      "text": "The receptionist told us to *showed* our keycard.",
+      "options": [
+        "show",
+        "shows",
+        "showing"
+      ],
+      "correct": [
+        "show"
+      ],
+      "translation": {
+        "ru": "Администратор попросил нас показать нашу ключ-карту.",
+        "uz": "Qabulxona xodimi bizdan kalit kartamizni ko'rsatishni so'radi."
+      },
+      "explanation": {
+        "ru": "В конструкции told us to после to нужна начальная форма show.",
+        "uz": "Told us to qolipida to dan keyin show fe'lining boshlang'ich shakli keladi."
+      }
+    },
+    {
+      "key": "bonus-a2-e-shortcut",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "shortcut"
+      ],
+      "text": "I have never *taked* that shortcut before.",
+      "options": [
+        "taken",
+        "take",
+        "takes"
+      ],
+      "correct": [
+        "taken"
+      ],
+      "translation": {
+        "ru": "Я никогда раньше не пользовался этим коротким путём.",
+        "uz": "Ilgari bu qisqa yo'ldan hech qachon yurmaganman."
+      },
+      "explanation": {
+        "ru": "В Present Perfect после have нужна третья форма: take → took → taken.",
+        "uz": "Present Perfect da have dan keyin uchinchi shakl kerak: take → took → taken."
+      }
+    },
+    {
+      "key": "bonus-a2-s-earbuds",
+      "type": "sentence",
+      "lesson": {
+        "stage": 12,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "earbuds"
+      ],
+      "prompt": {
+        "ru": "Я нигде не могу найти свои наушники-вкладыши.",
+        "uz": "Quloq ichiga taqiladigan quloqchinlarimni hech qayerdan topa olmayapman."
+      },
+      "fragments": [
+        "I",
+        "cannot find",
+        "my earbuds",
+        "anywhere"
+      ],
+      "accepted": [
+        [
+          "I",
+          "cannot find",
+          "my earbuds",
+          "anywhere"
+        ]
+      ],
+      "display": "I cannot find my earbuds anywhere.",
+      "explanation": {
+        "ru": "Anywhere в отрицательном предложении означает «нигде».",
+        "uz": "Inkor gapda anywhere «hech qayerda» ma'nosida keladi."
+      }
+    },
+    {
+      "key": "bonus-a2-w-successful",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "successful"
+      ],
+      "text": "The event was ___, with every ticket sold.",
+      "base": "success",
+      "accepted": [
+        "successful"
+      ],
+      "translation": {
+        "ru": "Мероприятие прошло успешно, и все билеты были проданы.",
+        "uz": "Tadbir muvaffaqiyatli o'tdi, barcha chiptalar sotildi."
+      },
+      "explanation": {
+        "ru": "После was без артикля здесь нужно прилагательное successful. Success — существительное «успех».",
+        "uz": "Bu yerda was dan keyin successful sifati kerak. Success — «muvaffaqiyat» ma'nosidagi ot."
+      }
+    },
+    {
+      "key": "bonus-a2-w-hourly",
+      "type": "word_form",
+      "lesson": {
+        "stage": 14,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "hourly"
+      ],
+      "text": "What is your ___ rate for this job?",
+      "base": "hour",
+      "accepted": [
+        "hourly"
+      ],
+      "translation": {
+        "ru": "Какова ваша почасовая ставка за эту работу?",
+        "uz": "Bu ish uchun soatbay haqingiz qancha?"
+      },
+      "explanation": {
+        "ru": "Hourly rate — почасовая ставка. Hourly указывает, что оплату считают за час.",
+        "uz": "Hourly rate — soatbay haq. Hourly haq soat hisobida to'lanishini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-a2-c-reschedule",
+      "type": "collocation",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "reschedule"
+      ],
+      "text": "Can we reschedule the meeting ___ Friday instead of Thursday?",
+      "options": [
+        "for",
+        "since",
+        "across"
+      ],
+      "correct": [
+        "for"
+      ],
+      "translation": {
+        "ru": "Можем перенести встречу с четверга на пятницу?",
+        "uz": "Uchrashuvni payshanbadan jumaga ko'chirsak bo'ladimi?"
+      },
+      "explanation": {
+        "ru": "Reschedule for Friday — перенести на пятницу. For вводит новую дату.",
+        "uz": "Reschedule for Friday — jumaga ko'chirmoq. For yangi sanani bildiradi."
+      }
+    },
+    {
+      "key": "bonus-a2-c-rehearse",
+      "type": "collocation",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "rehearse"
+      ],
+      "text": "The actors need to rehearse their ___ before the show.",
+      "options": [
+        "lines",
+        "seats",
+        "tickets"
+      ],
+      "correct": [
+        "lines"
+      ],
+      "translation": {
+        "ru": "Актёрам нужно отрепетировать свои реплики перед спектаклем.",
+        "uz": "Aktyorlar spektakldan oldin sahnada aytadigan gaplarini mashq qilishlari kerak."
+      },
+      "explanation": {
+        "ru": "Rehearse your lines — отрепетировать свои реплики.",
+        "uz": "Rehearse your lines — sahnada aytadigan gaplaringizni mashq qilmoq."
+      }
+    },
+    {
+      "key": "bonus-a2-w-punctuation",
+      "type": "word_form",
+      "lesson": {
+        "stage": 15,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "punctuation"
+      ],
+      "text": "There are two ___ errors in this sentence.",
+      "base": "punctuate",
+      "accepted": [
+        "punctuation"
+      ],
+      "translation": {
+        "ru": "В этом предложении две пунктуационные ошибки.",
+        "uz": "Bu gapda tinish belgilariga oid ikkita xato bor."
+      },
+      "explanation": {
+        "ru": "Punctuation errors — ошибки в знаках препинания. Перед errors нужно существительное punctuation.",
+        "uz": "Punctuation errors — tinish belgilariga oid xatolar. Errors oldidan punctuation oti keladi."
+      }
+    },
+    {
+      "key": "bonus-a2-s-closet",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "closet"
+      ],
+      "prompt": {
+        "ru": "Её зимнее пальто висит в шкафу.",
+        "uz": "Uning qishki paltosi shkafda osilib turibdi."
+      },
+      "fragments": [
+        "her winter coat",
+        "is hanging",
+        "in",
+        "the closet"
+      ],
+      "accepted": [
+        [
+          "her winter coat",
+          "is hanging",
+          "in",
+          "the closet"
+        ]
+      ],
+      "display": "Her winter coat is hanging in the closet.",
+      "explanation": {
+        "ru": "Место обозначает сочетание in the closet.",
+        "uz": "In the closet birikmasi harakat yoki holat joyini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-a2-s-dishwasher",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "dishwasher"
+      ],
+      "prompt": {
+        "ru": "Посудомоечная машина полна грязных тарелок.",
+        "uz": "Idish yuvish mashinasi kir likopchalarga to'la."
+      },
+      "fragments": [
+        "the dishwasher",
+        "is",
+        "full of",
+        "dirty plates"
+      ],
+      "accepted": [
+        [
+          "the dishwasher",
+          "is",
+          "full of",
+          "dirty plates"
+        ]
+      ],
+      "display": "The dishwasher is full of dirty plates.",
+      "explanation": {
+        "ru": "Be full of something — быть полным чего-либо.",
+        "uz": "Be full of something — biror narsaga to'la bo'lmoq."
+      }
+    },
+    {
+      "key": "bonus-a2-c-postage",
+      "type": "collocation",
+      "lesson": {
+        "stage": 17,
+        "number": 2
+      },
+      "level": "A2",
+      "target_words": [
+        "postage"
+      ],
+      "text": "The postage ___ more than the envelope itself.",
+      "options": [
+        "costs",
+        "pays",
+        "spends"
+      ],
+      "correct": [
+        "costs"
+      ],
+      "translation": {
+        "ru": "Пересылка стоит дороже самого конверта.",
+        "uz": "Pochta orqali yuborish haqi konvertning o'zidan qimmatroq."
+      },
+      "explanation": {
+        "ru": "Cost означает «стоить». Подлежащее postage — услуга, за которую платят.",
+        "uz": "Cost «narxi shuncha bo'lmoq» degani. Bu yerda postage haq to'lanadigan xizmatni bildiradi."
+      }
+    },
+    {
+      "key": "bonus-a2-w-refundable",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "refundable"
+      ],
+      "text": "The ticket is fully ___ if you cancel today.",
+      "base": "refund",
+      "accepted": [
+        "refundable"
+      ],
+      "translation": {
+        "ru": "При отмене сегодня стоимость билета вернут полностью.",
+        "uz": "Bugun bekor qilsangiz, chipta puli to'liq qaytariladi."
+      },
+      "explanation": {
+        "ru": "После is fully нужно прилагательное. Refundable означает, что деньги можно вернуть.",
+        "uz": "Is fully dan keyin sifat kerak. Refundable pulni qaytarib olish mumkinligini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-a2-w-washable",
+      "type": "word_form",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "washable"
+      ],
+      "text": "The cushion has a ___ cover you can clean yourself.",
+      "base": "wash",
+      "accepted": [
+        "washable"
+      ],
+      "translation": {
+        "ru": "У подушки чехол, который можно постирать самостоятельно.",
+        "uz": "Yostiqning o'zingiz yuvishingiz mumkin bo'lgan jildi bor."
+      },
+      "explanation": {
+        "ru": "Суффикс -able обозначает возможность. Washable cover — чехол, который можно стирать.",
+        "uz": "-able qo'shimchasi imkoniyatni bildiradi. Washable cover — yuvish mumkin bo'lgan jild."
+      }
+    },
+    {
+      "key": "bonus-a2-c-blister",
+      "type": "collocation",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "blister"
+      ],
+      "text": "My new shoes ___ me a blister after one walk.",
+      "options": [
+        "gave",
+        "placed",
+        "kept"
+      ],
+      "correct": [
+        "gave"
+      ],
+      "translation": {
+        "ru": "После одной прогулки новые туфли натёрли мне волдырь.",
+        "uz": "Bir marta sayr qilganimdan keyin yangi tuflim oyog'imni ishqalab, pufakcha chiqardi."
+      },
+      "explanation": {
+        "ru": "Give someone a blister — натереть кому-то волдырь, если речь об обуви.",
+        "uz": "Oyoq kiyim haqida give someone a blister ishqalab pufakcha chiqarmoq degani."
+      }
+    },
+    {
+      "key": "bonus-a2-e-cramp",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "A2",
+      "target_words": [
+        "cramp"
+      ],
+      "text": "She felt a cramp while *runned* up the stairs.",
+      "options": [
+        "running",
+        "ran",
+        "runs"
+      ],
+      "correct": [
+        "running"
+      ],
+      "translation": {
+        "ru": "Поднимаясь бегом по лестнице, она почувствовала судорогу.",
+        "uz": "Zinadan yugurib chiqayotganda uning mushagi tortishib qoldi."
+      },
+      "explanation": {
+        "ru": "Здесь while сокращает оборот while she was running. У run перед -ing удваивается n.",
+        "uz": "Bu yerda while running — while she was running ning qisqa shakli. Run ga -ing qo'shilganda n ikki marta yoziladi."
+      }
+    },
+    {
+      "key": "bonus-a2-s-cereal",
+      "type": "sentence",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "A2",
+      "target_words": [
+        "cereal"
+      ],
+      "prompt": {
+        "ru": "Мой брат залил хлопья молоком.",
+        "uz": "Ukam yorma ustiga sut quydi."
+      },
+      "fragments": [
+        "my brother",
+        "poured",
+        "milk",
+        "over his cereal"
+      ],
+      "accepted": [
+        [
+          "my brother",
+          "poured",
+          "milk",
+          "over his cereal"
+        ]
+      ],
+      "display": "My brother poured milk over his cereal.",
+      "explanation": {
+        "ru": "В сочетании pour milk over cereal молоко — то, что наливают.",
+        "uz": "Pour milk over cereal birikmasida cereal ustiga milk quyiladi."
+      }
+    },
+    {
+      "key": "bonus-a2-e-overeat",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 18,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "overeat"
+      ],
+      "text": "A small snack can help you avoid *overeat* later.",
+      "options": [
+        "overeating",
+        "overate",
+        "overeats"
+      ],
+      "correct": [
+        "overeating"
+      ],
+      "translation": {
+        "ru": "Небольшой перекус может помочь вам потом не переесть.",
+        "uz": "Yengil tamaddi keyin ortiqcha yeb qo'ymaslikka yordam berishi mumkin."
+      },
+      "explanation": {
+        "ru": "После avoid действие выражается формой на -ing: avoid overeating.",
+        "uz": "Avoid dan keyin harakat -ing shaklida ifodalanadi: avoid overeating."
+      }
+    },
+    {
+      "key": "bonus-a2-c-recycling",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 4
+      },
+      "level": "A2",
+      "target_words": [
+        "recycling"
+      ],
+      "text": "Put the empty bottles in the recycling ___.",
+      "options": [
+        "bin",
+        "stamp",
+        "letter"
+      ],
+      "correct": [
+        "bin"
+      ],
+      "translation": {
+        "ru": "Положите пустые бутылки в контейнер для вторсырья.",
+        "uz": "Bo'sh idishlarni qayta ishlanadigan chiqindilar qutisiga soling."
+      },
+      "explanation": {
+        "ru": "Recycling bin — контейнер для отходов, которые можно переработать.",
+        "uz": "Recycling bin — qayta ishlanadigan chiqindilar uchun quti."
+      }
+    },
+    {
+      "key": "bonus-a2-e-invitation",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 20,
+        "number": 5
+      },
+      "level": "A2",
+      "target_words": [
+        "invitation"
+      ],
+      "text": "I *sended* her an invitation last Monday.",
+      "options": [
+        "sent",
+        "send",
+        "sends"
+      ],
+      "correct": [
+        "sent"
+      ],
+      "translation": {
+        "ru": "Я отправил ей приглашение в прошлый понедельник.",
+        "uz": "O'tgan dushanba unga taklifnoma yubordim."
+      },
+      "explanation": {
+        "ru": "Прошедшая форма send — sent. Last Monday указывает на прошлый понедельник.",
+        "uz": "Send fe'lining o'tgan zamon shakli sent. Last Monday o'tgan dushanbani bildiradi."
+      }
+    }
+  ]
+}

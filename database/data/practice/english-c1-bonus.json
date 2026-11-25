@@ -1,0 +1,606 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c1",
+  "items": [
+    {
+      "key": "bonus-c1-s-commiseration",
+      "type": "sentence",
+      "lesson": {
+        "stage": 2,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "commiseration"
+      ],
+      "prompt": {
+        "ru": "Её сочувствие значило больше, чем любые советы.",
+        "uz": "Uning hamdardligi har qanday maslahatdan ko'ra muhimroq edi."
+      },
+      "fragments": [
+        "her commiseration",
+        "mattered more",
+        "than any advice"
+      ],
+      "accepted": [
+        [
+          "her commiseration",
+          "mattered more",
+          "than any advice"
+        ]
+      ],
+      "display": "Her commiseration mattered more than any advice.",
+      "explanation": {
+        "ru": "Mattered more than показывает сравнение важности: одно оказалось важнее другого.",
+        "uz": "Mattered more than ahamiyatni qiyoslaydi: bir narsa boshqasidan muhimroq bo'lgan."
+      }
+    },
+    {
+      "key": "bonus-c1-c-understaffed",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "understaffed"
+      ],
+      "text": "The emergency department was ___ understaffed throughout the winter.",
+      "options": [
+        "severely",
+        "fondly",
+        "densely"
+      ],
+      "correct": [
+        "severely"
+      ],
+      "translation": {
+        "ru": "Всю зиму в отделении неотложной помощи остро не хватало персонала.",
+        "uz": "Butun qish davomida shoshilinch yordam bo'limida xodimlar keskin yetishmadi."
+      },
+      "explanation": {
+        "ru": "Severely understaffed означает, что персонала остро не хватает. Severely усиливает отрицательную характеристику.",
+        "uz": "Severely understaffed — xodimlar keskin yetishmayapti degani. Severely salbiy belgini kuchaytiradi."
+      }
+    },
+    {
+      "key": "bonus-c1-w-conscientiously",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "conscientiously"
+      ],
+      "text": "The auditor checked every figure ___ before signing the report.",
+      "base": "conscientious",
+      "accepted": [
+        "conscientiously"
+      ],
+      "translation": {
+        "ru": "Аудитор добросовестно проверил каждую цифру перед подписанием отчёта.",
+        "uz": "Auditor hisobotni imzolashdan oldin har bir raqamni vijdonan tekshirdi."
+      },
+      "explanation": {
+        "ru": "Пропуск описывает, как проверяли цифры. Прилагательное conscientious превращается в наречие с -ly.",
+        "uz": "Bo'sh joy raqamlar qanday tekshirilganini bildiradi. Conscientious sifatiga -ly qo'shilib, ravish yasaladi."
+      }
+    },
+    {
+      "key": "bonus-c1-w-decentralize",
+      "type": "word_form",
+      "lesson": {
+        "stage": 4,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "decentralize"
+      ],
+      "text": "After the merger, the company ___ purchasing and closed its central office.",
+      "base": "decentralize",
+      "accepted": [
+        "decentralized"
+      ],
+      "translation": {
+        "ru": "После слияния компания передала закупки подразделениям и закрыла центральный офис.",
+        "uz": "Birlashuvdan keyin kompaniya xarid vakolatini bo'limlarga o'tkazdi va markaziy ofisini yopdi."
+      },
+      "explanation": {
+        "ru": "Форма closed задаёт прошедшее время и для первого действия. К decentralize добавляем d.",
+        "uz": "Closed shakli birinchi harakat ham o'tgan zamonda bo'lganini ko'rsatadi. Decentralize ga d qo'shiladi."
+      }
+    },
+    {
+      "key": "bonus-c1-c-counteroffer",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "counteroffer"
+      ],
+      "text": "The supplier responded ___ a counteroffer that reduced the price.",
+      "options": [
+        "with",
+        "since",
+        "beneath"
+      ],
+      "correct": [
+        "with"
+      ],
+      "translation": {
+        "ru": "Поставщик ответил встречным предложением с более низкой ценой.",
+        "uz": "Yetkazib beruvchi narxni pasaytirgan qarshi taklif bilan javob berdi."
+      },
+      "explanation": {
+        "ru": "Respond with a counteroffer означает «ответить встречным предложением». With вводит то, чем отвечают.",
+        "uz": "Respond with a counteroffer — qarshi taklif bilan javob bermoq. With javob nimadan iboratligini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-c1-c-indebtedness",
+      "type": "collocation",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "indebtedness"
+      ],
+      "text": "The report compares the ___ of indebtedness across regions.",
+      "options": [
+        "level",
+        "length",
+        "height"
+      ],
+      "correct": [
+        "level"
+      ],
+      "translation": {
+        "ru": "В отчёте сравнивают уровень задолженности по регионам.",
+        "uz": "Hisobotda hududlar bo'yicha qarzdorlik darajasi taqqoslanadi."
+      },
+      "explanation": {
+        "ru": "Level of indebtedness — уровень задолженности. Level здесь обозначает степень.",
+        "uz": "Level of indebtedness — qarzdorlik darajasi. Bu yerda level darajani bildiradi."
+      }
+    },
+    {
+      "key": "bonus-c1-w-replication",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "replication"
+      ],
+      "text": "An independent ___ of the experiment yielded the same result.",
+      "base": "replicate",
+      "accepted": [
+        "replication"
+      ],
+      "translation": {
+        "ru": "Независимое повторение эксперимента дало тот же результат.",
+        "uz": "Tajriba mustaqil ravishda takrorlanganda ayni natija olindi."
+      },
+      "explanation": {
+        "ru": "После an independent здесь нужно исчисляемое существительное. Replication — повторение исследования или опыта.",
+        "uz": "Bu yerda an independent dan keyin sanaladigan ot kerak. Replication — tadqiqot yoki tajribani takrorlash."
+      }
+    },
+    {
+      "key": "bonus-c1-s-interoperability",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "interoperability"
+      ],
+      "prompt": {
+        "ru": "Новый стандарт улучшает совместимость больничных систем.",
+        "uz": "Yangi standart shifoxona tizimlarining o'zaro mosligini yaxshilaydi."
+      },
+      "fragments": [
+        "the new standard",
+        "improves",
+        "interoperability",
+        "between hospital systems"
+      ],
+      "accepted": [
+        [
+          "the new standard",
+          "improves",
+          "interoperability",
+          "between hospital systems"
+        ],
+        [
+          "between hospital systems",
+          "the new standard",
+          "improves",
+          "interoperability"
+        ]
+      ],
+      "display": "The new standard improves interoperability between hospital systems.",
+      "explanation": {
+        "ru": "Interoperability between systems — способность систем работать совместно и обмениваться данными.",
+        "uz": "Interoperability between systems — tizimlarning birga ishlashi va ma'lumot almasha olishi."
+      }
+    },
+    {
+      "key": "bonus-c1-e-herbivorous",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 10,
+        "number": 4
+      },
+      "level": "C1",
+      "target_words": [
+        "herbivorous"
+      ],
+      "text": "The herbivorous larvae are *particular* susceptible to prolonged drought.",
+      "options": [
+        "particularly",
+        "particularity",
+        "particulars"
+      ],
+      "correct": [
+        "particularly"
+      ],
+      "translation": {
+        "ru": "Растительноядные личинки особенно уязвимы перед затяжной засухой.",
+        "uz": "O'simlikxo'r lichinkalar uzoq davom etadigan qurg'oqchilikka ayniqsa sezgir."
+      },
+      "explanation": {
+        "ru": "Susceptible — прилагательное. Степень уязвимости уточняет наречие particularly.",
+        "uz": "Susceptible — sifat. Sezgirlik darajasini particularly ravishi bildiradi."
+      }
+    },
+    {
+      "key": "bonus-c1-e-enactment",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 11,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "enactment"
+      ],
+      "text": "The enactment was *contingency* on approval from both chambers.",
+      "options": [
+        "contingent",
+        "contingently",
+        "contingencies"
+      ],
+      "correct": [
+        "contingent"
+      ],
+      "translation": {
+        "ru": "Принятие закона зависело от одобрения обеих палат.",
+        "uz": "Qonunning qabul qilinishi ikkala palataning ma'qullashiga bog'liq edi."
+      },
+      "explanation": {
+        "ru": "Be contingent on означает «зависеть от выполнения условия». Contingency — существительное.",
+        "uz": "Be contingent on «biror shart bajarilishiga bog'liq bo'lmoq» degani. Contingency — ot."
+      }
+    },
+    {
+      "key": "bonus-c1-e-admissibility",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "admissibility"
+      ],
+      "text": "The admissibility of the emails remained *contestible* throughout the hearing.",
+      "options": [
+        "contestable",
+        "contestants",
+        "contesting"
+      ],
+      "correct": [
+        "contestable"
+      ],
+      "translation": {
+        "ru": "Допустимость писем в качестве доказательств можно было оспорить на всём протяжении слушаний.",
+        "uz": "Eshituv davomida elektron xatlarni dalil sifatida qabul qilish masalasi bahsli bo'lib qoldi."
+      },
+      "explanation": {
+        "ru": "Contestable означает «такой, который можно оспорить». Слово пишется с суффиксом -able.",
+        "uz": "Contestable «e'tiroz bildirish mumkin bo'lgan» degani. Bu so'z -able qo'shimchasi bilan yoziladi."
+      }
+    },
+    {
+      "key": "bonus-c1-w-impermissible",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "impermissible"
+      ],
+      "text": "Under the policy, sharing data without consent is ___ and punishable.",
+      "base": "permissible",
+      "accepted": [
+        "impermissible"
+      ],
+      "translation": {
+        "ru": "По правилам передавать данные без согласия недопустимо, и за это могут наказать.",
+        "uz": "Qoidalarga ko'ra, ma'lumotni roziliksiz tarqatish mumkin emas va buning uchun jazo berilishi mumkin."
+      },
+      "explanation": {
+        "ru": "Punishable указывает, что действие запрещено. Перед p отрицательная приставка in- принимает форму im-: impermissible.",
+        "uz": "Punishable harakat taqiqlanganini ko'rsatadi. p oldidan in- inkor prefiksi im- shaklida keladi: impermissible."
+      }
+    },
+    {
+      "key": "bonus-c1-s-photojournalist",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "photojournalist"
+      ],
+      "prompt": {
+        "ru": "Фотожурналист запечатлел момент, когда мост вновь открыли.",
+        "uz": "Fotomuxbir ko'prik qayta ochilgan lahzani suratga oldi."
+      },
+      "fragments": [
+        "the photojournalist",
+        "captured",
+        "the moment",
+        "the bridge reopened"
+      ],
+      "accepted": [
+        [
+          "the photojournalist",
+          "captured",
+          "the moment",
+          "the bridge reopened"
+        ]
+      ],
+      "display": "The photojournalist captured the moment the bridge reopened.",
+      "explanation": {
+        "ru": "The moment the bridge reopened — момент, когда мост вновь открыли. When в этом обороте можно опустить.",
+        "uz": "The moment the bridge reopened — ko'prik qayta ochilgan lahza. Bu qolipda when ni tushirib qoldirish mumkin."
+      }
+    },
+    {
+      "key": "bonus-c1-e-unverified",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "unverified"
+      ],
+      "text": "The unverified figures were *misleadingly* enough to undermine the report.",
+      "options": [
+        "misleading",
+        "mislead",
+        "misled"
+      ],
+      "correct": [
+        "misleading"
+      ],
+      "translation": {
+        "ru": "Неподтверждённые цифры настолько вводили в заблуждение, что подрывали доверие к отчёту.",
+        "uz": "Tasdiqlanmagan raqamlar shunchalik chalg'ituvchi ediki, hisobotga ishonch pasaydi."
+      },
+      "explanation": {
+        "ru": "Перед enough в этой конструкции нужно прилагательное: misleading enough to undermine the report.",
+        "uz": "Bu qolipda enough dan oldin sifat keladi: misleading enough to undermine the report."
+      }
+    },
+    {
+      "key": "bonus-c1-e-epilogue",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 15,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "epilogue"
+      ],
+      "text": "The epilogue ends on a deliberately *ambiguousness* note.",
+      "options": [
+        "ambiguous",
+        "ambiguity",
+        "ambiguously"
+      ],
+      "correct": [
+        "ambiguous"
+      ],
+      "translation": {
+        "ru": "Эпилог заканчивается на намеренно двусмысленной ноте.",
+        "uz": "Epilog ataylab ikki xil talqin qilish mumkin bo'lgan ohangda yakunlanadi."
+      },
+      "explanation": {
+        "ru": "Прилагательное ambiguous описывает note, а наречие deliberately уточняет, что двусмысленность намеренная.",
+        "uz": "Note so'zini ambiguous sifati aniqlaydi. Deliberately ikki ma'nolilik ataylab yaratilganini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-c1-w-registrar",
+      "type": "word_form",
+      "lesson": {
+        "stage": 16,
+        "number": 1
+      },
+      "level": "C1",
+      "target_words": [
+        "registrar"
+      ],
+      "text": "The ___ who maintains student records signed the enrollment letter.",
+      "base": "register",
+      "accepted": [
+        "registrar"
+      ],
+      "translation": {
+        "ru": "Сотрудник, который ведёт учёт студентов, подписал письмо о зачислении.",
+        "uz": "Talabalar hisobini yuritadigan xodim o'qishga qabul qilinganlik haqidagi xatni imzoladi."
+      },
+      "explanation": {
+        "ru": "Who maintains student records описывает должность. Registrar ведёт официальные записи об учащихся.",
+        "uz": "Who maintains student records lavozim vazifasini tasvirlaydi. Registrar talabalar haqidagi rasmiy yozuvlarni yuritadi."
+      }
+    },
+    {
+      "key": "bonus-c1-s-preprint",
+      "type": "sentence",
+      "lesson": {
+        "stage": 16,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "preprint"
+      ],
+      "prompt": {
+        "ru": "Авторы поделились препринтом до того, как журнал принял их статью.",
+        "uz": "Jurnal maqolani qabul qilishidan oldin mualliflar uning nashrdan oldingi nusxasini ulashishdi."
+      },
+      "fragments": [
+        "the authors",
+        "shared a preprint",
+        "before the journal",
+        "accepted their paper"
+      ],
+      "accepted": [
+        [
+          "the authors",
+          "shared a preprint",
+          "before the journal",
+          "accepted their paper"
+        ],
+        [
+          "before the journal",
+          "accepted their paper",
+          "the authors",
+          "shared a preprint"
+        ]
+      ],
+      "display": "The authors shared a preprint before the journal accepted their paper.",
+      "explanation": {
+        "ru": "A preprint — версия работы до её официальной публикации. Before вводит событие, которое произошло позже.",
+        "uz": "Preprint — ishning rasmiy nashrdan oldingi nusxasi. Before keyinroq yuz bergan voqeani kiritadi."
+      }
+    },
+    {
+      "key": "bonus-c1-c-unanimity",
+      "type": "collocation",
+      "lesson": {
+        "stage": 17,
+        "number": 5
+      },
+      "level": "C1",
+      "target_words": [
+        "unanimity"
+      ],
+      "text": "The panel failed to ___ unanimity on the revised wording.",
+      "options": [
+        "achieve",
+        "arrive",
+        "concur"
+      ],
+      "correct": [
+        "achieve"
+      ],
+      "translation": {
+        "ru": "Комиссии не удалось прийти к единогласию по новой формулировке.",
+        "uz": "Hay'at qayta ishlangan matn bo'yicha yakdil fikrga kela olmadi."
+      },
+      "explanation": {
+        "ru": "Achieve unanimity — достичь единогласия. Arrive можно употребить с at, например arrive at a decision.",
+        "uz": "Achieve unanimity — yakdil fikrga kelmoq. Arrive bilan at kelishi mumkin, masalan arrive at a decision."
+      }
+    },
+    {
+      "key": "bonus-c1-s-cladding",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "C1",
+      "target_words": [
+        "cladding"
+      ],
+      "prompt": {
+        "ru": "Наружная облицовка защищает каркас от дождя, который гонит ветер.",
+        "uz": "Tashqi qoplama karkasni shamol haydab keladigan yomg'irdan himoya qiladi."
+      },
+      "fragments": [
+        "the cladding",
+        "shields",
+        "the frame",
+        "from wind-driven rain"
+      ],
+      "accepted": [
+        [
+          "the cladding",
+          "shields",
+          "the frame",
+          "from wind-driven rain"
+        ]
+      ],
+      "display": "The cladding shields the frame from wind-driven rain.",
+      "explanation": {
+        "ru": "Shield something from something — защитить что-либо от чего-либо.",
+        "uz": "Shield something from something — biror narsani biror ta'sirdan himoya qilmoq."
+      }
+    },
+    {
+      "key": "bonus-c1-c-sublease",
+      "type": "collocation",
+      "lesson": {
+        "stage": 19,
+        "number": 3
+      },
+      "level": "C1",
+      "target_words": [
+        "sublease"
+      ],
+      "text": "The tenant cannot enter ___ a sublease without written permission.",
+      "options": [
+        "into",
+        "onto",
+        "toward"
+      ],
+      "correct": [
+        "into"
+      ],
+      "translation": {
+        "ru": "Арендатор не может заключить договор субаренды без письменного разрешения.",
+        "uz": "Ijarachi yozma ruxsatsiz ikkilamchi ijara shartnomasini tuza olmaydi."
+      },
+      "explanation": {
+        "ru": "В значении «заключить договор» употребляется enter into: enter into a sublease.",
+        "uz": "Shartnoma tuzish ma'nosida enter into ishlatiladi: enter into a sublease."
+      }
+    }
+  ]
+}

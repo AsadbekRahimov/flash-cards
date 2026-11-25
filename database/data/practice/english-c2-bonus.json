@@ -1,0 +1,594 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-c2",
+  "items": [
+    {
+      "key": "bonus-c2-w-selflessness",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "selflessness"
+      ],
+      "text": "The prize honors acts of extraordinary ___ in public service.",
+      "base": "selfless",
+      "accepted": [
+        "selflessness"
+      ],
+      "translation": {
+        "ru": "Премией отмечают проявления исключительного бескорыстия в служении обществу.",
+        "uz": "Mukofot jamiyatga xizmat qilishda ko'rsatilgan alohida beg'arazlikni e'tirof etadi."
+      },
+      "explanation": {
+        "ru": "После acts of extraordinary нужно существительное качества. Суффикс -ness даёт selflessness.",
+        "uz": "Acts of extraordinary dan keyin fazilatni bildiruvchi ot kerak. -ness qo'shimchasi bilan selflessness yasaladi."
+      }
+    },
+    {
+      "key": "bonus-c2-w-irascibility",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "irascibility"
+      ],
+      "text": "The editor's ___ made even routine queries intimidating for new staff.",
+      "base": "irascible",
+      "accepted": [
+        "irascibility"
+      ],
+      "translation": {
+        "ru": "Из-за вспыльчивости редактора новые сотрудники боялись задавать даже обычные вопросы.",
+        "uz": "Muharrirning jahli tez chiqqani uchun yangi xodimlar oddiy savollarni ham berishga cho'chishardi."
+      },
+      "explanation": {
+        "ru": "После притяжательной формы the editor's нужно существительное, называющее качество: irascibility.",
+        "uz": "The editor's egalik shaklidan keyin xususiyatni bildiruvchi ot kerak: irascibility."
+      }
+    },
+    {
+      "key": "bonus-c2-e-sagacity",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "sagacity"
+      ],
+      "text": "The mediator's sagacity proved *instrumentally* in breaking the deadlock.",
+      "options": [
+        "instrumental",
+        "instrumentation",
+        "instrumentality"
+      ],
+      "correct": [
+        "instrumental"
+      ],
+      "translation": {
+        "ru": "Мудрость посредника сыграла решающую роль в выходе из тупика.",
+        "uz": "Muzokarani boshi berk ko'chadan olib chiqishda vositachining donoligi hal qiluvchi rol o'ynadi."
+      },
+      "explanation": {
+        "ru": "Prove instrumental in doing something значит «сыграть ключевую роль в чём-либо». После proved здесь нужно прилагательное instrumental.",
+        "uz": "Prove instrumental in doing something «biror ishda hal qiluvchi rol o'ynamoq» degani. Bu yerda proved dan keyin instrumental sifati kerak."
+      }
+    },
+    {
+      "key": "bonus-c2-e-unfaltering",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 1,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "unfaltering"
+      ],
+      "text": "She maintained an unfaltering *adhere* to the original terms.",
+      "options": [
+        "adherence",
+        "adherent",
+        "adheres"
+      ],
+      "correct": [
+        "adherence"
+      ],
+      "translation": {
+        "ru": "Она неизменно придерживалась первоначальных условий.",
+        "uz": "U dastlabki shartlarga og'ishmay rioya qildi."
+      },
+      "explanation": {
+        "ru": "После an unfaltering нужно существительное adherence. Adherence to terms — соблюдение условий.",
+        "uz": "An unfaltering dan keyin adherence oti kerak. Adherence to terms — shartlarga rioya qilish."
+      }
+    },
+    {
+      "key": "bonus-c2-e-skittishness",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 2,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "skittishness"
+      ],
+      "text": "The foal's skittishness was *exacerbate* by the sudden clatter.",
+      "options": [
+        "exacerbated",
+        "exacerbates",
+        "exacerbating"
+      ],
+      "correct": [
+        "exacerbated"
+      ],
+      "translation": {
+        "ru": "Внезапный грохот усилил пугливость жеребёнка.",
+        "uz": "Kutilmagan taraqlagan ovoz toychoqning hurkakligini kuchaytirdi."
+      },
+      "explanation": {
+        "ru": "Was и оборот с by указывают на пассив. Третья форма exacerbate — exacerbated.",
+        "uz": "Was va by bilan kelgan qism majhul nisbatni bildiradi. Exacerbate fe'lining uchinchi shakli exacerbated."
+      }
+    },
+    {
+      "key": "bonus-c2-c-laconic",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "laconic"
+      ],
+      "text": "She gave a laconic ___ to the question and resumed reading.",
+      "options": [
+        "reply",
+        "hearsay",
+        "gossip"
+      ],
+      "correct": [
+        "reply"
+      ],
+      "translation": {
+        "ru": "Она коротко ответила на вопрос и продолжила читать.",
+        "uz": "U savolga qisqagina javob berib, o'qishda davom etdi."
+      },
+      "explanation": {
+        "ru": "A laconic reply — немногословный ответ. Reply to the question обозначает ответ на вопрос.",
+        "uz": "A laconic reply — qisqagina javob. Reply to the question — savolga javob."
+      }
+    },
+    {
+      "key": "bonus-c2-c-revoke",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "revoke"
+      ],
+      "text": "The agency may revoke an operator's ___ for repeated violations.",
+      "options": [
+        "license",
+        "attendance",
+        "absence"
+      ],
+      "correct": [
+        "license"
+      ],
+      "translation": {
+        "ru": "Ведомство может отозвать лицензию оператора за повторные нарушения.",
+        "uz": "Idora takroriy qoidabuzarliklar uchun operatorning litsenziyasini bekor qilishi mumkin."
+      },
+      "explanation": {
+        "ru": "Revoke a license — официально отозвать лицензию.",
+        "uz": "Revoke a license — litsenziyani rasman bekor qilmoq."
+      }
+    },
+    {
+      "key": "bonus-c2-s-abrogate",
+      "type": "sentence",
+      "lesson": {
+        "stage": 4,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "abrogate"
+      ],
+      "prompt": {
+        "ru": "Законодательный орган проголосовал за отмену устаревшего положения.",
+        "uz": "Qonun chiqaruvchi organ eskirgan qoidani bekor qilish uchun ovoz berdi."
+      },
+      "fragments": [
+        "the legislature",
+        "voted",
+        "to abrogate",
+        "the obsolete provision"
+      ],
+      "accepted": [
+        [
+          "the legislature",
+          "voted",
+          "to abrogate",
+          "the obsolete provision"
+        ]
+      ],
+      "display": "The legislature voted to abrogate the obsolete provision.",
+      "explanation": {
+        "ru": "Abrogate — официально отменять закон, правило или соглашение. Vote to do — проголосовать за действие.",
+        "uz": "Abrogate — qonun, qoida yoki bitimni rasman bekor qilmoq. Vote to do — muayyan ishni qilish tarafdori bo'lib ovoz bermoq."
+      }
+    },
+    {
+      "key": "bonus-c2-e-interdiction",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 4,
+        "number": 5
+      },
+      "level": "C2",
+      "target_words": [
+        "interdiction"
+      ],
+      "text": "The interdiction was *unenforceably* without the cooperation of local traders.",
+      "options": [
+        "unenforceable",
+        "unenforceability",
+        "enforce"
+      ],
+      "correct": [
+        "unenforceable"
+      ],
+      "translation": {
+        "ru": "Без содействия местных торговцев обеспечить соблюдение запрета было невозможно.",
+        "uz": "Mahalliy savdogarlar hamkorlik qilmasa, taqiqning bajarilishini ta'minlab bo'lmasdi."
+      },
+      "explanation": {
+        "ru": "После was здесь нужно прилагательное unenforceable, то есть «такой, соблюдение которого нельзя обеспечить».",
+        "uz": "Bu yerda was dan keyin unenforceable sifati kerak. Bu «bajarilishini ta'minlab bo'lmaydigan» degani."
+      }
+    },
+    {
+      "key": "bonus-c2-w-dogmatism",
+      "type": "word_form",
+      "lesson": {
+        "stage": 5,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "dogmatism"
+      ],
+      "text": "The memo criticizes his ___ and his refusal to reconsider his assumptions.",
+      "base": "dogmatic",
+      "accepted": [
+        "dogmatism"
+      ],
+      "translation": {
+        "ru": "В записке критикуют его догматизм и отказ пересмотреть собственные предположения.",
+        "uz": "Xizmat yozuvida uning aqidaparastligi va o'z taxminlarini qayta ko'rib chiqishdan bosh tortgani tanqid qilinadi."
+      },
+      "explanation": {
+        "ru": "His относится к существительному. Dogmatic — прилагательное, dogmatism — догматизм.",
+        "uz": "His egalik shakli otga tegishli. Dogmatic — sifat, dogmatism esa aqidaparastlikni bildiradigan ot."
+      }
+    },
+    {
+      "key": "bonus-c2-s-proprioception",
+      "type": "sentence",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "proprioception"
+      ],
+      "prompt": {
+        "ru": "Травма нарушила её способность ощущать положение тела, при этом зрение сохранилось.",
+        "uz": "Jarohat uning tana holatini sezish qobiliyatini susaytirdi, ko'rishiga esa ta'sir qilmadi."
+      },
+      "fragments": [
+        "the injury",
+        "impaired",
+        "her proprioception",
+        "without affecting her vision"
+      ],
+      "accepted": [
+        [
+          "the injury",
+          "impaired",
+          "her proprioception",
+          "without affecting her vision"
+        ]
+      ],
+      "display": "The injury impaired her proprioception without affecting her vision.",
+      "explanation": {
+        "ru": "Proprioception — ощущение положения и движения частей тела. Without affecting указывает, чего травма не затронула.",
+        "uz": "Proprioception — tana qismlarining holati va harakatini sezish. Without affecting jarohat nimaga ta'sir qilmaganini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-c2-w-misattribution",
+      "type": "word_form",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "misattribution"
+      ],
+      "text": "The gallery acknowledged the ___ of the sketch to the wrong artist.",
+      "base": "misattribute",
+      "accepted": [
+        "misattribution"
+      ],
+      "translation": {
+        "ru": "Галерея признала, что эскиз ошибочно приписали другому художнику.",
+        "uz": "Galereya eskiz xato ravishda boshqa rassomniki deb ko'rsatilganini tan oldi."
+      },
+      "explanation": {
+        "ru": "После the и перед дополнением с of нужно существительное misattribution — ошибочное указание авторства.",
+        "uz": "The dan keyin va of bilan kelgan to'ldiruvchidan oldin misattribution oti kerak. Bu muallifni xato ko'rsatish degani."
+      }
+    },
+    {
+      "key": "bonus-c2-s-tenebrous",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "tenebrous"
+      ],
+      "prompt": {
+        "ru": "Одинокая лампа едва освещала тёмный коридор.",
+        "uz": "Yolg'iz chiroq zimiston yo'lakni zo'rg'a yoritardi."
+      },
+      "fragments": [
+        "a single lamp",
+        "barely lit",
+        "the tenebrous corridor"
+      ],
+      "accepted": [
+        [
+          "a single lamp",
+          "barely lit",
+          "the tenebrous corridor"
+        ]
+      ],
+      "display": "A single lamp barely lit the tenebrous corridor.",
+      "explanation": {
+        "ru": "Tenebrous — книжное обозначение тёмного или мрачного места. Barely lit означает «едва освещала».",
+        "uz": "Tenebrous qorong'i yoki zimiston joyni tasvirlaydigan kitobiy so'z. Barely lit — «zo'rg'a yoritardi»."
+      }
+    },
+    {
+      "key": "bonus-c2-e-bucolic",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "bucolic"
+      ],
+      "text": "Her *nostalgically* portrayal of the bucolic setting obscures its hardships.",
+      "options": [
+        "nostalgic",
+        "nostalgia",
+        "nostalgias"
+      ],
+      "correct": [
+        "nostalgic"
+      ],
+      "translation": {
+        "ru": "Её ностальгическое описание сельской идиллии скрывает тяготы деревенской жизни.",
+        "uz": "Uning osoyishta qishloq haqidagi sog'inchga to'la tasviri qishloq hayotidagi qiyinchiliklarni yashiradi."
+      },
+      "explanation": {
+        "ru": "Перед portrayal здесь нужно прилагательное nostalgic. Nostalgically — наречие, которое описывало бы действие.",
+        "uz": "Portrayal otidan oldin bu yerda nostalgic sifati kerak. Nostalgically harakatni tasvirlaydigan ravish."
+      }
+    },
+    {
+      "key": "bonus-c2-c-anaphora",
+      "type": "collocation",
+      "lesson": {
+        "stage": 8,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "anaphora"
+      ],
+      "text": "Anaphora is the deliberate ___ of words at the start of successive clauses.",
+      "options": [
+        "repetition",
+        "retrieval",
+        "transcription"
+      ],
+      "correct": [
+        "repetition"
+      ],
+      "translation": {
+        "ru": "Анафора — намеренное повторение слов в начале следующих друг за другом частей предложения.",
+        "uz": "Anafora — ketma-ket kelgan gap qismlarining boshida so'zlarni ataylab takrorlash."
+      },
+      "explanation": {
+        "ru": "В риторике анафора состоит в повторении начальных слов в последовательных отрезках речи.",
+        "uz": "Ritorikada anafora ketma-ket kelgan nutq qismlari boshidagi so'zlarni takrorlashdan iborat."
+      }
+    },
+    {
+      "key": "bonus-c2-c-ineluctable",
+      "type": "collocation",
+      "lesson": {
+        "stage": 17,
+        "number": 4
+      },
+      "level": "C2",
+      "target_words": [
+        "ineluctable"
+      ],
+      "text": "The mediator saw closure as the ineluctable ___ of months without funding.",
+      "options": [
+        "consequence",
+        "recipe",
+        "instrument"
+      ],
+      "correct": [
+        "consequence"
+      ],
+      "translation": {
+        "ru": "Посредник считал закрытие неизбежным последствием многомесячного отсутствия финансирования.",
+        "uz": "Vositachi yopilishni bir necha oy mablag' ajratilmaganining muqarrar oqibati deb bildi."
+      },
+      "explanation": {
+        "ru": "An ineluctable consequence — неизбежное последствие. Ineluctable звучит формально.",
+        "uz": "An ineluctable consequence — muqarrar oqibat. Ineluctable rasmiyroq uslubga xos."
+      }
+    },
+    {
+      "key": "bonus-c2-c-paucity",
+      "type": "collocation",
+      "lesson": {
+        "stage": 18,
+        "number": 1
+      },
+      "level": "C2",
+      "target_words": [
+        "paucity"
+      ],
+      "text": "The paucity ___ reliable records makes the chronology uncertain.",
+      "options": [
+        "of",
+        "by",
+        "aboard"
+      ],
+      "correct": [
+        "of"
+      ],
+      "translation": {
+        "ru": "Нехватка надёжных записей не позволяет точно установить хронологию.",
+        "uz": "Ishonchli yozuvlar kamligi sabab voqealar ketma-ketligi aniq emas."
+      },
+      "explanation": {
+        "ru": "Paucity of something означает нехватку чего-либо. Of вводит то, чего мало.",
+        "uz": "Paucity of something — biror narsaning tanqisligi. Of nima kamligini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-c2-s-slovenly",
+      "type": "sentence",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "slovenly"
+      ],
+      "prompt": {
+        "ru": "Редактор возразил против неряшливого оформления поданной работы.",
+        "uz": "Muharrir topshirilgan ishning pala-partish rasmiylashtirilganiga e'tiroz bildirdi."
+      },
+      "fragments": [
+        "the editor",
+        "objected to",
+        "the submission's",
+        "slovenly presentation"
+      ],
+      "accepted": [
+        [
+          "the editor",
+          "objected to",
+          "the submission's",
+          "slovenly presentation"
+        ]
+      ],
+      "display": "The editor objected to the submission's slovenly presentation.",
+      "explanation": {
+        "ru": "Object to — возражать против чего-либо. Слово slovenly описывает неряшливый внешний вид оформления.",
+        "uz": "Object to — biror narsaga e'tiroz bildirmoq. Slovenly bu yerda ish pala-partish rasmiylashtirilganini anglatadi."
+      }
+    },
+    {
+      "key": "bonus-c2-w-perfunctorily",
+      "type": "word_form",
+      "lesson": {
+        "stage": 18,
+        "number": 3
+      },
+      "level": "C2",
+      "target_words": [
+        "perfunctorily"
+      ],
+      "text": "The receptionist nodded ___ and immediately returned to her paperwork.",
+      "base": "perfunctory",
+      "accepted": [
+        "perfunctorily"
+      ],
+      "translation": {
+        "ru": "Сотрудница на стойке формально кивнула и сразу вернулась к своим бумагам.",
+        "uz": "Qabulxona xodimi yuzaki bosh irg'adi-da, darrov hujjatlariga qaytdi."
+      },
+      "explanation": {
+        "ru": "Пропуск описывает, как она кивнула. Перед -ly конечная y меняется на i: perfunctorily.",
+        "uz": "Bo'sh joy u qanday bosh irg'aganini tasvirlaydi. -ly dan oldin oxirgi y i ga almashadi: perfunctorily."
+      }
+    },
+    {
+      "key": "bonus-c2-s-ostinato",
+      "type": "sentence",
+      "lesson": {
+        "stage": 19,
+        "number": 2
+      },
+      "level": "C2",
+      "target_words": [
+        "ostinato"
+      ],
+      "prompt": {
+        "ru": "Тихое остинато продолжало звучать на фоне меняющихся гармоний.",
+        "uz": "O'zgarib turgan garmoniyalar jo'rligida sokin ostinato yangrashda davom etdi."
+      },
+      "fragments": [
+        "a quiet ostinato",
+        "persisted",
+        "beneath",
+        "the changing harmonies"
+      ],
+      "accepted": [
+        [
+          "a quiet ostinato",
+          "persisted",
+          "beneath",
+          "the changing harmonies"
+        ]
+      ],
+      "display": "A quiet ostinato persisted beneath the changing harmonies.",
+      "explanation": {
+        "ru": "Остинато — повторяющаяся музыкальная фигура. Beneath здесь описывает музыкальный фон.",
+        "uz": "Ostinato — takrorlanadigan musiqiy shakl. Beneath bu yerda musiqiy fonni bildiradi."
+      }
+    }
+  ]
+}

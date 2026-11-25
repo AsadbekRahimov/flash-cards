@@ -394,7 +394,7 @@ it('tells the informal address by its forms: «sen» in uz, «ты» in ru', fun
         ->and(PracticePackRules::ruInformal('Вы получили моё письмо? Можете прислать? Давайте встретимся.'))->toBe([]);
 });
 
-it('keeps every practice file of a course in the glob of that course and of no other', function (): void {
+it('keeps every base practice file of a course in the glob of that course and of no other', function (): void {
     $courses = ppk_courses();
     $seen = 0;
     foreach (glob(base_path('database/data/practice/*.json')) ?: [] as $file) {
@@ -402,8 +402,8 @@ it('keeps every practice file of a course in the glob of that course and of no o
         if (! isset($courses[$course]) || (ppk_read($file)['format'] ?? null) !== PracticeImporter::FORMAT) {
             continue;   // another course (`pilot-a1-a2.json` is of `default`), not a pack of this list
         }
-        if (preg_match(PracticePackRules::EXTRA_FILE, $file) === 1) {
-            // A file of the two newer types (`-x01.json`): PracticeExtraPackTest owns it - and no pattern here may take it.
+        if (preg_match(PracticePackRules::EXTRA_FILE, $file) === 1 || basename($file) === "{$course}-bonus.json") {
+            // Extra and bonus packs have their own tests and must stay out of these base pack globs.
             foreach ($courses as $slug => $row) {
                 expect(in_array($file, ppk_files($slug), true))->toBeFalse(basename($file)." is in the patterns of {$slug}");
             }

@@ -1,0 +1,606 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b2",
+  "items": [
+    {
+      "key": "bonus-b2-w-unreliable",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "unreliable"
+      ],
+      "text": "We replaced the sensor because it was too ___ to trust.",
+      "base": "rely",
+      "accepted": [
+        "unreliable"
+      ],
+      "translation": {
+        "ru": "Мы заменили датчик, потому что на него нельзя было положиться.",
+        "uz": "Datchikka ishonib bo'lmagani uchun uni almashtirdik."
+      },
+      "explanation": {
+        "ru": "Смысл требует отрицания: на датчик нельзя положиться. Rely → reliable → unreliable.",
+        "uz": "Ma'no inkorni talab qiladi: datchikka ishonib bo'lmaydi. Rely → reliable → unreliable."
+      }
+    },
+    {
+      "key": "bonus-b2-w-refinance",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "refinance"
+      ],
+      "text": "Last spring the company ___ its debt at a lower rate.",
+      "base": "refinance",
+      "accepted": [
+        "refinanced"
+      ],
+      "translation": {
+        "ru": "Прошлой весной компания рефинансировала долг по более низкой ставке.",
+        "uz": "O'tgan bahorda kompaniya qarzini pastroq foiz stavkasida qayta moliyalashtirdi."
+      },
+      "explanation": {
+        "ru": "Last spring задаёт Past Simple. К refinance добавляем d, поскольку слово уже оканчивается на e.",
+        "uz": "Last spring Past Simple zamonini bildiradi. Refinance e harfi bilan tugagani uchun faqat d qo'shiladi."
+      }
+    },
+    {
+      "key": "bonus-b2-c-stockbroker",
+      "type": "collocation",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "stockbroker"
+      ],
+      "text": "Our stockbroker advised us ___ selling all our shares.",
+      "options": [
+        "against",
+        "under",
+        "onto"
+      ],
+      "correct": [
+        "against"
+      ],
+      "translation": {
+        "ru": "Наш биржевой брокер посоветовал нам не продавать все акции.",
+        "uz": "Birja brokerimiz barcha aksiyalarimizni sotmaslikni maslahat berdi."
+      },
+      "explanation": {
+        "ru": "Advise someone against doing something — посоветовать кому-то этого не делать.",
+        "uz": "Advise someone against doing something — birovga biror ishni qilmaslikni maslahat bermoq."
+      }
+    },
+    {
+      "key": "bonus-b2-w-outperform",
+      "type": "word_form",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "outperform"
+      ],
+      "text": "Last quarter our smallest branch ___ every other branch.",
+      "base": "outperform",
+      "accepted": [
+        "outperformed"
+      ],
+      "translation": {
+        "ru": "В прошлом квартале наш самый маленький филиал показал результаты лучше всех остальных.",
+        "uz": "O'tgan chorakda eng kichik filialimiz boshqa barcha filiallardan yaxshiroq natija ko'rsatdi."
+      },
+      "explanation": {
+        "ru": "Last quarter задаёт Past Simple, а глагол outperform образует эту форму с -ed.",
+        "uz": "Last quarter Past Simple zamonini bildiradi. Outperform fe'liga -ed qo'shiladi."
+      }
+    },
+    {
+      "key": "bonus-b2-c-encrypted",
+      "type": "collocation",
+      "lesson": {
+        "stage": 5,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "encrypted"
+      ],
+      "text": "The files are encrypted to ___ them from unauthorized access.",
+      "options": [
+        "protect",
+        "avoid",
+        "prevent"
+      ],
+      "correct": [
+        "protect"
+      ],
+      "translation": {
+        "ru": "Файлы зашифрованы, чтобы защитить их от несанкционированного доступа.",
+        "uz": "Fayllar ularga ruxsatsiz kirishdan himoya qilish uchun shifrlangan."
+      },
+      "explanation": {
+        "ru": "Protect files from unauthorized access — защищать файлы от несанкционированного доступа.",
+        "uz": "Protect files from unauthorized access — fayllarni ruxsatsiz kirishdan himoya qilmoq."
+      }
+    },
+    {
+      "key": "bonus-b2-c-pollination",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "pollination"
+      ],
+      "text": "Many fruit trees depend ___ insects for pollination.",
+      "options": [
+        "on",
+        "at",
+        "into"
+      ],
+      "correct": [
+        "on"
+      ],
+      "translation": {
+        "ru": "Опыление многих плодовых деревьев зависит от насекомых.",
+        "uz": "Ko'p mevali daraxtlar changlanishi uchun hasharotlarga bog'liq."
+      },
+      "explanation": {
+        "ru": "Depend on something — зависеть от чего-либо. For pollination указывает, для чего нужны насекомые.",
+        "uz": "Depend on something — biror narsaga bog'liq bo'lmoq. For pollination hasharotlar nima uchun kerakligini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-b2-s-microplastics",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "microplastics"
+      ],
+      "prompt": {
+        "ru": "Команда обнаружила следы микропластика в бутилированной воде.",
+        "uz": "Jamoa idishlarga quyib sotiladigan suvda mikroplastik izlarini aniqladi."
+      },
+      "fragments": [
+        "the team",
+        "found",
+        "traces of microplastics",
+        "in bottled water"
+      ],
+      "accepted": [
+        [
+          "the team",
+          "found",
+          "traces of microplastics",
+          "in bottled water"
+        ],
+        [
+          "in bottled water",
+          "the team",
+          "found",
+          "traces of microplastics"
+        ]
+      ],
+      "display": "The team found traces of microplastics in bottled water.",
+      "explanation": {
+        "ru": "Traces of something — следы чего-либо. In bottled water указывает, где их обнаружили.",
+        "uz": "Traces of something — biror narsaning izlari. In bottled water izlar qayerdan topilganini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-b2-e-floodwater",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "floodwater"
+      ],
+      "text": "The floodwater was *rised* at an alarming rate overnight.",
+      "options": [
+        "rising",
+        "rose",
+        "rises"
+      ],
+      "correct": [
+        "rising"
+      ],
+      "translation": {
+        "ru": "За ночь уровень паводковой воды поднимался с тревожной скоростью.",
+        "uz": "Kechasi toshqin suvi xavotirli tezlikda ko'tarilib borardi."
+      },
+      "explanation": {
+        "ru": "Здесь прошлый процесс выражают was + rising. Rise теряет конечную e перед -ing.",
+        "uz": "O'tmishda davom etgan harakat was + rising bilan ifodalanadi. Rise ga -ing qo'shilganda oxiridagi e tushadi."
+      }
+    },
+    {
+      "key": "bonus-b2-e-legislator",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 9,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "legislator"
+      ],
+      "text": "The legislator insisted on *write* the amendment herself.",
+      "options": [
+        "writing",
+        "wrote",
+        "writes"
+      ],
+      "correct": [
+        "writing"
+      ],
+      "translation": {
+        "ru": "Законодательница настояла на том, чтобы самой написать поправку.",
+        "uz": "Qonun chiqaruvchi tuzatishni o'zi yozishni talab qildi."
+      },
+      "explanation": {
+        "ru": "В конструкции insist on действие выражаем формой на -ing: insisted on writing.",
+        "uz": "Insist on qolipida harakat -ing shaklida ifodalanadi: insisted on writing."
+      }
+    },
+    {
+      "key": "bonus-b2-c-evacuation",
+      "type": "collocation",
+      "lesson": {
+        "stage": 9,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "evacuation"
+      ],
+      "text": "The mayor issued an evacuation ___ before the flood.",
+      "options": [
+        "order",
+        "habit",
+        "mood"
+      ],
+      "correct": [
+        "order"
+      ],
+      "translation": {
+        "ru": "Перед наводнением мэр распорядился об эвакуации.",
+        "uz": "Suv toshqinidan oldin shahar hokimi aholini ko'chirish haqida buyruq berdi."
+      },
+      "explanation": {
+        "ru": "Issue an evacuation order — отдать распоряжение об эвакуации.",
+        "uz": "Issue an evacuation order — odamlarni xavfsiz joyga ko'chirish haqida buyruq bermoq."
+      }
+    },
+    {
+      "key": "bonus-b2-c-reputable",
+      "type": "collocation",
+      "lesson": {
+        "stage": 10,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "reputable"
+      ],
+      "text": "Check whether the figures come ___ a reputable source.",
+      "options": [
+        "from",
+        "throughout",
+        "onto"
+      ],
+      "correct": [
+        "from"
+      ],
+      "translation": {
+        "ru": "Проверьте, взяты ли данные из авторитетного источника.",
+        "uz": "Raqamlar obro'li manbadan olinganmi, tekshirib ko'ring."
+      },
+      "explanation": {
+        "ru": "Come from a source значит «происходить из источника». From показывает происхождение данных.",
+        "uz": "Come from a source — manbadan olinmoq. From ma'lumotning qayerdan kelganini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-b2-s-choreographer",
+      "type": "sentence",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "choreographer"
+      ],
+      "prompt": {
+        "ru": "После репетиции хореограф изменил заключительную часть номера.",
+        "uz": "Repetitsiyadan keyin xoreograf raqsning yakuniy qismini o'zgartirdi."
+      },
+      "fragments": [
+        "the choreographer",
+        "revised",
+        "the final sequence",
+        "after the rehearsal"
+      ],
+      "accepted": [
+        [
+          "the choreographer",
+          "revised",
+          "the final sequence",
+          "after the rehearsal"
+        ],
+        [
+          "after the rehearsal",
+          "the choreographer",
+          "revised",
+          "the final sequence"
+        ]
+      ],
+      "display": "The choreographer revised the final sequence after the rehearsal.",
+      "explanation": {
+        "ru": "The final sequence называет заключительную часть номера. After the rehearsal указывает время и может стоять в начале или конце.",
+        "uz": "The final sequence raqsning yakuniy qismini bildiradi. After the rehearsal vaqtni bildiradi va gap boshida ham, oxirida ham kelishi mumkin."
+      }
+    },
+    {
+      "key": "bonus-b2-w-annotation",
+      "type": "word_form",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "annotation"
+      ],
+      "text": "The editor added three short ___ in the margin.",
+      "base": "annotation",
+      "accepted": [
+        "annotations"
+      ],
+      "translation": {
+        "ru": "Редактор добавил на полях три короткие пометки.",
+        "uz": "Muharrir sahifa hoshiyasiga uchta qisqa izoh yozdi."
+      },
+      "explanation": {
+        "ru": "Three относится к исчисляемому существительному, поэтому нужна форма annotations.",
+        "uz": "Three sanaladigan otga tegishli, shuning uchun annotations ko'plik shakli kerak."
+      }
+    },
+    {
+      "key": "bonus-b2-s-migrant",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "migrant"
+      ],
+      "prompt": {
+        "ru": "Трудовой мигрант рассказал о трудностях поиска жилья.",
+        "uz": "Mehnat muhojiri turar joy topishdagi qiyinchiliklar haqida gapirdi."
+      },
+      "fragments": [
+        "a migrant worker",
+        "described",
+        "the difficulties",
+        "of finding housing"
+      ],
+      "accepted": [
+        [
+          "a migrant worker",
+          "described",
+          "the difficulties",
+          "of finding housing"
+        ]
+      ],
+      "display": "A migrant worker described the difficulties of finding housing.",
+      "explanation": {
+        "ru": "После difficulties of действие выражается формой на -ing: of finding housing.",
+        "uz": "Difficulties of dan keyin harakat -ing shaklida keladi: of finding housing."
+      }
+    },
+    {
+      "key": "bonus-b2-w-volunteering",
+      "type": "word_form",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "volunteering"
+      ],
+      "text": "By ___ at the shelter, she gained practical experience.",
+      "base": "volunteer",
+      "accepted": [
+        "volunteering"
+      ],
+      "translation": {
+        "ru": "Она приобрела практический опыт, работая волонтёром в приюте.",
+        "uz": "U boshpanada ko'ngilli bo'lib ishlab, amaliy tajriba orttirdi."
+      },
+      "explanation": {
+        "ru": "By + глагол на -ing показывает, каким способом получен результат.",
+        "uz": "By + -ing shaklidagi fe'l natijaga qanday erishilganini ko'rsatadi."
+      }
+    },
+    {
+      "key": "bonus-b2-s-excavation",
+      "type": "sentence",
+      "lesson": {
+        "stage": 14,
+        "number": 2
+      },
+      "level": "B2",
+      "target_words": [
+        "excavation"
+      ],
+      "prompt": {
+        "ru": "При раскопках обнаружили фундамент древнего дома.",
+        "uz": "Qazishma paytida qadimiy uyning poydevori topildi."
+      },
+      "fragments": [
+        "the excavation",
+        "revealed",
+        "the foundations",
+        "of an ancient house"
+      ],
+      "accepted": [
+        [
+          "the excavation",
+          "revealed",
+          "the foundations",
+          "of an ancient house"
+        ]
+      ],
+      "display": "The excavation revealed the foundations of an ancient house.",
+      "explanation": {
+        "ru": "The foundations of an ancient house — фундамент древнего дома. Группа с of относится к foundations.",
+        "uz": "The foundations of an ancient house — qadimiy uyning poydevori. Of bilan boshlangan qism foundations so'zini aniqlaydi."
+      }
+    },
+    {
+      "key": "bonus-b2-e-handshake",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 3
+      },
+      "level": "B2",
+      "target_words": [
+        "handshake"
+      ],
+      "text": "They had already *shaked* hands, so another handshake felt unnecessary.",
+      "options": [
+        "shaken",
+        "shake",
+        "shaking"
+      ],
+      "correct": [
+        "shaken"
+      ],
+      "translation": {
+        "ru": "Они уже пожали друг другу руки, так что ещё одно рукопожатие казалось лишним.",
+        "uz": "Ular allaqachon qo'l berib ko'rishishgandi, shuning uchun yana ko'rishish ortiqcha tuyuldi."
+      },
+      "explanation": {
+        "ru": "После had нужна третья форма неправильного глагола: shake → shook → shaken.",
+        "uz": "Had dan keyin noto'g'ri fe'lning uchinchi shakli kerak: shake → shook → shaken."
+      }
+    },
+    {
+      "key": "bonus-b2-e-panoramic",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "panoramic"
+      ],
+      "text": "The hotel offers a panoramic view not *seened* from the street.",
+      "options": [
+        "seen",
+        "seeing",
+        "sees"
+      ],
+      "correct": [
+        "seen"
+      ],
+      "translation": {
+        "ru": "Из отеля открывается панорамный вид, которого не видно с улицы.",
+        "uz": "Mehmonxonadan ko'chadan ko'rinmaydigan keng manzara ochiladi."
+      },
+      "explanation": {
+        "ru": "Not seen from the street сокращает оборот that is not seen from the street. Третья форма see — seen.",
+        "uz": "Not seen from the street — that is not seen from the street ning qisqa shakli. See fe'lining uchinchi shakli seen."
+      }
+    },
+    {
+      "key": "bonus-b2-e-unspoiled",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 14,
+        "number": 5
+      },
+      "level": "B2",
+      "target_words": [
+        "unspoiled"
+      ],
+      "text": "The guide asked us to *leaving* the unspoiled beach clean.",
+      "options": [
+        "leave",
+        "left",
+        "leaves"
+      ],
+      "correct": [
+        "leave"
+      ],
+      "translation": {
+        "ru": "Гид попросил нас оставить нетронутый пляж чистым.",
+        "uz": "Yo'lboshchi bizdan tabiiy holati saqlangan sohilni toza qoldirishimizni so'radi."
+      },
+      "explanation": {
+        "ru": "После asked us to нужна начальная форма, leave.",
+        "uz": "Asked us to dan keyin leave fe'lining boshlang'ich shakli keladi."
+      }
+    },
+    {
+      "key": "bonus-b2-s-waterworks",
+      "type": "sentence",
+      "lesson": {
+        "stage": 15,
+        "number": 4
+      },
+      "level": "B2",
+      "target_words": [
+        "waterworks"
+      ],
+      "prompt": {
+        "ru": "Городские водопроводные сооружения снабжают водой несколько соседних городов.",
+        "uz": "Shahar suv ta'minoti inshootlari yaqin atrofdagi bir nechta shaharga suv yetkazib beradi."
+      },
+      "fragments": [
+        "the city's waterworks",
+        "supply",
+        "several nearby towns"
+      ],
+      "accepted": [
+        [
+          "the city's waterworks",
+          "supply",
+          "several nearby towns"
+        ]
+      ],
+      "display": "The city's waterworks supply several nearby towns.",
+      "explanation": {
+        "ru": "Supply здесь означает «снабжать». Множественное waterworks согласуется с supply без -s.",
+        "uz": "Supply bu yerda «yetkazib bermoq» degani. Waterworks ko'plikda, shuning uchun supply ga -s qo'shilmaydi."
+      }
+    }
+  ]
+}

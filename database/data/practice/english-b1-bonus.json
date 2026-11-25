@@ -1,0 +1,590 @@
+{
+  "format": "lexiflow-practice/1",
+  "course": "english-b1",
+  "items": [
+    {
+      "key": "bonus-b1-w-careless",
+      "type": "word_form",
+      "lesson": {
+        "stage": 1,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "careless"
+      ],
+      "text": "It was ___ of me to leave the door unlocked.",
+      "base": "care",
+      "accepted": [
+        "careless"
+      ],
+      "translation": {
+        "ru": "С моей стороны было неосторожно оставить дверь незапертой.",
+        "uz": "Eshikni qulflamay qoldirganim ehtiyotsizlik bo'ldi."
+      },
+      "explanation": {
+        "ru": "Суффикс -less показывает отсутствие чего-либо. Careless of me описывает неосторожный поступок.",
+        "uz": "-less qo'shimchasi biror narsa yetishmasligini bildiradi. Careless of me ehtiyotsiz xatti-harakatni ifodalaydi."
+      }
+    },
+    {
+      "key": "bonus-b1-w-mispronounce",
+      "type": "word_form",
+      "lesson": {
+        "stage": 2,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "mispronounce"
+      ],
+      "text": "Yesterday the announcer ___ my surname twice.",
+      "base": "mispronounce",
+      "accepted": [
+        "mispronounced"
+      ],
+      "translation": {
+        "ru": "Вчера диктор дважды неправильно произнёс мою фамилию.",
+        "uz": "Kecha suxandon familiyamni ikki marta noto'g'ri talaffuz qildi."
+      },
+      "explanation": {
+        "ru": "Yesterday задаёт Past Simple. У mispronounce уже есть конечная e, поэтому добавляем только d.",
+        "uz": "Yesterday Past Simple zamonini talab qiladi. Mispronounce e harfi bilan tugaydi, shuning uchun faqat d qo'shiladi."
+      }
+    },
+    {
+      "key": "bonus-b1-s-pillowcase",
+      "type": "sentence",
+      "lesson": {
+        "stage": 3,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "pillowcase"
+      ],
+      "prompt": {
+        "ru": "Наволочка была сшита из мягкого хлопка.",
+        "uz": "Yostiq jildi yumshoq paxta matosidan tikilgan edi."
+      },
+      "fragments": [
+        "the pillowcase",
+        "was made",
+        "of soft cotton"
+      ],
+      "accepted": [
+        [
+          "the pillowcase",
+          "was made",
+          "of soft cotton"
+        ]
+      ],
+      "display": "The pillowcase was made of soft cotton.",
+      "explanation": {
+        "ru": "Be made of указывает материал, из которого сделана вещь.",
+        "uz": "Be made of buyum qanday materialdan yasalganini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-b1-e-repaint",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 3,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "repaint"
+      ],
+      "text": "They decided to *repainted* the kitchen a lighter color.",
+      "options": [
+        "repaint",
+        "repaints",
+        "repainting"
+      ],
+      "correct": [
+        "repaint"
+      ],
+      "translation": {
+        "ru": "Они решили перекрасить кухню в более светлый цвет.",
+        "uz": "Ular oshxonani ochroq rangga qayta bo'yashga qaror qilishdi."
+      },
+      "explanation": {
+        "ru": "Decide to требует начальной формы глагола: decided to repaint.",
+        "uz": "Decide to qolipida fe'lning boshlang'ich shakli keladi: decided to repaint."
+      }
+    },
+    {
+      "key": "bonus-b1-c-sprinkle",
+      "type": "collocation",
+      "lesson": {
+        "stage": 4,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "sprinkle"
+      ],
+      "text": "Sprinkle a pinch of cinnamon ___ the oatmeal.",
+      "options": [
+        "over",
+        "to",
+        "at"
+      ],
+      "correct": [
+        "over"
+      ],
+      "translation": {
+        "ru": "Посыпьте овсянку щепоткой корицы.",
+        "uz": "Suli bo'tqasi ustiga bir chimdim dolchin seping."
+      },
+      "explanation": {
+        "ru": "Sprinkle something over food — посыпать еду чем-либо.",
+        "uz": "Sprinkle something over food — ovqat ustiga biror narsa sepmoq."
+      }
+    },
+    {
+      "key": "bonus-b1-e-moped",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "moped"
+      ],
+      "text": "She does not *rides* her moped in the rain.",
+      "options": [
+        "ride",
+        "riding",
+        "rode"
+      ],
+      "correct": [
+        "ride"
+      ],
+      "translation": {
+        "ru": "Она не ездит на мопеде в дождь.",
+        "uz": "U yomg'irda moped haydamaydi."
+      },
+      "explanation": {
+        "ru": "После does not основной глагол идёт без окончания -s.",
+        "uz": "Does not dan keyin asosiy fe'lga -s qo'shilmaydi."
+      }
+    },
+    {
+      "key": "bonus-b1-c-seatbelt",
+      "type": "collocation",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "seatbelt"
+      ],
+      "text": "Please ___ your seatbelt until you hear it click.",
+      "options": [
+        "fasten",
+        "zip",
+        "button"
+      ],
+      "correct": [
+        "fasten"
+      ],
+      "translation": {
+        "ru": "Пожалуйста, застегните ремень безопасности до щелчка.",
+        "uz": "Iltimos, xavfsizlik kamarini chert etguncha mahkamlang."
+      },
+      "explanation": {
+        "ru": "Fasten your seatbelt — пристегнуть ремень безопасности.",
+        "uz": "Fasten your seatbelt — xavfsizlik kamarini taqmoq."
+      }
+    },
+    {
+      "key": "bonus-b1-e-headlight",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 6,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "headlight"
+      ],
+      "text": "The mechanic *taked* the broken headlight out yesterday.",
+      "options": [
+        "took",
+        "takes",
+        "taking"
+      ],
+      "correct": [
+        "took"
+      ],
+      "translation": {
+        "ru": "Вчера механик снял сломанную фару.",
+        "uz": "Kecha mexanik singan farani yechib oldi."
+      },
+      "explanation": {
+        "ru": "Прошедшая форма take — took, в том числе в сочетании take out.",
+        "uz": "Take fe'lining o'tgan zamon shakli took. Bu take out birikmasida ham amal qiladi."
+      }
+    },
+    {
+      "key": "bonus-b1-c-layover",
+      "type": "collocation",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "layover"
+      ],
+      "text": "We had a two-hour layover ___ our connecting flights.",
+      "options": [
+        "between",
+        "since",
+        "within"
+      ],
+      "correct": [
+        "between"
+      ],
+      "translation": {
+        "ru": "У нас было два часа на пересадку между рейсами.",
+        "uz": "Ikki reys orasida ikki soat kutdik."
+      },
+      "explanation": {
+        "ru": "Between связывает два рейса, между которыми приходится ждать.",
+        "uz": "Between kutish vaqti ikki reys orasida bo'lganini ko'rsatadi."
+      }
+    },
+    {
+      "key": "bonus-b1-s-airliner",
+      "type": "sentence",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "airliner"
+      ],
+      "prompt": {
+        "ru": "Пассажирский самолёт дважды облетел аэропорт по кругу.",
+        "uz": "Yo'lovchi samolyoti aeroportni ikki marta aylanib chiqdi."
+      },
+      "fragments": [
+        "the airliner",
+        "circled",
+        "the airport twice"
+      ],
+      "accepted": [
+        [
+          "the airliner",
+          "circled",
+          "the airport twice"
+        ]
+      ],
+      "display": "The airliner circled the airport twice.",
+      "explanation": {
+        "ru": "Circle the airport — лететь по кругу над аэропортом.",
+        "uz": "Circle the airport — aeroport atrofida aylanib uchmoq."
+      }
+    },
+    {
+      "key": "bonus-b1-s-rebook",
+      "type": "sentence",
+      "lesson": {
+        "stage": 6,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "rebook"
+      ],
+      "prompt": {
+        "ru": "Можем ли мы перебронировать обратный рейс на понедельник?",
+        "uz": "Qaytish reysini dushanbaga qayta band qilsak bo'ladimi?"
+      },
+      "fragments": [
+        "could we",
+        "rebook",
+        "the return flight",
+        "for Monday"
+      ],
+      "accepted": [
+        [
+          "could we",
+          "rebook",
+          "the return flight",
+          "for Monday"
+        ]
+      ],
+      "display": "Could we rebook the return flight for Monday?",
+      "explanation": {
+        "ru": "Could we — вежливый вопрос. For Monday указывает новую дату рейса.",
+        "uz": "Could we iltimosni muloyim ifodalaydi. For Monday reysning yangi sanasini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-b1-s-questionnaire",
+      "type": "sentence",
+      "lesson": {
+        "stage": 7,
+        "number": 2
+      },
+      "level": "B1",
+      "target_words": [
+        "questionnaire"
+      ],
+      "prompt": {
+        "ru": "В анкете спрашивают о ваших прежних местах работы.",
+        "uz": "So'rovnomada avvalgi ish joylaringiz haqida so'raladi."
+      },
+      "fragments": [
+        "the questionnaire",
+        "asks about",
+        "your previous jobs"
+      ],
+      "accepted": [
+        [
+          "the questionnaire",
+          "asks about",
+          "your previous jobs"
+        ]
+      ],
+      "display": "The questionnaire asks about your previous jobs.",
+      "explanation": {
+        "ru": "Ask about — спрашивать о чём-либо. About вводит тему вопроса.",
+        "uz": "Ask about — biror narsa haqida so'ramoq. About savol mavzusini bildiradi."
+      }
+    },
+    {
+      "key": "bonus-b1-c-paystub",
+      "type": "collocation",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "paystub"
+      ],
+      "text": "Keep your paystub as ___ of your income.",
+      "options": [
+        "proof",
+        "cause",
+        "reason"
+      ],
+      "correct": [
+        "proof"
+      ],
+      "translation": {
+        "ru": "Сохраните расчётный листок как подтверждение своего дохода.",
+        "uz": "Daromadingizni tasdiqlovchi hujjat sifatida hisob varaqasini saqlab qo'ying."
+      },
+      "explanation": {
+        "ru": "Proof of income — подтверждение дохода. Paystub содержит сведения о зарплате.",
+        "uz": "Proof of income — daromadni tasdiqlovchi hujjat. Paystub varaqasida ish haqi haqidagi ma'lumotlar bo'ladi."
+      }
+    },
+    {
+      "key": "bonus-b1-w-overpaid",
+      "type": "word_form",
+      "lesson": {
+        "stage": 7,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "overpaid"
+      ],
+      "text": "I was ___ by mistake and returned the extra money.",
+      "base": "overpay",
+      "accepted": [
+        "overpaid"
+      ],
+      "translation": {
+        "ru": "Мне по ошибке заплатили лишнее, и я вернул переплату.",
+        "uz": "Menga adashib ortiqcha haq to'lashdi, men esa ortiqcha pulni qaytardim."
+      },
+      "explanation": {
+        "ru": "В пассиве после was нужна третья форма. Как pay → paid, так и overpay → overpaid.",
+        "uz": "Majhul nisbatda was dan keyin uchinchi shakl keladi. Pay → paid singari overpay → overpaid bo'ladi."
+      }
+    },
+    {
+      "key": "bonus-b1-w-homeschooling",
+      "type": "word_form",
+      "lesson": {
+        "stage": 9,
+        "number": 1
+      },
+      "level": "B1",
+      "target_words": [
+        "homeschooling"
+      ],
+      "text": "Before ___ their children, both parents worked full-time.",
+      "base": "homeschool",
+      "accepted": [
+        "homeschooling"
+      ],
+      "translation": {
+        "ru": "До того как начать учить детей дома, оба родителя работали полный день.",
+        "uz": "Farzandlarini uyda o'qita boshlashdan oldin ota-onaning ikkalasi ham to'liq ish kunida ishlardi."
+      },
+      "explanation": {
+        "ru": "После before здесь нужно действие как оборот на -ing. Homeschooling their children — обучение своих детей дома.",
+        "uz": "Bu yerda before dan keyin harakat -ing bilan ifodalanadi. Homeschooling their children — farzandlarini uyda o'qitish."
+      }
+    },
+    {
+      "key": "bonus-b1-w-illustrator",
+      "type": "word_form",
+      "lesson": {
+        "stage": 11,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "illustrator"
+      ],
+      "text": "The ___ who drew the maps signed my copy.",
+      "base": "illustrate",
+      "accepted": [
+        "illustrator"
+      ],
+      "translation": {
+        "ru": "Иллюстратор, который нарисовал карты, подписал мой экземпляр.",
+        "uz": "Xaritalarni chizgan rassom mening nusxamga imzo qo'ydi."
+      },
+      "explanation": {
+        "ru": "Who drew the maps описывает человека. Illustrator — тот, кто создаёт иллюстрации.",
+        "uz": "Who drew the maps odamni tasvirlaydi. Illustrator — illyustratsiya chizadigan rassom."
+      }
+    },
+    {
+      "key": "bonus-b1-e-treadmill",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 12,
+        "number": 3
+      },
+      "level": "B1",
+      "target_words": [
+        "treadmill"
+      ],
+      "text": "He has been *use* the treadmill every morning this week.",
+      "options": [
+        "using",
+        "uses",
+        "used"
+      ],
+      "correct": [
+        "using"
+      ],
+      "translation": {
+        "ru": "На этой неделе он каждое утро занимается на беговой дорожке.",
+        "uz": "Bu hafta u har kuni ertalab yugurish yo'lakchasida mashq qilyapti."
+      },
+      "explanation": {
+        "ru": "В Present Perfect Continuous после has been нужна форма на -ing: has been using.",
+        "uz": "Present Perfect Continuous da has been dan keyin -ing shakli keladi: has been using."
+      }
+    },
+    {
+      "key": "bonus-b1-c-hammock",
+      "type": "collocation",
+      "lesson": {
+        "stage": 12,
+        "number": 5
+      },
+      "level": "B1",
+      "target_words": [
+        "hammock"
+      ],
+      "text": "They ___ the hammock between two trees.",
+      "options": [
+        "hung",
+        "planted",
+        "poured"
+      ],
+      "correct": [
+        "hung"
+      ],
+      "translation": {
+        "ru": "Они повесили гамак между двумя деревьями.",
+        "uz": "Ular osma to'shakni ikki daraxt orasiga osishdi."
+      },
+      "explanation": {
+        "ru": "Hang a hammock — повесить гамак. Hung — прошедшая форма hang в этом значении.",
+        "uz": "Hang a hammock — osma to'shakni osmoq. Shu ma'noda hang fe'lining o'tgan zamon shakli hung bo'ladi."
+      }
+    },
+    {
+      "key": "bonus-b1-e-downpour",
+      "type": "error_hunt",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "downpour"
+      ],
+      "text": "My parents and I *was* caught in a downpour.",
+      "options": [
+        "were",
+        "being",
+        "been"
+      ],
+      "correct": [
+        "were"
+      ],
+      "translation": {
+        "ru": "Мы с родителями попали под ливень.",
+        "uz": "Ota-onam bilan men jala ostida qoldik."
+      },
+      "explanation": {
+        "ru": "My parents and I — несколько человек. В прошедшем времени здесь нужна форма were.",
+        "uz": "My parents and I bir nechta kishini bildiradi. O'tgan zamonda bu yerda were keladi."
+      }
+    },
+    {
+      "key": "bonus-b1-s-snowfall",
+      "type": "sentence",
+      "lesson": {
+        "stage": 13,
+        "number": 4
+      },
+      "level": "B1",
+      "target_words": [
+        "snowfall"
+      ],
+      "prompt": {
+        "ru": "Сильный снегопад вынудил аэропорт закрыться.",
+        "uz": "Kuchli qor yog'ishi tufayli aeroport yopilishga majbur bo'ldi."
+      },
+      "fragments": [
+        "heavy snowfall",
+        "forced",
+        "the airport",
+        "to close"
+      ],
+      "accepted": [
+        [
+          "heavy snowfall",
+          "forced",
+          "the airport",
+          "to close"
+        ]
+      ],
+      "display": "Heavy snowfall forced the airport to close.",
+      "explanation": {
+        "ru": "Force someone or something to do something — вынудить кого-либо или что-либо совершить действие.",
+        "uz": "Bu gapda force + airport + to close qolipi aeroport yopilishga majbur bo'lganini bildiradi."
+      }
+    }
+  ]
+}
