@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import DeleteAccountSheet from '@/components/DeleteAccountSheet.vue'
@@ -192,9 +192,31 @@ const regionNextChange = computed((): string => {
   const at = data.value?.region_change_available_at
   return at ? t('settings.region.next_change', { date: formatDate(at, 'dayMonthShortYear', locale.value) }) : ''
 })
+/**
+ * The moment the undo is judged at. `Date.now()` inside the computed would not move it, so a one-shot timer set to the end of the undo
+ * (`region_undo_available_until`) takes the row away at that moment while the screen stays open.
+ */
+const undoClock = ref(Date.now())
+let undoTimer: ReturnType<typeof setTimeout> | null = null
+function clearUndoTimer(): void {
+  if (undoTimer !== null) clearTimeout(undoTimer)
+  undoTimer = null
+}
+watch(() => data.value?.region_undo_available_until, (until) => {
+  clearUndoTimer()
+  undoClock.value = Date.now()
+  const left = typeof until === 'string' ? Date.parse(until) - undoClock.value : NaN
+  if (Number.isFinite(left) && left > 0) {
+    undoTimer = setTimeout(() => {
+      undoTimer = null
+      undoClock.value = Date.now()
+    }, left + 50)
+  }
+}, { immediate: true })
+onBeforeUnmount(clearUndoTimer)
 const regionUndoable = computed((): boolean => {
   const until = data.value?.region_undo_available_until
-  return typeof until === 'string' && Date.parse(until) > Date.now()
+  return typeof until === 'string' && Date.parse(until) > undoClock.value
 })
 async function undoRegion(): Promise<void> {
   await settings.revertRegion()

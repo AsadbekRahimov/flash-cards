@@ -216,6 +216,30 @@ it('moves the time of a cached card served again after a day: prune keeps the ca
     expect(filemtime($path))->toBeGreaterThan(now()->subMinute()->getTimestamp());
 });
 
+it('draws an old card again when prune deleted it under the touch: no empty file is served', function (): void {
+    $path = cardFor(AchievementKey::Streak30);
+    $jpeg = (string) file_get_contents($path);
+    // What `touch` leaves when achievements:prune-cards deleted the old card between the check and the touch: an empty file.
+    file_put_contents($path, '');
+    touch($path, now()->subDays(40)->getTimestamp());
+    clearstatcache();
+
+    expect(cardFor(AchievementKey::Streak30))->toBe($path);
+    clearstatcache();
+    expect(filesize($path))->toBe(strlen($jpeg))
+        ->and(getimagesize($path)[2] ?? null)->toBe(IMAGETYPE_JPEG)
+        ->and(Storage::disk('public')->allFiles('share-cards'))->toHaveCount(1);
+});
+
+it('refuses a public address and a card key that end with a newline', function (): void {
+    $renderer = app(AchievementCardRenderer::class);
+    $path = cardFor(AchievementKey::Streak7);
+
+    expect(preg_match(AchievementCardRenderer::FILE_PATTERN, basename($path)."\n"))->toBe(0)
+        ->and($renderer->publicUrl($path."\n"))->toBeNull()
+        ->and(fn () => $renderer->renderSpec(new CardSpec("streak_7\n", 'streak', '7', 'T', 'D'), 'ru'))->toThrow(InvalidArgumentException::class);
+});
+
 it('renders a new file when a text, the brand or the bot changes', function (): void {
     $before = cardFor(AchievementKey::FirstFriend);
 

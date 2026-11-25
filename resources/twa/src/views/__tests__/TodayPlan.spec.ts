@@ -42,7 +42,7 @@ const afterLesson = (overrides: Partial<DayPlan> = {}): DayPlan => ({
   done: false,
   lesson: { done: true, lesson_id: 40, next_lesson_id: 41, words_left: 6 },
   training: { lesson_id: 40, title: 'Напитки', words: 5, done: false, open_session_id: null },
-  game: { lesson_id: 40, mode: 'pairs_timed', played: false },
+  game: { lesson_id: 40, course: 'english-a1', mode: 'pairs_timed', played: false },
   ...overrides,
 })
 
@@ -174,7 +174,7 @@ describe('TodayView: the plan of the day', () => {
       await w.get('[data-testid=hero-btn]').trigger('click')
       await flushPromises()
 
-      expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 41, source: 'self' })
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 41, source: 'plan' })
       expect(w.router.currentRoute.value.fullPath).toBe('/training/55')
     })
 
@@ -271,14 +271,52 @@ describe('TodayView: the plan of the day', () => {
       expect(w.get('[data-testid=lesson-hero]').attributes('data-step')).toBe('3')
       expect(text(w, 'hero-title')).toBe('Пары на время')
       expect(text(w, 'hero-btn')).toBe('Играть')
-      expect(w.get('[data-testid=hero-btn]').attributes('href')).toBe('/practice/english-a1?lesson=40&play=pairs_timed')
+      expect(w.get('[data-testid=hero-btn]').attributes('href')).toBe('/practice/english-a1?lesson=40&play=pairs_timed&from=plan')
       expect(steps(w)).toEqual([['lesson', 'done'], ['training', 'done'], ['game', 'current']])
       expect(text(w, 'plan-counter')).toBe('шаг 3 из 3')
 
       await w.get('[data-testid=hero-btn]').trigger('click')
       await flushPromises()
       expect(w.router.currentRoute.value.name).toBe('practice-hub')
-      expect(w.router.currentRoute.value.query).toEqual({ lesson: '40', play: 'pairs_timed' })
+      expect(w.router.currentRoute.value.query).toEqual({ lesson: '40', play: 'pairs_timed', from: 'plan' })
+    })
+
+    it('opens the hub in the course of the lesson of the day, not in the active course (an assignment, a course switched since)', async () => {
+      const w = await render(today({ plan: afterLesson({ step: 3, training: null, game: { lesson_id: 90, course: 'ielts-core', mode: 'pairs_timed', played: false } }) }))
+
+      expect(w.get('[data-testid=lesson-hero]').attributes('data-step')).toBe('3')
+      expect(w.get('[data-testid=hero-btn]').attributes('href')).toBe('/practice/ielts-core?lesson=90&play=pairs_timed&from=plan')
+    })
+
+    it('has the button of the game without an active course: the plan names the course of the lesson', async () => {
+      const w = await render(today({
+        active_course: null,
+        due_count: 3,
+        plan: afterLesson({ step: 3, lesson: { done: true, lesson_id: 90, next_lesson_id: null, words_left: null }, training: null, game: { lesson_id: 90, course: 'ielts-core', mode: 'pairs_timed', played: false } }),
+      }))
+
+      expect(w.get('[data-testid=lesson-hero]').attributes('data-step')).toBe('3')
+      expect(w.get('[data-testid=hero-btn]').attributes('href')).toBe('/practice/ielts-core?lesson=90&play=pairs_timed&from=plan')
+    })
+
+    it('an older server without the course of the lesson: the active course only for a lesson surely of it, else the previous card', async () => {
+      const legacyGame = { lesson_id: 40, mode: 'pairs_timed', played: false } as const
+      const done = { lesson_id: 40, title: 'Напитки', words: 5, done: true, open_session_id: null }
+
+      const own = await render(today({ plan: afterLesson({ step: 3, training: done, game: legacyGame }) }))
+      expect(own.get('[data-testid=hero-btn]').attributes('href')).toBe('/practice/english-a1?lesson=40&play=pairs_timed&from=plan')
+      own.unmount()
+
+      // the lesson is not of the active course (no title): no step card without a button - the previous card of the session
+      const other = await render(today({ plan: afterLesson({ step: 3, training: { ...done, title: null }, game: legacyGame }) }))
+      expect(other.find('[data-testid=lesson-hero]').exists()).toBe(false)
+      expect(other.find('[data-testid=review-card]').exists()).toBe(true)
+      other.unmount()
+
+      // the review switched off: nothing says whose the lesson is
+      const unknown = await render(today({ plan: afterLesson({ step: 3, training: null, game: legacyGame }) }))
+      expect(unknown.find('[data-testid=lesson-hero]').exists()).toBe(false)
+      expect(unknown.find('[data-testid=review-card]').exists()).toBe(true)
     })
 
     it('leaves the training step out when the review is switched off', async () => {
@@ -303,7 +341,7 @@ describe('TodayView: the plan of the day', () => {
         step: null,
         done: true,
         training: { lesson_id: 40, title: 'Напитки', words: 5, done: true, open_session_id: null },
-        game: { lesson_id: 40, mode: 'pairs_timed', played: true },
+        game: { lesson_id: 40, course: 'english-a1', mode: 'pairs_timed', played: true },
       })
       const w = await render(today({ plan }))
 
@@ -317,6 +355,43 @@ describe('TodayView: the plan of the day', () => {
       await w.get('[data-testid=hero-review]').trigger('click')
       await flushPromises()
       expect(api.training.open).toHaveBeenCalledWith({ mode: 'daily_review', source: 'self' })
+    })
+
+    it('says "a new lesson - tomorrow" only when the Free quota of new words is used up', async () => {
+      const free = { plan: 'free', source: 'free', until: null, lapsed: null } as const
+      const plan = afterLesson({ step: null, done: true, training: { lesson_id: 40, title: 'Напитки', words: 5, done: true, open_session_id: null }, game: null })
+
+      const spent = await render(today({ entitlement: free, new_words_remaining: 0, plan }))
+      expect(text(spent, 'hero-text')).toBe('Новый урок — завтра. Повторение и игры доступны всегда')
+      expect(spent.find('[data-testid=hero-next-lesson]').exists()).toBe(false)
+      expect(spent.find('[data-testid=all-done-pro]').exists()).toBe(true)
+      spent.unmount()
+
+      const left = await render(today({ entitlement: free, new_words_remaining: 4, plan }))
+      expect(text(left, 'hero-text')).toBe('Повторение и игры доступны всегда')
+      expect(left.find('[data-testid=all-done-pro]').exists()).toBe(false)
+      expect(text(left, 'hero-next-lesson')).toBe('Следующий урок')
+      left.unmount()
+
+      // no lesson left in the course: the neutral text, no "Next lesson"
+      const finished = today({ plan })
+      finished.active_course!.next_lesson = null
+      const over = await render(finished)
+      expect(text(over, 'hero-text')).toBe('Повторение и игры доступны всегда')
+      expect(over.find('[data-testid=hero-next-lesson]').exists()).toBe(false)
+    })
+
+    it('"Next lesson" of the done card opens the next lesson from the plan', async () => {
+      vi.mocked(api.training.open).mockResolvedValue({ ...opened(56), mode: 'lesson' } as TrainingStartResponse)
+      const w = await render(today({ due_count: 0, plan: afterLesson({ step: null, done: true, training: { lesson_id: 40, title: 'Напитки', words: 5, done: true, open_session_id: null }, game: null }) }))
+
+      // the only action of the card: tinted, not plain
+      expect(w.get('[data-testid=hero-next-lesson]').classes()).toContain('btn-tinted')
+      await w.get('[data-testid=hero-next-lesson]').trigger('click')
+      await flushPromises()
+
+      expect(api.training.open).toHaveBeenCalledWith({ mode: 'lesson', lesson_id: 41, source: 'plan' })
+      expect(w.router.currentRoute.value.fullPath).toBe('/training/56')
     })
 
     it('has no review button with nothing due', async () => {

@@ -214,7 +214,8 @@ describe('CourseView', () => {
       const { wrapper, router } = await render()
       const link = wrapper.get('[data-testid=all-courses]')
       expect(link.text()).toBe('Все курсы')
-      expect(link.attributes('href')).toBe('/courses')
+      // the catalog then leads "Back" to this course
+      expect(link.attributes('href')).toBe('/courses?from=english-a1')
 
       await link.trigger('click')
       await flushPromises()

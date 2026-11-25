@@ -211,6 +211,8 @@ export const uz: Translations = {
   'today.hero.play': "O'ynash",
   'today.hero.done_title': 'Bugungi reja bajarildi',
   'today.hero.done_text': "Yangi dars — ertaga. Takrorlash va o'yinlar doim ochiq",
+  'today.hero.done_text_open': "Takrorlash va o'yinlar doim ochiq",
+  'today.hero.next_lesson': 'Keyingi dars',
   'today.hero.review': {
     one: "{count} ta so'zni takrorlash",
     other: "{count} ta so'zni takrorlash",
@@ -302,8 +304,8 @@ export const uz: Translations = {
   'training.update.text': "Bu topshiriq faqat yangi versiyada bor. Ilovani yopib, qayta oching — mashg'ulot shu joydan davom etadi.",
   'training.lesson_header_no_stage': '{lesson}-dars',
   'training.progress.counter': '{total} tadan {done} ta',
-  'training.lesson_review_header': 'Takrorlash · {lesson}',
-  'training.lesson_review_header_plain': 'Darsni takrorlash',
+  'training.lesson_review_header': 'Mashq · {lesson}',
+  'training.lesson_review_header_plain': 'Dars mashqi',
 
   // ---- exercises (docs/13 §2.5) ----
   'exercise.meaning.title': "So'zning tarjimasini tanlang",
@@ -492,8 +494,8 @@ export const uz: Translations = {
   'finished.goal_line': 'Kunlik maqsad · {done} / {target}',
   'finished.goal_left': 'yana {count} ta',
   'finished.next.title': 'Keyingi qadam',
-  'finished.next.step2': '2-qadam (3 tadan) · hozir tavsiya qilamiz',
-  'finished.next.step3': '3-qadam (3 tadan) · hozir tavsiya qilamiz',
+  'finished.next.step': '{step}-qadam ({total} tadan) · hozir tavsiya qilamiz',
+  'finished.next.now': 'Hozir tavsiya qilamiz',
   'finished.next.training_title': "So'zlarni mashqda mustahkamlang",
   'finished.next.training_text': "So'zlarni darhol takrorlasangiz, ular yaxshiroq esda qoladi.",
   'finished.next.training_start': 'Mashqni boshlash',
@@ -504,7 +506,7 @@ export const uz: Translations = {
   'finished.lesson_review.title': "So'zlar mustahkamlandi",
   'finished.lesson_review.won': "so'z mustahkamlandi",
   'finished.lesson_review.first_try': 'birinchi urinishda',
-  'finished.lesson_review.note': "Bu mustahkamlash: takrorlash jadvali, kunlik maqsad va liga ballari o'zgarmaydi.",
+  'finished.lesson_review.note': "Bu mashq: takrorlash jadvali, kunlik maqsad va liga ballari o'zgarmaydi.",
 
   // ---- promo code ----
   'promo.toggle': 'Promokodingiz bormi?',
@@ -797,10 +799,6 @@ export const uz: Translations = {
   'league.tier.gold': 'Oltin',
   'league.tier.platinum': 'Platina',
   'league.tier.diamond': 'Olmos',
-  'league.points': {
-    one: '{count} ochko',
-    other: '{count} ochko',
-  },
   'league.score': {
     one: '{count} ball',
     other: '{count} ball',
@@ -1050,7 +1048,8 @@ export const uz: Translations = {
     other: "{count} ta o'rganilgan so'zda o'ynang",
   },
   'practice.hub.learned_unknown': "Allaqachon o'rgangan so'zlaringizda o'ynang",
-  'practice.hub.step.eyebrow': '3-qadam (3 tadan) · hozir tavsiya qilamiz',
+  'practice.hub.step.eyebrow': '{step}-qadam ({total} tadan) · hozir tavsiya qilamiz',
+  'practice.hub.step.now': 'Hozir tavsiya qilamiz',
   'practice.hub.step.text': "So'z va tarjimasini rekorddan tezroq juftlang. «{lesson}» darsi so'zlari, taxminan {minutes} daqiqa.",
   'practice.hub.step.text_plain': "So'z va tarjimasini rekorddan tezroq juftlang. Shu dars so'zlari, taxminan {minutes} daqiqa.",
   'practice.hub.step.play': "O'ynash",

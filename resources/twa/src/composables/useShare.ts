@@ -1,5 +1,6 @@
 import { readonly, ref } from 'vue'
 import { api } from '@/api'
+import { ApiClientError } from '@/api/client'
 import type { ShareEventRequest, ShareKind } from '@/api/shareTypes'
 import { useTelegram } from './useTelegram'
 
@@ -24,6 +25,9 @@ export type ShareOutcome = 'sent' | 'fallback' | 'cancelled' | 'busy'
  * or a failed send opens the plain dialog with the same link and text, once, without a retry - `onShared` then runs as it always did,
  * when the dialog opens. Closing the picker is neither: nothing is marked, nothing reported. Each way reports itself
  * (`POST /share/events`: `sent`, `fallback {old_client | error}`) without waiting; a failed report changes nothing.
+ *
+ * A 422 of prepare is a mistake of this build (a kind or a subject the server does not take), not a state of the learner: it is written to
+ * the console with the kind and the code only (no subject, no text), so it shows in the logs of a test run and of the WebView.
  *
  * `pending` is true while a share is on its way: a second tap meanwhile does nothing (the button shows it busy).
  */
@@ -55,7 +59,8 @@ export function useShare() {
       let id: string
       try {
         id = (await api.share.prepare(kind, subject)).id
-      } catch {
+      } catch (err) {
+        if (err instanceof ApiClientError && err.status === 422) console.warn('share.prepare refused', { kind, code: err.code })
         return openFallback(kind, fallback, 'error', onShared)
       }
 

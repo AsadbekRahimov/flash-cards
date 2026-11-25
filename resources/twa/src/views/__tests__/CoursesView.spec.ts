@@ -42,7 +42,7 @@ const course = (overrides: Partial<Course> = {}): Course => ({
   ...overrides,
 })
 
-async function render() {
+async function render(query: Record<string, string> = {}) {
   const stub = { template: '<div />' }
   const router = createRouter({
     history: createMemoryHistory(),
@@ -53,7 +53,7 @@ async function render() {
       { path: '/decks', name: 'decks', component: stub },
     ],
   })
-  await router.push('/courses')
+  await router.push({ name: 'courses', query })
   const wrapper = mount(CoursesView, { global: { plugins: [router] } })
   await flushPromises()
   return { wrapper, router }
@@ -344,6 +344,20 @@ describe('CoursesView', () => {
       expect(tg.hideBack).toHaveBeenCalledTimes(1)
       expect(tg.showBack).not.toHaveBeenCalled()
       expect(wrapper.find('[data-testid=back-link]').exists()).toBe(false)
+    })
+
+    it('opened by "All courses" of a course, the system Back returns to that course', async () => {
+      vi.mocked(api.courses.list).mockResolvedValue({ courses: [course()] })
+
+      const { router } = await render({ from: 'ielts' })
+
+      expect(tg.hideBack).not.toHaveBeenCalled()
+      expect(tg.showBack).toHaveBeenCalledTimes(1)
+      const press = tg.showBack.mock.calls[0]![0] as () => void
+      press()
+      await flushPromises()
+      expect(router.currentRoute.value.name).toBe('course')
+      expect(router.currentRoute.value.params.slug).toBe('ielts')
     })
 
     it('goes to My decks from the switch', async () => {

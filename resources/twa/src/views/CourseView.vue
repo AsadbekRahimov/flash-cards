@@ -238,7 +238,8 @@ onBeforeUnmount(() => {
     <template v-else>
       <PageHeader brand large :title="detail.is_active ? t('course.my_course') : detail.title" data-testid="title">
         <template #trailing>
-          <RouterLink :to="{ name: 'courses' }" class="btn btn-plain btn-sm -mr-2 px-2" data-testid="all-courses">
+          <!-- `from`: the catalog's system "Back" then returns here. -->
+          <RouterLink :to="{ name: 'courses', query: { from: slug } }" class="btn btn-plain btn-sm -mr-2 px-2" data-testid="all-courses">
             {{ t('course.all_courses') }}
           </RouterLink>
         </template>
@@ -374,7 +375,7 @@ onBeforeUnmount(() => {
                 <div v-if="practice.available" class="-ml-2">
                   <button
                     type="button"
-                    class="btn btn-plain btn-sm h-9 gap-1 px-2"
+                    class="btn btn-plain btn-sm tap-target h-9 gap-1 px-2"
                     :disabled="opening"
                     :aria-label="practiceLessonLabel(stage, lesson)"
                     data-testid="practice-lesson-btn"
@@ -404,7 +405,7 @@ onBeforeUnmount(() => {
                 <div v-if="practice.available" class="relative z-10 -my-1 -ml-2">
                   <button
                     type="button"
-                    class="btn btn-plain btn-sm h-9 gap-1 px-2"
+                    class="btn btn-plain btn-sm tap-target h-9 gap-1 px-2"
                     :disabled="opening || lesson.progress.total === 0"
                     :aria-label="practiceLessonLabel(stage, lesson)"
                     data-testid="practice-lesson-btn"

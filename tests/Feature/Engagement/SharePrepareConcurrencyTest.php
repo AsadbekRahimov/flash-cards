@@ -39,6 +39,8 @@ beforeEach(function (): void {
         'billing.trial.days' => 14,
         'share.enabled' => true,
         'share.prepare.lock_wait_seconds' => 5,
+        // The prepared message is a pure cache (docs/19 §3 rule 10): the forked taps must share it, as the two Redis stores of production do.
+        'cache.pure_store' => config('cache.default'),
     ]);
     Storage::fake('public', ['url' => 'https://muhrla.test/storage']);
 });

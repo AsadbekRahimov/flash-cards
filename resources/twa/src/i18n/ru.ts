@@ -240,6 +240,8 @@ export const ru = {
   'today.hero.play': 'Играть',
   'today.hero.done_title': 'План на сегодня выполнен',
   'today.hero.done_text': 'Новый урок — завтра. Повторение и игры доступны всегда',
+  'today.hero.done_text_open': 'Повторение и игры доступны всегда',
+  'today.hero.next_lesson': 'Следующий урок',
   'today.hero.review': {
     one: 'Повторить {count} слово',
     few: 'Повторить {count} слова',
@@ -343,8 +345,8 @@ export const ru = {
   'training.lesson_header_no_stage': 'Урок {lesson}',
   // The header of the lesson screen (docs/design/2026-11-25-redesign Question): «3 из 8»; the pill of the review of a lesson.
   'training.progress.counter': '{done} из {total}',
-  'training.lesson_review_header': 'Повторение · {lesson}',
-  'training.lesson_review_header_plain': 'Повторение урока',
+  'training.lesson_review_header': 'Тренировка · {lesson}',
+  'training.lesson_review_header_plain': 'Тренировка урока',
 
   // ---- exercises (docs/13 §2.5) ----
   'exercise.meaning.title': 'Выберите перевод слова',
@@ -551,8 +553,8 @@ export const ru = {
   'finished.goal_line': 'Цель дня · {done} / {target}',
   'finished.goal_left': 'ещё {count}',
   'finished.next.title': 'Что дальше',
-  'finished.next.step2': 'Шаг 2 из 3 · советуем сейчас',
-  'finished.next.step3': 'Шаг 3 из 3 · советуем сейчас',
+  'finished.next.step': 'Шаг {step} из {total} · советуем сейчас',
+  'finished.next.now': 'Советуем сейчас',
   'finished.next.training_title': 'Закрепите слова в тренировке',
   'finished.next.training_text': 'Слова запоминаются лучше, если повторить их сразу.',
   'finished.next.training_start': 'Начать тренировку',
@@ -563,7 +565,7 @@ export const ru = {
   'finished.lesson_review.title': 'Слова закреплены',
   'finished.lesson_review.won': 'слов закреплено',
   'finished.lesson_review.first_try': 'с первой попытки',
-  'finished.lesson_review.note': 'Это закрепление: расписание повторений, цель дня и баллы лиги не меняются.',
+  'finished.lesson_review.note': 'Это тренировка: расписание повторений, цель дня и баллы лиги не меняются.',
 
   // ---- promo code ----
   'promo.toggle': 'Есть промокод?',
@@ -874,12 +876,6 @@ export const ru = {
   'league.tier.gold': 'Золото',
   'league.tier.platinum': 'Платина',
   'league.tier.diamond': 'Алмаз',
-  'league.points': {
-    one: '{count} очко',
-    few: '{count} очка',
-    many: '{count} очков',
-    other: '{count} очка',
-  },
   'league.score': {
     one: '{count} балл',
     few: '{count} балла',
@@ -1147,7 +1143,8 @@ export const ru = {
     other: 'Играйте на {count} выученного слова',
   },
   'practice.hub.learned_unknown': 'Играйте на словах, которые уже учили',
-  'practice.hub.step.eyebrow': 'Шаг 3 из 3 · советуем сейчас',
+  'practice.hub.step.eyebrow': 'Шаг {step} из {total} · советуем сейчас',
+  'practice.hub.step.now': 'Советуем сейчас',
   'practice.hub.step.text': 'Соедините слово и перевод быстрее рекорда. Слова из урока «{lesson}», около {minutes} мин.',
   'practice.hub.step.text_plain': 'Соедините слово и перевод быстрее рекорда. Слова этого урока, около {minutes} мин.',
   'practice.hub.step.play': 'Играть',

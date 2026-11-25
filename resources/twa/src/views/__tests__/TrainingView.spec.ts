@@ -432,16 +432,16 @@ describe('TrainingView — header and states', () => {
     vi.mocked(api.training.start).mockResolvedValue(withLesson({ stage: null, lesson: 3, title: 'Напитки' }, 'lesson_review'))
     const { wrapper } = await render(1)
 
-    expect(wrapper.get('[data-testid=lesson-review-header]').text()).toBe('Повторение · Урок 3 · Напитки')
+    expect(wrapper.get('[data-testid=lesson-review-header]').text()).toBe('Тренировка · Урок 3 · Напитки')
     expect(wrapper.find('[data-testid=lesson-header]').exists()).toBe(false)
     expect(wrapper.find('[data-testid=daily-header]').exists()).toBe(false)
 
     vi.mocked(api.training.start).mockResolvedValue(withLesson(null, 'lesson_review'))
-    expect((await render(1)).wrapper.get('[data-testid=lesson-review-header]').text()).toBe('Повторение урока')
+    expect((await render(1)).wrapper.get('[data-testid=lesson-review-header]').text()).toBe('Тренировка урока')
 
     setLocale('uz')
     vi.mocked(api.training.start).mockResolvedValue(withLesson({ stage: 2, lesson: 4, title: 'Food' }, 'lesson_review'))
-    expect((await render(1)).wrapper.get('[data-testid=lesson-review-header]').text()).toBe('Takrorlash · 2-modul · 4-dars · Food')
+    expect((await render(1)).wrapper.get('[data-testid=lesson-review-header]').text()).toBe('Mashq · 2-modul · 4-dars · Food')
   })
 
   it('a group lesson is named as a lesson; a session with neither a lesson nor a known mode has no pill', async () => {

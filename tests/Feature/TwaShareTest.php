@@ -179,6 +179,18 @@ it('answers 503 share_failed when Telegram refuses or does not answer, with Retr
     expect(twaShareTelegram()->preparedMessages)->toHaveCount(1);
 });
 
+it('reads a subject with a trailing newline as the trimmed one (TrimStrings), never as a second subject', function (): void {
+    $learner = Learner::factory()->create();
+
+    // The middleware trims "5\n" to "5" before the rule (`\z`, not `$`) sees it: the answer is the one of "5" - not this learner's city.
+    $plain = twaShare($learner, ['kind' => 'game_city', 'subject' => '5']);
+    $newline = twaShare($learner, ['kind' => 'game_city', 'subject' => "5\n"]);
+
+    expect($newline->status())->toBe($plain->status())
+        ->and($newline->json('error.code'))->toBe($plain->json('error.code'))
+        ->and(twaShareTelegram()->preparedMessages)->toBe([]);
+});
+
 it('answers the second tap from the cache: the same id, one Bot API call', function (): void {
     $learner = Learner::factory()->create();
 

@@ -16,11 +16,14 @@ use App\Domain\Engagement\Enums\ShareKind;
 use App\Domain\Engagement\Exceptions\ShareException;
 use App\Domain\Engagement\Services\ShareMessageBuilder;
 use App\Domain\Engagement\Services\SharePreparer;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Models\Achievement;
 use App\Models\Learner;
 use App\Models\ProductEvent;
+use Illuminate\Cache\ArrayStore;
+use Illuminate\Cache\Repository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -67,13 +70,19 @@ function sharePrepareError(Learner $learner, ShareKind $kind = ShareKind::Invite
     return null;
 }
 
-/** The cache key of the n-th prepared message (docs/19 §3: version, learner, kind, subject, language, hash of the content). */
-function shareCacheKey(Learner $learner, int $call = 0, string $kindAndSubject = 'invite:-', string $locale = 'ru'): string
+/** The cache key of a message (docs/19 §3: version, learner, kind, subject, language, version of the content - from the draft, no card drawn). */
+function shareCacheKey(Learner $learner, ShareKind $kind = ShareKind::Invite, ?string $subject = null, string $locale = 'ru'): string
 {
-    $result = shareTelegram()->preparedMessages[$call]['result'];
-    $hash = substr(hash('sha256', $learner->telegram_user_id.'|'.json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)), 0, 20);
+    return SharePreparer::cacheKey($learner, app(ShareMessageBuilder::class)->draft($learner, $kind, $subject, $locale));
+}
 
-    return "share:prep:v1:{$learner->id}:{$kindAndSubject}:{$locale}:{$hash}";
+/** The pure store of the tests (docs/19 §3 rule 10), apart from the default one: what is cached where is visible. */
+function sharePureStore(): Repository
+{
+    $store = new Repository(new ArrayStore);
+    app()->instance(PureCache::CONTAINER_KEY, $store);
+
+    return $store;
 }
 
 function shareLearner(array $attributes = []): Learner
@@ -118,16 +127,58 @@ it('serves a repeated tap from the cache without the Bot API, and records share.
         ->and($events[1]->props['cached'])->toBeTrue();
 });
 
-it('keeps an array under a versioned key of the learner, the kind, the subject, the language and the content', function (): void {
+it('keeps an array in the pure store under a versioned key of the learner, the kind, the subject, the language and the content', function (): void {
     $this->freezeTime();
+    $pure = sharePureStore();
     $learner = shareLearner();
     Achievement::factory()->key(AchievementKey::Streak7)->create(['learner_id' => $learner->id]);
     $expires = now()->addDay()->getTimestamp();
     shareTelegram()->preparedExpirationDate = $expires;
 
     sharePrepare($learner, ShareKind::Achievement, 'streak_7');
+    $key = shareCacheKey($learner, ShareKind::Achievement, 'streak_7');
 
-    expect(Cache::get(shareCacheKey($learner, 0, 'achievement:streak_7')))->toBe(['id' => 'prepared-1', 'expires_at' => $expires, 'fresh_until' => now()->getTimestamp() + 3600]);
+    expect($key)->toStartWith("share:prep:v1:{$learner->id}:achievement:streak_7:ru:")
+        ->and($pure->get($key))->toBe(['id' => 'prepared-1', 'expires_at' => $expires, 'fresh_until' => now()->getTimestamp() + 3600, 'photo' => true])
+        // Not on the non-evicting store: only the lock is there.
+        ->and(Cache::get($key))->toBeNull();
+});
+
+it('serves a cached tap without drawing the card, and keeps the analytics of the photo', function (): void {
+    $learner = shareLearner();
+    Achievement::factory()->key(AchievementKey::Streak7)->create(['learner_id' => $learner->id]);
+
+    sharePrepare($learner, ShareKind::Achievement, 'streak_7');
+    Storage::disk('public')->deleteDirectory('share-cards');
+    $second = sharePrepare($learner, ShareKind::Achievement, 'streak_7');
+
+    $props = ProductEvent::query()->where('name', ProductEventName::SharePrepared->value)->orderBy('id')->pluck('props')->all();
+    expect($second->cached)->toBeTrue()
+        ->and(Storage::disk('public')->allFiles('share-cards'))->toBe([])
+        ->and(shareTelegram()->preparedMessages)->toHaveCount(1)
+        ->and(array_column($props, 'photo'))->toBe([true, true]);
+});
+
+it('checks the subject on every tap: a cached message of an achievement that is gone is not handed out', function (): void {
+    $learner = shareLearner();
+    $achievement = Achievement::factory()->key(AchievementKey::Streak7)->create(['learner_id' => $learner->id]);
+    sharePrepare($learner, ShareKind::Achievement, 'streak_7');
+
+    $achievement->delete();
+
+    expect(sharePrepareError($learner, ShareKind::Achievement, 'streak_7')?->errorCode)->toBe(ShareException::NOT_FOUND)
+        ->and(ProductEvent::query()->where('name', ProductEventName::SharePrepared->value)->count())->toBe(1);
+});
+
+it('prepares anew when a setting of the card changes, without reading a file', function (): void {
+    $learner = shareLearner();
+
+    sharePrepare($learner);
+    config(['app.brand' => 'Other']);
+    sharePrepare($learner);
+    sharePrepare($learner);
+
+    expect(shareTelegram()->preparedMessages)->toHaveCount(2);
 });
 
 it('prepares anew for another language, another learner, another subject and changed content', function (): void {
@@ -195,6 +246,7 @@ it('hands out but does not keep a message that lives shorter than the margin', f
 
 it('ignores a broken cache entry', function (): void {
     $learner = shareLearner();
+    $pure = sharePureStore();
     sharePrepare($learner);
     $key = shareCacheKey($learner);
 
@@ -202,13 +254,14 @@ it('ignores a broken cache entry', function (): void {
     $past = now()->subMinute()->getTimestamp();
     foreach ([
         'garbage',
-        ['id' => 5, 'expires_at' => $later, 'fresh_until' => $later],
-        ['id' => 'x', 'expires_at' => 'x', 'fresh_until' => $later],
-        ['id' => 'x', 'expires_at' => $later],
-        ['id' => 'old', 'expires_at' => $past, 'fresh_until' => $later],
-        ['id' => 'stale', 'expires_at' => $later, 'fresh_until' => $past],
+        ['id' => 5, 'expires_at' => $later, 'fresh_until' => $later, 'photo' => true],
+        ['id' => 'x', 'expires_at' => 'x', 'fresh_until' => $later, 'photo' => true],
+        ['id' => 'x', 'expires_at' => $later, 'photo' => true],
+        ['id' => 'x', 'expires_at' => $later, 'fresh_until' => $later],
+        ['id' => 'old', 'expires_at' => $past, 'fresh_until' => $later, 'photo' => true],
+        ['id' => 'stale', 'expires_at' => $later, 'fresh_until' => $past, 'photo' => true],
     ] as $i => $broken) {
-        Cache::put($key, $broken, 600);
+        $pure->put($key, $broken, 600);
         $prepared = sharePrepare($learner);
         expect($prepared->cached)->toBeFalse()->and(shareTelegram()->preparedMessages)->toHaveCount($i + 2);
     }
@@ -267,9 +320,10 @@ it('does not call Telegram while the bot is paused after a 429, but still serves
 
 it('answers busy without a call while a parallel request holds the lock of the same message', function (): void {
     $learner = shareLearner();
+    $pure = sharePureStore();
     sharePrepare($learner);
     $key = shareCacheKey($learner);
-    Cache::forget($key);
+    $pure->forget($key);
     $lock = Cache::lock($key.':lock', 30);
     expect($lock->get())->toBeTrue();
 

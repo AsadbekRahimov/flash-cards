@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useCoursesStore } from '../courses'
+import { useTodayStore } from '../today'
 import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import type { Course, CourseDetail, CourseLesson, CourseStage } from '@/api/types'
@@ -242,6 +243,22 @@ describe('courses store — choosing and the quiet list', () => {
     vi.mocked(api.courses.select).mockRejectedValueOnce(new ApiClientError('not_found', 404, 'course_not_found', 'x'))
     expect(await store.select('a')).toBe(false)
     expect(store.errorMessage).not.toBe('')
+  })
+
+  it('a chosen course makes a young /today stale (it names the old active course), a refused one does not', async () => {
+    const store = useCoursesStore()
+    const today = useTodayStore()
+    today.data = { active_course: { slug: 'a' } } as never
+    today.loadedAt = Date.now()
+    expect(today.isFresh).toBe(true)
+
+    vi.mocked(api.courses.select).mockRejectedValueOnce(new ApiClientError('not_found', 404, 'course_not_found', 'x'))
+    await store.select('b')
+    expect(today.isFresh).toBe(true)
+
+    vi.mocked(api.courses.select).mockResolvedValueOnce({ ...course('b'), is_active: true })
+    await store.select('b')
+    expect(today.isFresh).toBe(false)
   })
 
   it('loadListQuietly fills an empty list without touching the status or the message, and never fails', async () => {

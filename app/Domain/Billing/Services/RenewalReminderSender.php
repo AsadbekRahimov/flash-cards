@@ -8,6 +8,7 @@ use App\Domain\Billing\Enums\SubscriptionProvider;
 use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Billing\Support\AutoRenewal;
 use App\Domain\Billing\Support\SubscriptionLiveness;
+use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -37,7 +38,8 @@ use Throwable;
  *
  *  - learner: a DM with a button into the TWA `/billing`; `notifications_log.type = renewal_reminder`; the welcome trial: what Pro
  *    gives, the prices and the buy buttons instead (docs/34 §2б.4), under the lock of "one message about Pro a local day"
- *    ({@see TrialOfferSender::proDmLock()});
+ *    ({@see TrialOfferSender::proDmLock()}): an offer after the trial sent in the learner's local day silences the reminder of their own
+ *    subscription;
  *    skipped for a blocked learner or `dm_blocked_at`; a Telegram 403 sets `dm_blocked_at`;
  *  - organization: an e-mail to every active owner (`organization_users.role = owner`) in the owner's
  *    language, plus a DM to an owner whose Telegram is VERIFIED (`users.telegram_verified_at`, review W1: a hand-typed id
@@ -70,6 +72,7 @@ final class RenewalReminderSender
         private readonly DmReachability $reachability,
         private readonly BotButtons $buttons,
         private readonly ProPitch $pitch,
+        private readonly LearnerClock $clock,
     ) {}
 
     /** @return int how many messages (DM + e-mail) went out */
@@ -292,6 +295,19 @@ final class RenewalReminderSender
             : Cache::lock(TrialOfferSender::proDmLock($learner->id), 60)->block(10, fn (): bool => $this->dmLocked($learner, $chatId, $text, $locale, $key, $panelUrl, $markup)));
     }
 
+    /** A {@see TrialOfferSender} message in the learner's current local day; read under {@see TrialOfferSender::proDmLock()}. */
+    private function offeredToday(Learner $learner): bool
+    {
+        $day = $this->clock->dayBoundsUtc($learner, CarbonImmutable::now());
+
+        return NotificationLog::query()
+            ->where('learner_id', $learner->id)
+            ->where('type', TrialOfferSender::NOTIFICATION_TYPE)
+            ->where('sent_at', '>=', $day->startUtc)
+            ->where('sent_at', '<', $day->endUtc)
+            ->exists();
+    }
+
     /** @param  array{inline_keyboard: list<list<array<string, mixed>>>}|null  $markup */
     private function dmLocked(?Learner $learner, int $chatId, string $text, string $locale, string $key, ?string $panelUrl, ?array $markup): bool
     {
@@ -305,6 +321,12 @@ final class RenewalReminderSender
                 ->exists();
 
             if ($exists) {
+                return false;
+            }
+
+            // One message about Pro a local day, this side too (docs/34 §2д п. 4): an offer after the trial went out today - the
+            // reminder of the learner's own subscription stays silent (an owner's DM about the center is not a message about Pro).
+            if ($panelUrl === null && $this->offeredToday($learner)) {
                 return false;
             }
 

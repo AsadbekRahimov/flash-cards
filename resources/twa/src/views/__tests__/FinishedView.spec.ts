@@ -9,7 +9,7 @@ import { ApiClientError } from '@/api/client'
 import { useTodayStore } from '@/stores/today'
 import { useAchievementsStore } from '@/stores/achievements'
 import { useTrainingStore } from '@/stores/training'
-import type { MonthlyRatingMeResponse, SessionSummary } from '@/api/types'
+import type { DayPlan, MonthlyRatingMeResponse, SessionSummary } from '@/api/types'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 
 vi.mock('@/api', () => ({
@@ -548,6 +548,27 @@ describe('FinishedView', () => {
       })
     }
 
+    /** `/today` as it was before the lesson: its plan says the lesson comes first, then the review and the game. */
+    function planBefore(): void {
+      useTodayStore().data = {
+        practice: { available: true, pro_required: false, modes: ['pairs_timed'], battle: false, pro_promise: 'none' },
+        plan: { step: 1, done: false, lesson: { done: false, lesson_id: null, next_lesson_id: 41, words_left: 5 }, training: null, game: null },
+      } as never
+    }
+
+    /** `/today` read after the finish: the lesson 41 done, its review as given (null: switched off), the game open. */
+    function planAfter(training: DayPlan['training']) {
+      return {
+        practice: { available: true, pro_required: false, modes: ['pairs_timed'], battle: false, pro_promise: 'none' },
+        plan: {
+          step: training === null ? 3 : 2, done: false,
+          lesson: { done: true, lesson_id: 41, next_lesson_id: 42, words_left: 6 },
+          training,
+          game: { lesson_id: 41, course: 'english-a1', mode: 'pairs_timed', played: false },
+        },
+      } as never
+    }
+
     const order = (w: ReturnType<typeof render>, ids: string[]) =>
       w.findAll(ids.map((id) => `[data-testid=${id}]`).join(', ')).map((el) => el.attributes('data-testid'))
 
@@ -588,6 +609,7 @@ describe('FinishedView', () => {
       })
 
       it('offers step 2 as the one main button, the game as a row under it, and the way home as text', () => {
+        planBefore()
         afterLesson()
         const w = render(8, 1)
 
@@ -630,7 +652,7 @@ describe('FinishedView', () => {
         ['no_objective_exercise', 'Для слов этого урока пока нет подходящих заданий.'],
         ['disabled', 'Тренировка по словам урока сейчас недоступна.'],
         ['something_new', 'Тренировка по словам урока сейчас недоступна.'],
-      ])('a refusal (%s) is told above the buttons, and the ordinary buttons come back', async (reason, text) => {
+      ])('a refusal (%s) quietly takes the card away with a neutral line, and the ordinary buttons come back', async (reason, text) => {
         vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('conflict', 409, 'lesson_review_unavailable', 'English', undefined, { reason }))
         afterLesson()
         const w = render(8, 1)
@@ -639,7 +661,11 @@ describe('FinishedView', () => {
         await w.get('[data-testid=lesson-review-btn]').trigger('click')
         await flushPromises()
 
-        expect(w.get('[data-testid=open-error]').text()).toBe(text)
+        // not a red error: a quiet line where the card was
+        expect(w.find('[data-testid=open-error]').exists()).toBe(false)
+        const notice = w.get('[data-testid=training-unavailable]')
+        expect(notice.text()).toBe(text)
+        expect(notice.classes()).toContain('text-muted')
         expect(w.find('[data-testid=training-card]').exists()).toBe(false)
         expect(w.find('[data-testid=lesson-review-btn]').exists()).toBe(false)
         const home = w.get('[data-testid=home-btn]')
@@ -649,6 +675,51 @@ describe('FinishedView', () => {
         // The game is still there.
         expect(w.get('[data-testid=game-line]').attributes('href')).toBe(gameHref)
         expect(router.currentRoute.value.fullPath).toBe(before)
+      })
+
+      it('any other failure of "Start the training" is still told above the buttons', async () => {
+        vi.mocked(api.training.open).mockRejectedValue(new ApiClientError('network', 0, 'network', 'offline'))
+        afterLesson()
+        const w = render(8, 1)
+
+        await w.get('[data-testid=lesson-review-btn]').trigger('click')
+        await flushPromises()
+
+        expect(w.get('[data-testid=open-error]').text()).not.toBe('')
+        expect(w.find('[data-testid=training-unavailable]').exists()).toBe(false)
+      })
+
+      it('reads the plan again after the finish: no card of the training when the plan has none for this lesson', async () => {
+        vi.mocked(api.today.get).mockResolvedValue(planAfter(null))
+        afterLesson()
+        const w = render(8, 1)
+        // until the plan answers, the summary is trusted
+        expect(w.find('[data-testid=training-card]').exists()).toBe(true)
+        await flushPromises()
+
+        expect(api.today.get).toHaveBeenCalledTimes(1)
+        expect(w.find('[data-testid=training-card]').exists()).toBe(false)
+        expect(w.find('[data-testid=training-unavailable]').exists()).toBe(false)
+        expect(w.get('[data-testid=home-btn]').text()).toBe('Готово')
+        expect(w.get('[data-testid=home-btn]').classes()).toContain('btn-primary')
+        expect(w.get('[data-testid=game-line]').attributes('href')).toBe(gameHref)
+      })
+
+      it('keeps the card when the plan has the review of this lesson, and counts its steps: "step 2 of 3"', async () => {
+        vi.mocked(api.today.get).mockResolvedValue(planAfter({ lesson_id: 41, course: 'english-a1', title: 'Напитки', words: 5, done: false, open_session_id: null }))
+        afterLesson()
+        const w = render(8, 1)
+        await flushPromises()
+
+        expect(w.get('[data-testid=training-step]').text()).toBe('Шаг 2 из 3 · советуем сейчас')
+        expect(w.find('[data-testid=lesson-review-btn]').exists()).toBe(true)
+      })
+
+      it('says only "recommended now" without a plan at hand', () => {
+        afterLesson()
+        const w = render(8, 1)
+
+        expect(w.get('[data-testid=training-step]').text()).toBe('Советуем сейчас')
       })
 
       it('the row of the game opens the hub of the lesson with the game started at once', async () => {
@@ -679,7 +750,7 @@ describe('FinishedView', () => {
 
         await w.get('[data-testid=lesson-review-btn]').trigger('click')
         await flushPromises()
-        expect(w.get('[data-testid=open-error]').text()).toBe("Bugun bu darsda yangi so'zlar bo'lmadi — mustahkamlash uchun hozircha hech narsa yo'q.")
+        expect(w.get('[data-testid=training-unavailable]').text()).toBe("Bugun bu darsda yangi so'zlar bo'lmadi — mustahkamlash uchun hozircha hech narsa yo'q.")
       })
     })
 
@@ -716,7 +787,8 @@ describe('FinishedView', () => {
         const w = render(9, 1, 'lesson_review_complete')
 
         expect(w.get('[data-testid=plan-header] h1').text()).toBe('Слова закреплены')
-        expect(w.get('[data-testid=plan-subtitle]').text()).toBe('Напитки')
+        // the mode by its one name, as in the header of the training screen
+        expect(w.get('[data-testid=plan-subtitle]').text()).toBe('Тренировка · Напитки')
         expect(w.get('[data-testid=stats]').classes()).toContain('grid-cols-2')
         expect(w.get('[data-testid=stat-won]').text()).toBe('5 из 6')
         expect(w.get('[data-testid=stat-first-try]').text()).toBe('4')
@@ -725,11 +797,12 @@ describe('FinishedView', () => {
         expect(w.find('[data-testid=stat-new]').exists()).toBe(false)
         expect(w.find('[data-testid=goal]').exists()).toBe(false)
         expect(w.find('[data-testid=next]').exists()).toBe(false)
-        expect(w.get('[data-testid=lesson-review-note]').text()).toBe('Это закрепление: расписание повторений, цель дня и баллы лиги не меняются.')
+        expect(w.get('[data-testid=lesson-review-note]').text()).toBe('Это тренировка: расписание повторений, цель дня и баллы лиги не меняются.')
         expect(w.find('[data-testid=stat-correct]').exists()).toBe(false)
       })
 
       it('offers step 3, "Play", as the one main button and no second training', () => {
+        planBefore()
         afterReview()
         const w = render(9, 1, 'lesson_review_complete')
 
@@ -768,6 +841,7 @@ describe('FinishedView', () => {
 
       it('speaks Uzbek', () => {
         setLocale('uz')
+        planBefore()
         afterReview()
         const w = render(9, 1, 'lesson_review_complete')
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Engagement\Services;
 
 use App\Domain\Billing\Services\ProTrialService;
+use App\Domain\Engagement\DTO\ShareDraft;
 use App\Domain\Engagement\Enums\AchievementKey;
 use App\Domain\Engagement\Enums\ShareKind;
 use App\Domain\Engagement\Exceptions\ShareException;
@@ -35,8 +36,8 @@ use Throwable;
  */
 final class ShareMessageBuilder
 {
-    /** Subjects are `[a-z0-9_]`: achievement keys and stage ids; anything else is "not found", never a query. */
-    public const SUBJECT_PATTERN = '/^[a-z0-9_]{1,40}$/';
+    /** Subjects are `[a-z0-9_]`: achievement keys and stage ids; anything else is "not found", never a query. `\z`, not `$`: no trailing newline. */
+    public const SUBJECT_PATTERN = '/^[a-z0-9_]{1,40}\z/';
 
     /** The size of every card (1080×1080 JPEG). */
     private const PHOTO_SIZE = AchievementCardRenderer::SIZE;
@@ -59,6 +60,8 @@ final class ShareMessageBuilder
     ) {}
 
     /**
+     * The whole message: {@see draft()} then {@see compose()}.
+     *
      * @param  string  $locale  the language of the texts and of the card (`ru` / `uz`)
      * @return array<string, mixed> an `InlineQueryResultPhoto` (`type`, `id`, `photo_url`, `thumbnail_url`, `photo_width`, `photo_height`,
      *                              `title`, `caption`, `reply_markup`) or an `InlineQueryResultArticle` (`type`, `id`, `title`,
@@ -67,6 +70,20 @@ final class ShareMessageBuilder
      * @throws ShareException share_subject_not_found | share_unavailable
      */
     public function build(Learner $learner, ShareKind $kind, ?string $subject, string $locale): array
+    {
+        return $this->compose($this->draft($learner, $kind, $subject, $locale));
+    }
+
+    /**
+     * Every check of the subject and everything of the message but the card: the texts, the link, the keyboard and the version of the
+     * content ({@see ShareDraft::$version}). No card is drawn and no file is read; the queries are the checks of the subject (the
+     * learner's own achievement, an open game and a beaten city) and, once in a learner's life, the referral code.
+     *
+     * @param  string  $locale  the language of the texts and of the card (`ru` / `uz`)
+     *
+     * @throws ShareException share_subject_not_found | share_unavailable
+     */
+    public function draft(Learner $learner, ShareKind $kind, ?string $subject, string $locale): ShareDraft
     {
         if (! $kind->isAvailable()) {
             throw ShareException::unavailable('kind_not_available');
@@ -95,18 +112,36 @@ final class ShareMessageBuilder
 
         $button = __($kind === ShareKind::FriendInvite ? 'share.button.add_friend' : 'share.button.start', [], $locale);
         $markup = $this->buttons->keyboard(self::NOT_A_PRIVATE_CHAT, [[$this->buttons->url($button, $link)]]);
-        $photo = $this->photoUrl($card);
+
+        // The card is drawn from the subject and the language (both in the texts) under the settings of the renderer: a changed file of
+        // the logo or of an illustration under the same path is not seen here - such a message lives out its cache (an hour at most).
+        $version = substr(hash('sha256', json_encode(
+            [$kind->value, $subject, $locale, $title, $caption, $markup, $this->cards->settingsVersion()],
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
+        )), 0, 32);
+
+        return new ShareDraft($kind, $subject, $locale, $title, $caption, $link, $markup, $card, $version);
+    }
+
+    /**
+     * The result of a draft: the card is drawn (or found) here.
+     *
+     * @return array<string, mixed> see {@see build()}
+     */
+    public function compose(ShareDraft $draft): array
+    {
+        $photo = $this->photoUrl($draft->card);
 
         // Stable for the same content, so an inline answer (H5) and a cached prepared message agree; ≤ 64 bytes (Telegram's limit).
-        $id = $kind->value.'-'.substr(hash('sha256', json_encode([$kind->value, $subject, $locale, $title, $caption, $link, $photo], JSON_THROW_ON_ERROR)), 0, 32);
+        $id = $draft->kind->value.'-'.substr(hash('sha256', json_encode([$draft->kind->value, $draft->subject, $draft->locale, $draft->title, $draft->caption, $draft->link, $photo], JSON_THROW_ON_ERROR)), 0, 32);
 
         if ($photo === null) {
             return [
                 'type' => 'article',
                 'id' => $id,
-                'title' => $title,
-                'input_message_content' => ['message_text' => $caption],
-                'reply_markup' => $markup,
+                'title' => $draft->title,
+                'input_message_content' => ['message_text' => $draft->caption],
+                'reply_markup' => $draft->markup,
             ];
         }
 
@@ -117,9 +152,9 @@ final class ShareMessageBuilder
             'thumbnail_url' => $photo,
             'photo_width' => self::PHOTO_SIZE,
             'photo_height' => self::PHOTO_SIZE,
-            'title' => $title,
-            'caption' => $caption,
-            'reply_markup' => $markup,
+            'title' => $draft->title,
+            'caption' => $draft->caption,
+            'reply_markup' => $draft->markup,
         ];
     }
 
@@ -161,7 +196,7 @@ final class ShareMessageBuilder
     private function gameCity(Learner $learner, ?string $subject, string $locale): array
     {
         // A stage id: digits, at most 18 (a longer number does not fit an integer).
-        if (! $this->validSubject($subject) || preg_match('/^[1-9][0-9]{0,17}$/', $subject) !== 1) {
+        if (! $this->validSubject($subject) || preg_match('/^[1-9][0-9]{0,17}\z/', $subject) !== 1) {
             throw ShareException::notFound();
         }
 

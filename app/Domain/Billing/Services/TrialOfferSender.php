@@ -8,6 +8,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Enums\SubscriptionProvider;
+use App\Domain\Billing\Enums\SubscriptionStatus;
 use App\Domain\Learners\Services\LearnerClock;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -22,6 +23,7 @@ use App\Models\NotificationLog;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +36,8 @@ use Illuminate\Support\Facades\Log;
  *
  * Rules of {@see send()}, in this order:
  *  1. the subscription is still the trial that ended at `$endsAt` (not bought, promoted or extended since), the step is not stale;
- *  2. the learner is there, not blocked, the DM is open, the learner did not opt out (`meta.billing_offers_opt_out`);
+ *  2. the learner is there, not blocked, the DM is open, the learner did not opt out (`meta.billing_offers_opt_out`), and the
+ *     learner's clock is still in the day window (a job held back by the queue or a 429 does not go at night);
  *  3. the plan resolved WITHOUT the cache is Free (a purchase, a promo, a seat of a center, a reward of friends stop the chain);
  *  4. nothing for sale: step 0 goes without prices ("Pro is coming" + the way through friends), steps 3 and 10 do not go;
  *  5. under the lock {@see proDmLock()} (taken by RenewalReminderSender too): no other message about Pro (`trial_offer`,
@@ -52,6 +55,14 @@ final class TrialOfferSender
 
     /** `from=` of the buttons into the Mini App. */
     public const FROM = 'trial_offer';
+
+    /** The statuses of a trial row after its end, see {@see queueDue()}. */
+    private const STATUSES_AFTER_END = [
+        SubscriptionStatus::Trialing->value,
+        SubscriptionStatus::Expired->value,
+        SubscriptionStatus::Active->value,
+        SubscriptionStatus::Canceled->value,
+    ];
 
     public function __construct(
         private readonly TelegramClient $telegram,
@@ -94,8 +105,9 @@ final class TrialOfferSender
 
     /**
      * Queues {@see SendTrialOfferJob} for every trial whose step is due now: `T` (the end of the trial) in
-     * (now − k days − max_age, now − k days − (k = 0 ? min_delay : 0)], the learner reachable and not opted out (the sender checks it
-     * all again), and the learner's clock in [window_from_hour, window_to_hour). Queuing twice is harmless: the marker decides.
+     * (now − k days − max_age, now − k days − (k = 0 ? min_delay : 0)], the step not sent yet (no marker of it after `T`), the learner
+     * reachable and not opted out (the sender checks it all again), and the learner's clock in [window_from_hour, window_to_hour).
+     * Queuing twice is harmless: the marker decides.
      *
      * @return int jobs queued
      */
@@ -112,10 +124,24 @@ final class TrialOfferSender
             $lower = $base->subHours($maxAge);
 
             Subscription::query()
+                // Every status a trial row has after its end (`trialing` before the expiry run, `expired` after it, `active` /
+                // `canceled` once extended): the condition is there for the index (status, current_period_ends_at); `past_due`
+                // belongs to a Stars renewal only.
+                ->whereIn('status', self::STATUSES_AFTER_END)
                 ->where('provider', SubscriptionProvider::Trial->value)
                 ->where('subscriber_type', 'learner')
                 ->where('current_period_ends_at', '>', $lower)
                 ->where('current_period_ends_at', '<=', $upper)
+                // A step already sent for this end (its marker, written at the send, after the end) is not queued every hour again.
+                // The marker is matched by the learner (one welcome trial each), the step and a time after this end; the sender
+                // still decides by the exact key.
+                ->whereNotExists(static fn (QueryBuilder $q) => $q
+                    ->selectRaw('1')
+                    ->from('notifications_log')
+                    ->whereColumn('notifications_log.learner_id', 'subscriptions.subscriber_id')
+                    ->where('notifications_log.type', self::NOTIFICATION_TYPE)
+                    ->whereColumn('notifications_log.sent_at', '>=', 'subscriptions.current_period_ends_at')
+                    ->whereJsonContains('notifications_log.payload->step', $step))
                 ->whereIn('subscriber_id', Learner::query()
                     ->select('id')
                     ->whereNull('blocked_at')
@@ -169,6 +195,12 @@ final class TrialOfferSender
         $learner = Learner::query()->find($subscription->subscriber_id);
 
         if ($learner === null || $learner->blocked_at !== null || $learner->dm_blocked_at !== null || self::optedOut($learner)) {
+            return false;
+        }
+
+        // The window is checked again at the send: a job held back by the queue or a 429 must not go at night. Nothing is written,
+        // so the next hourly run inside the window queues the step again (while it is fresh).
+        if (! $this->inWindow($learner, $now)) {
             return false;
         }
 

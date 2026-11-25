@@ -179,6 +179,26 @@ it('writes the DM in the learner language and logs it', function (): void {
         ->and($log->payload['key'])->toStartWith($sub->id.':3@');
 });
 
+it('stays silent about a trial of 3 days when an offer after the trial went out in the same local day, and reminds otherwise', function (): void {
+    // 11:00 in Tashkent. A trial of 3 days: its reminder "3 days left" is due on the day it starts - the day an offer after an
+    // earlier trial may have gone out (docs/34 §2д п. 4: one message about Pro a local day, both senders).
+    $learner = Learner::factory()->create(['telegram_user_id' => 555010, 'interface_locale' => 'ru', 'timezone' => 'Asia/Tashkent']);
+    $trial = rrSubscription(['subscriber_id' => $learner->id, 'provider' => 'trial', 'status' => 'trialing', 'starts_at' => now()->subHours(2)]);
+    // 00:30 of the same local day (19:30 UTC of the day before).
+    $offer = NotificationLog::query()->create(['learner_id' => $learner->id, 'type' => 'trial_offer', 'payload' => ['key' => 'other'], 'sent_at' => CarbonImmutable::parse('2026-10-19 19:30:00', 'UTC')]);
+
+    expect(rrSend($trial))->toBe(0)
+        ->and($this->tg->sent)->toBe([])
+        ->and(NotificationLog::query()->where('type', 'renewal_reminder')->count())->toBe(0);
+
+    // The offer was the day before (23:30 of the previous local day): the reminder goes.
+    $offer->update(['sent_at' => CarbonImmutable::parse('2026-10-19 18:30:00', 'UTC')]);
+
+    expect(rrSend($trial))->toBe(1)
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and(NotificationLog::query()->where('type', 'renewal_reminder')->count())->toBe(1);
+});
+
 it('hints at the stopped auto-renewal for a canceled Stars subscription', function (): void {
     $learner = Learner::factory()->create(['telegram_user_id' => 555003, 'interface_locale' => 'ru']);
     $sub = rrSubscription(['subscriber_id' => $learner->id, 'provider' => 'telegram_stars', 'status' => 'canceled', 'canceled_at' => now()->subDay()]);

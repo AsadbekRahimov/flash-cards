@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dayPlanSteps, gameStepExpected } from '../dayPlan'
+import { dayPlanStepPosition, dayPlanSteps, gameStepExpected } from '../dayPlan'
 import type { DayPlan } from '@/api/types'
 
 const plan = (overrides: Partial<DayPlan> = {}): DayPlan => ({
@@ -55,5 +55,19 @@ describe('gameStepExpected', () => {
     expect(gameStepExpected({ ...practice, pro_required: true })).toBe(false)
     expect(gameStepExpected({ ...practice, modes: ['pairs'] })).toBe(false)
     expect(gameStepExpected(undefined)).toBe(false)
+  })
+})
+
+describe('dayPlanStepPosition', () => {
+  it('counts the steps the plan really has: "step 2 of 2" for the game without the review', () => {
+    expect(dayPlanStepPosition(plan({ step: 3, lesson: lessonDone, game }), true, 'game')).toEqual({ step: 2, total: 2 })
+    expect(dayPlanStepPosition(plan({ step: 2, lesson: lessonDone, training, game }), true, 'training')).toEqual({ step: 2, total: 3 })
+    expect(dayPlanStepPosition(plan({ step: 3, lesson: lessonDone, training, game }), true, 'game')).toEqual({ step: 3, total: 3 })
+  })
+
+  it('is null without a plan, or for a step the plan does not have', () => {
+    expect(dayPlanStepPosition(null, true, 'game')).toBeNull()
+    expect(dayPlanStepPosition(undefined, true, 'training')).toBeNull()
+    expect(dayPlanStepPosition(plan({ step: 2, lesson: lessonDone, training }), true, 'game')).toBeNull()
   })
 })

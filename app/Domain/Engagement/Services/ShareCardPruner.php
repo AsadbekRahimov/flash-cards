@@ -13,6 +13,9 @@ use Throwable;
  * again (once a day), so what is older than `$days` nobody needed for that long: it goes, and is drawn anew if it is ever asked
  * for. Removed as well: the PNG cards of template 1 in the old directory and temporary files a killed render left (older than a
  * day: a render in progress is never touched).
+ *
+ * A renderer serving an old card at the moment this deletes it is not stopped by a lock: it checks the file again after moving its
+ * time and draws the card anew when it is gone or empty ({@see AchievementCardRenderer::renderSpec()}).
  */
 final class ShareCardPruner
 {

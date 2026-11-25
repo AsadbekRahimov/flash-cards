@@ -210,6 +210,9 @@ async function load(): Promise<void> {
 
 onMounted(() => {
   void load()
+  // Whether the Caravan gives points to this learner (`climbText`) is the word of `/me`: asked best effort, the screen never waits for it,
+  // and a `/me` read moments ago is not asked again (`ME_FRESH_MS`).
+  void billing.load()
 })
 </script>
 

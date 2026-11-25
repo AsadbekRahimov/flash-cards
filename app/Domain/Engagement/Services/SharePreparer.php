@@ -7,9 +7,11 @@ namespace App\Domain\Engagement\Services;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Engagement\DTO\PreparedShare;
+use App\Domain\Engagement\DTO\ShareDraft;
 use App\Domain\Engagement\Enums\ShareKind;
 use App\Domain\Engagement\Exceptions\ShareException;
 use App\Domain\Localization\Services\LocaleResolver;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\DTO\PreparedInlineMessage;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
@@ -29,10 +31,15 @@ use Illuminate\Support\Str;
  *
  * - **Who:** `user_id` of the Bot API is the `telegram_user_id` of the authenticated learner - the only learner this class is given. A
  *   blocked learner, sharing switched off, a bot without a username → `share_unavailable`.
- * - **Cache** (docs/19 §3): `share:prep:v1:{learner}:{kind}:{subject|-}:{locale}:{hash of the result}` → `{id, expires_at, fresh_until}`
- *   (an array),
- *   TTL = Telegram's `expiration_date` − `cache_margin_seconds`, at most `cache_max_seconds`. A changed text, card or link changes the
- *   hash, so nothing needs invalidating. A failure is not cached.
+ * - **Checks first, always:** {@see ShareMessageBuilder::draft()} - the learner's own subject, the open game, the texts, the link - runs
+ *   on every tap, a cached one included; only the card (drawing, hashing the files of the logo and the illustration) and the call to
+ *   Telegram are what the cache saves.
+ * - **Cache** (docs/19 §3, a PURE cache: {@see PureCache::store()}): `share:prep:v1:{learner}:{kind}:{subject|-}:{locale}:{version}` →
+ *   `{id, expires_at, fresh_until, photo}` (an array); `version` - a hash of the Telegram id of the learner and the version of the
+ *   draft ({@see ShareDraft::$version}: the texts, the link, the template and the settings of the card, no file read). TTL =
+ *   Telegram's `expiration_date` − `cache_margin_seconds`, at most `cache_max_seconds`. A changed text, link or setting changes the
+ *   key, so nothing needs invalidating; a new file of the logo / an illustration under the same path shows after the TTL (≤ an hour).
+ *   A failure is not cached. A lost entry costs one more call to Telegram, nothing else.
  * - **Two taps at once:** a lock per key; the second request waits for the first (≤ `lock_wait_seconds`), then takes its answer from
  *   the cache - one call to Telegram. A lock still held after the wait → 503 (the client falls back).
  * - **429:** the client pauses the whole outbound budget of the bot after a 429 of this method too ({@see TelegramMessageRateLimiter::pause()},
@@ -63,11 +70,12 @@ final class SharePreparer
 
         $subject = $kind->needsSubject() ? $subject : null;
         $locale = $this->locales->forLearner($learner);
-        $result = $this->builder->build($learner, $kind, $subject, $locale);
-        $key = $this->cacheKey($learner, $kind, $subject, $locale, $result);
+        // The checks of the subject run before the cache is looked at: a subject that is no longer the learner's is refused at once.
+        $draft = $this->builder->draft($learner, $kind, $subject, $locale);
+        $key = self::cacheKey($learner, $draft);
 
-        $prepared = $this->fromCache($key);
-        if ($prepared === null) {
+        $cached = $this->fromCache($key);
+        if ($cached === null) {
             $pause = $this->outbound->globalPauseRemaining();
             if ($pause > 0) {
                 $this->logFailure($learner, $kind, 'telegram_paused');
@@ -76,9 +84,9 @@ final class SharePreparer
             }
 
             try {
-                /** @var PreparedShare $prepared */
-                $prepared = Cache::lock($key.':lock', max(1, $this->setting('lock_seconds', 40)))
-                    ->block($this->setting('lock_wait_seconds', 3), fn (): PreparedShare => $this->fromCache($key) ?? $this->save($learner, $kind, $result, $key));
+                /** @var array{share: PreparedShare, photo: bool} $cached */
+                $cached = Cache::lock($key.':lock', max(1, $this->setting('lock_seconds', 40)))
+                    ->block($this->setting('lock_wait_seconds', 3), fn (): array => $this->fromCache($key) ?? $this->save($learner, $draft, $key));
             } catch (LockTimeoutException) {
                 $this->logFailure($learner, $kind, 'busy');
 
@@ -90,11 +98,11 @@ final class SharePreparer
             'kind' => $kind->value,
             'subject' => $subject,
             'via' => 'mini_app',
-            'cached' => $prepared->cached,
-            'photo' => ($result['type'] ?? null) === 'photo',
+            'cached' => $cached['share']->cached,
+            'photo' => $cached['photo'],
         ], learner: $learner);
 
-        return $prepared;
+        return $cached['share'];
     }
 
     /** @throws ShareException share_unavailable */
@@ -115,12 +123,17 @@ final class SharePreparer
     }
 
     /**
-     * @param  array<string, mixed>  $result
+     * The card is drawn here, under the lock: a parallel tap waiting for it takes the answer from the cache and draws nothing.
+     *
+     * @return array{share: PreparedShare, photo: bool}
      *
      * @throws ShareException share_failed
      */
-    private function save(Learner $learner, ShareKind $kind, array $result, string $key): PreparedShare
+    private function save(Learner $learner, ShareDraft $draft, string $key): array
     {
+        $result = $this->builder->compose($draft);
+        $photo = ($result['type'] ?? null) === 'photo';
+
         try {
             $message = $this->telegram->savePreparedInlineMessage(
                 $learner->telegram_user_id,
@@ -131,22 +144,22 @@ final class SharePreparer
                 allowChannelChats: true,
             );
         } catch (TelegramRateLimitedException $e) {
-            $this->logFailure($learner, $kind, 'telegram_rate_limited', $e);
+            $this->logFailure($learner, $draft->kind, 'telegram_rate_limited', $e);
 
             throw ShareException::failed('telegram_rate_limited', $e->retryAfter, $e);
         } catch (TelegramApiException $e) {
             $reason = $e->isApiResponse() ? 'telegram_refused' : 'telegram_unreachable';
-            $this->logFailure($learner, $kind, $reason, $e);
+            $this->logFailure($learner, $draft->kind, $reason, $e);
 
             throw ShareException::failed($reason, previous: $e);
         }
 
-        $this->remember($key, $message);
+        $this->remember($key, $message, $photo);
 
-        return new PreparedShare($message->id, CarbonImmutable::createFromTimestamp($message->expirationDate), cached: false);
+        return ['share' => new PreparedShare($message->id, CarbonImmutable::createFromTimestamp($message->expirationDate), cached: false), 'photo' => $photo];
     }
 
-    private function remember(string $key, PreparedInlineMessage $message): void
+    private function remember(string $key, PreparedInlineMessage $message, bool $photo): void
     {
         $ttl = min(
             $this->setting('cache_max_seconds', 3600),
@@ -156,13 +169,24 @@ final class SharePreparer
         // A message that lives shorter than the margin is handed out, not kept: the next tap prepares a new one.
         // `fresh_until` repeats the TTL inside the value: a store that keeps a key longer (or a clock moved on) cannot serve it late.
         if ($ttl >= 1) {
-            Cache::put($key, ['id' => $message->id, 'expires_at' => $message->expirationDate, 'fresh_until' => now()->getTimestamp() + $ttl], $ttl);
+            PureCache::store()->put($key, [
+                'id' => $message->id,
+                'expires_at' => $message->expirationDate,
+                'fresh_until' => now()->getTimestamp() + $ttl,
+                'photo' => $photo,
+            ], $ttl);
         }
     }
 
-    private function fromCache(string $key): ?PreparedShare
+    /**
+     * The prepared message under the key, or null: none, not of the shape, or no longer fresh. Redis hands an integer back as it was
+     * put inside an array (docs/19 §3 rule 11 concerns top-level numbers only).
+     *
+     * @return array{share: PreparedShare, photo: bool}|null
+     */
+    private function fromCache(string $key): ?array
     {
-        $value = Cache::get($key);
+        $value = PureCache::store()->get($key);
         if (! is_array($value)) {
             return null;
         }
@@ -170,21 +194,22 @@ final class SharePreparer
         $id = $value['id'] ?? null;
         $expiresAt = $value['expires_at'] ?? null;
         $freshUntil = $value['fresh_until'] ?? null;
+        $photo = $value['photo'] ?? null;
         $now = now()->getTimestamp();
-        if (! is_string($id) || $id === '' || ! is_int($expiresAt) || ! is_int($freshUntil) || $freshUntil <= $now || $expiresAt <= $now) {
+        if (! is_string($id) || $id === '' || ! is_int($expiresAt) || ! is_int($freshUntil) || ! is_bool($photo) || $freshUntil <= $now || $expiresAt <= $now) {
             return null;
         }
 
-        return new PreparedShare($id, CarbonImmutable::createFromTimestamp($expiresAt), cached: true);
+        return ['share' => new PreparedShare($id, CarbonImmutable::createFromTimestamp($expiresAt), cached: true), 'photo' => $photo];
     }
 
-    /** @param  array<string, mixed>  $result */
-    private function cacheKey(Learner $learner, ShareKind $kind, ?string $subject, string $locale, array $result): string
+    /** `share:prep:v1:{learner}:{kind}:{subject|-}:{locale}:{version}` - built from the draft, before any card is drawn. */
+    public static function cacheKey(Learner $learner, ShareDraft $draft): string
     {
         // The Telegram id is a part of the content: a prepared message belongs to one Telegram user.
-        $hash = substr(hash('sha256', $learner->telegram_user_id.'|'.json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)), 0, 20);
+        $version = substr(hash('sha256', $learner->telegram_user_id.'|'.$draft->version), 0, 20);
 
-        return implode(':', ['share', 'prep', self::CACHE_VERSION, $learner->id, $kind->value, $subject ?? '-', $locale, $hash]);
+        return implode(':', ['share', 'prep', self::CACHE_VERSION, $learner->id, $draft->kind->value, $draft->subject ?? '-', $draft->locale, $version]);
     }
 
     private function logFailure(Learner $learner, ShareKind $kind, string $reason, ?TelegramApiException $e = null): void

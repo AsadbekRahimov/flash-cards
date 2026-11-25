@@ -109,6 +109,24 @@ describe('useShare', () => {
     expect(api.share.event).toHaveBeenCalledWith({ event: 'fallback', kind: 'achievement', reason: 'error' })
   })
 
+  it('writes a 422 of prepare to the console with the kind and the code only; other refusals stay quiet', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    try {
+      vi.mocked(api.share.prepare).mockRejectedValue(error('validation', 422, 'validation_failed'))
+      await useShare().share('achievement', 'first_session', FALLBACK)
+      expect(warn).toHaveBeenCalledTimes(1)
+      expect(warn).toHaveBeenCalledWith('share.prepare refused', { kind: 'achievement', code: 'validation_failed' })
+      expect(JSON.stringify(warn.mock.calls)).not.toContain('first_session')
+
+      warn.mockClear()
+      vi.mocked(api.share.prepare).mockRejectedValue(error('server', 503, 'share_failed'))
+      await useShare().share('achievement', 'first_session', FALLBACK)
+      expect(warn).not.toHaveBeenCalled()
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
   it('takes the plain dialog when Telegram could not send the message', async () => {
     tg.shareMessage.mockRejectedValue(new Error('MESSAGE_EXPIRED'))
     const onShared = vi.fn()

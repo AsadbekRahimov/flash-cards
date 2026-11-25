@@ -49,8 +49,8 @@ final class AchievementCardRenderer
 
     public const DESCRIPTION_SIZE = 38;
 
-    /** `<key>-<locale>-<hash>.jpg`: what nginx lets through `/storage/share-cards/` (docker/nginx/*.conf) is exactly this. */
-    public const FILE_PATTERN = '/^[a-z0-9_]{1,40}-(?:ru|uz)-[0-9a-f]{20}\.jpg$/';
+    /** `<key>-<locale>-<hash>.jpg`: what nginx lets through `/storage/share-cards/` (docker/nginx/*.conf) is exactly this (`\z`: no trailing newline). */
+    public const FILE_PATTERN = '/^[a-z0-9_]{1,40}-(?:ru|uz)-[0-9a-f]{20}\.jpg\z/';
 
     private const LOCALES = ['ru', 'uz'];
 
@@ -108,7 +108,7 @@ final class AchievementCardRenderer
      */
     public function renderSpec(CardSpec $spec, string $locale): string
     {
-        if (preg_match('/^[a-z0-9_]{1,40}$/', $spec->key) !== 1) {
+        if (preg_match('/^[a-z0-9_]{1,40}\z/', $spec->key) !== 1) {
             throw new InvalidArgumentException("A card key must be [a-z0-9_]{1,40}, got '{$spec->key}'.");
         }
 
@@ -118,13 +118,35 @@ final class AchievementCardRenderer
         $relative = $this->directory().'/'.$this->fileName($spec->key, $locale, $content);
 
         $disk = $this->disk();
-        if ($disk->exists($relative)) {
-            $this->markUsed($disk->path($relative));
-        } else {
+        // A card found is served only when it is still there after its time was moved (see markUsed()); else it is drawn again.
+        if (! $disk->exists($relative) || ! $this->markUsed($disk->path($relative))) {
             $this->store($disk, $relative, $this->draw($content));
         }
 
         return $disk->path($relative);
+    }
+
+    /**
+     * What every card depends on besides its own texts, without drawing anything or reading a file: the template version, the
+     * brand and the PATH of its logo, the directory of the illustrations, the bot and where the cards are stored and served from.
+     * A changed file under the same path is not seen here (only {@see renderSpec()} hashes the files): {@see SharePreparer} keys
+     * its cache of a prepared message by this and accepts that such a change shows after the cache (an hour at most).
+     */
+    public function settingsVersion(): string
+    {
+        $disk = (string) config('achievements.disk', 'public');
+
+        return substr(hash('sha256', json_encode([
+            self::TEMPLATE_VERSION,
+            trim((string) config('app.brand')),
+            config('app.brand_logo'),
+            config('achievements.illustrations'),
+            ltrim(trim((string) config('telegram.bot_username')), '@'),
+            $disk,
+            config("filesystems.disks.{$disk}.url"),
+            $this->directory(),
+            (int) config('achievements.jpeg_quality', 90),
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)), 0, 16);
     }
 
     /**
@@ -176,7 +198,7 @@ final class AchievementCardRenderer
      */
     public function illustration(string $family): ?string
     {
-        if (preg_match('/^[a-z0-9_]{1,40}$/', $family) !== 1) {
+        if (preg_match('/^[a-z0-9_]{1,40}\z/', $family) !== 1) {
             return null;
         }
 
@@ -244,13 +266,22 @@ final class AchievementCardRenderer
     /**
      * A cached card served again is "used": its time moves on (at most once a day), so `achievements:prune-cards` removes only
      * the cards nobody needed for a month. Best effort - a read-only file is still a good card.
+     *
+     * False when the card is not there to serve after all: `achievements:prune-cards` may delete an old card between the check of
+     * the caller and the `touch` here, and `touch` then CREATES an empty file under the name. The file is looked at again after
+     * the touch (past the stat cache): missing or empty - the caller draws the card anew.
      */
-    private function markUsed(string $path): void
+    private function markUsed(string $path): bool
     {
         $modified = @filemtime($path);
         if ($modified !== false && $modified < now()->subDay()->getTimestamp()) {
             @touch($path);
         }
+
+        clearstatcache(true, $path);
+        $size = @filesize($path);
+
+        return $size !== false && $size > 0;
     }
 
     private function store(FilesystemAdapter $disk, string $relative, string $jpeg): void

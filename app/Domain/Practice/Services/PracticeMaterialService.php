@@ -21,6 +21,7 @@ use App\Models\Learner;
 use App\Models\Lesson;
 use App\Models\PracticeItemVersion;
 use App\Models\Word;
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -53,6 +54,9 @@ use Illuminate\Support\Facades\DB;
  */
 final class PracticeMaterialService
 {
+    /** How many ids of learned words a top-up reads at a time after its sample ({@see learnedCourseWordsOutsideLesson()}). */
+    private const TOPUP_CHUNK = 200;
+
     /** The state of a task (see {@see lockStateOf()}): every target word is active and introduced ... */
     private const FIT = 0;
 
@@ -144,15 +148,20 @@ final class PracticeMaterialService
 
     /**
      * The top-up of a game on ONE lesson that is short of words (`pairs_timed`, docs/16 §5.5a, docs/31 §5б): words of the SAME course
-     * outside the lesson that the learner has LEARNED (their repetition left the minute steps: `state = review`), up to `$want` of
-     * them, chosen by the seed of the session - deterministic for one seed, another choice for the next session. A sample of
-     * `$want * 3` ids is loaded (the spare covers the words a mode cannot use: no translation, a clash); the caller filters them and
-     * takes what it needs in the order of {@see SeededShuffle::apply()} under the same seed. Two queries (the ids, the sample) plus the
-     * translations; nothing for a scope that is not one lesson. The words are read whole each time (a session is opened once).
+     * outside the lesson that the learner has LEARNED (their repetition left the minute steps: `state = review`) and that the mode can
+     * use (`$usable`: the rule the mode applies to the words of the lesson - a translation in every locale, an English text), chosen by
+     * the seed of the session - deterministic for one seed, another choice for the next session. A sample of `$want * 3` ids is loaded
+     * first (the spare covers the words the mode cannot use); when fewer than `$want` of them are usable, the other ids follow in the
+     * order of the id, {@see TOPUP_CHUNK} at a time, until `$want` are found or there are none left. So the NUMBER of the words found
+     * is the same for every seed - min(`$want`, the usable learned words) or more - and the availability counted under one seed agrees
+     * with a game built under another. The caller takes what it needs in the order of {@see SeededShuffle::apply()} under the same seed.
+     * Two queries (the ids, the sample) plus the translations in the common case; nothing for a scope that is not one lesson. The words
+     * are read whole each time (a session is opened once).
      *
+     * @param  (Closure(MaterialWord): bool)|null  $usable  null: every word
      * @return list<MaterialWord> in the order of the id
      */
-    public function learnedCourseWordsOutsideLesson(MaterialScope $scope, Learner $learner, LocaleSet $locales, string $seed, int $want): array
+    public function learnedCourseWordsOutsideLesson(MaterialScope $scope, Learner $learner, LocaleSet $locales, string $seed, int $want, ?Closure $usable = null): array
     {
         $lesson = $scope->lesson;
         if ($lesson === null || $want <= 0) {
@@ -167,19 +176,35 @@ final class PracticeMaterialService
             ->where('lessons.id', '<>', $lesson->id);
 
         $ids = [];
-        foreach ((clone $query)->select('words.id')->toBase()->pluck('words.id') as $id) {
+        // In the order of the id (the sample below picks indices of this list: another order would be another choice for one seed).
+        foreach ((clone $query)->select('words.id')->reorder('words.id')->toBase()->pluck('words.id') as $id) {
             $ids[] = (int) $id;
         }
         if ($ids === []) {
             return [];
         }
 
-        $picked = [];
+        $sampled = [];
         foreach (SeededShuffle::sample($seed, 'practice:topup', count($ids), $want * 3) as $index) {
-            $picked[] = $ids[$index];
+            $sampled[$ids[$index]] = true;
+        }
+        $rest = array_values(array_filter($ids, static fn (int $id): bool => ! isset($sampled[$id])));
+
+        $found = [];
+        foreach ([array_keys($sampled), ...array_chunk($rest, self::TOPUP_CHUNK)] as $batch) {
+            foreach ($this->materialWords((clone $query)->whereIn('words.id', $batch)->get(), $locales) as $word) {
+                if ($usable === null || $usable($word)) {
+                    $found[] = $word;
+                }
+            }
+            if (count($found) >= $want) {
+                break;
+            }
         }
 
-        return $this->materialWords($query->whereIn('words.id', $picked)->get(), $locales);
+        usort($found, static fn (MaterialWord $a, MaterialWord $b): int => $a->id <=> $b->id);
+
+        return $found;
     }
 
     /**

@@ -16,7 +16,7 @@ const state = vi.hoisted(() => ({
   hideBack: vi.fn(),
 }))
 
-vi.mock('@/api', () => ({ api: { league: { get: vi.fn() } } }))
+vi.mock('@/api', () => ({ api: { league: { get: vi.fn() }, me: { get: vi.fn() } } }))
 
 vi.mock('@/stores/auth', () => ({ useAuthStore: () => ({ ensure: state.ensure }) }))
 
@@ -89,6 +89,8 @@ describe('LeagueView', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     state.ensure.mockResolvedValue(undefined)
+    // `/me` (asked best effort for the Caravan line): never answers unless a test says otherwise
+    vi.mocked(api.me.get).mockReturnValue(new Promise(() => {}))
   })
   afterEach(() => setLocale('ru'))
 
@@ -159,6 +161,23 @@ describe('LeagueView', () => {
     const { wrapper } = await render()
 
     expect(text(wrapper, 'climb-text')).toBe('Баллы дают уроки, повторения и «Караван»')
+  })
+
+  it('asks /me for the Caravan line without waiting for it, and not again while it is fresh', async () => {
+    vi.mocked(api.me.get).mockResolvedValue({
+      entitlement: { plan: 'free', source: 'free', until: null, new_words_per_day: 10 },
+      paywall: { mode: 'coming_soon', contact: null },
+      game: { available: true, pro_promise: 'none', coins: 0, tickets: 0, limits: null },
+    } as never)
+    const { wrapper } = await render()
+
+    expect(api.me.get).toHaveBeenCalledTimes(1)
+    expect(text(wrapper, 'climb-text')).toBe('Баллы дают уроки, повторения и «Караван»')
+    wrapper.unmount()
+
+    const again = await render()
+    expect(api.me.get).toHaveBeenCalledTimes(1)
+    expect(text(again.wrapper, 'climb-text')).toBe('Баллы дают уроки, повторения и «Караван»')
   })
 
   it('on the first place: "Вы впереди всех" in the card and "how to keep the first place" in the block', async () => {

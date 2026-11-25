@@ -230,6 +230,9 @@ describe('CourseView — the practice of a lesson, in the row of the lesson (doc
     const button = rowButton(wrapper, 41)
     expect(row.findAll('button')).toHaveLength(2)
     expect(button.classes()).toEqual(expect.arrayContaining(['btn', 'btn-plain', 'btn-sm']))
+    // a 36 px button with a touch area of a finger (44 px, docs/14 §3), in the current row and in the others
+    expect(button.classes()).toContain('tap-target')
+    expect(rowButton(wrapper, 40).classes()).toContain('tap-target')
     expect(button.classes()).not.toContain('btn-primary')
     // an icon with a short visible caption; its name for a screen reader is the longer label that starts with it
     expect(button.text()).toBe('Практика')

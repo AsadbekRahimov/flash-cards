@@ -440,7 +440,7 @@ const leagueRow = computed(() => {
     subtitle: t('today.league.subtitle', {
       rank: league.rank,
       members: league.members_count,
-      points: tn('league.points', league.points),
+      points: tn('league.score', league.points),
     }),
   }
 })
@@ -456,7 +456,9 @@ const heroStep = computed((): 1 | 2 | 3 | 'done' | null => {
   if (current === null || showStart.value) return null
   if (current.step === 1) return data.value?.active_course?.next_lesson ? 1 : null
   if (current.step === 2) return current.training !== null ? 2 : null
-  if (current.step === 3) return current.game !== null ? 3 : null
+  // Step 3 without a way into the game (an older server that does not name the course of the lesson, and the lesson is not surely of the
+  // active course): the previous card, not a step card without a button.
+  if (current.step === 3) return current.game !== null && gameLink.value !== null ? 3 : null
   return current.done ? 'done' : null
 })
 
@@ -499,16 +501,25 @@ const hero = computed((): { eyebrow: string; title: string; text: string; note: 
     return { eyebrow: lessonDoneLine.value, title: t('today.hero.training_title'), text: tn('today.hero.training_text', current.training.words), note: '' }
   }
   if (step === 3) return { eyebrow: lessonDoneLine.value, title: t('today.hero.game_title'), text: t('today.hero.game_text'), note: '' }
-  return { eyebrow: '', title: t('today.hero.done_title'), text: t('today.hero.done_text'), note: '' }
+  // "New lesson - tomorrow" only when it is so: the Free quota of new words is used up; else a lesson may still be taken today.
+  return { eyebrow: '', title: t('today.hero.done_title'), text: t(quotaLeft.value === 0 ? 'today.hero.done_text' : 'today.hero.done_text_open'), note: '' }
 })
+
+/** The plan is done and the quota still lets a lesson bring new words: "Next lesson" under it, as a second action. */
+const doneNextLesson = computed(() => heroStep.value === 'done' && quotaLeft.value !== 0 ? (data.value?.active_course?.next_lesson ?? null) : null)
+/** The plan is done and a review is waiting (or open): its button on the card. */
+const doneReview = computed(() => heroStep.value === 'done' && data.value !== null && (data.value.open_session_id !== null || data.value.due_count > 0))
+/** "Pro" of the done card: a Free learner whose quota is used up. */
+const donePro = computed(() => heroStep.value === 'done' && !isPro.value && quotaLeft.value === 0)
 
 /** Step 1 with the Free quota used up: the lesson would open with no new word, so the card offers Pro instead (never to Pro). */
 const lessonBlocked = computed(() => heroStep.value === 1 && quotaLeft.value === 0)
 
+/** The lesson of step 1 (or "Next lesson" of the done card): a session of the plan (`source: plan`, docs/04 A.3). */
 function startLesson(): Promise<void> {
   tapPrimary()
   const lessonId = data.value?.active_course?.next_lesson?.id
-  return lessonId ? learnNext(lessonId) : Promise.resolve()
+  return lessonId ? openSession({ mode: 'lesson', lesson_id: lessonId, source: 'plan' }) : Promise.resolve()
 }
 
 /**
@@ -524,12 +535,18 @@ async function startLessonReview(): Promise<void> {
   if (sessionId !== null) await router.push({ name: 'training', params: { sessionId } })
 }
 
-/** Step 3: the practice hub of the lesson, which starts the timed pairs by itself (`play`). */
+/**
+ * Step 3: the practice hub of the lesson, which starts the timed pairs by itself (`play`), in the course of the lesson (`plan.game.course`:
+ * the lesson of the day may be of another course than the active one - an assignment, a course switched since). An older server does not
+ * name it: then the active course, but only when the lesson surely is of it (`plan.training.title` is given only for such a lesson).
+ */
 const gameLink = computed((): RouteLocationRaw | null => {
   const game = plan.value?.game
-  const slug = data.value?.active_course?.slug
-  if (!game || !slug) return null
-  return { name: 'practice-hub', params: { slug }, query: { lesson: String(game.lesson_id), play: game.mode } }
+  if (!game) return null
+  const trainingTitle = plan.value?.training?.title
+  const slug = game.course ?? (typeof trainingTitle === 'string' ? (data.value?.active_course?.slug ?? null) : null)
+  if (!slug) return null
+  return { name: 'practice-hub', params: { slug }, query: { lesson: String(game.lesson_id), play: game.mode, from: 'plan' } }
 })
 
 /** The goal of the day in the new card: «8 / 20 слов», the bar of segments (at most 20) and the streak or what is left on the right. */
@@ -571,9 +588,10 @@ const gamesTileNote = computed(() => {
  */
 const primaryReady = computed(() => {
   if (data.value === null || status.value === 'idle' || status.value === 'loading' || awaitingAssignments.value || opening.value) return false
-  // The card of a step always has its button (step 1 with the Free quota used up leads to Pro); the game needs the course of the hub.
-  if (heroStep.value === 1 || heroStep.value === 2) return true
-  if (heroStep.value === 3) return gameLink.value !== null
+  // The card of a step always has its button (step 1 with the Free quota used up leads to Pro, step 3 is there only with its link); the done
+  // card - only when it has one of its buttons.
+  if (heroStep.value === 1 || heroStep.value === 2 || heroStep.value === 3) return true
+  if (heroStep.value === 'done') return doneReview.value || doneNextLesson.value !== null || donePro.value
   return showStart.value || needsCourseToStart.value || needsOtherCourse.value || !allDone.value || assignmentItems.value.length > 0
 })
 // After the render (`post`): the button is on the screen when the mark is taken.
@@ -714,7 +732,7 @@ onBeforeUnmount(() => {
             </RouterLink>
             <template v-else-if="heroStep === 'done'">
               <button
-                v-if="data.open_session_id !== null || data.due_count > 0"
+                v-if="doneReview"
                 type="button"
                 class="btn btn-tinted btn-lg btn-block"
                 :disabled="opening"
@@ -723,7 +741,18 @@ onBeforeUnmount(() => {
               >
                 {{ data.open_session_id !== null ? t('today.review.continue') : tn('today.hero.review', data.due_count) }}
               </button>
-              <p v-if="!isPro && quotaLeft === 0" class="flex justify-center">
+              <button
+                v-if="doneNextLesson"
+                type="button"
+                class="btn btn-lg btn-block"
+                :class="doneReview ? 'btn-plain' : 'btn-tinted'"
+                :disabled="opening"
+                data-testid="hero-next-lesson"
+                @click="startLesson"
+              >
+                {{ t('today.hero.next_lesson') }}
+              </button>
+              <p v-if="donePro" class="flex justify-center">
                 <button type="button" class="btn btn-plain btn-sm" data-testid="all-done-pro" @click="openPaywall('quota')">
                   {{ t('today.all_done.pro') }}
                 </button>

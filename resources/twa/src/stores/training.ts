@@ -79,6 +79,8 @@ interface TrainingState {
   summary: SessionSummary | null
   opening: boolean
   openError: string
+  /** The server's code of the last refused `open()` (`lesson_review_unavailable`, ...); null: none, or not an answer of the server. */
+  openErrorCode: string | null
   /**
    * What `open()` got back for a session the training screen has not entered yet: `start()`
    * consumes it instead of asking the server for the same answer again.
@@ -154,6 +156,7 @@ export const useTrainingStore = defineStore('training', {
     summary: null,
     opening: false,
     openError: '',
+    openErrorCode: null,
     preloaded: null,
     opened: null,
     reviewedCount: 0,
@@ -201,6 +204,7 @@ export const useTrainingStore = defineStore('training', {
       if (this.opening) return null
       this.opening = true
       this.openError = ''
+      this.openErrorCode = null
       try {
         const res = await api.training.open(body)
         this.preloaded = { sessionId: res.session_id, response: res }
@@ -208,6 +212,7 @@ export const useTrainingStore = defineStore('training', {
         return res.session_id
       } catch (err) {
         this.openError = errorMessage(err, 'training')
+        this.openErrorCode = err instanceof ApiClientError && err.code !== '' ? err.code : null
         // The round of hard words was played in another tab (or the words went): "Today" is read again, so its invitation matches the server.
         // The same for the review of a lesson (`lesson_review_unavailable`): the plan of the day is read again.
         if (err instanceof ApiClientError && (err.code === 'hard_round_unavailable' || err.code === 'lesson_review_unavailable')) void useTodayStore().load()
@@ -260,6 +265,7 @@ export const useTrainingStore = defineStore('training', {
     /** Forgets a failed-open message when the learner leaves the screen that showed it. */
     clearOpenError(): void {
       this.openError = ''
+      this.openErrorCode = null
     },
 
     async loadNext(): Promise<void> {

@@ -1498,7 +1498,6 @@
 | `league.tier.gold` | Oltin | Золото |
 | `league.tier.platinum` | Platina | Платина |
 | `league.tier.diamond` | Olmos | Алмаз |
-| `league.points` | {count} ochko | {count} очко / очка / очков |
 | `league.week` | Hafta {from} – {to} | Неделя {from} – {to} |
 | `league.closes` | Hafta yakuni — {when} | Итоги недели — {when} |
 | `league.rules` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. Ballar: takrorlashlar, to'g'ri javoblar, yangi so'zlar (×2), bajarilgan kunlik maqsad (+10). | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. Баллы: повторения, верные ответы, новые слова (×2), выполненная цель дня (+10). |
@@ -4535,8 +4534,6 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | Ключ | uz | ru |
 |---|---|---|
 | `training.progress.counter` | {total} tadan {done} ta | {done} из {total} (счётчик в шапке занятия: «3 из 8») |
-| `training.lesson_review_header` | Takrorlash · {lesson} | Повторение · {lesson} (пилюля повторения урока; `{lesson}` — «2-modul · 4-dars · …») |
-| `training.lesson_review_header_plain` | Darsni takrorlash | Повторение урока (то же, когда урок неизвестен) |
 | `exercise.miss.returns_lesson` | So'z shu darsda yana qaytadi. | Слово вернётся ещё раз в этом уроке. (после ошибки в уроке) |
 | `exercise.miss.returns_round` | So'z shu raundda yana qaytadi. | Слово вернётся ещё раз в этом раунде. (после ошибки в ежедневном раунде / раунде трудных слов) |
 | `exercise.miss.neutral` | To'g'ri javobni eslab qoling. | Запомните правильный ответ. (после ошибки, когда слово в этом занятии может не вернуться) |
@@ -4580,8 +4577,6 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `finished.goal_line` | Kunlik maqsad · {done} / {target} | Цель дня · {done} / {target} |
 | `finished.goal_left` | yana {count} ta | ещё {count} (сколько осталось до цели) |
 | `finished.next.title` | Keyingi qadam | Что дальше |
-| `finished.next.step2` | 2-qadam (3 tadan) · hozir tavsiya qilamiz | Шаг 2 из 3 · советуем сейчас |
-| `finished.next.step3` | 3-qadam (3 tadan) · hozir tavsiya qilamiz | Шаг 3 из 3 · советуем сейчас |
 | `finished.next.training_title` | So'zlarni mashqda mustahkamlang | Закрепите слова в тренировке |
 | `finished.next.training_text` | So'zlarni darhol takrorlasangiz, ular yaxshiroq esda qoladi. | Слова запоминаются лучше, если повторить их сразу. (дальше — «5 ta yangi so'z.») |
 | `finished.next.training_start` | Mashqni boshlash | Начать тренировку |
@@ -4592,7 +4587,6 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `finished.lesson_review.title` | So'zlar mustahkamlandi | Слова закреплены (итог тренировки-закрепления) |
 | `finished.lesson_review.won` | so'z mustahkamlandi | слов закреплено (подпись под «5 из 6») |
 | `finished.lesson_review.first_try` | birinchi urinishda | с первой попытки |
-| `finished.lesson_review.note` | Bu mustahkamlash: takrorlash jadvali, kunlik maqsad va liga ballari o'zgarmaydi. | Это закрепление: расписание повторений, цель дня и баллы лиги не меняются. |
 | `error.code.lesson_review_unavailable` | Dars so'zlari bo'yicha mashq hozir mavjud emas. | Тренировка по словам урока сейчас недоступна. |
 | `error.lesson_review.disabled` | Dars so'zlari bo'yicha mashq hozir mavjud emas. | Тренировка по словам урока сейчас недоступна. |
 | `error.lesson_review.no_new_words` | Bugun bu darsda yangi so'zlar bo'lmadi — mustahkamlash uchun hozircha hech narsa yo'q. | Новых слов этого урока сегодня не было — закреплять пока нечего. |
@@ -4601,7 +4595,6 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `practice.hub.learned.one` | {count} ta o'rganilgan so'zda o'ynang | Играйте на {count} выученном слове |
 | `practice.hub.learned.other` | {count} ta o'rganilgan so'zda o'ynang | Играйте на {count} выученных словах |
 | `practice.hub.learned_unknown` | Allaqachon o'rgangan so'zlaringizda o'ynang | Играйте на словах, которые уже учили |
-| `practice.hub.step.eyebrow` | 3-qadam (3 tadan) · hozir tavsiya qilamiz | Шаг 3 из 3 · советуем сейчас |
 | `practice.hub.step.text` | So'z va tarjimasini rekorddan tezroq juftlang. «{lesson}» darsi so'zlari, taxminan {minutes} daqiqa. | Соедините слово и перевод быстрее рекорда. Слова из урока «{lesson}», около {minutes} мин. |
 | `practice.hub.step.text_plain` | So'z va tarjimasini rekorddan tezroq juftlang. Shu dars so'zlari, taxminan {minutes} daqiqa. | Соедините слово и перевод быстрее рекорда. Слова этого урока, около {minutes} мин. |
 | `practice.hub.step.play` | O'ynash | Играть |
@@ -4680,7 +4673,7 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 
 Экраны «Лига», «Профиль» и «Подписка Pro» переделаны по макетам `docs/design/2026-11-25-redesign/` (League, Profile, Pro). На экране
 лиги баллы теперь «ball» (`league.score`, как в рейтинге месяца), а не «ochko»; `league.rules` выше обновлена («Ballar:»).
-`league.points` («ochko») пока остаётся в строке лиги экрана «Bugun». Носителю проверить:
+`league.points` («ochko») удалён: строка лиги экрана «Bugun» тоже пишет «ball» (`league.score`, см. раздел ниже). Носителю проверить:
 естественно ли звучат заголовки-вопросы блока «Как подняться выше» и не короче ли сказать «Kun rejasiga» иначе.
 
 | Ключ | uz | ru |
@@ -4701,3 +4694,23 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `billing.period.chosen` | tanlangan | выбрано |
 | `billing.benefit.pro_emoji` | Ism yonidagi emoji | Эмодзи у имени |
 | `billing.benefit.pro_emoji.note` | ismingiz yonida o'zingiz tanlagan belgi | свой символ рядом с вашим именем |
+
+## Выпуск 1 · правки по ревью Mini App: «Mashq», шаги плана, лига (25.11.2026) — на проверку носителю
+
+Режим закрепления урока везде называется одним словом «Mashq» (ru «Тренировка»), «Takrorlash» — только ежедневное повторение: шапка
+занятия, подпись на итоге и пояснение под ним. Счётчики «N-qadam (M tadan)» берут N и M из плана дня (без закрепления — «2-qadam (2 tadan)»);
+без плана под рукой — только «Hozir tavsiya qilamiz». «Yangi dars — ertaga» на экране «Bugun» — только когда исчерпан дневной лимит
+Free; иначе нейтральная строка и кнопка «Keyingi dars». `league.points` («ochko») удалён — баллы лиги везде «ball» (`league.score`).
+Старые строки этих ключей в разделах выше убраны. Носителю проверить: естественно ли «Dars mashqi» и «{step}-qadam ({total} tadan)».
+
+| Ключ | uz | ru |
+|---|---|---|
+| `training.lesson_review_header` | Mashq · {lesson} | Тренировка · {lesson} (шапка занятия и подпись итога; `{lesson}` — «2-modul · 4-dars · …» или название урока) |
+| `training.lesson_review_header_plain` | Dars mashqi | Тренировка урока (то же, когда урок неизвестен) |
+| `finished.lesson_review.note` | Bu mashq: takrorlash jadvali, kunlik maqsad va liga ballari o'zgarmaydi. | Это тренировка: расписание повторений, цель дня и баллы лиги не меняются. |
+| `finished.next.step` | {step}-qadam ({total} tadan) · hozir tavsiya qilamiz | Шаг {step} из {total} · советуем сейчас (вместо `finished.next.step2` / `step3`) |
+| `finished.next.now` | Hozir tavsiya qilamiz | Советуем сейчас (то же без плана дня) |
+| `practice.hub.step.eyebrow` | {step}-qadam ({total} tadan) · hozir tavsiya qilamiz | Шаг {step} из {total} · советуем сейчас |
+| `practice.hub.step.now` | Hozir tavsiya qilamiz | Советуем сейчас (карточка игры урока без плана дня: открыта из бота) |
+| `today.hero.done_text_open` | Takrorlash va o'yinlar doim ochiq | Повторение и игры доступны всегда (план выполнен, лимит новых слов не исчерпан) |
+| `today.hero.next_lesson` | Keyingi dars | Следующий урок (вторичная кнопка выполненного плана) |

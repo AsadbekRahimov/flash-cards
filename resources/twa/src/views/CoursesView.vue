@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -22,7 +22,8 @@ import { useI18n } from '@/i18n'
  * opens the learner's own course; this list is reached from it ("All courses"), and is the tab itself while there is no course yet.
  * A card opens the course; its button starts the course (or switches to it: the source of the new words of the daily session) and
  * leads to Home. The learner's course is the big tinted card (`bg-highlight`, `rounded-hero`), the others white cards. The twin screen
- * is "My decks" (the switch under the heading). A root of the tab: no system "Back" button.
+ * is "My decks" (the switch under the heading). A root of the tab: no system "Back" button - except when it was opened by "All courses"
+ * of a course (`?from=<slug>`): then the system "Back" returns to that course.
  */
 const auth = useAuthStore()
 const catalog = useCoursesStore()
@@ -33,7 +34,9 @@ const { courses, listStatus: status, selecting, errorMessage } = storeToRefs(cat
 
 const tabs = computed(catalogTabs)
 
-useBackButton(null)
+const route = useRoute()
+const fromCourse = typeof route.query.from === 'string' && route.query.from !== '' ? route.query.from : null
+useBackButton(fromCourse === null ? null : { name: 'course', params: { slug: fromCourse } })
 
 async function load(): Promise<void> {
   try {

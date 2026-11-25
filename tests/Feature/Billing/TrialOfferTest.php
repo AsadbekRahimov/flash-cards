@@ -22,6 +22,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\Support\FakeTelegramClient;
+use Tests\Support\QueryLog;
 
 /*
  * The offers after the welcome trial (docs/34 §2д, P5): steps 0 / 3 / 10 after its end `T`, between 11:00 and 19:00 of the learner's
@@ -160,6 +161,68 @@ it('does not send a step older than a day, neither from the command nor from a l
 
     expect(toSend($trial, 0))->toBeFalse()
         ->and($this->tg->sent)->toBe([]);
+});
+
+it('does not send from a job that runs outside the window: no marker, and the window of the next day sends it', function (): void {
+    $trial = toTrial();
+    $learner = toLearner($trial);
+
+    // Queued at 14:00 in Tashkent, held back by the queue (or a 429) until 21:00: silent, nothing written.
+    $this->travelTo(CarbonImmutable::parse('2026-11-20 16:00:00', 'UTC'));
+    expect(toSend($trial, 0))->toBeFalse()
+        ->and(toMarkers($learner))->toBe([])
+        ->and($this->tg->sent)->toBe([]);
+
+    // 10:30 the next morning: still before the window.
+    $this->travelTo(CarbonImmutable::parse('2026-11-21 05:30:00', 'UTC'));
+    expect(toSend($trial, 0))->toBeFalse()->and(toMarkers($learner))->toBe([]);
+
+    // 11:30, T + 23.5 h: the step is still fresh and goes.
+    $this->travelTo(CarbonImmutable::parse('2026-11-21 06:30:00', 'UTC'));
+    $this->artisan('billing:trial-offers')->expectsOutputToContain('Trial offers queued: 1');
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and(array_column(toMarkers($learner), 'step'))->toBe([0]);
+});
+
+it('does not queue a step already sent again, and the statements of the run do not grow with the trials already handled', function (): void {
+    $this->travelTo(CarbonImmutable::parse('2026-11-20 09:00:00', 'UTC'));
+    $trials = [toTrial(), toTrial(), toTrial()];
+
+    Queue::fake();
+    expect(app(TrialOfferSender::class)->queueDue())->toBe(3);
+    Queue::assertPushed(SendTrialOfferJob::class, 3);
+
+    // Step 0 of the first trial goes out (the job ran); the next hourly run in the same window queues only the other two.
+    expect(toSend($trials[0], 0))->toBeTrue();
+    Queue::fake();
+    expect(app(TrialOfferSender::class)->queueDue())->toBe(2);
+    Queue::assertPushed(SendTrialOfferJob::class, 2);
+    Queue::assertNotPushed(SendTrialOfferJob::class, fn (SendTrialOfferJob $job): bool => $job->subscriptionId === $trials[0]->id);
+
+    // A marker of another step, or of the same step before this end (an older trial), does not hide the step.
+    $other = [
+        NotificationLog::query()->create(['learner_id' => $trials[1]->subscriber_id, 'type' => 'trial_offer', 'payload' => ['key' => 'x', 'step' => 3], 'sent_at' => now()]),
+        NotificationLog::query()->create(['learner_id' => $trials[2]->subscriber_id, 'type' => 'trial_offer', 'payload' => ['key' => 'y', 'step' => 0], 'sent_at' => CarbonImmutable::parse(TO_END)->subDay()]),
+    ];
+    expect(app(TrialOfferSender::class)->queueDue())->toBe(2);
+    foreach ($other as $row) {
+        $row->delete();
+    }
+
+    // Every step sent: nothing is queued, and the run costs the same statements as with one trial handled.
+    expect(toSend($trials[1], 0))->toBeTrue()
+        ->and(toSend($trials[2], 0))->toBeTrue();
+    $few = QueryLog::during(fn () => app(TrialOfferSender::class)->queueDue());
+    foreach (range(1, 5) as $i) {
+        $more = toTrial();
+        NotificationLog::query()->create(['learner_id' => $more->subscriber_id, 'type' => 'trial_offer', 'payload' => ['key' => "k{$i}", 'step' => 0], 'sent_at' => now()]);
+    }
+    $many = QueryLog::during(fn () => app(TrialOfferSender::class)->queueDue());
+
+    // One statement a step of the chain, whatever was handled before: the sent ones are not read back.
+    expect(app(TrialOfferSender::class)->queueDue())->toBe(0)
+        ->and(count($few))->toBe(count(TrialOfferSender::steps()))
+        ->and(count($many))->toBe(count($few));
 });
 
 it('leaves out of the selection a blocked learner, a closed DM, a deleted learner and one who opted out', function (): void {
@@ -329,8 +392,8 @@ it('sends no second message about Pro in the same local day, a renewal reminder 
     expect(toSend($trial, 0))->toBeFalse()
         ->and(toMarkers($learner))->toHaveCount($type === 'trial_offer' ? 1 : 0);
 
-    // The next run of the next local day (step 0 still fresh: T + 22 h) sends it.
-    $this->travelTo(CarbonImmutable::parse('2026-11-21 05:00:00', 'UTC'));
+    // The next run of the next local day inside the window (11:00 in Tashkent; step 0 still fresh: T + 23 h) sends it.
+    $this->travelTo(CarbonImmutable::parse('2026-11-21 06:00:00', 'UTC'));
     expect(toSend($trial, 0))->toBeTrue();
 })->with(['renewal_reminder', 'trial_offer']);
 

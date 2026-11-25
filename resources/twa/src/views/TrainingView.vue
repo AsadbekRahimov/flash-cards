@@ -118,7 +118,7 @@ const lessonHeader = computed((): string => {
 
 /**
  * The pill under the header, by the mode (the round of hard words has its own row): a lesson (personal or of a group) — its
- * name; the review of a lesson (`lesson_review`) — «Повторение · <lesson>»; the daily review — «Раунд». Nothing else is asked
+ * name; the review of a lesson (`lesson_review`) — «Тренировка · <lesson>»; the daily review — «Раунд». Nothing else is asked
  * of the server: the mode and the lesson come with the session.
  */
 const subtitle = computed((): { text: string; testid: string } | null => {

@@ -8,6 +8,7 @@ use App\Domain\Practice\DTO\ElementState;
 use App\Domain\Practice\DTO\GradeResult;
 use App\Domain\Practice\DTO\LocaleSet;
 use App\Domain\Practice\DTO\MaterialScope;
+use App\Domain\Practice\DTO\MaterialWord;
 use App\Domain\Practice\DTO\ModeAvailability;
 use App\Domain\Practice\DTO\PairsRound;
 use App\Domain\Practice\DTO\Snapshot;
@@ -30,8 +31,10 @@ use App\Models\Learner;
  * cannot stand together in a round, `ambiguous`. A game on ONE lesson that is short of them (the step 3 of the day plan, docs/31 §5б)
  * is TOPPED UP with words of the same course the learner has learned ({@see PracticeMaterialService::learnedCourseWordsOutsideLesson()}),
  * chosen by the seed of the session, to `min_words` rounded up to whole rounds: every fit word of the lesson stays in, the others
- * only fill the board. A lesson without a single fit word is not topped up (`no_words`): the game would not be on the lesson. Only when
- * a game is OPENED: the counting scope of the hub reports the lesson's own words, as before (its budget of statements is pinned).
+ * only fill the board. Only words fit by the same rule fill it, and how many are found does not depend on the seed: the availability
+ * (under its own seed) and the game (under the session's) say the same. A lesson without a single fit word is not topped up
+ * (`no_words`): the game would not be on the lesson. Only when a game is OPENED: the counting scope of the hub reports the lesson's
+ * own words, as before (its budget of statements is pinned).
  *
  * ROUNDS: `rounds` rounds of exactly `per_round` words. Each cycle lays all fit words out under its own seed (`{seed}:cycle:{k}`,
  * the first cycle under the seed itself) with {@see PairsPacker} - no two words that clash in a round - and the cycles go on, over
@@ -220,9 +223,13 @@ final class PairsTimedMode implements PracticeModeHandler
             $want = $target - count($words);
             $taken = array_flip(array_map(static fn (array $c): int => $c['word']->id, $words));
 
+            // The material reads on past its sample until `$want` words the board can use are found: the number of them does not
+            // depend on the seed, so the availability (one seed) and the game (the seed of the session) agree.
+            $usable = static fn (MaterialWord $word): bool => ! isset($taken[$word->id]) && PairsMode::candidate($word, $locales) !== null;
+
             $extra = [];
-            foreach ($this->material->learnedCourseWordsOutsideLesson($scope, $learner, $locales, $seed, $want) as $word) {
-                $candidate = isset($taken[$word->id]) ? null : PairsMode::candidate($word, $locales);
+            foreach ($this->material->learnedCourseWordsOutsideLesson($scope, $learner, $locales, $seed, $want, $usable) as $word) {
+                $candidate = PairsMode::candidate($word, $locales);
                 if ($candidate !== null) {
                     $extra[] = $candidate;
                 }

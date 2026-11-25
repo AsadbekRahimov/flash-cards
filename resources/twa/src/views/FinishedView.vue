@@ -34,6 +34,8 @@ import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { useTelegram } from '@/composables/useTelegram'
 import { useI18n } from '@/i18n'
 import { modeTitle } from '@/composables/practiceLabels'
+import { dayPlanStepPosition, gameStepExpected } from '@/composables/dayPlan'
+import type { DayPlan } from '@/api/types'
 
 /**
  * "Session finished" (docs/14 §6.3): an immersive screen (no tab bar) that ends a personal or group session.
@@ -55,8 +57,12 @@ import { modeTitle } from '@/composables/practiceLabels'
  * The day plan "lesson -> training -> game" (docs/31 §5б, docs/design/2026-11-25-redesign Finish). The finish of a LESSON says "Lesson done!"
  * with the lesson and its new words under it, and a block "What next": step 2 - "Start the training" (the review of the words of this lesson,
  * `lesson_review`, the one main button; only when the lesson gave new words), then a line "Or play: timed pairs" that opens the hub of the
- * lesson with the game started at once (`?play=pairs_timed`), and the way home as text. A refused review (409 `lesson_review_unavailable`) is
- * told above the buttons and the screen falls back to the ordinary ones. The finish of the REVIEW itself (`summary.lesson_review`) says
+ * lesson with the game started at once (`?play=pairs_timed`), and the way home as text. Whether the review can open is the plan's word: after the
+ * finish of such a lesson `/today` is read again (best effort, the screen does not wait), and a plan that has no review for this lesson
+ * (`plan.training` null - the review is switched off - or done) takes the card away; without that word (an older server, a failed read) the
+ * card stays, and a refusal (409 `lesson_review_unavailable`) quietly takes it away with a neutral line instead of a red error (any other
+ * failure is told above the buttons). Either way the screen falls back to the ordinary buttons. "Step N of M" is the place of the step among
+ * the steps of the plan (`dayPlanStepPosition`; "recommended now" without a plan at hand). The finish of the REVIEW itself (`summary.lesson_review`) says
  * "Words reinforced" with its numbers and no points (it brings none, nor goal), and offers step 3 - "Play". Every other session (a daily review,
  * the round of hard words, a group lesson, an empty or early end) keeps its own actions.
  */
@@ -179,6 +185,10 @@ async function nextRound(): Promise<void> {
 const isLessonReview = computed(() => !isHardRound.value
   && (props.reason === 'lesson_review_complete' || summary.value?.lesson_review != null || training.mode === 'lesson_review'))
 const lessonReview = computed(() => summary.value?.lesson_review ?? null)
+/** The review shows the mode by its name, as its header on the training screen does: «Тренировка · Напитки». */
+const reviewSubtitle = computed(() => (lessonTitle.value !== ''
+  ? t('training.lesson_review_header', { lesson: lessonTitle.value })
+  : t('training.lesson_review_header_plain')))
 
 /** The lesson of the session: where the practice entry leads, else what this run opened (a learner without practice has no entry). */
 const lessonId = computed((): number | null => summary.value?.practice_entry?.lesson_id ?? training.restartRequest?.lesson_id ?? null)
@@ -192,21 +202,57 @@ const newWords = computed(() => summary.value?.new_words ?? 0)
 /** The header with the green mark (docs/design 2026-11-25 Finish): the lesson and its review, when something was done in them. */
 const planHeader = computed(() => (isLessonFinish.value || isLessonReview.value) && !isEmpty.value)
 const planSubtitle = computed((): string => {
-  if (isLessonReview.value) return lessonTitle.value
+  if (isLessonReview.value) return reviewSubtitle.value
   const parts = [lessonTitle.value, newWords.value > 0 ? tn('finished.lesson.new_words', newWords.value) : '']
   return parts.filter((part) => part !== '').join(' · ')
 })
 
-/** "Start the training" was refused (409 `lesson_review_unavailable`): the reason is told above the buttons, the ordinary ones come back. */
+/** "Start the training" was refused: the card goes, the ordinary buttons come back. */
 const reviewRefused = ref(false)
-/** Step 2: the lesson gave new words today, and this run knows the lesson. */
-const showTraining = computed(() => isLessonFinish.value && !isEmpty.value && newWords.value > 0 && lessonId.value !== null && !reviewRefused.value)
+/** The neutral line of a 409 `lesson_review_unavailable` (why the review cannot open), in place of the card; '' otherwise. */
+const reviewNotice = ref('')
+/**
+ * `/today.plan` read after this finish: undefined while it is not (the read is on its way, failed, or the server has no plan) - the card
+ * then trusts the summary.
+ */
+const planAfterFinish = ref<DayPlan | undefined>(undefined)
+/** The plan says the review of this lesson can open (it is on and not done yet); true while the plan is not known. */
+const reviewOpenByPlan = computed(() => {
+  const plan = planAfterFinish.value
+  if (plan === undefined) return true
+  const review = plan.training
+  return review !== null && review.lesson_id === lessonId.value && !review.done
+})
+/** Step 2: the lesson gave new words today, this run knows the lesson, and the plan does not say the review is off. */
+const showTraining = computed(() => isLessonFinish.value && !isEmpty.value && newWords.value > 0 && lessonId.value !== null && !reviewRefused.value
+  && reviewOpenByPlan.value)
 async function startLessonReview(): Promise<void> {
   const id = lessonId.value
   if (id === null) return
   const sessionId = await training.openLessonReview(id, 'finish')
-  if (sessionId === null) reviewRefused.value = true
-  else await router.replace({ name: 'training', params: { sessionId } })
+  if (sessionId !== null) {
+    await router.replace({ name: 'training', params: { sessionId } })
+    return
+  }
+  reviewRefused.value = true
+  if (training.openErrorCode === 'lesson_review_unavailable') {
+    // Not an error of the learner's: the review is not there for this lesson today. Said quietly where the card was.
+    reviewNotice.value = training.openError
+    training.clearOpenError()
+  }
+}
+
+/** After the finish of a lesson with new words: the plan of the day read again, so the card of step 2 matches the server. */
+async function readPlanAfterFinish(): Promise<void> {
+  await today.load()
+  const plan = today.status === 'ready' ? today.data?.plan : undefined
+  planAfterFinish.value = plan ?? undefined
+}
+
+/** "Step 2 of 3 · recommended now": the place of the step among those of the plan at hand. */
+function stepEyebrow(key: 'training' | 'game'): string {
+  const position = dayPlanStepPosition(today.data?.plan, gameStepExpected(today.data?.practice), key)
+  return position === null ? t('finished.next.now') : t('finished.next.step', position)
 }
 
 /** "Best run: 12": only a run that the chip showed. */
@@ -273,6 +319,7 @@ onMounted(() => {
     void monthly.loadMine()
     void achievements.load()
   }
+  if (showTraining.value) void readPlanAfterFinish()
 })
 
 /**
@@ -307,7 +354,7 @@ const gameTarget = computed((): RouteLocationRaw | null => {
 const showGameLine = computed(() => isLessonFinish.value && !isEmpty.value && gameTarget.value !== null)
 const showPlayHero = computed(() => isLessonReview.value && !isEmpty.value && gameTarget.value !== null)
 /** The block "What next" has something in it; then the way home is a line of text and "Done" is gone. */
-const showWhatNext = computed(() => showTraining.value || showGameLine.value || showPlayHero.value)
+const showWhatNext = computed(() => showTraining.value || showGameLine.value || showPlayHero.value || reviewNotice.value !== '')
 const heroMain = computed(() => showTraining.value || showPlayHero.value)
 
 const practiceTarget = computed((): RouteLocationRaw | null => {
@@ -653,7 +700,7 @@ onBeforeUnmount(() => {
 
       <div v-if="showTraining" class="flex flex-col gap-3 rounded-hero bg-highlight p-4" data-testid="training-card">
         <div class="flex flex-col gap-1">
-          <p class="text-[13px] leading-[18px] font-bold text-accent">{{ t('finished.next.step2') }}</p>
+          <p class="text-[13px] leading-[18px] font-bold text-accent" data-testid="training-step">{{ stepEyebrow('training') }}</p>
           <p class="text-[22px] leading-7 font-extrabold tracking-[-0.4px]">{{ t('finished.next.training_title') }}</p>
           <p class="text-sm leading-5">{{ t('finished.next.training_text') }} {{ tn('finished.lesson.new_words', newWords) }}.</p>
         </div>
@@ -669,9 +716,11 @@ onBeforeUnmount(() => {
         </button>
       </div>
 
+      <p v-if="reviewNotice" class="text-[15px] leading-5 text-muted" role="status" data-testid="training-unavailable">{{ reviewNotice }}</p>
+
       <div v-if="showPlayHero && gameTarget" class="flex flex-col gap-3 rounded-hero bg-highlight p-4" data-testid="game-card">
         <div class="flex flex-col gap-1">
-          <p class="text-[13px] leading-[18px] font-bold text-accent">{{ t('finished.next.step3') }}</p>
+          <p class="text-[13px] leading-[18px] font-bold text-accent" data-testid="game-step">{{ stepEyebrow('game') }}</p>
           <p class="text-[22px] leading-7 font-extrabold tracking-[-0.4px]">{{ modeTitle('pairs_timed') }}</p>
           <p class="text-sm leading-5">{{ t('finished.next.game_text') }}</p>
         </div>

@@ -132,3 +132,75 @@ it('opens the game of the day plan over HTTP with the words of the lesson and th
         ->and($board)->toHaveCount(8)
         ->and(array_diff(array_map(fn (Word $w): int => $w->id, $todays), $board))->toBe([]);
 });
+
+/**
+ * A lesson of `$lessonWords` met words and `$learned` learned words of the course elsewhere, `$untranslated` of them without a
+ * translation (unfit for the board).
+ *
+ * @return array{0: Learner, 1: Course, 2: Lesson, 3: list<Word>, 4: list<Word>}
+ */
+function pairsTopUpMixed(int $lessonWords, int $learned, int $untranslated): array
+{
+    [$course, $lesson] = PracticeKit::course();
+    $learner = Learner::factory()->create();
+    $older = Lesson::factory()->for(Stage::query()->where('course_id', $course->id)->firstOrFail())->create(['number' => 2]);
+
+    $todays = PracticeKit::words($lesson, $lessonWords, $learner, state: 'learning');
+    $known = PracticeKit::words($older, $learned, $learner, state: 'review');
+    foreach ([...$todays, ...$known] as $i => $word) {
+        $word->forceFill(['translation' => "перевод{$i}x{$word->id}"])->save();
+    }
+    // The untranslated ones are spread over the ids, not only the last.
+    $bad = [];
+    foreach ($known as $i => $word) {
+        if (count($bad) < $untranslated && ($i % 2 === 1 || $learned - $i <= $untranslated - count($bad))) {
+            $word->forceFill(['translation' => ''])->save();
+            $bad[] = $word;
+        }
+    }
+
+    return [$learner, $course, $lesson, $known, $bad];
+}
+
+it('agrees with the opening: a lesson of 3 and 5 learned words, 2 of them without a translation, is not enough anywhere', function (): void {
+    [$learner, $course, $lesson] = pairsTopUpMixed(3, 5, 2);
+
+    // 3 of the lesson + the 3 fit learned words = 6 < 8: the availability under its seed, the hub and the opening say the same.
+    expect(app(PairsTimedMode::class)->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'))->toArray())
+        ->toBe(['available' => 6, 'required' => 8, 'reason' => 'no_words']);
+
+    $hub = $this->withHeaders(PracticeKit::headers($learner))->getJson("/api/twa/practice/hub?course={$course->slug}&lesson_id={$lesson->id}")->assertOk();
+    expect(collect($hub->json('modes'))->firstWhere('mode', 'pairs_timed')['state'] ?? null)->toBe('not_enough');
+
+    $this->withHeaders(PracticeKit::headers($learner))->postJson('/api/twa/practice/sessions', [
+        'mode' => 'pairs_timed', 'course' => $course->slug, 'lesson_id' => $lesson->id, 'source' => PracticeSession::SOURCE_DEEPLINK,
+    ])->assertStatus(422)->assertJsonPath('error.code', 'practice_not_enough_material')
+        ->assertJsonPath('error.details.available', 6);
+});
+
+it('builds the board from the fit learned words only, for every seed, when there are enough of them', function (): void {
+    config(['practice.solo.pairs_timed.min_words' => 6, 'practice.solo.pairs_timed.per_round' => 2]);
+    [$learner, $course, $lesson, , $bad] = pairsTopUpMixed(3, 5, 2);
+    $badIds = array_map(fn (Word $w): int => $w->id, $bad);
+
+    expect(app(PairsTimedMode::class)->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'))->toArray())
+        ->toBe(['available' => 6, 'required' => 6, 'reason' => null]);
+    foreach (['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8'] as $seed) {
+        $board = array_values(array_unique(pairsTopUpBoard($learner, $course, $lesson, $seed)));
+        expect($board)->toHaveCount(6)->and(array_intersect($board, $badIds))->toBe([]);
+    }
+});
+
+it('finds the fit learned words past its sample: the availability and every seed agree when most learned words are unfit', function (): void {
+    // 6 of the lesson, 2 to find (a sample of 6 ids) among 20 learned words of which only 2 have a translation.
+    [$learner, $course, $lesson, $known, $bad] = pairsTopUpMixed(6, 20, 18);
+    $badIds = array_map(fn (Word $w): int => $w->id, $bad);
+    expect(count($known) - count($bad))->toBe(2);
+
+    expect(app(PairsTimedMode::class)->availability(new MaterialScope($course, $lesson), $learner, LocaleSet::of('ru'))->toArray())
+        ->toBe(['available' => 8, 'required' => 8, 'reason' => null]);
+    foreach (range(1, 12) as $i) {
+        $board = array_values(array_unique(pairsTopUpBoard($learner, $course, $lesson, "seed-{$i}")));
+        expect($board)->toHaveCount(8)->and(array_intersect($board, $badIds))->toBe([]);
+    }
+});

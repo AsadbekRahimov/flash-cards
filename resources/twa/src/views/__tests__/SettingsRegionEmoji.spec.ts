@@ -111,6 +111,9 @@ describe('SettingsView: the region', () => {
     await flushPromises()
     expect(sheet()?.textContent).toContain('Где вы живёте?')
     expect(document.querySelector('[data-testid=region-none]')?.getAttribute('aria-checked')).toBe('true')
+    expect(document.querySelector('[data-testid=region-level-1]')?.getAttribute('role')).toBe('radiogroup')
+    expect(document.querySelector('[data-testid=region-uzbekistan]')?.getAttribute('role')).toBe('radio')
+    expect(document.querySelector('[data-testid=region-uzbekistan]')?.getAttribute('aria-checked')).toBe('false')
 
     await click('region-uzbekistan')
     // The 14 regions without `other`, in the server's order.
@@ -146,6 +149,10 @@ describe('SettingsView: the region', () => {
     // A learner with a region of Uzbekistan sees the list first; Back leads to the first level.
     expect(document.querySelector('[data-testid=region-UZ-TK]')?.getAttribute('aria-checked')).toBe('true')
     await click('region-back')
+    // ... where "Uzbekistan" is the chosen row
+    expect(document.querySelector('[data-testid=region-uzbekistan]')?.getAttribute('aria-checked')).toBe('true')
+    expect(document.querySelector('[data-testid=region-uzbekistan-check]')).not.toBeNull()
+    expect(document.querySelector('[data-testid=region-none]')?.getAttribute('aria-checked')).toBe('false')
     await click('region-none')
 
     expect(vi.mocked(api.me.updateSettings).mock.calls).toEqual([[{ region_code: null, region_via: 'settings' }]])
@@ -180,6 +187,24 @@ describe('SettingsView: the region', () => {
     expect(w.get('[data-testid=region-name]').text()).toBe('город Ташкент')
     expect(w.find('[data-testid=region-undo]').exists()).toBe(false)
     w.unmount()
+  })
+
+  it('takes the undo away by itself when its time is over, while the screen stays open', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] })
+    try {
+      const until = new Date(Date.now() + 60_000).toISOString()
+      const w = await render(settings({ region_code: 'UZ-AN', region_undo_available_until: until }))
+      expect(w.find('[data-testid=region-undo]').exists()).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(59_000)
+      expect(w.find('[data-testid=region-undo]').exists()).toBe(true)
+
+      await vi.advanceTimersByTimeAsync(2_000)
+      expect(w.find('[data-testid=region-undo]').exists()).toBe(false)
+      w.unmount()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('speaks Uzbek for a learner whose interface is Uzbek', async () => {

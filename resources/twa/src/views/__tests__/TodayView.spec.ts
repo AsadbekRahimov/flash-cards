@@ -1659,7 +1659,7 @@ describe('TodayView', () => {
 
       const row = w.get('[data-testid=league-line]')
       expect(row.text()).toContain('Лига · Серебро')
-      expect(row.text()).toContain('3-е место из 28 · 41 очко')
+      expect(row.text()).toContain('3-е место из 28 · 41 балл')
       expect(row.attributes('href')).toBe('/league')
       // a quiet row like the rest of Home: no coloured tile
       expect(row.find('.icon-tile').exists()).toBe(false)
@@ -1748,6 +1748,6 @@ describe('TodayView', () => {
     expect(w.get('[data-testid=assignment]').text()).toContain('2-modul, 4-dars')
     expect(text(w, 'next-lesson-btn')).toBe("Keyingi darsni o'rganish")
     expect(text(w, 'league-line')).toContain('Liga · Kumush')
-    expect(text(w, 'league-line')).toContain("30 ishtirokchi orasida 4-o'rin · 312 ochko")
+    expect(text(w, 'league-line')).toContain("30 ishtirokchi orasida 4-o'rin · 312 ball")
   })
 })

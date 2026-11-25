@@ -28,6 +28,8 @@ const OTHER = 'other'
 
 const current = computed(() => data.value?.region_code ?? null)
 const regions = computed(() => (data.value?.options.regions ?? []).filter((region) => region.code !== OTHER))
+/** The current region is one of Uzbekistan: the row "Uzbekistan" of level 1 is the chosen one. */
+const inUzbekistan = computed(() => current.value !== null && current.value !== OTHER)
 /** Level 2 is open: the list of the regions of Uzbekistan. Opens on it when the current region is one of them. */
 const list = ref(false)
 
@@ -63,9 +65,19 @@ onMounted(() => {
 
     <LoadingState v-if="!data" variant="list" />
 
-    <ListGroup v-else-if="!list" data-testid="region-level-1">
-      <button type="button" class="list-row" :disabled="saving" data-testid="region-uzbekistan" @click="list = true">
-        <span class="min-w-0 flex-1 text-left text-base leading-[22px]">{{ t('region.sheet.uzbekistan') }}</span>
+    <!-- One choice of three: a group of radios; "Uzbekistan" opens level 2 and is the chosen one while the region is one of its. -->
+    <ListGroup v-else-if="!list" role="radiogroup" :aria-label="t('region.sheet.title')" data-testid="region-level-1">
+      <button
+        type="button"
+        class="list-row"
+        role="radio"
+        :aria-checked="inUzbekistan"
+        :disabled="saving"
+        data-testid="region-uzbekistan"
+        @click="list = true"
+      >
+        <span class="min-w-0 flex-1 text-left text-base leading-[22px]" :class="{ 'font-semibold': inUzbekistan }">{{ t('region.sheet.uzbekistan') }}</span>
+        <AppIcon v-if="inUzbekistan" name="check" :size="20" class="shrink-0 text-accent" data-testid="region-uzbekistan-check" />
         <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
       </button>
       <button type="button" class="list-row" role="radio" :aria-checked="current === OTHER" :disabled="saving" data-testid="region-other" @click="pick(OTHER)">

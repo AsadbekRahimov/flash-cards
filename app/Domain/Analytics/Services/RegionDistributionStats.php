@@ -11,9 +11,10 @@ use App\Models\Learner;
 
 /**
  * «Ученики по регионам» of the dashboard (docs/35 §2.4, R5): the learners who finished the onboarding, not deleted, by
- * `learners.region_code` - the number and the share of each region, `none` for those without one. One grouped statement (the
- * index `learners_region_code_idx`; the rows are at most 16), cached as an array of scalars ({@see WidgetCache},
- * `admin:widget:regions:v1:all`, fresh for {@see FRESH_SECONDS}).
+ * `learners.region_code` - the number and the share of each region, `none` for those without one. One grouped statement over the
+ * whole of `learners` (the filter by `onboarding_state` keeps nearly every row, so no index helps: it is a full read; the result
+ * has at most 16 rows). It runs at most once per {@see FRESH_SECONDS} (10 minutes) for every viewer together: the figures are
+ * cached as an array of scalars ({@see WidgetCache}, `admin:widget:regions:v1:all`).
  */
 final class RegionDistributionStats
 {

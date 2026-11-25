@@ -3,7 +3,9 @@
  * The big tinted card of "Today" (docs/design/2026-11-25-redesign Main / MainNext): the step of the plan of the day to do now - a line
  * over the title (the level and the lesson, or "the lesson is done"), the title in display size with a hand-drawn underline, a line of
  * what it holds, and the actions in the default slot (one primary button). The picture is one for every lesson: there is no data on the
- * topics of the lessons. Its colours are the tokens of the palette, so the dark theme follows by itself.
+ * topics of the lessons. Its colours are the tokens of the palette, so the dark theme follows by itself. On a phone narrower than 360 px
+ * the picture is not drawn (it would sit under the title) and the text takes the width; the text column otherwise stops short of the
+ * picture, and a long name of a lesson wraps (at most three lines) instead of running over it.
  *
  * - `eyebrow` — the line over the title (14 px semibold).
  * - `title` — the name of the step: the lesson, "Training", "Timed pairs", "The plan is done".
@@ -37,7 +39,7 @@ defineProps<{
       stroke-width="2.2"
       stroke-linecap="round"
       stroke-linejoin="round"
-      class="pointer-events-none absolute top-2.5 right-2 stroke-accent"
+      class="pointer-events-none absolute top-2.5 right-2 stroke-accent max-[359px]:hidden"
       data-testid="hero-art"
     >
       <path d="M96 62c-10-10 8-18 0-30s6-18 2-24M116 58c-8-8 6-14 0-24" />
@@ -54,9 +56,9 @@ defineProps<{
       <path d="M40 131v34M23 148h34M28 136l24 24M52 136l-24 24" stroke-width="1.4" />
     </svg>
 
-    <div class="relative flex max-w-[200px] flex-col gap-1.5">
+    <div class="relative flex max-w-[min(200px,calc(100%_-_140px))] flex-col gap-1.5 max-[359px]:max-w-none" data-testid="hero-copy">
       <p v-if="eyebrow" class="text-sm leading-[18px] font-semibold" data-testid="hero-eyebrow">{{ eyebrow }}</p>
-      <h2 class="text-[32px] leading-[38px] font-extrabold tracking-[-0.6px] break-words" data-testid="hero-title">{{ title }}</h2>
+      <h2 class="text-[32px] leading-[38px] font-extrabold tracking-[-0.6px] [overflow-wrap:anywhere] hyphens-auto line-clamp-3" data-testid="hero-title">{{ title }}</h2>
       <svg aria-hidden="true" width="150" height="10" viewBox="0 0 150 10" fill="none" class="max-w-full stroke-primary/60">
         <path d="M3 7c40-5 90-6 144-3" stroke-width="4" stroke-linecap="round" />
       </svg>

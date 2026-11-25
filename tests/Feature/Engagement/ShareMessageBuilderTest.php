@@ -181,7 +181,8 @@ it('builds the card of an own beaten city, and nothing for a city not beaten, so
         ->and($result['caption'])->toBe('🐪 Я дошёл(дошла) до Самарканда в игре «Караван» в Muhrla! Учим английский прямо в Telegram.')
         ->and($result['reply_markup']['inline_keyboard'][0][0]['url'])->toBe('https://t.me/MuhrlaBot?start=ref_'.$learner->fresh()?->referral_code);
 
-    foreach ([(string) $lost->id, (string) $foreign->id, '999999', '0', '01', 'abc', str_repeat('9', 19), null] as $subject) {
+    // `\z`, not `$`: the id of the own city with a trailing newline is not the id.
+    foreach ([(string) $lost->id, (string) $foreign->id, '999999', '0', '01', 'abc', str_repeat('9', 19), $stage->id."\n", null] as $subject) {
         expect(shareBuildError($learner, ShareKind::GameCity, $subject)?->errorCode)->toBe(ShareException::NOT_FOUND);
     }
 });

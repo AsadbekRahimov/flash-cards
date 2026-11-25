@@ -44,3 +44,19 @@ export function dayPlanSteps(plan: DayPlan, gameExpected: boolean): DayPlanStep[
     return { key, state: currentIndex >= 0 && index < currentIndex ? 'done' : 'upcoming' }
   })
 }
+
+/**
+ * "Step N of M" of a step of the plan (the finish screen, the practice hub): its place among `dayPlanSteps` - so a plan without the review
+ * (switched off) says "step 2 of 2" for the game. null: no plan at hand (an older server, a screen opened from the bot before `/today`),
+ * or the step is not in it; the caller then says only "recommended now".
+ */
+export function dayPlanStepPosition(
+  plan: DayPlan | null | undefined,
+  gameExpected: boolean,
+  key: DayPlanStepKey,
+): { step: number; total: number } | null {
+  if (plan == null) return null
+  const steps = dayPlanSteps(plan, gameExpected)
+  const index = steps.findIndex((step) => step.key === key)
+  return index < 0 ? null : { step: index + 1, total: steps.length }
+}
