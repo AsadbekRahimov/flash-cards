@@ -48,6 +48,10 @@ use InvalidArgumentException;
  * alone — they are not reminded anyway. Whether the onboarding is finished does not
  * matter: §7.5 reminds a learner created from a group too; the first 403 marks them
  * `dm_blocked_at` and that is the end of it until they write to the bot.
+ *
+ * Dead accounts (docs/34 §4в п. 6, B7: `dm_blocked_reason` = `user_deactivated` / `chat_not_found`) keep no
+ * pointer at all: `DmReachability` clears `next_reminder_at` when it closes such a DM, and neither the
+ * selection nor the backfill above gives it back while `dm_blocked_at` is set.
  */
 final class ReminderDispatcher
 {

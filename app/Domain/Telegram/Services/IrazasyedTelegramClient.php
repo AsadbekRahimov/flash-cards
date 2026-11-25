@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Services;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\DTO\ChatMemberInfo;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramChatMigratedException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
@@ -95,6 +96,45 @@ class IrazasyedTelegramClient implements TelegramClient
         }
 
         $this->call(fn () => $this->api->sendMessage($params), mapForbidden: true, chatId: $chatId, method: 'sendMessage');
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $replyMarkup
+     */
+    public function sendGroupMessage(
+        int|string $chatId,
+        string $text,
+        ?string $parseMode = null,
+        ?array $replyMarkup = null,
+        ?int $threadId = null,
+        bool $disableNotification = false,
+    ): int {
+        return $this->followingMigration($chatId, function (int|string $chat) use ($text, $parseMode, $replyMarkup, $threadId, $disableNotification): int {
+            $params = ['chat_id' => $chat, 'text' => $text];
+
+            if ($parseMode !== null) {
+                $params['parse_mode'] = $parseMode;
+            }
+            if ($replyMarkup !== null) {
+                $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+            }
+            if ($threadId !== null) {
+                $params['message_thread_id'] = $threadId;
+            }
+            if ($disableNotification) {
+                $params['disable_notification'] = true;
+            }
+
+            $message = $this->call(fn () => $this->api->sendMessage($params), mapForbidden: true, chatId: $chat, method: 'sendMessage');
+            $messageId = $this->resultOf($message->toArray())['message_id'] ?? null;
+
+            if (! is_int($messageId) || $messageId <= 0) {
+                // Telegram said ok but the id is missing: the message may well be in the chat. Not an API refusal (no retry posts twice).
+                throw new TelegramApiException('Telegram API request failed (sendMessage): the answer carried no message_id');
+            }
+
+            return $messageId;
+        });
     }
 
     /**
@@ -210,16 +250,29 @@ class IrazasyedTelegramClient implements TelegramClient
 
     public function getChatMemberStatus(int|string $chatId, int $userId): string
     {
+        return $this->getChatMember($chatId, $userId)->status;
+    }
+
+    public function getChatMember(int|string $chatId, int $userId): ChatMemberInfo
+    {
         $member = $this->followingMigration(
             $chatId,
             fn (int|string $chat) => $this->call(fn () => $this->api->getChatMember(['chat_id' => $chat, 'user_id' => $userId]), chatId: $chat, method: 'getChatMember'),
         );
 
-        // The SDK wraps the whole response body (`{ok, result: {status, …}}`) into the object.
-        $data = $member->toArray();
-        $result = is_array($data['result'] ?? null) ? $data['result'] : $data;
+        return ChatMemberInfo::fromArray($this->resultOf($member->toArray()));
+    }
 
-        return is_string($result['status'] ?? null) ? $result['status'] : '';
+    /**
+     * The SDK wraps the whole response body (`{ok, result: {…}}`) into the object it returns; a bare result is taken as is.
+     *
+     * @param  array<mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function resultOf(array $data): array
+    {
+        /** @var array<string, mixed> */
+        return is_array($data['result'] ?? null) ? $data['result'] : $data;
     }
 
     public function setWebhook(string $url, string $secretHeader): bool

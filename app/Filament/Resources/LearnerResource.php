@@ -14,6 +14,7 @@ use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Learning\Enums\SchedulerKind;
 use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Learning\Services\SchedulerSwitchService;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Filament\Resources\LearnerResource\Pages;
 use App\Filament\Resources\LearnerResource\RelationManagers;
 use App\Filament\Resources\LearnerResource\Support\DeleteAccountAction;
@@ -25,6 +26,7 @@ use App\Filament\Resources\Support\GroupFilter;
 use App\Models\Learner;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use DateTimeInterface;
 use Filament\Actions;
 use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\TextEntry;
@@ -66,6 +68,8 @@ class LearnerResource extends Resource
         'learners.username',
         'learners.onboarding_state',
         'learners.blocked_at',
+        'learners.dm_blocked_at',
+        'learners.dm_blocked_reason',
         'learners.practice_pilot_at',
         'learners.last_seen_at',
         'learners.created_at',
@@ -110,6 +114,13 @@ class LearnerResource extends Resource
                 ->state(fn (Learner $record): string => self::groupTitles($record)),
             TextEntry::make('last_seen_at')->label(__('admin.learners.fields.last_seen_at'))->dateTime()->placeholder(__('admin.learners.fields.never'))->visible($isAdmin),
             TextEntry::make('blocked_at')->label(__('admin.learners.fields.blocked_at'))->dateTime()->placeholder('—')->visible($isAdmin),
+            TextEntry::make('dm_blocked_reason')
+                ->label(__('admin.learners.fields.dm_blocked'))
+                ->state(fn (Learner $record): ?string => $record->dm_blocked_at === null
+                    ? null
+                    : self::dmBlockedLabel($record->dm_blocked_reason).', '.__('admin.learners.fields.dm_blocked_since', ['date' => AdminDates::dateTime($record->dm_blocked_at)]))
+                ->placeholder('—')
+                ->visible($isAdmin),
             TextEntry::make('onboarding_state')
                 ->label(__('admin.learners.fields.onboarding'))
                 ->formatStateUsing(fn (string $state): string => self::onboardingLabel($state))
@@ -200,6 +211,15 @@ class LearnerResource extends Resource
                     ->trueColor('danger')
                     ->falseColor('gray')
                     ->visible($isAdmin),
+                // Why the bot cannot write to the learner (docs/34 §4в п. 4): the reason and, below it, since when. Row data only.
+                Tables\Columns\TextColumn::make('dm_blocked_reason')
+                    ->label(__('admin.learners.fields.dm_blocked'))
+                    ->state(fn (Learner $record): ?string => $record->dm_blocked_at === null ? null : self::dmBlockedLabel($record->dm_blocked_reason))
+                    ->description(fn (Learner $record): ?string => $record->dm_blocked_at === null ? null : self::dmBlockedSince($record->dm_blocked_at))
+                    ->placeholder('—')
+                    ->color('danger')
+                    ->toggleable()
+                    ->visible($isAdmin),
                 Tables\Columns\IconColumn::make('practice_pilot')
                     ->label(__('admin.learners.fields.practice_pilot'))
                     ->state(fn (Learner $record): bool => $record->practice_pilot_at !== null)
@@ -261,6 +281,18 @@ class LearnerResource extends Resource
                     ->queries(
                         true: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->whereNotNull('learners.practice_pilot_at') : $query,
                         false: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->whereNull('learners.practice_pilot_at') : $query,
+                        blank: fn (Builder $query): Builder => $query,
+                    )
+                    ->visible($isAdmin),
+                // The bot cannot write to the learner (`dm_blocked_at`, the partial index `learners_dm_blocked_at_idx`): admin only.
+                Tables\Filters\TernaryFilter::make('dm_blocked')
+                    ->label(__('admin.learners.filters.dm_blocked'))
+                    ->placeholder(__('admin.common.all'))
+                    ->trueLabel(__('admin.learners.filters.dm_blocked_yes'))
+                    ->falseLabel(__('admin.learners.filters.dm_blocked_no'))
+                    ->queries(
+                        true: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->whereNotNull('learners.dm_blocked_at') : $query,
+                        false: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->whereNull('learners.dm_blocked_at') : $query,
                         blank: fn (Builder $query): Builder => $query,
                     )
                     ->visible($isAdmin),
@@ -437,6 +469,20 @@ class LearnerResource extends Resource
             'new' => __('admin.learners.onboarding.not_started'),
             default => __('admin.learners.onboarding.in_progress', ['step' => AdminLabels::value('learners.onboarding.step', $state)]),
         };
+    }
+
+    /** The caption of `learners.dm_blocked_reason`; a row closed before the reason was stored says so. */
+    public static function dmBlockedLabel(?string $reason): string
+    {
+        return in_array($reason, DmReachability::REASONS, true)
+            ? __('admin.learners.dm_blocked_reason.'.$reason)
+            : __('admin.learners.dm_blocked_reason.unknown');
+    }
+
+    /** "с 21.11.2026" under the reason of a closed DM. */
+    private static function dmBlockedSince(DateTimeInterface $since): string
+    {
+        return __('admin.learners.fields.dm_blocked_since', ['date' => AdminDates::date($since)]);
     }
 
     /** "SM-2" / "FSRS-5", with "(по умолчанию)" when the learner has no bucket of their own. */

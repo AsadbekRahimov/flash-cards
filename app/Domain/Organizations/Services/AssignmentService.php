@@ -15,6 +15,8 @@ use App\Domain\Organizations\Exceptions\AssignmentException;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\GroupBotRemoval;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Jobs\AnnounceAssignmentJob;
 use App\Models\Assignment;
@@ -68,6 +70,7 @@ final class AssignmentService
         private readonly LocaleResolver $locales,
         private readonly TelegramMessageRateLimiter $outbound,
         private readonly CourseCatalogService $catalog,
+        private readonly GroupBotRemoval $groups,
     ) {}
 
     /**
@@ -765,7 +768,8 @@ final class AssignmentService
 
     /**
      * Claims a one-time post by a conditional UPDATE of `$column`, then sends it. A definite
-     * Telegram refusal (API error / 403) releases the claim and counts a failure in `meta`; any
+     * Telegram refusal (API error / 403) releases the claim and counts a failure in `meta` (a 403 also turns
+     * the group `disabled`); a 429 releases it without a failure and stops the run (docs/34 §4в п. 8); any
      * transport failure keeps the claim (it may have been delivered), flags `meta.{kind}_uncertain`
      * and returns false — it never propagates, so one chat cannot stop the whole run.
      *
@@ -813,6 +817,15 @@ final class AssignmentService
                 buttonText: __('assignments.open_button', [], $locale),
                 url: rtrim((string) config('twa.base_url'), '/').self::TWA_PATH.$fresh->lesson_id,
             );
+        } catch (TelegramRateLimitedException $e) {
+            // Flood control (docs/34 §4в п. 2): certainly not delivered, and not the chat's fault - the claim goes WITHOUT a failure,
+            // and the run stops here like on a denied slot (the rest would get a 429 too); the next `assignments:refresh` posts it.
+            $fresh->forceFill([$column => null])->save();
+            $this->slotDenied = true;
+
+            Log::warning('assignments.post_rate_limited', ['assignment_id' => $fresh->id, 'kind' => $kind, 'retry_after' => $e->retryAfter]);
+
+            return false;
         } catch (TelegramApiException|TelegramForbiddenException $e) {
             // A transport failure (timeout, cURL error, 5xx) may have been delivered: keep the claim,
             // flag it for the owner and go on — one dead chat must not stop `assignments:refresh`.
@@ -833,6 +846,11 @@ final class AssignmentService
             $meta = $fresh->meta;
             $meta[$column.'_failures'] = $this->failures($fresh, $column) + 1;
             $fresh->forceFill([$column => null, 'meta' => $meta])->save();
+
+            if ($e instanceof TelegramForbiddenException) {
+                // The bot is not in the group any more (docs/34 §4в п. 8): the group goes `disabled` (its observer drops the plans).
+                $this->groups->disable($fresh->group, $e, 'assignment');
+            }
 
             Log::warning('assignments.post_failed', [
                 'assignment_id' => $fresh->id,

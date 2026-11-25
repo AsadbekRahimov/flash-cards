@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Tests\Support;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\DTO\ChatMemberInfo;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
+use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use Closure;
 
@@ -42,7 +44,7 @@ final class FakeTelegramClient implements TelegramClient
     /** When true, answerCallbackQuery throws like Telegram does for an expired query ("query is too old"). */
     public bool $failAnswers = false;
 
-    /** The next N sendMessage / sendWebAppButton calls throw like a Bot API outage (a retried job then succeeds). */
+    /** The next N sendMessage / sendWebAppButton / sendPhoto / sendGroupMessage calls throw like a Bot API outage (a retried job then succeeds). */
     public int $failSends = 0;
 
     /** When true, a failing send looks like a network error (no Bot API answer) instead of a 4xx refusal. */
@@ -50,6 +52,18 @@ final class FakeTelegramClient implements TelegramClient
 
     /** When set, a failing send is a Telegram 429 with this `retry_after` (wins over `failSendsAsTransport`). */
     public ?int $failSendsRetryAfter = null;
+
+    /** When set, a failing send is a 403 / chat not found with this reason (`TelegramForbiddenException`; wins over the two above). */
+    public ?string $failSendsForbidden = null;
+
+    /** @var list<array{chat_id:int|string, text:string, parse_mode:string|null, markup:array<string, mixed>|null, thread_id:int|null, silent:bool, message_id:int}> sendGroupMessage calls */
+    public array $groupMessages = [];
+
+    /** The `message_id` the next sendGroupMessage answers with (then counts up). */
+    public int $nextMessageId = 1001;
+
+    /** What getChatMember answers; null = `$chatMemberStatus` as a member of the chat (`is_member` from the status). */
+    public ?ChatMemberInfo $chatMember = null;
 
     /** What getChatMemberStatus answers (the bot's own status in the group for the admin check). */
     public string $chatMemberStatus = 'administrator';
@@ -113,6 +127,23 @@ final class FakeTelegramClient implements TelegramClient
     {
         $this->failNextSend();
         $this->sent[] = ['chat_id' => $chatId, 'text' => $text, 'button' => null, 'url' => null, 'markup' => $replyMarkup];
+    }
+
+    public function sendGroupMessage(int|string $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null, ?int $threadId = null, bool $disableNotification = false): int
+    {
+        $this->failNextSend();
+        $messageId = $this->nextMessageId++;
+        $this->groupMessages[] = [
+            'chat_id' => $chatId,
+            'text' => $text,
+            'parse_mode' => $parseMode,
+            'markup' => $replyMarkup,
+            'thread_id' => $threadId,
+            'silent' => $disableNotification,
+            'message_id' => $messageId,
+        ];
+
+        return $messageId;
     }
 
     public function sendWebAppButton(int|string $chatId, string $text, string $buttonText, string $url, ?string $parseMode = null, bool $immediate = false): void
@@ -186,6 +217,17 @@ final class FakeTelegramClient implements TelegramClient
         }
 
         return $this->chatMemberStatus;
+    }
+
+    public function getChatMember(int|string $chatId, int $userId): ChatMemberInfo
+    {
+        if ($this->chatMember !== null) {
+            $this->chatMemberLookups[] = ['chat_id' => $chatId, 'user_id' => $userId];
+
+            return $this->chatMember;
+        }
+
+        return ChatMemberInfo::fromArray(['status' => $this->getChatMemberStatus($chatId, $userId), 'is_member' => true]);
     }
 
     public function setWebhook(string $url, string $secretHeader): bool
@@ -274,6 +316,7 @@ final class FakeTelegramClient implements TelegramClient
             $this->failSends--;
 
             throw match (true) {
+                $this->failSendsForbidden !== null => new TelegramForbiddenException($this->failSendsForbidden),
                 $this->failSendsRetryAfter !== null => new TelegramRateLimitedException($this->failSendsRetryAfter, 'sendMessage'),
                 $this->failSendsAsTransport => new TelegramApiException('cURL error 28: Operation timed out'),
                 default => TelegramApiException::apiError('Forbidden: bot was kicked from the group chat', 403),

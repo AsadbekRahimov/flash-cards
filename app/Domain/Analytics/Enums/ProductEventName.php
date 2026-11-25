@@ -32,6 +32,10 @@ enum ProductEventName: string
     case ReminderQuizExpired = 'reminder.quiz_expired';
     /** The learner turned the personal reminders off: `reminder_time` went from a time to null (props: via — settings / onboarding). */
     case RemindersDisabled = 'reminders.disabled';
+    /** The bot cannot write to the learner any more, on the transition only (props: reason - bot_blocked / not_started / user_deactivated / chat_not_found / forbidden / kicked, via - send / my_chat_member; docs/34 §4в п. 3). */
+    case BotDmClosed = 'bot.dm_closed';
+    /** The private chat of the learner is open again, on the transition only (props: via - dm / start / my_chat_member). */
+    case BotDmReopened = 'bot.dm_reopened';
     case GroupBotAdded = 'group.bot_added';
     case GroupMemberJoined = 'group.member_joined';
     case GroupMemberLeft = 'group.member_left';

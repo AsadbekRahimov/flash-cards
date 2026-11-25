@@ -8,7 +8,6 @@ use App\Domain\Billing\Services\OfferService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
-use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\Learner;
 use App\Models\Offer;
 use App\Models\Organization;
@@ -29,7 +28,7 @@ final class OfferMessenger
         private readonly LocaleResolver $locales,
         private readonly ProScreen $screen,
         private readonly OfferService $offers,
-        private readonly DmLearnerResolver $dm,
+        private readonly DmReachability $reachability,
     ) {}
 
     public function notifyPostOrgDiscount(Offer $offer): void
@@ -65,7 +64,7 @@ final class OfferMessenger
             $this->telegram->sendMessage($learner->telegram_user_id, $text, replyMarkup: ['inline_keyboard' => $rows]);
         } catch (TelegramForbiddenException $e) {
             // The person cannot be reached: they leave the DM selection (as with reminders), the job ends.
-            $this->dm->markBlocked($learner->telegram_user_id);
+            $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);
 
             Log::warning('telegram.offer_dm_forbidden', ['learner_id' => $learner->id, 'reason' => $e->reason]);
 

@@ -6,6 +6,7 @@ use App\Domain\Billing\Enums\Plan;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Operations\Support\PureCache;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\DTO\ChatMemberInfo;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\GroupMember;
 use App\Models\Learner;
@@ -545,6 +546,16 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
         public function getChatMemberStatus(int|string $chatId, int $userId): string
         {
             return 'administrator';
+        }
+
+        public function getChatMember(int|string $chatId, int $userId): ChatMemberInfo
+        {
+            return new ChatMemberInfo('administrator', true);
+        }
+
+        public function sendGroupMessage(int|string $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null, ?int $threadId = null, bool $disableNotification = false): int
+        {
+            return 1;
         }
 
         public function setWebhook(string $url, string $secretHeader): bool

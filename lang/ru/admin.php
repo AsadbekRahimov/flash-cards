@@ -596,6 +596,18 @@ return [
             'referrals_count' => 'Приглашено',
             'practice_pilot' => 'Пилот практики',
             'practice_pilot_at' => 'В пилоте практики с',
+            'dm_blocked' => 'Бот недоступен',
+            'dm_blocked_since' => 'с :date',
+        ],
+        // Почему бот не может написать ученику в личку (`learners.dm_blocked_reason`, docs/34 §4в п. 3).
+        'dm_blocked_reason' => [
+            'bot_blocked' => 'Заблокировал бота',
+            'kicked' => 'Заблокировал бота',
+            'not_started' => 'Не запускал бота',
+            'user_deactivated' => 'Аккаунт удалён',
+            'chat_not_found' => 'Чат не найден',
+            'forbidden' => 'Telegram запретил отправку',
+            'unknown' => 'Причина не записана',
         ],
         'onboarding' => [
             'done' => 'Пройдена',
@@ -623,6 +635,9 @@ return [
             'practice_pilot' => 'Пилот практики',
             'practice_pilot_in' => 'В пилоте',
             'practice_pilot_out' => 'Не в пилоте',
+            'dm_blocked' => 'Бот недоступен',
+            'dm_blocked_yes' => 'Бот недоступен',
+            'dm_blocked_no' => 'Бот доступен',
         ],
         'actions' => [
             'block' => 'Заблокировать',
@@ -1806,6 +1821,8 @@ return [
         'total_learners' => [
             'total' => 'Всего учеников',
             'active_7d' => 'Активны за 7 дней',
+            'bot_blocked' => 'Заблокировали бота',
+            'bot_blocked_week' => 'за 7 дней: :count',
         ],
         'exams_30d' => [
             'total' => 'Экзаменов за 30 дней',

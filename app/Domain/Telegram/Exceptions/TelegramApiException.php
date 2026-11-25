@@ -32,6 +32,9 @@ class TelegramApiException extends RuntimeException
      */
     protected bool $apiResponse = false;
 
+    /** Telegram's 400 "message is not modified": the edit asked for what the message already shows (docs/33 §6.3, K1). */
+    protected bool $messageNotModified = false;
+
     public static function fromSdk(Throwable $sdk): self
     {
         $exception = new self(
@@ -40,6 +43,7 @@ class TelegramApiException extends RuntimeException
         );
         $status = $sdk instanceof TelegramResponseException ? ($sdk->getHttpStatusCode() ?? 0) : 0;
         $exception->apiResponse = $status >= 400 && $status < 500;
+        $exception->messageNotModified = $exception->apiResponse && self::saysNotModified($sdk->getMessage());
 
         return $exception;
     }
@@ -49,6 +53,7 @@ class TelegramApiException extends RuntimeException
     {
         $exception = new self($message, $code);
         $exception->apiResponse = true;
+        $exception->messageNotModified = self::saysNotModified($message);
 
         return $exception;
     }
@@ -56,5 +61,19 @@ class TelegramApiException extends RuntimeException
     public function isApiResponse(): bool
     {
         return $this->apiResponse;
+    }
+
+    /**
+     * The refusal of an edit whose text and keyboard are already those of the message: nothing to do, and a caller that only wants
+     * the message to look so (the card of a cup, docs/33 §6.3) counts it as a success.
+     */
+    public function isMessageNotModified(): bool
+    {
+        return $this->messageNotModified;
+    }
+
+    private static function saysNotModified(string $description): bool
+    {
+        return str_contains(strtolower($description), 'message is not modified');
     }
 }

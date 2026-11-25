@@ -15,7 +15,9 @@ use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Game\Support\BossWordPicker;
 use App\Domain\Learning\Services\LearnerStatsService;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Jobs\SendAchievementJob;
 use App\Jobs\SendGameCardJob;
 use App\Models\Achievement;
@@ -498,6 +500,32 @@ it('skips a blocked learner and one whose DMs are closed, and takes back the mar
     expect(app(GameCardSender::class)->sendBossCard($learner->id, $stage->id))->toBe('forbidden')
         ->and(NotificationLog::query()->count())->toBe(0)
         ->and($learner->fresh()?->dm_blocked_at)->not->toBeNull();
+});
+
+it('drops the mark on a 429 so that the retry sends the card exactly once, and keeps it after a timeout', function (): void {
+    $tg = new FakeTelegramClient;
+    app()->instance(TelegramClient::class, $tg);
+    [$learner, , $stage] = bossWorld();
+    $marks = fn (): int => NotificationLog::query()->where('type', GameCardSender::NOTIFICATION_TYPE)->count();
+
+    $tg->failSends = 1;
+    $tg->failSendsRetryAfter = 4;
+    expect(fn () => app(GameCardSender::class)->sendBossCard($learner->id, $stage->id))->toThrow(TelegramRateLimitedException::class);
+    expect($marks())->toBe(0);
+
+    expect(app(GameCardSender::class)->sendBossCard($learner->id, $stage->id))->toBe('sent')
+        ->and(app(GameCardSender::class)->sendBossCard($learner->id, $stage->id))->toBe('skipped')
+        ->and($tg->photos)->toHaveCount(1);
+
+    // A timeout on another city: the mark stays, the retry is silent.
+    $other = Stage::factory()->create(['course_id' => $stage->course_id, 'number' => 2]);
+    $tg->failSends = 1;
+    $tg->failSendsRetryAfter = null;
+    $tg->failSendsAsTransport = true;
+    expect(fn () => app(GameCardSender::class)->sendBossCard($learner->id, $other->id))->toThrow(TelegramApiException::class);
+    expect(app(GameCardSender::class)->sendBossCard($learner->id, $other->id))->toBe('skipped')
+        ->and($tg->photos)->toHaveCount(1)
+        ->and($marks())->toBe(2);
 });
 
 it('does not fail the finish when the card cannot be queued or sent: the win is paid and recorded anyway', function (): void {

@@ -14,8 +14,8 @@ use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
-use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\Challenge;
 use App\Models\Friendship;
 use App\Models\Learner;
@@ -56,7 +56,7 @@ final class FriendsMessenger
         private readonly FriendshipService $friendships,
         private readonly ChallengeService $challenges,
         private readonly OnboardingMessenger $onboardingMessenger,
-        private readonly DmLearnerResolver $dm,
+        private readonly DmReachability $reachability,
         private readonly OnboardingService $onboarding,
     ) {}
 
@@ -408,9 +408,18 @@ final class FriendsMessenger
             $send();
         } catch (TelegramForbiddenException $e) {
             $log->delete();
-            $this->dm->markBlocked($learner->telegram_user_id);
+            $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);
 
             Log::warning('telegram.friends_dm_forbidden', ['learner_id' => $learner->id, 'reason' => $e->reason]);
+        } catch (TelegramApiException $e) {
+            if ($e->isApiResponse()) {
+                // Definitely not delivered (a 429 or another refusal): the retry must find no row and send.
+                $log->delete();
+            }
+
+            // A timeout / 5xx may have been delivered: the row stays, the retry only skips. A 429 is put back by
+            // ThrottleTelegramOutbound for `retry_after` (docs/34 §4в п. 8).
+            throw $e;
         }
     }
 

@@ -10,6 +10,8 @@ use App\Domain\Game\Services\Class\ClassCaravanService;
 use App\Domain\Game\Services\Class\ClassCaravanSummary;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Services\GroupBotRemoval;
 use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Models\ClassCaravan;
 use Carbon\CarbonImmutable;
@@ -29,7 +31,8 @@ use Throwable;
  * marker is read again under the lock and written by a conditional UPDATE after the message went out. Queued by the scheduler
  * (`game:class-caravans-close`) after the commit of the close; a second queueing (two schedulers, a retry) posts nothing.
  *
- * A group that is not active any more gets no message: the marker is set with `meta.summary_skipped = group_inactive`.
+ * A group that is not active any more gets no message: the marker is set with `meta.summary_skipped = group_inactive`. A Telegram
+ * 403 (the bot was removed) turns the group `disabled` and ends the job without an error and without the marker (docs/34 §4в п. 8).
  */
 final class PostClassCaravanSummaryJob implements ShouldQueue
 {
@@ -63,14 +66,17 @@ final class PostClassCaravanSummaryJob implements ShouldQueue
         ClassCaravanSummary $summary,
         ProductEventRecorder $events,
         LocaleResolver $locales,
+        ?GroupBotRemoval $groups = null,
     ): void {
+        $groups ??= app(GroupBotRemoval::class);
+
         /** @var ClassCaravan|null $caravan */
         $caravan = ClassCaravan::query()->with('group')->find($this->classCaravanId);
         if ($caravan === null || $caravan->status->value !== 'finished' || $caravan->group === null || $caravan->summary_posted_at !== null) {
             return;
         }
 
-        Cache::lock(ClassCaravanService::SUMMARY_LOCK_PREFIX.$caravan->id, 120)->block(10, function () use ($telegram, $caravans, $summary, $events, $locales): void {
+        Cache::lock(ClassCaravanService::SUMMARY_LOCK_PREFIX.$caravan->id, 120)->block(10, function () use ($telegram, $caravans, $summary, $events, $locales, $groups): void {
             /** @var ClassCaravan|null $fresh */
             $fresh = ClassCaravan::query()->with('group')->find($this->classCaravanId);
             $group = $fresh?->group;
@@ -88,6 +94,11 @@ final class PostClassCaravanSummaryJob implements ShouldQueue
             $text = $summary->text($fresh, $caravans->standings($fresh), $locales->forGroup($group));
             try {
                 $telegram->sendMessage($group->chat_id, $text, parseMode: 'HTML');
+            } catch (TelegramForbiddenException $e) {
+                // The bot is not in the group any more (docs/34 §4в п. 3): `disabled`, no marker, the job ends without an error.
+                $groups->disable($group, $e, 'class_caravan_summary');
+
+                return;
             } catch (Throwable $e) {
                 Log::channel('daily')->warning('game.class_summary_failed', [
                     'class_caravan_id' => $fresh->id,

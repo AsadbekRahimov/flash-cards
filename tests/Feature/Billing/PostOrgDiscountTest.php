@@ -16,6 +16,7 @@ use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Listeners\Organizations\GrantPostOrgDiscount;
 use App\Models\Learner;
 use App\Models\Offer;
@@ -227,6 +228,28 @@ it('finishes the DM on a retry after a Telegram outage, once', function (): void
     $listener->handle($event);
 
     expect(pdOffers($learner))->toBe(1)->and($this->tg->sent)->toHaveCount(1);
+});
+
+it('delivers the DM exactly once on the retry after a 429 (docs/34 §4в п. 8: the code is unchanged, the middleware defers)', function (): void {
+    Queue::fake();
+    $org = pdCenter();
+    $learner = pdSeated($org);
+    pdLeave($learner, $org);
+
+    $event = new OrganizationMemberLeft($org->id, $learner->id, 1, 'left', true, null);
+    $listener = app(GrantPostOrgDiscount::class);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 5;
+
+    expect(fn () => $listener->handle($event))->toThrow(TelegramRateLimitedException::class);
+    expect(Offer::query()->sole()->meta)->not->toHaveKey('dm_sent_at');
+
+    $listener->handle($event);
+    $listener->handle($event);
+
+    expect(pdOffers($learner))->toBe(1)
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and($learner->refresh()->dm_blocked_at)->toBeNull();
 });
 
 it('does not message while nothing is for sale (the offer waits in the catalog)', function (): void {

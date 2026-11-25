@@ -14,7 +14,6 @@ use App\Domain\Organizations\Services\LearnerOrganizationsService;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
-use App\Domain\Telegram\Support\DmLearnerResolver;
 use App\Models\Learner;
 use App\Models\OrganizationInvite;
 use App\Models\OrganizationMember;
@@ -53,7 +52,7 @@ final class OrganizationMessenger
         private readonly OnboardingMessenger $onboardingMessenger,
         private readonly OrganizationMembershipService $memberships,
         private readonly LearnerOrganizationsService $organizations,
-        private readonly DmLearnerResolver $dm,
+        private readonly DmReachability $reachability,
     ) {}
 
     /**
@@ -422,7 +421,7 @@ final class OrganizationMessenger
         try {
             $send();
         } catch (TelegramForbiddenException $e) {
-            $this->dm->markBlocked($learner->telegram_user_id);
+            $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);
 
             Log::warning('telegram.organization_dm_forbidden', ['learner_id' => $learner->id, 'reason' => $e->reason]);
         }

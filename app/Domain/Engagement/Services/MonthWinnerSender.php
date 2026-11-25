@@ -9,7 +9,8 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
-use App\Domain\Telegram\Support\DmLearnerResolver;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Listeners\Engagement\SendMonthWinnerMessages;
 use App\Models\LeagueMonth;
 use App\Models\Learner;
@@ -28,7 +29,7 @@ use Illuminate\Support\Facades\Log;
  * {@see ReferralMilestoneSender}. A 403 deletes the row and closes the DMs of the learner (`dm_blocked_at`); a definite
  * refusal by the Bot API deletes it too, so a retry may deliver. Nothing is sent to a deleted or blocked learner or one whose
  * DM is closed. A failure of one winner does not stop the others: it is rethrown after the last one (the retry skips
- * those already messaged).
+ * those already messaged). A 429 is the exception: it stops the loop at once - the others would get it too.
  */
 final class MonthWinnerSender
 {
@@ -38,7 +39,7 @@ final class MonthWinnerSender
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
         private readonly MonthlyRatingService $rating,
-        private readonly DmLearnerResolver $dm,
+        private readonly DmReachability $reachability,
     ) {}
 
     /**
@@ -59,6 +60,10 @@ final class MonthWinnerSender
         foreach ($winners as $winner) {
             try {
                 $result[$this->send($month, $winner['learner_id'], $winner['place'], $winner['points'])]++;
+            } catch (TelegramRateLimitedException $e) {
+                // Flood control: the next winners would get a 429 too. Out at once; the listener is put back for `retry_after`
+                // and the retry skips those already messaged (docs/34 §4в п. 8).
+                throw $e;
             } catch (TelegramApiException $e) {
                 $failure ??= $e;
             }
@@ -105,7 +110,7 @@ final class MonthWinnerSender
                 $this->telegram->sendMessage($learner->telegram_user_id, $text);
             } catch (TelegramForbiddenException $e) {
                 $log->delete();
-                $this->dm->markBlocked($learner->telegram_user_id);
+                $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);
                 Log::warning('telegram.league_month_won_forbidden', ['learner_id' => $learner->id, 'reason' => $e->reason]);
 
                 return 'forbidden';

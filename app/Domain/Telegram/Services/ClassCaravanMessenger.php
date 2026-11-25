@@ -32,6 +32,7 @@ final class ClassCaravanMessenger
         private readonly LocaleResolver $locales,
         private readonly GroupSessionAnnouncer $announcer,
         private readonly ClassCaravanService $caravans,
+        private readonly GroupBotRemoval $groups,
     ) {}
 
     /**
@@ -100,8 +101,12 @@ final class ClassCaravanMessenger
     {
         try {
             $this->telegram->sendMessage($group->chat_id, $text);
-        } catch (TelegramApiException|TelegramForbiddenException $e) {
-            Log::warning('telegram.class_caravan_message_failed', ['chat_id' => $group->chat_id, 'error' => $e->getMessage()]);
+        } catch (TelegramForbiddenException $e) {
+            // The bot is not in the group any more (docs/34 §4в п. 8): the group goes `disabled`.
+            $this->groups->disable($group, $e, 'class_caravan');
+        } catch (TelegramApiException $e) {
+            // A 429 included: this is the answer to a command in the webhook, nobody waits for `retry_after` - only the log.
+            Log::warning('telegram.class_caravan_message_failed', ['telegram_group_id' => $group->id, 'error' => $e->getMessage()]);
         }
     }
 

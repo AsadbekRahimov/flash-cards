@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Contracts;
 
+use App\Domain\Telegram\DTO\ChatMemberInfo;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 
 interface TelegramClient
 {
@@ -18,6 +20,27 @@ interface TelegramClient
         ?string $parseMode = null,
         ?array $replyMarkup = null,
     ): void;
+
+    /**
+     * Sends a message to a group chat AT ONCE and returns its `message_id` (docs/33 §6.4, K1): a message that is edited later (the
+     * card of a cup) needs the id. Unlike {@see sendMessage()} it never defers into the queue - the calling job takes the slots of
+     * the per-chat and bot-wide budgets itself and puts itself back. `$threadId` is the topic of a forum group
+     * (`message_thread_id`), `$disableNotification` sends it silently. A group that became a supergroup is followed, as by every send.
+     *
+     * @param  array<string, mixed>|null  $replyMarkup
+     *
+     * @throws TelegramForbiddenException when the bot cannot write to the chat (removed from the group, chat not found)
+     * @throws TelegramApiException on any other failed Bot API call ({@see TelegramRateLimitedException} for a 429); also when
+     *                              Telegram's answer carried no `message_id` (as a transport failure: it may have been posted)
+     */
+    public function sendGroupMessage(
+        int|string $chatId,
+        string $text,
+        ?string $parseMode = null,
+        ?array $replyMarkup = null,
+        ?int $threadId = null,
+        bool $disableNotification = false,
+    ): int;
 
     public function sendWebAppButton(
         int|string $chatId,
@@ -65,7 +88,8 @@ interface TelegramClient
      *
      * @param  array<string, mixed>|null  $replyMarkup
      *
-     * @throws TelegramApiException when Telegram refuses (message deleted / too old to edit / 400 "message is not modified")
+     * @throws TelegramApiException when Telegram refuses (message deleted / too old to edit / 400 "message is not modified" -
+     *                              {@see TelegramApiException::isMessageNotModified()}, which a caller may count as success)
      */
     public function editMessageText(int|string $chatId, int $messageId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void;
 
@@ -75,6 +99,14 @@ interface TelegramClient
      * @throws TelegramApiException when Telegram refuses or cannot be reached
      */
     public function getChatMemberStatus(int|string $chatId, int $userId): string;
+
+    /**
+     * A user's status in a chat together with `is_member` (docs/33 §4.2, K1): the one answer that tells a muted user still in the
+     * chat (`restricted`, `is_member = true`) from one who left it (`restricted`, `is_member = false`).
+     *
+     * @throws TelegramApiException when Telegram refuses or cannot be reached
+     */
+    public function getChatMember(int|string $chatId, int $userId): ChatMemberInfo;
 
     public function setWebhook(string $url, string $secretHeader): bool;
 

@@ -7,6 +7,7 @@ use App\Domain\Organizations\Services\OrganizationInviteService;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Services\OrganizationMessenger;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\Course;
@@ -19,6 +20,7 @@ use App\Models\Subscription;
 use App\Models\TelegramGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\Support\FakeTelegramClient;
 
 uses(RefreshDatabase::class);
@@ -432,6 +434,24 @@ it('marks the DM as closed when Telegram answers 403 and does not fail the join'
 
     expect(OrganizationMember::query()->sole()->seat_state)->toBe('seated')
         ->and($learner->refresh()->dm_blocked_at)->not->toBeNull();
+});
+
+it('lets a 429 out of the message (the middleware defers the job) and the retry delivers it exactly once', function (): void {
+    Queue::fake();
+    $org = orgbCenter();
+    $learner = Learner::factory()->create(['telegram_user_id' => 8028]);
+    $member = app(OrganizationMembershipService::class)->joinByAdmin($learner, $org, User::factory()->create());
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 6;
+
+    expect(fn () => app(OrganizationMessenger::class)->notifyJoined($member->id))->toThrow(TelegramRateLimitedException::class);
+    expect($this->tg->sent)->toBe([]);
+
+    app(OrganizationMessenger::class)->notifyJoined($member->id);
+
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['chat_id'])->toBe(8028)
+        ->and($learner->refresh()->dm_blocked_at)->toBeNull();
 });
 
 it('does not promise a seat the member has already lost', function (): void {

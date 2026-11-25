@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use App\Domain\Engagement\Events\LeagueMonthConfirmed;
+use App\Domain\Engagement\Services\MonthWinnerSender;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Listeners\Engagement\SendMonthWinnerMessages;
 use App\Models\LeagueMonth;
 use App\Models\Learner;
@@ -128,6 +131,44 @@ it('closes the DM and keeps no marker when Telegram answers 403', function (): v
 
     expect($winner->fresh()?->dm_blocked_at)->not->toBeNull()
         ->and(NotificationLog::query()->count())->toBe(0);
+});
+
+it('stops at the first 429 without a marker: the other winners are not tried, and the retry reaches each exactly once', function (): void {
+    $month = mwMonth();
+    $first = mwWinner();
+    $second = mwWinner();
+    $winners = [
+        ['learner_id' => $first->id, 'place' => 1, 'points' => 10],
+        ['learner_id' => $second->id, 'place' => 2, 'points' => 5],
+    ];
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 8;
+
+    expect(fn () => app(MonthWinnerSender::class)->sendAll($month->id, $winners))->toThrow(TelegramRateLimitedException::class);
+    expect($this->tg->failSends)->toBe(0)
+        ->and($this->tg->sent)->toBe([])
+        ->and(NotificationLog::query()->count())->toBe(0);
+
+    expect(app(MonthWinnerSender::class)->sendAll($month->id, $winners))->toBe(['sent' => 2, 'skipped' => 0, 'forbidden' => 0])
+        ->and(app(MonthWinnerSender::class)->sendAll($month->id, $winners))->toBe(['sent' => 0, 'skipped' => 2, 'forbidden' => 0])
+        ->and($this->tg->sent)->toHaveCount(2);
+});
+
+it('keeps the marker after a timeout, goes on with the others and rethrows at the end', function (): void {
+    $month = mwMonth();
+    $first = mwWinner();
+    $second = mwWinner();
+    $winners = [
+        ['learner_id' => $first->id, 'place' => 1, 'points' => 10],
+        ['learner_id' => $second->id, 'place' => 2, 'points' => 5],
+    ];
+    $this->tg->failSends = 1;
+    $this->tg->failSendsAsTransport = true;
+
+    expect(fn () => app(MonthWinnerSender::class)->sendAll($month->id, $winners))->toThrow(TelegramApiException::class);
+    expect($this->tg->sent)->toHaveCount(1)
+        ->and(NotificationLog::query()->count())->toBe(2)
+        ->and(app(MonthWinnerSender::class)->sendAll($month->id, $winners))->toBe(['sent' => 0, 'skipped' => 2, 'forbidden' => 0]);
 });
 
 it('is picked up by the event system without a manual registration', function (): void {

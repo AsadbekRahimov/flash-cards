@@ -11,7 +11,10 @@ use App\Domain\Billing\Support\SubscriptionLiveness;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\Enums\OrganizationRole;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Jobs\RenewalReminderJob;
 use App\Mail\SubscriptionRenewalDueMail;
 use App\Models\Learner;
@@ -42,9 +45,10 @@ use Throwable;
  * At most once per (recipient, subscription, period end, days left), including retries of the job:
  * the marker (a `notifications_log` row for a known learner, a cache key otherwise) is written BEFORE
  * the call — a timeout may mean "delivered anyway", and a missed reminder is better than a double one.
- * A Telegram 403 (certainly not delivered) removes the marker again; a failed e-mail transport also
- * releases its marker, and the exception makes the queue retry. A failure for one recipient never
- * blocks the others: the first exception is rethrown after all were tried.
+ * A Telegram 403 (certainly not delivered) removes the marker again, and so does any other definite refusal of the
+ * Bot API (a 429 included), which is rethrown; a failed e-mail transport also releases its marker, and the exception
+ * makes the queue retry. A failure for one recipient never blocks the others: the first exception is rethrown after all
+ * were tried - except a 429, rethrown at once (the others would get it too; docs/34 §4в п. 8).
  */
 final class RenewalReminderSender
 {
@@ -57,6 +61,7 @@ final class RenewalReminderSender
     public function __construct(
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
+        private readonly DmReachability $reachability,
     ) {}
 
     /** @return int how many messages (DM + e-mail) went out */
@@ -133,6 +138,9 @@ final class RenewalReminderSender
         foreach ($owners as $owner) {
             try {
                 $sent += $this->notifyOwner($owner, $organization, $subscription, $daysLeft, $endsAt, $key);
+            } catch (TelegramRateLimitedException $e) {
+                // Flood control: the next owners would get a 429 too. Out at once; the job is put back for `retry_after`.
+                throw $e;
             } catch (Throwable $e) {
                 $failure ??= $e;
             }
@@ -178,6 +186,8 @@ final class RenewalReminderSender
                 if ($this->dm($learner, (int) $chatId, $text, $locale, $key.':user'.$owner->id, $this->panelUrl())) {
                     $sent++;
                 }
+            } catch (TelegramRateLimitedException $e) {
+                throw $e;
             } catch (Throwable $e) {
                 $failure ??= $e;
             }
@@ -273,12 +283,23 @@ final class RenewalReminderSender
                 $log?->delete();
 
                 if ($learner !== null) {
-                    Learner::query()->whereKey($learner->id)->update(['dm_blocked_at' => now()->utc()->format('Y-m-d H:i:s')]);
+                    $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);
                 }
 
                 Log::warning('telegram.renewal_reminder_forbidden', ['learner_id' => $learner?->id, 'reason' => $e->reason]);
 
                 return false;
+            } catch (TelegramApiException $e) {
+                if ($e->isApiResponse()) {
+                    // Definitely not delivered (a 429 or another refusal): the retry must find no marker and send.
+                    $log?->delete();
+                    if ($learner === null) {
+                        Cache::forget('billing:renewal-reminder:dm:'.$key);
+                    }
+                }
+
+                // A timeout / 5xx may have been delivered: the marker stays (docs/34 §4в п. 8).
+                throw $e;
             }
 
             return true;

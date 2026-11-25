@@ -8,7 +8,7 @@ use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
-use App\Domain\Telegram\Support\DmLearnerResolver;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Listeners\Engagement\SendReferralMilestoneMessage;
 use App\Models\Learner;
 use App\Models\NotificationLog;
@@ -35,7 +35,7 @@ final class ReferralMilestoneSender
         private readonly TelegramClient $telegram,
         private readonly LocaleResolver $locales,
         private readonly ReferralService $referrals,
-        private readonly DmLearnerResolver $dm,
+        private readonly DmReachability $reachability,
     ) {}
 
     /** @return 'sent'|'forbidden'|'skipped' */
@@ -81,7 +81,7 @@ final class ReferralMilestoneSender
                 $this->telegram->sendMessage($learner->telegram_user_id, $text);
             } catch (TelegramForbiddenException $e) {
                 $log->delete();
-                $this->dm->markBlocked($learner->telegram_user_id);
+                $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);
                 Log::warning('telegram.referral_milestone_forbidden', ['learner_id' => $learner->id, 'reason' => $e->reason]);
 
                 return 'forbidden';

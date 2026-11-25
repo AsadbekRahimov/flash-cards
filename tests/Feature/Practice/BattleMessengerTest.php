@@ -9,6 +9,7 @@ use App\Domain\Practice\Services\Battle\BattleJanitor;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Services\BattleMessenger;
 use App\Jobs\SendBattleDmJob;
 use App\Models\NotificationLog;
@@ -227,11 +228,30 @@ it('keeps the marker when Telegram fails for another reason: the message may hav
     [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
     $battle = BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course);
     $this->tg->failSends = 1;
+    $this->tg->failSendsAsTransport = true; // a timeout: it is unknown whether the invitation arrived
 
     expect(fn () => battleDm($battle->id))->toThrow(TelegramApiException::class);
     battleDm($battle->id);
 
     expect($this->tg->sent)->toHaveCount(0)
+        ->and(NotificationLog::query()->where('type', 'battle_dm')->count())->toBe(1)
+        ->and($friend->fresh()?->dm_blocked_at)->toBeNull();
+});
+
+it('drops the marker on a 429 (certainly not delivered): the retry sends the invitation exactly once', function (): void {
+    Queue::fake();
+    [$me, $friend, $course, $lesson, $friendship] = BattleKit::world();
+    $battle = BattleKit::invite($me, $friendship, PracticeMode::Pairs, $course);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 4;
+
+    expect(fn () => battleDm($battle->id))->toThrow(TelegramRateLimitedException::class);
+    expect(NotificationLog::query()->where('type', 'battle_dm')->count())->toBe(0);
+
+    battleDm($battle->id);
+    battleDm($battle->id);
+
+    expect($this->tg->sent)->toHaveCount(1)
         ->and(NotificationLog::query()->where('type', 'battle_dm')->count())->toBe(1)
         ->and($friend->fresh()?->dm_blocked_at)->toBeNull();
 });

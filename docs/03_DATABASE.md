@@ -114,7 +114,9 @@ erDiagram
 | id | bigint PK | |
 | chat_id | bigint unique | Telegram chat_id (может быть отрицательный для supergroup) |
 | title | string(255) | Название группы |
-| status | enum('pending','active','disabled') default 'pending' | |
+| status | enum('pending','active','disabled') default 'pending' | решение платформы. `disabled` ставят `my_chat_member` `left` / `kicked` и 403 при отправке в группу (`GroupBotRemoval`, через Eloquent — наблюдатель сбрасывает тарифы участников; docs/34 §4в п. 3) |
+| bot_status | string(16) nullable | статус бота из последнего `my_chat_member`: `member`, `administrator`, `left`, `kicked` *(K2, docs/33 §2.1)*. Только зеркало Telegram: повторно добавленный бот здесь `member`, а `disabled`-группа остаётся `disabled` |
+| bot_status_at | timestamp nullable | `date` того апдейта. `MyChatMemberHandler` под `FOR UPDATE` строки не применяет апдейт старше записанного (ни `bot_status`, ни `status`); одна и та же секунда — по порядку прихода. При слиянии строк при переходе в супергруппу более новый статус переезжает на выжившую строку |
 | organization_id | bigint nullable FK → organizations, ON DELETE SET NULL | организация-владелец (спонсор Pro для участников) |
 | course_id | bigint nullable FK → courses, ON DELETE SET NULL | курс для команд учителя; `NULL` = курс `default` |
 | meta | jsonb default '{}' | Member count, type и т.п. |
@@ -511,7 +513,8 @@ Append-only журнал для продуктовой аналитики (не 
 | daily_goal | smallint default 20 (колонка; новым ученикам — 10 из config) | карточек (оценок) в день |
 | reminder_time | time nullable default '19:00' | локальное время напоминания; `NULL` = выключено |
 | next_reminder_at | timestamp nullable | ближайшее напоминание, UTC |
-| dm_blocked_at | timestamp nullable | Telegram ответил 403 на ЛС |
+| dm_blocked_at | timestamp nullable | с какого момента бот не может писать в ЛС (403 / `chat not found` на отправку или `my_chat_member` `kicked`); при повторном отказе дата не сдвигается. Пишет **только** `DmReachability` (тест-страж `DmReachabilityGuardTest`) |
+| dm_blocked_reason | varchar(24) nullable | почему *(B2, docs/34 §4в п. 3)*: `bot_blocked`, `not_started`, `user_deactivated`, `chat_not_found`, `forbidden` (ответ Telegram на отправку), `kicked` (`my_chat_member`); обновляется при каждом отказе, снимается вместе с датой. Для «мёртвых» `user_deactivated` / `chat_not_found` `next_reminder_at` обнуляется (B7). Переходы пишут события `bot.dm_closed {reason, via}` / `bot.dm_reopened {via}` |
 | onboarding_state | string(16) default 'new' | `new` → `locale` → `goal` → `level` → `timezone` → `reminder` → `done` |
 | onboarding_completed_at | timestamp nullable | |
 | acquisition_source | string(64) nullable | `ref`, `org`, `src:<channel>`, `course:<slug>`, `group` |
@@ -531,7 +534,7 @@ Append-only журнал для продуктовой аналитики (не 
 | created_at, updated_at | | |
 
 **Индексы:** `telegram_user_id` unique; `next_reminder_at` — **partial** `WHERE next_reminder_at IS NOT NULL AND dm_blocked_at IS NULL`
-(`learners_next_reminder_at_idx`, PostgreSQL; на sqlite — обычный индекс); `onboarding_state`; `last_seen_at`; `active_course_id`; `referrer_learner_id`; `referral_code` unique.
+(`learners_next_reminder_at_idx`, PostgreSQL; на sqlite — обычный индекс); `dm_blocked_at` — **partial** `WHERE dm_blocked_at IS NOT NULL` (`learners_dm_blocked_at_idx`, под счётчик дашборда и фильтр «Бот недоступен» `/admin`, docs/34 B5); `onboarding_state`; `last_seen_at`; `active_course_id`; `referrer_learner_id`; `referral_code` unique.
 Под список `/admin/learners` (docs/20 F2, миграция `2026_11_02_100001_add_filament_list_indexes`): `learners_first_name_id_idx (first_name, id)` —
 сортировка по умолчанию (Filament добавляет первичный ключ вторым ключом); **PostgreSQL, `pg_trgm`:** GIN-триграммы под поиск `like '%…%'` —
 `learners_first_name_lower_trgm_idx (lower(first_name) gin_trgm_ops)`, `learners_last_name_lower_trgm_idx (lower(last_name) gin_trgm_ops)` — в форме

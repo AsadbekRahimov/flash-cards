@@ -96,10 +96,16 @@ final class GroupChatMigrator
             $this->mergeInto($new, $old);
         }
 
+        // The bot's status in the new chat (K2, docs/33 §2.1) came with the fresh row when its `my_chat_member` was the newer one.
+        $botStatus = $new !== null && $new->bot_status_at !== null && ($old->bot_status_at === null || $new->bot_status_at->gte($old->bot_status_at))
+            ? ['bot_status' => $new->bot_status, 'bot_status_at' => $new->bot_status_at]
+            : [];
+
         // Through Eloquent: the observer sees a save (no status / organization change: nothing to do for it today).
         $old->update([
             'chat_id' => $toChatId,
             'meta' => array_merge($old->meta ?? [], ['type' => 'supergroup', 'migrated_from_chat_id' => $fromChatId]),
+            ...$botStatus,
         ]);
 
         Log::info('telegram.group_migrated', ['telegram_group_id' => $old->id, 'merged' => $new !== null]);

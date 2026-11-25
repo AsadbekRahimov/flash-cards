@@ -503,3 +503,39 @@ it('marks a late completion as late when the journal itself shows the threshold 
 
     expect(AssignmentResult::query()->sole()->isLate())->toBeTrue();
 });
+
+// --- docs/34 §4в п. 2, 8 (B4): flood control and a removed bot -------------------------------------------
+
+it('releases the claim on a 429 without counting a failure and stops the run; the next run posts each once', function (): void {
+    $first = asgMake($this);
+    $second = asgMake($this);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 12;
+
+    expect($this->service->announcePending())->toBe(0);
+    expect($first->fresh()->announced_at)->toBeNull()
+        ->and($first->fresh()->meta['announced_at_failures'] ?? 0)->toBe(0)
+        // The run stopped at the 429: the second one was not even claimed.
+        ->and($second->fresh()->announced_at)->toBeNull()
+        ->and($this->tg->sent)->toBe([]);
+
+    expect(app(AssignmentService::class)->announcePending())->toBe(2)
+        ->and(app(AssignmentService::class)->announcePending())->toBe(0)
+        ->and($this->tg->sent)->toHaveCount(2);
+});
+
+it('turns the group disabled through Eloquent on a 403 and releases the claim', function (): void {
+    $assignment = asgMake($this);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsForbidden = 'forbidden';
+    $updated = [];
+    TelegramGroup::updated(function (TelegramGroup $group) use (&$updated): void {
+        $updated[] = $group->getChanges();
+    });
+
+    expect($this->service->announce($assignment))->toBeFalse();
+
+    expect($assignment->fresh()->announced_at)->toBeNull()
+        ->and($this->group->fresh()?->status)->toBe('disabled')
+        ->and(array_column($updated, 'status'))->toBe(['disabled']);
+});

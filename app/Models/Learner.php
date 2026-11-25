@@ -31,6 +31,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $reminder_time
  * @property Carbon|null $next_reminder_at
  * @property Carbon|null $dm_blocked_at
+ * @property string|null $dm_blocked_reason why the DM is closed (docs/34 §4в п. 3); written only by DmReachability
  * @property string $onboarding_state
  * @property Carbon|null $onboarding_completed_at
  * @property string|null $acquisition_source
@@ -71,6 +72,7 @@ class Learner extends Model
         'reminder_time',
         'next_reminder_at',
         'dm_blocked_at',
+        'dm_blocked_reason',
         'onboarding_state',
         'onboarding_completed_at',
         'acquisition_source',

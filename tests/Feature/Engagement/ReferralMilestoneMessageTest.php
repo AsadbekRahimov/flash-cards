@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use App\Domain\Engagement\Events\ReferralMilestoneReached;
+use App\Domain\Engagement\Services\ReferralMilestoneSender;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Listeners\Engagement\SendReferralMilestoneMessage;
 use App\Models\Learner;
 use App\Models\NotificationLog;
@@ -118,6 +121,29 @@ it('closes the DM and keeps no marker when Telegram answers 403, so nothing is c
 
     expect($inviter->fresh()?->dm_blocked_at)->not->toBeNull()
         ->and(NotificationLog::query()->count())->toBe(0);
+});
+
+it('drops the marker on a 429 so that the retry tells the inviter exactly once, and keeps it after a timeout', function (): void {
+    [$inviter, $subscription] = msInviter();
+    $sender = app(ReferralMilestoneSender::class);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 2;
+
+    expect(fn () => $sender->send($inviter->id, 3, 7, $subscription->id, null))->toThrow(TelegramRateLimitedException::class);
+    expect(NotificationLog::query()->count())->toBe(0);
+
+    expect($sender->send($inviter->id, 3, 7, $subscription->id, null))->toBe('sent')
+        ->and($sender->send($inviter->id, 3, 7, $subscription->id, null))->toBe('skipped')
+        ->and($this->tg->sent)->toHaveCount(1);
+
+    // The next milestone times out: the marker stays, the retry is silent.
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = null;
+    $this->tg->failSendsAsTransport = true;
+    expect(fn () => $sender->send($inviter->id, 6, 7, $subscription->id, null))->toThrow(TelegramApiException::class);
+    expect($sender->send($inviter->id, 6, 7, $subscription->id, null))->toBe('skipped')
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and(NotificationLog::query()->count())->toBe(2);
 });
 
 it('is picked up by the event system without a manual registration', function (): void {

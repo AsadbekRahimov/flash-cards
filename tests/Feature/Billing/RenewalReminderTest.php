@@ -8,6 +8,7 @@ use App\Domain\Billing\Services\SubscriptionService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Twa\Services\JwtService;
 use App\Jobs\RenewalReminderJob;
 use App\Mail\SubscriptionRenewalDueMail;
@@ -198,10 +199,46 @@ it('is at most once: a repeated or retried send does not duplicate, even after a
     $other = Learner::factory()->create(['telegram_user_id' => 555005]);
     $second = rrSubscription(['subscriber_id' => $other->id]);
     $this->tg->failSends = 1;
+    $this->tg->failSendsAsTransport = true;
 
     expect(fn () => rrSend($second))->toThrow(TelegramApiException::class);
     expect(rrSend($second))->toBe(0)
         ->and($this->tg->sent)->toHaveCount(1);
+});
+
+it('drops the learner marker on a 429 (certainly not delivered): the retry reminds exactly once', function (): void {
+    $learner = Learner::factory()->create(['telegram_user_id' => 555014]);
+    $sub = rrSubscription(['subscriber_id' => $learner->id]);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 9;
+
+    expect(fn () => rrSend($sub))->toThrow(TelegramRateLimitedException::class);
+    expect(NotificationLog::query()->where('type', 'renewal_reminder')->count())->toBe(0);
+
+    expect(rrSend($sub))->toBe(1)
+        ->and(rrSend($sub))->toBe(0)
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and($learner->fresh()?->dm_blocked_at)->toBeNull();
+});
+
+it('drops the cache marker of an owner without a learner row on a 429 and stops the owners at once', function (): void {
+    Mail::fake();
+    [$organization, $sub] = rrOrganization();
+    rrStaff($organization, user: ['email' => 'a@center.test', 'telegram_user_id' => 880014]);
+    rrStaff($organization, user: ['email' => 'b@center.test', 'telegram_user_id' => 880015]);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 6; // the first owner's DM
+
+    expect(fn () => rrSend($sub))->toThrow(TelegramRateLimitedException::class);
+    // The second owner was not tried at all: it would have got the 429 as well.
+    Mail::assertSent(SubscriptionRenewalDueMail::class, 1);
+    expect($this->tg->sent)->toBe([]);
+
+    // The retry: the first owner's e-mail is marked, its DM is not; both DMs and the second e-mail go out once.
+    expect(rrSend($sub))->toBe(3)
+        ->and(rrSend($sub))->toBe(0);
+    Mail::assertSent(SubscriptionRenewalDueMail::class, 2);
+    expect(array_column($this->tg->sent, 'chat_id'))->toBe([880014, 880015]);
 });
 
 it('does not write to a blocked learner or one whose DM is closed', function (): void {
@@ -322,7 +359,8 @@ it('does not stop the other owners when one delivery fails, and retries only wha
     [$organization, $sub] = rrOrganization();
     rrStaff($organization, user: ['email' => 'a@center.test', 'telegram_user_id' => 880004]);
     rrStaff($organization, user: ['email' => 'b@center.test', 'telegram_user_id' => 880005]);
-    $this->tg->failSends = 1; // the first owner's DM
+    $this->tg->failSends = 1; // the first owner's DM times out
+    $this->tg->failSendsAsTransport = true;
 
     expect(fn () => rrSend($sub))->toThrow(TelegramApiException::class);
     Mail::assertSent(SubscriptionRenewalDueMail::class, 2);

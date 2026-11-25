@@ -458,14 +458,21 @@ of their own groups, with name / username and the learning metrics of their grou
 onboarding state, subscriptions or events).
 
 **List (admin).** Columns: name, @username, Telegram ID, **Plan** (`Free`, `Pro` — own subscription,
-`Pro (sponsored)`, shown as `Pro (от центра)` — through an organization), blocked, onboarded, **Referrals** (how many learners this one
-invited, rejected ones excluded), last seen.
+`Pro (sponsored)`, shown as `Pro (от центра)` — through an organization), blocked, **Bot unreachable** (Бот недоступен — see below),
+onboarded, **Referrals** (how many learners this one invited, rejected ones excluded), last seen.
 
 - **Search** (box above the table): by name, by @username (`@anna` and `anna` both work, partial match) or by
   **Telegram ID** (exact: type the whole number, `12345` does not find `123456789`).
 - **Filters:** *Group*; *Plan* — Free / Pro (own **or** sponsored; the rule is the same as in the bot and the TWA:
   a subscription counts until its end, an auto-renewing provider gets the grace days, a suspended organization or a
-  member who left sponsors nothing); *Onboarding* — Done / Not done.
+  member who left sponsors nothing); *Onboarding* — Done / Not done; **Bot unreachable** (Бот недоступен) — Бот недоступен / Бот доступен.
+- **Bot unreachable** (Бот недоступен; column, filter and a line on the learner page; admin only, docs/34 §4в п. 3-4): the bot cannot write to
+  this learner in private messages, and since when («с 20.11.2026»). The reason: *Заблокировал бота* (the learner blocked the bot — Telegram's
+  403 or the `my_chat_member` update), *Не запускал бота* (never pressed Start), *Аккаунт удалён* / *Чат не найден* (the Telegram account is
+  gone — no reminders are planned for it any more), *Telegram запретил отправку* (another 403), *Причина не записана* (closed before the reason
+  was stored). Nothing is sent to such a learner (reminders, league results, achievements, offers); the mark goes away by itself as soon as the
+  learner writes to the bot, taps a button or unblocks it. Opening the Mini App does **not** remove it. There is nothing to do by hand: the
+  learner keeps their progress and their plan; to bring reminders back the learner has to open the bot and press Start.
 - **Block / Unblock** (Заблокировать / Разблокировать; row button, confirmation required): the learner's next TWA request answers
   `401 learner_blocked` (the TWA is closed to them) and review reminders stop; progress is kept. Every change is written to the audit log
   (`learner.blocked` / `learner.unblocked`). Unblocking restores access at once.
@@ -1025,7 +1032,7 @@ dashboard already caches, so it follows their timers (payments — up to a minut
 
 | Widget | Who sees it | What it shows |
 |---|---|---|
-| Total Learners (Всего учеников) | admin, teacher | Learners visible to you (admin: all; teacher: active members of your groups) and how many were active in the last 7 days (`last_seen_at`) |
+| Total Learners (Всего учеников) | admin, teacher | Learners visible to you (admin: all; teacher: active members of your groups) and how many were active in the last 7 days (`last_seen_at`). **Admin only**, a third tile: **Заблокировали бота: N** with «за 7 дней: M» — learners the bot cannot write to in private messages (blocked the bot, deleted the account, …; deleted learners excluded) and how many of them closed it in the last 7 days. Cached for 60 seconds and refreshed at once when a learner blocks or unblocks the bot. A jump of *M* after a wave of reminders or league results means the messages annoy; the list behind it is **Learners → filter Bot unreachable** |
 | Exams Last 30 Days (Экзаменов за 30 дней) | admin, teacher | Number of exam sessions in the past month |
 | Activity Chart (Активность тренировок за 30 дней) | admin, teacher | Line chart of **repetitions per day** over the last 30 days: how many cards were answered in training sessions that day (the dataset is called «Повторений»). It is not the number of learners: a learner who answers 30 cards counts 30. Admin: all sessions, including personal practice; teacher: group trainings of their own groups only |
 | Top Learners (Лучшие ученики за 30 дней) | admin, teacher | Top 10 learners by reviews in group trainings (last 30 days; a learner's personal practice is never counted for teachers) |

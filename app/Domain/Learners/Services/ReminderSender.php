@@ -16,6 +16,7 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Domain\Telegram\Services\ReminderQuizMessenger;
 use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Jobs\SendLearnerReminderJob;
@@ -82,6 +83,7 @@ final class ReminderSender
         private readonly ReminderQuizStore $quizStore,
         private readonly ReminderQuizMessenger $quizMessenger,
         private readonly ReminderExperiment $experiment,
+        private readonly DmReachability $reachability,
     ) {}
 
     public function send(int $learnerId, CarbonImmutable $scheduledFor, ?CarbonImmutable $now = null): ReminderOutcome
@@ -154,7 +156,7 @@ final class ReminderSender
                 if ($quiz !== null) {
                     $this->forgetQuiz($learner);
                 }
-                $this->markDmBlocked($learner, $now);
+                $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason, $now);
 
                 Log::warning('telegram.reminder_forbidden', [
                     'learner_id' => $learner->id,
@@ -267,18 +269,6 @@ final class ReminderSender
             ->whereIn('type', ReminderKind::notificationTypes())
             ->where('sent_at', '>=', $since)
             ->exists();
-    }
-
-    /**
-     * Single-column UPDATE, no lock: an inbound DM clears the flag with its own conditional
-     * UPDATE, and the millisecond race between a 403 and a DM is harmless in both orders
-     * (worst case one more 403 tomorrow, or silence until the learner writes again).
-     */
-    private function markDmBlocked(Learner $learner, CarbonImmutable $now): void
-    {
-        Learner::query()
-            ->whereKey($learner->id)
-            ->update(['dm_blocked_at' => $now->format('Y-m-d H:i:s')]);
     }
 
     private function maxDelayMinutes(): int

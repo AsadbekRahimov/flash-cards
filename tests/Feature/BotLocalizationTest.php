@@ -7,6 +7,7 @@ use App\Domain\Learners\Services\ReminderSender;
 use App\Domain\Learning\Services\LeaderboardBuilder;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\DTO\ChatMemberInfo;
 use App\Domain\Telegram\Services\TeacherStatsReporter;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Filament\Resources\TelegramGroupResource\Pages\EditTelegramGroup;
@@ -60,6 +61,16 @@ beforeEach(function (): void {
         public function getChatMemberStatus(int|string $chatId, int $userId): string
         {
             return 'administrator';
+        }
+
+        public function getChatMember(int|string $chatId, int $userId): ChatMemberInfo
+        {
+            return new ChatMemberInfo('administrator', true);
+        }
+
+        public function sendGroupMessage(int|string $chatId, string $text, ?string $parseMode = null, ?array $replyMarkup = null, ?int $threadId = null, bool $disableNotification = false): int
+        {
+            return 1;
         }
 
         public function setWebhook(string $url, string $secretHeader): bool
