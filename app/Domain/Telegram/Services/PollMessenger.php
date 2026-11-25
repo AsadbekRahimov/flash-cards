@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Domain\Telegram\Services;
 
+use App\Domain\Telegram\Support\PollCallback;
 use App\Models\Poll;
 use App\Models\PollOption;
 
 /**
  * What a learner sees of a poll (docs/35 §1.5 "Сообщение", docs/04 B.5b). O3 builds the first message of the broadcast here; O5 adds
  * the texts after a tap ("Спасибо", "Опрос завершён", …) on top of the same keyboard.
+ *
+ * After an answer the message is the question and "Спасибо" only — never the answer itself nor any totals (owner's decision,
+ * docs/31 §5г), with «Изменить ответ» under it when the poll allows a change.
  *
  * - Caption (photo) or text: the question in the language of the delivery, no `parse_mode` (nothing the administrator types can
  *   become markup). When any option of that language is longer than {@see LONG_LABEL} characters, the options follow as a numbered
@@ -81,15 +85,58 @@ final class PollMessenger
                 $label = (in_array($option->id, $selected, true) ? self::CHECKED : self::UNCHECKED).' '.$label;
             }
 
-            $rows[] = [$this->buttons->callback($label, 'pl1:'.$token.':'.$option->position)];
+            $rows[] = [$this->buttons->callback($label, PollCallback::data($token, $option->position))];
             $n++;
         }
 
         if ($poll->allows_multiple) {
-            $rows[] = [$this->buttons->callback((string) __('polls.submit', [], $locale), 'pl1:'.$token.':s')];
+            $rows[] = [$this->buttons->callback((string) __('polls.submit', [], $locale), PollCallback::data($token, PollCallback::SUBMIT))];
         }
 
         return $this->buttons->keyboard($chatId, $rows);
+    }
+
+    /**
+     * The text after an answer: the question (without the list of options) and "Спасибо", within `$limit` characters (the caption
+     * of a photo, the text of a message) - the question is cut when it would not fit.
+     */
+    public function answered(Poll $poll, string $locale, int $limit = self::CAPTION_LIMIT): string
+    {
+        $locale = self::locale($locale);
+        $thanks = "\n\n".$this->notice('thanks', $locale);
+        $question = trim((string) ($poll->question[$locale] ?? $poll->question['ru'] ?? ''));
+        $room = max(0, $limit - mb_strlen($thanks));
+
+        if (mb_strlen($question) > $room) {
+            $question = rtrim(mb_substr($question, 0, max(0, $room - 1))).'…';
+        }
+
+        return $question.$thanks;
+    }
+
+    /**
+     * The keyboard after an answer: «Изменить ответ» when the poll allows a change, else none (null removes the buttons).
+     *
+     * @return array{inline_keyboard: list<list<array<string, mixed>>>}|null
+     */
+    public function answeredKeyboard(string $token, string $locale, int $chatId, bool $allowChange): ?array
+    {
+        if (! $allowChange) {
+            return null;
+        }
+
+        return $this->buttons->single($chatId, $this->buttons->callback($this->notice('change', $locale), PollCallback::data($token, PollCallback::CHANGE)));
+    }
+
+    /**
+     * A short text of `lang/{ru,uz}/polls.php` in the language of the delivery: `thanks`, `change`, `closed`, `unavailable`, `empty`,
+     * `limit` (`:max`), `locked`.
+     *
+     * @param  array<string, int|string>  $replace
+     */
+    public function notice(string $key, ?string $locale, array $replace = []): string
+    {
+        return (string) __('polls.'.$key, $replace, self::locale($locale));
     }
 
     /**

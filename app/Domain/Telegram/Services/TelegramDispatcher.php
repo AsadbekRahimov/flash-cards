@@ -26,6 +26,7 @@ use App\Domain\Telegram\Handlers\OnboardingCallbackHandler;
 use App\Domain\Telegram\Handlers\OrganizationCallbackHandler;
 use App\Domain\Telegram\Handlers\OrgCommandHandler;
 use App\Domain\Telegram\Handlers\PaySupportCommandHandler;
+use App\Domain\Telegram\Handlers\PollCallbackHandler;
 use App\Domain\Telegram\Handlers\ProCallbackHandler;
 use App\Domain\Telegram\Handlers\ProCommandHandler;
 use App\Domain\Telegram\Handlers\PromoCommandHandler;
@@ -94,6 +95,7 @@ final class TelegramDispatcher
         DeleteAccountCallbackHandler $deleteAccountCallback,
         AccountLinkCallbackHandler $accountLinkCallback,
         ReminderQuizCallbackHandler $reminderQuizCallback,
+        PollCallbackHandler $pollCallback,
         ChatMigrationHandler $chatMigration,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
@@ -142,6 +144,8 @@ final class TelegramDispatcher
             $deleteAccountCallback,
             $accountLinkCallback,
             $reminderQuizCallback,
+            // Poll buttons `pl1:` (docs/04 B.5b).
+            $pollCallback,
         ];
     }
 

@@ -77,6 +77,18 @@ Schedule::command('polls:sweep')
     ->everyFiveMinutes()
     ->withoutOverlapping();
 
+// Polls whose `closes_at` has come are closed (docs/35 O7): status, `results_snapshot`, audit. The taps already answer "closed" from
+// `closes_at` on; the closing is under the poll's row lock, so a repeated or parallel run (or a click on «Закрыть») closes once.
+Schedule::command('polls:close-due')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
+// The answers of polls closed or stopped more than `polls.retention_days` (365) ago (docs/35 §1.5 "Приватность"): votes and deliveries
+// in chunks, each its own short transaction; the poll and its totals stay. Away from the backups, the prune and the purge.
+Schedule::command('polls:prune')
+    ->dailyAt('03:50')
+    ->withoutOverlapping(30);
+
 // Friend challenges (docs/13 §7.5): active ones past `ends_at` are scored from learner_daily_stats and finished,
 // unanswered pending ones expire. Idempotent: the claim is a conditional UPDATE, so a repeated run raises nothing twice.
 Schedule::command('challenges:close-due')

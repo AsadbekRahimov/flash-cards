@@ -678,6 +678,9 @@ describe('MonthlyRatingView', () => {
         expect(has(wrapper, 'prize-line')).toBe(false)
         expect(text(wrapper, 'participants')).toBe('30 участников')
         expect(wrapper.findAll('[data-testid=row]').map((r) => r.text())).toEqual([expect.stringContaining('Tashkent One')])
+        // my row among the neighbours of the region: the place in the region, the card keeps the place in the whole table
+        expect(wrapper.get('[data-testid=row-near-me] [data-testid=rank]').text()).toBe('4')
+        expect(text(wrapper, 'my-place')).toBe('Вы на 12 месте · 340 баллов')
 
         vi.mocked(api.league.monthPage).mockResolvedValueOnce(page([boardRow(2)], null))
         await wrapper.get('[data-testid=more]').trigger('click')

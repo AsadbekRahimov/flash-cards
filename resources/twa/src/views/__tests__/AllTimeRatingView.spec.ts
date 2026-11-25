@@ -84,7 +84,8 @@ const myRegionTable = (overrides: Partial<AllTimeResponse> = {}): AllTimeRespons
     top: [row(1, { name: 'Tashkent One' }), row(2)],
     next_cursor: 'af~UZ-TK.page2',
     neighbours: { above: [row(110), row(111)], below: [row(113)] },
-    me: myRow({ rank: 112, next_gap: 3 }),
+    // `me.rank` stays the place in the whole category; the neighbours and the gap are of the region
+    me: myRow({ next_gap: 3 }),
     ...overrides,
   })
 
@@ -288,7 +289,10 @@ describe('AllTimeRatingView', () => {
 
       expect(vi.mocked(api.league.allTime).mock.calls.at(-1)).toEqual([{ scope: 'region' }])
       expect(wrapper.get('[data-testid=area-mine]').attributes('aria-checked')).toBe('true')
-      expect(text(wrapper, 'my-place')).toBe('Вы на 112 месте · 1400 баллов')
+      expect(text(wrapper, 'my-place')).toBe('Вы на 340 месте · 1400 баллов')
+      expect(text(wrapper, 'region-rank')).toBe('Регион «город Ташкент»: 112 место')
+      expect(text(wrapper, 'next-gap')).toBe('До 111-го места — 3 балла')
+      expect(wrapper.get('[data-testid=row-near-me] [data-testid=rank]').text()).toBe('112')
       expect(text(wrapper, 'participants')).toBe('13502 участника')
       expect(ranks(wrapper)).toEqual(['1', '2'])
       expect(has(wrapper, 'read-only-region')).toBe(false)

@@ -32,4 +32,12 @@ return [
 
     // Learner ids per INSERT of the launch (a range of ids: 2 000 rows × 7 bindings stay far under PostgreSQL's 65 535).
     'insert_chunk' => (int) env('POLLS_INSERT_CHUNK', 2000),
+
+    // The picture of a poll (O6): JPEG or PNG only, at most this many KB (Telegram takes photos up to 10 MB), on the private disk.
+    'image_max_kb' => (int) env('POLLS_IMAGE_MAX_KB', 5120),
+
+    // `polls:prune` (O7): the deliveries and votes of a poll closed or stopped longer ago than this go, in chunks of `prune_chunk`
+    // rows per statement (each its own short transaction). The poll itself stays with its totals (`results_snapshot`).
+    'retention_days' => (int) env('POLLS_RETENTION_DAYS', 365),
+    'prune_chunk' => (int) env('POLLS_PRUNE_CHUNK', 5000),
 ];

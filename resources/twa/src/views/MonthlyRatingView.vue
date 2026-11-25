@@ -135,6 +135,15 @@ const myRegionName = computed(() => {
 /** Another region than the learner's own: read only. */
 const myRegionCode = computed(() => me.value?.region?.code ?? settings.data?.region_code ?? null)
 const foreign = computed(() => store.area.kind === 'other' && shownRegion.value !== null && shownRegion.value.code !== myRegionCode.value)
+/**
+ * My row as the table shown counts it: `me.rank` is the place in the whole category; over the table of my region the neighbours and
+ * `next_gap` are of the region (docs/32 §12.11) - the place there is `me.region.rank`.
+ */
+const tableMe = computed(() => {
+  const mine = me.value
+  if (mine === null || shownRegion.value === null || foreign.value) return mine
+  return { rank: mine.region?.rank ?? null, points: mine.points, participant: mine.participant }
+})
 /** "Region «Tashkent»: 112th place" - my place in my region, once its table is shown. */
 const regionRankLine = computed(() => {
   const region = me.value?.region
@@ -149,8 +158,9 @@ const shownRows = computed((): BoardTableRow[] => [...(data.value?.top ?? []), .
 const nextGapLine = computed(() => {
   const mine = me.value
   const gap = mine?.next_gap
-  if (!v2.value || readOnly.value || mine === null || mine.rank === null || gap === null || gap === undefined) return ''
-  const rank = nearestBetterRank([...shownRows.value, ...(data.value?.neighbours?.above ?? [])], mine.rank)
+  const rankShown = tableMe.value?.rank ?? null
+  if (!v2.value || readOnly.value || mine === null || rankShown === null || gap === null || gap === undefined) return ''
+  const rank = nearestBetterRank([...shownRows.value, ...(data.value?.neighbours?.above ?? [])], rankShown)
   const points = tn('month.points', gap)
   return rank === null ? t('month.next_gap_plain', { points }) : t('league.to_next', { rank, points })
 })
@@ -295,7 +305,7 @@ onMounted(() => {
             :near="data.neighbours"
             :withNeighbours="v2"
             :readOnly="readOnly"
-            :me="me"
+            :me="tableMe"
             @more="store.loadMore()"
           />
           <section v-else class="card text-[15px] leading-[22px] text-muted" data-testid="empty">

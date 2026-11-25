@@ -225,4 +225,9 @@ enum ProductEventName: string
      * class, and the millisecond offsets auth_ready, today_received, button_ready, first_tap, first_answer_ack, first_audio - each only when set).
      */
     case ClientTiming = 'client.timing';
+    /**
+     * A learner answered a poll of the bot, first time or a change (docs/35 §1.5, O7; props: poll_id, delivery_id, changed). Not the
+     * administrator's test send. No actor: the tap is matched by the delivery's token and Telegram id, the learner is the delivery's.
+     */
+    case PollAnswered = 'poll.answered';
 }
