@@ -330,3 +330,14 @@ it('records the events of the life of a cup', function (): void {
     expect(ProductEvent::query()->whereIn('name', ['cup.proposed', 'cup.published', 'cup.joined', 'cup.started'])->pluck('name')->countBy()->sortKeys()->all())
         ->toBe(['cup.joined' => 2, 'cup.proposed' => 1, 'cup.published' => 1, 'cup.started' => 1]);
 });
+
+it('resets an offensive name to the Telegram first name without spending a rename', function (): void {
+    $cup = CupKit::scheduled(CupKit::group(), CarbonImmutable::now());
+    $learner = Learner::factory()->create(['first_name' => 'Umar']);
+    CupKit::member($learner);
+    $participant = app(CupParticipationService::class)->join($cup, $learner, 'Rude name')->participant;
+
+    $reset = app(CupParticipationService::class)->resetDisplayName($participant);
+
+    expect($reset->fresh()?->display_name)->toBe('Umar')->and($reset->fresh()?->rename_count)->toBe(0);
+});

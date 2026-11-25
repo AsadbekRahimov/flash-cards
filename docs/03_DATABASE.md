@@ -119,7 +119,7 @@ erDiagram
 | bot_status_at | timestamp nullable | `date` того апдейта. `MyChatMemberHandler` под `FOR UPDATE` строки не применяет апдейт старше записанного (ни `bot_status`, ни `status`); одна и та же секунда — по порядку прихода. При слиянии строк при переходе в супергруппу более новый статус переезжает на выжившую строку |
 | organization_id | bigint nullable FK → organizations, ON DELETE SET NULL | организация-владелец (спонсор Pro для участников) |
 | course_id | bigint nullable FK → courses, ON DELETE SET NULL | курс для команд учителя; `NULL` = курс `default` |
-| meta | jsonb default '{}' | Member count, type и т.п. |
+| meta | jsonb default '{}' | Member count, type и т.п. Кубок (docs/33): `cup_pilot` (bool, группа пилота при `CUP_ACCESS=pilot`), `cups_blocked` (bool, админ платформы запретил кубки — активный кубок на паузе) |
 | created_at, updated_at | | |
 
 **Индексы:** `chat_id` unique, `status`, `organization_id`, `course_id`.
@@ -1637,6 +1637,56 @@ FK `poll_option_id` **без своего индекса**: вариант уд�
 голоса; итоги закрытого опроса остаются в `polls.results_snapshot`. Хранение доставок и голосов — 365 дней после закрытия
 (`polls:prune`, O7).
 
+## Кубок друзей в группе *(выпуск 5, проект — docs/33 §2; решения владельца — docs/31 §5)*
+
+Модели — `Cup`, `CupParticipant`, `CupDay`, `CupDayScore`, `CupRoundAttempt`, `CupRoundAnswer`, `CupMessage` (`app/Models`), enum'ы —
+`App\Domain\Cup\Enums\*`; CHECK (только PostgreSQL) дублируют их. Время — UTC, границы дней — полночь пояса кубка. Очки кубка живут
+только здесь: ни `learner_daily_stats`, ни лига, ни очки за слова, ни SRS кубок не пишет. Индексы — только под запросы docs/33 §11.3;
+счётчики `best_*`, `round_points`, `state` не индексируются, их обновления — HOT (fillfactor 90 / 80 / 80).
+
+### 2.76 `cups` — кубок чата *(K4, docs/33 §2.2)*
+Колонки — как docs/33 §2.2. `status` draft/scheduled/running/finished/canceled; `active_group_id` = `telegram_group_id`, пока кубок
+открыт (draft/scheduled/running), иначе NULL — UNIQUE: один открытый кубок на чат. `public_code` string(22) UNIQUE (128 бит).
+`seed_secret` (64 hex) и `word_plan` (`{"1": [word ids], …}`) — только сервер (`$hidden`). `course_id` FK → courses **RESTRICT** —
+курс с кубками не удаляется.
+**Индексы:** `active_group_id` unique, `public_code` unique, `(telegram_group_id, created_at)` (история чата и FK), частичные
+`cups_draft_created_idx (created_at) WHERE status='draft'`, `cups_scheduled_start_idx (starts_at) WHERE status='scheduled'`,
+`cups_running_end_idx (ends_at) WHERE status='running'` — планировщик читает только открытые строки. FK `course_id` без индекса
+(RESTRICT при удалении курса читает тысячи строк, удаление курса — редкость). **CHECK:** статус; `(status открыт) = (active_group_id
+IS NOT NULL)`; `(status='canceled') = (cancel_reason IS NOT NULL)` и причина из списка; размеры (`counted_days ≤ days`,
+`round_tasks ≤ 10`); у не-draft/не-canceled есть `starts_at < ends_at`.
+
+### 2.77 `cup_participants` — участник *(K4, docs/33 §2.3)*
+Как docs/33 §2.3 плюс `rename_count` smallint (смена имени ≤ 3 раз). `cup_id` FK CASCADE, `learner_id` FK → learners CASCADE.
+**Индексы:** unique `(cup_id, learner_id)` (одна строка на ученика; таблица кубка; FK `cup_id`), `(learner_id)` («мои кубки», каскад
+ученика). Индекса по `(cup_id, best_total, best_round_points)` из docs/33 **нет**: таблица кубка (десятки строк) сортируется в памяти,
+а очки меняются с каждым верным ответом — с индексом обновление не было бы HOT. **CHECK:** статус active/left, `first_day ≥ 1`,
+`0 ≤ best_round_points ≤ best_total`.
+
+### 2.78 `cup_days` — день кубка *(K4/K5, docs/33 §2.4)*
+`snapshot` jsonb — задания дня на всех языках (только сервер), `built_at` — снимок построен **или** день закрыт без снимка (отмена /
+финиш). **Индексы:** unique `(cup_id, day)`; частичный `cup_days_unbuilt_idx (starts_at) WHERE built_at IS NULL` — планировщик снимков.
+
+### 2.79 `cup_day_scores` — очки дня *(K4, docs/33 §2.7)*
+`round_points` 0–20, `duel_points` 0–5, только `updated_at`. **Индексы:** unique `(participant_id, day)`, `(cup_id)` — каскад кубка и
+«есть новые результаты» (K6: `EXISTS … WHERE cup_id = ? AND updated_at > ?` читает строки одного кубка); `(cup_id, updated_at)` из
+docs/33 не сделан — `updated_at` меняется с каждым очком. **CHECK** диапазонов.
+
+### 2.80 `cup_messages` — исходящие кубка (outbox) *(K4 схема, K6 логика, docs/33 §2.8)*
+**Индексы:** unique `(cup_id, dedupe_key)`; частичный `cup_messages_outbox_idx (created_at) WHERE status IN ('pending','sending')`.
+**CHECK** `kind`, `status`. Строку `final` создаёт финиш (`ON CONFLICT DO NOTHING`).
+
+### 2.81 `cup_round_attempts` — попытка раунда дня *(K5, docs/33 §2.5)*
+`cup_day_id` FK CASCADE, `participant_id` FK CASCADE; `cup_id` и `learner_id` — **копии без FK** (строки уходят каскадом участника
+и дня; FK потребовал бы ещё двух индексов на самой большой таблице кубка). **Индексы:** unique `(cup_day_id, participant_id)` —
+одна попытка в день; `(participant_id)`; частичный `cup_round_attempts_active_expiry_idx (expires_at) WHERE status='active'`.
+**CHECK:** статус/причина/`finished_at` согласованы, `points 0–20`, `correct ≤ answered ≤ 10`, `expires_at > started_at`.
+
+### 2.82 `cup_round_answers` — принятые ответы *(K5, docs/33 §2.6)*
+Без `learner_id` (он у попытки). **Индексы:** unique `(attempt_id, element_id)` — один ответ на задание; unique `(attempt_id,
+request_id)` — повтор запроса. **CHECK:** вердикт из списка, `points ∈ {0, 2}`, `points = 2 ⇔ verdict = 'correct'` (опечатка — 0,
+решение владельца К4).
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -1773,6 +1823,8 @@ FK `poll_option_id` **без своего индекса**: вариант уд�
 95. `2026_11_27_100003_create_poll_deliveries_table` — `poll_deliveries`, partial `poll_deliveries_unsent_idx`, CHECK (PostgreSQL) *(§2.74)*
 96. `2026_11_27_100004_create_poll_votes_table` — `poll_votes` *(§2.75)*
 97. `2026_11_27_100005_add_broadcast_columns_to_polls_tables` — `poll_deliveries.claimed_at`, `polls.recipient_count` (O3) *(§2.72, §2.74)*
+98. `2026_11_28_100001_create_cups_tables` — `cups`, `cup_participants`, `cup_days`, `cup_day_scores`, `cup_messages`, частичные индексы планировщика, CHECK и fillfactor (PostgreSQL) *(§2.76–§2.80)*
+99. `2026_11_28_100002_create_cup_rounds_tables` — `cup_round_attempts`, `cup_round_answers` *(§2.81–§2.82)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

@@ -1924,6 +1924,26 @@ entry, locale` (язык интерфейса из строки learner'а), п�
 `old_client` (нет `shareMessage`, Mini Apps < 8.0) или `error` (prepare отказал или `shareMessage` не удался); у `sent` `reason` запрещён.
 `kind` — те же виды. Иное — 422, ничего не пишется. Клиент шлёт без ожидания, ошибки глотает.
 
+### A.23 Кубок друзей в группе (docs/33 §7.2; ядро — K4/K5, маршруты — K7, пока не подключены)
+
+Все маршруты — `/api/twa`, за `TwaAuth`, ответы — Resource-классы, ошибки — конверт `ApiErrorResource` с кодами `CupException`
+(docs/33 §11.5). Личность — только `learner` из JWT; членство в чате — свежий `getChatMember` на сервере (`CupMembershipGate`); код
+кубка в ссылке, `start_param`, время, очки и состав заданий клиента — не факты.
+
+| Метод и путь | Ядро (K4/K5) | Ответы |
+|---|---|---|
+| `GET /cups/by-code/{code}` | `CupMembershipGate::assertCanView($cup, $learner, $participant, opaque: false)` | `CupInviteResource`; 403 `cup_not_member` (и для «нет кубка»); 409 `cup_paused` / `cup_unverifiable {bot_not_admin}`; 503 `cup_unverifiable {telegram_unavailable}`; 429 `cup_check_busy` |
+| `POST /cups/{id}/join {display_name?}` | `CupParticipationService::join()` | 201 / 200 (`created`); 403, 409 `cup_not_open`, 410 `cup_closed`, 422 `cup_display_name_invalid` |
+| `PATCH /cups/{id}/me {display_name}` | `CupParticipationService::rename()` | 409 `cup_rename_limit` (3 смены) |
+| `GET /cups/{id}` | `assertCanView(…, opaque: true)` + `CupStandings::table()` + `CupRoundService::today()` | любой отказ не-участнику — одинаковый 403 `cup_not_member` |
+| `GET /cups/{id}/rounds/today` | `CupRoundService::today()` | `{state: not_started / active / done / not_available, day, attempt_id, points, expires_at}` |
+| `POST /cups/{id}/rounds/today` | `CupRoundService::startToday()` | 201 / 200 `CupRoundResource`; 409 `cup_round_done {points}`, `cup_not_started`, `cup_round_unavailable`, `cup_paused`; 403; 503 |
+| `GET /cup-rounds/{attempt}` | `CupRoundService::find()` | чужая и несуществующая — 404 `cup_round_not_found` |
+| `POST /cup-rounds/{attempt}/answer {request_id, element_id, answer}` | `CupRoundService::answer()` | `{verdict, points, reveal, finished, total_points}` + попытка; 409 `answer_already_accepted {verdict}`, `element_not_current {current}`, `cup_round_expired {points}`, `cup_round_done`; 410 `cup_closed`; 422 |
+| `GET /cup-rounds/{attempt}/audio/{element}` | `CupRoundService::audioOf()` | файл `listen`-задания своей попытки, иначе 404 |
+| `GET /cups/setup/{code}` · `POST /cups/setup/{code}/publish {level, locale}` | `CupLifecycleService::publish()` | 403 `cup_not_chat_admin`; 409 `cup_bot_not_admin`, `cup_unverifiable`; 410; 422 `cup_material_unavailable`, `cup_level_invalid` |
+| `PATCH /cups/{id}/settings` · `POST /cups/{id}/cancel` | `CupLifecycleService::updateSettings()` / `cancelByChatAdmin()` | 403 `cup_not_chat_admin`; 409 `cup_already_published` (уровень/язык после публикации) |
+
 ## Часть B — Telegram Bot
 
 ### B.1 Webhook
@@ -2385,6 +2405,18 @@ Job — по образцу `SendFriendDmJob`: middleware `ThrottleTelegramOutbo
 
 **Путь.** Сообщение уходит сразу, как у `/start_exam` (`GroupSessionAnnouncer`, `sendWebAppButton(immediate: true)`), а не через очередь исходящих: отказ Telegram должен быть виден вызывающему, иначе караван, которого никто не видит, нельзя снять. Транспортный сбой (таймаут, 5xx) — сообщение могло дойти, караван остаётся. Сообщение «отменён» при отказе Telegram только логируется: отмена остаётся в силе.
 **Когда молчим.** `GAME_ACCESS` не `all` — ни ответа, ни запросов к таблицам игры; группа не активна (блокировка группы).
+
+### B.16 Кубок друзей в группе (docs/33 §6; ядро — K4, бот — K6, пока не подключён)
+
+- `callback_data`: `cup:new`, `cup:pub:{id}`, `cup:cancel:{id}`; команда `/cup` в группе. Обработчики возвращают
+  `requiresActiveGroup() = false` (кубок работает в `pending`-группах) и всегда отвечают `answerCallbackQuery`; отказ — тост нажавшему.
+- `cup:new` / `/cup` → `CupLifecycleService::propose($group, from.id, message_thread_id)`; `cup:pub:{id}` → `publish($cup, from.id)`
+  (админ чата проверяется в ядре свежим `getChatMember`, бот должен быть администратором — решение владельца К1);
+  `cup:cancel:{id}` → `cancelByChatAdmin($cup, from.id)`.
+- Уход из чата (`chat_member` / `left_chat_member`) → `CupParticipationService::onLeftChat($learner, $group)`; возврат в чат участника
+  не активирует — это делает следующая свежая проверка.
+- Расписание: `cups:advance` каждые 5 минут (истечение черновиков, старт / сдвиг старта / отмена без игроков, снимки следующего дня,
+  закрытие брошенных попыток, финиш) — `routes/console.php`; `cups:post-summaries`, `cups:refresh-cards`, `cups:send-outbox` — K6.
 
 ## Часть D — Вебхуки платёжных провайдеров (docs/13 §4)
 

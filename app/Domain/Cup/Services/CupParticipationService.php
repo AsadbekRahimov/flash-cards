@@ -131,6 +131,17 @@ final class CupParticipationService
         return $renamed;
     }
 
+    /** An administrator of the platform resets an offensive name (docs/33 §8, K9): back to the Telegram first name; no rename is spent. */
+    public function resetDisplayName(CupParticipant $participant, ?CarbonImmutable $now = null): CupParticipant
+    {
+        $now ??= CarbonImmutable::now();
+        $firstName = DB::table('learners')->where('id', $participant->learner_id)->value('first_name');
+        $participant->forceFill(['display_name' => DisplayName::fromFirstName(is_string($firstName) ? $firstName : null, $participant->learner_id), 'updated_at' => $now])->save();
+        $this->standings->forget($participant->cup_id);
+
+        return $participant;
+    }
+
     /**
      * Telegram told us the learner left the chat (`chat_member` / `left_chat_member`, hooked by K6 into `ChatMemberHandler`): his
      * participation in the open cup of the group becomes `left` - no new attempt; a started one plays out to its own deadline. Coming
