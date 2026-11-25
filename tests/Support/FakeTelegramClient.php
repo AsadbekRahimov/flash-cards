@@ -6,6 +6,7 @@ namespace Tests\Support;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use Closure;
 
 /**
@@ -46,6 +47,9 @@ final class FakeTelegramClient implements TelegramClient
 
     /** When true, a failing send looks like a network error (no Bot API answer) instead of a 4xx refusal. */
     public bool $failSendsAsTransport = false;
+
+    /** When set, a failing send is a Telegram 429 with this `retry_after` (wins over `failSendsAsTransport`). */
+    public ?int $failSendsRetryAfter = null;
 
     /** What getChatMemberStatus answers (the bot's own status in the group for the admin check). */
     public string $chatMemberStatus = 'administrator';
@@ -269,9 +273,11 @@ final class FakeTelegramClient implements TelegramClient
         if ($this->failSends > 0) {
             $this->failSends--;
 
-            throw $this->failSendsAsTransport
-                ? new TelegramApiException('cURL error 28: Operation timed out')
-                : TelegramApiException::apiError('Forbidden: bot was kicked from the group chat', 403);
+            throw match (true) {
+                $this->failSendsRetryAfter !== null => new TelegramRateLimitedException($this->failSendsRetryAfter, 'sendMessage'),
+                $this->failSendsAsTransport => new TelegramApiException('cURL error 28: Operation timed out'),
+                default => TelegramApiException::apiError('Forbidden: bot was kicked from the group chat', 403),
+            };
         }
     }
 

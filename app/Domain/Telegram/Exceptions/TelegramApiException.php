@@ -18,15 +18,19 @@ use Throwable;
  * Laravel writes `(string) $exception` (including the `previous` chain) to
  * laravel.log and `failed_jobs.exception`. So this exception carries only the
  * redacted message, the original class and code, and deliberately NO `previous`.
+ *
+ * Not final: the two answers a caller must tell apart from "some other refusal" are subclasses, so every existing
+ * `catch (TelegramApiException)` keeps catching them (docs/34 §4в п. 1): {@see TelegramRateLimitedException} (429)
+ * and {@see TelegramChatMigratedException} (400 with `migrate_to_chat_id`). Both are definite refusals (`isApiResponse()`).
  */
-final class TelegramApiException extends RuntimeException
+class TelegramApiException extends RuntimeException
 {
     /**
      * Whether Telegram ANSWERED with a definite refusal (4xx) — the request was not carried out.
      * False for transport failures (timeout, cURL error, 5xx) and for exceptions built by hand:
      * there the request may have been delivered, so a caller must not retry a one-time post.
      */
-    private bool $apiResponse = false;
+    protected bool $apiResponse = false;
 
     public static function fromSdk(Throwable $sdk): self
     {

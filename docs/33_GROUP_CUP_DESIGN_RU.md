@@ -334,7 +334,9 @@ UNIQUE `(cup_id, dedupe_key)` — второе «опубликовать ито
 
 ### 4.6 Миграция группы в супергруппу (смена `chat_id`)
 
-Сейчас не обрабатывается нигде. Это общий баг групп, не только кубка. Делает architect (схема и данные).
+**Сделано в выпуске B (architect, 25.11.2026, вместе с docs/34 B1):** `ChatMigrationHandler`, `GroupChatMigrator`, перенос и повтор отправки в `IrazasyedTelegramClient` (класс `TelegramChatMigratedException` с полем `newChatId`, а не поле в `TelegramApiException`). Поведение — docs/04 B.5 и B.7a. Слияние двух строк сделано только для «пустой» новой строки (участники и события переезжают на старую); «живая» новая строка не сливается, пишется `telegram.group_migration_conflict`. Таблицы кубка (`cups`, `cup_messages`) ссылаются на `telegram_group_id` и при появлении попадут в список «живых» таблиц `GroupChatMigrator::HISTORY_TABLES` — это задача K4. Порядок апдейтов на живом Telegram по-прежнему **[проверить на стенде, B9]**: если старая группа получает `my_chat_member` `left` до `migrate_to_chat_id`, строка станет `disabled` и останется такой после переноса — это закроет K2 (`bot_status`).
+
+Исходное описание:
 
 - В старый чат приходит `message.migrate_to_chat_id`, в новый — `message.migrate_from_chat_id`. Обработать нужно оба: первый пришедший выполняет перенос, второй — no-op.
 - Перенос: под `FOR UPDATE` строки `telegram_groups` со старым `chat_id` записать новый `chat_id`.

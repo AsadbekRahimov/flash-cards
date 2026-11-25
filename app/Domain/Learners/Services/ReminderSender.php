@@ -13,8 +13,11 @@ use App\Domain\Learners\Enums\ReminderOutcome;
 use App\Domain\Learners\Enums\ReminderVariant;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Services\ReminderQuizMessenger;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Jobs\SendLearnerReminderJob;
 use App\Models\Learner;
 use App\Models\NotificationLog;
@@ -51,6 +54,11 @@ use Throwable;
  * the same lock. A timeout or 5xx may mean "delivered anyway", so on such an error the
  * row stays, the exception propagates, and the queue's retry meets the row and ends in
  * {@see ReminderOutcome::SkippedRecent} — a missed reminder is better than a double one.
+ *
+ * A definite refusal by Telegram (`TelegramApiException::isApiResponse()`: a 429 {@see TelegramRateLimitedException}, or any
+ * other 4xx) means certainly NOT delivered: the row and the stored question are deleted and the exception is rethrown, so the
+ * retry sends the reminder (docs/34 §4в, "Спецификация для отправителей"). A 429 puts the job back for `retry_after`
+ * ({@see ThrottleTelegramOutbound}); another 4xx is retried by `backoff` up to `maxExceptions` and then lands in `failed_jobs`.
  *
  * Telegram 403 (`bot_blocked`, `not_started`, `user_deactivated`) or 400 `chat not found`
  * means certainly not delivered: the row (and the stored question) is deleted again and `dm_blocked_at` is set —
@@ -159,6 +167,17 @@ final class ReminderSender
                 );
 
                 return ReminderOutcome::Forbidden;
+            } catch (TelegramApiException $e) {
+                if ($e->isApiResponse()) {
+                    // Definitely not delivered (flood control or a refused request): the retry must find no row, and no question.
+                    $log->delete();
+                    if ($quiz !== null) {
+                        $this->forgetQuiz($learner);
+                    }
+                }
+
+                // A timeout / 5xx may have been delivered: the row stays and the retry ends in SkippedRecent (at most once).
+                throw $e;
             }
 
             // `quiz` only on a question: the props of a plain reminder stay exactly what they were. `quiz_built` only in the quiz arm.

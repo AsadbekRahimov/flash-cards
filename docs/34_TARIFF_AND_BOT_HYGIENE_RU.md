@@ -324,7 +324,7 @@ Mini App: при первом открытии после `T`, если в `/me.
 
 ### 4б. Лимиты Telegram Bot API
 
-**Перепроверить по официальной документации (core.telegram.org/bots/faq, раздел «My bot is hitting limits», и core.telegram.org/bots/api, `sendMessage` → `allow_paid_broadcast`) перед реализацией.** Цифры ниже — по памяти.
+**Сверено с официальной документацией 25.11.2026** (core.telegram.org/bots/faq, «My bot is hitting limits, how do I avoid this?»; core.telegram.org/bots/api, `ResponseParameters`, `sendMessage.allow_paid_broadcast`): цифры ниже подтверждены. Уточнения: платные рассылки требуют не меньше 100 000 ⭐ на балансе и 100 000 активных пользователей в месяц, плата берётся только за успешно доставленные сообщения сверх бесплатных 30/с. Сам формат ответа 429 в документации описан общо: `error_code` + `parameters.retry_after` («сколько секунд ждать до повтора»); что повторное нарушение удлиняет ожидание, в документации **не** написано — это практика, на неё код не опирается.
 
 | Лимит | Значение | У нас |
 |---|---|---|
@@ -383,6 +383,41 @@ Mini App: при первом открытии после `T`, если в `/me.
 
 **7. Mini App (по желанию):** если `/me.dm_reachable = false`, на экране «Сегодня» показать баннер «Напоминания не приходят: бот заблокирован» с кнопкой-ссылкой `t.me/<bot>`.
 
+**8. Спецификация для отправителей (B3, B4) — по итогам B1.** Сделано в B1 (architect, 25.11.2026): классы ошибок (docs/04 B.7a), пауза после 429 и `consumeGlobal` (docs/13 §9, 2R.3b), перехват 429 в `ThrottleTelegramOutbound`, перенос группы при `migrate_to_chat_id` (клиент повторяет отправку сам, отправителю делать ничего не нужно), `FakeTelegramClient::$failSendsRetryAfter` для тестов. Лимиты Telegram сверены с core.telegram.org/bots/faq и /bots/api 25.11.2026: §4б верна (1 сообщение/с в личный чат с допуском всплесков, 20/мин в группу, ~30/с всего; платные рассылки — до 1000/с за 0,1 ⭐, требуют 100 000 ⭐ на балансе и 100 000 активных пользователей в месяц; `ResponseParameters.retry_after` и `migrate_to_chat_id`).
+
+Общее правило для каждого отправителя с маркером идемпотентности (строка `notifications_log`, ключ кэша, колонка `*_posted_at`):
+
+```php
+try {
+    $this->telegram->sendMessage(...);            // или sendWebAppButton / sendPhoto
+} catch (TelegramForbiddenException $e) {
+    // как сейчас: маркер удалить, адресата отметить недоступным (после B2 — DmReachability::markUnreachable), вернуть без ошибки
+} catch (TelegramApiException $e) {           // ловит и TelegramRateLimitedException, и TelegramChatMigratedException
+    if ($e->isApiResponse()) {
+        $log->delete();                        // точно не доставлено: повтор должен отправить
+    }                                          // таймаут / 5xx — маркер остаётся (не больше одного раза)
+    throw $e;                                  // 429: ThrottleTelegramOutbound отложит задание на retry_after
+}
+```
+
+Эталон — `ReminderSender` (сделан в B1 вместе с вопросом-напоминанием: при отказе удаляется и состояние вопроса; тесты `ReviewReminderTest` «deletes the log row on a 429…», «…another 4xx…» и `ReminderQuizSendTest` «drops the question… on a 429»). Тест на каждого отправителя — тот же: `$tg->failSends = 1; $tg->failSendsRetryAfter = N` → исключение `TelegramRateLimitedException`, маркера нет; повторный вызов доставляет ровно одно сообщение; `failSendsAsTransport = true` → маркер остаётся, повтор молчит.
+
+| Отправитель | Маркер | Что сделать |
+|---|---|---|
+| `AchievementSender`, `GameCardSender` (`sendPhoto`) | `notifications_log` | Добавить ветку `TelegramApiException` по образцу выше |
+| `FriendsMessenger::deliver`, `BattleMessenger::deliver` | `notifications_log` | То же внутри `deliver()` |
+| `RenewalReminderSender::dm` | `notifications_log` у ученика или ключ `billing:renewal-reminder:dm:{key}` без ученика | При `isApiResponse()` — `$log?->delete()` и `Cache::forget('billing:renewal-reminder:dm:'.$key)` (только если ставили его). В циклах `notifyOwners` / по ученикам: `TelegramRateLimitedException` пробрасывать **сразу** (не копить «первую ошибку» и не слать остальным — они тоже получат 429) |
+| `MonthWinnerSender`, `ReferralMilestoneSender` | `notifications_log` | Маркер уже удаляется по `isApiResponse()` — 429 покрыт. В цикле победителей `MonthWinnerSender` — `TelegramRateLimitedException` пробрасывать сразу, как выше |
+| `OfferMessenger`, `OrganizationMessenger` (+ слушатели через `RunsDmWithoutRetryOnSyncQueue`) | после отправки (`markAnnounced`) или нет | Код не менять: исключение и так выходит наружу и откладывается посредником. Нужен только тест «429 → повтор доставляет один раз» |
+| `LeagueResultSender::sendBatch` | `notifications_log` в `deliver()` | В `deliver()` — ветка `TelegramApiException` по образцу. В цикле `sendBatch`: `catch (TelegramRateLimitedException)` **перед** `catch (TelegramApiException)` → `$outcome['remaining'] = array_slice($memberIds, $i); break;` (текущий участник тоже в остатке; без `report()`). Задание поставит остаток с `globalRetryDelay()` — во время паузы это остаток паузы + 0–3 с, отдельная задержка не нужна. Прочие ошибки — как сейчас (`failed++`, `report()`), но маркер при `isApiResponse()` уже удалён в `deliver()` |
+| `SendTelegramMessageJob` | нет | 429 уже работает (исключение → посредник). 403 при `chatId > 0` → `DmReachability::markUnreachable` (после B2), при `chatId < 0` — группа, см. B4 |
+| `PostLeaderboardJob`, `PostClassCaravanSummaryJob` (группа) | колонка `*_posted_at` пишется **после** отправки | 429 уже работает. B4: `catch (TelegramForbiddenException)` → `TelegramGroup::query()->whereKey($group->id)->first()?->update(['status' => 'disabled'])` (через Eloquent — наблюдатель), лог, задание завершается без ошибки, маркер не ставится |
+| `ClassCaravanMessenger::send` | нет (ответ на команду) | B4: 403 → `disabled` как выше; 429 — только лог (это ответ на команду в вебхуке, не ждём) |
+| `GroupSessionAnnouncer::announce` | нет (сессия отменяется через `$cancel`) | B4: `TelegramRateLimitedException` с `retryAfter ≤ 3` → `sleep(retryAfter)` и один повтор той же отправки; иначе (или повтор снова 429) — `$cancel()`, но **без** `sendMessage($failureText)` в этот чат. `TelegramForbiddenException` → `$cancel()` и группа `disabled` |
+| `AssignmentService::post` | колонка-захват `announced_at` / `reminded_at` | B4: `catch (TelegramRateLimitedException)` перед общей веткой → снять захват (`$column => null`) **без** `*_failures + 1`, `$this->slotDenied = true` (прогон `assignments:refresh` остановится), `return false`. 403 → группа `disabled` и снять захват |
+
+`TelegramChatMigratedException` до отправителя доходит только из правок сообщения или при двух переносах подряд — это обычная «определённая» ошибка по таблице выше. Ловить его отдельно не нужно.
+
 **Сводка: сделано / не хватает / риск**
 
 | Что | Сделано | Не хватает | Риск |
@@ -401,12 +436,12 @@ Mini App: при первом открытии после `T`, если в `/me.
 | № | Задача | Кто | Зависит от | Definition of Done и ключевые тесты |
 |---|---|---|---|---|
 | B0 | Docs: docs/04 (бот: классификация ошибок, снятие флага), docs/13 §9 (исходящие: пауза 429, учёт ответов), docs/03 (`dm_blocked_reason`), ADMIN_GUIDE (счётчик), DEVOPS_GUIDE (что значит запись в `failed_jobs`) | координатор | — | docs согласованы |
-| B1 | **Классификация в клиенте:** `TelegramRateLimitedException`, `TelegramChatMigratedException` (совместно с K1), паузы в `TelegramMessageRateLimiter`, перехват 429 в `ThrottleTelegramOutbound` | **architect** | B0 | Поддельные ответы SDK 429 / 403 / 400 migrate / 400 other / 5xx / таймаут → нужный класс; токен не утекает; пауза блокирует `reserveGlobal` и `reserve`; задание после 429 откладывается на `retry_after`, `maxExceptions` не тратится; два воркера на Redis видят одну паузу |
+| B1 ✔ | **Классификация в клиенте:** `TelegramRateLimitedException`, `TelegramChatMigratedException` (совместно с K1), паузы в `TelegramMessageRateLimiter`, перехват 429 в `ThrottleTelegramOutbound` | **architect** | B0 | Поддельные ответы SDK 429 / 403 / 400 migrate / 400 other / 5xx / таймаут → нужный класс; токен не утекает; пауза блокирует `reserveGlobal` и `reserve`; задание после 429 откладывается на `retry_after`, `maxExceptions` не тратится; два воркера на Redis видят одну паузу |
 | B2 | Миграция `dm_blocked_reason`, сервис `DmReachability`, перевод всех мест на него, события `bot.dm_closed` / `bot.dm_reopened`, тест-страж | coder | B0 | Переходы закрыт ↔ открыт: событие один раз; повторный `kicked` не сдвигает дату; `/start` снимает; `DmReachabilityTest` и `ReminderDispatcher` зелёные |
 | B3 | Отправители: при 429 удалить маркер и пробросить (`ReminderSender`, `AchievementSender`, `GameCardSender`, `FriendsMessenger`, `BattleMessenger`, `OfferMessenger`, `OrganizationMessenger`, `RenewalReminderSender`, `MonthWinnerSender`, `ReferralMilestoneSender`), `LeagueResultSender::sendBatch` — остановка пачки, `SendTelegramMessageJob` — флаг при 403 | coder по спецификации B1 | B1, B2 | По тесту на каждого отправителя: 429 → маркер удалён, повтор доставляет ровно один раз; таймаут → маркер остаётся (как сейчас) |
 | B4 | Группы: 403 → `disabled` через Eloquent, задание без ошибки; 429 в `GroupSessionAnnouncer` и `AssignmentService` по §4в п. 2 | coder (ревью architect) | B1 | `PostLeaderboardJob` с 403 не попадает в `failed_jobs`, группа `disabled`, наблюдатель сбросил тариф участников; урок не отменяется при 429 с `retry_after ≤ 3` |
 | B5 | `/admin`: счётчик на дашборде, фильтр и колонка в `LearnerResource` | coder | B2 | Тест бюджета запросов страницы (docs/20 §1), переводы ru/uz |
-| B6 | `consumeGlobal()` для `HandleTelegramUpdate` | coder | B1 | Ответ на обновление никогда не ждёт; счётчик секунды растёт |
+| B6 ✔ | `consumeGlobal()` для `HandleTelegramUpdate` (сделал architect вместе с B1) | coder | B1 | Ответ на обновление никогда не ждёт; счётчик секунды растёт |
 | B7 | `ReminderDispatcher`: не вести `next_reminder_at` для `user_deactivated` / `chat_not_found` | coder | B2 | Тест выборки |
 | B8 | Mini App: баннер «бот заблокирован» (`/me.dm_reachable`) | coder | B2, выпуск 1 | vitest |
 | B9 | Проверка на живом боте (стенд): заблокировать бота → напоминание → флаг; разблокировать → `/start` снимает; удалить бота из группы → итоги экзамена не в `failed_jobs`; искусственный всплеск в один чат → 429 обработан | владелец / devops | B1–B4 | Чек-лист в STAGING-документе |

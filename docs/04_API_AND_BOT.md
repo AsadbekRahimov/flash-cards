@@ -1905,6 +1905,7 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
   - `left` → `group_members.status = 'left'`, `kicked` → `'removed'` (+ `left_at`, событие `group.member_left`). Learner и его прогресс остаются; новый learner ради выхода не создаётся.
 - **`message` в группе от `left_chat_member`** — служебное сообщение о выходе/исключении; приходит и когда бот **не админ** группы (тогда `chat_member` не приходит). Тот же `ChatMemberHandler`: `from.id` = `left_chat_member.id` → `left`, иначе (убрал другой) → `removed`; по `message.date`; бот и неизвестный learner игнорируются, повтор — no-op.
 - **Callback query** — пока не используется (весь UX через WebApp), но хендлер на будущее.
+- **`message` с `migrate_to_chat_id` / `migrate_from_chat_id`** — группа стала супергруппой и получила новый `chat_id` (docs/33 §4.6; служебные сообщения бот получает всегда, режим приватности не мешает). `ChatMigrationHandler` — первый в списке хендлеров сообщений, работает при любом статусе группы и не отбрасывается входящим лимитом флуда. `GroupChatMigrator::migrate(old, new)`: под одной транзакцией `FOR UPDATE` обеих строк (`chat_id IN (old, new)`, по `id`) → строка группы получает новый `chat_id` (`meta.type = supergroup`, `meta.migrated_from_chat_id`); организация, учителя, участники, сессии и караваны висят на `telegram_group_id` и идут за ней сами. Кто пришёл первым (служебное сообщение в старом или в новом чате, или отказ отправки, B.7a), тот переносит; остальные видят перенос и ничего не делают. Если строка нового чата уже есть (её создал `my_chat_member` супергруппы): пустая (`pending`, без центра, учителей, сессий, караванов, заданий, приглашений) — её участники и события переносятся на старую строку, сама она удаляется; «живая» — ничего не сливается, в лог `telegram.group_migration_conflict` (разбирает админ). Вставка нового `chat_id` между нашей блокировкой и UPDATE (уникальный индекс) → шаг повторяется один раз и видит обе строки.
 
 ### B.5a Персональные напоминания (`reminders:dispatch`)
 
@@ -1924,9 +1925,24 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
 Если TWA вызывает `Telegram.WebApp.sendData(...)`, то в чат приходит апдейт типа `web_app_data` (только в приватных чатах). В нашем дизайне студент общается с API напрямую, а не через `sendData` — это упрощает масштабирование. Но оставляем возможность добавить лёгкие «отправки» (например, «поделиться результатом экзамена»).
 
 ### B.7 Rate limiting отправки сообщений
-- Не более 20 сообщений в минуту в одну группу.
-- Реализация через Redis-based sliding window в `TelegramGateway::sendMessage()`.
-- Если лимит достигнут — кладём в очередь `default` с задержкой.
+- Не более 20 сообщений в минуту в один чат (группа: лимит Telegram; личный чат: Telegram просит не чаще ~1 в секунду, короткие всплески терпит — core.telegram.org/bots/faq, сверено 25.11.2026).
+- Реализация: скользящее окно в Redis в `TelegramMessageRateLimiter::reserve()`, его вызывает `IrazasyedTelegramClient::sendMessage()`.
+- Если лимит достигнут или чат на паузе после 429 (B.7a) — сообщение уходит заданием `SendTelegramMessageJob` с задержкой.
+- Общий бюджет бота (~30/с у Telegram, у нас `TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND` = 25/с) и пауза после 429 — docs/13 §9 (2R.3, 2R.3b). Ответы на входящие обновления не ждут, но учитываются в том же счётчике секунды (посредник `CountTelegramReplies` у `HandleTelegramUpdate`).
+
+### B.7a Ошибки Bot API: классификация (docs/34 §4в п. 1)
+
+Всё, что SDK бросает, проходит через `IrazasyedTelegramClient::call()`. Наружу выходят только классы ниже, без токена бота в сообщении и без `previous` (docs/DEVOPS_GUIDE §15.1a). Порядок проверки:
+
+| Ответ Telegram | Класс | Доставлено? | `isApiResponse()` | Что делает отправитель |
+|---|---|---|---|---|
+| 429 на **любом** методе (`parameters.retry_after`) | `TelegramRateLimitedException extends TelegramApiException` (`retryAfter`) | нет | true | Удалить маркер, пробросить. Клиент уже поставил паузу (docs/13 §9, 2R.3b); `ThrottleTelegramOutbound` откладывает задание на `retryAfter` + 0–3 с, `maxExceptions` не тратится |
+| 400 с `parameters.migrate_to_chat_id` | `TelegramChatMigratedException extends TelegramApiException` (`newChatId`) | нет | true | Для отправок (`sendMessage`, `sendPhoto`, `sendWebAppButton`, отложенная `SendTelegramMessageJob`) и `getChatMember` клиент сам переносит группу (B.5) и **один раз** повторяет вызов в новом чате — отправитель ничего не видит. Правка сообщения (`editMessageText`, `editMessageReplyMarkup`) не повторяется (у сообщений нового чата другие id): группа переносится, исключение пробрасывается. Второй ответ «migrated» подряд — тоже пробрасывается |
+| 403; 400 `chat not found` (только отправки) | `TelegramForbiddenException` (`reason`) | нет и не будет | — | Удалить маркер, отметить адресата недоступным, завершить без ошибки |
+| Прочие 4xx | `TelegramApiException` | нет | true | Удалить маркер, пробросить (повтор по `backoff`, после `maxExceptions` — `failed_jobs`) |
+| Таймаут, сеть, 5xx | `TelegramApiException` | неизвестно | false | Маркер оставить, пробросить (повтор увидит маркер — не больше одного раза) |
+
+Старые `catch (TelegramApiException)` ловят оба новых класса: для них это та же «определённая отказом» ошибка, что и раньше. Пауза после 429 ставится до того, как исключение выйдет из клиента; недоступный Redis паузу теряет (`telegram.rate_limit_pause_failed`), но не скрывает 429. Спецификация по каждому отправителю — docs/34 §4в, «Спецификация для отправителей».
 
 ### B.8 Пример хендлера обработки обновлений
 

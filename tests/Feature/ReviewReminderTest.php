@@ -13,6 +13,7 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Jobs\SendLearnerReminderJob;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -332,6 +333,8 @@ it('logs the send before calling Telegram: an ambiguous failure propagates, and 
     $learner = rmLearner();
     rmDue($learner, 3);
     $this->tg->failSends = 1;
+    // Ambiguous = no answer from the Bot API (timeout / 5xx). A 4xx answer is a definite refusal: see the 429 test below.
+    $this->tg->failSendsAsTransport = true;
 
     expect(fn () => rmSend($learner))->toThrow(TelegramApiException::class)
         // The row stays: Telegram may have delivered the message before the timeout.
@@ -344,6 +347,45 @@ it('logs the send before calling Telegram: an ambiguous failure propagates, and 
         ->and($this->tg->sent)->toBe([])
         ->and(NotificationLog::count())->toBe(1)
         ->and(ProductEvent::count())->toBe(0);
+});
+
+it('deletes the log row on a 429 and rethrows: the job is put back for retry_after and the retry delivers exactly once', function (): void {
+    $learner = rmLearner();
+    rmDue($learner, 3);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 12;
+
+    // The job as the worker runs it: the middleware turns the 429 into a release, nothing is thrown out of the job.
+    $queueJob = Mockery::mock(QueueJobContract::class);
+    $queueJob->shouldReceive('release')->once()->with(Mockery::on(fn (int $delay): bool => $delay >= 12 && $delay <= 15));
+    $job = new SendLearnerReminderJob($learner->id, CarbonImmutable::parse('2026-10-18 14:00:00', 'UTC'));
+    $job->job = $queueJob;
+    $handled = (new ThrottleTelegramOutbound(new TelegramMessageRateLimiter(globalPerSecond: 0)))
+        ->handle($job, fn (SendLearnerReminderJob $j) => $j->handle(app(ReminderSender::class)));
+
+    expect($handled)->toBeNull()
+        ->and(NotificationLog::query()->where('learner_id', $learner->id)->count())->toBe(0)
+        ->and($learner->fresh()?->dm_blocked_at)->toBeNull()
+        ->and(ProductEvent::count())->toBe(0);
+
+    // The released job comes back: one message, one row.
+    expect(rmSend($learner))->toBe(ReminderOutcome::Sent)
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and(NotificationLog::query()->where('learner_id', $learner->id)->count())->toBe(1);
+    // And a duplicate delivery of the same job stays quiet.
+    expect(rmSend($learner))->toBe(ReminderOutcome::SkippedRecent)->and($this->tg->sent)->toHaveCount(1);
+});
+
+it('deletes the log row on another 4xx refusal and rethrows it (retried by backoff, then failed_jobs)', function (): void {
+    $learner = rmLearner();
+    rmDue($learner, 3);
+    $this->tg->failSends = 1; // the fake's 4xx refusal (isApiResponse = true)
+
+    expect(fn () => rmSend($learner))->toThrow(TelegramApiException::class)
+        ->and(NotificationLog::query()->where('learner_id', $learner->id)->count())->toBe(0)
+        ->and($learner->fresh()?->dm_blocked_at)->toBeNull();
+
+    expect(rmSend($learner))->toBe(ReminderOutcome::Sent)->and($this->tg->sent)->toHaveCount(1);
 });
 
 it('writes the notifications_log row before the Telegram call, under the same lock', function (): void {

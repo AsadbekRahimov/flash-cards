@@ -1131,7 +1131,7 @@ Without extra care it would land in `storage/logs/laravel.log`, stderr and `fail
 | Where | Mechanism |
 |-------|-----------|
 | `laravel.log` / `stderr` / syslog / errorlog / slack / papertrail | `RedactSecretsInLogs` tap on every channel in `config/logging.php` pushes `RedactingLogProcessor`: masks `message`, `context`, `extra` recursively; a `Throwable` in the context (`exception`) is replaced by its redacted text (message, `previous` chain, trace without call arguments). New channels must get the same `tap`. |
-| `failed_jobs.exception` and any exception that leaves the Telegram client | `IrazasyedTelegramClient` wraps every SDK/Guzzle error into `TelegramApiException` with the redacted message and **without** `previous`, so `(string) $e` is clean. 403 stays `TelegramForbiddenException`. |
+| `failed_jobs.exception` and any exception that leaves the Telegram client | `IrazasyedTelegramClient` wraps every SDK/Guzzle error into `TelegramApiException` with the redacted message and **without** `previous`, so `(string) $e` is clean. 403 stays `TelegramForbiddenException`. A 429 is `TelegramRateLimitedException`, a group moved to a supergroup `TelegramChatMigratedException` (both extend `TelegramApiException`; their messages are built from the method name and a number only — no SDK text, no chat ids). |
 | Sentry events / transactions / logs | `SentryScrubber` (15.1). |
 
 Masked: `bot<id>:<token>` in URLs and bare bot tokens, literal values of `TELEGRAM_BOT_TOKEN`,
@@ -1173,12 +1173,27 @@ Worker heartbeat: every minute the scheduler dispatches `QueueHeartbeatJob` to t
 | `GET /health/ready` body `status: degraded` | longer than 10 minutes: the second Redis instance is down or hung and the application computes from the database (slower, more load on PostgreSQL) — `docker compose ps redis-cache` and its log; `cache.failed_over` in the application log says when it started (one line per 15 s window while it lasts), `cache.recovered` when it ended; `deploy.sh` prints a WARNING when the smoke check sees it |
 | Redis `INFO` of both instances (every 1 min) | first instance: `used_memory` above 80 % of `maxmemory` or growing for days, `evicted_keys` > 0; second instance: `evicted_keys` growing fast or hit ratio `keyspace_hits / (hits + misses)` below ~0.8 — raise `REDIS_CACHE_MAXMEMORY` (§0 "Redis") |
 | Sentry / GlitchTip issues | new issue in `production`; spike of a known issue |
-| Failed jobs (`failed_jobs`, `php artisan queue:failed`) | any growth, especially `PostLeaderboardJob` |
+| Failed jobs (`failed_jobs`, `php artisan queue:failed`) | any growth, especially `PostLeaderboardJob` — see "What a row in `failed_jobs` means" below |
 | `backup:monitor` mail | any message (backup is missing or too old) |
 | Certificate expiry | < 14 days |
 | Disk usage on the DB / backup volume | > 80% |
 | `billing.promo_rejected_burst` (warning log; `learner_id`, `rejections`, `last_reason`) | any occurrence outside a known broken client — one learner failed ≥ 5 promo redemptions in 10 min (`BILLING_PROMO_REJECTIONS_ALERT_*`): code guessing; consider blocking the learner |
 | Battles that did not move (the query of §14.3, step 7: invitations expired for 2 minutes, matches that are on and not updated for 5) | rows for more than 10 minutes — `practice:battles-sweep` does not run (the scheduler is down; `/health/ready` should have failed first) |
+
+#### What a row in `failed_jobs` means (Telegram senders, docs/34 §4в)
+
+A background Telegram send (`ThrottleTelegramOutbound` on the job) lands in `failed_jobs` only for a real, repeated failure — never for flood control:
+
+| Cause | Ends in `failed_jobs`? | What to do |
+|---|---|---|
+| Telegram 429 (flood control) | **No.** The client pauses all background sends (`telegram:outbound:pause_until`, ≤ 60 s) and the job is put back for `retry_after` without spending `maxExceptions` | Nothing; `telegram.rate_limited` (warning: `method`, `retry_after`) in the log. Alert on a steady stream: the per-second budget (`TELEGRAM_OUTBOUND_GLOBAL_PER_SECOND`) is too high for the bot or a chat is spammed |
+| 403 / `chat not found` (blocked bot, deleted account) | No: the sender marks the recipient unreachable and ends the job | Nothing |
+| A group became a supergroup | No: the client moves `telegram_groups.chat_id` and sends again (`telegram.group_migrated`, info). `telegram.group_migration_conflict` (error: `old_group_id`, `new_group_id`) — both rows were "alive": merge them by hand in `/admin` | Only on the conflict line |
+| Another 4xx (our request is wrong: text too long, bad markup) | **Yes**, after `maxExceptions` retries (the marker is removed, so each retry really tries again) | A bug: the exception message names the method and Telegram's description |
+| Timeout / 5xx / network, three times in a row | **Yes** (the marker stays: the message may have been delivered, the retry does not send twice) | Check Telegram status and the server's network; the message is not re-sent automatically |
+| `retryUntil` passed (the job waited too long behind the budget or pauses) | **Yes**, with `MaxAttemptsExceededException` / "has been attempted too many times" | Expected only after a long outage; otherwise the queue is under-provisioned |
+
+`SendLeagueResultsJob` and `AssignmentService` follow the same rules in their own loops (docs/34 §4в п. 2).
 
 Product events (`product_events` table, see `docs/03_DATABASE.md`) are for product analytics, not alerting.
 `reminder.failed` is expected for learners who blocked the bot or never opened a DM with it (`reason`: `bot_blocked` / `not_started` / `user_deactivated` / `chat_not_found`); it sets `learners.dm_blocked_at` and the learner is not retried until they write to the bot. Alert only on a sudden spike. `reminders:dispatch` prints `claimed / queued / skipped stale / repaired / backfilled`; a steadily non-zero `skipped stale` means the scheduler or the queue lags by more than `REMINDERS_MAX_DELAY_MINUTES`.

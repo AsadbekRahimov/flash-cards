@@ -8,6 +8,7 @@ use App\Domain\Operations\Support\SecretRedactor;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Domain\Telegram\Support\UpdateSanitizer;
+use App\Jobs\Middleware\CountTelegramReplies;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -29,6 +30,16 @@ class HandleTelegramUpdate implements ShouldQueue
 
     /** @param  array<string, mixed>  $update */
     public function __construct(public readonly array $update) {}
+
+    /**
+     * Replies are counted in the bot-wide per-second budget but never wait for it (docs/34 §4в п. 5).
+     *
+     * @return list<object>
+     */
+    public function middleware(): array
+    {
+        return [new CountTelegramReplies];
+    }
 
     public function handle(TelegramDispatcher $dispatcher): void
     {

@@ -6,7 +6,9 @@ namespace App\Domain\Telegram\Services;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
+use App\Domain\Telegram\Exceptions\TelegramChatMigratedException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Jobs\SendTelegramMessageJob;
 use Closure;
 use Exception;
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramResponseException;
 use Telegram\Bot\FileUpload\InputFile;
+use Throwable;
 
 class IrazasyedTelegramClient implements TelegramClient
 {
@@ -25,6 +28,8 @@ class IrazasyedTelegramClient implements TelegramClient
         private readonly TelegramKeyboardFactory $keyboards,
         private readonly TelegramMessageRateLimiter $rateLimiter,
         private readonly MiniAppLinks $miniApp = new MiniAppLinks,
+        // Null in production: resolved when needed, so the Octane-warm singleton never holds request-scoped services.
+        private readonly ?GroupChatMigrator $migrator = null,
     ) {}
 
     /**
@@ -54,7 +59,10 @@ class IrazasyedTelegramClient implements TelegramClient
      *
      * @param  array<string, mixed>|null  $replyMarkup
      *
+     * A group that became a supergroup is followed: the group row moves to the new chat id and the message goes there, once.
+     *
      * @throws TelegramForbiddenException when Telegram answers 403 (or 400 "chat not found")
+     * @throws TelegramRateLimitedException when Telegram answers 429 (the outbound budget is paused already)
      * @throws TelegramApiException on any other failed Bot API call
      */
     public function sendImmediately(
@@ -63,6 +71,16 @@ class IrazasyedTelegramClient implements TelegramClient
         ?string $parseMode = null,
         ?array $replyMarkup = null,
     ): void {
+        $this->followingMigration($chatId, function (int|string $chat) use ($text, $parseMode, $replyMarkup): void {
+            $this->sendMessageTo($chat, $text, $parseMode, $replyMarkup);
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $replyMarkup
+     */
+    private function sendMessageTo(int|string $chatId, string $text, ?string $parseMode, ?array $replyMarkup): void
+    {
         $params = [
             'chat_id' => $chatId,
             'text' => $text,
@@ -76,7 +94,7 @@ class IrazasyedTelegramClient implements TelegramClient
             $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         }
 
-        $this->call(fn () => $this->api->sendMessage($params), mapForbidden: true);
+        $this->call(fn () => $this->api->sendMessage($params), mapForbidden: true, chatId: $chatId, method: 'sendMessage');
     }
 
     /**
@@ -127,20 +145,22 @@ class IrazasyedTelegramClient implements TelegramClient
             throw new TelegramApiException('Telegram API request failed (sendPhoto): the photo file is not readable');
         }
 
-        $params = [
-            'chat_id' => $chatId,
-            'photo' => InputFile::create($photoPath, basename($photoPath)),
-        ];
+        $this->followingMigration($chatId, function (int|string $chat) use ($photoPath, $caption, $replyMarkup): void {
+            $params = [
+                'chat_id' => $chat,
+                'photo' => InputFile::create($photoPath, basename($photoPath)),
+            ];
 
-        if ($caption !== null) {
-            $params['caption'] = $caption;
-        }
+            if ($caption !== null) {
+                $params['caption'] = $caption;
+            }
 
-        if ($replyMarkup !== null) {
-            $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
-        }
+            if ($replyMarkup !== null) {
+                $params['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+            }
 
-        $this->call(fn () => $this->api->sendPhoto($params), mapForbidden: true);
+            $this->call(fn () => $this->api->sendPhoto($params), mapForbidden: true, chatId: $chat, method: 'sendPhoto');
+        });
     }
 
     public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void
@@ -151,7 +171,7 @@ class IrazasyedTelegramClient implements TelegramClient
             $params['show_alert'] = $showAlert;
         }
 
-        $this->call(fn () => $this->api->answerCallbackQuery($params));
+        $this->call(fn () => $this->api->answerCallbackQuery($params), method: 'answerCallbackQuery');
     }
 
     /**
@@ -159,12 +179,12 @@ class IrazasyedTelegramClient implements TelegramClient
      */
     public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void
     {
-        $this->call(fn () => $this->api->editMessageReplyMarkup([
+        $this->notingMigration($chatId, fn () => $this->call(fn () => $this->api->editMessageReplyMarkup([
             'chat_id' => $chatId,
             'message_id' => $messageId,
             // An empty `inline_keyboard` is how the Bot API removes the buttons.
             'reply_markup' => json_encode($replyMarkup ?? ['inline_keyboard' => []], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
-        ]));
+        ]), chatId: $chatId, method: 'editMessageReplyMarkup'));
     }
 
     /**
@@ -185,12 +205,15 @@ class IrazasyedTelegramClient implements TelegramClient
         }
 
         // No `mapForbidden`: a refusal here is "the message cannot be edited", never "the learner is unreachable".
-        $this->call(fn () => $this->api->editMessageText($params));
+        $this->notingMigration($chatId, fn () => $this->call(fn () => $this->api->editMessageText($params), chatId: $chatId, method: 'editMessageText'));
     }
 
     public function getChatMemberStatus(int|string $chatId, int $userId): string
     {
-        $member = $this->call(fn () => $this->api->getChatMember(['chat_id' => $chatId, 'user_id' => $userId]));
+        $member = $this->followingMigration(
+            $chatId,
+            fn (int|string $chat) => $this->call(fn () => $this->api->getChatMember(['chat_id' => $chat, 'user_id' => $userId]), chatId: $chat, method: 'getChatMember'),
+        );
 
         // The SDK wraps the whole response body (`{ok, result: {status, …}}`) into the object.
         $data = $member->toArray();
@@ -317,9 +340,71 @@ class IrazasyedTelegramClient implements TelegramClient
     }
 
     /**
+     * Runs a chat-bound call; when Telegram says the group became a supergroup, moves the group row to the new chat id
+     * ({@see GroupChatMigrator}) and runs the call ONCE more against the new chat. The first call was refused (400), so the repeat
+     * cannot deliver twice. The repeat does not depend on the database: a failed move is reported and the message still goes out.
+     * A second migration answer is rethrown.
+     *
+     * @template T
+     *
+     * @param  Closure(int|string): T  $call
+     * @return T
+     */
+    private function followingMigration(int|string $chatId, Closure $call): mixed
+    {
+        try {
+            return $call($chatId);
+        } catch (TelegramChatMigratedException $e) {
+            $this->recordMigration($chatId, $e->newChatId);
+
+            return $call($e->newChatId);
+        }
+    }
+
+    /**
+     * An edit in a migrated group cannot be repeated (message ids of the old chat do not exist in the new one): the group row
+     * is moved, the refusal goes to the caller.
+     *
+     * @template T
+     *
+     * @param  Closure(): T  $call
+     * @return T
+     */
+    private function notingMigration(int|string $chatId, Closure $call): mixed
+    {
+        try {
+            return $call();
+        } catch (TelegramChatMigratedException $e) {
+            $this->recordMigration($chatId, $e->newChatId);
+
+            throw $e;
+        }
+    }
+
+    private function recordMigration(int|string $fromChatId, int $toChatId): void
+    {
+        if (! is_numeric($fromChatId)) {
+            return; // `@channelusername`: never a group row.
+        }
+
+        try {
+            ($this->migrator ?? app(GroupChatMigrator::class))->migrate((int) $fromChatId, $toChatId);
+        } catch (Throwable $e) {
+            report($e);
+        }
+    }
+
+    /**
      * Single exit point for SDK calls: nothing from the SDK/Guzzle leaves this
      * class, because their messages contain the bot token (see
      * {@see TelegramApiException}).
+     *
+     * Classification (docs/34 §4в п. 1), checked in this order:
+     *  - 429 on ANY method → {@see TelegramRateLimitedException} (`parameters.retry_after`); the outbound budget of the bot and of
+     *    `$chatId` is paused first ({@see TelegramMessageRateLimiter::pause()});
+     *  - 400 with `parameters.migrate_to_chat_id` → {@see TelegramChatMigratedException};
+     *  - with `$mapForbidden` (sends): 403, or 400 "chat not found" → {@see TelegramForbiddenException};
+     *  - anything else → {@see TelegramApiException} (`isApiResponse()` = Telegram answered 4xx).
      *
      * @template T
      *
@@ -327,22 +412,42 @@ class IrazasyedTelegramClient implements TelegramClient
      * @return T
      *
      * @throws TelegramForbiddenException
+     * @throws TelegramRateLimitedException
+     * @throws TelegramChatMigratedException
      * @throws TelegramApiException
      */
-    private function call(Closure $call, bool $mapForbidden = false): mixed
+    private function call(Closure $call, bool $mapForbidden = false, int|string|null $chatId = null, string $method = 'request'): mixed
     {
         try {
             return $call();
         } catch (TelegramResponseException $e) {
+            $status = $this->statusOf($e);
+            $parameters = $e->getResponseData()['parameters'] ?? null;
+            $parameters = is_array($parameters) ? $parameters : [];
+
+            if ($status === 429) {
+                $retryAfter = is_numeric($parameters['retry_after'] ?? null)
+                    ? max(1, (int) $parameters['retry_after'])
+                    : TelegramRateLimitedException::DEFAULT_RETRY_AFTER;
+
+                $this->pauseOutbound($retryAfter, $chatId, $method);
+
+                throw new TelegramRateLimitedException($retryAfter, $method);
+            }
+
+            if ($status === 400 && is_numeric($parameters['migrate_to_chat_id'] ?? null)) {
+                throw new TelegramChatMigratedException((int) $parameters['migrate_to_chat_id'], $method);
+            }
+
             // Keep the SDK behind the TelegramClient boundary: callers only need to
             // know that the recipient is unreachable (blocked bot / no dialog).
-            if ($mapForbidden && ($e->getCode() === 403 || $e->getHttpStatusCode() === 403)) {
+            if ($mapForbidden && $status === 403) {
                 throw TelegramForbiddenException::fromDescription($e->getMessage());
             }
 
             // A deleted account answers 400 "chat not found", which is just as final as a 403.
             if ($mapForbidden
-                && ($e->getCode() === 400 || $e->getHttpStatusCode() === 400)
+                && $status === 400
                 && str_contains(strtolower($e->getMessage()), 'chat not found')
             ) {
                 throw TelegramForbiddenException::fromDescription($e->getMessage());
@@ -352,5 +457,25 @@ class IrazasyedTelegramClient implements TelegramClient
         } catch (Exception $e) {
             throw TelegramApiException::fromSdk($e);
         }
+    }
+
+    /** The Bot API `error_code` when there is one (it is what Telegram documents), else the HTTP status. */
+    private function statusOf(TelegramResponseException $e): int
+    {
+        $code = $e->getCode();
+
+        return $code > 0 ? $code : ($e->getHttpStatusCode() ?? 0);
+    }
+
+    /** A cache that cannot be reached must not hide the 429 itself: the pause is best effort, the exception is not. */
+    private function pauseOutbound(int $retryAfter, int|string|null $chatId, string $method): void
+    {
+        try {
+            $this->rateLimiter->pause($retryAfter, $chatId);
+        } catch (Throwable $e) {
+            Log::warning('telegram.rate_limit_pause_failed', ['method' => $method, 'exception' => $e::class]);
+        }
+
+        Log::warning('telegram.rate_limited', ['method' => $method, 'retry_after' => $retryAfter]);
     }
 }

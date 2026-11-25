@@ -7,6 +7,7 @@ namespace App\Domain\Telegram\Services;
 use App\Domain\Telegram\Handlers\AccountLinkCallbackHandler;
 use App\Domain\Telegram\Handlers\CancelCaravanHandler;
 use App\Domain\Telegram\Handlers\ChatMemberHandler;
+use App\Domain\Telegram\Handlers\ChatMigrationHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
 use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
@@ -91,10 +92,13 @@ final class TelegramDispatcher
         DeleteAccountCallbackHandler $deleteAccountCallback,
         AccountLinkCallbackHandler $accountLinkCallback,
         ReminderQuizCallbackHandler $reminderQuizCallback,
+        ChatMigrationHandler $chatMigration,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
         // must win over the generic /start catch-all).
         $this->messageHandlers = [
+            // A group became a supergroup (docs/33 §4.6): the row must follow before anything else reads it by chat id.
+            $chatMigration,
             // Money first (docs/13 §4.1): a Stars payment / refund message is never a DM command.
             $successfulPayment,
             $refundedPayment,
@@ -241,6 +245,11 @@ final class TelegramDispatcher
         // Money is never dropped: Telegram delivers `successful_payment` / `refunded_payment` once we
         // answer 200, and PaymentApplier is idempotent anyway (docs/13 §4.1).
         if (isset($update['message']['successful_payment']) || isset($update['message']['refunded_payment'])) {
+            return true;
+        }
+
+        // Neither is the move of a group to its supergroup: lost, it would leave the group on a dead chat id.
+        if (ChatMigrationHandler::isMigration($update)) {
             return true;
         }
 

@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Jobs\Middleware;
 
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use Closure;
 use Illuminate\Queue\Jobs\SyncJob;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Job middleware of every background Telegram send (docs/13 §9, 2R.3): takes a slot of the bot-wide
@@ -17,7 +19,14 @@ use Illuminate\Queue\Jobs\SyncJob;
  * `release()` consumes an attempt, so jobs using this middleware must not rely on `$tries` alone:
  * they set `$tries = 0` + `$maxExceptions` (real failures) or a `retryUntil`.
  *
- * The `sync` connection (tests, local) has nowhere to release to: such a job runs unthrottled.
+ * While the bot is paused after a 429 ({@see TelegramMessageRateLimiter::pause()}) there is no slot either, and the job comes
+ * back after the rest of the pause.
+ *
+ * A 429 that reaches the handler ({@see TelegramRateLimitedException}, rethrown by the sender after it removed its marker,
+ * docs/34 §4в) is caught here: the job is put back for `retry_after` + 0-3 s. Nothing is thrown, so the worker does not count it
+ * against `maxExceptions` — a flood wave never sends a job to `failed_jobs`.
+ *
+ * The `sync` connection (tests, local) has nowhere to release to: such a job runs unthrottled and a 429 is thrown to the caller.
  */
 final class ThrottleTelegramOutbound
 {
@@ -33,12 +42,20 @@ final class ThrottleTelegramOutbound
 
         $limiter = $this->limiter ?? app(TelegramMessageRateLimiter::class);
 
-        if ($limiter->reserveGlobal()) {
-            return $next($job);
+        if (! $limiter->reserveGlobal()) {
+            $job->release($limiter->globalRetryDelay());
+
+            return null;
         }
 
-        $job->release($limiter->globalRetryDelay());
+        try {
+            return $next($job);
+        } catch (TelegramRateLimitedException $e) {
+            Log::info('telegram.outbound_job_rate_limited', ['job' => $job::class, 'retry_after' => $e->retryAfter]);
 
-        return null;
+            $job->release($e->retryAfter + random_int(0, 3));
+
+            return null;
+        }
     }
 }

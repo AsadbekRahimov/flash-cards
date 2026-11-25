@@ -10,6 +10,7 @@ use App\Domain\Learners\Services\ReminderSender;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Models\Course;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
@@ -166,8 +167,24 @@ it('removes both the log row and the stored question on a 403', function (): voi
 it('keeps the question and the log row on an ambiguous failure (the message may have been delivered)', function (): void {
     $learner = reminderQuizDueLearner(3);
     $this->tg->failSends = 1;
+    $this->tg->failSendsAsTransport = true;
 
     expect(fn () => reminderQuizSend($learner))->toThrow(TelegramApiException::class)
+        ->and(Cache::has(ReminderQuizStore::key($learner->id)))->toBeTrue()
+        ->and(NotificationLog::count())->toBe(1);
+});
+
+it('drops the question and the log row on a 429 (certainly not delivered) so the retry asks again', function (): void {
+    $learner = reminderQuizDueLearner(3);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 5;
+
+    expect(fn () => reminderQuizSend($learner))->toThrow(TelegramRateLimitedException::class)
+        ->and(Cache::has(ReminderQuizStore::key($learner->id)))->toBeFalse()
+        ->and(NotificationLog::count())->toBe(0);
+
+    expect(reminderQuizSend($learner))->toBe(ReminderOutcome::Sent)
+        ->and($this->tg->sent)->toHaveCount(1)
         ->and(Cache::has(ReminderQuizStore::key($learner->id)))->toBeTrue()
         ->and(NotificationLog::count())->toBe(1);
 });
