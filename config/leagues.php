@@ -44,7 +44,7 @@ return [
         'goal_met' => (int) env('LEAGUES_POINTS_GOAL_MET', 10),
     ],
 
-    /** How long a group's standings stay cached (`league:standings:{group}`). */
+    /** How long a group's standings stay cached (`league:standings:v2:{group}` of a v1 week, `league:standings:v3:{group}` of a v2 week). */
     'standings_cache_seconds' => (int) env('LEAGUES_STANDINGS_CACHE_SECONDS', 60),
 
     /** A week-result DM that could not be sent within this many hours (no Telegram slot, queue lag) is dropped. */
@@ -83,6 +83,17 @@ return [
         /** Prize places (1..places get a prize when the month is confirmed). */
         'places' => (int) env('LEAGUES_MONTHLY_PLACES', 3),
 
+        /**
+         * The two tables of a month on the word points v2 (docs/32 §7; owner's decision В5 of 2026-11-25: 3 prizes in Free and 3 in Pro
+         * from the first month). `places` - the prize places of the category; `tie_reserve` - how many winners above `places` a shared
+         * prize place may add (everybody sharing a prize place gets it; beyond `places + tie_reserve` the administrator decides). A v1
+         * month keeps `places` above. Published with the rules: change only for future months.
+         */
+        'categories' => [
+            'free' => ['places' => (int) env('LEAGUES_MONTHLY_FREE_PLACES', 3), 'tie_reserve' => (int) env('LEAGUES_MONTHLY_FREE_TIE_RESERVE', 1)],
+            'pro' => ['places' => (int) env('LEAGUES_MONTHLY_PRO_PLACES', 3), 'tie_reserve' => (int) env('LEAGUES_MONTHLY_PRO_TIE_RESERVE', 1)],
+        ],
+
         /** Candidates frozen at the close (the best eligible participants), a reserve for disqualifications. */
         'candidates' => (int) env('LEAGUES_MONTHLY_CANDIDATES', 10),
 
@@ -100,7 +111,7 @@ return [
         /** The incremental refresh recomputes the learners with a day row dated within this many days back (a day row older than that never changes). */
         'refresh_recent_days' => (int) env('LEAGUES_MONTHLY_REFRESH_RECENT_DAYS', 3),
 
-        /** How long the public top list stays cached (`league:month:top:v1:{month}`). */
+        /** How long the public top list stays cached (`league:month:top:v1:{month}`; a v2 month - `league:month:top:v2:{month}:{category}`). */
         'top_cache_seconds' => (int) env('LEAGUES_MONTHLY_TOP_CACHE_SECONDS', 120),
 
         /**

@@ -17,6 +17,7 @@ use App\Models\Friendship;
 use App\Models\LeagueMember;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -25,7 +26,8 @@ use Throwable;
  *
  *   evaluate   — looks at the committed facts of one learner (best streak, learned words) and unlocks
  *                every counting key whose threshold is reached; keys already held cost nothing;
- *   on…        — the single-event keys: the first graded card, an accepted friendship, a league win;
+ *   on…        — the single-event keys: the first graded card, an accepted friendship, a league win; and `long_recall_25`, looked at
+ *                only when an answer gave a lexeme its first long repetition (docs/32 §8.4);
  *   unlock     — `INSERT … ON CONFLICT DO NOTHING` on the unique `(learner_id, key)`: of two parallel
  *                callers exactly one inserts (affected rows = 1) and only that one records
  *                `achievement.unlocked` and queues the card DM, so a key is unlocked and announced once;
@@ -146,6 +148,31 @@ class AchievementService
     }
 
     /**
+     * An answer gave a lexeme its first long repetition (`WordScoreOutcome::newLongLexeme`, docs/32 §8.4, task S14), after the commit:
+     * the 25th such lexeme unlocks `long_recall_25`. Once held, one indexed existence check; else the lexemes are counted up to the
+     * threshold only (`LIMIT 25` over the partial index `learner_lexemes_first_long_idx`), never the whole history.
+     */
+    public function onLongRecall(int $learnerId, CarbonImmutable $now): ?Achievement
+    {
+        $key = AchievementKey::LongRecall25;
+        if (! $this->enabled() || Achievement::query()->where('learner_id', $learnerId)->where('key', $key->value)->exists()) {
+            return null;
+        }
+
+        $threshold = (int) $key->threshold();
+        if ($this->longRecalled($learnerId) < $threshold) {
+            return null;
+        }
+
+        $learner = Learner::query()->find($learnerId);
+        if (! $learner instanceof Learner || $learner->blocked_at !== null) {
+            return null;
+        }
+
+        return $this->unlock($learner, $key, $now, ['value' => $threshold]);
+    }
+
+    /**
      * A league week was closed: whoever took the first place of their group with at least one point
      * has won a league. Called after the closing transaction committed; a failure for one member does
      * not stop the others.
@@ -251,6 +278,8 @@ class AchievementService
             $current = match ($key->family()) {
                 'streak' => $streak,
                 'words' => $words,
+                // counted only while the key is still to get (one read of at most `target` index entries)
+                'recall' => $row !== null ? $target : $this->longRecalled($learner->id),
                 default => null,
             };
 
@@ -271,6 +300,20 @@ class AchievementService
         }
 
         return new AchievementsOverview($entries, $link);
+    }
+
+    /**
+     * The lexemes of the learner with a long repetition (`first_long_on`), counted up to the threshold of `long_recall_25` only: the
+     * partial index `learner_lexemes_first_long_idx` stops the read at the 25th entry.
+     */
+    private function longRecalled(int $learnerId): int
+    {
+        return DB::table(DB::table('learner_lexemes')
+            ->select('lexeme_id')
+            ->where('learner_id', $learnerId)
+            ->whereNotNull('first_long_on')
+            ->limit((int) AchievementKey::LongRecall25->threshold()), 'long')
+            ->count();
     }
 
     /** @return array<string, true> keys the learner already holds */

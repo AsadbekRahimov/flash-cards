@@ -368,8 +368,10 @@ final class RunFinisher
     }
 
     /**
-     * Whether the week and the month of now count by the word points v2 (docs/32 §6.1): only in `live`, from the version's `starts_on`.
-     * Read from the configuration (no statement); S8/S9 move this to the version written into `league_weeks` / `league_months`.
+     * Whether the week and the month of now count by the word points v2 (docs/32 §6.1, S8/S9): the version written into the period's
+     * own row (`league_weeks` / `league_months.rules_version` - what the tables and the closes count by, and what the learners' periods
+     * copy), read by the unique `starts_on` in ONE statement; a period whose row is not created yet gets the version the row will get
+     * ({@see ScoreRules::versionFor()}). `off` - no statement: every period is v1.
      *
      * @return array{0: bool, 1: bool}
      */
@@ -379,11 +381,19 @@ final class RunFinisher
             return [false, false];
         }
         $day = $this->scoreRules->ratingDay($now);
+        $week = $this->scoreRules->periodStart(ScorePeriod::Week, $day)->toDateString();
+        $month = $this->scoreRules->periodStart(ScorePeriod::Month, $day)->toDateString();
 
-        return [
-            $this->scoreRules->versionFor($this->scoreRules->periodStart(ScorePeriod::Week, $day)) >= 2,
-            $this->scoreRules->versionFor($this->scoreRules->periodStart(ScorePeriod::Month, $day)) >= 2,
-        ];
+        $stored = DB::selectOne(
+            'select (select w.rules_version from league_weeks w where w.starts_on = ?) as week_version, '
+            .'(select m.rules_version from league_months m where m.starts_on = ?) as month_version',
+            [StoredDate::of($week), StoredDate::of($month)],
+        );
+        $stored = is_object($stored) ? get_object_vars($stored) : [];
+        $weekVersion = is_numeric($stored['week_version'] ?? null) ? (int) $stored['week_version'] : $this->scoreRules->versionFor($week);
+        $monthVersion = is_numeric($stored['month_version'] ?? null) ? (int) $stored['month_version'] : $this->scoreRules->versionFor($month);
+
+        return [$weekVersion >= 2, $monthVersion >= 2];
     }
 
     private function economy(string $key): int

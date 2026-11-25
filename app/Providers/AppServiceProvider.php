@@ -16,7 +16,7 @@ use App\Domain\Billing\Services\NewWordQuota;
 use App\Domain\Content\Contracts\SpeechSynthesizer;
 use App\Domain\Content\Services\Tts\ConfiguredSpeechSynthesizer;
 use App\Domain\Content\Services\Tts\GoogleServiceAccount;
-use App\Domain\Engagement\Services\Scoring\WordScoreService;
+use App\Domain\Engagement\Services\Scoring\WordScoreHooks;
 use App\Domain\Learning\Contracts\AnswerScoreRecorder;
 use App\Domain\Learning\Contracts\NewCardBudgetResolver;
 use App\Domain\Learning\Support\FsrsParameters;
@@ -130,8 +130,9 @@ class AppServiceProvider extends ServiceProvider
         // New-card budget for CardPicker: the plan's daily limit of new words (Free 20, Pro unlimited; docs/12 §5.3).
         $this->app->bind(NewCardBudgetResolver::class, NewWordQuota::class);
 
-        // The word points of an answer (docs/32 §3.1): the training and the game hand their answers to the contract, not to Engagement.
-        $this->app->bind(AnswerScoreRecorder::class, WordScoreService::class);
+        // The word points of an answer (docs/32 §3.1): the training and the game hand their answers to the contract, not to Engagement;
+        // WordScoreHooks wraps WordScoreService with the follow-ups after the commit (achievement long_recall_25, score.day_capped).
+        $this->app->bind(AnswerScoreRecorder::class, WordScoreHooks::class);
 
         // Payment providers register themselves here as they land (2A.3 Stars, 2A.4 Payme,
         // 2A.5 Click); whether one is sellable is `billing.providers.<key>.enabled` (docs/13 §2.2).

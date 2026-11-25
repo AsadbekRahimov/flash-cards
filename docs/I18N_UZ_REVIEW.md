@@ -4714,3 +4714,12 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `practice.hub.step.now` | Hozir tavsiya qilamiz | Советуем сейчас (карточка игры урока без плана дня: открыта из бота) |
 | `today.hero.done_text_open` | Takrorlash va o'yinlar doim ochiq | Повторение и игры доступны всегда (план выполнен, лимит новых слов не исчерпан) |
 | `today.hero.next_lesson` | Keyingi dars | Следующий урок (вторичная кнопка выполненного плана) |
+
+## Выпуск 2 · достижение «Долгая память» `long_recall_25` (docs/32 §8.4, 26.11.2026) — на проверку носителю
+
+Достижение за 25 слов, вспомненных после перерыва в неделю и больше (длинный повтор). Текст попадает и на PNG-карточку: заголовок — до двух строк, описание — до трёх (проверяет `ShareCardTextsTest`). Носителю проверить: естественно ли «Uzoq xotira» как название и «esga olindi» (вспомнено) в описании.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `achievements.items.long_recall_25.title` | Uzoq xotira | Долгая память |
+| `achievements.items.long_recall_25.description` | 25 ta so'z bir hafta va undan ko'p tanaffusdan keyin esga olindi | 25 слов вспомнено после перерыва в неделю и больше |

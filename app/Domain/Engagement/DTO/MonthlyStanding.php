@@ -9,7 +9,7 @@ namespace App\Domain\Engagement\DTO;
  * learner's first name — nothing else of other people leaves the server. Cached as arrays ({@see toArray()}): a cache
  * holds scalars only (docs/19 §3).
  *
- * @phpstan-type MonthlyStandingArray array{learner_id: int, name: string|null, points: int, active_days: int, rank: int}
+ * @phpstan-type MonthlyStandingArray array{learner_id: int, name: string|null, points: int, active_days: int, rank: int, long_words?: int}
  */
 final readonly class MonthlyStanding
 {
@@ -19,6 +19,7 @@ final readonly class MonthlyStanding
         public int $points,
         public int $activeDays,
         public int $rank,
+        public int $longWords = 0,
     ) {}
 
     /** @return MonthlyStandingArray */
@@ -30,12 +31,13 @@ final readonly class MonthlyStanding
             'points' => $this->points,
             'active_days' => $this->activeDays,
             'rank' => $this->rank,
+            'long_words' => $this->longWords,
         ];
     }
 
     /** @param  MonthlyStandingArray  $data */
     public static function fromArray(array $data): self
     {
-        return new self((int) $data['learner_id'], $data['name'], (int) $data['points'], (int) $data['active_days'], (int) $data['rank']);
+        return new self((int) $data['learner_id'], $data['name'], (int) $data['points'], (int) $data['active_days'], (int) $data['rank'], (int) ($data['long_words'] ?? 0));
     }
 }

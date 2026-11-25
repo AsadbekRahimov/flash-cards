@@ -16,6 +16,7 @@ return [
         'league_top1' => ['title' => 'Победитель лиги', 'description' => 'Первое место в группе лиги за неделю'],
         'first_friend' => ['title' => 'Первый друг', 'description' => 'Появился первый друг в Muhrla'],
         'game_first_boss' => ['title' => 'Хранитель побеждён', 'description' => 'Первая победа над боссом города в игре «Караван»'],
+        'long_recall_25' => ['title' => 'Долгая память', 'description' => '25 слов вспомнено после перерыва в неделю и больше'],
     ],
 
     // Texts of the share card (docs/36 §2б): the small capitals over the title and the tagline in the footer. The brand is

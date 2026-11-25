@@ -7,6 +7,9 @@ namespace App\Domain\Engagement\Services;
 use App\Domain\Administration\Services\PendingLeagueMonthsBadge;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Engagement\DTO\BoardCursor;
+use App\Domain\Engagement\DTO\BoardRow;
+use App\Domain\Engagement\DTO\BoardScope;
 use App\Domain\Engagement\DTO\LastMonthView;
 use App\Domain\Engagement\DTO\MonthlyMeView;
 use App\Domain\Engagement\DTO\MonthlyMyLine;
@@ -15,6 +18,9 @@ use App\Domain\Engagement\DTO\MonthlyRatingOverview;
 use App\Domain\Engagement\DTO\MonthlyStanding;
 use App\Domain\Engagement\Enums\LeagueMonthCandidateStatus;
 use App\Domain\Engagement\Enums\LeagueMonthStatus;
+use App\Domain\Engagement\Enums\ScoreCategory;
+use App\Domain\Engagement\Services\Scoring\ScoreBoard;
+use App\Domain\Engagement\Services\Scoring\ScoreRules;
 use App\Domain\Engagement\Support\LeaguePoints;
 use App\Domain\Learners\Support\StoredDate;
 use App\Domain\Operations\Support\PureCache;
@@ -61,13 +67,27 @@ use Throwable;
  */
 final class MonthlyRatingService
 {
-    /** `v1` = arrays of {@see MonthlyStanding::toArray()}. */
+    /** `v1` = arrays of {@see MonthlyStanding::toArray()} of a v1 month (one common table). */
     public const TOP_PREFIX = 'league:month:top:v1:';
+
+    /**
+     * `league:month:top:v2:{month}:{category}` - the top of one category of a v2 month (docs/32 §5.5, docs/19 §3): competition ranks,
+     * the tie-break facts. Another table and another meaning, so another key; the category is in it.
+     */
+    public const TOP_PREFIX_V2 = 'league:month:top:v2:';
 
     public function __construct(
         private readonly ProductEventRecorder $events,
         private readonly LeagueService $leagues,
+        private readonly ScoreRules $scoreRules,
+        private readonly ScoreBoard $board,
     ) {}
+
+    /** Whether the month counts by the word points v2 (`league_months.rules_version`, written at creation, never changed). */
+    public static function isV2(LeagueMonth $month): bool
+    {
+        return $month->rules_version >= 2;
+    }
 
     public function enabled(): bool
     {
@@ -129,11 +149,15 @@ final class MonthlyRatingService
 
         try {
             // Savepoint: a lost creation race must not poison an outer (PostgreSQL) transaction.
+            // The rules version is written once, here (docs/32 §6.1): the month is counted and closed by it, and the learners' months
+            // fixed by their first credit take it from this row (ScorePeriodService::insert).
+            $rulesVersion = $this->scoreRules->versionFor($first->toDateString());
             /** @var LeagueMonth $month */
             $month = DB::transaction(static fn (): LeagueMonth => LeagueMonth::query()->create([
                 'starts_on' => $first->toDateString(),
                 'ends_on' => $first->endOfMonth()->toDateString(),
                 'status' => LeagueMonthStatus::Open->value,
+                'rules_version' => $rulesVersion,
             ]));
 
             return $month;
@@ -194,7 +218,7 @@ final class MonthlyRatingService
 
         if ($written) {
             $this->stampRefresh($month, $now);
-            PureCache::forgetMany([self::topKey($month->id)]);
+            PureCache::forgetMany(self::topKeys($month->id));
         }
 
         return $written;
@@ -243,7 +267,7 @@ final class MonthlyRatingService
                 }
 
                 if ($this->refreshLearner($month, $learner, $now)) {
-                    PureCache::forgetMany([self::topKey($month->id)]);
+                    PureCache::forgetMany(self::topKeys($month->id));
                 }
             } catch (Throwable $e) {
                 report($e);
@@ -293,6 +317,9 @@ final class MonthlyRatingService
         if ($month !== null) {
             $this->refreshLearner($month, $learner, $now);
         }
+        // A v2 month has two tables: the viewer's (the category of their month), Free until they have a credit (S12 decides by the plan).
+        $category = $month !== null && self::isV2($month) ? ($this->scoreOf($month, $learner->id)->category ?? ScoreCategory::Free->value) : null;
+        $category = $category === null ? null : ScoreCategory::from($category);
 
         return new MonthlyRatingOverview(
             enabled: $enabled,
@@ -301,10 +328,10 @@ final class MonthlyRatingService
             endsOn: $first->endOfMonth()->toDateString(),
             closesAt: $first->addMonth()->utc()->toIso8601String(),
             daysLeft: $month === null ? 0 : $this->daysLeft($month, $now),
-            participantsCount: $month === null ? 0 : $this->participantsCount($month),
+            participantsCount: $month === null ? 0 : $this->participantsCount($month, $category),
             rules: $this->rules(),
-            prizes: $month === null ? [] : $this->prizes($month),
-            top: $month === null ? [] : $this->top($month),
+            prizes: $month === null ? [] : $this->prizes($month, $category),
+            top: $month === null ? [] : $this->top($month, $category),
             me: $month === null ? null : $this->myLine($month, $learner),
             optedOut: $this->leagues->isOptedOut($learner),
             lastMonth: $enabled ? $this->lastMonth($learner, $now) : null,
@@ -332,22 +359,30 @@ final class MonthlyRatingService
     }
 
     /**
-     * The best `leagues.monthly.top` participants of the month, in the order of the rating (points, active days, older
-     * account), with first names. Cached as arrays of scalars; the refresh and the close drop the key.
+     * The best `leagues.monthly.top` participants of the month, in the order of the rating, with first names. Cached as arrays of
+     * scalars; the refresh and the close drop the keys.
+     *
+     *   v1 month: one table; points, active days, the older account (learner id); every rank distinct;
+     *   v2 month: the table of `$category` (Free when null); points, long words, active days - competition ranks (1, 2, 2, 4), the
+     *             learner id only keeps a shared place in a stable order.
      *
      * @return list<MonthlyStanding>
      */
-    public function top(LeagueMonth $month): array
+    public function top(LeagueMonth $month, ?ScoreCategory $category = null): array
     {
         $ttl = max(1, (int) config('leagues.monthly.top_cache_seconds', 120));
+        $category = self::isV2($month) ? ($category ?? ScoreCategory::Free) : null;
 
         /** @var list<MonthlyStandingArray> $rows */
         $rows = PureCache::store()->remember(
-            self::topKey($month->id),
+            self::topKey($month->id, $category),
             $ttl,
             fn (): array => array_map(
                 static fn (MonthlyStanding $row): array => $row->toArray(),
-                $this->computeTop($month),
+                $category === null ? $this->computeTop($month) : array_map(
+                    static fn (BoardRow $row): MonthlyStanding => new MonthlyStanding($row->learnerId, $row->name, $row->points, $row->activeDays, $row->rank, $row->longWords),
+                    $this->board->page(BoardScope::month($month->id, $category), null, $this->topSize())['rows'],
+                ),
             ),
         );
 
@@ -373,6 +408,8 @@ final class MonthlyRatingService
             missingActiveDays: $missingDays,
             missingAccountDays: $missingAccount,
             notCountedReason: $score->participant ? null : $this->notCountedReason($learner),
+            category: $score->category === null ? null : ScoreCategory::from($score->category),
+            longWords: $score->long_words,
         );
     }
 
@@ -391,6 +428,35 @@ final class MonthlyRatingService
         return $this->leagues->isOptedOut($learner) ? MonthlyMyLine::REASON_OPTED_OUT : null;
     }
 
+    /**
+     * A page of one category of a v2 month (docs/32 §5.3, §8.3 - `GET /league/month?category=&after=`): up to `$limit` participants
+     * after the cursor, with their competition places, and the cursor of the next page. Not cached (the top is: {@see top()}).
+     *
+     * @return array{rows: list<BoardRow>, next: BoardCursor|null}
+     */
+    public function board(LeagueMonth $month, ScoreCategory $category, ?BoardCursor $after, int $limit = 50): array
+    {
+        return $this->board->page(BoardScope::month($month->id, $category), $after, $limit);
+    }
+
+    /**
+     * The participants right above and below the learner's row in its category of a v2 month, the learner's place and the points that
+     * overtake the next place (null for a leader, and for a row out of the table: not a participant, or a v1 month).
+     *
+     * @return array{above: list<BoardRow>, below: list<BoardRow>, rank: int, next_gap: int|null}|null
+     */
+    public function neighbours(LeagueMonth $month, LeagueMonthScore $score, int $n = 2): ?array
+    {
+        if (! self::isV2($month) || ! $score->participant || $score->category === null) {
+            return null;
+        }
+
+        $scope = BoardScope::month($month->id, ScoreCategory::from($score->category));
+        $around = $this->board->neighbours($scope, new BoardCursor($score->points, $score->long_words, $score->active_days, $score->learner_id), $n);
+
+        return [...$around, 'next_gap' => $this->board->gapToNext($scope, $score->points, $score->long_words, $score->active_days)];
+    }
+
     public function scoreOf(LeagueMonth $month, int $learnerId): ?LeagueMonthScore
     {
         /** @var LeagueMonthScore|null $score */
@@ -407,6 +473,10 @@ final class MonthlyRatingService
     {
         if ($month->isClosed() && $score->final_rank !== null) {
             return $score->final_rank;
+        }
+
+        if (self::isV2($month)) {
+            return $this->board->rank(BoardScope::month($month->id, ScoreCategory::from((string) $score->category)), $score->points, $score->long_words, $score->active_days);
         }
 
         $ahead = LeagueMonthScore::query()
@@ -458,11 +528,20 @@ final class MonthlyRatingService
      * The prizes of the month: its own list, or the configured defaults when it has none (`prizes IS NULL`); places
      * without a title are dropped; empty = the prize block is hidden.
      *
+     * A v2 month has the prizes of each table (`$category`, Free when null; owner's decision В5: 3 places in Free and 3 in Pro):
+     * `prizes` is `{free: [{place, ru, uz}], pro: [...]}`; a plain list there (written before the month knew its categories) is the
+     * same list for both tables; a category missing from the object has no prizes. The places run to {@see places()} of the category.
+     *
      * @return list<MonthlyPrize>
      */
-    public function prizes(LeagueMonth $month): array
+    public function prizes(LeagueMonth $month, ?ScoreCategory $category = null): array
     {
         $raw = $month->prizes;
+        $category = self::isV2($month) ? ($category ?? ScoreCategory::Free) : null;
+        if ($category !== null && is_array($raw) && ! array_is_list($raw)) {
+            $raw = is_array($raw[$category->value] ?? null) ? $raw[$category->value] : [];
+        }
+        $places = $this->places($category);
         if ($raw === null) {
             $raw = [];
             foreach ((array) config('leagues.monthly.prizes', []) as $place => $titles) {
@@ -479,7 +558,7 @@ final class MonthlyRatingService
             $place = (int) ($item['place'] ?? 0);
             $ru = trim((string) ($item['ru'] ?? ''));
             $uz = trim((string) ($item['uz'] ?? ''));
-            if ($place < 1 || $place > $this->places() || ($ru === '' && $uz === '')) {
+            if ($place < 1 || $place > $places || ($ru === '' && $uz === '')) {
                 continue;
             }
             $prizes[$place] = new MonthlyPrize($place, $ru, $uz);
@@ -622,6 +701,44 @@ final class MonthlyRatingService
         return $days;
     }
 
+    /**
+     * The learner's rating days of a v2 month with both counts as stored (the admin's "points by day" of S15 and of the review of a
+     * candidate; at most 31 rows by the unique `(learner_id, rating_day)`). The journal of a day - `score_credits` of
+     * (learner, rating_day), the same unique index - is what the correction voids (ScoreCorrectionService).
+     *
+     * @return list<array{rating_day: string, month_points: int, month_new: int, month_review: int, month_long: int, capped: bool, week_points: int, raw_points: int, new_count: int, review_count: int, long_count: int, category: string, revision: int}>
+     */
+    public function scoreDays(LeagueMonth $month, int $learnerId): array
+    {
+        $rows = DB::table('learner_score_days')
+            ->where('learner_id', $learnerId)
+            ->where('rating_day', '>=', StoredDate::of($month->starts_on->toDateString()))
+            ->where('rating_day', '<=', StoredDate::of($month->ends_on->toDateString()))
+            ->orderBy('rating_day')
+            ->get(['rating_day', 'month_points', 'month_new', 'month_review', 'month_long', 'month_capped_at', 'week_points', 'raw_points', 'new_count', 'review_count', 'long_count', 'month_category', 'revision']);
+
+        $days = [];
+        foreach ($rows as $row) {
+            $days[] = [
+                'rating_day' => substr((string) $row->rating_day, 0, 10),
+                'month_points' => (int) $row->month_points,
+                'month_new' => (int) $row->month_new,
+                'month_review' => (int) $row->month_review,
+                'month_long' => (int) $row->month_long,
+                'capped' => $row->month_capped_at !== null,
+                'week_points' => (int) $row->week_points,
+                'raw_points' => (int) $row->raw_points,
+                'new_count' => (int) $row->new_count,
+                'review_count' => (int) $row->review_count,
+                'long_count' => (int) $row->long_count,
+                'category' => (string) $row->month_category,
+                'revision' => (int) $row->revision,
+            ];
+        }
+
+        return $days;
+    }
+
     // --- closing -----------------------------------------------------------------------------
 
     /**
@@ -661,7 +778,7 @@ final class MonthlyRatingService
             return false;
         }
 
-        PureCache::forgetMany([self::topKey($month->id)]);
+        PureCache::forgetMany(self::topKeys($month->id));
         PendingLeagueMonthsBadge::forget();
         $this->events->record(ProductEventName::LeagueMonthClosed, [
             'month_id' => $month->id,
@@ -697,9 +814,20 @@ final class MonthlyRatingService
         return $closed;
     }
 
-    public static function topKey(int $monthId): string
+    /** The key of the cached top: the v1 table of a month, or one category of a v2 month. */
+    public static function topKey(int $monthId, ?ScoreCategory $category = null): string
     {
-        return self::TOP_PREFIX.$monthId;
+        return $category === null ? self::TOP_PREFIX.$monthId : self::TOP_PREFIX_V2.$monthId.':'.$category->value;
+    }
+
+    /**
+     * Every key of the tops of a month (v1 and both categories of v2): what a write to the month drops.
+     *
+     * @return list<string>
+     */
+    public static function topKeys(int $monthId): array
+    {
+        return [self::topKey($monthId), self::topKey($monthId, ScoreCategory::Free), self::topKey($monthId, ScoreCategory::Pro)];
     }
 
     public function dailyCap(): int
@@ -707,9 +835,27 @@ final class MonthlyRatingService
         return max(0, (int) config('leagues.monthly.daily_cap', 300));
     }
 
-    public function places(): int
+    /**
+     * The prize places: of the one table of a v1 month (`monthly.places`), or of a category of a v2 month
+     * (`monthly.categories.{free|pro}.places`, owner's decision В5: 3 and 3).
+     */
+    public function places(?ScoreCategory $category = null): int
     {
+        if ($category !== null) {
+            return max(1, (int) config("leagues.monthly.categories.{$category->value}.places", 3));
+        }
+
         return max(1, (int) config('leagues.monthly.places', 3));
+    }
+
+    /**
+     * How many winners above {@see places()} a shared prize place may add in a category of a v2 month (docs/32 §7, published ahead):
+     * everybody who shares a prize place gets that place and the same prize while the winners stay within `places + tie_reserve`;
+     * beyond it the confirmation stops and the administrator decides (MonthlyRatingReviewService::confirm).
+     */
+    public function tieReserve(ScoreCategory $category): int
+    {
+        return max(0, (int) config("leagues.monthly.categories.{$category->value}.tie_reserve", 1));
     }
 
     public function topSize(): int
@@ -727,9 +873,9 @@ final class MonthlyRatingService
         return max(0, (int) config('leagues.monthly.min_account_days', 14));
     }
 
-    public function candidateCount(): int
+    public function candidateCount(?ScoreCategory $category = null): int
     {
-        return max($this->places(), (int) config('leagues.monthly.candidates', 10));
+        return max($this->places($category), (int) config('leagues.monthly.candidates', 10));
     }
 
     /** A display name for the Mini App: the first name, or null (deleted account, empty name). */
@@ -800,6 +946,12 @@ final class MonthlyRatingService
      */
     private function upsertScores(LeagueMonth $month, CarbonImmutable $now, ?int $onlyLearnerId, ?string $recentFrom): void
     {
+        if (self::isV2($month)) {
+            $this->upsertScoresV2($month, $now, $onlyLearnerId, $recentFrom);
+
+            return;
+        }
+
         $pgsql = DB::connection()->getDriverName() === 'pgsql';
         $least = $pgsql ? 'least' : 'min';
         [$true, $false] = $pgsql ? ['true', 'false'] : ['1', '0'];
@@ -866,6 +1018,100 @@ final class MonthlyRatingService
         );
     }
 
+    /**
+     * The v2 source (docs/32 §5.2, §12.3 S9): ONE statement as in v1, from the rating days of the month (`learner_score_days`, league
+     * zone - no local dates, no lagging evenings):
+     *
+     *   points      = SUM(month_points) - the monthly count already holds the limits and the day cap of the category;
+     *   active_days = the days with month points; capped_days = the days the count reached the cap; raw_points / max_day_points = the
+     *                 word points without the limits (the review's signals);
+     *   long_words  = the DISTINCT lexemes with a long repetition that added month points (not voided) - from the journal
+     *                 `score_credits` (one lexeme can be paid a long repetition two or three times a month: 7, then ≥ 17 days);
+     *   category    = `month_category` of the days (fixed once per learner and month: every day of the month has the same);
+     *   reviews / correct / new words / goal days / game points / time - the admin's signals, from `learner_daily_stats` by the local
+     *                 dates of the month, as in v1 (approximate, they only point).
+     * Who is a participant - as in v1 (not deleted, not blocked, not opted out; the onboarding is not asked for, docs/34 §3); a learner
+     * with no credit in the month has no rating day and no row. The three sources are grouped subqueries joined by learner, each scoped
+     * like the rows: one learner, the learners with a rating day in the last `refresh_recent_days`, or everybody of the month.
+     *
+     * @param  string|null  $recentFrom  `Y-m-d`
+     */
+    private function upsertScoresV2(LeagueMonth $month, CarbonImmutable $now, ?int $onlyLearnerId, ?string $recentFrom): void
+    {
+        $pgsql = DB::connection()->getDriverName() === 'pgsql';
+        [$true, $false] = $pgsql ? ['true', 'false'] : ['1', '0'];
+        $typed = static fn (string $type): string => $pgsql ? "?::{$type}" : '?';
+        $notOptedOut = $pgsql
+            ? "coalesce(l.meta->>'leagues_opt_out', 'false') <> 'true'"
+            : "coalesce(json_extract(l.meta, '$.leagues_opt_out'), 0) <> 1";
+
+        $stamp = (string) (new LeagueMonthScore)->fromDateTime($now);
+        $from = StoredDate::of($month->starts_on->toDateString());
+        $to = StoredDate::of($month->ends_on->toDateString());
+
+        // The same scope for each of the three sources (alias `x`).
+        $scope = static function (string $alias) use ($onlyLearnerId, $recentFrom, $to): array {
+            if ($onlyLearnerId !== null) {
+                return [" and {$alias}.learner_id = ?", [$onlyLearnerId]];
+            }
+            if ($recentFrom !== null) {
+                return [" and {$alias}.learner_id in (select r.learner_id from learner_score_days r where r.rating_day >= ? and r.rating_day <= ?)", [StoredDate::of($recentFrom), $to]];
+            }
+
+            return ['', []];
+        };
+        [$daysScope, $daysBindings] = $scope('s');
+        [$longScope, $longBindings] = $scope('c');
+        [$statsScope, $statsBindings] = $scope('t');
+
+        $columns = ['category', 'points', 'raw_points', 'active_days', 'capped_days', 'max_day_points', 'long_words', 'reviews', 'correct', 'new_words', 'goal_days', 'game_points', 'time_spent_ms', 'participant'];
+        $set = implode(', ', array_map(static fn (string $c): string => "{$c} = excluded.{$c}", $columns)).', updated_at = excluded.updated_at';
+        // `category` may be NULL on a row written before (never in a v2 month, but `<>` with NULL is never true): compare null-safely.
+        $changed = implode(' or ', array_map(
+            static fn (string $c): string => $c === 'category'
+                ? ($pgsql ? 'league_month_scores.category is distinct from excluded.category' : 'league_month_scores.category is not excluded.category')
+                : "league_month_scores.{$c} <> excluded.{$c}",
+            $columns,
+        ));
+
+        DB::affectingStatement(
+            'insert into league_month_scores (league_month_id, learner_id, category, points, raw_points, active_days, capped_days, max_day_points, '
+            .'long_words, reviews, correct, new_words, goal_days, game_points, time_spent_ms, participant, final_rank, created_at, updated_at) '
+            ."select {$typed('bigint')}, a.learner_id, a.category, a.points, a.raw_points, a.active_days, a.capped_days, a.max_day_points, "
+            .'coalesce(c.long_words, 0), coalesce(t.reviews, 0), coalesce(t.correct, 0), coalesce(t.new_words, 0), coalesce(t.goal_days, 0), '
+            .'coalesce(t.game_points, 0), coalesce(t.time_spent_ms, 0), '
+            ."case when l.deleted_at is null and l.blocked_at is null and {$notOptedOut} then {$true} else {$false} end, "
+            ."null, {$typed('timestamp')}, {$typed('timestamp')} "
+            .'from ('
+            .'select s.learner_id, max(s.month_category) as category, sum(s.month_points) as points, sum(s.raw_points) as raw_points, '
+            .'sum(case when s.month_points > 0 then 1 else 0 end) as active_days, count(s.month_capped_at) as capped_days, '
+            .'max(s.raw_points) as max_day_points '
+            ."from learner_score_days s where s.rating_day >= ? and s.rating_day <= ?{$daysScope} group by s.learner_id"
+            .') a '
+            .'join learners l on l.id = a.learner_id '
+            .'left join ('
+            .'select c.learner_id, count(distinct c.lexeme_id) as long_words from score_credits c '
+            ."where c.rating_day >= ? and c.rating_day <= ? and c.kind = 'long' and c.month_points > 0 and c.voided_at is null{$longScope} "
+            .'group by c.learner_id'
+            .') c on c.learner_id = a.learner_id '
+            .'left join ('
+            .'select t.learner_id, sum(t.reviews_count) as reviews, sum(t.correct_count) as correct, sum(t.new_words_count) as new_words, '
+            .'sum(case when t.goal_met_at is not null then 1 else 0 end) as goal_days, sum(t.game_points) as game_points, '
+            .'sum(t.time_spent_ms) as time_spent_ms '
+            ."from learner_daily_stats t where t.date >= ? and t.date <= ?{$statsScope} group by t.learner_id"
+            .') t on t.learner_id = a.learner_id '
+            // sqlite: an INSERT … SELECT with joins needs a WHERE before ON CONFLICT (the parser would read it as a join's ON).
+            .'where a.learner_id is not null '
+            ."on conflict (league_month_id, learner_id) do update set {$set} where {$changed}",
+            [
+                $month->id, $stamp, $stamp,
+                $from, $to, ...$daysBindings,
+                $from, $to, ...$longBindings,
+                $from, $to, ...$statsBindings,
+            ],
+        );
+    }
+
     /** `participants_count` and `refreshed_at` of an open month after a refresh — its own short statement, no lock held with it. */
     private function stampRefresh(LeagueMonth $month, CarbonImmutable $now): void
     {
@@ -877,14 +1123,48 @@ final class MonthlyRatingService
         $month->participants_count = $count;
     }
 
-    private function participantsCount(LeagueMonth $month): int
+    /** The participants of the month (both tables of a v2 month), or of one category of a v2 month. */
+    public function participantsCount(LeagueMonth $month, ?ScoreCategory $category = null): int
     {
-        return LeagueMonthScore::query()->where('league_month_id', $month->id)->where('participant', true)->count();
+        return LeagueMonthScore::query()
+            ->where('league_month_id', $month->id)
+            ->when($category !== null, static fn ($q) => $q->where('category', $category?->value))
+            ->where('participant', true)
+            ->count();
     }
 
-    /** `final_rank` of every participant by the order of the rating (a window function); non-participants get NULL. */
+    /**
+     * `final_rank` of every participant by the order of the rating (a window function); non-participants get NULL. A v2 month ranks
+     * each category on its own with the COMPETITION rank (`RANK() OVER (PARTITION BY category ORDER BY points desc, long_words desc,
+     * active_days desc)`, docs/32 §7): a shared place is one place.
+     */
     private function writeFinalRanks(LeagueMonth $month): void
     {
+        if (self::isV2($month)) {
+            $window = 'rank() over (partition by category order by points desc, long_words desc, active_days desc)';
+            if (DB::connection()->getDriverName() === 'pgsql') {
+                // One pass: the window once, joined by id (a correlated subquery would recompute it per row).
+                DB::update(
+                    'update league_month_scores as s set final_rank = r.rn from ('
+                    ."select id, {$window} as rn from league_month_scores where league_month_id = ? and participant = true"
+                    .') r where s.id = r.id and s.final_rank is distinct from r.rn',
+                    [$month->id],
+                );
+                DB::update('update league_month_scores set final_rank = null where league_month_id = ? and participant = false and final_rank is not null', [$month->id]);
+
+                return;
+            }
+
+            DB::update(
+                'update league_month_scores set final_rank = (select r.rn from ('
+                ."select id, {$window} as rn from league_month_scores where league_month_id = ? and participant = 1"
+                .') r where r.id = league_month_scores.id) where league_month_id = ?',
+                [$month->id, $month->id],
+            );
+
+            return;
+        }
+
         $order = 'order by points desc, active_days desc, learner_id asc';
 
         if (DB::connection()->getDriverName() === 'pgsql') {
@@ -914,6 +1194,14 @@ final class MonthlyRatingService
     private function snapshotCandidates(LeagueMonth $month): void
     {
         LeagueMonthCandidate::query()->where('league_month_id', $month->id)->delete();
+
+        if (self::isV2($month)) {
+            foreach (ScoreCategory::cases() as $category) {
+                $this->snapshotCategoryCandidates($month, $category);
+            }
+
+            return;
+        }
 
         // Eligible by the account's age: registered on a local day at least `min_account_days` before the last day of the month.
         $cutoff = $this->firstDayAt($month)->endOfMonth()->startOfDay()->subDays($this->minAccountDays())->addDay()->utc();
@@ -949,6 +1237,76 @@ final class MonthlyRatingService
                 'points' => $score->points,
                 'active_days' => $score->active_days,
                 'signals' => json_encode($this->signals($month, $score, $learner), JSON_THROW_ON_ERROR),
+                'status' => LeagueMonthCandidateStatus::Candidate->value,
+                'created_at' => $stamp,
+                'updated_at' => $stamp,
+            ];
+        }
+
+        if ($rows !== []) {
+            LeagueMonthCandidate::query()->insert($rows);
+        }
+    }
+
+    /**
+     * The candidates of one category of a v2 month (docs/32 §7): the eligible participants (`min_active_days`, the account's age - the
+     * v1 thresholds) whose COMPETITION rank among the eligible ones is within {@see candidateCount()} - everybody who shares the last
+     * place goes in, so the frozen list may be longer. `rank` of a candidate is that rank: equal tuples - equal ranks.
+     *
+     * Two statements per category: the tuple at the boundary (`offset candidates − 1`), then everybody at least as good as it - both
+     * an index range of `league_month_scores_category_standings_idx` (the eligibility filter is checked on the rows read).
+     */
+    private function snapshotCategoryCandidates(LeagueMonth $month, ScoreCategory $category): void
+    {
+        $cutoff = $this->firstDayAt($month)->endOfMonth()->startOfDay()->subDays($this->minAccountDays())->addDay()->utc();
+        $eligible = fn () => LeagueMonthScore::query()
+            ->join('learners as l', 'l.id', '=', 'league_month_scores.learner_id')
+            ->where('league_month_scores.league_month_id', $month->id)
+            ->where('league_month_scores.category', $category->value)
+            ->where('league_month_scores.participant', true)
+            ->where('league_month_scores.active_days', '>=', $this->minActiveDays())
+            ->where('l.created_at', '<', $cutoff->format('Y-m-d H:i:s'))
+            ->orderByDesc('league_month_scores.points')
+            ->orderByDesc('league_month_scores.long_words')
+            ->orderByDesc('league_month_scores.active_days')
+            ->orderBy('league_month_scores.learner_id');
+
+        /** @var LeagueMonthScore|null $boundary */
+        $boundary = $eligible()->offset($this->candidateCount($category) - 1)->limit(1)->select('league_month_scores.*')->first();
+
+        $query = $eligible()->with('learner')->select('league_month_scores.*');
+        if ($boundary !== null) {
+            // Everybody at least as good as the boundary tuple (`points >= P` is the range of the index).
+            $query->where('league_month_scores.points', '>=', $boundary->points)->where(function ($q) use ($boundary): void {
+                $q->where('league_month_scores.points', '>', $boundary->points)
+                    ->orWhere('league_month_scores.long_words', '>', $boundary->long_words)
+                    ->orWhere(fn ($q) => $q->where('league_month_scores.long_words', $boundary->long_words)->where('league_month_scores.active_days', '>=', $boundary->active_days));
+            });
+        }
+
+        /** @var Collection<int, LeagueMonthScore> $scores */
+        $scores = $query->get();
+
+        $stamp = $month->freshTimestamp();
+        $rows = [];
+        $previous = null;
+        $rank = 0;
+        foreach ($scores as $i => $score) {
+            $learner = $score->learner;
+            if ($learner === null) {
+                continue;
+            }
+            $ties = $previous !== null && $previous->points === $score->points && $previous->long_words === $score->long_words && $previous->active_days === $score->active_days;
+            $rank = $ties ? $rank : $i + 1;
+            $previous = $score;
+            $rows[] = [
+                'league_month_id' => $month->id,
+                'learner_id' => $score->learner_id,
+                'category' => $category->value,
+                'rank' => $rank,
+                'points' => $score->points,
+                'active_days' => $score->active_days,
+                'signals' => json_encode([...$this->signals($month, $score, $learner), 'long_words' => $score->long_words], JSON_THROW_ON_ERROR),
                 'status' => LeagueMonthCandidateStatus::Candidate->value,
                 'created_at' => $stamp,
                 'updated_at' => $stamp,

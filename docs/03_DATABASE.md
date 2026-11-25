@@ -1012,7 +1012,7 @@ partial unique `subscriptions_one_live_per_subscriber` `(subscriber_type, subscr
 | closed_at | timestamp nullable | штамп финализации группы (`LeagueService::closeGroup`, P1-2): `final_*` всех её участников записаны одним UPDATE; `NOT NULL` ⇔ standings читаются из `final_*`, место в группе больше не выдаётся. Ставится закрытием недели (по группе в транзакции) или размещением участника в следующую неделю, которому вердикт нужен раньше закрытия |
 | created_at, updated_at | | |
 
-**Индексы:** `(league_week_id, tier, members_count)` — выбор группы с местом; он же (по префиксу `league_week_id`) — выбор групп недели без штампа при закрытии.
+**Индексы:** `league_groups_week_category_tier_idx (league_week_id, category, tier)` — выбор группы с местом (с S8, миграция `2026_11_26_100001`: фильтр по категории и в v1, где все группы `free`); он же (по префиксу `league_week_id`) — FK и выбор групп недели без штампа при закрытии. `members_count` не индексируется: условие `members_count < capacity` сравнивает две колонки и по индексу не ищется, а инкремент на каждом размещении без индексированной колонки остаётся HOT. Прежние `(league_week_id, tier, members_count)` и `(league_week_id, category, tier, members_count)` сняты.
 
 ### 2.36 `league_members` — место learner'а в группе недели *(2C.3)*
 | Колонка | Тип | Описание |
@@ -1518,7 +1518,7 @@ CHECK не создаются — инвариант дублируют серв
 | voided_at, voided_by_user_id, void_reason | timestamp, FK → users SET NULL, string(255) | аннулирование (`ScoreCorrectionService`, S11) |
 | created_at | timestamp nullable | |
 
-**Индексы:** unique `(learner_id, rating_day, lexeme_id)` — одно начисление лексемы в день (вторая линия обороны за блокировкой `learner_lexemes`; ядро пишет `INSERT … ON CONFLICT DO NOTHING`) и все чтения по ученику (месяц, финиш занятия и забега); PostgreSQL (миграция `2026_11_25_300101`): **BRIN** `score_credits_rating_day_brin (rating_day)` вместо B-tree — его читает только очистка (`DELETE … WHERE rating_day < ?`, S16), строки приходят в порядке дня, BRIN занимает десятки КБ и не обновляется на каждой вставке; partial `score_credits_voided_by_idx (voided_by_user_id) WHERE voided_by_user_id IS NOT NULL` — для `ON DELETE SET NULL` при удалении администратора (вставка его не касается). На sqlite (тесты) — B-tree `(rating_day)` и FK, как в 300004. Хранение — `leagues.scoring.credits_retention_days` (180), очистка только дней закрытых месяцев (S16).
+**Индексы:** unique `(learner_id, rating_day, lexeme_id)` — одно начисление лексемы в день (вторая линия обороны за блокировкой `learner_lexemes`; ядро пишет `INSERT … ON CONFLICT DO NOTHING`) и все чтения по ученику (месяц, финиш занятия и забега); PostgreSQL (миграция `2026_11_25_300101`): **BRIN** `score_credits_rating_day_brin (rating_day)` вместо B-tree — его читает только очистка (`DELETE … WHERE rating_day < ?`, S16), строки приходят в порядке дня, BRIN занимает десятки КБ и не обновляется на каждой вставке; partial `score_credits_voided_by_idx (voided_by_user_id) WHERE voided_by_user_id IS NOT NULL` — для `ON DELETE SET NULL` при удалении администратора (вставка его не касается). На sqlite (тесты) — B-tree `(rating_day)` и FK, как в 300004. Хранение — `leagues.scoring.credits_retention_days` (180), очистка только дней закрытых месяцев (S16). С S9 (миграция `2026_11_26_100002`, CONCURRENTLY): partial `score_credits_long_idx (learner_id, rating_day, lexeme_id) WHERE kind = 'long' AND month_points > 0 AND voided_at IS NULL` — `long_words` месяца v2 (`COUNT(DISTINCT lexeme_id)` для ученика, «недавних» и всех при закрытии) читается index-only, без просмотра всего месяца журнала; в индекс попадают только длинные повторы с месячными очками (обычное начисление его не трогает), аннулирование (редкое) выводит строку из него (docs/32 §12.6).
 
 ### 2.71 `learner_score_totals` — «За всё время» *(S2, docs/32 §2.6)*
 | Колонка | Тип | Описание |
@@ -1536,9 +1536,9 @@ CHECK не создаются — инвариант дублируют серв
 
 **Изменения таблиц лиг** *(S2, docs/32 §2.6; читаются с S8/S9, до этого v1-код их не трогает)*:
 - `league_weeks.rules_version`, `league_months.rules_version` — smallint default 1: версия правил периода, пишется при создании строки и не меняется;
-- `league_groups.category` — string(4) default `free`; индекс `(league_week_id, category, tier, members_count)` — место в группе категории. docs/32 §2.6 ставит его **вместо** `(league_week_id, tier, members_count)`, но старый индекс оставлен, пока v1-размещение ищет группу без категории; его снимет S8 вместе с переходом выбора группы на категорию;
+- `league_groups.category` — string(4) default `free` (категория группы недели v2; в неделе v1 все группы `free`); индекс выбора места — `(league_week_id, category, tier)` (§2.35, S8);
 - `league_members.category` string(4) nullable, `final_long_words`, `final_days` smallint nullable — итог v2-недели для ничьих;
-- `league_month_scores.category` string(4) nullable (`NULL` — месяц v1, одна общая таблица), `long_words` int default 0; новый индекс `league_month_scores_category_standings_idx (league_month_id, category, participant, points desc, long_words desc, active_days desc, learner_id)` (CONCURRENTLY), v1-индекс `league_month_scores_standings_idx` остаётся;
+- `league_month_scores.category` string(4) nullable (`NULL` — месяц v1, одна общая таблица), `long_words` int default 0; новый индекс `league_month_scores_category_standings_idx (league_month_id, category, participant, points desc, long_words desc, active_days desc, learner_id)` (CONCURRENTLY), v1-индекс `league_month_scores_standings_idx` остаётся (нужен открытым и проверяемым v1-месяцам; каждое изменение строки v2 пишет запись и в него — предложение: снять отдельной миграцией после подтверждения последнего v1-месяца, docs/32 §12.6). С S9 таблица месяца v2 читается только по новому индексу: топ, страница после курсора, соседи, свой ранг (`ScoreBoard`) — index-only по `points` как диапазону;
 - `league_month_candidates.category` string(4) nullable.
 
 ## 3. Порядок миграций
@@ -1663,6 +1663,8 @@ CHECK не создаются — инвариант дублируют серв
 87. `2026_11_25_300005_add_scoring_columns_to_league_tables` — версии правил, категории и признаки ничьих в таблицах лиг *(§2.71, «Изменения таблиц лиг»)*
 88. `2026_11_25_300006_add_category_standings_index_to_league_month_scores` — индекс таблицы месяца по категории (CONCURRENTLY на PostgreSQL) *(§2.63)*
 89. `2026_11_25_300101_tune_score_credits_indexes` — только PostgreSQL: B-tree `score_credits (rating_day)` → BRIN, снят FK `score_credits.lexeme_id`, partial-индекс `voided_by_user_id`; `down()` возвращает форму 300004 *(§2.70, S4)*
+90. `2026_11_26_100001_reindex_league_groups_seat_lookup` — `league_groups`: `(league_week_id, category, tier)` вместо `(league_week_id, tier, members_count)` и `(league_week_id, category, tier, members_count)`; `down()` возвращает оба *(§2.35, S8)*
+91. `2026_11_26_100002_add_long_credits_index_to_score_credits` — partial `score_credits_long_idx` (CONCURRENTLY на PostgreSQL) *(§2.70, S9)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

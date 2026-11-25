@@ -112,6 +112,11 @@ enum ProductEventName: string
     case LeagueMonthCandidateReinstated = 'league.month_candidate_reinstated';
     /** A prize of a confirmed winner was marked as delivered (props: month_id, candidate_id, place; actor = the user, the learner). */
     case LeagueMonthPrizeDelivered = 'league.month_prize_delivered';
+    /**
+     * Word points v2 (docs/32 S16): an answer took a count of the rating day to its cap - once per learner, rating day and count
+     * (props: count — week / month, rating_day, category, cap). Recorded after the commit of the answer, only on the v2 rules.
+     */
+    case ScoreDayCapped = 'score.day_capped';
     /** A friend request was created (props: friendship_id — docs/13 §7.5); actor = the requester. */
     case FriendRequested = 'friend.requested';
     /** A friend request was accepted (props: friendship_id); actor = the acceptor. */

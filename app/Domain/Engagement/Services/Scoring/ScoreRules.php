@@ -107,6 +107,18 @@ final class ScoreRules
     }
 
     /**
+     * The rules the kind and the raw points of a credit are told by (docs/32 §12.1): the higher version of the day's two counts, or -
+     * when both are still on version 1 (`shadow`, `live` before the start) - the latest configured version, so that the recorded facts
+     * are those of the rules to come. Null only when no version is configured at all (nothing is recorded then).
+     */
+    public function reference(int $weekVersion, int $monthVersion): ?ScoreRuleVersion
+    {
+        $latest = $this->versions();
+
+        return $this->version(max($weekVersion, $monthVersion)) ?? (array_pop($latest) ?: null);
+    }
+
+    /**
      * Every well-formed configured version >= 2, by number (a malformed one is left out).
      *
      * @return array<int, ScoreRuleVersion>

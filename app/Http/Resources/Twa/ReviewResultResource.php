@@ -47,6 +47,8 @@ final class ReviewResultResource extends TwaResource
                 'note' => $revealed->note,
                 'confused_with' => $revealed->confusedWith,
             ],
+            // The word points of the answer (docs/32 §8.1); null with `leagues.scoring.mode` off / shadow and before the v2 start.
+            'score' => $this->resource->score?->toApi(),
             ...(new TrainingNextResource($this->resource->next))->toArray($request),
         ];
     }

@@ -1453,6 +1453,7 @@ return [
                 'league_top1' => 'Первое место в лиге',
                 'first_friend' => 'Первый друг',
                 'game_first_boss' => 'Хранитель побеждён',
+                'long_recall_25' => 'Долгая память',
             ],
         ],
         'caravans' => [

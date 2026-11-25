@@ -11,6 +11,8 @@ use App\Domain\Engagement\Enums\ScoreKind;
 use App\Domain\Engagement\Enums\ScorePeriod;
 use App\Domain\Engagement\Enums\ScoreSource;
 use App\Domain\Engagement\Enums\ScoringMode;
+use App\Domain\Engagement\Services\LeagueService;
+use App\Domain\Engagement\Support\ScoreCount;
 use App\Domain\Learners\Support\StoredDate;
 use App\Domain\Learning\Contracts\AnswerScoreRecorder;
 use App\Domain\Learning\DTO\CardStateBefore;
@@ -19,12 +21,15 @@ use App\Domain\Learning\DTO\ScoreDayCount;
 use App\Domain\Learning\DTO\WordScoreOutcome;
 use App\Domain\Learning\Enums\AnswerVerdict;
 use App\Domain\Learning\Enums\WordScoreReason;
+use App\Models\Learner;
 use App\Models\LearnerLexeme;
 use App\Models\LearnerScoreDay;
 use App\Models\ScoreCredit;
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Facades\DB;
 use LogicException;
+use Throwable;
 
 /**
  * The word points of one answer (docs/28, docs/32 §3; task S4): the one point where the training and the game credit a word.
@@ -43,7 +48,10 @@ use LogicException;
  *      {@see ScorePeriodService::fixDay()} - and creates the row with their categories and versions), the journal row
  *      `score_credits` (ON CONFLICT DO NOTHING on `(learner_id, rating_day, lexeme_id)`: the database's guarantee behind the lock), the
  *      two counts updated from the locked values - the slot of the kind is spent while the category's limit is not reached, the points
- *      are what is left under the day cap, a count still on version 1 gets nothing - then the lexeme row once.
+ *      are what is left under the day cap, a count still on version 1 gets nothing - then the lexeme row once. The rule of one count is
+ *      the pure {@see ScoreCount::add()}, shared with the correction of a day (ScoreCorrectionService);
+ *   5. the first credit of a rating day of a v2 week seats the learner in a group of the week's category AFTER the commit
+ *      ({@see LeagueService::place()}, S8) - nothing of the league inside the answer's transaction.
  *
  * Locks, always in this order: `learner_lexemes` → `learner_score_periods` → `learner_score_days`; the callers hold their own rows
  * before (`training_sessions → word_repetitions`, `game_runs`) and touch `learner_daily_stats` only after. ONE lexeme per answer, so two
@@ -69,6 +77,7 @@ final class WordScoreService implements AnswerScoreRecorder
     public function __construct(
         private readonly ScoreRules $rules,
         private readonly ScorePeriodService $periods,
+        private readonly Container $container,
     ) {}
 
     public function records(): bool
@@ -217,7 +226,7 @@ final class WordScoreService implements AnswerScoreRecorder
      */
     private function credit(ScoredAnswer $answer, ScoreKind $kind, string $day, CarbonImmutable $now, array $lexemeChanges, ?LearnerLexeme $lexeme): WordScoreOutcome
     {
-        [$row, $firstOfWeek] = $this->lockDay($answer, $day, $now);
+        [$row, $firstOfWeek, $firstOfDay] = $this->lockDay($answer, $day, $now);
 
         $weekVersion = (int) $row->week_version;
         $monthVersion = (int) $row->month_version;
@@ -228,12 +237,13 @@ final class WordScoreService implements AnswerScoreRecorder
         }
 
         $base = $reference->pointsFor($kind);
+        $stamp = self::timestamp($now);
         $dayChanges = [
             'raw_points' => (int) $row->raw_points + $base,
             'new_count' => (int) $row->new_count + ($kind === ScoreKind::New ? 1 : 0),
             'review_count' => (int) $row->review_count + ($kind === ScoreKind::New ? 0 : 1),
             'long_count' => (int) $row->long_count + ($kind === ScoreKind::Long ? 1 : 0),
-            'updated_at' => self::timestamp($now),
+            'updated_at' => $stamp,
         ];
 
         $added = [];
@@ -242,40 +252,40 @@ final class WordScoreService implements AnswerScoreRecorder
         foreach ([ScorePeriod::Week, ScorePeriod::Month] as $period) {
             $prefix = $period->value;
             $version = $period === ScorePeriod::Week ? $weekVersion : $monthVersion;
-            $category = $row->getAttribute("{$prefix}_category");
-            $category = $category instanceof ScoreCategory ? $category : ScoreCategory::from((string) $category);
+            $category = self::category($row->getAttribute("{$prefix}_category"));
             $rules = $version >= 2 ? $this->rules->version($version) : null;
 
-            $points = (int) $row->getAttribute("{$prefix}_points");
-            $new = (int) $row->getAttribute("{$prefix}_new");
-            $review = (int) $row->getAttribute("{$prefix}_review");
+            $before = new ScoreCount(
+                points: (int) $row->getAttribute("{$prefix}_points"),
+                new: (int) $row->getAttribute("{$prefix}_new"),
+                review: (int) $row->getAttribute("{$prefix}_review"),
+                long: (int) $row->getAttribute("{$prefix}_long"),
+                cappedAt: $row->getAttribute("{$prefix}_capped_at") === null ? null : 'set',
+            );
             $added[$prefix] = 0;
 
-            if ($rules !== null) {
-                $anyV2 = true;
-                $limits = $rules->limitsFor($category);
-                $slotUsed = $kind === ScoreKind::New ? $new : $review;
-                $slotLimit = $kind === ScoreKind::New ? $limits->new : $limits->review;
+            if ($rules === null) {
+                $counts[$prefix] = new ScoreDayCount($category, $version, $before->points, null, $before->new, null, $before->review, null);
 
-                if ($slotUsed < $slotLimit) {
-                    // The slot is spent even when the cap leaves 0: "the first suitable answers up to the limit" (docs/28).
-                    $added[$prefix] = min($rules->pointsFor($kind), max(0, $limits->dayCap - $points));
-                    $points += $added[$prefix];
-                    $kind === ScoreKind::New ? $new++ : $review++;
-                    $dayChanges["{$prefix}_points"] = $points;
-                    $dayChanges[$kind === ScoreKind::New ? "{$prefix}_new" : "{$prefix}_review"] = $kind === ScoreKind::New ? $new : $review;
-                    if ($kind === ScoreKind::Long && $added[$prefix] > 0) {
-                        $dayChanges["{$prefix}_long"] = (int) $row->getAttribute("{$prefix}_long") + 1;
-                    }
-                    if ($points >= $limits->dayCap && $row->getAttribute("{$prefix}_capped_at") === null) {
-                        $dayChanges["{$prefix}_capped_at"] = self::timestamp($now);
-                    }
-                }
-
-                $counts[$prefix] = new ScoreDayCount($category, $version, $points, $limits->dayCap, $new, $limits->new, $review, $limits->review);
-            } else {
-                $counts[$prefix] = new ScoreDayCount($category, $version, $points, null, $new, null, $review, null);
+                continue;
             }
+
+            // The rule of one credit is the pure ScoreCount::add - the very one the correction of a day replays (S11).
+            $anyV2 = true;
+            $limits = $rules->limitsFor($category);
+            [$added[$prefix], $after] = $before->add($kind, $rules, $category, $stamp);
+            if ($after !== $before) {
+                $dayChanges["{$prefix}_points"] = $after->points;
+                $dayChanges[$kind === ScoreKind::New ? "{$prefix}_new" : "{$prefix}_review"] = $kind === ScoreKind::New ? $after->new : $after->review;
+                if ($after->long !== $before->long) {
+                    $dayChanges["{$prefix}_long"] = $after->long;
+                }
+                if ($before->cappedAt === null && $after->cappedAt !== null) {
+                    $dayChanges["{$prefix}_capped_at"] = $after->cappedAt;
+                }
+            }
+
+            $counts[$prefix] = new ScoreDayCount($category, $version, $after->points, $limits->dayCap, $after->new, $limits->new, $after->review, $limits->review);
         }
 
         $journaled = ScoreCredit::query()->insertOrIgnore([
@@ -323,6 +333,13 @@ final class WordScoreService implements AnswerScoreRecorder
             $this->updateLexeme($answer, $lexemeChanges);
         }
 
+        // The weekly placement of v2 (docs/32 §5.1, S8): at the first credit of a rating day of a week that counts by v2 - into a group of
+        // the week's category. The first credit of the week is one of those; the later days repeat it as a no-op (one read of the week and
+        // one of the membership), so a learner opted back in, unblocked, or whose hook failed is seated the next day, as in v1.
+        if ($firstOfDay && $weekVersion >= 2) {
+            $this->placeAfterCommit($answer->learnerId, $counts['week']->category, $now);
+        }
+
         $cut = $anyV2 && $added['week'] === 0 && $added['month'] === 0;
 
         return new WordScoreOutcome(
@@ -344,13 +361,13 @@ final class WordScoreService implements AnswerScoreRecorder
      * month (fixed here when they are not yet). A row inserted by this call is locked by its insert and known whole - it is not read
      * back; one a parallel answer inserted first is read again under the lock.
      *
-     * @return array{0: LearnerScoreDay, 1: bool} the row, and whether this call fixed the week
+     * @return array{0: LearnerScoreDay, 1: bool, 2: bool} the row, whether this call fixed the week, whether it created the row
      */
     private function lockDay(ScoredAnswer $answer, string $day, CarbonImmutable $now): array
     {
         $row = $this->lockedDay($answer->learnerId, $day);
         if ($row !== null) {
-            return [$row, false];
+            return [$row, false, false];
         }
 
         $fixed = $this->periods->fixDay($answer->learnerId, CarbonImmutable::parse($day, $this->rules->timezone()), ScoreCategory::fromPlan($answer->plan()), $now);
@@ -373,13 +390,42 @@ final class WordScoreService implements AnswerScoreRecorder
         ];
 
         if (LearnerScoreDay::query()->insertOrIgnore($attributes) > 0) {
-            return [(new LearnerScoreDay)->newFromBuilder($attributes), $fixed['week']->created];
+            return [(new LearnerScoreDay)->newFromBuilder($attributes), $fixed['week']->created, true];
         }
 
         $row = $this->lockedDay($answer->learnerId, $day)
             ?? throw new LogicException("learner_score_days: no row of learner {$answer->learnerId} on {$day} after the insert.");
 
-        return [$row, $fixed['week']->created];
+        return [$row, $fixed['week']->created, false];
+    }
+
+    /**
+     * Seats the learner in a group of the week's category after the commit of the answer ({@see LeagueService::place()}: idempotent,
+     * leagues off / opt-out / block / a week being closed are its own checks). A failure is reported, never a failed answer. The
+     * league service is resolved only here: the answer path does not build it.
+     */
+    private function placeAfterCommit(int $learnerId, ScoreCategory $category, CarbonImmutable $now): void
+    {
+        DB::afterCommit(function () use ($learnerId, $category, $now): void {
+            try {
+                $leagues = $this->container->make(LeagueService::class);
+                if (! $leagues->enabled()) {
+                    return;
+                }
+                /** @var Learner|null $learner */
+                $learner = Learner::query()->find($learnerId);
+                if ($learner !== null) {
+                    $leagues->place($learner, $now, $category);
+                }
+            } catch (Throwable $e) {
+                report($e);
+            }
+        });
+    }
+
+    private static function category(mixed $value): ScoreCategory
+    {
+        return $value instanceof ScoreCategory ? $value : ScoreCategory::from((string) $value);
     }
 
     private function lockedDay(int $learnerId, string $day): ?LearnerScoreDay
@@ -422,10 +468,7 @@ final class WordScoreService implements AnswerScoreRecorder
      */
     private function referenceRules(int $weekVersion, int $monthVersion): ScoreRuleVersion
     {
-        $latest = $this->rules->versions();
-
-        return $this->rules->version(max($weekVersion, $monthVersion))
-            ?? array_pop($latest)
+        return $this->rules->reference($weekVersion, $monthVersion)
             ?? throw new LogicException('The word points are recorded without a configured rules version.');
     }
 

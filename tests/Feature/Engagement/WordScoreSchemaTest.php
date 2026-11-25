@@ -158,6 +158,7 @@ it('rolls the catalog and the score tables back and forth, keeping the indexes o
         '2026_11_25_300004_create_word_score_tables',
         '2026_11_25_300005_add_scoring_columns_to_league_tables',
         '2026_11_25_300006_add_category_standings_index_to_league_month_scores',
+        '2026_11_26_100001_reindex_league_groups_seat_lookup',
     ];
     $migrations = array_map(fn (string $file): object => require database_path("migrations/{$file}.php"), $files);
 
@@ -183,7 +184,9 @@ it('rolls the catalog and the score tables back and forth, keeping the indexes o
 
     expect(Schema::hasColumn('words', 'lexeme_id'))->toBeTrue()
         ->and($names('words'))->toContain('words_lexeme_id_idx', 'words_inactive_idx')
-        ->and($names('league_groups'))->toContain('league_groups_league_week_id_category_tier_members_count_index', 'league_groups_league_week_id_tier_members_count_index')
+        // S8 (2026_11_26_100001): one seat lookup by week, category and tier; `members_count` is no longer indexed (HOT increments).
+        ->and($names('league_groups'))->toContain('league_groups_week_category_tier_idx')
+        ->and($names('league_groups'))->not->toContain('league_groups_league_week_id_category_tier_members_count_index', 'league_groups_league_week_id_tier_members_count_index')
         ->and($names('learner_lexemes'))->toContain('learner_lexemes_first_long_idx')
         ->and($names('learner_score_totals'))->toContain('learner_score_totals_standings_idx');
 });

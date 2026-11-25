@@ -11,6 +11,7 @@ use App\Domain\Engagement\DTO\MonthCandidateReview;
 use App\Domain\Engagement\DTO\MonthReview;
 use App\Domain\Engagement\Enums\LeagueMonthCandidateStatus;
 use App\Domain\Engagement\Enums\LeagueMonthStatus;
+use App\Domain\Engagement\Enums\ScoreCategory;
 use App\Domain\Engagement\Events\LeagueMonthConfirmed;
 use App\Domain\Engagement\Exceptions\LeagueMonthException;
 use App\Domain\Operations\Support\PureCache;
@@ -93,33 +94,27 @@ final class MonthlyRatingReviewService
     }
 
     /**
-     * `pending_review → confirmed`: the candidates not disqualified get the places 1..`places` by rank; the places are final.
-     * After the commit: {@see LeagueMonthConfirmed} (the bot's congratulations), `league.month_confirmed`.
+     * `pending_review → confirmed`; the places are final. After the commit: {@see LeagueMonthConfirmed} (the bot's congratulations),
+     * `league.month_confirmed`.
+     *
+     *   v1 month: the candidates not disqualified get the places 1..`places` by rank;
+     *   v2 month (docs/32 §7, owner's decision В5): each category on its own - the place of a candidate not disqualified is its
+     *             competition rank among the candidates of the category not disqualified (equal tuples, equal `rank` → one place);
+     *             everybody with a place within `places(category)` wins, a shared prize place included. When that gives more winners
+     *             than `places + tie_reserve`, the confirmation is refused ({@see LeagueMonthException::TIE_BEYOND_RESERVE}) unless
+     *             the administrator confirms with `$acceptTieOverflow` (the published rule: decided by hand).
      */
-    public function confirm(LeagueMonth $month, User $by, ?string $ip = null, ?CarbonImmutable $now = null): LeagueMonth
+    public function confirm(LeagueMonth $month, User $by, ?string $ip = null, ?CarbonImmutable $now = null, bool $acceptTieOverflow = false): LeagueMonth
     {
         $now ??= CarbonImmutable::now();
 
-        /** @var list<array{learner_id: int, place: int, points: int}> $winners */
+        /** @var list<array{learner_id: int, place: int, points: int, category?: string}> $winners */
         $winners = [];
 
-        DB::transaction(function () use ($month, $by, $ip, $now, &$winners): void {
+        DB::transaction(function () use ($month, $by, $ip, $now, $acceptTieOverflow, &$winners): void {
             $locked = $this->lockPending($month);
 
-            /** @var EloquentCollection<int, LeagueMonthCandidate> $candidates */
-            $candidates = LeagueMonthCandidate::query()
-                ->where('league_month_id', $locked->id)
-                ->where('status', '<>', LeagueMonthCandidateStatus::Disqualified->value)
-                ->orderBy('rank')
-                ->limit($this->rating->places())
-                ->get();
-
-            $place = 0;
-            foreach ($candidates as $candidate) {
-                $place++;
-                $candidate->forceFill(['status' => LeagueMonthCandidateStatus::Winner->value, 'place' => $place])->save();
-                $winners[] = ['learner_id' => $candidate->learner_id, 'place' => $place, 'points' => $candidate->points];
-            }
+            $winners = MonthlyRatingService::isV2($locked) ? $this->confirmCategories($locked, $acceptTieOverflow) : $this->confirmPlaces($locked);
 
             $locked->forceFill([
                 'status' => LeagueMonthStatus::Confirmed->value,
@@ -128,7 +123,7 @@ final class MonthlyRatingReviewService
             ])->save();
             $month->setRawAttributes($locked->getAttributes(), true);
 
-            $this->audit(self::ACTION_CONFIRMED, $locked, $by, $ip, ['winners' => $winners]);
+            $this->audit(self::ACTION_CONFIRMED, $locked, $by, $ip, ['winners' => $winners, ...($acceptTieOverflow ? ['tie_overflow_accepted' => true] : [])]);
         });
 
         PureCache::forgetMany([MonthlyRatingService::topKey($month->id)]);
@@ -150,7 +145,7 @@ final class MonthlyRatingReviewService
      */
     public function resendCongratulations(LeagueMonth $month, User $by, ?string $ip = null): int
     {
-        /** @var list<array{learner_id: int, place: int, points: int}> $winners */
+        /** @var list<array{learner_id: int, place: int, points: int, category?: string}> $winners */
         $winners = [];
 
         DB::transaction(function () use ($month, $by, $ip, &$winners): void {
@@ -166,7 +161,11 @@ final class MonthlyRatingReviewService
                 ->orderBy('place')
                 ->get();
             foreach ($candidates as $candidate) {
-                $winners[] = ['learner_id' => $candidate->learner_id, 'place' => (int) $candidate->place, 'points' => $candidate->points];
+                $winner = ['learner_id' => $candidate->learner_id, 'place' => (int) $candidate->place, 'points' => $candidate->points];
+                if ($candidate->category !== null) {
+                    $winner['category'] = $candidate->category;
+                }
+                $winners[] = $winner;
             }
 
             $this->audit(self::ACTION_CONGRATS_RESENT, $locked, $by, $ip, ['winners' => count($winners)]);
@@ -309,7 +308,9 @@ final class MonthlyRatingReviewService
      */
     public function setPrizes(LeagueMonth $month, ?array $prizes, User $by, ?string $ip = null): LeagueMonth
     {
-        $normalised = $prizes === null ? null : $this->normalisePrizes($prizes);
+        $normalised = $prizes === null ? null : (
+            MonthlyRatingService::isV2($month) && ! array_is_list($prizes) ? $this->normaliseCategoryPrizes($prizes) : $this->normalisePrizes($prizes)
+        );
 
         DB::transaction(function () use ($month, $normalised, $by, $ip): void {
             $locked = $this->lockMonth($month);
@@ -353,6 +354,18 @@ final class MonthlyRatingReviewService
             return $places;
         }
 
+        if (MonthlyRatingService::isV2($month)) {
+            foreach (ScoreCategory::cases() as $category) {
+                foreach ($this->categoryPlaces($candidates, $category) as $id => $place) {
+                    if ($place <= $this->rating->places($category)) {
+                        $places[$id] = $place;
+                    }
+                }
+            }
+
+            return $places;
+        }
+
         $place = 0;
         foreach ($candidates as $candidate) {
             if ($candidate->isDisqualified() || $place >= $this->rating->places()) {
@@ -366,19 +379,129 @@ final class MonthlyRatingReviewService
     }
 
     /**
+     * The winners of a v1 month: the candidates not disqualified get the places 1..`places` by rank (the caller's transaction).
+     *
+     * @return list<array{learner_id: int, place: int, points: int, category?: string}>
+     */
+    private function confirmPlaces(LeagueMonth $month): array
+    {
+        /** @var EloquentCollection<int, LeagueMonthCandidate> $candidates */
+        $candidates = LeagueMonthCandidate::query()
+            ->where('league_month_id', $month->id)
+            ->where('status', '<>', LeagueMonthCandidateStatus::Disqualified->value)
+            ->orderBy('rank')
+            ->limit($this->rating->places())
+            ->get();
+
+        $winners = [];
+        $place = 0;
+        foreach ($candidates as $candidate) {
+            $place++;
+            $candidate->forceFill(['status' => LeagueMonthCandidateStatus::Winner->value, 'place' => $place])->save();
+            $winners[] = ['learner_id' => $candidate->learner_id, 'place' => $place, 'points' => $candidate->points];
+        }
+
+        return $winners;
+    }
+
+    /**
+     * The winners of a v2 month, category by category, written under the month's lock (the caller's transaction).
+     *
+     * @return list<array{learner_id: int, place: int, points: int, category?: string}>
+     */
+    private function confirmCategories(LeagueMonth $month, bool $acceptTieOverflow): array
+    {
+        /** @var EloquentCollection<int, LeagueMonthCandidate> $candidates */
+        $candidates = LeagueMonthCandidate::query()
+            ->where('league_month_id', $month->id)
+            ->orderBy('rank')
+            ->orderBy('id')
+            ->get();
+
+        $winners = [];
+        foreach (ScoreCategory::cases() as $category) {
+            $places = $this->rating->places($category);
+            $won = array_filter($this->categoryPlaces($candidates, $category), static fn (int $place): bool => $place <= $places);
+            $allowed = $places + $this->rating->tieReserve($category);
+            if (count($won) > $allowed && ! $acceptTieOverflow) {
+                throw LeagueMonthException::tieBeyondReserve($category->value, count($won), $allowed);
+            }
+
+            foreach ($candidates as $candidate) {
+                $place = $won[$candidate->id] ?? null;
+                if ($place === null) {
+                    continue;
+                }
+                $candidate->forceFill(['status' => LeagueMonthCandidateStatus::Winner->value, 'place' => $place])->save();
+                $winners[] = ['learner_id' => $candidate->learner_id, 'place' => $place, 'points' => $candidate->points, 'category' => $category->value];
+            }
+        }
+
+        return $winners;
+    }
+
+    /**
+     * The places of the candidates of one category not disqualified: the competition rank among them - a candidate whose `rank` (the
+     * competition rank frozen at the close among all the eligible ones) equals the one before shares its place.
+     *
+     * @param  EloquentCollection<int, LeagueMonthCandidate>  $candidates  by rank
+     * @return array<int, int> candidate id => place
+     */
+    private function categoryPlaces(EloquentCollection $candidates, ScoreCategory $category): array
+    {
+        $places = [];
+        $position = 0;
+        $previousRank = null;
+        $place = 0;
+        foreach ($candidates as $candidate) {
+            if ($candidate->category !== $category->value || $candidate->isDisqualified()) {
+                continue;
+            }
+            $position++;
+            $place = $previousRank !== null && $candidate->rank === $previousRank ? $place : $position;
+            $previousRank = $candidate->rank;
+            $places[$candidate->id] = $place;
+        }
+
+        return $places;
+    }
+
+    /**
+     * The prizes of a v2 month: `{free: [{place, ru, uz}], pro: [...]}` (either key may be missing - no prizes in that table), each
+     * list checked as a v1 list against the places of its category.
+     *
+     * @param  array<array-key, mixed>  $prizes
+     * @return array<string, list<array{place: int, ru: string, uz: string}>>
+     */
+    private function normaliseCategoryPrizes(array $prizes): array
+    {
+        $out = [];
+        foreach ($prizes as $key => $list) {
+            $category = is_string($key) ? ScoreCategory::tryFrom($key) : null;
+            if ($category === null || ! is_array($list) || ! array_is_list($list)) {
+                throw LeagueMonthException::prizesInvalid('the prizes of a month with two tables are {free: [...], pro: [...]}');
+            }
+            $out[$category->value] = $this->normalisePrizes($list, $this->rating->places($category));
+        }
+
+        return $out;
+    }
+
+    /**
      * @param  array<int, mixed>  $prizes
      * @return list<array{place: int, ru: string, uz: string}>
      */
-    private function normalisePrizes(array $prizes): array
+    private function normalisePrizes(array $prizes, ?int $places = null): array
     {
+        $places ??= $this->rating->places();
         $byPlace = [];
         foreach ($prizes as $item) {
             if (! is_array($item)) {
                 throw LeagueMonthException::prizesInvalid('each prize is {place, ru, uz}');
             }
             $place = filter_var($item['place'] ?? null, FILTER_VALIDATE_INT);
-            if ($place === false || $place < 1 || $place > $this->rating->places()) {
-                throw LeagueMonthException::prizesInvalid('place must be 1..'.$this->rating->places());
+            if ($place === false || $place < 1 || $place > $places) {
+                throw LeagueMonthException::prizesInvalid('place must be 1..'.$places);
             }
             if (isset($byPlace[$place])) {
                 throw LeagueMonthException::prizesInvalid("place {$place} is listed twice");

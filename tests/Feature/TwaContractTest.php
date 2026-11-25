@@ -35,6 +35,7 @@ use App\Models\LeagueWeek;
 use App\Models\Learner;
 use App\Models\LearnerDailyStats;
 use App\Models\Lesson;
+use App\Models\Lexeme;
 use App\Models\Offer;
 use App\Models\Organization;
 use App\Models\Referral;
@@ -49,6 +50,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Tests\Support\FakeBillingProvider;
 use Tests\Support\Practice\PracticeKit;
 
@@ -731,6 +733,8 @@ it('POST /training/review keeps its exact JSON shape', function (): void {
             'graded',
             // null for a flash card; a reverse / audio card gets what it was sent without (docs/06 §12.2, LearningMethodTest).
             'revealed',
+            // the word points of the answer (docs/32 §8.1): null with `leagues.scoring.mode` off / shadow (ReviewScoreBlockTest)
+            'score',
             'card' => CONTRACT_CARD,
             'progress' => CONTRACT_PROGRESS,
             'done_reason',
@@ -738,9 +742,26 @@ it('POST /training/review keeps its exact JSON shape', function (): void {
             'quota' => CONTRACT_QUOTA,
         ]);
 
-    expect($response->json('new_interval_days'))->toBeInt()
+    expect($response->json('score'))->toBeNull()
+        ->and($response->json('new_interval_days'))->toBeInt()
         ->and($response->json('easiness_factor'))->toBeFloat()
         ->and($response->json('next_review_at'))->toBeString();
+});
+
+it('POST /training/review carries the score block in live once v2 has started', function (): void {
+    config(['leagues.scoring.mode' => 'live', 'leagues.scoring.versions.2.starts_on' => now()->subMonths(2)->toDateString()]);
+    $s = contractTraining(1);
+    DB::table('words')->where('lesson_id', $s['lesson']->id)->update(['lexeme_id' => Lexeme::factory()->create()->id]);
+    $headers = contractHeaders($s['learner']);
+    $card = $this->withHeaders($headers)->getJson("/api/twa/training/sessions/{$s['session']->id}/next")->json('card');
+
+    $response = $this->withHeaders($headers)
+        ->postJson("/api/twa/training/sessions/{$s['session']->id}/review", ['word_id' => $card['word_id'], 'quality' => 5, 'time_spent_ms' => 1200])
+        ->assertOk()
+        // the first meeting of a new card (a flash): nothing credited, the attempt of the day stays open
+        ->assertJsonStructure(['score' => ['kind', 'reason', 'base', 'week', 'month', 'today', 'today_month']]);
+
+    expect($response->json('score'))->toBe(['kind' => null, 'reason' => 'introductory', 'base' => 0, 'week' => 0, 'month' => 0, 'today' => null, 'today_month' => null]);
 });
 
 it('wraps every API error in the same envelope', function (): void {

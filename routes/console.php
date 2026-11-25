@@ -149,6 +149,13 @@ Schedule::command('leagues:close-month')
     ->withoutOverlapping(30)
     ->runInBackground();
 
+// The retention of the word-points journal `score_credits` (docs/32 §2.7): nightly 04:40 in the league zone (away from the close of the
+// week at 00:00 and of the month at 03:00, from the backups at :20); only days of closed months, batches without a long transaction.
+Schedule::command('leagues:prune-score-credits')
+    ->dailyAt('04:40')
+    ->timezone((string) config('leagues.timezone', 'Asia/Tashkent'))
+    ->withoutOverlapping(60);
+
 // Referral rewards (docs/13 §7.1): re-queues the job of a referral left `activated` (not counted), or of a
 // milestone reached and not granted, after a lost / failed job. Idempotent by the data.
 Schedule::command('referrals:recover')

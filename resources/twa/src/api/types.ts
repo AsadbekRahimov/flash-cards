@@ -998,6 +998,34 @@ export interface ReviewResponse {
   /** The daily round ended and one more can be played (only with `done_reason = 'sprint_complete'`); absent on an older server. */
   can_continue?: boolean
   quota?: Quota
+  /** The word points of the answer (docs/32 §8.1); null while they are off / shadow, absent on an older server. Not shown yet. */
+  score?: WordScore | null
+}
+
+/** One count (weekly or monthly) of the rating day after an answer (docs/32 §8.1 `score.today`). */
+export interface WordScoreDay {
+  points: number
+  /** null while the count is on the old rules. */
+  cap: number | null
+  category: 'free' | 'pro'
+  /** [used, limit] of the day; the limit is null on the old rules. */
+  new: [number, number | null]
+  review: [number, number | null]
+}
+
+/** The `score` block of the answer of the training and of the game (docs/32 §8.1). */
+export interface WordScore {
+  kind: 'new' | 'review' | 'long' | null
+  reason: string
+  /** The points of the kind by the rules (0 when nothing was credited). */
+  base: number
+  /** What the weekly / monthly count really got (limits and the day cap applied). */
+  week: number
+  month: number
+  /** The weekly count of the day; null when the answer credited nothing. */
+  today: WordScoreDay | null
+  /** The monthly count, only when it differs from the weekly one. */
+  today_month: WordScoreDay | null
 }
 
 export interface ApiError {

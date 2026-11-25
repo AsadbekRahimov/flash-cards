@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Engagement\Services;
 
+use App\Domain\Engagement\Enums\ScoreCategory;
 use App\Domain\Engagement\Events\LeagueMonthConfirmed;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -48,7 +49,7 @@ final class MonthWinnerSender
     ) {}
 
     /**
-     * @param  list<array{learner_id: int, place: int, points: int}>  $winners
+     * @param  list<array{learner_id: int, place: int, points: int, category?: string}>  $winners  `category` - the table of a v2 month
      * @return array{sent: int, skipped: int, forbidden: int}
      */
     public function sendAll(int $monthId, array $winners): array
@@ -64,7 +65,8 @@ final class MonthWinnerSender
         $failure = null;
         foreach ($winners as $winner) {
             try {
-                $result[$this->send($month, $winner['learner_id'], $winner['place'], $winner['points'])]++;
+                $category = isset($winner['category']) ? ScoreCategory::tryFrom($winner['category']) : null;
+                $result[$this->send($month, $winner['learner_id'], $winner['place'], $winner['points'], $category)]++;
             } catch (TelegramRateLimitedException $e) {
                 // Flood control: the next winners would get a 429 too. Out at once; the listener is put back for `retry_after`
                 // and the retry skips those already messaged (docs/34 §4в п. 8).
@@ -82,7 +84,7 @@ final class MonthWinnerSender
     }
 
     /** @return 'sent'|'forbidden'|'skipped' */
-    public function send(LeagueMonth $month, int $learnerId, int $place, int $points): string
+    public function send(LeagueMonth $month, int $learnerId, int $place, int $points, ?ScoreCategory $category = null): string
     {
         /** @var Learner|null $learner */
         $learner = Learner::query()->find($learnerId);
@@ -90,7 +92,7 @@ final class MonthWinnerSender
             return 'skipped';
         }
 
-        return Cache::lock('league-month-won:dm:'.$learner->id.':'.$month->id, 60)->block(10, function () use ($learner, $month, $place, $points): string {
+        return Cache::lock('league-month-won:dm:'.$learner->id.':'.$month->id, 60)->block(10, function () use ($learner, $month, $place, $points, $category): string {
             $key = 'month:'.$month->id;
 
             $alreadySent = NotificationLog::query()
@@ -103,7 +105,7 @@ final class MonthWinnerSender
             }
 
             $locale = $this->locales->forLearner($learner);
-            $text = $this->text($learner, $month, $place, $points);
+            $text = $this->text($learner, $month, $place, $points, $category);
             $keyboard = $this->buttons->single($learner->telegram_user_id, $this->buttons->open(
                 __('buttons.month_rating', [], $locale),
                 TwaScreen::LeagueMonth,
@@ -138,12 +140,12 @@ final class MonthWinnerSender
         });
     }
 
-    private function text(Learner $learner, LeagueMonth $month, int $place, int $points): string
+    private function text(Learner $learner, LeagueMonth $month, int $place, int $points, ?ScoreCategory $category = null): string
     {
         $locale = $this->locales->forLearner($learner);
 
         $prize = '';
-        foreach ($this->rating->prizes($month) as $candidate) {
+        foreach ($this->rating->prizes($month, $category) as $candidate) {
             if ($candidate->place === $place) {
                 $prize = $candidate->title($locale);
                 break;

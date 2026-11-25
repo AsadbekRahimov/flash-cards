@@ -12,8 +12,11 @@ use App\Domain\Engagement\DTO\LeagueStanding;
 use App\Domain\Engagement\DTO\TodayLeague;
 use App\Domain\Engagement\Enums\LeagueResult;
 use App\Domain\Engagement\Enums\LeagueWeekStatus;
+use App\Domain\Engagement\Enums\ScoreCategory;
 use App\Domain\Engagement\Exceptions\LeagueAlreadyPlaced;
 use App\Domain\Engagement\Exceptions\LeagueWeekNotOpen;
+use App\Domain\Engagement\Services\Scoring\ScoreRules;
+use App\Domain\Engagement\Services\Scoring\WordScoreService;
 use App\Domain\Engagement\Support\LeaguePoints;
 use App\Domain\Learners\Support\StoredDate;
 use App\Domain\Operations\Support\PureCache;
@@ -89,9 +92,16 @@ final class LeagueService
      */
     public const MEMBER_PREFIX = 'league:member:v1:';
 
+    /**
+     * `league:standings:v3:{group}` - the standings of a group of a v2 week (docs/32 §5.1, docs/19 §3 rule 3): the best days, the
+     * tie-break facts and the competition ranks - another meaning of the same array, so another key. A v1 week keeps {@see CACHE_PREFIX}.
+     */
+    public const CACHE_PREFIX_V2 = 'league:standings:v3:';
+
     public function __construct(
         private readonly ProductEventRecorder $events,
         private readonly AchievementService $achievements,
+        private readonly ScoreRules $scoreRules,
     ) {}
 
     public function enabled(): bool
@@ -137,11 +147,15 @@ final class LeagueService
 
         try {
             // Savepoint: a lost creation race must not poison an outer (PostgreSQL) transaction.
+            // The rules version is written once, here, and never changed (docs/32 §6.1): the week closes by it, and the learners' weeks
+            // fixed by their first credit take it from this row (ScorePeriodService::insert).
+            $rulesVersion = $this->scoreRules->versionFor($monday->toDateString());
             /** @var LeagueWeek $week */
             $week = DB::transaction(static fn (): LeagueWeek => LeagueWeek::query()->create([
                 'starts_on' => $monday->toDateString(),
                 'ends_on' => $monday->addDays(6)->toDateString(),
                 'status' => LeagueWeekStatus::Open->value,
+                'rules_version' => $rulesVersion,
             ]));
 
             return $week;
@@ -170,21 +184,35 @@ final class LeagueService
     }
 
     /**
-     * Joins the learner to the current week (first activity of the week; after commit). Returns
-     * the membership, or null when the learner is not placed: leagues off, opted out, blocked, or
-     * the week is already being closed (a request that started before Monday 00:00).
+     * Joins the learner to the current week (after commit). Returns the membership, or null when the learner is not placed:
+     * leagues off, opted out, blocked, the week is already being closed (a request that started before Monday 00:00), or - in a v2
+     * week - no category was given.
+     *
+     *   v1 week: called at the first activity of a local day (DailyStatsService, RunFinisher); every group is `free`; `$category` is
+     *            ignored;
+     *   v2 week: called at the first credit of a rating day of the week ({@see WordScoreService}) with the category of the learner's
+     *            week (`learner_score_periods`, fixed by the first credit): a group of that category and of the learner's tier - the
+     *            tier is carried over between the categories (docs/32 §5.1). A call without a category (the v1 hooks of the first
+     *            grade / run of a day) returns null at once: a learner with no credit this week is never seated (no empty rows).
      */
-    public function place(Learner $learner, CarbonImmutable $now): ?LeagueMember
+    public function place(Learner $learner, CarbonImmutable $now, ?ScoreCategory $category = null): ?LeagueMember
     {
         if (! $this->enabled() || $this->isOptedOut($learner) || $learner->blocked_at !== null) {
             return null;
         }
 
         $week = $this->currentWeek($now);
+        $v2 = $week->rules_version >= 2;
+        if ($v2 && $category === null) {
+            return null; // a v1 hook in a v2 week: not a statement more (the credit hook seats, with the category)
+        }
+
         $existing = $this->membership($learner, $week);
         if ($existing !== null) {
             return $existing;
         }
+
+        $category = $v2 ? $category : ScoreCategory::Free;
 
         // The tier is the verdict of the learner's own last group. Closing the week is the scheduler's job and
         // never happens here: if that one group was not finalised yet, it is — alone, in a few milliseconds.
@@ -193,7 +221,7 @@ final class LeagueService
 
         try {
             /** @var LeagueMember $member */
-            $member = DB::transaction(function () use ($learner, $week, $tier, $capacity, $now): LeagueMember {
+            $member = DB::transaction(function () use ($learner, $week, $tier, $capacity, $now, $category, $v2): LeagueMember {
                 // The barrier against the closer: the week row is held FOR SHARE for the rest of this transaction,
                 // so `open → closing` (an UPDATE, FOR NO KEY UPDATE) waits for us or happened before — never under us.
                 /** @var LeagueWeek|null $open */
@@ -202,7 +230,7 @@ final class LeagueService
                     throw new LeagueWeekNotOpen;
                 }
 
-                $group = $this->groupWithSeat($week, $tier, $capacity);
+                $group = $this->groupWithSeat($week, $category, $tier, $capacity);
 
                 try {
                     // Savepoint: the unique violation of a parallel placement must not poison the transaction.
@@ -212,6 +240,7 @@ final class LeagueService
                         'league_week_id' => $week->id,
                         'learner_id' => $learner->id,
                         'tier_before' => $tier,
+                        'category' => $v2 ? $category->value : null,
                     ]));
                 } catch (UniqueConstraintViolationException) {
                     // Roll the whole placement back (including a group opened for nothing).
@@ -236,7 +265,7 @@ final class LeagueService
 
         $this->events->record(
             ProductEventName::LeaguePlaced,
-            ['week_id' => $week->id, 'group_id' => $member->league_group_id, 'tier' => $tier],
+            ['week_id' => $week->id, 'group_id' => $member->league_group_id, 'tier' => $tier, ...($v2 ? ['category' => $category->value] : [])],
             learner: $learner,
         );
 
@@ -328,7 +357,7 @@ final class LeagueService
         // The cache holds arrays of scalars, never DTO objects: the store may refuse to unserialize a class.
         /** @var list<LeagueStandingArray> $rows */
         $rows = PureCache::store()->remember(
-            self::CACHE_PREFIX.$group->id,
+            self::cacheKey($group->id, $week->rules_version),
             $ttl,
             fn (): array => array_map(
                 static fn (LeagueStanding $standing): array => $standing->toArray(),
@@ -355,7 +384,7 @@ final class LeagueService
             return null;
         }
 
-        $standings = $this->standingsOfGroup($facts['group_id'], $now, $group);
+        $standings = $this->standingsOfGroup($facts['group_id'], $facts['version'], $now, $group);
         $mine = $standings->first(static fn (LeagueStanding $s): bool => $s->memberId === $facts['member_id']);
         if ($mine === null) {
             return null;
@@ -375,8 +404,13 @@ final class LeagueService
      * (the week, the membership, its group), cached until the week is over once the learner is placed. Null = not placed
      * (never cached).
      *
-     * @return array{0: array{week_id: int, member_id: int, group_id: int, tier: int}|null, 1: LeagueGroup|null} the facts and the
-     *                                                                                                           group, when it was read here
+     * The facts carry the rules version of the week (which standings key to read); the cached entry of a v1 week has no `version`
+     * (its shape of before S8), a v2 week's has it.
+     *
+     * @return array{0: array{week_id: int, member_id: int, group_id: int, tier: int, version: int}|null, 1: LeagueGroup|null} the facts
+     *                                                                                                                         and the group,
+     *                                                                                                                         when it was
+     *                                                                                                                         read here
      */
     private function memberFacts(Learner $learner, CarbonImmutable $now): array
     {
@@ -389,6 +423,7 @@ final class LeagueService
                 'member_id' => (int) $cached['member_id'],
                 'group_id' => (int) $cached['group_id'],
                 'tier' => (int) $cached['tier'],
+                'version' => (int) ($cached['version'] ?? 1),
             ], null];
         }
 
@@ -405,11 +440,14 @@ final class LeagueService
             'member_id' => (int) $member->id,
             'group_id' => (int) $group->id,
             'tier' => (int) $group->tier,
+            'version' => (int) $week->rules_version,
         ];
+        // The cached facts of a v1 week keep their shape (`version` absent = 1); a v2 week adds its version (the key of its standings).
+        $cachedFacts = $facts['version'] >= 2 ? $facts : array_diff_key($facts, ['version' => true]);
         // Until an hour past the next Monday 00:00 of the league zone: the facts cannot change before, and the key of the
         // next week is another one.
         $ttl = $this->weekStart($now)->addWeek()->addHour()->getTimestamp() - $now->getTimestamp();
-        PureCache::store()->put($key, $facts, max(60, $ttl));
+        PureCache::store()->put($key, $cachedFacts, max(60, $ttl));
 
         return [$facts, $group];
     }
@@ -422,9 +460,9 @@ final class LeagueService
      *
      * @return Collection<int, LeagueStanding>
      */
-    private function standingsOfGroup(int $groupId, CarbonImmutable $now, ?LeagueGroup $group): Collection
+    private function standingsOfGroup(int $groupId, int $version, CarbonImmutable $now, ?LeagueGroup $group): Collection
     {
-        $rows = PureCache::store()->get(self::CACHE_PREFIX.$groupId);
+        $rows = PureCache::store()->get(self::cacheKey($groupId, $version));
         if (is_array($rows)) {
             /** @var list<LeagueStandingArray> $rows */
             return collect(array_map(LeagueStanding::fromArray(...), $rows));
@@ -490,7 +528,7 @@ final class LeagueService
             $this->finalise($locked, $week, $now);
             $group->setRawAttributes($locked->getAttributes(), true);
             // The cached live standings (at most `standings_cache_seconds` old) give way to the final ones at once.
-            DB::afterCommit(static fn () => PureCache::forgetMany([self::CACHE_PREFIX.$locked->id]));
+            DB::afterCommit(static fn () => PureCache::forgetMany([self::cacheKey($locked->id, $week->rules_version)]));
 
             return true;
         });
@@ -697,14 +735,30 @@ final class LeagueService
      */
     private function finalise(LeagueGroup $group, LeagueWeek $week, CarbonImmutable $now): void
     {
-        $this->writeOutcomes($this->outcomes($group, $this->computeStandings($group, $week)), $now);
+        if ($week->rules_version >= 2) {
+            [$ranked, $unranked] = $this->rankedStandingsV2($group, $week);
+            $outcomes = $this->outcomes($group, $ranked);
+            // A member out of the ranks (deleted, blocked, opted out) keeps the tier: no rank, no promotion, no demotion.
+            foreach ($unranked as $standing) {
+                $outcomes[$standing->memberId] = [$standing, LeagueResult::Stayed];
+            }
+            $this->writeOutcomes($outcomes, $now);
+        } else {
+            $this->writeOutcomes($this->outcomes($group, $this->computeStandings($group, $week)), $now);
+        }
         $group->forceFill(['closed_at' => $now])->save();
     }
 
+    /** The cache key of a group's live standings: the v1 key for a v1 week, `v3` for a v2 week (another meaning of the rows). */
+    public static function cacheKey(int $groupId, int $rulesVersion): string
+    {
+        return ($rulesVersion >= 2 ? self::CACHE_PREFIX_V2 : self::CACHE_PREFIX).$groupId;
+    }
+
     /**
-     * Final points / rank / result of a whole group in ONE statement, bindings only. PostgreSQL:
-     * `UPDATE … FROM (VALUES …)` with typed parameters; sqlite (tests) has no typed VALUES list and
-     * gets the equivalent CASE form.
+     * Final points / rank / result (and, in a v2 week, the tie-break facts) of a whole group in ONE statement, bindings only.
+     * PostgreSQL: `UPDATE … FROM (VALUES …)` with typed parameters; sqlite (tests) has no typed VALUES list and gets the equivalent
+     * CASE form. A standing of rank 0 (a v2 member out of the ranks) gets no `final_rank`; a v1 standing writes NULL facts.
      *
      * @param  array<int, array{0: LeagueStanding, 1: LeagueResult}>  $outcomes  keyed by member id
      */
@@ -715,19 +769,30 @@ final class LeagueService
         }
 
         $stamp = (string) (new LeagueMember)->fromDateTime($now);
+        $columns = [
+            'final_points' => static fn (LeagueStanding $s, LeagueResult $r): int => $s->points,
+            'final_rank' => static fn (LeagueStanding $s, LeagueResult $r): ?int => $s->rank > 0 ? $s->rank : null,
+            'result' => static fn (LeagueStanding $s, LeagueResult $r): string => $r->value,
+            'final_long_words' => static fn (LeagueStanding $s, LeagueResult $r): ?int => $s->longWords,
+            'final_days' => static fn (LeagueStanding $s, LeagueResult $r): ?int => $s->activeDays,
+        ];
 
         if (DB::connection()->getDriverName() === 'pgsql') {
             $rows = [];
             $bindings = [$stamp];
             foreach ($outcomes as $memberId => [$standing, $result]) {
-                $rows[] = '(?::bigint, ?::integer, ?::smallint, ?::varchar)';
-                array_push($bindings, $memberId, $standing->points, $standing->rank, $result->value);
+                $rows[] = '(?::bigint, ?::integer, ?::smallint, ?::varchar, ?::smallint, ?::smallint)';
+                $bindings[] = $memberId;
+                foreach ($columns as $value) {
+                    $bindings[] = $value($standing, $result);
+                }
             }
 
             DB::update(
                 'update league_members as lm set final_points = v.final_points, final_rank = v.final_rank, '
-                .'result = v.final_result, updated_at = ? from (values '.implode(', ', $rows).') '
-                .'as v (member_id, final_points, final_rank, final_result) where lm.id = v.member_id',
+                .'result = v.final_result, final_long_words = v.final_long_words, final_days = v.final_days, updated_at = ? '
+                .'from (values '.implode(', ', $rows).') '
+                .'as v (member_id, final_points, final_rank, final_result, final_long_words, final_days) where lm.id = v.member_id',
                 $bindings,
             );
 
@@ -736,13 +801,11 @@ final class LeagueService
 
         $branches = str_repeat(' when ? then ?', count($outcomes));
         $bindings = [];
-        foreach (['points', 'rank', 'result'] as $column) {
+        $sets = [];
+        foreach ($columns as $column => $value) {
+            $sets[] = "{$column} = case id{$branches} end";
             foreach ($outcomes as $memberId => [$standing, $result]) {
-                array_push($bindings, $memberId, match ($column) {
-                    'points' => $standing->points,
-                    'rank' => $standing->rank,
-                    'result' => $result->value,
-                });
+                array_push($bindings, $memberId, $value($standing, $result));
             }
         }
         $bindings[] = $stamp;
@@ -750,10 +813,7 @@ final class LeagueService
         array_push($bindings, ...$ids);
 
         DB::update(
-            'update league_members set '
-            ."final_points = case id{$branches} end, "
-            ."final_rank = case id{$branches} end, "
-            ."result = case id{$branches} end, "
+            'update league_members set '.implode(', ', $sets).', '
             .'updated_at = ? where id in ('.implode(', ', array_fill(0, count($ids), '?')).')',
             $bindings,
         );
@@ -812,19 +872,22 @@ final class LeagueService
     }
 
     /**
-     * The open group of the tier with a free seat, locked for this transaction, or a new one.
+     * The open group of the category and tier with a free seat, locked for this transaction, or a new one. A v1 week has only `free`
+     * groups.
      *
      * PostgreSQL: `FOR UPDATE SKIP LOCKED` first (parallel placements take different groups, nobody
-     * waits); when nothing is free or unlocked, an advisory lock per (week, tier) serialises the
+     * waits); when nothing is free or unlocked, an advisory lock per (week, category, tier) serialises the
      * would-be creators, and under it a plain `FOR UPDATE` waits for the busy group — PostgreSQL
      * re-evaluates `members_count < capacity` on the committed row — so a group is opened only when
      * every existing one is really full. No cycle: a transaction that holds a group row never asks
      * for the advisory lock. Other drivers (sqlite in tests) have no row locks and run serially.
+     * The lookup is the index `(league_week_id, category, tier)` (2026_11_26_100001).
      */
-    private function groupWithSeat(LeagueWeek $week, int $tier, int $capacity): LeagueGroup
+    private function groupWithSeat(LeagueWeek $week, ScoreCategory $category, int $tier, int $capacity): LeagueGroup
     {
         $candidates = static fn () => LeagueGroup::query()
             ->where('league_week_id', $week->id)
+            ->where('category', $category->value)
             ->where('tier', $tier)
             ->whereNull('closed_at')
             ->whereColumn('members_count', '<', 'capacity')
@@ -837,7 +900,8 @@ final class LeagueService
                 return $group;
             }
 
-            DB::statement('select pg_advisory_xact_lock(?::bigint)', [$week->id * 16 + $tier]);
+            // One key per (week, category, tier): 16 tiers at most per category (config has 5).
+            DB::statement('select pg_advisory_xact_lock(?::bigint)', [$week->id * 32 + ($category === ScoreCategory::Pro ? 16 : 0) + min(15, $tier)]);
         }
 
         /** @var LeagueGroup|null $group */
@@ -850,6 +914,7 @@ final class LeagueService
         $created = LeagueGroup::query()->create([
             'league_week_id' => $week->id,
             'tier' => $tier,
+            'category' => $category->value,
             'capacity' => $capacity,
             'members_count' => 0,
         ]);
@@ -858,13 +923,28 @@ final class LeagueService
     }
 
     /**
-     * Fresh standings of an open group: one grouped query over the members, their names and the
-     * `learner_daily_stats` rows of the week's dates. The points of the game (`game_points`) are added as stored:
-     * the daily cap was applied when the run was finished (docs/18 §12.6), the formula knows nothing of runs.
+     * Fresh standings of an open group, best first: the v1 formula for a v1 week, the best days of v2 for a v2 week (only the members
+     * in the ranks: {@see rankedStandingsV2()}).
      *
      * @return list<LeagueStanding>
      */
     private function computeStandings(LeagueGroup $group, LeagueWeek $week): array
+    {
+        if ($week->rules_version >= 2) {
+            return $this->rankedStandingsV2($group, $week)[0];
+        }
+
+        return $this->standingsV1($group, $week);
+    }
+
+    /**
+     * v1: one grouped query over the members, their names and the `learner_daily_stats` rows of the week's dates. The points of the
+     * game (`game_points`) are added as stored: the daily cap was applied when the run was finished (docs/18 §12.6), the formula knows
+     * nothing of runs.
+     *
+     * @return list<LeagueStanding>
+     */
+    private function standingsV1(LeagueGroup $group, LeagueWeek $week): array
     {
         $from = StoredDate::of($week->starts_on->toDateString());
         $to = StoredDate::of($week->ends_on->toDateString());
@@ -905,6 +985,87 @@ final class LeagueService
         return $standings;
     }
 
+    /**
+     * v2 (docs/32 §3.5, §5.1): ONE statement over the members of the group and their `learner_score_days` of the week - at most
+     * `capacity` × 7 rows, read through the unique `(learner_id, rating_day)`:
+     *
+     *   - the days of a learner are numbered `row_number() over (partition by learner order by week_points desc, week_long desc,
+     *     rating_day)` - the deterministic order of docs/32 §3.5 - and the first `best_days` of them count: a sixth or seventh day
+     *     better than the weakest of five replaces it (80+60+50+40+30 = 260, a day of 70 → 300);
+     *   - `points` = their `week_points`, `long_words` = their `week_long` (one lexeme cannot get two long repetitions inside a
+     *     week: the next interval is at least 7 days), `active_days` = those of them with points;
+     *   - the order `points desc, long_words desc, active_days desc`, the member id only to keep a shared place stable; the rank is
+     *     the COMPETITION rank of the tuple (1, 2, 2, 4), given here;
+     *   - a deleted, blocked or opted-out learner is out of the ranks (the neighbours move up, docs/30) - returned apart, rank 0,
+     *     for the close: they keep their tier.
+     *
+     * @return array{0: list<LeagueStanding>, 1: list<LeagueStanding>} the ranked standings best first, the members out of the ranks
+     */
+    private function rankedStandingsV2(LeagueGroup $group, LeagueWeek $week): array
+    {
+        $pgsql = DB::connection()->getDriverName() === 'pgsql';
+        $optedOut = $pgsql
+            ? "coalesce(l.meta->>'leagues_opt_out', 'false') = 'true'"
+            : "coalesce(json_extract(l.meta, '$.leagues_opt_out'), 0) = 1";
+        $best = $this->scoreRules->version($week->rules_version)->bestDays ?? 5;
+
+        $rows = DB::select(
+            'select lm.id as member_id, lm.learner_id, max(l.first_name) as first_name, '
+            ."max(case when l.deleted_at is null and l.blocked_at is null and not ({$optedOut}) then 1 else 0 end) as ranked, "
+            .'coalesce(sum(case when d.rn <= ? then d.week_points else 0 end), 0) as points, '
+            .'coalesce(sum(case when d.rn <= ? then d.week_long else 0 end), 0) as long_words, '
+            .'coalesce(sum(case when d.rn <= ? and d.week_points > 0 then 1 else 0 end), 0) as active_days '
+            .'from league_members lm '
+            .'join learners l on l.id = lm.learner_id '
+            .'left join ('
+            .'select s.learner_id, s.week_points, s.week_long, '
+            .'row_number() over (partition by s.learner_id order by s.week_points desc, s.week_long desc, s.rating_day) as rn '
+            .'from learner_score_days s '
+            .'where s.learner_id in (select m.learner_id from league_members m where m.league_group_id = ?) '
+            .'and s.rating_day >= ? and s.rating_day <= ?'
+            .') d on d.learner_id = lm.learner_id '
+            .'where lm.league_group_id = ? '
+            .'group by lm.id, lm.learner_id '
+            .'order by points desc, long_words desc, active_days desc, lm.id',
+            [
+                $best, $best, $best,
+                $group->id,
+                StoredDate::of($week->starts_on->toDateString()),
+                StoredDate::of($week->ends_on->toDateString()),
+                $group->id,
+            ],
+        );
+
+        $ranked = [];
+        $unranked = [];
+        $previous = null;
+        foreach ($rows as $row) {
+            $standing = new LeagueStanding(
+                memberId: (int) $row->member_id,
+                learnerId: (int) $row->learner_id,
+                name: is_string($row->first_name) && $row->first_name !== '' ? $row->first_name : null,
+                points: (int) $row->points,
+                rank: 0,
+                longWords: (int) $row->long_words,
+                activeDays: (int) $row->active_days,
+            );
+
+            if ((int) $row->ranked !== 1) {
+                $unranked[] = $standing;
+
+                continue;
+            }
+
+            $position = count($ranked) + 1;
+            $rank = $previous !== null && $previous->tiesWith($standing) ? $previous->rank : $position;
+            $standing = new LeagueStanding($standing->memberId, $standing->learnerId, $standing->name, $standing->points, $rank, $standing->longWords, $standing->activeDays);
+            $ranked[] = $standing;
+            $previous = $standing;
+        }
+
+        return [$ranked, $unranked];
+    }
+
     /** @return Collection<int, LeagueStanding> */
     private function finalStandings(LeagueGroup $group): Collection
     {
@@ -914,6 +1075,7 @@ final class LeagueService
             ->where('league_group_id', $group->id)
             ->whereNotNull('final_rank')
             ->orderBy('final_rank')
+            ->orderBy('id')
             ->get();
 
         return $members->toBase()->map(static function (LeagueMember $m): LeagueStanding {
@@ -925,16 +1087,21 @@ final class LeagueService
                 name: $name === '' ? null : $name,
                 points: (int) $m->final_points,
                 rank: (int) $m->final_rank,
+                longWords: $m->final_long_words,
+                activeDays: $m->final_days,
             );
         })->values();
     }
 
     /**
-     * Results of a group at the close: top `promote` promoted (unless the tier is the top one),
-     * bottom `demote` demoted (unless the tier is 0), the rest stayed. Promotion wins when a
-     * small group overlaps both zones.
+     * Results of a group at the close: the top `promote` promoted (unless the tier is the top one), the bottom `demote` demoted
+     * (unless the tier is 0), the rest stayed. Promotion wins when a small group overlaps both zones.
      *
-     * @param  list<LeagueStanding>  $standings
+     * By RANK, not by position: in a v1 week every rank is distinct, so nothing changes there; in a v2 week (competition ranks,
+     * docs/32 §5.1, owner's decision docs/31 §5) everybody who shares the last promoted place is promoted, and nobody who shares a
+     * place with the last safe member is demoted (rank > count − demote means "worse than every safe position").
+     *
+     * @param  list<LeagueStanding>  $standings  the ranked members, best first
      * @return array<int, array{0: LeagueStanding, 1: LeagueResult}> keyed by member id
      */
     private function outcomes(LeagueGroup $group, array $standings): array
@@ -996,6 +1163,28 @@ final class LeagueService
             pointsToPromote: $pointsToPromote,
             pointsToSafety: $pointsToSafety,
             standings: $list,
+            category: $group->week?->rules_version >= 2 ? $group->category : null,
+            rulesVersion: (int) ($group->week->rules_version ?? 1),
+            nextGap: $this->nextGap($list, $mine),
         );
+    }
+
+    /**
+     * The points that overtake the nearest member with a strictly better place for sure: points are the first key, so one point more
+     * than theirs always wins (docs/32 §5.3); null for a leader.
+     *
+     * @param  list<LeagueStanding>  $standings  best first
+     */
+    private function nextGap(array $standings, LeagueStanding $mine): ?int
+    {
+        $better = null;
+        foreach ($standings as $standing) {
+            if ($standing->rank >= $mine->rank) {
+                break;
+            }
+            $better = $standing;
+        }
+
+        return $better === null ? null : $better->points - $mine->points + 1;
     }
 }

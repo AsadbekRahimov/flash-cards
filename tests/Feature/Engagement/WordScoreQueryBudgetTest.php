@@ -49,6 +49,9 @@ beforeEach(function (): void {
     config()->set('leagues.timezone', 'Asia/Tashkent');
     config()->set('leagues.scoring.mode', 'live');
     config()->set('leagues.scoring.versions.2.starts_on', '2026-11-01');
+    // The weekly placement after the commit (v1: the first grade of a local day; v2: the first credit of a rating day) is not the
+    // scoring's budget: LeagueV2BudgetTest pins it.
+    config()->set('leagues.enabled', false);
 });
 
 /** @return list<string> the statements of one recorded answer */
@@ -122,7 +125,9 @@ function wsbDailyReview(object $test, array $wordIds): array
             'last_reviewed_at' => now()->subDays(8)->subHour(), 'next_review_at' => now()->subHour(), 'easiness_factor' => 2.5,
             'is_hard' => false, 'last_quality' => 4, 'lapses' => 0, 'meta' => [],
         ]);
-        LearnerLexeme::factory()->create(['learner_id' => $learner->id, 'lexeme_id' => (int) DB::table('words')->where('id', $wordId)->value('lexeme_id'), 'confirmed_on' => '2026-10-01']);
+        // Had a long repetition before: the credit is not the lexeme's first one, so the after-commit look at `long_recall_25`
+        // (WordScoreHooks, +2 statements on a first long repetition only - LongRecallAchievementTest) stays out of this budget.
+        LearnerLexeme::factory()->create(['learner_id' => $learner->id, 'lexeme_id' => (int) DB::table('words')->where('id', $wordId)->value('lexeme_id'), 'confirmed_on' => '2026-10-01', 'first_long_on' => '2026-10-10']);
     }
     $headers = ['Authorization' => 'Bearer '.app(JwtService::class)->issue($learner->id)['token']];
     $test->withHeaders($headers)->getJson('/api/twa/me')->assertOk();
@@ -187,7 +192,8 @@ it('adds 6 statements to a counted answer of the game (5 and the card read witho
         foreach ($list as $word) {
             $lexeme = Lexeme::factory()->create()->id;
             DB::table('words')->where('id', $word->id)->update(['lexeme_id' => $lexeme]);
-            LearnerLexeme::factory()->create(['learner_id' => $learner->id, 'lexeme_id' => $lexeme, 'confirmed_on' => '2026-10-01']);
+            // not the first long repetition of the lexeme: no after-commit look at `long_recall_25` (see wsbDailyReview)
+            LearnerLexeme::factory()->create(['learner_id' => $learner->id, 'lexeme_id' => $lexeme, 'confirmed_on' => '2026-10-01', 'first_long_on' => '2026-10-10']);
         }
         DB::table('word_repetitions')->where('learner_id', $learner->id)->update([
             'state' => 'review', 'interval_days' => 8, 'last_reviewed_at' => now()->subDays(8)->subHour(), 'next_review_at' => now()->subHour(),

@@ -11,6 +11,7 @@ use App\Domain\Learners\Support\StoredDate;
 use App\Models\LearnerScorePeriod;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\DB;
 use LogicException;
 
 /**
@@ -96,17 +97,42 @@ final class ScorePeriodService
         return $row === null ? null : $this->toDto($row, created: false);
     }
 
-    /** `INSERT … ON CONFLICT DO NOTHING` of one period; true = this statement created it. */
+    /**
+     * `INSERT … SELECT … ON CONFLICT DO NOTHING` of one period; true = this statement created it.
+     *
+     * The version is the one written into the league's own row of the period (`league_weeks` / `league_months.rules_version`, S8/S9)
+     * when that row exists - the tables and the closes count by it, so a learner's period can never count by another version than its
+     * table, whatever the configuration says now (a start date set into the past, a mode switched in the middle of a period). With no
+     * row yet the version is {@see ScoreRules::versionFor()} - the very value the row gets when it is created (LeagueService::currentWeek,
+     * MonthlyRatingService::currentMonth). A scalar subquery by the unique `starts_on`: no statement more than a plain insert.
+     */
     private function insert(int $learnerId, string $period, string $startsOn, ScoreCategory $category, CarbonImmutable $now): bool
     {
-        return LearnerScorePeriod::query()->insertOrIgnore([
-            'learner_id' => $learnerId,
-            'period' => $period,
-            'starts_on' => StoredDate::of($startsOn),
-            'category' => $category->value,
-            'rules_version' => $this->rules->versionFor($startsOn),
-            'fixed_at' => $now,
-        ]) > 0;
+        // PostgreSQL cannot infer the type of a bare parameter in the select list of an INSERT … SELECT; sqlite takes them bare.
+        $pgsql = DB::connection()->getDriverName() === 'pgsql';
+        $version = $period === ScorePeriod::Week->value
+            ? ($pgsql ? '(select p.rules_version from league_weeks p where p.starts_on = ?::date)' : '(select p.rules_version from league_weeks p where p.starts_on = ?)')
+            : ($pgsql ? '(select p.rules_version from league_months p where p.starts_on = ?::date)' : '(select p.rules_version from league_months p where p.starts_on = ?)');
+
+        $select = DB::query()->selectRaw(
+            ($pgsql ? '?::bigint, ?::varchar, ?::date, ?::varchar, coalesce(' : '?, ?, ?, ?, coalesce(')
+            .$version
+            .($pgsql ? ', ?::smallint), ?::timestamp' : ', ?), ?'),
+            [
+                $learnerId,
+                $period,
+                StoredDate::of($startsOn),
+                $category->value,
+                StoredDate::of($startsOn),
+                $this->rules->versionFor($startsOn),
+                (string) (new LearnerScorePeriod)->fromDateTime($now),
+            ],
+        );
+
+        return LearnerScorePeriod::query()->insertOrIgnoreUsing(
+            ['learner_id', 'period', 'starts_on', 'category', 'rules_version', 'fixed_at'],
+            $select,
+        ) > 0;
     }
 
     /** A row inserted or found a statement ago is gone: only a learner purged meanwhile (cascade) can do that. */

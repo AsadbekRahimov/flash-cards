@@ -16,6 +16,7 @@ return [
         'league_top1' => ['title' => "Liga g'olibi", 'description' => "Hafta yakunida liga guruhingizda birinchi o'rinni egalladingiz"],
         'first_friend' => ['title' => "Birinchi do'st", 'description' => "Muhrla'da birinchi do'st paydo bo'ldi"],
         'game_first_boss' => ['title' => 'Qo\'riqchi yengildi', 'description' => "«Karvon» o'yinida shahar qo'riqchisi ustidan birinchi g'alaba"],
+        'long_recall_25' => ['title' => 'Uzoq xotira', 'description' => "25 ta so'z bir hafta va undan ko'p tanaffusdan keyin esga olindi"],
     ],
 
     // Texts of the share card (docs/36 §2б): the small capitals over the title and the tagline in the footer. The brand is

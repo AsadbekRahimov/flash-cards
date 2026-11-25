@@ -890,6 +890,7 @@ This runs every minute. Laravel's scheduler internally dispatches:
 - `organizations:sync-members` — hourly (repair path of the group -> organization membership hook: a learner in a group of an organization without a membership row gets one; idempotent).
 - `assignments:refresh` — every 30 minutes (assignment snapshots and the group reminder 24 h before a deadline; one-time posts are claimed by conditional UPDATEs; `withoutOverlapping(20)` + `runInBackground`; posts go through the global Telegram send budget, so a queue worker must run).
 - `leagues:close-week` — daily at 00:00 in `LEAGUES_TIMEZONE` (default `Asia/Tashkent`) with a safety run at 00:05 on the same mutex (`cron 0,5 0 * * *`; on Monday it closes the week that just ended: final standings group by group, promotions, result DMs in `SendLeagueResultsJob` batches through the global send budget — a queue worker must run; the 00:05 run and the other days are a no-op or catch up a failed / missed run; idempotent and resumable by `league_weeks.status` + `league_groups.closed_at`; `withoutOverlapping(30)` + `runInBackground`). The old one-member job `SendLeagueResultJob` is kept as a thin deprecated shim for ONE release: a payload of that class that is still queued while a release rolls out (the Monday mailing in flight) runs as before — one member through a slot of the send budget, at most one DM per member and week by the same `notifications_log` marker the batches use, so it never doubles a DM; nothing dispatches it any more. Remove `app/Jobs/SendLeagueResultJob.php` (and its test in `LeagueResultSenderTest`) in the release after the first one that ships the shim — an old payload dies by its own `retryUntil` (at most `LEAGUES_NOTIFY_TTL_HOURS`, 12 h) after it was queued. So there is no need to wait for the mailing queue to drain before a deploy.
+- `leagues:prune-score-credits` — daily at 04:40 in `LEAGUES_TIMEZONE` (`withoutOverlapping(60)`): deletes the rows of the word-points journal `score_credits` older than `LEAGUES_SCORING_CREDITS_RETENTION_DAYS` (180), only days of closed months, in batches of 5 000 (each its own statement, no long transaction; the BRIN index on `rating_day` serves the range). Idempotent; `-v` shows the progress (§14.4).
 - `referrals:recover` — every 30 minutes (re-queues `RewardReferralJob` for referrals left `activated` or half-rewarded after a lost job; looks only at rows younger than `REFERRALS_RECOVER_WINDOW_DAYS`; `withoutOverlapping(20)` + `runInBackground`).
 - `billing:reconcile-stars` — daily at 04:30 (Telegram's Stars ledger of the last 2 days vs `payments`; read-only, logs `billing.reconcile_missing*`; exits at once while Stars is disabled).
 - `backup:run --only-db --isolated` — hourly at :20 (`withoutOverlapping(55)`), database only; see §11.1.
@@ -1107,6 +1108,19 @@ The practice ships **switched off**: `PRACTICE_ACCESS` defaults to `off`, so a d
    ```
 
    Do not repair such rows by hand: run `php artisan practice:battles-sweep` (idempotent) and look at the scheduler. The `meta` keys and the columns are in `docs/03` §2.45–§2.47.
+
+### 14.4 Word points v2: the backfills and the order of the switch-on (docs/32 §12.4)
+
+The word points ship **off** (`LEAGUES_SCORING_MODE=off`): nothing of them is written and the leagues count by the old formula. Before `live`, in this order:
+
+1. Deploy, `php artisan migrate --force`.
+2. `php artisan lexemes:backfill`, then `php artisan lexemes:backfill --decks` — the catalog of lexemes and the links of the words (batches by `words.id`, idempotent; `-v` shows the progress). Repeat `--decks` whenever the catalog grew.
+3. `LEARNING_OBJECTIVE_GRADING_ACCEPT_LEGACY_QUALITY=false` + `config:cache` (otherwise a `reverse` / `audio` card of an old client earns 0).
+4. `php artisan learner_lexemes:backfill` — every lexeme a learner has already studied (a card out of `new`) becomes confirmed (`confirmed_source = legacy`), so an old word does not pay "new" (+2) again. **After** step 2 (a word without a lexeme is skipped and counted in the report as "studied cards without a lexeme") and **before** step 6. Batches of learners (`--batch=200` by default, one `INSERT … SELECT … ON CONFLICT` a batch, its own transaction — safe beside live traffic, no long lock; one line of progress a batch); `--learner=<id>` for one learner. Idempotent: a repeated run reports `lexemes confirmed: 0`; a run after `live` started is safe too (a real confirmation is never overwritten).
+5. Close the open week and month by the old rules (they close by themselves at their boundary; v2 starts on a Monday and/or the 1st).
+6. `LEAGUES_SCORING_V2_STARTS_ON=<that Monday / 1st>`, `LEAGUES_SCORING_MODE=live`, `config:cache`. `shadow` is the "record only" fallback for a rollback.
+
+The journal `score_credits` grows ~25 rows per active learner a day: `leagues:prune-score-credits` (§11, nightly) keeps `LEAGUES_SCORING_CREDITS_RETENTION_DAYS` (180) days and never touches a day of the current month or of a month not confirmed yet — a month left in `pending_review` holds the clean-up back, confirm it in `/admin`. Watch the table size (`SELECT pg_size_pretty(pg_total_relation_size('score_credits'))`); after a large first prune a `VACUUM (ANALYZE) score_credits` returns the space to reuse.
 
 ---
 
@@ -1516,6 +1530,10 @@ All optional; the defaults are the production values (`.env.example` lists them)
 | `LEAGUES_PROMOTE` / `LEAGUES_DEMOTE` | `5` / `5` | Top / bottom N of a group moving up / down a tier at the weekly close |
 | `LEAGUES_POINTS_REVIEW` / `_CORRECT` / `_NEW_WORD` / `_GOAL_MET` | `1` / `1` / `2` / `10` | Points per review / correct answer / new word / daily goal met (computed from `learner_daily_stats`) |
 | `LEAGUES_STANDINGS_CACHE_SECONDS` | `60` | Cache of the standings table |
+| `LEAGUES_SCORING_MODE` | `off` | Word points v2 (docs/32): `off` / `shadow` (recorded, not shown) / `live`; the order of the switch-on — §14.4 |
+| `LEAGUES_SCORING_V2_STARTS_ON` | empty | First day (Monday and/or the 1st) of the periods counted by rules version 2; empty = not scheduled |
+| `LEAGUES_SCORING_GAME_ENABLED` | `true` | Game answers earn word points too |
+| `LEAGUES_SCORING_CREDITS_RETENTION_DAYS` | `180` | Days the journal `score_credits` is kept (`leagues:prune-score-credits`, only days of closed months) |
 | `LEAGUES_NOTIFY_TTL_HOURS` | `12` | A result DM that could not be sent within this time after the week was closed is dropped. One deadline for the whole mailing: a batch remainder handed to a new job keeps it |
 | `LEAGUES_NOTIFY_BATCH_SIZE` | `100` | Members per result-DM batch job (`SendLeagueResultsJob`) |
 | `LEAGUES_NOTIFY_BATCH_SECONDS` | `30` | Seconds one batch job may spend sending before handing the rest to a fresh job (keep well below the worker `--timeout`) |

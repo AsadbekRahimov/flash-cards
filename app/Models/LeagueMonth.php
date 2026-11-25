@@ -19,7 +19,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $starts_on
  * @property Carbon $ends_on
  * @property string $status
- * @property array<int, mixed>|null $prizes `[{place, ru, uz}, …]` as written by MonthlyRatingReviewService::setPrizes; read through MonthlyRatingService::prizes()
+ * @property array<array-key, mixed>|null $prizes `[{place, ru, uz}, …]` (a v2 month: `{free: [...], pro: [...]}`) as written by MonthlyRatingReviewService::setPrizes; read through MonthlyRatingService::prizes()
  * @property int $participants_count
  * @property Carbon|null $refreshed_at
  * @property Carbon|null $closed_at
