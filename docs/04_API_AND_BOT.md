@@ -1810,6 +1810,49 @@ entry, locale` (язык интерфейса из строки learner'а), п�
 **Что НЕ собирается:** имя, username, Telegram id в props, user agent, модель устройства, версия ОС, IP, размер экрана, тексты, адреса
 страниц. Ученик связан с событием только через `learner_id` строки, как у любого продуктового события.
 
+### A.22 «Поделиться» через бота: `POST /api/twa/share/prepare`, `POST /api/twa/share/events` (docs/36 §1в, H3/H4/H7)
+
+Сообщение «через бота» с фото-карточкой и кнопкой «🚀 Начать изучение» → `https://t.me/<bot>?start=ref_<код>` (для `friend_invite` —
+«🤝 Добавить в друзья» → `?start=f_<код>`). Сервер готовит его методом Bot API `savePreparedInlineMessage`, Mini App передаёт `id` в
+`WebApp.shareMessage(id)` (Mini Apps 8.0+). Ядро — `ShareMessageBuilder` и `SharePreparer` (`app/Domain/Engagement/Services/`).
+
+**`POST /share/prepare`** (лимитеры `twa-api` + `twa-share`: **20/мин и 100/сутки на learner'а**, ответы из кэша тоже считаются; 429)
+```json
+{ "kind": "achievement", "subject": "streak_7" }
+```
+- `kind` — `achievement` (subject — ключ открытого достижения) · `game_city` (subject — `stage_id` города, босс которого побеждён) ·
+  `invite` и `friend_invite` (subject **запрещён**). `league_week`, `month_place` — позже (docs/36), сейчас 422 как неизвестный вид.
+- Других полей сервер не читает: текст, фото, адрес и Telegram id берутся **только** с сервера. `user_id` в Bot API — `telegram_user_id`
+  ученика из JWT. Подпись — `lang/{ru,uz}/share.php` на языке ученика (`interface_locale`), без имени ученика и без `parse_mode`.
+  Фото — публичный HTTPS-адрес карточки (`/storage/share-cards/…jpg`); без него (диск не публичный, `APP_URL` не https, карточка не
+  нарисовалась) — `InlineQueryResultArticle` с тем же текстом и кнопкой. Сообщение можно отправить в личные чаты, группы и каналы, не ботам.
+
+**200** — `{ "id": "…", "expires_at": "2026-11-25T12:00:00+00:00" }` (срок — `expiration_date` Telegram). Повторное нажатие в пределах
+срока минус 5 минут (но не дольше часа) отвечает тем же `id` без вызова Bot API: кэш `share:prep:v1:{learner}:{kind}:{subject|-}:{locale}:{хэш
+содержимого}`; смена текста, карточки или ссылки меняет хэш. Два одновременных нажатия — один вызов Bot API (блокировка на ключ, второй
+ждёт до 3 с). Событие `share.prepared {kind, subject, via: mini_app, cached, photo}`.
+
+| Код | `error.code` | Когда | Что делает клиент |
+|---|---|---|---|
+| 401 | `unauthorized` / `token_expired` / `learner_blocked` … | как у всего TWA (A.6); заблокированный ученик отсекается здесь | как везде (обновить токен / экран блокировки) |
+| 403 | `share_unavailable` | «поделиться» выключено (`SHARE_ENABLED=false`), у бота нет имени, игра закрыта для `game_city` | запасной путь: `shareUrl(link, text)` (нынешний `t.me/share/url`) |
+| 404 | `share_subject_not_found` | достижения / города нет, не открыто / не побеждён, **или чужое** — одним кодом и одним текстом | запасной путь |
+| 422 | ошибки валидации | неизвестный / будущий `kind`, нет / лишний / кривой `subject` | ошибка клиента: запасной путь, в лог |
+| 429 | — | лимит `twa-share` (`Retry-After`) | запасной путь, повторять не нужно |
+| 503 | `share_failed`, `details.retry_after?` | Bot API отказал, не ответил, ответил 429; бот на паузе после 429 (сразу, без вызова; `Retry-After`); параллельный запрос держит блокировку дольше 3 с | запасной путь |
+
+Во всех отказах клиент открывает нынешний `t.me/share/url` с прежними `share_link` / `share_text` (поля ресурсов остаются). Отметка
+«поделился» (`/achievements/{key}/shared`, `/game/cities/{stage}/shared`) — после `shareMessage` → `sent`, в запасном пути — как сейчас.
+
+**`POST /share/events`** (лимитеры `twa-api` + `twa-share-event`: 30/мин на learner'а) — клиентская аналитика, **204** без тела:
+```json
+{ "event": "sent", "kind": "invite" }
+{ "event": "fallback", "kind": "achievement", "reason": "old_client" }
+```
+`event`: `sent` → `share.sent {kind}` (колбэк `shareMessage` вернул `true`); `fallback` → `share.fallback {kind, reason}`, `reason` —
+`old_client` (нет `shareMessage`, Mini Apps < 8.0) или `error` (prepare отказал или `shareMessage` не удался); у `sent` `reason` запрещён.
+`kind` — те же виды. Иное — 422, ничего не пишется. Клиент шлёт без ожидания, ошибки глотает.
+
 ## Часть B — Telegram Bot
 
 ### B.1 Webhook

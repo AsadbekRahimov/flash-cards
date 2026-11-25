@@ -66,13 +66,7 @@ final class GameCardSender
 
         $locale = $this->locales->forLearner($learner);
         $params = ['city' => CityNames::toward($stage->number, $locale)];
-        $path = $this->cards->renderSpec(new CardSpec(
-            key: 'boss_'.$stage->number,
-            palette: 'game',
-            badge: 'BOSS',
-            title: __('game.card.title', $params, $locale),
-            description: __('game.card.description', [], $locale),
-        ), $locale);
+        $path = $this->cards->renderSpec($this->cardSpec($stage->number, $locale), $locale);
         $share = $this->share($learner, $stage->number);
 
         $log = NotificationLog::query()->create([
@@ -130,6 +124,21 @@ final class GameCardSender
         $params = ['city' => CityNames::toward($stageNumber, $locale)];
 
         return ['link' => $link, 'text' => __('game.card.share_text', $params, $locale), 'title' => __('game.card.title', $params, $locale)];
+    }
+
+    /**
+     * What the card of the boss of city number `$stageNumber` shows ("I got to Samarkand"): the picture of the DM and of a message shared
+     * from the Mini App (docs/36 §1в) - one spec, so both point to the same cached file.
+     */
+    public function cardSpec(int $stageNumber, string $locale): CardSpec
+    {
+        return new CardSpec(
+            key: 'boss_'.$stageNumber,
+            palette: 'game',
+            badge: 'BOSS',
+            title: __('game.card.title', ['city' => CityNames::toward($stageNumber, $locale)], $locale),
+            description: __('game.card.description', [], $locale),
+        );
     }
 
     private function shareLink(Learner $learner): ?string

@@ -131,6 +131,15 @@ public function build(Learner $learner, ShareKind $kind, ?string $subject, strin
 | H7 | Аналитика: `share.prepared`, `share.sent`, `share.fallback {reason: old_client|error}` | coder | H4, H6 | Тест события; строка в отчёте вовлечённости `/admin` (по желанию) |
 | H8 | Включение на проде: inline у BotFather, `telegram:setup-bot`, `share.inline_enabled = true` | владелец / devops | H5, H1 | Ученик из бота делится достижением в группу — под фото кнопка, по ней новичок попадает в бот с `ref_` и засчитывается |
 
+**Сделано (25.11.2026): H3, H4, серверная часть H7** — `ShareKind`, `ShareMessageBuilder`, `SharePreparer`, `ShareAnalytics`,
+`ShareException` (`app/Domain/Engagement/`), `POST /api/twa/share/prepare` и `POST /api/twa/share/events` — контракт и коды в
+docs/04 A.22, лимиты в docs/07 §6, настройки `config/share.php`. Отличия от §1в: заблокированного ученика отсекает `TwaAuth` раньше
+(401 `learner_blocked`; сервис отвечает 403 сам — для будущего inline-входа H5); `league_week` и `month_place` есть в `ShareKind`, но
+до своих задач API отвечает на них 422; `:brand` в `share.php` не подставляется — бренд написан в строках, как во всех lang-файлах
+(правило `BrandTest`); `friend_invite` идёт с той же карточкой бренда, что и `invite`; 503 `share_failed` — ещё и при паузе бота
+после 429 (без вызова Bot API) и при занятой блокировке. В кэше кроме `{id, expires_at}` лежит `fresh_until` (свой срок, не только TTL
+хранилища). Тексты uz `share.php` — на вычитку в docs/I18N_UZ_REVIEW.md.
+
 ### 1д. Вопросы владельцу
 
 - **В1.1.** Текст кнопки: «🚀 Начать изучение» / «🚀 O'rganishni boshlash»? *Рекомендация:* да; для приглашения в друзья — «🤝 Добавить в друзья».

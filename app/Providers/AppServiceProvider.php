@@ -383,6 +383,28 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(30)->by('twa-friends|'.$key);
         });
 
+        // "Share" through the bot (docs/36 §1в, docs/07 §6): every prepare may be a Bot API call (savePreparedInlineMessage), cached
+        // answers count too. Over it the Mini App falls back to `t.me/share/url`.
+        RateLimiter::for('twa-share', function (Request $request): array {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return [
+                Limit::perMinute(max(1, (int) config('share.prepare.per_minute', 20)))->by('twa-share|m|'.$key),
+                Limit::perDay(max(1, (int) config('share.prepare.per_day', 100)))->by('twa-share|d|'.$key),
+            ];
+        });
+
+        // The client's events of "share" (analytics only, docs/36 H7).
+        RateLimiter::for('twa-share-event', function (Request $request): Limit {
+            /** @var array{learner_id:int}|null $ctx */
+            $ctx = $request->attributes->get('twa');
+            $key = $ctx['learner_id'] ?? $request->ip();
+
+            return Limit::perMinute(max(1, (int) config('share.events_per_minute', 30)))->by('twa-share-event|'.$key);
+        });
+
         // Practice and battle (docs/16 §7.5), all keyed by the learner. `twa-practice-answer` and the creation limiters sit
         // on top of `twa-api`; the audio and the battle poll are OUTSIDE it, with a bucket of their own.
         foreach ([

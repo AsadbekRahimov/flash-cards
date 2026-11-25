@@ -131,6 +131,9 @@ final class FakeTelegramClient implements TelegramClient
     /** The `expiration_date` the next prepared message answers with; null = one day from now. */
     public ?int $preparedExpirationDate = null;
 
+    /** Runs at the start of every savePreparedInlineMessage call (a race test makes the call slow with it). */
+    public ?Closure $beforePrepare = null;
+
     /** @var list<array{inline_query_id:string, results:list<array<string, mixed>>, cache_time:int, is_personal:bool}> answerInlineQuery calls */
     public array $inlineAnswers = [];
 
@@ -321,6 +324,9 @@ final class FakeTelegramClient implements TelegramClient
 
     public function savePreparedInlineMessage(int $userId, array $result, bool $allowUserChats = false, bool $allowBotChats = false, bool $allowGroupChats = false, bool $allowChannelChats = false): PreparedInlineMessage
     {
+        if ($this->beforePrepare !== null) {
+            ($this->beforePrepare)();
+        }
         $this->failNextInline('savePreparedInlineMessage');
 
         $id = 'prepared-'.(count($this->preparedMessages) + 1);

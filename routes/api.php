@@ -36,6 +36,7 @@ use App\Http\Controllers\Api\Twa\PromoController;
 use App\Http\Controllers\Api\Twa\ReadinessController;
 use App\Http\Controllers\Api\Twa\ReferralController;
 use App\Http\Controllers\Api\Twa\SettingsController;
+use App\Http\Controllers\Api\Twa\ShareController;
 use App\Http\Controllers\Api\Twa\TodayController;
 use App\Http\Controllers\Api\Twa\TrainingController;
 use App\Http\Controllers\Api\Twa\WordNoteController;
@@ -74,6 +75,15 @@ Route::prefix('twa')->group(function (): void {
         Route::post('/achievements/{key}/shared', [AchievementController::class, 'shared'])
             ->where('key', '[a-z0-9_]{1,32}')
             ->name('twa.achievements.shared');
+
+        // "Share" through the bot (docs/36 §1в, docs/04 A.22): a prepared message for `WebApp.shareMessage` (a Bot API call: its own
+        // limiter, per learner) and the client's analytics of it.
+        Route::post('/share/prepare', [ShareController::class, 'prepare'])
+            ->middleware('throttle:twa-share')
+            ->name('twa.share.prepare');
+        Route::post('/share/events', [ShareController::class, 'event'])
+            ->middleware('throttle:twa-share-event')
+            ->name('twa.share.events');
 
         // Friends and challenges (docs/13 §7.5, docs/04 A.13): reads share `twa-api`, writes have their own cap.
         Route::get('/friends', [FriendController::class, 'index'])->name('twa.friends');

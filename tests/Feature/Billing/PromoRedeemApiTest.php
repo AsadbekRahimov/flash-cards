@@ -24,13 +24,14 @@ it('redeems a code and answers with the refreshed profile (Pro with its end)', f
         ->postJson('/api/twa/promo/redeem', ['code' => ' welcome-30 '])
         ->assertOk()
         ->assertExactJsonStructure([
-            'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed'],
+            'learner' => ['id', 'first_name', 'username', 'locale', 'onboarding_completed', 'pro_emoji'],
             'groups',
             'stats' => ['words_learned', 'words_due_today'],
             'entitlement' => ['plan', 'source', 'until', 'new_words_per_day', 'renewal', 'lapsed'],
             'paywall' => ['mode', 'contact'],
             'settings' => [
                 'interface_locale', 'timezone', 'reminder_time', 'daily_goal', 'goal', 'level', 'leagues_opt_out', 'scheduler', 'retention_mode', 'timezone_change_available_at', 'timezone_undo_available_until', 'active_course',
+                'region_code', 'region_change_available_at', 'region_undo_available_until', 'region_prompt', 'pro_emoji_choice',
                 'exercises' => ['meaning', 'reverse', 'audio', 'spelling', 'gap_fill'],
                 'options' => [
                     'locales' => ['*' => ['id', 'label']],
@@ -38,6 +39,9 @@ it('redeems a code and answers with the refreshed profile (Pro with its end)', f
                     'daily_goals',
                     'daily_goal_max',
                     'retention_modes',
+                    'regions' => ['*' => ['code', 'name']],
+                    'pro_emojis' => ['*' => ['code', 'emoji']],
+                    'pro_emoji_locked',
                 ],
             ],
             'practice' => ['available', 'pro_required', 'modes', 'battle', 'pro_promise', 'limits'],

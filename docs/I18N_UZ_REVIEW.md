@@ -4658,3 +4658,19 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `trialSheet.text` | Sinov muddati boshlandi: Pro'ning barcha imkoniyatlari ochiq. Hech narsa to'lash shart emas. | Пробный период уже идёт: всё, что даёт Pro, открыто. Платить ничего не нужно. |
 | `trialSheet.ok` | Tushunarli | Понятно |
 | `trialSheet.more` | Pro haqida batafsil | Подробнее о Pro |
+
+## Поделиться через бота (`share.php`, выпуск 1)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `share.button.start` | 🚀 O'rganishni boshlash | 🚀 Начать изучение |
+| `share.button.add_friend` | 🤝 Do'st bo'lish | 🤝 Добавить в друзья |
+| `share.caption.achievement` | 🏆 Men Muhrla'da «:title» yutug'ini oldim! Telegramda ingliz tilini o'rganamiz. | 🏆 Я получил(а) достижение «:title» в Muhrla! Учим английский прямо в Telegram. |
+| `share.caption.invite` | Muhrla'da ingliz tilini o'rganyapman — qo'shiling, birinchi :trial Pro bepul! | Учу английский в Muhrla — присоединяйся, первые :trial Pro бесплатно! |
+| `share.caption.invite_plain` | Muhrla'da ingliz tilini o'rganyapman — qo'shiling! | Учу английский в Muhrla — присоединяйся! |
+| `share.caption.friend_invite` | Muhrla'da do'st bo'laylik: seriyalarni solishtiramiz va musobaqa qilamiz! | Давай дружить в Muhrla: сравним серии и устроим вызов! |
+| `share.caption.game_city` | Men Muhrla'ning «Karvon» o'yinida yetib keldim: :city! Telegramda ingliz tilini o'rganamiz. | 🐪 Я дошёл(дошла) до :city в игре «Караван» в Muhrla! Учим английский прямо в Telegram. |
+| `share.title.achievement` | «:title» yutug'i | Достижение «:title» |
+| `share.title.invite` | Muhrla'ga taklif qilish | Пригласить в Muhrla |
+| `share.title.friend_invite` | Muhrla'da do'st bo'lish | Добавить в друзья в Muhrla |
+| `share.title.game_city` | Men yetib keldim: :city | Я дошёл до :city |

@@ -128,6 +128,12 @@ enum ProductEventName: string
     case AchievementUnlocked = 'achievement.unlocked';
     /** The learner shared an achievement from the TWA, once per (learner, key) (props: key). */
     case AchievementShared = 'achievement.shared';
+    /** The server prepared a message to share "through the bot" and gave its id (props: kind, subject, via - mini_app, cached, photo; docs/36 §1в, H7). */
+    case SharePrepared = 'share.prepared';
+    /** The Mini App says the prepared message was sent (`shareMessage` → sent; props: kind; docs/36 H7). Reported by the client. */
+    case ShareSent = 'share.sent';
+    /** The Mini App opened `t.me/share/url` instead (props: kind, reason - old_client / error; docs/36 H7). Reported by the client. */
+    case ShareFallback = 'share.fallback';
     /** A solo practice session was created (props: session_id, mode, course_id, lesson_id, source, total, retry — docs/16 §3.4). */
     case PracticeSessionStarted = 'practice.session_started';
     /** A solo session ended, once, by whoever finished it (props: session_id, mode, total, answered, correct_first, hints, mismatches, reason — completed / expired / replaced, duration_ms). */
