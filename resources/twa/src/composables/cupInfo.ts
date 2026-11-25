@@ -169,10 +169,12 @@ export type NextRound = { kind: 'at'; at: string } | { kind: 'last' } | { kind: 
 
 /**
  * The next round by the server's `next_day_at` (of the cup or of the attempt), compared with `now` (the `server_now` of the same answer).
- * Without the field (an older server) - `fallback()`, the client's own count of the next midnight.
+ * Without the field (an older server) - `fallback()`, the client's own count of the next midnight; its `undefined` - "cannot tell", and
+ * the screen says nothing (null).
  */
-export function nextRound(nextDayAt: string | null | undefined, now: string, fallback: () => string | null): NextRound {
+export function nextRound(nextDayAt: string | null | undefined, now: string, fallback: () => string | null | undefined): NextRound | null {
   const at = nextDayAt === undefined ? fallback() : nextDayAt
+  if (at === undefined) return null
   if (at === null) return { kind: 'last' }
   const atMs = Date.parse(at)
   const nowMs = Date.parse(now)

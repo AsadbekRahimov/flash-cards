@@ -1,7 +1,7 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ApiClientError } from '@/api/client'
 import { cupFields, cupTask } from '@/api/__tests__/cupFixtures'
-import { cupFailure, cupPeriod, cupStatusLine, cupTaskElement, nextDayStart, revealText } from '../cupInfo'
+import { cupFailure, cupPeriod, cupStatusLine, cupTaskElement, graphemeCount, nextDayStart, nextRound, revealText } from '../cupInfo'
 import { setLocale, tn } from '@/i18n'
 import { ru } from '@/i18n/ru'
 import { uz } from '@/i18n/uz'
@@ -9,7 +9,10 @@ import { uz } from '@/i18n/uz'
 const err = (kind: ConstructorParameters<typeof ApiClientError>[0], status: number, code: string, details: Record<string, unknown> | null = null) =>
   new ApiClientError(kind, status, code, 'English message', undefined, details)
 
-afterEach(() => setLocale('ru'))
+afterEach(() => {
+  setLocale('ru')
+  vi.unstubAllGlobals()
+})
 
 describe('cupFailure', () => {
   it.each([
@@ -57,6 +60,67 @@ describe('nextDayStart', () => {
     // Day 1 is 27 March in Berlin (UTC+1, midnight = 23:00 UTC); summer time begins on 29 March - midnight of day 4 is 22:00 UTC.
     const next = nextDayStart(cupFields({ timezone: 'Europe/Berlin', starts_at: '2026-03-26T23:00:00.000Z', day: 3 }))
     expect(next).toBe('2026-03-29T22:00:00.000Z')
+  })
+})
+
+describe('cupFailure: a refused name', () => {
+  it.each(['empty', 'too_long', 'marks', 'link', 'mention', 'command', 'tag'])('`%s` has words of its own (ru and uz)', (reason) => {
+    const refusal = cupFailure(err('validation', 422, 'cup_display_name_invalid', { reason }))
+    const general = cupFailure(err('validation', 422, 'cup_display_name_invalid')).message
+    expect(refusal.kind).toBe('refused')
+    expect(refusal.message).not.toBe(general)
+    setLocale('uz')
+    const uzMessage = cupFailure(err('validation', 422, 'cup_display_name_invalid', { reason })).message
+    expect(uzMessage).not.toBe(refusal.message)
+    expect(uzMessage).not.toMatch(/\p{Script=Cyrillic}/u)
+  })
+
+  it('every reason reads differently; an unknown one - the general words', () => {
+    const messages = ['empty', 'too_long', 'marks', 'link', 'mention', 'command', 'tag'].map((reason) => cupFailure(err('validation', 422, 'cup_display_name_invalid', { reason })).message)
+    expect(new Set(messages).size).toBe(7)
+    expect(cupFailure(err('validation', 422, 'cup_display_name_invalid', { reason: 'new_rule' })).message).toBe('Имя — от 1 до 32 символов, без служебных знаков.')
+  })
+})
+
+describe('graphemeCount', () => {
+  it('an emoji family, a flag and a letter with its mark are one each', () => {
+    expect(graphemeCount('👨‍👩‍👧‍👦')).toBe(1)
+    expect(graphemeCount('Aziza 👨‍👩‍👧‍👦')).toBe(7)
+    expect(graphemeCount('🇺🇿')).toBe(1)
+    expect(graphemeCount('e\u0301')).toBe(1)
+    expect(graphemeCount('')).toBe(0)
+  })
+
+  it('without Intl.Segmenter: code points, never UTF-16 units', () => {
+    vi.stubGlobal('Intl', { ...Intl, Segmenter: undefined })
+    expect(graphemeCount('😀😀')).toBe(2)
+    expect('😀😀'.length).toBe(4)
+    expect(graphemeCount('Aziza')).toBe(5)
+  })
+})
+
+describe('nextRound', () => {
+  const NOW = '2026-12-02T10:00:00.000Z'
+  const never = () => {
+    throw new Error('the fallback is asked only without the field')
+  }
+
+  it('the server\'s `next_day_at` in the future: "at"', () => {
+    expect(nextRound('2026-12-02T19:00:00.000Z', NOW, never)).toEqual({ kind: 'at', at: '2026-12-02T19:00:00.000Z' })
+  })
+
+  it('null: the last day', () => {
+    expect(nextRound(null, NOW, never)).toEqual({ kind: 'last' })
+  })
+
+  it('in the past (an attempt of an earlier day): the round of the day is open', () => {
+    expect(nextRound('2026-12-01T19:00:00.000Z', NOW, never)).toEqual({ kind: 'open' })
+  })
+
+  it('no field (an older server): the fallback, null of it is "last"', () => {
+    expect(nextRound(undefined, NOW, () => '2026-12-02T19:00:00.000Z')).toEqual({ kind: 'at', at: '2026-12-02T19:00:00.000Z' })
+    expect(nextRound(undefined, NOW, () => null)).toEqual({ kind: 'last' })
+    expect(nextRound(undefined, NOW, () => undefined)).toBeNull()
   })
 })
 

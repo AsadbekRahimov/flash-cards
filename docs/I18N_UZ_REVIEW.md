@@ -4940,7 +4940,6 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `cup.failure.round_done` | Bugungi raund allaqachon o'ynalgan. | Раунд сегодня уже сыгран. |
 | `cup.failure.name_invalid` | Ism 1 dan 32 tagacha belgidan iborat bo'lsin, xizmat belgilarisiz. | Имя — от 1 до 32 символов, без служебных знаков. |
 | `cup.failure.name_link` | Ism havola yoki sayt manziliga o'xshamasligi kerak. | Имя не должно быть похоже на ссылку или адрес сайта. |
-| `cup.failure.name_symbol` | Ism @, / yoki # bilan boshlanmasin — chatda bu havolaga aylanadi. | Имя не может начинаться с @, / или # — в чате это станет ссылкой. |
 | `cup.failure.name_marks` | Ismda harflar ustidagi belgilar juda ko'p. | В имени слишком много значков над буквами. |
 | `cup.failure.rename_limit` | Ismni bir kubokda ko'pi bilan 3 marta o'zgartirish mumkin. | Имя можно сменить не больше 3 раз за кубок. |
 | `cup.failure.material` | Bu daraja uchun hozircha so'zlar yetarli emas. Boshqasini tanlang. | Для этого уровня пока не хватает слов. Выберите другой. |
@@ -5036,3 +5035,28 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `today.cup.played` | {days} kundan {day}-kun · raund o'ynaldi | День {day} из {days} · раунд сыгран |
 | `today.cup.go` | O'ynash | Играть |
 | `profile.cups` | Do'stlar kuboklari | Кубки друзей |
+
+## Выпуск 5 · кубок друзей: правки экранов Mini App по ревью контракта (docs/04 A.23, 25.11.2026) — на проверку носителю
+
+Причины отказа имени (`cup_display_name_invalid {reason}`) — по одной фразе на причину (`cup.failure.name_symbol` убран: вместо него `name_mention` / `name_command` / `name_tag`); вступление по id без участия — «по ссылке-приглашению»; точное состояние раунда дня на «Bugun» и в «Мои кубки»; время следующего раунда — с сервера. Носителю проверить: «eslatma» (рус. «упоминание», @имя), «buyruq» (рус. «команда», /start), «teg» (рус. «тег», #слово), «taklif havolasi» (рус. «ссылка-приглашение»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `cup.failure.name_empty` | Ismni kiriting. | Введите имя. |
+| `cup.failure.name_too_long` | Ism juda uzun: ko'pi bilan {max} ta belgi. | Имя слишком длинное: не больше {max} символов. |
+| `cup.failure.name_mention` | Ismda @ bilan boshlanadigan so'z bo'lmasin — chatda bu eslatmaga aylanadi. | В имени не может быть слов с @ в начале — в чате это станет упоминанием. |
+| `cup.failure.name_command` | Ismda / bilan boshlanadigan so'z bo'lmasin — chatda bu buyruqqa aylanadi. | В имени не может быть слов с / в начале — в чате это станет командой. |
+| `cup.failure.name_tag` | Ismda # bilan boshlanadigan so'z yoki lotin harfi oldida $ bo'lmasin — chatda bu tegga aylanadi. | В имени не может быть слов с # в начале или $ перед латинской буквой — в чате это станет тегом. |
+| `cup.failure.join_by_link` | Guruhdagi taklif havolasi orqali qo'shilish mumkin. | Вступить можно по ссылке-приглашению из группы. |
+| `cup.today.done_open` | Raund o'ynaldi: {points}. Yangi kun raundi allaqachon ochiq. | Раунд сыгран: {points}. Раунд нового дня уже доступен. |
+| `cup.today.refresh` | Yangilash | Обновить |
+| `cup.round.next_at` | Keyingi raund — ertaga {time} da. | Следующий раунд — завтра в {time}. |
+| `cup.round.next_last` | Bu kubokning oxirgi kuni edi. | Это был последний день кубка. |
+| `cup.round.next_open` | Yangi kun raundi kubokda allaqachon ochiq. | Раунд нового дня уже доступен в кубке. |
+| `cup.list.today_play` | kun raundini o'ynang | сыграйте раунд дня |
+| `cup.list.today_continue` | raundni davom ettiring | продолжите раунд |
+| `cup.list.today_done` | raund o'ynaldi | раунд сыгран |
+| `today.cup.continue` | {days} kundan {day}-kun · raundni davom ettiring | День {day} из {days} · продолжите раунд |
+| `today.cup.day` | {days} kundan {day}-kun | День {day} из {days} |
+| `today.cup.go_continue` | Davom ettirish | Продолжить |
+| `today.cup.open` | Ochish | Открыть |

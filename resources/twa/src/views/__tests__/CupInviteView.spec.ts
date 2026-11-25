@@ -147,24 +147,47 @@ describe('CupInviteView: the invitation', () => {
   })
 
   it.each([
-    ['link', 'похоже на ссылку'],
-    ['mention', 'не может начинаться с @'],
-    ['marks', 'значков над буквами'],
-    ['too_long', 'от 1 до 32 символов'],
-  ])('a name refused for `%s` says why', async (reason, text) => {
+    ['empty', 'Введите имя.', 'Ismni kiriting.'],
+    ['too_long', 'Имя слишком длинное: не больше 32 символов.', "Ism juda uzun: ko'pi bilan 32 ta belgi."],
+    ['marks', 'В имени слишком много значков над буквами.', "Ismda harflar ustidagi belgilar juda ko'p."],
+    ['link', 'Имя не должно быть похоже на ссылку или адрес сайта.', "Ism havola yoki sayt manziliga o'xshamasligi kerak."],
+    ['mention', 'В имени не может быть слов с @ в начале — в чате это станет упоминанием.', "Ismda @ bilan boshlanadigan so'z bo'lmasin — chatda bu eslatmaga aylanadi."],
+    ['command', 'В имени не может быть слов с / в начале — в чате это станет командой.', "Ismda / bilan boshlanadigan so'z bo'lmasin — chatda bu buyruqqa aylanadi."],
+    ['tag', 'В имени не может быть слов с # в начале или $ перед латинской буквой — в чате это станет тегом.', "Ismda # bilan boshlanadigan so'z yoki lotin harfi oldida $ bo'lmasin — chatda bu tegga aylanadi."],
+  ])('a name refused for `%s` says why (ru, uz)', async (reason, ru, uz) => {
     vi.mocked(api.cups.join).mockRejectedValue(apiError('validation', 422, 'cup_display_name_invalid', { reason }))
     const r = await render()
 
     await tid(r, 'join-btn').trigger('click')
     await flushPromises()
+    expect(tid(r, 'name-error').text()).toBe(ru)
+    r.wrapper.unmount()
 
-    expect(tid(r, 'name-error').text()).toContain(text)
+    setLocale('uz')
+    const u = await render()
+    await tid(u, 'join-btn').trigger('click')
+    await flushPromises()
+    expect(tid(u, 'name-error').text()).toBe(uz)
+  })
+
+  it('the counter of the field counts what a person sees: an emoji family is one', async () => {
+    const r = await render()
+
+    expect(tid(r, 'name-count').text()).toBe('5/32')
+    const family = '👨‍👩‍👧‍👦'
+    await tid(r, 'name-input').setValue(`Aziza ${family}`)
+    expect(family.length).toBe(11)
+    expect(tid(r, 'name-count').text()).toBe('7/32')
+    await tid(r, 'name-input').setValue('я'.repeat(33))
+    expect(tid(r, 'name-count').text()).toBe('33/32')
+    expect(tid(r, 'name-count').classes()).toContain('text-danger-ink')
   })
 
   it('an emoji name is not cut by the field (the server counts what a person sees)', async () => {
     const r = await render()
 
-    expect(Number(tid(r, 'name-input').attributes('maxlength'))).toBeGreaterThan(64)
+    // 64 code points of the server are at most 128 UTF-16 units: the field never cuts before the server.
+    expect(Number(tid(r, 'name-input').attributes('maxlength'))).toBeGreaterThanOrEqual(128)
   })
 
   it.each([

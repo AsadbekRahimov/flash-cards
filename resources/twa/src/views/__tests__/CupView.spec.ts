@@ -163,6 +163,48 @@ describe('CupView: the states of the cup', () => {
     expect(r.wrapper.text()).toContain('Кубок недоступен')
   })
 
+  it('a participant who left the chat (403): the same "unavailable" as a stranger, without the group', async () => {
+    const r = await render()
+    expect(r.wrapper.text()).toContain('English Friends')
+
+    // The screen opened again (the table of this cup is still in the store): the read is refused, nothing of the old table stays.
+    vi.mocked(api.cups.show).mockRejectedValue(apiError('forbidden', 403, 'cup_not_member'))
+    r.wrapper.unmount()
+    const again = mount(CupView, { props: { id: 5 }, global: { plugins: [r.router] }, attachTo: document.body })
+    await flushPromises()
+
+    expect(again.get('[data-testid=cup-view]').attributes('data-state')).toBe('unavailable')
+    expect(again.text()).toContain('Кубок недоступен')
+    expect(again.text()).not.toContain('English Friends')
+    expect(again.find('[data-testid=cup-standings]').exists()).toBe(false)
+  })
+
+  it.each([
+    ['paused', apiError('conflict', 409, 'cup_paused', { reason: 'bot_removed' }), 'Кубок на паузе', 'бота удалили из группы'],
+    ['bot not admin', apiError('conflict', 409, 'cup_unverifiable', { reason: 'bot_not_admin' }), 'Нужен админ группы', 'он не администратор группы'],
+    ['telegram', apiError('server', 503, 'cup_unverifiable', { reason: 'telegram_unavailable' }), 'Не удалось проверить участие', 'Telegram сейчас не отвечает'],
+    ['busy', apiError('rate_limited', 429, 'cup_check_busy'), 'Не удалось проверить участие', 'Подождите несколько секунд'],
+  ])('a failed check of a participant (%s): its words and "Retry" by hand, never a loop', async (_name, error, title, text) => {
+    vi.useFakeTimers()
+    try {
+      const r = await render(error)
+
+      expect(state(r)).toBe('error')
+      expect(r.wrapper.text()).toContain(title)
+      expect(r.wrapper.text()).toContain(text)
+      await vi.advanceTimersByTimeAsync(60_000)
+      expect(api.cups.show).toHaveBeenCalledTimes(1)
+
+      vi.mocked(api.cups.show).mockResolvedValue(cupBoard())
+      await tid(r, 'retry-btn').trigger('click')
+      await flushPromises()
+      expect(api.cups.show).toHaveBeenCalledTimes(2)
+      expect(state(r)).toBe('ready')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('the switched off cup', async () => {
     const r = await render(apiError('forbidden', 403, 'cup_unavailable'))
 
@@ -218,6 +260,43 @@ describe('CupView: my round of the day', () => {
     expect(tid(r, 'round-done').text()).toBe('Раунд сыгран: 20 очков. Это был последний день кубка.')
   })
 
+  it('`next_day_at` of the server: the time of the next round in the learner\'s zone (no count of midnights)', async () => {
+    useTodayStore().data = { timezone: 'Europe/Moscow' } as TodayResponse
+    const board = withToday({ state: 'done', day: 3, attempt_id: 77, points: 14, expires_at: null })
+    // A server's moment the client would not count itself (01:30 in Tashkent): only the field is believed.
+    const r = await render(cupBoard({ ...board, cup: { ...board.cup, next_day_at: '2026-12-02T20:30:00.000Z' } }))
+
+    expect(tid(r, 'round-done').text()).toBe('Раунд сыгран: 14 очков. Следующий — завтра в 23:30.')
+    expect(tid(r, 'round-done').attributes('data-next')).toBe('at')
+    expect(has(r, 'refresh-btn')).toBe(false)
+  })
+
+  it('`next_day_at: null`: the last day, even though the client would count one more', async () => {
+    const board = withToday({ state: 'done', day: 3, attempt_id: 77, points: 14, expires_at: null })
+    const r = await render(cupBoard({ ...board, cup: { ...board.cup, next_day_at: null } }))
+
+    expect(tid(r, 'round-done').text()).toBe('Раунд сыгран: 14 очков. Это был последний день кубка.')
+  })
+
+  it('`next_day_at` already passed (read before midnight): the round of the new day is there, "Refresh" reads again', async () => {
+    const board = withToday({ state: 'done', day: 3, attempt_id: 77, points: 14, expires_at: null })
+    const r = await render(cupBoard({ ...board, cup: { ...board.cup, next_day_at: '2026-12-02T09:00:00.000Z' } }))
+
+    expect(tid(r, 'round-done').text()).toBe('Раунд сыгран: 14 очков. Раунд нового дня уже доступен.')
+    vi.mocked(api.cups.show).mockResolvedValue(cupBoard())
+    await tid(r, 'refresh-btn').trigger('click')
+    await flushPromises()
+    expect(api.cups.show).toHaveBeenCalledTimes(2)
+    expect(has(r, 'play-btn')).toBe(true)
+  })
+
+  it('no `next_day_at` (an older server): the client\'s count of the cup\'s midnight', async () => {
+    const r = await render(withToday({ state: 'done', day: 3, attempt_id: 77, points: 14, expires_at: null }))
+
+    expect('next_day_at' in cupBoard().cup).toBe(false)
+    expect(tid(r, 'round-done').text()).toBe('Раунд сыгран: 14 очков. Следующий — завтра в 00:00.')
+  })
+
   it('one who left the chat: no new rounds', async () => {
     const board = cupBoard()
     const r = await render(cupBoard({ me: { ...board.me!, status: 'left' } }))
@@ -238,6 +317,51 @@ describe('CupView: my round of the day', () => {
     expect(api.cups.join).toHaveBeenCalledWith(5)
     expect(api.cups.show).toHaveBeenCalledTimes(2)
     expect(has(r, 'play-btn')).toBe(true)
+  })
+})
+
+async function typeAndSave(r: Rendered, value: string) {
+  await tid(r, 'rename-btn').trigger('click')
+  const input = body().querySelector('[data-testid=rename-input]') as HTMLInputElement
+  input.value = value
+  input.dispatchEvent(new Event('input'))
+  await flushPromises()
+  ;(body().querySelector('[data-testid=rename-save]') as HTMLButtonElement).click()
+  await flushPromises()
+}
+
+describe('CupView: joining by the id', () => {
+  it('403 on "Join" (any refusal to a non-participant): "join by the invitation link of the group", no guess why', async () => {
+    vi.mocked(api.cups.join).mockRejectedValue(apiError('forbidden', 403, 'cup_not_member'))
+    const r = await render(cupBoard({ me: null }))
+
+    await tid(r, 'join-btn').trigger('click')
+    await flushPromises()
+
+    expect(tid(r, 'join-error').text()).toBe('Вступить можно по ссылке-приглашению из группы.')
+    expect(state(r)).toBe('ready')
+    expect(api.cups.show).toHaveBeenCalledTimes(1)
+  })
+
+  it('uz', async () => {
+    setLocale('uz')
+    vi.mocked(api.cups.join).mockRejectedValue(apiError('forbidden', 403, 'cup_not_member'))
+    const r = await render(cupBoard({ me: null }))
+
+    await tid(r, 'join-btn').trigger('click')
+    await flushPromises()
+
+    expect(tid(r, 'join-error').text()).toBe("Guruhdagi taklif havolasi orqali qo'shilish mumkin.")
+  })
+
+  it('a participant who joins again gets the reason (409 paused)', async () => {
+    vi.mocked(api.cups.join).mockRejectedValue(apiError('conflict', 409, 'cup_paused', { reason: 'blocked' }))
+    const r = await render(cupBoard({ me: null }))
+
+    await tid(r, 'join-btn').trigger('click')
+    await flushPromises()
+
+    expect(tid(r, 'join-error').text()).toBe('Кубки в этой группе сейчас недоступны.')
   })
 })
 
@@ -273,6 +397,79 @@ describe('CupView: the name in the tournament', () => {
     await flushPromises()
 
     expect(body().querySelector('[data-testid=rename-error]')?.textContent).toContain('не больше 3 раз')
+  })
+
+  it.each([
+    ['paused', apiError('conflict', 409, 'cup_paused', { reason: 'bot_removed' }), 'Кубок на паузе: бота удалили из группы.'],
+    ['bot not admin', apiError('conflict', 409, 'cup_unverifiable', { reason: 'bot_not_admin' }), 'он не администратор группы'],
+    ['telegram', apiError('server', 503, 'cup_unverifiable', { reason: 'telegram_unavailable' }), 'Telegram сейчас не отвечает'],
+    ['busy', apiError('rate_limited', 429, 'cup_check_busy'), 'Подождите несколько секунд'],
+    ['closed', apiError('gone', 410, 'cup_closed'), 'Кубок уже завершён.'],
+  ])('a refusal (%s): its words in the sheet, the sheet stays with the typed name', async (_name, error, text) => {
+    vi.mocked(api.cups.rename).mockRejectedValue(error)
+    const r = await render()
+
+    await typeAndSave(r, 'Новое имя')
+
+    expect(body().querySelector('[data-testid=rename-sheet]')).not.toBeNull()
+    expect(body().querySelector('[data-testid=rename-error]')?.textContent).toContain(text)
+    expect((body().querySelector('[data-testid=rename-input]') as HTMLInputElement).value).toBe('Новое имя')
+    expect(api.cups.show).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([
+    ['empty', 'Введите имя.'],
+    ['too_long', 'Имя слишком длинное: не больше 32 символов.'],
+    ['marks', 'В имени слишком много значков над буквами.'],
+    ['link', 'Имя не должно быть похоже на ссылку или адрес сайта.'],
+    ['mention', 'В имени не может быть слов с @ в начале — в чате это станет упоминанием.'],
+    ['command', 'В имени не может быть слов с / в начале — в чате это станет командой.'],
+    ['tag', 'В имени не может быть слов с # в начале или $ перед латинской буквой — в чате это станет тегом.'],
+  ])('a name refused for `%s` says why in the sheet', async (reason, text) => {
+    vi.mocked(api.cups.rename).mockRejectedValue(apiError('validation', 422, 'cup_display_name_invalid', { reason }))
+    const r = await render()
+
+    await typeAndSave(r, 'X')
+
+    expect(body().querySelector('[data-testid=rename-error]')?.textContent).toBe(text)
+    expect(body().querySelector('[data-testid=rename-sheet]')).not.toBeNull()
+  })
+
+  it('uz: a refused name and a failed check in Uzbek', async () => {
+    setLocale('uz')
+    vi.mocked(api.cups.rename).mockRejectedValue(apiError('validation', 422, 'cup_display_name_invalid', { reason: 'command' }))
+    const r = await render()
+
+    await typeAndSave(r, '/start')
+    expect(body().querySelector('[data-testid=rename-error]')?.textContent).toBe("Ismda / bilan boshlanadigan so'z bo'lmasin — chatda bu buyruqqa aylanadi.")
+  })
+
+  it('403 (he has left the chat): the sheet closes and the screen is read again - "not available", no group', async () => {
+    vi.mocked(api.cups.rename).mockRejectedValue(apiError('forbidden', 403, 'cup_not_member'))
+    const r = await render()
+    vi.mocked(api.cups.show).mockRejectedValue(apiError('forbidden', 403, 'cup_not_member'))
+
+    await typeAndSave(r, 'Новое имя')
+
+    expect(body().querySelector('[data-testid=rename-sheet]')).toBeNull()
+    expect(api.cups.show).toHaveBeenCalledTimes(2)
+    expect(state(r)).toBe('unavailable')
+    expect(r.wrapper.text()).toContain('Кубок недоступен')
+    expect(r.wrapper.text()).not.toContain('English Friends')
+    expect(has(r, 'cup-standings')).toBe(false)
+  })
+
+  it('the counter of the sheet counts graphemes: an emoji family is one', async () => {
+    const r = await render()
+
+    await tid(r, 'rename-btn').trigger('click')
+    expect(body().querySelector('[data-testid=rename-count]')?.textContent).toBe('2/32')
+    const input = body().querySelector('[data-testid=rename-input]') as HTMLInputElement
+    input.value = 'Me 👨‍👩‍👧‍👦'
+    input.dispatchEvent(new Event('input'))
+    await flushPromises()
+    expect(body().querySelector('[data-testid=rename-count]')?.textContent).toBe('4/32')
+    expect(Number(input.getAttribute('maxlength'))).toBeGreaterThanOrEqual(128)
   })
 
   it('no changes left: no button', async () => {

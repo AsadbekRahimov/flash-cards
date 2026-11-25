@@ -225,7 +225,7 @@ const next = computed((): NextRound | null => {
   const r = round.value
   if (r === null) return null
   const c = cup.value
-  return nextRound(r.next_day_at, r.server_now, () => (c !== null && c.day === r.day ? nextDayStart(c) : null))
+  return nextRound(r.next_day_at, r.server_now, () => (c !== null && c.day === r.day ? nextDayStart(c) : undefined))
 })
 
 const nextText = computed((): string => {

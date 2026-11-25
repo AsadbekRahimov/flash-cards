@@ -9,8 +9,9 @@ import { setLocale } from '@/i18n'
 import { showErrorToast } from '@/composables/errorToast'
 import { useCupBoardStore } from '@/stores/cupBoard'
 import { useCupsStore } from '@/stores/cups'
+import { useTodayStore } from '@/stores/today'
 import { cupBoard, cupRound, cupTask, finishedRound } from '@/api/__tests__/cupFixtures'
-import type { CupAnswerResponse, CupBoardResponse, CupRound, CupToday } from '@/api/types'
+import type { CupAnswerResponse, CupBoardResponse, CupRound, CupToday, TodayResponse } from '@/api/types'
 
 /** The round of the day of a cup (docs/33 §5.2, §7.1): start, resume, answer, the repeat of a lost reply, expiry, summary, 404. */
 
@@ -190,6 +191,30 @@ describe('CupRoundView: start', () => {
     expect(status(r)).toBe('unavailable')
     expect(r.wrapper.text()).toContain('Кубок открывается по ссылке')
   })
+
+  it('a participant who left the chat (403): "The cup is not available", as for a stranger, without the group', async () => {
+    const r = await render(apiError('forbidden', 403, 'cup_not_member'))
+
+    expect(tid(r, 'unavailable').attributes('data-kind')).toBe('unavailable')
+    expect(r.wrapper.text()).toContain('Кубок недоступен')
+    expect(r.wrapper.text()).not.toContain('English Friends')
+    expect(has(r, 'retry-btn')).toBe(false)
+  })
+
+  it.each([
+    ['bot not admin', apiError('conflict', 409, 'cup_unverifiable', { reason: 'bot_not_admin' }), 'Нужен админ группы'],
+    ['telegram', apiError('server', 503, 'cup_unverifiable', { reason: 'telegram_unavailable' }), 'Не удалось проверить участие'],
+    ['busy', apiError('rate_limited', 429, 'cup_check_busy'), 'Не удалось проверить участие'],
+  ])('a failed check of a participant (%s): its words and "Retry" by hand', async (_name, error, title) => {
+    const r = await render(error)
+
+    expect(status(r)).toBe('error')
+    expect(r.wrapper.text()).toContain(title)
+    expect(api.cups.show).toHaveBeenCalledTimes(1)
+    vi.mocked(api.cups.show).mockResolvedValue(boardWith(NOT_STARTED))
+    await click(r, 'retry-btn')
+    expect(status(r)).toBe('confirm')
+  })
 })
 
 describe('CupRoundView: resume', () => {
@@ -365,6 +390,40 @@ describe('CupRoundView: the time of the server', () => {
 })
 
 describe('CupRoundView: the summary', () => {
+  it.each([
+    ['in the future: the time in the learner\'s zone', '2026-12-02T19:00:00.000Z', 'at', 'Следующий раунд — завтра в 00:00.'],
+    ['null: the last day', null, 'last', 'Это был последний день кубка.'],
+    ['in the past (an attempt of an earlier day): the round of the day is there', '2026-12-01T19:00:00.000Z', 'open', 'Раунд нового дня уже доступен в кубке.'],
+  ] as const)('`next_day_at` %s', async (_name, nextDayAt, kind, text) => {
+    useTodayStore().data = { timezone: 'Asia/Tashkent' } as TodayResponse
+    vi.mocked(api.cups.round).mockResolvedValue(finishedRound({ next_day_at: nextDayAt }))
+    const r = await render(boardWith(DONE))
+
+    expect(tid(r, 'summary-next').attributes('data-next')).toBe(kind)
+    expect(tid(r, 'summary-next').text()).toBe(text)
+  })
+
+  it('no `next_day_at` (an older server): the client\'s count, only for an attempt of the cup\'s day', async () => {
+    useTodayStore().data = { timezone: 'Europe/Moscow' } as TodayResponse
+    vi.mocked(api.cups.round).mockResolvedValue(finishedRound())
+    const r = await render(boardWith(DONE))
+    expect(tid(r, 'summary-next').text()).toBe('Следующий раунд — завтра в 22:00.')
+    r.wrapper.unmount()
+
+    vi.mocked(api.cups.round).mockResolvedValue(finishedRound({ day: 2 }))
+    const earlier = await render(boardWith(DONE))
+    expect(has(earlier, 'summary-next')).toBe(false)
+  })
+
+  it('uz', async () => {
+    setLocale('uz')
+    useTodayStore().data = { timezone: 'Asia/Tashkent' } as TodayResponse
+    vi.mocked(api.cups.round).mockResolvedValue(finishedRound({ next_day_at: '2026-12-02T19:00:00.000Z' }))
+    const r = await render(boardWith(DONE))
+
+    expect(tid(r, 'summary-next').text()).toBe('Keyingi raund — ertaga 00:00 da.')
+  })
+
   it('the points of the day, the right answers, the place after the round', async () => {
     vi.mocked(api.cups.round).mockResolvedValue(finishedRound())
     const r = await render(boardWith(DONE))
