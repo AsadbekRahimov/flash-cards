@@ -1,0 +1,17 @@
+{
+  "slug": "english-phrases-good",
+  "title": {
+    "ru": "Фразы (фикстура проверочного скрипта)",
+    "uz": "Iboralar (tekshiruv skripti uchun namuna)"
+  },
+  "description": {
+    "ru": "Два урока для самопроверки check_phrases.py. Не контент выпуска.",
+    "uz": "check_phrases.py o'zini tekshirishi uchun ikki dars. Haqiqiy kontent emas."
+  },
+  "level": "B1",
+  "level_label": "A2–C1",
+  "exam_tag": "general",
+  "visibility": "public",
+  "position": 901,
+  "is_featured": false
+}

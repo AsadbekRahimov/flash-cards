@@ -41,7 +41,7 @@ EXAMPLE_MAX_WORDS = 25
 EXAMPLE_MAX_CHARS = 200
 GAP_LESSON_MAX = 1         # the same key word in one lesson
 GAP_COURSE_MAX = 20        # the same key word in the whole course
-SLANG_COURSE_MAX = 30      # register 'slang' in the whole course (PHRASE_PLAN.md §2)
+SLANG_SHARE_MAX = 3        # register 'slang', % of the whole course (PHRASE_PLAN.md §2: at most 30 of 1 000)
 LESSON_SIZE = 10           # without a plan; with a plan - the count of the lesson there
 WORD_KEYS = {'word', 'part_of_speech', 'translation', 'translations', 'example', 'example_translations', 'examples', 'hooks',
              'confusable_with', 'transcription', 'phrase'}
@@ -410,6 +410,7 @@ def check_import_entry(e):
         return False
     if len(word) > WORD_MAX:
         err('WORD_TOO_LONG', where, f'{len(word)} characters, the import takes at most {WORD_MAX}')
+        return False
     field = []
     for key in ('translations', 'example_translations', 'hooks'):
         v = w.get(key)
@@ -616,7 +617,7 @@ def check_quality_entry(e, plan):
         if plain(lt) == plain(word):
             err('LITERAL_SAME', where, f'phrase.literal.{loc} repeats the English phrase')
     if bool(literal.get('ru')) != bool(literal.get('uz')):
-        err('LITERAL_SAME', where, 'phrase.literal needs both ru and uz, or neither')
+        err('LITERAL_INCOMPLETE', where, 'phrase.literal needs both ru and uz, or neither')
 
     for key, t in texts:
         if t != t.strip() or '  ' in t:
@@ -648,7 +649,8 @@ def check_quality_entry(e, plan):
 
 
 def check_entry(e, plan, args):
-    e.ok = check_import_entry(e)
+    before = len(ERRORS)
+    e.ok = check_import_entry(e) and len(ERRORS) == before  # the content rules only for an entry the import takes
     if e.ok and not args.import_only:
         check_quality_entry(e, plan)
 
@@ -685,8 +687,8 @@ def check_across(entries, plan, args, files_seen):
             err('COURSE_INCOMPLETE', 'course', f'{len(entries)} phrases, the plan has {total}')
         ok = [e for e in entries if e.ok]
         slang = sum(1 for e in ok if e.data['phrase']['register'] == 'slang')
-        if slang > SLANG_COURSE_MAX:
-            err('REGISTER_BALANCE', 'course', f"{slang} phrases of register 'slang', at most {SLANG_COURSE_MAX} in the course")
+        if ok and 100 * slang / len(ok) > SLANG_SHARE_MAX:
+            err('REGISTER_BALANCE', 'course', f"{slang} phrases of register 'slang' ({100 * slang / len(ok):.0f} %), at most {SLANG_SHARE_MAX} % of the course")
         kinds = collections.Counter(e.data['phrase']['kind'] for e in ok)
         for kind, (lo, hi) in sorted(plan['shares'].items()):
             share = 100 * kinds[kind] / len(ok) if ok else 0

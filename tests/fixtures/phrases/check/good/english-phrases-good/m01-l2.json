@@ -1,0 +1,293 @@
+{
+  "course": "english-phrases-good",
+  "stage": {
+    "number": 1,
+    "title": "Знакомство и вежливость",
+    "title_uz": "Tanishuv va xushmuomalalik"
+  },
+  "lesson": {
+    "number": 2,
+    "title": "Прощание",
+    "title_uz": "Xayrlashish"
+  },
+  "words": [
+    {
+      "word": "See you later",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "до встречи",
+        "uz": "ko'rishguncha"
+      },
+      "example": "I have to go now. — OK, see you later!",
+      "example_translations": {
+        "ru": "Мне пора идти. — Хорошо, до встречи!",
+        "uz": "Men ketishim kerak. — Mayli, ko'rishguncha!"
+      },
+      "hooks": {
+        "ru": "Обычное «пока», даже если встреча не назначена",
+        "uz": "Oddiy «xayr», hatto keyingi uchrashuv belgilanmagan bo'lsa ham"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "later",
+        "literal": {
+          "ru": "увидимся позже",
+          "uz": "keyinroq ko'rishamiz"
+        },
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Take care",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "береги себя",
+        "uz": "o'zingizni ehtiyot qiling"
+      },
+      "example": "Bye, Grandma! — Take care, dear. Call me tomorrow.",
+      "example_translations": {
+        "ru": "Пока, бабушка! — Береги себя, дорогой. Позвони мне завтра.",
+        "uz": "Xayr, buvi! — O'zingni ehtiyot qil, jonim. Ertaga qo'ng'iroq qil."
+      },
+      "hooks": {
+        "ru": "Тёплое прощание с близкими и друзьями",
+        "uz": "Yaqinlar va do'stlar bilan iliq xayrlashish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "care",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Have a nice day",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хорошего дня",
+        "uz": "kuningiz yaxshi o'tsin"
+      },
+      "example": "Here is your coffee. Have a nice day! — Thanks, you too.",
+      "example_translations": {
+        "ru": "Вот ваш кофе. Хорошего дня! — Спасибо, и вам.",
+        "uz": "Mana qahvangiz. Kuningiz yaxshi o'tsin! — Rahmat, sizga ham."
+      },
+      "hooks": {
+        "ru": "Вежливо прощаются продавцы, официанты и незнакомые люди",
+        "uz": "Sotuvchilar, ofitsiantlar va notanish odamlar shunday xayrlashadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "nice",
+        "literal": {
+          "ru": "имейте хороший день",
+          "uz": "yaxshi kun o'tkazing"
+        },
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Keep in touch",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не пропадай",
+        "uz": "aloqada bo'laylik"
+      },
+      "example": "Good luck in your new job! — Thanks! Let's keep in touch.",
+      "example_translations": {
+        "ru": "Удачи на новой работе! — Спасибо! Давай не пропадать.",
+        "uz": "Yangi ishingizda omad! — Rahmat! Aloqada bo'laylik."
+      },
+      "hooks": {
+        "ru": "Говорят при расставании надолго: «давай общаться»",
+        "uz": "Uzoq vaqtga xayrlashganda aytiladi: «gaplashib turaylik»"
+      },
+      "phrase": {
+        "kind": "fixed",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "touch",
+        "literal": {
+          "ru": "держи в контакте",
+          "uz": "aloqada tut"
+        },
+        "cefr": "B1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "See you tomorrow",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "до завтра",
+        "uz": "ertagacha"
+      },
+      "example": "That's all for today. See you tomorrow, class!",
+      "example_translations": {
+        "ru": "На сегодня всё. До завтра, ребята!",
+        "uz": "Bugunga shu yetarli. Ertagacha, bolalar!"
+      },
+      "hooks": {
+        "ru": "Прощаются с теми, кого увидят на следующий день",
+        "uz": "Ertasi kuni yana ko'radigan odamlar bilan shunday xayrlashiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "tomorrow",
+        "literal": {
+          "ru": "увидимся завтра",
+          "uz": "ertaga ko'rishamiz"
+        },
+        "cefr": "A1",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "I'm off",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "я пошёл",
+        "uz": "men ketdim"
+      },
+      "example": "Right, I'm off. See you on Monday!",
+      "example_translations": {
+        "ru": "Ну всё, я пошёл. Увидимся в понедельник!",
+        "uz": "Xo'sh, men ketdim. Dushanbada ko'rishamiz!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда уходят прямо сейчас",
+        "uz": "Hozir ketayotganda aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "off",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Catch you later",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ещё увидимся",
+        "uz": "keyin ko'rishamiz"
+      },
+      "example": "I need to run. — No problem, catch you later!",
+      "example_translations": {
+        "ru": "Мне надо бежать. — Без проблем, ещё увидимся!",
+        "uz": "Men shoshyapman. — Mayli, keyin ko'rishamiz!"
+      },
+      "hooks": {
+        "ru": "Очень разговорное «пока» между друзьями",
+        "uz": "Do'stlar orasidagi juda erkin «xayr»"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "catch",
+        "literal": {
+          "ru": "поймаю тебя позже",
+          "uz": "seni keyinroq tutaman"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Have a good weekend",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "хороших выходных",
+        "uz": "dam olish kunlarini yaxshi o'tkazing"
+      },
+      "example": "It's Friday! Have a good weekend, Kamola. — Thanks, you too!",
+      "example_translations": {
+        "ru": "Сегодня пятница! Хороших выходных, Камола. — Спасибо, и тебе!",
+        "uz": "Bugun juma! Dam olish kunlarini yaxshi o'tkaz, Kamola. — Rahmat, senga ham!"
+      },
+      "hooks": {
+        "ru": "Прощание в пятницу с коллегами и одноклассниками",
+        "uz": "Jumada hamkasblar va sinfdoshlar bilan xayrlashish"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "weekend",
+        "cefr": "A2",
+        "frequency": 1
+      }
+    },
+    {
+      "word": "Safe travels",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "счастливого пути",
+        "uz": "oq yo'l"
+      },
+      "example": "We're flying to Samarkand tonight. — Safe travels!",
+      "example_translations": {
+        "ru": "Мы сегодня вечером летим в Самарканд. — Счастливого пути!",
+        "uz": "Bugun kechqurun Samarqandga uchamiz. — Oq yo'l!"
+      },
+      "hooks": {
+        "ru": "Желают тому, кто уезжает в дорогу",
+        "uz": "Yo'lga chiqayotgan odamga tilanadi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "travels",
+        "literal": {
+          "ru": "безопасных путешествий",
+          "uz": "xavfsiz sayohatlar"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "It was nice talking to you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "было приятно поговорить",
+        "uz": "siz bilan gaplashganimdan xursandman"
+      },
+      "example": "Well, I should go. It was nice talking to you. — You too!",
+      "example_translations": {
+        "ru": "Ну, мне пора. Было приятно поговорить. — Мне тоже!",
+        "uz": "Xo'sh, men borishim kerak. Siz bilan gaplashganimdan xursandman. — Men ham!"
+      },
+      "hooks": {
+        "ru": "Вежливо заканчивают разговор с новым знакомым",
+        "uz": "Yangi tanish bilan suhbatni xushmuomala yakunlash"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "talking",
+        "literal": {
+          "ru": "было приятно говорить с вами",
+          "uz": "siz bilan gaplashish yoqimli edi"
+        },
+        "cefr": "B1",
+        "frequency": 2
+      }
+    }
+  ]
+}
