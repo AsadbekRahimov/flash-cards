@@ -33,7 +33,9 @@ use Illuminate\Support\Facades\DB;
  *   - the lesson of today: the lesson of the latest personal `lesson` session played to its end today (`completed_at` in the day, also
  *     when it ended on the Free quota) whose words the learner met today ({@see LessonReviewService::wordsMetTodayQuery()} counts > 0);
  *   - review done: a `lesson_review` of that lesson begun today and played to its end (`completed_at`);
- *   - game played: a practice session (any mode) on that lesson begun today with at least one answer.
+ *   - game played: a practice session (any mode) on that lesson begun today with at least one answer;
+ *   - the course of the lesson (its slug - where the review and the game open; the lesson of today may be of another course than the
+ *     active one: an assignment of a center, a course switched afterwards) rides as a third scalar (`plan_course`), no statement.
  */
 final class DayPlanService
 {
@@ -90,11 +92,12 @@ final class DayPlanService
         return $latest === null ? null : (int) $latest->lesson_id;
     }
 
-    /** The two scalars of the plan for the candidate lesson, into the caller's ONE statement. */
+    /** The three scalars of the plan for the candidate lesson (its words, "played", the slug of its course), into the caller's ONE statement. */
     public function addScalars(ScalarBatch $batch, Learner $learner, int $lessonId, DayBounds $day): void
     {
         $batch->countLimited('plan_words', $this->reviews->wordsMetTodayQuery((int) $learner->id, $lessonId, $day->startUtc)->limit($this->reviews->maxWords()));
         $batch->exists('plan_game', $this->gamePlayedQuery((int) $learner->id, $lessonId, $day));
+        $batch->value('plan_course', $this->lessonCourseQuery($lessonId));
     }
 
     /** Whether the learner may open the game of step 3: the practice is open to them (not behind Pro) and `pairs_timed` is on. */
@@ -112,7 +115,7 @@ final class DayPlanService
     /**
      * @param  iterable<TrainingSession>  $sessions  the sessions of {@see constrainSessions()} (other modes are ignored)
      * @param  int|null  $candidate  {@see candidateLesson()}
-     * @param  array<string, mixed>  $scalars  the row of the statement of scalars, with `plan_words` / `plan_game` when a candidate was added
+     * @param  array<string, mixed>  $scalars  the row of the statement of scalars, with `plan_words` / `plan_game` / `plan_course` when a candidate was added
      * @param  array<int, string|null>  $titles  lesson id => title, of the active course (CourseToday::$lessonTitles)
      */
     public function assemble(
@@ -127,6 +130,7 @@ final class DayPlanService
     ): DayPlan {
         $words = $candidate === null ? 0 : ScalarBatch::int($scalars, 'plan_words');
         $lessonId = $words > 0 ? $candidate : null;
+        $courseSlug = $lessonId === null ? null : ($scalars['plan_course'] ?? null);
 
         $reviewDone = false;
         $openReview = null;
@@ -154,6 +158,7 @@ final class DayPlanService
             reviewOpenSessionId: $reviewDone ? null : $openReview,
             gameAvailable: $gameAvailable,
             gamePlayed: $lessonId !== null && ScalarBatch::int($scalars, 'plan_game') > 0,
+            todayCourseSlug: is_string($courseSlug) && $courseSlug !== '' ? $courseSlug : null,
         );
     }
 
@@ -200,6 +205,17 @@ final class DayPlanService
             $this->gameAvailable($learner, $this->entitlements->for($learner, $now)),
             $now,
         );
+    }
+
+    /** The slug of the course of the lesson (lessons -> stages -> courses, by their primary keys). */
+    private function lessonCourseQuery(int $lessonId): QueryBuilder
+    {
+        return DB::table('lessons')
+            ->join('stages', 'stages.id', '=', 'lessons.stage_id')
+            ->join('courses', 'courses.id', '=', 'stages.course_id')
+            ->where('lessons.id', $lessonId)
+            ->select('courses.slug')
+            ->limit(1);
     }
 
     /** A practice session on the lesson begun in the day and answered at least once (served by `(learner_id, status, started_at)`). */

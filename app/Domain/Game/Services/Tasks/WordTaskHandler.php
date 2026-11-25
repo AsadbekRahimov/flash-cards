@@ -107,7 +107,7 @@ final class WordTaskHandler implements TaskHandler
             $data['event'] = $event->value;
         }
 
-        return new SnapshotElement($id, $kind->value, $data);
+        return new SnapshotElement($id, $kind->value, self::withLexeme($data, $word));
     }
 
     /** @param list<string> $taken */
@@ -117,13 +117,13 @@ final class WordTaskHandler implements TaskHandler
         $taken[] = $id;
         $expected = self::text($word);
 
-        return new SnapshotElement($id, TaskKind::Spell->value, [
+        return new SnapshotElement($id, TaskKind::Spell->value, self::withLexeme([
             'word_id' => $word->id(),
             'word' => $expected,
             'prompt' => self::translations($word, $locales),
             'expected' => $expected,
             'answer_length' => mb_strlen($expected),
-        ]);
+        ], $word));
     }
 
     /** @param list<string> $taken */
@@ -140,7 +140,7 @@ final class WordTaskHandler implements TaskHandler
             }
         }
 
-        return new SnapshotElement($id, TaskKind::Gap->value, [
+        return new SnapshotElement($id, TaskKind::Gap->value, self::withLexeme([
             'word_id' => $word->id(),
             'word' => self::text($word),
             'masked' => $gap->masked,
@@ -148,7 +148,24 @@ final class WordTaskHandler implements TaskHandler
             'correct_text' => $gap->expected,
             'full_text' => str_replace(GapFillBuilder::MASK, $gap->expected, $gap->masked),
             'translation' => self::translations($word, $locales),
-        ]);
+        ], $word));
+    }
+
+    /**
+     * The lexeme of the word rides in the snapshot (docs/32 §3.6): the answer credits the word points without a read. Only when the word
+     * has one - a run of words outside the catalog (and every run started before the word points) has none and earns nothing. Never
+     * projected to the client.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private static function withLexeme(array $data, RunPoolWord $word): array
+    {
+        if ($word->word->lexemeId !== null) {
+            $data['lexeme_id'] = $word->word->lexemeId;
+        }
+
+        return $data;
     }
 
     // ------------------------------------------------------------------ playing

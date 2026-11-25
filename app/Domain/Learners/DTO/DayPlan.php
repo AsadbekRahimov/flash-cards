@@ -28,6 +28,8 @@ final readonly class DayPlan
      * @param  int|null  $reviewOpenSessionId  a live review of that lesson to continue
      * @param  bool  $gameAvailable  the learner may open `pairs_timed` (the practice is open to them and the mode is on)
      * @param  bool  $gamePlayed  a practice session on the lesson of today was begun today and answered at least once
+     * @param  string|null  $todayCourseSlug  the slug of the course of the lesson of today - not necessarily the active course (an
+     *                                        assignment of a center, a course switched since): the review and the game open there
      */
     public function __construct(
         public ?int $todayLessonId,
@@ -40,6 +42,7 @@ final readonly class DayPlan
         public ?int $reviewOpenSessionId,
         public bool $gameAvailable,
         public bool $gamePlayed,
+        public ?string $todayCourseSlug = null,
     ) {}
 
     public function lessonDone(): bool
@@ -86,8 +89,8 @@ final readonly class DayPlan
      * @return array{
      *   step: int|null, done: bool,
      *   lesson: array{done: bool, lesson_id: int|null, next_lesson_id: int|null, words_left: int|null},
-     *   training: array{lesson_id: int, title: string|null, words: int, done: bool, open_session_id: int|null}|null,
-     *   game: array{lesson_id: int, mode: string, played: bool}|null
+     *   training: array{lesson_id: int, course: string|null, title: string|null, words: int, done: bool, open_session_id: int|null}|null,
+     *   game: array{lesson_id: int, course: string|null, mode: string, played: bool}|null
      * }
      */
     public function toArray(): array
@@ -105,6 +108,7 @@ final readonly class DayPlan
             ],
             'training' => $lessonId === null || ! $this->reviewEnabled ? null : [
                 'lesson_id' => $lessonId,
+                'course' => $this->todayCourseSlug,
                 'title' => $this->todayLessonTitle,
                 'words' => $this->todayWords,
                 'done' => $this->reviewDone,
@@ -112,6 +116,7 @@ final readonly class DayPlan
             ],
             'game' => $lessonId === null || ! $this->gameAvailable ? null : [
                 'lesson_id' => $lessonId,
+                'course' => $this->todayCourseSlug,
                 'mode' => self::GAME_MODE,
                 'played' => $this->gamePlayed,
             ],

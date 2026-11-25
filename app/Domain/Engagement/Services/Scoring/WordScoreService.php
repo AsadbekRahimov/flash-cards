@@ -223,7 +223,7 @@ final class WordScoreService implements AnswerScoreRecorder
         $monthVersion = (int) $row->month_version;
         $reference = $this->referenceRules($weekVersion, $monthVersion);
 
-        if ($kind === ScoreKind::Review && ($answer->before()?->intervalDays ?? 0) >= $reference->longIntervalDays) {
+        if ($kind === ScoreKind::Review && ($answer->before()->intervalDays ?? 0) >= $reference->longIntervalDays) {
             $kind = ScoreKind::Long;
         }
 
@@ -422,10 +422,10 @@ final class WordScoreService implements AnswerScoreRecorder
      */
     private function referenceRules(int $weekVersion, int $monthVersion): ScoreRuleVersion
     {
-        $versions = $this->rules->versions();
+        $latest = $this->rules->versions();
 
         return $this->rules->version(max($weekVersion, $monthVersion))
-            ?? $versions[array_key_last($versions)]
+            ?? array_pop($latest)
             ?? throw new LogicException('The word points are recorded without a configured rules version.');
     }
 

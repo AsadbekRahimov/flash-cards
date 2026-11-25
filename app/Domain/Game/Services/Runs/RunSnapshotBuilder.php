@@ -255,7 +255,7 @@ final class RunSnapshotBuilder
 
         /** @var array<int, Word> $rows */
         $rows = Word::query()
-            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example')
+            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example', 'words.lexeme_id')
             ->whereIn('words.id', $ids)
             ->where('words.is_active', true)
             ->get()
@@ -280,7 +280,7 @@ final class RunSnapshotBuilder
             foreach ($byLocale as $locale => $texts) {
                 $translations[$locale] = $texts[$row->id] ?? $row->translation;
             }
-            $words[] = new MaterialWord($row->id, $row->lesson_id, $row->word, $row->translation, $row->audio_path, $translations, $row->example);
+            $words[] = new MaterialWord($row->id, $row->lesson_id, $row->word, $row->translation, $row->audio_path, $translations, $row->example, $row->lexeme_id === null ? null : (int) $row->lexeme_id);
         }
 
         return $words;

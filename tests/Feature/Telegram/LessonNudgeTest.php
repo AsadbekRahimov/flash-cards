@@ -139,6 +139,18 @@ it('queues one delayed job at the finish of a lesson with new words, and sends t
     expect(lnSend($learner))->toBeFalse()->and($this->tg->sent)->toHaveCount(1);
 });
 
+it('opens the game in the course of the lesson, not in the active course', function (): void {
+    ['learner' => $learner, 'course' => $active, 'headers' => $h] = lnWorld();
+    ['course' => $other, 'lessons' => $otherLessons] = Fx::course([1 => [1 => 4]]);
+    Queue::fake([SendLessonNudgeJob::class]);
+    lnPlay($this, $h, $otherLessons['1.1']->id);
+
+    expect(lnSend($learner))->toBeTrue()
+        ->and($other->slug)->not->toBe($active->slug)
+        ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['web_app']['url'])
+        ->toBe("https://twa.test/twa/practice/{$other->slug}?lesson={$otherLessons['1.1']->id}&play=pairs_timed&from=lesson_nudge");
+});
+
 it('writes the Uzbek text with the Uzbek title of the lesson', function (): void {
     ['learner' => $learner] = lnPlayed($this, 'uz');
 

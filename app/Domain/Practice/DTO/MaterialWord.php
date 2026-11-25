@@ -14,6 +14,8 @@ final readonly class MaterialWord
     /**
      * @param  array<string, string>  $translations  locale => the translation shown in that locale
      * @param  string|null  $example  `words.example` - the game's `gap` task masks the word in it (docs/18 §12.3.1)
+     * @param  int|null  $lexemeId  `words.lexeme_id` - the game puts it into the word tasks of a run's snapshot (the word points, docs/32 §3.6);
+     *                              null for a word the catalog does not know and where the reader did not select it (distractors)
      */
     public function __construct(
         public int $id,
@@ -23,6 +25,7 @@ final readonly class MaterialWord
         public ?string $audioPath,
         public array $translations,
         public ?string $example = null,
+        public ?int $lexemeId = null,
     ) {}
 
     public function translationFor(string $locale): string

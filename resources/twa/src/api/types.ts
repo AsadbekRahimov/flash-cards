@@ -668,6 +668,8 @@ export interface TodayLesson {
 /** Step 2 of the day plan: the review of the lesson studied today (`POST /training/sessions {mode: 'lesson_review', lesson_id}`). */
 export interface DayPlanTraining {
   lesson_id: number
+  /** The slug of the lesson's course - not necessarily the active one (an assignment, a course switched since); absent on an older server. */
+  course?: string | null
   /** In the learner's language; null when the lesson is not in the active course (a deck, an assignment). */
   title: string | null
   /** Words the review asks (met today, at most 20). */
@@ -681,6 +683,8 @@ export interface DayPlanTraining {
 /** Step 3 of the day plan: the game on the words of the lesson (`POST /practice/sessions {mode: 'pairs_timed', lesson_id, source: 'deeplink'}`). */
 export interface DayPlanGame {
   lesson_id: number
+  /** The slug of the lesson's course: the practice hub opens there (`/practice/{course}?lesson=`); absent on an older server. */
+  course?: string | null
   mode: 'pairs_timed'
   /** A practice session on this lesson was begun today and answered at least once. */
   played: boolean

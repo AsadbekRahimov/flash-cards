@@ -585,7 +585,7 @@ final class PracticeMaterialService
     private function wordQuery(MaterialScope $scope): Builder
     {
         $query = Word::query()
-            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example')
+            ->select('words.id', 'words.lesson_id', 'words.word', 'words.translation', 'words.audio_path', 'words.example', 'words.lexeme_id')
             ->join('lessons', 'lessons.id', '=', 'words.lesson_id')
             ->join('stages', 'stages.id', '=', 'lessons.stage_id')
             ->where('stages.course_id', $scope->course->id)
@@ -629,7 +629,7 @@ final class PracticeMaterialService
                 $translations[$locale] = $texts[$word->id] ?? $word->translation;
             }
 
-            $material[] = new MaterialWord($word->id, $word->lesson_id, $word->word, $word->translation, $word->audio_path, $translations, $word->example);
+            $material[] = new MaterialWord($word->id, $word->lesson_id, $word->word, $word->translation, $word->audio_path, $translations, $word->example, $word->lexeme_id === null ? null : (int) $word->lexeme_id);
         }
 
         return $material;

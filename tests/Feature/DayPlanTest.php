@@ -85,8 +85,8 @@ it('walks the steps: lesson, review, game, done', function (): void {
     expect($today['plan'])->toBe([
         'step' => 2, 'done' => false,
         'lesson' => ['done' => true, 'lesson_id' => $l1, 'next_lesson_id' => $lessons['1.2']->id, 'words_left' => 6],
-        'training' => ['lesson_id' => $l1, 'title' => 'Напитки', 'words' => 5, 'done' => false, 'open_session_id' => null],
-        'game' => ['lesson_id' => $l1, 'mode' => 'pairs_timed', 'played' => false],
+        'training' => ['lesson_id' => $l1, 'course' => $course->slug, 'title' => 'Напитки', 'words' => 5, 'done' => false, 'open_session_id' => null],
+        'game' => ['lesson_id' => $l1, 'course' => $course->slug, 'mode' => 'pairs_timed', 'played' => false],
     ]);
     expect(app(DayPlanService::class)->forLearner($learner->fresh())->offersGame())->toBeTrue();
 
@@ -181,6 +181,27 @@ it('starts a new plan at the local midnight, not at the UTC one', function (): v
         ->and(app(DayPlanService::class)->forLearner($learner->fresh())->offersGame())->toBeFalse();
 });
 
+it('names the course of the lesson of today when it is not the active course, and without an active course', function (): void {
+    ['learner' => $learner, 'course' => $active, 'headers' => $h] = dayPlanWorld();
+    ['course' => $other, 'lessons' => $otherLessons] = Fx::course([1 => [1 => 4]]);
+    $lesson = $otherLessons['1.1']->id;
+
+    // A lesson of another course (an assignment of a center, a course left since) played to its end today.
+    dayPlanPlay($this, $h, 'lesson', $lesson);
+    $plan = dayPlanToday($this, $h)['plan'];
+    expect($other->slug)->not->toBe($active->slug)
+        ->and($plan['step'])->toBe(2)
+        ->and($plan['training'])->toMatchArray(['lesson_id' => $lesson, 'course' => $other->slug, 'title' => null])
+        ->and($plan['game'])->toMatchArray(['lesson_id' => $lesson, 'course' => $other->slug])
+        ->and(app(DayPlanService::class)->forLearner($learner->fresh())->todayCourseSlug)->toBe($other->slug);
+
+    // No active course at all: the plan still names where its steps open.
+    $learner->update(['active_course_id' => null]);
+    $plan = dayPlanToday($this, $h)['plan'];
+    expect($plan['game'])->toMatchArray(['lesson_id' => $lesson, 'course' => $other->slug])
+        ->and($plan['training']['course'])->toBe($other->slug);
+});
+
 it('pays no statement for the plan on /today: the sessions and the scalars carry it', function (): void {
     ['lessons' => $lessons, 'headers' => $h] = dayPlanWorld();
     dayPlanPlay($this, $h, 'lesson', $lessons['1.1']->id);
@@ -191,5 +212,6 @@ it('pays no statement for the plan on /today: the sessions and the scalars carry
     expect(QueryLog::matching($queries, '/from ["`]training_sessions["`]/'))->toHaveCount(1)
         ->and(QueryLog::matching($queries, '/from ["`]practice_sessions["`]/'))->toHaveCount(1)
         // ... and that one is a member of the one statement of scalars, beside the words met today.
-        ->and(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].*as ["`]plan_words["`].*from ["`]practice_sessions["`].*as ["`]plan_game["`]/s'))->toHaveCount(1);
+        ->and(QueryLog::matching($queries, '/^select \(select count\(\*\) from ["`]word_repetitions["`].*as ["`]plan_words["`].*from ["`]practice_sessions["`].*as ["`]plan_game["`].*from ["`]lessons["`].*as ["`]plan_course["`]/s'))->toHaveCount(1)
+        ->and(QueryLog::matching($queries, '/from ["`]lessons["`]/'))->toHaveCount(1);
 });

@@ -42,8 +42,8 @@ final class TodayResource extends TwaResource
      *   plan: array{
      *     step: int|null, done: bool,
      *     lesson: array{done: bool, lesson_id: int|null, next_lesson_id: int|null, words_left: int|null},
-     *     training: array{lesson_id: int, title: string|null, words: int, done: bool, open_session_id: int|null}|null,
-     *     game: array{lesson_id: int, mode: string, played: bool}|null
+     *     training: array{lesson_id: int, course: string|null, title: string|null, words: int, done: bool, open_session_id: int|null}|null,
+     *     game: array{lesson_id: int, course: string|null, mode: string, played: bool}|null
      *   }|null
      * }
      */

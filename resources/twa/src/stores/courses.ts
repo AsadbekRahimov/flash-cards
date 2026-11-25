@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
 import { errorMessage } from '@/i18n/errors'
+import { useTodayStore } from '@/stores/today'
 import type { Course, CourseDetail, CourseLesson } from '@/api/types'
 
 export type CatalogStatus = 'idle' | 'loading' | 'ready' | 'error'
@@ -110,6 +111,8 @@ export const useCoursesStore = defineStore('courses', {
       this.errorMessage = ''
       try {
         const chosen = await api.courses.select(slug)
+        // `/today` names the active course: a young copy of it no longer tells where the "Course" tab leads.
+        useTodayStore().invalidate()
         // `is_active` of the previous active course flips off, the chosen one on.
         this.courses = this.courses.map((c) =>
           c.slug === chosen.slug ? chosen : { ...c, is_active: false },
