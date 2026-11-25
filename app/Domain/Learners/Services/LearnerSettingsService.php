@@ -161,14 +161,13 @@ final class LearnerSettingsService
 
     /**
      * @param  array<string, mixed>  $changes  field => new value (a partial update; only the keys present are touched)
+     * @param  string  $regionVia  where a change of `region_code` comes from, for `region.set`: `settings` or `prompt`
      *
      * @throws InvalidSettingException for an unknown field or a value the field does not accept
      * @throws TimezoneChangeTooSoonException when `timezone` differs from the current one but the last change is too recent
      * @throws DailyGoalLimitException when `daily_goal` is above the limit of the learner's plan (Free: 10)
      * @throws RegionChangeTooSoonException when `region_code` changes before 30 days have passed since the last choice
      * @throws ProEmojiProRequiredException when a learner without Pro chooses `pro_emoji`
-     *
-     * @param  string  $regionVia  where a change of `region_code` comes from, for `region.set`: `settings` or `prompt`
      */
     public function update(Learner $learner, array $changes, string $regionVia = LearnerRegionService::VIA_SETTINGS): Learner
     {

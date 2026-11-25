@@ -246,6 +246,7 @@ it('keeps ref_<code> of a NEW learner a plain referral: no friendship, ordinary 
 function frOnboard(int $tgId): void
 {
     frTap($tgId, 'onb1:locale:ru', 1);
+    frTap($tgId, 'onb1:region:none', 2);
     frTap($tgId, 'onb1:goal:general', 2);
     frTap($tgId, 'onb1:level:A1', 3);
     frTap($tgId, 'onb1:timezone:Asia/Tashkent', 4);

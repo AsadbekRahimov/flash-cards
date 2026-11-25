@@ -77,6 +77,12 @@ final readonly class TrainingScope
      */
     public static function forSession(TrainingSession $session): self
     {
+        if ($session->mode === TrainingSession::MODE_LESSON_REVIEW) {
+            // The review of a lesson (docs/06 §15) has no scope of the picker: it serves a fixed set without touching the schedule and is
+            // played by LessonReviewService alone. A lesson scope here would introduce new words and grade with SM-2 - never.
+            throw new LogicException("Training session {$session->id} (lesson_review) is not served by the card picker.");
+        }
+
         if ($session->mode === TrainingSession::MODE_DAILY_REVIEW) {
             return self::daily($session->course_id === null ? null : (int) $session->course_id);
         }

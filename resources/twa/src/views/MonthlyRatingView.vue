@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import RegionPromptCard from '@/components/RegionPromptCard.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -116,6 +117,9 @@ onMounted(() => {
       </section>
 
       <template v-else>
+        <!-- "Choose your region" (docs/35 §2.3): the rating of the region will be a part of this pane. -->
+        <RegionPromptCard />
+
         <section v-if="hasPrizes" class="list" data-testid="prizes">
           <h2 class="px-[18px] pt-3.5 pb-1 text-[15px] leading-5 font-semibold">{{ t('month.prizes') }}</h2>
           <ul>

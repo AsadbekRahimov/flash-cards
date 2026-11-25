@@ -61,13 +61,14 @@ function onbLearner(int $tgId): Learner
     return Learner::query()->where('telegram_user_id', $tgId)->firstOrFail();
 }
 
-/** Runs the four steps (goal enabled) from `/start` to `done`. */
-function onbComplete(int $tgId, string $locale = 'uz', string $goal = 'ielts', string $level = 'B1', string $reminder = '2100'): void
+/** Runs the five steps (goal enabled) from `/start` to `done`; the region step is answered with `$region` ("Rather not say" by default). */
+function onbComplete(int $tgId, string $locale = 'uz', string $goal = 'ielts', string $level = 'B1', string $reminder = '2100', string $region = 'none'): void
 {
     onbTap($tgId, "onb1:locale:{$locale}", 1);
-    onbTap($tgId, "onb1:goal:{$goal}", 2);
-    onbTap($tgId, "onb1:level:{$level}", 3);
-    onbTap($tgId, "onb1:reminder:{$reminder}", 4);
+    onbTap($tgId, "onb1:region:{$region}", 2);
+    onbTap($tgId, "onb1:goal:{$goal}", 3);
+    onbTap($tgId, "onb1:level:{$level}", 4);
+    onbTap($tgId, "onb1:reminder:{$reminder}", 5);
 }
 
 function onbCourse(string $slug, ?string $tag, ?string $level = null, bool $featured = false, string $visibility = 'public', int $words = 10): Course
@@ -91,7 +92,7 @@ function onbEvents(): array
 
 // --- the happy path --------------------------------------------------------
 
-it('walks a new learner through the four steps (goal enabled) with four callbacks', function (): void {
+it('walks a new learner through the five steps (goal enabled) with six callbacks', function (): void {
     $course = onbCourse('ielts-academic', 'ielts', 'B1');
     onbCourse('general-a1', 'general', 'A1');
 
@@ -100,21 +101,35 @@ it('walks a new learner through the four steps (goal enabled) with four callback
     $learner = onbLearner(7001);
     expect($learner->onboarding_state)->toBe('locale')
         ->and($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('Salom! Men Muhrla')->toEndWith("4 qadamdan 1-qadam\nInterfeys tilini tanlang")
+        ->and($this->tg->sent[0]['text'])->toContain('Salom! Men Muhrla')->toEndWith("5 qadamdan 1-qadam\nInterfeys tilini tanlang")
         ->and($this->tg->lastCallbackData())->toBe(['onb1:locale:ru', 'onb1:locale:uz']);
 
     onbTap(7001, 'onb1:locale:uz', 1);
+    expect(onbLearner(7001)->onboarding_state)->toBe('region')
+        ->and(end($this->tg->sent)['text'])->toBe("5 qadamdan 2-qadam\nQayerda yashaysiz? Bu hududingiz reytingi uchun kerak.")
+        ->and($this->tg->lastCallbackData())->toBe(['onb1:region:uz', 'onb1:region:other', 'onb1:region:none']);
+
+    // "Uzbekistan" opens the list of the regions in the same message (an edit, not a new message, not an answer).
+    $sentBefore = count($this->tg->sent);
+    onbTap(7001, 'onb1:region:uz', 2);
+    expect(onbLearner(7001)->onboarding_state)->toBe('region')
+        ->and($this->tg->sent)->toHaveCount($sentBefore)
+        ->and($this->tg->lastTextEdit()['text'] ?? null)->toBe("5 qadamdan 2-qadam\nHududingizni tanlang")
+        ->and($this->tg->lastTextEdit()['message_id'] ?? null)->toBe(2);
+
+    onbTap(7001, 'onb1:region:UZ-SA', 2);
     expect(onbLearner(7001)->onboarding_state)->toBe('goal')
-        ->and(end($this->tg->sent)['text'])->toBe("4 qadamdan 2-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?")
+        ->and(onbLearner(7001)->region_code)->toBe('UZ-SA')
+        ->and(end($this->tg->sent)['text'])->toBe("5 qadamdan 3-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?")
         ->and($this->tg->lastCallbackData())->toBe(['onb1:goal:general', 'onb1:goal:ielts', 'onb1:goal:sat', 'onb1:goal:school']);
 
-    onbTap(7001, 'onb1:goal:ielts', 2);
+    onbTap(7001, 'onb1:goal:ielts', 3);
     expect($this->tg->lastCallbackData())->toBe(['onb1:level:A1', 'onb1:level:A2', 'onb1:level:B1', 'onb1:level:B2', 'onb1:level:C1', 'onb1:level:C2', 'onb1:level:unknown']);
 
-    onbTap(7001, 'onb1:level:B1', 3);
+    onbTap(7001, 'onb1:level:B1', 4);
     expect($this->tg->lastCallbackData())->toBe(['onb1:reminder:0800', 'onb1:reminder:1300', 'onb1:reminder:1900', 'onb1:reminder:2100', 'onb1:reminder:off']);
 
-    onbTap(7001, 'onb1:reminder:2100', 4);
+    onbTap(7001, 'onb1:reminder:2100', 5);
 
     $learner = onbLearner(7001);
     expect($learner->onboarding_state)->toBe('done')
@@ -134,21 +149,24 @@ it('walks a new learner through the four steps (goal enabled) with four callback
         ->and($last['url'])->toBe('https://twa.test/twa/?from=onboarding')
         ->and($last['text'])->toContain('Kurs ielts-academic');
 
-    // Every answered message lost its buttons, every query was answered.
-    expect($this->tg->edits)->toHaveCount(4)
+    // Every answered message lost its buttons (the region message was edited to its second screen first), every query was answered.
+    expect($this->tg->edits)->toHaveCount(5)
         ->and(array_column($this->tg->edits, 'markup'))->each->toBeNull()
-        ->and(array_column($this->tg->edits, 'message_id'))->toBe([1, 2, 3, 4])
-        ->and($this->tg->answered)->toHaveCount(4);
+        ->and(array_column($this->tg->edits, 'message_id'))->toBe([1, 2, 3, 4, 5])
+        ->and($this->tg->answered)->toHaveCount(6);
 
     expect(onbEvents())->toBe([
         // The welcome trial of a new learner goes with the /start itself (docs/13 §7.1 "2C.9"), before the onboarding begins.
         'subscription.granted', 'trial.granted',
         'onboarding.started',
-        'onboarding.step_completed', 'onboarding.step_completed', 'onboarding.step_completed',
+        'onboarding.step_completed',
+        'onboarding.step_completed', 'region.set',
+        'onboarding.step_completed', 'onboarding.step_completed',
         'onboarding.step_completed',
         'onboarding.completed',
         'course.selected',
     ]);
+    expect(ksorted(ProductEvent::query()->where('name', 'region.set')->firstOrFail()->props))->toEqual(['from' => null, 'to' => 'UZ-SA', 'via' => 'onboarding']);
     $completed = ProductEvent::query()->where('name', 'onboarding.completed')->firstOrFail();
     expect(ksorted($completed->props))->toBe(['goal' => 'ielts', 'level' => 'B1', 'locale' => 'uz'])
         ->and(ProductEvent::query()->where('name', 'onboarding.started')->firstOrFail()->props)->toBe(['source_kind' => 'direct'])
@@ -266,14 +284,16 @@ it('does not recommend a course without words', function (): void {
 it('ignores a tap on an old button and a tap on a step that is not current', function (): void {
     onbSend(7010, '/start');
     onbTap(7010, 'onb1:locale:uz', 1);
-    onbTap(7010, 'onb1:goal:sat', 2);
+    onbTap(7010, 'onb1:region:none', 2);
+    onbTap(7010, 'onb1:goal:sat', 3);
     $sentBefore = count($this->tg->sent);
     $eventsBefore = ProductEvent::query()->count();
     $editsBefore = count($this->tg->edits);
 
-    // A button of a step that has not been asked yet, and one from two steps back.
+    // A button of a step that has not been asked yet, one from three steps back and the old first screen of the region step.
     onbTap(7010, 'onb1:reminder:off', 9);
     onbTap(7010, 'onb1:locale:ru', 1);
+    onbTap(7010, 'onb1:region:uz', 2);
 
     $learner = onbLearner(7010);
     expect($learner->onboarding_state)->toBe('level')
@@ -282,19 +302,21 @@ it('ignores a tap on an old button and a tap on a step that is not current', fun
         ->and($learner->reminder_time)->not->toBeNull()
         ->and($this->tg->sent)->toHaveCount($sentBefore)
         ->and($this->tg->edits)->toHaveCount($editsBefore)
-        ->and($this->tg->answered)->toHaveCount(4)
+        ->and($this->tg->textEdits)->toBe([])
+        ->and($this->tg->answered)->toHaveCount(6)
         ->and(ProductEvent::query()->count())->toBe($eventsBefore);
 });
 
 it('sends the current question again on a double tap, without changing the answer', function (): void {
     onbSend(7015, '/start');
     onbTap(7015, 'onb1:locale:uz', 1);
-    onbTap(7015, 'onb1:goal:sat', 2);
+    onbTap(7015, 'onb1:region:none', 2);
+    onbTap(7015, 'onb1:goal:sat', 3);
     $sentBefore = count($this->tg->sent);
     $eventsBefore = ProductEvent::query()->count();
 
     // The button of the step just answered is tapped once more.
-    onbTap(7015, 'onb1:goal:ielts', 2);
+    onbTap(7015, 'onb1:goal:ielts', 3);
 
     expect(onbLearner(7015)->goal)->toBe('sat')
         ->and(onbLearner(7015)->onboarding_state)->toBe('level')
@@ -306,22 +328,23 @@ it('sends the current question again on a double tap, without changing the answe
 it('sends the next step on the retry of an update whose answer was saved but whose reply was lost', function (): void {
     onbSend(7016, '/start');
     onbTap(7016, 'onb1:locale:uz', 1);
-    expect($this->tg->sent)->toHaveCount(2);
+    onbTap(7016, 'onb1:region:none', 2);
+    expect($this->tg->sent)->toHaveCount(3);
 
     // HandleTelegramUpdate (tries = 3) runs the very same update again after Telegram failed.
     $this->tg->failSends = 1;
-    expect(fn () => onbTap(7016, 'onb1:goal:ielts', 2))->toThrow(TelegramApiException::class);
+    expect(fn () => onbTap(7016, 'onb1:goal:ielts', 3))->toThrow(TelegramApiException::class);
     expect(onbLearner(7016)->onboarding_state)->toBe('level')
-        ->and($this->tg->sent)->toHaveCount(2);
+        ->and($this->tg->sent)->toHaveCount(3);
 
-    onbTap(7016, 'onb1:goal:ielts', 2);
+    onbTap(7016, 'onb1:goal:ielts', 3);
 
-    expect($this->tg->sent)->toHaveCount(3)
+    expect($this->tg->sent)->toHaveCount(4)
         ->and(end($this->tg->sent)['text'])->toContain('Ingliz tilini qay darajada bilasiz?')
         ->and($this->tg->lastCallbackData())->toContain('onb1:level:B1')
         ->and(onbLearner(7016)->goal)->toBe('ielts')
         // The answer is counted once.
-        ->and(ProductEvent::query()->where('name', 'onboarding.step_completed')->count())->toBe(2);
+        ->and(ProductEvent::query()->where('name', 'onboarding.step_completed')->count())->toBe(3);
 });
 
 it('sends the closing message again when the retry follows a lost last reply', function (): void {
@@ -329,14 +352,15 @@ it('sends the closing message again when the retry follows a lost last reply', f
     onbCourse('general-a1', 'general');
     onbSend(7017, '/start');
     onbTap(7017, 'onb1:locale:ru', 1);
-    onbTap(7017, 'onb1:goal:general', 2);
-    onbTap(7017, 'onb1:level:A1', 3);
+    onbTap(7017, 'onb1:region:none', 2);
+    onbTap(7017, 'onb1:goal:general', 3);
+    onbTap(7017, 'onb1:level:A1', 4);
 
     $this->tg->failSends = 1;
-    expect(fn () => onbTap(7017, 'onb1:reminder:1900', 4))->toThrow(TelegramApiException::class);
+    expect(fn () => onbTap(7017, 'onb1:reminder:1900', 5))->toThrow(TelegramApiException::class);
     $sentBefore = count($this->tg->sent);
 
-    onbTap(7017, 'onb1:reminder:1900', 4);
+    onbTap(7017, 'onb1:reminder:1900', 5);
 
     expect($this->tg->sent)->toHaveCount($sentBefore + 1)
         ->and(end($this->tg->sent)['url'])->toBe('https://twa.test/twa/?from=onboarding')
@@ -349,9 +373,9 @@ it('keeps answering the callback when Telegram refuses the acknowledgement', fun
 
     onbTap(7018, 'onb1:locale:uz', 1);
 
-    expect(onbLearner(7018)->onboarding_state)->toBe('goal')
+    expect(onbLearner(7018)->onboarding_state)->toBe('region')
         ->and(onbLearner(7018)->interface_locale)->toBe('uz')
-        ->and(end($this->tg->sent)['text'])->toBe("4 qadamdan 2-qadam\nIngliz tilini nima uchun o'rganmoqchisiz?");
+        ->and(end($this->tg->sent)['text'])->toBe("5 qadamdan 2-qadam\nQayerda yashaysiz? Bu hududingiz reytingi uchun kerak.");
 });
 
 it('does not reopen a finished onboarding when an old button is tapped', function (): void {
@@ -362,13 +386,13 @@ it('does not reopen a finished onboarding when an old button is tapped', functio
     $sentBefore = count($this->tg->sent);
     $eventsBefore = ProductEvent::query()->count();
 
-    onbTap(7011, 'onb1:goal:school', 2);
+    onbTap(7011, 'onb1:goal:school', 3);
 
     expect(onbLearner(7011)->only(['goal', 'level', 'timezone', 'interface_locale', 'reminder_time', 'active_course_id']))->toBe($before)
         ->and($this->tg->sent)->toHaveCount($sentBefore);
 
     // The button of the LAST step is the retry case: the closing message may have been lost, so it is sent again.
-    onbTap(7011, 'onb1:reminder:off', 4);
+    onbTap(7011, 'onb1:reminder:off', 5);
 
     expect(onbLearner(7011)->only(['goal', 'level', 'timezone', 'interface_locale', 'reminder_time', 'active_course_id']))->toBe($before)
         ->and(onbLearner(7011)->onboarding_state)->toBe('done')
@@ -380,7 +404,7 @@ it('does not reopen a finished onboarding when an old button is tapped', functio
 it('rejects values outside the whitelists and malformed callback_data without changing anything', function (string $step, string $data): void {
     // Walk to the step under test, then send the tampered data for it.
     onbSend(7012, '/start');
-    $answers = ['locale' => 'onb1:locale:ru', 'goal' => 'onb1:goal:general', 'level' => 'onb1:level:A1'];
+    $answers = ['locale' => 'onb1:locale:ru', 'region' => 'onb1:region:none', 'goal' => 'onb1:goal:general', 'level' => 'onb1:level:A1'];
     foreach ($answers as $name => $answer) {
         if ($name === $step) {
             break;
@@ -396,6 +420,8 @@ it('rejects values outside the whitelists and malformed callback_data without ch
         ->and($this->tg->sent)->toHaveCount($sentBefore);
 })->with([
     'unknown locale' => ['locale', 'onb1:locale:de'],
+    'unknown region' => ['region', 'onb1:region:UZ-XX'],
+    'region in lower case' => ['region', 'onb1:region:uz-tk'],
     'locale with a path' => ['locale', 'onb1:locale:../etc'],
     'unknown goal' => ['goal', 'onb1:goal:hacker'],
     'goal in upper case' => ['goal', 'onb1:goal:IELTS'],
@@ -413,6 +439,7 @@ it('rejects values outside the whitelists and malformed callback_data without ch
 it('treats the reminder step value as a whitelist key, not a free time', function (): void {
     onbSend(7013, '/start');
     onbTap(7013, 'onb1:locale:ru');
+    onbTap(7013, 'onb1:region:none');
     onbTap(7013, 'onb1:goal:general');
     onbTap(7013, 'onb1:level:A1');
 
@@ -428,7 +455,7 @@ it('survives Telegram refusing to edit the answered message', function (): void 
     onbSend(7014, '/start');
     onbTap(7014, 'onb1:locale:uz');
 
-    expect(onbLearner(7014)->onboarding_state)->toBe('goal')
+    expect(onbLearner(7014)->onboarding_state)->toBe('region')
         ->and($this->tg->sent)->toHaveCount(2);
 });
 
@@ -455,12 +482,13 @@ it('schedules next_reminder_at in UTC from the default time zone and the chosen 
 
     onbSend(7090, '/start');
     onbTap(7090, 'onb1:locale:ru', 1);
-    onbTap(7090, 'onb1:goal:general', 2);
-    onbTap(7090, 'onb1:level:A1', 3);
+    onbTap(7090, 'onb1:region:none', 2);
+    onbTap(7090, 'onb1:goal:general', 3);
+    onbTap(7090, 'onb1:level:A1', 4);
     // Scheduled from the defaults (Tashkent, 19:00) the moment the learner is created (docs/12 §7.5, 1.5b).
     expect(onbLearner(7090)->next_reminder_at?->utc()->toDateTimeString())->toBe('2026-10-19 14:00:00');
 
-    onbTap(7090, 'onb1:reminder:2100', 4);
+    onbTap(7090, 'onb1:reminder:2100', 5);
     $learner = onbLearner(7090);
     expect($learner->onboarding_state)->toBe('done')
         ->and($learner->timezone)->toBe('Asia/Tashkent')
@@ -823,6 +851,7 @@ it('revives a soft-deleted learner on /start and clears dm_blocked_at on any inc
 it('repeats the current step for any message while the onboarding is not finished', function (): void {
     onbSend(7050, '/start');
     onbTap(7050, 'onb1:locale:ru');
+    onbTap(7050, 'onb1:region:none');
     onbTap(7050, 'onb1:goal:sat');
 
     onbSend(7050, 'what is this?');
@@ -914,7 +943,7 @@ it('lets a finished learner change one value at a time through /settings', funct
     ]);
 
     onbSend(7060, '/settings');
-    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:goal', 'set1:level', 'set1:reminder', 'del1:ask']);
+    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:region', 'set1:goal', 'set1:level', 'set1:reminder', 'del1:ask']);
 
     onbTap(7060, 'set1:reminder', 10);
     expect($this->tg->sent[1]['text'])->toContain('напоминать')
@@ -951,7 +980,7 @@ it('sends a learner who has not finished the onboarding back to it on /settings 
     onbSend(7062, '/start');
 
     onbSend(7062, '/settings');
-    expect(end($this->tg->sent)['text'])->toBe("Шаг 1 из 4\nВыберите язык интерфейса");
+    expect(end($this->tg->sent)['text'])->toBe("Шаг 1 из 5\nВыберите язык интерфейса");
 
     $sentBefore = count($this->tg->sent);
     onbTap(7062, 'set1:locale:uz');
@@ -1139,29 +1168,34 @@ function onbStuckAt(int $tgId, string $state, array $attributes = []): Learner
     ]);
 }
 
-it('walks through three steps by default: language, level, reminder; the goal is general and the zone is Tashkent', function (): void {
+it('walks through four steps by default: language, region, level, reminder; the goal is general and the zone is Tashkent', function (): void {
     config(['learners.goals' => ['general']]);
     $course = onbCourse('general-b1', 'general', 'B1');
 
     onbSend(7301, '/start', ['language_code' => 'uz']);
-    expect($this->tg->sent[0]['text'])->toEndWith("3 qadamdan 1-qadam\nInterfeys tilini tanlang");
+    expect($this->tg->sent[0]['text'])->toEndWith("4 qadamdan 1-qadam\nInterfeys tilini tanlang");
 
     onbTap(7301, 'onb1:locale:ru', 1);
+    expect(onbLearner(7301)->onboarding_state)->toBe('region')
+        ->and(end($this->tg->sent)['text'])->toStartWith('Шаг 2 из 4');
+
+    onbTap(7301, 'onb1:region:other', 2);
     expect(onbLearner(7301)->onboarding_state)->toBe('level')
-        ->and(end($this->tg->sent)['text'])->toStartWith('Шаг 2 из 3')
+        ->and(onbLearner(7301)->region_code)->toBe('other')
+        ->and(end($this->tg->sent)['text'])->toStartWith('Шаг 3 из 4')
         ->and(onbLearner(7301)->goal)->toBe('general');
 
-    onbTap(7301, 'onb1:level:B1', 2);
-    expect(end($this->tg->sent)['text'])->toStartWith('Шаг 3 из 3');
+    onbTap(7301, 'onb1:level:B1', 3);
+    expect(end($this->tg->sent)['text'])->toStartWith('Шаг 4 из 4');
 
-    onbTap(7301, 'onb1:reminder:1900', 3);
+    onbTap(7301, 'onb1:reminder:1900', 4);
 
     $learner = onbLearner(7301);
     expect($learner->onboarding_state)->toBe('done')
         ->and($learner->goal)->toBe('general')
         ->and($learner->timezone)->toBe('Asia/Tashkent')
         ->and($learner->active_course_id)->toBe($course->id)
-        ->and(ProductEvent::query()->where('name', 'onboarding.step_completed')->count())->toBe(3)
+        ->and(ProductEvent::query()->where('name', 'onboarding.step_completed')->count())->toBe(4)
         ->and(ksorted(ProductEvent::query()->where('name', 'onboarding.completed')->firstOrFail()->props))->toBe(['goal' => 'general', 'level' => 'B1', 'locale' => 'ru']);
 });
 
@@ -1191,7 +1225,7 @@ it('takes a learner stuck on the goal step to the level step, with the goal gene
 
     expect(onbLearner(7303)->onboarding_state)->toBe('level')
         ->and(onbLearner(7303)->goal)->toBe('general')
-        ->and(end($this->tg->sent)['text'])->toStartWith('Шаг 2 из 3')
+        ->and(end($this->tg->sent)['text'])->toStartWith('Шаг 3 из 4')
         ->and($this->tg->lastCallbackData())->toContain('onb1:level:B1');
 
     onbTap(7303, 'onb1:level:B1', 3);
@@ -1235,7 +1269,7 @@ it('walks a learner who is stuck on the goal step while several goals are enable
     onbStuckAt(7306, 'goal');
 
     onbSend(7306, 'hello');
-    expect(end($this->tg->sent)['text'])->toStartWith('Шаг 2 из 4');
+    expect(end($this->tg->sent)['text'])->toStartWith('Шаг 3 из 5');
 
     onbTap(7306, 'onb1:goal:sat', 2);
     expect(onbLearner(7306)->goal)->toBe('sat')
@@ -1247,19 +1281,20 @@ it('offers only the enabled goals and ignores the unknown ones in the config', f
 
     $service = app(OnboardingService::class);
     expect(OnboardingService::availableGoals())->toBe(['general', 'ielts'])
-        ->and(OnboardingService::steps())->toBe(['locale', 'goal', 'level', 'reminder'])
+        ->and(OnboardingService::steps())->toBe(['locale', 'region', 'goal', 'level', 'reminder'])
         ->and(array_map(fn ($o) => $o->value, $service->options('goal')))->toBe(['general', 'ielts']);
 
     onbSend(7307, '/start');
     onbTap(7307, 'onb1:locale:ru', 1);
+    onbTap(7307, 'onb1:region:none', 2);
     expect($this->tg->lastCallbackData())->toBe(['onb1:goal:general', 'onb1:goal:ielts']);
 
     // A goal that is not enabled is refused like any value outside the whitelist.
-    onbTap(7307, 'onb1:goal:sat', 2);
+    onbTap(7307, 'onb1:goal:sat', 3);
     expect(onbLearner(7307)->onboarding_state)->toBe('goal')
         ->and(onbLearner(7307)->goal)->toBeNull();
 
-    onbTap(7307, 'onb1:goal:ielts', 2);
+    onbTap(7307, 'onb1:goal:ielts', 3);
     expect(onbLearner(7307)->goal)->toBe('ielts');
 });
 
@@ -1267,7 +1302,7 @@ it('falls back to general when the goals config is empty or has nothing valid', 
     config(['learners.goals' => $configured]);
 
     expect(OnboardingService::availableGoals())->toBe(['general'])
-        ->and(OnboardingService::steps())->toBe(['locale', 'level', 'reminder']);
+        ->and(OnboardingService::steps())->toBe(['locale', 'region', 'level', 'reminder']);
 })->with([[[]], [['mars']]]);
 
 it('reads the goals from LEARNERS_GOALS as a comma-separated list', function (): void {
@@ -1316,7 +1351,7 @@ it('shows /settings without the time zone and, with one goal, without the goal',
     Learner::factory()->onboarded()->create(['telegram_user_id' => 7309, 'interface_locale' => 'ru']);
 
     onbSend(7309, '/settings');
-    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:level', 'set1:reminder', 'del1:ask']);
+    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:region', 'set1:level', 'set1:reminder', 'del1:ask']);
 
     // Old buttons of the goal and zone menus are not opened.
     $sent = count($this->tg->sent);
@@ -1328,7 +1363,7 @@ it('shows /settings without the time zone and, with one goal, without the goal',
 
     config(['learners.goals' => ['general', 'ielts']]);
     onbSend(7309, '/settings');
-    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:goal', 'set1:level', 'set1:reminder', 'del1:ask']);
+    expect($this->tg->lastCallbackData())->toBe(['set1:locale', 'set1:region', 'set1:goal', 'set1:level', 'set1:reminder', 'del1:ask']);
 
     onbTap(7309, 'set1:goal');
     expect($this->tg->lastCallbackData())->toBe(['set1:goal:general', 'set1:goal:ielts']);

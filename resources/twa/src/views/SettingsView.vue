@@ -4,6 +4,7 @@ import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import DeleteAccountSheet from '@/components/DeleteAccountSheet.vue'
 import PaywallSheet from '@/components/PaywallSheet.vue'
+import RegionSheet from '@/components/RegionSheet.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -13,6 +14,7 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import SegmentedControl, { type SegmentOption } from '@/components/ui/SegmentedControl.vue'
 import ToggleSwitch from '@/components/ui/ToggleSwitch.vue'
 import { showErrorToast } from '@/composables/errorToast'
+import { formatDate } from '@/composables/format'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
 import { isSoundEnabled, setSoundEnabled } from '@/composables/useFeedbackSound'
@@ -41,7 +43,7 @@ const auth = useAuthStore()
 const settings = useSettingsStore()
 const organizations = useOrganizationsStore()
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 useBackButton({ name: 'profile' })
 
@@ -179,6 +181,43 @@ async function deleteAccount(): Promise<void> {
   await router.replace({ name: 'account-deleted', query: { until: result.until } })
 }
 
+/** The region (docs/35 §2.3): its name, the date from which another one can be chosen, the undo of the last change (10 minutes). */
+const regionOpen = ref(false)
+const regionName = computed((): string => {
+  const code = data.value?.region_code ?? null
+  if (code === null) return t('settings.region.none')
+  return data.value?.options.regions?.find((region) => region.code === code)?.name ?? code
+})
+const regionNextChange = computed((): string => {
+  const at = data.value?.region_change_available_at
+  return at ? t('settings.region.next_change', { date: formatDate(at, 'dayMonthShortYear', locale.value) }) : ''
+})
+const regionUndoable = computed((): boolean => {
+  const until = data.value?.region_undo_available_until
+  return typeof until === 'string' && Date.parse(until) > Date.now()
+})
+async function undoRegion(): Promise<void> {
+  await settings.revertRegion()
+}
+
+/** The emoji of Pro (docs/31 §5а): a locked picker opens the paywall and sends nothing; a 403 of a free-looking one does the same. */
+const emojiOptions = computed(() => data.value?.options.pro_emojis ?? [])
+const emojiLocked = computed(() => data.value?.options.pro_emoji_locked === true)
+const emojiChoice = computed(() => data.value?.pro_emoji_choice ?? null)
+const emojiPaywallOpen = ref(false)
+const { reviewFromPaywall: onEmojiPaywallReview } = useReviewFromPaywall(() => {
+  emojiPaywallOpen.value = false
+}, { toastErrors: true })
+async function onEmoji(code: string | null): Promise<void> {
+  if (emojiLocked.value && code !== null) {
+    emojiPaywallOpen.value = true
+    return
+  }
+  if (code === emojiChoice.value) return
+  await save({ pro_emoji: code })
+  if (settings.proEmojiRequired) emojiPaywallOpen.value = true
+}
+
 const onLocale = (value: string | number) => save({ interface_locale: String(value) })
 /** A locked goal opens the paywall and sends nothing; a 403 `daily_goal_pro_required` of a free-looking one does the same. */
 async function onGoal(value: string | number): Promise<void> {
@@ -222,6 +261,57 @@ onMounted(() => {
               @update:model-value="onLocale"
             />
           </div>
+        </div>
+      </ListGroup>
+
+      <ListGroup :footer="regionNextChange || t('settings.region.hint')" data-testid="region-card">
+        <button type="button" class="list-row" :disabled="saving" data-testid="region-row" @click="regionOpen = true">
+          <span class="shrink-0 text-[15px] leading-5">{{ t('settings.region') }}</span>
+          <span class="min-w-0 flex-1 truncate text-right text-[15px] leading-5 text-muted" data-testid="region-name">{{ regionName }}</span>
+          <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
+        </button>
+        <button v-if="regionUndoable" type="button" class="list-row text-accent" :disabled="saving" data-testid="region-undo" @click="undoRegion">
+          <span class="min-w-0 flex-1 text-left text-[15px] leading-5">{{ t('settings.region.undo') }}</span>
+        </button>
+      </ListGroup>
+
+      <!-- The emoji next to the name (docs/31 §5а): one of the platform's set; for Free a plus of Pro, the choice is kept. -->
+      <ListGroup
+        v-if="emojiOptions.length > 0"
+        :header="t('settings.pro_emoji')"
+        :footer="emojiLocked ? t('settings.pro_emoji.locked') : t('settings.pro_emoji.hint')"
+        data-testid="pro-emoji-card"
+      >
+        <div class="list-row flex-wrap gap-1.5" role="radiogroup" :aria-label="t('settings.pro_emoji')" data-testid="pro-emoji-picker">
+          <button
+            type="button"
+            class="chip"
+            role="radio"
+            :aria-checked="emojiChoice === null"
+            :class="{ 'chip-accent': emojiChoice === null }"
+            :disabled="saving"
+            data-testid="pro-emoji-none"
+            @click="onEmoji(null)"
+          >
+            {{ t('settings.pro_emoji.none') }}
+          </button>
+          <button
+            v-for="option in emojiOptions"
+            :key="option.code"
+            type="button"
+            class="flex size-11 items-center justify-center rounded-xl text-[22px]"
+            role="radio"
+            :aria-checked="emojiChoice === option.code"
+            :aria-label="option.emoji"
+            :class="emojiChoice === option.code ? 'bg-accent-soft shadow-[inset_0_0_0_1px_var(--app-accent-line)]' : 'bg-fill'"
+            :disabled="saving"
+            :data-locked="emojiLocked ? 'true' : undefined"
+            :data-testid="`pro-emoji-${option.code}`"
+            @click="onEmoji(option.code)"
+          >
+            {{ option.emoji }}
+          </button>
+          <span v-if="emojiLocked" class="chip chip-accent shrink-0" data-testid="pro-emoji-pro">{{ t('profile.chip.pro') }}</span>
         </div>
       </ListGroup>
 
@@ -385,6 +475,8 @@ onMounted(() => {
     </div>
 
     <PaywallSheet v-if="goalPaywallOpen" reason="daily_goal" @close="goalPaywallOpen = false" @review="onGoalPaywallReview" />
+    <PaywallSheet v-if="emojiPaywallOpen" reason="info" @close="emojiPaywallOpen = false" @review="onEmojiPaywallReview" />
+    <RegionSheet v-if="regionOpen" via="settings" @close="regionOpen = false" />
 
     <DeleteAccountSheet
       v-if="deleteOpen"

@@ -113,6 +113,12 @@ it('is empty for a fresh learner: zero goal progress, no streak, no course, the 
         'hard_round' => ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null],
         // In no group of a center: `GET /assignments` is surely empty (docs/04 A.2a).
         'assignments_possible' => false,
+        // The plan of the day (docs/31 §5б): no course - no lesson to start, nothing studied today.
+        'plan' => [
+            'step' => null, 'done' => false,
+            'lesson' => ['done' => false, 'lesson_id' => null, 'next_lesson_id' => null, 'words_left' => null],
+            'training' => null, 'game' => null,
+        ],
     ]);
 });
 
@@ -295,7 +301,7 @@ it('describes the active course with its progress and the next lesson with new w
         'slug' => Course::query()->findOrFail($lessons[0]->stage?->course_id)->slug,
         'title' => 'Английский A1',
         'progress' => ['learned' => 0, 'total' => 4],
-        'next_lesson' => ['id' => $lessons[0]->id, 'stage' => 1, 'lesson' => 1, 'title' => 'Lesson 1'],
+        'next_lesson' => ['id' => $lessons[0]->id, 'stage' => 1, 'lesson' => 1, 'title' => 'Lesson 1', 'words_left' => 2],
     ]);
 
     // Lesson 1 fully served (one word learned, one only shown): the next lesson with new words is 2.
@@ -337,7 +343,7 @@ it('moves the next lesson on as the learner starts the words of a partly studied
 
     todayGet($this, $learner)->assertOk()
         ->assertJsonPath('active_course.progress', ['learned' => 2, 'total' => 6])
-        ->assertJsonPath('active_course.next_lesson', ['id' => $lessons['1.2']->id, 'stage' => 1, 'lesson' => 2, 'title' => $lessons['1.2']->title]);
+        ->assertJsonPath('active_course.next_lesson', ['id' => $lessons['1.2']->id, 'stage' => 1, 'lesson' => 2, 'title' => $lessons['1.2']->title, 'words_left' => 1]);
 
     Fx::learn($learner, [$words['1.2']['active'][1]], repetitions: 0);
     todayGet($this, $learner)->assertOk()
@@ -436,6 +442,7 @@ it('adds the day\'s goal and streak to the /finish summary and keeps them on a r
         'hard_round' => null,
         'corrected' => null, // a corrected mistake is told on the finish of the round of hard words only
         'hard_round_offer' => ['available' => false, 'reason' => 'not_enough', 'words' => 0, 'open_session_id' => null, 'resets_at' => null],
+        'lesson_review' => null, // the review of a lesson (docs/06 §15) only
     ];
     $this->withHeaders(todayHeaders($learner))->postJson("/api/twa/training/sessions/{$id}/finish")
         ->assertOk()->assertExactJson($expected);

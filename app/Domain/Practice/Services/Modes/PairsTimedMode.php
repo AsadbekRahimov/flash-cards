@@ -17,6 +17,7 @@ use App\Domain\Practice\Exceptions\PracticeException;
 use App\Domain\Practice\Services\Grading\PairsGrader;
 use App\Domain\Practice\Services\PracticeMaterialService;
 use App\Domain\Practice\Support\PairsPacker;
+use App\Domain\Practice\Support\SeededShuffle;
 use App\Models\Learner;
 
 /**
@@ -26,7 +27,10 @@ use App\Models\Learner;
  *
  * MATERIAL: the words the learner has been introduced to (as for `pairs`), fit when they have an English text and a variant of the
  * translation in every locale. At least `min_words` of them (and one round of `per_round`), else `no_words`; enough words that
- * cannot stand together in a round, `ambiguous`.
+ * cannot stand together in a round, `ambiguous`. A game on ONE lesson that is short of them (the step 3 of the day plan, docs/31 §5б)
+ * is TOPPED UP with words of the same course the learner has learned ({@see PracticeMaterialService::learnedCourseWordsOutsideLesson()}),
+ * chosen by the seed of the session, to `min_words` rounded up to whole rounds: every fit word of the lesson stays in, the others
+ * only fill the board. A lesson without a single fit word is not topped up (`no_words`): the game would not be on the lesson.
  *
  * ROUNDS: `rounds` rounds of exactly `per_round` words. Each cycle lays all fit words out under its own seed (`{seed}:cycle:{k}`,
  * the first cycle under the seed itself) with {@see PairsPacker} - no two words that clash in a round - and the cycles go on, over
@@ -55,12 +59,12 @@ final class PairsTimedMode implements PracticeModeHandler
 
     public function availability(MaterialScope $scope, ?Learner $learner, LocaleSet $locales): ModeAvailability
     {
-        return $this->plan($scope, $learner, $locales, self::AVAILABILITY_SEED, self::rounds())['availability'];
+        return $this->plan($scope, $learner, $locales, self::AVAILABILITY_SEED, self::rounds(), self::AVAILABILITY_SEED)['availability'];
     }
 
     public function build(MaterialScope $scope, ?Learner $learner, LocaleSet $locales, string $seed, int $size, bool $strictSize): array
     {
-        $plan = $this->plan($scope, $learner, $locales, $seed, max(1, $size));
+        $plan = $this->plan($scope, $learner, $locales, $seed, max(1, $size), $seed);
         if (! $plan['availability']->isAvailable) {
             throw PracticeException::notEnoughMaterial($this->mode(), $plan['availability'], $scope->course->slug, $scope->lesson?->id);
         }
@@ -127,9 +131,9 @@ final class PairsTimedMode implements PracticeModeHandler
     /**
      * @return array{words: list<Candidate>, rounds: list<list<int>>, seeds: list<string>, availability: ModeAvailability}
      */
-    private function plan(MaterialScope $scope, ?Learner $learner, LocaleSet $locales, string $seed, int $wanted): array
+    private function plan(MaterialScope $scope, ?Learner $learner, LocaleSet $locales, string $seed, int $wanted, string $topUpSeed): array
     {
-        $words = $this->words($scope, $learner, $locales);
+        $words = $this->toppedUp($scope, $learner, $locales, $this->words($scope, $learner, $locales), $topUpSeed);
         $count = count($words);
         $perRound = self::perRound();
         $required = max(self::minWords(), $perRound);
@@ -190,6 +194,38 @@ final class PairsTimedMode implements PracticeModeHandler
             }
 
             return $fit;
+        });
+    }
+
+    /**
+     * The words of a lesson short of `min_words` with learned words of the course after them (see the class doc); any other scope as it is.
+     *
+     * @param  list<Candidate>  $words
+     * @return list<Candidate>
+     */
+    private function toppedUp(MaterialScope $scope, ?Learner $learner, LocaleSet $locales, array $words, string $seed): array
+    {
+        $perRound = self::perRound();
+        $target = (int) (ceil(max(self::minWords(), $perRound) / $perRound) * $perRound);
+        if ($scope->lesson === null || $learner === null || $words === [] || count($words) >= $target) {
+            return $words;
+        }
+
+        $key = 'pairs_timed:topup:'.$learner->id.':'.implode(',', $locales->locales).':'.bin2hex(hash('sha256', $seed, true));
+
+        return $scope->remember($key, function () use ($scope, $learner, $locales, $words, $seed, $target): array {
+            $want = $target - count($words);
+            $taken = array_flip(array_map(static fn (array $c): int => $c['word']->id, $words));
+
+            $extra = [];
+            foreach ($this->material->learnedCourseWordsOutsideLesson($scope, $learner, $locales, $seed, $want) as $word) {
+                $candidate = isset($taken[$word->id]) ? null : PairsMode::candidate($word, $locales);
+                if ($candidate !== null) {
+                    $extra[] = $candidate;
+                }
+            }
+
+            return [...$words, ...array_slice(SeededShuffle::apply($extra, $seed, 'practice:topup:order'), 0, $want)];
         });
     }
 

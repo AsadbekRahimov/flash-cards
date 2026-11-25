@@ -11,6 +11,7 @@ use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Engagement\Enums\ReferralStatus;
 use App\Domain\Learners\Services\LearnerModerationService;
 use App\Domain\Learners\Services\OnboardingService;
+use App\Domain\Learners\Support\Regions;
 use App\Domain\Learning\Enums\SchedulerKind;
 use App\Domain\Learning\Services\SchedulerResolver;
 use App\Domain\Learning\Services\SchedulerSwitchService;
@@ -53,6 +54,9 @@ class LearnerResource extends Resource
 
     protected static ?int $navigationSort = 30;
 
+    /** The value of the region filter for the learners without a region. */
+    private const REGION_NONE = 'none';
+
     /**
      * The columns the list selects: every attribute a column or a row action of the table reads, the toggleable columns
      * (hidden by default) included. A column added to the table needs its attribute here: AdminTableSettingsTest renders every
@@ -71,6 +75,7 @@ class LearnerResource extends Resource
         'learners.dm_blocked_at',
         'learners.dm_blocked_reason',
         'learners.practice_pilot_at',
+        'learners.region_code',
         'learners.last_seen_at',
         'learners.created_at',
     ];
@@ -134,6 +139,11 @@ class LearnerResource extends Resource
                         .($entitlement->isSponsored() ? ', '.__('admin.learners.plan_center', ['id' => substr($entitlement->source, strlen('sponsor:organization:'))]) : '')
                         .($entitlement->until !== null ? ', '.__('admin.learners.plan_until', ['date' => AdminDates::dateTime($entitlement->until)]) : '');
                 })
+                ->visible($isAdmin),
+            TextEntry::make('region_code')
+                ->label(__('admin.learners.fields.region'))
+                ->formatStateUsing(fn (?string $state): string => $state === null ? '—' : Regions::name($state, 'ru'))
+                ->placeholder('—')
                 ->visible($isAdmin),
             TextEntry::make('scheduler')
                 ->label(__('admin.learners.fields.scheduler'))
@@ -199,6 +209,14 @@ class LearnerResource extends Resource
                     ->label(__('admin.learners.fields.onboarded'))
                     ->state(fn (Learner $record): bool => $record->onboarding_state === OnboardingService::DONE)
                     ->boolean()
+                    ->toggleable()
+                    ->visible($isAdmin),
+                // The region the learner chose (docs/35 §2.4, R5): the name comes from the config, no query per row. Admin only: the
+                // region of a person is not shown to anybody else.
+                Tables\Columns\TextColumn::make('region_code')
+                    ->label(__('admin.learners.fields.region'))
+                    ->formatStateUsing(fn (?string $state): string => $state === null ? '—' : Regions::name($state, 'ru'))
+                    ->placeholder('—')
                     ->toggleable()
                     ->visible($isAdmin),
                 Tables\Columns\TextColumn::make('groups_list')
@@ -283,6 +301,12 @@ class LearnerResource extends Resource
                         false: fn (Builder $query): Builder => app(PanelDataScope::class)->isAdmin() ? $query->whereNull('learners.practice_pilot_at') : $query,
                         blank: fn (Builder $query): Builder => $query,
                     )
+                    ->visible($isAdmin),
+                // The region (index `learners_region_code_idx`), with "not given": admin only, the query re-checks the role.
+                Tables\Filters\SelectFilter::make('region')
+                    ->label(__('admin.learners.filters.region'))
+                    ->options(self::regionOptions())
+                    ->query(fn (Builder $query, array $data): Builder => self::filterByRegion($query, $data['value'] ?? null))
                     ->visible($isAdmin),
                 // The bot cannot write to the learner (`dm_blocked_at`, the partial index `learners_dm_blocked_at_idx`): admin only.
                 Tables\Filters\TernaryFilter::make('dm_blocked')
@@ -449,6 +473,34 @@ class LearnerResource extends Resource
         return $query
             ->whereIn('learners.id', PaidSubscriptionQuery::personalLearnerIds($now))
             ->orWhereIn('learners.id', PaidSubscriptionQuery::sponsoredLearnerIds($now));
+    }
+
+    /** @return array<string, string> the choices of the region filter: the regions in the Russian order, `other`, then "not given" */
+    private static function regionOptions(): array
+    {
+        $options = [];
+        foreach ([...Regions::ordered('ru'), Regions::OTHER] as $code) {
+            $options[$code] = Regions::name($code, 'ru');
+        }
+
+        return [...$options, self::REGION_NONE => __('admin.learners.filters.region_none')];
+    }
+
+    /**
+     * @param  Builder<Learner>  $query
+     * @return Builder<Learner>
+     */
+    private static function filterByRegion(Builder $query, mixed $region): Builder
+    {
+        if (! app(PanelDataScope::class)->isAdmin()) {
+            return $query;
+        }
+
+        return match (true) {
+            $region === self::REGION_NONE => $query->whereNull('learners.region_code'),
+            is_string($region) && Regions::isValid($region) => $query->where('learners.region_code', $region),
+            default => $query,
+        };
     }
 
     /** The one plan caption of the platform view (list column and learner page): "Free", "Pro", "Pro (от центра)". */

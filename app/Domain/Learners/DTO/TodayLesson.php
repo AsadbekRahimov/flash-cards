@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Learners\DTO;
 
-/** The lesson `daily_review` takes new words from next (CourseCatalogService::todayCourse). */
+/** The lesson `daily_review` takes new words from next (CourseCatalogService::todayCourse); `newWords` - its words never served to the learner. */
 final readonly class TodayLesson
 {
     public function __construct(
@@ -12,5 +12,6 @@ final readonly class TodayLesson
         public ?int $stage,
         public int $lesson,
         public ?string $title,
+        public int $newWords = 0,
     ) {}
 }

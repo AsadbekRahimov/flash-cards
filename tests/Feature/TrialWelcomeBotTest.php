@@ -53,6 +53,7 @@ function twTap(int $tgId, string $data, int $messageId): void
 function twOnboard(int $tgId, string $locale = 'ru'): void
 {
     twTap($tgId, "onb1:locale:{$locale}", 1);
+    twTap($tgId, 'onb1:region:none', 2);
     twTap($tgId, 'onb1:goal:general', 2);
     twTap($tgId, 'onb1:level:A1', 3);
     twTap($tgId, 'onb1:timezone:Asia/Tashkent', 4);
@@ -192,6 +193,7 @@ it('names practice and battles among the four lines only while practice is open 
 it('does not lose the closing message when the notice cannot be delivered', function (): void {
     twStart(940_008);
     twTap(940_008, 'onb1:locale:ru', 1);
+    twTap(940_008, 'onb1:region:none', 2);
     twTap(940_008, 'onb1:goal:general', 2);
     twTap(940_008, 'onb1:level:A1', 3);
     twTap(940_008, 'onb1:timezone:Asia/Tashkent', 4);

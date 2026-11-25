@@ -70,10 +70,11 @@ function orgbTap(int $tgId, string $data, int $messageId = 100, string $chatType
     ]]);
 }
 
-/** Runs the three onboarding steps (the default: no goal and no time zone step) from the first one to `done` (Russian). */
+/** Runs the four onboarding steps (the default: no goal and no time zone step) from the first one to `done` (Russian). */
 function orgbOnboard(int $tgId): void
 {
     orgbTap($tgId, 'onb1:locale:ru', 1);
+    orgbTap($tgId, 'onb1:region:none', 2);
     orgbTap($tgId, 'onb1:level:A1', 2);
     orgbTap($tgId, 'onb1:reminder:1900', 3);
 }
@@ -289,7 +290,7 @@ it('explains a code that cannot be used and runs the ordinary onboarding', funct
     $learner = orgbLearner(8010);
     expect($this->tg->sent)->toHaveCount(2)
         ->and($this->tg->sent[0]['text'])->toBe($expected)
-        ->and($this->tg->sent[1]['text'])->toEndWith("Шаг 1 из 3\nВыберите язык интерфейса") // the ordinary first step, no "invited by" line
+        ->and($this->tg->sent[1]['text'])->toEndWith("Шаг 1 из 4\nВыберите язык интерфейса") // the ordinary first step, no "invited by" line
         ->and($this->tg->sent[1]['text'])->not->toContain('Вас пригласил')
         ->and($learner->onboarding_state)->toBe('locale')
         ->and($learner->meta)->not->toHaveKey('pending_org_invite');

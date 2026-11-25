@@ -109,7 +109,7 @@ describe('telegramTheme', () => {
 
       paintTelegramChrome(host, 'light')
 
-      expect(host.setBackgroundColor).toHaveBeenCalledWith('#f6f7f9')
+      expect(host.setBackgroundColor).toHaveBeenCalledWith('#f4f6fb')
       expect(host.setHeaderColor).toHaveBeenCalledWith('secondary_bg_color')
     })
 
@@ -134,8 +134,8 @@ describe('telegramTheme', () => {
     it('paints the surface tone: hex since 6.9, the keyword of Telegram\'s own card colour on 6.1-6.8', () => {
       const modern = stubHost()
       paintTelegramChrome(modern, 'dark', 'surface')
-      expect(modern.setBackgroundColor).toHaveBeenCalledWith('#191d28')
-      expect(modern.setHeaderColor).toHaveBeenCalledWith('#191d28')
+      expect(modern.setBackgroundColor).toHaveBeenCalledWith('#181d2a')
+      expect(modern.setHeaderColor).toHaveBeenCalledWith('#181d2a')
 
       const old = stubHost({ isVersionAtLeast: vi.fn((version: string) => version === '6.1') })
       paintTelegramChrome(old, 'light', 'surface')
@@ -150,7 +150,7 @@ describe('telegramTheme', () => {
     it('takes the page colour of the scheme, and follows a change', () => {
       const meta = document.createElement('meta')
       meta.name = 'theme-color'
-      meta.content = '#f6f7f9'
+      meta.content = '#f4f6fb'
       document.head.append(meta)
 
       const host = stubHost({ colorScheme: 'dark' })

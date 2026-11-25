@@ -213,6 +213,20 @@ return [
     ],
 
     /**
+     * The review of a lesson just studied (`lesson_review`, docs/04 A.3, docs/06 §15; the step 2 "Тренировка" of the day plan, docs/31 §5б):
+     * a practice round over the words of ONE lesson that the learner met for the first time TODAY (their `word_repetitions` row was
+     * born in the local day and graded at least once) - at most `max_words` of them, each served until answered right, at most
+     * `max_serves_per_word` times. Objective exercises only (meaning / reverse / audio). It never moves the schedule (SM-2 / FSRS,
+     * `word_repetitions` untouched), writes no `training_reviews` and no day statistics: no league points, no daily goal, no streak,
+     * no Free quota - so playing it again gives nothing either. `enabled = false`: opening is refused (`disabled`), the plan has no step 2.
+     */
+    'lesson_review' => [
+        'enabled' => (bool) env('LEARNING_LESSON_REVIEW_ENABLED', true),
+        'max_words' => (int) env('LEARNING_LESSON_REVIEW_MAX_WORDS', 20),
+        'max_serves_per_word' => (int) env('LEARNING_LESSON_REVIEW_MAX_SERVES', 3),
+    ],
+
+    /**
      * The stages of a word as the learner sees them (docs/06 §13.3), from the row of `word_repetitions`:
      *   new      — met, not graduated yet (state new / learning);
      *   learning — graduated, interval below `known_from_interval_days` (and a lapsed card in relearning);

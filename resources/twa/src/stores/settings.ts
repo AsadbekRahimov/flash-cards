@@ -3,7 +3,8 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 import { errorMessage } from '@/i18n/errors'
-import { setLocale, SUPPORTED_LOCALES, type Locale } from '@/i18n'
+import { getLocale, setLocale, SUPPORTED_LOCALES, t, type Locale } from '@/i18n'
+import { formatDate } from '@/composables/format'
 import type { LearnerSettings, SettingsPatch } from '@/api/types'
 
 export type SettingsStatus = 'idle' | 'loading' | 'ready' | 'error'
@@ -21,6 +22,8 @@ interface SettingsState {
    * opens the paywall instead of a toast. Reset by every `update`.
    */
   goalProRequired: boolean
+  /** The last change was refused with 403 `pro_emoji_pro_required` (docs/31 §5а): the screen opens the paywall. Reset by every `update`. */
+  proEmojiRequired: boolean
 }
 
 function isLocale(value: string): value is Locale {
@@ -35,6 +38,7 @@ export const useSettingsStore = defineStore('settings', {
     deleting: false,
     errorMessage: '',
     goalProRequired: false,
+    proEmojiRequired: false,
   }),
 
   actions: {
@@ -69,6 +73,7 @@ export const useSettingsStore = defineStore('settings', {
       this.saving = true
       this.errorMessage = ''
       this.goalProRequired = false
+      this.proEmojiRequired = false
       try {
         this.apply((await api.me.updateSettings(patch)).settings)
         return true
@@ -80,10 +85,54 @@ export const useSettingsStore = defineStore('settings', {
           if (this.data && typeof max === 'number') this.data.options.daily_goal_max = max
           return false
         }
+        if (err instanceof ApiClientError && err.code === 'pro_emoji_pro_required') {
+          // The plan ended between `/me` and the tap: the picker locks from now on and the screen opens the paywall.
+          this.proEmojiRequired = true
+          if (this.data) this.data.options.pro_emoji_locked = true
+          return false
+        }
+        this.errorMessage = errorMessage(err, 'settings')
+        if (err instanceof ApiClientError && err.code === 'region_change_too_soon') {
+          // docs/35 §2.3: "You can change the region from 24 Dec." - the date of the answer, in the learner's language.
+          const at = err.details?.available_at
+          if (typeof at === 'string' && at !== '') {
+            this.errorMessage = t('settings.region.next_change', { date: formatDate(at, 'dayMonthShortYear', getLocale()) })
+            if (this.data) this.data.region_change_available_at = at
+          }
+        }
+        return false
+      } finally {
+        this.saving = false
+      }
+    },
+
+    /** Takes back the last change of the region (10 minutes). @returns whether it was taken back; a refusal is in `errorMessage`. */
+    async revertRegion(): Promise<boolean> {
+      if (this.saving) return false
+
+      this.saving = true
+      this.errorMessage = ''
+      try {
+        this.apply((await api.me.revertRegion()).settings)
+        return true
+      } catch (err) {
         this.errorMessage = errorMessage(err, 'settings')
         return false
       } finally {
         this.saving = false
+      }
+    },
+
+    /**
+     * "Not now" on the region card: hidden at once (also when the request fails - the card is a suggestion, it must not stay
+     * because of the network) and for 30 days on the server.
+     */
+    async dismissRegionPrompt(): Promise<void> {
+      if (this.data) this.data.region_prompt = false
+      try {
+        await api.me.dismissRegionPrompt()
+      } catch (err) {
+        console.warn('settings: failed to dismiss the region card', err)
       }
     },
 

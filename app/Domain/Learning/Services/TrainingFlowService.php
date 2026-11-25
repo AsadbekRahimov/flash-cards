@@ -96,6 +96,7 @@ final class TrainingFlowService
         private readonly LearningPolicy $learning,
         private readonly TrainingSessionService $sessions,
         private readonly DailyGoalLimiter $goals,
+        private readonly LessonReviewService $lessonReview,
     ) {}
 
     /**
@@ -105,6 +106,11 @@ final class TrainingFlowService
      */
     public function start(TrainingSession $session, Learner $learner, ?Lesson $lesson = null): ?TrainingStart
     {
+        if ($session->mode === TrainingSession::MODE_LESSON_REVIEW) {
+            // The review of a lesson (docs/06 §15) is served by its own service: no picker, no schedule, no quota.
+            return $this->lessonReview->start($session, $learner, $lesson);
+        }
+
         if ($session->mode === TrainingSession::MODE_DAILY_REVIEW) {
             // The round's size is the goal in line with the plan (docs/34 §2б.2): resolved once, handed to the first step.
             $entitlement = $this->entitlements->for($learner, CarbonImmutable::now());
@@ -151,6 +157,10 @@ final class TrainingFlowService
      */
     public function nextStep(TrainingSession $session, Learner $learner, ?int $totalWords = null, ?Entitlement $entitlement = null): TrainingStep
     {
+        if ($session->mode === TrainingSession::MODE_LESSON_REVIEW) {
+            return $this->lessonReview->nextStep($session, $learner, $entitlement);
+        }
+
         $now = CarbonImmutable::now();
         $scope = TrainingScope::forSession($session);
         $entitlement ??= $this->entitlements->for($learner, $now);
@@ -373,6 +383,11 @@ final class TrainingFlowService
         ?string $serveToken = null,
         ?ExerciseType $declared = null,
     ): ReviewOutcome {
+        if ($session->mode === TrainingSession::MODE_LESSON_REVIEW) {
+            // A flash card of the review (a word without three distractors): the learner's own grade, counted in the round only.
+            return $this->lessonReview->answer($session, $learner, $wordId, null, $quality, $serveToken, $declared);
+        }
+
         $now = CarbonImmutable::now();
         $entitlement = $this->entitlements->for($learner, $now);
 
@@ -396,6 +411,10 @@ final class TrainingFlowService
         ?string $serveToken = null,
         ?ExerciseType $declared = null,
     ): ReviewOutcome {
+        if ($session->mode === TrainingSession::MODE_LESSON_REVIEW) {
+            return $this->lessonReview->answer($session, $learner, $wordId, $answer, null, $serveToken, $declared);
+        }
+
         $now = CarbonImmutable::now();
         $entitlement = $this->entitlements->for($learner, $now);
 

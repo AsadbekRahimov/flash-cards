@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Grouped list: an optional label above, the rows in one flat card (hairline frame, radius 12, full-width lines between the
+ * Grouped list: an optional label above, the rows in one flat card (hairline frame, radius 16, full-width lines between the
  * rows), an optional footnote below. Put `ListRow`s (or any `.list-row` elements) in the default slot.
  *
  * - `header` — the group label (`.section-label`: 13 px, secondary colour, normal case).

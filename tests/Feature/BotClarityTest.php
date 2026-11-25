@@ -205,7 +205,7 @@ it('greets a new person in both languages and counts the steps', function (): vo
     expect($this->tg->sent)->toHaveCount(1)
         ->and($text)->toStartWith('👋 Привет! Я Muhrla')
         ->and($text)->toContain('Salom! Men Muhrla')
-        ->and($text)->toContain("Шаг 1 из 3\nВыберите язык интерфейса");
+        ->and($text)->toContain("Шаг 1 из 4\nВыберите язык интерфейса");
 
     // The next step: no welcome, the counter moves.
     app(TelegramDispatcher::class)->dispatch(['callback_query' => [
@@ -215,7 +215,7 @@ it('greets a new person in both languages and counts the steps', function (): vo
     ]]);
 
     $last = end($this->tg->sent);
-    expect($last['text'])->toStartWith('3 qadamdan 2-qadam')->and($last['text'])->not->toContain('Salom!');
+    expect($last['text'])->toStartWith('4 qadamdan 2-qadam')->and($last['text'])->not->toContain('Salom!');
 });
 
 it('names the center or the person who invited a new learner', function (): void {

@@ -56,29 +56,52 @@ describe('TabBar', () => {
     expect(uz.attributes('aria-label')).toBe("Bo'limlar")
   })
 
-  it('pairs every label with a decorative icon', async () => {
+  it('pairs every label with a decorative inline icon of its own, drawn in the colour of the text', async () => {
     const { w } = await mountBar('/today')
 
-    for (const link of w.findAll('a')) {
-      expect(link.get('svg').attributes('aria-hidden')).toBe('true')
+    const icons = w.findAll('a').map((link) => {
+      const svg = link.get('svg')
+      expect(svg.attributes('aria-hidden')).toBe('true')
+      expect(svg.attributes('stroke')).toBe('currentColor')
+      expect(svg.attributes('fill')).toBe('none')
+      expect(svg.attributes('viewBox')).toBe('0 0 24 24')
+      expect(svg.findAll('path').length).toBeGreaterThan(0)
+      // the icon comes first, the label under it
+      expect(link.element.firstElementChild?.tagName.toLowerCase()).toBe('svg')
       expect(link.text()).not.toBe('')
-    }
+      return svg.attributes('data-icon')
+    })
+
+    expect(icons).toEqual(['today', 'courses', 'rating', 'profile'])
+    // four different drawings, not one icon four times
+    expect(new Set(w.findAll('svg').map((svg) => svg.html())).size).toBe(4)
   })
 
-  it('marks the tab of the current route: a 2 px primary line on top, bold body text, aria-current', async () => {
+  it('marks the tab of the current route: a pill in nav-active, the accent, bold, aria-current', async () => {
     const { w } = await mountBar('/league')
 
     const active = w.get('[data-testid=tab-rating]')
     expect(active.attributes('aria-current')).toBe('page')
-    expect(active.classes()).toEqual(expect.arrayContaining(['border-t-2', 'border-primary', 'font-semibold', 'text-body']))
+    expect(active.classes()).toEqual(expect.arrayContaining(['rounded-option', 'bg-nav-active', 'text-accent', 'font-bold']))
 
     for (const id of ['today', 'courses', 'profile']) {
       const tab = w.get(`[data-testid=tab-${id}]`)
       expect(tab.attributes('aria-current'), id).toBeUndefined()
-      // the line is there but transparent, so the text of every tab stands at the same height
-      expect(tab.classes(), id).toEqual(expect.arrayContaining(['border-t-2', 'border-transparent', 'text-muted']))
-      expect(tab.classes(), id).not.toContain('font-semibold')
+      expect(tab.classes(), id).toEqual(expect.arrayContaining(['rounded-option', 'text-body', 'font-medium']))
+      expect(tab.classes(), id).not.toContain('bg-nav-active')
+      expect(tab.classes(), id).not.toContain('font-bold')
     }
+  })
+
+  it('moves the pill with the route', async () => {
+    const { w, router } = await mountBar('/today')
+    expect(w.get('[data-testid=tab-today]').classes()).toContain('bg-nav-active')
+
+    await router.push('/profile')
+    await flushPromises()
+
+    expect(w.findAll('.bg-nav-active').map((tab) => tab.attributes('data-testid'))).toEqual(['tab-profile'])
+    expect(w.findAll('[aria-current=page]').map((tab) => tab.attributes('data-testid'))).toEqual(['tab-profile'])
   })
 
   it.each([

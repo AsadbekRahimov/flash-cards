@@ -51,7 +51,8 @@ final class PracticeEntryResolver
         }
 
         return match ($session->mode) {
-            TrainingSession::MODE_LESSON => $this->lessonEntry($session, $learner),
+            // The review of a lesson leads to the game on the same lesson (step 3 of the day plan, docs/31 §5б).
+            TrainingSession::MODE_LESSON, TrainingSession::MODE_LESSON_REVIEW => $this->lessonEntry($session, $learner),
             TrainingSession::MODE_DAILY_REVIEW => $this->courseEntry($session, $learner),
             default => null,
         };

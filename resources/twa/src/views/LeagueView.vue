@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import RegionPromptCard from '@/components/RegionPromptCard.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
@@ -220,6 +221,9 @@ onMounted(() => {
     <template v-else>
       <div class="space-y-3.5">
         <InlineAlert v-if="message" tone="danger" :message="message" data-testid="reload-error" />
+
+        <!-- "Choose your region" (docs/35 §2.3): only for a learner without one, hidden for 30 days by "Not now". -->
+        <RegionPromptCard />
 
         <section v-if="!data.enabled" class="card text-[15px] leading-[22px] text-muted" data-testid="disabled">
           {{ t('league.disabled') }}

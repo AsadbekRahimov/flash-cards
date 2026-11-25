@@ -6,7 +6,7 @@
  *   it by prefers-color-scheme. The same choice as resolveColorScheme() of src/composables/telegramTheme.ts, which takes over
  *   once the bundle runs (theme changes, the Telegram header); telegramTheme.spec.ts runs both on the same cases.
  * - <meta name="theme-color">: the page colour of that palette (CHROME_COLORS.*.page, checked by the same test).
- * - The preload of the cyrillic Source Serif 4 when the interface will be Russian: resolveLocale() of src/i18n gives "uz" for
+ * - The preload of the cyrillic Inter when the interface will be Russian: resolveLocale() of src/i18n gives "uz" for
  *   an uz* language_code and "ru" for anything else (no language_code included). The URL of the font comes from the
  *   data-cyrillic-font attribute of this script's tag (the hashed file name is put there by the build, vite.config.ts).
  *
@@ -30,7 +30,7 @@
     var scheme = dark ? 'dark' : 'light'
     document.documentElement.setAttribute('data-theme', scheme)
     var meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', dark ? '#11141c' : '#f6f7f9')
+    if (meta) meta.setAttribute('content', dark ? '#0f1420' : '#f4f6fb')
   } catch (e) {
     // keep the light default: the bundle sets the theme
   }

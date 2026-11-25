@@ -143,6 +143,46 @@ final class PracticeMaterialService
     }
 
     /**
+     * The top-up of a game on ONE lesson that is short of words (`pairs_timed`, docs/16 §5.5a, docs/31 §5б): words of the SAME course
+     * outside the lesson that the learner has LEARNED (their repetition left the minute steps: `state = review`), up to `$want` of
+     * them, chosen by the seed of the session - deterministic for one seed, another choice for the next session. A sample of
+     * `$want * 3` ids is loaded (the spare covers the words a mode cannot use: no translation, a clash); the caller filters them and
+     * takes what it needs in the order of {@see SeededShuffle::apply()} under the same seed. Two queries (the ids, the sample) plus the
+     * translations; nothing for a scope that is not one lesson. The words are read whole each time (a session is opened once).
+     *
+     * @return list<MaterialWord> in the order of the id
+     */
+    public function learnedCourseWordsOutsideLesson(MaterialScope $scope, Learner $learner, LocaleSet $locales, string $seed, int $want): array
+    {
+        $lesson = $scope->lesson;
+        if ($lesson === null || $want <= 0) {
+            return [];
+        }
+
+        // The literal of RepetitionState::Review: the practice does not import the learning (PracticeIsolationTest).
+        $query = $this->wordQuery(new MaterialScope($scope->course))
+            ->join('word_repetitions', 'word_repetitions.word_id', '=', 'words.id')
+            ->where('word_repetitions.learner_id', $learner->id)
+            ->where('word_repetitions.state', 'review')
+            ->where('lessons.id', '<>', $lesson->id);
+
+        $ids = [];
+        foreach ((clone $query)->select('words.id')->toBase()->pluck('words.id') as $id) {
+            $ids[] = (int) $id;
+        }
+        if ($ids === []) {
+            return [];
+        }
+
+        $picked = [];
+        foreach (SeededShuffle::sample($seed, 'practice:topup', count($ids), $want * 3) as $index) {
+            $picked[] = $ids[$index];
+        }
+
+        return $this->materialWords($query->whereIn('words.id', $picked)->get(), $locales);
+    }
+
+    /**
      * Whether the learner has any introduced word in the scope: a cut list says so as well as the whole one, so it is not "read
      * from a cut list" ({@see MaterialScope::noteTruncatedRead()}).
      */

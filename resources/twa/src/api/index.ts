@@ -129,6 +129,10 @@ export const api = {
   me: {
     get: () => client().get<MeResponse>('/me'),
     updateSettings: (patch: SettingsPatch) => client().patch<MeResponse>('/me/settings', { ...patch }),
+    /** Takes back the last change of the region within 10 minutes (docs/35 §2.3); 422 `region_revert_unavailable` later. */
+    revertRegion: () => client().post<MeResponse>('/me/settings/region/revert'),
+    /** "Not now" on the region card of the Rating tab: hidden for 30 days; idempotent, 204. */
+    dismissRegionPrompt: () => client().post<void>('/me/region-prompt/dismiss'),
     /** "Delete account": soft delete with the explicit confirmation; the token stops working at once. */
     /** The "account restored" sheet was shown; idempotent, 204. */
     accountRestoredSeen: () => client().post<void>('/me/account-restored/seen'),

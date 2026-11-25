@@ -432,21 +432,23 @@ final class CourseCatalogService
         $lessons = $this->lessonsStarted($course, $learner);
 
         $done = 0;
-        $started = 0;
+        $totalStarted = 0;
         $learned = 0;
         $mastered = 0;
         foreach ($lessons as $counts) {
             $done += $counts['done'];
-            $started += $counts['started'];
+            $totalStarted += $counts['started'];
             $learned += $counts['learned'];
             $mastered += $counts['mastered'];
         }
 
         $next = null;
+        $titles = [];
         foreach ($tree as $row) {
-            if ($row['total'] > ($lessons[$row['lesson_id']]['started'] ?? 0)) {
-                $next = new NextLesson($row['lesson_id'], $row['stage_number'], $row['lesson_number'], $row['lesson_title']);
-                break;
+            $titles[$row['lesson_id']] = $row['lesson_title'];
+            $started = $lessons[$row['lesson_id']]['started'] ?? 0;
+            if ($next === null && $row['total'] > $started) {
+                $next = new NextLesson($row['lesson_id'], $row['stage_number'], $row['lesson_number'], $row['lesson_title'], $row['total'] - $started);
             }
         }
 
@@ -454,7 +456,8 @@ final class CourseCatalogService
             $this->present($course, $locale),
             new LearnerProgress($done, $course->words_count),
             $next,
-            new LearnerWordStages($started, $learned, $mastered),
+            new LearnerWordStages($totalStarted, $learned, $mastered),
+            $titles,
         );
     }
 

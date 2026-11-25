@@ -6,9 +6,11 @@ namespace App\Domain\Learners\Services;
 
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Enums\Plan;
+use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Learners\Exceptions\ProEmojiProRequiredException;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * The emoji of Pro (docs/31 §5а, E1): a Pro learner chooses one emoji of the platform's set (`config/pro_emoji.php`) and it is shown
@@ -76,6 +78,40 @@ final class ProEmojiService
     public function visible(Learner $learner, Entitlement $entitlement, ?CarbonImmutable $now = null): ?string
     {
         return $this->isAllowed($entitlement, $now) ? $this->emoji($learner->pro_emoji) : null;
+    }
+
+    /**
+     * The emoji of many learners at once, for the lists of other people (league, month, friends, battles): ONE statement for the whole
+     * page - the learners with a choice and a live Pro of their own or of a seat in a center (the SQL twin of the plan,
+     * {@see PaidSubscriptionQuery}, as the plan column of `/admin`). Learners without an emoji to show are absent from the result.
+     *
+     * @param  list<int>  $learnerIds
+     * @return array<int, string> learner id => emoji
+     */
+    public function visibleForMany(array $learnerIds, ?CarbonImmutable $now = null): array
+    {
+        if ($learnerIds === []) {
+            return [];
+        }
+
+        $now ??= CarbonImmutable::now();
+        $set = $this->set();
+
+        $rows = Learner::query()
+            ->whereIn('learners.id', array_values(array_unique($learnerIds)))
+            ->whereIn('learners.pro_emoji', array_keys($set))
+            ->where(fn (Builder $pro): Builder => $pro
+                ->whereIn('learners.id', PaidSubscriptionQuery::personalLearnerIds($now))
+                ->orWhereIn('learners.id', PaidSubscriptionQuery::sponsoredLearnerIds($now)))
+            ->toBase()
+            ->get(['learners.id', 'learners.pro_emoji']);
+
+        $emoji = [];
+        foreach ($rows as $row) {
+            $emoji[(int) $row->id] = $set[(string) $row->pro_emoji];
+        }
+
+        return $emoji;
     }
 
     /** @throws ProEmojiProRequiredException when a Free learner chooses an emoji (null - taking it back - is always allowed) */

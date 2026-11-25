@@ -416,6 +416,7 @@ final class OnboardingService
      * `next_reminder_at` it implies) is {@see LearnerSettingsService::update()}.
      *
      * @throws OnboardingException when the onboarding is not finished or $value is not allowed for $step
+     * @throws RegionChangeTooSoonException when the region changes before 30 days have passed since the last choice
      */
     public function applySetting(Learner $learner, string $step, string $value): void
     {

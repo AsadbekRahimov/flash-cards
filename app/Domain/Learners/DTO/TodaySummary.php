@@ -23,6 +23,7 @@ final readonly class TodaySummary
      * @param  array{available: bool, pro_required: bool, modes: list<string>, battle: bool, pro_promise: string}  $practice  the availability of the practice to the learner, as `/me.practice` without the limits (docs/16 §3.3)
      * @param  array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null  $hardRound  the round of hard words (docs/06 §14); null while it is switched off
      * @param  bool  $assignmentsPossible  false: the learner is in no group linked to a center, so `GET /assignments` is surely empty; true: maybe
+     * @param  DayPlan|null  $plan  the plan of the day: lesson -> review -> game (docs/31 §5б)
      */
     public function __construct(
         public int $dueCount,
@@ -39,5 +40,6 @@ final readonly class TodaySummary
         public array $practice = ['available' => false, 'pro_required' => false, 'modes' => [], 'battle' => false, 'pro_promise' => 'none'],
         public ?array $hardRound = null,
         public bool $assignmentsPossible = true,
+        public ?DayPlan $plan = null,
     ) {}
 }

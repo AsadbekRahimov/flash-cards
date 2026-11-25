@@ -29,7 +29,8 @@ export interface AccountDeletedResponse {
 }
 
 export interface MeResponse {
-  learner: Learner & { username: string | null }
+  /** `pro_emoji`: the emoji next to the name (docs/31 §5а) - only while the learner has Pro, else null */
+  learner: Learner & { username: string | null; pro_emoji?: string | null }
   groups: { id: number; title: string }[]
   stats: {
     words_learned: number
@@ -83,6 +84,19 @@ export interface LearnerSettings {
   /** The SRS arm of the learner (docs/06 §9): the retention dial is shown for `fsrs` only. */
   scheduler?: 'sm2' | 'fsrs'
   retention_mode?: RetentionMode
+  /**
+   * The region (docs/35 §2.3, docs/04 A.2b): a code of `options.regions` (`UZ-TK` … or `other`); null = not given. Optional here (as
+   * `scheduler`) so that the fixtures of older specs stay complete; the server always sends it.
+   */
+  region_code?: string | null
+  /** ISO 8601 UTC: another region can be chosen from then on (once in 30 days); null = now. */
+  region_change_available_at?: string | null
+  /** until when the last change of the region can be taken back (10 minutes); null = it cannot */
+  region_undo_available_until?: string | null
+  /** show the card "Choose your region" on the Rating tab: no region and no "Not now" in the last 30 days */
+  region_prompt?: boolean
+  /** The emoji of Pro (docs/31 §5а): the CODE chosen, kept without Pro too (a Free learner sees it as a plus of Pro). */
+  pro_emoji_choice?: string | null
   options: {
     locales: SettingsChoice[]
     reminder_times: string[]
@@ -93,7 +107,24 @@ export interface LearnerSettings {
      */
     daily_goal_max: number | null
     retention_modes?: RetentionMode[]
+    /** The 14 regions of Uzbekistan in the order of the language (Tashkent City first), then `other`; names localized by the server. */
+    regions?: RegionChoice[]
+    /** The set of the emoji of Pro, in the order of the picker. */
+    pro_emojis?: ProEmojiChoice[]
+    /** true = the emoji is a Pro feature for this learner: the picker shows a lock and opens the paywall */
+    pro_emoji_locked?: boolean
   }
+}
+
+export interface RegionChoice {
+  code: string
+  name: string
+}
+
+export interface ProEmojiChoice {
+  code: string
+  /** one emoji, ready to show */
+  emoji: string
 }
 
 /** One active membership of GET /me/organizations (docs/04 A.11). */
@@ -351,7 +382,14 @@ export interface ExerciseSettings {
 /** Body of PATCH /me/settings: only the fields to change; `reminder_time: null` turns the reminders off. */
 export type SettingsPatch = Partial<
   Pick<LearnerSettings, 'interface_locale' | 'reminder_time' | 'daily_goal' | 'goal' | 'level' | 'leagues_opt_out' | 'retention_mode'>
-> & { exercises?: Partial<ExerciseSettings> }
+> & {
+  exercises?: Partial<ExerciseSettings>
+  /** the region (null = "rather not say"); `region_via` says which screen chose it, for the product event only */
+  region_code?: string | null
+  region_via?: 'settings' | 'prompt'
+  /** the CODE of an emoji of Pro; null takes it back */
+  pro_emoji?: string | null
+}
 
 /** The FSRS target retention the learner picked (docs/06 §12.8); shown only to learners scheduled by FSRS. */
 export type RetentionMode = 'calm' | 'normal' | 'intense'
@@ -478,7 +516,15 @@ export interface LessonHeader {
 }
 
 /** Why a session has no card to show (docs/04 A.3). `null`/absent while there is a card. */
-export type DoneReason = 'lesson_complete' | 'nothing_due' | 'new_quota_exhausted' | 'session_cap' | 'sprint_complete' | 'hard_round_complete'
+export type DoneReason =
+  | 'lesson_complete'
+  | 'nothing_due'
+  | 'new_quota_exhausted'
+  | 'session_cap'
+  | 'sprint_complete'
+  | 'hard_round_complete'
+  /** `lesson_review` (docs/06 §15): every word of the set answered right or out of serves. */
+  | 'lesson_review_complete'
 
 /**
  * Free new-word quota after the step (docs/04 A.3); `new_words_remaining` null = no limit applies (Pro, or a group
@@ -488,10 +534,14 @@ export interface Quota {
   new_words_remaining: number | null
 }
 
-export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review' | 'hard_review'
+/**
+ * `lesson_review` (docs/04 A.3, docs/06 §15): the review of a lesson studied today - the words met today, objective exercises only;
+ * it moves no schedule and brings no points, goal or streak (step 2 of the day plan).
+ */
+export type TrainingMode = 'group_lesson' | 'lesson' | 'daily_review' | 'hard_review' | 'lesson_review'
 
 /** Where a personal session was opened from (stored for analytics). */
-export type SessionSource = 'self' | 'picker' | 'reminder' | 'reminder_quiz' | 'onboarding' | 'assignment' | 'finish'
+export type SessionSource = 'self' | 'picker' | 'reminder' | 'reminder_quiz' | 'onboarding' | 'assignment' | 'finish' | 'plan'
 
 export interface TrainingStartResponse {
   session_id: number
@@ -511,8 +561,12 @@ export interface TrainingStartResponse {
 
 /** Body of POST /training/sessions. */
 export interface OpenSessionRequest {
-  /** `hard_review`: the round of hard words (docs/06 §14) - spans the learner's words, takes no `lesson_id`. */
-  mode: 'lesson' | 'daily_review' | 'hard_review'
+  /**
+   * `hard_review`: the round of hard words (docs/06 §14) - spans the learner's words, takes no `lesson_id`.
+   * `lesson_review`: the review of a lesson studied today (docs/06 §15) - needs `lesson_id`; 409 `lesson_review_unavailable`
+   * `{reason: no_new_words | no_objective_exercise | disabled}` when it cannot open.
+   */
+  mode: 'lesson' | 'daily_review' | 'hard_review' | 'lesson_review'
   lesson_id?: number
   source?: SessionSource
 }
@@ -563,6 +617,8 @@ export interface SessionSummary {
   corrected?: CorrectedMistake | null
   /** The invitation to the round of hard words after a daily round / a lesson; null: none (the round itself, the feature is off). */
   hard_round_offer?: HardRound | null
+  /** The review of a lesson (docs/06 §15): words of its set answered right / on the first serve; null / absent in every other mode. */
+  lesson_review?: { total: number; won: number; first_try: number } | null
 }
 
 /** A word failed in an earlier session (objective exercise) and answered right at its first grade in the round of hard words. */
@@ -605,6 +661,49 @@ export interface TodayLesson {
   stage: number | null
   lesson: number
   title: string | null
+  /** The lesson's words never served to the learner ("5 new words"); absent on an older server. */
+  words_left?: number
+}
+
+/** Step 2 of the day plan: the review of the lesson studied today (`POST /training/sessions {mode: 'lesson_review', lesson_id}`). */
+export interface DayPlanTraining {
+  lesson_id: number
+  /** In the learner's language; null when the lesson is not in the active course (a deck, an assignment). */
+  title: string | null
+  /** Words the review asks (met today, at most 20). */
+  words: number
+  /** A review of this lesson was played to its end today. */
+  done: boolean
+  /** A live review of this lesson to continue ("Continue"). */
+  open_session_id: number | null
+}
+
+/** Step 3 of the day plan: the game on the words of the lesson (`POST /practice/sessions {mode: 'pairs_timed', lesson_id, source: 'deeplink'}`). */
+export interface DayPlanGame {
+  lesson_id: number
+  mode: 'pairs_timed'
+  /** A practice session on this lesson was begun today and answered at least once. */
+  played: boolean
+}
+
+/** `plan` of GET /today (docs/04 A.2a, docs/31 §5б): lesson -> review of the lesson -> game on its words. */
+export interface DayPlan {
+  /** The step to do now; null - nothing to suggest (the chain is done, or there is no lesson to start). */
+  step: 1 | 2 | 3 | null
+  /** The chain of today is complete. */
+  done: boolean
+  lesson: {
+    /** A lesson with new words was played to its end today (`lesson_id` - that lesson). */
+    done: boolean
+    lesson_id: number | null
+    /** = `active_course.next_lesson.id`. */
+    next_lesson_id: number | null
+    words_left: number | null
+  }
+  /** null until a lesson is done today, or while the review is switched off. */
+  training: DayPlanTraining | null
+  /** null until a lesson is done today, or while the game is not open to the learner. */
+  game: DayPlanGame | null
 }
 
 export interface TodayCourse {
@@ -705,6 +804,8 @@ export interface TodayResponse {
    * and Home is not held for it; `true` - maybe; absent: an older server (the list is asked as before).
    */
   assignments_possible?: boolean
+  /** The plan of the day (docs/31 §5б); absent on an older server. */
+  plan?: DayPlan | null
 }
 
 export interface TodayGame {

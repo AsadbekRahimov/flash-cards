@@ -15,6 +15,7 @@ import {
   type OpenSessionRequest,
   type Quality,
   type ReviewResponse,
+  type SessionSource,
   type SessionSummary,
   type TrainingMode,
   type TrainingStartResponse,
@@ -208,11 +209,20 @@ export const useTrainingStore = defineStore('training', {
       } catch (err) {
         this.openError = errorMessage(err, 'training')
         // The round of hard words was played in another tab (or the words went): "Today" is read again, so its invitation matches the server.
-        if (err instanceof ApiClientError && err.code === 'hard_round_unavailable') void useTodayStore().load()
+        // The same for the review of a lesson (`lesson_review_unavailable`): the plan of the day is read again.
+        if (err instanceof ApiClientError && (err.code === 'hard_round_unavailable' || err.code === 'lesson_review_unavailable')) void useTodayStore().load()
         return null
       } finally {
         this.opening = false
       }
+    },
+
+    /**
+     * Step 2 of the day plan (docs/31 §5б): the review of a lesson studied today (`mode: lesson_review`, docs/06 §15). The session is
+     * played on the ordinary training screen; it moves no schedule and brings no points. Returns the session id, or null with `openError`.
+     */
+    openLessonReview(lessonId: number, source: SessionSource = 'plan'): Promise<number | null> {
+      return this.open({ mode: 'lesson_review', lesson_id: lessonId, source })
     },
 
     async start(sessionId: number): Promise<void> {

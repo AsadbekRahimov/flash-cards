@@ -34,7 +34,8 @@ final class SessionSummaryResource extends TwaResource
      *   stages: array{graduated: int, promoted: int, mastered: int},
      *   hard_round: array{total: int, won: int}|null,
      *   corrected: array{word_id: int, word: string, translation: string, mistaken_at: string, answer: string|null}|null,
-     *   hard_round_offer: array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null
+     *   hard_round_offer: array{available: bool, reason: string|null, words: int, open_session_id: int|null, resets_at: string|null}|null,
+     *   lesson_review: array{total: int, won: int, first_try: int}|null
      * }
      */
     public function toArray(Request $request): array
@@ -58,7 +59,8 @@ final class SessionSummaryResource extends TwaResource
             'goal' => $progress->goal->toArray(),
             'streak' => $progress->streak->toArray(),
             'practice_entry' => $this->resource['practice_entry']?->toArray(),
-            'league_points' => LeaguePoints::ofCounts($summary->reviewed, $summary->correct, $summary->newWords, $this->goalMetInSession($summary, $progress)),
+            // The review of a lesson (docs/06 §15) writes nothing to the day: it brought no points, whatever the goal did meanwhile.
+            'league_points' => $summary->reviewTotal !== null ? 0 : LeaguePoints::ofCounts($summary->reviewed, $summary->correct, $summary->newWords, $this->goalMetInSession($summary, $progress)),
             // The round of hard words (docs/06 §14): how many of its set were won; null in every other mode.
             'hard_round' => $summary->hardTotal === null ? null : ['total' => $summary->hardTotal, 'won' => $summary->hardWon ?? 0],
             // One mistake of an earlier session corrected in the round of hard words (docs/06 §14): the word, its translation in the
@@ -66,6 +68,12 @@ final class SessionSummaryResource extends TwaResource
             'corrected' => $summary->corrected?->toArray(),
             // The invitation to that round on the end of a daily round / a lesson: the block of `GET /today`; null after the round itself and while it is off.
             'hard_round_offer' => $this->resource['hard_round_offer'] ?? null,
+            // The review of a lesson (docs/06 §15): the words of its set answered right (`won`), on the first serve (`first_try`); null in every other mode.
+            'lesson_review' => $summary->reviewTotal === null ? null : [
+                'total' => $summary->reviewTotal,
+                'won' => $summary->reviewWon ?? 0,
+                'first_try' => $summary->reviewFirstTry ?? 0,
+            ],
         ];
     }
 

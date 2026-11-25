@@ -4419,3 +4419,68 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `paywall.lead_daily_goal` | Bepul tarifda kunlik maqsad — {max} tagacha kartochka. Pro'da — istalgancha. | На бесплатном тарифе цель дня — до {max} карточек. В Pro — любая. |
 | `paywall.lead_trial_ended` | Kunlik maqsad endi {max} ta kartochka — bu Free tarifidagi eng yuqori maqsad. | Цель дня теперь {max} карточек — это максимум на Free. |
 | `paywall.lead_trial_ended_generic` | Endi sizda bepul tarif. Cheklovsiz o'rganish uchun Pro'ni rasmiylashtiring. | Теперь у вас бесплатный тариф. Оформите Pro, чтобы учиться без ограничений. |
+
+## Выпуск 1 · регион ученика и эмодзи Pro (docs/35 R1–R5, docs/31 §5а) — на проверку носителю
+
+Регион — «hudud» в тексте и «viloyat» в названиях областей. Носителю проверить: «Hududni :date dan boshlab» (дата `25.12.2026` перед «dan»), «Ko'rsatmaslik» как кнопка отказа указать регион.
+
+### Бот (`lang/uz/regions.php`, `lang/uz/onboarding.php`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `regions.UZ-TK` | Toshkent shahri | город Ташкент |
+| `regions.UZ-TO` | Toshkent viloyati | Ташкентская область |
+| `regions.UZ-AN` | Andijon viloyati | Андижанская область |
+| `regions.UZ-BU` | Buxoro viloyati | Бухарская область |
+| `regions.UZ-FA` | Farg'ona viloyati | Ферганская область |
+| `regions.UZ-JI` | Jizzax viloyati | Джизакская область |
+| `regions.UZ-NG` | Namangan viloyati | Наманганская область |
+| `regions.UZ-NW` | Navoiy viloyati | Навоийская область |
+| `regions.UZ-QA` | Qashqadaryo viloyati | Кашкадарьинская область |
+| `regions.UZ-QR` | Qoraqalpog'iston Respublikasi | Республика Каракалпакстан |
+| `regions.UZ-SA` | Samarqand viloyati | Самаркандская область |
+| `regions.UZ-SI` | Sirdaryo viloyati | Сырдарьинская область |
+| `regions.UZ-SU` | Surxondaryo viloyati | Сурхандарьинская область |
+| `regions.UZ-XO` | Xorazm viloyati | Хорезмская область |
+| `regions.other` | Boshqa davlat | Другая страна |
+| `onboarding.steps.region` | Qayerda yashaysiz? Bu hududingiz reytingi uchun kerak. | Где вы живёте? Это нужно для рейтинга вашего региона. |
+| `onboarding.steps.region_list` | Hududingizni tanlang | Выберите ваш регион |
+| `onboarding.options.region.uzbekistan` | 🇺🇿 O'zbekiston | 🇺🇿 Узбекистан |
+| `onboarding.options.region.other` | 🌍 Boshqa davlat | 🌍 Другая страна |
+| `onboarding.options.region.none` | Ko'rsatmaslik | Не указывать |
+| `onboarding.options.region.back` | ← Orqaga | ← Назад |
+| `onboarding.settings.region_saved` | Hudud: :region. Saqlandi. | Регион: :region. Сохранено. |
+| `onboarding.settings.region_none` | ko'rsatilmagan | не указан |
+| `onboarding.settings.region_undo` | ↩️ Bekor qilish | ↩️ Отменить |
+| `onboarding.settings.region_too_soon` | Hududni 30 kunda bir marta o'zgartirish mumkin. Hududni :date dan boshlab o'zgartirishingiz mumkin. | Регион можно менять раз в 30 дней. Сменить регион можно с :date. |
+| `onboarding.settings.region_reverted` | Avvalgi hudud tiklandi. | Прежний регион возвращён. |
+| `onboarding.settings.region_revert_unavailable` | Hudud o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan. | Отменить смену региона уже нельзя: прошло больше 10 минут или она уже отменена. |
+| `onboarding.settings.buttons.region` | Hudud | Регион |
+
+### Mini App (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `settings.region` | Hudud | Регион |
+| `settings.region.none` | Ko'rsatilmagan | Не указан |
+| `settings.region.hint` | Hududingiz reytingi uchun kerak. Hududni 30 kunda bir marta o'zgartirish mumkin. | Нужен для рейтинга вашего региона. Сменить регион можно раз в 30 дней. |
+| `settings.region.next_change` | Hududni {date} dan boshlab o'zgartirish mumkin. | Сменить регион можно с {date}. |
+| `settings.region.undo` | Bekor qilish | Отменить смену |
+| `region.sheet.title` | Qayerda yashaysiz? | Где вы живёте? |
+| `region.sheet.lead` | Bu hududingiz reytingi uchun kerak. | Это нужно для рейтинга вашего региона. |
+| `region.sheet.uzbekistan` | 🇺🇿 O'zbekiston | 🇺🇿 Узбекистан |
+| `region.sheet.other` | 🌍 Boshqa davlat | 🌍 Другая страна |
+| `region.sheet.none` | Ko'rsatmaslik | Не указывать |
+| `region.sheet.pick` | Hududingizni tanlang | Выберите ваш регион |
+| `region.sheet.back` | Orqaga | Назад |
+| `region.prompt.title` | Hududingizni ko'rsating | Укажите регион |
+| `region.prompt.text` | Hududingiz reytingi paydo bo'ladi. | Появится рейтинг вашего региона. |
+| `region.prompt.choose` | Hududni tanlash | Выбрать регион |
+| `region.prompt.later` | Hozir emas | Не сейчас |
+| `settings.pro_emoji` | Ism yonidagi emoji | Эмодзи рядом с именем |
+| `settings.pro_emoji.hint` | Pro bor ekan, ismingiz yonida ko'rinadi. Pro'siz tanlov saqlanib qoladi. | Виден рядом с вашим именем, пока у вас Pro. Без Pro выбор сохраняется. |
+| `settings.pro_emoji.locked` | Ism yonidagi emoji — Pro afzalliklaridan biri. | Эмодзи рядом с именем — одно из преимуществ Pro. |
+| `settings.pro_emoji.none` | Emojisiz | Без эмодзи |
+| `error.code.region_change_too_soon` | Hududni 30 kunda bir marta o'zgartirish mumkin. | Регион можно менять раз в 30 дней. |
+| `error.code.region_revert_unavailable` | Hudud o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan. | Отменить смену региона уже нельзя: прошло больше 10 минут или она уже отменена. |
+| `error.code.pro_emoji_pro_required` | Ism yonidagi emoji — Pro'da. | Эмодзи рядом с именем — в Pro. |

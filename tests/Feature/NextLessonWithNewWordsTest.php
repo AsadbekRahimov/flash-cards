@@ -148,7 +148,7 @@ it('describes the lesson from the course tree: id, stage and lesson number, titl
     $ru = app(CourseCatalogService::class)->todayCourse($course, Learner::factory()->create(['interface_locale' => 'ru']));
     $uz = app(CourseCatalogService::class)->todayCourse($course, Learner::factory()->create(['interface_locale' => 'uz']));
 
-    expect($ru->nextLesson)->toEqual(new NextLesson($lessons['4.7']->id, 4, 7, 'Приветствия'))
+    expect($ru->nextLesson)->toEqual(new NextLesson($lessons['4.7']->id, 4, 7, 'Приветствия', newWords: 1))
         ->and($uz->nextLesson?->title)->toBe('Salomlashish')
         ->and($ru->progress)->toEqual(new LearnerProgress(0, 1));
 });

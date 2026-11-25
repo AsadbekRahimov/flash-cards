@@ -13,7 +13,9 @@ use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\StreakFreezeService;
 use App\Domain\Game\Services\Runs\DailyCaravanService;
 use App\Domain\Learners\DTO\DailyGoal;
+use App\Domain\Content\DTO\CourseToday;
 use App\Domain\Learners\DTO\DailyProgress;
+use App\Domain\Learners\DTO\DayBounds;
 use App\Domain\Learners\DTO\TodayCourse;
 use App\Domain\Learners\DTO\TodayLesson;
 use App\Domain\Learners\DTO\TodaySummary;
@@ -69,6 +71,7 @@ final class TodayService
         private readonly HardRoundService $hardRound,
         private readonly TodayProfileCache $todayProfile,
         private readonly DailyGoalLimiter $goals,
+        private readonly DayPlanService $plan,
     ) {}
 
     /**
@@ -111,9 +114,12 @@ final class TodayService
         // The active course from the pure cache (its row under the course's data version), null when there is none or it is not available.
         $course = $this->availableCourse($learner);
 
-        // The open daily round and the rounds of hard words begun in the day window: ONE statement (docs/06 §14).
-        $sessions = $this->openSessions($learner, $now);
+        // The open daily round, the rounds of hard words begun in the day window and the sessions of the day plan (the lessons played to
+        // their end today, the reviews of a lesson begun today): ONE statement (docs/06 §14, docs/31 §5б).
+        $day = $this->plan->day($learner, $now);
+        $sessions = $this->openSessions($learner, $now, $day);
         $hardSessions = $sessions->filter(fn (TrainingSession $s): bool => $s->mode === TrainingSession::MODE_HARD_REVIEW);
+        $planLesson = $this->plan->candidateLesson($sessions, $day);
 
         // The scalars of the screen in ONE statement, each on its own index (docs/19 K10).
         $batch = (new ScalarBatch)->count('due', $this->stats->dueQuery($learner, $now));
@@ -128,6 +134,10 @@ final class TodayService
         $countHard = $this->hardRound->enabled() && $this->hardRound->needsCandidates($learner, $now, $hardSessions, $entitlement);
         if ($countHard) {
             $batch->countLimited('hard_candidates', $this->hardRound->candidatesQueryFor($learner, $now));
+        }
+        if ($planLesson !== null) {
+            // The words the learner met today in the lesson of the plan and "played on it today" ride in the same statement.
+            $this->plan->addScalars($batch, $learner, $planLesson, $day);
         }
         $quizScalars = $course !== null && $this->readiness->enabled() ? $this->quizzes->weekLineScalars($learner, $course, $now) : [];
         foreach ($quizScalars as $alias => $scalar) {
@@ -146,11 +156,15 @@ final class TodayService
             $this->todayProfile->put($learner, $version, $snapshot);
         }
 
+        $courseToday = $course === null ? null : $this->catalog->todayCourse($course, $learner);
+        $practice = $this->practice->describe($learner, $entitlement);
+        $nextLesson = $courseToday?->nextLesson;
+
         return new TodaySummary(
             dueCount: $dueCount,
             newWordsRemaining: $this->quota->remaining($learner, $now, $entitlement, array_key_exists('served', $scalars) ? ScalarBatch::int($scalars, 'served') : null),
             progress: $this->progressOn($learner, $today, $stats, $now, $entitlement, $settled ? null : $rows),
-            activeCourse: $course === null ? null : $this->activeCourse($learner, $course, $quizScalars === [] ? null : $this->quizzes->weekLineFromScalars($learner, $scalars, $now)),
+            activeCourse: $course === null || $courseToday === null ? null : $this->activeCourse($course, $courseToday, $quizScalars === [] ? null : $this->quizzes->weekLineFromScalars($learner, $scalars, $now)),
             openSessionId: $sessions->first(fn (TrainingSession $s): bool => $s->mode === TrainingSession::MODE_DAILY_REVIEW)?->id,
             entitlement: $entitlement,
             lapsed: $snapshot['lapsed'],
@@ -161,13 +175,24 @@ final class TodayService
             game: $this->caravan->todayBlock($learner, $now, $dueCount, inGroup: $snapshot['groups']),
             // The practice card of "Today": the same block as `/me.practice` without its limits (the flags and the plan resolved
             // above, no statement), so the screen does not request `/me` for it (docs/04 A.2a).
-            practice: $this->practice->describe($learner, $entitlement),
+            practice: $practice,
             // The round of hard words (docs/06 §14): null while switched off; its candidates were counted in the statement above when needed.
             hardRound: $this->hardRound->enabled()
                 ? $this->hardRound->availability($learner, $now, $hardSessions, $entitlement, $countHard ? ScalarBatch::int($scalars, 'hard_candidates') : null)->toArray()
                 : null,
             // "Definitely none" lets the TWA skip `GET /assignments` on the first open (docs/04 A.2a); from the snapshot, no statement.
             assignmentsPossible: $snapshot['assignments'],
+            // The plan of the day (docs/04 A.2a, docs/31 §5б): no statement of its own - the sessions and the scalars above carry it.
+            plan: $this->plan->assemble(
+                $sessions,
+                $planLesson,
+                $scalars,
+                $nextLesson?->id,
+                $nextLesson?->newWords,
+                $courseToday === null ? [] : $courseToday->lessonTitles,
+                DayPlanService::gameAvailableFrom($practice),
+                $now,
+            ),
         );
     }
 
@@ -270,9 +295,8 @@ final class TodayService
     }
 
     /** @param  LevelQuizWeek|null  $quiz  the quiz of the week, read with the scalars of the screen; null while the readiness is off */
-    private function activeCourse(Learner $learner, Course $course, ?LevelQuizWeek $quiz): TodayCourse
+    private function activeCourse(Course $course, CourseToday $today, ?LevelQuizWeek $quiz): TodayCourse
     {
-        $today = $this->catalog->todayCourse($course, $learner);
         $next = $today->nextLesson;
 
         return new TodayCourse(
@@ -281,7 +305,7 @@ final class TodayService
             title: $today->course->title,
             learned: $today->progress->done,
             total: $today->progress->total,
-            nextLesson: $next === null ? null : new TodayLesson($next->id, $next->stageNumber, $next->number, $next->title),
+            nextLesson: $next === null ? null : new TodayLesson($next->id, $next->stageNumber, $next->number, $next->title, $next->newWords),
             // The readiness comes from the counts of the statement above; the quiz line rode in the statement of scalars.
             readiness: $this->readiness->enabled() ? $this->readiness->fromCounts($course, $today->stages) : null,
             quiz: $quiz,
@@ -295,13 +319,13 @@ final class TodayService
      *
      * @return Collection<int, TrainingSession>
      */
-    private function openSessions(Learner $learner, CarbonImmutable $now): Collection
+    private function openSessions(Learner $learner, CarbonImmutable $now, DayBounds $day): Collection
     {
         $hardFrom = $this->hardRound->enabled() ? $this->hardRound->window($learner, $now)->startUtc : null;
 
         return TrainingSession::query()
             ->where('learner_id', $learner->id)
-            ->where(function (Builder $q) use ($now, $hardFrom): void {
+            ->where(function (Builder $q) use ($now, $hardFrom, $day): void {
                 $q->where(fn (Builder $daily) => $daily
                     ->where('mode', TrainingSession::MODE_DAILY_REVIEW)
                     ->where('status', 'open')
@@ -312,7 +336,8 @@ final class TodayService
                         ->where('mode', TrainingSession::MODE_HARD_REVIEW)
                         ->where('started_at', '>=', $hardFrom));
                 }
+                $this->plan->constrainSessions($q, $day);
             })
-            ->get(['id', 'mode', 'status', 'started_at', 'expires_at', 'completed_at', 'meta']);
+            ->get(['id', 'mode', 'lesson_id', 'status', 'started_at', 'expires_at', 'completed_at', 'meta']);
     }
 }

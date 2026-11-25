@@ -20,7 +20,7 @@ final class Regions
     /** @return list<string> every code, the 14 units of Uzbekistan first, then `other` */
     public static function codes(): array
     {
-        return array_values(array_map('strval', array_keys((array) config('regions.codes', []))));
+        return array_map('strval', array_keys((array) config('regions.codes', [])));
     }
 
     /** @return list<string> the 14 units of Uzbekistan (without `other`) */
