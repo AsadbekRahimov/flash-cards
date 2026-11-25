@@ -21,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $league_week_id
  * @property int $tier
+ * @property string $category `free` / `pro` - the pool of rivals of a v2 week (docs/32 §5.1); every group of a v1 week is `free`
  * @property int $capacity
  * @property int $members_count
  * @property Carbon|null $closed_at
@@ -34,7 +35,7 @@ class LeagueGroup extends Model
     use HasFactory;
 
     /** @var list<string> */
-    protected $fillable = ['league_week_id', 'tier', 'capacity', 'members_count', 'closed_at'];
+    protected $fillable = ['league_week_id', 'tier', 'category', 'capacity', 'members_count', 'closed_at'];
 
     /** @return array<string, string> */
     protected function casts(): array

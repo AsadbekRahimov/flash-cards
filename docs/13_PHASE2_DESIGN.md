@@ -1024,6 +1024,15 @@ promo_codes → payment_orders → provider_transactions → субъект (lea
 
 **Поверхности:** `GET /api/twa/league/month`, `GET /api/twa/league/month/me`, `/finish.league_points` (docs/04 A.19); `config/leagues.php` `monthly.*` (`LEAGUES_MONTHLY_*`); команды `leagues:refresh-month`, `leagues:close-month`; события `league.month_closed`, `league.month_confirmed`, `league.month_candidate_disqualified`, `league.month_candidate_reinstated`, `league.month_prize_delivered`; тесты `MonthlyRatingServiceTest`, `MonthlyRatingReviewTest`, `MonthlyRatingSchemaTest`, `TwaMonthlyRatingTest`, fork-тесты PG `MonthlyRatingConcurrencyTest` (три закрывателя; два подтверждения разом; подтверждение против закрытия; пересчёты Mini App и планировщика против барьера — начавший после барьера не пишет, deadlock'ов нет). Страница Filament, тексты бота и экраны Mini App — задачи coder'а.
 
+### 7.7 Очки за слова v2 и таблицы Free / Pro — фундамент *(выпуск 2, docs/28, docs/32; решения владельца — docs/31 §5)*
+
+Сделано 25.11.2026 (docs/32 S1–S3); **начисления ещё нет** — §7.3 и §7.6 считают по формуле v1, `leagues.scoring.mode = off`.
+
+- **Каталог лексем** (docs/03 §2.66, `words.lexeme_id`): единица учёта — ученик × лексема (одно написание, `LexemeKey`). Слова курсов платформы и организаций создают лексему (`LexemeCatalog::ensureFor` / `ensureKeys` из `VocabularyImporter` — им же идёт `CoursePackImporter` — и из `LessonContentRefresher::wordCreated/wordEdited` для `/admin`), колода ученика только сопоставляется (`matchKeys` в `LearnerDeckService::addWords`; нет совпадения — без публичных очков). Правка написания в `/admin` переносит слово на лексему нового написания. Старые слова — `php artisan lexemes:backfill` (пачками, идемпотентно, `--decks` — только колоды, когда каталог вырос).
+- **Версии правил** — `config/leagues.php` → `scoring.versions` (неизменяемые; правка = новая версия с будущей датой). Версия периода = наибольшая версия, у которой `starts_on` ≤ первого дня периода, и только в режиме `live`; `off` / `shadow` — версия 1. Дата старта v2 — `LEAGUES_SCORING_V2_STARTS_ON` (пусто — не назначена): по решению В1 теневого месяца нет, открытые неделя и месяц перед включением закрываются по старым правилам. `ScoreRules` читает конфиг (неверная версия не применяется никогда).
+- **Категория периода** — `ScorePeriodService::fix/fixDay` (docs/03 §2.68): при первом начислении недели и месяца по тарифу в руках вызывающего (`ScoreCategory::fromPlan`, пробный Pro и место в организации — Pro), `INSERT … ON CONFLICT DO NOTHING` + чтение — побеждает первый; дальше не меняется, смена тарифа действует со следующего периода, неделя и месяц независимы. Fork-тест на PG: четыре параллельных первых начисления с разными тарифами → одна строка на период, одна категория у всех.
+- Таблицы дня, журнала и «За всё время» (docs/03 §2.67–§2.71) и новые колонки таблиц лиг созданы, читаются с S4/S8/S9.
+
 ---
 
 ## 8. Волна C — обучение (2D)

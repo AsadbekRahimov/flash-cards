@@ -128,4 +128,45 @@ return [
             'capped_days' => (int) env('LEAGUES_MONTHLY_SIGNAL_CAPPED_DAYS', 5),
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Word points v2 (docs/28, docs/32 §6.1; owner's decisions docs/31 §5)
+    |--------------------------------------------------------------------------
+    |
+    | Points for knowing words, counted per learner × lexeme on the rating day of `timezone`, in two independent counts (the week:
+    | 5 best days; the month: every day) and two tables (Free / Pro, the category fixed at the first credit of the period). Read
+    | through App\Domain\Engagement\Services\Scoring\ScoreRules. The foundation (catalog, tables, rules, periods) is in place; the
+    | crediting itself is not wired yet, so `mode` stays `off`.
+    */
+    'scoring' => [
+        /** off | shadow (credits recorded, every period stays version 1, nothing shown) | live (the periods from a version's starts_on count by it). */
+        'mode' => env('LEAGUES_SCORING_MODE', 'off'),
+
+        /** Game answers earn word points too (owner's decision В6) - the switch to take them out. */
+        'game_enabled' => (bool) env('LEAGUES_SCORING_GAME_ENABLED', true),
+
+        /** Days the journal `score_credits` is kept (only days of closed months are pruned); the day totals are kept forever. */
+        'credits_retention_days' => (int) env('LEAGUES_SCORING_CREDITS_RETENTION_DAYS', 180),
+
+        /**
+         * The published rules, IMMUTABLE: a change is a new version with a future `starts_on`, never an edit (an open period keeps the
+         * version written into it). The weights are not in the environment on purpose; only the start date of a version is - it is
+         * not known before the launch (owner: "at once, without a shadow month"). No date = the version never starts. A period
+         * counts by the greatest version whose `starts_on` is on or before the period's first day (Monday / the 1st), in `live` only.
+         * Version 1 is the v1 formula above (`points`, `monthly.daily_cap`) and is not listed.
+         */
+        'versions' => [
+            2 => [
+                'starts_on' => env('LEAGUES_SCORING_V2_STARTS_ON'),
+                'points' => ['new' => 2, 'review' => 3, 'long' => 5],
+                'long_interval_days' => 7,
+                'best_days' => 5,
+                'limits' => [
+                    'free' => ['new' => 20, 'review' => 20, 'day_cap' => 100],
+                    'pro' => ['new' => 30, 'review' => 30, 'day_cap' => 150],
+                ],
+            ],
+        ],
+    ],
 ];

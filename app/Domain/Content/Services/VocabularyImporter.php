@@ -6,6 +6,7 @@ namespace App\Domain\Content\Services;
 
 use App\Domain\Content\DTO\ImportIssue;
 use App\Domain\Content\DTO\ImportReport;
+use App\Domain\Content\Support\LexemeKey;
 use App\Domain\Learning\Services\LearningCache;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Models\AuditLog;
@@ -39,6 +40,7 @@ final class VocabularyImporter
         private readonly CoursePublisher $publisher,
         private readonly LocaleResolver $locales,
         private readonly WordAudioScheduler $audio,
+        private readonly LexemeCatalog $lexemes,
     ) {}
 
     /**
@@ -178,6 +180,13 @@ final class VocabularyImporter
                 ->groupBy('word_id')
                 ->map(fn (Collection $rows): Collection => $rows->keyBy('locale'));
 
+            // The lexemes of the file's words (docs/32 §2.1), two statements for the whole file: a platform or organisation course
+            // creates the missing ones, a learner's deck only matches. A link of an existing word (one made before the catalog)
+            // is written apart and is not an "update" of the report: the word's content did not change.
+            $lexemes = $this->lexemesOf($course, $words);
+            /** @var array<int, int|null> $relinks */
+            $relinks = [];
+
             $examplesChanged = [];
             /** @var list<Word> $touched the new and changed words: their audio is queued after the commit (docs/26 §5.6) */
             $touched = [];
@@ -192,8 +201,10 @@ final class VocabularyImporter
                     'transcription' => $w['transcription'],
                 ];
 
+                $lexemeId = $lexemes[LexemeKey::of($w['word']) ?? ''] ?? null;
+
                 if ($existing === null) {
-                    $word = Word::create(['lesson_id' => $lesson->id, 'word' => $w['word']] + $payload + ['meta' => $this->metaWith([], $w)]);
+                    $word = Word::create(['lesson_id' => $lesson->id, 'lexeme_id' => $lexemeId, 'word' => $w['word']] + $payload + ['meta' => $this->metaWith([], $w)]);
                     $this->upsertTranslations($word, $w, new Collection, $report);
                     if ($this->syncExamples($word, $w)) {
                         $examplesChanged[] = (int) $word->id;
@@ -202,6 +213,10 @@ final class VocabularyImporter
                     $touched[] = $word;
 
                     continue;
+                }
+
+                if ($existing->lexeme_id !== $lexemeId) {
+                    $relinks[(int) $existing->id] = $lexemeId;
                 }
 
                 // A file without a transcription keeps the one the word has (filled by an earlier import or in the panel).
@@ -233,6 +248,8 @@ final class VocabularyImporter
                     $report->skipped++;
                 }
             }
+
+            $this->lexemes->link($relinks);
 
             if ($examplesChanged !== []) {
                 // The cached examples of the words whose rows changed (docs/06 §12.4) — after the commit, like the lesson's keys.
@@ -269,6 +286,22 @@ final class VocabularyImporter
         DB::afterCommit(fn () => $this->cache->forgetLesson($lesson));
 
         return $report;
+    }
+
+    /**
+     * key => lexeme id of the file's words: created for a platform or organisation course, matched for a learner's deck.
+     *
+     * @param  list<array{word:string}>  $words
+     * @return array<string, int>
+     */
+    private function lexemesOf(Course $course, array $words): array
+    {
+        $keys = array_values(array_filter(array_map(static fn (array $w): ?string => LexemeKey::of($w['word']), $words)));
+        $language = LexemeCatalog::language($course->target_language);
+
+        return $this->lexemes->createsLexemes($course->owner_type)
+            ? $this->lexemes->ensureKeys($keys, $language)
+            : $this->lexemes->matchKeys($keys, $language);
     }
 
     /** What is wrong with a file `json_decode` refused: the few mistakes a person can fix; anything else is `other`. */

@@ -18,6 +18,7 @@ class Word extends Model
     /** @var list<string> */
     protected $fillable = [
         'lesson_id',
+        'lexeme_id',
         'word',
         'translation',
         'example',
@@ -32,6 +33,7 @@ class Word extends Model
     protected function casts(): array
     {
         return [
+            'lexeme_id' => 'integer',
             'is_active' => 'boolean',
             'meta' => 'array',
         ];
@@ -41,6 +43,16 @@ class Word extends Model
     public function lesson(): BelongsTo
     {
         return $this->belongsTo(Lesson::class);
+    }
+
+    /**
+     * The catalog lexeme of the spelling (docs/32 §2.1); null until linked, and for a deck word the catalog does not know.
+     *
+     * @return BelongsTo<Lexeme, $this>
+     */
+    public function lexeme(): BelongsTo
+    {
+        return $this->belongsTo(Lexeme::class);
     }
 
     /** @return HasMany<WordTranslation, $this> */

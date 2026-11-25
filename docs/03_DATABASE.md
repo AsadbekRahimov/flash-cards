@@ -196,8 +196,9 @@ ru-дерево никогда не достаётся uz-ученику), «С�
 | audio_path | string(255) nullable | предгенерированное аудио (задача 1.2c) |
 | is_active | boolean default true | слово не удаляем, а деактивируем; учитывается в `courses.words_count` и в проверке публикации курса |
 | meta | jsonb default '{}' | |
+| lexeme_id | bigint nullable FK → lexemes, ON DELETE SET NULL | лексема написания (§2.66, docs/32 §2.1): единица учёта очков за слова. Курсы платформы и организаций создают лексему, колода ученика только сопоставляется (нет совпадения — `NULL`: слово учится, но очков не даёт). Пишет `LexemeCatalog` (импорт, правка в `/admin`, колоды, `lexemes:backfill`) через query builder — `updated_at` слова не двигается |
 
-**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (точное совпадение); `(id) WHERE is_active = false` — partial
+**Индексы:** `(lesson_id, word)` unique, `lesson_id`, `word` (точное совпадение); `words_lexeme_id_idx (lexeme_id)` (CONCURRENTLY на PostgreSQL); `(id) WHERE is_active = false` — partial
 `words_inactive_idx`: под анти-join `DueRepetitionCriteria` (`NOT EXISTS (… words.is_active = false)`, docs/06 §6) —
 выведенных слов мало, и хэш их id строится с пары страниц индекса вместо seq scan всех активных слов.
 **PostgreSQL, `pg_trgm`** (docs/20 F2, миграция `2026_11_02_100001_add_filament_list_indexes`): поиск `/admin/words` — `like '%…%'`, b-tree по `word`
@@ -1437,6 +1438,106 @@ CHECK не создаются — инвариант дублируют серв
 (savepoint), нарушение partial unique → та же строка записывается как `scored = false`. Тест не пишет в `word_repetitions`, `training_*`, `learner_daily_stats`.
 Читают: `LevelQuizService::weekLine` (`/today`, один запрос) и `overview` / `history` (экран готовности, один запрос).
 
+## Очки за слова v2, таблицы Free / Pro *(выпуск 2, docs/28, проект — docs/32 §2; решения владельца — docs/31 §5)*
+
+Фундамент (S1–S3) готов: каталог лексем заполняется, остальные таблицы созданы, но **пока никем не пишутся** — начисление
+(`WordScoreService`, S4) подключается следующим шагом, до него `leagues.scoring.mode = off`. Все даты — **рейтинговые дни**
+по поясу лиги (`leagues.timezone`, Ташкент), пишутся через `StoredDate::of` (как `learner_daily_stats.date`). Все FK на
+`learners` — `ON DELETE CASCADE` (окончательное удаление ученика забирает строки). CHECK (только PostgreSQL) дублируют enum'ы
+`ScoreCategory` / `ScorePeriod` / `ScoreKind` / `ScoreSource` / `LexemeConfirmSource`.
+
+### 2.66 `lexemes` — каталог лексем *(S1, docs/32 §2.1)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| language | string(5) | `courses.target_language` курса, создавшего лексему (`en`) |
+| key | string(100) | нормализованное написание `LexemeKey::of`: trim, нижний регистр, схлопнутые пробелы, ASCII-апострофы и дефисы, без финальной `.,!?;:` и артикля `a/an/the` в начале (если что-то остаётся); `to ` не снимается |
+| created_at | timestamp nullable | |
+
+**Индексы:** unique `(language, key)`. **Правила:** пишет только `LexemeCatalog` — `insertOrIgnore` + select (гонка двух импортов одного слова безопасна); строки не меняются и не удаляются. Связывание старых слов — `php artisan lexemes:backfill` (пачками по `words.id`, идемпотентно; `--decks` — только колоды).
+
+### 2.67 `learner_lexemes` — ученик × лексема *(S2, docs/32 §2.2)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| learner_id | bigint FK → learners, CASCADE | PK `(learner_id, lexeme_id)` |
+| lexeme_id | bigint FK → lexemes | |
+| confirmed_on | date nullable | день первого подтверждения нового слова (`NULL` — не подтверждено) |
+| confirmed_source | string(8) nullable | `training` / `game` / `legacy` (разовая загрузка изученных слов, S7) |
+| last_attempt_on | date nullable | день последней засчитанной попытки — одна попытка в день |
+| last_credit_due_at | timestamp nullable | назначенный срок (`last_reviewed_at + interval`), за который повторение уже оплачено |
+| first_long_on | date nullable | первый засчитанный длинный повтор (достижение `long_recall_25`) |
+| long_free_on, long_pro_on | date nullable | первый длинный повтор в **месячном** зачёте категории (ничьи «За всё время») |
+
+**Индексы:** PK; partial `learner_lexemes_first_long_idx (learner_id) WHERE first_long_on IS NOT NULL`. PostgreSQL: `fillfactor = 90` (строка обновляется в транзакции ответа).
+
+### 2.68 `learner_score_periods` — категория и версия недели / месяца *(S2–S3, docs/32 §2.3)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| learner_id | bigint FK → learners, CASCADE | PK `(learner_id, period, starts_on)` |
+| period | string(5) | `week` / `month` |
+| starts_on | date | понедельник / 1-е число по поясу лиги |
+| category | string(4) | `free` / `pro` — тариф (`EntitlementResolver`: пробный Pro и место в организации — Pro) в момент первого начисления периода |
+| rules_version | smallint | `ScoreRules::versionFor(starts_on)` на момент фиксации |
+| fixed_at | timestamp | |
+
+**Правила:** пишет только `ScorePeriodService::fix/fixDay` — `INSERT … ON CONFLICT DO NOTHING` + чтение: побеждает первый, строка не меняется до конца периода (смена тарифа действует со следующего периода). Неделя и месяц фиксируются независимо.
+
+### 2.69 `learner_score_days` — итоги рейтингового дня *(S2, docs/32 §2.4)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, CASCADE | |
+| rating_day | date | день по поясу лиги |
+| week_starts_on, week_category, week_version | date, string(4), smallint | неделя дня — копия из `learner_score_periods` при создании строки |
+| month_starts_on, month_category, month_version | date, string(4), smallint | месяц дня — так же |
+| raw_points | int default 0 | очки без лимитов |
+| new_count, review_count, long_count | smallint default 0 | события без лимитов (`review_count` включает длинные) |
+| week_points, week_new, week_review, week_long | smallint default 0 | недельный зачёт с лимитами категории недели |
+| week_capped_at | timestamp nullable | момент упора в дневной потолок недельного зачёта |
+| month_points, month_new, month_review, month_long, month_capped_at | — | то же для месячного зачёта |
+| revision | int default 0 | растёт при исправлении дня |
+| created_at, updated_at | | |
+
+**Индексы:** unique `(learner_id, rating_day)`; `(rating_day)`. PostgreSQL: `fillfactor = 70` (как `learner_daily_stats`). Хранится всегда.
+
+### 2.70 `score_credits` — журнал начислений *(S2, docs/32 §2.5)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| learner_id | bigint FK → learners, CASCADE | |
+| rating_day | date | |
+| lexeme_id | bigint FK → lexemes | |
+| word_id | bigint (без FK) | карточка, давшая начисление; журнал переживает слово |
+| source | string(12) | `training` / `group_lesson` / `game` |
+| source_id | bigint (без FK) | `training_sessions.id` или `game_runs.id` |
+| kind | string(6) | `new` / `review` / `long` |
+| week_points, month_points | smallint | добавлено в каждый зачёт (0 — срезано лимитом / потолком) |
+| voided_at, voided_by_user_id, void_reason | timestamp, FK → users SET NULL, string(255) | аннулирование (`ScoreCorrectionService`, S11) |
+| created_at | timestamp nullable | |
+
+**Индексы:** unique `(learner_id, rating_day, lexeme_id)` — одно начисление лексемы в день; `(rating_day)`. Хранение — `leagues.scoring.credits_retention_days` (180), очистка только дней закрытых месяцев (S16).
+
+### 2.71 `learner_score_totals` — «За всё время» *(S2, docs/32 §2.6)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| learner_id | bigint FK → learners, CASCADE | PK `(learner_id, category)` |
+| category | string(4) | `free` / `pro` |
+| points, long_words, active_days | int default 0 | сумма месячного зачёта по категории месяца, лексемы с длинным повтором, дни с очками |
+| first_day, last_day | date | |
+| participant | boolean default true | как в месяце: не удалён, не заблокирован, без opt-out |
+| updated_at | timestamp nullable | |
+
+**Индексы:** PK; `learner_score_totals_standings_idx (category, participant, points desc, long_words desc, active_days desc, learner_id)`. Пересчитывается целиком из `learner_score_days` (S10).
+
+`learner_score_legacy` (docs/32 §2.6) **не создаётся**: по решению владельца (docs/31 §5, В1) старые очки не переносятся.
+
+**Изменения таблиц лиг** *(S2, docs/32 §2.6; читаются с S8/S9, до этого v1-код их не трогает)*:
+- `league_weeks.rules_version`, `league_months.rules_version` — smallint default 1: версия правил периода, пишется при создании строки и не меняется;
+- `league_groups.category` — string(4) default `free`; индекс `(league_week_id, category, tier, members_count)` — место в группе категории. docs/32 §2.6 ставит его **вместо** `(league_week_id, tier, members_count)`, но старый индекс оставлен, пока v1-размещение ищет группу без категории; его снимет S8 вместе с переходом выбора группы на категорию;
+- `league_members.category` string(4) nullable, `final_long_words`, `final_days` smallint nullable — итог v2-недели для ничьих;
+- `league_month_scores.category` string(4) nullable (`NULL` — месяц v1, одна общая таблица), `long_words` int default 0; новый индекс `league_month_scores_category_standings_idx (league_month_id, category, participant, points desc, long_words desc, active_days desc, learner_id)` (CONCURRENTLY), v1-индекс `league_month_scores_standings_idx` остаётся;
+- `league_month_candidates.category` string(4) nullable.
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -1549,6 +1650,15 @@ CHECK не создаются — инвариант дублируют серв
 82. `2026_11_18_100002_create_level_quiz_results_table` — `level_quiz_results` и partial unique «один зачётный на неделю» *(§2.65)*
 82a. `2026_11_18_300001_add_hard_review_to_training_sessions` — `training_sessions.meta` jsonb и partial unique `training_sessions_one_open_hard_per_learner` (режим `hard_review`) *(docs/06 §14, §2.9)*
 82b. `2026_11_18_300002_add_word_repetitions_hard_idx` — partial `word_repetitions (learner_id, next_review_at) WHERE is_hard = true OR lapses >= 1` для кандидатов раунда трудных слов (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`, `down()` — `DROP INDEX`; на sqlite откатывается раньше миграции, снимающей `lapses`) *(§2.8)*
+
+Очки за слова v2 (docs/32 S1–S2; откат и повтор — `WordScoreSchemaTest`):
+
+83. `2026_11_25_300001_create_lexemes_table` — каталог лексем *(§2.66)*
+84. `2026_11_25_300002_add_lexeme_id_to_words_table` — `words.lexeme_id` FK SET NULL (на sqlite — `ADD COLUMN … REFERENCES` на месте: пересборка таблицы теряла предикат `words_inactive_idx`; `down()` на sqlite пересобирает и возвращает partial-индекс) *(§2.7)*
+85. `2026_11_25_300003_add_words_lexeme_id_index` — `words_lexeme_id_idx` (CONCURRENTLY на PostgreSQL, `$withinTransaction = false`) *(§2.7)*
+86. `2026_11_25_300004_create_word_score_tables` — `learner_lexemes`, `learner_score_periods`, `learner_score_days`, `score_credits`, `learner_score_totals`, fillfactor и CHECK (PostgreSQL) *(§2.67–2.71)*
+87. `2026_11_25_300005_add_scoring_columns_to_league_tables` — версии правил, категории и признаки ничьих в таблицах лиг *(§2.71, «Изменения таблиц лиг»)*
+88. `2026_11_25_300006_add_category_standings_index_to_league_month_scores` — индекс таблицы месяца по категории (CONCURRENTLY на PostgreSQL) *(§2.63)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

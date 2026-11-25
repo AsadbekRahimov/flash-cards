@@ -31,6 +31,8 @@ use Illuminate\Support\Carbon;
  * @property int $time_spent_ms
  * @property bool $participant
  * @property int|null $final_rank
+ * @property string|null $category `free` / `pro` of a v2 month (docs/32 §2.6); NULL = a v1 month, one common table
+ * @property int $long_words distinct lexemes with a credited long repetition in the month (v2 tie-break)
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Learner|null $learner
@@ -44,7 +46,7 @@ class LeagueMonthScore extends Model
     /** @var list<string> */
     protected $fillable = [
         'league_month_id', 'learner_id', 'points', 'raw_points', 'active_days', 'capped_days', 'max_day_points',
-        'reviews', 'correct', 'new_words', 'goal_days', 'game_points', 'time_spent_ms', 'participant', 'final_rank',
+        'reviews', 'correct', 'new_words', 'goal_days', 'game_points', 'time_spent_ms', 'participant', 'final_rank', 'category', 'long_words',
     ];
 
     /** @return array<string, string> */
@@ -66,6 +68,7 @@ class LeagueMonthScore extends Model
             'time_spent_ms' => 'integer',
             'participant' => 'boolean',
             'final_rank' => 'integer',
+            'long_words' => 'integer',
         ];
     }
 

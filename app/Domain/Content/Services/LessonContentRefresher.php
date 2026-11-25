@@ -26,15 +26,18 @@ final class LessonContentRefresher
         private readonly WordAudioService $audio,
         private readonly CourseCatalogService $catalog,
         private readonly WordAudioScheduler $scheduler,
+        private readonly LexemeCatalog $lexemes,
     ) {}
 
     /**
      * A word was added in the admin panel (call it after the save): the lesson cache and the course counter follow
      * ({@see wordChanged()}), and the audio of the word is queued after the commit - not for a word that is switched off or
-     * belongs to a learner's own deck ({@see WordAudioScheduler::wordCreated()}, docs/26 §5.6).
+     * belongs to a learner's own deck ({@see WordAudioScheduler::wordCreated()}, docs/26 §5.6). The word is linked to the
+     * catalog of lexemes ({@see LexemeCatalog::syncFor()}, docs/32 §2.1).
      */
     public function wordCreated(Word $word): void
     {
+        $this->lexemes->syncFor($word);
         $this->wordChanged($word);
         $this->scheduler->wordCreated($word);
     }
@@ -74,11 +77,13 @@ final class LessonContentRefresher
      * a new English text drops the pre-generated audio and voices the new one, a new example does the same for the audio of the
      * example ({@see WordAudioService::exampleChanged()}, docs/26 §5.7); a moved `word`, `translation` or `is_active`
      * drops the lesson cache (its pool of distractors holds both texts) after the commit, and `is_active` also recounts
-     * the course ({@see wordChanged()}).
+     * the course ({@see wordChanged()}). A new English text also moves the word to the lexeme of the new spelling
+     * ({@see LexemeCatalog::syncFor()}, docs/32 §2.1).
      */
     public function wordEdited(Word $word): void
     {
         if ($word->wasChanged('word')) {
+            $this->lexemes->syncFor($word);
             $this->audio->textChanged($word);
         }
         if ($word->wasChanged('example')) {

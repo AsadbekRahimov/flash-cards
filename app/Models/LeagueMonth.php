@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $closed_at
  * @property Carbon|null $confirmed_at
  * @property int|null $confirmed_by_user_id
+ * @property int $rules_version the word-points rules of the month (docs/32 §6.1): 1 = the v1 formula; written at creation, never changed
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -34,7 +35,7 @@ class LeagueMonth extends Model
     use HasFactory;
 
     /** @var list<string> */
-    protected $fillable = ['starts_on', 'ends_on', 'status', 'prizes', 'participants_count', 'refreshed_at', 'closed_at', 'confirmed_at', 'confirmed_by_user_id'];
+    protected $fillable = ['starts_on', 'ends_on', 'status', 'prizes', 'participants_count', 'refreshed_at', 'closed_at', 'confirmed_at', 'confirmed_by_user_id', 'rules_version'];
 
     /** @return array<string, string> */
     protected function casts(): array
@@ -48,6 +49,7 @@ class LeagueMonth extends Model
             'closed_at' => 'datetime',
             'confirmed_at' => 'datetime',
             'confirmed_by_user_id' => 'integer',
+            'rules_version' => 'integer',
         ];
     }
 

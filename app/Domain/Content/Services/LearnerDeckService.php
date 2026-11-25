@@ -9,6 +9,7 @@ use App\Domain\Content\DTO\DeckImportReport;
 use App\Domain\Content\DTO\DeckLimits;
 use App\Domain\Content\DTO\DeckRow;
 use App\Domain\Content\Exceptions\DeckException;
+use App\Domain\Content\Support\LexemeKey;
 use App\Domain\Learning\Services\LearningCache;
 use App\Models\Course;
 use App\Models\Learner;
@@ -35,6 +36,10 @@ use Illuminate\Support\Str;
  *
  * Words are never deleted (docs/03 §8): removing a word or the whole deck sets `words.is_active = false`;
  * `word_repetitions` stay, so the progress survives.
+ *
+ * A new or revived word is linked to the catalog of lexemes only when its spelling is already there (one select for the
+ * whole import, {@see LexemeCatalog::matchKeys()}, docs/32 §2.1): a deck never creates a lexeme, and a word the catalog does
+ * not know is studied as usual without public points (docs/28).
  */
 final class LearnerDeckService
 {
@@ -48,6 +53,7 @@ final class LearnerDeckService
         private readonly DeckImportParser $parser,
         private readonly LearningCache $cache,
         private readonly WordTranslationResolver $translations,
+        private readonly LexemeCatalog $lexemes,
     ) {}
 
     public function limits(Learner $learner, ?int $usedDecks = null): DeckLimits
@@ -193,6 +199,8 @@ final class LearnerDeckService
                 throw DeckException::wordsLimit($limit, $room);
             }
 
+            $lexemes = $this->lexemesOf($locked, [...$fresh, ...array_map(static fn (array $pair): DeckRow => $pair[1], $revived)]);
+
             $changed = [];
             $updates = [];
             foreach ($revived as [$word, $row]) {
@@ -201,13 +209,14 @@ final class LearnerDeckService
                     'id' => $word->id,
                     'lesson_id' => $word->lesson_id,
                     'word' => $word->word,
+                    'lexeme_id' => $lexemes[LexemeKey::of($word->word) ?? ''] ?? null,
                     'is_active' => true,
                     'translation' => $row->translation,
                     'example' => $row->example,
                 ];
             }
             if ($updates !== []) {
-                Word::query()->upsert($updates, ['id'], ['is_active', 'translation', 'example']);
+                Word::query()->upsert($updates, ['id'], ['lexeme_id', 'is_active', 'translation', 'example']);
             }
 
             $counts = [];
@@ -215,7 +224,7 @@ final class LearnerDeckService
                 $counts[$word->lesson_id] = ($counts[$word->lesson_id] ?? 0) + 1;
             }
 
-            [$added, $touched] = $this->place($stage, $lessons, $counts, $fresh);
+            [$added, $touched] = $this->place($stage, $lessons, $counts, $fresh, $lexemes);
             $changed += $added;
             $this->writeTranslations($changed);
 
@@ -328,9 +337,10 @@ final class LearnerDeckService
      * @param  Collection<int, Lesson>  $lessons  existing lessons in order
      * @param  array<int, int>  $counts  lesson id => number of words (active or not) already in it
      * @param  list<DeckRow>  $rows
+     * @param  array<string, int>  $lexemes  lexeme key => id of the catalog lexemes the rows match
      * @return array{array<int, DeckRow>, list<Lesson>} the new words by id and the lessons that received them
      */
-    private function place(Stage $stage, Collection $lessons, array $counts, array $rows): array
+    private function place(Stage $stage, Collection $lessons, array $counts, array $rows, array $lexemes): array
     {
         if ($rows === []) {
             return [[], []];
@@ -375,6 +385,7 @@ final class LearnerDeckService
             foreach ($words as $row) {
                 $inserts[] = [
                     'lesson_id' => $lesson->id,
+                    'lexeme_id' => $lexemes[LexemeKey::of($row->word) ?? ''] ?? null,
                     'word' => $row->word,
                     'translation' => $row->translation,
                     'example' => $row->example,
@@ -394,6 +405,22 @@ final class LearnerDeckService
         }
 
         return [$added, array_values($touched)];
+    }
+
+    /**
+     * key => id of the catalog lexemes the rows' spellings match (none created, docs/32 §2.1).
+     *
+     * @param  list<DeckRow>  $rows
+     * @return array<string, int>
+     */
+    private function lexemesOf(Course $deck, array $rows): array
+    {
+        $keys = array_values(array_filter(array_map(static fn (DeckRow $row): ?string => LexemeKey::of($row->word), $rows)));
+        if ($keys === []) {
+            return [];
+        }
+
+        return $this->lexemes->matchKeys($keys, LexemeCatalog::language($deck->target_language));
     }
 
     /** @param array<int, DeckRow> $changed */
