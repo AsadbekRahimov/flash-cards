@@ -300,6 +300,16 @@ export interface BoardMyRegion extends BoardRegion {
 export type BoardScopeName = 'all' | 'region'
 
 /**
+ * The table asked of GET /league/month and GET /league/all-time (docs/04 A.19, A.19a): `category` left out - the learner's own;
+ * `scope` left out - the whole category; `region` only with `scope: 'region'` (left out - the learner's own region).
+ */
+export interface BoardQuery {
+  category?: ScoreCategory
+  scope?: 'region'
+  region?: string
+}
+
+/**
  * GET /league/month?category=&after=… and GET /league/all-time?category=&after=… : the page of a v2 table after a cursor; 422
  * `invalid_cursor` for a cursor of another table (another month, period, category or region).
  */

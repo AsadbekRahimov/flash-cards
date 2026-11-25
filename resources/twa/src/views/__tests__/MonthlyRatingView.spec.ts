@@ -7,7 +7,9 @@ import { api } from '@/api'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
 import { useMonthlyRatingStore } from '@/stores/monthlyRating'
-import type { BoardRow, LeagueBoardPage, MonthlyLastMonth, MonthlyMe, MonthlyRatingResponse, ScoreCategory } from '@/api/types'
+import { useSettingsStore } from '@/stores/settings'
+import { settingsFixture } from '@/api/__tests__/settingsFixture'
+import type { BoardQuery, BoardRow, LeagueBoardPage, MonthlyLastMonth, MonthlyMe, MonthlyRatingResponse, ScoreCategory } from '@/api/types'
 
 const state = vi.hoisted(() => ({ ensure: vi.fn(), showBack: vi.fn(), hideBack: vi.fn() }))
 
@@ -75,6 +77,8 @@ const makeRouter = () =>
       { path: '/friends', name: 'friends', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: { template: '<div />' } },
       { path: '/league/month', name: 'league-month', component: MonthlyRatingView },
+      { path: '/league/all-time', name: 'league-all-time', component: { template: '<div />' } },
+      { path: '/referrals', name: 'referrals', component: { template: '<div />' } },
     ],
   })
 
@@ -380,7 +384,7 @@ describe('MonthlyRatingView', () => {
       })
 
     function byCategory(tables: Partial<Record<ScoreCategory | 'own', MonthlyRatingResponse>>) {
-      vi.mocked(api.league.month).mockImplementation(async (category?: ScoreCategory) => tables[category ?? 'own'] ?? v2())
+      vi.mocked(api.league.month).mockImplementation(async (query?: BoardQuery) => tables[query?.category ?? 'own'] ?? v2())
     }
 
     beforeEach(() => {
@@ -493,7 +497,7 @@ describe('MonthlyRatingView', () => {
       await wrapper.get('[data-testid=category-pro]').trigger('click')
       await flushPromises()
 
-      expect(vi.mocked(api.league.month).mock.calls).toEqual([[undefined], ['pro']])
+      expect(vi.mocked(api.league.month).mock.calls).toEqual([[{}], [{ category: 'pro' }]])
       expect(api.me.get).toHaveBeenCalledTimes(meCalls)
       expect(api.today.get).not.toHaveBeenCalled()
       expect(wrapper.get('[data-testid=category-pro]').attributes('aria-checked')).toBe('true')
@@ -508,11 +512,12 @@ describe('MonthlyRatingView', () => {
       expect(has(wrapper, 'more')).toBe(false)
       expect(wrapper.get('[data-testid=row] [data-testid=pro-emoji]').text()).toBe('🚀')
 
-      // back to my own table, asked by name
+      // back to my own table, answered moments ago: shown from memory, nothing asked
       await wrapper.get('[data-testid=category-free]').trigger('click')
       await flushPromises()
-      expect(vi.mocked(api.league.month).mock.calls.at(-1)).toEqual(['free'])
+      expect(api.league.month).toHaveBeenCalledTimes(2)
       expect(has(wrapper, 'read-only')).toBe(false)
+      expect(text(wrapper, 'next-gap')).toBe('До 11-го места — 11 баллов')
     })
 
     it('a tap on the table shown asks nothing', async () => {
@@ -530,7 +535,7 @@ describe('MonthlyRatingView', () => {
       await wrapper.get('[data-testid=more]').trigger('click')
       await flushPromises()
 
-      expect(api.league.monthPage).toHaveBeenCalledWith('free', 'm2026-11f.page2')
+      expect(api.league.monthPage).toHaveBeenCalledWith({ category: 'free' }, 'm2026-11f.page2')
       const ranks = wrapper.findAll('[data-testid=row]').map((row) => row.get('[data-testid=rank]').text())
       expect(ranks.slice(-2)).toEqual(['11', '11'])
       expect(wrapper.findAll('[data-testid=row]').at(-2)?.get('[data-testid=pro-emoji]').text()).toBe('⭐')
@@ -539,7 +544,7 @@ describe('MonthlyRatingView', () => {
       await wrapper.get('[data-testid=more]').trigger('click')
       await flushPromises()
 
-      expect(api.league.monthPage).toHaveBeenLastCalledWith('free', 'm2026-11f.page3')
+      expect(api.league.monthPage).toHaveBeenLastCalledWith({ category: 'free' }, 'm2026-11f.page3')
       expect(has(wrapper, 'more')).toBe(false)
       // my row is in the list now: no neighbours block, no pinned row
       expect(has(wrapper, 'row-me')).toBe(true)
@@ -622,6 +627,176 @@ describe('MonthlyRatingView', () => {
 
       const onlyFree = await render(v2({ last_month: last({ winners_by_category: { free: winners, pro: [] } }) }))
       expect(onlyFree.wrapper.findAll('[data-testid=winners-category]').map((el) => el.text())).toEqual(['Free'])
+    })
+
+    describe('the tables of a region (docs/35 §2.4, R7)', () => {
+      const regionSettings = (code: string | null) =>
+        settingsFixture({
+          region_code: code,
+          region_prompt: false,
+          options: { ...settingsFixture().options, regions: [{ code: 'UZ-TK', name: 'город Ташкент' }, { code: 'UZ-BU', name: 'Бухарская область' }] },
+        })
+
+      const tashkent = (overrides: Partial<MonthlyRatingResponse> = {}): MonthlyRatingResponse =>
+        v2({
+          scope: 'region',
+          region: { code: 'UZ-TK', name: 'город Ташкент', participants: 30, shown: true, min_participants: 5 },
+          prizes: [],
+          month: { ...response().month, participants: 30 },
+          top: [{ rank: 1, name: 'Tashkent One', points: 900, active_days: 9, is_me: false, long_words: 1 }],
+          next_cursor: 'm2026-11f~UZ-TK.page2',
+          me: me({ category: 'free', next_gap: 5, region: { code: 'UZ-TK', name: 'город Ташкент', participants: 30, shown: true, min_participants: 5, rank: 4 } }),
+          ...overrides,
+        })
+
+      async function mountMonth(code: string | null = 'UZ-TK') {
+        useSettingsStore().adopt(regionSettings(code))
+        const router = makeRouter()
+        await router.push('/league/month')
+        await router.isReady()
+        const wrapper = mount(MonthlyRatingView, { global: { plugins: [router] }, attachTo: document.body })
+        await flushPromises()
+        return wrapper
+      }
+
+      const own = () => v2({ me: me({ category: 'free', long_words: 3, next_gap: 11, region: { code: 'UZ-TK', name: 'город Ташкент', participants: 30, shown: true, min_participants: 5, rank: 4 } }) })
+
+      beforeEach(() => {
+        document.body.innerHTML = ''
+      })
+
+      it('my place in my region on the card; "My region" asks one table of the region, without prizes', async () => {
+        vi.mocked(api.league.month).mockResolvedValueOnce(own()).mockResolvedValueOnce(tashkent())
+        const wrapper = await mountMonth()
+
+        expect(text(wrapper, 'region-rank')).toBe('Регион «город Ташкент»: 4 место')
+        await wrapper.get('[data-testid=area-mine]').trigger('click')
+        await flushPromises()
+
+        expect(vi.mocked(api.league.month).mock.calls).toEqual([[{}], [{ scope: 'region' }]])
+        expect(has(wrapper, 'prizes')).toBe(false)
+        expect(has(wrapper, 'prize-line')).toBe(false)
+        expect(text(wrapper, 'participants')).toBe('30 участников')
+        expect(wrapper.findAll('[data-testid=row]').map((r) => r.text())).toEqual([expect.stringContaining('Tashkent One')])
+
+        vi.mocked(api.league.monthPage).mockResolvedValueOnce(page([boardRow(2)], null))
+        await wrapper.get('[data-testid=more]').trigger('click')
+        await flushPromises()
+        expect(api.league.monthPage).toHaveBeenCalledWith({ category: 'free', scope: 'region' }, 'm2026-11f~UZ-TK.page2')
+        wrapper.unmount()
+      })
+
+      it('another region: the browse sheet, no PATCH /me/settings, read only with the line about my region', async () => {
+        vi.mocked(api.league.month)
+          .mockResolvedValueOnce(own())
+          .mockResolvedValueOnce(tashkent({ region: { code: 'UZ-BU', name: 'Бухарская область', participants: 8, shown: true, min_participants: 5 }, read_only: true, neighbours: null, next_cursor: null }))
+        const wrapper = await mountMonth()
+
+        await wrapper.get('[data-testid=area-other]').trigger('click')
+        await flushPromises()
+        ;(document.querySelector('[data-testid=region-uzbekistan]') as HTMLElement).click()
+        await flushPromises()
+        ;(document.querySelector('[data-testid=region-UZ-BU]') as HTMLElement).click()
+        await flushPromises()
+
+        expect(vi.mocked(api.league.month).mock.calls.at(-1)).toEqual([{ scope: 'region', region: 'UZ-BU' }])
+        expect(text(wrapper, 'read-only-region')).toBe('Это таблица региона «Бухарская область». Вы соревнуетесь в регионе «город Ташкент».')
+        // the same category: no line about the tables Free / Pro
+        expect(has(wrapper, 'read-only')).toBe(false)
+        expect(has(wrapper, 'next-gap')).toBe(false)
+        expect(has(wrapper, 'neighbours')).toBe(false)
+        expect(useSettingsStore().data?.region_code).toBe('UZ-TK')
+        wrapper.unmount()
+      })
+
+      it('422 region_not_set: the card "Choose your region" instead of the table', async () => {
+        vi.mocked(api.league.month).mockResolvedValueOnce(v2()).mockRejectedValueOnce(new ApiClientError('validation', 422, 'region_not_set', 'x'))
+        const wrapper = await mountMonth(null)
+
+        await wrapper.get('[data-testid=area-mine]').trigger('click')
+        await flushPromises()
+
+        expect(has(wrapper, 'region-not-set')).toBe(true)
+        expect(has(wrapper, 'top')).toBe(false)
+        expect(has(wrapper, 'reload-error')).toBe(false)
+
+        // "All" again: the table on screen, nothing asked
+        await wrapper.get('[data-testid=area-all]').trigger('click')
+        await flushPromises()
+        expect(has(wrapper, 'region-not-set')).toBe(false)
+        expect(has(wrapper, 'top')).toBe(true)
+        expect(api.league.month).toHaveBeenCalledTimes(2)
+        wrapper.unmount()
+      })
+
+      it('below the threshold: "N of M participants" and the way to the invitations, no rows', async () => {
+        vi.mocked(api.league.month)
+          .mockResolvedValueOnce(own())
+          .mockResolvedValueOnce(tashkent({ region: { code: 'UZ-TK', name: 'город Ташкент', participants: 4, shown: false, min_participants: 5 }, top: [], next_cursor: null, neighbours: null }))
+        const wrapper = await mountMonth()
+
+        await wrapper.get('[data-testid=area-mine]').trigger('click')
+        await flushPromises()
+
+        expect(text(wrapper, 'region-below-title')).toBe('В регионе «город Ташкент» пока 4 из 5 участников')
+        expect(has(wrapper, 'top')).toBe(false)
+        expect(has(wrapper, 'empty')).toBe(false)
+        wrapper.unmount()
+      })
+
+      it('422 region_scope_unavailable (a month by the old rules): the region switch is gone, the whole table stays', async () => {
+        vi.mocked(api.league.month).mockResolvedValueOnce(v2()).mockRejectedValueOnce(new ApiClientError('validation', 422, 'region_scope_unavailable', 'x'))
+        const wrapper = await mountMonth()
+
+        await wrapper.get('[data-testid=area-mine]').trigger('click')
+        await flushPromises()
+
+        expect(has(wrapper, 'area-switch')).toBe(false)
+        expect(has(wrapper, 'category-switch')).toBe(true)
+        expect(has(wrapper, 'top')).toBe(true)
+        expect(has(wrapper, 'reload-error')).toBe(false)
+        // the whole table was answered moments ago: not asked again
+        expect(api.league.month).toHaveBeenCalledTimes(2)
+        wrapper.unmount()
+      })
+    })
+
+    it('"Show more" while another table is on its way does nothing; the new table has none of the old rows', async () => {
+      byCategory({ own: v2() })
+      const wrapper = (await render(v2())).wrapper
+      let resolveTable: (value: MonthlyRatingResponse) => void = () => {}
+      vi.mocked(api.league.month).mockReturnValueOnce(new Promise((r) => (resolveTable = r)))
+
+      await wrapper.get('[data-testid=category-pro]').trigger('click')
+      expect(wrapper.get('[data-testid=more]').attributes('disabled')).toBeDefined()
+      await useMonthlyRatingStore().loadMore()
+      expect(api.league.monthPage).not.toHaveBeenCalled()
+
+      resolveTable(proTable())
+      await flushPromises()
+      expect(useMonthlyRatingStore().more).toEqual([])
+      expect(wrapper.findAll('[data-testid=row]')).toHaveLength(1)
+    })
+
+    it('a page asked before the switch that comes back after the new table is dropped', async () => {
+      const { wrapper } = await render(v2())
+      let resolvePage: (value: LeagueBoardPage) => void = () => {}
+      let resolveTable: (value: MonthlyRatingResponse) => void = () => {}
+      vi.mocked(api.league.monthPage).mockReturnValueOnce(new Promise((r) => (resolvePage = r)))
+      vi.mocked(api.league.month).mockReturnValueOnce(new Promise((r) => (resolveTable = r)))
+
+      await wrapper.get('[data-testid=more]').trigger('click')
+      await wrapper.get('[data-testid=category-pro]').trigger('click')
+      resolveTable(proTable())
+      await flushPromises()
+      resolvePage(page([boardRow(11), boardRow(12)], 'late'))
+      await flushPromises()
+
+      const store = useMonthlyRatingStore()
+      expect(store.more).toEqual([])
+      expect(store.cursor).toBeNull()
+      expect(store.loadingMore).toBe(false)
+      expect(wrapper.findAll('[data-testid=row]')).toHaveLength(1)
     })
 
     it('in Uzbek', async () => {

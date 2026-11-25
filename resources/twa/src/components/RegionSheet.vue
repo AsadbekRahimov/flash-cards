@@ -7,6 +7,7 @@ import ListGroup from '@/components/ui/ListGroup.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import { showErrorToast } from '@/composables/errorToast'
 import { saveSetting } from '@/composables/useLocaleSwitch'
+import { useBillingStore } from '@/stores/billing'
 import { useSettingsStore } from '@/stores/settings'
 import { useI18n } from '@/i18n'
 
@@ -16,9 +17,17 @@ import { useI18n } from '@/i18n'
  * by the server in the learner's language), the current choice has a check. A choice is saved through the settings store
  * (`region_via` = `via`: the settings screen or the card of the Rating tab), says "Saved" and closes the sheet; a refusal (another
  * region less than 30 days after the last one: "You can change the region from …") is a toast and the sheet stays open.
+ *
+ * `browse` — only a choice, nothing saved (docs/31 §5г: the table of any region may be opened): the same two levels without "Rather not
+ * say", the check on `selected` (the region of the table shown), a tap emits `pick` with the code and the name and closes nothing - the
+ * caller does. The list comes with `/me` (`useBillingStore().load()`: a `/me` read moments ago is not asked again).
  */
-const props = withDefaults(defineProps<{ via?: 'settings' | 'prompt' }>(), { via: 'settings' })
-const emit = defineEmits<{ close: [] }>()
+const props = withDefaults(defineProps<{ via?: 'settings' | 'prompt'; browse?: boolean; selected?: string | null }>(), {
+  via: 'settings',
+  browse: false,
+  selected: null,
+})
+const emit = defineEmits<{ close: []; pick: [code: string, name: string] }>()
 
 const { t } = useI18n()
 const settings = useSettingsStore()
@@ -26,7 +35,7 @@ const { data, status, saving } = storeToRefs(settings)
 
 const OTHER = 'other'
 
-const current = computed(() => data.value?.region_code ?? null)
+const current = computed(() => (props.browse ? props.selected : (data.value?.region_code ?? null)))
 const regions = computed(() => (data.value?.options.regions ?? []).filter((region) => region.code !== OTHER))
 /** The current region is one of Uzbekistan: the row "Uzbekistan" of level 1 is the chosen one. */
 const inUzbekistan = computed(() => current.value !== null && current.value !== OTHER)
@@ -34,6 +43,12 @@ const inUzbekistan = computed(() => current.value !== null && current.value !== 
 const list = ref(false)
 
 async function pick(code: string | null): Promise<void> {
+  if (props.browse) {
+    if (code === null) return
+    const name = data.value?.options.regions?.find((item) => item.code === code)?.name ?? (code === OTHER ? t('region.sheet.other') : '')
+    if (name !== '') emit('pick', code, name)
+    return
+  }
   if (saving.value) return
   if (code === current.value) {
     emit('close')
@@ -51,16 +66,18 @@ async function pick(code: string | null): Promise<void> {
 }
 
 onMounted(() => {
-  if (data.value === null && status.value !== 'loading') void settings.load()
+  if (data.value === null && props.browse) void useBillingStore().load()
+  else if (data.value === null && status.value !== 'loading') void settings.load()
   list.value = current.value !== null && current.value !== OTHER
 })
 </script>
 
 <template>
-  <BottomSheet :label="t('region.sheet.title')" data-testid="region-sheet" @close="emit('close')">
+  <BottomSheet :label="browse ? t('region.sheet.view_title') : t('region.sheet.title')" data-testid="region-sheet" @close="emit('close')">
     <div class="space-y-1 pt-2 pr-10">
-      <h2 class="text-[22px] leading-7 font-semibold" data-testid="region-title">{{ list ? t('region.sheet.pick') : t('region.sheet.title') }}</h2>
-      <p v-if="!list" class="text-[15px] leading-5 text-muted">{{ t('region.sheet.lead') }}</p>
+      <h2 v-if="browse" class="text-[22px] leading-7 font-semibold" data-testid="region-title">{{ list ? t('region.sheet.view_pick') : t('region.sheet.view_title') }}</h2>
+      <h2 v-else class="text-[22px] leading-7 font-semibold" data-testid="region-title">{{ list ? t('region.sheet.pick') : t('region.sheet.title') }}</h2>
+      <p v-if="!list && !browse" class="text-[15px] leading-5 text-muted">{{ t('region.sheet.lead') }}</p>
     </div>
 
     <LoadingState v-if="!data" variant="list" />
@@ -84,7 +101,7 @@ onMounted(() => {
         <span class="min-w-0 flex-1 text-left text-base leading-[22px]" :class="{ 'font-semibold': current === OTHER }">{{ t('region.sheet.other') }}</span>
         <AppIcon v-if="current === OTHER" name="check" :size="20" class="shrink-0 text-accent" />
       </button>
-      <button type="button" class="list-row" role="radio" :aria-checked="current === null" :disabled="saving" data-testid="region-none" @click="pick(null)">
+      <button v-if="!browse" type="button" class="list-row" role="radio" :aria-checked="current === null" :disabled="saving" data-testid="region-none" @click="pick(null)">
         <span class="min-w-0 flex-1 text-left text-base leading-[22px]" :class="{ 'font-semibold': current === null }">{{ t('region.sheet.none') }}</span>
         <AppIcon v-if="current === null" name="check" :size="20" class="shrink-0 text-accent" />
       </button>

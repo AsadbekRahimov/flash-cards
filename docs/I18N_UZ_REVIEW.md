@@ -4765,3 +4765,66 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `month.more` | Yana ko'rsatish | Показать ещё |
 | `month.neighbours` | Sizga yaqinlar | Рядом с вами (подпись группы соседей) |
 | `month.rules_points_v2` | Ballar haftalik ligadagi kabi: yangi so'zlar va takrorlashlar uchun. Free va Pro alohida jadvallarda bellashadi, har birining o'z sovrinlari bor. | Баллы те же, что в недельной лиге: за новые слова и повторения. Free и Pro соревнуются в отдельных таблицах, у каждой свои призы. |
+
+## Выпуск 4 · опросы в боте: кнопка первого сообщения (docs/35 O3) — на проверку носителю
+
+### Бот (`lang/uz/polls.php`)
+
+Кнопка под опросом с несколькими ответами: отмеченные варианты уходят после неё. Остальные тексты опроса («Спасибо», «Опрос завершён», …) добавит O5.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `polls.submit` | ✅ Yuborish | ✅ Отправить |
+
+## Выпуск 2 · картинка победителя месяца (docs/36 A5) и напоминание следующего дня про баллы (docs/31 §5б) — на проверку носителю
+
+### Бот (`lang/uz/leagues.php`, `lang/uz/reminders.php`, `lang/uz/buttons.php`)
+
+Картинка победителя месяца (её пересылают; имени ученика на ней нет): метка над заголовком (на картинке — заглавными), заголовок с местом,
+описание с месяцем и баллами. `:month` — «2026-yil oktyabr» (`leagues.month.label`), `:points` — «900 ball». Напоминание следующего дня
+заменяет обычное «пора повторить» в день после урока, когда слова урока пришли на повторение и баллы считаются. Прошу проверить
+«o'z vaqtida takrorlash» (повторение в срок) и «reyting ballari» (баллы рейтинга).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `leagues.month.card.label` | Oy reytingi | Рейтинг месяца |
+| `leagues.month.card.label_category` | Oy reytingi · :category | Рейтинг месяца · :category (Free / Pro) |
+| `leagues.month.card.category.free` | Free | Free |
+| `leagues.month.card.category.pro` | Pro | Pro |
+| `leagues.month.card.title` | :place-o'rin | :place место |
+| `leagues.month.card.description` | :month reytingida — :points | в рейтинге за :month — :points |
+| `reminders.score_due` | Kechagi dars so'zlarini takrorlash vaqti keldi. Ularni bugun takrorlang: o'z vaqtida takrorlash uchun reyting ballari beriladi. | Слова вчерашнего урока пришли на повторение. Повторите их сегодня: за повторение в срок начисляются баллы рейтинга. |
+| `reminders.quiz.lead.score_due` | Kechagi dars so'zlarini takrorlash vaqti keldi — o'z vaqtida takrorlash uchun ball beriladi. Birinchisidan shu yerning o'zida boshlaymiz. | Слова вчерашнего урока пришли на повторение — за повторение в срок начисляются баллы. Начнём с одного прямо здесь. |
+| `buttons.review_words` | 🔁 So'zlarni takrorlash | 🔁 Повторить слова |
+
+Подвал `reminders.score_due` «Eslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.» — тот же, что у остальных напоминаний.
+
+## Выпуск 3 · «За всё время» и рейтинг региона в Mini App (docs/35 R8, docs/32 S13b, 25.11.2026) — на проверку носителю
+
+Термины прежние: «ball» (балл), «hudud» (регион), «jadval» (таблица), «bellashyapsiz». Числа (баллы, места, участники, порог региона) — с сервера; названия регионов приходят с сервера на языке интерфейса. «Free» и «Pro» не переводятся. Носителю проверить: естественно ли «Barcha vaqt» как название вкладки (рус. «За всё время»), «{date} dan beri hisoblanadi» и «{count} tadan {participants} ishtirokchi bor» (рус. «пока 3 из 5 участников»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `alltime.tab` | Barcha vaqt | За всё время (сегмент вкладки «Лига») |
+| `alltime.title` | Barcha vaqt reytingi | Рейтинг за всё время |
+| `alltime.counted_since` | {date} dan beri hisoblanadi | Считается с {date} |
+| `alltime.category_switch` | Barcha vaqt jadvali | Таблица за всё время (подпись переключателя Free / Pro) |
+| `alltime.my_total` | Barcha vaqtdagi ballarim: {points} | Мои баллы за всё время: {points} |
+| `alltime.my_total_split` | Barcha vaqtdagi ballarim: {points} (Free {free} + Pro {pro}) | Мои баллы за всё время: {points} (Free {free} + Pro {pro}) |
+| `alltime.start_prompt` | Shug'ullaning — ballar barcha vaqt reytingiga tushadi | Занимайтесь — баллы попадут в рейтинг за всё время |
+| `alltime.no_points_category` | {category} jadvalida hozircha ballaringiz yo'q | В таблице {category} у вас пока нет баллов |
+| `alltime.top` | Barcha vaqt peshqadamlari | Лучшие за всё время |
+| `alltime.empty` | Hozircha hech kim ball to'plamagan | Пока никто не набрал баллов |
+| `board.area_switch` | Qaysi jadval | Чья таблица (подпись переключателя «Все / Мой регион / Другой регион») |
+| `board.area.all` | Hammasi | Все |
+| `board.area.mine` | Mening hududim | Мой регион |
+| `board.area.other` | Boshqa hudud… | Другой регион… |
+| `board.region_rank` | «{name}» hududi: {rank}-o'rin | Регион «{name}»: {rank} место |
+| `board.read_only_region` | Bu «{name}» hududi jadvali. Siz «{mine}» hududida bellashyapsiz. | Это таблица региона «{name}». Вы соревнуетесь в регионе «{mine}». |
+| `board.read_only_region_none` | Bu «{name}» hududi jadvali. Siz hududingizni ko'rsatmagansiz. | Это таблица региона «{name}». Вы не указали свой регион. |
+| `board.region_card.title` | Qatnashish uchun hududingizni ko'rsating | Укажите регион, чтобы участвовать |
+| `board.below.title.one/other` | «{name}» hududida hozircha {count} tadan {participants} ishtirokchi bor | В регионе «{name}» пока {participants} из {count} участников (`count` — порог) |
+| `board.below.text` | Jadval {min} ishtirokchi bo'lganda paydo bo'ladi. Do'stlaringizni taklif qiling | Таблица появится, когда участников будет {min}. Пригласите друзей |
+| `board.below.invite` | Do'stlarni taklif qilish | Пригласить друзей |
+| `region.sheet.view_title` | Qaysi hudud jadvali? | Таблица какого региона? (лист выбора чужого региона, без сохранения) |
+| `region.sheet.view_pick` | Hududni tanlang | Выберите регион |

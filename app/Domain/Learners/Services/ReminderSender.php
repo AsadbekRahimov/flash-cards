@@ -41,7 +41,9 @@ use Throwable;
  *     `min_interval_hours` (a floor that also covers midnight and a changed reminder time) — this is what
  *     makes a retried or duplicated job harmless (the dispatcher's claim is the first
  *     level);
- *  4. {@see ReminderContentResolver} picks the kind of reminder (or nothing);
+ *  4. {@see ReminderContentResolver} picks the kind of reminder (or nothing); on the day after a lesson whose words came up for
+ *     review, while the word points count, a `Review` reminder is worded "they earn points" instead ({@see ReviewScoreHint}: the
+ *     dispatcher found the words, `$scoreHint`) - in the plain text and in the lead of the question alike, no second message;
  *  5. {@see ReminderQuizBuilder} may turn it into a question with four answers (owner decision 2026-11-17): then the
  *     state of the question is stored BEFORE the Telegram call (a tap can only come after it) and the message has the
  *     answer buttons instead of the one app button. Whatever goes wrong while building or storing it, the reminder goes
@@ -87,9 +89,11 @@ final class ReminderSender
         private readonly DmReachability $reachability,
         private readonly BotButtons $buttons,
         private readonly StudyMessageLimit $limit,
+        private readonly ReviewScoreHint $scoreHint,
     ) {}
 
-    public function send(int $learnerId, CarbonImmutable $scheduledFor, ?CarbonImmutable $now = null): ReminderOutcome
+    /** @param  bool  $scoreHint  the dispatcher found yesterday's lesson words due ({@see ReviewScoreHint::learnerIds()}) */
+    public function send(int $learnerId, CarbonImmutable $scheduledFor, ?CarbonImmutable $now = null, bool $scoreHint = false): ReminderOutcome
     {
         $now = ($now ?? CarbonImmutable::now())->utc();
 
@@ -109,7 +113,7 @@ final class ReminderSender
             return ReminderOutcome::SkippedStale;
         }
 
-        return $this->limit->lock($learner->id)->block(10, function () use ($learner, $scheduledFor, $now): ReminderOutcome {
+        return $this->limit->lock($learner->id)->block(10, function () use ($learner, $scheduledFor, $now, $scoreHint): ReminderOutcome {
             if ($this->limit->reached($learner, $now)) {
                 return ReminderOutcome::SkippedRecent;
             }
@@ -118,6 +122,12 @@ final class ReminderSender
             if ($content === null) {
                 return ReminderOutcome::SkippedNothingToSay;
             }
+            // The day after a lesson: the same reminder, worded "yesterday's words came up for review and earn points" (docs/31 §5б).
+            if ($this->scoreHint->applies($scoreHint, $content, $now)) {
+                $content = $content->withScoreHint();
+            }
+            // Only on the reminder that says it: the payload and the props of the others stay exactly what they were.
+            $hint = $content->scoreHint ? ['score_hint' => true] : [];
 
             $locale = $this->locales->forLearner($learner);
             $variant = $this->experiment->variantFor($learner, $content, $now);
@@ -137,6 +147,7 @@ final class ReminderSender
                     'quiz' => $quiz === null ? null : ['word_id' => $quiz->wordId, 'exercise' => $quiz->exercise->value],
                     'scheduled_for' => $scheduledFor->utc()->toIso8601String(),
                     ...$arm,
+                    ...$hint,
                 ],
                 'sent_at' => $now,
             ]);
@@ -146,7 +157,7 @@ final class ReminderSender
                     $view = $this->quizMessenger->question($content, $quiz, $locale);
                     $this->telegram->sendMessage($learner->telegram_user_id, $view['text'], null, $view['reply_markup']);
                 } else {
-                    [$button, $screen] = $this->button($content->kind);
+                    [$button, $screen] = $this->button($content);
                     $this->telegram->sendWebAppButton(
                         chatId: $learner->telegram_user_id,
                         text: $this->text($content, $locale),
@@ -195,6 +206,7 @@ final class ReminderSender
                     ...($quiz === null ? [] : ['quiz' => true]),
                     ...$arm,
                     ...($variant === ReminderVariant::Quiz ? ['quiz_built' => $quiz !== null] : []),
+                    ...$hint,
                 ],
                 learner: $learner,
             );
@@ -244,13 +256,18 @@ final class ReminderSender
 
     /**
      * The one button of a plain reminder says what to do (docs/36 §3а, N5): a lesson for the kinds that call to learn, the first lesson
-     * for one who has never started, the catalogue for one without a course.
+     * for one who has never started, the catalogue for one without a course; "review the words" for the day after a lesson (the same
+     * screen: `from=reminder` opens the daily review).
      *
      * @return array{0: string, 1: TwaScreen}
      */
-    private function button(ReminderKind $kind): array
+    private function button(ReminderContent $content): array
     {
-        return match ($kind) {
+        if ($content->scoreHint) {
+            return ['buttons.review_words', TwaScreen::Today];
+        }
+
+        return match ($content->kind) {
             ReminderKind::NeverStarted => ['buttons.first_lesson', TwaScreen::Today],
             ReminderKind::ChooseCourse => ['buttons.choose_course', TwaScreen::Courses],
             ReminderKind::Review, ReminderKind::StreakAtRisk, ReminderKind::Inactive, ReminderKind::NewWords => ['buttons.start_lesson', TwaScreen::Today],
@@ -259,6 +276,10 @@ final class ReminderSender
 
     private function text(ReminderContent $content, string $locale): string
     {
+        if ($content->scoreHint) {
+            return __('reminders.score_due', [], $locale);
+        }
+
         return match ($content->kind) {
             ReminderKind::Review => trans_choice('reminders.review', $content->dueCount, [], $locale),
             ReminderKind::StreakAtRisk => trans_choice('reminders.streak_at_risk', $content->streakCurrent, [], $locale),

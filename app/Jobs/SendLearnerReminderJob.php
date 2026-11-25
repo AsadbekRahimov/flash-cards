@@ -6,6 +6,7 @@ namespace App\Jobs;
 
 use App\Domain\Learners\Services\ReminderDispatcher;
 use App\Domain\Learners\Services\ReminderSender;
+use App\Domain\Learners\Services\ReviewScoreHint;
 use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use Carbon\CarbonImmutable;
 use DateTimeInterface;
@@ -35,10 +36,19 @@ final class SendLearnerReminderJob implements ShouldQueue
 
     public int $backoff = 60;
 
+    /**
+     * The dispatcher found the words of yesterday's lesson due ({@see ReviewScoreHint}): the reminder may say they earn points. A
+     * plain property with a default, not a promoted one: a job queued before it existed unserializes to `false`.
+     */
+    public bool $scoreHint = false;
+
     public function __construct(
         public readonly int $learnerId,
         public readonly CarbonImmutable $scheduledFor,
-    ) {}
+        bool $scoreHint = false,
+    ) {
+        $this->scoreHint = $scoreHint;
+    }
 
     /** @return list<object> */
     public function middleware(): array
@@ -54,6 +64,6 @@ final class SendLearnerReminderJob implements ShouldQueue
 
     public function handle(ReminderSender $sender): void
     {
-        $sender->send($this->learnerId, $this->scheduledFor);
+        $sender->send($this->learnerId, $this->scheduledFor, scoreHint: $this->scoreHint);
     }
 }

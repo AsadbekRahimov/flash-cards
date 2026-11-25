@@ -8,6 +8,7 @@ use App\Domain\Engagement\Enums\ScoreCategory;
 use App\Domain\Engagement\Events\LeagueMonthConfirmed;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\DTO\PhotoSource;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
@@ -20,6 +21,8 @@ use App\Models\Learner;
 use App\Models\NotificationLog;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use RuntimeException;
+use Throwable;
 
 /**
  * The DM "you took place N of the rating of the month — P points. Your prize: X. We will contact you in Telegram" to the
@@ -35,6 +38,11 @@ use Illuminate\Support\Facades\Log;
  * those already messaged). A 429 is the exception: it stops the loop at once - the others would get it too.
  *
  * One button (docs/36 §3а, N4): "🏆 Rating of the month" -> `/league/month?from=month_won`.
+ *
+ * The message is a photo (docs/36 §2б, A5): the picture of {@see MonthWinnerCardBuilder} (place, month, the table of a v2 month - no
+ * name) uploaded as a file (not by its URL: it does not depend on a public https address), the congratulation as its caption. When
+ * there is no picture to send (the renderer failed, the cards are not a local file) the congratulation goes out as the text it was
+ * before; the failure goes to `report()`. Ties on a prize place are separate winners: each gets their own message.
  */
 final class MonthWinnerSender
 {
@@ -46,6 +54,7 @@ final class MonthWinnerSender
         private readonly MonthlyRatingService $rating,
         private readonly DmReachability $reachability,
         private readonly BotButtons $buttons,
+        private readonly MonthWinnerCardBuilder $cards,
     ) {}
 
     /**
@@ -106,6 +115,7 @@ final class MonthWinnerSender
 
             $locale = $this->locales->forLearner($learner);
             $text = $this->text($learner, $month, $place, $points, $category);
+            $photo = $this->photo($month, $place, $points, $category, $locale);
             $keyboard = $this->buttons->single($learner->telegram_user_id, $this->buttons->open(
                 __('buttons.month_rating', [], $locale),
                 TwaScreen::LeagueMonth,
@@ -115,12 +125,16 @@ final class MonthWinnerSender
             $log = NotificationLog::query()->create([
                 'learner_id' => $learner->id,
                 'type' => self::NOTIFICATION_TYPE,
-                'payload' => ['key' => $key, 'place' => $place],
+                'payload' => ['key' => $key, 'place' => $place, 'photo' => $photo !== null],
                 'sent_at' => now(),
             ]);
 
             try {
-                $this->telegram->sendMessage($learner->telegram_user_id, $text, replyMarkup: $keyboard);
+                if ($photo !== null) {
+                    $this->telegram->sendPhotoMessage($learner->telegram_user_id, PhotoSource::file($photo), $text, $keyboard);
+                } else {
+                    $this->telegram->sendMessage($learner->telegram_user_id, $text, replyMarkup: $keyboard);
+                }
             } catch (TelegramForbiddenException $e) {
                 $log->delete();
                 $this->reachability->markUnreachable($learner->telegram_user_id, $e->reason);
@@ -140,6 +154,27 @@ final class MonthWinnerSender
         });
     }
 
+    /** The local JPEG of the picture, or null (reported) when there is none to upload: the congratulation goes out as text then. */
+    private function photo(LeagueMonth $month, int $place, int $points, ?ScoreCategory $category, string $locale): ?string
+    {
+        try {
+            $path = $this->cards->render($month, $place, $points, $category, $locale);
+        } catch (Throwable $e) {
+            report($e);
+
+            return null;
+        }
+
+        if (! is_file($path) || ! is_readable($path)) {
+            // A disk that is not local (`achievements.disk` on S3): `path()` is a key there, nothing to upload.
+            report(new RuntimeException("The card of the month winner is not a local file: {$path}"));
+
+            return null;
+        }
+
+        return $path;
+    }
+
     private function text(Learner $learner, LeagueMonth $month, int $place, int $points, ?ScoreCategory $category = null): string
     {
         $locale = $this->locales->forLearner($learner);
@@ -154,10 +189,7 @@ final class MonthWinnerSender
 
         $replace = [
             'place' => $place,
-            'month' => trans('leagues.month.label', [
-                'name' => trans('leagues.month.names.'.$month->starts_on->month, [], $locale),
-                'year' => $month->starts_on->year,
-            ], $locale),
+            'month' => MonthWinnerCardBuilder::monthName($month, $locale),
             'points' => trans_choice('leagues.month.points', $points, ['count' => $points], $locale),
             'prize' => $prize,
         ];

@@ -57,7 +57,8 @@ import type {
   LeagueResponse,
   MonthlyRatingResponse,
   MonthlyRatingMeResponse,
-  ScoreCategory,
+  AllTimeResponse,
+  BoardQuery,
   FriendsResponse,
   ChallengesResponse,
   ChallengeItem,
@@ -157,13 +158,22 @@ export const api = {
   },
   league: {
     get: () => client().get<LeagueResponse>('/league'),
-    /** `category`: the table to show (docs/04 A.19, v2); left out - the learner's own (and the v1 month knows no tables). */
-    month: (category?: ScoreCategory) =>
-      category === undefined
+    /**
+     * `query`: the table to show (docs/04 A.19, v2): the category and the region; empty - the learner's own category, the whole of it
+     * (and the v1 month knows no tables). 422 `region_not_set`, `region_scope_unavailable` for `scope: 'region'`.
+     */
+    month: (query: BoardQuery = {}) =>
+      Object.keys(query).length === 0
         ? client().get<MonthlyRatingResponse>('/league/month')
-        : client().get<MonthlyRatingResponse>('/league/month', { category }),
+        : client().get<MonthlyRatingResponse>('/league/month', { ...query }),
     /** The page of a v2 table after `next_cursor`; 422 `invalid_cursor` for a cursor that is not of this table any more. */
-    monthPage: (category: ScoreCategory, after: string) => client().get<LeagueBoardPage>('/league/month', { category, after }),
+    monthPage: (query: BoardQuery, after: string) => client().get<LeagueBoardPage>('/league/month', { ...query, after }),
+    /** "All time" (docs/04 A.19a): `{enabled: false}` while the word points are not live; 422 `region_not_set` as the month. */
+    allTime: (query: BoardQuery = {}) =>
+      Object.keys(query).length === 0
+        ? client().get<AllTimeResponse>('/league/all-time')
+        : client().get<AllTimeResponse>('/league/all-time', { ...query }),
+    allTimePage: (query: BoardQuery, after: string) => client().get<LeagueBoardPage>('/league/all-time', { ...query, after }),
     monthMe: () => client().get<MonthlyRatingMeResponse>('/league/month/me'),
   },
   achievements: {

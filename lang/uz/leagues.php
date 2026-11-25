@@ -37,6 +37,19 @@ return [
         'points' => ':count ball',
         'won' => "🏆 Tabriklaymiz! Siz :month reytingida :place-o'rinni egalladingiz — :points. Sovg'angiz: :prize. Uni topshirish uchun Telegram orqali siz bilan bog'lanamiz.",
         'won_plain' => "🏆 Tabriklaymiz! Siz :month reytingida :place-o'rinni egalladingiz — :points.",
+        // The picture of a winner of the month (docs/36 §2б, A5): no name on it - it gets forwarded. :place = 1-3, :month = `label`;
+        // the category (`category.*`) only for a month of the word points v2 (docs/32 §12.6: tables Free / Pro).
+        'card' => [
+            'label' => 'Oy reytingi',
+            'label_category' => 'Oy reytingi · :category',
+            'category' => [
+                'free' => 'Free',
+                'pro' => 'Pro',
+            ],
+            // The phrase of docs/36 §2б split in two: the title of the card holds about 13 letters a line.
+            'title' => ":place-o'rin",
+            'description' => ':month reytingida — :points',
+        ],
     ],
 
     'open_button' => 'Ligani ochish',

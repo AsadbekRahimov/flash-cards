@@ -6,7 +6,9 @@ namespace App\Domain\Polls\Services;
 
 use App\Domain\Billing\Support\PaidSubscriptionQuery;
 use App\Domain\Learners\Services\OnboardingService;
+use App\Domain\Learners\Services\ProEmojiService;
 use App\Domain\Polls\Support\PollAudience;
+use App\Domain\Telegram\Services\DmReachability;
 use App\Models\Learner;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,13 +18,13 @@ use Illuminate\Database\Eloquent\Builder;
  * of the launch ({@see PollLauncher}), so the number shown is the number sent to (as of that moment).
  *
  * Always: not deleted (the model's scope), not banned (`blocked_at`), the DM open (`dm_blocked_at` and `dm_blocked_reason` empty -
- * {@see \App\Domain\Telegram\Services\DmReachability} sets and clears them together; the load-test learners carry the flag too), a
+ * {@see DmReachability} sets and clears them together; the load-test learners carry the flag too), a
  * real Telegram id. Then the filters of {@see PollAudience}: onboarded only, plan, interface language, active course, region.
  *
  * The plan is the SQL twin of the entitlement ({@see PaidSubscriptionQuery}: an own live paid subscription or a seat in an active
  * organization with one; the welcome trial is a `trialing` subscription, so it is Pro). Over the whole table (the preview count) the
  * two "who is Pro" subqueries are uncorrelated and hashed once; over a range of ids (the launch inserts by ranges) they are narrowed
- * to that range, as {@see \App\Domain\Learners\Services\ProEmojiService::visibleForMany()} narrows them to a page: one index range
+ * to that range, as {@see ProEmojiService::visibleForMany()} narrows them to a page: one index range
  * per chunk instead of hashing every live subscription of the platform per chunk.
  */
 final class PollAudienceQuery

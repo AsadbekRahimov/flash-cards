@@ -13,18 +13,19 @@ declare(strict_types=1);
  * Needs committed rows (DatabaseTruncation), PostgreSQL and pcntl/posix.
  */
 
-use App\Domain\Polls\Enums\PollDeliveryStatus;
 use App\Domain\Polls\Enums\PollStatus;
 use App\Domain\Polls\Enums\PollTapStatus;
 use App\Domain\Polls\Services\PollDeliverySender;
 use App\Domain\Polls\Services\PollLauncher;
 use App\Domain\Polls\Services\PollVoteService;
 use App\Domain\Telegram\Contracts\TelegramClient;
+use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Models\Poll;
 use App\Models\PollDelivery;
 use App\Models\PollVote;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\Support\FakeTelegramClient;
@@ -264,4 +265,43 @@ it('loses no tick when several options of a multiple-answer poll are toggled at 
 
     expect(array_unique(array_column($results, 'result')))->toBe([PollTapStatus::Toggled->value])
         ->and($delivery->fresh()->draft)->toHaveCount(5);
+});
+
+it('never lets parallel bulk senders on Redis push one second over the ceiling, and yields to a refused normal sender', function (): void {
+    config(['cache.default' => 'redis']);
+    Cache::forgetDriver();
+    $limiter = new TelegramMessageRateLimiter(20, 60, 25);
+    Cache::forget(TelegramMessageRateLimiter::CONTENDED_KEY);
+    Cache::forget(TelegramMessageRateLimiter::PAUSE_KEY);
+
+    // Start right after a second boundary, so the four processes share one second.
+    usleep((int) ((1 - fmod(microtime(true), 1)) * 1_000_000) + 1000);
+    $second = time();
+    $results = pollRunInParallel(array_fill(0, 4, function () use ($limiter, $second): int {
+        $n = 0;
+        for ($i = 0; $i < 20; $i++) {
+            if (time() === $second && $limiter->reserveGlobalBelow(15)) {
+                $n++;
+            }
+        }
+
+        return $n;
+    }), 0.05);
+
+    expect(array_column($results, 'ok'))->toBe([true, true, true, true])
+        ->and(array_sum(array_column($results, 'result')))->toBe(15);
+
+    // A refused normal sender marks the contention: bulk gets nothing until the mark expires.
+    $tight = new TelegramMessageRateLimiter(20, 60, 1);
+    usleep((int) ((1 - fmod(microtime(true), 1)) * 1_000_000) + 1000);
+    expect($tight->reserveGlobal())->toBeTrue()
+        ->and($tight->reserveGlobal())->toBeFalse();
+    usleep((int) ((1 - fmod(microtime(true), 1)) * 1_000_000) + 1000);
+    expect($limiter->reserveGlobalBelow(15))->toBeFalse();
+
+    Cache::forget(TelegramMessageRateLimiter::CONTENDED_KEY);
+    expect($limiter->reserveGlobalBelow(15))->toBeTrue();
+    $limiter->pause(3, 4242);
+    expect($limiter->reserveGlobalBelow(15))->toBeFalse();
+    Cache::forget(TelegramMessageRateLimiter::PAUSE_KEY);
 });

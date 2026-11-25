@@ -33,10 +33,12 @@ final class ReminderQuizMessenger
      */
     public function question(ReminderContent $content, ReminderQuiz $quiz, string $locale): array
     {
-        $lead = match ($content->kind) {
-            ReminderKind::StreakAtRisk => trans_choice('reminders.quiz.lead.streak_at_risk', $content->streakCurrent, [], $locale),
-            ReminderKind::Inactive => trans_choice('reminders.quiz.lead.inactive', $content->idleDays, [], $locale),
-            ReminderKind::NewWords => __('reminders.quiz.lead.new_words', [], $locale),
+        $lead = match (true) {
+            // The day after a lesson (docs/31 §5б, ReviewScoreHint): its words came up for review and earn points.
+            $content->scoreHint => __('reminders.quiz.lead.score_due', [], $locale),
+            $content->kind === ReminderKind::StreakAtRisk => trans_choice('reminders.quiz.lead.streak_at_risk', $content->streakCurrent, [], $locale),
+            $content->kind === ReminderKind::Inactive => trans_choice('reminders.quiz.lead.inactive', $content->idleDays, [], $locale),
+            $content->kind === ReminderKind::NewWords => __('reminders.quiz.lead.new_words', [], $locale),
             default => trans_choice('reminders.quiz.lead.review', $content->dueCount, [], $locale),
         };
 

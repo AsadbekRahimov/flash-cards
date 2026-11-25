@@ -344,7 +344,7 @@ onMounted(() => {
 
 <template>
   <div ref="root" class="page" data-testid="friends-view">
-    <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" class="mt-3.5" />
+    <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" scrollable class="mt-3.5" />
     <PageHeader :title="t('friends.title')" large />
 
     <LoadingState v-if="!friends && !message" />

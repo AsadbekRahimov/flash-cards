@@ -10,6 +10,7 @@ declare(strict_types=1);
  * The race of two taps on two PostgreSQL connections is in PollConcurrencyTest.
  */
 
+use App\Domain\Polls\DTO\PollTapResult;
 use App\Domain\Polls\Enums\PollDeliveryStatus;
 use App\Domain\Polls\Enums\PollStatus;
 use App\Domain\Polls\Enums\PollTapStatus;
@@ -25,7 +26,7 @@ use Tests\Support\Polls\PollFixtures;
 
 uses(RefreshDatabase::class);
 
-function pollTap(PollDelivery $delivery, string $action, ?int $fromId = null, ?CarbonImmutable $now = null): \App\Domain\Polls\DTO\PollTapResult
+function pollTap(PollDelivery $delivery, string $action, ?int $fromId = null, ?CarbonImmutable $now = null): PollTapResult
 {
     return app(PollVoteService::class)->tap($delivery->token, $fromId ?? $delivery->telegram_user_id, $action, $now ?? CarbonImmutable::now());
 }

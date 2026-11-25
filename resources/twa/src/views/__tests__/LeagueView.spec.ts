@@ -65,6 +65,7 @@ const makeRouter = () =>
       { path: '/today', name: 'today', component: { template: '<div />' } },
       { path: '/settings', name: 'settings', component: { template: '<div />' } },
       { path: '/league/month', name: 'league-month', component: { template: '<div />' } },
+      { path: '/league/all-time', name: 'league-all-time', component: { template: '<div />' } },
       { path: '/friends', name: 'friends', component: { template: '<div />' } },
       { path: '/league', name: 'league', component: LeagueView },
     ],

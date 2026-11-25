@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Polls\DTO;
 
+use App\Domain\Polls\Services\PollDeliverySender;
+
 /**
- * What one {@see \App\Domain\Polls\Services\PollDeliverySender::sendBatch()} did. `more` = the job queues a successor after
+ * What one {@see PollDeliverySender::sendBatch()} did. `more` = the job queues a successor after
  * `delaySeconds` (the batch stopped early: budget spent, no slot, a 429, or simply the batch is done and rows may be left);
  * false = nothing left for this chain (all rows taken by others or finished, the poll stopped / closed / past its deadline).
  */

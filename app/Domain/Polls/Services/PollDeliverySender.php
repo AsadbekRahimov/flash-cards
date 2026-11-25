@@ -272,7 +272,7 @@ final class PollDeliverySender
 
     /**
      * Why the step to `sending` did not happen (the rare path, one statement): the poll is not `sending` any more, the learner is
-     * gone / banned / closed the DM, or another worker has the row.
+     * gone / banned / closed the DM, or another worker has the row (or it was purged with its learner).
      *
      * @return 'stopped'|'unreachable'|'taken'
      */
@@ -283,7 +283,11 @@ final class PollDeliverySender
             [$deliveryId],
         );
 
-        if ($row === null || $row->poll !== PollStatus::Sending->value) {
+        if ($row === null) {
+            return 'taken'; // the learner was purged meanwhile: the row went with them
+        }
+
+        if ($row->poll !== PollStatus::Sending->value) {
             return 'stopped';
         }
 

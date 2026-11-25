@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 /*
  * The texts of the share cards (docs/36 §2б, A2/A3): every achievement key, every city of the "Caravan" (docs/18 §12.3.4) and the
- * card of the brand fit their lines in Russian and Uzbek; the fonts have a glyph for every letter of those texts; the colours of
+ * card of the brand and the picture of a winner of the month (A5) fit their lines in Russian and Uzbek; the fonts have a glyph for every letter of those texts; the colours of
  * the card are the tokens of the Mini App.
  */
 
 use App\Domain\Engagement\DTO\CardSpec;
 use App\Domain\Engagement\Enums\AchievementKey;
+use App\Domain\Engagement\Enums\ScoreCategory;
 use App\Domain\Engagement\Services\AchievementCardRenderer;
 use App\Domain\Engagement\Services\InviteCardBuilder;
+use App\Domain\Engagement\Services\MonthWinnerCardBuilder;
 use App\Domain\Engagement\Support\CardPalette;
 use App\Domain\Game\Support\CityNames;
+use App\Models\LeagueMonth;
 
 /** Fails with the card and the text when a card would cut its title or its description. */
 function assertCardFits(CardSpec $spec, string $where): void
@@ -52,6 +55,28 @@ it('fits the card of the brand with and without a welcome trial', function (stri
     assertCardFits(app(InviteCardBuilder::class)->spec($locale), "invite ({$locale}, trial {$trial})");
 })->with(['ru', 'uz'])->with([14, 0, 30]);
 
+it('fits the picture of a winner of the month: every month, places 1-3, v1 and both tables of v2', function (string $locale): void {
+    $builder = app(MonthWinnerCardBuilder::class);
+    $bold = (string) config('achievements.fonts.bold');
+
+    for ($number = 1; $number <= 12; $number++) {
+        $month = new LeagueMonth(['starts_on' => sprintf('2026-%02d-01', $number)]);
+        foreach ([1, 2, 3] as $place) {
+            foreach ([null, ScoreCategory::Free, ScoreCategory::Pro] as $category) {
+                $spec = $builder->spec($month, $place, 123456, $category, $locale);
+                $where = "month {$number}, place {$place}, ".($category->value ?? 'v1')." ({$locale})";
+                assertCardFits($spec, $where);
+
+                // The label is one spaced line of capitals (28 pt, 5 px between letters): it must not run off the panel either.
+                $label = mb_strtoupper((string) $spec->label);
+                $box = imagettfbbox(28, 0, $bold, $label);
+                expect($box)->not->toBeFalse()
+                    ->and(abs($box[2] - $box[0]) + 5 * mb_strlen($label))->toBeLessThanOrEqual(AchievementCardRenderer::TEXT_WIDTH, "{$where}: the label «{$label}» is wider than the card");
+            }
+        }
+    }
+})->with(['ru', 'uz']);
+
 /** The letters a card can show: titles, descriptions, labels, the tagline, the card of the brand and the cities. */
 function cardCharacters(string $locale): string
 {
@@ -64,6 +89,12 @@ function cardCharacters(string $locale): string
     }
     $texts[] = trans_choice('referrals.days', 14, ['count' => 14], $locale).' '.trans_choice('referrals.days', 21, ['count' => 21], $locale).' '.trans_choice('referrals.days', 2, ['count' => 2], $locale);
     $texts[] = __('game.card.description', [], $locale);
+    for ($number = 1; $number <= 12; $number++) {
+        foreach ([null, ScoreCategory::Free, ScoreCategory::Pro] as $category) {
+            $spec = app(MonthWinnerCardBuilder::class)->spec(new LeagueMonth(['starts_on' => sprintf('2026-%02d-01', $number)]), 3, 1234567890, $category, $locale);
+            $texts[] = $spec->title.' '.$spec->description.' '.$spec->label;
+        }
+    }
     for ($number = 1; $number <= CityNames::COUNT; $number++) {
         $texts[] = __('game.card.title', ['city' => CityNames::toward($number, $locale)], $locale);
     }

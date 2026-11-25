@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Jobs;
 
 use App\Domain\Polls\Services\PollDeliverySender;
+use App\Domain\Polls\Services\PollLauncher;
 use Carbon\CarbonImmutable;
 use DateTimeInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,7 +14,7 @@ use Illuminate\Foundation\Queue\Queueable;
 /**
  * One link of a poll's broadcast chain (docs/35 O3): leases a batch of the poll's pending deliveries and sends them
  * ({@see PollDeliverySender::sendBatch()}), then queues its successor while there may be work left. `polls.workers` chains run per
- * poll ({@see \App\Domain\Polls\Services\PollLauncher::startWorkers()}); a chain ends when it finds nothing to lease. Extra chains
+ * poll ({@see PollLauncher::startWorkers()}); a chain ends when it finds nothing to lease. Extra chains
  * (a retried job, the sweep) are harmless: the lease and the conditional step to `sending` keep every row to one send.
  *
  * The job carries only the poll id - no list of deliveries - so a chain never holds stale ids and the queue holds a few jobs, not

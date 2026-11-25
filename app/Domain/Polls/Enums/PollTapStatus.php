@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Polls\Enums;
 
+use App\Domain\Polls\Services\PollVoteService;
+
 /**
- * The verdict of one tap on a poll button (docs/35 §1.5 "Голос", {@see \App\Domain\Polls\Services\PollVoteService::tap()}).
+ * The verdict of one tap on a poll button (docs/35 §1.5 "Голос", {@see PollVoteService::tap()}).
  * O5 (PollCallbackHandler) turns it into the answer of the callback and the edit of the message:
  *  - `Voted` - the answer is recorded (first time or changed, see `changed`): the message becomes "Спасибо" (+ "Изменить ответ" when
  *    allowed);

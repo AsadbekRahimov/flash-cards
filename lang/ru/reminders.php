@@ -25,6 +25,10 @@ return [
         'text_untitled' => "Урок пройден: :count новое слово. Закрепите его в игре «Пары на время» — одна минута, и слово запомнится лучше.\n\nИзменить время или отключить: /settings|Урок пройден: :count новых слова. Закрепите их в игре «Пары на время» — одна минута, и слова запомнятся лучше.\n\nИзменить время или отключить: /settings|Урок пройден: :count новых слов. Закрепите их в игре «Пары на время» — одна минута, и слова запомнятся лучше.\n\nИзменить время или отключить: /settings",
     ],
 
+    // The reminder of the day after a lesson (docs/31 §5б, ReviewScoreHint): replaces the `review` text when the words of yesterday's
+    // lesson are due and the word points count. Honest and without numbers: a review in time earns points (within the daily limits).
+    'score_due' => "Слова вчерашнего урока пришли на повторение. Повторите их сегодня: за повторение в срок начисляются баллы рейтинга.\n\nИзменить время или отключить: /settings",
+
     // The reminder as a question with four buttons (owner decision 2026-11-17, docs/12 §7.5). Plain text, no markup.
     'quiz' => [
         // Plural forms (ru) follow :count — the due words, the streak days, the idle days.
@@ -33,6 +37,7 @@ return [
             'streak_at_risk' => 'Серия — :count день. Выполните цель дня, чтобы не прервать её. Разминка:|Серия — :count дня. Выполните цель дня, чтобы не прервать её. Разминка:|Серия — :count дней. Выполните цель дня, чтобы не прервать её. Разминка:',
             'inactive' => 'Вы :count день не занимались. Проверим одно слово:|Вы :count дня не занимались. Проверим одно слово:|Вы :count дней не занимались. Проверим одно слово:',
             'new_words' => 'Разминка перед новыми словами:',
+            'score_due' => 'Слова вчерашнего урока пришли на повторение — за повторение в срок начисляются баллы. Начнём с одного прямо здесь.',
         ],
         'question' => [
             'meaning' => 'Что значит «:word»?',

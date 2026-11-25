@@ -110,14 +110,14 @@
 
 Язык сообщения — `interface_locale` ученика на момент вставки.
 
-После commit задания `SendPollBatchJob` ставятся пачками по `polls.batch_size` (200) id доставок.
+~~После commit задания `SendPollBatchJob` ставятся пачками по `polls.batch_size` (200) id доставок.~~ **Сделано иначе (O3):** вставка — диапазонами id учеников, каждый диапазон своей короткой транзакцией; после неё стартуют `polls.workers` (2) цепочек `SendPollBatchJob(pollId)` — задание несёт только id опроса и само арендует следующую пачку (§1.6а).
 
 **Рассылка (`PollDeliverySender::sendBatch`, по образцу `LeagueResultSender::sendBatch`).**
 - Перед каждым сообщением проверяется статус опроса: `cancelled` — пачка завершается. Ученик успел стать недоступным — `skipped`.
-- Захват строки: `UPDATE poll_deliveries SET status='sending' WHERE id=? AND status='pending'`. Не одна строка — уже кто-то отправил. **Отправка не больше одного раза:** упавшее после отправки задание оставляет `sending`. Через 15 минут команда `polls:sweep` переводит такие строки в `unknown`, повторно не шлёт. Дубль опроса хуже, чем недошедший.
-- Слот бюджета: `awaitGlobal`, плюс собственный потолок опросов `polls.max_per_second` (15 из 25), чтобы напоминания не вставали в очередь. 10 тыс. учеников — около 11 минут.
-- 403 и `chat not found` → `forbidden` + `DmLearnerResolver::markBlocked`. 429 → строка возвращается в `pending`, остаток пачки уходит новым заданием с задержкой `retry_after`. Сейчас клиент 429 не различает: нужен `TelegramRateLimitedException` (задача O1). Прочие ошибки → `failed` + `report()`.
-- Срок рассылки — 24 часа от запуска (`retryUntil`, как `notAfter` у итогов недели). Когда в опросе не осталось `pending` и `sending`, он переходит `sending → sent`.
+- Захват строки: `UPDATE poll_deliveries SET status='sending' WHERE id=? AND status='pending'` (+ опрос ещё `sending`, ученик ещё доступен — в том же операторе). Не одна строка — уже кто-то отправил. Перед этим пачка **арендуется** (`claimed_at`, `FOR UPDATE SKIP LOCKED`, §1.6а). **Отправка не больше одного раза:** упавшее после отправки задание оставляет `sending`. Через 15 минут команда `polls:sweep` переводит такие строки в `unknown`, повторно не шлёт. Дубль опроса хуже, чем недошедший.
+- Слот бюджета: ~~`awaitGlobal`, плюс собственный потолок опросов `polls.max_per_second` (15 из 25)~~ **`reserveGlobalBelow(POLLS_SEND_PER_SECOND)`** — рассылка берёт слот, только пока весь бот в эту секунду отправил меньше 15, и встаёт совсем, пока кому-то из обычных отправителей отказывают (§1.6а). 10 тыс. учеников — около 11 минут при простое бота.
+- 403 и `chat not found` → `forbidden` + `DmReachability::markUnreachable`. 429 → строка возвращается в `pending`, остаток пачки уходит новым заданием с задержкой `retry_after`. Сейчас клиент 429 не различает: нужен `TelegramRateLimitedException` (задача O1). Прочие ошибки → `failed` + `report()`.
+- Срок рассылки — 24 часа от запуска (`polls.broadcast_ttl_hours`): после него отправитель не шлёт, `polls:sweep` делает остаток `skipped` (`expired`). Когда в опросе не осталось `pending` и `sending` (тестовые не в счёт) и вставка закончена (`recipient_count`), он переходит `sending → sent`.
 
 **Сообщение.** С картинкой — `sendPhoto` с подписью, без картинки — `sendMessage`. Текст без `parse_mode`: вставить разметку через вопрос нельзя. Подпись: вопрос, а если какой-то вариант длиннее 24 символов — нумерованный список вариантов (кнопки тогда «1», «2», …). Кнопки — по одной в ряд.
 
@@ -135,7 +135,7 @@
 
 Ответ сервера — **не** ответ на вопрос урока: в `learner_daily_stats`, очки и серию ничего не пишется. Событие продукта — `poll.answered` (`poll_id`, `changed`).
 
-**После ответа** подпись (или текст) редактируется: исходный вопрос + «✅ Спасибо! Ваш ответ: Да» на языке доставки, ниже кнопка «Изменить ответ», если смена разрешена. Нужен `editMessageCaption` (задача O1). Отказ Telegram при правке (`message is not modified`, слишком старое сообщение) только логируется, как в `ReminderQuizCallbackHandler::edit`.
+**После ответа** подпись (или текст) редактируется: исходный вопрос + ~~«✅ Спасибо! Ваш ответ: Да»~~ **только «✅ Спасибо!»** (решение владельца, docs/31 §5г) на языке доставки, ниже кнопка «Изменить ответ», если смена разрешена. Нужен `editMessageCaption` (задача O1). Отказ Telegram при правке (`message is not modified`, слишком старое сообщение) только логируется, как в `ReminderQuizCallbackHandler::edit`.
 
 **Закрытие.** Команда `polls:close-due` раз в 5 минут закрывает опросы с наступившим `closes_at`; есть кнопка «Закрыть сейчас». При закрытии пишется `results_snapshot`. Клавиатуры у всех учеников массово **не** правятся: это N правок под тем же бюджетом. Устаревшая кнопка при нажатии получает алерт и убирается.
 
@@ -158,9 +158,9 @@ public function editMessageCaption(int|string $chatId, int $messageId, string $c
 // 429 → TelegramRateLimitedException(int $retryAfter) extends TelegramApiException
 
 App\Domain\Polls\Services\PollAudienceQuery::for(array $audience): Builder<Learner>
-App\Domain\Polls\Services\PollLauncher::launch(Poll, User): void; ::cancel(Poll, User): void; ::close(Poll, ?User): void
-App\Domain\Polls\Services\PollTestSender::send(Poll, User): PollDelivery
-App\Domain\Polls\Services\PollDeliverySender::sendBatch(list<int> $deliveryIds, int $budgetSeconds): array{sent, skipped, forbidden, failed, remaining}
+App\Domain\Polls\Services\PollLauncher::launch(Poll, User): bool; ::cancel(Poll, User): bool; ::close(Poll, ?User): bool   // O3: bool = эта ли попытка перевела
+App\Domain\Polls\Services\PollTestSender::send(Poll, User, string $locale = 'ru'): PollDelivery
+App\Domain\Polls\Services\PollDeliverySender::sendBatch(int $pollId, int $budgetSeconds): PollBatchOutcome   // O3: аренда пачки вместо списка id
 App\Domain\Polls\Services\PollVoteService::tap(string $token, int $fromId, string $action, CarbonImmutable $now): PollTapResult
 App\Domain\Polls\Services\PollResults::summary(Poll, array $filters = []): PollSummary
 App\Domain\Telegram\Services\PollMessenger   // подпись, клавиатуры, тексты «Спасибо»/«Завершён» на ru/uz
@@ -170,6 +170,39 @@ App\Jobs\SendPollBatchJob; команды polls:close-due, polls:sweep, polls:pr
 
 Запись в `audit_logs`: запуск, остановка, закрытие, выгрузка CSV с ответами.
 
+### 1.6а. Сделано в O3 и O4 (architect, 27.11.2026): решения и контракт для O5–O7
+
+**Схема** (миграция `2026_11_27_100005`, docs/03 §2.72, §2.74): `poll_deliveries.claimed_at` (аренда / момент шага к `sending`), `polls.recipient_count` (вставка закончена; «получателей» без подсчёта). Новых индексов нет.
+
+**Решения и почему.**
+1. **Захват — аренда пачки + условный шаг на строку.** Пачка (`polls.batch_size` = 100) берётся одним `WITH c AS (SELECT id … WHERE poll_id=? AND status='pending' AND (claimed_at IS NULL OR claimed_at < now−lease) ORDER BY id LIMIT ? FOR UPDATE SKIP LOCKED) UPDATE … SET claimed_at RETURNING …` по `poll_deliveries_unsent_idx`. Аренда — это `pending` + `claimed_at`: сообщение ещё не уходило, поэтому упавший между захватом и отправкой воркер ничего не теряет — через `polls.lease_seconds` (300 с) строки берёт другой. Единственность отправки решает не аренда, а `UPDATE … SET status='sending' WHERE id=? AND status='pending' AND <опрос sending> AND <ученик доступен>` прямо перед вызовом Telegram: даже если аренды пересеклись (воркер завис дольше аренды), строку отправит только тот, чей UPDATE изменил её. Упал после этого шага — строка остаётся `sending`, `polls:sweep` через 15 минут делает её `unknown`, повторно не шлёт. Отвергнуто: сразу `sending` для всей пачки (падение превращало бы 100 неотправленных строк в `unknown`); список id в задании (200 заданий в очереди на 40 тыс., устаревшие id, лишние `release`).
+2. **Задание несёт только id опроса** (цепочка: пачка → преемник), `polls.workers` = 2 цепочки на очереди `low`. Лишняя цепочка (повтор задания, `polls:sweep`) безвредна по п. 1.
+3. **Доля бюджета бота — приоритет, а не только потолок.** `TelegramMessageRateLimiter::reserveGlobalBelow(15)`: слот только пока общий счётчик секунды (все фоновые отправки + учтённые ответы) < 15 — проверка и `INCR` одним Lua, поэтому несколько воркеров рассылки не перешагнут потолок; плюс рассылка полностью встаёт на 2 с после любого отказа обычному отправителю (`telegram:outbound:contended`, ставит `reserveGlobal()`). Обычным всегда остаётся ≥ 10/с, под их нагрузкой (напоминания 19:00–21:00) — все 25. Отвергнуто: только собственный потолок 15/с поверх `awaitGlobal` (в волну напоминаний те получали бы 10/с вместо 25); отдельная очередь с приоритетом (воркер не знает о бюджете Telegram).
+4. **Запуск идемпотентен и возобновляем.** Под `polls FOR UPDATE` `draft → sending`; вставка — диапазонами id по 2 000, каждый своей транзакцией под `polls FOR SHARE` (остановка ждёт текущий диапазон, следующий видит её), `ON CONFLICT (poll_id, learner_id) DO NOTHING`, только `created_at ≤ launched_at`. Токен — `Str::random(12)` в PHP (CSPRNG; переносимого сильного генератора строки в SQL нет), поэтому `INSERT … VALUES` вместо `INSERT … SELECT`: столкновение токена (~10⁻¹³) падает громко, а не теряет получателя. Упал посреди вставки — `recipient_count` пуст, `polls:sweep` через 10 минут продолжает.
+5. **Токен** — 12 символов `[A-Za-z0-9]` (≈ 2⁷¹), но он только **находит** доставку: право голоса даёт `from.id` (подлинность — секрет вебхука), он обязан совпасть с `telegram_user_id`. Чужой токен ничего не даёт; неизвестный, чужой, несуществующий вариант, неотправленная доставка — один и тот же `Unavailable` после одного и того же оператора (нет оракула). Формат проверяется до запроса.
+6. **Голос** — `SELECT … FOR UPDATE OF d` (строка опроса не блокируется: нажатия разных учеников не ждут друг друга); записанный ответ читается **отдельным** оператором после блокировки: подзапрос того же SELECT видел бы снимок до ожидания (так терялся голос в гонке — найдено тестом на PG).
+
+**Бюджеты операторов** (закреплены тестами; стенд PG 16: 52 тыс. учеников, опрос на 40 тыс., 30 тыс. голосов, ещё 120 тыс. доставок старых опросов):
+
+| Путь | Операторов | Стенд, `EXPLAIN (ANALYZE, BUFFERS)` |
+|---|---|---|
+| Нажатие: недоступно / закрыто | 1 | `poll_deliveries_token_unique`, 10 буферов, 0,09 мс |
+| Первый ответ (один вариант) | 3 | + INSERT голоса, UPDATE доставки; ≈ 2 мс всего |
+| Повтор того же / «Изменить ответ» | 2 | голоса — index only по `(poll_delivery_id, poll_option_id)`, 3 буфера |
+| Смена ответа | 5 | + DELETE по тому же unique |
+| Переключение (несколько ответов) | 2 (3 после ответа) | |
+| Пачка рассылки из n | 3 + 2n (+ освобождение, + завершение) | аренда: Index Scan `poll_deliveries_unsent_idx` (`poll_id = ?`) + LockRows + Limit, **без сортировки**; 260–500 буферов при 18 тыс. мёртвых записей индекса, 2–5 мс; шаг к `sending` и итог — по `pkey`, 46 и 24 буфера, 0,3 мс; на стенде 100 сообщений = 203 оператора, ≈ 1,8 мс БД на сообщение |
+| Завершение `sending → sent` | 1 | Bitmap по `poll_deliveries_unsent_idx`, 80 буферов |
+| Предпросмотр аудитории | 1 | «все»: Seq Scan `learners` 913 буферов, 22 мс (весь список и так нужен); Pro: тот же + две хэшированные подвыборки подписок, 36 мс; язык + курс: Bitmap по `learners_active_course_id_index` |
+| Запуск | 3 на диапазон 2 000 id + 6 | диапазон: `learners_pkey` по диапазону, подвыборки Pro сужены диапазоном (`subscriptions (subscriber_type, subscriber_id, status)`), 124 буфера; весь запуск 44 тыс. — 88 операторов, 1,6 с; Pro 6 тыс. — 0,4 с |
+| Итоги (`PollResults::totals`) | 3 | статусы: Bitmap по `(poll_id, learner_id)`, 1 092 буфера, 14 мс; голоса — 252 буфера, 8 мс |
+| `polls:sweep` | 1 + 2 на опрос `sending` | зависшие: Bitmap по частичному индексу без ключа (только неотправленные строки) |
+
+**Контракт для O5–O7.**
+- O5 (`PollCallbackHandler`): разобрать `pl1:<token>:<n|s|c>`, проверить личный чат (`chat.id = from.id`), `InaccessibleMessage`; затем `PollVoteService::tap($token, $fromId, $action, $now): PollTapResult` (`status`: `Voted`, `Toggled`, `Repeated`, `Changing`, `EmptySubmit`, `LimitReached`, `Locked`, `Closed`, `Unavailable`; `selectedOptionIds`, `allowChange`, `allowsMultiple`, `changed`, `pollId`, `deliveryId`, `locale`, `isTest`). Подпись/клавиатура — `PollMessenger::text()` / `keyboard($poll, $options, $token, $locale, $chatId, $selected)` (☐/☑, «Отправить» — `polls.submit`); тексты «Спасибо», «Опрос завершён», «Опрос недоступен», «Выберите хотя бы один вариант», «Можно выбрать не больше N», «Ответ уже принят», «Изменить ответ» — в `lang/{ru,uz}/polls.php` (ключ `submit` уже есть). После ответа — только «Спасибо» (docs/31 §5г). Событие `poll.answered` (`poll_id`, `changed`) — при `Voted` и `isTest = false` (O7).
+- O6 (`PollResource`): предпросмотр числа — `PollAudienceQuery::count($audience)`; тестовая отправка — `PollTestSender::send($poll, $admin, $locale): PollDelivery` (статус в строке; `PollLaunchException` с `reason`: `no_telegram`, `finished`, `options`, `too_long`); запуск — `PollLauncher::launch($poll, $admin): bool` (false = уже запущен; `PollLaunchException`: `untested`, `options`, `too_long`); остановка — `cancel($poll, $admin): bool`; «Закрыть сейчас» — `close($poll, $admin): bool`. Аудит пишут сами методы (`poll.launched`, `poll.cancelled`, `poll.closed`). После запуска форма не меняет вопрос, варианты, картинку, `allows_multiple`, `max_choices`, `allow_change`, `audience` (рассылка читает их в каждой пачке). Статус рассылки — `recipient_count` и `GROUP BY status` (`PollResults::totals`).
+- O7: `polls:close-due` — `PollLauncher::close($poll, null)` по `polls_close_due_idx`; страница итогов — поверх `PollResults::totals()` (тестовые исключены по `learner_id IS NULL`); `polls:prune`. `polls:sweep` уже в расписании (каждые 5 минут).
+
 ### 1.7. Задачи
 
 | # | Задача | Кто | Зависит от | Definition of Done и ключевые тесты |
@@ -177,8 +210,8 @@ App\Jobs\SendPollBatchJob; команды polls:close-due, polls:sweep, polls:pr
 | O0 | docs/03 (четыре таблицы), docs/04 (раздел бота: `pl1`, тексты), ADMIN_GUIDE (как провести опрос) | коорд. | — | docs согласованы до кода |
 | O1 | Клиент: `sendPhotoMessage`, `sendTextMessage`, `editMessageCaption`, `SentMessage`, `PhotoSource`, `TelegramRateLimitedException`; фейковый клиент тестов. **Делать вместе с K3** (docs/31: «отправка с возвратом номера сообщения») | C | — | `file_id` берётся из наибольшего `PhotoSize`; отправка по `file_id` без файла; 403 и `chat not found` → Forbidden; 429 → `retryAfter`; старый `sendPhoto` не изменился |
 | O2 | Миграции и модели `polls`, `poll_options`, `poll_deliveries`, `poll_votes`, фабрики | C | O0 | migrate/rollback на PG и sqlite; частичный unique работает на обеих |
-| O3 | **Ядро рассылки:** `PollAudienceQuery`, `PollLauncher` (запуск, остановка, закрытие, снимок), `PollDeliverySender`, `SendPollBatchJob`, `polls:sweep` | **A** | O1, O2 | двойной запуск — одна вставка; аудитория (тариф, язык, курс, заблокированные, удалённые, не прошедшие онбординг); захват строки двумя воркерами — одна отправка; падение после отправки → `unknown`, без повтора; 403 → `dm_blocked_at`; 429 → `pending` и новое задание с задержкой; остановка посреди пачки; `sending → sent` |
-| O4 | **Ядро голоса:** `PollVoteService`, `PollTapResult` | **A** | O2 | один ответ, повтор того же варианта (`repeated`, без записи), смена при `allow_change` и запрет без него, `max_choices`, «Отправить» с пустым выбором, закрытие по `closes_at` до запуска команды, чужой `from.id`, неизвестный токен, гонка двух нажатий на двух соединениях PG — одна запись |
+| O3 ✅ | **Ядро рассылки:** `PollAudienceQuery`, `PollLauncher` (запуск, остановка, закрытие, снимок), `PollDeliverySender`, `SendPollBatchJob`, `polls:sweep` | **A** | O1, O2 | двойной запуск — одна вставка; аудитория (тариф, язык, курс, заблокированные, удалённые, не прошедшие онбординг); захват строки двумя воркерами — одна отправка; падение после отправки → `unknown`, без повтора; 403 → `dm_blocked_at`; 429 → `pending` и новое задание с задержкой; остановка посреди пачки; `sending → sent` |
+| O4 ✅ | **Ядро голоса:** `PollVoteService`, `PollTapResult` | **A** | O2 | один ответ, повтор того же варианта (`repeated`, без записи), смена при `allow_change` и запрет без него, `max_choices`, «Отправить» с пустым выбором, закрытие по `closes_at` до запуска команды, чужой `from.id`, неизвестный токен, гонка двух нажатий на двух соединениях PG — одна запись |
 | O5 | `PollCallback`, `PollCallbackHandler`, `PollMessenger`, регистрация в `TelegramDispatcher`; тексты `lang/{ru,uz}/polls.php` | C | O1, O4 | пересланное сообщение и группа игнорируются; `InaccessibleMessage` (`date = 0`) → алерт; отказ правки только логируется; подпись не длиннее 1 024 символов на обоих языках; нумерация при длинных вариантах |
 | O6 | `PollResource`: форма, предпросмотр с числом получателей, тестовая отправка, запуск с подтверждением, остановка, закрытие, статус рассылки | C | O3, O5 | только админ (тест на `/org` и на роль); правка после запуска запрещена; запуск без тестовой отправки запрещён; тест бюджета запросов списка (docs/20 §1) |
 | O7 | Страница результатов, разрезы, `PollResultsCsv`, `polls:close-due`, `polls:prune`, событие `poll.answered` | C | O3, O4 | доли от ответивших; тестовые не входят; CSV открывается в Excel ru/uz; закрытие идемпотентно; бюджет запросов страницы |

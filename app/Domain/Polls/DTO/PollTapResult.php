@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Domain\Polls\DTO;
 
 use App\Domain\Polls\Enums\PollTapStatus;
+use App\Domain\Polls\Services\PollVoteService;
 
 /**
- * What {@see \App\Domain\Polls\Services\PollVoteService::tap()} decided (docs/35 §1.5). `selectedOptionIds` (poll_options ids,
+ * What {@see PollVoteService::tap()} decided (docs/35 §1.5). `selectedOptionIds` (poll_options ids,
  * ascending) is what the keyboard / the text should show: the draft for `Toggled`, `LimitReached`, `EmptySubmit` and `Changing`
  * of several answers, the recorded answer otherwise. `pollId`, `deliveryId`, `locale` and `isTest` are null / false only for
  * `Unavailable`. `changed` - a `Voted` that replaced an earlier answer (the `changed` of the event `poll.answered`).

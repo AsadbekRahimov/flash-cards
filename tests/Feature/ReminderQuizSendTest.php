@@ -345,7 +345,7 @@ it('has every quiz text in ru and uz, and the three plural forms in ru', functio
 
     expect(array_keys($uzQuiz))->toEqualCanonicalizing(array_keys($ruQuiz))
         ->and(array_keys($ruQuiz))->toEqualCanonicalizing([
-            'lead.review', 'lead.streak_at_risk', 'lead.inactive', 'lead.new_words', 'question.meaning', 'question.reverse',
+            'lead.review', 'lead.streak_at_risk', 'lead.inactive', 'lead.new_words', 'lead.score_due', 'question.meaning', 'question.reverse',
             'footer', 'correct', 'wrong', 'after_due', 'after_none', 'open_more', 'expired',
         ]);
 

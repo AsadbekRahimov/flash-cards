@@ -40,6 +40,19 @@ return [
         'points' => ':count балл|:count балла|:count баллов',
         'won' => '🏆 Поздравляем! Вы заняли :place-е место в рейтинге за :month — :points. Ваш приз: :prize. Мы свяжемся с вами в Telegram, чтобы вручить его.',
         'won_plain' => '🏆 Поздравляем! Вы заняли :place-е место в рейтинге за :month — :points.',
+        // The picture of a winner of the month (docs/36 §2б, A5): no name on it - it gets forwarded. :place = 1-3, :month = `label`;
+        // the category (`category.*`) only for a month of the word points v2 (docs/32 §12.6: tables Free / Pro).
+        'card' => [
+            'label' => 'Рейтинг месяца',
+            'label_category' => 'Рейтинг месяца · :category',
+            'category' => [
+                'free' => 'Free',
+                'pro' => 'Pro',
+            ],
+            // The phrase of docs/36 §2б split in two: the title of the card holds about 13 letters a line.
+            'title' => ':place место',
+            'description' => 'в рейтинге за :month — :points',
+        ],
     ],
 
     'open_button' => 'Открыть лигу',

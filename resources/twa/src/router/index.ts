@@ -241,6 +241,12 @@ const routes: RouteRecordRaw[] = [
     meta: { tab: 'rating' },
   },
   {
+    path: '/league/all-time',
+    name: 'league-all-time',
+    component: () => import('@/views/AllTimeRatingView.vue'),
+    meta: { tab: 'rating' },
+  },
+  {
     path: '/achievements',
     name: 'achievements',
     component: () => import('@/views/AchievementsView.vue'),

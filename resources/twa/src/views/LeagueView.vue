@@ -289,7 +289,7 @@ onMounted(() => {
 <template>
   <div class="page" data-testid="league-view">
     <PageHeader brand :title="t('league.weekly_title')" :subtitle="!membership && data?.enabled && !data.opted_out ? eyebrow || undefined : undefined" large />
-    <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" class="mb-3.5" />
+    <SegmentedNav :items="ratingTabs" :ariaLabel="t('league.rating_title')" scrollable class="mb-3.5" />
 
     <LoadingState v-if="!data && !message" />
 

@@ -23,6 +23,10 @@ return [
         'text_untitled' => "Dars tugadi: :count ta yangi so'z. Ularni «Vaqtga juftlar» o'yinida mustahkamlang — bir daqiqa, va so'zlar yaxshiroq esda qoladi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
     ],
 
+    // The reminder of the day after a lesson (docs/31 §5б, ReviewScoreHint): replaces the `review` text when the words of yesterday's
+    // lesson are due and the word points count. Honest and without numbers: a review in time earns points (within the daily limits).
+    'score_due' => "Kechagi dars so'zlarini takrorlash vaqti keldi. Ularni bugun takrorlang: o'z vaqtida takrorlash uchun reyting ballari beriladi.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.",
+
     // The reminder as a question with four buttons (owner decision 2026-11-17, docs/12 §7.5). Plain text, no markup.
     'quiz' => [
         'lead' => [
@@ -30,6 +34,7 @@ return [
             'streak_at_risk' => "Ketma-ket :count kun shug'ullandingiz. Natijani saqlash uchun bugungi maqsadni bajaring. Mashq:",
             'inactive' => "Muhrla: :count kundan beri shug'ullanmadingiz. Bitta so'zni tekshirib ko'ramiz:",
             'new_words' => "Yangi so'zlardan oldin mashq:",
+            'score_due' => "Kechagi dars so'zlarini takrorlash vaqti keldi — o'z vaqtida takrorlash uchun ball beriladi. Birinchisidan shu yerning o'zida boshlaymiz.",
         ],
         'question' => [
             'meaning' => '«:word» nima degani?',

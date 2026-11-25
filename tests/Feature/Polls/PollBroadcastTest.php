@@ -11,6 +11,7 @@ declare(strict_types=1);
  * bot's budget (`reserveGlobalBelow`) is at the end. Races on PostgreSQL: PollConcurrencyTest.
  */
 
+use App\Domain\Polls\DTO\PollBatchOutcome;
 use App\Domain\Polls\Enums\PollDeliveryStatus;
 use App\Domain\Polls\Enums\PollStatus;
 use App\Domain\Polls\Exceptions\PollLaunchException;
@@ -58,7 +59,7 @@ function pollChats(FakeTelegramClient $tg): array
     return [...array_column($tg->textMessages, 'chat_id'), ...array_column($tg->photoMessages, 'chat_id')];
 }
 
-function pollBatch(Poll $poll, ?CarbonImmutable $now = null): \App\Domain\Polls\DTO\PollBatchOutcome
+function pollBatch(Poll $poll, ?CarbonImmutable $now = null): PollBatchOutcome
 {
     return app(PollDeliverySender::class)->sendBatch($poll->id, 60, $now);
 }
@@ -510,4 +511,24 @@ describe('the share of the bot budget for bulk sends', function (): void {
         }
         expect($m)->toBe(50);
     });
+});
+
+it('goes on past a row purged with its learner in the middle of a batch', function (): void {
+    $poll = PollFixtures::launched(3);
+    $rows = PollDelivery::query()->where('poll_id', $poll->id)->whereNotNull('learner_id')->orderBy('id')->get();
+    $this->tg->beforeSend = function () use ($rows): void {
+        if (Learner::withTrashed()->whereKey($rows[1]->learner_id)->exists()) {
+            Learner::withTrashed()->findOrFail($rows[1]->learner_id)->forceDelete();
+        }
+    };
+
+    $outcome = pollBatch($poll);
+
+    expect($outcome->sent)->toBe(2)
+        ->and($rows[2]->fresh()->status)->toBe(PollDeliveryStatus::Sent)
+        ->and(PollDelivery::query()->find($rows[1]->id))->toBeNull();
+});
+
+it('runs polls:sweep from the console', function (): void {
+    $this->artisan('polls:sweep')->assertSuccessful();
 });

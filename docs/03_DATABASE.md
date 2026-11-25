@@ -1571,6 +1571,7 @@ FK без индекса перечислены с причиной.
 | launched_at, closed_at | timestamp nullable | |
 | created_by_user_id, launched_by_user_id | bigint FK → users, SET NULL nullable | |
 | results_snapshot | jsonb nullable | итоги на момент закрытия (не меняются после окончательного удаления учеников) |
+| recipient_count | integer nullable | *(O3, миграция `2026_11_27_100005`)* получателей вставлено при запуске; пишется один раз, когда вставка закончена. `NULL` у опроса `sending` = вставка не дошла до конца (упал запускающий процесс) — `polls:sweep` её продолжает. Это же «получателей» в `/admin` без подсчёта |
 | created_at, updated_at | | |
 
 **Индексы:** partial `polls_close_due_idx (closes_at) WHERE status IN ('sending','sent') AND closes_at IS NOT NULL` — `polls:close-due`
@@ -1600,10 +1601,11 @@ FK без индекса перечислены с причиной.
 | status | string(10) default `pending` | `pending`, `sending`, `sent`, `skipped`, `forbidden`, `failed`, `unknown` (CHECK) |
 | message_id | bigint nullable | |
 | sent_at | timestamp nullable | |
-| error_code | string(40) nullable | |
+| error_code | string(40) nullable | причина: `bot_blocked`/`not_started`/… (403), `http_<код>` (прочий отказ), `transport` (таймаут — `unknown`), `stuck` (`polls:sweep`), `unreachable` (ученик стал недоступен до отправки), `cancelled`/`closed`/`expired`/`stopped` (не отправлено) |
 | draft | jsonb nullable | отмеченные, но не отправленные варианты (id `poll_options`) |
 | answered_at | timestamp nullable | |
 | changed_count | smallint default 0 | CHECK `>= 0` |
+| claimed_at | timestamp nullable | *(O3, миграция `2026_11_27_100005`)* последний захват воркером. `pending` + `claimed_at` — аренда: строка в пачке воркера (`FOR UPDATE SKIP LOCKED`), сообщение ещё **не** отправлялось; другие воркеры её пропускают до `polls.lease_seconds` (300 с), после — забирают (упавший воркер ничего не теряет и не дублирует). `sending` + `claimed_at` — момент шага `pending → sending` прямо перед вызовом Telegram: `polls:sweep` через `polls.stuck_minutes` (15) делает такую строку `unknown`. Без индекса: читается только через `poll_deliveries_unsent_idx`; не входит ни в индекс, ни в предикат — запись аренды идёт HOT-обновлением |
 
 **Индексы** (таблица большая — опросы × аудитория — и горячая на запись во время рассылки, поэтому только эти):
 - unique `token` — каждое нажатие находит строку по токену кнопки;
@@ -1770,6 +1772,7 @@ FK `poll_option_id` **без своего индекса**: вариант уд�
 94. `2026_11_27_100002_create_poll_options_table` — `poll_options` *(§2.73)*
 95. `2026_11_27_100003_create_poll_deliveries_table` — `poll_deliveries`, partial `poll_deliveries_unsent_idx`, CHECK (PostgreSQL) *(§2.74)*
 96. `2026_11_27_100004_create_poll_votes_table` — `poll_votes` *(§2.75)*
+97. `2026_11_27_100005_add_broadcast_columns_to_polls_tables` — `poll_deliveries.claimed_at`, `polls.recipient_count` (O3) *(§2.72, §2.74)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 
