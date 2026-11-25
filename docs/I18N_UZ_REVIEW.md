@@ -1501,7 +1501,7 @@
 | `league.points` | {count} ochko | {count} очко / очка / очков |
 | `league.week` | Hafta {from} – {to} | Неделя {from} – {to} |
 | `league.closes` | Hafta yakuni — {when} | Итоги недели — {when} |
-| `league.rules` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. Ochkolar: takrorlashlar, to'g'ri javoblar, yangi so'zlar (×2), bajarilgan kunlik maqsad (+10). | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. Очки: повторения, верные ответы, новые слова (×2), выполненная цель дня (+10). |
+| `league.rules` | Guruhlar {capacity} kishigacha. Top-{promote} yuqoriga ko'tariladi, oxirgi {demote} tasi pastga tushadi. Ballar: takrorlashlar, to'g'ri javoblar, yangi so'zlar (×2), bajarilgan kunlik maqsad (+10). | Группы до {capacity} человек. Топ-{promote} переходят выше, последние {demote} — ниже. Баллы: повторения, верные ответы, новые слова (×2), выполненная цель дня (+10). |
 | `league.disabled` | Ligalar hozir o'chirilgan. | Лиги сейчас выключены. |
 | `league.opted_out` | Siz ligalardan chiqdingiz. Ularni sozlamalarda qayta yoqish mumkin. | Вы вышли из лиг. Включить их снова можно в настройках. |
 | `league.not_placed` | Bu hafta siz hali guruhda emassiz: bir nechta kartochkani takrorlang — va siz ligadasiz. | На этой неделе вы ещё не в группе: повторите несколько карточек — и вы в лиге. |
@@ -1736,15 +1736,15 @@
 | `profile.plan.pro_until` | Pro {date} gacha | Pro до {date} |
 | `profile.plan.pro_forever` | Pro muddatsiz | Pro без срока |
 | `profile.plan.pro_center` | Markaz bergan Pro | Pro от центра |
-| `profile.plan.free.one` | Bepul tarif: kuniga {count} ta yangi so'z | Бесплатный тариф: {count} новое слово в день |
-| `profile.plan.free.few` | _(в uz этой формы нет — используется `other`)_ | Бесплатный тариф: {count} новых слова в день |
-| `profile.plan.free.many` | _(в uz этой формы нет — используется `other`)_ | Бесплатный тариф: {count} новых слов в день |
-| `profile.plan.free.other` | Bepul tarif: kuniga {count} ta yangi so'z | Бесплатный тариф: {count} новых слова в день |
+| `profile.plan.free_short.one` | kuniga {count} ta yangi so'z | {count} новое слово в день |
+| `profile.plan.free_short.few` | _(в uz этой формы нет — используется `other`)_ | {count} новых слова в день |
+| `profile.plan.free_short.many` | _(в uz этой формы нет — используется `other`)_ | {count} новых слов в день |
+| `profile.plan.free_short.other` | kuniga {count} ta yangi so'z | {count} новых слова в день |
 | `profile.plan.free_plain` | Bepul tarif | Бесплатный тариф |
 | `profile.pro.title` | Kunlik limitsiz o'rganing | Учитесь без дневного лимита |
 | `profile.pro.text` | Cheklovsiz yangi so'zlar, o'z to'plamlaringiz, IELTS va SAT sinov testlari, seriyani muzlatish. | Новые слова без ограничений, свои колоды, пробные тесты IELTS и SAT, заморозки серии. |
 | `profile.pro.more` | Pro haqida batafsil | Подробнее о Pro |
-| `profile.friends` | Do'stlar va musobaqalar | Друзья и вызовы |
+| `profile.friends` | Do'stlar va musobaqalar | Друзья и соревнования |
 | `profile.referrals.hint` | Sizga va do'stingizga — bepul Pro | Вам и другу — Pro бесплатно |
 | `profile.support` | Yordam kerakmi? Yozing: | Нужна помощь? Напишите: |
 | `benefits.new_words` | Yangi so'zlar kunlik limitsiz | Новые слова без дневного лимита |
@@ -2058,7 +2058,7 @@
 ### TWA: «Подписка» у Free — строка под заголовком (`resources/twa/src/i18n/uz.ts`)
 
 > Заголовок карточки уже говорит «Bepul tarif» (бесплатный тариф), поэтому строка под ним больше не повторяет название тарифа, а говорит, что он
-> даёт. Раньше она читалась «Bepul tarif: kuniga 20 ta yangi so'z» (`profile.plan.free` — эта строка остаётся в «Профиле», где названия тарифа рядом нет).
+> даёт. Раньше она читалась «Bepul tarif: kuniga 20 ta yangi so'z» (`profile.plan.free`; с 25.11.2026 в «Профиле» вместо неё `profile.plan.free_short` «kuniga 20 ta yangi so'z» — рядом стоит чип Free).
 
 | Ключ | uz | ru |
 |---|---|---|
@@ -4056,8 +4056,8 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `readiness.unavailable` | Darajaga tayyorlik hozir mavjud emas. | Готовность к уровню сейчас недоступна. |
 | `exam.quiz_closed_title` | Vaqt tugadi | Время вышло |
 | `profile.readiness.hint` | O'zlashtirilgan so'zlar ulushi va hafta testi | Доля освоенных слов и тест недели |
-| `profile.learning` | O'qish natijalarim | Моё обучение |
-| `profile.account` | Hisobim | Аккаунт |
+| `profile.learning` | O'qish natijalarim | Мои результаты |
+| `profile.account` | Hisobim | Мой аккаунт |
 | `error.code.level_quiz_disabled` | Hafta testi hozir mavjud emas. | Тест недели сейчас недоступен. |
 | `error.code.readiness_disabled` | Darajaga tayyorlik hozir mavjud emas. | Готовность к уровню сейчас недоступна. |
 | `finished.hard_round.title_none` | Qiyin so'zlar raundi tugadi | Раунд трудных слов пройден (при 0 побеждённых) |
@@ -4300,7 +4300,8 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `billing.saving` | {pct}% arzonroq | выгоднее на {pct}% (подпись на карточке тарифа: дешевле, чем помесячно) |
 | `billing.pay_cta` | {price} evaziga Pro olish | Оформить Pro за {price} (главная кнопка, {price} — «150 Stars») |
 | `billing.pay_cta_renew` | {price} evaziga Pro'ni uzaytirish | Продлить Pro за {price} |
-| `billing.pay_via` | To'lov {provider} orqali. | Оплата через {provider}. |
+| `billing.pay_via_once` | To'lov {provider} orqali, avtomatik uzaytirishsiz. | Оплата через {provider}, без автопродления. |
+| `billing.pay_via_renews` | To'lov {provider} orqali, har 30 kunda o'zi uzayadi — «Obuna» bo'limida o'chirish mumkin. | Оплата через {provider}, продлевается сама каждые 30 дней — отключить можно в «Подписке». |
 | `billing.pay_other` | Yoki boshqa usulda to'lash | Или оплатить по-другому (над кнопками Payme / Click) |
 | `billing.tariffs` | Tariflar | Тарифы |
 | `paywall.not_now` | Hozir emas | Не сейчас |
@@ -4674,3 +4675,29 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `share.title.invite` | Muhrla'ga taklif qilish | Пригласить в Muhrla |
 | `share.title.friend_invite` | Muhrla'da do'st bo'lish | Добавить в друзья в Muhrla |
 | `share.title.game_city` | Men yetib keldim: :city | Я дошёл до :city |
+
+## Лига, профиль и подписка по макетам 2026-11-25 (выпуск 1, T9)
+
+Экраны «Лига», «Профиль» и «Подписка Pro» переделаны по макетам `docs/design/2026-11-25-redesign/` (League, Profile, Pro). На экране
+лиги баллы теперь «ball» (`league.score`, как в рейтинге месяца), а не «ochko»; `league.rules` выше обновлена («Ballar:»).
+`league.points` («ochko») пока остаётся в строке лиги экрана «Bugun». Носителю проверить:
+естественно ли звучат заголовки-вопросы блока «Как подняться выше» и не короче ли сказать «Kun rejasiga» иначе.
+
+| Ключ | uz | ru |
+|---|---|---|
+| `league.score.one/other` | {count} ball | {count} балл / балла / баллов |
+| `league.weekly_title` | Haftalik liga | Недельная лига |
+| `league.to_next_short` | {rank}-o'ringacha | до {rank}-го места |
+| `league.climb.title` | Qanday qilib yuqoriga chiqish mumkin | Как подняться выше |
+| `league.climb.title_first` | Birinchi o'rinni qanday saqlab qolish mumkin | Как удержать первое место |
+| `league.climb.title_join` | Ligaga qanday kirish mumkin | Как попасть в лигу |
+| `league.climb.points` | Ballarni darslar va takrorlashlar beradi | Баллы дают уроки и повторения |
+| `league.climb.points_caravan` | Ballarni darslar, takrorlashlar va «Karvon» beradi | Баллы дают уроки, повторения и «Караван» |
+| `league.climb.link` | Kun rejasiga | К плану дня |
+| `profile.more` | Boshqa | Ещё |
+| `profile.pro_emoji` | Pro emojisi | Эмодзи Pro |
+| `profile.pro_emoji.none` | tanlanmagan | не выбран |
+| `profile.pro_emoji.locked` | Pro'da | в Pro |
+| `billing.period.chosen` | tanlangan | выбрано |
+| `billing.benefit.pro_emoji` | Ism yonidagi emoji | Эмодзи у имени |
+| `billing.benefit.pro_emoji.note` | ismingiz yonida o'zingiz tanlagan belgi | свой символ рядом с вашим именем |

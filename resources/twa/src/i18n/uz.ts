@@ -33,10 +33,6 @@ export const uz: Translations = {
   'profile.plan.trial_until': 'Pro sinov muddati {date} gacha',
   'profile.plan.pro_forever': 'Muddatsiz Pro',
   'profile.plan.pro_center': "Markaz hisobidan Pro",
-  'profile.plan.free': {
-    one: "Bepul tarif: kuniga {count} ta yangi so'z",
-    other: "Bepul tarif: kuniga {count} ta yangi so'z",
-  },
   'profile.plan.free_plain': 'Bepul tarif',
   'profile.plan.free_short': {
     one: "kuniga {count} ta yangi so'z",
@@ -802,6 +798,10 @@ export const uz: Translations = {
   'league.tier.platinum': 'Platina',
   'league.tier.diamond': 'Olmos',
   'league.points': {
+    one: '{count} ochko',
+    other: '{count} ochko',
+  },
+  'league.score': {
     one: '{count} ball',
     other: '{count} ball',
   },

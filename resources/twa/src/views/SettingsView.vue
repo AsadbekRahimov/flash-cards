@@ -251,7 +251,7 @@ onMounted(() => {
     <div v-else class="space-y-4">
       <ListGroup :header="t('settings.group.region')">
         <div class="list-row flex-col items-stretch gap-2" data-testid="language-row">
-          <span class="text-[15px] leading-5">{{ t('settings.language') }}</span>
+          <span class="text-base leading-[22px] font-bold">{{ t('settings.language') }}</span>
           <div data-testid="locale-select">
             <SegmentedControl
               :model-value="data.interface_locale"
@@ -266,12 +266,12 @@ onMounted(() => {
 
       <ListGroup :footer="regionNextChange || t('settings.region.hint')" data-testid="region-card">
         <button type="button" class="list-row" :disabled="saving" data-testid="region-row" @click="regionOpen = true">
-          <span class="shrink-0 text-[15px] leading-5">{{ t('settings.region') }}</span>
-          <span class="min-w-0 flex-1 truncate text-right text-[15px] leading-5 text-muted" data-testid="region-name">{{ regionName }}</span>
-          <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
+          <span class="shrink-0 text-base leading-[22px] font-bold">{{ t('settings.region') }}</span>
+          <span class="min-w-0 flex-1 truncate text-right text-[15px] leading-[22px] text-muted" data-testid="region-name">{{ regionName }}</span>
+          <AppIcon name="chevron-right" :size="20" class="shrink-0 text-body" />
         </button>
         <button v-if="regionUndoable" type="button" class="list-row text-accent" :disabled="saving" data-testid="region-undo" @click="undoRegion">
-          <span class="min-w-0 flex-1 text-left text-[15px] leading-5">{{ t('settings.region.undo') }}</span>
+          <span class="min-w-0 flex-1 text-left text-base leading-[22px] font-semibold">{{ t('settings.region.undo') }}</span>
         </button>
       </ListGroup>
 
@@ -299,11 +299,11 @@ onMounted(() => {
             v-for="option in emojiOptions"
             :key="option.code"
             type="button"
-            class="flex size-11 items-center justify-center rounded-xl text-[22px]"
+            class="flex size-11 items-center justify-center rounded-control text-[22px]"
             role="radio"
             :aria-checked="emojiChoice === option.code"
             :aria-label="option.emoji"
-            :class="emojiChoice === option.code ? 'bg-accent-soft shadow-[inset_0_0_0_1px_var(--app-accent-line)]' : 'bg-fill'"
+            :class="emojiChoice === option.code ? 'border-2 border-primary bg-accent-soft' : 'bg-fill'"
             :disabled="saving"
             :data-locked="emojiLocked ? 'true' : undefined"
             :data-testid="`pro-emoji-${option.code}`"
@@ -317,7 +317,7 @@ onMounted(() => {
 
       <ListGroup :header="t('settings.group.learning')" :footer="t('settings.daily_goal.unit')">
         <div class="list-row flex-col items-stretch gap-2" data-testid="goal-row">
-          <span class="text-[15px] leading-5">{{ t('settings.daily_goal') }}</span>
+          <span class="text-base leading-[22px] font-bold">{{ t('settings.daily_goal') }}</span>
           <div data-testid="goal-select">
             <SegmentedControl
               v-if="goalAsSegments"
@@ -335,7 +335,7 @@ onMounted(() => {
 
         <!-- The FSRS retention dial (docs/06 §12.8): only for a learner scheduled by FSRS; SM-2 has no such setting. -->
         <div v-if="showsRetention" class="list-row flex-col items-stretch gap-2" data-testid="retention-row">
-          <span class="text-[15px] leading-5">{{ t('settings.retention') }}</span>
+          <span class="text-base leading-[22px] font-bold">{{ t('settings.retention') }}</span>
           <SegmentedControl
             :model-value="data.retention_mode ?? 'normal'"
             :options="retentionOptions"
@@ -347,17 +347,17 @@ onMounted(() => {
         </div>
 
         <div class="list-row" data-testid="say-aloud-row">
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.say_aloud') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.say_aloud') }}</span>
           <ToggleSwitch :model-value="sayAloud" :label="t('settings.say_aloud')" data-testid="say-aloud-toggle" @update:model-value="onSayAloud" />
         </div>
 
         <div class="list-row" data-testid="autospeak-row">
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.autospeak') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.autospeak') }}</span>
           <ToggleSwitch :model-value="autoSpeak" :label="t('settings.autospeak')" data-testid="autospeak-toggle" @update:model-value="onAutoSpeak" />
         </div>
 
         <div class="list-row" data-testid="sounds-row">
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.sounds') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.sounds') }}</span>
           <ToggleSwitch :model-value="sounds" :label="t('settings.sounds')" data-testid="sounds-toggle" @update:model-value="onSounds" />
         </div>
       </ListGroup>
@@ -368,18 +368,18 @@ onMounted(() => {
           a long course name. Here the title keeps its line and a long name takes up to two lines.
         -->
         <RouterLink :to="{ name: 'courses' }" class="list-row" data-testid="course-card">
-          <span class="shrink-0 text-[15px] leading-5">{{ t('settings.course') }}</span>
-          <span class="line-clamp-2 min-w-0 flex-1 text-right text-[15px] leading-5 break-words text-muted" data-testid="course-title">
+          <span class="shrink-0 text-base leading-[22px] font-bold">{{ t('settings.course') }}</span>
+          <span class="line-clamp-2 min-w-0 flex-1 text-right text-[15px] leading-[22px] break-words text-muted" data-testid="course-title">
             {{ data.active_course ? data.active_course.title : t('settings.course.none') }}
           </span>
-          <AppIcon name="chevron-right" :size="16" class="shrink-0 text-muted" />
+          <AppIcon name="chevron-right" :size="20" class="shrink-0 text-body" />
         </RouterLink>
       </ListGroup>
 
       <ListGroup :header="t('settings.exercises')" :footer="t('settings.exercises.always')" data-testid="exercises-card">
         <div v-for="key in EXERCISE_KEYS" :key="key" class="list-row" :data-testid="`exercise-row-${key}`">
           <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span class="flex min-w-0 items-center gap-2 text-[15px] leading-5">
+            <span class="flex min-w-0 items-center gap-2 text-base leading-[22px] font-bold">
               <span class="min-w-0">{{ t(`settings.exercises.${key}`) }}</span>
               <span v-if="PRO_EXERCISES.includes(key)" class="chip chip-accent shrink-0" data-testid="exercise-pro">{{ t('profile.chip.pro') }}</span>
             </span>
@@ -399,7 +399,7 @@ onMounted(() => {
 
       <ListGroup :header="t('settings.group.reminders')" :footer="t('settings.reminder.hint')">
         <label class="list-row">
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.reminder.time') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.reminder.time') }}</span>
           <select v-model="draft.reminder" class="field field-inline shrink-0" :disabled="saving" data-testid="reminder-select" @change="onReminder">
             <option v-for="time in data.options.reminder_times" :key="time" :value="time">{{ time }}</option>
             <option value="">{{ t('settings.reminder.off') }}</option>
@@ -409,7 +409,7 @@ onMounted(() => {
 
       <ListGroup :header="t('settings.group.leagues')" :footer="t('settings.leagues.hint')">
         <div class="list-row">
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.leagues.toggle') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.leagues.toggle') }}</span>
           <ToggleSwitch
             :model-value="!data.leagues_opt_out"
             :disabled="saving"
@@ -423,7 +423,7 @@ onMounted(() => {
       <ListGroup v-if="organizations.items.length > 0" :header="t('orgs.title')" data-testid="orgs-card">
         <div v-for="org in organizations.items" :key="org.id" class="list-row flex-col items-stretch gap-2" :data-testid="`org-${org.id}`">
           <div class="flex items-center gap-3">
-            <span class="min-w-0 flex-1 text-[15px] leading-5 break-words" data-testid="org-name">{{ org.name }}</span>
+            <span class="min-w-0 flex-1 text-base leading-[22px] font-bold break-words" data-testid="org-name">{{ org.name }}</span>
             <span class="chip shrink-0" :class="org.seat_state === 'seated' ? 'chip-success' : 'chip-warning'" data-testid="org-state">
               {{ org.seat_state === 'seated' ? t('orgs.seated') : t('orgs.waitlisted') }}
             </span>
@@ -469,7 +469,7 @@ onMounted(() => {
       <ListGroup :header="t('settings.group.danger')" data-testid="danger-zone">
         <button type="button" class="list-row text-danger-ink" data-testid="delete-account" @click="askDelete">
           <AppIcon name="trash" :size="20" class="shrink-0" />
-          <span class="min-w-0 flex-1 text-[15px] leading-5">{{ t('settings.delete') }}</span>
+          <span class="min-w-0 flex-1 text-base leading-[22px] font-bold">{{ t('settings.delete') }}</span>
         </button>
       </ListGroup>
     </div>

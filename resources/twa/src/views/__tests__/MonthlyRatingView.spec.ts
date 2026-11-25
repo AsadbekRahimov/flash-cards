@@ -114,6 +114,16 @@ describe('MonthlyRatingView', () => {
     expect(state.showBack).not.toHaveBeenCalled()
   })
 
+  it('is drawn as the League mock-up: the brand row, my place in the big tinted card, the top as a card table', async () => {
+    const { wrapper } = await render()
+
+    expect(wrapper.find('[data-testid=brand-row]').exists()).toBe(true)
+    expect(wrapper.get('[data-testid=my-card]').classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
+    expect(wrapper.get('[data-testid=top]').classes()).toContain('card')
+    expect(wrapper.get('[data-testid=top] h2').text()).toBe('Топ месяца')
+    expect(wrapper.html()).not.toContain('font-mono')
+  })
+
   it('has the three segments and leads to the other panes', async () => {
     const { wrapper, router } = await render()
 
@@ -210,20 +220,21 @@ describe('MonthlyRatingView', () => {
   })
 
   describe('the top', () => {
-    it('the place in mono for everybody (no medals), "Ученик" for no name, my row highlighted with "вы"', async () => {
+    it('the place in a soft badge for everybody (no medals), "Ученик" for no name, my row tinted with "вы"', async () => {
       const { wrapper } = await render(response({ top: top(5, 5), me: me({ rank: 5 }) }))
 
       const rows = wrapper.findAll('[data-testid=row], [data-testid=row-me]')
       expect(rows).toHaveLength(5)
       expect(rows[0]?.get('[data-testid=rank]').text()).toBe('1')
-      expect(rows[0]?.get('[data-testid=rank]').classes()).toContain('font-mono')
+      expect(rows[0]?.get('[data-testid=rank]').classes()).toEqual(expect.arrayContaining(['bg-accent-soft', 'text-accent']))
       expect(rows[0]?.text()).toContain('Member 1')
       expect(rows[0]?.get('[data-testid=points]').text()).toBe('1000')
       expect(wrapper.text()).not.toMatch(/[🥇🥈🥉]/u)
       expect(rows[3]?.text()).toContain('Ученик')
       expect(rows[3]?.text()).toContain('4')
       expect(rows[4]?.attributes('data-testid')).toBe('row-me')
-      expect(rows[4]?.classes()).toContain('bg-accent-soft')
+      expect(rows[4]?.classes()).toContain('bg-nav-active')
+      expect(rows[4]?.get('[data-testid=rank]').classes()).toContain('bg-surface')
       expect(rows[4]?.text()).toContain('· вы')
       expect(has(wrapper, 'row-pinned')).toBe(false)
     })
@@ -304,7 +315,7 @@ describe('MonthlyRatingView', () => {
       expect(has(wrapper, 'my-card')).toBe(false)
 
       vi.mocked(api.league.month).mockResolvedValue(response())
-      await wrapper.get('button').trigger('click')
+      await wrapper.get('[data-testid=retry-btn]').trigger('click')
       await flushPromises()
 
       expect(api.league.month).toHaveBeenCalledTimes(2)

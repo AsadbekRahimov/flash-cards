@@ -7,6 +7,7 @@ import { api } from '@/api'
 import { settingsFixture } from '@/api/__tests__/settingsFixture'
 import { ApiClientError } from '@/api/client'
 import { useToast } from '@/composables/useToast'
+import { useSettingsStore } from '@/stores/settings'
 import { setLocale } from '@/i18n'
 import type { LearnerSettings, MeResponse } from '@/api/types'
 
@@ -238,6 +239,18 @@ describe('SettingsView: the emoji of Pro', () => {
     expect(vi.mocked(api.me.updateSettings).mock.calls).toEqual([[{ pro_emoji: 'fire' }]])
     expect(w.get('[data-testid=pro-emoji-fire]').attributes('aria-checked')).toBe('true')
     expect(w.find('[data-testid=paywall]').exists()).toBe(false)
+    w.unmount()
+  })
+
+  it('keeps the emoji of the answer for the Profile: the name shows the new choice without another /me', async () => {
+    const w = await render(settings({}, false))
+    const answer = me(settings({ pro_emoji_choice: 'fire' }, false))
+    vi.mocked(api.me.updateSettings).mockResolvedValue({ ...answer, learner: { ...answer.learner, pro_emoji: '🔥' } })
+
+    await w.get('[data-testid=pro-emoji-fire]').trigger('click')
+    await flushPromises()
+
+    expect(useSettingsStore().proEmoji).toBe('🔥')
     w.unmount()
   })
 

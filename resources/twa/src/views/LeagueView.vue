@@ -279,22 +279,22 @@ onMounted(() => {
               data-testid="my-points"
             >
               <AppIcon name="star" solid :size="16" />
-              {{ tn('league.points', membership.points) }}
+              {{ tn('league.score', membership.points) }}
             </span>
             <span class="h-[30px] w-px shrink-0 bg-accent-line" aria-hidden="true" />
             <p class="min-w-0 text-[13px] leading-[17px]" data-testid="to-next">
               <template v-if="toNext !== null">
-                {{ t('league.to_next_short', { rank: membership.rank - 1 }) }}<br />{{ tn('league.points', toNext) }}
+                {{ t('league.to_next_short', { rank: membership.rank - 1 }) }}<br />{{ tn('league.score', toNext) }}
               </template>
               <template v-else>{{ t('league.first_place') }}</template>
             </p>
           </div>
 
           <p v-if="membership.points_to_safety !== null" class="relative text-[13px] leading-[18px] font-semibold text-danger-ink" data-testid="to-safety">
-            {{ t('league.to_safety', { points: tn('league.points', membership.points_to_safety) }) }}
+            {{ t('league.to_safety', { points: tn('league.score', membership.points_to_safety) }) }}
           </p>
           <p v-else-if="membership.points_to_promote !== null && membership.points_to_promote !== toNext" class="relative text-[13px] leading-[18px] text-muted" data-testid="to-promote">
-            {{ t('league.to_promote', { points: tn('league.points', membership.points_to_promote) }) }}
+            {{ t('league.to_promote', { points: tn('league.score', membership.points_to_promote) }) }}
           </p>
           <p v-else-if="isTopTier && membership.points_to_promote === null" class="relative text-[13px] leading-[18px] text-muted" data-testid="top-tier">
             {{ t('league.top_tier') }}
@@ -323,7 +323,7 @@ onMounted(() => {
             >
               <span
                 class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg text-[15px] font-bold text-accent tabular-nums"
-                :class="line.row.is_me ? 'bg-surface' : 'bg-accent-soft'"
+                :class="{ 'bg-surface': line.row.is_me, 'bg-accent-soft': !line.row.is_me }"
                 :data-zone="zoneOf(line.row.rank)"
                 data-testid="rank"
               >{{ line.row.rank }}</span>
@@ -384,7 +384,7 @@ onMounted(() => {
               t(LAST_WEEK[data.last_week.result], {
                 tier: tierName(data.last_week.tier_key),
                 rank: data.last_week.rank,
-                points: tn('league.points', data.last_week.points),
+                points: tn('league.score', data.last_week.points),
               })
             "
           />

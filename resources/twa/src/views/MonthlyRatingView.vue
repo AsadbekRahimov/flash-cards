@@ -178,7 +178,7 @@ onMounted(() => {
           >
             <span
               class="flex h-7 w-[34px] shrink-0 items-center justify-center rounded-lg text-[15px] font-bold text-accent tabular-nums"
-              :class="row.is_me ? 'bg-surface' : 'bg-accent-soft'"
+              :class="{ 'bg-surface': row.is_me, 'bg-accent-soft': !row.is_me }"
               data-testid="rank"
             >{{ row.rank }}</span>
             <span class="min-w-0 flex-1 truncate text-base leading-[22px] font-bold">

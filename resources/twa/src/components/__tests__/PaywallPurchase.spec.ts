@@ -129,7 +129,8 @@ describe('PaywallSheet in purchase mode', () => {
     const w = await render()
 
     expect(plain(w.get('[data-testid=pay-telegram_stars]').text())).toBe('Оформить Pro за 150 Stars')
-    expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Telegram Stars.')
+    // a Stars month is a Telegram subscription: it renews itself, and the line says so instead of "without auto-renewal"
+    expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Telegram Stars, продлевается сама каждые 30 дней — отключить можно в «Подписке».')
     expect(w.get('[data-testid=paywall-close]').text()).toBe('Не сейчас')
     expect(w.get('[data-testid=paywall-close]').classes()).toContain('btn-plain')
     expect(w.get('[data-testid=pay-other]').text()).toContain('Или оплатить по-другому')
@@ -182,6 +183,14 @@ describe('PaywallSheet in purchase mode', () => {
     expect(payPrice(w, 'payme')).toBe('29 000 сум')
   })
 
+  it('says "without auto-renewal" only for a payment of one period: a Stars year, Payme, Click', async () => {
+    const w = await render()
+
+    await w.get('[data-testid=period-year]').trigger('click')
+
+    expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Telegram Stars, без автопродления.')
+  })
+
   describe('the period switch', () => {
     it('says how much the year saves, from the prices of one currency (sums first)', async () => {
       const w = await render()
@@ -189,9 +198,16 @@ describe('PaywallSheet in purchase mode', () => {
       // 1 − 249 000 / (12 × 29 000) = 28 %
       expect(plain(w.get('[data-testid=period-month] [data-testid=period-price]').text())).toBe('150 Stars')
       expect(w.get('[data-testid=period-month]').text()).toContain('Месяц')
-      expect(w.get('[data-testid=period-month] [data-testid=period-saving]').text()).toBe('')
+      // the month saves nothing: the chosen card says "chosen" there, as on the Pro mock-up
+      expect(w.get('[data-testid=period-month] [data-testid=period-saving]').text()).toBe('выбрано')
+      expect(w.get('[data-testid=period-month]').classes()).toEqual(expect.arrayContaining(['border-2', 'border-primary', 'bg-accent-soft']))
       expect(plain(w.get('[data-testid=period-year] [data-testid=period-price]').text())).toBe('1 300 Stars')
       expect(w.get('[data-testid=period-year] [data-testid=period-saving]').text()).toBe('выгоднее на 28%')
+      expect(w.get('[data-testid=period-year] [data-testid=period-saving]').classes()).toContain('text-success-ink')
+
+      // a card that saves nothing and is not chosen says nothing
+      await w.get('[data-testid=period-year]').trigger('click')
+      expect(w.get('[data-testid=period-month] [data-testid=period-saving]').text()).toBe('')
     })
 
     it('reads Stars when there are no sum prices', async () => {
@@ -388,14 +404,14 @@ describe('PaywallSheet in purchase mode', () => {
     })
     vi.mocked(api.billing.order).mockResolvedValue(order('pending'))
     const w = await render()
-    expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Telegram Stars.')
+    expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Telegram Stars, продлевается сама каждые 30 дней — отключить можно в «Подписке».')
 
     await w.get('[data-testid=pay-click]').trigger('click')
     await vi.advanceTimersByTimeAsync(0)
     await flushPromises()
 
     expect(w.find('[data-testid=purchase-awaiting]').exists()).toBe(true)
-    expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Click.')
+    expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Click, без автопродления.')
   })
 
   it('stops waiting when the sheet is closed', async () => {
@@ -891,7 +907,7 @@ describe('PaywallSheet in purchase mode', () => {
     expect(plain(w.get('[data-testid=pay-payme]').attributes('aria-label') ?? '')).toBe("To'lash: Payme · 29 000 so'm")
     expect(payName(w, 'telegram_stars')).toBe('150 Stars evaziga Pro olish')
     expect(w.get('[data-testid=period-year] [data-testid=period-saving]').text()).toBe('28% arzonroq')
-    expect(w.get('[data-testid=pay-method]').text()).toBe("To'lov Telegram Stars orqali.")
+    expect(w.get('[data-testid=pay-method]').text()).toBe("To'lov Telegram Stars orqali, har 30 kunda o'zi uzayadi — «Obuna» bo'limida o'chirish mumkin.")
     expect(w.get('[role=radiogroup]').attributes('aria-label')).toBe("Obuna muddati")
   })
 
@@ -1005,7 +1021,7 @@ describe('PaywallSheet in purchase mode', () => {
 
       await w.get('[data-testid=period-quarter]').trigger('click')
       expect(plain(w.get('[data-testid=pay-payme]').text())).toBe('Оформить Pro за 75 000 сум')
-      expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Payme.')
+      expect(w.get('[data-testid=pay-method]').text()).toBe('Оплата через Payme, без автопродления.')
     })
 
     it('without a price in sums (BILLING_PRICE_PRO_QUARTER_UZS=0) is paid in Stars only: Payme and Click are not offered for it', async () => {

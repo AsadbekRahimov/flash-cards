@@ -39,12 +39,6 @@ export const ru = {
   'profile.plan.trial_until': 'Пробный Pro до {date}',
   'profile.plan.pro_forever': 'Pro без срока',
   'profile.plan.pro_center': 'Pro от центра',
-  'profile.plan.free': {
-    one: 'Бесплатный тариф: {count} новое слово в день',
-    few: 'Бесплатный тариф: {count} новых слова в день',
-    many: 'Бесплатный тариф: {count} новых слов в день',
-    other: 'Бесплатный тариф: {count} новых слова в день',
-  },
   'profile.plan.free_plain': 'Бесплатный тариф',
   'profile.plan.free_short': {
     one: '{count} новое слово в день',
@@ -881,6 +875,12 @@ export const ru = {
   'league.tier.platinum': 'Платина',
   'league.tier.diamond': 'Алмаз',
   'league.points': {
+    one: '{count} очко',
+    few: '{count} очка',
+    many: '{count} очков',
+    other: '{count} очка',
+  },
+  'league.score': {
     one: '{count} балл',
     few: '{count} балла',
     many: '{count} баллов',
