@@ -16,10 +16,12 @@ use Illuminate\Support\Facades\DB;
  * In chunks of `polls.prune_chunk` rows: each `DELETE … WHERE id IN (SELECT id … WHERE poll_id = ? LIMIT n)` is its own statement
  * and its own short transaction (no long transaction, no lock on the whole poll's rows, no huge WAL burst), along
  * `poll_votes (poll_id, poll_option_id)` and `poll_deliveries (poll_id, learner_id)`. The votes go first, so the cascade of the
- * deliveries finds nothing to do. A poll already pruned costs two empty reads; a repeated or parallel run changes nothing twice.
+ * deliveries finds nothing to do. The cached breakdowns of a pruned poll are forgotten. A poll already pruned costs two empty reads; a repeated or parallel run changes nothing twice.
  */
 final class PollPruner
 {
+    public function __construct(private readonly PollReport $report) {}
+
     /** @return array{polls: int, votes: int, deliveries: int} */
     public function prune(?CarbonImmutable $now = null): array
     {
@@ -42,6 +44,8 @@ final class PollPruner
             $deliveries = $this->deleteInChunks('poll_deliveries', (int) $pollId, $chunk);
 
             if ($votes + $deliveries > 0) {
+                // The cached breakdowns of the closed poll describe rows that are gone; its totals stay in `results_snapshot`.
+                $this->report->forget((int) $pollId);
                 $out['polls']++;
                 $out['votes'] += $votes;
                 $out['deliveries'] += $deliveries;
