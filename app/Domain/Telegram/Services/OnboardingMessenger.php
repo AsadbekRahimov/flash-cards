@@ -16,9 +16,12 @@ use App\Domain\Organizations\Services\LearnerOrganizationsService;
 use App\Domain\Organizations\Services\OrganizationMembershipService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
+use App\Domain\Learners\Support\Regions;
+use App\Domain\Telegram\Support\BotButton;
 use App\Domain\Telegram\Support\TwaScreen;
 use App\Models\Course;
 use App\Models\Learner;
+use Carbon\CarbonImmutable;
 
 /**
  * Renders onboarding and `/settings` screens: message text from `lang/{ru,uz}/onboarding.php` in the
@@ -29,6 +32,8 @@ use App\Models\Learner;
  * and IANA ids), the prefix carries the format version so a future layout can ignore old buttons:
  *   onb1 — answer to the onboarding step;
  *   set1 — `/settings`: `set1:<step>` opens the step, `set1:<step>:<value>` saves the answer.
+ * The region step (docs/35 §2.3) has two screens in ONE message: `…:region:uz` and `…:region:back` edit it to the other screen
+ * ({@see editStep()}); every button is made by {@see BotButtons} (≤ 64 bytes).
  */
 final class OnboardingMessenger
 {
@@ -38,6 +43,9 @@ final class OnboardingMessenger
 
     /** `set1:tzundo` — the button that takes back a just-made change of the time zone. */
     public const TIMEZONE_UNDO_STEP = 'tzundo';
+
+    /** `set1:rgundo` — the button that takes back a just-made change of the region. */
+    public const REGION_UNDO_STEP = 'rgundo';
 
     public function __construct(
         private readonly TelegramClient $telegram,
@@ -81,18 +89,42 @@ final class OnboardingMessenger
             return;
         }
 
-        $steps = OnboardingService::steps();
-        $text = __('onboarding.step_counter', [
-            'n' => (int) array_search($step->state, $steps, true) + 1,
-            'total' => count($steps),
-        ], $locale)."\n".__($step->messageKey, [], $locale);
+        $text = $this->stepText($step, $locale);
 
         if ($welcome !== null) {
             $invited = $this->invitedBy($learner, $welcome, $locale);
             $text = ($invited === null ? '' : $invited."\n\n").__('onboarding.welcome', [], 'ru')."\n\n".__('onboarding.welcome', [], 'uz')."\n\n".$text;
         }
 
-        $this->telegram->sendMessage($chatId, $text, replyMarkup: $this->keyboard($step, $locale, self::ONBOARDING_PREFIX));
+        $this->telegram->sendMessage($chatId, $text, replyMarkup: $this->keyboard($step, $locale, self::ONBOARDING_PREFIX, $chatId));
+    }
+
+    /**
+     * The other screen of a step in the same message (the two screens of the region step): `$prefix` is the onboarding's (with the
+     * counter of steps) or the settings'. A message Telegram no longer lets us edit gets the screen as a new message.
+     */
+    public function editStep(Learner $learner, int|string $chatId, int $messageId, OnboardingStep $step, string $prefix): void
+    {
+        $locale = $this->locales->forLearner($learner);
+        $text = $prefix === self::ONBOARDING_PREFIX ? $this->stepText($step, $locale) : (string) __($step->messageKey, [], $locale);
+        $keyboard = $this->keyboard($step, $locale, $prefix, $chatId);
+
+        try {
+            $this->telegram->editMessageText($chatId, $messageId, $text, replyMarkup: $keyboard);
+        } catch (TelegramApiException) {
+            $this->telegram->sendMessage($chatId, $text, replyMarkup: $keyboard);
+        }
+    }
+
+    /** "Step n of N" and the question of the step. */
+    private function stepText(OnboardingStep $step, string $locale): string
+    {
+        $steps = OnboardingService::steps();
+
+        return __('onboarding.step_counter', [
+            'n' => (int) array_search($step->state, $steps, true) + 1,
+            'total' => count($steps),
+        ], $locale)."\n".__($step->messageKey, [], $locale);
     }
 
     /**
@@ -162,31 +194,20 @@ final class OnboardingMessenger
         $locale = $this->locales->forLearner($learner);
 
         $buttons = array_map(
-            fn (string $step): array => [
-                'text' => __('onboarding.settings.buttons.'.$step, [], $locale),
-                'callback_data' => self::SETTINGS_PREFIX.':'.$step,
-            ],
+            fn (string $step): BotButton => $this->buttons->callback(__('onboarding.settings.buttons.'.$step, [], $locale), self::SETTINGS_PREFIX.':'.$step),
             OnboardingService::steps(),
         );
 
         $rows = array_chunk($buttons, 2);
         // "My centers" (docs/13 §6.2) only for a learner who is in one; its buttons are OrganizationMessenger's.
         if ($this->organizations->hasMemberships($learner)) {
-            $rows[] = [[
-                'text' => __('organizations.settings_button', [], $locale),
-                'callback_data' => OrganizationMessenger::PREFIX.':list',
-            ]];
+            $rows[] = [$this->buttons->callback(__('organizations.settings_button', [], $locale), OrganizationMessenger::PREFIX.':list')];
         }
 
         // "Delete account" last, alone in its row: its own confirmation follows (AccountDeletionMessenger).
-        $rows[] = [[
-            'text' => __('bot.delete_account.settings_button', [], $locale),
-            'callback_data' => AccountDeletionMessenger::ASK,
-        ]];
+        $rows[] = [$this->buttons->callback(__('bot.delete_account.settings_button', [], $locale), AccountDeletionMessenger::ASK)];
 
-        $this->telegram->sendMessage($chatId, __('onboarding.settings.menu', [], $locale), replyMarkup: [
-            'inline_keyboard' => $rows,
-        ]);
+        $this->telegram->sendMessage($chatId, __('onboarding.settings.menu', [], $locale), replyMarkup: $this->buttons->keyboard($chatId, $rows));
     }
 
     /** `/settings`: the options of one step. */
@@ -199,7 +220,7 @@ final class OnboardingMessenger
         $this->telegram->sendMessage(
             $chatId,
             __($stepView->messageKey, [], $locale),
-            replyMarkup: $this->keyboard($stepView, $locale, self::SETTINGS_PREFIX),
+            replyMarkup: $this->keyboard($stepView, $locale, self::SETTINGS_PREFIX, $chatId),
         );
     }
 
@@ -212,12 +233,43 @@ final class OnboardingMessenger
         $locale = $this->locales->forLearner($learner);
         $stepView = $this->onboarding->step('locale');
 
-        $this->telegram->sendMessage($chatId, __('onboarding.settings.language_title', [], 'uz').' · '.__('onboarding.settings.language_title', [], 'ru'), replyMarkup: $this->keyboard($stepView, $locale, self::SETTINGS_PREFIX));
+        $this->telegram->sendMessage($chatId, __('onboarding.settings.language_title', [], 'uz').' · '.__('onboarding.settings.language_title', [], 'ru'), replyMarkup: $this->keyboard($stepView, $locale, self::SETTINGS_PREFIX, $chatId));
     }
 
     public function sendSettingSaved(Learner $learner, int|string $chatId): void
     {
         $this->telegram->sendMessage($chatId, __('onboarding.settings.saved', [], $this->locales->forLearner($learner)));
+    }
+
+    /** `/settings` → region saved: the new region and the one "Undo" button (10 minutes, {@see REGION_UNDO_STEP}). */
+    public function sendRegionSaved(Learner $learner, int|string $chatId): void
+    {
+        $locale = $this->locales->forLearner($learner);
+        $region = $learner->region_code === null ? __('onboarding.settings.region_none', [], $locale) : Regions::name($learner->region_code, $locale);
+
+        $this->telegram->sendMessage(
+            $chatId,
+            __('onboarding.settings.region_saved', ['region' => $region], $locale),
+            replyMarkup: $this->buttons->single($chatId, $this->buttons->callback(__('onboarding.settings.region_undo', [], $locale), self::SETTINGS_PREFIX.':'.self::REGION_UNDO_STEP)),
+        );
+    }
+
+    /** "You can change the region from 24.12.2026" (the date in the learner's zone). */
+    public function sendRegionChangeTooSoon(Learner $learner, int|string $chatId, CarbonImmutable $availableAt): void
+    {
+        $this->telegram->sendMessage($chatId, __('onboarding.settings.region_too_soon', [
+            'date' => $availableAt->setTimezone($learner->timezone)->format('d.m.Y'),
+        ], $this->locales->forLearner($learner)));
+    }
+
+    public function sendRegionReverted(Learner $learner, int|string $chatId): void
+    {
+        $this->telegram->sendMessage($chatId, __('onboarding.settings.region_reverted', [], $this->locales->forLearner($learner)));
+    }
+
+    public function sendRegionRevertUnavailable(Learner $learner, int|string $chatId): void
+    {
+        $this->telegram->sendMessage($chatId, __('onboarding.settings.region_revert_unavailable', [], $this->locales->forLearner($learner)));
     }
 
     public function sendTimezoneReverted(Learner $learner, int|string $chatId): void
@@ -241,19 +293,28 @@ final class OnboardingMessenger
     }
 
     /**
-     * @return array{inline_keyboard: list<list<array{text: string, callback_data: string}>>}
+     * The buttons of a step, `$step->columns` in a row; the "← Back" of the regions alone in the last row.
+     *
+     * @return array{inline_keyboard: list<list<array<string, mixed>>>}
      */
-    private function keyboard(OnboardingStep $step, string $locale, string $prefix): array
+    private function keyboard(OnboardingStep $step, string $locale, string $prefix, int|string $chatId): array
     {
         $buttons = [];
+        $last = [];
         foreach ($step->options as $option) {
-            $buttons[] = [
-                'text' => $option->label ?? __((string) $option->labelKey, $option->labelParams, $locale),
-                'callback_data' => $prefix.':'.$step->state.':'.$option->value,
-            ];
+            $button = $this->buttons->callback(
+                (string) ($option->label ?? __((string) $option->labelKey, $option->labelParams, $locale)),
+                $prefix.':'.$step->state.':'.$option->value,
+            );
+            if ($step->state === 'region' && $option->value === OnboardingService::REGION_BACK) {
+                $last[] = [$button];
+
+                continue;
+            }
+            $buttons[] = $button;
         }
 
-        return ['inline_keyboard' => array_chunk($buttons, max(1, $step->columns))];
+        return $this->buttons->keyboard($chatId, [...array_chunk($buttons, max(1, $step->columns)), ...$last]);
     }
 
     private function courseTitle(Course $course, string $locale): string

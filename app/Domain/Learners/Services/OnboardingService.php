@@ -12,20 +12,29 @@ use App\Domain\Learners\DTO\OnboardingStep;
 use App\Domain\Learners\DTO\StartPayload;
 use App\Domain\Learners\Enums\StartPayloadKind;
 use App\Domain\Learners\Exceptions\OnboardingException;
+use App\Domain\Learners\Exceptions\RegionChangeTooSoonException;
+use App\Domain\Learners\Support\Regions;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Organizations\Services\OrganizationInviteService;
 use App\Models\Course;
 use App\Models\Learner;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The `/start` onboarding in the bot (docs/12 §7.1): interface language → goal → level (self-assessment)
+ * The `/start` onboarding in the bot (docs/12 §7.1): interface language → region (docs/35 §2.3) → goal → level (self-assessment)
  * → reminder time. The goal step exists only while more than one goal is enabled (`learners.goals`,
  * {@see self::availableGoals()}): with one, it is skipped and that goal is written. There is no time zone step
  * (owner's decision of 16.11.2026): a new learner gets `learners.default_timezone`. `learners.onboarding_state`
  * is the step the learner has to answer now (`new` until `/start`, then `locale` … `reminder`, finally `done`).
  * A learner stuck on a step that no longer exists (`timezone`, or `goal` while it is off) is moved to the next
  * live one by {@see self::settle()}.
+ *
+ * The region step has two screens (docs/35 §2.3): "Uzbekistan / Another country / Rather not say", and after "Uzbekistan" the 14
+ * regions with "← Back". "Uzbekistan" and "Back" are not answers: {@see self::regionScreen()} only gives the other screen (the state
+ * stays `region`), so an old button of the first screen after the answer is a stale one. A region, "Another country" and "Rather not
+ * say" (NULL) answer the step through {@see LearnerRegionService::applyLocked()}. Learners already past the language step when the
+ * step appeared are not taken back to it.
  *
  * `apply()` accepts only the answer to the CURRENT step, under a row lock: a tap on an old
  * message, a double tap or two parallel webhook deliveries are rejected with
@@ -43,7 +52,7 @@ final class OnboardingService
     public const DONE = 'done';
 
     /** In the order they are asked; the `goal` step is skipped while only one goal is enabled, see {@see self::steps()}. */
-    public const STEPS = ['locale', 'goal', 'level', 'reminder'];
+    public const STEPS = ['locale', 'region', 'goal', 'level', 'reminder'];
 
     /** The step that was removed from the onboarding: a learner may still be stored on it. */
     public const LEGACY_TIMEZONE_STEP = 'timezone';
@@ -57,6 +66,15 @@ final class OnboardingService
     public const LEVEL_UNKNOWN = 'unknown';
 
     public const REMINDER_OFF = 'off';
+
+    /** The region step, first screen: "Uzbekistan" opens the list of its regions (not an answer). */
+    public const REGION_UZBEKISTAN = 'uz';
+
+    /** The region step, second screen: "← Back" to the first one (not an answer). */
+    public const REGION_BACK = 'back';
+
+    /** The region step: "Rather not say" - no region (NULL). */
+    public const REGION_NONE = 'none';
 
     /** Callback value => local time. */
     public const REMINDER_TIMES = ['0800' => '08:00', '1300' => '13:00', '1900' => '19:00', '2100' => '21:00'];
@@ -78,6 +96,7 @@ final class OnboardingService
         private readonly CourseCatalogService $catalog,
         private readonly ProductEventRecorder $events,
         private readonly LearnerSettingsService $settings,
+        private readonly LearnerRegionService $regions,
     ) {}
 
     /**
@@ -271,8 +290,9 @@ final class OnboardingService
         $via = null;
         $course = null;
         $remindersDisabled = false;
+        $regionChange = null;
 
-        DB::transaction(function () use ($learner, $step, $changes, &$completed, &$course, &$via, &$remindersDisabled): void {
+        DB::transaction(function () use ($learner, $step, $changes, &$completed, &$course, &$via, &$remindersDisabled, &$regionChange): void {
             $fresh = $this->lock($learner);
             $this->settleLocked($fresh);
             if ($fresh->onboarding_state !== $step) {
@@ -282,6 +302,11 @@ final class OnboardingService
             // "Off" over the default time of a new learner: reminders turned off (`reminders.disabled`, audit 2026-11-18).
             $remindersDisabled = array_key_exists('reminder_time', $changes) && $changes['reminder_time'] === null
                 && $fresh->reminder_time !== null && $fresh->reminder_time !== '';
+
+            if (array_key_exists('region_code', $changes)) {
+                $regionChange = $this->applyRegion($fresh, $changes['region_code']);
+                unset($changes['region_code']);
+            }
 
             $fresh->fill($changes);
             if ($step === 'locale') {
@@ -309,6 +334,9 @@ final class OnboardingService
         $learner->refresh();
 
         $this->events->record(ProductEventName::OnboardingStepCompleted, ['step' => $step], learner: $learner);
+        if ($regionChange !== null) {
+            $this->regions->recordChange($learner, $regionChange, LearnerRegionService::VIA_ONBOARDING);
+        }
         if ($remindersDisabled) {
             $this->events->record(ProductEventName::RemindersDisabled, ['via' => 'onboarding'], learner: $learner);
         }
@@ -329,6 +357,57 @@ final class OnboardingService
         }
 
         return $this->current($learner);
+    }
+
+    /**
+     * The other screen of the region step, for "Uzbekistan" (the 14 regions) or "← Back" (the first screen) of the onboarding: only
+     * while the learner is on that step - an old button is a stale one. Nothing is written.
+     *
+     * @throws OnboardingException staleStep when the learner is not on the region step, invalidValue for another value
+     */
+    public function regionScreen(Learner $learner, string $value): OnboardingStep
+    {
+        if (! in_array($value, [self::REGION_UZBEKISTAN, self::REGION_BACK], true)) {
+            throw OnboardingException::invalidValue('region');
+        }
+
+        $state = Learner::query()->whereKey($learner->id)->value('onboarding_state');
+        if ($state !== 'region') {
+            throw OnboardingException::staleStep('region');
+        }
+
+        return $this->regionStep($value, $this->locales->forLearner($learner));
+    }
+
+    /** The screen of the region step: the first one, or the 14 regions after "Uzbekistan" in the order of `$locale` (also for `/settings`). */
+    public function regionStep(string $screen = self::REGION_BACK, ?string $locale = null): OnboardingStep
+    {
+        if ($screen !== self::REGION_UZBEKISTAN) {
+            return new OnboardingStep('region', 'onboarding.steps.region', $this->options('region'), 1);
+        }
+
+        return new OnboardingStep('region', 'onboarding.steps.region_list', [
+            ...array_map(
+                fn (string $code): OnboardingOption => new OnboardingOption($code, 'regions.'.$code),
+                Regions::ordered($locale ?? $this->locales->fallback()),
+            ),
+            new OnboardingOption(self::REGION_BACK, 'onboarding.options.region.back'),
+        ], 2);
+    }
+
+    /**
+     * The answer of the region step on the locked row. The onboarding is the first choice and is accepted; a learner who has
+     * already chosen a region elsewhere (the Mini App) inside the last 30 days keeps it - the step is passed all the same.
+     *
+     * @return array{from: string|null, to: string|null}|null
+     */
+    private function applyRegion(Learner $fresh, mixed $code): ?array
+    {
+        try {
+            return $this->regions->applyLocked($fresh, is_string($code) ? $code : null, CarbonImmutable::now());
+        } catch (RegionChangeTooSoonException) {
+            return null;
+        }
     }
 
     /**
@@ -359,6 +438,7 @@ final class OnboardingService
             'goal' => in_array('goal', self::steps(), true)
                 ? new OnboardingStep('goal', 'onboarding.steps.goal', $this->options('goal'), 2)
                 : $this->step('level'),
+            'region' => $this->regionStep(),
             'level', 'reminder' => new OnboardingStep($state, 'onboarding.steps.'.$state, $this->options($state), $state === 'level' ? 3 : 2),
             // A state stored before the time zone step was removed: the step after it.
             self::LEGACY_TIMEZONE_STEP => $this->step('reminder'),
@@ -375,6 +455,12 @@ final class OnboardingService
                     fn (string $locale): OnboardingOption => new OnboardingOption($locale, label: (string) config('localization.names.'.$locale, $locale)),
                     $this->locales->supported(),
                 );
+            case 'region':
+                return [
+                    new OnboardingOption(self::REGION_UZBEKISTAN, 'onboarding.options.region.uzbekistan'),
+                    new OnboardingOption(Regions::OTHER, 'onboarding.options.region.other'),
+                    new OnboardingOption(self::REGION_NONE, 'onboarding.options.region.none'),
+                ];
             case 'goal':
                 return array_map(
                     fn (string $goal): OnboardingOption => new OnboardingOption($goal, 'onboarding.options.goal.'.$goal),
@@ -411,6 +497,11 @@ final class OnboardingService
             'locale' => in_array($value, $this->locales->supported(), true)
                 ? ['interface_locale' => $value]
                 : throw OnboardingException::invalidValue($step),
+            'region' => match (true) {
+                $value === self::REGION_NONE => ['region_code' => null],
+                Regions::isValid($value) => ['region_code' => $value],
+                default => throw OnboardingException::invalidValue($step),
+            },
             'goal' => in_array($value, self::availableGoals(), true)
                 ? ['goal' => $value]
                 : throw OnboardingException::invalidValue($step),

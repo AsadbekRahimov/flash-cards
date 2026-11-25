@@ -16,12 +16,21 @@ return [
     // The onboarding steps (the goal one only while several goals are enabled; no time zone step) (docs/12 §7.1), one message each.
     'steps' => [
         'locale' => 'Выберите язык интерфейса',
+        // The region (docs/35 §2.3): the first screen, then the list of the regions of Uzbekistan in the same message.
+        'region' => 'Где вы живёте? Это нужно для рейтинга вашего региона.',
+        'region_list' => 'Выберите ваш регион',
         'goal' => 'Для чего вам английский?',
         'level' => 'Какой у вас уровень? Оцените себя как получится — позже его можно изменить.',
         'reminder' => 'Когда напоминать о повторении слов?',
     ],
 
     'options' => [
+        'region' => [
+            'uzbekistan' => '🇺🇿 Узбекистан',
+            'other' => '🌍 Другая страна',
+            'none' => 'Не указывать',
+            'back' => '← Назад',
+        ],
         'goal' => [
             'general' => 'Общий английский',
             'ielts' => 'IELTS',
@@ -74,8 +83,15 @@ return [
         'saved' => 'Сохранено.',
         'timezone_reverted' => 'Часовой пояс возвращён.',
         'timezone_revert_unavailable' => 'Отменить смену часового пояса уже нельзя: прошло больше 10 минут или она уже отменена.',
+        'region_saved' => 'Регион: :region. Сохранено.',
+        'region_none' => 'не указан',
+        'region_undo' => '↩️ Отменить',
+        'region_too_soon' => 'Регион можно менять раз в 30 дней. Сменить регион можно с :date.',
+        'region_reverted' => 'Прежний регион возвращён.',
+        'region_revert_unavailable' => 'Отменить смену региона уже нельзя: прошло больше 10 минут или она уже отменена.',
         'buttons' => [
             'locale' => 'Язык',
+            'region' => 'Регион',
             'goal' => 'Цель',
             'level' => 'Уровень',
             'reminder' => 'Напоминания',

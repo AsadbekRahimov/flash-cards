@@ -15,12 +15,20 @@ return [
     // The onboarding steps (the goal one only while several goals are enabled; no time zone step) (docs/12 §7.1), one message each.
     'steps' => [
         'locale' => 'Interfeys tilini tanlang',
+        'region' => 'Qayerda yashaysiz? Bu hududingiz reytingi uchun kerak.',
+        'region_list' => 'Hududingizni tanlang',
         'goal' => "Ingliz tilini nima uchun o'rganmoqchisiz?",
         'level' => "Ingliz tilini qay darajada bilasiz? O'zingizga mos darajani tanlang. Keyin uni sozlamalarda o'zgartirishingiz mumkin.",
         'reminder' => "So'zlarni takrorlashni qachon eslatib turay?",
     ],
 
     'options' => [
+        'region' => [
+            'uzbekistan' => "🇺🇿 O'zbekiston",
+            'other' => '🌍 Boshqa davlat',
+            'none' => "Ko'rsatmaslik",
+            'back' => '← Orqaga',
+        ],
         'goal' => [
             'general' => 'Umumiy ingliz tili',
             'ielts' => 'IELTS',
@@ -72,8 +80,15 @@ return [
         'saved' => 'Saqlandi.',
         'timezone_reverted' => 'Avvalgi vaqt mintaqasi tiklandi.',
         'timezone_revert_unavailable' => "Vaqt mintaqasi o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan.",
+        'region_saved' => 'Hudud: :region. Saqlandi.',
+        'region_none' => "ko'rsatilmagan",
+        'region_undo' => '↩️ Bekor qilish',
+        'region_too_soon' => "Hududni 30 kunda bir marta o'zgartirish mumkin. Hududni :date dan boshlab o'zgartirishingiz mumkin.",
+        'region_reverted' => 'Avvalgi hudud tiklandi.',
+        'region_revert_unavailable' => "Hudud o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan.",
         'buttons' => [
             'locale' => 'Til',
+            'region' => 'Hudud',
             'goal' => 'Maqsad',
             'level' => 'Daraja',
             'reminder' => 'Eslatmalar',

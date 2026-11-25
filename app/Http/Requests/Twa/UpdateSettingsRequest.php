@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Twa;
 
+use App\Domain\Learners\Services\LearnerRegionService;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\OnboardingService;
+use App\Domain\Learners\Services\ProEmojiService;
+use App\Domain\Learners\Support\Regions;
 use App\Domain\Learning\DTO\LearnerExerciseSettings;
 use App\Domain\Learning\Support\LadderPolicy;
 use App\Domain\Localization\Services\LocaleResolver;
@@ -20,6 +23,26 @@ use Illuminate\Validation\Rule;
  */
 final class UpdateSettingsRequest extends FormRequest
 {
+    /**
+     * The settings of the request: everything validated but `region_via`, which is where the change comes from, not a setting.
+     *
+     * @return array<string, mixed>
+     */
+    public function settings(): array
+    {
+        $validated = $this->validated();
+        unset($validated['region_via']);
+
+        return $validated;
+    }
+
+    public function regionVia(): string
+    {
+        $via = $this->validated('region_via');
+
+        return is_string($via) ? $via : LearnerRegionService::VIA_SETTINGS;
+    }
+
     /** @return array<string, list<mixed>> */
     public function rules(): array
     {
@@ -39,6 +62,12 @@ final class UpdateSettingsRequest extends FormRequest
             'exercises.*' => ['boolean:strict'],
             // The FSRS retention mode (docs/06 §12.8).
             'retention_mode' => ['sometimes', 'string', Rule::in(LadderPolicy::RETENTION_MODES)],
+            // The region (docs/35 §2.3): a code of config/regions.php, `null` = "rather not say"; `region_via` says which screen
+            // chose it (`settings` / `prompt` - the card of the Rating tab), for the product event only.
+            'region_code' => ['sometimes', 'nullable', 'string', Rule::in(Regions::codes())],
+            'region_via' => ['sometimes', 'string', Rule::in(LearnerRegionService::CLIENT_VIAS)],
+            // The emoji of Pro (docs/31 §5а): a CODE of config/pro_emoji.php, never the emoji or free text; `null` takes it back.
+            'pro_emoji' => ['sometimes', 'nullable', 'string', Rule::in(array_keys($this->container->make(ProEmojiService::class)->set()))],
         ];
     }
 }

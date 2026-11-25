@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Learners\Exceptions\OnboardingException;
+use App\Domain\Learners\Exceptions\RegionChangeTooSoonException;
+use App\Domain\Learners\Exceptions\RegionRevertUnavailableException;
+use App\Domain\Learners\Services\LearnerRegionService;
 use App\Domain\Learners\Exceptions\TimezoneRevertUnavailableException;
 use App\Domain\Learners\Services\LearnerSettingsService;
 use App\Domain\Learners\Services\OnboardingService;
@@ -19,7 +22,9 @@ use App\Models\Learner;
 use Throwable;
 
 /**
- * Buttons of the onboarding (`onb1:<step>:<value>`) and of `/settings` (`set1:<step>[:<value>]`).
+ * Buttons of the onboarding (`onb1:<step>:<value>`) and of `/settings` (`set1:<step>[:<value>]`). The region step has two screens
+ * in one message: `…:region:uz` / `…:region:back` edit it (a stale `onb1:region:uz` after the answer changes nothing); `set1:rgundo`
+ * takes back a change of the region made in `/settings` within 10 minutes (docs/35 §2.3).
  *
  * `callback_data` is not signed, so everything in it is untrusted: the format is matched
  * strictly, the step must be a known one and the value is checked against the step's whitelist
@@ -49,6 +54,7 @@ final class OnboardingCallbackHandler implements UpdateHandler
         private readonly OrganizationMessenger $organizations,
         private readonly FriendsMessenger $friends,
         private readonly TrialWelcomeMessenger $trialWelcome,
+        private readonly LearnerRegionService $regions,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -103,6 +109,12 @@ final class OnboardingCallbackHandler implements UpdateHandler
             return;
         }
 
+        if ($this->isRegionUndo($m)) {
+            $this->undoRegion($learner, $chatId, $messageId);
+
+            return;
+        }
+
         try {
             if ($m[1] === OnboardingMessenger::ONBOARDING_PREFIX) {
                 if ($value === null) {
@@ -116,6 +128,13 @@ final class OnboardingCallbackHandler implements UpdateHandler
                         $this->messenger->clearKeyboard($chatId, $messageId);
                         $this->messenger->sendStep($learner, $chatId, $this->onboarding->current($learner));
                     }
+
+                    return;
+                }
+
+                if (self::isRegionScreen($step, $value)) {
+                    // "Uzbekistan" / "← Back": the other screen of the region step in the same message, nothing is answered.
+                    $this->messenger->editStep($learner, $chatId, $messageId, $this->onboarding->regionScreen($learner, $value), OnboardingMessenger::ONBOARDING_PREFIX);
 
                     return;
                 }
@@ -145,13 +164,28 @@ final class OnboardingCallbackHandler implements UpdateHandler
                 return;
             }
 
-            $this->onboarding->applySetting($learner, $step, $value);
+            if (self::isRegionScreen($step, $value)) {
+                $this->messenger->editStep($learner, $chatId, $messageId, $this->onboarding->regionStep($value, $learner->interface_locale), OnboardingMessenger::SETTINGS_PREFIX);
+
+                return;
+            }
+
+            try {
+                $this->onboarding->applySetting($learner, $step, $value);
+            } catch (RegionChangeTooSoonException $e) {
+                // docs/35 §2.3: "You can change the region from <date>"; the list stays, another tap after the date works.
+                $this->messenger->sendRegionChangeTooSoon($learner, $chatId, $e->availableAt);
+
+                return;
+            }
             $this->messenger->clearKeyboard($chatId, $messageId);
-            $this->messenger->sendSettingSaved($learner, $chatId);
+            $step === 'region'
+                ? $this->messenger->sendRegionSaved($learner, $chatId)
+                : $this->messenger->sendSettingSaved($learner, $chatId);
         } catch (OnboardingException $e) {
             // Stale or tampered button: already answered, nothing to change or say —
-            // except the retry of a half-delivered answer, see the class comment.
-            if ($e->errorCode === OnboardingException::STALE_STEP && $m[1] === OnboardingMessenger::ONBOARDING_PREFIX) {
+            // except the retry of a half-delivered answer, see the class comment (a screen of the region step answers nothing).
+            if ($e->errorCode === OnboardingException::STALE_STEP && $m[1] === OnboardingMessenger::ONBOARDING_PREFIX && ! self::isRegionScreen($step, $value)) {
                 $this->repeatLostStep($learner, $step, $chatId);
             }
         }
@@ -165,7 +199,7 @@ final class OnboardingCallbackHandler implements UpdateHandler
      */
     private function knownStep(array $m): bool
     {
-        if ($this->isTimezoneUndo($m)) {
+        if ($this->isTimezoneUndo($m) || $this->isRegionUndo($m)) {
             return true;
         }
 
@@ -178,6 +212,30 @@ final class OnboardingCallbackHandler implements UpdateHandler
     private function isTimezoneUndo(array $m): bool
     {
         return $m[1] === OnboardingMessenger::SETTINGS_PREFIX && $m[2] === OnboardingMessenger::TIMEZONE_UNDO_STEP && ! isset($m[3]);
+    }
+
+    /** @param array<int, string> $m the matches of {@see FORMAT}: `set1:rgundo` is the "undo" button under the confirmation of a region change */
+    private function isRegionUndo(array $m): bool
+    {
+        return $m[1] === OnboardingMessenger::SETTINGS_PREFIX && $m[2] === OnboardingMessenger::REGION_UNDO_STEP && ! isset($m[3]);
+    }
+
+    /** "Uzbekistan" and "← Back" of the region step switch its screen; they are not answers. */
+    private static function isRegionScreen(string $step, ?string $value): bool
+    {
+        return $step === 'region' && in_array($value, [OnboardingService::REGION_UZBEKISTAN, OnboardingService::REGION_BACK], true);
+    }
+
+    private function undoRegion(Learner $learner, int $chatId, int $messageId): void
+    {
+        $this->messenger->clearKeyboard($chatId, $messageId);
+
+        try {
+            $this->regions->revert($learner);
+            $this->messenger->sendRegionReverted($learner, $chatId);
+        } catch (RegionRevertUnavailableException) {
+            $this->messenger->sendRegionRevertUnavailable($learner, $chatId);
+        }
     }
 
     private function undoTimezone(Learner $learner, int $chatId, int $messageId): void

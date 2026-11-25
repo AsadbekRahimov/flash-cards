@@ -48,6 +48,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $last_seen_at
  * @property Carbon|null $blocked_at
  * @property Carbon|null $practice_pilot_at in the pilot of the practice (`PRACTICE_ACCESS=pilot`, docs/16 §3.2); NULL = not in it
+ * @property string|null $region_code an ISO 3166-2:UZ code or `other` (docs/35 §2.3); NULL = not given. Written only by LearnerRegionService
+ * @property Carbon|null $region_changed_at the last accepted choice of a region (the 30-day rule of LearnerRegionService)
+ * @property string|null $pro_emoji the code of the emoji of Pro (docs/31 §5а, config/pro_emoji.php); kept without Pro, shown only with it
  * @property array<string, mixed> $meta
  */
 class Learner extends Model
@@ -112,6 +115,7 @@ class Learner extends Model
             'last_seen_at' => 'datetime',
             'blocked_at' => 'datetime',
             'practice_pilot_at' => 'datetime',
+            'region_changed_at' => 'datetime',
             'meta' => 'array',
         ];
     }

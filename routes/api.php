@@ -52,6 +52,8 @@ Route::prefix('twa')->group(function (): void {
         Route::get('/me', MeController::class)->name('twa.me');
         Route::patch('/me/settings', [SettingsController::class, 'update'])->name('twa.me.settings');
         Route::post('/me/settings/timezone/revert', [SettingsController::class, 'revertTimezone'])->name('twa.me.settings.timezone.revert');
+        Route::post('/me/settings/region/revert', [SettingsController::class, 'revertRegion'])->name('twa.me.settings.region.revert');
+        Route::post('/me/region-prompt/dismiss', [SettingsController::class, 'dismissRegionPrompt'])->name('twa.me.region_prompt.dismiss');
         Route::post('/me/account-restored/seen', [MeController::class, 'restoredSeen'])->name('twa.me.account_restored.seen');
         Route::post('/me/delete', [SettingsController::class, 'delete'])->name('twa.me.delete');
         Route::get('/me/organizations', [OrganizationController::class, 'index'])->name('twa.me.organizations');

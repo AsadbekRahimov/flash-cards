@@ -12,6 +12,8 @@ enum ProductEventName: string
     case OnboardingCompleted = 'onboarding.completed';
     case CourseSelected = 'course.selected';
     case SettingsChanged = 'settings.changed';
+    /** The region of the learner changed (props: from, to - a code or null; via - onboarding / settings / prompt / undo; docs/35 §2.3). */
+    case RegionSet = 'region.set';
     case TrainingSessionOpened = 'training.session_opened';
     case TrainingSessionFinished = 'training.session_finished';
     case ExamStarted = 'exam.started';
