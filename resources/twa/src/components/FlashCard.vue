@@ -135,29 +135,29 @@ function onGrade(q: Quality): void {
 <template>
   <div class="flex flex-1 flex-col" data-testid="flashcard">
     <!-- One family with the other exercises (docs/design Question): the word large on the white screen, no box around it. -->
-    <article class="flex flex-col items-center px-5 pt-10 pb-4 text-center short:pt-4">
+    <article class="flex flex-col items-center px-5 pt-[30px] pb-4 text-center short:pt-4">
       <span class="flex flex-wrap items-center justify-center gap-1.5">
         <span class="chip" :class="kind.chip" data-testid="card-kind">{{ kind.label }}</span>
         <span v-if="isLeech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
       </span>
 
       <h2
-        class="mt-4 max-w-full text-[46px] leading-[52px] font-semibold tracking-[-0.6px] break-words short:mt-2 short:text-[36px] short:leading-[42px]"
+        class="mt-4 max-w-full text-[52px] leading-[58px] font-extrabold tracking-[-1px] break-words short:mt-2 short:text-[40px] short:leading-[46px]"
         lang="en"
         data-testid="word"
       >
         {{ card.word }}
       </h2>
-      <div class="mt-1.5 flex items-center gap-1">
-        <span v-if="card.transcription" class="font-ipa text-[15px] leading-5 text-muted" data-testid="transcription">{{ card.transcription }}</span>
+      <div class="mt-2 flex items-center gap-2.5">
+        <span v-if="card.transcription" class="font-ipa text-base leading-[22px] text-muted" data-testid="transcription">{{ card.transcription }}</span>
         <button
           type="button"
-          class="flex size-11 shrink-0 items-center justify-center rounded-full text-accent active:bg-fill"
+          class="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent active:bg-fill"
           :aria-label="t('card.speak')"
           data-testid="speak-btn"
           @click="onSpeak"
         >
-          <AppIcon name="speaker-wave" :size="20" />
+          <AppIcon name="speaker-wave" :size="22" />
         </button>
       </div>
       <p v-if="sayAloud" class="text-[13px] leading-[18px] text-muted" data-testid="say-aloud">{{ t('card.say_aloud') }}</p>
@@ -165,16 +165,16 @@ function onGrade(q: Quality): void {
       <template v-if="revealed">
         <hr class="mt-5 w-full border-divider short:mt-3" />
         <div class="w-full pt-5 short:pt-3">
-          <p class="text-2xl leading-[30px] font-semibold break-words" data-testid="translation">{{ card.translation }}</p>
+          <p class="text-2xl leading-[30px] font-bold break-words" data-testid="translation">{{ card.translation }}</p>
           <p v-if="card.translation_fallback" class="mt-1 text-[13px] leading-[18px] text-muted" data-testid="translation-fallback">
             {{ t('card.translation_fallback') }}
           </p>
           <!-- The speaker of the example (docs/26 §9.11) on its first line; the sentence wraps beside it. -->
-          <div v-if="card.example" class="mt-3 flex items-start justify-center gap-1">
-            <p class="min-w-0 text-base leading-[22px] break-words italic" lang="en" data-testid="example">
+          <div v-if="card.example" class="mt-3 flex items-start justify-center gap-2.5">
+            <p class="min-w-0 text-[17px] leading-[23px] break-words italic" lang="en" data-testid="example">
               {{ card.example }}
             </p>
-            <ExampleAudioButton v-if="card.example_audio_url" :url="card.example_audio_url" class="-mt-[11px]" />
+            <ExampleAudioButton v-if="card.example_audio_url" :url="card.example_audio_url" class="-mt-2.5" />
           </div>
           <p v-if="card.example && card.example_translation" class="mt-1 text-sm leading-5 text-muted" data-testid="example-translation">
             {{ card.example_translation }}

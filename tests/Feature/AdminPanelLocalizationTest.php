@@ -56,6 +56,7 @@ use App\Filament\Widgets\OrgActivationTableWidget;
 use App\Filament\Widgets\OrganizationSeatsTableWidget;
 use App\Filament\Widgets\PlatformSubscriptionsWidget;
 use App\Filament\Widgets\ProPathWidget;
+use App\Filament\Widgets\RegionDistributionWidget;
 use App\Filament\Widgets\RetentionTrendWidget;
 use App\Filament\Widgets\RevenueLast30DaysWidget;
 use App\Filament\Widgets\SchedulerComparisonWidget;
@@ -576,10 +577,11 @@ it('titles every dashboard widget in Russian', function (string $widget, string 
     [CentersFirstAssignmentWidget::class, 'Центры: до первого задания', 'first assignment'],
     [ProPathWidget::class, 'Путь к Pro · Stars', 'Path to Pro'],
     [WeeklyActivityWidget::class, 'Занятия по неделям', 'Weekly activity'],
+    [RegionDistributionWidget::class, 'Ученики по регионам', 'Learners by region'],
 ]);
 
 it('lists every widget of the panel in the dataset above', function (): void {
-    expect(Filament::getPanel('admin')->getWidgets())->toHaveCount(23);
+    expect(Filament::getPanel('admin')->getWidgets())->toHaveCount(24);
 });
 
 // --- values -----------------------------------------------------------------------------------

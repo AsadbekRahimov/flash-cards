@@ -17,6 +17,7 @@ function makeRouter() {
     history: createMemoryHistory(),
     routes: [
       { path: '/today', name: 'today', component: stub, meta: meta('today') },
+      { path: '/course', name: 'my-course', component: stub, meta: meta('courses') },
       { path: '/courses', name: 'courses', component: stub, meta: meta('courses') },
       { path: '/courses/:slug', name: 'course', component: stub, meta: meta('courses') },
       { path: '/league', name: 'league', component: stub, meta: meta('rating') },
@@ -43,7 +44,7 @@ describe('TabBar', () => {
 
     expect(w.attributes('role')).toBe('navigation')
     expect(w.findAll('a').map((a) => a.text())).toEqual(['Сегодня', 'Курс', 'Лига', 'Профиль'])
-    expect(w.findAll('a').map((a) => a.attributes('href'))).toEqual(['/today', '/courses', '/league', '/profile'])
+    expect(w.findAll('a').map((a) => a.attributes('href'))).toEqual(['/today', '/course', '/league', '/profile'])
     expect(w.findAll('a').map((a) => a.attributes('data-testid'))).toEqual(['tab-today', 'tab-courses', 'tab-rating', 'tab-profile'])
   })
 
@@ -137,12 +138,22 @@ describe('TabBar', () => {
   })
 
   it('from an inner screen the active tab leads back to its root', async () => {
+    const { w, router } = await mountBar('/settings')
+
+    await w.get('[data-testid=tab-profile]').trigger('click')
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('profile')
+  })
+
+  it('opens the learner course from the "Course" tab, not the catalog (docs/14 §6.5): the screen that looks it up', async () => {
     const { w, router } = await mountBar('/courses/ielts-core')
 
     await w.get('[data-testid=tab-courses]').trigger('click')
     await flushPromises()
 
-    expect(router.currentRoute.value.name).toBe('courses')
+    expect(router.currentRoute.value.name).toBe('my-course')
+    expect(w.get('[data-testid=tab-courses]').attributes('aria-current')).toBe('page')
   })
 
   it('is fixed to the bottom, flat, as high as the tab bar plus the home indicator', async () => {
@@ -166,7 +177,7 @@ describe('TabBar', () => {
       history: createMemoryHistory(),
       routes: [
         { path: '/today', name: 'today', component: stub },
-        { path: '/courses', name: 'courses', component: stub },
+        { path: '/course', name: 'my-course', component: stub },
         { path: '/league', name: 'league', component: stub },
         { path: '/profile', name: 'profile', component: stub },
       ],

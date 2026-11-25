@@ -77,7 +77,7 @@ describe('AudioCard', () => {
   it('asks "What did you hear?" and says how to listen again, on a big round play button', () => {
     const w = mount(AudioCard, { props: { card } })
 
-    expect(w.text()).toContain('Что вы услышали?')
+    expect(w.text()).toContain('Послушайте и выберите перевод')
     expect(w.get('[data-testid=replay-hint]').text()).toBe('Нажмите, чтобы послушать ещё раз')
     const play = w.get('[data-testid=play-btn]')
     expect(play.attributes('aria-label')).toBe('Прослушать ещё раз')
@@ -172,7 +172,7 @@ describe('AudioCard', () => {
   it('renders in Uzbek', async () => {
     setLocale('uz')
     const w = mount(AudioCard, { props: { card } })
-    expect(w.text()).toContain('Nimani eshitdingiz?')
+    expect(w.text()).toContain('Tinglang va tarjimasini tanlang')
     expect(w.get('[data-testid=replay-hint]').text()).toBe('Qayta tinglash uchun bosing')
     await w.get('[data-testid=option-0]').trigger('click')
     await w.setProps({ result: answered(false) })

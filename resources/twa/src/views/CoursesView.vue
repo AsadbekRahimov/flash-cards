@@ -18,9 +18,11 @@ import { useCoursesStore } from '@/stores/courses'
 import { useI18n } from '@/i18n'
 
 /**
- * "Courses" tab root (docs/14 §6.5): the catalog of courses with the learner's progress. A card opens the course;
- * its button starts the course (or switches to it: the source of the new words of the daily session) and leads to Home. The twin screen
- * of the tab is "My decks" (the switch under the heading). A tab root: no system "Back" button.
+ * The catalog of courses (docs/14 §6.5, docs/design/2026-11-25-redesign): every course with the learner's progress. The "Course" tab
+ * opens the learner's own course; this list is reached from it ("All courses"), and is the tab itself while there is no course yet.
+ * A card opens the course; its button starts the course (or switches to it: the source of the new words of the daily session) and
+ * leads to Home. The learner's course is the big tinted card (`bg-highlight`, `rounded-hero`), the others white cards. The twin screen
+ * is "My decks" (the switch under the heading). A root of the tab: no system "Back" button.
  */
 const auth = useAuthStore()
 const catalog = useCoursesStore()
@@ -59,18 +61,17 @@ onMounted(() => {
 
     <EmptyState v-else-if="courses.length === 0" icon="academic-cap" :text="t('catalog.empty')" />
 
-    <div v-else class="mt-4 space-y-3">
+    <div v-else class="mt-4 space-y-2.5">
       <InlineAlert v-if="errorMessage" tone="danger" :message="errorMessage" data-testid="select-error" />
 
-      <!-- The course the learner is on stands out as the selected card (accent-soft, primary frame): "you are here". -->
+      <!-- The course the learner is on is the big tinted card of the layout; the others are white cards. -->
       <article
         v-for="course in courses"
         :key="course.slug"
-        class="card"
-        :class="{ 'bg-accent-soft shadow-[inset_0_0_0_1.5px_var(--app-primary)]': course.is_active }"
+        :class="course.is_active ? 'rounded-hero bg-highlight p-[18px]' : 'card'"
         :data-testid="`course-${course.slug}`"
       >
-        <span v-if="course.is_active" class="chip chip-success mb-2" data-testid="active-badge">
+        <span v-if="course.is_active" class="chip chip-success mb-2.5" data-testid="active-badge">
           {{ t('catalog.active') }}
         </span>
         <RouterLink
@@ -79,13 +80,13 @@ onMounted(() => {
           data-testid="course-link"
         >
           <div class="min-w-0 flex-1">
-            <h2 class="text-[17px] leading-[22px] font-semibold">{{ course.title }}</h2>
+            <h2 class="text-lg leading-6 font-extrabold tracking-[-0.2px] break-words">{{ course.title }}</h2>
             <div class="mt-2 flex flex-wrap gap-1.5" data-testid="meta">
               <span v-for="chip in courseChips(course)" :key="chip.key" class="chip" :class="`chip-${chip.tone}`">{{ chip.label }}</span>
             </div>
             <p v-if="course.description" class="mt-2 line-clamp-2 text-[15px] leading-5 text-muted">{{ course.description }}</p>
           </div>
-          <AppIcon name="chevron-right" :size="16" class="mt-[3px] text-muted" />
+          <AppIcon name="chevron-right" :size="20" class="mt-0.5 text-muted" />
         </RouterLink>
 
         <div class="mt-3.5 flex flex-col-reverse gap-1.5">
@@ -94,12 +95,13 @@ onMounted(() => {
             tone="success"
             :label="progressText(course.progress)"
             class="w-full"
+            :class="{ 'bg-accent-line': course.is_active }"
             data-testid="progress-bar"
           />
           <span class="shrink-0 text-[13px] leading-[18px] text-muted" data-testid="progress-text">{{ progressText(course.progress) }}</span>
         </div>
 
-        <div class="mt-3">
+        <div class="mt-3.5">
           <RouterLink v-if="course.is_active" :to="{ name: 'course', params: { slug: course.slug } }" class="btn btn-primary btn-block">
             {{ t('catalog.open_lessons') }}
             <AppIcon name="arrow-right" :size="17" />

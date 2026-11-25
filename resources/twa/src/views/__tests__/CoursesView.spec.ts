@@ -156,6 +156,16 @@ describe('CoursesView', () => {
       expect(wrapper.findAll('[data-testid=course-link]')).toHaveLength(2)
     })
 
+    it('keeps to the new style: bold titles, flat cards (no tg- classes, shadows, gradients or serif)', async () => {
+      vi.mocked(api.courses.list).mockResolvedValue({ courses: [course({ is_active: true }), course({ slug: 'other', title: 'Other' })] })
+
+      const { wrapper } = await render()
+
+      expect(wrapper.get('[data-testid=course-other] h2').classes()).toContain('font-extrabold')
+      expect(wrapper.get('[data-testid=course-other]').classes()).toContain('card')
+      for (const card of wrapper.findAll('article')) expect(card.html()).not.toMatch(/tg-|shadow-|gradient|font-serif/)
+    })
+
     it('shows the SAT goal as an accent chip and an unknown goal as is', async () => {
       vi.mocked(api.courses.list).mockResolvedValue({
         courses: [
@@ -210,8 +220,11 @@ describe('CoursesView', () => {
       expect(badge.classes()).toEqual(expect.arrayContaining(['chip', 'chip-success']))
       // A chip of words, no icon; the card itself stands out as the selected one.
       expect(badge.find('svg').exists()).toBe(false)
-      expect(active.classes()).toEqual(expect.arrayContaining(['bg-accent-soft', 'shadow-[inset_0_0_0_1.5px_var(--app-primary)]']))
-      expect(wrapper.get('[data-testid=course-other]').classes()).not.toContain('bg-accent-soft')
+      // The big tinted card of the layout (docs/design/2026-11-25-redesign); the other courses are white cards with a frame.
+      expect(active.classes()).toEqual(expect.arrayContaining(['bg-highlight', 'rounded-hero']))
+      expect(active.classes()).not.toContain('card')
+      expect(wrapper.get('[data-testid=course-other]').classes()).toContain('card')
+      expect(wrapper.get('[data-testid=course-other]').classes()).not.toContain('bg-highlight')
       expect(active.find('[data-testid=choose-btn]').exists()).toBe(false)
 
       const choose = wrapper.get('[data-testid=course-other] [data-testid=choose-btn]')

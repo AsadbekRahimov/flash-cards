@@ -36,7 +36,7 @@ function onContinue(): void {
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="pretest-reveal" :data-kind="verdict.correct ? 'known' : 'learn'">
-    <article class="mt-14 flex flex-col items-center gap-2.5 px-5 pb-4 text-center short:mt-5 short:gap-1.5">
+    <article class="mt-[30px] flex flex-col items-center gap-2 px-5 pb-4 text-center short:mt-4 short:gap-1.5">
       <span
         class="flex size-12 items-center justify-center rounded-full"
         :class="verdict.correct ? 'bg-success-soft text-success-ink' : 'bg-accent-soft text-accent-ink'"
@@ -44,19 +44,19 @@ function onContinue(): void {
       >
         <AppIcon :name="verdict.correct ? 'check' : 'speaker-wave'" solid :size="24" />
       </span>
-      <p class="text-[15px] leading-5" :class="verdict.correct ? 'text-success-ink' : 'text-muted'" data-testid="reveal-text">
+      <p class="text-base leading-[22px]" :class="verdict.correct ? 'text-success-ink' : 'text-muted'" data-testid="reveal-text">
         {{ verdict.correct ? t('exercise.pretest.known') : t('exercise.pretest.learn') }}
       </p>
       <h2
-        class="max-w-full text-[46px] leading-[52px] font-semibold tracking-[-0.6px] break-words short:text-[36px] short:leading-[42px]"
+        class="max-w-full text-[52px] leading-[58px] font-extrabold tracking-[-1px] break-words short:text-[40px] short:leading-[46px]"
         lang="en"
         data-testid="word"
       >
         {{ card.word }}
       </h2>
-      <p v-if="card.transcription" class="font-ipa text-[15px] leading-5 text-muted" data-testid="transcription">{{ card.transcription }}</p>
+      <p v-if="card.transcription" class="font-ipa text-base leading-[22px] text-muted" data-testid="transcription">{{ card.transcription }}</p>
       <hr class="mt-3 w-full border-divider short:mt-1" />
-      <p class="pt-3 text-2xl leading-[30px] font-semibold break-words short:pt-1" data-testid="translation">{{ verdict.expected }}</p>
+      <p class="pt-3 text-2xl leading-[30px] font-bold break-words short:pt-1" data-testid="translation">{{ verdict.expected }}</p>
     </article>
 
     <StickyActions surface>

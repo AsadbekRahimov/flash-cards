@@ -155,7 +155,7 @@
   "active_course": {
     "id": 3, "slug": "english-a1", "title": "English A1",
     "progress": { "learned": 120, "total": 900 },
-    "next_lesson": { "id": 41, "stage": 2, "lesson": 4, "title": "Food" },
+    "next_lesson": { "id": 41, "stage": 2, "lesson": 4, "title": "Food", "words_left": 5 },
     "readiness": {
       "level_label": "B1", "percent": 31,
       "words": { "total": 1000, "learned": 310, "mastered": 120, "in_progress": 120, "not_started": 570 },
@@ -169,7 +169,13 @@
   "game": { "available": true, "daily_available": true, "active_run": null, "class_caravan": null },
   "practice": { "available": true, "pro_required": false, "modes": ["pairs", "collocation", "sentence", "dictation"], "battle": false, "pro_promise": "solo" },
   "hard_round": { "available": true, "reason": null, "words": 10, "open_session_id": null, "resets_at": null },
-  "assignments_possible": false
+  "assignments_possible": false,
+  "plan": {
+    "step": 2, "done": false,
+    "lesson": { "done": true, "lesson_id": 40, "next_lesson_id": 41, "words_left": 5 },
+    "training": { "lesson_id": 40, "title": "Напитки", "words": 5, "done": false, "open_session_id": null },
+    "game": { "lesson_id": 40, "mode": "pairs_timed", "played": false }
+  }
 }
 ```
 
@@ -193,6 +199,16 @@
   `open_session_id` — живая сегодняшняя `hard_review`-сессия: клиент показывает «Продолжить» и идёт на её экран, иначе — «Разобрать» (`POST /training/sessions {mode: hard_review}`, A.3). Стоимость: кандидаты (по индексу `word_repetitions_hard_idx`) — `count(*)` в общем операторе скаляров экрана (`docs/19` §5.2 K10), не свой оператор; «сыграно сегодня» и живая hard-сессия читаются в том же операторе, что `open_session_id` ежедневной.
   Бюджет всего `GET /today` после K10: у Free с курсом 5 операторов при закрытой игре, 6 при `GAME_ACCESS=all`; таблица — `docs/19` §5.2.
 - `assignments_possible` **(с 19.11.2026, аудит 18.11.2026 «Рабочая спецификация первого входа»)** — может ли `GET /assignments` (A.9) вернуть хоть что-то: `false` — **точно нет**, `true` — «возможно». Условие — у ученика есть активное членство (`group_members.status = active`) в группе, привязанной к центру (`telegram_groups.organization_id IS NOT NULL`), **при любом статусе группы и центра**. Это надмножество выборки `AssignmentService::forLearner` (активное членство + группа всё ещё привязана к центру задания + центр активен + задание активно; статус группы список не проверяет — задание видно и после удаления бота из чата), поэтому `false` никогда не прячет задание; `true` при приостановленном центре или без активных заданий — норма. Значение — из снимка «Сегодня» (`twa:today:v2`, docs/19 K10): на тёплом запросе **ни одного оператора**, на холодном — ещё один подзапрос `select 1 … limit 1` в общем операторе скаляров (число операторов прежнее). Версию снимка поднимает каждая запись, которая может превратить «нет» в «да»: вступление (`GroupMembershipService::join` — сообщение о входе, `chat_member`), привязка группы к центру (`TelegramGroupObserver`), а также выход/удаление/бан, отвязка, смена статуса и удаление группы. TWA при `false` не запрашивает `/assignments` и не держит экран загрузки; при `true` и при отсутствии поля (старый сервер) — прежний путь (docs/05, «Сегодня»).
+
+- `active_course.next_lesson.words_left` **(с 25.11.2026)** — сколько активных слов этого урока ученику ещё ни разу не показывалось («5 новых слов» на карточке урока); квота Free дня может выдать меньше (`new_words_remaining`). Считается из того же запроса прогресса по урокам, операторов не добавляет.
+- `plan` **(с 25.11.2026, docs/31 §5б, макет `docs/design/2026-11-25-redesign`)** — план дня «урок → тренировка → игра» (`Learners\Services\DayPlanService`, DTO `DayPlan`). «Сегодня» — **локальный день** ученика (`LearnerClock::dayBoundsUtc`, тот же, что у `goal` и `streak`; граница — местная полночь). Ключ есть всегда.
+  - **Урок дня** — урок последней личной сессии `lesson`, пройденной **до конца** сегодня (`completed_at` в локальном дне: сервер ответил `card: null`, в том числе на исчерпании квоты Free), в которой ученик **встретил новые слова сегодня** (строки `word_repetitions` урока созданы сегодня и уже оценены). Брошенный посреди урок («Завершить» раньше) — не пройден. Повторно пройденный старый урок без новых слов — не урок дня.
+  - `step` — что делать сейчас: `1` — урок (урока дня нет, есть `next_lesson`), `2` — закрепление урока дня (`lesson_review`, A.3), `3` — игра на его словах; `null` — предложить нечего (цепочка выполнена, или урока дня нет и курс пройден / курса нет). `done` — цепочка дня выполнена.
+  - `lesson` — `done` (урок дня есть), `lesson_id` (урок дня или `null`), `next_lesson_id` / `words_left` — то же, что `active_course.next_lesson.id` / `.words_left` (`null` без следующего урока).
+  - `training` — `null`, пока урока дня нет или при `LEARNING_LESSON_REVIEW_ENABLED=false`; иначе `{lesson_id, title, words, done, open_session_id}`: `title` — название урока на языке ученика, если урок из активного курса (иначе `null` — клиент пишет «Урок»); `words` — сколько слов спросит закрепление (встреченные сегодня, не больше 20); `done` — закрепление этого урока сегодня пройдено до конца; `open_session_id` — живое незаконченное закрепление этого урока («Продолжить»). Кнопка — `POST /training/sessions {"mode": "lesson_review", "lesson_id", "source": "plan"}`.
+  - `game` — `null`, пока урока дня нет или игра ученику недоступна (практика закрыта, за Pro или `pairs_timed` выключен); иначе `{lesson_id, mode: "pairs_timed", played}`: `played` — сегодня была практика (любой режим) на этом уроке хотя бы с одним ответом. Кнопка — `POST /practice/sessions {"mode": "pairs_timed", "course", "lesson_id", "source": "deeplink"}` (A.16: короткий урок добирается выученными словами курса). Лимит Free практики (3 в день) действует: открытие может дать 403 `practice_limit_reached`.
+  - **Стоимость — 0 операторов:** сессии дня (уроки, пройденные сегодня, и закрепления, начатые сегодня) читаются в том же операторе, что `open_session_id` и раунды трудных слов; слова урока дня и «играл ли» — два подзапроса в общем операторе скаляров (`plan_words`, `plan_game`); `title` и `next_lesson` — из уже прочитанного блока курса. Бюджет `TwaTodayMeQueryBudgetTest` прежний; закреплено `DayPlanTest`.
+  - Бот (напоминание после урока, §5б G1): `DayPlanService::forLearner($learner)->offersGame()` — урок дня есть, игра доступна и сегодня не сыграна (2–3 оператора).
 
 Кнопка «Повторить» — `POST /training/sessions {"mode": "daily_review", "source": "self"}` (A.3). Ошибки: 401 (как у всех маршрутов TWA).
 
@@ -258,9 +274,9 @@ Learner открывает **личную** сессию (docs/12 §7.6): уро
 **Request:**
 ```json
 {
-  "mode": "lesson",          // lesson | daily_review | hard_review (group_lesson открывает только учитель из бота)
-  "lesson_id": 321,          // обязателен для lesson (integer ≥ 1), запрещён для daily_review и hard_review
-  "source": "picker"         // optional: self (по умолчанию) | picker | reminder | reminder_quiz | onboarding | assignment | finish (кнопка на итоге занятия); записывается только в НОВУЮ сессию
+  "mode": "lesson",          // lesson | daily_review | hard_review | lesson_review (group_lesson открывает только учитель из бота)
+  "lesson_id": 321,          // обязателен для lesson и lesson_review (integer ≥ 1), запрещён для daily_review и hard_review
+  "source": "picker"         // optional: self (по умолчанию) | picker | reminder | reminder_quiz | onboarding | assignment | finish (кнопка на итоге занятия) | plan (план дня на «Сегодня»); записывается только в НОВУЮ сессию
 }
 ```
 
@@ -275,7 +291,7 @@ Learner открывает **личную** сессию (docs/12 §7.6): уро
 планировщик) и открывается новая. Поэтому «Начать занятие» после закрытого на вердикте Mini App всегда даёт новый раунд, а `/finish` старой сессии
 остаётся идемпотентным (200 с её итогом, без второго события). Урочная сессия (`lesson`) возвращается как есть в любом случае.
 
-**Ошибки:** 422 валидации Laravel (`mode` вне `lesson`/`daily_review`/`hard_review`, `lesson_id` не integer, `source` вне списка) →
+**Ошибки:** 422 валидации Laravel (`mode` вне `lesson`/`daily_review`/`hard_review`/`lesson_review`, `lesson_id` не integer, `source` вне списка) →
 422 `lesson_mismatch` (`lesson` без `lesson_id` или `daily_review` с ним) → 404 `lesson_not_found` (урока нет **или** его курс
 не `published` — статус курса не раскрывается) → 429 (лимит `twa-session-create`, 10 запросов/мин на learner'а).
 (`invalid_mode` из сервиса при HTTP недостижим — режим отсекает валидация; код оставлен в списке для клиента.)
@@ -287,6 +303,22 @@ Learner открывает **личную** сессию (docs/12 §7.6): уро
 упражнения, **никогда** `flash`, кроме редкого понижения для слова без трёх вариантов), `progress: {done: побеждено, total: размер набора}`, `quota: {new_words_remaining: null}` (новых слов нет, квота Free не тратится).
 Идемпотентно для живой сегодняшней сессии (две вкладки — одна сессия). Ошибки сверх общих: **409 `hard_round_unavailable`** с `error.details {reason: disabled | not_enough | played_today | no_objective_exercise, resets_at}`
 (`resets_at` только при `played_today`, иначе `null`); 422 `lesson_mismatch`, если передан `lesson_id` (урок не проверяется на существование); 429 `twa-session-create`. Событие отказа — `hard_round.refused {reason, source}`.
+
+**`mode: lesson_review` — закрепление урока (с 25.11.2026, docs/06 §15; шаг 2 плана дня, A.2a `plan`).** Открывает `LessonReviewService::open`. Слова — слова урока `lesson_id`,
+встреченные учеником **сегодня** (локальный день; строка `word_repetitions` создана сегодня и уже оценена), не больше 20, набор фиксируется при открытии (`meta.lesson_words`).
+Каждое слово спрашивается, пока не будет верного ответа, но не больше 3 раз; ошибочное возвращается после остальных. Только `meaning` / `reverse` / `audio` (с файлом), `flash` —
+лишь как запасной для слова без трёх вариантов. **Режим ничего не меняет вне себя:** расписание (`word_repetitions`), `training_reviews`, `learner_daily_stats` —
+поэтому нет баллов лиги, цели дня, серии, достижений; квота Free не тратится. Ответ 200 — как у `/start`: `mode: "lesson_review"`, `lesson` — заголовок урока,
+`total_words` = размер набора, `progress: {done: слова с верным ответом, total: размер набора}`, `quota: {new_words_remaining: null}`, `card.card_kind` — по состоянию строки (обычно `due`),
+`card.serve_token` — **всегда строка**: одноразовый токен показа, клиент возвращает его в `/review` (как у learn-ahead). Повторное открытие того же урока возвращает живую сессию (та же карточка и токен);
+пройденная до конца закрывается (`finished`) и открывается новая — режим можно проходить сколько угодно раз, он ничего не начисляет; открытая сессия другого урока / вчерашняя закрывается `expired` (одна открытая на ученика).
+Ошибки сверх общих: **422 `lesson_mismatch`** без `lesson_id`; **404 `lesson_not_found`** — урока нет или он ученику недоступен (то же правило, что у `lesson`); **409 `lesson_review_unavailable`**
+с `error.details {reason}`: `no_new_words` (сегодня ни одного слова этого урока не встречено — урок не пройден сегодня или пройден давно), `no_objective_exercise` (недоступны и «Выберите перевод», и «Выберите слово»),
+`disabled` (`LEARNING_LESSON_REVIEW_ENABLED=false`). `/next`, `/review`, `/finish` — общие маршруты; отличия: `/review` — 409 `card_not_due`, если `serve_token` не того показа (повтор запроса, вторая вкладка),
+422 `out_of_scope` — слово не из набора; ответ `/review` — `next_review_at` / `new_interval_days` / `easiness_factor` строки **без изменений** (расписание не двигалось), `graded` и `revealed` — как у `meaning`/`reverse`.
+`done_reason = lesson_review_complete` — все слова набора отвечены верно или исчерпали 3 показа. Итог `/finish`: `reviewed` — ответы, `correct` — верные, `new_words: 0`, `stages` нули,
+**`league_points: 0`**, `hard_round_offer: null`, `practice_entry` — урок (кнопка игры, шаг 3), `lesson_review: {"total": 5, "won": 4, "first_try": 3}` (слова набора, отвеченные верно; верно с первого показа).
+Событие `training.session_finished` — как у других режимов (`mode: "lesson_review"`).
 
 #### `POST /api/twa/training/sessions/{session_id}/finish`
 Learner завершает **свою личную** сессию (`status = closed`, `ended_at`, `done_reason = finished`) и получает итог по ней.
@@ -315,6 +347,7 @@ Learner завершает **свою личную** сессию (`status = clo
 объективное упражнение (не `flash`, не `pretest`) с `quality >= 3`, а в более ранней сессии (id оценки меньше первой оценки этой сессии) была объективная оценка `< 3`; из таких — с самой поздней прошлой ошибкой.
 `translation` — на языке ученика (`WordTranslationResolver`, запасной — ru), `mistaken_at` — время той ошибки (ISO-8601 UTC), `answer` — что ученик тогда ВВЁЛ (только `spelling` / `gap_fill`; не пустое и не само слово), иначе `null`.
 Стоимость — +1 оператор только у `/finish` сессии `hard_review` (`CorrectedMistakeFinder`; перевод тёплый — карточка выдавалась в этом раунде); у остальных режимов оператора нет.
+**С 25.11.2026 (docs/06 §15):** `lesson_review` — `{"total", "won", "first_try"}` у сессии `lesson_review`, `null` у остальных режимов (ключ есть всегда); у `lesson_review` `league_points` всегда `0`.
 **С 18.11.2026 (docs/06 §14):** `hard_round` — `{"total": 10, "won": 8}` у сессии `hard_review` (`won` — слова набора, чья ПОСЛЕДНЯЯ оценка в сессии ≥ 3), `null` у остальных режимов; `hard_round_offer` — приглашение на раунд трудных слов
 на итоге ежедневного занятия / урока: тот же блок, что `hard_round` в `GET /today` (A.2a), `null` у самого раунда трудных слов и при `LEARNING_HARD_ROUND_ENABLED=false`. Стоимость `/finish` — +2 оператора (сессии окна дня и
 кандидаты). Событие `training.session_finished` у `hard_review` получает `hard_won`, `hard_total`; `practice_entry` у него `null`.
@@ -426,6 +459,7 @@ Learner присоединяется к открытой тренировке. �
 | `session_cap` | принято `TWA_MAX_CARDS_PER_SESSION` оценок в этой сессии |
 | `sprint_complete` | scope `daily_review` (с 17.11.2026, docs/06 §13.2): раунд окончен — выбраны `LEARNING_SPRINT_DUE_CARDS` (15) дневных повторений и/или `LEARNING_SPRINT_NEW_WORDS` (6) новых слов с их шагами, а для следующего раунда ещё есть карточки (due сверх потолка или невыданные слова в пределах дневной квоты). Всегда с `can_continue = true` |
 | `hard_round_complete` | scope `hard_review` (с 18.11.2026, docs/06 §14): все слова набора выданы, повторять нечего; `can_continue = false`, `progress.done` — побеждённые слова (последняя оценка слова в сессии ≥ 3) |
+| `lesson_review_complete` | `lesson_review` (с 25.11.2026, docs/06 §15): каждое слово набора отвечено верно или исчерпало 3 показа; `progress.done` — слова с верным ответом |
 
 `can_continue: bool` — есть всегда; `true` только вместе с `sprint_complete`. Экран итога при этом показывает «Ещё раунд»: клиент
 делает `POST /finish` текущей сессии и `POST /training/sessions {mode: daily_review}`. Шаг с `card: null` после оценок сессии сам
@@ -1115,6 +1149,7 @@ TWA различает отказ по статусу, а не по коду: `a
 
 #### «Пары на время» (`pairs_timed`, docs/16 §5.5a) — отличия контракта
 - **Хаб:** строка `{mode: "pairs_timed", state, available, required: 8, reason, estimate_seconds: 60, record: {score, achieved_at} | null}`; ключ `record` есть только у неё. Баттл режим не предлагает (`POST /battles` с ним — 422, `GET /battles/options` его не перечисляет).
+- **Урок короче `min_words` (с 25.11.2026, шаг 3 плана дня, docs/31 §5б):** при `lesson_id` и нехватке слов урока доска добирается **выученными** словами того же курса вне урока (`word_repetitions.state = review`) до `min_words`, округлённого до целых раундов (8); выбор — по зерну сессии (детерминирован в её снимке, у новой сессии другой); **все** слова урока остаются. Урок без единого встреченного слова не добирается; если выученных слов курса не хватает — прежний 422 `practice_not_enough_material` (`no_words`). Хаб урока (`GET /practice/hub?lesson_id`) по-прежнему считает только слова урока — его бюджет операторов не растёт; игра плана дня открывается напрямую (`source: "deeplink"`).
 - **`POST /practice/sessions`** `{mode: "pairs_timed", course, lesson_id?, source}`: 201, `timed: {seconds: 60, deadline_at: null, started: false, score: 0, penalty_ms: 2000}`, **`current: null`** (доска первого раунда не отдаётся до `start`, так же в `GET` сессии, пока `timed.started = false`; после `POST …/start` — `pairs_round` с `round`, `rounds: 10`), `progress {done: 0, total: 10}`. Лимит Free как у любой сессии. Выключен `PRACTICE_MODE_PAIRS_TIMED` → 409 `practice_mode_disabled`.
 - **`POST /practice/sessions/{id}/start`** (`twa-api` + `twa-practice-answer`, без тела) → 200 `PracticeSessionResource` с `timed.deadline_at` (серверный, `start + 60 с`), `timed.started: true`. Идемпотентен: повтор — тот же `deadline_at`. Ошибки: 404, 410 `practice_session_closed`, 409 `practice_not_timed`.
 - **`POST …/answer`:** как у пар (`{left_id, right_id}`); ответ до `start` — 409 `practice_not_started`; после `deadline_at + 1,5 с` — 409 `practice_time_over` `details {score}` (сессия закрыта `time_over`); неверный → `penalty_ms: 2000` в теле и `session.timed.deadline_at` на 2 с раньше (счёт не меняется), верный → `penalty_ms: 0`, `session.timed.score + 1`. Повтор `request_id` не штрафует второй раз. `score` / `deadline_at` в теле игнорируются.

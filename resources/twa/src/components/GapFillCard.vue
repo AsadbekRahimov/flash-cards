@@ -28,15 +28,15 @@ const answerLength = computed((): number | null => props.card.prompt?.answer_len
 
 <template>
   <div class="flex flex-1 flex-col" data-testid="gap-fill-card">
-    <!-- The question (docs/design Question): the sentence with the gap on the white screen; the field and the buttons are at the bottom. -->
-    <article class="mt-14 flex flex-col items-center gap-2.5 px-5 pb-4 text-center short:mt-5 short:gap-1.5">
+    <!-- The question (docs/design/2026-11-25-redesign Question): the sentence with the gap on the white screen; the field and the buttons are at the bottom. -->
+    <article class="mt-[30px] flex flex-col items-center gap-2 px-5 pb-4 text-center short:mt-4 short:gap-1.5">
       <span v-if="card.is_leech || proChip" class="flex gap-2">
         <span v-if="card.is_leech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
         <span v-if="proChip" class="chip chip-accent" data-testid="pro-chip">{{ t('profile.chip.pro') }}</span>
       </span>
-      <p class="text-[13px] leading-[18px] text-muted">{{ t('exercise.gap_fill.title') }}</p>
-      <p class="max-w-full text-2xl leading-8 font-semibold break-words short:text-[22px] short:leading-7" lang="en" data-testid="masked-example">{{ masked }}</p>
-      <p class="text-[15px] leading-5 text-muted" data-testid="hint">{{ hint }}</p>
+      <p class="text-base leading-[22px] text-muted" data-testid="exercise-title">{{ t('exercise.gap_fill.title') }}</p>
+      <p class="max-w-full text-[26px] leading-[34px] font-bold break-words short:text-[22px] short:leading-7" lang="en" data-testid="masked-example">{{ masked }}</p>
+      <p class="text-base leading-[22px] text-muted" data-testid="hint">{{ hint }}</p>
     </article>
 
     <AnswerInput :answer-length="answerLength" :disabled="disabled" @answer="emit('answer', $event)" />

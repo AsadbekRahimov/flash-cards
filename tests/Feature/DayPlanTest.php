@@ -6,8 +6,12 @@ use App\Domain\Learners\Services\DayPlanService;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Enums\SessionStatus;
 use App\Domain\Twa\Services\JwtService;
+use App\Models\Course;
 use App\Models\Learner;
+use App\Models\Lesson;
 use App\Models\PracticeSession;
+use App\Models\TrainingSession;
+use App\Models\Word;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\CardAnswers;
@@ -31,7 +35,7 @@ beforeEach(function (): void {
     ]);
 });
 
-/** @return array{learner: Learner, course: \App\Models\Course, lessons: array<string, \App\Models\Lesson>, headers: array<string, string>} */
+/** @return array{learner: Learner, course: Course, lessons: array<string, Lesson>, headers: array<string, string>} */
 function dayPlanWorld(): array
 {
     ['course' => $course, 'lessons' => $lessons] = Fx::course([1 => [1 => 5, 2 => 6]]);
@@ -151,9 +155,9 @@ it('keeps a lesson left in the middle at step 1, and does not count a lesson re-
 
     // Yesterday the learner met every word of 1.2; today they play it again to its end - no word is new today.
     $this->travel(-1)->days();
-    Fx::learn($learner, \App\Models\Word::query()->where('lesson_id', $lessons['1.2']->id)->pluck('id')->all());
+    Fx::learn($learner, Word::query()->where('lesson_id', $lessons['1.2']->id)->pluck('id')->all());
     $this->travelTo(CarbonImmutable::parse('2026-11-25 05:00:00', 'UTC'));
-    \App\Models\TrainingSession::query()->create([
+    TrainingSession::query()->create([
         'learner_id' => $learner->id, 'mode' => 'lesson', 'lesson_id' => $lessons['1.2']->id, 'source' => 'self', 'status' => 'closed',
         'started_at' => now(), 'ended_at' => now(), 'completed_at' => now(), 'expires_at' => now()->addHours(12), 'done_reason' => 'finished',
     ]);

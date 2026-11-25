@@ -4484,3 +4484,57 @@ docs/36 §3б и §4б: у каждого сообщения бота, посл�
 | `error.code.region_change_too_soon` | Hududni 30 kunda bir marta o'zgartirish mumkin. | Регион можно менять раз в 30 дней. |
 | `error.code.region_revert_unavailable` | Hudud o'zgarishini endi bekor qilib bo'lmaydi: 10 daqiqadan ko'proq o'tdi yoki u allaqachon bekor qilingan. | Отменить смену региона уже нельзя: прошло больше 10 минут или она уже отменена. |
 | `error.code.pro_emoji_pro_required` | Ism yonidagi emoji — Pro'da. | Эмодзи рядом с именем — в Pro. |
+
+## Экран «Курс» по макету 25.11.2026 (docs/14 §6.5, T7) — на проверку носителю
+
+Вкладка «Курс» открывает курс ученика: шапка «Мой курс», карточка «120 / 1000 слов · 12%», плоский список уроков с тонкими
+заголовками модулей («Модуль 2 · Еда», «1 из 5 уроков»). Ключи `course.learn`, `course.learn_lesson`, `course.module_of`,
+`course.module_prev`, `course.module_next`, `course.modules`, `course.to_current` удалены (лист модулей и стрелки между модулями
+убраны; кнопка урока теперь «Начать урок» / «Продолжить»).
+
+Проверить: `course.repeat` — подпись у пройденного урока со строчной буквы («takrorlash» = «повторить»); `course.after_lesson` —
+«{number}-darsdan keyin» (после урока N); `course.words_of` идёт после числа: «120 / 1000 ta so'z».
+
+### Mini App (`resources/twa/src/i18n/uz.ts`)
+
+| Ключ | uz | ru |
+|---|---|---|
+| `course.my_course` | Mening kursim | Мой курс |
+| `course.all_courses` | Barcha kurslar | Все курсы |
+| `course.lessons` | Darslar | Уроки |
+| `course.words_of.one` | / {total} ta so'z | / {total} слова |
+| `course.words_of.few` | _(в uz этой формы нет — используется `other`)_ | / {total} слов |
+| `course.words_of.many` | _(в uz этой формы нет — используется `other`)_ | / {total} слов |
+| `course.words_of.other` | / {total} ta so'z | / {total} слова |
+| `course.module_lessons.one` | {total} ta darsdan {done} tasi | {done} из {total} урока |
+| `course.module_lessons.few` | _(в uz этой формы нет — используется `other`)_ | {done} из {total} уроков |
+| `course.module_lessons.many` | _(в uz этой формы нет — используется `other`)_ | {done} из {total} уроков |
+| `course.module_lessons.other` | {total} ta darsdan {done} tasi | {done} из {total} урока |
+| `course.new_words.one` | {count} ta yangi so'z | {count} новое слово |
+| `course.new_words.few` | _(в uz этой формы нет — используется `other`)_ | {count} новых слова |
+| `course.new_words.many` | _(в uz этой формы нет — используется `other`)_ | {count} новых слов |
+| `course.new_words.other` | {count} ta yangi so'z | {count} новых слова |
+| `course.repeat` | takrorlash | повторить |
+| `course.after_lesson` | {number}-darsdan keyin | после урока {number} |
+| `course.start_lesson` | Darsni boshlash | Начать урок |
+| `course.continue_lesson` | Davom etish | Продолжить |
+
+## Выпуск 1 · экраны занятия по макету 25.11 (Question, Feedback) — на проверку носителю
+
+### Mini App (`resources/twa/src/i18n/uz.ts`)
+
+Шапка занятия — «3 из 8» и пилюля режима; формулировки заданий приведены к одному стилю («Выберите…», «Напишите…»); под примером
+после ошибки — строка о том, вернётся ли слово. Прошу проверить: естественно ли «8 tadan 3 ta» в маленьком счётчике шапки и «qaytadi»
+для «вернётся» (о слове в уроке).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `training.progress.counter` | {total} tadan {done} ta | {done} из {total} (счётчик в шапке занятия: «3 из 8») |
+| `training.lesson_review_header` | Takrorlash · {lesson} | Повторение · {lesson} (пилюля повторения урока; `{lesson}` — «2-modul · 4-dars · …») |
+| `training.lesson_review_header_plain` | Darsni takrorlash | Повторение урока (то же, когда урок неизвестен) |
+| `exercise.miss.returns_lesson` | So'z shu darsda yana qaytadi. | Слово вернётся ещё раз в этом уроке. (после ошибки в уроке) |
+| `exercise.miss.returns_round` | So'z shu raundda yana qaytadi. | Слово вернётся ещё раз в этом раунде. (после ошибки в ежедневном раунде / раунде трудных слов) |
+| `exercise.miss.neutral` | To'g'ri javobni eslab qoling. | Запомните правильный ответ. (после ошибки, когда слово в этом занятии может не вернуться) |
+| `exercise.meaning.title` | So'zning tarjimasini tanlang | Выберите перевод слова (было «Bu so'z nimani anglatadi?» / «Что значит это слово?») |
+| `exercise.audio.title` | Tinglang va tarjimasini tanlang | Послушайте и выберите перевод (было «Nimani eshitdingiz?» / «Что вы услышали?») |
+| `exercise.pretest.title` | So'zni bilsangiz, tarjimasini tanlang | Выберите перевод, если знаете слово (было «Bu so'zni bilasizmi?» / «Знаете это слово?») |

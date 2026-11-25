@@ -31,8 +31,8 @@ interface Tab {
 const TABS: readonly Tab[] = [
   // a calendar
   { id: 'today', to: { name: 'today' }, label: 'nav.today', paths: ['M7 6h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3z', 'M8 3v4M16 3v4M4 11h16'] },
-  // an open book
-  { id: 'courses', to: { name: 'courses' }, label: 'nav.courses', paths: ['M12 7c-2-1.5-5-2-8-2v12c3 0 6 .5 8 2 2-1.5 5-2 8-2V5c-3 0-6 .5-8 2zM12 7v12'] },
+  // an open book; the tab opens the learner's own course (the catalog without one), docs/14 §6.5
+  { id: 'courses', to: { name: 'my-course' }, label: 'nav.courses', paths: ['M12 7c-2-1.5-5-2-8-2v12c3 0 6 .5 8 2 2-1.5 5-2 8-2V5c-3 0-6 .5-8 2zM12 7v12'] },
   // a cup
   { id: 'rating', to: { name: 'league' }, label: 'nav.rating', paths: ['M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M10 17h4'] },
   // a person

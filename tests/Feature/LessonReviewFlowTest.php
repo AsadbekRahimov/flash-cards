@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Learning\Enums\ExerciseType;
+use App\Domain\Learning\Support\TrainingScope;
 use App\Domain\Twa\Services\JwtService;
 use App\Models\Course;
 use App\Models\Learner;
@@ -305,7 +306,7 @@ it('does not count the words of today after the local midnight', function (): vo
 it('never lets the card picker serve a review: its scope is refused', function (): void {
     $session = new TrainingSession(['mode' => TrainingSession::MODE_LESSON_REVIEW, 'lesson_id' => 1, 'learner_id' => 1]);
 
-    expect(fn () => App\Domain\Learning\Support\TrainingScope::forSession($session))->toThrow(LogicException::class);
+    expect(fn () => TrainingScope::forSession($session))->toThrow(LogicException::class);
 });
 
 it('does not touch an unrelated learner row while a review is played (no write besides the session)', function (): void {

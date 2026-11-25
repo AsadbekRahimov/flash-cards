@@ -31,9 +31,10 @@ import { useI18n } from '@/i18n'
 import type { Quality } from '@/api/types'
 
 /**
- * The training screen (docs/14 §6.2, docs/design Question / Feedback): an immersive white column without the tab bar — the
- * header (close, a thin line of progress, the counter in mono), the exercise in the body and its actions in the sticky block at
- * the bottom (each exercise component draws its own). `prompt.type` of the served card decides which exercise it is.
+ * The training screen (docs/14 §6.2, docs/design/2026-11-25-redesign Question / Feedback): an immersive white column without
+ * the tab bar — the header (close, the progress in segments, «3 из 8», the pill of the session), the exercise in the body and its
+ * actions in the sticky block at the bottom (each exercise component draws its own). `prompt.type` of the served card decides
+ * which exercise it is.
  */
 const props = defineProps<{ sessionId: number }>()
 
@@ -63,6 +64,7 @@ const {
   unsupportedExercise,
   combo,
   outcome,
+  deferred,
 } = storeToRefs(training)
 
 /**
@@ -97,6 +99,12 @@ const progressPercent = computed((): number =>
   progress.value.total > 0 ? Math.min(100, Math.round((progress.value.done / progress.value.total) * 100)) : 0,
 )
 
+/** Up to this many cards the progress is drawn as segments (docs/design Question: 8); a longer session gets the line. */
+const SEGMENTS_MAX = 12
+
+/** The number of progress segments; 0 = the line instead (no total yet, or too many cards for segments at 320 px). */
+const segments = computed((): number => (progress.value.total > 0 && progress.value.total <= SEGMENTS_MAX ? progress.value.total : 0))
+
 /** «Модуль 2 · Урок 4 · Еда и напитки»; a lesson without a module is just «Урок 4». */
 const lessonHeader = computed((): string => {
   const current = lesson.value
@@ -106,6 +114,40 @@ const lessonHeader = computed((): string => {
       ? t('training.lesson_header_no_stage', { lesson: current.lesson })
       : t('training.lesson_header', { stage: current.stage, lesson: current.lesson })
   return current.title ? `${head} · ${current.title}` : head
+})
+
+/**
+ * The pill under the header, by the mode (the round of hard words has its own row): a lesson (personal or of a group) — its
+ * name; the review of a lesson (`lesson_review`) — «Повторение · <lesson>»; the daily review — «Раунд». Nothing else is asked
+ * of the server: the mode and the lesson come with the session.
+ */
+const subtitle = computed((): { text: string; testid: string } | null => {
+  if (mode.value === 'lesson_review') {
+    return {
+      text: lesson.value ? t('training.lesson_review_header', { lesson: lessonHeader.value }) : t('training.lesson_review_header_plain'),
+      testid: 'lesson-review-header',
+    }
+  }
+  if (lesson.value) return { text: lessonHeader.value, testid: 'lesson-header' }
+  if (mode.value === 'daily_review') return { text: t('training.daily_header'), testid: 'daily-header' }
+  return null
+})
+
+/**
+ * The line of the answer panel after a miss (docs/design Feedback «Слово вернётся ещё раз в этом уроке»). The queue is the
+ * server's: a missed word goes back to the minute steps (`learning` / `relearning`) and the picker serves it again in the same
+ * session through learn-ahead (docs/06 §4.2, step 3; the round of hard words — §14). So the promise is made only when the
+ * session goes on — the answer brought the next card (`deferred.card`) — and only in the modes whose queue does that: a lesson
+ * («…в этом уроке») and the daily / hard round («…в этом раунде»). Otherwise — the session is over with this answer, or the
+ * review of a lesson, which serves a word at most a few times (`learning.lesson_review.max_serves_per_word`, unknown here) — a
+ * neutral line that promises nothing. Not covered by the promise: a session cut by `twa.training.max_cards_per_session` or a
+ * server with learn-ahead switched off (`learning.learn_ahead_minutes = 0`) — the client cannot see either.
+ */
+const missNote = computed((): string => {
+  const continues = deferred.value !== null && deferred.value.card !== null
+  if (continues && (mode.value === 'lesson' || mode.value === 'group_lesson')) return t('exercise.miss.returns_lesson')
+  if (continues && (mode.value === 'daily_review' || mode.value === 'hard_review')) return t('exercise.miss.returns_round')
+  return t('exercise.miss.neutral')
 })
 
 /**
@@ -289,9 +331,12 @@ async function onRestart(): Promise<void> {
     </ClosedState>
 
     <template v-else>
-      <!-- docs/design Question: ✕, a thin line of progress and the counter in mono; under them, quietly, what this session is. -->
+      <!--
+        docs/design/2026-11-25-redesign Question: ✕, the progress as segments (one per card of a short session; a line when there
+        are too many for segments) and «3 из 8»; under them a pill that says what this session is (the lesson, the round…).
+      -->
       <header class="px-5 pt-3">
-        <div class="flex items-center gap-3.5">
+        <div class="flex items-center gap-3">
           <button
             type="button"
             class="-ml-3 flex size-11 shrink-0 items-center justify-center rounded-full text-muted active:bg-fill"
@@ -299,9 +344,25 @@ async function onRestart(): Promise<void> {
             data-testid="close-btn"
             @click="leave"
           >
-            <AppIcon name="x-mark" :size="18" />
+            <AppIcon name="x-mark" :size="20" />
           </button>
-          <ProgressLine :value="progressPercent" tone="primary" class="h-[3px] flex-1" data-testid="progress-bar" />
+          <div
+            v-if="segments > 0"
+            class="grid flex-1 gap-1"
+            :style="{ gridTemplateColumns: `repeat(${segments}, minmax(0, 1fr))` }"
+            aria-hidden="true"
+            data-testid="progress-bar"
+          >
+            <span
+              v-for="n in segments"
+              :key="n"
+              class="h-1.5 rounded-full"
+              :class="n <= progress.done ? 'bg-primary' : 'bg-track'"
+              :data-done="n <= progress.done ? 'true' : undefined"
+              data-testid="progress-segment"
+            />
+          </div>
+          <ProgressLine v-else :value="progressPercent" tone="primary" class="h-1.5 flex-1" data-testid="progress-bar" />
           <Transition name="combo">
             <span
               v-if="showCombo"
@@ -315,27 +376,23 @@ async function onRestart(): Promise<void> {
             </span>
           </Transition>
           <span
-            class="min-w-12 text-right font-mono text-[13px] leading-[18px] text-muted"
+            class="shrink-0 text-right text-sm leading-5 font-semibold text-muted tabular-nums"
             :class="{ invisible: progress.total === 0 }"
             data-testid="progress"
           >
-            {{ progress.done }} / {{ progress.total }}
+            {{ t('training.progress.counter', { done: progress.done, total: progress.total }) }}
           </span>
         </div>
-        <!-- The round of hard words: its own mark and how many of its words are won (`progress.done`, docs/06 §14). -->
-        <p
-          v-if="mode === 'hard_review'"
-          class="mt-1 flex items-center justify-center gap-2 text-[13px] leading-[18px] text-muted"
-          data-testid="hard-round-header"
-        >
-          <span class="chip chip-warning" data-testid="hard-round-chip">{{ t('training.hard_round.chip') }}</span>
-          <span data-testid="hard-round-progress">{{ t('training.hard_round.progress', { done: progress.done, total: progress.total }) }}</span>
-        </p>
-        <p v-else-if="lesson" class="mt-1 text-center text-[13px] leading-[18px] text-muted" data-testid="lesson-header">
-          {{ lessonHeader }}
-        </p>
-        <p v-else-if="mode === 'daily_review'" class="mt-1 text-center text-[13px] leading-[18px] text-muted" data-testid="daily-header">
-          {{ t('training.daily_header') }}
+        <!-- What this session is: one pill (docs/design Question «Урок 3 · Напитки»), its text by the mode. -->
+        <div v-if="mode === 'hard_review'" class="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-1" data-testid="hard-round-header">
+          <span class="block h-7 max-w-full min-w-0 truncate rounded-full bg-accent-soft px-3 text-[13px] leading-7 font-bold text-accent-ink" data-testid="hard-round-chip">{{ t('training.hard_round.chip') }}</span>
+          <!-- The round of hard words: how many of its words are won (`progress.done`, docs/06 §14). -->
+          <span class="text-[13px] leading-[18px] text-muted" data-testid="hard-round-progress">
+            {{ t('training.hard_round.progress', { done: progress.done, total: progress.total }) }}
+          </span>
+        </div>
+        <p v-else-if="subtitle" class="mt-4 flex" :data-testid="subtitle.testid">
+          <span class="block h-7 max-w-full min-w-0 truncate rounded-full bg-accent-soft px-3 text-[13px] leading-7 font-bold text-accent-ink">{{ subtitle.text }}</span>
         </p>
       </header>
 
@@ -352,7 +409,13 @@ async function onRestart(): Promise<void> {
         @continue="onContinue"
       />
 
-      <AnswerVerdict v-else-if="status === 'verdict' && verdict" :verdict="verdict" :answer="lastAnswer" @continue="onContinue" />
+      <AnswerVerdict
+        v-else-if="status === 'verdict' && verdict"
+        :verdict="verdict"
+        :answer="lastAnswer"
+        :miss-note="missNote"
+        @continue="onContinue"
+      />
 
       <!--
         An exercise this build does not know (a newer server): it cannot be shown as a flash card — the answer is not in the card —
@@ -381,6 +444,7 @@ async function onRestart(): Promise<void> {
         :card="card"
         :disabled="isBusy"
         :result="choiceResult"
+        :miss-note="missNote"
         @pick="onChoicePick"
         @advance="onChoiceAdvance"
       />
@@ -390,6 +454,7 @@ async function onRestart(): Promise<void> {
         :card="card"
         :disabled="isBusy"
         :result="choiceResult"
+        :miss-note="missNote"
         @pick="onChoicePick"
         @advance="onChoiceAdvance"
       />
@@ -399,6 +464,7 @@ async function onRestart(): Promise<void> {
         :card="card"
         :disabled="isBusy"
         :result="choiceResult"
+        :miss-note="missNote"
         @pick="onChoicePick"
         @advance="onChoiceAdvance"
       />

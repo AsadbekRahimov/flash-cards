@@ -60,6 +60,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/ExamResultView.vue'),
     props: (route) => ({ sessionId: Number(route.params.sessionId) }),
   },
+  // The "Course" tab (docs/14 §6.5): looks up the learner's course and replaces itself with its screen (the catalog without one).
+  {
+    path: '/course',
+    name: 'my-course',
+    component: () => import('@/views/MyCourseView.vue'),
+    meta: { tab: 'courses' },
+  },
   {
     path: '/courses',
     name: 'courses',

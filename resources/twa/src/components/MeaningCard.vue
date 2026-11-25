@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import type { Card, ChoiceResult } from '@/api/types'
-import CardHooks from '@/components/CardHooks.vue'
-import ExampleAudioButton from '@/components/ExampleAudioButton.vue'
+import ChoiceFeedback from '@/components/ChoiceFeedback.vue'
 import QuizOption from '@/components/QuizOption.vue'
-import StickyActions from '@/components/StickyActions.vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { useChoice } from '@/composables/useChoice'
 import { useAutoSpeak } from '@/composables/useAutoSpeak'
@@ -26,6 +24,8 @@ const props = defineProps<{
   /** The server's word on the pick; null until it arrives. */
   result?: ChoiceResult | null
   disabled?: boolean
+  /** The line under the example after a miss: the word comes back in this lesson / round, or a neutral one (the screen decides). */
+  missNote?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -67,6 +67,9 @@ const shown = computed((): Card => {
   }
 })
 
+/** The server has answered: the screen of the answer (Feedback) is on. */
+const answered = computed((): boolean => isCorrect.value !== null)
+
 /** "Next" was pressed while the grade is still on its way: the button waits for the server. */
 const waiting = computed((): boolean => confirmed.value && props.disabled === true)
 
@@ -98,33 +101,46 @@ function onContinue(): void {
 <template>
   <div class="flex flex-1 flex-col" data-testid="meaning-card">
     <div class="flex flex-col px-5 pb-4">
-      <!-- The question (docs/design Question): the word large on the white screen, its transcription and the speaker under it. -->
-      <div class="mt-14 flex flex-col items-center gap-2.5 text-center short:mt-5 short:gap-1.5">
+      <!--
+        The question (docs/design/2026-11-25-redesign Question): the task in words, the word large on the white screen, its
+        transcription and the round speaker beside it. Once the answer is in (Feedback) the word steps down a size, so the options
+        stay above the answer panel.
+      -->
+      <div
+        class="flex flex-col items-center text-center"
+        :class="answered ? 'mt-[22px] gap-1.5 short:mt-3 short:gap-1' : 'mt-[30px] gap-2 short:mt-4 short:gap-1.5'"
+      >
         <span v-if="card.is_leech" class="chip chip-warning" data-testid="leech-chip">{{ t('card.leech') }}</span>
-        <p class="text-[13px] leading-[18px] text-muted">{{ t('exercise.meaning.title') }}</p>
+        <p class="text-base leading-[22px] text-muted" data-testid="exercise-title">{{ t('exercise.meaning.title') }}</p>
         <h2
-          class="max-w-full text-[46px] leading-[52px] font-semibold tracking-[-0.6px] break-words short:text-[36px] short:leading-[42px]"
+          class="max-w-full font-extrabold break-words"
+          :class="answered ? 'text-[40px] leading-[46px] tracking-[-0.8px] short:text-[34px] short:leading-10' : 'text-[52px] leading-[58px] tracking-[-1px] short:text-[40px] short:leading-[46px]'"
           lang="en"
           data-testid="word"
         >
           {{ word }}
         </h2>
-        <div class="flex items-center gap-1">
-          <span v-if="card.transcription" class="font-ipa text-[15px] leading-5 text-muted" data-testid="transcription">{{ card.transcription }}</span>
+        <div class="flex items-center gap-2.5">
+          <span v-if="card.transcription" class="font-ipa text-base leading-[22px] text-muted" data-testid="transcription">{{ card.transcription }}</span>
           <button
             type="button"
-            class="flex size-11 shrink-0 items-center justify-center rounded-full text-accent active:bg-fill"
+            class="flex size-11 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent active:bg-fill"
             :aria-label="t('card.speak')"
             data-testid="speak-btn"
             @click="onSpeak"
           >
-            <AppIcon name="speaker-wave" :size="20" />
+            <AppIcon name="speaker-wave" :size="22" />
           </button>
         </div>
       </div>
 
       <!-- The translations: long ones wrap inside the option (QuizOption breaks words), nothing is clipped at 320 px. -->
-      <div class="mt-11 flex flex-col gap-2.5 short:mt-4 short:gap-2" role="group" :aria-label="t('exercise.meaning.title')">
+      <div
+        class="flex flex-col gap-2.5 short:gap-2"
+        :class="answered ? 'mt-[22px] short:mt-3' : 'mt-[34px] short:mt-4'"
+        role="radiogroup"
+        :aria-label="t('exercise.meaning.title')"
+      >
         <QuizOption
           v-for="(label, index) in options"
           :key="index"
@@ -137,53 +153,16 @@ function onContinue(): void {
       </div>
     </div>
 
-    <!--
-      The answer (docs/design Feedback): a grey panel at the bottom with the word and its meaning, the verdict in words, the
-      example and its translation, the hooks (docs/06 §12.3, §12.6) and, after a miss, "Next".
-    -->
-    <StickyActions v-if="isCorrect !== null" class="border-t border-hairline">
-      <div class="flex flex-col gap-3 pt-1.5 short:gap-2" data-testid="feedback">
-        <div class="flex items-baseline justify-between gap-3">
-          <p class="min-w-0 text-lg leading-6 font-semibold break-words" data-testid="feedback-title">
-            <span lang="en">{{ word }}</span> — {{ shown.translation }}
-          </p>
-          <span
-            class="shrink-0 text-[13px] leading-[18px]"
-            :class="isCorrect ? 'text-success-ink' : 'text-danger-ink'"
-            data-testid="feedback-status"
-          >
-            {{ t(isCorrect ? 'exercise.feedback.right' : 'exercise.feedback.wrong') }}
-          </span>
-        </div>
-        <div v-if="shown.example" class="flex flex-col gap-1">
-          <!-- The speaker of the example (docs/26 §9.11) on its first line; the sentence wraps beside it. -->
-          <div class="flex items-start gap-1">
-            <p class="min-w-0 flex-1 text-base leading-[22px] break-words italic" lang="en" data-testid="example">{{ shown.example }}</p>
-            <ExampleAudioButton v-if="shown.example_audio_url" :url="shown.example_audio_url" class="-mt-[11px]" />
-          </div>
-          <p v-if="shown.example_translation" class="text-sm leading-5 text-muted" data-testid="example-translation">
-            {{ shown.example_translation }}
-          </p>
-        </div>
-        <CardHooks :card="shown" />
-        <button
-          v-if="awaitingConfirm"
-          type="button"
-          class="btn btn-primary btn-lg btn-block"
-          data-testid="continue-btn"
-          :disabled="waiting"
-          :aria-busy="waiting"
-          @click="onContinue"
-        >
-          <span
-            v-if="waiting"
-            class="size-5 animate-spin rounded-full border-2 border-current/30 border-t-current motion-reduce:animate-none"
-            aria-hidden="true"
-            data-testid="continue-waiting"
-          />
-          {{ t('exercise.continue') }}
-        </button>
-      </div>
-    </StickyActions>
+    <ChoiceFeedback
+      v-if="isCorrect !== null"
+      :word="word"
+      :meaning="shown.translation"
+      :card="shown"
+      :correct="isCorrect"
+      :awaiting-confirm="awaitingConfirm"
+      :waiting="waiting"
+      :miss-note="missNote"
+      @continue="onContinue"
+    />
   </div>
 </template>
