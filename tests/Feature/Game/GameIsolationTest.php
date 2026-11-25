@@ -91,6 +91,8 @@ beforeEach(function (): void {
     Storage::fake('practice_audio');
     Storage::fake('public');
     config(['game.class.centers_only' => false, 'telegram.bot_username' => 'LexiFlowBot']);
+    // The goal of 35 is a fingerprint the game must not touch; the limit of the goal on Free (docs/34 §2б.2) would lower it on /me.
+    config()->set('billing.plans.free.limits.daily_goal_max', null);
     app()->instance(TelegramClient::class, new FakeTelegramClient); // the card "I got to ..." after the first boss
 });
 

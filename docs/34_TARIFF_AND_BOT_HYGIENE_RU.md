@@ -137,7 +137,7 @@ public function cap(Entitlement $e): ?int;                       // null = бе�
 /** @return list<array{value: int, locked: bool}> */
 public function options(Entitlement $e): array;
 public function assertAllowed(int $goal, Entitlement $e): void; // DailyGoalLimitException (403 daily_goal_pro_required)
-public function enforce(Learner $learner, Entitlement $e, CarbonImmutable $now): ?DailyGoalChange; // null = ничего не менялось
+public function enforce(Learner $learner, Entitlement $e, string $via, ?CarbonImmutable $now = null): ?DailyGoalChange; // null = ничего не менялось; $via — today | settings | training | command
 ```
 
 Правила `enforce()`:

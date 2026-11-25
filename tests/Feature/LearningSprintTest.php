@@ -41,6 +41,8 @@ uses(RefreshDatabase::class);
 // The rounds below are counted against a Free quota of 20 new words (a two-lesson course fits in one day), not the launch default.
 beforeEach(function (): void {
     config()->set('billing.plans.free.limits.new_words_per_day', 20);
+    // The goal of 20 of the factory stays: the points below have no goal bonus (the limit of the goal on Free is DailyGoalLimiterTest's).
+    config()->set('billing.plans.free.limits.daily_goal_max', null);
 });
 
 function spHeaders(Learner $learner): array

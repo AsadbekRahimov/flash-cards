@@ -36,6 +36,7 @@ it('redeems a code and answers with the refreshed profile (Pro with its end)', f
                     'locales' => ['*' => ['id', 'label']],
                     'reminder_times',
                     'daily_goals',
+                    'daily_goal_max',
                     'retention_modes',
                 ],
             ],
