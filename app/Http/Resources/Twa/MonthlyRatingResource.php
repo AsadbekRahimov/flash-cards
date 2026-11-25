@@ -26,7 +26,7 @@ final class MonthlyRatingResource extends TwaResource
      *   rules: array{daily_cap: int, min_active_days: int, min_account_days: int, places: int, top: int},
      *   prizes: list<array{place: int, title: string}>,
      *   top: list<array{rank: int, name: string|null, points: int, active_days: int, is_me: bool}>,
-     *   me: array{rank: int|null, points: int, active_days: int, participant: bool, eligible: bool, missing: array{active_days: int, account_days: int}}|null,
+     *   me: array{rank: int|null, points: int, active_days: int, participant: bool, eligible: bool, missing: array{active_days: int, account_days: int}, not_counted_reason: 'opted_out'|'blocked'|null}|null,
      *   last_month: array{starts_on: string, ends_on: string, status: string, winners: list<array{place: int, name: string|null, points: int}>, me: array{rank: int, points: int}|null}|null
      * }
      */

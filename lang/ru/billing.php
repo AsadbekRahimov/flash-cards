@@ -52,8 +52,8 @@ return [
         ],
     ],
 
-    // The welcome trial (docs/13 §7.1 "2C.9"), DM once after the onboarding (TrialWelcomeMessenger): `:days` / `:reward` are
-    // "7 дней", `:friends` is "3 друзей" (lang/ru/referrals.php).
+    // The welcome trial (docs/13 §7.1 "2C.9"), DM once after the onboarding (TrialWelcomeMessenger): `:days` is
+    // "14 дней" (billing.trial.days), `:reward` is "7 дней" (referrals.milestone_days), `:friends` is "3 друзей" (lang/ru/referrals.php).
     'trial' => [
         'welcome' => '🎁 Вам открыт Pro на :days — бесплатно, до :date. Пригласите :friends — получите ещё :reward: /invite',
         'welcome_plain' => '🎁 Вам открыт Pro на :days — бесплатно, до :date.',

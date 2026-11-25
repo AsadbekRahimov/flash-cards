@@ -1763,6 +1763,7 @@
 | Ключ | uz | ru |
 |---|---|---|
 | `catalog.hint` | Kunlik mashg'ulot uchun yangi so'zlar asosiy kursdan olinadi | Новые слова для ежедневного занятия берутся из основного курса |
+| `catalog.open_lessons` | Darslarni ochish | Открыть уроки |
 | `course.continue` | Davom etish: {stage}-modul, {number}-dars | Продолжить: модуль {stage}, урок {number} |
 | `course.all_done` | Kursning barcha darslari tugallandi | Все уроки курса пройдены |
 | `course.choose_hint` | Kunlik mashg'ulotdagi yangi so'zlar shu kursdan bo'ladi | Новые слова в ежедневном занятии будут из этого курса |
@@ -3712,6 +3713,7 @@
 | `catalog.selected` | Kurs tanlandi | Курс выбран |
 | `catalog.active` | Siz shu kursni o'rganyapsiz | Вы учите этот курс |
 | `catalog.hint` | Har kuni yangi so'zlar — sizning kursingizdan | Каждый день новые слова — из вашего курса |
+| `catalog.open_lessons` | Darslarni ochish | Открыть уроки |
 | `settings.course` | Mening kursim | Мой курс |
 
 ## Пробный Pro и Pro за приглашения (16.11.2026) — на проверку носителю
@@ -3824,6 +3826,7 @@
 | `month.my_noplace` | Hozircha o'rin yo'q · {points} | Пока без места · {points} |
 | `month.start_prompt` | Mashg'ulotni boshlang — oylik reytingga kirasiz | Начните заниматься — и попадёте в рейтинг месяца |
 | `month.opted_out` | Siz reytinglarda qatnashmayapsiz. Sozlamalarda yoqish mumkin | Вы не участвуете в рейтингах. Включить можно в настройках |
+| `month.not_counted_blocked` | Akkauntingiz reytingda qatnashmaydi, qo'llab-quvvatlash xizmatiga yozing | Ваш аккаунт не участвует в рейтинге, напишите в поддержку |
 | `month.missing_days` | Sovrin uchun shu oyda yana {count} kun shug'ullanish kerak | Для приза нужно заниматься ещё {count} дн. в этом месяце |
 | `month.missing_account` | Sovrin uchun akkaunt kamida {count} kunlik bo'lishi kerak | Для приза аккаунту должно быть не меньше {count} дн. |
 | `month.eligible` | Siz sovrinlar o'yinida qatnashyapsiz | Вы участвуете в розыгрыше призов |
@@ -4011,6 +4014,8 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `readiness.unavailable` | Darajaga tayyorlik hozir mavjud emas. | Готовность к уровню сейчас недоступна. |
 | `exam.quiz_closed_title` | Vaqt tugadi | Время вышло |
 | `profile.readiness.hint` | O'zlashtirilgan so'zlar ulushi va hafta testi | Доля освоенных слов и тест недели |
+| `profile.learning` | O'qish natijalarim | Моё обучение |
+| `profile.account` | Hisobim | Аккаунт |
 | `error.code.level_quiz_disabled` | Hafta testi hozir mavjud emas. | Тест недели сейчас недоступен. |
 | `error.code.readiness_disabled` | Darajaga tayyorlik hozir mavjud emas. | Готовность к уровню сейчас недоступна. |
 | `finished.hard_round.title_none` | Qiyin so'zlar raundi tugadi | Раунд трудных слов пройден (при 0 побеждённых) |
@@ -4209,6 +4214,7 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `today.list.title` | Bugun uchun | На сегодня |
 | `today.goal.of` | {count} ta so'zdan | из {count} слов (после крупного числа выполненного) |
 | `today.goal.left_short` | {count} ta qoldi | осталось {count} |
+| `today.goal.edit` | Maqsadni o'zgartirish | Изменить цель |
 | `today.streak.short` | {count} kun ketma-ket | серия {count} дней |
 | `today.streak.record` | rekord — {count} kun | рекорд серии — {count} дней |
 | `assignments.progress_short` | {pct}% bajarildi | выполнено {pct}% |
@@ -4296,5 +4302,6 @@ Mini App, `resources/twa/src/i18n/uz.ts`. Тексты не обещают ре�
 | `league.table_all` | Butun jadval · {members} | Вся таблица · {members} |
 | `league.members` | {count} ishtirokchi | {count} участник/участника/участников |
 | `league.table_less` | Jadvalni yig'ish | Свернуть таблицу |
+| `league.daily_plan` | Bugungi rejaga o'tish | К плану на сегодня |
 | `month.title` | Oy reytingi | Рейтинг месяца |
 | `friends.list.streak_words` | ketma-ketlik {streak} · {words} | серия {streak} · {words} (вместо «🔥 {streak}») |

@@ -29,7 +29,7 @@ return [
      * meanwhile keeps the pending marker and gets one if the trial is switched on again before their next contact.
      */
     'trial' => [
-        'days' => (int) env('BILLING_TRIAL_DAYS', 7),
+        'days' => (int) env('BILLING_TRIAL_DAYS', 14),
         // Key of the HMAC in the `pro_trials` book; empty = `app.key`. Set once and never change it.
         'hash_key' => env('BILLING_TRIAL_HASH_KEY'),
     ],
@@ -51,7 +51,7 @@ return [
     'plans' => [
         'free' => [
             'rank' => 0,
-            'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 20)],
+            'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 10)],
             'features' => ['courses.public', 'training.daily', 'training.lesson'],
         ],
         'pro' => [

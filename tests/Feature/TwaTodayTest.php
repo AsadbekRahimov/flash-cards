@@ -92,12 +92,12 @@ it('requires authentication', function (): void {
 
 it('is empty for a fresh learner: zero goal progress, no streak, no course, the full Free quota', function (): void {
     // The practice card reads the switches as shipped (a local .env may differ): open to everybody, the battles off.
-    config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.battle.enabled' => false, 'practice.modes' => ['pairs' => true, 'collocation' => true, 'sentence' => true, 'dictation' => true, 'pairs_timed' => true], 'game.access' => 'off']);
+    config(['practice.access' => 'all', 'practice.plan' => 'all', 'practice.battle.enabled' => false, 'practice.modes' => ['pairs' => true, 'collocation' => true, 'sentence' => true, 'dictation' => true, 'pairs_timed' => true], 'game.access' => 'off', 'billing.plans.free.limits.new_words_per_day' => 10]);
     $learner = Learner::factory()->create(['daily_goal' => 10]);
 
     todayGet($this, $learner)->assertOk()->assertExactJson([
         'due_count' => 0,
-        'new_words_remaining' => 20,
+        'new_words_remaining' => 10,
         'goal' => ['target' => 10, 'done' => 0, 'met' => false],
         'streak' => ['current' => 0, 'best' => 0, 'met_today' => false, 'at_risk' => false, 'freezes' => 0, 'frozen_yesterday' => false, 'held_by' => null],
         'active_course' => null,

@@ -18,7 +18,7 @@ final class MonthlyRatingMeResource extends TwaResource
      * @return array{
      *   enabled: bool,
      *   month: array{starts_on: string, ends_on: string, days_left: int},
-     *   me: array{rank: int|null, points: int, active_days: int, participant: bool, eligible: bool, missing: array{active_days: int, account_days: int}}|null
+     *   me: array{rank: int|null, points: int, active_days: int, participant: bool, eligible: bool, missing: array{active_days: int, account_days: int}, not_counted_reason: 'opted_out'|'blocked'|null}|null
      * }
      */
     public function toArray(Request $request): array

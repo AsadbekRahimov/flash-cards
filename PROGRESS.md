@@ -1,5 +1,17 @@
 # Progress Log
 
+## План соревнований (docs/31), выпуск A — в работе (2026-11-25)
+
+**Числа тарифов и баг месячного рейтинга ✅ код.** Проект — `docs/34` §1, §3.
+
+- Умолчания: пробный Pro 14 дней (`BILLING_TRIAL_DAYS`), Free 10 новых слов в день (`BILLING_FREE_NEW_WORDS_PER_DAY`), 3 игры со словами в день (`PRACTICE_FREE_SESSIONS_PER_DAY`). Награда за реферала — по-прежнему 7 дней. Тесты переведены на явный конфиг; новый `LaunchDefaultsTest`.
+- Месячный рейтинг: убрано условие «прошёл знакомство в боте» — ученик, начавший в Mini App, был в недельной лиге, но пропадал из месяца. Поле `not_counted_reason` (`opted_out` / `blocked`) и строка в Mini App.
+- Попутно: `LearningSprintTest` (урок вырос до 12 слов) и `UzReviewDocTest` (5 ключей в `I18N_UZ_REVIEW.md`).
+- Проверки: pint, phpstan level 8 чисто; pest 8352 passed, 1 failed (`ProductionImageConfigTest`, только окружение); vitest 4792.
+- **На сервере (владелец):** три переменные в `.env`, `config:cache`, перезапуск воркеров, затем `php artisan leagues:refresh-month --full`.
+
+Осталось в выпуске A: переименование в Muhrla (docs/36 M1–M3), адрес озвучки `домен/audio/…` (docs/31 §5д).
+
 ## Озвучка примеров (выпуск 2) ✅ код (2026-11-23)
 
 **Запрос владельца:** второй выпуск озвучки — примеры к словам (`docs/26_AUDIO_TTS_PLAN_RU.md` §5.7, решения — §9.11).

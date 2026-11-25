@@ -215,6 +215,8 @@ export interface MonthlyMe {
   /** Whether the learner takes part in the prize draw; `missing` says what is not enough yet. */
   eligible: boolean
   missing: { active_days: number; account_days: number }
+  /** Why the learner has no place (docs/34 §3): `opted_out`, `blocked`; null for a participant. */
+  not_counted_reason: 'opted_out' | 'blocked' | null
 }
 
 export interface MonthlyLastMonth {

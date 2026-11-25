@@ -68,6 +68,7 @@ function callbacks(?array $markup): array
 
 it('/pro says Pro is coming, with the contact, while nothing is for sale', function (): void {
     config()->set('billing.paywall.mode', 'coming_soon');
+    config()->set('billing.plans.free.limits.new_words_per_day', 10);
     // A learner of before the launch: a brand-new one would be on the welcome trial (docs/13 §7.1 "2C.9"), not on Free.
     Learner::factory()->create(['telegram_user_id' => 555]);
 
@@ -75,7 +76,7 @@ it('/pro says Pro is coming, with the contact, while nothing is for sale', funct
 
     expect($this->sent)->toHaveCount(1)
         ->and($this->sent[0]['chat'])->toBe(555)
-        ->and($this->sent[0]['text'])->toContain('Сейчас у вас тариф Free: 20 новых слов в день')
+        ->and($this->sent[0]['text'])->toContain('Сейчас у вас тариф Free: 10 новых слов в день')
         ->and($this->sent[0]['text'])->toContain('LexiFlow Pro скоро откроется. Есть промокод? Отправьте /promo КОД.')
         ->and($this->sent[0]['text'])->toContain('@lexiflow_support')
         ->and($this->sent[0]['markup'])->toBeNull();

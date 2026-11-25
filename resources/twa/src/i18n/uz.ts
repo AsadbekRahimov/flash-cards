@@ -735,6 +735,7 @@ export const uz: Translations = {
   'month.my_noplace': "Hozircha o'rin yo'q · {points}",
   'month.start_prompt': "Mashg'ulotni boshlang — oylik reytingga kirasiz",
   'month.opted_out': "Siz reytinglarda qatnashmayapsiz. Sozlamalarda yoqish mumkin",
+  'month.not_counted_blocked': "Akkauntingiz reytingda qatnashmaydi, qo'llab-quvvatlash xizmatiga yozing",
   'month.missing_days': "Sovrin uchun shu oyda yana {count} kun shug'ullanish kerak",
   'month.missing_account': "Sovrin uchun akkaunt kamida {count} kunlik bo'lishi kerak",
   'month.eligible': "Siz sovrinlar o'yinida qatnashyapsiz",

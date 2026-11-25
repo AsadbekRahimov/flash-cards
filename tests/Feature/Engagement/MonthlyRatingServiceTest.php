@@ -189,10 +189,11 @@ it('caps what one day adds to the month, counts the capped days, and runs uncapp
 
 // --- participation -----------------------------------------------------------------------
 
-it('keeps out the deleted, the blocked, the not onboarded and the opted out — and lets an opt-out back in at the next refresh', function (): void {
+it('keeps out the deleted, the blocked and the opted out, counts the not onboarded — and lets an opt-out back in at the next refresh', function (): void {
     $in = mrLearner(['first_name' => 'In']);
     $deleted = mrLearner(['first_name' => 'Gone']);
     $blocked = mrLearner(['first_name' => 'Blocked', 'blocked_at' => mrNow()]);
+    // Never answered the bot's questions, studies in the Mini App: a participant like in the weekly league (docs/34 §3).
     $fresh = Learner::factory()->create(['first_name' => 'Fresh', 'onboarding_state' => 'timezone']);
     $optedOut = mrLearner(['first_name' => 'Out', 'meta' => [LeagueService::OPT_OUT_META => true]]);
     $optedIn = mrLearner(['first_name' => 'Back', 'meta' => [LeagueService::OPT_OUT_META => false]]);
@@ -208,14 +209,20 @@ it('keeps out the deleted, the blocked, the not onboarded and the opted out — 
         ->and(mrScore($month, $in)?->participant)->toBeTrue()
         ->and(mrScore($month, $deleted)?->participant)->toBeFalse()
         ->and(mrScore($month, $blocked)?->participant)->toBeFalse()
-        ->and(mrScore($month, $fresh)?->participant)->toBeFalse()
+        ->and(mrScore($month, $fresh)?->participant)->toBeTrue()
         ->and(mrScore($month, $optedOut)?->participant)->toBeFalse()
         ->and(mrScore($month, $optedIn)?->participant)->toBeTrue()
-        ->and(mrTop($month))->toBe(["1:150:{$in->id}", "2:125:{$optedIn->id}"])
-        ->and($month->fresh()?->participants_count)->toBe(2)
+        ->and(mrTop($month))->toBe(["1:150:{$in->id}", "2:135:{$fresh->id}", "3:125:{$optedIn->id}"])
+        ->and($month->fresh()?->participants_count)->toBe(3)
         ->and(mrService()->myLine($month, $optedOut)?->rank)->toBeNull()
         ->and(mrService()->myLine($month, $optedOut)?->participant)->toBeFalse()
-        ->and(mrService()->myLine($month, $in)?->rank)->toBe(1);
+        ->and(mrService()->myLine($month, $in)?->rank)->toBe(1)
+        ->and(mrService()->myLine($month, $fresh)?->rank)->toBe(2)
+        // Why "no place": the opted out and the blocked are told apart; a participant has no reason.
+        ->and(mrService()->myLine($month, $optedOut)?->notCountedReason)->toBe('opted_out')
+        ->and(mrService()->myLine($month, $blocked)?->notCountedReason)->toBe('blocked')
+        ->and(mrService()->myLine($month, $in)?->notCountedReason)->toBeNull()
+        ->and(mrService()->myLine($month, $fresh)?->notCountedReason)->toBeNull();
 
     // Opting back in (and a block lifted) takes effect at the next refresh of the row.
     $optedOut->forceFill(['meta' => [LeagueService::OPT_OUT_META => false]])->save();
@@ -225,6 +232,49 @@ it('keeps out the deleted, the blocked, the not onboarded and the opted out — 
         ->and(mrScore($month, $blocked)?->participant)->toBeFalse(); // not refreshed yet
     mrService()->refresh($month, mrNow(), full: true);
     expect(mrScore($month, $blocked)?->participant)->toBeTrue();
+});
+
+it('names the block before the opt-out when both keep a learner out', function (): void {
+    $both = mrLearner(['blocked_at' => mrNow(), 'meta' => [LeagueService::OPT_OUT_META => true]]);
+    mrDay($both, '2026-11-10', 10, 10);
+    $month = mrService()->currentMonth(mrNow());
+    mrService()->refresh($month, mrNow(), full: true);
+
+    expect(mrService()->myLine($month, $both)?->participant)->toBeFalse()
+        ->and(mrService()->myLine($month, $both)?->notCountedReason)->toBe('blocked');
+});
+
+it('puts a learner who never finished the onboarding in the bot at the same place in the week and in the month, and makes them a prize candidate (docs/34 §3)', function (): void {
+    // Umar studies only in the Mini App: the bot's questions are unanswered. Another learner is onboarded and scores less.
+    $umar = Learner::factory()->create(['first_name' => 'Umar', 'onboarding_state' => 'level', 'created_at' => '2026-09-01 00:00:00']);
+    $other = mrLearner(['first_name' => 'Other']);
+    foreach (['2026-11-03', '2026-11-04', '2026-11-16'] as $date) {
+        mrDay($umar, $date, 100, 90);
+        mrDay($other, $date, 30, 20);
+    }
+
+    $leagues = app(LeagueService::class);
+    $umarMember = $leagues->place($umar, mrNow());
+    $otherMember = $leagues->place($other, mrNow());
+    expect($umarMember)->not->toBeNull()
+        ->and($otherMember?->league_group_id)->toBe($umarMember?->league_group_id);
+    $group = LeagueGroup::query()->findOrFail($umarMember?->league_group_id);
+    $week = $leagues->standings($group, mrNow());
+    expect($week->first()?->learnerId)->toBe($umar->id)
+        ->and($week->first()?->rank)->toBe(1);
+
+    $month = mrService()->currentMonth(mrNow());
+    mrService()->refresh($month, mrNow(), full: true);
+    expect(mrScore($month, $umar)?->participant)->toBeTrue()
+        ->and(mrTop($month)[0] ?? null)->toBe('1:'.mrScore($month, $umar)?->points.":{$umar->id}")
+        ->and(mrService()->myLine($month, $umar)?->rank)->toBe(1)
+        ->and(mrService()->myLine($month, $umar)?->notCountedReason)->toBeNull();
+
+    // Three active days and an old account meet the thresholds of the beforeEach: the close takes Umar as the first candidate.
+    expect(mrService()->closeMonth($month, mrNow('2026-11-30 22:00:00')))->toBeTrue()
+        ->and(mrScore($month, $umar)?->final_rank)->toBe(1);
+    $candidates = LeagueMonthCandidate::query()->where('league_month_id', $month->id)->orderBy('rank')->pluck('learner_id')->all();
+    expect($candidates)->toBe([$umar->id, $other->id]);
 });
 
 // --- eligibility -------------------------------------------------------------------------

@@ -52,7 +52,8 @@ return [
         ],
     ],
 
-    // The welcome trial (docs/13 §7.1 "2C.9"), DM once after the onboarding; `:days` / `:reward` are "7 kun", `:friends` is "3 ta do'stni".
+    // The welcome trial (docs/13 §7.1 "2C.9"), DM once after the onboarding; `:days` is "14 kun" (billing.trial.days),
+    // `:reward` is "7 kun" (referrals.milestone_days), `:friends` is "3 ta do'stni".
     'trial' => [
         'welcome' => '🎁 Sizga :days Pro bepul ochildi — :date gacha. :friends taklif qiling — yana :reward Pro olasiz: /invite',
         'welcome_plain' => '🎁 Sizga :days Pro bepul ochildi — :date gacha.',

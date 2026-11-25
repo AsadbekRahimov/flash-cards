@@ -4,7 +4,7 @@
 > База: ветка `claude/magical-pascal-qz05gz` после приёмки Фазы 0 (Pest 409, Larastan 8, CI на PostgreSQL 16, локально sqlite).
 > Этот документ **уточняет и в части Фазы 1 заменяет** [11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md](./11_SYSTEM_ANALYSIS_AND_SAAS_STRATEGY.md) §5–§6, §10. Там — стратегия; здесь — схема, контракты сервисов, план миграции и нарезка на задачи. Где docs/11 расходится с кодом или с решениями владельца — сказано прямо (§13).
 
-**Решения владельца, зафиксированные в проекте:** B2C-first; платные тарифы для всех; ученик центра получает полный Pro; языки интерфейса и переводов — uz (латиница) и ru; изучаемый язык — только английский; **оплата (Telegram Stars, Payme/Click) в Фазе 1 не реализуется** — Pro выдаётся вручную суперадмином (с аудитом) и промокодом; **Free-лимит — 20 новых слов в день**, повторения не ограничиваются никогда.
+**Решения владельца, зафиксированные в проекте:** B2C-first; платные тарифы для всех; ученик центра получает полный Pro; языки интерфейса и переводов — uz (латиница) и ru; изучаемый язык — только английский; **оплата (Telegram Stars, Payme/Click) в Фазе 1 не реализуется** — Pro выдаётся вручную суперадмином (с аудитом) и промокодом; **Free-лимит — 10 новых слов в день** (до 25.11.2026 — 20), повторения не ограничиваются никогда.
 
 ---
 
@@ -605,7 +605,7 @@ return [
     'cache_ttl' => (int) env('BILLING_CACHE_TTL', 300),
     'grace_days' => (int) env('BILLING_GRACE_DAYS', 3),
     'plans' => [
-        'free' => ['rank' => 0, 'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 20)], 'features' => ['courses.public', 'training.daily', 'training.lesson']],
+        'free' => ['rank' => 0, 'limits' => ['new_words_per_day' => (int) env('BILLING_FREE_NEW_WORDS_PER_DAY', 10)], 'features' => ['courses.public', 'training.daily', 'training.lesson']],
         'pro'  => ['rank' => 1, 'limits' => ['new_words_per_day' => null], 'features' => ['courses.public', 'training.daily', 'training.lesson', 'streak.freeze' /* Фаза 2 */]],
     ],
     'prices' => [ /* заполняется при подключении оплаты: ['pro' => ['month' => ['XTR' => …, 'UZS' => …], 'year' => […]]] */ ],
@@ -738,7 +738,9 @@ liveUntil(s) = current_period_ends_at (+ grace_days, если provider авто�
 
 Ключ **версионный**: `entitlement:learner:{id}:v{n}`, где `n` — целое из `entitlement:ver:{id}` (нет ключа = 0); TTL 300 с, хранится `Entitlement::toArray()`. `forget*()` не удаляет снимок, а делает `Cache::increment` версии: все последующие читатели смотрят в новый (пустой) ключ. Зачем: при обычном «forget → put» запрос, который начал `resolve()` по старым данным, параллельная запись сделала `forget`, а затем запрос положил устаревший снимок — и он жил до конца TTL. С версией `for()` читает `n` **до** `resolve()` и пишет в ключ с этим `n`; если за время вычисления версия выросла, запись ложится в мёртвый ключ, который никто не читает (тест «never caches a snapshot computed before a concurrent invalidation»). Старые снимки доживают TTL сами (одна лишняя запись на learner'а ≤ 5 мин); ключ версии без TTL (несколько байт на learner'а; при вытеснении читатели вернутся к `v0` — устаревшим он может быть только в пределах одного TTL от самого первого forget learner'а). `forgetMany`/`forgetOrganization`/`forgetGroup` — инкремент на каждого участника (chunk 500 по SQL; на Фазе 1 это сотни ключей). Снимок, чей `until` уже прошёл, пересчитывается при чтении без инвалидации — план не переживает подписку даже при опоздании планировщика. `forget()` вызывают **после commit** (`DB::afterCommit`, вне транзакции — сразу): `SubscriptionService` (grant/revoke/expire — для организации `forgetOrganization`), `PromoCodeService` (через `grantFromPromo`), `GroupMembershipService::join/leave` (только при реальном изменении статуса членства), `TelegramGroupObserver` (смена `organization_id`/`status`, удаление группы → `forgetGroup`/`forgetMany`), `OrganizationObserver` (смена `status`, удаление → `forgetOrganization`/`forgetMany`). Observers зарегистрированы в `AppServiceProvider::boot` — любой путь привязки группы к организации (relation manager, форма группы, консоль) инвалидирует кэш без кода в Filament. Обновления через query builder (`TelegramGroup::where()->update()` в `MyChatMemberHandler`) observers не ловят — там допустима задержка до TTL. Пропуск инвалидации стоит максимум 5 минут задержки, но никогда не даёт лишний Pro дольше TTL — приемлемо. **С R12i (04.11.2026) `entitlement:ver:{id}` — версия ученика в целом:** по ней же ключуется снимок `/me` (`Twa\Services\MeProfileCache`, docs/19 §5.1 K9), поэтому любой `forget*()` сбрасывает и его; запись маркера напоминания о продлении (`SubscriptionService::remindOne`) тоже вызывает `forget()`, хотя план не меняется — `reminder_sent` живёт в снимке.
 
-### 5.3 Лимит новых слов (Free = 20/день)
+### 5.3 Лимит новых слов (Free = 10/день)
+
+> **25.11.2026 (docs/34 §1):** умолчание `BILLING_FREE_NEW_WORDS_PER_DAY` снижено с 20 до 10; механика квоты не менялась.
 
 - **Что считается:** первая выдача карточки — создание строки `word_repetitions` (`state = new`) — в окне квоты learner'а (`word_repetitions.created_at`, обычно его **локальный** день; `learner_daily_stats.new_words_count` для квоты не используется, это аналитика первых оценок). Повторения (`due`, `learning`, learn-ahead) **никогда** не ограничиваются — ни Free, ни лимитом сессии (`max_cards_per_session` остаётся защитой от зацикливания клиента и считает оценки, как сейчас).
 - **Где:** `CardPicker::pickNewInTransaction` получает `NewCardBudget`; при `remaining <= 0` шаг «new» пропускается, пикер идёт к learn-ahead, затем `null` с `doneReason = new_quota_exhausted` (только если именно квота остановила — то есть в scope были невыданные слова). Клиент показывает paywall-лист (§5.4), но сессия не завершается, пока есть learning-карточки.
@@ -1073,7 +1075,7 @@ flowchart TD
 1. docs/11 §5.2 предлагает `learner_sessions`, `usage_counters`, `events`, `assignments`: в коде уже есть `product_events` (Фаза 0), `usage_counters` заменены `learner_daily_stats`, `learner_sessions` — режимом `training_sessions`, `assignments` — Фаза 2.
 2. docs/11 §5.2 «миграция без потери данных» и правило слияния прогресса по `repetitions` — **не применяются**: прода с данными нет (решение владельца 2026-10-18), схема создаётся заново (§2). Если переносить данные всё же придётся, правило `repetitions` недостаточно после learning steps Фазы 0 (нужен приоритет по `state`).
 3. docs/11 §6.4 и §10 «Фаза 1 п.7» — оплата Stars/Payme/Click: **отложена решением владельца**; в Фазе 1 только схема и ручные/промо-гранты.
-4. docs/11 §6.3 «15–20 новых слов» → владелец зафиксировал **20** (`BILLING_FREE_NEW_WORDS_PER_DAY`).
+4. docs/11 §6.3 «15–20 новых слов» → владелец зафиксировал **20** (`BILLING_FREE_NEW_WORDS_PER_DAY`); 25.11.2026 снижено до **10** (docs/34 §1).
 5. docs/11 §5.2 `word_translations.language (uz|ru|kk|ky|tg|tr)` — колонка `locale varchar(5)`, допустимые значения ограничены `config('localization.supported')` (сейчас `ru`, `uz`).
 6. docs/11 §8 «`jti` + denylist», «RLS» — отложены (§8, §4.5) с обоснованием.
 7. docs/02 ADR-3 (nutgram) и структура `app/Services/*` устарели — уже отмечено в docs/11 T4; в этом документе используются реальные пути `app/Domain/*`.

@@ -38,6 +38,8 @@ uses(RefreshDatabase::class);
  */
 function trainingCycleScenario(object $test): array
 {
+    // The numbers below are counted against a Free quota of 20 new words a day, not the launch default.
+    config()->set('billing.plans.free.limits.new_words_per_day', 20);
     ['lessons' => $lessons] = Fx::course([1 => [1 => 25]]);
     $lessonId = (int) $lessons['1.1']->id;
 

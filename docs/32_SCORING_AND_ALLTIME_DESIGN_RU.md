@@ -363,7 +363,7 @@ return ScoreOutcome
   - `long_words` = `COUNT(DISTINCT lexeme_id)` из `score_credits` (`kind = long, month_points > 0`, не аннулировано);
   - `category = month_category`.
   Колонки `reviews`, `correct`, `time_spent_ms` для сигналов администратору по-прежнему берутся из `learner_daily_stats`. Это приблизительно (локальные даты), но сигналы только подсказывают.
-- `learner_score_totals` пересчитывается **целиком из источника** на ученика: `SUM(month_points)`, `COUNT(month_points > 0)` по `learner_score_days` с группировкой по `month_category`, `MIN` и `MAX(rating_day)`; `long_words = COUNT(long_<cat>_on IS NOT NULL)` из `learner_lexemes`; `participant` — как в месяце (не удалён, не заблокирован, онбординг пройден, нет opt-out). Пересчёт из источника снимает вопросы о дельтах: закрытие месяца сумму не меняет (она не зависит от статуса месяца), повтор даёт тот же результат, исправление дня просто меняет источник.
+- `learner_score_totals` пересчитывается **целиком из источника** на ученика: `SUM(month_points)`, `COUNT(month_points > 0)` по `learner_score_days` с группировкой по `month_category`, `MIN` и `MAX(rating_day)`; `long_words = COUNT(long_<cat>_on IS NOT NULL)` из `learner_lexemes`; `participant` — как в месяце (не удалён, не заблокирован, нет opt-out; онбординг не требуется — docs/34 §3). Пересчёт из источника снимает вопросы о дельтах: закрытие месяца сумму не меняет (она не зависит от статуса месяца), повтор даёт тот же результат, исправление дня просто меняет источник.
 - **Личная сумма** «Мои очки за всё время» = сумма строк ученика по обеим категориям. Считается при чтении (≤ 2 строки), opt-out не влияет.
 
 ### 5.3. Ранг, ничьи, соседи, отрыв, пагинация

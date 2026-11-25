@@ -534,8 +534,8 @@ captioned *Free* / *Pro* / *Pro (от центра)* (sponsored) as in the list,
   the table: the invited learner (link to their page), the state (`pending` — came, not counted yet; `activated` — started, the
   count waits; `rewarded`, shown as **Засчитан** — counted towards the milestones: the setup is done and 10 cards were rated in a day within
   14 days; `rejected` with the reason: `self`, `existing_learner`, `referrer_capped` — legacy rows only, `flagged`), the
-  **Flagged** mark and the dates. The invited learner gets nothing by the referral — they have the welcome trial of every new learner
-  (provider `trial`, **Пробный**, in *Subscriptions*). The inviter gets +7 days of Pro (`reward`) at 3 and at 6 counted friends, nothing after.
+  **Flagged** mark and the dates. The invited learner gets nothing by the referral — they have the welcome trial of every new learner, 14 days
+  (`BILLING_TRIAL_DAYS`; provider `trial`, **Пробный**, in *Subscriptions*). The inviter gets +7 days of Pro (`reward`) at 3 and at 6 counted friends, nothing after.
   A referral is flagged automatically when the inviter collected 20 or more
   links within 24 hours (a farm is likely); it is not counted meanwhile. Two row buttons for a flagged row, both written
   to the audit log: **Clear flag** (Снять пометку; `referral.unflagged`) — the referral is genuine, an activated one is
@@ -549,7 +549,7 @@ captioned *Free* / *Pro* / *Pro (от центра)* (sponsored) as in the list,
 
 Navigate to **Billing → Subscriptions / Promo codes / Organizations / Payments / Payment orders / Provider
 transactions** (Оплата → Подписки / Промокоды / Учебные центры / Платежи / Заказы / Транзакции провайдеров). These screens are for **admins only** (teachers do not see them; an inactive admin does not either).
-Free learners get 20 new words a day; **Pro** removes the limit. Pro comes from a subscription of the learner, or from
+Free learners get 10 new words a day (`BILLING_FREE_NEW_WORDS_PER_DAY`) and 3 practice sessions a day; **Pro** removes the limits. Pro comes from a subscription of the learner, or from
 the subscription of an **organization** whose group the learner is an active member of (sponsored Pro). Online payment
 (Telegram Stars, Payme, Click) is switched on per provider by DevOps (see DEVOPS_GUIDE §17); until a provider is enabled
 the payment screens stay empty and Pro is granted by hand or with promo codes.

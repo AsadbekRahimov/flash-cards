@@ -762,7 +762,7 @@ describe('FinishedView', () => {
       month: { starts_on: '2026-11-01', ends_on: '2026-11-30', days_left: 14 },
       me,
     })
-    const placed = { rank: 12, points: 340, active_days: 5, participant: true, eligible: false, missing: { active_days: 2, account_days: 0 } }
+    const placed = { rank: 12, points: 340, active_days: 5, participant: true, eligible: false, missing: { active_days: 2, account_days: 0 }, not_counted_reason: null }
 
     function renderWith(summaryValue: SessionSummary | null) {
       useTrainingStore().summary = summaryValue

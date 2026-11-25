@@ -658,7 +658,8 @@ it('serves new words of the active deck in daily_review in the order they were a
     expect($second->json('card.word'))->toBe('beta');
 });
 
-it('applies the Free quota of 20 new words a day to a deck, and not to Pro', function (): void {
+it('applies the Free quota of 10 new words a day to a deck, and not to Pro', function (): void {
+    config()->set('billing.plans.free.limits.new_words_per_day', 10);
     $free = dkLearner();
     $slug = dkCreate($this, $free);
     dkImport($this, $free, $slug, dkList(30))->assertOk();
@@ -681,10 +682,10 @@ it('applies the Free quota of 20 new words a day to a deck, and not to Pro', fun
         dkCall($this, $free, 'POST', "/training/sessions/{$sessionId}/finish")->assertOk();
     } while ($step->json('done_reason') === 'sprint_complete' && $rounds < 6);
 
-    expect($served)->toBe(20)
-        ->and($rounds)->toBe(4)
+    expect($served)->toBe(10)
+        ->and($rounds)->toBe(2)
         ->and($step->json('done_reason'))->toBe('new_quota_exhausted')
-        ->and(WordRepetition::query()->where('learner_id', $free->id)->count())->toBe(20);
+        ->and(WordRepetition::query()->where('learner_id', $free->id)->count())->toBe(10);
 
     $pro = dkPro(dkLearner());
     $proSlug = dkCreate($this, $pro);

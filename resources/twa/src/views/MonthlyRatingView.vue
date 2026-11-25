@@ -52,7 +52,12 @@ const daysLine = computed(() => {
 })
 
 const hasPrizes = computed(() => (data.value?.prizes.length ?? 0) > 0)
-const optedOut = computed(() => !!data.value?.opted_out && (me.value === null || !me.value.participant))
+const optedOut = computed(
+  () => (!!data.value?.opted_out && (me.value === null || !me.value.participant)) || me.value?.not_counted_reason === 'opted_out',
+)
+
+/** A blocked account keeps its points but has no place: a neutral line instead of a bare "no place yet" (docs/34 §3). */
+const blocked = computed(() => me.value !== null && !me.value.participant && me.value.not_counted_reason === 'blocked')
 
 const rowName = (name: string | null): string => name || t('league.anonymous')
 
@@ -147,6 +152,9 @@ onMounted(() => {
                 ? t('month.my_place', { rank: me.rank, points: tn('month.points', me.points) })
                 : t('month.my_noplace', { points: tn('month.points', me.points) })
             }}
+          </p>
+          <p v-if="blocked" class="text-[13px] leading-[18px] text-muted" data-testid="not-counted">
+            {{ t('month.not_counted_blocked') }}
           </p>
           <p v-for="line in prizeLines" :key="line" class="text-[13px] leading-[18px] text-muted" data-testid="prize-line" :data-eligible="me.eligible">
             {{ line }}

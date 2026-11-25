@@ -23,6 +23,7 @@ const me = (overrides: Partial<MonthlyMe> = {}): MonthlyMe => ({
   participant: true,
   eligible: true,
   missing: { active_days: 0, account_days: 0 },
+  not_counted_reason: null,
   ...overrides,
 })
 
@@ -183,6 +184,28 @@ describe('MonthlyRatingView', () => {
     it('has no place yet (rank null): says so without a number', async () => {
       const { wrapper } = await render(response({ me: me({ rank: null, points: 0, eligible: false, missing: { active_days: 10, account_days: 0 } }) }))
       expect(text(wrapper, 'my-place')).toBe('Пока без места · 0 баллов')
+      expect(has(wrapper, 'not-counted')).toBe(false)
+    })
+
+    it('tells a blocked learner why there is no place, with no prize lines', async () => {
+      const blocked = me({ rank: null, points: 40, participant: false, eligible: false, missing: { active_days: 1, account_days: 0 }, not_counted_reason: 'blocked' })
+      const { wrapper } = await render(response({ me: blocked }))
+      expect(text(wrapper, 'my-place')).toBe('Пока без места · 40 баллов')
+      expect(text(wrapper, 'not-counted')).toBe('Ваш аккаунт не участвует в рейтинге, напишите в поддержку')
+      expect(has(wrapper, 'prize-line')).toBe(false)
+      expect(has(wrapper, 'opted-out')).toBe(false)
+    })
+
+    it('shows the opt-out card when the line says so, even before the opt-out flag', async () => {
+      const out = me({ rank: null, points: 20, participant: false, eligible: false, not_counted_reason: 'opted_out' })
+      const { wrapper } = await render(response({ opted_out: false, me: out }))
+      expect(has(wrapper, 'opted-out')).toBe(true)
+      expect(has(wrapper, 'not-counted')).toBe(false)
+    })
+
+    it('has no reason line for a participant', async () => {
+      const { wrapper } = await render(response())
+      expect(has(wrapper, 'not-counted')).toBe(false)
     })
   })
 

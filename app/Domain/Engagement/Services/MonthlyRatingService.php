@@ -16,7 +16,6 @@ use App\Domain\Engagement\DTO\MonthlyStanding;
 use App\Domain\Engagement\Enums\LeagueMonthCandidateStatus;
 use App\Domain\Engagement\Enums\LeagueMonthStatus;
 use App\Domain\Engagement\Support\LeaguePoints;
-use App\Domain\Learners\Services\OnboardingService;
 use App\Domain\Learners\Support\StoredDate;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\LeagueMonth;
@@ -373,7 +372,23 @@ final class MonthlyRatingService
             eligible: $eligible,
             missingActiveDays: $missingDays,
             missingAccountDays: $missingAccount,
+            notCountedReason: $score->participant ? null : $this->notCountedReason($learner),
         );
+    }
+
+    /**
+     * Why a learner with a row of the month has no place (docs/34 §3): blocked by an admin first (the opt-out does not
+     * help them back), then opted out of the leagues; null when neither holds (a deleted learner reads nothing here).
+     *
+     * @return MonthlyMyLine::REASON_*|null
+     */
+    private function notCountedReason(Learner $learner): ?string
+    {
+        if ($learner->blocked_at !== null) {
+            return MonthlyMyLine::REASON_BLOCKED;
+        }
+
+        return $this->leagues->isOptedOut($learner) ? MonthlyMyLine::REASON_OPTED_OUT : null;
     }
 
     public function scoreOf(LeagueMonth $month, int $learnerId): ?LeagueMonthScore
@@ -778,7 +793,8 @@ final class MonthlyRatingService
      * changed: `INSERT … SELECT … ON CONFLICT (month, learner) DO UPDATE … WHERE <any column differs>`. The set: one
      * learner (`$onlyLearnerId`), the learners with a row dated on or after `$recentFrom`, or everybody with a row in
      * the month. Bindings only — the driver-specific pieces are constants (`least` / `min`, the boolean literals, the
-     * JSON path of the opt-out flag).
+     * JSON path of the opt-out flag). A participant is whoever the weekly league takes too (docs/34 §3): not deleted, not
+     * blocked, not opted out — the onboarding in the bot is not asked for (the Mini App lets a learner study without it).
      *
      * @param  string|null  $recentFrom  `Y-m-d`
      */
@@ -799,7 +815,7 @@ final class MonthlyRatingService
         $from = StoredDate::of($month->starts_on->toDateString());
         $to = StoredDate::of($month->ends_on->toDateString());
 
-        $bindings = [$month->id, OnboardingService::DONE, $stamp, $stamp];
+        $bindings = [$month->id, $stamp, $stamp];
 
         if ($cap > 0) {
             $counted = "{$least}(d.pts, ?)";
@@ -831,7 +847,7 @@ final class MonthlyRatingService
             .'reviews, correct, new_words, goal_days, game_points, time_spent_ms, participant, final_rank, created_at, updated_at) '
             ."select {$typed('bigint')}, a.learner_id, a.points, a.raw_points, a.active_days, a.capped_days, a.max_day_points, a.reviews, a.correct, "
             .'a.new_words, a.goal_days, a.game_points, a.time_spent_ms, '
-            ."case when l.deleted_at is null and l.blocked_at is null and l.onboarding_state = {$typed('varchar')} and {$notOptedOut} then {$true} else {$false} end, "
+            ."case when l.deleted_at is null and l.blocked_at is null and {$notOptedOut} then {$true} else {$false} end, "
             ."null, {$typed('timestamp')}, {$typed('timestamp')} "
             .'from ('
             ."select d.learner_id, sum({$counted}) as points, sum(d.pts) as raw_points, "

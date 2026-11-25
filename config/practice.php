@@ -21,7 +21,7 @@ return [
     'access' => env('PRACTICE_ACCESS', 'all'),          // off | pilot | all
     'plan' => env('PRACTICE_PLAN', 'all'),              // all | pro
     'free_limits' => [
-        'sessions_per_day' => env('PRACTICE_FREE_SESSIONS_PER_DAY', 2),
+        'sessions_per_day' => env('PRACTICE_FREE_SESSIONS_PER_DAY', 3),
         'battles_per_day' => env('PRACTICE_FREE_BATTLES_PER_DAY', 1),
     ],
     'modes' => [

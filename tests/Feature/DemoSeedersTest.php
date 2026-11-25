@@ -85,6 +85,7 @@ it('honours content.default_course_slug', function (): void {
 });
 
 it('seeds demo repetitions as lessons the groups already taught, so a Free demo learner still has the full new-word quota today', function (): void {
+    config()->set('billing.plans.free.limits.new_words_per_day', 10);
     $this->seed(DatabaseSeeder::class);
 
     expect(WordRepetition::query()->count())->toBeGreaterThan(0)
@@ -98,7 +99,7 @@ it('seeds demo repetitions as lessons the groups already taught, so a Free demo 
         $this->withHeaders(['Authorization' => "Bearer {$token}"])
             ->getJson('/api/twa/today')
             ->assertOk()
-            ->assertJsonPath('new_words_remaining', 20);
+            ->assertJsonPath('new_words_remaining', 10);
     }
 
     // Running the seeder again keeps the history in the past (idempotent, deterministic).

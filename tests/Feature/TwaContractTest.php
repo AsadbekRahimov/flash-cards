@@ -219,6 +219,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
     Config::set('practice.access', 'all');
     Config::set('practice.plan', 'all');
     Config::set('practice.battle.enabled', false);
+    Config::set('billing.plans.free.limits.new_words_per_day', 10);
     foreach (['pairs', 'collocation', 'sentence', 'dictation', 'pairs_timed'] as $mode) {
         Config::set("practice.modes.{$mode}", true);
     }
@@ -259,7 +260,7 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
     expect($response->json('due_count'))->toBeInt()
         // no group of a center: `GET /assignments` is surely empty, the TWA does not ask it
         ->and($response->json('assignments_possible'))->toBeFalse()
-        ->and($response->json('new_words_remaining'))->toBe(20)
+        ->and($response->json('new_words_remaining'))->toBe(10)
         ->and($response->json('open_session_id'))->toBeInt()
         ->and($response->json('onboarding_completed'))->toBeTrue()
         ->and($response->json('entitlement'))->toBe(['plan' => 'free', 'source' => 'free', 'until' => null, 'lapsed' => null])
@@ -286,12 +287,13 @@ it('GET /today keeps its exact JSON shape, with and without an active course', f
 
 it('GET /me reports the Free entitlement and a paywall without contact while BILLING_SUPPORT_CONTACT is empty', function (): void {
     Config::set('billing.paywall.contact', '');
+    Config::set('billing.plans.free.limits.new_words_per_day', 10);
     $s = contractTraining();
 
     $this->withHeaders(contractHeaders($s['learner']))
         ->getJson('/api/twa/me')
         ->assertOk()
-        ->assertJsonPath('entitlement', ['plan' => 'free', 'source' => 'free', 'until' => null, 'new_words_per_day' => 20, 'renewal' => null, 'lapsed' => null])
+        ->assertJsonPath('entitlement', ['plan' => 'free', 'source' => 'free', 'until' => null, 'new_words_per_day' => 10, 'renewal' => null, 'lapsed' => null])
         ->assertJsonPath('paywall', ['mode' => 'coming_soon', 'contact' => null]);
 });
 

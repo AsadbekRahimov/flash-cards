@@ -56,6 +56,7 @@ function entitlementSubscription(Learner|Organization $subscriber, array $attrib
 }
 
 it('resolves Free with the configured limit and features when nothing is live', function (): void {
+    config()->set('billing.plans.free.limits.new_words_per_day', 10);
     $learner = Learner::factory()->create();
 
     $e = app(EntitlementResolver::class)->for($learner);
@@ -64,7 +65,7 @@ it('resolves Free with the configured limit and features when nothing is live', 
         ->and($e->source)->toBe('free')
         ->and($e->until)->toBeNull()
         ->and($e->subscriptionId)->toBeNull()
-        ->and($e->newWordsPerDay)->toBe(20)
+        ->and($e->newWordsPerDay)->toBe(10)
         ->and($e->isUnlimited())->toBeFalse()
         ->and($e->can('training.daily'))->toBeTrue()
         ->and($e->can('exam.simulator'))->toBeFalse();
