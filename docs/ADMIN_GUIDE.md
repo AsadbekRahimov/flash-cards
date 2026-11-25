@@ -1071,6 +1071,39 @@ by person (learner, option, time). Two CSV files (Excel opens them, `;`-separate
 **If something goes wrong.** «Telegram не доставил сообщение» on the test send — open the bot and press Start. «Текст не помещается» —
 shorten the question or the options (a caption with a picture holds 1 024 characters together with the list of options).
 
+## Friends' cup (Кубки друзей, docs/33)
+
+A friends' cup is a 7-day tournament inside a Telegram group: anyone in the chat proposes it with the button of the bot or `/cup`, an
+administrator of the chat publishes it, members join from the link in the chat and play one round of 10 tasks a day in the Mini App.
+The best 5 days count. Only an active admin of the platform sees the cups (Администрирование → Кубки друзей); teachers do not.
+
+**Switching it on** (`CUP_ACCESS` in `.env`): `off` — nothing of the cup works anywhere (the default); `pilot` — only the groups you
+marked; `all` — every group. For the pilot open **Telegram-группы**, find the group and press **«Кубок: включить пилот»** (the same
+button turns it off). Every change is written to the audit log.
+
+**The list of cups** shows the group, the status (Черновик, Ждёт старта, Идёт, Завершён, Отменён), the pause, the level and course,
+«День N из 7», how many joined and how many played at least one round, the start and the finish. Filters: status, «Только на паузе»,
+«Только группы пилота»; the search looks in the names of the groups. A cup is **on pause** when the bot was removed from the chat or
+cups are forbidden in the group: no new rounds and no messages in the chat; the days of the cup still run out.
+
+**The page of a cup** has two tabs: **«Участники и таблица»** (the name in the tournament, in the chat or left it, points, round
+points, days played, from which day the person plays) and **«Попытки дня»** (choose the day: who played, how many answers, right
+answers, points, when).
+
+**What you can do**
+
+- **«Отменить кубок»** — write the reason (required; only the audit log sees it) and confirm. No more rounds, no final message in the
+  chat, the card in the chat says the cup is canceled; the points stay in the table. A finished cup cannot be canceled.
+- **«Сбросить имя»** (on a participant) — for an offensive name: it becomes the person's first name from Telegram. The participant's
+  own name changes (3 per cup) are not spent. The new name shows in the table and in the card of the chat.
+- **«Запретить кубки»** (on the group, in Telegram-группы and on the page of a cup) — the group can no longer create a cup, and a
+  running cup goes on pause. **«Разрешить кубки»** takes it back; a cup that has not ended continues.
+
+**Pilot numbers**: `php artisan cups:pilot-report --since=2026-12-01` (add `--json` for the raw numbers). It prints the cups by
+status; how many people opened an invitation and how many of them joined; how many participants played a round and how many left the
+chat; how many rounds were played to the last task or ran out of time, and the average points; of those who played on day 1 or 2,
+how many came back on day 3 or later; of the groups with a finished cup, how many published the next one within 14 days.
+
 ## Dashboard Widgets
 
 | Widget | Who sees it | What it shows |

@@ -106,7 +106,7 @@ it('opens the invitation in 3 statements (and the view event), joins in 6', func
         ->and(CupKit::telegram()->chatMemberLookups)->toHaveCount(1); // the join reused the answer of the view (10 s)
 });
 
-it('starts a round in 11 statements, resumes it in 6 and 2, answers in 5 (wrong) and 10 (right)', function (): void {
+it('starts a round in 11 statements, resumes it in 6 and 2, answers in 5 (wrong) and 10 (right), replays in 3', function (): void {
     ['cup' => $cup, 'learners' => [$a]] = CupKit::running(2);
     Cache::forget(CupMembershipGate::key($cup->id, $a->id));
 
@@ -120,9 +120,12 @@ it('starts a round in 11 statements, resumes it in 6 and 2, answers in 5 (wrong)
     $element = (string) $start->json('current.id');
     [$wrong, $wrongQueries] = cupBudget($a, 'POST', "/cup-rounds/{$attemptId}/answer", ['request_id' => (string) Str::uuid(), 'element_id' => $element, 'answer' => CupKit::wrongAnswer($dayId, $element)]);
     $element = (string) $wrong->assertOk()->json('round.current.id');
-    [$right, $rightQueries] = cupBudget($a, 'POST', "/cup-rounds/{$attemptId}/answer", ['request_id' => (string) Str::uuid(), 'element_id' => $element, 'answer' => CupKit::rightAnswer($dayId, $element)]);
+    $rightBody = ['request_id' => (string) Str::uuid(), 'element_id' => $element, 'answer' => CupKit::rightAnswer($dayId, $element)];
+    [$right, $rightQueries] = cupBudget($a, 'POST', "/cup-rounds/{$attemptId}/answer", $rightBody);
+    [$replay, $replayQueries] = cupBudget($a, 'POST', "/cup-rounds/{$attemptId}/answer", $rightBody);
 
     $right->assertOk();
+    expect($replay->assertOk()->json('replayed'))->toBeTrue()->and($replayQueries)->toHaveCount(3); // learner, the attempt, the stored result
     expect($startQueries)->toHaveCount(11) // learner, the cup + my row, then the core's 9 (the event is one of them)
         ->and($againQueries)->toHaveCount(6) // learner, the cup + my row, the core's 4
         ->and($findQueries)->toHaveCount(2) // learner, the attempt with its day and cup

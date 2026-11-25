@@ -99,9 +99,12 @@ final class CupProEmoji
             ->join('learners', 'learners.id', '=', 'cp.learner_id')
             ->where('cp.cup_id', $cupId)
             ->whereIn('learners.pro_emoji', array_keys($set))
+            // On `cp.learner_id`, not `learners.id`: so PostgreSQL walks the participants of the cup and reads each learner by its key
+            // (0.5 ms, 200 buffers on the stand) instead of filtering every learner of the platform by the hashed subqueries (a
+            // parallel scan of 150 000 learners, 34 ms) - the same set.
             ->where(fn (Builder $pro): Builder => $pro
-                ->whereIn('learners.id', PaidSubscriptionQuery::personalLearnerIds($now)->whereIn('subscriptions.subscriber_id', $learners()))
-                ->orWhereIn('learners.id', PaidSubscriptionQuery::sponsoredLearnerIds($now)->whereIn('om.learner_id', $learners())))
+                ->whereIn('cp.learner_id', PaidSubscriptionQuery::personalLearnerIds($now)->whereIn('subscriptions.subscriber_id', $learners()))
+                ->orWhereIn('cp.learner_id', PaidSubscriptionQuery::sponsoredLearnerIds($now)->whereIn('om.learner_id', $learners())))
             ->get(['cp.id', 'learners.pro_emoji']);
 
         $map = [];

@@ -1924,25 +1924,82 @@ entry, locale` (язык интерфейса из строки learner'а), п�
 `old_client` (нет `shareMessage`, Mini Apps < 8.0) или `error` (prepare отказал или `shareMessage` не удался); у `sent` `reason` запрещён.
 `kind` — те же виды. Иное — 422, ничего не пишется. Клиент шлёт без ожидания, ошибки глотает.
 
-### A.23 Кубок друзей в группе (docs/33 §7.2; ядро — K4/K5, маршруты — K7, пока не подключены)
+### A.23 Кубок друзей в группе (docs/33 §7.2; ядро — K4/K5, маршруты — K7 ✅ 25.11.2026)
 
-Все маршруты — `/api/twa`, за `TwaAuth`, ответы — Resource-классы, ошибки — конверт `ApiErrorResource` с кодами `CupException`
-(docs/33 §11.5). Личность — только `learner` из JWT; членство в чате — свежий `getChatMember` на сервере (`CupMembershipGate`); код
-кубка в ссылке, `start_param`, время, очки и состав заданий клиента — не факты.
+Все маршруты — `/api/twa`, за `TwaAuth` и `twa-api`, ответы — Resource-классы (`app/Http/Resources/Twa/Cup/*`), ошибки — конверт
+`ApiErrorResource` `{error: {code, message, details?}}` с кодами `CupException`. Личность — только `learner` из JWT; членство в чате —
+свежий `getChatMember` на сервере (`CupMembershipGate`); код кубка в ссылке, `start_param`, время, очки, вердикт и состав заданий
+клиента — не факты (лишние поля тела игнорируются). Порядок проверок и «двери» — `CupMiniApp`; один запрос находит кубок, его группу и
+своё участие (`CupReader::locate`).
 
-| Метод и путь | Ядро (K4/K5) | Ответы |
-|---|---|---|
-| `GET /cups/by-code/{code}` | `CupMembershipGate::assertCanView($cup, $learner, $participant, opaque: false)` | `CupInviteResource`; 403 `cup_not_member` (и для «нет кубка»); 409 `cup_paused` / `cup_unverifiable {bot_not_admin}`; 503 `cup_unverifiable {telegram_unavailable}`; 429 `cup_check_busy` |
-| `POST /cups/{id}/join {display_name?}` | `CupParticipationService::join()` | 201 / 200 (`created`); 403, 409 `cup_not_open`, 410 `cup_closed`, 422 `cup_display_name_invalid` |
-| `PATCH /cups/{id}/me {display_name}` | `CupParticipationService::rename()` | 409 `cup_rename_limit` (3 смены) |
-| `GET /cups/{id}` | `assertCanView(…, opaque: true)` + `CupStandings::table()` + `CupRoundService::today()` | любой отказ не-участнику — одинаковый 403 `cup_not_member` |
-| `GET /cups/{id}/rounds/today` | `CupRoundService::today()` | `{state: not_started / active / done / not_available, day, attempt_id, points, expires_at}` |
-| `POST /cups/{id}/rounds/today` | `CupRoundService::startToday()` | 201 / 200 `CupRoundResource`; 409 `cup_round_done {points}`, `cup_not_started`, `cup_round_unavailable`, `cup_paused`; 403; 503 |
-| `GET /cup-rounds/{attempt}` | `CupRoundService::find()` | чужая и несуществующая — 404 `cup_round_not_found` |
-| `POST /cup-rounds/{attempt}/answer {request_id, element_id, answer}` | `CupRoundService::answer()` | `{verdict, points, reveal, finished, total_points}` + попытка; 409 `answer_already_accepted {verdict}`, `element_not_current {current}`, `cup_round_expired {points}`, `cup_round_done`; 410 `cup_closed`; 422 |
-| `GET /cup-rounds/{attempt}/audio/{element}` | `CupRoundService::audioOf()` | файл `listen`-задания своей попытки, иначе 404 |
-| `GET /cups/setup/{code}` · `POST /cups/setup/{code}/publish {level, locale}` | `CupLifecycleService::publish()` | 403 `cup_not_chat_admin`; 409 `cup_bot_not_admin`, `cup_unverifiable`; 410; 422 `cup_material_unavailable`, `cup_level_invalid` |
-| `PATCH /cups/{id}/settings` · `POST /cups/{id}/cancel` | `CupLifecycleService::updateSettings()` / `cancelByChatAdmin()` | 403 `cup_not_chat_admin`; 409 `cup_already_published` (уровень/язык после публикации) |
+**Выключатель.** `CUP_ACCESS=off` — **все** маршруты ниже отвечают одинаково `403 {"error":{"code":"cup_unavailable","message":"The cup
+is not available in this chat."}}` до чтения БД (middleware `EnsureCupAccess`), есть кубок, попытка, код или нет. `pilot` — маршруты
+открыты, кубок группы без `meta.cup_pilot` отвечает 403 `cup_unavailable` **только тому, кто прошёл дверь членства** (участнику или
+члену чата); чужой получает 403 `cup_not_member`.
+
+**Двери.**
+- **По числовому id** (`/cups/{id}…`) чтения (`GET /cups/{id}`, `GET …/rounds/today`) и действия админа чата — `assertCanView(…, opaque:
+  true)`: нет кубка, чужой чат, сбой / занятость проверки Telegram — **один и тот же** 403 `cup_not_member` (тело байт в байт).
+  Участник (любого статуса, в т. ч. `left`) проходит без Telegram.
+- **Вступление по id** — та же дверь, но с причинами (`opaque: false`): член чата должен знать, что повторить, — 503 / 409
+  `cup_unverifiable`, 409 `cup_paused`, 429 `cup_check_busy`. Не-член и отсутствующий кубок — один 403 `cup_not_member`; статус
+  кубка (`cup_not_open`, 410) видит только член чата. Ответ двери переиспользуется самим вступлением (троттлинг ядра, 10 с):
+  один `getChatMember` на запрос.
+- **Имя и старт раунда** — только участник: не-участник получает 403 `cup_not_member` до того, как ядро посмотрит на статус кубка.
+- **По коду ссылки** (`/cups/by-code/{code}`, 22 символа base64url, иное — 404 маршрутизатора) — `opaque: false`: код — подсказка, какой
+  кубок открыть, пропуск — только ответ Telegram об **этом** ученике. Пересланная ссылка чужому — 403 `cup_not_member`, тот же ответ,
+  что у несуществующего кода, без названия группы.
+- **Попытка** — чужая и несуществующая — один 404 `cup_round_not_found` на всех трёх маршрутах попытки.
+
+| Метод и путь | Лимитер (сверх `twa-api`) | Ядро | Ответы |
+|---|---|---|---|
+| `GET /cups` | — | `CupReader::mine()` | 200 `{cups: [CupFields + me]}`: открытые, затем 10 последних завершённых/отменённых |
+| `GET /cups/by-code/{code}` | `twa-cup-read` 30/мин | `assertCanView(opaque: false)` | 200 `CupInviteResource`; 403 `cup_not_member` (и «нет кубка»); 409 `cup_paused {reason}` / `cup_unverifiable {reason: bot_not_admin}`; 503 `cup_unverifiable {reason: telegram_unavailable}`; 429 `cup_check_busy`; 403 `cup_unavailable` (пилот). Событие `cup.invite_viewed {cup_id, joined, status}` — раз в час на ученика и кубок |
+| `GET /cups/{id}` | `twa-cup-read` | `assertCanView(opaque: true)` + `CupStandings::table()` + эмодзи Pro + `today()` + дни | 200 `CupResource`; 403 `cup_not_member` / `cup_unavailable` |
+| `GET /cups/{id}/rounds/today` | `twa-cup-read` | `CupRoundService::today()` | 200 `{state: not_started / active / done / not_available, day, attempt_id, points, expires_at, server_now}`; члену чата без участия — `not_available` |
+| `POST /cups/{id}/join {display_name?}` | `twa-cup-join` 10/мин | `CupParticipationService::join()` | 201 новый / 200 уже участник (вышедший снова `active`, счёт прежний) `CupParticipantResource`; 403 `cup_not_member`; 409 `cup_not_open` (черновик), `cup_paused`, `cup_unverifiable {bot_not_admin}`; 410 `cup_closed`; 422 `cup_display_name_invalid` (имя проверяется до членства); 503; 429 |
+| `PATCH /cups/{id}/me {display_name}` | `twa-cup-join` | `rename()` | 200 `CupParticipantResource`; 403 `cup_not_member` (не участник); 409 `cup_rename_limit` (3 смены); 410; 422 |
+| `POST /cups/{id}/rounds/today` | `twa-cup-start` 10/мин | `startToday()` | 201 новая / 200 уже открытая попытка `CupRoundResource`; 403 `cup_not_member` (не участник; вышедший из чата → `left`); 409 `cup_round_done {points}`, `cup_not_started`, `cup_not_open`, `cup_round_unavailable`, `cup_paused {reason}`, `cup_unverifiable {bot_not_admin}`; 410 `cup_closed`; 503; 429 |
+| `GET /cup-rounds/{attempt}` | — | `find()` | 200 `CupRoundResource` (та же попытка, исходный `expires_at`; просроченная закрывается `expired`); 404 `cup_round_not_found` |
+| `POST /cup-rounds/{attempt}/answer {request_id, element_id, answer}` | `twa-cup-answer` 90/мин | `answer()` | 200 `CupRoundAnswerResource`; повтор `request_id` — то же тело, `replayed: true`; 409 `answer_already_accepted {verdict}`, `element_not_current {current}`, `cup_round_expired {points}`, `cup_round_done {points}`; 410 `cup_closed`; 422 форма (`answer` — только `option_id` / `text` ≤ 200 / `skip`), `invalid_answer_shape`, `unknown_element_id`, `unknown_option_id`; 404 |
+| `GET /cup-rounds/{attempt}/audio/{element}` | `twa-practice-audio` (вне `twa-api`) | `find()` + `audioOf()` | клип `listen`-задания своей попытки: текущего или уже отвеченного (следующие слова заранее не выдаются); слово на R2 — 200 `{url}`; локальный файл — поток `audio/mpeg`, `Cache-Control: private, no-store`; иначе 404 `cup_round_not_found`; нет файла — 503 `practice_audio_unavailable` |
+| `GET /cups/setup/{code}` | `twa-cup-admin` 10/мин | `CupAdminCheck::assertChatAdmin()` | 200 `CupSetupResource`; 403 `cup_not_chat_admin` (и «нет кода»); 409 `cup_paused`; 503 |
+| `POST /cups/setup/{code}/publish {level?, locale?}` | `twa-cup-admin` | `publish()` | 200 `CupSetupResource` (повтор — тот же кубок; уже опубликованный показывается только админу чата); 403 `cup_not_chat_admin`; 409 `cup_bot_not_admin`, `cup_paused`; 410 `cup_closed`; 422 `cup_level_invalid`, `cup_material_unavailable`; 503 |
+| `PATCH /cups/{id}/settings {level?, locale?, summaries_enabled?, summary_minute?}` | `twa-cup-admin` | дверь id + `updateSettings()` | 200 `CupSetupResource`; 403 `cup_not_member` / `cup_not_chat_admin`; 409 `cup_already_published` (уровень/язык после публикации); 410; 422 (`summary_minute` 0…1439, `cup_level_invalid`, `cup_material_unavailable`) |
+| `POST /cups/{id}/cancel` | `twa-cup-admin` | дверь id + `cancelByChatAdmin()` | 200 `CupSetupResource` (`status: canceled`, `cancel_reason: chat_admin`; завершённый — как есть); 403 `cup_not_member` / `cup_not_chat_admin` |
+
+**Формы ответов** (точно закреплены `tests/Feature/Cup/CupContractTest.php`; время — ISO 8601 UTC с миллисекундами, `…T19:00:00.000Z`;
+границы дней — полночь `timezone`; наружу — только `participant_id`, никогда `learner_id` / Telegram id / `public_code` / `seed_secret`):
+
+- **`CupFields`** (общая часть): `{id, status, group_title, level, days, counted_days, round_tasks, round_minutes, timezone, starts_at,
+  ends_at, day (текущий день идущего кубка или null), summaries_enabled, summary_time ("20:00"), paused (null | bot_removed | blocked)}`.
+- **`rules`**: `{points_per_answer: 2, typo_points: 0, max_day_points, counted_days, days, max_total}`.
+- **`CupInviteResource`**: `CupFields + {participants_count, rules, me: {joined, participant_id, status, display_name (своё имя в кубке
+  или имя для вступления — из Telegram), left}}`.
+- **`CupParticipantResource`**: `{participant_id, cup_id, display_name, status, first_day, renames_left}`.
+- **`GET /cups`**: `{cups: [CupFields + {me: {participant_id, display_name, status, total, days_played, final_rank} | null}]}`.
+- **`CupResource`** (`GET /cups/{id}`): `{cup: CupFields + {rules}, standings: [{participant_id, rank, display_name, pro_emoji (эмодзи
+  Pro, docs/31 §5а, или null), total, round_points, days_played, left, me}], me: null | {participant_id, display_name, status, first_day,
+  renames_left, total, final_rank, today: {state, day, attempt_id, points, expires_at}, days: [{day, points, round_points, duel_points,
+  played, counted, available}] (все дни кубка; `counted` — день в зачёте лучших `counted_days`)}, can_manage, server_now}`. `can_manage` —
+  только подсказка для ссылки «Настройки» (ученик предложил или опубликовал кубок); каждое действие админа спрашивает Telegram заново.
+- **`CupRoundResource`**: `{attempt_id, cup_id, participant_id, day, status (active | finished), finish_reason (null | completed | expired),
+  total, answered, correct, points, max_points, position, started_at, expires_at, server_now, current, answers: [{element_id, verdict,
+  points}], review}`. `current` — проекция задания игры с позицией: `translate_fwd {position, id, kind, prompt, audio, options}`,
+  `translate_back {position, id, kind, prompt, options}`, `listen {position, id, kind, audio, options, audio_url}`, `spell {position, id,
+  kind, prompt, answer_length}`, `gap {position, id, kind, masked, translation}`; `options: [{id, text}]` — в своём порядке у каждого
+  участника. **Ни в `current`, ни где-либо до ответа нет** `correct_option_id`, `expected`, `correct_text`, `full_text`, `word_id`, `word`,
+  `lexeme_id`, `audio_path`, `audio_disk`. `review` — null, пока попытка идёт; после — `[{element_id, kind, verdict, points, answer,
+  reveal}]` (правильные ответы; у `listen` ещё `audio_url`).
+- **`CupRoundAnswerResource`**: `{verdict, points (0 или 2; опечатка — 0), reveal (правильный ответ только что отвеченного задания),
+  finished, total_points, replayed, round: CupRoundResource}`.
+- **`CupSetupResource`**: `CupFields + {locale, summary_minute, cancel_reason, options: {levels, locales}, rules}`.
+
+**Операторы SQL на маршрут** (PostgreSQL и SQLite одинаково; `CupHttpQueryBudgetTest`, ядро — `CupQueryBudgetTest`): HTTP-слой добавляет
+к ядру ученика из JWT (1) и кубок с группой и своим участием (1), таблица — эмодзи Pro (1 холодный, 0 тёплый); события продукта
+пишутся после ответа одним INSERT. `GET /cups/{id}` — 7 холодный / 5 тёплый (не растёт с участниками и эмодзи); `GET /cups/by-code` — 3
+(с событием) / 2; вступление — 6; `PATCH /me` — 5; старт раунда — 11 (ядро 9), возобновление — 6; `GET /cup-rounds/{id}` — 2;
+`GET …/rounds/today` — 4; ответ неверный / верный — 5 / 10; `GET /cups` — 2 при любом числе кубков.
 
 ## Часть B — Telegram Bot
 
