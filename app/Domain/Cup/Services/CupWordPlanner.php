@@ -8,6 +8,7 @@ use App\Domain\Cup\Exceptions\CupException;
 use App\Domain\Cup\Support\CupSeeds;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Practice\Support\SeededShuffle;
+use App\Domain\Content\Support\Phrase;
 use App\Models\Course;
 use App\Models\Cup;
 use Illuminate\Database\Query\Builder;
@@ -30,7 +31,9 @@ final class CupWordPlanner
     public function courseForLevel(string $level): ?Course
     {
         $slug = config("cup.level_courses.{$level}");
-        $query = Course::query()->publicPlatform();
+        // Words only (docs/35 §3.3 c): a course of phrases never plays a cup - the round and the duel are built for single words
+        // (a `spell` task, options of one kind), even when `cup.level_courses` names one.
+        $query = Course::query()->publicPlatform()->ofCardKind(false);
 
         if (is_string($slug) && $slug !== '') {
             return $query->where('courses.slug', $slug)->first();
@@ -85,7 +88,8 @@ final class CupWordPlanner
             ->where('stages.course_id', $course->id)
             ->where('words.is_active', true)
             ->where('words.word', '<>', '')
-            ->where('words.translation', '<>', '');
+            ->where('words.translation', '<>', '')
+            ->where(fn (Builder $q) => $q->whereNull('words.part_of_speech')->orWhere('words.part_of_speech', '<>', Phrase::PART_OF_SPEECH));
 
         $fallback = $this->locales->fallback();
         foreach ($this->locales->supported() as $locale) {

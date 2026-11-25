@@ -4875,6 +4875,18 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `cup.final.group` | «:group» · :level daraja | «:group» · уровень :level |
 | `cup.final.winner` | Tabriklaymiz: :names! | Поздравляем: :names! |
 | `cup.final.empty` | Hech kim ball to'plamadi. | Никто не набрал очков. |
+| `cup.duel.open_any` | ⚔️ :challenger kubokning istalgan ishtirokchisini duelga chaqiradi | ⚔️ :challenger вызывает на дуэль любого участника кубка |
+| `cup.duel.open_to` | ⚔️ :challenger duelga chaqiradi: :opponent | ⚔️ :challenger вызывает на дуэль: :opponent |
+| `cup.duel.rated` | Hisobli duel: har kimga o'z to'g'ri javobi uchun kubok bali, :max tagacha. | Зачётная дуэль: каждому — очко кубка за свой верный ответ, до :max. |
+| `cup.duel.friendly` | O'rtoqlik o'yini: kubok ballarisiz. | Товарищеский матч: без очков кубка. |
+| `cup.duel.until` | Chaqiruv :time gacha amal qiladi. | Вызов действует до :time. |
+| `cup.duel.playing` | ⚔️ Duel davom etmoqda: :challenger — :opponent | ⚔️ Дуэль идёт: :challenger — :opponent |
+| `cup.duel.result` | ⚔️ Duel: :challenger :challenger_points : :opponent_points :opponent | ⚔️ Дуэль: :challenger :challenger_points : :opponent_points :opponent |
+| `cup.duel.winner` | G'alaba: :name | Победа: :name |
+| `cup.duel.draw` | Durang | Ничья |
+| `cup.duel.not_counted` | Natija kubok yakunlangandan keyin keldi va hisobga olinmadi. | Результат пришёл после финиша кубка и в зачёт не вошёл. |
+| `cup.duel.friendly_done` | O'rtoqlik o'yini, kubok ballarisiz. | Товарищеский матч, без очков кубка. |
+| `cup.duel.fell_through` | Chaqiruv bo'lib o'tmadi. | Вызов не состоялся. |
 | `cup.command.exists` | Chatda allaqachon «:group» kubogi bor. Jadval va qatnashish — quyidagi tugma orqali. | В чате уже есть кубок «:group». Таблица и участие — по кнопке ниже. |
 | `cup.command.draft` | Chatda «:group» kubogining qoralamasi bor. Chat administratori uni quyidagi tugma orqali sozlab, e'lon qilishi mumkin. | В чате уже есть черновик кубка «:group». Администратор чата может настроить и опубликовать его по кнопке ниже. |
 | `cup.command.material` | Hozir kubok mavjud emas: bu daraja uchun so'zlar yetarli emas. | Сейчас кубок недоступен: для уровня не хватает слов. |
@@ -4900,6 +4912,7 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `buttons.cup_rules` | 📖 Qoidalar | 📖 Правила |
 | `buttons.cup_final_table` | 🏆 Yakuniy jadval | 🏆 Итоговая таблица |
 | `buttons.cup_open` | 🏆 Kubokni ochish | 🏆 Открыть кубок |
+| `buttons.cup_duel_accept` | ⚔️ Chaqiruvni qabul qilish | ⚔️ Принять вызов |
 
 ## Выпуск 5 · кубок друзей в группе: экраны Mini App (docs/33 K8, 25.11.2026) — на проверку носителю
 

@@ -1687,6 +1687,28 @@ docs/33 не сделан — `updated_at` меняется с каждым оч
 request_id)` — повтор запроса. **CHECK:** вердикт из списка, `points ∈ {0, 2}`, `points = 2 ⇔ verdict = 'correct'` (опечатка — 0,
 решение владельца К4).
 
+### 2.83 `cup_duels` — дуэль кубка *(D1, docs/33 §2.9, §5.7, §11.9; миграция `2026_11_29_100001_create_cup_duels_tables`)*
+Вызов участника (адресный — `opponent_participant_id`, открытый — NULL до принятия) и его живой баттл. `day` — день вызова (не
+меняется), `accepted_day` — день принятия (в него идут очки), `rated_offered` — что видели оба до принятия, `rated` — что решило
+принятие; `status` `open → accepted → done | void`, `open → declined | expired | canceled`; `end_reason` — причина (docs/33 §11.9);
+`challenger_points` / `opponent_points` — свои верные ответы (0–5); `winner_participant_id` — копия без FK (победитель — один из двух
+игроков, их строки уносят дуэль каскадом). FK: `cup_id`, `challenger_participant_id`, `opponent_participant_id` — CASCADE;
+`battle_id` → `battles` SET NULL. **Индексы:** `(cup_id, day)` — дуэли дня кубка (лимиты, список, финиш) и каскад кубка; unique
+`(challenger_participant_id, request_id)` — повтор запроса и FK вызывающего; `(opponent_participant_id)` — вызовы мне и FK; частичные
+unique `open_challenger_id WHERE NOT NULL` («один открытый вызов от участника») и `battle_id WHERE NOT NULL` (одна дуэль на матч, FK);
+частичные `cup_duels_open_expiry_idx (expires_at) WHERE status = 'open'` и `cup_duels_accepted_idx (accepted_at) WHERE status =
+'accepted'` — `cups:sweep-duels`. **CHECK (PG):** статус и причина из списков, форма открытого / принятого / закрытого вызова,
+`challenger ≠ opponent`, очки 0–5.
+
+### 2.84 `cup_duel_slots` — зачётная дуэль дня *(D1, docs/33 §2.9)*
+`cup_id` (копия без FK), `participant_id` (FK CASCADE), `day`, `cup_duel_id` (FK CASCADE), `created_at`. **Индексы:** unique
+`(participant_id, day)` — «одна зачётная дуэль на участника в день» (две строки вставляются одним оператором при принятии; нарушение —
+409 `cup_duel_rating_changed`), `(cup_duel_id)` — освобождение слотов несостоявшейся дуэли и FK.
+
+`battles` (D1): `cup_duel_id` (FK → `cup_duels` SET NULL; частичный unique `WHERE cup_duel_id IS NOT NULL`) — матч дуэли кубка, его
+конец ставит `ScoreCupDuelJob`; `limit_exempt` bool default false — зачётная дуэль не считается в лимит баттлов Free (без индекса:
+фильтр подсчёта баттлов одного ученика по `(challenger_id, status)`).
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -1825,6 +1847,7 @@ request_id)` — повтор запроса. **CHECK:** вердикт из с�
 97. `2026_11_27_100005_add_broadcast_columns_to_polls_tables` — `poll_deliveries.claimed_at`, `polls.recipient_count` (O3) *(§2.72, §2.74)*
 98. `2026_11_28_100001_create_cups_tables` — `cups`, `cup_participants`, `cup_days`, `cup_day_scores`, `cup_messages`, частичные индексы планировщика, CHECK и fillfactor (PostgreSQL) *(§2.76–§2.80)*
 99. `2026_11_28_100002_create_cup_rounds_tables` — `cup_round_attempts`, `cup_round_answers` *(§2.81–§2.82)*
+100. `2026_11_29_100001_create_cup_duels_tables` — `cup_duels`, `cup_duel_slots`, `battles.cup_duel_id` / `limit_exempt`, частичные индексы, CHECK (PostgreSQL); `down()` сначала обнуляет `battles.cup_duel_id` *(§2.83–§2.84)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

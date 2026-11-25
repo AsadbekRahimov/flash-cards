@@ -629,3 +629,14 @@ it('rolls the tables of the duel back and forth with the link of the battles', f
         ->and(Illuminate\Support\Facades\Schema::hasIndex('cup_duels', 'cup_duels_open_expiry_idx'))->toBeTrue()
         ->and(Illuminate\Support\Facades\Schema::hasIndex('battles', 'battles_cup_duel_id_unique'))->toBeTrue();
 });
+
+it('never plays a cup (and so a duel) on a course of phrases, even one placed first or named in the config (docs/35 §3.3 c)', function (): void {
+    CupKit::open();
+    $words = CupKit::course();
+    $phrases = App\Models\Course::factory()->published()->create(['slug' => 'phrases-a2', 'level' => 'A2', 'position' => 0, 'exam_tag' => 'phrases']);
+    $planner = app(App\Domain\Cup\Services\CupWordPlanner::class);
+
+    expect($planner->courseForLevel('A2')?->id)->toBe($words->id);
+    config(['cup.level_courses.A2' => $phrases->slug]);
+    expect($planner->courseForLevel('A2'))->toBeNull();
+});
