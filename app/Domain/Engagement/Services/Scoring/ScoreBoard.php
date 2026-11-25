@@ -11,7 +11,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The reading of a table of the word points v2 (docs/32 §5.3): a category of a month now, "all time" (S10) with the same code.
+ * The reading of a table of the word points v2 (docs/32 §5.3): a category of a month, a category of "all time" (S10), and the table of a
+ * region of either (docs/35 §2.4, R6: the same statements with `region_code` in the equality prefix) - one class, no copies.
  *
  * Order: `points desc, long_words desc, active_days desc, learner_id asc`; the place is the COMPETITION rank of the tuple
  * `(points, long_words, active_days)` - 1 + the participants with a strictly better tuple - so a shared place reads "7, 7, 9"; the
@@ -36,6 +37,12 @@ final class ScoreBoard
     public function rank(BoardScope $scope, int $points, int $longWords, int $activeDays): int
     {
         return $this->strictlyBetter($this->base($scope), $points, $longWords, $activeDays)->count() + 1;
+    }
+
+    /** The participants of the scope: one count of the index range of its equality prefix (index-only on PostgreSQL). */
+    public function count(BoardScope $scope): int
+    {
+        return $this->base($scope)->count();
     }
 
     /**
@@ -131,7 +138,7 @@ final class ScoreBoard
         return $complete ? null : false;
     }
 
-    /** The participants of the scope (one category of one period). */
+    /** The participants of the scope (one category of one period, of one region when the scope has it). */
     private function base(BoardScope $scope): Builder
     {
         $query = DB::table($scope->table.' as sc');

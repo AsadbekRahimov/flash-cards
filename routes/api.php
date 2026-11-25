@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Game\Services\Runs\RunService;
 use App\Domain\Practice\Services\Battle\BattleReader;
 use App\Http\Controllers\Api\Twa\AchievementController;
+use App\Http\Controllers\Api\Twa\AllTimeRatingController;
 use App\Http\Controllers\Api\Twa\AssignmentController;
 use App\Http\Controllers\Api\Twa\AuthController;
 use App\Http\Controllers\Api\Twa\BattleController;
@@ -69,6 +70,8 @@ Route::prefix('twa')->group(function (): void {
         // The monthly rating with prizes (docs/13 §7.6, docs/04 A.19): the rating, and the viewer's own line for the finish screen.
         Route::get('/league/month', [MonthlyRatingController::class, 'show'])->name('twa.league.month');
         Route::get('/league/month/me', [MonthlyRatingController::class, 'me'])->name('twa.league.month.me');
+        // "All time" (docs/32 §5, §8.3, docs/04 A.19a) and the tables of a region (docs/35 §2.4).
+        Route::get('/league/all-time', AllTimeRatingController::class)->name('twa.league.all_time');
 
         // Achievements (docs/13 §7.4, docs/04 A.13).
         Route::get('/achievements', [AchievementController::class, 'index'])->name('twa.achievements');

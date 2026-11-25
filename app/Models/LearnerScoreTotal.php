@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $first_day
  * @property Carbon $last_day
  * @property bool $participant
+ * @property string|null $region_code the learner's CURRENT region (docs/35 §2.4: "all time" is "people of the region"), NULL = none
  * @property Carbon|null $updated_at
  */
 class LearnerScoreTotal extends Model
@@ -41,7 +42,7 @@ class LearnerScoreTotal extends Model
     protected $primaryKey = 'learner_id';
 
     /** @var list<string> */
-    protected $fillable = ['learner_id', 'category', 'points', 'long_words', 'active_days', 'first_day', 'last_day', 'participant'];
+    protected $fillable = ['learner_id', 'category', 'points', 'long_words', 'active_days', 'first_day', 'last_day', 'participant', 'region_code'];
 
     public function compositeKey(): array
     {

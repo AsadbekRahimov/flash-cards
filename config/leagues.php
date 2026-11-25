@@ -187,4 +187,45 @@ return [
             ],
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | "All time" (docs/32 §5, S10; owner's decision В1: only the points v2 count)
+    |--------------------------------------------------------------------------
+    |
+    | `learner_score_totals` per learner and category: the monthly counts of the rating days (`learner_score_days`, month version 2)
+    | summed by the month's category, recomputed WHOLE from that source, never by deltas and never in the answer
+    | (App\Domain\Engagement\Services\Scoring\ScoreTotalsService): the learners whose rating days changed since the last run (with
+    | `leagues:refresh-month`, every 10 minutes), a learner on a change of the right to the rating / the region / a correction of a day,
+    | everybody after the close of a month. Shown in `live` only.
+    */
+    'all_time' => [
+        /** How long the top of a table stays cached (`league:alltime:top:v1:{category}[:r:{region}]`, with the number of its participants). */
+        'top_cache_seconds' => (int) env('LEAGUES_ALL_TIME_TOP_CACHE_SECONDS', 120),
+
+        /** How long the viewer's place and neighbours stay cached (`league:alltime:rank:v1:…`, `league:alltime:near:v1:…`; the key holds the tuple). */
+        'rank_cache_seconds' => 60,
+
+        /**
+         * The scheduled run recomputes the learners whose rating day was written since the start of the previous run minus this many
+         * seconds: a credit stamped before that start and committed after it is still caught. More than any answer transaction lasts.
+         */
+        'refresh_margin_seconds' => 300,
+
+        /** Learner ids per statement of the full reconcile after the close of a month (a short transaction each). */
+        'reconcile_batch' => 5000,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | The tables of a region (docs/35 §2.4, R6-R7; owner's decisions docs/31 §5г)
+    |--------------------------------------------------------------------------
+    |
+    | A filter over the tables v2 of the month and of "all time" (the same points, categories, order and places). Any learner may open
+    | the table of any region (read-only, like the other category). No prizes.
+    */
+    'regions' => [
+        /** A table of a region and category is shown from this many participants; below it the screen says so (4 → hidden, 5 → shown). */
+        'min_participants' => max(1, (int) env('LEAGUES_REGIONS_MIN_PARTICIPANTS', 5)),
+    ],
 ];

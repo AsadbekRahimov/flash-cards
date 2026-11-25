@@ -9,6 +9,7 @@ use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Engagement\DTO\BoardCursor;
+use App\Domain\Engagement\DTO\BoardKeys;
 use App\Domain\Engagement\DTO\BoardPageCursor;
 use App\Domain\Engagement\DTO\BoardRow;
 use App\Domain\Engagement\DTO\BoardScope;
@@ -19,14 +20,22 @@ use App\Domain\Engagement\DTO\MonthlyMyLine;
 use App\Domain\Engagement\DTO\MonthlyPrize;
 use App\Domain\Engagement\DTO\MonthlyRatingOverview;
 use App\Domain\Engagement\DTO\MonthlyStanding;
+use App\Domain\Engagement\DTO\RegionChoice;
+use App\Domain\Engagement\DTO\RegionStanding;
 use App\Domain\Engagement\Enums\LeagueMonthCandidateStatus;
 use App\Domain\Engagement\Enums\LeagueMonthStatus;
 use App\Domain\Engagement\Enums\ScoreCategory;
 use App\Domain\Engagement\Exceptions\InvalidBoardCursor;
+use App\Domain\Engagement\Exceptions\RegionNotSet;
+use App\Domain\Engagement\Exceptions\RegionScopeUnavailable;
+use App\Domain\Engagement\Services\Scoring\AllTimeRatingService;
+use App\Domain\Engagement\Services\Scoring\BoardReader;
 use App\Domain\Engagement\Services\Scoring\ScoreBoard;
 use App\Domain\Engagement\Services\Scoring\ScoreRules;
+use App\Domain\Engagement\Services\Scoring\ScoreTotalsService;
 use App\Domain\Engagement\Support\LeaguePoints;
 use App\Domain\Learners\Services\ProEmojiService;
+use App\Domain\Learners\Support\Regions;
 use App\Domain\Learners\Support\StoredDate;
 use App\Domain\Operations\Support\PureCache;
 use App\Models\LeagueMonth;
@@ -118,6 +127,8 @@ final class MonthlyRatingService
         private readonly ScoreBoard $board,
         private readonly ProEmojiService $proEmoji,
         private readonly EntitlementResolver $entitlements,
+        private readonly ScoreTotalsService $totals,
+        private readonly BoardReader $reader,
     ) {}
 
     /** Whether the month counts by the word points v2 (`league_months.rules_version`, written at creation, never changed). */
@@ -364,11 +375,14 @@ final class MonthlyRatingService
     /**
      * The learner's right to the rating changed (blocked / unblocked, deleted / restored, opted out of / back into the
      * leagues): recomputes their row of the CURRENT open month at once and drops the cached top, so the list does not keep
-     * a blocked leader until the month's close. After the commit of the caller's transaction (at once outside one); a failure
+     * a blocked leader until the month's close; their "all time" rows too (ScoreTotalsService::learnerChanged). After the commit of the caller's transaction (at once outside one); a failure
      * is reported and logged, never thrown — the action itself has succeeded. A learner with no row in the month: nothing to do.
      */
     public function participationChanged(Learner $learner, ?CarbonImmutable $now = null): void
     {
+        // "All time" follows the right to the rating too (docs/32 §6.4): the learner's totals, whatever the month.
+        $this->totals->learnerChanged($learner->id, $now);
+
         DB::afterCommit(function () use ($learner, $now): void {
             try {
                 if (! $this->enabled()) {
@@ -426,20 +440,43 @@ final class MonthlyRatingService
      * What `GET /api/twa/league/month` shows. A v2 month has two tables (docs/32 §8.3): the viewer's own - the category of their row of
      * the month, else of their plan (a learner without a credit yet) - and the other one, which `$category` may open read-only: its top,
      * prizes and participants, while `me` stays the viewer's own line and the neighbours are only shown in their own table.
+     *
+     * A table of a region (docs/35 §2.4, R7; `$choice`): the same, filtered by the region the learners' months are fixed in - any
+     * region, read-only unless it is the viewer's (owner's decision docs/31 §5г); no prizes; below `leagues.regions.min_participants`
+     * it has no rows. The viewer's place in the region of their month (`me.region`) comes with every answer of a v2 month.
+     *
+     * @throws RegionScopeUnavailable a table of a region of a month that has none (v1, the rating off)
+     * @throws RegionNotSet `scope=region` without a code from a learner who has no region
      */
-    public function overview(Learner $learner, CarbonImmutable $now, ?ScoreCategory $requested = null): MonthlyRatingOverview
+    public function overview(Learner $learner, CarbonImmutable $now, ?ScoreCategory $requested = null, ?RegionChoice $choice = null): MonthlyRatingOverview
     {
+        $choice ??= RegionChoice::all();
         $first = $this->monthStart($now);
         $enabled = $this->enabled();
         $month = $enabled ? $this->currentMonth($now) : null;
+        if ($choice->region && ($month === null || ! self::isV2($month))) {
+            throw new RegionScopeUnavailable('This month has no tables of a region.');
+        }
 
         $score = $month === null ? null : $this->freshScore($month, $learner, $now);
         $v2 = $month !== null && self::isV2($month);
         $myCategory = $v2 ? $this->categoryOf($learner, $score, $now) : null;
         $category = $v2 ? ($requested ?? $myCategory) : null;
-        $participants = $month === null ? 0 : $this->cachedParticipantsCount($month, $category);
-        $top = $month === null ? [] : $this->top($month, $category);
+        $region = $v2 ? $this->regionOf($learner, $score, $choice) : null;
+
+        $regionView = null;
+        if ($month !== null && $category !== null && $region !== null) {
+            $participants = $this->reader->count(BoardScope::month($month->id, $category, $region), BoardKeys::monthRegion($month->id, $category, $region), $this->topTtl());
+            $regionView = $this->regionStanding($region, $participants);
+            $top = $regionView->shown ? $this->regionTop($month, $category, $region) : [];
+        } else {
+            $participants = $month === null ? 0 : $this->cachedParticipantsCount($month, $category);
+            $top = $month === null ? [] : $this->top($month, $category);
+        }
         $last = $top === [] ? null : $top[count($top) - 1];
+
+        // The viewer's own table: their category, and - for a table of a region - the region their month is in.
+        $ownTable = $v2 && $score !== null && $category === $myCategory && ($region === null || $region === $score->region_code);
 
         return new MonthlyRatingOverview(
             enabled: $enabled,
@@ -450,7 +487,8 @@ final class MonthlyRatingService
             daysLeft: $month === null ? 0 : $this->daysLeft($month, $now),
             participantsCount: $participants,
             rules: $this->rules(),
-            prizes: $month === null ? [] : $this->prizes($month, $category),
+            // A table of a region has no prizes (docs/35 §2.4, Р2).
+            prizes: $month === null || $region !== null ? [] : $this->prizes($month, $category),
             top: $top,
             me: $month === null ? null : $this->lineOf($month, $learner, $score),
             optedOut: $this->leagues->isOptedOut($learner),
@@ -458,37 +496,122 @@ final class MonthlyRatingService
             rulesVersion: $month === null ? $this->scoreRules->versionFor($first) : (int) $month->rules_version,
             category: $category,
             myCategory: $myCategory,
-            neighbours: $v2 && $score !== null && $category === $myCategory ? $this->cachedNeighbours($month, $score) : null,
+            neighbours: $ownTable && ($regionView === null || $regionView->shown) ? $this->cachedNeighbours($month, $score, $region) : null,
             // The top is the first page; more participants than it shows - the list goes on after its last row (no statement: the count is above).
             nextCursor: $v2 && $last !== null && $participants > count($top)
                 ? new BoardCursor($last->points, $last->longWords, $last->activeDays, $last->learnerId)
                 : null,
+            choice: $choice,
+            region: $regionView,
+            myRegion: $v2 && $score !== null ? $this->myRegion($month, $score) : null,
+            readOnly: $v2 && ! ($category === $myCategory && ($region === null || $region === ($score->region_code ?? $learner->region_code))),
         );
     }
 
     /**
      * A page of a table of the current v2 month after `?after=` (`GET /league/month?category=&after=`, docs/32 §5.3): the read of the
-     * board (one statement, three after a cursor) and the emoji of the page (one). The table is `$requested`, else the viewer's own.
+     * board (one statement, three after a cursor) and the emoji of the page (one). The table is `$requested`, else the viewer's own; a
+     * table of a region with `$choice` (the cursor must be one of that region; a hidden region has no rows).
      *
-     * @throws InvalidBoardCursor the cursor is not one of this table (broken, another month or category), or the month is not v2
+     * @throws InvalidBoardCursor the cursor is not one of this table (broken, another month, category or region), or the month is not v2
+     * @throws RegionNotSet `scope=region` without a code from a learner who has no region
      */
-    public function boardPage(Learner $learner, CarbonImmutable $now, ?ScoreCategory $requested, string $after, int $limit = 50): MonthlyBoardPage
+    public function boardPage(Learner $learner, CarbonImmutable $now, ?ScoreCategory $requested, string $after, int $limit = 50, ?RegionChoice $choice = null): MonthlyBoardPage
     {
+        $choice ??= RegionChoice::all();
         $month = $this->enabled() ? $this->findMonth($now) : null;
         if ($month === null || ! self::isV2($month)) {
             throw new InvalidBoardCursor('This month has no pages.');
         }
 
-        $myCategory = $this->categoryOf($learner, $this->scoreOf($month, $learner->id), $now);
+        $score = $this->scoreOf($month, $learner->id);
+        $myCategory = $this->categoryOf($learner, $score, $now);
         $category = $requested ?? $myCategory;
-        $cursor = BoardPageCursor::decode($after, $month->id, $category);
+        $region = $this->regionOf($learner, $score, $choice);
+        $cursor = BoardPageCursor::decode($after, $month->id, $category, $region);
         if ($cursor === null) {
             throw new InvalidBoardCursor('The cursor is not one of this table.');
         }
 
-        $page = $this->board($month, $category, $cursor, $limit);
+        if ($region === null) {
+            $page = $this->board($month, $category, $cursor, $limit);
 
-        return new MonthlyBoardPage($month->id, $category, $category !== $myCategory, $this->withEmoji($page['rows']), $page['next']);
+            return new MonthlyBoardPage($month->id, $category, $category !== $myCategory, $this->withEmoji($page['rows']), $page['next']);
+        }
+
+        $scope = BoardScope::month($month->id, $category, $region);
+        $regionView = $this->regionStanding($region, $this->reader->count($scope, BoardKeys::monthRegion($month->id, $category, $region), $this->topTtl()));
+        $page = $regionView->shown ? $this->reader->page($scope, $cursor, $limit) : ['rows' => [], 'next' => null];
+        $readOnly = $category !== $myCategory || $region !== ($score->region_code ?? $learner->region_code);
+
+        return new MonthlyBoardPage($month->id, $category, $readOnly, $page['rows'], $page['next'], $regionView);
+    }
+
+    /**
+     * The region a table of the month is asked for: none (`all`), the code asked for, or the viewer's own - the region their month is
+     * fixed in, else (no row of the month, or a month fixed without a region) their region now, which their first credit fixes.
+     *
+     * @throws RegionNotSet the viewer's own was asked for and they have none
+     */
+    private function regionOf(Learner $learner, ?LeagueMonthScore $score, RegionChoice $choice): ?string
+    {
+        if (! $choice->region) {
+            return null;
+        }
+
+        $region = $choice->code ?? $score->region_code ?? $learner->region_code;
+        if ($region === null) {
+            throw new RegionNotSet('Choose your region first.');
+        }
+
+        return $region;
+    }
+
+    /** The viewer's place in the region of their month (`me.region`): null without a region; the place only when shown and a participant. */
+    private function myRegion(LeagueMonth $month, LeagueMonthScore $score): ?RegionStanding
+    {
+        if ($score->region_code === null || $score->category === null) {
+            return null;
+        }
+
+        $category = ScoreCategory::from($score->category);
+        $scope = BoardScope::month($month->id, $category, $score->region_code);
+        $keys = BoardKeys::monthRegion($month->id, $category, $score->region_code);
+        $standing = $this->regionStanding($score->region_code, $this->reader->count($scope, $keys, $this->topTtl()));
+        if (! $standing->shown || ! $score->participant) {
+            return $standing;
+        }
+
+        $rank = $month->isClosed()
+            ? $this->board->rank($scope, $score->points, $score->long_words, $score->active_days)
+            : $this->reader->rank($scope, $month->isOpen() ? $keys : null, $this->rankTtl(), $score->points, $score->long_words, $score->active_days);
+
+        return new RegionStanding($standing->code, $standing->participants, true, $standing->minParticipants, $rank);
+    }
+
+    /**
+     * The top of a table of a region of a v2 month, cached ({@see BoardKeys::monthRegion()}) and dropped with the tops of the month.
+     *
+     * @return list<MonthlyStanding>
+     */
+    private function regionTop(LeagueMonth $month, ScoreCategory $category, string $region): array
+    {
+        return array_map(
+            static fn (BoardRow $row): MonthlyStanding => new MonthlyStanding($row->learnerId, $row->name, $row->points, $row->activeDays, $row->rank, $row->longWords, $row->proEmoji),
+            $this->reader->top(BoardScope::month($month->id, $category, $region), BoardKeys::monthRegion($month->id, $category, $region), $this->topSize(), $this->topTtl()),
+        );
+    }
+
+    private function regionStanding(string $region, int $participants): RegionStanding
+    {
+        $min = AllTimeRatingService::minParticipants();
+
+        return new RegionStanding($region, $participants, $participants >= $min, $min);
+    }
+
+    private function topTtl(): int
+    {
+        return max(1, (int) config('leagues.monthly.top_cache_seconds', 120));
     }
 
     /** What `GET /api/twa/league/month/me` shows (the finish screen): the viewer's fresh line, nothing of the others. */
@@ -521,14 +644,28 @@ final class MonthlyRatingService
     }
 
     /**
-     * {@see neighbours()} of the viewer's row with the emoji of the rows, cached {@see NEAR_PREFIX} while the month is open.
+     * {@see neighbours()} of the viewer's row with the emoji of the rows, cached {@see NEAR_PREFIX} while the month is open; with `$region`
+     * - in the table of that region ({@see BoardKeys::monthRegion()}), only when it is the region of the viewer's month.
      *
      * @return array{above: list<BoardRow>, below: list<BoardRow>, rank: int, next_gap: int|null}|null
      */
-    public function cachedNeighbours(LeagueMonth $month, LeagueMonthScore $score): ?array
+    public function cachedNeighbours(LeagueMonth $month, LeagueMonthScore $score, ?string $region = null): ?array
     {
         if (! self::isV2($month) || ! $score->participant || $score->category === null) {
             return null;
+        }
+
+        if ($region !== null) {
+            // The viewer's neighbours in the table of the region of their month (docs/35 §2.4): the same reads with the region.
+            if ($score->region_code !== $region) {
+                return null;
+            }
+            $category = ScoreCategory::from($score->category);
+            $scope = BoardScope::month($month->id, $category, $region);
+            $keys = $month->isOpen() ? BoardKeys::monthRegion($month->id, $category, $region) : null;
+            $rank = $this->reader->rank($scope, $keys, $this->rankTtl(), $score->points, $score->long_words, $score->active_days);
+
+            return $this->reader->neighbours($scope, $keys, $this->rankTtl(), new BoardCursor($score->points, $score->long_words, $score->active_days, $score->learner_id), $rank);
         }
 
         $compute = function () use ($month, $score): ?array {
@@ -1090,7 +1227,68 @@ final class MonthlyRatingService
             }
         }
 
+        if ($closed > 0) {
+            // The reconcile of "all time" after the close (docs/32 §7): every learner from the same source. The close changes no sum;
+            // this catches whatever the incremental runs missed. The months are closed already - a failure here is only reported.
+            try {
+                $this->totals->reconcileAll($now);
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+
         return $closed;
+    }
+
+    /**
+     * The learner's region changed (docs/35 §2.4, R6): after the commit (at once outside a transaction) -
+     *
+     *   the month   a period of an OPEN month fixed without a region (the month started before any region was chosen) takes the
+     *               region now, once, and the learner's row of that month is recounted: the first choice counts at once, not only
+     *               from the next month. A period with a region keeps it - a change moves the NEXT month only, the points stay where
+     *               they were earned; a reset to "not given" leaves the fixed region too (a reset plus a new choice must not move a month);
+     *   all time    the learner's totals are recomputed: they follow the current region (none after a reset).
+     *
+     * Reported, never thrown: the region is saved already.
+     */
+    public function regionChanged(Learner $learner, ?CarbonImmutable $now = null): void
+    {
+        $this->totals->learnerChanged($learner->id, $now);
+
+        DB::afterCommit(function () use ($learner, $now): void {
+            try {
+                $region = $learner->region_code;
+                if (! $this->enabled() || $region === null) {
+                    return;
+                }
+
+                $now ??= CarbonImmutable::now();
+                /** @var Collection<int, LeagueMonth> $open */
+                $open = LeagueMonth::query()->where('status', LeagueMonthStatus::Open->value)->get();
+                if ($open->isEmpty()) {
+                    return;
+                }
+
+                $filled = DB::table('learner_score_periods')
+                    ->where('learner_id', $learner->id)
+                    ->where('period', 'month')
+                    ->whereNull('region_code')
+                    ->whereIn('starts_on', $open->map(static fn (LeagueMonth $m): string => StoredDate::of($m->starts_on->toDateString()))->all())
+                    ->update(['region_code' => $region]);
+                if ($filled === 0) {
+                    return;
+                }
+
+                foreach ($open as $month) {
+                    if (self::isV2($month) && $this->refreshLearner($month, $learner, $now)) {
+                        PureCache::forgetMany(self::topKeys($month->id));
+                    }
+                }
+            } catch (Throwable $e) {
+                report($e);
+                Log::warning('league.month_region_refresh_failed', ['learner_id' => $learner->id, 'exception' => $e::class, 'error' => $e->getMessage()]);
+            }
+        });
     }
 
     /** The key of the cached top: the v1 table of a month, or one category of a v2 month. */
@@ -1100,17 +1298,25 @@ final class MonthlyRatingService
     }
 
     /**
-     * Every key of the tops of a month (v1 and both categories of v2) and of their numbers of participants: what a write to the month
-     * drops.
+     * Every key of the tops of a month (v1, both categories of v2 and their tables of every region) and of their numbers of participants:
+     * what a write to the month drops.
      *
      * @return list<string>
      */
     public static function topKeys(int $monthId): array
     {
-        return [
+        $keys = [
             self::topKey($monthId), self::topKey($monthId, ScoreCategory::Free), self::topKey($monthId, ScoreCategory::Pro),
             self::countKey($monthId), self::countKey($monthId, ScoreCategory::Free), self::countKey($monthId, ScoreCategory::Pro),
         ];
+        // The tables of the regions (docs/35 §2.4): their tops and numbers of participants go with the tops of the month - one DEL.
+        foreach (ScoreCategory::cases() as $category) {
+            foreach (Regions::codes() as $region) {
+                array_push($keys, ...BoardKeys::monthRegion($monthId, $category, $region)->written());
+            }
+        }
+
+        return $keys;
     }
 
     /** The key of the cached number of participants of a table of the month ({@see COUNT_PREFIX}). */
@@ -1317,6 +1523,8 @@ final class MonthlyRatingService
      *   long_words  = the DISTINCT lexemes with a long repetition that added month points (not voided) - from the journal
      *                 `score_credits` (one lexeme can be paid a long repetition two or three times a month: 7, then ≥ 17 days);
      *   category    = `month_category` of the days (fixed once per learner and month: every day of the month has the same);
+     *   region_code = the region of the learner's month (`learner_score_periods.region_code`, docs/35 §2.4): fixed at its first credit,
+     *                 an empty one filled once by the first region chosen ({@see regionChanged()});
      *   reviews / correct / new words / goal days / game points / time - the admin's signals, from `learner_daily_stats` by the local
      *                 dates of the month, as in v1 (approximate, they only point).
      * Who is a participant - as in v1 (not deleted, not blocked, not opted out; the onboarding is not asked for, docs/34 §3); a learner
@@ -1353,20 +1561,21 @@ final class MonthlyRatingService
         [$longScope, $longBindings] = $scope('c');
         [$statsScope, $statsBindings] = $scope('t');
 
-        $columns = ['category', 'points', 'raw_points', 'active_days', 'capped_days', 'max_day_points', 'long_words', 'reviews', 'correct', 'new_words', 'goal_days', 'game_points', 'time_spent_ms', 'participant'];
+        $columns = ['category', 'region_code', 'points', 'raw_points', 'active_days', 'capped_days', 'max_day_points', 'long_words', 'reviews', 'correct', 'new_words', 'goal_days', 'game_points', 'time_spent_ms', 'participant'];
         $set = implode(', ', array_map(static fn (string $c): string => "{$c} = excluded.{$c}", $columns)).', updated_at = excluded.updated_at';
-        // `category` may be NULL on a row written before (never in a v2 month, but `<>` with NULL is never true): compare null-safely.
+        // `category` may be NULL on a row written before (never in a v2 month, but `<>` with NULL is never true), `region_code` is NULL
+        // without a region: compare both null-safely.
         $changed = implode(' or ', array_map(
-            static fn (string $c): string => $c === 'category'
-                ? ($pgsql ? 'league_month_scores.category is distinct from excluded.category' : 'league_month_scores.category is not excluded.category')
+            static fn (string $c): string => in_array($c, ['category', 'region_code'], true)
+                ? ($pgsql ? "league_month_scores.{$c} is distinct from excluded.{$c}" : "league_month_scores.{$c} is not excluded.{$c}")
                 : "league_month_scores.{$c} <> excluded.{$c}",
             $columns,
         ));
 
         DB::affectingStatement(
-            'insert into league_month_scores (league_month_id, learner_id, category, points, raw_points, active_days, capped_days, max_day_points, '
+            'insert into league_month_scores (league_month_id, learner_id, category, region_code, points, raw_points, active_days, capped_days, max_day_points, '
             .'long_words, reviews, correct, new_words, goal_days, game_points, time_spent_ms, participant, final_rank, created_at, updated_at) '
-            ."select {$typed('bigint')}, a.learner_id, a.category, a.points, a.raw_points, a.active_days, a.capped_days, a.max_day_points, "
+            ."select {$typed('bigint')}, a.learner_id, a.category, p.region_code, a.points, a.raw_points, a.active_days, a.capped_days, a.max_day_points, "
             .'coalesce(c.long_words, 0), coalesce(t.reviews, 0), coalesce(t.correct, 0), coalesce(t.new_words, 0), coalesce(t.goal_days, 0), '
             .'coalesce(t.game_points, 0), coalesce(t.time_spent_ms, 0), '
             ."case when l.deleted_at is null and l.blocked_at is null and {$notOptedOut} then {$true} else {$false} end, "
@@ -1378,6 +1587,8 @@ final class MonthlyRatingService
             ."from learner_score_days s where s.rating_day >= ? and s.rating_day <= ?{$daysScope} group by s.learner_id"
             .') a '
             .'join learners l on l.id = a.learner_id '
+            // The region the learner's month is fixed in (docs/35 §2.4): the period row by its primary key.
+            ."left join learner_score_periods p on p.learner_id = a.learner_id and p.period = 'month' and p.starts_on = ? "
             .'left join ('
             .'select c.learner_id, count(distinct c.lexeme_id) as long_words from score_credits c '
             ."where c.rating_day >= ? and c.rating_day <= ? and c.kind = 'long' and c.month_points > 0 and c.voided_at is null{$longScope} "
@@ -1395,6 +1606,7 @@ final class MonthlyRatingService
             [
                 $month->id, $stamp, $stamp,
                 $from, $to, ...$daysBindings,
+                $from,
                 $from, $to, ...$longBindings,
                 $from, $to, ...$statsBindings,
             ],

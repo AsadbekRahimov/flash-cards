@@ -32,6 +32,10 @@ use LogicException;
  *     at once meet on the primary key: the second waits for the first's commit, inserts nothing and reads the first's row - the
  *     first one wins, whatever category the second asked for.
  *
+ * The region (docs/35 §2.4, R6) is fixed by the same statement, from `learners.region_code` at that moment: the month of a learner
+ * counts in the region it started in; a change of the region moves the next month only. An empty region of an open month is filled
+ * once by the first region chosen (MonthlyRatingService::regionChanged).
+ *
  * The dates are written through {@see StoredDate} (the representation the `date` columns compare by on sqlite too).
  */
 final class ScorePeriodService
@@ -114,10 +118,15 @@ final class ScorePeriodService
             ? ($pgsql ? '(select p.rules_version from league_weeks p where p.starts_on = ?::date)' : '(select p.rules_version from league_weeks p where p.starts_on = ?)')
             : ($pgsql ? '(select p.rules_version from league_months p where p.starts_on = ?::date)' : '(select p.rules_version from league_months p where p.starts_on = ?)');
 
+        // The region (docs/35 §2.4, R6): the learner's region at this moment, read by the same statement (a plain read of the row by its
+        // primary key - no lock on `learners`, the answer never locks it). Fixed with the category; NULL = no region chosen yet.
+        $region = '(select l.region_code from learners l where l.id = ?)';
+
         $select = DB::query()->selectRaw(
             ($pgsql ? '?::bigint, ?::varchar, ?::date, ?::varchar, coalesce(' : '?, ?, ?, ?, coalesce(')
             .$version
-            .($pgsql ? ', ?::smallint), ?::timestamp' : ', ?), ?'),
+            .($pgsql ? ', ?::smallint), ?::timestamp, ' : ', ?), ?, ')
+            .$region,
             [
                 $learnerId,
                 $period,
@@ -126,11 +135,12 @@ final class ScorePeriodService
                 StoredDate::of($startsOn),
                 $this->rules->versionFor($startsOn),
                 (string) (new LearnerScorePeriod)->fromDateTime($now),
+                $learnerId,
             ],
         );
 
         return LearnerScorePeriod::query()->insertOrIgnoreUsing(
-            ['learner_id', 'period', 'starts_on', 'category', 'rules_version', 'fixed_at'],
+            ['learner_id', 'period', 'starts_on', 'category', 'rules_version', 'fixed_at', 'region_code'],
             $select,
         ) > 0;
     }

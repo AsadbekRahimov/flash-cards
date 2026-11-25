@@ -6,6 +6,7 @@ namespace App\Domain\Learners\Services;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Engagement\Services\MonthlyRatingService;
 use App\Domain\Learners\Exceptions\InvalidSettingException;
 use App\Domain\Learners\Exceptions\RegionChangeTooSoonException;
 use App\Domain\Learners\Exceptions\RegionRevertUnavailableException;
@@ -31,8 +32,8 @@ use Throwable;
  *    back the region and `region_changed_at` exactly as they were, like the undo of a time zone change (a tap by mistake costs no
  *    30 days). A newer change overwrites the snapshot; the undo consumes it.
  *
- * After the commit: the product event `region.set {from, to, via}` (`via`: onboarding / settings / prompt / undo). The hook of the
- * region tables (R6: the open periods of the first choice, the recount of "all time") comes with the tables themselves.
+ * After the commit: the product event `region.set {from, to, via}` (`via`: onboarding / settings / prompt / undo) and the hook of the
+ * region tables ({@see recordChange()}: an empty region of the open month is filled, "all time" is recomputed - docs/35 §2.4, R6).
  *
  * "Not now" on the card of the Rating tab hides the card for `regions.prompt_snooze_days` days
  * (`meta.region_prompt_dismissed_at`, {@see dismissPrompt()}, {@see promptVisible()}).
@@ -59,7 +60,10 @@ final class LearnerRegionService
     /** `learners.meta` key: UTC instant of the last "Not now" on the region card. */
     public const PROMPT_DISMISSED_META = 'region_prompt_dismissed_at';
 
-    public function __construct(private readonly ProductEventRecorder $events) {}
+    public function __construct(
+        private readonly ProductEventRecorder $events,
+        private readonly MonthlyRatingService $rating,
+    ) {}
 
     /** The minimum number of days between two choices of a region (`regions.change_days`, 30). */
     public static function changeDays(): int
@@ -135,10 +139,17 @@ final class LearnerRegionService
         return ['from' => $from, 'to' => $code];
     }
 
-    /** @param  array{from: string|null, to: string|null}  $change */
+    /**
+     * After the commit of an accepted change (every path calls it: set, the settings, the onboarding, the undo): the event, and the hook
+     * of the region tables (docs/35 §2.4, R6 - an empty region of the open month takes the new one, "all time" follows the current
+     * region; MonthlyRatingService::regionChanged, reported, never thrown).
+     *
+     * @param  array{from: string|null, to: string|null}  $change
+     */
     public function recordChange(Learner $learner, array $change, string $via): void
     {
         $this->events->record(ProductEventName::RegionSet, [...$change, 'via' => $via], learner: $learner);
+        $this->rating->regionChanged($learner);
     }
 
     /**

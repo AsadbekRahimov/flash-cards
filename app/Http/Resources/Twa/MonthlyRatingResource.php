@@ -9,6 +9,7 @@ use App\Domain\Engagement\DTO\BoardRow;
 use App\Domain\Engagement\DTO\MonthlyPrize;
 use App\Domain\Engagement\DTO\MonthlyRatingOverview;
 use App\Domain\Engagement\DTO\MonthlyStanding;
+use App\Domain\Engagement\DTO\RegionChoice;
 use App\Domain\Engagement\Enums\ScoreCategory;
 use App\Models\Learner;
 use Illuminate\Http\Request;
@@ -23,7 +24,9 @@ use Illuminate\Http\Request;
  * page after the top, `?after=`), `neighbours` (two above and two below the viewer's row in their own table, else null), and in the
  * rows `long_words`; `me` adds `category`, `long_words`, `next_gap`; `month.participants` and `prizes` are those of the table shown;
  * `last_month` of a v2 month splits its winners by table (`winners` - the table shown, `winners_by_category`). A v1 month keeps the
- * shape of before: those keys are absent.
+ * shape of before: those keys are absent. The tables of a region (docs/35 §2.4, R7): `scope` (`all` / `region`), `region` (the table of
+ * a region shown, or null) and `me.region` (the viewer's place in the region of their month) - only in a v2 month; a table of a region has
+ * no prizes and, below `min_participants`, no rows.
  *
  * @property MonthlyRatingOverview $resource
  */
@@ -75,6 +78,8 @@ final class MonthlyRatingResource extends TwaResource
                     'category' => $overview->me->category?->value,
                     'long_words' => $overview->me->longWords,
                     'next_gap' => $overview->neighbours['next_gap'] ?? null,
+                    // The place in the region of the viewer's month (docs/35 §2.4): null without one; `rank` null while hidden.
+                    'region' => $overview->myRegion?->toMeArray($locale),
                 ] : []),
             ],
             'last_month' => $this->lastMonth($category),
@@ -91,8 +96,12 @@ final class MonthlyRatingResource extends TwaResource
             'rules_version' => $overview->rulesVersion,
             'category' => $category->value,
             'my_category' => $overview->myCategory?->value,
-            'read_only' => $category !== $overview->myCategory,
-            'next_cursor' => $overview->nextCursor === null ? null : BoardPageCursor::encode($month->id, $category, $overview->nextCursor),
+            'read_only' => $overview->readOnly,
+            'next_cursor' => $overview->nextCursor === null ? null : BoardPageCursor::encode($month->id, $category, $overview->nextCursor, $overview->region?->code),
+            // The table of a region (docs/35 §2.4): `all` - the whole category (`region` null); `region` - `{code, name, participants,
+            // shown, min_participants}`, a hidden one (below the threshold) with no rows.
+            'scope' => ($overview->choice ?? RegionChoice::all())->scope(),
+            'region' => $overview->region?->toArray($locale),
             'neighbours' => $neighbours === null ? null : [
                 'above' => array_map(static fn (BoardRow $row): array => LeagueBoardResource::row($row, $myId), $neighbours['above']),
                 'below' => array_map(static fn (BoardRow $row): array => LeagueBoardResource::row($row, $myId), $neighbours['below']),

@@ -159,6 +159,10 @@ it('rolls the catalog and the score tables back and forth, keeping the indexes o
         '2026_11_25_300005_add_scoring_columns_to_league_tables',
         '2026_11_25_300006_add_category_standings_index_to_league_month_scores',
         '2026_11_26_100001_reindex_league_groups_seat_lookup',
+        // The region of the tables (docs/35 R6) sits on these tables: rolled back first, put back last.
+        '2026_11_27_200001_add_region_code_to_score_tables',
+        '2026_11_27_200002_add_region_standings_index_to_league_month_scores',
+        '2026_11_27_200003_add_region_standings_index_to_learner_score_totals',
     ];
     $migrations = array_map(fn (string $file): object => require database_path("migrations/{$file}.php"), $files);
 

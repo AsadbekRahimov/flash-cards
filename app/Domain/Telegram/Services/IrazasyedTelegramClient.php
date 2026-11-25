@@ -6,7 +6,9 @@ namespace App\Domain\Telegram\Services;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\DTO\ChatMemberInfo;
+use App\Domain\Telegram\DTO\PhotoSource;
 use App\Domain\Telegram\DTO\PreparedInlineMessage;
+use App\Domain\Telegram\DTO\SentMessage;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramChatMigratedException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
@@ -14,6 +16,7 @@ use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Jobs\SendTelegramMessageJob;
 use Closure;
 use Exception;
+use GuzzleHttp\Psr7\LazyOpenStream;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use Telegram\Bot\Api;
@@ -205,6 +208,57 @@ class IrazasyedTelegramClient implements TelegramClient
         });
     }
 
+    /**
+     * @param  array<string, mixed>|null  $replyMarkup
+     */
+    public function sendPhotoMessage(
+        int|string $chatId,
+        PhotoSource $photo,
+        ?string $caption = null,
+        ?array $replyMarkup = null,
+    ): SentMessage {
+        if ($photo->isUpload() && (! is_file($photo->value) || ! is_readable($photo->value))) {
+            throw new TelegramApiException('Telegram API request failed (sendPhoto): the photo file is not readable');
+        }
+
+        return $this->followingMigration($chatId, function (int|string $chat) use ($photo, $caption, $replyMarkup): SentMessage {
+            $fields = ['chat_id' => $chat];
+            if ($caption !== null) {
+                $fields['caption'] = $caption;
+            }
+            if ($replyMarkup !== null) {
+                $fields['reply_markup'] = json_encode($replyMarkup, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+            }
+
+            // Raw `post()`, not the SDK's `sendPhoto()`: that one guesses "URL / file_id / path" from the string itself. A file goes
+            // as multipart/form-data (a stream opened per attempt, so the repeat into a migrated chat uploads it again), the two
+            // other kinds as a plain form field.
+            $answer = $this->call(function () use ($photo, $fields): mixed {
+                if (! $photo->isUpload()) {
+                    return $this->api->post('sendPhoto', ['photo' => $photo->value] + $fields)->getResult();
+                }
+
+                $multipart = [['name' => 'photo', 'contents' => new LazyOpenStream($photo->value, 'r'), 'filename' => basename($photo->value)]];
+                foreach ($fields as $name => $value) {
+                    $multipart[] = ['name' => $name, 'contents' => (string) $value];
+                }
+
+                return $this->api->post('sendPhoto', $multipart, true)->getResult();
+            }, mapForbidden: true, chatId: $chat, method: 'sendPhoto');
+
+            return SentMessage::fromMessage(is_array($answer) ? $answer : [], 'sendPhoto');
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $replyMarkup
+     */
+    public function sendTextMessage(int|string $chatId, string $text, ?array $replyMarkup = null): SentMessage
+    {
+        // The immediate send with the id already exists (K1); "group" in its name is history - any chat id works.
+        return new SentMessage($this->sendGroupMessage($chatId, $text, null, $replyMarkup));
+    }
+
     public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void
     {
         $params = ['callback_query_id' => $callbackQueryId];
@@ -248,6 +302,23 @@ class IrazasyedTelegramClient implements TelegramClient
 
         // No `mapForbidden`: a refusal here is "the message cannot be edited", never "the learner is unreachable".
         $this->notingMigration($chatId, fn () => $this->call(fn () => $this->api->editMessageText($params), chatId: $chatId, method: 'editMessageText'));
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $replyMarkup
+     */
+    public function editMessageCaption(int|string $chatId, int $messageId, string $caption, ?array $replyMarkup = null): void
+    {
+        $params = [
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+            'caption' => $caption,
+            // As in editMessageText: an empty keyboard removes the buttons explicitly.
+            'reply_markup' => json_encode($replyMarkup ?? ['inline_keyboard' => []], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+        ];
+
+        // No `mapForbidden`: a refusal of an edit never says the learner is unreachable.
+        $this->notingMigration($chatId, fn () => $this->call(fn () => $this->api->post('editMessageCaption', $params)->getResult(), chatId: $chatId, method: 'editMessageCaption'));
     }
 
     public function getChatMemberStatus(int|string $chatId, int $userId): string

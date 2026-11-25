@@ -145,6 +145,6 @@ it('corrects a day in a constant number of statements plus one update per credit
 
     $log = QueryLog::during(fn () => app(ScoreCorrectionService::class)->void($learner, '2027-02-03', [$id], 'test', $admin, now: lbNow()));
     // day read, membership, group FOR SHARE, lexemes of the day, lexemes FOR UPDATE, day FOR UPDATE, credits, void, day update,
-    // audit; after the commit: the month (find) - no month row here.
-    expect($log)->toHaveCount(11);
+    // audit; after the commit: the month (find) - no month row here - and the recompute of "all time" (S10, one statement).
+    expect($log)->toHaveCount(12);
 });

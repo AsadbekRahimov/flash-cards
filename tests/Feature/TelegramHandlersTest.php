@@ -7,7 +7,9 @@ use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Operations\Support\PureCache;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\DTO\ChatMemberInfo;
+use App\Domain\Telegram\DTO\PhotoSource;
 use App\Domain\Telegram\DTO\PreparedInlineMessage;
+use App\Domain\Telegram\DTO\SentMessage;
 use App\Domain\Telegram\Services\TelegramDispatcher;
 use App\Models\GroupMember;
 use App\Models\Learner;
@@ -538,11 +540,23 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
 
         public function sendPhoto(int|string $chatId, string $photoPath, ?string $caption = null, ?array $replyMarkup = null): void {}
 
+        public function sendPhotoMessage(int|string $chatId, PhotoSource $photo, ?string $caption = null, ?array $replyMarkup = null): SentMessage
+        {
+            return new SentMessage(1);
+        }
+
+        public function sendTextMessage(int|string $chatId, string $text, ?array $replyMarkup = null): SentMessage
+        {
+            return new SentMessage(1);
+        }
+
         public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void {}
 
         public function editMessageReplyMarkup(int|string $chatId, int $messageId, ?array $replyMarkup = null): void {}
 
         public function editMessageText(int|string $chatId, int $messageId, string $text, ?string $parseMode = null, ?array $replyMarkup = null): void {}
+
+        public function editMessageCaption(int|string $chatId, int $messageId, string $caption, ?array $replyMarkup = null): void {}
 
         public function getChatMemberStatus(int|string $chatId, int $userId): string
         {

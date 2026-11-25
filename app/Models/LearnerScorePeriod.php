@@ -24,6 +24,8 @@ use Illuminate\Support\Carbon;
  * @property ScoreCategory $category
  * @property int $rules_version
  * @property Carbon $fixed_at
+ * @property string|null $region_code the learner's region at the first credit of the period (docs/35 §2.4); an empty one of an open
+ *                                    month is filled once by the first region chosen, never changed afterwards
  */
 class LearnerScorePeriod extends Model
 {
@@ -39,7 +41,7 @@ class LearnerScorePeriod extends Model
     protected $primaryKey = 'learner_id';
 
     /** @var list<string> */
-    protected $fillable = ['learner_id', 'period', 'starts_on', 'category', 'rules_version', 'fixed_at'];
+    protected $fillable = ['learner_id', 'period', 'starts_on', 'category', 'rules_version', 'fixed_at', 'region_code'];
 
     public function compositeKey(): array
     {

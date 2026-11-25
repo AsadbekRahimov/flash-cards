@@ -1541,6 +1541,94 @@ CHECK не создаются — инвариант дублируют серв
 - `league_month_scores.category` string(4) nullable (`NULL` — месяц v1, одна общая таблица), `long_words` int default 0; новый индекс `league_month_scores_category_standings_idx (league_month_id, category, participant, points desc, long_words desc, active_days desc, learner_id)` (CONCURRENTLY), v1-индекс `league_month_scores_standings_idx` остаётся (нужен открытым и проверяемым v1-месяцам; каждое изменение строки v2 пишет запись и в него — предложение: снять отдельной миграцией после подтверждения последнего v1-месяца, docs/32 §12.6). Аудит 26.11.2026 (`docs/38` §5.2) предложение подтвердил: пока режим `off`, месяцы идут по v1 и индекс читается; цена — около 15–20 % записи при обновлении месяца (20 000 изменённых строк: 313–359 мс с ним, 267–286 мс без). С S9 таблица месяца v2 читается только по новому индексу: топ, страница после курсора, соседи, свой ранг (`ScoreBoard`) — index-only по `points` как диапазону;
 - `league_month_candidates.category` string(4) nullable.
 
+## Опросы в боте *(выпуск 4, проект — docs/35 §1; решения владельца — docs/31 §5г)*
+
+Фото с подписью (или текст) и inline-кнопки `pl1:<token>:<n>`, свой учёт голосов (вариант A docs/35 §1.3). Модели — `Poll`,
+`PollOption`, `PollDelivery`, `PollVote` (`app/Models`), enum'ы статусов — `App\Domain\Polls\Enums\PollStatus` /
+`PollDeliveryStatus`; CHECK (только PostgreSQL) дублируют их. Тексты — jsonb `{ru, uz}`. Индексы — только под запросы docs/35 §1.5;
+FK без индекса перечислены с причиной.
+
+### 2.72 `polls` — опрос *(O2, docs/35 §1.4)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| title | string(120) | внутреннее название для `/admin` |
+| question | jsonb | `{ru, uz}`, оба обязательны, ≤ 700 символов каждое (проверяет форма, O6) |
+| image_path | string(255) nullable | файл на приватном диске `local`, каталог `polls/` |
+| image_file_id | string(255) nullable | `file_id` Telegram (наибольший `PhotoSize`) после первой удачной отправки; дальше фото уходит по нему |
+| allows_multiple | boolean default false | несколько ответов |
+| max_choices | smallint nullable | предел выбора при нескольких ответах; CHECK `1..10` |
+| allow_change | boolean default true | можно ли сменить ответ до закрытия |
+| audience | jsonb | `{plan: all\|free\|pro, locales: [], course_ids: [], region_codes: [], onboarded_only: true}` |
+| status | string(10) default `draft` | `draft` → `sending` → `sent` → `closed`; `cancelled` из `draft`/`sending` (CHECK) |
+| closes_at | timestamp nullable | срок; пусто — до ручного закрытия |
+| launched_at, closed_at | timestamp nullable | |
+| created_by_user_id, launched_by_user_id | bigint FK → users, SET NULL nullable | |
+| results_snapshot | jsonb nullable | итоги на момент закрытия (не меняются после окончательного удаления учеников) |
+| created_at, updated_at | | |
+
+**Индексы:** partial `polls_close_due_idx (closes_at) WHERE status IN ('sending','sent') AND closes_at IS NOT NULL` — `polls:close-due`
+каждые 5 минут читает только открытые опросы со сроком. FK на `users` **без индекса**: таблица маленькая (десятки строк в год),
+индекс нужен был бы только удалению пользователя.
+
+### 2.73 `poll_options` — варианты ответа *(O2)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| poll_id | bigint FK → polls, CASCADE | |
+| position | smallint | `0..9` (CHECK) — `n` кнопки `pl1:<token>:<n>` |
+| label | jsonb | `{ru, uz}`, ≤ 40 символов каждое (форма) |
+
+**Индексы:** unique `(poll_id, position)` — он же индекс FK (варианты всегда читаются по опросу).
+
+### 2.74 `poll_deliveries` — получатель опроса *(O2; запись — O3/O4)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| poll_id | bigint FK → polls, CASCADE | |
+| learner_id | bigint FK → learners, CASCADE, nullable | `NULL` только у тестовой отправки (CHECK `is_test = (learner_id IS NULL)`) |
+| telegram_user_id | bigint | куда отправлено; с ним сверяется `from.id` нажатия |
+| is_test | boolean default false | тестовая отправка администратору: в итоги не входит |
+| token | char(12) | `Str::random(12)`, токен кнопок |
+| locale | string(5) | язык сообщения (`interface_locale` ученика при вставке) |
+| status | string(10) default `pending` | `pending`, `sending`, `sent`, `skipped`, `forbidden`, `failed`, `unknown` (CHECK) |
+| message_id | bigint nullable | |
+| sent_at | timestamp nullable | |
+| error_code | string(40) nullable | |
+| draft | jsonb nullable | отмеченные, но не отправленные варианты (id `poll_options`) |
+| answered_at | timestamp nullable | |
+| changed_count | smallint default 0 | CHECK `>= 0` |
+
+**Индексы** (таблица большая — опросы × аудитория — и горячая на запись во время рассылки, поэтому только эти):
+- unique `token` — каждое нажатие находит строку по токену кнопки;
+- unique `(poll_id, learner_id)` — одна доставка на ученика и опрос; цель `ON CONFLICT` вставки при запуске. **Не частичный**
+  (в docs/35 — `WHERE learner_id IS NOT NULL`): NULL в уникальном индексе различны и в PostgreSQL, и в sqlite, поэтому тестовые
+  строки не конфликтуют так же, но индекс содержит и их и обслуживает все чтения «все строки опроса» — счётчики страницы итогов,
+  CSV, `polls:prune`, каскад удаления опроса;
+- `(learner_id)` — окончательное удаление ученика каскадом идёт сюда; без индекса каждое удаление читало бы всю таблицу;
+- partial `poll_deliveries_unsent_idx (poll_id, id) WHERE status IN ('pending','sending')` — пачки рассылки, проверка «что-то
+  осталось» перед `sending → sent`, `polls:sweep` (зависшие `sending`). Вместо полного `(poll_id, status)` из docs/35: в нём только
+  неотправленные строки, законченная строка в него больше не попадает.
+
+### 2.75 `poll_votes` — голоса *(O2; запись — O4)*
+| Колонка | Тип | Описание |
+|---------|-----|----------|
+| id | bigint PK | |
+| poll_id | bigint FK → polls, CASCADE | копия из доставки — для подсчёта |
+| poll_delivery_id | bigint FK → poll_deliveries, CASCADE | |
+| poll_option_id | bigint FK → poll_options, CASCADE | |
+| created_at | timestamp nullable | |
+
+**Индексы:** unique `(poll_delivery_id, poll_option_id)` — один голос за вариант; через него `DELETE` голосов доставки при смене
+ответа и каскад доставки (а значит, ученика); `(poll_id, poll_option_id)` — подсчёт `GROUP BY poll_option_id`, CSV, каскад опроса.
+FK `poll_option_id` **без своего индекса**: вариант удаляется только вместе с опросом (покрыто выше) или в черновике из формы
+(O6), где есть самое большее тестовые голоса администраторов — редкий последовательный просмотр вместо записи в индекс на
+каждом голосе.
+
+**Правила:** голос не пишет ничего в `learner_daily_stats`, очки и серию. Окончательное удаление ученика забирает его доставки и
+голоса; итоги закрытого опроса остаются в `polls.results_snapshot`. Хранение доставок и голосов — 365 дней после закрытия
+(`polls:prune`, O7).
+
 ## 3. Порядок миграций
 
 Миграции создаём в таком порядке (порядок имеет значение из-за FK). Пока на дисках лежат исходные create-миграции
@@ -1666,6 +1754,13 @@ CHECK не создаются — инвариант дублируют серв
 90. `2026_11_26_100001_reindex_league_groups_seat_lookup` — `league_groups`: `(league_week_id, category, tier)` вместо `(league_week_id, tier, members_count)` и `(league_week_id, category, tier, members_count)`; `down()` возвращает оба *(§2.35, S8)*
 91. `2026_11_26_100002_add_long_credits_index_to_score_credits` — partial `score_credits_long_idx` (CONCURRENTLY на PostgreSQL) *(§2.70, S9)*
 92. `2026_11_26_100003_replace_score_credits_rating_day_brin` — только PostgreSQL: BRIN `score_credits (rating_day)` → B-tree (CONCURRENTLY); `down()` возвращает BRIN *(§2.70, S16)*
+
+Опросы в боте (docs/35 O2; откат и повтор — `PollSchemaTest`):
+
+93. `2026_11_27_100001_create_polls_table` — `polls`, partial `polls_close_due_idx`, CHECK (PostgreSQL) *(§2.72)*
+94. `2026_11_27_100002_create_poll_options_table` — `poll_options` *(§2.73)*
+95. `2026_11_27_100003_create_poll_deliveries_table` — `poll_deliveries`, partial `poll_deliveries_unsent_idx`, CHECK (PostgreSQL) *(§2.74)*
+96. `2026_11_27_100004_create_poll_votes_table` — `poll_votes` *(§2.75)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

@@ -1980,6 +1980,33 @@ core.telegram.org/bots/api 25.11.2026). Методы контракта `Telegra
   `$inlineAnswers`, `$preparedExpirationDate`, отказы `$failInline` (+ `$failInlineRetryAfter`, `$failInlineAsTransport`).
 - `inline_query` в `ALLOWED_UPDATES` пока **не** добавлен — это задача H5 (вместе с `InlineQueryHandler` и флагом `share.inline_enabled`).
 
+**Отправка с номером сообщения и правка подписи: `sendPhotoMessage`, `sendTextMessage`, `editMessageCaption`** (docs/35 §1.6,
+задача O1; формат сверен с core.telegram.org/bots/api 25.11.2026 — `sendPhoto`, `editMessageCaption`, `PhotoSize`, «Sending files»).
+Нужны опросам (docs/35 §1.5): номер сообщения — для правки подписи после ответа, `file_id` — чтобы картинка опроса уходила
+повторно без загрузки. Отправляют **сразу**, в очередь не откладывают (как `sendGroupMessage`): слот общего бюджета берёт
+вызывающее задание. Старые `sendPhoto` и `sendMessage` не менялись.
+
+- `sendPhotoMessage(chatId, PhotoSource, caption = null, replyMarkup = null): SentMessage` — подпись простым текстом (без
+  `parse_mode`, у Telegram 0–1024 знака). `PhotoSource::file($path)` — локальный файл, `multipart/form-data` (поле `photo` с именем
+  файла; у Telegram до 10 МБ, сумма сторон ≤ 10 000); нечитаемый файл — `TelegramApiException` до вызова Telegram.
+  `PhotoSource::fileId($id)` — `file_id` этого бота, обычное поле формы, ничего не загружается. `PhotoSource::url($url)` — http(s),
+  Telegram скачивает сам (до 5 МБ). Вызов — сырой `post('sendPhoto', …)`: метод SDK `sendPhoto()` угадывает вид по строке.
+- `sendTextMessage(chatId, text, replyMarkup = null): SentMessage` — простой текст; это тот же вызов, что `sendGroupMessage` без темы
+  (отдельной реализации нет), ответ — `SentMessage` без фото, чтобы отправитель опроса получал один тип результата.
+- `SentMessage {messageId, photoFileId}`: `photoFileId` — `file_id` **наибольшего** `PhotoSize` из `Message.photo` (по площади, при
+  равенстве — по `file_size`; порядок массива не важен), `null` у текста. `file_id` принадлежит только этому боту, у одной картинки
+  их может быть несколько — годится любой. Ответ «ok» без `message_id` — `TelegramApiException` как сбой транспорта
+  (`isApiResponse() = false`: сообщение могло уйти, повторять нельзя).
+- `editMessageCaption(chatId, messageId, caption, replyMarkup = null)` — новая подпись и клавиатура; `null` — клавиатура убирается
+  (`{"inline_keyboard":[]}`, как у `editMessageText`). Отказ «message is not modified» — `TelegramApiException::isMessageNotModified()`;
+  403 при правке — обычный `TelegramApiException` (правка никогда не говорит «ученик недоступен»).
+- Ошибки — по B.7a: 403 и 400 `chat not found` у отправок → `TelegramForbiddenException`; 429 → `TelegramRateLimitedException`
+  (`retryAfter`, пауза бюджета); группа стала супергруппой — отправка один раз повторяется в новом чате (файл загружается заново),
+  правка подписи не повторяется. `FakeTelegramClient`: `$photoMessages` (вид источника, ответный `file_id`: тот же при отправке по
+  `file_id`, иначе `fake-photo-<n>`), `$textMessages`, `$captionEdits`; общий счётчик `$nextMessageId`; отказы отправок —
+  `$failSends` (+ `$failSendsRetryAfter`, `$failSendsForbidden`, `$failSendsAsTransport`), отказы правки — `$failCaptionEdits`
+  («not modified»), `$failCaptionEditsWith` (другой 400).
+
 #### Онбординг и `/settings`: шаги и `callback_data`
 
 Шаги по порядку: `locale` (🇷🇺/🇺🇿, каждый язык своим названием) → `goal` (`general`/`ielts`/`sat`/`school`) → `level` (`A1`/`A2`/`B1`/`B2`/`C1`/`C2`/`unknown`→`A1`) → `timezone` (список из `config('learners.timezone_options')`, по умолчанию Ташкент и соседи; значение — IANA-id, ещё раз проверяется по `DateTimeZone::listIdentifiers`) → `reminder` (`0800`/`1300`/`1900`/`2100`/`off` → `reminder_time` или `NULL`). `learners.onboarding_state` — текущий шаг (`new` → `locale` … `reminder` → `done`). Дефолты тем, кто их не меняет: цель 20 карточек в день (`daily_goal`), напоминание 19:00, `Asia/Tashkent`.
@@ -2103,6 +2130,27 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
   - Маркер отправки — строка `notifications_log` `type = lesson_nudge` (`payload: lesson_id, words, date`) до вызова Telegram; ошибки — по docs/34 §4в п. 8: 403 → строка удаляется, `DmReachability::markUnreachable`; иной определённый отказ (и 429) → строка удаляется, исключение пробрасывается (429 — `ThrottleTelegramOutbound` откладывает задание на `retry_after`); таймаут / 5xx → строка остаётся. Событие `lesson_nudge.sent {lesson_id, words}`.
   - Не сделано: напоминание на следующий день «слова пришли на повторение — за них есть очки» (зависит от выпуска 2).
 
+### B.5b Опросы в боте: кнопки `pl1` *(docs/35 §1.5; обработчик — O5, ядро голоса — O4; пока только описание)*
+
+Опрос — фото с подписью (`sendPhotoMessage`) или текст (`sendTextMessage`) без `parse_mode` и inline-кнопки по одной в ряд; одна
+строка `poll_deliveries` на получателя (docs/03 §2.74). Подпись — вопрос; если какой-то вариант длиннее 24 символов — ниже
+нумерованный список вариантов, а кнопки — «1», «2», … Кнопки строятся только через `BotButtons`.
+
+- **`callback_data` `pl1:<token>:<n>`**: `token` — 12 символов `[A-Za-z0-9]` (`poll_deliveries.token`), `n` — позиция варианта
+  `0..9`, `s` — «Отправить» (несколько ответов), `c` — «Изменить ответ». До 19 байт из 64. Строгий regex
+  `~^pl1:([A-Za-z0-9]{12}):([0-9]|s|c)$~D`; подписи нет — данные недоверенные и ничего не утверждают (как `rq1`).
+- Принимается только из личного чата: `message.chat.id = from.id` и `from.id = poll_deliveries.telegram_user_id` строки, найденной по
+  токену. Пересланное сообщение, чужое нажатие, группа, неизвестный токен, позиция ≥ числа вариантов, `InaccessibleMessage`
+  (`date = 0`) → алерт «Опрос недоступен».
+- Опрос `closed` / `cancelled` или наступил `closes_at` (проверка на сервере при нажатии) → алерт «Опрос завершён», клавиатура
+  убирается. Массово клавиатуры при закрытии не правятся.
+- Один ответ: нажатие варианта записывает голос; повтор того же варианта ничего не пишет и даёт тот же итог. Несколько ответов:
+  нажатие переключает вариант (☐/☑, с учётом `max_choices`), «Отправить» с пустым выбором — тост «Выберите хотя бы один вариант».
+- После ответа подпись (или текст) правится (`editMessageCaption` / `editMessageText`): вопрос + «✅ Спасибо! …» на языке доставки,
+  ниже «Изменить ответ», если смена разрешена. Итоги опроса ученику не показываются (docs/31 §5г). Отказ правки только логируется.
+- Ответ не пишет ничего в `learner_daily_stats`, очки и серию; событие продукта — `poll.answered` (`poll_id`, `changed`).
+  `allowed_updates` не меняется (`callback_query` уже есть). Тексты — `lang/{ru,uz}/polls.php` (O5).
+
 ### B.6 Событие `update` от WebApp (опционально)
 
 Если TWA вызывает `Telegram.WebApp.sendData(...)`, то в чат приходит апдейт типа `web_app_data` (только в приватных чатах). В нашем дизайне студент общается с API напрямую, а не через `sendData` — это упрощает масштабирование. Но оставляем возможность добавить лёгкие «отправки» (например, «поделиться результатом экзамена»).
@@ -2120,7 +2168,7 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
 | Ответ Telegram | Класс | Доставлено? | `isApiResponse()` | Что делает отправитель |
 |---|---|---|---|---|
 | 429 на **любом** методе (`parameters.retry_after`) | `TelegramRateLimitedException extends TelegramApiException` (`retryAfter`) | нет | true | Удалить маркер, пробросить. Клиент уже поставил паузу (docs/13 §9, 2R.3b): паузу чата всегда, общую паузу бота — только при 429 в личный чат (`chat_id > 0`) или в запросе без чата; 429 в группу (`chat_id < 0`) общую паузу не ставит; `ThrottleTelegramOutbound` откладывает задание на `retryAfter` + 0–3 с, `maxExceptions` не тратится |
-| 400 с `parameters.migrate_to_chat_id` | `TelegramChatMigratedException extends TelegramApiException` (`newChatId`) | нет | true | Для отправок (`sendMessage`, `sendPhoto`, `sendWebAppButton`, отложенная `SendTelegramMessageJob`) и `getChatMember` клиент сам переносит группу (B.5) и **один раз** повторяет вызов в новом чате — отправитель ничего не видит. Правка сообщения (`editMessageText`, `editMessageReplyMarkup`) не повторяется (у сообщений нового чата другие id): группа переносится, исключение пробрасывается. Второй ответ «migrated» подряд — тоже пробрасывается |
+| 400 с `parameters.migrate_to_chat_id` | `TelegramChatMigratedException extends TelegramApiException` (`newChatId`) | нет | true | Для отправок (`sendMessage`, `sendPhoto`, `sendPhotoMessage`, `sendTextMessage`, `sendWebAppButton`, отложенная `SendTelegramMessageJob`) и `getChatMember` клиент сам переносит группу (B.5) и **один раз** повторяет вызов в новом чате — отправитель ничего не видит. Правка сообщения (`editMessageText`, `editMessageReplyMarkup`, `editMessageCaption`) не повторяется (у сообщений нового чата другие id): группа переносится, исключение пробрасывается. Второй ответ «migrated» подряд — тоже пробрасывается |
 | 403; 400 `chat not found` (только отправки) | `TelegramForbiddenException` (`reason`) | нет и не будет | — | Удалить маркер, отметить адресата недоступным, завершить без ошибки |
 | Прочие 4xx | `TelegramApiException` | нет | true | Удалить маркер, пробросить (повтор по `backoff`, после `maxExceptions` — `failed_jobs`) |
 | Таймаут, сеть, 5xx | `TelegramApiException` | неизвестно | false | Маркер оставить, пробросить (повтор увидит маркер — не больше одного раза) |

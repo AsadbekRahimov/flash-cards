@@ -6,7 +6,9 @@ namespace Tests\Support;
 
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\DTO\ChatMemberInfo;
+use App\Domain\Telegram\DTO\PhotoSource;
 use App\Domain\Telegram\DTO\PreparedInlineMessage;
+use App\Domain\Telegram\DTO\SentMessage;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
@@ -46,7 +48,10 @@ final class FakeTelegramClient implements TelegramClient
     /** When true, answerCallbackQuery throws like Telegram does for an expired query ("query is too old"). */
     public bool $failAnswers = false;
 
-    /** The next N sendMessage / sendWebAppButton / sendPhoto / sendGroupMessage calls throw like a Bot API outage (a retried job then succeeds). */
+    /**
+     * The next N sendMessage / sendWebAppButton / sendPhoto / sendGroupMessage / sendPhotoMessage / sendTextMessage calls throw like
+     * a Bot API outage (a retried job then succeeds); a failed call is not recorded and takes no message id.
+     */
     public int $failSends = 0;
 
     /** When true, a failing send looks like a network error (no Bot API answer) instead of a 4xx refusal. */
@@ -61,8 +66,28 @@ final class FakeTelegramClient implements TelegramClient
     /** @var list<array{chat_id:int|string, text:string, parse_mode:string|null, markup:array<string, mixed>|null, thread_id:int|null, silent:bool, message_id:int}> sendGroupMessage calls */
     public array $groupMessages = [];
 
-    /** The `message_id` the next sendGroupMessage answers with (then counts up). */
+    /** The `message_id` the next sendGroupMessage / sendPhotoMessage / sendTextMessage answers with (then counts up). */
     public int $nextMessageId = 1001;
+
+    /**
+     * sendPhotoMessage calls (docs/35 O1). `photo` is the path, file_id or URL of the {@see PhotoSource}; `file_id` is what the call
+     * answered: the same id when the photo was sent by `file_id`, else a new `fake-photo-<n>`.
+     *
+     * @var list<array{chat_id:int|string, kind:string, photo:string, caption:string|null, markup:array<string, mixed>|null, message_id:int, file_id:string}>
+     */
+    public array $photoMessages = [];
+
+    /** @var list<array{chat_id:int|string, text:string, markup:array<string, mixed>|null, message_id:int}> sendTextMessage calls */
+    public array $textMessages = [];
+
+    /** @var list<array{chat_id:int|string, message_id:int, caption:string, markup:array<string, mixed>|null}> editMessageCaption calls */
+    public array $captionEdits = [];
+
+    /** When true, editMessageCaption throws Telegram's 400 "message is not modified" ({@see TelegramApiException::isMessageNotModified()}). */
+    public bool $failCaptionEdits = false;
+
+    /** When set (and `failCaptionEdits` is not), editMessageCaption throws a 400 refusal with this description (e.g. "message can't be edited"). */
+    public ?string $failCaptionEditsWith = null;
 
     /** What getChatMember answers; null = `$chatMemberStatus` as a member of the chat (`is_member` from the status). */
     public ?ChatMemberInfo $chatMember = null;
@@ -191,6 +216,33 @@ final class FakeTelegramClient implements TelegramClient
         ];
     }
 
+    public function sendPhotoMessage(int|string $chatId, PhotoSource $photo, ?string $caption = null, ?array $replyMarkup = null): SentMessage
+    {
+        $this->failNextSend('sendPhoto');
+        $messageId = $this->nextMessageId++;
+        $fileId = $photo->kind === PhotoSource::KIND_FILE_ID ? $photo->value : 'fake-photo-'.$messageId;
+        $this->photoMessages[] = [
+            'chat_id' => $chatId,
+            'kind' => $photo->kind,
+            'photo' => $photo->value,
+            'caption' => $caption,
+            'markup' => $replyMarkup,
+            'message_id' => $messageId,
+            'file_id' => $fileId,
+        ];
+
+        return new SentMessage($messageId, $fileId);
+    }
+
+    public function sendTextMessage(int|string $chatId, string $text, ?array $replyMarkup = null): SentMessage
+    {
+        $this->failNextSend();
+        $messageId = $this->nextMessageId++;
+        $this->textMessages[] = ['chat_id' => $chatId, 'text' => $text, 'markup' => $replyMarkup, 'message_id' => $messageId];
+
+        return new SentMessage($messageId);
+    }
+
     public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): void
     {
         if ($this->failAnswers) {
@@ -219,6 +271,18 @@ final class FakeTelegramClient implements TelegramClient
         }
 
         $this->textEdits[] = ['chat_id' => $chatId, 'message_id' => $messageId, 'text' => $text, 'parse_mode' => $parseMode, 'markup' => $replyMarkup];
+    }
+
+    public function editMessageCaption(int|string $chatId, int $messageId, string $caption, ?array $replyMarkup = null): void
+    {
+        if ($this->failCaptionEdits) {
+            throw TelegramApiException::apiError('Bad Request: message is not modified: specified new message content and reply markup are exactly the same', 400);
+        }
+        if ($this->failCaptionEditsWith !== null) {
+            throw TelegramApiException::apiError('Bad Request: '.$this->failCaptionEditsWith, 400);
+        }
+
+        $this->captionEdits[] = ['chat_id' => $chatId, 'message_id' => $messageId, 'caption' => $caption, 'markup' => $replyMarkup];
     }
 
     /** @return array{chat_id:int|string, message_id:int, text:string, parse_mode:string|null, markup:array<string, mixed>|null}|null */
@@ -377,14 +441,14 @@ final class FakeTelegramClient implements TelegramClient
         }
     }
 
-    private function failNextSend(): void
+    private function failNextSend(string $method = 'sendMessage'): void
     {
         if ($this->failSends > 0) {
             $this->failSends--;
 
             throw match (true) {
                 $this->failSendsForbidden !== null => new TelegramForbiddenException($this->failSendsForbidden),
-                $this->failSendsRetryAfter !== null => new TelegramRateLimitedException($this->failSendsRetryAfter, 'sendMessage'),
+                $this->failSendsRetryAfter !== null => new TelegramRateLimitedException($this->failSendsRetryAfter, $method),
                 $this->failSendsAsTransport => new TelegramApiException('cURL error 28: Operation timed out'),
                 default => TelegramApiException::apiError('Forbidden: bot was kicked from the group chat', 403),
             };

@@ -47,7 +47,8 @@ use Throwable;
  * month follow the journal; the weekly only while the week is not final), the stored points of the active credits brought to the
  * replay, `revision + 1`, the long-repetition marks of the affected lexemes recomputed (`first_long_on`, `long_<category>_on`;
  * `confirmed_on`, `last_attempt_on` and `last_credit_due_at` are NOT rolled back: a voided word does not earn twice - conservative),
- * an `audit_logs` row. After the commit: the learner's row of the open month of the day is recounted and the cached tables dropped. A
+ * an `audit_logs` row. After the commit: the learner's row of the open month of the day is recounted, their "all time" rows recomputed (whatever the
+ * month) and the cached tables dropped. A
  * closed month keeps its final ranks and candidates (the prizes are the administrator's decision in the review of the month).
  */
 final class ScoreCorrectionService
@@ -63,6 +64,7 @@ final class ScoreCorrectionService
     public function __construct(
         private readonly ScoreRules $rules,
         private readonly MonthlyRatingService $months,
+        private readonly ScoreTotalsService $totals,
     ) {}
 
     /**
@@ -474,6 +476,14 @@ final class ScoreCorrectionService
                 if ($month !== null && $month->isOpen() && $this->months->refreshLearner($month, $learner, $now)) {
                     PureCache::forgetMany(MonthlyRatingService::topKeys($month->id));
                 }
+            } catch (Throwable $e) {
+                report($e);
+            }
+
+            // "All time" follows the journal whatever the month (docs/32 §6.4: a closed month keeps its ranks, all time does not).
+            try {
+                $this->totals->recomputeLearner($learner->id, $now);
+                $this->totals->forgetTables();
             } catch (Throwable $e) {
                 report($e);
             }
