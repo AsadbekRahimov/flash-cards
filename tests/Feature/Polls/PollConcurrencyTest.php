@@ -9,7 +9,9 @@ declare(strict_types=1);
  *  - a stop while the workers send: at most the message each worker had started goes out, nothing pending stays;
  *  - the same poll launched by several administrators at once: one launch, one row per learner;
  *  - simultaneous taps of one learner: one answer and agreeing counters (no change allowed / changes allowed / toggles of
- *    several answers - no lost update of the draft).
+ *    several answers - no lost update of the draft);
+ *  - several `polls:sweep` at once over a stalled broadcast: one job per chain slot, none more while they wait in the queue;
+ *  - a close while taps are in flight: `results_snapshot` has exactly the votes of the table (the tap's FOR KEY SHARE of the poll).
  * Needs committed rows (DatabaseTruncation), PostgreSQL and pcntl/posix.
  */
 
@@ -17,9 +19,11 @@ use App\Domain\Polls\Enums\PollStatus;
 use App\Domain\Polls\Enums\PollTapStatus;
 use App\Domain\Polls\Services\PollDeliverySender;
 use App\Domain\Polls\Services\PollLauncher;
+use App\Domain\Polls\Services\PollSweeper;
 use App\Domain\Polls\Services\PollVoteService;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Jobs\SendPollBatchJob;
 use App\Models\Poll;
 use App\Models\PollDelivery;
 use App\Models\PollVote;
@@ -304,4 +308,93 @@ it('never lets parallel bulk senders on Redis push one second over the ceiling, 
     $limiter->pause(3, 4242);
     expect($limiter->reserveGlobalBelow(15))->toBeFalse();
     Cache::forget(TelegramMessageRateLimiter::PAUSE_KEY);
+});
+
+it('queues one job per chain slot when several sweeps restart a stalled broadcast at once, and nothing on the next sweeps', function (): void {
+    config(['cache.default' => 'redis', 'polls.workers' => 3]);
+    Cache::forgetDriver();
+    $poll = PollFixtures::launched(6, ['launched_at' => now()]);
+    Queue::fake();
+
+    $sweep = fn (int $minutes): Closure => function () use ($minutes): array {
+        app(PollSweeper::class)->sweep(CarbonImmutable::now()->addMinutes($minutes));
+
+        return array_map(fn (SendPollBatchJob $job): int => $job->slot, Queue::pushed(SendPollBatchJob::class)->all());
+    };
+
+    // Every chain died (no lease, no queued job): four sweeps at the same instant.
+    $first = pollRunInParallel(array_fill(0, 4, $sweep(6)));
+    // Five minutes later the restarted jobs still wait in a long queue `low`: the sweeps add nothing.
+    $second = pollRunInParallel(array_fill(0, 4, $sweep(11)));
+
+    $slots = [];
+    foreach ([...$first, ...$second] as $r) {
+        expect($r['ok'])->toBeTrue($r['error'] ?? '');
+    }
+    foreach ($first as $r) {
+        $slots = [...$slots, ...$r['result']];
+    }
+    sort($slots);
+
+    expect($slots)->toBe([0, 1, 2])
+        ->and(array_merge(...array_column($second, 'result')))->toBe([]);
+
+    PollFixtures::forgetChains($poll->id);
+});
+
+it('writes into results_snapshot exactly the votes of the table when the poll is closed while taps are in flight', function (): void {
+    $poll = PollFixtures::launched(30);
+    PollDelivery::query()->where('poll_id', $poll->id)->whereNotNull('learner_id')->update(['status' => 'sent', 'sent_at' => now()]);
+    $poll->forceFill(['status' => PollStatus::Sent])->save();
+    $deliveries = PollDelivery::query()->where('poll_id', $poll->id)->whereNotNull('learner_id')->orderBy('id')->get(['token', 'telegram_user_id'])->all();
+
+    // Six phones tap in rounds every 300 ms, all of a round at once; each tap holds its transaction 120 ms after its first
+    // statement (the window in which a vote used to land after the snapshot). The close comes in the middle of the second round:
+    // it must wait for that round's taps and see all of their votes; the later rounds are refused.
+    $tapper = fn (array $rows): Closure => function () use ($rows): array {
+        DB::listen(function ($query): void {
+            if (str_contains($query->sql, 'FOR UPDATE OF d')) {
+                usleep(120_000);
+            }
+        });
+        $start = microtime(true);
+        $out = [];
+        foreach ($rows as $round => $row) {
+            while (microtime(true) < $start + $round * 0.3) {
+                usleep(500);
+            }
+            $out[] = app(PollVoteService::class)->tap($row->token, $row->telegram_user_id, '1', CarbonImmutable::now())->status->value;
+        }
+
+        return $out;
+    };
+    $tasks = [];
+    foreach (array_chunk($deliveries, 5) as $rows) {
+        $tasks[] = $tapper($rows);
+    }
+    $tasks[] = function () use ($poll): bool {
+        usleep(350_000);
+
+        return app(PollLauncher::class)->close(Poll::query()->findOrFail($poll->id), null);
+    };
+
+    $results = pollRunInParallel($tasks);
+
+    foreach ($results as $r) {
+        expect($r['ok'])->toBeTrue($r['error'] ?? '');
+    }
+    $verdicts = array_merge(...array_map(fn (array $r): array => (array) $r['result'], array_slice($results, 0, -1)));
+    $voted = count(array_filter($verdicts, fn (string $v): bool => $v === PollTapStatus::Voted->value));
+    $snapshot = $poll->fresh()->results_snapshot;
+    $votes = PollVote::query()->where('poll_id', $poll->id)->count();
+    $answered = PollDelivery::query()->where('poll_id', $poll->id)->whereNotNull('learner_id')->whereNotNull('answered_at')->count();
+
+    expect(end($results)['result'])->toBeTrue()
+        // The close came in the middle: some taps were in, the later ones were refused.
+        ->and($voted)->toBeGreaterThan(0)->toBeLessThan(30)
+        ->and(count($verdicts) - $voted)->toBe(count(array_filter($verdicts, fn (string $v): bool => $v === PollTapStatus::Closed->value)))
+        ->and($votes)->toBe($voted)
+        ->and($answered)->toBe($voted)
+        ->and($snapshot['answered'])->toBe($answered)
+        ->and(array_sum($snapshot['options']))->toBe($votes);
 });

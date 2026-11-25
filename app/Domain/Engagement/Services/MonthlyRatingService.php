@@ -259,7 +259,9 @@ final class MonthlyRatingService
                 return false;
             }
 
-            $this->upsertScores($locked, $now, null, $full ? null : $this->recentFrom($locked, $now));
+            $recentFrom = $full ? null : $this->recentFrom($locked, $now);
+            $this->fillMissingRegions($locked, $recentFrom);
+            $this->upsertScores($locked, $now, null, $recentFrom);
 
             return true;
         });
@@ -1611,6 +1613,33 @@ final class MonthlyRatingService
                 $from, $to, ...$longBindings,
                 $from, $to, ...$statsBindings,
             ],
+        );
+    }
+
+    /**
+     * The scheduled half of "the first region fills the open month" (docs/35 §2.4, docs/32 §12.11): the month periods of the learners
+     * refreshed now (`$recentFrom`, or everybody of the month) that are still without a region while the learner has one now get it.
+     * {@see regionChanged()} does this after the commit of the first choice, but a first credit of the month committed in the same
+     * instant (it read `learners` before the choice committed, its period row was not there yet for the fill) leaves the period empty:
+     * this run closes it within 10 minutes. Only an empty region is filled - a fixed one never moves (docs/35 §2.4).
+     *
+     * One statement, nothing written in the usual case: the set along `learner_score_days (rating_day)`, the periods by their primary
+     * key, the learners by theirs. A v1 month has no regions.
+     */
+    private function fillMissingRegions(LeagueMonth $month, ?string $recentFrom): int
+    {
+        if (! self::isV2($month)) {
+            return 0;
+        }
+
+        $from = StoredDate::of($month->starts_on->toDateString());
+
+        return DB::update(
+            'update learner_score_periods set region_code = (select l.region_code from learners l where l.id = learner_score_periods.learner_id) '
+            ."where learner_score_periods.period = 'month' and learner_score_periods.starts_on = ? and learner_score_periods.region_code is null "
+            .'and learner_score_periods.learner_id in (select r.learner_id from learner_score_days r where r.rating_day >= ? and r.rating_day <= ?) '
+            .'and exists (select 1 from learners l where l.id = learner_score_periods.learner_id and l.region_code is not null)',
+            [$from, $recentFrom !== null ? StoredDate::of($recentFrom) : $from, StoredDate::of($month->ends_on->toDateString())],
         );
     }
 

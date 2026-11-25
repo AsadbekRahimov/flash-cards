@@ -204,6 +204,35 @@ it('follows a correction of a day of a closed month and of the open one', functi
     expect(atrRows($learner)['free']['points'])->toBe(6);
 });
 
+it('keeps a correction whose $now is older than a scheduled run that wrote the row in between: at once and after the next run', function (): void {
+    $learner = atrLearner();
+    $lexemes = Lexeme::factory()->count(3)->create()->modelKeys();
+    $recorder = app(AnswerScoreRecorder::class);
+    foreach ($lexemes as $i => $lexeme) {
+        LearnerLexeme::factory()->create(['learner_id' => $learner->id, 'lexeme_id' => $lexeme, 'confirmed_on' => '2027-03-01']);
+        DB::transaction(fn () => $recorder->record(new ScoredAnswer(
+            $learner->id, $lexeme, 1, ScoreSource::Training, 7, AnswerVerdict::Passed,
+            new CardStateBefore(RepetitionState::Review, 3, CarbonImmutable::now()->subDays(3)->subHour()), Plan::Free, CarbonImmutable::now()->addSeconds($i),
+        )));
+    }
+    $credit = ScoreCredit::query()->where('learner_id', $learner->id)->orderBy('id')->firstOrFail();
+
+    // The administrator starts the correction at 12:00:00; the scheduled run of 12:00:30 reads the day before the correction
+    // commits and stamps the row 12:00:30; the correction commits at 12:00:40 and recomputes with its `$now` of 12:00:00.
+    $this->travelTo(atrNow('2027-04-10 12:00:30'));
+    atrTotals()->refreshRecent(CarbonImmutable::now());
+    expect(atrRows($learner)['free']['points'])->toBe(9);
+
+    $this->travelTo(atrNow('2027-04-10 12:00:40'));
+    app(ScoreCorrectionService::class)->void($learner, '2027-04-10', [$credit->id], 'test', User::factory()->create(), now: atrNow('2027-04-10 12:00:00'));
+    expect(atrRows($learner)['free']['points'])->toBe(6);
+
+    // The next run (nothing new) keeps it.
+    $this->travelTo(atrNow('2027-04-10 12:10:30'));
+    atrTotals()->refreshRecent(CarbonImmutable::now());
+    expect(atrRows($learner)['free']['points'])->toBe(6);
+});
+
 it('takes an opted-out, blocked or deleted learner out of the table at once and keeps their own total', function (): void {
     [$a, $b, $c] = atrTable([90, 60, 30]);
     $settings = app(LearnerSettingsService::class);
@@ -496,6 +525,29 @@ it('drops every table of the month of a region with the tops of the month', func
     expect($keys)->toContain('league:month:top:v2:7:free:r:UZ-TK', 'league:month:count:v1:7:pro:r:other', 'league:month:top:v2:7:pro')
         ->and(count($keys))->toBe(6 + 2 * 15 * 2)
         ->and(ScoreTotalsService::tableKeys())->toContain('league:alltime:top:v1:free', 'league:alltime:count:v1:pro:r:UZ-XO');
+});
+
+it('fills the region of an open month that a first credit fixed empty at the instant of the first choice, in the next scheduled run', function (): void {
+    $months = app(MonthlyRatingService::class);
+    $april = $months->currentMonth(CarbonImmutable::now());
+    // The race of docs/32 §12.11: the first credit read `learners` before the first choice committed, the fill of the choice ran
+    // before the credit committed - the period is empty although the learner has a region.
+    $raced = atrLearner();
+    DB::transaction(fn () => app(AnswerScoreRecorder::class)->record(new ScoredAnswer($raced->id, Lexeme::factory()->create()->id, 1, ScoreSource::Training, 7, AnswerVerdict::Passed, null, Plan::Free, CarbonImmutable::now())));
+    DB::table('learners')->where('id', $raced->id)->update(['region_code' => 'UZ-NG']);
+    // A month fixed in a region keeps it whatever the learner's region is now; a learner without a region stays without.
+    $fixed = atrLearner(['region_code' => 'UZ-SA']);
+    DB::transaction(fn () => app(AnswerScoreRecorder::class)->record(new ScoredAnswer($fixed->id, Lexeme::factory()->create()->id, 1, ScoreSource::Training, 7, AnswerVerdict::Passed, null, Plan::Free, CarbonImmutable::now())));
+    DB::table('learners')->where('id', $fixed->id)->update(['region_code' => 'UZ-TK']);
+    $none = atrLearner();
+    DB::transaction(fn () => app(AnswerScoreRecorder::class)->record(new ScoredAnswer($none->id, Lexeme::factory()->create()->id, 1, ScoreSource::Training, 7, AnswerVerdict::Passed, null, Plan::Free, CarbonImmutable::now())));
+
+    $this->artisan('leagues:refresh-month')->assertSuccessful();
+
+    $periods = LearnerScorePeriod::query()->where('period', 'month')->orderBy('learner_id')->pluck('region_code', 'learner_id')->all();
+    expect($periods)->toBe([$raced->id => 'UZ-NG', $fixed->id => 'UZ-SA', $none->id => null])
+        ->and(LeagueMonthScore::query()->where('league_month_id', $april->id)->orderBy('learner_id')->pluck('region_code', 'learner_id')->all())
+        ->toBe([$raced->id => 'UZ-NG', $fixed->id => 'UZ-SA', $none->id => null]);
 });
 
 it('never lets an older recompute overwrite a newer one (two at once: the run and a hook)', function (): void {

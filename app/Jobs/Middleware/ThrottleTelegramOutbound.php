@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs\Middleware;
 
+use App\Domain\Telegram\Exceptions\TelegramOutboundBusyException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use Closure;
@@ -25,6 +26,9 @@ use Illuminate\Support\Facades\Log;
  * A 429 that reaches the handler ({@see TelegramRateLimitedException}, rethrown by the sender after it removed its marker,
  * docs/34 §4в) is caught here: the job is put back for `retry_after` + 0-3 s. Nothing is thrown, so the worker does not count it
  * against `maxExceptions` — a flood wave never sends a job to `failed_jobs`.
+ *
+ * A handler that sends several messages and takes a slot for each one after the first (the one of this middleware) throws
+ * {@see TelegramOutboundBusyException} when none comes: the job is put back for its `retryAfter`, also without an exception.
  *
  * The `sync` connection (tests, local) has nowhere to release to: such a job runs unthrottled and a 429 is thrown to the caller.
  */
@@ -54,6 +58,11 @@ final class ThrottleTelegramOutbound
             Log::info('telegram.outbound_job_rate_limited', ['job' => $job::class, 'retry_after' => $e->retryAfter]);
 
             $job->release($e->retryAfter + random_int(0, 3));
+
+            return null;
+        } catch (TelegramOutboundBusyException $e) {
+            // A handler that sends several messages found no slot for a later one: the same as no slot before the job.
+            $job->release($e->retryAfter);
 
             return null;
         }

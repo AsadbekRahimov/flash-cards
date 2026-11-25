@@ -9,6 +9,7 @@ use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Billing\DTO\Entitlement;
 use App\Domain\Billing\Services\EntitlementResolver;
 use App\Domain\Content\Services\CourseCatalogService;
+use App\Domain\Cup\Services\CupProEmoji;
 use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\MonthlyRatingService;
 use App\Domain\Learners\Exceptions\DailyGoalLimitException;
@@ -158,6 +159,7 @@ final class LearnerSettingsService
         private readonly LearnerRegionService $regions,
         private readonly ProEmojiService $emoji,
         private readonly LeagueService $leagues,
+        private readonly CupProEmoji $cupEmoji,
     ) {}
 
     /**
@@ -278,11 +280,12 @@ final class LearnerSettingsService
             $this->monthly->participationChanged($learner);
         }
         if (in_array('pro_emoji', $changed, true)) {
-            // The cached tables that show the emoji next to the name (the group of the week, the tops of the month) drop it at once,
-            // docs/31 §5а; committed already - a failure of the cache is only reported.
+            // The cached tables that show the emoji next to the name (the group of the week, the tops of the month, the tables of the open
+            // cups) drop it at once, docs/31 §5а; committed already - a failure of the cache is only reported.
             try {
                 $this->leagues->proEmojiChanged($learner, CarbonImmutable::now());
                 $this->monthly->proEmojiChanged(CarbonImmutable::now());
+                $this->cupEmoji->learnerChanged($learner);
             } catch (Throwable $e) {
                 report($e);
             }

@@ -14,6 +14,9 @@ use App\Http\Controllers\Api\Twa\ChallengeController;
 use App\Http\Controllers\Api\Twa\ClassCaravanController;
 use App\Http\Controllers\Api\Twa\ClientTimingController;
 use App\Http\Controllers\Api\Twa\CourseController;
+use App\Http\Controllers\Api\Twa\Cup\CupController;
+use App\Http\Controllers\Api\Twa\Cup\CupRoundController;
+use App\Http\Controllers\Api\Twa\Cup\CupSetupController;
 use App\Http\Controllers\Api\Twa\DeckController;
 use App\Http\Controllers\Api\Twa\ExamController;
 use App\Http\Controllers\Api\Twa\FriendController;
@@ -41,8 +44,10 @@ use App\Http\Controllers\Api\Twa\ShareController;
 use App\Http\Controllers\Api\Twa\TodayController;
 use App\Http\Controllers\Api\Twa\TrainingController;
 use App\Http\Controllers\Api\Twa\WordNoteController;
+use App\Http\Middleware\EnsureCupAccess;
 use App\Http\Middleware\SetTwaLocale;
 use App\Http\Middleware\TwaAuth;
+use App\Http\Resources\Twa\Cup\CupRoundResource;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('twa')->group(function (): void {
@@ -255,6 +260,38 @@ Route::prefix('twa')->group(function (): void {
                 });
             });
         });
+
+        // The cup of a group (docs/33 §7.2, docs/04 A.23, K7). `CUP_ACCESS=off` closes all of it with one 403 `cup_unavailable`. The
+        // routes that may call Telegram (getChatMember) or write have limiters of their own on top of `twa-api`; the codes are the
+        // 22 characters of base64url (anything else is a plain 404 of the router), the ids up to 18 digits.
+        Route::middleware(EnsureCupAccess::class)->group(function (): void {
+            Route::get('/cups', [CupController::class, 'index'])->name('twa.cups.index');
+            Route::get('/cups/by-code/{code}', [CupController::class, 'invite'])
+                ->where('code', '[A-Za-z0-9_-]{22}')
+                ->middleware('throttle:twa-cup-read')
+                ->name('twa.cups.invite');
+            Route::middleware('throttle:twa-cup-admin')->group(function (): void {
+                Route::get('/cups/setup/{code}', [CupSetupController::class, 'show'])->where('code', '[A-Za-z0-9_-]{22}')->name('twa.cups.setup');
+                Route::post('/cups/setup/{code}/publish', [CupSetupController::class, 'publish'])->where('code', '[A-Za-z0-9_-]{22}')->name('twa.cups.publish');
+                Route::patch('/cups/{id}/settings', [CupSetupController::class, 'update'])->where('id', '[0-9]{1,18}')->name('twa.cups.settings');
+                Route::post('/cups/{id}/cancel', [CupSetupController::class, 'cancel'])->where('id', '[0-9]{1,18}')->name('twa.cups.cancel');
+            });
+            Route::prefix('cups/{id}')->where(['id' => '[0-9]{1,18}'])->group(function (): void {
+                Route::middleware('throttle:twa-cup-read')->group(function (): void {
+                    Route::get('/', [CupController::class, 'show'])->name('twa.cups.show');
+                    Route::get('/rounds/today', [CupController::class, 'today'])->name('twa.cups.today');
+                });
+                Route::middleware('throttle:twa-cup-join')->group(function (): void {
+                    Route::post('/join', [CupController::class, 'join'])->name('twa.cups.join');
+                    Route::patch('/me', [CupController::class, 'rename'])->name('twa.cups.rename');
+                });
+                Route::post('/rounds/today', [CupController::class, 'start'])->middleware('throttle:twa-cup-start')->name('twa.cups.start');
+            });
+            Route::prefix('cup-rounds/{attempt}')->where(['attempt' => '[0-9]{1,18}'])->group(function (): void {
+                Route::get('/', [CupRoundController::class, 'show'])->name('twa.cup-rounds.show');
+                Route::post('/answer', [CupRoundController::class, 'answer'])->middleware('throttle:twa-cup-answer')->name('twa.cup-rounds.answer');
+            });
+        });
     });
 
     // The poll of a battle lives OUTSIDE `twa-api` (docs/16 §7.5): a request every 2 s for as long as a room or a match is on screen is
@@ -278,5 +315,10 @@ Route::prefix('twa')->group(function (): void {
         Route::get('/practice/battles/{battle}/audio/{element}', [PracticeAudioController::class, 'battle'])
             ->where('battle', '[0-9]{1,18}')
             ->name(BattleReader::AUDIO_ROUTE);
+        // The clip of a `listen` task of a round of a cup (K7): the learner's own attempt, the current or an answered task only.
+        Route::get('/cup-rounds/{attempt}/audio/{element}', [CupRoundController::class, 'audio'])
+            ->where('attempt', '[0-9]{1,18}')
+            ->middleware(EnsureCupAccess::class)
+            ->name(CupRoundResource::AUDIO_ROUTE);
     });
 });

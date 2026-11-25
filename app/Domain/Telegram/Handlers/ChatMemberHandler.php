@@ -6,6 +6,7 @@ namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Cup\Services\CupParticipationService;
 use App\Domain\Learners\Services\GroupMembershipService;
 use App\Domain\Learners\Services\LearnerRegistrar;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
@@ -31,6 +32,11 @@ use Carbon\CarbonImmutable;
  * The bot's own removal (`left_chat_member` is the bot) is `my_chat_member`, not handled here.
  *
  * Changes of the bot's own membership are `my_chat_member` (MyChatMemberHandler).
+ *
+ * Leaving the chat also ends the participation in the open cup of the group (docs/33 §4.5, K6):
+ * {@see CupParticipationService::onLeftChat()} after every `leave()`, whether or not `group_members` had a row - a learner who was in
+ * the chat before the bot has none, yet may play the cup. Coming back is never taken from Telegram's event: the next fresh check of
+ * the cup does that.
  */
 final class ChatMemberHandler implements UpdateHandler
 {
@@ -40,6 +46,7 @@ final class ChatMemberHandler implements UpdateHandler
         private readonly ProductEventRecorder $events,
         private readonly LearnerRegistrar $registrar,
         private readonly GroupMembershipService $memberships,
+        private readonly CupParticipationService $cups,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -159,5 +166,7 @@ final class ChatMemberHandler implements UpdateHandler
         if ($this->memberships->leave($learner, $group, $status, $at)) {
             $this->events->record(ProductEventName::GroupMemberLeft, ['reason' => $status], learner: $learner, group: $group);
         }
+
+        $this->cups->onLeftChat($learner, $group, $at);
     }
 }

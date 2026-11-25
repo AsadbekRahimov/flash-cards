@@ -99,7 +99,8 @@ final class PollEditor
                     $replaced = $locked->image_path;
                 }
 
-                $locked->forceFill($values['poll'])->save();
+                // Always a new `updated_at`, also when only the options changed: it is the version of the cached view (PollViewCache).
+                $locked->forceFill([...$values['poll'], 'updated_at' => $locked->freshTimestamp()])->save();
                 $this->syncOptions($locked, $values['options']);
 
                 return;
@@ -124,7 +125,7 @@ final class PollEditor
         DB::afterCommit(function () use ($poll, $replaced): void {
             $this->views->forget($poll->id);
             if (is_string($replaced) && $replaced !== '') {
-                Storage::disk(self::IMAGE_DISK)->delete($replaced);
+                self::deleteImageIfUnused($replaced);
             }
         });
 
@@ -150,11 +151,24 @@ final class PollEditor
         if ($deleted) {
             $this->views->forget($poll->id);
             if (is_string($image) && $image !== '') {
-                Storage::disk(self::IMAGE_DISK)->delete($image);
+                self::deleteImageIfUnused($image);
             }
         }
 
         return $deleted;
+    }
+
+    /**
+     * Deletes a picture of the private disk unless a poll still refers to it. The form never gives two polls one file
+     * ({@see image()} refuses a path another poll has), so this is the second line: a file is never taken from under a poll.
+     */
+    public static function deleteImageIfUnused(string $path): bool
+    {
+        if (Poll::query()->where('image_path', $path)->exists()) {
+            return false;
+        }
+
+        return Storage::disk(self::IMAGE_DISK)->delete($path);
     }
 
     /**
@@ -172,7 +186,7 @@ final class PollEditor
             'poll' => [
                 'title' => $this->title($data['title'] ?? ''),
                 'question' => $this->question($data['question'] ?? null),
-                'image_path' => $this->image($data['image_path'] ?? null, $current?->image_path),
+                'image_path' => $this->image($data['image_path'] ?? null, $current),
                 'allows_multiple' => $multiple,
                 'max_choices' => $multiple ? $this->maxChoices($data['max_choices'] ?? null, count($options)) : null,
                 'allow_change' => (bool) ($data['allow_change'] ?? true),
@@ -274,8 +288,13 @@ final class PollEditor
         return $max;
     }
 
-    private function image(mixed $path, ?string $current): ?string
+    /**
+     * The stored picture of the form: under {@see IMAGE_DIRECTORY} with the name the upload gave it, a JPEG / PNG by its content, within
+     * the size, and no other poll's file - a crafted path to another poll's picture would let the delete of this draft remove it.
+     */
+    private function image(mixed $path, ?Poll $poll): ?string
     {
+        $current = $poll?->image_path;
         if (is_array($path)) {
             $path = array_values($path)[0] ?? null;
         }
@@ -297,6 +316,10 @@ final class PollEditor
         $maxBytes = max(1, (int) config('polls.image_max_kb', 5120)) * 1024;
 
         if (preg_match($pattern, $path, $m) !== 1 || ! $disk->exists($path)) {
+            throw PollEditException::because(PollEditException::IMAGE);
+        }
+
+        if (Poll::query()->where('image_path', $path)->when($poll !== null, fn ($q) => $q->whereKeyNot($poll?->id))->exists()) {
             throw PollEditException::because(PollEditException::IMAGE);
         }
 

@@ -54,7 +54,8 @@ use Throwable;
  * answer never touches them, so nothing waits for anything of the answer. Two recomputes lock the rows of a learner in the same order
  * (`ORDER BY learner_id, category`: no deadlock between a run and a hook), and the later write never loses to an older one: a row is
  * overwritten only by a recompute whose stamp is not older (`updated_at <= excluded.updated_at`; a recompute that loses this only lost
- * to a newer one).
+ * to a newer one). The stamp is the moment of the recompute's own read (the later of `$now` and the clock): a recompute that started
+ * later always wins, whatever `$now` its caller carried.
  */
 final class ScoreTotalsService
 {
@@ -241,7 +242,11 @@ final class ScoreTotalsService
         [$daysScope, $daysBindings] = $where('s');
         [$longScope, $longBindings] = $where('x');
 
-        $stamp = (string) (new LearnerScoreTotal)->fromDateTime($now);
+        // The stamp is the moment of THIS read, never older: a hook runs after its commit with the `$now` of its start (a correction's
+        // `$now` is taken before its transaction), and a scheduled run may have written the learner in between with a later stamp
+        // from data read before that commit - the guard would then drop the fresher recompute, and nothing would bring it back
+        // (the run looks at recent rating days only; a correction of an old day is not one).
+        $stamp = (string) (new LearnerScoreTotal)->fromDateTime(max($now->utc(), CarbonImmutable::now()->utc()));
 
         $columns = ['region_code', 'points', 'long_words', 'active_days', 'first_day', 'last_day', 'participant'];
         $set = implode(', ', array_map(static fn (string $c): string => "{$c} = excluded.{$c}", $columns)).', updated_at = excluded.updated_at';

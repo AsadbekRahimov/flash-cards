@@ -6,6 +6,7 @@ namespace App\Domain\Telegram\Handlers;
 
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
+use App\Domain\Cup\Services\CupCards;
 use App\Domain\Localization\Services\LocaleResolver;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
 use App\Domain\Telegram\Services\ChatMemberStatusCache;
@@ -27,6 +28,7 @@ final class MyChatMemberHandler implements UpdateHandler
         private readonly ChatMemberStatusCache $members,
         private readonly GroupWelcomeMessenger $welcome,
         private readonly LocaleResolver $locales,
+        private readonly CupCards $cupCards,
     ) {}
 
     /** @param array<string, mixed> $update */
@@ -152,6 +154,12 @@ final class MyChatMemberHandler implements UpdateHandler
                 $this->welcome->send($group, $botId);
             } else {
                 $this->botAccess->warnIfNotAdmin($group, $botId);
+            }
+
+            // The bot is back in a chat with an open cup (docs/33 §4.5): the card is posted anew, the old one may be gone. No second
+            // cup, the dates stay. Never fails the update: a failure is reported and the group is registered all the same.
+            if (! $group->wasRecentlyCreated) {
+                rescue(fn (): bool => $this->cupCards->onBotReturned($group, CarbonImmutable::now()));
             }
         }
     }

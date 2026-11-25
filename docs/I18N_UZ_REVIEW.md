@@ -4838,3 +4838,63 @@ Free; иначе нейтральная строка и кнопка «Keyingi d
 | `board.below.invite` | Do'stlarni taklif qilish | Пригласить друзей |
 | `region.sheet.view_title` | Qaysi hudud jadvali? | Таблица какого региона? (лист выбора чужого региона, без сохранения) |
 | `region.sheet.view_pick` | Hududni tanlang | Выберите регион |
+
+## Выпуск 5 · кубок друзей в группе: бот (docs/33 K6, 25.11.2026) — на проверку носителю
+
+Сообщения в группе — на языке кубка, тосты под кнопками — на языке нажавшего. Простой текст, без HTML. Термины: «kubok» (кубок), «Do'stlar kubogi» (Кубок друзей), «raund» (раунд), «ball» (очко), «ishtirokchi» (участник), «jadval» (таблица), «daraja» (уровень). `:brand` — название продукта из конфигурации (Muhrla). Носителю проверить: порядок «:days kundan :day-kun» (рус. «День :day из :days»), «kun yakuni :time da» (рус. «сводка в :time»), «ta eng yaxshi kun hisobga olinadi» (рус. «в зачёт идут N лучших дней»).
+
+| Ключ | uz | ru |
+|---|---|---|
+| `cup.photo.label` | Guruhdagi turnir | Турнир в группе |
+| `cup.photo.title` | Do'stlar kubogi | Кубок друзей |
+| `cup.photo.description` | :days · kuniga :tasks ta so'z · :best hisobga olinadi | :days · :tasks слов в день · в зачёт :best |
+| `cup.photo.final_title` | Kubok yakunlari | Итоги кубка |
+| `cup.photo.final_description` | Do'stlar kubogi · :level daraja | Кубок друзей · уровень :level |
+| `cup.days` | :count kun | :count день\|:count дня\|:count дней |
+| `cup.best_days` | :count ta eng yaxshi kun | :count лучший день\|:count лучших дня\|:count лучших дней |
+| `cup.proposal.text` | 🏆 :brand do'stlar kubogi<br>«:group» · :level daraja<br><br>Ketma-ket :days — har kuni :tasks ta so'zdan iborat raund, har bir to'g'ri javob uchun 2 ball. :best hisobga olinadi. Bu chatdagi har kim qatnashishi mumkin.<br><br>Kubokni chat administratori e'lon qila oladi. | 🏆 Кубок друзей :brand<br>«:group» · уровень :level<br><br>:days подряд — раунд из :tasks слов в день, за верный ответ 2 очка. В зачёт идут :best. Участвовать может каждый в этом чате.<br><br>Опубликовать кубок может администратор чата. |
+| `cup.card.title` | 🏆 :brand do'stlar kubogi · «:group» · :level | 🏆 Кубок друзей :brand · «:group» · :level |
+| `cup.card.scheduled` | Boshlanish :start, 00:00 · yakun :end, 00:00 | Старт :start в 00:00 · финиш :end, 00:00 |
+| `cup.card.running` | :days kundan :day-kun · yakun :end, 00:00 | День :day из :days · финиш :end, 00:00 |
+| `cup.card.finished` | Kubok yakunlandi | Кубок завершён |
+| `cup.card.canceled` | Kubok bekor qilindi | Кубок отменён |
+| `cup.card.expired` | Taklif muddati o'tdi | Предложение истекло |
+| `cup.card.no_players` | Kubok bekor qilindi: ikki ishtirokchi to'planmadi | Кубок отменён: не набралось двух участников |
+| `cup.card.join_hint` | «Qatnashish» tugmasini bosing. Boshlash uchun kamida ikki ishtirokchi kerak. | Нажмите «Участвовать». Для старта нужно хотя бы два участника. |
+| `cup.card.empty` | Hozircha hech kim ball to'plamadi. | Пока никто не набрал очков. |
+| `cup.card.row` | :place. :name — :points | :place. :name — :points |
+| `cup.card.left` | (chiqib ketgan) | (вышел(а)) |
+| `cup.card.more` | …va yana :count | …и ещё :count |
+| `cup.card.participants` | Ishtirokchilar: :count | Участников: :count |
+| `cup.card.summary_at` | kun yakuni :time da | сводка в :time |
+| `cup.card.bot_not_admin` | ⚠️ Bot chat administratori emas — ishtirokni tekshirib bo'lmaydi. Botni administrator qiling. | ⚠️ Бот не администратор чата — участие проверить нельзя. Сделайте бота администратором. |
+| `cup.summary.title` | 📊 Do'stlar kubogi · :days kundan :day-kun yakunlari | 📊 Кубок друзей · итоги дня :day из :days |
+| `cup.summary.footer` | Yakun :end, 00:00. Yangi kun raundi yarim tunda ochiladi. | Финиш :end, 00:00. Раунд нового дня откроется в полночь. |
+| `cup.final.title` | 🏆 Do'stlar kubogi yakunlandi! | 🏆 Кубок друзей завершён! |
+| `cup.final.group` | «:group» · :level daraja | «:group» · уровень :level |
+| `cup.final.winner` | Tabriklaymiz: :names! | Поздравляем: :names! |
+| `cup.final.empty` | Hech kim ball to'plamadi. | Никто не набрал очков. |
+| `cup.command.exists` | Chatda allaqachon «:group» kubogi bor. Jadval va qatnashish — quyidagi tugma orqali. | В чате уже есть кубок «:group». Таблица и участие — по кнопке ниже. |
+| `cup.command.material` | Hozir kubok mavjud emas: bu daraja uchun so'zlar yetarli emas. | Сейчас кубок недоступен: для уровня не хватает слов. |
+| `cup.welcome.line` | 🏆 Do'stlar bilan bellashmoqchimisiz? Do'stlar kubogini yarating: shu chatning o'zida bir hafta qisqa raundlar. | 🏆 Хотите соревноваться с друзьями? Создайте кубок друзей: неделя коротких раундов прямо в этом чате. |
+| `cup.toast.not_admin` | Buni faqat chat administratori qila oladi. | Это может сделать только администратор чата. |
+| `cup.toast.stale` | Bu tugma endi ishlamaydi. | Эта кнопка больше не действует. |
+| `cup.toast.exists` | Bu chatda allaqachon kubok bor — uning kartasini ko'ring. | В этом чате уже есть кубок — смотрите его карточку. |
+| `cup.toast.published` | Kubok e'lon qilindi! | Кубок опубликован! |
+| `cup.toast.canceled` | Kubok bekor qilindi. | Кубок отменён. |
+| `cup.toast.bot_not_admin` | Botni chat administratori qiling. Maxsus huquqlar kerak emas. | Сделайте бота администратором чата. Особые права не нужны. |
+| `cup.toast.unverifiable` | Huquqlarni tekshirib bo'lmadi, yana urinib ko'ring. | Не удалось проверить права, попробуйте ещё раз. |
+| `cup.toast.material` | Bu daraja uchun hozircha so'zlar yetarli emas. | Для этого уровня пока не хватает слов. |
+| `cup.toast.cooldown` | Kubokni 10 daqiqada bir marta taklif qilish mumkin. | Предложить кубок можно раз в 10 минут. |
+| `cup.toast.paused` | Bu chatda kuboklar hozir mavjud emas. | Кубки в этом чате сейчас недоступны. |
+| `cup.toast.failed` | Bo'lmadi. Keyinroq urinib ko'ring. | Не получилось. Попробуйте позже. |
+| `buttons.cup_create` | 🏆 Do'stlar kubogini yaratish | 🏆 Создать кубок друзей |
+| `buttons.cup_publish` | ✅ E'lon qilish | ✅ Опубликовать |
+| `buttons.cup_setup` | ⚙️ Sozlash | ⚙️ Настроить |
+| `buttons.cup_cancel` | ✖️ Bekor qilish | ✖️ Отменить |
+| `buttons.cup_join` | 🏆 Qatnashish | 🏆 Участвовать |
+| `buttons.cup_play` | ▶️ Bugun o'ynash | ▶️ Играть сегодня |
+| `buttons.cup_table` | 📊 Jadval | 📊 Таблица |
+| `buttons.cup_rules` | 📖 Qoidalar | 📖 Правила |
+| `buttons.cup_final_table` | 🏆 Yakuniy jadval | 🏆 Итоговая таблица |
+| `buttons.cup_open` | 🏆 Kubokni ochish | 🏆 Открыть кубок |

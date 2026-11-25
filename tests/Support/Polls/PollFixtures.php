@@ -7,11 +7,14 @@ namespace Tests\Support\Polls;
 use App\Domain\Polls\Enums\PollDeliveryStatus;
 use App\Domain\Polls\Enums\PollStatus;
 use App\Domain\Polls\Services\PollLauncher;
+use App\Jobs\SendPollBatchJob;
 use App\Models\Learner;
 use App\Models\Poll;
 use App\Models\PollDelivery;
 use App\Models\PollOption;
 use App\Models\User;
+use Illuminate\Bus\UniqueLock;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 
@@ -74,8 +77,18 @@ final class PollFixtures
         Queue::fake();
         app(PollLauncher::class)->launch($poll, self::admin(null));
         Queue::swap($real);
+        // The faked jobs never run: give their slots back, as a worker that picked them up would (SendPollBatchJob is unique per slot).
+        self::forgetChains($poll->id);
 
         return $poll->refresh();
+    }
+
+    /** Frees the unique locks of the chain slots of a poll: what a worker does when it picks a queued job up. */
+    public static function forgetChains(int $pollId, int $slots = 10): void
+    {
+        for ($slot = 0; $slot < $slots; $slot++) {
+            Cache::lock(UniqueLock::getKey(new SendPollBatchJob($pollId, 0, $slot)))->forceRelease();
+        }
     }
 
     /**

@@ -27,6 +27,12 @@ final class PollLaunchException extends RuntimeException
     /** The poll is closed or cancelled: no test send any more. */
     public const FINISHED = 'finished';
 
+    /**
+     * The picture of the poll is not on the private disk (or cannot be read): without it Telegram cannot be given the photo (the first
+     * upload, a refused `file_id`). Also the code of the rows a broadcast skipped when the file vanished while it ran.
+     */
+    public const IMAGE_MISSING = 'image_missing';
+
     private function __construct(public readonly string $reason, string $message)
     {
         parent::__construct($message);

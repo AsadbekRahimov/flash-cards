@@ -22,4 +22,15 @@ return [
     'offers_off' => '🔕 Не присылать предложения',
     'lesson_game' => '🎮 Закрепить в игре',
     'review_words' => '🔁 Повторить слова',
+    // The friends' cup in a group (docs/33 §6.1, K6): url buttons into the Mini App, callbacks `cup:*`.
+    'cup_create' => '🏆 Создать кубок друзей',
+    'cup_publish' => '✅ Опубликовать',
+    'cup_setup' => '⚙️ Настроить',
+    'cup_cancel' => '✖️ Отменить',
+    'cup_join' => '🏆 Участвовать',
+    'cup_play' => '▶️ Играть сегодня',
+    'cup_table' => '📊 Таблица',
+    'cup_rules' => '📖 Правила',
+    'cup_final_table' => '🏆 Итоговая таблица',
+    'cup_open' => '🏆 Открыть кубок',
 ];

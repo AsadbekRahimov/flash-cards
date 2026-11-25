@@ -236,6 +236,11 @@ enum ProductEventName: string
     case CupPublished = 'cup.published';
     /** A cup started at the midnight of its day 1 (props: cup_id, participants); actor - the group. */
     case CupStarted = 'cup.started';
+    /**
+     * A learner opened the invitation of a cup by its link and was let in - a member of the chat or a participant (docs/33 §8, K7;
+     * props: cup_id, joined, status). Once per learner and cup an hour: the pilot report counts the unique learners.
+     */
+    case CupInviteViewed = 'cup.invite_viewed';
     /** A learner joined a cup (props: cup_id, participant_id, first_day). */
     case CupJoined = 'cup.joined';
     /** A participant started the round of a day (props: cup_id, attempt_id, day). */
@@ -246,4 +251,6 @@ enum ProductEventName: string
     case CupFinished = 'cup.finished';
     /** A cup was canceled (props: cup_id, reason - draft_expired / chat_admin / platform_admin / no_players); actor - the group. */
     case CupCanceled = 'cup.canceled';
+    /** The summary of a day of a cup was posted in its chat (docs/33 §6.1, K6; props: cup_id, day); actor - the group. */
+    case CupSummaryPosted = 'cup.summary_posted';
 }

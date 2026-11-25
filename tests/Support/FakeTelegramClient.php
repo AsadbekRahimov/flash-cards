@@ -63,6 +63,9 @@ final class FakeTelegramClient implements TelegramClient
     /** When set, a failing send is a 403 / chat not found with this reason (`TelegramForbiddenException`; wins over the two above). */
     public ?string $failSendsForbidden = null;
 
+    /** When set, a failing send is a 400 "Bad Request: <this>" (e.g. `wrong file identifier/HTTP URL specified`, `IMAGE_PROCESS_FAILED`). */
+    public ?string $failSendsBadRequest = null;
+
     /**
      * Runs at the start of every send (before the `failSends` logic) with the chat id: a test acts "while the message is on its way"
      * (a poll stopped mid-broadcast, a crash between the claim and the answer) or slows the sends down.
@@ -478,6 +481,7 @@ final class FakeTelegramClient implements TelegramClient
                 $this->failSendsForbidden !== null => new TelegramForbiddenException($this->failSendsForbidden),
                 $this->failSendsRetryAfter !== null => new TelegramRateLimitedException($this->failSendsRetryAfter, $method),
                 $this->failSendsAsTransport => new TelegramApiException('cURL error 28: Operation timed out'),
+                $this->failSendsBadRequest !== null => TelegramApiException::apiError('Bad Request: '.$this->failSendsBadRequest, 400),
                 default => TelegramApiException::apiError('Forbidden: bot was kicked from the group chat', 403),
             };
         }

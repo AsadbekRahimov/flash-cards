@@ -36,6 +36,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\Support\Polls\PollFixtures;
@@ -355,6 +356,48 @@ it('prunes the answers of polls closed or stopped over a year ago in chunks, kee
         ->and(Poll::query()->find($old->id)?->results_snapshot['answered'])->toBe(3);
 
     expect(app(PollPruner::class)->prune())->toBe(['polls' => 0, 'votes' => 0, 'deliveries' => 0]);
+});
+
+it('counts the retention of a stopped poll from the stop, not from a later rename of its title', function (): void {
+    config(['polls.prune_chunk' => 100]);
+    $poll = PollFixtures::launched(2);
+    $this->travelTo(now()->subDays(400));
+    app(PollLauncher::class)->cancel(Poll::query()->findOrFail($poll->id), PollFixtures::admin(null));
+    $this->travelBack();
+    // Renamed yesterday: `updated_at` is fresh, the stop is 400 days old.
+    $poll->fresh()->forceFill(['title' => 'Переименован'])->save();
+
+    expect(app(PollPruner::class)->prune())->toBe(['polls' => 1, 'votes' => 0, 'deliveries' => 3]); // 2 learners + the test send
+
+    // Stopped 10 days ago and renamed long ago is kept.
+    $recent = PollFixtures::launched(1);
+    $this->travelTo(now()->subDays(10));
+    app(PollLauncher::class)->cancel(Poll::query()->findOrFail($recent->id), PollFixtures::admin(null));
+    $this->travelBack();
+    expect(app(PollPruner::class)->prune()['deliveries'])->toBe(0);
+});
+
+it('deletes the pictures of polls/ no poll refers to once they are a day old, nothing else', function (): void {
+    Storage::fake('local');
+    $disk = Storage::disk('local');
+    $used = 'polls/'.str_repeat('U', 40).'.png';
+    $orphan = 'polls/'.str_repeat('O', 40).'.png';
+    $fresh = 'polls/'.str_repeat('F', 40).'.png';
+    foreach ([$used, $orphan, $fresh, 'other/keep.png'] as $path) {
+        $disk->put($path, 'x');
+    }
+    foreach ([$used, $orphan, 'other/keep.png'] as $path) {
+        touch($disk->path($path), now()->subHours(25)->getTimestamp());
+    }
+    PollFixtures::poll(['image_path' => $used]);
+
+    expect(app(PollPruner::class)->pruneOrphanImages())->toBe(1);
+    $disk->assertMissing($orphan);
+    $disk->assertExists($used);
+    $disk->assertExists($fresh);
+    $disk->assertExists('other/keep.png');
+    expect(app(PollPruner::class)->pruneOrphanImages())->toBe(0);
+    $this->artisan('polls:prune')->expectsOutputToContain('Orphaned poll pictures deleted: 0')->assertSuccessful();
 });
 
 it('deletes in statements of at most the chunk, each on its own', function (): void {

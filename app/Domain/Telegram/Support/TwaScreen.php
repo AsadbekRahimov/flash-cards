@@ -28,4 +28,10 @@ enum TwaScreen: string
     case Referrals = '/referrals';
     case Billing = '/billing';
     case Achievements = '/achievements';
+    /** The friends' cup from its chat (docs/33 §7.1, docs/05 §5d): the code is a hint which cup to open, the server decides access. */
+    case CupInvite = '/cups/c/{code}';
+    /** The same, straight to the round of the day for a participant. */
+    case CupPlay = '/cups/c/{code}/play';
+    /** The setup of a draft by an administrator of the chat. */
+    case CupSetup = '/cups/setup/{code}';
 }

@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace App\Domain\Polls\DTO;
 
 use App\Domain\Polls\Enums\PollTapStatus;
+use App\Domain\Polls\Services\PollViewCache;
 use App\Domain\Polls\Services\PollVoteService;
 
 /**
  * What {@see PollVoteService::tap()} decided (docs/35 §1.5). `selectedOptionIds` (poll_options ids,
  * ascending) is what the keyboard / the text should show: the draft for `Toggled`, `LimitReached`, `EmptySubmit` and `Changing`
  * of several answers, the recorded answer otherwise. `pollId`, `deliveryId`, `locale` and `isTest` are null / false only for
- * `Unavailable`. `changed` - a `Voted` that replaced an earlier answer (the `changed` of the event `poll.answered`).
+ * `Unavailable`. `changed` - a `Voted` that replaced an earlier answer (the `changed` of the event `poll.answered`). `pollVersion` -
+ * the poll's `updated_at` as a Unix second, read in the same statement: the version of the cached view ({@see PollViewCache}).
  */
 final readonly class PollTapResult
 {
@@ -26,6 +28,7 @@ final readonly class PollTapResult
         public ?int $deliveryId = null,
         public ?string $locale = null,
         public bool $isTest = false,
+        public int $pollVersion = 0,
     ) {}
 
     public static function unavailable(): self

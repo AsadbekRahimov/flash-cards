@@ -39,11 +39,7 @@ final class PollAudienceQuery
         $now ??= CarbonImmutable::now();
         $ranged = $fromId !== null && $toId !== null;
 
-        $query = Learner::query()
-            ->whereNull('learners.blocked_at')
-            ->whereNull('learners.dm_blocked_at')
-            ->whereNull('learners.dm_blocked_reason')
-            ->where('learners.telegram_user_id', '>', 0);
+        $query = Learner::query()->whereRaw(self::reachableSql('learners'));
 
         if ($ranged) {
             $query->whereBetween('learners.id', [$fromId, $toId]);
@@ -81,6 +77,20 @@ final class PollAudienceQuery
         }
 
         return $query;
+    }
+
+    /**
+     * "The learner can be written to", ONE definition for the audience of the launch and the step to `sending` of the broadcast
+     * ({@see PollDeliverySender}): not deleted, not banned, the DM open (`dm_blocked_at` AND `dm_blocked_reason` empty), a real
+     * Telegram id. Plain SQL over the alias `$alias` of `learners` - column names and constants only, no value from outside.
+     *
+     * @param  literal-string  $alias
+     * @return literal-string
+     */
+    public static function reachableSql(string $alias): string
+    {
+        return "{$alias}.deleted_at IS NULL AND {$alias}.blocked_at IS NULL AND {$alias}.dm_blocked_at IS NULL "
+            ."AND {$alias}.dm_blocked_reason IS NULL AND {$alias}.telegram_user_id > 0";
     }
 
     /**

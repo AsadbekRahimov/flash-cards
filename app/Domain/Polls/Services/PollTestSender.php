@@ -38,7 +38,7 @@ final class PollTestSender
         private readonly DmReachability $reachability,
     ) {}
 
-    /** @throws PollLaunchException no linked Telegram, a finished poll, options or text that cannot go out */
+    /** @throws PollLaunchException no linked Telegram, a finished poll, options or text that cannot go out, the picture missing */
     public function send(Poll $poll, User $admin, string $locale = 'ru', ?CarbonImmutable $now = null): PollDelivery
     {
         $now = ($now ?? CarbonImmutable::now())->utc();
@@ -61,6 +61,10 @@ final class PollTestSender
             throw PollLaunchException::because(PollLaunchException::TOO_LONG);
         }
 
+        if ($poll->image_file_id === null && ! PollDeliverySender::pictureReadable($poll)) {
+            throw PollLaunchException::because(PollLaunchException::IMAGE_MISSING);
+        }
+
         $delivery = PollDelivery::query()->create([
             'poll_id' => $poll->id,
             'learner_id' => null,
@@ -76,6 +80,11 @@ final class PollTestSender
 
         try {
             $sent = $this->sender->transmit($poll, $options, $chatId, $delivery->token, $delivery->locale);
+        } catch (PollLaunchException $e) {
+            // Telegram refused the stored file_id and the file is gone: nothing went out.
+            $delivery->update(['status' => PollDeliveryStatus::Failed, 'error_code' => $e->reason]);
+
+            throw $e;
         } catch (TelegramForbiddenException $e) {
             $delivery->update(['status' => PollDeliveryStatus::Forbidden, 'error_code' => $e->reason]);
             $this->reachability->markUnreachable($chatId, $e->reason, $now);

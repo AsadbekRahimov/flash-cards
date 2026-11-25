@@ -2195,3 +2195,264 @@ export interface BattleAudioFailedResponse {
   verified: boolean
   battle: Battle
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// The friends' cup of a Telegram group (docs/04 A.23, docs/33 §7.2; K7). Only the types of the server's answers: the screens are K8.
+// Every field the server may add later is optional; the codes of the errors are in `CupErrorCode`.
+
+export type CupStatus = 'draft' | 'scheduled' | 'running' | 'finished' | 'canceled'
+export type CupPause = 'bot_removed' | 'blocked'
+export type CupParticipantStatus = 'active' | 'left'
+export type CupTodayState = 'not_started' | 'active' | 'done' | 'not_available'
+
+/**
+ * The codes of `error.code` of the routes of the cup. 403 `cup_not_member` is also "no such cup" (one answer); 404
+ * `cup_round_not_found` is also "a stranger's attempt"; 403 `cup_unavailable` - the cup is switched off or not open for the chat.
+ * `details`: `cup_paused {reason}`, `cup_unverifiable {reason: bot_not_admin | telegram_unavailable}`, `cup_round_done {points}`,
+ * `cup_round_expired {points}`, `element_not_current {current}`, `answer_already_accepted {verdict}`.
+ */
+export type CupErrorCode =
+  | 'cup_unavailable'
+  | 'cup_not_member'
+  | 'cup_not_chat_admin'
+  | 'cup_round_not_found'
+  | 'cup_paused'
+  | 'cup_unverifiable'
+  | 'cup_bot_not_admin'
+  | 'cup_already_active'
+  | 'cup_not_open'
+  | 'cup_already_published'
+  | 'cup_not_started'
+  | 'cup_round_unavailable'
+  | 'cup_round_done'
+  | 'cup_round_expired'
+  | 'element_not_current'
+  | 'answer_already_accepted'
+  | 'cup_rename_limit'
+  | 'cup_closed'
+  | 'cup_material_unavailable'
+  | 'cup_display_name_invalid'
+  | 'cup_level_invalid'
+  | 'invalid_answer_shape'
+  | 'unknown_element_id'
+  | 'unknown_option_id'
+  | 'cup_check_busy'
+
+/** The rules of a cup: 2 points for a clean right answer (a typo is 0), the best `counted_days` days count. */
+export interface CupRules {
+  points_per_answer: number
+  typo_points: number
+  max_day_points: number
+  counted_days: number
+  days: number
+  max_total: number
+}
+
+/** The fields of a cup every answer shares. Times are ISO 8601 UTC; the days are local midnights of `timezone`. */
+export interface CupFields {
+  id: number
+  status: CupStatus
+  group_title: string
+  level: string
+  days: number
+  counted_days: number
+  round_tasks: number
+  round_minutes: number
+  timezone: string
+  starts_at: string | null
+  ends_at: string | null
+  /** The day of now while the cup runs (1…days), else null. */
+  day: number | null
+  summaries_enabled: boolean
+  /** `HH:MM` in `timezone`. */
+  summary_time: string
+  paused: CupPause | null
+}
+
+/** GET /cups/by-code/{code}: the invitation of the link of the chat. */
+export interface CupInvite extends CupFields {
+  participants_count: number
+  rules: CupRules
+  me: {
+    joined: boolean
+    participant_id: number | null
+    status: CupParticipantStatus | null
+    /** His name in the cup, or the name he would join with (the Telegram first name). */
+    display_name: string | null
+    left: boolean
+  }
+}
+
+/** POST /cups/{id}/join (201 new / 200 already in) and PATCH /cups/{id}/me. */
+export interface CupParticipantView {
+  participant_id: number
+  cup_id: number
+  display_name: string
+  status: CupParticipantStatus
+  first_day: number
+  renames_left: number
+}
+
+/** GET /cups: the open cups first, then the last ten finished or canceled. */
+export interface CupListResponse {
+  cups: Array<
+    CupFields & {
+      me: {
+        participant_id: number
+        display_name: string
+        status: CupParticipantStatus
+        total: number
+        days_played: number
+        final_rank: number | null
+      } | null
+    }
+  >
+}
+
+/** One row of the table of a cup. */
+export interface CupStandingRow {
+  participant_id: number
+  rank: number
+  display_name: string
+  /** The emoji of Pro next to the name (docs/31 §5а), null without a live Pro. */
+  pro_emoji: string | null
+  total: number
+  round_points: number
+  days_played: number
+  /** Left the chat: shown as "вышел(а)". */
+  left: boolean
+  me: boolean
+}
+
+/** The state of the round of today (GET /cups/{id}/rounds/today without `server_now`, and `me.today` of the table). */
+export interface CupToday {
+  state: CupTodayState
+  day: number | null
+  attempt_id: number | null
+  points: number | null
+  expires_at: string | null
+}
+
+export interface CupDayResult {
+  day: number
+  points: number
+  round_points: number
+  duel_points: number
+  played: boolean
+  /** The day counts in the total (the best `counted_days`). */
+  counted: boolean
+  /** The participant may play it (`day >= first_day`). */
+  available: boolean
+}
+
+/** GET /cups/{id}: the table and my day. `me` is null for a member of the chat who has not joined. */
+export interface CupBoardResponse {
+  cup: CupFields & { rules: CupRules }
+  standings: CupStandingRow[]
+  me: {
+    participant_id: number
+    display_name: string
+    status: CupParticipantStatus
+    first_day: number
+    renames_left: number
+    total: number
+    final_rank: number | null
+    today: CupToday
+    days: CupDayResult[]
+  } | null
+  /** A hint for the link to the settings; the server asks Telegram again on every action of an administrator. */
+  can_manage: boolean
+  server_now: string
+}
+
+/** GET /cups/{id}/rounds/today. */
+export interface CupTodayResponse extends CupToday {
+  server_now: string
+}
+
+/** A task of the round: the projection of the game - never the right answer. Options are in the participant's own order. */
+export interface CupTask {
+  position: number
+  id: string
+  kind: 'translate_fwd' | 'translate_back' | 'listen' | 'spell' | 'gap'
+  prompt?: string
+  /** `translate_fwd`: the word has a recording; `listen`: always true. */
+  audio?: boolean
+  /** `listen`: the clip of the task (the route of the attempt). */
+  audio_url?: string
+  options?: Array<{ id: string; text: string }>
+  answer_length?: number
+  masked?: string
+  translation?: string
+}
+
+export interface CupReviewEntry {
+  element_id: string
+  kind: CupTask['kind']
+  verdict: string | null
+  points: number
+  answer: Record<string, unknown> | null
+  reveal: Record<string, unknown>
+  audio_url?: string
+}
+
+/** POST /cups/{id}/rounds/today (201 / 200) and GET /cup-rounds/{attempt}: the attempt of the day. */
+export interface CupRound {
+  attempt_id: number
+  cup_id: number
+  participant_id: number
+  day: number
+  status: 'active' | 'finished'
+  finish_reason: 'completed' | 'expired' | null
+  total: number
+  answered: number
+  correct: number
+  points: number
+  max_points: number
+  position: number
+  started_at: string
+  /** The deadline fixed at the start; a reload does not move it. The timer counts against `server_now`. */
+  expires_at: string
+  server_now: string
+  current: CupTask | null
+  answers: Array<{ element_id: string; verdict: string; points: number }>
+  /** Only once the attempt is over: the right answer of every task. */
+  review: CupReviewEntry[] | null
+}
+
+/** Body of POST /cup-rounds/{attempt}/answer: `{option_id}`, `{text}` or `{skip: true}`. */
+export interface CupAnswerRequest {
+  request_id: string
+  element_id: string
+  answer: { option_id?: string; text?: string; skip?: boolean }
+}
+
+/** Answer of POST /cup-rounds/{attempt}/answer; a repeated `request_id` answers the same (`replayed: true`). */
+export interface CupAnswerResponse {
+  verdict: 'correct' | 'typo' | 'wrong' | 'skipped' | string
+  points: number
+  /** The right answer of the task just answered. */
+  reveal: Record<string, unknown> | null
+  finished: boolean
+  total_points: number
+  replayed: boolean
+  round: CupRound
+}
+
+/** The screens of an administrator of the chat: setup, publish, settings, cancel. */
+export interface CupSetup extends CupFields {
+  locale: string
+  summary_minute: number
+  cancel_reason: 'draft_expired' | 'chat_admin' | 'platform_admin' | 'no_players' | null
+  options: { levels: string[]; locales: string[] }
+  rules: CupRules
+}
+
+/** Body of PATCH /cups/{id}/settings: `level` and `locale` in a draft only. */
+export interface CupSettingsPatch {
+  level?: string
+  locale?: string
+  summaries_enabled?: boolean
+  /** The minute of the local day, 0…1439. */
+  summary_minute?: number
+}

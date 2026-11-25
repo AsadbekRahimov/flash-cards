@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 
 use App\Domain\Analytics\Enums\ProductEventName;
+use App\Domain\Operations\Support\PureCache;
 use App\Domain\Polls\Enums\PollStatus;
 use App\Domain\Polls\Services\PollViewCache;
 use App\Domain\Telegram\Contracts\TelegramClient;
@@ -331,6 +332,24 @@ it('reads the texts from the view cache and reads them again after the cache is 
     $views->forget($delivery->poll_id);
     expect($views->get($delivery->poll_id)['question']['ru'])->toBe('Новый вопрос')
         ->and($views->get(999_999))->toBeNull();
+});
+
+it('never shows the text of before an edit, even when a tap that read the poll before the edit puts the old view into the cache after it', function (): void {
+    $delivery = PollFixtures::delivered();
+    $poll = $delivery->poll;
+    $views = app(PollViewCache::class);
+    $old = $views->get($poll->id, PollViewCache::version($poll->getRawOriginal('updated_at')));
+
+    // The edit commits (a new `updated_at`), the editor forgets the key - and then a tap decided on the old poll writes the old view.
+    $poll->forceFill(['question' => ['ru' => 'Новый вопрос', 'uz' => 'Yangi savol'], 'updated_at' => now()->addMinute()])->save();
+    $views->forget($poll->id);
+    PureCache::store()->put(PollViewCache::key($poll->id), $old, PollViewCache::TTL);
+
+    pollDispatch(pollTapUpdate($delivery, '0'));
+
+    expect($this->tg->lastTextEdit()['text'])->toContain('Новый вопрос')
+        ->and($views->get($poll->id)['question']['ru'])->toBe('Новый вопрос')
+        ->and($views->get($poll->id)['version'])->toBe(now()->addMinute()->startOfSecond()->getTimestamp());
 });
 
 // --- the budget of one tap -----------------------------------------------------------------------------------------------

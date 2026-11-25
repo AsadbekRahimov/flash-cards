@@ -18,9 +18,13 @@ use Illuminate\Support\Facades\DB;
  * after the same one statement (no oracle). The token is 12 characters of [A-Za-z0-9] from a CSPRNG (≈ 2^71); the format is checked
  * before any statement.
  *
- * One transaction, the delivery row locked (`FOR UPDATE OF d` - the poll row is read, never locked, so taps of different learners
- * never wait for each other): two simultaneous taps of one learner are serialized and the second sees the first's result -
- * one vote, counters that agree.
+ * One transaction, the delivery row locked (`FOR UPDATE OF d`): two simultaneous taps of one learner are serialized and the second
+ * sees the first's result - one vote, counters that agree. The poll row is held `FOR KEY SHARE OF p` for the whole tap: taps never
+ * wait for each other (key-share locks do not conflict; the INSERT of a vote takes the same lock through its FK `poll_votes.poll_id`
+ * anyway), nor for the plain UPDATEs of the poll (`sending → sent`, the `file_id`, the title: FOR NO KEY UPDATE), but the close and
+ * the stop ({@see PollLauncher::close()}, `polls FOR UPDATE`) wait for the taps in flight, and a tap that comes after them sees the
+ * new status (READ COMMITTED re-reads the locked row). So `results_snapshot`, read after the close commits, has every vote that was
+ * recorded, and no vote is recorded after it.
  *
  * Statements (a test pins them): the locking SELECT of the delivery with its poll and options - 1 (all an unavailable / closed
  * tap costs); + the recorded votes when there is an answer (a separate statement AFTER the lock: see {@see decide()}); the first
@@ -57,10 +61,10 @@ final class PollVoteService
 
     private function decide(string $token, int $fromId, string $action, CarbonImmutable $now): PollTapResult
     {
-        $lock = DB::getDriverName() === 'pgsql' ? ' FOR UPDATE OF d' : '';
+        $lock = DB::getDriverName() === 'pgsql' ? ' FOR UPDATE OF d FOR KEY SHARE OF p' : '';
         $row = DB::selectOne(
             'SELECT d.id, d.poll_id, d.telegram_user_id, d.status, d.locale, d.is_test, d.answered_at, d.draft, '
-            .'p.status AS poll_status, p.closes_at, p.allows_multiple, p.max_choices, p.allow_change, '
+            .'p.status AS poll_status, p.closes_at, p.allows_multiple, p.max_choices, p.allow_change, p.updated_at AS poll_updated_at, '
             ."(SELECT string_agg(CAST(o.id AS text) || ':' || CAST(o.position AS text), ',') FROM poll_options o WHERE o.poll_id = d.poll_id) AS options "
             .'FROM poll_deliveries d JOIN polls p ON p.id = d.poll_id WHERE d.token = ?'.$lock,
             [$token],
@@ -85,6 +89,7 @@ final class PollVoteService
         $current = [];
         $result = fn (PollTapStatus $status, array $selected, bool $changed = false): PollTapResult => new PollTapResult(
             $status, self::sorted($selected), $allowChange, $multiple, $changed, $pollId, $deliveryId, (string) $row->locale, $isTest,
+            PollViewCache::version($row->poll_updated_at),
         );
 
         $pollStatus = PollStatus::tryFrom((string) $row->poll_status);

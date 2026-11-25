@@ -136,6 +136,24 @@ it('does not mark it when the words are not yesterday\'s, not due yet, not from 
     expect(array_filter(shDispatch()))->toBe([]);
 });
 
+it('does not mark a learner opted out of the leagues: no rating points for them, and no statement more', function (): void {
+    $hinted = shLearner();
+    shWord($hinted);
+    $optedOut = shLearner(['meta' => ['leagues_opt_out' => true]]);
+    shWord($optedOut);
+    $optedBack = shLearner(['meta' => ['leagues_opt_out' => false]]);
+    shWord($optedBack);
+
+    expect(shDispatch())->toBe([$hinted->id => true, $optedOut->id => false, $optedBack->id => true]);
+});
+
+it('does not even look for the words of a banned learner (no rating points)', function (): void {
+    $banned = shLearner(['blocked_at' => now()]);
+    shWord($banned);
+
+    expect(app(ReviewScoreHint::class)->learnerIds([$banned->fresh()], CarbonImmutable::parse('2026-10-18 14:05:00', 'UTC')))->toBe([]);
+});
+
 it('takes the local yesterday of each learner: one statement for learners of different time zones', function (): void {
     // New York (UTC-4 on 2026-10-18): the local yesterday is 2026-10-17 04:00 - 2026-10-18 04:00 UTC.
     $newYork = shLearner(['timezone' => 'America/New_York', 'next_reminder_at' => CarbonImmutable::parse('2026-10-18 14:00:00', 'UTC')]);

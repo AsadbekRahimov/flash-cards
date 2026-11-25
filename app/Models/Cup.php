@@ -114,6 +114,17 @@ class Cup extends Model
         return $this->hasMany(CupParticipant::class);
     }
 
+    /**
+     * The attempts of the rounds (`/admin`, K9). `cup_round_attempts.cup_id` has NO index (docs/33 §11.2 п. 4): a reader narrows by
+     * `cup_day_id` (the unique `(cup_day_id, participant_id)`) - never by the cup alone.
+     *
+     * @return HasMany<CupRoundAttempt, $this>
+     */
+    public function roundAttempts(): HasMany
+    {
+        return $this->hasMany(CupRoundAttempt::class);
+    }
+
     /** @return HasMany<CupDay, $this> */
     public function cupDays(): HasMany
     {

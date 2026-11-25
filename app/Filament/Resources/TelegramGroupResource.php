@@ -152,6 +152,9 @@ class TelegramGroupResource extends Resource
                     ->visible(fn (TelegramGroup $record): bool => app(PanelDataScope::class)->isAdmin() && $record->status === 'active')
                     ->requiresConfirmation()
                     ->action(fn (TelegramGroup $record) => $record->update(['status' => 'disabled'])),
+                // The friends' cup (docs/33 §8, K9): forbid cups in the group, put it into the pilot. Admin only, audited.
+                CupResource::blockAction(),
+                CupResource::pilotAction(),
                 Actions\EditAction::make(),
             ])
             ->defaultSort('created_at', 'desc');

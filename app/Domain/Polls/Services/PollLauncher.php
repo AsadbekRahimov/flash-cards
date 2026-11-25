@@ -41,7 +41,9 @@ use Illuminate\Support\Str;
  * the one message it had already started.
  *
  * Close ({@see close()}): `sending|sent → closed`, `closed_at`, the rows still `pending` become `skipped` (`closed`), and the totals
- * go into `results_snapshot` ({@see PollResults}) - written after the status commit, so taps that were in flight are in.
+ * go into `results_snapshot` ({@see PollResults}), read after the status commit. A tap holds the poll row `FOR KEY SHARE` from its
+ * first statement to its commit ({@see PollVoteService}), and the close takes it `FOR UPDATE`: the close waits for the taps in
+ * flight, the taps after it see `closed` - so the snapshot has exactly the votes of the table (and of the CSV).
  */
 final class PollLauncher
 {
@@ -157,15 +159,24 @@ final class PollLauncher
         return $count;
     }
 
-    /** Starts `polls.workers` job chains of a launched poll (the launch, a resumed insert, a sweep of a stalled broadcast). */
-    public function startWorkers(int $pollId, CarbonImmutable $launchedAt, int $workers = 0): void
+    /**
+     * Starts the job chains of a launched poll (the launch, a resumed insert, a sweep of a stalled broadcast): one job per slot
+     * 0..`polls.workers`-1, skipping a slot whose job is still waiting in the queue ({@see SendPollBatchJob::enqueue()}) - so a
+     * repeated start never adds chains. Returns the jobs queued.
+     */
+    public function startWorkers(int $pollId, CarbonImmutable $launchedAt, int $workers = 0): int
     {
         $notAfter = SendPollBatchJob::deadline($launchedAt)->getTimestamp();
         $workers = $workers > 0 ? $workers : max(1, (int) config('polls.workers', 2));
+        $queued = 0;
 
-        for ($i = 0; $i < $workers; $i++) {
-            SendPollBatchJob::dispatch($pollId, $notAfter);
+        for ($slot = 0; $slot < $workers; $slot++) {
+            if (SendPollBatchJob::enqueue($pollId, $notAfter, $slot)) {
+                $queued++;
+            }
         }
+
+        return $queued;
     }
 
     /**
@@ -175,7 +186,7 @@ final class PollLauncher
      */
     public function cancel(Poll $poll, User $by): bool
     {
-        $done = $this->transition($poll, [PollStatus::Draft, PollStatus::Sending], PollStatus::Cancelled, $by, self::AUDIT_CANCELLED, null);
+        $done = $this->transition($poll->id, [PollStatus::Draft, PollStatus::Sending], PollStatus::Cancelled, $by, self::AUDIT_CANCELLED, null);
 
         if ($done) {
             $this->skipPending($poll->id, 'cancelled');
@@ -194,7 +205,7 @@ final class PollLauncher
     public function close(Poll $poll, ?User $by, ?CarbonImmutable $now = null): bool
     {
         $now = ($now ?? CarbonImmutable::now())->utc();
-        $done = $this->transition($poll, [PollStatus::Sending, PollStatus::Sent], PollStatus::Closed, $by, self::AUDIT_CLOSED, $now);
+        $done = $this->transition($poll->id, [PollStatus::Sending, PollStatus::Sent], PollStatus::Closed, $by, self::AUDIT_CLOSED, $now);
 
         if (! $done) {
             return false;
@@ -240,12 +251,28 @@ final class PollLauncher
         return $total;
     }
 
-    /** @param list<PollStatus> $from */
-    private function transition(Poll $poll, array $from, PollStatus $to, ?User $by, string $action, ?CarbonImmutable $closedAt): bool
+    /**
+     * Stops a broadcast that cannot go on by itself (its picture vanished from the disk, {@see PollDeliverySender}): `sending →
+     * cancelled` with no user (audit `poll.cancelled`, `reason` in the meta - `/admin` shows the poll stopped), then the rows still
+     * `pending` become `skipped` with `$reason` as their code. True = this call stopped it: the caller reports the cause once.
+     */
+    public function halt(int $pollId, string $reason): bool
     {
-        return DB::transaction(function () use ($poll, $from, $to, $by, $action, $closedAt): bool {
+        $done = $this->transition($pollId, [PollStatus::Sending], PollStatus::Cancelled, null, self::AUDIT_CANCELLED, null, ['reason' => $reason]);
+        $this->skipPending($pollId, $reason);
+
+        return $done;
+    }
+
+    /**
+     * @param  list<PollStatus>  $from
+     * @param  array<string, string>  $meta  more for the audit row
+     */
+    private function transition(int $pollId, array $from, PollStatus $to, ?User $by, string $action, ?CarbonImmutable $closedAt, array $meta = []): bool
+    {
+        return DB::transaction(function () use ($pollId, $from, $to, $by, $action, $closedAt, $meta): bool {
             /** @var Poll|null $locked */
-            $locked = Poll::query()->whereKey($poll->id)->lockForUpdate()->first();
+            $locked = Poll::query()->whereKey($pollId)->lockForUpdate()->first();
             if ($locked === null || ! in_array($locked->status, $from, true)) {
                 return false;
             }
@@ -262,7 +289,7 @@ final class PollLauncher
                 'action' => $action,
                 'entity_type' => Poll::class,
                 'entity_id' => $locked->id,
-                'meta' => ['from' => $was->value],
+                'meta' => ['from' => $was->value, ...$meta],
             ]);
 
             return true;
@@ -278,6 +305,11 @@ final class PollLauncher
 
         if (! $this->messenger->fits($poll, $options)) {
             throw PollLaunchException::because(PollLaunchException::TOO_LONG);
+        }
+
+        // The file is needed whenever Telegram refuses the stored `file_id` (the broadcast uploads it again), so it must be there.
+        if (! PollDeliverySender::pictureReadable($poll)) {
+            throw PollLaunchException::because(PollLaunchException::IMAGE_MISSING);
         }
 
         $tested = DB::table('poll_deliveries')

@@ -71,6 +71,21 @@ Schedule::command('cups:advance')
     ->everyFiveMinutes()
     ->withoutOverlapping();
 
+// The messages of the cups in their chats (docs/33 §3.2, §6.4): the daily summaries (only with new results), the edits of the cards
+// (only with news, at most once in 5 minutes per card) and the outbox (stuck `sending` → `unknown`, `pending` queued again). Every
+// message is claimed by a conditional UPDATE before it is sent, so a repeated or parallel run posts nothing twice.
+Schedule::command('cups:post-summaries')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
+Schedule::command('cups:refresh-cards')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
+Schedule::command('cups:send-outbox')
+    ->everyMinute()
+    ->withoutOverlapping();
+
 // Battles (docs/16 §8.6): expired invitations are closed, the matches that are on move by the clock (absence, deadlines,
 // the end) - one row lock per match, the same `BattleClock::advance` the polls run, so a repeated or parallel run changes nothing.
 Schedule::command('practice:battles-sweep')

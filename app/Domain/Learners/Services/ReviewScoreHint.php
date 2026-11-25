@@ -6,6 +6,7 @@ namespace App\Domain\Learners\Services;
 
 use App\Domain\Engagement\Enums\ScorePeriod;
 use App\Domain\Engagement\Enums\ScoringMode;
+use App\Domain\Engagement\Services\LeagueService;
 use App\Domain\Engagement\Services\Scoring\ScoreRules;
 use App\Domain\Learners\DTO\ReminderContent;
 use App\Domain\Learners\Enums\ReminderKind;
@@ -56,8 +57,8 @@ final class ReviewScoreHint
     }
 
     /**
-     * The learners among `$learners` with a word first met (and answered) in a lesson on their local yesterday that is due at `$now`:
-     * ONE statement whatever the number of learners (their local yesterdays are grouped by their UTC bounds), none outside
+     * The learners among `$learners` - participants of the rating (not banned, not opted out of the leagues) - with a word first met
+     * (and answered) in a lesson on their local yesterday that is due at `$now`: ONE statement whatever the number of learners (their local yesterdays are grouped by their UTC bounds), none outside
      * {@see enabled()} or without a learner with reminders on.
      *
      * Served by `word_repetitions (learner_id, created_at)`: per learner only the rows of one day are read (the new words of that
@@ -76,6 +77,12 @@ final class ReviewScoreHint
         $groups = [];
         foreach ($learners as $learner) {
             if ($learner->reminder_time === null || $learner->reminder_time === '') {
+                continue;
+            }
+
+            // "A review earns rating points" is true only for a participant of the rating (as `participant` of the month and of
+            // "all time"): not banned, not opted out of the leagues. Judged on the loaded chunk - no statement.
+            if ($learner->blocked_at !== null || (bool) (($learner->meta ?? [])[LeagueService::OPT_OUT_META] ?? false)) {
                 continue;
             }
 

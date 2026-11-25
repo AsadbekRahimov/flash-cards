@@ -422,6 +422,12 @@ class AppServiceProvider extends ServiceProvider
             'twa-battle-poll' => 90,     // a poll every 2 s is 30 a minute, two tabs 60: a bucket of its own, not "no limit"
             'twa-game-start' => 10,      // a run = a snapshot + the queries of the material (docs/18 §12.8)
             'twa-game-answer' => 120,    // an answer or a hint of a run; `twa-api` (60) applies too
+            // The cup of a group (docs/33 §7.2, docs/07 §6, K7): the invitation and the table may call Telegram (getChatMember).
+            'twa-cup-read' => 30,        // by-code, the table, the state of today
+            'twa-cup-join' => 10,        // joining (a fresh getChatMember) and the name
+            'twa-cup-start' => 10,       // the start of the round of the day (a fresh getChatMember, maybe the snapshot of the day)
+            'twa-cup-answer' => 90,      // an answer of a round; `twa-api` (60) applies too
+            'twa-cup-admin' => 10,       // setup, publish, settings, cancel: a getChatMember of the administrator every time
         ] as $name => $perMinute) {
             RateLimiter::for($name, function (Request $request) use ($name, $perMinute): Limit {
                 /** @var array{learner_id:int}|null $ctx */

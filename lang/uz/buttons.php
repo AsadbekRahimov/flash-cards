@@ -22,4 +22,15 @@ return [
     'offers_off' => '🔕 Takliflar kerak emas',
     'lesson_game' => "🎮 O'yinda mustahkamlash",
     'review_words' => "🔁 So'zlarni takrorlash",
+    // The friends' cup in a group (docs/33 §6.1, K6): url buttons into the Mini App, callbacks `cup:*`.
+    'cup_create' => "🏆 Do'stlar kubogini yaratish",
+    'cup_publish' => "✅ E'lon qilish",
+    'cup_setup' => '⚙️ Sozlash',
+    'cup_cancel' => '✖️ Bekor qilish',
+    'cup_join' => '🏆 Qatnashish',
+    'cup_play' => "▶️ Bugun o'ynash",
+    'cup_table' => '📊 Jadval',
+    'cup_rules' => '📖 Qoidalar',
+    'cup_final_table' => '🏆 Yakuniy jadval',
+    'cup_open' => '🏆 Kubokni ochish',
 ];

@@ -19,8 +19,11 @@ use Illuminate\Support\Facades\DB;
  *  2. A `sending` poll whose insert of recipients did not finish (`recipient_count` NULL, launched longer than
  *     {@see FILL_GRACE_MINUTES} ago) → the insert is resumed ({@see PollLauncher::fill()}), which also starts the chains.
  *  3. A `sending` poll past its deadline → the rows still `pending` become `skipped` (`expired`).
- *  4. A `sending` poll with pending rows and no lease younger than `polls.lease_seconds` (every chain died: a worker killed, a job
- *     dropped) → the chains start again. A live chain renews a lease at least every batch, so a healthy broadcast is left alone.
+ *  4. A `sending` poll with pending rows and no lease younger than `polls.lease_seconds` → the chains of the slots that have no job
+ *     waiting in the queue start again ({@see PollLauncher::startWorkers()}: the job is unique per poll and slot until a worker picks
+ *     it up). A chain between batches - its successor delayed by a 429 or "no slot", or behind a long queue `low` - holds its slot,
+ *     so it gets no twin; a dead chain (a worker killed, `maxExceptions` reached) holds nothing and comes back. A running batch
+ *     renews a lease, so a healthy broadcast is not even looked at. `restarted` counts the polls where a job was queued.
  *  5. A poll stopped or closed within the last day with rows still `pending` (a range of the insert that committed right after
  *     the stop) → `skipped`.
  *  6. `sending → sent` where nothing is left.
@@ -70,8 +73,12 @@ final class PollSweeper
                     [$leaseEdge, $poll->id],
                 );
 
-                if ($stalled !== null && (int) $stalled->pending > 0 && (int) $stalled->live === 0) {
-                    $this->launcher->startWorkers($poll->id, $launchedAt);
+                // No live lease: every chain is between batches (queued, paused after a 429 or "no slot", behind a long queue) or
+                // dead. Only the slots with no queued job are started (the unique lock of SendPollBatchJob), so a waiting chain gets
+                // no twin and a dead one comes back.
+                if ($stalled !== null && (int) $stalled->pending > 0 && (int) $stalled->live === 0
+                    && $this->launcher->startWorkers($poll->id, $launchedAt) > 0
+                ) {
                     $out['restarted']++;
                 }
             }

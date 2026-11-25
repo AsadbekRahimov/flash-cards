@@ -6,6 +6,7 @@ namespace App\Domain\Polls\Services;
 
 use App\Domain\Polls\DTO\PollBatchOutcome;
 use App\Domain\Polls\Enums\PollStatus;
+use App\Domain\Polls\Exceptions\PollLaunchException;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\DTO\PhotoSource;
 use App\Domain\Telegram\DTO\SentMessage;
@@ -45,6 +46,9 @@ use RuntimeException;
  *     out the outage). No slot within `telegram.outbound.sync_wait_ms`, or `$budgetSeconds` spent: the lease is released, a fresh job
  *     goes on.
  *  4. Nothing left to lease: the poll goes `sending → sent` when no row of it is `pending` or `sending` any more (1 statement).
+ *  5. The picture is needed (Telegram has no `file_id` of it, or refused the stored one) and its file is gone: the broadcast stops
+ *     for good ({@see PollLauncher::halt()}: `cancelled`, the rest `skipped` with `image_missing`), reported once - not a retry loop
+ *     until the deadline.
  *
  * Statements: 2 per message + at most 5 per batch (the poll, its options, the lease, the release, the finish) - a test pins it.
  * A worker that dies between the step to `sending` and the result leaves the row `sending`: `polls:sweep` makes it `unknown`.
@@ -59,6 +63,7 @@ final class PollDeliverySender
         private readonly TelegramMessageRateLimiter $outbound,
         private readonly DmReachability $reachability,
         private readonly PollMessenger $messenger,
+        private readonly PollLauncher $launcher,
     ) {}
 
     public function sendBatch(int $pollId, int $budgetSeconds, ?CarbonImmutable $now = null): PollBatchOutcome
@@ -76,7 +81,10 @@ final class PollDeliverySender
         }
 
         $options = $poll->options()->get();
-        $this->assertPicture($poll);
+        if ($poll->image_file_id === null && ! self::pictureReadable($poll)) {
+            // Telegram does not know the picture and the file is gone: no send can succeed. Stop the broadcast for good.
+            return $this->haltWithoutPicture($poll, $count);
+        }
 
         $leasedAt = $clock()->startOfSecond();
         $rows = $this->lease($pollId, $leasedAt);
@@ -123,6 +131,13 @@ final class PollDeliverySender
 
             try {
                 $sent = $this->transmit($poll, $options, $row['telegram_user_id'], $row['token'], $row['locale']);
+            } catch (PollLaunchException $e) {
+                // The picture vanished while the broadcast ran (Telegram refused the `file_id`, the upload has no file): nothing was
+                // sent for this row. It and the rest of the poll are skipped; the poll stops.
+                $count['skipped'] += $this->finish($row['id'], 'sending', 'skipped', PollLaunchException::IMAGE_MISSING);
+                $count['released'] += $this->release(array_slice($rest, 1), $leasedAt);
+
+                return $this->haltWithoutPicture($poll, $count);
             } catch (TelegramForbiddenException $e) {
                 $this->finish($row['id'], 'sending', 'forbidden', $e->reason);
                 $this->reachability->markUnreachable($row['telegram_user_id'], $e->reason, $clock());
@@ -148,8 +163,10 @@ final class PollDeliverySender
                 }
 
                 // A timeout / 5xx: it may have been delivered - never again. The outage likely hits the rest: stop, let the job back off.
-                $this->finish($row['id'], 'sending', 'unknown', 'transport');
-                $this->release(array_slice($rest, 1), $leasedAt);
+                // The exception takes the place of the outcome, so the batch's counts go to the log line.
+                $count['unknown'] += $this->finish($row['id'], 'sending', 'unknown', 'transport');
+                $count['released'] += $this->release(array_slice($rest, 1), $leasedAt);
+                Log::warning('polls.broadcast_transport_failed', ['poll_id' => $pollId, ...$count]);
 
                 throw $e;
             }
@@ -167,12 +184,15 @@ final class PollDeliverySender
 
     /**
      * Sends the first message of a delivery: the photo by its `file_id` once Telegram knows it (else the file of the private disk),
-     * or the text. A definite refusal of a stored `file_id` (the bot changed, the file expired) is retried once by an upload.
+     * or the text. A refusal of the stored `file_id` ITSELF (the bot changed, the file expired: {@see refusesFileId()}) is retried
+     * once by an upload; any other refusal of the message is the row's.
      *
      * @param  Collection<int, PollOption>  $options
      *
      * @throws TelegramForbiddenException the recipient cannot be reached
      * @throws TelegramApiException any other refusal ({@see TelegramRateLimitedException} for a 429), a timeout
+     * @throws PollLaunchException {@see PollLaunchException::IMAGE_MISSING}: an upload is needed and the file cannot be read
+     *                             (nothing was sent by this call)
      */
     public function transmit(Poll $poll, Collection $options, int $chatId, string $token, string $locale): SentMessage
     {
@@ -189,7 +209,7 @@ final class PollDeliverySender
             } catch (TelegramForbiddenException|TelegramRateLimitedException $e) {
                 throw $e;
             } catch (TelegramApiException $e) {
-                if (! $e->isApiResponse() || $poll->image_path === null) {
+                if (! $e->isApiResponse() || $poll->image_path === null || ! self::refusesFileId($e)) {
                     throw $e;
                 }
 
@@ -199,7 +219,46 @@ final class PollDeliverySender
             }
         }
 
-        return $this->telegram->sendPhotoMessage($chatId, PhotoSource::file(Storage::disk('local')->path((string) $poll->image_path)), $text, $keyboard);
+        if (! self::pictureReadable($poll)) {
+            throw PollLaunchException::because(PollLaunchException::IMAGE_MISSING);
+        }
+
+        return $this->telegram->sendPhotoMessage($chatId, PhotoSource::file(Storage::disk(PollEditor::IMAGE_DISK)->path((string) $poll->image_path)), $text, $keyboard);
+    }
+
+    /** Whether the poll's picture can be uploaded: no picture, or its file on the private disk is there and readable. */
+    public static function pictureReadable(Poll $poll): bool
+    {
+        if ($poll->image_path === null || $poll->image_path === '') {
+            return true;
+        }
+
+        $disk = Storage::disk(PollEditor::IMAGE_DISK);
+        if (! $disk->exists($poll->image_path)) {
+            return false;
+        }
+
+        $path = $disk->path($poll->image_path);
+
+        return is_file($path) && is_readable($path);
+    }
+
+    /**
+     * A refusal that is about the `file_id` sent, not about the message (Bot API descriptions: "wrong file identifier/HTTP URL
+     * specified", "wrong remote file identifier specified", "FILE_REFERENCE_EXPIRED", "type of file mismatch", "invalid file_id").
+     * Only these make the stored id worthless; a caption, a keyboard or a chat refused would be refused for an upload too.
+     */
+    public static function refusesFileId(TelegramApiException $e): bool
+    {
+        $description = strtolower($e->getMessage());
+
+        foreach (['file identifier', 'file_id', 'file reference', 'file_reference', 'type of file mismatch'] as $needle) {
+            if (str_contains($description, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** The first photo that went out by upload gives the `file_id` every later send uses. */
@@ -258,14 +317,16 @@ final class PollDeliverySender
         return $out;
     }
 
-    /** The step `pending → sending`: only while the poll is `sending` and the learner can still be written to. */
+    /**
+     * The step `pending → sending`: only while the poll is `sending` and the learner can still be written to - the same definition
+     * of "reachable" as the audience of the launch ({@see PollAudienceQuery::reachableSql()}).
+     */
     private function takeForSending(int $deliveryId, CarbonImmutable $at): bool
     {
         return DB::update(
             "UPDATE poll_deliveries SET status = 'sending', claimed_at = ? WHERE id = ? AND status = 'pending' "
             ."AND EXISTS (SELECT 1 FROM polls p WHERE p.id = poll_deliveries.poll_id AND p.status = 'sending') "
-            .'AND EXISTS (SELECT 1 FROM learners l WHERE l.id = poll_deliveries.learner_id AND l.deleted_at IS NULL '
-            .'AND l.blocked_at IS NULL AND l.dm_blocked_at IS NULL)',
+            .'AND EXISTS (SELECT 1 FROM learners l WHERE l.id = poll_deliveries.learner_id AND '.PollAudienceQuery::reachableSql('l').')',
             [$at->format('Y-m-d H:i:s'), $deliveryId],
         ) === 1;
     }
@@ -327,11 +388,19 @@ final class PollDeliverySender
             && $now->greaterThanOrEqualTo(SendPollBatchJob::deadline(CarbonImmutable::instance($poll->launched_at)));
     }
 
-    /** A poll with a picture Telegram does not know yet needs its file: without it every send would fail. */
-    private function assertPicture(Poll $poll): void
+    /**
+     * The picture is gone and Telegram cannot be given it: the poll stops ({@see PollLauncher::halt()}: `cancelled`, the pending rows
+     * `skipped` with {@see PollLaunchException::IMAGE_MISSING}), reported once - by the batch that stopped it - and the chain ends.
+     * Without this every batch would throw until the deadline and the poll would hang in `sending`.
+     *
+     * @param  array{sent: int, skipped: int, forbidden: int, failed: int, unknown: int, released: int}  $count
+     */
+    private function haltWithoutPicture(Poll $poll, array $count): PollBatchOutcome
     {
-        if ($poll->image_file_id === null && $poll->image_path !== null && ! Storage::disk('local')->exists($poll->image_path)) {
-            throw new RuntimeException("The picture of poll {$poll->id} is missing on the local disk and has no file_id.");
+        if ($this->launcher->halt($poll->id, PollLaunchException::IMAGE_MISSING)) {
+            report(new RuntimeException("The broadcast of poll {$poll->id} stopped: its picture {$poll->image_path} is missing on the private disk and Telegram has no file_id of it."));
         }
+
+        return new PollBatchOutcome(...$count, more: false);
     }
 }

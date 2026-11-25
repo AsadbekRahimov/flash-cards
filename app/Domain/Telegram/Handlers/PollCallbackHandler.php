@@ -133,7 +133,7 @@ final class PollCallbackHandler implements UpdateHandler
     {
         $toast === null ? $this->acknowledger->acknowledge($update) : $this->toast($update, $toast);
 
-        $view = $result->pollId === null ? null : $this->views->get($result->pollId);
+        $view = $result->pollId === null ? null : $this->views->get($result->pollId, $result->pollVersion);
         if ($view === null) {
             return;
         }
@@ -153,7 +153,7 @@ final class PollCallbackHandler implements UpdateHandler
     {
         $this->acknowledger->acknowledge($update);
 
-        $view = $result->pollId === null ? null : $this->views->get($result->pollId);
+        $view = $result->pollId === null ? null : $this->views->get($result->pollId, $result->pollVersion);
         if ($view === null) {
             return;
         }
@@ -172,7 +172,7 @@ final class PollCallbackHandler implements UpdateHandler
     {
         $this->acknowledger->acknowledge($update);
 
-        $view = $result->pollId === null ? null : $this->views->get($result->pollId);
+        $view = $result->pollId === null ? null : $this->views->get($result->pollId, $result->pollVersion);
         if ($view === null) {
             return;
         }
@@ -186,7 +186,7 @@ final class PollCallbackHandler implements UpdateHandler
     /** @param array<string, mixed> $update */
     private function limitReached(array $update, PollTapResult $result, string $locale): void
     {
-        $view = $result->pollId === null ? null : $this->views->get($result->pollId);
+        $view = $result->pollId === null ? null : $this->views->get($result->pollId, $result->pollVersion);
         $max = $view['max_choices'] ?? count($view['options'] ?? []);
 
         $this->toast($update, $this->messenger->notice('limit', $locale, ['max' => (int) $max]));

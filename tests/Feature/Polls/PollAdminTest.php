@@ -13,8 +13,10 @@ declare(strict_types=1);
 use App\Domain\Polls\Enums\PollDeliveryStatus;
 use App\Domain\Polls\Enums\PollStatus;
 use App\Domain\Polls\Exceptions\PollEditException;
+use App\Domain\Polls\Exceptions\PollLaunchException;
 use App\Domain\Polls\Services\PollAudienceQuery;
 use App\Domain\Polls\Services\PollEditor;
+use App\Domain\Polls\Services\PollTestSender;
 use App\Domain\Polls\Services\PollViewCache;
 use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Filament\Resources\PollResource;
@@ -390,7 +392,27 @@ it('words every refusal of the launch', function (string $reason, string $text):
     ['too_long', 'Текст не помещается в сообщение Telegram на одном из языков: сократите вопрос или варианты (с картинкой — до 1 024 символов вместе со списком вариантов).'],
     ['no_telegram', 'К вашему профилю не привязан Telegram: тестовую отправку некуда отправить.'],
     ['finished', 'Опрос закрыт или остановлен: менять в нём можно только название.'],
+    ['image_missing', 'Файл картинки опроса не найден на сервере: загрузите картинку заново, сохраните опрос и снова отправьте его себе.'],
 ]);
+
+it('refuses the launch and the test send of a poll whose picture file is gone, with the words for /admin', function (): void {
+    Queue::fake();
+    $path = 'polls/'.str_repeat('g', 40).'.png';
+    $poll = PollFixtures::poll(['image_path' => $path, 'image_file_id' => 'AgAD-known']);
+    PollFixtures::tested($poll);
+
+    Livewire::test(EditPoll::class, ['record' => $poll->id])->callAction('launch');
+
+    expect($poll->fresh()->status)->toBe(PollStatus::Draft)
+        ->and(pollNotices()[0])->toStartWith('Файл картинки опроса не найден')
+        ->and(PollDelivery::query()->where('poll_id', $poll->id)->whereNotNull('learner_id')->count())->toBe(0);
+
+    // The test send needs the file only while Telegram has no file_id of it.
+    $poll->forceFill(['image_file_id' => null])->save();
+    expect(fn () => app(PollTestSender::class)->send($poll->fresh(), PollFixtures::admin(777000222)))
+        ->toThrow(fn (PollLaunchException $e) => expect($e->reason)->toBe(PollLaunchException::IMAGE_MISSING));
+    expect(PollDelivery::query()->where('poll_id', $poll->id)->count())->toBe(1);
+});
 
 it('refuses the launch of a text that does not fit Telegram', function (): void {
     Queue::fake();
@@ -429,6 +451,33 @@ it('stops a broadcast and closes a poll from the page, each once', function (): 
         ->assertActionHidden('cancel')
         ->assertActionHidden('testSend')
         ->assertActionHidden('launch');
+});
+
+it('refuses the picture of another poll and never deletes a file another poll still refers to', function (): void {
+    $theirs = 'polls/'.str_repeat('T', 40).'.png';
+    $png = UploadedFile::fake()->image('t.png', 50, 50);
+    Storage::disk('local')->put($theirs, (string) file_get_contents($png->getPathname()));
+    $other = PollFixtures::poll(['image_path' => $theirs, 'status' => PollStatus::Sent, 'launched_at' => now()]);
+    $editor = app(PollEditor::class);
+
+    // A crafted form pointing at the other poll's file: refused on create and on update.
+    expect(fn () => $editor->create(pollForm(['image_path' => $theirs]), $this->admin))
+        ->toThrow(fn (PollEditException $e) => expect($e->reason)->toBe(PollEditException::IMAGE));
+    $draft = $editor->create(pollForm(), $this->admin);
+    expect(fn () => $editor->update($draft, pollForm(['image_path' => $theirs])))
+        ->toThrow(fn (PollEditException $e) => expect($e->reason)->toBe(PollEditException::IMAGE));
+
+    // Should two rows refer to one file anyway (data from before this check), deleting one keeps the file for the other.
+    $draft->forceFill(['image_path' => $theirs])->save();
+    expect($editor->delete($draft->fresh()))->toBeTrue();
+    Storage::disk('local')->assertExists($theirs);
+    expect($other->fresh()->image_path)->toBe($theirs);
+
+    // Its own picture is kept on a save of the same draft.
+    $own = 'polls/'.str_repeat('O', 40).'.png';
+    Storage::disk('local')->put($own, (string) file_get_contents($png->getPathname()));
+    $mine = $editor->create(pollForm(['image_path' => $own]), $this->admin);
+    expect($editor->update($mine, pollForm(['image_path' => $own, 'title' => 'Другое']))->image_path)->toBe($own);
 });
 
 it('deletes a draft with its picture', function (): void {

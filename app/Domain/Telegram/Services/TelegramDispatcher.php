@@ -12,6 +12,8 @@ use App\Domain\Telegram\Handlers\ChatMigrationHandler;
 use App\Domain\Telegram\Handlers\CloseExamHandler;
 use App\Domain\Telegram\Handlers\Contracts\GroupUpdateHandler;
 use App\Domain\Telegram\Handlers\Contracts\UpdateHandler;
+use App\Domain\Telegram\Handlers\CupCallbackHandler;
+use App\Domain\Telegram\Handlers\CupCommandHandler;
 use App\Domain\Telegram\Handlers\DeleteAccountCallbackHandler;
 use App\Domain\Telegram\Handlers\DeleteAccountCommandHandler;
 use App\Domain\Telegram\Handlers\FriendsCallbackHandler;
@@ -97,6 +99,8 @@ final class TelegramDispatcher
         ReminderQuizCallbackHandler $reminderQuizCallback,
         PollCallbackHandler $pollCallback,
         ChatMigrationHandler $chatMigration,
+        CupCommandHandler $cupCommand,
+        CupCallbackHandler $cupCallback,
     ) {
         // Order matters: more specific commands first (e.g. /start_training
         // must win over the generic /start catch-all).
@@ -120,6 +124,8 @@ final class TelegramDispatcher
             $invite,
             $paySupport,
             $org,
+            // `/cup` and `/start cup` in a group (docs/33 §3.2): before the group link and the private `/start`.
+            $cupCommand,
             // `/start grp_…` / `/link …` in a group: before the private-chat `/start` (which does not match groups anyway).
             $groupLink,
             $start,
@@ -146,6 +152,8 @@ final class TelegramDispatcher
             $reminderQuizCallback,
             // Poll buttons `pl1:` (docs/04 B.5b).
             $pollCallback,
+            // The friends' cup in a group `cup:` (docs/04 B.16).
+            $cupCallback,
         ];
     }
 

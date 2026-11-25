@@ -11,12 +11,16 @@ use App\Domain\Telegram\Contracts\TelegramClient;
 use App\Domain\Telegram\DTO\PhotoSource;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Exceptions\TelegramForbiddenException;
+use App\Domain\Telegram\Exceptions\TelegramOutboundBusyException;
 use App\Domain\Telegram\Exceptions\TelegramRateLimitedException;
+use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
+use App\Jobs\Middleware\ThrottleTelegramOutbound;
 use App\Listeners\Engagement\SendMonthWinnerMessages;
 use App\Models\LeagueMonth;
 use App\Models\Learner;
 use App\Models\NotificationLog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Storage;
@@ -299,4 +303,92 @@ it('puts one button under the photo: the rating of the month (docs/36 §3а, N4)
         ['text' => '🏆 Рейтинг месяца', 'web_app' => ['url' => 'https://twa.test/twa/league/month?from=month_won']],
     ]]])
         ->and($this->tg->photoMessages[1]['markup']['inline_keyboard'][0][0]['text'])->toBe('🏆 Oy reytingi');
+});
+
+it('sends the same text with the same button once as a message when Telegram refuses the photo, under the same marker', function (): void {
+    Exceptions::fake();
+    $month = mwMonth();
+    $winner = mwWinner();
+    $this->tg->failSends = 1;
+    $this->tg->failSendsBadRequest = 'IMAGE_PROCESS_FAILED';
+
+    expect(app(MonthWinnerSender::class)->sendAll($month->id, [['learner_id' => $winner->id, 'place' => 1, 'points' => 10]]))
+        ->toBe(['sent' => 1, 'skipped' => 0, 'forbidden' => 0]);
+
+    expect($this->tg->photoMessages)->toBe([])
+        ->and($this->tg->sent)->toHaveCount(1)
+        ->and($this->tg->sent[0]['chat_id'])->toBe($winner->telegram_user_id)
+        ->and($this->tg->sent[0]['text'])->toContain('1-е место')
+        ->and($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['text'])->toBe('🏆 Рейтинг месяца')
+        ->and(NotificationLog::query()->where('learner_id', $winner->id)->sole()->payload)->toMatchArray(['key' => 'month:'.$month->id, 'photo' => false]);
+    Exceptions::assertReported(fn (TelegramApiException $e): bool => str_contains($e->getMessage(), 'IMAGE_PROCESS_FAILED'));
+
+    // Once: a repeated event sends nothing more.
+    expect(app(MonthWinnerSender::class)->sendAll($month->id, [['learner_id' => $winner->id, 'place' => 1, 'points' => 10]]))
+        ->toBe(['sent' => 0, 'skipped' => 1, 'forbidden' => 0]);
+});
+
+it('deletes the marker when the text after a refused photo is refused too, so the retry delivers', function (): void {
+    Exceptions::fake();
+    $month = mwMonth();
+    $winner = mwWinner();
+    $this->tg->failSends = 2;
+    $this->tg->failSendsBadRequest = 'IMAGE_PROCESS_FAILED';
+
+    expect(fn () => app(MonthWinnerSender::class)->sendAll($month->id, [['learner_id' => $winner->id, 'place' => 1, 'points' => 10]]))
+        ->toThrow(TelegramApiException::class);
+    expect(NotificationLog::query()->where('learner_id', $winner->id)->exists())->toBeFalse()
+        ->and($this->tg->sent)->toBe([]);
+});
+
+it('takes a slot of the bot-wide budget for every message after the first; none in time puts the listener back, nothing lost', function (): void {
+    config(['telegram.outbound.sync_wait_ms' => 0]);
+    $limiter = new TelegramMessageRateLimiter(20, 60, 25);
+    $this->app->instance(TelegramMessageRateLimiter::class, $limiter);
+    $month = mwMonth();
+    [$first, $second, $third] = [mwWinner(), mwWinner(), mwWinner()];
+    $winners = [
+        ['learner_id' => $first->id, 'place' => 1, 'points' => 10],
+        ['learner_id' => $second->id, 'place' => 2, 'points' => 5],
+        ['learner_id' => $third->id, 'place' => 3, 'points' => 4],
+    ];
+    // The first message uses the slot of the listener's middleware; the budget is gone before the second.
+    $this->tg->beforeSend = function (): void {
+        Cache::put(TelegramMessageRateLimiter::PAUSE_KEY, now()->getTimestamp() + 30, 30);
+    };
+
+    expect(fn () => app(MonthWinnerSender::class)->sendAll($month->id, $winners))->toThrow(TelegramOutboundBusyException::class);
+    expect($this->tg->photoMessages)->toHaveCount(1)
+        ->and(NotificationLog::query()->pluck('learner_id')->all())->toBe([$first->id]);
+
+    // The retry after the pause: the first is skipped, the others take a slot each.
+    $this->tg->beforeSend = null;
+    Cache::forget(TelegramMessageRateLimiter::PAUSE_KEY);
+    expect(app(MonthWinnerSender::class)->sendAll($month->id, $winners))->toBe(['sent' => 2, 'skipped' => 1, 'forbidden' => 0])
+        ->and($this->tg->photoMessages)->toHaveCount(3)
+        ->and(array_column($this->tg->photoMessages, 'chat_id'))->toBe([$first->telegram_user_id, $second->telegram_user_id, $third->telegram_user_id]);
+});
+
+it('puts the listener back without an exception when the sender finds no slot (ThrottleTelegramOutbound)', function (): void {
+    $job = new class
+    {
+        public object $job;
+
+        public ?int $releasedFor = null;
+
+        public function __construct()
+        {
+            $this->job = new stdClass;
+        }
+
+        public function release(int $delay): void
+        {
+            $this->releasedFor = $delay;
+        }
+    };
+    $limiter = new TelegramMessageRateLimiter(20, 60, 0);
+
+    $out = (new ThrottleTelegramOutbound($limiter))->handle($job, fn () => throw new TelegramOutboundBusyException(4));
+
+    expect($out)->toBeNull()->and($job->releasedFor)->toBe(4);
 });

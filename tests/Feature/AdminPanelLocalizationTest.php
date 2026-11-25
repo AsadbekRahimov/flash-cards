@@ -8,6 +8,7 @@ use App\Filament\Pages\ImportLesson;
 use App\Filament\Resources\ClassCaravanResource;
 use App\Filament\Resources\CourseResource;
 use App\Filament\Resources\CourseResource\Pages\ListCourses;
+use App\Filament\Resources\CupResource;
 use App\Filament\Resources\ExamSessionResource;
 use App\Filament\Resources\ExamSessionResource\Pages\ListExamSessions;
 use App\Filament\Resources\GameItemResource;
@@ -67,6 +68,7 @@ use App\Filament\Widgets\WebhookErrorsWidget;
 use App\Filament\Widgets\WeeklyActivityWidget;
 use App\Models\ClassCaravan;
 use App\Models\Course;
+use App\Models\Cup;
 use App\Models\ExamSession;
 use App\Models\GameItem;
 use App\Models\GameRun;
@@ -200,6 +202,7 @@ function loc_records(User $admin): array
         GameRunResource::class => GameRun::factory()->create(),
         ClassCaravanResource::class => ClassCaravan::factory()->create(),
         PollResource::class => Poll::factory()->sending()->withOptions(2)->create(),
+        CupResource::class => Cup::factory()->create(),
     ];
 }
 

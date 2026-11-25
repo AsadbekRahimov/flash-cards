@@ -15,6 +15,7 @@ use App\Domain\Polls\DTO\PollBatchOutcome;
 use App\Domain\Polls\Enums\PollDeliveryStatus;
 use App\Domain\Polls\Enums\PollStatus;
 use App\Domain\Polls\Exceptions\PollLaunchException;
+use App\Domain\Polls\Services\PollAudienceQuery;
 use App\Domain\Polls\Services\PollDeliverySender;
 use App\Domain\Polls\Services\PollLauncher;
 use App\Domain\Polls\Services\PollSweeper;
@@ -24,15 +25,18 @@ use App\Domain\Telegram\DTO\PhotoSource;
 use App\Domain\Telegram\Exceptions\TelegramApiException;
 use App\Domain\Telegram\Services\TelegramMessageRateLimiter;
 use App\Jobs\SendPollBatchJob;
+use App\Models\AuditLog;
 use App\Models\Learner;
 use App\Models\Poll;
 use App\Models\PollDelivery;
 use App\Models\PollOption;
 use Carbon\CarbonImmutable;
+use Illuminate\Bus\UniqueLock;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Exceptions;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\FakeTelegramClient;
@@ -137,6 +141,7 @@ it('uploads again once when Telegram refuses a stored file_id', function (): voi
     Storage::disk('local')->put('polls/pic.png', 'png-bytes');
     $poll = PollFixtures::launched(2, ['image_path' => 'polls/pic.png', 'image_file_id' => 'stale-file-id']);
     $this->tg->failSends = 1;
+    $this->tg->failSendsBadRequest = 'wrong file identifier/HTTP URL specified';
 
     pollBatch($poll);
 
@@ -145,13 +150,64 @@ it('uploads again once when Telegram refuses a stored file_id', function (): voi
         ->and(array_values(array_map(fn ($s) => $s->value, pollStatuses($poll))))->toBe(['sent', 'sent']);
 });
 
-it('refuses a broadcast whose picture is neither on the disk nor known to Telegram, touching no row', function (): void {
+it('keeps the file_id when Telegram refuses the message for another reason: that row fails, nothing is uploaded', function (): void {
     Storage::fake('local');
-    $poll = PollFixtures::launched(2, ['image_path' => 'polls/missing.png']);
+    Storage::disk('local')->put('polls/pic.png', 'png-bytes');
+    $poll = PollFixtures::launched(2, ['image_path' => 'polls/pic.png', 'image_file_id' => 'good-file-id']);
+    $this->tg->failSends = 1;
+    $this->tg->failSendsBadRequest = "can't parse reply keyboard markup JSON object";
+    Exceptions::fake();
 
-    expect(fn () => pollBatch($poll))->toThrow(RuntimeException::class);
-    expect(array_values(array_map(fn ($s) => $s->value, pollStatuses($poll))))->toBe(['pending', 'pending'])
-        ->and(PollDelivery::query()->whereNotNull('claimed_at')->whereNotNull('learner_id')->count())->toBe(0);
+    $outcome = pollBatch($poll);
+
+    expect($outcome->failed)->toBe(1)->and($outcome->sent)->toBe(1)
+        ->and(array_column($this->tg->photoMessages, 'kind'))->toBe([PhotoSource::KIND_FILE_ID])
+        ->and($poll->fresh()->image_file_id)->toBe('good-file-id')
+        ->and(array_values(array_map(fn ($s) => $s->value, pollStatuses($poll))))->toBe(['failed', 'sent']);
+    Exceptions::assertReported(TelegramApiException::class);
+});
+
+it('stops a broadcast whose picture is neither on the disk nor known to Telegram: cancelled, rows skipped, reported once', function (): void {
+    Storage::fake('local');
+    Storage::disk('local')->put('polls/gone.png', 'png-bytes');
+    // Launched with its file (the launch checks it), deleted before the first batch.
+    $poll = PollFixtures::launched(2, ['image_path' => 'polls/gone.png']);
+    Storage::disk('local')->delete('polls/gone.png');
+    Exceptions::fake();
+
+    $outcome = pollBatch($poll);
+    $again = pollBatch($poll);
+
+    expect($outcome->more)->toBeFalse()->and($again->more)->toBeFalse()
+        ->and($poll->fresh()->status)->toBe(PollStatus::Cancelled)
+        ->and(PollDelivery::query()->where('poll_id', $poll->id)->whereNotNull('learner_id')->pluck('error_code')->unique()->values()->all())->toBe(['image_missing'])
+        ->and(array_values(array_map(fn ($s) => $s->value, pollStatuses($poll))))->toBe(['skipped', 'skipped'])
+        ->and($this->tg->photoMessages)->toBe([])
+        ->and(AuditLog::query()->where('action', PollLauncher::AUDIT_CANCELLED)->where('entity_id', $poll->id)->sole()->meta)
+        ->toBe(['from' => 'sending', 'reason' => 'image_missing']);
+    Exceptions::assertReportedCount(1);
+});
+
+it('stops when the picture vanishes mid-broadcast and Telegram refuses the file_id: the row and the rest skipped, no loop', function (): void {
+    Storage::fake('local');
+    Storage::disk('local')->put('polls/pic.png', 'png-bytes');
+    $poll = PollFixtures::launched(3, ['image_path' => 'polls/pic.png', 'image_file_id' => 'expired-file-id']);
+    Storage::disk('local')->delete('polls/pic.png');
+    $this->tg->failSends = 1;
+    $this->tg->failSendsBadRequest = 'wrong remote file identifier specified: Wrong string length';
+    Exceptions::fake();
+    Queue::fake();
+
+    $outcome = pollBatch($poll);
+
+    expect($outcome->more)->toBeFalse()->and($outcome->skipped)->toBe(1)
+        ->and($poll->fresh()->status)->toBe(PollStatus::Cancelled)
+        ->and(array_values(array_map(fn ($s) => $s->value, pollStatuses($poll))))->toBe(['skipped', 'skipped', 'skipped'])
+        ->and(PollDelivery::query()->where('poll_id', $poll->id)->whereNotNull('learner_id')->pluck('error_code')->unique()->values()->all())->toBe(['image_missing'])
+        ->and($this->tg->photoMessages)->toBe([]);
+    Exceptions::assertReportedCount(1);
+    expect(app(PollSweeper::class)->sweep(CarbonImmutable::now()->addMinutes(20))['restarted'])->toBe(0);
+    Queue::assertNothingPushed();
 });
 
 it('marks a 403 forbidden, closes the learner DM and goes on', function (): void {
@@ -208,8 +264,14 @@ it('marks a timeout unknown, releases the rest and throws; the retry never sends
     $this->tg->failSends = 1;
     $this->tg->failSendsAsTransport = true;
 
+    Log::spy();
+
     expect(fn () => pollBatch($poll))->toThrow(TelegramApiException::class);
 
+    // The exception takes the place of the outcome: the counts of the batch go to the log line, the unknown row among them.
+    Log::shouldHaveReceived('warning')->with('polls.broadcast_transport_failed', Mockery::on(
+        fn (array $c): bool => $c['poll_id'] === $poll->id && $c['unknown'] === 1 && $c['released'] === 2 && $c['sent'] === 0,
+    ))->once();
     $statuses = array_values(array_map(fn ($s) => $s->value, pollStatuses($poll)));
     expect($statuses)->toBe(['unknown', 'pending', 'pending'])
         ->and(PollDelivery::query()->whereNotNull('learner_id')->where('status', 'pending')->whereNotNull('claimed_at')->count())->toBe(0);
@@ -253,6 +315,20 @@ it('skips a learner who became unreachable after the launch, without a send', fu
     expect($outcome->skipped)->toBe(3)->and($outcome->sent)->toBe(1)
         ->and($this->tg->textMessages)->toHaveCount(1)
         ->and($rows[0]->fresh()->error_code)->toBe('unreachable');
+});
+
+it('takes the same «reachable» as the audience: a DM closed by its reason alone is skipped too', function (): void {
+    $poll = PollFixtures::launched(2);
+    $rows = PollDelivery::query()->where('poll_id', $poll->id)->whereNotNull('learner_id')->orderBy('id')->get();
+    // The audience leaves out a learner with a reason and no date (PollAudienceQuery); so does the step to `sending` now.
+    Learner::query()->whereKey($rows[0]->learner_id)->update(['dm_blocked_reason' => 'kicked']);
+
+    $outcome = pollBatch($poll);
+
+    expect($outcome->skipped)->toBe(1)->and($outcome->sent)->toBe(1)
+        ->and($rows[0]->fresh()->status)->toBe(PollDeliveryStatus::Skipped)
+        ->and($rows[0]->fresh()->error_code)->toBe('unreachable')
+        ->and(app(PollAudienceQuery::class)->count(['plan' => 'all']))->toBe(1);
 });
 
 it('keeps two workers apart by the lease: a second batch during the first takes other rows, each learner gets one message', function (): void {
@@ -323,11 +399,73 @@ it('restarts the chains of a stalled broadcast and leaves a live one alone', fun
 
     expect(app(PollSweeper::class)->sweep()['restarted'])->toBe(1);
     Queue::assertPushed(SendPollBatchJob::class, 2);
+    Queue::assertPushed(SendPollBatchJob::class, fn (SendPollBatchJob $job): bool => $job->slot === 0);
+    Queue::assertPushed(SendPollBatchJob::class, fn (SendPollBatchJob $job): bool => $job->slot === 1);
+    PollFixtures::forgetChains($poll->id);
 
     PollDelivery::query()->where('poll_id', $poll->id)->whereNotNull('learner_id')->limit(1)->update(['claimed_at' => now()]);
     Queue::fake();
     expect(app(PollSweeper::class)->sweep()['restarted'])->toBe(0);
     Queue::assertNothingPushed();
+});
+
+it('adds no chain while the chains wait between batches: after a 429, without a slot, behind a long queue', function (): void {
+    config(['polls.batch_size' => 1, 'polls.workers' => 2]);
+    $poll = PollFixtures::launched(6, ['launched_at' => now()]);
+    $notAfter = SendPollBatchJob::deadline(CarbonImmutable::instance($poll->launched_at))->getTimestamp();
+    Queue::fake();
+
+    // Two chains run a batch each: one is refused with a 429 (successor in 30 s), one finds no slot (successor in 1-5 s).
+    $this->tg->failSends = 1;
+    $this->tg->failSendsRetryAfter = 30;
+    (new SendPollBatchJob($poll->id, $notAfter, 0))->handle(app(PollDeliverySender::class));
+    Cache::put(TelegramMessageRateLimiter::CONTENDED_KEY, 1, 2);
+    (new SendPollBatchJob($poll->id, $notAfter, 1))->handle(app(PollDeliverySender::class));
+    Cache::forget(TelegramMessageRateLimiter::CONTENDED_KEY);
+
+    Queue::assertPushed(SendPollBatchJob::class, 2);
+    Queue::assertPushed(SendPollBatchJob::class, fn (SendPollBatchJob $job): bool => $job->slot === 0 && $job->delay >= 30);
+    Queue::assertPushed(SendPollBatchJob::class, fn (SendPollBatchJob $job): bool => $job->slot === 1 && $job->delay >= 1);
+
+    // Every sweep for the next hour: no live lease, rows pending - and still nothing added (the queued successors hold their slots,
+    // however long the queue `low` keeps them).
+    foreach ([6, 11, 16, 31, 59] as $minutes) {
+        expect(app(PollSweeper::class)->sweep(CarbonImmutable::now()->addMinutes($minutes))['restarted'])->toBe(0);
+    }
+    Queue::assertPushed(SendPollBatchJob::class, 2);
+    expect($poll->fresh()->status)->toBe(PollStatus::Sending);
+});
+
+it('restarts the chains when all of them died, never more than one job per slot', function (): void {
+    config(['polls.workers' => 3]);
+    $poll = PollFixtures::launched(4, ['launched_at' => now()]);
+    Queue::fake();
+
+    // The jobs of the launch were picked up (the fixture freed their slots) and the workers died: no lease, nothing queued.
+    $first = app(PollSweeper::class)->sweep(CarbonImmutable::now()->addMinutes(6));
+    $second = app(PollSweeper::class)->sweep(CarbonImmutable::now()->addMinutes(11));
+
+    expect($first['restarted'])->toBe(1)->and($second['restarted'])->toBe(0);
+    Queue::assertPushed(SendPollBatchJob::class, 3);
+    expect(collect(Queue::pushed(SendPollBatchJob::class))->map(fn (SendPollBatchJob $j): int => $j->slot)->sort()->values()->all())->toBe([0, 1, 2]);
+
+    // One slot's job was picked up and its worker died (maxExceptions, a kill): only that slot comes back.
+    Cache::lock(UniqueLock::getKey(new SendPollBatchJob($poll->id, 0, 1)))->forceRelease();
+    expect(app(PollSweeper::class)->sweep(CarbonImmutable::now()->addMinutes(16))['restarted'])->toBe(1);
+    Queue::assertPushed(SendPollBatchJob::class, 4);
+    expect(collect(Queue::pushed(SendPollBatchJob::class))->map(fn (SendPollBatchJob $j): int => $j->slot)->sort()->values()->all())->toBe([0, 1, 1, 2]);
+});
+
+it('frees the slot when a worker picks the job up, so its successor can be queued', function (): void {
+    config(['polls.batch_size' => 1, 'polls.workers' => 1]);
+    $poll = PollFixtures::launched(3, ['launched_at' => now()]);
+
+    // The sync queue runs the chain through the queue worker's handler: each link frees its slot, its successor takes it.
+    expect(app(PollLauncher::class)->startWorkers($poll->id, CarbonImmutable::instance($poll->launched_at)))->toBe(1)
+        ->and(pollChats($this->tg))->toHaveCount(3)
+        ->and($poll->fresh()->status)->toBe(PollStatus::Sent)
+        // The chain ended: nothing holds the slot.
+        ->and(SendPollBatchJob::enqueue($poll->id, now()->addDay()->getTimestamp(), 0))->toBeTrue();
 });
 
 it('ends the broadcast at its deadline: nothing sent after it, the rest skipped, the poll sent', function (): void {

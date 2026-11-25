@@ -2188,7 +2188,7 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
   - Текст `reminders.lesson_nudge.text` (`text_untitled` без названия урока): «Урок «:lesson» пройден: :count новых слов. Закрепите их в игре «Пары на время»…» + подвал `/settings`; `:count` — слова урока, встреченные сегодня (`DayPlan::todayWords`). Об очках не говорит: слова, выученные сегодня, в игре в тот же день очков не дают. Одна кнопка `buttons.lesson_game` («🎮 Закрепить в игре») через `BotButtons`: `web_app` на `TwaScreen::PracticeHub` — `/twa/practice/<slug курса>?lesson=<id>&play=pairs_timed&from=lesson_nudge`.
   - Маркер отправки — строка `notifications_log` `type = lesson_nudge` (`payload: lesson_id, words, date`) до вызова Telegram; ошибки — по docs/34 §4в п. 8: 403 → строка удаляется, `DmReachability::markUnreachable`; иной определённый отказ (и 429) → строка удаляется, исключение пробрасывается (429 — `ThrottleTelegramOutbound` откладывает задание на `retry_after`); таймаут / 5xx → строка остаётся. Событие `lesson_nudge.sent {lesson_id, words}`.
 - **Напоминание следующего дня про очки** (docs/31 §5б, 25.11.2026) — вариант текста персонального напоминания, не отдельное сообщение:
-  - `ReminderDispatcher` на каждую пачку (`chunkById`, `REMINDERS_BATCH_SIZE`) делает **один** запрос `ReviewScoreHint::learnerIds()`: `SELECT DISTINCT learner_id FROM word_repetitions WHERE (learner_id IN (…) AND created_at >= <начало локального вчера> AND created_at < <конец>) OR (…другой пояс…) AND introduced_mode IN ('lesson','group_lesson') AND last_reviewed_at IS NOT NULL AND next_review_at <= now` (ученики пачки сгруппированы по UTC-границам своего вчерашнего дня). Признак уходит в задание: `SendLearnerReminderJob::$scoreHint` (обычное свойство со значением `false` — задание, поставленное до выката, читается без признака). Пока очки не считаются (`leagues.scoring.mode` не `live` или рейтинговый день ни в неделе, ни в месяце не на v2 — `ReviewScoreHint::enabled()`, только конфиг) запроса нет.
+  - `ReminderDispatcher` на каждую пачку (`chunkById`, `REMINDERS_BATCH_SIZE`) делает **один** запрос `ReviewScoreHint::learnerIds()`: `SELECT DISTINCT learner_id FROM word_repetitions WHERE (learner_id IN (…) AND created_at >= <начало локального вчера> AND created_at < <конец>) OR (…другой пояс…) AND introduced_mode IN ('lesson','group_lesson') AND last_reviewed_at IS NOT NULL AND next_review_at <= now` (ученики пачки сгруппированы по UTC-границам своего вчерашнего дня; ученики, которые не участвуют в рейтинге — `meta.leagues_opt_out` или `blocked_at`, — отбрасываются ещё в PHP по уже загруженной пачке: им «начисляются баллы рейтинга» было бы неправдой). Признак уходит в задание: `SendLearnerReminderJob::$scoreHint` (обычное свойство со значением `false` — задание, поставленное до выката, читается без признака). Пока очки не считаются (`leagues.scoring.mode` не `live` или рейтинговый день ни в неделе, ни в месяце не на v2 — `ReviewScoreHint::enabled()`, только конфиг) запроса нет.
   - План на PostgreSQL 16 (3 млн строк `word_repetitions`: 2 000 учеников × 1 500 слов, 10 новых в день, два пояса в пачке из 200): BitmapOr из двух Bitmap Index Scan по `word_repetitions_learner_id_created_at_index` (читаются только строки вчерашнего дня — 2 000), Bitmap Heap Scan 49 страниц, 652 буфера, 1,2 мс. Новых индексов нет.
   - Число запросов рассылки: было 2 + N (выборка без указателя, пачка, N условных `UPDATE`), стало 2 + N + 1 на пачку в режиме очков (тест `ReviewScoreHintReminderTest`: 3 и 30 учеников — разница ровно 1).
   - `ReminderSender` подменяет текст, если признак есть, очки всё ещё считаются, вид напоминания `review` и ученик сегодня не занимался (`idleDays >= 1`) — без новых запросов. Текст `reminders.score_due` + кнопка `buttons.review_words` «🔁 Повторить слова» → `/?from=reminder`; в напоминании-вопросе — вводная `reminders.quiz.lead.score_due`. `notifications_log.payload.score_hint = true`, `reminder.sent {…, score_hint: true}` (у остальных напоминаний поля нет). Лимит «одно сообщение о занятиях в сутки» (`StudyMessageLimit`) — общий: если сегодня уже было напоминание после урока, ничего не уходит.
@@ -2229,8 +2229,10 @@ URL TWA: `https://lexiflow.example.com/twa/training/123` (для экзамен�
 
   Язык — язык доставки (`poll_deliveries.locale`); для отказа до того, как доставка найдена, — `from.language_code` (`uz…` → uz, иначе ru).
 - Цена нажатия в БД — только операторы `tap()` (1–5) + `markReachable` диспетчера (1) + событие при ответе (1): подпись и клавиатура
-  берутся из чистого кэша `polls:view:v1:<poll_id>` (`PollViewCache`, 600 с, массив скаляров; промах — 2 чтения, `polls` и
-  `poll_options`; сбрасывает `PollEditor` после записи черновика). Закреплено тестом `PollCallbackTest`.
+  берутся из чистого кэша `polls:view:v2:<poll_id>` (`PollViewCache`, 600 с, массив скаляров с `version` — `updated_at` опроса в
+  секундах; промах — 2 чтения, `polls` и `poll_options`; сбрасывает `PollEditor` после записи черновика). Нажатие знает версию опроса
+  из своего же оператора (`PollTapResult::pollVersion`) и запись старше неё читает заново: старый вид, положенный в кэш нажатием,
+  которое прочитало опрос до правки, не показывается. Закреплено тестом `PollCallbackTest`.
 - Ответ не пишет ничего в `learner_daily_stats`, очки и серию; событие продукта — `poll.answered` (`poll_id`, `delivery_id`, `changed`)
   при `Voted` и не тестовой доставке, без `learner_id` (в итоге нажатия его нет; ученик — по `delivery_id`).
   `allowed_updates` не меняется (`callback_query` уже есть). Тексты — `lang/{ru,uz}/polls.php`: `submit`, `change`, `thanks`, `closed`,
@@ -2406,17 +2408,48 @@ Job — по образцу `SendFriendDmJob`: middleware `ThrottleTelegramOutbo
 **Путь.** Сообщение уходит сразу, как у `/start_exam` (`GroupSessionAnnouncer`, `sendWebAppButton(immediate: true)`), а не через очередь исходящих: отказ Telegram должен быть виден вызывающему, иначе караван, которого никто не видит, нельзя снять. Транспортный сбой (таймаут, 5xx) — сообщение могло дойти, караван остаётся. Сообщение «отменён» при отказе Telegram только логируется: отмена остаётся в силе.
 **Когда молчим.** `GAME_ACCESS` не `all` — ни ответа, ни запросов к таблицам игры; группа не активна (блокировка группы).
 
-### B.16 Кубок друзей в группе (docs/33 §6; ядро — K4, бот — K6, пока не подключён)
+### B.16 Кубок друзей в группе (docs/33 §6; ядро — K4, бот — K6 ✅)
 
-- `callback_data`: `cup:new`, `cup:pub:{id}`, `cup:cancel:{id}`; команда `/cup` в группе. Обработчики возвращают
-  `requiresActiveGroup() = false` (кубок работает в `pending`-группах) и всегда отвечают `answerCallbackQuery`; отказ — тост нажавшему.
-- `cup:new` / `/cup` → `CupLifecycleService::propose($group, from.id, message_thread_id)`; `cup:pub:{id}` → `publish($cup, from.id)`
-  (админ чата проверяется в ядре свежим `getChatMember`, бот должен быть администратором — решение владельца К1);
-  `cup:cancel:{id}` → `cancelByChatAdmin($cup, from.id)`.
-- Уход из чата (`chat_member` / `left_chat_member`) → `CupParticipationService::onLeftChat($learner, $group)`; возврат в чат участника
-  не активирует — это делает следующая свежая проверка.
-- Расписание: `cups:advance` каждые 5 минут (истечение черновиков, старт / сдвиг старта / отмена без игроков, снимки следующего дня,
-  закрытие брошенных попыток, финиш) — `routes/console.php`; `cups:post-summaries`, `cups:refresh-cards`, `cups:send-outbox` — K6.
+- `callback_data` (`CupCallback`, строгий regex с `\z`): `cup:new`, `cup:pub:{id}`, `cup:cancel:{id}` (id — без ведущих нулей); команда
+  `/cup` (и `/start cup` — то, что Telegram присылает после добавления бота по ссылке `?startgroup=cup`) в группе. Обработчики
+  `CupCallbackHandler`, `CupCommandHandler` возвращают `requiresActiveGroup() = false` (кубок работает в `pending`-группах). Каждое нажатие
+  получает ровно один `answerCallbackQuery`; отказ — короткий тост только нажавшему (не alert), в чат ничего не пишется. Тосты — на языке
+  нажавшего (`from.language_code`), сообщения в чате — на языке кубка (`cups.locale`). Простой текст без HTML.
+- `cup:new` / `/cup` → `CupLifecycleService::propose($group, from.id, message_thread_id темы форума)`; новый черновик — строка outbox
+  `cup_messages card` и `PostCupMessageJob` (картинка рисовальщика v2 + подпись + кнопки «Опубликовать» `cup:pub`, «Настроить» (url
+  `/cups/setup/<code>`), «Отменить» `cup:cancel`); в теме форума — текстом (у отправки фото нет темы). Уже есть кубок: `cup:new` — тост
+  «В этом чате уже есть кубок», `/cup` — одна строка и кнопка «Открыть кубок» (url `/cups/c/<code>`). `/cup` — не чаще раза в 10 минут на
+  чат (`RateLimiter` `cup-chat:<chat_id>`), иначе молчание.
+- `cup:pub:{id}` → `publish($cup, from.id)` (админ чата проверяется в ядре свежим `getChatMember`, бот должен быть администратором —
+  решение владельца К1), затем предложение правится в карточку (то же сообщение). `cup:cancel:{id}` → `cancelByChatAdmin($cup, from.id)`,
+  карточка — «Кубок отменён» без кнопок. Кнопка принимается, только если кубок — этого чата и кнопка стоит на его карточке
+  (`message_id = cups.card_message_id`); иначе (чужой чат, старое сообщение, закрытый кубок, неверный формат, ЛС) — один и тот же тост
+  «Эта кнопка больше не действует». Не админ — «Это может сделать только администратор чата.».
+- `CUP_ACCESS=off` (или группа вне пилота): `/cup` не распознаётся (как неизвестная команда), нажатие `cup:*` только подтверждается без
+  текста, в приветствии нет кнопки кубка. Приветствие новой `pending`-группы (`GroupWelcomeMessenger`) при открытом кубке и без кубка в чате
+  — та же строка и кнопка «🏆 Создать кубок друзей» (`cup:new`).
+- Карточка (`CupCardRenderer`): «🏆 Кубок друзей Muhrla · «группа» · A2», статус (старт / «День N из 7» / завершён / отменён), до 10
+  строк таблицы `место. display_name [эмодзи Pro] [(вышел(а))] — очки` (эмодзи — только обычный из набора и только при действующем Pro,
+  `CupProEmoji`, один запрос на кубок), «Участников: N · сводка в 20:00»; кнопки — url «Участвовать» / «Играть сегодня», «Таблица»,
+  «Правила» (после финиша — одна «Итоговая таблица»). Картинка без персональных данных (бренд, «Кубок друзей», уровень, правила) — один
+  файл на уровень, размеры и язык.
+- Outbox `cup_messages` (`CupOutbox`, `PostCupMessageJob`, docs/33 §6.4): условный UPDATE `pending → sending` (два воркера не публикуют
+  одно сообщение дважды); кубок на паузе / выключен флагом / закрыт → `skipped`; нет слота чата (20/мин или пауза этого чата после 429) →
+  обратно `pending`, задание откладывается; 429 → `pending` и проброс (`ThrottleTelegramOutbound` откладывает на `retry_after`; 429 группы
+  ставит паузу только этого чата); 403 / chat not found → `skipped` + группа `disabled` (`GroupBotRemoval`); иной определённый отказ →
+  повтор, после 5 попыток `failed`; таймаут / 5xx → `unknown`, без повтора; переезд в супергруппу клиент проходит сам (повтор в новом чате).
+- Правка карточки (`CupCards::refresh`): только при изменении текста (`card_text_hash`), «message is not modified» — успех; карточка
+  удалена админом («message to edit not found») — публикуется заново не чаще раза в сутки; чат переехал в супергруппу
+  (`card_chat_id ≠ chat_id` или ответ «migrated») — заново сразу; 403 — группа `disabled`.
+- Уход из чата (`chat_member` left/kicked/restricted-вне-чата, `left_chat_member`) → после `leave()` всегда
+  `CupParticipationService::onLeftChat($learner, $group)`; возврат в чат участника не активирует — это делает следующая свежая проверка.
+  Бот снова добавлен в группу с открытым кубком (`my_chat_member` из left/kicked) → строка `card` снова `pending` (новое сообщение), второго
+  кубка нет, сроки прежние.
+- Расписание (`routes/console.php`, все `withoutOverlapping`): `cups:advance` каждые 5 минут (истечение черновиков, старт / сдвиг старта /
+  отмена без игроков, снимки следующего дня, закрытие брошенных попыток, финиш); `cups:post-summaries` каждые 5 минут (сводка дня в
+  `summary_minute` по поясу кубка — только если очки таблицы изменились с прошлой сводки и сводки не выключены); `cups:refresh-cards` каждые
+  5 минут (карточки с новостями, не чаще раза в 5 минут каждая); `cups:send-outbox` каждую минуту (`sending` старше 10 минут → `unknown`,
+  забытые `pending` — снова в очередь). Событие `cup.summary_posted {cup_id, day}`.
 
 ## Часть D — Вебхуки платёжных провайдеров (docs/13 §4)
 

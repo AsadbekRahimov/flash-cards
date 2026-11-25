@@ -23,6 +23,16 @@ import type {
   BillingPeriod,
   BillingProviderKey,
   CheckoutResponse,
+  CupAnswerRequest,
+  CupAnswerResponse,
+  CupBoardResponse,
+  CupInvite,
+  CupListResponse,
+  CupParticipantView,
+  CupRound,
+  CupSettingsPatch,
+  CupSetup,
+  CupTodayResponse,
   Course,
   CourseDetail,
   CoursesResponse,
@@ -403,5 +413,38 @@ export const api = {
       client().post<BattleAudioFailedResponse>(`/practice/battles/${id}/audio-failed`, { ...body }, ACT),
     /** A clip of a dictation round (`audio_url` of the element, or one of `audio_preload` in the room). */
     audioBlob: (audioUrl: string) => client().getBlob(audioUrl),
+  },
+  /**
+   * The friends' cup of a group (docs/04 A.23). By id every refusal of a stranger is 403 `cup_not_member` (also "no such cup"); a
+   * stranger's attempt is 404 `cup_round_not_found`; 403 `cup_unavailable` - the cup is switched off.
+   */
+  cups: {
+    /** The invitation of the link of the chat. 403 `cup_not_member`; 409 `cup_paused` / `cup_unverifiable`; 503; 429 `cup_check_busy`. */
+    invite: (code: string) => client().get<CupInvite>(`/cups/by-code/${encodeURIComponent(code)}`),
+    /** My cups: the open first, then the last ten over. */
+    list: () => client().get<CupListResponse>('/cups'),
+    /** The table, my day and my days. */
+    show: (id: number) => client().get<CupBoardResponse>(`/cups/${id}`),
+    /** Joins (201) or answers the row already there (200). 409 `cup_not_open`, 410 `cup_closed`, 422 `cup_display_name_invalid`. */
+    join: (id: number, displayName?: string) =>
+      client().post<CupParticipantView>(`/cups/${id}/join`, displayName !== undefined ? { display_name: displayName } : {}),
+    /** The name in the tournament, at most 3 changes: 409 `cup_rename_limit`. */
+    rename: (id: number, displayName: string) => client().patch<CupParticipantView>(`/cups/${id}/me`, { display_name: displayName }),
+    today: (id: number) => client().get<CupTodayResponse>(`/cups/${id}/rounds/today`),
+    /** Starts the round of today (201) or returns the open one (200). 409 `cup_round_done {points}` / `cup_not_started` / `cup_paused`. */
+    startRound: (id: number) => client().post<CupRound>(`/cups/${id}/rounds/today`, undefined, ACT),
+    /** Resumes an attempt: the same tasks, the original deadline. */
+    round: (attemptId: number) => client().get<CupRound>(`/cup-rounds/${attemptId}`, undefined, READ),
+    /** 409 `answer_already_accepted` / `element_not_current` / `cup_round_expired`; 410 `cup_closed`. */
+    answer: (attemptId: number, body: CupAnswerRequest) => client().post<CupAnswerResponse>(`/cup-rounds/${attemptId}/answer`, { ...body }, ACT),
+    /** The clip of a `listen` task (`audio_url` of the task). */
+    audioBlob: (audioUrl: string, signal?: AbortSignal) => client().getBlob(audioUrl, signal),
+    /** The setup of a draft by an administrator of the chat. 403 `cup_not_chat_admin`. */
+    setup: (code: string) => client().get<CupSetup>(`/cups/setup/${encodeURIComponent(code)}`),
+    /** 409 `cup_bot_not_admin`; 422 `cup_level_invalid` / `cup_material_unavailable`. */
+    publish: (code: string, body: { level?: string; locale?: string } = {}) =>
+      client().post<CupSetup>(`/cups/setup/${encodeURIComponent(code)}/publish`, { ...body }),
+    settings: (id: number, patch: CupSettingsPatch) => client().patch<CupSetup>(`/cups/${id}/settings`, { ...patch }),
+    cancel: (id: number) => client().post<CupSetup>(`/cups/${id}/cancel`),
   },
 }
