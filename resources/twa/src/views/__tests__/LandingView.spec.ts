@@ -3,6 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import LandingView from '../LandingView.vue'
 import { setLocale } from '@/i18n'
+import { BRAND } from '@/brand'
 
 const state = vi.hoisted(() => ({ inTelegram: true }))
 
@@ -74,5 +75,12 @@ describe('LandingView', () => {
     const text = (await render()).text()
 
     expect(text).toContain("Guruh mashg'uloti uchun o'qituvchi yuborgan tugmani bosing.")
+  })
+
+  it('shows the product name from the brand setting, not a word in the template', async () => {
+    state.inTelegram = false
+
+    expect(BRAND).toBe('Muhrla')
+    expect((await render()).get('[data-testid=landing-brand]').text()).toBe(BRAND)
   })
 })

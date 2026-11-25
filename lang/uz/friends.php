@@ -16,7 +16,7 @@ return [
 
     // A request addressed to the learner (a DM, or a pending request met by /start f_<code>).
     'incoming' => [
-        'text' => ":name sizni LexiFlow'da do'st sifatida qo'shmoqchi.",
+        'text' => ":name sizni Muhrla'da do'st sifatida qo'shmoqchi.",
         'accept' => 'Qabul qilish',
         'decline' => 'Rad etish',
     ],
@@ -24,7 +24,7 @@ return [
     'request_sent' => "So'rov yuborildi: :name. Taklifingiz qabul qilinganda xabar beramiz.",
     'already_sent' => "Siz :name'ga allaqachon so'rov yuborgansiz — javob kutilmoqda.",
     'skipped' => "Xo'p, so'rov yuborilmadi.",
-    'accepted' => "Tayyor: endi :name bilan do'st bo'ldingiz. Do'stlar ro'yxati LexiFlow ilovasida.",
+    'accepted' => "Tayyor: endi :name bilan do'st bo'ldingiz. Do'stlar ro'yxati Muhrla ilovasida.",
     'declined' => 'Xo\'p, taklif rad etildi.',
     'already' => "Siz :name bilan allaqachon do'stlashgansiz.",
 
@@ -54,7 +54,7 @@ return [
         'challenge_won' => ":name bilan musobaqa yakunlandi: siz g'olibsiz! Hisob :mine : :theirs.",
         'challenge_lost' => ":name bilan musobaqa yakunlandi: :name g'alaba qozondi. Hisob :mine : :theirs. Ilovada yana bellashishingiz mumkin!",
         'challenge_draw' => ':name bilan musobaqa durang bilan tugadi: :mine : :theirs.',
-        'button' => 'LexiFlow\'ni ochish',
+        'button' => 'Muhrla\'ni ochish',
     ],
 
     'challenge' => [

@@ -5,9 +5,9 @@ declare(strict_types=1);
 return [
 
     'meta' => [
-        'title' => 'LexiFlow — английский слово за словом в Telegram',
+        'title' => 'Muhrla — английский слово за словом в Telegram',
         // `:free` = Free's daily allowance as a phrase (`limits.free_new_words`), from config: LandingPricing::limits().
-        'description' => 'LexiFlow — бот и мини-приложение в Telegram для изучения английских слов: карточки, озвучка и умные повторения. Бесплатно: :free.',
+        'description' => 'Muhrla — бот и мини-приложение в Telegram для изучения английских слов: карточки, озвучка и умные повторения. Бесплатно: :free.',
     ],
 
     'nav' => [
@@ -42,7 +42,7 @@ return [
 
     'how' => [
         'title' => 'Как это работает',
-        'lead' => 'Слово забывается не сразу, а постепенно. LexiFlow возвращает его перед тем, как оно сотрётся, — и с каждым разом пауза длиннее.',
+        'lead' => 'Слово забывается не сразу, а постепенно. Muhrla возвращает его перед тем, как оно сотрётся, — и с каждым разом пауза длиннее.',
         // The path of one word through its reviews: approximate moments in words, not the exact intervals of the engine.
         'timeline' => [
             'word' => 'breakfast',
@@ -159,7 +159,7 @@ return [
     ],
 
     'footer' => [
-        'tagline' => 'LexiFlow — английский в Telegram.',
+        'tagline' => 'Muhrla — английский в Telegram.',
         'contact' => 'Поддержка:',
         'language' => 'Язык',
         'legal_label' => 'Документы',

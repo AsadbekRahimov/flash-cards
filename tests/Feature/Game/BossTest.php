@@ -455,7 +455,7 @@ it('sends the card "I got to {city}" once for the first win: the picture, the ca
         ->and(basename($photo['path']))->toStartWith('boss_3-ru-')
         ->and($photo['caption'])->toContain('Я дошёл до Самарканда')
         ->and($photo['markup']['inline_keyboard'][0][0]['text'])->toBe('Поделиться')
-        ->and($photo['markup']['inline_keyboard'][0][0]['url'])->toBe('https://t.me/share/url?url='.rawurlencode($link).'&text='.rawurlencode('Я дошёл до Самарканда в игре «Караван» — LexiFlow! Учим английский в Telegram.'))
+        ->and($photo['markup']['inline_keyboard'][0][0]['url'])->toBe('https://t.me/share/url?url='.rawurlencode($link).'&text='.rawurlencode('Я дошёл до Самарканда в игре «Караван» — Muhrla! Учим английский в Telegram.'))
         ->and(NotificationLog::query()->where('type', GameCardSender::NOTIFICATION_TYPE)->where('payload->key', 'boss:'.$stage->id)->count())->toBe(1);
 
     // a second win over the same boss: no second card
@@ -650,7 +650,7 @@ it('gives the first win the pair of the DM card to share, and nobody else: the s
 
     expect($share)->toBe($expected)
         ->and($share['link'])->toBe('https://t.me/LexiFlowBot?start=ref_'.$learner->fresh()?->referral_code)
-        ->and($share['text'])->toBe('Я дошёл до Самарканда в игре «Караван» — LexiFlow! Учим английский в Telegram.');
+        ->and($share['text'])->toBe('Я дошёл до Самарканда в игре «Караван» — Muhrla! Учим английский в Telegram.');
 
     // a repeated win and a lost fight carry no card
     $again = bossPlay(bossStart($learner, $course, $stage), $learner);

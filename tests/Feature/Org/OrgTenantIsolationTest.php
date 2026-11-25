@@ -264,14 +264,14 @@ it('removes members, and invites learners through the membership service — one
         ->and(AuditLog::query()->where('action', 'organization.member_removed')->where('user_id', $this->ownerA->id)->exists())->toBeTrue();
 
     $newcomer = Learner::factory()->onboarded()->create(['username' => 'New_Comer', 'telegram_user_id' => 555_000_111]);
-    $neutral = 'Приглашение отправлено, если такой ученик есть в LexiFlow. Оно появится в списке приглашений ниже; когда ученик согласится в боте, он появится среди учеников.';
+    $neutral = 'Приглашение отправлено, если такой ученик есть в Muhrla. Оно появится в списке приглашений ниже; когда ученик согласится в боте, он появится среди учеников.';
 
     Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => '@new_comer'])->assertNotified($neutral);
     $invitation = OrganizationMemberInvitation::query()->where('organization_id', $this->a->id)->where('invited_handle', '@new_comer')->sole();
     expect(OrganizationMember::query()->where('learner_id', $newcomer->id)->exists())->toBeFalse()
         ->and(end($this->tg->sent)['chat_id'])->toBe(555_000_111);
 
-    // Unknown Telegram: no DM, the SAME notification and a row that reads the same — the cabinet does not say who uses LexiFlow.
+    // Unknown Telegram: no DM, the SAME notification and a row that reads the same — the cabinet does not say who uses Muhrla.
     $sent = count($this->tg->sent);
     Livewire::test(ListMembers::class)->callTableAction('add', data: ['telegram' => '@nobody_here'])->assertNotified($neutral);
     $ghost = OrganizationMemberInvitation::query()->where('organization_id', $this->a->id)->where('invited_handle', '@nobody_here')->sole();

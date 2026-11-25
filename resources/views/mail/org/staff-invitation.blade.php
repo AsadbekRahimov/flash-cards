@@ -19,5 +19,5 @@
 
 {{ __('org.mail.invitation.ignore') }}
 
-{{ config('app.name') }}
+{{ config('app.brand') }}
 </x-mail::message>

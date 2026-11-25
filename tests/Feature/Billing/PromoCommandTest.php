@@ -38,7 +38,7 @@ it('redeems the code in a DM, replies with the end date and grants Pro', functio
         // A new learner is on the welcome trial (docs/13 §7.1 "2C.9"): the promo days follow its 7 days.
         $until = now()->addDays(37)->setTimezone('Asia/Tashkent')->format('d.m.Y');
 
-        return $chat === 555 && $text === "Готово! LexiFlow Pro активен до {$until}.";
+        return $chat === 555 && $text === "Готово! Muhrla Pro активен до {$until}.";
     });
 
     app(TelegramDispatcher::class)->dispatch(promoUpdate('/promo welcome-30'));
@@ -53,7 +53,7 @@ it('answers in the learner Uzbek locale', function (): void {
     PromoCode::factory()->create(['code' => 'UZBEK']);
     Learner::factory()->create(['telegram_user_id' => 555, 'interface_locale' => 'uz']);
     $this->api->shouldReceive('sendMessage')->once()->withArgs(
-        fn (int $chat, string $text): bool => str_starts_with($text, 'Tayyor! LexiFlow Pro ') && str_ends_with($text, ' gacha faol.'),
+        fn (int $chat, string $text): bool => str_starts_with($text, 'Tayyor! Muhrla Pro ') && str_ends_with($text, ' gacha faol.'),
     );
 
     app(TelegramDispatcher::class)->dispatch(promoUpdate('/promo UZBEK', lang: 'uz'));

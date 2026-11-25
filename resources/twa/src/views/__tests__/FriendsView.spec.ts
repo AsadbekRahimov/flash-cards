@@ -249,7 +249,7 @@ describe('FriendsView', () => {
 
       await wrapper.get('[data-testid=share-btn]').trigger('click')
 
-      expect(state.shareUrl).toHaveBeenCalledWith(LINK, 'Давай дружить в LexiFlow: сравним серии и устроим вызов!')
+      expect(state.shareUrl).toHaveBeenCalledWith(LINK, 'Давай дружить в Muhrla: сравним серии и устроим вызов!')
       expect(state.haptic).toHaveBeenCalled()
     })
 

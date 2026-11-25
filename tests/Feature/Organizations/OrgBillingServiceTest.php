@@ -380,7 +380,7 @@ it('lists only the own orders and payments, newest first', function (): void {
 });
 
 it('builds the invoice of an own order from site.legal and the order; another organization\'s order is not found', function (): void {
-    config()->set('site.legal', ['name' => 'LexiFlow LLC', 'inn' => '123456789', 'address' => 'Tashkent', 'bank' => '', 'bank_account' => '20208000', 'mfo' => '00014', 'phone' => '', 'email' => 'billing@lexiflow.test']);
+    config()->set('site.legal', ['name' => 'Muhrla LLC', 'inn' => '123456789', 'address' => 'Tashkent', 'bank' => '', 'bank_account' => '20208000', 'mfo' => '00014', 'phone' => '', 'email' => 'billing@lexiflow.test']);
     $this->org->forceFill(['settings' => ['contact' => ['email' => 'owner@bright.test', 'phone' => '+998901112233', 'telegram' => '']]])->save();
     $order = $this->billing->checkout($this->owner, $this->org, 'center_s', 'month', SubscriptionProvider::Payme);
 
@@ -393,7 +393,7 @@ it('builds the invoice of an own order from site.legal and the order; another or
         ->and($invoice->seats)->toBe(100)
         ->and($invoice->periodDays)->toBe(30)
         ->and($invoice->status)->toBe('pending')
-        ->and($invoice->seller)->toBe(['name' => 'LexiFlow LLC', 'inn' => '123456789', 'address' => 'Tashkent', 'bank_account' => '20208000', 'mfo' => '00014', 'email' => 'billing@lexiflow.test'])
+        ->and($invoice->seller)->toBe(['name' => 'Muhrla LLC', 'inn' => '123456789', 'address' => 'Tashkent', 'bank_account' => '20208000', 'mfo' => '00014', 'email' => 'billing@lexiflow.test'])
         ->and($invoice->payer)->toBe(['name' => 'Bright Center', 'email' => 'owner@bright.test', 'phone' => '+998901112233']);
 
     $other = Organization::factory()->create();

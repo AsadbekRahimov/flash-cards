@@ -171,7 +171,7 @@ describe('PaywallSheet', () => {
     ])('links %s', async (contact, href) => {
       const w = await render(me({ contact }))
 
-      expect(w.get('[data-testid=paywall-contact]').text()).toContain('Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro:')
+      expect(w.get('[data-testid=paywall-contact]').text()).toContain('Учитесь в центре? Попросите администратора центра подключить Muhrla Pro:')
       const link = w.get('[data-testid=paywall-contact-link]')
       expect(link.attributes('href')).toBe(href)
       expect(link.text()).toBe(contact)
@@ -200,12 +200,12 @@ describe('PaywallSheet', () => {
   })
 
   describe('the sheet', () => {
-    it('shows "LexiFlow Pro" above the title, the reason as the title, the lead, and the three main things Pro gives while Pro is not on sale', async () => {
+    it('shows "Muhrla Pro" above the title, the reason as the title, the lead, and the three main things Pro gives while Pro is not on sale', async () => {
       const w = await render(me(), { reason: 'quota' })
 
       const header = w.get('[data-testid=paywall] header')
       expect(header.find('svg').exists()).toBe(false)
-      expect(header.get('[data-testid=paywall-eyebrow]').text()).toBe('LexiFlow Pro')
+      expect(header.get('[data-testid=paywall-eyebrow]').text()).toBe('Muhrla Pro')
       expect(header.get('[data-testid=paywall-title]').text()).toBe('Новые слова на сегодня закончились')
       expect(header.get('[data-testid=paywall-lead]').text()).toContain('Лимит новых слов на сегодня исчерпан')
       expect(header.get('[data-testid=paywall-free]').text()).toContain('20 новых слов в день')

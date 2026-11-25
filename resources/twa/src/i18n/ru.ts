@@ -95,7 +95,7 @@ export const ru = {
 
   // ---- landing ----
   'landing.outside_telegram':
-    'Эта страница открывается только в Telegram. Для самостоятельных занятий нажмите «LexiFlow» рядом с полем ввода в чате с ботом. Для занятия с группой нажмите кнопку, которую прислал учитель.',
+    'Эта страница открывается только в Telegram. Для самостоятельных занятий нажмите «Muhrla» рядом с полем ввода в чате с ботом. Для занятия с группой нажмите кнопку, которую прислал учитель.',
 
   // ---- today ----
   'today.title': 'Сегодня',
@@ -466,7 +466,7 @@ export const ru = {
     other: 'Сейчас у вас бесплатный тариф: {count} новых слова в день, повторения — без лимита.',
   },
   'paywall.free_generic': 'Сейчас у вас бесплатный тариф: новые слова ограничены дневным лимитом, повторения — без лимита.',
-  'paywall.contact': 'Учитесь в центре? Попросите администратора центра подключить LexiFlow Pro:',
+  'paywall.contact': 'Учитесь в центре? Попросите администратора центра подключить Muhrla Pro:',
   'paywall.dismiss': 'Понятно',
   'paywall.invite': 'Или получите Pro бесплатно — пригласите друзей',
   'paywall.open': 'Узнать о Pro',
@@ -516,7 +516,7 @@ export const ru = {
   'billing.auto_renew_running': 'Автопродление Stars включено — оплачивать ничего не нужно. Управлять подпиской можно в разделе «Профиль → Подписка».',
   'billing.perpetual': 'У вас Pro без ограничения по сроку — оплачивать ничего не нужно.',
   'billing.plan.free': 'Бесплатный тариф',
-  'billing.plan.pro': 'LexiFlow Pro',
+  'billing.plan.pro': 'Muhrla Pro',
   'billing.sponsored': 'Pro подключён вашим центром.',
   'billing.until': 'Действует до {date}',
   'billing.trial_until': 'Пробный период до {date}',
@@ -841,7 +841,7 @@ export const ru = {
   'referrals.no_link': 'Ссылка появится, когда администратор укажет имя бота. Пока отправьте другу код: он вводит /start ref_{code} в боте.',
   'referrals.share': 'Поделиться',
   'referrals.copy': 'Скопировать ссылку',
-  'referrals.share_text': 'Учу английский в LexiFlow. Заходи по ссылке — получишь Pro бесплатно на пробный период',
+  'referrals.share_text': 'Учу английский в Muhrla. Заходи по ссылке — получишь Pro бесплатно на пробный период',
   'referrals.counts.invited': 'Пришли',
   'referrals.counts.activated': 'Занимаются',
   'referrals.counts.counted': 'Засчитаны',
@@ -887,7 +887,7 @@ export const ru = {
   'friends.invite.title': 'Пригласить в друзья',
   'friends.invite.hint': 'Друг откроет ссылку в боте и подтвердит дружбу. Друзья видят серию и число выученных слов друг друга и могут бросать вызовы.',
   'friends.invite.share': 'Поделиться ссылкой',
-  'friends.invite.share_text': 'Давай дружить в LexiFlow: сравним серии и устроим вызов!',
+  'friends.invite.share_text': 'Давай дружить в Muhrla: сравним серии и устроим вызов!',
   'friends.invite.no_link': 'Ссылка появится, когда администратор укажет имя бота.',
   'friends.incoming.title': 'Входящие приглашения',
   'friends.incoming.accept': 'Принять',
@@ -1472,7 +1472,7 @@ export const ru = {
   'gameRun.summary.class_boss_lost_hint': 'Точность {accuracy}% — у каждого ученика одна попытка, результат уже в таблице класса',
   'gameRun.summary.to_class': 'К экрану класса',
   'gameRun.booster.limit_pro': 'Бустеры этой недели закончились. Новые — {when}.',
-  'gameRun.summary.card_caption': 'Караван LexiFlow',
+  'gameRun.summary.card_caption': 'Караван Muhrla',
   'gameRun.summary.share': 'Поделиться',
   'game.bossScreen.title': 'Хранитель города',
   'game.bossScreen.keeper': 'Хранитель ворот',

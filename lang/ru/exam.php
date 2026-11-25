@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
 
     // HTML. `:seconds` — time for one question.
-    'started' => "🏁 <b>Экзамен начался!</b> Модуль :stage · Урок :lesson · :minutes мин.\nНажмите кнопку — LexiFlow откроется прямо в Telegram. На каждый вопрос — :seconds секунд; итоги появятся здесь, когда время выйдет.",
+    'started' => "🏁 <b>Экзамен начался!</b> Модуль :stage · Урок :lesson · :minutes мин.\nНажмите кнопку — Muhrla откроется прямо в Telegram. На каждый вопрос — :seconds секунд; итоги появятся здесь, когда время выйдет.",
     // `/start_exam` without arguments: the lesson, then the duration.
     'picker' => [
         'prompt' => 'Выберите урок для экзамена:',

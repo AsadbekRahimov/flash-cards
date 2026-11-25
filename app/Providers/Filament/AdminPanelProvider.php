@@ -57,7 +57,7 @@ class AdminPanelProvider extends PanelProvider
             // Filament layouts) must stay full page loads.
             ->spa(hasPrefetching: true)
             ->spaUrlExceptions(['*/2fa/*'])
-            ->brandName('LexiFlow Pro')
+            ->brandName((string) config('app.brand_pro'))
             ->defaultAvatarProvider(InitialAvatarProvider::class)
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

@@ -292,7 +292,7 @@ describe('ReferralsView', () => {
 
       await wrapper.get('[data-testid=share-btn]').trigger('click')
 
-      expect(state.shareUrl).toHaveBeenCalledWith(LINK, 'Учу английский в LexiFlow. Заходи по ссылке — получишь Pro бесплатно на пробный период')
+      expect(state.shareUrl).toHaveBeenCalledWith(LINK, 'Учу английский в Muhrla. Заходи по ссылке — получишь Pro бесплатно на пробный период')
       expect(state.haptic).toHaveBeenCalled()
     })
 

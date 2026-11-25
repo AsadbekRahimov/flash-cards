@@ -6,7 +6,7 @@ return [
 
     // `:support` — the line with the support contact (BotSupportContact::line), empty without a contact.
     'no_groups' => "У вас пока нет привязанных групп.\nДобавьте бота в группу класса, затем напишите в поддержку — активируем группу.:support",
-    'title' => '📊 Статистика LexiFlow за 7 дней',
+    'title' => '📊 Статистика Muhrla за 7 дней',
     'groups' => 'Групп: :count',
     'learners' => 'Активных учеников: :count',
     'reviews' => 'Повторений карточек: :count',

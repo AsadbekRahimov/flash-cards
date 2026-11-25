@@ -8,7 +8,7 @@ return [
 
     // The first message of a new person is a welcome in both languages (the language is chosen only at the first step):
     // this paragraph, then the `welcome` of lang/uz (OnboardingMessenger).
-    'welcome' => '👋 Привет! Я LexiFlow — помогаю учить английские слова по 5–10 минут в день. Пара коротких вопросов — и начнём.',
+    'welcome' => '👋 Привет! Я Muhrla — помогаю учить английские слова по 5–10 минут в день. Пара коротких вопросов — и начнём.',
     'step_counter' => 'Шаг :n из :total',
     'invited_by_organization' => 'Вас пригласил центр «:organization»',
     'invited_by_learner' => 'Вас пригласил(а) :name',
@@ -51,7 +51,7 @@ return [
 
     // `/start c_<slug>` of a learner who has already finished the onboarding: the course opens in the app.
     'course_link' => [
-        'text' => 'Курс «:course» доступен в LexiFlow. Откройте его кнопкой ниже — текущий курс не изменится, пока вы сами его не выберете.',
+        'text' => 'Курс «:course» доступен в Muhrla. Откройте его кнопкой ниже — текущий курс не изменится, пока вы сами его не выберете.',
         'button' => 'Открыть курс',
     ],
 
@@ -59,8 +59,8 @@ return [
     'today' => [
         // Plural forms (ru): 1 слово | 2–4 слова | 5+ слов (see trans_choice).
         'due' => 'Сегодня к повторению: :count слово.|Сегодня к повторению: :count слова.|Сегодня к повторению: :count слов.',
-        'empty' => 'На сегодня повторений нет. Откройте LexiFlow, чтобы выучить новые слова.',
-        'button' => 'Открыть LexiFlow',
+        'empty' => 'На сегодня повторений нет. Откройте Muhrla, чтобы выучить новые слова.',
+        'button' => 'Открыть Muhrla',
     ],
 
     'menu' => [

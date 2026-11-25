@@ -22,7 +22,7 @@ export type PaywallReason = 'quota' | 'info' | 'decks' | 'streak_freeze' | 'exam
 
 /**
  * Paywall (docs/12 §5.4, docs/13 §5, docs/14 §6.6, the Pro mock-up of docs/design): a white bottom sheet with a grabber and a close
- * button; "LexiFlow Pro" above the title, the title is the reason the sheet is open (`HEADINGS`, by the placement), the lead, what Free
+ * button; "Muhrla Pro" above the title, the title is the reason the sheet is open (`HEADINGS`, by the placement), the lead, what Free
  * gives and the three main things Pro gives (`ProBenefits short`: the name on the left, the note on the right).
  *
  * Mode `coming_soon` (Phase 1): "Pro is coming", what Free gives, a promo code field and — only when
@@ -218,7 +218,7 @@ const HEADINGS: Record<PaywallReason, StringKey> = {
 
 /**
  * The title of the sheet: the reason it is open; "Renew Pro" for a Pro learner who extends; "What Pro will have" when opened just to
- * read about Pro while it is not for sale; "LexiFlow Pro" for a Pro learner with nothing to extend; the name of the plan once the learner is Pro (`done`).
+ * read about Pro while it is not for sale; "Muhrla Pro" for a Pro learner with nothing to extend; the name of the plan once the learner is Pro (`done`).
  */
 const title = computed(() => {
   if (done.value) return 'Pro'

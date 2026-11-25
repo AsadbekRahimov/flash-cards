@@ -86,7 +86,7 @@ export const uz: Translations = {
   'benefits.row.mock_exams.note': 'IELTS va SAT',
 
   // ---- landing ----
-  'landing.outside_telegram': "Bu sahifa faqat Telegram ichida ochiladi. LexiFlow botida xabar yozish maydoni yonidagi «LexiFlow» tugmasini bosing. Guruh mashg'uloti uchun o'qituvchi yuborgan tugmani bosing.",
+  'landing.outside_telegram': "Bu sahifa faqat Telegram ichida ochiladi. Muhrla botida xabar yozish maydoni yonidagi «Muhrla» tugmasini bosing. Guruh mashg'uloti uchun o'qituvchi yuborgan tugmani bosing.",
 
   // ---- today ----
   'today.title': 'Bugun',
@@ -423,7 +423,7 @@ export const uz: Translations = {
     other: "Hozir sizda bepul tarif: kuniga {count} ta yangi so'z, takrorlash cheklovsiz.",
   },
   'paywall.free_generic': "Hozir sizda bepul tarif: yangi so'zlar kunlik limit bilan cheklangan, takrorlash cheklovsiz.",
-  'paywall.contact': "Markazda o'qiysizmi? Markaz administratoridan LexiFlow Pro'ni ulashni so'rang:",
+  'paywall.contact': "Markazda o'qiysizmi? Markaz administratoridan Muhrla Pro'ni ulashni so'rang:",
   'paywall.dismiss': 'Tushunarli',
   'paywall.invite': "Yoki Pro'ni bepul oling — do'stlarni taklif qiling",
   'paywall.open': 'Pro haqida bilib oling',
@@ -473,7 +473,7 @@ export const uz: Translations = {
   'billing.auto_renew_running': "Stars orqali obunangiz avtomatik uzayadi. Hozir alohida to'lov qilish shart emas. Obunani «Profil → Obuna» bo'limida boshqarish mumkin.",
   'billing.perpetual': "Sizda Pro muddatsiz faol — hech narsa to'lash shart emas.",
   'billing.plan.free': 'Bepul tarif',
-  'billing.plan.pro': 'LexiFlow Pro',
+  'billing.plan.pro': 'Muhrla Pro',
   'billing.sponsored': "Markaz hisobidan Pro.",
   'billing.until': '{date} gacha amal qiladi.',
   'billing.trial_until': 'Sinov davri {date} gacha.',
@@ -780,7 +780,7 @@ export const uz: Translations = {
   'referrals.no_link': "Havola administrator bot nomini ko'rsatgach paydo bo'ladi. Hozircha do'stingizga kodni yuboring: u botda /start ref_{code} deb yozadi.",
   'referrals.share': 'Ulashish',
   'referrals.copy': 'Havolani nusxalash',
-  'referrals.share_text': "LexiFlow'da ingliz tilini o'rganyapman. Havola orqali kiring — sinov davri uchun Pro'ni bepul olasiz",
+  'referrals.share_text': "Muhrla'da ingliz tilini o'rganyapman. Havola orqali kiring — sinov davri uchun Pro'ni bepul olasiz",
   'referrals.counts.invited': 'Kelganlar',
   'referrals.counts.activated': "Shug'ullanayotganlar",
   'referrals.counts.counted': 'Hisobga olinganlar',
@@ -820,7 +820,7 @@ export const uz: Translations = {
   'friends.invite.title': "Do'stlikka taklif qilish",
   'friends.invite.hint': "Do'stingiz havolani botda ochib, taklifingizni tasdiqlaydi. Bir-biringizning natijalaringizni ko'rishingiz va musobaqaga chaqirishingiz mumkin.",
   'friends.invite.share': 'Havolani ulashish',
-  'friends.invite.share_text': "LexiFlow'da do'st bo'laylik! Kim ko'proq so'z o'rganarkin?",
+  'friends.invite.share_text': "Muhrla'da do'st bo'laylik! Kim ko'proq so'z o'rganarkin?",
   'friends.invite.no_link': "Administrator bot nomini ko'rsatgach, havola paydo bo'ladi.",
   'friends.incoming.title': 'Kiruvchi takliflar',
   'friends.incoming.accept': 'Qabul qilish',
@@ -1389,7 +1389,7 @@ export const uz: Translations = {
   'gameRun.summary.class_boss_lost_hint': "Aniqlik {accuracy}% — har bir o'quvchiga bitta urinish, natija sinf jadvalida",
   'gameRun.summary.to_class': 'Sinf ekraniga',
   'gameRun.booster.limit_pro': 'Bu haftaning kuchaytirgichlari tugadi. Yangilari — {when}.',
-  'gameRun.summary.card_caption': 'LexiFlow Karvoni',
+  'gameRun.summary.card_caption': 'Muhrla Karvoni',
   'gameRun.summary.share': 'Ulashish',
   'game.bossScreen.title': 'Shahar qo\'riqchisi',
   'game.bossScreen.keeper': "Darvoza qo'riqchisi",

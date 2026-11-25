@@ -138,7 +138,7 @@ interface TelegramClient
 
     /**
      * The menu button of the bot's private chats (`setChatMenuButton` without `chat_id`: the default one for
-     * every private chat), e.g. `['type' => 'web_app', 'text' => 'LexiFlow', 'web_app' => ['url' => 'https://…']]`.
+     * every private chat), e.g. `['type' => 'web_app', 'text' => 'Muhrla', 'web_app' => ['url' => 'https://…']]`.
      *
      * @param  array<string, mixed>  $menuButton  a MenuButton object
      *

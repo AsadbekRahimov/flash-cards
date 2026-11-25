@@ -12,7 +12,7 @@ use Illuminate\Console\Command;
 
 /**
  * Sets what the Telegram client shows around the bot (docs/04 B.3): the command list behind "/" for private chats
- * and groups in every interface language, and the permanent "LexiFlow" button that opens the Mini App. Idempotent:
+ * and groups in every interface language, and the permanent product-name button (`app.brand`) that opens the Mini App. Idempotent:
  * run it after `telegram:set-webhook` and again after a deploy that changes the commands or their descriptions.
  */
 final class TelegramSetupBot extends Command

@@ -53,7 +53,7 @@ it('sends the PNG with a Russian caption and a share button with the learner inv
     $button = $photo['markup']['inline_keyboard'][0][0];
     $link = 'https://t.me/LexiFlowBot?start=ref_'.$learner->fresh()?->referral_code;
     expect($button['text'])->toBe('Поделиться')
-        ->and($button['url'])->toBe('https://t.me/share/url?url='.rawurlencode($link).'&text='.rawurlencode('Я получил(а) достижение «Серия 7 дней» в LexiFlow! Учим английский в Telegram.'));
+        ->and($button['url'])->toBe('https://t.me/share/url?url='.rawurlencode($link).'&text='.rawurlencode('Я получил(а) достижение «Серия 7 дней» в Muhrla! Учим английский в Telegram.'));
 });
 
 it('speaks Uzbek and renders the Uzbek card', function (): void {

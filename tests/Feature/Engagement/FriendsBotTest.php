@@ -108,7 +108,7 @@ it('sends the request on agreement: opener -> inviter, the inviter is DMed with 
         ->and($this->tg->edits[0]['message_id'])->toBe(55);
     $toInviter = array_values(array_filter($this->tg->sent, fn (array $m): bool => $m['chat_id'] === 9001));
     expect($toInviter)->toHaveCount(1)
-        ->and($toInviter[0]['text'])->toBe("Ali sizni LexiFlow'da do'st sifatida qo'shmoqchi.")
+        ->and($toInviter[0]['text'])->toBe("Ali sizni Muhrla'da do'st sifatida qo'shmoqchi.")
         ->and($toInviter[0]['markup']['inline_keyboard'][0][0]['callback_data'])->toBe("fr1:acc:{$row->id}")
         ->and(end($this->tg->sent)['text'])->toContain('Запрос отправлен');
 

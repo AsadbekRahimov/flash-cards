@@ -164,13 +164,13 @@ describe('BillingView', () => {
       const { wrapper } = await render(me(), catalog())
 
       expect(wrapper.find('[data-testid=plan-card] .icon-tile').exists()).toBe(false)
-      expect(wrapper.get('[data-testid=eyebrow]').text()).toBe('LexiFlow Pro')
+      expect(wrapper.get('[data-testid=eyebrow]').text()).toBe('Muhrla Pro')
     })
 
     it('shows Pro with its end, the provider and the running auto-renewal with a cancel button only', async () => {
       const { wrapper } = await render(me({ plan: 'pro', until: renewing.ends_at, renewal: renewing }), catalog(summary()))
 
-      expect(wrapper.get('[data-testid=plan-name]').text()).toBe('LexiFlow Pro')
+      expect(wrapper.get('[data-testid=plan-name]').text()).toBe('Muhrla Pro')
       expect(wrapper.get('[data-testid=plan-chip]').text()).toBe('Pro')
       expect(wrapper.get('[data-testid=plan-chip]').classes()).toContain('chip-accent')
       expect(wrapper.get('[data-testid=plan-until]').text()).toBe('Действует до 1 декабря 2026 г.')
@@ -692,7 +692,7 @@ describe('BillingView', () => {
 
       expect(api.promo.redeem).toHaveBeenCalledWith('PRO30')
       expect(wrapper.get('[data-testid=promo-success]').text()).toMatch(/^Pro активен до .*2026/)
-      expect(wrapper.get('[data-testid=plan-name]').text()).toBe('LexiFlow Pro')
+      expect(wrapper.get('[data-testid=plan-name]').text()).toBe('Muhrla Pro')
       expect(wrapper.get('[data-testid=plan-chip]').text()).toBe('Pro')
       expect(wrapper.get('[data-testid=benefits-title]').text()).toBe('Ваши возможности')
       expect(api.billing.catalog).toHaveBeenCalledTimes(1)

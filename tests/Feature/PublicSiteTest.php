@@ -101,7 +101,7 @@ it('drops the draft notice and noindex when SITE_LEGAL_DRAFT is off', function (
 
 it('renders the real legal texts without the placeholder, in both languages', function (): void {
     config()->set('billing.paywall.contact', '@lexiflow_support');
-    config()->set('site.legal.name', 'LexiFlow LLC');
+    config()->set('site.legal.name', 'Muhrla LLC');
     config()->set('site.legal.inn', '123456789');
 
     foreach (['ru', 'uz'] as $locale) {

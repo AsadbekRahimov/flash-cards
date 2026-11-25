@@ -16,7 +16,7 @@ use Closure;
  * middleware) are put on every response afresh, so a cached page differs from a fresh one by not a byte of its body.
  *
  * The pages read no request, no session and no user, only config and the files their texts live in. The `release` part of
- * the key is a fingerprint of exactly those inputs: the config values listed in {@see CONFIG} (prices, the paywall mode and
+ * the key is a fingerprint of exactly those inputs: the config values listed in {@see CONFIG} (the product name, prices, the paywall mode and
  * contact, which providers are on, the free limits, the decks, the bot link, the app URL, the practice switches) and the
  * modification times of the site views, of the language files of the pages and of the PHP files that build the HTML
  * ({@see PHP_SOURCES}: the controller, the pricing and links services, the price formatter, the plan enums, the routes). A deploy
@@ -38,6 +38,8 @@ final class SitePageCache
      */
     public const CONFIG = [
         'app.url',
+        // The product name in the header, the <title> of the legal pages and og:site_name (docs/36 §5б).
+        'app.brand',
         'site.legal',
         'telegram.bot_username',
         'billing.paywall',

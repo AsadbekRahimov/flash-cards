@@ -14,13 +14,13 @@ return [
         'words_500' => ['title' => '500 слов', 'description' => 'Выучено 500 слов'],
         'words_1000' => ['title' => '1000 слов', 'description' => 'Выучено 1000 слов'],
         'league_top1' => ['title' => 'Победитель лиги', 'description' => 'Первое место в группе лиги за неделю'],
-        'first_friend' => ['title' => 'Первый друг', 'description' => 'Появился первый друг в LexiFlow'],
+        'first_friend' => ['title' => 'Первый друг', 'description' => 'Появился первый друг в Muhrla'],
         'game_first_boss' => ['title' => 'Хранитель побеждён', 'description' => 'Первая победа над боссом города в игре «Караван»'],
     ],
 
     // Text on the card under the description.
     'card' => [
-        'brand' => 'LexiFlow',
+        'brand' => 'Muhrla',
         'tagline' => 'Учим английский в Telegram',
     ],
 
@@ -28,6 +28,6 @@ return [
     'caption' => "🏆 Новое достижение: :title\n:description\n\nПоделитесь им с друзьями — перешлите это сообщение или нажмите кнопку ниже.",
     'caption_no_link' => "🏆 Новое достижение: :title\n:description\n\nПерешлите это сообщение друзьям, чтобы похвастаться.",
     'share_button' => 'Поделиться',
-    'share_text' => 'Я получил(а) достижение «:title» в LexiFlow! Учим английский в Telegram.',
+    'share_text' => 'Я получил(а) достижение «:title» в Muhrla! Учим английский в Telegram.',
 
 ];

@@ -76,7 +76,7 @@ it('welcomes a group the bot was added to with one message: next steps and how a
 
     expect($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['chat_id'])->toBe(-100501)
-        ->and($this->tg->sent[0]['text'])->toContain('LexiFlow добавлен в группу «Class 1»')
+        ->and($this->tg->sent[0]['text'])->toContain('Muhrla добавлен в группу «Class 1»')
         ->and($this->tg->sent[0]['text'])->toContain('Привяжите её из кабинета центра')->not->toContain('-100501')
         ->and($this->tg->sent[0]['text'])->not->toContain('Поддержка:');
 });
@@ -203,8 +203,8 @@ it('greets a new person in both languages and counts the steps', function (): vo
 
     $text = $this->tg->sent[0]['text'];
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($text)->toStartWith('👋 Привет! Я LexiFlow')
-        ->and($text)->toContain('Salom! Men LexiFlow')
+        ->and($text)->toStartWith('👋 Привет! Я Muhrla')
+        ->and($text)->toContain('Salom! Men Muhrla')
         ->and($text)->toContain("Шаг 1 из 3\nВыберите язык интерфейса");
 
     // The next step: no welcome, the counter moves.
@@ -437,7 +437,7 @@ it('leaves out the "write us" line of /help when no contact is configured', func
 // ---------------------------------------------------------------- 8-10. texts
 
 it('announces a training and the reminders with the new wording, in both languages', function (): void {
-    expect(__('training.started', ['stage' => 2, 'lesson' => 3], 'ru'))->toBe('📚 Тренировка: модуль 2, урок 3. Нажмите кнопку — LexiFlow откроется прямо в Telegram.')
+    expect(__('training.started', ['stage' => 2, 'lesson' => 3], 'ru'))->toBe('📚 Тренировка: модуль 2, урок 3. Нажмите кнопку — Muhrla откроется прямо в Telegram.')
         ->and(trans_choice('reminders.review', 5, ['count' => 5], 'ru'))->toEndWith('Изменить время или отключить: /settings')
         ->and(trans_choice('reminders.streak_at_risk', 1, ['count' => 1], 'ru'))->toEndWith('/settings')
         ->and(trans_choice('reminders.review', 5, ['count' => 5], 'uz'))->toEndWith("/settings buyrug'ini yuboring.")

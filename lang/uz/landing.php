@@ -5,9 +5,9 @@ declare(strict_types=1);
 return [
 
     'meta' => [
-        'title' => 'LexiFlow — Telegramda inglizcha so\'zlarni o\'rganing',
+        'title' => 'Muhrla — Telegramda inglizcha so\'zlarni o\'rganing',
         // `:free` = Free's daily allowance as a phrase (`limits.free_new_words`), from config: LandingPricing::limits().
-        'description' => 'LexiFlow — Telegramdagi bot va mini-ilova: kartochkalar, ovozli talaffuz va aqlli takrorlash orqali inglizcha so\'zlarni o\'rganing. Bepul: :free.',
+        'description' => 'Muhrla — Telegramdagi bot va mini-ilova: kartochkalar, ovozli talaffuz va aqlli takrorlash orqali inglizcha so\'zlarni o\'rganing. Bepul: :free.',
     ],
 
     'nav' => [
@@ -42,7 +42,7 @@ return [
 
     'how' => [
         'title' => 'Qanday ishlaydi',
-        'lead' => 'LexiFlow har bir so\'z uchun keyingi mashq vaqtini javobingizga qarab belgilaydi. So\'zni oson eslay boshlaganingiz sari takrorlashlar orasidagi vaqt uzayadi.',
+        'lead' => 'Muhrla har bir so\'z uchun keyingi mashq vaqtini javobingizga qarab belgilaydi. So\'zni oson eslay boshlaganingiz sari takrorlashlar orasidagi vaqt uzayadi.',
         // The path of one word through its reviews: approximate moments in words, not the exact intervals of the engine.
         'timeline' => [
             'word' => 'breakfast',
@@ -63,7 +63,7 @@ return [
     ],
 
     'features' => [
-        'title' => 'LexiFlow imkoniyatlari',
+        'title' => 'Muhrla imkoniyatlari',
         'items' => [
             ['title' => 'Bot va mini-ilova', 'text' => 'Bot — boshlash va eslatmalar uchun, mini-ilova — mashg\'ulotlar uchun. Hammasi bitta messenjerda.'],
             ['title' => 'Aqlli takrorlash', 'text' => 'Har bir so\'z tobora uzayib boruvchi oraliqlarda qaytadi — shu tarzda u uzoq muddatli xotiraga o\'tadi.'],
@@ -159,7 +159,7 @@ return [
     ],
 
     'footer' => [
-        'tagline' => 'LexiFlow — Telegramda ingliz tili.',
+        'tagline' => 'Muhrla — Telegramda ingliz tili.',
         'contact' => 'Qo\'llab-quvvatlash:',
         'language' => 'Til',
         'legal_label' => 'Hujjatlar',

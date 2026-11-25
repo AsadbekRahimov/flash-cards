@@ -14,13 +14,13 @@ return [
         'words_500' => ['title' => "500 ta so'z", 'description' => "500 ta so'z o'rganildi"],
         'words_1000' => ['title' => "1000 ta so'z", 'description' => "1000 ta so'z o'rganildi"],
         'league_top1' => ['title' => "Liga g'olibi", 'description' => "Hafta yakunida liga guruhingizda birinchi o'rinni egalladingiz"],
-        'first_friend' => ['title' => "Birinchi do'st", 'description' => "LexiFlow'da birinchi do'st paydo bo'ldi"],
+        'first_friend' => ['title' => "Birinchi do'st", 'description' => "Muhrla'da birinchi do'st paydo bo'ldi"],
         'game_first_boss' => ['title' => 'Qo\'riqchi yengildi', 'description' => "«Karvon» o'yinida shahar qo'riqchisi ustidan birinchi g'alaba"],
     ],
 
     // Text on the card under the description.
     'card' => [
-        'brand' => 'LexiFlow',
+        'brand' => 'Muhrla',
         'tagline' => "Telegramda ingliz tilini o'rganamiz",
     ],
 
@@ -28,6 +28,6 @@ return [
     'caption' => "🏆 Yangi yutuq: :title\n:description\n\nDo'stlaringiz bilan ulashing — bu xabarni uzating yoki pastdagi tugmani bosing.",
     'caption_no_link' => "🏆 Yangi yutuq: :title\n:description\n\nYutug'ingizni do'stlaringiz bilan bo'lishish uchun ularga shu xabarni yuboring.",
     'share_button' => 'Ulashish',
-    'share_text' => "Men LexiFlow'da «:title» yutug'ini oldim! Telegramda ingliz tilini o'rganamiz.",
+    'share_text' => "Men Muhrla'da «:title» yutug'ini oldim! Telegramda ingliz tilini o'rganamiz.",
 
 ];

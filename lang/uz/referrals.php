@@ -13,14 +13,14 @@ return [
     'hint' => "Do'stlaringizni taklif qiling — Pro'ni bepul oling: /invite",
 
     'invite' => [
-        'text' => "Do'stlaringizni LexiFlow'ga taklif qiling — Pro'ni bepul oling.\n\n:rule\n\n:progress\n\nSizning havolangiz:\n:link",
+        'text' => "Do'stlaringizni Muhrla'ga taklif qiling — Pro'ni bepul oling.\n\n:rule\n\n:progress\n\nSizning havolangiz:\n:link",
         // The friend counts once they have started (the setup and :cards in a day); the inviter gets :reward of Pro at each of
         // the :milestones counted friends ("3 va 6").
         'rule' => "Do'stingiz boshlang'ich sozlamalarni tugatib, bir kun ichida :cards baholasa, taklifingiz hisobga olinadi.\nHisobga olingan do'stlaringiz soni :milestones taga yetganida har safar :reward davomida Pro tarifidan bepul foydalanish huquqini olasiz.",
         'rule_days' => "Do'stingiz boshlang'ich sozlamalarni tugatib, :days kun davomida har kuni kamida :cards baholasa, taklifingiz hisobga olinadi.\nHisobga olingan do'stlaringiz soni :milestones taga yetganida har safar :reward davomida Pro tarifidan bepul foydalanish huquqini olasiz.",
         'cards' => ':count ta kartochkani',
         'cards_min' => ':count ta kartochkani',
-        'text_plain' => "Do'stlaringizni LexiFlow'ga taklif qiling.\n\nHozircha takliflar uchun mukofot berilmaydi.\n\nSizning havolangiz:\n:link",
+        'text_plain' => "Do'stlaringizni Muhrla'ga taklif qiling.\n\nHozircha takliflar uchun mukofot berilmaydi.\n\nSizning havolangiz:\n:link",
         'and' => 'va',
         'no_link' => "kod :code (havola administrator bot nomini ko'rsatgach paydo bo'ladi)",
         'stats' => 'Havolangiz orqali kelganlar: :invited',
@@ -28,8 +28,8 @@ return [
         'owed' => "Hisobga olingan do'stlar: :counted — +:days Pro mukofoti rasmiylashtirilmoqda.",
         'done' => "Hisobga olingan do'stlar: :counted. Takliflar uchun barcha mukofotlar olindi — rahmat!",
         'share_button' => 'Havolani ulashish',
-        'share_text' => "LexiFlow'da ingliz tilini o'rganyapman — qo'shiling, birinchi :trial Pro bepul!",
-        'share_text_plain' => "LexiFlow'da ingliz tilini o'rganyapman — qo'shiling!",
+        'share_text' => "Muhrla'da ingliz tilini o'rganyapman — qo'shiling, birinchi :trial Pro bepul!",
+        'share_text_plain' => "Muhrla'da ingliz tilini o'rganyapman — qo'shiling!",
     ],
 
     // DM to the inviter when a milestone is granted; `:days` is "7 kun".

@@ -129,8 +129,8 @@ it('credits the first payment of a subscription: Pro until subscription_expirati
     // One message: the payment confirmation with the web_app button (the DM catch-all stayed silent).
     expect($this->telegram->sent)->toHaveCount(1)
         ->and($this->telegram->sent[0]['chat_id'])->toBe($this->learner->telegram_user_id)
-        ->and($this->telegram->sent[0]['text'])->toBe('Оплата получена! LexiFlow Pro активен до '.$expiration->setTimezone('Asia/Tashkent')->format('d.m.Y').'.')
-        ->and($this->telegram->sent[0]['button'])->toBe('Открыть LexiFlow')
+        ->and($this->telegram->sent[0]['text'])->toBe('Оплата получена! Muhrla Pro активен до '.$expiration->setTimezone('Asia/Tashkent')->format('d.m.Y').'.')
+        ->and($this->telegram->sent[0]['button'])->toBe('Открыть Muhrla')
         ->and($this->telegram->sent[0]['url'])->toBe('https://lexiflow.test/twa/?from=payment');
 });
 
@@ -178,7 +178,7 @@ it('extends the subscription on a recurring charge to the new subscription_expir
         ->and($subscription->provider_ref)->toBe('ch_second')
         ->and($subscription->meta['stars']['charge_id'])->toBe('ch_first')
         ->and($order->refresh()->status)->toBe('paid')
-        ->and($this->telegram->sent[0]['text'])->toStartWith('Подписка продлена: LexiFlow Pro активен до ');
+        ->and($this->telegram->sent[0]['text'])->toStartWith('Подписка продлена: Muhrla Pro активен до ');
 
     // A renewal after the learner canceled (Telegram still charged, e.g. the cancel came too late) re-activates as well.
     $subscription->update(['status' => 'canceled', 'canceled_at' => CarbonImmutable::now()]);

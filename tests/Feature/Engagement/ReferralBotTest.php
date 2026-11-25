@@ -68,7 +68,7 @@ it('speaks Uzbek to an uz learner and shows the code only while the bot username
     inviteSend(8102);
 
     expect($this->tg->sent[0]['text'])->toContain('kod UZCODE23')
-        ->and($this->tg->sent[0]['text'])->toContain("Do'stlaringizni LexiFlow'ga taklif qiling")
+        ->and($this->tg->sent[0]['text'])->toContain("Do'stlaringizni Muhrla'ga taklif qiling")
         ->and($this->tg->sent[0]['markup'])->toBeNull();
 });
 
@@ -106,7 +106,7 @@ it('shows the progress to the next reward at 0, 2, 3 and 6 counted friends, in t
 
     $text = $this->tg->sent[0]['text'];
     expect($text)->toContain($expected)
-        ->and($text)->toContain('Пригласите друзей в LexiFlow')
+        ->and($text)->toContain('Пригласите друзей в Muhrla')
         ->and($text)->not->toContain('вам и другу')
         ->and($text)->not->toContain('обоим');
 })->with([
@@ -134,12 +134,12 @@ it('names the welcome trial in the text the learner shares, and only while there
     inviteSend(8121);
 
     parse_str((string) parse_url($this->tg->sent[0]['markup']['inline_keyboard'][0][0]['url'], PHP_URL_QUERY), $query);
-    expect($query['text'])->toBe('Учу английский в LexiFlow — присоединяйся, первые 7 дней Pro бесплатно!');
+    expect($query['text'])->toBe('Учу английский в Muhrla — присоединяйся, первые 7 дней Pro бесплатно!');
 
     config(['billing.trial.days' => 0]);
     inviteSend(8121);
     parse_str((string) parse_url($this->tg->sent[1]['markup']['inline_keyboard'][0][0]['url'], PHP_URL_QUERY), $query);
-    expect($query['text'])->toBe('Учу английский в LexiFlow — присоединяйся!');
+    expect($query['text'])->toBe('Учу английский в Muhrla — присоединяйся!');
 });
 
 it('points to /invite in /help, in both languages, and to /language', function (string $lang, string $line, string $language): void {

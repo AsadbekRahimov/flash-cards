@@ -7,7 +7,7 @@ return [
     'blocked' => "Akkauntingizga kirish cheklangan. Qo'llab-quvvatlash xizmatiga murojaat qiling: /paysupport.",
 
     // The second paragraph of the bilingual welcome of a new person (the first one is `welcome` of lang/ru).
-    'welcome' => "Salom! Men LexiFlow botiman. Har kuni 5–10 daqiqa inglizcha so'zlarni birga mashq qilamiz. Avval bir nechta savolga javob bering.",
+    'welcome' => "Salom! Men Muhrla botiman. Har kuni 5–10 daqiqa inglizcha so'zlarni birga mashq qilamiz. Avval bir nechta savolga javob bering.",
     'step_counter' => ':total qadamdan :n-qadam',
     'invited_by_organization' => 'Sizni «:organization» markazi taklif qildi',
     'invited_by_learner' => 'Sizni :name taklif qildi',
@@ -50,7 +50,7 @@ return [
 
     // `/start c_<slug>` of a learner who has already finished the onboarding: the course opens in the app.
     'course_link' => [
-        'text' => "«:course» kursi LexiFlow'da mavjud. Uni quyidagi tugma bilan oching — o'zingiz tanlamaguningizcha joriy kurs o'zgarmaydi.",
+        'text' => "«:course» kursi Muhrla'da mavjud. Uni quyidagi tugma bilan oching — o'zingiz tanlamaguningizcha joriy kurs o'zgarmaydi.",
         'button' => 'Kursni ochish',
     ],
 
@@ -58,8 +58,8 @@ return [
     'today' => [
         // Uzbek does not inflect nouns after numerals: a single form for any count.
         'due' => "Bugun :count ta so'zni takrorlash vaqti keldi.",
-        'empty' => "Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun LexiFlow'ni oching.",
-        'button' => "LexiFlow'ni ochish",
+        'empty' => "Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun Muhrla'ni oching.",
+        'button' => "Muhrla'ni ochish",
     ],
 
     'menu' => [

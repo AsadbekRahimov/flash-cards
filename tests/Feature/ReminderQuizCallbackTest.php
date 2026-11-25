@@ -110,7 +110,7 @@ it('turns the question into the verdict and one button to the app when the answe
         ->and($edit['message_id'])->toBe(501)
         ->and($edit['parse_mode'])->toBeNull()
         ->and($edit['text'])->toBe("✅ Верно! {$state['word']} — {$state['answer']}.\n\nВ приложении ждут 3 слова — хватит 5 минут.\n\nИзменить время или отключить: /settings")
-        ->and($edit['markup'])->toBe(['inline_keyboard' => [[['text' => 'Открыть LexiFlow', 'web_app' => ['url' => 'https://twa.test/twa/?from=reminder_quiz']]]]])
+        ->and($edit['markup'])->toBe(['inline_keyboard' => [[['text' => 'Открыть Muhrla', 'web_app' => ['url' => 'https://twa.test/twa/?from=reminder_quiz']]]]])
         ->and($this->tg->answered)->toHaveCount(1)
         ->and($this->tg->answeredTexts)->toBe([]);
 
@@ -129,7 +129,7 @@ it('shows the right answer when the pick is wrong, in uz too', function (): void
     reminderQuizDispatch(reminderQuizTap($state['token'], $wrong));
 
     expect($this->tg->lastTextEdit()['text'] ?? '')->toBe("❌ Xato. {$state['word']} — {$state['answer']}.\n\nIlovada sizni 3 ta so'z kutmoqda — 5 daqiqa yetarli.\n\nEslatma vaqtini o'zgartirish yoki eslatmalarni o'chirish uchun /settings buyrug'ini yuboring.")
-        ->and($this->tg->lastTextEdit()['markup']['inline_keyboard'][0][0]['text'] ?? '')->toBe("LexiFlow'ni ochish");
+        ->and($this->tg->lastTextEdit()['markup']['inline_keyboard'][0][0]['text'] ?? '')->toBe("Muhrla'ni ochish");
 
     $event = ProductEvent::query()->where('name', ProductEventName::ReminderQuizAnswered->value)->sole();
     expect($event->props['correct'])->toBeFalse()->and($event->props['picked'])->toBe($wrong);
@@ -219,7 +219,7 @@ it('says "outdated" and keeps only the app button for a token that is not the st
     $id = $update['callback_query']['id'];
     expect($this->tg->answeredTexts[$id])->toBe(['text' => 'Этот вопрос устарел. Откройте приложение — там свежие слова.', 'show_alert' => true])
         ->and($this->tg->textEdits)->toBe([])
-        ->and($this->tg->edits)->toBe([['chat_id' => 777001, 'message_id' => 501, 'markup' => ['inline_keyboard' => [[['text' => 'Открыть LexiFlow', 'web_app' => ['url' => 'https://twa.test/twa/?from=reminder']]]]]]])
+        ->and($this->tg->edits)->toBe([['chat_id' => 777001, 'message_id' => 501, 'markup' => ['inline_keyboard' => [[['text' => 'Открыть Muhrla', 'web_app' => ['url' => 'https://twa.test/twa/?from=reminder']]]]]]])
         ->and(ProductEvent::query()->where('name', ProductEventName::ReminderQuizExpired->value)->sole()->props)->toBe(['reason' => 'token_mismatch'])
         // The real question is still there to be answered.
         ->and(app(ReminderQuizStore::class)->get($learner->id)['answered_at'])->toBeNull();

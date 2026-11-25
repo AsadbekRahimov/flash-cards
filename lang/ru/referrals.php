@@ -15,7 +15,7 @@ return [
 
     // `/invite` (docs/13 §7.1 "2C.9"): the rule, the progress, the link and the "Share" button.
     'invite' => [
-        'text' => "Пригласите друзей в LexiFlow — получите Pro бесплатно.\n\n:rule\n\n:progress\n\nВаша ссылка:\n:link",
+        'text' => "Пригласите друзей в Muhrla — получите Pro бесплатно.\n\n:rule\n\n:progress\n\nВаша ссылка:\n:link",
         // The friend counts once they have started (the setup and :cards in a day); the inviter gets :reward of Pro at each of
         // the :milestones counted friends ("3 и 6"). Nobody else is rewarded: the friend has the welcome trial of every newcomer.
         'rule' => "Друг засчитывается, когда пройдёт настройку и оценит :cards за день.\nЗа :milestones засчитанных друзей вы получите по +:reward Pro.",
@@ -24,7 +24,7 @@ return [
         'cards' => ':count карточку|:count карточки|:count карточек',
         'cards_min' => ':count карточки|:count карточек|:count карточек',
         // No milestones configured: nothing is promised.
-        'text_plain' => "Пригласите друзей в LexiFlow.\n\nСейчас награды за приглашения не выдаются.\n\nВаша ссылка:\n:link",
+        'text_plain' => "Пригласите друзей в Muhrla.\n\nСейчас награды за приглашения не выдаются.\n\nВаша ссылка:\n:link",
         'and' => 'и',
         'no_link' => 'код :code (ссылка появится, когда администратор укажет имя бота)',
         'stats' => 'Пришли по вашей ссылке: :invited',
@@ -33,8 +33,8 @@ return [
         'done' => 'Засчитано друзей: :counted. Все награды за приглашения получены — спасибо!',
         'share_button' => 'Поделиться ссылкой',
         // Shared with the friend: what they get is the welcome trial (`:trial` — its length), not a reward for either side.
-        'share_text' => 'Учу английский в LexiFlow — присоединяйся, первые :trial Pro бесплатно!',
-        'share_text_plain' => 'Учу английский в LexiFlow — присоединяйся!',
+        'share_text' => 'Учу английский в Muhrla — присоединяйся, первые :trial Pro бесплатно!',
+        'share_text_plain' => 'Учу английский в Muhrla — присоединяйся!',
     ],
 
     // DM to the inviter when a milestone is granted (ReferralMilestoneSender): by the number of friends; `:days` is "7 дней".

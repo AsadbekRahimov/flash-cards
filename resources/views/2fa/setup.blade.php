@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ __('twofactor.setup.title', [], $locale) }} — {{ config('app.name') }}</title>
+    <title>{{ __('twofactor.setup.title', [], $locale) }} — {{ config('app.brand') }}</title>
     @include('2fa._styles')
 </head>
 <body>

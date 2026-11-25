@@ -20,6 +20,19 @@ return [
     'name' => env('APP_NAME', 'Laravel'),
 
     /*
+     | The product name people see (docs/36 §5б): the bot menu button, the panels, the public site, the payment return
+     | page, the letters and the 2FA pages. Not `name`: APP_NAME also derives REDIS_PREFIX, the backup folder and other
+     | technical names, and changing it on a live server loses queued jobs and locks. The lang files and the Mini App
+     | texts carry the word itself (a guard test keeps them free of the old one); `brand_pro` is the paid plan,
+     | `brand_logo` a path to a PNG logo or null for the text name.
+     */
+    'brand' => env('APP_BRAND', 'Muhrla'),
+
+    'brand_pro' => env('APP_BRAND_PRO', 'Muhrla Pro'),
+
+    'brand_logo' => env('APP_BRAND_LOGO'),
+
+    /*
      | Demo seeders (admin@local / known password, fake data) run only in local/testing
      | unless this is true. Keep false on any shared / production environment.
      */

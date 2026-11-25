@@ -135,7 +135,7 @@ it('remembers the link, finishes the onboarding, asks to join and seats the lear
     // The DM comes from the OrganizationMemberJoined listener: Pro is on, with a button into the app.
     $dm = end($this->tg->sent);
     expect($dm['text'])->toBe('Вы в центре «Bright Center». Pro активен — занимайтесь без ограничений.')
-        ->and($dm['button'])->toBe('Открыть LexiFlow')
+        ->and($dm['button'])->toBe('Открыть Muhrla')
         ->and($dm['url'])->toBe('https://twa.test/twa/?from=organization')
         ->and($dm['chat_id'])->toBe(8001);
 
@@ -164,7 +164,7 @@ it('writes the confirmation in the learner\'s language', function (): void {
     orgbOnboarded(8003, 'uz');
 
     orgbSend(8003, '/start org_'.$invite->code);
-    expect(end($this->tg->sent)['text'])->toBe("«Bright Center» o'quv markazi sizni LexiFlow'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini olish uchun qo'shilasizmi?");
+    expect(end($this->tg->sent)['text'])->toBe("«Bright Center» o'quv markazi sizni Muhrla'ga taklif qilmoqda. Markaz beradigan Pro imkoniyatini olish uchun qo'shilasizmi?");
 
     orgbTap(8003, 'org1:join:'.$invite->code);
     expect(end($this->tg->sent)['text'])->toBe("Siz «Bright Center» markazidasiz. Pro faol — cheklovlarsiz shug'ullaning.");
@@ -191,7 +191,7 @@ it('keeps showing "Today" for a learner who has finished the onboarding and has 
     orgbSend(8005, '/start');
 
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow');
+        ->and($this->tg->sent[0]['button'])->toBe('Открыть Muhrla');
 });
 
 // --- idempotency --------------------------------------------------------------
@@ -381,7 +381,7 @@ it('tells a waiting member, and only an invite or admin one, when a seat is free
         ->and($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['chat_id'])->toBe(8020)
         ->and($this->tg->sent[0]['text'])->toBe('В центре «Bright Center» освободилось место для вас. Pro активен!')
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow');
+        ->and($this->tg->sent[0]['button'])->toBe('Открыть Muhrla');
 });
 
 it('says nothing about a join through a group', function (): void {

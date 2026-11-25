@@ -16,7 +16,7 @@ return [
 
     // A request addressed to the learner (a DM, or a pending request met by /start f_<code>).
     'incoming' => [
-        'text' => ':name хочет добавить вас в друзья в LexiFlow.',
+        'text' => ':name хочет добавить вас в друзья в Muhrla.',
         'accept' => 'Принять',
         'decline' => 'Отклонить',
     ],
@@ -24,7 +24,7 @@ return [
     'request_sent' => 'Запрос отправлен: :name. Мы сообщим, когда его примут.',
     'already_sent' => 'Вы уже отправили запрос :name — ждём ответа.',
     'skipped' => 'Хорошо, запрос не отправлен.',
-    'accepted' => 'Готово: вы с :name теперь друзья. Список друзей — в приложении LexiFlow.',
+    'accepted' => 'Готово: вы с :name теперь друзья. Список друзей — в приложении Muhrla.',
     'declined' => 'Хорошо, приглашение отклонено.',
     'already' => 'Вы с :name уже друзья.',
 
@@ -54,7 +54,7 @@ return [
         'challenge_won' => 'Вызов с :name завершён: вы победили! Счёт :mine : :theirs.',
         'challenge_lost' => 'Вызов с :name завершён: победил(а) :name. Счёт :mine : :theirs. Реванш — в приложении!',
         'challenge_draw' => 'Вызов с :name завершён вничью: :mine : :theirs.',
-        'button' => 'Открыть LexiFlow',
+        'button' => 'Открыть Muhrla',
     ],
 
     'challenge' => [

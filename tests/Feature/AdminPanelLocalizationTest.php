@@ -105,7 +105,7 @@ uses(RefreshDatabase::class);
 /*
  * The admin panel `/admin` is Russian (docs/14 §7–§8, lang/ru/admin.php): our own captions of resources, fields, columns,
  * filters, actions, widgets and pages. Filament's own strings come from its ru translation. Only proper names stay Latin
- * (LexiFlow, Telegram, Stars, Payme, Click, IELTS, SAT, SM-2 / FSRS, Pro / Free ...).
+ * (Muhrla, Telegram, Stars, Payme, Click, IELTS, SAT, SM-2 / FSRS, Pro / Free ...).
  */
 
 beforeEach(function (): void {
@@ -144,7 +144,7 @@ function loc_text(string $html): string
 /** Names that stay Latin in the Russian interface; whatever Latin word is left after removing them is English. */
 function loc_is_russian(string $caption): bool
 {
-    $rest = preg_replace('/\b(LexiFlow|Telegram|Stars|Payme|Click|IELTS|SAT|SM-2|FSRS(-5)?|Pro|Free|Mini App|Bot API|Username|Email|ID|TG|RU|UZ|ru|uz|UZS|XTR|JSON|slug|meta|CSV|twa\.authenticated)\b/u', '', $caption);
+    $rest = preg_replace('/\b(Muhrla|Telegram|Stars|Payme|Click|IELTS|SAT|SM-2|FSRS(-5)?|Pro|Free|Mini App|Bot API|Username|Email|ID|TG|RU|UZ|ru|uz|UZS|XTR|JSON|slug|meta|CSV|twa\.authenticated)\b/u', '', $caption);
 
     return preg_match('/[A-Za-z]{2,}/', (string) $rest) !== 1;
 }

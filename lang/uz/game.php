@@ -72,7 +72,7 @@ return [
         'caption' => "🐪 Men yetib keldim: :city! Darvoza qo'riqchisi yengildi.\n\nDo'stlaringiz bilan ulashing — quyidagi tugmani bosing yoki shu xabarni uzating.",
         'caption_no_link' => "🐪 Men yetib keldim: :city! Darvoza qo'riqchisi yengildi.\n\nYutug'ingizni do'stlaringiz bilan bo'lishish uchun ularga shu xabarni yuboring.",
         'share_button' => 'Ulashish',
-        'share_text' => "Men LexiFlow'ning «Karvon» o'yinida yetib keldim: :city! Telegramda ingliz tilini o'rganamiz.",
+        'share_text' => "Men Muhrla'ning «Karvon» o'yinida yetib keldim: :city! Telegramda ingliz tilini o'rganamiz.",
     ],
 
     /* Hamyon yozuvlarining nomlari (`GET /game/wallet`, `ledger[].title`): yozuv turi bo'yicha (LedgerKind). */

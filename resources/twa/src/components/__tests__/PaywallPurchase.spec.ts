@@ -114,7 +114,7 @@ describe('PaywallSheet in purchase mode', () => {
   it('shows the prices of the first period and a pay button per provider: the name on the left, the price on the right', async () => {
     const w = await render()
 
-    expect(w.get('[data-testid=paywall-eyebrow]').text()).toBe('LexiFlow Pro')
+    expect(w.get('[data-testid=paywall-eyebrow]').text()).toBe('Muhrla Pro')
     expect(w.get('[data-testid=paywall-title]').text()).toBe('Учитесь без ограничений')
     // the title says it all for `info`: no paragraph listing what the rows below say
     expect(w.find('[data-testid=paywall-lead]').exists()).toBe(false)
@@ -686,7 +686,7 @@ describe('PaywallSheet in purchase mode', () => {
         vi.mocked(api.billing.catalog).mockResolvedValue(catalog({ subscription }))
         const w = await render()
 
-        expect(w.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
+        expect(w.get('[data-testid=paywall-title]').text()).toBe('Muhrla Pro')
         expect(w.text()).not.toContain('Оплата добавит срок')
         expect(w.find('[data-testid=pay-method]').exists()).toBe(false)
         expect(w.find('[data-testid=paywall-contact]').exists()).toBe(false)
@@ -701,7 +701,7 @@ describe('PaywallSheet in purchase mode', () => {
       vi.mocked(api.billing.catalog).mockResolvedValue(catalog({ subscription: null }))
       const w = await render()
 
-      expect(w.get('[data-testid=paywall-title]').text()).toBe('LexiFlow Pro')
+      expect(w.get('[data-testid=paywall-title]').text()).toBe('Muhrla Pro')
       expect(w.text()).not.toContain('Оплата добавит срок')
       expect(w.find('[data-testid=paywall-contact]').exists()).toBe(false)
     })
@@ -885,7 +885,7 @@ describe('PaywallSheet in purchase mode', () => {
     setLocale('uz')
     const w = await render()
 
-    expect(w.get('[data-testid=paywall-eyebrow]').text()).toBe('LexiFlow Pro')
+    expect(w.get('[data-testid=paywall-eyebrow]').text()).toBe('Muhrla Pro')
     expect(w.get('[data-testid=paywall-title]').text()).toBe("Cheklovsiz o'rganing")
     expect([payName(w, 'payme'), payPrice(w, 'payme')]).toEqual(['Payme', "29 000 so'm"])
     expect(plain(w.get('[data-testid=pay-payme]').attributes('aria-label') ?? '')).toBe("To'lash: Payme · 29 000 so'm")

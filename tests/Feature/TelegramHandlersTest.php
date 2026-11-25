@@ -389,7 +389,7 @@ it('applies chat_member and new_chat_members by their Telegram date, not by arri
 it('responds to /help in private chat', function (): void {
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(500, Mockery::pattern('/LexiFlow/'), null);
+        ->with(500, Mockery::pattern('/Muhrla/'), null);
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -404,7 +404,7 @@ it('responds to /help in an active whitelisted group', function (): void {
 
     $this->api->shouldReceive('sendMessage')
         ->once()
-        ->with(-5001, Mockery::pattern('/^LexiFlow в группе\./u'), 'HTML');
+        ->with(-5001, Mockery::pattern('/^Muhrla в группе\./u'), 'HTML');
 
     app(TelegramDispatcher::class)->dispatch([
         'message' => [
@@ -596,7 +596,7 @@ it('sends a seven-day stats report to a teacher in DM', function (): void {
 
     expect($api->messages)->toHaveCount(1);
     expect($api->messages[0]['chat_id'])->toBe(54321);
-    expect($api->messages[0]['text'])->toMatch('/Статистика LexiFlow/u')
+    expect($api->messages[0]['text'])->toMatch('/Статистика Muhrla/u')
         ->and($api->messages[0]['text'])->toContain('Повторений карточек: 3')
         ->and($api->messages[0]['text'])->toContain('Активных учеников: 1');
 });

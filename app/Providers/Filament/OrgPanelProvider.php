@@ -69,7 +69,7 @@ class OrgPanelProvider extends PanelProvider
             // printable invoice is a standalone document — both stay full page loads.
             ->spa(hasPrefetching: true)
             ->spaUrlExceptions(['*/2fa/*', '*/org/*/invoice/*'])
-            ->brandName('LexiFlow Pro')
+            ->brandName((string) config('app.brand_pro'))
             ->defaultAvatarProvider(InitialAvatarProvider::class)
             ->tenant(Organization::class, slugAttribute: 'slug', ownershipRelationship: 'organization')
             ->tenantProfile(OrgSettings::class)

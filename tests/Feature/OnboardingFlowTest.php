@@ -100,7 +100,7 @@ it('walks a new learner through the four steps (goal enabled) with four callback
     $learner = onbLearner(7001);
     expect($learner->onboarding_state)->toBe('locale')
         ->and($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('Salom! Men LexiFlow')->toEndWith("4 qadamdan 1-qadam\nInterfeys tilini tanlang")
+        ->and($this->tg->sent[0]['text'])->toContain('Salom! Men Muhrla')->toEndWith("4 qadamdan 1-qadam\nInterfeys tilini tanlang")
         ->and($this->tg->lastCallbackData())->toBe(['onb1:locale:ru', 'onb1:locale:uz']);
 
     onbTap(7001, 'onb1:locale:uz', 1);
@@ -759,7 +759,7 @@ it('shows the Today screen to a learner whose onboarding is done', function (): 
 
     expect($this->tg->sent)->toHaveCount(1)
         ->and($this->tg->sent[0]['text'])->toBe('Сегодня к повторению: 3 слова.')
-        ->and($this->tg->sent[0]['button'])->toBe('Открыть LexiFlow')
+        ->and($this->tg->sent[0]['button'])->toBe('Открыть Muhrla')
         ->and($this->tg->sent[0]['url'])->toBe('https://twa.test/twa/?from=today')
         ->and($learner->fresh()->onboarding_state)->toBe('done')
         ->and(ProductEvent::query()->count())->toBe(0);
@@ -773,9 +773,9 @@ it('answers /today for a learner, in their language, also when nothing is due', 
     onbSend(7042, '/today');
     onbSend(7043, '/today@LexiFlowBot');
 
-    expect($this->tg->sent[0]['text'])->toBe("Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun LexiFlow'ni oching.")
+    expect($this->tg->sent[0]['text'])->toBe("Bugun takrorlanadigan so'z yo'q. Yangi so'zlarni o'rganish uchun Muhrla'ni oching.")
         ->and($this->tg->sent[1]['text'])->toBe("Bugun 5 ta so'zni takrorlash vaqti keldi.")
-        ->and($this->tg->sent[1]['button'])->toBe("LexiFlow'ni ochish");
+        ->and($this->tg->sent[1]['button'])->toBe("Muhrla'ni ochish");
 });
 
 it('stays silent for /today in a group', function (): void {
@@ -864,7 +864,7 @@ it('keeps /help, /promo and group commands away from the catch-all', function ()
     // /help: the command's own answer, listing the learner commands; no learner, no onboarding.
     onbSend(7053, '/help');
     expect($this->tg->sent)->toHaveCount(1)
-        ->and($this->tg->sent[0]['text'])->toContain('LexiFlow')->toContain('/today')->toContain('/settings')
+        ->and($this->tg->sent[0]['text'])->toContain('Muhrla')->toContain('/today')->toContain('/settings')
         ->and($this->tg->sent[0]['markup'])->toBeNull()
         ->and(Learner::query()->where('telegram_user_id', 7053)->exists())->toBeFalse();
 

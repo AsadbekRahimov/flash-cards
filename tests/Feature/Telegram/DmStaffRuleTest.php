@@ -76,7 +76,7 @@ it('greets a legacy teacher (hand-typed id, no learner row) as a teacher in /sta
     User::factory()->create(['telegram_user_id' => 5003, 'telegram_verified_at' => null, 'name' => 'Old Teacher']);
 
     expect(dsrDm(5003, '/start'))->toContain('Ваш аккаунт учителя подключён')
-        ->and(dsrDm(5003, '/help'))->toContain('LexiFlow — команды учителя')
+        ->and(dsrDm(5003, '/help'))->toContain('Muhrla — команды учителя')
         ->and(dsrDm(5003, '/help'))->toContain('/unlink')
         ->and(dsrDm(5003, '/today'))->toBe('Эта команда — для учеников. Ваши команды учителя: /help')
         ->and(Learner::query()->where('telegram_user_id', 5003)->exists())->toBeFalse();
