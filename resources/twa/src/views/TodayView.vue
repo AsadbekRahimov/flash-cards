@@ -514,25 +514,30 @@ function startLesson(): Promise<void> {
 /**
  * The review of the lesson of the day (step 2): `openLessonReview` (source `plan`), then the training screen, as for a lesson. The review gives
  * no league points and does not move the goal - the card only says "fix N words". A refusal (409 `lesson_review_unavailable`) makes the store
- * read `/today` again, so the plan below is the server's new word; the card says so instead of the general error.
+ * read `/today` again: once the new plan no longer offers the review of that lesson, the message under the card says the plan was updated
+ * instead of the general error (which stays for a failure the plan does not explain, e.g. no network).
  */
-const reviewRefused = ref(false)
+const refusedReviewOf = ref<number | null>(null)
 async function startLessonReview(): Promise<void> {
   const lessonReview = plan.value?.training
   if (!lessonReview) return
   tapPrimary()
-  reviewRefused.value = false
+  refusedReviewOf.value = null
   const sessionId = await training.openLessonReview(lessonReview.lesson_id)
   if (sessionId !== null) {
     await router.push({ name: 'training', params: { sessionId } })
     return
   }
-  reviewRefused.value = openError.value !== ''
+  if (openError.value !== '') refusedReviewOf.value = lessonReview.lesson_id
 }
 watch(openError, (message) => {
-  if (message === '') reviewRefused.value = false
+  if (message === '') refusedReviewOf.value = null
 })
-const openErrorText = computed(() => (reviewRefused.value ? t('today.hero.review_unavailable') : openError.value))
+const openErrorText = computed(() => {
+  const refused = refusedReviewOf.value
+  const stillOffered = heroStep.value === 2 && plan.value?.training?.lesson_id === refused
+  return refused !== null && !stillOffered ? t('today.hero.review_unavailable') : openError.value
+})
 
 /** Step 3: the practice hub of the lesson, which starts the timed pairs by itself (`play`). */
 const gameLink = computed((): RouteLocationRaw | null => {

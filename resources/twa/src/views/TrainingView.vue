@@ -157,7 +157,7 @@ const missNote = computed((): string => {
  */
 const isPersonal = computed(
   (): boolean =>
-    mode.value === 'lesson' || mode.value === 'daily_review' || mode.value === 'hard_review' || opened.value?.sessionId === props.sessionId,
+    mode.value === 'lesson' || mode.value === 'daily_review' || mode.value === 'hard_review' || mode.value === 'lesson_review' || opened.value?.sessionId === props.sessionId,
 )
 
 function leave(): void {
