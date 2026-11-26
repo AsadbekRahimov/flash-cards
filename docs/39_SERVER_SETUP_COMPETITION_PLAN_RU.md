@@ -62,7 +62,7 @@ ART schedule:list | grep -E "polls|cups|leagues|achievements"
 
 Подробно — `docs/DEVOPS_GUIDE.md` §14.4. Коротко:
 
-1. `LEARNING_OBJECTIVE_GRADING_ACCEPT_LEGACY_QUALITY=false` в `.env`.
+1. `LEARNING_ACCEPT_LEGACY_CHOICE_QUALITY=false` в `.env`.
 2. `ART learner_lexemes:backfill` — уже выученные слова не дадут «новое» повторно.
 3. Дождаться границы: понедельник или 1-е число. Старая неделя и месяц закрываются сами.
 4. В `.env`: `LEAGUES_SCORING_V2_STARTS_ON=<дата этого понедельника или 1-го числа>`, `LEAGUES_SCORING_MODE=live`. Перезапустить контейнеры (`./deploy.sh --skip-migrate` или `docker compose … up -d`).

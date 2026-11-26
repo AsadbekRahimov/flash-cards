@@ -226,7 +226,7 @@
 | Режим | Засчитывается | Почему |
 |---|---|---|
 | Тренировка `meaning`, `reverse`, `audio` с `answer` (выбор варианта) | **да** | правильный вариант скрыт, сервер сверяет выбор |
-| `reverse` и `audio` с устаревшим `quality` (`accept_legacy_quality`) | **нет** (`NotChecked`, попытку закрывает) | сервер не видел выбора, «верно» — слова клиента. До запуска v2 рекомендуем выключить `LEARNING_OBJECTIVE_GRADING_ACCEPT_LEGACY_QUALITY` |
+| `reverse` и `audio` с устаревшим `quality` (`accept_legacy_quality`) | **нет** (`NotChecked`, попытку закрывает) | сервер не видел выбора, «верно» — слова клиента. До запуска v2 рекомендуем выключить `LEARNING_ACCEPT_LEGACY_CHOICE_QUALITY` |
 | `pretest` (новое слово, 4 варианта) | **да**, как подтверждение нового слова; «Не знаю» — ошибка | перевод скрыт. Угадывание с шансом 25 % даёт в среднем 0,5 очка за слово при лимите 20 — приемлемо |
 | `spelling`, `gap_fill` | **да**. Опечатка (quality 4) — успех | так же решает SM-2. Строже — вопрос В8 |
 | `flash` у новой карточки (первое знакомство) | **нет, но попытку не закрывает** (`Introductory`) | docs/28 разрешает ознакомительный показ |
@@ -613,7 +613,7 @@ return ScoreOutcome
 ### 12.4. Порядок включения на сервере
 
 1. Выкатить код (`mode = off`), `php artisan migrate` (300101 — мгновенно: таблица пуста), `php artisan lexemes:backfill` (и `--decks`).
-2. Выключить `LEARNING_OBJECTIVE_GRADING_ACCEPT_LEGACY_QUALITY` (иначе `reverse`/`audio` старых клиентов — 0 очков).
+2. Выключить `LEARNING_ACCEPT_LEGACY_CHOICE_QUALITY` (иначе `reverse`/`audio` старых клиентов — 0 очков).
 3. S7 backfill `learner_lexemes` (иначе каждое изученное слово один раз даст +2).
 4. `LEAGUES_SCORING_V2_STARTS_ON=<ближайший понедельник или 1-е>` и `LEAGUES_SCORING_MODE=live`, `php artisan config:cache`, перезапуск воркеров; `php artisan leagues:scoring-cutover` — проверить план (открытые неделя и месяц остаются v1 и доигрываются по v1 — их строки уже записаны с версией 1). В день старта после 00:00 (неделя) / после закрытия месяца (03:00) — `php artisan leagues:scoring-cutover --apply` (закрывает то, что пора, по v1 и создаёт строки v2; то же сделает и планировщик). До S12–S13 экраны v2 не готовы — включать вместе с ними; `shadow` — только запись для отката (§12.6).
 
