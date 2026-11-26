@@ -211,32 +211,32 @@
       }
     },
     {
-      "word": "The ball is in your court",
+      "word": "a sticking point",
       "part_of_speech": "phrase",
       "translations": {
-        "ru": "теперь ход за вами",
-        "uz": "endi navbat sizda"
+        "ru": "камень преткновения",
+        "uz": "asosiy kelishmovchilik nuqtasi"
       },
-      "example": "We've sent our final offer, so the ball is in your court now.",
+      "example": "Price isn't the problem — the delivery date is the main sticking point.",
       "example_translations": {
-        "ru": "Мы отправили окончательное предложение, так что теперь ход за вами.",
-        "uz": "Yakuniy taklifimizni yubordik, endi navbat sizda."
+        "ru": "Цена — не проблема: главный камень преткновения — срок поставки.",
+        "uz": "Narx muammo emas — asosiy kelishmovchilik nuqtasi yetkazib berish muddati."
       },
       "hooks": {
-        "ru": "Говорят, когда своё сделали и теперь решение или действие за другой стороной",
-        "uz": "O'z ishini qilib bo'lib, endi qaror yoki harakat boshqa tomonga bog'liq bo'lganda aytiladi"
+        "ru": "Говорят о вопросе, по которому стороны никак не могут договориться",
+        "uz": "Tomonlar hech kelisha olmayotgan masala haqida aytiladi"
       },
       "phrase": {
         "kind": "idiom",
         "register": "neutral",
         "variant": "both",
-        "gap": "court",
+        "gap": "sticking",
         "literal": {
-          "ru": "мяч на вашей половине корта",
-          "uz": "to'p sizning maydoningizda"
+          "ru": "точка застревания",
+          "uz": "tiqilib qoladigan nuqta"
         },
-        "cefr": "B2",
-        "frequency": 1
+        "cefr": "C1",
+        "frequency": 2
       }
     },
     {
