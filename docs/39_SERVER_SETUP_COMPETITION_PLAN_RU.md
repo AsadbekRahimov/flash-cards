@@ -1,17 +1,27 @@
 # Настройка сервера после плана соревнований (docs/31)
 
-Порядок действий на сервере для ветки `claude/compassionate-hamilton-lqpk7q`. Команды — для Docker-стека из `docker-compose.prod.yml`.
-Сокращение ниже: `ART` = `docker compose -f docker-compose.prod.yml --env-file .env exec app php artisan`.
+Порядок действий на сервере для ветки `claude/compassionate-hamilton-lqpk7q`.
+
+Есть два способа выкладки. Шаги 1 и 3–9 общие, отличается только шаг 2 и способ запуска команд:
+
+| | Coolify (`docker-compose.coolify.yml`) | Обычный VPS (`docker-compose.prod.yml`) |
+|---|---|---|
+| Выкладка | кнопка **Redeploy** в Coolify | `./deploy.sh` |
+| Переменные | Coolify → Environment Variables, затем **Redeploy** | файл `.env`, затем перезапуск контейнеров |
+| Команды `ART …` | Coolify → Terminal → контейнер `lf-app`: `php artisan …` | `docker compose -f docker-compose.prod.yml --env-file .env exec app php artisan …` |
+| Откат | Coolify → Deployments → выкладка прошлого коммита | `./deploy.sh --rollback <sha>` |
+
+Ниже `ART` — это `php artisan` в контейнере приложения (см. таблицу). Через SSH на сервере Coolify: `docker exec -it $(docker ps -q --filter name=lf-app | head -1) php artisan …`.
 
 Все новые функции выключены по умолчанию. После шага 2 сайт работает как раньше, плюс новый дизайн Mini App, области, опросы и фразы. Очки v2, кубок и дуэли включаются отдельно (шаги 4–6).
 
 ## 0. До выкладки
 
-1. Влить ветку в `master`: `deploy.sh` без аргументов берёт `origin/master`.
-2. Сделать резервную копию базы: `make backup`.
+1. Влить ветку в ту, из которой идёт выкладка (VPS: `deploy.sh` без аргументов берёт `origin/master`; Coolify: ветка из настроек ресурса).
+2. Сделать резервную копию базы. Coolify: `lf-migrate` делает её сам перед миграциями (`backup:run --only-db`); проверьте, что `BACKUP_DISKS` настроен. VPS: `make backup`.
 3. Не запускать выкладку в момент, когда идёт рассылка или закрытие недели / месяца лиги.
 
-## 1. `.env` на сервере
+## 1. Переменные окружения (Coolify → Environment Variables или `.env`)
 
 Новые ключи можно не добавлять — у всех есть значения по умолчанию. Проверить только эти:
 
@@ -27,15 +37,35 @@
 
 ## 2. Выкладка
 
+### 2а. Coolify
+
+`docker-compose.coolify.yml` менять не нужно — всё для этой ветки в нём уже есть:
+
+- том `app_share_cards` у приложения, очередей, планировщика и (только чтение) у `lf-nginx`; раздача `/storage/share-cards/` есть в `docker/nginx/coolify.conf`;
+- `lf-scheduler` (`schedule:work`) запускает новые команды `polls:*`, `cups:*`, `leagues:*`, `achievements:prune-cards` — они записаны в `routes/console.php`;
+- `lf-queue-low` (`low,tts`) — рассылка опросов; `lf-queue-default` — сообщения кубка и дуэлей, напоминание после урока;
+- `lf-migrate` при каждой выкладке сам делает копию базы, миграции (напрямую в PostgreSQL, мимо pgbouncer — это нужно для `CREATE INDEX CONCURRENTLY`), справочные данные, пересчёт слов курсов и настройку бота.
+
+Порядок:
+
+1. Влить ветку в ту, за которой следит ресурс в Coolify (или указать эту ветку в настройках ресурса).
+2. Coolify → ресурс LexiFlow → **Redeploy**. Сборка образа обязательна: в нём новый Mini App и GD с JPEG.
+3. В логах выкладки дождаться, что `lf-migrate` завершился с кодом 0. Если он упал на миграции — нажать **Redeploy** ещё раз: миграции этой ветки перезапускаемы. Сервисы новой версии стартуют только после успешного `lf-migrate`.
+4. Проверить, что все семь сервисов запущены: `lf-app`, `lf-api`, `lf-queue-high`, `lf-queue-default`, `lf-queue-low`, `lf-scheduler`, `lf-nginx`.
+
+Переменные из шагов 4–6 меняются в Coolify → Environment Variables. После изменения делайте **Redeploy**, а не Restart: Coolify записывает переменные в `.env` рядом с compose-файлом при выкладке.
+
+### 2б. Обычный VPS
+
 ```bash
 ./deploy.sh
 ```
 
-Скрипт сам: собирает образы (в образе теперь GD с JPEG и собранный Mini App с новым SDK), запускает миграции, пересчитывает слова курсов, настраивает бота и вебхук, поднимает стек. Том `app_share_cards` и раздача `/storage/share-cards/` уже описаны в compose и nginx.
+Скрипт сам: собирает образы (в образе теперь GD с JPEG и собранный Mini App с новым SDK), запускает миграции, пересчитывает слова курсов, настраивает бота и вебхук, поднимает стек. Том `app_share_cards` и раздача `/storage/share-cards/` уже описаны в compose и nginx. Расписание и очереди настраивать руками не нужно.
 
-Расписание и очереди настраивать руками не нужно: новые команды (`polls:*`, `cups:*`, `leagues:*`, `achievements:prune-cards`) записаны в `routes/console.php`, их запускает контейнер `schedule:work`; рассылка опросов идёт в очередь `low`, у неё уже есть воркер.
+### Общее
 
-Миграции этой ветки безопасны для работающей базы: большие таблицы не перезаписываются, индексы на PostgreSQL создаются `CONCURRENTLY`. Если миграция дуэлей или отвязки слов колод упала посередине — запустить `migrate --force` ещё раз, они перезапускаемы.
+Миграции этой ветки безопасны для работающей базы: большие таблицы не перезаписываются, индексы на PostgreSQL создаются `CONCURRENTLY`. Если миграция дуэлей или отвязки слов колод упала посередине — запустить её ещё раз, они перезапускаемы.
 
 ## 3. Сразу после выкладки
 
@@ -65,7 +95,7 @@ ART schedule:list | grep -E "polls|cups|leagues|achievements"
 1. `LEARNING_ACCEPT_LEGACY_CHOICE_QUALITY=false` в `.env`.
 2. `ART learner_lexemes:backfill` — уже выученные слова не дадут «новое» повторно.
 3. Дождаться границы: понедельник или 1-е число. Старая неделя и месяц закрываются сами.
-4. В `.env`: `LEAGUES_SCORING_V2_STARTS_ON=<дата этого понедельника или 1-го числа>`, `LEAGUES_SCORING_MODE=live`. Перезапустить контейнеры (`./deploy.sh --skip-migrate` или `docker compose … up -d`).
+4. В `.env`: `LEAGUES_SCORING_V2_STARTS_ON=<дата этого понедельника или 1-го числа>`, `LEAGUES_SCORING_MODE=live`. Применить: Coolify — **Redeploy**; VPS — `./deploy.sh --skip-migrate`.
 5. `ART leagues:scoring-cutover` — показывает план. После начала дня старта: `ART leagues:scoring-cutover --apply`.
 6. Один раз: `ART leagues:refresh-month --full`.
 
@@ -76,7 +106,7 @@ ART schedule:list | grep -E "polls|cups|leagues|achievements"
 ## 5. Включение кубка
 
 1. Бот должен быть в группе. Для сводок и карточки ему нужно право писать в группу.
-2. В `.env`: `CUP_ACCESS=pilot`. Перезапустить контейнеры.
+2. `CUP_ACCESS=pilot`, затем Redeploy (VPS: перезапуск контейнеров).
 3. В `/admin` → Кубки включить «Кубок: пилот» у нужных групп.
 4. По желанию задать курсы уровней: `CUP_COURSE_A1` … `CUP_COURSE_C1` (slug опубликованного курса платформы). Пусто — первый курс уровня.
 5. В группе: команда `/cup`. Проверить карточку, раунд в Mini App, вечернюю сводку.
@@ -86,7 +116,7 @@ ART schedule:list | grep -E "polls|cups|leagues|achievements"
 
 Нужны: работающий кубок, `PRACTICE_BATTLE=true`, `PRACTICE_ACCESS` не `off`.
 
-В `.env`: `CUP_DUELS=true`, перезапустить контейнеры. Проверить на двух телефонах: вызов (зачётная и товарищеская), принятие, матч, сообщение в группе, выход из кубка.
+`CUP_DUELS=true`, затем Redeploy (VPS: перезапуск контейнеров). Проверить на двух телефонах: вызов (зачётная и товарищеская), принятие, матч, сообщение в группе, выход из кубка.
 
 ## 7. Опросы
 
@@ -101,8 +131,7 @@ ART schedule:list | grep -E "polls|cups|leagues|achievements"
 
 ## 9. Откат
 
-```bash
-./deploy.sh --rollback <предыдущий-sha>
-```
+- Coolify: Deployments → выбрать прошлую успешную выкладку → Redeploy (или указать прошлый коммит в ресурсе).
+- VPS: `./deploy.sh --rollback <предыдущий-sha>`.
 
 Миграции при откате кода не откатываются сами; новые таблицы и колонки старому коду не мешают. Быстрее всего выключить функцию флагом: `LEAGUES_SCORING_MODE=shadow`, `CUP_ACCESS=off`, `CUP_DUELS=false`.
