@@ -1,0 +1,297 @@
+{
+  "course": "english-phrases",
+  "stage": {
+    "number": 14,
+    "title": "Идиомы: еда",
+    "title_uz": "Iboralar: ovqat"
+  },
+  "lesson": {
+    "number": 5,
+    "title": "Пословицы о еде",
+    "title_uz": "Ovqat haqidagi maqollar"
+  },
+  "words": [
+    {
+      "word": "Too many cooks spoil the broth",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "у семи нянек дитя без глазу",
+        "uz": "xo'rozi ko'p qishloqning tongi kech otar"
+      },
+      "example": "Everyone in the office wanted to change the poster. Too many cooks spoil the broth!",
+      "example_translations": {
+        "ru": "Каждый в офисе хотел что-то изменить в плакате. У семи нянек дитя без глазу!",
+        "uz": "Ofisdagi hamma plakatni o'zgartirmoqchi bo'ldi. Xo'rozi ko'p qishloqning tongi kech otar!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда слишком много людей вмешиваются в одно дело и только мешают",
+        "uz": "Bir ishga juda ko'p odam aralashib, faqat xalaqit berganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "cooks",
+        "literal": {
+          "ru": "слишком много поваров портят бульон",
+          "uz": "oshpaz ko'p bo'lsa, sho'rva buziladi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Don't put all your eggs in one basket",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не клади все яйца в одну корзину",
+        "uz": "barcha umidingni bitta ishga bog'lama"
+      },
+      "example": "Apply to several universities. Don't put all your eggs in one basket.",
+      "example_translations": {
+        "ru": "Подавай документы в несколько университетов. Не клади все яйца в одну корзину.",
+        "uz": "Bir nechta universitetga hujjat topshir. Barcha umidingni bitta ishga bog'lama."
+      },
+      "hooks": {
+        "ru": "Советуют не рисковать всем сразу и иметь запасные варианты",
+        "uz": "Hamma narsani birdaniga xavf ostiga qo'ymaslik va zaxira variantlar bo'lishini maslahat berib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "basket",
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "You can't have your cake and eat it",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "нельзя получить всё сразу",
+        "uz": "ikki kemaning boshini tutib bo'lmaydi"
+      },
+      "example": "You want a big salary but no extra work? You can't have your cake and eat it.",
+      "example_translations": {
+        "ru": "Хочешь большую зарплату и никакой лишней работы? Нельзя получить всё сразу.",
+        "uz": "Katta maosh-u ortiqcha ishsiz bo'lishni xohlaysanmi? Ikki kemaning boshini tutib bo'lmaydi."
+      },
+      "hooks": {
+        "ru": "Говорят тому, кто хочет сразу двух вещей, которые не совместить",
+        "uz": "Bir-biriga to'g'ri kelmaydigan ikki narsani birdaniga xohlagan odamga aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "cake",
+        "literal": {
+          "ru": "нельзя и сохранить свой торт, и съесть его",
+          "uz": "tortingni ham saqlab, ham yeb bo'lmaydi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Don't cry over spilt milk",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "слезами горю не поможешь",
+        "uz": "bo'lar ish bo'ldi, qayg'urishdan foyda yo'q"
+      },
+      "example": "I deleted the file by mistake. — Well, don't cry over spilt milk. Let's write it again.",
+      "example_translations": {
+        "ru": "Я случайно удалил файл. — Ну, слезами горю не поможешь. Давай напишем заново.",
+        "uz": "Faylni bilmasdan o'chirib yubordim. — Bo'lar ish bo'ldi, qayg'urishdan foyda yo'q. Kel, qaytadan yozamiz."
+      },
+      "hooks": {
+        "ru": "Говорят, что не стоит горевать о том, чего уже не исправить; в США чаще spilled milk",
+        "uz": "Endi tuzatib bo'lmaydigan narsa uchun qayg'urmaslik kerakligini aytishadi; AQShda ko'pincha spilled milk"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "milk",
+        "literal": {
+          "ru": "не плачь над пролитым молоком",
+          "uz": "to'kilgan sut uchun yig'lama"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "There's no such thing as a free lunch",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "бесплатный сыр бывает только в мышеловке",
+        "uz": "hech narsa tekinga bo'lmaydi"
+      },
+      "example": "The app is free, but it shows ads all the time. There's no such thing as a free lunch.",
+      "example_translations": {
+        "ru": "Приложение бесплатное, но всё время показывает рекламу. Бесплатный сыр бывает только в мышеловке.",
+        "uz": "Ilova bepul, lekin doim reklama ko'rsatadi. Hech narsa tekinga bo'lmaydi."
+      },
+      "hooks": {
+        "ru": "Предупреждают, что за всё «бесплатное» потом так или иначе приходится платить",
+        "uz": "Har qanday «tekin» narsa uchun keyin baribir to'lashga to'g'ri kelishidan ogohlantirib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "informal",
+        "variant": "both",
+        "gap": "lunch",
+        "literal": {
+          "ru": "бесплатных обедов не бывает",
+          "uz": "tekin tushlik degan narsa yo'q"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Out of the frying pan into the fire",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "из огня да в полымя",
+        "uz": "yomg'irdan qochib, do'lga tutilmoq"
+      },
+      "example": "I left my noisy flat, but the new one is even worse. Out of the frying pan into the fire!",
+      "example_translations": {
+        "ru": "Я съехал из шумной квартиры, а новая ещё хуже. Из огня да в полымя!",
+        "uz": "Shovqinli kvartiradan ko'chdim, yangisi esa undan ham battar. Yomg'irdan qochib, do'lga tutildim!"
+      },
+      "hooks": {
+        "ru": "Говорят, когда, уходя от одной беды, попадают в ещё худшую",
+        "uz": "Bir balodan qochib, undan battariga duch kelganda aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "frying",
+        "literal": {
+          "ru": "со сковороды в огонь",
+          "uz": "tovadan olovga"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Variety is the spice of life",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "в разнообразии — вся прелесть жизни",
+        "uz": "hayotning go'zalligi — rang-barangligida"
+      },
+      "example": "Let's try a new restaurant tonight. Variety is the spice of life!",
+      "example_translations": {
+        "ru": "Давай сегодня попробуем новый ресторан. В разнообразии — вся прелесть жизни!",
+        "uz": "Bugun kechqurun yangi restoranni sinab ko'raylik. Hayotning go'zalligi — rang-barangligida!"
+      },
+      "hooks": {
+        "ru": "Говорят, предлагая попробовать что-то новое вместо привычного",
+        "uz": "Odatiy narsa o'rniga yangi narsani sinab ko'rishni taklif qilib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "spice",
+        "literal": {
+          "ru": "разнообразие — пряность жизни",
+          "uz": "xilma-xillik — hayotning ziravori"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "You are what you eat",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "ты то, что ты ешь",
+        "uz": "nima yesang, o'shasan"
+      },
+      "example": "Eat more vegetables and less sugar. You are what you eat!",
+      "example_translations": {
+        "ru": "Ешь больше овощей и меньше сахара. Ты то, что ты ешь!",
+        "uz": "Ko'proq sabzavot, kamroq shakar ye. Nima yesang, o'shasan!"
+      },
+      "hooks": {
+        "ru": "Говорят, что от еды зависят здоровье и самочувствие",
+        "uz": "Sog'liq va kayfiyat ovqatga bog'liq ekanini aytishda ishlatiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "eat",
+        "cefr": "B1",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "Don't bite the hand that feeds you",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "не плюй в колодец, из которого пьёшь",
+        "uz": "tuzini yeb, tuzlug'iga tupurma"
+      },
+      "example": "Stop complaining about the company that pays you. Don't bite the hand that feeds you!",
+      "example_translations": {
+        "ru": "Хватит жаловаться на компанию, которая тебе платит. Не плюй в колодец, из которого пьёшь!",
+        "uz": "Senga maosh beradigan kompaniyadan shikoyat qilishni bas qil. Tuzini yeb, tuzlug'iga tupurma!"
+      },
+      "hooks": {
+        "ru": "Предупреждают, что нельзя вредить тому, кто тебе помогает или даёт работу",
+        "uz": "Senga yordam beradigan yoki ish beradigan odamga zarar yetkazmaslik kerakligini eslatib aytiladi"
+      },
+      "phrase": {
+        "kind": "proverb",
+        "register": "neutral",
+        "variant": "both",
+        "gap": "feeds",
+        "literal": {
+          "ru": "не кусай руку, которая тебя кормит",
+          "uz": "seni boqayotgan qo'lni tishlama"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    },
+    {
+      "word": "That's the way the cookie crumbles",
+      "part_of_speech": "phrase",
+      "translations": {
+        "ru": "такова жизнь, ничего не поделаешь",
+        "uz": "nima ham qilardik, hayot shunaqa"
+      },
+      "example": "We missed the last train by one minute. — Oh well, that's the way the cookie crumbles.",
+      "example_translations": {
+        "ru": "Мы опоздали на последний поезд на минуту. — Что ж, такова жизнь.",
+        "uz": "Oxirgi poyezddan bir daqiqaga kechikdik. — Nima ham qilardik, hayot shunaqa."
+      },
+      "hooks": {
+        "ru": "Спокойно говорят о неудаче, которую уже не изменить",
+        "uz": "O'zgartirib bo'lmaydigan muvaffaqiyatsizlik haqida xotirjam aytiladi"
+      },
+      "phrase": {
+        "kind": "formula",
+        "register": "informal",
+        "variant": "both",
+        "gap": "crumbles",
+        "literal": {
+          "ru": "так крошится печенье",
+          "uz": "pechenye shunday ushaladi"
+        },
+        "cefr": "B2",
+        "frequency": 2
+      }
+    }
+  ]
+}
