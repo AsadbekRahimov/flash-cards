@@ -130,9 +130,10 @@ it('decides the summaries of N cups with one statement for the choice and a cons
     $run = QueryLog::during(fn () => app(CupSummaries::class)->enqueueDue($start->addHours(20), 500));
 
     expect($early)->toHaveCount(1)
-        // the choice (the time of the summary in the SQL), the tables of all due cups, the days decided (UPDATE … RETURNING), the
-        // hashes (UPDATE … CASE), the rows (INSERT … RETURNING) - whatever the number of cups (it was 1 + 5·N)
-        ->and(count($run))->toBe(5);
+        // the choice (the time of the summary in the SQL), the tables of all due cups, the cups to write locked first (docs/33
+        // §11.9.2 п. 1: `cups → cup_days`, no cycle with a cancel / finish), the days decided (UPDATE … RETURNING), the hashes
+        // (UPDATE … CASE), the rows (INSERT … RETURNING) - whatever the number of cups (it was 1 + 5·N)
+        ->and(count($run))->toBe(6);
     Bus::assertDispatchedTimes(PostCupMessageJob::class, $cups);
 })->with([2, 5]);
 

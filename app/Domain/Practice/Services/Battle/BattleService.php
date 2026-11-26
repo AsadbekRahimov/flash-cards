@@ -414,12 +414,13 @@ final class BattleService
     public function ready(Learner $by, int $battleId, ?CarbonImmutable $now = null): Battle
     {
         $now ??= CarbonImmutable::now();
-        $this->access->assertCanPractice($by);
+        $denied = $this->deniedPractice($by);
 
-        return $this->transact(function () use ($by, $battleId, $now): Battle|BattleException {
+        return $this->transact(function () use ($by, $battleId, $now, $denied): Battle|BattleException|PracticeException {
             $battle = $this->lock($battleId, $by);
-            if ($battle === null) {
-                return BattleException::notFound();
+            $refusal = $this->refusalOf($battle, $denied);
+            if ($refusal !== null || $battle === null) {
+                return $refusal ?? BattleException::notFound();
             }
             $me = $battle->participant($by->id);
             $this->clock->advanceThenTouch($battle, $me, $now);
@@ -492,15 +493,16 @@ final class BattleService
         ?CarbonImmutable $now = null,
     ): BattleAnswerOutcome {
         $now ??= CarbonImmutable::now();
-        $this->access->assertCanPractice($by);
+        $denied = $this->deniedPractice($by);
         $requestId = strtolower($requestId);
 
         for ($attempt = 0; $attempt < 2; $attempt++) {
             try {
-                return $this->transact(function () use ($by, $battleId, $requestId, $round, $answer, $now): BattleAnswerOutcome|BattleException|PracticeException {
+                return $this->transact(function () use ($by, $battleId, $requestId, $round, $answer, $now, $denied): BattleAnswerOutcome|BattleException|PracticeException {
                     $battle = $this->lock($battleId, $by);
-                    if ($battle === null) {
-                        return BattleException::notFound();
+                    $refusal = $this->refusalOf($battle, $denied);
+                    if ($refusal !== null || $battle === null) {
+                        return $refusal ?? BattleException::notFound();
                     }
                     $me = $battle->participant($by->id);
                     $this->clock->advanceThenTouch($battle, $me, $now);
@@ -590,12 +592,13 @@ final class BattleService
     public function surrender(Learner $by, int $battleId, ?CarbonImmutable $now = null): Battle
     {
         $now ??= CarbonImmutable::now();
-        $this->access->assertCanPractice($by);
+        $denied = $this->deniedPractice($by);
 
-        return $this->transact(function () use ($by, $battleId, $now): Battle|BattleException {
+        return $this->transact(function () use ($by, $battleId, $now, $denied): Battle|BattleException|PracticeException {
             $battle = $this->lock($battleId, $by);
-            if ($battle === null) {
-                return BattleException::notFound();
+            $refusal = $this->refusalOf($battle, $denied);
+            if ($refusal !== null || $battle === null) {
+                return $refusal ?? BattleException::notFound();
             }
             $me = $battle->participant($by->id);
             $this->clock->advanceThenTouch($battle, $me, $now);
@@ -626,17 +629,18 @@ final class BattleService
     public function audioFailed(Learner $by, int $battleId, string $requestId, string $elementId, ?CarbonImmutable $now = null): AudioFailureOutcome
     {
         $now ??= CarbonImmutable::now();
-        $this->access->assertCanPractice($by);
+        $denied = $this->deniedPractice($by);
         $requestId = strtolower($requestId);
 
         // The disk is asked BEFORE the transaction: on R2 it is a HEAD (or two), which must not run while the row of the match
         // is locked. The snapshot never changes after the invitation, so the clip of the locked row is the one probed here.
         $probe = $this->probeClip($by, $battleId, $requestId, $elementId);
 
-        return $this->transact(function () use ($by, $battleId, $requestId, $elementId, $now, $probe): AudioFailureOutcome|BattleException|PracticeException {
+        return $this->transact(function () use ($by, $battleId, $requestId, $elementId, $now, $probe, $denied): AudioFailureOutcome|BattleException|PracticeException {
             $battle = $this->lock($battleId, $by);
-            if ($battle === null) {
-                return BattleException::notFound();
+            $refusal = $this->refusalOf($battle, $denied);
+            if ($refusal !== null || $battle === null) {
+                return $refusal ?? BattleException::notFound();
             }
             $me = $battle->participant($by->id);
             $this->clock->advanceThenTouch($battle, $me, $now);
@@ -819,6 +823,35 @@ final class BattleService
         }
 
         return ['disk' => $clip->disk, 'path' => $clip->path, 'missing' => $missing];
+    }
+
+    /**
+     * The refusal of the practice for this learner (pilot, plan, switch), kept - not thrown - until the match is known: the match of a
+     * duel of a cup is played by the participants of the cup whatever their access to the practice (docs/33 §11.9.1, docs/29: the rated
+     * duel is the same for Free and Pro). No query for a learner who may practice.
+     */
+    private function deniedPractice(Learner $by): ?PracticeException
+    {
+        try {
+            $this->access->assertCanPractice($by);
+        } catch (PracticeException $e) {
+            return $e;
+        }
+
+        return null;
+    }
+
+    /**
+     * What a learner refused the practice gets for this match: nothing for the match of a cup duel (`cup_duel_id`), the refusal for
+     * any other - and for a match that is not his or does not exist (the same 403 as before the match was read).
+     */
+    private function refusalOf(?Battle $battle, ?PracticeException $denied): ?PracticeException
+    {
+        if ($denied === null || ($battle !== null && $battle->cup_duel_id !== null)) {
+            return null;
+        }
+
+        return $denied;
     }
 
     /**

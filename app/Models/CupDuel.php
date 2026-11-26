@@ -8,7 +8,7 @@ use App\Domain\Cup\Enums\CupDuelEndReason;
 use App\Domain\Cup\Enums\CupDuelStatus;
 use App\Domain\Cup\Services\CupDuelService;
 use App\Domain\Practice\Enums\PracticeMode;
-use Carbon\CarbonInterface;
+use Carbon\CarbonImmutable;
 use Database\Factories\CupDuelFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -34,16 +34,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $open_challenger_id
  * @property int|null $battle_id
  * @property string $request_id
- * @property CarbonInterface $expires_at
- * @property CarbonInterface|null $accepted_at
+ * @property CarbonImmutable $expires_at
+ * @property CarbonImmutable|null $accepted_at
  * @property int|null $accepted_day
- * @property CarbonInterface|null $scored_at
- * @property CarbonInterface|null $closed_at
+ * @property CarbonImmutable|null $scored_at
+ * @property CarbonImmutable|null $closed_at
  * @property int|null $challenger_points
  * @property int|null $opponent_points
  * @property int|null $winner_participant_id
- * @property CarbonInterface|null $created_at
- * @property CarbonInterface|null $updated_at
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  * @property-read Cup $cup
  * @property-read CupParticipant $challenger
  * @property-read CupParticipant|null $opponent
@@ -70,14 +70,16 @@ class CupDuel extends Model
             'end_reason' => CupDuelEndReason::class,
             'open_challenger_id' => 'integer',
             'battle_id' => 'integer',
-            'expires_at' => 'datetime',
-            'accepted_at' => 'datetime',
+            'expires_at' => 'immutable_datetime',
+            'accepted_at' => 'immutable_datetime',
             'accepted_day' => 'integer',
-            'scored_at' => 'datetime',
-            'closed_at' => 'datetime',
+            'scored_at' => 'immutable_datetime',
+            'closed_at' => 'immutable_datetime',
             'challenger_points' => 'integer',
             'opponent_points' => 'integer',
             'winner_participant_id' => 'integer',
+            'created_at' => 'immutable_datetime',
+            'updated_at' => 'immutable_datetime',
         ];
     }
 

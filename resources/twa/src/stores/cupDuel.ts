@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
-import { duelFailure, duelRated, localDuelFailure, type DuelFailure } from '@/composables/cupDuelInfo'
+import { duelFailure, expectedRated, localDuelFailure, type DuelFailure, type DuelRatedExpectation } from '@/composables/cupDuelInfo'
 import { t } from '@/i18n'
 import { useBillingStore } from '@/stores/billing'
 import { useCupBoardStore } from '@/stores/cupBoard'
@@ -28,6 +28,8 @@ interface CupDuelState {
   busyBattleId: number | null
   /** The paywall of the free battles of the day. */
   limitHit: PracticeLimitHit | null
+  /** The kind of the last 409 `cup_duel_rating_changed`, kept apart from the duel the poll replaces ({@link expectedRated}). */
+  ratedExpectation: DuelRatedExpectation | null
   /** Counts the screens the store was reset for: a reply for an earlier one (or one that came after the screen was left) is dropped. */
   generation: number
 }
@@ -53,8 +55,16 @@ export const useCupDuelStore = defineStore('cupDuel', {
     notice: '',
     busyBattleId: null,
     limitHit: null,
+    ratedExpectation: null,
     generation: 0,
   }),
+
+  getters: {
+    /** The kind the screen shows and "Accept" sends (`expect_rated`). */
+    rated(state): boolean {
+      return state.duel === null ? false : expectedRated(state.duel, state.ratedExpectation)
+    },
+  },
 
   actions: {
     reset(): void {
@@ -67,6 +77,7 @@ export const useCupDuelStore = defineStore('cupDuel', {
       this.acting = null
       this.clearMessages()
       this.limitHit = null
+      this.ratedExpectation = null
     },
 
     clearMessages(): void {
@@ -180,7 +191,8 @@ export const useCupDuelStore = defineStore('cupDuel', {
     async accept(): Promise<void> {
       const duel = this.duel
       if (duel === null || this.acting !== null || this.cupId === null) return
-      await this.act('accept', () => api.cups.duels.accept(this.cupId!, duel.id, duelRated(duel)))
+      const rated = expectedRated(duel, this.ratedExpectation)
+      await this.act('accept', () => api.cups.duels.accept(this.cupId!, duel.id, rated))
     },
 
     /** "Decline" (the one challenged). */
@@ -228,8 +240,9 @@ export const useCupDuelStore = defineStore('cupDuel', {
       }
       this.busyBattleId = failure.battleId
       if (failure.rated !== null) {
-        // The screen shows the new kind at once, whether or not the read below comes back.
-        if (this.duel !== null) this.duel = { ...this.duel, rated_offered: failure.rated }
+        // The screen shows the new kind at once, whether or not the read below comes back; kept apart from the duel, so that the read and
+        // the poll (an older server tells only what the challenge offered) do not bring the old kind back to "Accept".
+        if (this.duel !== null) this.ratedExpectation = { duelId: this.duel.id, status: this.duel.status, rated: failure.rated }
         this.notice = failure.message
         await this.read(generation)
         return

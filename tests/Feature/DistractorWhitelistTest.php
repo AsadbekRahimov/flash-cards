@@ -129,3 +129,25 @@ it('borrows from a published public platform course in the reverse exercise', fu
         expect($option)->toStartWith('foreign');
     }
 });
+
+it('borrows the options of the same kind as the course in the lesson exam and the personal mock: phrases for phrases, words for words', function (bool $phrases): void {
+    // The own course: four cards of ONE translation (no option inside it); a foreign course of each kind.
+    $course = Course::factory()->published()->create(['exam_tag' => $phrases ? 'phrases' : null]);
+    $lesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $course->id]))->create();
+    /** @var list<Word> $words */
+    $words = Word::factory()->count(4)->for($lesson)->create(['translation' => 'same', 'part_of_speech' => $phrases ? 'phrase' : 'noun'])->all();
+    $phraseCourse = dwCourse(['status' => 'published', 'exam_tag' => 'phrases'], 'phrase', 10);
+    Word::query()->where('lesson_id', $phraseCourse->id)->update(['part_of_speech' => 'phrase']);
+    dwCourse(['status' => 'published'], 'word', 10);
+    $exams = app(ExamQuestionBuilder::class);
+    $lessonWithCourse = Lesson::query()->with('stage.course')->findOrFail($lesson->id);
+
+    foreach ([$exams->build($lesson, totalQuestions: 4, locale: 'ru'), $exams->build($lessonWithCourse, totalQuestions: 4, locale: 'ru'), $exams->forWords($words, $course, 'ru')] as $questions) {
+        expect($questions)->toHaveCount(4);
+        foreach ($questions as $q) {
+            foreach (array_diff($q['options'], ['same']) as $option) {
+                expect($option)->toStartWith($phrases ? 'phrase-' : 'word-');
+            }
+        }
+    }
+})->with(['a course of phrases' => true, 'a course of words' => false]);

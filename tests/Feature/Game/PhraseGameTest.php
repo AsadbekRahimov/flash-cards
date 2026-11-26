@@ -257,3 +257,21 @@ it('sends `phrase: true` with the current task of a run of phrases over HTTP', f
 
     expect($started->json('current.element.phrase'))->toBeTrue();
 });
+
+it('grades the gap of a phrase as the training does: the key word, or the whole phrase standing for it (docs/06 §16)', function (Closure $answer, string $verdict): void {
+    $composition = RunComposer::compose(new RunPool(LocaleSet::of('ru'), pgPhrases(10)), 'phrase-seed-aaaaaaaaaaaaaaaaaaaaaaaaaaaa', RunLimits::for(RunKind::Stop));
+    $gap = collect($composition->elements)->first(static fn (SnapshotElement $e): bool => $e->kind === 'gap') ?? throw new RuntimeException('No gap.');
+    $key = (string) $gap->get('expected')[0];
+    expect($gap->get('masked'))->toBe('say the ____ now');
+
+    $grade = app(WordTaskHandler::class)->grade($gap, ['text' => $answer($key)], RunState::initial(0));
+
+    expect($grade->verdict->value)->toBe($verdict);
+})->with([
+    'the key word' => [fn (string $k): string => $k, 'correct'],
+    'spaces and case' => [fn (string $k): string => '  '.strtoupper($k).' ', 'correct'],
+    'the whole phrase' => [fn (string $k): string => "say the {$k} now", 'correct'],
+    'the whole phrase, spaces, case, punctuation' => [fn (string $k): string => 'Say  the '.strtoupper($k).' now!', 'correct'],
+    'the whole phrase, another key word' => [fn (string $k): string => 'say the zzzz now', 'wrong'],
+    'another context' => [fn (string $k): string => "say a {$k} now", 'wrong'],
+]);

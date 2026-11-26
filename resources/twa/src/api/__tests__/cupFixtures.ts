@@ -178,27 +178,34 @@ export const duelAvailability = (over: Partial<CupDuelAvailability> = {}): CupDu
   ...over,
 })
 
-/** A duel (`CupDuelResource`): by default my open personal challenge to Aziza (participant 1), rated, 10 minutes to go. */
-export const cupDuel = (over: Partial<CupDuel> = {}): CupDuel => ({
-  id: 41,
-  status: 'open',
-  end_reason: null,
-  rated_offered: true,
-  rated: null,
-  public: false,
-  mode: 'pairs',
-  day: 3,
-  accepted_day: null,
-  expires_at: '2026-12-02T10:10:00.000Z',
-  battle_id: null,
-  role: 'challenger',
-  challenger: { participant_id: 2, display_name: 'Me', pro_emoji: null },
-  opponent: { participant_id: 1, display_name: 'Aziza', pro_emoji: '🦄' },
-  points: null,
-  winner_participant_id: null,
-  server_now: '2026-12-02T10:00:00.000Z',
-  ...over,
-})
+/**
+ * A duel (`CupDuelResource`): by default my open personal challenge to Aziza (participant 1), rated, 10 minutes to go. `rated_for_me`
+ * is what the server answers when nobody of the two has played the rated duel of today (the kind decided, else the one offered) unless
+ * given; an explicit `rated_for_me: undefined` is the answer of an older server without it.
+ */
+export const cupDuel = (over: Partial<CupDuel> = {}): CupDuel => {
+  const duel: CupDuel = {
+    id: 41,
+    status: 'open',
+    end_reason: null,
+    rated_offered: true,
+    rated: null,
+    public: false,
+    mode: 'pairs',
+    day: 3,
+    accepted_day: null,
+    expires_at: '2026-12-02T10:10:00.000Z',
+    battle_id: null,
+    role: 'challenger',
+    challenger: { participant_id: 2, display_name: 'Me', pro_emoji: null },
+    opponent: { participant_id: 1, display_name: 'Aziza', pro_emoji: '🦄' },
+    points: null,
+    winner_participant_id: null,
+    server_now: '2026-12-02T10:00:00.000Z',
+    ...over,
+  }
+  return 'rated_for_me' in over ? duel : { ...duel, rated_for_me: duel.rated ?? duel.rated_offered }
+}
 
 /** GET /cups/{id}/duels. */
 export const duelList = (over: Partial<CupDuelListResponse> = {}): CupDuelListResponse => ({

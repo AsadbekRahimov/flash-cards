@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Schema;
 uses(RefreshDatabase::class);
 
 const CUP_MIGRATIONS = [
+    'database/migrations/2026_11_30_100001_add_battle_voided_to_cup_duel_end_reasons.php',
     'database/migrations/2026_11_29_100001_create_cup_duels_tables.php',
     'database/migrations/2026_11_28_100002_create_cup_rounds_tables.php',
     'database/migrations/2026_11_28_100001_create_cups_tables.php',
@@ -44,7 +45,14 @@ it('rolls the tables of the cup back and forth', function (): void {
         expect(Schema::hasTable($table))->toBeTrue("{$table} missing after the re-run");
     }
     expect(Schema::hasIndex('cups', 'cups_scheduled_start_idx'))->toBeTrue()
-        ->and(Schema::hasIndex('cup_round_attempts', 'cup_round_attempts_active_expiry_idx'))->toBeTrue();
+        ->and(Schema::hasIndex('cup_round_attempts', 'cup_round_attempts_active_expiry_idx'))->toBeTrue()
+        ->and(Schema::hasIndex('battles', 'battles_cup_duel_id_unique'))->toBeTrue()
+        ->and(Schema::hasColumns('battles', ['cup_duel_id', 'limit_exempt']))->toBeTrue();
+    if (DB::getDriverName() === 'pgsql') {
+        // The foreign key of `battles` went in NOT VALID and was validated; the CHECK of the reasons knows `battle_voided`.
+        expect(DB::selectOne("SELECT convalidated FROM pg_constraint WHERE conname = 'battles_cup_duel_id_foreign'")?->convalidated)->toBeTrue()
+            ->and((string) DB::selectOne("SELECT pg_get_constraintdef(oid) AS def FROM pg_constraint WHERE conname = 'cup_duels_end_reason_check'")?->def)->toContain('battle_voided');
+    }
 });
 
 it('keeps one open cup per chat as a fact of the database', function (): void {

@@ -188,7 +188,8 @@ describe('CupDuelsView: the actions', () => {
   it('409 cup_duel_rating_changed: "the conditions changed", the list read again', async () => {
     vi.mocked(api.cups.duels.accept).mockRejectedValue(apiError('conflict', 409, 'cup_duel_rating_changed', { rated: false }))
     const r = await render()
-    vi.mocked(api.cups.duels.list).mockResolvedValue(duelList({ incoming: [incoming({ rated_offered: false })] }))
+    // As the server answers: the offer of the challenger is unchanged, the kind for me is friendly now.
+    vi.mocked(api.cups.duels.list).mockResolvedValue(duelList({ incoming: [incoming({ rated_offered: true, rated_for_me: false })] }))
 
     await click(r, '[data-testid=incoming-row] [data-testid=accept-btn]')
 
@@ -196,6 +197,35 @@ describe('CupDuelsView: the actions', () => {
     expect(api.cups.duels.list).toHaveBeenCalledTimes(2)
     expect(tid(r, 'incoming-row').get('[data-testid=duel-kind]').text()).toBe('Товарищеская')
     expect(route(r)).toBe('/cups/5/duels')
+
+    vi.mocked(api.cups.duels.accept).mockResolvedValue(incoming({ status: 'accepted', rated: false, battle_id: 79 }))
+    await click(r, '[data-testid=incoming-row] [data-testid=accept-btn]')
+    expect(api.cups.duels.accept).toHaveBeenLastCalledWith(5, 51, false)
+  })
+
+  it('an open rated challenge, I have played my rated duel today: the row is friendly and "Accept" sends it at once (rated_for_me)', async () => {
+    vi.mocked(api.cups.duels.accept).mockResolvedValue(openToAll({ status: 'accepted', rated: false, battle_id: 80 }))
+    const r = await render(duelList({ open: [openToAll({ rated_offered: true, rated_for_me: false })] }))
+
+    expect(tid(r, 'open-row').get('[data-testid=duel-kind]').text()).toBe('Товарищеская')
+    await click(r, '[data-testid=open-row] [data-testid=accept-btn]')
+
+    expect(api.cups.duels.accept).toHaveBeenCalledTimes(1)
+    expect(api.cups.duels.accept).toHaveBeenLastCalledWith(5, 52, false)
+  })
+
+  it('an older server (no rated_for_me): the kind of the 409 is kept for the row read again', async () => {
+    vi.mocked(api.cups.duels.accept).mockRejectedValueOnce(apiError('conflict', 409, 'cup_duel_rating_changed', { rated: false }))
+    const old = incoming({ rated_offered: true, rated_for_me: undefined })
+    const r = await render(duelList({ incoming: [old] }))
+    vi.mocked(api.cups.duels.list).mockResolvedValue(duelList({ incoming: [old] }))
+
+    await click(r, '[data-testid=incoming-row] [data-testid=accept-btn]')
+    expect(tid(r, 'incoming-row').get('[data-testid=duel-kind]').text()).toBe('Товарищеская')
+
+    vi.mocked(api.cups.duels.accept).mockResolvedValue(incoming({ status: 'accepted', rated: false, battle_id: 81 }))
+    await click(r, '[data-testid=incoming-row] [data-testid=accept-btn]')
+    expect(api.cups.duels.accept).toHaveBeenLastCalledWith(5, 51, false)
   })
 
   it('403 practice_limit_reached on accepting a friendly one: the paywall', async () => {

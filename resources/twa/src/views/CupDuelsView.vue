@@ -10,7 +10,7 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
-import { duelBlockReason, duelOutcomeText, duelRated } from '@/composables/cupDuelInfo'
+import { duelBlockReason, duelOutcomeText } from '@/composables/cupDuelInfo'
 import { formatDate } from '@/composables/format'
 import { useBackButton } from '@/composables/useBackButton'
 import { useReviewFromPaywall } from '@/composables/useReviewFromPaywall'
@@ -167,7 +167,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
           <li v-for="duel in data.incoming" :key="duel.id" class="list-row flex-col items-stretch gap-2" :data-duel="duel.id" data-testid="incoming-row">
             <div class="flex items-center gap-3">
               <PlayerName :name="playerName(duel.challenger)" :emoji="duel.challenger.pro_emoji" class="min-w-0 flex-1 font-bold" />
-              <CupDuelKind :rated="duelRated(duel)" />
+              <CupDuelKind :rated="duels.ratedOf(duel)" />
             </div>
             <p class="text-[13px] leading-[18px] text-muted">{{ until(duel) }}</p>
             <div class="flex gap-2">
@@ -198,7 +198,7 @@ const { reviewFromPaywall } = useReviewFromPaywall(() => duels.dismissPaywall(),
               <PlayerName :name="playerName(duel.challenger)" :emoji="duel.challenger.pro_emoji" class="font-bold" />
               <span class="text-[13px] leading-[18px] text-muted">{{ until(duel) }}</span>
             </span>
-            <CupDuelKind :rated="duelRated(duel)" />
+            <CupDuelKind :rated="duels.ratedOf(duel)" />
             <button
               type="button"
               class="btn btn-tinted btn-sm shrink-0"

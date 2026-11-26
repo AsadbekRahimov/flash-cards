@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/api'
-import { duelFailure, duelRated, type DuelFailure } from '@/composables/cupDuelInfo'
+import { duelFailure, expectedRated, type DuelFailure, type DuelRatedExpectation } from '@/composables/cupDuelInfo'
 import { newRequestId } from '@/composables/requestId'
 import { useBillingStore } from '@/stores/billing'
 import { useCupBoardStore } from '@/stores/cupBoard'
@@ -30,6 +30,8 @@ interface CupDuelsState {
   busyBattleId: number | null
   /** The paywall of the free battles of the day (403 `practice_limit_reached`). */
   limitHit: PracticeLimitHit | null
+  /** The kinds of the 409 `cup_duel_rating_changed` of the rows, by duel id ({@link expectedRated}). */
+  ratedExpectations: Record<number, DuelRatedExpectation>
   /**
    * The `request_id` of the challenge being made: one per attempt. A repeat after a lost reply (network, 5xx, 429) carries the same one, so
    * the server answers it with the duel it made (200), never a second duel; a new choice of the opponent is a new attempt.
@@ -60,6 +62,7 @@ export const useCupDuelsStore = defineStore('cupDuels', {
     notice: '',
     busyBattleId: null,
     limitHit: null,
+    ratedExpectations: {},
     requestId: null,
     requestKey: null,
     creating: false,
@@ -120,6 +123,11 @@ export const useCupDuelsStore = defineStore('cupDuels', {
       this.limitHit = null
     },
 
+    /** The kind a row shows and "Accept" sends: the kept answer of a 409 for it while it is as it was, else the server's. */
+    ratedOf(duel: CupDuel): boolean {
+      return expectedRated(duel, this.ratedExpectations[duel.id])
+    },
+
     /**
      * "Accept" of a row: with the kind the row shows (`expect_rated`). Returns the id of the match to go to at once (the room waits only a
      * short while), or null with the reason: the conditions changed (`notice`, the list read again - the learner looks and accepts again),
@@ -131,13 +139,13 @@ export const useCupDuelsStore = defineStore('cupDuels', {
       this.acting = duel.id
       this.clearMessages()
       try {
-        const accepted = await api.cups.duels.accept(cupId, duel.id, duelRated(duel))
+        const accepted = await api.cups.duels.accept(cupId, duel.id, this.ratedOf(duel))
         useCupBoardStore().invalidate()
         // No match to go to (an answer of an older acceptance without it): the list tells where the duel is now.
         if (accepted.battle_id === null) await this.load(cupId)
         return accepted.battle_id
       } catch (err) {
-        await this.refuseAction(err, cupId)
+        await this.refuseAction(err, cupId, duel)
         return null
       } finally {
         this.acting = null
@@ -170,8 +178,9 @@ export const useCupDuelsStore = defineStore('cupDuels', {
       }
     },
 
-    async refuseAction(err: unknown, cupId: number): Promise<void> {
+    async refuseAction(err: unknown, cupId: number, duel: CupDuel | null = null): Promise<void> {
       const failure = duelFailure(err)
+      if (failure.rated !== null && duel !== null) this.ratedExpectations = { ...this.ratedExpectations, [duel.id]: { duelId: duel.id, status: duel.status, rated: failure.rated } }
       this.noteFailure(failure)
       if (this.off) return
       if (failure.kind === 'limit') {

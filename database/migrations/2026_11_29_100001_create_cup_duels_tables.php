@@ -28,11 +28,29 @@ use Illuminate\Support\Facades\Schema;
  *    row for every ordinary battle. No index on `limit_exempt`: it is a filter of the count of one learner's battles.
  *  `winner_participant_id` is a copy without a key: the winner is one of the two players, whose rows take the duel with them.
  *
- * On SQLite the foreign key of `battles` is added by rebuilding the table; the partial index is made after it.
+ * `battles` holds every match of every learner, so on PostgreSQL its part never holds the writes of the matches for the length of a
+ * scan (docs/38): the two columns are added without a rewrite (a NULL one and a constant default), the foreign key `NOT VALID` (a short
+ * lock, no scan) and validated in a separate step (`SHARE UPDATE EXCLUSIVE`: the writes go on), the partial unique index is built
+ * `CONCURRENTLY` - which cannot run inside a transaction block, hence `$withinTransaction = false`; the new tables are made in a
+ * transaction of their own. Inside a caller's transaction (RefreshDatabase in tests) the plain statements are used, as in
+ * 2026_11_25_300003. On SQLite the foreign key of `battles` is added by rebuilding the table; the partial index is made after it.
  */
 return new class extends Migration
 {
+    /**
+     * CONCURRENTLY is incompatible with the migrator's transaction (see the class docblock).
+     *
+     * @var bool
+     */
+    public $withinTransaction = false;
+
     public function up(): void
+    {
+        DB::transaction(fn () => $this->createTables());
+        $this->linkBattles();
+    }
+
+    private function createTables(): void
     {
         Schema::create('cup_duels', function (Blueprint $table): void {
             $table->id();
@@ -76,13 +94,6 @@ return new class extends Migration
             $table->index('cup_duel_id');
         });
 
-        Schema::table('battles', function (Blueprint $table): void {
-            $table->unsignedBigInteger('cup_duel_id')->nullable();
-            $table->boolean('limit_exempt')->default(false);
-            $table->foreign('cup_duel_id')->references('id')->on('cup_duels')->nullOnDelete();
-        });
-
-        DB::statement('CREATE UNIQUE INDEX battles_cup_duel_id_unique ON battles (cup_duel_id) WHERE cup_duel_id IS NOT NULL');
         DB::statement('CREATE UNIQUE INDEX cup_duels_open_challenger_unique ON cup_duels (open_challenger_id) WHERE open_challenger_id IS NOT NULL');
         DB::statement('CREATE UNIQUE INDEX cup_duels_battle_unique ON cup_duels (battle_id) WHERE battle_id IS NOT NULL');
         DB::statement("CREATE INDEX cup_duels_open_expiry_idx ON cup_duels (expires_at) WHERE status = 'open'");
@@ -113,21 +124,51 @@ return new class extends Migration
         }
     }
 
+    /** The link of a match to its duel (see the class): the columns, the foreign key, the partial unique index. */
+    private function linkBattles(): void
+    {
+        if (DB::getDriverName() !== 'pgsql') {
+            Schema::table('battles', function (Blueprint $table): void {
+                $table->unsignedBigInteger('cup_duel_id')->nullable();
+                $table->boolean('limit_exempt')->default(false);
+                $table->foreign('cup_duel_id')->references('id')->on('cup_duels')->nullOnDelete();
+            });
+            DB::statement('CREATE UNIQUE INDEX battles_cup_duel_id_unique ON battles (cup_duel_id) WHERE cup_duel_id IS NOT NULL');
+
+            return;
+        }
+
+        // A NULL column and a constant default: no rewrite of the table (PostgreSQL 11+), a moment of its lock.
+        DB::statement('ALTER TABLE battles ADD COLUMN cup_duel_id bigint NULL, ADD COLUMN limit_exempt boolean NOT NULL DEFAULT false');
+        DB::statement('ALTER TABLE battles ADD CONSTRAINT battles_cup_duel_id_foreign FOREIGN KEY (cup_duel_id) REFERENCES cup_duels (id) ON DELETE SET NULL NOT VALID');
+        DB::statement('ALTER TABLE battles VALIDATE CONSTRAINT battles_cup_duel_id_foreign');
+        // An INVALID index of an interrupted run goes first.
+        DB::statement('DROP INDEX '.$this->concurrently().'IF EXISTS battles_cup_duel_id_unique');
+        DB::statement('CREATE UNIQUE INDEX '.$this->concurrently().'battles_cup_duel_id_unique ON battles (cup_duel_id) WHERE cup_duel_id IS NOT NULL');
+    }
+
     public function down(): void
     {
-        DB::statement('DROP INDEX IF EXISTS battles_cup_duel_id_unique');
+        DB::statement('DROP INDEX '.$this->concurrently().'IF EXISTS battles_cup_duel_id_unique');
 
-        // The duels go, so the links to them mean nothing: without this the next `up()` would meet ids with no row behind them.
-        DB::table('battles')->whereNotNull('cup_duel_id')->update(['cup_duel_id' => null]);
+        DB::transaction(function (): void {
+            // The duels go, so the links to them mean nothing: without this the next `up()` would meet ids with no row behind them.
+            DB::table('battles')->whereNotNull('cup_duel_id')->update(['cup_duel_id' => null]);
 
-        Schema::table('battles', function (Blueprint $table): void {
-            $table->dropForeign(['cup_duel_id']);
+            Schema::table('battles', function (Blueprint $table): void {
+                $table->dropForeign(['cup_duel_id']);
+            });
+            Schema::table('battles', function (Blueprint $table): void {
+                $table->dropColumn(['cup_duel_id', 'limit_exempt']);
+            });
+
+            Schema::dropIfExists('cup_duel_slots');
+            Schema::dropIfExists('cup_duels');
         });
-        Schema::table('battles', function (Blueprint $table): void {
-            $table->dropColumn(['cup_duel_id', 'limit_exempt']);
-        });
+    }
 
-        Schema::dropIfExists('cup_duel_slots');
-        Schema::dropIfExists('cup_duels');
+    private function concurrently(): string
+    {
+        return DB::connection()->getDriverName() === 'pgsql' && DB::connection()->transactionLevel() === 0 ? 'CONCURRENTLY ' : '';
     }
 };

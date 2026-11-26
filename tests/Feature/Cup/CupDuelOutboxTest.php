@@ -45,9 +45,15 @@ beforeEach(function (): void {
 
 afterEach(fn () => CarbonImmutable::setTestNow());
 
-function duelRow(CupDuel $duel, bool $end = false): CupMessage
+function duelRow(CupDuel $duel, bool $end = false, bool $accepted = false): CupMessage
 {
-    return CupMessage::query()->where('cup_id', $duel->cup_id)->where('dedupe_key', $end ? CupOutbox::duelEndKey($duel->id) : CupOutbox::duelKey($duel->id))->sole();
+    $key = match (true) {
+        $end => CupOutbox::duelEndKey($duel->id),
+        $accepted => CupOutbox::duelAcceptedKey($duel->id),
+        default => CupOutbox::duelKey($duel->id),
+    };
+
+    return CupMessage::query()->where('cup_id', $duel->cup_id)->where('dedupe_key', $key)->sole();
 }
 
 function deliverDuelRow(CupMessage $row, ?CarbonImmutable $now = null): int
@@ -163,15 +169,74 @@ it('posts an accepted challenge with its state when it went out late, and counts
     CupDuelKit::accept($b, $duel);
 
     deliverDuelRow(duelRow($duel));
+    CupKit::telegram()->failTextEdits = true;
+    deliverDuelRow(duelRow($duel, accepted: true));
     DB::table('cup_duels')->where('id', $duel->id)->update(['status' => 'void', 'end_reason' => 'no_answers', 'scored_at' => now(), 'closed_at' => now()]);
     app(CupOutbox::class)->enqueueMany([['cup_id' => $duel->cup_id, 'dedupe_key' => CupOutbox::duelEndKey($duel->id)]], CupMessageKind::Duel, CarbonImmutable::now());
-    CupKit::telegram()->failTextEdits = true;
     deliverDuelRow(duelRow($duel, end: true));
 
     expect(CupKit::telegram()->groupMessages[0]['text'])->toContain('Дуэль идёт')
         ->and(CupKit::telegram()->groupMessages[0]['markup'])->toBeNull()
+        ->and(duelRow($duel, accepted: true)->status)->toBe(CupMessageStatus::Sent)
         ->and(duelRow($duel, end: true)->status)->toBe(CupMessageStatus::Sent);
 });
+
+it('edits the challenge in the chat at the acceptance: «Дуэль идёт», the button gone, the same message - once', function (): void {
+    [, $duel, $posted] = postedChallenge(addressed: false);
+    $b = Learner::query()->whereKeyNot(duelPlayer($duel->challenger_participant_id)->id)
+        ->whereIn('id', DB::table('cup_participants')->where('cup_id', $duel->cup_id)->select('learner_id'))->firstOrFail();
+    CupDuelKit::accept($b, $duel);
+    CupDuelKit::accept($b, $duel); // a repeated acceptance: no second row
+    $row = duelRow($duel, accepted: true);
+
+    deliverDuelRow($row);
+    deliverDuelRow($row);
+
+    $edit = CupKit::telegram()->lastTextEdit();
+    expect(DB::table('cup_messages')->where('dedupe_key', CupOutbox::duelAcceptedKey($duel->id))->count())->toBe(1)
+        ->and(CupKit::telegram()->groupMessages)->toHaveCount(1)
+        ->and(CupKit::telegram()->textEdits)->toHaveCount(1)
+        ->and($edit['message_id'])->toBe($posted['message_id'])
+        ->and($edit['text'])->toContain('Дуэль идёт')
+        ->and($edit['markup'])->toBeNull()
+        ->and($row->fresh()->status)->toBe(CupMessageStatus::Sent);
+});
+
+it('never lets the edit of the acceptance overwrite the outcome: the outcome waits for it, and it gives way to the outcome', function (string $claimed): void {
+    [, $duel, $posted] = postedChallenge();
+    CupDuelKit::accept(duelPlayer((int) $duel->opponent_participant_id), $duel);
+    $accepted = duelRow($duel, accepted: true);
+    if ($claimed === 'sending') {
+        // A worker holds the edit of the acceptance (it read the duel `accepted` and is talking to Telegram).
+        DB::table('cup_messages')->where('id', $accepted->id)->update(['status' => CupMessageStatus::Sending->value, 'claimed_at' => now()]);
+    }
+    // The match is over before the edit of the acceptance went out.
+    DB::table('cup_duels')->where('id', $duel->id)->update([
+        'status' => CupDuelStatus::Done->value, 'scored_at' => now(), 'closed_at' => now(),
+        'challenger_points' => 4, 'opponent_points' => 3, 'winner_participant_id' => $duel->challenger_participant_id,
+    ]);
+    app(CupOutbox::class)->enqueueMany([['cup_id' => $duel->cup_id, 'dedupe_key' => CupOutbox::duelEndKey($duel->id)]], CupMessageKind::Duel, CarbonImmutable::now());
+    $end = duelRow($duel, end: true);
+
+    expect(deliverDuelRow($end))->toBe(CupOutbox::DUEL_EDIT_WAIT_SECONDS)
+        ->and($end->fresh()->status)->toBe(CupMessageStatus::Pending)
+        ->and(CupKit::telegram()->textEdits)->toBe([]);
+
+    if ($claimed === 'sending') {
+        // The worker of the acceptance edits and settles (its text was read while the duel was on).
+        DB::table('cup_messages')->where('id', $accepted->id)->update(['status' => CupMessageStatus::Sent->value]);
+    } else {
+        deliverDuelRow($accepted);
+        expect($accepted->fresh()->status)->toBe(CupMessageStatus::Skipped)
+            ->and($accepted->fresh()->error)->toBe('superseded');
+    }
+    deliverDuelRow($end);
+
+    $edit = CupKit::telegram()->lastTextEdit();
+    expect($edit['message_id'])->toBe($posted['message_id'])
+        ->and($edit['text'])->toContain('4 : 3')
+        ->and($end->fresh()->status)->toBe(CupMessageStatus::Sent);
+})->with(['pending', 'sending']);
 
 it('follows the rules of the senders on the edit: 403 disables the group, a 429 puts the row back, a timeout is unknown, a deleted message is skipped', function (): void {
     [$cup, $duel] = postedChallenge();

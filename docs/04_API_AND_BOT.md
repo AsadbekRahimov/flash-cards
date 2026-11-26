@@ -2052,7 +2052,7 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
 | `GET /cups/{id}/duels` | `twa-cup-read` 30/мин | 200 `CupDuelListResource` | — |
 | `GET /cups/{id}/duels/{duel}` | `twa-cup-duel-poll` 40/мин (`CUP_DUEL_POLLS_PER_MINUTE`) | 200 `CupDuelResource` | 404: дуэль не видна (видна игрокам; публичная и открытая всем — любому участнику) |
 | `POST /cups/{id}/duels {opponent_participant_id?, public, mode = pairs, request_id}` | `twa-cup-duel` 20/мин (`CUP_DUEL_ACTIONS_PER_MINUTE`) | 201 новый / 200 тот же `request_id` — `CupDuelResource` | 403 `cup_duel_unavailable` (соперника нельзя вызвать — без причины), `practice_limit_reached` (товарищеская, Free); 409 `cup_duel_already_open {duel_id}`, `cup_duel_limit {scope: daily \| pair \| public_participant \| public_chat, limit}`, `cup_paused {reason}`, `cup_unverifiable {bot_not_admin}`, `cup_not_started`, `cup_not_open`, `cup_round_unavailable`, `practice_mode_disabled`; 410 `cup_closed`; 422 `cup_duel_self`, `cup_duel_mode_invalid`, форма (`public` обязателен, `request_id` — UUID, `mode` — значение `PracticeMode`); 503 `cup_unverifiable {telegram_unavailable}`; 429 `cup_check_busy` |
-| `POST /cups/{id}/duels/{duel}/accept {expect_rated}` | `twa-cup-duel` | 201 принят сейчас / 200 принят раньше — `CupDuelResource` с `battle_id` | 409 `cup_duel_rating_changed {rated}` (показать новый статус, принять ещё раз с ним), `cup_duel_closed {status, reason}`, `cup_duel_own`, `battle_busy {battle_id}` (мой матч), `cup_duel_opponent_busy`, `cup_paused`, `battle_disabled`, `practice_mode_disabled`; 403 `cup_duel_unavailable`; 422 `battle_material_unavailable`, форма (`expect_rated` обязателен); 503 / 429 — проверка членства |
+| `POST /cups/{id}/duels/{duel}/accept {expect_rated}` | `twa-cup-duel` | 201 принят сейчас / 200 принят раньше — `CupDuelResource` с `battle_id` | `expect_rated` = `rated_for_me` прочитанной дуэли (не `rated_offered`!). 409 `cup_duel_rating_changed {rated}` (вид изменился после чтения: показать новый статус, принять ещё раз с `rated` из ответа — экран хранит его отдельно от опроса, пока статус дуэли тот же), `cup_duel_closed {status, reason}`, `cup_duel_own`, `battle_busy {battle_id}` (мой матч), `cup_duel_opponent_busy`, `cup_paused`, `battle_disabled`, `practice_mode_disabled`; 403 `cup_duel_unavailable`; 422 `battle_material_unavailable`, форма (`expect_rated` обязателен); 503 / 429 — проверка членства |
 | `POST /cups/{id}/duels/{duel}/decline` | `twa-cup-duel` | 200 `CupDuelResource` (`declined`; повтор — то же) | 403 `cup_duel_not_recipient` (свой вызов или открытый всем); 409 `cup_duel_closed {status, reason}` |
 | `POST /cups/{id}/duels/{duel}/cancel` | `twa-cup-duel` | 200 `CupDuelResource` (`canceled`, `end_reason: challenger`; повтор — то же) | 404 (не мой вызов); 409 `cup_duel_closed` |
 
@@ -2060,7 +2060,10 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
 `participant_id`, никогда `learner_id` / Telegram id / `request_id` / `public_code`):
 
 - **`CupDuelResource`**: `{id, status (open | accepted | declined | expired | canceled | done | void), end_reason (null | declined | expired |
-  cup_over | challenger | cup_closed | left | challenger_limit | material | no_answers | battle_gone), rated_offered, rated (null пока открыт),
+  cup_over | challenger | cup_closed | left | challenger_limit | material | no_answers | battle_gone | battle_voided), rated_offered (что
+  предложил вызвавший — пишется один раз при вызове, от смотрящего не зависит), rated_for_me (вид дуэли **для смотрящего**: открытый вызов —
+  зачётная, если ни вызвавший, ни тот, кто примет (адресат, а у открытого всем — сам смотрящий), не сыграл зачётную дуэль сегодняшнего дня
+  кубка; это и есть `expect_rated` его принятия; иначе — `rated` / `rated_offered`; с 26.11.2026, docs/33 §11.11), rated (null пока открыт),
   public, mode, day, accepted_day, expires_at, battle_id (null до принятия), role (challenger | opponent | null — смотрит тот, кто может
   принять открытый вызов), challenger: {participant_id, display_name, pro_emoji}, opponent: {participant_id, display_name, pro_emoji} | null
   (открытый вызов), points: {challenger, opponent} | null (до `done`), winner_participant_id, server_now}`. Имена — имена участников в
@@ -2073,6 +2076,11 @@ is not available in this chat."}}` до чтения БД (middleware `EnsureCup
   день идущего кубка или null), can_challenge (кубок идёт, не на паузе, я `active`, нет моего открытого вызова, вызовы дня не кончились),
   rated_available (моя зачётная дуэль сегодня не сыграна), challenges_left (из `cup.duel.daily_challenges` = 20), open_duel_id (мой
   открытый вызов — показать его вместо нового)}`. Это подсказка экрана: ядро решает заново при вызове.
+- Открытые всем вызовы ученика, заблокировавшего меня или заблокированного мной (`friendships`), в `open` не попадают (тот же один
+  оператор). Матч дуэли (`battle_id`) играется по обычным маршрутам `/practice/battles/{id}…` **без проверки доступа к практике**
+  (`PRACTICE_ACCESS=pilot`, `practice.plan=pro`): его игрокам дверь открывает участие в кубке (docs/33 §11.11 п. 2); остальные
+  проверки баттла (игрок этого матча, блокировка ученика) — как у любого матча. Выключатель практики целиком (`PRACTICE_ACCESS=off`) —
+  по-прежнему 409 `cup_duel_disabled`.
 
 **Переход в баттл (экран ожидания).** Комната матча дуэли живёт `presence_grace_seconds` (30 с) от принятия.
 - Принявший: ответ `accept` (201) уже содержит `battle_id` — экран сразу ведёт в существующий `/battles/{battle_id}` (`BattleView`,

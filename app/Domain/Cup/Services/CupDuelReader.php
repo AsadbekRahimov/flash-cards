@@ -12,6 +12,7 @@ use App\Domain\Cup\Enums\CupParticipantStatus;
 use App\Domain\Cup\Enums\CupStatus;
 use App\Domain\Cup\Support\CupAccess;
 use App\Domain\Cup\Support\CupClock;
+use App\Domain\Engagement\Enums\FriendshipStatus;
 use App\Models\Cup;
 use App\Models\CupDuel;
 use Carbon\CarbonImmutable;
@@ -39,8 +40,14 @@ final class CupDuelReader
     /** The rows of one list at most: open ones ≤ one per participant, mine of a day ≤ `daily_challenges` + the accepted. */
     private const LIST_LIMIT = 200;
 
-    /** The duel and the names of its players: the PK of the duel, the PKs of the participants. */
-    private const SELECT = 'SELECT d.*, c.display_name AS x_challenger_name, o.display_name AS x_opponent_name
+    /**
+     * The duel, the names of its players (the PK of the duel, the PKs of the participants) and the rated slots of TODAY of the two who
+     * would play it if the viewer accepted it now - the challenger and the addressee, or the viewer for an open challenge (unique
+     * `(participant_id, day)`, two Index Only Scans): `rated_for_me`. Bindings: today's day, the viewer, today's day.
+     */
+    private const SELECT = 'SELECT d.*, c.display_name AS x_challenger_name, o.display_name AS x_opponent_name,
+            (SELECT COUNT(*) FROM cup_duel_slots xs WHERE xs.participant_id = d.challenger_participant_id AND xs.day = ?) AS x_challenger_slot,
+            (SELECT COUNT(*) FROM cup_duel_slots xa WHERE xa.participant_id = COALESCE(d.opponent_participant_id, ?) AND xa.day = ?) AS x_acceptor_slot
         FROM cup_duels d
         JOIN cup_participants c ON c.id = d.challenger_participant_id
         LEFT JOIN cup_participants o ON o.id = d.opponent_participant_id';
@@ -172,13 +179,29 @@ final class CupDuelReader
             array_push($bindings, $cup->id, ...$days);
             array_push($bindings, $me, $me, $day, $day);
         }
-        $bindings[] = self::LIST_LIMIT;
 
-        $rows = DB::select(self::SELECT.' WHERE d.id IN ('.implode(' UNION ', $branches).') ORDER BY d.id DESC LIMIT ?', $bindings);
+        // An open challenge to anybody by a learner who blocked me or whom I blocked (`friendships`, either side) is not shown (docs/33
+        // §11.9.2 п. 4: a block makes the duel unavailable, without a reason): the unique `(learner_id, friend_id)` of the pair, per
+        // open row of another - in the same statement.
+        $viewer = (int) ($context->participant->learner_id ?? 0);
+        $rows = DB::select(
+            self::SELECT.' WHERE d.id IN ('.implode(' UNION ', $branches).')
+                AND (d.status <> ? OR d.opponent_participant_id IS NOT NULL OR d.challenger_participant_id = ? OR NOT EXISTS (
+                    SELECT 1 FROM friendships f
+                    WHERE f.learner_id = CASE WHEN c.learner_id < ? THEN c.learner_id ELSE ? END
+                      AND f.friend_id = CASE WHEN c.learner_id < ? THEN ? ELSE c.learner_id END
+                      AND f.status = ?))
+                ORDER BY d.id DESC LIMIT ?',
+            [
+                ...self::slotBindings($day, $me), ...$bindings,
+                $open, $me, $viewer, $viewer, $viewer, $viewer, FriendshipStatus::Blocked->value,
+                self::LIST_LIMIT,
+            ],
+        );
 
         $incoming = $openToAll = $today = [];
         $mine = null;
-        $views = $this->views($rows, $cup, $me, $now);
+        $views = $this->views($rows, $cup, $me, $day, $now);
         foreach ($views as $view) {
             $duel = $view->duel;
             if ($duel->status !== CupDuelStatus::Open) {
@@ -209,8 +232,9 @@ final class CupDuelReader
     public function find(CupContext $context, int $duelId, CarbonImmutable $now): ?CupDuelView
     {
         $me = $context->participant->id ?? throw new \LogicException('The duels of a cup are read for a participant.');
-        $rows = DB::select(self::SELECT.' WHERE d.id = ? AND d.cup_id = ?', [$duelId, $context->cup->id]);
-        $view = $this->views($rows, $context->cup, $me, $now)[0] ?? null;
+        $day = $this->currentDay($context->cup, $now);
+        $rows = DB::select(self::SELECT.' WHERE d.id = ? AND d.cup_id = ?', [...self::slotBindings($day, $me), $duelId, $context->cup->id]);
+        $view = $this->views($rows, $context->cup, $me, $day, $now)[0] ?? null;
         if ($view === null) {
             return null;
         }
@@ -251,11 +275,37 @@ final class CupDuelReader
         );
     }
 
+    /** @return list<int> the bindings of the slots of {@see SELECT}: today's day (0 - none: no slot matches), the viewer, the day */
+    private static function slotBindings(?int $day, int $viewer): array
+    {
+        return [$day ?? 0, $viewer, $day ?? 0];
+    }
+
+    /**
+     * The kind of the duel for the viewer (docs/04 A.23d `rated_for_me`): an open challenge is rated if neither of the two who would
+     * play it on his acceptance has played the rated duel of today - what the acceptance decides again (`expect_rated`); without a day
+     * of the cup (not running) - what the challenge offered. Null for a duel that is not open: the resource shows `rated` /
+     * `rated_offered`.
+     *
+     * @param  array<string, mixed>  $values
+     */
+    private static function ratedForMe(CupDuel $duel, array $values, ?int $day): ?bool
+    {
+        if ($duel->status !== CupDuelStatus::Open) {
+            return null;
+        }
+        if ($day === null) {
+            return $duel->rated_offered;
+        }
+
+        return (int) ($values['x_challenger_slot'] ?? 0) === 0 && (int) ($values['x_acceptor_slot'] ?? 0) === 0;
+    }
+
     /**
      * @param  array<int, \stdClass>  $rows
      * @return list<CupDuelView>
      */
-    private function views(array $rows, Cup $cup, int $viewer, CarbonImmutable $now): array
+    private function views(array $rows, Cup $cup, int $viewer, ?int $day, CarbonImmutable $now): array
     {
         if ($rows === []) {
             return [];
@@ -267,7 +317,8 @@ final class CupDuelReader
             $values = (array) $row;
             $challengerName = (string) $values['x_challenger_name'];
             $opponentName = $values['x_opponent_name'] === null ? null : (string) $values['x_opponent_name'];
-            unset($values['x_challenger_name'], $values['x_opponent_name']);
+            $slots = ['x_challenger_slot' => $values['x_challenger_slot'] ?? 0, 'x_acceptor_slot' => $values['x_acceptor_slot'] ?? 0];
+            unset($values['x_challenger_name'], $values['x_opponent_name'], $values['x_challenger_slot'], $values['x_acceptor_slot']);
             /** @var CupDuel $duel */
             $duel = (new CupDuel)->newFromBuilder($values);
             $opponent = $duel->opponent_participant_id;
@@ -279,6 +330,7 @@ final class CupDuelReader
                 opponentEmoji: $opponent === null ? null : ($emoji[$opponent] ?? null),
                 viewerParticipantId: $viewer,
                 now: $now,
+                ratedForMe: self::ratedForMe($duel, $slots, $day),
             );
         }
 

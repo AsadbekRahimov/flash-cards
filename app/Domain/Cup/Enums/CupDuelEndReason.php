@@ -15,8 +15,11 @@ namespace App\Domain\Cup\Enums;
  *   left              the challenger is no active participant any more (left the chat) at the acceptance
  *   challenger_limit  a friendly duel: the Free challenger has no battle of the day left at the acceptance (owner's К5)
  *   material          the course of the cup has no material for the mode any more
- *   no_answers        the match closed before anybody answered (void: the slots are free again, docs/33 §5.7)
+ *   no_answers        the match ended - closed, or finished by a surrender in the countdown - before anybody answered (void: the
+ *                     slots are free again, docs/33 §5.7)
  *   battle_gone       the match was deleted (a learner was deleted) before the result (void)
+ *   battle_voided     the system called the match off (`battles.end_reason = voided`: a clip missing, the practice switched off),
+ *                     answers or not (void)
  */
 enum CupDuelEndReason: string
 {
@@ -30,4 +33,5 @@ enum CupDuelEndReason: string
     case Material = 'material';
     case NoAnswers = 'no_answers';
     case BattleGone = 'battle_gone';
+    case BattleVoided = 'battle_voided';
 }

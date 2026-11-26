@@ -429,7 +429,7 @@ it('scores a played match into the day of the acceptance: own right answers only
         ->and(dayScore($pb, 1)?->duel_points)->toBe(2)
         ->and($pa->fresh()?->best_total)->toBe(4)
         ->and($pa->fresh()?->days_played)->toBe(1)
-        ->and(duelOutbox($cup->id))->toBe(['duel:'.$duel->id, 'duel:'.$duel->id.':end']);
+        ->and(duelOutbox($cup->id))->toBe(['duel:'.$duel->id, 'duel:'.$duel->id.':accepted', 'duel:'.$duel->id.':end']);
 
     $text = app(CupDuelRenderer::class)->message($done, CupDuelKit::cup($cup), CupDuelKit::cup($cup)->telegramGroup)->text;
     expect($text)->toContain('4 : 2')->toContain($pa->display_name);
@@ -465,7 +465,7 @@ it('makes a match that closed before anybody answered void: no points, the slots
         ->and($void->end_reason)->toBe(CupDuelEndReason::NoAnswers)
         ->and(DB::table('cup_duel_slots')->count())->toBe(0)
         ->and(dayScore($pa, 1))->toBeNull()
-        ->and(duelOutbox($cup->id))->toBe(['duel:'.$duel->id, 'duel:'.$duel->id.':end'])
+        ->and(duelOutbox($cup->id))->toBe(['duel:'.$duel->id, 'duel:'.$duel->id.':accepted', 'duel:'.$duel->id.':end'])
         ->and(ProductEvent::query()->where('name', 'cup.duel_void')->count())->toBe(1);
 
     // The rated duel of the day can be played again.
@@ -557,10 +557,9 @@ it('takes a result that comes after the finish of the cup into nothing: the plac
     Queue::fake([PostCupMessageJob::class, ScoreCupDuelJob::class]);
     CupDuelKit::playOut($duel, $a, $b, 5, 0);
 
-    // The finish without the settle of the duels (the switch off at that moment): the places come first.
+    // The finish before the result is in (the match ended after the settle of the scheduler): the places come first.
     $endsAt = CarbonImmutable::instance(CupDuelKit::cup($cup)->ends_at);
-    config(['cup.duels' => false]);
-    app(CupScheduler::class)->advance($endsAt->addMinutes(31));
+    app(CupLifecycleService::class)->finish($cup->id, $endsAt->addMinutes(31));
     expect(CupDuelKit::cup($cup)->status->value)->toBe('finished');
     $ranks = CupParticipant::query()->where('cup_id', $cup->id)->orderBy('id')->pluck('final_rank')->all();
 
@@ -585,6 +584,23 @@ it('takes the results of the finished matches into the cup before the places of 
         ->and($pa->fresh()?->best_total)->toBe(3)
         ->and($pa->fresh()?->final_rank)->toBe(1)
         ->and($pb->fresh()?->final_rank)->toBe(2);
+});
+
+it('takes the results of the finished matches into the cup even when the duels were switched off during the cup', function (): void {
+    ['cup' => $cup, 'learners' => [$a, $b], 'participants' => [$pa, $pb]] = CupDuelKit::running();
+    $duel = CupDuelKit::accept($b, CupDuelKit::challenge($a, $cup, $pb)->duel);
+    Queue::fake([PostCupMessageJob::class, ScoreCupDuelJob::class]);
+    CupDuelKit::playOut($duel, $a, $b, 4, 2);
+    config(['cup.duels' => false]);
+
+    $endsAt = CarbonImmutable::instance(CupDuelKit::cup($cup)->ends_at);
+    app(CupScheduler::class)->advance($endsAt->addMinutes(31));
+
+    expect(CupDuelKit::cup($cup)->status->value)->toBe('finished')
+        ->and(CupDuelKit::fresh($duel)->status)->toBe(CupDuelStatus::Done)
+        ->and(CupDuelKit::fresh($duel)->end_reason)->toBeNull()
+        ->and($pa->fresh()?->best_total)->toBe(4)
+        ->and($pa->fresh()?->final_rank)->toBe(1);
 });
 
 it('voids a duel whose battle is gone', function (): void {

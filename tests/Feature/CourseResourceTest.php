@@ -270,3 +270,32 @@ it('keeps showing the archived course a group is already bound to', function ():
         ->assertFormSet(['course_id' => $archived->id])
         ->assertFormFieldExists('course_id', fn (Select $field): bool => ($field->getOptions()[$archived->id] ?? null) === 'old');
 });
+
+it('refuses to move a course that holds words across the line of the phrases, and lets an empty course or a change within a kind through', function (): void {
+    $this->actingAs($this->admin);
+    // A course of words: it may not become a course of phrases (its words would join the options of the phrases and the other way).
+    $words = adminCourse('published', words: 2);
+    livewire(EditCourse::class, ['record' => $words->getRouteKey()])
+        ->set('data.exam_tag', 'phrases')
+        ->call('save')
+        ->assertHasFormErrors(['exam_tag']);
+    expect($words->fresh()?->exam_tag)->not->toBe('phrases');
+
+    // A course of phrases: «phrases» may not be dropped.
+    $phrases = Course::factory()->create(['exam_tag' => 'phrases']);
+    $lesson = Lesson::factory()->for(Stage::factory()->create(['course_id' => $phrases->id]))->create();
+    Word::factory()->for($lesson)->create(['word' => 'no worries', 'part_of_speech' => 'phrase']);
+    $edit = livewire(EditCourse::class, ['record' => $phrases->getRouteKey()])
+        ->set('data.exam_tag', 'ielts')
+        ->call('save')
+        ->assertHasFormErrors(['exam_tag']);
+    expect($phrases->fresh()?->exam_tag)->toBe('phrases')
+        ->and((string) collect($edit->errors()->get('data.exam_tag'))->first())->toBe(__('admin.courses.errors.kind_from_phrases'));
+
+    // Within one kind, and an empty course - free.
+    livewire(EditCourse::class, ['record' => $words->getRouteKey()])->set('data.exam_tag', 'ielts')->call('save')->assertHasNoFormErrors();
+    $empty = Course::factory()->create();
+    livewire(EditCourse::class, ['record' => $empty->getRouteKey()])->set('data.exam_tag', 'phrases')->call('save')->assertHasNoFormErrors();
+    expect($words->fresh()?->exam_tag)->toBe('ielts')
+        ->and($empty->fresh()?->exam_tag)->toBe('phrases');
+});

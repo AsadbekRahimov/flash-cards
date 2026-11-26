@@ -10,7 +10,7 @@ import ErrorState from '@/components/ui/ErrorState.vue'
 import InlineAlert from '@/components/ui/InlineAlert.vue'
 import LoadingState from '@/components/ui/LoadingState.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
-import { DUEL_OVERDUE_MS, DUEL_POLL_MAX_MS, DUEL_POLL_MS, clockText, duelOutcomeText, duelRated } from '@/composables/cupDuelInfo'
+import { DUEL_OVERDUE_MS, DUEL_POLL_MAX_MS, DUEL_POLL_MS, clockText, duelOutcomeText } from '@/composables/cupDuelInfo'
 import { showErrorToast } from '@/composables/errorToast'
 import { useBackButton } from '@/composables/useBackButton'
 import { useNow } from '@/composables/useNow'
@@ -170,7 +170,7 @@ const shownStatus = computed(() => (timeUp.value ? 'expired' : (duel.value?.stat
 
 const playerName = (player: CupDuelPlayer | null): string => (player === null ? t('cup.duel.anybody') : player.display_name || t('league.anonymous'))
 
-const rated = computed((): boolean => (duel.value ? duelRated(duel.value) : false))
+const rated = computed((): boolean => store.rated)
 const role = computed(() => duel.value?.role ?? null)
 
 /** The title of the state: "Waiting for the opponent", "X challenges you", "The duel is played"… */

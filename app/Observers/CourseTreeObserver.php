@@ -46,7 +46,8 @@ final class CourseTreeObserver
     {
         if ($model instanceof Course) {
             if ($model->wasRecentlyCreated || $model->wasChanged(self::COURSE_READ_COLUMNS)) {
-                $this->forgetAfterCommit([(int) $model->getKey()]);
+                // A course that is not the platform's, before or after the save, was never in the pool of distractors.
+                $this->forgetAfterCommit([(int) $model->getKey()], self::ofPlatform($model));
             }
 
             return;
@@ -67,7 +68,9 @@ final class CourseTreeObserver
         // A deleted course has no readers left; its entries expire by their TTL. Its words may still stand in the shared pool of
         // distractors of the platform, which every other course reads: that one is dropped.
         if ($model instanceof Course) {
-            DB::afterCommit(static fn () => PlatformDistractorPool::forget());
+            if (self::ofPlatform($model)) {
+                DB::afterCommit(static fn () => PlatformDistractorPool::forget());
+            }
 
             return;
         }
@@ -76,15 +79,21 @@ final class CourseTreeObserver
     }
 
     /** @param  list<int|null>  $courseIds */
-    private function forgetAfterCommit(array $courseIds): void
+    private function forgetAfterCommit(array $courseIds, bool $platformPool = true): void
     {
         $ids = array_values(array_unique(array_filter($courseIds)));
 
-        DB::afterCommit(function () use ($ids): void {
+        DB::afterCommit(function () use ($ids, $platformPool): void {
             foreach ($ids as $courseId) {
-                $this->catalog->forgetCourseTree($courseId);
+                $this->catalog->forgetCourseTree($courseId, $platformPool);
             }
         });
+    }
+
+    /** The course is (or was, before this save) the platform's - the only kind {@see PlatformDistractorPool} may hold. No query. */
+    private static function ofPlatform(Course $course): bool
+    {
+        return $course->owner_type === 'platform' || $course->getOriginal('owner_type') === 'platform';
     }
 
     private function courseOf(Stage|Lesson $model, bool $original): ?int

@@ -240,6 +240,60 @@ it('never changes the result of the finish: the scoring and the finish of the cu
     }
 });
 
+/*
+ * The deadlock of the review of release 6 (docs/33 §11.9.2 п. 1): the scoring held both participants and inserted the first row of
+ * their day (`cup_day_scores` - a day with only a duel), whose foreign key takes `FOR KEY SHARE` of the cup, while the finish held
+ * `FOR UPDATE` of the cup and waited for the participants. Repeated (CUP_DUEL_FINISH_RACE_REPEAT, 50 for the review) - one 40P01 is a
+ * crash of the race.
+ */
+it('never deadlocks the scoring of a duel-only day against the finish of the cup', function (int $scoreDelayUs, int $finishDelayUs, bool $slowInsert): void {
+    ['cup' => $cup, 'learners' => [$a, $b], 'participants' => [$pa, $pb]] = CupDuelKit::running(2);
+    $duel = CupDuelKit::accept($b, CupDuelKit::challenge($a, $cup, $pb)->duel);
+    CupDuelKit::playOut($duel, $a, $b, 3, 2);
+    // A day with only a duel: neither has a row of the day yet - the scoring inserts both.
+    expect(DB::table('cup_day_scores')->whereIn('participant_id', [$pa->id, $pb->id])->count())->toBe(0);
+    $finishAt = CarbonImmutable::instance(raceCup($cup->id)->ends_at)->addMinutes(31);
+    if ($slowInsert) {
+        // The interleaving of the review, made certain: a BEFORE trigger holds the insert of the day row (before its foreign key is
+        // checked) while the finish, started a moment later, takes the cup and waits for the participants.
+        DB::unprepared('CREATE OR REPLACE FUNCTION test_slow_cup_day_score() RETURNS trigger AS $$ BEGIN PERFORM pg_sleep(0.4); RETURN NEW; END $$ LANGUAGE plpgsql');
+        DB::unprepared('CREATE TRIGGER test_slow_cup_day_score BEFORE INSERT ON cup_day_scores FOR EACH ROW EXECUTE FUNCTION test_slow_cup_day_score()');
+    }
+
+    try {
+        duelRaceValues(GameRace::run([
+            duelRaceTask(function () use ($duel, $finishAt, $scoreDelayUs): ?string {
+                usleep($scoreDelayUs);
+
+                return app(CupDuelService::class)->score($duel->id, $finishAt)?->value;
+            }),
+            duelRaceTask(function () use ($cup, $finishAt, $finishDelayUs): bool {
+                usleep($finishDelayUs);
+
+                return app(CupLifecycleService::class)->finish($cup->id, $finishAt);
+            }),
+        ]));
+    } finally {
+        DB::reconnect();
+        DB::unprepared('DROP TRIGGER IF EXISTS test_slow_cup_day_score ON cup_day_scores');
+        DB::unprepared('DROP FUNCTION IF EXISTS test_slow_cup_day_score()');
+    }
+
+    $final = CupDuelKit::fresh($duel);
+    expect(raceCup($cup->id)->status->value)->toBe('finished')
+        ->and($final->status)->toBe(CupDuelStatus::Done);
+    $points = DB::table('cup_day_scores')->where('participant_id', $pa->id)->value('duel_points');
+    if ($final->end_reason === CupDuelEndReason::CupClosed) {
+        expect($points)->toBeNull()->and(CupParticipant::query()->findOrFail($pa->id)->best_total)->toBe(0);
+    } else {
+        expect($points)->toBe(3)->and(CupParticipant::query()->findOrFail($pa->id)->final_rank)->toBe(1);
+    }
+})->with([
+    'the scoring holds the participants, the finish takes the cup' => [0, 150_000, true],
+    'the finish first' => [150_000, 0, true],
+    'the same instant' => [0, 0, false],
+])->repeat(max(1, (int) (getenv('CUP_DUEL_FINISH_RACE_REPEAT') ?: 5)));
+
 it('credits a duel whose player leaves the chat at the instant the result is taken', function (): void {
     ['cup' => $cup, 'learners' => [$a, $b], 'participants' => [$pa, $pb]] = CupDuelKit::running(2);
     $duel = CupDuelKit::accept($b, CupDuelKit::challenge($a, $cup, $pb)->duel);

@@ -147,9 +147,11 @@ it('advances N cups with a constant number of statements per cup: starting and f
     DB::table('cup_days')->whereNull('built_at')->update(['built_at' => now()]);
 
     // the finish of each cup: FOR UPDATE the cup and its participants, the ranks, UPDATE the cup, the final message, close the days,
-    // the group, the event - 8 in the core; + the id of the row `final` for its job (CupScheduler, docs/33 §11.8 п. 9) - 9 per cup
+    // the group, the event - 8 in the core; + the id of the row `final` for its job (CupScheduler, docs/33 §11.8 п. 9); + the accepted
+    // duels whose match is over (`settleCup`, read whatever the switch of the duels: a duel accepted before it was turned off still
+    // counts, docs/33 §11.11 п. 5) - 10 per cup
     Bus::fake([PostCupMessageJob::class]);
     $finish = QueryLog::during(fn () => app(CupScheduler::class)->advance($end));
-    expect(count($finish))->toBe(5 + 9 * $cups);
+    expect(count($finish))->toBe(5 + 10 * $cups);
     Bus::assertDispatchedTimes(PostCupMessageJob::class, $cups);
 })->with([2, 5]);

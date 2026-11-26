@@ -81,6 +81,46 @@ it('posts the final once when four workers send the same row at the same instant
         ->and($row->fresh()->attempts)->toBe(1);
 });
 
+/*
+ * docs/33 §11.9.2 п. 1 (review of release 6): the summary took the row of the day, then the row of the cup; the cancel holds the cup
+ * and closes the days never built - a day not built yet (its build failed) made a cycle. A BEFORE trigger holds the summary on the row
+ * of the day while the cancel, a moment later, takes the cup.
+ */
+it('never deadlocks the summary of an unbuilt day against the cancel of the cup', function (): void {
+    ['cup' => $cup, 'learners' => [$a], 'start' => $start] = CupKit::running(2);
+    $participant = CupParticipant::query()->where('learner_id', $a->id)->sole();
+    DB::table('cup_day_scores')->insert(['cup_id' => $cup->id, 'participant_id' => $participant->id, 'day' => 1, 'round_points' => 4, 'updated_at' => $start]);
+    $participant->forceFill(['best_total' => 4, 'best_round_points' => 4])->saveQuietly();
+    DB::table('cup_days')->where('cup_id', $cup->id)->update(['built_at' => null]);
+    $at = $start->addHours(21);
+    $cupId = $cup->id;
+    DB::unprepared('CREATE OR REPLACE FUNCTION test_slow_cup_day() RETURNS trigger AS $$ BEGIN IF NEW.summary_posted_at IS NOT NULL AND OLD.summary_posted_at IS NULL THEN PERFORM pg_sleep(0.4); END IF; RETURN NEW; END $$ LANGUAGE plpgsql');
+    DB::unprepared('CREATE TRIGGER test_slow_cup_day BEFORE UPDATE ON cup_days FOR EACH ROW EXECUTE FUNCTION test_slow_cup_day()');
+
+    try {
+        $results = GameRace::run([
+            static function () use ($at): int {
+                Bus::fake([PostCupMessageJob::class]);
+
+                return app(CupSummaries::class)->enqueueDue($at, 500)['queued'];
+            },
+            static function () use ($cupId, $at): bool {
+                usleep(150_000);
+
+                return app(CupLifecycleService::class)->cancelByPlatform(Cup::query()->with('telegramGroup')->findOrFail($cupId), $at);
+            },
+        ]);
+    } finally {
+        DB::reconnect();
+        DB::unprepared('DROP TRIGGER IF EXISTS test_slow_cup_day ON cup_days');
+        DB::unprepared('DROP FUNCTION IF EXISTS test_slow_cup_day()');
+    }
+
+    expect(GameRace::crashes($results))->toBe([])
+        ->and(Cup::query()->findOrFail($cupId)->status->value)->toBe('canceled')
+        ->and(DB::table('cup_days')->where('cup_id', $cupId)->whereNull('built_at')->count())->toBe(0);
+})->repeat(max(1, (int) (getenv('CUP_DUEL_FINISH_RACE_REPEAT') ?: 3)));
+
 it('queues one summary row when two schedulers decide the day at the same instant', function (): void {
     ['cup' => $cup, 'learners' => [$a], 'start' => $start] = CupKit::running(2);
     $participant = CupParticipant::query()->where('learner_id', $a->id)->sole();

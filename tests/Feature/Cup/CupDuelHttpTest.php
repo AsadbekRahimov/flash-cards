@@ -46,7 +46,7 @@ beforeEach(function (): void {
 
 afterEach(fn () => CarbonImmutable::setTestNow());
 
-const DUEL_FIELDS = ['id', 'status', 'end_reason', 'rated_offered', 'rated', 'public', 'mode', 'day', 'accepted_day', 'expires_at', 'battle_id', 'role', 'challenger', 'opponent', 'points', 'winner_participant_id', 'server_now'];
+const DUEL_FIELDS = ['id', 'status', 'end_reason', 'rated_offered', 'rated_for_me', 'rated', 'public', 'mode', 'day', 'accepted_day', 'expires_at', 'battle_id', 'role', 'challenger', 'opponent', 'points', 'winner_participant_id', 'server_now'];
 
 const DUEL_AVAILABILITY = ['day', 'can_challenge', 'rated_available', 'challenges_left', 'open_duel_id'];
 

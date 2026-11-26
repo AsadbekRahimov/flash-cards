@@ -83,6 +83,16 @@ it('accepts a rated duel in 21 statements, 3 of them the material of the snapsho
         ->and($again)->toHaveCount(4, implode("\n", $again)); // duel, cup, group, me
 });
 
+it('accepts a public challenge with one statement more: the row of the edit of its message (docs/33 §11.11 п. 7)', function (): void {
+    ['cup' => $cup, 'learners' => [$a, $b], 'participants' => [, $pb], 'start' => $now] = CupDuelKit::running();
+    $duel = CupDuelKit::challenge($a, $cup, $pb, public: true, now: $now)->duel;
+
+    $accept = duelBudget(fn () => app(CupDuelService::class)->accept($b, $duel->id, true, $now->addMinute()));
+
+    expect($accept)->toHaveCount(22, implode("\n", $accept))
+        ->and(QueryLog::matching($accept, '/insert into ["`]?cup_messages/i'))->toHaveCount(1);
+});
+
 it('scores a rated duel in 12 statements, a friendly one in 5, a void one in 5', function (): void {
     ['cup' => $cup, 'learners' => [$a, $b, $c], 'participants' => [, $pb, $pc], 'start' => $now] = CupDuelKit::running();
     $rated = CupDuelKit::accept($b, CupDuelKit::challenge($a, $cup, $pb)->duel);

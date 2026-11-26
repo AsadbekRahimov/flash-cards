@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ApiClientError } from '@/api/client'
 import { setLocale } from '@/i18n'
-import { duelBlockReason, duelFailure, duelOutcomeText, duelRated } from '../cupDuelInfo'
+import { duelBlockReason, duelFailure, duelOutcomeText, duelRated, expectedRated } from '../cupDuelInfo'
 import { cupBoard, cupDuel, duelAvailability } from '@/api/__tests__/cupFixtures'
 
 /** The refusals and the words of the duels of a cup (docs/04 A.23d). */
@@ -40,6 +40,25 @@ describe('the words of a duel', () => {
   it('the kind: what the acceptance made of it, else what the challenge offers', () => {
     expect(duelRated(cupDuel({ rated: null, rated_offered: true }))).toBe(true)
     expect(duelRated(cupDuel({ rated: false, rated_offered: true }))).toBe(false)
+  })
+
+  it('the kind for me (rated_for_me) wins over the offer until the acceptance; an older server - the offer', () => {
+    expect(duelRated(cupDuel({ rated: null, rated_offered: true, rated_for_me: false }))).toBe(false)
+    expect(duelRated(cupDuel({ rated: true, rated_offered: false, rated_for_me: false }))).toBe(true)
+    expect(duelRated(cupDuel({ rated: null, rated_offered: true, rated_for_me: undefined }))).toBe(true)
+  })
+
+  it('the kind of a 409 is kept while the duel is as it was, and dropped once it changes', () => {
+    const open = cupDuel({ id: 7, rated_offered: true, rated_for_me: undefined })
+    const kept = { duelId: 7, status: 'open' as const, rated: false }
+    expect(expectedRated(open, kept)).toBe(false)
+    expect(expectedRated(cupDuel({ id: 8, rated_offered: true, rated_for_me: undefined }), kept)).toBe(true)
+    expect(expectedRated(cupDuel({ id: 7, status: 'accepted', rated: true }), kept)).toBe(true)
+    expect(expectedRated(open, null)).toBe(true)
+  })
+
+  it('a match voided by the system tells "the match broke off"', () => {
+    expect(duelOutcomeText(cupDuel({ status: 'void', end_reason: 'battle_voided' }))).toBe(duelOutcomeText(cupDuel({ status: 'void', end_reason: 'battle_gone' })))
   })
 
   it('how it ended', () => {

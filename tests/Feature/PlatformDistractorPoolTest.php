@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Content\DTO\ResolvedTranslation;
+use App\Domain\Content\Services\LearnerDeckService;
 use App\Domain\Content\Services\LessonContentRefresher;
 use App\Domain\Content\Services\PlatformDistractorPool;
 use App\Domain\Game\DTO\RunLimits;
@@ -443,4 +444,33 @@ it('keeps an entry as plain rows under content:platform-distractors:v1:{kind} fo
 
     $this->travel(601)->seconds();
     expect(pdpCached())->toBeFalse();
+});
+
+it('keeps the pool when a learner writes his own deck (never in it), and drops it on a change of the platform', function (): void {
+    pdpCourse('public', 1, 10);
+    $pool = app(PlatformDistractorPool::class);
+    $pool->rows(false);
+    $pool->rows(true);
+    $cached = static fn (): array => array_map(static fn (string $key): bool => PureCache::store()->get($key) !== null, PlatformDistractorPool::keys());
+    expect($cached())->toBe([true, true]);
+
+    $learner = Learner::factory()->onboarded()->create(['interface_locale' => 'ru']);
+    $decks = app(LearnerDeckService::class);
+    $deck = $decks->create($learner, 'Мои слова');
+    $decks->importText($learner, $deck, 'plum — слива', 'list');
+    // The deck and its first lesson are made: from here on a learner writes only words - the pool must stay.
+    $pool->rows(false);
+    $pool->rows(true);
+    expect($cached())->toBe([true, true]);
+    $decks->importText($learner, $deck, "apple — яблоко\npear — груша", 'list');
+    expect($cached())->toBe([true, true]);
+    $word = Word::query()->where('word', 'apple')->whereIn('lesson_id', Lesson::query()->whereIn('stage_id', Stage::query()->where('course_id', $deck->id)->select('id'))->select('id'))->sole();
+    $decks->removeWord($learner, $deck, $word->id);
+    expect($cached())->toBe([true, true]);
+    $decks->archive($learner, $deck);
+    expect($cached())->toBe([true, true]);
+
+    $platformWord = Word::query()->where('word', 'public1')->sole();
+    app(LessonContentRefresher::class)->wordChanged($platformWord);
+    expect($cached())->toBe([false, false]);
 });

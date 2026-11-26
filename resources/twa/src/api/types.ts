@@ -2516,6 +2516,7 @@ export type CupDuelEndReason =
   | 'material'
   | 'no_answers'
   | 'battle_gone'
+  | 'battle_voided'
 
 /**
  * The codes of the duels on top of `CupErrorCode` (and `battle_busy {battle_id}`, `battle_disabled`, `battle_material_unavailable`,
@@ -2553,8 +2554,13 @@ export interface CupDuel {
   id: number
   status: CupDuelStatus
   end_reason: CupDuelEndReason | null
-  /** Rated or friendly as the challenge offers it (shown before the acceptance). */
+  /** Rated or friendly as the challenger offered it (written once, at the challenge). */
   rated_offered: boolean
+  /**
+   * The kind for the one who looks: an open challenge as HIS acceptance would make it now (the slots of today of the two who would play
+   * it), else `rated` / `rated_offered`. The `expect_rated` of "Accept". Absent from an older server.
+   */
+  rated_for_me?: boolean
   /** What the acceptance made of it; null while open. */
   rated: boolean | null
   public: boolean

@@ -85,15 +85,28 @@ final class BattleReader
         return $this->findWithColumns($viewer, $id, ['*']);
     }
 
-    /** @param list<string> $columns */
+    /**
+     * A learner refused the practice (pilot, plan) still sees the match of a duel of a cup he plays (`cup_duel_id`, docs/33 §11.9.1:
+     * the cup decides who plays it); for any other match - or none - he gets the refusal, as before the match was read.
+     *
+     * @param  list<string>  $columns
+     */
     private function findWithColumns(Learner $viewer, int $id, array $columns): Battle
     {
-        $this->access->assertCanPractice($viewer);
+        $denied = null;
+        try {
+            $this->access->assertCanPractice($viewer);
+        } catch (PracticeException $e) {
+            $denied = $e;
+        }
 
         /** @var Battle|null $battle */
         $battle = Battle::query()->with('participants')->whereKey($id)->first($columns);
         if ($battle === null || ! $battle->involves($viewer->id)) {
-            throw BattleException::notFound();
+            throw $denied ?? BattleException::notFound();
+        }
+        if ($denied !== null && $battle->cup_duel_id === null) {
+            throw $denied;
         }
 
         return $battle;
@@ -105,7 +118,7 @@ final class BattleReader
         $battle = $this->findWithColumns($viewer, $id, [
             'id', 'challenger_id', 'opponent_id', 'status', 'end_reason', 'state_version',
             'invite_expires_at', 'room_expires_at', 'accepted_at', 'starts_at',
-            'current_round', 'phase', 'round_deadline_at', 'phase_ends_at', 'meta',
+            'current_round', 'phase', 'round_deadline_at', 'phase_ends_at', 'meta', 'cup_duel_id',
         ]);
 
         return $this->poll($battle, $viewer, $now);

@@ -18,8 +18,9 @@ use Throwable;
  * 3. the snapshots of the days that begin within the hour;
  * 4. attempts left open past their deadline → `expired`;
  * 5. running cups `settle_minutes` after their end → finished, and the row `final` the finish wrote is queued for the bot at once
- *    ({@see CupOutbox::queue()}; the finish itself knows nothing of the bot, `cups:send-outbox` stays the safety net). With the duels on,
- *    the duels of the cup whose battle is over are scored first ({@see CupDuelService::settleCup()}, docs/33 §5.6).
+ *    ({@see CupOutbox::queue()}; the finish itself knows nothing of the bot, `cups:send-outbox` stays the safety net). The accepted duels
+ *    of the cup whose battle is over are scored first ({@see CupDuelService::settleCup()}, docs/33 §5.6) - also when the duels were
+ *    switched off during the cup.
  *
  * Each cup is its own transaction under the lock of its row ({@see CupLifecycleService}); the candidates are read through the partial
  * indexes of the open rows only, so the cost does not grow with the history. A failure of one cup is reported and the batch goes on.
@@ -74,9 +75,9 @@ final class CupScheduler
         foreach ($this->ids(CupStatus::Running, 'ends_at', $finishBefore, $batch) as $id) {
             $this->guard($report, $id, function () use ($id, $now, &$report): void {
                 // The results of the duels whose battle is over go in BEFORE the places (docs/33 §5.6); a later one changes nothing.
-                if ((bool) config('cup.duels', false)) {
-                    $this->duels->settleCup($id, $now);
-                }
+                // Whatever the switch of the duels NOW: duels accepted before it was turned off still count (one indexed statement -
+                // `(cup_id, day)` ∩ the partial index of the accepted duels - when there is nothing to settle).
+                $this->duels->settleCup($id, $now);
                 if ($this->lifecycle->finish($id, $now)) {
                     $report['finished']++;
                     $this->outbox->queue($id, CupOutbox::FINAL_KEY);

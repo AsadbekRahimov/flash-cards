@@ -6,6 +6,7 @@ namespace App\Domain\Learning\Services;
 
 use App\Domain\Content\Services\PlatformDistractorPool;
 use App\Domain\Operations\Support\PureCache;
+use App\Models\Course;
 use App\Models\ExamResult;
 use App\Models\ExamSession;
 use App\Models\Lesson;
@@ -214,20 +215,24 @@ final class LearningCache
         return "word:examples:v1:{$wordId}";
     }
 
-    public function forgetLesson(Lesson $lesson): void
+    /** @param bool|null $platform see {@see forgetLessonId()} */
+    public function forgetLesson(Lesson $lesson, ?bool $platform = null): void
     {
-        $this->forgetLessonId((int) $lesson->id);
+        $this->forgetLessonId((int) $lesson->id, $platform);
     }
 
     /**
      * The words of the lesson changed (an import, an edit, `is_active`): its word count and its pool of distractors go, and - with
-     * the same command - the pool of the platform ({@see PlatformDistractorPool}), which may hold words of this lesson. The lesson
-     * of a learner's deck is not in that pool, yet asking whose lesson it is would cost a statement on every write; dropping an
-     * entry that is refilled by one bounded statement costs less.
+     * the same command - the pool of the platform ({@see PlatformDistractorPool}), which may hold words of this lesson.
+     *
+     * `$platform` - whether the lesson may be in that pool, when the caller knows it without a statement: false for the lesson of a
+     * learner's deck (never in the pool - {@see Course::scopePublicPlatform()}: dropping the pool on every word a learner adds kept it
+     * empty under load), true / null (unknown: asking whose lesson it is would cost a statement on every write) - the pool goes too.
      */
-    public function forgetLessonId(int $lessonId): void
+    public function forgetLessonId(int $lessonId, ?bool $platform = null): void
     {
-        PureCache::forgetMany(["lesson:{$lessonId}:word_count", self::distractorsKey($lessonId), ...PlatformDistractorPool::keys()]);
+        $keys = ["lesson:{$lessonId}:word_count", self::distractorsKey($lessonId)];
+        PureCache::forgetMany($platform === false ? $keys : [...$keys, ...PlatformDistractorPool::keys()]);
     }
 
     private static function distractorsKey(int $lessonId): string

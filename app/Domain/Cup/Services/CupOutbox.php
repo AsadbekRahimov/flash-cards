@@ -7,6 +7,7 @@ namespace App\Domain\Cup\Services;
 use App\Domain\Analytics\Enums\ProductEventName;
 use App\Domain\Analytics\Services\ProductEventRecorder;
 use App\Domain\Cup\DTO\CupCardContent;
+use App\Domain\Cup\Enums\CupDuelStatus;
 use App\Domain\Cup\Enums\CupMessageKind;
 use App\Domain\Cup\Enums\CupMessageStatus;
 use App\Domain\Cup\Enums\CupStatus;
@@ -100,6 +101,16 @@ final class CupOutbox
     public static function duelEndKey(int $duelId): string
     {
         return 'duel:'.$duelId.':end';
+    }
+
+    /**
+     * The acceptance of a public challenge (docs/33 §6.1): an EDIT of the message of {@see duelKey()} - «Дуэль идёт: A — B», the button
+     * «Принять вызов» gone - never a new message; the outcome edits the same message later ({@see duelEndKey()}), and never before this
+     * edit is through (see {@see deliverDuel()}).
+     */
+    public static function duelAcceptedKey(int $duelId): string
+    {
+        return 'duel:'.$duelId.':accepted';
     }
 
     /**
@@ -391,10 +402,13 @@ final class CupOutbox
      * duel as it is NOW:
      *  - `duel:{id}` - a new message in the chat (the topic of the card) with the button «Принять вызов»; a challenge that has already
      *    fallen through (declined, expired, withdrawn, void) is `skipped`: the chat never gets a message that says nothing happened;
-     *  - `duel:{id}:end` - the EDIT of that message (`editMessageText`, no buttons), never a new one: the message `sent` → edited
-     *    («message is not modified» = success: the message went out with the outcome already); still `pending` / `sending` → this row
-     *    back to `pending`, the job comes back in {@see DUEL_EDIT_WAIT_SECONDS}; anything else (skipped, unknown, failed, no row) →
-     *    `skipped` - nothing to edit.
+     *  - `duel:{id}:accepted` / `duel:{id}:end` - the EDIT of that message (`editMessageText`, no buttons), never a new one: the
+     *    message `sent` → edited («message is not modified» = success: the message went out with the state already); still `pending` /
+     *    `sending` → this row back to `pending`, the job comes back in {@see DUEL_EDIT_WAIT_SECONDS}; anything else (skipped, unknown,
+     *    failed, no row) → `skipped` - nothing to edit.
+     *  - the order of the two edits: `:accepted` of a duel that is not `accepted` any more is `skipped` (the outcome edits the message);
+     *    `:end` waits while `:accepted` is `pending` / `sending` - an «идёт» that was read before the outcome never lands after it. The
+     *    outcome row is made in the transaction that ends the duel, so an `:accepted` claimed after it reads the duel ended.
      * The refusals of Telegram are those of every row (docs/34 §4в): 403 → `skipped` and the group `disabled`, 429 → `pending` (the
      * client paused only this chat), a timeout → `unknown`.
      *
@@ -412,7 +426,7 @@ final class CupOutbox
             return 0;
         }
 
-        if (! $key['end']) {
+        if ($key['edit'] === null) {
             if ($duel->status->fellThrough()) {
                 $this->finish($message, CupMessageStatus::Skipped, $now, 'fell_through');
 
@@ -421,10 +435,23 @@ final class CupOutbox
 
             return $this->sendDuel($message, $cup, $group, $duel, $now);
         }
+        if ($key['edit'] === 'accepted' && $duel->status !== CupDuelStatus::Accepted) {
+            $this->finish($message, CupMessageStatus::Skipped, $now, 'superseded');
 
-        $base = DB::table('cup_messages')->where('cup_id', $cup->id)->where('dedupe_key', self::duelKey($duel->id))->first(['status', 'chat_id', 'message_id']);
+            return 0;
+        }
+
+        // The message and (for the outcome) the edit of the acceptance - one statement by the unique `(cup_id, dedupe_key)`.
+        $rows = DB::table('cup_messages')->where('cup_id', $cup->id)
+            ->whereIn('dedupe_key', [self::duelKey($duel->id), self::duelAcceptedKey($duel->id)])
+            ->get(['dedupe_key', 'status', 'chat_id', 'message_id'])
+            ->keyBy('dedupe_key');
+        $base = $rows->get(self::duelKey($duel->id));
         $baseStatus = $base === null ? null : CupMessageStatus::tryFrom((string) $base->status);
-        if ($baseStatus === CupMessageStatus::Pending || $baseStatus === CupMessageStatus::Sending) {
+        $accepted = $key['edit'] === 'end' ? $rows->get(self::duelAcceptedKey($duel->id)) : null;
+        $acceptedStatus = $accepted === null ? null : CupMessageStatus::tryFrom((string) $accepted->status);
+        if ($baseStatus === CupMessageStatus::Pending || $baseStatus === CupMessageStatus::Sending
+            || $acceptedStatus === CupMessageStatus::Pending || $acceptedStatus === CupMessageStatus::Sending) {
             $this->release($message, $now);
 
             return self::DUEL_EDIT_WAIT_SECONDS;
@@ -551,17 +578,19 @@ final class CupOutbox
     }
 
     /**
-     * `duel:{id}` / `duel:{id}:end` → the duel and whether the row is the edit; null for any other key.
+     * `duel:{id}` / `duel:{id}:accepted` / `duel:{id}:end` → the duel and which edit the row is (null - the message itself); null for
+     * any other key.
      *
-     * @return array{duel_id: int, end: bool}|null
+     * @return array{duel_id: int, edit: 'accepted'|'end'|null}|null
      */
     private static function parseDuelKey(string $key): ?array
     {
-        if (preg_match('/^duel:([1-9][0-9]{0,18})(:end)?$/', $key, $m) !== 1) {
+        if (preg_match('/^duel:([1-9][0-9]{0,18})(?::(accepted|end))?$/', $key, $m) !== 1) {
             return null;
         }
+        $edit = $m[2] ?? '';
 
-        return ['duel_id' => (int) $m[1], 'end' => ($m[2] ?? '') !== ''];
+        return ['duel_id' => (int) $m[1], 'edit' => $edit === 'accepted' ? 'accepted' : ($edit === 'end' ? 'end' : null)];
     }
 
     /** Why the row is not sent at all, or null. */

@@ -23,7 +23,18 @@ final readonly class CupDuelView
         public ?string $opponentEmoji,
         public int $viewerParticipantId,
         public CarbonImmutable $now,
+        public ?bool $ratedForMe = null,
     ) {}
+
+    /**
+     * The kind of the duel for the one who looks (docs/04 A.23d `rated_for_me`): what an acceptance by him now would be (an open
+     * challenge, read with the slots of today), else what was decided (`rated`) or offered (`rated_offered`). The `expect_rated` of
+     * "Accept".
+     */
+    public function ratedForViewer(): bool
+    {
+        return $this->ratedForMe ?? $this->duel->rated ?? $this->duel->rated_offered;
+    }
 
     /** `challenger` / `opponent` - a player of this duel; null - somebody who may accept an open challenge. */
     public function role(): ?string

@@ -19,6 +19,7 @@ use App\Domain\Cup\Support\CupScoring;
 use App\Domain\Engagement\Enums\FriendshipStatus;
 use App\Domain\Engagement\Services\FriendshipService;
 use App\Domain\Practice\DTO\CupBattlePlan;
+use App\Domain\Practice\Enums\BattleEndReason;
 use App\Domain\Practice\Enums\BattleStatus;
 use App\Domain\Practice\Enums\PracticeMode;
 use App\Domain\Practice\Exceptions\BattleException;
@@ -52,18 +53,20 @@ use Throwable;
  *  - a RATED duel: one per participant and day of the cup (`cup_duel_slots (participant_id, day)`); the status is shown to both before
  *    the acceptance and re-decided at it (409 `cup_duel_rating_changed`); free for Free and Pro alike (`battles.limit_exempt`); every
  *    player gets 1 point per OWN right answer (0…5), assigned to `duel_points` of the day of the ACCEPTANCE; the surrender, the absence
- *    or a weak opponent give nothing more; a match closed before anybody answered is `void` and gives the slots back;
+ *    or a weak opponent give nothing more; a match nobody answered in (whatever its end) or one the system voided is `void` and
+ *    gives the slots back;
  *  - a FRIENDLY match (one of them has played the rated duel of the day): no points of the cup; it spends the Free limit of battles of
  *    the challenger like an ordinary invitation (К5) - checked at the challenge, claimed at the acceptance;
  *  - nothing outside the cup and the battle is written: no league points, daily goal, streak, SRS (К3);
  *  - anti-spam (docs/33 §6.3, §11.9): one open challenge per participant; per day of the cup `daily_challenges` challenges, at most
  *    `pair_daily_challenges` to the same participant, `public_per_participant` / `public_per_chat` in the chat.
  *
- * Locks (docs/33 §11.9 - one order for the whole cup): `cups → cup_duels → [learners] → battles → battle_participants` and
- * `cup_duels → cup_participants → cup_duel_slots / cup_day_scores`. A public challenge takes `FOR NO KEY UPDATE` of the cup (its daily
- * budget of the chat is decided under it); the acceptance locks the duel, inserts the slots (one statement, by participant id), claims
- * the Free limit under the challenger's `learners` row and opens the battle; the scoring locks the duel, then both participants by id,
- * and re-reads the status of the cup in a SEPARATE statement (a finish that held the participants is seen; READ COMMITTED). The
+ * Locks (docs/33 §11.9, §11.11 п. 3 - one order for the whole cup): `cups → cup_duels → [learners] → battles → battle_participants`
+ * and `cup_duels → cups (FOR KEY SHARE) → cup_participants → cup_duel_slots / cup_day_scores`. A public challenge takes `FOR NO KEY
+ * UPDATE` of the cup (its daily budget of the chat is decided under it); the acceptance locks the duel, inserts the slots (one
+ * statement, by participant id), claims the Free limit under the challenger's `learners` row and opens the battle; the scoring locks the
+ * duel, then the cup `FOR KEY SHARE` (its status read under it - no transition of the cup passes while it is held), then both
+ * participants by id - the cup BEFORE the participants, since the rows it inserts check their foreign key on the cup. The
  * transactions of a battle never take a lock of the cup: its end only queues the job after the commit. Telegram is asked before any
  * transaction.
  */
@@ -120,8 +123,7 @@ final class CupDuelService
             if ($targetParticipantId === $me->id) {
                 throw CupException::duelSelf();
             }
-            /** @var CupParticipant|null $target */
-            $target = CupParticipant::query()->whereKey($targetParticipantId)->where('cup_id', $cup->id)->first();
+            $target = $this->participantWithLearner($targetParticipantId, $cup->id);
             if ($target === null || ! $this->canBeChallenged($target, $now) || $this->blocked($me->learner_id, $target->learner_id)) {
                 throw CupException::duelUnavailable();
             }
@@ -241,8 +243,8 @@ final class CupDuelService
             throw $this->closeOne($duel, CupDuelStatus::Expired, CupDuelEndReason::Expired, $now);
         }
 
-        /** @var CupParticipant $challenger */
-        $challenger = CupParticipant::query()->findOrFail($duel->challenger_participant_id);
+        $challenger = $this->participantWithLearner($duel->challenger_participant_id, $duel->cup_id)
+            ?? throw new LogicException('The challenger of a duel has no row.');
         if (! $this->canBeChallenged($challenger, $now)) {
             throw $this->closeOne($duel, CupDuelStatus::Canceled, CupDuelEndReason::Left, $now);
         }
@@ -347,11 +349,13 @@ final class CupDuelService
      * duel that is not `accepted` any more is left alone (a second job, the sweeper, the finish of the cup). Returns the new status, or
      * null when nothing was done (not accepted, or the battle is still on).
      *
-     *  - the battle is gone, or it CLOSED before anybody answered (no `battle_answers` other than `timeout`) → `void`, the slots go;
+     *  - the battle is gone, the system voided it (`end_reason = voided`: a clip missing, the practice switched off - answers or not),
+     *    or nobody answered anything (no `battle_answers` other than `timeout`), whatever the end - a surrender in the countdown too →
+     *    `void`, the slots go;
      *  - else each player's points = his own `correct` answers (≤ `cups.duel_tasks`); the winner of the battle is kept for the history;
      *    a rated duel writes them into `duel_points` of the day of the acceptance - under the locks of both participants, and only while
-     *    the cup is `running` (re-read after the locks): a result that comes after the places of the finish changes nothing (`done`
-     *    with `end_reason = cup_closed`); a friendly one writes nothing of the cup.
+     *    the cup is `running` (read under `FOR KEY SHARE` of the cup, taken before the participants): a result that comes after the
+     *    places of the finish changes nothing (`done` with `end_reason = cup_closed`); a friendly one writes nothing of the cup.
      */
     public function score(int $duelId, ?CarbonImmutable $now = null): ?CupDuelStatus
     {
@@ -374,7 +378,15 @@ final class CupDuelService
 
                 return [$duel, false];
             }
-            if ($battle['closed'] && $battle['given'] === 0) {
+            // The system called the match off (a clip missing, the practice switched off): nobody's doing - void, whatever was answered.
+            if ($battle['voided']) {
+                $this->void($duel, CupDuelEndReason::BattleVoided, $now);
+
+                return [$duel, false];
+            }
+            // Nobody answered anything - whatever the end (a surrender in the countdown, both absent, the room expired): void, so that
+            // nobody can burn the rated duel of the day of another by giving up before the first task.
+            if ($battle['given'] === 0) {
                 $this->void($duel, CupDuelEndReason::NoAnswers, $now);
 
                 return [$duel, false];
@@ -389,13 +401,18 @@ final class CupDuelService
             $credited = false;
             $reason = null;
             $rated = $duel->rated === true && $duel->opponent_participant_id !== null && $duel->accepted_day !== null;
+            // The cup `FOR KEY SHARE` BEFORE the participants (docs/33 §11.9.2 п. 1): the rows this transaction inserts (the first day
+            // row of a duel-only day, the edit of a public challenge) take this very lock through their foreign key - taken after the
+            // participants it would wait for a finish that holds the cup and waits for them (40P01). Held, it keeps every transition of
+            // the cup (all take `FOR UPDATE`) out until the commit, so the status read here is the status the points are written under;
+            // after a finish it waited for, READ COMMITTED returns the new row - `finished`.
+            $cupQuery = DB::table('cups')->where('id', $duel->cup_id);
+            $cup = (DB::getDriverName() === 'pgsql' ? $cupQuery->lock('for key share') : $cupQuery)->first(['status', 'duel_tasks', 'counted_days']);
             if ($rated) {
                 $ids = [$duel->challenger_participant_id, $duel->opponent_participant_id];
                 sort($ids);
                 DB::table('cup_participants')->whereIn('id', $ids)->orderBy('id')->lockForUpdate()->pluck('id');
             }
-            // AFTER the locks of the participants, in a SEPARATE statement (see CupRoundService::credit): a finish that held them is seen.
-            $cup = DB::table('cups')->where('id', $duel->cup_id)->first(['status', 'duel_tasks', 'counted_days']);
             $cap = max(0, min(CupScoring::DUEL_CAP, (int) ($cup->duel_tasks ?? CupScoring::DUEL_CAP)));
             $challengerPoints = min($cap, $battle['challenger_correct']);
             $opponentPoints = min($cap, $battle['opponent_correct']);
@@ -585,6 +602,10 @@ final class CupDuelService
             'accepted_day' => $day,
             'updated_at' => $now,
         ])->save();
+        if ($duel->is_public) {
+            // The message in the chat loses «Принять вызов» at once: «Дуэль идёт: A — B» (docs/33 §6.1) - an edit, never a new message.
+            $this->outbox->enqueueMany([['cup_id' => $duel->cup_id, 'dedupe_key' => CupOutbox::duelAcceptedKey($duel->id)]], CupMessageKind::Duel, $now);
+        }
 
         return [$duel, true];
     }
@@ -695,15 +716,15 @@ final class CupDuelService
 
     /**
      * The end of the match and its answers in ONE statement (the battle by its PK, the answers by the unique `(battle_id, round,
-     * learner_id)`): `terminal` / `closed`, the players and the winner, each player's right answers, and `given` - every answer of
+     * learner_id)`): `terminal` / `voided` (closed by the system), the players and the winner, each player's right answers, and `given` - every answer of
      * either player that is not a time-out. Null when the battle is gone.
      *
-     * @return array{terminal: bool, closed: bool, challenger: int, opponent: int, winner: int|null, challenger_correct: int, opponent_correct: int, given: int}|null
+     * @return array{terminal: bool, voided: bool, challenger: int, opponent: int, winner: int|null, challenger_correct: int, opponent_correct: int, given: int}|null
      */
     private function battleResult(int $battleId): ?array
     {
         $row = DB::selectOne(
-            "SELECT b.status, b.challenger_id, b.opponent_id, b.winner_learner_id,
+            "SELECT b.status, b.end_reason, b.challenger_id, b.opponent_id, b.winner_learner_id,
                 (SELECT COUNT(*) FROM battle_answers a WHERE a.battle_id = b.id AND a.learner_id = b.challenger_id AND a.verdict = 'correct') AS challenger_correct,
                 (SELECT COUNT(*) FROM battle_answers a WHERE a.battle_id = b.id AND a.learner_id = b.opponent_id AND a.verdict = 'correct') AS opponent_correct,
                 (SELECT COUNT(*) FROM battle_answers a WHERE a.battle_id = b.id AND a.verdict <> 'timeout') AS given
@@ -717,7 +738,7 @@ final class CupDuelService
 
         return [
             'terminal' => $status->isTerminal(),
-            'closed' => $status === BattleStatus::Closed,
+            'voided' => $status === BattleStatus::Closed && $row->end_reason === BattleEndReason::Voided->value,
             'challenger' => (int) $row->challenger_id,
             'opponent' => (int) $row->opponent_id,
             'winner' => $row->winner_learner_id === null ? null : (int) $row->winner_learner_id,
@@ -874,12 +895,33 @@ final class CupDuelService
     }
 
     /**
-     * The second player of a duel (docs/33 §4.2): `active`, with a successful check of the membership within `stale_ok_hours` - the
-     * database, never a call to Telegram about somebody who did not act.
+     * The participant of the cup by id with the two marks of his learner a duel needs (`x_learner_blocked`: blocked by the platform or
+     * deleted) - ONE statement: the PK of the participant, the PK of the learner (a LEFT JOIN without the scope of the soft delete: a
+     * deleted learner is a mark, not a missing row).
+     */
+    private function participantWithLearner(int $participantId, int $cupId): ?CupParticipant
+    {
+        /** @var CupParticipant|null $participant */
+        $participant = CupParticipant::query()
+            ->leftJoin('learners as xl', 'xl.id', '=', 'cup_participants.learner_id')
+            ->where('cup_participants.id', $participantId)
+            ->where('cup_participants.cup_id', $cupId)
+            ->select('cup_participants.*')
+            ->selectRaw('CASE WHEN xl.id IS NULL OR xl.blocked_at IS NOT NULL OR xl.deleted_at IS NOT NULL THEN 1 ELSE 0 END AS x_learner_blocked')
+            ->first();
+
+        return $participant;
+    }
+
+    /**
+     * The second player of a duel (docs/33 §4.2): `active`, with a successful check of the membership within `stale_ok_hours`, and a
+     * learner neither blocked by the platform nor deleted (the mark of {@see participantWithLearner()}) - the database, never a call to
+     * Telegram about somebody who did not act.
      */
     private function canBeChallenged(CupParticipant $participant, CarbonImmutable $now): bool
     {
-        return $participant->status === CupParticipantStatus::Active
+        return (int) ($participant->getAttribute('x_learner_blocked') ?? 0) === 0
+            && $participant->status === CupParticipantStatus::Active
             && $participant->membership_checked_at !== null
             && $participant->membership_checked_at->gte($now->subHours(max(0, (int) config('cup.membership.stale_ok_hours', 24))));
     }

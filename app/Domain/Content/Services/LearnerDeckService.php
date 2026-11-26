@@ -235,7 +235,7 @@ final class LearnerDeckService
                 // Bulk upserts skip WordTranslationObserver.
                 rescue(fn () => $this->translations->forget(array_keys($changed)));
                 foreach ($lessonsToForget as $lesson) {
-                    $this->cache->forgetLesson($lesson);
+                    $this->cache->forgetLesson($lesson, platform: false); // a learner's deck: never in the pool of the platform
                 }
             });
 
@@ -268,7 +268,7 @@ final class LearnerDeckService
             $word->forceFill(['is_active' => false])->save();
             $this->publisher->recount($deck);
 
-            DB::afterCommit(fn () => $this->cache->forgetLesson($word->lesson()->firstOrFail()));
+            DB::afterCommit(fn () => $this->cache->forgetLessonId((int) $word->lesson_id, platform: false));
         });
     }
 
@@ -306,7 +306,7 @@ final class LearnerDeckService
 
         DB::afterCommit(function () use ($lessons): void {
             foreach ($lessons as $lesson) {
-                $this->cache->forgetLesson($lesson);
+                $this->cache->forgetLesson($lesson, platform: false);
             }
         });
     }

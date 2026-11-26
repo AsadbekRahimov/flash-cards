@@ -327,10 +327,39 @@ describe('CupDuelView: accept', () => {
     expect(route(r)).toBe('/battles/77')
   })
 
-  it('409 cup_duel_rating_changed: "the conditions changed", the new kind, read again; the next "Accept" sends it', async () => {
-    vi.mocked(api.cups.duels.accept).mockRejectedValueOnce(apiError('conflict', 409, 'cup_duel_rating_changed', { rated: false }))
-    const r = await render(toMe({ rated_offered: true }))
-    vi.mocked(api.cups.duels.show).mockResolvedValue(toMe({ rated_offered: false }))
+  /**
+   * A fake of the server's rule (docs/33 §5.7): the acceptance compares `expect_rated` with the kind decided by the slots of today and
+   * refuses a difference with 409 `{rated}`; GET answers the duel as the server has it - `rated_offered` is what the challenger offered
+   * and never changes, `rated_for_me` (absent from an older server) is the kind for this viewer.
+   */
+  function fakeServer(over: { offered: boolean; forMe: boolean; newServer: boolean }) {
+    const duel = (extra: Partial<CupDuel> = {}) =>
+      toMe(over.newServer ? { rated_offered: over.offered, rated_for_me: over.forMe, ...extra } : { rated_offered: over.offered, rated_for_me: undefined, ...extra })
+    vi.mocked(api.cups.duels.show).mockImplementation(async () => duel())
+    vi.mocked(api.cups.duels.accept).mockImplementation(async (_cup: number, _id: number, expectRated: boolean) => {
+      if (expectRated !== over.forMe) throw apiError('conflict', 409, 'cup_duel_rating_changed', { rated: over.forMe })
+      return duel({ status: 'accepted', rated: over.forMe, battle_id: 78 })
+    })
+    return duel
+  }
+
+  it('an open rated challenge, I have played my rated duel today: shown friendly and accepted at the first "Accept" (rated_for_me)', async () => {
+    const duel = fakeServer({ offered: true, forMe: false, newServer: true })
+    const r = await render(duel())
+
+    expect(tid(r, 'duel-kind').text()).toBe('Товарищеская')
+    await click(r, 'accept-btn')
+
+    expect(api.cups.duels.accept).toHaveBeenCalledTimes(1)
+    expect(api.cups.duels.accept).toHaveBeenLastCalledWith(5, 41, false)
+    expect(route(r)).toBe('/battles/78')
+  })
+
+  it('409 cup_duel_rating_changed (the kind changed after the read): "the conditions changed", the new kind, the next "Accept" sends it', async () => {
+    // Read while my slot was free; meanwhile I played my rated duel elsewhere - the server's kind for me is friendly now.
+    const duel = fakeServer({ offered: true, forMe: false, newServer: true })
+    const r = await render(duel({ rated_for_me: true }))
+    expect(tid(r, 'duel-kind').text()).toBe('Зачётная')
 
     await click(r, 'accept-btn')
 
@@ -339,8 +368,26 @@ describe('CupDuelView: accept', () => {
     expect(api.cups.duels.show).toHaveBeenCalledTimes(2)
     expect(route(r)).toBe('/cups/5/duels/41')
 
-    vi.mocked(api.cups.duels.accept).mockResolvedValue(toMe({ status: 'accepted', rated: false, battle_id: 78 }))
     await click(r, 'accept-btn')
+    expect(api.cups.duels.accept).toHaveBeenCalledTimes(2)
+    expect(api.cups.duels.accept).toHaveBeenLastCalledWith(5, 41, false)
+    expect(route(r)).toBe('/battles/78')
+  })
+
+  it('an older server (no rated_for_me): the kind of the 409 is kept through the reads and the poll, so the next "Accept" is not refused again', async () => {
+    const duel = fakeServer({ offered: true, forMe: false, newServer: false })
+    const r = await render(duel())
+    expect(tid(r, 'duel-kind').text()).toBe('Зачётная')
+
+    await click(r, 'accept-btn')
+    expect(tid(r, 'duel-kind').text()).toBe('Товарищеская')
+    // The poll brings back the duel as the old server has it - `rated_offered: true` - and the kind stays the one of the 409.
+    await advance(DUEL_POLL_MS * 2)
+    expect(vi.mocked(api.cups.duels.show).mock.calls.length).toBeGreaterThan(2)
+    expect(tid(r, 'duel-kind').text()).toBe('Товарищеская')
+
+    await click(r, 'accept-btn')
+    expect(api.cups.duels.accept).toHaveBeenCalledTimes(2)
     expect(api.cups.duels.accept).toHaveBeenLastCalledWith(5, 41, false)
     expect(route(r)).toBe('/battles/78')
   })

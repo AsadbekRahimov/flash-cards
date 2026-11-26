@@ -106,7 +106,7 @@ it('asks the key word of a phrase on the typed rung: the phrase masked, the tran
         ->and($types)->not->toContain('spelling');
 });
 
-it('grades the key word with the spelling grader: a typo passes as a typo, the whole phrase or another word fails', function (string $answer, int $quality): void {
+it('grades the key word with the spelling grader: a typo passes as a typo, the whole phrase stands for its key word, another word fails', function (string $answer, int $quality): void {
     [, , $phrases] = PhraseKit::import();
     [$learner] = phxLearner();
     $phrase = collect($phrases)->firstWhere('word', 'no worries');
@@ -122,7 +122,14 @@ it('grades the key word with the spelling grader: a typo passes as a typo, the w
     'exact' => ['worries', 5],
     'case' => ['Worries', 5],
     'a typo' => ['woories', 4],
-    'the whole phrase' => ['no worries', 1],
+    'spaces around and inside, the case' => ['  WORRIES  ', 5],
+    // docs/06 §16: the whole phrase typed is its key word typed - in the training and in the game alike.
+    'the whole phrase' => ['no worries', 5],
+    'the whole phrase, spaces, case and punctuation' => ['  No   Worries! ', 5],
+    'the whole phrase with a typo in the key word' => ['no woories', 4],
+    'the phrase with another key word' => ['no problems', 1],
+    'another context' => ['big worries', 1],
+    'the phrase and more' => ['no worries at all', 1],
     'another word' => ['problems', 1],
 ]);
 

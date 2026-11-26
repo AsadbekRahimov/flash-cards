@@ -114,9 +114,29 @@ export function duelFailure(err: unknown): DuelFailure {
   return duelFailureOf(cup.kind, cup.message, err)
 }
 
-/** The kind of a duel as the screens show it: what the acceptance made of it, or what the challenge offers until then. */
-export function duelRated(duel: Pick<CupDuel, 'rated' | 'rated_offered'>): boolean {
-  return duel.rated ?? duel.rated_offered
+/**
+ * The kind of a duel as the screens show it and "Accept" sends it (`expect_rated`): what the acceptance made of it; until then what an
+ * acceptance by the one who looks would make of it (`rated_for_me`); an older server without it - what the challenge offered.
+ */
+export function duelRated(duel: Pick<CupDuel, 'rated' | 'rated_offered' | 'rated_for_me'>): boolean {
+  return duel.rated ?? duel.rated_for_me ?? duel.rated_offered
+}
+
+/**
+ * The kind the server gave in a 409 `cup_duel_rating_changed {rated}` for a duel, kept apart from the duel read since: a poll of an older
+ * server (without `rated_for_me`) would bring back the kind the challenge offered and make "Accept" send it again - an endless 409. It
+ * holds while the duel stays in the state it had (`status`), and goes once the duel changes.
+ */
+export interface DuelRatedExpectation {
+  duelId: number
+  status: CupDuel['status']
+  rated: boolean
+}
+
+/** The kind to show and to send: the kept answer of a 409 while the duel is as it was, else {@link duelRated}. */
+export function expectedRated(duel: Pick<CupDuel, 'id' | 'status' | 'rated' | 'rated_offered' | 'rated_for_me'>, kept: DuelRatedExpectation | null | undefined): boolean {
+  if (kept !== null && kept !== undefined && kept.duelId === duel.id && kept.status === duel.status && duel.rated === null) return kept.rated
+  return duelRated(duel)
 }
 
 /**
@@ -158,6 +178,7 @@ export function duelOutcomeText(duel: Pick<CupDuel, 'status' | 'end_reason' | 'r
         case 'material':
           return t('cup.duel.outcome.void_material')
         case 'battle_gone':
+        case 'battle_voided':
           return t('cup.duel.outcome.void_battle_gone')
         default:
           return t('cup.duel.outcome.void')

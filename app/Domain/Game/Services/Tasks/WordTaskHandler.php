@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Game\Services\Tasks;
 
+use App\Domain\Content\Support\Phrase;
 use App\Domain\Game\DTO\RunPoolWord;
 use App\Domain\Game\DTO\RunState;
 use App\Domain\Game\DTO\TaskGrade;
@@ -338,6 +339,10 @@ final class WordTaskHandler implements TaskHandler
 
     private function gradeGap(SnapshotElement $element, string $text): Verdict
     {
+        // A phrase answered with the whole phrase: its key word is the answer (docs/06 §16) - as in the training.
+        if ($element->get('phrase') === true) {
+            $text = Phrase::keyWordTyped((string) $element->get('masked'), GapFillBuilder::MASK, $text) ?? $text;
+        }
         $forms = [];
         foreach (is_array($element->get('expected')) ? $element->get('expected') : [] as $form) {
             if (is_string($form)) {

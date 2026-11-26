@@ -127,7 +127,7 @@ final class CoursePublisher
         // would store the old status.
         DB::afterCommit(function () use ($course): void {
             $this->catalog->forgetPublished();
-            $this->catalog->forgetCourseTree($course->id);
+            $this->catalog->forgetCourseTree($course->id, platformPool: $course->owner_type === 'platform');
         });
 
         return $result;
@@ -191,9 +191,11 @@ final class CoursePublisher
         // The importer calls this inside its transaction: forget once that commits. The words of the course moved, so did the
         // word totals of its cached tree (docs/19 K3): every path that changes words ends here.
         $courseId = $course->id;
-        DB::afterCommit(function () use ($courseId): void {
+        // Only a course of the platform may stand in the pool of distractors (Course::scopePublicPlatform()).
+        $platform = $course->owner_type === 'platform';
+        DB::afterCommit(function () use ($courseId, $platform): void {
             $this->catalog->forgetPublished();
-            $this->catalog->forgetCourseTree($courseId);
+            $this->catalog->forgetCourseTree($courseId, platformPool: $platform);
         });
     }
 

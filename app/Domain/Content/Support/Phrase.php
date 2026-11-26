@@ -150,6 +150,35 @@ final class Phrase
     }
 
     /**
+     * The key word of an answer to the gap of a phrase typed as the WHOLE phrase (docs/06 §16): the words of the answer (letters, digits,
+     * apostrophes inside a word; the case, the spaces around and between them and the punctuation do not count) are the words of the
+     * masked phrase with one word standing where the mask is - that word is the answer, graded as if typed alone (a typo in it is a
+     * typo). Null when the answer is not the phrase (a single word, another context): the answer is graded as it is.
+     */
+    public static function keyWordTyped(string $masked, string $mask, string $answer): ?string
+    {
+        $words = static function (string $text) use ($mask): array {
+            $text = mb_strtolower(str_replace(["\u{2019}", "\u{2018}", "\u{02BC}", "\u{00B4}", '`'], "'", $text));
+            preg_match_all('/'.preg_quote($mask, '/')."|[\\p{L}\\p{N}](?:[\\p{L}\\p{N}']*[\\p{L}\\p{N}])?/u", $text, $m);
+
+            return $m[0];
+        };
+        $template = $words($masked);
+        $typed = $words($answer);
+        $at = array_search($mask, $template, true);
+        if (! is_int($at) || count($typed) < 2 || count($typed) !== count($template) || count(array_keys($template, $mask, true)) !== 1) {
+            return null;
+        }
+        foreach ($template as $i => $word) {
+            if ($i !== $at && $word !== $typed[$i]) {
+                return null;
+            }
+        }
+
+        return $typed[$at] === $mask ? null : $typed[$at];
+    }
+
+    /**
      * The block of a card for the client (docs/04 A.3, F3): the kind, the register, UK / US and the literal translation in `$locale` (the
      * ru one when the locale has none). `$withLiteral` false hides the literal: it would give the answer of a choice card away.
      *

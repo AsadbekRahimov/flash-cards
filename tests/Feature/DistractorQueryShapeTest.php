@@ -122,7 +122,7 @@ it('borrows exam distractors only from active words of published public platform
     $method = new ReflectionMethod($builder, 'foreignCandidates');
 
     for ($i = 0; $i < 5; $i++) {
-        $got = array_column($method->invoke($builder, $own->stage->course_id, 40, 'ru'), 'translation');
+        $got = array_column($method->invoke($builder, $own->stage->course_id, false, 40, 'ru'), 'translation');
         sort($got);
         expect($got)->toBe(['pub-0', 'pub-1', 'pub-2', 'pub-3', 'pub-4', 'pub-5']);
     }
@@ -143,7 +143,7 @@ it('gives an empty foreign layer without a words query when the platform has no 
     $method = new ReflectionMethod($builder, 'foreignCandidates');
 
     $queries = QueryLog::during(function () use ($method, $builder, $own, &$result): void {
-        $result = $method->invoke($builder, $own->stage->course_id, 40, 'ru');
+        $result = $method->invoke($builder, $own->stage->course_id, false, 40, 'ru');
     });
 
     expect($result)->toBe([])

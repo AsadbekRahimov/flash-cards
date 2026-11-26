@@ -1698,7 +1698,7 @@ request_id)` — повтор запроса. **CHECK:** вердикт из с�
 unique `open_challenger_id WHERE NOT NULL` («один открытый вызов от участника») и `battle_id WHERE NOT NULL` (одна дуэль на матч, FK);
 частичные `cup_duels_open_expiry_idx (expires_at) WHERE status = 'open'` и `cup_duels_accepted_idx (accepted_at) WHERE status =
 'accepted'` — `cups:sweep-duels`. **CHECK (PG):** статус и причина из списков, форма открытого / принятого / закрытого вызова,
-`challenger ≠ opponent`, очки 0–5.
+`challenger ≠ opponent`, очки 0–5; причина `battle_voided` (матч аннулирован системой) — миграция `2026_11_30_100001` (docs/33 §11.11).
 
 ### 2.84 `cup_duel_slots` — зачётная дуэль дня *(D1, docs/33 §2.9)*
 `cup_id` (копия без FK), `participant_id` (FK CASCADE), `day`, `cup_duel_id` (FK CASCADE), `created_at`. **Индексы:** unique
@@ -1847,7 +1847,8 @@ unique `open_challenger_id WHERE NOT NULL` («один открытый вызо
 97. `2026_11_27_100005_add_broadcast_columns_to_polls_tables` — `poll_deliveries.claimed_at`, `polls.recipient_count` (O3) *(§2.72, §2.74)*
 98. `2026_11_28_100001_create_cups_tables` — `cups`, `cup_participants`, `cup_days`, `cup_day_scores`, `cup_messages`, частичные индексы планировщика, CHECK и fillfactor (PostgreSQL) *(§2.76–§2.80)*
 99. `2026_11_28_100002_create_cup_rounds_tables` — `cup_round_attempts`, `cup_round_answers` *(§2.81–§2.82)*
-100. `2026_11_29_100001_create_cup_duels_tables` — `cup_duels`, `cup_duel_slots`, `battles.cup_duel_id` / `limit_exempt`, частичные индексы, CHECK (PostgreSQL); `down()` сначала обнуляет `battles.cup_duel_id` *(§2.83–§2.84)*
+100. `2026_11_29_100001_create_cup_duels_tables` — `cup_duels`, `cup_duel_slots`, `battles.cup_duel_id` / `limit_exempt`, частичные индексы, CHECK (PostgreSQL); `down()` сначала обнуляет `battles.cup_duel_id` *(§2.83–§2.84)*. Вне транзакции мигратора (`$withinTransaction = false`): таблицы — в своей транзакции; на `battles` (PostgreSQL) колонки без перезаписи, FK `NOT VALID` + отдельный `VALIDATE CONSTRAINT`, частичный unique `CONCURRENTLY`; SQLite — как раньше
+101. `2026_11_30_100001_add_battle_voided_to_cup_duel_end_reasons` — CHECK причин `cup_duels` с `battle_voided` (PostgreSQL; `NOT VALID` + `VALIDATE`); `down()` переводит `battle_voided` в `battle_gone` *(§2.83)*
 
 Миграции игры (59–63) — forward-миграции с рабочим `down()` (обратный порядок таблиц; `down()` 63 сначала снимает FK `game_runs.class_caravan_id`); откат проверяет `DatabaseSchemaTest`.
 

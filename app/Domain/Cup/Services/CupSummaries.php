@@ -87,6 +87,15 @@ final class CupSummaries
         }
 
         $queued = DB::transaction(function () use ($due, $post, $now): int {
+            if ($post !== []) {
+                // The cups this may write FIRST (docs/33 §11.9.2 п. 1: `cups → cup_days`): the cancel and the finish hold the cup and
+                // close its days never built; taken after the row of such a day, the cup made a cycle with them (40P01). `FOR NO KEY
+                // UPDATE` - what the UPDATE below takes anyway; in the order of the ids.
+                $cupIds = array_values(array_unique(array_column($post, 'cup')));
+                sort($cupIds);
+                $lock = DB::table('cups')->whereIn('id', $cupIds)->orderBy('id');
+                (DB::getDriverName() === 'pgsql' ? $lock->lock('for no key update') : $lock)->pluck('id');
+            }
             $dayIds = $due->pluck('day_id')->map(static fn (mixed $id): int => (int) $id)->all();
             $taken = array_map('intval', array_column(DB::select(
                 'UPDATE cup_days SET summary_posted_at = ?, updated_at = ? WHERE id IN ('.self::marks(count($dayIds)).') AND summary_posted_at IS NULL RETURNING id',

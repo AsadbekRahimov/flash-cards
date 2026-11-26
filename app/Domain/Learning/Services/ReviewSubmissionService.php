@@ -451,6 +451,10 @@ final class ReviewSubmissionService
             $gap = $this->gapFill->forCard($word, $example);
             if ($gap !== null) {
                 $expected = $gap->expected;
+                // A phrase answered with the whole phrase: its key word is the answer (docs/06 §16).
+                if (Phrase::isPhraseWord($word)) {
+                    $answer = Phrase::keyWordTyped($gap->masked, GapFillBuilder::MASK, $answer) ?? $answer;
+                }
             }
         }
 
